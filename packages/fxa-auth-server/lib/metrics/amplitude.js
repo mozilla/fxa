@@ -81,6 +81,7 @@ const EMAIL_TYPES = {
   passwordChangedEmail: 'change_password',
   passwordResetEmail: 'reset_password',
   passwordResetRequiredEmail: 'reset_password',
+  postChangePrimaryEmail: 'change_email',
   postRemoveSecondaryEmail: 'secondary_email',
   postVerifyEmail: 'registration',
   postVerifySecondaryEmail: 'secondary_email',

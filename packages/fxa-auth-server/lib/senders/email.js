@@ -30,6 +30,7 @@ module.exports = function (log) {
     'passwordResetEmail': 'password-reset-success',
     'postRemoveSecondaryEmail': 'account-email-removed',
     'postVerifyEmail': 'account-verified',
+    'postChangePrimaryEmail': 'account-email-changed',
     'postVerifySecondaryEmail': 'account-email-verified',
     'recoveryEmail': 'forgot-password',
     'unblockCode': 'new-unblock',
@@ -52,6 +53,7 @@ module.exports = function (log) {
     'passwordResetRequiredEmail': 'password-reset',
     'postRemoveSecondaryEmail': 'account-email-removed',
     'postVerifyEmail': 'connect-device',
+    'postChangePrimaryEmail': 'account-email-changed',
     'postVerifySecondaryEmail': 'manage-account',
     'recoveryEmail': 'reset-password',
     'unblockCode': 'unblock-code',
@@ -774,6 +776,38 @@ module.exports = function (log) {
         passwordChangeLink: links.passwordChangeLink,
         supportUrl: links.supportUrl,
         secondaryEmail: message.secondaryEmail,
+        supportLinkAttributes: links.supportLinkAttributes
+      }
+    }))
+  }
+
+  Mailer.prototype.postChangePrimaryEmail = function (message) {
+    log.trace({ op: 'mailer.postChangePrimaryEmail', email: message.email, uid: message.uid })
+
+    var templateName = 'postChangePrimaryEmail'
+    var links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+
+    var headers = {
+      'X-Link': links.link
+    }
+
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
+    return this.send(Object.assign({}, message, {
+      headers,
+      subject: gettext('Firefox Account new primary email'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
         supportLinkAttributes: links.supportLinkAttributes
       }
     }))

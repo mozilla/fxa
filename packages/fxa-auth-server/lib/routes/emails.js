@@ -785,6 +785,14 @@ module.exports = (log, db, mailer, config, customs, push) => {
                 uid,
                 email: email
               })
+
+              return db.account(uid)
+            })
+            .then((account) => {
+              mailer.sendPostChangePrimaryEmail(account.emails, account, {
+                acceptLanguage: request.app.acceptLanguage,
+                uid
+              })
             })
         }
       }

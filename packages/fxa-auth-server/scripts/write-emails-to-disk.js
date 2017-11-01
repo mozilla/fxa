@@ -111,7 +111,7 @@ function sendMail(mailer, messageToSend) {
     timeZone: 'Europe/Madrid',
     type: messageSubType,
     uaBrowser: 'Firefox',
-    uaBrowserVersion: '51',
+    uaBrowserVersion: '57',
     uaOS: 'Mac OSX',
     uaOSVersion: '10.11',
     unblockCode: '1ILO0Z5P',

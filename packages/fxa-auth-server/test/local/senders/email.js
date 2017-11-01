@@ -28,6 +28,7 @@ const messageTypes = [
   'passwordChangedEmail',
   'passwordResetEmail',
   'passwordResetRequiredEmail',
+  'postChangePrimaryEmail',
   'postVerifyEmail',
   'postVerifySecondaryEmail',
   'recoveryEmail',
@@ -43,6 +44,7 @@ const typesContainSupportLinks = [
   'newDeviceLoginEmail',
   'passwordChangedEmail',
   'passwordResetEmail',
+  'postChangePrimaryEmail',
   'postRemoveSecondaryEmail',
   'postVerifyEmail',
   'recoveryEmail',
@@ -62,6 +64,7 @@ const typesContainPasswordChangeLinks = [
   'newDeviceLoginEmail',
   'verifyLoginEmail',
   'verifyPrimaryEmail',
+  'postChangePrimaryEmail',
   'postVerifySecondaryEmail'
 ]
 

@@ -111,6 +111,13 @@ describe('remote change email', function () {
           assert.equal(res[1].email, email, 'returns correct email')
           assert.equal(res[1].isPrimary, false, 'returns correct isPrimary')
           assert.equal(res[1].verified, true, 'returns correct verified')
+
+          return server.mailbox.waitForEmail(secondEmail)
+        })
+        .then((emailData) => {
+          assert.equal(emailData.headers['to'], secondEmail, 'to email set')
+          assert.equal(emailData.headers['cc'], email, 'cc emails set')
+          assert.equal(emailData.headers['x-template-name'], 'postChangePrimaryEmail', 'returns correct template')
         })
     })
 
@@ -163,6 +170,13 @@ describe('remote change email', function () {
       return client.setPrimaryEmail(secondEmail)
         .then((res) => {
           assert.ok(res, 'ok response')
+          return server.mailbox.waitForEmail(secondEmail)
+        })
+        .then((emailData) => {
+          assert.equal(emailData.headers['to'], secondEmail, 'to email set')
+          assert.equal(emailData.headers['cc'], email, 'cc emails set')
+          assert.equal(emailData.headers['x-template-name'], 'postChangePrimaryEmail', 'returns correct template')
+
           client.email = secondEmail
           return client.forgotPassword()
         })
@@ -205,6 +219,12 @@ describe('remote change email', function () {
       return client.setPrimaryEmail(secondEmail)
         .then((res) => {
           assert.ok(res, 'ok response')
+          return server.mailbox.waitForEmail(secondEmail)
+        })
+        .then((emailData) => {
+          assert.equal(emailData.headers['to'], secondEmail, 'to email set')
+          assert.equal(emailData.headers['cc'], email, 'cc emails set')
+          assert.equal(emailData.headers['x-template-name'], 'postChangePrimaryEmail', 'returns correct template')
           return client.deleteEmail(email)
         })
         .then((res) => {

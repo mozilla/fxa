@@ -63,6 +63,7 @@ module.exports = {
       'password_changed',
       'password_reset',
       'password_reset_required',
+      'post_change_primary',
       'post_remove_secondary',
       'post_verify',
       'post_verify_secondary',

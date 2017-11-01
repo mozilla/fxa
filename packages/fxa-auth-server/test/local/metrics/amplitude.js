@@ -617,6 +617,40 @@ describe('metrics/amplitude', () => {
       })
     })
 
+    describe('email.postChangePrimaryEmail.bounced', () => {
+      beforeEach(() => {
+        return amplitude('email.postChangePrimaryEmail.bounced', mocks.mockRequest({}))
+      })
+
+      it('did not call log.error', () => {
+        assert.equal(log.error.callCount, 0)
+      })
+
+      it('called log.amplitudeEvent correctly', () => {
+        assert.equal(log.amplitudeEvent.callCount, 1)
+        const args = log.amplitudeEvent.args[0]
+        assert.equal(args[0].event_type, 'fxa_email - bounced')
+        assert.equal(args[0].event_properties.email_type, 'change_email')
+      })
+    })
+
+    describe('email.postChangePrimaryEmail.sent', () => {
+      beforeEach(() => {
+        return amplitude('email.postChangePrimaryEmail.sent', mocks.mockRequest({}))
+      })
+
+      it('did not call log.error', () => {
+        assert.equal(log.error.callCount, 0)
+      })
+
+      it('called log.amplitudeEvent correctly', () => {
+        assert.equal(log.amplitudeEvent.callCount, 1)
+        const args = log.amplitudeEvent.args[0]
+        assert.equal(args[0].event_type, 'fxa_email - sent')
+        assert.equal(args[0].event_properties.email_type, 'change_email')
+      })
+    })
+
     describe('email.postVerifyEmail.bounced', () => {
       beforeEach(() => {
         return amplitude('email.postVerifyEmail.bounced', mocks.mockRequest({}))

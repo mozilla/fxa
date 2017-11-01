@@ -235,6 +235,20 @@ module.exports = (log, config, error, bounces, translator, sender) => {
             }))
           })
       },
+      sendPostChangePrimaryEmail: function (emails, account, opts) {
+        return getSafeMailerWithEmails(emails)
+          .then(function (result) {
+            const mailer = result.ungatedMailer
+            const primaryEmail = result.ungatedPrimaryEmail
+            const ccEmails = result.ungatedCcEmails
+
+            return mailer.postChangePrimaryEmail(Object.assign({}, opts, {
+              acceptLanguage: opts.acceptLanguage || defaultLanguage,
+              ccEmails,
+              email: primaryEmail
+            }))
+          })
+      },
       sendUnblockCode: function (emails, account, opts) {
         return getSafeMailerWithEmails(emails)
           .then(function (result) {

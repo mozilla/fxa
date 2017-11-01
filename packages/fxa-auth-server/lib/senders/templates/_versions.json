@@ -3,6 +3,7 @@
   "passwordChangedEmail": 1,
   "passwordResetEmail": 1,
   "passwordResetRequiredEmail": 1,
+  "postChangePrimaryEmail": 1,
   "postRemoveSecondaryEmail": 1,
   "postVerifyEmail": 1,
   "postVerifySecondaryEmail": 1,
