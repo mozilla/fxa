@@ -1,3 +1,13 @@
+<a name="1.99.1"></a>
+## 1.99.1 (2017-11-01)
+
+
+### Bug Fixes
+
+* **emails:** account for post change email being sent ([28fa709](https://github.com/mozilla/fxa-content-server/commit/28fa709))
+
+
+
 <a name="1.99.0"></a>
 # 1.99.0 (2017-11-01)
 
