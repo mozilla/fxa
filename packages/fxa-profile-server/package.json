@@ -4,7 +4,7 @@
   "private": true,
   "description": "Firefox Accounts Profile service.",
   "scripts": {
-    "outdated": "npm outdated --depth 0",
+    "outdated": "npm outdated --depth 0 || exit 0",
     "preinstall": "./scripts/check_gm.sh",
     "shrink": "npmshrink",
     "start": "scripts/run_dev.js",
@@ -50,6 +50,7 @@
     "insist": "1.0.0",
     "load-grunt-tasks": "3.5.0",
     "mkdirp": "0.5.1",
+    "mocha": "4.0.1",
     "mocha-text-cov": "0.1.1",
     "nock": "8.0.0",
     "npmshrink": "1.0.1",
