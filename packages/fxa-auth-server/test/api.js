@@ -821,8 +821,8 @@ describe('/v1', function() {
 
       it('should return the key bundle in PKCE flow', () => {
         const keys_jwe = 'MjU2R0NNIn0..8L7QykCJ5W-YZtbx.Q_8JFsdWXFNg37PCqZA_JJb4BvqAuh3UMyNE.bSOKJkZspycp9DcGRWtH6g';
-        const code_verifier = 'ywZ_yiNpe-UoGYW.oW95hTjRZ8j_d2kF';
-        const code_challenge = 'iyW5ScKr22v_QL-rcW_EGlJrDSOymJvrlXlw4j7JBiQ';
+        const code_verifier = 'WLjNEANMbRNUSG0uQsUZMQGgIL5FUknGz2jRipY79ZC';
+        const code_challenge = 'SWac3rF5sKcyAtsXGMO9feaKqpzgCoA2zowbi20F_0c';
         const secret2 = unique.secret();
         const client2 = {
           name: 'client2Public',
@@ -1070,9 +1070,9 @@ describe('/v1', function() {
 
 
         it('consumes code via public client (PKCE)', function() {
-          var code_verifier = 'ywZ_yiNpe-UoGYW.oW95hTjRZ8j_d2kF';
-          var code_verifier_bad = 'zwZ_yiNpe-UoGYW.oW95hTjRZ8j_d2kC';
-          var code_challenge = 'iyW5ScKr22v_QL-rcW_EGlJrDSOymJvrlXlw4j7JBiQ';
+          var code_verifier = 'WFX-9dPwcpPIXt8c5Pbx09_Z61zPm1Fjwv89lVrukOh';
+          var code_verifier_bad = 'QnuuNM5gfnJmWwIjiOKk2SKn8A89tph3-8BjNUUtooJ';
+          var code_challenge = 'xWVKKAQVD9XSXT4Z4Oh8dLJ5pqrr0gQes2QwZOVJyAk';
           var secret2 = unique.secret();
           var oauth_code;
           var client2 = {

@@ -7,6 +7,7 @@ const Joi = require('joi');
 const config = require('./config');
 
 exports.HEX_STRING = /^(?:[0-9a-f]{2})+$/;
+exports.B64URL_STRING = /^[A-Za-z0-9-_]+$/;
 
 exports.clientId = Joi.string()
   .length(config.get('unique.id') * 2) // hex = bytes*2
@@ -19,7 +20,9 @@ exports.clientSecret = Joi.string()
   .required();
 
 exports.codeVerifier = Joi.string()
-  .length(32); // https://tools.ietf.org/html/rfc7636#section-4.1
+  .min(43)
+  .max(128)
+  .regex(exports.B64URL_STRING); // https://tools.ietf.org/html/rfc7636#section-4.1
 
 exports.token = Joi.string()
   .length(config.get('unique.token') * 2)
