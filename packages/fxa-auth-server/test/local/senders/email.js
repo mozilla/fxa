@@ -548,6 +548,15 @@ describe(
               mailer[type](reminderMessage)
             }
           )
+        } else if (type === 'verifyPrimaryEmail') {
+          it('test verify token email', () => {
+            mailer.mailer.sendMail = (emailConfig) => {
+              const verifyPrimaryEmailUrl = config.get('smtp').verifyPrimaryEmailUrl
+              assert.ok(emailConfig.html.indexOf(verifyPrimaryEmailUrl) > 0)
+              assert.ok(emailConfig.text.indexOf(verifyPrimaryEmailUrl) > 0)
+            }
+            mailer[type](message)
+          })
         }
       }
     )

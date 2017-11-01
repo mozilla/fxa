@@ -148,6 +148,7 @@ module.exports = function (log) {
     this.verificationUrl = config.verificationUrl
     this.verifyLoginUrl = config.verifyLoginUrl
     this.verifySecondaryEmailUrl = config.verifySecondaryEmailUrl
+    this.verifyPrimaryEmailUrl = config.verifyPrimaryEmailUrl
   }
 
   Mailer.prototype.stop = function () {
@@ -470,14 +471,16 @@ module.exports = function (log) {
     const templateName = 'verifyPrimaryEmail'
     const query = {
       code: message.code,
-      uid: message.uid
+      uid: message.uid,
+      type: 'primary',
+      primary_email_verified: message.email
     }
 
     if (message.service) { query.service = message.service }
     if (message.redirectTo) { query.redirectTo = message.redirectTo }
     if (message.resume) { query.resume = message.resume }
 
-    const links = this._generateLinks(this.verifyLoginUrl, message.email, query, templateName)
+    const links = this._generateLinks(this.verifyPrimaryEmailUrl, message.email, query, templateName)
 
     const headers = {
       'X-Link': links.link,
