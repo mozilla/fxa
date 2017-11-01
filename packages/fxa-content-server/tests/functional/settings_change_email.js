@@ -144,7 +144,7 @@ define([
         // reset password
         .then(fillOutResetPassword(secondaryEmail))
         .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
-        .then(openVerificationLinkInNewTab(secondaryEmail, 1))
+        .then(openVerificationLinkInNewTab(secondaryEmail, 2))
 
         // complete the reset password in the new tab
         .then(switchToWindow(1))
