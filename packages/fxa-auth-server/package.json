@@ -6,7 +6,7 @@
   "scripts": {
     "start": "grunt server --node-env=dev",
     "test": "NODE_ENV=test scripts/test-local.sh",
-    "outdated": "npm outdated --depth 0",
+    "outdated": "npm outdated --depth 0 || exit 0",
     "postinstall": "node scripts/gen_keys",
     "shrink": "npmshrink"
   },
