@@ -127,11 +127,11 @@ const EVENT_PROPERTIES = {
 };
 
 const USER_PROPERTIES = {
-  [GROUPS.email]: NOP,
-  [GROUPS.login]: mapUtmProperties,
-  [GROUPS.registration]: mapUtmProperties,
+  [GROUPS.email]: mapFlowId,
+  [GROUPS.login]: mixProperties(mapFlowId, mapUtmProperties),
+  [GROUPS.registration]: mixProperties(mapFlowId, mapUtmProperties),
   [GROUPS.settings]: mapNewsletterState,
-  [GROUPS.sms]: NOP
+  [GROUPS.sms]: mapFlowId
 };
 
 module.exports = receiveEvent;
@@ -202,7 +202,7 @@ function mapEventProperties (group, event, eventCategory, data) {
 
 function mapUserProperties (group, eventCategory, data, userAgent) {
   return Object.assign(
-    { flow_id: marshallOptionalValue(data.flowId), },
+    {},
     mapBrowser(userAgent),
     mapExperiments(data),
     USER_PROPERTIES[group](eventCategory, data)
@@ -311,6 +311,13 @@ function mapService (event, eventCategory, data) {
   const service = marshallOptionalValue(data.service);
   if (service) {
     return { service: SERVICES[service] || service };
+  }
+}
+
+function mapFlowId (eventCategory, data) {
+  const flow_id = marshallOptionalValue(data.flowId);
+  if (flow_id) {
+    return { flow_id };
   }
 }
 

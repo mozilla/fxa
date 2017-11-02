@@ -176,7 +176,6 @@ define([
           time: 'a',
           user_id: 'h',
           user_properties: {
-            flow_id: 'e',
             ua_browser: 'Mobile Safari',
             ua_version: '6'
           }
