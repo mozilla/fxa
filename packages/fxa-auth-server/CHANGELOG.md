@@ -1,3 +1,13 @@
+<a name="1.99.1"></a>
+## [1.99.1](https://github.com/mozilla/fxa-auth-server/compare/v1.99.0...v1.99.1) (2017-11-02)
+
+
+### Bug Fixes
+
+* **logging:** don't log errors if location is not set (#2200) ([ddb3bc9](https://github.com/mozilla/fxa-auth-server/commit/ddb3bc9))
+
+
+
 <a name="1.99.0"></a>
 # [1.99.0](https://github.com/mozilla/fxa-auth-server/compare/v1.98.2...v1.99.0) (2017-10-31)
 

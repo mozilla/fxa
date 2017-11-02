@@ -68,6 +68,11 @@ module.exports = (log, db, config, customs, push, devices) => {
   function marshallLocation (location, request) {
     let language
 
+    if (! location) {
+      // Shortcut the error logging if location isn't set
+      return {}
+    }
+
     try {
       const languages = i18n.parseAcceptLanguage(request.app.acceptLanguage)
       language = i18n.bestLanguage(languages, supportedLanguages, defaultLanguage)

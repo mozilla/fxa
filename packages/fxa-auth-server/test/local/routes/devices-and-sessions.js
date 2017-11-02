@@ -597,9 +597,11 @@ describe('/account/devices', () => {
       ]
     })
     const mockDevices = mocks.mockDevices()
+    const log = mocks.mockLog()
     const accountRoutes = makeRoutes({
       db: mockDB,
-      devices: mockDevices
+      devices: mockDevices,
+      log
     })
     const route = getRoute(accountRoutes, '/account/devices')
 
@@ -645,6 +647,8 @@ describe('/account/devices', () => {
       assert.equal(response[3].lastAccessTimeFormatted, moment(EARLIEST_SANE_TIMESTAMP).locale('fr').fromNow())
       assert.equal(response[3].approximateLastAccessTime, undefined)
       assert.equal(response[3].approximateLastAccessTimeFormatted, undefined)
+
+      assert.equal(log.error.callCount, 0, 'log.error was not called')
 
       assert.equal(mockDB.devices.callCount, 1, 'db.devices was called once')
       assert.equal(mockDB.devices.args[0].length, 1, 'db.devices was passed one argument')
