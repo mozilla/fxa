@@ -83,7 +83,7 @@ module.exports = function (log) {
   function linkAttributes(url) {
     // Not very nice to have presentation code in here, but this is to help l10n
     // contributors not deal with extraneous noise in strings.
-    return 'href="' + url + '" style="color: #0095dd; text-decoration: none; font-family: sans-serif;"'
+    return 'href="' + url + '" style="color: #0a84ff; text-decoration: none; font-family: sans-serif;"'
   }
 
   function constructLocalTimeString (timeZone, locale) {
