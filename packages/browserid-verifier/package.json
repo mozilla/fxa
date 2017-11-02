@@ -12,7 +12,7 @@
   "bugs": "https://github.com/mozilla/browserid-verifier/issues/",
   "main": "lib/server.js",
   "engines": {
-    "node": ">=4"
+    "node": ">=6"
   },
   "dependencies": {
     "async": "2.0.1",
