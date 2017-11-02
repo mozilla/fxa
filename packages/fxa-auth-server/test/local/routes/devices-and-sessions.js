@@ -554,9 +554,9 @@ describe('/account/device/destroy', function () {
 })
 
 describe('/account/devices', () => {
-  it('should return the devices list', () => {
+  it('should return the devices list (translated)', () => {
     const mockRequest = mocks.mockRequest({
-      acceptLanguage: 'fr,en',
+      acceptLanguage: 'en;q=0.5, fr;q=0.51',
       credentials: {
         uid: crypto.randomBytes(16).toString('hex'),
         id: crypto.randomBytes(16).toString('hex')
@@ -653,6 +653,49 @@ describe('/account/devices', () => {
       assert.equal(mockDevices.synthesizeName.callCount, 1, 'mockDevices.synthesizeName was called once')
       assert.equal(mockDevices.synthesizeName.args[0].length, 1, 'mockDevices.synthesizeName was passed one argument')
       assert.equal(mockDevices.synthesizeName.args[0][0], unnamedDevice, 'mockDevices.synthesizeName was passed unnamed device')
+    })
+  })
+
+  it('should return the devices list (not translated)', () => {
+    const request = mocks.mockRequest({
+      acceptLanguage: 'en-US,en;q=0.5',
+      credentials: {
+        uid: crypto.randomBytes(16).toString('hex'),
+        id: crypto.randomBytes(16).toString('hex')
+      },
+      payload: {}
+    })
+    const db = mocks.mockDB({
+      devices: [
+        {
+          name: 'wibble',
+          sessionToken: request.auth.credentials.id,
+          lastAccessTime: Date.now(),
+          location: {
+            city: 'Bournemouth',
+            state: 'England',
+            stateCode: 'EN',
+            country: 'United Kingdom',
+            countryCode: 'GB'
+          }
+        }
+      ]
+    })
+    const devices = mocks.mockDevices()
+    const log = mocks.mockLog()
+    const accountRoutes = makeRoutes({ db, devices, log })
+    const route = getRoute(accountRoutes, '/account/devices')
+
+    return runTest(route, request, response => {
+      assert.equal(response.length, 1)
+      assert.equal(response[0].name, 'wibble')
+      assert.deepEqual(response[0].location, {
+        city: 'Bournemouth',
+        country: 'United Kingdom',
+        state: 'England',
+        stateCode: 'EN'
+      })
+      assert.equal(log.error.callCount, 0, 'log.error was not called')
     })
   })
 
