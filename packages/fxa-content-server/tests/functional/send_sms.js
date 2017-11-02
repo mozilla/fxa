@@ -172,14 +172,6 @@
         .then(testElementExists(selectors.SMS_SEND.HEADER));
      },
 
-     'maybe later': function () {
-       return this.remote
-         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
-         .then(click(selectors.SMS_SEND.LINK_MAYBE_LATER))
-
-         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
-     },
-
      'empty phone number': function () {
        return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))

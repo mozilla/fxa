@@ -230,7 +230,6 @@ define([], function () {
       LINK_MARKETING: '.marketing-link',
       LINK_MARKETING_ANDROID: '.marketing-link-android',
       LINK_MARKETING_IOS: '.marketing-link-ios',
-      LINK_MAYBE_LATER: 'a[href="/connect_another_device"]',
       LINK_WHY_IS_THIS_REQUIRED: 'a[href="/sms/why"]',
       PHONE_NUMBER: 'input[type="tel"]',
       PHONE_NUMBER_TOOLTIP: 'input[type="tel"] ~ .tooltip',
