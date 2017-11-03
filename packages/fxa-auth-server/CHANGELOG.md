@@ -1,3 +1,17 @@
+<a name="1.99.2"></a>
+## [1.99.2](https://github.com/mozilla/fxa-auth-server/compare/v1.99.1...v1.99.2) (2017-11-03)
+
+
+### Bug Fixes
+
+* **emails:** add post change email template (#2194), r=@philbooth ([f3261a6](https://github.com/mozilla/fxa-auth-server/commit/f3261a6))
+* **links:** use a custom url when verifying primary email (#2196), r=@vladikoff ([e6da576](https://github.com/mozilla/fxa-auth-server/commit/e6da576))
+* **logo:** fix FF57 logo width and height (#2204) r=@ryanfeeley ([9f74735](https://github.com/mozilla/fxa-auth-server/commit/9f74735)), closes [#2204](https://github.com/mozilla/fxa-auth-server/issues/2204) [#2203](https://github.com/mozilla/fxa-auth-server/issues/2203)
+* **tests:** add local test coverage for english device locations (#2201), r=@vbudhram ([686c3eb](https://github.com/mozilla/fxa-auth-server/commit/686c3eb))
+* **travis:** run tests with 6 and 8 (#2195); r=rfk ([d6910cd](https://github.com/mozilla/fxa-auth-server/commit/d6910cd))
+
+
+
 <a name="1.99.1"></a>
 ## [1.99.1](https://github.com/mozilla/fxa-auth-server/compare/v1.99.0...v1.99.1) (2017-11-02)
 
