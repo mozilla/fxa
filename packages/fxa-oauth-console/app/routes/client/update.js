@@ -7,8 +7,9 @@ import AuthenticatedRouteMixin from 'ember-simple-auth/mixins/authenticated-rout
 
 export default Ember.Route.extend(AuthenticatedRouteMixin, {
   actions: {
-    update: function(model) {
+    update: function() {
       var self = this;
+      var model = this.controllerFor('client.update').get('model');
 
       return model.save().then(function () {
         self.transitionTo('client.index', model.id);

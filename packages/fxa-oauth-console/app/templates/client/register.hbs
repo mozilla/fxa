@@ -1,4 +1,4 @@
-<form class="form-horizontal" role="form">
+<form class="form-horizontal" role="form" {{action 'create' on="submit"}}>
 <fieldset>
   {{#if model.name}}
     <legend>Client: {{model.name}}</legend>
@@ -15,10 +15,11 @@
   {{partial 'client/form'}}
 
 </fieldset>
-</form>
+
 {{#unless model.secret}}
 <div class="btn-group">
+  <button type="submit" class="button success register-create">Create</button>
   <button class="button alert register-cancel" {{action 'cancel' this}}>Cancel</button>
-  <button class="button success register-create" {{action 'create' this}}>Create</button>
 </div>
 {{/unless}}
+</form>

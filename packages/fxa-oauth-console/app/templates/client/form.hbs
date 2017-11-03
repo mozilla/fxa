@@ -1,11 +1,11 @@
 {{#unless registrationSuccess}}
   <div class="form-group">
     <label for="inputTitle">Client Name</label>
-    {{input value=model.name id="inputTitle"}}
+    {{input value=model.name id="inputTitle" required="required"}}
   </div>
   <div class="form-group">
     <label for="inputRedirect">Redirect URI</label>
-    {{input value=model.redirect_uri id="inputRedirect"}}
+    {{input value=model.redirect_uri id="inputRedirect" required="required"}}
   </div>
 {{/unless}}
 
