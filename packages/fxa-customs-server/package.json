@@ -14,7 +14,7 @@
   "scripts": {
     "nsp": "grunt nsp",
     "outdated": "npm outdated --depth 0",
-    "shrinkwrap": "npmshrink",
+    "shrink": "npmshrink",
     "start": "node bin/customs_server.js",
     "test": "scripts/test-local.sh"
   },
