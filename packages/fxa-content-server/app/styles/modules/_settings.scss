@@ -696,7 +696,14 @@ section.modal-panel {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      width: calc(95% - 95px);
+
+      @media screen and (min-width: 400px) {
+        width: calc(95% - 95px);
+      }
+
+      @media screen and (max-width: 400px) {
+        width: 100%;
+      }
     }
 
     .details {
@@ -713,14 +720,6 @@ section.modal-panel {
 
       & .verified {
         color: $color-green;
-      }
-    }
-
-    @media screen and (max-width: 400px) {
-      .settings-button-group {
-        /*!important is used here because on small screens these options are displayed*/
-        /*in another area of the panel. They are to the right of the email.*/
-        display: none !important;
       }
     }
 
@@ -745,14 +744,10 @@ section.modal-panel {
         text-align: center;
         width: 20%;
       }
-    }
-  }
 
-  @media screen and (min-width: 400px) {
-    .email-options {
-      /*!important is used here because on large screens these options are not displayed.*/
-      /*They sit below the email address.*/
-      display: none !important;
+      @media screen and (max-width: 400px) {
+        display: none;
+      }
     }
   }
 
@@ -794,6 +789,10 @@ section.modal-panel {
           margin-right: 10px;
         }
       }
+    }
+
+    @media screen and (min-width: 400px) {
+      display: none;
     }
   }
 }
