@@ -1,3 +1,13 @@
+<a name"1.99.0"></a>
+## 1.99.0 (2017-11-03)
+
+
+#### Bug Fixes
+
+* **pkce:** match pkce implementation to specifications (#498) r=rfk ([cf1c836b](https://github.com/mozilla/fxa-oauth-server/commit/cf1c836b), closes [#495](https://github.com/mozilla/fxa-oauth-server/issues/495))
+* **travis:** run tests with 6 and 8 (#497) r=vladikoff ([a49b2727](https://github.com/mozilla/fxa-oauth-server/commit/a49b2727))
+
+
 <a name"1.98.1"></a>
 ### 1.98.1 (2017-10-26)
 
