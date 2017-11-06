@@ -36,9 +36,11 @@
   },
   "devDependencies": {
     "eslint-config-fxa": "2.1.0",
+    "fxa-conventional-changelog": "1.1.0",
     "grunt": "1.0.1",
     "grunt-bump": "0.8.0",
     "grunt-cli": "1.2.0",
+    "grunt-conventional-changelog": "3.0.0",
     "grunt-copyright": "0.3.0",
     "grunt-eslint": "18.0.0",
     "grunt-nsp": "2.3.1",

@@ -21,11 +21,13 @@ module.exports = function (grunt) {
 
   grunt.registerTask('version', [
     'bump-only:minor',
+    'conventionalChangelog',
     'bump-commit'
   ])
 
   grunt.registerTask('version:patch', [
     'bump-only:patch',
+    'conventionalChangelog',
     'bump-commit'
   ])
 }
