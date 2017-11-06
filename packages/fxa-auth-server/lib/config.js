@@ -339,6 +339,12 @@ const conf = convict({
     doc: 'Hapi: a string with the value of the "Cache-Control" header when caching is disabled',
     format: String,
     default: 'private, no-cache, no-store, must-revalidate'
+  },
+  sentryDsn: {
+    doc: 'Sentry DSN for error and log reporting',
+    default: '',
+    format: 'String',
+    env: 'SENTRY_DSN'
   }
 });
 

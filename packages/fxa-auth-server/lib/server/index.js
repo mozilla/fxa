@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Hapi = require('hapi');
+const Raven = require('raven');
 
 const AppError = require('../error');
 const authBearer = require('../auth_bearer');
@@ -101,6 +102,28 @@ exports.create = function createServer() {
       }
     }
   });
+
+  // configure Sentry
+  const sentryDsn = config.sentryDsn;
+  if (sentryDsn) {
+    Raven.config(sentryDsn, {});
+    server.on('request-error', function (request, err) {
+      let exception = '';
+      if (err && err.stack) {
+        try {
+          exception = err.stack.split('\n')[0];
+        } catch (e) {
+          // ignore bad stack frames
+        }
+      }
+
+      Raven.captureException(err, {
+        extra: {
+          exception: exception
+        }
+      });
+    });
+  }
 
   server.ext('onPreResponse', function onPreResponse(request, next) {
     var response = request.response;

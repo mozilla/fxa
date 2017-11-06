@@ -39,6 +39,7 @@
     "mysql": "^2.5.5",
     "mysql-patcher": "^0.7.0",
     "newrelic": "2.2.2",
+    "raven": "2.2.1",
     "request": "^2.83.0",
     "urijs": "^1.16.1"
   },
