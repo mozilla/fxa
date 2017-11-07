@@ -614,6 +614,7 @@ define(function (require, exports, module) {
             assert.ok(view.$('.avatar-view').length, 'should show suggested avatar');
             assert.notOk(view.$('.password').length, 'should not show password input');
             assert.isTrue(isEventLogged(metrics, 'signin.ask-password.skipped'));
+            assert.ok(view.$('.use-logged-in').attr('autofocus'), 'should autofocus when password is not required');
           });
       });
 
