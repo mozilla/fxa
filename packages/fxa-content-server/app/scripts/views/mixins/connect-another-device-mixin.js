@@ -121,6 +121,13 @@ define((require, exports, module) => {
           const type = this.model.get('type');
           const group = this.getExperimentGroup('sendSms', { account, country });
 
+          if (ok && ! group) {
+            // Auth server said "OK" but user was not selected
+            // for the experiment, this mode is not logged in
+            // `_areSmsRequirementsMet`
+            this.logFlowEvent(REASON_NOT_IN_EXPERIMENT);
+          }
+
           if (ok && group) {
             // User is eligible and a member of the experiment.
             this.createExperiment('sendSms', group);
@@ -183,8 +190,6 @@ define((require, exports, module) => {
         // If a user is already signed in to Sync which is different to the
         // user that just verified, show them the old "Account verified!" screen.
         reason = REASON_OTHER_USER_SIGNED_IN;
-      } else if (! this.isInExperiment('sendSms', { account })) {
-        reason = REASON_NOT_IN_EXPERIMENT;
       }
 
       if (reason) {
