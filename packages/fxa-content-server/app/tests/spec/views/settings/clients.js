@@ -508,7 +508,7 @@ define(function (require, exports, module) {
           .then(() => {
             view.translator = {
               get: (untranslatedText) => {
-                if (untranslatedText === 'last sync %(translatedTimeAgo)s') {
+                if (untranslatedText === 'Last sync %(translatedTimeAgo)s') {
                   return 'Translated %(translatedTimeAgo)s';
                 }
 
@@ -543,6 +543,11 @@ define(function (require, exports, module) {
                 isDevice: true,
                 lastAccessTime: now,
                 lastAccessTimeFormatted: '32 minutes ago',
+                location: {
+                  city: 'Bournemouth',
+                  country: 'United Kingdom',
+                  stateCode: 'EN'
+                },
                 type: 'desktop'
               },
               {
@@ -554,6 +559,10 @@ define(function (require, exports, module) {
                 isDevice: true,
                 lastAccessTime: now - 1,
                 lastAccessTimeFormatted: '2 days ago',
+                location: {
+                  city: 'Bournemouth',
+                  country: 'United Kingdom'
+                },
                 type: 'mobile'
               },
               {
@@ -565,6 +574,10 @@ define(function (require, exports, module) {
                 isDevice: true,
                 lastAccessTime: now,
                 lastAccessTimeFormatted: '4 months ago',
+                location: {
+                  country: 'United Kingdom',
+                  stateCode: 'EN'
+                },
                 type: 'mobile'
               },
               {
@@ -573,7 +586,11 @@ define(function (require, exports, module) {
                 id: 'session-1',
                 isWebSession: true,
                 lastAccessTime: now,
-                lastAccessTimeFormatted: '1 day ago'
+                lastAccessTimeFormatted: '1 day ago',
+                location: {
+                  city: 'Bournemouth',
+                  stateCode: 'EN'
+                }
               },
               {
                 approximateLastAccessTime: now,
@@ -582,6 +599,9 @@ define(function (require, exports, module) {
                 isWebSession: true,
                 lastAccessTime: now - 1,
                 lastAccessTimeFormatted: '4 months ago',
+                location: {
+                  country: 'United Kingdom'
+                }
               },
               {
                 approximateLastAccessTime: now,
@@ -590,6 +610,7 @@ define(function (require, exports, module) {
                 isWebSession: true,
                 lastAccessTime: now,
                 lastAccessTimeFormatted: '6 decades ago',
+                location: {}
               },
               {
                 clientType: 'oAuthApp',
@@ -614,18 +635,23 @@ define(function (require, exports, module) {
                 id: 'oauth-3',
                 lastAccessTime: now,
                 lastAccessTimeFormatted: 'blee',
+                location: {
+                  city: 'Mountain View',
+                  country: 'United States',
+                  stateCode: 'CA'
+                }
               },
             ]);
 
-            assert.equal(formatted[0].lastAccessTimeFormatted, 'last sync 32 minutes ago');
-            assert.equal(formatted[1].lastAccessTimeFormatted, 'last sync over 1 hour ago');
-            assert.equal(formatted[2].lastAccessTimeFormatted, 'last sync 4 months ago');
+            assert.equal(formatted[0].lastAccessTimeFormatted, 'Last sync 32 minutes ago near Bournemouth, EN, United Kingdom');
+            assert.equal(formatted[1].lastAccessTimeFormatted, 'Last sync over 1 hour ago in United Kingdom');
+            assert.equal(formatted[2].lastAccessTimeFormatted, 'Last sync 4 months ago in United Kingdom');
             assert.equal(formatted[3].lastAccessTimeFormatted, '1 day ago');
-            assert.equal(formatted[4].lastAccessTimeFormatted, 'over 3 weeks ago');
+            assert.equal(formatted[4].lastAccessTimeFormatted, 'Over 3 weeks ago in United Kingdom');
             assert.equal(formatted[5].lastAccessTimeFormatted, '6 decades ago');
-            assert.equal(formatted[6].lastAccessTimeFormatted, 'last active blee');
-            assert.equal(formatted[7].lastAccessTimeFormatted, 'last active over wibble');
-            assert.equal(formatted[8].lastAccessTimeFormatted, 'last active blee');
+            assert.equal(formatted[6].lastAccessTimeFormatted, 'Last active blee');
+            assert.equal(formatted[7].lastAccessTimeFormatted, 'Last active over wibble');
+            assert.equal(formatted[8].lastAccessTimeFormatted, 'Last active blee near Mountain View, CA, United States');
           });
       });
 
@@ -697,15 +723,15 @@ define(function (require, exports, module) {
             ]);
 
             assert.equal(formatted[0].title, '123Done - profile');
-            assert.equal(formatted[0].lastAccessTimeFormatted, 'last active a few seconds ago');
+            assert.equal(formatted[0].lastAccessTimeFormatted, 'Last active a few seconds ago');
             assert.equal(formatted[1].title, 'Pocket - profile,profile:write');
             assert.equal(formatted[2].title, 'Add-ons');
             assert.equal(formatted[3].title, 'Web Session, Firefox 40');
             assert.equal(formatted[4].title, 'Web Session');
-            assert.equal(formatted[5].title, 'device-1 - Ontario, Canada');
-            assert.equal(formatted[5].lastAccessTimeFormatted, 'last sync 30 minutes ago');
+            assert.equal(formatted[5].title, 'device-1');
+            assert.equal(formatted[5].lastAccessTimeFormatted, 'Last sync 30 minutes ago in Canada');
             assert.equal(formatted[6].title, 'device-2');
-            assert.equal(formatted[6].lastAccessTimeFormatted, 'last sync time unknown');
+            assert.equal(formatted[6].lastAccessTimeFormatted, 'Last sync time unknown');
           });
       });
     });

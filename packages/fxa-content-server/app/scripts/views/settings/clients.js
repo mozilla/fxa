@@ -34,6 +34,53 @@ define(function (require, exports, module) {
     creative: 'button'
   });
 
+  const LAST_ACTIVITY_FORMATS = {
+    /* eslint-disable sorting/sort-object-props */
+    device: {
+      withoutLocation: {
+        precise: t('Last sync %(translatedTimeAgo)s'),
+        approximate: t('Last sync over %(translatedTimeAgo)s')
+      },
+      withCountry: {
+        precise: t('Last sync %(translatedTimeAgo)s in %(translatedCountry)s'),
+        approximate: t('Last sync over %(translatedTimeAgo)s in %(translatedCountry)s')
+      },
+      withCityStateCountry: {
+        precise: t('Last sync %(translatedTimeAgo)s near %(translatedCity)s, %(translatedState)s, %(translatedCountry)s'),
+        approximate: t('Last sync over %(translatedTimeAgo)s near %(translatedCity)s, %(translatedState)s, %(translatedCountry)s')
+      }
+    },
+    oauth: {
+      withoutLocation: {
+        precise: t('Last active %(translatedTimeAgo)s'),
+        approximate: t('Last active over %(translatedTimeAgo)s')
+      },
+      withCountry: {
+        precise: t('Last active %(translatedTimeAgo)s in %(translatedCountry)s'),
+        approximate: t('Last active over %(translatedTimeAgo)s in %(translatedCountry)s')
+      },
+      withCityStateCountry: {
+        precise: t('Last active %(translatedTimeAgo)s near %(translatedCity)s, %(translatedState)s, %(translatedCountry)s'),
+        approximate: t('Last active over %(translatedTimeAgo)s near %(translatedCity)s, %(translatedState)s, %(translatedCountry)s')
+      }
+    },
+    web: {
+      withoutLocation: {
+        precise: t('%(translatedTimeAgo)s'),
+        approximate: t('Over %(translatedTimeAgo)s')
+      },
+      withCountry: {
+        precise: t('%(translatedTimeAgo)s in %(translatedCountry)s'),
+        approximate: t('Over %(translatedTimeAgo)s in %(translatedCountry)s')
+      },
+      withCityStateCountry: {
+        precise: t('%(translatedTimeAgo)s near %(translatedCity)s, %(translatedState)s, %(translatedCountry)s'),
+        approximate: t('Over %(translatedTimeAgo)s near %(translatedCity)s, %(translatedState)s, %(translatedCountry)s')
+      }
+    }
+    /* eslint-enable sorting/sort-object-props */
+  };
+
   const proto = FormView.prototype;
   const View = FormView.extend({
     template: Template,
@@ -56,14 +103,6 @@ define(function (require, exports, module) {
       return _.map(items, (item) => {
         item.title = item.name;
 
-        if (item.location) {
-          if (item.location.country && item.location.state) {
-            item.title += ' - ' + item.location.state + ', ' + item.location.country;
-          } else if (item.location.country) {
-            item.title += ' - ' + item.location.country;
-          }
-        }
-
         if (item.scope) {
           item.title += ' - ' + item.scope;
         }
@@ -77,31 +116,19 @@ define(function (require, exports, module) {
               item.title = t('Web Session');
             }
 
-            this._setLastAccessTimeFormatted(
-              item,
-              t('%(translatedTimeAgo)s'),
-              t('over %(translatedTimeAgo)s')
-            );
+            this._setLastAccessTimeFormatted(item, LAST_ACTIVITY_FORMATS.web);
           }
 
           if (item.isDevice) {
-            this._setLastAccessTimeFormatted(
-              item,
-              t('last sync %(translatedTimeAgo)s'),
-              t('last sync over %(translatedTimeAgo)s')
-            );
+            this._setLastAccessTimeFormatted(item, LAST_ACTIVITY_FORMATS.device);
           }
 
           if (item.clientType === Constants.CLIENT_TYPE_OAUTH_APP) {
-            this._setLastAccessTimeFormatted(
-              item,
-              t('last active %(translatedTimeAgo)s'),
-              t('last active over %(translatedTimeAgo)s')
-            );
+            this._setLastAccessTimeFormatted(item, LAST_ACTIVITY_FORMATS.oauth);
           }
         } else {
           if (item.isDevice) {
-            item.lastAccessTimeFormatted = t('last sync time unknown');
+            item.lastAccessTimeFormatted = t('Last sync time unknown');
           } else {
             // unknown lastAccessTimeFormatted or not possible to format.
             item.lastAccessTimeFormatted = '';
@@ -111,16 +138,35 @@ define(function (require, exports, module) {
       });
     },
 
-    _setLastAccessTimeFormatted (item, format, approximateFormat) {
+    _setLastAccessTimeFormatted (item, format) {
+      let translatedCity;
+      let translatedCountry;
+      let translatedState;
       let translatedTimeAgo = item.lastAccessTimeFormatted;
-      let correctFormat = format;
+
+      if (item.location && item.location.country) {
+        translatedCountry = item.location.country;
+        if (item.location.city && item.location.stateCode) {
+          translatedCity = item.location.city;
+          translatedState = item.location.stateCode;
+          format = format.withCityStateCountry;
+        } else {
+          format = format.withCountry;
+        }
+      } else {
+        format = format.withoutLocation;
+      }
 
       if (item.approximateLastAccessTime > item.lastAccessTime) {
         translatedTimeAgo = item.approximateLastAccessTimeFormatted;
-        correctFormat = approximateFormat;
+        format = format.approximate;
+      } else {
+        format = format.precise;
       }
 
-      item.lastAccessTimeFormatted = this.translate(correctFormat, { translatedTimeAgo });
+      item.lastAccessTimeFormatted = this.translate(format, {
+        translatedCity, translatedCountry, translatedState, translatedTimeAgo
+      });
     },
 
     setInitialContext (context) {
