@@ -1,3 +1,13 @@
+<a name="1.99.2"></a>
+## 1.99.2 (2017-11-07)
+
+
+### Bug Fixes
+
+* **sms:** Allow SMS sending again. (#5687) r=@vladikoff ([a9886f6](https://github.com/mozilla/fxa-content-server/commit/a9886f6)), closes [#5685](https://github.com/mozilla/fxa-content-server/issues/5685)
+
+
+
 <a name="1.99.1"></a>
 ## 1.99.1 (2017-11-01)
 
