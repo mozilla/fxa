@@ -22,11 +22,8 @@ define((require, exports, module) => {
      * @returns {String[]}
      */
     getSmsFeatures () {
-      const features = [];
-      if (this.isInExperimentGroup('sendSms', 'signinCodes')) {
-        features.push('signinCodes');
-      }
-      return features;
+      // If SMS is enabled for a user, always send a signinCode.
+      return ['signinCodes'];
     }
   };
 });
