@@ -120,9 +120,9 @@ const NOP = () => {};
 
 const EVENT_PROPERTIES = {
   [GROUPS.email]: mixProperties(mapEmailType, mapService),
-  [GROUPS.login]: mixProperties(mapEntrypoint, mapService),
-  [GROUPS.registration]: mixProperties(mapEntrypoint, mapService),
-  [GROUPS.settings]: mixProperties(mapEntrypoint, mapDisconnectReason),
+  [GROUPS.login]: mapService,
+  [GROUPS.registration]: mapService,
+  [GROUPS.settings]: mapDisconnectReason,
   [GROUPS.sms]: NOP
 };
 
@@ -204,6 +204,7 @@ function mapUserProperties (group, eventCategory, data, userAgent) {
   return Object.assign(
     {},
     mapBrowser(userAgent),
+    mapEntrypoint(data),
     mapExperiments(data),
     USER_PROPERTIES[group](eventCategory, data)
   );
@@ -272,6 +273,13 @@ function mixProperties (...mappers) {
     Object.assign({}, ...mappers.map(m => m(event, eventCategory, data)));
 }
 
+function mapEntrypoint (data) {
+  const entrypoint = marshallOptionalValue(data.entrypoint);
+  if (entrypoint) {
+    return { entrypoint };
+  }
+}
+
 function mapExperiments (data) {
   if (data.experiments && data.experiments.length > 0) {
     return {
@@ -297,13 +305,6 @@ function mapEmailType (event, eventCategory) {
   const email_type = EMAIL_TYPES[eventCategory];
   if (email_type) {
     return { email_type };
-  }
-}
-
-function mapEntrypoint (event, eventCategory, data) {
-  const entrypoint = marshallOptionalValue(data.entrypoint);
-  if (entrypoint) {
-    return { entrypoint };
   }
 }
 

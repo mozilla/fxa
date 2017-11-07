@@ -98,7 +98,6 @@ define([
           device_id: 'bar',
           event_properties: {
             device_id: 'bar',
-            entrypoint: 'baz',
             service: 'amo'
           },
           event_type: 'fxa_login - forgot_submit',
@@ -111,6 +110,7 @@ define([
           time: 'foo',
           user_id: 'soop',
           user_properties: {
+            entrypoint: 'baz',
             experiments: [
               'first_experiment_group_one',
               'second_experiment_group_two',
@@ -163,8 +163,7 @@ define([
           device_id: 'b',
           device_model: 'iPad',
           event_properties: {
-            device_id: 'b',
-            entrypoint: 'c'
+            device_id: 'b'
           },
           event_type: 'fxa_pref - password',
           language: 'f',
@@ -176,6 +175,7 @@ define([
           time: 'a',
           user_id: 'h',
           user_properties: {
+            entrypoint: 'c',
             ua_browser: 'Mobile Safari',
             ua_version: '6'
           }
@@ -342,7 +342,6 @@ define([
           device_id: 'b',
           event_properties: {
             device_id: 'b',
-            entrypoint: 'c',
             service: 'pocket'
           },
           event_type: 'fxa_reg - engage',
@@ -353,6 +352,7 @@ define([
           time: 'a',
           user_id: 'h',
           user_properties: {
+            entrypoint: 'c',
             flow_id: 'e',
             utm_campaign: 'i',
             utm_content: 'j',
@@ -616,6 +616,7 @@ define([
           time: 'a',
           user_id: 'h',
           user_properties: {
+            entrypoint: 'c',
             flow_id: 'e'
           }
         });
@@ -738,6 +739,7 @@ define([
           time: 'a',
           user_id: 'h',
           user_properties: {
+            entrypoint: 'c',
             flow_id: 'e'
           }
         });
