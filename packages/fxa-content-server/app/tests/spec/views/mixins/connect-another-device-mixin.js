@@ -289,26 +289,6 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('user is not part of experiment', () => {
-        beforeEach(() => {
-          sinon.stub(view, 'isSignUp').callsFake(() => true);
-          sinon.stub(view, 'isInExperiment').callsFake(() => false);
-          sinon.stub(view, 'getUserAgent').callsFake(() => {
-            return {
-              isAndroid: () => false,
-              isIos: () => false
-            };
-          });
-          sinon.stub(user, 'isAnotherAccountSignedIn').callsFake(() => false);
-        });
-
-        it('returns `false', () => {
-          assert.isFalse(view._areSmsRequirementsMet(account));
-          assert.isTrue(view.logFlowEvent.calledOnce);
-          assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.not_in_experiment'));
-        });
-      });
-
       describe('user is eligible',() => {
         beforeEach(() => {
           sinon.stub(view, 'isSignUp').callsFake(() => true);
@@ -413,6 +393,25 @@ define(function (require, exports, module) {
         describe('eligible for SMS', () => {
           beforeEach(() => {
             sinon.stub(view, '_isEligibleForSms').callsFake(() => p({ country: 'GB', ok: true }));
+          });
+
+          describe('user is not part of experiment', () => {
+            beforeEach(() => {
+              sinon.stub(view, 'getExperimentGroup').callsFake(() => false);
+            });
+
+            it('does not enroll the user in an experiment, logs a flow event, navigates to connect_another_device', () => {
+              return view.navigateToConnectAnotherDeviceScreen(account)
+              .then(() => {
+                assert.isFalse(view.createExperiment.called);
+
+                assert.isTrue(view.logFlowEvent.calledOnce);
+                assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.not_in_experiment'));
+
+                assert.isTrue(view.navigate.calledOnce);
+                assert.isTrue(view.navigate.calledWith('connect_another_device', { account, type: 'signin' }));
+              });
+            });
           });
 
           describe('in treatment group', () => {
