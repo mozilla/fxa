@@ -68,7 +68,7 @@ define([
         // current session has the text `current session`
         .then(FunctionalHelpers.testElementTextEquals(
           '.client-webSession:nth-child(1) .client-name + .device-current',
-          'current session'
+          'Current session'
         ))
 
         // first session has the user agent
@@ -176,7 +176,7 @@ define([
         // current device has the text `current device`
         .then(FunctionalHelpers.testElementTextEquals(
           '.client-device:nth-child(1) .client-name + .device-current',
-          'current device'
+          'Current device'
         ))
 
         // external update should show in the device list

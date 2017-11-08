@@ -26,7 +26,7 @@
                 id="{{id}}">
                 <div class="client-name">{{name}}</div>
                 {{#isCurrentDevice}}
-                    <div class="device-current">{{#t}}current device{{/t}}</div>
+                    <div class="device-current">{{#t}}Current device{{/t}}</div>
                 {{/isCurrentDevice}}
                 {{^isCurrentDevice}}
                     <div class="last-connected">{{lastAccessTimeFormatted}}</div>
@@ -43,7 +43,7 @@
                     id="{{id}}">
                     <div class="client-name" title="{{title}}">{{title}}</div>
                   {{#isCurrentDevice}}
-                    <div class="device-current">{{#t}}current session{{/t}}</div>
+                    <div class="device-current">{{#t}}Current session{{/t}}</div>
                   {{/isCurrentDevice}}
                   {{^isCurrentDevice}}
                     <div class="last-connected">{{lastAccessTimeFormatted}}</div>
@@ -65,12 +65,12 @@
         {{#showMobileApps}}
           <li class="client mobile" data-os="iOS">
             <div class="client-name">{{#t}}Firefox for iOS{{/t}}</div>
-            <div class="last-connected">{{#t}}none connected{{/t}}</div>
+            <div class="last-connected">{{#t}}None connected{{/t}}</div>
             <a target="_blank" href="{{ linkIOS }}" class="settings-button secondary" data-get-app="ios">{{#t}}Download{{/t}}</a>
           </li>
           <li class="client mobile" data-os="Android">
             <div class="client-name">{{#t}}Firefox for Android{{/t}}</div>
-            <div class="last-connected">{{#t}}none connected{{/t}}</div>
+            <div class="last-connected">{{#t}}None connected{{/t}}</div>
             <a target="_blank" href="{{ linkAndroid }}" class="settings-button secondary" data-get-app="android">{{#t}}Download{{/t}}</a>
           </li>
         {{/showMobileApps}}
