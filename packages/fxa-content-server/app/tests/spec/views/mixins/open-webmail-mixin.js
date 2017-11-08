@@ -68,7 +68,7 @@ define(function (require, exports, module) {
         describe('getWebmailLink get the right link', function () {
           it('checks href', function () {
             assert.include(view.getWebmailLink('testuser@gmail.com'), 'https://mail.google.com/mail/u/?authuser=testuser%40gmail.com');
-            assert.include(view.getWebmailLink('testuser@restmail.net'), 'http://restmail.net/mail/testuser%40restmail.net');
+            assert.include(view.getWebmailLink('testuser@restmail.net'), 'http://restmail.net/mail/testuser@restmail.net');
             assert.include(view.getWebmailLink('testuser@hotmail.com'), 'https://outlook.live.com/');
             assert.include(view.getWebmailLink('testuser@yahoo.com'), 'https://mail.yahoo.com');
           });

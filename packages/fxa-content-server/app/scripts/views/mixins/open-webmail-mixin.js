@@ -55,8 +55,10 @@ define(function (require, exports, module) {
     addUserInfo (providerLink, email) {
       var mailType = this.getWebmailType(email);
 
-      if (mailType === 'gmail' || mailType === 'restmail'){
+      if (mailType === 'gmail'){
         providerLink = providerLink.concat(encodeURIComponent(email));
+      } else if (mailType === 'restmail') {
+        providerLink = providerLink.concat(email);
       }
 
       return providerLink;
