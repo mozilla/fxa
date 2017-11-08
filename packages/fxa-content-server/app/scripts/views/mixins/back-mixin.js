@@ -25,7 +25,7 @@ define(function (require, exports, module) {
     },
 
     events: {
-      'click #back,.back': preventDefaultThen('back'),
+      'click #back,.back': preventDefaultThen('onClick'),
       'keyup #back,.back': 'backOnEnter'
     },
 
@@ -33,6 +33,13 @@ define(function (require, exports, module) {
       if (! context.has('canGoBack')) {
         context.set('canGoBack', this.canGoBack());
       }
+    },
+
+    onClick () {
+      // The `onClick` delegate function is used to prevent the event
+      // from being used as `nextViewData` for the `back` method.
+      // See #5515
+      this.back();
     },
 
     /**

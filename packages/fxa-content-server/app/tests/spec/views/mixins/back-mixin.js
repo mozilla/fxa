@@ -67,7 +67,8 @@ define(function (require, exports, module) {
       });
 
       describe('clicks on `#back`', () => {
-        it('calls `event.preventDefault`', () => {
+        it('calls `event.preventDefault`, does not propagate event as nextViewData', () => {
+          sinon.spy(notifier, 'trigger');
           $('#container').html(view.el);
 
           const clickEvent = $.Event('click');
@@ -75,6 +76,12 @@ define(function (require, exports, module) {
 
           view.$('#back').trigger(clickEvent);
           assert.isTrue(clickEvent.isDefaultPrevented());
+
+          assert.isTrue(notifier.trigger.calledOnce);
+          assert.isTrue(
+            notifier.trigger.calledWith('navigate-back', {
+              nextViewData: undefined
+            }));
         });
       });
     });
