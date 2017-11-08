@@ -522,7 +522,7 @@ section.modal-panel {
   background-repeat: no-repeat;
   background-size: 32px 32px;
 
-  height: 40px;
+  min-height: 40px;
   list-style: none;
   margin: 10px 0;
   position: relative;
@@ -576,8 +576,13 @@ section.modal-panel {
   }
 
   .last-connected {
+    margin-right: 120px;
     color: $color-grey;
     font-size: 12px;
+
+    @include respond-to('small') {
+      max-width: 78%;
+    }
   }
 
   &[data-os='Windows'] {
