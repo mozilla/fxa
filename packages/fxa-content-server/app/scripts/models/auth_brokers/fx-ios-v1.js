@@ -23,6 +23,7 @@ define(function (require, exports, module) {
   const FxiOSV1AuthenticationBroker = FxDesktopV1AuthenticationBroker.extend({
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       chooseWhatToSyncCheckbox: false,
+      chooseWhatToSyncWebV1: true,
       convertExternalLinksToText: true,
       immediateUnverifiedLogin: false
     }),
@@ -30,7 +31,17 @@ define(function (require, exports, module) {
     initialize (options = {}) {
       proto.initialize.call(this, options);
 
-      if (this._supportsImmediateUnverifiedLogin()) {
+      const userAgent = new UserAgent(this._getUserAgentString());
+      const version = userAgent.parseVersion();
+
+      // We enable then disable this capability if necessary and not the opposite,
+      // because initialize() sets chooseWhatToSyncWebV1Engines and
+      // new UserAgent() can't be called before initialize().
+      if (! this._supportsChooseWhatToSync(version)) {
+        this.setCapability('chooseWhatToSyncWebV1', false);
+      }
+
+      if (this._supportsImmediateUnverifiedLogin(version)) {
         this.setCapability('immediateUnverifiedLogin', true);
 
         // Fx for iOS allows the user to see the "confirm your email" screen,
@@ -61,14 +72,25 @@ define(function (require, exports, module) {
      * Check if the browser supports immediate login
      * for unverified accounts.
      *
+     * @param {Object} version
      * @returns {Boolean}
      * @private
      */
-    _supportsImmediateUnverifiedLogin () {
-      const userAgent = new UserAgent(this._getUserAgentString());
-      const version = userAgent.parseVersion();
+    _supportsImmediateUnverifiedLogin (version) {
       return version.major > 6 ||
             (version.major === 6 && version.minor >= 1);
+    },
+
+    /**
+     * Check if the browser supports Choose What To Sync
+     * for newly created accounts.
+     *
+     * @param {Object} version
+     * @returns {Boolean}
+     * @private
+     */
+    _supportsChooseWhatToSync (version) {
+      return version.major >= 11;
     },
 
     /**
