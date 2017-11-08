@@ -9,7 +9,6 @@ define(function (require, exports, module) {
   const { assert } = require('chai');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
-  const sinon = require('sinon');
   const Template = require('stache!templates/test_template');
 
   const SmsView = BaseView.extend({
@@ -30,20 +29,8 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('getSmsFeatures', () => {
-      describe('user in `signinCodes` experiment group', () => {
-        it('returns an array with `signinCodes`', () => {
-          sinon.stub(view, 'isInExperimentGroup').callsFake(() => true);
-          assert.isTrue(view.getSmsFeatures().indexOf('signinCodes') > -1);
-        });
-      });
-
-      describe('user not in `signinCodes` experiment group', () => {
-        it('returns an empty array', () => {
-          sinon.stub(view, 'isInExperimentGroup').callsFake(() => false);
-          assert.deepEqual(view.getSmsFeatures(), []);
-        });
-      });
+    it('getSmsFeatures returns an array with `signinCodes`', () => {
+      assert.isTrue(view.getSmsFeatures().indexOf('signinCodes') > -1);
     });
   });
 });

@@ -1,3 +1,13 @@
+<a name="1.99.3"></a>
+## 1.99.3 (2017-11-07)
+
+
+### Bug Fixes
+
+* **sms:** If SMS is enabled, always send a signinCode. (#5688) r=@vbudhram ([6b1617b](https://github.com/mozilla/fxa-content-server/commit/6b1617b))
+
+
+
 <a name="1.99.2"></a>
 ## 1.99.2 (2017-11-07)
 
