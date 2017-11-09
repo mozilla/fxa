@@ -420,7 +420,11 @@ define(function (require, exports, module) {
     INVALID_WEB_CHANNEL: {
       errno: 1051,
       message: 'Browser not configured to accept WebChannel messages from this domain'
-    }
+    },
+    REUSED_PRIMARY_EMAIL_VERIFICATION_CODE: {
+      errno: 1052,
+      message: t('That confirmation link was already used, and can only be used once.')
+    },
   };
   /*eslint-enable sorting/sort-object-props*/
 

@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   return {
     FORCE_AUTH: 'force_auth',
     PASSWORD_RESET: 'reset_password',
+    PRIMARY_EMAIL_VERIFIED: 'primary_email_verified',
     SECONDARY_EMAIL_VERIFIED: 'secondary_email_verified',
     SIGN_IN: 'login',
     SIGN_UP: 'signup'

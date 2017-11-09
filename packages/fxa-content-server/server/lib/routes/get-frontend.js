@@ -23,6 +23,7 @@ module.exports = function () {
     'oauth/force_auth',
     'oauth/signin',
     'oauth/signup',
+    'primary_email_verified',
     'report_signin',
     'reset_password',
     'reset_password_confirmed',
@@ -54,6 +55,7 @@ module.exports = function () {
     'sms/sent',
     'sms/why',
     'verify_email',
+    'verify_primary_email',
     'verify_secondary_email'
   ].join('|'); // prepare for use in a RegExp
 

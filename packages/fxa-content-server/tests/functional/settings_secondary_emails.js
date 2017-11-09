@@ -49,8 +49,8 @@ define([
     name: 'settings secondary emails',
 
     beforeEach: function () {
-      email = TestHelpers.createEmail();
-      secondaryEmail = TestHelpers.createEmail();
+      email = TestHelpers.createEmail('sync{id}');
+      secondaryEmail = TestHelpers.createEmail('sync{id}');
       client = FunctionalHelpers.getFxaClient();
 
       return this.remote.then(clearBrowserState({ force: true }));
@@ -58,6 +58,73 @@ define([
 
     afterEach: function () {
       return this.remote.then(clearBrowserState());
+    },
+
+    'gated in unverified session open verification same tab': function () {
+      return this.remote
+        // when an account is created, the original session is verified
+        // re-login to destroy original session and created an unverified one
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+        .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.EMAIL.UNLOCK_BUTTON))
+
+        // unlock panel
+        .then(click(selectors.EMAIL.UNLOCK_BUTTON))
+        .then(testElementExists(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
+
+        // send and open verification in same tab
+        .then(click(selectors.EMAIL.UNLOCK_SEND_BUTTON))
+        .then(openVerificationLinkInSameTab(email, 0))
+
+        // panel becomes verified and opens add secondary panel
+        .then(visibleByQSA(selectors.EMAIL.INPUT));
+    },
+
+    'gated in unverified session open verification new tab': function () {
+      return this.remote
+      // when an account is created, the original session is verified
+      // re-login to destroy original session and created an unverified one
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+        .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.EMAIL.UNLOCK_BUTTON))
+
+        // unlock panel
+        .then(click(selectors.EMAIL.UNLOCK_BUTTON))
+        .then(testElementExists(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
+
+        // send and open verification in same tab
+        .then(click(selectors.EMAIL.UNLOCK_SEND_BUTTON))
+        .then(openVerificationLinkInNewTab(email, 0))
+        .then(switchToWindow(1))
+          // panel becomes verified and opens add secondary panel
+          .then(visibleByQSA(selectors.EMAIL.INPUT))
+          .then(closeCurrentWindow())
+
+        .then(switchToWindow(0))
+          .then(click(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
+          .then(visibleByQSA(selectors.EMAIL.INPUT));
+    },
+
+    'gated in unverified session open verification different browser': function () {
+      return this.remote
+        // when an account is created, the original session is verified
+        // re-login to destroy original session and created an unverified one
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+        .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.EMAIL.UNLOCK_BUTTON))
+
+        // unlock panel
+        .then(click(selectors.EMAIL.UNLOCK_BUTTON))
+        .then(testElementExists(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
+
+        // send and open verification in same tab
+        .then(click(selectors.EMAIL.UNLOCK_SEND_BUTTON))
+        .then(openVerificationLinkInDifferentBrowser(email, 0))
+        .then(click(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
+        .then(visibleByQSA(selectors.EMAIL.INPUT));
     },
 
     'add and verify secondary email': function () {
@@ -203,7 +270,6 @@ define([
 
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
-
 
     'signin confirmation is sent to secondary emails': function () {
       const PAGE_SIGNIN_DESKTOP = `${SIGNIN_URL}?context=fx_desktop_v3&service=sync&forceAboutAccounts=true`;

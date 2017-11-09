@@ -97,37 +97,26 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('feature disabled', () => {
-      describe('for user', () => {
+    describe('feature gated in unverified session', () => {
+      beforeEach(() => {
+        sinon.stub(account, 'sessionVerificationStatus').callsFake(() => {
+          return Promise.resolve({sessionVerified: false});
+        });
+      });
+
+      describe('shows upgrade session', () => {
         beforeEach(() => {
-          sinon.stub(account, 'recoveryEmails').callsFake(() => {
-            return p();
-          });
-
-          sinon.stub(account, 'recoveryEmailSecondaryEmailEnabled').callsFake(() => {
-            return p(false);
-          });
-
-          view = new View({
-            broker: broker,
-            emails: emails,
-            metrics: metrics,
-            notifier: notifier,
-            parentView: parentView,
-            translator: translator,
-            user: user,
-            window: windowMock
-          });
-
-          sinon.stub(view, 'remove').callsFake(() => {
-            return true;
-          });
-
-          return view.render();
+          emails = [{
+            email: 'primary@email.com',
+            isPrimary: true,
+            verified: true
+          }];
+          return initView();
         });
 
-        it('should be disabled when feature is disabled for user', () => {
-          assert.equal(view.remove.callCount, 1);
+        it('has upgrade session panel', () => {
+          assert.ok(view.$('.email-address .address').length, 1);
+          assert.equal(view.$('.email-address .address').text(), email);
         });
       });
     });
@@ -135,11 +124,11 @@ define(function (require, exports, module) {
     describe('feature enabled', () => {
       beforeEach(() => {
         sinon.stub(account, 'recoveryEmails').callsFake(() => {
-          return p(emails);
+          return Promise.resolve(emails);
         });
 
-        sinon.stub(account, 'recoveryEmailSecondaryEmailEnabled').callsFake(() => {
-          return p(true);
+        sinon.stub(account, 'sessionVerificationStatus').callsFake(() => {
+          return Promise.resolve({ sessionVerified: true });
         });
 
         sinon.stub(account, 'recoveryEmailDestroy').callsFake(() => {

@@ -366,6 +366,21 @@ define(function (require, exports, module) {
     }),
 
     /**
+     * Sends a verification code to the account's recovery email address
+     * that will verify the current session.
+     *
+     * @param {String} sessionToken sessionToken obtained from signIn
+     * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+     */
+    sessionVerifyResend: withClient((client, sessionToken) => {
+      const clientOptions = {
+        type: 'upgradeSession'
+      };
+
+      return client.recoveryEmailResendCode(sessionToken, clientOptions);
+    }),
+
+    /**
      * Destroy the user's current or custom session
      *
      * @param {String} sessionToken
@@ -856,14 +871,6 @@ define(function (require, exports, module) {
     resendEmailCode: createClientDelegate('recoveryEmailResendCode'),
 
     deleteEmail: createClientDelegate('deleteEmail'),
-
-    /**
-     * Responds with whether or not secondary emails is enabled for a user.
-     *
-     * @param {String} sessionToken User session token
-     * @return {Promise} resolves when complete
-     */
-    recoveryEmailSecondaryEmailEnabled: createClientDelegate('recoveryEmailSecondaryEmailEnabled'),
 
     /**
      * Set the new primary email address for a user.

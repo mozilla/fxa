@@ -209,7 +209,14 @@ define(function (require, exports, module) {
           var args = account.verifySignUp.getCall(0).args;
           assert.isTrue(account.verifySignUp.called);
           assert.ok(args[0]);
-          assert.deepEqual(args[1], {reminder: null, secondaryEmailVerified: null, serverVerificationStatus: null, service: validService, type: null});
+          assert.deepEqual(args[1], {
+            primaryEmailVerified: null,
+            reminder: null,
+            secondaryEmailVerified: null,
+            serverVerificationStatus: null,
+            service: validService,
+            type: null
+          });
         });
       });
 
@@ -229,7 +236,14 @@ define(function (require, exports, module) {
           var args = account.verifySignUp.getCall(0).args;
           assert.isTrue(account.verifySignUp.called);
           assert.ok(args[0]);
-          assert.deepEqual(args[1], {reminder: validReminder, secondaryEmailVerified: null, serverVerificationStatus: null, service: null, type: null});
+          assert.deepEqual(args[1], {
+            primaryEmailVerified: null,
+            reminder: validReminder,
+            secondaryEmailVerified: null,
+            serverVerificationStatus: null,
+            service: null,
+            type: null
+          });
         });
       });
 
@@ -250,7 +264,14 @@ define(function (require, exports, module) {
           var args = account.verifySignUp.getCall(0).args;
           assert.isTrue(account.verifySignUp.called);
           assert.ok(args[0]);
-          assert.deepEqual(args[1], {reminder: validReminder, secondaryEmailVerified: null, serverVerificationStatus: null, service: validService, type: null});
+          assert.deepEqual(args[1], {
+            primaryEmailVerified: null,
+            reminder: validReminder,
+            secondaryEmailVerified: null,
+            serverVerificationStatus: null,
+            service: validService,
+            type: null
+          });
         });
       });
 
@@ -271,7 +292,14 @@ define(function (require, exports, module) {
           var args = account.verifySignUp.getCall(0).args;
           assert.isTrue(account.verifySignUp.called);
           assert.ok(args[0]);
-          assert.deepEqual(args[1], {reminder: null, secondaryEmailVerified: null, serverVerificationStatus: 'verified', service: null, type: null});
+          assert.deepEqual(args[1], {
+            primaryEmailVerified: null,
+            reminder: null,
+            secondaryEmailVerified: null,
+            serverVerificationStatus: 'verified',
+            service: null,
+            type: null
+          });
         });
       });
 
@@ -292,7 +320,14 @@ define(function (require, exports, module) {
           var args = account.verifySignUp.getCall(0).args;
           assert.isTrue(account.verifySignUp.called);
           assert.ok(args[0]);
-          assert.deepEqual(args[1], {reminder: null, secondaryEmailVerified: null, serverVerificationStatus: null, service: null, type: 'secondary'});
+          assert.deepEqual(args[1], {
+            primaryEmailVerified: null,
+            reminder: null,
+            secondaryEmailVerified: null,
+            serverVerificationStatus: null,
+            service: null,
+            type: 'secondary'
+          });
         });
       });
 
@@ -314,7 +349,42 @@ define(function (require, exports, module) {
           var args = account.verifySignUp.getCall(0).args;
           assert.isTrue(account.verifySignUp.called);
           assert.ok(args[0]);
-          assert.deepEqual(args[1], {reminder: null, secondaryEmailVerified: 'some@email.com', serverVerificationStatus: null, service: null, type: null});
+          assert.deepEqual(args[1], {
+            primaryEmailVerified: null,
+            reminder: null,
+            secondaryEmailVerified: 'some@email.com',
+            serverVerificationStatus: null,
+            service: null,
+            type: null
+          });
+        });
+      });
+
+      describe('if primary_email_verified is in the url', () => {
+        beforeEach(function () {
+          windowMock.location.search = '?code=' + validCode + '&uid=' + validUid +
+            '&primary_email_verified=some@email.com';
+          relier = new Relier({}, {
+            window: windowMock
+          });
+          relier.fetch();
+          initView(account);
+          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => p());
+          return view.render();
+        });
+
+        it('attempt to pass secondary_email_verified to verifySignUp', () => {
+          const { args } = account.verifySignUp.getCall(0);
+          assert.isTrue(account.verifySignUp.called);
+          assert.ok(args[0]);
+          assert.deepEqual(args[1], {
+            primaryEmailVerified: 'some@email.com',
+            reminder: null,
+            secondaryEmailVerified: null,
+            serverVerificationStatus: null,
+            service: null,
+            type: null
+          });
         });
       });
 
@@ -422,6 +492,34 @@ define(function (require, exports, module) {
         });
       });
 
+      describe('REUSED_PRIMARY_EMAIL_VERIFICATION_CODE error', () => {
+        beforeEach(function () {
+          verificationError = AuthErrors.toError('INVALID_VERIFICATION_CODE', 'this isn\'t a lottery');
+
+          windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
+          var model = new Backbone.Model();
+          model.set('type', VerificationReasons.PRIMARY_EMAIL_VERIFIED);
+
+          view = new View({
+            account: account,
+            broker: broker,
+            metrics: metrics,
+            model: model,
+            notifier: notifier,
+            relier: relier,
+            user: user,
+            window: windowMock
+          });
+
+          return view.render();
+        });
+
+        it('displays the verification link expired screen', () => {
+          assert.ok(view.$('#fxa-verification-link-reused-header').length);
+          testErrorLogged(AuthErrors.toError('REUSED_PRIMARY_EMAIL_VERIFICATION_CODE'));
+        });
+      });
+
       describe('all other server errors', function () {
         beforeEach(function () {
           verificationError = AuthErrors.toError('UNEXPECTED_ERROR');
@@ -485,6 +583,12 @@ define(function (require, exports, module) {
     });
 
     describe('_getBrokerMethod', () => {
+      it('works for primary email', () => {
+        sinon.stub(view, 'isPrimaryEmail').callsFake(() => true);
+
+        assert.equal(view._getBrokerMethod(), 'afterCompletePrimaryEmail');
+      });
+
       it('works for secondary emails', () => {
         sinon.stub(view, 'isSecondaryEmail').callsFake(() => true);
 

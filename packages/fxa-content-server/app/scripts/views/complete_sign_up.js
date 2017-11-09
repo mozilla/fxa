@@ -73,6 +73,7 @@ define(function (require, exports, module) {
 
       const code = verificationInfo.get('code');
       const options = {
+        primaryEmailVerified: this.getSearchParam('primary_email_verified') || null,
         reminder: verificationInfo.get('reminder'),
         secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null,
         serverVerificationStatus: this.getSearchParam('server_verification') || null,
@@ -94,7 +95,8 @@ define(function (require, exports, module) {
         // If the link is invalid, print a special error message.
         isLinkDamaged: ! verificationInfo.isValid(),
         isLinkExpired: verificationInfo.isExpired(),
-        isLinkUsed: verificationInfo.isUsed()
+        isLinkUsed: verificationInfo.isUsed(),
+        isPrimaryEmailVerification: this.isPrimaryEmail()
       });
     },
 
@@ -153,7 +155,9 @@ define(function (require, exports, module) {
      */
     _getBrokerMethod () {
       let brokerMethod;
-      if (this.isSecondaryEmail()) {
+      if (this.isPrimaryEmail()) {
+        brokerMethod = 'afterCompletePrimaryEmail';
+      } else if (this.isSecondaryEmail()) {
         brokerMethod = 'afterCompleteSecondaryEmail';
       } else if (this.isSignIn()) {
         brokerMethod = 'afterCompleteSignIn';
@@ -182,10 +186,14 @@ define(function (require, exports, module) {
           AuthErrors.is(err, 'INVALID_VERIFICATION_CODE') ||
           AuthErrors.is(err, 'INVALID_PARAMETER')) {
 
-        // When coming from sign-in confirmation verification, show a
-        // verification link expired error instead of damaged verification link.
-        // This error is generated because the link has already been used.
-        if (this.isSignIn()) {
+        if (this.isPrimaryEmail()) {
+          verificationInfo.markUsed();
+          err = AuthErrors.toError('REUSED_PRIMARY_EMAIL_VERIFICATION_CODE');
+        } else if (this.isSignIn()) {
+          // When coming from sign-in confirmation verification, show a
+          // verification link expired error instead of damaged verification link.
+          // This error is generated because the link has already been used.
+          //
           // Disable resending verification, can only be triggered from new sign-in
           verificationInfo.markUsed();
           err = AuthErrors.toError('REUSED_SIGNIN_VERIFICATION_CODE');

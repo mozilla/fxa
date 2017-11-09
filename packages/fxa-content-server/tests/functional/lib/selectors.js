@@ -90,7 +90,10 @@ define([], function () {
       SET_PRIMARY_EMAIL_BUTTON: '.email-address .set-primary',
       SUCCESS: '.success',
       TOOLTIP: '.tooltip',
-      VERIFIED_LABEL: '.verified'
+      UNLOCK_BUTTON: '.emails .unlock-button',
+      UNLOCK_REFRESH_BUTTON: '.emails .refresh-verification-state',
+      UNLOCK_SEND_BUTTON: '.emails .send-verification-email',
+      VERIFIED_LABEL: '.verified',
     },
     ENTER_EMAIL: {
       EMAIL: 'input[type=email]',

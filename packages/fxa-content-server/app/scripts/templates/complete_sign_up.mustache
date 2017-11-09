@@ -1,7 +1,10 @@
 <div id="main-content" class="card">
   {{#isLinkUsed}}
   <header>
-    <h1 id="fxa-verification-link-reused-header">{{#t}}Sign-in already confirmed{{/t}}</h1>
+      <h1 id="fxa-verification-link-reused-header">
+          {{#isPrimaryEmailVerification}}{{#t}}Primary email already confirmed{{/t}}{{/isPrimaryEmailVerification}}
+          {{^isPrimaryEmailVerification}}{{#t}}Sign-in already confirmed{{/t}}{{/isPrimaryEmailVerification}}
+      </h1>
   </header>
 
   <section>
@@ -14,7 +17,7 @@
 
   </section>
   {{/isLinkUsed}}
-  
+
   {{#isLinkExpired}}
   <header>
     <h1 id="fxa-verification-link-expired-header">{{#t}}Verification link expired{{/t}}</h1>

@@ -11,16 +11,33 @@ define(function (require, exports, module) {
   'use strict';
 
   const NavigateBehavior = require('../behaviors/navigate');
-
   const t = (msg) => msg;
-  const success = t('Account verified successfully');
 
-  module.exports = function (defaultBehavior) {
+  /**
+   * Creates navigation behavior that displays a success message
+   * and redirects to settings.
+   *
+   * @param {Object} defaultBehavior - default behavior to invoke if not signed in
+   * @param {Object} [options]
+   *   @param {String} [options.success] - success message when redirected
+   *   @param {String} [options.endpoint] - endpoint to redirect to
+   * @return {Object} promise
+   */
+  module.exports = function (defaultBehavior, options = {}) {
     const behavior = function (view, account) {
       return account.isSignedIn()
         .then((isSignedIn) => {
           if (isSignedIn) {
-            return new NavigateBehavior('settings', { success });
+            let success = t('Account verified successfully');
+            let endpoint = 'settings';
+
+            if (options.success) {
+              success = options.success;
+            }
+            if (options.endpoint) {
+              endpoint = options.endpoint;
+            }
+            return new NavigateBehavior(endpoint, { success });
           }
 
           return defaultBehavior;

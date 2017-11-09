@@ -40,9 +40,15 @@ define(function (require, exports, module) {
       headerTitle: t('Password reset'),
       readyToSyncText: t('Complete set-up by entering the new password on your other Firefox devices.')
     },
-    SECONDARY_EMAIL_VERIFIED: {
+    PRIMARY_EMAIL_VERIFIED: {
+      emailReadyText: t('You are now ready to make changes to your Firefox Account.'),
       headerId: 'fxa-sign-up-complete-header',
-      headerTitle: t('Email verified')
+      headerTitle: t('Primary email verified')
+    },
+    SECONDARY_EMAIL_VERIFIED: {
+      emailReadyText: t('Account notifications will now also be sent to %(secondaryEmailVerified)s.'),
+      headerId: 'fxa-sign-up-complete-header',
+      headerTitle: t('Secondary email verified')
     },
     // signin_confirmed and signin_verified are only shown to Sync for now.
     SIGN_IN: {
@@ -69,6 +75,8 @@ define(function (require, exports, module) {
 
     setInitialContext (context) {
       context.set({
+        emailVerified: this.getSearchParam('secondary_email_verified') || this.getSearchParam('primary_email_verified'),
+        escapedEmailReadyText: this._getEscapedEmailReadyText(),
         escapedHeaderTitle: this._getEscapedHeaderTitle(),
         escapedReadyToSyncText: this._getEscapedReadyToSyncText(),
         headerId: this._getHeaderId(),
@@ -102,6 +110,17 @@ define(function (require, exports, module) {
       const readyToSyncText = this._templateInfo.readyToSyncText;
       // translateInTemplate HTML escapes
       return this.translateInTemplate(readyToSyncText);
+    },
+
+    /**
+     * Get the HTML escaped "Email Ready" text.
+     *
+     * @returns {String}
+     */
+    _getEscapedEmailReadyText () {
+      const emailReadyText = this._templateInfo.emailReadyText;
+      // translateInTemplate HTML escapes
+      return this.translateInTemplate(emailReadyText);
     }
   });
 

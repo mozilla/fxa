@@ -17,12 +17,13 @@
         <p class="account-ready-service">{{#t}}You are now ready to use %(serviceName)s{{/t}}</p>
       {{/serviceName}}
       {{^serviceName}}
-          {{#secondaryEmailVerified}}
-              <p class="account-ready-service">{{#t}}Account notifications will now also be sent to %(secondaryEmailVerified)s{{/t}}</p>
-          {{/secondaryEmailVerified}}
-          {{^secondaryEmailVerified}}
+          {{#emailVerified}}
+              <p class="account-ready-service">{{{escapedEmailReadyText}}}</p>
+          {{/emailVerified}}
+
+          {{^emailVerified}}
               <p class="account-ready-generic">{{#t}}Your account is ready!{{/t}}</p>
-          {{/secondaryEmailVerified}}
+          {{/emailVerified}}
       {{/serviceName}}
     {{/isSync}}
 

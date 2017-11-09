@@ -324,31 +324,6 @@ define(function (require, exports, module) {
         });
     },
 
-    /**
-     * Check to see if secondary emails is enabled for this user, using support email
-     * domain and is in a verified session.
-     *
-     * @returns {Promise} Resolve to true/false
-     */
-    recoveryEmailSecondaryEmailEnabled () {
-      const sessionToken = this.get('sessionToken');
-      if (! sessionToken) {
-        return p.reject(AuthErrors.toError('INVALID_TOKEN'));
-      }
-
-      return this._fxaClient.recoveryEmailSecondaryEmailEnabled(sessionToken)
-        .then((resp) => {
-          return resp.ok;
-        }, (err) => {
-          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-            // sessionToken is no longer valid, kill it.
-            this.unset('sessionToken');
-          }
-
-          throw err;
-        });
-    },
-
     isSignedIn () {
       return this._fxaClient.isSignedIn(this.get('sessionToken'));
     },
@@ -549,6 +524,17 @@ define(function (require, exports, module) {
         {
           resume: options.resume
         }
+      );
+    },
+
+    /**
+     * Request to verify current session.
+     *
+     * @returns {Promise} - resolves when complete
+     */
+    requestVerifySession () {
+      return this._fxaClient.sessionVerifyResend(
+        this.get('sessionToken')
       );
     },
 

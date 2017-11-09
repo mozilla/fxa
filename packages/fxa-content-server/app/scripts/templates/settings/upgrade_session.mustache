@@ -1,0 +1,36 @@
+<div id="upgrade-session" class="settings-unit {{#isPanelOpen}}open{{/isPanelOpen}}">
+    <div class="settings-unit-stub">
+        <header class="settings-unit-summary">
+            <h2 class="settings-unit-title">{{ title }}</h2>
+        </header>
+        <button class="settings-button primary settings-unit-toggle" data-href="{{ gatedHref }}">
+            <span class="unlock-button">{{#t}}Unlock…{{/t}}</span>
+        </button>
+    </div>
+
+    <div class="settings-unit-details">
+        <div class="error"></div>
+
+        <form novalidate>
+            <p> {{ caption }} </p>
+            <ul class="email-list button-row">
+                <li class="email-address">
+                    <div class="address">{{ email }}</div>
+                    <div class="details">
+                        <div class="not-verified">{{#t}}verify to unlock section{{/t}}</div>
+                    </div>
+                    <div class="settings-button-group">
+                        <button class="settings-button warning send-verification-email" data-id="{{ email }}">
+                            {{#t}}Send{{/t}}
+                        </button>
+                    </div>
+                </li>
+                <a class="resend" data-id="{{ email }}">{{#t}}Not in inbox or spam folder? Resend{{/t}}</a>
+            </ul>
+            <div class="button-row">
+                <button type="submit" class="settings-button primary refresh-verification-state">{{#t}}Refresh{{/t}}</button>
+                <button class="settings-button secondary cancel">{{#t}}Done{{/t}}</button>
+            </div>
+        </form>
+    </div>
+</div>

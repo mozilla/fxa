@@ -89,6 +89,7 @@ define(function (require, exports, module) {
       'oauth/force_auth(/)': createViewHandler(ForceAuthView),
       'oauth/signin(/)': createViewHandler(SignInView),
       'oauth/signup(/)': createViewHandler(SignUpView),
+      'primary_email_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.PRIMARY_EMAIL_VERIFIED }),
       'report_signin(/)': createViewHandler(ReportSignInView),
       'reset_password(/)': createViewHandler(ResetPasswordView),
       'reset_password_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.PASSWORD_RESET }),
@@ -120,6 +121,7 @@ define(function (require, exports, module) {
       'sms/sent(/)': createViewHandler(SmsSentView),
       'sms/why(/)': createChildViewHandler(WhyConnectAnotherDeviceView, SmsSendView),
       'verify_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SIGN_UP }),
+      'verify_primary_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.PRIMARY_EMAIL_VERIFIED }),
       'verify_secondary_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SECONDARY_EMAIL_VERIFIED })
     },
 

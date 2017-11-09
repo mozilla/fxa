@@ -46,6 +46,15 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Is a primary email being verified?
+     *
+     * @returns {Boolean}
+     */
+    isPrimaryEmail () {
+      return this.model.get('type') === VerificationReasons.PRIMARY_EMAIL_VERIFIED;
+    },
+
+    /**
      * Is a secondary email being verified?
      *
      * @returns {Boolean}
