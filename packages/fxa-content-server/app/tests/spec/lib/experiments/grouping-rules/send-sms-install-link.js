@@ -45,6 +45,10 @@ define(function (require, exports, module) {
           CountryTelephoneInfo.GB.rolloutRate = 0.5;
         });
 
+        afterEach(() => {
+          delete CountryTelephoneInfo.GB.rolloutRate;
+        });
+
         it('user not selected for trail returns `false`', () => {
           sinon.stub(experiment, 'bernoulliTrial').callsFake(() => false);
 
@@ -52,7 +56,6 @@ define(function (require, exports, module) {
           assert.isTrue(experiment.bernoulliTrial.called);
           assert.isTrue(experiment.bernoulliTrial.calledWith(0.5, 'user-id'));
           assert.isFalse(experiment.uniformChoice.called);
-          delete CountryTelephoneInfo.GB.rolloutRate;
         });
 
         it('user selected for trial delegates to `uniformChoice`', () => {
@@ -63,13 +66,15 @@ define(function (require, exports, module) {
           assert.isTrue(experiment.bernoulliTrial.calledWith(0.5, 'user-id'));
           assert.isTrue(experiment.uniformChoice.called);
           assert.isTrue(experiment.uniformChoice.calledWith(['control', 'signinCodes'], 'user-id'));
-          delete CountryTelephoneInfo.GB.rolloutRate;
         });
       });
 
-      it('fully rolled out countries return `signinCodes`', () => {
-        sinon.spy(experiment, 'uniformChoice');
-        assert.equal(experiment.choose({ account, country, uniqueUserId: 'user-id' }), 'signinCodes');
+      it('fully rolled out countries return `true`', () => {
+        CountryTelephoneInfo.GB.rolloutRate = 1.0;
+        assert.isTrue(experiment.choose({ account, country, uniqueUserId: 'user-id' }));
+
+        delete CountryTelephoneInfo.GB.rolloutRate;
+        assert.isTrue(experiment.choose({ account, country, uniqueUserId: 'user-id' }));
       });
     });
   });

@@ -121,14 +121,21 @@ define((require, exports, module) => {
           const type = this.model.get('type');
           const group = this.getExperimentGroup('sendSms', { account, country });
 
-          if (ok && ! group) {
+          if (! ok) {
+            // auth server says user is not eligible to send an SMS.
+            // logging of the reason has taken place in _isEligibleForSms
+            this.navigate('connect_another_device', { account, type });
+          } else if (! group) {
             // Auth server said "OK" but user was not selected
             // for the experiment, this mode is not logged in
             // `_areSmsRequirementsMet`
             this.logFlowEvent(REASON_NOT_IN_EXPERIMENT);
-          }
-
-          if (ok && group) {
+            // user is not selected for the experiment.
+            this.navigate('connect_another_device', { account, type });
+          } else if (group === true) {
+            // country is fully rolled out. Do not log experiment metrics.
+            this.navigate('sms', { account, country, type });
+          } else {
             // User is eligible and a member of the experiment.
             this.createExperiment('sendSms', group);
 
@@ -139,10 +146,6 @@ define((require, exports, module) => {
               // all non-control groups go to the sms page.
               this.navigate('sms', { account, country, type });
             }
-          } else {
-            // user is ineligible for experiment, either the auth-server said no,
-            // or the experiment logic said no.
-            this.navigate('connect_another_device', { account, type });
           }
         });
     },

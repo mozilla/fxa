@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   const ExperimentMixin = require('views/mixins/experiment-mixin');
   const Cocktail = require('cocktail');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const Template = require('stache!templates/test_template');
@@ -94,7 +93,7 @@ define(function (require, exports, module) {
     describe('navigateToConnectAnotherDeviceOnSigninScreen', () => {
       beforeEach(() => {
         sinon.stub(view, 'isEligibleForConnectAnotherDeviceOnSignin').callsFake(() => true);
-        sinon.stub(view, 'navigateToConnectAnotherDeviceScreen').callsFake(() => p());
+        sinon.stub(view, 'navigateToConnectAnotherDeviceScreen').callsFake(() => Promise.resolve());
         sinon.spy(view, 'createExperiment');
         sinon.spy(notifier, 'trigger');
       });
@@ -310,7 +309,7 @@ define(function (require, exports, module) {
 
     describe('_smsCountry', () => {
       it('resolves to the country on success', () => {
-        sinon.stub(account, 'smsStatus').callsFake(() => p({ country: 'GB', ok: true }));
+        sinon.stub(account, 'smsStatus').callsFake(() => Promise.resolve({ country: 'GB', ok: true }));
         sinon.stub(view, 'isInExperiment').callsFake(() => true);
 
         return view._smsCountry(account)
@@ -323,7 +322,7 @@ define(function (require, exports, module) {
       });
 
       it('resolves to `undefined` if auth-server responds ok: false', () => {
-        sinon.stub(account, 'smsStatus').callsFake(() => p({ country: 'AZ', ok: false }));
+        sinon.stub(account, 'smsStatus').callsFake(() => Promise.resolve({ country: 'AZ', ok: false }));
 
         return view._smsCountry(account)
           .then((country) => {
@@ -338,7 +337,7 @@ define(function (require, exports, module) {
       it('handles XHR errors', () => {
         const err = AuthErrors.toError('UNEXPECTED_ERROR');
 
-        sinon.stub(account, 'smsStatus').callsFake(() => p.reject(err));
+        sinon.stub(account, 'smsStatus').callsFake(() => Promise.reject(err));
         sinon.stub(view, 'logError').callsFake(() => {});
 
         return view._smsCountry(account)
@@ -374,8 +373,8 @@ define(function (require, exports, module) {
         });
 
         describe('not eligible for SMS', () => {
-          it('redirects to /connect_another_device', () => {
-            sinon.stub(view, '_isEligibleForSms').callsFake(() => p({ ok: false }));
+          it('redirects to /connect_another_device without additional logging', () => {
+            sinon.stub(view, '_isEligibleForSms').callsFake(() => Promise.resolve({ ok: false }));
 
             return view.navigateToConnectAnotherDeviceScreen(account)
               .then(() => {
@@ -386,31 +385,45 @@ define(function (require, exports, module) {
 
                 assert.isTrue(view.navigate.calledOnce);
                 assert.isTrue(view.navigate.calledWith('connect_another_device', { account, type: 'signin' }));
+
+                assert.isFalse(view.logFlowEvent.called);
               });
           });
         });
 
         describe('eligible for SMS', () => {
           beforeEach(() => {
-            sinon.stub(view, '_isEligibleForSms').callsFake(() => p({ country: 'GB', ok: true }));
+            sinon.stub(view, '_isEligibleForSms').callsFake(() => Promise.resolve({ country: 'GB', ok: true }));
           });
 
           describe('user is not part of experiment', () => {
-            beforeEach(() => {
-              sinon.stub(view, 'getExperimentGroup').callsFake(() => false);
-            });
-
             it('does not enroll the user in an experiment, logs a flow event, navigates to connect_another_device', () => {
+              sinon.stub(view, 'getExperimentGroup').callsFake(() => false);
               return view.navigateToConnectAnotherDeviceScreen(account)
-              .then(() => {
-                assert.isFalse(view.createExperiment.called);
+                .then(() => {
+                  assert.isFalse(view.createExperiment.called);
 
-                assert.isTrue(view.logFlowEvent.calledOnce);
-                assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.not_in_experiment'));
+                  assert.isTrue(view.logFlowEvent.calledOnce);
+                  assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.not_in_experiment'));
 
-                assert.isTrue(view.navigate.calledOnce);
-                assert.isTrue(view.navigate.calledWith('connect_another_device', { account, type: 'signin' }));
-              });
+                  assert.isTrue(view.navigate.calledOnce);
+                  assert.isTrue(view.navigate.calledWith('connect_another_device', { account, type: 'signin' }));
+                });
+            });
+          });
+
+          describe('country is fully rolled out', () => {
+            it('creates the experiment, redirects to /sms', () => {
+              sinon.stub(view, 'getExperimentGroup').callsFake(() => true);
+              return view.navigateToConnectAnotherDeviceScreen(account)
+                .then(() => {
+                  assert.isFalse(view.createExperiment.called);
+
+                  assert.isFalse(view.logFlowEvent.called);
+
+                  assert.isTrue(view.navigate.calledOnce);
+                  assert.isTrue(view.navigate.calledWith('sms', { account, country: 'GB', type: 'signin' }));
+                });
             });
           });
 

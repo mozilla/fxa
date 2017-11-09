@@ -43,7 +43,8 @@ define((require, exports, module) => {
 
   /**
    * Rollout rate. Should be in the range of [0, 1]. Used
-   * for gradual rollouts to a country.
+   * for gradual rollouts to a country. If rolloutRate is
+   * not defined, 1 is assumed.
    *
    * @property rolloutRate
    * @type {Number}
