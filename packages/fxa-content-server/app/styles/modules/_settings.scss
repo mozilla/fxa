@@ -522,9 +522,9 @@ section.modal-panel {
   background-repeat: no-repeat;
   background-size: 32px 32px;
 
-  min-height: 40px;
   list-style: none;
   margin: 10px 0;
+  min-height: 40px;
   position: relative;
 
   html[dir='ltr'] & {
@@ -576,9 +576,9 @@ section.modal-panel {
   }
 
   .last-connected {
-    margin-right: 120px;
     color: $color-grey;
     font-size: 12px;
+    margin-right: 120px;
 
     @include respond-to('small') {
       max-width: 78%;
