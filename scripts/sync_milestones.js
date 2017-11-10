@@ -84,7 +84,7 @@ module.exports = {
                 ours[theirMilestone.title] = ourMilestone
                 delete ours[ourMilestone.title]
               }
-              console.log("Updating '" + title + "' in " + repo.name, ourMilestone, theirMilestone)
+              console.log("Updating '" + title + "' in " + repo.name)
               return gh.issues.updateMilestone({
                 repo: repo.name,
                 number: ourMilestone.number,
