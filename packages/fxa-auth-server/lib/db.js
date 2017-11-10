@@ -59,10 +59,18 @@ module.exports = (
       const redisConfig = {
         host: config.redis.host,
         port: config.redis.port,
-        prefix: config.redis.sessionsKeyPrefix
+        prefix: config.redis.sessionsKeyPrefix,
+        // Prefer redis to fail fast than wait indefinitely for reconnection
+        enable_offline_queue: false
       }
       log.info({op: 'db.redis.enabled', config: redisConfig})
       this.redis = redis.createClient(redisConfig)
+      // If the `error` event is not handled, redis errors are fatal
+      this.redis.on('error', err => log.error({
+        op: 'db.redis.error',
+        err: err.message,
+        stack: err.stack
+      }))
     } else {
       this.redis = false
       log.info({op: 'db.redis.disabled'})
@@ -255,9 +263,17 @@ module.exports = (
     const promises = [
       this.pool.get('/account/' + uid + '/sessions')
     ]
+    let isRedisOk = true
 
     if (this.redis) {
-      promises.push(this.redis.getAsync(uid))
+      promises.push(
+        this.redis.getAsync(uid)
+          .catch(err => {
+            // Ensure that we don't return lastAccessTime if redis is down
+            isRedisOk = false
+            log.error({ op: 'db.redis.get.error', method: 'sessions', err: err.message })
+          })
+      )
     }
 
     return P.all(promises)
@@ -274,7 +290,7 @@ module.exports = (
         }
         // for each db session token, if there is a matching redis token
         // overwrite the properties of the db token with the redis token values
-        const lastAccessTimeEnabled = features.isLastAccessTimeEnabledForUser(uid)
+        const lastAccessTimeEnabled = isRedisOk && features.isLastAccessTimeEnabledForUser(uid)
         const redisSessionTokens = redisTokens ? JSON.parse(redisTokens) : {}
         const sessions = mysqlSessionTokens.map((sessionToken) => {
           const id = sessionToken.tokenId
@@ -444,9 +460,17 @@ module.exports = (
     const promises = [
       this.pool.get('/account/' + uid + '/devices')
     ]
+    let isRedisOk = true
 
     if (this.redis) {
-      promises.push(this.redis.getAsync(uid))
+      promises.push(
+        this.redis.getAsync(uid)
+          .catch(err => {
+            // Ensure that we don't return lastAccessTime if redis is down
+            isRedisOk = false
+            log.error({ op: 'db.redis.get.error', method: 'devices', err: err.message })
+          })
+      )
     }
     return P.all(promises)
       .spread((devices, redisTokens) => {
@@ -458,7 +482,7 @@ module.exports = (
         })
         // for each device, if there is a redis token with a matching tokenId,
         // overwrite device's ua properties and lastAccessTime with redis token values
-        const lastAccessTimeEnabled = features.isLastAccessTimeEnabledForUser(uid)
+        const lastAccessTimeEnabled = isRedisOk && features.isLastAccessTimeEnabledForUser(uid)
         return devices.map(device => {
           const token = redisSessionTokens[device.sessionTokenId]
           const mergedInfo = Object.assign({}, device, token)
@@ -558,9 +582,7 @@ module.exports = (
       // update the hash with the new token
       sessionTokens = res ? JSON.parse(res) : {}
       sessionTokens[token.id] = newToken
-      return sessionTokens
-    })
-    .then(() => {
+
       return this.redis.setAsync(uid, JSON.stringify(sessionTokens))
     })
     .then(() => sessionTokens)

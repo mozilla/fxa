@@ -35,6 +35,7 @@ const redisDelSpy = sinon.stub()
 const DB = proxyquire('../../lib/db', {
   redis: {
     createClient: () => ({
+      on () {},
       getAsync: redisGetSpy,
       setAsync: redisSetSpy,
       del: redisDelSpy
@@ -138,6 +139,9 @@ describe('remote db', function() {
     () => {
       let tokenId
 
+      // Simulate a cache miss in redis
+      redisGetSpy.returns(P.resolve(null))
+
       // Fetch all sessions for the account
       return db.sessions(account.uid)
         .then(sessions => {
@@ -163,9 +167,6 @@ describe('remote db', function() {
           assert.deepEqual(sessionToken.uid, account.uid)
           tokenId = sessionToken.id
 
-          // Simulate a cache miss in redis
-          redisGetSpy.returns(P.resolve(null))
-
           // Fetch all sessions for the account
           return db.sessions(account.uid)
         })
@@ -182,6 +183,19 @@ describe('remote db', function() {
           assert.equal(sessions[0].uaDeviceType, null, 'uaDeviceType property is correct')
           assert.equal(sessions[0].uaFormFactor, null, 'uaFormFactor property is correct')
           assert.equal(sessions[0].lastAccessTime, sessions[0].createdAt, 'lastAccessTime property is correct')
+
+          // Simulate a redis error
+          redisGetSpy.returns(P.reject({}))
+
+          // Fetch all sessions for the account
+          return db.sessions(account.uid)
+        })
+        .then(sessions => {
+          assert.equal(sessions.length, 1, 'sessions contains one item')
+          assert.equal(sessions[0].lastAccessTime, null, 'lastAccessTime property is not set')
+
+          // Reinstate redis success
+          redisGetSpy.returns(P.resolve())
 
           // Fetch the session token
           return db.sessionToken(tokenId)
@@ -226,6 +240,26 @@ describe('remote db', function() {
           return db.sessionToken(tokenId)
         })
         .then(sessionToken => {
+          // Simulate an error on redis.get
+          redisGetSpy.returns(P.reject({}))
+
+          // Attempt to update the session token
+          return db.updateSessionToken(sessionToken, '127.0.0.1', P.resolve({}))
+            .then(
+              () => assert(false, 'db.updateSessionToken should have failed'),
+              () => assert('db.updateSessionToken failed correctly')
+            )
+        })
+        .then(() => {
+          assert.equal(redisSetSpy.callCount, 0, 'redis.set was not called by updateSessionToken after redis.get failed')
+
+          // Fetch the session token
+          return db.sessionToken(tokenId)
+        })
+        .then(sessionToken => {
+          // Reinstate redis success
+          redisGetSpy.returns(P.resolve())
+
           // Simulate an error on redis.set
           redisSetSpy.returns(P.reject({}))
 
@@ -237,6 +271,7 @@ describe('remote db', function() {
             )
         })
         .then(() => {
+          // Reinstate redis success
           redisSetSpy.returns(P.resolve())
 
           // Fetch the session token
@@ -312,10 +347,6 @@ describe('remote db', function() {
 
           // Fetch all sessions for the account
           return db.sessions(account.uid)
-            .then(
-              () => assert(false, 'db.sessions should have failed'),
-              () => assert('db.sessions failed correctly')
-            )
         })
         .then(() => {
           // Fetch the session token
@@ -327,8 +358,7 @@ describe('remote db', function() {
           assert.equal(sessionToken.uaBrowserVersion, '41')
           assert.equal(sessionToken.uaOS, 'Mac OS X')
           assert.equal(sessionToken.uaOSVersion, '10.10')
-          assert.ok(sessionToken.lastAccessTime >= sessionToken.createdAt)
-          assert.ok(sessionToken.lastAccessTime <= Date.now())
+          assert.equal(sessionToken.lastAccessTime, sessionToken.createdAt)
 
           const mockTokens = JSON.stringify({
             idToNotDelete: {
@@ -457,7 +487,19 @@ describe('remote db', function() {
           })
           .then((devices) => {
             assert.equal(devices.length, 1, 'devices array contains one item')
-            return devices[0]
+
+            // Simulate a redis error
+            redisGetSpy.returns(P.reject({}))
+            return db.devices(account.uid)
+              .then(devices2 => {
+                assert.equal(devices.length, devices2.length, 'db.devices still returns devices array if redis fails')
+                assert.equal(devices2[0].lastAccessTime, null, 'db.devices does not return lastAccessTime if redis fails')
+
+                // Reinstate redis success
+                redisGetSpy.returns(P.resolve(null))
+
+                return devices[0]
+              })
           })
           .then((device) => {
             assert.ok(device.id, 'device.id is set')

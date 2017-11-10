@@ -17,7 +17,7 @@ describe('db, session tokens expire:', () => {
     sessionTokenWithoutDevice: 2419200000
   }
 
-  let results, pool, redis, log, tokens, db
+  let results, pool, log, tokens, db
 
   beforeEach(() => {
     results = {}
@@ -26,15 +26,10 @@ describe('db, session tokens expire:', () => {
       post: sinon.spy(() => P.resolve()),
       put: sinon.spy(() => P.resolve())
     }
-    redis = {
-      getAsync: sinon.spy(() => P.resolve(results.redis)),
-      setAsync: sinon.spy(() => P.resolve())
-    }
     log = mocks.mockLog()
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes })
     const DB = proxyquire(`${LIB_DIR}/db`, {
-      './pool': function () { return pool },
-      redis: { createClient: () => redis }
+      './pool': function () { return pool }
     })({ tokenLifetimes, redis: {} }, log, tokens, {})
     return DB.connect({})
       .then(result => db = result)
@@ -51,7 +46,6 @@ describe('db, session tokens expire:', () => {
         { createdAt: now - tokenLifetimes.sessionTokenWithoutDevice + 1000, tokenId: 'baz' },
         { createdAt: now - tokenLifetimes.sessionTokenWithoutDevice - 1, tokenId: 'qux', deviceId: 'wibble' }
       ]
-      results.redis = []
       return db.sessions()
         .then(result => sessions = result)
     })
@@ -71,7 +65,7 @@ describe('db, session tokens do not expire:', () => {
     sessionTokenWithoutDevice: 0
   }
 
-  let results, pool, redis, log, tokens, db
+  let results, pool, log, tokens, db
 
   beforeEach(() => {
     results = {}
@@ -80,15 +74,10 @@ describe('db, session tokens do not expire:', () => {
       post: sinon.spy(() => P.resolve()),
       put: sinon.spy(() => P.resolve())
     }
-    redis = {
-      getAsync: sinon.spy(() => P.resolve(results.redis)),
-      setAsync: sinon.spy(() => P.resolve())
-    }
     log = mocks.mockLog()
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes })
     const DB = proxyquire(`${LIB_DIR}/db`, {
-      './pool': function () { return pool },
-      redis: { createClient: () => redis }
+      './pool': function () { return pool }
     })({ tokenLifetimes, redis: {} }, log, tokens, {})
     return DB.connect({})
       .then(result => db = result)
@@ -105,7 +94,6 @@ describe('db, session tokens do not expire:', () => {
         { createdAt: now - tokenLifetimes.sessionTokenWithoutDevice + 1000, tokenId: 'baz' },
         { createdAt: now - tokenLifetimes.sessionTokenWithoutDevice - 1, tokenId: 'qux', deviceId: 'wibble' }
       ]
-      results.redis = []
       return db.sessions()
         .then(result => sessions = result)
     })
@@ -137,6 +125,7 @@ describe('db with redis disabled', () => {
     }
 
     redis = {
+      on: sinon.spy(),
       getAsync: sinon.spy(() => P.resolve(results.redis)),
       setAsync: sinon.spy(() => P.resolve()),
       del: sinon.spy(() => P.resolve())
@@ -149,17 +138,11 @@ describe('db with redis disabled', () => {
       redis: { createClient: () => redis }
     })({ tokenLifetimes, redis: {enabled: false} }, log, tokens, {})
     return DB.connect({})
-      .then(result => db = result)
-  })
+      .then(result => {
+        assert.equal(redis.on.callCount, 0, 'redis.on was not called')
 
-  afterEach(() => {
-    pool.get.reset()
-    pool.post.reset()
-    pool.del.reset()
-
-    redis.getAsync.reset()
-    redis.setAsync.reset()
-    redis.del.reset()
+        db = result
+      })
   })
 
   it('should not call redis when reading sessions', () => {
@@ -225,18 +208,44 @@ describe('redis enabled', () => {
       del: sinon.spy(() => P.resolve())
     }
     redis = {
+      on: sinon.spy(),
       getAsync: sinon.spy(() => P.resolve()),
       setAsync: sinon.spy(() => P.resolve()),
       del: sinon.spy(() => P.resolve())
     }
+    const createClient = sinon.spy(() => redis)
     log = mocks.mockLog()
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes })
     const DB = proxyquire(`${LIB_DIR}/db`, {
       './pool': function () { return pool },
-      redis: { createClient: () => redis }
-    })({ tokenLifetimes, redis: {enabled: false} }, log, tokens, {})
+      redis: { createClient }
+    })({
+      tokenLifetimes,
+      redis: {
+        enabled: true,
+        host: 'foo',
+        port: 'bar',
+        sessionsKeyPrefix: 'baz'
+      }
+    }, log, tokens, {})
     return DB.connect({})
-      .then(result => db = result)
+      .then(result => {
+        assert.equal(createClient.callCount, 1, 'redis.createClient was called once')
+        assert.equal(createClient.args[0].length, 1, 'redis.createClient was passed one argument')
+        assert.deepEqual(createClient.args[0][0], {
+          host: 'foo',
+          port: 'bar',
+          prefix: 'baz',
+          enable_offline_queue: false
+        }, 'redis.createClient was passed correct settings')
+
+        assert.equal(redis.on.callCount, 1, 'redis.on was called once')
+        assert.equal(redis.on.args[0].length, 2, 'redis.on was passed two arguments')
+        assert.equal(redis.on.args[0][0], 'error', 'redis.on was called for the `error` event')
+        assert.equal(typeof redis.on.args[0][1], 'function', 'redis.on was passed event handler')
+
+        db = result
+      })
   })
 
   it('should not call redis or the db in db.devices if uid is falsey', () => {
@@ -250,6 +259,31 @@ describe('redis enabled', () => {
           assert.equal(err.message, 'Unknown account')
         }
       )
+  })
+
+  it('should call redis and the db in db.devices if uid is not falsey', () => {
+    return db.devices('wibble')
+      .then(
+        result => assert.equal(result, 'db.devices should reject'),
+        () => {
+          assert.equal(pool.get.callCount, 1)
+          assert.equal(redis.getAsync.callCount, 1)
+        }
+      )
+  })
+
+  describe('redis error:', () => {
+    beforeEach(() => redis.on.args[0][1]({ message: 'foo', stack: 'bar' }))
+
+    it('should log the error', () => {
+      assert.equal(log.error.callCount, 1, 'log.error was called once')
+      assert.equal(log.error.args[0].length, 1, 'log.error was passed one argument')
+      assert.deepEqual(log.error.args[0][0], {
+        op: 'db.redis.error',
+        err: 'foo',
+        stack: 'bar'
+      }, 'log.error was passed the error details')
+    })
   })
 })
 
