@@ -244,13 +244,13 @@ module.exports = (
 
   DB.prototype.accountExists = function (email) {
     log.trace({ op: 'DB.accountExists', email: email })
-    return this.pool.head('/emailRecord/' + hexEncode(email))
+    return this.accountRecord(email)
       .then(
         function () {
           return true
         },
         function (err) {
-          if (err.statusCode === 404) {
+          if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
             return false
           }
           throw err
