@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// This MUST be the first require in the program.
 // Only `require()` the newrelic module if explicity enabled.
 // If required, modules will be instrumented.
 require('../lib/newrelic')()
