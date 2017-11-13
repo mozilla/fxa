@@ -4,6 +4,11 @@
 
 'use strict'
 
+// This MUST be the first require in the program.
+// Only `require()` the newrelic module if explicity enabled.
+// If required, modules will be instrumented.
+require('../lib/newrelic')()
+
 var config = require('../config').getProperties()
 var log = require('../lib/log')(config.log.level, 'profile-server-messaging')
 var error = require('../lib/error')
