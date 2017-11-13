@@ -1,4 +1,6 @@
-FROM node:6.11.5-alpine
+FROM node:6.12.0-alpine
+
+RUN apk add --no-cache make git gcc g++ python
 
 RUN addgroup -g 10001 app && \
     adduser -D -G app -h /app -u 10001 app
