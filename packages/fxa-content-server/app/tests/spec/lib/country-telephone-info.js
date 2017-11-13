@@ -9,147 +9,227 @@ define((require, exports, module) => {
   const CountryTelephoneInfo = require('lib/country-telephone-info');
 
   describe('lib/country-telephone-info', () => {
+    /**
+     * An entry per country. `format` and `normalize`
+     * use the entry key as input, and entry value as output.
+     *
+     * To avoid duplicating validation logic between front and
+     * back ends, very little validation is done on the front end,
+     * primarily length validation. The back end uses a much
+     * more full featured library to validate numbers and will reject
+     * a phone number it views as invalid.
+     */
+    /* eslint-disable sorting/sort-object-props */
+    const testData = {
+      // Austria
+      AT: {
+        format: {
+          '1234567890': '+43 1234567890'
+        },
+        normalize: {
+          '+431234567890': '+431234567890',
+          '1234567890': '+431234567890'
+        },
+        validPatterns: [
+          '123456',
+          '+43123456'
+        ],
+        invalidPatterns: [
+          // wrong country code
+          '+331234567890'
+        ]
+      },
+      // Belgium
+      BE: {
+        format: {
+          '1234567890': '+32 1234567890'
+        },
+        normalize: {
+          '+32123456789': '+32123456789',
+          '1234567890': '+321234567890'
+        },
+        validPatterns: [
+          '1234567890',
+          '+32123456789'
+        ],
+        invalidPatterns: [
+          // too short
+          '123456789',
+          '+3212345678',
 
-    describe('AT', () => {
-      const { format, normalize, pattern } = CountryTelephoneInfo.AT;
+          // too long
+          '12345678901',
+          '+321234567890',
+        ]
+      },
+      // Germany
+      DE: {
+        format: {
+          '1234567890': '+49 1234567890'
+        },
+        normalize: {
+          '+491234567890': '+491234567890',
+          '1234567890': '+491234567890'
+        },
+        validPatterns: [
+          '123456',
+          '1234567890123',
+          '+49123456',
+          '+491234567890123'
+        ],
+        invalidPatterns: [
+          '+331234567890'
+        ]
+      },
+      // France
+      FR: {
+        format: {
+          '1234567890': '+33 1234567890'
+        },
+        normalize: {
+          '+33123456789': '+33123456789',
+          '1234567890': '+331234567890'
+        },
+        validPatterns: [
+          '1234567890',
+          '+33123456789'
+        ],
+        invalidPatterns: [
+          // too short
+          '123456789',
+          '+3312345678',
 
-      describe('format', () => {
-        it('formats correctly', () => {
-          assert.equal(format('1234567890'), '+43 1234567890');
+          // too long
+          '12345678901',
+          '+331234567890',
+        ]
+      },
+      // Great Britain
+      GB: {
+        format: {
+          '1234567890': '+44 1234567890',
+        },
+        normalize: {
+          '+441234567890': '+441234567890',
+          '1234567890': '+441234567890',
+        },
+        validPatterns: [
+          '12345678901',
+          '+441234567890',
+          '07775556372'
+        ],
+        invalidPatterns: [
+          '+331234567890',
+          '+44123456789',
+          // trunk 0 not allowed w/ country code prefix
+          '+4407775551234',
+          '123456789',
+        ]
+      },
+      // Luxembourg
+      LU: {
+        format: {
+          '621123456': '+352 621123456',
+        },
+        normalize: {
+          '+352123456789': '+352123456789',
+          '123456789': '+352123456789',
+        },
+        validPatterns: [
+          '123456789',
+          '+352123456789',
+        ],
+        invalidPatterns: [
+          // too short
+          '12345678',
+          '+35212345678',
+
+          // too long
+          '1234567890',
+          '+3521234567890',
+        ]
+      },
+      // Romania
+      RO: {
+        format: {
+          '712345678': '+40 712345678',
+        },
+        normalize: {
+          '712345678': '+40712345678', // no country code prefix
+          '0712345678': '+40712345678', // no country code prefix, extra 0 before the 7
+          '+40712345678': '+40712345678', // full country code prefix
+          '+400712345678': '+40712345678', // full country code prefix, extra 0 before the 7
+        },
+        validPatterns: [
+          '712345678',
+          '0712345678', // allow leading 0
+          '+40712345678', // full country code prefix
+          '+400712345678', // full country code prefix with 0 before 7
+        ],
+        invalidPatterns: [
+          '71234567', // too short
+          '7123456789', // too long
+          '812345678', // invalid prefix (must be 7)
+          '+45712345678', // incorrect country code prefix
+        ]
+      },
+      // United States & Canada
+      US: {
+        format: {
+          '1234567890': '1234567890',
+        },
+        normalize: {
+          '+11234567890': '+11234567890', // full country code prefix
+          '11234567890': '+11234567890', // country code prefix w/o +
+          '1234567890': '+11234567890', // no country code prefix
+        },
+        validPatterns: [
+          '2134567890',
+          '+12134567890', // full country code prefix
+          '12134567890', // country code prefix w/o +
+          '15234567890',
+        ],
+        invalidPatterns: [
+          '+332134567890',
+          '+1213456789',
+          '213456789',
+          '1213456789',
+          '1123456789', // can't start an area code with 1
+          '11234567890', // can't start an area code with 1
+          '121345678901', // too long, has country prefix
+          '21345678901', // too long, no country prefix
+        ]
+      }
+    };
+    /* eslint-enable sorting/sort-object-props */
+
+    Object.keys(testData).forEach((countryCode) => {
+      describe(countryCode, () => {
+        const { format, normalize, pattern } = CountryTelephoneInfo[countryCode];
+        const countryTelephoneTestData = testData[countryCode];
+
+        it('format formats correctly', () => {
+          Object.keys(countryTelephoneTestData.format).forEach((input) => {
+            assert.equal(format(input), countryTelephoneTestData.format[input]);
+          });
         });
-      });
 
-      describe('normalize', () => {
-        it('normalizes a number accepted by pattern correctly', () => {
-          assert.equal(normalize('+431234567890'), '+431234567890');
-          assert.equal(normalize('1234567890'), '+431234567890');
+        it('normalize normalizes a number accepted by pattern correctly', () => {
+          Object.keys(countryTelephoneTestData.normalize).forEach((input) => {
+            assert.equal(normalize(input), countryTelephoneTestData.normalize[input]);
+          });
         });
-      });
 
-      describe('pattern', () => {
-        it('validates correctly', () => {
-          assert.ok(pattern.test('123456'));
-          assert.ok(pattern.test('+43123456'));
-          assert.isFalse(pattern.test('+331234567890'));
+        it('accepts valid patterns', () => {
+          countryTelephoneTestData.validPatterns.forEach((input) => {
+            assert.isTrue(pattern.test(input));
+          });
         });
-      });
-    });
 
-    describe('DE', () => {
-      const { format, normalize, pattern } = CountryTelephoneInfo.DE;
-
-      describe('format', () => {
-        it('formats correctly', () => {
-          assert.equal(format('1234567890'), '+49 1234567890');
-        });
-      });
-
-      describe('normalize', () => {
-        it('normalizes a number accepted by pattern correctly', () => {
-          assert.equal(normalize('+491234567890'), '+491234567890');
-          assert.equal(normalize('1234567890'), '+491234567890');
-        });
-      });
-
-      describe('pattern', () => {
-        it('validates correctly', () => {
-          assert.ok(pattern.test('123456'));
-          assert.ok(pattern.test('1234567890123'));
-          assert.ok(pattern.test('+49123456'));
-          assert.ok(pattern.test('+491234567890123'));
-          assert.isFalse(pattern.test('+331234567890'));
-        });
-      });
-    });
-
-    describe('GB', () => {
-      const { format, normalize, pattern } = CountryTelephoneInfo.GB;
-
-      describe('format', () => {
-        it('formats correctly', () => {
-          assert.equal(format('1234567890'), '+44 1234567890');
-        });
-      });
-
-      describe('normalize', () => {
-        it('normalizes a number accepted by pattern correctly', () => {
-          assert.equal(normalize('+441234567890'), '+441234567890');
-          assert.equal(normalize('1234567890'), '+441234567890');
-        });
-      });
-
-      describe('pattern', () => {
-        it('validates correctly', () => {
-          assert.ok(pattern.test('1234567890'));
-          assert.ok(pattern.test('+441234567890'));
-          assert.isFalse(pattern.test('+331234567890'));
-          assert.isFalse(pattern.test('+4401234567890')); // that leading 0 kills me.
-          assert.isFalse(pattern.test('+44123456789'));
-          assert.isFalse(pattern.test('123456789'));
-        });
-      });
-    });
-
-    describe('RO', () => {
-      const { format, normalize, pattern } = CountryTelephoneInfo.RO;
-
-      it('formats correctly', () => {
-        assert.equal(format('712345678'), '+40 712345678');
-      });
-
-      describe('normalize', () => {
-        it('normalizes a number accepted by pattern correctly', () => {
-          assert.equal(normalize('712345678'), '+40712345678'); // no country code prefix
-          assert.equal(normalize('0712345678'), '+40712345678'); // no country code prefix, extra 0 before the 7
-          assert.equal(normalize('+40712345678'), '+40712345678'); // full country code prefix
-          assert.equal(normalize('+400712345678'), '+40712345678'); // full country code prefix, extra 0 before the 7
-        });
-      });
-
-      describe('pattern', () => {
-        it('validates correctly', () => {
-          assert.isFalse(pattern.test('71234567')); // too short
-          assert.isFalse(pattern.test('7123456789')); // too long
-          assert.isFalse(pattern.test('812345678')); // invalid prefix (must be 7)
-
-          assert.ok(pattern.test('712345678'));
-          assert.ok(pattern.test('0712345678')); // allow leading 0
-          assert.ok(pattern.test('+40712345678')); // full country code prefix
-          assert.ok(pattern.test('+400712345678')); // full country code prefix with 0 before 7
-          assert.isFalse(pattern.test('+45712345678')); // incorrect country code prefix
-        });
-      });
-    });
-
-    describe('US', () => {
-      const { format, normalize, pattern } = CountryTelephoneInfo.US;
-
-      it('formats correctly', () => {
-        assert.equal(format('1234567890'), '1234567890');
-      });
-
-      describe('normalize', () => {
-        it('normalizes a number accepted by pattern correctly', () => {
-          assert.equal(normalize('+11234567890'), '+11234567890'); // full country code prefix
-          assert.equal(normalize('11234567890'), '+11234567890'); // country code prefix w/o +
-          assert.equal(normalize('1234567890'), '+11234567890'); // no country code prefix
-        });
-      });
-
-      describe('pattern', () => {
-        it('validates correctly', () => {
-          assert.ok(pattern.test('2134567890'));
-          assert.ok(pattern.test('+12134567890')); // full country code prefix
-          assert.ok(pattern.test('12134567890')); // country code prefix w/o +
-          assert.ok(pattern.test('15234567890'));
-          assert.isFalse(pattern.test('+332134567890'));
-          assert.isFalse(pattern.test('+1213456789'));
-          assert.isFalse(pattern.test('213456789'));
-          assert.isFalse(pattern.test('1213456789'));
-          assert.isFalse(pattern.test('1123456789')); // can't start an area code with 1
-          assert.isFalse(pattern.test('11234567890')); // can't start an area code with 1
-          assert.isFalse(pattern.test('121345678901')); // too long, has country prefix
-          assert.isFalse(pattern.test('21345678901')); // too long, no country prefix
+        it('rejects invalid patterns', () => {
+          countryTelephoneTestData.invalidPatterns.forEach((input) => {
+            assert.isFalse(pattern.test(input));
+          });
         });
       });
     });

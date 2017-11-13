@@ -103,7 +103,7 @@ define(function (require, exports, module) {
         });
 
         it('does not throw if valid', () => {
-          assert.isUndefined(validate($requiredTelEl, '1234567890'));
+          assert.isUndefined(validate($requiredTelEl, '12345678901'));
           assert.isUndefined(validate($requiredTelEl, '+441234567890'));
         });
       });
