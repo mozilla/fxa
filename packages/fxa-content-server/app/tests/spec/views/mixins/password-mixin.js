@@ -296,5 +296,13 @@ define(function (require, exports, module) {
         assert.equal(err.type, 'password');
       });
     });
+
+    it('highlightSignupPasswordHelper adds `hightlight` class, unhighlightSignupPasswordHelper removes it', () => {
+      assert.isFalse(view.$('.input-help-signup').hasClass('highlight'));
+      view.highlightSignupPasswordHelper();
+      assert.isTrue(view.$('.input-help-signup').hasClass('highlight'));
+      view.unhighlightSignupPasswordHelper();
+      assert.isFalse(view.$('.input-help-signup').hasClass('highlight'));
+    });
   });
 });

@@ -122,16 +122,6 @@ ul.links {
   }
 }
 
-.change-password .password-row,
-.complete-reset-password .password-row {
-  margin-bottom: 15px;
-}
-
-.change-password .password-row:first-of-type,
-.complete-reset-password .password-row:first-of-type {
-  margin-bottom: 30px;
-}
-
 @include respond-to('small') {
   .extra-links,
   .links + .extra-links {
@@ -194,6 +184,7 @@ ul.links {
 }
 
 .label-helper {
+  left: 0;
   position: absolute;
   top: 0;
   transition: top 400ms,

@@ -117,9 +117,23 @@
 
   input:focus ~ .input-help-focused,
   label:active ~ .input-help-focused,
-  label:focus ~ .input-help-focused {
+  label:focus ~ .input-help-focused,
+  .input-help-focused.highlight {
     color: $input-row-focus-border-color;
     opacity: 1;
+  }
+
+  &.label-helper-top {
+    // input rows with a label on the top need a bit more space
+    // than the 12px margin-bottom given from the element above it,
+    // except for the first row, which only needs 15px.
+    &:first-of-type {
+      margin-top: 15px;
+    }
+
+    &:not(:first-of-type) {
+      margin-top: 30px;
+    }
   }
 
   .label-helper {

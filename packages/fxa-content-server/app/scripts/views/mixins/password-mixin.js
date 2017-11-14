@@ -12,9 +12,13 @@ define(function (require, exports, module) {
   const Constants = require('../../lib/constants');
   const showPasswordTemplate = require('stache!templates/partial/show-password');
 
+  const SELECTOR_SIGNUP_PASSWORD_HELPER = '.input-help-signup';
+
   module.exports = {
     events: {
+      'blur input.password': 'unhighlightSignupPasswordHelper',
       'change input.password': 'onPasswordChanged',
+      'focus input.password': 'highlightSignupPasswordHelper',
       'keyup input.password': 'onPasswordChanged',
       'mousedown .show-password-label': 'onShowPasswordMouseDown',
       'touchstart .show-password-label': 'onShowPasswordMouseDown'
@@ -220,6 +224,22 @@ define(function (require, exports, module) {
     hidePasswordHelper () {
       // Hide all input-help classes except input-help-forgot-pw
       this.$('.input-help:not(.input-help-forgot-pw)').css('opacity', '0');
+    },
+
+    /**
+     * Add the `highlight` class to the signup password helper. This is
+     * used to make the "A strong, unique..." text blue if either
+     * password field is focused.
+     */
+    highlightSignupPasswordHelper () {
+      this.$(SELECTOR_SIGNUP_PASSWORD_HELPER).addClass('highlight');
+    },
+
+    /**
+     * Remove the `highlight` class from the signup password helper
+     */
+    unhighlightSignupPasswordHelper () {
+      this.$(SELECTOR_SIGNUP_PASSWORD_HELPER).removeClass('highlight');
     }
   };
 });
