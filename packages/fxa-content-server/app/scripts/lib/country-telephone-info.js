@@ -82,7 +82,7 @@ define((require, exports, module) => {
       normalize: ensurePrefix('+43'),
       pattern: /^(?:\+43)?\d{6,}$/,
       prefix: '+43',
-      rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=AT`
+      rolloutRate: 0.5
     },
     // Belgium
     // https://en.wikipedia.org/wiki/Telephone_numbers_in_Belgium
