@@ -64,11 +64,11 @@ function compute(msg, callback) {
   logger.debug('process.start', { bytes: src.length, variant: variant });
   processImage(src, msg.width, msg.height).then(function(out) {
     s3Start = Date.now();
-    logger.info('time.ms.gm.' + variant, s3Start - start);
+    logger.info('time.ms.gm.' + variant, { duration: s3Start - start });
     logger.debug('process.end', { bytes: out.length, variant: variant });
     return img.upload(id + suffix, out, CONTENT_TYPE_PNG);
   }).done(function() {
-    logger.info('time.ms.s3.' + variant, Date.now() - s3Start);
+    logger.info('time.ms.s3.' + variant, { duration: Date.now() - s3Start });
     callback({ id: id });
   }, function(err) {
     logger.error('compute', err);
