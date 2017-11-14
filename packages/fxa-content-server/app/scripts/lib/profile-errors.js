@@ -12,15 +12,13 @@ define(function (require, exports, module) {
     return msg;
   };
 
+  const THROTTLED_ERROR_MESSAGE = t('You\'ve tried too many times. Try again later.');
+
   /*eslint-disable sorting/sort-object-props*/
   var ERRORS = {
     UNAUTHORIZED: {
       errno: 100,
       message: t('Unauthorized')
-    },
-    INVALID_TOKEN: {
-      errno: 110,
-      message: t('Invalid Token')
     },
     INVALID_PARAMETER: {
       errno: 101,
@@ -33,6 +31,26 @@ define(function (require, exports, module) {
     IMAGE_PROCESSING_ERROR: {
       errno: 103,
       message: t('Image processing error')
+    },
+    OAUTH_ERROR: {
+      errno: 104,
+      message: t('System unavailable, try again soon')
+    },
+    AUTH_ERROR: {
+      errno: 105,
+      message: t('System unavailable, try again soon')
+    },
+    INVALID_TOKEN: {
+      errno: 110,
+      message: t('Invalid Token')
+    },
+    THROTTLED: {
+      errno: 114,
+      message: THROTTLED_ERROR_MESSAGE
+    },
+    REQUEST_BLOCKED: {
+      errno: 125,
+      message: t('The request was blocked for security reasons')
     },
     IMAGE_LOAD_ERROR: {
       errno: 997,

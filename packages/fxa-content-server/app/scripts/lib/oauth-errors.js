@@ -75,6 +75,22 @@ define(function (require, exports, module) {
         // `scope` should not be translated, so interpolate it in.
         t('Invalid OAuth parameter: %(param)s'), { param: 'scope' })
     },
+    EXPIRED_TOKEN: {
+      errno: 115,
+      message: t('Expired token')
+    },
+    NOT_PUBLIC_CLIENT: {
+      errno: 116,
+      message: 'Not a public client'
+    },
+    INCORRECT_CODE_CHALLENGE: {
+      errno: 117,
+      message: 'Incorrect code_challenge'
+    },
+    MISSING_PKCE_PARAMETERS: {
+      errno: 118,
+      message: 'PKCE parameters missing'
+    },
     SERVICE_UNAVAILABLE: {
       errno: 998,
       message: t('System unavailable, try again soon')

@@ -178,10 +178,34 @@ define(function (require, exports, module) {
       errno: 146,
       message: t('Invalid signin code')
     },
+    CHANGE_EMAIL_TO_UNVERIFIED_EMAIL: {
+      errno: 147,
+      message: t('Can not change primary email to an unverified email')
+    },
+    CHANGE_EMAIL_TO_UNOWNED_EMAIL: {
+      errno: 148,
+      message: t('Can not change primary email to an email that does not belong to this account')
+    },
+    LOGIN_WITH_INVALID_EMAIL: {
+      errno: 149,
+      message: t('This email can not currently be used to login')
+    },
+    RESEND_EMAIL_CODE_TO_UNOWNED_EMAIL: {
+      errno: 150,
+      message: t('Can not change primary email to an email that does not belong to this account')
+    },
+    FAILED_TO_SEND_EMAIL: {
+      errno: 151,
+      message: t('Failed to send email')
+    },
     // Secondary Email errors end
     SERVER_BUSY: {
       errno: 201,
       message: t('Server busy, try again soon')
+    },
+    FEATURE_NOT_ENABLED: {
+      errno: 202,
+      message: t('Feature not enabled')
     },
     ENDPOINT_NOT_SUPPORTED: {
       errno: 116,
