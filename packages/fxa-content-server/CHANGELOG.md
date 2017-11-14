@@ -1,3 +1,38 @@
+<a name="1.100.0"></a>
+# 1.100.0 (2017-11-14)
+
+
+### Bug Fixes
+
+* **back-mixin:** Fix the "New broker method needed for click" error. (#5695) r=@vladikoff ([4a77b2f](https://github.com/mozilla/fxa-content-server/commit/4a77b2f)), closes [(#5695](https://github.com/(/issues/5695) [#5515](https://github.com/mozilla/fxa-content-server/issues/5515)
+* **CAD:** remove Maybe Later (#5674), r=@vbudhram ([78cccaa](https://github.com/mozilla/fxa-content-server/commit/78cccaa))
+* **copy:** Added a hyphen to Sign-in confirmed (#5679) r=vladikoff ([6876737](https://github.com/mozilla/fxa-content-server/commit/6876737))
+* **css:** correctly wrap button for emails (#5681) r=vladikoff ([b0d2b24](https://github.com/mozilla/fxa-content-server/commit/b0d2b24)), closes [#5508](https://github.com/mozilla/fxa-content-server/issues/5508)
+* **devices:** use initial capital letter on strings (#5692), r=@vbudhram ([d911bcf](https://github.com/mozilla/fxa-content-server/commit/d911bcf))
+* **errors:** Ensure all server returned errors have entries. r=vladikoff,philbooth (#5707) ([9677ec1](https://github.com/mozilla/fxa-content-server/commit/9677ec1))
+* **logo:** use new logo on terms and privacy pages (#5717) r=@vbudhram,@shane-tomlinson ([aa9396c](https://github.com/mozilla/fxa-content-server/commit/aa9396c)), closes [#5709](https://github.com/mozilla/fxa-content-server/issues/5709)
+* **metrics:** promote entrypoint to amplitude user properties (#5684) r=@vladikoff ([65b4b04](https://github.com/mozilla/fxa-content-server/commit/65b4b04)), closes [mozilla/fxa-amplitude-send#26](https://github.com/mozilla/fxa-amplitude-send/issues/26)
+* **metrics:** remove flow_id on fxa_pref amplitude events ([057234f](https://github.com/mozilla/fxa-content-server/commit/057234f))
+* **node:** use node 6.12.0 (#5716) r=@vladikoff ([573dbe8](https://github.com/mozilla/fxa-content-server/commit/573dbe8))
+* **restmail:** Fix open restmail links (#5696) r=@vladikoff ([b01a496](https://github.com/mozilla/fxa-content-server/commit/b01a496)), closes [(#5696](https://github.com/(/issues/5696) [#5666](https://github.com/mozilla/fxa-content-server/issues/5666)
+* **signin:** autofocus on sign in button when password is not required (#5657) r=@vladikoff ([4ccff91](https://github.com/mozilla/fxa-content-server/commit/4ccff91))
+* **sms:** Ensure the SMS form for both AT and DE are tested.  (#5694) r=@philbooth ([e5a4cc9](https://github.com/mozilla/fxa-content-server/commit/e5a4cc9))
+* **sms:** SMS exp metrics are not reported for fully rolled out countries. (#5683), @vbudh ([455f2ce](https://github.com/mozilla/fxa-content-server/commit/455f2ce))
+* **style:** Fix styling for 2nd password experiment. (#5704) r=@vladikoff,@ryanfeeley ([a5c2882](https://github.com/mozilla/fxa-content-server/commit/a5c2882)), closes [(#5704](https://github.com/(/issues/5704) [#5581](https://github.com/mozilla/fxa-content-server/issues/5581)
+* **ui:** ensure that long lines wrap in device manager (#5693), r=@vbudhram ([3c25d9e](https://github.com/mozilla/fxa-content-server/commit/3c25d9e))
+* **ui:** move device manager buttons to new row on mobile (#5714) r=@shane-tomlinson,@vla ([2c06f6e](https://github.com/mozilla/fxa-content-server/commit/2c06f6e)), closes [#5712](https://github.com/mozilla/fxa-content-server/issues/5712) [#5713](https://github.com/mozilla/fxa-content-server/issues/5713)
+
+### Features
+
+* **broker:** redirect to Choose What to Sync on newer versions of Firefox for iOS (#5640) r=s ([2b403d6](https://github.com/mozilla/fxa-content-server/commit/2b403d6))
+* **devices:** include location in the last sync/active string (#5682) r=@vladikoff ([eee6e92](https://github.com/mozilla/fxa-content-server/commit/eee6e92)), closes [#5597](https://github.com/mozilla/fxa-content-server/issues/5597)
+* **sass:** SASS lint warnings are now errors. (#5700) r=@vladikoff ([38688e0](https://github.com/mozilla/fxa-content-server/commit/38688e0)), closes [#5699](https://github.com/mozilla/fxa-content-server/issues/5699)
+* **session:** Upgrade user session (#5626), r=@shane-tomlinson, @vladikoff ([04cff4e](https://github.com/mozilla/fxa-content-server/commit/04cff4e))
+* **sms:** Bump Austria (AT) to 50% (#5718) r=@vladikoff ([1d3644e](https://github.com/mozilla/fxa-content-server/commit/1d3644e))
+* **sms:** Enable SMS in Belgium, France, Luxembourg (#5698) r=@philbooth ([83dc5ed](https://github.com/mozilla/fxa-content-server/commit/83dc5ed))
+
+
+
 <a name="1.99.3"></a>
 ## 1.99.3 (2017-11-07)
 
