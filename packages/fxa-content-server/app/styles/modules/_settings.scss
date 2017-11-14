@@ -200,6 +200,12 @@ body.settings #main-content.card {
         }
       }
 
+      html[dir] .clients & {
+        @include respond-to('small') {
+          float: none;
+          margin: 10px 0;
+        }
+      }
     }
   }
 
@@ -539,12 +545,11 @@ section.modal-panel {
 
   .client-name {
     line-height: 1.2;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    /*allows 5% gutter between device-name and .device-disconnected button*/
-    /*reduce by 95px to accomodate the width of the .device-disconnected button*/
-    white-space: nowrap;
-    width: calc(95% - 95px);
+    margin-right: 110px;
+
+    @include respond-to('small') {
+      margin-right: 0;
+    }
   }
 
   .settings-button {
@@ -564,6 +569,10 @@ section.modal-panel {
     html[dir='rtl'] & {
       left: 0;
     }
+
+    @include respond-to('small') {
+      position: relative;
+    }
   }
 
   a.settings-button {
@@ -578,10 +587,10 @@ section.modal-panel {
   .last-connected {
     color: $color-grey;
     font-size: 12px;
-    margin-right: 120px;
+    margin-right: 110px;
 
     @include respond-to('small') {
-      max-width: 78%;
+      margin-right: 0;
     }
   }
 
