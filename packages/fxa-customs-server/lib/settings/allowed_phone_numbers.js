@@ -13,15 +13,11 @@ module.exports = (config, Settings, log) => {
     }
 
     isAllowed(phoneNumber) {
-      return phoneNumber in this.phoneNumbers
+      return this.phoneNumbers.has(phoneNumber)
     }
 
     setAll(phoneNumbers) {
-      this.phoneNumbers = {}
-      phoneNumbers.forEach((phoneNumber) => {
-        this.phoneNumbers[phoneNumber] = true
-      })
-      return Object.keys(this.phoneNumbers)
+      this.phoneNumbers = new Set(phoneNumbers)
     }
 
     validate(phoneNumbers) {
@@ -33,7 +29,7 @@ module.exports = (config, Settings, log) => {
     }
 
     toJSON() {
-      return Object.keys(this.phoneNumbers)
+      return Array.from(this.phoneNumbers)
     }
   }
 
