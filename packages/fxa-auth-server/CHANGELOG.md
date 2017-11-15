@@ -1,3 +1,17 @@
+<a name"1.100.0"></a>
+## 1.100.0 (2017-11-15)
+
+
+#### Bug Fixes
+
+* **node:** use node 6.12.0 (#501) r=@vladikoff ([167c9734](https://github.com/mozilla/fxa-oauth-server/commit/167c9734))
+
+
+#### Features
+
+* **logs:** add sentry support (#499), r=@vbudhram ([ef34859b](https://github.com/mozilla/fxa-oauth-server/commit/ef34859b))
+
+
 <a name"1.99.0"></a>
 ## 1.99.0 (2017-11-03)
 
