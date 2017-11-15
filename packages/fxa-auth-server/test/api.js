@@ -2262,8 +2262,8 @@ describe('/v1', function() {
             const body = res.result[SCOPE_CAN_SCOPE_KEY];
 
             assert.equal(body.identifier, 'https://identity.mozilla.org/apps/sample-scope-can-scope-key');
-            assert.equal(body.keyMaterial, '0000000000000000000000000000000000000000000000000000000000000000');
-            assert.equal(body.timestamp, 123456);
+            assert.equal(body.keyRotationSecret, '0000000000000000000000000000000000000000000000000000000000000000');
+            assert.equal(body.keyRotationTimestamp, 123456);
           });
       });
 
@@ -2282,12 +2282,12 @@ describe('/v1', function() {
             const keyTwo = res.result[ANOTHER_CAN_SCOPE_KEY];
 
             assert.equal(keyOne.identifier, SCOPE_CAN_SCOPE_KEY);
-            assert.equal(keyOne.keyMaterial, '0000000000000000000000000000000000000000000000000000000000000000');
-            assert.equal(keyOne.timestamp, 123456);
+            assert.equal(keyOne.keyRotationSecret, '0000000000000000000000000000000000000000000000000000000000000000');
+            assert.equal(keyOne.keyRotationTimestamp, 123456);
 
             assert.equal(keyTwo.identifier, ANOTHER_CAN_SCOPE_KEY);
-            assert.equal(keyTwo.keyMaterial, '0000000000000000000000000000000000000000000000000000000000000000');
-            assert.equal(keyTwo.timestamp, 123456);
+            assert.equal(keyTwo.keyRotationSecret, '0000000000000000000000000000000000000000000000000000000000000000');
+            assert.equal(keyTwo.keyRotationTimestamp, 123456);
           });
       });
 

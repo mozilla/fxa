@@ -563,8 +563,8 @@ A valid response will return JSON the scoped key information for every scope tha
 {
   "https://identity.mozilla.org/apps/sample-scope-can-scope-key": {
     "identifier": "https://identity.mozilla.org/apps/sample-scope-can-scope-key",
-    "keyMaterial": "0000000000000000000000000000000000000000000000000000000000000000",
-    "timestamp": 1506970363512
+    "keyRotationSecret": "0000000000000000000000000000000000000000000000000000000000000000",
+    "keyRotationTimestamp": 1506970363512
   }
 }
 ```

@@ -16,7 +16,7 @@ const Scope = require('../scope');
  * We're using a static value for key material on purpose, in future this value can read from the DB.
  * @type {String}
  */
-const ADDITIONAL_KEY_MATERIAL = Buffer.alloc(32).toString('hex');
+const KEY_ROTATION_SECRET = Buffer.alloc(32).toString('hex');
 
 module.exports = {
   validate: {
@@ -30,8 +30,8 @@ module.exports = {
     schema: Joi.object().pattern(/^/, [
       Joi.object({
         identifier: Joi.string().required(),
-        keyMaterial: Joi.string().required(),
-        timestamp: Joi.number().required()
+        keyRotationSecret: Joi.string().required(),
+        keyRotationTimestamp: Joi.number().required()
       })
     ])
   },
@@ -74,8 +74,8 @@ module.exports = {
       scopeResults.forEach((keyScope) => {
         response[keyScope.scope] = {
           identifier: keyScope.scope,
-          keyMaterial: ADDITIONAL_KEY_MATERIAL,
-          timestamp: assertionData['fxa-generation']
+          keyRotationSecret: KEY_ROTATION_SECRET,
+          keyRotationTimestamp: assertionData['fxa-generation']
         };
       });
 
