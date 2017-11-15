@@ -1,3 +1,14 @@
+<a name="1.100.0"></a>
+# [1.100.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.99.0...v1.100.0) (2017-11-15)
+
+
+### Bug Fixes
+
+* **node:** use node 6.12.0 (#50) r=@vladikoff ([0c005eb](https://github.com/mozilla/fxa-basket-proxy/commit/0c005eb))
+* **travis:** run tests with 6 and 8 (#49) ([1579354](https://github.com/mozilla/fxa-basket-proxy/commit/1579354))
+
+
+
 <a name="1.99.0"></a>
 # [1.99.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.98.0...v1.99.0) (2017-10-31)
 
