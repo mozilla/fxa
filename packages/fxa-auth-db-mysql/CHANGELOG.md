@@ -1,3 +1,15 @@
+<a name="1.100.0"></a>
+# [1.100.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.98.0...v1.100.0) (2017-11-15)
+
+
+### Bug Fixes
+
+* **newrelic:** futureproofing comment and up to newrelic@2.3.2 with npm run shrink (#285) r=@vl ([bfc1963](https://github.com/mozilla/fxa-auth-db-mysql/commit/bfc1963))
+* **newrelic:** newrelic native requires make, python, gyp, c++; update node 6.12.0 (#286) r=@vl ([4b7e696](https://github.com/mozilla/fxa-auth-db-mysql/commit/4b7e696))
+* **travis:** run tests with 6 and current stable (failure not allowed anymore) ([c4e0e98](https://github.com/mozilla/fxa-auth-db-mysql/commit/c4e0e98))
+
+
+
 <a name="1.98.0"></a>
 # [1.98.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.97.0...v1.98.0) (2017-10-26)
 
