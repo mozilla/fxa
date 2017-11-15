@@ -131,22 +131,10 @@ module.exports = function createServer(config, log) {
     return P.all(promises)
   }
 
-  function isIpAllowed(ip) {
-    return ip in allowedIPs.ips
-  }
-
-  function isEmailAllowed(email) {
-    return email && allowedEmailDomains.isAllowed(email)
-  }
-
-  function isPhoneNumberAllowed(phoneNumber) {
-    return phoneNumber && allowedPhoneNumbers.isAllowed(phoneNumber)
-  }
-
   function isAllowed(ip, email, phoneNumber) {
-    return isIpAllowed(ip) ||
-           isEmailAllowed(email) ||
-           isPhoneNumberAllowed(phoneNumber)
+    return allowedIPs.isAllowed(ip) ||
+           allowedEmailDomains.isAllowed(email) ||
+           allowedPhoneNumbers.isAllowed(phoneNumber)
   }
 
   function allowWhitelisted (result, ip, email, phoneNumber) {
