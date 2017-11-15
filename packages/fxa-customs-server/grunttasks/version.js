@@ -5,11 +5,8 @@
 //
 // A task to stamp a new version.
 //
-// Before running this task you should update CHANGELOG with the
-// changes for this release. Protip: you only need to make changes
-// to CHANGELOG; this task will add and commit for you.
-//
 // * version is updated in package.json
+// * changelog is automatically generated.
 // * git tag with version name is created.
 // * git commit with updated package.json created.
 //
