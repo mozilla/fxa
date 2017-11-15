@@ -1,3 +1,23 @@
+<a name="1.100.0"></a>
+# [1.100.0](https://github.com/mozilla/fxa-auth-server/compare/v1.99.2...v1.100.0) (2017-11-15)
+
+
+### Bug Fixes
+
+* **db:** sanely handle redis errors ([8826364](https://github.com/mozilla/fxa-auth-server/commit/8826364))
+* **emails:** update accountExists to check for secondary emails (#2216); r=rfk ([a8130d3](https://github.com/mozilla/fxa-auth-server/commit/a8130d3))
+* **newrelic:** allow enabling newrelic in background daemons r=@vladikoff ([2d59a0c](https://github.com/mozilla/fxa-auth-server/commit/2d59a0c))
+
+### chore
+
+* **nodejs:** update to 6.12.0 (#2219) r=@vladikoff ([983c369](https://github.com/mozilla/fxa-auth-server/commit/983c369))
+
+### Features
+
+* **sms:** Enable SMS in Belgium, France, Luxembourg (#2211) r=@vladikoff ([afccd3a](https://github.com/mozilla/fxa-auth-server/commit/afccd3a))
+
+
+
 <a name="1.99.2"></a>
 ## [1.99.2](https://github.com/mozilla/fxa-auth-server/compare/v1.99.1...v1.99.2) (2017-11-03)
 
