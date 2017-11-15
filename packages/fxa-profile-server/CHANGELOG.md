@@ -1,3 +1,15 @@
+<a name="1.100.0"></a>
+# [1.100.0](https://github.com/mozilla/fxa-profile-server/compare/v1.98.0...v1.100.0) (2017-11-15)
+
+
+### Bug Fixes
+
+* **logging:** Don't log raw numbers as log msg. (#293) r=@jbuck,@vladikoff ([e07e96b](https://github.com/mozilla/fxa-profile-server/commit/e07e96b))
+* **node:** use node 6.12.0 (#294) r=@vladikoff ([e2573ae](https://github.com/mozilla/fxa-profile-server/commit/e2573ae))
+* **travis:** run tests with 6 and 8 ([fa29eae](https://github.com/mozilla/fxa-profile-server/commit/fa29eae))
+
+
+
 <a name="1.98.0"></a>
 # [1.98.0](https://github.com/mozilla/fxa-profile-server/compare/v1.97.0...v1.98.0) (2017-10-26)
 
