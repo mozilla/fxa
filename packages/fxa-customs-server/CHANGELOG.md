@@ -1,3 +1,20 @@
+<a name="1.100.0"></a>
+# 1.100.0 (2017-11-15)
+
+
+### Bug Fixes
+
+* **grunt:** Commit new file CHANGELOG.md, not the old file CHANGELOG ([e21820c](https://github.com/mozilla/fxa-customs-server/commit/e21820c))
+* **newrelic:** Dockerpush fix newrelic must be first (#215) r=@vladikoff ([bf06c0e](https://github.com/mozilla/fxa-customs-server/commit/bf06c0e)), closes [(#215](https://github.com/(/issues/215)
+* **newrelic:** newrelic native requires python, gyp, c++; update node@6.12.0 (#216) r=@vladikof ([19920cc](https://github.com/mozilla/fxa-customs-server/commit/19920cc))
+
+### chore
+
+* **build:** add changelog tag (#213) r=@vbudhram ([f228d27](https://github.com/mozilla/fxa-customs-server/commit/f228d27))
+* **npm:** update shrinkwrap command ([d45d1ab](https://github.com/mozilla/fxa-customs-server/commit/d45d1ab))
+
+
+
 <a name="1.98.0"></a>
 # 1.98.0 (2017-10-26)
 
