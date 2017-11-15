@@ -203,7 +203,7 @@ describe('redis enabled', () => {
 
   beforeEach(() => {
     pool = {
-      get: sinon.spy(() => P.resolve()),
+      get: sinon.spy(() => P.resolve([])),
       post: sinon.spy(() => P.resolve()),
       del: sinon.spy(() => P.resolve())
     }
@@ -226,6 +226,11 @@ describe('redis enabled', () => {
         host: 'foo',
         port: 'bar',
         sessionsKeyPrefix: 'baz'
+      },
+      lastAccessTimeUpdates: {
+        enabled: true,
+        sampleRate: 1,
+        earliestSaneTimestamp: 1
       }
     }, log, tokens, {})
     return DB.connect({})
@@ -263,13 +268,10 @@ describe('redis enabled', () => {
 
   it('should call redis and the db in db.devices if uid is not falsey', () => {
     return db.devices('wibble')
-      .then(
-        result => assert.equal(result, 'db.devices should reject'),
-        () => {
-          assert.equal(pool.get.callCount, 1)
-          assert.equal(redis.getAsync.callCount, 1)
-        }
-      )
+      .then(() => {
+        assert.equal(pool.get.callCount, 1)
+        assert.equal(redis.getAsync.callCount, 1)
+      })
   })
 
   describe('redis error:', () => {
@@ -283,6 +285,77 @@ describe('redis enabled', () => {
         err: 'foo',
         stack: 'bar'
       }, 'log.error was passed the error details')
+    })
+  })
+
+  describe('redis.get error:', () => {
+    beforeEach(() => redis.getAsync = sinon.spy(() => P.reject({ message: 'wibble' })))
+
+    it('db.sessions should log the error', () => {
+      return db.sessions('blee')
+        .then(() => {
+          assert.equal(redis.getAsync.callCount, 1, 'redis.get was called once')
+          assert.equal(redis.getAsync.args[0].length, 1, 'redis.get was passed one argument')
+          assert.equal(redis.getAsync.args[0][0], 'blee', 'redis.get was passed uid')
+
+          assert.equal(log.error.callCount, 1, 'log.error was called once')
+          assert.equal(log.error.args[0].length, 1, 'log.error was passed one argument')
+          assert.deepEqual(log.error.args[0][0], {
+            op: 'db.redis.get.error',
+            method: 'sessions',
+            err: 'wibble'
+          }, 'log.error was passed the error details')
+        })
+    })
+
+    it('db.devices should log the error', () => {
+      return db.devices('blee')
+        .then(() => {
+          assert.equal(redis.getAsync.callCount, 1, 'redis.get was called once')
+          assert.equal(redis.getAsync.args[0].length, 1, 'redis.get was passed one argument')
+          assert.equal(redis.getAsync.args[0][0], 'blee', 'redis.get was passed uid')
+
+          assert.equal(log.error.callCount, 1, 'log.error was called once')
+          assert.equal(log.error.args[0].length, 1, 'log.error was passed one argument')
+          assert.deepEqual(log.error.args[0][0], {
+            op: 'db.redis.get.error',
+            method: 'devices',
+            err: 'wibble'
+          }, 'log.error was passed the error details')
+        })
+    })
+
+    it('db.updateSessionToken should fail', () => {
+      return db.updateSessionToken({ uid: 'blee' }, null, P.resolve({}))
+        .then(
+          () => assert.equal(false, 'db.updateSessionToken should reject'),
+          err => {
+            assert.deepEqual(err, { message: 'wibble' }, 'db.updateSessionToken rejected with error object')
+
+            assert.equal(redis.getAsync.callCount, 1, 'redis.get was called once')
+            assert.equal(redis.getAsync.args[0].length, 1, 'redis.get was passed one argument')
+            assert.equal(redis.getAsync.args[0][0], 'blee', 'redis.get was passed uid')
+
+            assert.equal(redis.setAsync.callCount, 0, 'redis.set was not called')
+          }
+        )
+    })
+  })
+
+  describe('redis.set error:', () => {
+    beforeEach(() => redis.setAsync = sinon.spy(() => P.reject({ message: 'wibble' })))
+
+    it('db.updateSessionToken should fail', () => {
+      return db.updateSessionToken({ uid: 'blee' }, null, P.resolve({}))
+        .then(
+          () => assert.equal(false, 'db.updateSessionToken should reject'),
+          err => {
+            assert.deepEqual(err, { message: 'wibble' }, 'db.updateSessionToken rejected with error object')
+
+            assert.equal(redis.getAsync.callCount, 1, 'redis.get was called once')
+            assert.equal(redis.setAsync.callCount, 1, 'redis.set was called once')
+          }
+        )
     })
   })
 })

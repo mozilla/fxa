@@ -6,6 +6,9 @@ node_js:
 
 dist: trusty
 
+services:
+  - redis-server
+
 addons:
   apt:
     sources:

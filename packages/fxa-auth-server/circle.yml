@@ -1,6 +1,7 @@
 machine:
   services:
     - docker
+    - redis
 
 dependencies:
   override:
@@ -18,7 +19,7 @@ dependencies:
 
 test:
   override:
-    - docker run fxa-auth-server:test npm run test-ci
+    - docker run --net=host -p 6379:6379 fxa-auth-server:test npm run test-ci
 
 deployment:
   hub_latest:

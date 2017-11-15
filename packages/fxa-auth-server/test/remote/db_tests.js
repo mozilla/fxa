@@ -5,21 +5,19 @@
 'use strict'
 
 const assert = require('insist')
-var uuid = require('uuid')
-var crypto = require('crypto')
-var base64url = require('base64url')
+const base64url = require('base64url')
+const config = require('../../config').getProperties()
+const crypto = require('crypto')
+const P = require('../../lib/promise')
 const sinon = require('sinon')
-var proxyquire = require('proxyquire')
+const TestServer = require('../test_server')
+const UnblockCode = require('../../lib/crypto/base32')(config.signinUnblock.codeLength)
+const uuid = require('uuid')
 
 const log = { trace () {}, info () {}, error () {} }
 
-var config = require('../../config').getProperties()
-var P = require('../../lib/promise')
-var UnblockCode = require('../../lib/crypto/base32')(config.signinUnblock.codeLength)
-var TestServer = require('../test_server')
 const lastAccessTimeUpdates = {
   enabled: true,
-  enabledEmailAddresses: /.*/,
   sampleRate: 1
 }
 const Token = require('../../lib/tokens')(log, {
@@ -28,32 +26,23 @@ const Token = require('../../lib/tokens')(log, {
     sessionTokenWithoutDevice: 2419200000
   }
 })
-const redisGetSpy = sinon.stub()
-const redisSetSpy = sinon.stub()
-const redisDelSpy = sinon.stub()
 
-const DB = proxyquire('../../lib/db', {
-  redis: {
-    createClient: () => ({
-      on () {},
-      getAsync: redisGetSpy,
-      setAsync: redisSetSpy,
-      del: redisDelSpy
-    })
-  }
-})({
+const DB = require('../../lib/db')({
   lastAccessTimeUpdates,
   signinCodeSize: config.signinCodeSize,
   redis: { enabled: true },
   tokenLifetimes: {}
-},
-  log,
-  Token,
-  UnblockCode
-)
+}, log, Token, UnblockCode)
 
-var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex').toString('hex')
-var zeroBuffer32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex')
+const redis = require('redis').createClient({
+  host: config.redis.host,
+  port: config.redis.port,
+  prefix: config.redis.sessionsKeyPrefix,
+  enable_offline_queue: false
+})
+
+const zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex').toString('hex')
+const zeroBuffer32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex')
 
 let account, secondEmail
 
@@ -100,6 +89,8 @@ describe('remote db', function() {
         }
         return db.createEmail(account.uid, emailData)
       })
+      // Ensure redis is empty for the uid
+      .then(() => redis.delAsync(account.uid))
   })
 
   it(
@@ -139,9 +130,6 @@ describe('remote db', function() {
     () => {
       let tokenId
 
-      // Simulate a cache miss in redis
-      redisGetSpy.returns(P.resolve(null))
-
       // Fetch all sessions for the account
       return db.sessions(account.uid)
         .then(sessions => {
@@ -152,7 +140,7 @@ describe('remote db', function() {
           return db.emailRecord(account.email)
         })
         .then(emailRecord => {
-          emailRecord.createdAt = Date.now()
+          emailRecord.createdAt = Date.now() - 1000
           emailRecord.tokenVerificationId = account.tokenVerificationId
           emailRecord.uaBrowser = 'Firefox'
           emailRecord.uaBrowserVersion = '41'
@@ -183,19 +171,7 @@ describe('remote db', function() {
           assert.equal(sessions[0].uaDeviceType, null, 'uaDeviceType property is correct')
           assert.equal(sessions[0].uaFormFactor, null, 'uaFormFactor property is correct')
           assert.equal(sessions[0].lastAccessTime, sessions[0].createdAt, 'lastAccessTime property is correct')
-
-          // Simulate a redis error
-          redisGetSpy.returns(P.reject({}))
-
-          // Fetch all sessions for the account
-          return db.sessions(account.uid)
-        })
-        .then(sessions => {
-          assert.equal(sessions.length, 1, 'sessions contains one item')
-          assert.equal(sessions[0].lastAccessTime, null, 'lastAccessTime property is not set')
-
-          // Reinstate redis success
-          redisGetSpy.returns(P.resolve())
+          assert.equal(sessions[0].location, undefined, 'location property is correct')
 
           // Fetch the session token
           return db.sessionToken(tokenId)
@@ -222,7 +198,6 @@ describe('remote db', function() {
         })
         .then(result => {
           assert.equal(result, undefined)
-          assert.equal(redisSetSpy.lastCall, null, 'session token was not updated if lastAccessTimeUpdates flag is false')
 
           // Fetch all sessions for the account
           return db.sessions(account.uid)
@@ -232,6 +207,7 @@ describe('remote db', function() {
           assert.equal(Object.keys(sessions[0]).length, 18, 'session has correct number of properties')
           assert.equal(sessions[0].uid, account.uid, 'uid property is correct')
           assert.equal(sessions[0].lastAccessTime, undefined, 'lastAccessTime not reported if disabled')
+          assert.equal(sessions[0].location, undefined, 'location property is correct')
 
           // Re-enable session token updates
           lastAccessTimeUpdates.enabled = true
@@ -240,46 +216,10 @@ describe('remote db', function() {
           return db.sessionToken(tokenId)
         })
         .then(sessionToken => {
-          // Simulate an error on redis.get
-          redisGetSpy.returns(P.reject({}))
-
-          // Attempt to update the session token
-          return db.updateSessionToken(sessionToken, '127.0.0.1', P.resolve({}))
-            .then(
-              () => assert(false, 'db.updateSessionToken should have failed'),
-              () => assert('db.updateSessionToken failed correctly')
-            )
-        })
-        .then(() => {
-          assert.equal(redisSetSpy.callCount, 0, 'redis.set was not called by updateSessionToken after redis.get failed')
-
-          // Fetch the session token
-          return db.sessionToken(tokenId)
-        })
-        .then(sessionToken => {
-          // Reinstate redis success
-          redisGetSpy.returns(P.resolve())
-
-          // Simulate an error on redis.set
-          redisSetSpy.returns(P.reject({}))
-
-          // Attempt to update the session token
-          return db.updateSessionToken(sessionToken, '127.0.0.1', P.resolve({}))
-            .then(
-              () => assert(false, 'db.updateSessionToken should have failed'),
-              () => assert('db.updateSessionToken failed correctly')
-            )
-        })
-        .then(() => {
-          // Reinstate redis success
-          redisSetSpy.returns(P.resolve())
-
-          // Fetch the session token
-          return db.sessionToken(tokenId)
-        })
-        .then(sessionToken => {
           // Update the session token
-          return db.updateSessionToken(sessionToken, '127.0.0.1', P.resolve({
+          return db.updateSessionToken(Object.assign({}, sessionToken, {
+            lastAccessTime: Date.now()
+          }), '127.0.0.1', P.resolve({
             location: {
               city: 'Bournemouth',
               country: 'United Kingdom',
@@ -291,26 +231,19 @@ describe('remote db', function() {
           }))
         })
         .then(() => {
-          assert.equal(redisSetSpy.lastCall.args[0], account.uid)
-
-          const redisSetArgs = JSON.parse(redisSetSpy.lastCall.args[1])
-          const token = redisSetArgs[tokenId]
-          assert.equal(token.tokenId, tokenId)
-          assert.equal(token.uid, account.uid)
-          assert.equal(token.uaBrowser, 'Firefox')
-          assert.equal(token.uaBrowserVersion, '41')
-          assert.equal(token.uaOS, 'Mac OS X')
-          assert.equal(token.uaOSVersion, '10.10')
-          assert.equal(token.uaDeviceType, null)
-          assert.equal(token.uaFormFactor, null)
-          assert.equal(token.location.city, 'Bournemouth', 'city is correct')
-          assert.equal(token.location.country, 'United Kingdom', 'country is correct')
-          assert.equal(token.location.countryCode, 'GB', 'countryCode is correct')
-          assert.equal(token.location.state, 'England', 'state is correct')
-          assert.equal(token.location.stateCode, 'EN', 'stateCode is correct')
-          assert.equal(token.location.timeZone, undefined, 'timeZone is not set')
-          assert.ok(token.lastAccessTime)
-          assert.ok(token.createdAt)
+          // Fetch all sessions for the account
+          return db.sessions(account.uid)
+        })
+        .then(sessions => {
+          assert.equal(sessions.length, 1, 'sessions contains one item')
+          assert.equal(sessions[0].uid, account.uid, 'uid property is correct')
+          assert.ok(sessions[0].lastAccessTime > sessions[0].createdAt, 'lastAccessTime is correct')
+          assert.equal(sessions[0].location.city, 'Bournemouth', 'city is correct')
+          assert.equal(sessions[0].location.country, 'United Kingdom', 'country is correct')
+          assert.equal(sessions[0].location.countryCode, 'GB', 'countryCode is correct')
+          assert.equal(sessions[0].location.state, 'England', 'state is correct')
+          assert.equal(sessions[0].location.stateCode, 'EN', 'stateCode is correct')
+          assert.equal(sessions[0].location.timeZone, undefined, 'timeZone is not set')
 
           // Fetch the session token
           return db.sessionToken(tokenId)
@@ -327,8 +260,6 @@ describe('remote db', function() {
           }), '127.0.0.1', P.reject())
         })
         .then(tokens => {
-          redisGetSpy.returns(P.resolve(JSON.stringify(tokens)))
-
           // Fetch all sessions for the account
           return db.sessions(account.uid)
         })
@@ -341,12 +272,6 @@ describe('remote db', function() {
           assert.equal(sessions[0].uaDeviceType, 'mobile', 'uaDeviceType property is correct')
           assert.equal(sessions[0].uaFormFactor, null, 'uaFormFactor property is correct')
           assert.equal(sessions[0].location, null, 'location property is correct')
-
-          // Simulate an error on redis.get
-          redisGetSpy.returns(P.reject({}))
-
-          // Fetch all sessions for the account
-          return db.sessions(account.uid)
         })
         .then(() => {
           // Fetch the session token
@@ -360,25 +285,15 @@ describe('remote db', function() {
           assert.equal(sessionToken.uaOSVersion, '10.10')
           assert.equal(sessionToken.lastAccessTime, sessionToken.createdAt)
 
-          const mockTokens = JSON.stringify({
-            idToNotDelete: {
-              uid: sessionToken.uid,
-              tokenId: 'idToNotDelete'
-            },
-            [sessionToken.id]: {
-              uid: sessionToken.uid,
-              tokenId: sessionToken.id
-            }
-          })
-          redisGetSpy.returns(P.resolve(mockTokens))
-
           // Delete the session token
           return db.deleteSessionToken(sessionToken)
         })
         .then(() => {
-          const redisSetArgs = JSON.parse(redisSetSpy.lastCall.args[1])
-          assert.equal(Object.keys(redisSetArgs).length, 1)
-          assert.ok(redisSetArgs.idToNotDelete)
+          // Fetch all sessions for the account
+          return db.sessions(account.uid)
+        })
+        .then(sessions => {
+          assert.equal(sessions.length, 0, 'sessions is empty')
 
           // Attempt to delete the deleted session token
           return db.sessionToken(tokenId)
@@ -390,13 +305,41 @@ describe('remote db', function() {
               assert.equal(msg, '' + err, 'sessionToken() fails with the correct message')
             })
         })
+        .then(() => {
+          // Fetch the email record again
+          return db.emailRecord(account.email)
+        })
+        .then(emailRecord => {
+          emailRecord.createdAt = Date.now() - 1000
+          emailRecord.tokenVerificationId = account.tokenVerificationId
+          emailRecord.uaBrowser = 'Firefox'
+          emailRecord.uaBrowserVersion = '41'
+          emailRecord.uaOS = 'Mac OS X'
+          emailRecord.uaOSVersion = '10.10'
+          emailRecord.uaDeviceType = emailRecord.uaFormFactor = null
+
+          // Create a session token with the same data as the deleted token
+          return db.createSessionToken(emailRecord)
+        })
+        .then(() => {
+          // Fetch all sessions for the account
+          return db.sessions(account.uid)
+        })
+        .then(sessions => {
+          // Make sure that the data got deleted from redis too
+          assert.equal(sessions.length, 1, 'sessions contains one item')
+          assert.equal(sessions[0].lastAccessTime, sessions[0].createdAt, 'lastAccessTime property is correct')
+          assert.equal(sessions[0].location, undefined, 'location property is correct')
+
+          // Delete the session token again
+          return db.deleteSessionToken(sessions[0])
+        })
     }
   )
 
   it(
     'device registration',
     () => {
-      redisGetSpy.returns(P.resolve(null))
       let sessionToken, anotherSessionToken
       const deviceInfo = {
         id: crypto.randomBytes(16).toString('hex'),
@@ -410,6 +353,7 @@ describe('remote db', function() {
         id: crypto.randomBytes(16).toString('hex'),
         name: 'wibble'
       }
+
       return db.emailRecord(account.email)
           .then((emailRecord) => {
             emailRecord.tokenVerificationId = account.tokenVerificationId
@@ -487,19 +431,7 @@ describe('remote db', function() {
           })
           .then((devices) => {
             assert.equal(devices.length, 1, 'devices array contains one item')
-
-            // Simulate a redis error
-            redisGetSpy.returns(P.reject({}))
-            return db.devices(account.uid)
-              .then(devices2 => {
-                assert.equal(devices.length, devices2.length, 'db.devices still returns devices array if redis fails')
-                assert.equal(devices2[0].lastAccessTime, null, 'db.devices does not return lastAccessTime if redis fails')
-
-                // Reinstate redis success
-                redisGetSpy.returns(P.resolve(null))
-
-                return devices[0]
-              })
+            return devices[0]
           })
           .then((device) => {
             assert.ok(device.id, 'device.id is set')
@@ -544,9 +476,6 @@ describe('remote db', function() {
             ])
           })
           .then(results => {
-            const tokenToReturn = results[1][sessionToken.id]
-            redisGetSpy.returns(P.resolve(JSON.stringify({[sessionToken.id]: tokenToReturn})))
-
             // Create another session token
             return db.createSessionToken(sessionToken)
           })
@@ -622,7 +551,10 @@ describe('remote db', function() {
           })
           .then(function (devices) {
             assert.equal(devices.length, 0, 'devices array is empty')
+
+            return redis.getAsync(account.uid)
           })
+          .then(result => assert.equal(result, null, 'redis was cleared'))
     }
   )
 
@@ -820,9 +752,11 @@ describe('remote db', function() {
         .then(function(accountResetToken) {
           return db.resetAccount(accountResetToken, account)
         })
-        .then(function() {
-          assert.equal(redisDelSpy.lastCall.args[0], account.uid)
-          redisDelSpy.reset()
+        .then(() => {
+          return redis.getAsync(account.uid)
+        })
+        .then(result => {
+          assert.equal(result, null, 'redis was cleared')
           // account should STILL exist for this email address
           return db.accountExists(account.email)
         })
@@ -990,9 +924,11 @@ describe('remote db', function() {
           assert.deepEqual(emailRecord.uid, account.uid, 'retrieving uid should be the same')
           return db.deleteAccount(emailRecord)
         })
-        .then(function() {
-          assert.equal(redisDelSpy.lastCall.args[0], account.uid)
-          redisDelSpy.reset()
+        .then(() => {
+          return redis.getAsync(account.uid)
+        })
+        .then(result => {
+          assert.equal(result, null, 'redis was cleared')
           // account should no longer exist for this email address
           return db.accountExists(account.email)
         })
