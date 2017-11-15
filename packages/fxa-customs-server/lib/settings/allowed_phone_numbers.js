@@ -18,6 +18,7 @@ module.exports = (config, Settings, log) => {
 
     setAll(phoneNumbers) {
       this.phoneNumbers = new Set(phoneNumbers)
+      return this.toJSON()
     }
 
     validate(phoneNumbers) {

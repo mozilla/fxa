@@ -58,6 +58,7 @@ const Settings = require('../lib/settings/settings')(config, mc, console)
 var limits = require('../lib/settings/limits')(config, Settings, console)
 var allowedIPs = require('../lib/settings/allowed_ips')(config, Settings, console)
 var allowedEmailDomains = require('../lib/settings/allowed_email_domains')(config, Settings, console)
+const allowedPhoneNumbers = require('../lib/settings/allowed_phone_numbers')(config, Settings, console)
 var requestChecks = require('../lib/settings/requestChecks')(config, Settings, console)
 var EmailRecord = require('../lib/email_record')(limits)
 var IpEmailRecord = require('../lib/ip_email_record')(limits)
@@ -189,6 +190,17 @@ function setAllowedEmailDomains(domains) {
 }
 
 module.exports.setAllowedEmailDomains = setAllowedEmailDomains
+
+function setAllowedPhoneNumbers(phoneNumbers) {
+  allowedPhoneNumbers.setAll(phoneNumbers)
+  return allowedPhoneNumbers.push()
+    .then((phoneNumbers) => {
+      mc.end()
+      return phoneNumbers
+    })
+}
+
+module.exports.setAllowedPhoneNumbers = setAllowedPhoneNumbers
 
 module.exports.setRequestChecks = setRequestChecks
 

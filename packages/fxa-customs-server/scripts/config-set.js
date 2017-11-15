@@ -95,6 +95,11 @@ process.stdin.on('end', function () {
     actions.push(clobberSettings(mc, 'allowedEmailDomains', input.allowedEmailDomains))
   }
 
+  if (input.allowedPhoneNumbers) {
+    // It's an array, we can't sensibly merge it.
+    actions.push(clobberSettings(mc, 'allowedPhoneNumbers', input.allowedPhoneNumbers))
+  }
+
   if (input.requestChecks) {
     actions.push(writeMergedSettings(mc, 'requestChecks', input.requestChecks))
   }

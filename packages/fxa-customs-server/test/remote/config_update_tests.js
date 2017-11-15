@@ -171,6 +171,35 @@ test(
 )
 
 test(
+  'change allowedPhoneNumbers',
+  function (t) {
+    var allowedPhoneNumbers = ['13133249901']
+    return client.getAsync('/allowedPhoneNumbers')
+      .spread(function (req, res, obj) {
+        t.ok(Array.isArray(obj))
+        t.notDeepEqual(allowedPhoneNumbers, obj, 'allowedPhoneNumbers are different')
+        return mcHelper.setAllowedPhoneNumbers(allowedPhoneNumbers)
+      })
+      .then(function (phoneNumbers) {
+        t.deepEqual(allowedPhoneNumbers, phoneNumbers, 'helper sees the change')
+        // Wait for background polling to detect the new value in memcache
+        return Promise.delay(1010)
+      })
+      .then(function() {
+        return client.getAsync('/allowedPhoneNumbers')
+      })
+      .spread(function (req, res, obj) {
+        t.deepEqual(allowedPhoneNumbers, obj, 'server sees the change')
+        t.end()
+      })
+      .catch(function (err) {
+        t.fail(err)
+        t.end()
+      })
+  }
+)
+
+test(
   'change requestChecks.treatEveryoneWithSuspicion',
   function (t) {
     return client.postAsync('/check', {

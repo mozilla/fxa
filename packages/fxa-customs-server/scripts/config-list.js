@@ -41,6 +41,7 @@ var output = {
   limits: {},
   allowedIPs: [],
   allowedEmailDomains: [],
+  allowedPhoneNumbers: [],
   requestChecks: {}
 }
 

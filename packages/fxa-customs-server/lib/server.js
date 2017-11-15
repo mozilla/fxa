@@ -614,6 +614,14 @@ module.exports = function createServer(config, log) {
     }
   )
 
+  api.get(
+    '/allowedPhoneNumbers',
+    function (req, res, next) {
+      res.send(allowedPhoneNumbers.toJSON())
+      next()
+    }
+  )
+
   return P.all(startupDefers)
     .then(function () {
       return api
