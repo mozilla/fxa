@@ -14,6 +14,7 @@ var TEST_IP5 = '192.0.2.5'
 var TEST_IP6 = '192.0.2.6'
 var CONNECT_DEVICE_SMS = 'connectDeviceSms'
 var PHONE_NUMBER = '14071234567'
+const ALLOWED_PHONE_NUMBER = '13133249901'
 
 var config = {
   listen: {
@@ -27,6 +28,7 @@ process.env.MAX_SMS = 2
 process.env.IP_RATE_LIMIT_INTERVAL_SECONDS = 1
 process.env.IP_RATE_LIMIT_BAN_DURATION_SECONDS = 1
 process.env.RATE_LIMIT_INTERVAL_SECONDS = 1
+process.env.ALLOWED_PHONE_NUMBERS = ALLOWED_PHONE_NUMBER
 
 var mcHelper = require('../memcache-helper')
 
@@ -104,6 +106,47 @@ test(
       .then(function(){
         // Issuing request for another ip address to the same phone number is still rate limited
         return client.postAsync('/check', { ip: TEST_IP5, email: 'tes6@example.com', payload: { phoneNumber: PHONE_NUMBER }, action: CONNECT_DEVICE_SMS })
+      })
+      .spread(function(req, res, obj){
+        t.equal(res.statusCode, 200, 'returns a 200')
+        t.equal(obj.block, false, 'not rate limited')
+        t.end()
+      })
+      .catch(function(err){
+        t.fail(err)
+        t.end()
+      })
+  }
+)
+
+test(
+  '/check `connectDeviceSms` by allowed phone number',
+  function (t) {
+
+    // synthesize sending a bunch of SMS to the same phone number
+    // from the same IP address, much like functional tests.
+    // The IP address and the phone number would both be rate
+    // limited by default, but the phone number is allowed.
+    return client.postAsync('/check', { ip: TEST_IP, email: 'test1@example.com', payload: { phoneNumber: ALLOWED_PHONE_NUMBER }, action: CONNECT_DEVICE_SMS })
+      .spread(function(req, res, obj){
+        t.equal(res.statusCode, 200, 'returns a 200')
+        t.equal(obj.block, false, 'not rate limited')
+        return client.postAsync('/check', { ip: TEST_IP, email: 'test2@example.com', payload: { phoneNumber: ALLOWED_PHONE_NUMBER }, action: CONNECT_DEVICE_SMS })
+      })
+      .spread(function(req, res, obj){
+        t.equal(res.statusCode, 200, 'returns a 200')
+        t.equal(obj.block, false, 'not rate limited')
+        return client.postAsync('/check', { ip: TEST_IP, email: 'test3@example.com', payload: { phoneNumber: ALLOWED_PHONE_NUMBER }, action: CONNECT_DEVICE_SMS })
+      })
+      .spread(function(req, res, obj){
+        t.equal(res.statusCode, 200, 'returns a 200')
+        t.equal(obj.block, false, 'not rate limited')
+        return client.postAsync('/check', { ip: TEST_IP, email: 'test5@example.com', payload: { phoneNumber: ALLOWED_PHONE_NUMBER }, action: CONNECT_DEVICE_SMS })
+      })
+      .spread(function(req, res, obj){
+        t.equal(res.statusCode, 200, 'returns a 200')
+        t.equal(obj.block, false, 'not rate limited')
+        return client.postAsync('/check', { ip: TEST_IP, email: 'tes6@example.com', payload: { phoneNumber: ALLOWED_PHONE_NUMBER }, action: CONNECT_DEVICE_SMS })
       })
       .spread(function(req, res, obj){
         t.equal(res.statusCode, 200, 'returns a 200')
