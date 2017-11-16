@@ -1,3 +1,13 @@
+<a name="1.100.2"></a>
+## 1.100.2 (2017-11-16)
+
+
+### Bug Fixes
+
+* **SMS:** soft-launch LU. Change default rolloutRate to 0. (#5728) r=@vbudhram ([1049eb6](https://github.com/mozilla/fxa-content-server/commit/1049eb6)), closes [#5727](https://github.com/mozilla/fxa-content-server/issues/5727)
+
+
+
 <a name="1.100.1"></a>
 ## 1.100.1 (2017-11-16)
 
