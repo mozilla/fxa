@@ -33,6 +33,11 @@ define((require, exports, module) => {
         return 'treatment';
       }
 
+      const sampleRate = CadOnSigninGroupingRule.sampleRate(subject.env);
+      if (this.bernoulliTrial(sampleRate, subject.uniqueUserId)) {
+        return this.uniformChoice(['control', 'treatment'], subject.uniqueUserId);
+      }
+
       return false;
     }
 
@@ -45,8 +50,21 @@ define((require, exports, module) => {
      */
     _isValidSubject (subject) {
       return subject &&
+             subject.env &&
+             subject.uniqueUserId &&
              subject.account &&
              subject.account.get('email');
+    }
+
+    /**
+     * Return the sample rate for `env`
+     *
+     * @static
+     * @param {String} env
+     * @returns {Number}
+     */
+    static sampleRate (env) {
+      return env === 'development' ? 1.0 : 0.5;
     }
   };
 });
