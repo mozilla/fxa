@@ -347,6 +347,10 @@ those common validations are defined here.
 
 * `schema`: {
     * `id: isA.string.length(32).regex(HEX_STRING)
+    * `location`: isA.object({ city: isA.string.optional.allow(null)
+    * `country`: isA.string.optional.allow(null)
+    * `state`: isA.string.optional.allow(null)
+    * `stateCode`: isA.string.optional.allow(null) })
     * `name`: isA.string.max(255).regex(DISPLAY_SAFE_UNICODE_WITH_NON_BMP)
     * `nameResponse`: isA.string.max(255)
     * `type`: isA.string.max(16)
@@ -1086,6 +1090,24 @@ for the authenticated user.
   
   <!--end-response-body-get-accountdevices-lastAccessTimeFormatted-->
 
+* `approximateLastAccessTime`: *number, min(earliestSaneTimestamp), optional*
+
+  <!--begin-response-body-get-accountdevices-approximateLastAccessTime-->
+  
+  <!--end-response-body-get-accountdevices-approximateLastAccessTime-->
+
+* `approximateLastAccessTimeFormatted`: *string, optional, allow('')*
+
+  <!--begin-response-body-get-accountdevices-approximateLastAccessTimeFormatted-->
+  
+  <!--end-response-body-get-accountdevices-approximateLastAccessTimeFormatted-->
+
+* `location`: *DEVICES_SCHEMA.location*
+
+  <!--begin-response-body-get-accountdevices-location-->
+  
+  <!--end-response-body-get-accountdevices-location-->
+
 * `name`: *DEVICES_SCHEMA.nameResponse.allow('').required*
 
   <!--begin-response-body-get-accountdevices-name-->
@@ -1152,6 +1174,18 @@ for the authenticated user.
   
   <!--end-response-body-get-accountsessions-lastAccessTimeFormatted-->
 
+* `approximateLastAccessTime`: *number, min(earliestSaneTimestamp), optional*
+
+  <!--begin-response-body-get-accountsessions-approximateLastAccessTime-->
+  
+  <!--end-response-body-get-accountsessions-approximateLastAccessTime-->
+
+* `approximateLastAccessTimeFormatted`: *string, optional, allow('')*
+
+  <!--begin-response-body-get-accountsessions-approximateLastAccessTimeFormatted-->
+  
+  <!--end-response-body-get-accountsessions-approximateLastAccessTimeFormatted-->
+
 * `createdTime`: *number, min(0), required, allow(null)*
 
   <!--begin-response-body-get-accountsessions-createdTime-->
@@ -1164,7 +1198,7 @@ for the authenticated user.
   
   <!--end-response-body-get-accountsessions-createdTimeFormatted-->
 
-* `location`: *object({ state: string, allow(null), country: string, allow(null) })*
+* `location`: *DEVICES_SCHEMA.location*
 
   <!--begin-response-body-get-accountsessions-location-->
   Object containing the client's state and country
@@ -1373,6 +1407,12 @@ as a query parameter.
   Opaque alphanumeric token to be included in verification links.
   <!--end-query-param-post-recovery_emailresend_code-service-->
 
+* `type`: *string, max(32), alphanum, allow('upgradeSession'), optional*
+
+  <!--begin-query-param-post-recovery_emailresend_code-type-->
+  
+  <!--end-query-param-post-recovery_emailresend_code-type-->
+
 ##### Request body
 
 * `email`: *validators.email.optional*
@@ -1404,6 +1444,12 @@ as a query parameter.
   <!--begin-request-body-post-recovery_emailresend_code-metricsContext-->
   
   <!--end-request-body-post-recovery_emailresend_code-metricsContext-->
+
+* `type`: *string, max(32), alphanum, allow('upgradeSession'), optional*
+
+  <!--begin-request-body-post-recovery_emailresend_code-type-->
+  
+  <!--end-request-body-post-recovery_emailresend_code-type-->
 
 ##### Error responses
 
