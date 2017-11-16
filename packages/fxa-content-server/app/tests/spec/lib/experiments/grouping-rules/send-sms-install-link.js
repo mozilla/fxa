@@ -39,6 +39,13 @@ define(function (require, exports, module) {
         assert.equal(experiment.choose({ account, country, uniqueUserId: 'user-id' }), 'signinCodes');
       });
 
+      describe('country does not have a `rolloutRate`', () => {
+        it('returns `false', () => {
+          delete CountryTelephoneInfo.GB.rolloutRate;
+          assert.isFalse(experiment.choose({ account, country, uniqueUserId: 'user-id' }));
+        });
+      });
+
       describe('country has a `rolloutRate`', () => {
         beforeEach(() => {
           sinon.stub(experiment, 'uniformChoice').callsFake(() => 'choice');
@@ -67,14 +74,11 @@ define(function (require, exports, module) {
           assert.isTrue(experiment.uniformChoice.called);
           assert.isTrue(experiment.uniformChoice.calledWith(['control', 'signinCodes'], 'user-id'));
         });
-      });
 
-      it('fully rolled out countries return `true`', () => {
-        CountryTelephoneInfo.GB.rolloutRate = 1.0;
-        assert.isTrue(experiment.choose({ account, country, uniqueUserId: 'user-id' }));
-
-        delete CountryTelephoneInfo.GB.rolloutRate;
-        assert.isTrue(experiment.choose({ account, country, uniqueUserId: 'user-id' }));
+        it('fully rolled out countries return `true`', () => {
+          CountryTelephoneInfo.GB.rolloutRate = 1.0;
+          assert.isTrue(experiment.choose({ account, country, uniqueUserId: 'user-id' }));
+        });
       });
     });
   });

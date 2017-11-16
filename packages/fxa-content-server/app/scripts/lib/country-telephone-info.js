@@ -91,7 +91,7 @@ define((require, exports, module) => {
       normalize: ensurePrefix('+32'),
       pattern: /^(?:\+32\d{9}|\d{10})$/,
       prefix: '+32',
-      rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=DE`
+      rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=BE`
     },
     // Germany
     // https://en.wikipedia.org/wiki/Telephone_numbers_in_Germany
@@ -109,13 +109,14 @@ define((require, exports, module) => {
       normalize: ensurePrefix('+33'),
       pattern: /^(?:\+33\d{9}|\d{10})$/,
       prefix: '+33',
-      rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=DE`
+      rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=FR`
     },
     GB: {
       format: formatter('+44 ${serverPhoneNumber}'),
       normalize: ensurePrefix('+44'),
       pattern: /^(?:\+44\d{10}|\d{11})$/,
-      prefix: '+44'
+      prefix: '+44',
+      rolloutRate: 1
     },
     // Luxembourg
     // https://en.wikipedia.org/wiki/Telephone_numbers_in_Luxembourg
@@ -123,7 +124,8 @@ define((require, exports, module) => {
       format: formatter('+352 ${serverPhoneNumber}'),
       normalize: ensurePrefix('+352'),
       pattern: /^(?:\+352)?\d{9}$/,
-      prefix: '+352'
+      prefix: '+352',
+      rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=LU`
     },
     RO: {
       format: formatter('+40 ${serverPhoneNumber}'),
@@ -154,7 +156,8 @@ define((require, exports, module) => {
         return `+1${num}`;
       },
       pattern: /^(\+?1)?[2-9]\d{9,9}$/, // allow for a +1 or 1 prefix before the area code, area codes are all 2-9
-      prefix: '+1'
+      prefix: '+1',
+      rolloutRate: 1
     }
   };
 

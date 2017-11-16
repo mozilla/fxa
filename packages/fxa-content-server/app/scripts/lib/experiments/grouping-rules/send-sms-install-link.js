@@ -8,7 +8,6 @@
 define((require, exports, module) => {
   'use strict';
 
-  const _ = require('underscore');
   const BaseGroupingRule = require('./base');
   const CountryTelephoneInfo = require('../../country-telephone-info');
 
@@ -36,11 +35,12 @@ define((require, exports, module) => {
       }
 
       let choice = false;
-      const { rolloutRate } = CountryTelephoneInfo[subject.country];
+      // If rolloutRate is not specified, assume 0.
+      const { rolloutRate } = CountryTelephoneInfo[subject.country] || 0;
 
       if (isEmailInSigninCodesGroup(subject.account.get('email'))) {
         choice = 'signinCodes';
-      } else if (_.isUndefined(rolloutRate) || rolloutRate >= 1) {
+      } else if (rolloutRate >= 1) {
         // country is fully rolled out.
         choice = true;
       } else if (this.bernoulliTrial(rolloutRate, subject.uniqueUserId)) {
