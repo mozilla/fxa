@@ -1,3 +1,14 @@
+<a name="1.100.1"></a>
+## 1.100.1 (2017-11-16)
+
+
+### Features
+
+* **CAD:** Enable CAD on signin for 50% of people. (#5722) r=@philbooth ([8bee8b7](https://github.com/mozilla/fxa-content-server/commit/8bee8b7)), closes [#5721](https://github.com/mozilla/fxa-content-server/issues/5721)
+* **sms:** Enable SMS to 50% of Germany (DE) (#5723) r=@philbooth ([ac57c33](https://github.com/mozilla/fxa-content-server/commit/ac57c33))
+
+
+
 <a name="1.100.0"></a>
 # 1.100.0 (2017-11-14)
 
