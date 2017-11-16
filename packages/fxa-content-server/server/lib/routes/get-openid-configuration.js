@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
+
 const config = require('../configuration');
 
 const authorizationEndpoint = config.get('oauth_url') + '/v1/authorization';
@@ -26,20 +27,23 @@ for (const key in c) {
 }
 
 module.exports = function (config) {
-  const route = {};
-  route.method = 'get';
-  route.path = '/.well-known/openid-configuration';
+  return {
+    cors: {
+      methods: 'GET',
+      origin: '*',
+      preflightContinue: false
+    },
+    method: 'get',
+    path: '/.well-known/openid-configuration',
+    process: function (req, res) {
 
-  route.process = function (req, res) {
+      // taken from https://accounts.google.com/.well-known/openid-configuration
+      res.header('Cache-Control', 'public, max-age=3600');
 
-    // taken from https://accounts.google.com/.well-known/openid-configuration
-    res.header('Cache-Control', 'public, max-age=3600');
+      // charset must be set on json responses.
+      res.charset = 'utf-8';
 
-    // charset must be set on json responses.
-    res.charset = 'utf-8';
-
-    res.json(openidConfig);
+      res.json(openidConfig);
+    }
   };
-
-  return route;
 };
