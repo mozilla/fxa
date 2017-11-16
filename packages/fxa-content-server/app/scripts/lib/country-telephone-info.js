@@ -100,7 +100,7 @@ define((require, exports, module) => {
       normalize: ensurePrefix('+49'),
       pattern: /^(?:\+49)?\d{6,13}$/,
       prefix: '+49',
-      rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=DE`
+      rolloutRate: 0.5
     },
     // France
     // https://en.wikipedia.org/wiki/Telephone_numbers_in_France
