@@ -330,10 +330,8 @@ define(function (require, exports, module) {
         sinon.spy(view, 'showValidationError');
         model.set('bouncedEmail', 'testuser@testuser.com');
 
-        return view.render()
-          .then(function () {
-            return view.afterVisible();
-          })
+        view.render()
+          .then(() => view.afterVisible())
           .then(function () {
             assert.isTrue(view.showValidationError.called);
             setTimeout(function () {
