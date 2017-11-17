@@ -12,7 +12,7 @@
  * Requires the view to mixin the ConnectAnotherDeviceMixin
  */
 
-define((require, exports, module) => {
+define(function(require, exports, module) {
   'use strict';
 
   const Cocktail = require('cocktail');

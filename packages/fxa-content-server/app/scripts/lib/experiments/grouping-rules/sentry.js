@@ -5,7 +5,7 @@
 /**
  * Is Sentry error reporting enabled for the user?
  */
-define((require, exports, module) => {
+define(function(require, exports, module) {
   'use strict';
 
   const BaseGroupingRule = require('./base');

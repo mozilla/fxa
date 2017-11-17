@@ -5,7 +5,7 @@
 /**
  * Should the user see web sessions in the apps and devices list in settings
  */
-define((require, exports, module) => {
+define(function(require, exports, module) {
   'use strict';
 
   const BaseGroupingRule = require('./base');

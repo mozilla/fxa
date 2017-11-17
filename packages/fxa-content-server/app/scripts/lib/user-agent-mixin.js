@@ -8,7 +8,7 @@
  * Requires `this.window` to be set.
  */
 
-define((require, exports, module) => {
+define(function(require, exports, module) {
   'use strict';
 
   const SearchParamMixin = require('./search-param-mixin');

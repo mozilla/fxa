@@ -10,7 +10,7 @@
  * which contains the HTML to display.
  */
 
-define((require, exports, module) => {
+define(function(require, exports, module) {
   'use strict';
 
   const Constants = require('../../lib/constants');

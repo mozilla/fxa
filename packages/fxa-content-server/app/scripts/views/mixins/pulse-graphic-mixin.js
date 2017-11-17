@@ -5,7 +5,7 @@
 /**
  * A mixin to pulse the primary graphic on the view.
  */
-define((require, exports, module) => {
+define(function(require, exports, module) {
   'use strict';
 
   return {

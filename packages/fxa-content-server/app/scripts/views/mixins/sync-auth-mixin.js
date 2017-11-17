@@ -7,7 +7,7 @@
  * current tab, and if so, which URL should be used to do so.
  */
 
-define((require, exports, module) => {
+define(function(require, exports, module) {
   'use strict';
 
   const _ = require('underscore');

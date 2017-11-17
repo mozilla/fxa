@@ -6,7 +6,7 @@
  * List of SMS error codes.
  * From https://docs.nexmo.com/messaging/sms-api/api-reference#status-codes
  */
-define((require, exports, module) => {
+define(function(require, exports, module) {
   'use strict';
 
   const _ = require('underscore');

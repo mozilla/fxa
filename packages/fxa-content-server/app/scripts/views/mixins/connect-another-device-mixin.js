@@ -16,7 +16,7 @@
  * }
  */
 
-define((require, exports, module) => {
+define(function(require, exports, module) {
   'use strict';
 
   const p = require('../../lib/promise');

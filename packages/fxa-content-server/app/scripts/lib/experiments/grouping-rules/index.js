@@ -6,7 +6,7 @@
  * Interface to experiment choices.
  */
 
-define((require, exports, module) => {
+define(function(require, exports, module) {
   'use strict';
 
   const _ = require('underscore');

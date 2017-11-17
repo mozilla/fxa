@@ -13,7 +13,7 @@
  * 6. Access in views via `this.experiments.choose('name from 3')`
  *    or `this.isInExperimentGroup('name from 3', 'group name')`.
  */
-define((require, exports, module) => {
+define(function(require, exports, module) {
   'use strict';
 
   const BaseGroupingRule = require('./base');
