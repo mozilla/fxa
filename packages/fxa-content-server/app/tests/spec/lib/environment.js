@@ -159,40 +159,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('isFxiOS10OrAbove', function () {
-      it('returns `false` if on Fx 10 or above, false otw', function () {
-        assert.isFalse(environment.isFxiOS10OrAbove('FxiOS/9.0'));
-        assert.isTrue(environment.isFxiOS10OrAbove('FxiOS/10.0'));
-        assert.isTrue(environment.isFxiOS10OrAbove('FxiOS/11.0'));
-        assert.isFalse(environment.isFxiOS('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:40.0) Gecko/20100101 Firefox/40.0'));
-      });
-    });
-
-    describe('isFx57OrAbove', () => {
-      it('returns `true` if Fx Desktop 57 or above', () => {
-        assert.isTrue(environment.isFx57OrAbove('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:57.0) Gecko/20100101 Firefox/57.0'));
-        assert.isTrue(environment.isFx57OrAbove('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:58.0) Gecko/20100101 Firefox/58.0'));
-        assert.isTrue(environment.isFx57OrAbove('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:101.0) Gecko/20100101 Firefox/101.0'));
-        assert.isTrue(environment.isFx57OrAbove('Mozilla/5.0 (Windows NT x.y; WOW64; rv:101.0) Gecko/20100101 Firefox/101.0'));
-      });
-
-      it('returns `true` if Fx for Android 57 or above', () => {
-        assert.isTrue(environment.isFx57OrAbove('Mozilla/5.0 (Android 4.4; Mobile; rv:57.0) Gecko/57.0 Firefox/57.0'));
-        assert.isTrue(environment.isFx57OrAbove('Mozilla/5.0 (Android 4.4; Mobile; rv:57.0) Gecko/58.0 Firefox/58.0'));
-        assert.isTrue(environment.isFx57OrAbove('Mozilla/5.0 (Android 4.4; Mobile; rv:57.0) Gecko/999.0 Firefox/999.0'));
-      });
-
-      it('returns `false` otw', () => {
-        assert.isFalse(environment.isFx57OrAbove('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:40.0) Gecko/20100101 Firefox/40.0'));
-        assert.isFalse(environment.isFx57OrAbove('Mozilla/5.0 (Windows NT x.y; WOW64; rv:10.0) Gecko/20100101 Firefox/10.0'));
-        assert.isFalse(environment.isFx57OrAbove('Mozilla/5.0 (Android; Mobile; rv:40.0) Gecko/40.0 Firefox/40.0'));
-        assert.isFalse(environment.isFx57OrAbove('Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0'));
-        assert.isFalse(environment.isFx57OrAbove('Mozilla/5.0 (Android 4.4; Mobile; rv:56.0) Gecko/56.0 Firefox/56.0'));
-        assert.isFalse(environment.isFx57OrAbove(
-          'Mozilla/5.0 (iPod touch; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4'));
-      });
-    });
-
     describe('hasSendBeacon', function () {
       it('returns `true` if sendBeacon function exists', function () {
         windowMock.navigator.sendBeacon = function () {};

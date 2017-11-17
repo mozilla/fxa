@@ -108,40 +108,6 @@
       return /FxiOS/.test(this.window.navigator.userAgent);
     },
 
-    /**
-     * Is the user in Firefox for iOS 10 or above?
-     *
-     * @param {String} [userAgent=navigator.userAgent] UA string
-     * @returns {Boolean}
-     */
-    isFxiOS10OrAbove: function (userAgent) {
-      var fxRegExp = /FxiOS\/(\d{2,}\.\d{1,})/;
-      var matches = fxRegExp.exec(userAgent || this.window.navigator.userAgent);
-
-      if (matches && matches[1]) {
-        return parseFloat(matches[1]) >= 10;
-      }
-
-      return false;
-    },
-
-    /**
-     * Is the user in Firefox (Desktop or Android) 57 or above?
-     *
-     * @param {String} [userAgent=navigator.userAgent] UA string
-     * @returns {Boolean}
-     */
-    isFx57OrAbove: function (userAgent) {
-      var fxRegExp = /Firefox\/(\d{2,}\.\d{1,})$/;
-      var matches = fxRegExp.exec(userAgent || this.window.navigator.userAgent);
-
-      if (matches && matches[1]) {
-        return parseFloat(matches[1]) >= 57;
-      }
-
-      return false;
-    },
-
     hasSendBeacon: function () {
       return typeof this.window.navigator.sendBeacon === 'function';
     }

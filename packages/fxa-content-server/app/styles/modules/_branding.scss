@@ -1,7 +1,7 @@
 #fox-logo {
 
-  @include hidpi-background-image('firefox', 80px 85px);
-  background-position: center top;
+  background-image: image-url('firefox-logo.svg');
+  background-position: center -1px;
   background-repeat: no-repeat;
   opacity: 0;
   position: relative;
@@ -15,6 +15,7 @@
   }
 
   @include respond-to('small') {
+    background-position-y: 0;
     background-size: auto 55px;
     height: 55px;
     margin: 10px auto 0 auto;
@@ -24,14 +25,6 @@
 
   @include respond-to('trustedUI') {
     display: none;
-  }
-
-  html.fx-57 & {
-    background-image: image-url('firefox-logo.svg');
-    background-position-y: -1px;
-    @include respond-to('small') {
-      background-position-y: 0;
-    }
   }
 
   .static & {

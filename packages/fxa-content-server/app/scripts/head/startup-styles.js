@@ -83,7 +83,6 @@
       this.addSearchParamStyles();
       this.addFxiOSSyncStyles();
       this.addGetUserMediaStyles();
-      this.addFx57Styles();
     },
 
     addJSStyle: function () {
@@ -142,15 +141,6 @@
         this._addClass('getusermedia');
       } else {
         this._addClass('no-getusermedia');
-      }
-    },
-
-    /**
-     * Add the `fx-57` class to the body if in Fx >= 57.
-     */
-    addFx57Styles: function () {
-      if (this.environment.isFx57OrAbove() || this.environment.isFxiOS10OrAbove()) {
-        this._addClass('fx-57');
       }
     }
   };

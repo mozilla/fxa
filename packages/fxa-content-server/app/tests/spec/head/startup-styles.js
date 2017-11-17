@@ -178,41 +178,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('addFx57Styles', () => {
-      it('adds `fx-57` if UA is Fx >= 57', () => {
-        sinon.stub(environment, 'isFx57OrAbove').callsFake(() => true);
-        sinon.stub(environment, 'isFxiOS10OrAbove').callsFake(() => false);
-
-        startupStyles.addFx57Styles();
-        assert.isTrue(/fx-57/.test(startupStyles.getClassName()));
-      });
-
-      it('does not add `fx-57` if UA is Fx <= 56', () => {
-        sinon.stub(environment, 'isFx57OrAbove').callsFake(() => false);
-        sinon.stub(environment, 'isFxiOS10OrAbove').callsFake(() => false);
-
-        startupStyles.addFx57Styles();
-        assert.isFalse(/fx-57/.test(startupStyles.getClassName()));
-      });
-
-      it('adds `fx-57` if UA is FxiOS >= 10', () => {
-        sinon.stub(environment, 'isFx57OrAbove').callsFake(() => false);
-        sinon.stub(environment, 'isFxiOS10OrAbove').callsFake(() => true);
-
-        startupStyles.addFx57Styles();
-        assert.isTrue(/fx-57/.test(startupStyles.getClassName()));
-      });
-
-      it('does not add `fx-57` if UA is FxiOS <= 9', () => {
-        sinon.stub(environment, 'isFx57OrAbove').callsFake(() => false);
-        sinon.stub(environment, 'isFxiOS10OrAbove').callsFake(() => false);
-
-        startupStyles.addFx57Styles();
-        assert.isFalse(/fx-57/.test(startupStyles.getClassName()));
-      });
-
-    });
-
     describe('initialize', function () {
       it('runs all the tests', function () {
         startupStyles.initialize();
