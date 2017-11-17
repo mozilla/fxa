@@ -104,17 +104,6 @@ module.exports = function (log) {
     return 'messageType=fxa-' + templateName + ', app=fxa'
   }
 
-  function isFF57(message) {
-    const uaBrowser = message.uaBrowser
-    const uaBrowserVersion = message.uaBrowserVersion ? parseFloat(message.uaBrowserVersion) : 0
-    const uaOS = message.uaOS
-
-    // Display new FF57 logo from all FF57 originating browsers
-    return (uaBrowser === 'Firefox' && uaBrowserVersion >= 57) ||
-      (uaBrowser === 'Firefox Android' && uaBrowserVersion >= 57) ||
-      (uaBrowser === 'Firefox' && uaBrowserVersion >= 10.0 && uaOS === 'iOS')
-  }
-
   function Mailer(translator, templates, config, sender) {
     var options = {
       host: config.host,
@@ -243,10 +232,6 @@ module.exports = function (log) {
 
   Mailer.prototype.send = function (message) {
     log.trace({ op: 'mailer.' + message.template, email: message.email, uid: message.uid })
-
-    if (message.templateValues) {
-      message.templateValues.isFF57 = isFF57(message)
-    }
 
     const localized = this.localize(message)
 
