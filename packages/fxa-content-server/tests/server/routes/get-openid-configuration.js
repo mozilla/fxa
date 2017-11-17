@@ -16,6 +16,17 @@ define([
     name: 'openid-configuration'
   };
 
+  suite['#options /.well-known/openid-configuration - CORS enabled'] = function () {
+    const dfd = this.async(intern.config.asyncTimeout);
+
+    got(serverUrl + '/.well-known/openid-configuration', { method: 'options' })
+      .then(function (res) {
+        assert.equal(res.statusCode, 204);
+        assert.equal(res.headers['access-control-allow-origin'], '*');
+        assert.equal(res.headers['access-control-allow-methods'], 'GET');
+      }).then(dfd.resolve, dfd.reject);
+  };
+
   suite['#get /.well-known/openid-configuration - returns a JSON doc with expected values'] = function () {
     var dfd = this.async(intern.config.asyncTimeout);
 
@@ -23,6 +34,7 @@ define([
       .then(function (res) {
         assert.equal(res.statusCode, 200);
         assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
+        assert.equal(res.headers['access-control-allow-origin'], '*');
 
         var result = JSON.parse(res.body);
         assert.equal(Object.keys(result).length, 11);

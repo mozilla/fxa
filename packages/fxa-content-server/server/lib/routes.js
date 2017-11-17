@@ -4,6 +4,7 @@
 
 'use strict';
 const celebrate = require('celebrate');
+const cors = require('cors');
 const logger = require('./logging/log')('server.routes');
 
 /**
@@ -91,8 +92,20 @@ module.exports = function (config, i18n) {
       }
 
       // Build a list of route handlers.
-      // `preProcess` and `validate` are optional.
+      // `cors`, preProcess` and `validate` are optional.
       const routeHandlers = [];
+
+      // Enable CORS using https://github.com/expressjs/cors
+      // If defined, `cors` can be truthy or an object.
+      // Objects are passed to the middleware directly.
+      // Other truthy values use the default configuration.
+      if (route.cors) {
+        const corsConfig = typeof route.cors === 'object' ? route.cors : undefined;
+        // Enable the pre-flight OPTIONS request
+        app.options(route.path, cors(corsConfig));
+        routeHandlers.push(cors(corsConfig));
+      }
+
       if (route.preProcess) {
         routeHandlers.push(route.preProcess);
       }
