@@ -318,14 +318,6 @@ define([
       status: 200,
       body: '{}'
     },
-    recoveryEmailSecondaryEmailEnabledTrue: {
-      status: 200,
-      body: '{"ok":true}'
-    },
-    recoveryEmailSecondaryEmailEnabledFalse: {
-      status: 200,
-      body: '{"ok":false}'
-    },
     recoveryEmailSetPrimaryEmail: {
       status: 200,
       body: '{}'

@@ -51,46 +51,6 @@ define([
         assert.notOk();
       }
 
-      test('#recoveryEmailSecondaryEmailEnabled enabled for verified session', function () {
-        return accountHelper.newVerifiedAccount()
-          .then(
-            function (res) {
-              account = res;
-              return respond(client.recoveryEmailSecondaryEmailEnabled(
-                account.signIn.sessionToken
-              ), RequestMocks.recoveryEmailSecondaryEmailEnabledTrue);
-            },
-            handleError
-          )
-          .then(
-            function (res) {
-              assert.ok(res);
-              assert.equal(res.ok, true, 'secondary emails enabled for verified session');
-            },
-            handleError
-          );
-      });
-
-      test('#recoveryEmailSecondaryEmailEnabled disabled for unverified session', function () {
-        return accountHelper.newVerifiedAccount({username: 'confirm.'})
-          .then(
-            function (res) {
-              account = res;
-              return respond(client.recoveryEmailSecondaryEmailEnabled(
-                account.signIn.sessionToken
-              ), RequestMocks.recoveryEmailSecondaryEmailEnabledFalse);
-            },
-            handleError
-          )
-          .then(
-            function (res) {
-              assert.ok(res);
-              assert.equal(res.ok, false, 'secondary emails disabled for unverified session');
-            },
-            handleError
-          );
-      });
-
       test('#recoveryEmailCreate', function () {
         return recoveryEmailCreate()
           .then(
