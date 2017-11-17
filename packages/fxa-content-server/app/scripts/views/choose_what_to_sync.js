@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
+  const $ = require('jquery');
   const BackMixin = require('./mixins/back-mixin');
   const CheckboxMixin = require('./mixins/checkbox-mixin');
   const Cocktail = require('cocktail');

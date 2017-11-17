@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const $ = require('jquery');
   const Account = require('models/account');
   const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');

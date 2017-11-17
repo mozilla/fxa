@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const $ = require('jquery');
   const { assert } = require('chai');
   const FormView = require('views/form');
   const Cocktail = require('cocktail');
@@ -87,21 +88,21 @@ define(function (require, exports, module) {
 
     describe('onCoppaKeyDown', function () {
       it('accept digits', function () {
-        const event = jQuery.Event('keydown', { which: KeyCodes.NUM_1 });
+        const event = $.Event('keydown', { which: KeyCodes.NUM_1 });
         sinon.spy(event, 'preventDefault');
         view.onCoppaKeyDown(event);
         assert.isFalse(event.preventDefault.called);
       });
 
       it('accept ENTER', function () {
-        const event = jQuery.Event('keydown', { which: KeyCodes.ENTER });
+        const event = $.Event('keydown', { which: KeyCodes.ENTER });
         sinon.spy(event, 'preventDefault');
         view.onCoppaKeyDown(event);
         assert.isFalse(event.preventDefault.called);
       });
 
       it('does not allow non-digits', function () {
-        const event = jQuery.Event('keydown', {which: KeyCodes.NUM_PERIOD});
+        const event = $.Event('keydown', {which: KeyCodes.NUM_PERIOD});
         sinon.spy(event, 'preventDefault');
         view.onCoppaKeyDown(event);
         assert.isTrue(event.preventDefault.called);

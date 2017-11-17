@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
+  const $ = require('jquery');
   const AuthErrors = require('../../lib/auth-errors');
   const Notifier = require('../../lib/channels/notifier');
   const p = require('../../lib/promise');

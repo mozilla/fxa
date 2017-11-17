@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
+  const $ = require('jquery');
   const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');

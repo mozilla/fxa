@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const $ = require('jquery');
   const BaseView = require('views/base');
   const Chai = require('chai');
   const CheckboxMixin = require('views/mixins/checkbox-mixin');

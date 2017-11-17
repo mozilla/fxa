@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const $ = require('jquery');
   const Backbone = require('backbone');
   const CanvasMock = require('../../mocks/canvas');
   const chai = require('chai');

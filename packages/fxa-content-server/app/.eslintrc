@@ -1,6 +1,5 @@
 {
   "env": {
-    "jquery": true
   },
 
   "rules": {

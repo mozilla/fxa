@@ -5,7 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const {assert} = require('chai');
+  const $ = require('jquery');
+  const { assert } = require('chai');
   const ConfigLoader = require('lib/config-loader');
   const ConfigLoaderErrors = ConfigLoader.Errors;
   const sinon = require('sinon');

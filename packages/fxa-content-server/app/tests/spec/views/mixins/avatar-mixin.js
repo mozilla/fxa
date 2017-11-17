@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const $ = require('jquery');
   const Account = require('models/account');
   const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
@@ -158,7 +159,7 @@ define(function (require, exports, module) {
           spinnerEl.trigger('transitionend');
           // And another for the spinner's pseudo element, using jQuery.Event
           // this time, so we can set originalEvent
-          spinnerEl.trigger(jQuery.Event('transitionend', {
+          spinnerEl.trigger($.Event('transitionend', {
             originalEvent: {
               pseudoElement: '::after'
             }

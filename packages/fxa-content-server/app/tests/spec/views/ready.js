@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const $ = require('jquery');
   const { assert } = require('chai');
   const VerificationReasons = require('lib/verification-reasons');
   const FxaClient = require('lib/fxa-client');

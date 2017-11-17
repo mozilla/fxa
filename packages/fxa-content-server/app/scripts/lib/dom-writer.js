@@ -5,6 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const $ = require('jquery');
+
   module.exports = {
     /**
      * Write content to the DOM

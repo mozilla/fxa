@@ -25,7 +25,7 @@ define(function (require, exports, module) {
       // the backend and can control the return value.
 
       $.getJSON = function () {
-        var deferred = jQuery.Deferred();
+        var deferred = $.Deferred();
         deferred.resolve(serverConfig);
         return deferred.promise();
       };

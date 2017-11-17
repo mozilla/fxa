@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const $ = require('jquery');
   const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const Broker = require('models/auth_brokers/base');
