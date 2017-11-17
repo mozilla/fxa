@@ -3,11 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 require([
-  'lib/translator',
   'lib/session',
   '../tests/setup'
 ],
-function (Translator, Session) {
+function (Session) {
   'use strict';
 
   var tests = [
@@ -221,9 +220,6 @@ function (Translator, Session) {
     '../tests/spec/views/tos',
     '../tests/spec/views/why_connect_another_device'
   ];
-
-  // The translator is expected to be on the window object.
-  window.translator = new Translator('en-US', ['en-US']);
 
   var runTests = function () {
     /**

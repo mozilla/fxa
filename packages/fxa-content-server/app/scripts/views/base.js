@@ -21,6 +21,7 @@ define(function (require, exports, module) {
   const SearchParamMixin = require('../lib/search-param-mixin');
   const Strings = require('../lib/strings');
   const TimerMixin = require('./mixins/timer-mixin');
+  const Translator = require('../lib/translator');
   const VerificationReasons = require('../lib/verification-reasons');
 
   var DEFAULT_TITLE = window.document.title;
@@ -133,7 +134,7 @@ define(function (require, exports, module) {
       this.logger = new Logger(this.window);
 
       this.navigator = options.navigator || this.window.navigator || navigator;
-      this.translator = options.translator || this.window.translator;
+      this.translator = options.translator || new Translator();
 
       // `events` are defined on child views without extending
       // BaseView's events. Defining events on BaseView (or any

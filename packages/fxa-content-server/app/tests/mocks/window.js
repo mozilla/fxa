@@ -27,7 +27,6 @@ define(function (require, exports, module) {
   function WindowMock() {
     var win = this;
 
-    this.translator = window.translator;
     this.location = {
       host: window.location.host,
       href: window.location.href,
