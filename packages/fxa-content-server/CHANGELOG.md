@@ -1,3 +1,17 @@
+<a name="1.100.3"></a>
+## 1.100.3 (2017-11-17)
+
+
+### Bug Fixes
+
+* **SMS:** soft-launch LU. Change default rolloutRate to 0. (#5728) r=@vbudhram ([759e976](https://github.com/mozilla/fxa-content-server/commit/759e976)), closes [#5727](https://github.com/mozilla/fxa-content-server/issues/5727)
+
+### Features
+
+* **keys:** add support for deriving scoped keys in the oauth flow (#5675) r=@rfk,@shane-tom ([dd53307](https://github.com/mozilla/fxa-content-server/commit/dd53307)), closes [#5701](https://github.com/mozilla/fxa-content-server/issues/5701)
+
+
+
 <a name="1.100.2"></a>
 ## 1.100.2 (2017-11-16)
 
