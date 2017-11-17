@@ -1,3 +1,13 @@
+<a name="1.100.4"></a>
+## 1.100.4 (2017-11-17)
+
+
+### Features
+
+* **OpenID:** Enable CORS on the /.well-known/openid-configuration endpoint. (#5730) r=@vladik ([98c5b41](https://github.com/mozilla/fxa-content-server/commit/98c5b41)), closes [#5453](https://github.com/mozilla/fxa-content-server/issues/5453)
+
+
+
 <a name="1.100.3"></a>
 ## 1.100.3 (2017-11-17)
 
