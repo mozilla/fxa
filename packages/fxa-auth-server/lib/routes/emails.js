@@ -20,23 +20,6 @@ module.exports = (log, db, mailer, config, customs, push) => {
   return [
     {
       method: 'GET',
-      path: '/recovery_email/check_can_add_secondary_address',
-      config: {
-        auth: {
-          strategy: 'sessionToken'
-        }
-      },
-      handler (request, reply) {
-        log.begin('Account.RecoveryEmailEnabled', request)
-
-        const sessionToken = request.auth.credentials
-
-        // Secondary emails are enabled if the session is verified
-        return reply({ ok: sessionToken.tokenVerified })
-      }
-    },
-    {
-      method: 'GET',
       path: '/recovery_email/status',
       config: {
         auth: {

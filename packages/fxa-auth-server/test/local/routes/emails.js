@@ -931,44 +931,4 @@ describe('/recovery_email', () => {
         err => assert.equal(err.errno, 147, 'correct errno changing email to unverified email'))
     })
   })
-
-  describe('can check feature enable flag', () => {
-    function setupTest(options) {
-      dbData = {
-        email: options.email,
-        uid: uid,
-        secondEmail: TEST_EMAIL_ADDITIONAL
-      }
-      mockDB = mocks.mockDB(dbData)
-      accountRoutes = makeRoutes({
-        checkPassword: function () {
-          return P.resolve(true)
-        },
-        config: {},
-        customs: mockCustoms,
-        db: mockDB,
-        log: mockLog,
-        mailer: mockMailer,
-        push: mockPush
-      })
-      route = getRoute(accountRoutes, '/recovery_email/check_can_add_secondary_address')
-    }
-
-    it('/recovery_email/check_can_add_secondary_address disabled with unverified session', () => {
-      setupTest({email: 'asdf@mozilla.com'})
-      mockRequest.auth.credentials.tokenVerified = false
-      return runTest(route, mockRequest, (res) => {
-        assert.equal(res.ok, false, 'return ok `false` when feature is not enabled for user')
-      })
-    })
-
-    it('/recovery_email/check_can_add_secondary_address enabled with verified session', () => {
-      setupTest({email: 'asdf@mozilla.com'})
-      mockRequest.auth.credentials.tokenVerified = true
-      return runTest(route, mockRequest, (res) => {
-        assert.equal(res.ok, true, 'return ok `true` when feature is enabled for user')
-      })
-    })
-  })
-
 })
