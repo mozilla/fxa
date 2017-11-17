@@ -71,6 +71,8 @@ define([
           assert.equal(sentConfig.oAuthClientId, config.get('oauth_client_id'));
           assert.equal(sentConfig.oAuthUrl, config.get('oauth_url'));
           assert.equal(sentConfig.profileUrl, config.get('profile_url'));
+          assert.equal(sentConfig.scopedKeysEnabled, config.get('scopedKeys.enabled'));
+          assert.ok(sentConfig.scopedKeysValidation, 'config validation is present');
         }
       }
     }

@@ -118,6 +118,34 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('getClientKeyData', () => {
+      const scope = 'https://identity.mozilla.org/apps/sample-scope-can-scope-key';
+      const params = {
+        assertion: 'eyJhbGciOiJSUzI1NiJ9.eyJwdWJsaWM1NiJ9.eyJhdWQiOiJvYXV0aC5meGEiLCJleHA',
+        client_id: 'aaa6b9b3a65a1871', //eslint-disable-line camelcase
+        scope: scope
+      };
+
+      it('response with scope key data', () => {
+        sinon.stub(client, '_request').callsFake(function () {
+          return p({
+            [scope]: {
+              identifier: scope,
+              keyRotationSecret: '0000000000000000000000000000000000000000000000000000000000000000',
+              keyRotationTimestamp: 1506970363512
+            }
+          });
+        });
+
+        return client.getClientKeyData(params)
+          .then(function (result) {
+            assert.isTrue(client._request.calledWith('post', '/v1/key-data'));
+            assert.ok(result);
+            assert.equal(result[scope].keyRotationTimestamp, 1506970363512);
+          });
+      });
+    });
+
     describe('getToken', function () {
       it('responds with a token', function () {
         var token = 'access token';

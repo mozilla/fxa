@@ -1020,25 +1020,6 @@ define(function (require, exports, module) {
       return this._fxaClient.accountKeys(
           this.get('keyFetchToken'), this.get('unwrapBKey'));
     },
-
-    /**
-     * Fetch keys that can be used by a relier.
-     *
-     * @param {Object} relier
-     * @returns {Promise} that resolves with the relier keys, if they
-     *   can be generated, resolves with null otherwise.
-     */
-    relierKeys (relier) {
-      return this.accountKeys()
-        .then((accountKeys) => {
-          if (! accountKeys) {
-            return null;
-          }
-
-          return relier.deriveRelierKeys(accountKeys, this.get('uid'));
-        });
-    },
-
     /**
      * Check whether password reset is complete for the given token
      *

@@ -40,6 +40,7 @@ require.config({
   ],
   requireOnDemand: [
     'fxaClient',
+    'fxaCryptoDeriver',
     'jwcrypto'
   ],
   // the sriify task will replace sriConfig for production
@@ -73,6 +74,7 @@ require.config({
     duration: '../bower_components/Duration.js/duration',
     fxaCheckbox: '../bower_components/fxa-checkbox/checkbox',
     fxaClient: '../bower_components/fxa-js-client/fxa-client',
+    fxaCryptoDeriver: '../bower_components/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver.amd',
     jquery: '../bower_components/jquery/dist/jquery',
     'jquery-simulate': '../bower_components/jquery-simulate/jquery.simulate',
     // jwcrypto is used by the main app and only contains DSA

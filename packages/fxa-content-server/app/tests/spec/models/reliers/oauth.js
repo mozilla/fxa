@@ -65,6 +65,7 @@ define(function (require, exports, module) {
       user = new User();
 
       relier = new OAuthRelier({}, {
+        config: {},
         oAuthClient: oAuthClient,
         session: Session,
         window: windowMock
@@ -484,6 +485,110 @@ define(function (require, exports, module) {
           utmSource: ITEM,
           utmTerm: ITEM
         });
+      });
+    });
+
+    describe('_validateKeyScopeRequest', () => {
+      const scopeApp1 = 'profile openid https://identity.mozilla.org/apps/lockbox';
+      const scopeApp1Redirect = 'https://dee85c67bd72f3de1f0a0fb62a8fe9b9b1a166d7.extensions.allizom.org';
+      const scopeApp1Redirect2 = 'lockbox://redirect.ios';
+      const scopeApp2Redirect = 'https://2aa95473a5115d5f3deb36bb6875cf76f05e4c4d.extensions.allizom.org';
+      const scopeNormal = 'profile';
+
+      beforeEach(() => {
+        relier._config.scopedKeysValidation = {
+          'https://identity.mozilla.org/apps/lockbox': {
+            redirectUris: [
+              scopeApp1Redirect,
+              scopeApp1Redirect2
+            ]
+          },
+          'https://identity.mozilla.org/apps/notes': {
+            redirectUris: [
+              scopeApp2Redirect
+            ]
+          }
+        };
+      });
+
+      it('returns false by default', () => {
+        relier.set('scope', scopeNormal);
+        assert.isFalse(relier._validateKeyScopeRequest());
+      });
+
+      it('returns true if scopes match at least one redirect uri', () => {
+        relier.set('keysJwk', 'jwk');
+        relier.set('scope', scopeApp1);
+        relier.set('redirectUri', scopeApp1Redirect);
+        assert.isTrue(relier._validateKeyScopeRequest());
+
+        relier.set('scope', scopeApp1);
+        relier.set('redirectUri', scopeApp1Redirect2);
+        assert.isTrue(relier._validateKeyScopeRequest());
+      });
+
+      it('throws if a client requests keys for an unknown scoped key scope', (done) => {
+        relier.set('keysJwk', 'jwk');
+        relier.set('scope', 'https://identity.mozilla.org/not-found');
+        relier.set('redirectUri', scopeApp2Redirect);
+
+        try {
+          relier._validateKeyScopeRequest();
+        } catch (err) {
+          assert.equal(err.message, 'No key-bearing scopes requested');
+          done();
+        }
+      });
+
+      it('throws if a client requests a scope that does not belong to it', (done) => {
+        relier.set('keysJwk', 'jwk');
+        relier.set('scope', scopeApp1);
+        relier.set('redirectUri', scopeApp2Redirect);
+
+        try {
+          relier._validateKeyScopeRequest();
+        } catch (err) {
+          assert.equal(err.message, 'Invalid redirect parameter');
+          done();
+        }
+      });
+    });
+
+    describe('wantsKeys', () => {
+      it('returns false by default', () => {
+        assert.isFalse(relier.wantsKeys());
+      });
+
+      it('returns false with just keysJwk', () => {
+        relier._config.scopedKeysEnabled = false;
+        relier.set('keysJwk', 'jwk');
+        assert.isFalse(relier.wantsKeys());
+      });
+
+      it('returns false with just scopedKeysEnabled', () => {
+        relier._config.scopedKeysEnabled = true;
+        assert.isFalse(relier.wantsKeys());
+      });
+
+      it('throws if no scopes', () => {
+        relier._config.scopedKeysEnabled = true;
+        relier.set('keysJwk', 'jwk');
+        assert.throws(relier.wantsKeys.bind(relier), Error, 'Invalid scope parameter');
+      });
+
+      it('returns true with keysJwk, enabled scoped keys and valid scope', () => {
+        relier._config.scopedKeysEnabled = true;
+        relier._config.scopedKeysValidation = {
+          'https://identity.mozilla.org/apps/lockbox': {
+            redirectUris: [
+              'lockbox://redirect.ios'
+            ]
+          }
+        };
+        relier.set('keysJwk', 'jwk');
+        relier.set('scope', 'profile https://identity.mozilla.org/apps/lockbox');
+        relier.set('redirectUri', 'lockbox://redirect.ios');
+        assert.isTrue(relier.wantsKeys());
       });
     });
 

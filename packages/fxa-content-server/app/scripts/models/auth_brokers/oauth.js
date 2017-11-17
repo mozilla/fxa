@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   const HaltBehavior = require('../../views/behaviors/halt');
   const OAuthErrors = require('../../lib/oauth-errors');
   const p = require('../../lib/promise');
+  const ScopedKeys = require('lib/crypto/scoped-keys');
   const Url = require('../../lib/url');
   const Vat = require('../../lib/vat');
 
@@ -72,6 +73,7 @@ define(function (require, exports, module) {
       this.session = options.session;
       this._assertionLibrary = options.assertionLibrary;
       this._oAuthClient = options.oAuthClient;
+      this._scopedKeys = ScopedKeys;
 
       return BaseAuthenticationBroker.prototype.initialize.call(
                   this, options);
@@ -81,25 +83,69 @@ define(function (require, exports, module) {
       if (! account || ! account.get('sessionToken')) {
         return p.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
-
+      let assertion;
       const relier = this.relier;
       const clientId = relier.get('clientId');
       return this._assertionLibrary.generate(account.get('sessionToken'), null, clientId)
-        .then((assertion) => {
-          var oauthParams = {
+        .then((asser) => {
+          assertion = asser;
+
+          if (relier.wantsKeys()) {
+            return this._provisionScopedKeys(account, assertion);
+          }
+        })
+        .then((keysJwe) => {
+          const oauthParams = {
             assertion: assertion,
             client_id: clientId, //eslint-disable-line camelcase
             code_challenge: relier.get('codeChallenge'), //eslint-disable-line camelcase
             code_challenge_method: relier.get('codeChallengeMethod'), //eslint-disable-line camelcase
+            keys_jwe: keysJwe, //eslint-disable-line camelcase
             scope: relier.get('scope'),
             state: relier.get('state')
           };
+
           if (relier.get('accessType') === Constants.ACCESS_TYPE_OFFLINE) {
             oauthParams.access_type = Constants.ACCESS_TYPE_OFFLINE; //eslint-disable-line camelcase
           }
           return this._oAuthClient.getCode(oauthParams);
         })
         .then(_formatOAuthResult);
+    },
+
+    /**
+     * Derive scoped keys and encrypt them with the relier's public JWK
+     *
+     * @param {Object} account
+     * @param {String} assertion
+     * @returns {Promise} Returns a promise that resolves into an encrypted bundle
+     * @private
+     */
+    _provisionScopedKeys (account, assertion) {
+      const relier = this.relier;
+      const keyFetchToken = account.get('keyFetchToken');
+      const unwrapBKey = account.get('unwrapBKey');
+
+      return p().then(() => {
+        if (unwrapBKey && keyFetchToken) {
+          // check if requested scopes provide scoped keys
+          return this._oAuthClient.getClientKeyData({
+            assertion: assertion,
+            client_id: relier.get('clientId'), //eslint-disable-line camelcase
+            scope: relier.get('scope')
+          });
+        }
+      })
+      .then((clientKeyData) => {
+        if (! clientKeyData || Object.keys(clientKeyData).length === 0) {
+          // if we got no key data then exit out
+          return null;
+        }
+
+        return account.accountKeys().then((keys) => {
+          return this._scopedKeys.createEncryptedBundle(keys, clientKeyData, relier.get('keysJwk'));
+        });
+      });
     },
 
     /**

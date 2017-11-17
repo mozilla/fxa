@@ -273,6 +273,7 @@ define(function (require, exports, module) {
         // is completing a Sync flow is `service=sync`.
         if (this._isOAuth()) {
           relier = new OAuthRelier({ context }, {
+            config: this._config,
             isVerification: this._isVerification(),
             oAuthClient: this._oAuthClient,
             sentryMetrics: this._sentryMetrics,

@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const Account = require('models/account');
   const Assertion = require('lib/assertion');
   const AuthErrors = require('lib/auth-errors');
   const chai = require('chai');
@@ -316,6 +317,84 @@ define(function (require, exports, module) {
         var transformed = broker.transformLink('signin');
         assert.include(transformed, '/oauth/signin');
       });
+    });
+
+    describe('_provisionScopedKeys', () => {
+      let accountKey;
+      const keysJwk = 'jwk';
+      const keys = {
+        kA: 'foo',
+        kB: 'bar'
+      };
+      const scope = 'https://identity.mozilla.org/apps/sample-scope-can-scope-key';
+      const keyData = {
+        [scope]: {
+          identifier: scope,
+          keyRotationSecret: '0000000000000000000000000000000000000000000000000000000000000000',
+          keyRotationTimestamp: 1506970363512
+        }
+      };
+
+      beforeEach(() => {
+        sinon.stub(broker._oAuthClient, 'getClientKeyData').callsFake((args) => {
+          assert.equal(args.assertion, 'assertion');
+          assert.equal(args.client_id, 'clientId');
+          assert.equal(args.scope, 'scope');
+
+          return p(keyData);
+        });
+
+        accountKey = new Account({
+          email: 'testuser@testuser.com',
+          keyFetchToken: 'key-fetch-token',
+          uid: 'uid',
+          unwrapBKey: 'unwrap-b-key'
+        });
+
+        sinon.stub(accountKey, 'accountKeys').callsFake((args) => {
+          return p(keys);
+        });
+      });
+
+      it('calls _provisionScopedKeys to encrypt the bundle', () => {
+        relier.set('keysJwk', keysJwk);
+
+        sinon.stub(broker._scopedKeys, 'createEncryptedBundle').callsFake((_keys, _keyData, _jwk) => {
+          assert.equal(_keys, keys);
+          assert.equal(_keyData, keyData);
+          assert.equal(_jwk, keysJwk);
+
+          return p('bundle');
+        });
+
+        return broker._provisionScopedKeys(accountKey, 'assertion')
+          .then((result) => {
+            assert.isTrue(broker._scopedKeys.createEncryptedBundle.calledOnce);
+            assert.equal(result, 'bundle');
+          });
+      });
+
+      it('returns null if no unwrapBKey', () => {
+        accountKey.set('unwrapBKey', null);
+
+        return broker._provisionScopedKeys(accountKey, 'assertion')
+          .then((result) => {
+            assert.equal(result, null);
+          });
+      });
+
+      it('returns null if no clientKeyData', () => {
+        broker._oAuthClient.getClientKeyData.restore();
+        sinon.stub(broker._oAuthClient, 'getClientKeyData').callsFake((args) => {
+          return p({});
+        });
+
+        return broker._provisionScopedKeys(accountKey, 'assertion')
+          .then((result) => {
+            assert.equal(result, null);
+          });
+      });
+
     });
 
   });

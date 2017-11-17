@@ -30,6 +30,7 @@ define(function (require, exports, module) {
     client_id: Vat.clientId().required().renameTo('clientId'),
     code_challenge: Vat.codeChallenge().renameTo('codeChallenge'),
     code_challenge_method: Vat.codeChallengeMethod().renameTo('codeChallengeMethod'),
+    keys_jwk: Vat.keysJwk().renameTo('keysJwk'),
     prompt: Vat.prompt(),
     redirectTo: Vat.url(),
     redirect_uri: Vat.url().renameTo('redirectUri'),
@@ -49,14 +50,15 @@ define(function (require, exports, module) {
     service: Vat.clientId(),
     state: Vat.string().min(1)
   };
-  /*eslint-enable camelcase*/
 
+  /*eslint-enable camelcase*/
 
   var OAuthRelier = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
       accessType: null,
       clientId: null,
       context: Constants.OAUTH_CONTEXT,
+      keysJwk: null,
       // permissions are individual scopes
       permissions: null,
       // whether the permissions prompt will be shown to trusted reliers
@@ -75,8 +77,9 @@ define(function (require, exports, module) {
     initialize (attributes, options = {}) {
       Relier.prototype.initialize.call(this, attributes, options);
 
-      this._session = options.session;
+      this._config = options.config;
       this._oAuthClient = options.oAuthClient;
+      this._session = options.session;
     },
 
     fetch () {
@@ -202,6 +205,51 @@ define(function (require, exports, module) {
     wantsConsent () {
       return this.get('prompt') === Constants.OAUTH_PROMPT_CONSENT;
     },
+
+    /**
+     * Check if the relier wants access to the account encryption keys.
+     *
+     * @returns {Boolean}
+     */
+    wantsKeys () {
+      return !! (this._config && this._config.scopedKeysEnabled && this._validateKeyScopeRequest());
+    },
+
+    /**
+     * Validate the requested scope with the relier redirect uri.
+     * At least one valid match must be found to successfully validate
+     * @returns {boolean}
+     * @private
+     */
+    _validateKeyScopeRequest () {
+      if (! this.has('keysJwk')) {
+        return false;
+      }
+
+      const validation = this._config.scopedKeysValidation || {};
+      let foundRedirectScopeMatch = false;
+
+      if (! this.get('scope')) {
+        throw new Error('Invalid scope parameter');
+      }
+
+      scopeStrToArray(this.get('scope')).forEach((scope) => {
+        if (validation.hasOwnProperty(scope)) {
+          if (validation[scope].redirectUris.includes(this.get('redirectUri'))) {
+            foundRedirectScopeMatch = true;
+          } else {
+            throw new Error('Invalid redirect parameter');
+          }
+        }
+      });
+
+      if (! foundRedirectScopeMatch) {
+        throw new Error('No key-bearing scopes requested');
+      }
+
+      return true;
+    },
+
 
     /**
      * Check whether additional permissions are requested from

@@ -438,6 +438,31 @@ const conf = module.exports = convict({
       'tiny'
     ]
   },
+  scopedKeys: {
+    enabled: {
+      default: false,
+      doc: 'Enable Scoped Key OAuth features',
+      env: 'SCOPED_KEYS_ENABLED',
+      format: Boolean,
+    },
+    validation: {
+      default: {
+        'https://identity.mozilla.org/apps/lockbox': {
+          redirectUris: [
+            'https://2aa95473a5115d5f3deb36bb6875cf76f05e4c4d.extensions.allizom.org'
+          ]
+        },
+        'https://identity.mozilla.org/apps/notes': {
+          redirectUris: [
+            'https://dee85c67bd72f3de1f0a0fb62a8fe9b9b1a166d7.extensions.allizom.org'
+          ]
+        }
+      },
+      doc: 'Validates redirect uris for requested scopes',
+      env: 'SCOPED_KEYS_VALIDATION',
+      format: Object
+    }
+  },
   sentry: {
     api_key: {
       default: undefined,

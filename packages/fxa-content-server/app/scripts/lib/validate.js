@@ -13,6 +13,8 @@ define(function (require, exports, module) {
 
   // taken from the fxa-auth-server
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
+  // taken from the fxa-oauth-server
+  const B64URL_STRING = /^[A-Za-z0-9-_]+$/;
 
   // URL RegEx taken from http://blog.mattheworiordan.com/post/13174566389/url-regular-expression-for-links-with-or-without
   const urlRegEx = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/; //eslint-disable-line max-len
@@ -206,6 +208,17 @@ define(function (require, exports, module) {
      */
     isUnblockCodeValid (value) {
       return unblockCodeRegExp.test(value);
+    },
+
+    /**
+     * Check if given value is a Base64URL string
+     *
+     * Ref: https://tools.ietf.org/html/rfc4648#section-5
+     * @param {String} value
+     * @returns {Boolean}
+     */
+    isBase64Url (value) {
+      return B64URL_STRING.test(value);
     }
   };
 
