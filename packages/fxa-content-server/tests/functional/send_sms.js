@@ -112,9 +112,12 @@ define([
     'with `country=BE`': testSmsSupportedCountryForm('BE', '+32'),
     'with `country=CA`': testSmsSupportedCountryForm('CA', ''),
     'with `country=DE`': testSmsSupportedCountryForm('DE', '+49'),
+    'with `country=ES`': testSmsSupportedCountryForm('ES', '+34'),
     'with `country=FR`': testSmsSupportedCountryForm('FR', '+33'),
     'with `country=GB`': testSmsSupportedCountryForm('GB', '+44'),
+    'with `country=IT`': testSmsSupportedCountryForm('IT', '+39'),
     'with `country=LU`': testSmsSupportedCountryForm('LU', '+352'),
+    'with `country=PT`': testSmsSupportedCountryForm('PT', '+351'),
     'with `country=RO`': testSmsSupportedCountryForm('RO', '+40'),
     'with `country=US`': testSmsSupportedCountryForm('US', ''),
 
