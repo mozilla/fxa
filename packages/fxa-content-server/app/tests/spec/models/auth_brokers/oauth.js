@@ -359,8 +359,9 @@ define(function (require, exports, module) {
       it('calls _provisionScopedKeys to encrypt the bundle', () => {
         relier.set('keysJwk', keysJwk);
 
-        sinon.stub(broker._scopedKeys, 'createEncryptedBundle').callsFake((_keys, _keyData, _jwk) => {
+        sinon.stub(broker._scopedKeys, 'createEncryptedBundle').callsFake((_keys, _uid, _keyData, _jwk) => {
           assert.equal(_keys, keys);
+          assert.equal(_uid, 'uid');
           assert.equal(_keyData, keyData);
           assert.equal(_jwk, keysJwk);
 
