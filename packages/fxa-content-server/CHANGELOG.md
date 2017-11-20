@@ -1,3 +1,13 @@
+<a name="1.100.5"></a>
+## 1.100.5 (2017-11-20)
+
+
+### Features
+
+* **keys:** add HKDF uid salt to scoped keys (#5736) r=@rfk ([1f403ca](https://github.com/mozilla/fxa-content-server/commit/1f403ca))
+
+
+
 <a name="1.100.4"></a>
 ## 1.100.4 (2017-11-17)
 
