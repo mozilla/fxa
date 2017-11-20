@@ -16,14 +16,19 @@ define(function (require, exports, module) {
    * Given an inputKey, generate the matching relier-specific derived scoped key.
    *
    * @param {Object} inputKey - Key used to derive from
+   * @param {String} uid - Account UID
    * @param {Object} keyData - OAuth client data that is required to derive keys
    * @returns {Promise} A promise that will resolve with an object having a scoped key
    *   The key is represented as a JWK object.
    */
-  function _deriveScopedKeys(inputKey, keyData) {
+  function _deriveScopedKeys(inputKey, uid, keyData) {
     return requireOnDemand('fxaCryptoDeriver').then((fxaCryptoDeriver) => {
       if (! inputKey) {
         throw new Error('Missing input key');
+      }
+
+      if (! uid) {
+        throw new Error('Missing uid');
       }
 
       if (! keyData) {
@@ -36,7 +41,8 @@ define(function (require, exports, module) {
         identifier: keyData.identifier,
         inputKey: inputKey,
         keyRotationSecret: keyData.keyRotationSecret,
-        keyRotationTimestamp: keyData.keyRotationTimestamp
+        keyRotationTimestamp: keyData.keyRotationTimestamp,
+        uid: uid
       });
     });
   }
@@ -45,12 +51,13 @@ define(function (require, exports, module) {
    * Derive scoped keys and create an encrypted bundle for key transport
    *
    * @param {Object} accountKeys - Account keys, used to derive scoped keys
+   * @param {String} uid - Account UID
    * @param {Object} scopedKeyData - OAuth client data that is required to derive keys
    * @param {Object} keysJwk - Public key used for scoped key encryption
    * @returns {Promise} A promise that will resolve into an encrypted bundle of scoped keys
    */
-  function createEncryptedBundle(accountKeys, scopedKeyData, keysJwk) {
-    const deriveKeys = Object.keys(scopedKeyData).map((key) => _deriveScopedKeys(accountKeys.kB, scopedKeyData[key]));
+  function createEncryptedBundle(accountKeys, uid, scopedKeyData, keysJwk) {
+    const deriveKeys = Object.keys(scopedKeyData).map((key) => _deriveScopedKeys(accountKeys.kB, uid, scopedKeyData[key]));
 
     return p.all(deriveKeys)
       .then((derivedKeys) => {

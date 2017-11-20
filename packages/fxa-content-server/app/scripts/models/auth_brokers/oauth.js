@@ -125,6 +125,7 @@ define(function (require, exports, module) {
       const relier = this.relier;
       const keyFetchToken = account.get('keyFetchToken');
       const unwrapBKey = account.get('unwrapBKey');
+      const uid = account.get('uid');
 
       return p().then(() => {
         if (unwrapBKey && keyFetchToken) {
@@ -143,7 +144,7 @@ define(function (require, exports, module) {
         }
 
         return account.accountKeys().then((keys) => {
-          return this._scopedKeys.createEncryptedBundle(keys, clientKeyData, relier.get('keysJwk'));
+          return this._scopedKeys.createEncryptedBundle(keys, uid, clientKeyData, relier.get('keysJwk'));
         });
       });
     },
