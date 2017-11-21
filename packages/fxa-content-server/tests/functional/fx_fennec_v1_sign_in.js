@@ -24,7 +24,6 @@ define([
     closeCurrentWindow,
     createUser,
     deleteAllSms,
-    disableInProd,
     fillOutSignIn,
     fillOutSignInUnblock,
     getSmsSigninCode,
@@ -116,22 +115,22 @@ define([
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
-    'signup in desktop, send an SMS, open deferred deeplink in Fennec': disableInProd(function () {
-      const testPhoneNumber = TestHelpers.createPhoneNumber();
+    'signup in desktop, send an SMS, open deferred deeplink in Fennec': function () {
+      const TEST_PHONE_NUMBER = config.fxaTestPhoneNumber;
       let signinUrlWithSigninCode;
 
       return this.remote
         // The phoneNumber is reused across tests, delete all
         // if its SMS messages to ensure a clean slate.
-        .then(deleteAllSms(testPhoneNumber))
+        .then(deleteAllSms(TEST_PHONE_NUMBER))
         .then(setupTest(selectors.CONFIRM_SIGNUP.HEADER))
 
         .then(openPage(SMS_PAGE_URL, selectors.SMS_SEND.HEADER))
-        .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
+        .then(type(selectors.SMS_SEND.PHONE_NUMBER, TEST_PHONE_NUMBER))
         .then(click(selectors.SMS_SEND.SUBMIT))
 
         .then(testElementExists(selectors.SMS_SENT.HEADER))
-        .then(getSmsSigninCode(testPhoneNumber, 0))
+        .then(getSmsSigninCode(TEST_PHONE_NUMBER, 0))
         .then(function (signinCode) {
           signinUrlWithSigninCode = `${SIGNIN_PAGE_URL}&signin=${signinCode}`;
           return this.parent
@@ -139,6 +138,6 @@ define([
             .then(openPage(signinUrlWithSigninCode, selectors.SIGNIN.HEADER))
             .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email));
         });
-    })
+    }
   });
 });

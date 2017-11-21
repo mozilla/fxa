@@ -27,7 +27,6 @@ define([
     closeCurrentWindow,
     createUser,
     deleteAllSms,
-    disableInProd,
     fillOutSignIn,
     fillOutSignInUnblock,
     getSmsSigninCode,
@@ -181,23 +180,23 @@ define([
         .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: true }));
     },
 
-    'signup in desktop, send an SMS, open deferred deeplink in Fx for iOS': disableInProd(function () {
-      const testPhoneNumber = TestHelpers.createPhoneNumber();
+    'signup in desktop, send an SMS, open deferred deeplink in Fx for iOS': function () {
+      const TEST_PHONE_NUMBER = config.fxaTestPhoneNumber;
       const forceUA = UA_STRINGS['ios_firefox_6_1'];
       const query = { forceUA };
 
       return this.remote
         // The phoneNumber is reused across tests, delete all
         // if its SMS messages to ensure a clean slate.
-        .then(deleteAllSms(testPhoneNumber))
+        .then(deleteAllSms(TEST_PHONE_NUMBER))
         .then(setupTest({ preVerified: true, query }))
 
         .then(openPage(SMS_PAGE_URL, selectors.SMS_SEND.HEADER))
-        .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
+        .then(type(selectors.SMS_SEND.PHONE_NUMBER, TEST_PHONE_NUMBER))
         .then(click(selectors.SMS_SEND.SUBMIT))
 
         .then(testElementExists(selectors.SMS_SENT.HEADER))
-        .then(getSmsSigninCode(testPhoneNumber, 0))
+        .then(getSmsSigninCode(TEST_PHONE_NUMBER, 0))
         .then(function (signinCode) {
           query.signin = signinCode;
 
@@ -206,6 +205,6 @@ define([
             .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, { query }))
             .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email));
         });
-    })
+    }
   });
 });
