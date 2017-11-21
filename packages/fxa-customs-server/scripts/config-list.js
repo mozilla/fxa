@@ -41,6 +41,7 @@ var output = {
   limits: {},
   allowedIPs: [],
   allowedEmailDomains: [],
+  allowedPhoneNumbers: [],
   requestChecks: {}
 }
 
@@ -74,6 +75,17 @@ mc.getAsync('limits')
       }
       else {
         output.allowedEmailDomains = data
+      }
+      return mc.getAsync('allowedPhoneNumbers')
+    }
+  )
+  .then(
+    function (data) {
+      if (!data) {
+        console.error('no allowedPhoneNumbers set')
+      }
+      else {
+        output.allowedPhoneNumbers = data
       }
       return mc.getAsync('requestChecks')
     }

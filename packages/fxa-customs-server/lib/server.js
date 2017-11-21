@@ -46,12 +46,14 @@ module.exports = function createServer(config, log) {
   var limits = require('./settings/limits')(config, Settings, log)
   var allowedIPs = require('./settings/allowed_ips')(config, Settings, log)
   var allowedEmailDomains = require('./settings/allowed_email_domains')(config, Settings, log)
+  const allowedPhoneNumbers = require('./settings/allowed_phone_numbers')(config, Settings, log)
   var requestChecks = require('./settings/requestChecks')(config, Settings, log)
 
   if (config.updatePollIntervalSeconds) {
     [
       allowedEmailDomains,
       allowedIPs,
+      allowedPhoneNumbers,
       limits,
       requestChecks
     ].forEach(settings => {
@@ -129,13 +131,20 @@ module.exports = function createServer(config, log) {
     return P.all(promises)
   }
 
-  function allowWhitelisted (result, ip, email) {
-    // Regardless of any preceding checks, there are some IPs and emails
-    // that we won't block. These are typically for Mozilla QA purposes.
-    // They should be checked after everything else so as not to pay the
-    // overhead of checking the many requests that are *not* QA-related.
+  function isAllowed(ip, email, phoneNumber) {
+    return allowedIPs.isAllowed(ip) ||
+           allowedEmailDomains.isAllowed(email) ||
+           allowedPhoneNumbers.isAllowed(phoneNumber)
+  }
+
+  function allowWhitelisted (result, ip, email, phoneNumber) {
+    // Regardless of any preceding checks, there are some IPs, emails,
+    // and phone numbers that we won't block. These are typically for
+    // Mozilla QA purposes. They should be checked after everything
+    // else so as not to pay the overhead of checking the many requests
+    // that are *not* QA-related.
     if (result.block || result.suspect) {
-      if (ip in allowedIPs.ips || (email && allowedEmailDomains.isAllowed(email))) {
+      if (isAllowed(ip, email, phoneNumber)) {
         log.info({
           op: 'request.check.allowed',
           ip: ip,
@@ -262,7 +271,7 @@ module.exports = function createServer(config, log) {
         )
         .then(
           function (result) {
-            allowWhitelisted(result, ip, email)
+            allowWhitelisted(result, ip, email, phoneNumber)
 
             log.info({
               op: 'request.check',
@@ -589,6 +598,14 @@ module.exports = function createServer(config, log) {
     '/allowedEmailDomains',
     function (req, res, next) {
       res.send(Object.keys(allowedEmailDomains.domains))
+      next()
+    }
+  )
+
+  api.get(
+    '/allowedPhoneNumbers',
+    function (req, res, next) {
+      res.send(allowedPhoneNumbers.toJSON())
       next()
     }
   )

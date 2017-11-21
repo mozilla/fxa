@@ -183,6 +183,12 @@ module.exports = function (fs, path, url, convict) {
         'restmail.dev.lcip.org'
       ]
     },
+    allowedPhoneNumbers: {
+      doc: 'An array of phone numbers that will not be blocked or rate-limited.',
+      format: Array,
+      env: 'ALLOWED_PHONE_NUMBERS',
+      default: []
+    },
     requestChecks: {
       treatEveryoneWithSuspicion: {
         doc: 'Whether to flag all requests as suspicious by default',

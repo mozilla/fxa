@@ -14,6 +14,10 @@ module.exports = (config, Settings, log) => {
       this.setAll(ips)
     }
 
+    isAllowed(ip) {
+      return ip in this.ips
+    }
+
     setAll(ips) {
       this.ips = {}
       for (var i = 0; i < ips.length; i++) {
