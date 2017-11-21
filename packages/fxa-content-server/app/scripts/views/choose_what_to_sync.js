@@ -76,11 +76,8 @@ define(function (require, exports, module) {
       const engines = this._getOfferedEngines();
 
       context.set({
+        email: account.get('email'),
         engines,
-        // the below string isn't escaped, but it doesn't
-        // contain anything that causes XSS.
-        escapedBackLinkParams: 'id="back" href="#"',
-        escapedEmail: _.escape(account.get('email')),
       });
     },
 
