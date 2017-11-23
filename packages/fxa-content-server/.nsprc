@@ -2,10 +2,6 @@
   "exceptions": [
     // uglify-js
     "https://nodesecurity.io/advisories/39",
-    "https://nodesecurity.io/advisories/48",
-    // mime
-    "https://nodesecurity.io/advisories/535",
-    // debug
-    "https://nodesecurity.io/advisories/534"
+    "https://nodesecurity.io/advisories/48"
   ]
 }
