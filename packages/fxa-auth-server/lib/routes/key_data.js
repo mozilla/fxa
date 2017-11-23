@@ -11,9 +11,6 @@ const P = require('../promise');
 const validators = require('../validators');
 const verify = require('../browserid');
 const Scope = require('../scope');
-const config = require('../config');
-
-const AUTH_EXPIRES_AFTER_MS = config.get('expiration.keyDataAuth');
 
 /**
  * We're using a static value for key material on purpose, in future this value can read from the DB.
@@ -73,10 +70,6 @@ module.exports = {
       const assertionData = results[0];
       const scopeResults = results[1];
       const response = {};
-
-      if (assertionData['fxa-lastAuthAt'] < Date.now() - AUTH_EXPIRES_AFTER_MS) {
-        throw AppError.staleAuthAt(assertionData['fxa-lastAuthAt']);
-      }
 
       scopeResults.forEach((keyScope) => {
         response[keyScope.scope] = {

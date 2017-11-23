@@ -116,7 +116,6 @@ AppError.invalidAssertion = function invalidAssertion() {
     message: 'Invalid assertion'
   });
 };
-
 AppError.unknownCode = function unknownCode(code) {
   return new AppError({
     code: 400,
@@ -262,17 +261,6 @@ AppError.missingPkceParameters = function missingPkceParameters() {
     error: 'PKCE parameters missing',
     errno: 118,
     message: 'Public clients require PKCE OAuth parameters'
-  });
-};
-
-AppError.staleAuthAt = function staleAuthAt(authAt) {
-  return new AppError({
-    code: 401,
-    error: 'Bad Request',
-    errno: 119,
-    message: 'Stale authentication timestamp'
-  }, {
-    authAt: authAt
   });
 };
 

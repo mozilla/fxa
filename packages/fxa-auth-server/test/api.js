@@ -21,25 +21,13 @@ const assertSecurityHeaders = require('./lib/util').assertSecurityHeaders;
 
 const USERID = unique(16).toString('hex');
 const VEMAIL = unique(4).toString('hex') + '@mozilla.com';
-const AUTH_AT = Date.now();
-const STALE_AUTH_AT = Date.now() - (2 * 24 * 60 * 60 * 1000);
 const VERIFY_GOOD = JSON.stringify({
   status: 'okay',
   email: USERID + '@' + config.get('browserid.issuer'),
   issuer: config.get('browserid.issuer'),
   idpClaims: {
     'fxa-verifiedEmail': VEMAIL,
-    'fxa-lastAuthAt': AUTH_AT,
-    'fxa-generation': 123456
-  }
-});
-const VERIFY_GOOD_BUT_STALE = JSON.stringify({
-  status: 'okay',
-  email: USERID + '@' + config.get('browserid.issuer'),
-  issuer: config.get('browserid.issuer'),
-  idpClaims: {
-    'fxa-verifiedEmail': VEMAIL,
-    'fxa-lastAuthAt': STALE_AUTH_AT,
+    'fxa-lastAuthAt': 123456,
     'fxa-generation': 123456
   }
 });
@@ -1238,7 +1226,7 @@ describe('/v1', function() {
               assert.equal(res.result.access_token.length,
                 config.get('unique.token') * 2);
               assert.equal(res.result.scope, 'foo bar');
-              assert.equal(res.result.auth_at, AUTH_AT);
+              assert.equal(res.result.auth_at, 123456);
             });
           });
         });
@@ -1274,7 +1262,7 @@ describe('/v1', function() {
               assert.equal(res.result.refresh_token.length,
                 config.get('unique.token') * 2);
               assert.equal(res.result.scope, 'foo bar');
-              assert.equal(res.result.auth_at, AUTH_AT);
+              assert.equal(res.result.auth_at, 123456);
             });
           });
         });
@@ -2346,20 +2334,6 @@ describe('/v1', function() {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             assert.equal(Object.keys(res.result).length, 0, 'no scoped keys');
-          });
-      });
-
-      it('fails for assertions with lastAuthAt too far in the past', () => {
-        genericRequest.payload.client_id = NO_KEY_SCOPES_CLIENT_ID;
-
-        mockAssertion().reply(200, VERIFY_GOOD_BUT_STALE);
-        return Server.api.post(genericRequest)
-          .then((res) => {
-            assert.equal(res.statusCode, 401);
-            assertSecurityHeaders(res);
-            const body = res.result;
-            assert.equal(body.errno, 119);
-            assert.equal(body.message, 'Stale authentication timestamp');
           });
       });
     });
