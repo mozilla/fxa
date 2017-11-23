@@ -95,7 +95,7 @@
     background-position: center top;
     background-repeat: no-repeat;
     height: 100px;
-    margin: 10px auto 0 auto;
+    margin: 10px auto 10px auto;
     width: 200px;
 
     @include respond-to('big') {
