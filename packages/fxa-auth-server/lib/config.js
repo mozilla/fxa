@@ -127,6 +127,12 @@ const conf = convict({
       format: 'duration',
       default: '15 minutes',
       env: 'FXA_EXPIRATION_CODE'
+    },
+    keyDataAuth: {
+      doc: 'Key data can only be fetched if lastAuthAt is within this duration',
+      format: 'duration',
+      default: '1 hour',
+      env: 'FXA_EXPIRATION_KEY_DATA_AUTH'
     }
   },
   refreshToken: {
