@@ -209,7 +209,7 @@ module.exports = (log, config) => {
   function mapEventProperties (group, request, data, metricsContext) {
     const service = data.service || request.payload.service || request.query.service
     return Object.assign({
-      service: SERVICES[service] || service
+      service: SERVICES[service] || (service === 'content-server' ? undefined : 'undefined_oauth')
     }, EVENT_PROPERTIES[group](request, data, metricsContext))
   }
 

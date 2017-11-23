@@ -228,6 +228,7 @@ describe('metrics/amplitude', () => {
         assert.equal(log.amplitudeEvent.callCount, 1)
         const args = log.amplitudeEvent.args[0]
         assert.equal(args[0].event_type, 'fxa_login - success')
+        assert.equal(args[0].event_properties.service, 'undefined_oauth')
         assert.equal(args[0].user_properties.sync_device_count, undefined)
         assert.equal(args[0].user_properties['$append'], undefined)
       })
@@ -291,7 +292,11 @@ describe('metrics/amplitude', () => {
 
     describe('account.signed', () => {
       beforeEach(() => {
-        return amplitude('account.signed', mocks.mockRequest({}))
+        return amplitude('account.signed', mocks.mockRequest({
+          payload: {
+            service: 'content-server'
+          }
+        }))
       })
 
       it('did not call log.error', () => {
@@ -302,6 +307,8 @@ describe('metrics/amplitude', () => {
         assert.equal(log.amplitudeEvent.callCount, 1)
         const args = log.amplitudeEvent.args[0]
         assert.equal(args[0].event_type, 'fxa_activity - cert_signed')
+        assert.equal(args[0].event_properties.service, undefined)
+        assert.equal(args[0].user_properties['$append'], undefined)
       })
     })
 
@@ -1109,7 +1116,7 @@ describe('metrics/amplitude', () => {
         assert.equal(log.amplitudeEvent.callCount, 1)
         const args = log.amplitudeEvent.args[0]
         assert.equal(args[0].user_id, 'frip')
-        assert.equal(args[0].event_properties.service, 'zang')
+        assert.equal(args[0].event_properties.service, 'undefined_oauth')
       })
     })
 
