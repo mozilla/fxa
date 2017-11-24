@@ -43,7 +43,7 @@
       "termsUri": "",
       "privacyUri": "",
       "trusted": true,
-      "allowedScopes": "https://identity.mozilla.org/apps/notes",
+      "allowedScopes": "https://identity.mozilla.com/apps/notes",
       "publicClient": true
     },
     {
@@ -122,7 +122,7 @@
   "allowHttpRedirects": true,
   "scopes": [
     {
-      "scope": "https://identity.mozilla.org/apps/notes",
+      "scope": "https://identity.mozilla.com/apps/notes",
       "hasScopedKeys": true
     }
   ]

@@ -64,7 +64,7 @@
       "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
       "redirectUri": "https://example.domain/return?foo=bar",
       "trusted": true,
-      "allowedScopes": "https://identity.mozilla.org/apps/sample-scope-can-scope-key https://identity.mozilla.org/apps/sample-scope kv https://identity.mozilla.org/apps/another-can-scope-key",
+      "allowedScopes": "https://identity.mozilla.com/apps/sample-scope-can-scope-key https://identity.mozilla.com/apps/sample-scope kv https://identity.mozilla.com/apps/another-can-scope-key",
       "canGrant": false,
       "publicClient": false
     }
@@ -90,15 +90,15 @@
   "allowHttpRedirects": true,
   "scopes": [
     {
-      "scope": "https://identity.mozilla.org/apps/sample-scope",
+      "scope": "https://identity.mozilla.com/apps/sample-scope",
       "hasScopedKeys": false
     },
     {
-      "scope": "https://identity.mozilla.org/apps/sample-scope-can-scope-key",
+      "scope": "https://identity.mozilla.com/apps/sample-scope-can-scope-key",
       "hasScopedKeys": true
     },
     {
-      "scope": "https://identity.mozilla.org/apps/another-can-scope-key",
+      "scope": "https://identity.mozilla.com/apps/another-can-scope-key",
       "hasScopedKeys": true
     }
   ]

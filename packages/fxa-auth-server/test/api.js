@@ -346,7 +346,7 @@ describe('/v1', function() {
       });
 
       it('should succeed with https:// scopes', function() {
-        const scopes = 'profile:email profile:uid https://identity.mozilla.org/apps/notes https://identity.mozilla.org/apps/lockbox';
+        const scopes = 'profile:email profile:uid https://identity.mozilla.com/apps/notes https://identity.mozilla.com/apps/lockbox';
         const client = clientByName('Mocha');
         mockAssertion().reply(200, VERIFY_GOOD);
 
@@ -2237,7 +2237,7 @@ describe('/v1', function() {
       const SCOPED_CLIENT_ID = 'aaa6b9b3a65a1871';
       const NO_KEY_SCOPES_CLIENT_ID = '38a6b9b3a65a1871';
       const BAD_CLIENT_ID = '0006b9b3a65a1871';
-      const SCOPE_CAN_SCOPE_KEY = 'https://identity.mozilla.org/apps/sample-scope-can-scope-key';
+      const SCOPE_CAN_SCOPE_KEY = 'https://identity.mozilla.com/apps/sample-scope-can-scope-key';
       let genericRequest;
 
       beforeEach(function () {
@@ -2261,7 +2261,7 @@ describe('/v1', function() {
 
             const body = res.result[SCOPE_CAN_SCOPE_KEY];
 
-            assert.equal(body.identifier, 'https://identity.mozilla.org/apps/sample-scope-can-scope-key');
+            assert.equal(body.identifier, 'https://identity.mozilla.com/apps/sample-scope-can-scope-key');
             assert.equal(body.keyRotationSecret, '0000000000000000000000000000000000000000000000000000000000000000');
             assert.equal(body.keyRotationTimestamp, 123456);
           });
@@ -2269,7 +2269,7 @@ describe('/v1', function() {
 
       it('works with multiple scopes', () => {
         mockAssertion().reply(200, VERIFY_GOOD);
-        const ANOTHER_CAN_SCOPE_KEY = 'https://identity.mozilla.org/apps/another-can-scope-key';
+        const ANOTHER_CAN_SCOPE_KEY = 'https://identity.mozilla.com/apps/another-can-scope-key';
         genericRequest.payload.scope = `${SCOPE_CAN_SCOPE_KEY} ${ANOTHER_CAN_SCOPE_KEY}`;
 
         return Server.api.post(genericRequest)
@@ -2305,7 +2305,7 @@ describe('/v1', function() {
       });
 
       it('fails with a non-scoped-key scope ', () => {
-        genericRequest.payload.scope = 'https://identity.mozilla.org/apps/sample-scope';
+        genericRequest.payload.scope = 'https://identity.mozilla.com/apps/sample-scope';
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api.post(genericRequest)
           .then((res) => {
