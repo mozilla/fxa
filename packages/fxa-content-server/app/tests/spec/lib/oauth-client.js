@@ -119,7 +119,7 @@ define(function (require, exports, module) {
     });
 
     describe('getClientKeyData', () => {
-      const scope = 'https://identity.mozilla.org/apps/sample-scope-can-scope-key';
+      const scope = 'https://identity.mozilla.com/apps/sample-scope-can-scope-key';
       const params = {
         assertion: 'eyJhbGciOiJSUzI1NiJ9.eyJwdWJsaWM1NiJ9.eyJhdWQiOiJvYXV0aC5meGEiLCJleHA',
         client_id: 'aaa6b9b3a65a1871', //eslint-disable-line camelcase

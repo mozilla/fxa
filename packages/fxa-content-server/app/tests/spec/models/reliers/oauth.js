@@ -489,7 +489,7 @@ define(function (require, exports, module) {
     });
 
     describe('_validateKeyScopeRequest', () => {
-      const scopeApp1 = 'profile openid https://identity.mozilla.org/apps/lockbox';
+      const scopeApp1 = 'profile openid https://identity.mozilla.com/apps/lockbox';
       const scopeApp1Redirect = 'https://dee85c67bd72f3de1f0a0fb62a8fe9b9b1a166d7.extensions.allizom.org';
       const scopeApp1Redirect2 = 'lockbox://redirect.ios';
       const scopeApp2Redirect = 'https://2aa95473a5115d5f3deb36bb6875cf76f05e4c4d.extensions.allizom.org';
@@ -497,13 +497,13 @@ define(function (require, exports, module) {
 
       beforeEach(() => {
         relier._config.scopedKeysValidation = {
-          'https://identity.mozilla.org/apps/lockbox': {
+          'https://identity.mozilla.com/apps/lockbox': {
             redirectUris: [
               scopeApp1Redirect,
               scopeApp1Redirect2
             ]
           },
-          'https://identity.mozilla.org/apps/notes': {
+          'https://identity.mozilla.com/apps/notes': {
             redirectUris: [
               scopeApp2Redirect
             ]
@@ -579,14 +579,14 @@ define(function (require, exports, module) {
       it('returns true with keysJwk, enabled scoped keys and valid scope', () => {
         relier._config.scopedKeysEnabled = true;
         relier._config.scopedKeysValidation = {
-          'https://identity.mozilla.org/apps/lockbox': {
+          'https://identity.mozilla.com/apps/lockbox': {
             redirectUris: [
               'lockbox://redirect.ios'
             ]
           }
         };
         relier.set('keysJwk', 'jwk');
-        relier.set('scope', 'profile https://identity.mozilla.org/apps/lockbox');
+        relier.set('scope', 'profile https://identity.mozilla.com/apps/lockbox');
         relier.set('redirectUri', 'lockbox://redirect.ios');
         assert.isTrue(relier.wantsKeys());
       });

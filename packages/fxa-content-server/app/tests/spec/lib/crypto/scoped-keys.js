@@ -14,7 +14,7 @@ define(function (require, exports, module) {
       kA: 'bba2ea983743324201a921e816f2e00e25da54473c9aa3ef050209c0f3bb8d86',
       kB: 'f5c47b97aecaf7dca9e020e4ea427f8431334a505cda40f09f3d9577e0006185'
     };
-    const scope = 'https://identity.mozilla.org/apps/notes';
+    const scope = 'https://identity.mozilla.com/apps/notes';
     const uid = 'aeaa1725c7a24ff983c6295725d5fc9b';
     const clientKeyData = {
       [scope]: {
@@ -24,8 +24,8 @@ define(function (require, exports, module) {
       }
     };
     const derivedKey = {
-      k: 'wAbdhAAzrRCzA3F7ClA51ZiLOklNQ8LUEPWqWXHEa0g',
-      kid: '1510011455-mpjinWOtgpKhe2PKgymDdA',
+      k: 'KjnhVUUT0du17z-EvFS1QrRtzzgGj3MfFIP0VwTX-FE',
+      kid: '1510011455-DNaKHVok_W4xuqsgVxJ9Xw',
       kty: 'oct',
       scope: scope
     };
@@ -81,7 +81,7 @@ define(function (require, exports, module) {
       });
 
       it('can encrypt with multiple keys', () => {
-        const lockboxScope = 'https://identity.mozilla.org/apps/lockbox';
+        const lockboxScope = 'https://identity.mozilla.com/apps/lockbox';
         const multiKeyData = Object.assign({}, clientKeyData);
         multiKeyData[lockboxScope] = {
           identifier: lockboxScope,
@@ -91,10 +91,10 @@ define(function (require, exports, module) {
 
         const multiScopedKey = Object.assign({}, clientScopedKey);
         multiScopedKey[lockboxScope] = {
-          k: 's5ErDyk7buyZ8KSWq_EEyhWN0gapTlHYLwDux_TIqmY',
-          kid: '1510011455-gjHah0UinQYDRoVcnAO8KA',
+          k: 'SbUtOFV9kMetiDnnKSWxj4Q68OujHBBZoJ4iIRUEcc0',
+          kid: '1510011455-3NkAzuGWSXoDVq2l8Lh6Kg',
           kty: 'oct',
-          scope: 'https://identity.mozilla.org/apps/lockbox'
+          scope: 'https://identity.mozilla.com/apps/lockbox'
         };
 
         return ScopedKeys.createEncryptedBundle(keys, uid, multiKeyData, keysJwk).then((bundle) => {

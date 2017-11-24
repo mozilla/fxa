@@ -326,7 +326,7 @@ define(function (require, exports, module) {
         kA: 'foo',
         kB: 'bar'
       };
-      const scope = 'https://identity.mozilla.org/apps/sample-scope-can-scope-key';
+      const scope = 'https://identity.mozilla.com/apps/sample-scope-can-scope-key';
       const keyData = {
         [scope]: {
           identifier: scope,
