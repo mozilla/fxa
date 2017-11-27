@@ -30,10 +30,6 @@ var STANDARD_LABELS = {
   'waffle:active': { color: COLORS.STATUS },
   'waffle:review': { color: COLORS.STATUS },
   'waffle:blocked': { color: COLORS.ALERT },
-  'P1': { color: COLORS.STATUS },
-  'P2': { color: COLORS.STATUS },
-  'P3': { color: COLORS.STATUS },
-  'P5': { color: COLORS.STATUS },
   // Issue deathcycle management labels, for reporting purposes.
   'resolved:fixed': { color: COLORS.RESOLUTION },
   'resolved:wontfix': { color: COLORS.RESOLUTION },
@@ -52,6 +48,14 @@ var STANDARD_LABELS = {
   'i18n': { color: COLORS.INFO },
   'security': { color: COLORS.INFO },
   'ux': { color: COLORS.INFO },
+  // Train-number labels, for scheduling.
+  // XXX TODO: calculate appropriate set of train labels
+  // based on current date, rather than hard-coding them here.
+  'train-99': { color: COLORS.TARGET },
+  'train-100': { color: COLORS.TARGET },
+  'train-101': { color: COLORS.TARGET },
+  'train-102': { color: COLORS.TARGET },
+  'train-103': { color: COLORS.TARGET },
 }
 
 
@@ -72,10 +76,20 @@ var OBSOLETE_LABELS = {
   'good first bug': 'good-first-bug',
   'strings': null,
   'waffle:now': 'waffle:active',
-  'P1:now': 'P1',
-  'P2:next': 'P2',
-  'P3:backlog': 'P3',
-  'P5:wishlist': 'P5'
+  'P1:now': null,
+  'P2:next': null,
+  'P3:backlog': null,
+  'P5:wishlist': null,
+  'P1': null,
+  'P2': null,
+  'P3': null,
+  'P5': null,
+  'train-93': null,
+  'train-94': null,
+  'train-95': null,
+  'train-96': null,
+  'train-97': null,
+  'train-98': null,
 }
 
 
@@ -107,6 +121,7 @@ module.exports = {
             console.log("Updating '" + label + "' on " + repo.name)
             return gh.issues.updateLabel({
               repo: repo.name,
+              oldname: label,
               name: label,
               color: STANDARD_LABELS[label].color
             })
