@@ -79,7 +79,7 @@ define([
         flowBeginTime: 'qux',
         flowId: 'wibble',
         lang: 'blee',
-        service: '0',
+        service: '1',
         uid: 'soop',
         utm_campaign: 'melm',
         utm_content: 'florg',
@@ -98,7 +98,8 @@ define([
           device_id: 'bar',
           event_properties: {
             device_id: 'bar',
-            service: 'amo'
+            oauth_client_id: '1',
+            service: 'pocket'
           },
           event_type: 'fxa_login - forgot_submit',
           language: 'blee',
@@ -325,7 +326,7 @@ define([
         flowBeginTime: 'd',
         flowId: 'e',
         lang: 'f',
-        service: '1',
+        service: '2',
         uid: 'h',
         utm_campaign: 'i',
         utm_content: 'j',
@@ -342,7 +343,8 @@ define([
           device_id: 'b',
           event_properties: {
             device_id: 'b',
-            service: 'pocket'
+            oauth_client_id: '2',
+            service: 'undefined_oauth'
           },
           event_type: 'fxa_reg - engage',
           language: 'f',
@@ -712,7 +714,7 @@ define([
         flowBeginTime: 'd',
         flowId: 'e',
         lang: 'f',
-        service: 'g',
+        service: 'sync',
         uid: 'h',
         utm_campaign: 'i',
         utm_content: 'j',
@@ -729,7 +731,7 @@ define([
           event_properties: {
             device_id: 'b',
             email_type: 'reset_password',
-            service: 'g'
+            service: 'sync'
           },
           event_type: 'fxa_email - click',
           language: 'f',

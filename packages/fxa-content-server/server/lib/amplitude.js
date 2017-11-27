@@ -311,7 +311,16 @@ function mapEmailType (event, eventCategory) {
 function mapService (event, eventCategory, data) {
   const service = marshallOptionalValue(data.service);
   if (service) {
-    return { service: SERVICES[service] || service };
+    let serviceName, clientId;
+
+    if (service === 'sync') {
+      serviceName = service;
+    } else {
+      serviceName = SERVICES[service] || 'undefined_oauth';
+      clientId = service;
+    }
+
+    return { service: serviceName, oauth_client_id: clientId };
   }
 }
 
