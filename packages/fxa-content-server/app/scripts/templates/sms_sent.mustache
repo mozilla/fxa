@@ -2,12 +2,12 @@
   <header class="hidden" id="fxa-sms-sent-header"><h1>{{#t}}Install Firefox on your smartphone and sign in to complete set-up{{/t}}</h1></header>
   <section>
     {{^isResend}}
-        <div class="success visible">
+        <div id="send-success" class="success visible">
           {{#unsafeTranslate}}App link sent to %(escapedPhoneNumber)s. <a %(escapedBackLinkAttrs)s>Mistyped&nbsp;number?</a>{{/unsafeTranslate}}
         </div>
       {{/isResend}}
       {{#isResend}}
-        <div class="success visible shake">
+        <div id="resend-success" class="success visible shake">
           {{#unsafeTranslate}}App link resent to %(escapedPhoneNumber)s. <a %(escapedBackLinkAttrs)s>Mistyped&nbsp;number?</a>{{/unsafeTranslate}}
         </div>
       {{/isResend}}

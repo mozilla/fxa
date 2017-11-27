@@ -209,7 +209,7 @@ define([
        .then(getSms(TEST_PHONE_NUMBER, 0))
 
        .then(click(selectors.SMS_SENT.LINK_RESEND))
-       .then(testElementTextInclude(selectors.SMS_SENT.PHONE_NUMBER_SENT_TO, FORMATTED_TEST_PHONE_NUMBER))
+       .then(testElementTextInclude(selectors.SMS_SENT.RESEND_SUCCESS, FORMATTED_TEST_PHONE_NUMBER))
        .then(getSms(TEST_PHONE_NUMBER, 1))
 
        // user realizes they made a mistake
