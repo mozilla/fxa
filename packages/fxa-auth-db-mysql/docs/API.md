@@ -35,6 +35,7 @@ There are a number of methods that a DB storage backend should implement:
     * .deleteKeyFetchToken(tokenId)
 * Unverified session tokens and key fetch tokens
     * .verifyTokens(tokenVerificationId, accountData)
+    * .verifyTokenCode(code, accountData)
 * Password Forgot Tokens
     * .createPasswordForgotToken(tokenId, passwordForgotToken)
     * .deletePasswordForgotToken(tokenId)
@@ -430,7 +431,7 @@ Parameters.
 Each token takes the following fields for it's create method respectively:
 
 * sessionToken : data, uid, createdAt, uaBrowser, uaBrowserVersion, uaOS, uaOSVersion, uaDeviceType,
-                 uaFormFactor, mustVerify, tokenVerificationId
+                 uaFormFactor, mustVerify, tokenVerificationId, tokenVerificationCodeHash, tokenVerificationCodeExpiresAt
 * keyFetchToken : authKey, uid, keyBundle, createdAt, tokenVerificationId
 * passwordChangeToken : data, uid, createdAt
 * passwordForgotToken : data, uid, passCode, createdAt, triesxb
@@ -480,7 +481,8 @@ These fields are represented as
 * sessionTokenWithVerificationStatus : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
                                        t.uaOS, t.uaOSVersion, t.uaDeviceType, t.uaFormFactor, t.lastAccessTime,
                                        a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
-                                       a.createdAt AS accountCreatedAt, ut.mustVerify, ut.tokenVerificationId
+                                       a.createdAt AS accountCreatedAt, ut.mustVerify, ut.tokenVerificationId,
+                                       ut.tokenVerificationCodeHash, ut.tokenVerificationCodeExpiresAt
 * keyFetchToken : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified, a.verifierSetAt
 * keyFetchTokenWithVerificationStatus : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified,
                                         a.verifierSetAt, ut.mustVerify, ut.tokenVerificationId
@@ -561,6 +563,27 @@ Returns a promise that:
   from the underlying storage system
   (wrapped in `error.wrap()`).
 
+## .verifyTokenCode(code, accountData)
+
+  Verifies sessionTokens and keyFetchTokens.
+  Note that it takes the code (separate from tokenVerificationId)
+  specified when creating the token,
+  NOT the tokenId.
+  `accountData` is an object
+  with a `uid` property.
+
+  Returns a promise that:
+
+  * Resolves with an object `{}`
+    if a token was verified.
+  * Rejects with error `{ code: 404, errno: 116 }`
+    if there was no matching token.
+  * Rejects with error `{ code: 400, errno: 137 }`
+    if token expired.
+  * Rejects with any error
+    from the underlying storage system
+    (wrapped in `error.wrap()`).  
+
 ## .forgotPasswordVerified(tokenId, accountResetToken) ##
 
 An extra function for `passwordForgotTokens`. This performs three operations:
@@ -613,7 +636,7 @@ The deviceCallbackPublicKey and deviceCallbackAuthKey fields are urlsafe-base64 
                  d.callbackPublicKey AS deviceCallbackPublicKey,
                  d.callbackAuthKey AS deviceCallbackAuthKey,
                  d.callbackIsExpired AS deviceCallbackIsExpired,
-                 ut.mustVerify, ut.tokenVerificationId
+                 ut.mustVerify, ut.tokenVerificationId, ut.tokenVerificationCodeHash, ut.tokenVerificationCodeExpiresAt
 
 ## .createVerificationReminder(body) ##
 

@@ -24,6 +24,7 @@ const ER_LOCK_ABORTED = 1689
 
 // custom mysql errors
 const ER_DELETE_PRIMARY_EMAIL = 2100
+const ER_EXPIRED_TOKEN_VERIFICATION_CODE = 2101
 
 module.exports = function (log, error) {
 
@@ -206,8 +207,8 @@ module.exports = function (log, error) {
   // Values : tokenId = $1, tokenData = $2, uid = $3, createdAt = $4,
   //          uaBrowser = $5, uaBrowserVersion = $6, uaOS = $7, uaOSVersion = $8,
   //          uaDeviceType = $9, uaFormFactor = $10, tokenVerificationId = $11
-  //          mustVerify = $12
-  var CREATE_SESSION_TOKEN = 'CALL createSessionToken_7(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  //          mustVerify = $12, tokenVerificationCode = $13, tokenVerificationCodeExpiresAt = $14
+  var CREATE_SESSION_TOKEN = 'CALL createSessionToken_8(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createSessionToken = function (tokenId, sessionToken) {
     return this.write(
@@ -224,7 +225,9 @@ module.exports = function (log, error) {
         sessionToken.uaDeviceType,
         sessionToken.uaFormFactor,
         sessionToken.tokenVerificationId,
-        !! sessionToken.mustVerify
+        !! sessionToken.mustVerify,
+        sessionToken.tokenVerificationCode ? dbUtil.createHash(sessionToken.tokenVerificationCode): null,
+        sessionToken.tokenVerificationCodeExpiresAt
       ]
     )
   }
@@ -430,7 +433,7 @@ module.exports = function (log, error) {
   //          a.emailVerified, a.email, a.emailCode, a.verifierSetAt, a.locale,
   //          a.createdAt AS accountCreatedAt, ut.tokenVerificationId, ut.mustVerify
   // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = ut.tokenId
-  var SESSION_TOKEN_VERIFIED = 'CALL sessionTokenWithVerificationStatus_6(?)'
+  var SESSION_TOKEN_VERIFIED = 'CALL sessionTokenWithVerificationStatus_7(?)'
 
   MySql.prototype.sessionTokenWithVerificationStatus = function (tokenId) {
     return this.readFirstResult(SESSION_TOKEN_VERIFIED, [tokenId])
@@ -568,6 +571,26 @@ module.exports = function (log, error) {
         if (result.affectedRows === 0) {
           throw error.notFound()
         }
+      })
+  }
+
+  // Delete : unverifiedTokens
+  // Where  : tokenVerificationCode = $1, uid = $2
+  const VERIFY_TOKEN_CODE = 'CALL verifyTokenCode_1(?, ?)'
+
+  MySql.prototype.verifyTokenCode = function (tokenData, accountData) {
+    return this.readFirstResult(VERIFY_TOKEN_CODE, [dbUtil.createHash(tokenData.code), accountData.uid])
+      .then((result) => {
+        if (result['@updateCount'] === 0) {
+          throw error.notFound()
+        }
+      })
+      .catch((err) => {
+        // Custom error when attempted to verify an expired code
+        if (err.errno === ER_EXPIRED_TOKEN_VERIFICATION_CODE) {
+          throw error.expiredTokenVerificationCode()
+        }
+        throw err
       })
   }
 
@@ -753,7 +776,7 @@ module.exports = function (log, error) {
 
   MySql.prototype.createUnblockCode = function (uid, code) {
     // hash the code since it's like a password
-    code = createHash(uid, code)
+    code = dbUtil.createHash(uid, code)
     return this.write(
       CREATE_UNBLOCK_CODE,
       [ uid, code, Date.now() ],
@@ -767,7 +790,7 @@ module.exports = function (log, error) {
 
   MySql.prototype.consumeUnblockCode = function (uid, code) {
     // hash the code since it's like a password
-    code = createHash(uid, code)
+    code = dbUtil.createHash(uid, code)
     return this.write(
       CONSUME_UNBLOCK_CODE,
       [ uid, code ],
@@ -1242,7 +1265,7 @@ module.exports = function (log, error) {
   const CREATE_SIGNIN_CODE = 'CALL createSigninCode_2(?, ?, ?, ?)'
   MySql.prototype.createSigninCode = function (code, uid, createdAt, flowId) {
     // code is hashed to thwart timing attacks
-    return this.write(CREATE_SIGNIN_CODE, [ createHash(code), uid, createdAt, flowId ])
+    return this.write(CREATE_SIGNIN_CODE, [ dbUtil.createHash(code), uid, createdAt, flowId ])
   }
 
   // Delete : signinCodes
@@ -1250,7 +1273,7 @@ module.exports = function (log, error) {
   const CONSUME_SIGNIN_CODE = 'CALL consumeSigninCode_4(?, ?)'
   MySql.prototype.consumeSigninCode = function (code) {
     const newerThan = Date.now() - this.options.signinCodesMaxAge
-    return this.readFirstResult(CONSUME_SIGNIN_CODE, [ createHash(code), newerThan ])
+    return this.readFirstResult(CONSUME_SIGNIN_CODE, [ dbUtil.createHash(code), newerThan ])
   }
 
   // Delete : account tokens passwordChangeTokens, passwordForgotTokens and accountResetTokens
@@ -1264,16 +1287,5 @@ module.exports = function (log, error) {
   }
 
   return MySql
-}
-
-function createHash () {
-  const hash = crypto.createHash('sha256')
-
-  // Use ...rest operator and forEach when we're on node 6
-  for (let i = 0; i < arguments.length; ++i) {
-    hash.update(arguments[i])
-  }
-
-  return hash.digest()
 }
 

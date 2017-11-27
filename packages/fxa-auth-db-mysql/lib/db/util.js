@@ -4,6 +4,7 @@
 
 'use strict'
 
+const crypto = require('crypto')
 
 const BOUNCE_TYPES = new Map([
   ['__fxa__unmapped', 0], // a bounce type we don't yet recognize
@@ -46,6 +47,14 @@ module.exports = {
     } else {
       return BOUNCE_SUB_TYPES.get(val) || 0
     }
-  }
+  },
 
+  createHash () {
+    const hash = crypto.createHash('sha256')
+    const args = [...arguments]
+    args.forEach((arg) => {
+      hash.update(arg)
+    })
+    return hash.digest()
+  }
 }

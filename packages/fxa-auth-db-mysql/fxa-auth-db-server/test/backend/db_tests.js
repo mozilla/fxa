@@ -132,7 +132,9 @@ function makeMockSessionToken(uid) {
     uaOSVersion : 'mock OS version',
     uaDeviceType : 'mock device type',
     mustVerify: true,
-    tokenVerificationId : hex16()
+    tokenVerificationId : hex16(),
+    tokenVerificationCode: unblockCode(),
+    tokenVerificationCodeExpiresAt: Date.now() + 20000
   }
 
   return sessionToken
@@ -2578,6 +2580,97 @@ module.exports = function(config, DB) {
             assert.deepEqual(res[0].createdAt, res[1].createdAt, 'account records should have the same createdAt')
           })
       })
+    })
+
+    describe('db.verifyTokenCode', () => {
+      let account, anotherAccount, sessionToken, tokenVerificationCode, tokenId
+      before(() => {
+        account = createAccount()
+        account.emailVerified = true
+        return db.createAccount(account.uid, account)
+      })
+
+      it('should verify tokenVerificationCode', () => {
+        tokenId = hex32()
+        sessionToken = makeMockSessionToken(account.uid)
+        tokenVerificationCode = sessionToken.tokenVerificationCode
+        return db.createSessionToken(tokenId, sessionToken)
+          .then(() => {
+            return db.sessionTokenWithVerificationStatus(tokenId)
+          })
+          .then((session) => {
+            // Returns unverified session
+            assert.equal(session.mustVerify, sessionToken.mustVerify, 'mustVerify must match sessionToken')
+            assert.equal(session.tokenVerificationId.toString('hex'), sessionToken.tokenVerificationId.toString('hex'), 'tokenVerificationId must match sessionToken')
+            assert.ok(session.tokenVerificationCodeHash, 'tokenVerificationCodeHash exists')
+            assert.equal(session.tokenVerificationCodeExpiresAt, sessionToken.tokenVerificationCodeExpiresAt, 'tokenVerificationCodeExpiresAt must match sessionToken')
+
+            // Verify the session
+            return db.verifyTokenCode({code: tokenVerificationCode}, account)
+          })
+          .then(() => {
+            return db.sessionTokenWithVerificationStatus(tokenId)
+          })
+          .then((session) => {
+            // Returns verified session
+            assert.equal(session.mustVerify, null, 'mustVerify is not set')
+            assert.equal(session.tokenVerificationId, null, 'tokenVerificationId is not set')
+            assert.equal(session.tokenVerificationCodeHash, null, 'tokenVerificationCodeHash is not set')
+            assert.equal(session.tokenVerificationCodeExpiresAt, null, 'tokenVerificationCodeExpiresAt is not set')
+          })
+      })
+
+      it('shouldn\'t verify expired tokenVerificationCode', () => {
+        tokenId = hex32()
+        sessionToken = makeMockSessionToken(account.uid)
+        sessionToken.tokenVerificationCodeExpiresAt = Date.now() - 2000000000
+        tokenVerificationCode = sessionToken.tokenVerificationCode
+        return db.createSessionToken(tokenId, sessionToken)
+          .then(() => {
+            return db.verifyTokenCode({code: tokenVerificationCode}, account)
+              .then(() => {
+                assert.fail('should not have verified expired token')
+              }, (err) => {
+                assert.equal(err.errno, 137, 'correct errno, not found')
+              })
+          })
+      })
+
+      it('shouldn\'t verify unknown tokenVerificationCode', () => {
+        tokenId = hex32()
+        sessionToken = makeMockSessionToken(account.uid)
+        tokenVerificationCode = 'iamzinvalidz'
+        return db.createSessionToken(tokenId, sessionToken)
+          .then(() => {
+            return db.verifyTokenCode({code: tokenVerificationCode}, account)
+              .then(() => {
+                assert.fail('should not have verified unknown token')
+              }, (err) => {
+                assert.equal(err.errno, 116, 'correct errno, not found')
+              })
+          })
+      })
+
+      it('shouldn\'t verify tokenVerificationCode and uid mismatch', () => {
+        tokenId = hex32()
+        sessionToken = makeMockSessionToken(account.uid)
+        tokenVerificationCode = sessionToken.tokenVerificationCode
+        anotherAccount = createAccount()
+        anotherAccount.emailVerified = true
+        return db.createAccount(anotherAccount.uid, anotherAccount)
+          .then(() => {
+            return db.createSessionToken(tokenId, sessionToken)
+          })
+          .then(() => {
+            return db.verifyTokenCode({code: tokenVerificationCode}, anotherAccount)
+              .then(() => {
+                assert.fail('should not have verified unknown token')
+              }, (err) => {
+                assert.equal(err.errno, 116, 'correct errno, not found')
+              })
+          })
+      })
+
     })
 
     after(() => db.close())

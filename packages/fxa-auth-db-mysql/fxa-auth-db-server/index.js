@@ -41,6 +41,12 @@ function createServer(db) {
     })
   }
 
+  function withParamsAndBody(fn) {
+    return reply(function (params, body, query) {
+      return fn.call(db, params, body)
+    })
+  }
+
   var api = restify.createServer({
     formatters: {
       'application/json; q=0.9': safeJsonFormatter
@@ -120,6 +126,7 @@ function createServer(db) {
   api.get('/sessionToken/:id/verified', withIdAndBody(db.sessionTokenWithVerificationStatus))
   api.get('/keyFetchToken/:id/verified', withIdAndBody(db.keyFetchTokenWithVerificationStatus))
   api.post('/tokens/:id/verify', withIdAndBody(db.verifyTokens))
+  api.post('/tokens/:code/verifyCode', withParamsAndBody(db.verifyTokenCode))
 
   api.get('/accountResetToken/:id', withIdAndBody(db.accountResetToken))
   api.del('/accountResetToken/:id', withIdAndBody(db.deleteAccountResetToken))

@@ -1540,6 +1540,49 @@ module.exports = function(cfg, makeServer) {
       }
     )
 
+    describe(
+      'add account, verify session with tokenVerificationCode',
+      () => {
+        let user
+
+        before(() => {
+          user = fake.newUserDataHex()
+
+          return client.putThen('/account/' + user.accountId, user.account)
+            .then(function (r) {
+              respOkEmpty(r)
+            })
+        })
+
+        it('should verify session with tokenVerificationCode', () => {
+          return client.putThen('/sessionToken/' + user.sessionTokenId, user.sessionToken)
+            .then((r) => {
+              respOkEmpty(r)
+              return client.getThen('/sessionToken/' + user.sessionTokenId + '/verified')
+            })
+            .then(function (r) {
+              respOk(r)
+              const result = r.obj
+              assert.ok(result.tokenVerificationCodeHash, 'tokenVerificationCodeHash exists')
+              assert.equal(result.tokenVerificationCodeExpiresAt, user.sessionToken.tokenVerificationCodeExpiresAt, 'tokenVerificationCodeExpiresAt set')
+              return client.postThen('/tokens/' + user.sessionToken.tokenVerificationCode + '/verifyCode', {
+                uid: user.accountId
+              })
+            })
+            .then(function (r) {
+              respOk(r)
+              return client.getThen('/sessionToken/' + user.sessionTokenId + '/verified')
+            })
+            .then(function (r) {
+              respOk(r)
+              const result = r.obj
+              assert.equal(result.tokenVerificationCodeHash, null, 'tokenVerificationCodeHash not set')
+              assert.equal(result.tokenVerificationCodeExpiresAt, null, 'tokenVerificationCodeExpiresAt not set')
+            })
+        })
+      }
+    )
+
     after(() => server.close())
 
   })

@@ -120,10 +120,13 @@ module.exports = function (log, error) {
     }
 
     if (sessionToken.tokenVerificationId) {
+      const tokenVerificationCodeHash = sessionToken.tokenVerificationCode ? dbUtil.createHash(sessionToken.tokenVerificationCode): null
       unverifiedTokens[tokenId] = {
-        tokenVerificationId: sessionToken.tokenVerificationId,
         mustVerify: !! sessionToken.mustVerify,
-        uid: sessionToken.uid
+        tokenVerificationId: sessionToken.tokenVerificationId,
+        tokenVerificationCodeHash: tokenVerificationCodeHash,
+        tokenVerificationCodeExpiresAt: sessionToken.tokenVerificationCodeExpiresAt,
+        uid: sessionToken.uid,
       }
     }
 
@@ -355,6 +358,54 @@ module.exports = function (log, error) {
       delete unverifiedTokens[tokenId]
       return count + 1
     }, 0)
+
+    if (tokenCount === 0) {
+      return P.reject(error.notFound())
+    }
+
+    return P.resolve({})
+  }
+
+  Memory.prototype.verifyTokenCode = function (tokenData, accountData) {
+    const uid = accountData.uid.toString('hex')
+    const tokenVerificationCodeHash = dbUtil.createHash(tokenData.code)
+    let expired = false
+
+    const tokenCount = Object.keys(unverifiedTokens).reduce((count, tokenId) => {
+      const t = unverifiedTokens[tokenId]
+
+      if (t.uid.toString('hex') !== uid) {
+        return count
+      }
+
+      if (! t.tokenVerificationCodeHash || ! t.tokenVerificationCodeExpiresAt) {
+        return count
+      }
+
+      // Is code expired?
+      if (t.tokenVerificationCodeHash.toString('hex') === tokenVerificationCodeHash.toString('hex')) {
+        if (t.tokenVerificationCodeExpiresAt <= Date.now()) {
+          expired = true
+
+          return count
+        }
+
+        // Remove token and update security table
+        (securityEvents[uid] || []).forEach(function (ev) {
+          if (ev.tokenId && ev.tokenId.toString('hex') === tokenId) {
+            ev.verified = true
+          }
+        })
+        delete unverifiedTokens[tokenId]
+
+        return count + 1
+      }
+      return count
+    }, 0)
+
+    if (expired) {
+      return P.reject(error.expiredTokenVerificationCode())
+    }
 
     if (tokenCount === 0) {
       return P.reject(error.notFound())
@@ -653,9 +704,14 @@ module.exports = function (log, error) {
         if (unverifiedTokens[tokenId]) {
           sessionToken.mustVerify = unverifiedTokens[tokenId].mustVerify
           sessionToken.tokenVerificationId = unverifiedTokens[tokenId].tokenVerificationId
+          sessionToken.tokenVerificationCodeHash = unverifiedTokens[tokenId].tokenVerificationCodeHash
+          sessionToken.tokenVerificationCodeExpiresAt = unverifiedTokens[tokenId].tokenVerificationCodeExpiresAt
+
         } else {
           sessionToken.mustVerify = null
           sessionToken.tokenVerificationId = null
+          sessionToken.tokenVerificationCodeHash = null
+          sessionToken.tokenVerificationCodeExpiresAt = null
         }
         return sessionToken
       })

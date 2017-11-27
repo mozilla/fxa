@@ -61,6 +61,17 @@ AppError.cannotDeletePrimaryEmail = function () {
   )
 }
 
+AppError.expiredTokenVerificationCode = function () {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad request',
+      errno: 137,
+      message: 'Expired token verification code'
+    }
+  )
+}
+
 AppError.wrap = function (err) {
   return new AppError(
     {
