@@ -136,7 +136,8 @@ describe('metrics/amplitude', () => {
         assert.equal(args[0].os_version, 'qux')
         assert.equal(args[0].device_model, 'melm')
         assert.deepEqual(args[0].event_properties, {
-          service: 'amo'
+          service: 'amo',
+          oauth_client_id: '0'
         })
         assert.deepEqual(args[0].user_properties, {
           flow_id: 'udge',
@@ -195,7 +196,8 @@ describe('metrics/amplitude', () => {
         assert.equal(args[0].os_version, undefined)
         assert.equal(args[0].device_model, 'f')
         assert.deepEqual(args[0].event_properties, {
-          service: 'pocket'
+          service: 'pocket',
+          oauth_client_id: '1'
         })
         assert.deepEqual(args[0].user_properties, {
           flow_id: undefined,
@@ -229,8 +231,11 @@ describe('metrics/amplitude', () => {
         const args = log.amplitudeEvent.args[0]
         assert.equal(args[0].event_type, 'fxa_login - success')
         assert.equal(args[0].event_properties.service, 'undefined_oauth')
+        assert.equal(args[0].event_properties.oauth_client_id, '2')
+        assert.deepEqual(args[0].user_properties['$append'], {
+          fxa_services_used: 'undefined_oauth'
+        })
         assert.equal(args[0].user_properties.sync_device_count, undefined)
-        assert.equal(args[0].user_properties['$append'], undefined)
       })
     })
 
@@ -252,6 +257,7 @@ describe('metrics/amplitude', () => {
         const args = log.amplitudeEvent.args[0]
         assert.equal(args[0].event_type, 'fxa_login - blocked')
         assert.equal(args[0].event_properties.service, 'sync')
+        assert.equal(args[0].event_properties.oauth_client_id, undefined)
         assert.deepEqual(args[0].user_properties['$append'], {
           fxa_services_used: 'sync'
         })
@@ -308,6 +314,7 @@ describe('metrics/amplitude', () => {
         const args = log.amplitudeEvent.args[0]
         assert.equal(args[0].event_type, 'fxa_activity - cert_signed')
         assert.equal(args[0].event_properties.service, undefined)
+        assert.equal(args[0].event_properties.oauth_client_id, undefined)
         assert.equal(args[0].user_properties['$append'], undefined)
       })
     })
@@ -1117,6 +1124,7 @@ describe('metrics/amplitude', () => {
         const args = log.amplitudeEvent.args[0]
         assert.equal(args[0].user_id, 'frip')
         assert.equal(args[0].event_properties.service, 'undefined_oauth')
+        assert.equal(args[0].event_properties.oauth_client_id, 'zang')
       })
     })
 

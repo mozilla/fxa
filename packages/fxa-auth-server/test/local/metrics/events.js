@@ -621,7 +621,8 @@ describe('metrics/events', () => {
         assert.equal(log.amplitudeEvent.args[0].length, 1, 'log.amplitudeEvent was passed one argument')
         assert.equal(log.amplitudeEvent.args[0][0].event_type, 'fxa_activity - cert_signed', 'log.amplitudeEvent was passed correct event_type')
         assert.deepEqual(log.amplitudeEvent.args[0][0].event_properties, {
-          service: undefined
+          service: undefined,
+          oauth_client_id: undefined
         }, 'log.amplitudeEvent was passed correct event properties')
         assert.deepEqual(log.amplitudeEvent.args[0][0].user_properties, {
           flow_id: 'bar',

@@ -113,10 +113,6 @@ module.exports = (log, config) => {
   }
 
   const SERVICES = config.oauth.clientIds
-  if (! SERVICES.sync) {
-    // Ensure there is an entry for Sync, which isn't identified by client id.
-    SERVICES.sync = 'sync'
-  }
 
   return receiveEvent
 
@@ -207,10 +203,28 @@ module.exports = (log, config) => {
   }
 
   function mapEventProperties (group, request, data, metricsContext) {
-    const service = data.service || request.payload.service || request.query.service
+    const { serviceName, clientId } = getServiceNameAndClientId(request, data)
+
     return Object.assign({
-      service: SERVICES[service] || (service === 'content-server' ? undefined : 'undefined_oauth')
+      service: serviceName,
+      oauth_client_id: clientId
     }, EVENT_PROPERTIES[group](request, data, metricsContext))
+  }
+
+  function getServiceNameAndClientId (request, data) {
+    let serviceName, clientId
+    const service = data.service || request.payload.service || request.query.service
+
+    if (service && service !== 'content-server') {
+      if (service === 'sync') {
+        serviceName = service
+      } else {
+        serviceName = SERVICES[service] || 'undefined_oauth'
+        clientId = service
+      }
+    }
+
+    return { serviceName, clientId }
   }
 
   function mapUserProperties (group, request, data, metricsContext) {
@@ -220,7 +234,7 @@ module.exports = (log, config) => {
       sync_device_count: data.devices && data.devices.length,
       ua_browser: safeGet(browser),
       ua_version: safeGet(browserVersion)
-    }, getService(request), getNewsletterState(data))
+    }, getServicesUsed(request), getNewsletterState(data))
   }
 
   function safeGet (value) {
@@ -237,12 +251,12 @@ module.exports = (log, config) => {
     return safeGet(data.location && data.location[key])
   }
 
-  function getService (request) {
-    const service = SERVICES[request.payload.service || request.query.service]
-    if (service) {
+  function getServicesUsed (request) {
+    const { serviceName } = getServiceNameAndClientId(request, {})
+    if (serviceName) {
       return {
         '$append': {
-          fxa_services_used: service
+          fxa_services_used: serviceName
         }
       }
     }
