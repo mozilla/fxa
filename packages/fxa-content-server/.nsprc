@@ -2,6 +2,8 @@
   "exceptions": [
     // uglify-js
     "https://nodesecurity.io/advisories/39",
-    "https://nodesecurity.io/advisories/48"
+    "https://nodesecurity.io/advisories/48",
+    // moment
+    "https://nodesecurity.io/advisories/532"
   ]
 }

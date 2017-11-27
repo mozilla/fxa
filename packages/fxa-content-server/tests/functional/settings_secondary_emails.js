@@ -83,8 +83,8 @@ define([
 
     'gated in unverified session open verification new tab': function () {
       return this.remote
-      // when an account is created, the original session is verified
-      // re-login to destroy original session and created an unverified one
+        // when an account is created, the original session is verified
+        // re-login to destroy original session and created an unverified one
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
         .then(fillOutSignIn(email, PASSWORD))
@@ -99,10 +99,12 @@ define([
         .then(openVerificationLinkInNewTab(email, 0))
         .then(switchToWindow(1))
           // panel becomes verified and opens add secondary panel
+          .then(testElementExists(selectors.EMAIL.INPUT))
           .then(visibleByQSA(selectors.EMAIL.INPUT))
           .then(closeCurrentWindow())
 
         .then(switchToWindow(0))
+          .then(testElementExists(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
           .then(click(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
           .then(visibleByQSA(selectors.EMAIL.INPUT));
     },
