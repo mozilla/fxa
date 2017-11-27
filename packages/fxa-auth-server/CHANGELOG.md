@@ -1,3 +1,17 @@
+<a name"1.100.1"></a>
+### 1.100.1 (2017-11-27)
+
+
+#### Bug Fixes
+
+* **keys:** replace scope key TLD (#505) r=@rfk ([a5e6d8f4](https://github.com/mozilla/fxa-oauth-server/commit/a5e6d8f4))
+
+
+#### Features
+
+* **keys:** Check lastAuthAt freshness when fetching key data. (#502) r=@vladikoff ([855adee4](https://github.com/mozilla/fxa-oauth-server/commit/855adee4))
+
+
 <a name"1.100.0"></a>
 ## 1.100.0 (2017-11-15)
 
