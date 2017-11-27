@@ -1,3 +1,37 @@
+<a name="1.101.0"></a>
+# 1.101.0 (2017-11-27)
+
+
+### Bug Fixes
+
+* **config:** switch to .com scopes (#5754) r=@rfk ([302e84f](https://github.com/mozilla/fxa-content-server/commit/302e84f))
+* **CWTS:** Fix CWTS columns when firstrun is 420px. (#5738) r=@vladikoff,@ryanfeeley,@vbudh ([924588b](https://github.com/mozilla/fxa-content-server/commit/924588b)), closes [(#5738](https://github.com/(/issues/5738) [#5710](https://github.com/mozilla/fxa-content-server/issues/5710)
+* **deps:** Forbid use of $ w/o requiring jquery. (#5732) r=@vbudhram ([e35b847](https://github.com/mozilla/fxa-content-server/commit/e35b847))
+* **deps:** update some prod deps (#5751) ([2467a29](https://github.com/mozilla/fxa-content-server/commit/2467a29))
+* **metrics:** stop sending raw client ids to amplitude (#5753) r=@vladikoff ([765e764](https://github.com/mozilla/fxa-content-server/commit/765e764))
+* **modules:** Use Webpack compatible module define statements. (#5733) r=@vladikoff ([08ba4de](https://github.com/mozilla/fxa-content-server/commit/08ba4de))
+* **sms:** Use a known test number for SMS tests. (#5720) r=@vbudhram ([8e8d2d7](https://github.com/mozilla/fxa-content-server/commit/8e8d2d7))
+* **test:** A signup test mixed `done` and promises. (#5734) r=@philbooth ([58ddff7](https://github.com/mozilla/fxa-content-server/commit/58ddff7))
+* **test:** Fix the StaleElementReference error in the SMS resent test. (#5747) ([0c585ab](https://github.com/mozilla/fxa-content-server/commit/0c585ab)), closes [(#5747](https://github.com/(/issues/5747) [#5745](https://github.com/mozilla/fxa-content-server/issues/5745)
+* **tests:** fix attempt for flaky gated session test (#5752) r=@vladikoff,@shane-tomlinson ([86bdc39](https://github.com/mozilla/fxa-content-server/commit/86bdc39)), closes [(#5752](https://github.com/(/issues/5752)
+
+### chore
+
+* **ci:** Use release version of Fx 57 for CI tests. (#5740) r=@vladikoff ([7349dd8](https://github.com/mozilla/fxa-content-server/commit/7349dd8))
+* **fx-57:** Use Fx 57 logo for everyone. (#5729) r=@philbooth ([a4e0fb1](https://github.com/mozilla/fxa-content-server/commit/a4e0fb1)), closes [#5719](https://github.com/mozilla/fxa-content-server/issues/5719)
+
+### Features
+
+* **cwts:** Move the back button below the submit button. (#5739) r=@ryanfeeley, @vbudhram ([79ef689](https://github.com/mozilla/fxa-content-server/commit/79ef689)), closes [#5724](https://github.com/mozilla/fxa-content-server/issues/5724)
+* **keys:** add HKDF uid salt to scoped keys (#5736) r=@rfk ([13a7525](https://github.com/mozilla/fxa-content-server/commit/13a7525))
+* **sms:** Enable SMS in Spain (ES), Italy (IT), Portugal (PT) (#5726) ([48d37ca](https://github.com/mozilla/fxa-content-server/commit/48d37ca)), closes [#5574](https://github.com/mozilla/fxa-content-server/issues/5574)
+
+### Refactor
+
+* **l10n:** Remove the global `Translator` object. (#5731) r=@philbooth ([20e9aa9](https://github.com/mozilla/fxa-content-server/commit/20e9aa9))
+
+
+
 <a name="1.100.5"></a>
 ## 1.100.5 (2017-11-20)
 
