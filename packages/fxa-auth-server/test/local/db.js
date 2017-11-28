@@ -109,12 +109,11 @@ describe('db, session tokens do not expire:', () => {
 })
 
 describe('db with redis disabled', () => {
-
   const tokenLifetimes = {
     sessionTokenWithoutDevice: 2419200000
   }
 
-  let results, pool, redis, log, tokens, db
+  let results, pool, log, tokens, db
 
   beforeEach(() => {
     results = {}
@@ -123,73 +122,75 @@ describe('db with redis disabled', () => {
       post: sinon.spy(() => P.resolve()),
       del: sinon.spy(() => P.resolve())
     }
-
-    redis = {
-      on: sinon.spy(),
-      getAsync: sinon.spy(() => P.resolve(results.redis)),
-      setAsync: sinon.spy(() => P.resolve()),
-      del: sinon.spy(() => P.resolve())
-    }
-
     log = mocks.mockLog()
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes })
     const DB = proxyquire(`${LIB_DIR}/db`, {
       './pool': function () { return pool },
-      redis: { createClient: () => redis }
-    })({ tokenLifetimes, redis: {enabled: false} }, log, tokens, {})
+      './redis': () => {}
+    })({ tokenLifetimes }, log, tokens, {})
     return DB.connect({})
-      .then(result => {
-        assert.equal(redis.on.callCount, 0, 'redis.on was not called')
-
-        db = result
-      })
+      .then(result => db = result)
   })
 
-  it('should not call redis when reading sessions', () => {
+  it('db.sessions succeeds without a redis instance', () => {
     results.pool = []
     return db.sessions('fakeUid')
       .then(result => {
-        assert.equal(pool.get.lastCall.args[0], '/account/fakeUid/sessions')
-        assert.equal(redis.getAsync.lastCall, null)
+        assert.equal(pool.get.callCount, 1)
+        assert.equal(pool.get.args[0].length, 1)
+        assert.equal(pool.get.args[0][0], '/account/fakeUid/sessions')
         assert.deepEqual(result, [])
       })
   })
 
-  it('should not call redis when reading devices', () => {
+  it('db.devices succeeds without a redis instance', () => {
     results.pool = []
     return db.devices('fakeUid')
       .then(result => {
-        assert.equal(pool.get.lastCall.args[0], '/account/fakeUid/devices')
-        assert.equal(redis.getAsync.lastCall, null)
+        assert.equal(pool.get.callCount, 1)
+        assert.equal(pool.get.args[0].length, 1)
+        assert.equal(pool.get.args[0][0], '/account/fakeUid/devices')
         assert.deepEqual(result, [])
       })
   })
 
-  it('should not call redis when deleting account', () => {
-    results.pool = []
-    return db.deleteAccount({uid: 'fakeUid'})
+  it('db.deleteAccount succeeds without a redis instance', () => {
+    return db.deleteAccount({ uid: 'fakeUid' })
       .then(() => {
-        assert.equal(pool.del.lastCall.args[0], '/account/fakeUid')
-        assert.equal(redis.del.lastCall, null)
+        assert.equal(pool.del.callCount, 1)
+        assert.equal(pool.del.args[0].length, 1)
+        assert.equal(pool.del.args[0][0], '/account/fakeUid')
       })
   })
 
-  it('should not call redis when deleting sessionTokens', () => {
-    results.pool = []
-    return db.deleteSessionToken({id: 'fakeId'})
+  it('db.deleteSessionToken succeeds without a redis instance', () => {
+    return db.deleteSessionToken({ id: 'foo', uid: 'bar'})
       .then(() => {
-        assert.equal(pool.del.lastCall.args[0], '/sessionToken/fakeId')
-        assert.equal(redis.getAsync.lastCall, null)
-        assert.equal(redis.setAsync.lastCall, null)
+        assert.equal(pool.del.callCount, 1)
+        assert.equal(pool.del.args[0].length, 1)
+        assert.equal(pool.del.args[0][0], '/sessionToken/foo')
       })
   })
 
-  it('should not call redis when resetting account', () => {
-    results.pool = []
-    return db.resetAccount({uid: 'fakeUid'}, {})
+  it('db.resetAccount succeeds without a redis instance', () => {
+    const start = Date.now()
+    return db.resetAccount({ uid: 'fakeUid' }, {})
       .then(() => {
-        assert.equal(pool.post.lastCall.args[0], '/account/fakeUid/reset')
-        assert.equal(redis.del.lastCall, null)
+        const end = Date.now()
+        assert.equal(pool.post.callCount, 1)
+        assert.equal(pool.post.args[0].length, 2)
+        assert.equal(pool.post.args[0][0], '/account/fakeUid/reset')
+        assert.equal(Object.keys(pool.post.args[0][1]).length, 1)
+        assert.ok(pool.post.args[0][1].verifierSetAt >= start)
+        assert.ok(pool.post.args[0][1].verifierSetAt <= end)
+      })
+  })
+
+  it('db.updateSessionToken succeeds without a redis instance', () => {
+    return db.updateSessionToken({ id: 'foo', uid: 'bar' })
+      .then(() => {
+        assert.equal(pool.get.callCount, 0)
+        assert.equal(pool.post.callCount, 0)
       })
   })
 })
@@ -208,25 +209,24 @@ describe('redis enabled', () => {
       del: sinon.spy(() => P.resolve())
     }
     redis = {
-      on: sinon.spy(),
-      getAsync: sinon.spy(() => P.resolve()),
-      setAsync: sinon.spy(() => P.resolve()),
-      del: sinon.spy(() => P.resolve())
+      get: sinon.spy(() => P.resolve('{}')),
+      set: sinon.spy(() => P.resolve()),
+      del: sinon.spy(() => P.resolve()),
+      update: sinon.spy(() => P.resolve())
     }
-    const createClient = sinon.spy(() => redis)
     log = mocks.mockLog()
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes })
     const DB = proxyquire(`${LIB_DIR}/db`, {
       './pool': function () { return pool },
-      redis: { createClient }
+      './redis': (...args) => {
+        assert.equal(args.length, 2, 'redisPool was passed two arguments')
+        assert.equal(args[0], 'mock redis config', 'redisPool was passed config')
+        assert.equal(args[1], log, 'redisPool was passed log')
+        return redis
+      }
     })({
       tokenLifetimes,
-      redis: {
-        enabled: true,
-        host: 'foo',
-        port: 'bar',
-        sessionsKeyPrefix: 'baz'
-      },
+      redis: 'mock redis config',
       lastAccessTimeUpdates: {
         enabled: true,
         sampleRate: 1,
@@ -234,23 +234,7 @@ describe('redis enabled', () => {
       }
     }, log, tokens, {})
     return DB.connect({})
-      .then(result => {
-        assert.equal(createClient.callCount, 1, 'redis.createClient was called once')
-        assert.equal(createClient.args[0].length, 1, 'redis.createClient was passed one argument')
-        assert.deepEqual(createClient.args[0][0], {
-          host: 'foo',
-          port: 'bar',
-          prefix: 'baz',
-          enable_offline_queue: false
-        }, 'redis.createClient was passed correct settings')
-
-        assert.equal(redis.on.callCount, 1, 'redis.on was called once')
-        assert.equal(redis.on.args[0].length, 2, 'redis.on was passed two arguments')
-        assert.equal(redis.on.args[0][0], 'error', 'redis.on was called for the `error` event')
-        assert.equal(typeof redis.on.args[0][1], 'function', 'redis.on was passed event handler')
-
-        db = result
-      })
+      .then(result => db = result)
   })
 
   it('should not call redis or the db in db.devices if uid is falsey', () => {
@@ -259,7 +243,7 @@ describe('redis enabled', () => {
         result => assert.equal(result, 'db.devices should reject with error.unknownAccount'),
         err => {
           assert.equal(pool.get.callCount, 0)
-          assert.equal(redis.getAsync.callCount, 0)
+          assert.equal(redis.get.callCount, 0)
           assert.equal(err.errno, 102)
           assert.equal(err.message, 'Unknown account')
         }
@@ -270,92 +254,177 @@ describe('redis enabled', () => {
     return db.devices('wibble')
       .then(() => {
         assert.equal(pool.get.callCount, 1)
-        assert.equal(redis.getAsync.callCount, 1)
+        assert.equal(redis.get.callCount, 1)
+        assert.equal(redis.get.args[0].length, 1)
+        assert.equal(redis.get.args[0][0], 'wibble')
       })
   })
 
-  describe('redis error:', () => {
-    beforeEach(() => redis.on.args[0][1]({ message: 'foo', stack: 'bar' }))
+  it('should call redis.get in db.sessions', () => {
+    return db.sessions('wibble')
+      .then(() => {
+        assert.equal(redis.get.callCount, 1)
+        assert.equal(redis.get.args[0].length, 1)
+        assert.equal(redis.get.args[0][0], 'wibble')
 
-    it('should log the error', () => {
-      assert.equal(log.error.callCount, 1, 'log.error was called once')
-      assert.equal(log.error.args[0].length, 1, 'log.error was passed one argument')
-      assert.deepEqual(log.error.args[0][0], {
-        op: 'db.redis.error',
-        err: 'foo',
-        stack: 'bar'
-      }, 'log.error was passed the error details')
+        assert.equal(log.error.callCount, 0)
+      })
+  })
+
+  it('should call redis.del in db.deleteAccount', () => {
+    return db.deleteAccount({ uid: 'wibble' })
+      .then(() => {
+        assert.equal(redis.del.callCount, 1)
+        assert.equal(redis.del.args[0].length, 1)
+        assert.equal(redis.del.args[0][0], 'wibble')
+      })
+  })
+
+  it('should call redis.del in db.resetAccount', () => {
+    return db.resetAccount({ uid: 'wibble' }, {})
+      .then(() => {
+        assert.equal(redis.del.callCount, 1)
+        assert.equal(redis.del.args[0].length, 1)
+        assert.equal(redis.del.args[0][0], 'wibble')
+      })
+  })
+
+  it('should call redis.update in db.updateSessionToken', () => {
+    return db.updateSessionToken({ id: 'wibble', uid: 'blee' }, P.resolve())
+      .then(() => {
+        assert.equal(redis.update.callCount, 1)
+        assert.equal(redis.update.args[0].length, 2)
+        assert.equal(redis.update.args[0][0], 'blee')
+        assert.equal(typeof redis.update.args[0][1], 'function')
+      })
+  })
+
+  it('should call redis.update in db.deleteSessionToken', () => {
+    return db.deleteSessionToken({ id: 'wibble', uid: 'blee' }, P.resolve())
+      .then(() => {
+        assert.equal(redis.update.callCount, 1)
+        assert.equal(redis.update.args[0].length, 2)
+        assert.equal(redis.update.args[0][0], 'blee')
+        assert.equal(typeof redis.update.args[0][1], 'function')
+      })
+  })
+
+  describe('redis.get rejects', () => {
+    beforeEach(() => {
+      redis.get = sinon.spy(() => P.reject({ message: 'mock redis.get error' }))
+    })
+
+    it('should log the error in db.sessions', () => {
+      return db.sessions('wibble')
+        .then(() => {
+          assert.equal(redis.get.callCount, 1)
+
+          assert.equal(log.error.callCount, 1)
+          assert.equal(log.error.args[0].length, 1)
+          assert.deepEqual(log.error.args[0][0], {
+            op: 'redis.get.error',
+            key: 'wibble',
+            err: 'mock redis.get error'
+          })
+        })
+    })
+
+    it('should log the error in db.devices', () => {
+      return db.devices('wibble')
+        .then(() => {
+          assert.equal(redis.get.callCount, 1)
+
+          assert.equal(log.error.callCount, 1)
+          assert.equal(log.error.args[0].length, 1)
+          assert.deepEqual(log.error.args[0][0], {
+            op: 'redis.get.error',
+            key: 'wibble',
+            err: 'mock redis.get error'
+          })
+        })
     })
   })
 
-  describe('redis.get error:', () => {
-    beforeEach(() => redis.getAsync = sinon.spy(() => P.reject({ message: 'wibble' })))
-
-    it('db.sessions should log the error', () => {
-      return db.sessions('blee')
-        .then(() => {
-          assert.equal(redis.getAsync.callCount, 1, 'redis.get was called once')
-          assert.equal(redis.getAsync.args[0].length, 1, 'redis.get was passed one argument')
-          assert.equal(redis.getAsync.args[0][0], 'blee', 'redis.get was passed uid')
-
-          assert.equal(log.error.callCount, 1, 'log.error was called once')
-          assert.equal(log.error.args[0].length, 1, 'log.error was passed one argument')
-          assert.deepEqual(log.error.args[0][0], {
-            op: 'db.redis.get.error',
-            method: 'sessions',
-            err: 'wibble'
-          }, 'log.error was passed the error details')
-        })
+  describe('redis.del rejects', () => {
+    beforeEach(() => {
+      redis.del = sinon.spy(() => P.reject({ message: 'mock redis.del error' }))
     })
 
-    it('db.devices should log the error', () => {
-      return db.devices('blee')
-        .then(() => {
-          assert.equal(redis.getAsync.callCount, 1, 'redis.get was called once')
-          assert.equal(redis.getAsync.args[0].length, 1, 'redis.get was passed one argument')
-          assert.equal(redis.getAsync.args[0][0], 'blee', 'redis.get was passed uid')
-
-          assert.equal(log.error.callCount, 1, 'log.error was called once')
-          assert.equal(log.error.args[0].length, 1, 'log.error was passed one argument')
-          assert.deepEqual(log.error.args[0][0], {
-            op: 'db.redis.get.error',
-            method: 'devices',
-            err: 'wibble'
-          }, 'log.error was passed the error details')
-        })
-    })
-
-    it('db.updateSessionToken should fail', () => {
-      return db.updateSessionToken({ uid: 'blee' }, null, P.resolve({}))
+    it('db.deleteAccount should reject', () => {
+      return db.deleteAccount({ uid: 'wibble' })
         .then(
-          () => assert.equal(false, 'db.updateSessionToken should reject'),
-          err => {
-            assert.deepEqual(err, { message: 'wibble' }, 'db.updateSessionToken rejected with error object')
+          () => assert.equal(false, 'db.deleteAccount should have rejected'),
+          error => assert.equal(error.message, 'mock redis.del error')
+        )
+    })
 
-            assert.equal(redis.getAsync.callCount, 1, 'redis.get was called once')
-            assert.equal(redis.getAsync.args[0].length, 1, 'redis.get was passed one argument')
-            assert.equal(redis.getAsync.args[0][0], 'blee', 'redis.get was passed uid')
-
-            assert.equal(redis.setAsync.callCount, 0, 'redis.set was not called')
-          }
+    it('db.resetAccount should reject', () => {
+      return db.resetAccount({ uid: 'wibble' }, {})
+        .then(
+          () => assert.equal(false, 'db.resetAccount should have rejected'),
+          error => assert.equal(error.message, 'mock redis.del error')
         )
     })
   })
 
-  describe('redis.set error:', () => {
-    beforeEach(() => redis.setAsync = sinon.spy(() => P.reject({ message: 'wibble' })))
+  describe('redis.update rejects', () => {
+    beforeEach(() => {
+      redis.update = sinon.spy(() => P.reject({ message: 'mock redis.update error' }))
+    })
 
-    it('db.updateSessionToken should fail', () => {
-      return db.updateSessionToken({ uid: 'blee' }, null, P.resolve({}))
+    it('db.updateSessionToken should reject', () => {
+      return db.updateSessionToken({ id: 'wibble', uid: 'blee' }, P.resolve())
         .then(
-          () => assert.equal(false, 'db.updateSessionToken should reject'),
-          err => {
-            assert.deepEqual(err, { message: 'wibble' }, 'db.updateSessionToken rejected with error object')
-
-            assert.equal(redis.getAsync.callCount, 1, 'redis.get was called once')
-            assert.equal(redis.setAsync.callCount, 1, 'redis.set was called once')
-          }
+          () => assert.equal(false, 'db.updateSessionToken should have rejected'),
+          error => assert.equal(error.message, 'mock redis.update error')
         )
+    })
+
+    it('db.deleteSessionToken should reject', () => {
+      return db.deleteSessionToken({ id: 'wibble', uid: 'blee' }, P.resolve())
+        .then(
+          () => assert.equal(false, 'db.deleteSessionToken should have rejected'),
+          error => assert.equal(error.message, 'mock redis.update error')
+        )
+    })
+  })
+
+  describe('deleteSessionToken reads falsey value from redis:', () => {
+    let result
+
+    beforeEach(() => {
+      return db.deleteSessionToken({ id: 'wibble', uid: 'blee' }, P.resolve())
+        .then(() => result = redis.update.args[0][1]())
+    })
+
+    it('returned undefined', () => {
+      assert.equal(result, undefined)
+    })
+  })
+
+  describe('deleteSessionToken reads empty object from redis:', () => {
+    let result
+
+    beforeEach(() => {
+      return db.deleteSessionToken({ id: 'wibble', uid: 'blee' }, P.resolve())
+        .then(() => result = redis.update.args[0][1]('{"wibble":{}}'))
+    })
+
+    it('returned undefined', () => {
+      assert.equal(result, undefined)
+    })
+  })
+
+  describe('deleteSessionToken reads populated object from redis:', () => {
+    let result
+
+    beforeEach(() => {
+      return db.deleteSessionToken({ id: 'wibble', uid: 'blee' }, P.resolve())
+        .then(() => result = redis.update.args[0][1]('{"frang":{}}'))
+    })
+
+    it('returned object', () => {
+      assert.equal(result, '{"frang":{}}')
     })
   })
 })

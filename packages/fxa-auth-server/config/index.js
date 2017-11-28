@@ -364,19 +364,49 @@ var conf = convict({
       default: '127.0.0.1',
       env: 'REDIS_HOST',
       format: String,
-      doc: 'url for redis host',
+      doc: 'IP address or host name for Redis server',
     },
     port: {
       default: 6379,
       env: 'REDIS_PORT',
       format: 'port',
-      doc: 'port for redis server'
+      doc: 'Port for Redis server'
     },
     sessionsKeyPrefix: {
       default: 'fxa-auth-session',
       env: 'SESSIONS_REDIS_KEY_PREFIX',
       format: String,
-      doc: 'which key prefix to store sessions in redis under'
+      doc: 'Key prefix for session tokens in Redis'
+    },
+    maxConnections: {
+      default: 10,
+      env: 'REDIS_POOL_MAX_CONNECTIONS',
+      format: 'int',
+      doc: 'Maximum connection count for Redis'
+    },
+    minConnections: {
+      default: 2,
+      env: 'REDIS_POOL_MIN_CONNECTIONS',
+      format: 'int',
+      doc: 'Minimum connection count for Redis'
+    },
+    maxPending: {
+      default: 1000,
+      env: 'REDIS_POOL_MAX_PENDING',
+      format: 'int',
+      doc: 'Pending request limit for Redis'
+    },
+    retryCount: {
+      default: 5,
+      env: 'REDIS_POOL_RETRY_COUNT',
+      format: 'int',
+      doc: 'Retry limit for Redis connection attempts'
+    },
+    initialBackoff: {
+      default: '100 milliseconds',
+      env: 'REDIS_POOL_TIMEOUT',
+      format: 'duration',
+      doc: 'Initial backoff for Redis connection retries, increases exponentially with each attempt'
     }
   },
   tokenLifetimes: {

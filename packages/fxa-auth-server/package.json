@@ -47,6 +47,7 @@
     "fxa-geodb": "0.0.8",
     "fxa-jwtool": "0.7.1",
     "fxa-shared": "1.0.4",
+    "generic-pool": "3.2.0",
     "google-libphonenumber": "2.0.10",
     "grunt-nunjucks-2-html": "vitkarpov/grunt-nunjucks-2-html#1900f91a756b2eaf900b20",
     "handlebars": "4.0.6",

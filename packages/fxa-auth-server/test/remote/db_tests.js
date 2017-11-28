@@ -30,7 +30,7 @@ const Token = require('../../lib/tokens')(log, {
 const DB = require('../../lib/db')({
   lastAccessTimeUpdates,
   signinCodeSize: config.signinCodeSize,
-  redis: { enabled: true },
+  redis: Object.assign({}, config.redis, { enabled: true }),
   tokenLifetimes: {}
 }, log, Token, UnblockCode)
 
@@ -194,7 +194,7 @@ describe('remote db', function() {
           lastAccessTimeUpdates.enabled = false
 
           // Attempt to update the session token
-          return db.updateSessionToken(sessionToken, '127.0.0.1', P.resolve({}))
+          return db.updateSessionToken(sessionToken, P.resolve({}))
         })
         .then(result => {
           assert.equal(result, undefined)
@@ -219,7 +219,7 @@ describe('remote db', function() {
           // Update the session token
           return db.updateSessionToken(Object.assign({}, sessionToken, {
             lastAccessTime: Date.now()
-          }), '127.0.0.1', P.resolve({
+          }), P.resolve({
             location: {
               city: 'Bournemouth',
               country: 'United Kingdom',
@@ -257,7 +257,7 @@ describe('remote db', function() {
             uaOSVersion: '4.4',
             uaDeviceType: 'mobile',
             uaFormFactor: null
-          }), '127.0.0.1', P.reject())
+          }), P.reject())
         })
         .then(tokens => {
           // Fetch all sessions for the account
@@ -334,6 +334,8 @@ describe('remote db', function() {
           // Delete the session token again
           return db.deleteSessionToken(sessions[0])
         })
+        .then(() => redis.getAsync(account.uid))
+        .then(result => assert.equal(result, null, 'redis was cleared'))
     }
   )
 
@@ -355,206 +357,208 @@ describe('remote db', function() {
       }
 
       return db.emailRecord(account.email)
-          .then((emailRecord) => {
-            emailRecord.tokenVerificationId = account.tokenVerificationId
-            emailRecord.uaBrowser = 'Firefox Mobile'
-            emailRecord.uaBrowserVersion = '41'
-            emailRecord.uaOS = 'Android'
-            emailRecord.uaOSVersion = '4.4'
-            emailRecord.uaDeviceType = 'mobile'
-            emailRecord.uaFormFactor = null
+        .then((emailRecord) => {
+          emailRecord.tokenVerificationId = account.tokenVerificationId
+          emailRecord.uaBrowser = 'Firefox Mobile'
+          emailRecord.uaBrowserVersion = '41'
+          emailRecord.uaOS = 'Android'
+          emailRecord.uaOSVersion = '4.4'
+          emailRecord.uaDeviceType = 'mobile'
+          emailRecord.uaFormFactor = null
 
-            // Create a session token
-            return db.createSessionToken(emailRecord)
-          })
-          .then((result) => {
-            sessionToken = result
-            // Attempt to update a non-existent device
-            return db.updateDevice(account.uid, sessionToken.id, deviceInfo)
-              .then(() => {
-                assert(false, 'updating a non-existent device should have failed')
-              }, (err) => {
-                assert.equal(err.errno, 123, 'err.errno === 123')
-              })
-          })
-          .then(() => {
-            // Attempt to delete a non-existent device
-            return db.deleteDevice(account.uid, deviceInfo.id)
-              .then(function () {
-                assert(false, 'deleting a non-existent device should have failed')
-              }, function (err) {
-                assert.equal(err.errno, 123, 'err.errno === 123')
-              })
-          })
-          .then(() => {
-            // Fetch all of the devices for the account
-            return db.devices(account.uid)
-              .catch(function () {
-                assert(false, 'getting devices should not have failed')
-              })
-          })
-          .then((devices) => {
-            assert.ok(Array.isArray(devices), 'devices is array')
-            assert.equal(devices.length, 0, 'devices array is empty')
-            // Create a device
-            return db.createDevice(account.uid, sessionToken.id, deviceInfo)
-              .catch((err) => {
-                assert(false, 'adding a new device should not have failed')
-              })
-          })
-          .then((device) => {
-            assert.ok(device.id, 'device.id is set')
-            assert.ok(device.createdAt > 0, 'device.createdAt is set')
-            assert.equal(device.name, deviceInfo.name, 'device.name is correct')
-            assert.equal(device.type, deviceInfo.type, 'device.type is correct')
-            assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
-            assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
-            assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
-            assert.equal(device.pushEndpointExpired, false, 'device.pushEndpointExpired is correct')
-            // Fetch the session token
-            return db.sessionToken(sessionToken.id)
-          })
-          .then(sessionToken => {
-            assert.equal(sessionToken.lifetime, Infinity)
-            // Attempt to create a device with a duplicate session token
-            return db.createDevice(account.uid, sessionToken.id, conflictingDeviceInfo)
-              .then(() => {
-                assert(false, 'adding a device with a duplicate session token should have failed')
-              }, (err) => {
-                assert.equal(err.errno, 124, 'err.errno')
-                assert.equal(err.output.payload.deviceId, deviceInfo.id)
-              })
-          })
-          .then(() => {
-            // Fetch all of the devices for the account
-            return db.devices(account.uid)
-          })
-          .then((devices) => {
-            assert.equal(devices.length, 1, 'devices array contains one item')
+          // Create a session token
+          return db.createSessionToken(emailRecord)
+        })
+        .then((result) => {
+          sessionToken = result
+          // Attempt to update a non-existent device
+          return db.updateDevice(account.uid, sessionToken.id, deviceInfo)
+            .then(() => {
+              assert(false, 'updating a non-existent device should have failed')
+            }, (err) => {
+              assert.equal(err.errno, 123, 'err.errno === 123')
+            })
+        })
+        .then(() => {
+          // Attempt to delete a non-existent device
+          return db.deleteDevice(account.uid, deviceInfo.id)
+            .then(function () {
+              assert(false, 'deleting a non-existent device should have failed')
+            }, function (err) {
+              assert.equal(err.errno, 123, 'err.errno === 123')
+            })
+        })
+        .then(() => {
+          // Fetch all of the devices for the account
+          return db.devices(account.uid)
+            .catch(function () {
+              assert(false, 'getting devices should not have failed')
+            })
+        })
+        .then((devices) => {
+          assert.ok(Array.isArray(devices), 'devices is array')
+          assert.equal(devices.length, 0, 'devices array is empty')
+          // Create a device
+          return db.createDevice(account.uid, sessionToken.id, deviceInfo)
+            .catch((err) => {
+              assert(false, 'adding a new device should not have failed')
+            })
+        })
+        .then((device) => {
+          assert.ok(device.id, 'device.id is set')
+          assert.ok(device.createdAt > 0, 'device.createdAt is set')
+          assert.equal(device.name, deviceInfo.name, 'device.name is correct')
+          assert.equal(device.type, deviceInfo.type, 'device.type is correct')
+          assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
+          assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
+          assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
+          assert.equal(device.pushEndpointExpired, false, 'device.pushEndpointExpired is correct')
+          // Fetch the session token
+          return db.sessionToken(sessionToken.id)
+        })
+        .then(sessionToken => {
+          assert.equal(sessionToken.lifetime, Infinity)
+          // Attempt to create a device with a duplicate session token
+          return db.createDevice(account.uid, sessionToken.id, conflictingDeviceInfo)
+            .then(() => {
+              assert(false, 'adding a device with a duplicate session token should have failed')
+            }, (err) => {
+              assert.equal(err.errno, 124, 'err.errno')
+              assert.equal(err.output.payload.deviceId, deviceInfo.id)
+            })
+        })
+        .then(() => {
+          // Fetch all of the devices for the account
+          return db.devices(account.uid)
+        })
+        .then((devices) => {
+          assert.equal(devices.length, 1, 'devices array contains one item')
+          return devices[0]
+        })
+        .then((device) => {
+          assert.ok(device.id, 'device.id is set')
+          assert.ok(device.lastAccessTime > 0, 'device.lastAccessTime is set')
+          assert.equal(device.name, deviceInfo.name, 'device.name is correct')
+          assert.equal(device.type, deviceInfo.type, 'device.type is correct')
+          assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
+          assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
+          assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
+          assert.equal(device.pushEndpointExpired, false, 'device.pushEndpointExpired is correct')
+          assert.equal(device.uaBrowser, 'Firefox Mobile', 'device.uaBrowser is correct')
+          assert.equal(device.uaBrowserVersion, '41', 'device.uaBrowserVersion is correct')
+          assert.equal(device.uaOS, 'Android', 'device.uaOS is correct')
+          assert.equal(device.uaOSVersion, '4.4', 'device.uaOSVersion is correct')
+          assert.equal(device.uaDeviceType, 'mobile', 'device.uaDeviceType is correct')
+          assert.equal(device.uaFormFactor, null, 'device.uaFormFactor is correct')
+          assert.equal(device.location, undefined, 'device.location was not set')
+          deviceInfo.id = device.id
+          deviceInfo.name = 'wibble'
+          deviceInfo.type = 'desktop'
+          deviceInfo.pushCallback = ''
+          deviceInfo.pushPublicKey = ''
+          deviceInfo.pushAuthKey = ''
+          sessionToken.uaBrowser = 'Firefox'
+          sessionToken.uaBrowserVersion = '44'
+          sessionToken.uaOS = 'Mac OS X'
+          sessionToken.uaOSVersion = '10.10'
+          sessionToken.uaDeviceType = sessionToken.uaFormFactor = null
+          // Update the device and the session token
+          return P.all([
+            db.updateDevice(account.uid, sessionToken.id, deviceInfo),
+            db.updateSessionToken(sessionToken, P.resolve({
+              location: {
+                city: 'Mountain View',
+                country: 'United States',
+                countryCode: 'US',
+                state: 'California',
+                stateCode: 'CA'
+              },
+              timeZone: 'America/Los_Angeles'
+            }))
+          ])
+        })
+        .then(results => {
+          // Create another session token
+          return db.createSessionToken(sessionToken)
+        })
+        .then(result => {
+          anotherSessionToken = result
+          // Create another device
+          return db.createDevice(account.uid, anotherSessionToken.id, conflictingDeviceInfo)
+        })
+        .then(() => {
+          // Attempt to update a device with a duplicate session token
+          return db.updateDevice(account.uid, anotherSessionToken.id, deviceInfo)
+            .then(() => {
+              assert(false, 'updating a device with a duplicate session token should have failed')
+            }, (err) => {
+              assert.equal(err.errno, 124, 'err.errno')
+              assert.equal(err.output.payload.deviceId, conflictingDeviceInfo.id)
+            })
+        })
+        .then(() => {
+          // Fetch all of the devices for the account
+          return db.devices(account.uid)
+        })
+        .then((devices) => {
+          assert.equal(devices.length, 2, 'devices array contains two items')
+
+          if (devices[0].id === deviceInfo.id) {
             return devices[0]
-          })
-          .then((device) => {
-            assert.ok(device.id, 'device.id is set')
-            assert.ok(device.lastAccessTime > 0, 'device.lastAccessTime is set')
-            assert.equal(device.name, deviceInfo.name, 'device.name is correct')
-            assert.equal(device.type, deviceInfo.type, 'device.type is correct')
-            assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
-            assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
-            assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
-            assert.equal(device.pushEndpointExpired, false, 'device.pushEndpointExpired is correct')
-            assert.equal(device.uaBrowser, 'Firefox Mobile', 'device.uaBrowser is correct')
-            assert.equal(device.uaBrowserVersion, '41', 'device.uaBrowserVersion is correct')
-            assert.equal(device.uaOS, 'Android', 'device.uaOS is correct')
-            assert.equal(device.uaOSVersion, '4.4', 'device.uaOSVersion is correct')
-            assert.equal(device.uaDeviceType, 'mobile', 'device.uaDeviceType is correct')
-            assert.equal(device.uaFormFactor, null, 'device.uaFormFactor is correct')
-            assert.equal(device.location, undefined, 'device.location was not set')
-            deviceInfo.id = device.id
-            deviceInfo.name = 'wibble'
-            deviceInfo.type = 'desktop'
-            deviceInfo.pushCallback = ''
-            deviceInfo.pushPublicKey = ''
-            deviceInfo.pushAuthKey = ''
-            sessionToken.uaBrowser = 'Firefox'
-            sessionToken.uaBrowserVersion = '44'
-            sessionToken.uaOS = 'Mac OS X'
-            sessionToken.uaOSVersion = '10.10'
-            sessionToken.uaDeviceType = sessionToken.uaFormFactor = null
-            // Update the device and the session token
-            return P.all([
-              db.updateDevice(account.uid, sessionToken.id, deviceInfo),
-              db.updateSessionToken(sessionToken, '127.0.0.1', P.resolve({
-                location: {
-                  city: 'Mountain View',
-                  country: 'United States',
-                  countryCode: 'US',
-                  state: 'California',
-                  stateCode: 'CA'
-                },
-                timeZone: 'America/Los_Angeles'
-              }))
-            ])
-          })
-          .then(results => {
-            // Create another session token
-            return db.createSessionToken(sessionToken)
-          })
-          .then(result => {
-            anotherSessionToken = result
-            // Create another device
-            return db.createDevice(account.uid, anotherSessionToken.id, conflictingDeviceInfo)
-          })
-          .then(() => {
-            // Attempt to update a device with a duplicate session token
-            return db.updateDevice(account.uid, anotherSessionToken.id, deviceInfo)
-              .then(() => {
-                assert(false, 'updating a device with a duplicate session token should have failed')
-              }, (err) => {
-                assert.equal(err.errno, 124, 'err.errno')
-                assert.equal(err.output.payload.deviceId, conflictingDeviceInfo.id)
-              })
-          })
-          .then(() => {
-            // Fetch all of the devices for the account
-            return db.devices(account.uid)
-          })
-          .then((devices) => {
-            assert.equal(devices.length, 2, 'devices array contains two items')
+          }
 
-            if (devices[0].id === deviceInfo.id) {
-              return devices[0]
-            }
+          return devices[1]
+        })
+        .then((device) => {
+          assert.ok(device.lastAccessTime > 0, 'device.lastAccessTime is set')
+          assert.equal(device.name, deviceInfo.name, 'device.name is correct')
+          assert.equal(device.type, deviceInfo.type, 'device.type is correct')
+          assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
+          assert.equal(device.pushPublicKey, '', 'device.pushPublicKey is correct')
+          assert.equal(device.pushAuthKey, '', 'device.pushAuthKey is correct')
+          assert.equal(device.pushEndpointExpired, false, 'device.pushEndpointExpired is correct')
+          assert.equal(device.uaBrowser, 'Firefox', 'device.uaBrowser is correct')
+          assert.equal(device.uaBrowserVersion, '44', 'device.uaBrowserVersion is correct')
+          assert.equal(device.uaOS, 'Mac OS X', 'device.uaOS is correct')
+          assert.equal(device.uaOSVersion, '10.10', 'device.uaOSVersion is correct')
+          assert.equal(device.uaDeviceType, null, 'device.uaDeviceType is correct')
+          assert.equal(device.uaFormFactor, null, 'device.uaFormFactor is correct')
+          assert.equal(device.location.city, 'Mountain View', 'device.location.city is correct')
+          assert.equal(device.location.country, 'United States', 'device.location.country is correct')
+          assert.equal(device.location.countryCode, 'US', 'device.location.countryCode is correct')
+          assert.equal(device.location.state, 'California', 'device.location.state is correct')
+          assert.equal(device.location.stateCode, 'CA', 'device.location.stateCode is correct')
 
-            return devices[1]
-          })
-          .then((device) => {
-            assert.ok(device.lastAccessTime > 0, 'device.lastAccessTime is set')
-            assert.equal(device.name, deviceInfo.name, 'device.name is correct')
-            assert.equal(device.type, deviceInfo.type, 'device.type is correct')
-            assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
-            assert.equal(device.pushPublicKey, '', 'device.pushPublicKey is correct')
-            assert.equal(device.pushAuthKey, '', 'device.pushAuthKey is correct')
-            assert.equal(device.pushEndpointExpired, false, 'device.pushEndpointExpired is correct')
-            assert.equal(device.uaBrowser, 'Firefox', 'device.uaBrowser is correct')
-            assert.equal(device.uaBrowserVersion, '44', 'device.uaBrowserVersion is correct')
-            assert.equal(device.uaOS, 'Mac OS X', 'device.uaOS is correct')
-            assert.equal(device.uaOSVersion, '10.10', 'device.uaOSVersion is correct')
-            assert.equal(device.uaDeviceType, null, 'device.uaDeviceType is correct')
-            assert.equal(device.uaFormFactor, null, 'device.uaFormFactor is correct')
-            assert.equal(device.location.city, 'Mountain View', 'device.location.city is correct')
-            assert.equal(device.location.country, 'United States', 'device.location.country is correct')
-            assert.equal(device.location.countryCode, 'US', 'device.location.countryCode is correct')
-            assert.equal(device.location.state, 'California', 'device.location.state is correct')
-            assert.equal(device.location.stateCode, 'CA', 'device.location.stateCode is correct')
+          // Disable session token updates
+          lastAccessTimeUpdates.enabled = false
+          return db.devices(account.uid)
+        })
+        .then((devices) => {
+          assert.equal(devices.length, 2, 'devices array contains two items')
+          assert.equal(devices[0].lastAccessTime, undefined, 'lastAccessTime is not set when feature is disabled')
+          assert.equal(devices[1].lastAccessTime, undefined, 'lastAccessTime is not set when feature is disabled')
 
-            // Disable session token updates
-            lastAccessTimeUpdates.enabled = false
-            return db.devices(account.uid)
-          })
-          .then((devices) => {
-            assert.equal(devices.length, 2, 'devices array contains two items')
-            assert.equal(devices[0].lastAccessTime, undefined, 'lastAccessTime is not set when feature is disabled')
-            assert.equal(devices[1].lastAccessTime, undefined, 'lastAccessTime is not set when feature is disabled')
+          // Re-enable session token updates
+          lastAccessTimeUpdates.enabled = true
 
-            // Re-enable session token updates
-            lastAccessTimeUpdates.enabled = true
+          // Delete the devices
+          return P.all([
+            db.deleteDevice(account.uid, deviceInfo.id),
+            db.deleteDevice(account.uid, conflictingDeviceInfo.id)
+          ])
+        })
+        .then(function () {
+          // Fetch all of the devices for the account
+          return db.devices(account.uid)
+        })
+        .then(function (devices) {
+          assert.equal(devices.length, 0, 'devices array is empty')
 
-            // Delete the devices
-            return P.all([
-              db.deleteDevice(account.uid, deviceInfo.id),
-              db.deleteDevice(account.uid, conflictingDeviceInfo.id)
-            ])
-          })
-          .then(function () {
-            // Fetch all of the devices for the account
-            return db.devices(account.uid)
-          })
-          .then(function (devices) {
-            assert.equal(devices.length, 0, 'devices array is empty')
-
-            return redis.getAsync(account.uid)
-          })
-          .then(result => assert.equal(result, null, 'redis was cleared'))
+          // Delete the account
+          return db.deleteAccount(account)
+        })
+        .then(() => redis.getAsync(account.uid))
+        .then(result => assert.equal(result, null, 'redis was cleared'))
     }
   )
 

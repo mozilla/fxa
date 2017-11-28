@@ -7,12 +7,7 @@
 const error = require('./error')
 const P = require('./promise')
 const Pool = require('./pool')
-
 const random = require('./crypto/random')
-const redis = require('redis')
-
-P.promisifyAll(redis.RedisClient.prototype)
-P.promisifyAll(redis.Multi.prototype)
 
 module.exports = (
   config,
@@ -22,11 +17,14 @@ module.exports = (
   ) => {
 
   const features = require('./features')(config)
-  const SessionToken = Token.SessionToken
-  const KeyFetchToken = Token.KeyFetchToken
-  const AccountResetToken = Token.AccountResetToken
-  const PasswordForgotToken = Token.PasswordForgotToken
-  const PasswordChangeToken = Token.PasswordChangeToken
+  const redis = require('./redis')(config.redis, log)
+  const {
+    SessionToken,
+    KeyFetchToken,
+    AccountResetToken,
+    PasswordForgotToken,
+    PasswordChangeToken
+  } = Token
   const MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE = config.tokenLifetimes.sessionTokenWithoutDevice
 
   function setAccountEmails(account) {
@@ -55,26 +53,6 @@ module.exports = (
     }
 
     this.pool = new Pool(options.url, pooleeOptions)
-    if (config.redis.enabled) {
-      const redisConfig = {
-        host: config.redis.host,
-        port: config.redis.port,
-        prefix: config.redis.sessionsKeyPrefix,
-        // Prefer redis to fail fast than wait indefinitely for reconnection
-        enable_offline_queue: false
-      }
-      log.info({op: 'db.redis.enabled', config: redisConfig})
-      this.redis = redis.createClient(redisConfig)
-      // If the `error` event is not handled, redis errors are fatal
-      this.redis.on('error', err => log.error({
-        op: 'db.redis.error',
-        err: err.message,
-        stack: err.stack
-      }))
-    } else {
-      this.redis = false
-      log.info({op: 'db.redis.disabled'})
-    }
   }
 
   DB.connect = function (options) {
@@ -265,13 +243,15 @@ module.exports = (
     ]
     let isRedisOk = true
 
-    if (this.redis) {
+    if (redis) {
       promises.push(
-        this.redis.getAsync(uid)
-          .catch(err => {
-            // Ensure that we don't return lastAccessTime if redis is down
-            isRedisOk = false
-            log.error({ op: 'db.redis.get.error', method: 'sessions', err: err.message })
+        safeRedisGet(uid)
+          .then(result => {
+            if (result === false) {
+              // Ensure that we don't return lastAccessTime if redis is down
+              isRedisOk = false
+            }
+            return result
           })
       )
     }
@@ -462,13 +442,15 @@ module.exports = (
     ]
     let isRedisOk = true
 
-    if (this.redis) {
+    if (redis) {
       promises.push(
-        this.redis.getAsync(uid)
-          .catch(err => {
-            // Ensure that we don't return lastAccessTime if redis is down
-            isRedisOk = false
-            log.error({ op: 'db.redis.get.error', method: 'devices', err: err.message })
+        safeRedisGet(uid)
+          .then(result => {
+            if (result === false) {
+              // Ensure that we don't return lastAccessTime if redis is down
+              isRedisOk = false
+            }
+            return result
           })
       )
     }
@@ -540,52 +522,45 @@ module.exports = (
     )
   }
 
-  DB.prototype.updateSessionToken = function (token, ip, geo) {
-    log.trace({ op: 'DB.updateSessionToken', uid: token && token.uid })
+  DB.prototype.updateSessionToken = function (token, geo) {
+    const { id, uid } = token
 
-    const uid = token.uid
-    if (! this.redis || ! features.isLastAccessTimeEnabledForUser(uid)) {
+    log.trace({ op: 'DB.updateSessionToken', id, uid })
+
+    if (! redis || ! features.isLastAccessTimeEnabledForUser(uid)) {
       return P.resolve()
     }
 
-    const newToken = {
-      tokenId: token.id,
-      uid: uid,
-      uaBrowser: token.uaBrowser,
-      uaBrowserVersion: token.uaBrowserVersion,
-      uaOS: token.uaOS,
-      uaOSVersion: token.uaOSVersion,
-      uaDeviceType: token.uaDeviceType,
-      uaFormFactor: token.uaFormFactor,
-      lastAccessTime: token.lastAccessTime,
-      createdAt: token.createdAt
-    }
-    let sessionTokens
+    let location
     return geo
-    .then((res) => {
-      if (res.location) {
-        newToken.location = {
-          city: res.location.city,
-          country: res.location.country,
-          countryCode: res.location.countryCode,
-          state: res.location.state,
-          stateCode: res.location.stateCode
+      .then(result => location = {
+        city: result.location.city,
+        country: result.location.country,
+        countryCode: result.location.countryCode,
+        state: result.location.state,
+        stateCode: result.location.stateCode
+      })
+      .catch(() => {})
+      .then(() => redis.update(uid, sessionTokens => {
+        if (sessionTokens) {
+          sessionTokens = JSON.parse(sessionTokens)
+        } else {
+          sessionTokens = {}
         }
-      }
-    })
-    .catch(err => {
-      newToken.location = null
-    })
-    // get the object of session tokens associated with the given uid
-    .then(() => this.redis.getAsync(uid))
-    .then(res => {
-      // update the hash with the new token
-      sessionTokens = res ? JSON.parse(res) : {}
-      sessionTokens[token.id] = newToken
 
-      return this.redis.setAsync(uid, JSON.stringify(sessionTokens))
-    })
-    .then(() => sessionTokens)
+        sessionTokens[id] = {
+          lastAccessTime: token.lastAccessTime,
+          location,
+          uaBrowser: token.uaBrowser,
+          uaBrowserVersion: token.uaBrowserVersion,
+          uaDeviceType: token.uaDeviceType,
+          uaFormFactor: token.uaFormFactor,
+          uaOS: token.uaOS,
+          uaOSVersion: token.uaOSVersion,
+        }
+
+        return JSON.stringify(sessionTokens)
+      }))
   }
 
   DB.prototype.createDevice = function (uid, sessionTokenId, deviceInfo) {
@@ -693,36 +668,44 @@ module.exports = (
   // DELETE
 
   DB.prototype.deleteAccount = function (authToken) {
-    log.trace({ op: 'DB.deleteAccount', uid: authToken && authToken.uid })
-    const promises = [this.pool.del('/account/' + authToken.uid)]
-    if (this.redis) {
-      promises.push(this.redis.del(authToken.uid))
-    }
-    return P.all(promises)
+    const { uid } = authToken
+
+    log.trace({ op: 'DB.deleteAccount', uid })
+
+    return P.resolve()
+      .then(() => {
+        if (redis) {
+          return redis.del(uid)
+        }
+      })
+      .then(() => this.pool.del(`/account/${uid}`))
   }
 
   DB.prototype.deleteSessionToken = function (sessionToken) {
-    const uid = sessionToken && sessionToken.uid
-    log.trace(
-      {
-        op: 'DB.deleteSessionToken',
-        id: sessionToken && sessionToken.id,
-        uid: uid
-      }
-    )
-    const promises = [this.pool.del('/sessionToken/' + sessionToken.id)]
-    if (this.redis) {
-      promises.push(this.redis.getAsync(uid))
-    }
-    return P.all(promises)
-      .spread((deleteRes, redisTokens) => {
-        if (this.redis) {
-          const redisSessionTokens = redisTokens ? JSON.parse(redisTokens) : {}
-          delete redisSessionTokens[sessionToken.id]
-          return this.redis.setAsync(uid, JSON.stringify(redisSessionTokens))
+    const { id, uid } = sessionToken
+
+    log.trace({ op: 'DB.deleteSessionToken', id, uid })
+
+    return P.resolve()
+      .then(() => {
+        if (redis) {
+          return redis.update(uid, sessionTokens => {
+            if (! sessionTokens) {
+              return
+            }
+
+            sessionTokens = JSON.parse(sessionTokens)
+
+            delete sessionTokens[id]
+            if (Object.keys(sessionTokens).length === 0) {
+              return
+            }
+
+            return JSON.stringify(sessionTokens)
+          })
         }
-        return deleteRes
       })
+      .then(() => this.pool.del(`/sessionToken/${id}`))
   }
 
   DB.prototype.deleteKeyFetchToken = function (keyFetchToken) {
@@ -814,16 +797,20 @@ module.exports = (
   // BATCH
 
   DB.prototype.resetAccount = function (accountResetToken, data) {
-    log.trace({ op: 'DB.resetAccount', uid: accountResetToken && accountResetToken.uid })
-    data.verifierSetAt = Date.now()
-    const promises = [this.pool.post(
-      '/account/' + accountResetToken.uid + '/reset',
-      data
-    )]
-    if (this.redis) {
-      promises.push(this.redis.del(accountResetToken.uid))
-    }
-    return P.all(promises)
+    const { uid } = accountResetToken
+
+    log.trace({ op: 'DB.resetAccount', uid })
+
+    return P.resolve()
+      .then(() => {
+        if (redis) {
+          return redis.del(uid)
+        }
+      })
+      .then(() => {
+        data.verifierSetAt = Date.now()
+        return this.pool.post(`/account/${uid}/reset`, data)
+      })
   }
 
   DB.prototype.verifyEmail = function (account, emailCode) {
@@ -1093,6 +1080,15 @@ module.exports = (
 
   function hexEncode(str) {
     return Buffer(str, 'utf8').toString('hex')
+  }
+
+  function safeRedisGet (key) {
+    return redis.get(key)
+      .catch(err => {
+        log.error({ op: 'redis.get.error', key, err: err.message })
+        // Allow callers to distinguish between the null result and connection errors
+        return false
+      })
   }
 
   return DB

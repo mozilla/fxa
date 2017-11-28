@@ -75,7 +75,7 @@ describe('/certificate/sign', () => {
     }, mockRequest, function () {
       assert.equal(db.updateSessionToken.callCount, 1, 'db.updateSessionToken was called once')
       let args = db.updateSessionToken.args[0]
-      assert.equal(args.length, 3, 'db.updateSessionToken was passed three arguments')
+      assert.equal(args.length, 2, 'db.updateSessionToken was passed two arguments')
       assert.equal(args[0].uid, sessionToken.uid, 'first argument uid property was correct')
       assert.equal(args[0].email, sessionToken.email, 'first argument email property was correct')
       assert.equal(args[0].uaBrowser, 'Firefox', 'first argument uaBrowser property was correct')
@@ -86,8 +86,7 @@ describe('/certificate/sign', () => {
       assert.equal(args[0].uaFormFactor, null, 'first argument uaFormFactor property was null')
       assert.ok(args[0].lastAccessTime, 'lastAccessTime is set')
       assert.ok(args[0].lastAccessTime > args[0].createdAt, 'lastAccessTime is updated')
-      assert.equal(args[1], mockRequest.app.clientAddress, 'second argument was client IP address')
-      assert.equal(args[2], mockRequest.app.geo, 'third argument was getGeoData result')
+      assert.equal(args[1], mockRequest.app.geo, 'second argument was getGeoData result')
 
       assert.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once')
       args = mockDevices.upsert.args[0]
