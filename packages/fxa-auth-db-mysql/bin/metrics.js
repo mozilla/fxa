@@ -71,7 +71,7 @@ function run (config, now) {
   )
   var os = require('os')
   var log = require('../lib/logging')('bin.metrics')
-  var mysql = require('../lib/db/mysql')(log, require('../fxa-auth-db-server').errors)
+  var mysql = require('../lib/db/mysql')(log, require('../db-server').errors)
   var self = this
   var db
 

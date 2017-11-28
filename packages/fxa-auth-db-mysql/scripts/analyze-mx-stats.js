@@ -23,7 +23,7 @@ var P = require('../lib/promise')
 var log = {
   info: function () {},
 }
-var DB = require('../lib/db/mysql')(log, require('../fxa-auth-db-server').errors)
+var DB = require('../lib/db/mysql')(log, require('../db-server').errors)
 var config = require('../config')
 
 var resolve = P.promisify(dns.resolve)

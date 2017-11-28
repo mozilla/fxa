@@ -1,708 +1,1869 @@
-# DB API #
-
-There are a number of methods that a DB storage backend should implement:
-
-* Accounts (using `uid`)
-    * .createAccount(uid, data)
-    * .account(uid)
-    * .checkPassword(uid, hash)
-    * .verifyEmail(uid, emailCode)
-    * .accountDevices(uid)
-    * .resetAccount(uid, data)
-    * .deleteAccount(uid)
-    * .sessions(uid)
-    * .accountEmails(uid)
-    * .createEmail(uid, data)
-    * .deleteEmail(uid, email)
-    * .resetTokens(uid)
-* Accounts (using `email`)
-    * .emailRecord(emailBuffer)
-    * .accountRecord(emailBuffer)
-    * .accountExists(emailBuffer)
-    * .getSecondaryEmail(emailBuffer)
-    * .setPrimaryEmail(uid, emailBuffer)
-* Session Tokens
-    * .createSessionToken(tokenId, sessionToken)
-    * .updateSessionToken(tokenId, sessionToken)
-    * .sessionToken(id)
-    * .sessionTokenWithVerificationStatus(tokenId)
-    * .sessionWithDevice(tokenId)
-    * .deleteSessionToken(tokenId)
-* Key Fetch Tokens
-    * .createKeyFetchToken(tokenId, keyFetchToken)
-    * .keyFetchToken(id)
-    * .keyFetchTokenWithVerificationStatus(tokenId)
-    * .deleteKeyFetchToken(tokenId)
-* Unverified session tokens and key fetch tokens
-    * .verifyTokens(tokenVerificationId, accountData)
-    * .verifyTokenCode(code, accountData)
-* Password Forgot Tokens
-    * .createPasswordForgotToken(tokenId, passwordForgotToken)
-    * .deletePasswordForgotToken(tokenId)
-    * .passwordForgotToken(id)
-    * .updatePasswordForgotToken(tokenId, token)
-    * .forgotPasswordVerified(tokenId, accountResetToken)
-* Password Change Tokens
-    * .createPasswordChangeToken(tokenId, passwordChangeToken)
-    * .passwordChangeToken(id)
-    * .deletePasswordChangeToken(tokenId)
-* Account Reset Tokens
-    * .accountResetToken(id)
-    * .deleteAccountResetToken(tokenId)
-* Verification Reminders
-    * .createVerificationReminder(body)
-    * .fetchReminders(body, query)
-    * .deleteReminder(body)
-* Email Bounces
-    * .createEmailBounce(body)
-* Signin codes
-    * .createSigninCode(code, uid, createdAt, flowId)
-    * .consumeSigninCode(code)
-* General
-    * .ping()
-    * .close()
-
-## Types ##
-
-# Parameters #
-
-The types of each parameter is shown in brackets below. In some cases an extra clarification
-is shown afterwards.
-
-* number - a number (integer only)
-* string - a string of undetermined length
-* Buffer - a Buffer of undetermined length
-* Buffer16 - a Buffer of length 16 bytes
-* Buffer32 - a Buffer of length 32 bytes
-* Buffer64 - a Buffer of length 64 bytes
-
-The storage backends are not meant to be clever. They never infer anything and they shouldn't
-default anything. The `fxa-auth-server` defaults everything it needs to. Backends shouldn't
-default anything in code or in the datastore (either by default values or triggers).
-
-Please note that when a parameter type is specified as `Buffer` you can choose whether to store as a binary type or as
-a hex encoded string. This decision will depend on what your storage backend can do or if it is faster with one or the
-other. e.g. the `mysql` backend stores these fields as `binary(??)`. The test `memory` backend stores these as
-hex encoded strings.
-
-# Promises #
-
-All functions return a promise. Even if we are just returning a value it is wrapped
-in a promise so that you can chain calls if you need to.
-
-## .createAccount(uid, data) ##
-
-Parameters:
-
-* uid - (Buffer16) the uid of the account to be created - unique
-* data:
-    * email - (string)
-    * normalizedEmail - (string) the same as above but `.toLowerCase()`
-    * emailCode - (Buffer16)
-    * emailVerified - (number) 0|1, to show whether an account has been verified
-    * createdAt - (number) an epoch, such as that created with `Date.now()`
-    * verifyHash - (Buffer32)
-    * authSalt - (Buffer32)
-    * wrapWrapKb - (Buffer32)
-    * verifierSetAt - (number) an epoch, such as that created with `Date.now()`
-    * verifierVersion - (number) currently always set to 1, may be 2 or more in the future
+# Server API
+
+The `fxa-auth-db-mysql` has the following API which the `fxa-auth-server` uses.
+
+# Overview
+
+All responses are of the form `application/json`.
+
+## URL Structure
+
+All requests ...
+
+## Request Format
+
+All requests conform to the following points:
+
+* the methods used are HEAD, GET, PUT, POST and DELETE
+* the `Content-Type` header must be `application/json`
+* all buffer-type parameters must be a hex encoded string
+* the body is a JSON structure
+
+Some requests require you to substitute in a parameter as part of the path. For example, when creating an account
+(e.g. for the uid 'ABCD') the path used will be documented as `/account/<uid>` and the path used will be
+`/account/ABCD`.
+
+## Response Format
+
+All responses conform to the following:
+
+* the returned `Content-Type` is always `application/json`
+* the body is a JSON structure
+
+## Data Types
+
+The following datatypes are used throughout this document:
+
+* epoch     : the date in ms since epoch. eg. 1424819640738 such as that returned from `Date.now()`
+* hex128    : a 128 bit value in hex encoding. ie. 32 chars long (16 bytes)
+* hex256    : a 256 bit value in hex encoding. ie. 64 chars long (32 bytes)
+* hex768    : a 768 bit value in hex encoding. ie. 192 chars long (96 bytes)
+* hex       : a hex string representing n bytes of binary data.
+* string255 : a string up to 255 characters/bytes long
+
+# Operations
 
-Returns:
+## Operations ##
 
-* success - always returns an empty object when successful
-* error (can be either):
-    * a `error.duplicate()` if this uid already exists
-    * an error from the underlying storage system
-
-## .account(uid) ##
-
-Parameters:
-
-* uid - (Buffer16) the uid of the account to be created - unique
-
-Returns:
-
-* success - returns the account object above
-* error (can be either):
-    * a `error.notFound()` if this account does not exist
-    * an error from the underlying storage system
-
-## .checkPassword(uid, hash) ##
-
-Parameters:
-
-* uid - (Buffer16) the uid of the account to be queried
-* hash:
-    * verifyHash - (Buffer32)
-
-Returns:
-
-* resolves with:
-    * an empty object `{}`
-* rejects: with one of:
-    * `error.notFound()` if the credentials are invalid
-    * any error from the underlying storage engine
-
-## .verifyEmail(uid, emailCode) ##
-
-Parameters:
-
-* uid - (Buffer16) the uid of the account to be queried
-* emailCode - (Buffer16) the emailCode of the email to be verified
-
-Returns:
-
-* success - returns an empty object
-* error:
-    * an error from the underlying storage engine
-
-We do not separate the fact that the account uid may not exist and always
-resolve to an empty object. Verify Email will check both the account
-and email table for specified emailCode and verify it.
-
-## .accountDevices(uid) ##
-
-Parameters:
-
-* uid - (Buffer16) the uid of the account to be queried
-
-Returns:
-
-* success - an array of account devices (aka Session Tokens)
-* error:
-    * an error from the underlying storage engine (wrapped in error.wrap())
-
-## .resetAccount(uid, data) ##
-
-Resets the account specified by `uid` using the fields provided in `data`. Deletes all tokens
-and devices related to this account.
-
-Parameters:
-
-* `uid` - (Buffer16) the uid of the account to be reset
-* `data`:
-    * verifyHash - (Buffer32)
-    * authSalt - (Buffer32)
-    * wrapWrapKb - (Buffer32)
-    * verifierVersion - (number)
-
-Returns:
-
-* resolves with:
-    * an empty object `{}`
-* rejects with:
-    * any errors from the underlying storage engine
-
-EXCEPTION TO NOTES: currently the backend sets `verifierSetAt` to be `Date.now()`. This should be moved to the
-`fxa-auth-server`.
-
-## .deleteAccount(uid) ##
-
-Deletes the account specified by `uid`
-and all tokens and devices related to this account.
-
-Parameters:
-
-* `uid` - (Buffer16) the uid of the account to be reset
-
-Returns:
-
-* resolves with:
-    * an empty object `{}`
-* rejects with:
-    * any errors from the underlying storage engine
-
-
-## .sessions(uid) ##
-
-Fetches all session tokens for a user,
-without any of the secret data.
-
-Parameters:
-
-* `uid` - (Buffer16) the uid of the account to get sessions for
-
-Returns:
-
-* resolves with:
-    * an array of incompletely-populated session tokens
-* rejects with:
-    * any errors from the underlying storage engine
-
-## .accountEmails(uid) ##
-
-    Fetches all the emails associated with the uid.
-
-    Parameters:
-
-    * `uid` - (Buffer16) the uid of the account to get emails for
-
-    Returns:
-
-    * resolves with:
-        * an array of populated email records
-    * rejects with:
-        * any errors from the underlying storage engine
-
-## .createEmail(uid, data) ##
-
-    Creates a new email and associates it with the uid.
-
-    Parameters:
-
-    * `uid` - (Buffer16) the uid of the account to get emails for
-    * `data`:
-      * email - (string) email to create
-      * normalizedEmail - (string) same as above but `.toLowerCase()`
-      * emailCode - (Buffer16) email code
-      * uid - (Buffer16) uid of the user
-      * isVerified - (number) 0|1 flag for whether or not email is verified
-      * isPrimary - (number) 0|1 flag for whether or not email is primary email
-
-    Returns:
-
-    * resolves with:
-        * an empty object `{}`
-    * rejects with:
-        * any errors from the underlying storage engine
-
-## .deleteEmail(uid, email) ##
-
-    Deletes the associated email from the users account.
-
-    Parameters:
-
-    * `uid` - (Buffer16) the uid of the account to delete emails for
-    * `email` - (string) the email to delete from user account
-
-    Returns:
-
-    * resolves with:
-        * an empty object `{}`
-    * rejects with:
-        * any errors from the underlying storage engine
-        
-## .resetTokens(uid) ##
-
-    Deletes all `accountResetTokens`, `passwordChangeTokens` and `passwordForgotTokens` from the asscociated `uid`.
-
-    Parameters:
-
-    * `uid` - (Buffer16) the uid of the account to delete tokens
-
-    Returns:
-
-    * resolves with:
-        * an empty object `{}`
-    * rejects with:
-        * any errors from the underlying storage engine
-
-## .emailRecord(emailBuffer) ##
-
-Gets the account record related to this (normalized) email address. The email is provided in a Buffer.
-
-Parameters:
-
-* emailBuffer: the email address will be a hex encoded string, which is converted back to a string, then
-  `.toLowerCase()`. In the MySql backend we use `LOWER(?)` which uses the current locale for case-folding.
-
-Returns:
-
-* resolves with:
-    * `account` - consisting of:
-        * uid - (Buffer16)
-        * email - (string)
-        * normalizedEmail - (string)
-        * emailVerified - 0|1
-        * emailCode - (Buffer16)
-        * kA - (Buffer32)
-        * wrapWrapKb - (Buffer32)
-        * verifierVersion - (number)
-        * verifyHash - (Buffer32)
-        * authSalt - (Buffer32)
-        * verifierSetAt - (number) an epoch
-* rejects: with one of:
-    * `error.notFound()` if no account exists for this email address
-    * any error from the underlying storage engine
-    
-## .accountRecord(emailBuffer) ##
-
-Gets the account record related to this (normalized) email address by checking for email on emails table. 
-The email is provided in a Buffer.
-
-Parameters:
-
-* emailBuffer: the email address will be a hex encoded string, which is converted back to a string, then
-  `.toLowerCase()`. In the MySql backend we use `LOWER(?)` which uses the current locale for case-folding.
-
-Returns:
-
-* resolves with:
-    * `account` - consisting of:
-        * uid - (Buffer16)
-        * email - (string)
-        * normalizedEmail - (string)
-        * emailVerified - 0|1
-        * emailCode - (Buffer16)
-        * kA - (Buffer32)
-        * wrapWrapKb - (Buffer32)
-        * verifierVersion - (number)
-        * verifyHash - (Buffer32)
-        * authSalt - (Buffer32)
-        * verifierSetAt - (number) an epoch
-        * primaryEmail - (string)
-* rejects: with one of:
-    * `error.notFound()` if no account exists for this email address
-    * any error from the underlying storage engine
-
-## .accountExists(email) ##
-
-Checks if an account exists for this (normalized) email address.
-
-Parameters:
-
-* email: the email address will be a hex encoded string, which is converted back to a string, then `.toLowerCase()`. In
-  the MySql backend we use `LOWER(?)` which uses the current locale for case-folding.
-
-Returns:
-
-* resolves with:
-    * an empty object `{}`
-* rejects: with one of:
-    * `error.notFound()` if no account exists for this email address
-    * any error from the underlying storage engine
-
-## .getSecondaryEmail(emailBuffer) ##
-
-Get the email entry associated with this `emailBuffer`. This email is located on the secondary email table.
-
-Parameters:
-
-* email: the email address will be a hex encoded string, which is converted back to a string, then `.toLowerCase()`. In
-  the MySql backend we use `LOWER(?)` which uses the current locale for case-folding.
-
-Returns:
-
-* resolves with:
-    * `email` - consisting of:
-        * uid - (Buffer16)
-        * email - (string)
-        * emailCode - (Buffer16)
-        * isPrimary - (boolean)
-        * isVerified - (boolean)
-        * normalizedEmail - (string)        
-        * createdAt - (number)
-* rejects: with one of:
-    * `error.notFound()` if no email address exists on emails table
-    * any error from the underlying storage engine
-
-## .setPrimaryEmail(uid, emailBuffer) ##
-
-Sets the primary email address as `emailBuffer` for account with `uid`.
-
-Parameters:
-
-* uid: the uid of the account
-* email: the normalized email address that will be the new primary email
-
-Returns:
-
-* resolves with:
-    * an empty object `{}`
-* rejects: with one of:
-    * `error.notFound()` if no email address exists on emails table
-    * any error from the underlying storage engine
-    
-## Tokens ##
-
-All tokens (sessionTokens, keyFetchTokens, passwordForgotTokens, passwordChangeTokens, accountResetTokens) have three
-functions which all work similarly. For example, the `sessionTokens` have:
-
-### .createSessionToken(tokenId, token) ###
-### .createKeyFetchToken(tokenId, token) ###
-### .createPasswordChangeToken(tokenId, token) ###
-### .createPasswordForgotToken(tokenId, token) ###
-
-Parameters.
-
-* tokenId : (Buffer32) the unique id for this token
-* token : (Object) the fields to be stored in the token (see below for each token type)
-
-Each token takes the following fields for it's create method respectively:
-
-* sessionToken : data, uid, createdAt, uaBrowser, uaBrowserVersion, uaOS, uaOSVersion, uaDeviceType,
-                 uaFormFactor, mustVerify, tokenVerificationId, tokenVerificationCodeHash, tokenVerificationCodeExpiresAt
-* keyFetchToken : authKey, uid, keyBundle, createdAt, tokenVerificationId
-* passwordChangeToken : data, uid, createdAt
-* passwordForgotToken : data, uid, passCode, createdAt, triesxb
-
-Returns:
-
-* resolves with:
-    * an object `{}`
-* rejects with:
-    * `error.duplicate()` if a token already exists with the same `tokenId`
-    * any error from the underlying storage system (wrapped in `error.wrap()`
-
-Note: for some tokens there should only ever be one row per `uid`. This applies to `accountResetTokens`,
-`passwordForgotTokens` and `passwordChangeTokens`. In the MySql driver we currently use `REPLACE INTO ...` so you
-should do something equivalent with your storage backend.
-
-### .sessionToken(tokenId) ###
-### .sessionTokenWithVerificationStatus(tokenId) ###
-### .keyFetchToken(tokenId) ###
-### .keyFetchTokenWithVerificationStatus(tokenId) ###
-### .passwordChangeToken(tokenId) ###
-### .passwordForgotToken(tokenId) ###
-### .accountResetToken(tokenId) ###
-
-Parameters:
-
-* `tokenId` - (Buffer32) the id of the token to retrieve
-
-Returns:
-
-* resolves with:
-    * an object `{ ... }` with the relevant field (see below)
-* rejects with:
-    * `error.notFound()` if this token does not exist
-    * any error from the underlying storage system (wrapped in `error.wrap()`
-
-Each token returns different fields.
-These fields are represented as
-`t.*` for a field from the token,
-`a.*` for a field from the corresponding account and
-`ut.*` for a field from `unverifiedTokens`.
-
-* sessionToken : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
-                 t.uaOS, t.uaOSVersion, t.uaDeviceType, t.uaFormFactor, t.lastAccessTime,
-                 a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
-                 a.createdAt AS accountCreatedAt
-* sessionTokenWithVerificationStatus : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
-                                       t.uaOS, t.uaOSVersion, t.uaDeviceType, t.uaFormFactor, t.lastAccessTime,
-                                       a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
-                                       a.createdAt AS accountCreatedAt, ut.mustVerify, ut.tokenVerificationId,
-                                       ut.tokenVerificationCodeHash, ut.tokenVerificationCodeExpiresAt
-* keyFetchToken : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified, a.verifierSetAt
-* keyFetchTokenWithVerificationStatus : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified,
-                                        a.verifierSetAt, ut.mustVerify, ut.tokenVerificationId
-* passwordChangeToken : t.tokenData, t.uid, t.createdAt, a.verifierSetAt
-* passwordForgotToken : t.tokenData, t.uid, t.createdAt, t.passCode, t.tries, a.email, a.verifierSetAt
-* accountResetToken : t.uid, t.tokenData, t.createdAt, a.verifierSetAt
-
-### .deleteSessionToken(tokenId) ###
-### .deleteKeyFetchToken(tokenId) ###
-### .deletePasswordChangeToken(tokenId) ###
-### .deletePasswordForgotToken(tokenId) ###
-### .deleteAccountResetToken(tokenId) ###
-
-Will delete the token of the correct type designated by the given `tokenId`.
-For `sessionTokens`,
-associated records in `devices` and `unverifiedTokens`
-will also be deleted.
-For `keyFetchTokens`,
-associated records in `unverifiedTokens`
-will also be deleted.
-
-
-## .updateSessionToken(tokenId, token) ##
-
-An extra function for `sessionTokens`. Just updates the `uaBrowser`, `uaBrowserVersion`, `uaOS`, `uaOSVersion`, `uaDeviceType` and `lastAccessTime` fields of the token.
-
-Parameters.
-
-* tokenId : (Buffer32) the unique id for this token
-* token : (Object) -
-    * uaBrowser : (string)
-    * uaBrowserVersion : (string)
-    * uaOS : (string)
-    * uaOSVersion : (string)
-    * uaDeviceType : (string)
-    * lastAccessTime : (number)
-
-Returns:
-
-* resolves with:
-    * an object `{}` (regardless of whether a row was updated or not, ie. even if `tokenId` does not exist.)
-* rejects with:
-    * any error from the underlying storage system (wrapped in `error.wrap()`)
-
-## .updatePasswordForgotToken(tokenId, token) ##
-
-An extra function for `passwordForgotTokens`. Just updates the `tries` field of the token.
-
-Parameters.
-
-* tokenId : (Buffer32) the unique id for this token
-* token : (Object) -
-    * tries : (number)
-
-Returns:
-
-* resolves with:
-    * an object `{}` (regardless of whether a row was updated or not, ie. even if `tokenId` does not exist.)
-* rejects with:
-    * any error from the underlying storage system (wrapped in `error.wrap()`)
-
-## .verifyTokens(tokenVerificationId, accountData)
-
-Verifies sessionTokens and keyFetchTokens.
+* General:
+    * ping                      : `GET /`
+    * heartbeat                 : `GET /__heartbeat__`
+* Account:
+    * account                   : `GET /account/:id`
+    * accountExists             : `HEAD /emailRecord/:id`
+    * emailRecord               : `GET /emailRecord/:id`
+    * createAccount             : `PUT /account/:id`
+    * checkPassword             : `POST /account/:id/checkPassword`
+    * resetAccount              : `POST /account/:id/reset`
+    * resetTokens               : `POST /account/:id/resetTokens`
+    * deleteAccount             : `DELETE /account/:id`
+    * verifyEmail               : `POST /account/:id/verifyEmail`
+    * sessions                  : `GET /account/:id/sessions`
+    * devices                   : `GET /account/:id/devices`
+    * deviceFromTokenVerificationId : `GET /account/:id/tokens/:tokenVerificationId/device`
+* Devices:
+    * createDevice              : `PUT /account/:id/device/:deviceId`
+    * updateDevice              : `POST /account/:id/device/:deviceId/update`
+    * deleteDevice              : `DELETE /account/:id/device/:deviceId`
+* Session Tokens:
+    * sessionToken              : `GET /sessionToken/:id`
+    * sessionTokenWithVerificationStatus : `GET /sessionToken/:id/verified`
+    * sessionWithDevice         : `GET /sessionToken/:id/device`
+    * deleteSessionToken        : `DELETE /sessionToken/:id`
+    * createSessionToken        : `PUT /sessionToken/:id`
+    * updateSessionToken        : `POST /sessionToken/:id/update`
+* Account Reset Tokens:
+    * accountResetToken         : `GET /accountResetToken/:id`
+    * deleteAccountResetToken   : `DELETE /accountResetToken/:id`
+* Key Fetch Tokens:
+    * keyFetchToken             : `GET /keyFetchToken/:id`
+    * keyFetchTokenWithVerificationStatus : `GET /keyFetchToken/:id/verified`
+    * deleteKeyFetchToken       : `DELETE /keyFetchToken/:id`
+    * createKeyFetchToken       : `PUT /keyFetchToken/:id`
+* Password Change Tokens:
+    * passwordChangeToken       : `GET /passwordChangeToken/:id`
+    * deletePasswordChangeToken : `DELETE /passwordChangeToken/:id`
+    * createPasswordChangeToken : `PUT /passwordChangeToken/:id`
+* Password Forgot Tokens:
+    * passwordForgotToken       : `GET /passwordForgotToken/:id`
+    * deletePasswordForgotToken : `DELETE /passwordForgotToken/:id`
+    * createPasswordForgotToken : `PUT /passwordForgotToken/:id`
+    * updatePasswordForgotToken : `POST /passwordForgotToken/:id/update`
+    * forgotPasswordVerified    : `POST /passwordForgotToken/:id/verified`
+* Unverified tokens:
+    * verifyTokens              : `POST /tokens/:tokenVerificationId/verify`
+* Sign-in codes
+    * createSigninCode          : `PUT /signinCodes/:code`
+    * consumeSigninCode         : `POST /signinCodes/:code/consume`
+
+## Ping : `GET /`
+
+### Request
+
+```
+curl -X GET http://localhost:8000/
+```
+
+### Response
+
+```
+HTTP/1.1 200 OK
+
+{"version":"0.30.0"}
+```
+
+The server does not return any errors from this operation, except those generated by infrastructure
+such as a timeout, or if your library cannot connect to the server.
+
+## Heartbeat : `GET /__heartbeat__`
+
+### Request
+
+```
+curl -X GET http://localhost:8000/__heartbeat__
+```
+
+### Response
+
+```
+HTTP/1.1 200 OK
+
+{}
+```
+
+A failed request may be returned as:
+
+```
+HTTP/1.1 500 Internal Server Error
+
+{"message":"connect ECONNREFUSED"}
+```
+
+This may be due to the backend server not being able to ping it's datastore, or if there happens to
+be any other reason the server isn't functioning correctly.
+
+## createAccount : `PUT /account/<uid>`
+
+### Example
+
+```
+curl \
+    -v \
+    -X PUT \
+    -H "Content-Type: application/json" \
+    -d '{
+        "normalizedEmail" : "foo@example.com",
+        "email"           : "foo@example.com",
+        "emailCode"       : "9b4da6ccd05e7c24ce6a6c0d208bc7c9",
+        "emailVerified"   : false,
+        "kA"              : "5e1994b0159081921adb416236058d92bd0715a91c884654e4269c49d467a160",
+        "wrapWrapKb"      : "a746589a4d3db2b0552476bae4fc8c9156d29499eeb0d6583ffd6ddcd7482097",
+        "authSalt"        : "d870b1472524fcef2cfd512533b1fb19fe6cf1b555cb5d85d60a636cc5356aba",
+        "verifyHash"      : "5791981c2f0685aa9400597b6bee51d04c59399798e9bcf3cdbeec3d8b50971f",
+        "verifierVersion" : 1,
+        "verifierSetAt"   : 1424832691282,
+        "locale"          : "en_US"
+    }' \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac
+```
+
+### Request
+
+* Method : PUT
+* Path : `/account/<uid>`
+    * uid : hex128
+* Params:
+    * normalizedEmail : string255
+    * email : string255
+    * emailCode : hex128
+    * emailVerified : boolean
+    * kA : hex256
+    * wrapWrapKb : hex256
+    * authSalt : hex256
+    * verifierVersion : int8
+    * verifyHash hex256
+    * verifierSetAt : epoch
+    * locale : string255
+    * createdAt : epoch
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : {}
+* Status Code : 409 Conflict
+    * Conditions: if this account `uid` or `normalizedEmail` already exists
+    * Content-Type : 'application/json'
+    * Body : {"message":"Record already exists"}
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
+
+
+## GET /account/<uid>
+
+### Example
+
+```
+curl \
+    -v \
+    -X GET \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac
+```
+
+### Request
+
+* Method : GET
+* Path : `/account/<uid>`
+    * uid : hex128
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 564
+
+{
+    "normalizedEmail":"foo@example.com",
+    "email":"foo@example.com",
+    "emailCode":"9b4da6ccd05e7c24ce6a6c0d208bc7c9",
+    "emailVerified":false,
+    "kA":"5e1994b0159081921adb416236058d92bd0715a91c884654e4269c49d467a160",
+    "wrapWrapKb":"a746589a4d3db2b0552476bae4fc8c9156d29499eeb0d6583ffd6ddcd7482097",
+    "authSalt":"d870b1472524fcef2cfd512533b1fb19fe6cf1b555cb5d85d60a636cc5356aba",
+    "verifyHash":"5791981c2f0685aa9400597b6bee51d04c59399798e9bcf3cdbeec3d8b50971f",
+    "verifierVersion":1,
+    "verifierSetAt":1424993616858,
+    "locale":"en_US",
+    "createdAt":1424993616858,
+    "devices":{}
+}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `{ ... <see example> ... }`
+* Status Code : 404 Not Found
+    * Conditions: if this account `uid` or `normalizedEmail` already exists
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+
+## accountExists : `HEAD /emailRecord/<email>`
+
+### Example
+
+```
+curl \
+    -v \
+    -X HEAD \
+    http://localhost:8000/emailRecord/foo@example.com
+```
+
+### Request
+
+* Method : HEAD
+* Path : `/emailRecord/<email>`
+    * email : string255
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 564
+
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : empty
+* Status Code : 404 Not Found
+    * Conditions: if this email does not exist
+    * Content-Type : 'application/json'
+    * Body : empty
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : empty
+
+
+## emailRecord : `GET /emailRecord/<email>`
+
+Similar to `GET /account/<uid>` but using email address instead of uid.
+
+### Example
+
+```
+curl \
+    -v \
+    -X GET \
+    http://localhost:8000/emailRecord/foo@example.com
+```
+
+### Request
+
+* Method : GET
+* Path : `/emailRecord/<email>`
+    * email : string255
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 564
+
+{
+    "normalizedEmail":"foo@example.com",
+    "email":"foo@example.com",
+    "emailCode":"9b4da6ccd05e7c24ce6a6c0d208bc7c9",
+    "emailVerified":false,
+    "kA":"5e1994b0159081921adb416236058d92bd0715a91c884654e4269c49d467a160",
+    "wrapWrapKb":"a746589a4d3db2b0552476bae4fc8c9156d29499eeb0d6583ffd6ddcd7482097",
+    "authSalt":"d870b1472524fcef2cfd512533b1fb19fe6cf1b555cb5d85d60a636cc5356aba",
+    "verifyHash":"5791981c2f0685aa9400597b6bee51d04c59399798e9bcf3cdbeec3d8b50971f",
+    "verifierVersion":1,
+    "verifierSetAt":1424993616858,
+    "locale":"en_US",
+    "createdAt":1424993616858,
+    "devices":{}
+}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `{ ... <see example> ... }`
+* Status Code : 404 Not Found
+    * Conditions: if this account `uid` or `normalizedEmail` already exists
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+## checkPassword : `POST /account/<uid>/checkPassword`
+
+Returns back the same `uid` if correct.
+
+### Example
+
+```
+curl \
+    -v \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -d '{
+        "verifyHash":"5791981c2f0685aa9400597b6bee51d04c59399798e9bcf3cdbeec3d8b50971f"
+    }' \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/checkPassword
+```
+
+### Request
+
+* Method : POST
+* Path : `/account/<uid>/checkPassword`
+    * verifyHash : hex256
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 90
+
+{
+    "uid":"6044486dd15b42e08b1fb9167415b9ac"
+}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `{ ... <see example> ... }`
+* Status Code : 400 Bad Request
+    * Conditions: if this account `uid` doesn't exist or the `password` is incorrect
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Incorrect password"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+## resetAccount : `POST /account/<uid>/reset`
+## resetTokens : `POST /account/<uid>/resetTokens`
+## deleteAccount : `DELETE /account/<uid>`
+## verifyEmail : `POST /account/<uid>/verifyEmail`
+
+```
+curl \
+    -v \
+    -X POST \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/verifyEmail
+```
+
+### Request
+
+* Method : POST
+* Path : `/account/<uid>/verifyEmail`
+    * uid : hex128
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `{}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+Note: if the account `uid` is not found, a `200 OK` is returned anyway.
+
+## sessions : `GET /account/<uid>/sessions`
+
+```
+curl \
+    -v \
+    -X GET \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/sessions
+```
+
+### Request
+
+* Method : GET
+* Path : `/account/<uid>/sessions`
+    * uid : hex128
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 371
+
+[
+    {
+        "id":"522c251a1623e1f1db1f4fe68b9594d26772d6e77e04cb68e110c58600f97a77",
+        "uid":"6044486dd15b42e08b1fb9167415b9ac",
+        "createdAt":1425004396952,
+        "uaBrowser":"Firefox",
+        "uaBrowserVersion":"42",
+        "uaOS":"Mac OS X",
+        "uaOSVersion":"10.10",
+        "uaDeviceType":null,
+        "uaFormFactor":null,
+        "lastAccessTime":1441874852627
+    }
+]
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[...]`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+Note: if the account `uid` is not found,
+the response is `200 OK`
+with an empty array in the body.
+
+## createSessionToken : `PUT /sessionToken/<tokenId>`
+
+### Example
+
+```
+curl \
+    -v \
+    -X PUT \
+    -H "Content-Type: application/json" \
+    -d '{
+        "uid" :  "6044486dd15b42e08b1fb9167415b9ac",
+        "data" : "e2c3a8f73e826b9176e54e0f6ecb34b60b1e1979d254638f6b61d721c069d576",
+        "createdAt" : 1425004396952,
+        "uaBrowser" : Firefox,
+        "uaBrowserVersion" : 47,
+        "uaOS" : Mac OS X,
+        "uaOSVersion" : 10.10,
+        "uaDeviceType" : null,
+        "uaFormFactor" : null,
+        "mustVerify":true,
+        "tokenVerificationId" : "5680a81ba029af7b829afb4aa6dbc23f"
+    }' \
+    http://localhost:8000/sessionToken/522c251a1623e1f1db1f4fe68b9594d26772d6e77e04cb68e110c58600f97a77
+```
+
+### Request
+
+* Method : PUT
+* Path : `/sessionToken/<tokenId>`
+    * tokenId : hex256
+* Params:
+    * uid : hex128
+    * data : hex256
+    * createdAt : epoch
+    * uaBrowser : string
+    * uaBrowserVersion : string
+    * uaOS : string
+    * uaOSVersion : string
+    * uaDeviceType : string
+    * uaFormFactor : string
+    * mustVerify : boolean,
+    * tokenVerificationId : hex128
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : {}
+* Status Code : 409 Conflict
+    * Conditions: if this `tokenId` already exists
+    * Content-Type : 'application/json'
+    * Body : {"message":"Record already exists"}
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
+
+## updateSessionToken : `POST /sessionToken/<tokenId>/update`
+
+This updates the user agent and last-access time for a particular token.
+
+### Example
+
+```
+curl \
+    -v \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -d '{
+        "uaBrowser" : "Firefox",
+        "uaBrowserVersion" : "42",
+        "usOS" : "Android",
+        "usOSVersion" : "5.1",
+        "uaDeviceType": "mobile",
+        "lastAccessTime": 1437992394186
+    }' \
+    http://localhost:8000/sessionToken/522c251a1623e1f1db1f4fe68b9594d26772d6e77e04cb68e110c58600f97a77/update
+```
+
+### Request
+
+* Method : POST
+* Path : `/sessionToken/<tokenId>/update`
+    * tokenId : hex256
+* Params:
+    * uaBrowser : string
+    * uaBrowserVersion : string
+    * uaOS : string
+    * uaOSVersion : string
+    * uaDeviceType : string
+    * lastAccessTime : epoch
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : {}
+* Status Code : 404 Not Found
+    * Conditions: if this session `tokenId` doesn't exist
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+## accountDevices : `GET /account/<uid>/devices`
+
+### Example
+
+```
+curl \
+    -v \
+    -X GET \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/devices
+```
+
+### Request
+
+* Method : GET
+* Path : `/account/<uid>/devices`
+    * uid : hex128
+* Params: none
+
+### Response
+
+Note: The deviceCallbackPublicKey and deviceCallbackAuthKey fields are urlsafe-base64 strings, you can learn more about their format [here](https://developers.google.com/web/updates/2016/03/web-push-encryption).
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+    {
+        "id": "154c86dde08bfbb47415b9a216044916",
+        "uid": "6044486dd15b42e08b1fb9167415b9ac",
+        "sessionTokenId": "9a15b9ad6044ce08bfbb4744b1604491686dd15b42e2154c86d08b1fb9167415",
+        "name": "My Phone",
+        "type": "mobile"
+        "createdAt": 1437992394186,
+        "callbackURL": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
+        "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
+        "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong",
+        "callbackIsExpired": false,
+        "uaBrowser": "Firefox",
+        "uaBrowserVersion": "42",
+        "uaOS": "Android",
+        "uaOSVersion": "5.1",
+        "uaDeviceType": "mobile",
+        "uaFormFactor": null,
+        "lastAccessTime": 1437992394186,
+        "email": "foo@example.org"
+    }
+]
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[ ... <see example> ...]`
+* Status Code : 404 Not Found
+    * Conditions: if this account `uid` doesn't exist
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+## deviceFromTokenVerificationId : `GET /account/<uid>/tokens/<tokenVerificationId>/device`
+
+### Example
+
+```
+curl \
+    -v \
+    -X GET \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/tokens/12c41fac80fd6149f3f695e188b5f846/device
+```
+
+### Request
+
+* Method : GET
+* Path : `/account/<uid>/tokens/<tokenVerificationId>/device`
+    * uid : hex128
+    * tokenVerificationId : hex128
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "id": "154c86dde08bfbb47415b9a216044916",
+    "name": "My Phone",
+    "type": "mobile"
+    "createdAt": 1437992394186,
+    "callbackURL": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
+    "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
+    "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong",
+    "callbackIsExpired": false
+}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[ ... <see example> ...]`
+* Status Code : 404 Not Found
+    * Conditions: if the `tokenVerificationId` doesn't exist or if there is no device associated with it
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+## createDevice : `PUT /account/<uid>/device/<deviceId>`
+
+### Example
+
+```
+curl \
+    -v \
+    -X PUT \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/device/154c86dde08bfbb47415b9a216044916 \
+    -d '{
+      "id": "154c86dde08bfbb47415b9a216044916",
+      "uid": "6044486dd15b42e08b1fb9167415b9ac",
+      "sessionTokenId": "9a15b9ad6044ce08bfbb4744b1604491686dd15b42e2154c86d08b1fb9167415",
+      "name": "My Phone",
+      "type": "mobile"
+      "createdAt": 1437992394186,
+      "callbackURL": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
+      "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
+      "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong",
+      "callbackIsExpired": false
+    }'
+```
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[ ... <see example> ...]`
+* Status Code : 409 Conflict
+    * Conditions: if id already exists or sessionTokenId is already used by a different device
+    * Content-Type : 'application/json'
+    * Body : `{"errno":101",message":"Record already exists"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+## updateDevice : `POST /account/<uid>/device/<deviceId>/update`
+
+### Example
+
+```
+curl \
+    -v \
+    -X POST \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/device/154c86dde08bfbb47415b9a216044916/update \
+    -d '{
+      "id": "154c86dde08bfbb47415b9a216044916",
+      "uid": "6044486dd15b42e08b1fb9167415b9ac",
+      "sessionTokenId": "9a15b9ad6044ce08bfbb4744b1604491686dd15b42e2154c86d08b1fb9167415",
+      "name": "My Phone",
+      "type": "mobile"
+      "createdAt": 1437992394186,
+      "callbackURL": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
+      "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
+      "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong",
+      "callbackIsExpired": false
+    }'
+```
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[ ... <see example> ...]`
+* Status Code : 409 Conflict
+    * Conditions: if sessionTokenId is already used by a different device
+    * Content-Type : 'application/json'
+    * Body : `{"errno":101",message":"Record already exists"}`
+* Status Code : 404 Not Found
+    * Conditions: if device(uid,id) is not found in the database
+    * Content-Type : 'application/json'
+    * Body : `{"errno":116,"message":"Not found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+## deleteDevice : `DELETE /account/<uid>/device/<deviceId>`
+
+### Example
+
+```
+curl \
+    -v \
+    -X DELETE \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/device/154c86dde08bfbb47415b9a216044916
+```
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[ ... <see example> ...]`
+* Status Code : 404 Not Found
+    * Conditions: if device(uid,id) is not found in the database
+    * Content-Type : 'application/json'
+    * Body : `{"errno":116,"message":"Not found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+## sessionToken : `GET /sessionToken/<tokenId>`
+
+### Example
+
+```
+curl \
+    -v \
+    -X GET \
+    http://localhost:8000/sessionToken/522c251a1623e1f1db1f4fe68b9594d26772d6e77e04cb68e110c58600f97a77
+```
+
+### Request
+
+* Method : GET
+* Path : `/sessionToken/<tokenId>`
+    * tokenId : hex256
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 285
+
+{
+    "data":"e2c3a8f73e826b9176e54e0f6ecb34b60b1e1979d254638f6b61d721c069d576",
+    "uid":"6044486dd15b42e08b1fb9167415b9ac",
+    "createdAt":1425004396952,
+    "id":"522c251a1623e1f1db1f4fe68b9594d26772d6e77e04cb68e110c58600f97a77"
+}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[ ... <see example> ...]`
+* Status Code : 404 Not Found
+    * Conditions: if this session `tokenId` doesn't exist
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+## sessionTokenWithVerificationStatus : `GET /sessionToken/<tokenId>/verified`
+
+### Example
+
+```
+curl \
+    -v \
+    -X GET \
+    http://localhost:8000/sessionToken/522c251a1623e1f1db1f4fe68b9594d26772d6e77e04cb68e110c58600f97a77/verified
+```
+
+### Request
+
+* Method : GET
+* Path : `/sessionToken/<tokenId>/verified`
+    * tokenId : hex256
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 285
+
+{
+    "data":"e2c3a8f73e826b9176e54e0f6ecb34b60b1e1979d254638f6b61d721c069d576",
+    "uid":"6044486dd15b42e08b1fb9167415b9ac",
+    "createdAt":1460548810011,
+    "id":"522c251a1623e1f1db1f4fe68b9594d26772d6e77e04cb68e110c58600f97a77",
+    "uaBrowser":"Firefox",
+    "uaBrowserVersion":"47",
+    "uaOS":"Mac OS X",
+    "uaOSVersion":"10.10",
+    "uaDeviceType":null,
+    "uaFormFactor":null,
+    "lastAccessTime":1460548810011
+    "emailVerified":0,
+    "email":"foo@example.com",
+    "verifierSetAt":1460548810011,
+    "locale":"en_US",
+    "accountCreatedAt":1460548810011,
+    "mustVerify":true,
+    "tokenVerificationId":"12c41fac80fd6149f3f695e188b5f846"
+}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[ ... <see example> ...]`
+* Status Code : 404 Not Found
+    * Conditions: if the sessionToken `tokenId` doesn't exist
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+## sessionWithDevice : `GET /sessionToken/<tokenId>/device`
+
+### Example
+
+```
+curl \
+    -v \
+    -X GET \
+    http://localhost:8000/sessionToken/522c251a1623e1f1db1f4fe68b9594d26772d6e77e04cb68e110c58600f97a77/device
+```
+
+### Request
+
+* Method : GET
+* Path : `/sessionToken/<tokenId>/device`
+    * tokenId : hex256
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 285
+
+{
+    "data":"e2c3a8f73e826b9176e54e0f6ecb34b60b1e1979d254638f6b61d721c069d576",
+    "uid":"6044486dd15b42e08b1fb9167415b9ac",
+    "createdAt":1460548810011,
+    "id":"522c251a1623e1f1db1f4fe68b9594d26772d6e77e04cb68e110c58600f97a77",
+    "uaBrowser":"Firefox",
+    "uaBrowserVersion":"47",
+    "uaOS":"Mac OS X",
+    "uaOSVersion":"10.10",
+    "uaDeviceType":null,
+    "uaFormFactor":null,
+    "lastAccessTime":1460548810011
+    "emailVerified":0,
+    "email":"foo@example.com",
+    "verifierSetAt":1460548810011,
+    "locale":"en_US",
+    "accountCreatedAt":1460548810011,
+    "deviceId":"eb87eb63c2063bf5fd35e83b535c123d073db9156e49b58bcbf543f9d35467f6",
+    "deviceName":"foo",
+    "deviceType":"mobile",
+    "deviceCreatedAt":1460548810011,
+    "deviceCallbackURL":null,
+    "deviceCallbackPublicKey":null,
+    "deviceCallbackIsExpired":false,
+    "mustVerify":true,
+    "tokenVerificationId":"12c41fac80fd6149f3f695e188b5f846"
+}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[ ... <see example> ...]`
+* Status Code : 404 Not Found
+    * Conditions: if the sessionToken `tokenId` doesn't exist
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+## deleteSessionToken : `DELETE /sessionToken/<tokenId>`
+
+This operation is idempotent. If you delete a `tokenId` twice, the same result occurs. In fact, if you delete a
+`tokenId` that doesn't exist, it also returns the same `200 OK` result (since it is already not there).
+Also deletes any device records associated with the session.
+
+### Example
+
+```
+curl \
+    -v \
+    -X DELETE \
+    http://localhost:8000/sessionToken/522c251a1623e1f1db1f4fe68b9594d26772d6e77e04cb68e110c58600f97a77
+```
+
+### Request
+
+* Method : DELETE
+* Path : `/sessionToken/<tokenId>`
+    * tokenId : hex256
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[ ... <see example> ...]`
+* Status Code : 404 Not Found
+    * Conditions: if this session `tokenId` doesn't exist
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+
+## accountResetToken : `GET /accountResetToken/<tokenId>`
+
+### Example
+
+```
+curl \
+    -v \
+    -X GET \
+    http://localhost:8000/accountResetToken/da7e3b59fc6021836ed205d2176c11819932c9554bec5a40a1f4178b7f08194d
+```
+
+### Request
+
+* Method : GET
+* Path : `/accountResetToken/<tokenId>`
+    * tokenId : hex256
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 177
+
+{
+    "tokenData":"b034061cc2886a3c3c08bd4e9bbc8afc4bc3fc9bca12d5b5d0aa7e0a7f78b9ce",
+    "uid":"6044486dd15b42e08b1fb9167415b9ac",
+    "createdAt":1425004396952,
+    "verifierSetAt":1424993616858
+}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[ ... <see example> ...]`
+* Status Code : 404 Not Found
+    * Conditions: if this session `tokenId` doesn't exist
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+
+## deleteAccountResetToken : `DELETE /accountResetToken/<tokenId>`
+
+This operation is idempotent. If you delete a `tokenId` twice, the same result occurs. In fact, if you delete a
+`tokenId` that doesn't exist, it also returns the same `200 OK` result (since it is already not there).
+
+### Example
+
+```
+curl \
+    -v \
+    -X DELETE \
+    http://localhost:8000/accountResetToken/da7e3b59fc6021836ed205d2176c11819932c9554bec5a40a1f4178b7f08194d
+```
+
+### Request
+
+* Method : DELETE
+* Path : `/accountResetToken/<tokenId>`
+    * tokenId : hex256
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `{}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+
+## createKeyFetchToken : `PUT /keyFetchToken/<tokenId>`
+
+### Example
+
+```
+curl \
+    -v \
+    -X PUT \
+    -H "Content-Type: application/json" \
+    -d '{
+        "uid"       : "6044486dd15b42e08b1fb9167415b9ac",
+        "authKey"   : "b034061cc2886a3c3c08bd4e9bbc8afc4bc3fc9bca12d5b5d0aa7e0a7f78b9ce",
+        "keyBundle" : "83333269c64eb43219f8b5807d37ac2391fc77295562685a5239674e2b0215920c45e2295c0d92fa7d69cb58d1e3c6010e1281f6d6c0df694b134815358110ae22a7b4c348a4f426bef3783b0493b3a531b649c0e2f19848d9563a61cd0f7eb8",
+        "createdAt" : 1425004396952,
+        "tokenVerificationId" : "a6062c21560edad350e6a654bdd9fd4f"
+    }' \
+    http://localhost:8000/keyFetchToken/4c17443c1bcf5e509bc90904905ea1974900120d3dd34e7061f182cb063f976a
+```
+
+
+### Request
+
+* Method : PUT
+* Path : `/keyFetchToken/<tokenId>`
+    * tokenId : hex256
+* Params:
+    * uid : hex128
+    * authKey : hex256
+    * keyBundle : hex768
+    * createdAt : epoch
+    * tokenVerificationId : hex128
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : {}
+* Status Code : 409 Conflict
+    * Conditions: if this `tokenId` already exists
+    * Content-Type : 'application/json'
+    * Body : {"message":"Record already exists"}
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
+```
+
+## keyFetchToken : `GET /keyFetchToken/<tokenId>`
+
+### Example
+
+```
+curl \
+    -v \
+    -X GET \
+    http://localhost:8000/keyFetchToken/4c17443c1bcf5e509bc90904905ea1974900120d3dd34e7061f182cb063f976a
+```
+
+### Request
+
+* Method : GET
+* Path : `/keyFetchToken/<tokenId>`
+    * tokenId : hex256
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 399
+
+{
+    "authKey":"b034061cc2886a3c3c08bd4e9bbc8afc4bc3fc9bca12d5b5d0aa7e0a7f78b9ce",
+    "uid":"6044486dd15b42e08b1fb9167415b9ac",
+    "keyBundle":"83333269c64eb43219f8b5807d37ac2391fc77295562685a5239674e2b0215920c45e2295c0d92fa7d69cb58d1e3c6010e1281f6d6c0df694b134815358110ae22a7b4c348a4f426bef3783b0493b3a531b649c0e2f19848d9563a61cd0f7eb8",
+    "createdAt":1425004396952,
+    "emailVerified":false,
+    "verifierSetAt":1425263030609
+}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[ ... <see example> ...]`
+* Status Code : 404 Not Found
+    * Conditions: if this session `tokenId` doesn't exist
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+## keyFetchTokenWithVerificationStatus : `GET /keyFetchToken/<tokenId>/verified`
+
+### Example
+
+```
+curl \
+    -v \
+    -X GET \
+    http://localhost:8000/keyFetchToken/4c17443c1bcf5e509bc90904905ea1974900120d3dd34e7061f182cb063f976a/verified
+```
+
+### Request
+
+* Method : GET
+* Path : `/keyFetchToken/<tokenId>/verified`
+    * tokenId : hex256
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 399
+
+{
+    "authKey":"b034061cc2886a3c3c08bd4e9bbc8afc4bc3fc9bca12d5b5d0aa7e0a7f78b9ce",
+    "uid":"6044486dd15b42e08b1fb9167415b9ac",
+    "keyBundle":"83333269c64eb43219f8b5807d37ac2391fc77295562685a5239674e2b0215920c45e2295c0d92fa7d69cb58d1e3c6010e1281f6d6c0df694b134815358110ae22a7b4c348a4f426bef3783b0493b3a531b649c0e2f19848d9563a61cd0f7eb8",
+    "createdAt":1460548810011,
+    "emailVerified":0,
+    "verifierSetAt":1460548810011,
+    "tokenVerificationId":"12c41fac80fd6149f3f695e188b5f846"
+}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[ ... <see example> ...]`
+* Status Code : 404 Not Found
+    * Conditions: if the keyFetchToken `tokenId` doesn't exist
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+## deleteKeyFetchToken : `DELETE /keyFetchToken/<tokenId>`
+
+This operation is idempotent. If you delete a `tokenId` twice, the same result occurs. In fact, if you delete a
+`tokenId` that doesn't exist, it also returns the same `200 OK` result (since it is already not there).
+
+### Example
+
+```
+curl \
+    -v \
+    -X DELETE \
+    http://localhost:8000/keyFetchToken/4c17443c1bcf5e509bc90904905ea1974900120d3dd34e7061f182cb063f976a
+```
+
+### Request
+
+* Method : DELETE
+* Path : `/keyFetchToken/<tokenId>`
+    * tokenId : hex256
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `{}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+
+## createPasswordChangeToken : `PUT /passwordChangeToken/<tokenId>`
+
+### Example
+
+```
+curl \
+    -v \
+    -X PUT \
+    -H "Content-Type: application/json" \
+    -d '{
+        "uid"       : "6044486dd15b42e08b1fb9167415b9ac",
+        "data"      : "bbfe036d84cc1ae9b5eecc503ff9106c61d25961d5680669d2065c6bb7a5530d",
+        "createdAt" : 1425004396952
+    }' \
+    http://localhost:8000/passwordChangeToken/20f751b2cc61129d9bc631d70c994129a35da6bf324456e4bdb82a0381ca76ec
+```
+
+### Request
+
+* Method : PUT
+* Path : `/passwordChangeToken/<tokenId>`
+    * tokenId : hex256
+* Params:
+    * uid : hex128
+    * data : hex256
+    * createdAt : epoch
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : {}
+* Status Code : 409 Conflict
+    * Conditions: if this `tokenId` already exists
+    * Content-Type : 'application/json'
+    * Body : {"message":"Record already exists"}
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
+```
+
+## passwordChangeToken : `GET /passwordChangeToken/<tokenId>`
+
+### Example
+
+```
+curl \
+    -v \
+    -X GET \
+    http://localhost:8000/passwordChangeToken/20f751b2cc61129d9bc631d70c994129a35da6bf324456e4bdb82a0381ca76ec
+```
+
+### Request
+
+* Method : GET
+* Path : `/passwordChangeToken/<tokenId>`
+    * tokenId : hex256
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 177
+
+{
+    "tokenData":"bbfe036d84cc1ae9b5eecc503ff9106c61d25961d5680669d2065c6bb7a5530d",
+    "uid":"6044486dd15b42e08b1fb9167415b9ac",
+    "createdAt":1425004396952,
+    "verifierSetAt":1425263030609
+}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[ ... <see example> ...]`
+* Status Code : 404 Not Found
+    * Conditions: if this session `tokenId` doesn't exist
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+
+## deletePasswordChangeToken : `DELETE /passwordChangeToken/<tokenId>`
+
+This operation is idempotent. If you delete a `tokenId` twice, the same result occurs. In fact, if you delete a
+`tokenId` that doesn't exist, it also returns the same `200 OK` result (since it is already not there).
+
+### Example
+
+```
+curl \
+    -v \
+    -X DELETE \
+    http://localhost:8000/passwordChangeToken/20f751b2cc61129d9bc631d70c994129a35da6bf324456e4bdb82a0381ca76ec
+```
+
+### Request
+
+* Method : DELETE
+* Path : `/passwordChangeToken/<tokenId>`
+    * tokenId : hex256
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `{}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+
+## createPasswordForgotToken : `PUT /passwordForgotToken/<tokenId>`
+
+### Example
+
+```
+curl \
+    -v \
+    -X PUT \
+    -H "Content-Type: application/json" \
+    -d '{
+        "uid"       : "6044486dd15b42e08b1fb9167415b9ac",
+        "data"      : "958266599bdc7218277a349f2675ebf38d8542eb784e01d1332f87fb98a970c3",
+        "passCode"  : "95c0fab6a666b1a5cbf2db4700a6a779",
+        "tries"     : 1,
+        "createdAt" : 1425004396952
+    }' \
+    http://localhost:8000/passwordForgotToken/266fd690895c8b0086bb2c83e4b3b41c128746125f28b5429938765279673d62
+```
+
+### Request
+
+* Method : PUT
+* Path : `/passwordForgotToken/<tokenId>`
+    * tokenId : hex256
+* Params:
+    * uid : hex128
+    * data : hex256
+    * passCode : hex128
+    * tries : int
+    * createdAt : epoch
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : {}
+* Status Code : 409 Conflict
+    * Conditions: if this `tokenId` already exists
+    * Content-Type : 'application/json'
+    * Body : {"message":"Record already exists"}
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
+```
+
+## passwordForgotToken : `GET /passwordForgotToken/<tokenId>`
+
+### Example
+
+```
+curl \
+    -v \
+    -X GET \
+    http://localhost:8000/passwordForgotToken/266fd690895c8b0086bb2c83e4b3b41c128746125f28b5429938765279673d62
+```
+
+### Request
+
+* Method : GET
+* Path : `/passwordChangeToken/<tokenId>`
+    * tokenId : hex256
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 259
+
+{
+    "tokenData":"958266599bdc7218277a349f2675ebf38d8542eb784e01d1332f87fb98a970c3",
+    "uid":"6044486dd15b42e08b1fb9167415b9ac",
+    "passCode":"95c0fab6a666b1a5cbf2db4700a6a779",
+    "tries":1,
+    "createdAt":1425004396952,
+    "email":"foo@example.com",
+    "verifierSetAt":1425263030609
+}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `[ ... <see example> ...]`
+* Status Code : 404 Not Found
+    * Conditions: if this session `tokenId` doesn't exist
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+## deletePasswordForgotToken : `DELETE /passwordForgotToken/<tokenId>`
+
+This operation is idempotent. If you delete a `tokenId` twice, the same result occurs. In fact, if you delete a
+`tokenId` that doesn't exist, it also returns the same `200 OK` result (since it is already not there).
+
+### Example
+
+```
+curl \
+    -v \
+    -X DELETE \
+    http://localhost:8000/passwordForgotToken/266fd690895c8b0086bb2c83e4b3b41c128746125f28b5429938765279673d62
+```
+
+### Request
+
+* Method : DELETE
+* Path : `/passwordForgotToken/<tokenId>`
+    * tokenId : hex256
+* Params: none
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : `{}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+
+## updatePasswordForgotToken : `POST /passwordForgotToken/<tokenId>/update`
+
+This just updates the number of tries for a particular token.
+
+### Example
+
+```
+curl \
+    -v \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -d '{
+        "tries" : 2
+    }' \
+    http://localhost:8000/passwordForgotToken/266fd690895c8b0086bb2c83e4b3b41c128746125f28b5429938765279673d62/update
+```
+
+### Request
+
+* Method : POST
+* Path : `/passwordForgotToken/<tokenId>/update`
+    * tokenId : hex256
+* Params:
+    * tries : int
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : {}
+* Status Code : 404 Not Found
+    * Conditions: if this session `tokenId` doesn't exist
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
+```
+
+
+## forgotPasswordVerified : `POST /passwordForgotToken/<tokenId>/verified`
+
+This method should:
+
+* delete the passwordForgotToken designated by <tokenId>
+* create a new accountResetToken as given in JSON
+* verify the email address for this account
+
+### Example
+
+This request sends a new `accountResetToken` and receives back
+
+```
+curl \
+    -v \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -d '{
+        "uid" :  "6044486dd15b42e08b1fb9167415b9ac",
+        "data" : "cad0306bd6505df67d5fff2264e59a9eabdbfd4e441ac2272bda2d1e8c740072",
+        "createdAt" : 1425004396952
+    }' \
+    http://localhost:8000/passwordForgotToken/266fd690895c8b0086bb2c83e4b3b41c128746125f28b5429938765279673d62/verified
+```
+
+### Request
+
+* Method : PUT
+* Path : `/passwordForgotToken/<tokenId>/update`
+    * tokenId : hex256
+* Params:
+    * tries : int
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : {}
+* Status Code : 404 Not Found
+    * Conditions: if this session `tokenId` doesn't exist
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
+```
+
+## verifyTokens : `POST /tokens/<tokenVerificationId>/verify`
+
+This method verifies sessionTokens and keyFetchTokens.
 Note that it takes the tokenVerificationId
 specified when creating the token,
 NOT the tokenId.
-`accountData` is an object
-with a `uid` property.
 
-Returns a promise that:
+### Example
 
-* Resolves with an object `{}`
-  if a token was verified.
-* Rejects with error `{ code: 404, errno: 116 }`
-  if there was no matching token.
-* Rejects with any error
-  from the underlying storage system
-  (wrapped in `error.wrap()`).
+```
+curl \
+    -v \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"uid":"fdea27c8188b3d980a28917bc1399e47"}' \
+    http://localhost:8000/tokens/8e8c27b704dbf6a5dc556453c92e7506/verify
+```
 
-## .verifyTokenCode(code, accountData)
+### Request
 
-  Verifies sessionTokens and keyFetchTokens.
-  Note that it takes the code (separate from tokenVerificationId)
-  specified when creating the token,
-  NOT the tokenId.
-  `accountData` is an object
-  with a `uid` property.
+* Method : POST
+* Path : `/tokens/<tokenVerificationId>/verify`
+    * tokenVerificationId : hex128
+* Params:
+    * uid : hex128
 
-  Returns a promise that:
+### Response
 
-  * Resolves with an object `{}`
-    if a token was verified.
-  * Rejects with error `{ code: 404, errno: 116 }`
-    if there was no matching token.
-  * Rejects with error `{ code: 400, errno: 137 }`
-    if token expired.
-  * Rejects with any error
-    from the underlying storage system
-    (wrapped in `error.wrap()`).  
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
 
-## .forgotPasswordVerified(tokenId, accountResetToken) ##
+{}
+```
 
-An extra function for `passwordForgotTokens`. This performs three operations:
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : {}
+* Status Code : 404 Not Found
+    * Conditions: if no unverified tokens exist for `tokenVerificationId` and `uid`
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
+```
 
-1. deletes the `passwordForgotToken` corresponding to the `tokenId`
-2. creates an `accountResetToken` corresponding to the fields specified in `accountResetToken`
-3. sets the `emailVerified` fields of `accounts` to true specified by the `uid` in the `accountResetToken`
-
-Parameters:
-
-* tokenId : (Buffer32) the unique id for this token
-* accountResetToken: (object)
-    * tokenId
-    * data
-    * uid
-    * createdAt
-
-## .sessionWithDevice(tokenId) ##
-
-Get the sessionToken
-with its verification state
-and matching device info.
-
-Parameters:
-
-* `tokenId` - (Buffer32) the id of the token to retrieve
-
-Returns:
-
-* resolves with:
-    * an object `{ ... }` with the relevant field (see below)
-* rejects with:
-    * `error.notFound()` if this token does not exist
-    * any error from the underlying storage system (wrapped in `error.wrap()`
-
-These fields are represented as
-`t.*` for a field from the token,
-`a.*` for a field from the corresponding account,
-`d.*` for a field from `devices` and
-`ut.*` for a field from `unverifiedTokens`.
-
-The deviceCallbackPublicKey and deviceCallbackAuthKey fields are urlsafe-base64 strings, you can learn more about their format [here](https://developers.google.com/web/updates/2016/03/web-push-encryption).
-
-* sessionToken : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
-                 t.uaOS, t.uaOSVersion, t.uaDeviceType, t.uaFormFactor, t.lastAccessTime,
-                 a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
-                 a.createdAt AS accountCreatedAt, d.id AS deviceId,
-                 d.name AS deviceName, d.type AS deviceType,
-                 d.createdAt AS deviceCreatedAt, d.callbackURL AS deviceCallbackURL,
-                 d.callbackPublicKey AS deviceCallbackPublicKey,
-                 d.callbackAuthKey AS deviceCallbackAuthKey,
-                 d.callbackIsExpired AS deviceCallbackIsExpired,
-                 ut.mustVerify, ut.tokenVerificationId, ut.tokenVerificationCodeHash, ut.tokenVerificationCodeExpiresAt
-
-## .createVerificationReminder(body) ##
-
-Creates a new verification reminder for some `uid` and some reminder `type`.
-
-Parameters:
-
-* body: (object)
-  * uid : user id
-  * type : type of reminder
-
-## .fetchReminders(body, query) ##
-
-Fetch verification reminders based on `reminderTime` and `type`.
-
-Parameters:
-
-* body: (object)
-* query: (object)
-  * reminderTime : Milliseconds since account creation after which the first reminder is sent
-  * reminderTimeOutdated : Milliseconds since account creation after which the reminder should not be sent
-  * type : Type of the reminder
-  * limit : Number of reminders to fetch
-
-## .deleteReminder(body) ##
-
-Delete the verification reminder based on `uid` and `type`.
-
-Parameters:
-
-* body: (object)
-  * uid : user id
-  * type : type of reminder
-
-## .createEmailBounce(body) ##
-
-Record when an email bounce has occurred.
-
-Parameters:
-
-* body: (object)
-  * email: A string of the email address that bounced
-  * bounceType: The bounce type ([`'Permanent'`, `'Transient'`, `'Complaint'`])
-  * bounceSubType: The bounce sub type string
-
-## .createSigninCode(code, uid, createdAt, flowId)
+## createSigninCode : `PUT /signinCodes/:code`
 
 Create a user-specific, time-limited, single-use code
 that can be used for expedited sign-in.
 
-Parameters:
+### Example
 
-* `code` (Buffer):
-  The value of the code
-* `uid` (Buffer16):
-  The uid for the relevant user
-* `createdAt` (number):
-  Creation timestamp for the code, milliseconds since the epoch
-* `flowId` (Buffer32):
-  The flow id of the originating flow.
+```
+curl \
+    -v \
+    -X PUT \
+    -H "Content-Type: application/json" \
+    -d '{"uid":"fdea27c8188b3d980a28917bc1399e47","createdAt":1494253830983,"flowId":"e04c12c6c97d8b61f0874f5ddd3447fa7a6e89459f0878746e6f2e6aa846345a"}' \
+    http://localhost:8000/signinCodes/1234567890ab
+```
 
-## .consumeSigninCode(code)
+### Request
+
+* Method : `PUT`
+* Path : `/signinCodes/<code>
+    * `code` : hex
+* Params:
+    * `uid` : hex128
+    * `createdAt` : epoch
+    * `flowId` : hex256
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `{}`
+* Status Code : `409 Conflict`
+    * Conditions: if the specified sign-in code already exists
+    * Content-Type : `application/json`
+    * Body : `{"errno":101,"message":"Record already exists"}`
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`
+
+## consumeSigninCode : `POST /signinCodes/:code/consume`
 
 Use (and delete) a sign-in code.
 
-Parameters:
+### Example
 
-* `code` (Buffer):
-  The value of the code
+```
+curl \
+    -v \
+    -X POST \
+    http://localhost:8000/signinCodes/1234567890ab/consume
+```
+
+### Request
+
+* Method : `POST`
+* Path : `/signinCodes/<code>/consume`
+    * `code` : hex
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{"email":"foo@example.com","flowId":"e04c12c6c97d8b61f0874f5ddd3447fa7a6e89459f0878746e6f2e6aa846345a"}
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `{"email":"foo@example.com","flowId":"e04c12c6c97d8b61f0874f5ddd3447fa7a6e89459f0878746e6f2e6aa846345a"}`
+* Status Code : 404 Not Found
+    * Conditions: if the specified sign-in code doesn't exist
+    * Content-Type : `application/json`
+    * Body : `{"errno":116,"message":"Not found"}`
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`
+

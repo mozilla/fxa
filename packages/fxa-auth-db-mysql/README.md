@@ -8,10 +8,6 @@ for Firefox Accounts.
 Includes:
 
 * The [API server](#api-server).
-  Also published independently
-  via npm as `fxa-auth-db-server`,
-  to enable use with
-  alternative backend storage.
 * A [memory-store backend](#memory-store-backend).
   Useful as a stub
   for testing against.
@@ -178,8 +174,8 @@ next time you run `npm start`.
 
 [ci-status-icon]: https://travis-ci.org/mozilla/fxa-auth-db-mysql.svg?branch=master
 [ci-status]: https://travis-ci.org/mozilla/fxa-auth-db-mysql
-[apidocs]: fxa-auth-db-server/docs/API.md
-[dbdocs]: docs/API.md
-[server-readme]: fxa-auth-db-server/README.md
+[apidocs]: docs/API.md
+[dbdocs]: docs/DB_API.md
+[server-readme]: db-server/README.md
 [license]: LICENSE
 

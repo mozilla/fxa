@@ -15,7 +15,7 @@
 // Where *n* is the number of accounts to create.
 
 var log = { trace: console.log, error: console.error, stat: console.log, info: console.log } //eslint-disable-line no-console
-var DB = require('../lib/db/mysql')(log, require('../fxa-auth-db-server').errors)
+var DB = require('../lib/db/mysql')(log, require('../db-server').errors)
 var config = require('../config')
 var crypto = require('crypto')
 

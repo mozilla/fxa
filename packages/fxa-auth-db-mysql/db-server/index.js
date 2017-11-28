@@ -5,7 +5,7 @@
 var restify = require('restify')
 var safeJsonFormatter = require('restify-safe-json-formatter')
 var bufferize = require('./lib/bufferize')
-var version = require('./package.json').version
+var version = require('../package.json').version
 var errors = require('./lib/error')
 
 function createServer(db) {

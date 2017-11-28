@@ -3,8 +3,8 @@
 
 'use strict'
 
-const dbServer = require('../fxa-auth-db-server')
-const backendTests = require('../fxa-auth-db-server/test/backend')
+const dbServer = require('../db-server')
+const backendTests = require('../db-server/test/backend')
 const config = require('../config')
 const log = require('./lib/log')
 const P = require('bluebird')

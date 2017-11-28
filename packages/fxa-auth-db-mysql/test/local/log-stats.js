@@ -4,7 +4,7 @@
 'use strict'
 
 const assert = require('insist')
-const dbServer = require('../../fxa-auth-db-server')
+const dbServer = require('../../db-server')
 const P = require('../../lib/promise')
 const config = require('../../config')
 

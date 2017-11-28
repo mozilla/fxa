@@ -5,7 +5,7 @@
 
 const assert = require('insist')
 const log = require('../lib/log')
-const DB = require('../../lib/db/mysql')(log, require('../../fxa-auth-db-server').errors)
+const DB = require('../../lib/db/mysql')(log, require('../../db-server').errors)
 const config = require('../../config')
 const P = require('../../lib/promise')
 const crypto = require('crypto')
@@ -204,7 +204,7 @@ describe('DB metrics', () => {
             error: sinon.spy()
           }
         },
-        '../fxa-auth-db-server': {
+        '../db-server': {
           errors: 'fake errors'
         },
         '../lib/db/mysql': function () {

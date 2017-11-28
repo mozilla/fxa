@@ -5,7 +5,7 @@ mailing list or through issues here on GitHub.
 
 - IRC: `#fxa` on `irc.mozilla.org`
 - Mailing list: <https://mail.mozilla.org/listinfo/dev-fxacct>
-- and of course, [the issues list](https://github.com/mozilla/fxa-auth-db-server/issues)
+- and of course, [the issues list](https://github.com/mozilla/fxa-auth-db-mysql/issues)
 
 ## Bug Reports ##
 
@@ -49,9 +49,9 @@ This is an example workflow to make it easier to submit Pull Requests. Imagine y
 2. The clone the upstream (as origin) and add your own repo as a remote:
 
     ```sh
-    $ git clone https://github.com/mozilla/fxa-auth-db-server.git
-    $ cd fxa-auth-db-server
-    $ git remote add user1 git@github.com:user1/fxa-auth-db-server.git
+    $ git clone https://github.com/mozilla/fxa-auth-db-mysql.git
+    $ cd fxa-auth-db-mysql
+    $ git remote add user1 git@github.com:user1/fxa-auth-db-mysql.git
 ```
 
 3. Create a branch for your fix/feature and make sure it's your currently checked-out branch:

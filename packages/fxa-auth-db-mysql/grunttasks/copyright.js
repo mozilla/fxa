@@ -8,7 +8,7 @@ module.exports = function (grunt) {
   grunt.config('copyright', {
     app: {
       src: [
-        '{bin,config,fxa-auth-db-server/lib,lib,lib/db,scripts}/*.js'
+        '{bin,config,db-server/lib,lib,lib/db,scripts}/*.js'
       ],
       options: {
         pattern: 'This Source Code Form is subject to the terms of the Mozilla Public'
@@ -17,7 +17,7 @@ module.exports = function (grunt) {
     tests: {
       src: [
         'test/{remote,local,backend}/*.js',
-        'fxa-auth-db-server/test/{backend,local}/*.js'
+        'db-server/test/{backend,local}/*.js'
       ],
       options: {
         pattern: 'Any copyright is dedicated to the Public Domain.'

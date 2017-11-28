@@ -12,8 +12,8 @@ module.exports = function (grunt) {
     files: [
       'index.js',
       '{grunttasks,bin,lib,lib/db,scripts,test}/*.js',
-      'fxa-auth-db-server/index.js',
-      'fxa-auth-db-server/{lib,test,test/backend,test/local}/*.js',
+      'db-server/index.js',
+      'db-server/{lib,test,test/backend,test/local}/*.js',
       'test/{backend,local,mem}/*.js'
     ]
   })

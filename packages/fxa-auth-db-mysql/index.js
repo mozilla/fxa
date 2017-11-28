@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var config = require('./config')
-var dbServer = require('./fxa-auth-db-server')
+var dbServer = require('./db-server')
 var error = dbServer.errors
 var logger = require('./lib/logging')('bin.server')
 var DB = require('./lib/db/mem')(logger, error)

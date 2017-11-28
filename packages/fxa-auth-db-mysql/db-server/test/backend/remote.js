@@ -6,7 +6,7 @@
 const assert = require('insist')
 const crypto = require('crypto')
 const fake = require('../fake')
-const P = require('../../lib/promise')
+const P = require('../../../lib/promise')
 const clientThen = require('../client-then')
 
 function emailToHex(email) {

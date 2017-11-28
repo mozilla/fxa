@@ -2,7 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var restify = require('restify')
-var P = require('../lib/promise.js')
+var P = require('../../lib/promise')
 
 var ops = [ 'head', 'get', 'post', 'put', 'del' ]
 

@@ -1,7 +1,7 @@
 {
   "name": "fxa-auth-db-mysql",
   "version": "1.100.0",
-  "description": "MySQL backend for the fxa-auth-db-server",
+  "description": "MySQL backend for Firefox Accounts",
   "main": "index.js",
   "repository": {
     "type": "git",
@@ -18,8 +18,8 @@
     "test": "npm run test-mysql && npm run test-mem && npm run test-server",
     "test-mem": "./scripts/mocha-coverage.js test/mem",
     "test-mysql": "node ./bin/db_patcher.js >/dev/null && ./scripts/mocha-coverage.js test/backend test/local",
-    "test-server": "./scripts/mocha-coverage.js fxa-auth-db-server/test/local",
-    "test-travis": "grunt && node ./bin/db_patcher.js && ./scripts/mocha-coverage.js test/backend test/local fxa-auth-db-server/test/local"
+    "test-server": "./scripts/mocha-coverage.js db-server/test/local",
+    "test-travis": "grunt && node ./bin/db_patcher.js && ./scripts/mocha-coverage.js test/backend test/local db-server/test/local"
   },
   "author": "Mozilla (https://mozilla.org/)",
   "homepage": "https://github.com/mozilla/fxa-auth-db-mysql",

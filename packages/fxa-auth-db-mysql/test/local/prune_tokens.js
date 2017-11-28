@@ -9,11 +9,11 @@ const ROOT_DIR = '../..'
 
 const assert = require('insist')
 const crypto = require('crypto')
-const dbServer = require(`${ROOT_DIR}/fxa-auth-db-server`)
+const dbServer = require(`${ROOT_DIR}/db-server`)
 const log = require('../lib/log')
 const P = require(`${ROOT_DIR}/lib/promise`)
 const DB = require(`${ROOT_DIR}/lib/db/mysql`)(log, dbServer.errors)
-const fake = require(`${ROOT_DIR}/fxa-auth-db-server/test/fake`)
+const fake = require(`${ROOT_DIR}/db-server/test/fake`)
 // shallow copy, but it's all we need
 const config = Object.assign({}, require(`${ROOT_DIR}/config`))
 config.pruneTokensMaxAge = 24 * 60 * 60 * 1000 // one day setting for tests
