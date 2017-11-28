@@ -3,7 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
+
 const flowMetrics = require('../flow-metrics');
+const logger = require('../logging/log')('routes.index');
 
 module.exports = function (config) {
   const AUTH_SERVER_URL = config.get('fxaccount_url');
@@ -47,6 +49,10 @@ module.exports = function (config) {
       // Note that staticResourceUrl is added to templates as a build step
       staticResourceUrl: STATIC_RESOURCE_URL
     });
+
+    if (req.headers.dnt === '1') {
+      logger.info('request.headers.dnt');
+    }
   };
 
   return route;
