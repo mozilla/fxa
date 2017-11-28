@@ -3,9 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'tests/addons/sinon',
-  'components/p/p'
-], function (Sinon, P) {
+  'tests/addons/sinon'
+], function (Sinon) {
 
   return {
     makeMockResponder: function (requests) {
@@ -13,7 +12,7 @@ define([
       var requestIndex = 0;
 
       return function (returnValue, response) {
-        P.nextTick(function() {
+        Promise.resolve().then(function () {
           // this has to be here to work in IE
           setTimeout(function () {
             self.respond(requests[requestIndex++], response);

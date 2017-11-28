@@ -3,8 +3,8 @@ var util = require('util');
 var amd = require('./amd-loader');
 
 var map = {
-  sjcl: 'sjcl',
-  p: 'p-promise'
+  'es6-promise': 'es6-promise',
+  sjcl: 'sjcl'
 };
 
 var FxAccountClient = amd(__dirname + '/../client/FxAccountClient.js', map);

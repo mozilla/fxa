@@ -2,15 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 define([
+  'es6-promise',
   'sjcl',
-  'p',
   './lib/credentials',
   './lib/errors',
   './lib/hawkCredentials',
   './lib/metricsContext',
   './lib/request',
-], function (sjcl, P, credentials, ERRORS, hawkCredentials, metricsContext, Request) {
+], function (ES6Promise, sjcl, credentials, ERRORS, hawkCredentials, metricsContext, Request) {
   'use strict';
+
+  // polyfill ES6 promises on browsers that do not support them.
+  ES6Promise.polyfill();
 
   var VERSION = 'v1';
   var uriVersionRegExp = new RegExp('/' + VERSION + '$');
@@ -107,7 +110,7 @@ define([
   FxAccountClient.prototype.signUp = function (email, password, options) {
     var self = this;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(email, 'email');
         required(password, 'password');
@@ -207,7 +210,7 @@ define([
     var self = this;
     options = options || {};
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(email, 'email');
         required(password, 'password');
@@ -296,7 +299,7 @@ define([
   FxAccountClient.prototype.verifyCode = function(uid, code, options) {
     var self = this;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(uid, 'uid');
         required(code, 'verify code');
@@ -336,7 +339,7 @@ define([
   FxAccountClient.prototype.recoveryEmailStatus = function(sessionToken) {
     var self = this;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(sessionToken, 'sessionToken');
 
@@ -375,7 +378,7 @@ define([
     var data = {};
     var requestOpts = {};
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(sessionToken, 'sessionToken');
 
@@ -449,7 +452,7 @@ define([
     };
     var requestOpts = {};
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(email, 'email');
 
@@ -517,7 +520,7 @@ define([
     };
     var requestOpts = {};
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(email, 'email');
         required(passwordForgotToken, 'passwordForgotToken');
@@ -575,7 +578,7 @@ define([
   FxAccountClient.prototype.passwordForgotVerifyCode = function(code, passwordForgotToken, options) {
     var self = this;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(code, 'reset code');
         required(passwordForgotToken, 'passwordForgotToken');
@@ -606,7 +609,7 @@ define([
   FxAccountClient.prototype.passwordForgotStatus = function(passwordForgotToken) {
     var self = this;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(passwordForgotToken, 'passwordForgotToken');
 
@@ -657,7 +660,7 @@ define([
       data.metricsContext = metricsContext.marshall(options.metricsContext);
     }
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(email, 'email');
         required(newPassword, 'new password');
@@ -712,7 +715,7 @@ define([
   FxAccountClient.prototype.accountKeys = function(keyFetchToken, oldUnwrapBKey) {
     var self = this;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(keyFetchToken, 'keyFetchToken');
         required(oldUnwrapBKey, 'oldUnwrapBKey');
@@ -757,7 +760,7 @@ define([
     var self = this;
     options = options || {};
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(email, 'email');
         required(password, 'password');
@@ -801,7 +804,7 @@ define([
   FxAccountClient.prototype.accountStatus = function(uid) {
     var self = this;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(uid, 'uid');
 
@@ -819,7 +822,7 @@ define([
   FxAccountClient.prototype.accountStatusByEmail = function(email) {
     var self = this;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(email, 'email');
 
@@ -845,7 +848,7 @@ define([
       data.customSessionToken = options.customSessionToken;
     }
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(sessionToken, 'sessionToken');
 
@@ -866,7 +869,7 @@ define([
   FxAccountClient.prototype.sessionStatus = function(sessionToken) {
     var self = this;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(sessionToken, 'sessionToken');
 
@@ -895,7 +898,7 @@ define([
       duration: duration
     };
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(sessionToken, 'sessionToken');
         required(publicKey, 'publicKey');
@@ -934,7 +937,7 @@ define([
     var self = this;
     options = options || {};
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(email, 'email');
         required(oldPassword, 'old password');
@@ -972,7 +975,7 @@ define([
     var self = this;
     options = options || {};
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(email, 'email');
         required(oldPassword, 'old password');
@@ -1027,7 +1030,7 @@ define([
   FxAccountClient.prototype._passwordChangeKeys = function(oldCreds) {
     var self = this;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         checkCreds(oldCreds);
       })
@@ -1057,7 +1060,7 @@ define([
     options = options || {};
     var self = this;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(email, 'email');
         required(newPassword, 'new password');
@@ -1074,9 +1077,12 @@ define([
           defers.push(hawkCredentials(options.sessionToken, 'sessionToken',  HKDF_SIZE));
         }
 
-        return P.all(defers);
+        return Promise.all(defers);
       })
-      .spread(function (newCreds, hawkCreds, sessionData) {
+      .then(function (results) {
+        var newCreds = results[0];
+        var hawkCreds = results[1];
+        var sessionData = results[2];
         var newWrapKb = sjcl.codec.hex.fromBits(
           credentials.xor(
             sjcl.codec.hex.toBits(keys.kB),
@@ -1136,7 +1142,7 @@ define([
     var request = this.request;
     options = options || {};
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(sessionToken, 'sessionToken');
         required(deviceName, 'deviceName');
@@ -1180,7 +1186,7 @@ define([
     var request = this.request;
     options = options || {};
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(sessionToken, 'sessionToken');
         required(deviceId, 'deviceId');
@@ -1218,7 +1224,7 @@ define([
   FxAccountClient.prototype.deviceDestroy = function (sessionToken, deviceId) {
     var request = this.request;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(sessionToken, 'sessionToken');
         required(deviceId, 'deviceId');
@@ -1244,7 +1250,7 @@ define([
   FxAccountClient.prototype.deviceList = function (sessionToken) {
     var request = this.request;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(sessionToken, 'sessionToken');
 
@@ -1265,7 +1271,7 @@ define([
   FxAccountClient.prototype.sessions = function (sessionToken) {
     var request = this.request;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(sessionToken, 'sessionToken');
 
@@ -1296,7 +1302,7 @@ define([
   FxAccountClient.prototype.sendUnblockCode = function (email, options) {
     var self = this;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(email, 'email');
 
@@ -1324,7 +1330,7 @@ define([
   FxAccountClient.prototype.rejectUnblockCode = function (uid, unblockCode) {
     var self = this;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(uid, 'uid');
         required(unblockCode, 'unblockCode');
@@ -1361,7 +1367,7 @@ define([
   FxAccountClient.prototype.sendSms = function (sessionToken, phoneNumber, messageId, options) {
     var request = this.request;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(sessionToken, 'sessionToken');
         required(phoneNumber, 'phoneNumber');
@@ -1408,7 +1414,7 @@ define([
     var request = this.request;
     options = options || {};
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(sessionToken, 'sessionToken');
 
@@ -1435,7 +1441,7 @@ define([
   FxAccountClient.prototype.consumeSigninCode = function (code, flowId, flowBeginTime, deviceId) {
     var self = this;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(code, 'code');
         required(flowId, 'flowId');
@@ -1461,7 +1467,7 @@ define([
   FxAccountClient.prototype.recoveryEmails = function (sessionToken) {
     var request = this.request;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(sessionToken, 'sessionToken');
 
@@ -1482,7 +1488,7 @@ define([
   FxAccountClient.prototype.recoveryEmailCreate = function (sessionToken, email) {
     var request = this.request;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(sessionToken, 'sessionToken');
         required(sessionToken, 'email');
@@ -1508,7 +1514,7 @@ define([
   FxAccountClient.prototype.recoveryEmailDestroy = function (sessionToken, email) {
     var request = this.request;
 
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(sessionToken, 'sessionToken');
         required(sessionToken, 'email');
@@ -1533,7 +1539,7 @@ define([
    */
   FxAccountClient.prototype.recoveryEmailSetPrimaryEmail = function (sessionToken, email) {
     var request = this.request;
-    return P()
+    return Promise.resolve()
       .then(function () {
         required(sessionToken, 'sessionToken');
 

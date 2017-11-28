@@ -30,7 +30,7 @@
     "url": "https://github.com/mozilla/fxa-js-client/issues"
   },
   "dependencies": {
-    "p-promise": "0.5.0",
+    "es6-promise": "4.1.1",
     "sjcl": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8e",
     "xhr2": "0.0.7"
   },

@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-define(['./request', 'sjcl', 'p', './hkdf', './pbkdf2'], function (Request, sjcl, P, hkdf, pbkdf2) {
+define(['./request', 'sjcl', './hkdf', './pbkdf2'], function (Request, sjcl, hkdf, pbkdf2) {
   'use strict';
 
   // Key wrapping and stretching configuration.

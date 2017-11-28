@@ -3,9 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'client/lib/request',
-  'components/p/p'
-], function (Request, p) {
+  'client/lib/request'
+], function (Request) {
   'use strict';
 
   function Restmail(server, xhr) {
@@ -19,22 +18,17 @@ define([
     if (!number) number = 1; //eslint-disable-line curly
     console.log('Waiting for email...');
 
-    return self.request.send('/mail/' + user, 'GET')
+    return this.request.send('/mail/' + user, 'GET')
       .then(function (result) {
         if (result.length === number) {
           return result;
         } else {
-          var deferred = p.defer();
-
-          setTimeout(function () {
-            self.wait(user, number)
-              .then(function (emails) {
-                deferred.resolve(emails);
-              }, function (err) {
-                deferred.reject(err);
-              });
-          }, 1000);
-          return deferred.promise;
+          return new Promise(function (resolve, reject) {
+            setTimeout(function () {
+              self.wait(user, number)
+                .then(resolve, reject);
+            }, 1000);
+          });
         }
       });
   };

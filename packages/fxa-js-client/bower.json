@@ -8,7 +8,7 @@
     "cjs": "https://github.com/guybedford/cjs.git#69c7f33059"
   },
   "dependencies": {
-    "p": "rkatic/p#0.5.0",
+    "es6-promise": "https://github.com/stefanpenner/es6-promise.git#4.1.1",
     "sjcl": "1.0.0"
   }
 }

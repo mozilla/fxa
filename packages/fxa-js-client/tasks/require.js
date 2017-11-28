@@ -15,8 +15,8 @@ module.exports = function (grunt) {
         endFile: 'config/end.frag'
       },
       paths: {
-        sjcl: 'components/sjcl/sjcl',
-        p: 'components/p/p'
+        'es6-promise': 'components/es6-promise/dist/es6-promise',
+        sjcl: 'components/sjcl/sjcl'
       }
     },
     prod: {

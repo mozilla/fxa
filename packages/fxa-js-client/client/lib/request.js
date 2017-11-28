@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-define(['./hawk', 'p', './errors'], function (hawk, P, ERRORS) {
+define(['./hawk', './errors'], function (hawk, ERRORS) {
   'use strict';
   /* global XMLHttpRequest */
 
@@ -39,7 +39,6 @@ define(['./hawk', 'p', './errors'], function (hawk, P, ERRORS) {
    */
   Request.prototype.send = function request(path, method, credentials, jsonPayload, options) {
     /*eslint complexity: [2, 8] */
-    var deferred = P.defer();
     var xhr = new this.xhr();
     var uri = this.baseUri + path;
     var payload = null;
@@ -53,70 +52,70 @@ define(['./hawk', 'p', './errors'], function (hawk, P, ERRORS) {
     try {
       xhr.open(method, uri);
     } catch (e) {
-      return P.reject({ error: 'Unknown error', message: e.toString(), errno: 999 });
+      return Promise.reject({ error: 'Unknown error', message: e.toString(), errno: 999 });
     }
 
-    xhr.timeout = this.timeout;
+    return new Promise(function (resolve, reject) {
+      xhr.timeout = self.timeout;
 
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState === 4) {
-        var result = xhr.responseText;
-        try {
-          result = JSON.parse(xhr.responseText);
-        } catch (e) { }
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          var result = xhr.responseText;
+          try {
+            result = JSON.parse(xhr.responseText);
+          } catch (e) { }
 
-        if (result.errno) {
-          // Try to recover from a timeskew error and not already tried
-          if (result.errno === ERRORS.INVALID_TIMESTAMP && !options.retrying) {
-            var serverTime = result.serverTime;
-            self._localtimeOffsetMsec = (serverTime * 1000) - new Date().getTime();
+          if (result.errno) {
+            // Try to recover from a timeskew error and not already tried
+            if (result.errno === ERRORS.INVALID_TIMESTAMP && !options.retrying) {
+              var serverTime = result.serverTime;
+              self._localtimeOffsetMsec = (serverTime * 1000) - new Date().getTime();
 
-            // add to options that the request is retrying
-            options.retrying = true;
+              // add to options that the request is retrying
+              options.retrying = true;
 
-            return self.send(path, method, credentials, jsonPayload, options)
-              .then(deferred.resolve, deferred.reject);
+              return self.send(path, method, credentials, jsonPayload, options)
+                .then(resolve, reject);
 
-          } else {
-            return deferred.reject(result);
+            } else {
+              return reject(result);
+            }
           }
-        }
 
-        if (typeof xhr.status === 'undefined' || xhr.status !== 200) {
-          if (result.length === 0) {
-            return deferred.reject({ error: 'Timeout error', errno: 999 });
-          } else {
-            return deferred.reject({ error: 'Unknown error', message: result, errno: 999, code: xhr.status });
+          if (typeof xhr.status === 'undefined' || xhr.status !== 200) {
+            if (result.length === 0) {
+              return reject({ error: 'Timeout error', errno: 999 });
+            } else {
+              return reject({ error: 'Unknown error', message: result, errno: 999, code: xhr.status });
+            }
           }
+
+          resolve(result);
         }
+      };
 
-        deferred.resolve(result);
+      // calculate Hawk header if credentials are supplied
+      if (credentials) {
+        var hawkHeader = hawk.client.header(uri, method, {
+                            credentials: credentials,
+                            payload: payload,
+                            contentType: 'application/json',
+                            localtimeOffsetMsec: self._localtimeOffsetMsec || 0
+                          });
+        xhr.setRequestHeader('authorization', hawkHeader.field);
       }
-    };
 
-    // calculate Hawk header if credentials are supplied
-    if (credentials) {
-      var hawkHeader = hawk.client.header(uri, method, {
-                          credentials: credentials,
-                          payload: payload,
-                          contentType: 'application/json',
-                          localtimeOffsetMsec: this._localtimeOffsetMsec || 0
-                        });
-      xhr.setRequestHeader('authorization', hawkHeader.field);
-    }
+      xhr.setRequestHeader('Content-Type', 'application/json');
 
-    xhr.setRequestHeader('Content-Type', 'application/json');
-
-    if (options && options.headers) {
-      // set extra headers for this request
-      for (var header in options.headers) {
-        xhr.setRequestHeader(header, options.headers[header]);
+      if (options && options.headers) {
+        // set extra headers for this request
+        for (var header in options.headers) {
+          xhr.setRequestHeader(header, options.headers[header]);
+        }
       }
-    }
 
-    xhr.send(payload);
-
-    return deferred.promise;
+      xhr.send(payload);
+    });
   };
 
   return Request;
