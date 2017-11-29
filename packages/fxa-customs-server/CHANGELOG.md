@@ -1,3 +1,26 @@
+<a name="1.101.0"></a>
+# 1.101.0 (2017-11-29)
+
+
+### Bug Fixes
+
+* **sms:** Load `allowedPhoneNumbers` from memcached! ([6cc0ceb](https://github.com/mozilla/fxa-customs-server/commit/6cc0ceb))
+
+### chore
+
+* **sms:** Store allowed phone numbers in a Set ([17a9459](https://github.com/mozilla/fxa-customs-server/commit/17a9459))
+
+### Features
+
+* **sms:** Add an allow list of non-rate limited phone numbers for testing. ([7822603](https://github.com/mozilla/fxa-customs-server/commit/7822603)), closes [#217](https://github.com/mozilla/fxa-customs-server/issues/217)
+* **sms:** Added tests for `change allowedPhoneNumbers` config ([35c37d5](https://github.com/mozilla/fxa-customs-server/commit/35c37d5))
+
+### Refactor
+
+* **isAllowed:** Add `isAllowed` to allowedIPs. ([7951772](https://github.com/mozilla/fxa-customs-server/commit/7951772))
+
+
+
 <a name="1.100.0"></a>
 # 1.100.0 (2017-11-15)
 
