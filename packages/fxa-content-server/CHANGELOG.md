@@ -1,3 +1,13 @@
+<a name="1.101.2"></a>
+## 1.101.2 (2017-11-29)
+
+
+### Bug Fixes
+
+* **metrics:** ensure metrics always has a uid (#5764) r=@vladikoff ([ddd11a2](https://github.com/mozilla/fxa-content-server/commit/ddd11a2))
+
+
+
 <a name="1.101.1"></a>
 ## 1.101.1 (2017-11-29)
 
