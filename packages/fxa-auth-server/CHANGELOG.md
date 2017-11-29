@@ -1,3 +1,26 @@
+<a name="1.101.0"></a>
+# [1.101.0](https://github.com/mozilla/fxa-auth-server/compare/v1.100.0...v1.101.0) (2017-11-29)
+
+
+### Bug Fixes
+
+* **db:** implement safe redis write semantics ([91cd539](https://github.com/mozilla/fxa-auth-server/commit/91cd539))
+* **metrics:** include oauth_client_id in amplitude event properties (#2240); r=rfk ([3034a41](https://github.com/mozilla/fxa-auth-server/commit/3034a41))
+* **metrics:** stop sending raw client ids to amplitude (#2239) r=@vladikoff ([0069873](https://github.com/mozilla/fxa-auth-server/commit/0069873))
+* **tests:** test against actual redis instance ([f68e4bb](https://github.com/mozilla/fxa-auth-server/commit/f68e4bb))
+
+### chore
+
+* **email:** remove check_can_add_secondary_address route (#2234), r=@philbooth ([90646b9](https://github.com/mozilla/fxa-auth-server/commit/90646b9))
+* **email:** Remove FF57 gating logic (#2232), r=@philbooth ([2617b5a](https://github.com/mozilla/fxa-auth-server/commit/2617b5a))
+* **nsp:** ignore warning about redos for date parsing in moment ([a5e0a2c](https://github.com/mozilla/fxa-auth-server/commit/a5e0a2c))
+
+### Features
+
+* **sms:** Enable SMS in Spain (ES), Portugal (PT), Italy (IT) (#2229) r=@philbooth ([043ee6c](https://github.com/mozilla/fxa-auth-server/commit/043ee6c)), closes [#2228](https://github.com/mozilla/fxa-auth-server/issues/2228)
+
+
+
 <a name="1.100.0"></a>
 # [1.100.0](https://github.com/mozilla/fxa-auth-server/compare/v1.99.2...v1.100.0) (2017-11-15)
 
