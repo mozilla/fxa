@@ -1,3 +1,13 @@
+<a name="1.101.1"></a>
+## 1.101.1 (2017-11-29)
+
+
+### chore
+
+* **logs:** log an anonymous event when we see the DNT header ([5ada4f2](https://github.com/mozilla/fxa-content-server/commit/5ada4f2))
+
+
+
 <a name="1.101.0"></a>
 # 1.101.0 (2017-11-27)
 
