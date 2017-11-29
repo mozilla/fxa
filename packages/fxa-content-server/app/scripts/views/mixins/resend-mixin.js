@@ -22,7 +22,6 @@ define(function (require, exports, module) {
   const _ = require('underscore');
   const Duration = require('duration');
   const EmailResend = require('../../models/email-resend');
-  const p = require('../../lib/promise');
   const { preventDefaultThen, t } = require('../base');
 
   const SHOW_RESEND_IN_MS = new Duration('5m').milliseconds();
@@ -51,7 +50,7 @@ define(function (require, exports, module) {
       },
 
       _resend () {
-        return p().then(() => {
+        return Promise.resolve().then(() => {
           this.logViewEvent('resend');
           this._updateSuccessMessage();
 
@@ -65,7 +64,7 @@ define(function (require, exports, module) {
                   this.displaySuccess(successMessage);
                 }
               })
-              .fail((err) => this.displayError(err));
+              .catch((err) => this.displayError(err));
           }
         });
       },

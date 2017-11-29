@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
   const sinon = require('sinon');
 
@@ -58,7 +57,7 @@ define(function (require, exports, module) {
           };
           view.user = {
             setSignedInAccountByUid: sinon.spy(() => {
-              return p();
+              return Promise.resolve();
             })
           };
           view.navigate = sinon.spy();
@@ -105,7 +104,7 @@ define(function (require, exports, module) {
           };
           view.user = {
             setSignedInAccountByUid: sinon.spy(() => {
-              return p();
+              return Promise.resolve();
             })
           };
           view.navigate = sinon.spy();
@@ -137,7 +136,7 @@ define(function (require, exports, module) {
           };
           view.user = {
             setSignedInAccountByUid: sinon.spy(() => {
-              return p();
+              return Promise.resolve();
             })
           };
           view.navigate = sinon.spy();

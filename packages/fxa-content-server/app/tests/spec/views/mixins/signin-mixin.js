@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   const AuthBroker = require('models/auth_brokers/base');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const SignInMixin = require('views/mixins/signin-mixin');
   const sinon = require('sinon');
@@ -46,7 +45,7 @@ define(function (require, exports, module) {
         broker = new AuthBroker();
         model = new Backbone.Model();
         user = new User();
-        sinon.stub(user, 'signInAccount').callsFake((account) => p(account));
+        sinon.stub(user, 'signInAccount').callsFake((account) => Promise.resolve(account));
 
         relier = new Relier();
         view = {
@@ -60,7 +59,7 @@ define(function (require, exports, module) {
           currentPage: 'force_auth',
           displayError: sinon.spy(),
           getStringifiedResumeToken: sinon.spy(() => RESUME_TOKEN),
-          invokeBrokerMethod: sinon.spy(() => p()),
+          invokeBrokerMethod: sinon.spy(() => Promise.resolve()),
           logEvent: sinon.spy(),
           logFlowEvent: sinon.spy(),
           logViewEvent: sinon.spy(),
@@ -251,7 +250,7 @@ define(function (require, exports, module) {
           blockedError = AuthErrors.toError('REQUEST_BLOCKED');
 
           user.signInAccount.restore();
-          sinon.stub(user, 'signInAccount').callsFake(() => p.reject(blockedError));
+          sinon.stub(user, 'signInAccount').callsFake(() => Promise.reject(blockedError));
         });
 
         describe('cannot unblock', () => {
@@ -272,7 +271,7 @@ define(function (require, exports, module) {
               blockedError.verificationReason = VerificationReasons.SIGN_IN;
               blockedError.verificationMethod = VerificationMethods.EMAIL_CAPTCHA;
 
-              sinon.stub(account, 'sendUnblockEmail').callsFake(() => p());
+              sinon.stub(account, 'sendUnblockEmail').callsFake(() => Promise.resolve());
 
               return view.signIn(account, 'password');
             });
@@ -297,7 +296,7 @@ define(function (require, exports, module) {
               blockedError.verificationReason = VerificationReasons.SIGN_IN;
               blockedError.verificationMethod = VerificationMethods.EMAIL_CAPTCHA;
 
-              sinon.stub(account, 'sendUnblockEmail').callsFake(() => p.reject(err));
+              sinon.stub(account, 'sendUnblockEmail').callsFake(() => Promise.reject(err));
 
               return view.signIn(account, 'password')
                 .then(assert.fail, (_err) => thrownErr = _err);
@@ -316,7 +315,7 @@ define(function (require, exports, module) {
         beforeEach(() => {
           user.signInAccount.restore();
           sinon.stub(user, 'signInAccount').callsFake(() => {
-            return p.reject(AuthErrors.toError('EMAIL_HARD_BOUNCE'));
+            return Promise.reject(AuthErrors.toError('EMAIL_HARD_BOUNCE'));
           });
 
           return view.signIn(account, 'password')
@@ -341,7 +340,7 @@ define(function (require, exports, module) {
         beforeEach(() => {
           user.signInAccount.restore();
           sinon.stub(user, 'signInAccount').callsFake(() => {
-            return p.reject(AuthErrors.toError('EMAIL_SOFT_BOUNCE'));
+            return Promise.reject(AuthErrors.toError('EMAIL_SOFT_BOUNCE'));
           });
 
           return view.signIn(account, 'password')
@@ -364,7 +363,7 @@ define(function (require, exports, module) {
         beforeEach(() => {
           user.signInAccount.restore();
           sinon.stub(user, 'signInAccount').callsFake(() => {
-            return p.reject(AuthErrors.toError('EMAIL_SENT_COMPLAINT'));
+            return Promise.reject(AuthErrors.toError('EMAIL_SENT_COMPLAINT'));
           });
 
           return view.signIn(account, 'password')

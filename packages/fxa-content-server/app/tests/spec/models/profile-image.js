@@ -63,7 +63,7 @@ define(function (require, exports, module) {
         profileImage.set('url', 'bad url');
         return profileImage.fetch()
           .then(function () {
-            assert.fail('unexpected success');
+            assert.catch('unexpected success');
           }, function (err) {
             assert.isTrue(ProfileErrors.is(err, 'IMAGE_LOAD_ERROR'));
             assert.equal(err.context, 'bad url');

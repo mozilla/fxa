@@ -50,7 +50,7 @@ define(function (require, exports, module) {
       const unblockCode = this.getElementValue('#unblock_code');
 
       return this.signIn(account, password, { unblockCode })
-        .fail((err) => this.onSignInError(account, password, err));
+        .catch((err) => this.onSignInError(account, password, err));
     },
 
     onSignInError (account, password, err) {
@@ -72,7 +72,7 @@ define(function (require, exports, module) {
 
     _sendUnblockEmail () {
       return this.getAccount().sendUnblockEmail()
-        .fail((err) => this.displayError(err));
+        .catch((err) => this.displayError(err));
     },
 
     /**

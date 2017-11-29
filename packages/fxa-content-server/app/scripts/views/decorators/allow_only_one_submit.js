@@ -11,21 +11,19 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const p = require('../../lib/promise');
-
   function allowOnlyOneSubmit(handler) {
     return function () {
       var args = arguments;
 
       if (this._isSubmitting) {
-        return p().then(function () {
+        return Promise.resolve().then(function () {
           // already submitting, get outta here.
           throw new Error('submit already in progress');
         });
       }
 
       this._isSubmitting = true;
-      return p().then(() => this.invokeHandler(handler, args))
+      return Promise.resolve().then(() => this.invokeHandler(handler, args))
         .then((value) => {
           this._isSubmitting = false;
           return value;

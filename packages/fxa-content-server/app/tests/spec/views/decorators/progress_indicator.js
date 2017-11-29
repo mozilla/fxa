@@ -8,7 +8,6 @@ define(function (require, exports, module) {
 
   const { assert } = require('chai');
   const BaseView = require('views/base');
-  const p = require('lib/promise');
   const ProgressIndicator = require('views/progress_indicator');
   const showProgressIndicator = require('views/decorators/progress_indicator');
   const sinon = require('sinon');
@@ -22,7 +21,7 @@ define(function (require, exports, module) {
         return '<button type="submit">Button</button>';
       },
       longRunningAction: showProgressIndicator(() => {
-        return p().then(() => {
+        return Promise.resolve().then(() => {
           assert.isTrue(progressIndicator.start.called);
         });
       })

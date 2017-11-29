@@ -12,7 +12,6 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Metrics = require('./metrics');
-  const p = require('./promise');
 
   function NullMetrics () {
     // do nothing
@@ -26,7 +25,7 @@ define(function (require, exports, module) {
 
   // Metrics.flush returns a promise.
   NullMetrics.prototype.flush = function () {
-    return p();
+    return Promise.resolve();
   };
 
   NullMetrics.prototype.isCollectionEnabled = function () {

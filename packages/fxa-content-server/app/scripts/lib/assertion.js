@@ -33,7 +33,7 @@ define(function (require, exports, module) {
     // browser has native crypto, no need to fetch entropy from the server.
     try {
       if (window.crypto && window.crypto.getRandomValues) {
-        return P(true);
+        return Promise.resolve(true);
       }
     } catch (e) {
       // some browsers blow up when trying to query window.crypto.
@@ -65,7 +65,7 @@ define(function (require, exports, module) {
       .then((kp) => {
         // while certSign is going over the wire, we can also sign the
         // assertion here on the machine
-        return P.all([
+        return Promise.all([
           this._fxaClient.certificateSign(
             kp.publicKey.toSimpleObject(), CERT_DURATION_MS, sessionToken, service),
           assertion(this._jwcrypto, kp.secretKey, audience)
@@ -88,7 +88,7 @@ define(function (require, exports, module) {
         this._jwcrypto = jwcrypto;
         return certificate.call(this, audience || this._audience, sessionToken, service);
       })
-      .spread((cert, ass) => {
+      .then(([cert, ass]) => {
         return this._jwcrypto.cert.bundle([cert.cert], ass);
       });
   }

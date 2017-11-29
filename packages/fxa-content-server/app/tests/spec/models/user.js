@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   const FxaClient = require('lib/fxa-client');
   const MarketingEmailErrors = require('lib/marketing-email-errors');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const OAuthApp = require('models/oauth-app');
   const Session = require('lib/session');
   const SentryMetrics = require('lib/sentry');
@@ -129,7 +128,7 @@ define(function (require, exports, module) {
         const account = user.initAccount({ email: 'TESTUSER@testuser.com', uid: 'uid' });
         sinon.spy(user, 'getSignedInAccount');
         sinon.spy(user, 'setAccount');
-        sinon.stub(account, 'sessionStatus').callsFake(() => p({ email: 'testuser@testuser.com' }));
+        sinon.stub(account, 'sessionStatus').callsFake(() => Promise.resolve({ email: 'testuser@testuser.com' }));
 
         return user.sessionStatus(account)
           .then((signedInAccount) => {
@@ -144,7 +143,7 @@ define(function (require, exports, module) {
         const account = user.initAccount({ email: 'TESTUSER@testuser.com', uid: 'uid' });
         sinon.stub(user, 'getSignedInAccount').callsFake(() => account);
         sinon.spy(user, 'setAccount');
-        sinon.stub(account, 'sessionStatus').callsFake(() => p({ email: 'testuser@testuser.com' }));
+        sinon.stub(account, 'sessionStatus').callsFake(() => Promise.resolve({ email: 'testuser@testuser.com' }));
 
         return user.sessionStatus()
           .then((signedInAccount) => {
@@ -157,7 +156,7 @@ define(function (require, exports, module) {
       it('propagates errors from the Account', () => {
         const account = user.initAccount({ email: EMAIL, uid: 'uid' });
         sinon.stub(user, 'getSignedInAccount').callsFake(() => account);
-        sinon.stub(account, 'sessionStatus').callsFake(() => p.reject(AuthErrors.toError('INVALID_TOKEN')));
+        sinon.stub(account, 'sessionStatus').callsFake(() => Promise.reject(AuthErrors.toError('INVALID_TOKEN')));
 
         return user.sessionStatus()
           .then(assert.fail, (err) => {
@@ -347,7 +346,7 @@ define(function (require, exports, module) {
         });
 
         sinon.stub(account, 'destroy').callsFake(function () {
-          return p();
+          return Promise.resolve();
         });
 
         sinon.spy(notifier, 'triggerAll');
@@ -447,7 +446,7 @@ define(function (require, exports, module) {
         return user.setSignedInAccount({ email: EMAIL, uid: 'foo' })
           .then(function () {
             sinon.stub(user, 'setAccount').callsFake(function () {
-              return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+              return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
             });
             return user.setSignedInAccount(account);
           })
@@ -602,7 +601,7 @@ define(function (require, exports, module) {
       Session.set('sessionToken', 'session token too');
 
       sinon.stub(user, 'setSignedInAccount').callsFake(function () {
-        return p();
+        return Promise.resolve();
       });
 
       return user.upgradeFromSession(Session, fxaClientMock)
@@ -623,7 +622,7 @@ define(function (require, exports, module) {
       });
 
       sinon.stub(user, 'setSignedInAccount').callsFake(function () {
-        return p();
+        return Promise.resolve();
       });
 
       return user.upgradeFromSession(Session, fxaClientMock)
@@ -656,7 +655,7 @@ define(function (require, exports, module) {
       });
 
       sinon.stub(user, 'setSignedInAccount').callsFake(function () {
-        return p();
+        return Promise.resolve();
       });
 
       return user.upgradeFromSession(Session, fxaClientMock)
@@ -804,8 +803,8 @@ define(function (require, exports, module) {
             verified: true
           });
 
-          sinon.stub(account, 'signIn').callsFake(() => p());
-          sinon.stub(account, 'retrySignUp').callsFake(() => p());
+          sinon.stub(account, 'signIn').callsFake(() => Promise.resolve());
+          sinon.stub(account, 'retrySignUp').callsFake(() => Promise.resolve());
           sinon.spy(user, 'setSignedInAccount');
           sinon.spy(notifier, 'triggerRemote');
 
@@ -836,7 +835,7 @@ define(function (require, exports, module) {
         });
 
         it('signOutAccount behaves correctly', () => {
-          sinon.stub(account, 'signOut').callsFake(() => p());
+          sinon.stub(account, 'signOut').callsFake(() => Promise.resolve());
           sinon.spy(user, 'clearSignedInAccount');
 
           return user.signOutAccount(account)
@@ -867,7 +866,7 @@ define(function (require, exports, module) {
           });
 
           sinon.stub(account, 'signIn').callsFake(function () {
-            return p();
+            return Promise.resolve();
           });
 
           sinon.stub(account, 'get').callsFake(function (property) {
@@ -879,11 +878,11 @@ define(function (require, exports, module) {
           });
 
           sinon.stub(account, 'retrySignUp').callsFake(function () {
-            return p();
+            return Promise.resolve();
           });
 
           sinon.stub(user, 'setSignedInAccount').callsFake(function () {
-            return p(account);
+            return Promise.resolve(account);
           });
 
           sinon.stub(user, 'getAccountByUid').callsFake(function () {
@@ -915,10 +914,10 @@ define(function (require, exports, module) {
       beforeEach(function () {
         account = user.initAccount({ email: EMAIL, uid: createUid() });
         sinon.stub(account, 'signUp').callsFake(function () {
-          return p();
+          return Promise.resolve();
         });
         sinon.stub(user, 'setSignedInAccount').callsFake(function () {
-          return p();
+          return Promise.resolve();
         });
 
         return user.signUpAccount(
@@ -950,7 +949,7 @@ define(function (require, exports, module) {
 
       describe('request completes as expected', () => {
         it('delegates to the account, clears account info', () => {
-          sinon.stub(account, 'signOut').callsFake(() => p());
+          sinon.stub(account, 'signOut').callsFake(() => Promise.resolve());
 
           return user.signOutAccount(account)
             .then(() => {
@@ -964,7 +963,7 @@ define(function (require, exports, module) {
       describe('request fails', () => {
         it('delegates to the account, clears account info anyways', () => {
           sinon.stub(account, 'signOut').callsFake(() => {
-            return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+            return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
           });
 
           return user.signOutAccount(account)
@@ -993,7 +992,7 @@ define(function (require, exports, module) {
 
       describe('without a basket error', function () {
         beforeEach(function () {
-          sinon.stub(account, 'verifySignUp').callsFake(() => p());
+          sinon.stub(account, 'verifySignUp').callsFake(() => Promise.resolve());
         });
 
         describe('without a sessionToken', function () {
@@ -1030,7 +1029,7 @@ define(function (require, exports, module) {
           err = null;
 
           sinon.stub(account, 'verifySignUp').callsFake(() => {
-            return p.reject(MarketingEmailErrors.toError('USAGE_ERROR'));
+            return Promise.reject(MarketingEmailErrors.toError('USAGE_ERROR'));
           });
         });
 
@@ -1095,10 +1094,10 @@ define(function (require, exports, module) {
           verified: true,
         });
 
-        return p();
+        return Promise.resolve();
       });
       sinon.stub(user, 'setSignedInAccount').callsFake((account) => {
-        return p(account);
+        return Promise.resolve(account);
       });
       sinon.spy(notifier, 'triggerRemote');
 
@@ -1143,11 +1142,11 @@ define(function (require, exports, module) {
         });
 
         sinon.stub(account, 'completePasswordReset').callsFake(function () {
-          return p();
+          return Promise.resolve();
         });
 
         sinon.stub(user, 'setSignedInAccount').callsFake(function (account) {
-          return p(account);
+          return Promise.resolve(account);
         });
 
         sinon.spy(notifier, 'triggerRemote');
@@ -1188,7 +1187,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         account = user.initAccount({});
         sinon.stub(account, 'fetchSessions').callsFake(function () {
-          return p();
+          return Promise.resolve();
         });
 
         sessions = new AttachedClients([], {
@@ -1212,7 +1211,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         account = user.initAccount({});
         sinon.stub(account, 'fetchDevices').callsFake(function () {
-          return p();
+          return Promise.resolve();
         });
 
         devices = new AttachedClients([], {
@@ -1236,7 +1235,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         account = user.initAccount({});
         sinon.stub(account, 'fetchOAuthApps').callsFake(function () {
-          return p();
+          return Promise.resolve();
         });
 
         oAuthApps = new AttachedClients([], {
@@ -1265,8 +1264,8 @@ define(function (require, exports, module) {
           uid: createUid()
         });
 
-        sinon.stub(account, 'destroyDevice').callsFake(() => p());
-        sinon.stub(account, 'fetch').callsFake(() => p());
+        sinon.stub(account, 'destroyDevice').callsFake(() => Promise.resolve());
+        sinon.stub(account, 'fetch').callsFake(() => Promise.resolve());
         sinon.spy(user, 'removeAccount');
 
         device = new Device({
@@ -1311,7 +1310,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         account = user.initAccount({});
         sinon.stub(account, 'destroySession').callsFake(function () {
-          return p();
+          return Promise.resolve();
         });
 
         session = new WebSession({
@@ -1347,7 +1346,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         account = user.initAccount({});
         sinon.stub(account, 'destroyOAuthApp').callsFake(function () {
-          return p();
+          return Promise.resolve();
         });
 
         oAuthApp = new OAuthApp({
@@ -1375,7 +1374,7 @@ define(function (require, exports, module) {
         });
 
         sinon.stub(account, 'checkUidExists').callsFake(function () {
-          return p(false);
+          return Promise.resolve(false);
         });
 
         sinon.spy(user, 'removeAccount');
@@ -1411,7 +1410,7 @@ define(function (require, exports, module) {
         });
 
         sinon.stub(account, 'checkEmailExists').callsFake(function () {
-          return p(false);
+          return Promise.resolve(false);
         });
 
         sinon.spy(user, 'removeAccount');
@@ -1441,7 +1440,7 @@ define(function (require, exports, module) {
 
       beforeEach(() => {
         account = user.initAccount({});
-        sinon.stub(account, 'rejectUnblockCode').callsFake(() => p());
+        sinon.stub(account, 'rejectUnblockCode').callsFake(() => Promise.resolve());
 
         return user.rejectAccountUnblockCode(account, UNBLOCK_CODE);
       });

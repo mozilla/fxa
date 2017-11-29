@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   'use strict';
 
   const AuthErrors = require('../../lib/auth-errors');
-  const p = require('../../lib/promise');
 
   function notifyDelayedRequest(handler) {
     return function () {
@@ -25,7 +24,7 @@ define(function (require, exports, module) {
         workingText = this.displayError(err);
       }, this.LONGER_THAN_EXPECTED);
 
-      return p().then(() => this.invokeHandler(handler, args))
+      return Promise.resolve().then(() => this.invokeHandler(handler, args))
         .then((value) => {
           this.clearTimeout(this._workingTimeout);
           if (workingText === this.$('.error').text()) {

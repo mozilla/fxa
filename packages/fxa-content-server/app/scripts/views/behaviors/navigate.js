@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const p = require('../../lib/promise');
 
   const NavigationBehavior = function (endpoint, options = {}) {
     const behavior = function (view, account) {
@@ -18,7 +17,7 @@ define(function (require, exports, module) {
       view.navigate(endpoint, navigateOptions);
 
       // halt the flow after navigating.
-      return p.defer().promise;
+      return new Promise(() => {});
     };
 
     // used for testing

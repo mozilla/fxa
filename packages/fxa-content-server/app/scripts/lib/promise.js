@@ -5,26 +5,45 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const p = require('p-promise');
+  const ES6Promise = require('es6-promise');
 
-  // The WebRTC polyfill tries to use native promises which are not available
-  // in Firefox until Fx 27, but WebRTC is available in Fx 17. Polyfill
-  // window.Promise using p.
-  if (! window.Promise) {
-    window.Promise = function (callback) {
-      var deferred = p.defer();
+  // polyfill ES6 promises on browsers that do not support them.
+  ES6Promise.polyfill();
 
-      try {
-        callback(deferred.resolve.bind(deferred), deferred.reject.bind(deferred));
-      } catch (e) {
-        deferred.reject(e);
-      }
+  module.exports = {
+    /**
+     * Return a promise that resolves after `delayMS`.
+     *
+     * @param {Number} delayMS
+     * @returns {Promise}
+     */
+    delay (delayMS) {
+      return new Promise((resolve) => {
+        setTimeout(resolve, delayMS);
+      });
+    },
 
-      return deferred.promise;
-    };
-  }
-
-  module.exports = p;
+    /**
+     * Convert `callback` that expects arguments using NodeJS conventions
+     * to return a Promise.
+     *
+     * @param {Function} callback that expects arguments using NodeJS conventions
+     * @returns {Function} replacement callback that returns a Promise
+     */
+    denodeify (callback) {
+      return function (...args) {
+        return new Promise((resolve, reject) => {
+          callback(...args, (err, response) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(response);
+            }
+          });
+        });
+      };
+    }
+  };
 });
 
 

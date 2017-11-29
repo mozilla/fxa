@@ -9,7 +9,6 @@ define(function (require, exports, module) {
 
   const Backbone = require('backbone');
   const ImageLoader = require('../lib/image-loader');
-  const p = require('../lib/promise');
   const ProfileErrors = require('../lib/profile-errors');
 
   var ProfileImage = Backbone.Model.extend({
@@ -21,14 +20,14 @@ define(function (require, exports, module) {
 
     fetch () {
       if (! this.has('url')) {
-        return p();
+        return Promise.resolve();
       }
       return ImageLoader.load(this.get('url'))
         .then((img) => this.set('img', img), () => {
           var err = ProfileErrors.toError('IMAGE_LOAD_ERROR');
           // Set the context to the image's URL. This will be logged.
           err.context = this.get('url');
-          return p.reject(err);
+          return Promise.reject(err);
         });
     },
 

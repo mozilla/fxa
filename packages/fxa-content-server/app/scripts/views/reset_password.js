@@ -44,7 +44,7 @@ define(function (require, exports, module) {
       if (canSkip && email) {
         return this._resetPassword(email)
           .then(() => false)
-          .fail((err) => {
+          .catch((err) => {
             this.model.set('error', err);
           });
       }
@@ -72,7 +72,7 @@ define(function (require, exports, module) {
 
     _resetPassword (email) {
       return this.resetPassword(email)
-        .fail((err) => {
+        .catch((err) => {
           // clear oauth session
           Session.clear('oauth');
           if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {

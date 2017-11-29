@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   const CropperImage = require('models/cropper-image');
   const jQuerySimulate = require('jquery-simulate'); //eslint-disable-line no-unused-vars
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const User = require('models/user');
@@ -45,10 +44,10 @@ define(function (require, exports, module) {
       });
 
       view.isUserAuthorized = function () {
-        return p(true);
+        return Promise.resolve(true);
       };
       view.isUserVerified = function () {
-        return p(true);
+        return Promise.resolve(true);
       };
     });
 

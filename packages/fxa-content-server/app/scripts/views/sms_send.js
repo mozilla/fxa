@@ -116,7 +116,7 @@ define(function (require, exports, module) {
         features: this.getSmsFeatures()
       })
       .then(({ formattedPhoneNumber: serverPhoneNumber }) => this._onSendSmsSuccess(serverPhoneNumber))
-      .fail((err) => this._onSendSmsError(err));
+      .catch((err) => this._onSendSmsError(err));
     }
 
     /**

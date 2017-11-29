@@ -24,7 +24,7 @@ define(function (require, exports, module) {
     it('fails to load an image', function () {
       return ImageLoader.load('bad image src')
         .then(function () {
-          assert.fail('unexpected success');
+          assert.catch('unexpected success');
         }, function () {
           // nothing to do here
           return true;

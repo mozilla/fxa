@@ -13,14 +13,13 @@ define(function (require, exports, module) {
   'use strict';
 
   const BaseView = require('./base');
-  const p = require('../lib/promise');
 
   module.exports = BaseView.extend({
     beforeRender () {
       // Attempt to get email address from relier
       const email = this.relier.get('email');
 
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         if (! email) {
           // If no email in relier, choose navigation page based on
           // whether account is a default account.

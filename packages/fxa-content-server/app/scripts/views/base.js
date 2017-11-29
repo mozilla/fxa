@@ -16,7 +16,6 @@ define(function (require, exports, module) {
   const NotifierMixin = require('../lib/channels/notifier-mixin');
   const NullMetrics = require('../lib/null-metrics');
   const Logger = require('../lib/logger');
-  const p = require('../lib/promise');
   const Raven = require('raven');
   const SearchParamMixin = require('../lib/search-param-mixin');
   const Strings = require('../lib/strings');
@@ -209,7 +208,7 @@ define(function (require, exports, module) {
       // reset _hasNavigated for every render, otherwise settings panels
       // cannot re-render themselves after displaying an inline child view.
       this._hasNavigated = false;
-      return p()
+      return Promise.resolve()
         .then(() => this.checkAuthorization())
         .then((isUserAuthorized) => {
           return isUserAuthorized && this.beforeRender();
@@ -316,7 +315,7 @@ define(function (require, exports, module) {
           });
       }
 
-      return p(true);
+      return Promise.resolve(true);
     },
 
     // If the user navigates to a page that requires auth and their session
@@ -467,7 +466,7 @@ define(function (require, exports, module) {
      */
     afterRender () {
       // Override in subclasses
-      return p();
+      return Promise.resolve();
     },
 
     /**
@@ -482,7 +481,7 @@ define(function (require, exports, module) {
       this.stackWideLinks();
       this.focusAutofocusElement();
 
-      return p();
+      return Promise.resolve();
     },
 
 
@@ -967,7 +966,7 @@ define(function (require, exports, module) {
      */
     showChildView (/* ChildView, options */) {
       // Implement in subclasses
-      return p();
+      return Promise.resolve();
     },
 
     /**
@@ -979,7 +978,7 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     invokeBrokerMethod (methodName, ...args) {
-      return p(this.broker[methodName](...args))
+      return Promise.resolve(this.broker[methodName](...args))
         .then((behavior) => this.invokeBehavior(behavior, ...args));
     },
 
@@ -995,7 +994,7 @@ define(function (require, exports, module) {
      *   is a function, otherwise resolves to the behavior value.
      */
     invokeBehavior (behavior, ...args) {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         if (_.isFunction(behavior)) {
           return behavior(this, ...args);
         }

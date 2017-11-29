@@ -26,7 +26,6 @@ define(function (require, exports, module) {
   const Environment = require('./environment');
   const Flow = require('../models/flow');
   const NotifierMixin = require('./channels/notifier-mixin');
-  const p = require('./promise');
   const speedTrap = require('speedTrap');
   const Strings = require('./strings');
   const xhr = require('./xhr');
@@ -256,7 +255,7 @@ define(function (require, exports, module) {
       var filteredData = this.getFilteredData();
 
       if (! this._isFlushRequired(filteredData, this._lastFlushedData)) {
-        return p();
+        return Promise.resolve();
       }
 
       this._lastFlushedData = filteredData;
@@ -399,7 +398,7 @@ define(function (require, exports, module) {
         //   1. it works asynchronously, even on unload.
         //   2. user agents SHOULD make "multiple attempts to transmit the
         //      data in presence of transient network or server errors".
-        return p().then(() => {
+        return Promise.resolve().then(() => {
           return this._window.navigator.sendBeacon(url, payload);
         });
       }

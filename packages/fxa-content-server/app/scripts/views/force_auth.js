@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const FormView = require('./form');
   const NullBehavior = require('./behaviors/null');
-  const p = require('../lib/promise');
   const PasswordResetMixin = require('./mixins/password-reset-mixin');
   const SignInView = require('./sign_in');
   const Template = require('stache!templates/force_auth');
@@ -75,10 +74,10 @@ define(function (require, exports, module) {
       });
 
       if (accountData.uid) {
-        return p.all([
+        return Promise.all([
           this.user.checkAccountEmailExists(account),
           this.user.checkAccountUidExists(account)
-        ]).spread((emailExists, uidExists) => {
+        ]).then(([emailExists, uidExists]) => {
           /*
            * uidExists: false, emailExists: false
            *   Let user sign up w/ email.

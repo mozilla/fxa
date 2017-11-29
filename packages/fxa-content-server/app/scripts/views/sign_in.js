@@ -134,7 +134,7 @@ define(function (require, exports, module) {
      */
     _signIn (account, password) {
       return this.signIn(account, password)
-        .fail(this.onSignInError.bind(this, account, password));
+        .catch(this.onSignInError.bind(this, account, password));
     },
 
     onSignInError (account, password, err) {
@@ -174,7 +174,7 @@ define(function (require, exports, module) {
       var account = this.getAccount();
 
       return this._signIn(account, null)
-        .fail(() => {
+        .catch(() => {
           this.chooserAskForPassword = true;
           return this.render().then(() => {
             this.user.removeAccount(account);

@@ -13,7 +13,6 @@ define(function(require, exports, module) {
   const { FIREFOX_MOBILE_INSTALL } = require('lib/sms-message-ids');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const SmsErrors = require('lib/sms-errors');
   const sinon = require('sinon');
@@ -43,7 +42,7 @@ define(function(require, exports, module) {
         viewName: 'sms-sent'
       });
 
-      sinon.stub(view, 'checkAuthorization').callsFake(() => p(true));
+      sinon.stub(view, 'checkAuthorization').callsFake(() => Promise.resolve(true));
     });
 
     afterEach(() => {
@@ -104,7 +103,7 @@ define(function(require, exports, module) {
     });
 
     it('resend success, displays the success message', () => {
-      sinon.stub(account, 'sendSms').callsFake(() => p());
+      sinon.stub(account, 'sendSms').callsFake(() => Promise.resolve());
       sinon.spy(view, 'render');
       sinon.stub(view, 'getSmsFeatures').callsFake(() => ['signinCodes']);
 
@@ -122,7 +121,7 @@ define(function(require, exports, module) {
     });
 
     it('resend failure, displays the error message', () => {
-      sinon.stub(account, 'sendSms').callsFake(() => p.reject(SmsErrors.toError('THROTTLED')));
+      sinon.stub(account, 'sendSms').callsFake(() => Promise.reject(SmsErrors.toError('THROTTLED')));
       sinon.spy(view, 'displayError');
       sinon.stub(view, 'getSmsFeatures').callsFake(() => ['signinCodes']);
 

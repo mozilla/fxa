@@ -253,7 +253,7 @@ define(function (require, exports, module) {
       it('beforeSubmit can return a promise for asynchronous operations', function () {
         view.formIsValid = true;
         view.beforeSubmit = function () {
-          return p().delay(10);
+          return p.delay(10);
         };
 
         return testFormSubmitted();
@@ -271,9 +271,9 @@ define(function (require, exports, module) {
       it('submit can return a promise for asynchronous operations', function () {
         view.formIsValid = true;
         view.submit = function () {
-          return p().then(function () {
+          return p.delay(10).then(function () {
             view.isFormSubmitted = true;
-          }).delay(10);
+          });
         };
 
         return testFormSubmitted();
@@ -564,18 +564,16 @@ define(function (require, exports, module) {
         view.formIsValid = true;
 
         view.submit = function () {
-          var defer = p.defer();
-
-          setTimeout(function () {
-            try {
-              assert.isTrue(view._isErrorVisible);
-              defer.resolve();
-            } catch (e) {
-              defer.reject(e);
-            }
-          }, 20);
-
-          return defer.promise;
+          return new Promise((resolve, reject) => {
+            setTimeout(function () {
+              try {
+                assert.isTrue(view._isErrorVisible);
+                resolve();
+              } catch (e) {
+                reject(e);
+              }
+            }, 20);
+          });
         };
 
         return view.validateAndSubmit()
@@ -590,18 +588,16 @@ define(function (require, exports, module) {
         view.formIsValid = true;
 
         view.submit = function () {
-          var defer = p.defer();
-
-          setTimeout(function () {
-            try {
-              assert.isTrue(view._isErrorVisible);
-              defer.reject('BOOM');
-            } catch (e) {
-              defer.reject(e);
-            }
-          }, 20);
-
-          return defer.promise;
+          return new Promise((resolve, reject) => {
+            setTimeout(function () {
+              try {
+                assert.isTrue(view._isErrorVisible);
+                reject('BOOM');
+              } catch (e) {
+                reject(e);
+              }
+            }, 20);
+          });
         };
 
         return view.validateAndSubmit()
@@ -615,7 +611,7 @@ define(function (require, exports, module) {
         view.formIsValid = true;
 
         view.submit = function () {
-          return p()
+          return Promise.resolve()
             .then(function () {
               return view.displayError({ forceMessage: 'BOOM' });
             });

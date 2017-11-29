@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const AuthErrors = require('../../lib/auth-errors');
   const Notifier = require('../../lib/channels/notifier');
-  const p = require('../../lib/promise');
   const ProfileErrors = require('../../lib/profile-errors');
   const ProfileImage = require('../../models/profile-image');
   const UserAgentMixin = require('../../lib/user-agent-mixin');
@@ -72,8 +71,9 @@ define(function (require, exports, module) {
           // default image if displayed
           return new ProfileImage();
         })
-        .fin(() => {
-          return this._completeLoadingSpinner(spinnerEl);
+        .then((profileImage) => {
+          return this._completeLoadingSpinner(spinnerEl)
+            .then(() => profileImage);
         })
         .then((profileImage) => {
           avatarWrapperEl.find(':not(.avatar-spinner)').remove();
@@ -120,32 +120,31 @@ define(function (require, exports, module) {
     // then removes the spinner element.
     _completeLoadingSpinner (spinnerEl) {
       if (_.isUndefined(spinnerEl)) {
-        return p();
+        return Promise.resolve();
       }
 
-      var deferred = p.defer();
-      spinnerEl
-        .addClass('completed')
-        .on('transitionend', function (event) {
-          // The first transitionend event will resolve the promise, but the spinner will have
-          // subsequent transitions, so we'll also hook on the transitionend event of the
-          // ::after pseudoelement, which "expands" to hide the spinner.
-          deferred.resolve();
+      return new Promise((resolve) => {
+        spinnerEl
+          .addClass('completed')
+          .on('transitionend', function (event) {
+            // The first transitionend event will resolve the promise, but the spinner will have
+            // subsequent transitions, so we'll also hook on the transitionend event of the
+            // ::after pseudoelement, which "expands" to hide the spinner.
+            resolve();
 
-          if (event.originalEvent && event.originalEvent.pseudoElement === '::after') {
-            spinnerEl.remove();
-          }
-        });
+            if (event.originalEvent && event.originalEvent.pseudoElement === '::after') {
+              spinnerEl.remove();
+            }
+          });
 
-      // Always resolve and remove the spinner after MAX_SPINNER_COMPLETE_TIME,
-      // in case we don't receive the expected transitionend events, such as in
-      // the case of IE.
-      this.setTimeout(function transitionMaxTime () {
-        deferred.resolve();
-        spinnerEl.remove();
-      }, MAX_SPINNER_COMPLETE_TIME);
-
-      return deferred.promise;
+        // Always resolve and remove the spinner after MAX_SPINNER_COMPLETE_TIME,
+        // in case we don't receive the expected transitionend events, such as in
+        // the case of IE.
+        this.setTimeout(function transitionMaxTime () {
+          resolve();
+          spinnerEl.remove();
+        }, MAX_SPINNER_COMPLETE_TIME);
+      });
     },
 
     logAccountImageChange (account) {
@@ -164,7 +163,7 @@ define(function (require, exports, module) {
     },
 
     deleteDisplayedAccountProfileImage (account) {
-      return p()
+      return Promise.resolve()
         .then(() => {
           if (! account.get('profileImageId')) {
             return account.fetchCurrentProfileImage()

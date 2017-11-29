@@ -9,7 +9,6 @@ define(function (require, exports, module) {
   const AuthErrors = require('lib/auth-errors');
   const { createRandomHexString } = require('../../lib/helpers');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const sinon = require('sinon');
   const { BLOCKED_SIGNIN_SUPPORT_URL, UID_LENGTH, UNBLOCK_CODE_LENGTH } = require('lib/constants');
   const User = require('models/user');
@@ -96,7 +95,7 @@ define(function (require, exports, module) {
     describe('submit', () => {
       beforeEach(() => {
         sinon.stub(view, 'navigate').callsFake(() => {});
-        sinon.stub(user, 'rejectAccountUnblockCode').callsFake(() => p());
+        sinon.stub(user, 'rejectAccountUnblockCode').callsFake(() => Promise.resolve());
 
         return view.submit();
       });

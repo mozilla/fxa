@@ -64,7 +64,7 @@ define(function (require, exports, module) {
       $(MAILCHECK_SELECTOR).val(BAD_EMAIL).blur();
       assert.equal(mockView.logEvent.callCount, 2, 'called logEvent twice');
 
-      return p()
+      return p
         // wait for tooltip
         .delay(50)
         .then(() => {
@@ -84,7 +84,7 @@ define(function (require, exports, module) {
       $(MAILCHECK_SELECTOR).val(BAD_EMAIL).blur();
       assert.equal(mockView.logEvent.callCount, 2, 'called logEvent twice');
 
-      return p()
+      return p
         // wait for tooltip
         .delay(50)
         .then(() => {

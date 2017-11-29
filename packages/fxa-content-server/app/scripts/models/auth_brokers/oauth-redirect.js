@@ -31,13 +31,14 @@ define(function (require, exports, module) {
       // The slight delay is to allow the functional tests time to bind
       // event handlers before the flow completes.
       return proto[brokerMethod].call(this, account)
-        .delay(this.DELAY_BROKER_RESPONSE_MS)
+        .then((behavior) => {
+          return p.delay(this.DELAY_BROKER_RESPONSE_MS)
+            .then(() => behavior);
+        })
         .then((behavior) => {
           if (this.isOriginalTab()) {
             return this[finishMethod](account)
-              .then(() => {
-                return new HaltBehavior();
-              });
+              .then(() => new HaltBehavior());
           }
           return behavior;
         });
@@ -92,14 +93,14 @@ define(function (require, exports, module) {
     persistVerificationData (account) {
       // If the user replaces the current tab with the verification url,
       // finish the OAuth flow.
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         this.setOriginalTabMarker();
         return proto.persistVerificationData.call(this, account);
       });
     },
 
     finishOAuthFlow (account, additionalResultData) {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         // There are no ill side effects if the Original Tab Marker is
         // cleared in the a tab other than the original. Always clear it just
         // to make sure the bases are covered.

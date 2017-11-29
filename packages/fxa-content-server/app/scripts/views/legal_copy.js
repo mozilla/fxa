@@ -48,7 +48,7 @@ define(function (require, exports, module) {
         this.window.document.cookie = 'canGoBack=1; path=' + this.window.location.pathname;
         return proto.afterRender.call(this);
       })
-      .fail(() => {
+      .catch(() => {
         this.displayError(this.fetchError);
         this.$('.hidden').removeClass('hidden');
       });

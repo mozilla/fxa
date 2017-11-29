@@ -12,7 +12,6 @@ define(function (require, exports, module) {
   const FxaClient = require('lib/fxa-client');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const SentryMetrics = require('lib/sentry');
   const sinon = require('sinon');
@@ -83,7 +82,7 @@ define(function (require, exports, module) {
       initView();
 
       sinon.stub(fxaClient, 'isPasswordResetComplete').callsFake(function () {
-        return p(isPasswordResetComplete);
+        return Promise.resolve(isPasswordResetComplete);
       });
 
       return view.render()
@@ -304,11 +303,11 @@ define(function (require, exports, module) {
 
           sinon.stub(user, 'completeAccountPasswordReset').callsFake(function (account) {
             account.set('verified', true);
-            return p(account);
+            return Promise.resolve(account);
           });
 
           sinon.stub(user, 'setSignedInAccount').callsFake(function (newAccount) {
-            return p(newAccount);
+            return Promise.resolve(newAccount);
           });
 
           sinon.spy(broker, 'afterCompleteResetPassword');
@@ -352,11 +351,11 @@ define(function (require, exports, module) {
 
 
           sinon.stub(user, 'completeAccountPasswordReset').callsFake(function (account) {
-            return p(account);
+            return Promise.resolve(account);
           });
 
           sinon.stub(user, 'setSignedInAccount').callsFake(function (newAccount) {
-            return p(newAccount);
+            return Promise.resolve(newAccount);
           });
 
           return view.validateAndSubmit();
@@ -372,13 +371,13 @@ define(function (require, exports, module) {
 
 
         sinon.stub(fxaClient, 'completePasswordReset').callsFake(function () {
-          return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+          return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
         });
 
         // isPasswordResetComplete needs to be overridden as well for when
         // render is re-loaded the token needs to be expired.
         fxaClient.isPasswordResetComplete = function () {
-          return p(true);
+          return Promise.resolve(true);
         };
 
         return view.validateAndSubmit()
@@ -392,7 +391,7 @@ define(function (require, exports, module) {
 
 
         sinon.stub(fxaClient, 'completePasswordReset').callsFake(function () {
-          return p.reject(new Error('uh oh'));
+          return Promise.reject(new Error('uh oh'));
         });
 
         return view.validateAndSubmit()
@@ -405,7 +404,7 @@ define(function (require, exports, module) {
     describe('resend', function () {
       it('delegates to the `resetPassword` method', function () {
         sinon.stub(view, 'resetPassword').callsFake(function () {
-          return p();
+          return Promise.resolve();
         });
 
         return view.resend()
@@ -417,7 +416,7 @@ define(function (require, exports, module) {
 
       it('re-throws all errors', function () {
         sinon.stub(view, 'resetPassword').callsFake(function () {
-          return p.reject(new Error('server error'));
+          return Promise.reject(new Error('server error'));
         });
 
         return view.resend()

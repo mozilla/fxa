@@ -9,7 +9,6 @@ define(function(require, exports, module) {
   const Account = require('models/account');
   const FxSyncAuthenticationBroker = require('models/auth_brokers/fx-sync');
   const Metrics = require('lib/metrics');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const WebChannel = require('lib/channels/web');
@@ -95,7 +94,7 @@ define(function(require, exports, module) {
             email: 'testuser@testuser.com'
           }
         };
-        sinon.stub(notificationChannel, 'request').callsFake(() => p(response));
+        sinon.stub(notificationChannel, 'request').callsFake(() => Promise.resolve(response));
         sinon.stub(notificationChannel, 'isFxaStatusSupported').callsFake(() => true);
       });
 

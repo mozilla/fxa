@@ -9,12 +9,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const p = require('../../lib/promise');
-
   var HaltBehavior = function () {
     var behavior = function (view) {
       // return a promise that never resolves to halt promise based flows.
-      return p.defer().promise;
+      return new Promise(() => {});
     };
 
     // used by form.afterSubmit to keep a form disabled.

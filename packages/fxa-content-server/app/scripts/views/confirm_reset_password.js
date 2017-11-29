@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   const BaseView = require('./base');
   const Cocktail = require('cocktail');
   const Notifier = require('../lib/channels/notifier');
-  const p = require('../lib/promise');
   const PasswordResetMixin = require('./mixins/password-reset-mixin');
   const OpenResetPasswordEmailMixin = require('./mixins/open-webmail-mixin');
   const ResendMixin = require('./mixins/resend-mixin')();
@@ -68,76 +67,73 @@ define(function (require, exports, module) {
 
               return this._finishPasswordResetDifferentBrowser();
             })
-            .fail(this.displayError.bind(this));
+            .catch(this.displayError.bind(this));
         });
     },
 
     _waitForConfirmation () {
-      var confirmationDeferred = this._confirmationDeferred = p.defer();
-      var confirmationPromise = this._confirmationPromise = confirmationDeferred.promise;
+      return new Promise((resolve, reject) => {
+        // If either the `login` message comes through or the `login` message
+        // timeout elapses after the server confirms the user is verified,
+        // stop waiting all together and move to the next view.
+        const onComplete = (response) => {
+          this._stopWaiting();
+          resolve(response);
+        };
 
-      // If either the `login` message comes through or the `login` message
-      // timeout elapses after the server confirms the user is verified,
-      // stop waiting all together and move to the next view.
-      const onComplete = (response) => {
-        this._stopWaiting();
-        this._confirmationDeferred.resolve(response);
-      };
+        const onError = (err) => {
+          this._stopWaiting();
+          reject(err);
+        };
 
-      const onError = (err) => {
-        this._stopWaiting();
-        this._confirmationDeferred.reject(err);
-      };
+        /**
+         * A short message on password reset verification:
+         *
+         * If the user initiates a password reset from about:accounts,
+         * about:accounts listens for a `login` message from FxA within the
+         * about:accounts tab and ignores messages from other tabs (including the
+         * verification tab). This is unfortunate, because for password reset,
+         * the sessionToken, kA and kB are generated in the verification tab.
+         * To sign the user in and send the `login` message, all the users data
+         * needs to be sent from the verification tab to this tab so we can send
+         * it off to the browser.
+         *
+         * We hope the user verifies in this browser, but we are not assured of
+         * that. The only way we know if the user verified in this browser is if
+         * a `login` message is received.
+         *
+         * When the user attempts a password reset, we have no idea whether the
+         * user is going to verify in the same browser. The only way we know if
+         * the user verified in this browser is if a `login` message is received
+         * from the inter-tab channel.
+         *
+         * Because we have no idea if the user will verify in this browser,
+         * assume they will not. Start polling the server to see if the user has
+         * verified. If the server eventually reports the user has successfully
+         * reset their password, assume the user has completed in a different
+         * browser. In this case the best we can do is ask the user to sign in
+         * again. Once the user has entered their updated creds, we can then
+         * notify the browser.
+         *
+         * If a `complete_reset_password_tab_open` message is received, hooray,
+         * the user has opened the password reset link in this browser. At this
+         * point we can assume the user will complete verification in this
+         * browser. It's not 100% certain the user will complete, but most
+         * likely. Stop polling the server. The server poll is no longer needed,
+         * and in fact makes things more complex. Instead, wait for the `login`
+         * message that will arrive once the user finishes the password reset.
+         *
+         * Once the `login` message has arrived, notify the browser. BOOM.
+         */
+        this.notifier.on(Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN, () => {
+          if (! this._isWaitingForLoginMessage) {
+            this._waitForLoginMessage().then(onComplete, onError);
+            this._stopWaitingForServerConfirmation();
+          }
+        });
 
-      /**
-       * A short message on password reset verification:
-       *
-       * If the user initiates a password reset from about:accounts,
-       * about:accounts listens for a `login` message from FxA within the
-       * about:accounts tab and ignores messages from other tabs (including the
-       * verification tab). This is unfortunate, because for password reset,
-       * the sessionToken, kA and kB are generated in the verification tab.
-       * To sign the user in and send the `login` message, all the users data
-       * needs to be sent from the verification tab to this tab so we can send
-       * it off to the browser.
-       *
-       * We hope the user verifies in this browser, but we are not assured of
-       * that. The only way we know if the user verified in this browser is if
-       * a `login` message is received.
-       *
-       * When the user attempts a password reset, we have no idea whether the
-       * user is going to verify in the same browser. The only way we know if
-       * the user verified in this browser is if a `login` message is received
-       * from the inter-tab channel.
-       *
-       * Because we have no idea if the user will verify in this browser,
-       * assume they will not. Start polling the server to see if the user has
-       * verified. If the server eventually reports the user has successfully
-       * reset their password, assume the user has completed in a different
-       * browser. In this case the best we can do is ask the user to sign in
-       * again. Once the user has entered their updated creds, we can then
-       * notify the browser.
-       *
-       * If a `complete_reset_password_tab_open` message is received, hooray,
-       * the user has opened the password reset link in this browser. At this
-       * point we can assume the user will complete verification in this
-       * browser. It's not 100% certain the user will complete, but most
-       * likely. Stop polling the server. The server poll is no longer needed,
-       * and in fact makes things more complex. Instead, wait for the `login`
-       * message that will arrive once the user finishes the password reset.
-       *
-       * Once the `login` message has arrived, notify the browser. BOOM.
-       */
-      this.notifier.on(Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN, () => {
-        if (! this._isWaitingForLoginMessage) {
-          this._waitForLoginMessage().then(onComplete, onError);
-          this._stopWaitingForServerConfirmation();
-        }
+        this._waitForServerConfirmation().then(onComplete, onError);
       });
-
-      this._waitForServerConfirmation().then(onComplete, onError);
-
-      return confirmationPromise;
     },
 
     _finishPasswordResetSameBrowser (sessionInfo) {
@@ -151,7 +147,7 @@ define(function (require, exports, module) {
       account.set(_.pick(sessionInfo, Account.ALLOWED_KEYS));
 
       if (account.isDefault()) {
-        return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+        return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
       }
 
       // The OAuth flow needs the sessionToken to finish the flow.
@@ -194,19 +190,18 @@ define(function (require, exports, module) {
           if (! this._isWaitingForServerConfirmation) {
             // we no longer care about the response, the other tab has opened.
             // drop the response on the ground and never resolve.
-            return p.defer().promise;
+            return new Promise(() => {});
           } else if (isComplete) {
             return null;
           }
 
-          var deferred = p.defer();
-          this._waitForServerConfirmationTimeout = this.setTimeout(() => {
-            if (this._isWaitingForServerConfirmation) {
-              deferred.resolve(this._waitForServerConfirmation());
-            }
-          }, this._verificationPollMS);
-
-          return deferred.promise;
+          return new Promise((resolve) => {
+            this._waitForServerConfirmationTimeout = this.setTimeout(() => {
+              if (this._isWaitingForServerConfirmation) {
+                resolve(this._waitForServerConfirmation());
+              }
+            }, this._verificationPollMS);
+          });
         });
     },
 
@@ -219,13 +214,10 @@ define(function (require, exports, module) {
 
     _isWaitingForLoginMessage: false,
     _waitForLoginMessage () {
-      var deferred = p.defer();
-
-      this._isWaitingForLoginMessage = true;
-      this.notifier.on(
-          Notifier.SIGNED_IN, deferred.resolve.bind(deferred));
-
-      return deferred.promise;
+      return new Promise((resolve) => {
+        this._isWaitingForLoginMessage = true;
+        this.notifier.on(Notifier.SIGNED_IN, resolve);
+      });
     },
 
     _stopListeningForInterTabMessages () {
@@ -243,7 +235,7 @@ define(function (require, exports, module) {
         this.model.get('email'),
         this.model.get('passwordForgotToken')
       )
-      .fail((err) => {
+      .catch((err) => {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
           return this.navigate('reset_password', {
             error: err

@@ -18,7 +18,6 @@ define(function (require, exports, module) {
   const BaseRelier = require('./base');
   const Cocktail = require('cocktail');
   const Constants = require('../../lib/constants');
-  const p = require('../../lib/promise');
   const ResumeTokenMixin = require('../mixins/resume-token');
   const SearchParamMixin = require('../mixins/search-param');
   const Vat = require('../../lib/vat');
@@ -109,7 +108,7 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     fetch () {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         // parse the resume token before importing any other data.
         // query parameters and server provided data override
         // resume provided data.

@@ -7,7 +7,6 @@ define(function (require, exports, module) {
 
   const { assert } = require('chai');
   const Constants = require('lib/constants');
-  const p = require('lib/promise');
   const RedirectAuthenticationBroker = require('models/auth_brokers/oauth-redirect');
   const Relier = require('models/reliers/base');
   const Session = require('lib/session');
@@ -27,7 +26,7 @@ define(function (require, exports, module) {
 
     beforeEach(() => {
       metrics = {
-        flush: sinon.spy(p),
+        flush: sinon.spy(() => Promise.resolve()),
         logEvent: () => {}
       };
       relier = new Relier();
@@ -46,7 +45,7 @@ define(function (require, exports, module) {
       broker.DELAY_BROKER_RESPONSE_MS = 0;
 
       sinon.stub(broker, 'finishOAuthFlow').callsFake(() => {
-        return p();
+        return Promise.resolve();
       });
     });
 
@@ -138,11 +137,11 @@ define(function (require, exports, module) {
         broker.finishOAuthFlow.restore();
 
         sinon.stub(broker, 'getOAuthResult').callsFake(() => {
-          return p({});
+          return Promise.resolve({});
         });
 
         sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(() => {
-          return p();
+          return Promise.resolve();
         });
 
         return broker.persistVerificationData(account)

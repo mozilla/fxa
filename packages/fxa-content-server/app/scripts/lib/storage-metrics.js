@@ -12,7 +12,6 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Metrics = require('./metrics');
-  const p = require('./promise');
   const Storage = require('./storage');
 
   var storage = Storage.factory('localStorage');
@@ -33,7 +32,7 @@ define(function (require, exports, module) {
 
       storage.set('metrics_all', metrics);
 
-      return p(data);
+      return Promise.resolve(data);
     },
 
     isMetricsCollectionEnabled () {

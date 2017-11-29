@@ -14,7 +14,7 @@ define(function (require, exports, module) {
     it('returns a promise that never resolves', function () {
       var haltBehavior = new HaltBehavior();
       var promise = haltBehavior({});
-      assert.equal(promise.inspect().state, 'pending');
+      assert.isFunction(promise.then);
     });
   });
 });

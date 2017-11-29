@@ -7,7 +7,6 @@ define(function(require, exports, module) {
 
   const Account = require('models/account');
   const { assert } = require('chai');
-  const p = require('lib/promise');
   const SettingsBehavior = require('views/behaviors/settings');
   const NullBehavior = require('views/behaviors/null');
   const sinon = require('sinon');
@@ -31,7 +30,7 @@ define(function(require, exports, module) {
           invokeBehavior: sinon.spy(),
         };
         const account = new Account();
-        sinon.stub(account, 'isSignedIn').callsFake(() => p(true));
+        sinon.stub(account, 'isSignedIn').callsFake(() => Promise.resolve(true));
 
         return settingsBehavior(view, account)
           .then((behavior) => {
@@ -47,7 +46,7 @@ define(function(require, exports, module) {
           invokeBehavior: sinon.spy(),
         };
         const account = new Account();
-        sinon.stub(account, 'isSignedIn').callsFake(() => p(false));
+        sinon.stub(account, 'isSignedIn').callsFake(() => Promise.resolve(false));
 
         return settingsBehavior(view, account)
           .then((behavior) => {

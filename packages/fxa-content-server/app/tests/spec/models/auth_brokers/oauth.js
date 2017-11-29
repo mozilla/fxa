@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   const OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
   const OAuthClient = require('lib/oauth-client');
   const OAuthErrors = require('lib/oauth-errors');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const Session = require('lib/session');
   const sinon = require('sinon');
@@ -47,14 +46,14 @@ define(function (require, exports, module) {
     beforeEach(function () {
       oAuthClient = new OAuthClient();
       sinon.stub(oAuthClient, 'getCode').callsFake(function () {
-        return p({
+        return Promise.resolve({
           redirect: VALID_OAUTH_CODE_REDIRECT_URL
         });
       });
 
       assertionLibrary = new Assertion({});
       sinon.stub(assertionLibrary, 'generate').callsFake(function () {
-        return p('assertion');
+        return Promise.resolve('assertion');
       });
 
       relier = new Relier();
@@ -105,7 +104,7 @@ define(function (require, exports, module) {
     describe('afterSignInConfirmationPoll', () => {
       it('calls sendOAuthResultToRelier with the correct options', () => {
         sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(() => {
-          return p();
+          return Promise.resolve();
         });
 
         return broker.afterSignInConfirmationPoll(account)
@@ -126,7 +125,7 @@ define(function (require, exports, module) {
 
       it('returns any errors returned by getOAuthResult', () => {
         sinon.stub(broker, 'getOAuthResult').callsFake(() => {
-          return p.reject(new Error('uh oh'));
+          return Promise.reject(new Error('uh oh'));
         });
 
         return broker.afterSignInConfirmationPoll(account)
@@ -139,7 +138,7 @@ define(function (require, exports, module) {
     describe('afterSignIn', function () {
       it('calls sendOAuthResultToRelier with the correct options', function () {
         sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(function () {
-          return p();
+          return Promise.resolve();
         });
 
         return broker.afterSignIn(account)
@@ -158,7 +157,7 @@ define(function (require, exports, module) {
 
       it('returns any errors returned by getOAuthResult', function () {
         sinon.stub(broker, 'getOAuthResult').callsFake(function () {
-          return p.reject(new Error('uh oh'));
+          return Promise.reject(new Error('uh oh'));
         });
 
         return broker.afterSignIn(account)
@@ -180,7 +179,7 @@ define(function (require, exports, module) {
     describe('afterSignUpConfirmationPoll', function () {
       it('calls sendOAuthResultToRelier with the correct options', function () {
         sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(function () {
-          return p();
+          return Promise.resolve();
         });
 
         return broker.afterSignUpConfirmationPoll(account)
@@ -201,7 +200,7 @@ define(function (require, exports, module) {
     describe('afterResetPasswordConfirmationPoll', function () {
       it('calls sendOAuthResultToRelier with the expected options', function () {
         sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(function () {
-          return p();
+          return Promise.resolve();
         });
 
         return broker.afterResetPasswordConfirmationPoll(account)
@@ -233,7 +232,7 @@ define(function (require, exports, module) {
       it('passes on errors from assertion generation', function () {
         assertionLibrary.generate.restore();
         sinon.stub(assertionLibrary, 'generate').callsFake(function () {
-          return p.reject(new Error('uh oh'));
+          return Promise.reject(new Error('uh oh'));
         });
 
         return broker.getOAuthResult(account)
@@ -245,7 +244,7 @@ define(function (require, exports, module) {
       it('passes on errors from oAuthClient.getCode', function () {
         oAuthClient.getCode.restore();
         sinon.stub(oAuthClient, 'getCode').callsFake(function () {
-          return p.reject(new Error('uh oh'));
+          return Promise.reject(new Error('uh oh'));
         });
 
         return broker.getOAuthResult(account)
@@ -341,7 +340,7 @@ define(function (require, exports, module) {
           assert.equal(args.client_id, 'clientId');
           assert.equal(args.scope, 'scope');
 
-          return p(keyData);
+          return Promise.resolve(keyData);
         });
 
         accountKey = new Account({
@@ -352,7 +351,7 @@ define(function (require, exports, module) {
         });
 
         sinon.stub(accountKey, 'accountKeys').callsFake((args) => {
-          return p(keys);
+          return Promise.resolve(keys);
         });
       });
 
@@ -365,7 +364,7 @@ define(function (require, exports, module) {
           assert.equal(_keyData, keyData);
           assert.equal(_jwk, keysJwk);
 
-          return p('bundle');
+          return Promise.resolve('bundle');
         });
 
         return broker._provisionScopedKeys(accountKey, 'assertion')
@@ -387,7 +386,7 @@ define(function (require, exports, module) {
       it('returns null if no clientKeyData', () => {
         broker._oAuthClient.getClientKeyData.restore();
         sinon.stub(broker._oAuthClient, 'getClientKeyData').callsFake((args) => {
-          return p({});
+          return Promise.resolve({});
         });
 
         return broker._provisionScopedKeys(accountKey, 'assertion')

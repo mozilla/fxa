@@ -6,7 +6,6 @@ define(function (require, exports, module) {
   'use strict';
 
   const { assert } = require('chai');
-  const p = require('lib/promise');
   const requireOnDemand = require('lib/require-on-demand');
   const sinon = require('sinon');
 
@@ -45,10 +44,10 @@ define(function (require, exports, module) {
       });
 
       it('multiple calls to requireOnDemand work as expected', function () {
-        return p.all([
+        return Promise.all([
           requireOnDemand('module1', windowMock),
           requireOnDemand('module2', windowMock)
-        ]).spread(function (LoadedModule1, LoadedModule2) {
+        ]).then(([LoadedModule1, LoadedModule2]) => {
           assert.strictEqual(LoadedModule1, MockModule1);
           assert.strictEqual(LoadedModule2, MockModule2);
           assert.isTrue(windowMock.require.calledTwice);

@@ -23,8 +23,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const p = require('lib/promise');
-
   function PostMessageSender() {
     // nothing to do here.
   }
@@ -38,7 +36,7 @@ define(function (require, exports, module) {
     },
 
     send (command, data, messageId) {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         var event = stringify(command, data, messageId);
         this._window.postMessage(event, this._origin);
       });

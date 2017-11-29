@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   'use strict';
 
   const Backbone = require('backbone');
-  const p = require('../../lib/promise');
 
   var Relier = Backbone.Model.extend({
     defaults: {
@@ -19,7 +18,7 @@ define(function (require, exports, module) {
     },
 
     fetch () {
-      return p(true);
+      return Promise.resolve(true);
     },
 
     /**

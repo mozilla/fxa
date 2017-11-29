@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   const AuthErrors = require('lib/auth-errors');
   const FxSyncChannelAuthenticationBroker = require('models/auth_brokers/fx-sync-channel');
   const NullChannel = require('lib/channels/null');
-  const p = require('lib/promise');
   const sinon = require('sinon');
   const User = require('models/user');
   const WindowMock = require('../../../mocks/window');
@@ -44,7 +43,7 @@ define(function (require, exports, module) {
       windowMock = new WindowMock();
       channelMock = new NullChannel();
       channelMock.send = sinon.spy(() => {
-        return p();
+        return Promise.resolve();
       });
 
       user = new User();
@@ -86,7 +85,7 @@ define(function (require, exports, module) {
 
     describe('beforeSignIn', () => {
       it('is happy if the user clicks `yes`', () => {
-        channelMock.request = sinon.spy(() => p({ ok: true }));
+        channelMock.request = sinon.spy(() => Promise.resolve({ ok: true }));
 
         return broker.beforeSignIn(account)
           .then(() => {
@@ -96,7 +95,7 @@ define(function (require, exports, module) {
       });
 
       it('does not repeat can_link_account requests for the same user', () => {
-        channelMock.request = sinon.spy(() => p({ ok: true }));
+        channelMock.request = sinon.spy(() => Promise.resolve({ ok: true }));
 
         return broker.beforeSignIn(account)
           .then(() => broker.beforeSignIn(account))
@@ -107,7 +106,7 @@ define(function (require, exports, module) {
       });
 
       it('does repeat can_link_account requests for different users', () => {
-        channelMock.request = sinon.spy(() => p({ ok: true }));
+        channelMock.request = sinon.spy(() => Promise.resolve({ ok: true }));
 
         const account2 = user.initAccount({
           email: 'testuser2@testuser.com'
@@ -124,7 +123,7 @@ define(function (require, exports, module) {
 
       it('throws a USER_CANCELED_LOGIN error if user rejects', () => {
         channelMock.request = sinon.spy(() => {
-          return p({ data: {}});
+          return Promise.resolve({ data: {}});
         });
 
         return broker.beforeSignIn(account)
@@ -136,7 +135,7 @@ define(function (require, exports, module) {
 
       it('swallows errors returned by the browser', () => {
         channelMock.request = sinon.spy(() => {
-          return p.reject(new Error('uh oh'));
+          return Promise.reject(new Error('uh oh'));
         });
 
         sinon.spy(console, 'error');
@@ -193,9 +192,9 @@ define(function (require, exports, module) {
       it('tells the window not to re-verify if the user can link accounts if the question has already been asked', () => {
         channelMock.send = sinon.spy(function (message) {
           if (message === 'can_link_account') {
-            return p({ ok: true });
+            return Promise.resolve({ ok: true });
           } else if (message === 'login') {
-            return p();
+            return Promise.resolve();
           }
         });
 
@@ -219,9 +218,9 @@ define(function (require, exports, module) {
 
         channelMock.send = sinon.spy(function (message) {
           if (message === 'can_link_account') {
-            return p({ ok: true });
+            return Promise.resolve({ ok: true });
           } else if (message === 'login') {
-            return p();
+            return Promise.resolve();
           }
         });
 

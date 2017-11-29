@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const _ = require('underscore');
   const chai = require('chai');
-  const p = require('lib/promise');
   const sinon = require('sinon');
   const Xhr = require('lib/xhr');
 
@@ -105,7 +104,7 @@ define(function (require, exports, module) {
         // a .fail that throws followed by a .then(null, errback)
         // does not correctly propagate the error unless the
         // jQuery promise is converted to an internal promise
-        .fail((jqXHR) => {
+        .catch((jqXHR) => {
           assert.strictEqual(jqXHR, errResponse);
           throw jqXHR;
         })
@@ -118,7 +117,7 @@ define(function (require, exports, module) {
     describe('oauthAjax', function () {
       it('calls xhr.ajax with the appropriate options set', function () {
         sinon.stub(xhr, 'ajax').callsFake(function () {
-          return p();
+          return Promise.resolve();
         });
 
         return xhr.oauthAjax({
@@ -143,7 +142,7 @@ define(function (require, exports, module) {
       it('handles Blob data', function () {
         if (typeof window.Blob !== 'undefined') {
           sinon.stub(xhr, 'ajax').callsFake(function () {
-            return p();
+            return Promise.resolve();
           });
 
           return xhr.oauthAjax({
@@ -293,7 +292,7 @@ define(function (require, exports, module) {
           // a .fail that throws followed by a .then(null, errback)
           // does not correctly propagate the error unless the
           // jQuery promise is converted to an internal promise
-          .fail((jqXHR) => {
+          .catch((jqXHR) => {
             assert.strictEqual(jqXHR, errResponse);
             throw jqXHR;
           })

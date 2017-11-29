@@ -7,7 +7,6 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Constants = require('lib/constants');
-  const p = require('lib/promise');
   const ProfileMock = require('../mocks/profile.js');
   const sinon = require('sinon');
 
@@ -151,7 +150,7 @@ define(function (require, exports, module) {
     var profileClientMock = new ProfileMock();
 
     sinon.stub(profileClientMock, 'getAvatar').callsFake(function () {
-      return p({});
+      return Promise.resolve({});
     });
 
     return profileClientMock;

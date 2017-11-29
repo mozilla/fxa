@@ -15,14 +15,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const p = require('../../lib/promise');
   const ProgressIndicator = require('../progress_indicator');
 
   // Return a promise delayed by ms
   function delay(progressIndicator, ms) {
-    var deferred = p.defer();
-    progressIndicator.setTimeout(deferred.resolve, ms);
-    return deferred.promise;
+    return new Promise((resolve) => {
+      progressIndicator.setTimeout(resolve, ms);
+    });
   }
 
   function showProgressIndicator(handler, el = 'button[type=submit]', delayHandlerByMills = 0) {

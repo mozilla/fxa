@@ -28,7 +28,7 @@ define(function (require, exports, module) {
   OAuthClient.prototype = {
     _request (method, endpoint, params) {
       return this._xhr[method](this._oAuthUrl + endpoint, params || null)
-        .fail(normalizeErrors);
+        .catch(normalizeErrors);
     },
 
     /**
@@ -75,7 +75,7 @@ define(function (require, exports, module) {
       };
 
       return this._xhr.oauthAjax(request)
-        .fail(normalizeErrors);
+        .catch(normalizeErrors);
     },
 
     /**
@@ -93,7 +93,7 @@ define(function (require, exports, module) {
       };
 
       return this._xhr.oauthAjax(request)
-        .fail(normalizeErrors);
+        .catch(normalizeErrors);
     },
 
     /**

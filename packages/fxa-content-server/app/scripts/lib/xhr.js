@@ -17,7 +17,6 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const _ = require('underscore');
-  const p = require('./promise');
 
   const DEFAULT_DATA_TYPE = 'json';
 
@@ -27,14 +26,12 @@ define(function (require, exports, module) {
   // for more background, read
   // https://github.com/kriskowal/q/wiki/Coming-from-jQuery
   function convertJQueryPromise(jqPromise) {
-    const defer = p.defer();
-
-    jqPromise.then(
-      data => defer.resolve(data),
-      jqXHR => defer.reject(jqXHR)
-    );
-
-    return defer.promise;
+    return new Promise((resolve, reject) => {
+      jqPromise.then(
+        data => resolve(data),
+        jqXHR => reject(jqXHR)
+      );
+    });
   }
 
   module.exports = {

@@ -236,11 +236,11 @@ define(function (require, exports, module) {
 
       this.logViewEvent('signout.submit');
       return this.user.signOutAccount(accountToSignOut)
-        .fail(() => {
+        .catch(() => {
           // log and ignore the error.
           this.logViewEvent('signout.error');
         })
-        .fin(() => {
+        .then(() => {
           this.logViewEvent('signout.success');
           this.clearSessionAndNavigateToSignIn();
         });

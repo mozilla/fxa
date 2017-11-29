@@ -19,7 +19,6 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Errors = require('./errors');
-  const p = require('./promise');
 
   const t = function (msg) {
     return msg;
@@ -60,9 +59,7 @@ define(function (require, exports, module) {
    * @returns {Promise}
    */
   function requireOnDemand(resourceToGet, win = window) {
-    return p().then(function () {
-      const deferred = p.defer();
-
+    return new Promise((resolve, reject) => {
       // requirejs takes care of ensuring only one outstanding request
       // per module occurs if multiple requests are concurrently made
       // for the same module.
@@ -78,17 +75,15 @@ define(function (require, exports, module) {
         waitSeconds: REQUIRE_WAIT_SECONDS
       });
 
-      getNow([resourceToGet], deferred.resolve.bind(deferred),
+      getNow([resourceToGet], resolve,
         function (requireErr) {
           // RequireJS errors described in
           // http://requirejs.org/docs/api.html#errors
           const errorType = requireErr.requireType || 'UNEXPECTED_ERROR';
           const normalizedErrorType = errorType.toUpperCase();
           const err = RODErrors.toError(normalizedErrorType, resourceToGet);
-          deferred.reject(err);
+          reject(err);
         });
-
-      return deferred.promise;
     });
   }
 

@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const KeyCodes = require('../lib/key-codes');
   const LoadingMixin = require('./mixins/loading-mixin');
-  const p = require('../lib/promise');
 
   var AppView = BaseView.extend({
     initialize (options) {
@@ -92,7 +91,7 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     showView (View, options) {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         options.model = options.model || new Backbone.Model();
 
         var currentView = this._currentView;
@@ -132,7 +131,7 @@ define(function (require, exports, module) {
                 this._currentView = null;
               }
 
-              return p(null);
+              return Promise.resolve(null);
             }
 
             this.setTitle(viewToShow.titleFromView());
@@ -152,7 +151,7 @@ define(function (require, exports, module) {
 
             return viewToShow;
           });
-      }).fail(this.fatalError.bind(this));
+      }).catch(this.fatalError.bind(this));
     },
 
     /**
@@ -167,7 +166,7 @@ define(function (require, exports, module) {
      */
     showChildView (ChildView, ParentView, options) {
       // If currentView is of the ParentView type, simply show the subView
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         if (! (this._currentView instanceof ParentView)) {
           // Create the ParentView; its initialization method should
           // handle the childView option.

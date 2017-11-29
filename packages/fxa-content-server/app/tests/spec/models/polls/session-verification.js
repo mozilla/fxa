@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   const Account = require('models/account');
   const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
-  const p = require('lib/promise');
   const SessionVerificationPoll = require('models/polls/session-verification');
   const sinon = require('sinon');
   const WindowMock = require('../../../mocks/window');
@@ -34,19 +33,17 @@ define(function (require, exports, module) {
       describe('with a valid `sessionToken`', () => {
         beforeEach(() => {
           sinon.stub(account, 'sessionStatus').callsFake(() => {
-            return p({
+            return Promise.resolve({
               verified: account.sessionStatus.callCount === 3
             });
           });
 
-          const deferred = p.defer();
+          return new Promise((resolve, reject) => {
+            poll.on('verified', () => resolve());
+            poll.on('error', reject);
 
-          poll.on('verified', () => deferred.resolve());
-          poll.on('error', (err) => deferred.reject(err));
-
-          poll.start();
-
-          return deferred.promise;
+            poll.start();
+          });
         });
 
         it('polls until /recovery_email/status returns `verified: true`', () => {
@@ -56,7 +53,7 @@ define(function (require, exports, module) {
 
       describe('with an invalid `sessionToken`', () => {
         beforeEach(() => {
-          sinon.stub(account, 'sessionStatus').callsFake(() => p.reject(AuthErrors.toError('INVALID_TOKEN')));
+          sinon.stub(account, 'sessionStatus').callsFake(() => Promise.reject(AuthErrors.toError('INVALID_TOKEN')));
         });
 
         describe('model does not have a `uid`', () => {
@@ -65,17 +62,15 @@ define(function (require, exports, module) {
           beforeEach(() => {
             account.unset('uid');
 
-            const deferred = p.defer();
+            return new Promise((resolve, reject) => {
+              poll.on('verified', () => reject(assert.catch()));
+              poll.on('error', (_err) => {
+                err = _err;
+                resolve();
+              });
 
-            poll.on('verified', () => deferred.reject(assert.fail()));
-            poll.on('error', (_err) => {
-              err = _err;
-              deferred.resolve();
+              poll.start();
             });
-
-            poll.start();
-
-            return deferred.promise;
           });
 
           it('resolves with `INVALID_TOKEN` error', () => {
@@ -89,19 +84,17 @@ define(function (require, exports, module) {
           beforeEach(() => {
             account.set('uid', 'uid');
 
-            sinon.stub(account, 'checkUidExists').callsFake(() => p(true));
+            sinon.stub(account, 'checkUidExists').callsFake(() => Promise.resolve(true));
 
-            const deferred = p.defer();
+            return new Promise((resolve, reject) => {
+              poll.on('verified', () => reject(assert.catch()));
+              poll.on('error', (_err) => {
+                err = _err;
+                resolve();
+              });
 
-            poll.on('verified', () => deferred.reject(assert.fail()));
-            poll.on('error', (_err) => {
-              err = _err;
-              deferred.resolve();
+              poll.start();
             });
-
-            poll.start();
-
-            return deferred.promise;
           });
 
           it('resolves with `INVALID_TOKEN` error', () => {
@@ -115,19 +108,17 @@ define(function (require, exports, module) {
           beforeEach(() => {
             account.set('uid', 'uid');
 
-            sinon.stub(account, 'checkUidExists').callsFake(() => p(false));
+            sinon.stub(account, 'checkUidExists').callsFake(() => Promise.resolve(false));
 
-            const deferred = p.defer();
+            return new Promise((resolve, reject) => {
+              poll.on('verified', () => reject(assert.catch()));
+              poll.on('error', (_err) => {
+                err = _err;
+                resolve();
+              });
 
-            poll.on('verified', () => deferred.reject(assert.fail()));
-            poll.on('error', (_err) => {
-              err = _err;
-              deferred.resolve();
+              poll.start();
             });
-
-            poll.start();
-
-            return deferred.promise;
           });
 
           it('resolves with `SIGNUP_EMAIL_BOUNCE` error', () => {

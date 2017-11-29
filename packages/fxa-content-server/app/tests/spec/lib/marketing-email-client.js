@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   const { assert } = require('chai');
   const MarketingEmailClient = require('lib/marketing-email-client');
   const MarketingEmailErrors = require('lib/marketing-email-errors');
-  const p = require('lib/promise');
   const sinon = require('sinon');
   const xhr = require('lib/xhr');
   const WindowMock = require('../../mocks/window');
@@ -26,7 +25,7 @@ define(function (require, exports, module) {
       // Xhr has no constructor
       xhrMock = Object.create(xhr);
       xhrMock.ajax = function () {
-        return p();
+        return Promise.resolve();
       };
 
       windowMock = new WindowMock();
@@ -42,7 +41,7 @@ define(function (require, exports, module) {
     describe('_request', function () {
       it('calls xhr.ajax', function () {
         sinon.stub(xhrMock, 'ajax').callsFake(function () {
-          return p({});
+          return Promise.resolve({});
         });
 
         return client._request('get', '/endpoint', 'token', { key: 'value' })
@@ -58,7 +57,7 @@ define(function (require, exports, module) {
 
       it('converts any errors returned', function () {
         sinon.stub(xhrMock, 'ajax').callsFake(function () {
-          return p.reject({
+          return Promise.reject({
             responseJSON: {
               code: MarketingEmailErrors.toErrno('UNKNOWN_TOKEN')
             }
@@ -75,7 +74,7 @@ define(function (require, exports, module) {
     describe('fetch', function () {
       it('returns a preferences URL for the user', function () {
         sinon.stub(xhrMock, 'ajax').callsFake(function () {
-          return p({
+          return Promise.resolve({
             token: 'users_uuid'
           });
         });

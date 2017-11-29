@@ -12,7 +12,6 @@ define(function (require, exports, module) {
   const FxaClient = require('lib/fxa-client');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const SameBrowserVerificationModel = require('models/verification/same-browser');
   const sinon = require('sinon');
@@ -66,7 +65,7 @@ define(function (require, exports, module) {
 
     describe('fetch', () => {
       beforeEach(() => {
-        sinon.stub(broker, '_fetchFxaStatus').callsFake(() => p());
+        sinon.stub(broker, '_fetchFxaStatus').callsFake(() => Promise.resolve());
       });
 
       describe('fxaStatus not supported', () => {
@@ -93,7 +92,7 @@ define(function (require, exports, module) {
 
       it('if relier has a `signinCode`, it is consumed', () => {
         relier.set('signinCode', 'signin-code');
-        sinon.stub(broker, '_consumeSigninCode').callsFake(() => p());
+        sinon.stub(broker, '_consumeSigninCode').callsFake(() => Promise.resolve());
 
         return broker.fetch()
           .then(() => {
@@ -113,7 +112,7 @@ define(function (require, exports, module) {
             engines: ['creditcards'],
             signedInUser
           };
-          sinon.stub(notificationChannel, 'request').callsFake(() => p(response));
+          sinon.stub(notificationChannel, 'request').callsFake(() => Promise.resolve(response));
           sinon.spy(broker, 'trigger');
 
           return broker._fetchFxaStatus()
@@ -127,7 +126,7 @@ define(function (require, exports, module) {
       describe('INVALID_WEB_CHANNEL error', () => {
         it('sets the fxaStatus capability to false, drops the error', () => {
           sinon.stub(notificationChannel, 'request').callsFake(() =>
-            p.reject(AuthErrors.toError('INVALID_WEB_CHANNEL')));
+            Promise.reject(AuthErrors.toError('INVALID_WEB_CHANNEL')));
 
           return broker._fetchFxaStatus()
             .then(() => {
@@ -139,7 +138,7 @@ define(function (require, exports, module) {
       describe('other errors', () => {
         it('are propagated', () => {
           sinon.stub(notificationChannel, 'request').callsFake(() =>
-            p.reject(AuthErrors.toError('UNEXPECTED_ERROR')));
+            Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR')));
 
           return broker._fetchFxaStatus()
             .then(assert.fail, (err) => {
@@ -315,7 +314,7 @@ define(function (require, exports, module) {
     describe('afterSignUp', function () {
       it('delegates to `afterSignUpConfirmationPoll` if account is verified', () => {
         account.set('verified', true);
-        sinon.stub(broker, 'afterSignUpConfirmationPoll').callsFake(() => p());
+        sinon.stub(broker, 'afterSignUpConfirmationPoll').callsFake(() => Promise.resolve());
         return broker.afterSignUp(account)
           .then(() => {
             assert.isTrue(broker.afterSignUpConfirmationPoll.calledOnce);
@@ -466,7 +465,7 @@ define(function (require, exports, module) {
 
       it('delegates to the user, clears signinCode when complete', () => {
         sinon.stub(fxaClient, 'consumeSigninCode').callsFake(function () {
-          return p({ email: 'signed-in-email@testuser.com' });
+          return Promise.resolve({ email: 'signed-in-email@testuser.com' });
         });
 
         return broker._consumeSigninCode('signin-code')
@@ -483,7 +482,7 @@ define(function (require, exports, module) {
       it('logs and ignores errors, clears signinCode when complete', () => {
         const err = AuthErrors.toError('INVALID_SIGNIN_CODE');
         sinon.stub(fxaClient, 'consumeSigninCode').callsFake(function () {
-          return p.reject(err);
+          return Promise.reject(err);
         });
         sinon.spy(metrics, 'logError');
 

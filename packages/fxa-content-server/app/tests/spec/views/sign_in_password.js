@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   const Broker = require('models/auth_brokers/base');
   const FormPrefill = require('models/form-prefill');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const View = require('views/sign_in_password');
@@ -94,14 +93,14 @@ define(function (require, exports, module) {
 
     describe('validateAndSubmit', () => {
       beforeEach(() => {
-        sinon.stub(view, 'signIn').callsFake(() => p());
+        sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
       });
 
       describe('password valid', () => {
         it('signs up the user', () => {
           view.$('#password').val('password');
 
-          return p(view.validateAndSubmit())
+          return Promise.resolve(view.validateAndSubmit())
             .then(() => {
               assert.isTrue(view.signIn.calledOnce);
               assert.isTrue(view.signIn.calledWith(account, 'password'));

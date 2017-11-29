@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   const Environment = require('lib/environment');
   const KeyCodes = require('lib/key-codes');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const sinon = require('sinon');
   const WindowMock = require('../../mocks/window');
 
@@ -133,7 +132,7 @@ define(function (require, exports, module) {
 
         var DoesNotRenderView = Backbone.View.extend({
           render () {
-            return p(false);
+            return Promise.resolve(false);
           },
 
           destroy () {
@@ -176,7 +175,7 @@ define(function (require, exports, module) {
           logView: sinon.spy(),
           render () {
             this.$el.html('<div id="rendered-view"></div>');
-            return p(true);
+            return Promise.resolve(true);
           },
           titleFromView () {
             return 'the title';
@@ -230,7 +229,7 @@ define(function (require, exports, module) {
           destroy: sinon.spy(),
           logView: sinon.spy(),
           render: sinon.spy(function () {
-            return p(true);
+            return Promise.resolve(true);
           }),
           titleFromView () {
             return 'the title';
@@ -242,7 +241,7 @@ define(function (require, exports, module) {
           destroy: sinon.spy(),
           logView: sinon.spy(),
           render: sinon.spy(function () {
-            return p(true);
+            return Promise.resolve(true);
           }),
           titleFromView () {
             return 'the second title';
@@ -293,7 +292,7 @@ define(function (require, exports, module) {
           destroy: sinon.spy(),
           logView: sinon.spy(),
           render: sinon.spy(function () {
-            return p(true);
+            return Promise.resolve(true);
           }),
           titleFromView () {
             return 'the title';
@@ -353,7 +352,7 @@ define(function (require, exports, module) {
           destroy: sinon.spy(),
           logView: sinon.spy(),
           render: sinon.spy(function () {
-            return p.reject(renderError);
+            return Promise.reject(renderError);
           }),
           titleFromView () {
             return 'the title';
@@ -383,7 +382,7 @@ define(function (require, exports, module) {
         destroy: sinon.spy(),
         logView: sinon.spy(),
         render: sinon.spy(function () {
-          return p(true);
+          return Promise.resolve(true);
         }),
         showChildView: sinon.spy(function (ChildView, options) {
           return new ChildView(options);
@@ -399,7 +398,7 @@ define(function (require, exports, module) {
         displayStatusMessages: sinon.spy(),
         logView: sinon.spy(),
         render: sinon.spy(function () {
-          return p(true);
+          return Promise.resolve(true);
         }),
         titleFromView (base) {
           return base + ', the second title';

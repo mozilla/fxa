@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const p = require('../../lib/promise');
 
   function shouldConvertExternalLinksToText(broker) {
     // not all views have a broker, e.g., the CoppaAgeInput
@@ -67,7 +66,7 @@ define(function (require, exports, module) {
      */
     _onExternalLinkClick (event) {
       if (this._shouldIgnoreClick(event)) {
-        return p();
+        return Promise.resolve();
       }
 
       event.preventDefault();

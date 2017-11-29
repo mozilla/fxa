@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   const Device = require('./device');
   const OAuthApp = require('./oauth-app');
   const WebSession = require('./web-session');
-  const P = require('../lib/promise');
 
   var AttachedClients = Backbone.Collection.extend({
     model: function(attrs, options) {
@@ -44,7 +43,7 @@ define(function (require, exports, module) {
         fetchItems.push(user.fetchAccountSessions(account));
       }
 
-      return P.all(fetchItems)
+      return Promise.all(fetchItems)
         .then((results) => {
           // need to reset and sync add the models,
           // Backbone cannot merge two simultaneous responses.

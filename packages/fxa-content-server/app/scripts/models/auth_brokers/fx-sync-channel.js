@@ -17,7 +17,6 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const FxSyncAuthenticationBroker = require('../auth_brokers/fx-sync');
   const Logger = require('../../lib/logger');
-  const p = require('../../lib/promise');
 
   const proto = FxSyncAuthenticationBroker.prototype;
 
@@ -253,7 +252,7 @@ define(function (require, exports, module) {
        */
       const loginData = this._getLoginData(account);
       if (! this._hasRequiredLoginFields(loginData)) {
-        return p();
+        return Promise.resolve();
       }
 
       // Only send one login notification per uid to avoid race
@@ -263,7 +262,7 @@ define(function (require, exports, module) {
       // /confirm is first displayed, the 2nd when verification
       // completes.
       if (loginData.uid === this._uidOfLoginNotification) {
-        return p();
+        return Promise.resolve();
       }
       this._uidOfLoginNotification = loginData.uid;
 

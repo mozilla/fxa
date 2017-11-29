@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   const { assert } = require('chai');
   const FxiOSAuthenticationBroker = require('models/auth_brokers/fx-ios-v1');
   const NullChannel = require('lib/channels/null');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const WindowMock = require('../../../mocks/window');
@@ -109,7 +108,7 @@ define(function (require, exports, module) {
       let timeoutSpy;
 
       beforeEach(() => {
-        sinon.stub(broker, 'send').callsFake(() => p());
+        sinon.stub(broker, 'send').callsFake(() => Promise.resolve());
         timeoutSpy = null;
         sinon.stub(windowMock, 'setTimeout').callsFake((callback, timeout) => {
           // `callback` is only triggered if we trigger it.
@@ -122,7 +121,7 @@ define(function (require, exports, module) {
       });
 
       function testLoginSent(triggerLoginCB) {
-        return p.all([
+        return Promise.all([
           broker._notifyRelierOfLogin(account),
           triggerLoginCB && triggerLoginCB()
         ])

@@ -19,7 +19,6 @@
 define(function(require, exports, module) {
   'use strict';
 
-  const p = require('../../lib/promise');
   const ExperimentMixin = require('./experiment-mixin');
   const UserAgentMixin = require('../../lib/user-agent-mixin');
   const VerificationReasonMixin = require('./verification-reason-mixin');
@@ -62,10 +61,10 @@ define(function(require, exports, module) {
     navigateToConnectAnotherDeviceOnSigninScreen (account) {
       if (! this.isEligibleForConnectAnotherDeviceOnSignin(account)) {
         // this shouldn't happen IRL.
-        return p.reject(new Error('navigateToConnectAnotherDeviceOnSigninScreen can only be called if user is eligible to connect another device'));
+        return Promise.reject(new Error('navigateToConnectAnotherDeviceOnSigninScreen can only be called if user is eligible to connect another device'));
       }
 
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         // Initialize the flow metrics so any flow events are logged.
         // The flow-events-mixin, even if it were mixed in, does this in
         // `afterRender` whereas this method can be called in `beforeRender`
@@ -108,7 +107,7 @@ define(function(require, exports, module) {
       // in the control group will go to the existing CAD screen.
       if (! this.isEligibleForConnectAnotherDevice(account)) {
         // this shouldn't happen IRL.
-        return p.reject(new Error('chooseConnectAnotherDeviceScreen can only be called if user is eligible to connect another device'));
+        return Promise.reject(new Error('chooseConnectAnotherDeviceScreen can only be called if user is eligible to connect another device'));
       }
 
       // Initialize the flow metrics so any flow events are logged.
@@ -160,7 +159,7 @@ define(function(require, exports, module) {
      * @private
      */
     _isEligibleForSms (account) {
-      return p(
+      return Promise.resolve(
         this._areSmsRequirementsMet(account) &&
         this._smsCountry(account)
       )

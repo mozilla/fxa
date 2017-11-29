@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   const Constants = require('../../lib/constants');
   const FxDesktopV1AuthenticationBroker = require('../auth_brokers/fx-desktop-v1');
   const NavigateBehavior = require('../../views/behaviors/navigate');
-  const p = require('../../lib/promise');
   const UserAgent = require('../../lib/user-agent');
 
   const proto = FxDesktopV1AuthenticationBroker.prototype;
@@ -129,22 +128,22 @@ define(function (require, exports, module) {
         return proto._notifyRelierOfLogin.call(this, account);
       }
 
-      const deferred = p.defer();
-      const resolve = () => deferred.resolve();
-
       const win = this.window;
       const $win = $(win);
+      let resolve;
+      let timeout;
 
-      const timeout = win.setTimeout(resolve, Constants.IOS_V1_LOGIN_MESSAGE_DELAY_MS);
-      $win.on('blur', resolve);
-
-      return deferred.promise
-        .then(() => proto._notifyRelierOfLogin.call(this, account))
-        .then((response) => {
-          win.clearTimeout(timeout);
-          $win.off('blur', resolve);
-          return response;
-        });
+      return new Promise((_resolve, reject) => {
+        resolve = _resolve;
+        timeout = win.setTimeout(resolve, Constants.IOS_V1_LOGIN_MESSAGE_DELAY_MS);
+        $win.on('blur', resolve);
+      })
+      .then(() => proto._notifyRelierOfLogin.call(this, account))
+      .then((response) => {
+        win.clearTimeout(timeout);
+        $win.off('blur', resolve);
+        return response;
+      });
     }
   });
 

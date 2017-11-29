@@ -14,7 +14,6 @@ define(function(require, exports, module) {
   const CountryTelephoneInfo = require('lib/country-telephone-info');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const SmsErrors = require('lib/sms-errors');
@@ -41,7 +40,7 @@ define(function(require, exports, module) {
         relier,
         viewName: 'sms-send'
       });
-      sinon.stub(view, 'checkAuthorization').callsFake(() => p(true));
+      sinon.stub(view, 'checkAuthorization').callsFake(() => Promise.resolve(true));
     }
 
     beforeEach(() => {
@@ -147,7 +146,7 @@ define(function(require, exports, module) {
     describe('submit', () => {
       describe('succeeds', () => {
         it('it delegates to `account.sendSms`, calls `_onSendSmsSuccess`', () => {
-          sinon.stub(account, 'sendSms').callsFake(() => p({ formattedPhoneNumber: '123-456-7890' }));
+          sinon.stub(account, 'sendSms').callsFake(() => Promise.resolve({ formattedPhoneNumber: '123-456-7890' }));
           sinon.spy(view, '_onSendSmsSuccess');
           sinon.stub(view, 'getSmsFeatures').callsFake(() => ['signinCodes']);
           view.$('input[type=tel]').val('1234567890');
@@ -169,7 +168,7 @@ define(function(require, exports, module) {
       describe('errors', () => {
         it('it delegates to `account.sendSms`, calls `_onSendSmsError` with the error', () => {
           const err = AuthErrors.toError('UNEXPECTED ERROR');
-          sinon.stub(account, 'sendSms').callsFake(() => p.reject(err));
+          sinon.stub(account, 'sendSms').callsFake(() => Promise.reject(err));
           sinon.spy(view, '_onSendSmsError');
           view.$('input[type=tel]').val('1234567890');
 

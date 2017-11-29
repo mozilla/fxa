@@ -12,7 +12,6 @@ define(function (require, exports, module) {
   const VerificationReasons = require('lib/verification-reasons');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const Session = require('lib/session');
   const SessionVerificationPoll = require('models/polls/session-verification');
@@ -72,7 +71,7 @@ define(function (require, exports, module) {
         type: SIGNUP_REASON
       });
 
-      sinon.stub(user, 'setSignedInAccount').callsFake(() => p());
+      sinon.stub(user, 'setSignedInAccount').callsFake(() => Promise.resolve());
 
       view = new View({
         broker: broker,
@@ -176,7 +175,7 @@ define(function (require, exports, module) {
 
         sinon.stub(broker, 'beforeSignUpConfirmationPoll').callsFake(function (account) {
           assert.isTrue(account.get('customizeSync'));
-          return p();
+          return Promise.resolve();
         });
 
         sinon.stub(view, 'waitForSessionVerification').callsFake(() => {});
@@ -231,8 +230,8 @@ define(function (require, exports, module) {
       function testGotoNextScreen(expectedBrokerCall) {
         const notifySpy = sinon.spy(view.notifier, 'trigger');
 
-        sinon.stub(broker, expectedBrokerCall).callsFake(() => p());
-        sinon.stub(user, 'setAccount').callsFake(() => p());
+        sinon.stub(broker, expectedBrokerCall).callsFake(() => Promise.resolve());
+        sinon.stub(user, 'setAccount').callsFake(() => Promise.resolve());
 
         return view._gotoNextScreen()
           .then(function () {
@@ -247,7 +246,7 @@ define(function (require, exports, module) {
 
     describe('resend', function () {
       it('resends the confirmation email', function () {
-        sinon.stub(account, 'retrySignUp').callsFake(() => p());
+        sinon.stub(account, 'retrySignUp').callsFake(() => Promise.resolve());
         sinon.stub(view, 'getStringifiedResumeToken').callsFake(() => 'resume token');
 
         return view.resend()
@@ -266,7 +265,7 @@ define(function (require, exports, module) {
       describe('with an invalid resend token', function () {
         beforeEach(function () {
           sinon.stub(account, 'retrySignUp').callsFake(function () {
-            return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+            return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
           });
 
           sinon.spy(view, 'navigate');
@@ -284,7 +283,7 @@ define(function (require, exports, module) {
 
         beforeEach(function () {
           sinon.stub(account, 'retrySignUp').callsFake(function () {
-            return p.reject(new Error('synthesized error from auth server'));
+            return Promise.reject(new Error('synthesized error from auth server'));
           });
 
           return view.resend()

@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const Constants = require('lib/constants');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/sync');
   const sinon = require('sinon');
   const SyncSuggestionMixin = require('views/mixins/sync-suggestion-mixin');
@@ -139,7 +138,7 @@ define(function (require, exports, module) {
         // Without the _flusthMetricsThenRedirect override, the test
         // causes the page to redirect.
         sinon.stub(view, 'isSyncSuggestionEnabled').callsFake(() => true);
-        sinon.stub(view, '_flushMetricsThenRedirect').callsFake(() => p());
+        sinon.stub(view, '_flushMetricsThenRedirect').callsFake(() => Promise.resolve());
         sinon.stub(view, 'logFlowEvent').callsFake(() => {});
 
         return view.render()

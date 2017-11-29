@@ -11,7 +11,6 @@ define(function(require, exports, module) {
   const FormPrefill = require('models/form-prefill');
   const IndexView = require('views/index');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const User = require('models/user');
@@ -146,7 +145,7 @@ define(function(require, exports, module) {
             });
 
             sinon.stub(view, 'isInEmailFirstExperimentGroup').callsFake(() => false);
-            sinon.stub(view, 'checkEmail').callsFake(() => p());
+            sinon.stub(view, 'checkEmail').callsFake(() => Promise.resolve());
 
             return view.render()
               .then(() => {
@@ -207,7 +206,7 @@ define(function(require, exports, module) {
 
     describe('submit', () => {
       it('checks the entered email', () => {
-        sinon.stub(view, 'checkEmail').callsFake(() => p());
+        sinon.stub(view, 'checkEmail').callsFake(() => Promise.resolve());
 
         return view.render()
           .then(() => {
@@ -225,15 +224,15 @@ define(function(require, exports, module) {
       beforeEach(() => {
         relier.set('action', 'email');
         sinon.stub(view, 'navigate').callsFake(() => {});
-        sinon.stub(broker, 'beforeSignIn').callsFake(() => p());
-        sinon.stub(view, 'afterRender').callsFake(() => p());
+        sinon.stub(broker, 'beforeSignIn').callsFake(() => Promise.resolve());
+        sinon.stub(view, 'afterRender').callsFake(() => Promise.resolve());
 
         return view.render();
       });
 
       describe('email is registered', () => {
         it('navigates to signin', () => {
-          sinon.stub(user, 'checkAccountEmailExists').callsFake(() => p(true));
+          sinon.stub(user, 'checkAccountEmailExists').callsFake(() => Promise.resolve(true));
           return view.checkEmail(EMAIL)
             .then(() => {
               assert.isTrue(view.navigate.calledOnce);
@@ -249,7 +248,7 @@ define(function(require, exports, module) {
 
       describe('email is not registered', () => {
         it('navigates to signup', () => {
-          sinon.stub(user, 'checkAccountEmailExists').callsFake(() => p(false));
+          sinon.stub(user, 'checkAccountEmailExists').callsFake(() => Promise.resolve(false));
           return view.checkEmail(EMAIL)
             .then(() => {
               assert.isTrue(view.navigate.calledOnce);

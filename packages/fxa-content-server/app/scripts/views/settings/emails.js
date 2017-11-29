@@ -142,7 +142,7 @@ define(function (require, exports, module) {
             });
             this.render();
           })
-          .fail((err) => this.showValidationError(this.$(EMAIL_INPUT_SELECTOR), err));
+          .catch((err) => this.showValidationError(this.$(EMAIL_INPUT_SELECTOR), err));
       }
     },
 

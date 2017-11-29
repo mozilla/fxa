@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   const FxFirstrunV1AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v1');
   const Metrics = require('lib/metrics');
   const NullChannel = require('lib/channels/null');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const WindowMock = require('../../../mocks/window');
@@ -33,7 +32,7 @@ define(function (require, exports, module) {
       });
       channelMock = new NullChannel();
       channelMock.send = sinon.spy(function () {
-        return p();
+        return Promise.resolve();
       });
       iframeChannel = new NullChannel();
       metrics = new Metrics();

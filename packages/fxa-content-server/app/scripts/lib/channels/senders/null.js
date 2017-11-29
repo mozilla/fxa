@@ -9,8 +9,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const p = require('lib/promise');
-
   function NullSender() {
     // nothing to do here.
   }
@@ -20,7 +18,7 @@ define(function (require, exports, module) {
     },
 
     send (/*command, data, messageId*/) {
-      return p();
+      return Promise.resolve();
     },
 
     teardown () {

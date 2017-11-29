@@ -9,7 +9,6 @@ define(function (require, exports, module) {
   const AttachedClients = require('models/attached-clients');
   const Constants = require('lib/constants');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const sinon = require('sinon');
   const User = require('models/user');
 
@@ -161,7 +160,7 @@ define(function (require, exports, module) {
     describe('fetchClients', function () {
       beforeEach(function () {
         sinon.stub(user, 'fetchAccountDevices').callsFake(function () {
-          return p([{
+          return Promise.resolve([{
             clientType: Constants.CLIENT_TYPE_DEVICE,
             id: 'device-1',
             isCurrentDevice: true,
@@ -170,7 +169,7 @@ define(function (require, exports, module) {
         });
 
         sinon.stub(user, 'fetchAccountOAuthApps').callsFake(function () {
-          return p([{
+          return Promise.resolve([{
             clientType: Constants.CLIENT_TYPE_OAUTH_APP,
             id: 'oauth-1',
             name: 'oauthy'

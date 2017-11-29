@@ -18,7 +18,6 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const Constants = require('../lib/constants');
   const MarketingEmailErrors = require('../lib/marketing-email-errors');
-  const p = require('../lib/promise');
   const ResumeTokenMixin = require('./mixins/resume-token');
   const SearchParamMixin = require('./mixins/search-param');
   const Storage = require('../lib/storage');
@@ -64,7 +63,7 @@ define(function (require, exports, module) {
 
     // Hydrate the model. Returns a promise.
     fetch () {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         this.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
       });
     },
@@ -358,13 +357,13 @@ define(function (require, exports, module) {
     // user logged in to FxA with, and the account they logged in to
     // Sync with. If they are different accounts, we'll save both accounts.
     upgradeFromSession (Session, fxaClient) {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         if (! this.getSignedInAccount().isDefault()) {
           // We've already upgraded the session
           return;
         }
 
-        var promise = p();
+        var promise = Promise.resolve();
 
         // add cached Sync account credentials if available
         if (Session.cachedCredentials) {
@@ -409,7 +408,7 @@ define(function (require, exports, module) {
     // set on an account, unexpected fields cause an error.
     // Update any accounts with unexpected data.
     upgradeFromUnfilteredAccountData () {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         var accountData = this._accounts();
         for (var userid in accountData) {
           var unfiltered = accountData[userid];
@@ -441,7 +440,7 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     removeAccountsWithInvalidUid () {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         const accounts = this._accounts();
         for (const uid in accounts) {
           // the string `undefined` is correct here. That's the
@@ -506,11 +505,18 @@ define(function (require, exports, module) {
      */
     signOutAccount (account) {
       return account.signOut()
-        .fin(() => {
+        .then(
           // Remove the account, even on failure. Everything is A-OK.
           // See issue #616
-          return this.removeAccount(account);
-        });
+          (val) => {
+            this.removeAccount(account);
+            return val;
+          },
+          (err) => {
+            this.removeAccount(account);
+            throw err;
+          }
+        );
     },
 
     /**
@@ -536,7 +542,7 @@ define(function (require, exports, module) {
       };
 
       return account.verifySignUp(code, options)
-        .fail(function (err) {
+        .catch((err) => {
           if (MarketingEmailErrors.created(err)) {
             // A MarketingEmailError doesn't prevent a user from
             // completing the signup. If we receive a MarketingEmailError,
@@ -783,7 +789,7 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     setSignedInAccountFromBrowserAccountData (accountData) {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         if (accountData) {
           const account = this.initAccount(
             _.pick(accountData, 'email', 'sessionToken', 'uid', 'verified')
@@ -809,7 +815,7 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     setSigninCodeAccount (accountData) {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         const account = this.initAccount(
           _.pick(accountData, 'email')
         );

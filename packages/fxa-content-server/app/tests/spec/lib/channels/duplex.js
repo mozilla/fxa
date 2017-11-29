@@ -9,7 +9,6 @@ define(function (require, exports, module) {
   const DuplexChannel = require('lib/channels/duplex');
   const NullReceiver = require('lib/channels/receivers/null');
   const NullSender = require('lib/channels/senders/null');
-  const p = require('lib/promise');
   const sinon = require('sinon');
   const WindowMock = require('../../../mocks/window');
 
@@ -154,7 +153,7 @@ define(function (require, exports, module) {
           channel.rejectAllOutstandingRequests('reason');
         }, 5);
 
-        return p.all([
+        return Promise.all([
           channel.request('ping').then(assert.fail, (err) => err),
           channel.request('ping1').then(assert.fail, (err) => err),
         ]).then(([err1, err2]) => {

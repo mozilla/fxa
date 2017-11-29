@@ -52,7 +52,7 @@ define(function (require, exports, module) {
 
           return this.render();
         })
-        .fail((err) => {
+        .catch((err) => {
           if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
             return this.showValidationError(this.$('#old_password'), err);
           } else if (AuthErrors.is(err, 'PASSWORDS_MUST_BE_DIFFERENT')) {

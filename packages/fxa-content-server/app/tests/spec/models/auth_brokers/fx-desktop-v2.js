@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   const { assert } = require('chai');
   const FxDesktopV2AuthenticationBroker = require('models/auth_brokers/fx-desktop-v2');
   const NullChannel = require('lib/channels/null');
-  const p = require('lib/promise');
   const sinon = require('sinon');
   const User = require('models/user');
   const WindowMock = require('../../../mocks/window');
@@ -24,7 +23,7 @@ define(function (require, exports, module) {
       windowMock = new WindowMock();
       channelMock = new NullChannel();
       channelMock.send = () => {
-        return p();
+        return Promise.resolve();
       };
       sinon.spy(channelMock, 'send');
 

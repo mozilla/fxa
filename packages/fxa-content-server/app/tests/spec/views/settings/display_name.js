@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   const KeyCodes = require('lib/key-codes');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const TestHelpers = require('../../../lib/helpers');
@@ -64,13 +63,13 @@ define(function (require, exports, module) {
       });
 
       sinon.stub(view, 'checkAuthorization').callsFake(function () {
-        return p(true);
+        return Promise.resolve(true);
       });
       sinon.stub(account, 'fetchProfile').callsFake(function () {
-        return p();
+        return Promise.resolve();
       });
       sinon.stub(user, 'setAccount').callsFake(function () {
-        return p();
+        return Promise.resolve();
       });
 
       return view.render()
@@ -96,7 +95,7 @@ define(function (require, exports, module) {
         return initView()
           .then(function () {
             sinon.stub(view, 'render').callsFake(function () {
-              return p();
+              return Promise.resolve();
             });
             view.onProfileUpdate();
             assert.isTrue(view.render.called);
@@ -167,16 +166,16 @@ define(function (require, exports, module) {
       it('submits correctly', function () {
         var name = '  joe cool  ';
         sinon.stub(account, 'postDisplayName').callsFake(function () {
-          return p();
+          return Promise.resolve();
         });
 
         return initView()
           .then(() => {
             sinon.stub(view, 'updateDisplayName').callsFake(function () {
-              return p();
+              return Promise.resolve();
             });
             sinon.stub(view, 'displaySuccess').callsFake(function () {
-              return p();
+              return Promise.resolve();
             });
             sinon.spy(view, 'logFlowEvent');
             sinon.spy(view, 'render');

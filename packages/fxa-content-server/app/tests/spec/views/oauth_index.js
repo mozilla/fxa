@@ -9,7 +9,6 @@ define(function(require, exports, module) {
   const AuthErrors = require('lib/auth-errors');
   const OAuthIndexView = require('views/oauth_index');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/base');
   const User = require('models/user');
   const sinon = require('sinon');
@@ -59,7 +58,7 @@ define(function(require, exports, module) {
       });
 
       it('navigate to signup page if email is not associated with account', () => {
-        sinon.stub(user, 'checkAccountEmailExists').callsFake(() => p(false));
+        sinon.stub(user, 'checkAccountEmailExists').callsFake(() => Promise.resolve(false));
 
         return view.render()
           .then(() => {
@@ -69,7 +68,7 @@ define(function(require, exports, module) {
       });
 
       it('navigate to signin page if email is associated with account', () => {
-        sinon.stub(user, 'checkAccountEmailExists').callsFake(() => p(true));
+        sinon.stub(user, 'checkAccountEmailExists').callsFake(() => Promise.resolve(true));
 
         return view.render()
           .then(() => {
@@ -80,7 +79,7 @@ define(function(require, exports, module) {
 
       it('logs and swallows any errors that are thrown checking whether the email is registered', () => {
         var err = AuthErrors.toError('THROTTLED');
-        sinon.stub(user, 'checkAccountEmailExists').callsFake(() => p.reject(err));
+        sinon.stub(user, 'checkAccountEmailExists').callsFake(() => Promise.reject(err));
         // return a default account to ensure user is sent to signup
         sinon.stub(user, 'getChooserAccount').callsFake(() => user.initAccount({}));
 

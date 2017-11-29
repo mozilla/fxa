@@ -83,11 +83,11 @@ define(function (require, exports, module) {
       // The delay is to give the functional tests time to hook up
       // WebChannel message response listeners.
       const START_DELAY_MS = this._isAutomatedBrowser() ? AUTOMATED_BROWSER_STARTUP_DELAY : 0;
-      return p().delay(START_DELAY_MS)
+      return p.delay(START_DELAY_MS)
         .then(() => this.initializeDeps())
         .then(() => this.testLocalStorage())
         .then(() => this.allResourcesReady())
-        .fail((err) => this.fatalError(err));
+        .catch((err) => this.fatalError(err));
     },
 
     initializeInterTabChannel () {
@@ -106,7 +106,7 @@ define(function (require, exports, module) {
     },
 
     initializeDeps () {
-      return p()
+      return Promise.resolve()
         // config and l10n depend on nothing, and are depended upon
         // by lots, they are loaded first.
         .then(() => this.initializeConfig())
@@ -532,13 +532,13 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     testLocalStorage () {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         // only test localStorage if the user is not already at
         // the cookies_disabled screen.
         if (! this._isAtCookiesDisabled()) {
           this._storage.testLocalStorage(this._window);
         }
-      }).fail((err) => this.captureError(err));
+      }).catch((err) => this.captureError(err));
     },
 
     /**

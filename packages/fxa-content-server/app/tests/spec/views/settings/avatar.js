@@ -9,7 +9,6 @@ define(function (require, exports, module) {
   const chai = require('chai');
   const FxaClientMock = require('../../../mocks/fxa-client');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const User = require('models/user');
@@ -50,7 +49,7 @@ define(function (require, exports, module) {
     describe('with session', function () {
       beforeEach(function () {
         sinon.stub(view, 'checkAuthorization').callsFake(function () {
-          return p(true);
+          return Promise.resolve(true);
         });
         account = user.initAccount({
           accessToken: 'abc123',
@@ -65,7 +64,7 @@ define(function (require, exports, module) {
 
       it('has no avatar set', function () {
         sinon.stub(account, 'getAvatar').callsFake(function () {
-          return p({});
+          return Promise.resolve({});
         });
 
         return view.render()
@@ -87,7 +86,7 @@ define(function (require, exports, module) {
 
       it('rerenders on profile updates', function () {
         sinon.stub(view, 'render').callsFake(function () {
-          return p();
+          return Promise.resolve();
         });
         view.onProfileUpdate();
         assert.isTrue(view.render.called);

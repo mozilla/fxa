@@ -42,7 +42,7 @@ define(function (require, exports, module) {
         type: method,
         url: url
       })
-      .fail(function (xhr) {
+      .catch(function (xhr) {
         throw MarketingEmailErrors.normalizeXHRError(xhr);
       });
     },

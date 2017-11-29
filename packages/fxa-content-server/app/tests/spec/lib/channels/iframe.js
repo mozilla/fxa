@@ -71,7 +71,7 @@ define(function (require, exports, module) {
     });
 
     describe('request', function () {
-      it('prints a message to the console if there is no response', function () {
+      it('prints a message to the console if there is no response', function (done) {
         // drop the message on the ground.
         sinon.stub(parentMock, 'postMessage').callsFake(sinon.spy());
 
@@ -80,12 +80,11 @@ define(function (require, exports, module) {
           callback();
         });
 
-        sinon.stub(windowMock.console, 'error').callsFake(sinon.spy());
+        sinon.stub(windowMock.console, 'error').callsFake(() => {
+          done();
+        });
 
-        return channel.request('wait-for-response', {}).timeout(10)
-          .fail(function () {
-            assert.isTrue(windowMock.console.error.called);
-          });
+        channel.request('wait-for-response', {});
       });
     });
 

@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   const FxaClient = require('lib/fxa-client');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/base');
   const sinon = require('sinon');
   const Template = require('stache!templates/test_template');
@@ -26,7 +25,7 @@ define(function (require, exports, module) {
   var AccountResetView = BaseView.extend({
     template: Template,
     resetPassword () {
-      return p();
+      return Promise.resolve();
     }
   });
   Cocktail.mixin(AccountResetView, AccountResetMixin);
@@ -85,7 +84,7 @@ define(function (require, exports, module) {
       describe('with a registered account', function () {
         beforeEach(function () {
           sinon.stub(view, 'resetPassword').callsFake(function () {
-            return p();
+            return Promise.resolve();
           });
 
           view.notifyOfResetAccount(account);
@@ -100,7 +99,7 @@ define(function (require, exports, module) {
       describe('with an error', function () {
         beforeEach(function () {
           sinon.stub(view, 'resetPassword').callsFake(function () {
-            return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
+            return Promise.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
           });
 
           view.notifyOfResetAccount(account, 'password');

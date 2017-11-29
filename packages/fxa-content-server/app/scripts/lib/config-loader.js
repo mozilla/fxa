@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const _ = require('underscore');
   const Errors = require('./errors');
-  const p = require('./promise');
 
   function ConfigLoader() {
   }
@@ -28,7 +27,7 @@ define(function (require, exports, module) {
 
     fetch () {
       if (this._config) {
-        return p(this._config);
+        return Promise.resolve(this._config);
       }
 
       return this._readConfigFromHTML()
@@ -44,10 +43,10 @@ define(function (require, exports, module) {
         $('meta[name="fxa-content-server/config"]').attr('content');
 
       if (! configFromHTML) {
-        return p.reject(ConfigLoader.Errors.toError('MISSING_CONFIG'));
+        return Promise.reject(ConfigLoader.Errors.toError('MISSING_CONFIG'));
       }
 
-      return p(configFromHTML);
+      return Promise.resolve(configFromHTML);
     },
 
     _parseHTMLConfig (configFromHTML) {
@@ -56,10 +55,10 @@ define(function (require, exports, module) {
         const serializedJSONConfig = decodeURIComponent(configFromHTML);
         config = JSON.parse(serializedJSONConfig);
       } catch (e) {
-        return p.reject(ConfigLoader.Errors.toError('INVALID_CONFIG'));
+        return Promise.reject(ConfigLoader.Errors.toError('INVALID_CONFIG'));
       }
 
-      return p(config);
+      return Promise.resolve(config);
     }
   };
 

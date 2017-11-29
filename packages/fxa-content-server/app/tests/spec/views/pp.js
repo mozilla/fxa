@@ -6,7 +6,6 @@ define(function (require, exports, module) {
   'use strict';
 
   const chai = require('chai');
-  const p = require('lib/promise');
   const sinon = require('sinon');
   const View = require('views/pp');
   const WindowMock = require('../../mocks/window');
@@ -26,7 +25,7 @@ define(function (require, exports, module) {
     beforeEach(function () {
       xhrMock = {
         ajax () {
-          return p(TEMPLATE_TEXT);
+          return Promise.resolve(TEMPLATE_TEXT);
         }
       };
 
@@ -85,7 +84,7 @@ define(function (require, exports, module) {
 
     it('shows an error if fetch fails', function () {
       sinon.stub(xhrMock, 'ajax').callsFake(function () {
-        return p.reject(new Error('could not fetch resource'));
+        return Promise.reject(new Error('could not fetch resource'));
       });
 
       return view.render()

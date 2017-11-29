@@ -24,7 +24,6 @@ define(function (require, exports, module) {
   const NullChannel = require('lib/channels/null');
   const NullStorage = require('lib/null-storage');
   const OAuthRelier = require('models/reliers/oauth');
-  const p = require('lib/promise');
   const Raven = require('raven');
   const RedirectBroker = require('models/auth_brokers/oauth-redirect');
   const RefreshObserver = require('models/refresh-observer');
@@ -161,7 +160,7 @@ define(function (require, exports, module) {
       it('delegates to `fatalError` if an error occurs', () => {
         var err = new Error('boom');
         sinon.stub(appStart, 'allResourcesReady').callsFake(() => {
-          return p.reject(err);
+          return Promise.reject(err);
         });
 
         sinon.stub(appStart, 'fatalError').callsFake(() => {});
@@ -465,9 +464,9 @@ define(function (require, exports, module) {
         // sandbox is used because stubs are added to User.prototype.
         sandbox = sinon.sandbox.create();
 
-        sandbox.stub(User.prototype, 'shouldSetSignedInAccountFromBrowser').callsFake(() => p());
+        sandbox.stub(User.prototype, 'shouldSetSignedInAccountFromBrowser').callsFake(() => Promise.resolve());
         sandbox.stub(User.prototype, 'setSignedInAccountFromBrowserAccountData').callsFake(() => true);
-        sandbox.stub(User.prototype, 'setSigninCodeAccount').callsFake(() => p());
+        sandbox.stub(User.prototype, 'setSigninCodeAccount').callsFake(() => Promise.resolve());
 
         brokerMock.set('browserSignedInAccount', browserAccountData);
         brokerMock.set('signinCodeAccount', signinCodeAccountData);
@@ -480,7 +479,7 @@ define(function (require, exports, module) {
           window: windowMock
         });
 
-        sinon.stub(appStart, 'upgradeStorageFormats').callsFake(() => p());
+        sinon.stub(appStart, 'upgradeStorageFormats').callsFake(() => Promise.resolve());
         sandbox.stub(appStart, '_getUserStorageInstance').callsFake(() => new NullStorage());
 
         appStart.useConfig({});
@@ -700,7 +699,7 @@ define(function (require, exports, module) {
 
         metricsMock = {
           flush: sinon.spy(() => {
-            return p();
+            return Promise.resolve();
           }),
           logError: sinon.spy()
         };

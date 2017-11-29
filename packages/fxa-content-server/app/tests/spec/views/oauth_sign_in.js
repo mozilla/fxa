@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   const Notifier = require('lib/channels/notifier');
   const OAuthBroker = require('models/auth_brokers/oauth');
   const OAuthRelier = require('models/reliers/oauth');
-  const p = require('lib/promise');
   const SentryMetrics = require('lib/sentry');
   const Session = require('lib/session');
   const sinon = require('sinon');
@@ -142,7 +141,7 @@ define(function (require, exports, module) {
         const account = user.initAccount({});
         sinon.stub(user, 'initAccount').callsFake(() => account);
 
-        sinon.stub(view, 'signIn').callsFake(() => p());
+        sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
 
         view.$('.email').val(email);
         view.$('[type=password]').val('password');

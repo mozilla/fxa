@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   const FormPrefill = require('models/form-prefill');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const SignInView = require('views/sign_in');
   const sinon = require('sinon');
@@ -63,11 +62,11 @@ define(function (require, exports, module) {
       isEmailRegistered = isUidRegistered = false;
 
       sinon.stub(user, 'checkAccountEmailExists').callsFake(function () {
-        return p(isEmailRegistered);
+        return Promise.resolve(isEmailRegistered);
       });
 
       sinon.stub(user, 'checkAccountUidExists').callsFake(function () {
-        return p(isUidRegistered);
+        return Promise.resolve(isUidRegistered);
       });
 
       windowMock = new WindowMock();
@@ -378,9 +377,9 @@ define(function (require, exports, module) {
 
       beforeEach(function () {
         // stub out `beforeRender` to ensure no redirect occurs.
-        sinon.stub(view, 'beforeRender').callsFake(() => p());
+        sinon.stub(view, 'beforeRender').callsFake(() => Promise.resolve());
         sinon.stub(view, '_signIn').callsFake(function (account) {
-          return p();
+          return Promise.resolve();
         });
 
 
@@ -533,7 +532,7 @@ define(function (require, exports, module) {
     describe('flow events', () => {
       beforeEach(() => {
         // stub out `beforeRender` to ensure no redirection occurs.
-        sinon.stub(view, 'beforeRender').callsFake(() => p());
+        sinon.stub(view, 'beforeRender').callsFake(() => Promise.resolve());
         return view.render()
           .then(() => {
             view.afterVisible();

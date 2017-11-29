@@ -9,8 +9,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const p = require('lib/promise');
-
   function FxDesktopV1Sender() {
     // nothing to do here.
   }
@@ -23,7 +21,7 @@ define(function (require, exports, module) {
     },
 
     send (command, data, messageId) {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         return this.dispatchCommand(command, data, messageId);
       });
     },

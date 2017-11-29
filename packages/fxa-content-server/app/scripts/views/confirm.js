@@ -103,7 +103,7 @@ define(function (require, exports, module) {
       return account.retrySignUp(this.relier, {
         resume: this.getStringifiedResumeToken(account)
       })
-      .fail((err) => {
+      .catch((err) => {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
           return this.navigate('signup', {
             error: err

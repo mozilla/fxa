@@ -8,14 +8,13 @@ define(function (require, exports, module) {
   'use strict';
 
   const FxaClientWrapper = require('lib/fxa-client');
-  const p = require('lib/promise');
 
   function FxaClientWrapperMock() {
   }
 
   Object.keys(FxaClientWrapper.prototype).forEach(function (method) {
     FxaClientWrapperMock.prototype[method] = function () {
-      return p.reject(new Error('method "' + method + '" should be stubbed'));
+      return Promise.reject(new Error('method "' + method + '" should be stubbed'));
     };
   });
 

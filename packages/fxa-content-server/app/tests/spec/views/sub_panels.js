@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   const Metrics = require('lib/metrics');
   const ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
   const sinon = require('sinon');
   const TestTemplate = require('stache!templates/test_template');
@@ -146,7 +145,7 @@ define(function (require, exports, module) {
         sinon.stub(view, '_createChildViewIfNeeded').callsFake(function (View) {
           var childView = new View();
           sinon.stub(childView, 'openPanel').callsFake(function () { });
-          return p(childView);
+          return Promise.resolve(childView);
         });
 
         var options = {};
@@ -167,7 +166,7 @@ define(function (require, exports, module) {
       it('calls render and afterVisible on childView', function () {
         var childView = new View();
         sinon.stub(childView, 'render').callsFake(function () {
-          return p(true);
+          return Promise.resolve(true);
         });
         sinon.spy(childView, 'afterVisible');
 
@@ -182,7 +181,7 @@ define(function (require, exports, module) {
       it('destroys childView if render fails', function () {
         var childView = new View();
         sinon.stub(childView, 'render').callsFake(function () {
-          return p(false);
+          return Promise.resolve(false);
         });
         sinon.spy(childView, 'afterVisible');
         sinon.spy(childView, 'destroy');

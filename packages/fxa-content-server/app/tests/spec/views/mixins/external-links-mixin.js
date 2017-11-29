@@ -12,7 +12,6 @@ define(function (require, exports, module) {
   const ExternalLinksMixin = require('views/mixins/external-links-mixin');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const sinon = require('sinon');
   const TestTemplate = require('stache!templates/test_template');
   const WindowMock = require('../../../mocks/window');
@@ -117,7 +116,7 @@ define(function (require, exports, module) {
     describe('_onExternalLinkClick', () => {
       it('does nothing of the link is ignored', () => {
         sinon.stub(view, '_shouldIgnoreClick').callsFake(() => true);
-        sinon.stub(view, '_flushMetricsThenRedirect').callsFake(() => p());
+        sinon.stub(view, '_flushMetricsThenRedirect').callsFake(() => Promise.resolve());
 
         const event = {
           preventDefault: sinon.spy(),
@@ -134,7 +133,7 @@ define(function (require, exports, module) {
 
       it('handles links that should be handled (cancel event, flush metrics)', () => {
         sinon.stub(view, '_shouldIgnoreClick').callsFake(() => false);
-        sinon.stub(view, '_flushMetricsThenRedirect').callsFake(() => p());
+        sinon.stub(view, '_flushMetricsThenRedirect').callsFake(() => Promise.resolve());
 
         const event = {
           currentTarget: {
@@ -251,7 +250,7 @@ define(function (require, exports, module) {
 
     describe('_flushMetricsThenRedirect', () => {
       it('flushes the metrics, then redirects', () => {
-        sinon.stub(metrics, 'flush').callsFake(() => p());
+        sinon.stub(metrics, 'flush').callsFake(() => Promise.resolve());
 
         return view._flushMetricsThenRedirect('url')
           .then(() => {

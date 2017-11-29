@@ -53,7 +53,7 @@ define(function (require, exports, module) {
      */
     sendAccountResetEmail () {
       return this.resetPassword(this._resetAccount.get('email'))
-        .fail((err) => {
+        .catch((err) => {
           this._session.clear('oauth');
           this.displayError(err);
         });

@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   const jQuerySimulate = require('jquery-simulate'); //eslint-disable-line no-unused-vars
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const ProfileMock = require('../../../mocks/profile');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
@@ -70,7 +69,7 @@ define(function (require, exports, module) {
     describe('with session', function () {
       beforeEach(function () {
         sinon.stub(view, 'checkAuthorization').callsFake(function () {
-          return p(true);
+          return Promise.resolve(true);
         });
         account = user.initAccount({
           accessToken: 'abc123',
@@ -114,16 +113,16 @@ define(function (require, exports, module) {
             user: user
           });
           view.isUserAuthorized = function () {
-            return p(true);
+            return Promise.resolve(true);
           };
           sinon.stub(view, 'getSignedInAccount').callsFake(function () {
             return account;
           });
           sinon.stub(account, 'profileClient').callsFake(function () {
-            return p(profileClientMock);
+            return Promise.resolve(profileClientMock);
           });
           sinon.stub(view, 'updateProfileImage').callsFake(function () {
-            return p();
+            return Promise.resolve();
           });
         });
 
@@ -140,7 +139,7 @@ define(function (require, exports, module) {
 
         it('submits an image', function () {
           sinon.stub(profileClientMock, 'uploadAvatar').callsFake(function () {
-            return p({
+            return Promise.resolve({
               id: 'foo',
               url: 'test'
             });
@@ -182,7 +181,7 @@ define(function (require, exports, module) {
           // set the account to have an existing profile image id
           account.set('hadProfileImageSetBefore', true);
           sinon.stub(profileClientMock, 'uploadAvatar').callsFake(function () {
-            return p({
+            return Promise.resolve({
               id: 'foo'
             });
           });

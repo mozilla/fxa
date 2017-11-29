@@ -10,7 +10,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const p = require('lib/promise');
   const UserAgent = require('lib/user-agent');
 
   function WebChannelSender() {
@@ -32,7 +31,7 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     send (command, data, messageId) {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         // save command name for testing purposes
         this._saveEventName(command);
         const eventDetail = createEventDetail(this._webChannelId, command, data, messageId);

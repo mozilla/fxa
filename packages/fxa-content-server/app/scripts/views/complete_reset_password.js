@@ -126,7 +126,7 @@ define(function (require, exports, module) {
         .then(() => {
           this.navigate('reset_password_verified');
         })
-        .fail((err) => {
+        .catch((err) => {
           if (AuthErrors.is(err, 'INVALID_TOKEN')) {
             this.logError(err);
             // The token has expired since the first check, re-render to

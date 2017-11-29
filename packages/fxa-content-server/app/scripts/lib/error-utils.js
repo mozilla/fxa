@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   const FourHundredTemplate = require('stache!templates/400');
   const Logger = require('./logger');
   const OAuthErrors = require('./oauth-errors');
-  const p = require('./promise');
 
   module.exports = {
     /**
@@ -75,7 +74,7 @@ define(function (require, exports, module) {
      */
     captureAndFlushError (error, sentryMetrics, metrics, win) {
       this.captureError(error, sentryMetrics, metrics, win);
-      return p().then(function () {
+      return Promise.resolve().then(function () {
         if (metrics) {
           return metrics.flush();
         }
@@ -112,7 +111,7 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     fatalError (error, sentryMetrics, metrics, win, translator) {
-      return p.all([
+      return Promise.all([
         this.captureAndFlushError(error, sentryMetrics, metrics, win),
         this.renderError(error, win, translator)
       ]);

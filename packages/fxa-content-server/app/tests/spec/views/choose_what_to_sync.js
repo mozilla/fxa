@@ -12,7 +12,6 @@ define(function (require, exports, module) {
   const Broker = require('models/auth_brokers/base');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const sinon = require('sinon');
   const SessionVerificationPoll = require('models/polls/session-verification');
   const SyncEngines = require('models/sync-engines');
@@ -55,7 +54,7 @@ define(function (require, exports, module) {
       broker = new Broker({
         chooseWhatToSyncWebV1Engines: syncEngines
       });
-      sinon.stub(broker, 'persistVerificationData').callsFake(() => p());
+      sinon.stub(broker, 'persistVerificationData').callsFake(() => Promise.resolve());
       email = TestHelpers.createEmail();
       model = new Backbone.Model();
       notifier = new Notifier();
@@ -171,13 +170,12 @@ define(function (require, exports, module) {
       it('removes SCREEN_CLASS from body, calls the parent', () => {
         return initView()
           .then(() => {
-            const deferred = p.defer();
-            view.on('destroyed', () => deferred.resolve());
+            return new Promise((resolve) => {
+              view.on('destroyed', () => resolve());
 
-            view.destroy();
-            assert.isFalse($('body').hasClass(View.SCREEN_CLASS));
-
-            return deferred.promise;
+              view.destroy();
+              assert.isFalse($('body').hasClass(View.SCREEN_CLASS));
+            });
           });
       });
     });
@@ -221,7 +219,7 @@ define(function (require, exports, module) {
 
     describe('submit', () => {
       beforeEach(() => {
-        sinon.stub(user, 'setAccount').callsFake(() => p(account));
+        sinon.stub(user, 'setAccount').callsFake(() => Promise.resolve(account));
 
         return initView()
           .then(() => {

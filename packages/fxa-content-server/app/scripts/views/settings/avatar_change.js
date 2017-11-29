@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   const FormView = require('../form');
   const ImageLoader = require('../../lib/image-loader');
   const ModalSettingsPanelMixin = require('../mixins/modal-settings-panel-mixin');
-  const p = require('../../lib/promise');
   const Template = require('stache!templates/settings/avatar_change');
 
   const proto = FormView.prototype;
@@ -90,48 +89,47 @@ define(function (require, exports, module) {
 
     fileSet (e) {
       const start = Date.now();
-      const defer = p.defer();
-      const file = e.target.files[0];
-      const account = this.getAccount();
-      this.logAccountImageChange(account);
+      return new Promise((resolve, reject) => {
+        const file = e.target.files[0];
+        const account = this.getAccount();
+        this.logAccountImageChange(account);
 
-      const imgOnError = (e) => {
-        const error = e && e.errno ? e : 'UNUSABLE_IMAGE';
-        const msg = AuthErrors.toMessage(error);
-        this.displayError(msg);
-        defer.reject(msg);
-      };
-
-      if (file.type.match('image.*')) {
-        const reader = new this.FileReader();
-
-        reader.onload = (event) => {
-          const src = event.target.result;
-
-          ImageLoader.load(src)
-            .then((img) => {
-              this.logFlowEvent(`timing.avatar.load.${Date.now() - start}`);
-              const cropImg = new CropperImage({
-                height: img.height,
-                src,
-                type: file.type,
-                width: img.width
-              });
-              require(['draggable', 'touch-punch'], () => {
-                this.navigate('settings/avatar/crop', {
-                  cropImg
-                });
-              });
-              defer.resolve();
-            })
-            .fail(imgOnError);
+        const imgOnError = (e) => {
+          const error = e && e.errno ? e : 'UNUSABLE_IMAGE';
+          const msg = AuthErrors.toMessage(error);
+          this.displayError(msg);
+          reject(msg);
         };
-        reader.readAsDataURL(file);
-      } else {
-        imgOnError();
-      }
 
-      return defer.promise;
+        if (file.type.match('image.*')) {
+          const reader = new this.FileReader();
+
+          reader.onload = (event) => {
+            const src = event.target.result;
+
+            ImageLoader.load(src)
+              .then((img) => {
+                this.logFlowEvent(`timing.avatar.load.${Date.now() - start}`);
+                const cropImg = new CropperImage({
+                  height: img.height,
+                  src,
+                  type: file.type,
+                  width: img.width
+                });
+                require(['draggable', 'touch-punch'], () => {
+                  this.navigate('settings/avatar/crop', {
+                    cropImg
+                  });
+                });
+                resolve();
+              })
+              .catch(imgOnError);
+          };
+          reader.readAsDataURL(file);
+        } else {
+          imgOnError();
+        }
+      });
     }
 
   });

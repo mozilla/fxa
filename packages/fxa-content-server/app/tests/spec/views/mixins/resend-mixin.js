@@ -10,13 +10,12 @@ define(function (require, exports, module) {
   const AuthErrors = require('lib/auth-errors');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
-  const p = require('lib/promise');
   const ResendMixin = require('views/mixins/resend-mixin');
   const sinon = require('sinon');
   const TestTemplate = require('stache!templates/confirm');
 
   const View = BaseView.extend({
-    resend: () => p(),
+    resend: () => Promise.resolve(),
     template: TestTemplate
   });
 
@@ -97,7 +96,7 @@ define(function (require, exports, module) {
 
       it('_resend displays returned errors', () => {
         const err = AuthErrors.toError('UNEXPECTED_ERROR');
-        sinon.stub(view, 'resend').callsFake(() => p.reject(err));
+        sinon.stub(view, 'resend').callsFake(() => Promise.reject(err));
         sinon.spy(view, 'displayError');
 
         return view._resend()

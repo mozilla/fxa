@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   'use strict';
 
   const requireOnDemand = require('lib/require-on-demand');
-  const p = require('lib/promise');
 
   /**
    * Given an inputKey, generate the matching relier-specific derived scoped key.
@@ -59,7 +58,7 @@ define(function (require, exports, module) {
   function createEncryptedBundle(accountKeys, uid, scopedKeyData, keysJwk) {
     const deriveKeys = Object.keys(scopedKeyData).map((key) => _deriveScopedKeys(accountKeys.kB, uid, scopedKeyData[key]));
 
-    return p.all(deriveKeys)
+    return Promise.all(deriveKeys)
       .then((derivedKeys) => {
         const bundleObject = {};
 

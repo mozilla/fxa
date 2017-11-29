@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   const FormPrefill = require('models/form-prefill');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const SentryMetrics = require('lib/sentry');
   const sinon = require('sinon');
@@ -158,7 +157,7 @@ define(function (require, exports, module) {
       var email;
       beforeEach(function () {
         sinon.stub(view, 'resetPassword').callsFake(function () {
-          return p({ passwordForgotToken: 'foo' });
+          return Promise.resolve({ passwordForgotToken: 'foo' });
         });
 
         email = TestHelpers.createEmail();
@@ -177,7 +176,7 @@ define(function (require, exports, module) {
     describe('submit with unknown email address', function () {
       it('shows an error message', function () {
         sinon.stub(view, 'resetPassword').callsFake(function () {
-          return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
+          return Promise.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
         });
 
         var email = TestHelpers.createEmail();
@@ -193,7 +192,7 @@ define(function (require, exports, module) {
     describe('submit when user cancelled login', function () {
       it('logs an error', function () {
         sinon.stub(view, 'resetPassword').callsFake(function () {
-          return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
+          return Promise.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
         });
 
         return view.submit()
@@ -212,7 +211,7 @@ define(function (require, exports, module) {
     describe('submit with other error', function () {
       it('passes other errors along', function () {
         sinon.stub(view, 'resetPassword').callsFake(function () {
-          return p.reject(AuthErrors.toError('INVALID_JSON'));
+          return Promise.reject(AuthErrors.toError('INVALID_JSON'));
         });
 
         return view.submit()
@@ -383,7 +382,7 @@ define(function (require, exports, module) {
       });
 
       sinon.stub(view, 'resetPassword').callsFake(function () {
-        return p();
+        return Promise.resolve();
       });
 
       return view.render();

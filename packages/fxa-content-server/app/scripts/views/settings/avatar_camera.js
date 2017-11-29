@@ -16,7 +16,6 @@ define(function (require, exports, module) {
   const Environment = require('../../lib/environment');
   const FormView = require('../form');
   const ModalSettingsPanelMixin = require('../mixins/modal-settings-panel-mixin');
-  const p = require('../../lib/promise');
   const ProfileImage = require('../../models/profile-image');
   const ProgressIndicator = require('../progress_indicator');
   const Template = require('stache!templates/settings/avatar_camera');
@@ -194,38 +193,34 @@ define(function (require, exports, module) {
       this.stopAndDestroyStream();
     },
 
-    takePicture: function takepicture() {
-      var defer = p.defer();
+    takePicture: function takePicture() {
+      return new Promise((resolve, reject) => {
+        var w = this.video.videoWidth;
+        var h = this.video.videoHeight;
+        var minValue = Math.min(h, w);
 
-      var w = this.video.videoWidth;
-      var h = this.video.videoHeight;
-      var minValue = Math.min(h, w);
+        this.canvas.width = this.exportLength;
+        this.canvas.height = this.exportLength;
 
-      this.canvas.width = this.exportLength;
-      this.canvas.height = this.exportLength;
+        var pos = this.centeredPos(w, h, minValue);
 
-      var pos = this.centeredPos(w, h, minValue);
+        var dataSrc = this.video;
+        if (this.broker.isAutomatedBrowser()) {
+          dataSrc = new Image();
+          dataSrc.src = pngSrc;
+        }
 
-      var dataSrc = this.video;
-      if (this.broker.isAutomatedBrowser()) {
-        dataSrc = new Image();
-        dataSrc.src = pngSrc;
-      }
+        this.canvas.getContext('2d').drawImage(
+          dataSrc,
+          Math.abs(pos.left),
+          Math.abs(pos.top),
+          minValue,
+          minValue,
+          0, 0, this.exportLength, this.exportLength
+        );
 
-      this.canvas.getContext('2d').drawImage(
-        dataSrc,
-        Math.abs(pos.left),
-        Math.abs(pos.top),
-        minValue,
-        minValue,
-        0, 0, this.exportLength, this.exportLength
-      );
-
-      this.canvas.toBlob(function (data) {
-        defer.resolve(data);
-      }, MIME_TYPE, JPEG_QUALITY);
-
-      return defer.promise;
+        this.canvas.toBlob(resolve, MIME_TYPE, JPEG_QUALITY);
+      });
     },
 
     // Calculates the position offset needed to center a rectangular image

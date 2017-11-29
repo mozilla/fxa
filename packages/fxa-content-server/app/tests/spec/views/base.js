@@ -16,7 +16,6 @@ define(function (require, exports, module) {
   const ErrorUtils = require('lib/error-utils');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/base');
   const sinon = require('sinon');
   const Template = require('stache!templates/test_template');
@@ -144,12 +143,10 @@ define(function (require, exports, module) {
       });
 
       it('triggers the `rendered` message when complete', function () {
-        var deferred = p.defer();
-
-        view.on('rendered', deferred.resolve.bind(deferred));
-        view.render();
-
-        return deferred.promise;
+        return new Promise((resolve) => {
+          view.on('rendered', () => resolve());
+          view.render();
+        });
       });
 
       it('updates the page title with the embedded h1 and h2 tags', function () {
@@ -222,7 +219,7 @@ define(function (require, exports, module) {
       });
 
       it('redirects to `/signin` if the user is not authenticated', function () {
-        sinon.stub(user, 'sessionStatus').callsFake(() => p.reject(AuthErrors.toError('INVALID_TOKEN')));
+        sinon.stub(user, 'sessionStatus').callsFake(() => Promise.reject(AuthErrors.toError('INVALID_TOKEN')));
         sinon.spy(view, 'navigate');
 
         view.mustAuth = true;
@@ -239,7 +236,7 @@ define(function (require, exports, module) {
       it('redirects to `/force_auth` if the user is not authenticated and the relier specifies an email', function () {
         relier.set('email', 'a@a.com');
 
-        sinon.stub(user, 'sessionStatus').callsFake(() => p.reject(AuthErrors.toError('INVALID_TOKEN')));
+        sinon.stub(user, 'sessionStatus').callsFake(() => Promise.reject(AuthErrors.toError('INVALID_TOKEN')));
         sinon.spy(view, 'navigate');
 
         view.mustAuth = true;
@@ -263,7 +260,7 @@ define(function (require, exports, module) {
           verificationReason: VerificationReasons.SIGN_UP,
           verified: false
         });
-        sinon.stub(user, 'sessionStatus').callsFake(() => p(account));
+        sinon.stub(user, 'sessionStatus').callsFake(() => Promise.resolve(account));
 
         sinon.spy(view, 'navigate');
         return view.render()
@@ -282,7 +279,7 @@ define(function (require, exports, module) {
           verificationReason: VerificationReasons.SIGN_IN,
           verified: false
         });
-        sinon.stub(user, 'sessionStatus').callsFake(() => p(account));
+        sinon.stub(user, 'sessionStatus').callsFake(() => Promise.resolve(account));
 
         sinon.spy(view, 'navigate');
         return view.render()
@@ -300,7 +297,7 @@ define(function (require, exports, module) {
         });
         sinon.stub(user, 'sessionStatus').callsFake(() => {
           account.set('verified', true);
-          return p(account);
+          return Promise.resolve(account);
         });
 
         return view.render()
@@ -317,7 +314,7 @@ define(function (require, exports, module) {
           uid: 'uid',
           verified: true
         });
-        sinon.stub(user, 'sessionStatus').callsFake(() => p(account));
+        sinon.stub(user, 'sessionStatus').callsFake(() => Promise.resolve(account));
 
         return view.render()
           .then(function (result) {

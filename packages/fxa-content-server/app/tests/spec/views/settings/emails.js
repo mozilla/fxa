@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const sinon = require('sinon');
   const TestHelpers = require('../../../lib/helpers');
   const Translator = require('lib/translator');
@@ -132,16 +131,16 @@ define(function (require, exports, module) {
         });
 
         sinon.stub(account, 'recoveryEmailDestroy').callsFake(() => {
-          return p();
+          return Promise.resolve();
         });
 
         sinon.stub(account, 'resendEmailCode').callsFake(() => {
-          return p();
+          return Promise.resolve();
         });
 
         sinon.stub(account, 'setPrimaryEmail').callsFake((newEmail) => {
           email = newEmail;
-          return p();
+          return Promise.resolve();
         });
       });
 

@@ -7,7 +7,6 @@ define(function (require, exports, module) {
 
   const chai = require('chai');
   const OAuthToken = require('models/oauth-token');
-  const p = require('lib/promise');
   const sinon = require('sinon');
 
   var assert = chai.assert;
@@ -19,7 +18,7 @@ define(function (require, exports, module) {
     beforeEach(function () {
       oAuthClient = {
         destroyToken: sinon.spy(function () {
-          return p();
+          return Promise.resolve();
         })
       };
 

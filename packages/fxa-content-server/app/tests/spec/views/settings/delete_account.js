@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const NullChannel = require('lib/channels/null');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const TestHelpers = require('../../../lib/helpers');
@@ -76,7 +75,7 @@ define(function (require, exports, module) {
           verified: true
         });
         sinon.stub(account, 'isSignedIn').callsFake(function () {
-          return p(true);
+          return Promise.resolve(true);
         });
 
         sinon.stub(view, 'getSignedInAccount').callsFake(function () {
@@ -138,7 +137,7 @@ define(function (require, exports, module) {
         describe('success', function () {
           beforeEach(function () {
             sinon.stub(user, 'deleteAccount').callsFake(function () {
-              return p();
+              return Promise.resolve();
             });
 
             sinon.spy(broker, 'afterDeleteAccount');
@@ -174,7 +173,7 @@ define(function (require, exports, module) {
         describe('other errors', function () {
           beforeEach(function () {
             sinon.stub(user, 'deleteAccount').callsFake(function () {
-              return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+              return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
             });
           });
 

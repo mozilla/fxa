@@ -56,7 +56,7 @@ define(function (require, exports, module) {
 
           return client.getProfile(token)
             .then(function () {
-              assert.fail('unexpected success');
+              assert.catch('unexpected success');
             }, function (err) {
               assert.isTrue(ProfileClient.Errors.is(err, 'SERVICE_UNAVAILABLE'));
             });
@@ -71,7 +71,7 @@ define(function (require, exports, module) {
 
           return client.getProfile(token)
             .then(function () {
-              assert.fail('unexpected success');
+              assert.catch('unexpected success');
             }, function (err) {
               assert.isTrue(ProfileClient.Errors.is(err, 'IMAGE_PROCESSING_ERROR'));
             });

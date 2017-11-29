@@ -54,7 +54,7 @@ define(function (require, exports, module) {
       // function so that the settings page render is not blocked while waiting
       // for Basket to respond.  See #3061
       return emailPrefs.fetch()
-        .fail((err) => {
+        .catch((err) => {
           if (MarketingEmailErrors.is(err, 'UNKNOWN_EMAIL')) {
             // user has not yet opted in to Basket yet. Ignore
             return;

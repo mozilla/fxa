@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   const FlowEventsMixin = require('./mixins/flow-events-mixin');
   const FormPrefillMixin = require('./mixins/form-prefill-mixin');
   const FormView = require('./form');
-  const p = require('../lib/promise');
   const PasswordMixin = require('./mixins/password-mixin');
   const ServiceMixin = require('./mixins/service-mixin');
   const SignUpMixin = require('./mixins/signup-mixin');
@@ -41,7 +40,7 @@ define(function (require, exports, module) {
     }
 
     submit () {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         if (! this.isUserOldEnough()) {
           return this.tooYoung();
         }

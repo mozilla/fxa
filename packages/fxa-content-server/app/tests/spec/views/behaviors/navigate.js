@@ -26,7 +26,7 @@ define(function (require, exports, module) {
       const promise = navigateBehavior(viewMock, accountMock);
       // navigateBehavior returns a promise that never resolves,
       // aborting the rest of the flow.
-      assert.equal(promise.inspect().state, 'pending');
+      assert.isFunction(promise.then);
 
       const endpoint = viewMock.navigate.args[0][0];
       const navigateOptions = viewMock.navigate.args[0][1];

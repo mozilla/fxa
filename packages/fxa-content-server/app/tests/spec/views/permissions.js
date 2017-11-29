@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   const chai = require('chai');
   const Metrics = require('lib/metrics');
   const OAuthErrors = require('lib/oauth-errors');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const Notifier = require('lib/channels/notifier');
   const sinon = require('sinon');
@@ -67,11 +66,11 @@ define(function (require, exports, module) {
       });
 
       sinon.stub(user, 'setAccount').callsFake(function () {
-        return p(account);
+        return Promise.resolve(account);
       });
 
       sinon.stub(account, 'fetchProfile').callsFake(function () {
-        return p();
+        return Promise.resolve();
       });
 
       model.set({

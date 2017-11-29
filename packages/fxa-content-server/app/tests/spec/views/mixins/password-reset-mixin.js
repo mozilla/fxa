@@ -6,7 +6,6 @@ define(function (require, exports, module) {
   'use strict';
 
   const assert = require('chai').assert;
-  const p = require('lib/promise');
   const PasswordResetMixin = require('views/mixins/password-reset-mixin');
   const sinon = require('sinon');
 
@@ -26,7 +25,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         account = {
           resetPassword: sinon.spy(function () {
-            return p({ passwordForgotToken: 'password forgot token' });
+            return Promise.resolve({ passwordForgotToken: 'password forgot token' });
           })
         };
         email = 'testuser@testuser.com';
@@ -79,7 +78,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         account = {
           retryResetPassword: sinon.spy(function () {
-            return p();
+            return Promise.resolve();
           })
         };
         email = 'testuser@testuser.com';

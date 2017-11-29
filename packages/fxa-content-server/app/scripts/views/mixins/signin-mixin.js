@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   'use strict';
 
   const AuthErrors = require('../../lib/auth-errors');
-  const p = require('../../lib/promise');
   const NavigateBehavior = require('../behaviors/navigate');
   const ResumeTokenMixin = require('./resume-token-mixin');
   const VerificationMethods = require('../../lib/verification-methods');
@@ -33,7 +32,7 @@ define(function (require, exports, module) {
       if (! account ||
             account.isDefault() ||
             (! account.has('sessionToken') && ! password)) {
-        return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+        return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
       }
 
       return this.invokeBrokerMethod('beforeSignIn', account)
@@ -67,7 +66,7 @@ define(function (require, exports, module) {
 
           return this.onSignInSuccess(account);
         })
-        .fail((err) => {
+        .catch((err) => {
           if (AuthErrors.is(err, 'THROTTLED') ||
               AuthErrors.is(err, 'REQUEST_BLOCKED')) {
             return this.onSignInBlocked(account, password, err);
@@ -104,7 +103,7 @@ define(function (require, exports, module) {
 
       // Signin is blocked and cannot be unblocked, show the
       // error at another level.
-      return p.reject(err);
+      return Promise.reject(err);
     },
 
     onSignInSuccess (account) {

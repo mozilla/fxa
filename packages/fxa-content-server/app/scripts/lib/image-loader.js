@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const p = require('./promise');
 
   /**
    * Returns true if given "uri" has HTTP or HTTPS scheme
@@ -17,14 +16,12 @@ define(function (require, exports, module) {
    * @returns {Boolean}
    */
   function load (src) {
-    var defer = p.defer();
-
-    var img = new Image();
-    img.onerror = defer.reject;
-    img.onload = _.partial(defer.resolve, img);
-    img.src = src;
-
-    return defer.promise;
+    return new Promise((resolve, reject) => {
+      var img = new Image();
+      img.onerror = reject;
+      img.onload = _.partial(resolve, img);
+      img.src = src;
+    });
   }
 
   module.exports = {

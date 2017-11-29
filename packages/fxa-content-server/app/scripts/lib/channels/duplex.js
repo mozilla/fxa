@@ -17,7 +17,6 @@ define(function (require, exports, module) {
   const BaseChannel = require('lib/channels/base');
   const Duration = require('duration');
   const Logger = require('lib/logger');
-  const p = require('lib/promise');
 
   var DEFAULT_SEND_TIMEOUT_LENGTH_MS = new Duration('90s').milliseconds();
 
@@ -125,7 +124,7 @@ define(function (require, exports, module) {
      *        Promise will resolve whenever message is sent.
      */
     send (command, data) {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         return this._sender.send(command, data, null);
       });
     },
@@ -139,22 +138,22 @@ define(function (require, exports, module) {
      *        Promise will resolve when the response is received.
      */
     request (command, data) {
-      var messageId = this.createMessageId(command, data);
-      var outstanding = {
-        command: command,
-        data: data,
-        deferred: p.defer(),
-        messageId: messageId
-      };
+      const messageId = this.createMessageId(command, data);
+      return new Promise((resolve, reject) => {
+        const outstanding = {
+          command,
+          data,
+          messageId,
+          reject,
+          resolve,
+        };
 
-      // save the data beforehand in case the response is synchronous.
-      this._outstandingRequests.add(messageId, outstanding);
+        // save the data beforehand in case the response is synchronous.
+        this._outstandingRequests.add(messageId, outstanding);
 
-      return p().then(() => {
-        return this._sender.send(command, data, messageId);
+        this._sender.send(command, data, messageId);
       })
-      .then(() => outstanding.deferred.promise)
-      .fail((err) => {
+      .catch((err) => {
         // The request is no longer considered outstanding if
         // there was a problem sending.
         this._outstandingRequests.remove(messageId);
@@ -187,7 +186,7 @@ define(function (require, exports, module) {
         var outstanding = this._outstandingRequests.get(messageId);
         if (outstanding) {
           this._outstandingRequests.remove(messageId);
-          outstanding.deferred.resolve(data);
+          outstanding.resolve(data);
         }
       }
 
@@ -220,7 +219,7 @@ define(function (require, exports, module) {
         var outstanding = this._outstandingRequests.get(messageId);
         if (outstanding) {
           this._outstandingRequests.remove(messageId);
-          outstanding.deferred.reject(error);
+          outstanding.reject(error);
         }
       }
 
@@ -250,7 +249,7 @@ define(function (require, exports, module) {
     rejectAllOutstandingRequests (reason) {
       this._outstandingRequests.each((outstanding, messageId) => {
         this._outstandingRequests.remove(messageId);
-        outstanding.deferred.reject(reason);
+        outstanding.reject(reason);
       });
     }
   });

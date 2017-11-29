@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   'use strict';
 
   const Notifier = require('../../lib/channels/notifier');
-  const p = require('../../lib/promise');
 
   var Mixin = {
     notifications: {
@@ -21,7 +20,7 @@ define(function (require, exports, module) {
         this.navigate(this.model.get('redirectTo') || 'settings');
       }
 
-      return p();
+      return Promise.resolve();
     }
   };
 

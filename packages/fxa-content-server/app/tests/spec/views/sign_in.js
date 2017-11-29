@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   const FormPrefill = require('models/form-prefill');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const Session = require('lib/session');
   const sinon = require('sinon');
@@ -163,7 +162,7 @@ define(function (require, exports, module) {
           });
 
           sinon.stub(view, '_suggestedAccount').callsFake(() => account);
-          sinon.stub(view, 'displayAccountProfileImage').callsFake(() => p());
+          sinon.stub(view, 'displayAccountProfileImage').callsFake(() => Promise.resolve());
           sinon.spy(view, 'render');
 
           return view.render()
@@ -198,7 +197,7 @@ define(function (require, exports, module) {
         });
 
         sinon.stub(view, '_suggestedAccount').callsFake(() => account);
-        sinon.stub(view, 'displayAccountProfileImage').callsFake(() => p());
+        sinon.stub(view, 'displayAccountProfileImage').callsFake(() => Promise.resolve());
         sinon.spy(view, 'render');
 
         return view.render()
@@ -279,7 +278,7 @@ define(function (require, exports, module) {
 
       describe('with a user that successfully signs in', () => {
         beforeEach(() => {
-          sinon.stub(view, 'signIn').callsFake(() => p());
+          sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
 
           return view.submit();
         });
@@ -415,7 +414,7 @@ define(function (require, exports, module) {
         });
 
         sinon.stub(view, 'signIn').callsFake(
-          () => p.reject(AuthErrors.toError('SESSION_EXPIRED')));
+          () => Promise.reject(AuthErrors.toError('SESSION_EXPIRED')));
 
         return view.useLoggedInAccount()
           .then(() => {
@@ -434,7 +433,7 @@ define(function (require, exports, module) {
           sessionToken: 'abc123'
         });
         sinon.stub(view, 'getAccount').callsFake(() => account);
-        sinon.stub(view, 'signIn').callsFake(() => p());
+        sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
 
         return view.useLoggedInAccount()
           .then(() => {
@@ -519,7 +518,7 @@ define(function (require, exports, module) {
         metrics.events.clear();
         return view.render()
           .then(() => {
-            sinon.stub(account, 'getAvatar').callsFake(() => p({ avatar: imgUrl, id: 'bar' }));
+            sinon.stub(account, 'getAvatar').callsFake(() => Promise.resolve({ avatar: imgUrl, id: 'bar' }));
             return view.afterVisible();
           })
           .then(() => {

@@ -12,7 +12,6 @@ define(function (require, exports, module) {
   const chai = require('chai');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const TestHelpers = require('../../../lib/helpers');
@@ -70,7 +69,7 @@ define(function (require, exports, module) {
           verified: true
         });
         sinon.stub(account, 'isSignedIn').callsFake(function () {
-          return p(true);
+          return Promise.resolve(true);
         });
 
         sinon.stub(view, 'getSignedInAccount').callsFake(function () {
@@ -163,7 +162,7 @@ define(function (require, exports, module) {
             $('#new_password').val(newPassword);
 
             sinon.stub(user, 'changeAccountPassword').callsFake(function () {
-              return p({});
+              return Promise.resolve({});
             });
 
             sinon.stub(view, 'navigate').callsFake(function () { });
@@ -200,7 +199,7 @@ define(function (require, exports, module) {
             $('#new_password').val('bad_password');
 
             sinon.stub(user, 'changeAccountPassword').callsFake(function () {
-              return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
+              return Promise.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
             });
 
             sinon.stub(view, 'showValidationError').callsFake(function () { });
@@ -219,7 +218,7 @@ define(function (require, exports, module) {
             $('#new_password').val('password');
 
             sinon.stub(user, 'changeAccountPassword').callsFake(function () {
-              return p.reject(AuthErrors.toError('PASSWORDS_MUST_BE_DIFFERENT'));
+              return Promise.reject(AuthErrors.toError('PASSWORDS_MUST_BE_DIFFERENT'));
             });
 
             sinon.stub(view, 'showValidationError').callsFake(function () { });

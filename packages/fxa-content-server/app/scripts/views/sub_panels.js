@@ -9,7 +9,6 @@ define(function (require, exports, module) {
   const Backbone = require('backbone');
   const BaseView = require('./base');
   const Logger = require('../lib/logger');
-  const p = require('../lib/promise');
   const Template = require('stache!templates/sub_panels');
 
   const proto = BaseView.prototype;
@@ -29,7 +28,7 @@ define(function (require, exports, module) {
     showChildView (ChildView, options) {
       if (this._panelViews.indexOf(ChildView) === -1) {
         this._logger.warn('Tried to show a view that is not a subpanel');
-        return p(null);
+        return Promise.resolve(null);
       }
 
       return this._createChildViewIfNeeded(ChildView, options)
@@ -65,7 +64,7 @@ define(function (require, exports, module) {
 
       var childView = this._childViewInstanceFromClass(ChildView);
       if (childView) {
-        return p(childView);
+        return Promise.resolve(childView);
       }
 
       var className = this._childViewClassName(ChildView);
@@ -118,7 +117,7 @@ define(function (require, exports, module) {
         return ! this._isModalView(ChildView);
       });
 
-      return p.all(initialChildViews.map((ChildView) => {
+      return Promise.all(initialChildViews.map((ChildView) => {
         return this._createChildViewIfNeeded(ChildView);
       }))
       .then(proto.afterRender.bind(this));

@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   const Constants = require('lib/constants');
   const { createRandomHexString } = require('../../lib/helpers');
   const Metrics = require('lib/metrics');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const View = require('views/sign_in_unblock');
@@ -109,7 +108,7 @@ define(function (require, exports, module) {
     describe('resend', () => {
       describe('success', () => {
         beforeEach(() => {
-          sinon.stub(account, 'sendUnblockEmail').callsFake(() => p());
+          sinon.stub(account, 'sendUnblockEmail').callsFake(() => Promise.resolve());
           return view.resend();
         });
 
@@ -122,7 +121,7 @@ define(function (require, exports, module) {
         const err = AuthErrors.toError('UNEXPECTED_ERROR');
 
         beforeEach(() => {
-          sinon.stub(account, 'sendUnblockEmail').callsFake(() => p.reject(err));
+          sinon.stub(account, 'sendUnblockEmail').callsFake(() => Promise.reject(err));
           sinon.spy(view, 'displayError');
 
           return view.resend();
@@ -136,7 +135,7 @@ define(function (require, exports, module) {
 
     describe('validateAndSubmit', () => {
       beforeEach(() => {
-        sinon.stub(view, 'submit').callsFake(() => p());
+        sinon.stub(view, 'submit').callsFake(() => Promise.resolve());
         sinon.spy(view, 'showValidationError');
       });
 
@@ -187,7 +186,7 @@ define(function (require, exports, module) {
     describe('submit', () => {
       describe('success', () => {
         beforeEach(() => {
-          sinon.stub(view, 'signIn').callsFake(() => p());
+          sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
 
           view.$('#unblock_code').val(UNBLOCK_CODE);
 
@@ -205,9 +204,9 @@ define(function (require, exports, module) {
           AuthErrors.toError('INCORRECT_PASSWORD');
 
         beforeEach(() => {
-          sinon.stub(view, 'signIn').callsFake(() => p.reject(incorrectPasswordError));
+          sinon.stub(view, 'signIn').callsFake(() => Promise.reject(incorrectPasswordError));
 
-          sinon.stub(view, 'navigate').callsFake(() => p());
+          sinon.stub(view, 'navigate').callsFake(() => Promise.resolve());
 
           view.$('#unblock_code').val(UNBLOCK_CODE);
 
@@ -227,9 +226,9 @@ define(function (require, exports, module) {
         let receivedError;
 
         beforeEach(() => {
-          sinon.stub(view, 'signIn').callsFake(() => p.reject(unexpectedError));
+          sinon.stub(view, 'signIn').callsFake(() => Promise.reject(unexpectedError));
 
-          sinon.stub(view, 'navigate').callsFake(() => p());
+          sinon.stub(view, 'navigate').callsFake(() => Promise.resolve());
 
           view.$('#unblock_code').val(UNBLOCK_CODE);
 

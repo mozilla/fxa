@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   const Account = require('models/account');
   const assert = require('chai').assert;
   const Broker = require('models/auth_brokers/base');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const SignUpMixin = require('views/mixins/signup-mixin');
   const sinon = require('sinon');
@@ -37,7 +36,7 @@ define(function (require, exports, module) {
         broker = new Broker();
         relier = new Relier();
         user = {
-          signUpAccount: sinon.spy((account) => p(account))
+          signUpAccount: sinon.spy((account) => Promise.resolve(account))
         };
 
         view = {
@@ -47,7 +46,7 @@ define(function (require, exports, module) {
           },
           getStringifiedResumeToken: sinon.spy(() => 'resume token'),
           invokeBrokerMethod: sinon.spy(function () {
-            return p();
+            return Promise.resolve();
           }),
           logEvent: sinon.spy(),
           logEventOnce: sinon.spy(),
@@ -128,7 +127,7 @@ define(function (require, exports, module) {
       describe('everyone else', function () {
         beforeEach(function () {
           account.set('verified', false);
-          sinon.stub(view, 'onSignUpSuccess').callsFake(() => p());
+          sinon.stub(view, 'onSignUpSuccess').callsFake(() => Promise.resolve());
 
           return view.signUp(account, 'password');
         });
