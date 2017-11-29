@@ -81,6 +81,29 @@ define(function(require, exports, module) {
           '+331234567890'
         ]
       },
+      // Denmark
+      DK: {
+        format: {
+          '12345678': '+45 12345678'
+        },
+        normalize: {
+          '+4512345678': '+4512345678',
+          '12345678': '+4512345678'
+        },
+        validPatterns: [
+          '12345678',
+          '+4512345678',
+        ],
+        invalidPatterns: [
+          // too short
+          '+451234567',
+          '1234567',
+
+          // too long
+          '+45123456789',
+          '123456789',
+        ]
+      },
       // Spain
       ES: {
         format: {
@@ -200,6 +223,27 @@ define(function(require, exports, module) {
           // too long
           '1234567890',
           '+3521234567890',
+        ]
+      },
+      // Netherlands
+      NL: {
+        format: {
+          '123456789': '+31 123456789'
+        },
+        normalize: {
+          '+31123456789': '+31123456789',
+          '123456789': '+31123456789',
+        },
+        validPatterns: [
+          '+311234',
+          '1234',
+          '123456789',
+        ],
+        invalidPatterns: [
+          // too short
+          '+31123',
+          '123',
+          // Non-geographical numbers have no fixed length
         ]
       },
       // Portugal

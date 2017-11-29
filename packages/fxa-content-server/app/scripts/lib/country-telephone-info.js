@@ -102,6 +102,15 @@ define(function(require, exports, module) {
       prefix: '+49',
       rolloutRate: 0.5
     },
+    // Denmark
+    // https://en.wikipedia.org/wiki/Telephone_numbers_in_Denmark
+    DK: {
+      format: formatter('+45 ${serverPhoneNumber}'),
+      normalize: ensurePrefix('+45'),
+      pattern: /^(?:\+45)?\d{8}$/,
+      prefix: '+45',
+      rolloutRate: 0.0 // being soft launched. Testers will need to open `/sms?service=sync&country=DK`
+    },
     // Spain
     // https://en.wikipedia.org/wiki/Telephone_numbers_in_Spain
     ES: {
@@ -146,6 +155,15 @@ define(function(require, exports, module) {
       pattern: /^(?:\+352)?\d{9}$/,
       prefix: '+352',
       rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=LU`
+    },
+    // Netherlands
+    // https://en.wikipedia.org/wiki/Telephone_numbers_in_the_Netherlands
+    NL: {
+      format: formatter('+31 ${serverPhoneNumber}'),
+      normalize: ensurePrefix('+31'),
+      pattern: /^(?:\+31)?\d{4,}$/, // Non-geographical numbers have no fixed length. 3 access digits + at least one other digit.
+      prefix: '+31',
+      rolloutRate: 0.0 // being soft launched. Testers will need to open `/sms?service=sync&country=NL`
     },
     // Portugal
     // https://en.wikipedia.org/wiki/Telephone_numbers_in_Portugal
