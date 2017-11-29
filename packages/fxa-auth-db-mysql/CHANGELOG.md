@@ -1,3 +1,17 @@
+<a name="1.101.0"></a>
+# [1.101.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.100.0...v1.101.0) (2017-11-29)
+
+
+### Features
+
+* **codes:** add support for verifying token short code (#287) r=@vladikoff,@rfk ([ac0b814](https://github.com/mozilla/fxa-auth-db-mysql/commit/ac0b814))
+
+### Refactor
+
+* **dbserver:** clean up the db server package (#289) r=@rfk ([c3d8e6e](https://github.com/mozilla/fxa-auth-db-mysql/commit/c3d8e6e))
+
+
+
 <a name="1.100.0"></a>
 # [1.100.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.98.0...v1.100.0) (2017-11-15)
 
