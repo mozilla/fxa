@@ -88,6 +88,7 @@ define(function (require, exports, module) {
       metrics = new Metrics({ notifier });
       profileClient = new ProfileClient();
       relier = new Relier();
+      relier.set('uid', 'wibble');
 
       user = new User({
         notifier: notifier,
@@ -103,6 +104,7 @@ define(function (require, exports, module) {
       sinon.stub(account, 'fetchProfile').callsFake(function () {
         return p();
       });
+      sinon.spy(notifier, 'trigger');
 
       createSettingsView();
 
@@ -115,6 +117,13 @@ define(function (require, exports, module) {
       $(view.el).remove();
       view.destroy();
       view = null;
+    });
+
+    it('emits set-uid event correctly', () => {
+      assert.equal(notifier.trigger.callCount, 1);
+      const args = notifier.trigger.args[0];
+      assert.equal(args[0], 'set-uid');
+      assert.equal(args[1], 'wibble');
     });
 
     describe('with uid', function () {

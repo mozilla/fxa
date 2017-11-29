@@ -59,7 +59,8 @@ define(function (require, exports, module) {
       this._createView = options.createView;
       this._experimentGroupingRules = options.experimentGroupingRules;
 
-      var uid = this.relier.get('uid');
+      const uid = this.relier.get('uid');
+      this.notifier.trigger('set-uid', uid);
 
       // A uid param is set by RPs linking directly to the settings
       // page for a particular account.
