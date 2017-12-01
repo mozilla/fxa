@@ -45,7 +45,7 @@ define(function(require, exports, module) {
     {
       checked: true,
       id: 'passwords',
-      text: t('Passwords')
+      text: t('Logins')
     },
     {
       checked: true,
