@@ -2,3 +2,5 @@
 build
 data.stage
 lambda.zip
+node_modules
+*.parquet
