@@ -199,6 +199,8 @@ const QUERY_ACTIVE_CLIENT_TOKENS_BY_UID =
   'LIMIT 10000;';
 const DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID =
   'DELETE FROM tokens WHERE clientId=? AND userId=?';
+const DELETE_ACTIVE_REFRESH_TOKENS_BY_CLIENT_AND_UID =
+  'DELETE FROM refreshTokens WHERE clientId=? AND userId=?';
 // Scope queries
 const QUERY_SCOPE_FIND =
   'SELECT * ' +
@@ -468,9 +470,19 @@ MysqlStore.prototype = {
    * @returns {Promise}
    */
   deleteActiveClientTokens: function deleteActiveClientTokens(clientId, uid) {
-    return this._write(DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID, [
+    const deleteTokens = this._write(DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID, [
       buf(clientId),
       buf(uid)
+    ]);
+
+    const deleteRefreshTokens = this._write(DELETE_ACTIVE_REFRESH_TOKENS_BY_CLIENT_AND_UID, [
+      buf(clientId),
+      buf(uid)
+    ]);
+
+    return P.all([
+      deleteTokens,
+      deleteRefreshTokens
     ]);
   },
 

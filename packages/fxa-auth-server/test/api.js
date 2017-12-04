@@ -2928,14 +2928,16 @@ describe('/v1', function() {
 
     describe('DELETE /client-tokens/{client_id}', function() {
 
-      it('deletes all tokens for some client id', function() {
-        var user2ClientWriteToken;
+      it('deletes all tokens and refreshTokens for some client id', function() {
+        const scopes = ['profile'];
+        let user2ClientWriteToken;
+        let refreshTokenIdHash;
         return db.registerClient(client2)
           .then(function () {
             return getUniqueUserAndToken(client2Id.toString('hex'), {
               uid: user1.uid,
               email: user1.email,
-              scopes: ['profile']
+              scopes: scopes
             });
           })
           .then(function () {
@@ -2948,6 +2950,17 @@ describe('/v1', function() {
           .then(function (res) {
             user2ClientWriteToken = res.token;
 
+            // also create a refreshToken for user1
+            return db.generateRefreshToken({
+              clientId: client2Id,
+              userId: buf(user1.uid),
+              email: user1.email,
+              scope: scopes
+            });
+          })
+          .then(function (t) {
+            refreshTokenIdHash = encrypt.hash(t.token.toString('hex'));
+
             return Server.api.get({
               url: '/client-tokens',
               headers: {
@@ -2958,6 +2971,12 @@ describe('/v1', function() {
           .then(function (res) {
             assert.equal(res.result.length, 2);
             assertSecurityHeaders(res);
+
+            return db.getRefreshToken(refreshTokenIdHash);
+          })
+          .then(function (tok) {
+            assert.equal(tok.token.toString('hex'), refreshTokenIdHash.toString('hex'), 'refresh token was not deleted');
+
             return Server.api.delete({
               url: '/client-tokens/' + client2Id.toString('hex'),
               headers: {
@@ -2999,8 +3018,12 @@ describe('/v1', function() {
             assert.equal(res.result.code, 401, 'client:write token was deleted');
             assert.equal(res.result.detail, 'Bearer token invalid');
             assertSecurityHeaders(res);
+
+            return db.getRefreshToken(refreshTokenIdHash);
           })
-          .then(function () {
+          .then(function (tok) {
+            assert.equal(tok, undefined, 'refresh token was deleted');
+
             return Server.api.get({
               url: '/client-tokens',
               headers: {

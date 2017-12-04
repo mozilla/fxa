@@ -301,14 +301,19 @@ MemoryStore.prototype = {
       return P.reject(new Error('clientId and uid are required'));
     }
 
-    var ids = Object.keys(this.tokens);
-    for (var i = 0; i < ids.length; i++) {
-      var id = ids[i];
-      if (this.tokens[id].userId.toString('hex') === uid &&
-        this.tokens[id].clientId.toString('hex') === clientId) {
-        delete this.tokens[id];
+    function deleteToken(tokens) {
+      const ids = Object.keys(tokens);
+      for (let i = 0; i < ids.length; i++) {
+        const id = ids[i];
+        if (tokens[id].userId.toString('hex') === uid &&
+          tokens[id].clientId.toString('hex') === clientId) {
+          delete tokens[id];
+        }
       }
     }
+
+    deleteToken(this.tokens);
+    deleteToken(this.refreshTokens);
 
     return P.resolve({});
   },
