@@ -1,3 +1,12 @@
+<a name"1.100.2"></a>
+### 1.100.2 (2017-12-04)
+
+
+#### Bug Fixes
+
+* **tokens:** invalidate refresh tokens on client-token DELETE action (#508) ([df0ca82a](https://github.com/mozilla/fxa-oauth-server/commit/df0ca82a), closes [#507](https://github.com/mozilla/fxa-oauth-server/issues/507))
+
+
 <a name"1.100.1"></a>
 ### 1.100.1 (2017-11-27)
 
