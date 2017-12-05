@@ -1,3 +1,13 @@
+<a name="1.101.3"></a>
+## 1.101.3 (2017-12-05)
+
+
+### Bug Fixes
+
+* **email-first:** Fix FxA resizing in the firstrun page for email-first (#5765); r=rfk ([5d7366b](https://github.com/mozilla/fxa-content-server/commit/5d7366b)), closes [(#5765](https://github.com/(/issues/5765)
+
+
+
 <a name="1.101.2"></a>
 ## 1.101.2 (2017-11-29)
 
