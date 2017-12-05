@@ -501,18 +501,19 @@ module.exports = (log, db, config, customs, push, devices) => {
         const sessionToken = request.auth.credentials
         const uid = sessionToken.uid
         const id = request.payload.id
-        let result
+        let result, devices
 
-        return db.deleteDevice(uid, id)
+        // We want to inculde the disconnected device in the list
+        // of devices to notify, so list them before disconnecting.
+        return request.app.devices
+          .then(res => {
+            devices = res
+            return db.deleteDevice(uid, id)
+          })
           .then(res => {
             result = res
-          })
-          .then(() => request.app.devices)
-          .then(devices =>
             push.notifyDeviceDisconnected(uid, devices, id)
               .catch(() => {})
-          )
-          .then(() => {
             return P.all([
               request.emitMetricsEvent('device.deleted', {
                 uid: uid,

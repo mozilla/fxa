@@ -1,3 +1,13 @@
+<a name="1.101.1"></a>
+## [1.101.1](https://github.com/mozilla/fxa-auth-server/compare/v1.101.0...v1.101.1) (2017-12-05)
+
+
+### Bug Fixes
+
+* **push:** Send a notification to the device that's being disconnected. (#2245); r=eoger ([9da5305](https://github.com/mozilla/fxa-auth-server/commit/9da5305))
+
+
+
 <a name="1.101.0"></a>
 # [1.101.0](https://github.com/mozilla/fxa-auth-server/compare/v1.100.0...v1.101.0) (2017-11-29)
 
