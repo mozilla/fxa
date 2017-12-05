@@ -503,6 +503,7 @@ describe('/account/device/destroy', function () {
   it('should work', () => {
     var uid = uuid.v4('binary').toString('hex')
     var deviceId = crypto.randomBytes(16).toString('hex')
+    var deviceId2 = crypto.randomBytes(16).toString('hex')
     var mockLog = mocks.mockLog()
     var mockDB = mocks.mockDB()
     var mockRequest = mocks.mockRequest({
@@ -510,6 +511,7 @@ describe('/account/device/destroy', function () {
         uid: uid
       },
       log: mockLog,
+      devices: [deviceId, deviceId2],
       payload: {
         id: deviceId
       }
@@ -527,6 +529,7 @@ describe('/account/device/destroy', function () {
       assert.ok(mockDB.deleteDevice.calledBefore(mockPush.notifyDeviceDisconnected))
       assert.equal(mockPush.notifyDeviceDisconnected.callCount, 1)
       assert.equal(mockPush.notifyDeviceDisconnected.firstCall.args[0], mockRequest.auth.credentials.uid)
+      assert.deepEqual(mockPush.notifyDeviceDisconnected.firstCall.args[1], [deviceId, deviceId2])
       assert.equal(mockPush.notifyDeviceDisconnected.firstCall.args[2], deviceId)
 
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
