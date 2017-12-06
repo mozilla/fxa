@@ -183,8 +183,7 @@
       &#camera,
       &#file,
       &.remove {
-        background-position: 50% 22%;
-        background-size: 41%;
+        background-position: 50% 0%;
 
         &:hover {
           filter: hue-rotate(3deg) saturate(1.1) brightness(.85);
