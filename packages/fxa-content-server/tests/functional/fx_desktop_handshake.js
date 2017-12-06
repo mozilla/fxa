@@ -42,6 +42,7 @@ define([
   const clearBrowserState = FunctionalHelpers.clearBrowserState;
   const createUser = FunctionalHelpers.createUser;
   const deleteAllSms = FunctionalHelpers.deleteAllSms;
+  const disableInProd = FunctionalHelpers.disableInProd;
   const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   const getSmsSigninCode = FunctionalHelpers.getSmsSigninCode;
   const openPage = FunctionalHelpers.openPage;
@@ -140,14 +141,14 @@ define([
         .then(testElementValueEquals(selectors.SIGNIN.EMAIL, browserSignedInEmail));
     },
 
-    'Sync signin page w/ signin code - user signed into browser': function () {
-      const TEST_PHONE_NUMBER = config.fxaTestPhoneNumber;
+    'Sync signin page w/ signin code - user signed into browser': disableInProd(function () {
+      const testPhoneNumber = TestHelpers.createPhoneNumber();
       let signinUrlWithSigninCode;
 
       return this.remote
         // The phoneNumber can be reused by different tests, delete all
         // of its SMS messages to ensure a clean slate.
-        .then(deleteAllSms(TEST_PHONE_NUMBER))
+        .then(deleteAllSms(testPhoneNumber))
 
         .then(openPage(SYNC_SMS_PAGE_URL, selectors.SMS_SEND.HEADER, {
           webChannelResponses: {
@@ -156,11 +157,11 @@ define([
             }
           }
         }))
-        .then(type(selectors.SMS_SEND.PHONE_NUMBER, TEST_PHONE_NUMBER))
+        .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
         .then(click(selectors.SMS_SEND.SUBMIT))
 
         .then(testElementExists(selectors.SMS_SENT.HEADER))
-        .then(getSmsSigninCode(TEST_PHONE_NUMBER, 0))
+        .then(getSmsSigninCode(testPhoneNumber, 0))
         .then(function (signinCode) {
           signinUrlWithSigninCode = `${SYNC_SIGNIN_PAGE_URL}&signin=${signinCode}`;
           return this.parent
@@ -180,7 +181,7 @@ define([
             // defined so that we are ready when Fennec or iOS adds fxa_status support.
             .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, browserSignedInEmail));
         });
-    },
+    }),
 
     'Non-Sync signin page - user signed into browser, no user signed in locally': function () {
       return this.remote

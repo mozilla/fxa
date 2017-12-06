@@ -20,7 +20,6 @@ function (intern, topic, firefoxProfile) {
   var fxaEmailRoot = args.fxaEmailRoot || 'http://127.0.0.1:9001';
   var fxaOauthApp = args.fxaOauthApp || 'http://127.0.0.1:8080/';
   var fxaUntrustedOauthApp = args.fxaUntrustedOauthApp || 'http://127.0.0.1:10139/';
-  const fxaTestPhoneNumber = args.fxaTestPhoneNumber || '9164400029'; // We're sorry, all circuits are busy now
 
   // "fxaProduction" is a little overloaded in how it is used in the tests.
   // Sometimes it means real "stage" or real production configuration, but
@@ -67,7 +66,6 @@ function (intern, topic, firefoxProfile) {
     fxaOauthApp: fxaOauthApp,
     fxaProduction: fxaProduction,
     fxaProfileRoot: fxaProfileRoot,
-    fxaTestPhoneNumber,
     fxaToken: fxaToken,
     fxaTokenRoot: fxaTokenRoot,
     fxaUntrustedOauthApp: fxaUntrustedOauthApp,
