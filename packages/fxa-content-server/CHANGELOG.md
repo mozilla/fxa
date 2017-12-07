@@ -1,3 +1,13 @@
+<a name="1.101.4"></a>
+## 1.101.4 (2017-12-07)
+
+
+### Reverts
+
+* **sms:** "Use a known test number for SMS tests. (#5720)" ([0eb7263](https://github.com/mozilla/fxa-content-server/commit/0eb7263))
+
+
+
 <a name="1.101.3"></a>
 ## 1.101.3 (2017-12-05)
 
