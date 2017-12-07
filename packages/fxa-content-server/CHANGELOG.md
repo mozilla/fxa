@@ -1,3 +1,13 @@
+<a name="1.101.5"></a>
+## 1.101.5 (2017-12-07)
+
+
+### Features
+
+* **sms:** Fully roll out Germany (DE) and Austria (AT) (#5775) ([4563a61](https://github.com/mozilla/fxa-content-server/commit/4563a61))
+
+
+
 <a name="1.101.4"></a>
 ## 1.101.4 (2017-12-07)
 

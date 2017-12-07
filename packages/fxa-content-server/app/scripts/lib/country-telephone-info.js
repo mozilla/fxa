@@ -82,7 +82,7 @@ define(function(require, exports, module) {
       normalize: ensurePrefix('+43'),
       pattern: /^(?:\+43)?\d{6,}$/,
       prefix: '+43',
-      rolloutRate: 0.5
+      rolloutRate: 1
     },
     // Belgium
     // https://en.wikipedia.org/wiki/Telephone_numbers_in_Belgium
@@ -100,7 +100,7 @@ define(function(require, exports, module) {
       normalize: ensurePrefix('+49'),
       pattern: /^(?:\+49)?\d{6,13}$/,
       prefix: '+49',
-      rolloutRate: 0.5
+      rolloutRate: 1
     },
     // Denmark
     // https://en.wikipedia.org/wiki/Telephone_numbers_in_Denmark
