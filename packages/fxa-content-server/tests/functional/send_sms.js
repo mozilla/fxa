@@ -8,8 +8,9 @@ define([
   'intern!object',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
+  'tests/functional/lib/selectors',
+  'app/scripts/lib/country-telephone-info'
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors, CountryTelephoneInfo) {
   'use strict';
 
   const config = intern.config;
@@ -29,16 +30,18 @@ define([
   const SEND_SMS_SIGNIN_CODE_URL = `${SEND_SMS_URL}&forceExperiment=sendSms&forceExperimentGroup=signinCodes`;
   const SEND_SMS_NO_QUERY_URL = `${config.fxaContentRoot}sms`;
 
-  const TEST_PHONE_NUMBER = config.fxaTestPhoneNumber;
-  const FORMATTED_TEST_PHONE_NUMBER = '916-440-0029';
 
   let email;
   const PASSWORD = 'password';
+
+  let testPhoneNumber;
+  let formattedPhoneNumber;
 
   const {
     click,
     closeCurrentWindow,
     deleteAllSms,
+    disableInProd,
     fillOutSignUp,
     getSms,
     getSmsSigninCode,
@@ -68,6 +71,10 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
+      testPhoneNumber = TestHelpers.createPhoneNumber();
+      const countryInfo = CountryTelephoneInfo['US'];
+      formattedPhoneNumber =
+         countryInfo.format(countryInfo.normalize(testPhoneNumber));
 
       // User needs a sessionToken to be able to send an SMS. Sign up,
       // no need to verify.
@@ -76,7 +83,7 @@ define([
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         // The phoneNumber can be reused by different tests, delete all
         // of its SMS messages to ensure a clean slate.
-        .then(deleteAllSms(TEST_PHONE_NUMBER));
+        .then(deleteAllSms(testPhoneNumber));
     },
 
     'with no query parameters': function () {
@@ -184,92 +191,92 @@ define([
        .then(testElementTextInclude(selectors.SMS_SEND.PHONE_NUMBER_TOOLTIP, 'invalid'));
     },
 
-    'valid phone number, back': function () {
+    'valid phone number, back': disableInProd(function () {
       return this.remote
        .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
-       .then(type(selectors.SMS_SEND.PHONE_NUMBER, TEST_PHONE_NUMBER))
+       .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
        .then(click(selectors.SMS_SEND.SUBMIT))
        .then(testElementExists(selectors.SMS_SENT.HEADER))
-       .then(testElementTextInclude(selectors.SMS_SENT.PHONE_NUMBER_SENT_TO, FORMATTED_TEST_PHONE_NUMBER))
+       .then(testElementTextInclude(selectors.SMS_SENT.PHONE_NUMBER_SENT_TO, formattedPhoneNumber))
        .then(testElementExists(selectors.SMS_SEND.LINK_MARKETING))
-       .then(getSms(TEST_PHONE_NUMBER, 0))
+       .then(getSms(testPhoneNumber, 0))
 
        // user realizes they made a mistake
        .then(click(selectors.SMS_SENT.LINK_BACK))
        .then(testElementExists(selectors.SMS_SEND.HEADER))
 
        // original phone number should still be in place
-       .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, TEST_PHONE_NUMBER));
-    },
+       .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber));
+    }),
 
-    'valid phone number, resend': function () {
+    'valid phone number, resend': disableInProd(function () {
       return this.remote
        .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
-       .then(type(selectors.SMS_SEND.PHONE_NUMBER, TEST_PHONE_NUMBER))
+       .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
        .then(click(selectors.SMS_SEND.SUBMIT))
        .then(testElementExists(selectors.SMS_SENT.HEADER))
-       .then(getSms(TEST_PHONE_NUMBER, 0))
+       .then(getSms(testPhoneNumber, 0))
 
        .then(click(selectors.SMS_SENT.LINK_RESEND))
-       .then(testElementTextInclude(selectors.SMS_SENT.RESEND_SUCCESS, FORMATTED_TEST_PHONE_NUMBER))
-       .then(getSms(TEST_PHONE_NUMBER, 1))
+       .then(testElementTextInclude(selectors.SMS_SENT.RESEND_SUCCESS, formattedPhoneNumber))
+       .then(getSms(testPhoneNumber, 1))
 
        // user realizes they made a mistake
        .then(click(selectors.SMS_SENT.LINK_BACK))
        .then(testElementExists(selectors.SMS_SEND.HEADER))
 
        // original phone number should still be in place
-       .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, TEST_PHONE_NUMBER));
-    },
+       .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber));
+    }),
 
-    'valid phone number, enable signinCode': function () {
+    'valid phone number, enable signinCode': disableInProd(function () {
       return this.remote
        .then(openPage(SEND_SMS_SIGNIN_CODE_URL, selectors.SMS_SEND.HEADER))
-       .then(type(selectors.SMS_SEND.PHONE_NUMBER, TEST_PHONE_NUMBER))
+       .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
        .then(click(selectors.SMS_SEND.SUBMIT))
        .then(testElementExists(selectors.SMS_SENT.HEADER))
-       .then(getSmsSigninCode(TEST_PHONE_NUMBER, 0));
-    },
+       .then(getSmsSigninCode(testPhoneNumber, 0));
+    }),
 
-    'valid phone number w/ country code of 1': function () {
+    'valid phone number w/ country code of 1': disableInProd(function () {
       return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
-        .then(type(selectors.SMS_SEND.PHONE_NUMBER, `1${TEST_PHONE_NUMBER}`))
+        .then(type(selectors.SMS_SEND.PHONE_NUMBER, `1${testPhoneNumber}`))
         .then(click(selectors.SMS_SEND.SUBMIT))
         .then(testElementExists(selectors.SMS_SENT.HEADER))
-        .then(testElementTextInclude(selectors.SMS_SENT.PHONE_NUMBER_SENT_TO, FORMATTED_TEST_PHONE_NUMBER))
+        .then(testElementTextInclude(selectors.SMS_SENT.PHONE_NUMBER_SENT_TO, formattedPhoneNumber))
         .then(testElementExists(selectors.SMS_SEND.LINK_MARKETING))
-        .then(getSms(TEST_PHONE_NUMBER, 0));
-    },
+        .then(getSms(testPhoneNumber, 0));
+    }),
 
-    'valid phone number w/ country code of +1': function () {
+    'valid phone number w/ country code of +1': disableInProd(function () {
       return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
-        .then(type(selectors.SMS_SEND.PHONE_NUMBER, `+1${TEST_PHONE_NUMBER}`))
+        .then(type(selectors.SMS_SEND.PHONE_NUMBER, `+1${testPhoneNumber}`))
         .then(click(selectors.SMS_SEND.SUBMIT))
         .then(testElementExists(selectors.SMS_SENT.HEADER))
-        .then(testElementTextInclude(selectors.SMS_SENT.PHONE_NUMBER_SENT_TO, FORMATTED_TEST_PHONE_NUMBER))
+        .then(testElementTextInclude(selectors.SMS_SENT.PHONE_NUMBER_SENT_TO, formattedPhoneNumber))
         .then(testElementExists(selectors.SMS_SEND.LINK_MARKETING))
-        .then(getSms(TEST_PHONE_NUMBER, 0));
-    },
+        .then(getSms(testPhoneNumber, 0));
+    }),
 
-    'valid phone number (contains spaces and punctuation)': function () {
-      const unformattedTestPhoneNumber = ` ${TEST_PHONE_NUMBER.slice(0,3)} .,- ${TEST_PHONE_NUMBER.slice(3)} `;
+    'valid phone number (contains spaces and punctuation)': disableInProd(function () {
+      const unformattedPhoneNumber = ` ${testPhoneNumber.slice(0,3)} .,- ${testPhoneNumber.slice(3)} `;
       return this.remote
        .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
-       .then(type(selectors.SMS_SEND.PHONE_NUMBER, unformattedTestPhoneNumber))
+       .then(type(selectors.SMS_SEND.PHONE_NUMBER, unformattedPhoneNumber))
        .then(click(selectors.SMS_SEND.SUBMIT))
        .then(testElementExists(selectors.SMS_SENT.HEADER))
-       .then(testElementTextInclude(selectors.SMS_SENT.PHONE_NUMBER_SENT_TO, FORMATTED_TEST_PHONE_NUMBER))
-       .then(getSms(TEST_PHONE_NUMBER, 0))
+       .then(testElementTextInclude(selectors.SMS_SENT.PHONE_NUMBER_SENT_TO, formattedPhoneNumber))
+       .then(getSms(testPhoneNumber, 0))
 
        // user realizes they made a mistake
        .then(click(selectors.SMS_SENT.LINK_BACK))
        .then(testElementExists(selectors.SMS_SEND.HEADER))
 
        // original phone number should still be in place
-       .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, unformattedTestPhoneNumber));
-    }
+       .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, unformattedPhoneNumber));
+    })
   };
 
   registerSuite(suite);
