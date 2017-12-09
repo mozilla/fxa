@@ -20,7 +20,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('build',
     'Build client',
-    ['clean', 'lint', 'requirejs', 'bytesize']);
+    ['clean', 'lint', 'webpack:app', 'bytesize']);
 
   grunt.registerTask('test',
     'Run tests via node',
