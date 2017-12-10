@@ -161,8 +161,8 @@ function mockDB (data, errors) {
         email: data.email,
         emailCode: data.emailCode,
         emailVerified: data.emailVerified,
-        primaryEmail: {normalizedEmail: data.email.toLowerCase(), email: data.email, isVerified: data.emailVerified, isPrimary: true},
-        emails: [{normalizedEmail: data.email.toLowerCase(), email: data.email, isVerified: data.emailVerified, isPrimary: true}],
+        primaryEmail: {normalizedEmail: data.email.toLowerCase(), email: data.email, isVerified: data.emailVerified || false, isPrimary: true},
+        emails: [{normalizedEmail: data.email.toLowerCase(), email: data.email, isVerified: data.emailVerified || false, isPrimary: true}],
         uid: data.uid,
         verifierSetAt: Date.now(),
         wrapWrapKb: data.wrapWrapKb

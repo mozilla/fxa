@@ -689,8 +689,18 @@ module.exports = (log, db, mailer, config, customs, push) => {
           })
           .then(deleteEmail)
           .then(() => {
-            // Don't notify the secondary email that it has been removed from the account.
-            // We only want the primary email and all *other* verified emails to get this.
+            // Find the email object that corresponds to the email being deleted
+            const emailIsVerified = account.emails.find((item) => {
+              return item.normalizedEmail === email.toLowerCase() && item.isVerified
+            })
+
+            // Don't bother sending a notification if removing an email that was never verified
+            if (! emailIsVerified) {
+              return P.resolve()
+            }
+
+            // Notify only primary email and all *other* verified secondary emails about the
+            // deletion.
             const emails = account.emails.filter((item) => {
               if (item.normalizedEmail !== email.toLowerCase()) {
                 return item

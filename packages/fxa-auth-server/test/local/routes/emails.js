@@ -340,7 +340,7 @@ describe('/recovery_email/resend_code', () => {
         service: 'foo'
       },
       payload: {
-        email : 'secondEmail@email.com'
+        email: 'secondEmail@email.com'
       }
     })
 
@@ -856,15 +856,61 @@ describe('/recovery_email', () => {
   })
 
   describe('/recovery_email/destroy', () => {
-    it('should delete email from account', () => {
+    it('should delete email from account ', () => {
       route = getRoute(accountRoutes, '/recovery_email/destroy')
       return runTest(route, mockRequest, (response) => {
         assert.ok(response)
         assert.equal(mockDB.deleteEmail.callCount, 1, 'call db.deleteEmail')
       })
-        .then(function () {
-          mockDB.deleteEmail.reset()
+    })
+
+    it('should send secondary email post delete notification, if email is verified', () => {
+      const tempEmail = 'anotherEmail@one.com'
+      mockRequest.payload = {
+        email: tempEmail
+      }
+      mockDB.account = sinon.spy(() => {
+        return P.resolve({
+          uid: mockRequest.auth.credentials.uid,
+          isVerified: true,
+          isPrimary: false,
+          emails: [{normalizedEmail: TEST_EMAIL, email: TEST_EMAIL, isVerified: true, isPrimary: true},
+            {normalizedEmail: tempEmail.toLowerCase(), email: tempEmail, isVerified: true, isPrimary: false}],
         })
+      })
+      route = getRoute(accountRoutes, '/recovery_email/destroy')
+      return runTest(route, mockRequest, (response) => {
+        assert.ok(response)
+        assert.equal(mockDB.deleteEmail.callCount, 1, 'call db.deleteEmail')
+        assert.equal(mockMailer.sendPostRemoveSecondaryEmail.callCount, 1, 'call mailer.sendVerifySecondaryEmail')
+      })
+    })
+
+    it('shouldn\'t send secondary email post delete notification, if email is unverified', () => {
+      const tempEmail = 'anotherEmail@one.com'
+      mockRequest.payload = {
+        email: tempEmail
+      }
+      mockDB.account = sinon.spy(() => {
+        return P.resolve({
+          uid: mockRequest.auth.credentials.uid,
+          isVerified: true,
+          isPrimary: false,
+          emails: [{normalizedEmail: TEST_EMAIL, email: TEST_EMAIL, isVerified: true, isPrimary: true},
+            {normalizedEmail: tempEmail, email: tempEmail, isVerified: false, isPrimary: false}],
+        })
+      })
+      route = getRoute(accountRoutes, '/recovery_email/destroy')
+      return runTest(route, mockRequest, (response) => {
+        assert.ok(response)
+        assert.equal(mockDB.deleteEmail.callCount, 1, 'call db.deleteEmail')
+        assert.equal(mockMailer.sendPostRemoveSecondaryEmail.callCount, 0, 'shouldn\'t call mailer.sendVerifySecondaryEmail')
+      })
+    })
+
+    afterEach(() => {
+      mockDB.deleteEmail.reset()
+      mockMailer.sendPostRemoveSecondaryEmail.reset()
     })
   })
 

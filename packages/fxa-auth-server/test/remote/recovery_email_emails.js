@@ -353,6 +353,15 @@ describe('remote emails', function () {
     beforeEach(() => {
       secondEmail = server.uniqueEmail()
       return client.createEmail(secondEmail)
+        .then(() => {
+          return server.mailbox.waitForEmail(secondEmail)
+        })
+        .then((emailData) => {
+          const templateName = emailData['headers']['x-template-name']
+          const emailCode = emailData['headers']['x-verify-code']
+          assert.equal(templateName, 'verifySecondaryEmail', 'email template name set')
+          return client.verifySecondaryEmail(emailCode, secondEmail)
+        })
         .then((res) => {
           assert.ok(res, 'ok response')
           return client.accountEmails()
@@ -361,7 +370,14 @@ describe('remote emails', function () {
           assert.equal(res.length, 2, 'returns number of emails')
           assert.equal(res[1].email, secondEmail, 'returns correct email')
           assert.equal(res[1].isPrimary, false, 'returns correct isPrimary')
-          assert.equal(res[1].verified, false, 'returns correct verified')
+          assert.equal(res[1].verified, true, 'returns correct verified')
+        })
+        .then(() => {
+          return server.mailbox.waitForEmail(email)
+        })
+        .then((emailData) => {
+          const templateName = emailData['headers']['x-template-name']
+          assert.equal(templateName, 'postVerifySecondaryEmail', 'email template name set')
         })
     })
 
@@ -424,15 +440,14 @@ describe('remote emails', function () {
             assert.equal(res.length, 2, 'returns number of emails')
             assert.equal(res[1].email, secondEmail, 'returns correct email')
             assert.equal(res[1].isPrimary, false, 'returns correct isPrimary')
-            assert.equal(res[1].verified, false, 'returns correct verified')
+            assert.equal(res[1].verified, true, 'returns correct verified')
             return client.deleteEmail(secondEmail)
               .then(() => {
                 assert.fail(new Error('Should not have deleted email'))
+              }, (err) => {
+                assert.equal(err.code, 400, 'correct error code')
+                assert.equal(err.errno, 138, 'correct error errno unverified session')
               })
-          })
-          .catch((err) => {
-            assert.equal(err.code, 400, 'correct error code')
-            assert.equal(err.errno, 138, 'correct error errno unverified session')
           })
       }
     )
