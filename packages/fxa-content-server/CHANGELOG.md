@@ -1,3 +1,22 @@
+<a name="1.102.0"></a>
+# 1.102.0 (2017-12-13)
+
+
+### Bug Fixes
+
+* **apps:** Update Notes icon (#5768) r=@shane-tomlinson ([a6429ed](https://github.com/mozilla/fxa-content-server/commit/a6429ed)), closes [#5767](https://github.com/mozilla/fxa-content-server/issues/5767)
+* **copy:** update sync-engines.js (#5769) r=@vladikoff,@ryanfeeley  ([c8c8afe](https://github.com/mozilla/fxa-content-server/commit/c8c8afe))
+
+### Features
+
+* **sms:** Enable SMS in Denmark (DK) and the Netherlands (NL) (#5749) r=@vbudhram ([e191b19](https://github.com/mozilla/fxa-content-server/commit/e191b19)), closes [#5746](https://github.com/mozilla/fxa-content-server/issues/5746)
+
+### Refactor
+
+* **client:** Replace p-promise with native promises (#5543) r=@vbudhram ([27c189d](https://github.com/mozilla/fxa-content-server/commit/27c189d))
+
+
+
 <a name="1.101.5"></a>
 ## 1.101.5 (2017-12-07)
 
