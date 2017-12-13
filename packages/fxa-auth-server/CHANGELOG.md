@@ -1,3 +1,14 @@
+<a name="1.102.0"></a>
+# [1.102.0](https://github.com/mozilla/fxa-auth-server/compare/v1.101.1...v1.102.0) (2017-12-13)
+
+
+### Features
+
+* **codes:** don't send delete notification when deleting unverified email (#2246), r=@rfk ([ae36ddf](https://github.com/mozilla/fxa-auth-server/commit/ae36ddf))
+* **sms:** Enable SMS in Denmark (DK) and the Netherlands (NL) (#2238) r=@vladikoff,@vbudhr ([c8e55fe](https://github.com/mozilla/fxa-auth-server/commit/c8e55fe)), closes [#2237](https://github.com/mozilla/fxa-auth-server/issues/2237)
+
+
+
 <a name="1.101.1"></a>
 ## [1.101.1](https://github.com/mozilla/fxa-auth-server/compare/v1.101.0...v1.101.1) (2017-12-05)
 
