@@ -48,7 +48,6 @@ define([
                             selectors.CONFIRM_SIGNUP.HEADER;
 
     return this.parent
-      .then(clearBrowserState({ force: true }))
       .then(createUser(signUpEmail, PASSWORD, { preVerified: options.preVerified }))
       .then(openPage(PAGE_URL, selectors.SIGNIN.HEADER, { query: options.query, webChannelResponses: {
         'fxaccounts:can_link_account': { ok: true },
@@ -72,7 +71,7 @@ define([
       email = TestHelpers.createEmail('sync{id}');
 
       return this.remote
-        .then(clearBrowserState());
+        .then(clearBrowserState({ force: true }));
     },
 
     'Fx >= 58, verified, does not need to confirm - control': function () {
@@ -82,7 +81,6 @@ define([
       email = TestHelpers.createEmail();
 
       return this.remote
-        .then(clearBrowserState({ force: true }))
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(PAGE_URL, selectors.SIGNIN.HEADER, { query, webChannelResponses: {
           'fxaccounts:can_link_account': { ok: true },
@@ -100,7 +98,6 @@ define([
       email = TestHelpers.createEmail();
 
       return this.remote
-        .then(clearBrowserState({ force: true }))
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(PAGE_URL, selectors.SIGNIN.HEADER, { query, webChannelResponses: {
           'fxaccounts:can_link_account': { ok: true },
