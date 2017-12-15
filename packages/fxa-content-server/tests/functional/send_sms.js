@@ -109,6 +109,7 @@ define([
     },
 
     'with `country=AT`': testSmsSupportedCountryForm('AT', '+43'),
+    'with `country=AU`': testSmsSupportedCountryForm('AU', '+61'),
     'with `country=BE`': testSmsSupportedCountryForm('BE', '+32'),
     'with `country=CA`': testSmsSupportedCountryForm('CA', ''),
     'with `country=DE`': testSmsSupportedCountryForm('DE', '+49'),

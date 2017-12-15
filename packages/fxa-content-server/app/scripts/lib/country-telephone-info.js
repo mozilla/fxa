@@ -84,6 +84,15 @@ define(function(require, exports, module) {
       prefix: '+43',
       rolloutRate: 1
     },
+    // Australia
+    // https://en.wikipedia.org/wiki/Telephone_numbers_in_Australia
+    AU: {
+      format: formatter('+61 ${serverPhoneNumber}'),
+      normalize: ensurePrefix('+61'),
+      pattern: /^(?:\+61\d{9}|\d{10})$/,
+      prefix: '+61',
+      rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=AU`
+    },
     // Belgium
     // https://en.wikipedia.org/wiki/Telephone_numbers_in_Belgium
     BE: {

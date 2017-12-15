@@ -39,6 +39,32 @@ define(function(require, exports, module) {
           '+331234567890'
         ]
       },
+      // Australia
+      AU: {
+        format: {
+          '1234567890': '+61 1234567890'
+        },
+        normalize: {
+          '+61123456789': '+61123456789',
+          '1234567890': '+611234567890'
+        },
+        validPatterns: [
+          '1234567890',
+          '+61123456789'
+        ],
+        invalidPatterns: [
+          // wrong country code
+          '+331234567890',
+
+          // too short
+          '123456789',
+          '+6112345678',
+
+          // too long
+          '12345678901',
+          '+611234567890',
+        ]
+      },
       // Belgium
       BE: {
         format: {
