@@ -6,7 +6,29 @@
         <meta name="referrer" content="origin">
         <meta name="robots" content="noindex,nofollow">
         <title>Firefox Accounts Unit Tests</title>
-        <link rel="stylesheet" href="/bower_components/mocha/mocha.css" />
+        <style>
+          * {
+            font-size: 10px;
+          }
+          li {
+            margin: 0;
+          }
+          ul {
+            margin: 0;
+            list-style: none;
+          }
+          .test {
+            display: none
+          }
+          .test.fail {
+            display: block;
+          }
+
+          #mocha, #container {
+            width: 50%;
+            float: left;
+          }
+        </style>
     </head>
     <body>
         <div id="mocha"></div>
