@@ -17,6 +17,8 @@ Static server that hosts [Firefox Account sign up](https://accounts.firefox.com)
 * [Servers](#servers)
 * [License](#license)
 
+---
+
 ## Quick Start
 
 Clone the repository, make sure you have [required prerequisites](https://github.com/mozilla/fxa-local-dev#dependencies) installed.
@@ -26,6 +28,8 @@ This will start a local fxa-content-server on [http://127.0.0.1:3030](http://127
 If you want to install all Firefox Accounts servers locally follow the instructions on:
 [fxa-local-dev](https://github.com/mozilla/fxa-local-dev) to get a full development setup running.
 Please note that fxa-local-dev is the preferred way of contributing to Firefox Accounts.
+
+---
 
 ## Development Notes
 
@@ -37,6 +41,8 @@ Now whenever a change is made to the `.scss` files, the corresponding css resour
 ### Changes to scripts and templates
 
 Any changes made to the scripts or the template files will automatically be reflected on page refresh.
+
+---
 
 ## Testing
 
@@ -62,6 +68,8 @@ To change the default auth server edit `server/config/*.json` on your deployed i
 
 **Note that testing with Selenium via Docker does *not* work at present, so all testing must be carried out via your normal operating system's npm & Java tooling.**
 
+---
+
 ## Grunt Commands
 
 [Grunt](http://gruntjs.com/) is used to run common tasks to build, test, and run local servers.
@@ -78,6 +86,8 @@ To change the default auth server edit `server/config/*.json` on your deployed i
 | `grunt version` | stamp a new minor version. Updates the version number and creates a new CHANGELOG.md. |
 | `grunt version:patch` | stamp a new patch version. Updates the version number and creates a new CHANGELOG.md. |
 
+---
+
 ## Servers
 
 * latest development - https://latest.dev.lcip.org/
@@ -85,6 +95,8 @@ To change the default auth server edit `server/config/*.json` on your deployed i
 * stable - https://stable.dev.lcip.org/
 * stage - https://accounts.stage.mozaws.net/
 * production - https://accounts.firefox.com/
+
+---
 
 ## License
 
