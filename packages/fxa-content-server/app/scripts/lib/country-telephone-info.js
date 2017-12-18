@@ -127,7 +127,7 @@ define(function(require, exports, module) {
       normalize: ensurePrefix('+34'),
       pattern: /^(?:\+34)?\d{9}$/,
       prefix: '+34',
-      rolloutRate: 0  // being soft launched. Testers will need to open `/sms?service=sync&country=ES`
+      rolloutRate: 0.5
     },
     // France
     // https://en.wikipedia.org/wiki/Telephone_numbers_in_France
@@ -181,7 +181,7 @@ define(function(require, exports, module) {
       normalize: ensurePrefix('+351'),
       pattern: /^(?:\+351)?\d{9}$/,
       prefix: '+351',
-      rolloutRate: 0  // being soft launched. Testers will need to open `/sms?service=sync&country=PT`
+      rolloutRate: 0.5
     },
     RO: {
       format: formatter('+40 ${serverPhoneNumber}'),
@@ -197,7 +197,7 @@ define(function(require, exports, module) {
       // +407xxxxxxxx, allow leading 0 for sloppiness.
       pattern: /^(?:\+40)?0?7\d{8,8}$/,
       prefix: '+40',
-      rolloutRate: 0.5
+      rolloutRate: 1
     },
     US: {
       // Americans don't use country codes, just return the number
