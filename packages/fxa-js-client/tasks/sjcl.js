@@ -12,7 +12,7 @@ module.exports = function (grunt) {
     var src = 'core_closure.js';
     var dist = 'sjcl.js';
 
-    process.chdir('components/sjcl/');
+    process.chdir('node_modules/sjcl/');
 
     exec(configSJCL,
       function (error, stdout, stderr) {

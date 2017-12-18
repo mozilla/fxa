@@ -5,7 +5,7 @@
 define([
   'intern!tdd',
   'intern/chai!assert',
-  'components/sjcl/sjcl',
+  'node_modules/sjcl/sjcl',
   'client/lib/hawkCredentials'
 ], function (tdd, assert, sjcl, hawkCredentials) {
   with (tdd) {

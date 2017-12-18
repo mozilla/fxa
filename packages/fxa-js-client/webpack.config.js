@@ -27,8 +27,8 @@ module.exports = {
       path.resolve(__dirname, 'client')
     ],
     alias: {
-      'es6-promise': path.resolve(__dirname, 'components/es6-promise/dist/es6-promise'),
-      sjcl: path.resolve(__dirname, 'components/sjcl/sjcl')
+      'es6-promise': path.resolve(__dirname, 'node_modules/es6-promise/dist/es6-promise'),
+      sjcl: path.resolve(__dirname, 'node_modules/sjcl/sjcl')
     }
   },
 
@@ -65,6 +65,15 @@ module.exports = {
       sourceMap: true
     })
   ],
+
+  node: {
+    global: true,
+    process: false,
+    Buffer: false,
+    __filename: false,
+    __dirname: false,
+    setImmediate: false
+  },
 
   module: {},
   stats: { colors: true },

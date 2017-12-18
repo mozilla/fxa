@@ -11,7 +11,6 @@ module.exports = function (grunt) {
       'tests/**/*.js',
       '!node_modules/**',
       '!build/**',
-      '!components/**',
       '!docs/**',
       '!tests/addons/sinon.js'
     ],

@@ -8,7 +8,7 @@
     "start": "grunt",
     "test": "grunt test",
     "test-local": "intern-client config=tests/intern auth_server=LOCAL",
-    "setup": "npm install && bower install && grunt sjcl",
+    "setup": "npm install && grunt sjcl",
     "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS.md"
   },
   "main": "node/index.js",
@@ -35,7 +35,6 @@
     "xhr2": "0.0.7"
   },
   "devDependencies": {
-    "bower": "1.4.1",
     "eslint-config-fxa": "1.8.1",
     "grunt": "0.4.2",
     "grunt-build-control": "git://github.com/robwierzbowski/grunt-build-control#274952",

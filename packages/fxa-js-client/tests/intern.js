@@ -36,8 +36,8 @@ define(['intern/lib/args'], function (args) {
       packages: [ { name: 'fxa-js-client', location: 'client' } ],
       map: {
         '*': {
-          'es6-promise': 'components/es6-promise/dist/es6-promise',
-          sjcl: 'components/sjcl/sjcl'
+          'es6-promise': 'node_modules/es6-promise/dist/es6-promise',
+          sjcl: 'node_modules/sjcl/sjcl'
         }
       }
     },
