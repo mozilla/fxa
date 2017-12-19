@@ -68,6 +68,8 @@ define(function (require, exports, module) {
         if (this.hideFloatingPlaceholder) {
           this.hideFloatingPlaceholder(inputEl);
         }
+        // Called to clear validation tooltips. issues/5680
+        $(inputEl).change();
       });
 
       const formEl = this.$('form')[0];
