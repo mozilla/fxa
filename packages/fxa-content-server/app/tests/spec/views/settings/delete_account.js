@@ -170,6 +170,23 @@ define(function (require, exports, module) {
           });
         });
 
+        describe('error', function () {
+          beforeEach(function () {
+            view.$('#password').val('bad_password');
+
+            sinon.stub(user, 'deleteAccount').callsFake(function () {
+              return Promise.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
+            });
+
+            sinon.stub(view, 'showValidationError').callsFake(function () { });
+            return view.submit();
+          });
+
+          it('display an error message', function () {
+            assert.isTrue(view.showValidationError.called);
+          });
+        });
+
         describe('other errors', function () {
           beforeEach(function () {
             sinon.stub(user, 'deleteAccount').callsFake(function () {

@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const AuthErrors = require('../../lib/auth-errors');
   const BaseView = require('../base');
   const Cocktail = require('cocktail');
   const FloatingPlaceholderMixin = require('../mixins/floating-placeholder-mixin');
@@ -44,6 +45,12 @@ define(function (require, exports, module) {
           }, {
             clearQueryParams: true,
           });
+        })
+        .catch((err) => {
+          if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
+            return this.showValidationError(this.$('#password'), err);
+          }
+          throw err;
         });
     }
   });
