@@ -23,6 +23,7 @@ define(function (require, exports, module) {
     let model;
     let notifier;
     let relier;
+    let smsCountry;
     let user;
     let view;
     let windowMock;
@@ -51,6 +52,11 @@ define(function (require, exports, module) {
         window: windowMock
       });
       sinon.spy(view, 'logFlowEvent');
+      sinon.stub(view, 'getEligibleSmsCountry').callsFake(() => Promise.resolve(smsCountry));
+      sinon.stub(view, 'replaceCurrentPageWithSmsScreen').callsFake(() => {});
+
+      // by default, user is ineligble to send an SMS
+      smsCountry = null;
     });
 
     afterEach(() => {
@@ -63,9 +69,24 @@ define(function (require, exports, module) {
     }
 
     describe('render/afterVisible', () => {
+      describe('with a user that can send an SMS', () => {
+        beforeEach(() => {
+          smsCountry = 'GB';
+
+          return view.render()
+            .then(() => view.afterVisible());
+        });
+
+        it('redirects the user to the /sms page', () => {
+          assert.isTrue(view.replaceCurrentPageWithSmsScreen.calledOnce);
+          assert.isTrue(view.replaceCurrentPageWithSmsScreen.calledWith(account, 'GB'));
+        });
+      });
+
       describe('with a Fx desktop user that is signed in', () => {
         beforeEach(() => {
           sinon.stub(view, '_isSignedIn').callsFake(() => true);
+
           windowMock.navigator.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
 
           return view.render()
@@ -80,6 +101,8 @@ define(function (require, exports, module) {
           testIsFlowEventLogged('signedin.true');
           testIsFlowEventLogged('signin.ineligible');
           testIsFlowEventLogged('install_from.fx_desktop');
+
+          assert.isFalse(view.replaceCurrentPageWithSmsScreen.called);
         });
       });
 

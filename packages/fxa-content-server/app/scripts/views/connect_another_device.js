@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const Cocktail = require('cocktail');
+  const ConnectAnotherDeviceMixin = require('./mixins/connect-another-device-mixin');
   const ExperimentMixin = require('./mixins/experiment-mixin');
   const FlowEventsMixin = require('./mixins/flow-events-mixin');
   const FormView = require('./form');
@@ -40,6 +41,21 @@ define(function (require, exports, module) {
       const childView = this._createView(ChildView, options);
       return childView.render()
         .then(() => this.trackChildView(childView));
+    }
+
+    beforeRender () {
+      const account = this.getAccount();
+      // If the user is eligible for SMS, send them to the SMS screen.
+      // This allows the browser to link directly to /connect_another_device
+      // and we handle sending users to the correct place.
+      // See https://github.com/mozilla/fxa-content-server/issues/5737 and
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=1418466
+      return this.getEligibleSmsCountry(account)
+        .then((country) => {
+          if (country) {
+            return this.replaceCurrentPageWithSmsScreen(account, country);
+          }
+        });
     }
 
     afterRender () {
@@ -208,6 +224,7 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     ConnectAnotherDeviceView,
+    ConnectAnotherDeviceMixin,
     ExperimentMixin,
     FlowEventsMixin,
     MarketingMixin({

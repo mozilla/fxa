@@ -25,6 +25,7 @@ define([
     'ct=adjust_tracker&mt=8';
 
   const CONNECT_ANOTHER_DEVICE_URL = `${config.fxaContentRoot}connect_another_device`;
+  const CONNECT_ANOTHER_DEVICE_SMS_ENABLED_URL = `${config.fxaContentRoot}connect_another_device?forceExperiment=sendSms&forceExperimentGroup=signinCodes`;
   const SIGNIN_DESKTOP_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync`;
   const SIGNUP_FENNEC_URL = `${config.fxaContentRoot}signup?context=fx_fennec_v1&service=sync`;
   const SIGNUP_DESKTOP_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync`;
@@ -83,6 +84,20 @@ define([
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.TEXT_INSTALL_FX_DESKTOP))
         .then(testHrefEquals(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_IOS, ADJUST_LINK_IOS))
         .then(testHrefEquals(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_ANDROID, ADJUST_LINK_ANDROID));
+    },
+
+    'signup Fx Desktop, load /connect_another_device page, SMS enabled': function () {
+      // should have both links to mobile apps
+      const forceUA = UA_STRINGS['desktop_firefox'];
+      return this.remote
+        .then(openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, { query: { forceUA } }))
+        .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
+        .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+
+        .then(openPage(CONNECT_ANOTHER_DEVICE_SMS_ENABLED_URL, selectors.SMS_SEND.HEADER))
+        .then(testHrefEquals(selectors.SMS_SEND.LINK_MARKETING_IOS, ADJUST_LINK_IOS))
+        .then(testHrefEquals(selectors.SMS_SEND.LINK_MARKETING_ANDROID, ADJUST_LINK_ANDROID));
     },
 
     'signup Fx Desktop, verify same browser': function () {
