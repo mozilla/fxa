@@ -15,6 +15,7 @@
   "verifyEmail": 1,
   "verifyPrimaryEmail": 2,
   "verifyLoginEmail": 1,
+  "verifyLoginCodeEmail": 1,
   "verifySecondaryEmail": 1,
   "verifySyncEmail": 1
 }

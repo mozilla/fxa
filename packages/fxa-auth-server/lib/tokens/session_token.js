@@ -28,6 +28,9 @@ module.exports = (log, Token, config) => {
       // Tokens are considered verified if no tokenVerificationId exists
       this.tokenVerificationId = details.tokenVerificationId || null
       this.tokenVerified = this.tokenVerificationId ? false : true
+
+      this.tokenVerificationCode = details.tokenVerificationCode || null
+      this.tokenVerificationCodeExpiresAt = details.tokenVerificationCodeExpiresAt || null
     }
 
     static create(details) {

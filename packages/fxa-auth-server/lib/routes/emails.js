@@ -125,7 +125,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
         validate: {
           query: {
             service: validators.service,
-            type: isA.string().max(32).alphanum().allow('upgradeSession').optional()
+            type: isA.string().max(32).alphanum().allow(['upgradeSession']).optional()
           },
           payload: {
             email: validators.email().optional(),
@@ -133,7 +133,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
             metricsContext: METRICS_CONTEXT_SCHEMA,
-            type: isA.string().max(32).alphanum().allow('upgradeSession').optional()
+            type: isA.string().max(32).alphanum().allow(['upgradeSession']).optional()
           }
         }
       },
@@ -389,12 +389,14 @@ module.exports = (log, db, mailer, config, customs, push) => {
               })
               .then(() => {
                 if (! isAccountVerification) {
+
                   // Don't log sign-in confirmation success for the account verification case
                   log.info({
                     op: 'account.signin.confirm.success',
                     uid: uid,
                     code: request.payload.code
                   })
+
                   request.emitMetricsEvent('account.confirmed', {
                     uid: uid
                   })

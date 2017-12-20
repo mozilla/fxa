@@ -36,6 +36,7 @@ var makeRoutes = function (options, requireMocks) {
   }
   config.lastAccessTimeUpdates = {}
   config.signinConfirmation = config.signinConfirmation || {}
+  config.signinConfirmation.tokenVerificationCode = config.signinConfirmation.tokenVerificationCode || {}
   config.signinUnblock = config.signinUnblock || {}
   config.secondaryEmail = config.secondaryEmail || {}
 
@@ -303,7 +304,6 @@ describe('/account/create', () => {
     const sessionTokenId = mocked.sessionTokenId
     const uid = mocked.uid
 
-
     const now = Date.now()
     sinon.stub(Date, 'now', () => now)
 
@@ -432,7 +432,11 @@ describe('/account/login', function () {
     securityHistory: {
       ipProfiling: {}
     },
-    signinConfirmation: {},
+    signinConfirmation: {
+      tokenVerificationCode: {
+        codeLength: 8
+      }
+    },
     signinUnblock: {
       codeLifetime: 1000
     }

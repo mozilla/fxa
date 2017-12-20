@@ -641,6 +641,19 @@ var conf = convict({
         default: '4 hours',
         env: 'SIGNIN_CONFIRMATION_MAX_AGE_OF_NEW_ACCOUNTS'
       }
+    },
+    tokenVerificationCode: {
+      codeLength: {
+        doc: 'Number of alphanumeric digits to make up a token code',
+        default: 8,
+        env: 'SIGNIN_TOKEN_CODE_LENGTH'
+      },
+      codeLifetime: {
+        doc: 'How long code should be valid for',
+        format: 'duration',
+        default: '1 hour',
+        env: 'SIGNIN_TOKEN_CODE_LIFETIME'
+      },
     }
   },
   securityHistory: {

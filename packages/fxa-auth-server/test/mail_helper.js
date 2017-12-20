@@ -44,6 +44,7 @@ module.exports = (printLogs) => {
             var rul = mail.headers['x-report-signin-link']
             var uc = mail.headers['x-unblock-code']
             var vc = mail.headers['x-verify-code']
+            var sc = mail.headers['x-signin-verify-code']
             var template = mail.headers['x-template-name']
 
             var smsLink
@@ -55,6 +56,9 @@ module.exports = (printLogs) => {
             var name = emailName(mail.headers.to)
             if (vc) {
               console.log('\x1B[32m', link, '\x1B[39m')
+            }
+            else if (sc) {
+              console.log('\x1B[32mToken code: ', sc, '\x1B[39m')
             }
             else if (rc) {
               console.log('\x1B[34m', link, '\x1B[39m')

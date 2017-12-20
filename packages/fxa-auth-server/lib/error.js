@@ -61,6 +61,8 @@ var ERRNO = {
   LOGIN_WITH_INVALID_EMAIL: 149,
   RESEND_EMAIL_CODE_TO_UNOWNED_EMAIL: 150,
   FAILED_TO_SEND_EMAIL: 151,
+  INVALID_TOKEN_VERIFICATION_CODE: 152,
+  EXPIRED_TOKEN_VERIFICATION_CODE: 153,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -723,6 +725,30 @@ AppError.cannotSendEmail = function () {
     errno: ERRNO.FAILED_TO_SEND_EMAIL,
     message: 'Failed to send email'
   })
+}
+
+AppError.invalidTokenVerficationCode = function (details) {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.INVALID_TOKEN_VERIFICATION_CODE,
+      message: 'Invalid token verification code'
+    },
+    details
+  )
+}
+
+AppError.expiredTokenVerficationCode = function (details) {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.EXPIRED_TOKEN_VERIFICATION_CODE,
+      message: 'Expired token verification code'
+    },
+    details
+  )
 }
 
 AppError.unexpectedError = () => {

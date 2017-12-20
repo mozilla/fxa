@@ -85,6 +85,9 @@ var config = {
     }
   },
   signinConfirmation: {
+    tokenVerificationCode: {
+      codeLength: 8
+    },
     forcedEmailAddresses: /.+@mozilla\.com$/
   },
   signinUnblock: {},

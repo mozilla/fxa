@@ -20,7 +20,8 @@ const BASE_36 = validators.BASE_36
 // Currently only for metrics purposes, not enforced.
 const MAX_ACTIVE_SESSIONS = 200
 
-const MS_ONE_DAY = 1000 * 60 * 60 * 24
+const MS_ONE_HOUR = 1000 * 60 * 60
+const MS_ONE_DAY = MS_ONE_HOUR * 24
 const MS_ONE_WEEK = MS_ONE_DAY * 7
 const MS_ONE_MONTH = MS_ONE_DAY * 30
 
@@ -28,7 +29,12 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
   const verificationReminder = require('../verification-reminders')(log, db)
 
   const unblockCodeLifetime = config.signinUnblock && config.signinUnblock.codeLifetime || 0
-  const unblockCodeLen = config.signinUnblock && config.signinUnblock.codeLength || 0
+  const unblockCodeLen = config.signinUnblock && config.signinUnblock.codeLength || 8
+
+  const tokenCodeConfig = config.signinConfirmation.tokenVerificationCode
+  const tokenCodeLifetime = tokenCodeConfig && tokenCodeConfig.codeLifetime || MS_ONE_HOUR
+  const tokenCodeLength = tokenCodeConfig && tokenCodeConfig.codeLength || 8
+  const TokenCode = require('../../lib/crypto/base32')(tokenCodeLength)
 
   const routes = [
     {
@@ -71,7 +77,8 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
         const service = form.service || query.service
         const preVerified = !! form.preVerified
         const ip = request.app.clientAddress
-        let password, verifyHash, account, sessionToken, keyFetchToken, emailCode, tokenVerificationId, authSalt
+        let password, verifyHash, account, sessionToken, keyFetchToken, emailCode, tokenVerificationId, tokenVerificationCode,
+          authSalt
 
         request.validateMetricsContext()
 
@@ -133,12 +140,14 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
 
           return P.resolve()
         }
+
         function generateRandomValues() {
-          return random.hex(16, 32)
-            .then(hexes => {
-              emailCode = hexes[0]
+          return P.all([random.hex(16), random.hex(32), TokenCode()])
+            .spread((hex16, hex32, tokenCode) => {
+              emailCode = hex16
               tokenVerificationId = emailCode
-              authSalt = hexes[1]
+              tokenVerificationCode = tokenCode
+              authSalt = hex32
             })
         }
 
@@ -238,6 +247,8 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             emailVerified: account.emailVerified,
             verifierSetAt: account.verifierSetAt,
             mustVerify: requestHelper.wantsKeys(request),
+            tokenVerificationCode: tokenVerificationCode,
+            tokenVerificationCodeExpiresAt: Date.now() + tokenCodeLifetime,
             tokenVerificationId: tokenVerificationId,
             uaBrowser,
             uaBrowserVersion,
@@ -373,7 +384,8 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
         validate: {
           query: {
             keys: isA.boolean().optional(),
-            service: validators.service
+            service: validators.service,
+            verificationMethod: isA.string().valid(['email', 'email-2fa', 'email-captcha']).optional()
           },
           payload: {
             email: validators.email().required(),
@@ -384,7 +396,8 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             reason: isA.string().max(16).optional(),
             unblockCode: isA.string().regex(BASE_36).length(unblockCodeLen).optional(),
             metricsContext: METRICS_CONTEXT_SCHEMA,
-            originalLoginEmail: validators.email().optional()
+            originalLoginEmail: validators.email().optional(),
+            verificationMethod: isA.string().valid(['email', 'email-2fa', 'email-captcha']).optional()
           }
         },
         response: {
@@ -411,10 +424,11 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
         const ip = request.app.clientAddress
         const requestNow = Date.now()
         const originalLoginEmail = request.payload.originalLoginEmail
+        const verificationMethod = request.payload.verificationMethod || request.query.verificationMethod
 
         let needsVerificationId = true
         let accountRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation,
-          unblockCode, customsErr, didSigninUnblock, tokenVerificationId
+          unblockCode, customsErr, didSigninUnblock, tokenVerificationId, tokenVerificationCode
 
         let securityEventRecency = Infinity, securityEventVerified = false
 
@@ -440,7 +454,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           .then(emitSyncLoginEvent)
           .then(sendVerifyAccountEmail)
           .then(sendNewDeviceLoginNotification)
-          .then(sendVerifyLoginEmail)
+          .then(sendVerificationIfNeeded)
           .then(recordSecurityEvent)
           .then(createResponse)
           .then(reply, reply)
@@ -654,12 +668,11 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             needsVerificationId = false
           }
 
-          // If the request wants keys, the user *must* confirm their login session before they
-          // can actually use it.  If they dont want keys, they don't *have* to verify their
-          // their session, but we still create it with a non-null tokenVerificationId, so it will
-          // still be considered unverified.  This prevents the session from being used for sync
-          // unless the user explicitly requests us to resend the confirmation email, and completes it.
-          mustVerifySession = needsVerificationId && requestHelper.wantsKeys(request)
+          // If the request wants keys or specifies a verificationMethod, user *must* confirm their
+          // login session before they can actually use it. Otherwise, they don't *have* to verify
+          // their session. All sessions are created unverified because it prevents them from being
+          // used for sync.
+          mustVerifySession = needsVerificationId && (requestHelper.wantsKeys(request) || verificationMethod)
 
           // If the email itself is unverified, we'll re-send the "verify your account email" and
           // that will suffice to confirm the sign-in.  No need for a separate confirmation email.
@@ -704,6 +717,12 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
               }
             }
           }
+
+          // If relier has specified a verification method we should use it
+          if (verificationMethod) {
+            return true
+          }
+
           return false
         }
 
@@ -762,9 +781,11 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           return P.resolve()
             .then(() => {
               if (needsVerificationId) {
-                return random.hex(16).then(hex => {
-                  tokenVerificationId = hex
-                })
+                return P.all([random.hex(16), TokenCode()])
+                  .spread((hex16, tokenCode) => {
+                    tokenVerificationId = hex16
+                    tokenVerificationCode = tokenCode
+                  })
               }
             })
             .then(() => {
@@ -785,6 +806,8 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
                 verifierSetAt: accountRecord.verifierSetAt,
                 mustVerify: mustVerifySession,
                 tokenVerificationId: tokenVerificationId,
+                tokenVerificationCode: tokenVerificationCode,
+                tokenVerificationCodeExpiresAt: Date.now() + tokenCodeLifetime,
                 uaBrowser,
                 uaBrowserVersion,
                 uaOS,
@@ -899,8 +922,6 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           // New device notification emails should only be sent when requesting keys.
           // They're not sent if performing a sign-in confirmation
           // (in which case you get the sign-in confirmation email)
-          // or if the account is unverified (in which case
-          // content-server triggers a resend of the account verification email)
           var shouldSendNewDeviceLoginEmail = config.newLoginNotificationEnabled
             && requestHelper.wantsKeys(request)
             && ! doSigninConfirmation
@@ -941,41 +962,93 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           }
         }
 
-        function sendVerifyLoginEmail() {
+        function sendVerificationIfNeeded() {
+          // If this login requires a confirmation, check to see if one was specified in
+          // the request. If none was specified, use the `email` verficationMethod.
           if (doSigninConfirmation) {
-            log.info({
-              op: 'account.signin.confirm.start',
-              uid: accountRecord.uid,
-              tokenVerificationId: tokenVerificationId
-            })
-
-            return P.all([request.app.geo, db.accountEmails(sessionToken.uid)])
-              .spread((geoData, emails) => {
-                return mailer.sendVerifyLoginEmail(
-                  emails,
-                  accountRecord,
-                  {
-                    acceptLanguage: request.app.acceptLanguage,
-                    code: tokenVerificationId,
-                    flowId: flowId,
-                    flowBeginTime: flowBeginTime,
-                    ip: ip,
-                    location: geoData.location,
-                    redirectTo: redirectTo,
-                    resume: resume,
-                    service: service,
-                    timeZone: geoData.timeZone,
-                    uaBrowser: sessionToken.uaBrowser,
-                    uaBrowserVersion: sessionToken.uaBrowserVersion,
-                    uaOS: sessionToken.uaOS,
-                    uaOSVersion: sessionToken.uaOSVersion,
-                    uaDeviceType: sessionToken.uaDeviceType,
-                    uid: sessionToken.uid
-                  }
-                )
-              })
-              .then(() => request.emitMetricsEvent('email.confirmation.sent'))
+            if (verificationMethod === 'email') {
+              // Sends an email containing a link to verify login
+              return sendVerifyLoginEmail()
+            } else if (verificationMethod === 'email-2fa') {
+              // Sends an email containing a code that can verify a login
+              return sendVerifyLoginCodeEmail()
+            } else if (verificationMethod === 'email-captcha') {
+              // `email-captcha` is a custom verification method used only for
+              // unblock codes. We do not need to send a verification email
+              // in this case.
+            } else {
+              return sendVerifyLoginEmail()
+            }
           }
+        }
+
+        function sendVerifyLoginEmail() {
+          log.info({
+            op: 'account.signin.confirm.start',
+            uid: accountRecord.uid,
+            tokenVerificationId: tokenVerificationId
+          })
+
+          return P.all([request.app.geo, db.accountEmails(sessionToken.uid)])
+            .spread((geoData, emails) => {
+              return mailer.sendVerifyLoginEmail(
+                emails,
+                accountRecord,
+                {
+                  acceptLanguage: request.app.acceptLanguage,
+                  code: tokenVerificationId,
+                  flowId: flowId,
+                  flowBeginTime: flowBeginTime,
+                  ip: ip,
+                  location: geoData.location,
+                  redirectTo: redirectTo,
+                  resume: resume,
+                  service: service,
+                  timeZone: geoData.timeZone,
+                  uaBrowser: sessionToken.uaBrowser,
+                  uaBrowserVersion: sessionToken.uaBrowserVersion,
+                  uaOS: sessionToken.uaOS,
+                  uaOSVersion: sessionToken.uaOSVersion,
+                  uaDeviceType: sessionToken.uaDeviceType,
+                  uid: sessionToken.uid
+                }
+              )
+            })
+            .then(() => request.emitMetricsEvent('email.confirmation.sent'))
+        }
+
+        function sendVerifyLoginCodeEmail() {
+          log.info({
+            op: 'account.token.code.start',
+            uid: accountRecord.uid
+          })
+
+          return P.all([request.app.geo, db.accountEmails(sessionToken.uid)])
+            .spread((geoData, emails) => {
+              return mailer.sendVerifyLoginCodeEmail(
+                emails,
+                accountRecord,
+                {
+                  acceptLanguage: request.app.acceptLanguage,
+                  code: tokenVerificationCode,
+                  flowId: flowId,
+                  flowBeginTime: flowBeginTime,
+                  ip: ip,
+                  location: geoData.location,
+                  redirectTo: redirectTo,
+                  resume: resume,
+                  service: service,
+                  timeZone: geoData.timeZone,
+                  uaBrowser: sessionToken.uaBrowser,
+                  uaBrowserVersion: sessionToken.uaBrowserVersion,
+                  uaOS: sessionToken.uaOS,
+                  uaOSVersion: sessionToken.uaOSVersion,
+                  uaDeviceType: sessionToken.uaDeviceType,
+                  uid: sessionToken.uid
+                }
+              )
+            })
+            .then(() => request.emitMetricsEvent('email.tokencode.sent'))
         }
 
         function recordSecurityEvent() {
@@ -995,12 +1068,14 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             authAt: sessionToken.lastAuthAt()
           }
 
-
-          if (! requestHelper.wantsKeys(request)) {
+          const mustVerify = requestHelper.wantsKeys(request) || verificationMethod
+          if (! mustVerify) {
             return P.resolve(response)
           }
 
-          response.keyFetchToken = keyFetchToken.data
+          if (requestHelper.wantsKeys(request)) {
+            response.keyFetchToken = keyFetchToken.data
+          }
 
           if (! accountRecord.primaryEmail.isVerified) {
             response.verified = false
@@ -1008,9 +1083,12 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             response.verificationReason = 'signup'
           } else if (doSigninConfirmation) {
             response.verified = false
-            response.verificationMethod = 'email'
+
+            // Override the verification method if it was explicitly specified in the request
+            response.verificationMethod = verificationMethod || 'email'
             response.verificationReason = 'login'
           }
+
           return P.resolve(response)
         }
       }

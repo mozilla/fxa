@@ -92,6 +92,7 @@ const EMAIL_TYPES = {
   verificationReminderEmail: 'registration',
   verifyEmail: 'registration',
   verifyLoginEmail: 'login',
+  verifyLoginCodeEmail: 'login',
   verifyPrimaryEmail: 'verify',
   verifySyncEmail: 'registration',
   verifySecondaryEmail: 'secondary_email'

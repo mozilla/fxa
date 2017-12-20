@@ -142,7 +142,8 @@ module.exports = config => {
         reason: opts.reason || undefined,
         device: opts.device || undefined,
         metricsContext: opts.metricsContext || undefined,
-        originalLoginEmail: opts.originalLoginEmail || undefined
+        originalLoginEmail: opts.originalLoginEmail || undefined,
+        verificationMethod: opts.verificationMethod || undefined
       },
       {
         'accept-language': opts.lang
@@ -700,6 +701,23 @@ module.exports = config => {
       null,
       { code, metricsContext }
     )
+  }
+
+  ClientApi.prototype.verifyTokenCode = function (sessionTokenHex, uid, code, options) {
+    options = options || {}
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/session/verify/token',
+          token,
+          {
+            uid: uid,
+            code: code,
+            metricsContext: options.metricsContext
+          }
+        )
+      })
   }
 
   ClientApi.heartbeat = function (origin) {

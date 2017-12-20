@@ -36,6 +36,7 @@ const messageTypes = [
   'verificationReminderEmail',
   'verifyEmail',
   'verifyLoginEmail',
+  'verifyLoginCodeEmail',
   'verifyPrimaryEmail',
   'verifySecondaryEmail'
 ]
@@ -50,6 +51,7 @@ const typesContainSupportLinks = [
   'recoveryEmail',
   'verificationReminderEmail',
   'verifyEmail',
+  'verifyLoginCodeEmail',
   'verifyPrimaryEmail',
   'verifySecondaryEmail'
 ]
@@ -63,6 +65,7 @@ const typesContainPasswordResetLinks = [
 const typesContainPasswordChangeLinks = [
   'newDeviceLoginEmail',
   'verifyLoginEmail',
+  'verifyLoginCodeEmail',
   'verifyPrimaryEmail',
   'postChangePrimaryEmail',
   'postVerifySecondaryEmail'
@@ -70,6 +73,10 @@ const typesContainPasswordChangeLinks = [
 
 const typesContainUnblockCode = [
   'unblockCodeEmail'
+]
+
+const typesContainTokenCode = [
+  'verifyLoginCodeEmail'
 ]
 
 const typesContainReportSignInLinks = [
@@ -143,6 +150,7 @@ describe(
           email: 'a@b.com',
           locations: [],
           service: 'sync',
+          tokenCode: 'abc123',
           uid: 'uid',
           unblockCode: 'AS6334PK',
           type: 'secondary',
@@ -308,6 +316,19 @@ describe(
               mailer.mailer.sendMail = function (emailConfig) {
                 assert.ok(includes(emailConfig.html, message.unblockCode))
                 assert.ok(includes(emailConfig.text, message.unblockCode))
+              }
+              mailer[type](message)
+            }
+          )
+        }
+
+        if (includes(typesContainTokenCode, type)) {
+          it(
+            'login code is in email template output for ' + type,
+            function () {
+              mailer.mailer.sendMail = function (emailConfig) {
+                assert.ok(includes(emailConfig.html, message.tokenCode))
+                assert.ok(includes(emailConfig.text, message.tokenCode))
               }
               mailer[type](message)
             }

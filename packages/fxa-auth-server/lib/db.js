@@ -114,7 +114,9 @@ module.exports = (
               uaOSVersion: sessionToken.uaOSVersion,
               uaDeviceType: sessionToken.uaDeviceType,
               mustVerify: sessionToken.mustVerify,
-              tokenVerificationId: sessionToken.tokenVerificationId
+              tokenVerificationId: sessionToken.tokenVerificationId,
+              tokenVerificationCode: sessionToken.tokenVerificationCode,
+              tokenVerificationCodeExpiresAt: sessionToken.tokenVerificationCodeExpiresAt
             }
           )
           .then(
@@ -841,6 +843,27 @@ module.exports = (
     )
   }
 
+  DB.prototype.verifyTokenCode = function (code, accountData) {
+    log.trace({ op: 'DB.verifyTokenCode', code: code })
+    return this.pool.post(
+      '/tokens/' + code + '/verifyCode',
+      { uid: accountData.uid }
+    )
+    .then(
+      function (body) {
+        return body
+      },
+      function (err) {
+        if (isExpiredTokenVerificationCodeError(err)) {
+          err = error.expiredTokenVerficationCode()
+        } else if (isNotFoundError(err)) {
+          err = error.invalidTokenVerficationCode()
+        }
+        throw err
+      }
+    )
+  }
+
   DB.prototype.forgotPasswordVerified = function (passwordForgotToken) {
     log.trace({ op: 'DB.forgotPasswordVerified', uid: passwordForgotToken && passwordForgotToken.uid })
     return AccountResetToken.create({ uid: passwordForgotToken.uid })
@@ -1115,4 +1138,8 @@ function isEmailAlreadyExistsError (err) {
 
 function isEmailDeletePrimaryError (err) {
   return err.statusCode === 400 && err.errno === 136
+}
+
+function isExpiredTokenVerificationCodeError (err) {
+  return err.statusCode === 400 && err.errno === 137
 }

@@ -63,6 +63,8 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
   * [Sms](#sms)
     * [POST /sms (:lock: sessionToken)](#post-sms)
     * [GET /sms/status (:lock: sessionToken)](#get-smsstatus)
+  * [Token codes](#token-codes)
+    * [POST /session/verify/token (:lock: sessionToken)](#post-sessionverifytoken)
   * [Unblock codes](#unblock-codes)
     * [POST /account/login/send_unblock_code](#post-accountloginsend_unblock_code)
     * [POST /account/login/reject_unblock_code](#post-accountloginreject_unblock_code)
@@ -256,6 +258,10 @@ for `code` and `errno` are:
   Can not resend email code to an email that does not belong to this account
 * `code: 400, errno: 151`:
   Failed to send email
+* `code: 400, errno: 152`:
+  Invalid token verification code
+* `code: 400, errno: 153`:
+  Expired token verification code
 * `code: 503, errno: 201`:
   Service unavailable
 * `code: 503, errno: 202`:
@@ -284,6 +290,8 @@ include additional response properties:
 * `errno: 133`: bouncedAt
 * `errno: 134`: bouncedAt
 * `errno: 135`: bouncedAt
+* `errno: 152`
+* `errno: 153`
 * `errno: 201`: retryAfter
 * `errno: 202`: retryAfter
 
@@ -502,6 +510,21 @@ Obtain a `sessionToken` and, optionally, a `keyFetchToken` if `keys=true`.
   Opaque alphanumeric token to be included in verification links.
   <!--end-query-param-post-accountlogin-service-->
 
+* `verificationMethod`: *string, valid(), optional*
+
+  <!--begin-query-param-post-accountlogin-verificationMethod-->
+  If this param is specified, it forces the login to be verified using the
+  specified method.
+  
+  Currently supported methods:
+  * `email`
+    * Sends an email with a confirmation link.
+  * `email-2fa`
+    * Sends an email with a confirmation code.
+  * `email-captcha`
+    * Sends an email with an unblock code.
+  <!--end-query-param-post-accountlogin-verificationMethod-->
+
 ##### Request body
 
 * `email`: *validators.email.required*
@@ -557,6 +580,21 @@ Obtain a `sessionToken` and, optionally, a `keyFetchToken` if `keys=true`.
   <!--begin-request-body-post-accountlogin-originalLoginEmail-->
   This parameter is the original email used to login with. Typically, it is specified after a user logins with a different email case, or changed their primary email address.
   <!--end-request-body-post-accountlogin-originalLoginEmail-->
+
+* `verificationMethod`: *string, valid(), optional*
+
+  <!--begin-request-body-post-accountlogin-verificationMethod-->
+  If this param is specified, it forces the login to be verified using the
+  specified method.
+  
+  Currently supported methods:
+  * `email`
+    * Sends an email with a confirmation link.
+  * `email-2fa`
+    * Sends an email with a confirmation code.
+  * `email-captcha`
+    * Sends an email with an unblock code.
+  <!--end-request-body-post-accountlogin-verificationMethod-->
 
 ##### Response body
 
@@ -1398,7 +1436,7 @@ as a query parameter.
   Opaque alphanumeric token to be included in verification links.
   <!--end-query-param-post-recovery_emailresend_code-service-->
 
-* `type`: *string, max(32), alphanum, allow('upgradeSession'), optional*
+* `type`: *string, max(32), alphanum, allow(), optional*
 
   <!--begin-query-param-post-recovery_emailresend_code-type-->
   
@@ -1436,7 +1474,7 @@ as a query parameter.
   
   <!--end-request-body-post-recovery_emailresend_code-metricsContext-->
 
-* `type`: *string, max(32), alphanum, allow('upgradeSession'), optional*
+* `type`: *string, max(32), alphanum, allow(), optional*
 
   <!--begin-request-body-post-recovery_emailresend_code-type-->
   
@@ -2286,6 +2324,30 @@ by the following errors
 
 * `code: 500, errno: 999`:
   Unspecified error
+
+
+### Token codes
+
+#### POST /session/verify/token
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-sessionverifytoken-->
+Verify a session using a token code.
+<!--end-route-post-sessionverifytoken-->
+
+##### Request body
+
+* `uid`: *string, max(32), regex(HEX_STRING), required*
+
+  <!--begin-request-body-post-sessionverifytoken-uid-->
+  The uid associated with the token code
+  <!--end-request-body-post-sessionverifytoken-uid-->
+
+* `code`: *string, min(0), max(1024), required*
+
+  <!--begin-request-body-post-sessionverifytoken-code-->
+  The code
+  <!--end-request-body-post-sessionverifytoken-code-->
 
 
 ### Unblock codes

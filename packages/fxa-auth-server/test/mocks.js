@@ -69,7 +69,8 @@ const DB_METHOD_NAMES = [
   'updateLocale',
   'updateSessionToken',
   'verifyEmail',
-  'verifyTokens'
+  'verifyTokens',
+  'verifyTokenCode',
 ]
 
 const LOG_METHOD_NAMES = [
@@ -339,7 +340,13 @@ function mockDB (data, errors) {
       }
       return P.resolve(res)
     }),
-    verifyTokens: optionallyThrow(errors, 'verifyTokens')
+    verifyTokens: optionallyThrow(errors, 'verifyTokens'),
+    verifyTokenCode: sinon.spy(() => {
+      if (errors.verifyTokenCode) {
+        return P.reject(errors.verifyTokenCode)
+      }
+      return P.resolve({})
+    })
   })
 }
 

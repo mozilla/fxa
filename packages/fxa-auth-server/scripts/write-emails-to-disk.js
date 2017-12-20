@@ -23,6 +23,7 @@
  *   verifyEmail
  *   verifySecondaryEmail
  *   verifyLoginEmail
+ *   verifyLoginCodeEmail
  *
  * Emails that are written to disk can be previewed in Firefox
  * to give a rough idea of how they would render in real life.
@@ -115,6 +116,7 @@ function sendMail(mailer, messageToSend) {
     uaOS: 'Mac OSX',
     uaOSVersion: '10.11',
     unblockCode: '1ILO0Z5P',
+    tokenCode: 'LIT12345',
     uid: '6510cb04abd742c6b3e4abefc7e39c9f'
   }
 

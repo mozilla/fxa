@@ -115,6 +115,21 @@ module.exports = (log, config, error, bounces, translator, sender) => {
             }))
           })
       },
+      sendVerifyLoginCodeEmail: function (emails, account, opts) {
+        return getSafeMailerWithEmails(emails)
+          .then(function (result) {
+            const mailer = result.ungatedMailer
+            const primaryEmail = result.ungatedPrimaryEmail
+            const ccEmails = result.ungatedCcEmails
+
+            return mailer.verifyLoginCodeEmail(Object.assign({}, opts, {
+              acceptLanguage: opts.acceptLanguage || defaultLanguage,
+              ccEmails,
+              email: primaryEmail,
+              uid: account.uid
+            }))
+          })
+      },
       sendVerifyPrimaryEmail: function (emails, account, opts) {
         const primaryEmail = account.email
 

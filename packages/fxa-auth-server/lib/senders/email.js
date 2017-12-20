@@ -36,6 +36,7 @@ module.exports = function (log) {
     'unblockCode': 'new-unblock',
     'verifyEmail': 'welcome',
     'verifyLoginEmail': 'new-signin',
+    'verifyLoginCodeEmail': 'new-signin-verify-code',
     'verifyPrimaryEmail': 'welcome-primary',
     'verifySyncEmail': 'welcome-sync',
     'verifySecondaryEmail': 'welcome-secondary',
@@ -62,6 +63,7 @@ module.exports = function (log) {
     'verificationReminderEmail': 'activate',
     'verifyEmail': 'activate',
     'verifyLoginEmail': 'confirm-signin',
+    'verifyLoginCodeEmail': 'new-signin-verify-code',
     'verifyPrimaryEmail': 'activate',
     'verifySyncEmail': 'activate-sync',
     'verifySecondaryEmail': 'activate',
@@ -445,6 +447,49 @@ module.exports = function (log) {
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
+      }
+    }))
+  }
+
+  Mailer.prototype.verifyLoginCodeEmail = function (message) {
+    log.trace({ op: 'mailer.verifyLoginCodeEmail', email: message.email, uid: message.uid })
+
+    var templateName = 'verifyLoginCodeEmail'
+    var query = {
+      code: message.code,
+      uid: message.uid
+    }
+
+    if (message.service) { query.service = message.service }
+    if (message.redirectTo) { query.redirectTo = message.redirectTo }
+    if (message.resume) { query.resume = message.resume }
+
+    var links = this._generateLinks(this.verifyLoginUrl, message.email, query, templateName)
+
+    var headers = {
+      'X-Signin-Verify-Code': message.code
+    }
+
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
+    return this.send(Object.assign({}, message, {
+      headers,
+      subject: gettext('Sign-in code for Firefox'),
+      template: templateName,
+      templateValues: {
+        device: this._formatUserAgentInfo(message),
+        email: message.email,
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        passwordChangeLink: links.passwordChangeLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        privacyUrl: links.privacyUrl,
+        tokenCode: message.code,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
