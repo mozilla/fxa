@@ -1,0 +1,524 @@
+diff --git a/media/webrtc/trunk/webrtc/modules/video_capture/android/java/src/org/webrtc/videoengine/VideoCaptureAndroid.java b/media/webrtc/trunk/webrtc/modules/video_capture/android/java/src/org/webrtc/videoengine/VideoCaptureAndroid.java
+--- a/media/webrtc/trunk/webrtc/modules/video_capture/android/java/src/org/webrtc/videoengine/VideoCaptureAndroid.java
++++ b/media/webrtc/trunk/webrtc/modules/video_capture/android/java/src/org/webrtc/videoengine/VideoCaptureAndroid.java
+@@ -185,16 +185,23 @@ public class VideoCaptureAndroid impleme
+       Log.d(TAG, "Camera orientation: " + info.orientation +
+           " .Device orientation: " + getDeviceOrientation());
+       Camera.Parameters parameters = camera.getParameters();
+       Log.d(TAG, "isVideoStabilizationSupported: " +
+           parameters.isVideoStabilizationSupported());
+       if (parameters.isVideoStabilizationSupported()) {
+         parameters.setVideoStabilization(true);
+       }
++
++List<String> focusModes = parameters.getSupportedFocusModes();
++      if (focusModes.contains(android.hardware.Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
++        Log.d(TAG, "Enable continuous auto focus mode.");
++        parameters.setFocusMode(android.hardware.Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
++      }
++
+       parameters.setPictureSize(width, height);
+       parameters.setPreviewSize(width, height);
+ 
+       // Check if requested fps range is supported by camera,
+       // otherwise calculate frame drop ratio.
+       List<int[]> supportedFpsRanges = parameters.getSupportedPreviewFpsRange();
+       frameDropRatio = Integer.MAX_VALUE;
+       for (int i = 0; i < supportedFpsRanges.size(); i++) {
+diff --git a/mobile/android/base/android-services.mozbuild b/mobile/android/base/android-services.mozbuild
+--- a/mobile/android/base/android-services.mozbuild
++++ b/mobile/android/base/android-services.mozbuild
+@@ -837,16 +837,17 @@ sync_java_files = [TOPSRCDIR + '/mobile/
+     'fxa/FxAccountConstants.java',
+     'fxa/FxAccountPushHandler.java',
+     'fxa/login/BaseRequestDelegate.java',
+     'fxa/login/Cohabiting.java',
+     'fxa/login/Doghouse.java',
+     'fxa/login/Engaged.java',
+     'fxa/login/FxAccountLoginStateMachine.java',
+     'fxa/login/FxAccountLoginTransition.java',
++    'fxa/login/HouseHunting.java',
+     'fxa/login/Married.java',
+     'fxa/login/MigratedFromSync11.java',
+     'fxa/login/Separated.java',
+     'fxa/login/State.java',
+     'fxa/login/StateFactory.java',
+     'fxa/login/TokensAndKeysState.java',
+     'fxa/receivers/FxAccountDeletedService.java',
+     'fxa/receivers/FxAccountUpgradeReceiver.java',
+diff --git a/mobile/android/base/java/org/mozilla/gecko/AccountsHelper.java b/mobile/android/base/java/org/mozilla/gecko/AccountsHelper.java
+--- a/mobile/android/base/java/org/mozilla/gecko/AccountsHelper.java
++++ b/mobile/android/base/java/org/mozilla/gecko/AccountsHelper.java
+@@ -16,16 +16,17 @@ import android.content.Intent;
+ import android.util.Log;
+ 
+ import org.json.JSONException;
+ import org.mozilla.gecko.background.fxa.FxAccountUtils;
+ import org.mozilla.gecko.fxa.FirefoxAccounts;
+ import org.mozilla.gecko.fxa.FxAccountConstants;
+ import org.mozilla.gecko.fxa.authenticator.AndroidFxAccount;
+ import org.mozilla.gecko.fxa.login.Engaged;
++import org.mozilla.gecko.fxa.login.HouseHunting;
+ import org.mozilla.gecko.fxa.login.State;
+ import org.mozilla.gecko.restrictions.Restrictable;
+ import org.mozilla.gecko.restrictions.Restrictions;
+ import org.mozilla.gecko.sync.SyncConfiguration;
+ import org.mozilla.gecko.sync.Utils;
+ import org.mozilla.gecko.util.BundleEventListener;
+ import org.mozilla.gecko.util.EventCallback;
+ import org.mozilla.gecko.util.GeckoBundle;
+@@ -93,27 +94,40 @@ public class AccountsHelper implements B
+             AndroidFxAccount.invalidateCaches();
+ 
+             AndroidFxAccount fxAccount = null;
+             try {
+                 final GeckoBundle json = message.getBundle("json");
+                 final String email = json.getString("email");
+                 final String uid = json.getString("uid");
+                 final boolean verified = json.getBoolean("verified", false);
+-                final byte[] unwrapkB = Utils.hex2Byte(json.getString("unwrapBKey"));
+                 final byte[] sessionToken = Utils.hex2Byte(json.getString("sessionToken"));
+-                final byte[] keyFetchToken = Utils.hex2Byte(json.getString("keyFetchToken"));
++
++                final byte[] kA = Utils.hex2Byte(json.getString("kA", ""));
++                final byte[] kB = Utils.hex2Byte(json.getString("kB", ""));
++                final byte[] unwrapkB = Utils.hex2Byte(json.getString("unwrapBKey", ""));
++                final byte[] keyFetchToken = Utils.hex2Byte(json.getString("keyFetchToken", ""));
++
+                 final String authServerEndpoint = json.getString("authServerEndpoint",
+                         FxAccountConstants.DEFAULT_AUTH_SERVER_ENDPOINT);
+                 final String tokenServerEndpoint = json.getString("tokenServerEndpoint",
+                         FxAccountConstants.DEFAULT_TOKEN_SERVER_ENDPOINT);
+                 final String profileServerEndpoint = json.getString("profileServerEndpoint",
+                         FxAccountConstants.DEFAULT_PROFILE_SERVER_ENDPOINT);
+                 // TODO: handle choose what to Sync.
+-                State state = new Engaged(email, uid, verified, unwrapkB, sessionToken, keyFetchToken);
++
++                State state;
++                Log.w(LOGTAG, "Creating fxaccount from JSON");
++
++                if (kA.length != 0 && kB.length != 0) {
++                    state = new HouseHunting(email, uid, verified, sessionToken, kA, kB);
++                } else {
++                    state = new Engaged(email, uid, verified, unwrapkB, sessionToken, keyFetchToken);
++                }
++
+                 fxAccount = AndroidFxAccount.addAndroidAccount(mContext,
+                         email,
+                         mProfile.getName(),
+                         authServerEndpoint,
+                         tokenServerEndpoint,
+                         profileServerEndpoint,
+                         state,
+                         AndroidFxAccount.DEFAULT_AUTHORITIES_TO_SYNC_AUTOMATICALLY_MAP);
+@@ -179,28 +193,38 @@ public class AccountsHelper implements B
+                 }
+                 return;
+             }
+ 
+             final boolean verified = json.getBoolean("verified", false);
+             final byte[] unwrapkB = Utils.hex2Byte(json.getString("unwrapBKey", ""));
+             final byte[] sessionToken = Utils.hex2Byte(json.getString("sessionToken", ""));
+             final byte[] keyFetchToken = Utils.hex2Byte(json.getString("keyFetchToken", ""));
++            final byte[] kA = Utils.hex2Byte(json.getString("kA"));
++            final byte[] kB = Utils.hex2Byte(json.getString("kB"));
+ 
+-            if (unwrapkB.length == 0 || sessionToken.length == 0 || keyFetchToken.length == 0) {
++            if (sessionToken.length == 0 || (
++                ! (unwrapkB.length > 0 && keyFetchToken.length > 0) &&
++                ! (kA.length > 0 && kB.length > 0))) {
+                 final String error = "Cannot update Firefox Account from JSON: invalid key/tokens";
+                 Log.e(LOGTAG, error);
+                 if (callback != null) {
+                     callback.sendError(error);
+                 }
+                 return;
+             }
+ 
+-            final State state = new Engaged(email, uid, verified, unwrapkB,
+-                                            sessionToken, keyFetchToken);
++            State _state;
++
++            if (kA.length != 0 && kB.length != 0) {
++                _state = new HouseHunting(email, uid, verified, sessionToken, kA, kB);
++            } else {
++                _state = new Engaged(email, uid, verified, unwrapkB, sessionToken, keyFetchToken);
++            }
++            final State state = _state;
+ 
+             final AndroidFxAccount fxAccount = new AndroidFxAccount(mContext, account);
+             fxAccount.setState(state);
+ 
+             if (callback != null) {
+                 callback.sendSuccess(true);
+             }
+ 
+diff --git a/mobile/android/services/src/main/java/org/mozilla/gecko/fxa/login/Engaged.java b/mobile/android/services/src/main/java/org/mozilla/gecko/fxa/login/Engaged.java
+--- a/mobile/android/services/src/main/java/org/mozilla/gecko/fxa/login/Engaged.java
++++ b/mobile/android/services/src/main/java/org/mozilla/gecko/fxa/login/Engaged.java
+@@ -1,17 +1,16 @@
+ /* This Source Code Form is subject to the terms of the Mozilla Public
+  * License, v. 2.0. If a copy of the MPL was not distributed with this
+  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ 
+ package org.mozilla.gecko.fxa.login;
+ 
+ import org.mozilla.gecko.background.fxa.FxAccountClient20.TwoKeys;
+ import org.mozilla.gecko.background.fxa.FxAccountUtils;
+-import org.mozilla.gecko.browserid.BrowserIDKeyPair;
+ import org.mozilla.gecko.fxa.login.FxAccountLoginStateMachine.ExecuteDelegate;
+ import org.mozilla.gecko.fxa.login.FxAccountLoginTransition.AccountVerified;
+ import org.mozilla.gecko.fxa.login.FxAccountLoginTransition.LocalError;
+ import org.mozilla.gecko.fxa.login.FxAccountLoginTransition.LogMessage;
+ import org.mozilla.gecko.fxa.login.FxAccountLoginTransition.RemoteError;
+ import org.mozilla.gecko.fxa.login.FxAccountLoginTransition.Transition;
+ import org.mozilla.gecko.sync.ExtendedJSONObject;
+ import org.mozilla.gecko.sync.Utils;
+@@ -40,25 +39,16 @@ public class Engaged extends State {
+     o.put("unwrapkB", Utils.byte2Hex(unwrapkB));
+     o.put("sessionToken", Utils.byte2Hex(sessionToken));
+     o.put("keyFetchToken", Utils.byte2Hex(keyFetchToken));
+     return o;
+   }
+ 
+   @Override
+   public void execute(final ExecuteDelegate delegate) {
+-    BrowserIDKeyPair theKeyPair;
+-    try {
+-      theKeyPair = delegate.generateKeyPair();
+-    } catch (NoSuchAlgorithmException e) {
+-      delegate.handleTransition(new LocalError(e), new Doghouse(email, uid, verified));
+-      return;
+-    }
+-    final BrowserIDKeyPair keyPair = theKeyPair;
+-
+     delegate.getClient().keys(keyFetchToken, new BaseRequestDelegate<TwoKeys>(this, delegate) {
+       @Override
+       public void handleSuccess(TwoKeys result) {
+         byte[] kB;
+         try {
+           kB = FxAccountUtils.unwrapkB(unwrapkB, result.wrapkB);
+           if (FxAccountUtils.LOG_PERSONAL_INFORMATION) {
+             FxAccountUtils.pii(LOG_TAG, "Fetched kA: " + Utils.byte2Hex(result.kA));
+@@ -67,17 +57,17 @@ public class Engaged extends State {
+           }
+         } catch (Exception e) {
+           delegate.handleTransition(new RemoteError(e), new Separated(email, uid, verified));
+           return;
+         }
+         Transition transition = verified
+             ? new LogMessage("keys succeeded")
+             : new AccountVerified();
+-        delegate.handleTransition(transition, new Cohabiting(email, uid, sessionToken, result.kA, kB, keyPair));
++        delegate.handleTransition(transition, new HouseHunting(email, uid, verified, sessionToken, result.kA, kB));
+       }
+     });
+   }
+ 
+   @Override
+   public Action getNeededAction() {
+     if (!verified) {
+       return Action.NeedsVerification;
+diff --git a/mobile/android/services/src/main/java/org/mozilla/gecko/fxa/login/State.java b/mobile/android/services/src/main/java/org/mozilla/gecko/fxa/login/State.java
+--- a/mobile/android/services/src/main/java/org/mozilla/gecko/fxa/login/State.java
++++ b/mobile/android/services/src/main/java/org/mozilla/gecko/fxa/login/State.java
+@@ -17,16 +17,17 @@ public abstract class State {
+ 
+     public NotASessionTokenState(String message) {
+       super(message);
+     }
+   }
+ 
+   public enum StateLabel {
+     Engaged,
++    HouseHunting,
+     Cohabiting,
+     Married,
+     Separated,
+     Doghouse,
+     MigratedFromSync11,
+   }
+ 
+   public enum Action {
+diff --git a/mobile/android/services/src/main/java/org/mozilla/gecko/fxa/login/StateFactory.java b/mobile/android/services/src/main/java/org/mozilla/gecko/fxa/login/StateFactory.java
+--- a/mobile/android/services/src/main/java/org/mozilla/gecko/fxa/login/StateFactory.java
++++ b/mobile/android/services/src/main/java/org/mozilla/gecko/fxa/login/StateFactory.java
+@@ -138,16 +138,24 @@ public class StateFactory {
+   }
+ 
+   /**
+    * Exactly the same as {@link fromJSONObjectV2}, except that there's a new
+    * MigratedFromSyncV11 state.
+    */
+   protected static State fromJSONObjectV3(StateLabel stateLabel, ExtendedJSONObject o) throws InvalidKeySpecException, NoSuchAlgorithmException, NonObjectJSONException {
+     switch (stateLabel) {
++    case HouseHunting:
++      return new HouseHunting(
++        o.getString("email"),
++        o.getString("uid"),
++        o.getBoolean("verified"),
++        Utils.hex2Byte(o.getString("sessionToken")),
++        Utils.hex2Byte(o.getString("kA")),
++        Utils.hex2Byte(o.getString("kB")));
+     case MigratedFromSync11:
+       return new MigratedFromSync11(
+           o.getString("email"),
+           o.getString("uid"),
+           o.getBoolean("verified"),
+           o.getString("password"));
+     default:
+       return fromJSONObjectV2(stateLabel, o);
+diff --git a/mobile/android/services/src/main/java/org/mozilla/gecko/fxa/sync/FxAccountSyncAdapter.java b/mobile/android/services/src/main/java/org/mozilla/gecko/fxa/sync/FxAccountSyncAdapter.java
+--- a/mobile/android/services/src/main/java/org/mozilla/gecko/fxa/sync/FxAccountSyncAdapter.java
++++ b/mobile/android/services/src/main/java/org/mozilla/gecko/fxa/sync/FxAccountSyncAdapter.java
+@@ -593,41 +593,43 @@ public class FxAccountSyncAdapter extend
+         syncDelegate.handleError(e);
+         return;
+       }
+ 
+       final State state;
+       try {
+         state = fxAccount.getState();
+       } catch (Exception e) {
++        Logger.error(LOG_TAG, "Could not getState", e);
+         fxAccount.releaseSharedAccountStateLock();
+         syncDelegate.handleError(e);
+         return;
+       }
+ 
+       final FxAccountLoginStateMachine stateMachine = new FxAccountLoginStateMachine();
+       stateMachine.advance(state, StateLabel.Married, new FxADefaultLoginStateMachineDelegate(context, fxAccount) {
+         @Override
+         public void handleNotMarried(State notMarried) {
+-          Logger.info(LOG_TAG, "handleNotMarried: in " + notMarried.getStateLabel());
++          Logger.warn(LOG_TAG, "handleNotMarried: in " + notMarried.getStateLabel());
+           schedulePolicy.onHandleFinal(notMarried.getNeededAction());
+           syncDelegate.handleCannotSync(notMarried);
+-          if (notMarried.getStateLabel() == StateLabel.Engaged) {
++          final StateLabel stateLabel = notMarried.getStateLabel();
++          if (stateLabel == StateLabel.Engaged || stateLabel == StateLabel.HouseHunting) {
+             onSessionTokenStateReached(context, fxAccount);
+           }
+         }
+ 
+         private boolean shouldRequestToken(final BackoffHandler tokenBackoffHandler, final Bundle extras) {
+           return shouldPerformSync(tokenBackoffHandler, "token", extras);
+         }
+diff --git a/services/fxaccounts/FxAccountsWebChannel.jsm b/services/fxaccounts/FxAccountsWebChannel.jsm
+--- a/services/fxaccounts/FxAccountsWebChannel.jsm
++++ b/services/fxaccounts/FxAccountsWebChannel.jsm
+@@ -26,16 +26,17 @@ XPCOMUtils.defineLazyModuleGetter(this, 
+                                   "resource://gre/modules/FxAccountsStorage.jsm");
+ XPCOMUtils.defineLazyModuleGetter(this, "PrivateBrowsingUtils",
+                                   "resource://gre/modules/PrivateBrowsingUtils.jsm");
+ XPCOMUtils.defineLazyModuleGetter(this, "Weave",
+                                   "resource://services-sync/main.js");
+ 
+ const COMMAND_PROFILE_CHANGE       = "profile:change";
+ const COMMAND_CAN_LINK_ACCOUNT     = "fxaccounts:can_link_account";
++const COMMAND_KEYS                 = "fxaccounts:keys";
+ const COMMAND_LOGIN                = "fxaccounts:login";
+ const COMMAND_LOGOUT               = "fxaccounts:logout";
+ const COMMAND_DELETE               = "fxaccounts:delete";
+ const COMMAND_SYNC_PREFERENCES     = "fxaccounts:sync_preferences";
+ const COMMAND_CHANGE_PASSWORD      = "fxaccounts:change_password";
+ const COMMAND_FXA_STATUS           = "fxaccounts:fxa_status";
+ 
+ const PREF_LAST_FXA_USER           = "identity.fxaccounts.lastSignedInUserHash";
+@@ -192,16 +193,31 @@ this.FxAccountsWebChannel.prototype = {
+               messageId: message.messageId,
+               data: fxaStatus
+             };
+             this._channel.send(response, sendingContext);
+           }).catch(error =>
+             this._sendError(error, message, sendingContext)
+           );
+         break;
++      case COMMAND_KEYS:
++        log.debug("keys request received");
++
++        this._helpers.getUserData(sendingContext)
++          .then(userData => {
++            let response = {
++              command,
++              messageId: message.messageId,
++              data: userData
++            }
++            this._channel.send(response, sendingContext);
++          }).catch(error =>
++            this._sendError(error, message, sendingContext)
++          );
++        break;
+       default:
+         log.warn("Unrecognized FxAccountsWebChannel command", command);
+         break;
+     }
+   },
+ 
+   _sendError(error, incomingMessage, sendingContext) {
+     log.error("Failed to handle FxAccountsWebChannel message", error);
+@@ -402,16 +418,41 @@ this.FxAccountsWebChannelHelpers.prototy
+     return {
+       signedInUser,
+       capabilities: {
+         engines: this._getAvailableExtraEngines()
+       }
+     };
+   },
+ 
++  /**
++   * Get keys information. Resolves to { signedInUser: <user_data> }.
++   * If returning status information is not allowed or no user is signed into
++   * Sync, `user_data` will be null.
++   */
++  async getUserData() {
++    let keys = null;
++
++    const userData = await this._fxAccounts.getKeys()
++    if (userData) {
++      keys = {
++        email: userData.email,
++        kA: userData.kA,
++        kB: userData.kB,
++        sessionToken: userData.sessionToken,
++        uid: userData.uid,
++        verified: userData.verified
++      };
++    }
++
++    return {
++      signedInUser: keys
++    };
++  },
++
+   _getAvailableExtraEngines() {
+     return EXTRA_ENGINES.filter(engineName => {
+       try {
+         return Services.prefs.getBoolPref(`services.sync.engine.${engineName}.available`);
+       } catch (e) {
+         return false;
+       }
+     });
+diff --git a/services/fxaccounts/tests/xpcshell/test_web_channel.js b/services/fxaccounts/tests/xpcshell/test_web_channel.js
+--- a/services/fxaccounts/tests/xpcshell/test_web_channel.js
++++ b/services/fxaccounts/tests/xpcshell/test_web_channel.js
+@@ -280,16 +280,65 @@ add_test(function test_fxa_status_messag
+ 
+       run_next_test();
+     }
+   };
+ 
+   channel._channelCallback(WEBCHANNEL_ID, mockMessage, mockSendingContext);
+ });
+ 
++add_test(function test_keys_message() {
++  let mockMessage = {
++    command: "fxaccounts:keys",
++    messageId: 123,
++    data: {
++      service: "sync"
++    }
++  };
++
++  let channel = new FxAccountsWebChannel({
++    channel_id: WEBCHANNEL_ID,
++    content_uri: URL_STRING,
++    helpers: {
++      async getUserData() {
++        return {
++          signedInUser: {
++            email: "testuser@testuser.com",
++            kA: "kA",
++            kB: "kB",
++            sessionToken: "session-token",
++            uid: "uid",
++            verified: true
++          }
++        };
++      }
++    }
++  });
++
++  channel._channel = {
++    send(response, sendingContext) {
++      do_check_eq(response.command, "fxaccounts:keys");
++      do_check_eq(response.messageId, 123);
++
++      let signedInUser = response.data.signedInUser;
++      do_check_true(!!signedInUser);
++      do_check_eq(signedInUser.email, "testuser@testuser.com");
++      do_check_eq(signedInUser.kA, "kA");
++      do_check_eq(signedInUser.kB, "kB");
++      do_check_eq(signedInUser.sessionToken, "session-token");
++      do_check_eq(signedInUser.uid, "uid");
++      do_check_eq(signedInUser.verified, true);
++
++      run_next_test();
++    }
++  };
++
++  channel._channelCallback(WEBCHANNEL_ID, mockMessage, mockSendingContext);
++});
++
+ add_test(function test_unrecognized_message() {
+   let mockMessage = {
+     command: "fxaccounts:unrecognized",
+     data: {}
+   };
+ 
+   let channel = new FxAccountsWebChannel({
+     channel_id: WEBCHANNEL_ID,
+@@ -877,16 +926,53 @@ add_task(async function test_helpers_cha
+     await helpers.changePassword({});
+     do_check_false("changePassword should have rejected");
+   } catch (_) {
+     do_check_true(wasCalled.updateUserAccountData);
+     do_check_false(wasCalled.updateDeviceRegistration);
+   }
+ });
+ 
++add_task(async function test_helpers_getUserData() {
++  let wasCalled = {
++    getKeys: false
++  };
++
++  let helpers = new FxAccountsWebChannelHelpers({
++    fxAccounts: {
++      getKeys() {
++        wasCalled.getKeys = true;
++        return Promise.resolve({
++          email: "testuser@testuser.com",
++          kA: "kA",
++          kB: "kB",
++          sessionToken: "session-token",
++          uid: "uid",
++          verified: true
++        });
++      }
++    }
++  });
++
++  return helpers.getUserData()
++    .then(userData => {
++      do_check_true(!!userData);
++      do_check_true(wasCalled.getKeys);
++
++      let signedInUser = userData.signedInUser;
++      do_check_true(!!signedInUser);
++      do_check_eq(signedInUser.email, "testuser@testuser.com");
++      do_check_eq(signedInUser.kA, "kA");
++      do_check_eq(signedInUser.kB, "kB");
++      do_check_eq(signedInUser.sessionToken, "session-token");
++      do_check_eq(signedInUser.uid, "uid");
++      do_check_eq(signedInUser.verified, true);
++    });
++});
++
+ function makeObserver(aObserveTopic, aObserveFunc) {
+   let callback = function(aSubject, aTopic, aData) {
+     log.debug("observed " + aTopic + " " + aData);
+     if (aTopic == aObserveTopic) {
+       removeMe();
+       aObserveFunc(aSubject, aTopic, aData);
+     }
+   };
