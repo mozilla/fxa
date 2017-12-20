@@ -154,7 +154,7 @@ define(function(require, exports, module) {
       // are the old style and are still used.
       pattern: /^(?:\+39)?\d{9,10}$/,
       prefix: '+39',
-      rolloutRate: 0  // being soft launched. Testers will need to open `/sms?service=sync&country=IT`
+      rolloutRate: 0.5
     },
     // Luxembourg
     // https://en.wikipedia.org/wiki/Telephone_numbers_in_Luxembourg
