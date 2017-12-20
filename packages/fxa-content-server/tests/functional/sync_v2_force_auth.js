@@ -80,7 +80,7 @@ define([
 
         .then(openVerificationLinkInNewTab(email, 0))
         .then(switchToWindow(1))
-          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 
         // about:accounts will take over post-verification, no transition
@@ -111,7 +111,7 @@ define([
         .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(openVerificationLinkInDifferentBrowser(email))
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
 
     'unverified - web flow, verify, from original tab\'s P.O.V.': function () {

@@ -20,7 +20,6 @@ define([
   let email;
   let uid;
   let user;
-  let verificationLink;
 
   const clearBrowserState = FunctionalHelpers.clearBrowserState;
   const createUser = FunctionalHelpers.createUser;
@@ -54,7 +53,6 @@ define([
         .then((headers) => {
           code = headers['x-verify-code'];
           uid = headers['x-uid'];
-          verificationLink = headers['x-link'];
         });
     },
 
@@ -92,12 +90,6 @@ define([
       return this.remote
         .then(openPage(url, selectors.COMPLETE_SIGNIN.VERIFICATION_LINK_EXPIRED))
         .then(noSuchElement(selectors.COMPLETE_SIGNIN.LINK_RESEND));
-    },
-
-    'open valid email verification link': function () {
-      return this.remote
-        .then(clearBrowserState())
-        .then(openPage(verificationLink, selectors.SIGNIN_COMPLETE.HEADER));
     }
   });
 });

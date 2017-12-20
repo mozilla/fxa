@@ -141,26 +141,9 @@ define([
         .then(testUrlInclude(CONNECT_ANOTHER_DEVICE_ENTRYPOINT));
     },
 
-    'signin Fx Desktop, verify same browser - control': function () {
+    'signin Fx Desktop, verify same browser': function () {
       const forceUA = UA_STRINGS['desktop_firefox'];
-      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control', forceUA };
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(SIGNIN_DESKTOP_URL, selectors.SIGNIN.HEADER, { query }))
-        .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
-        .then(fillOutSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-        .then(openVerificationLinkInNewTab(email, 0, { query }))
-        .then(switchToWindow(1))
-          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
-          .then(closeCurrentWindow())
-
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
-    },
-
-    'signin Fx Desktop, verify same browser - treatment': function () {
-      const forceUA = UA_STRINGS['desktop_firefox'];
-      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'treatment', forceUA };
+      const query = { forceUA };
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(SIGNIN_DESKTOP_URL, selectors.SIGNIN.HEADER, { query }))
@@ -192,12 +175,12 @@ define([
         .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
         .then(openVerificationLinkInSameTab(signInEmail, 0, { query: { forceUA } }))
 
-        // Does not work if another user is signed in, even if forced.
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
 
         // NOW - go back and open the verification link for the signup user in a
         // browser where another user is already signed in.
         .then(openVerificationLinkInSameTab(signUpEmail, 0))
+        // Does not work if another user is signed in, even if forced.
         // User goes to the old "Account verified" screen.
         .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER));
     },

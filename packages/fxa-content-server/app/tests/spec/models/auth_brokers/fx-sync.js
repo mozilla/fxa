@@ -149,7 +149,7 @@ define(function(require, exports, module) {
 
             return broker.afterSignInConfirmationPoll(account)
               .then((behavior) => {
-                assert.equal(behavior.type, 'connect-another-device-on-signin');
+                assert.equal(behavior.type, 'connect-another-device');
 
                 assert.isTrue(metrics.setViewNamePrefix.calledOnce);
                 assert.isTrue(metrics.setViewNamePrefix.calledWith('signin'));
@@ -185,7 +185,7 @@ define(function(require, exports, module) {
         it('returns a ConnectAnotherDeviceBehavior', () => {
           return broker.afterCompleteSignIn(account)
             .then((behavior) => {
-              assert.equal(behavior.type, 'connect-another-device-on-signin');
+              assert.equal(behavior.type, 'connect-another-device');
             });
         });
       });

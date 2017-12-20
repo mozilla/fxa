@@ -76,7 +76,7 @@ define([
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
 
         .then(closeCurrentWindow())
-        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         // A post-verification email should be sent, this is Sync.
         .then(testEmailExpected(email, 1));
 

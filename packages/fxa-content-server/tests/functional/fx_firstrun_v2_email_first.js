@@ -86,9 +86,7 @@ define([
         .then(testIsBrowserNotified('fxaccounts:can_link_account'));
     },
 
-    'signin verified - control': function () {
-      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control' };
-
+    'signin verified': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
@@ -107,41 +105,12 @@ define([
         .then(click(selectors.SIGNIN_PASSWORD.SUBMIT, selectors.CONFIRM_SIGNIN.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'))
 
-        .then(openVerificationLinkInNewTab(email, 0, { query }))
-        .then(switchToWindow(1))
-          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
-          .then(closeCurrentWindow())
-
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
-    },
-
-    'signin verified - treatment': function () {
-      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'treatment' };
-
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-          // Note, query not passed here or else email-first is not used.
-          webChannelResponses: {
-            'fxaccounts:can_link_account': { ok: true }
-          }
-        }))
-        .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
-        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER))
-        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-
-        .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
-        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT, selectors.CONFIRM_SIGNIN.HEADER))
-        .then(testIsBrowserNotified('fxaccounts:login'))
-
-        .then(openVerificationLinkInNewTab(email, 0, { query }))
+        .then(openVerificationLinkInNewTab(email, 0))
         .then(switchToWindow(1))
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
 
     'signin unverified': function () {

@@ -6,8 +6,9 @@ define([
   'intern',
   'intern!object',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/selectors'
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v2&service=sync&forceAboutAccounts=true';
 
@@ -69,7 +70,7 @@ define([
 
         .then(openVerificationLinkInNewTab(email, 0))
         .then(switchToWindow(1))
-          .then(testElementExists('#fxa-sign-in-complete-header'))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 
         // about:accounts will take over post-verification, no transition

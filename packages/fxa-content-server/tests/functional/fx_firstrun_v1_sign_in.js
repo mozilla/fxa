@@ -63,38 +63,16 @@ define([
         }));
     },
 
-    'verified, verify same browser - control': function () {
-      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control' };
-
+    'verified, verify same browser': function () {
       return this.remote
-        .then(setupTest({ preVerified: true, query }))
+        .then(setupTest({ preVerified: true }))
 
         .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
 
         .then(testIsBrowserNotified('fxaccounts:login'))
         .then(clearBrowserNotifications())
 
-        .then(openVerificationLinkInNewTab(email, 0, { query }))
-        .then(switchToWindow(1))
-          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
-          .then(closeCurrentWindow())
-
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
-        .then(noSuchBrowserNotification('fxaccounts:login'));
-    },
-
-    'verified, verify same browser - treatment': function () {
-      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'treatment' };
-
-      return this.remote
-        .then(setupTest({ preVerified: true, query }))
-
-        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-
-        .then(testIsBrowserNotified('fxaccounts:login'))
-        .then(clearBrowserNotifications())
-
-        .then(openVerificationLinkInNewTab(email, 0, { query }))
+        .then(openVerificationLinkInNewTab(email, 0))
         .then(switchToWindow(1))
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
@@ -112,7 +90,7 @@ define([
 
         .then(openVerificationLinkInDifferentBrowser(email))
 
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
 
     'unverified': function () {
@@ -158,7 +136,7 @@ define([
         .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email))
         .then(fillOutSignInUnblock(email, 0))
 
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
     }
   });

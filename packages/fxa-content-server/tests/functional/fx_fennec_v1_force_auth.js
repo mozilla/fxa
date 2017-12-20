@@ -71,10 +71,10 @@ define([
 
         .then(openVerificationLinkInNewTab(email, 0))
         .then(switchToWindow(1))
-          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
 
     'verified, verify different browser - from original tab\'s P.O.V.': function () {
@@ -83,7 +83,7 @@ define([
 
         .then(openVerificationLinkInDifferentBrowser(email))
 
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
 
     'unverified': function () {
@@ -99,7 +99,7 @@ define([
 
         .then(fillOutSignInUnblock(email, 0))
 
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
     }
   });

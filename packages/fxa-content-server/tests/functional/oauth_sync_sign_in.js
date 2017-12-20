@@ -7,9 +7,10 @@ define([
   'intern!object',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
-  'tests/functional/lib/fx-desktop'
+  'tests/functional/lib/fx-desktop',
+  'tests/functional/lib/selectors'
 ], function (intern, registerSuite, TestHelpers, FunctionalHelpers,
-             FxDesktopHelpers) {
+             FxDesktopHelpers, selectors) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
 
@@ -75,7 +76,7 @@ define([
         .then(openVerificationLinkInNewTab(email, 0))
 
         .then(switchToWindow(1))
-        .then(testElementExists('#fxa-sign-in-complete-header'))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(closeCurrentWindow())
 
         // Sign up for a new account via OAuth

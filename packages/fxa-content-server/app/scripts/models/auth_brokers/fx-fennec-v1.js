@@ -17,6 +17,7 @@ define(function (require, exports, module) {
 
   var FxFennecV1AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
+      browserTransitionsAfterEmailVerification: false,
       chooseWhatToSyncCheckbox: false,
       chooseWhatToSyncWebV1: true,
       emailVerificationMarketingSnippet: false

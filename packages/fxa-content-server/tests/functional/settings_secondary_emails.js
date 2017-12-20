@@ -315,7 +315,7 @@ define([
 
         .then(openVerificationLinkInNewTab(secondaryEmail, 1))
         .then(switchToWindow(1))
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(closeCurrentWindow());
     }
   });

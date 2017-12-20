@@ -40,50 +40,6 @@ define(function(require, exports, module) {
     ],
 
     /**
-     * Is `account` eligible for connect another device on signin?
-     *
-     * @param {any} account
-     * @returns {Boolean}
-     */
-    isEligibleForConnectAnotherDeviceOnSignin (account) {
-      const isEligibleForCadOnSignin = !! this.getExperimentGroup('cadOnSignin', { account });
-
-      return this.isEligibleForConnectAnotherDevice(account) &&
-             isEligibleForCadOnSignin;
-    },
-
-    /**
-     * Navigate to the appropriate CAD screen for `account` in the signin flow.
-     *
-     * @param {Object} account
-     * @returns {Promise}
-     */
-    navigateToConnectAnotherDeviceOnSigninScreen (account) {
-      if (! this.isEligibleForConnectAnotherDeviceOnSignin(account)) {
-        // this shouldn't happen IRL.
-        return Promise.reject(new Error('navigateToConnectAnotherDeviceOnSigninScreen can only be called if user is eligible to connect another device'));
-      }
-
-      return Promise.resolve().then(() => {
-        // Initialize the flow metrics so any flow events are logged.
-        // The flow-events-mixin, even if it were mixed in, does this in
-        // `afterRender` whereas this method can be called in `beforeRender`
-        this.notifier.trigger('flow.initialize');
-        const group = this.getExperimentGroup('cadOnSignin', { account });
-
-        // Note, the cadOnSignin prefix is to help us measure in DataDog.
-        // Metrics sent to DataDog can have one or more exp_group tags,
-        // the prefix allows us to differentiate between results from
-        // the `sendSms` experiment which uses the same group names.
-        this.createExperiment('sendSms', `cadOnSignin.${group}`);
-
-        if (group === 'treatment') {
-          return this.navigateToConnectAnotherDeviceScreen(account);
-        }
-      });
-    },
-
-    /**
      * Is `account` eligible for connect another device?
      *
      * @param {Object} account - account to check

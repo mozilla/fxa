@@ -5,7 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const chai = require('chai');
+  const { assert } = require('chai');
   const Constants = require('lib/constants');
   const FxFennecV1AuthenticationBroker = require('models/auth_brokers/fx-fennec-v1');
   const NullChannel = require('lib/channels/null');
@@ -14,18 +14,20 @@ define(function (require, exports, module) {
   const User = require('models/user');
   const WindowMock = require('../../../mocks/window');
 
-  var assert = chai.assert;
-
   describe('models/auth_brokers/fx-fennec-v1', function () {
-    var account;
-    var broker;
-    var channel;
-    var relier;
-    var user;
-    var windowMock;
+    let account;
+    let broker;
+    let channel;
+    let metrics;
+    let relier;
+    let user;
+    let windowMock;
 
     beforeEach(function () {
       channel = new NullChannel();
+      metrics = {
+        setViewNamePrefix: sinon.spy()
+      };
       relier = new Relier();
       windowMock = new WindowMock();
 
@@ -39,6 +41,7 @@ define(function (require, exports, module) {
 
       broker = new FxFennecV1AuthenticationBroker({
         channel: channel,
+        metrics,
         relier: relier,
         window: windowMock
       });
@@ -76,17 +79,7 @@ define(function (require, exports, module) {
         return broker.afterSignIn(account)
           .then(function (behavior) {
             assert.isTrue(broker.send.calledWith('fxaccounts:login'));
-            assert.equal(behavior.type, 'connect-another-device-on-signin');
-          });
-      });
-    });
-
-
-    describe('afterSignUpConfirmationPoll', function () {
-      it('redirects to `/signup_confirmed`', function () {
-        return broker.afterSignUpConfirmationPoll(account)
-          .then(function (behavior) {
-            assert.equal(behavior.endpoint, 'signup_confirmed');
+            assert.equal(behavior.type, 'connect-another-device');
           });
       });
     });
@@ -97,6 +90,28 @@ define(function (require, exports, module) {
           .then(function (behavior) {
             assert.isTrue(broker.send.calledWith('fxaccounts:login'));
             assert.isUndefined(behavior.halt);
+          });
+      });
+    });
+
+    describe('afterSignUpConfirmationPoll', function () {
+      it('redirects to `/connect_another_device`', function () {
+        return broker.afterSignUpConfirmationPoll(account)
+          .then(function (behavior) {
+            assert.isTrue(metrics.setViewNamePrefix.calledOnce);
+            assert.isTrue(metrics.setViewNamePrefix.calledWith('signup'));
+            assert.equal(behavior.type, 'connect-another-device');
+          });
+      });
+    });
+
+    describe('afterSignInConfirmationPoll', function () {
+      it('redirects to `/connect_another_device`', function () {
+        return broker.afterSignInConfirmationPoll(account)
+          .then(function (behavior) {
+            assert.isTrue(metrics.setViewNamePrefix.calledOnce);
+            assert.isTrue(metrics.setViewNamePrefix.calledWith('signin'));
+            assert.equal(behavior.type, 'connect-another-device');
           });
       });
     });

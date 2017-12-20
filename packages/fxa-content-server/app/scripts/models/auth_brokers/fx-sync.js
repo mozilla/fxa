@@ -14,19 +14,18 @@ define(function (require, exports, module) {
   const _ = require('underscore');
   const BaseAuthenticationBroker = require('../auth_brokers/base');
   const ConnectAnotherDeviceBehavior = require('../../views/behaviors/connect-another-device');
-  const ConnectAnotherDeviceOnSigninBehavior = require('../../views/behaviors/connect-another-device-on-signin');
   const SyncEngines = require('../sync-engines');
 
   const proto = BaseAuthenticationBroker.prototype;
 
   module.exports = BaseAuthenticationBroker.extend({
     defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
-      afterCompleteSignIn: new ConnectAnotherDeviceOnSigninBehavior(proto.defaultBehaviors.afterCompleteSignIn),
+      afterCompleteSignIn: new ConnectAnotherDeviceBehavior(proto.defaultBehaviors.afterCompleteSignIn),
       afterCompleteSignUp: new ConnectAnotherDeviceBehavior(proto.defaultBehaviors.afterCompleteSignUp),
-      // afterForceAuth is not overridden with the ConnectAnotherDeviceOnSignin behavior
+      // afterForceAuth is not overridden with the ConnectAnotherDevice behavior
       // because force_auth is used to sign in as a particular user to view a particular
       // page, e.g., settings.
-      afterSignIn: new ConnectAnotherDeviceOnSigninBehavior(proto.defaultBehaviors.afterSignIn),
+      afterSignIn: new ConnectAnotherDeviceBehavior(proto.defaultBehaviors.afterSignIn),
     }),
 
     type: 'fx-sync',
@@ -85,7 +84,7 @@ define(function (require, exports, module) {
             // screen.sms <- view the sms screen in the verification tab.
             // screen.signin.sms <- view the sms screen in the signin tab.
             this._metrics.setViewNamePrefix('signin');
-            return new ConnectAnotherDeviceOnSigninBehavior(defaultBehavior);
+            return new ConnectAnotherDeviceBehavior(defaultBehavior);
           }
 
           return defaultBehavior;

@@ -7,8 +7,6 @@
  * connect-another-device screen. If ineligible, fallback
  * to `defaultBehavior`.
  *
- * Do not use for a signin flow, instead use "connect-another-device-on-signin".
- *
  * Requires the view to mixin the ConnectAnotherDeviceMixin
  */
 

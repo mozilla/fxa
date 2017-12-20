@@ -79,7 +79,7 @@ define([
 
         .then(openVerificationLinkInNewTab(email, 0))
         .then(switchToWindow(1))
-          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 
         // about:accounts will take over post-verification, no transition
@@ -106,7 +106,7 @@ define([
         // email 0 is the original signin email, open the resent email instead
         .then(openVerificationLinkInNewTab(email, 1))
         .then(switchToWindow(1))
-          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 
         // about:accounts will take over post-verification, no transition

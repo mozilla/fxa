@@ -74,26 +74,9 @@ define([
         .then(clearBrowserState({ force: true }));
     },
 
-    'Fx >= 58, verified, does not need to confirm - control': function () {
+    'Fx >= 58, verified, does not need to confirm': function () {
       const forceUA = uaStrings['desktop_firefox_58'];
-      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control', forceUA };
-
-      email = TestHelpers.createEmail();
-
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(PAGE_URL, selectors.SIGNIN.HEADER, { query, webChannelResponses: {
-          'fxaccounts:can_link_account': { ok: true },
-          'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
-        }}))
-        .then(fillOutSignIn(email, PASSWORD))
-
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
-    },
-
-    'Fx >= 58, verified, does not need to confirm - treatment': function () {
-      const forceUA = uaStrings['desktop_firefox_58'];
-      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'treatment', forceUA };
+      const query = { forceUA };
 
       email = TestHelpers.createEmail();
 
@@ -108,28 +91,13 @@ define([
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
 
-    'verified, verify same browser, new tab\'s P.O.V - control': function () {
-      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control' };
-
+    'verified, verify same browser, new tab\'s P.O.V': function () {
       return this.remote
-        .then(setupTest({ preVerified: true, query }))
+        .then(setupTest({ preVerified: true }))
 
-        .then(openVerificationLinkInNewTab(email, 0, { query }))
+        .then(openVerificationLinkInNewTab(email, 0))
         .then(switchToWindow(1))
-          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
-          .then(closeCurrentWindow());
-        // tests for the original tab are below.
-    },
-
-    'verified, verify same browser, new tab\'s P.O.V - treatment': function () {
-      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control' };
-
-      return this.remote
-        .then(setupTest({ preVerified: true, query }))
-
-        .then(openVerificationLinkInNewTab(email, 0, { query }))
-        .then(switchToWindow(1))
-          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow());
         // tests for the original tab are below.
     },
@@ -156,7 +124,7 @@ define([
 
         .then(openVerificationLinkInDifferentBrowser(email, 0))
         // about:accounts does not take over post-verification in Fx >= 57
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
 
     'verified, resend email, verify same browser': function () {
@@ -169,7 +137,7 @@ define([
         // email 0 is the original signin email, open the resent email instead
         .then(openVerificationLinkInNewTab(email, 1))
         .then(switchToWindow(1))
-          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 
         // about:accounts will take over post-verification, no transition
@@ -233,7 +201,7 @@ define([
         .then(fillOutSignInUnblock(email, 0))
 
         // about:accounts does not take over post-verification in Fx >= 58
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
