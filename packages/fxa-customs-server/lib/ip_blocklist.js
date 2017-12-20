@@ -92,7 +92,7 @@ module.exports = function (log, config) {
 
           // Every 1000 rows, yield process
           if (idx % 1000 === 0) {
-            return Promise.fromNode(setImmediate)
+            return new Promise((resolve) => { setImmediate(resolve) })
           }
         })
       })

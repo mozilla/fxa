@@ -13,7 +13,7 @@
   "bugs": "https://github.com/mozilla/fxa-customs-server/issues/",
   "scripts": {
     "nsp": "grunt nsp",
-    "outdated": "npm outdated --depth 0",
+    "outdated": "npm outdated --depth 0 || exit 0",
     "shrink": "npmshrink",
     "start": "node bin/customs_server.js",
     "test": "scripts/test-local.sh"
