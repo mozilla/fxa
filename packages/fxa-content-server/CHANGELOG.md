@@ -1,3 +1,13 @@
+<a name="1.102.1"></a>
+## 1.102.1 (2017-12-20)
+
+
+### Features
+
+* **email-first:** Report email-first metrics to amplitude. (#5796) r=@philbooth ([c09f2a6](https://github.com/mozilla/fxa-content-server/commit/c09f2a6)), closes [#5788](https://github.com/mozilla/fxa-content-server/issues/5788)
+
+
+
 <a name="1.102.0"></a>
 # 1.102.0 (2017-12-13)
 
