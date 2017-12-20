@@ -271,6 +271,26 @@ define([
       });
     },
 
+    'flow.enter-email.engage': () => {
+      return amplitude({
+        time: 'a',
+        type: 'flow.enter-email.engage'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_email_first - engage');
+      });
+    },
+
     'flow.force-auth.engage': () => {
       return amplitude({
         time: 'a',
@@ -422,6 +442,26 @@ define([
       });
     },
 
+    'flow.enter-email.submit': () => {
+      return amplitude({
+        time: 'a',
+        type: 'flow.enter-email.submit'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_email_first - submit');
+      });
+    },
+
     'flow.force-auth.submit': () => {
       return amplitude({
         time: 'a',
@@ -496,6 +536,26 @@ define([
         flowId: 'c',
         uid: 'd'
       }).then(() => assert.equal(process.stderr.write.callCount, 0));
+    },
+
+    'screen.enter-email': () => {
+      return amplitude({
+        time: 'a',
+        type: 'screen.enter-email'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '194.12.187.0'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_email_first - view');
+      });
     },
 
     'screen.force-auth': () => {
