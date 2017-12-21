@@ -30,7 +30,7 @@ module.exports = function (grunt) {
         process: (contents) => {
           // `__translations__:{},` is written in
           // the replace:fetch_translations task.
-          return contents.replace(/__translations__:{},/, '__translations__:' + JSON.stringify(translations) + ',');
+          return contents.replace(/__translations__:\s*{},/, '__translations__:' + JSON.stringify(translations) + ',');
         }
       });
     });

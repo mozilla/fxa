@@ -74,6 +74,7 @@ define(function (require, exports, module) {
     this._router = options.router;
     this._sentryMetrics = options.sentryMetrics;
     this._storage = options.storage || Storage;
+    this._translator = options.translator;
     this._user = options.user;
     this._window = options.window || window;
   }
@@ -179,7 +180,10 @@ define(function (require, exports, module) {
     },
 
     initializeL10n () {
-      this._translator = this._window.translator = new Translator();
+      if (! this._translator) {
+        this._translator = new Translator();
+      }
+      return this._translator.fetch();
     },
 
     initializeMetrics () {
@@ -488,6 +492,7 @@ define(function (require, exports, module) {
         relier: this._relier,
         sentryMetrics: this._sentryMetrics,
         session: Session,
+        translator: this._translator,
         user: this._user,
         window: this._window
       }, this._router.getViewOptions(options));
@@ -517,6 +522,7 @@ define(function (require, exports, module) {
           environment: new Environment(this._window),
           notifier: this._notifier,
           router: this._router,
+          translator: this._translator,
           window: this._window
         });
       }

@@ -44,6 +44,7 @@ define(function (require, exports, module) {
     let brokerMock;
     let notifier;
     let routerMock;
+    let translator;
     let userMock;
     let windowMock;
 
@@ -52,6 +53,10 @@ define(function (require, exports, module) {
       backboneHistoryMock = new HistoryMock();
       notifier = new Notifier();
       routerMock = { navigate: sinon.spy() };
+      translator = {
+        fetch: sinon.spy(() => Promise.resolve())
+      };
+
       userMock = new User();
 
       windowMock = new WindowMock();
@@ -75,6 +80,7 @@ define(function (require, exports, module) {
           history: backboneHistoryMock,
           router: routerMock,
           storage: Storage,
+          translator,
           user: userMock,
           window: windowMock
         });
@@ -106,19 +112,12 @@ define(function (require, exports, module) {
           history: backboneHistoryMock,
           router: routerMock,
           storage: Storage,
+          translator,
           user: userMock,
           window: windowMock
         });
 
         appStart.useConfig({});
-      });
-
-      it('starts the app', () => {
-        return appStart.startApp()
-          .then(() => {
-            // translator is put on the global object.
-            assert.isDefined(windowMock.translator);
-          });
       });
 
       it('does not redirect', () => {
@@ -244,6 +243,18 @@ define(function (require, exports, module) {
             });
         });
 
+      });
+    });
+
+    describe('initializeL10n', () => {
+      it('fetches translations', () => {
+        appStart = new AppStart({
+          translator
+        });
+        return appStart.initializeL10n()
+          .then(() => {
+            assert.ok(appStart._translator.fetch.calledOnce);
+          });
       });
     });
 

@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const { assert } = require('chai');
+  const sinon = require('sinon');
   const Translator = require('lib/translator');
 
   // translations taken from Persona's db_LB translations.
@@ -28,16 +29,37 @@ define(function (require, exports, module) {
   };
 
   describe('lib/translator', () => {
-    var translator;
+    let translator;
+    let xhr;
 
     beforeEach(() => {
+      xhr = {
+        getJSON: sinon.spy(() => Promise.resolve(TRANSLATIONS))
+      };
       // Bringing back the David Bowie's Labrynth
-      translator = new Translator('db-LB', ['db-LB']);
-      translator.set(TRANSLATIONS);
+      translator = new Translator({ xhr });
+      return translator.fetch();
     });
 
     afterEach(() => {
       translator = null;
+    });
+
+    describe('fetch', () => {
+      it('is called on startup if translations are not already set', () => {
+        assert.isTrue(xhr.getJSON.calledOnce);
+        assert.isTrue(xhr.getJSON.calledWith('/i18n/client.json'));
+      });
+
+      it('is not called on startup if translations are already set', () => {
+        xhr.getJSON.reset();
+        translator = new Translator({ xhr });
+        translator.set(TRANSLATIONS);
+        return translator.fetch()
+          .then(() => {
+            assert.isFalse(xhr.getJSON.called);
+          });
+      });
     });
 
     describe('get', () => {
