@@ -11,7 +11,7 @@
       "min_uptime": "2m"
     },
     {
-      "name": "auth-server db memory",
+      "name": "auth-server db memory PORT 8000",
       "script": "node_modules/fxa-auth-db-mysql/bin/mem.js",
       "cwd": "fxa-auth-server",
       "env": {
