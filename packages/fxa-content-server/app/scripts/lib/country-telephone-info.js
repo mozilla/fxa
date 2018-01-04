@@ -136,7 +136,7 @@ define(function(require, exports, module) {
       normalize: ensurePrefix('+33'),
       pattern: /^(?:\+33\d{9}|\d{10})$/,
       prefix: '+33',
-      rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=FR`
+      rolloutRate: 0.5
     },
     GB: {
       format: formatter('+44 ${serverPhoneNumber}'),
