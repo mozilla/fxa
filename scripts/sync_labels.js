@@ -91,6 +91,9 @@ var OBSOLETE_LABELS = {
   'train-96': null,
   'train-97': null,
   'train-98': null,
+  'train-99': null,
+  'train-100': null,
+  'train-101': null,
 }
 
 
