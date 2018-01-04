@@ -64,6 +64,11 @@ define([
       headers: {},
       body: '{"uid": "5d576e2cd3604981a8c05f6ea67fce5b", "sessionToken": "9c1fe2a0643ce23aa1b44afbe30e28d33e5726558cab215314980fc85875684f","keyFetchToken": "b1f4182d7e072567a1dbe682043a16932a84b7f4ca3b95e471a34806c87e4130","verified": true, "emailSent": false}'
     },
+    signInForceTokenVerification: {
+      status: 200,
+      headers: {},
+      body: '{"uid": "5d576e2cd3604981a8c05f6ea67fce5b", "sessionToken": "9c1fe2a0643ce23aa1b44afbe30e28d33e5726558cab215314980fc85875684f","keyFetchToken": "b1f4182d7e072567a1dbe682043a16932a84b7f4ca3b95e471a34806c87e4130","verified": true, "emailSent": false}'
+    },
     heartbeat: {
       status: 200,
       body: '{}'
@@ -319,6 +324,18 @@ define([
       body: '{}'
     },
     recoveryEmailSetPrimaryEmail: {
+      status: 200,
+      body: '{}'
+    },
+    signInWithVerificationMethodEmail2faResponse: {
+      status: 200,
+      body: '{"uid": "5d576e2cd3604981a8c05f6ea67fce5b", "sessionToken": "9c1fe2a0643ce23aa1b44afbe30e28d33e5726558cab215314980fc85875684f","keyFetchToken": "b1f4182d7e072567a1dbe682043a16932a84b7f4ca3b95e471a34806c87e4130","verified": true, "emailSent": false, "verificationMethod": "email-2fa", "verificationReason": "login"}'
+    },
+    signInWithVerificationMethodEmail2faCode: {
+      status: 200,
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Mocked code=9001","headers": {"x-signin-verify-code": "KK5R03GW" }}]'
+    },
+    sessionVerifyTokenCodeSuccess: {
       status: 200,
       body: '{}'
     }

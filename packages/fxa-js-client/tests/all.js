@@ -22,6 +22,7 @@ define([
   'tests/lib/signIn',
   'tests/lib/signinCodes',
   'tests/lib/signUp',
+  'tests/lib/tokenCodes',
   'tests/lib/sms',
   'tests/lib/unbundle',
   'tests/lib/uriVersion',

@@ -258,6 +258,10 @@ define([
             data.originalLoginEmail = options.originalLoginEmail;
           }
 
+          if (options.verificationMethod) {
+            data.verificationMethod = options.verificationMethod;
+          }
+
           return self.request.send(endpoint, 'POST', null, data)
             .then(
               function(accountData) {
@@ -328,6 +332,27 @@ define([
         }
 
         return self.request.send('/recovery_email/verify_code', 'POST', null, data);
+      });
+  };
+
+  FxAccountClient.prototype.verifyTokenCode = function(sessionToken, uid, code) {
+    var self = this;
+
+    required(uid, 'uid');
+    required(code, 'verify token code');
+    required(sessionToken, 'sessionToken');
+
+    return Promise.resolve()
+      .then(function () {
+        return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE);
+      })
+      .then(function (creds) {
+        var data = {
+          uid: uid,
+          code: code
+        };
+
+        return self.request.send('/session/verify/token', 'POST', creds, data);
       });
   };
 
