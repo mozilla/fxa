@@ -51,11 +51,12 @@ var STANDARD_LABELS = {
   // Train-number labels, for scheduling.
   // XXX TODO: calculate appropriate set of train labels
   // based on current date, rather than hard-coding them here.
-  'train-99': { color: COLORS.TARGET },
-  'train-100': { color: COLORS.TARGET },
-  'train-101': { color: COLORS.TARGET },
   'train-102': { color: COLORS.TARGET },
   'train-103': { color: COLORS.TARGET },
+  'train-104': { color: COLORS.TARGET },
+  'train-105': { color: COLORS.TARGET },
+  'train-106': { color: COLORS.TARGET },
+  'train-107': { color: COLORS.TARGET },
 }
 
 
