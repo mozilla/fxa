@@ -7,6 +7,7 @@ define(function(require, exports, module) {
 
   const $ = require('jquery');
   const Account = require('models/account');
+  const AuthErrors = require('lib/auth-errors');
   const { assert } = require('chai');
   const Backbone = require('backbone');
   const Broker = require('models/auth_brokers/base');
@@ -121,7 +122,7 @@ define(function(require, exports, module) {
     });
 
     it('resend failure, displays the error message', () => {
-      sinon.stub(account, 'sendSms').callsFake(() => Promise.reject(SmsErrors.toError('THROTTLED')));
+      sinon.stub(account, 'sendSms').callsFake(() => Promise.reject(AuthErrors.toError('THROTTLED')));
       sinon.spy(view, 'displayError');
       sinon.stub(view, 'getSmsFeatures').callsFake(() => ['signinCodes']);
 
