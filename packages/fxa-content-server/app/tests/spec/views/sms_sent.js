@@ -15,7 +15,6 @@ define(function(require, exports, module) {
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const Relier = require('models/reliers/relier');
-  const SmsErrors = require('lib/sms-errors');
   const sinon = require('sinon');
   const View = require('views/sms_sent');
 
@@ -134,7 +133,7 @@ define(function(require, exports, module) {
 
           assert.isTrue(view.getSmsFeatures.calledOnce);
           assert.isTrue(view.displayError.calledOnce);
-          assert.isTrue(SmsErrors.is(view.displayError.args[0][0], 'THROTTLED'));
+          assert.isTrue(AuthErrors.is(view.displayError.args[0][0], 'THROTTLED'));
         });
     });
   });
