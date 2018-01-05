@@ -273,6 +273,12 @@ module.exports = function (fs, path, url, convict) {
         format: 'int',
         env: 'REPUTATION_SERVICE_TIMEOUT'
       }
+    },
+    sentryDsn: {
+      doc: 'Sentry DSN for error and log reporting',
+      default: '',
+      format: 'String',
+      env: 'SENTRY_DSN'
     }
   })
 

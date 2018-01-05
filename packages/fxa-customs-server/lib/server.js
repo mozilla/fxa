@@ -13,6 +13,7 @@ var packageJson = require('../package.json')
 var blockReasons = require('./block_reasons')
 var P = require('bluebird')
 P.promisifyAll(Memcached.prototype)
+var Raven = require('raven')
 
 // Create and return a restify server instance
 // from the given config.
@@ -27,6 +28,16 @@ module.exports = function createServer(config, log) {
     var blockListManager = new IPBlocklistManager()
     startupDefers.push(blockListManager.load(config.ipBlocklist.lists, config.ipBlocklist.logOnlyLists))
     blockListManager.pollForUpdates()
+  }
+
+  const sentryDsn = config.sentryDsn
+
+  if (sentryDsn) {
+    // configure Sentry
+    Raven.config(sentryDsn, {})
+    log.info({ op: 'sentryEnabled' })
+  } else {
+    log.info({ op: 'sentryDisabled' })
   }
 
   var mc = new Memcached(
@@ -76,6 +87,20 @@ module.exports = function createServer(config, log) {
     }
   })
   api.use(restify.bodyParser())
+
+  api.on('uncaughtException', function (req, res, route, err) {
+    if (sentryDsn) {
+      Raven.captureException(err)
+    }
+    res.send(new restify.errors.InternalServerError('Server Error'))
+  })
+
+  api.on('error', function (err) {
+    if (sentryDsn) {
+      Raven.captureException(err)
+    }
+    log.error({ op: 'error', message: err.message })
+  })
 
   function logError(err) {
     log.error({ op: 'memcachedError', err: err })
