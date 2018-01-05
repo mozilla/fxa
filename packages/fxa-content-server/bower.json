@@ -12,7 +12,7 @@
     "es6-promise": "https://github.com/stefanpenner/es6-promise.git#4.1.1",
     "fxa-checkbox": "mozilla/fxa-checkbox#7f856afffd394a144f718e28e6fb79092d6ccddd",
     "fxa-crypto-relier": "https://github.com/mozilla/fxa-crypto-relier.git#v2.1.0",
-    "fxa-js-client": "https://github.com/mozilla/fxa-js-client.git#0.1.69",
+    "fxa-js-client": "https://github.com/mozilla/fxa-js-client.git#0.1.70",
     "html5shiv": "3.7.2",
     "jquery": "3.1.0",
     "jquery-modal": "https://github.com/shane-tomlinson/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503",
