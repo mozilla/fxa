@@ -16,6 +16,7 @@ define(function(require, exports, module) {
   const Notifier = require('lib/channels/notifier');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
+  const SmsErrors = require('lib/sms-errors');
   const SmsMessageIds = require('lib/sms-message-ids');
   const View = require('views/sms_send');
 
@@ -215,6 +216,24 @@ define(function(require, exports, module) {
       describe('fails with AuthErrors.INVALID_PHONE_NUMBER', () => {
         it('prints the validation error', () => {
           testPhoneNumberShowValidationError(AuthErrors.toError('INVALID_PHONE_NUMBER'));
+        });
+      });
+
+      describe('fails with SmsErrors.INVALID_PHONE_NUMBER', () => {
+        it('prints the validation error', () => {
+          testPhoneNumberShowValidationError(SmsErrors.toError('INVALID_PHONE_NUMBER'));
+        });
+      });
+
+      describe('fails with SmsErrors.UNROUTABLE_MESSAGE', () => {
+        it('prints the validation error', () => {
+          testPhoneNumberShowValidationError(SmsErrors.toError('UNROUTABLE_MESSAGE'));
+        });
+      });
+
+      describe('fails with SmsErrors.NUMBER_BLOCKED', () => {
+        it('prints the validation error', () => {
+          testPhoneNumberShowValidationError(SmsErrors.toError('NUMBER_BLOCKED'));
         });
       });
 

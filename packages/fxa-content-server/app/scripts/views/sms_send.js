@@ -21,6 +21,7 @@ define(function (require, exports, module) {
   const MarketingMixin = require('./mixins/marketing-mixin');
   const PulseGraphicMixin = require('./mixins/pulse-graphic-mixin');
   const SELECTOR_PHONE_NUMBER = 'input[type=tel]';
+  const SmsErrors = require('../lib/sms-errors');
   const SmsMixin = require('./mixins/sms-mixin');
   const Template = require('stache!templates/sms_send');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
@@ -168,7 +169,10 @@ define(function (require, exports, module) {
      * @private
      */
     _onSendSmsError (err) {
-      if (AuthErrors.is(err, 'INVALID_PHONE_NUMBER')) {
+      if (AuthErrors.is(err, 'INVALID_PHONE_NUMBER') || // auth-server validation
+          SmsErrors.is(err, 'INVALID_PHONE_NUMBER') || // nexmo validation
+          SmsErrors.is(err, 'UNROUTABLE_MESSAGE') ||
+          SmsErrors.is(err, 'NUMBER_BLOCKED')) {
         this.showValidationError(this.$(SELECTOR_PHONE_NUMBER), err);
         return;
       }
