@@ -12,6 +12,17 @@ var dbServer = require('../db-server')
 var error = dbServer.errors
 var logger = require('../lib/logging')('bin.server')
 var DB = require('../lib/db/mysql')(logger, error)
+var restify = require('restify')
+// configure Sentry
+var Raven = require('raven')
+const sentryDsn = config.sentryDsn
+
+if (sentryDsn) {
+  Raven.config(sentryDsn, {})
+  logger.info('sentryEnabled')
+} else {
+  logger.info('sentryDisabled')
+}
 
 function logCharsetInfo(db, poolName) {
   // Record some information about mysql connection configuration and
@@ -45,7 +56,18 @@ DB.connect(config)
     server.listen(config.port, config.hostname, function() {
       logger.info('start', { port : config.port })
     })
+
+    server.on('uncaughtException', function (req, res, route, err) {
+      if (sentryDsn) {
+        Raven.captureException(err)
+      }
+      res.send(new restify.errors.InternalServerError('Server Error'))
+    })
+
     server.on('error', function (err) {
+      if (sentryDsn) {
+        Raven.captureException(err)
+      }
       logger.error('start', { message: err.message })
     })
     server.on('success', function (d) {

@@ -166,6 +166,12 @@ module.exports = function (fs, path, url, convict) {
       doc: 'A secret to hash IP addresses for security history events',
       default: 'changeme',
       env: 'IP_HMAC_KEY'
+    },
+    sentryDsn: {
+      doc: 'Sentry DSN for error and log reporting',
+      default: '',
+      format: 'String',
+      env: 'SENTRY_DSN'
     }
   })
 
