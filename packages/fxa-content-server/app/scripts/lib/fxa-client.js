@@ -16,7 +16,6 @@ define(function (require, exports, module) {
   const requireOnDemand = require('./require-on-demand');
   const Session = require('./session');
   const SignInReasons = require('./sign-in-reasons');
-  const SmsErrors = require('./sms-errors');
   const VerificationReasons = require('./verification-reasons');
   const VerificationMethods = require('./verification-methods');
 
@@ -787,11 +786,7 @@ define(function (require, exports, module) {
                    err.validation.keys &&
                    err.validation.keys[0] === 'phoneNumber';
           }
-
-          if (AuthErrors.is(err, 'SMS_REJECTED')) {
-            // reasonCode comes back as a string. We need an integer.
-            throw SmsErrors.toError(parseInt(err.reasonCode, 10));
-          } else if (isInvalidPhoneNumberError(err)) {
+          if (isInvalidPhoneNumberError(err)) {
             throw AuthErrors.toError('INVALID_PHONE_NUMBER');
           }
 
