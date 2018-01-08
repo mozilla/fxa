@@ -225,7 +225,7 @@ describe('lib/server', () => {
                 features: [ 'signinCodes' ],
                 uid: 'another fake uid'
               },
-              remoteAddress: '194.12.187.2'
+              remoteAddress: '63.245.221.32'
             }).then(response => secondRequest = response.request)
           })
 
@@ -235,11 +235,11 @@ describe('lib/server', () => {
             assert.equal(secondRequest.app.remoteAddressChain.length, 3)
             assert.equal(secondRequest.app.remoteAddressChain[0], '194.12.187.0')
             assert.equal(secondRequest.app.remoteAddressChain[1], '194.12.187.1')
-            assert.equal(secondRequest.app.remoteAddressChain[2], '194.12.187.2')
+            assert.equal(secondRequest.app.remoteAddressChain[2], '63.245.221.32')
           })
 
           it('second request has its own client address', () => {
-            assert.equal(secondRequest.app.clientAddress, '194.12.187.2')
+            assert.equal(secondRequest.app.clientAddress, '63.245.221.32')
           })
 
           it('second request has its own accept-language', () => {
@@ -265,12 +265,12 @@ describe('lib/server', () => {
           it('second request has its own location info', () => {
             assert.notEqual(request.app.geo, secondRequest.app.geo)
             return secondRequest.app.geo.then(geo => {
-              assert.equal(geo.location.city, 'Geneva')
-              assert.equal(geo.location.country, 'Switzerland')
-              assert.equal(geo.location.countryCode, 'CH')
-              assert.equal(geo.location.state, 'Geneva')
-              assert.equal(geo.location.stateCode, 'GE')
-              assert.equal(geo.timeZone, 'Europe/Zurich')
+              assert.equal(geo.location.city, 'Mountain View')
+              assert.equal(geo.location.country, 'United States')
+              assert.equal(geo.location.countryCode, 'US')
+              assert.equal(geo.location.state, 'California')
+              assert.equal(geo.location.stateCode, 'CA')
+              assert.equal(geo.timeZone, 'America/Los_Angeles')
             })
           })
 
