@@ -65,7 +65,7 @@ define([
         connection: {},
         headers: {
           'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:58.0) Gecko/20100101 Firefox/58.0',
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         deviceId: 'bar',
@@ -94,7 +94,7 @@ define([
         assert.equal(args[0][args[0].length - 1], '\n');
         assert.deepEqual(JSON.parse(args[0]), {
           app_version: APP_VERSION,
-          country: 'Switzerland',
+          country: 'United States',
           device_id: 'bar',
           event_properties: {
             device_id: 'bar',
@@ -106,7 +106,7 @@ define([
           op: 'amplitudeEvent',
           os_name: 'Mac OS X',
           os_version: '10.11',
-          region: 'Geneva',
+          region: 'California',
           session_id: 'qux',
           time: 'foo',
           user_id: 'soop',
@@ -191,7 +191,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         deviceId: 'b',
@@ -209,7 +209,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         deviceId: 'none',
@@ -235,7 +235,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         deviceId: 'b',
@@ -258,7 +258,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -278,7 +278,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -298,7 +298,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -318,7 +318,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -338,7 +338,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         deviceId: 'b',
@@ -359,7 +359,7 @@ define([
         assert.equal(arg.event_type, 'fxa_reg - engage');
         assert.deepEqual(arg, {
           app_version: APP_VERSION,
-          country: 'Switzerland',
+          country: 'United States',
           device_id: 'b',
           event_properties: {
             device_id: 'b',
@@ -369,7 +369,7 @@ define([
           event_type: 'fxa_reg - engage',
           language: 'f',
           op: 'amplitudeEvent',
-          region: 'Geneva',
+          region: 'California',
           session_id: 'd',
           time: 'a',
           user_id: 'h',
@@ -393,7 +393,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -409,7 +409,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -429,7 +429,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -449,7 +449,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -469,7 +469,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -489,7 +489,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -509,7 +509,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -529,7 +529,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -545,7 +545,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -565,7 +565,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -585,7 +585,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -605,7 +605,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -625,7 +625,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -645,7 +645,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         deviceId: 'b',
@@ -665,7 +665,7 @@ define([
         const arg = JSON.parse(process.stderr.write.args[0]);
         assert.deepEqual(arg, {
           app_version: APP_VERSION,
-          country: 'Switzerland',
+          country: 'United States',
           device_id: 'b',
           event_properties: {
             device_id: 'b'
@@ -673,7 +673,7 @@ define([
           event_type: 'fxa_sms - view',
           language: 'f',
           op: 'amplitudeEvent',
-          region: 'Geneva',
+          region: 'California',
           session_id: 'd',
           time: 'a',
           user_id: 'h',
@@ -692,7 +692,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -708,7 +708,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -729,7 +729,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -750,7 +750,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -766,7 +766,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         deviceId: 'b',
@@ -786,7 +786,7 @@ define([
         const arg = JSON.parse(process.stderr.write.args[0]);
         assert.deepEqual(arg, {
           app_version: APP_VERSION,
-          country: 'Switzerland',
+          country: 'United States',
           device_id: 'b',
           event_properties: {
             device_id: 'b',
@@ -796,7 +796,7 @@ define([
           event_type: 'fxa_email - click',
           language: 'f',
           op: 'amplitudeEvent',
-          region: 'Geneva',
+          region: 'California',
           session_id: 'd',
           time: 'a',
           user_id: 'h',
@@ -815,7 +815,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -836,7 +836,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -857,7 +857,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
