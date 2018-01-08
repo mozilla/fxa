@@ -9,7 +9,11 @@ define([
   intern.webdriver = {};
   intern.environments = [];
   intern.functionalSuites = [];
-  intern.reporters = [ 'Pretty' ];
+
+  if (! intern.reporters) {
+    intern.reporters = [ 'Pretty' ];
+  }
+
   intern.suites = [
     'tests/server/routes',
     'tests/server/l10n-entrained',
