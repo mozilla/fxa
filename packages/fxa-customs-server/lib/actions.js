@@ -16,7 +16,8 @@ const PASSWORD_CHECKING_ACTION = {
 // but if you're doing it a lot, you're probably a baddie.
 const CODE_VERIFYING_ACTION = {
   recoveryEmailVerifyCode: true,
-  passwordForgotVerifyCode: true
+  passwordForgotVerifyCode: true,
+  verifyTokenCode: true
 }
 
 // Actions that, if allowed, would allow an attacker
