@@ -1,3 +1,46 @@
+<a name="1.103.0"></a>
+# 1.103.0 (2018-01-09)
+
+
+### Bug Fixes
+
+* **delete_account:** Made 'Incorrect Password' error field specific (#5792) r=@shane-tomlinson ([c1977b5](https://github.com/mozilla/fxa-content-server/commit/c1977b5))
+* **node:** use node 6.12.3 (#5807) r=@vladikoff ([236bda9](https://github.com/mozilla/fxa-content-server/commit/236bda9))
+* **settings:** #5680 dismiss tooltips on cancel in settings (#5791) r=@shane-tomlinson ([166d63a](https://github.com/mozilla/fxa-content-server/commit/166d63a)), closes [#5680](https://github.com/mozilla/fxa-content-server/issues/5680)
+* **test:** Better display of unit test failures. (#5797), r=@vbudhram ([045f688](https://github.com/mozilla/fxa-content-server/commit/045f688))
+* **test:** Fix the broken Sync v3 signin tests (#5778), r=@vbudhram ([80855e2](https://github.com/mozilla/fxa-content-server/commit/80855e2)), closes [(#5778](https://github.com/(/issues/5778)
+* **tests:** do not override intern.reporters if already set ([1fbdc05](https://github.com/mozilla/fxa-content-server/commit/1fbdc05))
+* **tests:** fix failing geolocation amplitude tests (#5819) r=@vladikoff ([6f99ade](https://github.com/mozilla/fxa-content-server/commit/6f99ade)), closes [(#5819](https://github.com/(/issues/5819)
+
+### Features
+
+* **CAD:** /connect_another_device redirects to /sms for eligible users. (#5766) r=@vladiko ([d29140e](https://github.com/mozilla/fxa-content-server/commit/d29140e)), closes [#5737](https://github.com/mozilla/fxa-content-server/issues/5737)
+* **CAD:** Enable CAD on signin for everyone. (#5794) r=@vbudhram ([5a37b5d](https://github.com/mozilla/fxa-content-server/commit/5a37b5d)), closes [#5793](https://github.com/mozilla/fxa-content-server/issues/5793)
+* **client:** update to fxa-js-client 0.1.70 (#5809) ([8ecd887](https://github.com/mozilla/fxa-content-server/commit/8ecd887))
+* **docs:** Add separators to README.md (#5784) r=@shane-tomlinson ([d6ceafc](https://github.com/mozilla/fxa-content-server/commit/d6ceafc))
+* **logging:** log an error when validation fails, logs results for routes such as /metrics (#5 ([41add48](https://github.com/mozilla/fxa-content-server/commit/41add48))
+* **sms:** Add Australia (AU) (#5781) r=@rfk ([c8f8c93](https://github.com/mozilla/fxa-content-server/commit/c8f8c93))
+* **sms:** Rollout rate of 0.5 for ES, PT, 1 for RO (#5783) r=@vladikoff ([9dff9ab](https://github.com/mozilla/fxa-content-server/commit/9dff9ab)), closes [#5782](https://github.com/mozilla/fxa-content-server/issues/5782)
+* **SMS:** Set France (FR) to 50% (#5800) r=@vladikoff ([cb3acb2](https://github.com/mozilla/fxa-content-server/commit/cb3acb2))
+* **SMS:** Set Italy (IT) to 50% (#5799), r=@vbudhram ([b66a317](https://github.com/mozilla/fxa-content-server/commit/b66a317))
+* **test:** Halve the unit test run time. (#5780), r=@vbudhram ([b6f66ce](https://github.com/mozilla/fxa-content-server/commit/b6f66ce))
+
+### Performance Improvements
+
+* **fxa-client:** removed sms-errors.js ([98373a0](https://github.com/mozilla/fxa-content-server/commit/98373a0))
+
+### Refactor
+
+* **l10n:** Make translation fetch Webpack compatible. (#5785) r=@vladikoff ([9dd4e4a](https://github.com/mozilla/fxa-content-server/commit/9dd4e4a))
+* **sms:** clean up ([592d0e0](https://github.com/mozilla/fxa-content-server/commit/592d0e0))
+* **sms:** remove sms errors.js ([fd3399f](https://github.com/mozilla/fxa-content-server/commit/fd3399f))
+
+### Reverts
+
+* **sms:** "Remove sms errors.js" (#5811) ([1a18855](https://github.com/mozilla/fxa-content-server/commit/1a18855))
+
+
+
 <a name="1.102.1"></a>
 ## 1.102.1 (2017-12-20)
 
