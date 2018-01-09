@@ -75,14 +75,14 @@ node ./tests/teamcity/install-npm-deps.js \
   bower                           \
   convict                         \
   firefox-profile                 \
-  requirejs                       \
   fxa-shared                      \
   got                             \
-  leadfoot                        \
   intern                          \
+  leadfoot                        \
+  requirejs                       \
   sync-exec                       \
-  yargs                           \
-  xmlhttprequest
+  xmlhttprequest                  \
+  yargs
 
 node_modules/.bin/bower install --config.interactive=false
 
