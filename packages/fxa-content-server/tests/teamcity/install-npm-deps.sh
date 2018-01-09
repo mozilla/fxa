@@ -20,6 +20,7 @@ node ./tests/teamcity/install-npm-deps.js \
   htmlparser2                     \
   intern                          \
   joi                             \
+  leadfoot                        \
   lodash                          \
   morgan                          \
   mozlog                          \
@@ -27,9 +28,10 @@ node ./tests/teamcity/install-npm-deps.js \
   node-uap                        \
   on-headers                      \
   proxyquire                      \
+  requirejs                       \
   raven                           \
   sinon                           \
   sync-exec                       \
   universal-analytics             \
-  xmlhttprequest
-
+  xmlhttprequest                  \
+  yargs
