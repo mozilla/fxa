@@ -1,40 +1,36 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 /* eslint-disable camelcase */
-
-define([
-  'intern!object',
-  'intern/chai!assert',
-  'intern/dojo/node!path',
-  'intern/dojo/node!proxyquire',
-  'intern/dojo/node!sinon',
-  'intern/dojo/node!../../package.json',
-], (registerSuite, assert, path, proxyquire, sinon, package) => {
-  const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
-    './configuration': {
-      get () {
-        return {
-          '0': 'amo',
-          '1': 'pocket'
-        };
-      }
+const { registerSuite } = intern.getInterface('object');
+const assert = intern.getPlugin('chai').assert;
+const path = require('path');
+const proxyquire = require('proxyquire');
+const sinon = require('sinon');
+const pkg = require('../../package.json');
+const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
+  './configuration': {
+    get () {
+      return {
+        '0': 'amo',
+        '1': 'pocket'
+      };
     }
-  });
-  const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(package.version)[1];
+  }
+});
+const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(pkg.version)[1];
 
-  registerSuite({
-    name: 'amplitude',
+registerSuite('amplitude', {
+  beforeEach: function() {
+    sinon.stub(process.stderr, 'write', () => {});
+  },
 
-    beforeEach () {
-      sinon.stub(process.stderr, 'write', () => {});
-    },
+  afterEach: function() {
+    process.stderr.write.restore();
+  },
 
-    afterEach () {
-      process.stderr.write.restore();
-    },
-
+  tests: {
+    /*eslint-disable sorting/sort-object-props */
     'app version seems sane': () => {
       assert.typeOf(APP_VERSION, 'string');
       assert.match(APP_VERSION, /^[0-9]+$/);
@@ -71,10 +67,10 @@ define([
         deviceId: 'bar',
         entrypoint: 'baz',
         experiments: [
-          { choice: 'FirstExperiment', group: 'groupOne' },
-          { choice: 'second-experiment', group: 'Group-Two' },
-          { choice: 'THIRD_EXPERIMENT', group: 'group_three' },
-          { choice: 'fourth.experiment', group: 'Group.FOUR' }
+          {choice: 'FirstExperiment', group: 'groupOne'},
+          {choice: 'second-experiment', group: 'Group-Two'},
+          {choice: 'THIRD_EXPERIMENT', group: 'group_three'},
+          {choice: 'fourth.experiment', group: 'Group.FOUR'}
         ],
         flowBeginTime: 'qux',
         flowId: 'wibble',
@@ -865,6 +861,5 @@ define([
         uid: 'd'
       }).then(() => assert.equal(process.stderr.write.callCount, 0));
     }
-  });
+  }
 });
-

@@ -2,61 +2,57 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'intern/chai!assert',
-  'require',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
-  const config = intern.config;
-  const OAUTH_APP = config.fxaOauthApp;
-  const SIGNIN_ROOT = config.fxaContentRoot + 'oauth/signin';
+'use strict';
 
-  const PASSWORD = 'password';
-  var email;
+const { registerSuite } = intern.getInterface('object');
+const assert = intern.getPlugin('chai').assert;
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const config = intern._config;
+const OAUTH_APP = config.fxaOAuthApp;
+const SIGNIN_ROOT = config.fxaContentRoot + 'oauth/signin';
 
-  const thenify = FunctionalHelpers.thenify;
+const PASSWORD = 'password';
+var email;
 
-  const click = FunctionalHelpers.click;
-  const createUser = FunctionalHelpers.createUser;
-  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  const fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  const openFxaFromRp = FunctionalHelpers.openFxaFromRp;
-  const openPage = FunctionalHelpers.openPage;
-  const openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
-  const reOpenWithAdditionalQueryParams = FunctionalHelpers.reOpenWithAdditionalQueryParams;
-  const testElementExists = FunctionalHelpers.testElementExists;
-  const testUrlPathnameEquals = FunctionalHelpers.testUrlPathnameEquals;
-  const type = FunctionalHelpers.type;
-  const visibleByQSA = FunctionalHelpers.visibleByQSA;
+const thenify = FunctionalHelpers.thenify;
 
-  const testAtOAuthApp = thenify(function () {
-    return this.parent
-      .then(testElementExists('#loggedin'))
+const click = FunctionalHelpers.click;
+const createUser = FunctionalHelpers.createUser;
+const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+const fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
+const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+const openFxaFromRp = FunctionalHelpers.openFxaFromRp;
+const openPage = FunctionalHelpers.openPage;
+const openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
+const reOpenWithAdditionalQueryParams = FunctionalHelpers.reOpenWithAdditionalQueryParams;
+const testElementExists = FunctionalHelpers.testElementExists;
+const testUrlPathnameEquals = FunctionalHelpers.testUrlPathnameEquals;
+const type = FunctionalHelpers.type;
+const visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-      .getCurrentUrl()
-      .then(function (url) {
-        // redirected back to the App
-        assert.ok(url.indexOf(OAUTH_APP) > -1);
-      });
-  });
+const testAtOAuthApp = thenify(function () {
+  return this.parent
+    .then(testElementExists('#loggedin'))
 
-  registerSuite({
-    name: 'oauth signin',
+    .getCurrentUrl()
+    .then(function (url) {
+      // redirected back to the App
+      assert.ok(url.indexOf(OAUTH_APP) > -1);
+    });
+});
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
+registerSuite('oauth signin', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
 
-      return this.remote
-        .then(FunctionalHelpers.clearBrowserState({
-          '123done': true,
-          contentServer: true
-        }));
-    },
-
+    return this.remote
+      .then(FunctionalHelpers.clearBrowserState({
+        '123done': true,
+        contentServer: true
+      }));
+  },
+  tests: {
     'with missing client_id': function () {
       return this.remote
         .then(openPage(SIGNIN_ROOT + '?scope=profile', '#fxa-400-header'));
@@ -83,7 +79,7 @@ define([
     'verified': function () {
       return this.remote
         .then(openFxaFromRp('signin'))
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
 
         .then(fillOutSignIn(email, PASSWORD))
 
@@ -94,7 +90,7 @@ define([
       // verify account
       return this.remote
         .then(openFxaFromRp('signin'))
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
 
         // sign in with a verified account to cache credentials
         .then(fillOutSignIn(email, PASSWORD))
@@ -116,7 +112,7 @@ define([
     'unverified, acts like signup': function () {
       return this.remote
         .then(openFxaFromRp('signin'))
-        .then(createUser(email, PASSWORD, { preVerified: false }))
+        .then(createUser(email, PASSWORD, {preVerified: false}))
 
         .then(fillOutSignIn(email, PASSWORD))
 
@@ -167,7 +163,7 @@ define([
 
         // go back to the OAuth app, the /oauth flow should
         // now suggest a cached login
-        .get(require.toUrl(OAUTH_APP))
+        .get(OAUTH_APP)
         // again, use the 'Choose my sign-in flow for me' button
         .then(click('.ready #splash .sign-choose'))
 
@@ -179,7 +175,7 @@ define([
 
       return this.remote
         .then(openFxaFromRp('signin'))
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
 
         .then(fillOutSignIn(email, PASSWORD))
 
@@ -194,7 +190,7 @@ define([
 
       return this.remote
         .then(openFxaFromRp('signin'))
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
 
         .then(fillOutSignIn(email, 'bad' + PASSWORD))
 
@@ -214,6 +210,5 @@ define([
 
         .then(testAtOAuthApp());
     }
-  });
-
+  }
 });

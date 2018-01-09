@@ -1,30 +1,25 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+const { registerSuite } = intern.getInterface('object');
+const assert = intern.getPlugin('chai').assert;
+const sinon = require('sinon');
+const route = require('../../../server/lib/routes/get-lbheartbeat');
+var instance;
+var request;
+var response;
 
-define([
-  'intern!object',
-  'intern/chai!assert',
-  'intern/dojo/node!sinon',
-  'intern/dojo/node!../../../server/lib/routes/get-lbheartbeat'
-], function (registerSuite, assert, sinon, route) {
-  var instance;
-  var request;
-  var response;
+registerSuite('routes/get-lbheartbeat', {
+  'route interface is correct': function () {
+    assert.isFunction(route);
+    assert.lengthOf(route, 0);
+  },
 
-  registerSuite({
-    name: 'routes/get-lbheartbeat',
-
-    'route interface is correct': function () {
-      assert.isFunction(route);
-      assert.lengthOf(route, 0);
+  'initialise route': {
+    before: function () {
+      instance = route();
     },
-
-    'initialise route': {
-      setup: function () {
-        instance = route();
-      },
-
+    tests: {
       'instance interface is correct': function () {
         assert.isObject(instance);
         assert.lengthOf(Object.keys(instance), 3);
@@ -35,7 +30,7 @@ define([
       },
 
       'route.process': {
-        setup: function () {
+        before: function () {
           request = {};
           response = {
             json: sinon.spy(function () {
@@ -47,17 +42,18 @@ define([
           };
           instance.process(request, response);
         },
+        tests: {
+          'response.status was called correctly': function () {
+            assert.equal(response.status.callCount, 1);
+            assert.equal(response.status.args[0][0], 200);
+          },
 
-        'response.status was called correctly': function () {
-          assert.equal(response.status.callCount, 1);
-          assert.equal(response.status.args[0][0], 200);
-        },
-
-        'response.json was called correctly': function () {
-          assert.equal(response.json.callCount, 1);
-          assert.deepEqual(response.json.args[0][0], {});
+          'response.json was called correctly': function () {
+            assert.equal(response.json.callCount, 1);
+            assert.deepEqual(response.json.args[0][0], {});
+          }
         }
       }
     }
-  });
+  }
 });

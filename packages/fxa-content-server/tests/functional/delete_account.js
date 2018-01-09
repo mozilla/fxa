@@ -2,35 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (registerSuite, TestHelpers, FunctionalHelpers)  {
-  var PASSWORD = 'password';
-  var email;
+'use strict';
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutDeleteAccount = FunctionalHelpers.fillOutDeleteAccount;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+var PASSWORD = 'password';
+var email;
 
-  registerSuite({
-    name: 'delete_account',
+var clearBrowserState = FunctionalHelpers.clearBrowserState;
+var createUser = FunctionalHelpers.createUser;
+var fillOutDeleteAccount = FunctionalHelpers.fillOutDeleteAccount;
+var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
+registerSuite('delete_account', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
 
-      return this.remote
-        .then(clearBrowserState())
-        .then(createUser(email, PASSWORD, { preVerified: true }));
-    },
+    return this.remote
+      .then(clearBrowserState())
+      .then(createUser(email, PASSWORD, { preVerified: true }));
+  },
 
-    afterEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
-
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
+  tests: {
     'sign in, delete account': function () {
       return this.remote
         .then(fillOutSignIn(email, PASSWORD))
@@ -39,7 +37,7 @@ define([
 
         // Go to delete account screen
         .findByCssSelector('#delete-account .settings-unit-toggle')
-          .click()
+        .click()
         .end()
 
         // success is going to the delete account page
@@ -62,19 +60,19 @@ define([
 
         // Go to delete account screen
         .findByCssSelector('#delete-account .settings-unit-toggle')
-          .click()
+        .click()
         .end()
 
         // success is going to the delete account page
         .then(FunctionalHelpers.visibleByQSA('#delete-account'))
 
         .findByCssSelector('#delete-account .cancel')
-          .click()
+        .click()
         .end()
 
         // success is going to the signup page
         .findById('fxa-settings-header')
         .end();
     }
-  });
+  }
 });

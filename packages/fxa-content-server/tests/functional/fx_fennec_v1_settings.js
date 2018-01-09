@@ -2,71 +2,68 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
+'use strict';
 
-  const {
-    click,
-    clearBrowserState,
-    createUser,
-    fillOutChangePassword,
-    fillOutDeleteAccount,
-    fillOutSignIn,
-    noSuchBrowserNotification,
-    noSuchElement,
-    openPage,
-    openVerificationLinkInDifferentBrowser,
-    respondToWebChannelMessage,
-    testElementExists,
-    testIsBrowserNotified,
-    visibleByQSA,
-  } = FunctionalHelpers;
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
 
-  const config = intern.config;
-  const SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_fennec_v1&service=sync&forceAboutAccounts=true';
-  const SETTINGS_URL = config.fxaContentRoot + 'settings?context=fx_fennec_v1&service=sync&forceAboutAccounts=true';
-  const SETTINGS_NOCONTEXT_URL = config.fxaContentRoot + 'settings';
+const {
+  click,
+  clearBrowserState,
+  createUser,
+  fillOutChangePassword,
+  fillOutDeleteAccount,
+  fillOutSignIn,
+  noSuchBrowserNotification,
+  noSuchElement,
+  openPage,
+  openVerificationLinkInDifferentBrowser,
+  respondToWebChannelMessage,
+  testElementExists,
+  testIsBrowserNotified,
+  visibleByQSA,
+} = FunctionalHelpers;
 
-  const FIRST_PASSWORD = 'password';
-  const SECOND_PASSWORD = 'new_password';
-  let email;
+const config = intern._config;
+const SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_fennec_v1&service=sync&forceAboutAccounts=true';
+const SETTINGS_URL = config.fxaContentRoot + 'settings?context=fx_fennec_v1&service=sync&forceAboutAccounts=true';
+const SETTINGS_NOCONTEXT_URL = config.fxaContentRoot + 'settings';
 
-  registerSuite({
-    name: 'Firefox Fennec Sync v1 settings',
+const FIRST_PASSWORD = 'password';
+const SECOND_PASSWORD = 'new_password';
+let email;
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail('sync{id}');
+registerSuite('Firefox Fennec Sync v1 settings', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail('sync{id}');
 
-      return this.remote
-        .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
-        .then(clearBrowserState())
-        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
-        .then(fillOutSignIn(email, FIRST_PASSWORD))
+    return this.remote
+      .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
+      .then(clearBrowserState())
+      .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
+      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+      .then(fillOutSignIn(email, FIRST_PASSWORD))
 
-        // User must confirm their Sync signin
-        .then(testElementExists('#fxa-confirm-signin-header'))
-        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified('fxaccounts:login'))
+      // User must confirm their Sync signin
+      .then(testElementExists('#fxa-confirm-signin-header'))
+      .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+      .then(testIsBrowserNotified('fxaccounts:login'))
 
-        .then(openVerificationLinkInDifferentBrowser(email))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(openVerificationLinkInDifferentBrowser(email))
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
 
-        // wait until account data is in localstorage before redirecting
-        .then(FunctionalHelpers.pollUntil(function () {
-          const accounts = Object.keys(JSON.parse(localStorage.getItem('__fxa_storage.accounts')) || {});
-          return accounts.length === 1 ? true : null;
-        }, [], 10000))
+      // wait until account data is in localstorage before redirecting
+      .then(FunctionalHelpers.pollUntil(function () {
+        const accounts = Object.keys(JSON.parse(localStorage.getItem('__fxa_storage.accounts')) || {});
+        return accounts.length === 1 ? true : null;
+      }, [], 10000))
 
-        .then(openPage(SETTINGS_URL, '#fxa-settings-header'));
-    },
+      .then(openPage(SETTINGS_URL, '#fxa-settings-header'));
+  },
 
-
+  tests: {
     'sign in, change the password': function () {
       return this.remote
         .then(click('#change-password .settings-unit-toggle'))
@@ -100,8 +97,8 @@ define([
 
     'sign in, no way to sign out': function () {
       return this.remote
-        // make sure the sign out element doesn't exist
+      // make sure the sign out element doesn't exist
         .then(noSuchElement('#signout'));
     }
-  });
+  }
 });

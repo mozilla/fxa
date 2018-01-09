@@ -2,53 +2,50 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
-  const config = intern.config;
-  const PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v2&service=sync&forceAboutAccounts=true';
+'use strict';
 
-  var email;
-  const PASSWORD = '12345678';
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+const config = intern._config;
+const PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v2&service=sync&forceAboutAccounts=true';
 
-  const {
-    click,
-    clearBrowserState,
-    closeCurrentWindow,
-    fillOutSignUp,
-    noPageTransition,
-    noSuchBrowserNotification,
-    noSuchElement,
-    openPage,
-    openVerificationLinkInNewTab,
-    respondToWebChannelMessage,
-    switchToWindow,
-    testAttributeExists,
-    testElementExists,
-    testEmailExpected,
-    testIsBrowserNotified,
-  } = FunctionalHelpers;
+var email;
+const PASSWORD = '12345678';
 
-  registerSuite({
-    name: 'Firefox Desktop Sync v2 sign_up',
+const {
+  click,
+  clearBrowserState,
+  closeCurrentWindow,
+  fillOutSignUp,
+  noPageTransition,
+  noSuchBrowserNotification,
+  noSuchElement,
+  openPage,
+  openVerificationLinkInNewTab,
+  respondToWebChannelMessage,
+  switchToWindow,
+  testAttributeExists,
+  testElementExists,
+  testEmailExpected,
+  testIsBrowserNotified,
+} = FunctionalHelpers;
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-      return this.remote.then(clearBrowserState());
-    },
+registerSuite('Firefox Desktop Sync v2 sign_up', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
+    return this.remote.then(clearBrowserState());
+  },
 
-    afterEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
-
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
+  tests: {
     'signup, verify same browser': function () {
       return this.remote
         .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', {ok: true}))
         .then(fillOutSignUp(email, PASSWORD))
 
         // user should be transitioned to the choose what to Sync page
@@ -76,10 +73,10 @@ define([
         .then(openVerificationLinkInNewTab(email, 0))
         .then(switchToWindow(1))
 
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
 
-          .then(closeCurrentWindow())
+        .then(closeCurrentWindow())
 
         // We do not expect the verification poll to occur. The poll
         // will take a few seconds to complete if it erroneously occurs.
@@ -89,5 +86,5 @@ define([
         // A post-verification email should be sent, this is Sync.
         .then(testEmailExpected(email, 1));
     }
-  });
+  }
 });

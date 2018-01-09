@@ -2,72 +2,68 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/fx-desktop'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers,
-  FxDesktopHelpers) {
+'use strict';
 
-  const {
-    clearBrowserState,
-    click,
-    createUser,
-    fillOutChangePassword,
-    fillOutDeleteAccount,
-    fillOutSignIn,
-    noSuchElement,
-    openPage,
-    openVerificationLinkInDifferentBrowser,
-    testElementExists,
-    thenify,
-    visibleByQSA,
-  } = FunctionalHelpers;
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const FxDesktopHelpers = require('./lib/fx-desktop');
 
-  const {
-    listenForFxaCommands,
-    testIsBrowserNotifiedOfLogin,
-    testIsBrowserNotifiedOfMessage,
-  } = FxDesktopHelpers;
+const {
+  clearBrowserState,
+  click,
+  createUser,
+  fillOutChangePassword,
+  fillOutDeleteAccount,
+  fillOutSignIn,
+  noSuchElement,
+  openPage,
+  openVerificationLinkInDifferentBrowser,
+  testElementExists,
+  thenify,
+  visibleByQSA,
+} = FunctionalHelpers;
 
-  var config = intern.config;
-  var SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
-  var SETTINGS_URL = config.fxaContentRoot + 'settings?context=fx_desktop_v1&service=sync';
+const {
+  listenForFxaCommands,
+  testIsBrowserNotifiedOfLogin,
+  testIsBrowserNotifiedOfMessage,
+} = FxDesktopHelpers;
 
-  var FIRST_PASSWORD = 'password';
-  var SECOND_PASSWORD = 'new_password';
-  var email;
+var config = intern._config;
+var SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
+var SETTINGS_URL = config.fxaContentRoot + 'settings?context=fx_desktop_v1&service=sync';
+
+var FIRST_PASSWORD = 'password';
+var SECOND_PASSWORD = 'new_password';
+var email;
 
 
-  var setupTest = thenify(function (shouldVerifySignin) {
-    return this.parent
-      .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
-      .then(clearBrowserState())
-      .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-      .execute(listenForFxaCommands)
-      .then(fillOutSignIn(email, FIRST_PASSWORD))
-      .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: false }))
+var setupTest = thenify(function (shouldVerifySignin) {
+  return this.parent
+    .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
+    .then(clearBrowserState())
+    .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
+    .execute(listenForFxaCommands)
+    .then(fillOutSignIn(email, FIRST_PASSWORD))
+    .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: false }))
 
-      .then(function () {
-        if (shouldVerifySignin) {
-          return this.parent
-            .then(openVerificationLinkInDifferentBrowser(email))
+    .then(function () {
+      if (shouldVerifySignin) {
+        return this.parent
+          .then(openVerificationLinkInDifferentBrowser(email))
 
-            .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
-            .execute(listenForFxaCommands);
-        }
-      });
-  });
+          .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
+          .execute(listenForFxaCommands);
+      }
+    });
+});
 
-  registerSuite({
-    name: 'Firefox Desktop Sync v1 settings',
-
-    beforeEach: function () {
-      email = TestHelpers.createEmail('sync{id}');
-    },
-
+registerSuite('Firefox Desktop Sync v1 settings', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail('sync{id}');
+  },
+  tests: {
     'sign in, change the password': function () {
       return this.remote
         .then(setupTest(true))
@@ -102,5 +98,5 @@ define([
         // the user did not confirm signin and must do so
         .then(openPage(SETTINGS_URL, '#fxa-confirm-signin-header'));
     }
-  });
+  }
 });

@@ -2,89 +2,84 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors',
-  'tests/functional/lib/ua-strings'
-], function (intern, registerSuite, TestHelpers,
-             FunctionalHelpers, selectors, uaStrings) {
-  'use strict';
+'use strict';
 
-  const config = intern.config;
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+const uaStrings = require('./lib/ua-strings');
 
-  const PASSWORD = 'password';
-  const RESET_PASSWORD_URL = `${config.fxaContentRoot}reset_password?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true`;
+const config = intern._config;
 
-  let email;
+const PASSWORD = 'password';
+const RESET_PASSWORD_URL = `${config.fxaContentRoot}reset_password?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true`;
 
-  const {
-    clearBrowserState,
-    closeCurrentWindow,
-    createUser,
-    fillOutResetPassword,
-    fillOutCompleteResetPassword,
-    noPageTransition,
-    noSuchBrowserNotification,
-    openPage,
-    openVerificationLinkInNewTab,
-    switchToWindow,
-    testElementExists,
-    testIsBrowserNotified,
-    testSuccessWasShown,
-    thenify,
-  } = FunctionalHelpers;
+let email;
 
-  const setupTest = thenify(function (query) {
-    return this.parent
-      .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER, {
-        query,
-        webChannelResponses: {
-          'fxaccounts:fxa_status': { capabilities: null, signedInUser: null }
-        }
-      }))
-      .then(fillOutResetPassword(email))
+const {
+  clearBrowserState,
+  closeCurrentWindow,
+  createUser,
+  fillOutResetPassword,
+  fillOutCompleteResetPassword,
+  noPageTransition,
+  noSuchBrowserNotification,
+  openPage,
+  openVerificationLinkInNewTab,
+  switchToWindow,
+  testElementExists,
+  testIsBrowserNotified,
+  testSuccessWasShown,
+  thenify,
+} = FunctionalHelpers;
 
-      .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
-      .then(openVerificationLinkInNewTab(email, 0))
-      .then(switchToWindow(1))
+const setupTest = thenify(function (query) {
+  return this.parent
+    .then(createUser(email, PASSWORD, { preVerified: true }))
+    .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER, {
+      query,
+      webChannelResponses: {
+        'fxaccounts:fxa_status': { capabilities: null, signedInUser: null }
+      }
+    }))
+    .then(fillOutResetPassword(email))
 
-        .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.HEADER))
-        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
+    .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
+    .then(openVerificationLinkInNewTab(email, 0))
+    .then(switchToWindow(1))
 
-        .then(testElementExists(selectors.RESET_PASSWORD_COMPLETE.HEADER))
-        .then(testElementExists(selectors.RESET_PASSWORD_COMPLETE.SUB_HEADER))
+    .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.HEADER))
+    .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
-        // the verification tab sends the WebChannel message. This fixes
-        // two problems: 1) initiating tab is closed, 2) The initiating
-        // tab when running in E10s does not have all the necessary data
-        // because localStorage is not shared.
-        .then(testIsBrowserNotified('fxaccounts:login'))
+    .then(testElementExists(selectors.RESET_PASSWORD_COMPLETE.HEADER))
+    .then(testElementExists(selectors.RESET_PASSWORD_COMPLETE.SUB_HEADER))
 
-        .then(closeCurrentWindow());
-  });
+  // the verification tab sends the WebChannel message. This fixes
+  // two problems: 1) initiating tab is closed, 2) The initiating
+  // tab when running in E10s does not have all the necessary data
+  // because localStorage is not shared.
+    .then(testIsBrowserNotified('fxaccounts:login'))
 
-  registerSuite({
-    name: 'Firefox Desktop Sync v3 reset password',
+    .then(closeCurrentWindow());
+});
 
-    beforeEach: function () {
-      // timeout after 90 seconds
-      this.timeout = 90000;
+registerSuite('Firefox Desktop Sync v3 reset password', {
+  beforeEach: function () {
+    // timeout after 90 seconds
+    this.timeout = 90000;
 
-      email = TestHelpers.createEmail();
-      return this.remote.then(clearBrowserState());
-    },
+    email = TestHelpers.createEmail();
+    return this.remote.then(clearBrowserState());
+  },
 
-    afterEach: function () {
-      // clear localStorage to avoid polluting other tests.
-      return this.remote.then(clearBrowserState());
-    },
-
+  afterEach: function () {
+    // clear localStorage to avoid polluting other tests.
+    return this.remote.then(clearBrowserState());
+  },
+  tests: {
     'reset password, verify same browser, Fx <= 57': function () {
-      const query = { forceUA: uaStrings['desktop_firefox_57'], };
+      const query = {forceUA: uaStrings['desktop_firefox_57'],};
 
       return this.remote
         .then(setupTest(query))
@@ -98,7 +93,7 @@ define([
     },
 
     'reset password, verify same browser, Fx >= 58': function () {
-      const query = { forceUA: uaStrings['desktop_firefox_58'] };
+      const query = {forceUA: uaStrings['desktop_firefox_58']};
 
       return this.remote
         .then(setupTest(query))
@@ -108,7 +103,6 @@ define([
         // Only expect the login message in the verification tab to avoid
         // a race condition within the browser when it receives two login messages.
         .then(noSuchBrowserNotification('fxaccounts:login'));
-    },
-  });
-
+    }
+  }
 });

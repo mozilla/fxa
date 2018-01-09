@@ -2,55 +2,52 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
-  const config = intern.config;
-  const PAGE_URL = config.fxaContentRoot + 'signup?context=iframe&service=sync';
+'use strict';
 
-  var email;
-  const PASSWORD = '12345678';
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const config = intern._config;
+const PAGE_URL = config.fxaContentRoot + 'signup?context=iframe&service=sync';
 
-  const SELECTOR_CONFIRM_HEADER = '#fxa-confirm-header';
-  const SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER = '#fxa-connect-another-device-header';
-  const SELECTOR_SIGN_UP_HEADER = '#fxa-signup-header';
-  const SELECTOR_SIGN_UP_SUB_HEADER = '#fxa-signup-header .service';
+var email;
+const PASSWORD = '12345678';
 
-  const {
-    clearBrowserState,
-    closeCurrentWindow,
-    fillOutSignUp,
-    noSuchElement,
-    openPage,
-    openVerificationLinkInNewTab,
-    respondToWebChannelMessage,
-    switchToWindow,
-    testElementExists,
-    testEmailExpected,
-    testIsBrowserNotified,
-    visibleByQSA,
-  } = FunctionalHelpers;
+const SELECTOR_CONFIRM_HEADER = '#fxa-confirm-header';
+const SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER = '#fxa-connect-another-device-header';
+const SELECTOR_SIGN_UP_HEADER = '#fxa-signup-header';
+const SELECTOR_SIGN_UP_SUB_HEADER = '#fxa-signup-header .service';
 
-  registerSuite({
-    name: 'Firstrun Sync v1 sign_up',
+const {
+  clearBrowserState,
+  closeCurrentWindow,
+  fillOutSignUp,
+  noSuchElement,
+  openPage,
+  openVerificationLinkInNewTab,
+  respondToWebChannelMessage,
+  switchToWindow,
+  testElementExists,
+  testEmailExpected,
+  testIsBrowserNotified,
+  visibleByQSA,
+} = FunctionalHelpers;
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-    },
+registerSuite('Firstrun Sync v1 sign_up', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
+  },
 
-    afterEach: function () {
-      return this.remote
-        .then(clearBrowserState());
-    },
-
+  afterEach: function () {
+    return this.remote
+      .then(clearBrowserState());
+  },
+  tests: {
     'sign up, verify same browser in a different tab': function () {
       return this.remote
         .then(openPage(PAGE_URL, SELECTOR_SIGN_UP_HEADER))
         .then(visibleByQSA(SELECTOR_SIGN_UP_SUB_HEADER))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', {ok: true}))
         .then(fillOutSignUp(email, PASSWORD))
 
         .then(testElementExists(SELECTOR_CONFIRM_HEADER))
@@ -76,12 +73,12 @@ define([
     'sign up, cancel merge warning': function () {
       return this.remote
         .then(openPage(PAGE_URL, SELECTOR_SIGN_UP_HEADER))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: false } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', {ok: false}))
         .then(fillOutSignUp(email, PASSWORD))
 
         // user should not transition to the next screen
         .then(noSuchElement(SELECTOR_CONFIRM_HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'));
     }
-  });
+  }
 });

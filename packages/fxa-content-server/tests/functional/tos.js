@@ -2,35 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/functional/lib/helpers',
-  'require'
-], function (intern, registerSuite, FunctionalHelpers, require) {
-  var PAGE_URL = intern.config.fxaContentRoot + 'legal/terms';
-  var SIGNUP_URL = intern.config.fxaContentRoot + 'signup';
+'use strict';
 
-  var noSuchElement = FunctionalHelpers.noSuchElement;
+const { registerSuite } = intern.getInterface('object');
+const FunctionalHelpers = require('./lib/helpers');
+var PAGE_URL = intern._config.fxaContentRoot + 'legal/terms';
+var SIGNUP_URL = intern._config.fxaContentRoot + 'signup';
 
-  registerSuite({
-    name: 'tos',
+var noSuchElement = FunctionalHelpers.noSuchElement;
 
-    beforeEach: function () {
-      return this.remote.then(FunctionalHelpers.clearBrowserState());
-    },
-
+registerSuite('tos', {
+  beforeEach: function () {
+    return this.remote.then(FunctionalHelpers.clearBrowserState());
+  },
+  tests: {
     'start at signup': function () {
 
       return this.remote
-        .get(require.toUrl(SIGNUP_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
+        .get(SIGNUP_URL)
+        .setFindTimeout(intern._config.pageLoadTimeout)
         .findByCssSelector('#fxa-tos')
-          .click()
+        .click()
         .end()
 
         .findByCssSelector('#fxa-tos-back')
-          .click()
+        .click()
         .end()
 
         // success is going back to the signup
@@ -41,8 +37,8 @@ define([
     'browse directly to page - no back button': function () {
       return this.remote
 
-        .get(require.toUrl(PAGE_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
+        .get(PAGE_URL)
+        .setFindTimeout(intern._config.pageLoadTimeout)
 
         .findById('fxa-tos-header')
         .end()
@@ -53,10 +49,10 @@ define([
     'refresh, back button is available': function () {
       return this.remote
 
-        .get(require.toUrl(SIGNUP_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
+        .get(SIGNUP_URL)
+        .setFindTimeout(intern._config.pageLoadTimeout)
         .findByCssSelector('#fxa-tos')
-          .click()
+        .click()
         .end()
 
         // wait for terms to load
@@ -66,12 +62,12 @@ define([
         .refresh()
 
         .findByCssSelector('#fxa-tos-back')
-          .click()
+        .click()
         .end()
 
         // success is going back to the signup
         .findByCssSelector('#fxa-signup-header')
         .end();
     }
-  });
+  }
 });

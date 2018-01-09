@@ -2,97 +2,93 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors',
-  'tests/functional/lib/ua-strings'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors, uaStrings) {
-  'use strict';
+'use strict';
 
-  const config = intern.config;
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+const uaStrings = require('./lib/ua-strings');
 
-  const userAgent = uaStrings['desktop_firefox_55'];
+const config = intern._config;
 
-  const FORCE_AUTH_PAGE_URL = `${config.fxaContentRoot}force_auth?automatedBrowser=true&forceUA=${encodeURIComponent(userAgent)}`;
-  const SYNC_FORCE_AUTH_PAGE_URL = `${FORCE_AUTH_PAGE_URL}&service=sync`;
+const userAgent = uaStrings['desktop_firefox_55'];
 
-  const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin?automatedBrowser=true&forceUA=${encodeURIComponent(userAgent)}`;
-  const SYNC_SIGNIN_PAGE_URL = `${SIGNIN_PAGE_URL}&service=sync`;
+const FORCE_AUTH_PAGE_URL = `${config.fxaContentRoot}force_auth?automatedBrowser=true&forceUA=${encodeURIComponent(userAgent)}`;
+const SYNC_FORCE_AUTH_PAGE_URL = `${FORCE_AUTH_PAGE_URL}&service=sync`;
 
-  const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup?automatedBrowser=true&forceUA=${encodeURIComponent(userAgent)}`;
-  const SYNC_SIGNUP_PAGE_URL = `${SIGNUP_PAGE_URL}&service=sync`;
+const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin?automatedBrowser=true&forceUA=${encodeURIComponent(userAgent)}`;
+const SYNC_SIGNIN_PAGE_URL = `${SIGNIN_PAGE_URL}&service=sync`;
 
-  const SETTINGS_PAGE_URL = `${config.fxaContentRoot}settings?automatedBrowser=true&forceUA=${encodeURIComponent(userAgent)}`;
-  const SYNC_SETTINGS_PAGE_URL = `${SETTINGS_PAGE_URL}&service=sync`;
+const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup?automatedBrowser=true&forceUA=${encodeURIComponent(userAgent)}`;
+const SYNC_SIGNUP_PAGE_URL = `${SIGNUP_PAGE_URL}&service=sync`;
 
-  const SYNC_SMS_PAGE_URL = `${config.fxaContentRoot}sms?automatedBrowser=true&service=sync&forceExperiment=sendSms&forceExperimentGroup=signinCodes&forceUA=${encodeURIComponent(userAgent)}`;  //eslint-disable-line max-len
+const SETTINGS_PAGE_URL = `${config.fxaContentRoot}settings?automatedBrowser=true&forceUA=${encodeURIComponent(userAgent)}`;
+const SYNC_SETTINGS_PAGE_URL = `${SETTINGS_PAGE_URL}&service=sync`;
 
-  var browserSignedInEmail;
-  let browserSignedInAccount;
+const SYNC_SMS_PAGE_URL = `${config.fxaContentRoot}sms?automatedBrowser=true&service=sync&forceExperiment=sendSms&forceExperimentGroup=signinCodes&forceUA=${encodeURIComponent(userAgent)}`;  //eslint-disable-line max-len
 
-  let otherEmail;
-  let otherAccount;
+var browserSignedInEmail;
+let browserSignedInAccount;
 
-  const PASSWORD = '12345678';
+let otherEmail;
+let otherAccount;
 
-  const click = FunctionalHelpers.click;
-  const clearBrowserState = FunctionalHelpers.clearBrowserState;
-  const createUser = FunctionalHelpers.createUser;
-  const deleteAllSms = FunctionalHelpers.deleteAllSms;
-  const disableInProd = FunctionalHelpers.disableInProd;
-  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  const getSmsSigninCode = FunctionalHelpers.getSmsSigninCode;
-  const openPage = FunctionalHelpers.openPage;
-  const noSuchElement = FunctionalHelpers.noSuchElement;
-  const testElementExists = FunctionalHelpers.testElementExists;
-  const testElementTextEquals = FunctionalHelpers.testElementTextEquals;
-  const testElementValueEquals = FunctionalHelpers.testElementValueEquals;
-  const thenify = FunctionalHelpers.thenify;
-  const type = FunctionalHelpers.type;
+const PASSWORD = '12345678';
 
-  const ensureUsers = thenify(function () {
-    return this.parent
-      .then(() => {
-        if (! browserSignedInAccount) {
-          browserSignedInEmail = TestHelpers.createEmail();
-          return this.parent
-            .then(createUser(browserSignedInEmail, PASSWORD, { preVerified: true }))
-            .then((_browserSignedInAccount) => {
-              browserSignedInAccount = _browserSignedInAccount;
-              browserSignedInAccount.email = browserSignedInEmail;
-              browserSignedInAccount.verified = true;
-            });
-        }
-      })
-      .then(() => {
-        if (! otherAccount) {
-          otherEmail = TestHelpers.createEmail();
-          return this.parent
-            .then(createUser(otherEmail, PASSWORD, { preVerified: true }))
-            .then((_otherAccount) => {
-              otherAccount = _otherAccount;
-              otherAccount.email = otherEmail;
-              otherAccount.verified = true;
-            });
-        }
-      });
-  });
+const click = FunctionalHelpers.click;
+const clearBrowserState = FunctionalHelpers.clearBrowserState;
+const createUser = FunctionalHelpers.createUser;
+const deleteAllSms = FunctionalHelpers.deleteAllSms;
+const disableInProd = FunctionalHelpers.disableInProd;
+const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+const getSmsSigninCode = FunctionalHelpers.getSmsSigninCode;
+const openPage = FunctionalHelpers.openPage;
+const noSuchElement = FunctionalHelpers.noSuchElement;
+const testElementExists = FunctionalHelpers.testElementExists;
+const testElementTextEquals = FunctionalHelpers.testElementTextEquals;
+const testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+const thenify = FunctionalHelpers.thenify;
+const type = FunctionalHelpers.type;
 
-  registerSuite({
-    name: 'Firefox desktop user info handshake',
+const ensureUsers = thenify(function () {
+  return this.parent
+    .then(() => {
+      if (! browserSignedInAccount) {
+        browserSignedInEmail = TestHelpers.createEmail();
+        return this.parent
+          .then(createUser(browserSignedInEmail, PASSWORD, { preVerified: true }))
+          .then((_browserSignedInAccount) => {
+            browserSignedInAccount = _browserSignedInAccount;
+            browserSignedInAccount.email = browserSignedInEmail;
+            browserSignedInAccount.verified = true;
+          });
+      }
+    })
+    .then(() => {
+      if (! otherAccount) {
+        otherEmail = TestHelpers.createEmail();
+        return this.parent
+          .then(createUser(otherEmail, PASSWORD, { preVerified: true }))
+          .then((_otherAccount) => {
+            otherAccount = _otherAccount;
+            otherAccount.email = otherEmail;
+            otherAccount.verified = true;
+          });
+      }
+    });
+});
 
-    beforeEach: function () {
-      return this.remote.then(clearBrowserState())
-        .then(ensureUsers());
-    },
+registerSuite('Firefox desktop user info handshake', {
+  beforeEach: function () {
+    return this.remote.then(clearBrowserState())
+      .then(ensureUsers());
+  },
 
-    afterEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
-
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
+  tests: {
     'Sync signup page - user signed into browser': function () {
       return this.remote
         .then(openPage(SYNC_SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
@@ -369,5 +365,5 @@ define([
 
         .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, otherEmail));
     }
-  });
+  }
 });

@@ -2,31 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, FunctionalHelpers) {
-  var config = intern.config;
-  var SIGNIN_URL = config.fxaContentRoot + 'signin';
+'use strict';
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var mousedown = FunctionalHelpers.mousedown;
-  var mouseup = FunctionalHelpers.mouseup;
-  var noSuchElement = FunctionalHelpers.noSuchElement;
-  var openPage = FunctionalHelpers.openPage;
-  var testAttributeEquals = FunctionalHelpers.testAttributeEquals;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var type = FunctionalHelpers.type;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+const { registerSuite } = intern.getInterface('object');
+const FunctionalHelpers = require('./lib/helpers');
+var config = intern._config;
+var SIGNIN_URL = config.fxaContentRoot + 'signin';
 
-  registerSuite({
-    name: 'password visibility',
+var clearBrowserState = FunctionalHelpers.clearBrowserState;
+var mousedown = FunctionalHelpers.mousedown;
+var mouseup = FunctionalHelpers.mouseup;
+var noSuchElement = FunctionalHelpers.noSuchElement;
+var openPage = FunctionalHelpers.openPage;
+var testAttributeEquals = FunctionalHelpers.testAttributeEquals;
+var testElementExists = FunctionalHelpers.testElementExists;
+var type = FunctionalHelpers.type;
+var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-    beforeEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
-
+registerSuite('password visibility', {
+  beforeEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
+  tests: {
     'show password ended with mouseup': function () {
       return this.remote
         .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
@@ -50,12 +47,12 @@ define([
 
         // \u0008 is unicode for backspace char. By default `type` clears the
         // element value before typing, we want the character to do so.
-        .then(type('#password', '\u0008', { clearValue: true }))
+        .then(type('#password', '\u0008', {clearValue: true}))
         // give a short pause to clear the input
         .sleep(1000)
         // element still exists
         .then(testElementExists('.show-password-label'));
 
     }
-  });
+  }
 });

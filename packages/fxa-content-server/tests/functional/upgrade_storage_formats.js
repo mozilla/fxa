@@ -2,34 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
-  var config = intern.config;
-  var SIGNIN_PAGE_URL = config.fxaContentRoot + 'signin';
+'use strict';
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var createUser = FunctionalHelpers.createUser;
-  var openPage = FunctionalHelpers.openPage;
-  var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+var config = intern._config;
+var SIGNIN_PAGE_URL = config.fxaContentRoot + 'signin';
 
-  var email;
+var clearBrowserState = FunctionalHelpers.clearBrowserState;
+var createUser = FunctionalHelpers.createUser;
+var openPage = FunctionalHelpers.openPage;
+var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
 
-  registerSuite({
-    name: 'upgrade storage formats',
+var email;
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-      return this.remote.then(clearBrowserState());
-    },
+registerSuite('upgrade storage formats', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
+    return this.remote.then(clearBrowserState());
+  },
 
-    afterEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
-
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
+  tests: {
     'Upgrade from Session w/o cached credentials, session invalid': function () {
       return this.remote
         .execute(function (email) {
@@ -41,7 +38,7 @@ define([
           };
           localStorage.setItem(namespace, JSON.stringify(userData));
 
-        }, [ email ])
+        }, [email])
         .then(openPage(SIGNIN_PAGE_URL, '#fxa-signin-header'))
 
         // sessionToken was invalid, email should be cleared
@@ -50,7 +47,7 @@ define([
 
     'Upgrade from Session w/o cached Sync credentials, session valid': function () {
       return this.remote
-        .then(createUser(email, 'password', { preVerified: true }))
+        .then(createUser(email, 'password', {preVerified: true}))
 
         .then(function (accountInfo) {
           return this.parent.execute(function (email, sessionToken) {
@@ -72,7 +69,7 @@ define([
 
     'Upgrade from Session w/ cached Sync credentials': function () {
       return this.remote
-        .then(createUser(email, 'password', { preVerified: true }))
+        .then(createUser(email, 'password', {preVerified: true}))
         .then(function (accountInfo) {
           return this.parent.execute(function (email, sessionToken) {
             var userData = {
@@ -86,7 +83,7 @@ define([
               sessionToken: 'a fake session token'
             };
             localStorage.setItem('__fxa_session', JSON.stringify(userData));
-          }, [ email, accountInfo.sessionToken ]);
+          }, [email, accountInfo.sessionToken]);
         })
         .then(openPage(SIGNIN_PAGE_URL, '#fxa-signin-header'))
 
@@ -152,9 +149,9 @@ define([
           }));
           /*eslint-enable sorting/sort-object-props */
 
-        }, [ email ])
+        }, [email])
         // success is not going to the 500 page.
         .then(openPage(SIGNIN_PAGE_URL, '#fxa-signin-header'));
     }
-  });
+  }
 });

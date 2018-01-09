@@ -2,56 +2,53 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/fx-desktop',
-  'tests/functional/lib/selectors',
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, FxDesktopHelpers, selectors) {
-  var config = intern.config;
-  var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v1&service=sync';
-  var PAGE_URL_WITH_MIGRATION = PAGE_URL + '&migration=sync11';
+'use strict';
 
-  var email;
-  var PASSWORD = '12345678';
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const FxDesktopHelpers = require('./lib/fx-desktop');
+const selectors = require('./lib/selectors');
+var config = intern._config;
+var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v1&service=sync';
+var PAGE_URL_WITH_MIGRATION = PAGE_URL + '&migration=sync11';
 
-  const {
-    clearBrowserState,
-    closeCurrentWindow,
-    fillOutSignUp,
-    noPageTransition,
-    noSuchElement,
-    openPage,
-    openVerificationLinkInDifferentBrowser,
-    openVerificationLinkInNewTab,
-    openVerificationLinkInSameTab,
-    switchToWindow,
-    testAttributeEquals,
-    testElementExists,
-    testEmailExpected,
-    visibleByQSA,
-  } = FunctionalHelpers;
+var email;
+var PASSWORD = '12345678';
 
-  const {
-    listenForFxaCommands,
-    testIsBrowserNotifiedOfLogin,
-  } = FxDesktopHelpers;
+const {
+  clearBrowserState,
+  closeCurrentWindow,
+  fillOutSignUp,
+  noPageTransition,
+  noSuchElement,
+  openPage,
+  openVerificationLinkInDifferentBrowser,
+  openVerificationLinkInNewTab,
+  openVerificationLinkInSameTab,
+  switchToWindow,
+  testAttributeEquals,
+  testElementExists,
+  testEmailExpected,
+  visibleByQSA,
+} = FunctionalHelpers;
 
-  registerSuite({
-    name: 'Firefox Desktop Sync sign_up',
+const {
+  listenForFxaCommands,
+  testIsBrowserNotifiedOfLogin,
+} = FxDesktopHelpers;
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
+registerSuite('Firefox Desktop Sync sign_up', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
 
-      return this.remote.then(clearBrowserState());
-    },
+    return this.remote.then(clearBrowserState());
+  },
 
-    afterEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
-
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
+  tests: {
     'sign up, verify same browser': function () {
       return this.remote
         .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER))
@@ -66,10 +63,10 @@ define([
         .then(openVerificationLinkInNewTab(email, 0))
         .then(switchToWindow(1))
 
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
 
-          .then(closeCurrentWindow())
+        .then(closeCurrentWindow())
 
         // We do not expect the verification poll to occur. The poll
         // will take a few seconds to complete if it erroneously occurs.
@@ -108,7 +105,6 @@ define([
         .then(openVerificationLinkInSameTab(email, 0))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
-
 
     'signup, verify different browser - from original tab\'s P.O.V.': function () {
       return this.remote
@@ -151,7 +147,7 @@ define([
         .execute(listenForFxaCommands)
 
         .then(testAttributeEquals(selectors.SIGNUP.CUSTOMIZE_SYNC_INPUT, 'checked', null))
-        .then(fillOutSignUp(email, PASSWORD, { customizeSync: true }))
+        .then(fillOutSignUp(email, PASSWORD, {customizeSync: true}))
 
         .then(testIsBrowserNotifiedOfLogin(email))
 
@@ -172,5 +168,5 @@ define([
         .then(openPage(PAGE_URL_WITH_MIGRATION, selectors.SIGNUP.HEADER))
         .then(visibleByQSA(selectors.SIGNUP.MIGRATING_USER));
     }
-  });
+  }
 });

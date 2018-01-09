@@ -2,34 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
-  var config = intern.config;
-  var CONTENT_SERVER_ROOT = config.fxaContentRoot;
-  var PASSWORD = 'password';
+'use strict';
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var getQueryParamValue = FunctionalHelpers.getQueryParamValue;
-  var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
-  var openPage = FunctionalHelpers.openPage;
-  var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+var config = intern._config;
+var CONTENT_SERVER_ROOT = config.fxaContentRoot;
+var PASSWORD = 'password';
 
-  var email;
-  var oAuthUrl = CONTENT_SERVER_ROOT + 'oauth?&scope=profile&client_id=';
+var clearBrowserState = FunctionalHelpers.clearBrowserState;
+var getQueryParamValue = FunctionalHelpers.getQueryParamValue;
+var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
+var openPage = FunctionalHelpers.openPage;
+var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
 
-  registerSuite({
-    name: 'oauth choose redirect',
+var email;
+var oAuthUrl = CONTENT_SERVER_ROOT + 'oauth?&scope=profile&client_id=';
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
+registerSuite('oauth choose redirect', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
 
-      return this.remote.then(clearBrowserState());
-    },
-
+    return this.remote.then(clearBrowserState());
+  },
+  tests: {
     'get client_id for other tests': function () {
       return this.remote
         .then(openFxaFromRp('signup'))
@@ -51,9 +48,9 @@ define([
       var validAccountUrl = oAuthUrl + '&email=' + email;
 
       return this.remote
-        .then(FunctionalHelpers.createUser(email, PASSWORD, { preVerified: true}))
+        .then(FunctionalHelpers.createUser(email, PASSWORD, {preVerified: true}))
         .then(openPage(validAccountUrl, '#fxa-signin-header'))
         .then(testElementValueEquals('input[type=email]', email));
     }
-  });
+  }
 });

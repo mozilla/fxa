@@ -2,61 +2,58 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
+'use strict';
 
-  const config = intern.config;
-  const SIGNIN_URL = config.fxaContentRoot + 'signin';
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
 
-  const FIRST_PASSWORD = 'password';
-  const BROWSER_DEVICE_NAME = 'Browser Session Device';
-  const BROWSER_DEVICE_TYPE = 'desktop';
-  const TEST_DEVICE_NAME = 'Test Runner Session Device';
-  const TEST_DEVICE_NAME_UPDATED = 'Test Runner Session Device Updated';
-  const TEST_DEVICE_TYPE = 'mobile';
+const config = intern._config;
+const SIGNIN_URL = config.fxaContentRoot + 'signin';
 
-  var email;
-  var client;
-  var accountData;
+const FIRST_PASSWORD = 'password';
+const BROWSER_DEVICE_NAME = 'Browser Session Device';
+const BROWSER_DEVICE_TYPE = 'desktop';
+const TEST_DEVICE_NAME = 'Test Runner Session Device';
+const TEST_DEVICE_NAME_UPDATED = 'Test Runner Session Device Updated';
+const TEST_DEVICE_TYPE = 'mobile';
 
-  const {
-    clearBrowserState,
-    click,
-    createUser,
-    fillOutSignIn,
-    noSuchElement,
-    noSuchStoredAccountByEmail,
-    openPage,
-    pollUntil,
-    pollUntilGoneByQSA,
-    testElementExists,
-    testElementTextEquals,
-    visibleByQSA,
-  } = FunctionalHelpers;
+var email;
+var client;
+var accountData;
 
-  registerSuite({
-    name: 'settings clients',
+const {
+  clearBrowserState,
+  click,
+  createUser,
+  fillOutSignIn,
+  noSuchElement,
+  noSuchStoredAccountByEmail,
+  openPage,
+  pollUntil,
+  pollUntilGoneByQSA,
+  testElementExists,
+  testElementTextEquals,
+  visibleByQSA,
+} = FunctionalHelpers;
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-      client = FunctionalHelpers.getFxaClient();
-      return this.remote
-        .then(createUser(email, FIRST_PASSWORD, {preVerified: true}))
-        .then(function (result) {
-          accountData = result;
-        })
-        .then(clearBrowserState());
-    },
+registerSuite('settings clients', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
+    client = FunctionalHelpers.getFxaClient();
+    return this.remote
+      .then(createUser(email, FIRST_PASSWORD, {preVerified: true}))
+      .then(function (result) {
+        accountData = result;
+      })
+      .then(clearBrowserState());
+  },
 
-    afterEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
-
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
+  tests: {
     'sessions are listed in clients view': function () {
       return this.remote
         .then(openPage(SIGNIN_URL + '?sessionsListVisible=1', '#fxa-signin-header'))
@@ -143,7 +140,7 @@ define([
           var accounts = JSON.parse(localStorage.getItem('__fxa_storage.accounts'));
 
           return accounts[uid];
-        }, [ accountData.uid ])
+        }, [accountData.uid])
         .then(function (browserAccount) {
           return client.deviceRegister(
             browserAccount.sessionToken,
@@ -188,7 +185,7 @@ define([
           var deviceName = document.querySelectorAll('.client-device:nth-child(2) .client-name')[0].textContent.trim();
 
           return deviceName === newName ? true : null;
-        }, [ TEST_DEVICE_NAME_UPDATED ], 10000))
+        }, [TEST_DEVICE_NAME_UPDATED], 10000))
 
         .then(testElementTextEquals(
           '.client-device:nth-child(2) .client-name',
@@ -238,5 +235,5 @@ define([
         .then(testElementExists('#fxa-signin-header'))
         .then(noSuchStoredAccountByEmail(email));
     }
-  });
+  }
 });

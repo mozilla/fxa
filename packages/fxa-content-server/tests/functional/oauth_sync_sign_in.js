@@ -2,69 +2,65 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/fx-desktop',
-  'tests/functional/lib/selectors'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers,
-             FxDesktopHelpers, selectors) {
-  var config = intern.config;
-  var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
+'use strict';
 
-  var email;
-  var email2;
-  var PASSWORD = '12345678';
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const FxDesktopHelpers = require('./lib/fx-desktop');
+const selectors = require('./lib/selectors');
+var config = intern._config;
+var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
 
-  const {
-    click,
-    closeCurrentWindow,
-    createUser,
-    fillOutSignIn,
-    fillOutSignUp,
-    openFxaFromRp,
-    openPage,
-    openVerificationLinkInNewTab,
-    switchToWindow,
-    testElementExists,
-    testElementTextEquals,
-    visibleByQSA,
-  } = FunctionalHelpers;
+var email;
+var email2;
+var PASSWORD = '12345678';
 
-  const {
-    listenForFxaCommands,
-    testIsBrowserNotifiedOfLogin,
-  } = FxDesktopHelpers;
+const {
+  click,
+  closeCurrentWindow,
+  createUser,
+  fillOutSignIn,
+  fillOutSignUp,
+  openFxaFromRp,
+  openPage,
+  openVerificationLinkInNewTab,
+  switchToWindow,
+  testElementExists,
+  testElementTextEquals,
+  visibleByQSA,
+} = FunctionalHelpers;
 
-  registerSuite({
-    name: 'signin with OAuth after Sync',
+const {
+  listenForFxaCommands,
+  testIsBrowserNotifiedOfLogin,
+} = FxDesktopHelpers;
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail('sync{id}');
-      email2 = TestHelpers.createEmail();
+registerSuite('signin with OAuth after Sync', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail('sync{id}');
+    email2 = TestHelpers.createEmail();
 
-      // clear localStorage to avoid pollution from other tests.
-      return this.remote
-        .then(FunctionalHelpers.clearBrowserState({
-          '123done': true,
-          contentServer: true
-        }));
-    },
+    // clear localStorage to avoid pollution from other tests.
+    return this.remote
+      .then(FunctionalHelpers.clearBrowserState({
+        '123done': true,
+        contentServer: true
+      }));
+  },
 
-    afterEach: function () {
-      return this.remote
-        .then(FunctionalHelpers.clearBrowserState({
-          '123done': true,
-          contentServer: true
-        }));
-    },
-
+  afterEach: function () {
+    return this.remote
+      .then(FunctionalHelpers.clearBrowserState({
+        '123done': true,
+        contentServer: true
+      }));
+  },
+  tests: {
     'signin to OAuth with Sync creds': function () {
       this.timeout = 60 * 1000;
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .execute(listenForFxaCommands)
 
@@ -111,5 +107,5 @@ define([
         // We should see the email we signed up for Sync with
         .then(testElementTextEquals('#loggedin', email));
     }
-  });
+  }
 });

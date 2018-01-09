@@ -2,31 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors'
-], function (intern, registerSuite, FunctionalHelpers, selectors) {
-  var EXP_MAILCHECK_URL = intern.config.fxaContentRoot + 'signup?automatedBrowser=true';
+'use strict';
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var click = FunctionalHelpers.click;
-  var openPage = FunctionalHelpers.openPage;
-  var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
-  var type = FunctionalHelpers.type;
+const { registerSuite } = intern.getInterface('object');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+var EXP_MAILCHECK_URL = intern._config.fxaContentRoot + 'signup?automatedBrowser=true';
 
-  registerSuite({
-    name: 'mailcheck',
+var clearBrowserState = FunctionalHelpers.clearBrowserState;
+var click = FunctionalHelpers.click;
+var openPage = FunctionalHelpers.openPage;
+var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+var type = FunctionalHelpers.type;
 
-    beforeEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
+registerSuite('mailcheck', {
+  beforeEach () {
+    return this.remote.then(clearBrowserState());
+  },
 
-    afterEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
-
+  afterEach () {
+    return this.remote.then(clearBrowserState());
+  },
+  tests: {
     'tooltip works': function () {
       var BAD_EMAIL = 'something@gnail.com';
       var CORRECTED_EMAIL = 'something@gmail.com';
@@ -39,5 +36,5 @@ define([
 
         .then(testElementValueEquals(selectors.SIGNUP.EMAIL, CORRECTED_EMAIL));
     }
-  });
+  }
 });

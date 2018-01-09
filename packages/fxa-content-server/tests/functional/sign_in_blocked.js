@@ -2,52 +2,49 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
-  var config = intern.config;
-  var PAGE_URL = config.fxaContentRoot + 'signin';
-  var PASSWORD = 'password';
-  var email;
+'use strict';
 
-  const {
-    clearBrowserState,
-    click,
-    closeCurrentWindow,
-    createUser,
-    fillOutSignIn,
-    fillOutSignInUnblock,
-    getUnblockInfo,
-    openPage,
-    openTab,
-    openVerificationLinkInSameTab,
-    switchToWindow,
-    testErrorTextInclude,
-    testElementExists,
-    testElementTextInclude,
-    type,
-    visibleByQSA,
-  } = FunctionalHelpers;
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+var config = intern._config;
+var PAGE_URL = config.fxaContentRoot + 'signin';
+var PASSWORD = 'password';
+var email;
 
-  registerSuite({
-    name: 'signin blocked',
+const {
+  clearBrowserState,
+  click,
+  closeCurrentWindow,
+  createUser,
+  fillOutSignIn,
+  fillOutSignInUnblock,
+  getUnblockInfo,
+  openPage,
+  openTab,
+  openVerificationLinkInSameTab,
+  switchToWindow,
+  testErrorTextInclude,
+  testElementExists,
+  testElementTextInclude,
+  type,
+  visibleByQSA,
+} = FunctionalHelpers;
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail('blocked{id}');
+registerSuite('signin blocked', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail('blocked{id}');
 
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(clearBrowserState());
-    },
+    return this.remote
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(clearBrowserState());
+  },
 
-    afterEach: function () {
-      return this.remote
-        .then(clearBrowserState());
-    },
-
+  afterEach: function () {
+    return this.remote
+      .then(clearBrowserState());
+  },
+  tests: {
     'valid code entered': function () {
       return this.remote
         .then(openPage(PAGE_URL, '#fxa-signin-header'))
@@ -292,7 +289,7 @@ define([
       email = TestHelpers.createEmail('blocked{id}');
 
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: false }))
+        .then(createUser(email, PASSWORD, {preVerified: false}))
         .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
 
@@ -310,5 +307,5 @@ define([
         .then(openVerificationLinkInSameTab(email, 2))
         .then(testElementExists('#fxa-settings-header'));
     }
-  });
+  }
 });

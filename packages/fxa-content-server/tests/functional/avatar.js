@@ -2,69 +2,68 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'intern/browser_modules/dojo/node!path',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/ua-strings'
-], function (intern, registerSuite, path, TestHelpers, FunctionalHelpers, uaStrings) {
-  const config = intern.config;
+'use strict';
 
-  const ios10UserAgent = uaStrings['ios_firefox_6_1'];
+const { registerSuite } = intern.getInterface('object');
+const path = require('path');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const uaStrings = require('./lib/ua-strings');
+const config = intern._config;
 
-  const ADD_AVATAR_BUTTON_SELECTOR  = '#change-avatar .settings-unit-toggle.primary';
-  const AVATAR_CHANGE_URL = config.fxaContentRoot + 'settings/avatar/change';
-  const AVATAR_CHANGE_URL_AUTOMATED = config.fxaContentRoot + 'settings/avatar/change?automatedBrowser=true';
-  const PASSWORD = 'password';
-  const SETTINGS_URL = config.fxaContentRoot + 'settings';
-  const SETTINGS_URL_IOS10 = `${SETTINGS_URL}?forceUA='${encodeURIComponent(ios10UserAgent)}`;
-  const SIGNIN_URL = config.fxaContentRoot + 'signin';
-  const UPLOAD_IMAGE_PATH = path.join(this.process.cwd(), 'app', 'apple-touch-icon-152x152.png');
+const ios10UserAgent = uaStrings['ios_firefox_6_1'];
 
-  let email;
+const ADD_AVATAR_BUTTON_SELECTOR  = '#change-avatar .settings-unit-toggle.primary';
+const AVATAR_CHANGE_URL = config.fxaContentRoot + 'settings/avatar/change';
+const AVATAR_CHANGE_URL_AUTOMATED = config.fxaContentRoot + 'settings/avatar/change?automatedBrowser=true';
+const PASSWORD = 'password';
+const SETTINGS_URL = config.fxaContentRoot + 'settings';
+const SETTINGS_URL_IOS10 = `${SETTINGS_URL}?forceUA='${encodeURIComponent(ios10UserAgent)}`;
+const SIGNIN_URL = config.fxaContentRoot + 'signin';
+const UPLOAD_IMAGE_PATH = path.join(process.cwd(), 'app', 'apple-touch-icon-152x152.png');
 
-  const {
-    clearBrowserState,
-    click,
-    createUser,
-    fillOutSignIn,
-    noSuchElement,
-    openPage,
-    pollUntilHiddenByQSA,
-    testElementExists,
-    testIsBrowserNotified,
-    thenify,
-  } = FunctionalHelpers;
+let email;
 
-  const testIsBrowserNotifiedOfAvatarChange = thenify(function () {
-    return this.parent
-      .then(testIsBrowserNotified('profile:change'));
-  });
+const {
+  clearBrowserState,
+  click,
+  createUser,
+  fillOutSignIn,
+  noSuchElement,
+  openPage,
+  pollUntilHiddenByQSA,
+  testElementExists,
+  testIsBrowserNotified,
+  thenify,
+} = FunctionalHelpers;
 
-  function signUp(context, email) {
-    return context.remote
-      .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(clearBrowserState())
+const testIsBrowserNotifiedOfAvatarChange = thenify(function () {
+  return this.parent
+    .then(testIsBrowserNotified('profile:change'));
+});
 
-      .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
-      .then(fillOutSignIn(email, PASSWORD))
-      .then(testElementExists('#fxa-settings-header'));
-  }
+function signUp(context, email) {
+  return context.remote
+    .then(createUser(email, PASSWORD, { preVerified: true }))
+    .then(clearBrowserState())
 
-  registerSuite({
-    name: 'settings/avatar',
+    .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
+    .then(fillOutSignIn(email, PASSWORD))
+    .then(testElementExists('#fxa-settings-header'));
+}
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
+registerSuite('settings/avatar', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
 
-      return signUp(this, email);
-    },
+    return signUp(this, email);
+  },
 
-    afterEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
+
+  tests: {
 
     'go to settings then avatar change': function () {
       return this.remote
@@ -132,7 +131,7 @@ define([
 
         // Selenium's way of interacting with a file picker
         .findByCssSelector('#imageLoader')
-          .type(UPLOAD_IMAGE_PATH)
+        .type(UPLOAD_IMAGE_PATH)
         .end()
 
         .then(testElementExists('.cropper'))
@@ -156,7 +155,7 @@ define([
 
         // Selenium's way of interacting with a file picker
         .findByCssSelector('#imageLoader')
-          .type(UPLOAD_IMAGE_PATH)
+        .type(UPLOAD_IMAGE_PATH)
         .end()
 
         .then(testElementExists('.cropper'))
@@ -174,6 +173,5 @@ define([
         //success is not displaying avatar change panel
         .then(noSuchElement('#change-avatar'));
     }
-
-  });
+  }
 });

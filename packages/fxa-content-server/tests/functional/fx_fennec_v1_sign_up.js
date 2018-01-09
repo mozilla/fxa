@@ -2,52 +2,49 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
-  var config = intern.config;
-  var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_fennec_v1&service=sync';
+'use strict';
 
-  var email;
-  var PASSWORD = '12345678';
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+var config = intern._config;
+var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_fennec_v1&service=sync';
 
-  const {
-    click,
-    closeCurrentWindow,
-    fillOutSignUp,
-    noSuchElement,
-    noSuchBrowserNotification,
-    openPage,
-    openVerificationLinkInNewTab,
-    respondToWebChannelMessage,
-    switchToWindow,
-    testElementExists,
-    testEmailExpected,
-    testIsBrowserNotified,
-  } = FunctionalHelpers;
+var email;
+var PASSWORD = '12345678';
 
-  registerSuite({
-    name: 'Fx Fennec Sync v1 sign_up',
+const {
+  click,
+  closeCurrentWindow,
+  fillOutSignUp,
+  noSuchElement,
+  noSuchBrowserNotification,
+  openPage,
+  openVerificationLinkInNewTab,
+  respondToWebChannelMessage,
+  switchToWindow,
+  testElementExists,
+  testEmailExpected,
+  testIsBrowserNotified,
+} = FunctionalHelpers;
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-      return this.remote
-        .then(FunctionalHelpers.clearBrowserState());
-    },
+registerSuite('Fx Fennec Sync v1 sign_up', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
+    return this.remote
+      .then(FunctionalHelpers.clearBrowserState());
+  },
 
-    afterEach: function () {
-      return this.remote
-        .then(FunctionalHelpers.clearBrowserState());
-    },
-
+  afterEach: function () {
+    return this.remote
+      .then(FunctionalHelpers.clearBrowserState());
+  },
+  tests: {
     'sign up, verify same browser': function () {
       return this.remote
         .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', {ok: true}))
         .then(noSuchElement(selectors.SIGNUP.CUSTOMIZE_SYNC_CHECKBOX))
         .then(fillOutSignUp(email, PASSWORD))
 
@@ -81,5 +78,5 @@ define([
         .then(testEmailExpected(email, 1));
 
     }
-  });
+  }
 });

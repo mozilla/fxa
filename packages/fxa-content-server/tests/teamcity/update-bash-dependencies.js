@@ -48,16 +48,16 @@ function showUpdates(bashDeps) {
     if (dependencies[dep] !== bashDeps[dep]) {
       needsUpdate = true;
       console.log('%s:\tcurrent: %s,\tbash: %s',
-                  dep, dependencies[dep], bashDeps[dep]);
+        dep, dependencies[dep], bashDeps[dep]);
     }
   });
 
   if (needsUpdate) {
     console.log('Please update the dependency versions in %s noted above.',
-                process.argv[2]);
+      process.argv[2]);
   } else {
     console.log('Bash dependencies are up to date for %s',
-                process.argv[2]);
+      process.argv[2]);
   }
 }
 

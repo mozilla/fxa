@@ -2,29 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/functional/lib/helpers',
-  'require'
-], function (intern, registerSuite, FunctionalHelpers, require) {
-  var INVALID_CHROMELESS_URL = intern.config.fxaContentRoot + 'signup?style=chromeless';
-  var CHROMELESS_IFRAME_SYNC_URL = intern.config.fxaContentRoot + 'signup?service=sync&context=iframe&style=chromeless';
+'use strict';
 
-  var noSuchElement = FunctionalHelpers.noSuchElement;
+const { registerSuite } = intern.getInterface('object');
+const FunctionalHelpers = require('./lib/helpers');
+var INVALID_CHROMELESS_URL = intern._config.fxaContentRoot + 'signup?style=chromeless';
+var CHROMELESS_IFRAME_SYNC_URL = intern._config.fxaContentRoot + 'signup?service=sync&context=iframe&style=chromeless';
 
-  registerSuite({
-    name: 'alternate styles',
+var noSuchElement = FunctionalHelpers.noSuchElement;
 
-    beforeEach: function () {
-      return this.remote.then(FunctionalHelpers.clearBrowserState());
-    },
+registerSuite('alternate styles', {
+  beforeEach: function () {
+    return this.remote.then(FunctionalHelpers.clearBrowserState());
+  },
+
+  tests: {
 
     'the `chromeless` style is not applied if not iframed sync': function () {
 
       return this.remote
-        .get(require.toUrl(INVALID_CHROMELESS_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
+        .get(INVALID_CHROMELESS_URL)
+        .setFindTimeout(intern._config.pageLoadTimeout)
         .findByCssSelector('#fxa-signup-header')
         .end()
 
@@ -36,13 +34,13 @@ define([
     'the `chromeless` style can be applied to an iframed sync': function () {
 
       return this.remote
-        .get(require.toUrl(CHROMELESS_IFRAME_SYNC_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
+        .get(CHROMELESS_IFRAME_SYNC_URL)
+        .setFindTimeout(intern._config.pageLoadTimeout)
         .findByCssSelector('#fxa-signup-header')
         .end()
 
         .findByCssSelector('.chromeless')
         .end();
     }
-  });
+  }
 });

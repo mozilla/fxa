@@ -2,51 +2,49 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern!object',
-  'intern/chai!assert',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (registerSuite, assert, TestHelpers, FunctionalHelpers) {
-  var PASSWORD = 'password';
-  var TIMEOUT = 90 * 1000;
-  var email;
+'use strict';
 
-  const {
-    clearBrowserState,
-    click,
-    closeCurrentWindow,
-    createUser,
-    fillOutCompleteResetPassword,
-    fillOutResetPassword,
-    openExternalSite,
-    openFxaFromRp,
-    openPasswordResetLinkInDifferentBrowser,
-    openVerificationLinkInNewTab,
-    openVerificationLinkInSameTab,
-    switchToWindow,
-    testElementExists,
-    testElementTextInclude,
-    type,
-    visibleByQSA,
-  } = FunctionalHelpers;
+const { registerSuite } = intern.getInterface('object');
+const assert = intern.getPlugin('chai').assert;
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+var PASSWORD = 'password';
+var TIMEOUT = 90 * 1000;
+var email;
 
-  registerSuite({
-    name: 'oauth reset password',
+const {
+  clearBrowserState,
+  click,
+  closeCurrentWindow,
+  createUser,
+  fillOutCompleteResetPassword,
+  fillOutResetPassword,
+  openExternalSite,
+  openFxaFromRp,
+  openPasswordResetLinkInDifferentBrowser,
+  openVerificationLinkInNewTab,
+  openVerificationLinkInSameTab,
+  switchToWindow,
+  testElementExists,
+  testElementTextInclude,
+  type,
+  visibleByQSA,
+} = FunctionalHelpers;
 
-    beforeEach: function () {
-      // timeout after 90 seconds
-      this.timeout = TIMEOUT;
-      email = TestHelpers.createEmail();
+registerSuite('oauth reset password', {
+  beforeEach: function () {
+    // timeout after 90 seconds
+    this.timeout = TIMEOUT;
+    email = TestHelpers.createEmail();
 
-      return this.remote
-        .then(clearBrowserState({
-          '123done': true,
-          contentServer: true
-        }))
-        .then(createUser(email, PASSWORD, { preVerified: true }));
-    },
-
+    return this.remote
+      .then(clearBrowserState({
+        '123done': true,
+        contentServer: true
+      }))
+      .then(createUser(email, PASSWORD, { preVerified: true }));
+  },
+  tests: {
     'reset password, verify same browser': function () {
       this.timeout = TIMEOUT;
 
@@ -168,5 +166,5 @@ define([
         // user sees the name of the rp, but cannot redirect
         .then(testElementTextInclude('.account-ready-service', '123done'));
     }
-  });
+  }
 });

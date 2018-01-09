@@ -2,49 +2,46 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
-  var config = intern.config;
-  var CONTENT_SERVER = config.fxaContentRoot;
-  var APPS_SETTINGS_URL = CONTENT_SERVER + 'settings/clients?forceDeviceList=1';
-  var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
+'use strict';
 
-  var PASSWORD = 'password';
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+var config = intern._config;
+var CONTENT_SERVER = config.fxaContentRoot;
+var APPS_SETTINGS_URL = CONTENT_SERVER + 'settings/clients?forceDeviceList=1';
+var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
 
-  const {
-    clearBrowserState,
-    click,
-    closeCurrentWindow,
-    fillOutSignUp,
-    openFxaFromRp,
-    openPage,
-    openTab,
-    openVerificationLinkInSameTab,
-    pollUntilGoneByQSA,
-    switchToWindow,
-    testElementExists,
-    type,
-  } = FunctionalHelpers;
+var PASSWORD = 'password';
 
-  var email;
+const {
+  clearBrowserState,
+  click,
+  closeCurrentWindow,
+  fillOutSignUp,
+  openFxaFromRp,
+  openPage,
+  openTab,
+  openVerificationLinkInSameTab,
+  pollUntilGoneByQSA,
+  switchToWindow,
+  testElementExists,
+  type,
+} = FunctionalHelpers;
 
-  registerSuite({
-    name: 'oauth settings clients',
+var email;
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
+registerSuite('oauth settings clients', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
 
-      return this.remote
-        .then(clearBrowserState({
-          '123done': true,
-          contentServer: true
-        }));
-    },
-
+    return this.remote
+      .then(clearBrowserState({
+        '123done': true,
+        contentServer: true
+      }));
+  },
+  tests: {
     'rp listed in apps, can be deleted': function () {
       var self = this;
       self.timeout = 90 * 1000;
@@ -70,7 +67,7 @@ define([
         .end()
 
         .findByCssSelector('.signin')
-          .click()
+        .click()
         .end()
 
         .then(type('#password', PASSWORD))
@@ -97,7 +94,5 @@ define([
         .then(click('li.client-oAuthApp[data-name^="321"] .client-disconnect'))
         .then(pollUntilGoneByQSA('li.client-oAuthApp'));
     }
-
-  });
-
+  }
 });

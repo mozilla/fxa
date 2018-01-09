@@ -2,60 +2,57 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'intern/chai!assert',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers) {
+'use strict';
 
-  var config = intern.config;
-  var SIGNIN_URL = config.fxaContentRoot + 'signin';
-  var SETTINGS_URL = config.fxaContentRoot + 'settings';
+const { registerSuite } = intern.getInterface('object');
+const assert = intern.getPlugin('chai').assert;
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
 
-  const {
-    cleanMemory,
-    clearBrowserState,
-    click,
-    closeCurrentWindow,
-    createUser,
-    denormalizeStoredEmail,
-    fillOutSignIn,
-    focus,
-    getFxaClient,
-    noSuchStoredAccountByEmail,
-    openPage,
-    openSettingsInNewTab,
-    switchToWindow,
-    testElementExists,
-    testElementTextEquals,
-    testErrorTextInclude,
-  } = FunctionalHelpers;
+var config = intern._config;
+var SIGNIN_URL = config.fxaContentRoot + 'signin';
+var SETTINGS_URL = config.fxaContentRoot + 'settings';
 
-  var FIRST_PASSWORD = 'password';
-  var email;
-  var accountData;
+const {
+  cleanMemory,
+  clearBrowserState,
+  click,
+  closeCurrentWindow,
+  createUser,
+  denormalizeStoredEmail,
+  fillOutSignIn,
+  focus,
+  getFxaClient,
+  noSuchStoredAccountByEmail,
+  openPage,
+  openSettingsInNewTab,
+  switchToWindow,
+  testElementExists,
+  testElementTextEquals,
+  testErrorTextInclude,
+} = FunctionalHelpers;
 
-  registerSuite({
-    name: 'settings',
+var FIRST_PASSWORD = 'password';
+var email;
+var accountData;
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
+registerSuite('settings', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
 
-      return this.remote
-        .then(cleanMemory())
-        .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
-        .then(function (result) {
-          accountData = result;
-        })
-        .then(clearBrowserState());
-    },
+    return this.remote
+      .then(cleanMemory())
+      .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
+      .then(function (result) {
+        accountData = result;
+      })
+      .then(clearBrowserState());
+  },
 
-    afterEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
-
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
+  tests: {
     'with an invalid email': function () {
       return this.remote
         .then(openPage(SETTINGS_URL + '?email=invalid', '#fxa-400-header'))
@@ -188,73 +185,71 @@ define([
 
         .then(openSettingsInNewTab())
         .then(switchToWindow(1))
-          .then(testElementExists('#fxa-settings-header'))
-          .then(click('#signout'))
+        .then(testElementExists('#fxa-settings-header'))
+        .then(click('#signout'))
 
-          .then(testElementExists('#fxa-signin-header'))
+        .then(testElementExists('#fxa-signin-header'))
         .then(closeCurrentWindow())
 
         .then(testElementExists('#fxa-signin-header'))
         .then(noSuchStoredAccountByEmail(email));
     }
-  });
+  }
+});
 
-  registerSuite({
-    name: 'settings unverified',
+registerSuite('settings unverified', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
+    return this.remote
+      .then(createUser(email, FIRST_PASSWORD))
+      .then(clearBrowserState())
+      .then(fillOutSignIn(email, FIRST_PASSWORD))
 
-      return this.remote
-        .then(createUser(email, FIRST_PASSWORD))
-        .then(clearBrowserState())
-        .then(fillOutSignIn(email, FIRST_PASSWORD))
-
-        .then(testElementExists('#fxa-confirm-header'));
-    },
-
+      .then(testElementExists('#fxa-confirm-header'));
+  },
+  tests: {
     'visit settings page with an unverified account redirects to confirm': function () {
       return this.remote
-        // Expect to get redirected to confirm since the account is unverified
+      // Expect to get redirected to confirm since the account is unverified
         .then(openPage(SETTINGS_URL, '#fxa-confirm-header'));
     }
-  });
+  }
+});
 
-  registerSuite({
-    name: 'settings with expired session',
+registerSuite('settings with expired session', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
+    return this.remote
+      .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
+      .then(clearBrowserState({ force: true }))
+      .then(fillOutSignIn(email, FIRST_PASSWORD))
 
-      return this.remote
-        .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
-        .then(clearBrowserState({ force: true }))
-        .then(fillOutSignIn(email, FIRST_PASSWORD))
+      .then(testElementExists('#fxa-settings-header'))
+      .execute(function () {
+        // get the first (and only) stored account data, we want to destroy
+        // the session.
+        var accounts = JSON.parse(localStorage.getItem('__fxa_storage.accounts')) || {};
+        var firstKey = Object.keys(accounts)[0];
+        return accounts[firstKey];
+      })
+      .then(function (accountData) {
+        return getFxaClient().sessionDestroy(accountData.sessionToken);
+      });
+  },
 
-        .then(testElementExists('#fxa-settings-header'))
-        .execute(function () {
-          // get the first (and only) stored account data, we want to destroy
-          // the session.
-          var accounts = JSON.parse(localStorage.getItem('__fxa_storage.accounts')) || {};
-          var firstKey = Object.keys(accounts)[0];
-          return accounts[firstKey];
-        })
-        .then(function (accountData) {
-          return getFxaClient().sessionDestroy(accountData.sessionToken);
-        });
-    },
-
-    afterEach: function () {
-      // browser state must be cleared or the tests that follow fail.
-      return this.remote
-        .then(clearBrowserState({ force: true }));
-    },
-
+  afterEach: function () {
+    // browser state must be cleared or the tests that follow fail.
+    return this.remote
+      .then(clearBrowserState({ force: true }));
+  },
+  tests: {
     'a focus on the settings page after session expires redirects to signin': function () {
       return this.remote
         .then(focus())
 
         .then(testElementExists('#fxa-signin-header'));
     }
-  });
+  }
 });

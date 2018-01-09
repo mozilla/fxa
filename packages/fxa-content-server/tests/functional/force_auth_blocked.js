@@ -2,47 +2,44 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
-  var config = intern.config;
-  var PAGE_URL = config.fxaContentRoot + 'force_auth';
-  var PASSWORD = 'password';
-  var email;
+'use strict';
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
-  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var openPage = FunctionalHelpers.openPage;
-  var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+var config = intern._config;
+var PAGE_URL = config.fxaContentRoot + 'force_auth';
+var PASSWORD = 'password';
+var email;
 
-  var forceAuthPageUrl;
+var clearBrowserState = FunctionalHelpers.clearBrowserState;
+var createUser = FunctionalHelpers.createUser;
+var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
+var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
+var openPage = FunctionalHelpers.openPage;
+var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
+var testElementExists = FunctionalHelpers.testElementExists;
+var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
+var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-  registerSuite({
-    name: 'force_auth blocked',
+var forceAuthPageUrl;
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail('blocked{id}');
+registerSuite('force_auth blocked', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail('blocked{id}');
 
-      forceAuthPageUrl = PAGE_URL + '?email=' + encodeURIComponent(email);
+    forceAuthPageUrl = PAGE_URL + '?email=' + encodeURIComponent(email);
 
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(clearBrowserState());
-    },
+    return this.remote
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(clearBrowserState());
+  },
 
-    afterEach: function () {
-      return this.remote
-        .then(clearBrowserState());
-    },
-
+  afterEach: function () {
+    return this.remote
+      .then(clearBrowserState());
+  },
+  tests: {
     'valid code entered': function () {
       return this.remote
         .then(openPage(forceAuthPageUrl, '#fxa-force-auth-header'))
@@ -81,5 +78,5 @@ define([
 
         .then(testElementExists('#fxa-settings-header'));
     }
-  });
+  }
 });

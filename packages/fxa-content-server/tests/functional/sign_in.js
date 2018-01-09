@@ -2,50 +2,48 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
-  var config = intern.config;
-  var PAGE_URL = config.fxaContentRoot + 'signin';
-  var AVATAR_URL = config.fxaContentRoot + 'settings/avatar/change';
-  var PASSWORD = 'password';
-  var email;
+'use strict';
 
-  const {
-    clearBrowserState,
-    click,
-    closeCurrentWindow,
-    createUser,
-    fillOutSignIn,
-    openPage,
-    openSignInInNewTab,
-    openSignUpInNewTab,
-    switchToWindow,
-    testAttributeMatches,
-    testErrorTextInclude,
-    testElementExists,
-    testElementTextInclude,
-    testElementValueEquals,
-    type,
-    visibleByQSA,
-  } = FunctionalHelpers;
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+var config = intern._config;
+var PAGE_URL = config.fxaContentRoot + 'signin';
+var AVATAR_URL = config.fxaContentRoot + 'settings/avatar/change';
+var PASSWORD = 'password';
+var email;
 
-  registerSuite({
-    name: 'signin',
+const {
+  clearBrowserState,
+  click,
+  closeCurrentWindow,
+  createUser,
+  fillOutSignIn,
+  openPage,
+  openSignInInNewTab,
+  openSignUpInNewTab,
+  switchToWindow,
+  testAttributeMatches,
+  testErrorTextInclude,
+  testElementExists,
+  testElementTextInclude,
+  testElementValueEquals,
+  type,
+  visibleByQSA,
+} = FunctionalHelpers;
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
+registerSuite('signin', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
 
-      return this.remote.then(clearBrowserState());
-    },
+    return this.remote.then(clearBrowserState());
+  },
 
-    afterEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
 
+  tests: {
     'with an invalid email': function () {
       return this.remote
         .then(openPage(PAGE_URL + '?email=invalid', '#fxa-400-header'))
@@ -55,7 +53,7 @@ define([
 
     'signin unverified': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: false }))
+        .then(createUser(email, PASSWORD, {preVerified: false}))
         .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementTextInclude('.verification-email-message', email));
@@ -63,7 +61,7 @@ define([
 
     'redirect to requested page after signin verified with correct password': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(openPage(AVATAR_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists('#avatar-change'));
@@ -71,14 +69,14 @@ define([
 
     'signin verified with correct password': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists('#fxa-settings-header'));
     },
 
     'signin verified with incorrect password, click `forgot password?`': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(fillOutSignIn(email, 'incorrect password'))
         // success is seeing the error message.
         .then(visibleByQSA('.tooltip'))
@@ -101,21 +99,21 @@ define([
 
     'signin with email with leading space strips space': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(fillOutSignIn('   ' + email, PASSWORD))
         .then(testElementExists('#fxa-settings-header'));
     },
 
     'signin with email with trailing space strips space': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(fillOutSignIn(email + '   ', PASSWORD))
         .then(testElementExists('#fxa-settings-header'));
     },
 
     'signin verified with password that incorrectly has leading whitespace': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(fillOutSignIn(email, '  ' + PASSWORD))
         // success is seeing the error message.
         .then(visibleByQSA('.tooltip'))
@@ -132,7 +130,7 @@ define([
 
     'form prefill information is cleared after signin->sign out': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(fillOutSignIn(email, PASSWORD))
 
         // success is seeing the sign-in-complete screen.
@@ -148,7 +146,7 @@ define([
 
     'signin with a second sign-in tab open': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(openSignInInNewTab())
         .then(switchToWindow(1))
@@ -165,7 +163,7 @@ define([
 
     'signin with a second sign-up tab open': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(openSignUpInNewTab())
         .then(switchToWindow(1))
 
@@ -186,23 +184,23 @@ define([
         .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{12,}$/));
     }
-  });
-
-  function testRepopulateFields(dest, header) {
-    var email = TestHelpers.createEmail();
-    var password = '12345678';
-
-    return this.remote
-      .then(openPage(PAGE_URL, '#fxa-signin-header'))
-      .then(type('input[type=email]', email))
-      .then(type('input[type=password]', password))
-
-      .then(click('a[href="' + dest + '"]'))
-
-      .then(testElementExists(header))
-      .then(click('.back'))
-
-      .then(testElementValueEquals('input[type=email]', email))
-      .then(testElementValueEquals('input[type=password]', password));
   }
 });
+
+function testRepopulateFields(dest, header) {
+  var email = TestHelpers.createEmail();
+  var password = '12345678';
+
+  return this.remote
+    .then(openPage(PAGE_URL, '#fxa-signin-header'))
+    .then(type('input[type=email]', email))
+    .then(type('input[type=password]', password))
+
+    .then(click('a[href="' + dest + '"]'))
+
+    .then(testElementExists(header))
+    .then(click('.back'))
+
+    .then(testElementValueEquals('input[type=email]', email))
+    .then(testElementValueEquals('input[type=password]', password));
+}

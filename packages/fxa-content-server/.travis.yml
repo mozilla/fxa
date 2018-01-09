@@ -72,5 +72,5 @@ script:
   # the default firefox-bin is used by Selenium, which is Firefox 31.
   # firefoxBinary=`which firefox` forces the version we installed
   # to be used.
-  - travis_retry npm run test-travis firefoxBinary=`which firefox`
+  - travis_retry npm run test-travis -- --firefoxBinary=`which firefox`
   - travis_retry npm run test-server

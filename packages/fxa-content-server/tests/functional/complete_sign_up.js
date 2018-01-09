@@ -2,51 +2,49 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'app/scripts/lib/constants',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, Constants, TestHelpers, FunctionalHelpers) {
-  var config = intern.config;
-  var PAGE_URL_ROOT = config.fxaContentRoot + 'verify_email';
-  var PASSWORD = 'password';
-  var email;
-  var accountData;
-  var code;
-  var uid;
+'use strict';
 
-  var click = FunctionalHelpers.click;
-  var createRandomHexString = TestHelpers.createRandomHexString;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var getVerificationLink = FunctionalHelpers.getVerificationLink;
-  var noSuchElement = FunctionalHelpers.noSuchElement;
-  var openPage = FunctionalHelpers.openPage;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+const { registerSuite } = intern.getInterface('object');
+const requirejs = require('../rjs_load');
+const Constants = requirejs('app/scripts/lib/constants');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+var config = intern._config;
+var PAGE_URL_ROOT = config.fxaContentRoot + 'verify_email';
+var PASSWORD = 'password';
+var email;
+var accountData;
+var code;
+var uid;
 
-  registerSuite({
-    name: 'complete_sign_up',
+var click = FunctionalHelpers.click;
+var createRandomHexString = TestHelpers.createRandomHexString;
+var createUser = FunctionalHelpers.createUser;
+var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+var getVerificationLink = FunctionalHelpers.getVerificationLink;
+var noSuchElement = FunctionalHelpers.noSuchElement;
+var openPage = FunctionalHelpers.openPage;
+var testElementExists = FunctionalHelpers.testElementExists;
+var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
+var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: false }))
-        .then(function (result) {
-          accountData = result;
-          uid = accountData.uid;
-        })
+registerSuite('complete_sign_up', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
+    return this.remote
+      .then(createUser(email, PASSWORD, { preVerified: false }))
+      .then(function (result) {
+        accountData = result;
+        uid = accountData.uid;
+      })
 
-        .then(getVerificationLink(email, 0))
+      .then(getVerificationLink(email, 0))
 
-        .then(function (link) {
-          code = link.match(/code=([A-Za-z0-9]+)/)[1];
-        });
-    },
-
+      .then(function (link) {
+        code = link.match(/code=([A-Za-z0-9]+)/)[1];
+      });
+  },
+  tests: {
     'open verification link with malformed code': function () {
       var code = createRandomHexString(Constants.CODE_LENGTH - 1);
       var uid = accountData.uid;
@@ -88,29 +86,28 @@ define([
       return this.remote
         .then(openPage(url, '#fxa-sign-up-complete-header'));
     }
-  });
+  }
+});
 
-  registerSuite({
-    name: 'complete_sign_up with expired link, but without signing up in browser',
+registerSuite('complete_sign_up with expired link, but without signing up in browser', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
+    return this.remote
+      .then(createUser(email, PASSWORD, { preVerified: false }))
+      .then(function (result) {
+        accountData = result;
+        uid = accountData.uid;
+      })
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: false }))
-        .then(function (result) {
-          accountData = result;
-          uid = accountData.uid;
-        })
-
-        .then(getVerificationLink(email, 0))
-        .then(function (link) {
-          code = link.match(/code=([A-Za-z0-9]+)/)[1];
-        })
-        // re-sign up the same user with a different password, should expire
-        // the original verification link.
-        .then(createUser(email, 'secondpassword', { preVerified: false }));
-    },
-
+      .then(getVerificationLink(email, 0))
+      .then(function (link) {
+        code = link.match(/code=([A-Za-z0-9]+)/)[1];
+      })
+      // re-sign up the same user with a different password, should expire
+      // the original verification link.
+      .then(createUser(email, 'secondpassword', { preVerified: false }));
+  },
+  tests: {
     'open expired email verification link': function () {
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
@@ -122,15 +119,14 @@ define([
         .setFindTimeout(200)
         .then(noSuchElement('#resend'));
     }
-  });
+  }
+});
 
-  registerSuite({
-    name: 'complete_sign_up with expired link and click resend',
-
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-    },
-
+registerSuite('complete_sign_up with expired link and click resend', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
+  },
+  tests: {
     'open expired email verification link': function () {
       var verificationLink;
 
@@ -167,5 +163,5 @@ define([
         // be visible.
         .then(visibleByQSA('.success'));
     }
-  });
+  }
 });

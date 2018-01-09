@@ -6,52 +6,49 @@
 
 'use strict';
 
-define([
-  'intern!object',
-  'intern/chai!assert',
-  'intern/dojo/node!bluebird',
-  'intern/dojo/node!path',
-  'intern/dojo/node!proxyquire',
-  'intern/dojo/node!sinon'
-], (registerSuite, assert, P, path, proxyquire, sinon) => {
-  const config = {
-    enabled: true
-  };
-  const results = {
-    geodb: P.resolve('mock geodb result'),
-    remoteAddress: { clientAddress: 'mock remoteAddress result' }
-  };
-  const geodb = sinon.spy(() => P.resolve(results.geodb));
-  const logger = {
-    error: sinon.spy()
-  };
-  const remoteAddress = sinon.spy(() => results.remoteAddress);
-  const geolocate = proxyquire(path.resolve('server/lib/geo-locate'), {
-    './configuration': {
-      get (key) {
-        if (key === 'geodb') {
-          return config;
-        }
+const { registerSuite } = intern.getInterface('object');
+const assert = intern.getPlugin('chai').assert;
+const P = require('bluebird');
+const path = require('path');
+const proxyquire = require('proxyquire');
+const sinon = require('sinon');
+const config = {
+  enabled: true
+};
+const results = {
+  geodb: P.resolve('mock geodb result'),
+  remoteAddress: { clientAddress: 'mock remoteAddress result' }
+};
+const geodb = sinon.spy(() => P.resolve(results.geodb));
+const logger = {
+  error: sinon.spy()
+};
+const remoteAddress = sinon.spy(() => results.remoteAddress);
+const geolocate = proxyquire(path.resolve('server/lib/geo-locate'), {
+  './configuration': {
+    get (key) {
+      if (key === 'geodb') {
+        return config;
       }
-    },
-    'fxa-geodb': c => {
-      if (c === config) {
-        return geodb;
-      }
-    },
-    './logging/log': () => logger,
-    './remote-address': remoteAddress
-  });
+    }
+  },
+  'fxa-geodb': c => {
+    if (c === config) {
+      return geodb;
+    }
+  },
+  './logging/log': () => logger,
+  './remote-address': remoteAddress
+});
 
-  registerSuite({
-    name: 'geo-locate',
+registerSuite('geo-locate', {
+  afterEach: function() {
+    geodb.reset();
+    logger.error.reset();
+    remoteAddress.reset();
+  },
 
-    afterEach () {
-      geodb.reset();
-      logger.error.reset();
-      remoteAddress.reset();
-    },
-
+  tests: {
     'interface is correct': () => {
       assert.isFunction(geolocate);
       assert.lengthOf(geolocate, 1);
@@ -104,6 +101,5 @@ define([
           assert.equal(logger.error.callCount, 0);
         });
     }
-  });
+  }
 });
-

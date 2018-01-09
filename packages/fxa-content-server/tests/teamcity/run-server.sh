@@ -77,15 +77,15 @@ set -o xtrace # echo the following commands
 
 FXA_TEST_CONFIG=${FXA_TEST_CONFIG:-tests/intern_server}
 
-./node_modules/.bin/intern-client \
-  config="$FXA_TEST_CONFIG" \
-  fxaAuthRoot="$FXA_AUTH_ROOT" \
-  fxaContentRoot="$FXA_CONTENT_ROOT" \
-  fxaOAuthRoot="$FXA_OAUTH_ROOT" \
-  fxaProfileRoot="$FXA_PROFILE_ROOT" \
-  fxaTokenRoot="$FXA_TOKEN_ROOT" \
-  fxaProduction="true" \
-  fxaDevBox="$FXA_DEV_BOX" \
-  asyncTimeout=10000 \
-  useTeamCityReporter=true
+node ./tests/intern.js \
+  --suites="server" \
+  --fxaAuthRoot="$FXA_AUTH_ROOT" \
+  --fxaContentRoot="$FXA_CONTENT_ROOT" \
+  --fxaOAuthRoot="$FXA_OAUTH_ROOT" \
+  --fxaProfileRoot="$FXA_PROFILE_ROOT" \
+  --fxaTokenRoot="$FXA_TOKEN_ROOT" \
+  --fxaProduction="true" \
+  --fxaDevBox="$FXA_DEV_BOX" \
+  --asyncTimeout=10000 \
+  --useTeamCityReporter=true
 

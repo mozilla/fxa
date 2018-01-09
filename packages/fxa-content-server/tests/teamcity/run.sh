@@ -75,10 +75,13 @@ node ./tests/teamcity/install-npm-deps.js \
   bower                           \
   convict                         \
   firefox-profile                 \
+  requirejs                       \
   fxa-shared                      \
   got                             \
+  leadfoot                        \
   intern                          \
   sync-exec                       \
+  yargs                           \
   xmlhttprequest
 
 node_modules/.bin/bower install --config.interactive=false
@@ -88,13 +91,13 @@ $FXA_FIREFOX_BINARY --version 2>/dev/null # squelch annoying 'GLib-CRITICAL **' 
 # Tell the test where the X Server is located
 export DISPLAY=":99"
 
-./node_modules/.bin/intern-runner \
-    config="tests/intern_functional_full" \
-    fxaAuthRoot="$FXA_AUTH_ROOT" \
-    fxaContentRoot="$FXA_CONTENT_ROOT" \
-    fxaOauthApp="$FXA_OAUTH_APP_ROOT" \
-    fxaUntrustedOauthApp="$FXA_UNTRUSTED_OAUTH_APP_ROOT" \
-    fxaEmailRoot="http://restmail.net" \
-    fxaProduction="true" \
-    firefoxBinary="$FXA_FIREFOX_BINARY" \
-    useTeamCityReporter=true
+node ./tests/intern.js \
+    --suites="full" \
+    --fxaAuthRoot="$FXA_AUTH_ROOT" \
+    --fxaContentRoot="$FXA_CONTENT_ROOT" \
+    --fxaOAuthApp="$FXA_OAUTH_APP_ROOT" \
+    --fxaUntrustedOauthApp="$FXA_UNTRUSTED_OAUTH_APP_ROOT" \
+    --fxaEmailRoot="http://restmail.net" \
+    --fxaProduction="true" \
+    --firefoxBinary="$FXA_FIREFOX_BINARY" \
+    --useTeamCityReporter=true

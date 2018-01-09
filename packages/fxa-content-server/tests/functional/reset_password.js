@@ -2,126 +2,122 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'intern/browser_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors'
-], function (intern, registerSuite, nodeXMLHttpRequest,
-      FxaClient, TestHelpers, FunctionalHelpers, selectors) {
-  'use strict';
+'use strict';
 
-  const config = intern.config;
-  const AUTH_SERVER_ROOT = config.fxaAuthRoot;
-  const SIGNIN_PAGE_URL = config.fxaContentRoot + 'signin';
-  const RESET_PAGE_URL = config.fxaContentRoot + 'reset_password';
-  const CONFIRM_PAGE_URL = config.fxaContentRoot + 'confirm_reset_password';
-  const COMPLETE_PAGE_URL_ROOT = config.fxaContentRoot + 'complete_reset_password';
+const { registerSuite } = intern.getInterface('object');
+const requirejs = require('../rjs_load');
+const nodeXMLHttpRequest = require('xmlhttprequest');
+const FxaClient = requirejs('app/bower_components/fxa-js-client/fxa-client');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
 
-  const PASSWORD = 'password';
-  const TIMEOUT = 90 * 1000;
+const config = intern._config;
+const AUTH_SERVER_ROOT = config.fxaAuthRoot;
+const SIGNIN_PAGE_URL = config.fxaContentRoot + 'signin';
+const RESET_PAGE_URL = config.fxaContentRoot + 'reset_password';
+const CONFIRM_PAGE_URL = config.fxaContentRoot + 'confirm_reset_password';
+const COMPLETE_PAGE_URL_ROOT = config.fxaContentRoot + 'complete_reset_password';
 
-  let client;
-  let code;
-  let email;
-  let token;
+const PASSWORD = 'password';
+const TIMEOUT = 90 * 1000;
 
-  const {
-    clearBrowserState,
-    click,
-    closeCurrentWindow,
-    createUser,
-    fillOutCompleteResetPassword,
-    fillOutResetPassword,
-    getVerificationLink,
-    noSuchElement,
-    openExternalSite,
-    openPage,
-    openPasswordResetLinkInDifferentBrowser,
-    openVerificationLinkInNewTab,
-    openVerificationLinkInSameTab,
-    switchToWindow,
-    testElementExists,
-    testElementValueEquals,
-    testEmailExpected,
-    testSuccessWasShown,
-    thenify,
-    type,
-    visibleByQSA,
-  } = FunctionalHelpers;
+let client;
+let code;
+let email;
+let token;
 
-  const createRandomHexString = TestHelpers.createRandomHexString;
+const {
+  clearBrowserState,
+  click,
+  closeCurrentWindow,
+  createUser,
+  fillOutCompleteResetPassword,
+  fillOutResetPassword,
+  getVerificationLink,
+  noSuchElement,
+  openExternalSite,
+  openPage,
+  openPasswordResetLinkInDifferentBrowser,
+  openVerificationLinkInNewTab,
+  openVerificationLinkInSameTab,
+  switchToWindow,
+  testElementExists,
+  testElementValueEquals,
+  testEmailExpected,
+  testSuccessWasShown,
+  thenify,
+  type,
+  visibleByQSA,
+} = FunctionalHelpers;
 
-  function ensureFxaJSClient() {
-    if (! client) {
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
-    }
+const createRandomHexString = TestHelpers.createRandomHexString;
+
+function ensureFxaJSClient() {
+  if (! client) {
+    client = new FxaClient(AUTH_SERVER_ROOT, {
+      xhr: nodeXMLHttpRequest.XMLHttpRequest
+    });
+  }
+}
+
+/**
+ * Programatically initiate a reset password using the
+ * FxA Client. Saves the token and code.
+ */
+const initiateResetPassword = thenify(function(emailAddress, emailNumber) {
+  ensureFxaJSClient();
+
+  return this.parent
+    .then(() => client.passwordForgotSendCode(emailAddress))
+    .then(getVerificationLink(emailAddress, emailNumber))
+    .then((link) => {
+      // token and code are hex values
+      token = link.match(/token=([a-f\d]+)/)[1];
+      code = link.match(/code=([a-f\d]+)/)[1];
+    });
+});
+
+const openCompleteResetPassword = thenify(function (email, token, code, header) {
+  let url = COMPLETE_PAGE_URL_ROOT + '?';
+
+  const queryParams = [];
+  if (email) {
+    queryParams.push('email=' + encodeURIComponent(email));
   }
 
-  /**
-   * Programatically initiate a reset password using the
-   * FxA Client. Saves the token and code.
-   */
-  const initiateResetPassword = thenify(function(emailAddress, emailNumber) {
-    ensureFxaJSClient();
+  if (token) {
+    queryParams.push('token=' + encodeURIComponent(token));
+  }
 
-    return this.parent
-      .then(() => client.passwordForgotSendCode(emailAddress))
-      .then(getVerificationLink(emailAddress, emailNumber))
-      .then((link) => {
-        // token and code are hex values
-        token = link.match(/token=([a-f\d]+)/)[1];
-        code = link.match(/code=([a-f\d]+)/)[1];
-      });
-  });
+  if (code) {
+    queryParams.push('code=' + encodeURIComponent(code));
+  }
 
-  const openCompleteResetPassword = thenify(function (email, token, code, header) {
-    let url = COMPLETE_PAGE_URL_ROOT + '?';
+  url += queryParams.join('&');
+  return this.parent
+    .then(openPage(url, header));
+});
 
-    const queryParams = [];
-    if (email) {
-      queryParams.push('email=' + encodeURIComponent(email));
-    }
+const testAtSettingsWithVerifiedMessage = thenify(function() {
+  return this.parent
+    .setFindTimeout(intern._config.pageLoadTimeout)
+    .sleep(1000)
 
-    if (token) {
-      queryParams.push('token=' + encodeURIComponent(token));
-    }
+    .then(testElementExists(selectors.SETTINGS.HEADER))
+    .then(testSuccessWasShown());
+});
 
-    if (code) {
-      queryParams.push('code=' + encodeURIComponent(code));
-    }
+registerSuite('reset_password', {
+  beforeEach: function () {
+    this.timeout = TIMEOUT;
 
-    url += queryParams.join('&');
-    return this.parent
-      .then(openPage(url, header));
-  });
-
-  const testAtSettingsWithVerifiedMessage = thenify(function() {
-    return this.parent
-      .setFindTimeout(intern.config.pageLoadTimeout)
-      .sleep(1000)
-
-      .then(testElementExists(selectors.SETTINGS.HEADER))
-      .then(testSuccessWasShown());
-  });
-
-  registerSuite({
-    name: 'reset_password',
-
-    beforeEach: function () {
-      this.timeout = TIMEOUT;
-
-      email = TestHelpers.createEmail();
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(clearBrowserState());
-    },
-
+    email = TestHelpers.createEmail();
+    return this.remote
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(clearBrowserState());
+  },
+  tests: {
     'visit confirmation screen without initiating reset_password, user is redirected to /reset_password': function () {
       // user is immediately redirected to /reset_password if they have no
       // sessionToken.
@@ -380,7 +376,7 @@ define([
 
         // clear all browser state, simulate opening in
         // a new browser
-        .then(clearBrowserState({ contentServer: true }))
+        .then(clearBrowserState({contentServer: true}))
 
         .then(openVerificationLinkInSameTab(email, 0))
         .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.HEADER))
@@ -388,22 +384,20 @@ define([
 
         .then(testAtSettingsWithVerifiedMessage());
     }
-  });
+  }
+});
 
-  registerSuite({
-    name: 'try to re-use a link',
+registerSuite('try to re-use a link', {
+  beforeEach: function () {
+    this.timeout = TIMEOUT;
+    email = TestHelpers.createEmail();
 
-
-    beforeEach: function () {
-      this.timeout = TIMEOUT;
-      email = TestHelpers.createEmail();
-
-      return this.remote
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(initiateResetPassword(email, 0))
-          .then(clearBrowserState());
-    },
-
+    return this.remote
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(initiateResetPassword(email, 0))
+      .then(clearBrowserState());
+  },
+  tests: {
     'complete reset, then re-open verification link, click resend': function () {
       this.timeout = TIMEOUT;
 
@@ -423,19 +417,18 @@ define([
 
         .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER));
     }
-  });
+  }
+});
 
 
-  registerSuite({
-    name: 'reset_password with email specified on URL',
-
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(clearBrowserState());
-    },
-
+registerSuite('reset_password with email specified on URL', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
+    return this.remote
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(clearBrowserState());
+  },
+  tests: {
     'browse directly to page with email on query params': function () {
       const url = RESET_PAGE_URL + '?email=' + email;
       return this.remote
@@ -450,22 +443,21 @@ define([
 
         .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER));
     }
-  });
+  }
+});
 
 
-  registerSuite({
-    name: 'password change while at confirm_reset_password screen',
+registerSuite('password change while at confirm_reset_password screen', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
+    ensureFxaJSClient();
 
-      ensureFxaJSClient();
-
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(clearBrowserState());
-    },
-
+    return this.remote
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(clearBrowserState());
+  },
+  tests: {
     'original page transitions after completion': function () {
       return this.remote
         .then(fillOutResetPassword(email))
@@ -482,17 +474,16 @@ define([
 
         .then(testElementExists(selectors.SIGNIN.HEADER));
     }
-  });
+  }
+});
 
-  registerSuite({
-    name: 'reset_password with unknown email',
-
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-      return this.remote
-        .then(clearBrowserState());
-    },
-
+registerSuite('reset_password with unknown email', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
+    return this.remote
+      .then(clearBrowserState());
+  },
+  tests: {
     'open /reset_password page, enter unknown email, wait for error': function () {
       return this.remote
         .then(fillOutResetPassword(email))
@@ -505,5 +496,5 @@ define([
         // check the email address was written
         .then(testElementValueEquals(selectors.SIGNUP.EMAIL, email));
     }
-  });
+  }
 });

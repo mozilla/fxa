@@ -2,63 +2,59 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict';
+
 /**
  * Functional suite for the mob_ios_v1 broker. There are no "verify same browser" tests
  * because it's impossible to open the verification link in the app where the verification
  * was triggered.
  */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
-  'use strict';
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
 
-  const config = intern.config;
+const config = intern._config;
 
-  const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin?context=mob_ios_v1&service=sync`;
-  const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup?context=mob_ios_v1&service=sync`;
+const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin?context=mob_ios_v1&service=sync`;
+const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup?context=mob_ios_v1&service=sync`;
 
-  const COMMAND_CAN_LINK_ACCOUNT = 'fxaccounts:can_link_account';
-  const COMMAND_LOADED = 'fxaccounts:loaded';
-  const COMMAND_LOGIN = 'fxaccounts:login';
-  const COMMAND_VERIFIED = 'fxaccounts:verified';
+const COMMAND_CAN_LINK_ACCOUNT = 'fxaccounts:can_link_account';
+const COMMAND_LOADED = 'fxaccounts:loaded';
+const COMMAND_LOGIN = 'fxaccounts:login';
+const COMMAND_VERIFIED = 'fxaccounts:verified';
 
-  let email;
-  const PASSWORD = '12345678';
+let email;
+const PASSWORD = '12345678';
 
-  const createUser = FunctionalHelpers.createUser;
-  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  const noSuchElement = FunctionalHelpers.noSuchElement;
-  const noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
-  const openPage = FunctionalHelpers.openPage;
-  const openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  const testElementExists = FunctionalHelpers.testElementExists;
-  const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+const createUser = FunctionalHelpers.createUser;
+const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+const noSuchElement = FunctionalHelpers.noSuchElement;
+const noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
+const openPage = FunctionalHelpers.openPage;
+const openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
+const testElementExists = FunctionalHelpers.testElementExists;
+const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
-  registerSuite({
-    name: 'mob_ios_v1',
+registerSuite('mob_ios_v1', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail('sync{id}');
+    return this.remote
+      .then(FunctionalHelpers.clearBrowserState());
+  },
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail('sync{id}');
-      return this.remote
-        .then(FunctionalHelpers.clearBrowserState());
-    },
-
-    afterEach: function () {
-      return this.remote
-        .then(FunctionalHelpers.clearBrowserState());
-    },
-
+  afterEach: function () {
+    return this.remote
+      .then(FunctionalHelpers.clearBrowserState());
+  },
+  tests: {
     'signup, verify different browser': function () {
       return this.remote
         .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
           webChannelResponses: {
-            [COMMAND_CAN_LINK_ACCOUNT]: { ok: true }
+            [COMMAND_CAN_LINK_ACCOUNT]: {ok: true}
           }
         }))
         .then(noSuchElement(selectors.SIGNUP.CUSTOMIZE_SYNC_CHECKBOX))
@@ -79,10 +75,10 @@ define([
 
     'signin, verify different browser': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
           webChannelResponses: {
-            [COMMAND_CAN_LINK_ACCOUNT]: { ok: true }
+            [COMMAND_CAN_LINK_ACCOUNT]: {ok: true}
           }
         }))
         .then(testIsBrowserNotified(COMMAND_LOADED))
@@ -99,5 +95,5 @@ define([
         .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
         .then(testIsBrowserNotified(COMMAND_VERIFIED));
     }
-  });
+  }
 });

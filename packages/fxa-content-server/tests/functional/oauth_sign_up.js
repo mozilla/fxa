@@ -2,67 +2,65 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (registerSuite, TestHelpers,  FunctionalHelpers) {
-  var PASSWORD = 'password';
-  var email;
-  var bouncedEmail;
+'use strict';
 
-  const {
-    click,
-    clearBrowserState,
-    closeCurrentWindow,
-    createUser,
-    fillOutSignUp,
-    getFxaClient,
-    noEmailExpected,
-    noSuchElement,
-    testElementValueEquals,
-    openExternalSite,
-    openFxaFromRp,
-    openVerificationLinkInDifferentBrowser,
-    openVerificationLinkInNewTab,
-    openVerificationLinkInSameTab,
-    switchToWindow,
-    testElementExists,
-    testElementTextInclude,
-    testUrlInclude,
-    testUrlPathnameEquals,
-    thenify,
-    type,
-    visibleByQSA,
-  } = FunctionalHelpers;
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+var PASSWORD = 'password';
+var email;
+var bouncedEmail;
 
-  const signUpWithExistingAccount = thenify(function(email, firstPassword, secondPassword, options) {
-    return this.parent
-      .then(createUser(email, firstPassword, { preVerified: true }))
-      .then(function () {
-        return this.parent
-          .then(openFxaFromRp('signup'));
-      })
-      .then(fillOutSignUp(email, secondPassword, options));
-  });
+const {
+  click,
+  clearBrowserState,
+  closeCurrentWindow,
+  createUser,
+  fillOutSignUp,
+  getFxaClient,
+  noEmailExpected,
+  noSuchElement,
+  testElementValueEquals,
+  openExternalSite,
+  openFxaFromRp,
+  openVerificationLinkInDifferentBrowser,
+  openVerificationLinkInNewTab,
+  openVerificationLinkInSameTab,
+  switchToWindow,
+  testElementExists,
+  testElementTextInclude,
+  testUrlInclude,
+  testUrlPathnameEquals,
+  thenify,
+  type,
+  visibleByQSA,
+} = FunctionalHelpers;
 
-  registerSuite({
-    name: 'oauth signup',
+const signUpWithExistingAccount = thenify(function(email, firstPassword, secondPassword, options) {
+  return this.parent
+    .then(createUser(email, firstPassword, { preVerified: true }))
+    .then(function () {
+      return this.parent
+        .then(openFxaFromRp('signup'));
+    })
+    .then(fillOutSignUp(email, secondPassword, options));
+});
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-      bouncedEmail = TestHelpers.createEmail();
+registerSuite('oauth signup', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
+    bouncedEmail = TestHelpers.createEmail();
 
-      // clear localStorage to avoid polluting other tests.
-      // Without the clear, /signup tests fail because of the info stored
-      // in prefillEmail
-      return this.remote
-        .then(clearBrowserState({
-          '123done': true,
-          contentServer: true
-        }));
-    },
-
+    // clear localStorage to avoid polluting other tests.
+    // Without the clear, /signup tests fail because of the info stored
+    // in prefillEmail
+    return this.remote
+      .then(clearBrowserState({
+        '123done': true,
+        contentServer: true
+      }));
+  },
+  tests: {
     'signup, verify same browser': function () {
       return this.remote
         .then(openFxaFromRp('signup'))
@@ -177,7 +175,7 @@ define([
 
     'signup with existing account, coppa is empty': function () {
       return this.remote
-        .then(signUpWithExistingAccount(email, PASSWORD, PASSWORD, { age: ' ' }))
+        .then(signUpWithExistingAccount(email, PASSWORD, PASSWORD, {age: ' '}))
 
         // should have navigated to 123done
         .then(testElementExists('#loggedin'));
@@ -185,7 +183,7 @@ define([
 
     'signup with existing account, coppa is empty, credentials are wrong': function () {
       return this.remote
-        .then(signUpWithExistingAccount(email, PASSWORD, 'bad' + PASSWORD, { age: ' ' }))
+        .then(signUpWithExistingAccount(email, PASSWORD, 'bad' + PASSWORD, {age: ' '}))
 
         .then(visibleByQSA('.error'))
         .then(click('.error a[href^="/oauth/signin"]'))
@@ -200,7 +198,7 @@ define([
 
     'signup with existing account, coppa is too young': function () {
       return this.remote
-        .then(signUpWithExistingAccount(email, PASSWORD, PASSWORD, { age: 12 }))
+        .then(signUpWithExistingAccount(email, PASSWORD, PASSWORD, {age: 12}))
 
         // should have navigated to 123done
         .then(testElementExists('#loggedin'));
@@ -241,7 +239,5 @@ define([
 
         .then(testElementExists('#loggedin'));
     }
-
-  });
-
+  }
 });

@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  './functional/oauth_handshake',
-  './functional/amo_sign_up',
-  './functional/oauth_choose_redirect',
-  './functional/oauth_query_param_validation',
-  './functional/oauth_sign_in',
-  './functional/oauth_sign_up',
-  './functional/oauth_reset_password',
-  './functional/oauth_settings_clients',
-  './functional/oauth_force_auth',
-  './functional/oauth_permissions',
-  './functional/oauth_sync_sign_in'
-], function () {});
+module.exports = [
+  'tests/functional/oauth_handshake.js',
+  'tests/functional/amo_sign_up.js',
+  'tests/functional/oauth_choose_redirect.js',
+  'tests/functional/oauth_query_param_validation.js',
+  'tests/functional/oauth_sign_in.js',
+  'tests/functional/oauth_sign_up.js',
+  'tests/functional/oauth_reset_password.js',
+  'tests/functional/oauth_settings_clients.js',
+  'tests/functional/oauth_force_auth.js',
+  'tests/functional/oauth_permissions.js',
+  'tests/functional/oauth_sync_sign_in.js'
+];

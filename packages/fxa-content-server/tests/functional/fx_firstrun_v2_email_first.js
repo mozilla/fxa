@@ -2,51 +2,49 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
-  'use strict';
+'use strict';
 
-  const config = intern.config;
-  const PAGE_URL = `${config.fxaContentRoot}?context=fx_firstrun_v2&service=sync&automatedBrowser=true&action=email`;
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
 
-  let email;
-  const PASSWORD = '12345678';
+const config = intern._config;
+const PAGE_URL = `${config.fxaContentRoot}?context=fx_firstrun_v2&service=sync&automatedBrowser=true&action=email`;
 
-  const {
-    clearBrowserState,
-    click,
-    closeCurrentWindow,
-    createUser,
-    openPage,
-    openVerificationLinkInNewTab,
-    switchToWindow,
-    testElementExists,
-    testElementValueEquals,
-    testIsBrowserNotified,
-    type,
-    visibleByQSA,
-  } = FunctionalHelpers;
+let email;
+const PASSWORD = '12345678';
 
-  registerSuite({
-    name: 'Firstrun Sync v2 email first',
+const {
+  clearBrowserState,
+  click,
+  closeCurrentWindow,
+  createUser,
+  openPage,
+  openVerificationLinkInNewTab,
+  switchToWindow,
+  testElementExists,
+  testElementValueEquals,
+  testIsBrowserNotified,
+  type,
+  visibleByQSA,
+} = FunctionalHelpers;
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail('sync{id}');
+registerSuite('Firstrun Sync v2 email first', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail('sync{id}');
 
-      return this.remote
-        .then(clearBrowserState({ force: true }));
-    },
+    return this.remote
+      .then(clearBrowserState({ force: true }));
+  },
+
+  tests: {
 
     'signup': function () {
       return this.remote
         .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
           webChannelResponses: {
-            'fxaccounts:can_link_account': { ok: true }
+            'fxaccounts:can_link_account': {ok: true}
           }
         }))
         .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
@@ -64,18 +62,18 @@ define([
 
         .then(openVerificationLinkInNewTab(email, 0))
         .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow())
 
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
 
     'signin - merge cancelled': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
           webChannelResponses: {
-            'fxaccounts:can_link_account': { ok: false }
+            'fxaccounts:can_link_account': {ok: false}
           }
         }))
 
@@ -86,7 +84,7 @@ define([
         .then(testIsBrowserNotified('fxaccounts:can_link_account'));
     },
 
-    'signin verified': function () {
+    'signin verified ': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
@@ -107,18 +105,18 @@ define([
 
         .then(openVerificationLinkInNewTab(email, 0))
         .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow())
 
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
 
     'signin unverified': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: false }))
+        .then(createUser(email, PASSWORD, {preVerified: false}))
         .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
           webChannelResponses: {
-            'fxaccounts:can_link_account': { ok: true }
+            'fxaccounts:can_link_account': {ok: true}
           }
         }))
         .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
@@ -138,8 +136,8 @@ define([
         // Get the 2nd email, the 1st was sent for createUser
         .then(openVerificationLinkInNewTab(email, 1))
         .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow())
 
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
@@ -151,7 +149,7 @@ define([
             email
           },
           webChannelResponses: {
-            'fxaccounts:can_link_account': { ok: true }
+            'fxaccounts:can_link_account': {ok: true}
           }
         }))
         .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email));
@@ -159,16 +157,16 @@ define([
 
     'email specified by relier, registered': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(openPage(PAGE_URL, selectors.SIGNIN_PASSWORD.HEADER, {
           query: {
             email
           },
           webChannelResponses: {
-            'fxaccounts:can_link_account': { ok: true }
+            'fxaccounts:can_link_account': {ok: true}
           }
         }))
         .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email));
-    },
-  });
+    }
+  }
 });

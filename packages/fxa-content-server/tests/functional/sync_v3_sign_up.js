@@ -2,55 +2,51 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors',
-  'tests/functional/lib/ua-strings'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors, uaStrings) {
-  'use strict';
+'use strict';
 
-  const config = intern.config;
-  const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true`;
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+const uaStrings = require('./lib/ua-strings');
 
-  let email;
-  const PASSWORD = '12345678';
+const config = intern._config;
+const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true`;
 
-  const {
-    clearBrowserState,
-    click,
-    closeCurrentWindow,
-    fillOutSignUp,
-    getVerificationLink,
-    getWebChannelMessageData,
-    storeWebChannelMessageData,
-    noPageTransition,
-    noSuchElement,
-    noSuchBrowserNotification,
-    openPage,
-    openVerificationLinkInDifferentBrowser,
-    openVerificationLinkInNewTab,
-    switchToWindow,
-    testElementExists,
-    testEmailExpected,
-    testIsBrowserNotified,
-    visibleByQSA,
-  } = FunctionalHelpers;
+let email;
+const PASSWORD = '12345678';
 
-  registerSuite({
-    name: 'Firefox Desktop Sync v3 signup',
+const {
+  clearBrowserState,
+  click,
+  closeCurrentWindow,
+  fillOutSignUp,
+  getVerificationLink,
+  getWebChannelMessageData,
+  storeWebChannelMessageData,
+  noPageTransition,
+  noSuchElement,
+  noSuchBrowserNotification,
+  openPage,
+  openVerificationLinkInDifferentBrowser,
+  openVerificationLinkInNewTab,
+  switchToWindow,
+  testElementExists,
+  testEmailExpected,
+  testIsBrowserNotified,
+  visibleByQSA,
+} = FunctionalHelpers;
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-      return this.remote.then(clearBrowserState());
-    },
+registerSuite('Firefox Desktop Sync v3 signup', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
+    return this.remote.then(clearBrowserState());
+  },
 
-    afterEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
-
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
+  tests: {
     'Fx <= 57, verify at CWTS': function () {
       return this.remote
         .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
@@ -58,8 +54,8 @@ define([
             forceUA: uaStrings['desktop_firefox_57']
           },
           webChannelResponses: {
-            'fxaccounts:can_link_account': { ok: true },
-            'fxaccounts:fxa_status': { signedInUser: null },
+            'fxaccounts:can_link_account': {ok: true},
+            'fxaccounts:fxa_status': {signedInUser: null},
           }
         }))
         .then(visibleByQSA(selectors.SIGNUP.SUB_HEADER))
@@ -69,11 +65,11 @@ define([
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(openVerificationLinkInNewTab(email, 0))
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
-          // switch back to the original window, it should transition to CAD.
-          .then(closeCurrentWindow())
+        .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
+        // switch back to the original window, it should transition to CAD.
+        .then(closeCurrentWindow())
         // about:accounts takes over, so no screen transition
         .then(noPageTransition(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         // but the login message is sent automatically.
@@ -87,8 +83,8 @@ define([
             forceUA: uaStrings['desktop_firefox_58']
           },
           webChannelResponses: {
-            'fxaccounts:can_link_account': { ok: true },
-            'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
+            'fxaccounts:can_link_account': {ok: true},
+            'fxaccounts:fxa_status': {capabilities: null, signedInUser: null},
           }
         }))
         .then(visibleByQSA(selectors.SIGNUP.SUB_HEADER))
@@ -98,11 +94,11 @@ define([
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(openVerificationLinkInNewTab(email, 0))
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
-          // switch back to the original window, it should transition to CAD.
-          .then(closeCurrentWindow())
+        .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
+        // switch back to the original window, it should transition to CAD.
+        .then(closeCurrentWindow())
 
         // In Fx >= 58, about:accounts does not take over.
         // Expect a screen transition.
@@ -311,8 +307,8 @@ define([
             forceUA: uaStrings['desktop_firefox_57']
           },
           webChannelResponses: {
-            'fxaccounts:can_link_account': { ok: true },
-            'fxaccounts:fxa_status': { capabilities: null, signedInUser: null }
+            'fxaccounts:can_link_account': {ok: true},
+            'fxaccounts:fxa_status': {capabilities: null, signedInUser: null}
           }
         }))
         .then(fillOutSignUp(email, PASSWORD))
@@ -335,8 +331,8 @@ define([
             forceUA: uaStrings['desktop_firefox_58']
           },
           webChannelResponses: {
-            'fxaccounts:can_link_account': { ok: true },
-            'fxaccounts:fxa_status': { capabilities: null, signedInUser: null }
+            'fxaccounts:can_link_account': {ok: true},
+            'fxaccounts:fxa_status': {capabilities: null, signedInUser: null}
           }
         }))
         .then(fillOutSignUp(email, PASSWORD))
@@ -350,6 +346,6 @@ define([
 
         // about:accounts does not take over, expect a screen transition.
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
-    },
-  });
+    }
+  }
 });

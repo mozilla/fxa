@@ -1,47 +1,43 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+const { registerSuite } = intern.getInterface('object');
+const assert = intern.getPlugin('chai').assert;
+const config = require('../../../server/lib/configuration');
+const getFxAClientConfig = require('../../../server/lib/routes/get-fxa-client-configuration');
+const got = require('got');
+const sinon = require('sinon');
+var serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
-define([
-  'intern',
-  'intern!object',
-  'intern/chai!assert',
-  'intern/dojo/node!../../../server/lib/configuration',
-  'intern/dojo/node!../../../server/lib/routes/get-fxa-client-configuration',
-  'intern/dojo/node!got',
-  'intern/dojo/node!sinon'
-], function (intern, registerSuite, assert, config, getFxAClientConfig, got, sinon) {
-  var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
+var suite = {
+  tests: {}
+};
 
-  var suite = {
-    name: 'fxa-client-configuration'
-  };
+var mocks, route;
 
-  var mocks, route;
+suite.tests['get-fxa-client-configuration route function'] = {
 
-  suite['get-fxa-client-configuration route function'] = {
-
-    beforeEach: function () {
-      mocks = {
-        config: {
-          get: sinon.spy(function (name) {
-            return mocks.config[name];
-          })
-        },
-        request: null,
-        response: {
-          header: sinon.spy(),
-          json: sinon.spy()
-        }
-      };
-      /*eslint-disable camelcase*/
-      mocks.config.fxaccount_url = 'https://accounts.firefox.com';
-      mocks.config.oauth_url = 'https://oauth.accounts.firefox.com';
-      mocks.config.profile_url = 'https://profile.accounts.firefox.com';
-      mocks.config.sync_tokenserver_url = 'https://token.services.mozilla.org';
-      /*eslint-enable camelcase*/
-    },
-
+  beforeEach: function () {
+    mocks = {
+      config: {
+        get: sinon.spy(function (name) {
+          return mocks.config[name];
+        })
+      },
+      request: null,
+      response: {
+        header: sinon.spy(),
+        json: sinon.spy()
+      }
+    };
+    /*eslint-disable camelcase*/
+    mocks.config.fxaccount_url = 'https://accounts.firefox.com';
+    mocks.config.oauth_url = 'https://oauth.accounts.firefox.com';
+    mocks.config.profile_url = 'https://profile.accounts.firefox.com';
+    mocks.config.sync_tokenserver_url = 'https://token.services.mozilla.org';
+    /*eslint-enable camelcase*/
+  },
+  tests: {
     'module interface is correct': function () {
       assert.isFunction(getFxAClientConfig);
       assert.lengthOf(getFxAClientConfig, 1);
@@ -118,32 +114,34 @@ define([
       assert.equal(mocks.response.json.callCount, 1);
       assert.equal(mocks.response.header.callCount, 0);
     }
-  };
+  }
+};
 
-  suite['#get /.well-known/fxa-client-configuration - returns a JSON doc with expected values'] = function () {
-    var dfd = this.async(intern.config.asyncTimeout);
+suite.tests['#get /.well-known/fxa-client-configuration - returns a JSON doc with expected values'] = function () {
+  var dfd = this.async(intern._config.asyncTimeout);
 
-    got(serverUrl + '/.well-known/fxa-client-configuration', {})
-      .then(function (res) {
-        assert.equal(res.statusCode, 200);
-        assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
+  got(serverUrl + '/.well-known/fxa-client-configuration', {})
+    .then(function (res) {
+      assert.equal(res.statusCode, 200);
+      assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
 
-        var maxAge = config.get('fxa_client_configuration.max_age') / 1000;
-        assert.equal(res.headers['cache-control'], 'public, max-age=' + maxAge);
+      var maxAge = config.get('fxa_client_configuration.max_age') / 1000;
+      assert.equal(res.headers['cache-control'], 'public, max-age=' + maxAge);
 
-        var result = JSON.parse(res.body);
-        assert.equal(Object.keys(result).length, 4);
+      var result = JSON.parse(res.body);
+      assert.equal(Object.keys(result).length, 4);
 
-        var conf = intern.config;
-        var expectAuthRoot = conf.fxaAuthRoot;
-        expectAuthRoot = expectAuthRoot.replace(/\/v1$/, '');
+      var conf = intern._config;
+      var expectAuthRoot = conf.fxaAuthRoot;
+      expectAuthRoot = expectAuthRoot.replace(/\/v1$/, '');
 
-        assert.equal(result.auth_server_base_url, expectAuthRoot);
-        assert.equal(result.oauth_server_base_url, conf.fxaOAuthRoot);
-        assert.equal(result.profile_server_base_url, conf.fxaProfileRoot);
-        assert.equal(result.sync_tokenserver_base_url, conf.fxaTokenRoot);
-      }).then(dfd.resolve, dfd.reject);
-  };
+      assert.equal(result.auth_server_base_url, expectAuthRoot);
+      assert.equal(result.oauth_server_base_url, conf.fxaOAuthRoot);
+      assert.equal(result.profile_server_base_url, conf.fxaProfileRoot);
+      assert.equal(result.sync_tokenserver_base_url, conf.fxaTokenRoot);
+    }).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 
-  registerSuite(suite);
-});
+  return dfd;
+};
+
+registerSuite('fxa-client-configuration', suite);

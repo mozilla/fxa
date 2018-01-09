@@ -2,59 +2,56 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'app/scripts/lib/constants'
-], function (intern, registerSuite, TestHelpers,
-  FunctionalHelpers, Constants) {
-  var FX_DESKTOP_V2_CONTEXT = Constants.FX_DESKTOP_V2_CONTEXT;
+'use strict';
 
-  var config = intern.config;
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const requirejs = require('../rjs_load');
+const Constants = requirejs('app/scripts/lib/constants');
+var FX_DESKTOP_V2_CONTEXT = Constants.FX_DESKTOP_V2_CONTEXT;
 
-  // The automatedBrowser query param tells signin/up to stub parts of the flow
-  // that require a functioning desktop channel
-  var PAGE_SIGNIN = config.fxaContentRoot + 'signin';
-  var PAGE_SIGNIN_DESKTOP = PAGE_SIGNIN + '?context=' + FX_DESKTOP_V2_CONTEXT + '&service=sync&forceAboutAccounts=true';
-  var PAGE_SIGNIN_NO_CACHED_CREDS = PAGE_SIGNIN + '?email=blank';
-  var PAGE_SIGNUP = config.fxaContentRoot + 'signup';
-  var PAGE_SIGNUP_DESKTOP = config.fxaContentRoot + 'signup?context=' + FX_DESKTOP_V2_CONTEXT + '&service=sync';
+var config = intern._config;
 
-  var PASSWORD = 'password';
-  var email;
-  var email2;
+// The automatedBrowser query param tells signin/up to stub parts of the flow
+// that require a functioning desktop channel
+var PAGE_SIGNIN = config.fxaContentRoot + 'signin';
+var PAGE_SIGNIN_DESKTOP = PAGE_SIGNIN + '?context=' + FX_DESKTOP_V2_CONTEXT + '&service=sync&forceAboutAccounts=true';
+var PAGE_SIGNIN_NO_CACHED_CREDS = PAGE_SIGNIN + '?email=blank';
+var PAGE_SIGNUP = config.fxaContentRoot + 'signup';
+var PAGE_SIGNUP_DESKTOP = config.fxaContentRoot + 'signup?context=' + FX_DESKTOP_V2_CONTEXT + '&service=sync';
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var clearSessionStorage = FunctionalHelpers.clearSessionStorage;
-  var click = FunctionalHelpers.click;
-  var createUser = FunctionalHelpers.createUser;
-  var denormalizeStoredEmail = FunctionalHelpers.denormalizeStoredEmail;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
-  var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
-  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
-  var type = FunctionalHelpers.type;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+var PASSWORD = 'password';
+var email;
+var email2;
 
-  registerSuite({
-    name: 'sign_in cached',
+var clearBrowserState = FunctionalHelpers.clearBrowserState;
+var clearSessionStorage = FunctionalHelpers.clearSessionStorage;
+var click = FunctionalHelpers.click;
+var createUser = FunctionalHelpers.createUser;
+var denormalizeStoredEmail = FunctionalHelpers.denormalizeStoredEmail;
+var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+var openPage = FunctionalHelpers.openPage;
+var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
+var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+var testElementExists = FunctionalHelpers.testElementExists;
+var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
+var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+var type = FunctionalHelpers.type;
+var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail('sync{id}');
-      email2 = TestHelpers.createEmail();
-      return this.remote
-        .then(clearBrowserState({ force: true }))
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(createUser(email2, PASSWORD, { preVerified: true }));
-    },
-
+registerSuite('sign_in cached', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail('sync{id}');
+    email2 = TestHelpers.createEmail();
+    return this.remote
+      .then(clearBrowserState({ force: true }))
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(createUser(email2, PASSWORD, { preVerified: true }));
+  },
+  tests: {
     'sign in twice, on second attempt email will be cached': function () {
       return this.remote
         .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
@@ -104,7 +101,7 @@ define([
     'sign in first in sync context, on second attempt credentials will be cached': function () {
       return this.remote
         .then(openPage(PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', {ok: true}))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists('#fxa-confirm-signin-header'))
@@ -148,7 +145,7 @@ define([
     'sign in with cached credentials but with an expired session': function () {
       return this.remote
         .then(openPage(PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', {ok: true}))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists('#fxa-confirm-signin-header'))
         .then(testIsBrowserNotified('fxaccounts:login'))
@@ -177,7 +174,7 @@ define([
       var email = TestHelpers.createEmail();
       return this.remote
         .then(openPage(PAGE_SIGNUP_DESKTOP, '#fxa-signup-header'))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', {ok: true}))
         .then(fillOutSignUp(email, PASSWORD))
 
         .then(testElementExists('#fxa-choose-what-to-sync-header'))
@@ -214,7 +211,7 @@ define([
     'sign in on desktop then sign in with prefill does not show picker': function () {
       return this.remote
         .then(openPage(PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', {ok: true}))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists('#fxa-confirm-signin-header'))
         .then(testIsBrowserNotified('fxaccounts:login'))
@@ -240,7 +237,7 @@ define([
     'sign in with desktop context then no context, desktop credentials should not persist': function () {
       return this.remote
         .then(openPage(PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', {ok: true}))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists('#fxa-confirm-signin-header'))
         .then(testIsBrowserNotified('fxaccounts:login'))
@@ -285,5 +282,5 @@ define([
 
         .then(testElementExists('#fxa-settings-header'));
     }
-  });
+  }
 });

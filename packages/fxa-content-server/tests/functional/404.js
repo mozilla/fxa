@@ -2,28 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'require'
-], function (intern, registerSuite, require) {
-  var url = intern.config.fxaContentRoot + 'four-oh-four';
+'use strict';
 
-  registerSuite({
-    name: '404',
+const { registerSuite } = intern.getInterface('object');
 
-    'visit an invalid page': function () {
+registerSuite('404', {
+  'visit an invalid page': function () {
+    var url = intern._config.fxaContentRoot + '/four-oh-four';
 
-      return this.remote
-        .get(require.toUrl(url))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .findById('fxa-404-home')
-          .click()
-        .end()
+    return this.remote
+      .get(url)
+      .setFindTimeout(intern._config.pageLoadTimeout)
+      .findById('fxa-404-home')
+      .click()
+      .end()
 
-        // success is going to the signup screen
-        .findById('fxa-signup-header')
-        .end();
-    }
-  });
+      // success is going to the signup screen
+      .findById('fxa-signup-header')
+      .end();
+  }
 });

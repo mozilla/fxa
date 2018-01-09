@@ -2,64 +2,60 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'intern/chai!assert',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors'
-], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers, selectors) {
-  'use strict';
+'use strict';
 
-  const config = intern.config;
+const { registerSuite } = intern.getInterface('object');
+const assert = intern.getPlugin('chai').assert;
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
 
-  const TIMEOUT = 90 * 1000;
+const config = intern._config;
 
-  const TRUSTED_OAUTH_APP = config.fxaOauthApp;
-  const UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
-  const PASSWORD = 'password';
+const TIMEOUT = 90 * 1000;
 
-  let email;
+const TRUSTED_OAUTH_APP = config.fxaOAuthApp;
+const UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
+const PASSWORD = 'password';
 
-  const {
-    click,
-    closeCurrentWindow,
-    createUser,
-    fillOutForceAuth,
-    fillOutSignIn,
-    fillOutSignUp,
-    noSuchElement,
-    openFxaFromRp: openFxaFromTrustedRp,
-    openFxaFromUntrustedRp,
-    openSettingsInNewTab,
-    openVerificationLinkInNewTab,
-    openVerificationLinkInSameTab,
-    switchToWindow,
-    testElementExists,
-    testElementTextInclude,
-    testUrlEquals,
-    type,
-    visibleByQSA,
-  } = FunctionalHelpers;
+let email;
 
-  registerSuite({
-    name: 'oauth permissions for untrusted reliers',
+const {
+  click,
+  closeCurrentWindow,
+  createUser,
+  fillOutForceAuth,
+  fillOutSignIn,
+  fillOutSignUp,
+  noSuchElement,
+  openFxaFromRp: openFxaFromTrustedRp,
+  openFxaFromUntrustedRp,
+  openSettingsInNewTab,
+  openVerificationLinkInNewTab,
+  openVerificationLinkInSameTab,
+  switchToWindow,
+  testElementExists,
+  testElementTextInclude,
+  testUrlEquals,
+  type,
+  visibleByQSA,
+} = FunctionalHelpers;
 
-    beforeEach: function () {
-      this.timeout = TIMEOUT;
-      email = TestHelpers.createEmail();
+registerSuite('oauth permissions for untrusted reliers', {
+  beforeEach: function () {
+    this.timeout = TIMEOUT;
+    email = TestHelpers.createEmail();
 
-      return this.remote
-        .then(FunctionalHelpers.clearBrowserState({
-          '321done': true,
-          contentServer: true
-        }));
-    },
-
+    return this.remote
+      .then(FunctionalHelpers.clearBrowserState({
+        '321done': true,
+        contentServer: true
+      }));
+  },
+  tests: {
     'signin verified': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(openFxaFromUntrustedRp('signin'))
         .then(fillOutSignIn(email, PASSWORD))
 
@@ -72,7 +68,7 @@ define([
 
     're-signin verified, no additional permissions': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(openFxaFromUntrustedRp('signin'))
         .then(fillOutSignIn(email, PASSWORD))
 
@@ -98,7 +94,7 @@ define([
 
     'signin unverified, acts like signup': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: false }))
+        .then(createUser(email, PASSWORD, {preVerified: false}))
         .then(openFxaFromUntrustedRp('signin'))
         .then(fillOutSignIn(email, PASSWORD))
 
@@ -118,11 +114,11 @@ define([
         .then(openFxaFromUntrustedRp('signup'))
         .then(testElementExists(selectors.SIGNUP.SUB_HEADER))
         .getCurrentUrl()
-          .then(function (url) {
-            assert.ok(url.indexOf('client_id=') > -1);
-            assert.ok(url.indexOf('redirect_uri=') > -1);
-            assert.ok(url.indexOf('state=') > -1);
-          })
+        .then(function (url) {
+          assert.ok(url.indexOf('client_id=') > -1);
+          assert.ok(url.indexOf('redirect_uri=') > -1);
+          assert.ok(url.indexOf('state=') > -1);
+        })
         .end()
 
         .then(fillOutSignUp(email, PASSWORD))
@@ -132,16 +128,16 @@ define([
 
         .then(openVerificationLinkInNewTab(email, 0))
         .then(switchToWindow(1))
-          // wait for the verified window in the new tab
-          .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
-          .sleep(5000)
+        // wait for the verified window in the new tab
+        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
+        .sleep(5000)
 
-          // user sees the name of the RP,
-          // but cannot redirect
-          .then(testElementTextInclude(selectors.SIGNUP_COMPLETE.SERVICE_NAME, '321done Untrusted'))
+        // user sees the name of the RP,
+        // but cannot redirect
+        .then(testElementTextInclude(selectors.SIGNUP_COMPLETE.SERVICE_NAME, '321done Untrusted'))
 
-          // switch to the original window
-          .then(closeCurrentWindow())
+        // switch to the original window
+        .then(closeCurrentWindow())
 
         .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
     },
@@ -156,16 +152,16 @@ define([
 
         .then(openVerificationLinkInNewTab(email, 0))
         .then(switchToWindow(1))
-          // wait for the verified window in the new tab
-          .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
+        // wait for the verified window in the new tab
+        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
 
-          .sleep(5000)
-          // user sees the name of the RP,
-          // but cannot redirect
-          .then(testElementTextInclude(selectors.SIGNUP_COMPLETE.SERVICE_NAME, '321done Untrusted'))
+        .sleep(5000)
+        // user sees the name of the RP,
+        // but cannot redirect
+        .then(testElementTextInclude(selectors.SIGNUP_COMPLETE.SERVICE_NAME, '321done Untrusted'))
 
-          // switch to the original window
-          .then(closeCurrentWindow())
+        // switch to the original window
+        .then(closeCurrentWindow())
 
         .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
         .then(click(selectors['123DONE'].LINK_LOGOUT))
@@ -184,7 +180,7 @@ define([
     'signin from signup page': function () {
       return this.remote
         .then(openFxaFromUntrustedRp('signup'))
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
 
         .then(type(selectors.SIGNUP.EMAIL, email))
         .then(type(selectors.SIGNUP.PASSWORD, PASSWORD))
@@ -198,7 +194,7 @@ define([
 
     'signin with new permission available b/c of new account information': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(openFxaFromUntrustedRp('signin'))
         .then(fillOutSignIn(email, PASSWORD))
 
@@ -214,10 +210,10 @@ define([
         .then(openSettingsInNewTab())
         .then(switchToWindow(1))
 
-          .then(click(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON, selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME))
-          .then(type(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, 'test user'))
-          .then(click(selectors.SETTINGS_DISPLAY_NAME.SUBMIT))
-          .then(visibleByQSA(selectors.SETTINGS.SUCCESS))
+        .then(click(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON, selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME))
+        .then(type(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, 'test user'))
+        .then(click(selectors.SETTINGS_DISPLAY_NAME.SUBMIT))
+        .then(visibleByQSA(selectors.SETTINGS.SUCCESS))
 
         .then(closeCurrentWindow())
 
@@ -233,7 +229,7 @@ define([
 
     'signin with additional requested permission': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(fillOutSignIn(email, PASSWORD))
 
         // make display_name available from the start
@@ -243,9 +239,11 @@ define([
         .then(visibleByQSA(selectors.SETTINGS.SUCCESS))
 
         // the first time through, only request email and uid
-        .then(openFxaFromUntrustedRp('signin', { query: {
-          scope: 'profile:email profile:uid'
-        }}))
+        .then(openFxaFromUntrustedRp('signin', {
+          query: {
+            scope: 'profile:email profile:uid'
+          }
+        }))
 
         .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
         .then(click(selectors.SIGNIN.SUBMIT))
@@ -272,7 +270,7 @@ define([
 
     'signin after de-selecting a requested permission': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(fillOutSignIn(email, PASSWORD))
 
         // make display_name available from the start
@@ -300,21 +298,21 @@ define([
         .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
         .then(click(selectors.SIGNIN.SUBMIT, selectors['123DONE'].AUTHENTICATED));
     }
-  });
+  }
+});
 
-  registerSuite({
-    name: 'oauth permissions for trusted reliers',
+registerSuite('oauth permissions for trusted reliers', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
+    return this.remote
+      .then(FunctionalHelpers.clearBrowserState({
+        '123done': true,
+        contentServer: true
+      }));
+  },
 
-      return this.remote
-        .then(FunctionalHelpers.clearBrowserState({
-          '123done': true,
-          contentServer: true
-        }));
-    },
-
+  tests: {
     'signup without `prompt=consent`': function () {
       return this.remote
         .then(openFxaFromTrustedRp('signup'))
@@ -326,7 +324,7 @@ define([
 
     'signup with `prompt=consent`': function () {
       return this.remote
-        .then(openFxaFromTrustedRp('signup', { query: { prompt: 'consent' }}))
+        .then(openFxaFromTrustedRp('signup', {query: {prompt: 'consent'}}))
         .then(fillOutSignUp(email, PASSWORD))
 
         // permissions are asked for with `prompt=consent`
@@ -339,7 +337,7 @@ define([
     'signin without `prompt=consent`': function () {
       return this.remote
         .then(openFxaFromTrustedRp('signin'))
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(fillOutSignIn(email, PASSWORD))
 
         // no permissions asked for, straight to relier
@@ -348,8 +346,8 @@ define([
 
     'signin with `prompt=consent`': function () {
       return this.remote
-        .then(openFxaFromTrustedRp('signin', { query: { prompt: 'consent' }}))
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openFxaFromTrustedRp('signin', {query: {prompt: 'consent'}}))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(fillOutSignIn(email, PASSWORD))
 
         // permissions are asked for with `prompt=consent`
@@ -361,7 +359,7 @@ define([
 
     'signin without `prompt=consent`, then re-signin with `prompt=consent`': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(openFxaFromTrustedRp('signin'))
         .then(fillOutSignIn(email, PASSWORD))
 
@@ -375,7 +373,7 @@ define([
         .then(visibleByQSA('#splash .signup'))
 
         // relier changes to request consent
-        .then(openFxaFromTrustedRp('signin', { query: { prompt: 'consent' }}))
+        .then(openFxaFromTrustedRp('signin', {query: {prompt: 'consent'}}))
 
         .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
         .then(click(selectors.SIGNIN.SUBMIT))
@@ -387,11 +385,10 @@ define([
         .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
     },
 
-
     'force_auth without `prompt=consent`': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openFxaFromTrustedRp('force_auth', { query: { email: email }}))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
+        .then(openFxaFromTrustedRp('force_auth', {query: {email: email}}))
         .then(fillOutForceAuth(PASSWORD))
 
         // no permissions asked for, straight to relier
@@ -400,11 +397,13 @@ define([
 
     'force_auth with `prompt=consent`': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openFxaFromTrustedRp('force_auth', { query: {
-          email: email,
-          prompt: 'consent'
-        }}))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
+        .then(openFxaFromTrustedRp('force_auth', {
+          query: {
+            email: email,
+            prompt: 'consent'
+          }
+        }))
         .then(fillOutForceAuth(PASSWORD))
 
         // permissions are asked for with `prompt=consent`
@@ -413,5 +412,5 @@ define([
 
         .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
     }
-  });
+  }
 });

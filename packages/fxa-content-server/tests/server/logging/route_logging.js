@@ -1,70 +1,66 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+const { registerSuite } = intern.getInterface('object');
+const assert = intern.getPlugin('chai').assert;
+const path = require('path');
+const proxyquire = require('proxyquire');
+const sinon = require('sinon');
 
-define([
-  'intern!object',
-  'intern/chai!assert',
-  'intern/dojo/node!path',
-  'intern/dojo/node!proxyquire',
-  'intern/dojo/node!sinon'
-], function (registerSuite, assert, path, proxyquire, sinon) {
+var routeLogging;
+var loggerSpy;
+var configSpy;
+var morganSpy;
 
-  var routeLogging;
-  var loggerSpy;
-  var configSpy;
-  var morganSpy;
+const tokens = {
+  method: () => 'GET',
+  res: () => '1995',
+  status: () => '200',
+  url: () => 'www.mozilla.com',
+  'response-time': () => '1337',
+};
 
-  const tokens = {
-    method: () => 'GET',
-    res: () => '1995',
-    status: () => '200',
-    url: () => 'www.mozilla.com',
-    'response-time': () => '1337',
-  };
+const req = {
+  headers: {
+    referer: 'testReferer',
+    'user-agent': 'testAgent',
+    'x-forwarded-for': '0.0.0.0, 1.1.1.1, 2.2.2.2'
+  },
+  ip: '127.0.0.1'
+};
 
-  const req = {
-    headers: {
-      referer: 'testReferer',
-      'user-agent': 'testAgent',
-      'x-forwarded-for': '0.0.0.0, 1.1.1.1, 2.2.2.2'
-    },
-    ip: '127.0.0.1'
-  };
-
-  function requireTestFile() {
-    routeLogging = proxyquire(
-      path.join(process.cwd(), 'server', 'lib', 'logging', 'route_logging'),
-      {
-        '../configuration': {
-          getProperties: configSpy
-        },
-        '../remote-address': proxyquire(path.resolve('server/lib/remote-address'), {
-          './configuration': {
-            get () {
-              return 1;
-            }
+function requireTestFile() {
+  routeLogging = proxyquire(
+    path.join(process.cwd(), 'server', 'lib', 'logging', 'route_logging'),
+    {
+      '../configuration': {
+        getProperties: configSpy
+      },
+      '../remote-address': proxyquire(path.resolve('server/lib/remote-address'), {
+        './configuration': {
+          get () {
+            return 1;
           }
-        }),
-        './log': function() {
-          return {
-            info: loggerSpy
-          };
-        },
-        'morgan': morganSpy
-      }
-    );
-  }
+        }
+      }),
+      './log': function() {
+        return {
+          info: loggerSpy
+        };
+      },
+      'morgan': morganSpy
+    }
+  );
+}
 
-  var suite = {
-    name: 'routeLogging',
-    beforeEach: () => {
-      loggerSpy = sinon.stub();
-      configSpy = sinon.stub();
-      morganSpy = sinon.stub();
-    },
-
-    'it logs a string if log format is dev_fxa' () {
+var suite = {
+  beforeEach: () => {
+    loggerSpy = sinon.stub();
+    configSpy = sinon.stub();
+    morganSpy = sinon.stub();
+  },
+  tests: {
+    'it logs a string if log format is dev_fxa'() {
       configSpy.returns({
         'disable_route_logging': false,
         'route_log_format': 'dev_fxa'
@@ -82,7 +78,7 @@ define([
       assert.equal(loggerSpy.getCall(0).args[1], 'spaceToTrim');
     },
 
-    'it logs a json blob if log format is not dev_fxa' () {
+    'it logs a json blob if log format is not dev_fxa'() {
       configSpy.returns({
         'disable_route_logging': false,
         'route_log_format': 'default_fxa'
@@ -100,7 +96,7 @@ define([
           method: 'GET',
           path: 'www.mozilla.com',
           referer: 'testReferer',
-          remoteAddressChain: ['0.0.0.0','1.1.1.1','2.2.2.2','127.0.0.1'],
+          remoteAddressChain: ['0.0.0.0', '1.1.1.1', '2.2.2.2', '127.0.0.1'],
           status: '200',
           t: '1337',
           'userAgent': 'testAgent'
@@ -111,8 +107,8 @@ define([
       assert.equal(loggerSpy.getCall(0).args[0], 'route');
       assert.deepEqual(loggerSpy.getCall(0).args[1], {p: 5});
     }
-  };
+  }
+};
 
 
-  registerSuite(suite);
-});
+registerSuite('routeLogging', suite);

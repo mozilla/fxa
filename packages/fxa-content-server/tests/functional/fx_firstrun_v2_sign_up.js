@@ -2,118 +2,115 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors',
-  'tests/functional/lib/ua-strings'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors, UA_STRINGS) {
-  const config = intern.config;
-  const PAGE_URL = config.fxaContentRoot + 'signup?context=fx_firstrun_v2&service=sync';
+'use strict';
 
-  var email;
-  const PASSWORD = '12345678';
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+const UA_STRINGS = require('./lib/ua-strings');
+const config = intern._config;
+const PAGE_URL = config.fxaContentRoot + 'signup?context=fx_firstrun_v2&service=sync';
 
-  const {
-    clearBrowserState,
-    click,
-    closeCurrentWindow,
-    fillOutSignUp,
-    noSuchElement,
-    openPage,
-    openVerificationLinkInDifferentBrowser,
-    openVerificationLinkInNewTab,
-    openVerificationLinkInSameTab,
-    respondToWebChannelMessage,
-    switchToWindow,
-    testAttributeEquals,
-    testElementExists,
-    testElementTextInclude,
-    testEmailExpected,
-    testIsBrowserNotified,
-    thenify,
-    visibleByQSA,
-  } = FunctionalHelpers;
+var email;
+const PASSWORD = '12345678';
 
-  const setupTest = thenify(function (options) {
-    return this.parent
-      .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER, options))
-      .then(visibleByQSA(selectors.SIGNUP.SUB_HEADER))
-      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+const {
+  clearBrowserState,
+  click,
+  closeCurrentWindow,
+  fillOutSignUp,
+  noSuchElement,
+  openPage,
+  openVerificationLinkInDifferentBrowser,
+  openVerificationLinkInNewTab,
+  openVerificationLinkInSameTab,
+  respondToWebChannelMessage,
+  switchToWindow,
+  testAttributeEquals,
+  testElementExists,
+  testElementTextInclude,
+  testEmailExpected,
+  testIsBrowserNotified,
+  thenify,
+  visibleByQSA,
+} = FunctionalHelpers;
 
-      .then(fillOutSignUp(email, PASSWORD))
+const setupTest = thenify(function (options) {
+  return this.parent
+    .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER, options))
+    .then(visibleByQSA(selectors.SIGNUP.SUB_HEADER))
+    .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
 
-      .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
-      .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+    .then(fillOutSignUp(email, PASSWORD))
 
-      // uncheck the passwords and history engines
-      .then(click(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_HISTORY))
-      .then(click(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_PASSWORDS))
-      .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
+    .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+    .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
-      // user should be transitioned to the "go confirm your address" page
-      .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-      // the login message is only sent after the sync preferences screen
-      // has been cleared.
-      .then(testIsBrowserNotified('fxaccounts:login'));
-  });
+    // uncheck the passwords and history engines
+    .then(click(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_HISTORY))
+    .then(click(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_PASSWORDS))
+    .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
-  const verifyMobileTest = thenify(function (verificationUaString) {
-    const query = {
-      country: 'US',
-      forceExperiment: 'sendSms',
-      forceExperimentGroup: 'treatment'
-    };
+    // user should be transitioned to the "go confirm your address" page
+    .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+    // the login message is only sent after the sync preferences screen
+    // has been cleared.
+    .then(testIsBrowserNotified('fxaccounts:login'));
+});
 
-    const signupOptions = { query };
+const verifyMobileTest = thenify(function (verificationUaString) {
+  const query = {
+    country: 'US',
+    forceExperiment: 'sendSms',
+    forceExperimentGroup: 'treatment'
+  };
 
-    const verificationQuery = Object.create(query);
-    verificationQuery.forceUA = verificationUaString;
-    const verificationOptions = {
-      query: verificationQuery
-    };
+  const signupOptions = { query };
 
-    return this.parent
-      .then(setupTest(signupOptions))
-      // These all synthesize the user verifying on a mobile device
-      // instead of on the same device. Clear browser state.
-      .then(clearBrowserState())
+  const verificationQuery = Object.create(query);
+  verificationQuery.forceUA = verificationUaString;
+  const verificationOptions = {
+    query: verificationQuery
+  };
 
-      // verify the user
-      .then(openVerificationLinkInNewTab(email, 0, verificationOptions))
-      .then(switchToWindow(1))
+  return this.parent
+    .then(setupTest(signupOptions))
+    // These all synthesize the user verifying on a mobile device
+    // instead of on the same device. Clear browser state.
+    .then(clearBrowserState())
 
-      // mobile users are ineligible to send an SMS, they should be redirected
-      // to the "connect another device" screen
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+    // verify the user
+    .then(openVerificationLinkInNewTab(email, 0, verificationOptions))
+    .then(switchToWindow(1))
 
-      // switch back to the original window, user should be
-      // able to send an SMS.
-      .then(closeCurrentWindow())
-      .then(testElementExists(selectors.SMS_SEND.HEADER));
-  });
+    // mobile users are ineligible to send an SMS, they should be redirected
+    // to the "connect another device" screen
+    .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
 
-  registerSuite({
-    name: 'Firstrun Sync v2 signup',
+    // switch back to the original window, user should be
+    // able to send an SMS.
+    .then(closeCurrentWindow())
+    .then(testElementExists(selectors.SMS_SEND.HEADER));
+});
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-      return this.remote
-        .then(clearBrowserState());
-    },
+registerSuite('Firstrun Sync v2 signup', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
+    return this.remote
+      .then(clearBrowserState());
+  },
 
-    afterEach: function () {
-      return this.remote
-        .then(clearBrowserState());
-    },
-
+  afterEach: function () {
+    return this.remote
+      .then(clearBrowserState());
+  },
+  tests: {
     'verify at CWTS': function () {
       return this.remote
         .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER, {
           webChannelResponses: {
-            'fxaccounts:can_link_account': { ok: true }
+            'fxaccounts:can_link_account': {ok: true}
           }
         }))
         .then(visibleByQSA(selectors.SIGNUP.SUB_HEADER))
@@ -123,11 +120,11 @@ define([
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(openVerificationLinkInNewTab(email, 0))
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
-          // switch back to the original window, it should transition to CAD.
-          .then(closeCurrentWindow())
+        .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
+        // switch back to the original window, it should transition to CAD.
+        .then(closeCurrentWindow())
 
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         // the login message is sent automatically.
@@ -162,7 +159,7 @@ define([
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
 
         // clear browser state to synthesize opening in a different browser
-        .then(clearBrowserState({ force: true }))
+        .then(clearBrowserState({force: true}))
         // verify the user in a different browser, they should see the
         // "connect another device" screen.
         .then(openVerificationLinkInSameTab(email, 0))
@@ -170,7 +167,7 @@ define([
     },
 
     'verify different browser, force SMS': function () {
-      const options =  {
+      const options = {
         query: {
           forceExperiment: 'sendSms',
           forceExperimentGroup: 'treatment'
@@ -186,7 +183,7 @@ define([
         .then(testElementExists(selectors.SMS_SEND.HEADER))
 
         // clear browser state to synthesize opening in a different browser
-        .then(clearBrowserState({ force: true }))
+        .then(clearBrowserState({force: true}))
         // verify the user in a different browser, they should see the
         // "connect another device" screen.
         .then(openVerificationLinkInSameTab(email, 0, options))
@@ -194,7 +191,7 @@ define([
     },
 
     'verify same browser, force SMS, force supported country': function () {
-      const options =  {
+      const options = {
         query: {
           country: 'CA',
           forceExperiment: 'sendSms',
@@ -272,6 +269,6 @@ define([
     'verify Safari on iOS, force SMS sends to connect_another_device': function () {
       return this.remote
         .then(verifyMobileTest(UA_STRINGS['ios_safari']));
-    },
-  });
+    }
+  }
 });

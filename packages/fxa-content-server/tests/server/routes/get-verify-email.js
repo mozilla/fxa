@@ -4,58 +4,51 @@
 
 'use strict';
 
-define([
-  'intern',
-  'intern!object',
-  'intern/chai!assert',
-  'intern/dojo/node!../../../server/lib/configuration',
-  'intern/dojo/Promise',
-  'intern/dojo/node!got',
-  'intern/dojo/node!fs',
-  'intern/dojo/node!path',
-  'intern/dojo/node!proxyquire',
-  'intern/dojo/node!sinon',
-], function (intern, registerSuite, assert, config, dojoPromise, got, fs, path, proxyquire, sinon) {
+const { registerSuite } = intern.getInterface('object');
+const assert = intern.getPlugin('chai').assert;
+const path = require('path');
+const proxyquire = require('proxyquire').noPreserveCache();
+const sinon = require('sinon');
 
-  function mockModule(mocks) {
-    return proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'get-verify-email'), mocks)();
-  }
+function mockModule(mocks) {
+  return proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'get-verify-email'), mocks)();
+}
 
-  let logger;
-  let mocks;
-  let ravenMock;
-  let gotMock;
-  const res = {
-    json: () => {}
-  };
+let logger;
+let mocks;
+let ravenMock;
+let gotMock;
+let res;
 
-  registerSuite({
-    name: 'verify_email',
-
-    beforeEach() {
-      gotMock = {
-        post: sinon.spy()
-      };
-      logger = {
-        error: sinon.spy()
-      };
-      ravenMock = {
-        ravenMiddleware: {
-          captureError: sinon.spy(),
-          captureMessage: sinon.spy()
-        }
-      };
-      mocks = {
-        '../../lib/raven': ravenMock,
-        'got': gotMock,
-        mozlog: () => {
-          return logger;
-        },
-      };
-    },
-
-    'logs error without query params' () {
-      const dfd = new dojoPromise.Deferred();
+registerSuite('verify_email', {
+  beforeEach() {
+    gotMock = {
+      post: sinon.spy()
+    };
+    logger = {
+      error: sinon.spy()
+    };
+    ravenMock = {
+      ravenMiddleware: {
+        captureError: sinon.spy(),
+        captureMessage: sinon.spy()
+      }
+    };
+    mocks = {
+      '../../lib/raven': ravenMock,
+      '../logging/log': () => {
+        return logger;
+      },
+      'got': gotMock
+    };
+    res = {
+      json: () => {},
+      redirect: (url) => url
+    };
+  },
+  tests: {
+    'logs error without query params': function () {
+      const dfd = this.async(10000);
       const req = {
         query: {
           code: '',
@@ -73,13 +66,13 @@ define([
         dfd.resolve();
       });
 
-      return dfd.dojoPromise;
+      return dfd;
     },
 
-    'no logs if successful' () {
-      const dfd = new dojoPromise.Deferred();
+    'no errors logged if successful, only Sentry messages': function () {
+      const dfd = this.async(10000);
       mocks.got = {
-        post: (req, res, next) =>  {
+        post: (req, res, next) => {
           return new Promise((resolve, reject) => {
             resolve({
               'statusCode': 200,
@@ -97,26 +90,30 @@ define([
         url: '/verify_email'
       };
 
-      mockModule(mocks).process(req, res, () => {
+      res.redirect = () => {
         assert.equal(logger.error.callCount, 0);
         assert.equal(ravenMock.ravenMiddleware.captureMessage.callCount, 0);
         assert.equal(ravenMock.ravenMiddleware.captureError.callCount, 0);
 
-        req.query.something = 'else';
-
-        mockModule(mocks).process(req, res, () => {
+        res.redirect = () => {
+          // calling with `req.query.something` captures a message to Sentry
           assert.equal(logger.error.callCount, 0);
-          assert.equal(ravenMock.ravenMiddleware.captureMessage.callCount, 0);
+          assert.equal(ravenMock.ravenMiddleware.captureMessage.callCount, 1);
           assert.equal(ravenMock.ravenMiddleware.captureError.callCount, 0);
           dfd.resolve();
-        });
-      });
+        };
+        req.query.something = 'else';
+        mockModule(mocks).process(req, res);
+      };
 
-      return dfd.dojoPromise;
+      mockModule(mocks).process(req, res);
+
+
+      return dfd;
     },
 
-    'logs errors when post fails' () {
-      const dfd = new dojoPromise.Deferred();
+    'logs errors when post fails': function () {
+      const dfd = this.async(10000);
       mocks.got = {
         post: (req, res, next) => {
           return new Promise((resolve, reject) => {
@@ -142,7 +139,7 @@ define([
       };
 
       mockModule(mocks).process(req, res, () => {
-        assert.equal(logger.error.callCount, 1);
+        assert.equal(logger.error.callCount, 1, 'calls error on bad request');
         assert.equal(ravenMock.ravenMiddleware.captureMessage.callCount, 0);
         assert.equal(ravenMock.ravenMiddleware.captureError.callCount, 1);
         const result = ravenMock.ravenMiddleware.captureError.args[0][0];
@@ -152,10 +149,10 @@ define([
         dfd.resolve();
       });
 
-      return dfd.dojoPromise;
+      return dfd;
     },
 
-    'logs error with invalid utm param' () {
+    'logs error with invalid utm param': function () {
       const dfd = this.async(1000);
       const req = {
         query: {
@@ -176,24 +173,22 @@ define([
         }
       };
 
-      mockModule(mocks).process(req, res, () => {
-        // We have to use a setTimeout here because the log is performed passively after the response has
-        // been sent.
-        setTimeout(() => {
-          const c = ravenMock.ravenMiddleware.captureMessage;
-          const arg = c.args[0];
-          assert.equal(c.calledOnce, true);
-          assert.equal(arg[0], 'VerificationValidationInfo');
-          const errorMessage = '"utm_campaign" with value "&#x21;" fails to match the required pattern: /^[\\w\\/.%-]+/';
-          assert.equal(arg[1].extra.details[0].message, errorMessage);
-          dfd.resolve();
-        }, 100);
-      });
+      res.redirect = () => {
+        const c = ravenMock.ravenMiddleware.captureMessage;
+        const arg = c.args[0];
+        assert.equal(c.calledOnce, true);
+        assert.equal(arg[0], 'VerificationValidationInfo');
+        const errorMessage = '"utm_campaign" with value "&#x21;" fails to match the required pattern: /^[\\w\\/.%-]+/';
+        assert.equal(arg[1].extra.details[0].message, errorMessage);
+        dfd.resolve();
+      };
+
+      mockModule(mocks).process(req, res);
 
       return dfd.promise;
     },
 
-    'no logs with valid resume param' () {
+    'no logs with valid resume param': function () {
       const dfd = this.async(1000);
       const req = {
         query: {
@@ -212,19 +207,15 @@ define([
         }
       };
 
-      mockModule(mocks).process(req, res, () => {
-        // We have to use a setTimeout here because the log is performed passively after the response has
-        // been sent.
-        setTimeout(() => {
-          const c = ravenMock.ravenMiddleware.captureMessage;
-          assert.equal(c.callCount, 0);
-          dfd.resolve();
-        }, 100);
-      });
+      res.redirect = () => {
+        const c = ravenMock.ravenMiddleware.captureMessage;
+        assert.equal(c.callCount, 0);
+        dfd.resolve();
+      };
+
+      mockModule(mocks).process(req, res);
 
       return dfd.promise;
     }
-
-  });
-
+  }
 });

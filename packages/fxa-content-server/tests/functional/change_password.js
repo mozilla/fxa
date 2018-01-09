@@ -2,73 +2,69 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
-  'use strict';
+'use strict';
 
-  const config = intern.config;
-  const SIGNIN_URL = config.fxaContentRoot + 'signin';
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
 
-  const ANIMATION_DELAY_MS = 500;
-  const FIRST_PASSWORD = 'password';
-  const SECOND_PASSWORD = 'new_password';
+const config = intern._config;
+const SIGNIN_URL = config.fxaContentRoot + 'signin';
 
-  let email;
+const ANIMATION_DELAY_MS = 500;
+const FIRST_PASSWORD = 'password';
+const SECOND_PASSWORD = 'new_password';
 
-  const {
-    clearBrowserState,
-    click,
-    createUser,
-    denormalizeStoredEmail,
-    fillOutChangePassword,
-    fillOutSignIn,
-    noSuchElementDisplayed,
-    noSuchElement,
-    openPage,
-    testElementExists,
-    testElementTextEquals,
-    thenify,
-    type,
-    visibleByQSA,
-  } = FunctionalHelpers;
+let email;
 
-  const setupTest = thenify(function (options = {}) {
-    const signUpEmail = options.signUpEmail || email;
-    const signInEmail = options.signInEmail || email;
+const {
+  clearBrowserState,
+  click,
+  createUser,
+  denormalizeStoredEmail,
+  fillOutChangePassword,
+  fillOutSignIn,
+  noSuchElementDisplayed,
+  noSuchElement,
+  openPage,
+  testElementExists,
+  testElementTextEquals,
+  thenify,
+  type,
+  visibleByQSA,
+} = FunctionalHelpers;
 
-    return this.parent
-      .then(createUser(signUpEmail, FIRST_PASSWORD, { preVerified: true }))
-      .then(clearBrowserState())
-      .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-      .then(fillOutSignIn(signInEmail, FIRST_PASSWORD))
+const setupTest = thenify(function (options = {}) {
+  const signUpEmail = options.signUpEmail || email;
+  const signInEmail = options.signInEmail || email;
 
-      .then(testElementExists(selectors.SETTINGS.HEADER))
-      .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, signUpEmail));
-  });
+  return this.parent
+    .then(createUser(signUpEmail, FIRST_PASSWORD, { preVerified: true }))
+    .then(clearBrowserState())
+    .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+    .then(fillOutSignIn(signInEmail, FIRST_PASSWORD))
 
-  registerSuite({
-    name: 'change_password',
+    .then(testElementExists(selectors.SETTINGS.HEADER))
+    .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, signUpEmail));
+});
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-    },
+registerSuite('change_password', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
+  },
 
-    afterEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
-
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
+  tests: {
     'sign in, try to change password with an incorrect old password': function () {
       return this.remote
         .then(setupTest())
 
         // Go to change password screen
         .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
-        .then(fillOutChangePassword('INCORRECT', SECOND_PASSWORD, { expectSuccess: false }))
+        .then(fillOutChangePassword('INCORRECT', SECOND_PASSWORD, {expectSuccess: false}))
         // the validation tooltip should be visible
         .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
 
@@ -123,7 +119,7 @@ define([
 
     'sign in with an unnormalized email, change password, sign in with new password': function () {
       return this.remote
-        .then(setupTest({ signInEmail: email.toUpperCase(), signUpEmail: email }))
+        .then(setupTest({signInEmail: email.toUpperCase(), signUpEmail: email}))
 
         // Go to change password screen
         .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
@@ -159,7 +155,6 @@ define([
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-
     'sign in, reset password via settings works': function () {
       return this.remote
         .then(setupTest())
@@ -170,5 +165,5 @@ define([
 
         .then(testElementExists(selectors.RESET_PASSWORD.HEADER));
     }
-  });
+  }
 });

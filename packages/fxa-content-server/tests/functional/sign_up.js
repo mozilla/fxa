@@ -2,80 +2,76 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors',
-  'tests/functional/lib/ua-strings'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers,
-  selectors, UA_STRINGS) {
-  var config = intern.config;
-  var fxaProduction = intern.config.fxaProduction;
-  var PAGE_URL = config.fxaContentRoot + 'signup';
+'use strict';
 
-  var email;
-  var PASSWORD = '12345678';
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+const UA_STRINGS = require('./lib/ua-strings');
+var config = intern._config;
+var fxaProduction = intern._config.fxaProduction;
+var PAGE_URL = config.fxaContentRoot + 'signup';
 
-  const {
-    click,
-    clearBrowserState,
-    closeCurrentWindow,
-    createUser,
-    fillOutSignIn,
-    fillOutSignInUnblock,
-    fillOutSignUp,
-    noPageTransition,
-    noSuchElement,
-    openPage,
-    openSignUpInNewTab,
-    openVerificationLinkInDifferentBrowser,
-    openVerificationLinkInNewTab,
-    openVerificationLinkInSameTab,
-    switchToWindow,
-    testAttributeMatches,
-    testElementExists,
-    testElementTextInclude,
-    testElementValueEquals,
-    testErrorTextInclude,
-    testSuccessWasShown,
-    testUrlInclude,
-    type,
-    visibleByQSA,
-  } = FunctionalHelpers;
+var email;
+var PASSWORD = '12345678';
 
-  var SIGNUP_ENTRYPOINT = 'entrypoint=' + encodeURIComponent('fxa:signup');
-  var SYNC_CONTEXT_ANDROID = 'context=fx_fennec_v1';
-  var SYNC_CONTEXT_DESKTOP = 'context=fx_desktop_v3';
-  var SYNC_SERVICE = 'service=sync';
+const {
+  click,
+  clearBrowserState,
+  closeCurrentWindow,
+  createUser,
+  fillOutSignIn,
+  fillOutSignInUnblock,
+  fillOutSignUp,
+  noPageTransition,
+  noSuchElement,
+  openPage,
+  openSignUpInNewTab,
+  openVerificationLinkInDifferentBrowser,
+  openVerificationLinkInNewTab,
+  openVerificationLinkInSameTab,
+  switchToWindow,
+  testAttributeMatches,
+  testElementExists,
+  testElementTextInclude,
+  testElementValueEquals,
+  testErrorTextInclude,
+  testSuccessWasShown,
+  testUrlInclude,
+  type,
+  visibleByQSA,
+} = FunctionalHelpers;
 
-  function testAtConfirmScreen (email) {
-    return function () {
-      return this.parent
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-        .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email));
-    };
-  }
+var SIGNUP_ENTRYPOINT = 'entrypoint=' + encodeURIComponent('fxa:signup');
+var SYNC_CONTEXT_ANDROID = 'context=fx_fennec_v1';
+var SYNC_CONTEXT_DESKTOP = 'context=fx_desktop_v3';
+var SYNC_SERVICE = 'service=sync';
 
-  function signUpWithExistingAccount (context, email, firstPassword, secondPassword, options) {
-    return context.remote
-      .then(createUser(email, firstPassword, { preVerified: true }))
-      .then(fillOutSignUp(email, secondPassword, options));
-  }
+function testAtConfirmScreen (email) {
+  return function () {
+    return this.parent
+      .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+      .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email));
+  };
+}
 
-  registerSuite({
-    name: 'signup',
+function signUpWithExistingAccount (context, email, firstPassword, secondPassword, options) {
+  return context.remote
+    .then(createUser(email, firstPassword, { preVerified: true }))
+    .then(fillOutSignUp(email, secondPassword, options));
+}
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-      return this.remote.then(clearBrowserState());
-    },
+registerSuite('signup', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
+    return this.remote.then(clearBrowserState());
+  },
 
-    afterEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
-
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
+  tests: {
     'with an invalid email': function () {
       return this.remote
         .then(openPage(PAGE_URL + '?email=invalid', selectors['400'].HEADER))
@@ -242,7 +238,7 @@ define([
     'signup with existing account, coppa is valid, credentials are correct': function () {
       return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD)
 
-        // should have navigated to settings view
+      // should have navigated to settings view
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
@@ -260,14 +256,14 @@ define([
     },
 
     'signup with existing account, coppa is empty, credentials are correct': function () {
-      return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, { age: ' ' })
+      return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, {age: ' '})
 
-        // should have navigated to settings view
+      // should have navigated to settings view
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
     'signup with existing account, coppa is empty, credentials are wrong': function () {
-      return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, { age: ' ' })
+      return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, {age: ' '})
 
         .then(visibleByQSA(selectors.SIGNUP.SUGGEST_SIGN_IN))
         .then(click(selectors.SIGNUP.LINK_SUGGEST_SIGN_IN))
@@ -282,9 +278,9 @@ define([
     'blocked - signup with existing account, coppa is empty, credentials are correct': function () {
       email = TestHelpers.createEmail('blocked{id}');
 
-      return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, { age: ' ' })
+      return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, {age: ' '})
 
-        // should have navigated to settings view
+      // should have navigated to settings view
         .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
         .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email))
         .then(fillOutSignInUnblock(email, 0))
@@ -295,9 +291,9 @@ define([
     'blocked - signup with existing account, coppa is empty, credentials are wrong': function () {
       email = TestHelpers.createEmail('blocked{id}');
 
-      return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, { age: ' ' })
+      return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, {age: ' '})
 
-        // should have navigated to settings view
+      // should have navigated to settings view
         .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
         .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email))
         .then(fillOutSignInUnblock(email, 0))
@@ -313,10 +309,9 @@ define([
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-
     'signup with new account, coppa is empty': function () {
       return this.remote
-        .then(fillOutSignUp(email, PASSWORD, { age: ' ' }))
+        .then(fillOutSignUp(email, PASSWORD, {age: ' '}))
 
         // navigation should not occur
         .then(noPageTransition(selectors.SIGNUP.HEADER))
@@ -326,14 +321,14 @@ define([
     },
 
     'signup with existing account, coppa is too young, credentials are correct': function () {
-      return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, { age: 12 })
+      return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, {age: 12})
 
-        // should have navigated to settings view
+      // should have navigated to settings view
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
     'signup with existing account, coppa is too young, credentials are wrong': function () {
-      return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, { age: 12 })
+      return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, {age: 12})
 
         .then(visibleByQSA(selectors.SIGNUP.SUGGEST_SIGN_IN))
         .then(click(selectors.SIGNUP.LINK_SUGGEST_SIGN_IN))
@@ -345,7 +340,7 @@ define([
 
     'signup with new account, coppa is too young': function () {
       return this.remote
-        .then(fillOutSignUp(email, PASSWORD, { age: 12 }))
+        .then(fillOutSignUp(email, PASSWORD, {age: 12}))
 
         // should have navigated to cannot-create-account view
         .then(testElementExists('#fxa-cannot-create-account-header'));
@@ -353,7 +348,7 @@ define([
 
     'signup with a verified account signs the user in': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(fillOutSignUp(email, PASSWORD))
 
         // should have navigated to settings view
@@ -446,7 +441,7 @@ define([
             forceExperimentGroup: 'treatment'
           }
         }))
-        .then(fillOutSignUp(email, PASSWORD, { vpassword: DROWSSAP }))
+        .then(fillOutSignUp(email, PASSWORD, {vpassword: DROWSSAP}))
         // wait five seconds to allow any errant navigation to occur
         .then(noPageTransition(selectors.SIGNUP.HEADER))
         // the validation tooltip should be visible
@@ -461,7 +456,7 @@ define([
             forceExperimentGroup: 'treatment'
           }
         }))
-        .then(fillOutSignUp(email, PASSWORD, { vpassword: PASSWORD }))
+        .then(fillOutSignUp(email, PASSWORD, {vpassword: PASSWORD}))
         .then(testAtConfirmScreen(email));
     },
 
@@ -539,19 +534,19 @@ define([
         .then(click(selectors.SIGNUP.LINK_SUGGEST_SYNC))
         .then(testElementExists(selectors.MOZILLA_ORG_SYNC.HEADER));
     }
-  });
-
-  function testRepopulateFields(dest, header) {
-    return this.remote
-      .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER))
-      .then(fillOutSignUp(email, PASSWORD, { submit: false }))
-
-      .then(click('a[href="' + dest + '"]'))
-      .then(testElementExists(`#${header}`))
-      .then(click('.back'))
-
-      .then(testElementValueEquals(selectors.SIGNUP.EMAIL, email))
-      .then(testElementValueEquals(selectors.SIGNUP.PASSWORD, PASSWORD))
-      .then(testElementValueEquals(selectors.SIGNUP.AGE, '24'));
   }
 });
+
+function testRepopulateFields(dest, header) {
+  return this.remote
+    .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER))
+    .then(fillOutSignUp(email, PASSWORD, { submit: false }))
+
+    .then(click('a[href="' + dest + '"]'))
+    .then(testElementExists(`#${header}`))
+    .then(click('.back'))
+
+    .then(testElementValueEquals(selectors.SIGNUP.EMAIL, email))
+    .then(testElementValueEquals(selectors.SIGNUP.PASSWORD, PASSWORD))
+    .then(testElementValueEquals(selectors.SIGNUP.AGE, '24'));
+}

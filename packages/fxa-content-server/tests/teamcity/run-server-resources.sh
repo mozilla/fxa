@@ -36,13 +36,13 @@ cd /app
 /bin/rm -rf ./node_modules
 ./tests/teamcity/install-npm-deps.sh
 
-./node_modules/.bin/intern-client \
-  config=tests/intern_server_resources \
-  fxaAuthRoot="$FXA_AUTH_ROOT" \
-  fxaContentRoot="$FXA_CONTENT_ROOT" \
-  fxaOAuthRoot="$FXA_OAUTH_ROOT" \
-  fxaProfileRoot="$FXA_PROFILE_ROOT" \
-  fxaTokenRoot="$FXA_TOKEN_ROOT" \
-  fxaProduction="true" \
-  fxaDevBox="$FXA_DEV_BOX" \
-  asyncTimeout=10000
+node ./tests/intern.js \
+  --suites="server-resources" \
+  --fxaAuthRoot="$FXA_AUTH_ROOT" \
+  --fxaContentRoot="$FXA_CONTENT_ROOT" \
+  --fxaOAuthRoot="$FXA_OAUTH_ROOT" \
+  --fxaProfileRoot="$FXA_PROFILE_ROOT" \
+  --fxaTokenRoot="$FXA_TOKEN_ROOT" \
+  --fxaProduction="true" \
+  --fxaDevBox="$FXA_DEV_BOX" \
+  --asyncTimeout=10000

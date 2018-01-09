@@ -2,57 +2,54 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/fx-desktop'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
-  var config = intern.config;
+'use strict';
 
-  var PAGE_URL = config.fxaContentRoot + 'reset_password?context=fx_desktop_v1&service=sync';
-  var PASSWORD = 'password';
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const FxDesktopHelpers = require('./lib/fx-desktop');
+var config = intern._config;
 
-  var email;
+var PAGE_URL = config.fxaContentRoot + 'reset_password?context=fx_desktop_v1&service=sync';
+var PASSWORD = 'password';
 
-  const {
-    clearBrowserState,
-    click,
-    closeCurrentWindow,
-    createUser,
-    fillOutCompleteResetPassword,
-    fillOutResetPassword,
-    openExternalSite,
-    openPage,
-    openPasswordResetLinkInDifferentBrowser,
-    openVerificationLinkInNewTab,
-    openVerificationLinkInSameTab,
-    switchToWindow,
-    testElementExists,
-    testSuccessWasShown,
-    type,
-  } = FunctionalHelpers;
+var email;
 
-  const {
-    listenForFxaCommands,
-    testIsBrowserNotifiedOfLogin,
-  } = FxDesktopHelpers;
+const {
+  clearBrowserState,
+  click,
+  closeCurrentWindow,
+  createUser,
+  fillOutCompleteResetPassword,
+  fillOutResetPassword,
+  openExternalSite,
+  openPage,
+  openPasswordResetLinkInDifferentBrowser,
+  openVerificationLinkInNewTab,
+  openVerificationLinkInSameTab,
+  switchToWindow,
+  testElementExists,
+  testSuccessWasShown,
+  type,
+} = FunctionalHelpers;
 
-  registerSuite({
-    name: 'Firefox Desktop Sync v1 reset_password',
+const {
+  listenForFxaCommands,
+  testIsBrowserNotifiedOfLogin,
+} = FxDesktopHelpers;
 
-    beforeEach: function () {
-      // timeout after 90 seconds
-      this.timeout = 90000;
+registerSuite('Firefox Desktop Sync v1 reset_password', {
+  beforeEach: function () {
+    // timeout after 90 seconds
+    this.timeout = 90000;
 
-      email = TestHelpers.createEmail('sync{id}');
+    email = TestHelpers.createEmail('sync{id}');
 
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(clearBrowserState());
-    },
-
+    return this.remote
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(clearBrowserState());
+  },
+  tests: {
     'reset password, verify same browser': function () {
       // verify account
       return this.remote
@@ -73,7 +70,7 @@ define([
         .then(closeCurrentWindow())
 
         .then(testSuccessWasShown())
-        .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: true }));
+        .then(testIsBrowserNotifiedOfLogin(email, {expectVerified: true}));
     },
 
     'reset password, verify same browser with original tab closed': function () {
@@ -124,7 +121,7 @@ define([
         .then(type('#password', PASSWORD))
         .then(click('button[type=submit]'))
 
-        .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: false }))
+        .then(testIsBrowserNotifiedOfLogin(email, {expectVerified: false}))
 
         // user verified the reset password in another browser, they must
         // re-verify they want to sign in on this device to avoid
@@ -151,6 +148,5 @@ define([
         .then(testElementExists('#fxa-reset-password-complete-header'))
         .then(testElementExists('.account-ready-service'));
     }
-  });
-
+  }
 });

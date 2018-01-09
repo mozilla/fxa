@@ -15,7 +15,7 @@ dependencies:
     - npm i --production
     - CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt build
     - nohup bash -c "CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt serverproc:dist &"
-    - npm install intern bower xmlhttprequest firefox-profile request sync-exec convict
+    - npm install intern bower xmlhttprequest firefox-profile request sync-exec convict yargs requirejs leadfoot
   post:
     - curl 127.0.0.1:3030
     - /home/ubuntu/fxa-content-server/firefox/firefox --version
@@ -29,7 +29,7 @@ machine:
 test:
   override:
     # retry the build if the attempt failed
-    - retry -n 1 -- npm run test-circle firefoxBinary=/home/ubuntu/fxa-content-server/firefox/firefox:
+    - retry -n 1 -- npm run test-circle -- --firefoxBinary=/home/ubuntu/fxa-content-server/firefox/firefox:
         parallel: true
 
 # appropriately tag and push the container to dockerhub

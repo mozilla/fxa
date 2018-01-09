@@ -2,29 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'intern!object',
-  'intern/chai!assert',
-  'require'
-], function (intern, registerSuite, assert, require) {
-  var url = intern.config.fxaContentRoot + 'robots.txt';
+'use strict';
 
-  registerSuite({
-    name: 'robots.txt',
+const { registerSuite } = intern.getInterface('object');
+const assert = intern.getPlugin('chai').assert;
+var url = intern._config.fxaContentRoot + 'robots.txt';
 
-    'should allow bots to access all pages': function () {
+registerSuite('robots.txt', {
+  'should allow bots to access all pages': function () {
 
-      return this.remote
-        .get(require.toUrl(url))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .findByTagName('body')
-        .getVisibleText()
-        .then(function (source) {
-          assert.isTrue(/^Allow:/mg.test(source));
-        })
-        .end();
-    }
-
-  });
+    return this.remote
+      .get(url)
+      .setFindTimeout(intern._config.pageLoadTimeout)
+      .findByTagName('body')
+      .getVisibleText()
+      .then(function (source) {
+        assert.isTrue(/^Allow:/mg.test(source));
+      })
+      .end();
+  }
 });
