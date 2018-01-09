@@ -1,3 +1,19 @@
+<a name="1.103.0"></a>
+# [1.103.0](https://github.com/mozilla/fxa-auth-server/compare/v1.102.0...v1.103.0) (2018-01-09)
+
+
+### Bug Fixes
+
+* **node:** use node 6.12.3 (#2251) r=@vladikoff ([c804acd](https://github.com/mozilla/fxa-auth-server/commit/c804acd)), closes [#2251](https://github.com/mozilla/fxa-auth-server/issues/2251)
+* **scripts:** use latest Husky module for git hooks (#2250); r=rfk ([f76015c](https://github.com/mozilla/fxa-auth-server/commit/f76015c)), closes [#2250](https://github.com/mozilla/fxa-auth-server/issues/2250) [#2128](https://github.com/mozilla/fxa-auth-server/issues/2128)
+* **tests:** fix failing geolocation tests (#2253) r=@vladikoff ([804344d](https://github.com/mozilla/fxa-auth-server/commit/804344d)), closes [#2253](https://github.com/mozilla/fxa-auth-server/issues/2253)
+
+### Features
+
+* **sms:** Enable SMS in australia (#2248) r=@rfk ([86369d0](https://github.com/mozilla/fxa-auth-server/commit/86369d0)), closes [#2248](https://github.com/mozilla/fxa-auth-server/issues/2248)
+
+
+
 <a name="1.102.0"></a>
 # [1.102.0](https://github.com/mozilla/fxa-auth-server/compare/v1.101.1...v1.102.0) (2017-12-13)
 
