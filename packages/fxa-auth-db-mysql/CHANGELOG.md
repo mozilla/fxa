@@ -1,3 +1,17 @@
+<a name="1.103.0"></a>
+# [1.103.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.101.0...v1.103.0) (2018-01-09)
+
+
+### Bug Fixes
+
+* **node:** use node 6.12.3 (#291) r=@vladikoff ([6080c0c](https://github.com/mozilla/fxa-auth-db-mysql/commit/6080c0c))
+
+### Features
+
+* **logs:** add Sentry for errors (#292) r=@vbudhram ([6348a95](https://github.com/mozilla/fxa-auth-db-mysql/commit/6348a95)), closes [#288](https://github.com/mozilla/fxa-auth-db-mysql/issues/288)
+
+
+
 <a name="1.101.0"></a>
 # [1.101.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.100.0...v1.101.0) (2017-11-29)
 
