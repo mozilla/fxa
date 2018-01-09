@@ -1,3 +1,12 @@
+<a name"1.103.0"></a>
+## 1.103.0 (2018-01-08)
+
+
+#### Bug Fixes
+
+* **node:** use node 6.12.3 (#510) r=@vladikoff ([adc1fc02](https://github.com/mozilla/fxa-oauth-server/commit/adc1fc02))
+
+
 <a name"1.100.2"></a>
 ### 1.100.2 (2017-12-04)
 
