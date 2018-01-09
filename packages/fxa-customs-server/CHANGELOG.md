@@ -1,3 +1,19 @@
+<a name="1.103.0"></a>
+# 1.103.0 (2018-01-09)
+
+
+### Bug Fixes
+
+* **blocklist:** Fix use of setImmediate to work with node 8 (#220) r=@vladikoff ([c33a018](https://github.com/mozilla/fxa-customs-server/commit/c33a018)), closes [(#220](https://github.com/(/issues/220) [#212](https://github.com/mozilla/fxa-customs-server/issues/212)
+* **node:** use node 6.12.3 (#223) r=@vladikoff ([1f4d997](https://github.com/mozilla/fxa-customs-server/commit/1f4d997))
+
+### Features
+
+* **logs:** add Sentry error logs (#224) r=@vbudhram ([4cbc544](https://github.com/mozilla/fxa-customs-server/commit/4cbc544))
+* **token:** Add rate limit for tokenCodes (#225), r=@rfk ([0f94081](https://github.com/mozilla/fxa-customs-server/commit/0f94081))
+
+
+
 <a name="1.102.0"></a>
 # 1.102.0 (2017-12-13)
 
