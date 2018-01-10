@@ -76,6 +76,33 @@ const PERFORMANCE_TIMINGS = [
     timings: [
       { from: 'domLoading', until: 'domComplete' }
     ]
+  },
+  // These timings were identified as strongly correlating with user behaviour,
+  // specifically whether the user completes the flow. We're not entirely sure
+  // what that means yet, so they're retained for further analysis.
+  {
+    event: 'connectStart',
+    timings: [
+      { from: 'navigationStart', until: 'connectStart' }
+    ]
+  },
+  {
+    event: 'domainLookupEnd',
+    timings: [
+      { from: 'navigationStart', until: 'domainLookupEnd' }
+    ]
+  },
+  {
+    event: 'redirectEnd',
+    timings: [
+      { from: 'navigationStart', until: 'redirectEnd' }
+    ]
+  },
+  {
+    event: 'requestStart',
+    timings: [
+      { from: 'navigationStart', until: 'requestStart' }
+    ]
   }
 ];
 
@@ -155,22 +182,6 @@ module.exports = (req, metrics, requestReceivedTime) => {
           time: absoluteTime,
           type: `flow.performance.${performanceCategory}.${item.event}`
         }, metrics, req);
-      }
-    });
-
-    // In addition to the friendlier events above, emit events for
-    // the raw navigation timing data so that we can analyse which
-    // to use long-term for our performance OKR.
-    Object.keys(navigationTiming).forEach(key => {
-      if (key !== 'navigationStart') {
-        const value = navigationTiming[key];
-        if (value >= 0) {
-          logFlowEvent({
-            flowTime: value,
-            time: metrics.flowBeginTime + value,
-            type: `flow.performance.raw.${key}`
-          }, metrics, req);
-        }
       }
     });
   }

@@ -218,9 +218,10 @@ registerSuite('flow-event', {
           initialView: 'signup'
         }, 2000);
       },
+
       tests: {
-        'process.stderr.write was called thirteen times': () => {
-          assert.equal(process.stderr.write.callCount, 13);
+        'process.stderr.write was called seven times': () => {
+          assert.equal(process.stderr.write.callCount, 7);
         },
 
         'first call to process.stderr.write was correct': () => {
@@ -253,57 +254,20 @@ registerSuite('flow-event', {
 
         'fifth call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[4][0]);
-          assert.equal(arg.event, 'flow.performance.raw.domainLookupStart');
-          assert.equal(arg.flow_time, 100);
-          assert.equal(arg.time, new Date(mocks.time - 2000 + 100).toISOString());
+          assert.equal(arg.event, 'flow.performance.auth.connectStart');
+          assert.equal(arg.flow_time, 300);
         },
 
         'sixth call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[5][0]);
-          assert.equal(arg.event, 'flow.performance.raw.domainLookupEnd');
+          assert.equal(arg.event, 'flow.performance.auth.domainLookupEnd');
           assert.equal(arg.flow_time, 200);
         },
 
         'seventh call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[6][0]);
-          assert.equal(arg.event, 'flow.performance.raw.connectStart');
-          assert.equal(arg.flow_time, 300);
-        },
-
-        'eighth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[7][0]);
-          assert.equal(arg.event, 'flow.performance.raw.connectEnd');
-          assert.equal(arg.flow_time, 400);
-        },
-
-        'ninth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[8][0]);
-          assert.equal(arg.event, 'flow.performance.raw.requestStart');
+          assert.equal(arg.event, 'flow.performance.auth.requestStart');
           assert.equal(arg.flow_time, 500);
-        },
-
-        'tenth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[9][0]);
-          assert.equal(arg.event, 'flow.performance.raw.responseStart');
-          assert.equal(arg.flow_time, 600);
-        },
-
-        'eleventh call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[10][0]);
-          assert.equal(arg.event, 'flow.performance.raw.responseEnd');
-          assert.equal(arg.flow_time, 700);
-        },
-
-        'twelfth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[11][0]);
-          assert.equal(arg.event, 'flow.performance.raw.domLoading');
-          assert.equal(arg.flow_time, 800);
-        },
-
-        'thirteenth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[12][0]);
-          assert.equal(arg.event, 'flow.performance.raw.domComplete');
-          assert.equal(arg.flow_time, 1000);
         },
 
         'amplitude was called once': () => {
@@ -917,9 +881,10 @@ registerSuite('flow-event', {
           initialView: 'settings'
         }, 1000);
       },
+
       tests: {
-        'process.stderr.write was called 12 times': () => {
-          assert.equal(process.stderr.write.callCount, 12);
+        'process.stderr.write was called 6 times': () => {
+          assert.equal(process.stderr.write.callCount, 6);
         },
 
         'first call to process.stderr.write was correct': () => {
@@ -939,56 +904,20 @@ registerSuite('flow-event', {
 
         'fourth call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[3][0]);
-          assert.equal(arg.event, 'flow.performance.raw.domainLookupStart');
-          assert.equal(arg.flow_time, 100);
+          assert.equal(arg.event, 'flow.performance.other.connectStart');
+          assert.equal(arg.flow_time, 300);
         },
 
         'fifth call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[4][0]);
-          assert.equal(arg.event, 'flow.performance.raw.domainLookupEnd');
+          assert.equal(arg.event, 'flow.performance.other.domainLookupEnd');
           assert.equal(arg.flow_time, 200);
         },
 
         'sixth call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[5][0]);
-          assert.equal(arg.event, 'flow.performance.raw.connectStart');
-          assert.equal(arg.flow_time, 300);
-        },
-
-        'seventh call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[6][0]);
-          assert.equal(arg.event, 'flow.performance.raw.connectEnd');
-          assert.equal(arg.flow_time, 400);
-        },
-
-        'eighth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[7][0]);
-          assert.equal(arg.event, 'flow.performance.raw.requestStart');
+          assert.equal(arg.event, 'flow.performance.other.requestStart');
           assert.equal(arg.flow_time, 500);
-        },
-
-        'ninth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[8][0]);
-          assert.equal(arg.event, 'flow.performance.raw.responseStart');
-          assert.equal(arg.flow_time, 600);
-        },
-
-        'tenth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[9][0]);
-          assert.equal(arg.event, 'flow.performance.raw.responseEnd');
-          assert.equal(arg.flow_time, 700);
-        },
-
-        'eleventh call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[10][0]);
-          assert.equal(arg.event, 'flow.performance.raw.domLoading');
-          assert.equal(arg.flow_time, 800);
-        },
-
-        'twelfth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[11][0]);
-          assert.equal(arg.event, 'flow.performance.raw.domComplete');
-          assert.equal(arg.flow_time, 1000);
         }
       }
     },
@@ -1004,68 +933,15 @@ registerSuite('flow-event', {
           // The last arg here puts the navtiming events in the distant future
         }, 1000, false, 31536000000);
       },
+
       tests: {
-        'process.stderr.write was called nine times': () => {
-          assert.equal(process.stderr.write.callCount, 10);
+        'process.stderr.write was called once': () => {
+          assert.equal(process.stderr.write.callCount, 1);
         },
 
         'first call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[0][0]);
           assert.equal(arg.event, 'flow.performance.other');
-        },
-
-        'second call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[1][0]);
-          assert.equal(arg.event, 'flow.performance.raw.domainLookupStart');
-          assert.equal(arg.flow_time, 31536000000);
-        },
-
-        'third call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[2][0]);
-          assert.equal(arg.event, 'flow.performance.raw.domainLookupEnd');
-          assert.equal(arg.flow_time, 31536000000);
-        },
-
-        'fourth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[3][0]);
-          assert.equal(arg.event, 'flow.performance.raw.connectStart');
-          assert.equal(arg.flow_time, 31536000000);
-        },
-
-        'fifth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[4][0]);
-          assert.equal(arg.event, 'flow.performance.raw.connectEnd');
-          assert.equal(arg.flow_time, 31536000000);
-        },
-
-        'sixth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[5][0]);
-          assert.equal(arg.event, 'flow.performance.raw.requestStart');
-          assert.equal(arg.flow_time, 31536000000);
-        },
-
-        'seventh call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[6][0]);
-          assert.equal(arg.event, 'flow.performance.raw.responseStart');
-          assert.equal(arg.flow_time, 31536000000);
-        },
-
-        'eighth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[7][0]);
-          assert.equal(arg.event, 'flow.performance.raw.responseEnd');
-          assert.equal(arg.flow_time, 31536000000);
-        },
-
-        'ninth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[8][0]);
-          assert.equal(arg.event, 'flow.performance.raw.domLoading');
-          assert.equal(arg.flow_time, 31536000000);
-        },
-
-        'tenth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[9][0]);
-          assert.equal(arg.event, 'flow.performance.raw.domComplete');
-          assert.equal(arg.flow_time, 31536000000);
         }
       }
     },
