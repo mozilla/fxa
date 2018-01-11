@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   module.exports = {
     initialize (options) {
       this.parentView = options.parentView;
+      this.model.on('close:panel', this._closePanelReturnToSettings, this);
     },
 
     events: {
@@ -72,7 +73,7 @@ define(function (require, exports, module) {
         $(inputEl).change();
       });
 
-      const formEl = this.$('form')[0];
+      const formEl = this.$('.open.settings-unit').find('form')[0];
       if (formEl) {
         formEl.reset();
       }

@@ -15,6 +15,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const KeyCodes = require('../lib/key-codes');
   const LoadingMixin = require('./mixins/loading-mixin');
+  const SettingsPanelMixin = require('./mixins/settings-panel-mixin');
 
   var AppView = BaseView.extend({
     initialize (options) {
@@ -49,8 +50,7 @@ define(function (require, exports, module) {
 
           // If event came from any settings view, close all panels and
           // goto base settings view.
-          $('.settings-unit').removeClass('open');
-          this.navigate('settings');
+          this.model.trigger('close:panel');
         }
       }
     },
@@ -203,7 +203,8 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     AppView,
-    LoadingMixin
+    LoadingMixin,
+    SettingsPanelMixin
   );
 
   module.exports = AppView;
