@@ -8,7 +8,6 @@ const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
-const selectors = require('./lib/selectors');
 
 var config = intern._config;
 var SIGNIN_URL = config.fxaContentRoot + 'signin';
@@ -24,17 +23,13 @@ const {
   fillOutSignIn,
   focus,
   getFxaClient,
-  keyupEscapeEvent,
   noSuchStoredAccountByEmail,
   openPage,
   openSettingsInNewTab,
   switchToWindow,
   testElementExists,
   testElementTextEquals,
-  testElementValueEquals,
   testErrorTextInclude,
-  type,
-  noSuchElement
 } = FunctionalHelpers;
 
 var FIRST_PASSWORD = 'password';
@@ -178,26 +173,6 @@ registerSuite('settings', {
               assert.isTrue(className.includes('display-name'));
             });
         })
-        .end();
-    },
-
-    'sign in, go to settings, and add display name. On Esc, should close panel and input cleared': function () {
-      const TEXT = 'TEST';
-      return this.remote
-        .then(fillOutSignIn(email, FIRST_PASSWORD, true))
-        .then(click('[data-href="settings/display_name"]'))
-        // fill in display name input
-        .then(testElementExists(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME))
-        .then(type(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, TEXT))
-        .sleep(500)
-        .then(testElementValueEquals(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, TEXT))
-        // press Esc
-        .then(keyupEscapeEvent('.settings'))
-        .sleep(500)
-        // check panel is closed
-        .then(noSuchElement('.settings-unit.open'))
-        // check input has been cleared
-        .then(testElementValueEquals(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, ''))
         .end();
     },
 

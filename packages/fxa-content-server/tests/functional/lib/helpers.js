@@ -1481,20 +1481,6 @@ const fillOutDeleteAccount = thenify(function (password) {
     .then(click('#delete-account button[type="submit"]'));
 });
 
-const keyupEscapeEvent = thenify(function (selector) {
-  return this.parent
-      .execute(function (selector) {
-        var target = selector ? document.querySelector(selector) : window;
-        var event = new KeyboardEvent('keyup', {
-          bubbles: true,
-          cancelable: true,
-          view: window,
-          which: 27
-        });
-        target.dispatchEvent(event);
-      }, [ selector ]);
-});
-
 function mouseevent(eventType) {
   return thenify(function (selector) {
     return this.parent
@@ -2112,7 +2098,6 @@ module.exports = {
   getVerificationLink: getVerificationLink,
   getWebChannelMessageData,
   imageLoadedByQSA: imageLoadedByQSA,
-  keyupEscapeEvent: keyupEscapeEvent,
   mousedown: mousedown,
   mouseevent: mouseevent,
   mouseout: mouseout,
