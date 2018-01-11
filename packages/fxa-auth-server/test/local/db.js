@@ -309,6 +309,213 @@ describe('redis enabled', () => {
       })
   })
 
+  it('db.devices handles old-format and new-format token objects from redis', () => {
+    const oldFormat = {
+      lastAccessTime: 42,
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '59',
+      uaOS: 'Mac OS X',
+      uaOSVersion: '10.11',
+      uaDeviceType: null,
+      uaFormFactor: null,
+      location: {
+        city: 'Bournemouth',
+        state: 'England',
+        stateCode: 'EN',
+        country: 'United Kingdom',
+        countryCode: 'GB'
+      }
+    }
+    const newFormat = [
+      1, [ 'Mountain View', 'California', 'CA', 'United States', 'US' ],
+      'Firefox Focus', '4.0.1', 'Android', '8.1', 'mobile'
+    ]
+    redis.get = sinon.spy(() => P.resolve(JSON.stringify({ oldFormat, newFormat })))
+    pool.get = sinon.spy(() => P.resolve([
+      { id: 'device-id', sessionTokenId: 'oldFormat' },
+      { id: 'device-id', sessionTokenId: 'newFormat' }
+    ]))
+    return db.devices('wibble')
+      .then(result => assert.deepEqual(result, [
+        {
+          id: 'device-id',
+          sessionToken: 'oldFormat',
+          name: undefined,
+          type: undefined,
+          pushCallback: undefined,
+          pushPublicKey: undefined,
+          pushAuthKey: undefined,
+          pushEndpointExpired: false,
+          lastAccessTime: 42,
+          uaBrowser: 'Firefox',
+          uaBrowserVersion: '59',
+          uaOS: 'Mac OS X',
+          uaOSVersion: '10.11',
+          uaDeviceType: null,
+          uaFormFactor: null,
+          location: {
+            city: 'Bournemouth',
+            state: 'England',
+            stateCode: 'EN',
+            country: 'United Kingdom',
+            countryCode: 'GB'
+          }
+        },
+        {
+          id: 'device-id',
+          sessionToken: 'newFormat',
+          name: undefined,
+          type: undefined,
+          pushCallback: undefined,
+          pushPublicKey: undefined,
+          pushAuthKey: undefined,
+          pushEndpointExpired: false,
+          lastAccessTime: 1,
+          uaBrowser: 'Firefox Focus',
+          uaBrowserVersion: '4.0.1',
+          uaOS: 'Android',
+          uaOSVersion: '8.1',
+          uaDeviceType: 'mobile',
+          uaFormFactor: null,
+          location: {
+            city: 'Mountain View',
+            state: 'California',
+            stateCode: 'CA',
+            country: 'United States',
+            countryCode: 'US'
+          }
+        }
+      ]))
+  })
+
+  it('db.sessions handles old-format and new-format token objects from redis', () => {
+    const oldFormat = {
+      lastAccessTime: 1,
+      uaBrowser: 'Firefox Focus',
+      uaBrowserVersion: '4.0.1',
+      uaOS: 'Android',
+      uaOSVersion: '8.1',
+      uaDeviceType: 'mobile',
+      uaFormFactor: null,
+      location: {
+        city: 'Mountain View',
+        state: 'California',
+        stateCode: 'CA',
+        country: 'United States',
+        countryCode: 'US'
+      }
+    }
+    const newFormat = [
+      42, [ 'Bournemouth', 'England', 'EN', 'United Kingdom', 'GB' ],
+      'Firefox', '59', 'Mac OS X', '10.11'
+    ]
+    redis.get = sinon.spy(() => P.resolve(JSON.stringify({ oldFormat, newFormat })))
+    pool.get = sinon.spy(() => P.resolve([
+      { tokenId: 'oldFormat', deviceId: 'device-id' },
+      { tokenId: 'newFormat', deviceId: 'device-id' }
+    ]))
+    return db.sessions('wibble')
+      .then(result => assert.deepEqual(result, [
+        {
+          id: 'oldFormat',
+          deviceId: 'device-id',
+          lastAccessTime: 1,
+          uaBrowser: 'Firefox Focus',
+          uaBrowserVersion: '4.0.1',
+          uaOS: 'Android',
+          uaOSVersion: '8.1',
+          uaDeviceType: 'mobile',
+          uaFormFactor: null,
+          location: {
+            city: 'Mountain View',
+            state: 'California',
+            stateCode: 'CA',
+            country: 'United States',
+            countryCode: 'US'
+          }
+        },
+        {
+          id: 'newFormat',
+          deviceId: 'device-id',
+          lastAccessTime: 42,
+          uaBrowser: 'Firefox',
+          uaBrowserVersion: '59',
+          uaOS: 'Mac OS X',
+          uaOSVersion: '10.11',
+          uaDeviceType: null,
+          uaFormFactor: null,
+          location: {
+            city: 'Bournemouth',
+            state: 'England',
+            stateCode: 'EN',
+            country: 'United Kingdom',
+            countryCode: 'GB'
+          }
+        }
+      ]))
+  })
+
+  it('db.updateSessionToken handles old-format and new-format token objects from redis', () => {
+    return db.updateSessionToken({
+      id: 'wibble',
+      uid: 'blee',
+      lastAccessTime: 42,
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '59',
+      uaOS: 'Mac OS X',
+      uaOSVersion: '10.11',
+      uaDeviceType: null,
+      uaFormFactor: null,
+    }, P.resolve({
+      location: {
+        city: 'Bournemouth',
+        state: 'England',
+        stateCode: 'EN',
+        country: 'United Kingdom',
+        countryCode: 'GB'
+      }
+    }))
+      .then(() => {
+        assert.equal(redis.update.callCount, 1)
+        const getUpdatedValue = redis.update.args[0][1]
+        assert.equal(typeof getUpdatedValue, 'function')
+
+        const result = getUpdatedValue(JSON.stringify({
+          oldFormat: {
+            lastAccessTime: 1,
+            uaBrowser: 'Firefox Focus',
+            uaBrowserVersion: '4.0.1',
+            uaOS: 'Android',
+            uaOSVersion: '8.1',
+            uaDeviceType: 'mobile',
+            uaFormFactor: null,
+            location: {
+              city: 'Mountain View',
+              state: 'California',
+              stateCode: 'CA',
+              country: 'United States',
+              countryCode: 'US'
+            }
+          },
+          newFormat: [ 2, [], 'Firefox Focus', '4.0.1', 'Android', '8.1', 'mobile' ]
+        }))
+        assert.deepEqual(JSON.parse(result), {
+          wibble: [
+            42, [ 'Bournemouth', 'England', 'EN', 'United Kingdom', 'GB'],
+            'Firefox', '59', 'Mac OS X', '10.11'
+          ],
+          oldFormat: [
+            1, [ 'Mountain View', 'California', 'CA', 'United States', 'US' ],
+            'Firefox Focus', '4.0.1', 'Android', '8.1', 'mobile'
+          ],
+          newFormat: [
+            2, [],
+            'Firefox Focus', '4.0.1', 'Android', '8.1', 'mobile'
+          ]
+        })
+      })
+  })
+
   describe('redis.get rejects', () => {
     beforeEach(() => {
       redis.get = sinon.spy(() => P.reject({ message: 'mock redis.get error' }))

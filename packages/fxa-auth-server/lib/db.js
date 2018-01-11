@@ -9,6 +9,25 @@ const P = require('./promise')
 const Pool = require('./pool')
 const random = require('./crypto/random')
 
+// To save space in Redis, we serialise session token updates as arrays using
+// fixed property indices, thereby not encoding any property names. The order
+// of those properties is defined here in REDIS_SESSION_TOKEN_PROPERTIES and
+// REDIS_SESSION_TOKEN_LOCATION_PROPERTIES. Note that, to maintain backwards
+// compatibility, any future changes to these constants may only append items
+// to the end of each array. There's no safe way to change the array index for
+// any property, without introducing an explicit migration process for our Redis
+// instance.
+const REDIS_SESSION_TOKEN_PROPERTIES = [
+  'lastAccessTime', 'location', 'uaBrowser', 'uaBrowserVersion',
+  'uaOS', 'uaOSVersion', 'uaDeviceType', 'uaFormFactor'
+]
+
+const REDIS_SESSION_TOKEN_LOCATION_INDEX = REDIS_SESSION_TOKEN_PROPERTIES.indexOf('location')
+
+const REDIS_SESSION_TOKEN_LOCATION_PROPERTIES = [
+  'city', 'state', 'stateCode', 'country', 'countryCode'
+]
+
 module.exports = (
   config,
   log,
@@ -253,13 +272,13 @@ module.exports = (
               // Ensure that we don't return lastAccessTime if redis is down
               isRedisOk = false
             }
-            return result
+            return unpackTokensFromRedis(result)
           })
       )
     }
 
     return P.all(promises)
-      .spread((mysqlSessionTokens, redisTokens) => {
+      .spread((mysqlSessionTokens, redisSessionTokens = {}) => {
         if (MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE) {
           // Filter out any expired sessions
           mysqlSessionTokens = mysqlSessionTokens.filter(sessionToken => {
@@ -273,7 +292,6 @@ module.exports = (
         // for each db session token, if there is a matching redis token
         // overwrite the properties of the db token with the redis token values
         const lastAccessTimeEnabled = isRedisOk && features.isLastAccessTimeEnabledForUser(uid)
-        const redisSessionTokens = redisTokens ? JSON.parse(redisTokens) : {}
         const sessions = mysqlSessionTokens.map((sessionToken) => {
           const id = sessionToken.tokenId
           const redisToken = redisSessionTokens[id]
@@ -452,18 +470,12 @@ module.exports = (
               // Ensure that we don't return lastAccessTime if redis is down
               isRedisOk = false
             }
-            return result
+            return unpackTokensFromRedis(result)
           })
       )
     }
     return P.all(promises)
-      .spread((devices, redisTokens) => {
-        const redisSessionTokens = redisTokens ? JSON.parse(redisTokens) : {}
-        log.info({
-          op: 'db.devices.redisSessionTokens',
-          hasRedisTokens: !! redisSessionTokens.length,
-          numRedisTokens: redisSessionTokens.length
-        })
+      .spread((devices, redisSessionTokens = {}) => {
         // for each device, if there is a redis token with a matching tokenId,
         // overwrite device's ua properties and lastAccessTime with redis token values
         const lastAccessTimeEnabled = isRedisOk && features.isLastAccessTimeEnabledForUser(uid)
@@ -544,11 +556,7 @@ module.exports = (
       })
       .catch(() => {})
       .then(() => redis.update(uid, sessionTokens => {
-        if (sessionTokens) {
-          sessionTokens = JSON.parse(sessionTokens)
-        } else {
-          sessionTokens = {}
-        }
+        sessionTokens = unpackTokensFromRedis(sessionTokens)
 
         sessionTokens[id] = {
           lastAccessTime: token.lastAccessTime,
@@ -561,7 +569,7 @@ module.exports = (
           uaOSVersion: token.uaOSVersion,
         }
 
-        return JSON.stringify(sessionTokens)
+        return JSON.stringify(packTokensForRedis(sessionTokens))
       }))
   }
 
@@ -1112,6 +1120,86 @@ module.exports = (
         // Allow callers to distinguish between the null result and connection errors
         return false
       })
+  }
+
+  // Reduce redis memory usage by not encoding the keys. Store properties
+  // as fixed indices into arrays instead. Takes an unpacked session tokens
+  // structure as its argument, returns the packed structure.
+  function packTokensForRedis (tokens) {
+    return Object.keys(tokens).reduce((result, tokenId) => {
+      const unpackedToken = tokens[tokenId]
+
+      result[tokenId] = truncatePackedArray(REDIS_SESSION_TOKEN_PROPERTIES.map(
+        (property, index) => {
+          const value = unpackedToken[property]
+
+          if (index === REDIS_SESSION_TOKEN_LOCATION_INDEX && value) {
+            return truncatePackedArray(REDIS_SESSION_TOKEN_LOCATION_PROPERTIES.map(
+              locationProperty => value[locationProperty]
+            ))
+          }
+
+          return unpackedToken[property]
+        }
+      ))
+
+      return result
+    }, {})
+  }
+
+  // Trailing null and undefined don't need to be stored.
+  function truncatePackedArray (array) {
+    const length = array.length
+    if (length === 0) {
+      return array
+    }
+
+    const item = array[length - 1]
+    if (item !== null && item !== undefined) {
+      return array
+    }
+
+    array.pop()
+
+    return truncatePackedArray(array)
+  }
+
+  // Sanely unpack both the packed and raw formats from redis. Takes a redis
+  // result as it's argument (may be null or a stringified mish mash of packed
+  // and/or unpacked stored tokens), returns the unpacked session tokens
+  // structure.
+  function unpackTokensFromRedis (tokens) {
+    if (! tokens) {
+      return {}
+    }
+
+    tokens = JSON.parse(tokens)
+
+    return Object.keys(tokens).reduce((result, tokenId) => {
+      const packedToken = tokens[tokenId]
+
+      if (Array.isArray(packedToken)) {
+        const unpackedToken = unpackToken(packedToken, REDIS_SESSION_TOKEN_PROPERTIES)
+
+        const location = unpackedToken.location
+        if (Array.isArray(location)) {
+          unpackedToken.location = unpackToken(location, REDIS_SESSION_TOKEN_LOCATION_PROPERTIES)
+        }
+
+        result[tokenId] = unpackedToken
+      } else {
+        result[tokenId] = packedToken
+      }
+
+      return result
+    }, {})
+  }
+
+  function unpackToken (packedToken, properties) {
+    return properties.reduce((result, property, index) => {
+      result[property] = packedToken[index]
+      return result
+    }, {})
   }
 
   return DB

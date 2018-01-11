@@ -37,7 +37,7 @@
 //     })
 //
 //   redis.update(key, value => updatedValue)
-//     .then(value => {
+//     .then(() => {
 //       // :)
 //     })
 //     .catch(error => {

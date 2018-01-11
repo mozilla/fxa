@@ -457,6 +457,7 @@ describe('remote db', function() {
           deviceInfo.pushCallback = ''
           deviceInfo.pushPublicKey = ''
           deviceInfo.pushAuthKey = ''
+          sessionToken.lastAccessTime = 42
           sessionToken.uaBrowser = 'Firefox'
           sessionToken.uaBrowserVersion = '44'
           sessionToken.uaOS = 'Mac OS X'
@@ -510,7 +511,7 @@ describe('remote db', function() {
           return devices[1]
         })
         .then((device) => {
-          assert.ok(device.lastAccessTime > 0, 'device.lastAccessTime is set')
+          assert.equal(device.lastAccessTime, 42, 'device.lastAccessTime is correct')
           assert.equal(device.name, deviceInfo.name, 'device.name is correct')
           assert.equal(device.type, deviceInfo.type, 'device.type is correct')
           assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
