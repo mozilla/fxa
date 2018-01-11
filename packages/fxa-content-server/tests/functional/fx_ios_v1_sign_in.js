@@ -100,24 +100,7 @@ registerSuite('FxiOS v1 signin', {
         .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
     },
 
-    'Fx iOS <= 6.0 unverified, verify same browser': function () {
-      const forceUA = UA_STRINGS['ios_firefox_6_0'];
-      const query = {forceUA};
-      return this.remote
-        .then(setupTest({preVerified: false, query}))
-
-        // email 0 - initial sign up email
-        // email 1 - sign in w/ unverified address email
-        // email 2 - "You have verified your Firefox Account"
-        .then(openVerificationLinkInNewTab(email, 1, {query}))
-        .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
-
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER));
-    },
-
-    'Fx iOS >= 6.1 unverified, verify same browser': function () {
+    'unverified, verify same browser': function () {
       const forceUA = UA_STRINGS['ios_firefox_6_1'];
       const query = {forceUA};
 

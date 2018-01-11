@@ -5,7 +5,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const $ = require('jquery');
   const Account = require('models/account');
   const { assert } = require('chai');
   const FxiOSAuthenticationBroker = require('models/auth_brokers/fx-ios-v1');
@@ -14,7 +13,6 @@ define(function (require, exports, module) {
   const sinon = require('sinon');
   const WindowMock = require('../../../mocks/window');
 
-  const NO_IMMEDIATE_UNVERIFIED_LOGIN_UA_STRING = 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/6.0 Mobile/12F69 Safari/600.1.4'; //eslint-disable-line max-len
   const IMMEDIATE_UNVERIFIED_LOGIN_UA_STRING = 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/6.1 Mobile/12F69 Safari/600.1.4'; //eslint-disable-line max-len
   const CHOOSE_WHAT_TO_SYNC_UA_STRING = 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/11.0 Mobile/12F69 Safari/600.1.4'; //eslint-disable-line max-len
 
@@ -40,38 +38,10 @@ define(function (require, exports, module) {
       channel = new NullChannel();
       relier = new Relier();
       windowMock = new WindowMock();
-      initializeBroker(NO_IMMEDIATE_UNVERIFIED_LOGIN_UA_STRING);
+      initializeBroker(IMMEDIATE_UNVERIFIED_LOGIN_UA_STRING);
     });
 
     describe('capabilities', () => {
-      describe('does not support immediateUnverifiedLogin', () => {
-        it('has the expected capabilities and behaviors', () => {
-          assert.isTrue(broker.hasCapability('signup'));
-          assert.isTrue(broker.hasCapability('handleSignedInNotification'));
-          assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
-          assert.isFalse(broker.hasCapability('immediateUnverifiedLogin'));
-
-          assert.equal(broker.getBehavior('afterSignInConfirmationPoll').type, 'halt');
-          assert.equal(broker.getBehavior('afterSignUpConfirmationPoll').type, 'halt');
-        });
-      });
-
-      describe('supports immediateUnverifiedLogin', () => {
-        it('has the expected capabilities and behaviors', () => {
-          initializeBroker(IMMEDIATE_UNVERIFIED_LOGIN_UA_STRING);
-
-          assert.isTrue(broker.hasCapability('signup'));
-          assert.isTrue(broker.hasCapability('handleSignedInNotification'));
-          assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
-          assert.isTrue(broker.hasCapability('immediateUnverifiedLogin'));
-
-          assert.equal(broker.getBehavior('afterSignInConfirmationPoll').type, 'navigate');
-          assert.equal(broker.getBehavior('afterSignInConfirmationPoll').endpoint, 'signin_confirmed');
-          assert.equal(broker.getBehavior('afterSignUpConfirmationPoll').type, 'navigate');
-          assert.equal(broker.getBehavior('afterSignUpConfirmationPoll').endpoint, 'signup_confirmed');
-        });
-      });
-
       describe('supports chooseWhatToSyncWebV1', () => {
         it('has the expected capabilities and behaviors', () => {
           initializeBroker(CHOOSE_WHAT_TO_SYNC_UA_STRING);
@@ -79,7 +49,6 @@ define(function (require, exports, module) {
           assert.isTrue(broker.hasCapability('signup'));
           assert.isTrue(broker.hasCapability('handleSignedInNotification'));
           assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
-          assert.isTrue(broker.hasCapability('immediateUnverifiedLogin'));
           assert.isTrue(broker.hasCapability('chooseWhatToSyncWebV1'));
 
           assert.equal(broker.getBehavior('afterSignInConfirmationPoll').type, 'navigate');
@@ -105,15 +74,10 @@ define(function (require, exports, module) {
 
     describe('_notifyRelierOfLogin', () => {
       let account;
-      let timeoutSpy;
 
       beforeEach(() => {
         sinon.stub(broker, 'send').callsFake(() => Promise.resolve());
-        timeoutSpy = null;
-        sinon.stub(windowMock, 'setTimeout').callsFake((callback, timeout) => {
-          // `callback` is only triggered if we trigger it.
-          timeoutSpy = sinon.spy(callback);
-        });
+        sinon.spy(windowMock, 'setTimeout');
         sinon.spy(windowMock, 'clearTimeout');
         account = new Account({
           uid: 'uid'
@@ -134,7 +98,6 @@ define(function (require, exports, module) {
       describe('verified account', () => {
         it('sends immediately', () => {
           account.set('verified', true);
-          broker.setCapability('immediateUnverifiedLogin', false);
 
           return testLoginSent()
             .then(() => {
@@ -144,10 +107,9 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('broker supports immediate logins', () => {
+      describe('unverified account', () => {
         it('sends immediately', () => {
           account.set('verified', false);
-          broker.setCapability('immediateUnverifiedLogin', true);
 
           return testLoginSent()
             .then(() => {
@@ -157,33 +119,6 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('unverifiedAccount', () => {
-        beforeEach(() => {
-          account.set('verified', false);
-        });
-
-        it('notifies after timeout', () => {
-          return testLoginSent(() => {
-            timeoutSpy();
-          })
-          .then(() => {
-            assert.isTrue(windowMock.setTimeout.calledOnce);
-            assert.isTrue(windowMock.clearTimeout.calledOnce);
-            assert.isTrue(timeoutSpy.called);
-          });
-        });
-
-        it('notifies on `blur` event', () => {
-          return testLoginSent(() => {
-            $(windowMock).trigger('blur');
-          })
-          .then(() => {
-            assert.isTrue(windowMock.setTimeout.calledOnce);
-            assert.isTrue(windowMock.clearTimeout.calledOnce);
-            assert.isFalse(timeoutSpy.called);
-          });
-        });
-      });
     });
   });
 });
