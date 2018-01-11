@@ -74,10 +74,15 @@ def process_compressed (pool, data):
 
 def decompress (data):
     decompressor = zlib.decompressobj(ZLIB_WBITS)
+
     for chunk in data:
         decompressed = decompressor.decompress(chunk)
         if decompressed:
             yield decompressed
+
+    remaining = decompressor.flush()
+    if len(remaining) > 0:
+        yield remaining
 
 def partition_available_events (events):
     partitioned_events = events.rpartition("\n")
