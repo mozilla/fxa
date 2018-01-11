@@ -230,7 +230,7 @@ define(function (require, exports, module) {
      *   @param {String} [options.sessionTokenContext] - The context for which
      *                   the session token is being created. Defaults to the
      *                   relier's context.
-     *   @param {Boolean} [options.skipCaseError] - if set to true, INCCORECT_EMAIL_CASE
+     *   @param {Boolean} [options.skipCaseError] - if set to true, INCORRECT_EMAIL_CASE
      *                   errors will be returned to be handled locally instead of automatically
      *                   being retried in the fxa-js-client.
      *   @param {String} [options.unblockCode] - Unblock code.

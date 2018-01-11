@@ -491,7 +491,7 @@ define(function (require, exports, module) {
             });
         });
 
-        it('are converted to contain a `verificationMethod` and `verificationResaon`', function () {
+        it('are converted to contain a `verificationMethod` and `verificationReason`', function () {
           assert.isFalse(sessionData.verified);
           assert.equal(sessionData.verificationMethod, VerificationMethods.EMAIL);
           assert.equal(sessionData.verificationReason, VerificationReasons.SIGN_UP);
