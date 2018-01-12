@@ -77,30 +77,27 @@ var MaxmindDbDownloader = function () {
           } else {
             // extraction is complete
             logHelper('info', 'unzip complete');
-            // load up geodb with the downloaded file
-            var geoDb = require('./fxa-geodb')({
-              dbPath: targetFilePathTemp
-            });
-            logHelper('info', 'checking if lookup works with downloaded file');
-            // check if lookup works with the downloaded file
-            geoDb(DEFAULTS.GEODB_TEST_IP)
-              .then(function (location) {
-                // download worked, rename file
-                if (location) {
-                  fs.renameSync(targetFilePathTemp, targetFilePath);
-                  logHelper('info', 'lookup works, renaming downloaded file');
-                }
-                resolve();
-              }, function (err) {
-                // download resulted in an error, do not rename
-                // remove temp file
-                if (fs.existsSync(targetFilePathTemp)) {
-                  fs.unlinkSync(targetFilePathTemp);
-                }
-                logHelper('error', 'downloaded file not working');
-                reject(err);
+            try {
+              // load up geodb with the downloaded file
+              const geoDb = require('./fxa-geodb')({
+                dbPath: targetFilePathTemp
               });
-
+              logHelper('info', 'checking if lookup works with downloaded file');
+              // check if lookup works with the downloaded file
+              geoDb(DEFAULTS.GEODB_TEST_IP);
+              // download worked, rename file
+              fs.renameSync(targetFilePathTemp, targetFilePath);
+              logHelper('info', 'lookup works, renaming downloaded file');
+              resolve();
+            } catch (err) {
+              // download resulted in an error, do not rename
+              // remove temp file
+              if (fs.existsSync(targetFilePathTemp)) {
+                fs.unlinkSync(targetFilePathTemp);
+              }
+              logHelper('error', 'downloaded file not working');
+              reject(err);
+            }
           }
         });
       });

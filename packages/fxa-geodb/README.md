@@ -18,33 +18,51 @@ var geoDb = require('fxa-geodb')({
 
 --
 ### API
-The function returns a promise that may either resolve (on successful finding of location data) or reject (if either the ip was invalid, or location data could not be found). Call the function, like so:
+The function returns a location object
+or throws if the ip was invalid
+or location data could not be found.
+Call the function like so:
 
 ```JavaScript
-geoDb(ip)
-  .then(function (location) {
-    // success, resolved
-    // location data is available here
-  }, function (err) {
-    // rejected :(
-    // Uh-oh error
-  });
+try {
+  const location = geoDb(ip);
+  // Use location...
+} catch (err) {
+  // Handle err
+}
 ```
 
-On successful resolution of the promise, the `location` object has the following data:
+The `location` object has the following properties:
 
-```JavaScript
-accuracy: 'accuracy-radius-in-km', // 5 (number)
-city: 'human-readable-city-name', // Mountain View
-continent: 'human-readable-continent-name', // North America
-country: 'human-readable-country-name', // USA
-latLong: {
-    latitude: 'latitude-in-decimal', // 37.386 (number)
-    longitude: 'longitude-in-decimal' // -122.0838 (number)
-},
-state: 'human-readable-state-name', // Victoria
-stateCode: 'human-readable-state-code', // VIC
-timeZone: 'IANA-compatible-timezone', // America/Los_Angeles 
+* `accuracy`: Accuracy radius in km (number)
+* `city`: Human readable city name (string)
+* `state`: Human readable state name (string)
+* `stateCode`: ISO 3166-2 state code (string)
+* `country`: Human readable country name (string)
+* `countryCode`: ISO 3166-1 alpha-2 country code (string)
+* `continent`: Human readable continent name (string)
+* `timeZone`: IANA tz database timezone (string)
+* `latLong`: An object containing two properties:
+  * `latitude`: Latitude (number)
+  * `longitude`: Longitude (number)
+
+For example:
+
+```js
+{
+  accuracy: 5,
+  city: 'Mountain View',
+  state: 'California',
+  stateCode: 'CA',
+  country: 'United States',
+  countryCode: 'US',
+  continent: 'North America',
+  timeZone: 'America/Los_Angeles'
+  latLong: {
+    latitude: 37.3885,
+    longitude: -122.0741
+  }
+}
 ```
 
 A working example is provided in the `examples` directory.

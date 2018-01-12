@@ -5,7 +5,7 @@ var path = require('path');
 
 var DEFAULTS = {
   CRON_TIMING : '30 30 1 * * 3',
-  GEODB_TEST_IP: '8.8.8.8',
+  GEODB_TEST_IP: '63.245.221.32',
   SOURCE_FILE_NAME : 'sources.json',
   TARGET_DIR_NAME : 'db',
   TARGET_FILE_NAME : 'cities-db.mmdb',
