@@ -89,6 +89,7 @@ const conf = convict({
       },
       types: {
         doc: 'A mapping of allowed mime types and their file signatures',
+        format: Object,
         default: {
           // see https://en.wikipedia.org/wiki/List_of_file_signatures
           'image/jpeg': [
@@ -162,6 +163,7 @@ const conf = convict({
     },
     password: {
       default: '',
+      sensitive: true,
       env: 'MYSQL_PASSWORD'
     },
     database: {
@@ -321,6 +323,7 @@ const conf = convict({
   },
   sentryDsn: {
     doc: 'Sentry DSN for error and log reporting',
+    sensitive: true,
     default: '',
     format: 'String',
     env: 'SENTRY_DSN'
@@ -346,7 +349,7 @@ if (conf.get('env') === 'test') {
 process.env.NODE_ENV = conf.get('env');
 
 var options = {
-  strict: true
+  allowed: 'strict'
 };
 
 conf.validate(options);

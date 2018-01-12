@@ -6,13 +6,14 @@
 // If required, modules will be instrumented.
 require('../lib/newrelic')();
 
-const config = require('../lib/config').getProperties();
+const configuration = require('../lib/config');
 const db = require('../lib/db');
 const logger = require('../lib/logging')('bin.server');
 const server = require('../lib/server').create();
 const events = require('../lib/events')(server);
 
-logger.info('config', config);
+// The stringify/parse is to force the output back to unindented json.
+logger.info('config', JSON.stringify(JSON.parse(configuration.toString())));
 db.ping().done(function() {
   server.start(function(err) {
     if (err) {
