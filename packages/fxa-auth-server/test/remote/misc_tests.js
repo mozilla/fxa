@@ -285,6 +285,50 @@ describe('remote misc', function() {
     }
   )
 
+  it(
+    'fail on hawk payload mismatch',
+    () => {
+      const email = server.uniqueEmail()
+      const password = 'allyourbasearebelongtous'
+      let url = null
+      let client = null
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+        .then((c) => {
+          client = c
+          return client.api.Token.SessionToken.fromHex(client.sessionToken)
+        })
+        .then((token) => {
+          url = client.api.baseURL + '/account/device'
+          const method = 'POST'
+          const payload = {
+            name: 'my cool device',
+            type: 'desktop'
+          }
+          const verify = {
+            credentials: token,
+            payload: JSON.stringify(payload),
+            timestamp: Math.floor(Date.now() / 1000)
+          }
+          const headers = {
+            Authorization: hawk.client.header(url, method, verify).field
+          }
+          payload.name = 'my stealthily-changed device name'
+          return request(
+            {
+              method: method,
+              url: url,
+              headers: headers,
+              body: JSON.stringify(payload)
+            })
+            .spread((res) => {
+              const body = JSON.parse(res.body)
+              assert.equal(res.statusCode, 401, 'the request was rejected')
+              assert.equal(body.errno, 109, 'the errno indicates an invalid signature')
+            })
+        })
+    }
+  )
+
   after(() => {
     return TestServer.stop(server)
   })

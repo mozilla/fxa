@@ -78,5 +78,15 @@ module.exports = function (
   defaults.forEach(r => { r.path = basePath + r.path })
   const allRoutes = defaults.concat(idp, v1Routes)
 
+  // Default auth.payload to 'optional' for all authenticated routes.
+  // We'll validate the payload hash if the client provides it,
+  // but allow them to skip it if they can't or don't want to.
+  allRoutes.forEach(r => {
+    const auth = r.config && r.config.auth
+    if (auth && ! auth.hasOwnProperty('payload')) {
+      auth.payload = 'optional'
+    }
+  })
+
   return allRoutes
 }
