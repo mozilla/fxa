@@ -75,6 +75,7 @@ define(function (require, exports, module) {
         success: t('Secondary email verified successfully')
       }),
       afterCompleteSignIn: new NavigateBehavior('signin_verified'),
+      afterCompleteSignInTokenCode: new NavigateBehavior('settings'),
       afterCompleteSignUp: new NavigateBehavior('signup_verified'),
       afterDeleteAccount: new NullBehavior(),
       afterForceAuth: new NavigateBehavior('signin_confirmed'),
@@ -237,6 +238,10 @@ define(function (require, exports, module) {
     afterCompleteSignIn (account) {
       return this.unpersistVerificationData(account)
         .then(() => this.getBehavior('afterCompleteSignIn'));
+    },
+
+    afterCompleteSignInTokenCode () {
+      return Promise.resolve(this.getBehavior('afterCompleteSignInTokenCode'));
     },
 
     /**
@@ -480,7 +485,11 @@ define(function (require, exports, module) {
       /**
        * Is signup supported? the fx_ios_v1 broker can disable it.
        */
-      signup: true
+      signup: true,
+      /**
+       * Are token codes flow supported?
+       */
+      tokenCode: false
     },
 
     /**

@@ -41,6 +41,7 @@ module.exports = function () {
     'settings/emails',
     'signin',
     'signin_bounced',
+    'signin_token_code',
     'signin_confirmed',
     'signin_permissions',
     'signin_reported',

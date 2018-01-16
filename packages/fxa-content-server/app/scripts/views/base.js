@@ -21,6 +21,7 @@ define(function (require, exports, module) {
   const Strings = require('../lib/strings');
   const TimerMixin = require('./mixins/timer-mixin');
   const Translator = require('../lib/translator');
+  const VerificationMethods = require('../lib/verification-methods');
   const VerificationReasons = require('../lib/verification-reasons');
 
   var DEFAULT_TITLE = window.document.title;
@@ -291,7 +292,11 @@ define(function (require, exports, module) {
               if (account.get('verificationReason') === VerificationReasons.SIGN_UP) {
                 targetScreen = 'confirm';
               } else if (account.get('verificationReason') === VerificationReasons.SIGN_IN) {
-                targetScreen = 'confirm_signin';
+                if (account.get('verificationMethod') === VerificationMethods.EMAIL_2FA) {
+                  targetScreen = 'signin_code';
+                } else {
+                  targetScreen = 'confirm_signin';
+                }
               }
 
               this.navigate(targetScreen, {

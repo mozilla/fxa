@@ -19,7 +19,8 @@ define(function(require, exports, module) {
     require('./send-sms-install-link'),
     require('./sentry'),
     require('./sessions'),
-    require('./signup-password-confirm')
+    require('./signup-password-confirm'),
+    require('./token-code')
   ];
 
   module.exports = class ExperimentChoiceIndex {

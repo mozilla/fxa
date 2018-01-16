@@ -63,7 +63,8 @@ define(function (require, exports, module) {
       // Disable signed-in notifications for OAuth due to the potential for
       // unintended consequences from redirecting to a relier URL more than
       // once.
-      handleSignedInNotification: false
+      handleSignedInNotification: false,
+      tokenCode: true
     }),
 
     initialize (options) {
@@ -209,6 +210,11 @@ define(function (require, exports, module) {
     afterSignInConfirmationPoll (account) {
       return this.finishOAuthSignInFlow(account)
         .then(() => proto.afterSignInConfirmationPoll.call(this, account));
+    },
+
+    afterCompleteSignInTokenCode (account) {
+      return this.finishOAuthSignInFlow(account)
+        .then(() => proto.afterSignIn.call(this, account));
     },
 
     afterSignUpConfirmationPoll (account) {

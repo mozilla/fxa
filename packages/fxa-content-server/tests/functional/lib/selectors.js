@@ -175,6 +175,13 @@ module.exports = {
     PASSWORD: 'input[type=password]',
     SUBMIT: 'button[type="submit"]',
   },
+  SIGNIN_TOKEN_CODE: {
+    EMAIL_FIELD: '.verification-email-message',
+    ERROR: '.error',
+    HEADER: '#fxa-signin-code-header',
+    INPUT: '#token-code',
+    SUBMIT: 'button[type="submit"]',
+  },
   SIGNIN_UNBLOCK: {
     EMAIL_FIELD: '.verification-email-message',
     HEADER: '#fxa-signin-unblock-header',

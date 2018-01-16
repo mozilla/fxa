@@ -38,6 +38,7 @@ define(function (require, exports, module) {
   const ResetPasswordView = require('../views/reset_password');
   const SettingsView = require('../views/settings');
   const SignInBouncedView = require('../views/sign_in_bounced');
+  const SignInTokenCodeView = require('../views/sign_in_token_code');
   const SignInPasswordView = require('../views/sign_in_password');
   const SignInReportedView = require('../views/sign_in_reported');
   const SignInUnblockView = require('../views/sign_in_unblock');
@@ -111,6 +112,7 @@ define(function (require, exports, module) {
       'signin_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN }),
       'signin_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_IN }),
       'signin_reported(/)': createViewHandler(SignInReportedView),
+      'signin_token_code(/)': createViewHandler(SignInTokenCodeView),
       'signin_unblock(/)': createViewHandler(SignInUnblockView),
       'signin_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN }),
       'signup(/)': 'onSignUp',

@@ -13,7 +13,8 @@ define(function (require, exports, module) {
 
   return {
     EMAIL: 'email',
-    EMAIL_CAPTCHA: 'email-captcha'
+    EMAIL_2FA: 'email-2fa',
+    EMAIL_CAPTCHA: 'email-captcha',
   };
 });
 

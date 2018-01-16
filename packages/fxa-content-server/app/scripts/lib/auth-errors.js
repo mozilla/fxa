@@ -198,6 +198,14 @@ define(function (require, exports, module) {
       errno: 151,
       message: t('Failed to send email')
     },
+    INVALID_TOKEN_VERIFICATION_CODE: {
+      errno: 152,
+      message: t('Invalid sign-in verification code')
+    },
+    EXPIRED_TOKEN_VERIFICATION_CODE: {
+      errno: 153,
+      message: t('This verification code has expired')
+    },
     // Secondary Email errors end
     SERVER_BUSY: {
       errno: 201,

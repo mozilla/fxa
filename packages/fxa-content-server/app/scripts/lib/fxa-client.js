@@ -270,6 +270,10 @@ define(function (require, exports, module) {
         signInOptions.originalLoginEmail = options.originalLoginEmail;
       }
 
+      if (options.verificationMethod) {
+        signInOptions.verificationMethod = options.verificationMethod;
+      }
+
       setMetricsContext(signInOptions, options);
 
       return client.signIn(email, password, signInOptions)
@@ -281,7 +285,12 @@ define(function (require, exports, module) {
             // legacy /account/login that lacks a verificationReason,
             // assume SIGN_UP if the account is not verified.
             accountData.verificationReason = VerificationReasons.SIGN_UP;
-            accountData.verificationMethod = VerificationMethods.EMAIL;
+
+            if (signInOptions.verificationMethod) {
+              accountData.verificationMethod = signInOptions.verificationMethod;
+            } else {
+              accountData.verificationMethod = VerificationMethods.EMAIL;
+            }
           }
 
           return getUpdatedSessionData(email, relier, accountData, options);
@@ -674,9 +683,9 @@ define(function (require, exports, module) {
             var verificationReason = response.emailVerified ?
                                      VerificationReasons.SIGN_IN :
                                      VerificationReasons.SIGN_UP;
+
             return {
               email: response.email,
-              verificationMethod: VerificationMethods.EMAIL,
               verificationReason: verificationReason,
               verified: false
             };
@@ -873,7 +882,17 @@ define(function (require, exports, module) {
      * @param {String} email The new primary email address
      * @return {Promise} resolves when complete
      */
-    recoveryEmailSetPrimaryEmail: createClientDelegate('recoveryEmailSetPrimaryEmail')
+    recoveryEmailSetPrimaryEmail: createClientDelegate('recoveryEmailSetPrimaryEmail'),
+
+    /**
+     * Verify the token code to allow user to login.
+     *
+     * @param {String} sessionToken SessionToken obtained from signIn
+     * @param {String} uid account uid
+     * @param {String} code tokenCode
+     * @returns {Promise} resolves when complete
+     */
+    verifyTokenCode: createClientDelegate('verifyTokenCode')
   };
 
   module.exports = FxaClientWrapper;

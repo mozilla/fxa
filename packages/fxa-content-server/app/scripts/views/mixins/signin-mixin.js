@@ -10,11 +10,15 @@ define(function (require, exports, module) {
   const AuthErrors = require('../../lib/auth-errors');
   const NavigateBehavior = require('../behaviors/navigate');
   const ResumeTokenMixin = require('./resume-token-mixin');
+  const SearchParamMixin = require('../../lib/search-param-mixin');
   const VerificationMethods = require('../../lib/verification-methods');
   const VerificationReasons = require('../../lib/verification-reasons');
 
   module.exports = {
-    dependsOn: [ ResumeTokenMixin ],
+    dependsOn: [
+      ResumeTokenMixin,
+      SearchParamMixin
+    ],
 
     /**
      * Sign in a user
@@ -42,12 +46,20 @@ define(function (require, exports, module) {
           // This is important for the infamous signin-from-signup feature.
           this.logFlowEvent('attempt', 'signin');
 
+          // Check to see if this user is in the token code experiment,
+          // if so, override the verification method to use email-2fa
+          let verificationMethod;
+          if (this.getTokenCodeExperimentGroup && this.getTokenCodeExperimentGroup() === 'treatment') {
+            verificationMethod = VerificationMethods.EMAIL_2FA;
+          }
+
           return this.user.signInAccount(account, password, this.relier, {
             // a resume token is passed in to allow
             // unverified account or session users to complete
             // email verification.
             resume: this.getStringifiedResumeToken(account),
-            unblockCode: options.unblockCode
+            unblockCode: options.unblockCode,
+            verificationMethod: verificationMethod
           });
         })
         .then((account) => {
@@ -112,11 +124,16 @@ define(function (require, exports, module) {
         var verificationReason = account.get('verificationReason');
 
         if (verificationReason === VerificationReasons.SIGN_IN &&
-            verificationMethod === VerificationMethods.EMAIL) {
-          return this.navigate('confirm_signin', { account });
+          verificationMethod === VerificationMethods.EMAIL) {
+          return this.navigate('confirm_signin', {account});
         }
 
-        return this.navigate('confirm', { account });
+        if (verificationReason === VerificationReasons.SIGN_IN &&
+          verificationMethod === VerificationMethods.EMAIL_2FA) {
+          return this.navigate('signin_token_code', {account});
+        }
+
+        return this.navigate('confirm', {account});
       }
 
       // If the account's uid changed, update the relier model or else

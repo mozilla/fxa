@@ -764,6 +764,28 @@ const getUnblockInfo = thenify(function (user, index) {
     });
 });
 
+/**
+ * Get the token code from the verify sign-in email.
+ *
+ * @param {string} user or email
+ * @param {number} index
+ * @returns {promise} that resolves with token code
+ */
+const getTokenCode = thenify(function (user, index) {
+  if (/@/.test(user)) {
+    user = TestHelpers.emailToUser(user);
+  }
+
+  return this.parent
+    .then(getEmailHeaders(user, index))
+    .then((headers) => {
+      const code = headers['x-signin-verify-code'];
+      if (! code) {
+        throw new Error('Email does not contain token code: ' + headers['x-template-name']);
+      }
+      return code;
+    });
+});
 
 /**
  * Test to ensure an expected email arrives
@@ -1330,6 +1352,16 @@ const fillOutSignInUnblock = thenify(function (email, number) {
     .then(function (unblockInfo) {
       return this.parent
         .then(type('#unblock_code', unblockInfo.unblockCode));
+    })
+    .then(click('button[type=submit]'));
+});
+
+const fillOutSignInTokenCode = thenify(function (email, number) {
+  return this.parent
+    .then(getTokenCode(email, number))
+    .then((tokenCode) => {
+      return this.parent
+        .then(type('#token-code', tokenCode));
     })
     .then(click('button[type=submit]'));
 });
@@ -2084,6 +2116,7 @@ module.exports = {
   fillOutForceAuth: fillOutForceAuth,
   fillOutResetPassword: fillOutResetPassword,
   fillOutSignIn: fillOutSignIn,
+  fillOutSignInTokenCode: fillOutSignInTokenCode,
   fillOutSignInUnblock: fillOutSignInUnblock,
   fillOutSignUp: fillOutSignUp,
   focus: focus,
