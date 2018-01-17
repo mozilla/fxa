@@ -91,7 +91,7 @@ define(function(require, exports, module) {
       normalize: ensurePrefix('+61'),
       pattern: /^(?:\+61\d{9}|\d{10})$/,
       prefix: '+61',
-      rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=AU`
+      rolloutRate: 0.5 // being soft launched. Testers will need to open `/sms?service=sync&country=AU`
     },
     // Belgium
     // https://en.wikipedia.org/wiki/Telephone_numbers_in_Belgium
@@ -127,7 +127,7 @@ define(function(require, exports, module) {
       normalize: ensurePrefix('+34'),
       pattern: /^(?:\+34)?\d{9}$/,
       prefix: '+34',
-      rolloutRate: 0.5
+      rolloutRate: 1
     },
     // France
     // https://en.wikipedia.org/wiki/Telephone_numbers_in_France
@@ -136,7 +136,7 @@ define(function(require, exports, module) {
       normalize: ensurePrefix('+33'),
       pattern: /^(?:\+33\d{9}|\d{10})$/,
       prefix: '+33',
-      rolloutRate: 0.5
+      rolloutRate: 1
     },
     GB: {
       format: formatter('+44 ${serverPhoneNumber}'),
@@ -154,7 +154,7 @@ define(function(require, exports, module) {
       // are the old style and are still used.
       pattern: /^(?:\+39)?\d{9,10}$/,
       prefix: '+39',
-      rolloutRate: 0.5
+      rolloutRate: 1
     },
     // Luxembourg
     // https://en.wikipedia.org/wiki/Telephone_numbers_in_Luxembourg
@@ -181,7 +181,7 @@ define(function(require, exports, module) {
       normalize: ensurePrefix('+351'),
       pattern: /^(?:\+351)?\d{9}$/,
       prefix: '+351',
-      rolloutRate: 0.5
+      rolloutRate: 1
     },
     RO: {
       format: formatter('+40 ${serverPhoneNumber}'),
