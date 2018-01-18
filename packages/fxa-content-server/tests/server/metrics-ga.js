@@ -87,8 +87,9 @@ suite.tests['describes _calculateQueueTime'] = function () {
   assert.equal(collect._calculateQueueTime(), 0);
   assert.equal(collect._calculateQueueTime(1000), 0);
   assert.equal(collect._calculateQueueTime(1000, 2000, 500), 500);
-  assert.equal(collect._calculateQueueTime(Date.now(), Date.now() + 5000, 1000), 4000);
-  assert.equal(collect._calculateQueueTime(Date.now(), Date.now() - 5000, 1000), 0);
+  const now = Date.now();
+  assert.equal(collect._calculateQueueTime(now, now + 5000, 1000), 4000);
+  assert.equal(collect._calculateQueueTime(now, now - 5000, 1000), 0);
 };
 
 function testMalformedEventData (fixturePath) {
