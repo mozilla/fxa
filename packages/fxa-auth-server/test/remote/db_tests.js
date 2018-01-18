@@ -27,11 +27,16 @@ const Token = require('../../lib/tokens')(log, {
   }
 })
 
+const tokenPruning = {
+  enabled: true,
+  maxAge: 1000 * 60 * 60
+}
 const DB = require('../../lib/db')({
   lastAccessTimeUpdates,
   signinCodeSize: config.signinCodeSize,
   redis: Object.assign({}, config.redis, { enabled: true }),
-  tokenLifetimes: {}
+  tokenLifetimes: {},
+  tokenPruning
 }, log, Token, UnblockCode)
 
 const redis = require('redis').createClient({
@@ -259,7 +264,7 @@ describe('remote db', function() {
             uaFormFactor: null
           }), P.reject())
         })
-        .then(tokens => {
+        .then(() => {
           // Fetch all sessions for the account
           return db.sessions(account.uid)
         })
@@ -285,6 +290,48 @@ describe('remote db', function() {
           assert.equal(sessionToken.uaOSVersion, '10.10')
           assert.equal(sessionToken.lastAccessTime, sessionToken.createdAt)
 
+          // Attempt to prune a session token that is younger than maxAge
+          sessionToken.createdAt = Date.now() - tokenPruning.maxAge + 10000
+          return db.pruneSessionTokens(account.uid, [ sessionToken ])
+        })
+        .then(() => {
+          // Fetch all sessions for the account
+          return db.sessions(account.uid)
+        })
+        .then(sessions => {
+          assert.equal(sessions.length, 1, 'sessions still contains one item')
+          assert.equal(sessions[0].uaBrowser, 'Firefox Mobile', 'uaBrowser property is correct')
+          assert.equal(sessions[0].uaBrowserVersion, '42', 'uaBrowserVersion property is correct')
+          assert.equal(sessions[0].uaOS, 'Android', 'uaOS property is correct')
+          assert.equal(sessions[0].uaOSVersion, '4.4', 'uaOSVersion property is correct')
+          assert.equal(sessions[0].uaDeviceType, 'mobile', 'uaDeviceType property is correct')
+          assert.equal(sessions[0].uaFormFactor, null, 'uaFormFactor property is correct')
+
+          // Fetch the session token
+          return db.sessionToken(tokenId)
+        })
+        .then(sessionToken => {
+          // Prune a session token that is older than maxAge
+          sessionToken.createdAt = Date.now() - tokenPruning.maxAge - 1
+          return db.pruneSessionTokens(account.uid, [ sessionToken ])
+        })
+        .then(() => {
+          // Fetch all sessions for the account
+          return db.sessions(account.uid)
+        })
+        .then(sessions => {
+          assert.equal(sessions.length, 1, 'sessions still contains one item')
+          assert.equal(sessions[0].uaBrowser, 'Firefox', 'uaBrowser property is the original value')
+          assert.equal(sessions[0].uaBrowserVersion, '41', 'uaBrowserVersion property is the original value')
+          assert.equal(sessions[0].uaOS, 'Mac OS X', 'uaOS property is the original value')
+          assert.equal(sessions[0].uaOSVersion, '10.10', 'uaOSVersion property is the original value')
+          assert.equal(sessions[0].uaDeviceType, null, 'uaDeviceType property is the original value')
+          assert.equal(sessions[0].uaFormFactor, null, 'uaFormFactor property is the original value')
+
+          // Fetch the session token
+          return db.sessionToken(tokenId)
+        })
+        .then(sessionToken => {
           // Delete the session token
           return db.deleteSessionToken(sessionToken)
         })

@@ -83,15 +83,21 @@ function create(log, error, config, routes, db, translator) {
         return process.nextTick(cb.bind(null, null, null)) // not found
       }
       dbGetFn(id)
-        .then(
-          function (token) {
-            if (token.expired(Date.now())) {
-              return cb(error.invalidToken('The authentication token has expired'))
+        .then(token => {
+          if (token.expired(Date.now())) {
+            const err = error.invalidToken('The authentication token has expired')
+
+            if (token.tokenTypeID === 'sessionToken') {
+              return db.pruneSessionTokens(token.uid, [ token ])
+                .catch(() => {})
+                .then(() => cb(err))
             }
-            return cb(null, token)
-          },
-          cb
-        )
+
+            return cb(err)
+          }
+
+          return cb(null, token)
+        }, cb)
     }
   }
 

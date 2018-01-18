@@ -379,7 +379,7 @@ var conf = convict({
       doc: 'Key prefix for session tokens in Redis'
     },
     maxConnections: {
-      default: 10,
+      default: 100,
       env: 'REDIS_POOL_MAX_CONNECTIONS',
       format: 'int',
       doc: 'Maximum connection count for Redis'
@@ -430,6 +430,20 @@ var conf = convict({
       format: 'duration',
       env: 'SESSION_TOKEN_WITHOUT_DEVICE_TTL',
       default: '4 weeks'
+    }
+  },
+  tokenPruning: {
+    enabled: {
+      doc: 'Turn on Redis token pruning',
+      format: Boolean,
+      default: true,
+      env: 'TOKEN_PRUNING_ENABLED'
+    },
+    maxAge: {
+      doc: 'Age at which to prune expired tokens from Redis',
+      format: 'duration',
+      default: '1 month',
+      env: 'TOKEN_PRUNING_MAX_AGE'
     }
   },
   verifierVersion: {

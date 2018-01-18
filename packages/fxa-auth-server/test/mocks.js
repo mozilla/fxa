@@ -58,6 +58,7 @@ const DB_METHOD_NAMES = [
   'keyFetchTokenWithVerificationStatus',
   'passwordChangeToken',
   'passwordForgotToken',
+  'pruneSessionTokens',
   'resetAccount',
   'resetAccountTokens',
   'securityEvent',
@@ -324,13 +325,17 @@ function mockDB (data, errors) {
       return P.resolve(device)
     }),
     sessionToken: sinon.spy(() => {
-      var res = {
+      const res = {
+        id: data.sessionTokenId || 'fake session token id',
+        uid: data.uid || 'fake uid',
         tokenVerified: true,
         uaBrowser: data.uaBrowser,
         uaBrowserVersion: data.uaBrowserVersion,
         uaOS: data.uaOS,
         uaOSVersion: data.uaOSVersion,
-        uaDeviceType: data.uaDeviceType
+        uaDeviceType: data.uaDeviceType,
+        tokenTypeID: 'sessionToken',
+        expired: () => data.expired || false
       }
       if (data.devices && data.devices.length > 0) {
         Object.keys(data.devices[0]).forEach(key => {

@@ -45,6 +45,7 @@ module.exports = (
     PasswordChangeToken
   } = Token
   const MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE = config.tokenLifetimes.sessionTokenWithoutDevice
+  const { enabled: TOKEN_PRUNING_ENABLED, maxAge: TOKEN_PRUNING_MAX_AGE } = config.tokenPruning
 
   function setAccountEmails(account) {
     return this.accountEmails(account.uid)
@@ -261,6 +262,35 @@ module.exports = (
     log.trace({ op: 'DB.sessions', uid: uid })
     const promises = [
       this.pool.get('/account/' + uid + '/sessions')
+        .then(sessionTokens => {
+          if (! MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE) {
+            return sessionTokens
+          }
+
+          const expiredSessionTokens = []
+
+          // Filter out any expired sessions
+          sessionTokens = sessionTokens.filter(sessionToken => {
+            if (sessionToken.deviceId) {
+              return true
+            }
+
+            if (sessionToken.createdAt > Date.now() - MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE) {
+              return true
+            }
+
+            expiredSessionTokens.push(Object.assign({}, sessionToken, { id: sessionToken.tokenId }))
+            return false
+          })
+
+          if (expiredSessionTokens.length === 0) {
+            return sessionTokens
+          }
+
+          return this.pruneSessionTokens(uid, expiredSessionTokens)
+            .catch(() => {})
+            .then(() => sessionTokens)
+        })
     ]
     let isRedisOk = true
 
@@ -279,16 +309,6 @@ module.exports = (
 
     return P.all(promises)
       .spread((mysqlSessionTokens, redisSessionTokens = {}) => {
-        if (MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE) {
-          // Filter out any expired sessions
-          mysqlSessionTokens = mysqlSessionTokens.filter(sessionToken => {
-            if (sessionToken.deviceId) {
-              return true
-            }
-
-            return sessionToken.createdAt > Date.now() - MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE
-          })
-        }
         // for each db session token, if there is a matching redis token
         // overwrite the properties of the db token with the redis token values
         const lastAccessTimeEnabled = isRedisOk && features.isLastAccessTimeEnabledForUser(uid)
@@ -571,6 +591,48 @@ module.exports = (
 
         return JSON.stringify(packTokensForRedis(sessionTokens))
       }))
+  }
+
+  DB.prototype.pruneSessionTokens = function (uid, sessionTokens) {
+    log.trace({ op: 'DB.pruneSessionTokens', uid, tokenCount: sessionTokens.length })
+
+    if (! redis || ! TOKEN_PRUNING_ENABLED || ! features.isLastAccessTimeEnabledForUser(uid)) {
+      return P.resolve()
+    }
+
+    const tokenIds = sessionTokens.reduce((set, token) => {
+      if (token.createdAt <= Date.now() - TOKEN_PRUNING_MAX_AGE) {
+        set.add(token.id)
+      }
+      return set
+    }, new Set())
+
+    const pruneCount = tokenIds.size
+    if (pruneCount === 0) {
+      return P.resolve()
+    }
+
+    return redis.update(uid, sessionTokens => {
+      sessionTokens = unpackTokensFromRedis(sessionTokens)
+
+      const keys = Object.keys(sessionTokens)
+      let keyCount = keys.length
+      let doneCount = 0
+
+      keys.some(key => {
+        if (tokenIds.has(key)) {
+          delete sessionTokens[key]
+          keyCount -= 1
+          if (++doneCount === pruneCount) {
+            return true
+          }
+        }
+      })
+
+      if (keyCount > 0) {
+        return JSON.stringify(packTokensForRedis(sessionTokens))
+      }
+    })
   }
 
   DB.prototype.createDevice = function (uid, sessionTokenId, deviceInfo) {
