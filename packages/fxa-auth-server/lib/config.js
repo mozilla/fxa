@@ -219,7 +219,6 @@ const conf = convict({
     },
     password: {
       default: '',
-      sensitive: true,
       env: 'MYSQL_PASSWORD'
     },
     database: {
@@ -256,13 +255,11 @@ const conf = convict({
     key: {
       doc: 'Private JWK to sign id_tokens',
       default: {},
-      sensitive: true,
       env: 'FXA_OPENID_KEY'
     },
     oldKey: {
       doc: 'The previous public key that was used to sign id_tokens',
       default: {},
-      sensitive: true,
       env: 'FXA_OPENID_OLDKEY'
     },
     issuer: {
@@ -352,7 +349,6 @@ const conf = convict({
   sentryDsn: {
     doc: 'Sentry DSN for error and log reporting',
     default: '',
-    sensitive: true,
     format: 'String',
     env: 'SENTRY_DSN'
   }
@@ -364,7 +360,7 @@ var files = (envConfig + ',' + process.env.CONFIG_FILES)
 conf.loadFile(files);
 
 var options = {
-  allowed: 'strict'
+  strict: true
 };
 
 conf.validate(options);
