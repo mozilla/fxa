@@ -86,7 +86,7 @@ describe('/certificate/sign', () => {
       assert.equal(args[0].uaFormFactor, null, 'first argument uaFormFactor property was null')
       assert.ok(args[0].lastAccessTime, 'lastAccessTime is set')
       assert.ok(args[0].lastAccessTime > args[0].createdAt, 'lastAccessTime is updated')
-      assert.equal(args[1], mockRequest.app.geo, 'second argument was getGeoData result')
+      assert.equal(args[1], mockRequest.app.geo, 'second argument was geo data')
 
       assert.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once')
       args = mockDevices.upsert.args[0]

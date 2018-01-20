@@ -6,7 +6,6 @@
 
 const error = require('../error')
 const isA = require('joi')
-const P = require('../promise')
 const PhoneNumberUtil = require('google-libphonenumber').PhoneNumberUtil
 const validators = require('./validators')
 
@@ -122,40 +121,29 @@ module.exports = (log, db, config, customs, sms) => {
 
         let country
 
-        return getLocation()
-          .then(createResponse)
-          .then(reply, reply)
+        reply(createResponse(getLocation()))
 
         function getLocation () {
-          const forcedCountry = request.query.country
+          country = request.query.country
 
-          if (! forcedCountry && ! IS_STATUS_GEO_ENABLED) {
-            log.warn({ op: 'sms.getGeoData', warning: 'skipping geolocation step' })
-            return P.resolve(true)
+          if (! country) {
+            if (! IS_STATUS_GEO_ENABLED) {
+              log.warn({ op: 'sms.getGeoData', warning: 'skipping geolocation step' })
+              return true
+            }
+
+            const location = request.app.geo.location
+            if (location && location.countryCode) {
+              country = location.countryCode
+            }
           }
 
-          return P.resolve()
-            .then(() => {
-              if (forcedCountry) {
-                return forcedCountry
-              }
+          if (country) {
+            return REGIONS.has(country)
+          }
 
-              return request.app.geo
-                .then(result => result.location && result.location.countryCode)
-            })
-            .then(result => {
-              country = result
-              if (country) {
-                return REGIONS.has(country)
-              }
-
-              log.error({ op: 'sms.getGeoData', err: 'missing location data in result' })
-              return false
-            })
-            .catch(err => {
-              log.error({ op: 'sms.getGeoData', err: err })
-              throw error.unexpectedError()
-            })
+          log.error({ op: 'sms.getGeoData', err: 'missing location data' })
+          return false
         }
 
         function createResponse (isLocationOk) {

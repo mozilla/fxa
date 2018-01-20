@@ -6,7 +6,6 @@
 
 const isA = require('joi')
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
-const P = require('../promise')
 const validators = require('./validators')
 
 const { HEX_STRING, BASE_36 } = validators
@@ -63,11 +62,9 @@ module.exports = (log, db, mailer, config, customs) => {
         }
 
         function mailUnblockCode (code) {
-          return P.all([
-            request.app.geo,
-            db.accountEmails(emailRecord.uid)
-          ])
-            .spread((geoData, emails) => {
+          return db.accountEmails(emailRecord.uid)
+            .then(emails => {
+              const geoData = request.app.geo
               const {
                 browser: uaBrowser,
                 browserVersion: uaBrowserVersion,

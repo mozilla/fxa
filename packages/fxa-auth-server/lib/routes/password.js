@@ -263,39 +263,35 @@ module.exports = function (
             )
             .then(
               function (emails) {
-                return request.app.geo
-                  .then(
-                    function (geoData) {
-                      const {
-                        browser: uaBrowser,
-                        browserVersion: uaBrowserVersion,
-                        os: uaOS,
-                        osVersion: uaOSVersion,
-                        deviceType: uaDeviceType
-                      } = request.app.ua
+                const geoData = request.app.geo
+                const {
+                  browser: uaBrowser,
+                  browserVersion: uaBrowserVersion,
+                  os: uaOS,
+                  osVersion: uaOSVersion,
+                  deviceType: uaDeviceType
+                } = request.app.ua
 
-                      return mailer.sendPasswordChangedNotification(emails, account, {
-                        acceptLanguage: request.app.acceptLanguage,
-                        ip: ip,
-                        location: geoData.location,
-                        timeZone: geoData.timeZone,
-                        uaBrowser,
-                        uaBrowserVersion,
-                        uaOS,
-                        uaOSVersion,
-                        uaDeviceType,
-                        uid: passwordChangeToken.uid
-                      })
-                      .catch(e => {
-                        // If we couldn't email them, no big deal. Log
-                        // and pretend everything worked.
-                        log.trace({
-                          op: 'Password.changeFinish.sendPasswordChangedNotification.error',
-                          error: e
-                        })
-                      })
-                    }
-                  )
+                return mailer.sendPasswordChangedNotification(emails, account, {
+                  acceptLanguage: request.app.acceptLanguage,
+                  ip,
+                  location: geoData.location,
+                  timeZone: geoData.timeZone,
+                  uaBrowser,
+                  uaBrowserVersion,
+                  uaOS,
+                  uaOSVersion,
+                  uaDeviceType,
+                  uid: passwordChangeToken.uid
+                })
+                  .catch(e => {
+                    // If we couldn't email them, no big deal. Log
+                    // and pretend everything worked.
+                    log.trace({
+                      op: 'Password.changeFinish.sendPasswordChangedNotification.error',
+                      error: e
+                    })
+                  })
               }
             )
         }
@@ -442,8 +438,9 @@ module.exports = function (
           )
           .then(
             function (passwordForgotToken) {
-              return P.all([request.app.geo, db.accountEmails(passwordForgotToken.uid)])
-                .spread((geoData, emails) => {
+              return db.accountEmails(passwordForgotToken.uid)
+                .then(emails => {
+                  const geoData = request.app.geo
                   const {
                     browser: uaBrowser,
                     browserVersion: uaBrowserVersion,
@@ -548,8 +545,9 @@ module.exports = function (
         ])
           .then(
             function () {
-              return P.all([request.app.geo, db.accountEmails(passwordForgotToken.uid)])
-                .spread((geoData, emails) => {
+              return db.accountEmails(passwordForgotToken.uid)
+                .then(emails => {
+                  const geoData = request.app.geo
                   const {
                     browser: uaBrowser,
                     browserVersion: uaBrowserVersion,

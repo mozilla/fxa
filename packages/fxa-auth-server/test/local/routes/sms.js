@@ -521,26 +521,23 @@ describe('/sms/status', () => {
     })
   })
 
-  describe('getGeoData failed', () => {
-    let request, err
+  describe('missing location', () => {
+    let request, response
 
     beforeEach(() => {
       request = mocks.mockRequest({
         credentials: {
           email: 'foo@example.org'
         },
-        log: log
-      }, {
-        geo: new Error('bar')
+        geo: {},
+        log
       })
       return runTest(route, request)
-        .catch(e => err = e)
+        .then(r => response = r)
     })
 
-    it('threw the correct error data', () => {
-      assert.ok(err instanceof AppError)
-      assert.equal(err.errno, AppError.ERRNO.UNEXPECTED_ERROR)
-      assert.equal(err.message, 'Unspecified error')
+    it('returned the correct response', () => {
+      assert.deepEqual(response, { ok: false, country: undefined })
     })
 
     it('called log.begin once', () => {
@@ -551,9 +548,10 @@ describe('/sms/status', () => {
       assert.equal(log.error.callCount, 1)
       const args = log.error.args[0]
       assert.equal(args.length, 1)
-      assert.equal(args[0].op, 'sms.getGeoData')
-      assert.ok(args[0].err instanceof Error)
-      assert.equal(args[0].err.message, 'bar')
+      assert.deepEqual(args[0], {
+        op: 'sms.getGeoData',
+        err: 'missing location data'
+      })
     })
   })
 
@@ -588,7 +586,7 @@ describe('/sms/status', () => {
       assert.equal(args.length, 1)
       assert.deepEqual(args[0], {
         op: 'sms.getGeoData',
-        err: 'missing location data in result'
+        err: 'missing location data'
       })
     })
   })

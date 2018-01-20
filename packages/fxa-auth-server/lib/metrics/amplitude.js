@@ -152,30 +152,29 @@ module.exports = (log, config) => {
         data.eventCategory = mapping.eventCategory
       }
 
-      return P.all([
-        request.app.geo,
-        request.app.devices.catch(() => {})
-      ]).spread((geo, devices) => {
-        const { formFactor } = request.app.ua
+      return request.app.devices
+        .catch(() => {})
+        .then(devices => {
+          const { formFactor } = request.app.ua
 
-        data.location = geo.location
-        data.devices = devices
+          data.location = request.app.geo.location
+          data.devices = devices
 
-        log.amplitudeEvent(Object.assign({
-          time: metricsContext.time || Date.now(),
-          user_id: data.uid || getFromToken(request, 'uid'),
-          device_id: getFromMetricsContext(metricsContext, 'device_id', request, 'deviceId'),
-          event_type: `${group} - ${mapping.event}`,
-          session_id: getFromMetricsContext(metricsContext, 'flowBeginTime', request, 'flowBeginTime'),
-          event_properties: mapEventProperties(group, request, data, metricsContext),
-          user_properties: mapUserProperties(group, request, data, metricsContext),
-          app_version: APP_VERSION,
-          language: getLocale(request),
-          country: getLocationProperty(data, 'country'),
-          region: getLocationProperty(data, 'state'),
-          device_model: safeGet(formFactor)
-        }, mapOs(request)))
-      })
+          log.amplitudeEvent(Object.assign({
+            time: metricsContext.time || Date.now(),
+            user_id: data.uid || getFromToken(request, 'uid'),
+            device_id: getFromMetricsContext(metricsContext, 'device_id', request, 'deviceId'),
+            event_type: `${group} - ${mapping.event}`,
+            session_id: getFromMetricsContext(metricsContext, 'flowBeginTime', request, 'flowBeginTime'),
+            event_properties: mapEventProperties(group, request, data, metricsContext),
+            user_properties: mapUserProperties(group, request, data, metricsContext),
+            app_version: APP_VERSION,
+            language: getLocale(request),
+            country: getLocationProperty(data, 'country'),
+            region: getLocationProperty(data, 'state'),
+            device_model: safeGet(formFactor)
+          }, mapOs(request)))
+        })
     }
 
     return P.resolve()

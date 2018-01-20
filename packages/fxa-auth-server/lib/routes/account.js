@@ -277,55 +277,52 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
 
         function sendVerifyCode () {
           if (! account.emailVerified) {
-            return request.app.geo
-              .then(function (geoData) {
-                mailer.sendVerifyCode([], account, {
-                  code: account.emailCode,
-                  service: form.service || query.service,
-                  redirectTo: form.redirectTo,
-                  resume: form.resume,
-                  acceptLanguage: request.app.acceptLanguage,
-                  flowId: flowId,
-                  flowBeginTime: flowBeginTime,
-                  ip: ip,
-                  location: geoData.location,
-                  uaBrowser: sessionToken.uaBrowser,
-                  uaBrowserVersion: sessionToken.uaBrowserVersion,
-                  uaOS: sessionToken.uaOS,
-                  uaOSVersion: sessionToken.uaOSVersion,
-                  uaDeviceType: sessionToken.uaDeviceType,
-                  uid: sessionToken.uid
+            return mailer.sendVerifyCode([], account, {
+              code: account.emailCode,
+              service: form.service || query.service,
+              redirectTo: form.redirectTo,
+              resume: form.resume,
+              acceptLanguage: request.app.acceptLanguage,
+              flowId,
+              flowBeginTime,
+              ip,
+              location: request.app.geo.location,
+              uaBrowser: sessionToken.uaBrowser,
+              uaBrowserVersion: sessionToken.uaBrowserVersion,
+              uaOS: sessionToken.uaOS,
+              uaOSVersion: sessionToken.uaOSVersion,
+              uaDeviceType: sessionToken.uaDeviceType,
+              uid: sessionToken.uid
+            })
+              .then(function () {
+                // only create reminder if sendVerifyCode succeeds
+                verificationReminder.create({
+                  uid: account.uid
+                }).catch(function (err) {
+                  log.error({op: 'Account.verificationReminder.create', err: err})
                 })
-                  .then(function () {
-                    // only create reminder if sendVerifyCode succeeds
-                    verificationReminder.create({
-                      uid: account.uid
-                    }).catch(function (err) {
-                      log.error({op: 'Account.verificationReminder.create', err: err})
-                    })
 
-                    if (tokenVerificationId) {
-                      // Log server-side metrics for confirming verification rates
-                      log.info({
-                        op: 'account.create.confirm.start',
-                        uid: account.uid,
-                        tokenVerificationId: tokenVerificationId
-                      })
-                    }
+                if (tokenVerificationId) {
+                  // Log server-side metrics for confirming verification rates
+                  log.info({
+                    op: 'account.create.confirm.start',
+                    uid: account.uid,
+                    tokenVerificationId: tokenVerificationId
                   })
-                  .catch(function (err) {
-                    log.error({op: 'mailer.sendVerifyCode.1', err: err})
+                }
+              })
+              .catch(function (err) {
+                log.error({op: 'mailer.sendVerifyCode.1', err: err})
 
-                    if (tokenVerificationId) {
-                      // Log possible email bounce, used for confirming verification rates
-                      log.error({
-                        op: 'account.create.confirm.error',
-                        uid: account.uid,
-                        err: err,
-                        tokenVerificationId: tokenVerificationId
-                      })
-                    }
+                if (tokenVerificationId) {
+                  // Log possible email bounce, used for confirming verification rates
+                  log.error({
+                    op: 'account.create.confirm.error',
+                    uid: account.uid,
+                    err: err,
+                    tokenVerificationId: tokenVerificationId
                   })
+                }
               })
           }
         }
@@ -890,30 +887,25 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
 
             // Only use tokenVerificationId if it is set, otherwise use the corresponding email code
             // This covers the cases where sign-in confirmation is disabled or not needed.
-            var emailCode = tokenVerificationId ? tokenVerificationId : accountRecord.primaryEmail.emailCode
+            const emailCode = tokenVerificationId ? tokenVerificationId : accountRecord.primaryEmail.emailCode
 
-            return request.app.geo
-              .then(
-                function (geoData) {
-                  return mailer.sendVerifyCode([], accountRecord, {
-                    code: emailCode,
-                    service: service,
-                    redirectTo: redirectTo,
-                    resume: resume,
-                    acceptLanguage: request.app.acceptLanguage,
-                    flowId: flowId,
-                    flowBeginTime: flowBeginTime,
-                    ip: ip,
-                    location: geoData.location,
-                    uaBrowser: sessionToken.uaBrowser,
-                    uaBrowserVersion: sessionToken.uaBrowserVersion,
-                    uaOS: sessionToken.uaOS,
-                    uaOSVersion: sessionToken.uaOSVersion,
-                    uaDeviceType: sessionToken.uaDeviceType,
-                    uid: sessionToken.uid
-                  })
-                }
-              )
+            return mailer.sendVerifyCode([], accountRecord, {
+              code: emailCode,
+              service,
+              redirectTo,
+              resume,
+              acceptLanguage: request.app.acceptLanguage,
+              flowId,
+              flowBeginTime,
+              ip,
+              location: request.app.geo.location,
+              uaBrowser: sessionToken.uaBrowser,
+              uaBrowserVersion: sessionToken.uaBrowserVersion,
+              uaOS: sessionToken.uaOS,
+              uaOSVersion: sessionToken.uaOSVersion,
+              uaDeviceType: sessionToken.uaDeviceType,
+              uid: sessionToken.uid
+            })
               .then(() => request.emitMetricsEvent('email.verification.sent'))
           }
         }
@@ -927,8 +919,9 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             && ! doSigninConfirmation
             && accountRecord.primaryEmail.isVerified
           if (shouldSendNewDeviceLoginEmail) {
-            return P.all([request.app.geo, db.accountEmails(sessionToken.uid)])
-              .spread((geoData, emails) => {
+            return db.accountEmails(sessionToken.uid)
+              .then(emails => {
+                const geoData = request.app.geo
                 // New device notifications are always sent to the primary account email (emailRecord.email)
                 // and CCed to all secondary email if enabled.
                 mailer.sendNewDeviceLoginNotification(
@@ -989,8 +982,9 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             tokenVerificationId: tokenVerificationId
           })
 
-          return P.all([request.app.geo, db.accountEmails(sessionToken.uid)])
-            .spread((geoData, emails) => {
+          return db.accountEmails(sessionToken.uid)
+            .then(emails => {
+              const geoData = request.app.geo
               return mailer.sendVerifyLoginEmail(
                 emails,
                 accountRecord,
@@ -1023,8 +1017,9 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             uid: accountRecord.uid
           })
 
-          return P.all([request.app.geo, db.accountEmails(sessionToken.uid)])
-            .spread((geoData, emails) => {
+          return db.accountEmails(sessionToken.uid)
+            .then(emails => {
+              const geoData = request.app.geo
               return mailer.sendVerifyLoginCodeEmail(
                 emails,
                 accountRecord,

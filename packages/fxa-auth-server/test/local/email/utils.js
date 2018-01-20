@@ -103,9 +103,9 @@ describe('email utils helpers', () => {
     assert.deepEqual(args[1], {
       app: {
         devices: P.resolve([]),
-        geo: P.resolve({
+        geo: {
           location: {}
-        }),
+        },
         locale: 'aaa',
         ua: {}
       },
@@ -147,9 +147,9 @@ describe('email utils helpers', () => {
     assert.deepEqual(args[1], {
       app: {
         devices: P.resolve([]),
-        geo: P.resolve({
+        geo: {
           location: {}
-        }),
+        },
         locale: 'a',
         ua: {}
       },

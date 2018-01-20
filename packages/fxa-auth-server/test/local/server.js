@@ -191,17 +191,14 @@ describe('lib/server', () => {
           })
 
           it('parsed location correctly', () => {
-            assert.ok(request.app.geo)
-            assert.equal(typeof request.app.geo.then, 'function')
-            return request.app.geo.then(geo => {
-              assert.ok(geo)
-              assert.equal(geo.location.city, 'Mountain View')
-              assert.equal(geo.location.country, 'United States')
-              assert.equal(geo.location.countryCode, 'US')
-              assert.equal(geo.location.state, 'California')
-              assert.equal(geo.location.stateCode, 'CA')
-              assert.equal(geo.timeZone, 'America/Los_Angeles')
-            })
+            const geo = request.app.geo
+            assert.ok(geo)
+            assert.equal(geo.location.city, 'Mountain View')
+            assert.equal(geo.location.country, 'United States')
+            assert.equal(geo.location.countryCode, 'US')
+            assert.equal(geo.location.state, 'California')
+            assert.equal(geo.location.stateCode, 'CA')
+            assert.equal(geo.timeZone, 'America/Los_Angeles')
           })
 
           it('fetched devices correctly', () => {
@@ -271,15 +268,14 @@ describe('lib/server', () => {
             })
 
             it('second request has its own location info', () => {
+              const geo = secondRequest.app.geo
               assert.notEqual(request.app.geo, secondRequest.app.geo)
-              return secondRequest.app.geo.then(geo => {
-                assert.equal(geo.location.city, 'Mountain View')
-                assert.equal(geo.location.country, 'United States')
-                assert.equal(geo.location.countryCode, 'US')
-                assert.equal(geo.location.state, 'California')
-                assert.equal(geo.location.stateCode, 'CA')
-                assert.equal(geo.timeZone, 'America/Los_Angeles')
-              })
+              assert.equal(geo.location.city, 'Mountain View')
+              assert.equal(geo.location.country, 'United States')
+              assert.equal(geo.location.countryCode, 'US')
+              assert.equal(geo.location.state, 'California')
+              assert.equal(geo.location.stateCode, 'CA')
+              assert.equal(geo.timeZone, 'America/Los_Angeles')
             })
 
             it('second request fetched devices correctly', () => {

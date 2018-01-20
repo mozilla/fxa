@@ -114,9 +114,9 @@ function logAmplitudeEvent (log, message, eventInfo) {
   amplitude(`email.${eventInfo.template}.${eventInfo.type}`, {
     app: {
       devices: P.resolve([]),
-      geo: P.resolve({
+      geo: {
         location: {}
-      }),
+      },
       locale: eventInfo.locale,
       ua: {}
     },

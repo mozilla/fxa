@@ -18,11 +18,9 @@ function run(config) {
   var getGeoData = require('../lib/geodb')(log)
   // Force the geo to load and run at startup, not waiting for it to run on
   // some route later.
-  var knownIp = '63.245.221.32' // Mozilla MTV
-  getGeoData(knownIp)
-    .then(function(result) {
-      log.info({ op: 'geodb.check', result: result })
-    })
+  const knownIp = '63.245.221.32' // Mozilla MTV
+  const location = getGeoData(knownIp)
+  log.info({ op: 'geodb.check', result: location })
 
   // RegExp instances serialise to empty objects, display regex strings instead.
   const stringifiedConfig =

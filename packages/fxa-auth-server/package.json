@@ -44,7 +44,7 @@
     "cldr-localenames-full": "31.0.1",
     "convict": "2.0.0",
     "email-addresses": "2.0.2",
-    "fxa-geodb": "0.0.8",
+    "fxa-geodb": "1.0.0",
     "fxa-jwtool": "0.7.1",
     "fxa-shared": "1.0.4",
     "generic-pool": "3.2.0",

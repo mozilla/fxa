@@ -565,32 +565,33 @@ module.exports = (
       return P.resolve()
     }
 
-    let location
-    return geo
-      .then(result => location = {
-        city: result.location.city,
-        country: result.location.country,
-        countryCode: result.location.countryCode,
-        state: result.location.state,
-        stateCode: result.location.stateCode
-      })
-      .catch(() => {})
-      .then(() => redis.update(uid, sessionTokens => {
-        sessionTokens = unpackTokensFromRedis(sessionTokens)
-
-        sessionTokens[id] = {
-          lastAccessTime: token.lastAccessTime,
-          location,
-          uaBrowser: token.uaBrowser,
-          uaBrowserVersion: token.uaBrowserVersion,
-          uaDeviceType: token.uaDeviceType,
-          uaFormFactor: token.uaFormFactor,
-          uaOS: token.uaOS,
-          uaOSVersion: token.uaOSVersion,
+    return redis.update(uid, sessionTokens => {
+      let location
+      if (geo && geo.location) {
+        location = {
+          city: geo.location.city,
+          country: geo.location.country,
+          countryCode: geo.location.countryCode,
+          state: geo.location.state,
+          stateCode: geo.location.stateCode
         }
+      }
 
-        return packTokensForRedis(sessionTokens)
-      }))
+      sessionTokens = unpackTokensFromRedis(sessionTokens)
+
+      sessionTokens[id] = {
+        lastAccessTime: token.lastAccessTime,
+        location,
+        uaBrowser: token.uaBrowser,
+        uaBrowserVersion: token.uaBrowserVersion,
+        uaDeviceType: token.uaDeviceType,
+        uaFormFactor: token.uaFormFactor,
+        uaOS: token.uaOS,
+        uaOSVersion: token.uaOSVersion,
+      }
+
+      return packTokensForRedis(sessionTokens)
+    })
   }
 
   DB.prototype.pruneSessionTokens = function (uid, sessionTokens) {

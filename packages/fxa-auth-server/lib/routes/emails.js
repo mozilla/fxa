@@ -627,29 +627,27 @@ module.exports = (log, db, mailer, config, customs, push) => {
         }
 
         function sendEmailVerification() {
-          return request.app.geo
-            .then((geoData) => {
-              return mailer.sendVerifySecondaryEmail([emailData], sessionToken, {
-                code: emailData.emailCode,
-                deviceId: sessionToken.deviceId,
-                acceptLanguage: request.app.acceptLanguage,
-                email: emailData.email,
-                primaryEmail: primaryEmail,
-                ip: ip,
-                location: geoData.location,
-                timeZone: geoData.timeZone,
-                uaBrowser: sessionToken.uaBrowser,
-                uaBrowserVersion: sessionToken.uaBrowserVersion,
-                uaOS: sessionToken.uaOS,
-                uaOSVersion: sessionToken.uaOSVersion,
-                uid
-              })
-                .catch((err) => {
-                  log.error({op: 'mailer.sendVerifySecondaryEmail', err: err})
-                  return db.deleteEmail(emailData.uid, emailData.normalizedEmail)
-                    .then(() => {
-                      throw error.cannotSendEmail()
-                    })
+          const geoData = request.app.geo
+          return mailer.sendVerifySecondaryEmail([emailData], sessionToken, {
+            code: emailData.emailCode,
+            deviceId: sessionToken.deviceId,
+            acceptLanguage: request.app.acceptLanguage,
+            email: emailData.email,
+            primaryEmail,
+            ip,
+            location: geoData.location,
+            timeZone: geoData.timeZone,
+            uaBrowser: sessionToken.uaBrowser,
+            uaBrowserVersion: sessionToken.uaBrowserVersion,
+            uaOS: sessionToken.uaOS,
+            uaOSVersion: sessionToken.uaOSVersion,
+            uid
+          })
+            .catch((err) => {
+              log.error({op: 'mailer.sendVerifySecondaryEmail', err: err})
+              return db.deleteEmail(emailData.uid, emailData.normalizedEmail)
+                .then(() => {
+                  throw error.cannotSendEmail()
                 })
             })
         }

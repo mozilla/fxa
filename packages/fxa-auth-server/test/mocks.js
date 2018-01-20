@@ -456,20 +456,15 @@ function mockRequest (data, errors) {
   })
   const metricsContext = data.metricsContext || module.exports.mockMetricsContext()
 
-  let geo
-  if (errors && errors.geo) {
-    geo = P.reject(errors.geo)
-  } else {
-    geo = P.resolve(data.geo || {
-      timeZone: 'America/Los_Angeles',
-      location: {
-        city: 'Mountain View',
-        country: 'United States',
-        countryCode: 'US',
-        state: 'California',
-        stateCode: 'CA'
-      }
-    })
+  const geo = data.geo || {
+    timeZone: 'America/Los_Angeles',
+    location: {
+      city: 'Mountain View',
+      country: 'United States',
+      countryCode: 'US',
+      state: 'California',
+      stateCode: 'CA'
+    }
   }
 
   let devices
