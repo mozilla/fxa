@@ -595,6 +595,43 @@ describe('redis enabled, token-pruning enabled:', () => {
       })
   })
 
+  it('db.deleteSessionToken handles old-format and new-format token objects from redis', () => {
+    return db.deleteSessionToken({ id: 'wibble', uid: 'blee' })
+      .then(() => {
+        assert.equal(redis.update.callCount, 1)
+        const getUpdatedValue = redis.update.args[0][1]
+        assert.equal(typeof getUpdatedValue, 'function')
+
+        const result = getUpdatedValue(JSON.stringify({
+          wibble: [ 1, [], 'foo', 'bar', 'baz', 'qux' ],
+          oldFormat: {
+            lastAccessTime: 2,
+            uaBrowser: 'Firefox',
+            uaBrowserVersion: '59',
+            uaOS: 'Mac OS X',
+            uaOSVersion: '10.11',
+            uaDeviceType: null,
+            uaFormFactor: null,
+            location: {
+              city: 'Mountain View',
+              state: 'California',
+              stateCode: 'CA',
+              country: 'United States',
+              countryCode: 'US'
+            }
+          },
+          newFormat: [ 3, [], 'Firefox Focus', '4.0.1', 'Android', '8.1', 'mobile' ]
+        }))
+        assert.deepEqual(JSON.parse(result), {
+          oldFormat: [
+            2, [ 'Mountain View', 'California', 'CA', 'United States', 'US' ],
+            'Firefox', '59', 'Mac OS X', '10.11'
+          ],
+          newFormat: [ 3, [], 'Firefox Focus', '4.0.1', 'Android', '8.1', 'mobile' ]
+        })
+      })
+  })
+
   describe('redis.get rejects:', () => {
     beforeEach(() => {
       redis.get = sinon.spy(() => P.reject({ message: 'mock redis.get error' }))
@@ -718,7 +755,7 @@ describe('redis enabled, token-pruning enabled:', () => {
     })
 
     it('returned object', () => {
-      assert.equal(result, '{"frang":{}}')
+      assert.equal(result, '{"frang":[]}')
     })
   })
 

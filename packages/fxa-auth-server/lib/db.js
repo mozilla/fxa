@@ -589,7 +589,7 @@ module.exports = (
           uaOSVersion: token.uaOSVersion,
         }
 
-        return JSON.stringify(packTokensForRedis(sessionTokens))
+        return packTokensForRedis(sessionTokens)
       }))
   }
 
@@ -600,37 +600,25 @@ module.exports = (
       return P.resolve()
     }
 
-    const tokenIds = sessionTokens.reduce((set, token) => {
-      if (token.createdAt <= Date.now() - TOKEN_PRUNING_MAX_AGE) {
-        set.add(token.id)
-      }
-      return set
-    }, new Set())
+    const tokenIds = sessionTokens
+      .filter(token => token.createdAt <= Date.now() - TOKEN_PRUNING_MAX_AGE)
+      .map(token => token.id)
 
-    const pruneCount = tokenIds.size
-    if (pruneCount === 0) {
+    if (tokenIds.length === 0) {
       return P.resolve()
     }
 
     return redis.update(uid, sessionTokens => {
+      if (! sessionTokens) {
+        return
+      }
+
       sessionTokens = unpackTokensFromRedis(sessionTokens)
 
-      const keys = Object.keys(sessionTokens)
-      let keyCount = keys.length
-      let doneCount = 0
+      tokenIds.forEach(id => delete sessionTokens[id])
 
-      keys.some(key => {
-        if (tokenIds.has(key)) {
-          delete sessionTokens[key]
-          keyCount -= 1
-          if (++doneCount === pruneCount) {
-            return true
-          }
-        }
-      })
-
-      if (keyCount > 0) {
-        return JSON.stringify(packTokensForRedis(sessionTokens))
+      if (Object.keys(sessionTokens).length > 0) {
+        return packTokensForRedis(sessionTokens)
       }
     })
   }
@@ -766,14 +754,13 @@ module.exports = (
               return
             }
 
-            sessionTokens = JSON.parse(sessionTokens)
+            sessionTokens = unpackTokensFromRedis(sessionTokens)
 
             delete sessionTokens[id]
-            if (Object.keys(sessionTokens).length === 0) {
-              return
-            }
 
-            return JSON.stringify(sessionTokens)
+            if (Object.keys(sessionTokens).length > 0) {
+              return packTokensForRedis(sessionTokens)
+            }
           })
         }
       })
@@ -1186,9 +1173,9 @@ module.exports = (
 
   // Reduce redis memory usage by not encoding the keys. Store properties
   // as fixed indices into arrays instead. Takes an unpacked session tokens
-  // structure as its argument, returns the packed structure.
+  // structure as its argument, returns the packed string.
   function packTokensForRedis (tokens) {
-    return Object.keys(tokens).reduce((result, tokenId) => {
+    return JSON.stringify(Object.keys(tokens).reduce((result, tokenId) => {
       const unpackedToken = tokens[tokenId]
 
       result[tokenId] = truncatePackedArray(REDIS_SESSION_TOKEN_PROPERTIES.map(
@@ -1206,7 +1193,7 @@ module.exports = (
       ))
 
       return result
-    }, {})
+    }, {}))
   }
 
   // Trailing null and undefined don't need to be stored.
