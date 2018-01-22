@@ -47,14 +47,8 @@ registerSuite('amplitude', {
       assert.doesNotThrow(() => amplitude(null, {}));
     },
 
-    'does not reject if arguments are missing': () => {
-      return amplitude()
-        .then(() => amplitude('foo'))
-        .then(() => amplitude(null, {}));
-    },
-
     'flow.reset-password.submit': () => {
-      return amplitude({
+      amplitude({
         time: 'foo',
         type: 'flow.reset-password.submit'
       }, {
@@ -82,53 +76,53 @@ registerSuite('amplitude', {
         utm_medium: 'derp',
         utm_source: 'bnag',
         utm_term: 'plin'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const args = process.stderr.write.args[0];
-        assert.lengthOf(args, 1);
-        assert.typeOf(args[0], 'string');
-        assert.equal(args[0][args[0].length - 1], '\n');
-        assert.deepEqual(JSON.parse(args[0]), {
-          app_version: APP_VERSION,
-          country: 'United States',
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const args = process.stderr.write.args[0];
+      assert.lengthOf(args, 1);
+      assert.typeOf(args[0], 'string');
+      assert.equal(args[0][args[0].length - 1], '\n');
+      assert.deepEqual(JSON.parse(args[0]), {
+        app_version: APP_VERSION,
+        country: 'United States',
+        device_id: 'bar',
+        event_properties: {
           device_id: 'bar',
-          event_properties: {
-            device_id: 'bar',
-            oauth_client_id: '1',
-            service: 'pocket'
-          },
-          event_type: 'fxa_login - forgot_submit',
-          language: 'blee',
-          op: 'amplitudeEvent',
-          os_name: 'Mac OS X',
-          os_version: '10.11',
-          region: 'California',
-          session_id: 'qux',
-          time: 'foo',
-          user_id: 'soop',
-          user_properties: {
-            entrypoint: 'baz',
-            experiments: [
-              'first_experiment_group_one',
-              'second_experiment_group_two',
-              'third_experiment_group_three',
-              'fourth_experiment_group_four'
-            ],
-            flow_id: 'wibble',
-            ua_browser: 'Firefox',
-            ua_version: '58',
-            utm_campaign: 'melm',
-            utm_content: 'florg',
-            utm_medium: 'derp',
-            utm_source: 'bnag',
-            utm_term: 'plin'
-          }
-        });
+          oauth_client_id: '1',
+          service: 'pocket'
+        },
+        event_type: 'fxa_login - forgot_submit',
+        language: 'blee',
+        op: 'amplitudeEvent',
+        os_name: 'Mac OS X',
+        os_version: '10.11',
+        region: 'California',
+        session_id: 'qux',
+        time: 'foo',
+        user_id: 'soop',
+        user_properties: {
+          entrypoint: 'baz',
+          experiments: [
+            'first_experiment_group_one',
+            'second_experiment_group_two',
+            'third_experiment_group_three',
+            'fourth_experiment_group_four'
+          ],
+          flow_id: 'wibble',
+          ua_browser: 'Firefox',
+          ua_version: '58',
+          utm_campaign: 'melm',
+          utm_content: 'florg',
+          utm_medium: 'derp',
+          utm_source: 'bnag',
+          utm_term: 'plin'
+        }
       });
     },
 
     'settings.change-password.success': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'settings.change-password.success'
       }, {
@@ -151,37 +145,37 @@ registerSuite('amplitude', {
         utm_medium: 'k',
         utm_source: 'l',
         utm_term: 'm'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.deepEqual(arg, {
-          app_version: APP_VERSION,
-          country: 'United States',
-          device_id: 'b',
-          device_model: 'iPad',
-          event_properties: {
-            device_id: 'b'
-          },
-          event_type: 'fxa_pref - password',
-          language: 'f',
-          op: 'amplitudeEvent',
-          os_name: 'iOS',
-          os_version: '6',
-          region: 'California',
-          session_id: 'd',
-          time: 'a',
-          user_id: 'h',
-          user_properties: {
-            entrypoint: 'c',
-            ua_browser: 'Mobile Safari',
-            ua_version: '6'
-          }
-        });
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.deepEqual(arg, {
+        app_version: APP_VERSION,
+        country: 'United States',
+        device_id: 'b',
+        device_model: 'iPad',
+        event_properties: {
+          device_id: 'b'
+        },
+        event_type: 'fxa_pref - password',
+        language: 'f',
+        op: 'amplitudeEvent',
+        os_name: 'iOS',
+        os_version: '6',
+        region: 'California',
+        session_id: 'd',
+        time: 'a',
+        user_id: 'h',
+        user_properties: {
+          entrypoint: 'c',
+          ua_browser: 'Mobile Safari',
+          ua_version: '6'
+        }
       });
     },
 
     'settings.clients.disconnect.submit': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'settings.clients.disconnect.submit'
       }, {
@@ -195,11 +189,12 @@ registerSuite('amplitude', {
         flowId: 'd',
         lang: 'e',
         uid: 'f'
-      }).then(() => assert.equal(process.stderr.write.callCount, 0));
+      });
+      assert.equal(process.stderr.write.callCount, 0);
     },
 
     'settings.clients.disconnect.submit.suspicious': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'settings.clients.disconnect.submit.suspicious'
       }, {
@@ -213,19 +208,19 @@ registerSuite('amplitude', {
         flowId: 'c',
         lang: 'd',
         uid: 'none'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_pref - disconnect_device');
-        assert.equal(arg.event_properties.reason, 'suspicious');
-        assert.isUndefined(arg.device_id);
-        assert.isUndefined(arg.event_properties.device_id);
-        assert.isUndefined(arg.user_id);
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_pref - disconnect_device');
+      assert.equal(arg.event_properties.reason, 'suspicious');
+      assert.isUndefined(arg.device_id);
+      assert.isUndefined(arg.event_properties.device_id);
+      assert.isUndefined(arg.user_id);
     },
 
     'settings.clients.disconnect.submit.duplicate': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'settings.clients.disconnect.submit.duplicate'
       }, {
@@ -239,16 +234,16 @@ registerSuite('amplitude', {
         flowId: 'd',
         lang: 'e',
         uid: 'f'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_pref - disconnect_device');
-        assert.equal(arg.event_properties.reason, 'duplicate');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_pref - disconnect_device');
+      assert.equal(arg.event_properties.reason, 'duplicate');
     },
 
     'settings.signout.success': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'settings.signout.success'
       }, {
@@ -260,15 +255,15 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_pref - logout');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_pref - logout');
     },
 
     'flow.enter-email.engage': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'flow.enter-email.engage'
       }, {
@@ -280,15 +275,15 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_email_first - engage');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_email_first - engage');
     },
 
     'flow.force-auth.engage': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'flow.force-auth.engage'
       }, {
@@ -300,15 +295,15 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_login - engage');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_login - engage');
     },
 
     'flow.signin.engage': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'flow.signin.engage'
       }, {
@@ -320,15 +315,15 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_login - engage');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_login - engage');
     },
 
     'flow.signup.engage': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'flow.signup.engage'
       }, {
@@ -349,41 +344,41 @@ registerSuite('amplitude', {
         utm_medium: 'k',
         utm_source: 'l',
         utm_term: 'm'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_reg - engage');
-        assert.deepEqual(arg, {
-          app_version: APP_VERSION,
-          country: 'United States',
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_reg - engage');
+      assert.deepEqual(arg, {
+        app_version: APP_VERSION,
+        country: 'United States',
+        device_id: 'b',
+        event_properties: {
           device_id: 'b',
-          event_properties: {
-            device_id: 'b',
-            oauth_client_id: '2',
-            service: 'undefined_oauth'
-          },
-          event_type: 'fxa_reg - engage',
-          language: 'f',
-          op: 'amplitudeEvent',
-          region: 'California',
-          session_id: 'd',
-          time: 'a',
-          user_id: 'h',
-          user_properties: {
-            entrypoint: 'c',
-            flow_id: 'e',
-            utm_campaign: 'i',
-            utm_content: 'j',
-            utm_medium: 'k',
-            utm_source: 'l',
-            utm_term: 'm'
-          }
-        });
+          oauth_client_id: '2',
+          service: 'undefined_oauth'
+        },
+        event_type: 'fxa_reg - engage',
+        language: 'f',
+        op: 'amplitudeEvent',
+        region: 'California',
+        session_id: 'd',
+        time: 'a',
+        user_id: 'h',
+        user_properties: {
+          entrypoint: 'c',
+          flow_id: 'e',
+          utm_campaign: 'i',
+          utm_content: 'j',
+          utm_medium: 'k',
+          utm_source: 'l',
+          utm_term: 'm'
+        }
       });
     },
 
     'flow.reset-password.engage': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'flow.reset-password.engage'
       }, {
@@ -395,11 +390,12 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => assert.equal(process.stderr.write.callCount, 0));
+      });
+      assert.equal(process.stderr.write.callCount, 0);
     },
 
     'flow.signin.forgot-password': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'flow.signin.forgot-password'
       }, {
@@ -411,15 +407,15 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_login - forgot_pwd');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_login - forgot_pwd');
     },
 
     'flow.signin.have-account': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'flow.signin.have-account'
       }, {
@@ -431,15 +427,15 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_reg - have_account');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_reg - have_account');
     },
 
     'flow.enter-email.submit': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'flow.enter-email.submit'
       }, {
@@ -451,15 +447,15 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_email_first - submit');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_email_first - submit');
     },
 
     'flow.force-auth.submit': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'flow.signin.submit'
       }, {
@@ -471,15 +467,15 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_login - submit');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_login - submit');
     },
 
     'flow.signin.submit': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'flow.signin.submit'
       }, {
@@ -491,15 +487,15 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_login - submit');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_login - submit');
     },
 
     'flow.signup.submit': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'flow.signup.submit'
       }, {
@@ -511,15 +507,15 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_reg - submit');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_reg - submit');
     },
 
     'flow.wibble.submit': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'flow.wibble.submit'
       }, {
@@ -531,11 +527,12 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => assert.equal(process.stderr.write.callCount, 0));
+      });
+      assert.equal(process.stderr.write.callCount, 0);
     },
 
     'screen.enter-email': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'screen.enter-email'
       }, {
@@ -547,15 +544,15 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_email_first - view');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_email_first - view');
     },
 
     'screen.force-auth': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'screen.force-auth'
       }, {
@@ -567,15 +564,15 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_login - view');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_login - view');
     },
 
     'screen.signin': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'screen.signin'
       }, {
@@ -587,15 +584,15 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_login - view');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_login - view');
     },
 
     'screen.signup': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'screen.signup'
       }, {
@@ -607,15 +604,15 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_reg - view');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_reg - view');
     },
 
     'screen.settings': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'screen.settings'
       }, {
@@ -627,15 +624,15 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_pref - view');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_pref - view');
     },
 
     'screen.sms': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'screen.sms'
       }, {
@@ -656,33 +653,33 @@ registerSuite('amplitude', {
         utm_medium: 'k',
         utm_source: 'l',
         utm_term: 'm'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.deepEqual(arg, {
-          app_version: APP_VERSION,
-          country: 'United States',
-          device_id: 'b',
-          event_properties: {
-            device_id: 'b'
-          },
-          event_type: 'fxa_sms - view',
-          language: 'f',
-          op: 'amplitudeEvent',
-          region: 'California',
-          session_id: 'd',
-          time: 'a',
-          user_id: 'h',
-          user_properties: {
-            entrypoint: 'c',
-            flow_id: 'e'
-          }
-        });
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.deepEqual(arg, {
+        app_version: APP_VERSION,
+        country: 'United States',
+        device_id: 'b',
+        event_properties: {
+          device_id: 'b'
+        },
+        event_type: 'fxa_sms - view',
+        language: 'f',
+        op: 'amplitudeEvent',
+        region: 'California',
+        session_id: 'd',
+        time: 'a',
+        user_id: 'h',
+        user_properties: {
+          entrypoint: 'c',
+          flow_id: 'e'
+        }
       });
     },
 
     'screen.reset-password': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'screen.reset-password'
       }, {
@@ -694,11 +691,12 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => assert.equal(process.stderr.write.callCount, 0));
+      });
+      assert.equal(process.stderr.write.callCount, 0);
     },
 
     'settings.communication-preferences.optIn.success': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'settings.communication-preferences.optIn.success'
       }, {
@@ -710,16 +708,16 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_pref - newsletter');
-        assert.equal(arg.user_properties.newsletter_state, 'subscribed');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_pref - newsletter');
+      assert.equal(arg.user_properties.newsletter_state, 'subscribed');
     },
 
     'settings.communication-preferences.optOut.success': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'settings.communication-preferences.optOut.success'
       }, {
@@ -731,16 +729,16 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_pref - newsletter');
-        assert.equal(arg.user_properties.newsletter_state, 'unsubscribed');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_pref - newsletter');
+      assert.equal(arg.user_properties.newsletter_state, 'unsubscribed');
     },
 
     'settings.communication-preferences.wibble.success': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'settings.communication-preferences.wibble.success'
       }, {
@@ -752,11 +750,12 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => assert.equal(process.stderr.write.callCount, 0));
+      });
+      assert.equal(process.stderr.write.callCount, 0);
     },
 
     'complete-reset-password.verification.success': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'complete-reset-password.verification.success'
       }, {
@@ -777,35 +776,35 @@ registerSuite('amplitude', {
         utm_medium: 'k',
         utm_source: 'l',
         utm_term: 'm'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.deepEqual(arg, {
-          app_version: APP_VERSION,
-          country: 'United States',
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.deepEqual(arg, {
+        app_version: APP_VERSION,
+        country: 'United States',
+        device_id: 'b',
+        event_properties: {
           device_id: 'b',
-          event_properties: {
-            device_id: 'b',
-            email_type: 'reset_password',
-            service: 'sync'
-          },
-          event_type: 'fxa_email - click',
-          language: 'f',
-          op: 'amplitudeEvent',
-          region: 'California',
-          session_id: 'd',
-          time: 'a',
-          user_id: 'h',
-          user_properties: {
-            entrypoint: 'c',
-            flow_id: 'e'
-          }
-        });
+          email_type: 'reset_password',
+          service: 'sync'
+        },
+        event_type: 'fxa_email - click',
+        language: 'f',
+        op: 'amplitudeEvent',
+        region: 'California',
+        session_id: 'd',
+        time: 'a',
+        user_id: 'h',
+        user_properties: {
+          entrypoint: 'c',
+          flow_id: 'e'
+        }
       });
     },
 
     'complete-signin.verification.success': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'complete-signin.verification.success'
       }, {
@@ -817,16 +816,16 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_email - click');
-        assert.equal(arg.event_properties.email_type, 'login');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_email - click');
+      assert.equal(arg.event_properties.email_type, 'login');
     },
 
     'verify-email.verification.success': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'verify-email.verification.success'
       }, {
@@ -838,16 +837,16 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0]);
-        assert.equal(arg.event_type, 'fxa_email - click');
-        assert.equal(arg.event_properties.email_type, 'registration');
       });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_email - click');
+      assert.equal(arg.event_properties.email_type, 'registration');
     },
 
     'wibble.verification.success': () => {
-      return amplitude({
+      amplitude({
         time: 'a',
         type: 'wibble.verification.success'
       }, {
@@ -859,7 +858,8 @@ registerSuite('amplitude', {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
-      }).then(() => assert.equal(process.stderr.write.callCount, 0));
+      });
+      assert.equal(process.stderr.write.callCount, 0);
     }
   }
 });

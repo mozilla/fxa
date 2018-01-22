@@ -10,17 +10,17 @@ const config = require('./configuration').get('geodb');
 const geodb = require('fxa-geodb')(config);
 const logger = require('./logging/log')('server.geo');
 const remoteAddress = require('./remote-address');
-const P = require('bluebird');
 
 module.exports = request => {
   if (! config.enabled) {
-    return P.resolve({});
+    return {};
   }
 
-  return geodb(remoteAddress(request).clientAddress)
-    .catch(err => {
-      logger.error('geodb.error', err);
-      return {};
-    });
+  try {
+    return geodb(remoteAddress(request).clientAddress);
+  } catch (err) {
+    logger.error('geodb.error', err);
+    return {};
+  }
 };
 
