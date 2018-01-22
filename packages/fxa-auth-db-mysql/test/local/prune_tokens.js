@@ -39,6 +39,7 @@ describe('prune tokens', () => {
       const unprunableSessionTokenId = crypto.randomBytes(16).toString('hex')
       const tokenVerificationId = crypto.randomBytes(8).toString('hex')
       const unverifiedKeyFetchToken = Object.assign({}, user.keyFetchToken, { tokenVerificationId })
+      const initialPrunedUntilValue = Date.now() - TOKEN_PRUNE_AGE * 2 + 1
       return db.createAccount(user.accountId, user.account)
         .then(function() {
           return db.createPasswordForgotToken(user.passwordForgotTokenId, user.passwordForgotToken)
@@ -55,7 +56,7 @@ describe('prune tokens', () => {
             db.createSessionToken(unprunableSessionTokenId, user.sessionToken),
             db.createSigninCode(signinCode, user.accountId, Date.now() - TOKEN_PRUNE_AGE),
             db.write('UPDATE dbMetadata SET value = ? WHERE name = \'sessionTokensPrunedUntil\'', [
-              Date.now() - TOKEN_PRUNE_AGE * 2 + 1
+              initialPrunedUntilValue
             ])
           ])
         })
@@ -159,6 +160,27 @@ describe('prune tokens', () => {
         .then(keyFetchToken => {
           // unverifiedTokens must not be pruned if they belong to keyFetchTokens
           assert.equal(keyFetchToken.tokenVerificationId, tokenVerificationId)
+        })
+        .then(() => {
+          // 'sessionTokensPrunedUntil' should have increased after pruning
+          const sql = 'SELECT value FROM dbMetadata WHERE name = \'sessionTokensPrunedUntil\''
+          return db.read(sql)
+        })
+        .then((res) => {
+          assert.equal(res.length, 1, 'sessionTokensPrunedUntil still exists')
+          assert.ok(res[0].value, 'sessionTokensPrunedUntil is not falsy')
+          const updatedPrunedUntilValue = parseInt(res[0].value, 10)
+          assert.ok(updatedPrunedUntilValue >  initialPrunedUntilValue, 'sessionTokensPrunedUntil increased')
+          // Prune again, so we can check that it gracefully handles
+          // the case when there's nothing to prune.
+          return db.pruneTokens().then(() => {
+            const sql = 'SELECT value FROM dbMetadata WHERE name = \'sessionTokensPrunedUntil\''
+            return db.read(sql)
+          }).then((res) => {
+            assert.equal(res.length, 1, 'sessionTokensPrunedUntil still exists')
+            assert.ok(res[0].value, 'sessionTokensPrunedUntil is not falsy')
+            assert.equal(parseInt(res[0].value, 10), updatedPrunedUntilValue, 'sessionTokensPrunedUntil did not change')
+          })
         })
     }
   )
