@@ -776,6 +776,7 @@ module.exports = function(cfg, makeServer) {
           })
           .then(function(r) {
             respOk(r)
+            assert.deepEqual(r.obj, { sessionTokenId: user.sessionTokenId })
             return client.getThen('/account/' + user.accountId + '/devices')
           })
           .then(function(r) {

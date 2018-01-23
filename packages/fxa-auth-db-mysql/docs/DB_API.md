@@ -11,6 +11,7 @@ There are a number of methods that a DB storage backend should implement:
     * .resetAccount(uid, data)
     * .deleteAccount(uid)
     * .sessions(uid)
+    * .devices(uid)
     * .accountEmails(uid)
     * .createEmail(uid, data)
     * .deleteEmail(uid, email)
@@ -28,6 +29,10 @@ There are a number of methods that a DB storage backend should implement:
     * .sessionTokenWithVerificationStatus(tokenId)
     * .sessionWithDevice(tokenId)
     * .deleteSessionToken(tokenId)
+* Devices
+    * .createDevice(uid, deviceId, device)
+    * .updateDevice(uid, deviceId, device)
+    * .deleteDevice(uid, deviceId)
 * Key Fetch Tokens
     * .createKeyFetchToken(tokenId, keyFetchToken)
     * .keyFetchToken(id)
@@ -228,6 +233,22 @@ Returns:
     * an array of incompletely-populated session tokens
 * rejects with:
     * any errors from the underlying storage engine
+
+## .devices(uid) ##
+
+Fetch all devices for a user.
+
+Parameters:
+
+* `uid` (Buffer16):
+  The uid of the account to get devices for
+
+Returns:
+
+* Resolves with:
+  * An array of device records
+* Rejects with:
+  * Any errors from the underlying storage engine
 
 ## .accountEmails(uid) ##
 
@@ -706,3 +727,91 @@ Parameters:
 
 * `code` (Buffer):
   The value of the code
+
+## createDevice(uid, deviceId, device)
+
+Create a device record.
+
+Parameters:
+
+* `uid` (Buffer16):
+  The uid of the owning account
+* `deviceId` (Buffer16):
+  The id of the device record
+* `device` (object):
+  * `sessionTokenId` (Buffer32):
+    The id of the associated session token
+  * `name` (string):
+    The name of the device
+  * `type` (string):
+    The device type, e.g. 'mobile', 'tablet'
+  * `createdAt` (number):
+    Creation timestamp for the device, milliseconds since the epoch
+  * `callbackURL` (string):
+    URL for push service
+  * `callbackPublicKey` (string):
+    Public key for push service
+  * `callbackAuthKey` (string):
+    Auth key for push service
+
+Returns:
+
+* Resolves with:
+  * An empty object `{}`
+* Rejects with:
+  * `error.duplicate()` if a device already exists with the same `uid` and `deviceId`
+  * Any error from the underlying storage system (wrapped in `error.wrap()`)
+
+## updateDevice(uid, deviceId, device)
+
+Updates a device record.
+
+Parameters:
+
+* `uid` (Buffer16):
+  The uid of the owning account
+* `deviceId` (Buffer16):
+  The id of the device record
+* `device` (object):
+  * `sessionTokenId` (Buffer32):
+    The id of the associated session token
+  * `name` (string):
+    The name of the device
+  * `type` (string):
+    The device type, e.g. 'mobile', 'tablet'
+  * `createdAt` (number):
+    Creation timestamp for the device, milliseconds since the epoch
+  * `callbackURL` (string):
+    URL for push service
+  * `callbackPublicKey` (string):
+    Public key for push service
+  * `callbackAuthKey` (string):
+    Auth key for push service
+
+Returns:
+
+* Resolves with:
+  * An empty object `{}`
+* Rejects with:
+  * Any error from the underlying storage system (wrapped in `error.wrap()`)
+
+## deleteDevice(uid, deviceId)
+
+Delete a device record.
+
+Parameters:
+
+* `uid` (Buffer16):
+  The uid of the owning account
+* `deviceId` (Buffer16):
+  The id of the device record
+
+Returns:
+
+* Resolves with:
+  * An object containing a `sessionTokenId` property
+    identifying the associated session token,
+    which was also deleted
+* Rejects with:
+  * Any error from the underlying storage system (wrapped in `error.wrap()`)
+

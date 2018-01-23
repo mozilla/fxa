@@ -618,22 +618,21 @@ module.exports = function (log, error) {
     return this.write(DELETE_PASSWORD_CHANGE_TOKEN, [tokenId])
   }
 
+  // Select : devices
+  // Fields : sessionTokenId
   // Delete : devices, sessionTokens, unverifiedTokens
   // Where  : uid = $1, deviceId = $2
-  var DELETE_DEVICE = 'CALL deleteDevice_2(?, ?)'
+  var DELETE_DEVICE = 'CALL deleteDevice_3(?, ?)'
 
   MySql.prototype.deleteDevice = function (uid, deviceId) {
-    return this.write(
-      DELETE_DEVICE,
-      [ uid, deviceId ],
-      function (result) {
-        if (result.affectedRows === 0) {
-          log.error('MySql.deleteDevice', { err: result })
-          throw error.notFound()
-        }
-        return {}
+    return this.write(DELETE_DEVICE, [ uid, deviceId ], results => {
+      const result = results[1]
+      if (result.affectedRows === 0) {
+        log.error('MySql.deleteDevice', { err: result })
+        throw error.notFound()
       }
-    )
+      return results[0][0]
+    })
   }
 
   // VERIFICATION REMINDERS

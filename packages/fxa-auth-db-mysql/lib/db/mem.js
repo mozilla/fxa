@@ -430,20 +430,23 @@ module.exports = function (log, error) {
   }
 
   Memory.prototype.deleteDevice = function (uid, deviceId) {
-    var deviceKey = deviceId.toString('hex')
+    const deviceKey = deviceId.toString('hex')
+    let sessionTokenId
+
     return getAccountByUid(uid)
-      .then(
-        function (account) {
-          if (! account.devices[deviceKey]) {
-            throw error.notFound()
-          }
-
-          var device = account.devices[deviceKey]
-          delete account.devices[deviceKey]
-
-          return Memory.prototype.deleteSessionToken(device.sessionTokenId)
+      .then(account => {
+        if (! account.devices[deviceKey]) {
+          throw error.notFound()
         }
-      )
+
+        const device = account.devices[deviceKey]
+        sessionTokenId = device.sessionTokenId
+
+        delete account.devices[deviceKey]
+
+        return Memory.prototype.deleteSessionToken(sessionTokenId)
+      })
+      .then(() => ({ sessionTokenId }))
   }
 
   // READ

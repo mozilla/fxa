@@ -840,7 +840,7 @@ curl \
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-{}
+{"sessionTokenId":"522c251a1623e1f1db1f4fe68b9594d26772d6e77e04cb68e110c58600f97a77"}
 ```
 
 * Status Code : 200 OK
