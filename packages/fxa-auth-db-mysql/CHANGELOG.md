@@ -1,3 +1,18 @@
+<a name="1.104.0"></a>
+# [1.104.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.103.0...v1.104.0) (2018-01-23)
+
+
+### Bug Fixes
+
+* **pruning:** Avoid accidental full-table scans when pruning session tokens. (#295); r=philboo ([5c6622c](https://github.com/mozilla/fxa-auth-db-mysql/commit/5c6622c))
+* **scripts:** add SET NAMES to reverse migration boilerplate (#296), r=@vbudhram ([0790b89](https://github.com/mozilla/fxa-auth-db-mysql/commit/0790b89))
+
+### Features
+
+* **devices:** return session token id from deleteDevice ([a2dd244](https://github.com/mozilla/fxa-auth-db-mysql/commit/a2dd244))
+
+
+
 <a name="1.103.0"></a>
 # [1.103.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.101.0...v1.103.0) (2018-01-09)
 
