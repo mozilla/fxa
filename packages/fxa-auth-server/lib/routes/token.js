@@ -46,11 +46,17 @@ const ID_TOKEN_KEY = JwTool.JWK.fromObject(config.get('openid.key'), {
 
 const REFRESH_LAST_USED_AT_UPDATE_AFTER_MS = config.get('refreshToken.updateAfter');
 
+const BASIC_AUTH_REGEX = /^Basic\s+([a-z0-9+\/]+)$/i;
+
 const PAYLOAD_SCHEMA = Joi.object({
 
   client_id: validators.clientId
     .when('grant_type', {
       is: GRANT_JWT,
+      then: Joi.forbidden()
+    })
+    .when('$headers.authorization', {
+      is: Joi.string().required(),
       then: Joi.forbidden()
     }),
 
@@ -66,6 +72,10 @@ const PAYLOAD_SCHEMA = Joi.object({
     .when('grant_type', {
       is: GRANT_REFRESH_TOKEN,
       then: Joi.optional()
+    })
+    .when('$headers.authorization', {
+      is: Joi.string().required(),
+      then: Joi.forbidden()
     }),
 
   code_verifier: validators.codeVerifier
@@ -138,19 +148,14 @@ const PAYLOAD_SCHEMA = Joi.object({
 // 3. The tokens are returned in the response payload.
 module.exports = {
   validate: {
+    headers: Joi.object({
+      'authorization': Joi.string().regex(BASIC_AUTH_REGEX).optional()
+    }).options({ allowUnknown: true }),
     // stripUnknown is used to allow various oauth2 libraries to be used
     // with FxA OAuth. Sometimes, they will send other parameters that
     // we don't use, such as `response_type`, or something else. Instead
     // of giving an error here, we can just ignore them.
-    payload: function validatePayload(value, options, next) {
-      return Joi.validate(value, PAYLOAD_SCHEMA, { stripUnknown: true }, function(err, value) {
-        if (err) {
-          logger.info('routes.token.payload', err);
-        }
-
-        next(err, value);
-      });
-    }
+    payload: PAYLOAD_SCHEMA.options({ stripUnknown: true })
   },
   response: {
     schema: Joi.object().keys({
@@ -167,6 +172,20 @@ module.exports = {
   handler: function tokenEndpoint(req, reply) {
     var params = req.payload;
     P.try(function() {
+
+      // Clients are allowed to provide credentials in either
+      // the Authorization header or request body.  Normalize.
+      const authzMatch = BASIC_AUTH_REGEX.exec(req.headers.authorization || '');
+      if (authzMatch) {
+        const creds = Buffer.from(authzMatch[1], 'base64').toString().split(':');
+        const err = new AppError.invalidRequestParameter('authorization');
+        if (creds.length !== 2) {
+          throw err;
+        }
+        params.client_id = Joi.attempt(creds[0], validators.clientId, err);
+        params.client_secret = Joi.attempt(creds[1], validators.clientSecret, err);
+      }
+
       var clientId = params.client_id;
 
       if (params.grant_type === GRANT_AUTHORIZATION_CODE) {

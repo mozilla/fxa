@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const assert = require('insist');
+const Joi = require('joi');
 const route = require('../../lib/routes/token');
 
 const CLIENT_SECRET = 'b93ef8a8f3e553a430d7e5b904c6132b2722633af9f03128029201d24a97f2a8';
@@ -25,8 +26,12 @@ function joiNotAllowed(err, param) {
 
 describe('/token POST', function () {
   // route validation function
-  function v(req, cb) {
-    route.validate.payload(req, {}, cb);
+  function v(req, ctx, cb) {
+    if (typeof ctx === 'function' && ! cb) {
+      cb = ctx;
+      ctx = undefined;
+    }
+    Joi.validate(req, route.validate.payload, {context: ctx}, cb);
   }
 
   it('fails with no client_id', (done) => {
@@ -56,6 +61,32 @@ describe('/token POST', function () {
       code: CODE
     }, (err) => {
       joiRequired(err, 'client_secret');
+      done();
+    });
+  });
+
+  it('forbids client_id when authz header provided', (done) => {
+    v({
+      client_id: CLIENT_ID
+    }, {
+      headers: {
+        authorization: 'Basic ABCDEF'
+      }
+    }, (err) => {
+      joiNotAllowed(err, 'client_id');
+      done();
+    });
+  });
+
+  it('forbids client_secret when authz header provided', (done) => {
+    v({
+      client_secret: CLIENT_SECRET
+    }, {
+      headers: {
+        authorization: 'Basic ABCDEF'
+      }
+    }, (err) => {
+      joiNotAllowed(err, 'client_secret');
       done();
     });
   });
@@ -124,17 +155,6 @@ describe('/token POST', function () {
         grant_type: GRANT_JWT,
       }, (err) => {
         joiNotAllowed(err, 'client_id');
-        done();
-      });
-    });
-
-    it('forbids client_secret', (done) => {
-      v({
-        client_secret: CLIENT_SECRET,
-        code: CODE,
-        grant_type: GRANT_JWT,
-      }, (err) => {
-        joiNotAllowed(err, 'client_secret');
         done();
       });
     });

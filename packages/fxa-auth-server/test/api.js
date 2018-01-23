@@ -90,11 +90,12 @@ function genAssertion(email) {
 }
 
 
-var client;
 // this matches the hashed secret in config, an assert sanity checks
 // lower to make sure it matches
-var secret = 'b93ef8a8f3e553a430d7e5b904c6132b2722633af9f03128029201d24a97f2a8';
-var secretPrevious = 'ec62e3281e3b56e702fe7e82ca7b1fa59d6c2a6766d6d28cccbf8bfa8d5fc8a8';
+const secret = 'b93ef8a8f3e553a430d7e5b904c6132b2722633af9f03128029201d24a97f2a8';
+const secretPrevious = 'ec62e3281e3b56e702fe7e82ca7b1fa59d6c2a6766d6d28cccbf8bfa8d5fc8a8';
+
+var client;
 var badSecret;
 var clientId;
 var AN_ASSERTION;
@@ -182,6 +183,10 @@ function clientByName(name) {
   return config.get('clients').reduce(function (client, lastClient) {
     return client.name === name ? client : lastClient;
   });
+}
+
+function basicAuthHeader(clientId, secret) {
+  return 'Basic ' + Buffer.from(clientId + ':' + secret).toString('base64');
 }
 
 
@@ -924,6 +929,23 @@ describe('/v1', function() {
           assertSecurityHeaders(res);
         });
       });
+
+      it('is forbidden when authz header provided', function() {
+        return Server.api.post({
+          url: '/token',
+          headers: {
+            authorization: basicAuthHeader(clientId, secret)
+          },
+          payload: {
+            client_id: clientId,
+            client_secret: secret,
+            code: unique.code().toString('hex')
+          }
+        }).then(function(res) {
+          assertInvalidRequestParam(res.result, 'client_id');
+          assertSecurityHeaders(res);
+        });
+      });
     });
 
     describe('?client_secret', function() {
@@ -932,6 +954,22 @@ describe('/v1', function() {
           url: '/token',
           payload: {
             client_id: clientId,
+            code: unique.code().toString('hex')
+          }
+        }).then(function(res) {
+          assertInvalidRequestParam(res.result, 'client_secret');
+          assertSecurityHeaders(res);
+        });
+      });
+
+      it('is forbidden when authz header provided', function() {
+        return Server.api.post({
+          url: '/token',
+          headers: {
+            authorization: basicAuthHeader(clientId, secret)
+          },
+          payload: {
+            client_secret: secret,
             code: unique.code().toString('hex')
           }
         }).then(function(res) {
@@ -1007,6 +1045,72 @@ describe('/v1', function() {
             assertSecurityHeaders(res);
             assert.ok(res.result.access_token);
           });
+        });
+      });
+    });
+
+    describe('authorization header', function() {
+      it('should allow fetching get auth token when the secret is valid', function(){
+        mockAssertion().reply(200, VERIFY_GOOD);
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            client_id: clientId
+          })
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          return url.parse(res.result.redirect, true).query.code;
+        }).then(function(code) {
+          return Server.api.post({
+            url: '/token',
+            headers: {
+              authorization: basicAuthHeader(clientId, secret)
+            },
+            payload: {
+              code: code
+            }
+          });
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+          assert.ok(res.result.access_token);
+          assert.equal(res.result.token_type, 'bearer');
+          assert.ok(res.result.auth_at);
+          assert.ok(res.result.expires_in);
+          assert.equal(res.result.scope, 'a');
+          assert.equal(res.result.keys_jwe, undefined);
+        });
+      });
+
+      it('should be rejected if the secret is invalid', function() {
+        return Server.api.post({
+          url: '/token',
+          headers: {
+            authorization: basicAuthHeader(clientId, badSecret)
+          },
+          payload: {
+            code: unique.code().toString('hex')
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 400);
+          assertSecurityHeaders(res);
+          assert.equal(res.result.message, 'Incorrect secret');
+        });
+      });
+
+      it('should be rejected if the credentials are malformed', function() {
+        return Server.api.post({
+          url: '/token',
+          headers: {
+            authorization: 'Basic ' + Buffer.from('invalid').toString('base64')
+          },
+          payload: {
+            code: unique.code().toString('hex')
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 400);
+          assertSecurityHeaders(res);
+          assertInvalidRequestParam(res.result, 'authorization');
         });
       });
     });
