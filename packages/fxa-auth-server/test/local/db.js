@@ -196,8 +196,8 @@ describe('db with redis disabled:', () => {
       })
   })
 
-  it('db.updateSessionToken succeeds without a redis instance', () => {
-    return db.updateSessionToken({ id: 'foo', uid: 'bar' })
+  it('db.touchSessionToken succeeds without a redis instance', () => {
+    return db.touchSessionToken({ id: 'foo', uid: 'bar' })
       .then(() => {
         assert.equal(pool.get.callCount, 0)
         assert.equal(pool.post.callCount, 0)
@@ -312,8 +312,8 @@ describe('redis enabled, token-pruning enabled:', () => {
       })
   })
 
-  it('should call redis.update in db.updateSessionToken', () => {
-    return db.updateSessionToken({ id: 'wibble', uid: 'blee' })
+  it('should call redis.update in db.touchSessionToken', () => {
+    return db.touchSessionToken({ id: 'wibble', uid: 'blee' })
       .then(() => {
         assert.equal(redis.update.callCount, 1)
         assert.equal(redis.update.args[0].length, 2)
@@ -512,8 +512,8 @@ describe('redis enabled, token-pruning enabled:', () => {
       ]))
   })
 
-  it('db.updateSessionToken handles old-format and new-format token objects from redis', () => {
-    return db.updateSessionToken({
+  it('db.touchSessionToken handles old-format and new-format token objects from redis', () => {
+    return db.touchSessionToken({
       id: 'wibble',
       uid: 'blee',
       lastAccessTime: 42,
@@ -756,10 +756,10 @@ describe('redis enabled, token-pruning enabled:', () => {
       redis.update = sinon.spy(() => P.reject({ message: 'mock redis.update error' }))
     })
 
-    it('db.updateSessionToken should reject', () => {
-      return db.updateSessionToken({ id: 'wibble', uid: 'blee' }, {})
+    it('db.touchSessionToken should reject', () => {
+      return db.touchSessionToken({ id: 'wibble', uid: 'blee' }, {})
         .then(
-          () => assert.equal(false, 'db.updateSessionToken should have rejected'),
+          () => assert.equal(false, 'db.touchSessionToken should have rejected'),
           error => assert.equal(error.message, 'mock redis.update error')
         )
     })

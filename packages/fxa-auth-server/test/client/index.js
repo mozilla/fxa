@@ -61,7 +61,7 @@ module.exports = config => {
     return c.setupCredentials(email, password)
       .then(
         function() {
-          return c.create()
+          return c.create(options)
         }
       )
   }
@@ -212,6 +212,22 @@ module.exports = config => {
         )
     }
     return p
+  }
+
+  Client.prototype.reauth = function (opts) {
+    return this.api.sessionReauth(this.sessionToken, this.email, this.authPW, opts)
+      .then(
+        function (data) {
+          this.uid = data.uid
+          this.keyFetchToken = data.keyFetchToken || null
+          this.emailVerified = data.verified
+          this.authAt = data.authAt
+          this.verificationReason = data.verificationReason
+          this.verificationMethod = data.verificationMethod
+          this.verified = data.verified
+          return this
+        }.bind(this)
+      )
   }
 
   Client.prototype.duplicate = function () {

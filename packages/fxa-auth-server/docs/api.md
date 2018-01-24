@@ -26,7 +26,7 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [POST /account/login](#post-accountlogin)
     * [GET /account/status (:lock::unlock: sessionToken)](#get-accountstatus)
     * [POST /account/status](#post-accountstatus)
-    * [GET /account/profile (:lock::unlock: sessionToken, oauthToken)](#get-accountprofile)
+    * [GET /account/profile (:lock: sessionToken, oauthToken)](#get-accountprofile)
     * [GET /account/keys (:lock: keyFetchToken)](#get-accountkeys)
     * [POST /account/unlock/resend_code](#post-accountunlockresend_code)
     * [POST /account/unlock/verify_code](#post-accountunlockverify_code)
@@ -55,6 +55,7 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [GET /password/forgot/status (:lock: passwordForgotToken)](#get-passwordforgotstatus)
   * [Session](#session)
     * [POST /session/destroy (:lock: sessionToken)](#post-sessiondestroy)
+    * [POST /session/reauth (:lock: sessionToken)](#post-sessionreauth)
     * [GET /session/status (:lock: sessionToken)](#get-sessionstatus)
     * [POST /session/duplicate (:lock: sessionToken)](#post-sessionduplicate)
   * [Sign](#sign)
@@ -329,6 +330,7 @@ those common validations are defined here.
 * `DISPLAY_SAFE_UNICODE`: `/^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFF])*$/`
 * `DISPLAY_SAFE_UNICODE_WITH_NON_BMP`: `/^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uE000-\uF8FF\uFFF9-\uFFFF])*$/`
 * `service`: `string, max(16), regex(/^[a-zA-Z0-9\-]*$/g)`
+* `verificationMethod`: `string, valid()`
 * `E164_NUMBER`: `/^\+[1-9]\d{1,14}$/`
 
 #### lib/metrics/context
@@ -511,7 +513,7 @@ Obtain a `sessionToken` and, optionally, a `keyFetchToken` if `keys=true`.
   Opaque alphanumeric token to be included in verification links.
   <!--end-query-param-post-accountlogin-service-->
 
-* `verificationMethod`: *string, valid(), optional*
+* `verificationMethod`: *validators.verificationMethod.optional*
 
   <!--begin-query-param-post-accountlogin-verificationMethod-->
   If this param is specified, it forces the login to be verified using the
@@ -564,7 +566,7 @@ Obtain a `sessionToken` and, optionally, a `keyFetchToken` if `keys=true`.
   Alphanumeric string indicating the reason for establishing a new session; may be "login" (the default) or "reconnect".
   <!--end-request-body-post-accountlogin-reason-->
 
-* `unblockCode`: *string, regex(BASE_36), length(unblockCodeLen), optional*
+* `unblockCode`: *signinUtils.validators.UNBLOCK_CODE*
 
   <!--begin-request-body-post-accountlogin-unblockCode-->
   Alphanumeric code used to unblock certain rate-limitings.
@@ -582,7 +584,7 @@ Obtain a `sessionToken` and, optionally, a `keyFetchToken` if `keys=true`.
   This parameter is the original email used to login with. Typically, it is specified after a user logins with a different email case, or changed their primary email address.
   <!--end-request-body-post-accountlogin-originalLoginEmail-->
 
-* `verificationMethod`: *string, valid(), optional*
+* `verificationMethod`: *validators.verificationMethod.optional*
 
   <!--begin-request-body-post-accountlogin-verificationMethod-->
   If this param is specified, it forces the login to be verified using the
@@ -647,18 +649,6 @@ Failing requests may be caused
 by the following errors
 (this is not an exhaustive list):
 
-* `code: 400, errno: 125`:
-  The request was blocked for security reasons
-
-* `code: 400, errno: 142`:
-  Sign in with this email type is not currently supported
-
-* `code: 400, errno: 149`:
-  This email can not currently be used to login
-
-* `code: 400, errno: 127`:
-  Invalid unblock code
-
 * `code: 400, errno: 103`:
   Incorrect password
 
@@ -716,7 +706,7 @@ by [fxa-customs-server](https://github.com/mozilla/fxa-customs-server).
 
 #### GET /account/profile
 
-:lock::unlock: Optionally authenticated with OAuth bearer token, or HAWK-authenticated with session token
+:lock: authenticated with OAuth bearer token, or HAWK-authenticated with session token
 <!--begin-route-get-accountprofile-->
 Get the email and locale of a user.
 
@@ -2105,6 +2095,148 @@ by the following errors
 
 * `code: 401, errno: 110`:
   Invalid authentication token in request signature
+
+
+#### POST /session/reauth
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-sessionreauth-->
+Re-authenticate an existing session token.
+This is equivalent to calling `/account/login`,
+but it re-uses an existing session token
+rather than generating a new one,
+allowing the caller to maintain session state
+such as verification and device registration.
+<!--end-route-post-sessionreauth-->
+
+##### Query parameters
+
+* `keys`: *boolean, optional*
+
+  <!--begin-query-param-post-sessionreauth-keys-->
+  
+  <!--end-query-param-post-sessionreauth-keys-->
+
+* `service`: *validators.service*
+
+  <!--begin-query-param-post-sessionreauth-service-->
+  
+  <!--end-query-param-post-sessionreauth-service-->
+
+* `verificationMethod`: *validators.verificationMethod.optional*
+
+  <!--begin-query-param-post-sessionreauth-verificationMethod-->
+  
+  <!--end-query-param-post-sessionreauth-verificationMethod-->
+
+##### Request body
+
+* `email`: *validators.email.required*
+
+  <!--begin-request-body-post-sessionreauth-email-->
+  
+  <!--end-request-body-post-sessionreauth-email-->
+
+* `authPW`: *string, min(64), max(64), regex(HEX_STRING), required*
+
+  <!--begin-request-body-post-sessionreauth-authPW-->
+  
+  <!--end-request-body-post-sessionreauth-authPW-->
+
+* `service`: *validators.service*
+
+  <!--begin-request-body-post-sessionreauth-service-->
+  
+  <!--end-request-body-post-sessionreauth-service-->
+
+* `redirectTo`: *string, uri, optional*
+
+  <!--begin-request-body-post-sessionreauth-redirectTo-->
+  
+  <!--end-request-body-post-sessionreauth-redirectTo-->
+
+* `resume`: *string, optional*
+
+  <!--begin-request-body-post-sessionreauth-resume-->
+  
+  <!--end-request-body-post-sessionreauth-resume-->
+
+* `reason`: *string, max(16), optional*
+
+  <!--begin-request-body-post-sessionreauth-reason-->
+  
+  <!--end-request-body-post-sessionreauth-reason-->
+
+* `unblockCode`: *signinUtils.validators.UNBLOCK_CODE*
+
+  <!--begin-request-body-post-sessionreauth-unblockCode-->
+  
+  <!--end-request-body-post-sessionreauth-unblockCode-->
+
+* `metricsContext`: *metricsContext.schema*
+
+  <!--begin-request-body-post-sessionreauth-metricsContext-->
+  
+  <!--end-request-body-post-sessionreauth-metricsContext-->
+
+* `originalLoginEmail`: *validators.email.optional*
+
+  <!--begin-request-body-post-sessionreauth-originalLoginEmail-->
+  
+  <!--end-request-body-post-sessionreauth-originalLoginEmail-->
+
+* `verificationMethod`: *validators.verificationMethod.optional*
+
+  <!--begin-request-body-post-sessionreauth-verificationMethod-->
+  
+  <!--end-request-body-post-sessionreauth-verificationMethod-->
+
+##### Response body
+
+* `uid`: *string, regex(HEX_STRING), required*
+
+  <!--begin-response-body-post-sessionreauth-uid-->
+  
+  <!--end-response-body-post-sessionreauth-uid-->
+
+* `keyFetchToken`: *string, regex(HEX_STRING), optional*
+
+  <!--begin-response-body-post-sessionreauth-keyFetchToken-->
+  
+  <!--end-response-body-post-sessionreauth-keyFetchToken-->
+
+* `verificationMethod`: *string, optional*
+
+  <!--begin-response-body-post-sessionreauth-verificationMethod-->
+  
+  <!--end-response-body-post-sessionreauth-verificationMethod-->
+
+* `verificationReason`: *string, optional*
+
+  <!--begin-response-body-post-sessionreauth-verificationReason-->
+  
+  <!--end-response-body-post-sessionreauth-verificationReason-->
+
+* `verified`: *boolean, required*
+
+  <!--begin-response-body-post-sessionreauth-verified-->
+  
+  <!--end-response-body-post-sessionreauth-verified-->
+
+* `authAt`: *number, integer*
+
+  <!--begin-response-body-post-sessionreauth-authAt-->
+  
+  <!--end-response-body-post-sessionreauth-authAt-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 400, errno: 103`:
+  Incorrect password
 
 
 #### GET /session/status

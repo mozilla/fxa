@@ -506,12 +506,6 @@ var conf = convict({
     env: 'LOCKOUT_ENABLED',
     default: false
   },
-  newLoginNotificationEnabled: {
-    doc: 'Is the new-login notification email enabled',
-    format: Boolean,
-    env: 'NEW_LOGIN_NOTIFICATION_ENABLED',
-    default: true
-  },
   // A safety switch to disable device metadata updates,
   // in case problems with the client logic cause server overload.
   deviceUpdatesEnabled: {

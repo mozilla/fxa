@@ -73,9 +73,9 @@ describe('/certificate/sign', () => {
       devices: mockDevices,
       log: mockLog
     }, mockRequest, function () {
-      assert.equal(db.updateSessionToken.callCount, 1, 'db.updateSessionToken was called once')
-      let args = db.updateSessionToken.args[0]
-      assert.equal(args.length, 2, 'db.updateSessionToken was passed two arguments')
+      assert.equal(db.touchSessionToken.callCount, 1, 'db.touchSessionToken was called once')
+      let args = db.touchSessionToken.args[0]
+      assert.equal(args.length, 2, 'db.touchSessionToken was passed two arguments')
       assert.equal(args[0].uid, sessionToken.uid, 'first argument uid property was correct')
       assert.equal(args[0].email, sessionToken.email, 'first argument email property was correct')
       assert.equal(args[0].uaBrowser, 'Firefox', 'first argument uaBrowser property was correct')
@@ -195,7 +195,7 @@ describe('/certificate/sign', () => {
         }
       },
       options.db || {
-        updateSessionToken: function () {},
+        touchSessionToken: function () {},
         updateLocale: function () {}
       },
       options.domain || 'wibble',

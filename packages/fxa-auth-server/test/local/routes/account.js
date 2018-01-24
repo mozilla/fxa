@@ -26,7 +26,7 @@ function hexString(bytes) {
 var makeRoutes = function (options, requireMocks) {
   options = options || {}
 
-  var config = options.config || {}
+  const config = options.config || {}
   config.verifierVersion = config.verifierVersion || 0
   config.smtp = config.smtp ||  {}
   config.memcached = config.memcached || {
@@ -40,22 +40,26 @@ var makeRoutes = function (options, requireMocks) {
   config.signinUnblock = config.signinUnblock || {}
   config.secondaryEmail = config.secondaryEmail || {}
 
-  var log = options.log || mocks.mockLog()
-  var Password = options.Password || require('../../../lib/crypto/password')(log, config)
-  var db = options.db || mocks.mockDB()
-  var customs = options.customs || {
-    check: function () { return P.resolve(true) }
+  const log = options.log || mocks.mockLog()
+  const mailer = options.mailer || {}
+  const Password = options.Password || require('../../../lib/crypto/password')(log, config)
+  const db = options.db || mocks.mockDB()
+  const customs = options.customs || {
+    check: () => { return P.resolve(true) }
   }
-  var checkPassword = options.checkPassword || require('../../../lib/routes/utils/password_check')(log, config, Password, customs, db)
-  var push = options.push || require('../../../lib/push')(log, db, {})
+  const signinUtils = options.signinUtils || require('../../../lib/routes/utils/signin')(log, config, customs, db, mailer)
+  if (options.checkPassword) {
+    signinUtils.checkPassword = options.checkPassword
+  }
+  const push = options.push || require('../../../lib/push')(log, db, {})
   return proxyquire('../../../lib/routes/account', requireMocks || {})(
     log,
     db,
-    options.mailer || {},
+    mailer,
     Password,
     config,
     customs,
-    checkPassword,
+    signinUtils,
     push
   )
 }
@@ -63,7 +67,6 @@ var makeRoutes = function (options, requireMocks) {
 function runTest (route, request, assertions) {
   return new P(function (resolve, reject) {
     route.handler(request, function (response) {
-      //resolve(response)
       if (response instanceof Error) {
         reject(response)
       } else {
@@ -428,7 +431,6 @@ describe('/account/create', () => {
 
 describe('/account/login', function () {
   var config = {
-    newLoginNotificationEnabled: true,
     securityHistory: {
       ipProfiling: {}
     },
@@ -574,7 +576,7 @@ describe('/account/login', function () {
     sinon.stub(Date, 'now', () => now)
 
     return runTest(route, mockRequest, function (response) {
-      assert.equal(mockDB.accountRecord.callCount, 1, 'db.emailRecord was called')
+      assert.equal(mockDB.accountRecord.callCount, 1, 'db.accountRecord was called')
 
       assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called once')
       let args = mockDB.createSessionToken.args[0]

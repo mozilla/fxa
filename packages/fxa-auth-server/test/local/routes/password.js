@@ -20,25 +20,26 @@ var TEST_EMAIL = 'foo@gmail.com'
 function makeRoutes(options) {
   options = options || {}
 
-  var config = options.config || {
+  const config = options.config || {
     verifierVersion: 0,
     smtp: {}
   }
-  var log = options.log || mocks.mockLog()
-  var db = options.db || {}
-  var Password = require('../../../lib/crypto/password')(log, config)
-  var customs = options.customs || {}
-  var checkPassword = require('../../../lib/routes/utils/password_check')(log, config, Password, customs, db)
+  const log = options.log || mocks.mockLog()
+  const db = options.db || {}
+  const mailer = options.mailer || {}
+  const Password = require('../../../lib/crypto/password')(log, config)
+  const customs = options.customs || {}
+  const signinUtils = require('../../../lib/routes/utils/signin')(log, config, customs, db, mailer)
   config.secondaryEmail = config.secondaryEmail || {}
   return require('../../../lib/routes/password')(
     log,
     db,
     Password,
     config.smtp.redirectDomain || '',
-    options.mailer || {},
+    mailer,
     config.verifierVersion,
     options.customs || {},
-    checkPassword,
+    signinUtils,
     options.push || {},
     config
   )

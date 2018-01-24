@@ -165,7 +165,7 @@ describe('remote db', function() {
         })
         .then(sessions => {
           assert.equal(sessions.length, 1, 'sessions contains one item')
-          assert.equal(Object.keys(sessions[0]).length, 18, 'session has correct number of properties')
+          assert.equal(Object.keys(sessions[0]).length, 19, 'session has correct number of properties')
           assert.equal(typeof sessions[0].id, 'string', 'id property is not a buffer')
           assert.equal(sessions[0].uid, account.uid, 'uid property is correct')
           assert.ok(sessions[0].createdAt >= account.createdAt, 'createdAt property seems correct')
@@ -176,6 +176,7 @@ describe('remote db', function() {
           assert.equal(sessions[0].uaDeviceType, null, 'uaDeviceType property is correct')
           assert.equal(sessions[0].uaFormFactor, null, 'uaFormFactor property is correct')
           assert.equal(sessions[0].lastAccessTime, sessions[0].createdAt, 'lastAccessTime property is correct')
+          assert.equal(sessions[0].authAt, sessions[0].createdAt, 'authAt property is correct')
           assert.equal(sessions[0].location, undefined, 'location property is correct')
 
           // Fetch the session token
@@ -199,7 +200,7 @@ describe('remote db', function() {
           lastAccessTimeUpdates.enabled = false
 
           // Attempt to update the session token
-          return db.updateSessionToken(sessionToken, {})
+          return db.touchSessionToken(sessionToken, {})
         })
         .then(result => {
           assert.equal(result, undefined)
@@ -209,7 +210,7 @@ describe('remote db', function() {
         })
         .then(sessions => {
           assert.equal(sessions.length, 1, 'sessions contains one item')
-          assert.equal(Object.keys(sessions[0]).length, 18, 'session has correct number of properties')
+          assert.equal(Object.keys(sessions[0]).length, 19, 'session has correct number of properties')
           assert.equal(sessions[0].uid, account.uid, 'uid property is correct')
           assert.equal(sessions[0].lastAccessTime, undefined, 'lastAccessTime not reported if disabled')
           assert.equal(sessions[0].location, undefined, 'location property is correct')
@@ -222,7 +223,7 @@ describe('remote db', function() {
         })
         .then(sessionToken => {
           // Update the session token
-          return db.updateSessionToken(Object.assign({}, sessionToken, {
+          return db.touchSessionToken(Object.assign({}, sessionToken, {
             lastAccessTime: Date.now()
           }), {
             location: {
@@ -255,7 +256,7 @@ describe('remote db', function() {
         })
         .then(sessionToken => {
           // Update the session token
-          return db.updateSessionToken(Object.assign({}, sessionToken, {
+          return db.touchSessionToken(Object.assign({}, sessionToken, {
             uaBrowser: 'Firefox Mobile',
             uaBrowserVersion: '42',
             uaOS: 'Android',
@@ -513,7 +514,7 @@ describe('remote db', function() {
           // Update the device and the session token
           return P.all([
             db.updateDevice(account.uid, sessionToken.id, deviceInfo),
-            db.updateSessionToken(sessionToken, {
+            db.touchSessionToken(sessionToken, {
               location: {
                 city: 'Mountain View',
                 country: 'United States',

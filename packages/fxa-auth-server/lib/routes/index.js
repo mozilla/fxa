@@ -19,7 +19,7 @@ module.exports = function (
   ) {
   const defaults = require('./defaults')(log, db)
   const idp = require('./idp')(log, serverPublicKeys)
-  const checkPassword = require('./utils/password_check')(log, config, Password, customs, db)
+  const signinUtils = require('./utils/signin')(log, config, customs, db, mailer)
   const push = require('../push')(log, db, config)
   const account = require('./account')(
     log,
@@ -28,7 +28,7 @@ module.exports = function (
     Password,
     config,
     customs,
-    checkPassword,
+    signinUtils,
     push
   )
   const devicesImpl = require('../devices')(log, db, push)
@@ -42,12 +42,12 @@ module.exports = function (
     mailer,
     config.verifierVersion,
     customs,
-    checkPassword,
+    signinUtils,
     push,
     config
   )
   const tokenCodes = require('./token-codes')(log, db, customs)
-  const session = require('./session')(log, db)
+  const session = require('./session')(log, db, Password, config, signinUtils)
   const sign = require('./sign')(log, signer, db, config.domain, devicesImpl)
   const signinCodes = require('./signin-codes')(log, db, customs)
   const smsRoute = require('./sms')(log, db, config, customs, smsImpl)

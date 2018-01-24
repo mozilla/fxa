@@ -153,3 +153,5 @@ module.exports.isValidUrl = function (redirect, regex) {
   var parsed = url.parse(redirect)
   return regex.test(parsed.hostname) && /^https?:$/.test(parsed.protocol)
 }
+
+module.exports.verificationMethod = isA.string().valid(['email', 'email-2fa', 'email-captcha'])

@@ -14,21 +14,13 @@ const uuid = require('uuid')
 const validators = require('./validators')
 
 const HEX_STRING = validators.HEX_STRING
-const BASE_36 = validators.BASE_36
-
-// An arbitrary, but very generous, limit on the number of active sessions.
-// Currently only for metrics purposes, not enforced.
-const MAX_ACTIVE_SESSIONS = 200
 
 const MS_ONE_HOUR = 1000 * 60 * 60
 const MS_ONE_DAY = MS_ONE_HOUR * 24
 const MS_ONE_WEEK = MS_ONE_DAY * 7
 const MS_ONE_MONTH = MS_ONE_DAY * 30
 
-module.exports = (log, db, mailer, Password, config, customs, checkPassword, push) => {
-  const unblockCodeLifetime = config.signinUnblock && config.signinUnblock.codeLifetime || 0
-  const unblockCodeLen = config.signinUnblock && config.signinUnblock.codeLength || 8
-
+module.exports = (log, db, mailer, Password, config, customs, signinUtils, push) => {
   const tokenCodeConfig = config.signinConfirmation.tokenVerificationCode
   const tokenCodeLifetime = tokenCodeConfig && tokenCodeConfig.codeLifetime || MS_ONE_HOUR
   const tokenCodeLength = tokenCodeConfig && tokenCodeConfig.codeLength || 8
@@ -373,7 +365,7 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           query: {
             keys: isA.boolean().optional(),
             service: validators.service,
-            verificationMethod: isA.string().valid(['email', 'email-2fa', 'email-captcha']).optional()
+            verificationMethod: validators.verificationMethod.optional()
           },
           payload: {
             email: validators.email().required(),
@@ -382,10 +374,10 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             redirectTo: isA.string().uri().optional(),
             resume: isA.string().optional(),
             reason: isA.string().max(16).optional(),
-            unblockCode: isA.string().regex(BASE_36).length(unblockCodeLen).optional(),
+            unblockCode: signinUtils.validators.UNBLOCK_CODE,
             metricsContext: METRICS_CONTEXT_SCHEMA,
             originalLoginEmail: validators.email().optional(),
-            verificationMethod: isA.string().valid(['email', 'email-2fa', 'email-captcha']).optional()
+            verificationMethod: validators.verificationMethod.optional()
           }
         },
         response: {
@@ -406,177 +398,48 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
         const form = request.payload
         const email = form.email
         const authPW = form.authPW
-        const service = request.payload.service || request.query.service
-        const redirectTo = request.payload.redirectTo
-        const resume = request.payload.resume
-        const ip = request.app.clientAddress
-        const requestNow = Date.now()
         const originalLoginEmail = request.payload.originalLoginEmail
         const verificationMethod = request.payload.verificationMethod || request.query.verificationMethod
+        const requestNow = Date.now()
 
-        let needsVerificationId = true
-        let accountRecord, sessions, sessionToken, keyFetchToken, mustVerifySession, doSigninConfirmation,
-          unblockCode, customsErr, didSigninUnblock, tokenVerificationId, tokenVerificationCode
-
+        let accountRecord, password, sessionToken, keyFetchToken, didSigninUnblock
         let securityEventRecency = Infinity, securityEventVerified = false
 
         request.validateMetricsContext()
 
-        // Store flowId and flowBeginTime to send in email
-        let flowId, flowBeginTime
-        if (request.payload.metricsContext) {
-          flowId = request.payload.metricsContext.flowId
-          flowBeginTime = request.payload.metricsContext.flowBeginTime
-        }
-
-        checkIsBlockForced()
-          .then(() => customs.check(request, email, 'accountLogin'))
-          .catch(extractUnblockCode)
-          .then(readEmailRecord)
-          .then(checkUnblockCode)
-          .then(checkSecurityHistory)
+        return checkCustomsAndLoadAccount()
           .then(checkEmailAndPassword)
-          .then(checkNumberOfActiveSessions)
+          .then(checkSecurityHistory)
           .then(createSessionToken)
+          .then(sendSigninNotifications)
           .then(createKeyFetchToken)
-          .then(emitSyncLoginEvent)
-          .then(sendVerifyAccountEmail)
-          .then(sendNewDeviceLoginNotification)
-          .then(sendVerificationIfNeeded)
-          .then(recordSecurityEvent)
           .then(createResponse)
           .then(reply, reply)
 
-        function checkIsBlockForced () {
-          // For testing purposes, some email addresses are forced
-          // to go through signin unblock on every login attempt.
-          const forced = config.signinUnblock && config.signinUnblock.forcedEmailAddresses
-
-          if (forced && forced.test(email)) {
-            return P.reject(error.requestBlocked(true))
-          }
-
-          return P.resolve()
+        function checkCustomsAndLoadAccount() {
+          return signinUtils.checkCustomsAndLoadAccount(request, email).then((res) => {
+            accountRecord = res.accountRecord
+            // Remember whether they did a signin-unblock,
+            // because we can use it to bypass token verification.
+            didSigninUnblock = res.didSigninUnblock
+          })
         }
 
-        function extractUnblockCode (e) {
-          // If it's a customs-related error...
-          if (e.errno === error.ERRNO.REQUEST_BLOCKED || e.errno === error.ERRNO.THROTTLED) {
-            return request.emitMetricsEvent('account.login.blocked')
-              .then(() => {
-                var verificationMethod = e.output.payload.verificationMethod
-                // ...and if they can verify their way around it,
-                // then extract any unblockCode from the request.
-                // We'll re-throw the error later if the code is invalid.
-                if (verificationMethod === 'email-captcha') {
-                  unblockCode = request.payload.unblockCode
-                  if (unblockCode) {
-                    unblockCode = unblockCode.toUpperCase()
-                  }
-                  customsErr = e
-                  return
-                }
-                throw e
-              })
-          }
-          // Any other errors are propagated back to the user.
-          throw e
-        }
-
-        function readEmailRecord () {
-          return db.accountRecord(email)
-            .then(
-              function (result) {
-
-                // The `originalLoginEmail` param is specified in the login request if the user has
-                // changed their primary email address. This param must match the current primary
-                // email address of the user before the login can succeed.
-                if (originalLoginEmail) {
-                  if (originalLoginEmail.toLowerCase() !== result.primaryEmail.normalizedEmail) {
-                    throw error.cannotLoginWithSecondaryEmail()
-                  }
-
-                  // Emails are considered valid if that email exists in the `account.emails` property.
-                  // This block covers an edge case where the user deletes the original email they
-                  // created the account with and then attempts to login with that email.
-                  let usingValidEmail = false
-                  result.emails.some((emailData) => {
-                    if (emailData.normalizedEmail === originalLoginEmail.toLowerCase()) {
-                      usingValidEmail = true
-                      return true
-                    }
-                  })
-
-                  // This error will not give the user an option to create an account from
-                  // this email.
-                  if (! usingValidEmail) {
-                    throw error.cannotLoginWithEmail()
-                  }
-                } else if (email.toLowerCase() !== result.primaryEmail.normalizedEmail) {
-                  throw error.cannotLoginWithSecondaryEmail()
-                }
-
-                accountRecord = result
-              },
-              function (err) {
-                if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-                  customs.flag(request.app.clientAddress, {
-                    email: email,
-                    errno: err.errno
-                  })
-
-                  // We rate-limit attempts to check whether an account exists, so
-                  // we have to be careful to re-throw any customs-server errors here.
-                  // We also have to be careful not to leak info about whether the account
-                  // existed, for example by saying sign-in unblock is unavailable on
-                  // accounts that don't exist. We pass a fake uid into the feature-flag
-                  // test to mask whether the account existed.
-                  if (customsErr) {
-                    throw customsErr
-                  }
-
-                  throw err
-                }
-                throw err
+        function checkEmailAndPassword() {
+          return signinUtils.checkEmailAddress(accountRecord, email, originalLoginEmail)
+            .then(() => {
+              password = new Password(
+                authPW,
+                accountRecord.authSalt,
+                accountRecord.verifierVersion
+              )
+              return signinUtils.checkPassword(accountRecord, password, request.app.clientAddress)
+            })
+            .then(match => {
+              if (! match) {
+                throw error.incorrectPassword(accountRecord.email, email)
               }
-            )
-        }
-
-        function checkUnblockCode() {
-          if (unblockCode) {
-            return db.consumeUnblockCode(accountRecord.uid, unblockCode)
-              .then(
-                (code) => {
-                  if (requestNow - code.createdAt > unblockCodeLifetime) {
-                    log.info({
-                      op: 'Account.login.unblockCode.expired',
-                      uid: accountRecord.uid
-                    })
-                    throw error.invalidUnblockCode()
-                  }
-                  didSigninUnblock = true
-                  return request.emitMetricsEvent('account.login.confirmedUnblockCode')
-                }
-              )
-              .catch(
-                (err) => {
-                  if (err.errno === error.ERRNO.INVALID_UNBLOCK_CODE) {
-                    return request.emitMetricsEvent('account.login.invalidUnblockCode')
-                      .then(() => {
-                        customs.flag(request.app.clientAddress, {
-                          email: email,
-                          errno: err.errno
-                        })
-                        throw err
-                      })
-                  }
-                  throw err
-                }
-              )
-          }
-          if (! didSigninUnblock && customsErr) {
-            throw customsErr
-          }
+            })
         }
 
         function checkSecurityHistory () {
@@ -624,8 +487,9 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
                   }
                 }
               },
-              function (err) {
-                // for now, security events are purely for metrics
+              (err) => {
+                // Security event history allows some convenience during login,
+                // but errors here shouldn't fail the entire request.
                 // so errors shouldn't stop the login attempt
                 log.error({
                   op: 'Account.history.error',
@@ -636,9 +500,9 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             )
         }
 
-        function checkEmailAndPassword () {
+        function createSessionToken () {
           // All sessions are considered unverified by default.
-          needsVerificationId = true
+          let needsVerificationId = true
 
           // However! To help simplify the login flow, we can use some heuristics to
           // decide whether to consider the session pre-verified.  Some accounts
@@ -660,34 +524,48 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           // login session before they can actually use it. Otherwise, they don't *have* to verify
           // their session. All sessions are created unverified because it prevents them from being
           // used for sync.
-          mustVerifySession = needsVerificationId && (requestHelper.wantsKeys(request) || verificationMethod)
+          const mustVerifySession = needsVerificationId && (requestHelper.wantsKeys(request) || verificationMethod)
 
-          // If the email itself is unverified, we'll re-send the "verify your account email" and
-          // that will suffice to confirm the sign-in.  No need for a separate confirmation email.
-          doSigninConfirmation = mustVerifySession && accountRecord.primaryEmail.isVerified
-
-          let flowCompleteSignal
-          if (service === 'sync') {
-            flowCompleteSignal = 'account.signed'
-          } else if (doSigninConfirmation) {
-            flowCompleteSignal = 'account.confirmed'
-          } else {
-            flowCompleteSignal = 'account.login'
-          }
-          request.setMetricsFlowCompleteSignal(flowCompleteSignal, 'login')
-
-          return checkPassword(accountRecord, authPW, request.app.clientAddress)
-            .then(
-              function (match) {
-                if (! match) {
-                  throw error.incorrectPassword(accountRecord.email, email)
-                }
-
-                return request.emitMetricsEvent('account.login', {
-                  uid: accountRecord.uid
-                })
+          return P.resolve()
+            .then(() => {
+              if (! needsVerificationId) {
+                return []
               }
-            )
+              return [random.hex(16), TokenCode()]
+            })
+            .spread((tokenVerificationId, tokenVerificationCode) => {
+              const {
+                browser: uaBrowser,
+                browserVersion: uaBrowserVersion,
+                os: uaOS,
+                osVersion: uaOSVersion,
+                deviceType: uaDeviceType,
+                formFactor: uaFormFactor
+              } = request.app.ua
+
+              const sessionTokenOptions = {
+                uid: accountRecord.uid,
+                email: accountRecord.primaryEmail.email,
+                emailCode: accountRecord.primaryEmail.emailCode,
+                emailVerified: accountRecord.primaryEmail.isVerified,
+                verifierSetAt: accountRecord.verifierSetAt,
+                mustVerify: mustVerifySession,
+                tokenVerificationId: tokenVerificationId,
+                tokenVerificationCode: tokenVerificationCode,
+                tokenVerificationCodeExpiresAt: Date.now() + tokenCodeLifetime,
+                uaBrowser,
+                uaBrowserVersion,
+                uaOS,
+                uaOSVersion,
+                uaDeviceType,
+                uaFormFactor
+              }
+
+              return db.createSessionToken(sessionTokenOptions)
+            })
+            .then(result => {
+              sessionToken = result
+            })
         }
 
         function forceTokenVerification (request, account) {
@@ -745,335 +623,31 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
           return false
         }
 
-        function checkNumberOfActiveSessions () {
-          return db.sessions(accountRecord.uid)
-            .then(
-              function (s) {
-                sessions = s
-                if (sessions.length > MAX_ACTIVE_SESSIONS) {
-                  // There's no spec-compliant way to error out
-                  // as a result of having too many active sessions.
-                  // For now, just log metrics about it.
-                  log.error({
-                    op: 'Account.login',
-                    uid: accountRecord.uid,
-                    userAgent: request.headers['user-agent'],
-                    numSessions: sessions.length
-                  })
-                }
-              }
-            )
-        }
-
-        function createSessionToken () {
-          return P.resolve()
-            .then(() => {
-              if (needsVerificationId) {
-                return P.all([random.hex(16), TokenCode()])
-                  .spread((hex16, tokenCode) => {
-                    tokenVerificationId = hex16
-                    tokenVerificationCode = tokenCode
-                  })
-              }
-            })
-            .then(() => {
-              const {
-                browser: uaBrowser,
-                browserVersion: uaBrowserVersion,
-                os: uaOS,
-                osVersion: uaOSVersion,
-                deviceType: uaDeviceType,
-                formFactor: uaFormFactor
-              } = request.app.ua
-
-              const sessionTokenOptions = {
-                uid: accountRecord.uid,
-                email: accountRecord.primaryEmail.email,
-                emailCode: accountRecord.primaryEmail.emailCode,
-                emailVerified: accountRecord.primaryEmail.isVerified,
-                verifierSetAt: accountRecord.verifierSetAt,
-                mustVerify: mustVerifySession,
-                tokenVerificationId: tokenVerificationId,
-                tokenVerificationCode: tokenVerificationCode,
-                tokenVerificationCodeExpiresAt: Date.now() + tokenCodeLifetime,
-                uaBrowser,
-                uaBrowserVersion,
-                uaOS,
-                uaOSVersion,
-                uaDeviceType,
-                uaFormFactor
-              }
-
-              return db.createSessionToken(sessionTokenOptions)
-            })
-            .then(
-              function (result) {
-                sessionToken = result
-                return request.stashMetricsContext(sessionToken)
-              }
-            )
-            .then(
-              function () {
-                if (doSigninConfirmation) {
-                  // There is no session token when we emit account.confirmed
-                  // so stash the data against a synthesized "token" instead.
-                  return request.stashMetricsContext({
-                    uid: accountRecord.uid,
-                    id: tokenVerificationId
-                  })
-                }
-              }
-            )
+        function sendSigninNotifications() {
+          return signinUtils.sendSigninNotifications(request, accountRecord, sessionToken, verificationMethod)
         }
 
         function createKeyFetchToken() {
           if (requestHelper.wantsKeys(request)) {
-            var password = new Password(
-              authPW,
-              accountRecord.authSalt,
-              accountRecord.verifierVersion
-            )
-
-            return password.unwrap(accountRecord.wrapWrapKb)
-              .then(
-                function (wrapKb) {
-                  return db.createKeyFetchToken({
-                    uid: accountRecord.uid,
-                    kA: accountRecord.kA,
-                    wrapKb: wrapKb,
-                    emailVerified: accountRecord.primaryEmail.isVerified,
-                    tokenVerificationId: tokenVerificationId
-                  })
-                  .then(
-                    function (result) {
-                      keyFetchToken = result
-                      return request.stashMetricsContext(keyFetchToken)
-                    }
-                  )
-                }
-              )
-          }
-        }
-
-        function emitSyncLoginEvent () {
-          if (service === 'sync' && request.payload.reason === 'signin') {
-            return log.notifyAttachedServices('login', request, {
-              service: 'sync',
-              uid: accountRecord.uid,
-              email: accountRecord.primaryEmail.email,
-              deviceCount: sessions.length,
-              userAgent: request.headers['user-agent']
-            })
-          }
-        }
-
-        function sendVerifyAccountEmail() {
-          if (! accountRecord.primaryEmail.isVerified) {
-            if (didSigninUnblock) {
-              log.info({
-                op: 'Account.login.unverified.unblocked',
-                uid: accountRecord.uid
-              })
-            }
-
-            // Only use tokenVerificationId if it is set, otherwise use the corresponding email code
-            // This covers the cases where sign-in confirmation is disabled or not needed.
-            const emailCode = tokenVerificationId ? tokenVerificationId : accountRecord.primaryEmail.emailCode
-
-            return mailer.sendVerifyCode([], accountRecord, {
-              code: emailCode,
-              service,
-              redirectTo,
-              resume,
-              acceptLanguage: request.app.acceptLanguage,
-              flowId,
-              flowBeginTime,
-              ip,
-              location: request.app.geo.location,
-              uaBrowser: sessionToken.uaBrowser,
-              uaBrowserVersion: sessionToken.uaBrowserVersion,
-              uaOS: sessionToken.uaOS,
-              uaOSVersion: sessionToken.uaOSVersion,
-              uaDeviceType: sessionToken.uaDeviceType,
-              uid: sessionToken.uid
-            })
-              .then(() => request.emitMetricsEvent('email.verification.sent'))
-          }
-        }
-
-        function sendNewDeviceLoginNotification() {
-          // New device notification emails should only be sent when requesting keys.
-          // They're not sent if performing a sign-in confirmation
-          // (in which case you get the sign-in confirmation email)
-          var shouldSendNewDeviceLoginEmail = config.newLoginNotificationEnabled
-            && requestHelper.wantsKeys(request)
-            && ! doSigninConfirmation
-            && accountRecord.primaryEmail.isVerified
-          if (shouldSendNewDeviceLoginEmail) {
-            return db.accountEmails(sessionToken.uid)
-              .then(emails => {
-                const geoData = request.app.geo
-                // New device notifications are always sent to the primary account email (emailRecord.email)
-                // and CCed to all secondary email if enabled.
-                mailer.sendNewDeviceLoginNotification(
-                  emails,
-                  accountRecord,
-                  {
-                    acceptLanguage: request.app.acceptLanguage,
-                    flowId: flowId,
-                    flowBeginTime: flowBeginTime,
-                    ip: ip,
-                    location: geoData.location,
-                    service,
-                    timeZone: geoData.timeZone,
-                    uaBrowser: sessionToken.uaBrowser,
-                    uaBrowserVersion: sessionToken.uaBrowserVersion,
-                    uaOS: sessionToken.uaOS,
-                    uaOSVersion: sessionToken.uaOSVersion,
-                    uaDeviceType: sessionToken.uaDeviceType,
-                    uid: sessionToken.uid
-                  }
-                )
-                  .catch(e => {
-                    // If we couldn't email them, no big deal. Log
-                    // and pretend everything worked.
-                    log.trace({
-                      op: 'Account.login.sendNewDeviceLoginNotification.error',
-                      error: e
-                    })
-                  })
+            return signinUtils.createKeyFetchToken(request, accountRecord, password, sessionToken)
+              .then(result => {
+                keyFetchToken = result
               })
           }
-        }
-
-        function sendVerificationIfNeeded() {
-          // If this login requires a confirmation, check to see if one was specified in
-          // the request. If none was specified, use the `email` verficationMethod.
-          if (doSigninConfirmation) {
-            if (verificationMethod === 'email') {
-              // Sends an email containing a link to verify login
-              return sendVerifyLoginEmail()
-            } else if (verificationMethod === 'email-2fa') {
-              // Sends an email containing a code that can verify a login
-              return sendVerifyLoginCodeEmail()
-            } else if (verificationMethod === 'email-captcha') {
-              // `email-captcha` is a custom verification method used only for
-              // unblock codes. We do not need to send a verification email
-              // in this case.
-            } else {
-              return sendVerifyLoginEmail()
-            }
-          }
-        }
-
-        function sendVerifyLoginEmail() {
-          log.info({
-            op: 'account.signin.confirm.start',
-            uid: accountRecord.uid,
-            tokenVerificationId: tokenVerificationId
-          })
-
-          return db.accountEmails(sessionToken.uid)
-            .then(emails => {
-              const geoData = request.app.geo
-              return mailer.sendVerifyLoginEmail(
-                emails,
-                accountRecord,
-                {
-                  acceptLanguage: request.app.acceptLanguage,
-                  code: tokenVerificationId,
-                  flowId: flowId,
-                  flowBeginTime: flowBeginTime,
-                  ip: ip,
-                  location: geoData.location,
-                  redirectTo: redirectTo,
-                  resume: resume,
-                  service: service,
-                  timeZone: geoData.timeZone,
-                  uaBrowser: sessionToken.uaBrowser,
-                  uaBrowserVersion: sessionToken.uaBrowserVersion,
-                  uaOS: sessionToken.uaOS,
-                  uaOSVersion: sessionToken.uaOSVersion,
-                  uaDeviceType: sessionToken.uaDeviceType,
-                  uid: sessionToken.uid
-                }
-              )
-            })
-            .then(() => request.emitMetricsEvent('email.confirmation.sent'))
-        }
-
-        function sendVerifyLoginCodeEmail() {
-          log.info({
-            op: 'account.token.code.start',
-            uid: accountRecord.uid
-          })
-
-          return db.accountEmails(sessionToken.uid)
-            .then(emails => {
-              const geoData = request.app.geo
-              return mailer.sendVerifyLoginCodeEmail(
-                emails,
-                accountRecord,
-                {
-                  acceptLanguage: request.app.acceptLanguage,
-                  code: tokenVerificationCode,
-                  flowId: flowId,
-                  flowBeginTime: flowBeginTime,
-                  ip: ip,
-                  location: geoData.location,
-                  redirectTo: redirectTo,
-                  resume: resume,
-                  service: service,
-                  timeZone: geoData.timeZone,
-                  uaBrowser: sessionToken.uaBrowser,
-                  uaBrowserVersion: sessionToken.uaBrowserVersion,
-                  uaOS: sessionToken.uaOS,
-                  uaOSVersion: sessionToken.uaOSVersion,
-                  uaDeviceType: sessionToken.uaDeviceType,
-                  uid: sessionToken.uid
-                }
-              )
-            })
-            .then(() => request.emitMetricsEvent('email.tokencode.sent'))
-        }
-
-        function recordSecurityEvent() {
-          db.securityEvent({
-            name: 'account.login',
-            uid: accountRecord.uid,
-            ipAddr: request.app.clientAddress,
-            tokenId: sessionToken && sessionToken.id
-          })
         }
 
         function createResponse () {
           var response = {
             uid: sessionToken.uid,
             sessionToken: sessionToken.data,
-            verified: sessionToken.emailVerified,
             authAt: sessionToken.lastAuthAt()
           }
 
-          const mustVerify = requestHelper.wantsKeys(request) || verificationMethod
-          if (! mustVerify) {
-            return P.resolve(response)
-          }
-
-          if (requestHelper.wantsKeys(request)) {
+          if (keyFetchToken) {
             response.keyFetchToken = keyFetchToken.data
           }
 
-          if (! accountRecord.primaryEmail.isVerified) {
-            response.verified = false
-            response.verificationMethod = 'email'
-            response.verificationReason = 'signup'
-          } else if (doSigninConfirmation) {
-            response.verified = false
-
-            // Override the verification method if it was explicitly specified in the request
-            response.verificationMethod = verificationMethod || 'email'
-            response.verificationReason = 'login'
-          }
+          Object.assign(response, signinUtils.getSessionVerificationStatus(sessionToken, verificationMethod))
 
           return P.resolve(response)
         }
@@ -1505,7 +1079,8 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
             function (emailRecord) {
               uid = emailRecord.uid
 
-              return checkPassword(emailRecord, authPW, request.app.clientAddress)
+              const password = new Password(authPW, emailRecord.authSalt, emailRecord.verifierVersion)
+              return signinUtils.checkPassword(emailRecord, password, request.app.clientAddress)
                 .then(
                   function (match) {
                     if (! match) {

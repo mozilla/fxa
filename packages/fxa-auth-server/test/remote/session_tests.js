@@ -5,15 +5,23 @@
 'use strict'
 
 const assert = require('insist')
-var TestServer = require('../test_server')
+const TestServer = require('../test_server')
 const Client = require('../client')()
-
-var config = require('../../config').getProperties()
+const P = require('../../lib/promise')
+const jwtool = require('fxa-jwtool')
+const config = require('../../config').getProperties()
+const pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile)
+const duration = 1000 * 60 * 60 * 24
+const publicKey = {
+  'algorithm': 'RS',
+  'n': '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
+  'e': '65537'
+}
 
 describe('remote session', function() {
   this.timeout(15000)
   let server
-  config.signinConfirmation.skipForNewAccounts.enabled = true
+  config.signinConfirmation.skipForNewAccounts.enabled = false
   before(() => {
     return TestServer.start(config)
       .then(s => {
@@ -233,6 +241,157 @@ describe('remote session', function() {
     )
   })
 
+  describe('reauth', () => {
+    it(
+      'allocates a new keyFetchToken',
+      () => {
+        const email = server.uniqueEmail()
+        const password = 'foobar'
+        let client, kA, kB
+        return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, { keys: true })
+          .then(x => {
+            client = x
+            return client.keys()
+          }).then(keys => {
+            kA = keys.kA
+            kB = keys.kB
+            assert.equal(client.keyFetchToken, null, 'keyFetchToken was consumed')
+            return client.reauth({ keys: true })
+          }).then(() => {
+            assert.ok(client.keyFetchToken, 'got a new keyFetchToken')
+            return client.keys()
+          }).then(keys => {
+            assert.equal(keys.kA, kA, 'kA was fetched successfully')
+            assert.equal(keys.kB, kB, 'kB was fetched successfully')
+            assert.equal(client.keyFetchToken, null, 'keyFetchToken was consumed')
+          })
+      }
+    )
+
+    it(
+      'updates the last-auth time',
+      () => {
+        const email = server.uniqueEmail()
+        const password = 'foobar'
+        let client, lastAuth1, lastAuth2
+        return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+          .then(x => {
+            client = x
+          }).then(() => {
+            return client.sign(publicKey, duration)
+          }).then(cert => {
+            const payload = jwtool.verify(cert, pubSigKey.pem)
+            assert.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
+            lastAuth1 = payload['fxa-lastAuthAt']
+            return P.delay(1000)
+          }).then(() => {
+            return client.reauth()
+          }).then(() => {
+            return client.sign(publicKey, duration)
+          }).then(cert => {
+            const payload = jwtool.verify(cert, pubSigKey.pem)
+            assert.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
+            lastAuth2 = payload['fxa-lastAuthAt']
+            assert.ok(lastAuth1 < lastAuth2, 'last-auth timestamp increased')
+          })
+      }
+    )
+
+    it(
+      'rejects incorrect passwords',
+      () => {
+        const email = server.uniqueEmail()
+        const password = 'foobar'
+        let client
+        return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+          .then(x => {
+            client = x
+          }).then(() => {
+            return client.setupCredentials(email, 'fiibar')
+          }).then(() => {
+            return client.reauth()
+          }).then(
+            () => { assert.fail('password should have been rejected') },
+            (err) => {
+              assert.equal(err.code, 400)
+              assert.equal(err.errno, 103)
+            }
+          )
+      }
+    )
+
+    it(
+      'has sane account-verification behaviour',
+      () => {
+        const email = server.uniqueEmail()
+        const password = 'foobar'
+        let client
+        return Client.create(config.publicUrl, email, password, server.mailbox)
+          .then(x => {
+            client = x
+            assert.ok(! client.verified, 'account is not verified')
+            // Clear the verification email, without verifying.
+            return server.mailbox.waitForCode(email)
+          }).then(() => {
+            return client.reauth()
+          }).then(() => {
+            return client.sessionStatus()
+          }).then((status) => {
+            assert.equal(status.state, 'unverified', 'client session is still unverified')
+          }).then(() => {
+            // The reauth should have triggerd a second email.
+            return server.mailbox.waitForCode(email)
+          }).then((code) => {
+            return client.verifyEmail(code)
+          }).then(() => {
+            return client.sessionStatus()
+          }).then((status) => {
+            assert.equal(status.state, 'verified', 'client session has become verified')
+          })
+      }
+    )
+
+    it(
+      'has sane session-verification behaviour',
+      () => {
+        const email = server.uniqueEmail()
+        const password = 'foobar'
+        let client
+        return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, { keys: false })
+          .then(() => {
+            return Client.login(config.publicUrl, email, password, { keys: false })
+          }).then(x => {
+            client = x
+            return client.sessionStatus()
+          }).then((status) => {
+            assert.equal(status.state, 'unverified', 'client session reports unverified')
+            return client.emailStatus()
+          }).then((status) => {
+            assert.equal(status.verified, true, 'email status reports verified, because mustVerify=false')
+            return client.reauth({ keys: true })
+          }).then(() => {
+            return client.sessionStatus()
+          }).then((status) => {
+            assert.equal(status.state, 'unverified', 'client session still reports unverified')
+            return client.emailStatus()
+          }).then((status) => {
+            assert.equal(status.verified, false, 'email status now reports unverified, because mustVerify=true')
+            // The reauth should have triggerd a verification email.
+            return server.mailbox.waitForCode(email)
+          }).then((code) => {
+            return client.verifyEmail(code)
+          }).then(() => {
+            return client.sessionStatus()
+          }).then((status) => {
+            assert.equal(status.state, 'verified', 'client session has become verified')
+            return client.emailStatus()
+          }).then((status) => {
+            assert.equal(status.verified, true, 'email status is now verified, because session is verified')
+          })
+      }
+    )
+  })
+
   describe('status', () => {
 
     it(
@@ -241,7 +400,7 @@ describe('remote session', function() {
         var email = server.uniqueEmail()
         var password = 'testx'
         var uid = null
-        return Client.create(config.publicUrl, email, password)
+        return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
           .then(
             function (c) {
               uid = c.uid
@@ -256,7 +415,7 @@ describe('remote session', function() {
           .then(
             function (x) {
               assert.deepEqual(x, {
-                state: 'verified',
+                state: 'unverified',
                 uid: uid
               })
             }
