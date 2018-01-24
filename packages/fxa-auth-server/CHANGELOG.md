@@ -1,3 +1,20 @@
+<a name"1.104.0"></a>
+## 1.104.0 (2018-01-24)
+
+
+#### Bug Fixes
+
+* **config:**
+  * reverting 'mark config sentryDsn and mysql password sensitive (#511) r=@vladikof ([41bd7c00](https://github.com/mozilla/fxa-oauth-server/commit/41bd7c00))
+  * mark config sentryDsn and mysql password sensitive (#511) r=@vladikoff ([d98fbcde](https://github.com/mozilla/fxa-oauth-server/commit/d98fbcde))
+
+
+#### Features
+
+* **auth:** Accept client credentials in the Authorization header. (#514); r=philbooth ([1c508078](https://github.com/mozilla/fxa-oauth-server/commit/1c508078))
+* **keys:** Check lastAuthAt freshness when fetching key data. (#506) r=@vladikoff ([e0de2f3b](https://github.com/mozilla/fxa-oauth-server/commit/e0de2f3b))
+
+
 <a name"1.103.0"></a>
 ## 1.103.0 (2018-01-08)
 
