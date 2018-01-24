@@ -1,3 +1,24 @@
+<a name="1.104.0"></a>
+# [1.104.0](https://github.com/mozilla/fxa-auth-server/compare/v1.103.0...v1.104.0) (2018-01-24)
+
+
+### Bug Fixes
+
+* **redis:** pack redis tokens inside db.deleteSessionToken ([1b2d1d9](https://github.com/mozilla/fxa-auth-server/commit/1b2d1d9))
+* **tests:** Fix account destroy device test (#2263), r=@rfk ([220d57d](https://github.com/mozilla/fxa-auth-server/commit/220d57d)), closes [#2263](https://github.com/mozilla/fxa-auth-server/issues/2263)
+
+### chore
+
+* **deps:** update fxa-geodb ([e7bbb86](https://github.com/mozilla/fxa-auth-server/commit/e7bbb86))
+
+### Features
+
+* **auth:** Enable hawk payload validation for additional replay protection (#2252); r=pboot ([af3a9eb](https://github.com/mozilla/fxa-auth-server/commit/af3a9eb)), closes [#2252](https://github.com/mozilla/fxa-auth-server/issues/2252)
+* **redis:** eliminate property names from redis-stored tokens ([fcddf0b](https://github.com/mozilla/fxa-auth-server/commit/fcddf0b))
+* **redis:** prune expired session tokens from redis ([a9a61f0](https://github.com/mozilla/fxa-auth-server/commit/a9a61f0))
+
+
+
 <a name="1.103.0"></a>
 # [1.103.0](https://github.com/mozilla/fxa-auth-server/compare/v1.102.0...v1.103.0) (2018-01-09)
 
