@@ -1,3 +1,13 @@
+<a name="1.104.0"></a>
+# [1.104.0](https://github.com/mozilla/fxa-profile-server/compare/v1.103.0...v1.104.0) (2018-01-24)
+
+
+### Bug Fixes
+
+* **config:** mark config sentryDsn and mysql password sensitive (#298) r=@vladikoff ([f7a3717](https://github.com/mozilla/fxa-profile-server/commit/f7a3717))
+
+
+
 <a name="1.103.0"></a>
 # [1.103.0](https://github.com/mozilla/fxa-profile-server/compare/v1.100.0...v1.103.0) (2018-01-09)
 
