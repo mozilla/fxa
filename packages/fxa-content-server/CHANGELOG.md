@@ -1,3 +1,41 @@
+<a name="1.104.0"></a>
+# 1.104.0 (2018-01-24)
+
+
+### Bug Fixes
+
+* **intern:** alphabetical order of modules ([69f7a3e](https://github.com/mozilla/fxa-content-server/commit/69f7a3e))
+* **intern:** npm install leadfoot, requirejs, yargs here too ([abdb750](https://github.com/mozilla/fxa-content-server/commit/abdb750))
+* **metrics:** ditch the non-useful performance flow events (#5822) r=@vladikoff,@vbudhram ([8699d03](https://github.com/mozilla/fxa-content-server/commit/8699d03))
+* **settings:** #4982 clear inputs on Esc keyup (#5821) r=@vladikoff ([bdd3915](https://github.com/mozilla/fxa-content-server/commit/bdd3915)), closes [#4982](https://github.com/mozilla/fxa-content-server/issues/4982)
+* **style:** add padding over save settings button (#5841), r=@vbudhram ([c34800a](https://github.com/mozilla/fxa-content-server/commit/c34800a))
+* **teamcity:** add a config for stable-beta ([3c7f87c](https://github.com/mozilla/fxa-content-server/commit/3c7f87c))
+* **tests:** add intern 4 support (#5787) r=@vbudram,@pb ([cd7c3dd](https://github.com/mozilla/fxa-content-server/commit/cd7c3dd)), closes [#5228](https://github.com/mozilla/fxa-content-server/issues/5228)
+* **tests:** ensure consistent Date.now() in _calculateQueueTime test ([4538217](https://github.com/mozilla/fxa-content-server/commit/4538217))
+* **tests:** fix TeamCity Intern 4 tests ([67ec566](https://github.com/mozilla/fxa-content-server/commit/67ec566))
+* **tests:** fix up server test register function ([335cdaf](https://github.com/mozilla/fxa-content-server/commit/335cdaf))
+* **typo:** typo in test name and fxa-client (#5828) ([18228ec](https://github.com/mozilla/fxa-content-server/commit/18228ec))
+
+### chore
+
+* **deps:** update fxa-geodb (#5839), r=@vbudhram ([f7ef81a](https://github.com/mozilla/fxa-content-server/commit/f7ef81a))
+
+### Features
+
+* **signin:** Add token codes experiment (#5706), r=@pb, @vladikoff ([4fb8208](https://github.com/mozilla/fxa-content-server/commit/4fb8208))
+* **sms:** enable sms 100% for PT, ES, FR, IT. 50% for AU (#5829); r=rfk ([bf4d9ad](https://github.com/mozilla/fxa-content-server/commit/bf4d9ad))
+
+### Refactor
+
+* **icon:** replace firefox-notes icon (#5833), r=@vbudhram ([f86889b](https://github.com/mozilla/fxa-content-server/commit/f86889b))
+* **ios:** remove old timer hack for Firefox iOS6, remove old tests (#5823) r=@vbudhram ([1982475](https://github.com/mozilla/fxa-content-server/commit/1982475)), closes [#5820](https://github.com/mozilla/fxa-content-server/issues/5820)
+
+### Reverts
+
+* **settings:** #4982 clear inputs on Esc keyup (#5821) r=@vladikoff ([d71916f](https://github.com/mozilla/fxa-content-server/commit/d71916f))
+
+
+
 <a name="1.103.0"></a>
 # 1.103.0 (2018-01-09)
 
