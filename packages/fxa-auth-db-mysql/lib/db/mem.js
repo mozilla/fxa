@@ -602,6 +602,10 @@ module.exports = function (log, error) {
       .then(function (account) {
         return filterAccount(account)
       })
+      .then((account) => {
+        delete account.locale
+        return account
+      })
   }
 
   Memory.prototype.sessions = function (uid) {
@@ -794,7 +798,6 @@ module.exports = function (log, error) {
 
     var accountId = token.uid.toString('hex')
     var account = accounts[accountId]
-    item.email = account.email
     item.verifierSetAt = account.verifierSetAt
 
     return P.resolve(item)
