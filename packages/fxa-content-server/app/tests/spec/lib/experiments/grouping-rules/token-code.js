@@ -45,7 +45,7 @@ define(function (require, exports, module) {
         subject.clientId = 'dcdb5ae7add825d2';
         experiment.choose(subject);
         assert.isTrue(experiment.uniformChoice.calledOnce);
-        assert.isTrue(experiment.uniformChoice.calledWith(['control', 'treatment'], 'user-id'));
+        assert.isTrue(experiment.uniformChoice.calledWith(['control', 'treatment-code', 'treatment-link'], 'user-id'));
       });
     });
   });

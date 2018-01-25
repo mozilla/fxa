@@ -47,10 +47,18 @@ define(function (require, exports, module) {
           this.logFlowEvent('attempt', 'signin');
 
           // Check to see if this user is in the token code experiment,
-          // if so, override the verification method to use email-2fa
+          // if so, override to use the correct verification method. `email-2fa` sends
+          // an email with the verification code and `email` sends a confirmation link.
           let verificationMethod;
-          if (this.getTokenCodeExperimentGroup && this.getTokenCodeExperimentGroup() === 'treatment') {
-            verificationMethod = VerificationMethods.EMAIL_2FA;
+          if (this.getTokenCodeExperimentGroup) {
+            switch (this.getTokenCodeExperimentGroup()) {
+            case 'treatment-code':
+              verificationMethod = VerificationMethods.EMAIL_2FA;
+              break;
+            case 'treatment-link':
+              verificationMethod = VerificationMethods.EMAIL;
+              break;
+            }
           }
 
           return this.user.signInAccount(account, password, this.relier, {

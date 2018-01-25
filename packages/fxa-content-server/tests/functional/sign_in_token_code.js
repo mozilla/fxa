@@ -21,6 +21,7 @@ const createUser = FunctionalHelpers.createUser;
 const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
 const fillOutSignInTokenCode = FunctionalHelpers.fillOutSignInTokenCode;
 const openFxaFromRp = FunctionalHelpers.openFxaFromRp;
+const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
 const testElementExists = FunctionalHelpers.testElementExists;
 const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
 const type = FunctionalHelpers.type;
@@ -60,8 +61,8 @@ registerSuite('signin token code', {
         .then(testAtOAuthApp());
     },
 
-    'verified - treatment - valid code': function () {
-      const experimentParams = {query: {forceExperiment: 'tokenCode', forceExperimentGroup: 'treatment'}};
+    'verified - treatment-code - valid code': function () {
+      const experimentParams = {query: {forceExperiment: 'tokenCode', forceExperimentGroup: 'treatment-code'}};
       return this.remote
         .then(openFxaFromRp('signin', experimentParams))
         .then(fillOutSignIn(email, PASSWORD))
@@ -73,8 +74,8 @@ registerSuite('signin token code', {
         .then(testAtOAuthApp());
     },
 
-    'verified - treatment - valid code then click back': function () {
-      const experimentParams = {query: {forceExperiment: 'tokenCode', forceExperimentGroup: 'treatment'}};
+    'verified - treatment-code - valid code then click back': function () {
+      const experimentParams = {query: {forceExperiment: 'tokenCode', forceExperimentGroup: 'treatment-code'}};
       return this.remote
         .then(openFxaFromRp('signin', experimentParams))
         .then(fillOutSignIn(email, PASSWORD))
@@ -89,8 +90,8 @@ registerSuite('signin token code', {
         .then(testElementExists(selectors.SIGNIN.HEADER));
     },
 
-    'verified - treatment - invalid code': function () {
-      const experimentParams = {query: {forceExperiment: 'tokenCode', forceExperimentGroup: 'treatment'}};
+    'verified - treatment-code - invalid code': function () {
+      const experimentParams = {query: {forceExperiment: 'tokenCode', forceExperimentGroup: 'treatment-code'}};
       return this.remote
         .then(openFxaFromRp('signin', experimentParams))
         .then(fillOutSignIn(email, PASSWORD))
@@ -102,6 +103,18 @@ registerSuite('signin token code', {
 
         .then(visibleByQSA(selectors.SIGNUP.ERROR))
         .then(testElementTextInclude(selectors.SIGNUP.ERROR, 'invalid'));
+    },
+
+    'verified - treatment-link - open link new tab': function () {
+      const experimentParams = {query: {forceExperiment: 'tokenCode', forceExperimentGroup: 'treatment-link'}};
+      return this.remote
+        .then(openFxaFromRp('signin', experimentParams))
+        .then(fillOutSignIn(email, PASSWORD))
+
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+        .then(openVerificationLinkInNewTab(email, 0))
+
+        .then(testAtOAuthApp());
     }
   }
 });

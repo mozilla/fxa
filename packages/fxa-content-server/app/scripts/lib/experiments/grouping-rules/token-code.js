@@ -6,7 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const BaseGroupingRule = require('./base');
-  const GROUPS = ['control', 'treatment'];
+  const GROUPS = ['control', 'treatment-code', 'treatment-link'];
   const ROLLOUT_CLIENTS = {
     '3a1f53aabe17ba32': {
       name: 'Firefox Add-ons',
