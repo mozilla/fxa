@@ -374,9 +374,6 @@ if they perform a reset password.
 
 ## Secondary email parameters
 
-### `canChangeEmail`
-Shows the option to change a user's primary email address.
-
 #### Options
 * `true`
 * `false` (default)

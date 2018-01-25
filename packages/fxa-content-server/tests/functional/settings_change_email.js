@@ -11,10 +11,9 @@ const selectors = require('./lib/selectors');
 
 const config = intern._config;
 
-const SIGNUP_URL = config.fxaContentRoot + 'signup?canChangeEmail=true';
-const SIGNIN_URL = config.fxaContentRoot + 'signin?canChangeEmail=true';
-const SETTINGS_URL = config.fxaContentRoot + 'settings?canChangeEmail=true';
-const SIGNIN_URL_NO_CHANGE_EMAIL = config.fxaContentRoot + 'signin';
+const SIGNUP_URL = config.fxaContentRoot + 'signup';
+const SIGNIN_URL = config.fxaContentRoot + 'signin';
+const SETTINGS_URL = config.fxaContentRoot + 'settings';
 const PASSWORD = 'password';
 const NEW_PASSWORD = 'password1';
 
@@ -33,7 +32,6 @@ const {
   openPage,
   openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
-  noSuchElement,
   switchToWindow,
   testElementExists,
   testElementTextEquals,
@@ -59,11 +57,7 @@ registerSuite('settings change email', {
       .then(type(selectors.EMAIL.INPUT, secondaryEmail))
       .then(click(selectors.EMAIL.ADD_BUTTON))
       .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
-      .then(openVerificationLinkInSameTab(secondaryEmail, 0, {
-        query: {
-          canChangeEmail: true
-        }
-      }))
+      .then(openVerificationLinkInSameTab(secondaryEmail, 0, {}))
       .then(testSuccessWasShown())
 
       // set new primary email
@@ -79,20 +73,6 @@ registerSuite('settings change email', {
     return this.remote.then(clearBrowserState());
   },
   tests: {
-    'does no show change email option if query `canChangeEmail` not set': function () {
-      return this.remote
-      // sign out
-        .then(click(selectors.SETTINGS.SIGNOUT))
-        .then(testElementExists(selectors.SIGNIN.HEADER))
-
-        // sign in and does not show change primary email button
-        .then(openPage(SIGNIN_URL_NO_CHANGE_EMAIL, selectors.SIGNIN.HEADER))
-        .then(testElementExists(selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(secondaryEmail, PASSWORD))
-        .then(click(selectors.EMAIL.MENU_BUTTON))
-        .then(noSuchElement(selectors.EMAIL.SET_PRIMARY_EMAIL_BUTTON));
-    },
-
     'can change primary email and login': function () {
       return this.remote
       // sign out

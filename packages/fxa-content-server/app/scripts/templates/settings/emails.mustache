@@ -30,11 +30,9 @@
                                 </div>
                                 <div class="settings-button-group">
                                     {{#verified}}
-                                        {{#canChangePrimaryEmail }}
-                                            <button class="settings-button secondary set-primary" data-id="{{email}}">
-                                                {{#t}}Make primary{{/t}}
-                                            </button>
-                                        {{/canChangePrimaryEmail }}
+                                        <button class="settings-button secondary set-primary" data-id="{{email}}">
+                                            {{#t}}Make primary{{/t}}
+                                        </button>
                                     {{/verified}}
                                     <button class="settings-button warning email-disconnect" data-id="{{email}}">
                                         {{#t}}Remove{{/t}}
@@ -44,11 +42,9 @@
                             <li class="email-options">
                                 <div class="settings-button-group">
                                     {{#verified}}
-                                        {{#canChangePrimaryEmail }}
                                         <button class="settings-button secondary set-primary" data-id="{{email}}">
                                             {{#t}}Make primary{{/t}}
                                         </button>
-                                        {{/canChangePrimaryEmail }}
                                     {{/verified}}
                                     <button class="settings-button warning email-disconnect" data-id="{{email}}">
                                         {{#t}}Remove{{/t}}

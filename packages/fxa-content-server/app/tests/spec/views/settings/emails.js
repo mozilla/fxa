@@ -56,8 +56,6 @@ define(function (require, exports, module) {
       translator = new Translator({forceEnglish: true});
       user = new User();
       windowMock = new WindowMock();
-      windowMock.location.search = '?canChangeEmail=true';
-
       account = user.initAccount({
         email: email,
         sessionToken: 'abc123',
@@ -280,40 +278,6 @@ define(function (require, exports, module) {
           assert.equal(view.isPanelOpen(), false);
         });
       });
-
-      describe('does not show change email when `canChangeEmail` not set', () => {
-        const newEmail = 'secondary@email.com';
-        beforeEach(() => {
-          emails = [{
-            email: 'primary@email.com',
-            isPrimary: true,
-            verified: true
-          }, {
-            email: newEmail,
-            isPrimary: false,
-            verified: true
-          }];
-
-          windowMock.location.search = '';
-
-          return initView()
-            .then(function () {
-              // click events require the view to be in the DOM
-              $('#container').html(view.el);
-            });
-        });
-
-        it('can render', () => {
-          assert.equal(view.$('.email-address').length, 1);
-          assert.lengthOf(view.$('.email-address .address'), 1);
-          assert.equal(view.$('.email-address .address').html(), 'secondary@email.com');
-          assert.equal(view.$('.email-address .details .verified').length, 1);
-          assert.equal(view.$('.email-address .settings-button.warning.email-disconnect').length, 1);
-          assert.equal(view.$('.email-address .settings-button.warning.email-disconnect').attr('data-id'), 'secondary@email.com');
-          assert.equal(view.$('.email-address .settings-button.secondary.set-primary').length, 0);
-        });
-      });
-
 
       describe('can change email', () => {
         const newEmail = 'secondary@email.com';

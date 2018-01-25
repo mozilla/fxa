@@ -58,7 +58,6 @@ define(function (require, exports, module) {
     setInitialContext (context) {
       context.set({
         buttonClass: this._hasSecondaryEmail() ? 'secondary' : 'primary',
-        canChangePrimaryEmail: this._canChangePrimaryEmail(),
         emails: this._emails,
         hasSecondaryEmail: this._hasSecondaryEmail(),
         hasSecondaryVerifiedEmail: this._hasSecondaryVerifiedEmail(),
@@ -72,14 +71,6 @@ define(function (require, exports, module) {
       if (this._hasSecondaryEmail() && ! this._hasSecondaryVerifiedEmail()) {
         this.openPanel();
       }
-    },
-
-    _canChangePrimaryEmail () {
-      if (this.getSearchParam('canChangeEmail')) {
-        return true;
-      }
-
-      return false;
     },
 
     _hasSecondaryEmail () {
