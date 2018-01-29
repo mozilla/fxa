@@ -28,6 +28,7 @@ const PKCE_CODE_CHALLENGE_LENGTH = 43;
 const MAX_TTL_S = config.get('expiration.accessToken') / 1000;
 
 const UNTRUSTED_CLIENT_ALLOWED_SCOPES = [
+  'openid',
   'profile:uid',
   'profile:email',
   'profile:display_name'

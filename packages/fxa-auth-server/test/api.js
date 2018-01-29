@@ -1835,6 +1835,16 @@ describe('/v1', function() {
         });
       });
 
+      it('should be available to untrusted reliers', function() {
+        var client = clientByName('Untrusted');
+        return newToken({ scope: 'openid' }, { client_id: client.id }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+          assert(res.result.access_token);
+          assert(res.result.id_token);
+        });
+      });
+
     });
 
   });
