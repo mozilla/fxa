@@ -83,6 +83,7 @@ module.exports = (log, config) => {
       }
 
       const request = this
+      let isFlowCompleteSignal = false
 
       return P.resolve().then(() => {
         if (ACTIVITY_EVENTS.has(event)) {
@@ -102,9 +103,17 @@ module.exports = (log, config) => {
         return emitFlowEvent(event, request, data)
       })
       .then(metricsContext => {
+        if (metricsContext) {
+          isFlowCompleteSignal = event === metricsContext.flowCompleteSignal
+          return metricsContext
+        }
+
+        return request.gatherMetricsContext({})
+      })
+      .then(metricsContext => {
         return amplitude(event, request, data, metricsContext)
           .then(() => {
-            if (metricsContext && event === metricsContext.flowCompleteSignal) {
+            if (isFlowCompleteSignal) {
               log.flowEvent(Object.assign({}, metricsContext, { event: 'flow.complete' }))
               return amplitude('flow.complete', request, data, metricsContext)
                 .then(() => request.clearMetricsContext())
