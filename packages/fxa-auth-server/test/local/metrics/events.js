@@ -80,7 +80,7 @@ describe('metrics/events', () => {
     return events.emit.call(request, 'device.created', data)
       .then(() => {
         assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once')
-        const args = log.activityEvent.args[0]
+        let args = log.activityEvent.args[0]
         assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
         assert.deepEqual(args[0], {
           event: 'device.created',
@@ -89,8 +89,12 @@ describe('metrics/events', () => {
           uid: 'baz'
         }, 'argument was event data')
 
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+        args = metricsContext.gather.args[0]
+        assert.equal(args.length, 1, 'metricsContext.gather was passed one argument')
+        assert.deepEqual(args[0], {}, 'metricsContext.gather was passed an empty object')
+
         assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called')
-        assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
         assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
         assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
         assert.equal(log.error.callCount, 0, 'log.error was not called')
@@ -116,8 +120,9 @@ describe('metrics/events', () => {
           service: 'bar'
         }, 'argument was event data')
 
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+
         assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called')
-        assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
         assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
         assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
         assert.equal(log.error.callCount, 0, 'log.error was not called')
@@ -138,8 +143,9 @@ describe('metrics/events', () => {
           userAgent: 'test user-agent'
         }, 'argument was event data')
 
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+
         assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called')
-        assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
         assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
         assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
         assert.equal(log.error.callCount, 0, 'log.error was not called')
@@ -172,9 +178,14 @@ describe('metrics/events', () => {
     return events.emit.call(request, 'account.reminder')
       .then(() => {
         assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+        let args = metricsContext.gather.args[0]
+        assert.equal(args.length, 1, 'metricsContext.gather was passed one argument')
+        assert.equal(args[0].event, 'account.reminder', 'metricsContext.gather was passed event')
+        assert.equal(args[0].locale, request.app.locale, 'metricsContext.gather was passed locale')
+        assert.equal(args[0].userAgent, request.headers['user-agent'], 'metricsContext.gather was passed user agent')
 
         assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once')
-        const args = log.flowEvent.args[0]
+        args = log.flowEvent.args[0]
         assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
         assert.deepEqual(args[0], {
           event: 'account.reminder',
@@ -481,9 +492,10 @@ describe('metrics/events', () => {
           badRequest: true
         }, 'argument was correct')
 
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+
         assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
         assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called')
-        assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
         assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
         assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
       })
@@ -597,15 +609,16 @@ describe('metrics/events', () => {
   })
 
   it('.emit with content-server account.signed event', () => {
-    const metricsContext = mocks.mockMetricsContext()
+    const flowBeginTime = Date.now() - 1
+    const metricsContext = mocks.mockMetricsContext({
+      gather: sinon.spy(() => ({
+        device_id: 'foo',
+        flow_id: 'bar',
+        flowBeginTime
+      }))
+    })
     const request = mocks.mockRequest({
       metricsContext,
-      payload: {
-        metricsContext: {
-          flowId: 'bar',
-          flowBeginTime: Date.now() - 1
-        }
-      },
       query: {
         service: 'content-server'
       }
@@ -620,6 +633,8 @@ describe('metrics/events', () => {
         assert.equal(log.amplitudeEvent.callCount, 1, 'log.amplitudeEvent was called once')
         assert.equal(log.amplitudeEvent.args[0].length, 1, 'log.amplitudeEvent was passed one argument')
         assert.equal(log.amplitudeEvent.args[0][0].event_type, 'fxa_activity - cert_signed', 'log.amplitudeEvent was passed correct event_type')
+        assert.equal(log.amplitudeEvent.args[0][0].device_id, 'foo', 'log.amplitudeEvent was passed correct device_id')
+        assert.equal(log.amplitudeEvent.args[0][0].session_id, flowBeginTime, 'log.amplitudeEvent was passed correct session_id')
         assert.deepEqual(log.amplitudeEvent.args[0][0].event_properties, {
           service: undefined,
           oauth_client_id: undefined
@@ -631,7 +646,8 @@ describe('metrics/events', () => {
           ua_version: request.app.ua.browserVersion
         }, 'log.amplitudeEvent was passed correct user properties')
 
-        assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+
         assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
         assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
         assert.equal(log.error.callCount, 0, 'log.error was not called')

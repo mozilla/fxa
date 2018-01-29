@@ -1,3 +1,13 @@
+<a name="1.104.1"></a>
+## [1.104.1](https://github.com/mozilla/fxa-auth-server/compare/v1.104.0...v1.104.1) (2018-01-29)
+
+
+### Bug Fixes
+
+* **metrics:** ensure amplitude events always have a metrics context ([f7ce4d0](https://github.com/mozilla/fxa-auth-server/commit/f7ce4d0))
+
+
+
 <a name="1.104.0"></a>
 # [1.104.0](https://github.com/mozilla/fxa-auth-server/compare/v1.103.0...v1.104.0) (2018-01-24)
 
