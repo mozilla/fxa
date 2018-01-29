@@ -7,6 +7,7 @@
 const assert = require('insist')
 const TestServer = require('../test_server')
 const Client = require('../client')()
+const ERRNO = require('../../lib/error').ERRNO
 
 let config, server, client, email
 const password = 'allyourbasearebelongtous'
@@ -402,6 +403,38 @@ describe('remote emails', function () {
             const templateName = emailData['headers']['x-template-name']
             assert.equal(templateName, 'postRemoveSecondaryEmail', 'email template name set')
           })
+      }
+    )
+
+    it(
+      'resets account tokens when deleting an email',
+      () => {
+        let code
+        return client.forgotPassword()
+          .then(() => {
+            return server.mailbox.waitForEmail(secondEmail)
+          })
+          .then((emailData) => {
+            code = emailData.headers['x-recovery-code']
+            assert.ok(code, 'recovery code was sent the secondary email')
+          })
+          .then((res) => {
+            return client.deleteEmail(secondEmail)
+          })
+          .then((res) => {
+            assert.ok(res, 'ok response')
+            return client.accountEmails()
+          })
+          .then((res) => {
+            assert.equal(res.length, 1, 'the secondary email was deleted')
+            return client.verifyPasswordResetCode(code)
+          })
+          .then(
+            () => { assert.fail('password recovery code shoud not have been accepted') },
+            (err) => {
+              assert.equal(err.errno, ERRNO.INVALID_TOKEN, 'token was invalidated')
+            }
+          )
       }
     )
 

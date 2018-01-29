@@ -688,6 +688,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
             }
           })
           .then(deleteEmail)
+          .then(resetAccountTokens)
           .then(() => {
             // Find the email object that corresponds to the email being deleted
             const emailIsVerified = account.emails.find((item) => {
@@ -719,6 +720,10 @@ module.exports = (log, db, mailer, config, customs, push) => {
 
         function deleteEmail () {
           return db.deleteEmail(uid, email.toLowerCase())
+        }
+
+        function resetAccountTokens () {
+          return db.resetAccountTokens(uid)
         }
       }
     },

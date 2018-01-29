@@ -864,6 +864,14 @@ describe('/recovery_email', () => {
       })
     })
 
+    it('should reset outstanding tokens on the account ', () => {
+      route = getRoute(accountRoutes, '/recovery_email/destroy')
+      return runTest(route, mockRequest, (response) => {
+        assert.ok(response)
+        assert.equal(mockDB.resetAccountTokens.callCount, 1, 'call db.resetAccountTokens')
+      })
+    })
+
     it('should send secondary email post delete notification, if email is verified', () => {
       const tempEmail = 'anotherEmail@one.com'
       mockRequest.payload = {
