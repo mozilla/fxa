@@ -81,7 +81,15 @@
     &[type='checkbox']:focus {
       border: 1px solid $input-row-focus-border-color;
     }
+
+  &.unblock-code {
+    text-transform: uppercase;
+
+    &::placeholder {
+      text-transform: none;
+    }
   }
+}
 
   &:last-child {
     margin-bottom: 0;
