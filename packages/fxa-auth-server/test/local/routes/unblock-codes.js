@@ -70,7 +70,7 @@ describe('/account/login/send_unblock_code', function () {
   var route = getRoute(accountRoutes, '/account/login/send_unblock_code')
 
   afterEach(function () {
-    mockDb.emailRecord.reset()
+    mockDb.accountRecord.reset()
     mockDb.createUnblockCode.reset()
     mockMailer.sendUnblockCode.reset()
   })
@@ -80,8 +80,8 @@ describe('/account/login/send_unblock_code', function () {
       assert.ok(! (response instanceof Error), response.stack)
       assert.deepEqual(response, {}, 'response has no keys')
 
-      assert.equal(mockDb.emailRecord.callCount, 1, 'db.emailRecord called')
-      assert.equal(mockDb.emailRecord.args[0][0], email)
+      assert.equal(mockDb.accountRecord.callCount, 1, 'db.accountRecord called')
+      assert.equal(mockDb.accountRecord.args[0][0], email)
 
       assert.equal(mockDb.createUnblockCode.callCount, 1, 'db.createUnblockCode called')
       var dbArgs = mockDb.createUnblockCode.args[0]
@@ -105,8 +105,8 @@ describe('/account/login/send_unblock_code', function () {
       assert.ok(! (response instanceof Error), response.stack)
       assert.deepEqual(response, {}, 'response has no keys')
 
-      assert.equal(mockDb.emailRecord.callCount, 1, 'db.emailRecord called')
-      assert.equal(mockDb.emailRecord.args[0][0], mockRequest.payload.email)
+      assert.equal(mockDb.accountRecord.callCount, 1, 'db.accountRecord called')
+      assert.equal(mockDb.accountRecord.args[0][0], mockRequest.payload.email)
       assert.equal(mockDb.createUnblockCode.callCount, 1, 'db.createUnblockCode called')
       assert.equal(mockMailer.sendUnblockCode.callCount, 1, 'called mailer.sendUnblockCode')
     })

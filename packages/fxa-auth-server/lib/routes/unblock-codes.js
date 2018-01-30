@@ -50,7 +50,7 @@ module.exports = (log, db, mailer, config, customs) => {
           }, reply)
 
         function lookupAccount () {
-          return db.emailRecord(email)
+          return db.accountRecord(email)
             .then(record => {
               emailRecord = record
               return record.uid
