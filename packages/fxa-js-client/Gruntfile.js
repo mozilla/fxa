@@ -27,8 +27,8 @@ module.exports = function (grunt) {
     ['intern:node', 'intern:native_node']);
 
   grunt.registerTask('lint',
-    'Alias for eslint, jshint and jscs tasks',
-    ['eslint', 'jscs']);
+    'Alias for eslint',
+    ['eslint']);
 
   grunt.registerTask('default',
     ['build']);

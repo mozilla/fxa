@@ -1,6 +1,6 @@
 {
   "name": "fxa-js-client",
-  "version": "0.1.70",
+  "version": "1.0.0",
   "description": "Web client that talks to the Firefox Accounts API server",
   "author": "Mozilla",
   "license": "MPL-2.0",
@@ -20,7 +20,7 @@
   "readmeFilename": "README.md",
   "homepage": "https://github.com/mozilla/fxa-js-client",
   "engines": {
-    "node": ">=0.10.x"
+    "node": ">=6"
   },
   "repository": {
     "type": "git",
@@ -47,7 +47,6 @@
     "grunt-conventional-changelog": "3.0.0",
     "grunt-copyright": "0.2.0",
     "grunt-eslint": "16.0.0",
-    "grunt-jscs": "2.0.0",
     "grunt-open": "0.2.2",
     "grunt-webpack": "3.0.2",
     "http-proxy": "1.11.1",
