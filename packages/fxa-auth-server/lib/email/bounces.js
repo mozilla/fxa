@@ -22,7 +22,7 @@ module.exports = function (log, error) {
     }
 
     function findEmailRecord(email) {
-      return db.emailRecord(email)
+      return db.accountRecord(email)
     }
 
     function recordBounce(bounce) {
