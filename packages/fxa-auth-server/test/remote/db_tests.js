@@ -590,10 +590,14 @@ describe('remote db', function() {
           lastAccessTimeUpdates.enabled = true
 
           // Delete the devices
-          return P.all([
-            db.deleteDevice(account.uid, deviceInfo.id),
-            db.deleteDevice(account.uid, conflictingDeviceInfo.id)
-          ])
+          return db.deleteDevice(account.uid, deviceInfo.id)
+        })
+        // Deleting these serially ensures there's no Redis WATCH conflict for account.uid
+        .then(() => db.deleteDevice(account.uid, conflictingDeviceInfo.id))
+        // Deleting the devices should also have cleared the data from Redis
+        .then(() => redis.getAsync(account.uid))
+        .then(result => {
+          assert.equal(result, null, 'redis was cleared')
         })
         .then(function () {
           // Fetch all of the devices for the account
@@ -605,8 +609,6 @@ describe('remote db', function() {
           // Delete the account
           return db.deleteAccount(account)
         })
-        .then(() => redis.getAsync(account.uid))
-        .then(result => assert.equal(result, null, 'redis was cleared'))
     }
   )
 

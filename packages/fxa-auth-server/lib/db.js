@@ -747,24 +747,7 @@ module.exports = (
 
     log.trace({ op: 'DB.deleteSessionToken', id, uid })
 
-    return P.resolve()
-      .then(() => {
-        if (redis) {
-          return redis.update(uid, sessionTokens => {
-            if (! sessionTokens) {
-              return
-            }
-
-            sessionTokens = unpackTokensFromRedis(sessionTokens)
-
-            delete sessionTokens[id]
-
-            if (Object.keys(sessionTokens).length > 0) {
-              return packTokensForRedis(sessionTokens)
-            }
-          })
-        }
-      })
+    return deleteSessionTokenFromRedis(uid, id)
       .then(() => this.pool.del(`/sessionToken/${id}`))
   }
 
@@ -813,24 +796,16 @@ module.exports = (
   }
 
   DB.prototype.deleteDevice = function (uid, deviceId) {
-    log.trace(
-      {
-        op: 'DB.deleteDevice',
-        id: deviceId,
-        uid: uid
-      }
-    )
-    return this.pool.del(
-      '/account/' + uid + '/device/' + deviceId
-    )
-    .catch(
-      function (err) {
+    log.trace({ op: 'DB.deleteDevice', uid, id: deviceId })
+
+    return this.pool.del(`/account/${uid}/device/${deviceId}`)
+      .then(result => deleteSessionTokenFromRedis(uid, result.sessionTokenId))
+      .catch(err => {
         if (isNotFoundError(err)) {
           throw error.unknownDevice()
         }
         throw err
-      }
-    )
+      })
   }
 
   DB.prototype.deviceFromTokenVerificationId = function (uid, tokenVerificationId) {
@@ -1170,6 +1145,26 @@ module.exports = (
         // Allow callers to distinguish between the null result and connection errors
         return false
       })
+  }
+
+  function deleteSessionTokenFromRedis (uid, id) {
+    if (! redis) {
+      return P.resolve()
+    }
+
+    return redis.update(uid, sessionTokens => {
+      if (! sessionTokens) {
+        return
+      }
+
+      sessionTokens = unpackTokensFromRedis(sessionTokens)
+
+      delete sessionTokens[id]
+
+      if (Object.keys(sessionTokens).length > 0) {
+        return packTokensForRedis(sessionTokens)
+      }
+    })
   }
 
   // Reduce redis memory usage by not encoding the keys. Store properties

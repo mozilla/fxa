@@ -108,7 +108,7 @@ describe('db, session tokens do not expire:', () => {
   })
 })
 
-describe('db with redis disabled', () => {
+describe('db with redis disabled:', () => {
   const tokenLifetimes = {
     sessionTokenWithoutDevice: 2419200000
   }
@@ -169,6 +169,16 @@ describe('db with redis disabled', () => {
         assert.equal(pool.del.callCount, 1)
         assert.equal(pool.del.args[0].length, 1)
         assert.equal(pool.del.args[0][0], '/sessionToken/foo')
+      })
+  })
+
+  it('db.deleteDevice succeeds without a redis instance', () => {
+    pool.del = sinon.spy(() => P.resolve({}))
+    return db.deleteDevice('foo', 'bar')
+      .then(() => {
+        assert.equal(pool.del.callCount, 1)
+        assert.equal(pool.del.args[0].length, 1)
+        assert.equal(pool.del.args[0][0], '/account/foo/device/bar')
       })
   })
 
@@ -336,11 +346,22 @@ describe('redis enabled, token-pruning enabled:', () => {
   })
 
   it('should call redis.update in db.deleteSessionToken', () => {
-    return db.deleteSessionToken({ id: 'wibble', uid: 'blee' }, P.resolve())
+    return db.deleteSessionToken({ id: 'wibble', uid: 'blee' })
       .then(() => {
         assert.equal(redis.update.callCount, 1)
         assert.equal(redis.update.args[0].length, 2)
         assert.equal(redis.update.args[0][0], 'blee')
+        assert.equal(typeof redis.update.args[0][1], 'function')
+      })
+  })
+
+  it('should call redis.update in db.deleteDevice', () => {
+    pool.del = sinon.spy(() => P.resolve({}))
+    return db.deleteDevice('wibble', 'blee')
+      .then(() => {
+        assert.equal(redis.update.callCount, 1)
+        assert.equal(redis.update.args[0].length, 2)
+        assert.equal(redis.update.args[0][0], 'wibble')
         assert.equal(typeof redis.update.args[0][1], 'function')
       })
   })
@@ -632,6 +653,46 @@ describe('redis enabled, token-pruning enabled:', () => {
       })
   })
 
+  it('db.deleteDevice handles old-format and new-format token objects from redis', () => {
+    pool.del = sinon.spy(() => P.resolve({ sessionTokenId: 'mngh' }))
+    return db.deleteDevice('wibble', 'blee')
+      .then(() => {
+        assert.equal(redis.update.callCount, 1)
+        const getUpdatedValue = redis.update.args[0][1]
+        assert.equal(typeof getUpdatedValue, 'function')
+
+        const result = getUpdatedValue(JSON.stringify({
+          wibble: [ 0, [], 'foo', 'bar', 'baz', 'qux' ],
+          mngh: [ 1, [], 'foo', 'bar', 'baz', 'qux' ],
+          oldFormat: {
+            lastAccessTime: 2,
+            uaBrowser: 'Firefox',
+            uaBrowserVersion: '59',
+            uaOS: 'Mac OS X',
+            uaOSVersion: '10.11',
+            uaDeviceType: null,
+            uaFormFactor: null,
+            location: {
+              city: 'Mountain View',
+              state: 'California',
+              stateCode: 'CA',
+              country: 'United States',
+              countryCode: 'US'
+            }
+          },
+          newFormat: [ 3, [], 'Firefox Focus', '4.0.1', 'Android', '8.1', 'mobile' ]
+        }))
+        assert.deepEqual(JSON.parse(result), {
+          wibble: [ 0, [], 'foo', 'bar', 'baz', 'qux' ],
+          oldFormat: [
+            2, [ 'Mountain View', 'California', 'CA', 'United States', 'US' ],
+            'Firefox', '59', 'Mac OS X', '10.11'
+          ],
+          newFormat: [ 3, [], 'Firefox Focus', '4.0.1', 'Android', '8.1', 'mobile' ]
+        })
+      })
+  })
+
   describe('redis.get rejects:', () => {
     beforeEach(() => {
       redis.get = sinon.spy(() => P.reject({ message: 'mock redis.get error' }))
@@ -718,13 +779,22 @@ describe('redis enabled, token-pruning enabled:', () => {
           error => assert.equal(error.message, 'mock redis.update error')
         )
     })
+
+    it('db.deleteDevice should reject', () => {
+      pool.del = sinon.spy(() => P.resolve({}))
+      return db.deleteDevice('wibble', 'blee')
+        .then(
+          () => assert.equal(false, 'db.deleteDevice should have rejected'),
+          error => assert.equal(error.message, 'mock redis.update error')
+        )
+    })
   })
 
   describe('deleteSessionToken reads falsey value from redis:', () => {
     let result
 
     beforeEach(() => {
-      return db.deleteSessionToken({ id: 'wibble', uid: 'blee' }, P.resolve())
+      return db.deleteSessionToken({ id: 'wibble', uid: 'blee' })
         .then(() => result = redis.update.args[0][1]())
     })
 
@@ -737,7 +807,7 @@ describe('redis enabled, token-pruning enabled:', () => {
     let result
 
     beforeEach(() => {
-      return db.deleteSessionToken({ id: 'wibble', uid: 'blee' }, P.resolve())
+      return db.deleteSessionToken({ id: 'wibble', uid: 'blee' })
         .then(() => result = redis.update.args[0][1]('{"wibble":{}}'))
     })
 
@@ -750,7 +820,49 @@ describe('redis enabled, token-pruning enabled:', () => {
     let result
 
     beforeEach(() => {
-      return db.deleteSessionToken({ id: 'wibble', uid: 'blee' }, P.resolve())
+      return db.deleteSessionToken({ id: 'wibble', uid: 'blee' })
+        .then(() => result = redis.update.args[0][1]('{"frang":{}}'))
+    })
+
+    it('returned object', () => {
+      assert.equal(result, '{"frang":[]}')
+    })
+  })
+
+  describe('deleteDevice reads falsey value from redis:', () => {
+    let result
+
+    beforeEach(() => {
+      pool.del = sinon.spy(() => P.resolve({ sessionTokenId: 'mngh' }))
+      return db.deleteDevice('wibble', 'blee')
+        .then(() => result = redis.update.args[0][1]())
+    })
+
+    it('returned undefined', () => {
+      assert.equal(result, undefined)
+    })
+  })
+
+  describe('deleteDevice reads empty object from redis:', () => {
+    let result
+
+    beforeEach(() => {
+      pool.del = sinon.spy(() => P.resolve({ sessionTokenId: 'mngh' }))
+      return db.deleteDevice('wibble', 'blee')
+        .then(() => result = redis.update.args[0][1]('{"mngh":{}}'))
+    })
+
+    it('returned undefined', () => {
+      assert.equal(result, undefined)
+    })
+  })
+
+  describe('deleteDevice reads populated object from redis:', () => {
+    let result
+
+    beforeEach(() => {
+      pool.del = sinon.spy(() => P.resolve({ sessionTokenId: 'mngh' }))
+      return db.deleteDevice('wibble', 'blee')
         .then(() => result = redis.update.args[0][1]('{"frang":{}}'))
     })
 
