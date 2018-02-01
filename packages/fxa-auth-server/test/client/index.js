@@ -214,6 +214,37 @@ module.exports = config => {
     return p
   }
 
+  Client.prototype.duplicate = function () {
+    var c = new Client(this.api.origin)
+    c.uid = this.uid
+    c.authAt = this.authAt
+    c.email = this.email
+    c.emailVerified = this.emailVerified
+    c.authToken = this.authToken
+    c.sessionToken = this.sessionToken
+    c.kA = this.kA
+    c.kB = this.kB
+    c.wrapKb = this.wrapKb
+    c.unwrapBKey = this.unwrapBKey
+    c.authPW = this.authPW
+    c.options = this.options
+    return P.resolve().then(() => {
+      if (this.sessionToken) {
+        return this.api.sessionDuplicate(this.sessionToken)
+          .then((data) => {
+            c.uid = data.uid
+            c.sessionToken = data.sessionToken
+            c.authAt = data.authAt
+            c.verified = data.verified
+            c.verificationReason = data.verificationReason
+            c.verificationMetho = data.verificationMethod
+          })
+      }
+    }).then(() => {
+      return c
+    })
+  }
+
   Client.prototype.verifySecondaryEmail = function (code, secondaryEmail) {
     const options = {
       type: 'secondary',

@@ -148,6 +148,91 @@ describe('remote session', function() {
 
   })
 
+  describe('duplicate', () => {
+
+    it(
+      'duplicates a valid session into a new, independent session',
+      () => {
+        const email = server.uniqueEmail()
+        const password = 'foobar'
+        let client1, client2
+        return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+          .then((x) => {
+            client1 = x
+            return client1.duplicate()
+          }).then((x) => {
+            client2 = x
+            assert.notEqual(client1.sessionToken, client2.sessionToken, 'generated a new sessionToken')
+            return client1.api.sessionDestroy(client1.sessionToken)
+          }).then(() => {
+            return client1.sessionStatus()
+          }).then(
+            () => { assert.fail('client1 session should have been destroyed') },
+            (err) => {
+              assert.equal(err.code, 401)
+              assert.equal(err.errno, 110)
+            }
+          ).then(() => {
+            return client2.sessionStatus()
+          }).then((status) => {
+            assert.ok(status, 'client2 session is still alive')
+            return client2.api.sessionDestroy(client2.sessionToken)
+          }).then(() => {
+            return client2.sessionStatus()
+          }).then(
+            () => { assert.fail('client2 session should have been destroyed') },
+            (err) => {
+              assert.equal(err.code, 401)
+              assert.equal(err.errno, 110)
+            }
+          )
+      }
+    )
+
+    it(
+      'creates independent verification state for the new token',
+      () => {
+        const email = server.uniqueEmail()
+        const password = 'foobar'
+        let client1, client2, client3
+        return Client.create(config.publicUrl, email, password, server.mailbox)
+          .then((x) => {
+            client1 = x
+            return client1.duplicate()
+          }).then((x) => {
+            client2 = x
+            assert.ok(! client1.verified, 'client1 session is not verified')
+            assert.ok(! client2.verified, 'client2 session is not verified')
+            return server.mailbox.waitForCode(email)
+          }).then((code) => {
+            return client1.verifyEmail(code)
+          }).then(() => {
+            return client1.sessionStatus()
+          }).then((status) => {
+            assert.equal(status.state, 'verified', 'client1 session has become verified')
+            return client2.sessionStatus()
+          }).then((status) => {
+            assert.equal(status.state, 'unverified', 'client2 session has remained unverified')
+            return client2.duplicate()
+          }).then((x) => {
+            client3 = x
+            return client2.requestVerifyEmail()
+          }).then(() => {
+            return server.mailbox.waitForCode(email)
+          }).then((code) => {
+            return client2.verifyEmail(code)
+          }).then(() => {
+            return client2.sessionStatus()
+          }).then((status) => {
+            assert.equal(status.state, 'verified', 'client2 session has become verified')
+            return client3.sessionStatus()
+          }).then((status) => {
+            assert.ok(status.state, 'unverified', 'client3 session has remained unverified')
+          })
+      }
+    )
+  })
+
   describe('status', () => {
 
     it(

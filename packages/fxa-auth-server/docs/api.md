@@ -56,6 +56,7 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
   * [Session](#session)
     * [POST /session/destroy (:lock: sessionToken)](#post-sessiondestroy)
     * [GET /session/status (:lock: sessionToken)](#get-sessionstatus)
+    * [POST /session/duplicate (:lock: sessionToken)](#post-sessionduplicate)
   * [Sign](#sign)
     * [POST /certificate/sign (:lock: sessionToken)](#post-certificatesign)
   * [Signin codes](#signin-codes)
@@ -2129,6 +2130,35 @@ if the session token is valid.
   <!--end-response-body-get-sessionstatus-uid-->
 
 
+#### POST /session/duplicate
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-sessionduplicate-->
+Create a new sessionToken
+that duplicates the current session.
+It will have the same verification status
+as the current session,
+but will have a distinct verification code.
+<!--end-route-post-sessionduplicate-->
+
+##### Request body
+
+* `reason`: *string, max(16), optional*
+
+  <!--begin-request-body-post-sessionduplicate-reason-->
+  
+  <!--end-request-body-post-sessionduplicate-reason-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 401, errno: 110`:
+  Invalid authentication token in request signature
+
+
 ### Sign
 
 #### POST /certificate/sign
@@ -2315,15 +2345,6 @@ Returns SMS status for the current user.
   and act as if the user
   is in the specified country.
   <!--end-query-param-get-smsstatus-country-->
-
-##### Error responses
-
-Failing requests may be caused
-by the following errors
-(this is not an exhaustive list):
-
-* `code: 500, errno: 999`:
-  Unspecified error
 
 
 ### Token codes

@@ -256,23 +256,25 @@ function mockDB (data, errors) {
         }
       })
     }),
-    createSessionToken: sinon.spy(() => {
+    createSessionToken: sinon.spy((opts) => {
       return P.resolve({
+        createdAt: opts.createdAt || Date.now(),
         data: crypto.randomBytes(32).toString('hex'),
-        email: data.email,
-        emailVerified: data.emailVerified,
+        email: opts.email || data.email,
+        emailVerified: opts.emailVerified || data.emailVerified,
         lastAuthAt: () => {
-          return Date.now()
+          return opts.createdAt || Date.now()
         },
         id: data.sessionTokenId,
-        tokenVerificationId: data.tokenVerificationId,
-        tokenVerified: ! data.tokenVerificationId,
-        uaBrowser: data.uaBrowser,
-        uaBrowserVersion: data.uaBrowserVersion,
-        uaOS: data.uaOS,
-        uaOSVersion: data.uaOSVersion,
-        uaDeviceType: data.uaDeviceType,
-        uid: data.uid
+        tokenVerificationId: opts.tokenVerificationId || data.tokenVerificationId,
+        tokenVerified: ! (opts.tokenVerificationId || data.tokenVerificationId),
+        uaBrowser: opts.uaBrowser || data.uaBrowser,
+        uaBrowserVersion: opts.uaBrowserVersion || data.uaBrowserVersion,
+        uaOS: opts.uaOS || data.uaOS,
+        uaOSVersion: opts.uaOSVersion || data.uaOSVersion,
+        uaDeviceType: opts.uaDeviceType || data.uaDeviceType,
+        uaFormFactor: opts.uaFormFactor || data.uaFormFactor,
+        uid: opts.uid || data.uid
       })
     }),
     createSigninCode: sinon.spy((uid, flowId) => {

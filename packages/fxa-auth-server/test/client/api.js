@@ -560,6 +560,20 @@ module.exports = config => {
       )
   }
 
+  ClientApi.prototype.sessionDuplicate = function (sessionTokenHex, options) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then(
+        function (token) {
+          return this.doRequest(
+            'POST',
+            this.baseURL + '/session/duplicate',
+            token,
+            {}
+          )
+        }.bind(this)
+      )
+  }
+
   ClientApi.prototype.sessions = function (sessionTokenHex) {
     return tokens.SessionToken.fromHex(sessionTokenHex)
       .then(
