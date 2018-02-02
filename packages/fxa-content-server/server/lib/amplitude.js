@@ -111,7 +111,7 @@ const FUZZY_EVENTS = new Map([
     group: GROUPS.settings,
     event: 'disconnect_device'
   } ],
-  [ /^([\w-]+).verification.success$/, {
+  [ /^([\w-]+).verification.clicked$/, {
     isDynamicGroup: true,
     group: eventCategory => eventCategory in EMAIL_TYPES ? GROUPS.email : null,
     event: 'click'

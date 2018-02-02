@@ -113,6 +113,7 @@ define(function (require, exports, module) {
 
       windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
       initView(account);
+      sinon.spy(view, 'logViewEvent');
     });
 
     afterEach(function () {
@@ -129,6 +130,19 @@ define(function (require, exports, module) {
       const args = notifier.trigger.args[0];
       assert.equal(args[0], 'set-uid');
       assert.equal(args[1], validUid);
+    });
+
+    describe('beforeRender', () => {
+      beforeEach(() => {
+        view.beforeRender();
+      });
+
+      it('emits verification.clicked event correctly', () => {
+        assert.equal(view.logViewEvent.callCount, 1);
+        const args = view.logViewEvent.args[0];
+        assert.equal(args.length, 1);
+        assert.equal(args[0], 'verification.clicked');
+      });
     });
 
     describe('getAccount', function () {
@@ -556,7 +570,6 @@ define(function (require, exports, module) {
         sinon.stub(view, '_getBrokerMethod').callsFake(() => 'afterCompleteSignIn');
         sinon.stub(view, 'invokeBrokerMethod').callsFake(() => Promise.resolve());
         sinon.stub(view, 'isSignIn').callsFake(() => true);
-        sinon.spy(view, 'logViewEvent');
         sinon.spy(view, 'logEvent');
 
         return view._notifyBrokerAndComplete(account)

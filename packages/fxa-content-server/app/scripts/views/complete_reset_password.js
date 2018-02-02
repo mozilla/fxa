@@ -40,6 +40,8 @@ define(function (require, exports, module) {
     // beforeRender is asynchronous and returns a promise. Only render
     // after beforeRender has finished its business.
     beforeRender () {
+      this.logViewEvent('verification.clicked');
+
       var verificationInfo = this._verificationInfo;
       if (! verificationInfo.isValid()) {
         // One or more parameters fails validation. Abort and show an

@@ -98,6 +98,20 @@ define(function (require, exports, module) {
       view = windowMock = metrics = null;
     });
 
+    describe('beforeRender', () => {
+      beforeEach(() => {
+        sinon.spy(view, 'logViewEvent');
+        return view.beforeRender();
+      });
+
+      it('emits verification.clicked event correctly', () => {
+        assert.equal(view.logViewEvent.callCount, 1);
+        const args = view.logViewEvent.args[0];
+        assert.equal(args.length, 1);
+        assert.equal(args[0], 'verification.clicked');
+      });
+    });
+
     describe('render', function () {
       it('shows form if token, code and email are all present', function () {
         return view.render()

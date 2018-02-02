@@ -58,6 +58,8 @@ define(function (require, exports, module) {
     },
 
     beforeRender () {
+      this.logViewEvent('verification.clicked');
+
       const verificationInfo = this._verificationInfo;
       if (! verificationInfo.isValid()) {
         // One or more parameters fails validation. Abort and show an

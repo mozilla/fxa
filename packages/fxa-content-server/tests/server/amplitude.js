@@ -754,10 +754,10 @@ registerSuite('amplitude', {
       assert.equal(process.stderr.write.callCount, 0);
     },
 
-    'complete-reset-password.verification.success': () => {
+    'complete-reset-password.verification.clicked': () => {
       amplitude({
         time: 'a',
-        type: 'complete-reset-password.verification.success'
+        type: 'complete-reset-password.verification.clicked'
       }, {
         connection: {},
         headers: {
@@ -803,10 +803,10 @@ registerSuite('amplitude', {
       });
     },
 
-    'complete-signin.verification.success': () => {
+    'complete-signin.verification.clicked': () => {
       amplitude({
         time: 'a',
-        type: 'complete-signin.verification.success'
+        type: 'complete-signin.verification.clicked'
       }, {
         connection: {},
         headers: {
@@ -824,10 +824,10 @@ registerSuite('amplitude', {
       assert.equal(arg.event_properties.email_type, 'login');
     },
 
-    'verify-email.verification.success': () => {
+    'verify-email.verification.clicked': () => {
       amplitude({
         time: 'a',
-        type: 'verify-email.verification.success'
+        type: 'verify-email.verification.clicked'
       }, {
         connection: {},
         headers: {
