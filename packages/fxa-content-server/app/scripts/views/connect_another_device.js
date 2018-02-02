@@ -63,9 +63,9 @@ define(function (require, exports, module) {
         marketingId: MARKETING_ID_AUTUMN_2016
       };
 
-      // If the user signed up and verified in Firefox for Android,
+      // If the user signed up and verified in Firefox for Android or is using Firefox iOS,
       // show marketing material for both mobile OSs.
-      if (this._isSignedIn() && this.getUserAgent().isFirefoxAndroid()) {
+      if (this._isSignedIn() && this.getUserAgent().isFirefoxAndroid() || this.getUserAgent().isFirefoxIos()) {
         options.which = MarketingSnippet.WHICH.BOTH;
       }
 

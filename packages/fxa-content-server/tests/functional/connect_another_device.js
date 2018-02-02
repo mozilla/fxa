@@ -267,8 +267,8 @@ registerSuite('connect_another_device', {
 
         .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.TEXT_SIGNIN_FXIOS))
-        .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_ANDROID))
-        .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_IOS));
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_ANDROID))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_IOS));
     },
 
     'signup Fx Desktop, verify in Android Chrome': function () {

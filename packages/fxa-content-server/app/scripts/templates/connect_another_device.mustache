@@ -48,7 +48,7 @@
       {{#isFirefoxIos}}
         <!-- user verifies in Fx for iOS, assume they are not signed in -->
         <p id="signin-fxios">
-          {{#t}}Open settings and select Sign in to Firefox to complete set-up{{/t}}
+          {{#t}}Still adding devices? Sign in to Firefox on another device to complete set-up{{/t}}
         </p>
       {{/isFirefoxIos}}
       {{#isOtherAndroid}}
@@ -73,9 +73,7 @@
         </p>
       {{/isOther}}
 
-      {{^isFirefoxIos}}
         <div class="marketing-area"></div>
-      {{/isFirefoxIos}}
     {{/canSignIn}}
     <div class="links">
       <a data-flow-event="link.why" href="/connect_another_device/why">{{#t}}Why is more than one device required?{{/t}}</a>

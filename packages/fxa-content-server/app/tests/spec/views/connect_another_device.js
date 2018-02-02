@@ -206,7 +206,7 @@ define(function (require, exports, module) {
           sinon.stub(view, '_canSignIn').callsFake(() => false);
         });
 
-        it('shows FxiOS help text, no marketing area to users on FxiOS', () => {
+        it('shows FxiOS help text, and marketing area to users on FxiOS', () => {
           sinon.stub(view, 'getUserAgent').callsFake(() => {
             return {
               isAndroid: () => false,
@@ -224,7 +224,7 @@ define(function (require, exports, module) {
               assert.isTrue(view._isSignedIn.called);
 
               assert.lengthOf(view.$('#signin-fxios'), 1);
-              assert.lengthOf(view.$('.marketing-area'), 0);
+              assert.lengthOf(view.$('.marketing-area'), 1);
               testIsFlowEventLogged('signin_from.fx_ios');
             });
         });
