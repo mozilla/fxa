@@ -106,7 +106,7 @@ define(function (require, exports, module) {
       describe('with an empty code', () => {
         beforeEach(() => {
           view.$('#token-code').val('');
-          return view.validateAndSubmit();
+          return view.validateAndSubmit().then(assert.fail, () => {});
         });
 
         it('displays a tooltip, does not call submit', () => {
