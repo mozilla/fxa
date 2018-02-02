@@ -19,8 +19,6 @@ addons:
     - mysql-client-5.6
 
 env:
-  global:
-    - NODE_ENV=test
   matrix:
     - DB=memory
     - DB=mysql
