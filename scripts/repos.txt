@@ -14,6 +14,7 @@ fxa-customs-server
 fxa-dev
 fxa-geodb
 fxa-js-client
+fxa-crypto-relier
 fxa-js-client-old
 fxa-jwtool
 fxa-local-dev
