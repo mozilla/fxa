@@ -4,15 +4,15 @@
 
 'use strict'
 
-var P = require('bluebird')
-var config = require('../../config')
-var log = require('./log')('db')
+const config = require('../../config').getProperties()
+const log = require('./log')('db')
+const P = require('bluebird')
+const Token = require('../tokens')(log, config)
+const UnblockCode = require('../crypto/base32')(config.signinUnblock.codeLength)
 
-var DB = require('./db')()
+const DB = require('../db')(config, log, Token, UnblockCode)
 
-var dbConnectionTimeout = config.get('db').connectionTimeout
-var dbConnectionRetry = config.get('db').connectionRetry
-var dbBackend = config.get('db').backend
+const { connectionTimeout, connectionRetry, backend } = config.db
 
 /**
  * This modules exports a function that polls and waits for the database connection to become available.
@@ -23,7 +23,7 @@ module.exports = function () {
   function dbConnect() {
     var cancelled = false
     function dbConnectPoll() {
-      return DB.connect(config.get(dbBackend))
+      return DB.connect(config[backend])
         .then(
           function (db) {
             return db
@@ -32,7 +32,7 @@ module.exports = function () {
             if (err && err.message && err.message.indexOf('ECONNREFUSED') > -1) {
               log.warn('db', {message: 'Failed to connect to database, retrying...'})
               if (! cancelled) {
-                return P.delay(dbConnectionRetry)
+                return P.delay(connectionRetry)
                   .then(function () {
                     if (! cancelled) {
                       return dbConnectPoll()
@@ -47,7 +47,7 @@ module.exports = function () {
     }
 
     return dbConnectPoll()
-      .timeout(dbConnectionTimeout)
+      .timeout(connectionTimeout)
       .catch(function (err) {
         cancelled = true
         // report any errors to the db log and rethrow it to the consumer.

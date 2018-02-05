@@ -1035,6 +1035,42 @@ describe('remote db', function() {
     })
   })
 
+  it('fetchVerificationReminders', () => {
+    const reminders = [
+      db.createVerificationReminder({ type: 'first', uid: account.uid }),
+      db.createVerificationReminder({ type: 'second', uid: account.uid })
+    ]
+
+    return P.all(reminders)
+      .then(() => db.fetchVerificationReminders({
+        reminderTime: 1,
+        reminderTimeOutdated: 5000,
+        type: 'first',
+        limit: 200
+      }))
+      .then(results => {
+        assert.ok(Array.isArray(results))
+        assert.ok(results.some(result => result.uid === account.uid))
+        return db.deleteVerificationReminder({ type: 'first', uid: account.uid })
+      })
+      .then(() => db.fetchVerificationReminders({
+        reminderTime: 1,
+        reminderTimeOutdated: 5000,
+        type: 'first',
+        limit: 200
+      }))
+      .then(results => {
+        assert.ok(results.every(result => result.uid !== account.uid))
+        return db.fetchVerificationReminders({
+          reminderTime: 1,
+          reminderTimeOutdated: 5000,
+          type: 'second',
+          limit: 200
+        })
+      })
+      .then(results => assert.ok(results.some(result => result.uid === account.uid)))
+  })
+
   after(() => {
     return TestServer.stop(dbServer)
       .then(() => {

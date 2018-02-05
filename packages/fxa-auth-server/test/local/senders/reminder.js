@@ -29,7 +29,7 @@ var mockMailer = {
 }
 
 var mockDb = {
-  fetchReminders: function () {},
+  fetchVerificationReminders: function () {},
   account: function () { return P.resolve(TEST_ACCOUNT_RECORD) }
 }
 
@@ -126,7 +126,7 @@ it('_processReminder - catches errors', function () {
 it('_continuousPoll - calls _continuousPoll', function () {
   setup()
 
-  sandbox.stub(mockDb, 'fetchReminders', function (options) {
+  sandbox.stub(mockDb, 'fetchVerificationReminders', function (options) {
     assert.ok(options.type)
     assert.ok(options.reminderTime)
     assert.ok(options.limit)

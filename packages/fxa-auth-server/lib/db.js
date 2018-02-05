@@ -7,6 +7,7 @@
 const error = require('./error')
 const P = require('./promise')
 const Pool = require('./pool')
+const qs = require('querystring')
 const random = require('./crypto/random')
 
 // To save space in Redis, we serialise session token updates as arrays using
@@ -946,6 +947,12 @@ module.exports = (
     })
 
     return this.pool.del('/verificationReminders', reminderData)
+  }
+
+  DB.prototype.fetchVerificationReminders = function (options) {
+    log.trace({ op: 'DB.fetchVerificationReminders', options })
+
+    return this.pool.get(`/verificationReminders?${qs.stringify(options)}`)
   }
 
   DB.prototype.securityEvent = function (event) {

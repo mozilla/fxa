@@ -47,14 +47,14 @@ module.exports = function (mailer, db, options) {
     _continuousPoll: function () {
       var self = this
       // fetch reminders for both types, separately
-      var firstReminder = db.fetchReminders({
+      var firstReminder = db.fetchVerificationReminders({
         reminderTime: reminderConfig.reminderTimeFirst,
         reminderTimeOutdated: reminderConfig.reminderTimeFirstOutdated,
         type: 'first',
         limit: reminderConfig.pollFetch
       })
 
-      var secondReminder = db.fetchReminders({
+      var secondReminder = db.fetchVerificationReminders({
         reminderTime: reminderConfig.reminderTimeSecond,
         reminderTimeOutdated: reminderConfig.reminderTimeSecondOutdated,
         type: 'second',

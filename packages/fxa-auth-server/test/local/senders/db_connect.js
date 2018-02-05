@@ -19,12 +19,15 @@ var mockLog = function () {
   }
 }
 
-var mockConfig = {
-  get: function (prop) {
-    if (prop === 'db') {
-      return {
+const mockConfig = {
+  getProperties () {
+    return {
+      db: {
         connectionRetry: 10,
         connectionTimeout: 100
+      },
+      signinUnblock: {
+        codeLength: 8
       }
     }
   }
@@ -35,7 +38,7 @@ it(
   function () {
     dbConnect = proxyquire(`${ROOT_DIR}/lib/senders/db_connect`, {
       './log': mockLog,
-      './db': function () {
+      '../db': function () {
         return {
           connect: function() {
             return P.reject(new Error('ECONNREFUSED'))
@@ -61,7 +64,7 @@ it(
 
     dbConnect = proxyquire(`${ROOT_DIR}/lib/senders/db_connect`, {
       './log': mockLog,
-      './db': function () {
+      '../db': function () {
         return {
           connect: function() {
             if ((Date.now() - testStart) > dbConnectedMs) {
