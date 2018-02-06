@@ -1,3 +1,13 @@
+<a name="1.105.0"></a>
+# [1.105.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.104.0...v1.105.0) (2018-02-06)
+
+
+### Features
+
+* **tests:** make tests more independent (#293), r=@philbooth, @rfk ([c7d3638](https://github.com/mozilla/fxa-auth-db-mysql/commit/c7d3638))
+
+
+
 <a name="1.104.0"></a>
 # [1.104.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.103.0...v1.104.0) (2018-01-23)
 
