@@ -7,6 +7,7 @@
 const error = require('../error')
 const isA = require('joi')
 const P = require('../promise')
+const random = require('../crypto/random')
 
 const validators = require('./validators')
 const HEX_STRING = validators.HEX_STRING
@@ -87,8 +88,91 @@ module.exports = function (log, db) {
           uid: sessionToken.uid
         })
       }
-    }
-  ]
+    },
+    {
+      method: 'POST',
+      path: '/session/duplicate',
+      config: {
+        auth: {
+          strategy: 'sessionToken'
+        },
+        validate: {
+          payload: {
+            reason: isA.string().max(16).optional()
+          }
+        }
+      },
+      handler: function (request, reply) {
+        log.begin('Session.duplicate', request)
+        const origSessionToken = request.auth.credentials
+
+        return P.resolve()
+          .then(duplicateVerificationState)
+          .then(createSessionToken)
+          .then(formatResponse)
+          .then(reply, reply)
+
+        function duplicateVerificationState() {
+          // Copy verification state of the token, but generate
+          // independent verification codes.
+          const newVerificationState = {}
+          if (origSessionToken.tokenVerificationId) {
+            newVerificationState.tokenVerificationId = random.hex(origSessionToken.tokenVerificationId.length / 2)
+          }
+          if (origSessionToken.tokenVerificationCode) {
+            // Using expiresAt=0 here prevents the new token from being verified via email code.
+            // That's OK, because we don't send them a new email with the new verification code
+            // unless they explicitly ask us to resend it, and resend only handles email links
+            // rather than email codes.
+            newVerificationState.tokenVerificationCode = random.hex(origSessionToken.tokenVerificationCode.length / 2)
+            newVerificationState.tokenVerificationCodeExpiresAt = 0
+          }
+          return P.props(newVerificationState)
+        }
+
+        function createSessionToken(newVerificationState) {
+          // Update UA info based on the requesting device.
+          const newUAInfo = {
+            uaBrowser: request.app.ua.browser,
+            uaBrowserVersion: request.app.ua.browserVersion,
+            uaOS: request.app.ua.os,
+            uaOSVersion: request.app.ua.osVersion,
+            uaDeviceType: request.app.ua.deviceType,
+            uaFormFactor: request.app.ua.formFactor
+          }
+
+          // Copy all other details from the original sessionToken.
+          // We have to lie a little here and copy the creation time
+          // of the original sessionToken.  If we set createdAt to the
+          // current time, we would falsely report the new session's
+          // `lastAuthAt` value as the current timestamp.
+          const sessionTokenOptions = Object.assign({}, origSessionToken, newUAInfo, newVerificationState)
+          return db.createSessionToken(sessionTokenOptions)
+        }
+
+        function formatResponse(newSessionToken) {
+          const response = {
+            uid: newSessionToken.uid,
+            sessionToken: newSessionToken.data,
+            authAt: newSessionToken.lastAuthAt()
+          }
+
+          if (! newSessionToken.emailVerified) {
+            response.verified = false
+            response.verificationMethod = 'email'
+            response.verificationReason = 'signup'
+          } else if (! newSessionToken.tokenVerified) {
+            response.verified = false
+            response.verificationMethod = 'email'
+            response.verificationReason = 'login'
+          } else {
+            response.verified = true
+          }
+
+          return response
+        }
+      }
+    } ]
 
   return routes
 }
