@@ -27,6 +27,7 @@ content-type of "application/json".
 * [POST /blockIp](#post-blockip)
 * [POST /check](#post-check)
 * [POST /checkAuthenticated](#post-checkauthenticated)
+* [POST /checkIpOnly](#post-checkiponly)
 * [POST /failedLoginAttempt](#post-failedloginattempt)
 * [POST /passwordReset](#post-passwordreset)
 
@@ -148,6 +149,47 @@ Failing requests may be due to the following errors:
 
 * status code 400, code MissingParameters: email, ip and action are all required
 
+## POST /checkIpOnly
+
+Like [/check](#post-check), called by the auth server before
+performing an action on its end to check whether or not the action
+should be blocked based only on the request IP.
+
+___Parameters___
+
+* ip - the IP address where the request originates
+* action - the name of the action under consideration
+
+### Request
+
+```sh
+curl -v \
+-H "Content-Type: application/json" \
+"http://127.0.0.1:7000/checkIpOnly" \
+-d '{
+  "ip": "192.0.2.1",
+  "action": "accountCreate"
+}'
+```
+
+### Response
+
+Successful requests will produce a "200 OK" response with the blocking advice in the JSON body:
+
+```json
+{
+  "block": true,
+  "retryAfter": 86396
+}
+```
+
+`block` indicates whether or not the action should be blocked and
+`retryAfter` tells the client how long it should wait (in seconds)
+before attempting this action again.
+
+Failing requests may be due to the following errors:
+
+* status code 400, code MissingParameters: ip and action are both required
 
 ## POST /checkAuthenticated
 
