@@ -1,3 +1,12 @@
+<a name"1.105.0"></a>
+## 1.105.0 (2018-02-07)
+
+
+#### Features
+
+* **openid:** Allow untrusted reliers to request `openid` scope. (#516), r=@vbudhram ([f764dc82](https://github.com/mozilla/fxa-oauth-server/commit/f764dc82))
+
+
 <a name"1.104.0"></a>
 ## 1.104.0 (2018-01-24)
 
