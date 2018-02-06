@@ -392,7 +392,7 @@ module.exports = function createServer(config, log) {
 
     if (! action || ! ip) {
       const err = { code: 'MissingParameters', message: 'action and ip are both required' }
-      log.error({ op:'request.checkAuthenticated', action: action, ip: ip, err: err })
+      log.error({ op:'request.checkIpOnly', action: action, ip: ip, err: err })
       res.send(400, err)
       return next()
     }
