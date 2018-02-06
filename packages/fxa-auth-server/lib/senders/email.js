@@ -300,7 +300,8 @@ module.exports = function (log) {
               op: 'mailer.send.1',
               err: err && err.message,
               status: status && status.message,
-              id: status && status.messageId
+              id: status && status.messageId,
+              to: emailConfig && emailConfig.to
             }
           )
           return d.reject(err)
@@ -309,7 +310,8 @@ module.exports = function (log) {
           {
             op: 'mailer.send.1',
             status: status && status.message,
-            id: status && status.messageId
+            id: status && status.messageId,
+            to: emailConfig && emailConfig.to
           }
         )
 
