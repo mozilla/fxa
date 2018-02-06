@@ -1,3 +1,28 @@
+<a name="1.105.0"></a>
+# [1.105.0](https://github.com/mozilla/fxa-auth-server/compare/v1.104.1...v1.105.0) (2018-02-06)
+
+
+### Bug Fixes
+
+* **bounce:** Update bounces lib to use `accountRecord` (#2273) r=@rfk,@vladikoff ([3953051](https://github.com/mozilla/fxa-auth-server/commit/3953051)), closes [#2273](https://github.com/mozilla/fxa-auth-server/issues/2273) [#2272](https://github.com/mozilla/fxa-auth-server/issues/2272)
+* **email:** log to recipient alongside smtp message-id ([993fd02](https://github.com/mozilla/fxa-auth-server/commit/993fd02))
+* **emails:** Reset account tokens when deleting an email address. (#2266); r=philbooth ([70d0f96](https://github.com/mozilla/fxa-auth-server/commit/70d0f96)), closes [#2266](https://github.com/mozilla/fxa-auth-server/issues/2266)
+* **redis:** delete session tokens from redis in db.deleteDevice ([11f7024](https://github.com/mozilla/fxa-auth-server/commit/11f7024))
+* **tests:** Use higher test timeout under Windows Subsystem for Linux ([c9baa00](https://github.com/mozilla/fxa-auth-server/commit/c9baa00))
+* **unblock:** Send correct primary email when blocked (#2271), r=@rfk ([0e4b77f](https://github.com/mozilla/fxa-auth-server/commit/0e4b77f)), closes [#2271](https://github.com/mozilla/fxa-auth-server/issues/2271)
+
+### chore
+
+* **ci:** stop setting USE_REDIS in the test invocations (#2281), r=@vbudhram ([26a5a8a](https://github.com/mozilla/fxa-auth-server/commit/26a5a8a)), closes [#2281](https://github.com/mozilla/fxa-auth-server/issues/2281)
+* **code:** eliminate duplicate pool and db modules ([924e8ca](https://github.com/mozilla/fxa-auth-server/commit/924e8ca))
+* **tests:** Set defaults for env vars in test-local.sh script. ([0960eaf](https://github.com/mozilla/fxa-auth-server/commit/0960eaf))
+
+### Features
+
+* **sessions:** Add /session/duplicate API ([669f59a](https://github.com/mozilla/fxa-auth-server/commit/669f59a))
+
+
+
 <a name="1.104.1"></a>
 ## [1.104.1](https://github.com/mozilla/fxa-auth-server/compare/v1.104.0...v1.104.1) (2018-01-29)
 
