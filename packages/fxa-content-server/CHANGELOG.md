@@ -1,3 +1,20 @@
+<a name="1.105.0"></a>
+# 1.105.0 (2018-02-06)
+
+
+### Bug Fixes
+
+* **emails:** enable change email for users (#5851), r=@philbooth ([bdb690b](https://github.com/mozilla/fxa-content-server/commit/bdb690b))
+* **experiment:** Add the `treatment-link` to token code experiment (#5849), r=@philbooth ([df6efe5](https://github.com/mozilla/fxa-content-server/commit/df6efe5))
+* **input_capitalize:** make input field capitalize (#5862), r=@vbudhram, @vladikoff ([a66fa84](https://github.com/mozilla/fxa-content-server/commit/a66fa84))
+* **market:** Show marketing when opening on FxiOS (#5871), r=@philbooth ([6174a5c](https://github.com/mozilla/fxa-content-server/commit/6174a5c))
+* **metrics:** emit amplitude click events earlier ([e5db03a](https://github.com/mozilla/fxa-content-server/commit/e5db03a))
+* **notification_align:** make notification button align better (#5861) r=@vladikoff,@vbudhram ([35441fc](https://github.com/mozilla/fxa-content-server/commit/35441fc)), closes [#5860](https://github.com/mozilla/fxa-content-server/issues/5860)
+* **test:** Fix sign-in code test (#5877) r=@vladikoff ([4d6f048](https://github.com/mozilla/fxa-content-server/commit/4d6f048)), closes [(#5877](https://github.com/(/issues/5877) [#5874](https://github.com/mozilla/fxa-content-server/issues/5874)
+* **tests:** Update travis and circle to use FF58 (#5847), r=@philbooth ([d676a7b](https://github.com/mozilla/fxa-content-server/commit/d676a7b))
+
+
+
 <a name="1.104.0"></a>
 # 1.104.0 (2018-01-24)
 
