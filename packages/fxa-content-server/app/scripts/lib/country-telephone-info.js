@@ -91,7 +91,7 @@ define(function(require, exports, module) {
       normalize: ensurePrefix('+61'),
       pattern: /^(?:\+61\d{9}|\d{10})$/,
       prefix: '+61',
-      rolloutRate: 0.5 // being soft launched. Testers will need to open `/sms?service=sync&country=AU`
+      rolloutRate: 1
     },
     // Belgium
     // https://en.wikipedia.org/wiki/Telephone_numbers_in_Belgium
