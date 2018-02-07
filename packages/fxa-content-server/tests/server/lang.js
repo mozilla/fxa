@@ -39,7 +39,7 @@ function langTest(lang) {
         assert.ok(langRegExp.test(res.body), 'html has correct lang attribute');
         if (intern._config.fxaProduction) {
           var locale = normalizeLanguage(lang).replace('-', '_');
-          var scriptRegExp = new RegExp(util.format('[0-9a-f]{8,8}\.main\.%s\.js', locale));
+          var scriptRegExp = new RegExp(util.format('[0-9a-f]{40,40}\/app\.bundle\.%s\.js', locale));
           assert.ok(scriptRegExp.test(res.body), 'html has localized JavaScript');
         }
       })
