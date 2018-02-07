@@ -75,6 +75,7 @@ node ./tests/teamcity/install-npm-deps.js \
   bower                           \
   convict                         \
   firefox-profile                 \
+  fxa-js-client                   \
   fxa-shared                      \
   got                             \
   intern                          \
