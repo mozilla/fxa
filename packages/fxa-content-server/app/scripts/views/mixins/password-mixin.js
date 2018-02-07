@@ -10,7 +10,7 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const AuthErrors = require('../../lib/auth-errors');
   const Constants = require('../../lib/constants');
-  const showPasswordTemplate = require('stache!templates/partial/show-password');
+  const showPasswordTemplate = require('templates/partial/show-password.mustache');
 
   const SELECTOR_SIGNUP_PASSWORD_HELPER = '.input-help-signup';
 

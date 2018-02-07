@@ -16,7 +16,7 @@ define(function (require, exports, module) {
   const SignedOutNotificationMixin = require('../mixins/signed-out-notification-mixin');
   const Strings = require('../../lib/strings');
   const { t } = require('../base');
-  const Template = require('stache!templates/settings/clients');
+  const Template = require('templates/settings/clients.mustache');
   const UserAgentMixin = require('../../lib/user-agent-mixin');
 
   const DEVICE_REMOVED_ANIMATION_MS = 150;

@@ -10,7 +10,7 @@ define(function (require, exports, module) {
   const Chai = require('chai');
   const Cocktail = require('cocktail');
   const LoadingMixin = require('views/mixins/loading-mixin');
-  const Template = require('stache!templates/test_template');
+  const Template = require('templates/test_template.mustache');
   const WindowMock = require('../../../mocks/window');
 
   var assert = Chai.assert;

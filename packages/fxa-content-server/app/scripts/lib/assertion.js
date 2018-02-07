@@ -1,13 +1,11 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 define(function (require, exports, module) {
   'use strict';
 
   const Duration = require('duration');
   const P = require('./promise');
-  const requireOnDemand = require('./require-on-demand');
 
   // The CERT_DURATION_MS is an offset from the fxa-auth-server clock, which we can reasonably assume to
   // be accurate and, more importantly, in sync with the clocks of fxa-oauth-server and other consumers
@@ -20,6 +18,10 @@ define(function (require, exports, module) {
   // assertion lifetime too, giving this clock-skew issue as the explicit reason:
   // https://dxr.mozilla.org/mozilla-central/rev/ffe6cc09ccf38cca6f0e727837bbc6cb722d1e71/services/fxaccounts/FxAccountsCommon.js#70
   const ASSERTION_DURATION_MS = new Duration('52w').milliseconds() * 25; //25 years
+
+  function importJwCrypto () {
+    return import(/* webpackChunkName: "jwcryptoShim" */ './jwcrypto-shim');
+  }
 
   function ensureCryptoIsSeeded() {
     // The jwcrypto RNG needs to be seeded with entropy. If the browser
@@ -83,14 +85,12 @@ define(function (require, exports, module) {
   }
 
   function bundle(sessionToken, audience, service) {
-    return requireOnDemand('jwcrypto')
-      .then((jwcrypto) => {
-        this._jwcrypto = jwcrypto;
-        return certificate.call(this, audience || this._audience, sessionToken, service);
-      })
-      .then(([cert, ass]) => {
-        return this._jwcrypto.cert.bundle([cert.cert], ass);
-      });
+    return importJwCrypto().then(jwcrypto => {
+      this._jwcrypto = jwcrypto;
+      return certificate.call(this, audience || this._audience, sessionToken, service);
+    }).then(([ cert, ass ]) => {
+      return this._jwcrypto.cert.bundle([cert.cert], ass);
+    });
   }
 
   function Assertion(options) {

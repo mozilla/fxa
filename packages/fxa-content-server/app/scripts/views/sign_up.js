@@ -25,7 +25,7 @@ define(function (require, exports, module) {
   const SignInMixin = require('./mixins/signin-mixin');
   const SignUpMixin = require('./mixins/signup-mixin');
   const SyncSuggestionMixin = require('./mixins/sync-suggestion-mixin');
-  const Template = require('stache!templates/sign_up');
+  const Template = require('templates/sign_up.mustache');
 
   var t = BaseView.t;
 

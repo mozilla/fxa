@@ -20,7 +20,7 @@ define(function (require, exports, module) {
   const MarketingMixin = require('./mixins/marketing-mixin');
   const MarketingSnippet = require('./marketing_snippet');
   const SyncAuthMixin = require('./mixins/sync-auth-mixin');
-  const Template = require('stache!templates/connect_another_device');
+  const Template = require('templates/connect_another_device.mustache');
   const UserAgentMixin = require('../lib/user-agent-mixin');
   const VerificationReasonMixin = require('./mixins/verification-reason-mixin');
 

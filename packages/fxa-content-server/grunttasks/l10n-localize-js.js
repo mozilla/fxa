@@ -8,21 +8,23 @@
  * the bundle.
  */
 module.exports = function (grunt) {
-  var path = require('path');
+  const path = require('path');
+  const versionInfo = require('../server/lib/version');
 
   grunt.registerTask('l10n-localize-js', 'Generate localized versions of the Javascript', function () {
-    // server config is set in the selectconfig task
+    // server config is set in the selectconfig task\
+    var done = this.async();
     var supportedLanguages = grunt.config.get('server.i18n.supportedLanguages');
     var i18n = require('../server/lib/i18n')(grunt.config.get('server.i18n'));
 
-    var jsDir = grunt.config('yeoman.dist');
-    var jsSourcePath = path.join(jsDir, 'scripts', 'main.js');
+    var jsDir = path.join(grunt.config('yeoman.dist'), `bundle-${versionInfo.commit}`);
+    var jsSourcePath = path.join(jsDir, 'app.bundle.js');
 
     supportedLanguages.forEach((language) => {
       var locale = i18n.localeFrom(language);
       var translationPath = path.join(grunt.config.get('yeoman.app'), 'i18n', locale, 'client.json');
 
-      var jsDestPath = path.join(jsDir, 'scripts', 'main.' + locale + '.js');
+      var jsDestPath = path.join(jsDir, 'app.bundle.' + locale + '.js');
 
       var translations = grunt.file.readJSON(translationPath);
       grunt.log.writeln('writing', jsDestPath);
@@ -34,5 +36,8 @@ module.exports = function (grunt) {
         }
       });
     });
+
+    done();
+
   });
 };

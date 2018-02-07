@@ -12,7 +12,7 @@ define(function (require, exports, module) {
   const ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
   const Notifier = require('lib/channels/notifier');
   const sinon = require('sinon');
-  const TestTemplate = require('stache!templates/test_template');
+  const TestTemplate = require('templates/test_template.mustache');
 
   const ModalSettingsPanelView = BaseView.extend({
     template: TestTemplate

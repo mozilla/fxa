@@ -5,17 +5,10 @@
 module.exports = function (grunt) {
   grunt.config('concat', {
     easteregg: {
-      dest: '<%= yeoman.tmp %>/scripts/main.js',
+      dest: '<%= yeoman.dist %>/app.bundle.js',
       src: [
-        '<%= yeoman.tmp %>/scripts/main.js',
+        '<%= yeoman.dist %>/app.bundle.js',
         'app/bower_components/easteregg/src/easteregg.js'
-      ]
-    },
-    requirejs: {
-      dest: '<%= yeoman.tmp %>/scripts/main.js',
-      src: [
-        'app/bower_components/requirejs/require.js',
-        '<%= yeoman.tmp %>/scripts/main.js'
       ]
     }
   });

@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const FlowEventsMixin = require('./mixins/flow-events-mixin');
   const Session = require('../lib/session');
-  const Template = require('stache!templates/sign_in_bounced');
+  const Template = require('templates/sign_in_bounced.mustache');
 
   const SignInBouncedView = BaseView.extend({
     events: {

@@ -2,300 +2,285 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-require([
-  'lib/session',
-  '../tests/setup'
-],
-function (Session) {
-  'use strict';
+mocha.setup('bdd');
+mocha.timeout(20000);
 
-  var tests = [
-    '../tests/spec/head/startup-styles',
-    '../tests/spec/lib/app-start',
-    '../tests/spec/lib/assertion',
-    '../tests/spec/lib/auth-errors',
-    '../tests/spec/lib/channels/duplex',
-    '../tests/spec/lib/channels/fx-desktop-v1',
-    '../tests/spec/lib/channels/iframe',
-    '../tests/spec/lib/channels/inter-tab',
-    '../tests/spec/lib/channels/notifier',
-    '../tests/spec/lib/channels/notifier-mixin',
-    '../tests/spec/lib/channels/null',
-    '../tests/spec/lib/channels/receivers/postmessage',
-    '../tests/spec/lib/channels/receivers/web-channel',
-    '../tests/spec/lib/channels/senders/fx-desktop-v1',
-    '../tests/spec/lib/channels/senders/web-channel',
-    '../tests/spec/lib/channels/web',
-    '../tests/spec/lib/cocktail',
-    '../tests/spec/lib/config-loader',
-    '../tests/spec/lib/country-telephone-info',
-    '../tests/spec/lib/cropper',
-    '../tests/spec/lib/crypto/scoped-keys',
-    '../tests/spec/lib/dom-writer',
-    '../tests/spec/lib/environment',
-    '../tests/spec/lib/error-utils',
-    '../tests/spec/lib/experiment',
-    '../tests/spec/lib/experiments/base',
-    '../tests/spec/lib/experiments/grouping-rules/base',
-    '../tests/spec/lib/experiments/grouping-rules/communication-prefs',
-    '../tests/spec/lib/experiments/grouping-rules/email-first',
-    '../tests/spec/lib/experiments/grouping-rules/index',
-    '../tests/spec/lib/experiments/grouping-rules/is-sampled-user',
-    '../tests/spec/lib/experiments/grouping-rules/q3-form-changes',
-    '../tests/spec/lib/experiments/grouping-rules/send-sms-install-link',
-    '../tests/spec/lib/experiments/grouping-rules/sentry',
-    '../tests/spec/lib/experiments/grouping-rules/sessions',
-    '../tests/spec/lib/experiments/grouping-rules/signup-password-confirm',
-    '../tests/spec/lib/experiments/grouping-rules/token-code',
-    '../tests/spec/lib/fxa-client',
-    '../tests/spec/lib/height-observer',
-    '../tests/spec/lib/image-loader',
-    '../tests/spec/lib/logger',
-    '../tests/spec/lib/mailcheck',
-    '../tests/spec/lib/marketing-email-client',
-    '../tests/spec/lib/metrics',
-    '../tests/spec/lib/null-metrics',
-    '../tests/spec/lib/null-storage',
-    '../tests/spec/lib/oauth-client',
-    '../tests/spec/lib/oauth-errors',
-    '../tests/spec/lib/profile-client',
-    '../tests/spec/lib/require-on-demand',
-    '../tests/spec/lib/router',
-    '../tests/spec/lib/screen-info',
-    '../tests/spec/lib/search-param-mixin',
-    '../tests/spec/lib/sentry',
-    '../tests/spec/lib/session',
-    '../tests/spec/lib/sign-in-reasons',
-    '../tests/spec/lib/storage',
-    '../tests/spec/lib/storage-metrics',
-    '../tests/spec/lib/strings',
-    '../tests/spec/lib/transform',
-    '../tests/spec/lib/translator',
-    '../tests/spec/lib/url',
-    '../tests/spec/lib/user-agent',
-    '../tests/spec/lib/user-agent-mixin',
-    '../tests/spec/lib/validate',
-    '../tests/spec/lib/xhr',
-    '../tests/spec/lib/xss',
-    '../tests/spec/models/account',
-    '../tests/spec/models/attached-clients',
-    '../tests/spec/models/auth_brokers/base',
-    '../tests/spec/models/auth_brokers/fx-desktop-v1',
-    '../tests/spec/models/auth_brokers/fx-desktop-v2',
-    '../tests/spec/models/auth_brokers/fx-desktop-v3',
-    '../tests/spec/models/auth_brokers/fx-fennec-v1',
-    '../tests/spec/models/auth_brokers/fx-firstrun-v1',
-    '../tests/spec/models/auth_brokers/fx-firstrun-v2',
-    '../tests/spec/models/auth_brokers/fx-ios-v1',
-    '../tests/spec/models/auth_brokers/fx-sync',
-    '../tests/spec/models/auth_brokers/fx-sync-channel',
-    '../tests/spec/models/auth_brokers/index',
-    '../tests/spec/models/auth_brokers/mob-android-v1',
-    '../tests/spec/models/auth_brokers/mob-ios-v1',
-    '../tests/spec/models/auth_brokers/oauth',
-    '../tests/spec/models/auth_brokers/oauth-redirect',
-    '../tests/spec/models/auth_brokers/web',
-    '../tests/spec/models/device',
-    '../tests/spec/models/email',
-    '../tests/spec/models/email-resend',
-    '../tests/spec/models/flow',
-    '../tests/spec/models/form-prefill',
-    '../tests/spec/models/marketing-email-prefs',
-    '../tests/spec/models/mixins/resume-token',
-    '../tests/spec/models/mixins/search-param',
-    '../tests/spec/models/oauth-app',
-    '../tests/spec/models/oauth-token',
-    '../tests/spec/models/polls/session-verification',
-    '../tests/spec/models/profile-image',
-    '../tests/spec/models/refresh-observer',
-    '../tests/spec/models/reliers/base',
-    '../tests/spec/models/reliers/oauth',
-    '../tests/spec/models/reliers/relier',
-    '../tests/spec/models/reliers/sync',
-    '../tests/spec/models/resume-token',
-    '../tests/spec/models/sync-engines',
-    '../tests/spec/models/unique-user-id',
-    '../tests/spec/models/user',
-    '../tests/spec/models/verification/base',
-    '../tests/spec/models/verification/reset-password',
-    '../tests/spec/models/verification/report-sign-in',
-    '../tests/spec/models/verification/same-browser',
-    '../tests/spec/models/verification/sign-up',
-    '../tests/spec/models/web-session',
-    '../tests/spec/views/app',
-    '../tests/spec/views/base',
-    '../tests/spec/views/behaviors/connect-another-device',
-    '../tests/spec/views/behaviors/halt',
-    '../tests/spec/views/behaviors/halt-if-browser-transitions',
-    '../tests/spec/views/behaviors/navigate',
-    '../tests/spec/views/behaviors/null',
-    '../tests/spec/views/behaviors/settings',
-    '../tests/spec/views/cannot_create_account',
-    '../tests/spec/views/choose_what_to_sync',
-    '../tests/spec/views/clear_storage',
-    '../tests/spec/views/complete_reset_password',
-    '../tests/spec/views/complete_sign_up',
-    '../tests/spec/views/confirm',
-    '../tests/spec/views/confirm_reset_password',
-    '../tests/spec/views/connect_another_device',
-    '../tests/spec/views/cookies_disabled',
-    '../tests/spec/views/decorators/progress_indicator',
-    '../tests/spec/views/elements/coppa-age-input',
-    '../tests/spec/views/elements/tel-input',
-    '../tests/spec/views/force_auth',
-    '../tests/spec/views/form',
-    '../tests/spec/views/index',
-    '../tests/spec/views/marketing_snippet',
-    '../tests/spec/views/mixins/account-reset-mixin',
-    '../tests/spec/views/mixins/avatar-mixin',
-    '../tests/spec/views/mixins/back-mixin',
-    '../tests/spec/views/mixins/checkbox-mixin',
-    '../tests/spec/views/mixins/connect-another-device-mixin',
-    '../tests/spec/views/mixins/coppa-mixin',
-    '../tests/spec/views/mixins/disable-form-mixin',
-    '../tests/spec/views/mixins/email-first-experiment-mixin',
-    '../tests/spec/views/mixins/email-opt-in-mixin',
-    '../tests/spec/views/mixins/experiment-mixin',
-    '../tests/spec/views/mixins/external-links-mixin',
-    '../tests/spec/views/mixins/floating-placeholder-mixin',
-    '../tests/spec/views/mixins/flow-begin-mixin',
-    '../tests/spec/views/mixins/flow-events-mixin',
-    '../tests/spec/views/mixins/form-prefill-mixin',
-    '../tests/spec/views/mixins/loading-mixin',
-    '../tests/spec/views/mixins/marketing-mixin',
-    '../tests/spec/views/mixins/migration-mixin',
-    '../tests/spec/views/mixins/modal-panel-mixin',
-    '../tests/spec/views/mixins/modal-settings-panel-mixin',
-    '../tests/spec/views/mixins/open-webmail-mixin',
-    '../tests/spec/views/mixins/password-mixin',
-    '../tests/spec/views/mixins/password-reset-mixin',
-    '../tests/spec/views/mixins/pulse-graphic-mixin',
-    '../tests/spec/views/mixins/resend-mixin',
-    '../tests/spec/views/mixins/resume-token-mixin',
-    '../tests/spec/views/mixins/service-mixin',
-    '../tests/spec/views/mixins/session-verification-poll-mixin',
-    '../tests/spec/views/mixins/settings-panel-mixin',
-    '../tests/spec/views/mixins/signed-in-notification-mixin',
-    '../tests/spec/views/mixins/signed-out-notification-mixin',
-    '../tests/spec/views/mixins/signin-mixin',
-    '../tests/spec/views/mixins/signup-mixin',
-    '../tests/spec/views/mixins/sms-mixin',
-    '../tests/spec/views/mixins/sync-auth-mixin',
-    '../tests/spec/views/mixins/sync-suggestion-mixin',
-    '../tests/spec/views/mixins/timer-mixin',
-    '../tests/spec/views/mixins/verification-reason-mixin',
-    '../tests/spec/views/oauth_index',
-    '../tests/spec/views/oauth_sign_in',
-    '../tests/spec/views/oauth_sign_up',
-    '../tests/spec/views/permissions',
-    '../tests/spec/views/pp',
-    '../tests/spec/views/progress_indicator',
-    '../tests/spec/views/ready',
-    '../tests/spec/views/report_sign_in',
-    '../tests/spec/views/reset_password',
-    '../tests/spec/views/settings',
-    '../tests/spec/views/settings/avatar',
-    '../tests/spec/views/settings/avatar_camera',
-    '../tests/spec/views/settings/avatar_change',
-    '../tests/spec/views/settings/avatar_crop',
-    '../tests/spec/views/settings/change_password',
-    '../tests/spec/views/settings/clients',
-    '../tests/spec/views/settings/client_disconnect',
-    '../tests/spec/views/settings/communication_preferences',
-    '../tests/spec/views/settings/delete_account',
-    '../tests/spec/views/settings/display_name',
-    '../tests/spec/views/settings/emails',
-    '../tests/spec/views/sign_in',
-    '../tests/spec/views/sign_in_bounced',
-    '../tests/spec/views/sign_in_password',
-    '../tests/spec/views/sign_in_reported',
-    '../tests/spec/views/sign_in_unblock',
-    '../tests/spec/views/sign_in_token_code',
-    '../tests/spec/views/sign_up',
-    '../tests/spec/views/sign_up_password',
-    '../tests/spec/views/sms_send',
-    '../tests/spec/views/sms_sent',
-    '../tests/spec/views/sub_panels',
-    '../tests/spec/views/tooltip',
-    '../tests/spec/views/tos',
-    '../tests/spec/views/why_connect_another_device'
-  ];
+//import Translator from 'lib/app-start';
+import Session from 'lib/session';
 
-  var runTests = function () {
-    /**
-     * Ensure session state does not pollute other tests
-     */
-    beforeEach(function () {
-      Session.testClear();
-    });
+// The tests need to be included using `require` instead
+// of import otherwise `describe` and other mocha methods are
+// undefined when the modules are imported.
+require('./spec/head/startup-styles');
+require('./spec/lib/app-start');
+require('./spec/lib/assertion');
+require('./spec/lib/auth-errors');
+require('./spec/lib/channels/duplex');
+require('./spec/lib/channels/fx-desktop-v1');
+require('./spec/lib/channels/iframe');
+require('./spec/lib/channels/inter-tab');
+require('./spec/lib/channels/notifier');
+require('./spec/lib/channels/notifier-mixin');
+require('./spec/lib/channels/null');
+require('./spec/lib/channels/receivers/postmessage');
+require('./spec/lib/channels/receivers/web-channel');
+require('./spec/lib/channels/senders/fx-desktop-v1');
+require('./spec/lib/channels/senders/web-channel');
+require('./spec/lib/channels/web');
+require('./spec/lib/cocktail');
+require('./spec/lib/config-loader');
+require('./spec/lib/country-telephone-info');
+require('./spec/lib/cropper');
+require('./spec/lib/crypto/scoped-keys');
+require('./spec/lib/dom-writer');
+require('./spec/lib/environment');
+require('./spec/lib/error-utils');
+require('./spec/lib/experiment');
+require('./spec/lib/experiments/base');
+require('./spec/lib/experiments/grouping-rules/base');
+require('./spec/lib/experiments/grouping-rules/communication-prefs');
+require('./spec/lib/experiments/grouping-rules/email-first');
+require('./spec/lib/experiments/grouping-rules/index');
+require('./spec/lib/experiments/grouping-rules/is-sampled-user');
+require('./spec/lib/experiments/grouping-rules/q3-form-changes');
+require('./spec/lib/experiments/grouping-rules/send-sms-install-link');
+require('./spec/lib/experiments/grouping-rules/sentry');
+require('./spec/lib/experiments/grouping-rules/sessions');
+require('./spec/lib/experiments/grouping-rules/signup-password-confirm');
+require('./spec/lib/experiments/grouping-rules/token-code');
+require('./spec/lib/fxa-client');
+require('./spec/lib/height-observer');
+require('./spec/lib/image-loader');
+require('./spec/lib/logger');
+require('./spec/lib/mailcheck');
+require('./spec/lib/marketing-email-client');
+require('./spec/lib/metrics');
+require('./spec/lib/null-metrics');
+require('./spec/lib/null-storage');
+require('./spec/lib/oauth-client');
+require('./spec/lib/oauth-errors');
+require('./spec/lib/profile-client');
+require('./spec/lib/router');
+require('./spec/lib/screen-info');
+require('./spec/lib/search-param-mixin');
+require('./spec/lib/sentry');
+require('./spec/lib/session');
+require('./spec/lib/sign-in-reasons');
+require('./spec/lib/storage');
+require('./spec/lib/storage-metrics');
+require('./spec/lib/strings');
+require('./spec/lib/transform');
+require('./spec/lib/translator');
+require('./spec/lib/url');
+require('./spec/lib/user-agent');
+require('./spec/lib/user-agent-mixin');
+require('./spec/lib/validate');
+require('./spec/lib/xhr');
+require('./spec/lib/xss');
+require('./spec/models/account');
+require('./spec/models/attached-clients');
+require('./spec/models/auth_brokers/base');
+require('./spec/models/auth_brokers/fx-desktop-v1');
+require('./spec/models/auth_brokers/fx-desktop-v2');
+require('./spec/models/auth_brokers/fx-desktop-v3');
+require('./spec/models/auth_brokers/fx-fennec-v1');
+require('./spec/models/auth_brokers/fx-firstrun-v1');
+require('./spec/models/auth_brokers/fx-firstrun-v2');
+require('./spec/models/auth_brokers/fx-ios-v1');
+require('./spec/models/auth_brokers/fx-sync');
+require('./spec/models/auth_brokers/fx-sync-channel');
+require('./spec/models/auth_brokers/index');
+require('./spec/models/auth_brokers/mob-android-v1');
+require('./spec/models/auth_brokers/mob-ios-v1');
+require('./spec/models/auth_brokers/oauth');
+require('./spec/models/auth_brokers/oauth-redirect');
+require('./spec/models/auth_brokers/web');
+require('./spec/models/device');
+require('./spec/models/email');
+require('./spec/models/email-resend');
+require('./spec/models/flow');
+require('./spec/models/form-prefill');
+require('./spec/models/marketing-email-prefs');
+require('./spec/models/mixins/resume-token');
+require('./spec/models/mixins/search-param');
+require('./spec/models/oauth-app');
+require('./spec/models/oauth-token');
+require('./spec/models/polls/session-verification');
+require('./spec/models/profile-image');
+require('./spec/models/refresh-observer');
+require('./spec/models/reliers/base');
+require('./spec/models/reliers/oauth');
+require('./spec/models/reliers/relier');
+require('./spec/models/reliers/sync');
+require('./spec/models/resume-token');
+require('./spec/models/sync-engines');
+require('./spec/models/unique-user-id');
+require('./spec/models/user');
+require('./spec/models/verification/base');
+require('./spec/models/verification/reset-password');
+require('./spec/models/verification/report-sign-in');
+require('./spec/models/verification/same-browser');
+require('./spec/models/verification/sign-up');
+require('./spec/models/web-session');
+require('./spec/views/app');
+require('./spec/views/base');
+require('./spec/views/behaviors/connect-another-device');
+require('./spec/views/behaviors/halt');
+require('./spec/views/behaviors/halt-if-browser-transitions');
+require('./spec/views/behaviors/navigate');
+require('./spec/views/behaviors/null');
+require('./spec/views/behaviors/settings');
+require('./spec/views/cannot_create_account');
+require('./spec/views/choose_what_to_sync');
+require('./spec/views/clear_storage');
+require('./spec/views/complete_reset_password');
+require('./spec/views/complete_sign_up');
+require('./spec/views/confirm');
+require('./spec/views/confirm_reset_password');
+require('./spec/views/connect_another_device');
+require('./spec/views/cookies_disabled');
+require('./spec/views/decorators/progress_indicator');
+require('./spec/views/elements/coppa-age-input');
+require('./spec/views/elements/tel-input');
+require('./spec/views/force_auth');
+require('./spec/views/form');
+require('./spec/views/index');
+require('./spec/views/marketing_snippet');
+require('./spec/views/mixins/account-reset-mixin');
+require('./spec/views/mixins/avatar-mixin');
+require('./spec/views/mixins/back-mixin');
+require('./spec/views/mixins/checkbox-mixin');
+require('./spec/views/mixins/connect-another-device-mixin');
+require('./spec/views/mixins/coppa-mixin');
+require('./spec/views/mixins/disable-form-mixin');
+require('./spec/views/mixins/email-first-experiment-mixin');
+require('./spec/views/mixins/email-opt-in-mixin');
+require('./spec/views/mixins/experiment-mixin');
+require('./spec/views/mixins/external-links-mixin');
+require('./spec/views/mixins/floating-placeholder-mixin');
+require('./spec/views/mixins/flow-begin-mixin');
+require('./spec/views/mixins/flow-events-mixin');
+require('./spec/views/mixins/form-prefill-mixin');
+require('./spec/views/mixins/loading-mixin');
+require('./spec/views/mixins/marketing-mixin');
+require('./spec/views/mixins/migration-mixin');
+require('./spec/views/mixins/modal-panel-mixin');
+require('./spec/views/mixins/modal-settings-panel-mixin');
+require('./spec/views/mixins/open-webmail-mixin');
+require('./spec/views/mixins/password-mixin');
+require('./spec/views/mixins/password-reset-mixin');
+require('./spec/views/mixins/pulse-graphic-mixin');
+require('./spec/views/mixins/resend-mixin');
+require('./spec/views/mixins/resume-token-mixin');
+require('./spec/views/mixins/service-mixin');
+require('./spec/views/mixins/session-verification-poll-mixin');
+require('./spec/views/mixins/settings-panel-mixin');
+require('./spec/views/mixins/signed-in-notification-mixin');
+require('./spec/views/mixins/signed-out-notification-mixin');
+require('./spec/views/mixins/signin-mixin');
+require('./spec/views/mixins/signup-mixin');
+require('./spec/views/mixins/sms-mixin');
+require('./spec/views/mixins/sync-auth-mixin');
+require('./spec/views/mixins/sync-suggestion-mixin');
+require('./spec/views/mixins/timer-mixin');
+require('./spec/views/mixins/verification-reason-mixin');
+require('./spec/views/oauth_index');
+require('./spec/views/oauth_sign_in');
+require('./spec/views/oauth_sign_up');
+require('./spec/views/permissions');
+require('./spec/views/pp');
+require('./spec/views/progress_indicator');
+require('./spec/views/ready');
+require('./spec/views/report_sign_in');
+require('./spec/views/reset_password');
+require('./spec/views/settings');
+require('./spec/views/settings/avatar');
+require('./spec/views/settings/avatar_camera');
+require('./spec/views/settings/avatar_change');
+require('./spec/views/settings/avatar_crop');
+require('./spec/views/settings/change_password');
+require('./spec/views/settings/clients');
+require('./spec/views/settings/client_disconnect');
+require('./spec/views/settings/communication_preferences');
+require('./spec/views/settings/delete_account');
+require('./spec/views/settings/display_name');
+require('./spec/views/settings/emails');
+require('./spec/views/sign_in');
+require('./spec/views/sign_in_bounced');
+require('./spec/views/sign_in_password');
+require('./spec/views/sign_in_reported');
+require('./spec/views/sign_in_unblock');
+require('./spec/views/sign_in_token_code');
+require('./spec/views/sign_up');
+require('./spec/views/sign_up_password');
+require('./spec/views/sms_send');
+require('./spec/views/sms_sent');
+require('./spec/views/sub_panels');
+require('./spec/views/tooltip');
+require('./spec/views/tos');
+require('./spec/views/why_connect_another_device');
 
-    afterEach(function () {
-      Session.testClear();
-    });
+const runTests = function () {
+  /**
+   * Ensure session state does not pollute other tests
+   */
+  beforeEach(function () {
+    Session.testClear();
+  });
 
-    var runner = mocha.run();
+  afterEach(function () {
+    Session.testClear();
+  });
 
-    /**
-     * Monkey patch runner.fail to clean the stack trace. Using
-     * `runner.on('fail', ..` does not work because the callback
-     * is run after mocha's own callback which prints the stack
-     * trace.
-     */
-    var _fail = runner.fail;
-    runner.fail = function (test, err) {
-      if (err && err.stack) {
-        err.stack = cleanErrorStack(err);
-      }
-      return _fail.apply(this, arguments);
-    };
+  var runner = mocha.run();
 
-    runner.on('end', function () {
-      // This is our hook to the Selenium tests that run
-      // the mocha tests as part of the CI build.
-      // The selenium test will wait until the #total-failures element exists
-      // and check for "0"
-      var failureEl = document.createElement('div');
-      failureEl.setAttribute('id', 'total-failures');
-      failureEl.innerHTML = runner.failures || '0';
-      document.body.appendChild(failureEl);
-    });
+  /**
+   * Monkey patch runner.fail to clean the stack trace. Using
+   * `runner.on('fail', ..` does not work because the callback
+   * is run after $'s own callback which prints the stack
+   * trace.
+   */
+  var _fail = runner.fail;
+  runner.fail = function (test, err) {
+    if (err && err.stack) {
+      err.stack = cleanErrorStack(err);
+    }
+    return _fail.apply(this, arguments);
   };
 
-  // Make sure to tests are loaded in proper order using Require.JS
-  var index = 0;
-  var loadTests = function () {
-    var test = tests[index];
-    index += 1;
-    if (index === tests.length) {
-      // run the tests after all of them have loaded
-      require([test], runTests);
-    } else {
-      require([test], loadTests);
+  runner.on('end', function () {
+    // This is our hook to the Selenium tests that run
+    // the $ tests as part of the CI build.
+    // The selenium test will wait until the #total-failures element exists
+    // and check for "0"
+    var failureEl = document.createElement('div');
+    failureEl.setAttribute('id', 'total-failures');
+    failureEl.innerHTML = runner.failures || '0';
+    document.body.appendChild(failureEl);
+  });
+};
+
+var filterFilesFromStack = [
+  'bower_components/blanket/dist/qunit/blanket.js',
+  'bower_components/p/p.js',
+  'bower_components/requirejs/require.js',
+  'tests/test_start.js'
+];
+
+function shouldFilterLine(line) {
+  for (var i = 0; i < filterFilesFromStack.length; ++i) {
+    if (line.indexOf(filterFilesFromStack[i]) !== -1) {
+      return true;
     }
-  };
-
-  loadTests();
-
-  var filterFilesFromStack = [
-    'bower_components/blanket/dist/qunit/blanket.js',
-    'bower_components/p/p.js',
-    'bower_components/requirejs/require.js',
-    'tests/test_start.js'
-  ];
-
-  function shouldFilterLine(line) {
-    for (var i = 0; i < filterFilesFromStack.length; ++i) {
-      if (line.indexOf(filterFilesFromStack[i]) !== -1) {
-        return true;
-      }
-    }
-
-    return false;
   }
 
-  function cleanErrorStack(err) {
-    return err.stack.split('\n').filter(function (line) {
-      return ! shouldFilterLine(line);
-    }).join('\n');
-  }
-});
+  return false;
+}
+
+function cleanErrorStack(err) {
+  return err.stack.split('\n').filter(function (line) {
+    return ! shouldFilterLine(line);
+  }).join('\n');
+}
+
+runTests();

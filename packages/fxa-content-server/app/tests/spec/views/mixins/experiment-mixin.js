@@ -10,7 +10,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const Mixin = require('views/mixins/experiment-mixin');
   const sinon = require('sinon');
-  const TestTemplate = require('stache!templates/test_template');
+  const TestTemplate = require('templates/test_template.mustache');
   const WindowMock = require('../../../mocks/window');
 
   const View = BaseView.extend({

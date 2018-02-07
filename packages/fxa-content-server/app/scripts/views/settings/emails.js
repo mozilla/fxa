@@ -18,7 +18,7 @@ define(function (require, exports, module) {
   const SearchParamMixin = require('../../lib/search-param-mixin');
   const Strings = require('../../lib/strings');
   const showProgressIndicator = require('../decorators/progress_indicator');
-  const Template = require('stache!templates/settings/emails');
+  const Template = require('templates/settings/emails.mustache');
 
   var t = BaseView.t;
 

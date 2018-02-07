@@ -17,7 +17,7 @@ module.exports = function (grunt) {
       var templatePath = path.join(templateDest, locale, 'index.html');
 
       var html = grunt.file.read(templatePath);
-      grunt.file.write(templatePath, html.replace('/scripts/main.js', '/scripts/main.' + locale + '.js'));
+      grunt.file.write(templatePath, html.replace('/app.bundle.js', '/app.bundle.' + locale + '.js'));
     });
   });
 };

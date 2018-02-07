@@ -25,12 +25,7 @@
         {{/if}}
         <!-- endbuild -->
 
-        <!-- build:js /scripts/head.js -->
-        <script src="/scripts/head/boot.js"></script>
-        <script src="/scripts/lib/environment.js"></script>
-        <script src="/scripts/head/startup-styles.js"></script>
-        <script src="/scripts/head/start.js"></script>
-        <!-- endbuild -->
+        <script type="text/javascript" src="{{ bundlePath }}/head.bundle.js"></script>
 
         <!--[if lt IE 9]>
           <!-- build:js /bower_components/html5shiv/dist/html5shiv.js -->
@@ -60,14 +55,7 @@
           {{#t}}Firefox Accounts requires JavaScript.{{/t}}
         </noscript>
         <!--<![endif]-->
-
-        <!-- no build declaration, main.js build
-             is done by requirejs and not concat.
-             rev/usemin will still replace the URL
-             with a cache aware URL.
-         -->
-        <!--[if gt IE 9]><!-->
-        <script data-main="/scripts/main" src="/bower_components/requirejs/require.js"></script>
-        <!--<![endif]-->
+        <script type="text/javascript" src="{{ bundlePath }}/appDependencies.bundle.js"></script>
+        <script type="text/javascript" src="{{ bundlePath }}/app.bundle.js"></script>
     </body>
 </html>

@@ -15,7 +15,7 @@ define(function (require, exports, module) {
   const Notifier = require('lib/channels/notifier');
   const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
   const sinon = require('sinon');
-  const TestTemplate = require('stache!templates/test_template');
+  const TestTemplate = require('templates/test_template.mustache');
   const View = require('views/sub_panels');
 
   var assert = chai.assert;

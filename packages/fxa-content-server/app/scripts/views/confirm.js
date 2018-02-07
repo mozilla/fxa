@@ -17,7 +17,7 @@ define(function (require, exports, module) {
   const ResumeTokenMixin = require('./mixins/resume-token-mixin');
   const ServiceMixin = require('./mixins/service-mixin');
   const SessionVerificationPollMixin = require('./mixins/session-verification-poll-mixin');
-  const Template = require('stache!templates/confirm');
+  const Template = require('templates/confirm.mustache');
 
   const proto = BaseView.prototype;
   const View = BaseView.extend({

@@ -12,7 +12,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const ResendMixin = require('views/mixins/resend-mixin');
   const sinon = require('sinon');
-  const TestTemplate = require('stache!templates/confirm');
+  const TestTemplate = require('templates/confirm.mustache');
 
   const View = BaseView.extend({
     resend: () => Promise.resolve(),

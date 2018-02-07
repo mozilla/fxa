@@ -21,7 +21,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const Constants = require('../lib/constants');
   const Strings = require('../lib/strings');
-  const Template = require('stache!templates/marketing_snippet');
+  const Template = require('templates/marketing_snippet.mustache');
   const UserAgentMixin = require('../lib/user-agent-mixin');
   const VerificationReasonMixin = require('./mixins/verification-reason-mixin');
 

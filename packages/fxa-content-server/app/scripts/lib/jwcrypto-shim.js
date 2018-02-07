@@ -1,11 +1,12 @@
+
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import StartupStyles from './startup-styles';
+/**
+ * This is a shim that allows webpack to lazy load all of jwcrypto.
+ */
+const jwcrypto = require('jwcrypto');
+require('jwcrypto.rs');
 
-var startupStyles = new StartupStyles({
-  window
-});
-
-startupStyles.initialize();
+module.exports = jwcrypto;

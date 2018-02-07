@@ -9,7 +9,7 @@ define(function (require, exports, module) {
   const { assert } = require('chai');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
-  const Template = require('stache!templates/test_template');
+  const Template = require('templates/test_template.mustache');
 
   const SmsView = BaseView.extend({
     template: Template

@@ -11,7 +11,7 @@ define(function (require, exports, module) {
   const FloatingPlaceholderMixin = require('../mixins/floating-placeholder-mixin');
   const FormView = require('../form');
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
-  const Template = require('stache!templates/settings/display_name');
+  const Template = require('templates/settings/display_name.mustache');
 
   const t = (msg) => msg;
 

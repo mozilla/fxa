@@ -124,7 +124,7 @@ define(function (require, exports, module) {
               var ev = document.createEvent('HTMLEvents');
               ev.initEvent('loadedmetadata', true, true);
 
-              return new Promise((resolve) => {
+              return new Promise((resolve, reject) => {
                 windowMock.on('stream', function () {
                   view.video.dispatchEvent(ev);
                   resolve();

@@ -14,7 +14,7 @@ define(function (require, exports, module) {
   const FormView = require('./form');
   const ResendMixin = require('./mixins/resend-mixin')();
   const SignInMixin = require('./mixins/signin-mixin');
-  const Template = require('stache!templates/sign_in_token_code');
+  const Template = require('templates/sign_in_token_code.mustache');
   const VerificationReasonMixin = require('./mixins/verification-reason-mixin');
 
   const View = FormView.extend({

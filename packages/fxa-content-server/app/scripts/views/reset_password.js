@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   const PasswordResetMixin = require('./mixins/password-reset-mixin');
   const ServiceMixin = require('./mixins/service-mixin');
   const Session = require('../lib/session');
-  const Template = require('stache!templates/reset_password');
+  const Template = require('templates/reset_password.mustache');
 
   const t = (msg) => msg;
 

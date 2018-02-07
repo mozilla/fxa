@@ -14,7 +14,7 @@ define(function (require, exports, module) {
   const FormView = require('../form');
   const ModalSettingsPanelMixin = require('../mixins/modal-settings-panel-mixin');
   const ProfileImage = require('../../models/profile-image');
-  const Template = require('stache!templates/settings/avatar_crop');
+  const Template = require('templates/settings/avatar_crop.mustache');
 
   var HORIZONTAL_GUTTER = 90;
   var VERTICAL_GUTTER = 0;

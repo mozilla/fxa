@@ -11,8 +11,7 @@ module.exports = function (grunt) {
         // That's right, a Handlebars variable entry is written in, the server
         // will render the correct details. This is done so the same built
         // templates can be used on both stage and prod.
-        cdn: '{{{ staticResourceUrl }}}',
-        ignorePath: '/experiments.bundle.js'
+        cdn: '{{{ staticResourceUrl }}}'
       },
       pages: {
         cwd: '<%= yeoman.page_template_dist %>',

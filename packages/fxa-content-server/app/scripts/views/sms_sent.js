@@ -18,7 +18,7 @@ define(function (require, exports, module) {
   const MarketingMixin = require('./mixins/marketing-mixin')({ marketingId: MARKETING_ID_AUTUMN_2016 });
   const ResendMixin = require('./mixins/resend-mixin')({ successMessage: false });
   const SmsMixin = require('./mixins/sms-mixin');
-  const Template = require('stache!templates/sms_sent');
+  const Template = require('templates/sms_sent.mustache');
 
   function arePrereqsMet (model) {
     return model.has('normalizedPhoneNumber') &&

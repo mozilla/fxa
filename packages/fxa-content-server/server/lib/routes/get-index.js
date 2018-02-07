@@ -43,6 +43,8 @@ module.exports = function (config) {
     const flowEventData = flowMetrics.create(FLOW_ID_KEY, req.headers['user-agent']);
 
     res.render('index', {
+      // Note that bundlePath is added to templates as a build step
+      bundlePath: '/bundle',
       config: serializedConfig,
       flowBeginTime: flowEventData.flowBeginTime,
       flowId: flowEventData.flowId,

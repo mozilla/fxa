@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   const FormView = require('../form');
   const ImageLoader = require('../../lib/image-loader');
   const ModalSettingsPanelMixin = require('../mixins/modal-settings-panel-mixin');
-  const Template = require('stache!templates/settings/avatar_change');
+  const Template = require('templates/settings/avatar_change.mustache');
 
   const proto = FormView.prototype;
   const View = FormView.extend({
@@ -116,12 +116,16 @@ define(function (require, exports, module) {
                   type: file.type,
                   width: img.width
                 });
-                require(['draggable', 'touch-punch'], () => {
+
+                return Promise.all([
+                  import(/* webpackChunkName: "draggable" */ 'draggable'),
+                  import(/* webpackChunkName: "touch-punch" */ 'touch-punch')
+                ]).then(() => {
                   this.navigate('settings/avatar/crop', {
                     cropImg
                   });
+                  resolve();
                 });
-                resolve();
               })
               .catch(imgOnError);
           };

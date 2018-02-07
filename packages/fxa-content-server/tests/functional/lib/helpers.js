@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const requirejs = require('../../rjs_load');
 const restmail = require('../../lib/restmail');
 const TestHelpers = require('../../lib/helpers');
 const selectors = require('./selectors');
@@ -12,7 +11,7 @@ const Querystring = require('querystring');
 const nodeXMLHttpRequest = require('xmlhttprequest');
 const assert = intern.getPlugin('chai').assert;
 
-const FxaClient = requirejs('app/bower_components/fxa-js-client/fxa-client');
+const FxaClient = require('fxa-js-client');
 const got = require('got');
 const config = intern._config;
 

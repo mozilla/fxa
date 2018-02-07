@@ -15,7 +15,7 @@ define(function (require, exports, module) {
   const PasswordMixin = require('views/mixins/password-mixin');
   const sinon = require('sinon');
   const TestHelpers = require('../../../lib/helpers');
-  const TestTemplate = require('stache!templates/test_template');
+  const TestTemplate = require('templates/test_template.mustache');
   const WindowMock = require('../../../mocks/window');
 
   const PasswordView = BaseView.extend({

@@ -11,7 +11,7 @@ define(function (require, exports, module) {
   const AuthErrors = require('../lib/auth-errors');
   const Constants = require('../lib/constants');
   const FormView = require('./form');
-  const Template = require('stache!templates/report_sign_in');
+  const Template = require('templates/report_sign_in.mustache');
   const SignInToReport = require('../models/verification/report-sign-in');
 
   const View = FormView.extend({

@@ -9,7 +9,7 @@ define(function(require, exports, module) {
   const { Model } = require('backbone');
   const sinon = require('sinon');
   const View = require('views/sign_in_bounced');
-  const template = require('stache!templates/sign_in_bounced');
+  const template = require('templates/sign_in_bounced.mustache');
 
   describe('views/sign_in_bounced', () => {
     let clickHandler, formPrefill, model, user, view;

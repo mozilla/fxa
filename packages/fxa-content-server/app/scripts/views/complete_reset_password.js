@@ -15,7 +15,7 @@ define(function (require, exports, module) {
   const PasswordResetMixin = require('./mixins/password-reset-mixin');
   const ResendMixin = require('./mixins/resend-mixin')();
   const ServiceMixin = require('./mixins/service-mixin');
-  const Template = require('stache!templates/complete_reset_password');
+  const Template = require('templates/complete_reset_password.mustache');
   const Url = require('../lib/url');
   const VerificationInfo = require('../models/verification/reset-password');
 

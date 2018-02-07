@@ -10,7 +10,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const BaseView = require('./base');
-  const Template = require('stache!templates/sign_in_reported');
+  const Template = require('templates/sign_in_reported.mustache');
 
   module.exports = BaseView.extend({
     template: Template

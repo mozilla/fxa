@@ -12,7 +12,7 @@ define(function (require, exports, module) {
   const FormView = require('views/form');
   const KeyCodes = require('lib/key-codes');
   const Notifier = require('lib/channels/notifier');
-  const Template = require('stache!templates/test_template');
+  const Template = require('templates/test_template.mustache');
 
   const TestView = FormView.extend({
     template: Template

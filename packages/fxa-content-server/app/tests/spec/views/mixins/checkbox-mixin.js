@@ -11,7 +11,7 @@ define(function (require, exports, module) {
   const CheckboxMixin = require('views/mixins/checkbox-mixin');
   const Cocktail = require('cocktail');
   const sinon = require('sinon');
-  const Template = require('stache!templates/test_template');
+  const Template = require('templates/test_template.mustache');
 
   var assert = Chai.assert;
 

@@ -14,7 +14,7 @@ define(function (require, exports, module) {
   const ServiceMixin = require('../mixins/settings-panel-mixin');
   const Session = require('../../lib/session');
   const SettingsPanelMixin = require('../mixins/service-mixin');
-  const Template = require('stache!templates/settings/delete_account');
+  const Template = require('templates/settings/delete_account.mustache');
 
   var t = BaseView.t;
 

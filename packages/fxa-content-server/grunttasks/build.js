@@ -14,29 +14,14 @@ module.exports = function (grunt) {
     // l10n-generate-pages needs to be run before useminPrepare to seed
     // the list of resources to minimize. Generated pages are placed into
     // `server/templates/pages/dist` where they will be post-processed
-    // with requirejs and usemin
+    // with usemin
     'l10n-generate-pages',
 
     // prepares the configuration to transform specific blocks
     // in the scrutinized file into a single line, targeting an optimized version of the files.
     'useminPrepare',
 
-    // Compile ES2015 to ES5
-    'babel',
-
-    // Copy ES5 files to prepare for requirejs
-    'copy:requirejs',
-
-    // Replace the require('text!/i18n/client.json') so requirejs can run,
-    // the translations will be bundled on a per-locale basis once
-    // the bundle is made.
-    'replace:fetch_translations',
-
-    // Runs r.js optimizer on the application files
-    'requirejs',
-
-    // Adds requirejs to the generated r.js bundle
-    'concat:requirejs',
+    'webpack',
 
     // general 'css' tasks:
     //    'sass', - compile SASS,
@@ -48,7 +33,8 @@ module.exports = function (grunt) {
     //  'connect_fonts_copy', - copy the generated connect fonts
     'concurrent:dist',
 
-    // concatenate files as part of the useminPrepare task
+    // concatenate the eastereggs, CSS. Must be before cssmin or else
+    // cssmin creates empty output.
     'concat',
 
     // compress CSS files
@@ -56,9 +42,6 @@ module.exports = function (grunt) {
 
     // copy all static resources from 'app' to 'dist'
     'copy:dist',
-    'copy:require_on_demand',
-
-    'uglify',
 
     // generate localized js bundles. Done after the uglification step
     // to drastically shorten the build time. If translations are inserted
@@ -70,13 +53,6 @@ module.exports = function (grunt) {
     // so the URLs to leaf nodes in internal nodes can be updated. Internal
     // nodes are revved after the URLs have been updated.
     'rev:no_children',
-
-    // Update child requireOnDemand URLs in the main JS bundle.
-    'replace:require_on_demand',
-
-    // Add subresource integrity values of dependent resources
-    // to the main JS bundle.
-    'sriify:js',
 
     // Update leaf node font and image URLs in the CSS bundle.
     'usemin:css',
@@ -94,13 +70,6 @@ module.exports = function (grunt) {
 
     // update the HTML with the SRI value of the final JS bundle.
     'sriify:html',
-
-    // copy the non-minified main.js script file for sourcemap purposes
-    'copy:build',
-    // copy the non-minified head.js script file for sourcemap purposes
-    'copy:head',
-    // update the sourcemap path to match the hosted files
-    'sourcemap-source',
 
     // Add FQDN to static resources referenced in the HTML so resources
     // can be deployed to a CDN.

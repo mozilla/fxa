@@ -14,4 +14,7 @@ const version = require('../version');
 
 exports.path = '/ver.json';
 exports.method = 'get';
-exports.process = version.process;
+exports.process = function (req, res) {
+  res.charset = 'utf-8';
+  res.type('json').send(JSON.stringify(version, null, 2) + '\n');
+};

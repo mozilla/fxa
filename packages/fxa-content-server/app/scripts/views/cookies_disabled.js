@@ -10,7 +10,7 @@ define(function (require, exports, module) {
   const BaseView = require('./base');
   const Cocktail = require('cocktail');
   const Storage = require('../lib/storage');
-  const Template = require('stache!templates/cookies_disabled');
+  const Template = require('templates/cookies_disabled.mustache');
 
   var View = BaseView.extend({
     constructor: function (options) {

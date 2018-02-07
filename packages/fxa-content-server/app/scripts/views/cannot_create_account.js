@@ -6,7 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const BaseView = require('./base');
-  const CannotCreateAccountTemplate = require('stache!templates/cannot_create_account');
+  const CannotCreateAccountTemplate = require('templates/cannot_create_account.mustache');
 
   const CannotCreateAccountView = BaseView.extend({
     template: CannotCreateAccountTemplate,

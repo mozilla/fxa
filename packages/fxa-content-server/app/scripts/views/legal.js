@@ -6,7 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const BaseView = require('./base');
-  const Template = require('stache!templates/legal');
+  const Template = require('templates/legal.mustache');
 
   var View = BaseView.extend({
     className: 'legal',

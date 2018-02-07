@@ -5,6 +5,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
+
+// setup version first for the rest of the modules
+const logger = require('../lib/logging/log')('server.main');
+const version = require('../lib/version');
+
+logger.info(`source set to: ${version.source}`);
+logger.info(`version set to: ${version.version}`);
+logger.info(`commit hash set to: ${version.commit}`);
+logger.info(`fxa-content-server-l10n commit hash set to: ${version.l10n}`);
+logger.info(`tos-pp (legal-docs) commit hash set to: ${version.tosPp}`);
+
 const bodyParser = require('body-parser');
 const celebrate = require('celebrate');
 const consolidate = require('consolidate');
@@ -27,8 +38,6 @@ if (isMain) {
   process.chdir(path.dirname(__dirname));
 }
 
-const logger = require('../lib/logging/log')('server.main');
-
 const i18n = require('../lib/i18n')(config.get('i18n'));
 const routes = require('../lib/routes')(config, i18n);
 
@@ -45,7 +54,6 @@ const cspRulesBlocking = require('../lib/csp/blocking')(config);
 const cspRulesReportOnly = require('../lib/csp/report-only')(config);
 const frameGuard = require('../lib/frame-guard')(config);
 
-
 const STATIC_DIRECTORY =
   path.join(__dirname, '..', '..', config.get('static_directory'));
 
@@ -56,6 +64,17 @@ logger.info('page_template_directory: %s', PAGE_TEMPLATE_DIRECTORY);
 
 function makeApp() {
   const app = express();
+
+  if (config.get('env') === 'development') {
+    const webpack = require('webpack');
+    const webpackConfig = require('../../webpack.config.js');
+    const webpackMiddleware = require('webpack-dev-middleware');
+    const webpackCompiler = webpack(webpackConfig);
+
+    app.use(webpackMiddleware(webpackCompiler, {
+      publicPath: '/bundle/'
+    }));
+  }
 
   app.engine('html', consolidate.handlebars);
   app.set('view engine', 'html');

@@ -15,7 +15,7 @@ define(function (require, exports, module) {
   const Notifier = require('lib/channels/notifier');
   const Relier = require('models/reliers/base');
   const sinon = require('sinon');
-  const Template = require('stache!templates/test_template');
+  const Template = require('templates/test_template.mustache');
   const User = require('models/user');
 
   var assert = Chai.assert;

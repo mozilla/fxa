@@ -24,7 +24,7 @@ define(function (require, exports, module) {
   const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
   const sinon = require('sinon');
   const TestHelpers = require('../../lib/helpers');
-  const TestTemplate = require('stache!templates/test_template');
+  const TestTemplate = require('templates/test_template.mustache');
   const User = require('models/user');
   const View = require('views/settings');
 

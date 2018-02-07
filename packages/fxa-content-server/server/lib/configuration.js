@@ -27,13 +27,6 @@ const conf = module.exports = convict({
     doc: 'Check if the resources are under the /dist directory',
     format: Boolean
   },
-  babel: {
-    enabled: {
-      default: true,
-      doc: 'Convert ES2015 to ES5. Production builds do not use this setting',
-      format: Boolean
-    }
-  },
   basket: {
     api_key: {
       default: 'test key please change',

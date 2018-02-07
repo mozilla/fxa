@@ -12,7 +12,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const OpenWebmailMixin = require('views/mixins/open-webmail-mixin');
   const sinon = require('sinon');
-  const Template = require('stache!templates/test_template');
+  const Template = require('templates/test_template.mustache');
 
   const EMAIL = 'testuser@gmail.com';
 

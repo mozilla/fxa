@@ -19,7 +19,7 @@ define(function (require, exports, module) {
   const FormView = require('./form');
   const SearchParamMixin = require('../lib/search-param-mixin');
   const ServiceMixin = require('./mixins/service-mixin');
-  const Template = require('stache!templates/index');
+  const Template = require('templates/index.mustache');
 
   class IndexView extends FormView {
     constructor (options) {

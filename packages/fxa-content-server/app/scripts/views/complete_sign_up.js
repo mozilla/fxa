@@ -21,7 +21,7 @@ define(function (require, exports, module) {
   const AuthErrors = require('../lib/auth-errors');
   const BaseView = require('./base');
   const Cocktail = require('cocktail');
-  const CompleteSignUpTemplate = require('stache!templates/complete_sign_up');
+  const CompleteSignUpTemplate = require('templates/complete_sign_up.mustache');
   const ConnectAnotherDeviceMixin = require('./mixins/connect-another-device-mixin');
   const MarketingEmailErrors = require('../lib/marketing-email-errors');
   const ResendMixin = require('./mixins/resend-mixin')();

@@ -26,10 +26,6 @@ module.exports = function (grunt) {
     with_children: { //eslint-disable-line camelcase
       files: {
         src: [
-          // JS bundle has references to vendor and bower_components
-          // for requireOnDemand
-          '<%= yeoman.dist %>/scripts/**/*.js',
-          '!<%= yeoman.dist %>/scripts/vendor/**/*.js',
           // CSS has references to images and fonts
           '<%= yeoman.dist %>/styles/**/*.css'
         ]

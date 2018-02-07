@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   const PasswordMixin = require('./mixins/password-mixin');
   const ServiceMixin = require('./mixins/service-mixin');
   const SignInMixin = require('./mixins/signin-mixin');
-  const Template = require('stache!templates/sign_in_password');
+  const Template = require('templates/sign_in_password.mustache');
 
   class SignInPasswordView extends FormView {
     constructor (options) {

@@ -25,10 +25,10 @@ define(function (require, exports, module) {
   const LoadingMixin = require('./mixins/loading-mixin');
   const modal = require('modal'); //eslint-disable-line no-unused-vars
   const Session = require('../lib/session');
-  const SettingsHeaderTemplate = require('stache!templates/partial/settings-header');
+  const SettingsHeaderTemplate = require('templates/partial/settings-header.mustache');
   const SignedOutNotificationMixin = require('./mixins/signed-out-notification-mixin');
   const SubPanels = require('./sub_panels');
-  const Template = require('stache!templates/settings');
+  const Template = require('templates/settings.mustache');
   const UserAgentMixin = require('../lib/user-agent-mixin');
 
   var PANEL_VIEWS = [

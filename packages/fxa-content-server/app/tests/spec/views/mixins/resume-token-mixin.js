@@ -12,7 +12,7 @@ define(function (require, exports, module) {
   const ResumeToken = require('models/resume-token');
   const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   const sinon = require('sinon');
-  const TestTemplate = require('stache!templates/test_template');
+  const TestTemplate = require('templates/test_template.mustache');
 
   const TestView = BaseView.extend({
     template: TestTemplate,

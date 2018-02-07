@@ -12,7 +12,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const FormView = require('./form');
   const SessionVerificationPollMixin = require('./mixins/session-verification-poll-mixin');
-  const Template = require('stache!templates/choose_what_to_sync');
+  const Template = require('templates/choose_what_to_sync.mustache');
 
   const SCREEN_CLASS = 'screen-choose-what-to-sync';
 

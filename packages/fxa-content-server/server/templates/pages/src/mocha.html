@@ -44,30 +44,9 @@
         <div id="container"></div>
 
         <script src="//localhost:35729/livereload.js"></script>
-        <!--
-             For blanket to work correctly with mocha and requirejs,
-             mocha and blanket must both be included manually, outside
-             of the requirejs scope.
-        -->
-        <script src="/bower_components/mocha/mocha.js"></script>
-        <script data-main="main" src="/bower_components/requirejs/require.js"></script>
-        {{#check_coverage}}
-          <!--
-               Blanket rewrites the JS to do analysis, rendering the
-               browser debugger unusable. Only check code coverage
-               if the page is opened with ?coverage appended.
 
-               example:
-               http://localhost:3030/tests/index.html?coverage
-          -->
-          <script src="/bower_components/blanket/dist/qunit/blanket.js" data-cover-flags="existingRequireJS" data-cover-only="['/scripts/']" data-cover-never='{{{ cover_never }}}'></script>
-          <script src="/bower_components/mocha-blanketjs-adapter/mocha-blanket.js"></script>
-          <script>
-            if (window.location.search.indexOf('travis') >= 0) {
-              blanket.options('reporter', '/tests/lib/blanket_lcov.js');
-            }
-
-          </script>
-        {{/check_coverage}}
-    </body>
+        <script type="text/javascript" src="/bundle/appDependencies.bundle.js"></script></body>
+        <script type="text/javascript" src="/bundle/testDependencies.bundle.js"></script></body>
+        <script type="text/javascript" src="/bundle/test.bundle.js"></script></body>
+      </body>
 </html>

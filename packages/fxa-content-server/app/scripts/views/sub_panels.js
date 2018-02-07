@@ -9,7 +9,7 @@ define(function (require, exports, module) {
   const Backbone = require('backbone');
   const BaseView = require('./base');
   const Logger = require('../lib/logger');
-  const Template = require('stache!templates/sub_panels');
+  const Template = require('templates/sub_panels.mustache');
 
   const proto = BaseView.prototype;
   const View = BaseView.extend({

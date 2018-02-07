@@ -10,8 +10,8 @@ define(function (require, exports, module) {
   const chai = require('chai');
   const domWriter = require('lib/dom-writer');
   const ErrorUtils = require('lib/error-utils');
-  const FiveHundredTemplate = require('stache!templates/500');
-  const FourHundredTemplate = require('stache!templates/400');
+  const FiveHundredTemplate = require('templates/500.mustache');
+  const FourHundredTemplate = require('templates/400.mustache');
   const OAuthErrors = require('lib/oauth-errors');
   const sinon = require('sinon');
   const Translator = require('lib/translator');

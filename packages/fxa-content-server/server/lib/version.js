@@ -22,16 +22,10 @@
 const cp = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const Promise = require('bluebird');
-const logger = require('./logging/log')('server.version');
 
 const UNKNOWN = 'unknown';
 
 const versionJsonPath = '../../config/version.json';
-
-function getPkgVersion () {
-  return require('../../package.json').version;
-}
 
 // commitHash and sourceRepo
 function getCommitHash () {
@@ -43,19 +37,16 @@ function getCommitHash () {
     /* ignore, shell out to `git` for hash */
   }
 
-  return new Promise(function (resolve) {
-    const gitDir = path.resolve(__dirname, '..', '..', '.git');
-    cp.exec('git rev-parse HEAD', { cwd: gitDir }, function (err, stdout) {
-      if (err) {
-        // ignore the error
-        resolve(UNKNOWN);
-        return;
-      }
+  let stdout = UNKNOWN;
+  const gitDir = path.resolve(__dirname, '..', '..', '.git');
 
-      resolve((stdout && stdout.trim()) || UNKNOWN);
-    });
-  });
+  try {
+    stdout = cp.execSync('git rev-parse HEAD', {cwd: gitDir});
+  } catch (e) {
+    /* ignore, report UNKNOWN */
+  }
 
+  return ((stdout && stdout.toString().trim()));
 }
 
 function getSourceRepo () {
@@ -67,19 +58,18 @@ function getSourceRepo () {
     /* ignore, shell out to `git` for repo */
   }
 
-  return new Promise(function (resolve) {
-    const gitDir = path.resolve(__dirname, '..', '..', '.git');
-    const configPath = path.join(gitDir, 'config');
-    const cmd = 'git config --get remote.origin.url';
-    cp.exec(cmd, { env: { GIT_CONFIG: configPath } }, function (err, stdout) {
-      if (err) {
-        // ignore the error
-        return resolve(UNKNOWN);
-      }
-      resolve((stdout && stdout.trim()) || UNKNOWN);
-    });
-  });
+  let stdout = UNKNOWN;
+  const gitDir = path.resolve(__dirname, '..', '..', '.git');
+  const configPath = path.join(gitDir, 'config');
+  const cmd = 'git config --get remote.origin.url';
 
+  try {
+    stdout = cp.execSync(cmd, cmd, { env: { GIT_CONFIG: configPath } });
+  } catch (e) {
+    /* ignore, shell out to `git` for repo */
+  }
+
+  return ((stdout && stdout.toString().trim()));
 }
 
 function getL10nVersion () {
@@ -102,45 +92,24 @@ function getTosPpVersion () {
 }
 
 
-let versionPromise;
+let version = null;
 function getVersionInfo() {
-  if (! versionPromise) {
+  if (! version) {
     // only fetch version info if it has not already been fetched.
-    versionPromise = Promise.all([
-      getSourceRepo(),
-      getPkgVersion(),
-      getCommitHash(),
-      getL10nVersion(),
-      getTosPpVersion()
-    ]).spread(function (sourceRepo, pkgVersion, commitHash, l10nVersion, tosPpVersion) {
-      logger.info('source set to: ' + sourceRepo);
-      logger.info('version set to: ' + pkgVersion);
-      logger.info('commit hash set to: ' + commitHash);
-      logger.info('fxa-content-server-l10n commit hash set to: ' + l10nVersion);
-      logger.info('tos-pp (legal-docs) commit hash set to: ' + tosPpVersion);
-
-      /*eslint-disable sorting/sort-object-props*/
-      return {
-        commit: commitHash,
-        version: pkgVersion,
-        l10n: l10nVersion,
-        tosPp: tosPpVersion,
-        source: sourceRepo
-      };
-      /*eslint-disable sorting/sort-object-props*/
-    });
+    /*eslint-disable sorting/sort-object-props*/
+    version = {
+      commit: getCommitHash(),
+      version: require('../../package.json').version,
+      l10n: getL10nVersion(),
+      tosPp: getTosPpVersion(),
+      source: getSourceRepo()
+    };
+    /*eslint-disable sorting/sort-object-props*/
   }
 
-  return versionPromise;
+  return version;
 }
 
 getVersionInfo();
 
-exports.process = function (req, res) {
-  getVersionInfo()
-    .then(function (versionInfo) {
-      // charset must be set on json responses.
-      res.charset = 'utf-8';
-      res.type('json').send(JSON.stringify(versionInfo, null, 2) + '\n');
-    });
-};
+module.exports = version;

@@ -11,7 +11,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const BaseView = require('./base');
-  const Template = require('stache!templates/clear_storage');
+  const Template = require('templates/clear_storage.mustache');
 
   var View = BaseView.extend({
     template: Template,

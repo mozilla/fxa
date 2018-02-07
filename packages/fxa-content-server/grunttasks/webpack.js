@@ -7,14 +7,10 @@
 const path = require('path');
 
 module.exports = function (grunt) {
-  grunt.registerTask('eslint', 'Run eslint', function () {
+  grunt.registerTask('webpack', 'Run webpack build', function () {
     var done = this.async();
     var child = grunt.util.spawn({
-      cmd: 'npm',
-      args: [
-        'run',
-        'lint'
-      ]
+      cmd: path.resolve(__dirname, '..', 'node_modules', '.bin', 'webpack')
     }, done);
 
     child.stdout.pipe(process.stdout);

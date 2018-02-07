@@ -2,16 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
-
-  const chai = require('chai');
-  const Environment = require('lib/environment');
-  const sinon = require('sinon');
-  const StartupStyles = require('head/startup-styles');
-  const WindowMock = require('../../mocks/window');
-
-  var assert = chai.assert;
+  import { assert } from 'chai';
+  import Environment from 'lib/environment';
+  import sinon from 'sinon';
+  import StartupStyles from 'head/startup-styles';
+  import WindowMock from '../../mocks/window';
 
   describe('head/startup-styles', function () {
     var startupStyles;
@@ -184,5 +179,4 @@ define(function (require, exports, module) {
       });
     });
   });
-});
 

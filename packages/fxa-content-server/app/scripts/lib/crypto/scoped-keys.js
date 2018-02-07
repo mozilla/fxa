@@ -9,7 +9,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const requireOnDemand = require('lib/require-on-demand');
+  function importFxaCryptoDeriver() {
+    return import(/* webpackChunkName: "fxaCryptoDeriver" */ 'fxaCryptoDeriver');
+  }
 
   /**
    * Given an inputKey, generate the matching relier-specific derived scoped key.
@@ -21,7 +23,7 @@ define(function (require, exports, module) {
    *   The key is represented as a JWK object.
    */
   function _deriveScopedKeys(inputKey, uid, keyData) {
-    return requireOnDemand('fxaCryptoDeriver').then((fxaCryptoDeriver) => {
+    return importFxaCryptoDeriver().then(fxaCryptoDeriver => {
       if (! inputKey) {
         throw new Error('Missing input key');
       }
@@ -66,9 +68,8 @@ define(function (require, exports, module) {
           bundleObject[derivedKey.scope] = derivedKey;
         });
 
-        return requireOnDemand('fxaCryptoDeriver').then((fxaCryptoDeriver) => {
+        return importFxaCryptoDeriver().then(fxaCryptoDeriver => {
           const fxaDeriverUtils = new fxaCryptoDeriver.DeriverUtils();
-
           return fxaDeriverUtils.encryptBundle(keysJwk, JSON.stringify(bundleObject));
         });
       });

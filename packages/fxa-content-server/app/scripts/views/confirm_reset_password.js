@@ -16,7 +16,7 @@ define(function (require, exports, module) {
   const ResendMixin = require('./mixins/resend-mixin')();
   const ServiceMixin = require('./mixins/service-mixin');
   const Session = require('../lib/session');
-  const Template = require('stache!templates/confirm_reset_password');
+  const Template = require('templates/confirm_reset_password.mustache');
   const { VERIFICATION_POLL_IN_MS } = require('../lib/constants');
 
   const t = BaseView.t;

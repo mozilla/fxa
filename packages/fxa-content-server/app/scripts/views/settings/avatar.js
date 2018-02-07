@@ -9,7 +9,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const FormView = require('../form');
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
-  const Template = require('stache!templates/settings/avatar');
+  const Template = require('templates/settings/avatar.mustache');
 
   const View = FormView.extend({
     template: Template,

@@ -10,7 +10,7 @@ define(function (require, exports, module) {
   const DuplexChannel = require('lib/channels/duplex');
   const sinon = require('sinon');
   const WebChannel = require('lib/channels/web');
-  const WindowMock = require('/tests/mocks/window.js');
+  const WindowMock = require('../../../mocks/window');
 
   describe('lib/channels/web', () => {
     let channel;

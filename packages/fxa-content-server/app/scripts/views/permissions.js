@@ -13,10 +13,10 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const FormView = require('./form');
   const OAuthErrors = require('../lib/oauth-errors');
-  const PermissionTemplate = require('stache!templates/partial/permission');
+  const PermissionTemplate = require('templates/partial/permission.mustache');
   const ServiceMixin = require('./mixins/service-mixin');
   const Strings = require('../lib/strings');
-  const Template = require('stache!templates/permissions');
+  const Template = require('templates/permissions.mustache');
   const VerificationReasonMixin = require('./mixins/verification-reason-mixin');
 
   var t = BaseView.t;

@@ -40,7 +40,7 @@ define(function (require, exports, module) {
     // DO NOT EDIT ABOVE HERE W/O CHECKING LOCALIZED BUILDS
 
     fetch () {
-      // fetch translations for dev. In prod, __translations__: {}
+      // fetch translations for dev mode. In prod, __translations__: {}
       // is replaced with translations as part of the build step.
       return new Promise((resolve, reject) => {
         if (this._forceEnglish || Object.keys(this.__translations__).length) {

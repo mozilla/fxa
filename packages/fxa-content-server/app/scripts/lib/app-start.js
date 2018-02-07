@@ -43,7 +43,6 @@ define(function (require, exports, module) {
   const ProfileClient = require('./profile-client');
   const RefreshObserver = require('../models/refresh-observer');
   const Relier = require('../models/reliers/relier');
-  const requireOnDemand = require('./require-on-demand');
   const Router = require('./router');
   const SameBrowserVerificationModel = require('../models/verification/same-browser');
   const ScreenInfo = require('./screen-info');
@@ -70,7 +69,6 @@ define(function (require, exports, module) {
     this._notifier = options.notifier;
     this._refreshObserver = options.refreshObserver;
     this._relier = options.relier;
-    this._requireOnDemand = options.requireOnDemand || requireOnDemand;
     this._router = options.router;
     this._sentryMetrics = options.sentryMetrics;
     this._storage = options.storage || Storage;
@@ -582,7 +580,7 @@ define(function (require, exports, module) {
       // fxaClient is not loaded as part of the main bundle and is almost
       // certainly going to be needed. Start to opportunistically load
       // it now.
-      this._requireOnDemand('fxaClient');
+      import(/* webpackChunkName: "fxaClient" */ 'fxaClient');
 
       // If a new start page is specified, do not attempt to render
       // the route displayed in the URL because the user is

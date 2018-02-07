@@ -7,7 +7,7 @@ define(function (require, exports, module) {
 
   const AuthErrors = require('../lib/auth-errors');
   const LegalCopyView = require('./legal_copy');
-  const Template = require('stache!templates/tos');
+  const Template = require('templates/tos.mustache');
 
   var View = LegalCopyView.extend({
     className: 'tos',

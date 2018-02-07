@@ -18,7 +18,7 @@ define(function (require, exports, module) {
   const MarketingMixin = require('./mixins/marketing-mixin');
   const PulseGraphicMixin = require('./mixins/pulse-graphic-mixin');
   const ServiceMixin = require('./mixins/service-mixin');
-  const Template = require('stache!templates/ready');
+  const Template = require('templates/ready.mustache');
   const VerificationReasonMixin = require('./mixins/verification-reason-mixin');
 
   const t = msg => msg;

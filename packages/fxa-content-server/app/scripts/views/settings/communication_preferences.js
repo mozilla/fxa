@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   const Metrics = require('../../lib/metrics');
   const { preventDefaultThen } = require('../base');
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
-  const Template = require('stache!templates/settings/communication_preferences');
+  const Template = require('templates/settings/communication_preferences.mustache');
   const Xss = require('../../lib/xss');
 
   const NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;

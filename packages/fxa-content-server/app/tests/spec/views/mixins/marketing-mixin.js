@@ -11,7 +11,7 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const sinon = require('sinon');
-  const Template = require('stache!templates/test_template');
+  const Template = require('templates/test_template.mustache');
   const MarketingMixin = require('views/mixins/marketing-mixin');
 
   const AutoCreateView = BaseView.extend({

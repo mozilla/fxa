@@ -10,7 +10,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const loadingTemplate = require('stache!templates/loading');
+  const loadingTemplate = require('templates/loading.mustache');
 
   module.exports = {
     initialize () {

@@ -26,7 +26,7 @@ define(function (require, exports, module) {
   const Environment = require('./environment');
   const Flow = require('../models/flow');
   const NotifierMixin = require('./channels/notifier-mixin');
-  const speedTrap = require('speedTrap');
+  const speedTrap = require('speed-trap').default;
   const Strings = require('./strings');
   const xhr = require('./xhr');
 

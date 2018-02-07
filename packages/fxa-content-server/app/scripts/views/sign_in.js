@@ -24,7 +24,7 @@ define(function (require, exports, module) {
   const showProgressIndicator = require('./decorators/progress_indicator');
   const SignedInNotificationMixin = require('./mixins/signed-in-notification-mixin');
   const SignInMixin = require('./mixins/signin-mixin');
-  const SignInTemplate = require('stache!templates/sign_in');
+  const SignInTemplate = require('templates/sign_in.mustache');
 
   const proto = FormView.prototype;
   const View = FormView.extend({

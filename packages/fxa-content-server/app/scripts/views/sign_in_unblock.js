@@ -16,7 +16,7 @@ define(function (require, exports, module) {
   const ResendMixin = require('./mixins/resend-mixin')();
   const ResumeTokenMixin = require('./mixins/resume-token-mixin');
   const SignInMixin = require('./mixins/signin-mixin');
-  const Template = require('stache!templates/sign_in_unblock');
+  const Template = require('templates/sign_in_unblock.mustache');
 
   const View = FormView.extend({
     template: Template,

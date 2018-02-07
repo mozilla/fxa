@@ -11,8 +11,8 @@ define(function (require, exports, module) {
 
   const AuthErrors = require('./auth-errors');
   const domWriter = require('./dom-writer');
-  const FiveHundredTemplate = require('stache!templates/500');
-  const FourHundredTemplate = require('stache!templates/400');
+  const FiveHundredTemplate = require('templates/500.mustache');
+  const FourHundredTemplate = require('templates/400.mustache');
   const Logger = require('./logger');
   const OAuthErrors = require('./oauth-errors');
 

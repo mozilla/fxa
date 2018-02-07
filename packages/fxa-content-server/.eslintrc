@@ -3,9 +3,13 @@ plugins:
   - sorting
 extends: plugin:fxa/client
 
+# Required for `import( )` webpack feature
+parser: babel-eslint
+
 rules:
   brace-style: 2
   handle-callback-err: 0
+  indent: 0 # TODO: Write a follow up patch to enable this rule.
   key-spacing: [2, {"beforeColon": false, "afterColon": true}]
   keyword-spacing: 2
   linebreak-style: [2, "unix"]
@@ -13,7 +17,8 @@ rules:
   new-cap: [2, {"newIsCap": true, "capIsNew": false}]
   no-console: 0
   no-multi-str: 2
+  no-useless-escape: 0
   sorting/sort-object-props: [ 2, { "ignoreCase": true, "ignoreMethods": true, "ignoreObjectsWithMethods": true, "ignorePrivate": true } ]
   space-infix-ops: 2
   space-unary-ops: [2, {"nonwords": false, "overrides": {"~": true, "!": true}}]
-  strict: [2, "never"]
+  strict: 0

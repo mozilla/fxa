@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   const BaseView = require('./base');
   const Cocktail = require('cocktail');
   const ModalPanelMixin = require('./mixins/modal-panel-mixin');
-  const Template = require('stache!templates/why_connect_another_device');
+  const Template = require('templates/why_connect_another_device.mustache');
 
   const View = BaseView.extend({
     template: Template,

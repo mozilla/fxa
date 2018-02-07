@@ -11,7 +11,7 @@ define(function (require, exports, module) {
   const FloatingPlaceholderMixin = require('./floating-placeholder-mixin');
   const FormPrefillMixin = require('./form-prefill-mixin');
   const KeyCodes = require('../../lib/key-codes');
-  const Template = require('stache!templates/partial/coppa-age-input');
+  const Template = require('templates/partial/coppa-age-input.mustache');
 
   const AGE_ELEMENT = '#age';
   const AGE_SIZE_LIMIT = 3;

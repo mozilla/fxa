@@ -74,16 +74,6 @@ module.exports = function (config, i18n) {
     // front end mocha tests
     routes.push(require('./routes/get-test-index')(config));
     routes.push(require('./routes/get-test-style-guide')(config));
-
-    // Babel is *only* available in development
-    if (config.get('babel.enabled')) {
-      // Compile ES2015 scripts to ES5 before serving to the client.
-      // This is done for two reasons:
-      // 1. The blanket code coverage tool does not understand ES6, only ES5.
-      // 2. It'll give us a better approximation of the code that'll eventually
-      //    be run on prod.
-      routes.push(require('./routes/get-babelified-source')(config));
-    }
   }
 
   return function (app) {

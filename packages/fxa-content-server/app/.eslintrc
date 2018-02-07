@@ -4,7 +4,6 @@
 
   "rules": {
     "consistent-this": 0,
-    "strict": [2, "function"],
     "valid-jsdoc": [2, {"requireReturn": false, "requireParamDescription": false, "requireReturnDescription": false}]
   }
 }

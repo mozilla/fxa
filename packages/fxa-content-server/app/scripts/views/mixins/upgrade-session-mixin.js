@@ -22,7 +22,7 @@ define(function (require, exports, module) {
   const BaseView = require('../base');
   const { preventDefaultThen } = BaseView;
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
-  const UpgradeSessionTemplate = require('stache!templates/settings/upgrade_session');
+  const UpgradeSessionTemplate = require('templates/settings/upgrade_session.mustache');
   const t = BaseView.t;
 
   const showProgressIndicator = require('../decorators/progress_indicator');

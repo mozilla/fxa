@@ -120,7 +120,7 @@ define(function (require, exports, module) {
         appStart.useConfig({});
       });
 
-      it('does not redirect', () => {
+      it('starts the app, does not redirect', () => {
         return appStart.startApp()
           .then(() => {
             assert.isFalse(routerMock.navigate.called);
@@ -744,26 +744,18 @@ define(function (require, exports, module) {
     });
 
     describe('allResourcesReady', () => {
-      let requireOnDemandMock;
 
       beforeEach(() => {
         sinon.spy(backboneHistoryMock, 'start');
-        requireOnDemandMock = sinon.spy();
 
         appStart = new AppStart({
           broker: brokerMock,
           history: backboneHistoryMock,
-          requireOnDemand: requireOnDemandMock,
           router: routerMock,
           user: userMock,
           window: windowMock
         });
 
-      });
-
-      it('should load fxaClient', () => {
-        appStart.allResourcesReady();
-        assert.isTrue(requireOnDemandMock.calledWith('fxaClient'));
       });
 
       it('should start history with `pushState: true` if supported', () => {

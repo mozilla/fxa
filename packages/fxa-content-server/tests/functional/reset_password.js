@@ -5,9 +5,8 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const requirejs = require('../rjs_load');
 const nodeXMLHttpRequest = require('xmlhttprequest');
-const FxaClient = requirejs('app/bower_components/fxa-js-client/fxa-client');
+const FxaClient = require('fxa-js-client');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');

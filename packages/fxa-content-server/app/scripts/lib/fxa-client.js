@@ -5,7 +5,6 @@
 // a very light wrapper around the real FxaClient to reduce boilerplate code
 // and to allow us to develop to features that are not yet present in the real
 // client.
-
 define(function (require, exports, module) {
   'use strict';
 
@@ -13,7 +12,6 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const AuthErrors = require('./auth-errors');
   const Constants = require('./constants');
-  const requireOnDemand = require('./require-on-demand');
   const Session = require('./session');
   const SignInReasons = require('./sign-in-reasons');
   const VerificationReasons = require('./verification-reasons');
@@ -131,6 +129,10 @@ define(function (require, exports, module) {
     return updatedSessionData;
   }
 
+  function importFxaClient () {
+    return import(/* webpackChunkName: "fxaClient" */ 'fxaClient');
+  }
+
 
   function FxaClientWrapper(options = {}) {
     if (options.client) {
@@ -146,12 +148,12 @@ define(function (require, exports, module) {
         return Promise.resolve(this._client);
       }
 
-      return requireOnDemand('fxaClient')
-        .then((FxaClient) => {
-          const client = new FxaClient(this._authServerUrl);
-          this._client = wrapClientToNormalizeErrors(client);
-          return this._client;
-        });
+      return importFxaClient().then((FxaClient) => {
+        const client = new FxaClient(this._authServerUrl);
+        this._client = wrapClientToNormalizeErrors(client);
+        return this._client;
+      });
+
     },
 
     /**

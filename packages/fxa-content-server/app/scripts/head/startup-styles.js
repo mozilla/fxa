@@ -8,142 +8,128 @@
 
 // NOTE: This file must run in IE8+, so no ES5/ES6 features!
 
-// This is loaded in the HEAD of the doc & uses a modified version of
-// https://github.com/umdjs/umd/blob/master/amdWeb.js
-(function (root, factory) {
-  'use strict';
+import Environment from '../lib/environment';
 
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['lib/environment'], factory);
-  } else {
-    // Browser globals
-    root.FxaHead.StartupStyles = factory(root.FxaHead.Environment);
+function parseQueryParams(queryParams) {
+  var search = queryParams.replace(/^\?/, '');
+  var paramPairs = search.split('&');
+  var params = {};
+
+  // Use old school for instead of Array.prototype.forEach because
+  // this still has to run in IE8 even if the rest of the
+  // app doesn't.
+  for (var i = 0; i < paramPairs.length; ++i) {
+    var paramPair = paramPairs[i].split('=');
+    params[paramPair[0]] = paramPair[1] || 'undefined';
   }
-}(this, function (Environment) {
-  'use strict';
 
-  function parseQueryParams(queryParams) {
-    var search = queryParams.replace(/^\?/, '');
-    var paramPairs = search.split('&');
-    var params = {};
+  return params;
+}
 
-    // Use old school for instead of Array.prototype.forEach because
-    // this still has to run in IE8 even if the rest of the
-    // app doesn't.
-    for (var i = 0; i < paramPairs.length; ++i) {
-      var paramPair = paramPairs[i].split('=');
-      params[paramPair[0]] = paramPair[1] || 'undefined';
+function isStyleAllowed(style, queryParams) {
+  var service = queryParams.service;
+  var context = queryParams.context;
+
+  // The 'chromeless' style is only opened up
+  // to Sync when using an iframe.
+  if (style === 'chromeless') {
+    return (service === 'sync' &&
+              (context === 'iframe' || context === 'fx_firstrun_v2'));
+  }
+
+  return false;
+}
+
+function StartupStyles(options) {
+  this.window = options.window || window;
+  this.environment = options.environment || new Environment(this.window);
+}
+
+StartupStyles.prototype = {
+  _addClass: function (className) {
+    this.window.document.documentElement.className += (' ' + className);
+  },
+
+  getClassName: function () {
+    return this.window.document.documentElement.className;
+  },
+
+  _getQueryParams: function () {
+    return parseQueryParams(this.window.location.search);
+  },
+
+  _getQueryParam: function (paramName) {
+    return this._getQueryParams()[paramName];
+  },
+
+  initialize: function () {
+    this.addJSStyle();
+    this.addTouchEventStyles();
+    this.addPasswordRevealerStyles();
+    this.addIframeStyles();
+    this.addSearchParamStyles();
+    this.addFxiOSSyncStyles();
+    this.addGetUserMediaStyles();
+  },
+
+  addJSStyle: function () {
+    this._addClass('js');
+  },
+
+  addTouchEventStyles: function () {
+    if (this.environment.hasTouchEvents()) {
+      this._addClass('touch');
+    } else {
+      this._addClass('no-touch');
     }
+  },
 
-    return params;
-  }
-
-  function isStyleAllowed(style, queryParams) {
-    var service = queryParams.service;
-    var context = queryParams.context;
-
-    // The 'chromeless' style is only opened up
-    // to Sync when using an iframe.
-    if (style === 'chromeless') {
-      return (service === 'sync' &&
-               (context === 'iframe' || context === 'fx_firstrun_v2'));
+  addPasswordRevealerStyles: function () {
+    if (this.environment.hasPasswordRevealer()) {
+      this._addClass('reveal-pw');
+    } else {
+      this._addClass('no-reveal-pw');
     }
+  },
 
-    return false;
-  }
-
-  function StartupStyles(options) {
-    this.window = options.window || window;
-    this.environment = options.environment || new Environment(this.window);
-  }
-
-  StartupStyles.prototype = {
-    _addClass: function (className) {
-      this.window.document.documentElement.className += (' ' + className);
-    },
-
-    getClassName: function () {
-      return this.window.document.documentElement.className;
-    },
-
-    _getQueryParams: function () {
-      return parseQueryParams(this.window.location.search);
-    },
-
-    _getQueryParam: function (paramName) {
-      return this._getQueryParams()[paramName];
-    },
-
-    initialize: function () {
-      this.addJSStyle();
-      this.addTouchEventStyles();
-      this.addPasswordRevealerStyles();
-      this.addIframeStyles();
-      this.addSearchParamStyles();
-      this.addFxiOSSyncStyles();
-      this.addGetUserMediaStyles();
-    },
-
-    addJSStyle: function () {
-      this._addClass('js');
-    },
-
-    addTouchEventStyles: function () {
-      if (this.environment.hasTouchEvents()) {
-        this._addClass('touch');
-      } else {
-        this._addClass('no-touch');
-      }
-    },
-
-    addPasswordRevealerStyles: function () {
-      if (this.environment.hasPasswordRevealer()) {
-        this._addClass('reveal-pw');
-      } else {
-        this._addClass('no-reveal-pw');
-      }
-    },
-
-    addIframeStyles: function () {
-      /**
-       * The iframe'd OAuth flow needs special styling applied to it as
-       * soon as possible so that it doesn't look terrible.
-       */
-      if (this.environment.isFramed()) {
-        this._addClass('iframe');
-      }
-    },
-
-    addSearchParamStyles: function () {
-      /**
-       * A relier can add the `style=x` query parameter to indicate
-       * an alternative styling should be used.
-       * Allowed styles:
-       *   * chromeless
-       */
-      var style = this._getQueryParam('style');
-      var queryParams = this._getQueryParams();
-      if (isStyleAllowed(style, queryParams)) {
-        this._addClass(style);
-      }
-    },
-
-    addFxiOSSyncStyles: function () {
-      var isSync = this._getQueryParam('service') === 'sync';
-      if (this.environment.isFxiOS() && isSync) {
-        this._addClass('fx-ios-sync');
-      }
-    },
-
-    addGetUserMediaStyles: function () {
-      if (this.environment.hasGetUserMedia()) {
-        this._addClass('getusermedia');
-      } else {
-        this._addClass('no-getusermedia');
-      }
+  addIframeStyles: function () {
+    /**
+     * The iframe'd OAuth flow needs special styling applied to it as
+     * soon as possible so that it doesn't look terrible.
+     */
+    if (this.environment.isFramed()) {
+      this._addClass('iframe');
     }
-  };
+  },
 
-  return StartupStyles;
-}));
+  addSearchParamStyles: function () {
+    /**
+     * A relier can add the `style=x` query parameter to indicate
+     * an alternative styling should be used.
+     * Allowed styles:
+     *   * chromeless
+     */
+    var style = this._getQueryParam('style');
+    var queryParams = this._getQueryParams();
+    if (isStyleAllowed(style, queryParams)) {
+      this._addClass(style);
+    }
+  },
+
+  addFxiOSSyncStyles: function () {
+    var isSync = this._getQueryParam('service') === 'sync';
+    if (this.environment.isFxiOS() && isSync) {
+      this._addClass('fx-ios-sync');
+    }
+  },
+
+  addGetUserMediaStyles: function () {
+    if (this.environment.hasGetUserMedia()) {
+      this._addClass('getusermedia');
+    } else {
+      this._addClass('no-getusermedia');
+    }
+  }
+};
+
+export default StartupStyles;

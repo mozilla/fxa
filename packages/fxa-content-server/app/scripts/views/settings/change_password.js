@@ -15,7 +15,7 @@ define(function (require, exports, module) {
   const PasswordMixin = require('../mixins/password-mixin');
   const ServiceMixin = require('../mixins/service-mixin');
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
-  const Template = require('stache!templates/settings/change_password');
+  const Template = require('templates/settings/change_password.mustache');
 
   var t = BaseView.t;
 

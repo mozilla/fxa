@@ -16,7 +16,7 @@ define(function(require, exports, module) {
   const Constants = require('../../lib/constants');
   const FlowEventsMixin = require('./flow-events-mixin');
   const SyncAuthMixin = require('./sync-auth-mixin');
-  const SyncSuggestionTemplate = require('stache!templates/partial/sync-suggestion');
+  const SyncSuggestionTemplate = require('templates/partial/sync-suggestion.mustache');
 
   function required (name, opts) {
     if (! (name in opts)) {

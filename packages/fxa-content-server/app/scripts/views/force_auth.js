@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   const NullBehavior = require('./behaviors/null');
   const PasswordResetMixin = require('./mixins/password-reset-mixin');
   const SignInView = require('./sign_in');
-  const Template = require('stache!templates/force_auth');
+  const Template = require('templates/force_auth.mustache');
   const Transform = require('../lib/transform');
   const Vat = require('../lib/vat');
 
