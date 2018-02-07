@@ -18,7 +18,6 @@ fxa-crypto-relier
 fxa-js-client-old
 fxa-jwtool
 fxa-local-dev
-fxa-notification-server
 fxa-oauth-console
 fxa-oauth-client
 fxa-oauth-server
