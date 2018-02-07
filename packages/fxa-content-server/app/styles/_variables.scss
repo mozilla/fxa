@@ -98,7 +98,7 @@ $modal-background-color-iframe: $color-white;
 //Settings Specific Colors
 $settings-header-border-bottom: $grey-40;
 $settings-success-background-color: $color-green-darker;
-$settings-success-border-color: $color-green-dark;
+$settings-success-border-color: $settings-success-background-color;
 
 //Radio Button Colors
 $radio-border-default-color: $grey-40;
