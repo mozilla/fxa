@@ -59,6 +59,7 @@ module.exports = {
     LINK_INSTALL_IOS: '.marketing-link-ios',
     LINK_WHY_IS_THIS_REQUIRED: 'a[href="/connect_another_device/why"]',
     SIGNIN_BUTTON: 'form div a',
+    SUCCESS: '.success',
     SUCCESS_DIFFERENT_BROWSER: '.success-not-authenticated',
     SUCCESS_SAME_BROWSER: '.success-authenticated',
     TEXT_INSTALL_FROM_OTHER: '#install-mobile-firefox-other',
@@ -235,7 +236,8 @@ module.exports = {
     LINK_WHY_IS_THIS_REQUIRED: 'a[href="/sms/why"]',
     PHONE_NUMBER: 'input[type="tel"]',
     PHONE_NUMBER_TOOLTIP: 'input[type="tel"] ~ .tooltip',
-    SUBMIT: 'button[type="submit"]'
+    SUBMIT: 'button[type="submit"]',
+    SUCCESS: '.success'
   },
   SMS_SENT: {
     HEADER: '#fxa-sms-sent-header',

@@ -43,6 +43,7 @@ const {
   fillOutSignUp,
   getSms,
   getSmsSigninCode,
+  noSuchElement,
   openPage,
   switchToWindow,
   testAttributeEquals,
@@ -60,7 +61,8 @@ function testSmsSupportedCountryForm (country, expectedPrefix) {
         query: { country },
       }))
       .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, expectedPrefix))
-      .then(testAttributeEquals(selectors.SMS_SEND.PHONE_NUMBER, 'data-country', country));
+      .then(testAttributeEquals(selectors.SMS_SEND.PHONE_NUMBER, 'data-country', country))
+      .then(noSuchElement(selectors.SMS_SEND.SUCCESS));
   };
 }
 

@@ -67,6 +67,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
         .then(openVerificationLinkInNewTab(email, 0))
         .then(switchToWindow(1))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS))
         .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
         // switch back to the original window, it should transition to CAD.
         .then(closeCurrentWindow())
@@ -96,6 +97,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
         .then(openVerificationLinkInNewTab(email, 0))
         .then(switchToWindow(1))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS))
         .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
         // switch back to the original window, it should transition to CAD.
         .then(closeCurrentWindow())
@@ -103,6 +105,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
         // In Fx >= 58, about:accounts does not take over.
         // Expect a screen transition.
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS))
         // but the login message is sent automatically.
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
@@ -146,6 +149,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
         .then(switchToWindow(1))
 
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS))
 
         .then(closeCurrentWindow())
 
@@ -222,7 +226,8 @@ registerSuite('Firefox Desktop Sync v3 signup', {
                 }
               }
             }));
-        });
+        })
+        .then(testElementExists(selectors.SMS_SEND.SUCCESS));
     },
 
     'Fx >= 56, engines not supported': function () {

@@ -79,7 +79,8 @@ registerSuite('connect_another_device', {
         .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.TEXT_INSTALL_FX_DESKTOP))
         .then(testHrefEquals(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_IOS, ADJUST_LINK_IOS))
-        .then(testHrefEquals(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_ANDROID, ADJUST_LINK_ANDROID));
+        .then(testHrefEquals(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_ANDROID, ADJUST_LINK_ANDROID))
+        .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS));
     },
 
     'signup Fx Desktop, load /connect_another_device page, SMS enabled': function () {
@@ -93,7 +94,8 @@ registerSuite('connect_another_device', {
 
         .then(openPage(CONNECT_ANOTHER_DEVICE_SMS_ENABLED_URL, selectors.SMS_SEND.HEADER))
         .then(testHrefEquals(selectors.SMS_SEND.LINK_MARKETING_IOS, ADJUST_LINK_IOS))
-        .then(testHrefEquals(selectors.SMS_SEND.LINK_MARKETING_ANDROID, ADJUST_LINK_ANDROID));
+        .then(testHrefEquals(selectors.SMS_SEND.LINK_MARKETING_ANDROID, ADJUST_LINK_ANDROID))
+        .then(noSuchElement(selectors.SMS_SEND.SUCCESS));
     },
 
     'signup Fx Desktop, verify same browser': function () {
@@ -114,7 +116,8 @@ registerSuite('connect_another_device', {
         .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.TEXT_INSTALL_FX_DESKTOP))
         .then(testHrefEquals(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_IOS, ADJUST_LINK_IOS))
-        .then(testHrefEquals(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_ANDROID, ADJUST_LINK_ANDROID));
+        .then(testHrefEquals(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_ANDROID, ADJUST_LINK_ANDROID))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS));
     },
 
     'signup Fx Desktop, verify different Fx Desktop': function () {
@@ -134,6 +137,7 @@ registerSuite('connect_another_device', {
         .then(clearBrowserState())
 
         .then(openVerificationLinkInSameTab(email, 0, {query: {forceUA}}))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS_DIFFERENT_BROWSER))
 
         // ask "why must I do this?"
@@ -164,9 +168,11 @@ registerSuite('connect_another_device', {
         .then(openVerificationLinkInNewTab(email, 0, { query }))
         .then(switchToWindow(1))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS))
         .then(closeCurrentWindow())
 
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS));
     },
 
     'signup Fx Desktop, verify different Fx Desktop with another user already signed in': function () {
@@ -188,6 +194,7 @@ registerSuite('connect_another_device', {
 
 
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS))
 
         // NOW - go back and open the verification link for the signup user in a
         // browser where another user is already signed in.
@@ -219,6 +226,7 @@ registerSuite('connect_another_device', {
             forceUA: UA_STRINGS['android_firefox']
           }
         }))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS_DIFFERENT_BROWSER))
 
         // ask "why must I do this?"
@@ -257,6 +265,7 @@ registerSuite('connect_another_device', {
             forceUA: UA_STRINGS['ios_firefox']
           }
         }))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS_DIFFERENT_BROWSER))
 
         // ask "why must I do this?"
@@ -292,6 +301,7 @@ registerSuite('connect_another_device', {
             forceUA: UA_STRINGS['android_chrome']
           }
         }))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS_DIFFERENT_BROWSER))
         .then(testElementTextInclude(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS_DIFFERENT_BROWSER, 'email verified'))
 
@@ -304,12 +314,7 @@ registerSuite('connect_another_device', {
         .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.TEXT_INSTALL_FX_ANDROID))
         .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_IOS))
-        .then(testHrefEquals(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_ANDROID, ADJUST_LINK_ANDROID))
-
-        .refresh()
-
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS_DIFFERENT_BROWSER))
-        .then(testElementTextInclude(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS_DIFFERENT_BROWSER, 'email verified'));
+        .then(testHrefEquals(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_ANDROID, ADJUST_LINK_ANDROID));
     },
 
     'signup Fx Desktop, verify in Chrome Desktop': function () {
@@ -333,6 +338,7 @@ registerSuite('connect_another_device', {
             forceUA: UA_STRINGS['desktop_chrome']
           }
         }))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS_DIFFERENT_BROWSER))
 
         // ask "why must I do this?"
@@ -366,6 +372,7 @@ registerSuite('connect_another_device', {
             forceUA: UA_STRINGS['ios_safari']
           }
         }))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS_DIFFERENT_BROWSER))
 
         // ask "why must I do this?"
@@ -401,6 +408,7 @@ registerSuite('connect_another_device', {
           }
         }))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS_SAME_BROWSER))
 
         .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))

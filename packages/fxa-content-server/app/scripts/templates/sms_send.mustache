@@ -1,6 +1,8 @@
 <div id="main-content" class="card">
     <header class="hidden" id="fxa-send-sms-header"><h1>{{#t}}Send Firefox directly to your smartphone and sign in to complete set-up{{/t}}</h1></header>
-    <div class="success visible">{{#t}}This Firefox is connected{{/t}}</div>
+	{{#showSuccessMessage}}
+      <div class="success visible">{{#t}}This Firefox is connected{{/t}}</div>
+	{{/showSuccessMessage}}
     <div class="error"></div>
 
     <section class="send-sms">

@@ -87,11 +87,13 @@ const verifyMobileTest = thenify(function (verificationUaString) {
     // mobile users are ineligible to send an SMS, they should be redirected
     // to the "connect another device" screen
     .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+    .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS))
 
     // switch back to the original window, user should be
     // able to send an SMS.
     .then(closeCurrentWindow())
-    .then(testElementExists(selectors.SMS_SEND.HEADER));
+    .then(testElementExists(selectors.SMS_SEND.HEADER))
+    .then(testElementExists(selectors.SMS_SEND.SUCCESS));
 });
 
 registerSuite('Firstrun Sync v2 signup', {
@@ -181,13 +183,15 @@ registerSuite('Firstrun Sync v2 signup', {
         // synthesize what the other browser sees.
         .then(openVerificationLinkInDifferentBrowser(email, 0))
         .then(testElementExists(selectors.SMS_SEND.HEADER))
+        .then(testElementExists(selectors.SMS_SEND.SUCCESS))
 
         // clear browser state to synthesize opening in a different browser
         .then(clearBrowserState({force: true}))
         // verify the user in a different browser, they should see the
         // "connect another device" screen.
         .then(openVerificationLinkInSameTab(email, 0, options))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS));
     },
 
     'verify same browser, force SMS, force supported country': function () {
@@ -208,11 +212,13 @@ registerSuite('Firstrun Sync v2 signup', {
 
         // user should be redirected to "Send SMS" screen.
         .then(testElementExists(selectors.SMS_SEND.HEADER))
+        .then(testElementExists(selectors.SMS_SEND.SUCCESS))
         .then(testAttributeEquals(selectors.SMS_SEND.PHONE_NUMBER, 'data-country', 'CA'))
 
         // switch back to the original window, it should transition to the verification tab.
         .then(closeCurrentWindow())
-        .then(testElementExists(selectors.SMS_SEND.HEADER));
+        .then(testElementExists(selectors.SMS_SEND.HEADER))
+        .then(testElementExists(selectors.SMS_SEND.SUCCESS));
     },
 
     'force SMS, force unsupported country in signup tab': function () {

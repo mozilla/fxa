@@ -68,7 +68,7 @@ define(function(require, exports, module) {
         }
 
         const type = this.model.get('type');
-        this.navigate('connect_another_device', { account, type });
+        this.navigate('connect_another_device', { account, showSuccessMessage: true, type });
       });
     },
 
@@ -77,10 +77,11 @@ define(function(require, exports, module) {
      *
      * @param {Object} account
      * @param {String} country
+     * @param {Boolean} showSuccessMessage
      */
-    replaceCurrentPageWithSmsScreen (account, country) {
+    replaceCurrentPageWithSmsScreen (account, country, showSuccessMessage) {
       const type = this.model.get('type');
-      this.replaceCurrentPage('sms', { account, country, type });
+      this.replaceCurrentPage('sms', { account, country, showSuccessMessage, type });
     },
 
     /**

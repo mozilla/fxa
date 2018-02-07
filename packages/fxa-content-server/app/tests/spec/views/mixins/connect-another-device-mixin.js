@@ -310,7 +310,11 @@ define(function (require, exports, module) {
             return view.navigateToConnectAnotherDeviceScreen(account)
               .then(() => {
                 assert.isTrue(view.navigate.calledOnce);
-                assert.isTrue(view.navigate.calledWith('connect_another_device', { account, type: 'signin' }));
+                assert.isTrue(view.navigate.calledWith('connect_another_device', {
+                  account,
+                  showSuccessMessage: true,
+                  type: 'signin'
+                }));
               });
           });
         });
@@ -392,10 +396,15 @@ define(function (require, exports, module) {
           sinon.spy(view, 'replaceCurrentPage');
 
           const account = {};
-          view.replaceCurrentPageWithSmsScreen (account, 'GB');
+          view.replaceCurrentPageWithSmsScreen (account, 'GB', true);
 
           assert.isTrue(view.replaceCurrentPage.calledOnce);
-          assert.isTrue(view.replaceCurrentPage.calledWith('sms', { account, country: 'GB', type: 'signin' }));
+          assert.isTrue(view.replaceCurrentPage.calledWith('sms', {
+            account,
+            country: 'GB',
+            showSuccessMessage: true,
+            type: 'signin'
+          }));
         });
       });
     });

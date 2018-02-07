@@ -35,7 +35,7 @@ define(function (require, exports, module) {
       broker = new AuthBroker( { relier });
       broker.setCapability('emailVerificationMarketingSnippet', true);
 
-      model = new Backbone.Model({ account });
+      model = new Backbone.Model({ account, showSuccessMessage: true });
       windowMock = new WindowMock();
 
       notifier = new Notifier();
@@ -79,7 +79,7 @@ define(function (require, exports, module) {
 
         it('redirects the user to the /sms page', () => {
           assert.isTrue(view.replaceCurrentPageWithSmsScreen.calledOnce);
-          assert.isTrue(view.replaceCurrentPageWithSmsScreen.calledWith(account, 'GB'));
+          assert.isTrue(view.replaceCurrentPageWithSmsScreen.calledWith(account, 'GB', true));
         });
       });
 
@@ -103,6 +103,10 @@ define(function (require, exports, module) {
           testIsFlowEventLogged('install_from.fx_desktop');
 
           assert.isFalse(view.replaceCurrentPageWithSmsScreen.called);
+        });
+
+        it('shows the success message', () => {
+          assert.lengthOf(view.$('.success'), 1);
         });
       });
 
@@ -133,6 +137,10 @@ define(function (require, exports, module) {
           testIsFlowEventLogged('signedin.true');
           testIsFlowEventLogged('signin.ineligible');
           testIsFlowEventLogged('install_from.fx_android');
+        });
+
+        it('shows the success message', () => {
+          assert.lengthOf(view.$('.success'), 1);
         });
       });
 
@@ -166,6 +174,10 @@ define(function (require, exports, module) {
           testIsFlowEventLogged('signin.eligible');
           testIsFlowEventLogged('signin_from.fx_desktop');
         });
+
+        it('shows the success message', () => {
+          assert.lengthOf(view.$('.success'), 1);
+        });
       });
 
       describe('with a fennec user that can sign in', () => {
@@ -197,6 +209,10 @@ define(function (require, exports, module) {
           testIsFlowEventLogged('signedin.false');
           testIsFlowEventLogged('signin.eligible');
           testIsFlowEventLogged('signin_from.fx_android');
+        });
+
+        it('shows the success message', () => {
+          assert.lengthOf(view.$('.success'), 1);
         });
       });
 
@@ -315,6 +331,39 @@ define(function (require, exports, module) {
               assert.lengthOf(view.$('.marketing-area'), 1);
               testIsFlowEventLogged('install_from.other');
             });
+        });
+      });
+
+      describe('with showSuccessMessage set to false', () => {
+        beforeEach(() => {
+          model.set('showSuccessMessage', false);
+          sinon.stub(view, '_isSignedIn').callsFake(() => true);
+
+          windowMock.navigator.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
+
+          return view.render()
+            .then(() => {
+              view.afterVisible();
+            });
+        });
+
+        it('does not show the success message', () => {
+          assert.lengthOf(view.$('.success'), 0);
+        });
+      });
+
+      describe('with showSuccessMessage set to false for a user that can send an SMS', () => {
+        beforeEach(() => {
+          model.set('showSuccessMessage', false);
+          smsCountry = 'CA';
+
+          return view.render()
+            .then(() => view.afterVisible());
+        });
+
+        it('redirects the user to the /sms page', () => {
+          assert.isTrue(view.replaceCurrentPageWithSmsScreen.calledOnce);
+          assert.isTrue(view.replaceCurrentPageWithSmsScreen.calledWith(account, 'CA', false));
         });
       });
     });

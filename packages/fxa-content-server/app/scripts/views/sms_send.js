@@ -68,6 +68,7 @@ define(function (require, exports, module) {
         escapedLearnMoreAttributes,
         isSignIn,
         phoneNumber,
+        showSuccessMessage: this.model.get('showSuccessMessage')
       });
     }
 

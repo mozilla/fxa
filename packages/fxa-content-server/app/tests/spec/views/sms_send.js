@@ -47,7 +47,7 @@ define(function(require, exports, module) {
       broker = new Broker();
       formPrefill = new Backbone.Model({});
       metrics = new Metrics();
-      model = new Backbone.Model({ account });
+      model = new Backbone.Model({ account, showSuccessMessage: true });
       notifier = new Notifier();
       relier = new Relier({ service: 'sync' });
 
@@ -69,6 +69,7 @@ define(function(require, exports, module) {
         assert.equal(view.$('input[type=tel]').__val(), '');
         assert.equal(view.$('input[type=tel]').data('country'), 'US');
         assert.lengthOf(view.$('.marketing-link'), 2);
+        assert.lengthOf(view.$('.success'), 1);
 
         // ensure clicks on the marketing links work as expected.
         sinon.spy(metrics, 'logMarketingClick');
@@ -138,6 +139,15 @@ define(function(require, exports, module) {
         return view.render()
           .then(() => {
             assert.include(view.$('.send-sms > p').text().toLowerCase(), 'still adding devices');
+          });
+      });
+
+      it('with showSuccessMessage set to false, no success message is rendered', () => {
+        model.set('showSuccessMessage', false);
+
+        return view.render()
+          .then(() => {
+            assert.lengthOf(view.$('.success'), 0);
           });
       });
     });

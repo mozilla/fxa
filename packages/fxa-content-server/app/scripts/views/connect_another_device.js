@@ -53,7 +53,7 @@ define(function (require, exports, module) {
       return this.getEligibleSmsCountry(account)
         .then((country) => {
           if (country) {
-            return this.replaceCurrentPageWithSmsScreen(account, country);
+            return this.replaceCurrentPageWithSmsScreen(account, country, this._showSuccessMessage());
           }
         });
     }
@@ -156,6 +156,7 @@ define(function (require, exports, module) {
       const isOther = ! isAndroid && ! isIos && ! isFirefoxDesktop;
       const isSignIn = this.isSignIn();
       const isSignUp = this.isSignUp();
+      const showSuccessMessage = this._showSuccessMessage();
 
       context.set({
         canSignIn,
@@ -169,7 +170,8 @@ define(function (require, exports, module) {
         isOtherIos,
         isSignIn,
         isSignUp,
-        isSignedIn
+        isSignedIn,
+        showSuccessMessage
       });
     }
 
@@ -203,6 +205,19 @@ define(function (require, exports, module) {
     _canSignIn () {
       // Only users that are not signed in can do so.
       return ! this._isSignedIn() && this.isSyncAuthSupported();
+    }
+
+    /**
+     * Check whether to render the success message at the top of the view.
+     * This enables Firefox code to link directly to this view without a
+     * misleading status message being displayed. When navigating internally,
+     * the connect-another-device-mixin ensures it gets set to true.
+     *
+     * @returns {Boolean}
+     * @private
+     */
+    _showSuccessMessage () {
+      return !! this.model.get('showSuccessMessage');
     }
 
     /**
