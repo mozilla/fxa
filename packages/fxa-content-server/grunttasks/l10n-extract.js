@@ -8,9 +8,12 @@ var fs = require('fs');
 var path = require('path');
 var mkdirp = require('mkdirp');
 var extract = require('jsxgettext-recursive');
+var execSync = require('child_process').execSync;
 
 // where to place the pot files.
 var messagesOutputPath = path.join(__dirname, '..', 'locale', 'templates', 'LC_MESSAGES');
+var babelCmd = 'node_modules/.bin/babel --plugins=babel-plugin-syntax-dynamic-import,dynamic-import-webpack --presets es2015 app/scripts --out-dir .es5';
+var templateCmd = 'cp -r app/scripts/templates .es5/templates/';
 
 module.exports = function (grunt) {
   grunt.registerTask('jsxextract', 'Do not call directly, see l10n-extract.', function () {
@@ -19,9 +22,25 @@ module.exports = function (grunt) {
     if (! fs.existsSync(messagesOutputPath)) {
       mkdirp.sync(messagesOutputPath);
     }
+    // jsxgettext does not support ES2015, only ES5. Run babel to convert
+    // then run the extractor on the ES5 files.
+    try {
+      execSync(babelCmd);
+    } catch (e) {
+      throw e;
+    }
+
+    try {
+      // babel only converts a subset of files, copy all other files
+      // where there may be strings to extract.
+      execSync(templateCmd);
+    } catch (e) {
+      throw e;
+    }
+
 
     var clientWalker = extract({
-      'input-dir': path.join(__dirname, '..', 'app', 'scripts'),
+      'input-dir': path.join(__dirname, '..', '.es5'),
       joinExisting: true,
       'keyword': ['t', 'unsafeTranslate'],
       'output': 'client.pot',
@@ -31,6 +50,7 @@ module.exports = function (grunt) {
         '.mustache': 'handlebars'
       }
     });
+
 
     clientWalker.on('end', function () {
       var authWalker = extract({
@@ -55,12 +75,6 @@ module.exports = function (grunt) {
 
   grunt.registerTask('l10n-extract', 'Extract strings from templates for localization.', [
     'clean',
-    // jsxgettext does not support ES2015, only ES5. Run babel to convert
-    // then run the extractor on the ES5 files.
-    'babel',
-    // babel only converts a subset of files, copy all other files
-    // where there may be strings to extract.
-    'copy:requirejs',
     'jsxextract'
   ]);
 };

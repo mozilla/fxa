@@ -99,7 +99,9 @@
     "webpack-dev-middleware": "2.0.4"
   },
   "devDependencies": {
+    "babel-cli": "6.26.0",
     "babel-eslint": "8.2.1",
+    "babel-plugin-dynamic-import-webpack": "1.0.2",
     "coveralls": "2.11.9",
     "css": "2.2.1",
     "eslint": "4.16.0",
