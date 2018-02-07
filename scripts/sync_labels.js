@@ -41,7 +41,7 @@ var STANDARD_LABELS = {
   '❤❤❤': { color: COLORS.ALERT },
   'blocker': { color: COLORS.ALERT },
   'shipit': { color: COLORS.WARNING },
-  'good-first-bug': { color: COLORS.WELCOMING },
+  'help wanted': { color: COLORS.WELCOMING },
   'WIP': { color: COLORS.INFO },
   // Cross-cutting concerns that we need to account for when
   // working with or reviewing the issue.
@@ -74,6 +74,7 @@ var OBSOLETE_LABELS = {
   'z-later': null,
   'wontfix': null,
   'backlog': null,
+  'good-first-bug': 'help wanted',
   'good first bug': 'good-first-bug',
   'strings': null,
   'waffle:now': 'waffle:active',
