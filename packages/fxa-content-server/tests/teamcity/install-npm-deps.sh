@@ -13,6 +13,7 @@ node ./tests/teamcity/install-npm-deps.js \
   css                             \
   extend                          \
   firefox-profile                 \
+  fxa-js-client                   \
   fxa-geodb                       \
   fxa-shared                      \
   got                             \
