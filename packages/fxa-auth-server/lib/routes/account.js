@@ -1163,7 +1163,6 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
       path: '/account/profile',
       config: {
         auth: {
-          mode: 'optional',
           strategies: [
             'sessionToken',
             'oauthToken'
