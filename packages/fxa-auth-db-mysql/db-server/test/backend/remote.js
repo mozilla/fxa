@@ -1542,7 +1542,7 @@ module.exports = function(cfg, makeServer) {
     )
 
     describe(
-      'add account, verify session with tokenVerificationCode',
+      'add account, verify session and keyfetch with tokenVerificationCode',
       () => {
         let user
 
@@ -1555,13 +1555,17 @@ module.exports = function(cfg, makeServer) {
             })
         })
 
-        it('should verify session with tokenVerificationCode', () => {
-          return client.putThen('/sessionToken/' + user.sessionTokenId, user.sessionToken)
-            .then((r) => {
-              respOkEmpty(r)
+        it('should verify session and keyfetch with tokenVerificationCode', () => {
+          return P.all([
+            client.putThen('/sessionToken/' + user.sessionTokenId, user.sessionToken),
+            client.putThen('/keyFetchToken/' + user.keyFetchTokenId, user.keyFetchToken)
+          ])
+            .spread((sessionToken, keyFetchToken) => {
+              respOkEmpty(sessionToken)
+              respOkEmpty(keyFetchToken)
               return client.getThen('/sessionToken/' + user.sessionTokenId + '/verified')
             })
-            .then(function (r) {
+            .then((r) => {
               respOk(r)
               const result = r.obj
               assert.ok(result.tokenVerificationCodeHash, 'tokenVerificationCodeHash exists')
@@ -1570,15 +1574,22 @@ module.exports = function(cfg, makeServer) {
                 uid: user.accountId
               })
             })
-            .then(function (r) {
+            .then((r) => {
               respOk(r)
-              return client.getThen('/sessionToken/' + user.sessionTokenId + '/verified')
+              return P.all([
+                client.getThen('/sessionToken/' + user.sessionTokenId + '/verified'),
+                client.getThen('/keyFetchToken/' + user.keyFetchTokenId + '/verified'),
+              ])
             })
-            .then(function (r) {
-              respOk(r)
-              const result = r.obj
-              assert.equal(result.tokenVerificationCodeHash, null, 'tokenVerificationCodeHash not set')
-              assert.equal(result.tokenVerificationCodeExpiresAt, null, 'tokenVerificationCodeExpiresAt not set')
+            .spread((sessionTokenResp, keyFetchTokenResp) => {
+              respOk(sessionTokenResp)
+              respOk(keyFetchTokenResp)
+              const sessionToken = sessionTokenResp
+              const keyFetchToken = keyFetchTokenResp
+              assert.equal(sessionToken.tokenVerificationId, null, 'tokenVerificationCodeHash not set')
+              assert.equal(sessionToken.tokenVerificationCodeHash, null, 'tokenVerificationCodeHash not set')
+              assert.equal(sessionToken.tokenVerificationCodeExpiresAt, null, 'tokenVerificationCodeExpiresAt not set')
+              assert.equal(keyFetchToken.tokenVerificationId, null, 'tokenVerificationId not set')
             })
         })
       }
