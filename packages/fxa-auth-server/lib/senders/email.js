@@ -5,6 +5,7 @@
 'use strict'
 
 const emailUtils = require('../email/utils/helpers')
+const oauthClientInfo = require('./oauth_client_info')
 const moment = require('moment-timezone')
 const nodemailer = require('nodemailer')
 const P = require('bluebird')
@@ -419,6 +420,7 @@ module.exports = function (log) {
       code: message.code,
       uid: message.uid
     }
+    var translator = this.translator(message.acceptLanguage)
 
     if (message.service) { query.service = message.service }
     if (message.redirectTo) { query.redirectTo = message.redirectTo }
@@ -435,25 +437,34 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    return this.send(Object.assign({}, message, {
-      headers,
-      subject: gettext('Confirm new sign-in to Firefox'),
-      template: templateName,
-      templateValues: {
-        device: this._formatUserAgentInfo(message),
-        email: message.email,
-        ip: message.ip,
-        link: links.link,
-        location: this._constructLocationString(message),
-        oneClickLink: links.oneClickLink,
-        passwordChangeLink: links.passwordChangeLink,
-        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-        privacyUrl: links.privacyUrl,
-        supportLinkAttributes: links.supportLinkAttributes,
-        supportUrl: links.supportUrl,
-        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
-      }
-    }))
+    return oauthClientInfo.fetch(message.service).then((clientInfo) => {
+      const clientName = clientInfo.name
+      const subject = translator.format(translator.gettext('Confirm new sign-in to %(clientName)s'), {
+        clientName: clientName
+      })
+
+      return this.send(Object.assign({}, message, {
+        headers,
+        subject,
+        template: templateName,
+        templateValues: {
+          clientName,
+          device: this._formatUserAgentInfo(message),
+          email: message.email,
+          ip: message.ip,
+          link: links.link,
+          location: this._constructLocationString(message),
+          oneClickLink: links.oneClickLink,
+          passwordChangeLink: links.passwordChangeLink,
+          passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+          privacyUrl: links.privacyUrl,
+          supportLinkAttributes: links.supportLinkAttributes,
+          supportUrl: links.supportUrl,
+          timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
+        }
+      }))
+    })
+
   }
 
   Mailer.prototype.verifyLoginCodeEmail = function (message) {
@@ -723,6 +734,7 @@ module.exports = function (log) {
     log.trace({ op: 'mailer.newDeviceLoginEmail', email: message.email, uid: message.uid })
     var templateName = 'newDeviceLoginEmail'
     var links = this._generateLinks(this.initiatePasswordChangeUrl, message.email, {}, templateName)
+    var translator = this.translator(message.acceptLanguage)
 
     var headers = {
       'X-Link': links.passwordChangeLink
@@ -732,22 +744,31 @@ module.exports = function (log) {
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
-    return this.send(Object.assign({}, message, {
-      headers,
-      subject: gettext('New sign-in to Firefox'),
-      template: templateName,
-      templateValues: {
-        device: this._formatUserAgentInfo(message),
-        ip: message.ip,
-        location: this._constructLocationString(message),
-        passwordChangeLink: links.passwordChangeLink,
-        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-        privacyUrl: links.privacyUrl,
-        supportLinkAttributes: links.supportLinkAttributes,
-        supportUrl: links.supportUrl,
-        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
-      }
-    }))
+    return oauthClientInfo.fetch(message.service).then((clientInfo) => {
+      const clientName = clientInfo.name
+      const subject = translator.format(translator.gettext('New sign-in to %(clientName)s'), {
+        clientName: clientName
+      })
+
+      return this.send(Object.assign({}, message, {
+        headers,
+        subject,
+        template: templateName,
+        templateValues: {
+          clientName,
+          device: this._formatUserAgentInfo(message),
+          ip: message.ip,
+          location: this._constructLocationString(message),
+          passwordChangeLink: links.passwordChangeLink,
+          passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+          privacyUrl: links.privacyUrl,
+          supportLinkAttributes: links.supportLinkAttributes,
+          supportUrl: links.supportUrl,
+          timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
+        }
+      }))
+    })
+
   }
 
   Mailer.prototype.postVerifyEmail = function (message) {

@@ -535,8 +535,19 @@ describe(
             function () {
               mailer.mailer.sendMail = function (emailConfig) {
                 var verifyLoginUrl = config.get('smtp').verifyLoginUrl
+                assert.equal(emailConfig.subject, 'Confirm new sign-in to Firefox')
                 assert.ok(emailConfig.html.indexOf(verifyLoginUrl) > 0)
                 assert.ok(emailConfig.text.indexOf(verifyLoginUrl) > 0)
+              }
+              mailer[type](message)
+            }
+          )
+        } else if (type === 'newDeviceLoginEmail') {
+          it(
+            'test new device login email',
+            function () {
+              mailer.mailer.sendMail = function (emailConfig) {
+                assert.equal(emailConfig.subject, 'New sign-in to Firefox')
               }
               mailer[type](message)
             }

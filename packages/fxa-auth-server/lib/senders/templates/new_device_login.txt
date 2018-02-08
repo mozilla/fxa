@@ -1,4 +1,4 @@
-{{t "New sign-in to Firefox" }}
+{{t "New sign-in to %(clientName)s" }}
 
 {{ device }}
 {{#if location}}{{ location }}{{/if}}

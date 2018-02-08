@@ -608,6 +608,12 @@ var conf = convict({
       format: Object,
       default: {},
       env: 'OAUTH_CLIENT_IDS'
+    },
+    clientInfoCacheTTL: {
+      doc: 'TTL for OAuth client details (in milliseconds)',
+      format: 'duration',
+      default: '3 days',
+      env: 'OAUTH_CLIENT_INFO_CACHE_TTL'
     }
   },
   metrics: {

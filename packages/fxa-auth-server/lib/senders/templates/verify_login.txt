@@ -1,5 +1,5 @@
-{{t "New sign-in to Firefox"}}
-{{t "For added security, please confirm this sign-in to begin syncing with this device:" }}
+{{t "New sign-in to %(clientName)s" }}
+{{t "For added security, please confirm this sign-in from the following device:" }}
 {{ device }}
 {{#if location}}{{ location }}{{/if}}
 {{#if ip}}{{t "IP address: %(ip)s" }}{{/if}}
