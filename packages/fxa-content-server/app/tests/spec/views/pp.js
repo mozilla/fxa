@@ -70,9 +70,9 @@ define(function (require, exports, module) {
       });
 
       return view.render()
-          .then(function () {
-            assert.equal(view.$('#fxa-pp-back').length, 0);
-          });
+        .then(function () {
+          assert.equal(view.$('#fxa-pp-back').length, 0);
+        });
     });
 
     it('fetches translated text from the backend', function () {

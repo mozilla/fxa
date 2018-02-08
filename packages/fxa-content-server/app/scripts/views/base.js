@@ -1004,8 +1004,7 @@ define(function (require, exports, module) {
           return behavior(this, ...args);
         }
         return behavior;
-      })
-      .then((result) => {
+      }).then((result) => {
         // recursively invoke returned behaviors.
         if (_.isFunction(behavior)) {
           return this.invokeBehavior(result, ...args);

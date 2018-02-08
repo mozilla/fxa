@@ -77,7 +77,7 @@ define(function (require, exports, module) {
           this._avatarProgressIndicator.done();
           this.displayError(AuthErrors.toError('NO_CAMERA'));
         }
-      );
+        );
     },
 
     stopAndDestroyStream () {

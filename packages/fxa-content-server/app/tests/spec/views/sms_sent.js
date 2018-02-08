@@ -59,10 +59,10 @@ define(function(require, exports, module) {
       model.unset('formattedPhoneNumber');
 
       return view.render()
-       .then(() => {
-         assert.isTrue(view.navigate.calledOnce);
-         assert.isTrue(view.navigate.calledWith('sms'));
-       });
+        .then(() => {
+          assert.isTrue(view.navigate.calledOnce);
+          assert.isTrue(view.navigate.calledWith('sms'));
+        });
     });
 
     it('returns to `sms` if no `normalizedPhoneNumber`', () => {
@@ -71,35 +71,35 @@ define(function(require, exports, module) {
       model.unset('normalizedPhoneNumber');
 
       return view.render()
-       .then(() => {
-         assert.isTrue(view.navigate.calledOnce);
-         assert.isTrue(view.navigate.calledWith('sms'));
-       });
+        .then(() => {
+          assert.isTrue(view.navigate.calledOnce);
+          assert.isTrue(view.navigate.calledWith('sms'));
+        });
     });
 
     it('renders phone number, shows marketing', () => {
       return view.render()
-       .then(() => {
-         assert.include(view.$('.success').text(), '123-456-7890');
-         assert.lengthOf(view.$('.marketing-link'), 2);
+        .then(() => {
+          assert.include(view.$('.success').text(), '123-456-7890');
+          assert.lengthOf(view.$('.marketing-link'), 2);
 
-         // ensure clicks on the marketing links work as expected.
-         sinon.spy(metrics, 'logMarketingClick');
-         sinon.spy(view, 'logFlowEvent');
-         $('#container').html(view.$el);
+          // ensure clicks on the marketing links work as expected.
+          sinon.spy(metrics, 'logMarketingClick');
+          sinon.spy(view, 'logFlowEvent');
+          $('#container').html(view.$el);
 
-         view.$('.marketing-link-ios').click();
-         assert.isTrue(metrics.logMarketingClick.calledOnce);
-         assert.equal(metrics.logMarketingClick.args[0][0], 'autumn-2016-connect-another-device');
-         assert.isTrue(view.logFlowEvent.calledOnce);
-         assert.isTrue(view.logFlowEvent.calledWith('link.app-store.ios', 'sms-sent'));
+          view.$('.marketing-link-ios').click();
+          assert.isTrue(metrics.logMarketingClick.calledOnce);
+          assert.equal(metrics.logMarketingClick.args[0][0], 'autumn-2016-connect-another-device');
+          assert.isTrue(view.logFlowEvent.calledOnce);
+          assert.isTrue(view.logFlowEvent.calledWith('link.app-store.ios', 'sms-sent'));
 
-         view.$('.marketing-link-android').click();
-         assert.isTrue(metrics.logMarketingClick.calledTwice);
-         assert.equal(metrics.logMarketingClick.args[1][0], 'autumn-2016-connect-another-device');
-         assert.isTrue(view.logFlowEvent.calledTwice);
-         assert.isTrue(view.logFlowEvent.calledWith('link.app-store.android', 'sms-sent'));
-       });
+          view.$('.marketing-link-android').click();
+          assert.isTrue(metrics.logMarketingClick.calledTwice);
+          assert.equal(metrics.logMarketingClick.args[1][0], 'autumn-2016-connect-another-device');
+          assert.isTrue(view.logFlowEvent.calledTwice);
+          assert.isTrue(view.logFlowEvent.calledWith('link.app-store.android', 'sms-sent'));
+        });
     });
 
     it('resend success, displays the success message', () => {

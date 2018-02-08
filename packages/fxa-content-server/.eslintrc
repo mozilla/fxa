@@ -9,7 +9,6 @@ parser: babel-eslint
 rules:
   brace-style: 2
   handle-callback-err: 0
-  indent: 0 # TODO: Write a follow up patch to enable this rule.
   key-spacing: [2, {"beforeColon": false, "afterColon": true}]
   keyword-spacing: 2
   linebreak-style: [2, "unix"]

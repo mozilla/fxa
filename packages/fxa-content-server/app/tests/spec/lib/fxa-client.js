@@ -214,8 +214,7 @@ define(function (require, exports, module) {
         return client.signUp(email, password, relier, {
           metricsContext: { foo: 'bar' },
           resume: resumeToken
-        })
-        .then(function () {
+        }).then(function () {
           assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
             keys: false,
             metricsContext: { foo: 'bar' },
@@ -365,10 +364,10 @@ define(function (require, exports, module) {
               service: SYNC_SERVICE
             };
             assert.isTrue(
-                realClient.recoveryEmailResendCode.calledWith(
-                    sessionToken,
-                    params
-                ));
+              realClient.recoveryEmailResendCode.calledWith(
+                sessionToken,
+                params
+              ));
           });
       });
     });
@@ -619,8 +618,7 @@ define(function (require, exports, module) {
 
         return client.signIn(email, password, relier, {
           metricsContext: { foo: 'bar' }
-        })
-        .then(function () {
+        }).then(function () {
           assert.isTrue(realClient.signIn.calledWith(trim(email), password), {
             keys: false,
             metricsContext: { foo: 'bar' },
@@ -636,15 +634,15 @@ define(function (require, exports, module) {
         return client.signIn(email, password, relier, {
           skipCaseError: true
         })
-        .then(() => {
-          assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
-            keys: false,
-            reason: SignInReasons.SIGN_IN,
-            redirectTo: REDIRECT_TO,
-            service: SYNC_SERVICE,
-            skipCaseError: true
-          }));
-        });
+          .then(() => {
+            assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
+              keys: false,
+              reason: SignInReasons.SIGN_IN,
+              redirectTo: REDIRECT_TO,
+              service: SYNC_SERVICE,
+              skipCaseError: true
+            }));
+          });
       });
     });
 
@@ -666,10 +664,10 @@ define(function (require, exports, module) {
               service: SYNC_SERVICE
             };
             assert.isTrue(
-                realClient.passwordForgotSendCode.calledWith(
-                    trim(email),
-                    params
-                ));
+              realClient.passwordForgotSendCode.calledWith(
+                trim(email),
+                params
+              ));
           });
       });
 
@@ -718,11 +716,11 @@ define(function (require, exports, module) {
               service: SYNC_SERVICE
             };
             assert.isTrue(
-                realClient.passwordForgotResendCode.calledWith(
-                    trim(email),
-                    passwordForgotToken,
-                    params
-                ));
+              realClient.passwordForgotResendCode.calledWith(
+                trim(email),
+                passwordForgotToken,
+                params
+              ));
           });
       });
 
@@ -791,9 +789,9 @@ define(function (require, exports, module) {
         return client.completePasswordReset(email, password, token, code, relier)
           .then(function (sessionData) {
             assert.isTrue(realClient.passwordForgotVerifyCode.calledWith(
-                code, token));
+              code, token));
             assert.isTrue(realClient.accountReset.calledWith(
-                trim(email), password, 'reset_token', { keys: true, sessionToken: true }));
+              trim(email), password, 'reset_token', { keys: true, sessionToken: true }));
 
             assert.equal(sessionData.email, trim(email));
             assert.equal(sessionData.keyFetchToken, 'new keyFetchToken');
@@ -816,7 +814,7 @@ define(function (require, exports, module) {
             assert.isTrue(realClient.passwordForgotVerifyCode.calledWith(
               code, token, { metricsContext }));
             assert.isTrue(realClient.accountReset.calledWith(
-                trim(email), password, 'reset_token', { keys: true, metricsContext, sessionToken: true }));
+              trim(email), password, 'reset_token', { keys: true, metricsContext, sessionToken: true }));
           });
       });
     });
@@ -1127,9 +1125,9 @@ define(function (require, exports, module) {
     describe('isSignedIn', function () {
       it('resolves to false if no sessionToken passed in', function () {
         return client.isSignedIn()
-            .then(function (isSignedIn) {
-              assert.isFalse(isSignedIn);
-            });
+          .then(function (isSignedIn) {
+            assert.isFalse(isSignedIn);
+          });
       });
 
       it('resolves to false if invalid sessionToken passed in', function () {
@@ -1138,9 +1136,9 @@ define(function (require, exports, module) {
         });
 
         return client.isSignedIn('not a real token')
-            .then(function (isSignedIn) {
-              assert.isFalse(isSignedIn);
-            });
+          .then(function (isSignedIn) {
+            assert.isFalse(isSignedIn);
+          });
       });
 
       it('resolves to true with a valid sessionToken', function () {
@@ -1173,10 +1171,10 @@ define(function (require, exports, module) {
         });
 
         return client.getRandomBytes()
-            .then(function (bytes) {
-              assert.ok(bytes);
-              assert.isTrue(realClient.getRandomBytes.called);
-            });
+          .then(function (bytes) {
+            assert.ok(bytes);
+            assert.isTrue(realClient.getRandomBytes.called);
+          });
       });
     });
 
@@ -1258,14 +1256,14 @@ define(function (require, exports, module) {
         return client.sendSms('sessionToken', '+441234567890', 1, {
           metricsContext: {}
         })
-        .then(() => {
-          assert.isTrue(realClient.sendSms.calledWith(
-            'sessionToken',
-            '+441234567890',
-            1,
-            { metricsContext: {} }
-          ));
-        });
+          .then(() => {
+            assert.isTrue(realClient.sendSms.calledWith(
+              'sessionToken',
+              '+441234567890',
+              1,
+              { metricsContext: {} }
+            ));
+          });
       });
 
       it('converts INVALID_PARAMETER w/ phoneNumber to AuthErrors.INVALID_PHONE_NUMBER', () => {
@@ -1283,9 +1281,9 @@ define(function (require, exports, module) {
         return client.sendSms('sessionToken', '1234567890', 1, {
           metricsContext: {}
         })
-        .then(assert.fail, (err) => {
-          assert.isTrue(AuthErrors.is(err, 'INVALID_PHONE_NUMBER'));
-        });
+          .then(assert.fail, (err) => {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_PHONE_NUMBER'));
+          });
       });
 
       it('passes back other errors', () => {
@@ -1298,9 +1296,9 @@ define(function (require, exports, module) {
         return client.sendSms('sessionToken', '1234567890', 1, {
           metricsContext: {}
         })
-        .then(assert.fail, (err) => {
-          assert.isTrue(AuthErrors.is(err, 'SMS_ID_INVALID'));
-        });
+          .then(assert.fail, (err) => {
+            assert.isTrue(AuthErrors.is(err, 'SMS_ID_INVALID'));
+          });
       });
     });
 

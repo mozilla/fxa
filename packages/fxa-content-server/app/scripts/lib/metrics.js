@@ -411,9 +411,8 @@ define(function (require, exports, module) {
         data: payload,
         type: 'POST',
         url: url
-      })
-      // Boolean return values imitate the behaviour of sendBeacon
-      .then(function () {
+      }).then(function () {
+        // Boolean return values imitate the behaviour of sendBeacon
         return true;
       }, function () {
         return false;

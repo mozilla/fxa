@@ -31,8 +31,7 @@ define(function(require, exports, module) {
         if (view.isEligibleForConnectAnotherDevice(account)) {
           return view.navigateToConnectAnotherDeviceScreen(account);
         }
-      })
-      .then(() => {
+      }).then(() => {
         // if the user is not eligible for CAD, or if the .navigateToConnect*
         // function did not navigate, then return the default behavior.
         if (view.hasNavigated()) {

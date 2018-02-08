@@ -8,8 +8,7 @@ define(function (require, exports, module) {
   'use strict';
 
 
-  function Profile() {
-  }
+  function Profile() {}
 
   [
     'getProfile',
@@ -17,8 +16,7 @@ define(function (require, exports, module) {
     'deleteAvatar',
     'uploadAvatar',
     'getRemoteImage'
-  ]
-  .forEach(function (method) {
+  ].forEach(function (method) {
     Profile.prototype[method] = function () { };
   });
 

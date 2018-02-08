@@ -45,7 +45,7 @@ define(function (require, exports, module) {
       });
 
       return Transform.transformUsingSchema(
-          accountData, RELIER_DATA_SCHEMA, AuthErrors);
+        accountData, RELIER_DATA_SCHEMA, AuthErrors);
     },
 
     beforeRender () {
@@ -133,7 +133,7 @@ define(function (require, exports, module) {
       // overridden, the user receives no visual feedback in this
       // tab once the verification is complete.
       this.broker.setBehavior(
-          'beforeSignUpConfirmationPoll', new NullBehavior());
+        'beforeSignUpConfirmationPoll', new NullBehavior());
 
       return this.navigate(this.broker.transformLink('signup'), {
         error: AuthErrors.toError('DELETED_ACCOUNT'),

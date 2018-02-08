@@ -156,7 +156,7 @@ define(function (require, exports, module) {
           })
           .then(function (childView) {
             assert.isTrue(
-                view._createChildViewIfNeeded.calledWith(SettingsPanelView, options));
+              view._createChildViewIfNeeded.calledWith(SettingsPanelView, options));
             assert.isTrue(childView.openPanel.called);
           });
       });

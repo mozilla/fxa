@@ -125,8 +125,7 @@ define(function (require, exports, module) {
         if (this.hasCapability('fxaStatus')) {
           return this._fetchFxaStatus();
         }
-      })
-      .then(() => {
+      }).then(() => {
         const signinCode = this.relier && this.relier.get('signinCode');
         if (signinCode) {
           return this._consumeSigninCode(signinCode);

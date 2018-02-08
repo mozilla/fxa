@@ -119,8 +119,7 @@ define(function (require, exports, module) {
 
       return Promise.all(initialChildViews.map((ChildView) => {
         return this._createChildViewIfNeeded(ChildView);
-      }))
-      .then(proto.afterRender.bind(this));
+      })).then(proto.afterRender.bind(this));
     }
   });
 

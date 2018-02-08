@@ -78,10 +78,10 @@ define(function (require, exports, module) {
           createView({ marketingId });
 
           return view.render()
-          .then(() => {
-            assert.lengthOf(view.$('.marketing-link-ios'), 0);
-            assert.lengthOf(view.$('.marketing-link-android'), 0);
-          });
+            .then(() => {
+              assert.lengthOf(view.$('.marketing-link-ios'), 0);
+              assert.lengthOf(view.$('.marketing-link-android'), 0);
+            });
         });
 
         it('override for Fx Mobile users', () => {
@@ -90,11 +90,11 @@ define(function (require, exports, module) {
           createView({ marketingId, which: View.WHICH.BOTH });
 
           return view.render()
-          .then(() => {
-            assert.lengthOf(view.$('.marketing-link-ios'), 1);
-            assert.lengthOf(view.$('.marketing-link-android'), 1);
-            assert.isTrue(view.$el.hasClass(marketingId));
-          });
+            .then(() => {
+              assert.lengthOf(view.$('.marketing-link-ios'), 1);
+              assert.lengthOf(view.$('.marketing-link-android'), 1);
+              assert.isTrue(view.$el.hasClass(marketingId));
+            });
         });
 
         it('shows only iOS button to iOS users', function () {
@@ -105,11 +105,11 @@ define(function (require, exports, module) {
           createView({ marketingId });
 
           return view.render()
-          .then(() => {
-            assertLinkHasExpectedAttributes(view, marketingId, 'ios');
-            assert.lengthOf(view.$('.marketing-link-android'), 0);
-            assert.isTrue(view.$el.hasClass(marketingId));
-          });
+            .then(() => {
+              assertLinkHasExpectedAttributes(view, marketingId, 'ios');
+              assert.lengthOf(view.$('.marketing-link-android'), 0);
+              assert.isTrue(view.$el.hasClass(marketingId));
+            });
         });
 
         it('shows only Android button to Android users', function () {
@@ -118,11 +118,11 @@ define(function (require, exports, module) {
           createView({ marketingId });
 
           return view.render()
-          .then(() => {
-            assert.lengthOf(view.$('.marketing-link-ios'), 0);
-            assertLinkHasExpectedAttributes(view, marketingId, 'android');
-            assert.isTrue(view.$el.hasClass(marketingId));
-          });
+            .then(() => {
+              assert.lengthOf(view.$('.marketing-link-ios'), 0);
+              assertLinkHasExpectedAttributes(view, marketingId, 'android');
+              assert.isTrue(view.$el.hasClass(marketingId));
+            });
         });
 
         it('shows iOS and Android buttons to non-iOS, non-Android users', function () {
@@ -131,30 +131,30 @@ define(function (require, exports, module) {
           createView({ marketingId });
 
           return view.render()
-          .then(() => {
-            assertLinkHasExpectedAttributes(view, marketingId, 'ios');
-            assertLinkHasExpectedAttributes(view, marketingId, 'android');
-          });
+            .then(() => {
+              assertLinkHasExpectedAttributes(view, marketingId, 'ios');
+              assertLinkHasExpectedAttributes(view, marketingId, 'android');
+            });
         });
 
         it('shows localized buttons for supported languages', function () {
           createView({ lang: 'de', marketingId });
 
           return view.render()
-          .then(() => {
+            .then(() => {
             // de.png for play store
-            assert.lengthOf(view.$('img[src*="/de."]'), 2);
-          });
+              assert.lengthOf(view.$('img[src*="/de."]'), 2);
+            });
         });
 
         it('shows en-US buttons for unsupported languages', function () {
           createView({ lang: 'klingon', marketingId });
 
           return view.render()
-          .then(() => {
+            .then(() => {
             // en.png for play store
-            assert.lengthOf(view.$('img[src*="/en."]'), 2);
-          });
+              assert.lengthOf(view.$('img[src*="/en."]'), 2);
+            });
         });
 
         it('shows high-res Android image to users with high-dpi displays', function () {
@@ -163,10 +163,10 @@ define(function (require, exports, module) {
           sinon.stub(view, '_isHighRes').callsFake(() => true);
 
           return view.render()
-          .then(() => {
+            .then(() => {
             // en@2x.png for play store. (app store images are SVG)
-            assert.lengthOf(view.$('img[src*="/en@2x.png"]'), 1);
-          });
+              assert.lengthOf(view.$('img[src*="/en@2x.png"]'), 1);
+            });
         });
 
         describe('_storeLink', () => {

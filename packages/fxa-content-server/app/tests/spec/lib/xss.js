@@ -28,12 +28,12 @@ define(function (require, exports, module) {
 
       it('allows href with query parameters', function () {
         assert.equal(XSS.href('https://all.good?with_query'),
-                'https://all.good?with_query');
+          'https://all.good?with_query');
       });
 
       it('allows but escapes URLs that try to break out', function () {
         assert.equal(XSS.href('http://href.gone.bad" onclick="javascript(1)"'),
-                'http://href.gone.bad%22%20onclick=%22javascript(1)%22');
+          'http://href.gone.bad%22%20onclick=%22javascript(1)%22');
       });
 
       it('disallows javascript: href', function () {

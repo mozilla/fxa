@@ -273,12 +273,12 @@ define(function (require, exports, module) {
      */
     getCurrentPage () {
       const fragment = Backbone.history.fragment || '';
-                // strip leading /
+      // strip leading /
       return fragment.replace(/^\//, '')
-                // strip trailing /
-                .replace(/\/$/, '')
-                // we only want the pathname
-                .replace(/\?.*/, '');
+        // strip trailing /
+        .replace(/\/$/, '')
+        // we only want the pathname
+        .replace(/\?.*/, '');
     },
 
     getCurrentViewName () {
@@ -295,14 +295,14 @@ define(function (require, exports, module) {
       fragment = fragment || '';
       // strip leading /
       return fragment.replace(/^\//, '')
-                // strip trailing /
-                .replace(/\/$/, '')
-                // any other slashes get converted to '.'
-                .replace(/\//g, '.')
-                // search params can contain sensitive info
-                .replace(/\?.*/, '')
-                // replace _ with -
-                .replace(/_/g, '-');
+        // strip trailing /
+        .replace(/\/$/, '')
+        // any other slashes get converted to '.'
+        .replace(/\//g, '.')
+        // search params can contain sensitive info
+        .replace(/\?.*/, '')
+        // replace _ with -
+        .replace(/_/g, '-');
     },
 
     /**
@@ -313,7 +313,7 @@ define(function (require, exports, module) {
      */
     showView (View, options) {
       this.notifier.trigger(
-          'show-view', View, this.getViewOptions(options));
+        'show-view', View, this.getViewOptions(options));
     },
 
     /**
@@ -326,7 +326,7 @@ define(function (require, exports, module) {
      */
     showChildView (ChildView, ParentView, options) {
       this.notifier.trigger(
-          'show-child-view', ChildView, ParentView, this.getViewOptions(options));
+        'show-child-view', ChildView, ParentView, this.getViewOptions(options));
     },
 
     /**

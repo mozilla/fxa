@@ -174,8 +174,7 @@ define(function (require, exports, module) {
     checkPassword: withClient((client, email, password) => {
       return client.signIn(email, password, {
         reason: SignInReasons.PASSWORD_CHECK
-      })
-      .then(function (sessionInfo) {
+      }).then(function (sessionInfo) {
         // a session was created on the backend to check the user's
         // password. Delete the newly created session immediately
         // so that the session token is not left in the database.
@@ -581,8 +580,7 @@ define(function (require, exports, module) {
           keys: wantsKeys(relier, sessionTokenContext),
           sessionToken: sessionToken
         }
-      )
-      .then((accountData = {}) => {
+      ).then((accountData = {}) => {
         return getUpdatedSessionData(email, relier, accountData, {
           sessionTokenContext: sessionTokenContext
         });
@@ -683,8 +681,8 @@ define(function (require, exports, module) {
             // to show the correct UI. Convert `emailVerified` to
             // a `verificationReason`.
             var verificationReason = response.emailVerified ?
-                                     VerificationReasons.SIGN_IN :
-                                     VerificationReasons.SIGN_UP;
+              VerificationReasons.SIGN_IN :
+              VerificationReasons.SIGN_UP;
 
             return {
               email: response.email,

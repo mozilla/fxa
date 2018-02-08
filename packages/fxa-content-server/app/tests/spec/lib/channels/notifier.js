@@ -44,7 +44,7 @@ define(function (require, exports, module) {
 
     it('listens on initialization', function () {
       assert.equal(tabChannelMock.on.callCount,
-                   Object.keys(Notifier.prototype.COMMANDS).length);
+        Object.keys(Notifier.prototype.COMMANDS).length);
     });
 
     it('emits events received from other tabs', function (done) {

@@ -168,8 +168,7 @@ define(function (require, exports, module) {
         } else if (this._needsAccessToken()) {
           return this._fetchProfileOAuthToken();
         }
-      })
-      .then(() => this._profileClient);
+      }).then(() => this._profileClient);
     },
 
     isFromSync () {
@@ -451,8 +450,7 @@ define(function (require, exports, module) {
         } else {
           throw AuthErrors.toError('UNEXPECTED_ERROR');
         }
-      })
-      .then((updatedSessionData) => {
+      }).then((updatedSessionData) => {
         // If a different email case or primary email was used to login,
         // the session won't have correct email. Update the session to use the one
         // originally used for login.
@@ -465,8 +463,7 @@ define(function (require, exports, module) {
         this._notifier.trigger('set-uid', this.get('uid'));
 
         return updatedSessionData;
-      })
-      .catch((err) => {
+      }).catch((err) => {
         // The `INCORRECT_EMAIL_CASE` can be returned if a user is attempting to login with a different
         // email case than what the account was created with or if they changed their primary email address.
         // In both scenarios, the content-server needs to know the original account email to hash
@@ -636,8 +633,7 @@ define(function (require, exports, module) {
       return this._fxaClient.deleteAccount(
         this.get('email'),
         password
-      )
-      .then(() => {
+      ).then(() => {
         this._notifier.trigger('clear-uid');
         this.trigger('destroy', this);
       });
@@ -846,8 +842,7 @@ define(function (require, exports, module) {
         {
           metricsContext: this._metrics.getFlowEventMetadata()
         }
-      )
-      .then(this.set.bind(this));
+      ).then(this.set.bind(this));
     },
 
     /**
@@ -1035,7 +1030,7 @@ define(function (require, exports, module) {
       }
 
       return this._fxaClient.accountKeys(
-          this.get('keyFetchToken'), this.get('unwrapBKey'));
+        this.get('keyFetchToken'), this.get('unwrapBKey'));
     },
     /**
      * Check whether password reset is complete for the given token

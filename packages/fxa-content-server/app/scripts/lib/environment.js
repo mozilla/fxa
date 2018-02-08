@@ -85,10 +85,10 @@
       var isNativelyEmbedded = nativeNames[win.name];
 
       return !! (
-                 win.top &&
-                 win.top !== win &&
-                 ! isNativelyEmbedded
-                );
+        win.top &&
+        win.top !== win &&
+        ! isNativelyEmbedded
+      );
     },
 
     /**

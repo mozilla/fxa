@@ -304,11 +304,11 @@ define(function (require, exports, module) {
         view.$('#vpassword').val('password2');
 
         return view.validateAndSubmit()
-            .then(function () {
-              assert(false, 'unexpected success');
-            }, function () {
-              assert.ok(view.$('.error').text().length);
-            });
+          .then(function () {
+            assert(false, 'unexpected success');
+          }, function () {
+            assert.ok(view.$('.error').text().length);
+          });
       });
 
       describe('broker does not halt', function () {
@@ -395,9 +395,9 @@ define(function (require, exports, module) {
         };
 
         return view.validateAndSubmit()
-            .then(function () {
-              assert.ok(view.$('#fxa-reset-link-expired-header').length);
-            });
+          .then(function () {
+            assert.ok(view.$('#fxa-reset-link-expired-header').length);
+          });
       });
 
       it('shows error message if server returns an error', function () {
@@ -409,9 +409,9 @@ define(function (require, exports, module) {
         });
 
         return view.validateAndSubmit()
-            .then(assert.fail, function () {
-              assert.ok(view.$('.error').text().length);
-            });
+          .then(assert.fail, function () {
+            assert.ok(view.$('.error').text().length);
+          });
       });
     });
 

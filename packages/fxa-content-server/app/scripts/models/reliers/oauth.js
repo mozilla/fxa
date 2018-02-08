@@ -161,7 +161,7 @@ define(function (require, exports, module) {
       // params listed in:
       // https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#post-v1authorization
       this.importSearchParamsUsingSchema(
-          SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA, OAuthErrors);
+        SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA, OAuthErrors);
 
       // OAuth reliers are not allowed to specify a service. `service`
       // is used in the verification flow, it'll be set to the `client_id`.
@@ -269,7 +269,7 @@ define(function (require, exports, module) {
         account.getPermissionsWithValues(this.get('permissions'));
 
       return ! account.hasSeenPermissions(
-          this.get('clientId'), applicableProfilePermissions);
+        this.get('clientId'), applicableProfilePermissions);
     }
   });
 

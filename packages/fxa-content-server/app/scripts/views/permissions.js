@@ -259,7 +259,7 @@ define(function (require, exports, module) {
       this.logViewEvent('accept');
 
       account.setClientPermissions(
-          this.relier.get('clientId'), this._getFormPermissions());
+        this.relier.get('clientId'), this._getFormPermissions());
 
       return this.user.setAccount(account)
         .then(this.onSubmitComplete);

@@ -59,7 +59,7 @@ module.exports = function verRoute (i18n) {
       .then(function (template) {
         if (! template) {
           logger.warn('%s->`%s` does not exist, redirecting to `%s`',
-                             page, lang, DEFAULT_LANG);
+            page, lang, DEFAULT_LANG);
           return res.redirect(getRedirectURL(DEFAULT_LANG, page));
         }
 

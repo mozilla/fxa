@@ -468,7 +468,7 @@ define(function (require, exports, module) {
             assert.isTrue(
               fxaClient.signIn.calledWith(upperCaseEmail, PASSWORD, relier, firstExpectedOptions));
             assert.isTrue(
-                fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier, secondExpectedOptions));
+              fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier, secondExpectedOptions));
 
             assert.equal(account.get('email'), EMAIL);
           });
@@ -1954,9 +1954,9 @@ define(function (require, exports, module) {
             keyFetchToken: 'key fetch token',
             unwrapBKey: 'unwrap b key'
           })
-          .then(function (_result) {
-            result = _result;
-          });
+            .then(function (_result) {
+              result = _result;
+            });
         });
 
         it('delegates to the fxaClient', function () {
@@ -1999,19 +1999,19 @@ define(function (require, exports, module) {
       describe('getClientPermission', function () {
         it('returns the permissions for a client', function () {
           assert.isFalse(account.getClientPermission(
-                CLIENT_ID, 'profile:display_name'));
+            CLIENT_ID, 'profile:display_name'));
           assert.isTrue(account.getClientPermission(
-                CLIENT_ID, 'profile:email'));
+            CLIENT_ID, 'profile:email'));
         });
 
         it('returns `undefined` if client has no permissions', function () {
           assert.isUndefined(account.getClientPermission(
-                'unknown', 'profile:email'));
+            'unknown', 'profile:email'));
         });
 
         it('returns `undefined` if permissions is not found', function () {
           assert.isUndefined(account.getClientPermission(
-                CLIENT_ID, 'unknown'));
+            CLIENT_ID, 'unknown'));
         });
       });
     });
@@ -2135,7 +2135,7 @@ define(function (require, exports, module) {
 
       it('delegates to the fxaClient', function () {
         assert.isTrue(
-            fxaClient.checkAccountExistsByEmail.calledWith(EMAIL));
+          fxaClient.checkAccountExistsByEmail.calledWith(EMAIL));
       });
     });
 

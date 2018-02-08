@@ -62,7 +62,7 @@ define(function (require, exports, module) {
 
         it('logs a page refresh', function () {
           assert.isTrue(
-              metrics.logViewEvent.calledWith('view1', 'refresh'));
+            metrics.logViewEvent.calledWith('view1', 'refresh'));
         });
       });
     });

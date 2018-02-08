@@ -208,11 +208,11 @@ define(function (require, exports, module) {
         view.formIsValid = true;
         view.validateAndSubmit();
         return view.validateAndSubmit()
-                  .then(function () {
-                    assert(false, 'unexpected success');
-                  }, function (err) {
-                    assert.equal(err.message, 'submit already in progress');
-                  });
+          .then(function () {
+            assert(false, 'unexpected success');
+          }, function (err) {
+            assert.equal(err.message, 'submit already in progress');
+          });
 
       });
 
@@ -233,9 +233,9 @@ define(function (require, exports, module) {
         };
 
         return testErrorDisplayed('an error message')
-                  .then(function () {
-                    assert.isTrue(view.isFormEnabled());
-                  });
+          .then(function () {
+            assert.isTrue(view.isFormEnabled());
+          });
       });
 
       it('beforeSubmit can return a false to stop form submission', function () {
@@ -245,9 +245,9 @@ define(function (require, exports, module) {
         };
 
         return view.validateAndSubmit()
-                    .then(function () {
-                      assert.isFalse(view.isFormSubmitted);
-                    });
+          .then(function () {
+            assert.isFalse(view.isFormSubmitted);
+          });
       });
 
       it('beforeSubmit can return a promise for asynchronous operations', function () {

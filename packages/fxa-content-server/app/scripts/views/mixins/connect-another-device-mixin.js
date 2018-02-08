@@ -137,8 +137,7 @@ define(function(require, exports, module) {
       return Promise.resolve(
         this._areSmsRequirementsMet(account) &&
         this._smsCountry(account)
-      )
-      .then((country) => {
+      ).then((country) => {
         return {
           country,
           ok: !! country

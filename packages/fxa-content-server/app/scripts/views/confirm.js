@@ -91,8 +91,8 @@ define(function (require, exports, module) {
 
           var brokerMethod =
             this.isSignUp() ?
-            'afterSignUpConfirmationPoll' :
-            'afterSignInConfirmationPoll';
+              'afterSignUpConfirmationPoll' :
+              'afterSignInConfirmationPoll';
 
           return this.invokeBrokerMethod(brokerMethod, account);
         });
@@ -102,8 +102,7 @@ define(function (require, exports, module) {
       const account = this.getAccount();
       return account.retrySignUp(this.relier, {
         resume: this.getStringifiedResumeToken(account)
-      })
-      .catch((err) => {
+      }).catch((err) => {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
           return this.navigate('signup', {
             error: err

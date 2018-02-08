@@ -67,7 +67,7 @@ define(function (require, exports, module) {
     afterVisible () {
       if (this.model.get('bouncedEmail')) {
         this.showValidationError('input[type=email]',
-                  AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
+          AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
       }
 
       if (this.broker.isAutomatedBrowser()) {
@@ -98,7 +98,7 @@ define(function (require, exports, module) {
       var prefillPassword = this.formPrefill.get('password');
 
       return selectAutoFocusEl(
-            this.model.get('bouncedEmail'), prefillEmail, prefillPassword);
+        this.model.get('bouncedEmail'), prefillEmail, prefillPassword);
     },
 
     setInitialContext (context) {
@@ -146,10 +146,10 @@ define(function (require, exports, module) {
         this.displayError(AuthErrors.toError('PASSWORDS_DO_NOT_MATCH'));
       } else if (this._isEmailSameAsBouncedEmail()) {
         this.showValidationError('input[type=email]',
-                AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED'));
+          AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED'));
       } else if (this._isEmailFirefoxDomain()) {
         this.showValidationError('input[type=email]',
-                AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN'));
+          AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN'));
       }
     },
 
@@ -186,8 +186,7 @@ define(function (require, exports, module) {
         // that fails, show a COPPA error.
         // https://github.com/mozilla/fxa-content-server/issues/2778
         return this._signIn(account, password);
-      })
-      .catch((err) => {
+      }).catch((err) => {
         if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
           this.logEvent('login.canceled');
           // if user canceled login, just stop

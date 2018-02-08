@@ -255,7 +255,7 @@ define(function (require, exports, module) {
             assert.equal(args[0], 'login');
             assert.equal(args[1].customizeSync, true);
             assert.deepEqual(
-                args[1].declinedSyncEngines, ['bookmarks', 'passwords']);
+              args[1].declinedSyncEngines, ['bookmarks', 'passwords']);
             assert.equal(args[1].email, 'testuser@testuser.com');
             assert.equal(args[1].sessionToken, 'session_token');
             assert.equal(args[1].uid, 'uid');

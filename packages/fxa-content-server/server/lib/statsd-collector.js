@@ -111,7 +111,7 @@ function isInRange(value, min, max) {
 
 function logOutOfRange(type, offset, min, max) {
   logger.error('Out of range (%s): %s [%s, %s]',
-      type, offset, min, max);
+    type, offset, min, max);
 }
 
 function isCountValid(value) {

@@ -156,7 +156,7 @@ define(function (require, exports, module) {
           this.displaySuccess(t('Password reset'));
 
           return this.invokeBrokerMethod(
-                  'afterResetPasswordConfirmationPoll', account);
+            'afterResetPasswordConfirmationPoll', account);
         })
         .then(() => {
           this.navigate('reset_password_confirmed');
@@ -234,8 +234,7 @@ define(function (require, exports, module) {
       return this.retryResetPassword(
         this.model.get('email'),
         this.model.get('passwordForgotToken')
-      )
-      .catch((err) => {
+      ).catch((err) => {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
           return this.navigate('reset_password', {
             error: err

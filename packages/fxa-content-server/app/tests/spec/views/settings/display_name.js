@@ -190,7 +190,7 @@ define(function (require, exports, module) {
             assert.isTrue(view.updateDisplayName.calledWith(expectedName));
             assert.isTrue(view.displaySuccess.called);
             assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'settings.display-name.success'));
+              'settings.display-name.success'));
             assert.isTrue(view.navigate.calledWith('settings'));
 
             assert.equal(view.logFlowEvent.callCount, 1);

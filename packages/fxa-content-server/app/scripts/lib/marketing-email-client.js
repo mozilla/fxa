@@ -41,8 +41,7 @@ define(function (require, exports, module) {
         timeout: this._xhrTimeout,
         type: method,
         url: url
-      })
-      .catch(function (xhr) {
+      }).catch(function (xhr) {
         throw MarketingEmailErrors.normalizeXHRError(xhr);
       });
     },

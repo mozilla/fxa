@@ -28,8 +28,7 @@ define(function (require, exports, module) {
         accepts: { text: 'text/partial' },
         dataType: 'text',
         url: this.copyUrl
-      })
-      .then((template) => {
+      }).then((template) => {
         this.$('#legal-copy').html(template);
         this.$('.hidden').removeClass('hidden');
 
@@ -47,8 +46,7 @@ define(function (require, exports, module) {
         // came from this page.
         this.window.document.cookie = 'canGoBack=1; path=' + this.window.location.pathname;
         return proto.afterRender.call(this);
-      })
-      .catch(() => {
+      }).catch(() => {
         this.displayError(this.fetchError);
         this.$('.hidden').removeClass('hidden');
       });

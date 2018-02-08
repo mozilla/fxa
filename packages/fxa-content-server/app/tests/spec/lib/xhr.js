@@ -41,8 +41,7 @@ define(function (require, exports, module) {
 
         return xhr.ajax({
           url: '/fake_endpoint'
-        })
-        .then(function (resp) {
+        }).then(function (resp) {
           assert.equal(resp, 'mocked_response');
           assert.isTrue($.ajax.calledWith({ url: '/fake_endpoint' }));
         });
@@ -64,8 +63,7 @@ define(function (require, exports, module) {
           method: 'POST',
           processData: false,
           url: '/fake_endpoint'
-        })
-        .then(function (resp) {
+        }).then(function (resp) {
           assert.equal(resp, 'mocked_response');
           assert.isTrue($.ajax.calledWith({
             accepts: { json: 'application/json' },
@@ -100,15 +98,13 @@ define(function (require, exports, module) {
           method: 'POST',
           processData: false,
           url: '/error_endpoint'
-        })
-        // a .fail that throws followed by a .then(null, errback)
-        // does not correctly propagate the error unless the
-        // jQuery promise is converted to an internal promise
-        .catch((jqXHR) => {
+        }).catch((jqXHR) => {
+          // a .fail that throws followed by a .then(null, errback)
+          // does not correctly propagate the error unless the
+          // jQuery promise is converted to an internal promise
           assert.strictEqual(jqXHR, errResponse);
           throw jqXHR;
-        })
-        .then(null, (jqXHR) => {
+        }).then(null, (jqXHR) => {
           assert.strictEqual(jqXHR, errResponse);
         });
       });
@@ -126,8 +122,7 @@ define(function (require, exports, module) {
           headers: { 'ETag': 'why not?' },
           type: 'get',
           url: '/endpoint'
-        })
-        .then(function () {
+        }).then(function () {
           var ajaxOptions = xhr.ajax.args[0][0];
 
           assert.equal(ajaxOptions.url, '/endpoint');
@@ -150,8 +145,7 @@ define(function (require, exports, module) {
             data: new Blob(),
             type: 'get',
             url: '/endpoint'
-          })
-          .then(function () {
+          }).then(function () {
             var ajaxOptions = xhr.ajax.args[0][0];
             assert.equal(ajaxOptions.processData, false);
           });

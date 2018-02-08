@@ -76,7 +76,7 @@ define(function (require, exports, module) {
       this._scopedKeys = ScopedKeys;
 
       return BaseAuthenticationBroker.prototype.initialize.call(
-                  this, options);
+        this, options);
     },
 
     getOAuthResult (account) {
@@ -136,8 +136,7 @@ define(function (require, exports, module) {
             scope: relier.get('scope')
           });
         }
-      })
-      .then((clientKeyData) => {
+      }).then((clientKeyData) => {
         if (! clientKeyData || Object.keys(clientKeyData).length === 0) {
           // if we got no key data then exit out
           return null;

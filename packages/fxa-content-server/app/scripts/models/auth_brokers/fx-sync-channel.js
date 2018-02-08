@@ -191,8 +191,7 @@ define(function (require, exports, module) {
         return this.send(
           this.getCommand('CHANGE_PASSWORD'),
           this._getLoginData(account)
-        )
-        .then(() => {
+        ).then(() => {
           return proto.afterChangePassword.call(this, account);
         });
       } else {
@@ -204,8 +203,7 @@ define(function (require, exports, module) {
       return this.send(this.getCommand('DELETE_ACCOUNT'), {
         email: account.get('email'),
         uid: account.get('uid')
-      })
-      .then(() => proto.afterDeleteAccount.call(this, account));
+      }).then(() => proto.afterDeleteAccount.call(this, account));
     },
 
     /**

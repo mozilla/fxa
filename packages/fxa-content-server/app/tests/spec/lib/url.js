@@ -13,9 +13,9 @@ define(function (require, exports, module) {
   describe('lib/url', function () {
     describe('searchParam', function () {
       it('returns a parameter from window.location.search, if it exists',
-          function () {
-            assert.equal(Url.searchParam('color', '?color=green'), 'green');
-          });
+        function () {
+          assert.equal(Url.searchParam('color', '?color=green'), 'green');
+        });
 
       it('returns empty if parameter is empty', function () {
         assert.equal(Url.searchParam('color', '?color='), '');

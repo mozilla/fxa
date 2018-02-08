@@ -70,23 +70,23 @@ define(function (require, exports, module) {
           var $externalLink = view.$('#external-link');
           assert.isTrue($externalLink.hasClass('visible-url'));
           assert.equal(
-          $externalLink.attr('data-visible-url'), $externalLink.attr('href'));
+            $externalLink.attr('data-visible-url'), $externalLink.attr('href'));
           assert.equal(
-           $externalLink.attr('rel'),'noopener noreferrer');
+            $externalLink.attr('rel'),'noopener noreferrer');
         });
 
         it('does not convert internal links, does not add rel', function () {
           var $internalLink = view.$('#internal-link');
           assert.isFalse($internalLink.hasClass('visible-url'));
           assert.notEqual(
-         $internalLink.attr('rel'),'noopener noreferrer');
+            $internalLink.attr('rel'),'noopener noreferrer');
         });
 
         it('does not convert if text and the href are the same', () => {
           assert.equal(
-          typeof view.$('#data-visible-url-not-added').attr('data-visible-url'),
-          'undefined'
-        );
+            typeof view.$('#data-visible-url-not-added').attr('data-visible-url'),
+            'undefined'
+          );
         });
       });
 

@@ -111,19 +111,19 @@ define(function (require, exports, module) {
       var account = this.getAccount();
 
       return this.user.completeAccountPasswordReset(
-          account,
-          password,
-          token,
-          code,
-          this.relier
-        )
+        account,
+        password,
+        token,
+        code,
+        this.relier
+      )
         .then((updatedAccount) => {
           // The password was reset, future attempts should ask confirmation.
           this.relier.set('resetPasswordConfirm', true);
           // See the above note about notifying the original tab.
           this.logViewEvent('verification.success');
           return this.invokeBrokerMethod(
-                    'afterCompleteResetPassword', updatedAccount);
+            'afterCompleteResetPassword', updatedAccount);
         })
         .then(() => {
           this.navigate('reset_password_verified');

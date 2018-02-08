@@ -291,12 +291,12 @@ define(function (require, exports, module) {
 
       it('converts _ to -', function () {
         assert.equal(router.fragmentToViewName('complete_sign_up'),
-            'complete-sign-up');
+          'complete-sign-up');
       });
 
       it('strips search parameters', function () {
         assert.equal(router.fragmentToViewName('complete_sign_up?email=testuser@testuser.com'),
-            'complete-sign-up');
+          'complete-sign-up');
       });
 
     });
@@ -321,7 +321,7 @@ define(function (require, exports, module) {
 
         router.showChildView(DisplayNameView, SettingsView, options);
         assert.isTrue(notifier.trigger.calledWith(
-            'show-child-view', DisplayNameView, SettingsView));
+          'show-child-view', DisplayNameView, SettingsView));
       });
     });
 
@@ -380,7 +380,7 @@ define(function (require, exports, module) {
         routeHandler.call(router);
 
         assert.isTrue(
-            router.showView.calledWith(View, viewConstructorOptions));
+          router.showView.calledWith(View, viewConstructorOptions));
       });
     });
 
@@ -396,7 +396,7 @@ define(function (require, exports, module) {
         sinon.spy(router, 'showChildView');
 
         var routeHandler = router.createChildViewHandler(
-            ChildView, ParentView, viewConstructorOptions);
+          ChildView, ParentView, viewConstructorOptions);
 
         assert.isFunction(routeHandler);
         assert.isFalse(router.showChildView.called);
@@ -404,7 +404,7 @@ define(function (require, exports, module) {
         routeHandler.call(router);
 
         assert.isTrue(router.showChildView.calledWith(
-            ChildView, ParentView, viewConstructorOptions));
+          ChildView, ParentView, viewConstructorOptions));
       });
     });
 

@@ -18,7 +18,7 @@ define(function (require, exports, module) {
         var stringToInterpolate = 'Hi %s, this is interpolated.';
         var interpolated = Strings.interpolate(stringToInterpolate, ['testuser@testuser.com']);
         assert.equal(interpolated,
-              'Hi testuser@testuser.com, this is interpolated.');
+          'Hi testuser@testuser.com, this is interpolated.');
       });
 
       it('can do string interpolation on named `%(name)s` when given array context', function () {
@@ -27,7 +27,7 @@ define(function (require, exports, module) {
           email: 'testuser@testuser.com'
         });
         assert.equal(interpolated,
-              'Error encountered trying to register: testuser@testuser.com.');
+          'Error encountered trying to register: testuser@testuser.com.');
       });
 
       it('can do interpolation multiple times with an array', function () {
@@ -37,7 +37,7 @@ define(function (require, exports, module) {
         ]);
 
         assert.equal(interpolated,
-              'Hi testuser@testuser.com, you have been signed in since noon');
+          'Hi testuser@testuser.com, you have been signed in since noon');
       });
 
       it('can do interpolation multiple times with an object', function () {
@@ -48,7 +48,7 @@ define(function (require, exports, module) {
         });
 
         assert.equal(interpolated,
-              'Hi testuser@testuser.com, you have been signed in since noon');
+          'Hi testuser@testuser.com, you have been signed in since noon');
       });
 
       it('does no replacement on %s and %(name)s if not in context', function () {

@@ -216,7 +216,7 @@ define(function (require, exports, module) {
 
         it('triggers a `view-shown` message with the view', function () {
           assert.isTrue(notifier.trigger.calledWith(
-              'view-shown', displayedView));
+            'view-shown', displayedView));
         });
       });
 
@@ -417,8 +417,7 @@ define(function (require, exports, module) {
 
         return view.showChildView(ChildView, ParentView, {
           model: new Backbone.Model({ 'new-key': 'new-value' })
-        })
-        .then(function (_childView) {
+        }).then(function (_childView) {
           childView = _childView;
         });
       });

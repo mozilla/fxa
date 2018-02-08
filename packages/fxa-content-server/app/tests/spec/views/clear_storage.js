@@ -28,10 +28,10 @@ define(function (require, exports, module) {
       sessionStorage.setItem('let\'s', 'go');
 
       return view.render()
-          .then(function () {
-            assert.notOk(localStorage.length);
-            assert.notOk(sessionStorage.length);
-          });
+        .then(function () {
+          assert.notOk(localStorage.length);
+          assert.notOk(sessionStorage.length);
+        });
     });
   });
 });

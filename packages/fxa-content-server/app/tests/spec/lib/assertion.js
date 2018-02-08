@@ -58,8 +58,7 @@ define(function (require, exports, module) {
 
       return client.signUp(email, PASSWORD, relier, {
         preVerified: true
-      })
-      .then(function (result) {
+      }).then(function (result) {
         sessionToken = result.sessionToken;
       });
     });
@@ -130,8 +129,7 @@ define(function (require, exports, module) {
                 } catch (e) {
                   reject(e);
                 }
-              })
-              .catch(() => {
+              }).catch(() => {
                 reject(new Error('failed to feth .well-known/browserid'));
               });
             });

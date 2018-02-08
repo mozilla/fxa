@@ -175,7 +175,7 @@ define(function (require, exports, module) {
 
           it('delegates to the user to change the password', function () {
             assert.isTrue(user.changeAccountPassword.calledWith(
-                account, oldPassword, newPassword, relier));
+              account, oldPassword, newPassword, relier));
           });
 
           it('informs the broker', function () {

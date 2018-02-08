@@ -185,7 +185,7 @@ define(function (require, exports, module) {
         verificationInfo.markExpired();
         err = AuthErrors.toError('UNKNOWN_ACCOUNT_VERIFICATION');
       } else if (
-          AuthErrors.is(err, 'INVALID_VERIFICATION_CODE') ||
+        AuthErrors.is(err, 'INVALID_VERIFICATION_CODE') ||
           AuthErrors.is(err, 'INVALID_PARAMETER')) {
 
         if (this.isPrimaryEmail()) {
@@ -249,8 +249,7 @@ define(function (require, exports, module) {
       const account = this.user.getAccountByEmail(this._email);
       return account.retrySignUp(this.relier, {
         resume: this.getStringifiedResumeToken(account)
-      })
-      .catch((err) => {
+      }).catch((err) => {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
           return this.navigate('signup', {
             error: err

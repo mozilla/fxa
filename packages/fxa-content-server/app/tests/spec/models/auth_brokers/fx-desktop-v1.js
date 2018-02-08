@@ -94,9 +94,9 @@ define(function (require, exports, module) {
     describe('afterSignInConfirmationPoll', () => {
       it('halts by default', () => {
         return broker.afterSignInConfirmationPoll(account)
-        .then((result) => {
-          assert.isTrue(result.halt);
-        });
+          .then((result) => {
+            assert.isTrue(result.halt);
+          });
       });
     });
 
@@ -114,9 +114,9 @@ define(function (require, exports, module) {
     describe('afterSignUpConfirmationPoll', () => {
       it('halts by default', () => {
         return broker.afterSignUpConfirmationPoll(account)
-        .then((result) => {
-          assert.isTrue(result.halt);
-        });
+          .then((result) => {
+            assert.isTrue(result.halt);
+          });
       });
     });
 

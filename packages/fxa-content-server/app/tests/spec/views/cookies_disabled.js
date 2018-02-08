@@ -36,9 +36,9 @@ define(function (require, exports, module) {
         window: windowMock
       });
       return view.render()
-          .then(function () {
-            $('#container').html(view.el);
-          });
+        .then(function () {
+          $('#container').html(view.el);
+        });
     });
 
     afterEach(function () {

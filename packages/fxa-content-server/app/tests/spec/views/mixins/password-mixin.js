@@ -196,14 +196,14 @@ define(function (require, exports, module) {
         it('logs whether the password is shown or hidden', function () {
           view.$('.show-password-label').trigger('mousedown');
           assert.isTrue(TestHelpers.isEventLogged(metrics,
-                            'password-view.password.visible'));
+            'password-view.password.visible'));
           // the password has not been hidden yet.
           assert.isFalse(TestHelpers.isEventLogged(metrics,
-                            'password-view.password.hidden'));
+            'password-view.password.hidden'));
 
           $(windowMock).trigger('mouseup');
           assert.isTrue(TestHelpers.isEventLogged(metrics,
-                            'password-view.password.hidden'));
+            'password-view.password.hidden'));
         });
 
         it('showPassword shows a password', () => {

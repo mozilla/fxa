@@ -256,13 +256,13 @@ define(function (require, exports, module) {
   // Get the scaled position of the crop square over the source image
   Cropper.prototype.cropPosition = function () {
     var scale = this.isLandscape ?
-                  this._originalHeight / this.displayLength :
-                  this._originalWidth / this.displayLength;
+      this._originalHeight / this.displayLength :
+      this._originalWidth / this.displayLength;
     var oscale = 1 + this.scale / 100;
     var sourceLength = this.displayLength / oscale * scale;
     sourceLength = this.isLandscape ?
-                    Math.min(sourceLength, this._originalHeight) :
-                    Math.min(sourceLength, this._originalWidth);
+      Math.min(sourceLength, this._originalHeight) :
+      Math.min(sourceLength, this._originalWidth);
 
     return {
       left: (-this.left + this.horizontalGutter) / oscale * scale,

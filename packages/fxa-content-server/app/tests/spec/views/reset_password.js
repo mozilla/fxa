@@ -57,9 +57,9 @@ define(function (require, exports, module) {
 
       view = createView();
       return view.render()
-          .then(function () {
-            $('#container').html(view.el);
-          });
+        .then(function () {
+          $('#container').html(view.el);
+        });
     });
 
     afterEach(function () {
@@ -183,9 +183,9 @@ define(function (require, exports, module) {
         view.$('input[type=email]').val(email);
 
         return view.submit()
-                  .then(function (msg) {
-                    assert.include(msg, '/signup');
-                  });
+          .then(function (msg) {
+            assert.include(msg, '/signup');
+          });
       });
     });
 
@@ -203,7 +203,7 @@ define(function (require, exports, module) {
             assert.isFalse(view.isErrorVisible());
 
             assert.isTrue(TestHelpers.isEventLogged(metrics,
-                              'login.canceled'));
+              'login.canceled'));
           });
       });
     });
@@ -215,16 +215,16 @@ define(function (require, exports, module) {
         });
 
         return view.submit()
-                  .then(null, function (err) {
-                    // The errorback will not be called if the submit
-                    // succeeds, but the following callback always will
-                    // be. To ensure the errorback was called, pass
-                    // the error along and check its type.
-                    return err;
-                  })
-                  .then(function (err) {
-                    assert.isTrue(AuthErrors.is(err, 'INVALID_JSON'));
-                  });
+          .then(null, function (err) {
+            // The errorback will not be called if the submit
+            // succeeds, but the following callback always will
+            // be. To ensure the errorback was called, pass
+            // the error along and check its type.
+            return err;
+          })
+          .then(function (err) {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_JSON'));
+          });
       });
     });
 

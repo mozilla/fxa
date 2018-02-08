@@ -104,12 +104,12 @@ define(function (require, exports, module) {
 
         initView();
         return view.render()
-            .then(() => {
-              assert.ok(view.$('#fxa-signin-header').length);
-              assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
-              assert.equal(view.$('[type=email]').attr('spellcheck'), 'false');
-              assert.equal(view.$('[type=password]').val(), 'prefilled password');
-            });
+          .then(() => {
+            assert.ok(view.$('#fxa-signin-header').length);
+            assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+            assert.equal(view.$('[type=email]').attr('spellcheck'), 'false');
+            assert.equal(view.$('[type=password]').val(), 'prefilled password');
+          });
       });
 
       it('Shows serviceName from the relier', () => {
@@ -120,9 +120,9 @@ define(function (require, exports, module) {
         // initialize a new view to set the service name
         initView();
         return view.render()
-            .then(() => {
-              assert.include(view.$('#fxa-signin-header').text(), serviceName);
-            });
+          .then(() => {
+            assert.include(view.$('#fxa-signin-header').text(), serviceName);
+          });
       });
 
       it('shows a prefilled email and password field of cached session', () => {
@@ -133,11 +133,11 @@ define(function (require, exports, module) {
           });
         });
         return view.render()
-            .then(() => {
-              assert.ok(view.$('#fxa-signin-header').length);
-              assert.equal(view.$('.prefillEmail').html(), 'a@a.com');
-              assert.equal(view.$('[type=password]').val(), '');
-            });
+          .then(() => {
+            assert.ok(view.$('#fxa-signin-header').length);
+            assert.equal(view.$('.prefillEmail').html(), 'a@a.com');
+            assert.equal(view.$('[type=password]').val(), '');
+          });
       });
 
       it('prefills email with email from relier if prefillEmail is not set', () => {
@@ -145,9 +145,9 @@ define(function (require, exports, module) {
 
         initView();
         return view.render()
-            .then(() => {
-              assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
-            });
+          .then(() => {
+            assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+          });
       });
 
       describe('with a cached account whose accessToken is invalidated after render', () => {
@@ -372,9 +372,9 @@ define(function (require, exports, module) {
       it('incorrect password shows a validation error', () => {
         sinon.spy(view, 'showValidationError');
         view.onSignInError(
-            account,
-            'password',
-            AuthErrors.toError('INCORRECT_PASSWORD')
+          account,
+          'password',
+          AuthErrors.toError('INCORRECT_PASSWORD')
         );
 
         assert.isTrue(view.showValidationError.calledOnce);
@@ -466,7 +466,7 @@ define(function (require, exports, module) {
 
             assert.equal(view.$('.email').val(), '', 'should have an empty email input');
             assert.isTrue(isEventLogged(metrics,
-                              'signin.use-different-account'));
+              'signin.use-different-account'));
           });
       });
     });

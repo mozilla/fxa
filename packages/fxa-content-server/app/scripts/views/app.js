@@ -172,22 +172,21 @@ define(function (require, exports, module) {
           // handle the childView option.
           return this.showView(ParentView, options);
         }
-      })
-      .then(() => this._currentView.showChildView(ChildView, options))
-      .then((childView) => {
+      }).then(() => this._currentView.showChildView(ChildView, options))
+        .then((childView) => {
         // Use the super view's title as the base title
-        var title = childView.titleFromView(this._currentView.titleFromView());
-        this.setTitle(title);
-        childView.logView();
+          var title = childView.titleFromView(this._currentView.titleFromView());
+          this.setTitle(title);
+          childView.logView();
 
-        // The child view has its own model. Import the passed in
-        // model data to the child's model and display any
-        // necessary status messages.
-        childView.model.set(options.model.toJSON());
-        childView.displayStatusMessages();
+          // The child view has its own model. Import the passed in
+          // model data to the child's model and display any
+          // necessary status messages.
+          childView.model.set(options.model.toJSON());
+          childView.displayStatusMessages();
 
-        return childView;
-      });
+          return childView;
+        });
     },
 
     /**

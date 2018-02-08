@@ -133,17 +133,17 @@ define(function (require, exports, module) {
     describe('afterVisible', () => {
       it('persists verification data, starts poll', () => {
         return initView()
-        .then(() => {
-          sinon.stub(view, 'waitForSessionVerification').callsFake(() => {});
-          return view.afterVisible();
-        })
-        .then(() => {
-          assert.isTrue(broker.persistVerificationData.calledOnce);
-          assert.isTrue(broker.persistVerificationData.calledWith(account));
+          .then(() => {
+            sinon.stub(view, 'waitForSessionVerification').callsFake(() => {});
+            return view.afterVisible();
+          })
+          .then(() => {
+            assert.isTrue(broker.persistVerificationData.calledOnce);
+            assert.isTrue(broker.persistVerificationData.calledWith(account));
 
-          assert.isTrue(view.waitForSessionVerification.calledOnce);
-          assert.isTrue(view.waitForSessionVerification.calledWith(account));
-        });
+            assert.isTrue(view.waitForSessionVerification.calledOnce);
+            assert.isTrue(view.waitForSessionVerification.calledWith(account));
+          });
       });
     });
 

@@ -40,10 +40,10 @@ define(function (require, exports, module) {
       });
 
       return view.render()
-          .then(function () {
-            assert.ok(view.$('#fxa-cannot-create-account-header').length);
-            assert.equal(view.$('.ftc').attr('target'), '_blank');
-          });
+        .then(function () {
+          assert.ok(view.$('#fxa-cannot-create-account-header').length);
+          assert.equal(view.$('.ftc').attr('target'), '_blank');
+        });
     });
 
     it('ftc link opens in a same tab for all others', function () {

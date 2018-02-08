@@ -68,7 +68,7 @@ define(function (require, exports, module) {
               'There was a problem with your signup link. Has this address already been registered?';
         var translation = translator.get(stringToTranslate);
         assert.equal(translation,
-              '⊥ɥǝɹǝ ʍɐs ɐ dɹoqʅǝɯ ʍıʇɥ ʎonɹ sıƃund ʅıuʞ˙ Hɐs ʇɥıs ɐppɹǝss ɐʅɹǝɐpʎ qǝǝu ɹǝƃısʇǝɹǝp¿');
+          '⊥ɥǝɹǝ ʍɐs ɐ dɹoqʅǝɯ ʍıʇɥ ʎonɹ sıƃund ʅıuʞ˙ Hɐs ʇɥıs ɐppɹǝss ɐʅɹǝɐpʎ qǝǝu ɹǝƃısʇǝɹǝp¿');
       });
 
       it('msgctxt annotation', () => {
@@ -94,7 +94,7 @@ define(function (require, exports, module) {
         var stringToTranslate = '%s, Persona requires cookies to remember you.';
         var translation = translator.get(stringToTranslate, ['testuser@testuser.com']);
         assert.equal(translation,
-              'testuser@testuser.com, Ԁǝɹsouɐ ɹǝbnıɹǝs ɔooʞıǝs ʇo ɹǝɯǝɯqǝɹ ʎon˙');
+          'testuser@testuser.com, Ԁǝɹsouɐ ɹǝbnıɹǝs ɔooʞıǝs ʇo ɹǝɯǝɯqǝɹ ʎon˙');
       });
 
       it('can do string interpolation on named `%(name)s` when given array context', () => {
@@ -103,7 +103,7 @@ define(function (require, exports, module) {
           email: 'testuser@testuser.com'
         });
         assert.equal(translation,
-              'Ǝɹɹoɹ ǝuɔonuʇǝɹǝp ʇɹʎıuƃ ʇo ɹǝƃısʇɹɐʇıou: testuser@testuser.com˙');
+          'Ǝɹɹoɹ ǝuɔonuʇǝɹǝp ʇɹʎıuƃ ʇo ɹǝƃısʇɹɐʇıou: testuser@testuser.com˙');
       });
 
       it('can do interpolation multiple times with an array', () => {
@@ -113,7 +113,7 @@ define(function (require, exports, module) {
         ]);
 
         assert.equal(translation,
-              'Hi testuser@testuser.com, you have been signed in since noon');
+          'Hi testuser@testuser.com, you have been signed in since noon');
       });
 
       it('can do interpolation multiple times with an object', () => {
@@ -124,7 +124,7 @@ define(function (require, exports, module) {
         });
 
         assert.equal(translation,
-              'Hi testuser@testuser.com, you have been signed in since noon');
+          'Hi testuser@testuser.com, you have been signed in since noon');
       });
 
       it('does no replacement on %s and %(name)s if not in context', () => {

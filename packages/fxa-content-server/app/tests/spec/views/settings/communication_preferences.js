@@ -156,7 +156,7 @@ define(function (require, exports, module) {
             assert.equal(view.$('.error').text().trim(),
               MarketingEmailErrors.toMessage('SERVICE_UNAVAILABLE'));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
-                'error.settings.communication-preferences.basket-errors.99.400'));
+              'error.settings.communication-preferences.basket-errors.99.400'));
           });
       });
 
@@ -173,7 +173,7 @@ define(function (require, exports, module) {
             assert.equal(view.$('.error').text().trim(),
               MarketingEmailErrors.toMessage('SERVICE_UNAVAILABLE'));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
-                'error.settings.communication-preferences.basket-errors.99.500'));
+              'error.settings.communication-preferences.basket-errors.99.500'));
           });
       });
     });

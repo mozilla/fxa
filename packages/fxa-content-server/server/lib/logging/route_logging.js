@@ -48,13 +48,13 @@ const formats = {
 
 module.exports = function () {
   return config.disable_route_logging ?
-          disabled :
-          morgan(formats[config.route_log_format], {
-            stream: {
-              write: (x) => {
-                const logBody = config.route_log_format === 'dev_fxa' ? x.trim() : JSON.parse(x);
-                logger.info('route', logBody);
-              }
-            }
-          });
+    disabled :
+    morgan(formats[config.route_log_format], {
+      stream: {
+        write: (x) => {
+          const logBody = config.route_log_format === 'dev_fxa' ? x.trim() : JSON.parse(x);
+          logger.info('route', logBody);
+        }
+      }
+    });
 };

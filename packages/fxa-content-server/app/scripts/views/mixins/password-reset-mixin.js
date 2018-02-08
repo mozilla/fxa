@@ -28,8 +28,7 @@ define(function (require, exports, module) {
       var account = this.user.initAccount({ email: email });
       return account.resetPassword(this.relier, {
         resume: this.getStringifiedResumeToken(account)
-      })
-      .then((result) => {
+      }).then((result) => {
         this.navigate('confirm_reset_password', {
           email: email,
           passwordForgotToken: result.passwordForgotToken

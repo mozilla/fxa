@@ -154,9 +154,9 @@ define(function (require, exports, module) {
           return '<header><h1>Main title</h1><h2>Sub title</h2></header>';
         };
         return view.render()
-            .then(function () {
-              assert.equal(view.titleFromView(), 'Main title: Sub title');
-            });
+          .then(function () {
+            assert.equal(view.titleFromView(), 'Main title: Sub title');
+          });
       });
 
 
@@ -165,9 +165,9 @@ define(function (require, exports, module) {
           return '<header><h2>Sub title</h2></header>';
         };
         return view.render()
-            .then(function () {
-              assert.equal(view.titleFromView('Base title'), 'Base title: Sub title');
-            });
+          .then(function () {
+            assert.equal(view.titleFromView('Base title'), 'Base title: Sub title');
+          });
       });
 
       it('updates the page title with the embedded h1 tag if no h2 tag', function () {
@@ -175,9 +175,9 @@ define(function (require, exports, module) {
           return '<header><h1>Title only</h1></header><header><h2>Not in first header</h2></header>';
         };
         return view.render()
-            .then(function () {
-              assert.equal(view.titleFromView(), 'Title only');
-            });
+          .then(function () {
+            assert.equal(view.titleFromView(), 'Title only');
+          });
       });
 
       it('updates the page title with the startup page title if no h1 or h2 tag', function () {
@@ -185,9 +185,9 @@ define(function (require, exports, module) {
           return '<div>no titles anywhere</div>';
         };
         return view.render()
-            .then(function () {
-              assert.equal(view.titleFromView(), 'Firefox Accounts Unit Tests');
-            });
+          .then(function () {
+            assert.equal(view.titleFromView(), 'Firefox Accounts Unit Tests');
+          });
       });
 
       it('does not render, returns `false` if the view navigates in `beforeRender`', () => {

@@ -91,12 +91,12 @@ define(function (require, exports, module) {
 
       it('converts a string type to a message', function () {
         assert.equal(
-            AuthErrors.toMessage('UNKNOWN_ACCOUNT'), 'Unknown account');
+          AuthErrors.toMessage('UNKNOWN_ACCOUNT'), 'Unknown account');
       });
 
       it('leaves a string that is not a type alone', function () {
         assert.equal(
-            AuthErrors.toMessage('this is an error'), 'this is an error');
+          AuthErrors.toMessage('this is an error'), 'this is an error');
       });
 
       it('uses forceMessage as the message if it exists', function () {
@@ -210,10 +210,10 @@ define(function (require, exports, module) {
 
     describe('is', function () {
       it('checks if an error returned from the server is of a given type',
-          function () {
-            assert.isTrue(AuthErrors.is({ errno: 102 }, 'UNKNOWN_ACCOUNT'));
-            assert.isFalse(AuthErrors.is({ errno: 103 }, 'UNKNOWN_ACCOUNT'));
-          });
+        function () {
+          assert.isTrue(AuthErrors.is({ errno: 102 }, 'UNKNOWN_ACCOUNT'));
+          assert.isFalse(AuthErrors.is({ errno: 103 }, 'UNKNOWN_ACCOUNT'));
+        });
     });
 
     describe('created', function () {

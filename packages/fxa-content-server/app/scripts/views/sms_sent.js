@@ -51,8 +51,7 @@ define(function (require, exports, module) {
       const normalizedPhoneNumber = this.model.get('normalizedPhoneNumber');
       return account.sendSms(normalizedPhoneNumber, FIREFOX_MOBILE_INSTALL, {
         features: this.getSmsFeatures()
-      })
-      .then(() => {
+      }).then(() => {
         this.model.set('isResend', true);
         return this.render();
       });

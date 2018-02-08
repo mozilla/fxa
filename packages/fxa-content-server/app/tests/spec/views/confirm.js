@@ -187,9 +187,9 @@ define(function (require, exports, module) {
 
             assert.isTrue(broker.persistVerificationData.calledOnce);
             assert.isTrue(
-                broker.beforeSignUpConfirmationPoll.calledOnce);
+              broker.beforeSignUpConfirmationPoll.calledOnce);
             assert.isTrue(
-                broker.beforeSignUpConfirmationPoll.calledWith(account));
+              broker.beforeSignUpConfirmationPoll.calledWith(account));
           });
       });
     });
@@ -238,7 +238,7 @@ define(function (require, exports, module) {
             assert.isTrue(user.setAccount.calledWith(account));
             assert.isTrue(broker[expectedBrokerCall].calledWith(account));
             assert.isTrue(TestHelpers.isEventLogged(
-                    metrics, 'confirm.verification.success'));
+              metrics, 'confirm.verification.success'));
             assert.isTrue(notifySpy.withArgs('verification.success').calledOnce);
           });
       }

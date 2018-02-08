@@ -195,9 +195,9 @@ define(function(require, exports, module) {
       it('resolves to a `ConnectAnotherDeviceBehavior`', () => {
         account.get = sinon.spy();
         return broker.afterCompleteSignUp(account)
-        .then((behavior) => {
-          assert.equal(behavior.type, 'connect-another-device');
-        });
+          .then((behavior) => {
+            assert.equal(behavior.type, 'connect-another-device');
+          });
       });
     });
   });

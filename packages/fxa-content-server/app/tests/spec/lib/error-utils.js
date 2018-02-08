@@ -177,7 +177,7 @@ define(function (require, exports, module) {
         it('renders an error message to the DOM', function () {
           assert.isTrue(domWriter.write.called);
           assert.include(
-              $('#stage').text().toLowerCase(), 'invalid parameter: email');
+            $('#stage').text().toLowerCase(), 'invalid parameter: email');
         });
       });
 
@@ -191,7 +191,7 @@ define(function (require, exports, module) {
         it('renders an error message to the DOM', function () {
           assert.isTrue(domWriter.write.called);
           assert.include(
-              $('#stage').text().toLowerCase(), 'invalid parameter: email');
+            $('#stage').text().toLowerCase(), 'invalid parameter: email');
         });
       });
     });
@@ -221,7 +221,7 @@ define(function (require, exports, module) {
       it('renders the error', function () {
         assert.isTrue(domWriter.write.called);
         assert.include(
-            $('#stage').text().toLowerCase(), 'invalid parameter: email');
+          $('#stage').text().toLowerCase(), 'invalid parameter: email');
       });
     });
   });

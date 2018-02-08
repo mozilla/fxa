@@ -168,7 +168,7 @@ define(function (require, exports, module) {
 
     _storeImage (buttonDir, imageFormat) {
       let buttonPath = _.contains(playStoreImageLanguages, this.lang) ?
-                          this.lang : 'en';
+        this.lang : 'en';
 
       if (this._isHighRes() && imageFormat === FORMAT_PNG) {
         buttonPath += '@2x';

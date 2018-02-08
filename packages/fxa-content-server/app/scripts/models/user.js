@@ -386,8 +386,7 @@ define(function (require, exports, module) {
                 sessionToken: Session.sessionToken,
                 sessionTokenContext: Session.sessionTokenContext,
                 uid: result.uid
-              })
-              .then(() => {
+              }).then(() => {
                 Session.clear('email');
                 Session.clear('sessionToken');
                 Session.clear('sessionTokenContext');
@@ -580,7 +579,7 @@ define(function (require, exports, module) {
           const changePasswordCommand = notifier.COMMANDS.CHANGE_PASSWORD;
 
           const loginData = account.pick(
-              Object.keys(notifier.SCHEMATA[changePasswordCommand]));
+            Object.keys(notifier.SCHEMATA[changePasswordCommand]));
           loginData.verified = !! loginData.verified;
 
           notifier.triggerRemote(

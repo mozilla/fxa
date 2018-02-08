@@ -770,7 +770,7 @@ define(function (require, exports, module) {
       if (! this._isAtCookiesDisabled() &&
         ! this._storage.isLocalStorageEnabled(this._window) &&
         ! this._isVerificationInMobileSafari()
-        ) {
+      ) {
         return 'cookies_disabled';
       }
     },

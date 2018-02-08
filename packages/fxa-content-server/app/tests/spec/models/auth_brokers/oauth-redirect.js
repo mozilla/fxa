@@ -66,8 +66,7 @@ define(function (require, exports, module) {
         it('prepares window to be closed', () => {
           return broker.sendOAuthResultToRelier({
             redirect: REDIRECT_TO
-          })
-          .then(() => {
+          }).then(() => {
             assert.isTrue(metrics.flush.calledOnce);
             assert.lengthOf(metrics.flush.getCall(0).args, 0);
             assert.equal(windowMock.location.href, REDIRECT_TO);
@@ -80,8 +79,7 @@ define(function (require, exports, module) {
           return broker.sendOAuthResultToRelier({
             error: 'error',
             redirect: REDIRECT_TO
-          })
-          .then(() => {
+          }).then(() => {
             assert.isTrue(metrics.flush.calledOnce);
             assert.lengthOf(metrics.flush.getCall(0).args, 0);
             assert.include(windowMock.location.href, REDIRECT_TO);
@@ -96,8 +94,7 @@ define(function (require, exports, module) {
           return broker.sendOAuthResultToRelier({
             action: action,
             redirect: REDIRECT_TO
-          })
-          .then(() => {
+          }).then(() => {
             assert.isTrue(metrics.flush.calledOnce);
             assert.lengthOf(metrics.flush.getCall(0).args, 0);
             assert.include(windowMock.location.href, REDIRECT_TO);
@@ -111,8 +108,7 @@ define(function (require, exports, module) {
           return broker.sendOAuthResultToRelier({
             error: 'error',
             redirect: REDIRECT_TO + '?test=param'
-          })
-          .then(() => {
+          }).then(() => {
             assert.isTrue(metrics.flush.calledOnce);
             assert.lengthOf(metrics.flush.getCall(0).args, 0);
             assert.include(windowMock.location.href, REDIRECT_TO);

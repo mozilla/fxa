@@ -114,9 +114,8 @@ define(function (require, exports, module) {
     _sendSms (normalizedPhoneNumber, messageId) {
       return this.getAccount().sendSms(normalizedPhoneNumber, messageId, {
         features: this.getSmsFeatures()
-      })
-      .then(({ formattedPhoneNumber: serverPhoneNumber }) => this._onSendSmsSuccess(serverPhoneNumber))
-      .catch((err) => this._onSendSmsError(err));
+      }).then(({ formattedPhoneNumber: serverPhoneNumber }) => this._onSendSmsSuccess(serverPhoneNumber))
+        .catch((err) => this._onSendSmsError(err));
     }
 
     /**

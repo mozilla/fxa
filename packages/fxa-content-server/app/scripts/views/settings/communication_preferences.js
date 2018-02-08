@@ -118,7 +118,7 @@ define(function (require, exports, module) {
           this.navigate('settings');
           return this.render();
         });
-        // Errors are displayed at a higher level.
+      // Errors are displayed at a higher level.
     },
 
     /**

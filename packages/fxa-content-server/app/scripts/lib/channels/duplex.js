@@ -152,8 +152,7 @@ define(function (require, exports, module) {
         this._outstandingRequests.add(messageId, outstanding);
 
         this._sender.send(command, data, messageId);
-      })
-      .catch((err) => {
+      }).catch((err) => {
         // The request is no longer considered outstanding if
         // there was a problem sending.
         this._outstandingRequests.remove(messageId);

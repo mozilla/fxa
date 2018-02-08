@@ -88,8 +88,7 @@ define(function (require, exports, module) {
         return Promise.all([
           broker._notifyRelierOfLogin(account),
           triggerLoginCB && triggerLoginCB()
-        ])
-        .then(() => {
+        ]).then(() => {
           assert.isTrue(broker.send.calledOnce);
           assert.isTrue(broker.send.calledWith('login'));
         });

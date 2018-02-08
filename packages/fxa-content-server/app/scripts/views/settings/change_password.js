@@ -37,11 +37,11 @@ define(function (require, exports, module) {
       this.hideError();
 
       return this.user.changeAccountPassword(
-          account,
-          oldPassword,
-          newPassword,
-          this.relier
-        )
+        account,
+        oldPassword,
+        newPassword,
+        this.relier
+      )
         .then(() => {
           this.logViewEvent('success');
           return this.invokeBrokerMethod('afterChangePassword', account);

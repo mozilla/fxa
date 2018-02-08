@@ -109,7 +109,7 @@ define(function (require, exports, module) {
       this._isUsed = true;
     },
 
-     /**
+    /**
      * Check if the verification info is used
      *
      * @method isUsed
