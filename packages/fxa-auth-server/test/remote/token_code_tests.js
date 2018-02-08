@@ -86,6 +86,33 @@ describe('remote tokenCodes', function () {
     })
   })
 
+  it('should retrieve account keys', () => {
+    return Client.login(config.publicUrl, email, password, {
+      verificationMethod: 'email-2fa',
+      keys: true
+    })
+      .then((res) => {
+        client = res
+        return server.mailbox.waitForEmail(email)
+      })
+      .then((emailData) => {
+        assert.equal(emailData.headers['x-template-name'], 'verifyLoginCodeEmail', 'sign-in code sent')
+        code = emailData.headers['x-signin-verify-code']
+        assert.ok(code, 'code is sent')
+        return client.verifyTokenCode(code)
+      })
+      .then((res) => {
+        assert.ok(res, 'verified successful response')
+
+        return client.keys()
+      })
+      .then((keys) => {
+        assert.ok(keys.kA, 'has kA keys')
+        assert.ok(keys.kB, 'has kB keys')
+        assert.ok(keys.wrapKb, 'has wrapKb keys')
+      })
+  })
+
   after(() => {
     return TestServer.stop(server)
   })
