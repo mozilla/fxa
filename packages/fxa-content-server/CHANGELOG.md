@@ -1,3 +1,13 @@
+<a name="1.105.1"></a>
+## 1.105.1 (2018-02-08)
+
+
+### Features
+
+* **oauth:** add another lockbox redirect url ([18b269b](https://github.com/mozilla/fxa-content-server/commit/18b269b))
+
+
+
 <a name="1.105.0"></a>
 # 1.105.0 (2018-02-06)
 
