@@ -43,6 +43,7 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     displayAccountProfileImage (account, options) {
+      $('#image-holder').css('display', 'none');
       options = options || {};
 
       var avatarWrapperEl = this.$(options.wrapperClass || '.avatar-wrapper');
@@ -83,10 +84,14 @@ define(function (require, exports, module) {
               .addClass('with-default')
               .append('<span></span>');
             this.logViewEvent('profile_image_not_shown');
+            $('#image-holder').css('display', 'inline-block');
+            $('#loading-avatar-spinner').css('display', 'none');
           } else {
             avatarWrapperEl
               .removeClass('with-default')
               .append($(profileImage.get('img')).addClass('profile-image'));
+            $('#image-holder').css('display', 'inline-block');
+            $('#loading-avatar-spinner').css('display', 'none');
             this.logViewEvent('profile_image_shown');
           }
         });

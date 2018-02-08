@@ -9,6 +9,19 @@
   width: 36px;
 }
 
+#loading-avatar-spinner img {
+  animation: 0.9s spin infinite linear;
+  display: block;
+  height: 36px;
+  margin: 130px auto 0;
+  overflow: hidden;
+  position: relative;
+  text-indent: 100%;
+  top: -50px;
+  white-space: nowrap;
+  width: 36px;
+}
+
 .spinner {
   @include hidpi-background-image('spinnerlight', 36px 36px);
   animation: 0.9s spin infinite linear;
