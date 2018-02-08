@@ -69,6 +69,22 @@ describe('remote account profile', function() {
   )
 
   it(
+    'account profile with no authentication returns a 401',
+    () => {
+      return Client.create(config.publicUrl, server.uniqueEmail(), 'password', { lang: 'en-US' })
+        .then(c => {
+          return c.api.accountProfile(null, {})
+        })
+        .then(
+          (response) => { assert.fail('request should have failed') },
+          (err) => {
+            assert.equal(err.code, 401, 'request failed with a 401')
+          }
+        )
+    }
+  )
+
+  it(
     'account profile authenticated with invalid oauth token returns an error',
     () => {
       return Client.create(config.publicUrl, server.uniqueEmail(), 'password', { lang: 'en-US' })
