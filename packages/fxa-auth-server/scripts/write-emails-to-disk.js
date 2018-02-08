@@ -18,8 +18,6 @@
  *   postVerifySecondaryEmail
  *   recoveryEmail
  *   unblockCodeEmail
- *   verificationReminderEmail:first
- *   verificationReminderEmail:second
  *   verifyEmail
  *   verifySecondaryEmail
  *   verifyLoginEmail

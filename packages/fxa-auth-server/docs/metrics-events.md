@@ -167,7 +167,6 @@ in a sign-in or sign-up flow:
 |`sms.${templateName}.sent`|An SMS message has been sent to a user's phone.|
 |`signinCode.consumed`|A sign-in code has been consumed on the server.|
 |`account.confirmed`|Sign-in to an existing account has been confirmed via email.|
-|`account.reminder`|A new account has been verified via a reminder email.|
 |`account.verified`|A new account has been verified via email.|
 |`account.keyfetch`|Sync encryption keys have been fetched.|
 |`account.signed`|A certificate has been signed.|

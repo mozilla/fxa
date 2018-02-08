@@ -498,49 +498,6 @@ var conf = convict({
       default: ''
     }
   },
-  verificationReminders: {
-    rate: {
-      doc: 'Rate of users getting the verification reminder. If "0" then the feature is disabled. If "1" all users get it.',
-      default: 0,
-      env: 'VERIFICATION_REMINDER_RATE'
-    },
-    reminderTimeFirst: {
-      doc: 'Milliseconds since account creation after which the first reminder is sent',
-      default: '48 hours',
-      format: 'duration',
-      env: 'VERIFICATION_REMINDER_TIME_FIRST'
-    },
-    reminderTimeSecond: {
-      doc: 'Milliseconds since account creation after which the second reminder is sent',
-      default: '168 hours',
-      format: 'duration',
-      env: 'VERIFICATION_REMINDER_TIME_SECOND'
-    },
-    reminderTimeFirstOutdated: {
-      doc: 'Milliseconds since account creation after which the reminder should not be sent',
-      default: '167 hours',
-      format: 'duration',
-      env: 'VERIFICATION_REMINDER_TIME_FIRST_OUTDATED'
-    },
-    reminderTimeSecondOutdated: {
-      doc: 'Milliseconds since account creation after which the reminder should not be sent',
-      default: '300 hours',
-      format: 'duration',
-      env: 'VERIFICATION_REMINDER_TIME_SECOND_OUTDATED'
-    },
-    pollFetch: {
-      doc: 'Number of reminder record to fetch when polling.',
-      format: Number,
-      default: 20,
-      env: 'VERIFICATION_REMINDER_POLL_FETCH'
-    },
-    pollTime: {
-      doc: 'Poll duration in milliseconds. 0 is disabled.',
-      format: 'duration',
-      default: '30 minutes',
-      env: 'VERIFICATION_REMINDER_POLL_TIME'
-    }
-  },
   useHttps: {
     doc: 'set to true to serve directly over https',
     env: 'USE_TLS',

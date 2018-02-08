@@ -26,8 +26,6 @@ const MS_ONE_WEEK = MS_ONE_DAY * 7
 const MS_ONE_MONTH = MS_ONE_DAY * 30
 
 module.exports = (log, db, mailer, Password, config, customs, checkPassword, push) => {
-  const verificationReminder = require('../verification-reminders')(log, db)
-
   const unblockCodeLifetime = config.signinUnblock && config.signinUnblock.codeLifetime || 0
   const unblockCodeLen = config.signinUnblock && config.signinUnblock.codeLength || 8
 
@@ -295,13 +293,6 @@ module.exports = (log, db, mailer, Password, config, customs, checkPassword, pus
               uid: sessionToken.uid
             })
               .then(function () {
-                // only create reminder if sendVerifyCode succeeds
-                verificationReminder.create({
-                  uid: account.uid
-                }).catch(function (err) {
-                  log.error({op: 'Account.verificationReminder.create', err: err})
-                })
-
                 if (tokenVerificationId) {
                   // Log server-side metrics for confirming verification rates
                   log.info({

@@ -552,10 +552,9 @@ describe('/recovery_email/verify_code', function () {
       return runTest(route, mockRequest, function (response) {
         assert.equal(mockLog.activityEvent.callCount, 1, 'activityEvent was called once')
 
-        assert.equal(mockLog.flowEvent.callCount, 3, 'flowEvent was called thrice')
+        assert.equal(mockLog.flowEvent.callCount, 2, 'flowEvent was called twice')
         assert.equal(mockLog.flowEvent.args[0][0].event, 'email.verify_code.clicked', 'first event was email.verify_code.clicked')
         assert.equal(mockLog.flowEvent.args[1][0].event, 'account.verified', 'second event was account.verified')
-        assert.equal(mockLog.flowEvent.args[2][0].event, 'account.reminder', 'third event was account.reminder')
 
         assert.equal(mockMailer.sendPostVerifyEmail.callCount, 1, 'sendPostVerifyEmail was called once')
         assert.equal(mockPush.notifyUpdate.callCount, 1, 'mockPush.notifyUpdate should have been called once')

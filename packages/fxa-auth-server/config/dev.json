@@ -18,9 +18,6 @@
     "secure": false
   },
   "snsTopicArn": "disabled",
-  "verificationReminders": {
-    "rate": 1
-  },
   "securityHistory": {
     "ipProfiling": {
       "allowedRecency": 0

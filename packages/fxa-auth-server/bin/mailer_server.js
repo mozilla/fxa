@@ -26,8 +26,6 @@ var mailerLog = require('../lib/senders/log')('mailer')
 var legacyMailerLog = require('../lib/senders/legacy_log')(mailerLog)
 var Mailer = require('../lib/senders/email')(legacyMailerLog)
 
-var dbConnect = require('../lib/senders/db_connect')()
-
 P.all(
   [
     require('../lib/senders/translator')(config.get('i18n.supportedLanguages'), config.get('i18n.defaultLanguage')),
@@ -41,16 +39,6 @@ P.all(
     log.info('mailConfig', mailConfig)
     log.info('mailerServerConfig', mailerServerConfig)
     log.info('templates', Object.keys(templates))
-
-    dbConnect()
-      .then(function (db) {
-        // fetch and process verification reminders
-        var verificationReminders = require('../lib/senders/verification-reminders')(mailer, db)
-        verificationReminders.poll()
-      })
-      .catch(function (err) {
-        log.error('server', {err: err})
-      })
 
     var api = restify.createServer({
       formatters: {

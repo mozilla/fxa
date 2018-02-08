@@ -15,8 +15,6 @@ const validators = require('./validators')
 const HEX_STRING = validators.HEX_STRING
 
 module.exports = (log, db, mailer, config, customs, push) => {
-  const verificationReminder = require('../verification-reminders')(log, db)
-
   return [
     {
       method: 'GET',
@@ -254,6 +252,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
         validate: {
           query: {
             service: validators.service,
+            // TODO: drop this param once it is no longer sent by clients
             reminder: isA.string().max(32).alphanum().optional(),
             type: isA.string().max(32).alphanum().optional()
           },
@@ -261,6 +260,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
             uid: isA.string().max(32).regex(HEX_STRING).required(),
             code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
             service: validators.service,
+            // TODO: drop this param once it is no longer sent by clients
             reminder: isA.string().max(32).alphanum().optional(),
             type: isA.string().max(32).alphanum().optional(),
             marketingOptIn: isA.boolean()
@@ -273,7 +273,6 @@ module.exports = (log, db, mailer, config, customs, push) => {
         const uid = request.payload.uid
         const code = request.payload.code
         const service = request.payload.service || request.query.service
-        const reminder = request.payload.reminder || request.query.reminder
         const type = request.payload.type || request.query.type
         const marketingOptIn = request.payload.marketingOptIn
 
@@ -453,28 +452,10 @@ module.exports = (log, db, mailer, config, customs, push) => {
                     ])
                   })
                   .then(() => {
-                    if (reminder === 'first' || reminder === 'second') {
-                      const reminderOp = 'account.verified_reminder.' + reminder
-                      log.info({
-                        op: 'mailer.send',
-                        name: reminderOp
-                      })
-
-                      return request.emitMetricsEvent('account.reminder', { uid: uid })
-                    }
-                  })
-                  .then(() => {
                     // send a push notification to all devices that the account changed
                     request.app.devices.then(devices =>
                       push.notifyUpdate(uid, devices, 'accountVerify')
                     )
-
-                    // remove verification reminders
-                    verificationReminder.delete({
-                      uid: uid
-                    }).catch(err => {
-                      log.error({op: 'Account.RecoveryEmailVerify', err: err})
-                    })
                   })
                   .then(() => {
                     // Our post-verification email is very specific to sync,

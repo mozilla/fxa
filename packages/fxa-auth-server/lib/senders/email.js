@@ -40,10 +40,7 @@ module.exports = function (log) {
     'verifyLoginCodeEmail': 'new-signin-verify-code',
     'verifyPrimaryEmail': 'welcome-primary',
     'verifySyncEmail': 'welcome-sync',
-    'verifySecondaryEmail': 'welcome-secondary',
-    'verificationReminderFirstEmail': 'hello-again-first',
-    'verificationReminderSecondEmail': 'still-there-second',
-    'verificationReminderEmail': 'hello-again-first'
+    'verifySecondaryEmail': 'welcome-secondary'
   }
 
   // Email template to UTM content, this is typically the main call out link/button
@@ -59,9 +56,6 @@ module.exports = function (log) {
     'postVerifySecondaryEmail': 'manage-account',
     'recoveryEmail': 'reset-password',
     'unblockCode': 'unblock-code',
-    'verificationReminderFirstEmail': 'activate',
-    'verificationReminderSecondEmail': 'activate',
-    'verificationReminderEmail': 'activate',
     'verifyEmail': 'activate',
     'verifyLoginEmail': 'confirm-signin',
     'verifyLoginCodeEmail': 'new-signin-verify-code',
@@ -891,57 +885,6 @@ module.exports = function (log) {
         privacyUrl: links.privacyUrl,
         supportUrl: links.supportUrl,
         secondaryEmail: message.secondaryEmail,
-        supportLinkAttributes: links.supportLinkAttributes
-      }
-    }))
-  }
-
-  Mailer.prototype.verificationReminderEmail = function (message) {
-    log.trace({ op: 'mailer.verificationReminderEmail', email: message.email, type: message.type })
-
-    if (! message || ! message.code || ! message.email) {
-      log.error({
-        op: 'mailer.verificationReminderEmail',
-        err: 'Missing code or email'
-      })
-      return
-    }
-
-    var subject = gettext('Hello again.')
-    var templateName = 'verificationReminderFirstEmail'
-    if (message.type === 'second') {
-      subject = gettext('Still there?')
-      templateName = 'verificationReminderSecondEmail'
-    }
-
-    var query = {
-      uid: message.uid,
-      code: message.code,
-      reminder: message.type
-    }
-
-    var links = this._generateLinks(this.verificationUrl, message.email, query, templateName)
-
-    var headers = {
-      'X-Link': links.link,
-      'X-Verify-Code': message.code
-    }
-
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
-    return this.send(Object.assign({}, message, {
-      acceptLanguage: message.acceptLanguage || 'en',
-      headers,
-      subject,
-      template: templateName,
-      templateValues: {
-        email: message.email,
-        link: links.link,
-        oneClickLink: links.oneClickLink,
-        privacyUrl: links.privacyUrl,
-        supportUrl: links.supportUrl,
         supportLinkAttributes: links.supportLinkAttributes
       }
     }))

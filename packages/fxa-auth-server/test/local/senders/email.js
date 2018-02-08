@@ -33,7 +33,6 @@ const messageTypes = [
   'postVerifySecondaryEmail',
   'recoveryEmail',
   'unblockCodeEmail',
-  'verificationReminderEmail',
   'verifyEmail',
   'verifyLoginEmail',
   'verifyLoginCodeEmail',
@@ -49,7 +48,6 @@ const typesContainSupportLinks = [
   'postRemoveSecondaryEmail',
   'postVerifyEmail',
   'recoveryEmail',
-  'verificationReminderEmail',
   'verifyEmail',
   'verifyLoginCodeEmail',
   'verifyPrimaryEmail',
@@ -167,11 +165,7 @@ describe(
               const templateName = emailConfig.headers['X-Template-Name']
               const templateVersion = emailConfig.headers['X-Template-Version']
 
-              if (type === 'verificationReminderEmail') {
-                // Handle special case for verification reminders
-                assert.ok(templateName === 'verificationReminderFirstEmail' ||
-                  templateName === 'verificationReminderSecondEmail')
-              } else if (type === 'verifyEmail') {
+              if (type === 'verifyEmail') {
                 // Handle special case for verify email
                 assert.equal(templateName, 'verifySyncEmail')
               } else {
@@ -249,12 +243,6 @@ describe(
 
               var sesMessageTags = emailConfig.headers['X-SES-MESSAGE-TAGS']
               var expectedSesMessageTags = sesMessageTagsHeaderValue(type)
-              if (type === 'verificationReminderEmail') {
-                expectedSesMessageTags = sesMessageTagsHeaderValue('verificationReminderFirstEmail')
-                if (message.type === 'second') {
-                  expectedSesMessageTags = sesMessageTagsHeaderValue('verificationReminderSecondEmail')
-                }
-              }
               assert.equal(sesMessageTags, expectedSesMessageTags)
 
               mailer.sesConfigurationSet = savedSesConfigurationSet
@@ -566,21 +554,6 @@ describe(
                 assert.ok(includes(emailConfig.html, iosLink))
               }
               mailer[type](message)
-            }
-          )
-        } else if (type === 'verificationReminderEmail') {
-          var reminderMessage = extend(message, {
-            type: 'customType'
-          })
-
-          it(
-            'custom reminder types are supported in output for ' + type,
-            function () {
-              mailer.mailer.sendMail = function (emailConfig) {
-                assert.ok(includes(emailConfig.html, 'reminder=customType'))
-                assert.ok(includes(emailConfig.text, 'reminder=customType'))
-              }
-              mailer[type](reminderMessage)
             }
           )
         } else if (type === 'verifyPrimaryEmail') {

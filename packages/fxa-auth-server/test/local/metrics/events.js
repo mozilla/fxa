@@ -175,12 +175,12 @@ describe('metrics/events', () => {
         service: 'baz'
       }
     })
-    return events.emit.call(request, 'account.reminder')
+    return events.emit.call(request, 'email.verification.sent')
       .then(() => {
         assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
         let args = metricsContext.gather.args[0]
         assert.equal(args.length, 1, 'metricsContext.gather was passed one argument')
-        assert.equal(args[0].event, 'account.reminder', 'metricsContext.gather was passed event')
+        assert.equal(args[0].event, 'email.verification.sent', 'metricsContext.gather was passed event')
         assert.equal(args[0].locale, request.app.locale, 'metricsContext.gather was passed locale')
         assert.equal(args[0].userAgent, request.headers['user-agent'], 'metricsContext.gather was passed user agent')
 
@@ -188,7 +188,7 @@ describe('metrics/events', () => {
         args = log.flowEvent.args[0]
         assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
         assert.deepEqual(args[0], {
-          event: 'account.reminder',
+          event: 'email.verification.sent',
           flow_id: 'bar',
           flow_time: 1000,
           flowBeginTime: time - 1000,
@@ -237,7 +237,7 @@ describe('metrics/events', () => {
         }
       }
     }
-    return events.emit.call(request, 'account.reminder')
+    return events.emit.call(request, 'email.verification.sent')
       .then(() => {
         assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
 
@@ -245,7 +245,7 @@ describe('metrics/events', () => {
         const args = log.flowEvent.args[0]
         assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
         assert.deepEqual(args[0], {
-          event: 'account.reminder',
+          event: 'email.verification.sent',
           flow_id: 'bar',
           flow_time: 1000,
           flowBeginTime: time - 1000,
@@ -283,7 +283,7 @@ describe('metrics/events', () => {
         }
       }
     })
-    return events.emit.call(request, 'account.reminder', { uid: 'deadbeef' })
+    return events.emit.call(request, 'email.verification.sent', { uid: 'deadbeef' })
       .then(() => {
         assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
 
@@ -291,7 +291,7 @@ describe('metrics/events', () => {
         const args = log.flowEvent.args[0]
         assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
         assert.deepEqual(args[0], {
-          event: 'account.reminder',
+          event: 'email.verification.sent',
           flow_id: 'bar',
           flow_time: 1000,
           flowBeginTime: time - 1000,
@@ -330,7 +330,7 @@ describe('metrics/events', () => {
         }
       }
     })
-    return events.emit.call(request, 'account.reminder', { uid: 'deadbeef' })
+    return events.emit.call(request, 'email.verification.sent', { uid: 'deadbeef' })
       .then(() => {
         assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
 
@@ -338,7 +338,7 @@ describe('metrics/events', () => {
         const args = log.flowEvent.args[0]
         assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
         assert.deepEqual(args[0], {
-          event: 'account.reminder',
+          event: 'email.verification.sent',
           flow_id: 'bar',
           flow_time: 1000,
           flowBeginTime: time - 1000,
@@ -377,7 +377,7 @@ describe('metrics/events', () => {
         }
       }
     })
-    return events.emit.call(request, 'account.reminder', { uid: null })
+    return events.emit.call(request, 'email.verification.sent', { uid: null })
       .then(() => {
         assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
 
@@ -385,7 +385,7 @@ describe('metrics/events', () => {
         const args = log.flowEvent.args[0]
         assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
         assert.deepEqual(args[0], {
-          event: 'account.reminder',
+          event: 'email.verification.sent',
           flow_id: 'bar',
           flow_time: 1000,
           flowBeginTime: time - 1000,
@@ -420,22 +420,22 @@ describe('metrics/events', () => {
         metricsContext: {
           flowId: 'bar',
           flowBeginTime: time - 2000,
-          flowCompleteSignal: 'account.reminder',
+          flowCompleteSignal: 'email.verification.sent',
           flowType: 'registration'
         }
       }
     })
-    return events.emit.call(request, 'account.reminder', { locale: 'baz', uid: 'qux' })
+    return events.emit.call(request, 'email.verification.sent', { locale: 'baz', uid: 'qux' })
       .then(() => {
         assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
 
         assert.equal(log.flowEvent.callCount, 2, 'log.flowEvent was called twice')
         assert.deepEqual(log.flowEvent.args[0][0], {
-          event: 'account.reminder',
+          event: 'email.verification.sent',
           flow_id: 'bar',
           flow_time: 2000,
           flowBeginTime: time - 2000,
-          flowCompleteSignal: 'account.reminder',
+          flowCompleteSignal: 'email.verification.sent',
           flowType: 'registration',
           locale: 'fr',
           time,
@@ -447,7 +447,7 @@ describe('metrics/events', () => {
           flow_id: 'bar',
           flow_time: 2000,
           flowBeginTime: time - 2000,
-          flowCompleteSignal: 'account.reminder',
+          flowCompleteSignal: 'email.verification.sent',
           flowType: 'registration',
           locale: 'fr',
           time,
@@ -481,14 +481,14 @@ describe('metrics/events', () => {
         }
       }
     }
-    return events.emit.call(request, 'account.reminder')
+    return events.emit.call(request, 'email.verification.sent')
       .then(() => {
         assert.equal(log.error.callCount, 1, 'log.error was called once')
         const args = log.error.args[0]
         assert.equal(args.length, 1, 'log.error was passed one argument')
         assert.deepEqual(args[0], {
           op: 'metricsEvents.emitFlowEvent',
-          event: 'account.reminder',
+          event: 'email.verification.sent',
           badRequest: true
         }, 'argument was correct')
 
@@ -511,14 +511,14 @@ describe('metrics/events', () => {
         }
       }
     })
-    return events.emit.call(request, 'account.reminder')
+    return events.emit.call(request, 'email.verification.sent')
       .then(() => {
         assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
 
         assert.equal(log.error.callCount, 1, 'log.error was called once')
         assert.deepEqual(log.error.args[0][0], {
           op: 'metricsEvents.emitFlowEvent',
-          event: 'account.reminder',
+          event: 'email.verification.sent',
           missingFlowId: true
         }, 'argument was correct')
 

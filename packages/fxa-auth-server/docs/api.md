@@ -1520,7 +1520,7 @@ not just the one being attached to the Firefox account.
 * `reminder`: *string, max(32), alphanum, optional*
 
   <!--begin-query-param-post-recovery_emailverify_code-reminder-->
-  The reminder email associated with the code.
+  Deprecated.
   <!--end-query-param-post-recovery_emailverify_code-reminder-->
 
 * `type`: *string, max(32), alphanum, optional*
@@ -1552,7 +1552,7 @@ not just the one being attached to the Firefox account.
 * `reminder`: *string, max(32), alphanum, optional*
 
   <!--begin-request-body-post-recovery_emailverify_code-reminder-->
-  The reminder email associated with the code.
+  Deprecated.
   <!--end-request-body-post-recovery_emailverify_code-reminder-->
 
 * `type`: *string, max(32), alphanum, optional*
@@ -2148,15 +2148,6 @@ but will have a distinct verification code.
   <!--begin-request-body-post-sessionduplicate-reason-->
   
   <!--end-request-body-post-sessionduplicate-reason-->
-
-##### Error responses
-
-Failing requests may be caused
-by the following errors
-(this is not an exhaustive list):
-
-* `code: 401, errno: 110`:
-  Invalid authentication token in request signature
 
 
 ### Sign
