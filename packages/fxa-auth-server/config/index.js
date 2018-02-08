@@ -240,7 +240,7 @@ var conf = convict({
     syncUrl: {
       doc: 'url to Sync product page',
       format: String,
-      default: 'https://www.mozilla.org/firefox/sync/'
+      default: 'https://accounts.firefox.com/connect_another_device/'
     },
     androidUrl: {
       doc: 'url to Android product page',
