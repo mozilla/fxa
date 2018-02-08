@@ -12,6 +12,7 @@ const uaStrings = require('./lib/ua-strings');
 
 const config = intern._config;
 const PAGE_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true`;
+const TOKEN_CODE_PAGE_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync`;
 
 let email;
 const PASSWORD = '12345678';
@@ -22,6 +23,7 @@ const {
   closeCurrentWindow,
   createUser,
   fillOutSignIn,
+  fillOutSignInTokenCode,
   fillOutSignInUnblock,
   noEmailExpected,
   noPageTransition,
@@ -34,6 +36,7 @@ const {
   testEmailExpected,
   testIsBrowserNotified,
   thenify,
+  type,
   visibleByQSA,
 } = FunctionalHelpers;
 
@@ -222,6 +225,87 @@ registerSuite('Firefox Desktop Sync v3 signin', {
 
         // about:accounts will take over post-verification, no transition
         .then(noPageTransition(selectors.SIGNIN_UNBLOCK.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'));
+    }
+  }
+});
+
+registerSuite('Firefox Desktop Sync v3 signin - token code', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
+
+    return this.remote
+      .then(clearBrowserState({force: true}))
+      .then(createUser(email, PASSWORD, {preVerified: true}));
+  },
+
+  tests: {
+    'verified - control': function () {
+      const query = {forceExperiment: 'tokenCode', forceExperimentGroup: 'control'};
+      return this.remote
+        .then(openPage(TOKEN_CODE_PAGE_URL, selectors.SIGNIN.HEADER, {
+          query, webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true},
+            'fxaccounts:fxa_status': {capabilities: null, signedInUser: null},
+          }
+        }))
+
+        .then(fillOutSignIn(email, PASSWORD))
+
+        // about:accounts will take over post-verification, no transition
+        .then(testIsBrowserNotified('fxaccounts:login'));
+    },
+
+    'verified - treatment-code - valid code': function () {
+      const query = {forceExperiment: 'tokenCode', forceExperimentGroup: 'treatment-code'};
+      return this.remote
+        .then(openPage(TOKEN_CODE_PAGE_URL, selectors.SIGNIN.HEADER, {
+          query, webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true},
+            'fxaccounts:fxa_status': {signedInUser: null},
+          }
+        }))
+        .then(fillOutSignIn(email, PASSWORD))
+
+        // Correctly submits the token code
+        .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
+        .then(fillOutSignInTokenCode(email, 0))
+
+        // about:accounts will take over post-verification, no transition
+        .then(testIsBrowserNotified('fxaccounts:login'));
+    },
+
+    'verified - treatment-code - invalid code': function () {
+      const query = {forceExperiment: 'tokenCode', forceExperimentGroup: 'treatment-code'};
+      return this.remote
+        .then(openPage(TOKEN_CODE_PAGE_URL, selectors.SIGNIN.HEADER, {
+          query, webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true},
+            'fxaccounts:fxa_status': {signedInUser: null},
+          }
+        }))
+        .then(fillOutSignIn(email, PASSWORD))
+
+        // Displays invalid code errors
+        .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
+        .then(type(selectors.SIGNIN_TOKEN_CODE.INPUT, 'INVALID'))
+        .then(click(selectors.SIGNIN_TOKEN_CODE.SUBMIT));
+    },
+
+    'verified - treatment-link - open link new tab': function () {
+      const query = {forceExperiment: 'tokenCode', forceExperimentGroup: 'treatment-link'};
+      return this.remote
+        .then(openPage(TOKEN_CODE_PAGE_URL, selectors.SIGNIN.HEADER, {
+          query, webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true},
+            'fxaccounts:fxa_status': {signedInUser: null},
+          }
+        }))
+        .then(fillOutSignIn(email, PASSWORD))
+
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+        .then(openVerificationLinkInNewTab(email, 0))
+
         .then(testIsBrowserNotified('fxaccounts:login'));
     }
   }

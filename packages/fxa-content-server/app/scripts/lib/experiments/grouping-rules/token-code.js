@@ -26,6 +26,7 @@ define(function (require, exports, module) {
     constructor() {
       super();
       this.name = 'tokenCode';
+      this.SYNC_ROLLOUT_RATE = 0.0;
     }
 
     choose(subject) {
@@ -35,6 +36,10 @@ define(function (require, exports, module) {
 
       const client = ROLLOUT_CLIENTS[subject.clientId];
       if (client && this.bernoulliTrial(client.rolloutRate, subject.uniqueUserId)) {
+        return this.uniformChoice(GROUPS, subject.uniqueUserId);
+      }
+      const isSync = this.get('service') === 'Sync';
+      if (isSync && this.bernoulliTrial(this.SYNC_ROLLOUT_RATE, subject.uniqueUserId)) {
         return this.uniformChoice(GROUPS, subject.uniqueUserId);
       }
 

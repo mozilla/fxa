@@ -40,7 +40,12 @@ define(function (require, exports, module) {
       });
 
       return channel;
-    }
+    },
+
+    afterCompleteSignInTokenCode (account) {
+      return this._notifyRelierOfLogin(account)
+        .then(() => proto.afterSignInConfirmationPoll.call(this, account));
+    },
   });
 
   module.exports = FxSyncWebChannelAuthenticationBroker;

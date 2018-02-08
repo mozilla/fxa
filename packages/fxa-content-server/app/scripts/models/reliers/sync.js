@@ -41,7 +41,8 @@ define(function (require, exports, module) {
     defaults: _.extend({}, Relier.prototype.defaults, {
       action: undefined,
       customizeSync: false,
-      signinCode: undefined
+      signinCode: undefined,
+      tokenCode: true
     }),
 
     initialize (attributes, options = {}) {

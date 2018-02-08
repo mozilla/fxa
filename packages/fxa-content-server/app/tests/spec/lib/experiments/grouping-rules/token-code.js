@@ -30,22 +30,51 @@ define(function (require, exports, module) {
         assert.equal(experiment.choose(subject), false);
       });
 
-      it('returns false if client not defined in config', () => {
-        subject.clientId = 'invalidClientId';
-        assert.equal(experiment.choose(subject), false);
+      describe('with oauth client', () => {
+        beforeEach(() => {
+          experiment.get = () => 'notSync';
+        });
+
+        it('returns false if client not defined in config', () => {
+          subject.clientId = 'invalidClientId';
+          assert.equal(experiment.choose(subject), false);
+        });
+
+        it('returns false if client rollout is 0', () => {
+          subject.clientId = '3a1f53aabe17ba32';
+          assert.equal(experiment.choose(subject), false);
+        });
+
+        it('delegates to uniformChoice', () => {
+          subject.clientId = 'dcdb5ae7add825d2';
+          sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
+          experiment.choose(subject);
+          assert.isTrue(experiment.uniformChoice.calledOnce);
+          assert.isTrue(experiment.uniformChoice.calledWith(['control', 'treatment-code', 'treatment-link'], 'user-id'));
+        });
       });
 
-      it('returns false if client rollout is 0', () => {
-        subject.clientId = '3a1f53aabe17ba32';
-        assert.equal(experiment.choose(subject), false);
-      });
+      describe('with sync', () => {
+        beforeEach(() => {
+          experiment.get = () => 'Sync';
+        });
 
-      it('delegates to uniformChoice', () => {
-        sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
-        subject.clientId = 'dcdb5ae7add825d2';
-        experiment.choose(subject);
-        assert.isTrue(experiment.uniformChoice.calledOnce);
-        assert.isTrue(experiment.uniformChoice.calledWith(['control', 'treatment-code', 'treatment-link'], 'user-id'));
+        it('returns false if not Sync', () => {
+          experiment.get = () => 'notSync';
+          assert.equal(experiment.choose(subject), false);
+        });
+
+        it('returns false if rollout is 0', () => {
+          assert.equal(experiment.choose(subject), false);
+        });
+
+        it('delegates to uniformChoice', () => {
+          experiment.SYNC_ROLLOUT_RATE = 1.0;
+          sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
+          experiment.choose(subject);
+          assert.isTrue(experiment.uniformChoice.calledOnce, 'called once');
+          assert.isTrue(experiment.uniformChoice.calledWith(['control', 'treatment-code', 'treatment-link'], 'user-id'));
+        });
       });
     });
   });
