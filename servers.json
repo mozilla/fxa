@@ -154,16 +154,6 @@
       "min_uptime": "2m"
     },
     {
-      "name": "auth-mailer PORT 10136",
-      "script": "bin/mailer_server.js",
-      "cwd": "fxa-auth-server",
-      "env": {
-        "NODE_ENV": "dev"
-      },
-      "max_restarts": "1",
-      "min_uptime": "2m"
-    },
-    {
       "name": "redis PORT 6379",
       "script": "_scripts/redis.js",
       "env": {
