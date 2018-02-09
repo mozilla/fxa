@@ -36,6 +36,7 @@ const SCHEMA = {
   event_device_os: 21
 }
 
+const MARKER_PATH = path.resolve('.sync-marker')
 const DATE = /^(20[1-9][0-9])-([01][0-9])-([0-3][0-9])$/
 const PARQUET_FILE = /\.parquet$/i
 const AWS_ACCESS_KEY = process.env.FXA_AWS_ACCESS_KEY
@@ -46,8 +47,8 @@ const MAX_EVENTS_PER_BATCH = 10
 const HMAC_KEY = process.env.FXA_AMPLITUDE_HMAC_KEY
 const API_KEY = process.env.FXA_AMPLITUDE_API_KEY
 
-if (process.argv.length !== 3) {
-  console.error(`Usage: ${process.argv[1]} {YYYY-MM-DD | LOCAL PATH}`)
+if (process.argv.length !== 2 && process.argv.length !== 3) {
+  console.error(`Usage: ${process.argv[1]} [YYYY-MM-DD | LOCAL PATH]`)
   console.error('If specifying YYYY-MM-DD as the arg, note that the script will try to send events')
   console.error('for all dates from YYYY-MM-DD to the most recent available in S3. If any dates in')
   console.error('that range are missing, they will be skipped without failing the process.')
@@ -60,7 +61,7 @@ if (! HMAC_KEY || ! API_KEY) {
 }
 
 let localPath
-const dateParts = DATE.exec(process.argv[2])
+const dateParts = getDateParts()
 if (dateParts && dateParts.length === 4) {
   if (! AWS_ACCESS_KEY || ! AWS_SECRET_KEY) {
     console.error('Error: You must set AWS_ACCESS_KEY and AWS_SECRET_KEY environment variables')
@@ -77,12 +78,27 @@ Promise.resolve()
     }
 
     return processDataFromS3(`${dateParts[1]}${dateParts[2]}${dateParts[3]}`)
+      .then(result => {
+        const date = result.date
+        if (date) {
+          fs.writeFileSync(MARKER_PATH, `${date.substr(0, 4)}-${date.substr(4, 2)}-${date.substr(6)}`)
+        }
+        return result.eventCount
+      })
   })
   .then(eventCount => console.log(`Sent ${eventCount} events`))
   .catch(error => {
     console.error(error)
     process.exit(1)
   })
+
+function getDateParts () {
+  if (process.argv.length === 2) {
+    return DATE.exec(fs.readFileSync(MARKER_PATH, 'utf8').trim())
+  }
+
+  return DATE.exec(process.argv[2])
+}
 
 function readLocalData (fileName) {
   const reader = new ParquetReader(fileName)
@@ -292,7 +308,7 @@ function getKeysFromS3 (client, fromDate) {
 
 function processKeyFromS3 (client, keys, index) {
   if (index === keys.length) {
-    return Promise.resolve(0)
+    return Promise.resolve({ eventCount: 0 })
   }
 
   // Sadly, node-parquet doesn't read from in-memory data yet.
@@ -305,7 +321,10 @@ function processKeyFromS3 (client, keys, index) {
     })
     .spread(eventCount =>
       processKeyFromS3(client, keys, index + 1)
-        .then(nextEventCount => eventCount + nextEventCount)
+        .then(result => ({
+          eventCount: eventCount + result.eventCount,
+          date: result.date || keys[index].split('=')[1].substr(0, 8)
+        }))
     )
 }
 
