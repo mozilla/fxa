@@ -21,16 +21,19 @@ const SCHEMA = {
   app_version: 4,
   uid: 6,
   device_id: 8,
+  device_os_name: 9,
+  device_os_version: 10,
+  device_os_locale: 11,
   // Not an absolute timestamp! Milliseconds since process start.
-  event_timestamp: 9,
-  event_method: 11,
-  event_object: 12,
+  event_timestamp: 12,
+  event_method: 14,
+  event_object: 15,
   event_map_values: {
-    keys: 14,
-    values: 15
+    keys: 17,
+    values: 18
   },
-  event_flow_id: 17,
-  event_device_os: 19
+  event_flow_id: 20,
+  event_device_os: 21
 }
 
 const DATE = /^(20[1-9][0-9])-([01][0-9])-([0-3][0-9])$/
@@ -134,7 +137,7 @@ function createEvent (row) {
   const appName = row[SCHEMA.app_name]
   const appVersion = row[SCHEMA.app_version]
 
-  return {
+  return Object.assign({
     event_type: `sync - ${eventType}`,
     time,
     // user_id is already hashed in Sync telemetry data
@@ -143,13 +146,13 @@ function createEvent (row) {
     session_id: -1,
     insert_id: hash(uid, row[SCHEMA.device_id], syncFlowId, time, row[SCHEMA.event_timestamp], eventType),
     app_version: appVersion,
-    os_name: getOsName(row[SCHEMA.event_device_os]),
+    language: row[SCHEMA.device_os_locale],
     event_properties: {
       ua_browser: appName,
       ua_version: appVersion,
       flow_id: syncFlowId
     }
-  }
+  }, getOs(row[SCHEMA.device_os_name], row[SCHEMA.device_os_version]))
 }
 
 function getEventType (method, object) {
@@ -203,16 +206,44 @@ function hash (...properties) {
   return hmac.digest('hex')
 }
 
-function getOsName (deviceOs) {
-  switch (deviceOs) {
-    case 'WINNT':
-      return 'Windows'
+function getOs (deviceOsName, deviceOsVersion) {
+  if (! deviceOsName) {
+    return
+  }
+
+  switch (deviceOsName) {
+    case 'Windows_NT':
+      return {
+        os_name: 'Windows',
+        os_version: deviceOsVersion
+      }
 
     case 'Darwin':
-      return 'Mac OS X'
+      return {
+        os_name: 'Mac OS X',
+        os_version: getMacOsVersion(deviceOsVersion)
+      }
 
     default:
-      return deviceOs
+      return {
+        os_name: deviceOsName,
+        os_version: deviceOsVersion
+      }
+  }
+}
+
+function getMacOsVersion (deviceOsVersion) {
+  const parts = deviceOsVersion.split('.')
+  if (parts.length < 2) {
+    return
+  }
+
+  const major = parseInt(parts[0])
+  const minor = parseInt(parts[1])
+
+  if (major >= 5 && minor >= 0) {
+    // https://en.wikipedia.org/wiki/Darwin_(operating_system)#Release_history
+    return `10.${major - 4}.${minor}`
   }
 }
 
