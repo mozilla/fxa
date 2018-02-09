@@ -24,7 +24,7 @@ var P = require('bluebird')
 // the legacy log module provides an interface to convert old logs to new mozlog logging.
 var mailerLog = require('../lib/senders/log')('mailer')
 var legacyMailerLog = require('../lib/senders/legacy_log')(mailerLog)
-var Mailer = require('../lib/senders/email')(legacyMailerLog)
+var Mailer = require('../lib/senders/email')(legacyMailerLog, config.getProperties())
 
 P.all(
   [

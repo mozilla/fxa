@@ -5,7 +5,6 @@
 'use strict'
 
 const emailUtils = require('../email/utils/helpers')
-const oauthClientInfo = require('./oauth_client_info')
 const moment = require('moment-timezone')
 const nodemailer = require('nodemailer')
 const P = require('bluebird')
@@ -21,10 +20,12 @@ const UTM_PREFIX = 'fx-'
 const X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET'
 const X_SES_MESSAGE_TAGS = 'X-SES-MESSAGE-TAGS'
 
-module.exports = function (log) {
+module.exports = function (log, config) {
+  const oauthClientInfo = require('./oauth_client_info')(log, config)
+
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
-  var templateNameToCampaignMap = {
+  const templateNameToCampaignMap = {
     'newDeviceLoginEmail': 'new-device-signin',
     'passwordResetRequiredEmail': 'password-reset-required',
     'passwordChangedEmail': 'password-changed-success',
@@ -45,7 +46,7 @@ module.exports = function (log) {
 
   // Email template to UTM content, this is typically the main call out link/button
   // in template.
-  var templateNameToContentMap = {
+  const templateNameToContentMap = {
     'newDeviceLoginEmail': 'password-change',
     'passwordChangedEmail': 'password-change',
     'passwordResetEmail': 'password-reset',

@@ -24,28 +24,21 @@ describe('lib/senders/oauth_client_info:', () => {
     let fetch
     let mockLog
     const mockConfig = {
-      getProperties() {
-        return {
-          oauth: {
-            url: 'http://localhost:9010',
-            clientInfoCacheTTL: 5
-          }
-        }
+      oauth: {
+        url: 'http://localhost:9010',
+        clientInfoCacheTTL: 5
       }
-    }
-    let mocks = {
-      '../../config': mockConfig
     }
 
     beforeEach(() => {
-      clientInfo = proxyquire(`${ROOT_DIR}/lib/senders/oauth_client_info`, mocks)
-      fetch = clientInfo.fetch
       mockLog = {
         fatal: sinon.spy(),
         trace: sinon.spy(),
         critical: sinon.spy(),
         warn: sinon.spy()
       }
+      clientInfo = require(`${ROOT_DIR}/lib/senders/oauth_client_info`)(mockLog, mockConfig)
+      fetch = clientInfo.fetch
     })
 
     afterEach(() => {
@@ -65,16 +58,13 @@ describe('lib/senders/oauth_client_info:', () => {
     })
 
     it('falls back to Firefox if error', () => {
-      mocks = {
+      const mocks = {
         'request': function (options, cb) {
           cb(new Error('Request failed'))
-        },
-        './log': function() {
-          return mockLog
         }
       }
 
-      fetch = proxyquire(`${ROOT_DIR}/lib/senders/oauth_client_info`, mocks).fetch
+      fetch = proxyquire(`${ROOT_DIR}/lib/senders/oauth_client_info`, mocks)(mockLog, mockConfig).fetch
 
       return fetch('24bdbfa45cd300c5').then((res) => {
         assert.deepEqual(res, FIREFOX_CLIENT)
@@ -83,7 +73,7 @@ describe('lib/senders/oauth_client_info:', () => {
     })
 
     it('falls back to Firefox if non-200 response', () => {
-      mocks = {
+      const mocks = {
         'request': function (options, cb) {
           cb(null, {
             statusCode: 400
@@ -91,13 +81,10 @@ describe('lib/senders/oauth_client_info:', () => {
             code: 400,
             errno: 109
           })
-        },
-        './log': function() {
-          return mockLog
         }
       }
 
-      fetch = proxyquire(`${ROOT_DIR}/lib/senders/oauth_client_info`, mocks).fetch
+      fetch = proxyquire(`${ROOT_DIR}/lib/senders/oauth_client_info`, mocks)(mockLog, mockConfig).fetch
 
       return fetch('f00bdbfa45cd300c5').then((res) => {
         assert.deepEqual(res, FIREFOX_CLIENT)
@@ -114,14 +101,11 @@ describe('lib/senders/oauth_client_info:', () => {
           statusCode: 200
         }, OAUTH_CLIENT)
       })
-      mocks = {
-        'request': requestMock,
-        './log': function() {
-          return mockLog
-        }
+      const mocks = {
+        'request': requestMock
       }
 
-      fetch = proxyquire(`${ROOT_DIR}/lib/senders/oauth_client_info`, mocks).fetch
+      fetch = proxyquire(`${ROOT_DIR}/lib/senders/oauth_client_info`, mocks)(mockLog, mockConfig).fetch
 
       return fetch('24bdbfa45cd300c5').then((res) => {
         assert.deepEqual(res, OAUTH_CLIENT)
@@ -148,15 +132,11 @@ describe('lib/senders/oauth_client_info:', () => {
           statusCode: 200
         }, OAUTH_CLIENT)
       })
-      mocks = {
-        'request': requestMock,
-        './log': function() {
-          return mockLog
-        },
-        '../../config': mockConfig
+      const mocks = {
+        'request': requestMock
       }
 
-      fetch = proxyquire(`${ROOT_DIR}/lib/senders/oauth_client_info`, mocks).fetch
+      fetch = proxyquire(`${ROOT_DIR}/lib/senders/oauth_client_info`, mocks)(mockLog, mockConfig).fetch
 
       return fetch('24bdbfa45cd300c5').delay(15).then((res) => {
         assert.deepEqual(res, OAUTH_CLIENT)
@@ -180,14 +160,11 @@ describe('lib/senders/oauth_client_info:', () => {
           name: Array(512).fill('a').join('')
         })
       })
-      mocks = {
-        'request': requestMock,
-        './log': function() {
-          return mockLog
-        }
+      const mocks = {
+        'request': requestMock
       }
 
-      fetch = proxyquire(`${ROOT_DIR}/lib/senders/oauth_client_info`, mocks).fetch
+      fetch = proxyquire(`${ROOT_DIR}/lib/senders/oauth_client_info`, mocks)(mockLog, mockConfig).fetch
 
       return fetch('24bdbfa45cd300c5').then((res) => {
         assert.deepEqual(res, FIREFOX_CLIENT)

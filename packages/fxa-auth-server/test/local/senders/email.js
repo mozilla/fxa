@@ -19,7 +19,7 @@ const mockLog = {
 }
 
 const config = require(`${ROOT_DIR}/config`)
-const Mailer = require(`${ROOT_DIR}/lib/senders/email`)(mockLog)
+const Mailer = require(`${ROOT_DIR}/lib/senders/email`)(mockLog, config.getProperties())
 
 const TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/templates/_versions.json`)
 
