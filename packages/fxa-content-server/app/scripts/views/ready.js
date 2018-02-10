@@ -37,7 +37,7 @@ define(function (require, exports, module) {
     },
     PASSWORD_RESET: {
       headerId: 'fxa-reset-password-complete-header',
-      headerTitle: t('Password reset'),
+      headerTitle: t('Your password has been reset'),
       readyToSyncText: t('Complete set-up by entering the new password on your other Firefox devices.')
     },
     PRIMARY_EMAIL_VERIFIED: {

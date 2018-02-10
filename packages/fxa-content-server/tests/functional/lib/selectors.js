@@ -109,13 +109,12 @@ module.exports = {
     SUBMIT: '#accept'
   },
   RESET_PASSWORD: {
-    BACK: '#back',
+    BACK: '.remember-password',
     EMAIL: 'input[type=email]',
     ERROR: '.error',
     HEADER: '#fxa-reset-password-header',
     LINK_ERROR_SIGNUP: '.error a[href="/signup"]',
-    LINK_LEARN_HOW_SYNC_WORKS: 'a[href="https://support.mozilla.org/products/firefox/sync"]',
-    LINK_SIGNIN: '#back',
+    LINK_SIGNIN: '.remember-password',
     SUBMIT: 'button[type="submit"]',
     SUCCESS: '.success'
   },

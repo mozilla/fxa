@@ -8,9 +8,10 @@ define(function (require, exports, module) {
   const AuthErrors = require('../lib/auth-errors');
   const BackMixin = require('./mixins/back-mixin');
   const Cocktail = require('cocktail');
-  const FormView = require('./form');
   const FlowEventsMixin = require('./mixins/flow-events-mixin');
+  const FormView = require('./form');
   const PasswordResetMixin = require('./mixins/password-reset-mixin');
+  const preventDefaultThen = require('./base').preventDefaultThen;
   const ServiceMixin = require('./mixins/service-mixin');
   const Session = require('../lib/session');
   const Template = require('templates/reset_password.mustache');
@@ -27,8 +28,13 @@ define(function (require, exports, module) {
       // the user doesn't enter an address. See comment in beforeDestroy
       this._formPrefill = options.formPrefill;
 
+      this.events = {
+        'click .remember-password': preventDefaultThen('_rememberPassword')
+      };
+
       super.initialize(options);
     }
+
 
     setInitialContext (context) {
       super.setInitialContext(context);
@@ -68,6 +74,13 @@ define(function (require, exports, module) {
 
     submit () {
       return this._resetPassword(this.getElementValue('.email'));
+    }
+
+    /**
+     *
+     */
+    _rememberPassword () {
+      this.navigate('signin');
     }
 
     _resetPassword (email) {

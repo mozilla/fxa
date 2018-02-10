@@ -23,9 +23,13 @@ define(function (require, exports, module) {
     success: t('Account verified successfully')
   });
 
+  const redirectToSettingsAfterResetBehavior = new NavigateBehavior('settings', {
+    success: t('Password reset successfully')
+  });
+
   module.exports = BaseBroker.extend({
     defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
-      afterCompleteResetPassword: redirectToSettingsBehavior,
+      afterCompleteResetPassword: redirectToSettingsAfterResetBehavior,
       afterCompleteSignIn: new SettingsIfSignedInBehavior(proto.defaultBehaviors.afterCompleteSignIn),
       afterCompleteSignUp: new SettingsIfSignedInBehavior(proto.defaultBehaviors.afterCompleteSignUp),
       afterForceAuth: new NavigateBehavior('settings'),

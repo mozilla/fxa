@@ -133,8 +133,6 @@ registerSuite('reset_password', {
         .then(click(selectors.SIGNIN.RESET_PASSWORD))
 
         .then(testElementExists(selectors.RESET_PASSWORD.HEADER))
-        // ensure there is a link to `Learn how Sync works`
-        .then(testElementExists(selectors.RESET_PASSWORD.LINK_LEARN_HOW_SYNC_WORKS))
         // email should not be pre-filled
         .then(testElementValueEquals(selectors.RESET_PASSWORD.EMAIL, ''))
         // go back, ensure the email address is still pre-filled on the signin page.

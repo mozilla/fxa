@@ -63,9 +63,44 @@
     cursor: auto;
     opacity: 0.5;
   }
+
+  &.button-row-warning {
+    button {
+      background: $error-background-color;
+      border: 0;
+      color: $message-text-color;
+
+      &:hover {
+        background: darken($error-background-color, 5);
+      }
+
+      &:active {
+        background: darken($error-background-color, 10);
+      }
+
+      &:focus {
+        box-shadow: 0 0 0 2px rgba(lighten($error-background-color, 15), .75);
+      }
+    }
+
+  }
 }
 
 button::-moz-focus-inner {
   border: 0;
   padding: 0;
+}
+
+.button-link {
+  background: none;
+  border: 0;
+  color: $link-color;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus {
+    border: 0;
+  }
 }

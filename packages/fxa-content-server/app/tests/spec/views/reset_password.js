@@ -77,12 +77,12 @@ define(function (require, exports, module) {
         assert.ok($('#fxa-reset-password-header').length);
       });
 
-      it('shows the back button', function () {
+      it('shows the remember password button', function () {
         view = createView();
 
         return view.render()
           .then(() => {
-            assert.lengthOf(view.$('#back'), 1);
+            assert.lengthOf(view.$('.remember-password'), 1);
           });
       });
 
@@ -98,17 +98,6 @@ define(function (require, exports, module) {
           });
       });
 
-      describe('with broker that supports `convertExternalLinksToText`', function () {
-        beforeEach(function () {
-          broker.setCapability('convertExternalLinksToText', true);
-
-          return view.render();
-        });
-
-        it('converts the `learn more` link', function () {
-          assert.lengthOf(view.$('.visible-url'), 1);
-        });
-      });
     });
 
     describe('afterRender', () => {
@@ -120,6 +109,18 @@ define(function (require, exports, module) {
       it('called notifier.trigger correctly', () => {
         assert.equal(notifier.trigger.callCount, 1);
         assert.equal(notifier.trigger.args[0][0], 'flow.initialize');
+      });
+    });
+
+    describe('_rememberPassword', () => {
+      beforeEach(() => {
+        sinon.spy(view, 'navigate');
+      });
+
+      it('calls navigate', () => {
+        assert.equal(view.navigate.calledOnce, false);
+        view._rememberPassword();
+        assert.ok(view.navigate.calledOnce);
       });
     });
 
@@ -320,7 +321,7 @@ define(function (require, exports, module) {
       assert.isTrue($emailInputEl.hasClass('hidden'));
 
       assert.equal(view.$('.prefillEmail').text(), email);
-      assert.lengthOf(view.$('#back'), 1);
+      assert.lengthOf(view.$('.remember-password'), 1);
 
       assert.isFalse(view._resetPassword.called);
     });
@@ -353,8 +354,8 @@ define(function (require, exports, module) {
       view.destroy();
     });
 
-    it('does not show the back button', () => {
-      assert.lengthOf(view.$('#back'), 0);
+    it('does not show remember password button', () => {
+      assert.lengthOf(view.$('.remember-password'), 0);
     });
   });
 

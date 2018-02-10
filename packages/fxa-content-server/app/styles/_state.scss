@@ -77,28 +77,21 @@
 }
 
 .reset-warning {
-  background-color: $reset-pw-text-background-color;
-  color: $reset-pw-text-color;
   font-size: $base-font;
   font-weight: normal;
-  margin-top: 0px;
-  padding: 5px;
+  line-height: 1.6em;
+  margin-top: 0;
+  padding: 5px 25px 15px 25px;
 
+  @include respond-to('small') {
+    padding: 5px;
+  }
+
+  span {
+    color: $reset-pw-warning;
+  }
   &.reset-warning-complete-password {
     margin-bottom: 25px;
-  }
-
-  a {
-    color: $reset-pw-text-color;
-  }
-
-  a[href^=http].visible-url {
-    color: $reset-pw-text-color;
-  }
-
-  a[data-visible-url^=http]:after,
-  a[data-visible-url^=http]::after {
-    border-bottom: 1px solid $reset-pw-text-background-color;
   }
 }
 
