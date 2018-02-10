@@ -689,7 +689,7 @@ module.exports = function (log, config) {
 
     return this.send(Object.assign({}, message, {
       headers,
-      subject: gettext('Your Firefox Account password has been reset'),
+      subject: gettext('Firefox Account password changed'),
       template: templateName,
       templateValues: {
         privacyUrl: links.privacyUrl,
