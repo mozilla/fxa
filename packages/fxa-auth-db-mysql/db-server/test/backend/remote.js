@@ -1595,6 +1595,38 @@ module.exports = function(cfg, makeServer) {
       }
     )
 
+    describe('totp tokens', () => {
+      let user
+
+      beforeEach(() => {
+        user = fake.newUserDataHex()
+        return client.putThen('/account/' + user.accountId, user.account)
+          .then((r) => {
+            respOkEmpty(r)
+            return client.putThen('/totp/' + user.accountId, user.totp)
+          })
+          .then((r) => respOkEmpty(r))
+      })
+
+      it('should get totp token', () => {
+        return client.getThen('/totp/' + user.accountId)
+          .then((r) => {
+            const result = r.obj
+            assert.equal(result.sharedSecret, user.totp.sharedSecret, 'sharedSecret set')
+            assert.equal(result.epoch, user.totp.epoch, 'epoch set')
+          })
+      })
+
+      it('should delete totp token', () => {
+        return client.delThen('/totp/' + user.accountId)
+          .then((r) => {
+            respOkEmpty(r)
+            return client.getThen('/totp/' + user.accountId)
+              .then(assert.fail, (err) => testNotFound(err))
+          })
+      })
+    })
+
     after(() => server.close())
 
   })

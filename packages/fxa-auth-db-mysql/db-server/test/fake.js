@@ -126,6 +126,11 @@ module.exports.newUserDataHex = function() {
   }
   data.email.normalizedEmail = data.email.email.toLowerCase()
 
+  data.totp = {
+    sharedSecret: hex(10),
+    epoch: 0
+  }
+
   return data
 }
 

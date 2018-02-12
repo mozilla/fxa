@@ -537,9 +537,9 @@ module.exports = function (log, error) {
   // DELETE
 
   // Delete : sessionTokens, keyFetchTokens, accountResetTokens, passwordChangeTokens,
-  //          passwordForgotTokens, accounts, devices, unverifiedTokens, emails, signinCodes
+  //          passwordForgotTokens, accounts, devices, unverifiedTokens, emails, signinCodes, totp
   // Where  : uid = $1
-  var DELETE_ACCOUNT = 'CALL deleteAccount_13(?)'
+  var DELETE_ACCOUNT = 'CALL deleteAccount_14(?)'
 
   MySql.prototype.deleteAccount = function (uid) {
     return this.write(DELETE_ACCOUNT, [uid])
@@ -1283,6 +1283,21 @@ module.exports = function (log, error) {
       ACCOUNT_RESET_TOKENS,
       [uid]
     )
+  }
+
+  const CREATE_TOTP_TOKEN = 'CALL createTotpToken_1(?, ?, ?, ?)'
+  MySql.prototype.createTotpToken = function (uid, data) {
+    return this.write(CREATE_TOTP_TOKEN, [uid, data.sharedSecret, data.epoch, Date.now()])
+  }
+
+  const GET_TOTP_TOKEN = 'CALL totpToken_1(?)'
+  MySql.prototype.totpToken = function (uid) {
+    return this.readFirstResult(GET_TOTP_TOKEN, [uid])
+  }
+
+  const DELETE_TOTP_TOKEN = 'CALL deleteTotpToken_1(?)'
+  MySql.prototype.deleteTotpToken = function (uid) {
+    return this.write(DELETE_TOTP_TOKEN, [uid])
   }
 
   return MySql

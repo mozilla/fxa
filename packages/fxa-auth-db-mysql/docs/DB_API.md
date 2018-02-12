@@ -63,6 +63,10 @@ There are a number of methods that a DB storage backend should implement:
 * Signin codes
     * .createSigninCode(code, uid, createdAt, flowId)
     * .consumeSigninCode(code)
+* TOTP
+    * .createTotpToken(uid, sharedSecret, epoch)
+    * .totpToken(uid)
+    * .deleteTotpToken(uid)
 * General
     * .ping()
     * .close()
@@ -815,3 +819,58 @@ Returns:
 * Rejects with:
   * Any error from the underlying storage system (wrapped in `error.wrap()`)
 
+## createTotpToken(uid, sharedSecret, epoch)
+
+  Creates a new TOTP token for the user.
+
+  Parameters:
+
+  * `uid` (Buffer16):
+    The uid of the owning account
+  * `sharedSecret` (string):
+    The shared secret used to generate TOTP code
+  * `epoch` (number):
+    The epoch used to generate TOTP code (default 0)
+
+  Returns:
+
+  * Resolves with:
+    * An empty object `{}`
+  * Rejects with:
+    * Any error from the underlying storage system (wrapped in `error.wrap()`)
+    * `error.duplicate()` if this user had a token already
+
+## totpToken(uid)
+
+  Get's the TOTP token for the user.
+
+  Parameters:
+
+  * `uid` (Buffer16):
+    The uid of the owning account
+
+  Returns:
+
+  * Resolves with:
+    * An object `{}`
+       * sharedSecret
+       * epoch
+  * Rejects with:
+    * Any error from the underlying storage system (wrapped in `error.wrap()`)
+    * `error.duplicate()` if this user had a token already
+
+## deleteTotpToken(uid)
+
+  Delete the TOTP token for the user.
+
+  Parameters:
+
+  * `uid` (Buffer16):
+    The uid of the owning account
+
+  Returns:
+
+  * Resolves with:
+    * An empty object `{}`
+  * Rejects with:
+    * Any error from the underlying storage system (wrapped in `error.wrap()`)

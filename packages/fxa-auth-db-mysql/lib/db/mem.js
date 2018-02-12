@@ -25,6 +25,7 @@ var unblockCodes = {}
 var emailBounces = {}
 var emails = {}
 var signinCodes = {}
+const totpTokens = {}
 
 var DEVICE_FIELDS = [
   'sessionTokenId',
@@ -904,6 +905,7 @@ module.exports = function (log, error) {
 
           delete uidByNormalizedEmail[account.normalizedEmail]
           delete accounts[uid]
+          delete totpTokens[uid]
           return []
         }
       )
@@ -1219,6 +1221,43 @@ module.exports = function (log, error) {
     deleteByUid(uid, passwordChangeTokens)
     deleteByUid(uid, passwordForgotTokens)
     return P.resolve({})
+  }
+
+  Memory.prototype.createTotpToken = (uid, data) => {
+    uid = uid.toString('hex')
+
+    const totpToken = totpTokens[uid]
+
+    if (totpToken) {
+      return P.reject(error.duplicate())
+    }
+
+    totpTokens[uid] = {
+      sharedSecret: data.sharedSecret,
+      epoch: data.epoch || 0
+    }
+
+    return Promise.resolve({})
+  }
+
+  Memory.prototype.totpToken = (uid) => {
+    uid = uid.toString('hex')
+
+    const totpToken = totpTokens[uid]
+
+    if (! totpToken) {
+      return P.reject(error.notFound())
+    }
+
+    return Promise.resolve(totpToken)
+  }
+
+  Memory.prototype.deleteTotpToken = function (uid) {
+    uid = uid.toString('hex')
+
+    delete totpTokens[uid]
+
+    return Promise.resolve({})
   }
 
   // UTILITY FUNCTIONS

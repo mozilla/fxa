@@ -1794,6 +1794,49 @@ module.exports = function (config, DB) {
 
     })
 
+    describe('Totp handling', () => {
+      let sharedSecret, epoch
+      beforeEach(() => {
+        sharedSecret = crypto.randomBytes(40).toString('hex')
+        epoch = 0
+        return db.createTotpToken(accountData.uid, {sharedSecret, epoch})
+          .then((result) => assert.ok(result, 'token created'))
+      })
+
+      it('should create totp token', () => {
+        return db.totpToken(accountData.uid)
+          .then((token) => {
+            assert.equal(token.sharedSecret, sharedSecret, 'correct sharedSecret')
+            assert.equal(token.epoch, epoch, 'correct epoch')
+          })
+      })
+
+      it('should fail to get unknown totp token', () => {
+        return db.totpToken(newUuid())
+          .then(assert.fail, (err) => {
+            assert.equal(err.errno, 116, 'correct errno, not found')
+          })
+      })
+
+      it('should fail to create second token for same user', () => {
+        return db.createTotpToken(accountData.uid, {sharedSecret, epoch})
+          .then(assert.fail, (err) => {
+            assert.equal(err.errno, 101, 'correct errno, duplicate')
+          })
+      })
+
+      it('should delete totp token', () => {
+        return db.deleteTotpToken(accountData.uid)
+          .then((result) => {
+            assert.ok(result)
+            return db.totpToken(accountData.uid)
+              .then(assert.fail, (err) => {
+                assert.equal(err.errno, 116, 'correct errno, not found')
+              })
+          })
+      })
+    })
+
     after(() => db.close())
   })
 }

@@ -95,6 +95,10 @@ The following datatypes are used throughout this document:
 * Sign-in codes
     * createSigninCode          : `PUT /signinCodes/:code`
     * consumeSigninCode         : `POST /signinCodes/:code/consume`
+* TOTP resetTokens
+    * createTotpToken           : `PUT /totp/:id`
+    * totpToken                 : `GET /totp/:id`
+    * deleteTotpToken           : `DEL /totp/:id`
 
 ## Ping : `GET /`
 
@@ -1867,3 +1871,130 @@ Content-Length: 2
     * Content-Type : `application/json`
     * Body : `{"code":"InternalError","message":"..."}`
 
+## createTotpToken : `PUT /totp/:uid`
+
+Used to create a TOTP token for a user.
+
+### Example
+
+```
+curl \
+    -v \
+    -X PUT \
+    -H "Content-Type: application/json" \  
+    -d '{"sharedSecret": "LEVXGTLWMFITC6BSIF2DOQKTIU2WUOKJ", "epoch": 0}' \  
+    http://localhost:8000/totp/1234567890ab    
+```
+
+### Request
+
+* Method : `PUT`
+* Path : `/totp/<uid>
+    * `uid` : hex
+* Params:
+    * `sharedSecret` : hex10
+    * `epoch` : epoch    
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `{}`
+* Status Code : `409 Conflict`
+    * Conditions: if the user already has a TOTP device
+    * Content-Type : `application/json`
+    * Body : `{"errno":101,"message":"Record already exists"}`
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`
+
+## totpToken : `GET /totp/:uid`
+
+Get the user's TOTP token.
+
+### Example
+
+```
+curl \
+    -v \
+    -X GET \
+    -H "Content-Type: application/json" \    
+    http://localhost:8000/totp/1234567890ab
+```
+
+### Request
+
+* Method : `GET`
+* Path : `/totp/<uid>
+    * `uid` : hex   
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{
+  "sharedSecret": "LEVXGTLWMFITC6BSIF2DOQKTIU2WUOKJ",
+  "epoch": 0
+}
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `{"sharedSecret": "LEVXGTLWMFITC6BSIF2DOQKTIU2WUOKJ", "epoch": 0}`
+* Status Code : `404 Not Found`
+    * Conditions: if no TOTP token found for user
+    * Content-Type : `application/json`
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`
+
+## deleteTotpToken : `DEL /totp/:uid`
+
+Delete the user's TOTP token.
+
+### Example
+
+```
+curl \
+    -v \
+    -X DEL \
+    -H "Content-Type: application/json" \    
+    http://localhost:8000/totp/1234567890ab    
+```
+
+### Request
+
+* Method : `DEL`
+* Path : `/totp/<uid>
+    * `uid` : hex   
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `{}`  
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`

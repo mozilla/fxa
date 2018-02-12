@@ -154,6 +154,10 @@ function createServer(db) {
   api.get('/emailRecord/:id', withIdAndBody(db.emailRecord))
   api.head('/emailRecord/:id', withIdAndBody(db.accountExists))
 
+  api.get('/totp/:id', withIdAndBody(db.totpToken))
+  api.del('/totp/:id', withIdAndBody(db.deleteTotpToken))
+  api.put('/totp/:id', withIdAndBody(db.createTotpToken))
+
   api.get('/__heartbeat__', withIdAndBody(db.ping))
 
   function op(fn) {
