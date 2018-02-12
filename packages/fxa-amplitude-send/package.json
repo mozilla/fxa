@@ -9,7 +9,8 @@
     "s3": "^4.4.0"
   },
   "devDependencies": {
-    "eslint": "^4.12.1"
+    "eslint": "^4.12.1",
+    "eslint-plugin-fxa": "^1.0.0"
   },
   "scripts": {
     "lint": "eslint sync.js"
