@@ -1,3 +1,13 @@
+<a name="1.105.2"></a>
+## 1.105.2 (2018-02-12)
+
+
+### Refactor
+
+* **docs:** link the policy page to the different doc (#5901) r=@vbudhram ([fbc8515](https://github.com/mozilla/fxa-content-server/commit/fbc8515))
+
+
+
 <a name="1.105.1"></a>
 ## 1.105.1 (2018-02-08)
 
