@@ -45,6 +45,15 @@ module.exports = function (grunt) {
         {
           from: /^#\s.*?\n$/m,
           to: ''
+        },
+        {
+          // sometimes provided legal docs have extra indent before links and headings
+          // such as `    [`, this creates a <code> block when parsed by remarkable
+          // to avoid that we remove the indent spaces
+
+          // ref: https://github.com/mozilla/legal-docs/blob/master/firefox_privacy_notice/en-US.md
+          from: /^ {4}/gm,
+          to: ''
         }
       ],
       src: [
