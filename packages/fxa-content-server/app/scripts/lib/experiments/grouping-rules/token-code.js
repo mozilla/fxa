@@ -38,7 +38,7 @@ define(function (require, exports, module) {
       if (client && this.bernoulliTrial(client.rolloutRate, subject.uniqueUserId)) {
         return this.uniformChoice(GROUPS, subject.uniqueUserId);
       }
-      const isSync = this.get('service') === 'Sync';
+      const isSync = false; // Issue: https://github.com/mozilla/fxa-content-server/issues/5912
       if (isSync && this.bernoulliTrial(this.SYNC_ROLLOUT_RATE, subject.uniqueUserId)) {
         return this.uniformChoice(GROUPS, subject.uniqueUserId);
       }

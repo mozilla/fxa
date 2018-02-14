@@ -67,14 +67,6 @@ define(function (require, exports, module) {
         it('returns false if rollout is 0', () => {
           assert.equal(experiment.choose(subject), false);
         });
-
-        it('delegates to uniformChoice', () => {
-          experiment.SYNC_ROLLOUT_RATE = 1.0;
-          sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
-          experiment.choose(subject);
-          assert.isTrue(experiment.uniformChoice.calledOnce, 'called once');
-          assert.isTrue(experiment.uniformChoice.calledWith(['control', 'treatment-code', 'treatment-link'], 'user-id'));
-        });
       });
     });
   });
