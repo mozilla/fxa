@@ -268,7 +268,7 @@ module.exports = function (config, DB) {
             assert(Array.isArray(sessions), 'sessions is an array')
             assert.equal(sessions.length, 1, 'sessions has one item')
 
-            assert.equal(Object.keys(sessions[0]).length, 18, 'session has correct properties')
+            assert.equal(Object.keys(sessions[0]).length, 19, 'session has correct properties')
             assert.equal(sessions[0].tokenId.toString('hex'), sessionTokenData.tokenId.toString('hex'), 'tokenId is correct')
             assert.equal(sessions[0].uid.toString('hex'), accountData.uid.toString('hex'), 'uid is correct')
             assert.equal(sessions[0].createdAt, sessionTokenData.createdAt, 'createdAt is correct')
@@ -279,6 +279,7 @@ module.exports = function (config, DB) {
             assert.equal(sessions[0].uaDeviceType, sessionTokenData.uaDeviceType, 'uaDeviceType is correct')
             assert.equal(sessions[0].uaFormFactor, sessionTokenData.uaFormFactor, 'uaFormFactor is correct')
             assert.equal(sessions[0].lastAccessTime, sessionTokenData.createdAt, 'lastAccessTime is correct')
+            assert.equal(sessions[0].authAt, sessionTokenData.createdAt, 'authAt is correct')
           })
       })
 
@@ -311,6 +312,7 @@ module.exports = function (config, DB) {
             assert.equal(token.uaDeviceType, sessionTokenData.uaDeviceType, 'uaDeviceType is correct')
             assert.equal(token.uaFormFactor, sessionTokenData.uaFormFactor, 'uaFormFactor is correct')
             assert.equal(token.lastAccessTime, sessionTokenData.createdAt, 'lastAccessTime was set')
+            assert.equal(token.authAt, sessionTokenData.createdAt, 'authAt is correct')
             assert.equal(!! token.emailVerified, accountData.emailVerified, 'token emailVerified is same as account emailVerified')
             assert.equal(token.email, accountData.email, 'token email same as account email')
             assert.deepEqual(token.emailCode, accountData.emailCode, 'token emailCode same as account emailCode')
@@ -326,7 +328,8 @@ module.exports = function (config, DB) {
           uaOS: 'bar',
           uaOSVersion: '2',
           uaDeviceType: 'baz',
-          lastAccessTime: 42
+          lastAccessTime: 42,
+          authAt: 1234567
         }
         return db.updateSessionToken(sessionTokenData.tokenId, sessionTokenUpdates)
           .then((result) => {
@@ -344,6 +347,7 @@ module.exports = function (config, DB) {
             assert.equal(token.uaDeviceType, 'baz', 'uaDeviceType is correct')
             assert.equal(token.uaFormFactor, sessionTokenData.uaFormFactor, 'uaFormFactor is correct')
             assert.equal(token.lastAccessTime, 42, 'lastAccessTime is correct')
+            assert.equal(token.authAt, 1234567, 'authAt is correct')
             assert.equal(!! token.emailVerified, accountData.emailVerified, 'token emailVerified is same as account emailVerified')
             assert.equal(token.email, accountData.email, 'token email same as account email')
             assert.deepEqual(token.emailCode, accountData.emailCode, 'token emailCode same as account emailCode')
@@ -351,6 +355,32 @@ module.exports = function (config, DB) {
             assert.equal(token.accountCreatedAt, accountData.createdAt, 'accountCreatedAt is correct')
             assert.equal(token.mustVerify, undefined, 'mustVerify is undefined')
             assert.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
+          })
+      })
+
+      it('should update mustVerify to true, but not to false', () => {
+        return db.sessionTokenWithVerificationStatus(sessionTokenData.tokenId)
+          .then((token) => {
+            assert.equal(token.mustVerify, false, 'mustVerify starts out as false')
+            assert.equal(token.uaBrowser, 'mock browser', 'other fields have their default values')
+            return db.updateSessionToken(sessionTokenData.tokenId, { mustVerify: true })
+          })
+          .then((result) => {
+            assert.deepEqual(result, {}, 'Returned an empty object on session token update')
+            return db.sessionTokenWithVerificationStatus(sessionTokenData.tokenId)
+          })
+          .then((token) => {
+            assert.equal(token.mustVerify, true, 'mustVerify was correctly updated to true')
+            assert.equal(token.uaBrowser, 'mock browser', 'other fields were not updated')
+            return db.updateSessionToken(sessionTokenData.tokenId, { mustVerify: false })
+          })
+          .then((result) => {
+            assert.deepEqual(result, {}, 'Returned an empty object on session token update')
+            return db.sessionTokenWithVerificationStatus(sessionTokenData.tokenId)
+          })
+          .then((token) => {
+            assert.equal(token.mustVerify, true, 'mustVerify was not reset back to false')
+            assert.equal(token.uaBrowser, 'mock browser', 'other fields were not updated')
           })
       })
 
@@ -367,6 +397,7 @@ module.exports = function (config, DB) {
             assert.equal(token.uaDeviceType, sessionTokenData.uaDeviceType, 'uaDeviceType is correct')
             assert.equal(token.uaFormFactor, sessionTokenData.uaFormFactor, 'uaFormFactor is correct')
             assert.equal(token.lastAccessTime, sessionTokenData.createdAt, 'lastAccessTime was set')
+            assert.equal(token.authAt, sessionTokenData.createdAt, 'authAt is correct')
             assert.equal(!! token.emailVerified, accountData.emailVerified, 'token emailVerified is same as account emailVerified')
             assert.equal(token.email, accountData.email, 'token email same as account email')
             assert.deepEqual(token.emailCode, accountData.emailCode, 'token emailCode same as account emailCode')

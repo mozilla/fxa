@@ -611,6 +611,7 @@ module.exports = function (log, error) {
           uaDeviceType: sessionToken.uaDeviceType || null,
           uaFormFactor: sessionToken.uaFormFactor || null,
           lastAccessTime: sessionToken.lastAccessTime,
+          authAt: sessionToken.authAt || sessionToken.createdAt,
           // device information
           deviceId: deviceInfo.id || null,
           deviceName: deviceInfo.name || null,
@@ -653,6 +654,7 @@ module.exports = function (log, error) {
     item.uaDeviceType = sessionTokens[id].uaDeviceType || null
     item.uaFormFactor = sessionTokens[id].uaFormFactor || null
     item.lastAccessTime = sessionTokens[id].lastAccessTime
+    item.authAt = sessionTokens[id].authAt || sessionTokens[id].createdAt
 
     var accountId = sessionTokens[id].uid.toString('hex')
     var account = accounts[accountId]
@@ -931,16 +933,15 @@ module.exports = function (log, error) {
   }
 
   Memory.prototype.updateSessionToken = function (id, data) {
-    var token = sessionTokens[id.toString('hex')]
+    const hexId = id.toString('hex')
+    const token = sessionTokens[hexId]
     if (! token) {
       return P.reject(error.notFound())
     }
-    token.uaBrowser = data.uaBrowser
-    token.uaBrowserVersion = data.uaBrowserVersion
-    token.uaOS = data.uaOS
-    token.uaOSVersion = data.uaOSVersion
-    token.uaDeviceType = data.uaDeviceType
-    token.lastAccessTime = data.lastAccessTime
+    Object.assign(token, data)
+    if (data.mustVerify && unverifiedTokens[hexId]) {
+      unverifiedTokens[hexId].mustVerify = true
+    }
     return P.resolve({})
   }
 
@@ -1057,7 +1058,6 @@ module.exports = function (log, error) {
 
     return P.resolve({ createdAt: timestamp })
   }
-
 
   Memory.prototype.createEmailBounce = function (data) {
     const row = emailBounces[data.email] || (emailBounces[data.email] = [])

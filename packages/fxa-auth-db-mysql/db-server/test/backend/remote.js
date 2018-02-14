@@ -345,7 +345,7 @@ module.exports = function(cfg, makeServer) {
             respOk(r)
             var sessions = r.obj
             assert.equal(sessions.length, 1, 'sessions contains one item')
-            assert.equal(Object.keys(sessions[0]).length, 18, 'session has correct properties')
+            assert.equal(Object.keys(sessions[0]).length, 19, 'session has correct properties')
             assert.equal(sessions[0].tokenId, user.sessionTokenId, 'tokenId is correct')
             assert.equal(sessions[0].uid, user.accountId, 'uid is correct')
             assert.equal(sessions[0].createdAt, user.sessionToken.createdAt, 'createdAt is correct')
@@ -356,6 +356,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(sessions[0].uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType is correct')
             assert.equal(sessions[0].uaFormFactor, user.sessionToken.uaFormFactor, 'uaFormFactor is correct')
             assert.equal(sessions[0].lastAccessTime, user.sessionToken.createdAt, 'lastAccessTime is correct')
+            assert.equal(sessions[0].authAt, user.sessionToken.createdAt, 'authAt is correct')
 
             // Fetch the session token
             return client.getThen('/sessionToken/' + user.sessionTokenId)
@@ -373,6 +374,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(token.uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType matches')
             assert.equal(token.uaFormFactor, user.sessionToken.uaFormFactor, 'uaFormFactor matches')
             assert.equal(token.lastAccessTime, token.createdAt, 'lastAccessTime was set')
+            assert.equal(token.authAt, token.createdAt, 'authAt was set to default')
             assert.equal(!! token.emailVerified, user.account.emailVerified, 'emailVerified same as account emailVerified')
             assert.equal(token.email, user.account.email, 'token.email same as account email')
             assert.deepEqual(token.emailCode, user.account.emailCode, 'token emailCode same as account emailCode')
@@ -397,6 +399,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(token.uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType matches')
             assert.equal(token.uaFormFactor, user.sessionToken.uaFormFactor, 'uaFormFactor matches')
             assert.equal(token.lastAccessTime, token.createdAt, 'lastAccessTime was set')
+            assert.equal(token.authAt, token.createdAt, 'authAt was set to default')
             assert.equal(!! token.emailVerified, user.account.emailVerified, 'emailVerified same as account emailVerified')
             assert.equal(token.email, user.account.email, 'token.email same as account email')
             assert.deepEqual(token.emailCode, user.account.emailCode, 'token emailCode same as account emailCode')
@@ -427,6 +430,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(token.uaDeviceType, verifiedUser.sessionToken.uaDeviceType, 'uaDeviceType matches')
             assert.equal(token.uaFormFactor, verifiedUser.sessionToken.uaFormFactor, 'uaFormFactor matches')
             assert.equal(token.lastAccessTime, token.createdAt, 'lastAccessTime was set')
+            assert.equal(token.authAt, token.createdAt, 'authAt was set to default')
             assert.equal(!! token.emailVerified, verifiedUser.account.emailVerified, 'emailVerified same as account emailVerified')
             assert.equal(token.email, verifiedUser.account.email, 'token.email same as account email')
             assert.deepEqual(token.emailCode, verifiedUser.account.emailCode, 'token emailCode same as account emailCode')
@@ -451,6 +455,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(token.uaDeviceType, verifiedUser.sessionToken.uaDeviceType, 'uaDeviceType matches')
             assert.equal(token.uaFormFactor, verifiedUser.sessionToken.uaFormFactor, 'uaFormFactor matches')
             assert.equal(token.lastAccessTime, token.createdAt, 'lastAccessTime was set')
+            assert.equal(token.authAt, token.createdAt, 'authAt was set to default')
             assert.equal(!! token.emailVerified, verifiedUser.account.emailVerified, 'emailVerified same as account emailVerified')
             assert.equal(token.email, verifiedUser.account.email, 'token.email same as account email')
             assert.deepEqual(token.emailCode, verifiedUser.account.emailCode, 'token emailCode same as account emailCode')
@@ -517,7 +522,8 @@ module.exports = function(cfg, makeServer) {
               uaOS: 'different OS',
               uaOSVersion: 'different OS version',
               uaDeviceType: 'different device type',
-              lastAccessTime: 42
+              lastAccessTime: 42,
+              authAt: 1234567
             })
           })
           .then(function(r) {
@@ -539,6 +545,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(sessions[0].uaOSVersion, 'different OS version', 'uaOSVersion is correct')
             assert.equal(sessions[0].uaDeviceType, 'different device type', 'uaDeviceType is correct')
             assert.equal(sessions[0].lastAccessTime, 42, 'lastAccessTime is correct')
+            assert.equal(sessions[0].authAt, 1234567, 'authAt is correct')
 
             // Fetch the newly verified session token
             return client.getThen('/sessionToken/' + user.sessionTokenId)
@@ -555,6 +562,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(token.uaOSVersion, 'different OS version', 'uaOSVersion was updated')
             assert.equal(token.uaDeviceType, 'different device type', 'uaDeviceType was updated')
             assert.equal(token.lastAccessTime, 42, 'lastAccessTime was updated')
+            assert.equal(token.authAt, 1234567, 'authAt was updated')
 
             // Create a device
             return client.putThen('/account/' + user.accountId + '/device/' + user.deviceId, user.device)
