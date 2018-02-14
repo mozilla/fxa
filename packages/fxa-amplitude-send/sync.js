@@ -22,7 +22,7 @@ const AWS_SECRET_KEY = process.env.FXA_AWS_SECRET_KEY
 const AWS_S3_BUCKET = 'telemetry-parquet'
 const AWS_S3_PREFIX = 'sync_events/v1/'
 const MAX_EVENTS_PER_BATCH = 10
-const HMAC_KEY = process.env.FXA_AMPLITUDE_HMAC_KEY
+const HMAC_KEY = process.env.SYNC_INSERTID_HMAC_KEY
 const API_KEY = process.env.FXA_AMPLITUDE_API_KEY
 
 if (process.argv.length !== 2 && process.argv.length !== 3) {
@@ -34,7 +34,7 @@ if (process.argv.length !== 2 && process.argv.length !== 3) {
 }
 
 if (! HMAC_KEY || ! API_KEY) {
-  console.error('Error: You must set FXA_AMPLITUDE_HMAC_KEY and FXA_AMPLITUDE_API_KEY environment variables')
+  console.error('Error: You must set SYNC_INSERTID_HMAC_KEY and FXA_AMPLITUDE_API_KEY environment variables')
   process.exit(1)
 }
 
