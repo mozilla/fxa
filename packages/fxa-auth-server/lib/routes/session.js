@@ -72,6 +72,16 @@ module.exports = function (log, db, Password, config, signinUtils) {
     {
       method: 'POST',
       path: '/session/reauth',
+      apidoc: {
+        errors: [
+          error.unknownAccount,
+          error.requestBlocked,
+          error.incorrectPassword,
+          error.cannotLoginWithSecondaryEmail,
+          error.invalidUnblockCode,
+          error.cannotLoginWithEmail
+        ]
+      },
       config: {
         auth: {
           strategy: 'sessionToken'

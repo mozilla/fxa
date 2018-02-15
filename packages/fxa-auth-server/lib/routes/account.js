@@ -360,6 +360,16 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
     {
       method: 'POST',
       path: '/account/login',
+      apidoc: {
+        errors: [
+          error.unknownAccount,
+          error.requestBlocked,
+          error.incorrectPassword,
+          error.cannotLoginWithSecondaryEmail,
+          error.invalidUnblockCode,
+          error.cannotLoginWithEmail
+        ]
+      },
       config: {
         validate: {
           query: {

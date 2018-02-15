@@ -649,8 +649,23 @@ Failing requests may be caused
 by the following errors
 (this is not an exhaustive list):
 
+* `code: 400, errno: 102`:
+  Unknown account
+
 * `code: 400, errno: 103`:
   Incorrect password
+
+* `code: 400, errno: 125`:
+  The request was blocked for security reasons
+
+* `code: 400, errno: 127`:
+  Invalid unblock code
+
+* `code: 400, errno: 142`:
+  Sign in with this email type is not currently supported
+
+* `code: 400, errno: 149`:
+  This email can not currently be used to login
 
 
 #### GET /account/status
@@ -1076,11 +1091,11 @@ Failing requests may be caused
 by the following errors
 (this is not an exhaustive list):
 
-* `code: 503, errno: 202`:
-  Feature not enabled
-
 * `code: 400, errno: 107`:
   Invalid parameter in request body
+
+* `code: 503, errno: 202`:
+  Feature not enabled
 
 
 #### GET /account/devices
@@ -1696,11 +1711,11 @@ by the following errors
 * `code: 400, errno: 138`:
   Unverified session
 
-* `code: 400, errno: 148`:
-  Can not change primary email to an email that does not belong to this account
-
 * `code: 400, errno: 147`:
   Can not change primary email to an unverified email
+
+* `code: 400, errno: 148`:
+  Can not change primary email to an email that does not belong to this account
 
 
 ### Password
@@ -2235,8 +2250,23 @@ Failing requests may be caused
 by the following errors
 (this is not an exhaustive list):
 
+* `code: 400, errno: 102`:
+  Unknown account
+
 * `code: 400, errno: 103`:
   Incorrect password
+
+* `code: 400, errno: 125`:
+  The request was blocked for security reasons
+
+* `code: 400, errno: 127`:
+  Invalid unblock code
+
+* `code: 400, errno: 142`:
+  Sign in with this email type is not currently supported
+
+* `code: 400, errno: 149`:
+  This email can not currently be used to login
 
 
 #### GET /session/status

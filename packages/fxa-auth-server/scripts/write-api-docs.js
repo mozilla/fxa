@@ -202,13 +202,7 @@ function marshallRouteData (docs, errors, files) {
         const queryParameters = marshallQueryParameters(docs, slug, validation, variables, filePath)
         const requestBodyParameters = marshallRequestBodyParameters(docs, slug, validation, variables, filePath)
         const responseBodyParameters = marshallResponseBodyParameters(docs, slug, response, variables, filePath)
-        const handler = findRouteHandler(route, filePath)
-        let errorResponses
-        if (handler) {
-          errorResponses = marshallErrorResponses(errors, handler, filePath)
-        } else {
-          errorResponses = []
-        }
+        const errorResponses = marshallErrorResponses(errors, route, filePath)
         return {
           method,
           path: routePath,
@@ -402,6 +396,18 @@ function assertType (node, types, filePath) {
     const line = node.loc.start.line
     const column = node.loc.start.column
     fail(`Expected type [${Array.from(types).join(',')}], found "${nodeType}" at column "${column}"`, filePath, line)
+  }
+}
+
+function assertName (node, name, filePath) {
+  if (! node) {
+    fail(`Expected something named ${name}, found nothing`, filePath)
+  }
+
+  if (node.name !== name) {
+    const line = node.loc.start.line
+    const column = node.loc.start.column
+    fail(`Expected name "${name}", found "${node.name}" at column "${column}"`, filePath, line)
   }
 }
 
@@ -655,7 +661,14 @@ function findRouteHandler (route, filePath) {
   }
 }
 
-function marshallErrorResponses (errors, handler, filePath) {
+function marshallErrorResponses (errors, route, filePath) {
+  const handler = findRouteHandler(route, filePath)
+  let extras = findProperty(route, 'apidoc', OBJECT_TYPES, filePath)
+  if (extras) {
+    extras = findProperty(extras, 'errors', ARRAY_TYPES, filePath).elements
+  } else {
+    extras = []
+  }
   const dupes = new Set()
   // HACK: Assumes we always import error module as `error`
   return find(handler, {
@@ -668,15 +681,24 @@ function marshallErrorResponses (errors, handler, filePath) {
       }
     }
   }, { recursive: true })
-  .filter(errorCall => {
-    const errorName = errorCall.callee.property.name
+  .map(errorCall => {
+    return errorCall.callee.property.name
+  })
+  .concat(extras.map(expr => {
+    assertName(expr.object, 'error', filePath)
+    return expr.property.name
+  }))
+  .filter(errorName => {
     if (dupes.has(errorName)) {
       return false
     }
     dupes.add(errorName)
     return !! errors[errorName]
   })
-  .map(errorCall => errors[errorCall.callee.property.name])
+  .map(errorName => errors[errorName])
+  .sort((err1, err2) => {
+    return (err1.code - err2.code) || (err1.errno - err2.errno)
+  })
 }
 
 function marshallAuthentication (authentication) {
