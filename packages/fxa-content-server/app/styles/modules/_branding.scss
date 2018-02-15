@@ -41,6 +41,9 @@
   }
 
   .screen-choose-what-to-sync & {
+    // in Blink and Webkit it is not enough to use `!important` opacity
+    // also need to add animation:none to avoid overrides from `keyframes`
+    animation: none;
     // the 'choose-what-to-sync' view is a special case view
     // where we want to hide the logo and not animate it
     // it uses `!important` to avoid the fade-in effect and inline styles.
