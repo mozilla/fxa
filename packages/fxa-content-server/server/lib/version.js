@@ -9,7 +9,7 @@
  * tosPpVersion at startup.
  *
  * If l10nVersion and tosPpVersion cannot be loaded statically from the
- * content in ../../app/bower_components, then just show UNKNOWN.
+ * content in ../../node_modules, then just show UNKNOWN.
  *
  * If commitHash cannot be found from ./config/version.json (i.e., this is not
  * production or stage), then an attempt will be made to determine commitHash
@@ -83,9 +83,9 @@ function getL10nVersion () {
 
 function getTosPpVersion () {
   try {
-    const bowerPath = '../../app/bower_components/tos-pp/.bower.json';
-    const bowerInfo = require(bowerPath);
-    return bowerInfo && bowerInfo._release;
+    const pkgPath = '../../node_modules/legal-docs/package.json';
+    const pkgInfo = require(pkgPath);
+    return pkgInfo && pkgInfo.gitHead;
   } catch (e) {
     /* ignore */
   }

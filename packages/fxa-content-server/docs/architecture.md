@@ -86,7 +86,7 @@ The profile-client communicates with the Firefox Accounts [Profile Server](https
 
 The content server web client is made up of many layers. An item is only allowed to interact with a layer below it, but not with ancestors or siblings.
 
-[app-start.js](https://github.com/mozilla/fxa-content-server/blob/master/app/scripts/lib/app-start.js) is where the fun begins. It creates several models and a router. The router is passed a reference to several models. The router creates views. Only views are allowed to interact with templates. Models and Views use functionality provided by lib modules. vendor and bower_components are external components and should be fully self contained. The full application lifecycle is described in the section `Application lifecycle`.
+[app-start.js](https://github.com/mozilla/fxa-content-server/blob/master/app/scripts/lib/app-start.js) is where the fun begins. It creates several models and a router. The router is passed a reference to several models. The router creates views. Only views are allowed to interact with templates. Models and Views use functionality provided by lib modules. vendor are external components and should be fully self contained. The full application lifecycle is described in the section `Application lifecycle`.
 
 ```
    app-start            |
@@ -94,7 +94,7 @@ The content server web client is made up of many layers. An item is only allowed
                       views
      models             |   templates
       lib               |
-vendor bower_components |
+     vendor             |
 ```
 
 ### Application lifecycle

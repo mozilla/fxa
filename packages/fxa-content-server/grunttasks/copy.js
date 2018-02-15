@@ -33,11 +33,6 @@ module.exports = function (grunt) {
         src: 'en/{500,502,503}.html'
       }]
     },
-    // copy normalize.css to .tmp during build, this library is required by grunt-usemin to be in .tmp
-    normalize: {
-      dest: '<%= yeoman.tmp %>/bower_components/normalize-css/normalize.css',
-      src: 'app/bower_components/normalize-css/normalize.css'
-    },
     strings: {
       files: [
         {

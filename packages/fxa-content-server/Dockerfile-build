@@ -11,8 +11,6 @@ ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 
 RUN apk add --no-cache git
 
-COPY .bowerrc .bowerrc
-COPY bower.json bower.json
 COPY npm-shrinkwrap.json npm-shrinkwrap.json
 COPY package.json package.json
 COPY scripts/download_l10n.sh scripts/download_l10n.sh

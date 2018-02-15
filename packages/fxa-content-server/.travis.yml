@@ -31,7 +31,6 @@ group: deprecated-2017Q3
 cache:
   directories:
     - node_modules
-    - app/bower_components
     - deps/node_modules/fxa-auth-server/node_modules
     - deps/node_modules/fxa-profile-server/node_modules
     - deps/node_modules/fxa-oauth-server/node_modules

@@ -8,7 +8,6 @@ module.exports = function (grunt) {
     livereload: {
       files: [
         '<%= yeoman.app %>/**/*.js',
-        '!<%= yeoman.app %>/bower_components/**',
         '!<%= yeoman.app %>/scripts/vendor/**'
       ],
       options: {

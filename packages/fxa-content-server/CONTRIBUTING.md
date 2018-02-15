@@ -110,10 +110,10 @@ reference GitHub issues that this commit **Closes**.
 
 ## Dependencies and Tools
 
-### Bower
+### npm
 
-We use [Bower](http://bower.io/) to manage front-end packages. These components are [automatically
-installed](https://github.com/mozilla/fxa-content-server/blob/master/package.json#L7) when you install this project and are placed into the `app` directory.
+We use [npm](http://npmjs.com/) to manage all dependencies. These components are [automatically
+installed](https://github.com/mozilla/fxa-content-server/blob/master/package.json#L7) when you install this project.
 
 ### L10N
 

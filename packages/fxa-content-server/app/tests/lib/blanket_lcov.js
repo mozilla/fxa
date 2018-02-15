@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Based on bower_components/blanket/src/reporters/lcov_reporter.js
+ * Based on node_modules/blanket/src/reporters/lcov_reporter.js
  */
 
 //lcov_reporter

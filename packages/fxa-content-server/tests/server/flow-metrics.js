@@ -16,10 +16,10 @@ var mockDateNow, mockRandomBytes, mockFlowIdKey, mockUserAgent;
 suite.beforeEach = function () {
   mockFlowIdKey = 'test hmac key';
   mockUserAgent = 'test user agent';
-  sinon.stub(Date, 'now', function () {
+  sinon.stub(Date, 'now').callsFake(function () {
     return mockDateNow;
   });
-  sinon.stub(crypto, 'randomBytes', function (size) {
+  sinon.stub(crypto, 'randomBytes').callsFake(function (size) {
     if (mockRandomBytes) {
       return new Buffer(mockRandomBytes);
     } else {

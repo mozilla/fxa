@@ -6,12 +6,10 @@ module.exports = function (grunt) {
   grunt.config('concurrent', {
     dist: [
       'copy:styles',
-      'copy:normalize',
       'connect_fonts_copy'
     ],
     server: [
       'copy:styles',
-      'copy:normalize',
       'connect_fonts_copy'
     ],
     test: ['copy:styles']

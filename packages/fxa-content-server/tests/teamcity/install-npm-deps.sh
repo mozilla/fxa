@@ -8,7 +8,6 @@ export NPM_CONFIG_LOGLEVEL=warn
 
 node ./tests/teamcity/install-npm-deps.js \
   bluebird                        \
-  bower                           \
   convict                         \
   css                             \
   extend                          \

@@ -7,7 +7,6 @@ module.exports = function (grunt) {
     app: {
       src: [
         '{,<%= yeoman.app %>/**/}*.json',
-        '!<%= yeoman.app %>/bower_components/**',
         '!<%= yeoman.app %>/i18n/**',
         '!<%= yeoman.app %>/scripts/vendor/**',
         '!<%= yeoman.app %>/tests/**'
@@ -15,7 +14,6 @@ module.exports = function (grunt) {
     },
     config: {
       src: [
-        '.bowerrc',
         '.eslintrc'
       ]
     },

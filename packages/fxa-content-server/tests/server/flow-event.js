@@ -21,7 +21,7 @@ registerSuite('flow-event', {
       /*eslint-enable camelcase*/
     };
     sandbox = sinon.sandbox.create();
-    sandbox.stub(process.stderr, 'write', () => {});
+    sandbox.stub(process.stderr, 'write').callsFake(() => {});
     mocks = {
       amplitude: sinon.spy(),
       config: {

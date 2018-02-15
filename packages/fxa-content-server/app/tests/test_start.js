@@ -261,9 +261,6 @@ const runTests = function () {
 };
 
 var filterFilesFromStack = [
-  'bower_components/blanket/dist/qunit/blanket.js',
-  'bower_components/p/p.js',
-  'bower_components/requirejs/require.js',
   'tests/test_start.js'
 ];
 

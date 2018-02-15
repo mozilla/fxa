@@ -559,7 +559,6 @@ const conf = module.exports = convict({
       excludeFiles: [
         '/scripts/../tests/',
         '/scripts/vendor/',
-        '/scripts/../bower_components/',
         'require_config'
       ],
       globalThreshold: 90,

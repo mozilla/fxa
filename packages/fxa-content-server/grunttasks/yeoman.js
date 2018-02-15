@@ -5,7 +5,7 @@
 module.exports = function (grunt) {
   var TEMP_DIR = '.tmp';
   var TEMPLATE_ROOT = 'server/templates';
-  var TOS_PP_REPO_ROOT = 'app/bower_components/tos-pp';
+  var TOS_PP_REPO_ROOT = 'node_modules/legal-docs';
 
   grunt.config('yeoman', {
     /*eslint-disable camelcase */

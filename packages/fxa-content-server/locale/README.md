@@ -10,7 +10,7 @@ Here are a few things to know:
 
 * Do `git add` the file you are working on as often as possible. Otherwise you might just run `grunt` and it’ll overwrite all your work.
 * The files that the default behavior uses to generate the content is from `fxa-content-server-l10n`, that is handled by npm install via git.
-* To work locally —and not get your work overwritten by bower— use those two commands:
+* To work locally use those two commands:
 
         grunt po2json
         grunt serverproc:test
@@ -70,7 +70,7 @@ Commit the merged .po files to master and enjoy.
 
 ## Updating translations
 
-Translators will update the `.po` files in the l10n repo, which are downloaded as a bower dependency. To convert the new translations into JSON for the app to use, run:
+Translators will update the `.po` files in the l10n repo, which are downloaded via the `scripts/download_l10n.sh` script. To convert the new translations into JSON for the app to use, run:
 
     grunt l10n-create-json
 

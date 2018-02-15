@@ -22,7 +22,7 @@ const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(pkg.version)[1];
 
 registerSuite('amplitude', {
   beforeEach: function() {
-    sinon.stub(process.stderr, 'write', () => {});
+    sinon.stub(process.stderr, 'write').callsFake(() => {});
   },
 
   afterEach: function() {

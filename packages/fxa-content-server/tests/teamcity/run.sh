@@ -72,7 +72,6 @@ export npm_config_tmp=~/fxatemp
 set -o xtrace # echo the following commands
 
 node ./tests/teamcity/install-npm-deps.js \
-  bower                           \
   convict                         \
   firefox-profile                 \
   fxa-js-client                   \
@@ -84,8 +83,6 @@ node ./tests/teamcity/install-npm-deps.js \
   sync-exec                       \
   xmlhttprequest                  \
   yargs
-
-node_modules/.bin/bower install --config.interactive=false
 
 $FXA_FIREFOX_BINARY --version 2>/dev/null # squelch annoying 'GLib-CRITICAL **' message
 

@@ -8,7 +8,7 @@ module.exports = function (grunt) {
       dest: '<%= yeoman.dist %>/app.bundle.js',
       src: [
         '<%= yeoman.dist %>/app.bundle.js',
-        'app/bower_components/easteregg/src/easteregg.js'
+        'node_modules/easterEgg/src/easteregg.js'
       ]
     }
   });

@@ -94,7 +94,7 @@ registerSuite('routes/post-metrics', {
         'route.preProcess': {
           'route.preProcess with text/plain Content-Type': {
             before: function () {
-              sinon.stub(Date, 'now', function () {
+              sinon.stub(Date, 'now').callsFake(function () {
                 return 1000;
               });
               setupMetricsHandlerTests({
@@ -136,7 +136,7 @@ registerSuite('routes/post-metrics', {
 
         'route.process': {
           before: function () {
-            sinon.stub(Date, 'now', function () {
+            sinon.stub(Date, 'now').callsFake(function () {
               return 1000;
             });
             setupMetricsHandlerTests({
@@ -235,7 +235,7 @@ registerSuite('routes/post-metrics', {
 
         'route.process with isSampledUser=false': {
           before: function () {
-            sinon.stub(Date, 'now', function () {
+            sinon.stub(Date, 'now').callsFake(function () {
               return 1000;
             });
             setupMetricsHandlerTests({

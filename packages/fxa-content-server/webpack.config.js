@@ -54,35 +54,31 @@ const webpackConfig = {
       'node_modules'
     ],
     alias: {
-      backbone: path.resolve(__dirname, 'app/bower_components/backbone/backbone'),
-      canvasToBlob: path.resolve(__dirname, 'app/bower_components/blueimp-canvas-to-blob/js/canvas-to-blob'),
-      chai: path.resolve(__dirname, 'app/bower_components/chai/chai'),
-      'cocktail-lib': path.resolve(__dirname, 'app/bower_components/cocktail/Cocktail'),
+      canvasToBlob: path.resolve(__dirname, 'node_modules/blueimp-canvas-to-blob/js/canvas-to-blob'),
+      'cocktail-lib': path.resolve(__dirname, 'node_modules/backbone.cocktail/Cocktail'),
       cocktail: path.resolve(__dirname, 'app/scripts/lib/cocktail'),
-      draggable: path.resolve(__dirname, 'app/bower_components/jquery-ui/ui/draggable'),
-      duration: path.resolve(__dirname, 'app/bower_components/Duration.js/duration'),
-      'es6-promise': path.resolve(__dirname, 'app/bower_components/es6-promise/dist/es6-promise'),
-      fxaCheckbox: path.resolve(__dirname, 'app/bower_components/fxa-checkbox/checkbox'),
+      draggable: path.resolve(__dirname, 'node_modules/jquery-ui/ui/widgets/draggable'),
+      duration: path.resolve(__dirname, 'node_modules/duration-js/duration'),
+      'es6-promise': path.resolve(__dirname, 'node_modules/es6-promise/dist/es6-promise'),
+      fxaCheckbox: path.resolve(__dirname, 'node_modules/fxa-checkbox/checkbox'),
       fxaClient: 'fxa-js-client/client/FxAccountClient',
-      fxaCryptoDeriver: path.resolve(__dirname, 'app/bower_components/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'),
-      jquery: path.resolve(__dirname, 'app/bower_components/jquery/dist/jquery'),
-      'jquery-simulate': path.resolve(__dirname, 'app/bower_components/jquery-simulate/jquery.simulate'),
+      fxaCryptoDeriver: path.resolve(__dirname, 'node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'),
       // jwcrypto is used by the main app and only contains DSA
       // jwcrypto.rs is used by the unit tests to unbundle and verify
       // assertions, which require RSA.
       jwcrypto: path.resolve(__dirname, 'app/scripts/vendor/jwcrypto/jwcrypto.ds'),
       'jwcrypto.rs': path.resolve(__dirname, 'app/scripts/vendor/jwcrypto/jwcrypto.rs'),
-      mailcheck: path.resolve(__dirname, 'app/bower_components/mailcheck/src/mailcheck'),
-      md5: path.resolve(__dirname, 'app/bower_components/js-md5/src/md5'),
+      mailcheck: path.resolve(__dirname, 'node_modules/mailcheck/src/mailcheck'),
+      md5: path.resolve(__dirname, 'node_modules/js-md5/src/md5'),
       mocha: 'mocha/mocha',
-      modal: path.resolve(__dirname, 'app/bower_components/jquery-modal/jquery.modal'),
-      raven: path.resolve(__dirname, 'app/bower_components/raven-js/dist/raven'),
-      sinon: path.resolve(__dirname, 'app/bower_components/sinon/index'),
-      'touch-punch': path.resolve(__dirname, 'app/bower_components/jquery-ui-touch-punch/jquery.ui.touch-punch'),
-      'ua-parser-js': path.resolve(__dirname, 'app/bower_components/ua-parser-js/src/ua-parser'),
-      uuid: path.resolve(__dirname, 'app/bower_components/node-uuid/uuid'),
-      vat: path.resolve(__dirname, 'app/bower_components/vat/vat'),
-      webrtc: path.resolve(__dirname, 'app/bower_components/webrtc-adapter/adapter')
+      modal: path.resolve(__dirname, 'node_modules/jquery-modal/jquery.modal'),
+      raven: path.resolve(__dirname, 'node_modules/raven-js/dist/raven'),
+      sinon: path.resolve(__dirname, 'node_modules/sinon/pkg/sinon-3.2.1'),
+      'touch-punch': path.resolve(__dirname, 'node_modules/jquery-ui-touch-punch-amd/jquery.ui.touch-punch'),
+      'ua-parser-js': path.resolve(__dirname, 'node_modules/ua-parser-js/src/ua-parser'),
+      uuid: path.resolve(__dirname, 'node_modules/node-uuid/uuid'),
+      vat: path.resolve(__dirname, 'node_modules/node-vat/vat'),
+      webrtc: path.resolve(__dirname, 'node_modules/webrtc-adapter-test/adapter')
     }
   },
 

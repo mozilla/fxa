@@ -9,7 +9,6 @@ module.exports = function (grunt) {
     no_children: { //eslint-disable-line camelcase
       files: {
         src: [
-          '<%= yeoman.dist %>/bower_components/**/*.js',
           '<%= yeoman.dist %>/scripts/vendor/**/*.js',
           '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
           '!<%= yeoman.dist %>/images/apple_app_store_button/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',

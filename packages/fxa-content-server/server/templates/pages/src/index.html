@@ -15,7 +15,6 @@
         <meta name="apple-itunes-app" content="app-id=989804926, affiliate-data=ct=smartbanner-fxa">
 
         <!-- build:css(.tmp) /styles/{{ locale }}.css -->
-        <link rel="stylesheet" href="/bower_components/normalize-css/normalize.css">
         <link rel="stylesheet" href="/styles/fontello.css">
         {{#if fontSupportDisabled}}
         <link rel="stylesheet" href="/styles/system-font-main.css">
@@ -26,13 +25,6 @@
         <!-- endbuild -->
 
         <script type="text/javascript" src="{{ bundlePath }}/head.bundle.js"></script>
-
-        <!--[if lt IE 9]>
-          <!-- build:js /bower_components/html5shiv/dist/html5shiv.js -->
-          <script src="/bower_components/html5shiv/dist/html5shiv.js"></script>
-          <!-- endbuild -->
-        <![endif]-->
-
     </head>
     <body data-flow-id="{{flowId}}" data-flow-begin="{{flowBeginTime}}" data-static-resource-host="{{{staticResourceUrl}}}">
         <div id="fox-logo"></div>

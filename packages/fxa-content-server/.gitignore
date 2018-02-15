@@ -18,9 +18,6 @@ npm-debug.log*
 node_modules
 browser_modules
 
-### Bower ###
-app/bower_components
-
 ### Babel compiled scripts ###
 .es5
 .es5cache
@@ -30,7 +27,6 @@ app/bower_components
 !.gitignore
 !.git*
 !.eslintrc
-!.bowerrc
 !.editorconfig
 !.npmignore
 !.travis.yml

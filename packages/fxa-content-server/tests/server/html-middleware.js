@@ -40,7 +40,7 @@ registerSuite('html-middleware', {
   },
   tests: {
     'it calls middleware if an html response type': function () {
-      sinon.stub(res, 'getHeader', () => 'text/html; charset=UTF-8');
+      sinon.stub(res, 'getHeader').callsFake(() => 'text/html; charset=UTF-8');
       wrappedMiddleware(req, res, next);
 
       assert.isTrue(originalMiddleware.calledOnce);
@@ -49,7 +49,7 @@ registerSuite('html-middleware', {
     },
 
     'it does not call middleware if a non-html response type': function () {
-      sinon.stub(res, 'getHeader', () => 'application/json; charset=UTF-8');
+      sinon.stub(res, 'getHeader').callsFake(() => 'application/json; charset=UTF-8');
       wrappedMiddleware(req, res, next);
 
       assert.isFalse(originalMiddleware.called);
