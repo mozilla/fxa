@@ -59,7 +59,6 @@ define(function (require, exports, module) {
     afterRender () {
       const autofocusEl = this._selectAutoFocusEl();
       this.$(autofocusEl).attr('autofocus', 'autofocus');
-      this.logViewEvent(`password-confirm.visible.${this._isPasswordConfirmEnabled()}`);
 
       return proto.afterRender.call(this);
     },
@@ -117,8 +116,7 @@ define(function (require, exports, module) {
         isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
         isSignInEnabled: ! forceEmail,
         isSync: isSync,
-        isSyncMigration: this.isSyncMigration(),
-        showPasswordConfirm: this._isPasswordConfirmEnabled()
+        isSyncMigration: this.isSyncMigration()
       });
     },
 
@@ -281,16 +279,8 @@ define(function (require, exports, module) {
       return /@firefox(\.com)?$/.test(email);
     },
 
-    _isPasswordConfirmEnabled () {
-      return !! this.isInExperimentGroup('signupPasswordConfirm', 'treatment');
-    },
-
     _doPasswordsMatch() {
-      if (this._isPasswordConfirmEnabled()) {
-        return this.getElementValue('#password') === this.getElementValue('#vpassword');
-      } else {
-        return true;
-      }
+      return this.getElementValue('#password') === this.getElementValue('#vpassword');
     },
 
     _initAccount () {

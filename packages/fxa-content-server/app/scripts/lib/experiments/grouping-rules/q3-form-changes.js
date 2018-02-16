@@ -20,7 +20,7 @@ define(function(require, exports, module) {
      * @returns {Any}
      */
     choose (subject) {
-      const EXPERIMENTS = ['signupPasswordConfirm', 'emailFirst'];
+      const EXPERIMENTS = ['emailFirst'];
 
       if (! subject || ! subject.uniqueUserId) {
         return false;

@@ -54,18 +54,6 @@ define(function (require, exports, module) {
         }));
       });
 
-      it('returns `false` if experiment is not chosen by `q3FormChanges`', () => {
-        sandbox.stub(experiment, 'bernoulliTrial').callsFake(() => true);
-        q3FormChangesChoice = 'signupPasswordConfirm';
-
-        assert.isFalse(experiment.choose({
-          env: 'development',
-          experimentGroupingRules,
-          isEmailFirstSupported: false,
-          uniqueUserId: 'user-id'
-        }));
-      });
-
       it('returns chooses some experiment ', () => {
         sandbox.stub(experiment, 'bernoulliTrial').callsFake(() => true);
         q3FormChangesChoice = 'emailFirst';

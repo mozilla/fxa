@@ -248,31 +248,10 @@ define(function (require, exports, module) {
       });
 
       describe('password confirm', function() {
-        it('is visible if enabled', function () {
-          sinon.stub(experimentGroupingRules, 'choose').callsFake((name) => {
-            return name === 'signupPasswordConfirm' && 'treatment';
-          });
-
-          enableExperiments();
-
+        it('is visible', function () {
           return view.render()
             .then(function () {
-              assert.isTrue(experimentGroupingRules.choose.calledWith('signupPasswordConfirm'));
               assert.equal(view.$('#vpassword').length, 1);
-            });
-        });
-
-        it('is not visible if disabled', function () {
-          sinon.stub(experimentGroupingRules, 'choose').callsFake((name) => {
-            return name === 'signupPasswordConfirm' && 'control';
-          });
-
-          enableExperiments();
-
-          return view.render()
-            .then(function () {
-              assert.isTrue(experimentGroupingRules.choose.calledWith('signupPasswordConfirm'));
-              assert.equal(view.$('#vpassword').length, 0);
             });
         });
       });
@@ -504,7 +483,6 @@ define(function (require, exports, module) {
 
       describe('password confirm', () => {
         it('returns false if confirm password is empty', function () {
-          view._isPasswordConfirmEnabled = () => true;
           return view.render()
             .then(() => {
               fillOutSignUp(email, 'password', '');
@@ -513,7 +491,6 @@ define(function (require, exports, module) {
         });
 
         it('returns false if confirm password does not match', function () {
-          view._isPasswordConfirmEnabled = () => true;
           return view.render()
             .then(() => {
               fillOutSignUp(email, 'password', 'drowssap');
@@ -523,7 +500,6 @@ define(function (require, exports, module) {
 
 
         it('returns true if confirm password matches', function () {
-          view._isPasswordConfirmEnabled = () => true;
           return view.render()
             .then(() => {
               fillOutSignUp(email, 'password', 'password');
@@ -582,8 +558,6 @@ define(function (require, exports, module) {
       });
 
       it('shows an error if confirm passwords do not match', () => {
-        view._isPasswordConfirmEnabled = () => true;
-
         return view.render().then(() => {
           fillOutSignUp('testuser@testuser.com', 'password', 'drowssap');
 

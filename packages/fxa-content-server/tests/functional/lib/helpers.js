@@ -1373,7 +1373,7 @@ const fillOutSignUp = thenify(function (email, password, options) {
   var optInToMarketingEmail = options.optInToMarketingEmail || false;
   var age = options.age || 24;
   var submit = options.submit !== false;
-  const vpassword = options.vpassword;
+  const vpassword = options.vpassword || password;
 
   return this.parent
     .getCurrentUrl()
@@ -1395,9 +1395,7 @@ const fillOutSignUp = thenify(function (email, password, options) {
     })
     .then(type(selectors.SIGNUP.PASSWORD, password))
     .then(() => {
-      if (vpassword) {
-        return type(selectors.SIGNUP.VPASSWORD, vpassword).call(this);
-      }
+      return type(selectors.SIGNUP.VPASSWORD, vpassword).call(this);
     })
     .then(type(selectors.SIGNUP.AGE, age))
 
