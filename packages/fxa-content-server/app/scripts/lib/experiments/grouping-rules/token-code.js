@@ -34,13 +34,21 @@ define(function (require, exports, module) {
         return false;
       }
 
-      const client = ROLLOUT_CLIENTS[subject.clientId];
-      if (client && this.bernoulliTrial(client.rolloutRate, subject.uniqueUserId)) {
-        return this.uniformChoice(GROUPS, subject.uniqueUserId);
+      if (subject.clientId) {
+        const client = ROLLOUT_CLIENTS[subject.clientId];
+        if (client && this.bernoulliTrial(client.rolloutRate, subject.uniqueUserId)) {
+          return this.uniformChoice(GROUPS, subject.uniqueUserId);
+        }
+
+        // If a clientId was specified but not defined in the rollout configuration, the default
+        // is to disable the experiment for them.
+        return false;
       }
-      const isSync = false; // Issue: https://github.com/mozilla/fxa-content-server/issues/5912
-      if (isSync && this.bernoulliTrial(this.SYNC_ROLLOUT_RATE, subject.uniqueUserId)) {
-        return this.uniformChoice(GROUPS, subject.uniqueUserId);
+
+      if (this.get && this.get('service') === 'Sync') {
+        if (this.bernoulliTrial(this.SYNC_ROLLOUT_RATE, subject.uniqueUserId)) {
+          return this.uniformChoice(GROUPS, subject.uniqueUserId);
+        }
       }
 
       return false;
