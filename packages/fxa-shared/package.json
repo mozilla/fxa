@@ -18,6 +18,9 @@
   "bugs": {
     "url": "https://github.com/mozilla/fxa-shared/issues"
   },
+  "engines": {
+    "node": ">=6"
+  },
   "homepage": "https://github.com/mozilla/fxa-shared#readme",
   "devDependencies": {
     "tap": "11.1.0"
