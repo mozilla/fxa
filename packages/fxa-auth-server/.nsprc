@@ -4,6 +4,8 @@
     "https://nodesecurity.io/advisories/39",
     "https://nodesecurity.io/advisories/48",
     // moment@2.19.2
-	"https://nodesecurity.io/advisories/532"
+    "https://nodesecurity.io/advisories/532",
+    // hoek
+    "https://nodesecurity.io/advisories/566"
   ]
 }
