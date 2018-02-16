@@ -10,7 +10,7 @@ const assert = require('insist')
 const config = require(`${ROOT_DIR}/config`).getProperties()
 const P = require(`${ROOT_DIR}/lib/promise`)
 
-const log = { info () {}, error () {} }
+const log = { info () {}, warn () {}, error () {} }
 
 const redis = require(`${ROOT_DIR}/lib/redis`)(Object.assign({}, config.redis, { enabled: true }), log)
 

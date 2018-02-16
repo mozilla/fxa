@@ -68,7 +68,9 @@ module.exports = (log, client) => {
         .then(result => {
           isUpdating = false
           if (! result) {
-            log.error({ op: 'redis.watch.conflict', key })
+            // Really this isn't an error as such, it just indicates that
+            // this function is operating sanely in concurrent conditions.
+            log.warn({ op: 'redis.watch.conflict', key })
             throw error.unexpectedError()
           }
         })

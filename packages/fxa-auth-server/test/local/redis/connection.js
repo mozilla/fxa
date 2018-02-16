@@ -490,10 +490,11 @@ describe('redis/connection:', () => {
         assert.equal(redisMulti.execAsync.callCount, 1)
       })
 
-      it('called log.error correctly', () => {
-        assert.equal(log.error.callCount, 1)
-        assert.equal(log.error.args[0].length, 1)
-        assert.deepEqual(log.error.args[0][0], {
+      it('called log.warn correctly', () => {
+        assert.equal(log.error.callCount, 0)
+        assert.equal(log.warn.callCount, 1)
+        assert.equal(log.warn.args[0].length, 1)
+        assert.deepEqual(log.warn.args[0][0], {
           op: 'redis.watch.conflict',
           key: 'wibble'
         })
