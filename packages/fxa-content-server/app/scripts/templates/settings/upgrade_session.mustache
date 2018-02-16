@@ -3,8 +3,8 @@
         <header class="settings-unit-summary">
             <h2 class="settings-unit-title">{{ title }}</h2>
         </header>
-        <button class="settings-button primary settings-unit-toggle" data-href="{{ gatedHref }}">
-            <span class="unlock-button">{{#t}}Unlock…{{/t}}</span>
+        <button class="settings-button settings-unit-toggle" data-href="{{ gatedHref }}">
+            <span class="unlock-button">{{#t}}Show{{/t}}</span>
         </button>
     </div>
 
@@ -17,10 +17,10 @@
                 <li class="email-address">
                     <div class="address">{{ email }}</div>
                     <div class="details">
-                        <div class="not-verified">{{#t}}verify to unlock section{{/t}}</div>
+                        <div class="not-verified">{{#t}}Reverify to unlock section{{/t}}</div>
                     </div>
                     <div class="settings-button-group">
-                        <button class="settings-button warning send-verification-email" data-id="{{ email }}">
+                        <button class="settings-button send-verification-email" data-id="{{ email }}">
                             {{#t}}Send{{/t}}
                         </button>
                     </div>
