@@ -20,10 +20,10 @@
   },
   "homepage": "https://github.com/mozilla/fxa-shared#readme",
   "devDependencies": {
-    "tap": "6.3.2"
+    "tap": "11.1.0"
   },
   "dependencies": {
     "accept-language": "2.0.17",
-    "moment": "2.14.1"
+    "moment": "2.20.1"
   }
 }
