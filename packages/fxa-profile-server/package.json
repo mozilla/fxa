@@ -32,7 +32,7 @@
     "newrelic": "2.1.0",
     "poolee": "1.0.0",
     "raven": "2.1.2",
-    "request": "2.79.0",
+    "request": "2.83.0",
     "stream-to-array": "2.3.0"
   },
   "devDependencies": {
