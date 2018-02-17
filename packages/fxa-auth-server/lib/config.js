@@ -360,7 +360,7 @@ var files = (envConfig + ',' + process.env.CONFIG_FILES)
 conf.loadFile(files);
 
 var options = {
-  strict: true
+  allowed: 'strict'
 };
 
 conf.validate(options);
