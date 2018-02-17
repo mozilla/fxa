@@ -148,5 +148,5 @@ if (! process.env.NODE_ENV) {
 }
 
 conf.validate({
-  strict: true
+  allowed: 'strict'
 });
