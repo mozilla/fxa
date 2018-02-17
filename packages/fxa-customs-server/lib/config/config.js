@@ -290,7 +290,7 @@ module.exports = function (fs, path, url, convict) {
   var files = (envConfig + ',' + process.env.CONFIG_FILES)
                 .split(',').filter(fs.existsSync)
   conf.loadFile(files)
-  conf.validate({ strict: true })
+  conf.validate({ allowed: 'strict' })
 
   return conf
 }
