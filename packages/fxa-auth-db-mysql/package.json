@@ -30,14 +30,14 @@
   "dependencies": {
     "base64url": "2.0.0",
     "bluebird": "3.5.0",
-    "convict": "3.0.0",
+    "convict": "4.0.2",
     "fxa-jwtool": "0.7.2",
     "ip": "1.1.5",
     "mozlog": "2.1.0",
     "mysql": "2.13.0",
     "newrelic": "2.3.2",
     "raven": "2.3.0",
-    "request": "2.81.0",
+    "request": "2.83.0",
     "restify": "4.3.0",
     "restify-safe-json-formatter": "0.2.0"
   },
