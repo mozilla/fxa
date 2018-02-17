@@ -17,6 +17,10 @@ define(function (require, exports, module) {
      * @returns {Object}
      */
     find (searchFor) {
+      if (searchFor === undefined || searchFor === null) {
+        return;
+      }
+
       var found;
       if (typeof searchFor.errno === 'number') {
         found = this.find(searchFor.errno);
@@ -116,10 +120,9 @@ define(function (require, exports, module) {
      * @returns {Error}
      */
     toError (type, context) {
-      var errno = this.toErrno(type);
-      var message = this.toMessage(errno);
-
-      var err = new Error(message);
+      const errno = this.toErrno(type);
+      const message = this.toMessage(errno);
+      const err = _.isString(message) ? new Error(message) : message;
 
       if (typeof type === 'object') {
         // copy over any fields from the original object,

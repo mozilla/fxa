@@ -30,6 +30,31 @@ define(function (require, exports, module) {
 
         assert.equal(err.context, 'the context');
       });
+
+      it('handles undefined', () => {
+        const err = AuthErrors.toError();
+        assert.equal(err.message, 'System unavailable, try again soon');
+      });
+
+      it('handles null', () => {
+        const err = AuthErrors.toError(null);
+        assert.equal(err.message, 'System unavailable, try again soon');
+      });
+
+      it('handles empty string', () => {
+        const err = AuthErrors.toError('');
+        assert.equal(err.message, 'System unavailable, try again soon');
+      });
+
+      it('handles empty object', () => {
+        const err = AuthErrors.toError({});
+        assert.equal(err.message, 'Unexpected error');
+      });
+
+      it('propagates existing message', () => {
+        const err = AuthErrors.toError(new Error('wibble'));
+        assert.equal(err.message, 'wibble');
+      });
     });
 
     describe('toInvalidParameterError', function () {
