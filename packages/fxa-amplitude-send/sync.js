@@ -56,15 +56,22 @@ Promise.resolve()
     }
 
     return processDataFromS3(`${dateParts[1]}${dateParts[2]}${dateParts[3]}`)
-      .then(result => {
-        const date = result.date
-        if (date) {
-          fs.writeFileSync(MARKER_PATH, `${date.substr(0, 4)}-${date.substr(4, 2)}-${date.substr(6)}`)
-        }
-        return result.eventCount
+      .then(({ dates, eventCounts }) => {
+        console.log('days:', dates.length, dates)
+        const date = dates[0]
+        fs.writeFileSync(MARKER_PATH, `${date.substr(0, 4)}-${date.substr(4, 2)}-${date.substr(6)}`)
+        return eventCounts
       })
   })
-  .then(eventCount => console.log(`Sent ${eventCount} events`))
+  .then(eventCounts => {
+    let sum = 0
+    Object.entries(eventCounts).forEach(entry => {
+      const [ key, eventCount ] = entry
+      console.log(`${key}: ${eventCount}`)
+      sum += eventCount
+    })
+    console.log('sum:', sum)
+  })
   .catch(error => {
     console.error(error)
     process.exit(1)
@@ -101,13 +108,17 @@ function parseSchema (source, shift = 0) {
 }
 
 function processData ({ schema, rows }) {
-  let eventCount = 0, batch = []
+  const eventCounts = createEventCounts()
+  let batch = []
 
   return Promise.all(rows.map(row => {
     const event = createEvent(schema, row)
     if (! event) {
+      eventCounts.skipped += 1
       return
     }
+
+    eventCounts[event.event_type.split(' ')[2]] += 1
 
     batch.push(event)
     if (batch.length < MAX_EVENTS_PER_BATCH) {
@@ -117,15 +128,23 @@ function processData ({ schema, rows }) {
     const localBatch = batch.slice()
     batch = []
     return sendBatch(localBatch)
-      .then(() => eventCount += localBatch.length)
   }))
     .then(() => {
       if (batch.length > 0) {
         return sendBatch(batch)
-          .then(() => eventCount += batch.length)
       }
     })
-    .then(() => eventCount)
+    .then(() => eventCounts)
+}
+
+function createEventCounts () {
+  return {
+    tab_sent: 0,
+    tab_received: 0,
+    repair_triggered: 0,
+    repair_success: 0,
+    skipped: 0
+  }
 }
 
 function createEvent (schema, row) {
@@ -300,7 +319,7 @@ function getKeysFromS3 (client, fromDate) {
 
 function processKeyFromS3 (client, keys, index) {
   if (index === keys.length) {
-    return Promise.resolve({ eventCount: 0 })
+    return Promise.resolve({ eventCounts: createEventCounts(), dates: [] })
   }
 
   // Sadly, node-parquet doesn't read from in-memory data yet.
@@ -311,11 +330,15 @@ function processKeyFromS3 (client, keys, index) {
       const data = readLocalData(fileName)
       return Promise.all([ processData(data), fs.unlinkAsync(fileName) ])
     })
-    .spread(eventCount =>
+    .spread(eventCounts =>
       processKeyFromS3(client, keys, index + 1)
         .then(result => ({
-          eventCount: eventCount + result.eventCount,
-          date: result.date || keys[index].split('=')[1].substr(0, 8)
+          eventCounts: Object.entries(eventCounts).reduce((sums, entry) => {
+            const [ key, eventCount ] = entry
+            sums[key] = eventCount + result.eventCounts[key]
+            return sums
+          }, createEventCounts()),
+          dates: result.dates.concat(keys[index].split('=')[1].substr(0, 8))
         }))
     )
 }
