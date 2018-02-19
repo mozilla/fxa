@@ -390,6 +390,28 @@ describe('remote session', function() {
           })
       }
     )
+
+    it(
+      'does not send notification emails on verified sessions',
+      () => {
+        const email = server.uniqueEmail()
+        const password = 'foobar'
+        let client
+        return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, { keys: true })
+          .then(x => {
+            client = x
+            return client.reauth({ keys: true })
+          }).then(() => {
+            // Send some other type of email, and assert that it's the one we get back.
+            // If the above sent a "new login" notification, we would get that instead.
+            return client.forgotPassword()
+          }).then(() => {
+            return server.mailbox.waitForEmail(email)
+          }).then(msg => {
+            assert.ok(msg.headers['x-recovery-code'], 'the next email was the password-reset email')
+          })
+      }
+    )
   })
 
   describe('status', () => {

@@ -520,7 +520,6 @@ describe('sendSigninNotifications', () => {
       assert.notCalled(log.notifyAttachedServices)
 
       assert.notCalled(mailer.sendVerifyCode)
-      assert.notCalled(mailer.sendNewDeviceLoginNotification)
       assert.notCalled(mailer.sendVerifyLoginEmail)
       assert.notCalled(mailer.sendVerifyLoginCodeEmail)
 
@@ -631,7 +630,6 @@ describe('sendSigninNotifications', () => {
       assert.calledOnce(log.activityEvent)
       assert.notCalled(log.notifyAttachedServices)
 
-      assert.notCalled(mailer.sendNewDeviceLoginNotification)
       assert.notCalled(mailer.sendVerifyLoginEmail)
       assert.notCalled(mailer.sendVerifyLoginCodeEmail)
 
@@ -640,65 +638,29 @@ describe('sendSigninNotifications', () => {
   })
 
   describe('when signing in with a verified account, session already verified', () => {
-
-    beforeEach(() => {
+    it('emits correct notifications, and sends no emails', () => {
       sessionToken.tokenVerified = true
       sessionToken.mustVerify = true
-    })
-
-    it('emits correct notifications when keys are not requested', () => {
-      request.query.keys = false
       return sendSigninNotifications(request, accountRecord, sessionToken, undefined).then(() => {
+        assert.calledOnce(metricsContext.setFlowCompleteSignal)
+        assert.calledWithExactly(metricsContext.setFlowCompleteSignal, 'account.login', 'login')
+
+        assert.calledOnce(metricsContext.stash)
+        assert.calledOnce(db.sessions)
+        assert.calledOnce(log.activityEvent)
+        assert.notCalled(log.notifyAttachedServices)
+
+        assert.notCalled(mailer.sendVerifyCode)
+        assert.notCalled(mailer.sendVerifyLoginEmail)
+        assert.notCalled(mailer.sendVerifyLoginCodeEmail)
         assert.notCalled(mailer.sendNewDeviceLoginNotification)
+
+        assert.calledTwice(log.flowEvent)
+        assert.calledWithMatch(log.flowEvent.getCall(0), { event: 'account.login' })
+        assert.calledWithMatch(log.flowEvent.getCall(1), { event: 'flow.complete' })
+
+        assert.calledOnce(db.securityEvent)
       })
-    })
-
-    it('emits correct notifications when keys are requested', () => {
-      request.query.keys = true
-      return sendSigninNotifications(request, accountRecord, sessionToken, undefined).then(() => {
-        assert.calledOnce(mailer.sendNewDeviceLoginNotification)
-        assert.calledWithExactly(mailer.sendNewDeviceLoginNotification, accountRecord.emails, accountRecord, {
-          acceptLanguage: 'en-US',
-          flowBeginTime: request.payload.metricsContext.flowBeginTime,
-          flowId: request.payload.metricsContext.flowId,
-          ip: CLIENT_ADDRESS,
-          location: {
-            city: 'Mountain View',
-            country: 'United States',
-            countryCode: 'US',
-            state: 'California',
-            stateCode: 'CA'
-          },
-          service: 'testservice',
-          timeZone: 'America/Los_Angeles',
-          uaBrowser: 'Firefox Mobile',
-          uaBrowserVersion: '9',
-          uaOS: 'iOS',
-          uaOSVersion: '11',
-          uaDeviceType: 'tablet',
-          uid: TEST_UID
-        })
-      })
-    })
-
-    afterEach(() => {
-      assert.calledOnce(metricsContext.setFlowCompleteSignal)
-      assert.calledWithExactly(metricsContext.setFlowCompleteSignal, 'account.login', 'login')
-
-      assert.calledOnce(metricsContext.stash)
-      assert.calledOnce(db.sessions)
-      assert.calledOnce(log.activityEvent)
-      assert.notCalled(log.notifyAttachedServices)
-
-      assert.notCalled(mailer.sendVerifyCode)
-      assert.notCalled(mailer.sendVerifyLoginEmail)
-      assert.notCalled(mailer.sendVerifyLoginCodeEmail)
-
-      assert.calledTwice(log.flowEvent)
-      assert.calledWithMatch(log.flowEvent.getCall(0), { event: 'account.login' })
-      assert.calledWithMatch(log.flowEvent.getCall(1), { event: 'flow.complete' })
-
-      assert.calledOnce(db.securityEvent)
     })
   })
 
@@ -714,7 +676,6 @@ describe('sendSigninNotifications', () => {
     it('emits correct notifications when verificationMethod is not specified', () => {
       return sendSigninNotifications(request, accountRecord, sessionToken, undefined).then(() => {
         assert.notCalled(mailer.sendVerifyCode)
-        assert.notCalled(mailer.sendNewDeviceLoginNotification)
         assert.notCalled(mailer.sendVerifyLoginCodeEmail)
         assert.calledOnce(mailer.sendVerifyLoginEmail)
         assert.calledWithExactly(mailer.sendVerifyLoginEmail, accountRecord.emails, accountRecord, {
@@ -751,7 +712,6 @@ describe('sendSigninNotifications', () => {
     it('emits correct notifications when verificationMethod=email', () => {
       return sendSigninNotifications(request, accountRecord, sessionToken, 'email').then(() => {
         assert.notCalled(mailer.sendVerifyCode)
-        assert.notCalled(mailer.sendNewDeviceLoginNotification)
         assert.notCalled(mailer.sendVerifyLoginCodeEmail)
         assert.calledOnce(mailer.sendVerifyLoginEmail)
 
@@ -764,7 +724,6 @@ describe('sendSigninNotifications', () => {
     it('emits correct notifications when verificationMethod=email-2fa', () => {
       return sendSigninNotifications(request, accountRecord, sessionToken, 'email-2fa').then(() => {
         assert.notCalled(mailer.sendVerifyCode)
-        assert.notCalled(mailer.sendNewDeviceLoginNotification)
         assert.notCalled(mailer.sendVerifyLoginEmail)
         assert.calledOnce(mailer.sendVerifyLoginCodeEmail)
         assert.calledWithExactly(mailer.sendVerifyLoginCodeEmail, accountRecord.emails, accountRecord, {
@@ -801,7 +760,6 @@ describe('sendSigninNotifications', () => {
     it('emits correct notifications when verificationMethod=email-captcha', () => {
       return sendSigninNotifications(request, accountRecord, sessionToken, 'email-captcha').then(() => {
         assert.notCalled(mailer.sendVerifyCode)
-        assert.notCalled(mailer.sendNewDeviceLoginNotification)
         assert.notCalled(mailer.sendVerifyLoginEmail)
         assert.notCalled(mailer.sendVerifyLoginCodeEmail)
 

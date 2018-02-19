@@ -9,7 +9,6 @@ const validators = require('../validators')
 const P = require('../../promise')
 const butil = require('../../crypto/butil')
 const error = require('../../error')
-const requestHelper = require('./request_helper')
 
 const BASE_36 = validators.BASE_36
 
@@ -268,11 +267,7 @@ module.exports = (log, config, customs, db, mailer)  => {
         if (mustVerifySession) {
           return sendVerifySessionEmail()
         }
-        // For requests that want keys, ensure we send a notification so that the
-        // user knows something important happened on their account.
-        if (requestHelper.wantsKeys(request)) {
-          return sendNewDeviceLoginEmail()
-        }
+        // Otherwise, no email is necessary.
       }
 
       function sendVerifyAccountEmail() {
@@ -298,37 +293,6 @@ module.exports = (log, config, customs, db, mailer)  => {
           uid: sessionToken.uid
         })
         .then(() => request.emitMetricsEvent('email.verification.sent'))
-      }
-
-      function sendNewDeviceLoginEmail() {
-        const geoData = request.app.geo
-        mailer.sendNewDeviceLoginNotification(
-          accountRecord.emails,
-          accountRecord,
-          {
-            acceptLanguage: request.app.acceptLanguage,
-            flowId: flowId,
-            flowBeginTime: flowBeginTime,
-            ip: ip,
-            location: geoData.location,
-            service,
-            timeZone: geoData.timeZone,
-            uaBrowser: request.app.ua.browser,
-            uaBrowserVersion: request.app.ua.browserVersion,
-            uaOS: request.app.ua.os,
-            uaOSVersion: request.app.ua.osVersion,
-            uaDeviceType: request.app.ua.deviceType,
-            uid: sessionToken.uid
-          }
-        )
-        .catch(e => {
-          // If we couldn't email them, no big deal. Log
-          // and pretend everything worked.
-          log.trace({
-            op: 'Account.login.sendNewDeviceLoginNotification.error',
-            error: e
-          })
-        })
       }
 
       function sendVerifySessionEmail() {
