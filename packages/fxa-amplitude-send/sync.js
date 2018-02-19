@@ -25,8 +25,9 @@ const MAX_EVENTS_PER_BATCH = 10
 const HMAC_KEY = process.env.SYNC_INSERTID_HMAC_KEY
 const API_KEY = process.env.FXA_AMPLITUDE_API_KEY
 
-if (process.argv.length !== 2 && process.argv.length !== 3) {
-  console.error(`Usage: ${process.argv[1]} [YYYY-MM-DD | LOCAL PATH]`)
+const argc = process.argv.length
+if (! (argc >= 2 && argc <= 4)) {
+  console.error(`Usage: ${process.argv[1]} [YYYY-MM-DD | LOCAL PATH] [--report-only]`)
   console.error('If specifying YYYY-MM-DD as the arg, note that the script will try to send events')
   console.error('for all dates from YYYY-MM-DD to the most recent available in S3. If any dates in')
   console.error('that range are missing, they will be skipped without failing the process.')
@@ -39,6 +40,7 @@ if (! HMAC_KEY || ! API_KEY) {
 }
 
 let localPath
+const reportOnly = process.argv[argc - 1] === '--report-only'
 const dateParts = getDateParts()
 if (dateParts && dateParts.length === 4) {
   if (! AWS_ACCESS_KEY || ! AWS_SECRET_KEY) {
@@ -78,7 +80,7 @@ Promise.resolve()
   })
 
 function getDateParts () {
-  if (process.argv.length === 2) {
+  if (argc === 2 || (argc === 3 && reportOnly)) {
     return DATE.exec(fs.readFileSync(MARKER_PATH, 'utf8').trim())
   }
 
@@ -275,13 +277,15 @@ function getMacOsVersion (deviceOsVersion) {
 }
 
 function sendBatch (batch) {
-  return request('https://api.amplitude.com/httpapi', {
-    method: 'POST',
-    formData: {
-      api_key: API_KEY,
-      event: JSON.stringify(batch)
-    }
-  })
+  if (! reportOnly) {
+    return request('https://api.amplitude.com/httpapi', {
+      method: 'POST',
+      formData: {
+        api_key: API_KEY,
+        event: JSON.stringify(batch)
+      }
+    })
+  }
 }
 
 function processDataFromS3 (fromDate) {
