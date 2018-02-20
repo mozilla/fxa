@@ -6,14 +6,17 @@
 
 const error = require('../error')
 const isA = require('joi')
+const requestHelper = require('../routes/utils/request_helper')
+const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
 const P = require('../promise')
 const random = require('../crypto/random')
 
 const validators = require('./validators')
 const HEX_STRING = validators.HEX_STRING
 
-module.exports = function (log, db) {
-  var routes = [
+module.exports = function (log, db, Password, config, signinUtils) {
+
+  const routes = [
     {
       method: 'POST',
       path: '/session/destroy',
@@ -64,6 +67,142 @@ module.exports = function (log, db) {
             },
             reply
           )
+      }
+    },
+    {
+      method: 'POST',
+      path: '/session/reauth',
+      apidoc: {
+        errors: [
+          error.unknownAccount,
+          error.requestBlocked,
+          error.incorrectPassword,
+          error.cannotLoginWithSecondaryEmail,
+          error.invalidUnblockCode,
+          error.cannotLoginWithEmail
+        ]
+      },
+      config: {
+        auth: {
+          strategy: 'sessionToken'
+        },
+        validate: {
+          query: {
+            keys: isA.boolean().optional(),
+            service: validators.service,
+            verificationMethod: validators.verificationMethod.optional()
+          },
+          payload: {
+            email: validators.email().required(),
+            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
+            service: validators.service,
+            redirectTo: isA.string().uri().optional(),
+            resume: isA.string().optional(),
+            reason: isA.string().max(16).optional(),
+            unblockCode: signinUtils.validators.UNBLOCK_CODE,
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+            originalLoginEmail: validators.email().optional(),
+            verificationMethod: validators.verificationMethod.optional()
+          }
+        },
+        response: {
+          schema: {
+            uid: isA.string().regex(HEX_STRING).required(),
+            keyFetchToken: isA.string().regex(HEX_STRING).optional(),
+            verificationMethod: isA.string().optional(),
+            verificationReason: isA.string().optional(),
+            verified: isA.boolean().required(),
+            authAt: isA.number().integer()
+          }
+        }
+      },
+      handler: function (request, reply) {
+        log.begin('Session.reauth', request)
+
+        const sessionToken = request.auth.credentials
+        const email = request.payload.email
+        const authPW = request.payload.authPW
+        const originalLoginEmail = request.payload.originalLoginEmail
+        const verificationMethod = request.payload.verificationMethod || request.query.verificationMethod
+
+        let accountRecord, password, keyFetchToken
+
+        request.validateMetricsContext()
+
+        return checkCustomsAndLoadAccount()
+          .then(checkEmailAndPassword)
+          .then(updateSessionToken)
+          .then(sendSigninNotifications)
+          .then(createKeyFetchToken)
+          .then(createResponse)
+          .then(reply, reply)
+
+        function checkCustomsAndLoadAccount() {
+          return signinUtils.checkCustomsAndLoadAccount(request, email).then(res => {
+            accountRecord = res.accountRecord
+          })
+        }
+
+        function checkEmailAndPassword() {
+          return signinUtils.checkEmailAddress(accountRecord, email, originalLoginEmail)
+            .then(() => {
+              password = new Password(
+                authPW,
+                accountRecord.authSalt,
+                accountRecord.verifierVersion
+              )
+              return signinUtils.checkPassword(accountRecord, password, request.app.clientAddress)
+            })
+            .then(match => {
+              if (! match) {
+                throw error.incorrectPassword(accountRecord.email, email)
+              }
+            })
+        }
+
+        function updateSessionToken() {
+          sessionToken.authAt = sessionToken.lastAccessTime = Date.now()
+          sessionToken.setUserAgentInfo({
+            uaBrowser: request.app.ua.browser,
+            uaBrowserVersion: request.app.ua.browserVersion,
+            uaOS: request.app.ua.os,
+            uaOSVersion: request.app.ua.osVersion,
+            uaDeviceType: request.app.ua.deviceType,
+            uaFormFactor: request.app.ua.formFactor
+          })
+          if (! sessionToken.mustVerify && (requestHelper.wantsKeys(request) || verificationMethod)) {
+            sessionToken.mustVerify = true
+          }
+          return db.updateSessionToken(sessionToken)
+        }
+
+        function sendSigninNotifications() {
+          return signinUtils.sendSigninNotifications(request, accountRecord, sessionToken, verificationMethod)
+        }
+
+        function createKeyFetchToken() {
+          if (requestHelper.wantsKeys(request)) {
+            return signinUtils.createKeyFetchToken(request, accountRecord, password, sessionToken)
+              .then(result => {
+                keyFetchToken = result
+              })
+          }
+        }
+
+        function createResponse () {
+          var response = {
+            uid: sessionToken.uid,
+            authAt: sessionToken.lastAuthAt()
+          }
+
+          if (keyFetchToken) {
+            response.keyFetchToken = keyFetchToken.data
+          }
+
+          Object.assign(response, signinUtils.getSessionVerificationStatus(sessionToken, verificationMethod))
+
+          return P.resolve(response)
+        }
       }
     },
     {

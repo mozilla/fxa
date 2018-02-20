@@ -125,28 +125,28 @@ module.exports = config => {
     )
   }
 
-  ClientApi.prototype.accountLogin = function (email, authPW, opts) {
-    if (! opts) {
-      opts = { keys: true }
+  ClientApi.prototype.accountLogin = function (email, authPW, options) {
+    if (! options) {
+      options = { keys: true }
     }
 
     return this.doRequest(
       'POST',
-      this.baseURL + '/account/login' + getQueryString(opts),
+      this.baseURL + '/account/login' + getQueryString(options),
       null,
       {
         email: email,
         authPW: authPW.toString('hex'),
-        service: opts.service || undefined,
-        resume: opts.resume || undefined,
-        reason: opts.reason || undefined,
-        device: opts.device || undefined,
-        metricsContext: opts.metricsContext || undefined,
-        originalLoginEmail: opts.originalLoginEmail || undefined,
-        verificationMethod: opts.verificationMethod || undefined
+        service: options.service || undefined,
+        resume: options.resume || undefined,
+        reason: options.reason || undefined,
+        device: options.device || undefined,
+        metricsContext: options.metricsContext || undefined,
+        originalLoginEmail: options.originalLoginEmail || undefined,
+        verificationMethod: options.verificationMethod || undefined
       },
       {
-        'accept-language': opts.lang
+        'accept-language': options.lang
       }
     )
   }
@@ -560,7 +560,29 @@ module.exports = config => {
       )
   }
 
-  ClientApi.prototype.sessionDuplicate = function (sessionTokenHex, options) {
+  ClientApi.prototype.sessionReauth = function (sessionTokenHex, email, authPW, options) {
+    options = options || {}
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then(
+        function (token) {
+          return this.doRequest(
+            'POST',
+            this.baseURL + '/session/reauth' + getQueryString(options),
+            token,
+            {
+              email: email,
+              authPW: authPW.toString('hex'),
+              service: options.service || undefined,
+              resume: options.resume || undefined,
+              reason: options.reason || undefined,
+              metricsContext: options.metricsContext || undefined
+            }
+          )
+        }.bind(this)
+      )
+  }
+
+  ClientApi.prototype.sessionDuplicate = function (sessionTokenHex) {
     return tokens.SessionToken.fromHex(sessionTokenHex)
       .then(
         function (token) {

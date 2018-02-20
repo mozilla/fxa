@@ -5,27 +5,37 @@
 'use strict'
 
 const assert = require('insist')
-var sinon = require('sinon')
-var proxyquire = require('proxyquire')
+const sinon = require('sinon')
+const proxyquire = require('proxyquire')
 
-var logger = {
-  debug: sinon.spy(),
-  error: sinon.spy(),
-  critical: sinon.spy(),
-  warn: sinon.spy(),
-  info: sinon.spy()
-}
-var mocks = {
-  mozlog: sinon.spy(function () {
-    return logger
-  })
-}
-mocks.mozlog.config = sinon.spy()
-const log = proxyquire('../../lib/log', mocks)('foo', 'test')
-
-const emitRouteFlowEvent = sinon.spy()
+const { mockRequest, mockMetricsContext } = require('../mocks')
 
 describe('log', () => {
+
+  let logger, mocks, log
+
+  beforeEach(() => {
+    logger = {
+      debug: sinon.spy(),
+      error: sinon.spy(),
+      critical: sinon.spy(),
+      warn: sinon.spy(),
+      info: sinon.spy()
+    }
+    mocks = {
+      // These need to be `function` functions, not arrow functions,
+      // otherwise proxyquire gets confused and errors out.
+      mozlog: sinon.spy(function () { return logger }),
+      './notifier': function () { return { send: sinon.spy() } }
+    }
+    mocks.mozlog.config = sinon.spy()
+    log = proxyquire('../../lib/log', mocks)({
+      level: 'debug',
+      name: 'test',
+      stdout: { on: sinon.spy() }
+    })
+  })
+
   it(
     'initialised correctly',
     () => {
@@ -34,7 +44,7 @@ describe('log', () => {
       assert.equal(args.length, 1, 'mozlog.config was passed one argument')
       assert.equal(Object.keys(args[0]).length, 4, 'number of mozlog.config arguments was correct')
       assert.equal(args[0].app, 'test', 'app property was correct')
-      assert.equal(args[0].level, 'foo', 'level property was correct')
+      assert.equal(args[0].level, 'debug', 'level property was correct')
       assert.equal(args[0].stream, process.stderr, 'stream property was correct')
 
       assert.equal(mocks.mozlog.callCount, 1, 'mozlog was called once')
@@ -85,8 +95,6 @@ describe('log', () => {
       assert.equal(logger.error.callCount, 0, 'logger.error was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-      logger.info.reset()
     }
   )
 
@@ -108,8 +116,6 @@ describe('log', () => {
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-      logger.error.reset()
     }
   )
 
@@ -135,8 +141,6 @@ describe('log', () => {
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-      logger.error.reset()
     }
   )
 
@@ -162,8 +166,6 @@ describe('log', () => {
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-      logger.error.reset()
     }
   )
 
@@ -192,8 +194,6 @@ describe('log', () => {
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
       assert.equal(logger.error.callCount, 0, 'logger.error was not called')
-
-      logger.info.reset()
     }
   )
 
@@ -215,8 +215,6 @@ describe('log', () => {
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-      logger.error.reset()
     }
   )
 
@@ -246,8 +244,6 @@ describe('log', () => {
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-      logger.error.reset()
     }
   )
 
@@ -277,8 +273,6 @@ describe('log', () => {
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-      logger.error.reset()
     }
   )
 
@@ -308,8 +302,6 @@ describe('log', () => {
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-      logger.error.reset()
     }
   )
 
@@ -339,8 +331,6 @@ describe('log', () => {
       assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
       assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
       assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-      logger.error.reset()
     }
   )
 
@@ -361,8 +351,6 @@ describe('log', () => {
     assert.equal(logger.error.callCount, 0, 'logger.error was not called')
     assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
     assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-    logger.info.reset()
   })
 
   it('.amplitudeEvent with missing data', () => {
@@ -381,8 +369,6 @@ describe('log', () => {
     assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
     assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
     assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-    logger.error.reset()
   })
 
   it('.amplitudeEvent with missing event_type', () => {
@@ -401,8 +387,6 @@ describe('log', () => {
     assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
     assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
     assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-    logger.error.reset()
   })
 
   it('.amplitudeEvent with missing device_id and user_id', () => {
@@ -421,8 +405,6 @@ describe('log', () => {
     assert.equal(logger.debug.callCount, 0, 'logger.debug was not called')
     assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
     assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-    logger.error.reset()
   })
 
   it('.amplitudeEvent with missing device_id', () => {
@@ -441,8 +423,6 @@ describe('log', () => {
     assert.equal(logger.error.callCount, 0, 'logger.error was not called')
     assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
     assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-    logger.info.reset()
   })
 
   it('.amplitudeEvent with missing user_id', () => {
@@ -461,8 +441,6 @@ describe('log', () => {
     assert.equal(logger.error.callCount, 0, 'logger.error was not called')
     assert.equal(logger.critical.callCount, 0, 'logger.critical was not called')
     assert.equal(logger.warn.callCount, 0, 'logger.warn was not called')
-
-    logger.info.reset()
   })
 
   it(
@@ -478,38 +456,77 @@ describe('log', () => {
       assert.equal(Object.keys(args[1]).length, 3, 'log info has three fields')
       assert.equal(args[1].email, 'test@example.com', 'email is reported in top-level fields')
       assert(! args[1].err.email, 'email should not be reported in error object')
-
-      logger.error.reset()
     }
   )
 
-  describe('.summary', () => {
-
-    beforeEach(() => {
-      logger.info.reset()
-      logger.error.reset()
+  it('.summary should log an info message and call request.emitRouteFlowEvent', () => {
+    const emitRouteFlowEvent = sinon.spy()
+    log.summary({
+      app: {},
+      emitRouteFlowEvent: emitRouteFlowEvent,
+      headers: {},
+      info: {
+        received: Date.now()
+      },
+      path: '/v1/frobnicate',
+      payload: {}
+    }, {
+      code: 200
     })
 
-    it('should log an info message and call request.emitRouteFlowEvent', () => {
-      log.summary({
-        app: {},
-        emitRouteFlowEvent: emitRouteFlowEvent,
-        headers: {},
-        info: {
-          received: Date.now()
-        },
-        path: '/v1/frobnicate',
-        payload: {}
-      }, {
-        code: 200
-      })
+    assert.equal(logger.info.callCount, 1)
+    assert.equal(logger.info.args[0][1].op, 'request.summary')
+    assert.equal(emitRouteFlowEvent.callCount, 1)
+    assert.equal(emitRouteFlowEvent.args[0].length, 1)
+    assert.deepEqual(emitRouteFlowEvent.args[0][0], { code: 200 })
+    assert.equal(logger.error.callCount, 0)
+  })
 
-      assert.equal(logger.info.callCount, 1)
-      assert.equal(logger.info.args[0][1].op, 'request.summary')
-      assert.equal(emitRouteFlowEvent.callCount, 1)
-      assert.equal(emitRouteFlowEvent.args[0].length, 1)
-      assert.deepEqual(emitRouteFlowEvent.args[0][0], { code: 200 })
-      assert.equal(logger.error.callCount, 0)
+  it('.notifyAttachedServices should send a notification', () => {
+    const now = Date.now()
+    const metricsContext = mockMetricsContext()
+    const request = mockRequest({
+      log,
+      metricsContext,
+      payload: {
+        service: 'testservice',
+        metricsContext: {
+          flowBeginTime: now - 23,
+          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+          utmCampaign: 'utm campaign',
+          utmContent: 'utm content',
+          utmMedium: 'utm medium',
+          utmSource: 'utm source',
+          utmTerm: 'utm term'
+        }
+      }
+    })
+    sinon.stub(Date, 'now', () => now)
+    return log.notifyAttachedServices('login', request, { ts: now }).then(() => {
+      assert.equal(metricsContext.gather.callCount, 1)
+      assert.equal(log.notifier.send.callCount, 1)
+      assert.equal(log.notifier.send.args[0].length, 1)
+      assert.deepEqual(log.notifier.send.args[0][0], {
+        event: 'login',
+        data: {
+          ts: now,
+          metricsContext: {
+            time: now,
+            flow_id: request.payload.metricsContext.flowId,
+            flow_time: now - request.payload.metricsContext.flowBeginTime,
+            flowBeginTime: request.payload.metricsContext.flowBeginTime,
+            flowCompleteSignal: undefined,
+            flowType: undefined,
+            utm_campaign: 'utm campaign',
+            utm_content: 'utm content',
+            utm_medium: 'utm medium',
+            utm_source: 'utm source',
+            utm_term: 'utm term'
+          }
+        }
+      })
+    }).finally(() => {
+      Date.now.restore()
     })
   })
 })

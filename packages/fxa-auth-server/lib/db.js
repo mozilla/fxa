@@ -556,10 +556,19 @@ module.exports = (
     )
   }
 
-  DB.prototype.updateSessionToken = function (token, geo) {
+  /**
+   * Update cached session-token data, such as timestamps
+   * and device info.  This is a comparatively cheap call that
+   * only writes to redis, not the underlying DB, and hence
+   * can be safely used in frequently-called routes.
+   *
+   * To do a more expensive write that flushes to the underlying
+   * DB, use updateSessionToken instead.
+   */
+  DB.prototype.touchSessionToken = function (token, geo) {
     const { id, uid } = token
 
-    log.trace({ op: 'DB.updateSessionToken', id, uid })
+    log.trace({ op: 'DB.touchSessionToken', id, uid })
 
     if (! redis || ! features.isLastAccessTimeEnabledForUser(uid)) {
       return P.resolve()
@@ -592,6 +601,39 @@ module.exports = (
 
       return packTokensForRedis(sessionTokens)
     })
+  }
+
+  /**
+   * Persist updated session-token data to the database.
+   * This is a comparatively expensive call that writes through
+   * to the underlying DB and hence should not be used in
+   * frequently-called routes.
+   *
+   * To do a cheaper write of transient metadata that only hits
+   * redis, use touchSessionToken isntead.
+   */
+  DB.prototype.updateSessionToken = function (sessionToken, geo) {
+    const { id, uid } = sessionToken
+
+    log.trace({ op: 'DB.updateSessionToken', id, uid })
+
+    return this.touchSessionToken(sessionToken, geo)
+      .then(() => {
+        return this.pool.post(
+          `/sessionToken/${id}/update`,
+          {
+            authAt: sessionToken.authAt,
+            uaBrowser: sessionToken.uaBrowser,
+            uaBrowserVersion: sessionToken.uaBrowserVersion,
+            uaOS: sessionToken.uaOS,
+            uaOSVersion: sessionToken.uaOSVersion,
+            uaDeviceType: sessionToken.uaDeviceType,
+            uaFormFactor: sessionToken.uaFormFactor,
+            mustVerify: sessionToken.mustVerify,
+            lastAccessTime: sessionToken.lastAccessTime
+          }
+        )
+      })
   }
 
   DB.prototype.pruneSessionTokens = function (uid, sessionTokens) {

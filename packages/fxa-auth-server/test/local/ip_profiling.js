@@ -19,10 +19,10 @@ var log = require('../../lib/log')
 var TEST_EMAIL = 'foo@gmail.com'
 var MS_ONE_DAY = 1000 * 60 * 60 * 24
 
-var makeRoutes = function (options, requireMocks) {
+const makeRoutes = function (options, requireMocks) {
   options = options || {}
 
-  var config = options.config || {}
+  const config = options.config || {}
   config.verifierVersion = config.verifierVersion || 0
   config.smtp = config.smtp || {}
   config.memcached = config.memcached || {
@@ -41,24 +41,26 @@ var makeRoutes = function (options, requireMocks) {
     allowedServerRegex: /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/
   }
 
-  var log = options.log || mocks.mockLog()
-  var Password = options.Password || require('../../lib/crypto/password')(log, config)
-  var db = options.db || mocks.mockDB()
-  var customs = options.customs || {
-    check: function () {
-      return P.resolve(true)
-    }
+  const log = options.log || mocks.mockLog()
+  const Password = options.Password || require('../../lib/crypto/password')(log, config)
+  const db = options.db || mocks.mockDB()
+  const customs = options.customs || {
+    check: () => { return P.resolve(true) }
   }
-  var checkPassword = options.checkPassword || require('../../lib/routes/utils/password_check')(log, config, Password, customs, db)
-  var push = options.push || require('../../lib/push')(log, db, {})
+  const mailer = options.mailer || {}
+  const push = options.push || require('../../lib/push')(log, db, {})
+  const signinUtils = options.signinUtils || require('../../lib/routes/utils/signin')(log, config, customs, db, mailer)
+  if (options.checkPassword) {
+    signinUtils.checkPassword = options.checkPassword
+  }
   return proxyquire('../../lib/routes/account', requireMocks || {})(
     log,
     db,
-    options.mailer || {},
+    mailer,
     Password,
     config,
     customs,
-    checkPassword,
+    signinUtils,
     push,
     options.devices || require('../../lib/devices')(log, db, push)
   )
@@ -78,7 +80,6 @@ function runTest(route, request, assertions) {
 }
 
 var config = {
-  newLoginNotificationEnabled: true,
   securityHistory: {
     ipProfiling: {
       allowedRecency: MS_ONE_DAY

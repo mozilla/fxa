@@ -24,7 +24,7 @@ module.exports = function (
   mailer,
   verifierVersion,
   customs,
-  checkPassword,
+  signinUtils,
   push,
   config
   ) {
@@ -59,7 +59,8 @@ module.exports = function (
           .then(db.accountRecord.bind(db, form.email))
           .then(
             function (emailRecord) {
-              return checkPassword(emailRecord, oldAuthPW, request.app.clientAddress)
+              const password = new Password(oldAuthPW, emailRecord.authSalt, emailRecord.verifierVersion)
+              return signinUtils.checkPassword(emailRecord, password, request.app.clientAddress)
               .then(
                 function (match) {
                   if (! match) {

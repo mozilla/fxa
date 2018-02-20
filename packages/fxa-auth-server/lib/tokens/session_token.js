@@ -22,6 +22,7 @@ module.exports = (log, Token, config) => {
       this.emailCode = details.emailCode || null
       this.emailVerified = !! details.emailVerified
       this.verifierSetAt = details.verifierSetAt
+      this.authAt = details.authAt || 0
       this.locale = details.locale || null
       this.mustVerify = !! details.mustVerify || false
 
@@ -45,7 +46,7 @@ module.exports = (log, Token, config) => {
     }
 
     lastAuthAt() {
-      return Math.floor(this.createdAt / 1000)
+      return Math.floor((this.authAt || this.createdAt) / 1000)
     }
 
     get state() {

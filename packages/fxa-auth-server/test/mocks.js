@@ -29,6 +29,7 @@ const DB_METHOD_NAMES = [
   'accountEmails',
   'accountRecord',
   'accountResetToken',
+  'checkPassword',
   'consumeUnblockCode',
   'consumeSigninCode',
   'createAccount',
@@ -64,6 +65,7 @@ const DB_METHOD_NAMES = [
   'sessions',
   'sessionToken',
   'setPrimaryEmail',
+  'touchSessionToken',
   'updateDevice',
   'updateLocale',
   'updateSessionToken',
@@ -96,6 +98,7 @@ const MAILER_METHOD_NAMES = [
   'sendUnblockCode',
   'sendVerifyCode',
   'sendVerifyLoginEmail',
+  'sendVerifyLoginCodeEmail',
   'sendVerifySecondaryEmail',
   'sendRecoveryCode'
 ]
@@ -259,13 +262,14 @@ function mockDB (data, errors) {
         createdAt: opts.createdAt || Date.now(),
         data: crypto.randomBytes(32).toString('hex'),
         email: opts.email || data.email,
-        emailVerified: opts.emailVerified || data.emailVerified,
+        emailVerified: typeof opts.emailVerified !== 'undefined' ? opts.emailVerified : data.emailVerified,
         lastAuthAt: () => {
           return opts.createdAt || Date.now()
         },
         id: data.sessionTokenId,
         tokenVerificationId: opts.tokenVerificationId || data.tokenVerificationId,
         tokenVerified: ! (opts.tokenVerificationId || data.tokenVerificationId),
+        mustVerify: typeof opts.mustVerify !== 'undefined' ? opts.mustVerify : data.mustVerify,
         uaBrowser: opts.uaBrowser || data.uaBrowser,
         uaBrowserVersion: opts.uaBrowserVersion || data.uaBrowserVersion,
         uaOS: opts.uaOS || data.uaOS,
