@@ -12,6 +12,7 @@ log = require('./log').getLogger('bid.server'),
 summary = require('./summary'),
 config = require('./config'),
 CCVerifier = require('./ccverifier'),
+version = require('./version'),
 v1api = require('./v1'),
 v2api = require('./v2');
 
@@ -59,16 +60,26 @@ app.use(function(req, res, next) {
   next();
 });
 
-// health check - registered before all other middleware.
+// health checks - registered before all other middleware.
 app.use(function(req, res, next) {
-  if (req.url === '/status') {
-    res.setHeader('Content-Type', 'text/plain');
-    res.send("OK");
-  } else {
-    next();
+  switch (req.url) {
+    case '/status':
+      res.setHeader('Content-Type', 'text/plain');
+      res.send("OK");
+      break;
+    case '/__heartbeat__':
+    case '/__lbheartbeat__':
+      res.send({});
+      break;
+    case '/__version__':
+      version.getVersionInfo(function(info) {
+        res.send(info);
+      });
+      break;
+    default:
+      next();
   }
 });
-
 
 // return 503 when the server is too busy
 toobusy.maxLag(config.get("toobusy.maxLag"));

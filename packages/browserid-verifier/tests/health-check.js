@@ -29,6 +29,56 @@ describe('health check', function() {
     });
   });
 
+  it('__heartbeat__ should return success', function(done) {
+    request({
+      url: verifier.baseurl() + '/__heartbeat__',
+    }, function(err, r) {
+      (r.statusCode).should.equal(200);
+      (r.body).should.equal('{}');
+      shouldReturnSecurityHeaders(r);
+      done(err);
+    });
+  });
+
+  it('__lbheartbeat__ should return success', function(done) {
+    request({
+      url: verifier.baseurl() + '/__lbheartbeat__',
+    }, function(err, r) {
+      (r.statusCode).should.equal(200);
+      (r.body).should.equal('{}');
+      shouldReturnSecurityHeaders(r);
+      done(err);
+    });
+  });
+
+  it('__version__ should return version info', function(done) {
+    request({
+      url: verifier.baseurl() + '/__version__',
+    }, function(err, r) {
+      (r.statusCode).should.equal(200);
+      var obj = JSON.parse(r.body);
+      (obj.version).should.match(/^[0-9.]+$/);
+      (obj.commit).should.match(/^[a-z0-9]{40}$/);
+      (obj.source).should.be.a.String();
+      shouldReturnSecurityHeaders(r);
+      done(err);
+    });
+  });
+
+  it('__version__ should return version info (cached)', function(done) {
+    request({
+      url: verifier.baseurl() + '/__version__',
+    }, function(err, r) {
+      (r.statusCode).should.equal(200);
+      var obj = JSON.parse(r.body);
+      (obj.version).should.match(/^[0-9.]+$/);
+      (obj.commit).should.match(/^[a-z0-9]{40}$/);
+      (obj.source).should.be.a.String();
+      shouldReturnSecurityHeaders(r);
+      done(err);
+    });
+  });
+
   it('test server should stop', function(done) {
     verifier.stop(done);
   });

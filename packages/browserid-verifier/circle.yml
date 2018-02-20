@@ -23,14 +23,14 @@ dependencies:
     - I="image-$(date +%j).tar"; if [[ -e ~/docker/$I ]]; then echo "Loading $I"; docker load -i ~/docker/$I; fi
 
     # create version.json
-    - >
-        printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}\n'
-        "$CIRCLE_SHA1"
-        "$CIRCLE_TAG"
-        "$CIRCLE_PROJECT_USERNAME"
-        "$CIRCLE_PROJECT_REPONAME"
-        "$CIRCLE_BUILD_URL"
-        > version.json
+    - |
+      printf '{"version":{"hash":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}}\n' \
+        "$CIRCLE_SHA1" \
+        "$CIRCLE_TAG" \
+        "$CIRCLE_PROJECT_USERNAME" \
+        "$CIRCLE_PROJECT_REPONAME" \
+        "$CIRCLE_BUILD_URL" \
+        | tee version.json
     - cp version.json $CIRCLE_ARTIFACTS
 
     - docker build -t app:build .
@@ -40,12 +40,13 @@ dependencies:
 
 test:
   override:
-    - docker run app:build test
+    - docker run -e CIRCLECI=$CIRCLECI app:build test
 
 # appropriately tag and push the container to dockerhub
 deployment:
   hub_latest:
-    branch: "master"
+    # push master, and some specially named branches
+    branch: /^(master|feature.*|dockerpush.*)$/
     commands:
       - "[ ! -z $DOCKERHUB_REPO ]"
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
