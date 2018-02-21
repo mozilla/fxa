@@ -106,7 +106,7 @@ const PERFORMANCE_TIMINGS = [
   }
 ];
 
-const AUTH_VIEWS = new Set([ 'force-auth', 'signin', 'signup' ]);
+const AUTH_VIEWS = new Set([ 'enter-email', 'force-auth', 'signin', 'signup' ]);
 
 module.exports = (req, metrics, requestReceivedTime) => {
   if (IS_DISABLED || ! isValidFlowData(metrics, requestReceivedTime)) {
