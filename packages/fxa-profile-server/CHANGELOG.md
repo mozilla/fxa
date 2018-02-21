@@ -1,3 +1,13 @@
+<a name="1.106.0"></a>
+# [1.106.0](https://github.com/mozilla/fxa-profile-server/compare/v1.104.0...v1.106.0) (2018-02-21)
+
+
+### chore
+
+* **deps:** update deps, fix nsp (#301) r=@philbooth ([168aca3](https://github.com/mozilla/fxa-profile-server/commit/168aca3)), closes [(#301](https://github.com/(/issues/301)
+
+
+
 <a name="1.104.0"></a>
 # [1.104.0](https://github.com/mozilla/fxa-profile-server/compare/v1.103.0...v1.104.0) (2018-01-24)
 
