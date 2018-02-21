@@ -1,3 +1,33 @@
+<a name="1.106.0"></a>
+# [1.106.0](https://github.com/mozilla/fxa-auth-server/compare/v1.105.0...v1.106.0) (2018-02-21)
+
+
+### Bug Fixes
+
+* **api:** make authentication required on GET /account/profile (#2290) r=@vladikoff ([6411c5a](https://github.com/mozilla/fxa-auth-server/commit/6411c5a)), closes [#2290](https://github.com/mozilla/fxa-auth-server/issues/2290)
+* **docs:** Support declaration of extra error types in route config. ([9254e31](https://github.com/mozilla/fxa-auth-server/commit/9254e31))
+* **logging:** Make oauth_client_info use shared logging instance. (#2299) r=@vladikoff ([bb2c677](https://github.com/mozilla/fxa-auth-server/commit/bb2c677)), closes [#2299](https://github.com/mozilla/fxa-auth-server/issues/2299)
+* **reauth:** Don't send a "new device" email during session re-auth. ([e2cd9f9](https://github.com/mozilla/fxa-auth-server/commit/e2cd9f9))
+* **tests:** Add `verifyTokenCode` support for mem keyFetchToken (#2287), r=@philbooth ([5cb76e5](https://github.com/mozilla/fxa-auth-server/commit/5cb76e5)), closes [#2287](https://github.com/mozilla/fxa-auth-server/issues/2287)
+* **tests:** Test that unauthenticated /account/profile rejects cleanly. (#2296) r=@philbooth ([79b2876](https://github.com/mozilla/fxa-auth-server/commit/79b2876)), closes [#2296](https://github.com/mozilla/fxa-auth-server/issues/2296)
+
+### chore
+
+* **emails:** delete bin/mailer_server.js (#2303) r=@vladikoff ([d8bd876](https://github.com/mozilla/fxa-auth-server/commit/d8bd876)), closes [#2303](https://github.com/mozilla/fxa-auth-server/issues/2303)
+* **emails:** remove all verification reminder code ([a33756e](https://github.com/mozilla/fxa-auth-server/commit/a33756e))
+* **logging:** downgrade redis.watch.conflict to warning level (#2307) r=@vladikoff ([d219cdd](https://github.com/mozilla/fxa-auth-server/commit/d219cdd)), closes [#2307](https://github.com/mozilla/fxa-auth-server/issues/2307)
+* **nsp:** ignore hoek warning ([695499a](https://github.com/mozilla/fxa-auth-server/commit/695499a))
+
+### Features
+
+* **cad:** change destination of CAD in email to FxA-controlled page (#2297) r=@philbooth ([2a05116](https://github.com/mozilla/fxa-auth-server/commit/2a05116)), closes [#2297](https://github.com/mozilla/fxa-auth-server/issues/2297) [#1860](https://github.com/mozilla/fxa-auth-server/issues/1860)
+* **emails:** fetch service names from OAuth servers, use in emails (#2284) r=@rfk ([f0ecf0a](https://github.com/mozilla/fxa-auth-server/commit/f0ecf0a)), closes [#2284](https://github.com/mozilla/fxa-auth-server/issues/2284) [#2213](https://github.com/mozilla/fxa-auth-server/issues/2213) [#2249](https://github.com/mozilla/fxa-auth-server/issues/2249)
+* **reset:** improve reset for reliers (#2298) r=@ryanfeeley,@vbudhram ([a937c16](https://github.com/mozilla/fxa-auth-server/commit/a937c16)), closes [#2298](https://github.com/mozilla/fxa-auth-server/issues/2298) [mozilla/fxa-content-server#5776](https://github.com/mozilla/fxa-content-server/issues/5776) [mozilla/fxa-content-server#5896](https://github.com/mozilla/fxa-content-server/issues/5896)
+* **sessions:** Add ability to reauth within an existing login session. ([aa388cc](https://github.com/mozilla/fxa-auth-server/commit/aa388cc))
+* **totp:** TOTP Management APIs (#2300), r=@philbooth ([c805f9c](https://github.com/mozilla/fxa-auth-server/commit/c805f9c)), closes [#2300](https://github.com/mozilla/fxa-auth-server/issues/2300)
+
+
+
 <a name="1.105.0"></a>
 # [1.105.0](https://github.com/mozilla/fxa-auth-server/compare/v1.104.1...v1.105.0) (2018-02-06)
 
