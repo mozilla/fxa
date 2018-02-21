@@ -1,3 +1,51 @@
+<a name="1.106.0"></a>
+# 1.106.0 (2018-02-21)
+
+
+### Bug Fixes
+
+* **avatar:** add spinner to avatar loading (#5888) r=@vladikoff ([6bd8b5c](https://github.com/mozilla/fxa-content-server/commit/6bd8b5c))
+* **cad:** hide the success message after direct navigation (#5881) r=@vladikoff ([5cbac34](https://github.com/mozilla/fxa-content-server/commit/5cbac34)), closes [#5852](https://github.com/mozilla/fxa-content-server/issues/5852)
+* **copy:** Show email section to view status (#5908), r=@vbudhram ([0c1e614](https://github.com/mozilla/fxa-content-server/commit/0c1e614))
+* **deps:** adjust speed-trap dep and fix nsp issue (#5911) ([06ec9a4](https://github.com/mozilla/fxa-content-server/commit/06ec9a4)), closes [(#5911](https://github.com/(/issues/5911)
+* **deps:** reinstate old version of speed-trap ([3d96dc9](https://github.com/mozilla/fxa-content-server/commit/3d96dc9))
+* **errors:** ensure that toError always behaves sanely ([d04620e](https://github.com/mozilla/fxa-content-server/commit/d04620e))
+* **experiment:** fix the token code experiment (#5918) r=@vladikoff ([60e9164](https://github.com/mozilla/fxa-content-server/commit/60e9164)), closes [(#5918](https://github.com/(/issues/5918)
+* **nsp:** disable nsp 566 (#5920) ([0a4bcd8](https://github.com/mozilla/fxa-content-server/commit/0a4bcd8))
+* **strings:** update communication pref strings (#5910), r=@vbudhram ([a98d7a3](https://github.com/mozilla/fxa-content-server/commit/a98d7a3))
+* **style:** swap reset links per feedback (#5903) r=@ryanfeeley  ([1514796](https://github.com/mozilla/fxa-content-server/commit/1514796))
+* **styles:** fix icon overlap in CWTS on iOS (#5909), r=@vbudhram ([b5f4268](https://github.com/mozilla/fxa-content-server/commit/b5f4268)), closes [(#5909](https://github.com/(/issues/5909)
+* **tests:** adjust lang bundle regex for new naming pattern (#5892) r=@vladikoff ([e0d0176](https://github.com/mozilla/fxa-content-server/commit/e0d0176))
+* **tests:** install fxa-js-client for teamcity tests (#5889) ([5eff4d8](https://github.com/mozilla/fxa-content-server/commit/5eff4d8))
+* **tests:** install fxa-js-client for teamcity tests (#5890) r=@vladikoff ([b00869d](https://github.com/mozilla/fxa-content-server/commit/b00869d))
+* **tokenCode:** Add support for tokenCode sync experiment (#5894) r=@vladikoff ([5f714de](https://github.com/mozilla/fxa-content-server/commit/5f714de))
+* **webpack:** fix string extraction for webpack builds (#5893) ([cc9cd30](https://github.com/mozilla/fxa-content-server/commit/cc9cd30)), closes [(#5893](https://github.com/(/issues/5893)
+
+### chore
+
+* **deps:** update speed-trap ([1c5e690](https://github.com/mozilla/fxa-content-server/commit/1c5e690))
+* **password:** graduate confirm password experiment (#5917), r=@philbooth, @vladikoff ([d1f878b](https://github.com/mozilla/fxa-content-server/commit/d1f878b))
+
+### Features
+
+* **build:** migrate to webpack (#5868) r=@philbooth,@vbudhram ([e0bd497](https://github.com/mozilla/fxa-content-server/commit/e0bd497))
+* **eslint:** bring back indent rule (#5887) r=@vbudhram ([08e931e](https://github.com/mozilla/fxa-content-server/commit/08e931e)), closes [#5875](https://github.com/mozilla/fxa-content-server/issues/5875)
+* **oauth:** add another lockbox redirect url ([a58aa99](https://github.com/mozilla/fxa-content-server/commit/a58aa99))
+* **sms:** deploy SMS in Australia to 100% (#5885) r=@rfk ([936faf8](https://github.com/mozilla/fxa-content-server/commit/936faf8)), closes [#5883](https://github.com/mozilla/fxa-content-server/issues/5883)
+* **styles:** improve reset password for reliers (#5896) r=@ryanfeeley,@vbudhram ([6e05ab9](https://github.com/mozilla/fxa-content-server/commit/6e05ab9))
+
+### Refactor
+
+* **deps:** remove bower (#5915) r=@vbudhram  ([a6d7a94](https://github.com/mozilla/fxa-content-server/commit/a6d7a94))
+* **docs:** link the policy page to the different doc (#5901) r=@vbudhram ([f9f8631](https://github.com/mozilla/fxa-content-server/commit/f9f8631))
+* **strings:** remove "cloud services" (#5904) r=@vbudhram,@ryanfeeley ([de3d61e](https://github.com/mozilla/fxa-content-server/commit/de3d61e))
+
+### Reverts
+
+* **tokencode:** revert isSync detection (#5913) r=@rfk ([771c4cb](https://github.com/mozilla/fxa-content-server/commit/771c4cb))
+
+
+
 <a name="1.105.2"></a>
 ## 1.105.2 (2018-02-12)
 
