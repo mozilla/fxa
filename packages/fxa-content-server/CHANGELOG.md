@@ -1,3 +1,13 @@
+<a name="1.106.1"></a>
+## 1.106.1 (2018-02-21)
+
+
+### Bug Fixes
+
+* **metrics:** treat enter-email as an "auth" view for flow events (#5924) r= ([623dded](https://github.com/mozilla/fxa-content-server/commit/623dded))
+
+
+
 <a name="1.106.0"></a>
 # 1.106.0 (2018-02-21)
 
