@@ -1,3 +1,21 @@
+<a name="1.106.0"></a>
+# 1.106.0 (2018-02-21)
+
+
+### Bug Fixes
+
+* **log:** fix log op s/checkAuthenticated/checkIpOnly/ ([13e6af4](https://github.com/mozilla/fxa-customs-server/commit/13e6af4))
+
+### chore
+
+* **deps:** update deps, fix nsp (#229) r=@philbooth ([d420b3a](https://github.com/mozilla/fxa-customs-server/commit/d420b3a)), closes [(#229](https://github.com/(/issues/229)
+
+### docs
+
+* **api:** add /checkIpOnly ([ed22ea9](https://github.com/mozilla/fxa-customs-server/commit/ed22ea9))
+
+
+
 <a name="1.103.0"></a>
 # 1.103.0 (2018-01-09)
 
