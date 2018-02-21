@@ -113,6 +113,10 @@ define(function (require, exports, module) {
     _onNavigateFromChildView () {
       if ($.modal.isActive()) {
         $.modal.close();
+      } else if (this.currentPage.indexOf('settings') >= 0) {
+
+        // Close all panels if the event came from any settings view.
+        $('.settings-unit').removeClass('open');
       }
       this.displayStatusMessages();
     },
