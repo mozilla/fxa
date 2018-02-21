@@ -181,6 +181,9 @@ in a sign-in or sign-up flow:
 |`password.forgot.verify_code.completed`|A password reset has been successfully completed on the server.|
 |`route.${path}.200`| A route responded with a 200 status code. Example: `route./account/login.200`|
 |`flow.complete`|A user has successfully completed a sign-in or sign-up flow.|
+|`totpToken.created`|A user has successfully created a totp token.|
+|`totpToken.unverified`|A user failed to verify a totp code.|
+|`totpToken.verified`|A user verified a totp code.|
 
 #### View names
 

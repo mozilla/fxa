@@ -64,6 +64,9 @@ var ERRNO = {
   INVALID_TOKEN_VERIFICATION_CODE: 152,
   EXPIRED_TOKEN_VERIFICATION_CODE: 153,
 
+  TOTP_TOKEN_EXISTS: 154,
+  TOTP_TOKEN_NOT_FOUND: 155,
+
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
   UNEXPECTED_ERROR: 999
@@ -749,6 +752,24 @@ AppError.expiredTokenVerficationCode = function (details) {
     },
     details
   )
+}
+
+AppError.totpTokenAlreadyExists = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.TOTP_TOKEN_EXISTS,
+    message: 'A TOTP token already exists for this account.'
+  })
+}
+
+AppError.totpTokenNotFound = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.TOTP_TOKEN_NOT_FOUND,
+    message: 'A TOTP token not found.'
+  })
 }
 
 AppError.unexpectedError = () => {

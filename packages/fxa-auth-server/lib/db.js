@@ -1149,6 +1149,45 @@ module.exports = (
     return this.pool.post(`/account/${uid}/resetTokens`)
   }
 
+  DB.prototype.createTotpToken = function (uid, sharedSecret, epoch) {
+    log.trace({op: 'DB.createTotpToken', uid})
+
+    return this.pool.put(`/totp/${uid}`, {
+      sharedSecret: sharedSecret,
+      epoch: epoch
+    })
+      .catch(err => {
+        if (isRecordAlreadyExistsError(err)) {
+          throw error.totpTokenAlreadyExists()
+        }
+        throw err
+      })
+  }
+
+  DB.prototype.totpToken = function (uid) {
+    log.trace({ op: 'DB.totpToken', uid})
+
+    return this.pool.get(`/totp/${uid}`)
+      .catch(err => {
+        if (isNotFoundError(err)) {
+          throw error.totpTokenNotFound()
+        }
+        throw err
+      })
+  }
+
+  DB.prototype.deleteTotpToken = function (uid) {
+    log.trace({ op: 'DB.deleteTotpToken', uid})
+
+    return this.pool.del(`/totp/${uid}`)
+      .catch(err => {
+        if (isNotFoundError(err)) {
+          throw error.totpTokenNotFound()
+        }
+        throw err
+      })
+  }
+
   function wrapTokenNotFoundError (err) {
     if (isNotFoundError(err)) {
       err = error.invalidToken('The authentication token could not be found')

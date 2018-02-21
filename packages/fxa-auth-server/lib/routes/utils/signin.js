@@ -297,18 +297,24 @@ module.exports = (log, config, customs, db, mailer)  => {
 
       function sendVerifySessionEmail() {
         // If this login requires a confirmation, check to see if a specific method was specified in
-        // the request. If none was specified, use the `email` verficationMethod.
-        if (verificationMethod === 'email') {
+        // the request. If none was specified, use the `email` verificationMethod.
+        switch (verificationMethod) {
+        case 'email':
           // Sends an email containing a link to verify login
           return sendVerifyLoginEmail()
-        } else if (verificationMethod === 'email-2fa') {
+        case 'email-2fa':
           // Sends an email containing a code that can verify a login
           return sendVerifyLoginCodeEmail()
-        } else if (verificationMethod === 'email-captcha') {
+        case 'email-captcha':
           // `email-captcha` is a custom verification method used only for
           // unblock codes. We do not need to send a verification email
           // in this case.
-        } else {
+          break
+        case 'totp-2fa':
+          // This verification method requires a user to use a third-party
+          // application.
+          break
+        default:
           return sendVerifyLoginEmail()
         }
       }

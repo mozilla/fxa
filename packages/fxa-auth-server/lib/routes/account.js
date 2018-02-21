@@ -409,7 +409,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
         const email = form.email
         const authPW = form.authPW
         const originalLoginEmail = request.payload.originalLoginEmail
-        const verificationMethod = request.payload.verificationMethod || request.query.verificationMethod
+        let verificationMethod = request.payload.verificationMethod || request.query.verificationMethod
         const requestNow = Date.now()
 
         let accountRecord, password, sessionToken, keyFetchToken, didSigninUnblock
@@ -420,6 +420,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
         return checkCustomsAndLoadAccount()
           .then(checkEmailAndPassword)
           .then(checkSecurityHistory)
+          .then(checkTotpToken)
           .then(createSessionToken)
           .then(sendSigninNotifications)
           .then(createKeyFetchToken)
@@ -508,6 +509,23 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
                 })
               }
             )
+        }
+
+        function checkTotpToken () {
+          // Check to see if the user has a TOTP token, if so then
+          // the verification method is automatically forced so that
+          // they have to verify the token.
+          return db.totpToken(accountRecord.uid)
+            .then((result) => {
+              if (result) {
+                verificationMethod = 'totp-2fa'
+              }
+            }, (err) => {
+              if (err.errno === error.ERRNO.TOTP_TOKEN_NOT_FOUND) {
+                return
+              }
+              throw err
+            })
         }
 
         function createSessionToken () {

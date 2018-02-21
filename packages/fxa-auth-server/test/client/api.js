@@ -756,6 +756,58 @@ module.exports = config => {
       })
   }
 
+  ClientApi.prototype.createTotpToken = function (sessionTokenHex, options = {}) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/totp/create',
+          token,
+          {
+            metricsContext: options.metricsContext
+          }
+        )
+      })
+  }
+
+  ClientApi.prototype.deleteTotpToken = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/totp/destroy',
+          token,
+          {}
+        )
+      })
+  }
+
+  ClientApi.prototype.checkTotpTokenExists = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'GET',
+          this.baseURL + '/totp/exists',
+          token
+        ).bind(this)
+      })
+  }
+
+  ClientApi.prototype.verifyTotpCode = function (sessionTokenHex, code, options = {}) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/session/verify/totp',
+          token,
+          {
+            code: code,
+            metricsContext: options.metricsContext
+          }
+        )
+      })
+  }
+
   ClientApi.heartbeat = function (origin) {
     return (new ClientApi(origin)).doRequest('GET', origin + '/__heartbeat__')
   }

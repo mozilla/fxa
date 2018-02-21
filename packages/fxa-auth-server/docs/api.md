@@ -67,6 +67,11 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [GET /sms/status (:lock: sessionToken)](#get-smsstatus)
   * [Token codes](#token-codes)
     * [POST /session/verify/token (:lock: sessionToken)](#post-sessionverifytoken)
+  * [Totp](#totp)
+    * [POST /totp/create (:lock: sessionToken)](#post-totpcreate)
+    * [POST /totp/destroy (:lock: sessionToken)](#post-totpdestroy)
+    * [GET /totp/exists (:lock: sessionToken)](#get-totpexists)
+    * [POST /session/verify/totp (:lock: sessionToken)](#post-sessionverifytotp)
   * [Unblock codes](#unblock-codes)
     * [POST /account/login/send_unblock_code](#post-accountloginsend_unblock_code)
     * [POST /account/login/reject_unblock_code](#post-accountloginreject_unblock_code)
@@ -264,6 +269,10 @@ for `code` and `errno` are:
   Invalid token verification code
 * `code: 400, errno: 153`:
   Expired token verification code
+* `code: 400, errno: 154`:
+  A TOTP token already exists for this account.
+* `code: 400, errno: 155`:
+  A TOTP token not found.
 * `code: 503, errno: 201`:
   Service unavailable
 * `code: 503, errno: 202`:
@@ -2522,6 +2531,63 @@ Verify a session using a token code.
   <!--begin-request-body-post-sessionverifytoken-code-->
   The code
   <!--end-request-body-post-sessionverifytoken-code-->
+
+
+### Totp
+
+#### POST /totp/create
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-totpcreate-->
+Create a new randomly generated TOTP token for a user if they do
+not currently have one.
+<!--end-route-post-totpcreate-->
+
+##### Request body
+
+* `metricsContext`: *metricsContext.schema*
+
+  <!--begin-request-body-post-totpcreate-metricsContext-->
+  
+  <!--end-request-body-post-totpcreate-metricsContext-->
+
+
+#### POST /totp/destroy
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-totpdestroy-->
+Deletes the current TOTP token for the user.
+<!--end-route-post-totpdestroy-->
+
+
+#### GET /totp/exists
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-get-totpexists-->
+Checks to see if the user has a TOTP token.
+<!--end-route-get-totpexists-->
+
+
+#### POST /session/verify/totp
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-sessionverifytotp-->
+Verifies the current session if the passed TOTP code is valid.
+<!--end-route-post-sessionverifytotp-->
+
+##### Request body
+
+* `code`: *string, max(32), required*
+
+  <!--begin-request-body-post-sessionverifytotp-code-->
+  The TOTP code to check
+  <!--end-request-body-post-sessionverifytotp-code-->
+
+* `metricsContext`: *metricsContext.schema*
+
+  <!--begin-request-body-post-sessionverifytotp-metricsContext-->
+  
+  <!--end-request-body-post-sessionverifytotp-metricsContext-->
 
 
 ### Unblock codes
