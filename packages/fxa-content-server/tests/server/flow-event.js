@@ -963,6 +963,44 @@ registerSuite('flow-event', {
           assert.equal(arg.event, 'flow.performance.auth');
         }
       }
+    },
+
+    'call flowEvent for enter-email': {
+      beforeEach() {
+        flowMetricsValidateResult = true;
+        setup({
+          events: [
+            { offset: 2000, type: 'loaded' }
+          ],
+          initialView: 'enter-email'
+        }, 2000, true);
+      },
+      tests: {
+        'process.stderr.write was called correctly': () => {
+          assert.equal(process.stderr.write.callCount, 1);
+          const arg = JSON.parse(process.stderr.write.args[0][0]);
+          assert.equal(arg.event, 'flow.performance.auth');
+        }
+      }
+    },
+
+    'call flowEvent for force-auth': {
+      beforeEach() {
+        flowMetricsValidateResult = true;
+        setup({
+          events: [
+            { offset: 2000, type: 'loaded' }
+          ],
+          initialView: 'force-auth'
+        }, 2000, true);
+      },
+      tests: {
+        'process.stderr.write was called correctly': () => {
+          assert.equal(process.stderr.write.callCount, 1);
+          const arg = JSON.parse(process.stderr.write.args[0][0]);
+          assert.equal(arg.event, 'flow.performance.auth');
+        }
+      }
     }
   }
 });
