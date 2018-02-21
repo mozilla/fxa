@@ -1,3 +1,13 @@
+<a name="1.106.2"></a>
+## 1.106.2 (2018-02-21)
+
+
+### Features
+
+* **code:** enable token code experiment sync users for 1.8% each cohort (#5926) r=@vladikof ([c99b5ca](https://github.com/mozilla/fxa-content-server/commit/c99b5ca))
+
+
+
 <a name="1.106.1"></a>
 ## 1.106.1 (2018-02-21)
 
