@@ -523,7 +523,7 @@ const conf = module.exports = convict({
     default: '10 minutes',
     doc: 'Cache max age for static assets, in ms',
     env: 'STATIC_MAX_AGE',
-    format: Number
+    format: 'duration'
   },
   static_resource_url: {
     default: undefined,
