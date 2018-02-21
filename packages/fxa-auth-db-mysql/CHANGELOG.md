@@ -1,3 +1,22 @@
+<a name="1.106.0"></a>
+# [1.106.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.105.0...v1.106.0) (2018-02-21)
+
+
+### Bug Fixes
+
+* **token:** Fix mem verifyTokenCode (#303), r=@rfk, @philbooth ([6a4fb67](https://github.com/mozilla/fxa-auth-db-mysql/commit/6a4fb67)), closes [(#303](https://github.com/(/issues/303)
+
+### chore
+
+* **deps:** update deps, fix nsp (#308) r=@philbooth ([0d874f9](https://github.com/mozilla/fxa-auth-db-mysql/commit/0d874f9)), closes [(#308](https://github.com/(/issues/308)
+
+### Features
+
+* **sessions:** Add support for reauth on an existing session. (#305); r=philbooth ([fdff3e9](https://github.com/mozilla/fxa-auth-db-mysql/commit/fdff3e9))
+* **totp:** Add totp management api (#299), r=@philbooth ([9b8efcb](https://github.com/mozilla/fxa-auth-db-mysql/commit/9b8efcb))
+
+
+
 <a name="1.105.0"></a>
 # [1.105.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.104.0...v1.105.0) (2018-02-06)
 
