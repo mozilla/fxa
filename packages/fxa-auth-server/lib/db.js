@@ -117,35 +117,25 @@ module.exports = (
   }
 
   DB.prototype.createSessionToken = function (authToken) {
-    log.trace({ op: 'DB.createSessionToken', uid: authToken && authToken.uid })
+    const { uid } = authToken
+
+    log.trace({ op: 'DB.createSessionToken', uid })
+
     return SessionToken.create(authToken)
-      .then(
-        function (sessionToken) {
-          return this.pool.put(
-            '/sessionToken/' + sessionToken.id,
-            {
-              tokenId: sessionToken.id,
-              data: sessionToken.data,
-              uid: sessionToken.uid,
-              createdAt: sessionToken.createdAt,
-              uaBrowser: sessionToken.uaBrowser,
-              uaBrowserVersion: sessionToken.uaBrowserVersion,
-              uaOS: sessionToken.uaOS,
-              uaOSVersion: sessionToken.uaOSVersion,
-              uaDeviceType: sessionToken.uaDeviceType,
-              mustVerify: sessionToken.mustVerify,
-              tokenVerificationId: sessionToken.tokenVerificationId,
-              tokenVerificationCode: sessionToken.tokenVerificationCode,
-              tokenVerificationCodeExpiresAt: sessionToken.tokenVerificationCodeExpiresAt
-            }
-          )
-          .then(
-            function () {
-              return sessionToken
-            }
-          )
-        }.bind(this)
-      )
+      .then(sessionToken => {
+        const { id } = sessionToken
+
+        // Ensure there are no clashes with zombie tokens left behind in Redis
+        return deleteSessionTokenFromRedis(uid, id)
+          .catch(() => {})
+          .then(() => this.pool.put(`/sessionToken/${id}`,
+            Object.assign({
+              // Marshall from this repo's id property to the db's tokenId
+              tokenId: id
+            }, sessionToken)
+          ))
+          .then(() => sessionToken)
+      })
   }
 
   DB.prototype.createKeyFetchToken = function (authToken) {
