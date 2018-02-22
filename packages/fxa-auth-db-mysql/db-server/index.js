@@ -117,13 +117,12 @@ function createServer(db) {
   api.del('/sessionToken/:id', withIdAndBody(db.deleteSessionToken))
   api.put('/sessionToken/:id', withIdAndBody(db.createSessionToken))
   api.post('/sessionToken/:id/update', withIdAndBody(db.updateSessionToken))
-  api.get('/sessionToken/:id/device', withIdAndBody(db.sessionWithDevice))
+  api.get('/sessionToken/:id/device', withIdAndBody(db.sessionToken))
 
   api.get('/keyFetchToken/:id', withIdAndBody(db.keyFetchToken))
   api.del('/keyFetchToken/:id', withIdAndBody(db.deleteKeyFetchToken))
   api.put('/keyFetchToken/:id', withIdAndBody(db.createKeyFetchToken))
 
-  api.get('/sessionToken/:id/verified', withIdAndBody(db.sessionTokenWithVerificationStatus))
   api.get('/keyFetchToken/:id/verified', withIdAndBody(db.keyFetchTokenWithVerificationStatus))
   api.post('/tokens/:id/verify', withIdAndBody(db.verifyTokens))
   api.post('/tokens/:code/verifyCode', withParamsAndBody(db.verifyTokenCode))

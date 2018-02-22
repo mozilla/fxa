@@ -67,7 +67,6 @@ The following datatypes are used throughout this document:
     * deleteDevice              : `DELETE /account/:id/device/:deviceId`
 * Session Tokens:
     * sessionToken              : `GET /sessionToken/:id`
-    * sessionTokenWithVerificationStatus : `GET /sessionToken/:id/verified`
     * sessionWithDevice         : `GET /sessionToken/:id/device`
     * deleteSessionToken        : `DELETE /sessionToken/:id`
     * createSessionToken        : `PUT /sessionToken/:id`
@@ -887,51 +886,6 @@ Content-Length: 285
 {
     "data":"e2c3a8f73e826b9176e54e0f6ecb34b60b1e1979d254638f6b61d721c069d576",
     "uid":"6044486dd15b42e08b1fb9167415b9ac",
-    "createdAt":1425004396952,
-    "id":"522c251a1623e1f1db1f4fe68b9594d26772d6e77e04cb68e110c58600f97a77"
-}
-```
-
-* Status Code : 200 OK
-    * Content-Type : 'application/json'
-    * Body : `[ ... <see example> ...]`
-* Status Code : 404 Not Found
-    * Conditions: if this session `tokenId` doesn't exist
-    * Content-Type : 'application/json'
-    * Body : `{"message":"Not Found"}`
-* Status Code : 500 Internal Server Error
-    * Conditions: if something goes wrong on the server
-    * Content-Type : 'application/json'
-    * Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
-
-## sessionTokenWithVerificationStatus : `GET /sessionToken/<tokenId>/verified`
-
-### Example
-
-```
-curl \
-    -v \
-    -X GET \
-    http://localhost:8000/sessionToken/522c251a1623e1f1db1f4fe68b9594d26772d6e77e04cb68e110c58600f97a77/verified
-```
-
-### Request
-
-* Method : GET
-* Path : `/sessionToken/<tokenId>/verified`
-    * tokenId : hex256
-* Params: none
-
-### Response
-
-```
-HTTP/1.1 200 OK
-Content-Type: application/json
-Content-Length: 285
-
-{
-    "data":"e2c3a8f73e826b9176e54e0f6ecb34b60b1e1979d254638f6b61d721c069d576",
-    "uid":"6044486dd15b42e08b1fb9167415b9ac",
     "createdAt":1460548810011,
     "id":"522c251a1623e1f1db1f4fe68b9594d26772d6e77e04cb68e110c58600f97a77",
     "uaBrowser":"Firefox",
@@ -946,6 +900,13 @@ Content-Length: 285
     "verifierSetAt":1460548810011,
     "locale":"en_US",
     "accountCreatedAt":1460548810011,
+    "deviceId":"eb87eb63c2063bf5fd35e83b535c123d073db9156e49b58bcbf543f9d35467f6",
+    "deviceName":"foo",
+    "deviceType":"mobile",
+    "deviceCreatedAt":1460548810011,
+    "deviceCallbackURL":null,
+    "deviceCallbackPublicKey":null,
+    "deviceCallbackIsExpired":false,
     "mustVerify":true,
     "tokenVerificationId":"12c41fac80fd6149f3f695e188b5f846"
 }
@@ -955,7 +916,7 @@ Content-Length: 285
     * Content-Type : 'application/json'
     * Body : `[ ... <see example> ...]`
 * Status Code : 404 Not Found
-    * Conditions: if the sessionToken `tokenId` doesn't exist
+    * Conditions: if this session `tokenId` doesn't exist
     * Content-Type : 'application/json'
     * Body : `{"message":"Not Found"}`
 * Status Code : 500 Internal Server Error

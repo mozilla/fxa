@@ -324,14 +324,6 @@ module.exports = function(cfg, makeServer) {
           }, function(err) {
             testNotFound(err)
 
-            // Attempt to fetch a non-existent session token with its verification state
-            return client.getThen('/sessionToken/' + user.sessionTokenId + '/verified')
-          })
-          .then(function(r) {
-            assert(false, 'A non-existent session token should not have returned anything')
-          }, function(err) {
-            testNotFound(err)
-
             // Create a session token
             return client.putThen('/sessionToken/' + user.sessionTokenId, user.sessionToken)
           })
@@ -360,31 +352,6 @@ module.exports = function(cfg, makeServer) {
 
             // Fetch the session token
             return client.getThen('/sessionToken/' + user.sessionTokenId)
-          })
-          .then(function(r) {
-            var token = r.obj
-
-            assert.deepEqual(token.tokenData, user.sessionToken.data, 'token data matches')
-            assert.deepEqual(token.uid, user.accountId, 'token belongs to this account')
-            assert.equal(token.createdAt, user.sessionToken.createdAt, 'createdAt matches')
-            assert.equal(token.uaBrowser, user.sessionToken.uaBrowser, 'uaBrowser matches')
-            assert.equal(token.uaBrowserVersion, user.sessionToken.uaBrowserVersion, 'uaBrowserVersion matches')
-            assert.equal(token.uaOS, user.sessionToken.uaOS, 'uaOS matches')
-            assert.equal(token.uaOSVersion, user.sessionToken.uaOSVersion, 'uaOSVersion matches')
-            assert.equal(token.uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType matches')
-            assert.equal(token.uaFormFactor, user.sessionToken.uaFormFactor, 'uaFormFactor matches')
-            assert.equal(token.lastAccessTime, token.createdAt, 'lastAccessTime was set')
-            assert.equal(token.authAt, token.createdAt, 'authAt was set to default')
-            assert.equal(!! token.emailVerified, user.account.emailVerified, 'emailVerified same as account emailVerified')
-            assert.equal(token.email, user.account.email, 'token.email same as account email')
-            assert.deepEqual(token.emailCode, user.account.emailCode, 'token emailCode same as account emailCode')
-            assert(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
-            assert(token.accountCreatedAt > 0, 'accountCreatedAt is positive number')
-            assert.equal(token.mustVerify, undefined, 'mustVerify is undefined')
-            assert.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
-
-            // Fetch the session token with its verification state
-            return client.getThen('/sessionToken/' + user.sessionTokenId + '/verified')
           })
           .then(function(r) {
             var token = r.obj
@@ -436,31 +403,6 @@ module.exports = function(cfg, makeServer) {
             assert.deepEqual(token.emailCode, verifiedUser.account.emailCode, 'token emailCode same as account emailCode')
             assert(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
             assert(token.accountCreatedAt > 0, 'accountCreatedAt is positive number')
-            assert.equal(token.mustVerify, undefined, 'mustVerify is undefined')
-            assert.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
-
-            // Fetch the verified session token with its verification state
-            return client.getThen('/sessionToken/' + verifiedUser.sessionTokenId + '/verified')
-          })
-          .then(function(r) {
-            var token = r.obj
-
-            assert.deepEqual(token.tokenData, verifiedUser.sessionToken.data, 'token data matches')
-            assert.deepEqual(token.uid, verifiedUser.accountId, 'token belongs to this account')
-            assert.equal(token.createdAt, verifiedUser.sessionToken.createdAt, 'createdAt matches')
-            assert.equal(token.uaBrowser, verifiedUser.sessionToken.uaBrowser, 'uaBrowser matches')
-            assert.equal(token.uaBrowserVersion, verifiedUser.sessionToken.uaBrowserVersion, 'uaBrowserVersion matches')
-            assert.equal(token.uaOS, verifiedUser.sessionToken.uaOS, 'uaOS matches')
-            assert.equal(token.uaOSVersion, verifiedUser.sessionToken.uaOSVersion, 'uaOSVersion matches')
-            assert.equal(token.uaDeviceType, verifiedUser.sessionToken.uaDeviceType, 'uaDeviceType matches')
-            assert.equal(token.uaFormFactor, verifiedUser.sessionToken.uaFormFactor, 'uaFormFactor matches')
-            assert.equal(token.lastAccessTime, token.createdAt, 'lastAccessTime was set')
-            assert.equal(token.authAt, token.createdAt, 'authAt was set to default')
-            assert.equal(!! token.emailVerified, verifiedUser.account.emailVerified, 'emailVerified same as account emailVerified')
-            assert.equal(token.email, verifiedUser.account.email, 'token.email same as account email')
-            assert.deepEqual(token.emailCode, verifiedUser.account.emailCode, 'token emailCode same as account emailCode')
-            assert(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
-            assert(token.accountCreatedAt > 0, 'accountCreatedAt is positive number')
             assert.equal(token.mustVerify, null, 'mustVerify is null')
             assert.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
 
@@ -492,13 +434,6 @@ module.exports = function(cfg, makeServer) {
           .then(function() {
             // Fetch the newly verified session token
             return client.getThen('/sessionToken/' + user.sessionTokenId)
-          })
-          .then(function(r) {
-            assert.equal(r.obj.mustVerify, undefined, 'mustVerify is undefined')
-            assert.equal(r.obj.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
-
-            // Fetch the newly verified session token with its verification state
-            return client.getThen('/sessionToken/' + user.sessionTokenId + '/verified')
           })
           .then(function(r) {
             assert.equal(r.obj.mustVerify, null, 'mustVerify is null')
@@ -1571,13 +1506,10 @@ module.exports = function(cfg, makeServer) {
             .spread((sessionToken, keyFetchToken) => {
               respOkEmpty(sessionToken)
               respOkEmpty(keyFetchToken)
-              return client.getThen('/sessionToken/' + user.sessionTokenId + '/verified')
+              return client.getThen('/sessionToken/' + user.sessionTokenId)
             })
             .then((r) => {
               respOk(r)
-              const result = r.obj
-              assert.ok(result.tokenVerificationCodeHash, 'tokenVerificationCodeHash exists')
-              assert.equal(result.tokenVerificationCodeExpiresAt, user.sessionToken.tokenVerificationCodeExpiresAt, 'tokenVerificationCodeExpiresAt set')
               return client.postThen('/tokens/' + user.sessionToken.tokenVerificationCode + '/verifyCode', {
                 uid: user.accountId
               })
@@ -1585,7 +1517,7 @@ module.exports = function(cfg, makeServer) {
             .then((r) => {
               respOk(r)
               return P.all([
-                client.getThen('/sessionToken/' + user.sessionTokenId + '/verified'),
+                client.getThen('/sessionToken/' + user.sessionTokenId),
                 client.getThen('/keyFetchToken/' + user.keyFetchTokenId + '/verified'),
               ])
             })

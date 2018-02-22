@@ -23,11 +23,9 @@ There are a number of methods that a DB storage backend should implement:
     * .getSecondaryEmail(emailBuffer)
     * .setPrimaryEmail(uid, emailBuffer)
 * Session Tokens
+    * .sessionToken(tokenId)
     * .createSessionToken(tokenId, sessionToken)
     * .updateSessionToken(tokenId, sessionToken)
-    * .sessionToken(id)
-    * .sessionTokenWithVerificationStatus(tokenId)
-    * .sessionWithDevice(tokenId)
     * .deleteSessionToken(tokenId)
 * Devices
     * .createDevice(uid, deviceId, device)
@@ -474,7 +472,6 @@ Note: for some tokens there should only ever be one row per `uid`. This applies 
 should do something equivalent with your storage backend.
 
 ### .sessionToken(tokenId) ###
-### .sessionTokenWithVerificationStatus(tokenId) ###
 ### .keyFetchToken(tokenId) ###
 ### .keyFetchTokenWithVerificationStatus(tokenId) ###
 ### .passwordChangeToken(tokenId) ###
@@ -497,17 +494,21 @@ Each token returns different fields.
 These fields are represented as
 `t.*` for a field from the token,
 `a.*` for a field from the corresponding account and
+`d.*` for a field from `devices` and
 `ut.*` for a field from `unverifiedTokens`.
+
+The deviceCallbackPublicKey and deviceCallbackAuthKey fields are urlsafe-base64 strings, you can learn more about their format [here](https://developers.google.com/web/updates/2016/03/web-push-encryption).
 
 * sessionToken : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
                  t.uaOS, t.uaOSVersion, t.uaDeviceType, t.uaFormFactor, t.lastAccessTime,
                  a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
-                 a.createdAt AS accountCreatedAt
-* sessionTokenWithVerificationStatus : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
-                                       t.uaOS, t.uaOSVersion, t.uaDeviceType, t.uaFormFactor, t.lastAccessTime,
-                                       a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
-                                       a.createdAt AS accountCreatedAt, ut.mustVerify, ut.tokenVerificationId,
-                                       ut.tokenVerificationCodeHash, ut.tokenVerificationCodeExpiresAt
+                 a.createdAt AS accountCreatedAt, d.id AS deviceId,
+                 d.name AS deviceName, d.type AS deviceType,
+                 d.createdAt AS deviceCreatedAt, d.callbackURL AS deviceCallbackURL,
+                 d.callbackPublicKey AS deviceCallbackPublicKey,
+                 d.callbackAuthKey AS deviceCallbackAuthKey,
+                 d.callbackIsExpired AS deviceCallbackIsExpired,
+                 ut.mustVerify, ut.tokenVerificationId
 * keyFetchToken : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified, a.verifierSetAt
 * keyFetchTokenWithVerificationStatus : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified,
                                         a.verifierSetAt, ut.mustVerify, ut.tokenVerificationId
@@ -625,43 +626,6 @@ Parameters:
     * data
     * uid
     * createdAt
-
-## .sessionWithDevice(tokenId) ##
-
-Get the sessionToken
-with its verification state
-and matching device info.
-
-Parameters:
-
-* `tokenId` - (Buffer32) the id of the token to retrieve
-
-Returns:
-
-* resolves with:
-    * an object `{ ... }` with the relevant field (see below)
-* rejects with:
-    * `error.notFound()` if this token does not exist
-    * any error from the underlying storage system (wrapped in `error.wrap()`
-
-These fields are represented as
-`t.*` for a field from the token,
-`a.*` for a field from the corresponding account,
-`d.*` for a field from `devices` and
-`ut.*` for a field from `unverifiedTokens`.
-
-The deviceCallbackPublicKey and deviceCallbackAuthKey fields are urlsafe-base64 strings, you can learn more about their format [here](https://developers.google.com/web/updates/2016/03/web-push-encryption).
-
-* sessionToken : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
-                 t.uaOS, t.uaOSVersion, t.uaDeviceType, t.uaFormFactor, t.lastAccessTime,
-                 a.emailVerified, a.email, a.emailCode, a.verifierSetAt,
-                 a.createdAt AS accountCreatedAt, d.id AS deviceId,
-                 d.name AS deviceName, d.type AS deviceType,
-                 d.createdAt AS deviceCreatedAt, d.callbackURL AS deviceCallbackURL,
-                 d.callbackPublicKey AS deviceCallbackPublicKey,
-                 d.callbackAuthKey AS deviceCallbackAuthKey,
-                 d.callbackIsExpired AS deviceCallbackIsExpired,
-                 ut.mustVerify, ut.tokenVerificationId, ut.tokenVerificationCodeHash, ut.tokenVerificationCodeExpiresAt
 
 ## .createVerificationReminder(body) ##
 

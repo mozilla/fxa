@@ -353,13 +353,13 @@ module.exports = function (config, DB) {
             assert.deepEqual(token.emailCode, accountData.emailCode, 'token emailCode same as account emailCode')
             assert.equal(token.verifierSetAt, accountData.verifierSetAt, 'verifierSetAt is correct')
             assert.equal(token.accountCreatedAt, accountData.createdAt, 'accountCreatedAt is correct')
-            assert.equal(token.mustVerify, undefined, 'mustVerify is undefined')
-            assert.equal(token.tokenVerificationId, undefined, 'tokenVerificationId is undefined')
+            assert.equal(!! token.mustVerify, !! sessionTokenData.mustVerify, 'mustVerify is set')
+            assert.deepEqual(token.tokenVerificationId, sessionTokenData.tokenVerificationId, 'tokenVerificationId is set')
           })
       })
 
       it('should update mustVerify to true, but not to false', () => {
-        return db.sessionTokenWithVerificationStatus(sessionTokenData.tokenId)
+        return db.sessionToken(sessionTokenData.tokenId)
           .then((token) => {
             assert.equal(token.mustVerify, false, 'mustVerify starts out as false')
             assert.equal(token.uaBrowser, 'mock browser', 'other fields have their default values')
@@ -367,7 +367,7 @@ module.exports = function (config, DB) {
           })
           .then((result) => {
             assert.deepEqual(result, {}, 'Returned an empty object on session token update')
-            return db.sessionTokenWithVerificationStatus(sessionTokenData.tokenId)
+            return db.sessionToken(sessionTokenData.tokenId)
           })
           .then((token) => {
             assert.equal(token.mustVerify, true, 'mustVerify was correctly updated to true')
@@ -376,7 +376,7 @@ module.exports = function (config, DB) {
           })
           .then((result) => {
             assert.deepEqual(result, {}, 'Returned an empty object on session token update')
-            return db.sessionTokenWithVerificationStatus(sessionTokenData.tokenId)
+            return db.sessionToken(sessionTokenData.tokenId)
           })
           .then((token) => {
             assert.equal(token.mustVerify, true, 'mustVerify was not reset back to false')
@@ -385,7 +385,7 @@ module.exports = function (config, DB) {
       })
 
       it('should get verification state', () => {
-        return db.sessionTokenWithVerificationStatus(sessionTokenData.tokenId)
+        return db.sessionToken(sessionTokenData.tokenId)
           .then((token) => {
             assert.deepEqual(token.tokenData, sessionTokenData.data, 'token data matches')
             assert.deepEqual(token.uid, accountData.uid, 'token belongs to this account')
@@ -415,7 +415,7 @@ module.exports = function (config, DB) {
             assert.equal(err.errno, 116, 'err.errno is correct')
             assert.equal(err.code, 404, 'err.code is correct')
 
-            return db.sessionTokenWithVerificationStatus(sessionTokenData.tokenId)
+            return db.sessionToken(sessionTokenData.tokenId)
           })
           .then((token) => {
             assert.equal(!! token.mustVerify, !! sessionTokenData.mustVerify, 'mustVerify is correct')
@@ -429,7 +429,7 @@ module.exports = function (config, DB) {
             assert.equal(err.errno, 116, 'err.errno is correct')
             assert.equal(err.code, 404, 'err.code is correct')
 
-            return db.sessionTokenWithVerificationStatus(sessionTokenData.tokenId)
+            return db.sessionToken(sessionTokenData.tokenId)
           })
           .then((token) => {
             assert.equal(!! token.mustVerify, !! sessionTokenData.mustVerify, 'mustVerify is correct')
@@ -440,7 +440,7 @@ module.exports = function (config, DB) {
       it('should verify session token', () => {
         return db.verifyTokens(sessionTokenData.tokenVerificationId, accountData)
           .then(() => {
-            return db.sessionTokenWithVerificationStatus(sessionTokenData.tokenId)
+            return db.sessionToken(sessionTokenData.tokenId)
           }, assert.fail)
           .then((token) => {
             assert.equal(token.mustVerify, null, 'mustVerify is null')
@@ -887,7 +887,7 @@ module.exports = function (config, DB) {
       })
 
       it('should have created device', () => {
-        return db.sessionWithDevice(sessionTokenData.tokenId)
+        return db.sessionToken(sessionTokenData.tokenId)
           .then((s) => {
             assert.deepEqual(s.deviceId, deviceInfo.deviceId, 'id')
             assert.deepEqual(s.uid, sessionTokenData.uid, 'uid')
@@ -1714,15 +1714,13 @@ module.exports = function (config, DB) {
             sessionTokenData = makeMockSessionToken(account.uid)
             return db.createSessionToken(sessionTokenData.tokenId, sessionTokenData)
               .then(() => {
-                return P.all([db.sessionToken(sessionTokenData.tokenId), db.sessionTokenWithVerificationStatus(sessionTokenData.tokenId)])
+                return db.sessionToken(sessionTokenData.tokenId)
               })
           })
-          .then((res) => {
-            res.forEach((session) => {
-              assert.equal(session.email, secondEmail.email, 'should equal new primary email')
-              assert.deepEqual(session.emailCode, secondEmail.emailCode, 'should equal new primary emailCode')
-              assert.deepEqual(session.uid, account.uid, 'should equal account uid')
-            })
+          .then((session) => {
+            assert.equal(session.email, secondEmail.email, 'should equal new primary email')
+            assert.deepEqual(session.emailCode, secondEmail.emailCode, 'should equal new primary emailCode')
+            assert.deepEqual(session.uid, account.uid, 'should equal account uid')
             return P.all([db.accountRecord(secondEmail.email), db.accountRecord(account.email)])
           })
           .then((res) => {
@@ -1748,20 +1746,18 @@ module.exports = function (config, DB) {
         tokenVerificationCode = sessionToken.tokenVerificationCode
         return db.createSessionToken(tokenId, sessionToken)
           .then(() => {
-            return db.sessionTokenWithVerificationStatus(tokenId)
+            return db.sessionToken(tokenId)
           })
           .then((session) => {
             // Returns unverified session
             assert.equal(session.mustVerify, sessionToken.mustVerify, 'mustVerify must match sessionToken')
             assert.equal(session.tokenVerificationId.toString('hex'), sessionToken.tokenVerificationId.toString('hex'), 'tokenVerificationId must match sessionToken')
-            assert.ok(session.tokenVerificationCodeHash, 'tokenVerificationCodeHash exists')
-            assert.equal(session.tokenVerificationCodeExpiresAt, sessionToken.tokenVerificationCodeExpiresAt, 'tokenVerificationCodeExpiresAt must match sessionToken')
 
             // Verify the session
             return db.verifyTokenCode({code: tokenVerificationCode}, account)
           })
           .then(() => {
-            return db.sessionTokenWithVerificationStatus(tokenId)
+            return db.sessionToken(tokenId)
           })
           .then((session) => {
             // Returns verified session

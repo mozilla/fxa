@@ -399,7 +399,7 @@ module.exports = function (log, error) {
   //          t.uid = d.uid AND t.tokenId = u.tokenId
   var SESSION_DEVICE = 'CALL sessionWithDevice_11(?)'
 
-  MySql.prototype.sessionWithDevice = function (id) {
+  MySql.prototype.sessionToken = function (id) {
     return this.readFirstResult(SESSION_DEVICE, [id])
   }
 
@@ -414,32 +414,6 @@ module.exports = function (log, error) {
 
   MySql.prototype.sessions = function (uid) {
     return this.readOneFromFirstResult(SESSIONS, [uid])
-  }
-
-  // Select : sessionTokens t, accounts a
-  // Fields : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
-  //          t.uaOS, t.uaOSVersion, t.uaDeviceType, t.uaFormFactor, t.lastAccessTime,
-  //          t.authAt,
-  //          a.emailVerified, a.email, a.emailCode, a.verifierSetAt, a.locale,
-  //          a.createdAt AS accountCreatedAt
-  // Where  : t.tokenId = $1 AND t.uid = a.uid
-  var SESSION_TOKEN = 'CALL sessionToken_8(?)'
-
-  MySql.prototype.sessionToken = function (id) {
-    return this.readFirstResult(SESSION_TOKEN, [id])
-  }
-
-  // Select : sessionTokens t, accounts a, unverifiedTokens ut
-  // Fields : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
-  //          t.uaOS, t.uaOSVersion, t.uaDeviceType, t.uaFormFactor, t.lastAccessTime,
-  //          t.authAt,
-  //          a.emailVerified, a.email, a.emailCode, a.verifierSetAt, a.locale,
-  //          a.createdAt AS accountCreatedAt, ut.tokenVerificationId, ut.mustVerify
-  // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = ut.tokenId
-  var SESSION_TOKEN_VERIFIED = 'CALL sessionTokenWithVerificationStatus_8(?)'
-
-  MySql.prototype.sessionTokenWithVerificationStatus = function (tokenId) {
-    return this.readFirstResult(SESSION_TOKEN_VERIFIED, [tokenId])
   }
 
   // Select : keyFetchTokens t, accounts a

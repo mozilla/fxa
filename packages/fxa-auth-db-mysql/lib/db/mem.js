@@ -520,33 +520,77 @@ module.exports = function (log, error) {
       )
   }
 
-  Memory.prototype.sessionWithDevice = function (id) {
-    return this.sessionTokenWithVerificationStatus(id)
-      .then(
-        function (session) {
-          return this.accountDevices(session.uid)
-            .then(
-              function (devices) {
-                var device = devices.filter(
-                  function (d) {
-                    return d.sessionTokenId.toString('hex') === id.toString('hex')
-                  }
-                )[0]
-                if (device) {
-                  session.deviceId = device.id
-                  session.deviceName = device.name
-                  session.deviceType = device.type
-                  session.deviceCreatedAt = device.createdAt
-                  session.deviceCallbackURL = device.callbackURL
-                  session.deviceCallbackPublicKey = device.callbackPublicKey
-                  session.deviceCallbackAuthKey = device.callbackAuthKey
-                  session.deviceCallbackIsExpired = device.callbackIsExpired
-                }
-                return session
-              }
-            )
-        }.bind(this)
-      )
+  Memory.prototype.sessionToken = function (id) {
+    id = id.toString('hex')
+
+    if (! sessionTokens[id]) {
+      return P.reject(error.notFound())
+    }
+
+    var item = {}
+
+    item.tokenData = sessionTokens[id].data
+    item.uid = sessionTokens[id].uid
+    item.createdAt = sessionTokens[id].createdAt
+    item.uaBrowser = sessionTokens[id].uaBrowser || null
+    item.uaBrowserVersion = sessionTokens[id].uaBrowserVersion || null
+    item.uaOS = sessionTokens[id].uaOS || null
+    item.uaOSVersion = sessionTokens[id].uaOSVersion || null
+    item.uaDeviceType = sessionTokens[id].uaDeviceType || null
+    item.uaFormFactor = sessionTokens[id].uaFormFactor || null
+    item.lastAccessTime = sessionTokens[id].lastAccessTime
+    item.authAt = sessionTokens[id].authAt || sessionTokens[id].createdAt
+
+    var accountId = sessionTokens[id].uid.toString('hex')
+    var account = accounts[accountId]
+
+    item.verifierSetAt = account.verifierSetAt
+    item.locale = account.locale
+    item.accountCreatedAt = account.createdAt
+
+    if (unverifiedTokens[id]) {
+      item.mustVerify = unverifiedTokens[id].mustVerify
+      item.tokenVerificationId = unverifiedTokens[id].tokenVerificationId
+      item.tokenVerificationCodeHash = unverifiedTokens[id].tokenVerificationCodeHash
+      item.tokenVerificationCodeExpiresAt = unverifiedTokens[id].tokenVerificationCodeExpiresAt
+
+    } else {
+      item.mustVerify = null
+      item.tokenVerificationId = null
+      item.tokenVerificationCodeHash = null
+      item.tokenVerificationCodeExpiresAt = null
+    }
+
+    return P.all([this.accountEmails(accountId), this.accountDevices(item.uid)])
+      .spread((emails, devices) => {
+        // Set the primary email on the sessionToken, which
+        // could be different from the email on the account object
+        emails.some((email) => {
+          if (email.isPrimary) {
+            item.emailVerified = email.isVerified
+            item.email = email.email
+            item.emailCode = email.emailCode
+            return true
+          }
+        })
+
+        const device = devices.filter((d) => {
+          return d.sessionTokenId.toString('hex') === id.toString('hex')
+        })[0]
+
+        if (device) {
+          item.deviceId = device.id
+          item.deviceName = device.name
+          item.deviceType = device.type
+          item.deviceCreatedAt = device.createdAt
+          item.deviceCallbackURL = device.callbackURL
+          item.deviceCallbackPublicKey = device.callbackPublicKey
+          item.deviceCallbackAuthKey = device.callbackAuthKey
+          item.deviceCallbackIsExpired = device.callbackIsExpired
+        }
+
+        return item
+      })
   }
 
   // account():
@@ -629,77 +673,6 @@ module.exports = function (log, error) {
       return sessions
     })
 
-  }
-
-  // sessionToken()
-  //
-  // Takes:
-  //   - id - a string of hex chars
-  Memory.prototype.sessionToken = function (id) {
-    id = id.toString('hex')
-
-    if (! sessionTokens[id]) {
-      return P.reject(error.notFound())
-    }
-
-    var item = {}
-
-    item.tokenData = sessionTokens[id].data
-    item.uid = sessionTokens[id].uid
-    item.createdAt = sessionTokens[id].createdAt
-    item.uaBrowser = sessionTokens[id].uaBrowser || null
-    item.uaBrowserVersion = sessionTokens[id].uaBrowserVersion || null
-    item.uaOS = sessionTokens[id].uaOS || null
-    item.uaOSVersion = sessionTokens[id].uaOSVersion || null
-    item.uaDeviceType = sessionTokens[id].uaDeviceType || null
-    item.uaFormFactor = sessionTokens[id].uaFormFactor || null
-    item.lastAccessTime = sessionTokens[id].lastAccessTime
-    item.authAt = sessionTokens[id].authAt || sessionTokens[id].createdAt
-
-    var accountId = sessionTokens[id].uid.toString('hex')
-    var account = accounts[accountId]
-
-    item.verifierSetAt = account.verifierSetAt
-    item.locale = account.locale
-    item.accountCreatedAt = account.createdAt
-
-    return this.accountEmails(accountId)
-      .then((emails) => {
-
-        // Set the primary email on the sessionToken, which
-        // could be different from the email on the account object
-        emails.some((email) => {
-          if (email.isPrimary) {
-            item.emailVerified = email.isVerified
-            item.email = email.email
-            item.emailCode = email.emailCode
-            return true
-          }
-        })
-
-        return item
-      })
-  }
-
-  Memory.prototype.sessionTokenWithVerificationStatus = function (tokenId) {
-    tokenId = tokenId.toString('hex')
-
-    return this.sessionToken(tokenId)
-      .then(function (sessionToken) {
-        if (unverifiedTokens[tokenId]) {
-          sessionToken.mustVerify = unverifiedTokens[tokenId].mustVerify
-          sessionToken.tokenVerificationId = unverifiedTokens[tokenId].tokenVerificationId
-          sessionToken.tokenVerificationCodeHash = unverifiedTokens[tokenId].tokenVerificationCodeHash
-          sessionToken.tokenVerificationCodeExpiresAt = unverifiedTokens[tokenId].tokenVerificationCodeExpiresAt
-
-        } else {
-          sessionToken.mustVerify = null
-          sessionToken.tokenVerificationId = null
-          sessionToken.tokenVerificationCodeHash = null
-          sessionToken.tokenVerificationCodeExpiresAt = null
-        }
-        return sessionToken
-      })
   }
 
   Memory.prototype.keyFetchToken = function (id) {
