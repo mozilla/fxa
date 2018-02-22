@@ -1,0 +1,158 @@
+baseurl = "https://example.org"
+title = "Firefox Application Services"
+theme = "hugo-universal-theme"
+themesDir = "themes"
+languageCode = "en-us"
+# Site language. Available translations in the theme's `/i18n` directory.
+defaultContentLanguage = "en"
+# Enable comments by entering your Disqus shortname
+disqusShortname = "devcows"
+# Enable Google Analytics by entering your tracking code
+googleAnalytics = ""
+
+# Define the number of posts per page
+paginate = 10
+summaryLength = 10
+
+[menu]
+
+# Main menu
+
+[[menu.main]]
+    name = "Blog"
+    url  = "/blog/"
+    weight = 2
+
+
+[[menu.main]]
+    name = "Integrate now"
+    url  = "/contact/"
+    weight = 4
+
+# Top bar social links menu
+
+[[menu.topbar]]
+    weight = 1
+    name = "GitHub"
+    url = "https://github.com/devcows/hugo-universal-theme"
+    pre = "<i class='fa fa-2x fa-github'></i>"
+
+[[menu.topbar]]
+    weight = 2
+    name = "Facebook"
+    url = "http://facebook.com"
+    pre = "<i class='fa fa-2x fa-facebook'></i>"
+
+[[menu.topbar]]
+    weight = 3
+    name = "Twitter"
+    url = "http://twitter.com"
+    pre = "<i class='fa fa-2x fa-twitter'></i>"
+
+[[menu.topbar]]
+    weight = 4
+    name = "Email"
+    url = "mailto:your@email.com"
+    pre = "<i class='fa fa-2x fa-envelope'></i>"
+
+[params]
+    viewMorePostLink = "/blog/"
+    author = "DevCows"
+    defaultKeywords = ["devows", "hugo", "go"]
+    defaultDescription = "Site template made by devcows using hugo"
+
+    # Google Maps API key (if not set will default to not passing a key.)
+    googleMapsApiKey = "AIzaSyCFhtWLJcE30xOAjcbSFi-0fnoVmQZPb1Y"
+
+    # Style options: default (light-blue), blue, green, marsala, pink, red, turquoise, violet
+    style = "default"
+
+    # Since this template is static, the contact form uses www.formspree.io as a
+    # proxy. The form makes a POST request to their servers to send the actual
+    # email. Visitors can send up to a 1000 emails each month for free.
+    #
+    # What you need to do for the setup?
+    #
+    # - set your email address under 'email' below
+    # - upload the generated site to your server
+    # - send a dummy email yourself to confirm your account
+    # - click the confirm link in the email from www.formspree.io
+    # - you're done. Happy mailing!
+    #
+    # Enable the contact form by entering your Formspree.io email
+    email = "your@email.com"
+
+    about_us = "<p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>"
+    copyright = "Copyright (c) 3000, Firefox Application Services"
+
+    # Format dates with Go's time formatting
+    date_format = "January 2, 2006"
+
+    logo = "img/logo.png"
+    address = """<p><strong>Universal Ltd.</strong>
+        <br>13/25 New Avenue
+        <br>Newtown upon River
+        <br>45Y 73J
+        <br>England
+        <br>
+        <strong>Great Britain</strong>
+      </p>
+      """
+    latitude = "-12.043333"
+    longitude = "-77.028333"
+
+[Permalinks]
+    blog = "/blog/:year/:month/:day/:filename/"
+
+# Enable or disable top bar with social icons
+[params.topbar]
+    enable = true
+    text = """
+      """
+
+# Enable and disable widgets for the right sidebar
+[params.widgets]
+    categories = true
+    tags = true
+    search = true
+
+[params.carousel]
+    enable = true
+    # All carousel items are defined in their own files. You can find example items
+    # at 'exampleSite/data/carousel'.
+    # For more informtion take a look at the README.
+
+[params.features]
+    enable = true
+    # All features are defined in their own files. You can find example items
+    # at 'exampleSite/data/features'.
+    # For more informtion take a look at the README.
+
+[params.testimonials]
+    enable = true
+    # All testimonials are defined in their own files. You can find example items
+    # at 'exampleSite/data/testimonials'.
+    # For more informtion take a look at the README.
+    title = "Testimonials"
+    subtitle = "We have worked with many clients and we always like to hear they come out from the cooperation happy and satisfied. Have a look what our clients said about us."
+
+[params.see_more]
+    enable = true
+    icon = "fa fa-file-code-o"
+    title = "Do you need authentication in your app?"
+    subtitle = "Firefox Accounts provides the best authentication solution with 2FA, encryption and more..."
+    link_url = "fxa"
+    link_text = "Integrate with FxA"
+
+[params.clients]
+    enable = true
+    # All clients are defined in their own files. You can find example items
+    # at 'exampleSite/data/clients'.
+    # For more informtion take a look at the README.
+    title = "Our Products"
+    subtitle = ""
+
+[params.recent_posts]
+    enable = true
+    title = "From our blog"
+    subtitle = "Read about the latest updates to Firefox Application Development"

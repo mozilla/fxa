@@ -1,0 +1,5 @@
+weight: 4
+name: "Web Extensions"
+icon: "fa fa-lightbulb-o"
+url: "https://developer.mozilla.org/en-US/Add-ons/WebExtensions"
+description: "Extend existing browser products with WebExtensions."

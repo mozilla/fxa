@@ -1,0 +1,5 @@
+weight: 2
+name: "Sync"
+icon: "fa fa-print"
+url: "https://moz-services-docs.readthedocs.io/en/latest/howtos/run-sync-1.5.html"
+description: "The place to store all your user data across different browsers."

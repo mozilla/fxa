@@ -1,0 +1,5 @@
+weight: 1
+name: "Firefox Accounts"
+icon: "fa fa-desktop"
+url: "fxa"
+description: "Open source authentication system with OAuth, 2FA, end-to-end encryption services."

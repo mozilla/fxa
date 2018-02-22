@@ -1,0 +1,5 @@
+weight: 3
+name: "Push"
+icon: "fa fa-globe"
+url: "push"
+description: "Send any content to all of your devices"
