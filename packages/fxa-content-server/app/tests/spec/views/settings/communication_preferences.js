@@ -225,6 +225,19 @@ define(function (require, exports, module) {
         assert.lengthOf(args, 1);
         assert.equal(args[0], 'newsletter.manage');
       });
+
+      it('correctly handles no `preferencesUrl` as service unavailable', () => {
+        sinon.stub(view, 'getMarketingEmailPrefs').callsFake(() => {
+          return {
+            get: () => undefined
+          };
+        });
+
+        view._openManagePage();
+
+        assert.equal(view.$('.error').text().trim(), MarketingEmailErrors.toMessage('ACCOUNT_PREFS_NOT_FOUND'));
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'error.settings.communication-preferences.basket-errors.13'));
+      });
     });
   });
 });

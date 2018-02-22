@@ -131,7 +131,12 @@ define(function (require, exports, module) {
       this.logFlowEvent('newsletter.manage');
 
       const emailPrefs = this.getMarketingEmailPrefs();
-      this.window.open(emailPrefs.get('preferencesUrl'), '_blank');
+      const preferencesUrl = emailPrefs.get('preferencesUrl');
+      if (! preferencesUrl) {
+        this.displayError(MarketingEmailErrors.toError('ACCOUNT_PREFS_NOT_FOUND'));
+      } else {
+        this.window.open(preferencesUrl, '_blank');
+      }
     }
   });
 

@@ -68,6 +68,10 @@ define(function (require, exports, module) {
       errno: 12,
       message: UNEXPECTED_ERROR
     },
+    ACCOUNT_PREFS_NOT_FOUND: {
+      errno: 13,
+      message: t('Service unavailable, try again soon')
+    },
     UNKNOWN_ERROR: {
       errno: 99,
       message: UNEXPECTED_ERROR
