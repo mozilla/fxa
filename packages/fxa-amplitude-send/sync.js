@@ -223,7 +223,7 @@ function getServerTime (keys, values) {
       return true
     }
   })) {
-    return parseInt(values[serverTimeIndex])
+    return parseInt(values[serverTimeIndex] * 1000)
   }
 }
 
