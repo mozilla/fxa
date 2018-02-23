@@ -121,6 +121,7 @@ define(function (require, exports, module) {
         assert.equal(view.navigate.calledOnce, false);
         view._rememberPassword();
         assert.ok(view.navigate.calledOnce);
+        assert.ok(view.navigate.args[0], 'signin', 'navigates to signin');
       });
     });
 
@@ -305,6 +306,7 @@ define(function (require, exports, module) {
       });
 
       sinon.spy(view, '_resetPassword');
+      sinon.spy(view, 'navigate');
 
       return view.render();
     });
@@ -324,6 +326,14 @@ define(function (require, exports, module) {
       assert.lengthOf(view.$('.remember-password'), 1);
 
       assert.isFalse(view._resetPassword.called);
+    });
+
+
+    it('redirects back to force_auth on remembering password', () => {
+      assert.equal(view.navigate.calledOnce, false);
+      view._rememberPassword();
+      assert.ok(view.navigate.calledOnce);
+      assert.ok(view.navigate.args[0], 'force_auth', 'navigates to force_auth');
     });
   });
 

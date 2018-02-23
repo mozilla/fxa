@@ -184,6 +184,7 @@ registerSuite('oauth permissions for untrusted reliers', {
 
         .then(type(selectors.SIGNUP.EMAIL, email))
         .then(type(selectors.SIGNUP.PASSWORD, PASSWORD))
+        .then(type(selectors.SIGNUP.VPASSWORD, PASSWORD))
         // age not filled in, submit works anyways.
         .then(click(selectors.SIGNUP.SUBMIT))
 
