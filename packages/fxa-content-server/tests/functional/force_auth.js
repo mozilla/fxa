@@ -7,6 +7,7 @@
 const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
 var clearBrowserState = FunctionalHelpers.clearBrowserState;
 var click = FunctionalHelpers.click;
 var createUser = FunctionalHelpers.createUser;
@@ -162,16 +163,16 @@ registerSuite('force_auth', {
       return this.remote
         .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(openForceAuth({query: {email: email}}))
+
         .then(click('.reset-password'))
 
         .then(testElementExists('#fxa-reset-password-header'))
         .then(testElementValueEquals('input[type=email]', email))
         .then(testElementDisabled('input[type=email]'))
         .then(testElementTextInclude('.prefillEmail', email))
-
         // User thinks they have remembered their password, clicks the
         // "sign in" link. Go back to /force_auth.
-        .then(click('.sign-in'))
+        .then(click(selectors.RESET_PASSWORD.LINK_SIGNIN))
 
         .then(testElementExists('#fxa-force-auth-header'))
         // User goes back to reset password to submit.

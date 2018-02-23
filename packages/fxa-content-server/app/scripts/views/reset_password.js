@@ -80,7 +80,12 @@ define(function (require, exports, module) {
      *
      */
     _rememberPassword () {
-      this.navigate('signin');
+      // if there is a forced email then we want to direct back to force_auth
+      if (this.model.get('forceEmail')) {
+        this.navigate('force_auth');
+      } else {
+        this.navigate('signin');
+      }
     }
 
     _resetPassword (email) {
