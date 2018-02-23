@@ -10,11 +10,9 @@ const TIME_FORMAT = /(201[78])-([0-9]{2})-([0-9]{2})-([0-9]{2})-([0-9]{2})/
 const CATEGORY_FORMAT = /logging\.s3\.fxa\.([a-z]+)_server/
 const VERBOSE = false
 
-const args = process.argv.slice(2);
-const fileNames = args.map((directory) => {
-    return fs.readdirSync(directory).map((file) => { return path.join(directory, file) })
-  })
-  .reduce((a, b) => { return a.concat(b) }, [])
+const args = process.argv.slice(2)
+const fileNames = args.map(dir => fs.readdirSync(dir).map((file) => path.join(dir, file)))
+  .reduce((result, fileName) => result.concat(fileName), [])
 
 const missingUserAndDeviceAndSessionIds = createStat()
 const missingUserAndDeviceIds = createStat()
@@ -50,9 +48,9 @@ const events = fileNames.reduce((previousEvents, fileName) => {
   const target = timestamp(time)
   const isContentServerEvent = category === 'content'
 
-  const fileBuffer = fs.readFileSync(fileName);
-  let text;
-  if (fileBuffer[0] == 0x1F && fileBuffer[1] == 0x8B && fileBuffer[2] == 0x8) {
+  const fileBuffer = fs.readFileSync(fileName)
+  let text
+  if (fileBuffer[0] === 0x1f && fileBuffer[1] === 0x8b && fileBuffer[2] === 0x8) {
     text = zlib.gunzipSync(fileBuffer).toString('utf8')
   } else {
     text = fileBuffer.toString('utf8')
@@ -60,7 +58,7 @@ const events = fileNames.reduce((previousEvents, fileName) => {
 
   const lines = text.split('\n')
   const data = lines
-    .filter(line => !! line.trim() && line.indexOf("amplitudeEvent") !== -1)
+    .filter(line => line.indexOf('amplitudeEvent') !== -1)
     .map((line, index) => {
       let event
       try {
@@ -84,21 +82,21 @@ const events = fileNames.reduce((previousEvents, fileName) => {
 
       if (! uid) {
         if (! deviceId) {
-          if (! sessionId) {
-            missingUserAndDeviceAndSessionIds[category].push(datum)
-          } else {
+          if (sessionId) {
             missingUserAndDeviceIds[category].push(datum)
+          } else {
+            missingUserAndDeviceAndSessionIds[category].push(datum)
           }
-        } else if (! sessionId) {
-          missingUserAndSessionIds[category].push(datum)
-        } else {
+        } else if (sessionId) {
           missingUserIds[category].push(datum)
+        } else {
+          missingUserAndSessionIds[category].push(datum)
         }
       } else if (! deviceId) {
-        if (! sessionId) {
-          missingDeviceAndSessionIds[category].push(datum)
-        } else {
+        if (sessionId) {
           missingDeviceIds[category].push(datum)
+        } else {
+          missingDeviceAndSessionIds[category].push(datum)
         }
       } else if (! sessionId) {
         missingSessionIds[category].push(datum)
@@ -167,14 +165,8 @@ displayConflict('user_id', conflictingUserIds)
 displayConflict('device_id', conflictingDeviceIds)
 displayConflict('session_id', conflictingSessionIds)
 
-function usage () {
-  console.error(`Usage: node ${args[1]} FROM UNTIL`)
-  console.error('FROM and UNTIL are both YYYY-MM-DD-hh-mm')
-  process.exit(1)
-}
-
 function createStat () {
-   return {
+  return {
     content: [],
     auth: []
   }
