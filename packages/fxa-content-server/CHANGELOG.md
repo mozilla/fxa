@@ -1,3 +1,13 @@
+<a name="1.106.3"></a>
+## 1.106.3 (2018-02-23)
+
+
+### Bug Fixes
+
+* **tests:** fixes for oauth tests and reset password (#5928) r=@philbooth ([a151f7c](https://github.com/mozilla/fxa-content-server/commit/a151f7c)), closes [(#5928](https://github.com/(/issues/5928) [#5927](https://github.com/mozilla/fxa-content-server/issues/5927)
+
+
+
 <a name="1.106.2"></a>
 ## 1.106.2 (2018-02-21)
 
