@@ -13,7 +13,11 @@ const checksum = require('checksum');
 
 const assert = require('insist');
 const P = require('../lib/promise');
+const config = require('../lib/config');
+const avatarShared = require('../lib/routes/avatar/_shared');
 const assertSecurityHeaders = require('./lib/util').assertSecurityHeaders;
+
+const DEFAULT_AVATAR_ID = config.get('img.defaultAvatarId');
 
 function randomHex(bytes) {
   return crypto.randomBytes(bytes).toString('hex');
@@ -73,7 +77,7 @@ describe('/profile', function() {
       assert.equal(res.statusCode, 200);
       assert.equal(res.result.uid, USERID);
       assert.equal(res.result.email, 'user@example.domain');
-      assert.equal(res.result.avatar, null);
+      assert.equal(res.result.avatar, avatarShared.fxaUrl(DEFAULT_AVATAR_ID), 'return default avatar');
       assertSecurityHeaders(res);
     });
   });

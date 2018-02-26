@@ -84,7 +84,7 @@ curl -v \
 {
   "uid": "6d940dd41e636cc156074109b8092f96",
   "email": "user@example.domain",
-  "avatar": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96"
+  "avatar": "https://firefoxusercontent.com/a9bff302615cd015692a099f691205cc"
 }
 ```
 
@@ -166,14 +166,26 @@ curl -v \
 "https://profile.accounts.firefox.com/v1/avatar"
 ```
 
-#### Response
+
+#### Response 
 
 ```json
 {
-  "id": "81625c14128d46c2b600e74a017fa4a8",
-  "url": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96"
+  "id": "a9bff302615cd015692a099f691205cc",
+  "avatar": "https://firefoxusercontent.com/a9bff302615cd015692a099f691205cc"
 }
 ```
+
+
+#### Response (no avatar set)
+
+```json
+{
+  "id": "00000000000000000000000000000000",
+  "avatar": "https://firefoxusercontent.com/00000000000000000000000000000000"
+}
+```
+
 
 ### POST /v1/avatar/upload
 
