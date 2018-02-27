@@ -372,7 +372,7 @@ module.exports = function(cfg, makeServer) {
             assert.deepEqual(token.emailCode, user.account.emailCode, 'token emailCode same as account emailCode')
             assert(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
             assert(token.accountCreatedAt > 0, 'accountCreatedAt is positive number')
-            assert.equal(!! token.mustVerify, !! user.sessionToken.mustVerify, 'mustVerify is correct')
+            assert.equal(token.mustVerify, user.sessionToken.mustVerify, 'mustVerify is correct')
             assert.equal(token.tokenVerificationId, user.sessionToken.tokenVerificationId, 'tokenVerificationId is correct')
 
             // Create a verified session token
@@ -403,7 +403,7 @@ module.exports = function(cfg, makeServer) {
             assert.deepEqual(token.emailCode, verifiedUser.account.emailCode, 'token emailCode same as account emailCode')
             assert(token.verifierSetAt, 'verifierSetAt is set to a truthy value')
             assert(token.accountCreatedAt > 0, 'accountCreatedAt is positive number')
-            assert.equal(token.mustVerify, null, 'mustVerify is null')
+            assert.equal(token.mustVerify, true, 'mustVerify is true')
             assert.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
 
             // Attempt to verify a non-existent session token
@@ -436,7 +436,7 @@ module.exports = function(cfg, makeServer) {
             return client.getThen('/sessionToken/' + user.sessionTokenId)
           })
           .then(function(r) {
-            assert.equal(r.obj.mustVerify, null, 'mustVerify is null')
+            assert.equal(!! r.obj.mustVerify, true, 'mustVerify is true')
             assert.equal(r.obj.tokenVerificationId, null, 'tokenVerificationId is null')
 
             // Attempt to verify the session token again
@@ -1524,8 +1524,8 @@ module.exports = function(cfg, makeServer) {
             .spread((sessionTokenResp, keyFetchTokenResp) => {
               respOk(sessionTokenResp)
               respOk(keyFetchTokenResp)
-              const sessionToken = sessionTokenResp
-              const keyFetchToken = keyFetchTokenResp
+              const sessionToken = sessionTokenResp.obj
+              const keyFetchToken = keyFetchTokenResp.obj
               assert.equal(sessionToken.tokenVerificationId, null, 'tokenVerificationCodeHash not set')
               assert.equal(sessionToken.tokenVerificationCodeHash, null, 'tokenVerificationCodeHash not set')
               assert.equal(sessionToken.tokenVerificationCodeExpiresAt, null, 'tokenVerificationCodeExpiresAt not set')
@@ -1537,7 +1537,6 @@ module.exports = function(cfg, makeServer) {
 
     describe('totp tokens', () => {
       let user
-
       beforeEach(() => {
         user = fake.newUserDataHex()
         return client.putThen('/account/' + user.accountId, user.account)
@@ -1554,6 +1553,8 @@ module.exports = function(cfg, makeServer) {
             const result = r.obj
             assert.equal(result.sharedSecret, user.totp.sharedSecret, 'sharedSecret set')
             assert.equal(result.epoch, user.totp.epoch, 'epoch set')
+            assert.equal(result.verified, user.totp.verified, 'verified set')
+            assert.equal(result.enabled, user.totp.enabled, 'enabled set')
           })
       })
 
@@ -1565,6 +1566,57 @@ module.exports = function(cfg, makeServer) {
               .then(assert.fail, (err) => testNotFound(err))
           })
       })
+
+      it('should update totp token', () => {
+        const totpOptions = {
+          verified: true,
+          enabled: true
+        }
+        return client.postThen('/totp/' + user.accountId + '/update', totpOptions)
+          .then((r) => {
+            respOkEmpty(r)
+            return client.getThen('/totp/' + user.accountId)
+              .then((r) => {
+                const result = r.obj
+                assert.equal(result.sharedSecret, user.totp.sharedSecret, 'sharedSecret set')
+                assert.equal(result.epoch, user.totp.epoch, 'epoch set')
+                assert.equal(result.verified, totpOptions.verified, 'verified set')
+                assert.equal(result.enabled, user.totp.enabled, 'enable set')
+              })
+          })
+      })
+    })
+
+    describe('should set session verification method', () => {
+      let user
+      beforeEach(() => {
+        user = fake.newUserDataHex()
+        return client.putThen('/account/' + user.accountId, user.account)
+          .then((r) => {
+            respOkEmpty(r)
+            return client.putThen('/totp/' + user.accountId, user.totp)
+          })
+          .then((r) => respOkEmpty(r))
+          .then(() => client.putThen('/sessionToken/' + user.sessionTokenId, user.sessionToken))
+          .then((res) => respOkEmpty(res))
+      })
+
+      it('set session verification method', () => {
+        const verifyOptions = {
+          verificationMethod: 'totp-2fa',
+        }
+        return client.postThen('/tokens/' + user.sessionTokenId + '/verifyWith', verifyOptions)
+          .then((res) => {
+            respOkEmpty(res)
+            return client.getThen('/sessionToken/' + user.sessionTokenId + '/device')
+          })
+          .then((sessionToken) => {
+            sessionToken = sessionToken.obj
+            assert.equal(sessionToken.verificationMethod, 2, 'verificationMethod set')
+            assert.ok(sessionToken.verifiedAt, 'verifiedAt set')
+          })
+      })
+
     })
 
     after(() => server.close())

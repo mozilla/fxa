@@ -72,6 +72,17 @@ AppError.expiredTokenVerificationCode = function () {
   )
 }
 
+AppError.invalidVerificationMethod = function () {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad request',
+      errno: 138,
+      message: 'Invalid verification method'
+    }
+  )
+}
+
 AppError.wrap = function (err) {
   return new AppError(
     {

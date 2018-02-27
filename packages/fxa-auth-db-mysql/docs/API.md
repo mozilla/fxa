@@ -91,13 +91,15 @@ The following datatypes are used throughout this document:
     * forgotPasswordVerified    : `POST /passwordForgotToken/:id/verified`
 * Unverified tokens:
     * verifyTokens              : `POST /tokens/:tokenVerificationId/verify`
+    * verifyTokensWithMethod    : `POST /tokens/:tokenId/verifyWith`
 * Sign-in codes
     * createSigninCode          : `PUT /signinCodes/:code`
     * consumeSigninCode         : `POST /signinCodes/:code/consume`
-* TOTP resetTokens
+* TOTP tokens:
     * createTotpToken           : `PUT /totp/:id`
     * totpToken                 : `GET /totp/:id`
     * deleteTotpToken           : `DEL /totp/:id`
+    * updateTotpToken           : `POST /totp/:id/update`
 
 ## Ping : `GET /`
 
@@ -1743,6 +1745,53 @@ Content-Length: 2
     * Body : {"code":"InternalError","message":"...<message related to the error>..."}
 ```
 
+## verifyTokens : `POST /tokens/<tokenId>/verifyWith`
+
+This method verifies sessionTokens, keyFetchTokens and sets
+the the verification method used on the sessions table.
+
+### Example
+
+```
+curl \
+    -v \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"verificatioMethod":"totp-2fa"}' \
+    http://localhost:8000/tokens/8e8c27b704dbf6a5dc556453c92e7506/verifyWith
+```
+
+### Request
+
+* Method : POST
+* Path : `/tokens/<tokenId>/verifyWith`
+    * tokenVerificationId : hex128
+* Params:
+    * uid : hex128
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : 200 OK
+    * Content-Type : 'application/json'
+    * Body : {}
+* Status Code : 404 Not Found
+    * Conditions: if no unverified tokens exist for tokenId
+    * Content-Type : 'application/json'
+    * Body : `{"message":"Not Found"}`
+* Status Code : 500 Internal Server Error
+    * Conditions: if something goes wrong on the server
+    * Content-Type : 'application/json'
+    * Body : {"code":"InternalError","message":"...<message related to the error>..."}
+```
+
 ## createSigninCode : `PUT /signinCodes/:code`
 
 Create a user-specific, time-limited, single-use code
@@ -1895,7 +1944,7 @@ curl \
 ### Request
 
 * Method : `GET`
-* Path : `/totp/<uid>
+* Path : `/totp/<uid>`
     * `uid` : hex   
 
 ### Response
@@ -1907,7 +1956,9 @@ Content-Length: 2
 
 {
   "sharedSecret": "LEVXGTLWMFITC6BSIF2DOQKTIU2WUOKJ",
-  "epoch": 0
+  "epoch": 0,
+  "verified": true,
+  "enable": true
 }
 ```
 
@@ -1939,7 +1990,49 @@ curl \
 ### Request
 
 * Method : `DEL`
-* Path : `/totp/<uid>
+* Path : `/totp/<uid>`
+    * `uid` : hex   
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `{}`  
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`
+
+## updateTotpToken : `POST /totp/:uid/update`
+
+Updates the user's TOTP token.
+
+### Example
+
+```
+curl \
+    -v \
+    -X DEL \
+    -H "Content-Type: application/json" \
+    -d '{
+        "verified" : true,
+        "enable": true
+    }' \    
+    http://localhost:8000/totp/1234567890ab/update   
+```
+
+### Request
+
+* Method : `POST`
+* Path : `/totp/<uid>/update`
     * `uid` : hex   
 
 ### Response

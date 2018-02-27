@@ -97,6 +97,7 @@ function createServer(db) {
       return db.deleteEmail(req.params.id, req.params.email)
     })
   )
+
   api.get('/email/:email',
     op(function (req) {
       return db.getSecondaryEmail(Buffer(req.params.email, 'hex'))
@@ -125,6 +126,7 @@ function createServer(db) {
 
   api.get('/keyFetchToken/:id/verified', withIdAndBody(db.keyFetchTokenWithVerificationStatus))
   api.post('/tokens/:id/verify', withIdAndBody(db.verifyTokens))
+  api.post('/tokens/:id/verifyWith', withIdAndBody(db.verifyTokensWithMethod))
   api.post('/tokens/:code/verifyCode', withParamsAndBody(db.verifyTokenCode))
 
   api.get('/accountResetToken/:id', withIdAndBody(db.accountResetToken))
@@ -156,6 +158,7 @@ function createServer(db) {
   api.get('/totp/:id', withIdAndBody(db.totpToken))
   api.del('/totp/:id', withIdAndBody(db.deleteTotpToken))
   api.put('/totp/:id', withIdAndBody(db.createTotpToken))
+  api.post('/totp/:id/update', withIdAndBody(db.updateTotpToken))
 
   api.get('/__heartbeat__', withIdAndBody(db.ping))
 

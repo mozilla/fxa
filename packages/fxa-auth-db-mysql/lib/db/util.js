@@ -31,6 +31,12 @@ const BOUNCE_SUB_TYPES = new Map([
   ['virus', 14]
 ])
 
+const VERIFICATION_METHODS = new Map([
+  ['email', 0],     // sign-in confirmation email link
+  ['email-2fa', 1], // sign-in confirmation email code (token code)
+  ['totp-2fa', 2]   // TOTP code
+])
+
 module.exports = {
 
   mapEmailBounceType(val) {
@@ -46,6 +52,14 @@ module.exports = {
       return val
     } else {
       return BOUNCE_SUB_TYPES.get(val) || 0
+    }
+  },
+
+  mapVerificationMethodType(val) {
+    if (typeof val === 'number') {
+      return val
+    } else {
+      return VERIFICATION_METHODS.get(val) || undefined
     }
   },
 

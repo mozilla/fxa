@@ -128,7 +128,9 @@ module.exports.newUserDataHex = function() {
 
   data.totp = {
     sharedSecret: hex(10),
-    epoch: 0
+    epoch: 0,
+    verified: false,
+    enabled: true
   }
 
   return data

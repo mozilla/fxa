@@ -208,7 +208,7 @@ module.exports = function (log, error) {
   //          uaBrowser = $5, uaBrowserVersion = $6, uaOS = $7, uaOSVersion = $8,
   //          uaDeviceType = $9, uaFormFactor = $10, tokenVerificationId = $11
   //          mustVerify = $12, tokenVerificationCode = $13, tokenVerificationCodeExpiresAt = $14
-  var CREATE_SESSION_TOKEN = 'CALL createSessionToken_8(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  var CREATE_SESSION_TOKEN = 'CALL createSessionToken_9(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createSessionToken = function (tokenId, sessionToken) {
     return this.write(
@@ -397,7 +397,7 @@ module.exports = function (log, error) {
   //          ut.tokenVerificationId, ut.mustVerify
   // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = d.sessionTokenId AND
   //          t.uid = d.uid AND t.tokenId = u.tokenId
-  var SESSION_DEVICE = 'CALL sessionWithDevice_11(?)'
+  var SESSION_DEVICE = 'CALL sessionWithDevice_12(?)'
 
   MySql.prototype.sessionToken = function (id) {
     return this.readFirstResult(SESSION_DEVICE, [id])
@@ -495,7 +495,7 @@ module.exports = function (log, error) {
   //          uaDeviceType = $6, uaFormFactor = $7, lastAccessTime = $8,
   //          authAt = $9, mustVerify = $10
   // Where  : tokenId = $1
-  var UPDATE_SESSION_TOKEN = 'CALL updateSessionToken_2(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  var UPDATE_SESSION_TOKEN = 'CALL updateSessionToken_3(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.updateSessionToken = function (tokenId, token) {
     return this.write(
@@ -1270,7 +1270,7 @@ module.exports = function (log, error) {
     return this.write(CREATE_TOTP_TOKEN, [uid, data.sharedSecret, data.epoch, Date.now()])
   }
 
-  const GET_TOTP_TOKEN = 'CALL totpToken_1(?)'
+  const GET_TOTP_TOKEN = 'CALL totpToken_2(?)'
   MySql.prototype.totpToken = function (uid) {
     return this.readFirstResult(GET_TOTP_TOKEN, [uid])
   }
@@ -1278,6 +1278,45 @@ module.exports = function (log, error) {
   const DELETE_TOTP_TOKEN = 'CALL deleteTotpToken_1(?)'
   MySql.prototype.deleteTotpToken = function (uid) {
     return this.write(DELETE_TOTP_TOKEN, [uid])
+  }
+
+  const UPDATE_TOTP_TOKEN = 'CALL updateTotpToken_1(?, ?, ?)'
+  MySql.prototype.updateTotpToken = function (uid, token) {
+    return this.read(UPDATE_TOTP_TOKEN, [
+      uid,
+      token.verified,
+      token.enabled
+    ]).then((result) => {
+      if (result.affectedRows === 0) {
+        throw error.notFound()
+      }
+      return P.resolve({})
+    })
+  }
+
+  const VERIFY_SESSION_WITH_METHOD = 'CALL verifyTokensWithMethod_1(?, ?, ?)'
+  MySql.prototype.verifyTokensWithMethod = function (tokenId, data) {
+    return P.resolve()
+      .then(() => {
+        const verificationMethod = dbUtil.mapVerificationMethodType(data.verificationMethod)
+
+        if (! verificationMethod) {
+          throw error.invalidVerificationMethod()
+        }
+
+        return this.readFirstResult(VERIFY_SESSION_WITH_METHOD, [
+          tokenId,
+          verificationMethod,
+          Date.now()
+        ])
+          .then((result) => {
+            if (result['@updateCount'] === 0) {
+              throw error.notFound()
+            }
+
+            return P.resolve({})
+          })
+      })
   }
 
   return MySql

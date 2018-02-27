@@ -38,6 +38,7 @@ There are a number of methods that a DB storage backend should implement:
     * .deleteKeyFetchToken(tokenId)
 * Unverified session tokens and key fetch tokens
     * .verifyTokens(tokenVerificationId, accountData)
+    * .verifyTokensWithMethod(tokenId, tokenData)
     * .verifyTokenCode(code, accountData)
 * Password Forgot Tokens
     * .createPasswordForgotToken(tokenId, passwordForgotToken)
@@ -65,6 +66,7 @@ There are a number of methods that a DB storage backend should implement:
     * .createTotpToken(uid, sharedSecret, epoch)
     * .totpToken(uid)
     * .deleteTotpToken(uid)
+    * .updateTotpToken(uid, tokenData)
 * General
     * .ping()
     * .close()
@@ -304,7 +306,7 @@ Returns:
         * an empty object `{}`
     * rejects with:
         * any errors from the underlying storage engine
-        
+
 ## .resetTokens(uid) ##
 
     Deletes all `accountResetTokens`, `passwordChangeTokens` and `passwordForgotTokens` from the asscociated `uid`.
@@ -347,10 +349,10 @@ Returns:
 * rejects: with one of:
     * `error.notFound()` if no account exists for this email address
     * any error from the underlying storage engine
-    
+
 ## .accountRecord(emailBuffer) ##
 
-Gets the account record related to this (normalized) email address by checking for email on emails table. 
+Gets the account record related to this (normalized) email address by checking for email on emails table.
 The email is provided in a Buffer.
 
 Parameters:
@@ -435,7 +437,7 @@ Returns:
 * rejects: with one of:
     * `error.notFound()` if no email address exists on emails table
     * any error from the underlying storage engine
-    
+
 ## Tokens ##
 
 All tokens (sessionTokens, keyFetchTokens, passwordForgotTokens, passwordChangeTokens, accountResetTokens) have three
@@ -588,6 +590,26 @@ Returns a promise that:
 * Rejects with any error
   from the underlying storage system
   (wrapped in `error.wrap()`).
+
+## .verifyTokensWithMethod(tokenId, tokenData)
+
+Verifies sessionTokens, keyFetchTokens and sets
+the verification method on the sessions table.
+
+`tokenData` is an object
+with a `verificationMethod` property.
+
+Verification methods currently supported are `email, email-2fa, totp-2fa`.
+
+Returns a promise that:
+
+* Resolves with an object `{}`
+  if a token was verified.
+* Rejects with error `{ code: 404, errno: 116 }`
+  if there was no matching token.
+* Rejects with any error
+  from the underlying storage system
+  (wrapped in `error.wrap()`).  
 
 ## .verifyTokenCode(code, accountData)
 
@@ -821,7 +843,7 @@ Returns:
        * epoch
   * Rejects with:
     * Any error from the underlying storage system (wrapped in `error.wrap()`)
-    * `error.duplicate()` if this user had a token already
+    * `error.notFound()` if this user does not have a token
 
 ## deleteTotpToken(uid)
 
@@ -838,3 +860,23 @@ Returns:
     * An empty object `{}`
   * Rejects with:
     * Any error from the underlying storage system (wrapped in `error.wrap()`)
+
+## updateTotpToken(uid, tokenData)
+
+  Update the TOTP token for the user.
+
+  Parameters:
+
+  * `uid` (Buffer16):
+    The uid of the owning account
+  * `tokenData`
+    * `verified`: Boolean whether TOTP token has been verified
+    * `enabled`: Boolean whether TOTP token is enabled
+
+  Returns:
+
+  * Resolves with:
+    * An empty object `{}`
+  * Rejects with:
+    * Any error from the underlying storage system (wrapped in `error.wrap()`)
+    * `error.notFound()` if this user does not have a token

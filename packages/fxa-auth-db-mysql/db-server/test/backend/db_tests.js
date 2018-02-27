@@ -353,7 +353,7 @@ module.exports = function (config, DB) {
             assert.deepEqual(token.emailCode, accountData.emailCode, 'token emailCode same as account emailCode')
             assert.equal(token.verifierSetAt, accountData.verifierSetAt, 'verifierSetAt is correct')
             assert.equal(token.accountCreatedAt, accountData.createdAt, 'accountCreatedAt is correct')
-            assert.equal(!! token.mustVerify, !! sessionTokenData.mustVerify, 'mustVerify is set')
+            assert.equal(token.mustVerify, sessionTokenData.mustVerify, 'mustVerify is set')
             assert.deepEqual(token.tokenVerificationId, sessionTokenData.tokenVerificationId, 'tokenVerificationId is set')
           })
       })
@@ -403,7 +403,7 @@ module.exports = function (config, DB) {
             assert.deepEqual(token.emailCode, accountData.emailCode, 'token emailCode same as account emailCode')
             assert.equal(token.verifierSetAt, accountData.verifierSetAt, 'verifierSetAt is correct')
             assert.equal(token.accountCreatedAt, accountData.createdAt, 'accountCreatedAt is correct')
-            assert.equal(!! token.mustVerify, !! sessionTokenData.mustVerify, 'mustVerify is correct')
+            assert.equal(token.mustVerify, sessionTokenData.mustVerify, 'mustVerify is correct')
             assert.deepEqual(token.tokenVerificationId, sessionTokenData.tokenVerificationId, 'tokenVerificationId is correct')
 
           })
@@ -418,7 +418,7 @@ module.exports = function (config, DB) {
             return db.sessionToken(sessionTokenData.tokenId)
           })
           .then((token) => {
-            assert.equal(!! token.mustVerify, !! sessionTokenData.mustVerify, 'mustVerify is correct')
+            assert.equal(token.mustVerify, sessionTokenData.mustVerify, 'mustVerify is correct')
             assert.deepEqual(token.tokenVerificationId, sessionTokenData.tokenVerificationId, 'tokenVerificationId is correct')
           })
       })
@@ -432,7 +432,7 @@ module.exports = function (config, DB) {
             return db.sessionToken(sessionTokenData.tokenId)
           })
           .then((token) => {
-            assert.equal(!! token.mustVerify, !! sessionTokenData.mustVerify, 'mustVerify is correct')
+            assert.equal(token.mustVerify, sessionTokenData.mustVerify, 'mustVerify is correct')
             assert.deepEqual(token.tokenVerificationId, sessionTokenData.tokenVerificationId, 'tokenVerificationId is correct')
           })
       })
@@ -443,7 +443,7 @@ module.exports = function (config, DB) {
             return db.sessionToken(sessionTokenData.tokenId)
           }, assert.fail)
           .then((token) => {
-            assert.equal(token.mustVerify, null, 'mustVerify is null')
+            assert.equal(!! token.mustVerify, false, 'mustVerify is null')
             assert.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
           })
       })
@@ -1761,7 +1761,7 @@ module.exports = function (config, DB) {
           })
           .then((session) => {
             // Returns verified session
-            assert.equal(session.mustVerify, null, 'mustVerify is not set')
+            assert.equal(!! session.mustVerify, false, 'mustVerify is false')
             assert.equal(session.tokenVerificationId, null, 'tokenVerificationId is not set')
             assert.equal(session.tokenVerificationCodeHash, null, 'tokenVerificationCodeHash is not set')
             assert.equal(session.tokenVerificationCodeExpiresAt, null, 'tokenVerificationCodeExpiresAt is not set')
@@ -1835,6 +1835,8 @@ module.exports = function (config, DB) {
           .then((token) => {
             assert.equal(token.sharedSecret, sharedSecret, 'correct sharedSecret')
             assert.equal(token.epoch, epoch, 'correct epoch')
+            assert.equal(token.verified, false, 'correct verified')
+            assert.equal(token.enabled, true, 'correct enabled')
           })
       })
 
@@ -1860,6 +1862,83 @@ module.exports = function (config, DB) {
               .then(assert.fail, (err) => {
                 assert.equal(err.errno, 116, 'correct errno, not found')
               })
+          })
+      })
+
+      it('should update totp token', () => {
+        return db.updateTotpToken(accountData.uid, {verified: true, enabled: true})
+          .then((result) => {
+            assert.ok(result)
+            return db.totpToken(accountData.uid)
+              .then((token) => {
+                assert.equal(token.sharedSecret, sharedSecret, 'correct sharedSecret')
+                assert.equal(token.epoch, epoch, 'correct epoch')
+                assert.equal(token.verified, true, 'correct verified')
+                assert.equal(token.enabled, true, 'correct enable')
+              })
+          })
+      })
+
+      it('should fail to update unknown totp token', () => {
+        return db.updateTotpToken(newUuid(), {verified: true, enabled: true})
+          .then(assert.fail, (err) => {
+            assert.equal(err.errno, 116, 'correct errno, not found')
+          })
+      })
+    })
+
+    describe('db.verifyTokensWithMethod', () => {
+      let account, sessionToken, tokenId
+      before(() => {
+        account = createAccount()
+        account.emailVerified = true
+        tokenId = hex32()
+        sessionToken = makeMockSessionToken(account.uid, false)
+        return db.createAccount(account.uid, account)
+          .then(() => db.createSessionToken(tokenId, sessionToken))
+          .then(() => db.sessionToken(tokenId))
+          .then((session) => {
+            // Returns unverified session
+            assert.equal(session.tokenVerificationId.toString('hex'), sessionToken.tokenVerificationId.toString('hex'), 'tokenVerificationId must match sessionToken')
+            assert.equal(session.verificationMethod, undefined, 'verificationMethod not set')
+          })
+      })
+
+      it('should fail to verify with unknown sessionId', () => {
+        const verifyOptions = {
+          verificationMethod: 'totp-2fa'
+        }
+        return db.verifyTokensWithMethod(hex32(), verifyOptions)
+          .then(assert.fail, (err) => {
+            assert.equal(err.errno, 116, 'correct errno, not found')
+          })
+      })
+
+      it('should fail to verify unknown verification method', () => {
+        const verifyOptions = {
+          verificationMethod: 'super-invalid-method'
+        }
+        return db.verifyTokensWithMethod(tokenId, verifyOptions)
+          .then(assert.fail, (err) => {
+            assert.equal(err.errno, 138, 'correct errno, invalid verification method')
+          })
+      })
+
+      it('should verify with verification method', () => {
+        const verifyOptions = {
+          verificationMethod: 'totp-2fa'
+        }
+        return db.verifyTokensWithMethod(tokenId, verifyOptions)
+          .then((res) => {
+            assert.ok(res)
+
+            // Ensure session really has been verified and correct methods set
+            return db.sessionToken(tokenId)
+          })
+          .then((session) => {
+            assert.equal(session.tokenVerificationId, undefined, 'tokenVerificationId must be undefined')
+            assert.equal(session.verificationMethod, 2, 'verificationMethod set')
+            assert.ok(session.verifiedAt, 'verifiedAt set')
           })
       })
     })

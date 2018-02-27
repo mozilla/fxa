@@ -38,7 +38,7 @@ var DEVICE_FIELDS = [
   'callbackIsExpired'
 ]
 
-var SESSION_FIELDS = [
+const SESSION_DEVICE_FIELDS = [
   'uaBrowser',
   'uaBrowserVersion',
   'uaOS',
@@ -117,7 +117,8 @@ module.exports = function (log, error) {
       uaOSVersion: sessionToken.uaOSVersion,
       uaDeviceType: sessionToken.uaDeviceType,
       uaFormFactor: sessionToken.uaFormFactor,
-      lastAccessTime: sessionToken.createdAt
+      lastAccessTime: sessionToken.createdAt,
+      mustVerify: !! sessionToken.mustVerify
     }
 
     if (sessionToken.tokenVerificationId) {
@@ -242,7 +243,7 @@ module.exports = function (log, error) {
     })
 
     if (session) {
-      SESSION_FIELDS.forEach(function (key) {
+      SESSION_DEVICE_FIELDS.forEach(function (key) {
         device[key] = session[key]
       })
       session.deviceKey = deviceKey
@@ -461,7 +462,7 @@ module.exports = function (log, error) {
                 var sessionKey = (device.sessionTokenId || '').toString('hex')
                 var session = sessionTokens[sessionKey]
                 if (session) {
-                  SESSION_FIELDS.forEach(function (key) {
+                  SESSION_DEVICE_FIELDS.forEach(function (key) {
                     device[key] = session[key]
                   })
                   device.email = account.email
@@ -540,6 +541,9 @@ module.exports = function (log, error) {
     item.uaFormFactor = sessionTokens[id].uaFormFactor || null
     item.lastAccessTime = sessionTokens[id].lastAccessTime
     item.authAt = sessionTokens[id].authAt || sessionTokens[id].createdAt
+    item.verificationMethod = sessionTokens[id].verificationMethod || null
+    item.verifiedAt = sessionTokens[id].verifiedAt || null
+    item.mustVerify = sessionTokens[id].mustVerify || null
 
     var accountId = sessionTokens[id].uid.toString('hex')
     var account = accounts[accountId]
@@ -549,13 +553,15 @@ module.exports = function (log, error) {
     item.accountCreatedAt = account.createdAt
 
     if (unverifiedTokens[id]) {
-      item.mustVerify = unverifiedTokens[id].mustVerify
+      if (! item.mustVerify) {
+        item.mustVerify = unverifiedTokens[id].mustVerify
+      }
+
       item.tokenVerificationId = unverifiedTokens[id].tokenVerificationId
       item.tokenVerificationCodeHash = unverifiedTokens[id].tokenVerificationCodeHash
       item.tokenVerificationCodeExpiresAt = unverifiedTokens[id].tokenVerificationCodeExpiresAt
 
     } else {
-      item.mustVerify = null
       item.tokenVerificationId = null
       item.tokenVerificationCodeHash = null
       item.tokenVerificationCodeExpiresAt = null
@@ -1207,8 +1213,27 @@ module.exports = function (log, error) {
 
     totpTokens[uid] = {
       sharedSecret: data.sharedSecret,
-      epoch: data.epoch || 0
+      epoch: data.epoch || 0,
+      verified: false,
+      enabled: true
     }
+
+    return Promise.resolve({})
+  }
+
+  Memory.prototype.updateTotpToken = (uid, token) => {
+    uid = uid.toString('hex')
+
+    const totpToken = totpTokens[uid]
+
+    if (! totpToken) {
+      return P.reject(error.notFound())
+    }
+
+    // Currently, users can only update the verified and enable flags.
+    // Updating shared secret and epoch will break clients.
+    totpToken.verified = token.verified
+    totpToken.enabled = token.enabled
 
     return Promise.resolve({})
   }
@@ -1231,6 +1256,35 @@ module.exports = function (log, error) {
     delete totpTokens[uid]
 
     return Promise.resolve({})
+  }
+
+  Memory.prototype.verifyTokensWithMethod = function (tokenId, data) {
+    tokenId = tokenId.toString('hex')
+    let session, verificationMethod
+
+    return Promise.resolve()
+      .then(() => {
+        verificationMethod = dbUtil.mapVerificationMethodType(data.verificationMethod)
+
+        if (! verificationMethod) {
+          throw error.invalidVerificationMethod()
+        }
+
+        return this.sessionToken(tokenId)
+          .then((result) => {
+            session = result
+            // Verify the session token, if unverified
+            if (session.tokenVerificationId) {
+              return this.verifyTokens(session.tokenVerificationId, {uid: session.uid})
+            }
+          })
+      })
+      .then(() => {
+        // Set the verification method
+        sessionTokens[tokenId].verificationMethod = verificationMethod
+        sessionTokens[tokenId].verifiedAt = Date.now()
+        return Promise.resolve({})
+      })
   }
 
   // UTILITY FUNCTIONS
