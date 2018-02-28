@@ -91,7 +91,7 @@ The following datatypes are used throughout this document:
     * forgotPasswordVerified    : `POST /passwordForgotToken/:id/verified`
 * Unverified tokens:
     * verifyTokens              : `POST /tokens/:tokenVerificationId/verify`
-    * verifyTokensWithMethod    : `POST /tokens/:tokenId/verifyWith`
+    * verifyTokensWithMethod    : `POST /tokens/:tokenId/verifyWithMethod`
 * Sign-in codes
     * createSigninCode          : `PUT /signinCodes/:code`
     * consumeSigninCode         : `POST /signinCodes/:code/consume`
@@ -1745,7 +1745,7 @@ Content-Length: 2
     * Body : {"code":"InternalError","message":"...<message related to the error>..."}
 ```
 
-## verifyTokens : `POST /tokens/<tokenId>/verifyWith`
+## verifyTokens : `POST /tokens/<tokenId>/verifyWithMethod`
 
 This method verifies sessionTokens, keyFetchTokens and sets
 the the verification method used on the sessions table.
@@ -1758,13 +1758,13 @@ curl \
     -X POST \
     -H "Content-Type: application/json" \
     -d '{"verificatioMethod":"totp-2fa"}' \
-    http://localhost:8000/tokens/8e8c27b704dbf6a5dc556453c92e7506/verifyWith
+    http://localhost:8000/tokens/8e8c27b704dbf6a5dc556453c92e7506/verifyWithMethod
 ```
 
 ### Request
 
 * Method : POST
-* Path : `/tokens/<tokenId>/verifyWith`
+* Path : `/tokens/<tokenId>/verifyWithMethod`
     * tokenVerificationId : hex128
 * Params:
     * uid : hex128

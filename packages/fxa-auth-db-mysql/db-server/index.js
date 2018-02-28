@@ -126,7 +126,7 @@ function createServer(db) {
 
   api.get('/keyFetchToken/:id/verified', withIdAndBody(db.keyFetchTokenWithVerificationStatus))
   api.post('/tokens/:id/verify', withIdAndBody(db.verifyTokens))
-  api.post('/tokens/:id/verifyWith', withIdAndBody(db.verifyTokensWithMethod))
+  api.post('/tokens/:id/verifyWithMethod', withIdAndBody(db.verifyTokensWithMethod))
   api.post('/tokens/:code/verifyCode', withParamsAndBody(db.verifyTokenCode))
 
   api.get('/accountResetToken/:id', withIdAndBody(db.accountResetToken))

@@ -1605,7 +1605,7 @@ module.exports = function(cfg, makeServer) {
         const verifyOptions = {
           verificationMethod: 'totp-2fa',
         }
-        return client.postThen('/tokens/' + user.sessionTokenId + '/verifyWith', verifyOptions)
+        return client.postThen('/tokens/' + user.sessionTokenId + '/verifyWithMethod', verifyOptions)
           .then((res) => {
             respOkEmpty(res)
             return client.getThen('/sessionToken/' + user.sessionTokenId + '/device')
