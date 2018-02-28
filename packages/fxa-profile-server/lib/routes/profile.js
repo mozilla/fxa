@@ -6,7 +6,11 @@ const Boom = require('boom');
 const Joi = require('joi');
 const checksum = require('checksum');
 
+const avatarShared = require('./avatar/_shared');
+const config = require('../config');
 const logger = require('../logging')('routes.profile');
+
+const DEFAULT_AVATAR_URL = avatarShared.fxaUrl(config.get('img.defaultAvatarId'));
 
 function hasAllowedScope(scopes) {
   for (var i = 0, len = scopes.length; i < len; i++) {
@@ -36,6 +40,7 @@ module.exports = {
       email: Joi.string().allow(null),
       uid: Joi.string().allow(null),
       avatar: Joi.string().allow(null),
+      avatarDefault: Joi.boolean().allow(null),
       displayName: Joi.string().allow(null),
 
       //openid-connect
@@ -65,6 +70,14 @@ module.exports = {
         if (creds.scope.indexOf('openid') !== -1) {
           result.sub = creds.user;
         }
+
+        if (result.avatar) {
+          // currently the batch requests extract a single property.
+          // to avoid refactoring the batch requests to support multiple properties,
+          // set the default flag here
+          result.avatarDefault = result.avatar === DEFAULT_AVATAR_URL;
+        }
+
         var rep = reply(result);
         var etag = computeEtag(result);
         if (etag) {

@@ -13,15 +13,14 @@ const img = require('../../img');
 const notifyProfileUpdated = require('../../updates-queue');
 const validate = require('../../validate');
 const workers = require('../../img-workers');
+const avatarShared = require('./_shared');
 
 const FXA_PROVIDER = 'fxa';
 const FXA_URL_TEMPLATE = config.get('img.url');
 assert(FXA_URL_TEMPLATE.indexOf('{id}') !== -1,
     'img.url must contain the string "{id}"');
-
-function fxaUrl(id) {
-  return FXA_URL_TEMPLATE.replace('{id}', id);
-}
+const DEFAULT_AVATAR_ID = config.get('img.defaultAvatarId');
+assert(DEFAULT_AVATAR_ID.length === 32, 'img.default');
 
 module.exports = {
   auth: {
@@ -50,7 +49,9 @@ module.exports = {
   handler: function upload(req, reply) {
     req.server.methods.batch.cache.drop(req, function() {
       var id = img.id();
-      var url = fxaUrl(id);
+      // precaution to avoid the default id from being overwritten
+      assert(id !== DEFAULT_AVATAR_ID);
+      var url = avatarShared.fxaUrl(id);
       var uid = req.auth.credentials.user;
       workers.upload(id, req.payload, req.headers)
         .then(function save() {

@@ -7,12 +7,14 @@ const Joi = require('joi');
 const P = require('../../promise');
 
 const AppError = require('../../error');
+const config = require('../../config');
 const db = require('../../db');
 const logger = require('../../logging')('routes.avatar.delete');
 const notifyProfileUpdated = require('../../updates-queue');
 const validate = require('../../validate');
 const workers = require('../../img-workers');
 
+const DEFAULT_AVATAR_ID = config.get('img.defaultAvatarId');
 const EMPTY = Object.create(null);
 const FXA_PROVIDER = 'fxa';
 
@@ -30,6 +32,11 @@ module.exports = {
     }
   },
   handler: function deleteAvatar(req, reply) {
+    if (req.params.id === DEFAULT_AVATAR_ID) {
+      // if we are clearing the default avatar then do nothing
+      return reply({});
+    }
+
     req.server.methods.batch.cache.drop(req, function() {
       const uid = req.auth.credentials.user;
       var avatar, lookup;

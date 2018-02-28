@@ -5,19 +5,27 @@
 const Joi = require('joi');
 
 const db = require('../../db');
+const config = require('../../config');
 const hex = require('buf').to.hex;
 const validate = require('../../validate');
 const logger = require('../../logging')('routes.avatar.get');
+const avatarShared = require('./_shared');
 
-const EMPTY = Object.create(null);
-function avatarOrEmpty(avatar) {
+const DEFAULT_AVATAR = {
+  avatar: avatarShared.fxaUrl(config.get('img.defaultAvatarId')),
+  avatarDefault: true,
+  id: config.get('img.defaultAvatarId')
+};
+
+function avatarOrDefault(avatar) {
   if (avatar) {
     return {
+      avatar: avatar.url,
+      avatarDefault: false,
       id: hex(avatar.id),
-      avatar: avatar.url
     };
   }
-  return EMPTY;
+  return DEFAULT_AVATAR;
 }
 
 module.exports = {
@@ -30,13 +38,14 @@ module.exports = {
       id: Joi.string()
         .regex(validate.hex)
         .length(32),
+      avatarDefault: Joi.boolean(),
       avatar: Joi.string().max(256)
     }
   },
   handler: function avatar(req, reply) {
     var uid = req.auth.credentials.user;
     db.getSelectedAvatar(uid)
-      .then(avatarOrEmpty)
+      .then(avatarOrDefault)
       .done(function (result) {
         var rep = reply(result);
         if (result.id) {

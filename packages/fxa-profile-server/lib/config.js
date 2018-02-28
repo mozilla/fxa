@@ -133,6 +133,12 @@ const conf = convict({
       doc: 'Pattern to generate FxA avatar URLs. {id} will be replaced.',
       default: 'http://127.0.0.1:1112/a/{id}',
       env: 'IMG_URL'
+    },
+    defaultAvatarId: {
+      default: '00000000000000000000000000000000',
+      doc: 'Default avatar id',
+      env: 'DEFAULT_AVATAR_ID',
+      format: String
     }
   },
   logging: {
