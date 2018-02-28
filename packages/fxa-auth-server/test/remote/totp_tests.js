@@ -34,16 +34,23 @@ describe('remote totp', function () {
 
   beforeEach(() => {
     email = server.uniqueEmail()
-    return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys: true})
+    return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
       .then((x) => {
         client = x
         assert.ok(client.authAt, 'authAt was set')
-        return client.createTotpToken({ metricsContext })
+        return client.createTotpToken({metricsContext})
           .then((result) => {
             otplib.authenticator.options = {
               secret: result.secret
             }
             totpToken = result
+
+            // Verify TOTP token
+            const code = otplib.authenticator.generate()
+            return client.verifyTotpCode(code, {metricsContext})
+              .then((response) => {
+                assert.equal(response.success, true, 'totp codes match')
+              })
           })
       })
   })
@@ -92,41 +99,59 @@ describe('remote totp', function () {
       })
   })
 
-  it('should fail to verify totp code', () => {
-    return client.verifyTotpCode('wroonn', { metricsContext })
-      .then((result) => {
-        assert.equal(result.success, false, 'failed')
-      })
-  })
-
-  it('should fail to verify totp code that does not have totp token', () => {
-    email = server.uniqueEmail()
-    return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-      .then((x) => {
-        client = x
-        assert.ok(client.authAt, 'authAt was set')
-        return client.verifyTotpCode('wronng', { metricsContext })
-          .then(assert.fail, (err) => {
-            assert.equal(err.code, 400, 'correct error code')
-            assert.equal(err.errno, 155, 'correct error errno')
-          })
-      })
-  })
-
-  it('should verify totp code', () => {
-    const code = otplib.authenticator.generate()
-    return client.verifyTotpCode(code, { metricsContext })
-      .then((response) => {
-        assert.equal(response.success, true, 'totp codes match')
-      })
-  })
-
-  it('should request `totp-2fa` on login if user has totp token', () => {
-    return Client.login(config.publicUrl, email, password, {keys:true})
+  it('should request `totp-2fa` on login if user has verified totp token', () => {
+    return Client.login(config.publicUrl, email, password)
       .then((response) => {
         assert.equal(response.verificationMethod, 'totp-2fa', 'verification method set')
         assert.equal(response.verificationReason, 'login', 'verification reason set')
       })
+  })
+
+  it('should login if user has unverified totp token', () => {
+    return client.deleteTotpToken()
+      .then(() => client.createTotpToken())
+      .then(() => Client.login(config.publicUrl, email, password))
+      .then((response) => {
+        assert.equal(response.verificationMethod, undefined, 'verification method not set')
+        assert.equal(response.verificationReason, undefined, 'verification reason not set')
+      })
+  })
+
+  describe('totp code verification', () => {
+    beforeEach(() => {
+      // Create a new unverified session to test totp codes
+      return Client.login(config.publicUrl, email, password)
+        .then((response) => client = response)
+    })
+
+    it('should fail to verify totp code', () => {
+      return client.verifyTotpCode('wrong', {metricsContext})
+        .then((result) => {
+          assert.equal(result.success, false, 'failed')
+        })
+    })
+
+    it('should fail to verify totp code that does not have totp token', () => {
+      email = server.uniqueEmail()
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+        .then((x) => {
+          client = x
+          assert.ok(client.authAt, 'authAt was set')
+          return client.verifyTotpCode('wrong', {metricsContext})
+            .then(assert.fail, (err) => {
+              assert.equal(err.code, 400, 'correct error code')
+              assert.equal(err.errno, 155, 'correct error errno')
+            })
+        })
+    })
+
+    it('should verify totp code', () => {
+      const code = otplib.authenticator.generate()
+      return client.verifyTotpCode(code, {metricsContext})
+        .then((response) => {
+          assert.equal(response.success, true, 'totp codes match')
+        })
+    })
   })
 
   after(() => {

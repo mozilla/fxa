@@ -149,7 +149,16 @@ module.exports = (log, db, customs, config) => {
 
           return db.totpToken(sessionToken.uid)
             .then((token) => {
-              if (token) {
+
+              // If the token is not verified, lets delete it and report that
+              // it doesn't exist. This will help prevent some edge
+              // cases where the user started creating a token but never completed.
+              if (! token.verified) {
+                return db.deleteTotpToken(sessionToken.uid)
+                  .then(() => {
+                    exists = false
+                  })
+              } else {
                 exists = true
               }
             }, (err) => {
@@ -183,36 +192,48 @@ module.exports = (log, db, customs, config) => {
         const code = request.payload.code
         const sessionToken = request.auth.credentials
         const uid = sessionToken.uid
-        let sharedSecret, isVerified
+        let sharedSecret, isValidCode, tokenVerified
 
         customs.check(request, 'sessionVerifyTotp')
           .then(getTotpToken)
           .then(verifyTotpCode)
+          .then(verifyTotpToken)
           .then(verifySession)
           .then(emitMetrics)
-          .then(() => reply({success: isVerified}), reply)
+          .then(() => reply({success: isValidCode}), reply)
 
         function getTotpToken() {
           return db.totpToken(sessionToken.uid)
-            .then((token) => sharedSecret = token.sharedSecret)
+            .then((token) => {
+              sharedSecret = token.sharedSecret
+              tokenVerified = token.verified
+            })
         }
 
         function verifyTotpCode() {
-          isVerified = otplib.authenticator.check(code, sharedSecret)
+          isValidCode = otplib.authenticator.check(code, sharedSecret)
         }
 
-        // If a valid code was sent, this verifies the session using the same method
-        // as sign-in confirmation. Once the updated db verification methods land in
-        // https://github.com/mozilla/fxa-auth-db-mysql/issues/301, we should update
-        // this.
+        // Once a valid TOTP code has been detected, the token becomes verified
+        // and enabled for the user.
+        function verifyTotpToken() {
+          if (isValidCode && ! tokenVerified) {
+            return db.updateTotpToken(sessionToken.uid, {
+              verified: true,
+              enabled: true
+            })
+          }
+        }
+
+        // If a valid code was sent, this verifies the session using the `totp-2fa` method.
         function verifySession() {
-          if (isVerified && sessionToken.tokenVerificationId) {
-            return db.verifyTokens(sessionToken.tokenVerificationId, {uid: sessionToken.uid})
+          if (isValidCode && sessionToken.tokenVerificationId) {
+            return db.verifyTokensWithMethod(sessionToken.id, 'totp-2fa')
           }
         }
 
         function emitMetrics() {
-          if (isVerified) {
+          if (isValidCode) {
             log.info({
               op: 'totp.verified',
               uid: uid

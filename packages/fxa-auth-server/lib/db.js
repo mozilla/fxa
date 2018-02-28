@@ -908,6 +908,14 @@ module.exports = (
     )
   }
 
+  DB.prototype.verifyTokensWithMethod = function (tokenId, verificationMethod) {
+    log.trace({op: 'DB.verifyTokensWithMethod', tokenId, verificationMethod})
+    return this.pool.post(
+      `/tokens/${tokenId}/verifyWithMethod`,
+      {verificationMethod}
+    )
+  }
+
   DB.prototype.verifyTokenCode = function (code, accountData) {
     log.trace({ op: 'DB.verifyTokenCode', code: code })
     return this.pool.post(
@@ -1170,6 +1178,21 @@ module.exports = (
     log.trace({ op: 'DB.deleteTotpToken', uid})
 
     return this.pool.del(`/totp/${uid}`)
+      .catch(err => {
+        if (isNotFoundError(err)) {
+          throw error.totpTokenNotFound()
+        }
+        throw err
+      })
+  }
+
+  DB.prototype.updateTotpToken = function (uid, data) {
+    log.trace({ op: 'DB.updateTotpToken', uid, data})
+
+    return this.pool.post(`/totp/${uid}/update`, {
+      verified: data.verified,
+      enabled: data.enabled
+    })
       .catch(err => {
         if (isNotFoundError(err)) {
           throw error.totpTokenNotFound()

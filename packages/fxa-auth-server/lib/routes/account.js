@@ -512,12 +512,12 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
         }
 
         function checkTotpToken () {
-          // Check to see if the user has a TOTP token, if so then
-          // the verification method is automatically forced so that
+          // Check to see if the user has a TOTP token and it is verified and
+          // enabled, if so then the verification method is automatically forced so that
           // they have to verify the token.
           return db.totpToken(accountRecord.uid)
             .then((result) => {
-              if (result) {
+              if (result && result.verified && result.enabled) {
                 verificationMethod = 'totp-2fa'
               }
             }, (err) => {

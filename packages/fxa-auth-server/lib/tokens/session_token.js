@@ -7,6 +7,16 @@
 module.exports = (log, Token, config) => {
   const MAX_AGE_WITHOUT_DEVICE = config.tokenLifetimes.sessionTokenWithoutDevice
 
+  // Convert verificationMethod to a more readable format. Maps to
+  // https://github.com/mozilla/fxa-auth-db-mysql/blob/master/lib/db/util.js#L34
+  const VERIFICATION_METHODS = new Map(
+    [
+      [0, 'email'],
+      [1, 'email-2fa'],
+      [2, 'totp-2fa']
+    ]
+  )
+
   class SessionToken extends Token {
 
     constructor(keys, details) {
@@ -32,6 +42,10 @@ module.exports = (log, Token, config) => {
 
       this.tokenVerificationCode = details.tokenVerificationCode || null
       this.tokenVerificationCodeExpiresAt = details.tokenVerificationCodeExpiresAt || null
+
+      this.verificationMethod = details.verificationMethod || null
+      this.verificationMethodValue = VERIFICATION_METHODS.get(this.verificationMethod)
+      this.verifiedAt = details.verifiedAt || null
     }
 
     static create(details) {

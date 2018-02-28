@@ -19,7 +19,9 @@ const TOKEN = {
   email: Buffer('test@example.com').toString('hex'),
   emailCode: '123456',
   emailVerified: true,
-  tokenVerificationId: crypto.randomBytes(16)
+  tokenVerificationId: crypto.randomBytes(16),
+  verificationMethod: 2, // Totp verification method
+  verifiedAt: Date.now()
 }
 
 describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
@@ -83,6 +85,9 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
             assert.equal(token.tokenVerified, token2.tokenVerified)
             assert.equal(token.tokenVerificationId, token2.tokenVerificationId)
             assert.equal(token.state, token2.state)
+            assert.equal(token.verificationMethod, token2.verificationMethod)
+            assert.equal(token.verificationMethodValue, 'totp-2fa')
+            assert.equal(token.verifiedAt, token2.verifiedAt)
           }
         )
     }

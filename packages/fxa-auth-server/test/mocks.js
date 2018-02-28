@@ -72,6 +72,7 @@ const DB_METHOD_NAMES = [
   'updateDevice',
   'updateLocale',
   'updateSessionToken',
+  'updateTotpToken',
   'verifyEmail',
   'verifyTokens',
   'verifyTokenCode',
