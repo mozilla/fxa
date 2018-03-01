@@ -338,6 +338,16 @@ define([
     sessionVerifyTokenCodeSuccess: {
       status: 200,
       body: '{}'
+    },
+    sessionReauth: {
+      status: 200,
+      headers: {},
+      body: '{"uid":"9c8e5cf6915949c1b063b88fa0c53d05","verified":true,"authAt":123456}'
+    },
+    sessionReauthWithKeys: {
+      status: 200,
+      headers: {},
+      body: '{"uid": "5d576e2cd3604981a8c05f6ea67fce5b","keyFetchToken":"b1f4182d7e072567a1dbe682043a16932a84b7f4ca3b95e471a34806c87e4130","verified":true,"authAt":123456}'
     }
   };
 });

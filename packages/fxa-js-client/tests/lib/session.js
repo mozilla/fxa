@@ -5,24 +5,36 @@
 define([
   'intern!tdd',
   'intern/chai!assert',
-  'tests/addons/environment'
-], function (tdd, assert, Environment) {
+  'tests/addons/environment',
+  'tests/addons/sinon'
+], function (tdd, assert, Environment, sinon) {
 
   with (tdd) {
     suite('session', function () {
       var accountHelper;
       var respond;
+      var requests;
       var client;
       var RequestMocks;
       var ErrorMocks;
+      var xhr;
 
       beforeEach(function () {
         var env = new Environment();
         accountHelper = env.accountHelper;
         respond = env.respond;
+        requests = env.requests;
         client = env.client;
         RequestMocks = env.RequestMocks;
         ErrorMocks = env.ErrorMocks;
+        xhr = env.xhr;
+        sinon.spy(xhr.prototype, 'open');
+        sinon.spy(xhr.prototype, 'send');
+      });
+
+      afterEach(function () {
+        xhr.prototype.open.restore();
+        xhr.prototype.send.restore();
       });
 
       test('#destroy', function () {
@@ -110,6 +122,216 @@ define([
           );
       });
 
+      test('#reauth', function () {
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (account) {
+            var email = account.input.email;
+            var password = account.input.password;
+
+            return respond(client.sessionReauth(account.signIn.sessionToken, email, password), RequestMocks.sessionReauth)
+              .then(
+                function(res) {
+                  assert.ok(res.uid);
+                  assert.ok(res.verified);
+                  assert.ok(res.authAt);
+                  assert.notOk(res.keyFetchToken);
+                  assert.notOk(res.unwrapBKey);
+
+                  var args = xhr.prototype.open.args[xhr.prototype.open.args.length - 1];
+                  assert.equal(args[0], 'POST');
+                  assert.include(args[1], '/session/reauth');
+
+                  var payload = JSON.parse(xhr.prototype.send.args[xhr.prototype.send.args.length - 1][0]);
+                  assert.equal(Object.keys(payload).length, 2);
+                  assert.equal(payload.email, email);
+                  assert.equal(payload.authPW.length, 64);
+                },
+                assert.notOk
+              );
+          });
+      });
+
+      test('#reauth with keys', function () {
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (account) {
+            var email = account.input.email;
+            var password = account.input.password;
+
+            return respond(client.sessionReauth(account.signIn.sessionToken, email, password, {keys: true}), RequestMocks.sessionReauthWithKeys)
+              .then(
+                function (res) {
+                  assert.ok(res.uid);
+                  assert.ok(res.verified);
+                  assert.ok(res.authAt);
+                  assert.ok(res.keyFetchToken);
+                  assert.ok(res.unwrapBKey);
+
+                  var args = xhr.prototype.open.args[xhr.prototype.open.args.length - 1];
+                  assert.equal(args[0], 'POST');
+                  assert.include(args[1], '/session/reauth?keys=true');
+
+                  var payload = JSON.parse(xhr.prototype.send.args[xhr.prototype.send.args.length - 1][0]);
+                  assert.equal(Object.keys(payload).length, 2);
+                  assert.equal(payload.email, email);
+                  assert.equal(payload.authPW.length, 64);
+                },
+                assert.notOk
+              );
+          });
+      });
+
+      test('#reauth with incorrect password', function () {
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (account) {
+            var email = account.input.email;
+            var password = 'incorrect password';
+
+            return respond(client.sessionReauth(account.signIn.sessionToken, email, password), ErrorMocks.accountIncorrectPassword)
+              .then(
+                function () {
+                  assert.fail();
+                },
+                function (res) {
+                  assert.equal(res.code, 400);
+                  assert.equal(res.errno, 103);
+                }
+              );
+          });
+      });
+
+      test('#reauth with incorrect email case', function () {
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (account) {
+            var numSetupRequests = requests ? requests.length : null;
+            var sessionToken = account.signIn.sessionToken;
+            var incorrectCaseEmail = account.input.email.charAt(0).toUpperCase() + account.input.email.slice(1);
+            var password = account.input.password;
+
+            respond(ErrorMocks.incorrectEmailCase);
+            return respond(client.sessionReauth(sessionToken, incorrectCaseEmail, password), RequestMocks.sessionReauth)
+              .then(
+                function (res) {
+                  assert.property(res, 'uid');
+                  assert.property(res, 'verified');
+                  assert.property(res, 'authAt');
+
+                  if (requests) {
+                    assert.equal(requests.length - numSetupRequests, 2);
+                  }
+
+                  var args = xhr.prototype.open.args[xhr.prototype.open.args.length - 2];
+                  assert.equal(args[0], 'POST');
+                  assert.include(args[1], '/session/reauth');
+
+                  var payload = JSON.parse(xhr.prototype.send.args[xhr.prototype.send.args.length - 2][0]);
+                  assert.equal(Object.keys(payload).length, 2);
+                  assert.equal(payload.email, incorrectCaseEmail);
+                  assert.equal(payload.authPW.length, 64);
+
+                  args = xhr.prototype.open.args[xhr.prototype.open.args.length - 1];
+                  assert.equal(args[0], 'POST');
+                  assert.include(args[1], '/session/reauth');
+
+                  payload = JSON.parse(xhr.prototype.send.args[xhr.prototype.send.args.length - 1][0]);
+                  assert.equal(Object.keys(payload).length, 3);
+                  assert.notEqual(payload.email, incorrectCaseEmail);
+                  assert.equal(payload.originalLoginEmail, incorrectCaseEmail);
+                  assert.equal(payload.authPW.length, 64);
+                },
+                assert.notOk
+              );
+          });
+      });
+
+      test('#reauth with incorrect email case with skipCaseError', function () {
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (account) {
+            var numSetupRequests = requests ? requests.length : null;
+            var sessionToken = account.signIn.sessionToken;
+            var incorrectCaseEmail = account.input.email.charAt(0).toUpperCase() + account.input.email.slice(1);
+            var password = account.input.password;
+
+            return respond(client.sessionReauth(sessionToken, incorrectCaseEmail, password, {skipCaseError: true}), ErrorMocks.incorrectEmailCase)
+              .then(
+                function () {
+                  assert.fail();
+                },
+                function (res) {
+                  assert.equal(res.code, 400);
+                  assert.equal(res.errno, 120);
+
+                  if (requests) {
+                    assert.equal(requests.length - numSetupRequests, 1);
+                  }
+
+                  var args = xhr.prototype.open.args[xhr.prototype.open.args.length - 1];
+                  assert.equal(args[0], 'POST');
+                  assert.include(args[1], '/session/reauth');
+
+                  var payload = JSON.parse(xhr.prototype.send.args[xhr.prototype.send.args.length - 1][0]);
+                  assert.equal(Object.keys(payload).length, 2);
+                  assert.equal(payload.email, incorrectCaseEmail);
+                  assert.equal(payload.authPW.length, 64);
+                }
+              );
+          });
+      });
+
+      test('#reauth with all the options', function () {
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (account) {
+            var sessionToken = account.signIn.sessionToken;
+            var email = account.input.email;
+            var password = account.input.password;
+            var options = {
+              keys: true,
+              metricsContext: {
+                utmTerm: 'search term',
+                utmContent: 'exciting content for you!'
+              },
+              originalLoginEmail: email.toUpperCase(),
+              reason: 'password_change',
+              redirectTo: 'http://example.io',
+              resume: 'RESUME_TOKEN',
+              service: 'sync',
+              verificationMethod: 'email-2fa'
+            };
+
+            return respond(client.sessionReauth(sessionToken, email, password, options), RequestMocks.sessionReauthWithKeys)
+              .then(
+                function (res) {
+                  assert.ok(res.uid);
+                  assert.ok(res.verified);
+                  assert.ok(res.authAt);
+                  assert.ok(res.keyFetchToken);
+                  assert.ok(res.unwrapBKey);
+
+                  var args = xhr.prototype.open.args[xhr.prototype.open.args.length - 1];
+                  assert.equal(args[0], 'POST');
+                  assert.include(args[1], '/session/reauth?keys=true');
+
+                  var payload = JSON.parse(xhr.prototype.send.args[xhr.prototype.send.args.length - 1][0]);
+                  assert.equal(Object.keys(payload).length, 9);
+                  assert.equal(payload.email, email);
+                  assert.equal(payload.authPW.length, 64);
+                  assert.deepEqual(payload.metricsContext, options.metricsContext);
+                  assert.equal(payload.originalLoginEmail, options.originalLoginEmail);
+                  assert.equal(payload.reason, options.reason);
+                  assert.equal(payload.redirectTo, options.redirectTo);
+                  assert.equal(payload.resume, options.resume);
+                  assert.equal(payload.service, options.service);
+                  assert.equal(payload.verificationMethod, options.verificationMethod);
+                },
+                assert.notOk
+              );
+          });
+      });
     });
   }
 });

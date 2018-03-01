@@ -122,7 +122,7 @@ define([], function () {
     incorrectEmailCase: {
       status: 400,
       headers: {},
-      body: '{"code":400, "errno": 120}'
+      body: '{"code":400, "errno": 120, "email": "a@b.com"}'
     },
     // status code 503, errno 201: service temporarily unavailable to due high load (see backoff protocol)
     temporarilyUnavailable: {

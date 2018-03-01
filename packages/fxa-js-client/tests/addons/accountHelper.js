@@ -3,9 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'tests/addons/sinonResponder',
   'tests/mocks/request'
-], function (SinonResponder, RequestMocks) {
+], function (RequestMocks) {
   'use strict';
 
   function AccountHelper(client, mail, respond) {

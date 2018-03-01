@@ -17,6 +17,7 @@ define([
       var client;
       var mail;
       var respond;
+      var requests;
 
       beforeEach(function () {
         var env = new Environment();
@@ -26,6 +27,7 @@ define([
         client = env.client;
         mail = env.mail;
         respond = env.respond;
+        requests = env.requests;
       });
 
       test('#basic', function () {
@@ -158,35 +160,44 @@ define([
 
         return accountHelper.newVerifiedAccount()
           .then(function (account) {
+            var numSetupRequests = requests ? requests.length : null;
             var incorrectCaseEmail = account.input.email.charAt(0).toUpperCase() + account.input.email.slice(1);
 
-            return respond(client.signIn(incorrectCaseEmail, account.input.password), RequestMocks.signIn);
-          })
-          .then(
-            function (res) {
-              assert.property(res, 'sessionToken');
-            },
-            assert.notOk
-          );
+            respond(ErrorMocks.incorrectEmailCase);
+            return respond(client.signIn(incorrectCaseEmail, account.input.password), RequestMocks.signIn)
+              .then(
+                function (res) {
+                  assert.property(res, 'sessionToken');
+                  if (requests) {
+                    assert.equal(requests.length - numSetupRequests, 2);
+                  }
+                },
+                assert.notOk
+              );
+          });
       });
 
       test('#incorrect email case with skipCaseError', function () {
 
         return accountHelper.newVerifiedAccount()
           .then(function (account) {
+            var numSetupRequests = requests ? requests.length : null;
             var incorrectCaseEmail = account.input.email.charAt(0).toUpperCase() + account.input.email.slice(1);
 
-            return respond(client.signIn(incorrectCaseEmail, account.input.password, {skipCaseError: true}), ErrorMocks.incorrectEmailCase);
-          })
-          .then(
-            function () {
-              assert.fail();
-            },
-            function (res) {
-              assert.equal(res.code, 400);
-              assert.equal(res.errno, 120);
-            }
-          );
+            return respond(client.signIn(incorrectCaseEmail, account.input.password, {skipCaseError: true}), ErrorMocks.incorrectEmailCase)
+              .then(
+                function () {
+                  assert.fail();
+                },
+                function (res) {
+                  assert.equal(res.code, 400);
+                  assert.equal(res.errno, 120);
+                  if (requests) {
+                    assert.equal(requests.length - numSetupRequests, 1);
+                  }
+                }
+              );
+          });
       });
 
       test('#incorrectPassword', function () {
