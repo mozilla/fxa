@@ -65,7 +65,7 @@ define(function (require, exports, module) {
             assert.isFalse(view.logViewEvent.calledWith('too_many_attempts'));
             assert.equal(view.resend.callCount, 1);
             assert.equal(view.displaySuccess.callCount, 1);
-            assert.isTrue(view.displaySuccess.calledWith('Email resent'));
+            assert.isTrue(view.displaySuccess.calledWith('Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'));
             assert.lengthOf(view.$('#resend:visible'), 1);
 
             return view._resend();

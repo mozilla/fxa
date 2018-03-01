@@ -36,7 +36,7 @@ define(function (require, exports, module) {
    */
   module.exports = function (options = {}) {
     const { successMessage } = _.defaults(options, {
-      successMessage: t('Email resent')
+      successMessage: t('Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.')
     });
 
     return {
