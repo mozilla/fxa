@@ -659,6 +659,15 @@ define(function (require, exports, module) {
         view.hideSuccess();
         assert.isFalse(view.$('.success').hasClass('visible'));
       });
+
+      it('`displaySuccess` gets position fixed on scroll', () => {
+        windowMock.pageYOffset = 100;
+        view.displaySuccess('scrolled success');
+
+        assert.equal(view.$('.success').css('position'), 'fixed');
+        assert.equal(view.$('.success').css('width'), '100%');
+        assert.equal(view.$('.success').css('top'), '0px');
+      });
     });
 
     describe('unsafeDisplaySuccess', () => {

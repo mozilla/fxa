@@ -25,6 +25,7 @@ define(function (require, exports, module) {
   const VerificationReasons = require('../lib/verification-reasons');
 
   var DEFAULT_TITLE = window.document.title;
+  var DEFAULT_HEADER_HEIGHT = 64; // see _settings.scss for details (.settings-success-wrapper)
   var STATUS_MESSAGE_ANIMATION_MS = 150;
 
   // A null metrics instance is created for unit tests. In the app,
@@ -48,6 +49,22 @@ define(function (require, exports, module) {
     $success
       .slideDown(STATUS_MESSAGE_ANIMATION_MS)
       .attr('data-shown', 'true');
+
+    if (this.window.pageYOffset >= DEFAULT_HEADER_HEIGHT){
+      $success.css({
+        left: 0,
+        position: 'fixed',
+        top: 0,
+        width: '100%'
+      });
+    } else {
+      $success.css({
+        left: '',
+        position: '',
+        top: '',
+        width: ''
+      });
+    }
 
     this.trigger('success', msg);
     this._isSuccessVisible = true;
