@@ -1471,7 +1471,7 @@ define(function (require, exports, module) {
       it('returns profile', function () {
         var name = 'snoopy';
         sinon.stub(account, 'getProfile').callsFake(function () {
-          return Promise.resolve({ avatar: PNG_URL, displayName: name });
+          return Promise.resolve({ avatar: PNG_URL, avatarDefault: false, displayName: name });
         });
 
         sinon.spy(account, 'setProfileImage');
@@ -1479,6 +1479,7 @@ define(function (require, exports, module) {
         return account.fetchProfile()
           .then(function () {
             assert.equal(account.get('profileImageUrl'), PNG_URL);
+            assert.equal(account.get('profileImageUrlDefault'), false);
             assert.isTrue(account.setProfileImage.called);
             assert.equal(account.setProfileImage.args[0][0].get('url'), PNG_URL);
             assert.isTrue(account.get('hadProfileImageSetBefore'));

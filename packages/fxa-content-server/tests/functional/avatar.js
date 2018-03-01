@@ -79,9 +79,8 @@ registerSuite('settings/avatar', {
     'go to settings with an email selected to see change link then click on avatar to change': function () {
       return this.remote
         .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
-
         // go to change avatar
-        .then(click('a.change-avatar'))
+        .then(click('a.change-avatar img'))
 
         // success is going to the change avatar page
         .then(testElementExists('#avatar-options'));

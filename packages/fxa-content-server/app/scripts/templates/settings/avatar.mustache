@@ -3,15 +3,15 @@
     <header class="settings-unit-summary">
       <h2 class="settings-unit-title">{{#t}}Account picture{{/t}}</h2>
     </header>
-    {{#avatar}}
+    {{^avatarDefault}}
       <button class="settings-button secondary settings-unit-toggle" data-href="settings/avatar/change">
       <span class="change-button">{{#t}}Change…{{/t}}</span>
       </button>
-    {{/avatar}}
-    {{^avatar}}
+    {{/avatarDefault}}
+    {{#avatarDefault}}
       <button class="settings-button primary settings-unit-toggle" data-href="settings/avatar/change">
       <span class="add-button">{{#t}}Add…{{/t}}</span>
       </button>
-    {{/avatar}}
+    {{/avatarDefault}}
   </div>
 </div>

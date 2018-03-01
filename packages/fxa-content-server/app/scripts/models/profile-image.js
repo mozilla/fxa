@@ -13,6 +13,7 @@ define(function (require, exports, module) {
 
   var ProfileImage = Backbone.Model.extend({
     defaults: {
+      default: undefined,
       id: undefined,
       img: undefined,
       url: undefined

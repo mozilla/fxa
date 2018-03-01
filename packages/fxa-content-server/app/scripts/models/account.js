@@ -41,6 +41,7 @@ define(function (require, exports, module) {
     permissions: undefined,
     profileImageId: undefined,
     profileImageUrl: undefined,
+    profileImageUrlDefault: undefined,
     sessionToken: undefined,
     // Hint for future code spelunkers. sessionTokenContext is a misnomer,
     // what the field is really used for is to indicate whether the
@@ -346,7 +347,8 @@ define(function (require, exports, module) {
     setProfileImage (profileImage) {
       this.set({
         profileImageId: profileImage.get('id'),
-        profileImageUrl: profileImage.get('url')
+        profileImageUrl: profileImage.get('url'),
+        profileImageUrlDefault: profileImage.get('default')
       });
 
       if (this.get('profileImageUrl')) {
@@ -378,7 +380,7 @@ define(function (require, exports, module) {
 
       this._profileFetchPromise = this.getProfile()
         .then((result) => {
-          var profileImage = new ProfileImage({ url: result.avatar });
+          var profileImage = new ProfileImage({ default: result.avatarDefault, url: result.avatar });
 
           this.setProfileImage(profileImage);
           this.set('displayName', result.displayName);
@@ -394,7 +396,7 @@ define(function (require, exports, module) {
 
       return this.getAvatar()
         .then((result) => {
-          profileImage = new ProfileImage({ id: result.id, url: result.avatar });
+          profileImage = new ProfileImage({ default: result.avatarDefault, id: result.id, url: result.avatar });
           this.setProfileImage(profileImage);
           return profileImage.fetch();
         })

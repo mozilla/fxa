@@ -28,7 +28,7 @@ define(function (require, exports, module) {
 
     setInitialContext (context) {
       const account = this.getSignedInAccount();
-      context.set('avatar', account.has('profileImageUrl'));
+      context.set('avatarDefault', account.get('profileImageUrlDefault'));
     }
 
   });

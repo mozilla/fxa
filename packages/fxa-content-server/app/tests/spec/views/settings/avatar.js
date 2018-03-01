@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   const View = require('views/settings/avatar');
 
   var assert = chai.assert;
-  var IMG_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
   describe('views/settings/avatar', function () {
     var account;
@@ -63,6 +62,7 @@ define(function (require, exports, module) {
       });
 
       it('has no avatar set', function () {
+        account.set('profileImageUrlDefault', true);
         sinon.stub(account, 'getAvatar').callsFake(function () {
           return Promise.resolve({});
         });
@@ -75,7 +75,7 @@ define(function (require, exports, module) {
       });
 
       it('has an avatar set', function () {
-        account.set('profileImageUrl', IMG_URL);
+        account.set('profileImageUrlDefault', false);
 
         return view.render()
           .then(function () {
