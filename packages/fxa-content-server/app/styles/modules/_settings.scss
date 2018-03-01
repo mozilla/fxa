@@ -197,10 +197,12 @@ body.settings #main-content.card {
         }
       }
 
-      html[dir] .clients & {
-        @include respond-to('small') {
-          float: none;
-          margin: 10px 0;
+      &:not(.clients-done) {
+        html[dir] .clients & {
+          @include respond-to('small') {
+            float: none;
+            margin: 10px 0;
+          }
         }
       }
     }
