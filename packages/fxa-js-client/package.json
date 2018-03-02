@@ -53,6 +53,7 @@
     "intern-geezer": "2.2.3",
     "jscs-jsdoc": "1.1.0",
     "load-grunt-tasks": "3.2.0",
+    "otplib": "7.1.0",
     "webpack": "3.10.0"
   }
 }
