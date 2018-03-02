@@ -20,7 +20,9 @@ var TEST_EMAIL = 'foo@gmail.com'
 var TEST_EMAIL_ADDITIONAL = 'foo2@gmail.com'
 var TEST_EMAIL_INVALID = 'example@dotless-domain'
 const MS_IN_DAY = 1000 * 60 * 60 * 24
-const MS_IN_TWO_MONTHS = MS_IN_DAY * 60
+// This is slightly less than 2 months ago, regardless of which
+// months are in question (I'm looking at you, February...)
+const MS_IN_ALMOST_TWO_MONTHS = MS_IN_DAY * 58
 
 var makeRoutes = function (options, requireMocks) {
   options = options || {}
@@ -130,7 +132,7 @@ describe('/recovery_email/status', function () {
         begin: sinon.spy()
       }
       const db = mocks.mockDB()
-      config.emailStatusPollingTimeout = MS_IN_TWO_MONTHS
+      config.emailStatusPollingTimeout = MS_IN_ALMOST_TWO_MONTHS
       const routes = makeRoutes({
         config,
         db,
