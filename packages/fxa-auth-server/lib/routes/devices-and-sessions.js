@@ -290,24 +290,33 @@ module.exports = (log, db, config, customs, push, devices) => {
           data: payload
         }
 
-        if (body.to !== 'all') {
-          pushOptions.includedDeviceIds = body.to
-        }
-
-        if (body.excluded) {
-          pushOptions.excludedDeviceIds = body.excluded
-        }
-
         if (body.TTL) {
           pushOptions.TTL = body.TTL
         }
 
         return customs.checkAuthenticated(endpointAction, ip, uid)
           .then(() => request.app.devices)
-          .then(devices =>
-            push.notifyUpdate(uid, devices, endpointAction, pushOptions)
+          .then(devices => {
+            if (body.to !== 'all') {
+              const include = new Set(body.to)
+              devices = devices.filter(device => include.has(device.id))
+
+              if (devices.length === 0) {
+                log.error({
+                  op: 'Account.devicesNotify',
+                  uid: uid,
+                  error: 'devices empty'
+                })
+                return
+              }
+            } else if (body.excluded) {
+              const exclude = new Set(body.excluded)
+              devices = devices.filter(device => ! exclude.has(device.id))
+            }
+
+            return push.sendPush(uid, devices, endpointAction, pushOptions)
               .catch(catchPushError)
-          )
+          })
           .then(() => {
             // Emit a metrics event for when a user sends tabs between devices.
             // In the future we will aim to get this event directly from sync telemetry,

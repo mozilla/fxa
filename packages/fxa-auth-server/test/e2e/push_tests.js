@@ -21,7 +21,7 @@ describe('e2e/push', () => {
     })
   })
 
-  it('notifyUpdate sends notifications using a real push server', () => {
+  it('sendPush sends notifications using a real push server', () => {
     return pushManager.getSubscription()
       .then(subscription => {
         let count = 0
@@ -37,7 +37,7 @@ describe('e2e/push', () => {
         const options = {
           data: Buffer.from('foodata')
         }
-        return push.notifyUpdate(mockUid, [
+        return push.sendPush(mockUid, [
           {
             id: '0f7aa00356e5416e82b3bef7bc409eef',
             isCurrentDevice: true,

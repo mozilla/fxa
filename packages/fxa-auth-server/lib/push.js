@@ -34,80 +34,24 @@ var TTL_ACCOUNT_DESTROYED = TTL_DEVICE_DISCONNECTED
 // Currently only for metrics purposes, not enforced.
 var MAX_ACTIVE_DEVICES = 200
 
-var reasonToEvents = {
-  accountVerify: {
-    send: 'push.account_verify.send',
-    success: 'push.account_verify.success',
-    resetSettings: 'push.account_verify.reset_settings',
-    failed: 'push.account_verify.failed',
-    noCallback: 'push.account_verify.no_push_callback',
-    noKeys: 'push.account_verify.data_but_no_keys'
-  },
-  accountConfirm: {
-    send: 'push.account_confirm.send',
-    success: 'push.account_confirm.success',
-    resetSettings: 'push.account_confirm.reset_settings',
-    failed: 'push.account_confirm.failed',
-    noCallback: 'push.account_confirm.no_push_callback',
-    noKeys: 'push.account_confirm.data_but_no_keys'
-  },
-  passwordReset: {
-    send: 'push.password_reset.send',
-    success: 'push.password_reset.success',
-    resetSettings: 'push.password_reset.reset_settings',
-    failed: 'push.password_reset.failed',
-    noCallback: 'push.password_reset.no_push_callback',
-    noKeys: 'push.password_reset.data_but_no_keys'
-  },
-  passwordChange: {
-    send: 'push.password_change.send',
-    success: 'push.password_change.success',
-    resetSettings: 'push.password_change.reset_settings',
-    failed: 'push.password_change.failed',
-    noCallback: 'push.password_change.no_push_callback',
-    noKeys: 'push.password_change.data_but_no_keys'
-  },
-  deviceConnected: {
-    send: 'push.device_connected.send',
-    success: 'push.device_connected.success',
-    resetSettings: 'push.device_connected.reset_settings',
-    failed: 'push.device_connected.failed',
-    noCallback: 'push.device_connected.no_push_callback',
-    noKeys: 'push.device_connected.data_but_no_keys'
-  },
-  deviceDisconnected: {
-    send: 'push.device_disconnected.send',
-    success: 'push.device_disconnected.success',
-    resetSettings: 'push.device_disconnected.reset_settings',
-    failed: 'push.device_disconnected.failed',
-    noCallback: 'push.device_disconnected.no_push_callback',
-    noKeys: 'push.device_disconnected.data_but_no_keys'
-  },
-  profileUpdated: {
-    send: 'push.profile_updated.send',
-    success: 'push.profile_updated.success',
-    resetSettings: 'push.profile_updated.reset_settings',
-    failed: 'push.profile_updated.failed',
-    noCallback: 'push.profile_updated.no_push_callback',
-    noKeys: 'push.profile_updated.data_but_no_keys'
-  },
-  devicesNotify: {
-    send: 'push.devices_notify.send',
-    success: 'push.devices_notify.success',
-    resetSettings: 'push.devices_notify.reset_settings',
-    failed: 'push.devices_notify.failed',
-    noCallback: 'push.devices_notify.no_push_callback',
-    noKeys: 'push.devices_notify.data_but_no_keys'
-  },
-  accountDestroyed: {
-    send: 'push.account_destroyed.send',
-    success: 'push.account_destroyed.success',
-    resetSettings: 'push.account_destroyed.reset_settings',
-    failed: 'push.account_destroyed.failed',
-    noCallback: 'push.account_destroyed.no_push_callback',
-    noKeys: 'push.account_destroyed.data_but_no_keys'
+const pushReasonsToEvents = (() => {
+  const reasons = ['accountVerify', 'accountConfirm', 'passwordReset',
+    'passwordChange', 'deviceConnected', 'deviceDisconnected',
+    'profileUpdated', 'devicesNotify', 'accountDestroyed']
+  const events = {}
+  for (const reason of reasons) {
+    const id = reason.replace(/[A-Z]/, c => `_${c.toLowerCase()}`) // snake-cased.
+    events[reason] = {
+      send: `push.${id}.send`,
+      success: `push.${id}.success`,
+      resetSettings: `push.${id}.reset_settings`,
+      failed: `push.${id}.failed`,
+      noCallback: `push.${id}.no_push_callback`,
+      noKeys: `push.${id}.data_but_no_keys`
+    }
   }
-}
+  return events
+})()
 
 /**
  * A device object returned by the db,
@@ -154,22 +98,6 @@ module.exports = function (log, db, config) {
         name: name
       })
     }
-  }
-
-  /**
-   * Copy sendPush authorized options from an existing options object
-   * to a new one
-   *
-   * @param {Object} options
-   */
-  function filterOptions(options) {
-    var allowedProps = ['TTL', 'data']
-    return allowedProps.reduce(function(filtered, prop) {
-      if (options[prop]) {
-        filtered[prop] = options[prop]
-      }
-      return filtered
-    }, {})
   }
 
   /**
@@ -265,53 +193,22 @@ module.exports = function (log, db, config) {
     isValidPublicKey,
 
     /**
-     * Notify devices that there was an update to the account
-     *
-     * @param {String} uid
-     * @param {Device[]} devices
-     * @param {String} reason
-     * @param {Object} [options]
-     *   @param {String[]} [options.includedDeviceIds]
-     *   @param {String[]} [options.excludedDeviceIds]
-     *   @param {Object} [options.data]
-     *   @param {String} [options.TTL] (in seconds)
-     * @promise
-     */
-    notifyUpdate (uid, devices, reason, options = {}) {
-      if (options.includedDeviceIds) {
-        const include = new Set(options.includedDeviceIds)
-        devices = devices.filter(device => include.has(device.id))
-
-        if (devices.length === 0) {
-          return P.reject('devices empty')
-        }
-      } else if (options.excludedDeviceIds) {
-        const exclude = new Set(options.excludedDeviceIds)
-        devices = devices.filter(device => ! exclude.has(device.id))
-      }
-
-      return this.sendPush(uid, devices, reason, filterOptions(options))
-    },
-
-    /**
-     * Notify devices (except currentDeviceId) that a new device was connected
+     * Notify devices that a new device was connected
      *
      * @param {String} uid
      * @param {Device[]} devices
      * @param {String} deviceName
-     * @param {String} currentDeviceId
      * @promise
      */
-    notifyDeviceConnected (uid, devices, deviceName, currentDeviceId) {
-      return this.notifyUpdate(uid, devices, 'deviceConnected', {
+    notifyDeviceConnected (uid, devices, deviceName) {
+      return this.sendPush(uid, devices, 'deviceConnected', {
         data: {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.DEVICE_CONNECTED,
           data: {
             deviceName
           }
-        },
-        excludedDeviceIds: [ currentDeviceId ]
+        }
       })
     },
 
@@ -387,6 +284,18 @@ module.exports = function (log, db, config) {
     },
 
     /**
+     * Notify devices that there was an update to the account
+     *
+     * @param {String} uid
+     * @param {Device[]} devices
+     * @param {String} reason
+     * @promise
+     */
+    notifyAccountUpdated (uid, devices, reason) {
+      return this.sendPush(uid, devices, reason)
+    },
+
+    /**
      * Notify devices that the account no longer exists
      *
      * @param {String} uid
@@ -412,14 +321,14 @@ module.exports = function (log, db, config) {
      * @param {String} uid
      * @param {Device[]} devices
      * @param {String} reason
-     * @param {Object} options
-     * @param {Object} options.data
-     * @param {String} options.TTL (in seconds)
+     * @param {Object} [options]
+     * @param {Object} [options.data]
+     * @param {Number} [options.TTL] (in seconds)
      * @promise
      */
-    sendPush: function sendPush(uid, devices, reason, options = {}) {
+    sendPush (uid, devices, reason, options = {}) {
       devices = filterSupportedDevices(options.data, devices)
-      var events = reasonToEvents[reason]
+      var events = pushReasonsToEvents[reason]
       if (! events) {
         return P.reject('Unknown push reason: ' + reason)
       }
