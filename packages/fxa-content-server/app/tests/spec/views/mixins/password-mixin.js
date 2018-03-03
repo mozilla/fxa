@@ -72,31 +72,21 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('show passwordHelper', () => {
-      it('set warning opacity to 1 if any password length is less than 8', () => {
-        view.$('#password').val('1234');
-        view.$('#vpassword').val('12345678');
-        view.$('#old_password').val('12345678');
-        view.$('#new_password').val('12345678');
-        const e = $.Event('keyup');
-        e.target = view.$('#password');
-        view.onPasswordChanged(e);
-        assert.equal(view.$('.input-help').css('opacity'), '1');
-        assert.equal(view.$('.input-help-forgot-pw').css('opacity'), '1');
+    describe('showPasswordHelper', () => {
+      it('is called when the password is focused', () => {
+        sinon.spy(view, 'showPasswordHelper');
+        assert.notOk(view.showPasswordHelper.calledOnce);
+        view.highlightSignupPasswordHelper();
+        assert.ok(view.showPasswordHelper.called);
       });
     });
 
-    describe('hide passwordHelper', () => {
-      it('set warning opacity to 0 if password length is greater than or equal to 8', () => {
-        view.$('#password').val('12345678');
-        view.$('#vpassword').val('12345678');
-        view.$('#old_password').val('12345678');
-        view.$('#new_password').val('123456789');
-        const e = $.Event('keyup');
-        e.target = view.$('#password');
-        view.onPasswordChanged(e);
-        assert.equal(view.$('.input-help').css('opacity'), '0');
-        assert.equal(view.$('.input-help-forgot-pw').css('opacity'), '1');
+    describe('hidePasswordHelper', () => {
+      it('is called when password is blurred', () => {
+        sinon.spy(view, 'hidePasswordHelper');
+        assert.notOk(view.hidePasswordHelper.calledOnce);
+        view.unhighlightSignupPasswordHelper();
+        assert.ok(view.hidePasswordHelper.calledOnce);
       });
     });
 

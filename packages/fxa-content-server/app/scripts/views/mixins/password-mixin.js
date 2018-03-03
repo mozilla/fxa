@@ -9,10 +9,10 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const AuthErrors = require('../../lib/auth-errors');
-  const Constants = require('../../lib/constants');
   const showPasswordTemplate = require('templates/partial/show-password.mustache');
 
   const SELECTOR_SIGNUP_PASSWORD_HELPER = '.input-help-signup';
+  const SELECTOR_PASSWORD_HELPER_BALLOON = '.input-help-balloon';
 
   module.exports = {
     events: {
@@ -200,21 +200,6 @@ define(function (require, exports, module) {
 
     onPasswordChanged (event) {
       this._updateShowPasswordLabel(event.target);
-
-      var values = [];
-
-      // Values contains all password classes length
-      this.$('.password').each(function (index, el) {
-        values.push($(el).val().length);
-      });
-
-      var val = Math.min.apply(Math, values);
-
-      if (val < Constants.PASSWORD_MIN_LENGTH) {
-        this.showPasswordHelper();
-      } else {
-        this.hidePasswordHelper();
-      }
     },
 
     showPasswordHelper () {
@@ -228,17 +213,28 @@ define(function (require, exports, module) {
 
     /**
      * Add the `highlight` class to the signup password helper. This is
-     * used to make the "A strong, unique..." text blue if either
+     * used to make the "Tips: Keep your password safe..." text blue if either
      * password field is focused.
+     *
+     * This also positions the password helper balloon on the correct password field.
+     * @param {Object} event Focus event
      */
-    highlightSignupPasswordHelper () {
+    highlightSignupPasswordHelper (event) {
       this.$(SELECTOR_SIGNUP_PASSWORD_HELPER).addClass('highlight');
+      // the code below moves the signup password helper between the two password fields
+      if (event && this.$(event.target).is('#password')) {
+        this.$(SELECTOR_PASSWORD_HELPER_BALLOON).css('top', '-80px');
+      } else {
+        this.$(SELECTOR_PASSWORD_HELPER_BALLOON).css('top', '0px');
+      }
+      this.showPasswordHelper();
     },
 
     /**
      * Remove the `highlight` class from the signup password helper
      */
     unhighlightSignupPasswordHelper () {
+      this.hidePasswordHelper();
       this.$(SELECTOR_SIGNUP_PASSWORD_HELPER).removeClass('highlight');
     }
   };

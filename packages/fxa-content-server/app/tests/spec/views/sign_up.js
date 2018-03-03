@@ -157,6 +157,28 @@ define(function (require, exports, module) {
           });
       });
 
+      it('positions password help tooltip on first password field', function () {
+        createView();
+        return view.render()
+          .then(() => {
+            view.highlightSignupPasswordHelper({
+              target: '#password'
+            });
+            assert.equal(view.$('.input-help-balloon').css('top'), '-80px');
+          });
+      });
+
+      it('positions password help tooltip on the second password field', function () {
+        createView();
+        return view.render()
+          .then(() => {
+            view.highlightSignupPasswordHelper({
+              target: '#vpassword'
+            });
+            assert.equal(view.$('.input-help-balloon').css('top'), '0px');
+          });
+      });
+
       describe('with model.forceEmail', function () {
         beforeEach(function () {
           model.set('forceEmail', 'testuser@testuser.com');
