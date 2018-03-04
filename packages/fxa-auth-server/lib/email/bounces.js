@@ -4,10 +4,11 @@
 
 'use strict'
 
-var eaddrs = require('email-addresses')
-var P = require('./../promise')
-var utils = require('./utils/helpers')
-var isValidEmailAddress = require('./../routes/validators').isValidEmailAddress
+const eaddrs = require('email-addresses')
+const P = require('./../promise')
+const utils = require('./utils/helpers')
+const isValidEmailAddress = require('./../routes/validators').isValidEmailAddress
+const SIX_HOURS = 1000 * 60 * 60 * 6
 
 module.exports = function (log, error) {
 
@@ -29,8 +30,9 @@ module.exports = function (log, error) {
       return db.createEmailBounce(bounce)
     }
 
-    function deleteAccountIfUnverified(record) {
-      if (! record.emailVerified) {
+    function deleteAccountIfUnverifiedNew(record) {
+      // if account is not verified and younger than 6 hours then delete it.
+      if (! record.emailVerified && record.createdAt && record.createdAt > Date.now() - SIX_HOURS) {
         return db.deleteAccount(record)
           .then(
             accountDeleted.bind(null, record.uid, record.email),
@@ -134,18 +136,24 @@ module.exports = function (log, error) {
         utils.logEmailEventFromMessage(log, message, 'bounced', emailDomain)
         log.info(logData)
 
-        const shouldDelete = bounce.bounceType === 'Permanent' ||
-          (bounce.bounceType === 'Complaint' && bounce.bounceSubType === 'abuse')
-
+        /**
+         * Docs: https://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html#bounce-types
+         * Bug: https://github.com/mozilla/fxa-content-server/issues/5629
+         *
+         * If there is any type of bounce then suggest account for deletion.
+         * Code below will fetch the email record and if it is an unverified new account then it will delete
+         * the account.
+         */
+        const suggestAccountDeletion = !! bounce && bounce.bounceType
         const work = []
 
         if (emailIsValid) {
           work.push(recordBounce(bounce)
             .catch(gotError.bind(null, email)))
-          if (shouldDelete) {
+          if (suggestAccountDeletion) {
             work.push(findEmailRecord(email)
               .then(
-                deleteAccountIfUnverified,
+                deleteAccountIfUnverifiedNew,
                 gotError.bind(null, email)
               ))
           }

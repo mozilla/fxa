@@ -35,9 +35,10 @@ describe('bounce messages', () => {
       createEmailBounce: sinon.spy(() =>P.resolve({})),
       accountRecord: sinon.spy((email) => {
         return P.resolve({
-          uid: '123456',
+          createdAt: Date.now(),
           email: email,
-          emailVerified: false
+          emailVerified: false,
+          uid: '123456'
         })
       }),
       deleteAccount: sinon.spy(() => P.resolve({}))
@@ -99,6 +100,122 @@ describe('bounce messages', () => {
     })
   })
 
+  it('should delete account registered with a Transient bounce', () => {
+    const bounceType = 'Transient'
+    const mockMsg = mockMessage({
+      bounce: {
+        bounceType: bounceType,
+        bouncedRecipients: [
+          {emailAddress: 'test@example.com'},
+        ]
+      },
+      mail: {
+        headers: [
+          {
+            name: 'X-Template-Name',
+            value: 'verifyEmail'
+          }
+        ]
+      }
+    })
+    return mockedBounces(log, mockDB).handleBounce(mockMsg).then(() =>  {
+      assert.equal(mockDB.deleteAccount.callCount, 1, 'deletes the account')
+      assert.equal(mockMsg.del.callCount, 1)
+    })
+  })
+
+  it('should not delete account that bounces and is older than 6 hours', () => {
+    const SEVEN_HOURS_AGO = Date.now() - 1000 * 60 * 60 * 7
+    mockDB.accountRecord = sinon.spy((email) => {
+      return P.resolve({
+        createdAt: SEVEN_HOURS_AGO,
+        uid: '123456',
+        email: email,
+        emailVerified: (email === 'verified@example.com')
+      })
+    })
+
+    const bounceType = 'Transient'
+    const mockMsg = mockMessage({
+      bounce: {
+        bounceType: bounceType,
+        bouncedRecipients: [
+          {emailAddress: 'test@example.com'},
+        ]
+      },
+      mail: {
+        headers: [
+          {
+            name: 'X-Template-Name',
+            value: 'verifyLoginEmail'
+          }
+        ]
+      }
+    })
+    return mockedBounces(log, mockDB).handleBounce(mockMsg).then(() =>  {
+      assert.equal(mockDB.deleteAccount.callCount, 0, 'does not delete the account')
+      assert.equal(mockMsg.del.callCount, 1)
+    })
+  })
+
+  it('should delete account that bounces and is younger than 6 hours', () => {
+    const FOUR_HOURS_AGO = Date.now() - 1000 * 60 * 60 * 5
+    mockDB.accountRecord = sinon.spy((email) => {
+      return P.resolve({
+        createdAt: FOUR_HOURS_AGO,
+        uid: '123456',
+        email: email,
+        emailVerified: (email === 'verified@example.com')
+      })
+    })
+
+    const bounceType = 'Transient'
+    const mockMsg = mockMessage({
+      bounce: {
+        bounceType: bounceType,
+        bouncedRecipients: [
+          {emailAddress: 'test@example.com'},
+        ]
+      },
+      mail: {
+        headers: [
+          {
+            name: 'X-Template-Name',
+            value: 'verifyLoginEmail'
+          }
+        ]
+      }
+    })
+    return mockedBounces(log, mockDB).handleBounce(mockMsg).then(() =>  {
+      assert.equal(mockDB.deleteAccount.callCount, 1, 'delete the account')
+      assert.equal(mockMsg.del.callCount, 1)
+    })
+  })
+
+  it('should delete accounts on login verification with a Transient bounce', () => {
+    const bounceType = 'Transient'
+    const mockMsg = mockMessage({
+      bounce: {
+        bounceType: bounceType,
+        bouncedRecipients: [
+          {emailAddress: 'test@example.com'},
+        ]
+      },
+      mail: {
+        headers: [
+          {
+            name: 'X-Template-Name',
+            value: 'verifyLoginEmail'
+          }
+        ]
+      }
+    })
+    return mockedBounces(log, mockDB).handleBounce(mockMsg).then(() =>  {
+      assert.equal(mockDB.deleteAccount.callCount, 1, 'deletes the account')
+      assert.equal(mockMsg.del.callCount, 1)
+    })
+  })
+
   it('should treat complaints like bounces', () => {
     const complaintType = 'abuse'
     return mockedBounces(log, mockDB).handleBounce(mockMessage({
@@ -131,6 +248,7 @@ describe('bounce messages', () => {
   it('should not delete verified accounts on bounce', () => {
     mockDB.accountRecord = sinon.spy((email) => {
       return P.resolve({
+        createdAt: Date.now(),
         uid: '123456',
         email: email,
         emailVerified: (email === 'verified@example.com')
@@ -223,6 +341,7 @@ describe('bounce messages', () => {
         return P.reject(new error.unknownAccount(email))
       }
       return P.resolve({
+        createdAt: Date.now(),
         uid: '123456',
         email: email,
         emailVerified: false
@@ -254,6 +373,7 @@ describe('bounce messages', () => {
         return P.reject(new error.unknownAccount(email))
       }
       return P.resolve({
+        createdAt: Date.now(),
         uid: '123456',
         email: email,
         emailVerified: false
