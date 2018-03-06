@@ -225,7 +225,7 @@ define(function (require, exports, module) {
       if (event && this.$(event.target).is('#password')) {
         this.$(SELECTOR_PASSWORD_HELPER_BALLOON).css('top', '-80px');
       } else {
-        this.$(SELECTOR_PASSWORD_HELPER_BALLOON).css('top', '0px');
+        this.$(SELECTOR_PASSWORD_HELPER_BALLOON).css('top', '-5px');
       }
       this.showPasswordHelper();
     },
