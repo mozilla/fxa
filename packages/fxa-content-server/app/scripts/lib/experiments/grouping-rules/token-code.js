@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const BaseGroupingRule = require('./base');
+  const Constants = require('../../../lib/constants');
   const GROUPS = ['control', 'treatment-code', 'treatment-link'];
   const ROLLOUT_CLIENTS = {
     '3a1f53aabe17ba32': {
@@ -45,7 +46,7 @@ define(function (require, exports, module) {
         return false;
       }
 
-      if (this.get && this.get('service') === 'Sync') {
+      if (subject.service && subject.service === Constants.SYNC_SERVICE) {
         if (this.bernoulliTrial(this.SYNC_ROLLOUT_RATE, subject.uniqueUserId)) {
           return this.uniformChoice(GROUPS, subject.uniqueUserId);
         }

@@ -19,6 +19,7 @@ define(function (require, exports, module) {
         subject = {
           experimentGroupingRules: {},
           isTokenCodeSupported: true,
+          service: null,
           uniqueUserId: 'user-id'
         };
       });
@@ -52,11 +53,11 @@ define(function (require, exports, module) {
 
       describe('with sync', () => {
         beforeEach(() => {
-          experiment.get = () => 'Sync';
+          subject.service = 'sync';
         });
 
         it('returns false if not Sync', () => {
-          experiment.get = () => 'notSync';
+          subject.service = 'notSync';
           assert.equal(experiment.choose(subject), false);
         });
 
