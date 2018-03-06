@@ -649,7 +649,7 @@ define(function (require, exports, module) {
     describe('sessionReauth', () => {
       const sessionToken = 'session token';
 
-      it('reauth with invalid session should faill', () => {
+      it('reauth with invalid session should fail', () => {
         sinon.stub(realClient, 'sessionReauth').callsFake(() =>{
           return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
         });
