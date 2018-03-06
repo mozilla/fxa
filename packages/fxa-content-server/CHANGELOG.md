@@ -1,3 +1,13 @@
+<a name="1.107.1"></a>
+## 1.107.1 (2018-03-06)
+
+
+### Features
+
+* **signin:** Re-authenticate an existing session if possible. (#5899) r=@vladikoff,@vbudhram ([dffe305](https://github.com/mozilla/fxa-content-server/commit/dffe305)), closes [#5703](https://github.com/mozilla/fxa-content-server/issues/5703)
+
+
+
 <a name="1.107.0"></a>
 # 1.107.0 (2018-03-06)
 
