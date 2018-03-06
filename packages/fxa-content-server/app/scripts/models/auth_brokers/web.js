@@ -39,6 +39,10 @@ define(function (require, exports, module) {
       afterSignUpConfirmationPoll: redirectToSettingsBehavior
     }),
 
+    defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
+      reuseExistingSession: true
+    }),
+
     type: CONTENT_SERVER_CONTEXT
   });
 });

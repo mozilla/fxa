@@ -113,11 +113,17 @@ define(function (require, exports, module) {
     },
 
     submit () {
-      var account = this.user.initAccount({
-        email: this.getElementValue('.email')
-      });
+      const email = this.getElementValue('.email');
+      const password = this.getElementValue('.password');
 
-      var password = this.getElementValue('.password');
+      // Re-authenticate the current account if we're signing in
+      // with the same email address; otherwise start afresh.
+      let account = this.getAccount();
+      if (! account || ! account.has('email') || account.get('email').toLowerCase() !== email.toLowerCase()) {
+        account = this.user.initAccount({
+          email: email
+        });
+      }
 
       return this._signIn(account, password);
     },

@@ -482,6 +482,11 @@ define(function (require, exports, module) {
        */
       handleSignedInNotification: true,
       /**
+       * If the user has an existing sessionToken, can we safely re-use it
+       * on subsequent signin attempts rather than generating a new token each time?
+       */
+      reuseExistingSession: false,
+      /**
        * Is signup supported? the fx_ios_v1 broker can disable it.
        */
       signup: true,

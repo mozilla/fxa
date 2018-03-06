@@ -5,6 +5,7 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
+const assert = intern.getPlugin('chai').assert;
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const requirejs = require('../rjs_load');
@@ -32,6 +33,7 @@ var createUser = FunctionalHelpers.createUser;
 var denormalizeStoredEmail = FunctionalHelpers.denormalizeStoredEmail;
 var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
 var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+var getStoredAccountByEmail = FunctionalHelpers.getStoredAccountByEmail;
 var openPage = FunctionalHelpers.openPage;
 var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
 var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
@@ -266,6 +268,67 @@ registerSuite('sign_in cached', {
 
         .then(testElementExists('.use-different'))
         .then(testElementTextEquals('.prefillEmail', email2));
+    },
+
+    'sign in then use cached credentials to sign in again, existing session token should be re-authenticated': function () {
+      let accountData1, accountData2;
+      return this.remote
+        .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
+        .then(fillOutSignIn(email, PASSWORD))
+
+        .then(testElementExists('#fxa-settings-header'))
+        .then(getStoredAccountByEmail(email))
+        .then(accountData => {
+          assert.ok(accountData.sessionToken);
+          accountData1 = accountData;
+        })
+
+        .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
+        .then(type('input[type=password]', PASSWORD))
+        .then(click('button[type="submit"]'))
+
+        .then(testElementExists('#fxa-settings-header'))
+        .then(getStoredAccountByEmail(email))
+        .then(accountData => {
+          assert.ok(accountData.sessionToken);
+          accountData2 = accountData;
+        })
+
+        .then(() => {
+          assert.equal(accountData1.uid, accountData2.uid);
+          assert.equal(accountData1.sessionToken, accountData2.sessionToken);
+        });
+    },
+
+    'sign in then use cached credentials to sign in to sync, a new session token should be created': function () {
+      let accountData1, accountData2;
+      return this.remote
+        .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
+        .then(fillOutSignIn(email, PASSWORD))
+
+        .then(testElementExists('#fxa-settings-header'))
+        .then(getStoredAccountByEmail(email))
+        .then(accountData => {
+          assert.ok(accountData.sessionToken);
+          accountData1 = accountData;
+        })
+
+        .then(openPage(PAGE_SIGNIN_DESKTOP, '#fxa-signin-header'))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', {ok: true}))
+        .then(type('input[type=password]', PASSWORD))
+        .then(click('button[type="submit"]'))
+
+        .then(testIsBrowserNotified('fxaccounts:login'))
+        .then(getStoredAccountByEmail(email))
+        .then(accountData => {
+          assert.ok(accountData.sessionToken);
+          accountData2 = accountData;
+        })
+
+        .then(() => {
+          assert.equal(accountData1.uid, accountData2.uid);
+          assert.notEqual(accountData1.sessionToken, accountData2.sessionToken);
+        });
     },
 
     'overrule cached credentials': function () {

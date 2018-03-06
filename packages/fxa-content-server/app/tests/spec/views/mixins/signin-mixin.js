@@ -244,6 +244,45 @@ define(function (require, exports, module) {
         });
       });
 
+      describe('with existing sessionToken', () => {
+        beforeEach(() => {
+          account.set({
+            sessionToken: 'session token',
+            sessionTokenContext: 'sync context'
+          });
+        });
+
+        describe('with broker that has `reuseExistingSession` capability', () => {
+          beforeEach(() => {
+            broker.setCapability('reuseExistingSession', true);
+            return view.signIn(account, 'password');
+          });
+
+          it('keeps the existing sessionToken', () => {
+            assert.equal(account.get('sessionToken'), 'session token');
+          });
+
+          it('signs in the user', () => {
+            assert.isTrue(user.signInAccount.calledWith(account, 'password', relier));
+          });
+        });
+
+        describe('with broker that does not have `reuseExistingSession` capability', () => {
+          beforeEach(() => {
+            broker.setCapability('reuseExistingSession', false);
+            return view.signIn(account, 'password');
+          });
+
+          it('discards the existing sessionToken', () => {
+            assert.isTrue(! account.has('sessionToken'));
+          });
+
+          it('signs in the user', () => {
+            assert.isTrue(user.signInAccount.calledWith(account, 'password', relier));
+          });
+        });
+      });
+
       describe('blocked', () => {
         let blockedError;
 

@@ -66,6 +66,10 @@ define(function (require, exports, module) {
       assert.isTrue(broker.hasCapability('signup'));
     });
 
+    it('does not have the `reuseExistingSession` capability by default', () => {
+      assert.isFalse(broker.hasCapability('reuseExistingSession'));
+    });
+
     it('has the `handleSignedInNotification` capability by default', () => {
       assert.isTrue(broker.hasCapability('handleSignedInNotification'));
     });

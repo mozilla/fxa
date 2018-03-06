@@ -128,7 +128,7 @@ define(function (require, exports, module) {
         .catch((err) => {
           // if invalid token then invalidate session
           if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-            return this._invalidateSession();
+            this.discardSessionToken();
           }
 
           // Ignore UNAUTHORIZED errors; we'll just fetch again when needed
@@ -139,10 +139,8 @@ define(function (require, exports, module) {
         });
     },
 
-    _invalidateSession () {
-      // Invalid token can happen if user uses 'Disconnect'
-      // in Firefox Desktop. Only 'set' will trigger model
-      // change, using 'unset' will not.
+    discardSessionToken () {
+      // Only 'set' will trigger model change, using 'unset' will not.
       //
       // Details:
       // github.com/jashkenas/backbone/issues/949 and
@@ -444,7 +442,21 @@ define(function (require, exports, module) {
             signinOptions.verificationMethod = options.verificationMethod;
           }
 
-          return this._fxaClient.signIn(email, password, relier, signinOptions);
+          if (! sessionToken) {
+            // We need to do a completely fresh login.
+            return this._fxaClient.signIn(email, password, relier, signinOptions);
+          } else {
+            // We have an existing sessionToken, try to re-authenticate it.
+            return this._fxaClient.sessionReauth(sessionToken, email, password, relier, signinOptions)
+              .catch((err) => {
+                // The session was invalid, do a fresh login.
+                if (! AuthErrors.is(err, 'INVALID_TOKEN')) {
+                  throw err;
+                }
+                this.discardSessionToken();
+                return this._fxaClient.signIn(email, password, relier, signinOptions);
+              });
+          }
         } else if (sessionToken) {
           // We have a cached Sync session so just check that it hasn't expired.
           // The result includes the latest verified state
@@ -1240,7 +1252,7 @@ define(function (require, exports, module) {
           })
           .catch((err) => {
             if (ProfileErrors.is(err, 'INVALID_TOKEN')) {
-              this._invalidateSession();
+              this.discardSessionToken();
             } else if (ProfileErrors.is(err, 'UNAUTHORIZED')) {
               // If no oauth token existed, or it has gone stale,
               // get a new one and retry.

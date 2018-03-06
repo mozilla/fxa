@@ -299,6 +299,76 @@ define(function (require, exports, module) {
     }),
 
     /**
+     * Re-authenticate a user.
+     *
+     * @method sessionReauth
+     * @param {String} sessionToken
+     * @param {String} originalEmail
+     * @param {String} password
+     * @param {Relier} relier
+     * @param {Object} [options]
+     *   @param {String} [options.metricsContext] - context metadata for use in
+     *                   flow events
+     *   @param {String} [options.reason] - Reason for the sign in. See definitions
+     *                   in sign-in-reasons.js. Defaults to SIGN_IN_REASONS.SIGN_IN.
+     *   @param {String} [options.resume] - Resume token, passed in the
+     *                   verification link if the user must verify their email.
+     *   @param {Boolean} [options.skipCaseError] - if set to true, INCORRECT_EMAIL_CASE
+     *                   errors will be returned to be handled locally instead of automatically
+     *                   being retried in the fxa-js-client.
+     *   @param {String} [options.unblockCode] - Unblock code.
+     *   @param {String} [options.originalLoginEmail] - the original email address as entered
+     *                   by the user, if different from the one used for login.
+     *   @param {String} [options.verificationMethod] - the method to use to verify the
+     *                   session, if it is not already verified.
+     * @returns {Promise}
+     */
+    sessionReauth: withClient((client, sessionToken, originalEmail, password, relier, options = {}) => {
+      const email = trim(originalEmail);
+
+      const reauthOptions = {
+        keys: wantsKeys(relier),
+        reason: options.reason || SignInReasons.SIGN_IN
+      };
+
+      if (relier.has('service')) {
+        reauthOptions.service = relier.get('service');
+      }
+
+      if (relier.has('redirectTo')) {
+        reauthOptions.redirectTo = relier.get('redirectTo');
+      }
+
+      if (options.unblockCode) {
+        reauthOptions.unblockCode = options.unblockCode;
+      }
+
+      if (options.resume) {
+        reauthOptions.resume = options.resume;
+      }
+
+      if (options.skipCaseError) {
+        reauthOptions.skipCaseError = options.skipCaseError;
+      }
+
+      if (options.originalLoginEmail) {
+        reauthOptions.originalLoginEmail = options.originalLoginEmail;
+      }
+
+      if (options.verificationMethod) {
+        reauthOptions.verificationMethod = options.verificationMethod;
+      }
+
+      setMetricsContext(reauthOptions, options);
+
+      return client.sessionReauth(sessionToken, email, password, reauthOptions)
+        .then(accountData => {
+          accountData.sessionToken = sessionToken;
+          return getUpdatedSessionData(email, relier, accountData, options);
+        });
+    }),
+
+    /**
      * Sign up a user
      *
      * @method signUp

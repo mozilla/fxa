@@ -61,6 +61,12 @@ define(function (require, exports, module) {
             }
           }
 
+          // Some brokers (e.g. Sync) hand off control of the sessionToken, and hence expect
+          // each signin to generate a fresh token.  Make sure that will happen.
+          if (account.has('sessionToken') && ! this.broker.hasCapability('reuseExistingSession')) {
+            account.discardSessionToken();
+          }
+
           return this.user.signInAccount(account, password, this.relier, {
             // a resume token is passed in to allow
             // unverified account or session users to complete

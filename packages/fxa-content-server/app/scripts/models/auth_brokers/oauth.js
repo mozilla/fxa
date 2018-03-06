@@ -64,6 +64,7 @@ define(function (require, exports, module) {
       // unintended consequences from redirecting to a relier URL more than
       // once.
       handleSignedInNotification: false,
+      reuseExistingSession: true,
       tokenCode: true
     }),
 

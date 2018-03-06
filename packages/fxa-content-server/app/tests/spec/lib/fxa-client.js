@@ -646,6 +646,166 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('sessionReauth', () => {
+      const sessionToken = 'session token';
+
+      it('reauth with invalid session should faill', () => {
+        sinon.stub(realClient, 'sessionReauth').callsFake(() =>{
+          return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
+        });
+
+        return client.sessionReauth('badSessionToken', email, password, relier)
+          .then(assert.fail, (err) => {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+          });
+      });
+
+      it('reauth w/ relier that wants keys submits email/password and returns keys', () => {
+        sinon.stub(realClient, 'sessionReauth').callsFake(() => {
+          return Promise.resolve({
+            keyFetchToken: 'keyFetchToken',
+            unwrapBKey: 'unwrapBKey',
+            verificationMethod: VerificationMethods.EMAIL,
+            verificationReason: VerificationReasons.SIGN_IN,
+            verified: false
+          });
+        });
+
+        sinon.stub(relier, 'wantsKeys').callsFake(() => true);
+
+        return client.sessionReauth(sessionToken, email, password, relier, { resume: resumeToken })
+          .then(sessionData => {
+            assert.isTrue(realClient.sessionReauth.calledWith(sessionToken, trim(email), password, {
+              keys: true,
+              reason: SignInReasons.SIGN_IN,
+              redirectTo: REDIRECT_TO,
+              resume: resumeToken,
+              service: SYNC_SERVICE
+            }));
+
+            assert.equal(sessionData.keyFetchToken, 'keyFetchToken');
+            assert.equal(sessionData.unwrapBKey, 'unwrapBKey');
+            assert.isFalse(sessionData.verified);
+            assert.equal(sessionData.verificationMethod, VerificationMethods.EMAIL);
+            assert.equal(sessionData.verificationReason, VerificationReasons.SIGN_IN);
+          });
+      });
+
+      it('reauth w/ relier that does not want keys submits email/password and does not request keys', () => {
+        sinon.stub(realClient, 'sessionReauth').callsFake(() => Promise.resolve({}));
+
+        relier.set('service', NON_SYNC_SERVICE);
+        sinon.stub(relier, 'wantsKeys').callsFake(() => false);
+
+        return client.sessionReauth(sessionToken, email, password, relier)
+          .then(sessionData => {
+            assert.isTrue(realClient.sessionReauth.calledWith(sessionToken, trim(email), password, {
+              keys: false,
+              reason: SignInReasons.SIGN_IN,
+              redirectTo: REDIRECT_TO,
+              service: NON_SYNC_SERVICE
+            }));
+
+            // These should not be returned by default
+            assert.isFalse('unwrapBKey' in sessionData);
+            assert.isFalse('keyFetchToken' in sessionData);
+          });
+      });
+
+      describe('reauth called with optional parameters', () => {
+
+        beforeEach(() => {
+          sinon.stub(relier, 'wantsKeys').callsFake(() => {
+            return true;
+          });
+
+          sinon.stub(realClient, 'sessionReauth').callsFake(() => {
+            return Promise.resolve({});
+          });
+        });
+
+        it('passes along an optional `reason`', () => {
+          return client.sessionReauth(sessionToken, email, password, relier, { reason: SignInReasons.PASSWORD_CHANGE })
+            .then(() => {
+              assert.isTrue(realClient.sessionReauth.calledWith(sessionToken, trim(email), password, {
+                keys: true,
+                reason: SignInReasons.PASSWORD_CHANGE,
+                redirectTo: REDIRECT_TO,
+                service: SYNC_SERVICE
+              }));
+            });
+        });
+
+        it('passes along an optional `resume`', () => {
+          return client.sessionReauth(sessionToken, email, password, relier, { resume: 'resume token' })
+            .then(() => {
+              assert.isTrue(realClient.sessionReauth.calledWith(sessionToken, trim(email), password, {
+                keys: true,
+                reason: SignInReasons.SIGN_IN,
+                redirectTo: REDIRECT_TO,
+                resume: 'resume token',
+                service: SYNC_SERVICE
+              }));
+            });
+        });
+
+        it('passes along an optional `metricsContext`', () => {
+          return client.sessionReauth(sessionToken, email, password, relier, {
+            metricsContext: { foo: 'bar' }
+          }).then(() => {
+            assert.isTrue(realClient.sessionReauth.calledWith(sessionToken, trim(email), password), {
+              keys: true,
+              metricsContext: { foo: 'bar' },
+              reason: SignInReasons.SIGN_IN,
+              service: SYNC_SERVICE
+            });
+          });
+        });
+
+        it('passes along an optional `skipCaseError`', () => {
+          return client.sessionReauth(sessionToken, email, password, relier, {
+            skipCaseError: true
+          }).then(() => {
+            assert.isTrue(realClient.sessionReauth.calledWith(sessionToken, trim(email), password, {
+              keys: true,
+              reason: SignInReasons.SIGN_IN,
+              redirectTo: REDIRECT_TO,
+              service: SYNC_SERVICE,
+              skipCaseError: true
+            }));
+          });
+        });
+
+        it('passes along an optional `unblockCode`', () => {
+          return client.sessionReauth(sessionToken, email, password, relier, {
+            unblockCode: 'unblock me'
+          }).then(() => {
+            assert.isTrue(realClient.sessionReauth.calledWith(sessionToken, trim(email), password, {
+              keys: true,
+              reason: SignInReasons.SIGN_IN,
+              redirectTo: REDIRECT_TO,
+              service: SYNC_SERVICE,
+              unblockCode: 'unblock me'
+            }));
+          });
+        });
+
+        it('passes along an optional `verificationMethod`', () => {
+          return client.sessionReauth(sessionToken, email, password, relier, {
+            verificationMethod: 'email-2fa'
+          }).then(() => {
+            assert.isTrue(realClient.sessionReauth.calledWith(sessionToken, trim(email), password, {
+              keys: true,
+              reason: SignInReasons.SIGN_IN,
+              redirectTo: REDIRECT_TO,
+              service: SYNC_SERVICE,
+              verificationMethod: 'email-2fa'
+            }));
+          });
+        });
+      });
+    });
+
     describe('passwordReset', function () {
       beforeEach(function () {
         sinon.stub(realClient, 'passwordForgotSendCode').callsFake(function () {

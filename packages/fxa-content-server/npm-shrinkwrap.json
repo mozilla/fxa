@@ -4187,8 +4187,8 @@
       }
     },
     "fxa-js-client": {
-      "version": "1.0.1",
-      "from": "fxa-js-client@1.0.1",
+      "version": "1.0.2",
+      "from": "fxa-js-client@1.0.2",
       "dependencies": {
         "sjcl": {
           "version": "1.0.1",
