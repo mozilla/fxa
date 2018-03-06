@@ -35,6 +35,7 @@ The known values of `entrypoint` are:
 * accounts-page: the iframe at https://www.mozilla.org/firefox/accounts/
 * firstrun: the iframe on the Firefox first-run page
 * firstrun_v2: the iframe on the Firefox first-run page, version 2
+* whatsnew: the /whatsnew landing page shown after upgrading Firefox
 * fxa:connect_another_device: user clicked "sign in" button from /connect_another_device page
 * fxa:signin-complete: TODO: we need to track down what's sending this value
 * fxa:signup: user clicked the "Looking for Sync" text from the signup page
