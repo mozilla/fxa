@@ -1,3 +1,46 @@
+<a name="1.107.2"></a>
+## 1.107.2 (2018-03-07)
+
+
+
+
+<a name="1.107.1"></a>
+## 1.107.1 (2018-03-06)
+
+
+### Features
+
+* **signin:** Re-authenticate an existing session if possible. (#5899) r=@vladikoff,@vbudhram ([dffe305](https://github.com/mozilla/fxa-content-server/commit/dffe305)), closes [#5703](https://github.com/mozilla/fxa-content-server/issues/5703)
+
+
+
+<a name="1.107.0"></a>
+# 1.107.0 (2018-03-06)
+
+
+### Bug Fixes
+
+* **basket:** Show service unavaible when no basket account prefs set (#5867), r=@philbooth ([2ad238a](https://github.com/mozilla/fxa-content-server/commit/2ad238a))
+* **config:** if "10 minutes" then duration not Number ([2539812](https://github.com/mozilla/fxa-content-server/commit/2539812))
+* **css:** fixes button misalignment when refreshing clients (#5945) r=@vladikoff ([20863f8](https://github.com/mozilla/fxa-content-server/commit/20863f8)), closes [(#5945](https://github.com/(/issues/5945) [mozilla/fxa-bugzilla-mirror#456](https://github.com/mozilla/fxa-bugzilla-mirror/issues/456)
+* **metrics:** treat enter-email as an "auth" view for flow events (#5924) r= ([431b217](https://github.com/mozilla/fxa-content-server/commit/431b217))
+* **settingView:** All panels will be closed while navigating from a child-view to settings. (#5803 ([4eda3b6](https://github.com/mozilla/fxa-content-server/commit/4eda3b6)), closes [(#5803](https://github.com/(/issues/5803)
+* **sign_up:** changes to l10n string and style based on feedback (#5952) ([96ca4c0](https://github.com/mozilla/fxa-content-server/commit/96ca4c0))
+* **strings:** change 'confirm email' design to let users know that they should FxA to the addr ([be30740](https://github.com/mozilla/fxa-content-server/commit/be30740))
+* **styles:** add position fixed to success messages if user scrolls too far (#5943) r=@vbudhr ([a336fba](https://github.com/mozilla/fxa-content-server/commit/a336fba)), closes [(#5943](https://github.com/(/issues/5943) [#5552](https://github.com/mozilla/fxa-content-server/issues/5552)
+* **styles:** fix unlock button for email settings unlock (#5944) ([3fa0254](https://github.com/mozilla/fxa-content-server/commit/3fa0254)), closes [(#5944](https://github.com/(/issues/5944)
+
+### docs
+
+* **metrics:** Document new entrypoint=whatsnew value. (#5951) r=@vladikoff ([7aab8a5](https://github.com/mozilla/fxa-content-server/commit/7aab8a5))
+
+### Features
+
+* **avatars:** support new default avatar API (#5942) ([24eddb8](https://github.com/mozilla/fxa-content-server/commit/24eddb8))
+* **forms:** replace our password advice with responsive message (#5940) r=@vbudhram,@ryanfee ([bac0c07](https://github.com/mozilla/fxa-content-server/commit/bac0c07)), closes [#5750](https://github.com/mozilla/fxa-content-server/issues/5750)
+
+
+
 <a name="1.107.1"></a>
 ## 1.107.1 (2018-03-06)
 
