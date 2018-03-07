@@ -1,3 +1,13 @@
+<a name="1.106.5"></a>
+## 1.106.5 (2018-03-07)
+
+
+### Bug Fixes
+
+* **tests:** disable profile avatar test ([f5fb665](https://github.com/mozilla/fxa-content-server/commit/f5fb665))
+
+
+
 <a name="1.106.4"></a>
 ## 1.106.4 (2018-03-07)
 
