@@ -661,6 +661,11 @@ section.modal-panel {
   &[data-name='Pontoon'] {
     background-image: url('/images/icon-service-pontoon.svg');
   }
+
+  &[data-name='Lockbox'],
+  &[data-name='Lockbox iOS'] {
+    background-image: url('/images/icon-service-lockbox.svg');
+  }
 }
 
 .client-webSession {
