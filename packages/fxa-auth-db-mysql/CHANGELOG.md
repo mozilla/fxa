@@ -1,3 +1,18 @@
+<a name="1.107.0"></a>
+# [1.107.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.106.0...v1.107.0) (2018-03-07)
+
+
+### chore
+
+* **tests:** cleanup `sessionToken` endpoints and docs, r=@philbooth, @rfk ([da2e9ef](https://github.com/mozilla/fxa-auth-db-mysql/commit/da2e9ef))
+
+### Features
+
+* **totp:** Add initial totp session verification logic (#309), r=@philbooth ([ee19e1b](https://github.com/mozilla/fxa-auth-db-mysql/commit/ee19e1b))
+* **totp:** vlad updates for totp (#313) r=@vladikoff ([f6d603c](https://github.com/mozilla/fxa-auth-db-mysql/commit/f6d603c))
+
+
+
 <a name="1.106.0"></a>
 # [1.106.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.105.0...v1.106.0) (2018-02-21)
 
