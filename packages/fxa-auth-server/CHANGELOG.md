@@ -1,3 +1,23 @@
+<a name="1.107.0"></a>
+# [1.107.0](https://github.com/mozilla/fxa-auth-server/compare/v1.106.0...v1.107.0) (2018-03-07)
+
+
+### Bug Fixes
+
+* **redis:** delete clashing tokens from redis in createSessionToken ([e9ec39d](https://github.com/mozilla/fxa-auth-server/commit/e9ec39d))
+* **tests:** Make email-polling-expiry tests pass in March. (#2324) r=@vladikoff ([597bfab](https://github.com/mozilla/fxa-auth-server/commit/597bfab)), closes [#2324](https://github.com/mozilla/fxa-auth-server/issues/2324)
+
+### chore
+
+* **deps:** Update hapi to v16.6.3 (#2330) ([ad1888a](https://github.com/mozilla/fxa-auth-server/commit/ad1888a)), closes [#2330](https://github.com/mozilla/fxa-auth-server/issues/2330)
+
+### Features
+
+* **emails:** delete bounced registrations that are younger than 6 hours (#2305); r=rfk ([e2d2a7e](https://github.com/mozilla/fxa-auth-server/commit/e2d2a7e)), closes [#2305](https://github.com/mozilla/fxa-auth-server/issues/2305)
+* **totp:** update to use new verification methods (#2321), r=@philbooth, @vladikoff ([45ae7b2](https://github.com/mozilla/fxa-auth-server/commit/45ae7b2)), closes [#2321](https://github.com/mozilla/fxa-auth-server/issues/2321)
+
+
+
 <a name="1.106.0"></a>
 # [1.106.0](https://github.com/mozilla/fxa-auth-server/compare/v1.105.0...v1.106.0) (2018-02-21)
 
