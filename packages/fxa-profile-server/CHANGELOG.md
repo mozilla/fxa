@@ -1,3 +1,22 @@
+<a name="1.107.0"></a>
+# [1.107.0](https://github.com/mozilla/fxa-profile-server/compare/v1.106.0...v1.107.0) (2018-03-07)
+
+
+### chore
+
+* **deps:** Update hapi to v16.6.3 (#308) ([7120d49](https://github.com/mozilla/fxa-profile-server/commit/7120d49))
+
+### Features
+
+* **avatars:** enable default avatar (#304) r=@rfk ([01b0e41](https://github.com/mozilla/fxa-profile-server/commit/01b0e41))
+* **avatars:** enable default avatar (#307) r=@rfk ([9b33666](https://github.com/mozilla/fxa-profile-server/commit/9b33666))
+
+### Reverts
+
+* **avatars:** enable default avatar (#304) (#305) r=@rfk ([158eb63](https://github.com/mozilla/fxa-profile-server/commit/158eb63))
+
+
+
 <a name="1.106.0"></a>
 # [1.106.0](https://github.com/mozilla/fxa-profile-server/compare/v1.104.0...v1.106.0) (2018-02-21)
 
