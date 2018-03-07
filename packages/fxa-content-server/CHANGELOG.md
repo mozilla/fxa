@@ -1,3 +1,13 @@
+<a name="1.106.4"></a>
+## 1.106.4 (2018-03-07)
+
+
+### Bug Fixes
+
+* **token:** use the correct service (#5955) r=@vladikoff ([1197a33](https://github.com/mozilla/fxa-content-server/commit/1197a33))
+
+
+
 <a name="1.106.3"></a>
 ## 1.106.3 (2018-02-23)
 
