@@ -33,7 +33,7 @@ define(function (require, exports, module) {
     var CLIENT_ID = 'dcdb5ae7add825d2';
     var CLIENT_IMAGE_URI = 'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.pngx';
     var PROMPT = Constants.OAUTH_PROMPT_CONSENT;
-    var REDIRECT_URI = 'http://redirect.here';
+    var QUERY_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
     var SCOPE = 'profile:email profile:uid';
     var SCOPE_PROFILE = Constants.OAUTH_TRUSTED_PROFILE_SCOPE;
     var SCOPE_PROFILE_EXPANDED = Constants.OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION.join(' ');
@@ -50,6 +50,7 @@ define(function (require, exports, module) {
       access_type: ACCESS_TYPE,
       action: ACTION,
       client_id: CLIENT_ID,
+      redirect_uri: QUERY_REDIRECT_URI,
       scope: SCOPE,
       state: STATE
     };
@@ -81,7 +82,7 @@ define(function (require, exports, module) {
             code_challenge: CODE_CHALLENGE,
             code_challenge_method: CODE_CHALLENGE_METHOD,
             prompt: PROMPT,
-            redirect_uri: REDIRECT_URI,
+            redirect_uri: QUERY_REDIRECT_URI,
             scope: SCOPE,
             state: STATE
           });
@@ -102,9 +103,7 @@ define(function (require, exports, module) {
               assert.equal(relier.get('clientId'), CLIENT_ID);
               assert.equal(relier.get('accessType'), ACCESS_TYPE);
 
-              // The redirect_uri passed in is ignored, we only care about
-              // the redirect_uri returned by the oauth server
-              assert.notEqual(relier.get('redirectUri'), REDIRECT_URI);
+              // The redirect_uri is matched with the server, if no match then we throw
               assert.equal(relier.get('redirectUri'), SERVER_REDIRECT_URI);
 
               // PKCE parameters
@@ -119,7 +118,7 @@ define(function (require, exports, module) {
             action: ACTION,
             client_id: CLIENT_ID,
             prompt: PROMPT,
-            redirect_uri: REDIRECT_URI,
+            redirect_uri: QUERY_REDIRECT_URI,
             scope: SCOPE,
             service: SERVICE,
             state: STATE
@@ -138,7 +137,7 @@ define(function (require, exports, module) {
             client_id: CLIENT_ID,
             code_challenge: 'foo',
             prompt: PROMPT,
-            redirect_uri: REDIRECT_URI,
+            redirect_uri: QUERY_REDIRECT_URI,
             scope: SCOPE,
             state: STATE
           });
@@ -157,7 +156,7 @@ define(function (require, exports, module) {
             client_id: CLIENT_ID,
             code_challenge_method: 'foo',
             prompt: PROMPT,
-            redirect_uri: REDIRECT_URI,
+            redirect_uri: QUERY_REDIRECT_URI,
             scope: SCOPE,
             state: STATE
           });
@@ -173,7 +172,9 @@ define(function (require, exports, module) {
       describe('verification flow', () => {
         it('populates OAuth information from Session if verifying in the same browser', function () {
           windowMock.location.search = TestHelpers.toSearchString({
-            code: '123'
+            client_id: CLIENT_ID,
+            code: '123',
+            redirect_uri: QUERY_REDIRECT_URI
           });
           Session.set('oauth', RESUME_INFO);
 
@@ -191,6 +192,7 @@ define(function (require, exports, module) {
         it('populates OAuth information from from the `service` query params if verifying in a second browser', function () {
           windowMock.location.search = TestHelpers.toSearchString({
             code: '123',
+            redirect_uri: QUERY_REDIRECT_URI,
             scope: SCOPE,
             service: CLIENT_ID
           });
@@ -207,7 +209,7 @@ define(function (require, exports, module) {
         windowMock.location.search = TestHelpers.toSearchString({
           action: ACTION,
           client_id: CLIENT_ID,
-          redirect_uri: REDIRECT_URI,
+          redirect_uri: QUERY_REDIRECT_URI,
           scope: SCOPE,
           state: STATE
         });
@@ -280,6 +282,7 @@ define(function (require, exports, module) {
             beforeEach(function () {
               return fetchExpectSuccess({
                 client_id: CLIENT_ID,
+                redirect_uri: QUERY_REDIRECT_URI,
                 scope: SCOPE
               });
             });
@@ -307,7 +310,7 @@ define(function (require, exports, module) {
         });
 
         describe('redirect_uri', function () {
-          var validQueryParamValues = [undefined, REDIRECT_URI];
+          var validQueryParamValues = [QUERY_REDIRECT_URI];
           // redirectUri will always be loaded from the server
           var expectedValues = [SERVER_REDIRECT_URI, SERVER_REDIRECT_URI];
           testValidQueryParams('redirect_uri', validQueryParamValues, 'redirectUri', expectedValues);
@@ -421,6 +424,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         windowMock.location.search = TestHelpers.toSearchString({
           client_id: CLIENT_ID,
+          redirect_uri: QUERY_REDIRECT_URI,
           scope: SCOPE
         });
       });
@@ -767,6 +771,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         var params = {
           client_id: CLIENT_ID,
+          redirect_uri: QUERY_REDIRECT_URI,
           scope: SCOPE
         };
 
@@ -790,6 +795,7 @@ define(function (require, exports, module) {
         beforeEach(function () {
           var params = {
             client_id: CLIENT_ID,
+            redirect_uri: QUERY_REDIRECT_URI,
             scope: SCOPE
           };
 
@@ -821,6 +827,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         var params = {
           client_id: CLIENT_ID,
+          redirect_uri: QUERY_REDIRECT_URI,
           scope: SCOPE
         };
 
@@ -889,6 +896,7 @@ define(function (require, exports, module) {
 
         return fetchExpectSuccess({
           client_id: CLIENT_ID,
+          redirect_uri: QUERY_REDIRECT_URI,
           scope: SCOPE
         });
       });

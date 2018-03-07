@@ -7,16 +7,17 @@
 const { registerSuite } = intern.getInterface('object');
 const Querystring = require('querystring');
 const FunctionalHelpers = require('./lib/helpers');
-var config = intern._config;
+const config = intern._config;
 
-var SIGNUP_ROOT = config.fxaContentRoot + 'oauth/signup';
+const SIGNUP_ROOT = `${config.fxaContentRoot}oauth/signup`;
 
-var TRUSTED_CLIENT_ID;
-var TRUSTED_SCOPE = 'profile';
-var UNTRUSTED_CLIENT_ID;
-var UNTRUSTED_SCOPE = 'profile:uid profile:email';
-var UNTRUSTED_NO_VALID_SCOPES = 'profile';
-
+let TRUSTED_CLIENT_ID;
+const TRUSTED_SCOPE = 'profile';
+let UNTRUSTED_CLIENT_ID;
+const UNTRUSTED_SCOPE = 'profile:uid profile:email';
+const UNTRUSTED_NO_VALID_SCOPES = 'profile';
+const TRUSTED_REDIRECT_URI = `${config.fxaOAuthApp}api/oauth`;
+const UNTRUSTED_REDIRECT_URI = `${config.fxaUntrustedOauthApp}api/oauth`;
 
 var thenify = FunctionalHelpers.thenify;
 
@@ -79,6 +80,7 @@ registerSuite('oauth query parameter validation', {
       return this.remote
         .then(openSignUpExpect400({
           client_id: TRUSTED_CLIENT_ID,
+          redirect_uri: TRUSTED_REDIRECT_URI,
           scope: TRUSTED_SCOPE,
           service: 'sync'
         }))
@@ -91,6 +93,7 @@ registerSuite('oauth query parameter validation', {
         .then(openSignUpExpect400({
           access_type: 'invalid',
           client_id: TRUSTED_CLIENT_ID,
+          redirect_uri: TRUSTED_REDIRECT_URI,
           scope: TRUSTED_SCOPE
         }))
         .then(testErrorInclude('invalid'))
@@ -102,6 +105,7 @@ registerSuite('oauth query parameter validation', {
         .then(openSignUpExpect200({
           access_type: 'offline',
           client_id: TRUSTED_CLIENT_ID,
+          redirect_uri: TRUSTED_REDIRECT_URI,
           scope: TRUSTED_SCOPE
         }));
     },
@@ -111,6 +115,7 @@ registerSuite('oauth query parameter validation', {
         .then(openSignUpExpect200({
           access_type: 'online',
           client_id: TRUSTED_CLIENT_ID,
+          redirect_uri: TRUSTED_REDIRECT_URI,
           scope: TRUSTED_SCOPE
         }));
     },
@@ -190,6 +195,7 @@ registerSuite('oauth query parameter validation', {
         .then(openSignUpExpect400({
           client_id: TRUSTED_CLIENT_ID,
           prompt: 'invalid',
+          redirect_uri: TRUSTED_REDIRECT_URI,
           scope: TRUSTED_SCOPE
         }))
         .then(testErrorInclude('invalid'))
@@ -201,6 +207,7 @@ registerSuite('oauth query parameter validation', {
         .then(openSignUpExpect200({
           client_id: TRUSTED_CLIENT_ID,
           prompt: 'consent',
+          redirect_uri: TRUSTED_REDIRECT_URI,
           scope: TRUSTED_SCOPE
         }));
     },
@@ -221,6 +228,7 @@ registerSuite('oauth query parameter validation', {
         .then(openSignUpExpect200({
           client_id: TRUSTED_CLIENT_ID,
           redirectTo: 'http://127.0.0.1',
+          redirect_uri: TRUSTED_REDIRECT_URI,
           scope: TRUSTED_SCOPE
         }));
     },
@@ -240,7 +248,7 @@ registerSuite('oauth query parameter validation', {
       return this.remote
         .then(openSignUpExpect200({
           client_id: TRUSTED_CLIENT_ID,
-          redirect_uri: 'http://127.0.0.1',
+          redirect_uri: TRUSTED_REDIRECT_URI,
           scope: TRUSTED_SCOPE
         }));
     },
@@ -278,6 +286,7 @@ registerSuite('oauth query parameter validation', {
       return this.remote
         .then(openSignUpExpect400({
           client_id: UNTRUSTED_CLIENT_ID,
+          redirect_uri: UNTRUSTED_REDIRECT_URI,
           scope: UNTRUSTED_NO_VALID_SCOPES
         }))
         .then(testErrorInclude('invalid'))
@@ -288,6 +297,7 @@ registerSuite('oauth query parameter validation', {
       return this.remote
         .then(openSignUpExpect200({
           client_id: TRUSTED_CLIENT_ID,
+          redirect_uri: TRUSTED_REDIRECT_URI,
           scope: TRUSTED_SCOPE
         }));
     },
@@ -296,6 +306,7 @@ registerSuite('oauth query parameter validation', {
       return this.remote
         .then(openSignUpExpect200({
           client_id: UNTRUSTED_CLIENT_ID,
+          redirect_uri: UNTRUSTED_REDIRECT_URI,
           scope: UNTRUSTED_SCOPE
         }));
     }

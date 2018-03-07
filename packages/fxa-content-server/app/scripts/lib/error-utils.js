@@ -26,6 +26,7 @@ define(function (require, exports, module) {
     getErrorPageTemplate (error) {
       if (AuthErrors.is(error, 'INVALID_PARAMETER') ||
           AuthErrors.is(error, 'MISSING_PARAMETER') ||
+          OAuthErrors.is(error, 'INCORRECT_REDIRECT') ||
           OAuthErrors.is(error, 'INVALID_PARAMETER') ||
           OAuthErrors.is(error, 'MISSING_PARAMETER') ||
           OAuthErrors.is(error, 'UNKNOWN_CLIENT')) {

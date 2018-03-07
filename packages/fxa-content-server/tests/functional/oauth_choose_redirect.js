@@ -7,18 +7,19 @@
 const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
-var config = intern._config;
-var CONTENT_SERVER_ROOT = config.fxaContentRoot;
-var PASSWORD = 'password';
+const config = intern._config;
+const CONTENT_SERVER_ROOT = config.fxaContentRoot;
+const TRUSTED_REDIRECT_URI = `${config.fxaOAuthApp}api/oauth`;
+const PASSWORD = 'password';
 
-var clearBrowserState = FunctionalHelpers.clearBrowserState;
-var getQueryParamValue = FunctionalHelpers.getQueryParamValue;
-var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
-var openPage = FunctionalHelpers.openPage;
-var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+const clearBrowserState = FunctionalHelpers.clearBrowserState;
+const getQueryParamValue = FunctionalHelpers.getQueryParamValue;
+const openFxaFromRp = FunctionalHelpers.openFxaFromRp;
+const openPage = FunctionalHelpers.openPage;
+const testElementValueEquals = FunctionalHelpers.testElementValueEquals;
 
-var email;
-var oAuthUrl = CONTENT_SERVER_ROOT + 'oauth?&scope=profile&client_id=';
+let email;
+let oAuthUrl = `${CONTENT_SERVER_ROOT}oauth?&scope=profile&redirect_uri=${TRUSTED_REDIRECT_URI}&client_id=`;
 
 registerSuite('oauth choose redirect', {
   beforeEach: function () {

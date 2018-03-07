@@ -171,12 +171,26 @@ define(function (require, exports, module) {
     },
 
     _setupOAuthRPInfo () {
-      var clientId = this.get('clientId');
+      const clientId = this.get('clientId');
+      // get the app provided redirect uri
+      const queryRedirectUri = this.get('redirectUri');
 
       return this._oAuthClient.getClientInfo(clientId)
         .then((serviceInfo) => {
-          var result = Transform.transformUsingSchema(
+          const result = Transform.transformUsingSchema(
             serviceInfo, CLIENT_INFO_SCHEMA, OAuthErrors);
+
+          /**
+           * If redirect_uri was specified in the query we must validate it
+           * Ref: https://tools.ietf.org/html/rfc6749#section-3.1.2
+           *
+           * Verification (email) flows do not have a redirect uri, nothing to validate
+           */
+          if (queryRedirectUri && result.redirectUri !== queryRedirectUri) {
+            // if provided redirect uri doesn't match with client info then throw
+            throw OAuthErrors.toError('INCORRECT_REDIRECT');
+          }
+
           this.set(result);
         }, function (err) {
           // the server returns an invalid request parameter for an
