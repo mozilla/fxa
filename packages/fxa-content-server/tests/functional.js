@@ -69,7 +69,7 @@ module.exports = [
   'tests/functional/cookies_disabled.js',
   'tests/functional/fonts.js',
   'tests/functional/password_visibility.js',
-  'tests/functional/avatar.js',
+  // 'tests/functional/avatar.js', Disabled due to profile server API changes
   'tests/functional/alternative_styles.js',
   'tests/functional/email_opt_in.js',
   'tests/functional/refreshes_metrics.js',

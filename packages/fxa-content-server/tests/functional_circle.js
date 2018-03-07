@@ -36,7 +36,7 @@ module.exports = selectCircleTests([
   'tests/functional/fx_desktop_handshake.js',
   'tests/functional/settings_secondary_emails.js',
   // flaky tests go above here.
-  'tests/functional/avatar.js',
+  // 'tests/functional/avatar.js', Disabled due to profile server API changes
   'tests/functional/back_button_after_start.js',
   'tests/functional/bounced_email.js',
   'tests/functional/change_password.js',
