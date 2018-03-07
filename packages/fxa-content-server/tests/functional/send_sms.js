@@ -8,8 +8,7 @@ const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
-const requirejs = require('../rjs_load');
-const CountryTelephoneInfo = requirejs('app/scripts/lib/country-telephone-info');
+const CountryTelephoneInfo = require('../../app/scripts/lib/country-telephone-info');
 
 const config = intern._config;
 

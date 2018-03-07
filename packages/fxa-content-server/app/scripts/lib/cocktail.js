@@ -10,7 +10,7 @@
  * mixed in beforehand.
  *
  * NOTE: This does not check for circular dependencies. We depend on
- * the fact that mixins are in their own module and requirejs complains
+ * the fact that mixins are in their own module and require might complain
  * about circular dependencies.
  */
 define(function (require, exports, module) {

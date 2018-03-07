@@ -5,8 +5,7 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const requirejs = require('../rjs_load');
-const Constants = requirejs('app/scripts/lib/constants');
+const Constants = require('../../app/scripts/lib/constants');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 var config = intern._config;

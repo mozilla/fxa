@@ -10,7 +10,7 @@
 // specific resources.
 //
 // They compiled templates are placed in the server's compiled template directory to await further processing
-// (requirejs, minification, revving).
+// (minification, revving).
 
 module.exports = function (grunt) {
   var path = require('path');

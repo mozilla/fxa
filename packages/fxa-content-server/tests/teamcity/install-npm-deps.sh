@@ -28,7 +28,6 @@ node ./tests/teamcity/install-npm-deps.js \
   node-uap                        \
   on-headers                      \
   proxyquire                      \
-  requirejs                       \
   raven                           \
   sinon                           \
   sync-exec                       \
