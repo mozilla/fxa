@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const CoppaMixin = require('./mixins/coppa-mixin');
   const EmailFirstExperimentMixin = require('./mixins/email-first-experiment-mixin');
+  const TokenCodeExperimentMixin = require('./mixins/token-code-experiment-mixin');
   const FlowBeginMixin = require('./mixins/flow-begin-mixin');
   const FormPrefillMixin = require('./mixins/form-prefill-mixin');
   const FormView = require('./form');
@@ -87,6 +88,7 @@ define(function (require, exports, module) {
     IndexView,
     CoppaMixin({}),
     EmailFirstExperimentMixin(),
+    TokenCodeExperimentMixin,
     FlowBeginMixin,
     FormPrefillMixin,
     SearchParamMixin,

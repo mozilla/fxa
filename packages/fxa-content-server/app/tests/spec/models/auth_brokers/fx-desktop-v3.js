@@ -26,6 +26,7 @@ define(function (require, exports, module) {
       it('has the expected capabilities', () => {
         assert.isTrue(broker.hasCapability('allowUidChange'));
         assert.isTrue(broker.hasCapability('emailFirst'));
+        assert.isTrue(broker.hasCapability('tokenCode'));
       });
     });
 

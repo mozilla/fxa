@@ -13,11 +13,13 @@ define(function (require, exports, module) {
   const SearchParamMixin = require('../../lib/search-param-mixin');
   const VerificationMethods = require('../../lib/verification-methods');
   const VerificationReasons = require('../../lib/verification-reasons');
+  const TokenCodeExperimentMixin = require('../mixins/token-code-experiment-mixin');
 
   module.exports = {
     dependsOn: [
       ResumeTokenMixin,
-      SearchParamMixin
+      SearchParamMixin,
+      TokenCodeExperimentMixin
     ],
 
     /**
