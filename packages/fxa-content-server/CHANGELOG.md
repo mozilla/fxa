@@ -1,3 +1,13 @@
+<a name="1.106.6"></a>
+## 1.106.6 (2018-03-08)
+
+
+### Features
+
+* **token:** enable tokenCode experiment in desktopV3 (#5961) ([d93ffeb](https://github.com/mozilla/fxa-content-server/commit/d93ffeb))
+
+
+
 <a name="1.106.5"></a>
 ## 1.106.5 (2018-03-07)
 
