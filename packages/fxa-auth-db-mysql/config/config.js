@@ -81,11 +81,6 @@ module.exports = function (fs, path, url, convict) {
         default: '',
         env: 'MYSQL_PASSWORD',
       },
-      database: {
-        doc: 'The database to connect to for MySql',
-        default: 'fxa',
-        env: 'MYSQL_DATABASE',
-      },
       host: {
         doc: 'The host to connect to for MySql',
         default: '127.0.0.1',
@@ -126,11 +121,6 @@ module.exports = function (fs, path, url, convict) {
         doc: 'The password to connect to for MySql',
         default: '',
         env: 'MYSQL_SLAVE_PASSWORD',
-      },
-      database: {
-        doc: 'The database to connect to for MySql',
-        default: 'fxa',
-        env: 'MYSQL_SLAVE_DATABASE',
       },
       host: {
         doc: 'The host to connect to for MySql',

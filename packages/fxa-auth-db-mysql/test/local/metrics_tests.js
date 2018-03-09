@@ -220,7 +220,7 @@ describe('DB metrics', () => {
           db_dnsname: 'foo',
           db_username: 'bar',
           db_password: 'baz',
-          db_name: 'qux'
+          db_name: 'fxa'
         }
       }, new Date(1977, 5, 10, 10, 30))
       .then(function () {
@@ -234,13 +234,13 @@ describe('DB metrics', () => {
         assert.equal(options.master.host, 'foo', 'mysql.connect master.host option was correct')
         assert.equal(options.master.user, 'bar', 'mysql.connect master.user option was correct')
         assert.equal(options.master.password, 'baz', 'mysql.connect master.password option was correct')
-        assert.equal(options.master.database, 'qux', 'mysql.connect master.database option was correct')
+        assert.equal(options.master.database, 'fxa', 'mysql.connect master.database option was correct')
         assert.equal(typeof options.slave, 'object', 'mysql.connect slave option was object')
         assert.equal(Object.keys(options.slave).length, 4, 'mysql.connect slave option had correct number of properties')
         assert.equal(options.slave.host, 'foo', 'mysql.connect slave.host option was correct')
         assert.equal(options.slave.user, 'bar', 'mysql.connect slave.user option was correct')
         assert.equal(options.slave.password, 'baz', 'mysql.connect slave.password option was correct')
-        assert.equal(options.slave.database, 'qux', 'mysql.connect slave.database option was correct')
+        assert.equal(options.slave.database, 'fxa', 'mysql.connect slave.database option was correct')
         assert.equal(options.patchKey, 'schema-patch-level', 'mysql.connect patchKey option was correct')
 
         assert.equal(readMultiple.callCount, 1, 'readMultiple was called once')

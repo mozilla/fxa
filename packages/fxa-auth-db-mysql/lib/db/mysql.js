@@ -13,6 +13,7 @@ const patch = require('./patch')
 const dbUtil = require('./util')
 
 const REQUIRED_CHARSET = 'UTF8MB4_BIN'
+const DATABASE_NAME = require('../constants').DATABASE_NAME
 
 // http://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html
 const ER_TOO_MANY_CONNECTIONS = 1040
@@ -37,6 +38,8 @@ module.exports = function (log, error) {
 
   // make a pool of connections that we can draw from
   function MySql(options) {
+    options.master.database = DATABASE_NAME
+    options.slave.database = DATABASE_NAME
     this.options = options
     this.ipHmacKey = options.ipHmacKey
 
@@ -1321,4 +1324,3 @@ module.exports = function (log, error) {
 
   return MySql
 }
-
