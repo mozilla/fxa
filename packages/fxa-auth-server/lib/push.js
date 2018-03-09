@@ -417,8 +417,7 @@ module.exports = function (log, db, config) {
      * @param {String} options.TTL (in seconds)
      * @promise
      */
-    sendPush: function sendPush(uid, devices, reason, options) {
-      options = options || {}
+    sendPush: function sendPush(uid, devices, reason, options = {}) {
       devices = filterSupportedDevices(options.data, devices)
       var events = reasonToEvents[reason]
       if (! events) {

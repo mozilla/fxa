@@ -17,8 +17,7 @@ const log = require('../../../lib/log')
 
 var TEST_EMAIL = 'foo@gmail.com'
 
-function makeRoutes(options) {
-  options = options || {}
+function makeRoutes(options = {}) {
 
   const config = options.config || {
     verifierVersion: 0,

@@ -167,8 +167,7 @@ describe('/signinCodes/consume:', () => {
   }
 })
 
-function makeRoutes (options) {
-  options = options || {}
+function makeRoutes (options = {}) {
   const log = options.log || mocks.mockLog()
   const db = options.db || mocks.mockDB()
   const customs = options.customs || mocks.mockCustoms()

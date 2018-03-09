@@ -250,8 +250,7 @@ function findVariables (node) {
   }, { array: true })
 }
 
-function find (node, criteria, options) {
-  options = options || {}
+function find (node, criteria, options = {}) {
 
   if (match(node, criteria)) {
     return [ node ]

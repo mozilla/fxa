@@ -101,8 +101,7 @@ module.exports = config => {
    *   {}
    *
    */
-  ClientApi.prototype.accountCreate = function (email, authPW, options) {
-    options = options || {}
+  ClientApi.prototype.accountCreate = function (email, authPW, options = {}) {
 
     var url = this.baseURL + '/account/create' + getQueryString(options)
     return this.doRequest(
@@ -249,8 +248,7 @@ module.exports = config => {
     }
   }
 
-  ClientApi.prototype.accountReset = function (accountResetTokenHex, authPW, headers, options) {
-    options = options || {}
+  ClientApi.prototype.accountReset = function (accountResetTokenHex, authPW, headers, options = {}) {
     var qs = getQueryString(options)
 
     // Default behavior is to request sessionToken
@@ -300,8 +298,7 @@ module.exports = config => {
       )
   }
 
-  ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex, options) {
-    options = options || {}
+  ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex, options = {}) {
 
     return tokens.SessionToken.fromHex(sessionTokenHex)
       .then(
@@ -322,8 +319,7 @@ module.exports = config => {
       )
   }
 
-  ClientApi.prototype.recoveryEmailVerifyCode = function (uid, code, options) {
-    options = options || {}
+  ClientApi.prototype.recoveryEmailVerifyCode = function (uid, code, options = {}) {
     return this.doRequest(
       'POST',
       this.baseURL + '/recovery_email/verify_code',
@@ -341,8 +337,7 @@ module.exports = config => {
     )
   }
 
-  ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, duration, locale, options) {
-    options = options || {}
+  ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, duration, locale, options = {}) {
     return tokens.SessionToken.fromHex(sessionTokenHex)
       .then(
         function (token) {
@@ -414,8 +409,7 @@ module.exports = config => {
   }
 
 
-  ClientApi.prototype.passwordForgotSendCode = function (email, options, lang) {
-    options = options || {}
+  ClientApi.prototype.passwordForgotSendCode = function (email, options = {}, lang) {
     var headers = {}
     if (lang) {
       headers = {
@@ -437,8 +431,7 @@ module.exports = config => {
     )
   }
 
-  ClientApi.prototype.passwordForgotResendCode = function (passwordForgotTokenHex, email, options) {
-    options = options || {}
+  ClientApi.prototype.passwordForgotResendCode = function (passwordForgotTokenHex, email, options = {}) {
     return tokens.PasswordForgotToken.fromHex(passwordForgotTokenHex)
       .then(
         function (token) {
@@ -504,8 +497,7 @@ module.exports = config => {
     )
   }
 
-  ClientApi.prototype.accountUnlockResendCode = function (email, options, lang) {
-    options = options || {}
+  ClientApi.prototype.accountUnlockResendCode = function (email, options = {}, lang) {
     var headers = {}
     if (lang) {
       headers = {
@@ -560,8 +552,7 @@ module.exports = config => {
       )
   }
 
-  ClientApi.prototype.sessionReauth = function (sessionTokenHex, email, authPW, options) {
-    options = options || {}
+  ClientApi.prototype.sessionReauth = function (sessionTokenHex, email, authPW, options = {}) {
     return tokens.SessionToken.fromHex(sessionTokenHex)
       .then(
         function (token) {
@@ -739,8 +730,7 @@ module.exports = config => {
     )
   }
 
-  ClientApi.prototype.verifyTokenCode = function (sessionTokenHex, uid, code, options) {
-    options = options || {}
+  ClientApi.prototype.verifyTokenCode = function (sessionTokenHex, uid, code, options = {}) {
     return tokens.SessionToken.fromHex(sessionTokenHex)
       .then((token) => {
         return this.doRequest(

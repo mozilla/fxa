@@ -24,8 +24,7 @@ const MS_IN_DAY = 1000 * 60 * 60 * 24
 // months are in question (I'm looking at you, February...)
 const MS_IN_ALMOST_TWO_MONTHS = MS_IN_DAY * 58
 
-var makeRoutes = function (options, requireMocks) {
-  options = options || {}
+var makeRoutes = function (options = {}, requireMocks) {
 
   var config = options.config || {}
   config.verifierVersion = config.verifierVersion || 0

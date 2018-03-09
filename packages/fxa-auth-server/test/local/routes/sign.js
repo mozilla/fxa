@@ -182,8 +182,7 @@ describe('/certificate/sign', () => {
     .then(assertions)
   }
 
-  function makeRoutes (options) {
-    options = options || {}
+  function makeRoutes (options = {}) {
 
     var log = options.log || mocks.mockLog()
 

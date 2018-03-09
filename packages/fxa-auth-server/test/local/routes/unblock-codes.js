@@ -11,8 +11,7 @@ const P = require('../../../lib/promise')
 const proxyquire = require('proxyquire')
 const uuid = require('uuid')
 
-function makeRoutes (options, requireMocks) {
-  options = options || {}
+function makeRoutes (options = {}, requireMocks) {
 
   const config = options.config || {}
   const log = options.log || mocks.mockLog()

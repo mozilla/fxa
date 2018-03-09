@@ -19,8 +19,7 @@ var log = require('../../lib/log')
 var TEST_EMAIL = 'foo@gmail.com'
 var MS_ONE_DAY = 1000 * 60 * 60 * 24
 
-const makeRoutes = function (options, requireMocks) {
-  options = options || {}
+const makeRoutes = function (options = {}, requireMocks) {
 
   const config = options.config || {}
   config.verifierVersion = config.verifierVersion || 0

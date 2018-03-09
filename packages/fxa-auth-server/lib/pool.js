@@ -18,8 +18,7 @@ function parseUrl(url) {
   throw new Error('url is invalid: ' + url)
 }
 
-function Pool(url, options) {
-  options = options || {}
+function Pool(url, options = {}) {
   var parsedUrl = parseUrl(url)
   var protocol = require(parsedUrl.protocol)
   this.poolee = new Poolee(

@@ -138,8 +138,7 @@ function setup(results, errors, routePath, requestOptions) {
   return runTest(route, request)
 }
 
-function makeRoutes(options) {
-  options = options || {}
+function makeRoutes(options = {}) {
   const config = {step: 30}
   const log = options.log || mocks.mockLog()
   const db = options.db || mocks.mockDB()

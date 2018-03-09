@@ -23,8 +23,7 @@ function hexString(bytes) {
   return crypto.randomBytes(bytes).toString('hex')
 }
 
-var makeRoutes = function (options, requireMocks) {
-  options = options || {}
+var makeRoutes = function (options = {}, requireMocks) {
 
   const config = options.config || {}
   config.verifierVersion = config.verifierVersion || 0

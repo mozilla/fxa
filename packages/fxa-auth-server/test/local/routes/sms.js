@@ -13,8 +13,7 @@ const sinon = require('sinon')
 
 const sms = {}
 
-function makeRoutes (options, dependencies) {
-  options = options || {}
+function makeRoutes (options = {}, dependencies) {
   const log = options.log || mocks.mockLog()
   const db = options.db || mocks.mockDB()
   return require('../../../lib/routes/sms')(log, db, options.config, mocks.mockCustoms(), sms)

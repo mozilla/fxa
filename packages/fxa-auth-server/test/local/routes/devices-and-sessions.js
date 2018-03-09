@@ -18,8 +18,7 @@ const uuid = require('uuid')
 
 const EARLIEST_SANE_TIMESTAMP = 31536000000
 
-function makeRoutes (options, requireMocks) {
-  options = options || {}
+function makeRoutes (options = {}, requireMocks) {
 
   const config = options.config || {}
   config.smtp = config.smtp ||  {}

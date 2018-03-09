@@ -12,8 +12,7 @@ const P = require('../../../lib/promise')
 const error = require('../../../lib/error')
 const sinon = require('sinon')
 
-function makeRoutes (options) {
-  options = options || {}
+function makeRoutes (options = {}) {
   const config = options.config || {}
   const db = options.db || mocks.mockDB()
   const log = options.log || mocks.mockLog()
