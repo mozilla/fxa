@@ -119,7 +119,8 @@ define(function (require, exports, module) {
               isFirefoxAndroid: () => true,
               isFirefoxDesktop: () => false,
               isFirefoxIos: () => false,
-              isIos: () => false
+              isIos: () => false,
+              supportsSvgTransformOrigin: () => true
             };
           });
 
@@ -153,7 +154,8 @@ define(function (require, exports, module) {
               isFirefoxAndroid: () => false,
               isFirefoxDesktop: () => true,
               isFirefoxIos: () => false,
-              isIos: () => false
+              isIos: () => false,
+              supportsSvgTransformOrigin: () => true
             };
           });
 
@@ -189,7 +191,8 @@ define(function (require, exports, module) {
               isFirefoxAndroid: () => true,
               isFirefoxDesktop: () => false,
               isFirefoxIos: () => false,
-              isIos: () => false
+              isIos: () => false,
+              supportsSvgTransformOrigin: () => true
             };
           });
 
@@ -231,6 +234,7 @@ define(function (require, exports, module) {
               isFirefoxDesktop: () => false,
               isFirefoxIos: () => true,
               isIos: () => true,
+              supportsSvgTransformOrigin: () => true
             };
           });
 
@@ -254,6 +258,7 @@ define(function (require, exports, module) {
               isFirefoxDesktop: () => false,
               isFirefoxIos: () => false,
               isIos: () => true,
+              supportsSvgTransformOrigin: () => true
             };
           });
 
@@ -275,7 +280,8 @@ define(function (require, exports, module) {
               isFirefoxAndroid: () => false,
               isFirefoxDesktop: () => false,
               isFirefoxIos: () => false,
-              isIos: () => false
+              isIos: () => false,
+              supportsSvgTransformOrigin: () => true
             };
           });
 
@@ -297,7 +303,8 @@ define(function (require, exports, module) {
               isFirefoxAndroid: () => false,
               isFirefoxDesktop: () => true,
               isFirefoxIos: () => false,
-              isIos: () => false
+              isIos: () => false,
+              supportsSvgTransformOrigin: () => true
             };
           });
 
@@ -319,7 +326,8 @@ define(function (require, exports, module) {
               isFirefoxAndroid: () => false,
               isFirefoxDesktop: () => false,
               isFirefoxIos: () => false,
-              isIos: () => false
+              isIos: () => false,
+              supportsSvgTransformOrigin: () => true
             };
           });
 
@@ -446,7 +454,8 @@ define(function (require, exports, module) {
             isFirefoxAndroid: () => false,
             isFirefoxDesktop: () => true,
             isFirefoxIos: () => false,
-            isIos: () => false
+            isIos: () => false,
+            supportsSvgTransformOrigin: () => true
           };
         });
 
@@ -477,6 +486,40 @@ define(function (require, exports, module) {
 
         it('notifies of click', () => {
           testIsFlowEventLogged('link.why');
+        });
+      });
+    });
+
+    describe('svg-graphic', () => {
+      const userAgentObj = {
+        isAndroid: () => false,
+        isFirefox: () => true,
+        isFirefoxAndroid: () => false,
+        isFirefoxDesktop: () => true,
+        isFirefoxIos: () => false,
+        isIos: () => false,
+        supportsSvgTransformOrigin: () => true
+      };
+
+      beforeEach(() => {
+        account.set('email', 'testuser@testuser.com');
+        sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
+        sinon.stub(view, '_canSignIn').callsFake(() => true);
+        return view.render();
+      });
+
+      it('shows animated hearts where supportsSvgTransformOrigin is supported', () => {
+        sinon.stub(view, 'getUserAgent').callsFake(() => userAgentObj);
+        assert.equal(view.$el.find('.graphic-connect-another-device-hearts').length, 1);
+        assert.equal(view.$el.find('.graphic-connect-another-device').length, 0);
+      });
+
+      it('shows non-animated hearts where supportsSvgTransformOrigin is not supported', () => {
+        userAgentObj.supportsSvgTransformOrigin = () => false;
+        sinon.stub(view, 'getUserAgent').callsFake(() => userAgentObj);
+        return view.render().then(() => {
+          assert.equal(view.$el.find('.graphic-connect-another-device-hearts').length, 0);
+          assert.equal(view.$el.find('.graphic-connect-another-device').length, 1);
         });
       });
     });

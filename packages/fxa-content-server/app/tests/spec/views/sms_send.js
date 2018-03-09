@@ -322,5 +322,31 @@ define(function(require, exports, module) {
           });
       });
     });
+
+    describe('svg-graphic', () => {
+      const userAgentObj = {
+        supportsSvgTransformOrigin: () => true
+      };
+
+      beforeEach(() => {
+        return view.render();
+      });
+
+      it('shows animated hearts where supportsSvgTransformOrigin is supported', () => {
+        sinon.stub(view, 'getUserAgent').callsFake(() => userAgentObj);
+        assert.equal(view.$el.find('.graphic-connect-another-device-hearts').length, 1);
+        assert.equal(view.$el.find('.graphic-connect-another-device').length, 0);
+      });
+
+      it('shows non-animated hearts where supportsSvgTransformOrigin is not supported', () => {
+        userAgentObj.supportsSvgTransformOrigin = () => false;
+        sinon.stub(view, 'getUserAgent').callsFake(() => userAgentObj);
+        return view.render().then(() => {
+          assert.equal(view.$el.find('.graphic-connect-another-device-hearts').length, 0);
+          assert.equal(view.$el.find('.graphic-connect-another-device').length, 1);
+        });
+      });
+    });
+
   });
 });

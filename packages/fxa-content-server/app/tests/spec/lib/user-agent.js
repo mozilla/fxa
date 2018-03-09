@@ -179,6 +179,72 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('isIE', () => {
+      it('returns `true` if it detects IE', () => {
+        const IEAgents = [
+          'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko',
+          'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)',
+        ];
+
+        IEAgents.forEach((userAgentString) => {
+          const uap = new UserAgent(userAgentString);
+          assert.isTrue(uap.isIE(), userAgentString);
+        });
+      });
+
+      it('returns `false` if not IE', () => {
+        const notIE = [
+          // fx desktop
+          'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0',
+          // Chrome desktop
+          'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 ' +
+          '(KHTML, like Gecko) Chrome/55.0.2883.35 Safari/537.36',
+          // Chrome Android
+          'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) ' +
+          'AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19'
+        ];
+
+        notIE.forEach((userAgentString) => {
+          const uap = new UserAgent(userAgentString);
+          assert.isFalse(uap.isIE(), userAgentString);
+        });
+      });
+    });
+
+    describe('isEdge', () => {
+      it('returns `true` if it detects Microsoft Edge', () => {
+        const EdgeAgents = [
+          'Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) ' +
+          'Chrome/39.0.2171.71 Safari/537.36 Edge/12.0',
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' +
+          'Chrome/51.0.2704.79 Safari/537.36 Edge/14.14393'
+        ];
+
+        EdgeAgents.forEach((userAgentString) => {
+          const uap = new UserAgent(userAgentString);
+          assert.isTrue(uap.isEdge(), userAgentString);
+        });
+      });
+
+      it('returns `false` if not Edge', () => {
+        const notEdge = [
+          // fx desktop
+          'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0',
+          // Chrome desktop
+          'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 ' +
+          '(KHTML, like Gecko) Chrome/55.0.2883.35 Safari/537.36',
+          // Chrome Android
+          'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) ' +
+          'AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19'
+        ];
+
+        notEdge.forEach((userAgentString) => {
+          const uap = new UserAgent(userAgentString);
+          assert.isFalse(uap.isEdge(), userAgentString);
+        });
+      });
+    });
+
     describe('isFirefoxIos', () => {
       it('returns `true` if it detects Fx on iOS', () => {
         const fxIosUserAgents = [
@@ -428,5 +494,45 @@ define(function (require, exports, module) {
         eq(null, 'Unknown');
       });
     });
+
+
+    describe('supportsSvgTransformOrigin', () => {
+      it('returns `true` if supported browsers', () => {
+        [
+          // fx desktop
+          'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0',
+          // fennec
+          'Mozilla/5.0 (Android 4.4; Mobile; rv:46.0) Gecko/46.0 Firefox/46.0',
+          'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/46.0',
+          // Chrome desktop
+          'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 ' +
+          '(KHTML, like Gecko) Chrome/55.0.2883.35 Safari/537.36',
+          // Chrome Android
+          'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) ' +
+          'AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19'
+        ].forEach((userAgentString) => {
+          const uap = new UserAgent(userAgentString);
+          assert.isTrue(uap.supportsSvgTransformOrigin(), userAgentString);
+        });
+      });
+
+      it('returns `false` if not supported browsers', () => {
+        [
+          // Edge
+          'Mozilla/5.0 (Windows Phone 10.0; Android 4.2.1; Microsoft; Lumia ' +
+          '640 XL LTE) AppleWebKit/537.36 (KHTML, like Gecko) ' +
+          'Chrome/42.0.2311.135 Mobile Safari/537.36 Edge/12.10166',
+          // fx ios
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) ' +
+          'AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4',
+          // IE
+          'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)',
+        ].forEach((userAgentString) => {
+          const uap = new UserAgent(userAgentString);
+          assert.isFalse(uap.supportsSvgTransformOrigin(), userAgentString);
+        });
+      });
+    });
+
   });
 });

@@ -64,5 +64,19 @@
 
   @include respond-to('small') {
     height: 100px;
+
+  }
+}
+
+.graphic-connect-another-device-hearts {
+  background-image: url('/images/account-verified-hearts.svg');
+  background-position: center center;
+  height: 190px;
+  margin: 25px 0 -45px 20px;
+  width: auto;
+
+  @include respond-to('small') {
+    height: 140px;
+    margin: 20px 0 -25px 10px;
   }
 }

@@ -146,6 +146,7 @@ define(function (require, exports, module) {
       const escapedSignInUrl = this._getEscapedSignInUrl(email);
 
       const uap = this.getUserAgent();
+      const graphicId = uap.supportsSvgTransformOrigin() ? 'graphic-connect-another-device-hearts' : 'graphic-connect-another-device';
       const isAndroid = uap.isAndroid();
       const isFirefoxAndroid = uap.isFirefoxAndroid();
       const isFirefoxDesktop = uap.isFirefoxDesktop();
@@ -162,6 +163,7 @@ define(function (require, exports, module) {
         canSignIn,
         email,
         escapedSignInUrl,
+        graphicId,
         isFirefoxAndroid,
         isFirefoxDesktop,
         isFirefoxIos,

@@ -19,6 +19,7 @@ define(function (require, exports, module) {
   const ResendMixin = require('./mixins/resend-mixin')({ successMessage: false });
   const SmsMixin = require('./mixins/sms-mixin');
   const Template = require('templates/sms_sent.mustache');
+  const UserAgentMixin = require('../lib/user-agent-mixin');
 
   function arePrereqsMet (model) {
     return model.has('normalizedPhoneNumber') &&
@@ -36,12 +37,16 @@ define(function (require, exports, module) {
     },
 
     setInitialContext (context) {
+      const uap = this.getUserAgent();
+      const graphicId = uap.supportsSvgTransformOrigin() ? 'graphic-connect-another-device-hearts' : 'graphic-connect-another-device';
+
       context.set({
         // The attributes are not surrounded by quotes because _.escape would
         // escape them, causing the id to be the string `"back"`, and the href
         // to be the string `"#"`.
         escapedBackLinkAttrs: _.escape('id=back href=#'),
         escapedPhoneNumber: _.escape(this.model.get('formattedPhoneNumber')),
+        graphicId,
         isResend: this.model.get('isResend')
       });
     },
@@ -64,6 +69,7 @@ define(function (require, exports, module) {
     FlowEventsMixin,
     MarketingMixin,
     ResendMixin,
+    UserAgentMixin,
     SmsMixin
   );
 

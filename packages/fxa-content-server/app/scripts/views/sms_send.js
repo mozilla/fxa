@@ -23,6 +23,7 @@ define(function (require, exports, module) {
   const SELECTOR_PHONE_NUMBER = 'input[type=tel]';
   const SmsMixin = require('./mixins/sms-mixin');
   const Template = require('templates/sms_send.mustache');
+  const UserAgentMixin = require('../lib/user-agent-mixin');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   class SmsSendView extends FormView {
@@ -62,10 +63,13 @@ define(function (require, exports, module) {
       }
 
       const isSignIn = this.isSignIn();
+      const uap = this.getUserAgent();
+      const graphicId = uap.supportsSvgTransformOrigin() ? 'graphic-connect-another-device-hearts' : 'graphic-connect-another-device';
 
       context.set({
         country,
         escapedLearnMoreAttributes,
+        graphicId,
         isSignIn,
         phoneNumber,
         showSuccessMessage: this.model.get('showSuccessMessage')
@@ -194,6 +198,7 @@ define(function (require, exports, module) {
     }),
     PulseGraphicMixin,
     SmsMixin,
+    UserAgentMixin,
     VerificationReasonMixin
   );
 

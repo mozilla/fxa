@@ -49,6 +49,24 @@ define(function (require, exports, module) {
       },
 
       /**
+       * Check if the browser is Edge
+       *
+       * @returns {Boolean}
+       */
+      isEdge () {
+        return this.browser.name === 'Edge';
+      },
+
+      /**
+       * Check if the browser is Internet Explorer
+       *
+       * @returns {Boolean}
+       */
+      isIE () {
+        return this.browser.name === 'IE';
+      },
+
+      /**
        * Check if the browser is Firefox for Android
        *
        * @returns {Boolean}
@@ -73,6 +91,20 @@ define(function (require, exports, module) {
        */
       isFirefoxDesktop () {
         return this.isFirefox() && ! this.isFirefoxIos() && ! this.isFirefoxAndroid();
+      },
+
+      /**
+       * Some browsers do not support SVG Transform Origin and
+       * some of our SVGs will not animate properly.
+       *
+       * We browser detect and determine the version of the SVG to show
+       * based on this function
+       * @returns {boolean}
+       */
+      supportsSvgTransformOrigin () {
+        // everything except Safari iOS / Edge / IE support TransformOrigin
+        // Ref: https://developer.mozilla.org/en-US/docs/Web/CSS/transform-origin
+        return ! (this.isIos() || this.isEdge() || this.isIE());
       },
 
       /**
