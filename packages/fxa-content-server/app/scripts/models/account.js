@@ -134,7 +134,7 @@ define(function (require, exports, module) {
           // Ignore UNAUTHORIZED errors; we'll just fetch again when needed
           // Otherwise report the error
           if (! AuthErrors.is(err, 'UNAUTHORIZED') && this._sentryMetrics) {
-            this._sentryMetrics.captureException(err);
+            this._sentryMetrics.captureException(new Error(_.isEmpty(err) ? 'Something went wrong!' : err));
           }
         });
     },
