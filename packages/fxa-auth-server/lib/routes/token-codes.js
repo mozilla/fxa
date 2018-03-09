@@ -8,9 +8,13 @@ const errors = require('../error')
 const isA = require('joi')
 const validators = require('./validators')
 const HEX_STRING = validators.HEX_STRING
+const BASE_36 = validators.BASE_36
 const P = require('../promise')
 
-module.exports = (log, db, customs) => {
+module.exports = (log, db, config, customs) => {
+  const tokenCodeConfig = config.signinConfirmation.tokenVerificationCode
+  const TOKEN_CODE_LENGTH = tokenCodeConfig && tokenCodeConfig.codeLength || 8
+
   return [
     {
       method: 'POST',
@@ -22,7 +26,7 @@ module.exports = (log, db, customs) => {
         validate: {
           payload: {
             uid: isA.string().max(32).regex(HEX_STRING).required(),
-            code: isA.string().min(0).max(1024).required() // code length is configurable but lets add some sane min/max values
+            code: isA.string().min(TOKEN_CODE_LENGTH).max(TOKEN_CODE_LENGTH).regex(BASE_36).required()
           }
         }
       },

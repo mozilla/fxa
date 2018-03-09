@@ -46,7 +46,7 @@ module.exports = function (
     push,
     config
   )
-  const tokenCodes = require('./token-codes')(log, db, customs)
+  const tokenCodes = require('./token-codes')(log, db, config, customs)
   const session = require('./session')(log, db, Password, config, signinUtils)
   const sign = require('./sign')(log, signer, db, config.domain, devicesImpl)
   const signinCodes = require('./signin-codes')(log, db, customs)

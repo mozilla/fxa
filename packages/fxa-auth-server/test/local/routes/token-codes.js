@@ -124,7 +124,8 @@ function makeRoutes(options) {
   const log = options.log || mocks.mockLog()
   const db = options.db || mocks.mockDB()
   const customs = options.customs || mocks.mockCustoms()
-  return require('../../../lib/routes/token-codes')(log, db, customs)
+  const config = options.config || {signinConfirmation: {}}
+  return require('../../../lib/routes/token-codes')(log, db, config, customs)
 }
 
 function runTest(route, request) {
