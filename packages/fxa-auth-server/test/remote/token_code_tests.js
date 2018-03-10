@@ -39,7 +39,7 @@ describe('remote tokenCodes', function () {
     .then((res) => {
       client = res
       assert.equal(res.verificationMethod, 'email-2fa', 'sets correct verification method')
-      return client.verifyTokenCode('BADCODE')
+      return client.verifyTokenCode('BADCODEE')
     })
     .then(() => {
       assert.fail('consumed invalid code')
@@ -52,6 +52,28 @@ describe('remote tokenCodes', function () {
       assert.equal(status.emailVerified, true, 'email is verified')
       assert.equal(status.sessionVerified, false, 'session is not verified')
     })
+  })
+
+  it('should error with invalid request param when using wrong code format', () => {
+    return Client.login(config.publicUrl, email, password, {
+      verificationMethod: 'email-2fa'
+    })
+      .then((res) => {
+        client = res
+        assert.equal(res.verificationMethod, 'email-2fa', 'sets correct verification method')
+        return client.verifyTokenCode('Cool Runnings 4 u')
+      })
+      .then(() => {
+        assert.fail('consumed invalid code')
+      }, (err) => {
+        assert.equal(err.errno, error.ERRNO.INVALID_PARAMETER, 'correct errno')
+        return client.emailStatus()
+      })
+      .then((status) => {
+        assert.equal(status.verified, false, 'account is not verified')
+        assert.equal(status.emailVerified, true, 'email is verified')
+        assert.equal(status.sessionVerified, false, 'session is not verified')
+      })
   })
 
   it('should consume valid code', () => {

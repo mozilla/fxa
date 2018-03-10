@@ -1,3 +1,13 @@
+<a name="1.107.1"></a>
+## [1.107.1](https://github.com/mozilla/fxa-auth-server/compare/v1.107.0...v1.107.1) (2018-03-10)
+
+
+### chore
+
+* **uplift:** uplift token validation fixes (#2335) r=@vladikoff ([a35411a](https://github.com/mozilla/fxa-auth-server/commit/a35411a)), closes [#2335](https://github.com/mozilla/fxa-auth-server/issues/2335)
+
+
+
 <a name="1.107.0"></a>
 # [1.107.0](https://github.com/mozilla/fxa-auth-server/compare/v1.106.0...v1.107.0) (2018-03-07)
 

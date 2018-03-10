@@ -2526,7 +2526,7 @@ Verify a session using a token code.
   The uid associated with the token code
   <!--end-request-body-post-sessionverifytoken-uid-->
 
-* `code`: *string, min(0), max(1024), required*
+* `code`: *string, min(TOKEN_CODE_LENGTH), max(TOKEN_CODE_LENGTH), regex(BASE_36), required*
 
   <!--begin-request-body-post-sessionverifytoken-code-->
   The code
