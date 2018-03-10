@@ -19,8 +19,8 @@ var DB = require('../lib/db/mysql')(log, require('../db-server').errors)
 var config = require('../config')
 var crypto = require('crypto')
 
-var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex')
-var zeroBuffer32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
+var zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex')
+var zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
 
 var count = parseInt(process.argv[2])
 
@@ -127,4 +127,3 @@ if (count > 0) {
 } else {
   throw new Error('Invalid argument')
 }
-

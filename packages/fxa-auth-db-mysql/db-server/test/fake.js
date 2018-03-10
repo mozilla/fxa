@@ -20,7 +20,7 @@ function base64_16() { return base64(16) }
 function base64_65() { return base64(65) }
 
 function buf(len) {
-  return Buffer(crypto.randomBytes(len))
+  return Buffer.from(crypto.randomBytes(len))
 }
 function buf16() { return buf(16) }
 function buf32() { return buf(32) }

@@ -10,7 +10,7 @@ const P = require('../../../lib/promise')
 const clientThen = require('../client-then')
 
 function emailToHex(email) {
-  return Buffer(email).toString('hex')
+  return Buffer.from(email).toString('hex')
 }
 
 // Helper function that performs two tests:
@@ -192,7 +192,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(!! result[2].isPrimary, false, 'isPrimary is false on thirdEmailRecord email')
             assert.equal(!! result[2].isVerified, false, 'matches secondEmail thirdEmailRecord')
 
-            return client.delThen('/account/' + user.accountId + '/emails/' + secondEmailRecord.email)
+            return client.delThen('/account/' + user.accountId + '/emails/' + emailToHex(secondEmailRecord.email))
           })
           .then(function (r) {
             respOkEmpty(r)
@@ -228,7 +228,7 @@ module.exports = function(cfg, makeServer) {
         return client.putThen('/account/' + user.accountId, user.account)
           .then(function(r) {
             respOkEmpty(r)
-            var randomPassword = Buffer(crypto.randomBytes(32)).toString('hex')
+            var randomPassword = Buffer.from(crypto.randomBytes(32)).toString('hex')
             return client.postThen('/account/' + user.accountId + '/checkPassword', {'verifyHash': randomPassword})
             .then(function(r) {
               assert(false, 'should not be here, password isn\'t valid')
@@ -1180,7 +1180,7 @@ module.exports = function(cfg, makeServer) {
           .then(
             function (r) {
               respOkEmpty(r)
-              return client.getThen('/emailBounces/' + Buffer(email).toString('hex'))
+              return client.getThen('/emailBounces/' + Buffer.from(email).toString('hex'))
             }
           )
           .then(

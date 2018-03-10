@@ -12,8 +12,8 @@ const crypto = require('crypto')
 const proxyquire = require('proxyquire')
 const sinon = require('sinon')
 
-const zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex')
-const zeroBuffer32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
+const zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex')
+const zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
 
 describe('DB metrics', () => {
 
@@ -344,7 +344,7 @@ describe('DB metrics', () => {
   }
 
   function hex (length) {
-    return Buffer(crypto.randomBytes(length).toString('hex'), 'hex')
+    return Buffer.from(crypto.randomBytes(length).toString('hex'), 'hex')
   }
 
 })

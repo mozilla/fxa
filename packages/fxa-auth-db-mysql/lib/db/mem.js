@@ -1072,7 +1072,8 @@ module.exports = function (log, error) {
     return P.resolve({})
   }
 
-  Memory.prototype.getSecondaryEmail = function (emailBuffer) {
+  Memory.prototype.getSecondaryEmail = function (email) {
+    const emailBuffer = Buffer.from(email, 'hex')
     const normalizedEmail = emailBuffer.toString('utf8').toLowerCase()
 
     if (emails[normalizedEmail]) {
@@ -1082,7 +1083,8 @@ module.exports = function (log, error) {
     }
   }
 
-  Memory.prototype.accountRecord = function (emailBuffer) {
+  Memory.prototype.accountRecord = function (email) {
+    const emailBuffer = Buffer.from(email, 'hex')
     const normalizedEmail = emailBuffer.toString('utf8').toLowerCase()
 
     if (! emails[normalizedEmail]) {
@@ -1123,6 +1125,7 @@ module.exports = function (log, error) {
   }
 
   Memory.prototype.setPrimaryEmail = function (uid, email) {
+    email = Buffer.from(email, 'hex').toString('utf8')
     if (! emails[email]) {
       return P.reject(error.notFound())
     }
@@ -1140,6 +1143,7 @@ module.exports = function (log, error) {
   }
 
   Memory.prototype.deleteEmail = function (uid, email) {
+    email = Buffer.from(email, 'hex').toString('utf8')
     var emailRecord = emails[email]
 
     if (emailRecord && emailRecord.uid.toString('hex') === uid.toString('hex') && emailRecord.isPrimary === false) {

@@ -11,6 +11,10 @@ const zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex')
 const zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
 const now = Date.now()
 
+function emailToHex(email) {
+  return Buffer.from(email).toString('hex')
+}
+
 function newUuid() {
   return crypto.randomBytes(16)
 }
@@ -35,7 +39,7 @@ function createAccount() {
     locale: 'en_US',
   }
   account.normalizedEmail = account.email.toLowerCase()
-  account.emailBuffer = Buffer(account.email)
+  account.emailBuffer = Buffer.from(account.email)
   return account
 }
 
@@ -1399,7 +1403,7 @@ module.exports = function (config, DB) {
       })
 
       it('should get secondary email', () => {
-        return db.getSecondaryEmail(secondEmail.email)
+        return db.getSecondaryEmail(emailToHex(secondEmail.email))
           .then((result) => {
             assert.equal(result.email, secondEmail.email, 'matches secondEmail email')
             assert.equal(!! result.isPrimary, false, 'isPrimary is false on secondEmail email')
@@ -1424,7 +1428,7 @@ module.exports = function (config, DB) {
       })
 
       it('should delete email', () => {
-        return db.deleteEmail(secondEmail.uid, secondEmail.email)
+        return db.deleteEmail(secondEmail.uid, emailToHex(secondEmail.email))
           .then((result) => {
             assert.deepEqual(result, {}, 'Returned an empty object on email deletion')
 
@@ -1482,7 +1486,7 @@ module.exports = function (config, DB) {
       })
 
       it('should fail to delete primary email', () => {
-        return db.deleteEmail(accountData.uid, accountData.normalizedEmail)
+        return db.deleteEmail(accountData.uid, emailToHex(accountData.normalizedEmail))
           .then(assert.fail, (err) => {
             assert.equal(err.errno, 136, 'should return email delete errno')
             assert.equal(err.code, 400, 'should return email delete code')
@@ -1501,7 +1505,7 @@ module.exports = function (config, DB) {
       })
 
       it('should fail to get non-existent secondary email', () => {
-        return db.getSecondaryEmail('non-existent@email.com')
+        return db.getSecondaryEmail(emailToHex('non-existent@email.com'))
           .then(assert.fail, (err) => {
             assert.equal(err.errno, 116, 'should return not found errno')
             assert.equal(err.code, 404, 'should return not found code')
@@ -1692,7 +1696,7 @@ module.exports = function (config, DB) {
 
       it('should change a user\'s email', () => {
         let sessionTokenData
-        return db.setPrimaryEmail(account.uid, secondEmail.email)
+        return db.setPrimaryEmail(account.uid, emailToHex(secondEmail.email))
           .then(function (res) {
             assert.deepEqual(res, {}, 'Returned an empty object on email change')
             return db.accountEmails(account.uid)
@@ -1721,7 +1725,7 @@ module.exports = function (config, DB) {
             assert.equal(session.email, secondEmail.email, 'should equal new primary email')
             assert.deepEqual(session.emailCode, secondEmail.emailCode, 'should equal new primary emailCode')
             assert.deepEqual(session.uid, account.uid, 'should equal account uid')
-            return P.all([db.accountRecord(secondEmail.email), db.accountRecord(account.email)])
+            return P.all([db.accountRecord(emailToHex(secondEmail.email)), db.accountRecord(emailToHex(account.email))])
           })
           .then((res) => {
             assert.deepEqual(res[0], res[1], 'should return the same account record regardless of email used')
