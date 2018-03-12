@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   const AvatarMixin = require('./mixins/avatar-mixin');
   const Cocktail = require('cocktail');
   const EmailFirstExperimentMixin = require('./mixins/email-first-experiment-mixin');
-  const TokenCodeExperimentMixin = require('./mixins/token-code-experiment-mixin');
   const FlowBeginMixin = require('./mixins/flow-begin-mixin');
   const FormPrefillMixin = require('./mixins/form-prefill-mixin');
   const FormView = require('./form');
@@ -284,7 +283,6 @@ define(function (require, exports, module) {
     AvatarMixin,
     FlowBeginMixin,
     EmailFirstExperimentMixin({ treatmentPathname: '/' }),
-    TokenCodeExperimentMixin,
     FormPrefillMixin,
     MigrationMixin,
     PasswordMixin,

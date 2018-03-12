@@ -1,3 +1,29 @@
+<a name="1.107.4"></a>
+## 1.107.4 (2018-03-12)
+
+
+### Reverts
+
+* **deps:** revert speed-trap to 0.0.6 due to breakage with Firefox ([1daeec3](https://github.com/mozilla/fxa-content-server/commit/1daeec3))
+
+
+
+<a name="1.107.3"></a>
+## 1.107.3 (2018-03-08)
+
+
+### Features
+
+* **token:** enable tokenCode experiment in desktopV3 (#5964) r=@vbudhram,@vladikoff ([13dffa3](https://github.com/mozilla/fxa-content-server/commit/13dffa3))
+
+
+
+<a name="1.107.2"></a>
+## 1.107.2 (2018-03-07)
+
+
+
+
 <a name="1.107.1"></a>
 ## 1.107.1 (2018-03-06)
 
@@ -5,7 +31,6 @@
 ### Features
 
 * **signin:** Re-authenticate an existing session if possible. (#5899) r=@vladikoff,@vbudhram ([dffe305](https://github.com/mozilla/fxa-content-server/commit/dffe305)), closes [#5703](https://github.com/mozilla/fxa-content-server/issues/5703)
-
 
 
 <a name="1.107.0"></a>
@@ -32,6 +57,40 @@
 
 * **avatars:** support new default avatar API (#5942) ([24eddb8](https://github.com/mozilla/fxa-content-server/commit/24eddb8))
 * **forms:** replace our password advice with responsive message (#5940) r=@vbudhram,@ryanfee ([bac0c07](https://github.com/mozilla/fxa-content-server/commit/bac0c07)), closes [#5750](https://github.com/mozilla/fxa-content-server/issues/5750)
+
+
+<a name="1.106.7"></a>
+## 1.106.7 (2018-03-09)
+
+
+### Reverts
+
+* **deps:** revert speed-trap to 0.0.6 due to breakage with Firefox ([1daeec3](https://github.com/mozilla/fxa-content-server/commit/1daeec3))
+
+
+
+<a name="1.106.6"></a>
+## 1.106.6 (2018-03-08)
+
+
+### Features
+
+* **token:** enable tokenCode experiment in desktopV3 (#5961) ([d93ffeb](https://github.com/mozilla/fxa-content-server/commit/d93ffeb))
+
+
+<a name="1.106.5"></a>
+## 1.106.5 (2018-03-07)
+
+
+### Bug Fixes
+
+* **tests:** disable profile avatar test ([f5fb665](https://github.com/mozilla/fxa-content-server/commit/f5fb665))
+
+
+
+<a name="1.106.4"></a>
+## 1.106.4 (2018-03-07)
+* **token:** use the correct service (#5955) r=@vladikoff ([1197a33](https://github.com/mozilla/fxa-content-server/commit/1197a33))
 
 
 

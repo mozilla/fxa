@@ -57,6 +57,7 @@ define(function (require, exports, module) {
       const subject = {
         clientId: this.relier.get('clientId'),
         isTokenCodeSupported: this.broker.getCapability('tokenCode'),
+        service: this.relier.get('service'),
       };
       return subject;
     }
