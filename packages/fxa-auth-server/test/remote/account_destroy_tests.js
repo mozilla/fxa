@@ -64,7 +64,7 @@ describe('remote account destroy', () => {
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (c) {
-            c.authPW = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
+            c.authPW = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
             return c.destroyAccount()
           }
         )

@@ -18,8 +18,8 @@ describe('scrypt', () => {
   it(
     'scrypt basic',
     () => {
-      var K1 = Buffer('f84913e3d8e6d624689d0a3e9678ac8dcc79d2c2f3d9641488cd9d6ef6cd83dd', 'hex')
-      var salt = Buffer('identity.mozilla.com/picl/v1/scrypt')
+      var K1 = Buffer.from('f84913e3d8e6d624689d0a3e9678ac8dcc79d2c2f3d9641488cd9d6ef6cd83dd', 'hex')
+      var salt = Buffer.from('identity.mozilla.com/picl/v1/scrypt')
 
       return scrypt.hash(K1, salt, 65536, 8, 1, 32)
         .then(
@@ -33,8 +33,8 @@ describe('scrypt', () => {
   it(
     'scrypt enforces maximum number of pending requests',
     () => {
-      var K1 = Buffer('f84913e3d8e6d624689d0a3e9678ac8dcc79d2c2f3d9641488cd9d6ef6cd83dd', 'hex')
-      var salt = Buffer('identity.mozilla.com/picl/v1/scrypt')
+      var K1 = Buffer.from('f84913e3d8e6d624689d0a3e9678ac8dcc79d2c2f3d9641488cd9d6ef6cd83dd', 'hex')
+      var salt = Buffer.from('identity.mozilla.com/picl/v1/scrypt')
       // Check the we're using the lower maxPending setting from config.
       assert.equal(scrypt.maxPending, 5, 'maxPending is correctly set from config')
       // Send many concurrent requests.

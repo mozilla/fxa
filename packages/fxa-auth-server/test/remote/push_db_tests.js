@@ -21,8 +21,8 @@ const DB = require('../../lib/db')(
   Token
 )
 
-var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex').toString('hex')
-var zeroBuffer32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex')
+var zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex').toString('hex')
+var zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex')
 
 var SESSION_TOKEN_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0'
 var ACCOUNT = {

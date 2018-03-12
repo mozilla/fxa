@@ -160,7 +160,7 @@ describe('/password', () => {
         credentials: {
           data: crypto.randomBytes(16).toString('hex'),
           email: TEST_EMAIL,
-          passCode: Buffer('abcdef', 'hex'),
+          passCode: Buffer.from('abcdef', 'hex'),
           ttl: function () { return 17 },
           uid: uid
         },
@@ -229,7 +229,7 @@ describe('/password', () => {
         log: mockLog,
         credentials: {
           email: TEST_EMAIL,
-          passCode: Buffer('abcdef', 'hex'),
+          passCode: Buffer.from('abcdef', 'hex'),
           ttl: function () { return 17 },
           uid: uid
         },

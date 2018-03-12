@@ -14,7 +14,7 @@ describe('butil', () => {
     it(
       'returns false if lengths are different',
       () => {
-        assert.equal(butil.buffersAreEqual(Buffer(2), Buffer(4)), false)
+        assert.equal(butil.buffersAreEqual(Buffer.alloc(2), Buffer.alloc(4)), false)
       }
     )
 
@@ -35,7 +35,7 @@ describe('butil', () => {
       'throws an Error if lengths are different',
       () => {
         assert.throws(() => {
-          butil.xorBuffers(Buffer(2), Buffer(4))
+          butil.xorBuffers(Buffer.alloc(2), Buffer.alloc(4))
         })
       }
     )
@@ -43,9 +43,9 @@ describe('butil', () => {
     it(
       'should return a Buffer with bits ORed',
       () => {
-        const b1 = Buffer('e5', 'hex')
-        const b2 = Buffer('5e', 'hex')
-        assert.deepEqual(butil.xorBuffers(b1, b2), Buffer('bb', 'hex'))
+        const b1 = Buffer.from('e5', 'hex')
+        const b2 = Buffer.from('5e', 'hex')
+        assert.deepEqual(butil.xorBuffers(b1, b2), Buffer.from('bb', 'hex'))
       }
     )
 

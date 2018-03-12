@@ -209,7 +209,7 @@ describe('remote misc', function() {
         client.api.baseURL + '/get_random_bytes',
         null,
         // See payload.maxBytes in ../../server/server.js
-        { big: Buffer(8192).toString('hex')}
+        { big: Buffer.alloc(8192).toString('hex')}
       )
       .then(
         function (body) {

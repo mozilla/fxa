@@ -7,7 +7,7 @@
 var jwtool = require('fxa-jwtool')
 
 function b64toDec(str) {
-  var n = new jwtool.BN(Buffer(str, 'base64'))
+  var n = new jwtool.BN(Buffer.from(str, 'base64'))
   return n.toString(10)
 }
 

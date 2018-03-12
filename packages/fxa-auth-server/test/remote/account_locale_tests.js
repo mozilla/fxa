@@ -78,7 +78,7 @@ describe('remote account locale', function() {
         config.publicUrl,
         email,
         password,
-        { lang: Buffer(128).toString('hex') }
+        { lang: Buffer.alloc(128).toString('hex') }
       )
       .then(
         function (c) {
@@ -102,7 +102,7 @@ describe('remote account locale', function() {
         config.publicUrl,
         email,
         password,
-        { lang: 'en-US,en;q=0.8,' + Buffer(128).toString('hex') }
+        { lang: 'en-US,en;q=0.8,' + Buffer.alloc(128).toString('hex') }
       )
       .then(
         function (c) {

@@ -16,7 +16,7 @@ const crypto = require('crypto')
 const TOKEN = {
   createdAt: Date.now(),
   uid: 'xxx',
-  email: Buffer('test@example.com').toString('hex'),
+  email: Buffer.from('test@example.com').toString('hex'),
   emailCode: '123456',
   emailVerified: true,
   tokenVerificationId: crypto.randomBytes(16),
@@ -269,4 +269,3 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice === 0', () => {
       })
   })
 })
-

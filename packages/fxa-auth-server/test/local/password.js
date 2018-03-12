@@ -13,8 +13,8 @@ describe('Password', () => {
   it(
     'password version zero',
     () => {
-      var pwd = Buffer('aaaaaaaaaaaaaaaa')
-      var salt = Buffer('bbbbbbbbbbbbbbbb')
+      var pwd = Buffer.from('aaaaaaaaaaaaaaaa')
+      var salt = Buffer.from('bbbbbbbbbbbbbbbb')
       var p1 = new Password(pwd, salt, 0)
       assert.equal(p1.version, 0, 'should be using version zero')
       var p2 = new Password(pwd, salt, 0)
@@ -36,8 +36,8 @@ describe('Password', () => {
   it(
     'password version one',
     () => {
-      var pwd = Buffer('aaaaaaaaaaaaaaaa')
-      var salt = Buffer('bbbbbbbbbbbbbbbb')
+      var pwd = Buffer.from('aaaaaaaaaaaaaaaa')
+      var salt = Buffer.from('bbbbbbbbbbbbbbbb')
       var p1 = new Password(pwd, salt, 1)
       assert.equal(p1.version, 1, 'should be using version one')
       var p2 = new Password(pwd, salt, 1)
@@ -59,8 +59,8 @@ describe('Password', () => {
   it(
     'passwords of different versions should not match',
     () => {
-      var pwd = Buffer('aaaaaaaaaaaaaaaa')
-      var salt = Buffer('bbbbbbbbbbbbbbbb')
+      var pwd = Buffer.from('aaaaaaaaaaaaaaaa')
+      var salt = Buffer.from('bbbbbbbbbbbbbbbb')
       var p1 = new Password(pwd, salt, 0)
       var p2 = new Password(pwd, salt, 1)
       return p1.verifyHash()

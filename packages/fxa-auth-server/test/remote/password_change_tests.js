@@ -381,7 +381,7 @@ describe('remote password change', function() {
         )
         .then(
           function () {
-            client.authPW = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
+            client.authPW = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
             return client.changePassword('foobar')
           }
         )

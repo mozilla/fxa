@@ -8,8 +8,8 @@
 
 var uuid = require('uuid')
 
-var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex').toString('hex')
-var zeroBuffer32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex')
+var zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex').toString('hex')
+var zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex')
 
 function createTestAccount() {
   var account = {

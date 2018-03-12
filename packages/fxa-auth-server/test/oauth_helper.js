@@ -23,7 +23,7 @@ module.exports = () => {
           method: 'POST',
           path: '/v1/verify',
           handler: function (request, reply) {
-            const data = JSON.parse(Buffer(request.payload.token, 'hex'))
+            const data = JSON.parse(Buffer.from(request.payload.token, 'hex'))
             return reply(data).code(data.code || 200)
           }
         }

@@ -13,7 +13,7 @@ const PasswordForgotToken = require('../../../lib/tokens')(log).PasswordForgotTo
 
 const ACCOUNT = {
   uid: 'xxx',
-  email: Buffer('test@example.com').toString('hex')
+  email: Buffer.from('test@example.com').toString('hex')
 }
 
 describe('PasswordForgotToken', () => {

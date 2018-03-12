@@ -33,7 +33,7 @@ module.exports = config => {
   Client.prototype.setupCredentials = function (email, password) {
     return P.resolve().then(() => {
       this.email = email
-      return pbkdf2.derive(Buffer(password), hkdf.KWE('quickStretch', email), 1000, 32)
+      return pbkdf2.derive(Buffer.from(password), hkdf.KWE('quickStretch', email), 1000, 32)
         .then(
           function (stretch) {
             return hkdf(stretch, 'authPW', null, 32)

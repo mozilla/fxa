@@ -46,8 +46,8 @@ const redis = require('redis').createClient({
   enable_offline_queue: false
 })
 
-const zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex').toString('hex')
-const zeroBuffer32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex')
+const zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex').toString('hex')
+const zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex')
 
 let account, secondEmail
 

@@ -436,7 +436,7 @@ describe('/recovery_email/verify_code', function () {
   })
   var dbData = {
     email: TEST_EMAIL,
-    emailCode: Buffer(mockRequest.payload.code, 'hex'),
+    emailCode: Buffer.from(mockRequest.payload.code, 'hex'),
     emailVerified: false,
     secondEmail: 'test@email.com',
     secondEmailCode: crypto.randomBytes(16).toString('hex'),
