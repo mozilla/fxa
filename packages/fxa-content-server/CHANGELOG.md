@@ -1,3 +1,13 @@
+<a name="1.107.4"></a>
+## 1.107.4 (2018-03-12)
+
+
+### Reverts
+
+* **deps:** revert speed-trap to 0.0.6 due to breakage with Firefox ([1daeec3](https://github.com/mozilla/fxa-content-server/commit/1daeec3))
+
+
+
 <a name="1.107.3"></a>
 ## 1.107.3 (2018-03-08)
 
