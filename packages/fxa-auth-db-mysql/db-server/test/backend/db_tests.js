@@ -59,7 +59,7 @@ function createEmail(data) {
 }
 
 function hex(len) {
-  return Buffer(crypto.randomBytes(len).toString('hex'), 'hex')
+  return Buffer.from(crypto.randomBytes(len).toString('hex'), 'hex')
 }
 function hex6() {
   return hex(6)
@@ -185,7 +185,7 @@ module.exports = function (config, DB) {
           .then(() => db.createAccount(anotherAccountData.uid, anotherAccountData))
           .then((account) => {
             assert.deepEqual(account, {}, 'Returned an empty object on account creation')
-            return db.accountExists(Buffer(anotherAccountData.email))
+            return db.accountExists(Buffer.from(anotherAccountData.email))
               .then((exists) => assert(exists, 'account exists for this email address'), assert.fail)
           })
       })
@@ -239,7 +239,7 @@ module.exports = function (config, DB) {
 
     describe('db.checkPassword', () => {
       it('should fail with incorrect password', () => {
-        return db.checkPassword(accountData.uid, {verifyHash: Buffer(crypto.randomBytes(32))})
+        return db.checkPassword(accountData.uid, {verifyHash: Buffer.from(crypto.randomBytes(32))})
           .then(assert.fail, (err) => {
             assert(err, 'incorrect password produces an error')
             assert.equal(err.code, 400, 'error code')
