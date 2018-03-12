@@ -431,7 +431,7 @@ module.exports = (
 
   DB.prototype.setPrimaryEmail = function (uid, email) {
     log.trace({op: 'DB.accountFromEmail', email: email})
-    return this.pool.post('/email/' + Buffer(email, 'utf8').toString('hex') + '/account/' + uid)
+    return this.pool.post('/email/' + hexEncode(email) + '/account/' + uid)
       .then(
         function (body) {
           return body
@@ -1099,7 +1099,7 @@ module.exports = (
       uid: uid
     })
 
-    return this.pool.del('/account/' + uid + '/emails/' + email)
+    return this.pool.del('/account/' + uid + '/emails/' + hexEncode(email))
       .catch(
         function (err) {
           if (isEmailDeletePrimaryError(err)) {
@@ -1209,7 +1209,7 @@ module.exports = (
   }
 
   function hexEncode(str) {
-    return Buffer(str, 'utf8').toString('hex')
+    return Buffer.from(str, 'utf8').toString('hex')
   }
 
   function safeRedisGet (key) {
