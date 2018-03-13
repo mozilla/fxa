@@ -1,3 +1,13 @@
+<a name="1.107.5"></a>
+## 1.107.5 (2018-03-13)
+
+
+### Features
+
+* **totp:** initial totp implementation (#5962), r=@vladikoff ([8a3b610](https://github.com/mozilla/fxa-content-server/commit/8a3b610))
+
+
+
 <a name="1.107.4"></a>
 ## 1.107.4 (2018-03-12)
 
