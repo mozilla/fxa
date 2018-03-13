@@ -1074,6 +1074,7 @@ describe('metrics/amplitude', () => {
           device_id: 'plin',
           flow_id: 'gorb',
           flowBeginTime: 'yerx',
+          service: '0',
           time: 'wenf'
         })
       })
@@ -1082,7 +1083,9 @@ describe('metrics/amplitude', () => {
         assert.equal(log.amplitudeEvent.callCount, 1)
         const args = log.amplitudeEvent.args[0]
         assert.equal(args[0].device_id, 'plin')
+        assert.equal(args[0].event_properties.service, 'amo')
         assert.equal(args[0].user_properties.flow_id, 'gorb')
+        assert.equal(args[0].user_properties['$append'].fxa_services_used, 'amo')
         assert.equal(args[0].session_id, 'yerx')
         assert.equal(args[0].time, 'wenf')
       })

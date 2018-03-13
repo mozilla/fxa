@@ -92,15 +92,48 @@ describe('metricsContext', () => {
       }
       return metricsContext.stash.call({
         payload: {
-          metricsContext: 'bar'
-        }
+          metricsContext: {
+            foo: 'bar'
+          },
+          service: 'baz'
+        },
+        query: {}
       }, token).then(result => {
         assert.equal(result, 'wibble', 'result is correct')
 
         assert.equal(cache.set.callCount, 1, 'cache.set was called once')
         assert.equal(cache.set.args[0].length, 2, 'cache.set was passed two arguments')
         assert.equal(cache.set.args[0][0], hashToken(token), 'first argument was correct')
-        assert.equal(cache.set.args[0][1], 'bar', 'second argument was correct')
+        assert.deepEqual(cache.set.args[0][1], {
+          foo: 'bar',
+          service: 'baz'
+        }, 'second argument was correct')
+
+        assert.equal(log.error.callCount, 0, 'log.error was not called')
+      })
+    }
+  )
+
+  it(
+    'metricsContext.stash with service query param',
+    () => {
+      results.set = P.resolve('wibble')
+      const token = {
+        uid: Array(64).fill('c').join(''),
+        id: 'foo'
+      }
+      return metricsContext.stash.call({
+        payload: {
+          metricsContext: {
+            foo: 'bar'
+          }
+        },
+        query: {
+          service: 'qux'
+        }
+      }, token).then(result => {
+        assert.equal(cache.set.callCount, 1, 'cache.set was called once')
+        assert.equal(cache.set.args[0][1].service, 'qux', 'service property was correct')
 
         assert.equal(log.error.callCount, 0, 'log.error was not called')
       })
@@ -113,8 +146,11 @@ describe('metricsContext', () => {
       results.set = P.reject('wibble')
       return metricsContext.stash.call({
         payload: {
-          metricsContext: 'bar'
-        }
+          metricsContext: {
+            foo: 'bar'
+          }
+        },
+        query: {}
       }, {
         uid: Array(64).fill('c').join(''),
         id: 'foo'
@@ -139,8 +175,11 @@ describe('metricsContext', () => {
     () => {
       return metricsContext.stash.call({
         payload: {
-          metricsContext: 'bar'
-        }
+          metricsContext: {
+            foo: 'bar'
+          }
+        },
+        query: {}
       }, {
         id: 'foo'
       }).then(result => {
@@ -163,7 +202,8 @@ describe('metricsContext', () => {
     'metricsContext.stash without metadata',
     () => {
       return metricsContext.stash.call({
-        payload: {}
+        payload: {},
+        query: {}
       }, {
         uid: Array(64).fill('c').join(''),
         id: 'foo'
@@ -207,7 +247,7 @@ describe('metricsContext', () => {
       }, {}).then(function (result) {
         assert.equal(typeof result, 'object', 'result is object')
         assert.notEqual(result, null, 'result is not null')
-        assert.equal(Object.keys(result).length, 12, 'result has 12 properties')
+        assert.equal(Object.keys(result).length, 13, 'result has 13 properties')
         assert.ok(result.time > time, 'result.time seems correct')
         assert.equal(result.device_id, 'mock device id', 'result.device_id is correct')
         assert.equal(result.flow_id, 'mock flow id', 'result.flow_id is correct')
@@ -216,6 +256,7 @@ describe('metricsContext', () => {
         assert.equal(result.flowBeginTime, time, 'result.flowBeginTime is correct')
         assert.equal(result.flowCompleteSignal, 'mock flow complete signal', 'result.flowCompleteSignal is correct')
         assert.equal(result.flowType, 'mock flow type', 'result.flowType is correct')
+        assert.equal(result.service, 'mock service', 'result.service is correct')
         assert.equal(result.utm_campaign, 'mock utm_campaign', 'result.utm_campaign is correct')
         assert.equal(result.utm_content, 'mock utm_content', 'result.utm_content is correct')
         assert.equal(result.utm_medium, 'mock utm_medium', 'result.utm_medium is correct')
@@ -255,7 +296,7 @@ describe('metricsContext', () => {
           }
         }
       }, {}).then(function (result) {
-        assert.equal(Object.keys(result).length, 7, 'result has 7 properties')
+        assert.equal(Object.keys(result).length, 8, 'result has 8 properties')
         assert.equal(result.utm_campaign, undefined, 'result.utm_campaign is undefined')
         assert.equal(result.utm_content, undefined, 'result.utm_content is undefined')
         assert.equal(result.utm_medium, undefined, 'result.utm_medium is undefined')
@@ -301,6 +342,7 @@ describe('metricsContext', () => {
         flowBeginTime: time,
         flowCompleteSignal: 'flowCompleteSignal',
         flowType: 'flowType',
+        service: null,
         utmCampaign: 'utmCampaign',
         utmContent: 'utmContent',
         utmMedium: 'utmMedium',
@@ -311,14 +353,14 @@ describe('metricsContext', () => {
         auth: {
           credentials: token
         }
-      }, {}).then(function (result) {
+      }, { service: 'do not clobber me' }).then(function (result) {
         assert.equal(cache.get.callCount, 1, 'cache.get was called once')
         assert.equal(cache.get.args[0].length, 1, 'cache.get was passed one argument')
         assert.equal(cache.get.args[0][0], hashToken(token), 'cache.get argument was correct')
 
         assert.equal(typeof result, 'object', 'result is object')
         assert.notEqual(result, null, 'result is not null')
-        assert.equal(Object.keys(result).length, 12, 'result has 12 properties')
+        assert.equal(Object.keys(result).length, 13, 'result has 13 properties')
         assert.ok(result.time > time, 'result.time seems correct')
         assert.equal(result.device_id, 'deviceId', 'result.device_id is correct')
         assert.equal(result.flow_id, 'flowId', 'result.flow_id is correct')
@@ -327,6 +369,7 @@ describe('metricsContext', () => {
         assert.equal(result.flowBeginTime, time, 'result.flowBeginTime is correct')
         assert.equal(result.flowCompleteSignal, 'flowCompleteSignal', 'result.flowCompleteSignal is correct')
         assert.equal(result.flowType, 'flowType', 'result.flowType is correct')
+        assert.equal(result.service, 'do not clobber me', 'result.service is correct')
         assert.equal(result.utm_campaign, 'utmCampaign', 'result.utm_campaign is correct')
         assert.equal(result.utm_content, 'utmContent', 'result.utm_content is correct')
         assert.equal(result.utm_medium, 'utmMedium', 'result.utm_medium is correct')

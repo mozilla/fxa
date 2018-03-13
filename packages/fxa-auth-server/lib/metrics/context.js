@@ -55,6 +55,8 @@ module.exports = function (log, config) {
       return P.resolve()
     }
 
+    metadata.service = this.payload.service || this.query.service
+
     return P.resolve()
       .then(() => cache.set(getKey(token), metadata))
       .catch(err => log.error({
@@ -101,6 +103,10 @@ module.exports = function (log, config) {
           data.flowBeginTime = metadata.flowBeginTime
           data.flowCompleteSignal = metadata.flowCompleteSignal
           data.flowType = metadata.flowType
+
+          if (metadata.service) {
+            data.service = metadata.service
+          }
 
           const doNotTrack = this.headers && this.headers.dnt === '1'
           if (! doNotTrack) {

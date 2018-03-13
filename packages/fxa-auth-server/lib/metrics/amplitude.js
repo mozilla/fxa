@@ -200,7 +200,7 @@ module.exports = (log, config) => {
   }
 
   function mapEventProperties (group, request, data, metricsContext) {
-    const { serviceName, clientId } = getServiceNameAndClientId(request, data)
+    const { serviceName, clientId } = getServiceNameAndClientId(request, data, metricsContext)
 
     return Object.assign({
       service: serviceName,
@@ -208,9 +208,12 @@ module.exports = (log, config) => {
     }, EVENT_PROPERTIES[group](request, data, metricsContext))
   }
 
-  function getServiceNameAndClientId (request, data) {
+  function getServiceNameAndClientId (request, data, metricsContext) {
     let serviceName, clientId
-    const service = data.service || request.payload.service || request.query.service
+    const service = data.service ||
+      request.payload.service ||
+      request.query.service ||
+      metricsContext.service
 
     if (service && service !== 'content-server') {
       if (service === 'sync') {
@@ -231,7 +234,7 @@ module.exports = (log, config) => {
       sync_device_count: data.devices && data.devices.length,
       ua_browser: safeGet(browser),
       ua_version: safeGet(browserVersion)
-    }, getServicesUsed(request), getNewsletterState(data))
+    }, getServicesUsed(request, metricsContext), getNewsletterState(data))
   }
 
   function safeGet (value) {
@@ -248,8 +251,8 @@ module.exports = (log, config) => {
     return safeGet(data.location && data.location[key])
   }
 
-  function getServicesUsed (request) {
-    const { serviceName } = getServiceNameAndClientId(request, {})
+  function getServicesUsed (request, metricsContext) {
+    const { serviceName } = getServiceNameAndClientId(request, {}, metricsContext)
     if (serviceName) {
       return {
         '$append': {
