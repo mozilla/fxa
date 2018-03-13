@@ -40,5 +40,20 @@
         font-size: 18px;
       }
     }
+
+    .modal-success {
+      background-color: $settings-success-background-color;
+      border-color: $settings-success-border-color;
+      border-style: solid;
+      color: $success-text-color;
+      font-size: $base-font;
+      margin: 0 auto;
+      text-align: center;
+      top: 0;
+
+      a {
+        color: $success-text-color;
+      }
+    }
   }
 }

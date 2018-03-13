@@ -1498,5 +1498,65 @@ define(function (require, exports, module) {
           });
       });
     });
+
+    describe('createTotpToken', () => {
+      it('delegates to the fxa-js-client', () => {
+        const resp = {
+          qrCodeUrl: 'data:image/png;base64,iVBOR:',
+          secret: 'superdupersecretcode'
+        };
+        sinon.stub(realClient, 'createTotpToken').callsFake(() => Promise.resolve(resp));
+
+        return client.createTotpToken()
+          .then((_resp) => {
+            assert.strictEqual(_resp, resp);
+            assert.isTrue(realClient.createTotpToken.calledOnce);
+          });
+      });
+    });
+
+    describe('deleteTotpToken', () => {
+      it('delegates to the fxa-js-client', () => {
+        const resp = {};
+        sinon.stub(realClient, 'deleteTotpToken').callsFake(() => Promise.resolve(resp));
+
+        return client.deleteTotpToken()
+          .then((_resp) => {
+            assert.strictEqual(_resp, resp);
+            assert.isTrue(realClient.deleteTotpToken.calledOnce);
+          });
+      });
+    });
+
+    describe('checkTotpTokenExists', () => {
+      it('delegates to the fxa-js-client', () => {
+        const resp = {
+          exists: true
+        };
+        sinon.stub(realClient, 'checkTotpTokenExists').callsFake(() => Promise.resolve(resp));
+
+        return client.checkTotpTokenExists()
+          .then((_resp) => {
+            assert.strictEqual(_resp, resp);
+            assert.isTrue(realClient.checkTotpTokenExists.calledOnce);
+          });
+      });
+    });
+
+    describe('verifyTotpCode', () => {
+      it('delegates to the fxa-js-client', () => {
+        const resp = {
+          success: true
+        };
+        sinon.stub(realClient, 'verifyTotpCode').callsFake(() => Promise.resolve(resp));
+
+        return client.verifyTotpCode('code')
+          .then((_resp) => {
+            assert.strictEqual(_resp, resp);
+            assert.isTrue(realClient.verifyTotpCode.calledOnce);
+            assert.isTrue(realClient.verifyTotpCode.calledWith('code'));
+          });
+      });
+    });
   });
 });

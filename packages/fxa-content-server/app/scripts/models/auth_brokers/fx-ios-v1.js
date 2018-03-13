@@ -81,7 +81,11 @@ define(function (require, exports, module) {
      */
     _notifyRelierOfLogin (account) {
       return proto._notifyRelierOfLogin.call(this, account);
-    }
+    },
+
+    afterCompleteSignInWithCode (account) {
+      return this._notifyRelierOfLogin(account);
+    },
   });
 
   module.exports = FxiOSV1AuthenticationBroker;

@@ -146,7 +146,7 @@ define(function (require, exports, module) {
 
         it('calls correct broker methods', () => {
           assert.isTrue(account.verifyTokenCode.calledWith(TOKEN_CODE), 'verify with correct code');
-          assert.isTrue(view.invokeBrokerMethod.calledWith('afterCompleteSignInTokenCode', account));
+          assert.isTrue(view.invokeBrokerMethod.calledWith('afterCompleteSignInWithCode', account));
         });
       });
 

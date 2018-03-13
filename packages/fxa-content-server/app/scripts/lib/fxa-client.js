@@ -962,7 +962,41 @@ define(function (require, exports, module) {
      * @param {String} code tokenCode
      * @returns {Promise} resolves when complete
      */
-    verifyTokenCode: createClientDelegate('verifyTokenCode')
+    verifyTokenCode: createClientDelegate('verifyTokenCode'),
+
+    /**
+     * Creates a new TOTP token for the current user.
+     *
+     * @param {String} sessionToken SessionToken obtained from signIn
+     * @returns {Promise} resolves when complete
+     */
+    createTotpToken: createClientDelegate('createTotpToken'),
+
+    /**
+     * Deletes the current user's TOTP token.
+     *
+     * @param {String} sessionToken SessionToken obtained from signIn
+     * @returns {Promise} resolves when complete
+     */
+    deleteTotpToken: createClientDelegate('deleteTotpToken'),
+
+    /**
+     * Checks to see if the current user has a TOTP token.
+     *
+     * @param {String} sessionToken SessionToken obtained from signIn
+     * @returns {Promise} resolves when complete
+     */
+    checkTotpTokenExists: createClientDelegate('checkTotpTokenExists'),
+
+    /**
+     * Checks to see if the TOTP code is valid and verifies the TOTP token
+     * if it is.
+     *
+     * @param {String} sessionToken SessionToken obtained from signIn
+     * @param {String} code TOTP code
+     * @returns {Promise} resolves when complete
+     */
+    verifyTotpCode: createClientDelegate('verifyTotpCode')
   };
 
   module.exports = FxaClientWrapper;

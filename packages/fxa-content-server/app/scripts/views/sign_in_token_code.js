@@ -51,7 +51,7 @@ define(function (require, exports, module) {
       return account.verifyTokenCode(code)
         .then(() => {
           this.logViewEvent('success');
-          return this.invokeBrokerMethod('afterCompleteSignInTokenCode', account);
+          return this.invokeBrokerMethod('afterCompleteSignInWithCode', account);
         }, (err) => {
           this.displayError(err);
         });

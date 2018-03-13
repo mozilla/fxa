@@ -1,0 +1,106 @@
+.totp-panel {
+  .totp-list {
+    padding: 0;
+
+    .totp-type {
+      height: 40px;
+      list-style: none;
+      margin: 10px 0;
+      position: relative;
+
+      html[dir='ltr'] & {
+        background-position: left 2px;
+      }
+
+      html[dir='rtl'] & {
+        background-position: right 2px;
+      }
+
+      .name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        @include respond-to('big') {
+          width: calc(95% - 95px);
+        }
+
+        @include respond-to('small') {
+          width: 100%;
+        }
+      }
+
+      .details {
+        color: $color-grey;
+        font-size: 12px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: calc(95% - 95px);
+
+        & .disabled {
+          color: $color-red;
+        }
+
+        & .enabled {
+          color: $color-green;
+        }
+      }
+
+      .settings-button-group {
+        position: absolute;
+        top: 0;
+
+        html[dir='ltr'] & {
+            right: 0;
+        }
+
+        html[dir='rtl'] & {
+            left: 0;
+        }
+
+        .settings-button {
+          height: 35px;
+          margin-left: 10px;
+          /*minimum width required for the button to look good without occupying too much space*/
+          /*is also the default computed width on desktop screen*/
+          min-width: 100px;
+          text-align: center;
+          width: 20%;
+        }
+      }
+    }
+  }
+
+  .totp-details {
+    .qr-image-container {
+      margin: auto;
+      padding-bottom: 10px;
+      width: 50%;
+    }
+
+    .setup-description,
+    .code-description {
+      margin-bottom: 10px;
+    }
+
+    .show-code-link {
+      margin-bottom: 10px;
+    }
+
+    .code {
+      color: $color-green-darker;
+      letter-spacing: .1rem;
+      padding-bottom: 5px;
+    }
+  }
+
+  .input-row {
+    margin-top: 24px;
+  }
+}
+
+.recovery-code {
+  font-size: 1.5em;
+  font-weight: bold;
+}

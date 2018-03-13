@@ -42,7 +42,7 @@ define(function (require, exports, module) {
       return channel;
     },
 
-    afterCompleteSignInTokenCode (account) {
+    afterCompleteSignInWithCode (account) {
       return this._notifyRelierOfLogin(account)
         .then(() => proto.afterSignInConfirmationPoll.call(this, account));
     },
