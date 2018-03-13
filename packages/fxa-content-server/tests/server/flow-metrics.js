@@ -21,9 +21,9 @@ suite.beforeEach = function () {
   });
   sinon.stub(crypto, 'randomBytes').callsFake(function (size) {
     if (mockRandomBytes) {
-      return new Buffer(mockRandomBytes);
+      return Buffer.from(mockRandomBytes);
     } else {
-      var b = new Buffer(size);
+      var b = Buffer.alloc(size);
       b.fill(0);
       return b;
     }
