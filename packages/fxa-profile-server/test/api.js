@@ -569,7 +569,7 @@ describe('/avatar', function() {
 
       return Server.api.post({
         url: '/avatar/upload',
-        payload: Buffer('{}'),
+        payload: Buffer.from('{}'),
         headers: { authorization: 'Bearer ' + tok,
           'content-type': 'image/png',
           'content-length': dataLength

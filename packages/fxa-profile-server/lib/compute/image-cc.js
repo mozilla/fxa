@@ -58,7 +58,7 @@ function compute(msg, callback) {
   var id = msg.id;
   var variant = msg.suffix || 'default';
   var suffix = msg.suffix ? '_' + msg.suffix : '';
-  var src = Buffer(msg.payload);
+  var src = Buffer.from(msg.payload);
   var start = Date.now();
   var s3Start = start;
   logger.debug('process.start', { bytes: src.length, variant: variant });

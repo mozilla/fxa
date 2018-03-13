@@ -58,7 +58,7 @@ module.exports = function mock(options) {
         return inject(WORKER, {
           method: 'POST',
           url: path,
-          payload: Buffer(body, 'hex'),
+          payload: Buffer.from(body, 'hex'),
           headers: headers
         });
       });
