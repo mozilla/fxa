@@ -730,7 +730,7 @@ module.exports = config => {
     )
   }
 
-  ClientApi.prototype.verifyTokenCode = function (sessionTokenHex, uid, code, options = {}) {
+  ClientApi.prototype.verifyTokenCode = function (sessionTokenHex, code, options = {}) {
     return tokens.SessionToken.fromHex(sessionTokenHex)
       .then((token) => {
         return this.doRequest(
@@ -738,8 +738,8 @@ module.exports = config => {
           this.baseURL + '/session/verify/token',
           token,
           {
-            uid: uid,
             code: code,
+            uid: options.uid || undefined,
             metricsContext: options.metricsContext
           }
         )

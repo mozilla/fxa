@@ -25,22 +25,31 @@ module.exports = (log, db, config, customs) => {
         },
         validate: {
           payload: {
-            uid: isA.string().max(32).regex(HEX_STRING).required(),
-            code: isA.string().min(TOKEN_CODE_LENGTH).max(TOKEN_CODE_LENGTH).regex(BASE_36).required()
+            code: isA.string().min(TOKEN_CODE_LENGTH).max(TOKEN_CODE_LENGTH).regex(BASE_36).required(),
+            uid: isA.string().max(32).regex(HEX_STRING).optional()
           }
         }
       },
       handler (request, reply) {
         log.begin('session.verify.token', request)
 
-        const uid = request.payload.uid
         const code = request.payload.code.toUpperCase()
+        const uid = request.auth.credentials.uid
         const email = request.auth.credentials.email
 
         customs.check(request, email, 'verifyTokenCode')
+          .then(checkOptionalUidParam)
           .then(verifyCode)
           .then(emitMetrics)
           .then(reply, reply)
+
+        function checkOptionalUidParam() {
+          // For b/w compat we accept `uid` in the request body,
+          // but it must match the uid of the sessionToken.
+          if (request.payload.uid && request.payload.uid !== uid) {
+            throw errors.invalidRequestParameter('uid')
+          }
+        }
 
         function verifyCode() {
           return db.verifyTokenCode(code, {uid: uid})

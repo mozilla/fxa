@@ -108,11 +108,11 @@ function setup(results, errors) {
   route = getRoute(routes, '/session/verify/token')
   request = mocks.mockRequest({
     credentials: {
+      uid: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
       email: TEST_EMAIL
     },
     log: log,
     payload: {
-      uid: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
       code: 'ASEFJK12'
     }
   })
