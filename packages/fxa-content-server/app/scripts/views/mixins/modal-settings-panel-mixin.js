@@ -33,6 +33,10 @@ define(function (require, exports, module) {
       this.navigate('settings/clients');
     },
 
+    _returnToTwoFactorAuthentication () {
+      this.navigate('settings/two_step_authentication');
+    },
+
     _returnToSettings () {
       this.navigate('settings');
     },

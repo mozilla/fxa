@@ -1,0 +1,33 @@
+<div id="main-content" class="card">
+  <header>
+    <h1 id="fxa-totp-code-header">{{#t}}Enter security code{{/t}}
+        {{#serviceName}}
+            <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+        {{/serviceName}}
+    </h1>
+  </header>
+
+  <section>
+    <div class="error"></div>
+    <div class="success"></div>
+
+    <div class="graphic graphic-two-factor-auth"></div>
+
+    <p class="verification-totp-message">
+    {{#t}}Open your authentication app and enter the security code it provides.{{/t}}
+    </p>
+
+    <form novalidate>
+      <div class="input-row token-code-row">
+        <input type="text" class="tooltip-below totp-code" placeholder="{{#t}}Enter 6-digit code{{/t}}" required autofocus />
+      </div>
+
+      <div class="button-row">
+        <button type="submit" class="use-logged-in">{{#t}}Verify{{/t}}</button>
+      </div>
+
+    </form>
+
+    <div class="links"></div>
+  </section>
+</div>

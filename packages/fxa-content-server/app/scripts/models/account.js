@@ -1228,7 +1228,61 @@ define(function (require, exports, module) {
         this.get('sessionToken'),
         email
       );
+    },
+
+    /**
+     * Creates a new TOTP token for a user.
+     *
+     * @returns {Promise}
+     */
+    createTotpToken () {
+      return this._fxaClient.createTotpToken(
+        this.get('sessionToken'),
+        {
+          metricsContext: this._metrics.getFlowEventMetadata()
+        }
+      );
+    },
+
+    /**
+     * Deletes the current TOTP token for a user.
+     *
+     * @returns {Promise}
+     */
+    deleteTotpToken () {
+      return this._fxaClient.deleteTotpToken(
+        this.get('sessionToken')
+      );
+    },
+
+    /**
+     * Verifies a TOTP code. If code is verified, token will be marked as verified.
+     *
+     * @param {String} code
+     *
+     * @returns {Promise}
+     */
+    verifyTotpCode (code) {
+      return this._fxaClient.verifyTotpCode(
+        this.get('sessionToken'),
+        code,
+        {
+          metricsContext: this._metrics.getFlowEventMetadata(),
+        }
+      );
+    },
+
+    /**
+     * Check to see if the current user has a verified TOTP token.
+     *
+     * @returns {Promise}
+     */
+    checkTotpTokenExists () {
+      return this._fxaClient.checkTotpTokenExists(
+        this.get('sessionToken')
+      );
     }
+
   }, {
     ALLOWED_KEYS: ALLOWED_KEYS,
     PERMISSIONS_TO_KEYS: PERMISSIONS_TO_KEYS

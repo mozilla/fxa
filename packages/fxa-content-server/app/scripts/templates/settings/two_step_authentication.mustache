@@ -1,0 +1,84 @@
+<div id="totp-section" class="settings-unit {{#isPanelOpen}}open{{/isPanelOpen}} totp-panel">
+    <div class="settings-unit-stub">
+        <header class="settings-unit-summary">
+            <h2 class="settings-unit-title">{{#t}}Two-step authentication{{/t}}</h2>
+        </header>
+
+        {{^hasToken}}
+            <button class="settings-button primary settings-unit-toggle totp-create" data-href="settings/two_step_authentication">
+                {{#t}}Enable…{{/t}}
+            </button>
+        {{/hasToken}}
+
+        {{#hasToken}}
+            <button class="settings-button secondary settings-unit-toggle" data-href="settings/two_step_authentication">
+                {{#t}}Change…{{/t}}
+            </button>
+        {{/hasToken}}
+    </div>
+
+
+    <div class="settings-unit-details">
+        <form novalidate>
+            <p>
+                {{#t}}Add an extra layer of security to your account by requiring security codes.{{/t}}
+            </p>
+
+            <ul id="totp-status" class="totp-list">
+                <li class="totp-type">
+                    <div class="name">Current status</div>
+                    <div class="details">
+                        {{#hasToken}}
+                            <div class="enabled">{{#t}}Enabled{{/t}}</div>
+                        {{/hasToken}}
+                        {{^hasToken}}
+                            <div class="disabled">{{#t}}Disabled{{/t}}</div>
+                        {{/hasToken}}
+                    </div>
+                    <div class="settings-button-group">
+                        {{#hasToken}}
+                            <button class="settings-button warning totp-delete">{{#t}}Disable{{/t}}</button>
+                        {{/hasToken}}
+                        {{^hasToken}}
+                            <button class="settings-button secondary totp-create">{{#t}}Enable{{/t}}</button>
+                        {{/hasToken}}
+                    </div>
+                </li>
+            </ul>
+
+            <div id="totp" class="totp-details hidden">
+                <div class="qr-image-container">
+                    <img class="qr-image"/>
+                </div>
+
+                <p class="setup-description">
+                    {{#t}}Scan the QR code in your app and confirm it is setup correctly by entering the security code it provides.{{/t}}
+                    <a class="show-code-link">{{#t}}Can't scan code?{{/t}}</a>
+                </p>
+
+                <div class="manual-code hidden">
+                    <p class="setup-description">{{#t}}Manually enter this secret key into your authentication app:{{/t}}</p>
+                    <div class="code"></div>
+                </div>
+
+                <div class="input-row">
+                    <label class="label-helper"></label>
+                    <input type="text" class="text totp-code tooltip-below" placeholder="{{#t}}Security code{{/t}}" value="{{ code }}" required autofocus  autocomplete="off"/>
+                </div>
+            </div>
+
+            <div class="button-row">
+                {{#hasToken}}
+                    <button type="submit" class="settings-button primary totp-refresh">{{#t}}Refresh{{/t}}</button>
+                {{/hasToken}}
+
+                {{^hasToken}}
+                    <button type="submit" class="settings-button primary totp-refresh">{{#t}}Refresh{{/t}}</button>
+                    <button type="submit" class="settings-button primary hidden totp-confirm-code">{{#t}}Confirm{{/t}}</button>
+                {{/hasToken}}
+
+                <button class="settings-button cancel secondary enabled totp-cancel">{{#t}}Cancel{{/t}}</button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -75,7 +75,7 @@ define(function (require, exports, module) {
         success: t('Secondary email verified successfully')
       }),
       afterCompleteSignIn: new NavigateBehavior('signin_verified'),
-      afterCompleteSignInTokenCode: new NavigateBehavior('settings'),
+      afterCompleteSignInWithCode: new NavigateBehavior('settings'),
       afterCompleteSignUp: new NavigateBehavior('signup_verified'),
       afterDeleteAccount: new NullBehavior(),
       afterForceAuth: new NavigateBehavior('signin_confirmed'),
@@ -239,8 +239,8 @@ define(function (require, exports, module) {
         .then(() => this.getBehavior('afterCompleteSignIn'));
     },
 
-    afterCompleteSignInTokenCode () {
-      return Promise.resolve(this.getBehavior('afterCompleteSignInTokenCode'));
+    afterCompleteSignInWithCode () {
+      return Promise.resolve(this.getBehavior('afterCompleteSignInWithCode'));
     },
 
     /**

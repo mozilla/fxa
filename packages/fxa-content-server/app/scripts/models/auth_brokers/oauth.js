@@ -212,7 +212,7 @@ define(function (require, exports, module) {
         .then(() => proto.afterSignInConfirmationPoll.call(this, account));
     },
 
-    afterCompleteSignInTokenCode (account) {
+    afterCompleteSignInWithCode (account) {
       return this.finishOAuthSignInFlow(account)
         .then(() => proto.afterSignIn.call(this, account));
     },

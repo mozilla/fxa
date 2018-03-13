@@ -39,6 +39,7 @@ define(function (require, exports, module) {
   const SettingsView = require('../views/settings');
   const SignInBouncedView = require('../views/sign_in_bounced');
   const SignInTokenCodeView = require('../views/sign_in_token_code');
+  const SignInTotpCodeView = require('../views/sign_in_totp_code');
   const SignInPasswordView = require('../views/sign_in_password');
   const SignInReportedView = require('../views/sign_in_reported');
   const SignInUnblockView = require('../views/sign_in_unblock');
@@ -49,6 +50,7 @@ define(function (require, exports, module) {
   const SmsSentView = require('../views/sms_sent');
   const Storage = require('./storage');
   const TosView = require('../views/tos');
+  const TwoStepAuthenticationView = require('../views/settings/two_step_authentication');
   const VerificationReasons = require('./verification-reasons');
   const WhyConnectAnotherDeviceView = require('../views/why_connect_another_device');
 
@@ -107,12 +109,14 @@ define(function (require, exports, module) {
       'settings/delete_account(/)': createChildViewHandler(DeleteAccountView, SettingsView),
       'settings/display_name(/)': createChildViewHandler(DisplayNameView, SettingsView),
       'settings/emails(/)': createChildViewHandler(EmailsView, SettingsView),
+      'settings/two_step_authentication(/)': createChildViewHandler(TwoStepAuthenticationView, SettingsView),
       'signin(/)': 'onSignIn',
       'signin_bounced(/)': createViewHandler(SignInBouncedView),
       'signin_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN }),
       'signin_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_IN }),
       'signin_reported(/)': createViewHandler(SignInReportedView),
       'signin_token_code(/)': createViewHandler(SignInTokenCodeView),
+      'signin_totp_code(/)': createViewHandler(SignInTotpCodeView),
       'signin_unblock(/)': createViewHandler(SignInUnblockView),
       'signin_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN }),
       'signup(/)': 'onSignUp',

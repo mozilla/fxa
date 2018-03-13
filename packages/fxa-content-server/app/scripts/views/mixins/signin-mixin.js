@@ -149,6 +149,11 @@ define(function (require, exports, module) {
           return this.navigate('signin_token_code', {account});
         }
 
+        if (verificationReason === VerificationReasons.SIGN_IN &&
+          verificationMethod === VerificationMethods.TOTP_2FA) {
+          return this.navigate('signin_totp_code', {account});
+        }
+
         return this.navigate('confirm', {account});
       }
 

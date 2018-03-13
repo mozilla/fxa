@@ -206,6 +206,10 @@ define(function (require, exports, module) {
       errno: 153,
       message: t('This verification code has expired')
     },
+    INVALID_TOTP_CODE: {
+      errno: 154,
+      message: t('Invalid two-step authentication code')
+    },
     // Secondary Email errors end
     SERVER_BUSY: {
       errno: 201,
