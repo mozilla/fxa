@@ -142,6 +142,8 @@ module.exports = (log, db, mailer, config, customs, push) => {
         const sessionToken = request.auth.credentials
         const service = request.payload.service || request.query.service
         const type = request.payload.type || request.query.type
+        const ip = request.app.clientAddress
+        const geoData = request.app.geo
 
         // This endpoint can resend multiple types of codes, set these values once it
         // is known what is being verified.
@@ -174,6 +176,9 @@ module.exports = (log, db, mailer, config, customs, push) => {
               flowId,
               flowBeginTime,
               service,
+              ip,
+              location: geoData.location,
+              timeZone: geoData.timeZone,
               timestamp: Date.now(),
               redirectTo: request.payload.redirectTo,
               resume: request.payload.resume,

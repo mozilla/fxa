@@ -11,7 +11,7 @@
   "sms.installFirefox": 1,
   "unblockCodeEmail": 1,
   "verifyEmail": 1,
-  "verifyPrimaryEmail": 2,
+  "verifyPrimaryEmail": 3,
   "verifyLoginEmail": 1,
   "verifyLoginCodeEmail": 1,
   "verifySecondaryEmail": 1,

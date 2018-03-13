@@ -203,6 +203,7 @@ describe('remote recovery email resend code', function () {
         assert.equal(emailData.headers['x-template-name'], 'verifyPrimaryEmail', 'correct template set')
         const code = emailData.headers['x-verify-code']
         assert.ok(code, 'code set')
+        assert.equal(emailData.html.indexOf('IP address') > -1, true, 'contains ip address')
         return client.verifyEmail(code)
       })
       .then(() => client.sessionStatus())

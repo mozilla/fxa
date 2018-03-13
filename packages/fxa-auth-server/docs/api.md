@@ -2520,17 +2520,17 @@ Verify a session using a token code.
 
 ##### Request body
 
-* `uid`: *string, max(32), regex(HEX_STRING), required*
-
-  <!--begin-request-body-post-sessionverifytoken-uid-->
-  The uid associated with the token code
-  <!--end-request-body-post-sessionverifytoken-uid-->
-
 * `code`: *string, min(TOKEN_CODE_LENGTH), max(TOKEN_CODE_LENGTH), regex(BASE_36), required*
 
   <!--begin-request-body-post-sessionverifytoken-code-->
   The code
   <!--end-request-body-post-sessionverifytoken-code-->
+
+* `uid`: *string, max(32), regex(HEX_STRING), optional*
+
+  <!--begin-request-body-post-sessionverifytoken-uid-->
+  The uid associated with the token code
+  <!--end-request-body-post-sessionverifytoken-uid-->
 
 
 ### Totp
