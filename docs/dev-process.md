@@ -14,7 +14,6 @@ cut a release "train" that goes through deployment to stage and into production.
   * [Mondays at 12:30](#mondays-at-1230)
   * [Mondays at 13:00](#mondays-at-1300)
   * [Tuesdays at 14:00](#tuesdays-at-1400)
-  * [Thursdays at 09:00](#thursdays-at-0900)
   * [Thursdays at 12:00](#thursdays-at-1200)
 * [Code review](#code-review)
   * [Review Checklist](#review-checklist)
@@ -129,26 +128,14 @@ two-week cycle, with meeting times pinned to Mozilla Standard Time (aka Pacific 
 ### Mondays at 08:30
 
 This is a 60 minute meeting slot that's convenient for Europe and US-East.
-The first 30 minutes are dedicated to UX/PM discussion, the second 30 for
-Ops/dev general discussion.
-
-##### First week: Outbound Train Review
-
-We review any PRs that remain open, and determine which need to make the outboard train and
-which can be delayed.  Items that must be on board the outbound train receive the **shipit**
-label, and completing them becomes the top development priority for the next two days.
-
-##### Second week: Ongoing Train Review
-
-Half-way through the cycle, we take a look at the things still outstanding and decide whether
-to scale back on commitments based on actual progress made so far.  Items cut from the train
-at this point are moved back into **next**.
+The first 30 minutes are split between UX/PM and dev/ops discussions,
+the second 30 for triaging new bugs and pruning the backlog.
 
 Minutes are emailed to [dev-fxacct@mozilla.org](https://mail.mozilla.org/pipermail/dev-fxacct/)
 
 ### Mondays at 12:30
 
-##### Weekly: Show and Tell and Share
+#### Weekly: Show and Tell and Share
 
 We get together to demonstrate any new features that will be included on the next train,
 or any other interesting work that was completed in the previous cycle.
@@ -160,7 +147,7 @@ Minutes are emailed to [dev-fxacct@mozilla.org](https://mail.mozilla.org/piperma
 This is the one time each week where all team members everywhere in the world get together
 in the same (virtual) room at the same time.
 
-##### First week: Dev Planning Meeting
+#### First week: Dev Planning Meeting
 
 We review any items remaining in **blocked**, **review** or **active** to determine whether they
 should carry over to the upcoming train, or be de-priotitized.  We then work through the issues
@@ -168,7 +155,7 @@ in **next** to decide what to commit to for the upcoming train.
 
 Minutes are not recorded from this meeting.
 
-##### Second week: Retrospective
+#### Second week: Retrospective
 
 We take time every two weeks to explicitly reflect on our development process.
 What worked, what didn't, what new things we'd like to try.
@@ -180,33 +167,16 @@ Minutes are private and are emailed to [fxa-staff@mozilla.com](https://groups.go
 This is a 15 minute meeting slot, followed by a bug triage session.  It's in a timeslot
 that's convenient for US-West and Oceania.
 
-##### First week: Cut the Train
+#### First week: Cut the Train
 
 We review the final status of any **shipit** items from the Monday meeting, and tag new releases
 of the relevant repos for the outbound train.
 
-##### Second week: Ops Review/Update
+#### Second week: Ops Review/Update
 
 We dedicate some time to discuss backend operational issues.
 
 Minutes are emailed to [dev-fxacct@mozilla.org](https://mail.mozilla.org/pipermail/dev-fxacct/), sans any confidential operational notes.
-
-### Thursdays at 09:00
-
-This is a 60-minute checkin in a timeslot convenient for Europe and US-East.
-The first 30 minutes are for general discussion, the second 30 for bug triage.
-
-##### First week: Blockers and Calls for Help
-
-We checkin with each other about anything that's blocked or otherwise needs help.
-Items in the **blocked** column should receive special attention.
-
-##### Second week: Items in Danger
-
-We identify any items that are in danger of not being completed this train, and
-ensure we either have a plan for completing them, or take them off the train.
-
-Minutes are emailed to [dev-fxacct@mozilla.org](https://mail.mozilla.org/pipermail/dev-fxacct/)
 
 ### Thursdays at 12:00: 
 
