@@ -202,7 +202,7 @@ describe('/v1', function() {
         clientId = client.id;
         assert.equal(encrypt.hash(secret).toString('hex'), client.hashedSecret);
         assert.equal(encrypt.hash(secretPrevious).toString('hex'), client.hashedSecretPrevious);
-        badSecret = Buffer(secret, 'hex').slice();
+        badSecret = Buffer.from(secret, 'hex').slice();
         badSecret[badSecret.length - 1] ^= 1;
         badSecret = badSecret.toString('hex');
       })
@@ -1808,8 +1808,8 @@ describe('/v1', function() {
       function decodeJWT(b64) {
         var jwt = b64.split('.');
         return {
-          header: JSON.parse(Buffer(jwt[0], 'base64').toString('utf-8')),
-          claims: JSON.parse(Buffer(jwt[1], 'base64').toString('utf-8'))
+          header: JSON.parse(Buffer.from(jwt[0], 'base64').toString('utf-8')),
+          claims: JSON.parse(Buffer.from(jwt[1], 'base64').toString('utf-8'))
         };
       }
 

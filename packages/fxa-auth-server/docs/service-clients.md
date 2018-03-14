@@ -69,7 +69,7 @@ var claims = {
 };
 
 var token = base64(JSON.stringify(header)) + '.' + base64(JSON.stringify(claims));
-var sig = rsa256(Buffer(token, 'base64'), privateKey);
+var sig = rsa256(Buffer.from(token, 'base64'), privateKey);
 var jwt = token + '.' + base64(sig);
 ```
 

@@ -204,7 +204,7 @@ module.exports = {
         }
         return claims;
       }),
-      db.getClient(Buffer(req.payload.client_id, 'hex')).then(function(client) {
+      db.getClient(Buffer.from(req.payload.client_id, 'hex')).then(function(client) {
         logger.info('time.db_get_client', { ms: Date.now() - start });
         if (exitEarly) {
           // assertion was invalid, we can just stop here

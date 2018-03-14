@@ -19,7 +19,7 @@ const request = require('request').defaults({
 });
 
 function unb64(text) {
-  return Buffer(text, 'base64').toString('utf8');
+  return Buffer.from(text, 'base64').toString('utf8');
 }
 
 function Assertion(assertion) {

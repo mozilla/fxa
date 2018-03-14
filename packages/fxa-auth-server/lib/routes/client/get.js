@@ -27,7 +27,7 @@ module.exports = {
   },
   handler: function requestInfoEndpoint(req, reply) {
     var params = req.params;
-    db.getClient(Buffer(params.client_id, 'hex')).then(function(client) {
+    db.getClient(Buffer.from(params.client_id, 'hex')).then(function(client) {
       if (! client) {
         logger.debug('notFound', { id: params.client_id });
         throw AppError.unknownClient(params.client_id);

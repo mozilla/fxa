@@ -369,7 +369,7 @@ conf.validate(options);
 conf.get('serviceClients').forEach(function(client) {
   assert(client.id, 'client id required');
   assert.equal(client.id.length, 16, 'client id must be 16 hex digits');
-  assert.equal(Buffer(client.id, 'hex').toString('hex'), client.id,
+  assert.equal(Buffer.from(client.id, 'hex').toString('hex'), client.id,
     'client id must be 16 hex digits');
   assert.equal(typeof client.name, 'string', 'client name required');
   assert.equal(typeof client.scope, 'string', 'client scope required');
