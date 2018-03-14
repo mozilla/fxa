@@ -19,13 +19,6 @@ const VALID_METRICS_ERROR =
 const INVALID_METRICS_ERROR_OVEWRITE_SLICE_METHOD =
   fs.readFileSync('tests/server/fixtures/metrics_error_overwrite_slice.json');
 
-suite.tests['#get deprecated /metrics-errors endpoint - returns 200'] = function () {
-  return got.get(serverUrl + '/metrics-errors')
-    .then((res) => {
-      assert.equal(res.statusCode, 200);
-    });
-};
-
 suite.tests['#post /metrics-errors - returns 200'] = {
   'culprit (undefined)': testValidMetricsErrorField('culprit', undefined),
   'event_id value (empty)': testValidException('event_id', ''),

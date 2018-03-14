@@ -44,7 +44,6 @@ module.exports = function (config, i18n) {
     require('./routes/get-fxa-client-configuration')(config),
     require('./routes/get-lbheartbeat')(),
     require('./routes/get-openid-configuration')(config),
-    require('./routes/get-metrics-errors')(),
     require('./routes/get-version.json'),
     require('./routes/post-metrics')(),
     require('./routes/post-metrics-errors')(),

@@ -45,7 +45,6 @@ var routes = {
   '/legal': { statusCode: 200 },
   '/legal/privacy': { statusCode: 200 },
   '/legal/terms': { statusCode: 200 },
-  '/metrics-errors': { statusCode: 200 },
   '/oauth': { statusCode: 200 },
   '/oauth/force_auth': { statusCode: 200 },
   '/oauth/signin': { statusCode: 200 },
