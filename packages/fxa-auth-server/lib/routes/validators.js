@@ -19,6 +19,8 @@ module.exports.URL_SAFE_BASE_64 = /^[A-Za-z0-9_-]+$/
 // Crude phone number validation. The handler code does it more thoroughly.
 exports.E164_NUMBER = /^\+[1-9]\d{1,14}$/
 
+exports.DIGITS = /^[0-9]+$/
+
 // Match display-safe unicode characters.
 // We're pretty liberal with what's allowed in a unicode string,
 // but we exclude the following classes of characters:

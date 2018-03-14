@@ -94,7 +94,7 @@ describe('totp', () => {
   })
 
   describe('/session/verify/totp', () => {
-    it('should return false for valid TOTP code', () => {
+    it('should return true for valid TOTP code', () => {
       return setup({db: {}}, {}, '/session/verify/totp', requestOptions)
         .then((response) => {
           assert.equal(response.success, true, 'should be valid code')

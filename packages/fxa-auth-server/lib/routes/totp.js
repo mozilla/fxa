@@ -5,6 +5,7 @@
 'use strict'
 
 const errors = require('../error')
+const validators = require('./validators')
 const isA = require('joi')
 const P = require('../promise')
 const otplib = require('otplib')
@@ -180,7 +181,7 @@ module.exports = (log, db, customs, config) => {
         },
         validate: {
           payload: {
-            code: isA.string().max(32).required(),
+            code: isA.string().max(32).regex(validators.DIGITS).required(),
             metricsContext: METRICS_CONTEXT_SCHEMA
           }
         },

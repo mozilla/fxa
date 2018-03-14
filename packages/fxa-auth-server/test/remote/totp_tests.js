@@ -125,9 +125,19 @@ describe('remote totp', function () {
     })
 
     it('should fail to verify totp code', () => {
-      return client.verifyTotpCode('wrong', {metricsContext})
+      const code = otplib.authenticator.generate()
+      const incorrectCode = code === '123456' ? '123455' : '123456'
+      return client.verifyTotpCode(incorrectCode, {metricsContext})
         .then((result) => {
           assert.equal(result.success, false, 'failed')
+        })
+    })
+
+    it('should reject non-numeric codes', () => {
+      return client.verifyTotpCode('wrong', {metricsContext})
+        .then( assert.fail, (err) => {
+          assert.equal(err.code, 400, 'correct error code')
+          assert.equal(err.errno, 107, 'correct error errno')
         })
     })
 
@@ -137,7 +147,7 @@ describe('remote totp', function () {
         .then((x) => {
           client = x
           assert.ok(client.authAt, 'authAt was set')
-          return client.verifyTotpCode('wrong', {metricsContext})
+          return client.verifyTotpCode('123456', {metricsContext})
             .then(assert.fail, (err) => {
               assert.equal(err.code, 400, 'correct error code')
               assert.equal(err.errno, 155, 'correct error errno')
