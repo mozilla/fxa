@@ -36,6 +36,21 @@ function check_redis() {
   exit 1
 }
 
+function check_memcached() {
+  RETRY=12
+  for i in $(eval echo "{1..$RETRY}"); do
+    if echo stats | nc localhost 11211 | grep -q 'STAT'; then
+      return
+    else
+      if [ $i -lt $RETRY ]; then
+        sleep 10
+      fi
+    fi
+  done
+
+  exit 1
+}
+
 # content
 check 127.0.0.1:3030
 check 127.0.0.1:1114
@@ -64,3 +79,6 @@ check localhost:5000
 
 # redis server
 check_redis
+
+# memcached
+check_memcached

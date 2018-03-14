@@ -82,7 +82,8 @@ If you get an `error` status for any of the servers please verify that you insta
 [Java 8+](https://www.java.com/en/download/),
 [Redis](http://redis.io/),
 [libgmp](https://gmplib.org/),
-[graphicsmagick](http://www.graphicsmagick.org/).
+[graphicsmagick](http://www.graphicsmagick.org/),
+[memcached](https://memcached.org/).
 
 **Note:** Node.js 8 is not currently supported. Please use Node.js 6+.
 
@@ -94,13 +95,13 @@ xcode-select --install
 ```
 then:
 ```
-brew install gmp redis graphicsmagick
+brew install gmp redis graphicsmagick memcached
 sudo easy_install pip && sudo pip install virtualenv
 ```
 
 ##### Ubuntu:
 ```
-sudo apt-get install build-essential git-core libgmp3-dev graphicsmagick redis-server python-virtualenv python-dev
+sudo apt-get install build-essential git-core libgmp3-dev graphicsmagick redis-server python-virtualenv python-dev memcached
 ```
 
 #### Installing Node.js

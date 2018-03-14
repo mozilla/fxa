@@ -161,6 +161,12 @@
       },
       "max_restarts": "1",
       "min_uptime": "2m"
+    },
+    {
+      "name": "memcached PORT 11211",
+      "script": "_scripts/memcached.js",
+      "max_restarts": "1",
+      "min_uptime": "2m"
     }
   ]
 }
