@@ -18,18 +18,19 @@
 //   const SafeUrl = require('./safe-url')(log)
 //
 //   const url = new SafeUrl('/account/:uid/sessions', 'db.sessions')
-//   url.render({ uid: 'foo' })            // returns '/account/foo/sessions'
-//   url.render({ uid: 'bar' })            // returns '/account/bar/sessions'
-//   url.render({ uid: 'foo\n' })          // throws error.unexpectedError()
-//   url.render({})                        // throws error.unexpectedError()
-//   url.render({ uid: 'foo', id: 'bar' }) // throws error.unexpectedError()
+//   url.render({ uid: 'foo' })               // returns '/account/foo/sessions'
+//   url.render({ uid: 'bar' })               // returns '/account/bar/sessions'
+//   url.render({ uid: 'bar' }, {foo: 'baz'}) // returns '/account/bar/sessions?foo=baz'
+//   url.render({ uid: 'foo\n' })             // throws error.unexpectedError()
+//   url.render({})                           // throws error.unexpectedError()
+//   url.render({ uid: 'foo', id: 'bar' })    // throws error.unexpectedError()
 
 'use strict'
 
 const error = require('./error')
 const impl = require('safe-url-assembler')()
 
-const SAFE_PATH_COMPONENT = /^[\w.]+$/
+const SAFE_URL_COMPONENT = /^[\w.]+$/
 
 module.exports = log => class SafeUrl {
   constructor (path, caller) {
@@ -45,31 +46,39 @@ module.exports = log => class SafeUrl {
     this._caller = caller
   }
 
-  render (params = {}) {
-    const keys = Object.keys(params)
+  render (params = {}, query = {}) {
+    const paramsKeys = Object.keys(params)
     const { array: expected, set: expectedSet } = this._expectedKeys
 
-    if (keys.length !== expected.length) {
-      this._fail('safeUrl.mismatch', { keys, expected })
+    if (paramsKeys.length !== expected.length) {
+      this._fail('safeUrl.params.mismatch', { keys: paramsKeys, expected })
     }
 
-    keys.forEach(key => {
+    paramsKeys.forEach(key => {
       if (! expectedSet.has(key)) {
-        this._fail('safeUrl.unexpected', { key, expected })
+        this._fail('safeUrl.params.unexpected', { key, expected })
       }
-
       const value = params[key]
-
-      if (! value || typeof value !== 'string') {
-        this._fail('safeUrl.bad', { key, value })
-      }
-
-      if (! SAFE_PATH_COMPONENT.test(value)) {
-        this._fail('safeUrl.unsafe', { key, value })
-      }
+      this._checkSafe('paramVal', key, value)
     })
 
-    return this._template.param(params).toString()
+    Object.keys(query).forEach(key => {
+      const value = query[key]
+      this._checkSafe('queryKey', key, key)
+      this._checkSafe('queryVal', key, value)
+    })
+
+    return this._template.param(params).query(query).toString()
+  }
+
+  _checkSafe(location, key, value) {
+    if (! value || typeof value !== 'string') {
+      this._fail('safeUrl.bad', { location, key, value })
+    }
+
+    if (! SAFE_URL_COMPONENT.test(value)) {
+      this._fail('safeUrl.unsafe', { location, key, value })
+    }
   }
 
   _fail (op, data) {

@@ -49,7 +49,7 @@ describe('require:', () => {
       assert.throws(() => safeUrl.render({}))
       assert.equal(log.error.callCount, 1)
       assert.deepEqual(log.error.args[0][0], {
-        op: 'safeUrl.mismatch',
+        op: 'safeUrl.params.mismatch',
         keys: [],
         expected: [ 'bar' ],
         caller: 'baz'
@@ -60,7 +60,7 @@ describe('require:', () => {
       assert.throws(() => safeUrl.render({ qux: 'wibble' }))
       assert.equal(log.error.callCount, 1)
       assert.deepEqual(log.error.args[0][0], {
-        op: 'safeUrl.unexpected',
+        op: 'safeUrl.params.unexpected',
         key: 'qux',
         expected: [ 'bar' ],
         caller: 'baz'
@@ -71,6 +71,7 @@ describe('require:', () => {
       assert.throws(() => safeUrl.render({ bar: '' }))
       assert.equal(log.error.callCount, 1)
       assert.deepEqual(log.error.args[0][0], {
+        location: 'paramVal',
         op: 'safeUrl.bad',
         key: 'bar',
         value: '',
@@ -82,6 +83,7 @@ describe('require:', () => {
       assert.throws(() => safeUrl.render({ bar: {} }))
       assert.equal(log.error.callCount, 1)
       assert.deepEqual(log.error.args[0][0], {
+        location: 'paramVal',
         op: 'safeUrl.bad',
         key: 'bar',
         value: {},
@@ -94,11 +96,36 @@ describe('require:', () => {
         assert.throws(() => safeUrl.render({ bar: `wibble${grapheme}` }))
         assert.equal(log.error.callCount, 1)
         assert.deepEqual(log.error.args[0][0], {
+          location: 'paramVal',
           op: 'safeUrl.unsafe',
           key: 'bar',
           value: `wibble${grapheme}`,
           caller: 'baz'
         })
+      })
+    })
+
+    it('logs an error and throws for bad query keys', () => {
+      assert.throws(() => safeUrl.render({ bar: 'baz' }, {'💩': 'bar'}))
+      assert.equal(log.error.callCount, 1)
+      assert.deepEqual(log.error.args[0][0], {
+        location: 'queryKey',
+        op: 'safeUrl.unsafe',
+        key: '💩',
+        value: '💩',
+        caller: 'baz'
+      })
+    })
+
+    it('logs an error and throws for bad query values', () => {
+      assert.throws(() => safeUrl.render({ bar: 'baz' }, {'bar': '💩'}))
+      assert.equal(log.error.callCount, 1)
+      assert.deepEqual(log.error.args[0][0], {
+        location: 'queryVal',
+        op: 'safeUrl.unsafe',
+        key: 'bar',
+        value: '💩',
+        caller: 'baz'
       })
     })
   })
