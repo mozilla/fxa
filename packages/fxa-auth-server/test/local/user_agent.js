@@ -5,23 +5,21 @@
 'use strict'
 
 const assert = require('insist')
-var proxyquire = require('proxyquire')
-var sinon = require('sinon')
+const proxyquire = require('proxyquire').noPreserveCache()
+const sinon = require('sinon')
 
-var parserResult
+describe('userAgent, mocked dependency', () => {
+  let uaParser, userAgent, parserResult
 
-var uaParser = {
-  parse: sinon.spy(function () {
-    return parserResult
+  beforeEach(() => {
+    uaParser = {
+      parse: sinon.spy(() => parserResult)
+    }
+
+    userAgent = proxyquire('../../lib/userAgent', {
+      'node-uap': uaParser
+    })
   })
-}
-
-var userAgent = proxyquire('../../lib/userAgent', {
-  'node-uap': uaParser
-})
-
-describe('userAgent', () => {
-  afterEach(() => uaParser.parse.reset())
 
   it(
     'exports function',
@@ -523,9 +521,9 @@ describe('userAgent', () => {
 
   it('recognises new mobile Sync library user agents on Android', () => {
     parserResult = null
-    const result = userAgent('Mobile-Android-Sync/(Mobile; Android 6.0) (foo() bar)')
+    const result = userAgent('Mobile-Android-Sync/(Mobile; Android 6.0) (foo bar)')
 
-    assert.equal(result.browser, 'foo() bar')
+    assert.equal(result.browser, 'foo bar')
     assert.equal(result.browserVersion, null)
     assert.equal(result.os, 'Android')
     assert.equal(result.osVersion, '6.0')
@@ -600,3 +598,37 @@ describe('userAgent', () => {
   })
 })
 
+describe('userAgent, real dependency', () => {
+  let userAgent
+
+  beforeEach(() => {
+    userAgent = require('../../lib/userAgent')
+  })
+
+  it('drops dodgy-looking fields from vulnerable node-uap regexes', () => {
+    assert.deepEqual(userAgent('http://example.com-iPad/1.0 CFNetwork'), {
+      browser: null,
+      browserVersion: '1',
+      os: 'iOS',
+      osVersion: '1',
+      deviceType: 'mobile',
+      formFactor: null
+    })
+    assert.deepEqual(userAgent('<a>foo</a>-iPhone/2 CFNetwork'), {
+      browser: null,
+      browserVersion: '2',
+      os: null,
+      osVersion: null,
+      deviceType: 'mobile',
+      formFactor: 'iPhone'
+    })
+    assert.deepEqual(userAgent('wibble\t/7 CFNetwork'), {
+      browser: null,
+      browserVersion: '7',
+      os: null,
+      osVersion: null,
+      deviceType: null,
+      formFactor: null
+    })
+  })
+})

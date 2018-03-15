@@ -5,6 +5,7 @@
 'use strict'
 
 const ua = require('node-uap')
+const safe = require('./safe')
 
 const MOBILE_OS_FAMILIES = new Set([
   'Android',
@@ -40,23 +41,23 @@ module.exports = function (userAgentString) {
     // Always parse known Sync user-agents ourselves,
     // because node-uap makes a pig's ear of it.
     return {
-      browser: matches[6] || matches[1],
-      browserVersion: matches[3] || null,
-      os: matches[2],
-      osVersion: matches[5],
+      browser: safe.name(matches[6] || matches[1]),
+      browserVersion: safe.version(matches[3]),
+      os: safe.name(matches[2]),
+      osVersion: safe.version(matches[5]),
       deviceType: marshallDeviceType(matches[4]),
-      formFactor: matches[4] || null
+      formFactor: safe.name(matches[4])
     }
   }
 
   const userAgentData = ua.parse(userAgentString)
   return {
-    browser: getFamily(userAgentData.ua) || null,
-    browserVersion: getVersion(userAgentData.ua) || null,
-    os: getFamily(userAgentData.os) || null,
-    osVersion: getVersion(userAgentData.os) || null,
+    browser: safe.name(getFamily(userAgentData.ua)),
+    browserVersion: safe.version(getVersion(userAgentData.ua)),
+    os: safe.name(getFamily(userAgentData.os)),
+    osVersion: safe.version(getVersion(userAgentData.os)),
     deviceType: getDeviceType(userAgentData) || null,
-    formFactor: getFormFactor(userAgentData) || null
+    formFactor: safe.name(getFormFactor(userAgentData))
   }
 }
 

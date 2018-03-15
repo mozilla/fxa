@@ -9,6 +9,7 @@ const moment = require('moment-timezone')
 const nodemailer = require('nodemailer')
 const P = require('bluebird')
 const qs = require('querystring')
+const safeUserAgent = require('../userAgent/safe')
 const url = require('url')
 
 const TEMPLATE_VERSIONS = require('./templates/_versions.json')
@@ -161,9 +162,9 @@ module.exports = function (log, config) {
     // without using any new strings.
     // Future iterations can localize this better.
     var translator = this.translator(message.acceptLanguage)
-    var uaBrowser = message.uaBrowser
-    var uaOS = message.uaOS
-    var uaOSVersion = message.uaOSVersion
+    var uaBrowser = safeUserAgent.name(message.uaBrowser)
+    var uaOS = safeUserAgent.name(message.uaOS)
+    var uaOSVersion = safeUserAgent.version(message.uaOSVersion)
 
     if (uaBrowser && uaOS && uaOSVersion) {
       return translator.format(translator.gettext('%(uaBrowser)s on %(uaOS)s %(uaOSVersion)s'),
