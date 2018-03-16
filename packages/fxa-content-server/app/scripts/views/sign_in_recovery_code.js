@@ -7,36 +7,41 @@ const Cocktail = require('cocktail');
 const FormView = require('./form');
 const SignInMixin = require('./mixins/signin-mixin');
 const ServiceMixin = require('./mixins/service-mixin');
-const Template = require('templates/sign_in_totp_code.mustache');
+const Template = require('templates/sign_in_recovery_code.mustache');
 const VerificationReasonMixin = require('./mixins/verification-reason-mixin');
 
-const CODE_INPUT_SELECTOR = 'input.totp-code';
+const CODE_INPUT_SELECTOR = 'input.recovery-code';
 
 const View = FormView.extend({
-  className: 'sign-in-totp-code',
+  className: 'sign-in-recovery-code',
   template: Template,
 
-  beforeRender () {
-    // user cannot confirm if they have not initiated a sign in.
+  beforeRender() {
     const account = this.getSignedInAccount();
     if (! account || ! account.get('sessionToken')) {
       this.navigate(this._getAuthPage());
     }
   },
 
-  submit () {
+  submit() {
     const account = this.getSignedInAccount();
-    const code = this.getElementValue('input.totp-code');
-    return account.verifyTotpCode(code)
+    const code = this.getElementValue('input.recovery-code');
+
+    return account.consumeRecoveryCode(code)
       .then((result) => {
-        if (result.success) {
-          this.logViewEvent('success');
-          return this.invokeBrokerMethod('afterCompleteSignInWithCode', account);
-        } else {
-          throw AuthErrors.toError('INVALID_TOTP_CODE');
+        if (result.remaining < 1) {
+          // TODO Lets handle automatically generating recovery codes separately
         }
+
+        this.logViewEvent('success');
+        return this.invokeBrokerMethod('afterCompleteSignInWithCode', account);
       })
-      .catch((err) => this.showValidationError(this.$(CODE_INPUT_SELECTOR), err));
+      .catch((err) => {
+        if (AuthErrors.is(err, 'INVALID_PARAMETER')) {
+          err = AuthErrors.toError('INVALID_RECOVERY_CODE');
+        }
+        this.showValidationError(this.$(CODE_INPUT_SELECTOR), err);
+      });
   },
 
   /**
@@ -45,7 +50,7 @@ const View = FormView.extend({
    *
    * @returns {String}
    */
-  _getAuthPage () {
+  _getAuthPage() {
     const authPage =
       this.model.get('lastPage') === 'force_auth' ? 'force_auth' : 'signin';
 

@@ -1,10 +1,15 @@
 .totp-panel {
   .totp-list {
-    padding: 0;
+    ul {
+      padding: 0;
+    }
+
+    li {
+      list-style: none;
+    }
 
     .totp-type {
       height: 40px;
-      list-style: none;
       margin: 10px 0;
       position: relative;
 
@@ -74,9 +79,10 @@
 
   .totp-details {
     .qr-image-container {
+      height: 228px;
       margin: auto;
       padding-bottom: 10px;
-      width: 50%;
+      width: 228px;
     }
 
     .setup-description,
@@ -100,7 +106,71 @@
   }
 }
 
-.recovery-code {
-  font-size: 1.5em;
-  font-weight: bold;
+#recovery-codes {
+  .recovery-code-options {
+    display: flex;
+    margin-top: 25px;
+  }
+
+  .description {
+    font-size: 14px;
+    text-align: left;
+
+    .note {
+      color: $color-red;
+    }
+  }
+
+  #recovery-code-container {
+    margin-bottom: 20px;
+
+    .recovery-code {
+      color: $recovery-code-color;
+      display: inline-block;
+      font-family: monospace;
+      font-size: 2em;
+      text-transform: uppercase;
+      width: 49%;
+    }
+  }
+
+  .two-step-authentication-done {
+    float: none;
+    width: 100%;
+  }
+
+  .recovery-code-option {
+    width: 33%;
+
+    .name {
+      font-size: 14px;
+      text-align: center;
+    }
+  }
+
+  .link-options {
+    text-align: left;
+  }
+}
+
+.replace-codes-link {
+  background: transparent url('/images/recovery_code_replace.svg') center left no-repeat;
+  padding-left: 20px;
+}
+
+.recovery-code-text-area {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  height: 2em;
+  left: 0;
+  outline: none;
+  padding: 0;
+  style: fixed;
+  top: 0;
+  width: 2em;
+}
+
+.recovery-code-download-link {
+  display: none;
 }

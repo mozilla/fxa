@@ -19,14 +19,14 @@
 
 
     <div class="settings-unit-details">
-        <form novalidate>
-            <p>
-                {{#t}}Add an extra layer of security to your account by requiring security codes.{{/t}}
-            </p>
+        <p>
+            {{#t}}Add a layer of security to your account by requiring security codes from one of these authentication apps.{{/t}}
+        </p>
 
-            <ul id="totp-status" class="totp-list">
+        <div class="totp-list">
+            <ul id="totp-status">
                 <li class="totp-type">
-                    <div class="name">Current status</div>
+                    <div class="name">{{#t}}Current status{{/t}}</div>
                     <div class="details">
                         {{#hasToken}}
                             <div class="enabled">{{#t}}Enabled{{/t}}</div>
@@ -44,16 +44,27 @@
                         {{/hasToken}}
                     </div>
                 </li>
+                <li>
+                    {{#hasToken}}
+                        <a class="replace-codes-link">{{#t}}Replace recovery codes{{/t}}</a>
+                    {{/hasToken}}
+                </li>
             </ul>
+            <div class="button-row">
+                <button class="settings-button primary totp-refresh">{{#t}}Refresh{{/t}}</button>
+                <button class="settings-button cancel secondary enabled totp-cancel">{{#t}}Cancel{{/t}}</button>
+            </div>
+        </div>
 
+        <form novalidate>
             <div id="totp" class="totp-details hidden">
                 <div class="qr-image-container">
                     <img class="qr-image"/>
                 </div>
 
                 <p class="setup-description">
-                    {{#t}}Scan the QR code in your app and confirm it is setup correctly by entering the security code it provides.{{/t}}
-                    <a class="show-code-link">{{#t}}Can't scan code?{{/t}}</a>
+                    {{#t}}Scan the QR code in your authentication app and then enter the security code it provides.{{/t}}
+                    <a class="show-code-link">{{#t}}Can’t scan code?{{/t}}</a>
                 </p>
 
                 <div class="manual-code hidden">
@@ -63,21 +74,13 @@
 
                 <div class="input-row">
                     <label class="label-helper"></label>
-                    <input type="text" class="text totp-code tooltip-below" placeholder="{{#t}}Security code{{/t}}" value="{{ code }}" required autofocus  autocomplete="off"/>
+                    <input type="text" class="tooltip-below totp-code" placeholder="{{#t}}Security code{{/t}}" value="{{ code }}" required autofocus autocomplete="off"/>
                 </div>
-            </div>
 
-            <div class="button-row">
-                {{#hasToken}}
-                    <button type="submit" class="settings-button primary totp-refresh">{{#t}}Refresh{{/t}}</button>
-                {{/hasToken}}
-
-                {{^hasToken}}
-                    <button type="submit" class="settings-button primary totp-refresh">{{#t}}Refresh{{/t}}</button>
-                    <button type="submit" class="settings-button primary hidden totp-confirm-code">{{#t}}Confirm{{/t}}</button>
-                {{/hasToken}}
-
-                <button class="settings-button cancel secondary enabled totp-cancel">{{#t}}Cancel{{/t}}</button>
+                <div class="button-row">
+                    <button type="submit" class="settings-button primary">{{#t}}Confirm{{/t}}</button>
+                    <button class="settings-button cancel secondary enabled totp-cancel">{{#t}}Cancel{{/t}}</button>
+                </div>
             </div>
         </form>
     </div>

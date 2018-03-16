@@ -17,29 +17,29 @@ const PASSWORD = 'password';
 const SYNC_SIGNIN_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync`;
 
 let email;
+let recoveryCode;
 let secret;
 
 const {
-  confirmTotpCode,
   clearBrowserState,
   click,
   fillOutSignUp,
   fillOutSignIn,
   generateTotpCode,
   openPage,
-  noSuchElement,
   openVerificationLinkInSameTab,
   testElementExists,
   testElementTextInclude,
   testIsBrowserNotified,
-  testSuccessWasShown,
   type,
   visibleByQSA,
 } = FunctionalHelpers;
 
-registerSuite('TOTP', {
+registerSuite('recovery code', {
+
   beforeEach: function () {
     email = TestHelpers.createEmail();
+    const self = this;
     return this.remote.then(clearBrowserState())
       .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
       .then(fillOutSignUp(email, PASSWORD))
@@ -64,6 +64,14 @@ registerSuite('TOTP', {
       .getVisibleText()
       .then((secretKey) => {
         secret = secretKey;
+        return self.remote.then(type(selectors.TOTP.CONFIRM_CODE_INPUT, generateTotpCode(secret)))
+          .then(click(selectors.TOTP.CONFIRM_CODE_BUTTON))
+          .then(testElementExists(selectors.SIGNIN_RECOVERY_CODE.MODAL))
+
+          // Store a recovery code
+          .findByCssSelector(selectors.SIGNIN_RECOVERY_CODE.FIRST_CODE)
+          .getVisibleText()
+          .then((code) => recoveryCode = code);
       })
       .end();
   },
@@ -71,44 +79,11 @@ registerSuite('TOTP', {
   afterEach: function () {
     return this.remote.then(clearBrowserState());
   },
+
   tests: {
-    'does not show panel when query `showTwoStepAuthentication` is not set': function () {
+    'can sign-in with recovery code - sync': function () {
       return this.remote
-        .then(openPage(config.fxaContentRoot + 'settings', selectors.SETTINGS.HEADER))
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(noSuchElement(selectors.TOTP.MENU_BUTTON));
-    },
-
-    'can add TOTP to account and confirm web signin': function () {
-      return this.remote
-      // Show's tool tip for invalid codes on setup
-        .then(type(selectors.TOTP.CONFIRM_CODE_INPUT, 'INVALID'))
-        .then(click(selectors.TOTP.CONFIRM_CODE_BUTTON))
-        .then(visibleByQSA('.tooltip'))
-        .then(testElementTextInclude('.tooltip', 'invalid'))
-
-        .then(confirmTotpCode(secret))
-
-        .then(click(selectors.SETTINGS.SIGNOUT))
-        .then(fillOutSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
-
-        // Show tool tip for invalid codes on sign-in
-        .then(type(selectors.TOTP_SIGNIN.INPUT, '123432'))
-        .then(click(selectors.TOTP_SIGNIN.SUBMIT))
-        .then(visibleByQSA('.tooltip'))
-        .then(testElementTextInclude('.tooltip', 'invalid'))
-
-        // Redirect to /settings when successful
-        .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
-        .then(click(selectors.TOTP_SIGNIN.SUBMIT))
-        .then(testElementExists(selectors.SETTINGS.HEADER));
-    },
-
-    'can add TOTP to account and confirm sync signin': function () {
-      return this.remote
-        .then(confirmTotpCode(secret))
-
+        .then(click(selectors.SIGNIN_RECOVERY_CODE.DONE_BUTTON))
         .then(click(selectors.SETTINGS.SIGNOUT))
         .then(openPage(SYNC_SIGNIN_URL, selectors.SIGNIN.HEADER, {
           query: {}, webChannelResponses: {
@@ -119,27 +94,19 @@ registerSuite('TOTP', {
 
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
+        .then(click(selectors.SIGNIN_RECOVERY_CODE.LINK))
 
-        .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
-        .then(click(selectors.TOTP_SIGNIN.SUBMIT))
+        // Fails for invalid code
+        .then(type(selectors.SIGNIN_RECOVERY_CODE.INPUT, 'invalid'))
+        .then(click(selectors.SIGNIN_RECOVERY_CODE.SUBMIT))
+        .then(visibleByQSA('.tooltip'))
+        .then(testElementTextInclude('.tooltip', 'invalid'))
+
+        .then(type(selectors.SIGNIN_RECOVERY_CODE.INPUT, recoveryCode))
+        .then(click(selectors.SIGNIN_RECOVERY_CODE.SUBMIT))
 
         // about:accounts will take over post-verification, no transition
         .then(testIsBrowserNotified('fxaccounts:login'));
-    },
-
-    'can remove TOTP from account and skip confirmation': function () {
-      return this.remote
-        .then(confirmTotpCode(secret))
-
-        // Remove token
-        .then(click(selectors.TOTP.DELETE_BUTTON))
-        .then(testSuccessWasShown)
-        .then(testElementExists(selectors.TOTP.MENU_BUTTON))
-
-        // Does not prompt for code
-        .then(click(selectors.SETTINGS.SIGNOUT))
-        .then(fillOutSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.SETTINGS.HEADER));
     },
   }
 });

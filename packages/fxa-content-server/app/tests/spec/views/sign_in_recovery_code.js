@@ -9,15 +9,17 @@ const Account = require('models/account');
 const AuthErrors = require('lib/auth-errors');
 const Backbone = require('backbone');
 const BaseBroker = require('models/auth_brokers/base');
+const Constants = require('lib/constants');
+const {createRandomHexString} = require('../../lib/helpers');
 const Metrics = require('lib/metrics');
 const Relier = require('models/reliers/relier');
 const sinon = require('sinon');
-const View = require('views/sign_in_totp_code');
+const View = require('views/sign_in_recovery_code');
 const WindowMock = require('../../mocks/window');
 
-const TOTP_CODE = '123123';
+const RECOVERY_CODE = createRandomHexString(Constants.RECOVERY_CODE_LENGTH);
 
-describe('views/sign_in_totp_code', () => {
+describe('views/sign_in_recovery_code', () => {
   let account;
   let broker;
   let metrics;
@@ -61,7 +63,7 @@ describe('views/sign_in_totp_code', () => {
       model,
       notifier,
       relier,
-      viewName: 'sign-in-totp-code',
+      viewName: 'sign-in-recovery-code',
       window: windowMock
     });
 
@@ -80,8 +82,8 @@ describe('views/sign_in_totp_code', () => {
 
   describe('render', () => {
     it('renders the view', () => {
-      assert.lengthOf(view.$('#fxa-totp-code-header'), 1);
-      assert.include(view.$('.verification-totp-message').text(), 'security code');
+      assert.lengthOf(view.$('#fxa-recovery-code-header'), 1);
+      assert.include(view.$('.verification-recovery-code-message').text(), 'recovery code');
     });
 
     describe('without an account', () => {
@@ -103,9 +105,9 @@ describe('views/sign_in_totp_code', () => {
       sinon.spy(view, 'showValidationError');
     });
 
-    describe('with an empty code', () => {
+    describe('with an invalid code', () => {
       beforeEach(() => {
-        view.$('#totp-code').val('');
+        view.$('#recovery-code').val('ZZZZZZZZ');
         return view.validateAndSubmit().then(assert.fail, () => {});
       });
 
@@ -116,17 +118,15 @@ describe('views/sign_in_totp_code', () => {
     });
 
     const validCodes = [
-      TOTP_CODE,
-      '   ' + TOTP_CODE,
-      TOTP_CODE + '   ',
-      '   ' + TOTP_CODE + '   ',
-      '001-001',
-      '111 111'
+      RECOVERY_CODE,
+      '   ' + RECOVERY_CODE,
+      RECOVERY_CODE + '   ',
+      '   ' + RECOVERY_CODE + '   '
     ];
     validCodes.forEach((code) => {
       describe(`with a valid code: '${code}'`, () => {
         beforeEach(() => {
-          view.$('.totp-code').val(code);
+          view.$('.recovery-code').val(code);
 
           return view.validateAndSubmit();
         });
@@ -141,37 +141,41 @@ describe('views/sign_in_totp_code', () => {
   describe('submit', () => {
     describe('success', () => {
       beforeEach(() => {
-        sinon.stub(account, 'verifyTotpCode').callsFake(() => Promise.resolve({success: true}));
+        sinon.stub(account, 'consumeRecoveryCode').callsFake(() => Promise.resolve({remaining: 7}));
         sinon.stub(view, 'invokeBrokerMethod').callsFake(() => Promise.resolve());
-        view.$('.totp-code').val(TOTP_CODE);
-
+        sinon.spy(view, 'logViewEvent');
+        view.$('.recovery-code').val(RECOVERY_CODE);
         return view.submit();
       });
 
       it('calls correct broker methods', () => {
-        assert.isTrue(account.verifyTotpCode.calledWith(TOTP_CODE), 'verify with correct code');
+        assert.isTrue(account.consumeRecoveryCode.calledWith(RECOVERY_CODE), 'verify with correct code');
         assert.isTrue(view.invokeBrokerMethod.calledWith('afterCompleteSignInWithCode', account));
+      });
+
+      it('log metrics', () => {
+        assert.isTrue(view.logViewEvent.calledWith('success'), 'verify with metrics');
       });
     });
 
-    describe('invalid TOTP code', () => {
+    describe('invalid recovery code', () => {
       beforeEach(() => {
-        sinon.stub(account, 'verifyTotpCode').callsFake(() => Promise.resolve({success: false}));
+        sinon.stub(account, 'consumeRecoveryCode').callsFake(() => Promise.reject(AuthErrors.toError('INVALID_RECOVERY_CODE')));
         sinon.spy(view, 'showValidationError');
-        view.$('.totp-code').val(TOTP_CODE);
+        view.$('.recovery-code').val(RECOVERY_CODE);
         return view.submit();
       });
 
       it('rejects with the error for display', () => {
-        assert.equal(view.showValidationError.args[0][1].errno, 1054, 'correct error thrown');
+        assert.equal(view.showValidationError.args[0][1].errno, 1056, 'correct error thrown');
       });
     });
 
     describe('errors', () => {
       beforeEach(() => {
-        sinon.stub(account, 'verifyTotpCode').callsFake(() => Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR')));
+        sinon.stub(account, 'consumeRecoveryCode').callsFake(() => Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR')));
         sinon.spy(view, 'showValidationError');
-        view.$('.totp-code').val(TOTP_CODE);
+        view.$('.recovery-code').val(RECOVERY_CODE);
         return view.submit();
       });
 

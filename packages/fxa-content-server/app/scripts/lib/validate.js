@@ -42,6 +42,12 @@ define(function (require, exports, module) {
   // the same minimized form in node 4.x and node 0.10.
   const emailRegex = /^[\w.!#$%&’*+\/=?^`{|}~-]{1,64}@[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?)+$/i;
 
+
+  // TOTP codes are 6 digits
+  const TOTP_CODE = /^[0-9]{6}$/;
+  // Recovery codes are 10 alpha numeric or 8 hex strings
+  const RECOVERY_CODE = /^(([a-z0-9]{10})|([a-f0-9]{8}))$/;
+
   var Validate = {
     /**
      * Check if an email address is valid
@@ -208,6 +214,26 @@ define(function (require, exports, module) {
      */
     isUnblockCodeValid (value) {
       return unblockCodeRegExp.test(value);
+    },
+
+    /**
+     * Check if an TOTP code is valid
+     *
+     * @param {String} value
+     * @returns {Boolean}
+     */
+    isTotpCodeValid (value) {
+      return TOTP_CODE.test(value);
+    },
+
+    /**
+     * Check if an recovery code is valid
+     *
+     * @param {String} value
+     * @returns {Boolean}
+     */
+    isRecoveryCodeValid (value) {
+      return RECOVERY_CODE.test(value);
     },
 
     /**
