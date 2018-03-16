@@ -129,16 +129,19 @@ module.exports.isValidEmailAddress = function(value) {
   return hasDot
 }
 
-module.exports.redirectTo = function (base) {
-  var redirectTo = isA.string().max(512)
-  if (! base) { return redirectTo }
-  var regex = new RegExp('(?:\\.|^)' + base.replace('.', '\\.') + '$')
+module.exports.redirectTo = function redirectTo(base) {
+  const redirectTo = isA.string().max(512)
+  let hostnameRegex = null
+  if (base) {
+    hostnameRegex = new RegExp('(?:\\.|^)' + base.replace('.', '\\.') + '$')
+  }
   redirectTo._tests.push(
     {
-      func: function(value, state, options) {
+      func: (value, state, options) => {
         if (value !== undefined && value !== null) {
-          if (module.exports.isValidUrl(value, regex)) {
-            return value
+          const normalizedValue = module.exports.isValidUrl(value, hostnameRegex)
+          if (normalizedValue) {
+            return normalizedValue
           }
         }
 
@@ -149,9 +152,19 @@ module.exports.redirectTo = function (base) {
   return redirectTo
 }
 
-module.exports.isValidUrl = function (redirect, regex) {
+module.exports.isValidUrl = function (redirect, hostnameRegex) {
   var parsed = url.parse(redirect)
-  return regex.test(parsed.hostname) && /^https?:$/.test(parsed.protocol)
+  if (hostnameRegex && ! hostnameRegex.test(parsed.hostname)) {
+    return false
+  }
+  if (! /^https?:$/.test(parsed.protocol)) {
+    return false
+  }
+  // Normalize to the full URL string as understood by node.
+  // This helps avoid edge-cases where the browser might parse the URL
+  // differently to the way that node parsed it.
+  // See e.g. https://bugzilla.mozilla.org/show_bug.cgi?id=1445927
+  return parsed.href
 }
 
 module.exports.verificationMethod = isA.string().valid(['email', 'email-2fa', 'email-captcha'])
