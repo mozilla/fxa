@@ -18,6 +18,9 @@ cut a release "train" that goes through deployment to stage and into production.
 * [Code review](#code-review)
   * [Review Checklist](#review-checklist)
 * [Tagging releases](#tagging-releases)
+  * [What if the merge messes up the changelog?](#what-if-the-merge-messes-up-the-changelog)
+  * [What if I already pushed a fix to `master` and it needs to be uplifted to an earlier train?](#what-if-i-already-pushed-a-fix-to-master-and-it-needs-to-be-uplifted-to-an-earlier-train)
+  * [What if there are two separate train branches containing parallel updates?](#what-if-there-are-two-separate-train-branches-containing-parallel-updates)
 
 ## Product Planning
 
@@ -275,13 +278,69 @@ grunt version:patch
 ```
 
 Patch releases should normally be tagged
-in a specific `train-nn` branch,
-which can then be merged back to `master`.
+in a specific `train-nnn` branch,
+which must then be merged back to `master`.
+
+It's important that:
+
+1. The merge happens;
+
+2. It really is just a vanilla `git merge`
+   and not a `rebase`, `cherry-pick` or `merge --squash`.
+
 Doing it this way
-ensures that our change logs and the git history
-are sane with respect to the version that a commit shows up in.
+ensures that all releases show up in the changelog,
+with commits correctly listed under the appropriate version,
+and that future releases are never missing the details
+from earlier ones.
 Other approaches,
 like cherry-picking between branches
-or fixing in master then uplifting to a train,
-break our history.
+or fixing in master then uplifting to a train branch,
+will break the history.
+
+### What if the merge messes up the changelog?
+
+After merging but before pushing,
+you should check the changelog to make sure
+that the expected versions are listed
+and they're in the right order.
+If any are missing or the order is wrong,
+manually edit the changelog
+so that it makes sense,
+using the commit summaries from `git log --graph --oneline`
+to fill in any blanks as necessary.
+Then `git add` those changes
+and squash them into the preceding merge commit
+using `git commit --amend`.
+Now you can push
+and the merged changelog will make sense.
+
+### What if I already pushed a fix to `master` and it needs to be uplifted to an earlier train?
+
+In this case,
+it's okay to use `git cherry-pick`
+because that's the only way to get the fix
+into the earlier train.
+However, after tagging and pushing the earlier release,
+you should still merge the train branch back to `master`
+so that future changelogs include the new release.
+
+### What if there are two separate train branches containing parallel updates?
+
+In this case,
+the easiest way to keep the changelogs complete
+and in the appropriate version order,
+is to:
+
+1. Merge from the earlier train branch
+   into the later one.
+   [Fix up the changelog](#what-if-the-merge-messes-up-the-changelog)
+   if it needs it
+   and then push the train branch.
+
+2. Now merge from the later train branch
+   into `master`.
+   Again,
+   remember to fix up the changelog before pushing
+   if required.
 
