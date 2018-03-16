@@ -10,7 +10,6 @@
 
 const assert = require('assert')
 const sinon = require('sinon')
-const extend = require('util')._extend
 const P = require('../lib/promise')
 const crypto = require('crypto')
 const config = require('../config').getProperties()
@@ -373,7 +372,7 @@ function mockObject (methodNames) {
 }
 
 function mockPush (methods) {
-  const push = extend({}, methods)
+  const push = Object.assign({}, methods)
   // So far every push method has a uid for first argument, let's keep it simple.
   PUSH_METHOD_NAMES.forEach((name) => {
     if (! push[name]) {

@@ -4,7 +4,7 @@
 
 'use strict'
 
-module.exports.ONES = Buffer('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'hex')
+module.exports.ONES = Buffer.from('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'hex')
 
 module.exports.buffersAreEqual = function buffersAreEqual(buffer1, buffer2) {
   buffer1 = Buffer.from(buffer1, 'hex')
@@ -29,7 +29,7 @@ module.exports.xorBuffers = function xorBuffers(buffer1, buffer2) {
       buffer2.length
     )
   }
-  var result = Buffer(buffer1.length)
+  var result = Buffer.alloc(buffer1.length)
   for (var i = 0; i < buffer1.length; i++) {
     result[i] = buffer1[i] ^ buffer2[i]
   }

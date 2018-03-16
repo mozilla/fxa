@@ -21,8 +21,8 @@ describe('butil', () => {
     it(
       'returns true if buffers have same bytes',
       () => {
-        const b1 = Buffer('abcd', 'hex')
-        const b2 = Buffer('abcd', 'hex')
+        const b1 = Buffer.from('abcd', 'hex')
+        const b2 = Buffer.from('abcd', 'hex')
         assert.equal(butil.buffersAreEqual(b1, b2), true)
       }
     )

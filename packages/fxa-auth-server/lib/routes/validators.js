@@ -5,7 +5,7 @@
 'use strict'
 
 var url = require('url')
-var punycode = require('punycode')
+var punycode = require('punycode.js')
 var isA = require('joi')
 
 // Match any non-empty hex-encoded string.
