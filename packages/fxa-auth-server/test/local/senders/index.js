@@ -103,7 +103,6 @@ describe('lib/senders/index', () => {
       })
     })
 
-
     describe('.sendRecoveryCode()', () => {
       const token = {
         email: EMAIL,
@@ -229,6 +228,50 @@ describe('lib/senders/index', () => {
             assert.equal(email._ungatedMailer.unblockCodeEmail.callCount, 1)
 
             const args = email._ungatedMailer.unblockCodeEmail.getCall(0).args
+            assert.equal(args[0].email, EMAIL, 'email correctly set')
+            assert.equal(args[0].ccEmails.length, 1, 'email correctly set')
+            assert.equal(args[0].ccEmails[0], EMAILS[1].email, 'cc email correctly set')
+
+            assert.equal(bounces.check.callCount, 2)
+          })
+      })
+    })
+
+    describe('.sendPostAddTwoStepAuthNotification()', () => {
+      it('should call mailer.sendPostAddTwoStepAuthNotification()', () => {
+        let email
+        return createSender(config, bounces)
+          .then(e => {
+            email = e
+            email._ungatedMailer.postAddTwoStepAuthenticationEmail = sinon.spy(() => P.resolve({}))
+            return email.sendPostAddTwoStepAuthNotification(EMAILS, acct, {})
+          })
+          .then(() => {
+            assert.equal(email._ungatedMailer.postAddTwoStepAuthenticationEmail.callCount, 1)
+
+            const args = email._ungatedMailer.postAddTwoStepAuthenticationEmail.getCall(0).args
+            assert.equal(args[0].email, EMAIL, 'email correctly set')
+            assert.equal(args[0].ccEmails.length, 1, 'email correctly set')
+            assert.equal(args[0].ccEmails[0], EMAILS[1].email, 'cc email correctly set')
+
+            assert.equal(bounces.check.callCount, 2)
+          })
+      })
+    })
+
+    describe('.sendPostRemoveTwoStepAuthNotification()', () => {
+      it('should call mailer.sendPostRemoveTwoStepAuthNotification()', () => {
+        let email
+        return createSender(config, bounces)
+          .then(e => {
+            email = e
+            email._ungatedMailer.postRemoveTwoStepAuthenticationEmail = sinon.spy(() => P.resolve({}))
+            return email.sendPostRemoveTwoStepAuthNotification(EMAILS, acct, {})
+          })
+          .then(() => {
+            assert.equal(email._ungatedMailer.postRemoveTwoStepAuthenticationEmail.callCount, 1)
+
+            const args = email._ungatedMailer.postRemoveTwoStepAuthenticationEmail.getCall(0).args
             assert.equal(args[0].email, EMAIL, 'email correctly set')
             assert.equal(args[0].ccEmails.length, 1, 'email correctly set')
             assert.equal(args[0].ccEmails[0], EMAILS[1].email, 'cc email correctly set')

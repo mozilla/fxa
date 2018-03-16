@@ -279,6 +279,34 @@ module.exports = (log, config, error, bounces, translator, sender) => {
             }))
           })
       },
+      sendPostAddTwoStepAuthNotification: function (emails, account, opts) {
+        return getSafeMailerWithEmails(emails)
+          .then(function (result) {
+            const mailer = result.ungatedMailer
+            const primaryEmail = result.ungatedPrimaryEmail
+            const ccEmails = result.ungatedCcEmails
+
+            return mailer.postAddTwoStepAuthenticationEmail(Object.assign({}, opts, {
+              acceptLanguage: opts.acceptLanguage || defaultLanguage,
+              ccEmails,
+              email: primaryEmail
+            }))
+          })
+      },
+      sendPostRemoveTwoStepAuthNotification: function (emails, account, opts) {
+        return getSafeMailerWithEmails(emails)
+          .then(function (result) {
+            const mailer = result.ungatedMailer
+            const primaryEmail = result.ungatedPrimaryEmail
+            const ccEmails = result.ungatedCcEmails
+
+            return mailer.postRemoveTwoStepAuthenticationEmail(Object.assign({}, opts, {
+              acceptLanguage: opts.acceptLanguage || defaultLanguage,
+              ccEmails,
+              email: primaryEmail
+            }))
+          })
+      },
       translator: function () {
         return ungatedMailer.translator.apply(ungatedMailer, arguments)
       },

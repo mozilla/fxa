@@ -15,5 +15,7 @@
   "verifyLoginEmail": 1,
   "verifyLoginCodeEmail": 1,
   "verifySecondaryEmail": 1,
-  "verifySyncEmail": 1
+  "verifySyncEmail": 1,
+  "postAddTwoStepAuthenticationEmail": 4,
+  "postRemoveTwoStepAuthenticationEmail": 4
 }

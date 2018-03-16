@@ -16,6 +16,8 @@
  *   passwordResetRequiredEmail
  *   postVerifyEmail
  *   postVerifySecondaryEmail
+ *   postTwoStepAuthenticationDisabled
+ *   postTwoStepAuthenticationEnabled
  *   recoveryEmail
  *   unblockCodeEmail
  *   verifyEmail

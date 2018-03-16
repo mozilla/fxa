@@ -11,7 +11,7 @@ const P = require('../../../lib/promise')
 const sinon = require('sinon')
 const proxyquire = require('proxyquire').noPreserveCache()
 
-let log, db, customs, otplibMock, routes, route, request, requestOptions, isValidCode = true
+let log, db, customs, otplibMock, routes, route, request, requestOptions, isValidCode = true, mailer
 const TEST_EMAIL = 'test@email.com'
 
 describe('totp', () => {
@@ -34,7 +34,7 @@ describe('totp', () => {
 
   describe('/totp/create', () => {
     it('should create TOTP token', () => {
-      return setup({db: {}}, {}, '/totp/create', requestOptions)
+      return setup({db: {email: TEST_EMAIL}}, {}, '/totp/create', requestOptions)
         .then((response) => {
           assert.ok(response.qrCodeUrl)
           assert.ok(response.secret)
@@ -50,7 +50,7 @@ describe('totp', () => {
 
     it('should be disabled in unverified session', () => {
       requestOptions.credentials.tokenVerificationId = 'notverified'
-      return setup({db: {}}, {}, '/totp/create', requestOptions)
+      return setup({db: {email: TEST_EMAIL}}, {}, '/totp/create', requestOptions)
         .then(assert.fail, (err) => {
           assert.deepEqual(err.errno, 138, 'unverified session error')
         })
@@ -59,7 +59,7 @@ describe('totp', () => {
 
   describe('/totp/destroy', () => {
     it('should delete TOTP token', () => {
-      return setup({db: {}}, {}, '/totp/destroy', requestOptions)
+      return setup({db: {email: TEST_EMAIL}}, {}, '/totp/destroy', requestOptions)
         .then((response) => {
           assert.ok(response)
           assert.equal(db.deleteTotpToken.callCount, 1, 'called delete TOTP token')
@@ -68,7 +68,7 @@ describe('totp', () => {
 
     it('should be disabled in unverified session', () => {
       requestOptions.credentials.tokenVerificationId = 'notverified'
-      return setup({db: {}}, {}, '/totp/destroy', requestOptions)
+      return setup({db: {email: TEST_EMAIL}}, {}, '/totp/destroy', requestOptions)
         .then(assert.fail, (err) => {
           assert.deepEqual(err.errno, 138, 'unverified session error')
         })
@@ -77,7 +77,7 @@ describe('totp', () => {
 
   describe('/totp/exists', () => {
     it('should check for TOTP token', () => {
-      return setup({db: {}}, {}, '/totp/exists', requestOptions)
+      return setup({db: {email: TEST_EMAIL}}, {}, '/totp/exists', requestOptions)
         .then((response) => {
           assert.ok(response)
           assert.equal(db.totpToken.callCount, 1, 'called get TOTP token')
@@ -86,7 +86,7 @@ describe('totp', () => {
 
     it('should be disabled in unverified session', () => {
       requestOptions.credentials.tokenVerificationId = 'notverified'
-      return setup({db: {}}, {}, '/totp/exists', requestOptions)
+      return setup({db: {email: TEST_EMAIL}}, {}, '/totp/exists', requestOptions)
         .then(assert.fail, (err) => {
           assert.deepEqual(err.errno, 138, 'unverified session error')
         })
@@ -94,8 +94,8 @@ describe('totp', () => {
   })
 
   describe('/session/verify/totp', () => {
-    it('should return true for valid TOTP code', () => {
-      return setup({db: {}}, {}, '/session/verify/totp', requestOptions)
+    it('should return false for valid TOTP code', () => {
+      return setup({db: {email: TEST_EMAIL}}, {}, '/session/verify/totp', requestOptions)
         .then((response) => {
           assert.equal(response.success, true, 'should be valid code')
           assert.equal(db.totpToken.callCount, 1, 'called get TOTP token')
@@ -110,7 +110,7 @@ describe('totp', () => {
 
     it('should return false for invalid TOTP code', () => {
       isValidCode = false
-      return setup({db: {}}, {}, '/session/verify/totp', requestOptions)
+      return setup({db: {email: TEST_EMAIL}}, {}, '/session/verify/totp', requestOptions)
         .then((response) => {
           assert.equal(response.success, false, 'should be valid code')
           assert.equal(db.totpToken.callCount, 1, 'called get TOTP token')
@@ -131,7 +131,8 @@ function setup(results, errors, routePath, requestOptions) {
   log = mocks.mockLog()
   db = mocks.mockDB(results.db, errors.db)
   customs = mocks.mockCustoms(errors.customs)
-  routes = makeRoutes({log, db, customs})
+  mailer = mocks.mockMailer()
+  routes = makeRoutes({log, db, customs, mailer})
   route = getRoute(routes, routePath)
   request = mocks.mockRequest(requestOptions)
   request.emitMetricsEvent = sinon.spy(() => P.resolve({}))
@@ -142,6 +143,7 @@ function makeRoutes(options = {}) {
   const config = {step: 30}
   const log = options.log || mocks.mockLog()
   const db = options.db || mocks.mockDB()
+  const mailer = options.mailer || mocks.mockMailer()
 
   db.totpToken = sinon.spy(() => {
     return P.resolve({
@@ -163,7 +165,7 @@ function makeRoutes(options = {}) {
       toDataURL: () => P.resolve('someurl')
     }
   }
-  return proxyquire('../../../lib/routes/totp', otplibMock)(log, db, customs, config)
+  return proxyquire('../../../lib/routes/totp', otplibMock)(log, db, mailer, customs, config)
 }
 
 function runTest(route, request) {

@@ -34,6 +34,8 @@ module.exports = function (log, config) {
     'postVerifyEmail': 'account-verified',
     'postChangePrimaryEmail': 'account-email-changed',
     'postVerifySecondaryEmail': 'account-email-verified',
+    'postAddTwoStepAuthenticationEmail': 'account-two-step-enabled',
+    'postRemoveTwoStepAuthenticationEmail': 'account-two-step-disabled',
     'recoveryEmail': 'forgot-password',
     'unblockCode': 'new-unblock',
     'verifyEmail': 'welcome',
@@ -55,6 +57,8 @@ module.exports = function (log, config) {
     'postVerifyEmail': 'connect-device',
     'postChangePrimaryEmail': 'account-email-changed',
     'postVerifySecondaryEmail': 'manage-account',
+    'postAddTwoStepAuthenticationEmail': 'manage-account',
+    'postRemoveTwoStepAuthenticationEmail': 'manage-account',
     'recoveryEmail': 'reset-password',
     'unblockCode': 'unblock-code',
     'verifyEmail': 'activate',
@@ -887,6 +891,78 @@ module.exports = function (log, config) {
         supportUrl: links.supportUrl,
         secondaryEmail: message.secondaryEmail,
         supportLinkAttributes: links.supportLinkAttributes
+      }
+    }))
+  }
+
+  Mailer.prototype.postAddTwoStepAuthenticationEmail = function (message) {
+    log.trace({ op: 'mailer.postAddTwoStepAuthenticationEmail', email: message.email, uid: message.uid })
+
+    const templateName = 'postAddTwoStepAuthenticationEmail'
+    const links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+
+    const headers = {
+      'X-Link': links.link
+    }
+
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
+    return this.send(Object.assign({}, message, {
+      headers,
+      subject: gettext('Two-step authentication enabled'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
+      }
+    }))
+  }
+
+  Mailer.prototype.postRemoveTwoStepAuthenticationEmail = function (message) {
+    log.trace({ op: 'mailer.postRemoveTwoStepAuthenticationEmail', email: message.email, uid: message.uid })
+
+    const templateName = 'postRemoveTwoStepAuthenticationEmail'
+    const links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+
+    const headers = {
+      'X-Link': links.link
+    }
+
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
+    return this.send(Object.assign({}, message, {
+      headers,
+      subject: gettext('Two-step authentication removed'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
       }
     }))
   }

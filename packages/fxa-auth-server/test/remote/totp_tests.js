@@ -48,9 +48,13 @@ describe('remote totp', function () {
             // Verify TOTP token
             const code = otplib.authenticator.generate()
             return client.verifyTotpCode(code, {metricsContext})
-              .then((response) => {
-                assert.equal(response.success, true, 'totp codes match')
-              })
+          })
+          .then((response) => {
+            assert.equal(response.success, true, 'totp codes match')
+            return server.mailbox.waitForEmail(email)
+          })
+          .then((emailData) => {
+            assert.equal(emailData.headers['x-template-name'], 'postAddTwoStepAuthenticationEmail', 'correct template sent')
           })
       })
   })
@@ -90,6 +94,10 @@ describe('remote totp', function () {
     return client.deleteTotpToken()
       .then((result) => {
         assert.ok(result, 'delete totp token successfully')
+        return server.mailbox.waitForEmail(email)
+      })
+      .then((emailData) => {
+        assert.equal(emailData.headers['x-template-name'], 'postRemoveTwoStepAuthenticationEmail', 'correct template sent')
 
         // Can create a new token
         return client.checkTotpTokenExists()
@@ -160,6 +168,10 @@ describe('remote totp', function () {
       return client.verifyTotpCode(code, {metricsContext})
         .then((response) => {
           assert.equal(response.success, true, 'totp codes match')
+          return server.mailbox.waitForEmail(email)
+        })
+        .then((emailData) => {
+          assert.equal(emailData.headers['x-template-name'], 'newDeviceLoginEmail', 'correct template sent')
         })
     })
   })

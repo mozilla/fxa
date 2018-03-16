@@ -67,6 +67,8 @@ module.exports = {
       'post_remove_secondary',
       'post_verify',
       'post_verify_secondary',
+      'post_add_two_step_authentication',
+      'post_remove_two_step_authentication',
       'recovery',
       'sms.installFirefox',
       'unblock_code',

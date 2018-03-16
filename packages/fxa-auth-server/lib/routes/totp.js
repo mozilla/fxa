@@ -12,7 +12,7 @@ const otplib = require('otplib')
 const qrcode = require('qrcode')
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
 
-module.exports = (log, db, customs, config) => {
+module.exports = (log, db, mailer, customs, config) => {
 
   // Default options for TOTP
   otplib.authenticator.options = {
@@ -109,8 +109,8 @@ module.exports = (log, db, customs, config) => {
 
         customs.check(request, 'totpDestroy')
           .then(deleteTotpToken)
+          .then(sendEmailNotification)
           .then(() => reply({}), reply)
-
 
         function deleteTotpToken() {
           if (sessionToken.tokenVerificationId) {
@@ -118,6 +118,28 @@ module.exports = (log, db, customs, config) => {
           }
 
           return db.deleteTotpToken(uid)
+        }
+
+        function sendEmailNotification() {
+          return db.account(sessionToken.uid)
+            .then((account) => {
+              const geoData = request.app.geo
+              const ip = request.app.clientAddress
+              const emailOptions = {
+                acceptLanguage: request.app.acceptLanguage,
+                ip: ip,
+                location: geoData.location,
+                timeZone: geoData.timeZone,
+                uaBrowser: request.app.ua.browser,
+                uaBrowserVersion: request.app.ua.browserVersion,
+                uaOS: request.app.ua.os,
+                uaOSVersion: request.app.ua.osVersion,
+                uaDeviceType: request.app.ua.deviceType,
+                uid: sessionToken.uid
+              }
+
+              mailer.sendPostRemoveTwoStepAuthNotification(account.emails, account, emailOptions)
+            })
         }
       }
     },
@@ -182,7 +204,8 @@ module.exports = (log, db, customs, config) => {
         validate: {
           payload: {
             code: isA.string().max(32).regex(validators.DIGITS).required(),
-            metricsContext: METRICS_CONTEXT_SCHEMA
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+            service: validators.service
           }
         },
         response: {}
@@ -201,6 +224,7 @@ module.exports = (log, db, customs, config) => {
           .then(verifyTotpToken)
           .then(verifySession)
           .then(emitMetrics)
+          .then(sendEmailNotification)
           .then(() => reply({success: isValidCode}), reply)
 
         function getTotpToken() {
@@ -247,6 +271,37 @@ module.exports = (log, db, customs, config) => {
             })
             request.emitMetricsEvent('totpToken.unverified', {uid: uid})
           }
+        }
+
+        function sendEmailNotification() {
+          return db.account(sessionToken.uid)
+            .then((account) => {
+              const geoData = request.app.geo
+              const ip = request.app.clientAddress
+              const service = request.payload.service || request.query.service
+              const emailOptions = {
+                acceptLanguage: request.app.acceptLanguage,
+                ip: ip,
+                location: geoData.location,
+                service: service,
+                timeZone: geoData.timeZone,
+                uaBrowser: request.app.ua.browser,
+                uaBrowserVersion: request.app.ua.browserVersion,
+                uaOS: request.app.ua.os,
+                uaOSVersion: request.app.ua.osVersion,
+                uaDeviceType: request.app.ua.deviceType,
+                uid: sessionToken.uid
+              }
+
+              // Check to see if this token was just verified, if it is, then this means
+              // the user has enabled two step authentication, otherwise send new device
+              // login email.
+              if (isValidCode && ! tokenVerified) {
+                return mailer.sendPostAddTwoStepAuthNotification(account.emails, account, emailOptions)
+              }
+
+              return mailer.sendNewDeviceLoginNotification(account.emails, account, emailOptions)
+            })
         }
       }
     }

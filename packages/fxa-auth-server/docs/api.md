@@ -2589,6 +2589,12 @@ Verifies the current session if the passed TOTP code is valid.
   
   <!--end-request-body-post-sessionverifytotp-metricsContext-->
 
+* `service`: *validators.service*
+
+  <!--begin-request-body-post-sessionverifytotp-service-->
+  
+  <!--end-request-body-post-sessionverifytotp-service-->
+
 
 ### Unblock codes
 

@@ -40,7 +40,7 @@ describe('lib/senders/templates/index:', () => {
     it('result is correct', () => {
       assert.equal(typeof result, 'object')
       const keys = Object.keys(result)
-      assert.equal(keys.length, 17)
+      assert.equal(keys.length, 19)
       keys.forEach(key => {
         const fn = result[key]
         assert.equal(typeof fn, 'function')
