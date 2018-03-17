@@ -1,3 +1,13 @@
+<a name="1.107.2"></a>
+## [1.107.2](https://github.com/mozilla/fxa-auth-server/compare/v1.107.1...v1.107.2) (2018-03-15)
+
+
+### Bug Fixes
+
+* **emails:** prevent unsafe content from reaching rendered email body ([8da511c](https://github.com/mozilla/fxa-auth-server/commit/8da511c))
+
+
+
 <a name="1.107.1"></a>
 ## [1.107.1](https://github.com/mozilla/fxa-auth-server/compare/v1.107.0...v1.107.1) (2018-03-10)
 
