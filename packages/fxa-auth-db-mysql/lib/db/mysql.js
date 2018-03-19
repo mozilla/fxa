@@ -872,8 +872,7 @@ module.exports = function (log, error) {
   // Values : email = $1
   var GET_SECONDARY_EMAIL = 'CALL getSecondaryEmail_1(?)'
   MySql.prototype.getSecondaryEmail = function (email) {
-    const emailBuffer = Buffer.from(email, 'hex')
-    return this.readFirstResult(GET_SECONDARY_EMAIL, [emailBuffer.toString('utf8')])
+    return this.readFirstResult(GET_SECONDARY_EMAIL, [email])
   }
 
   // Select : accounts
@@ -881,8 +880,7 @@ module.exports = function (log, error) {
   // Where  : emails.normalizedEmail = LOWER($1)
   var GET_ACCOUNT_RECORD = 'CALL accountRecord_2(?)'
   MySql.prototype.accountRecord = function (email) {
-    const emailBuffer = Buffer.from(email, 'hex')
-    return this.readFirstResult(GET_ACCOUNT_RECORD, [emailBuffer.toString('utf8')])
+    return this.readFirstResult(GET_ACCOUNT_RECORD, [email])
   }
 
   // Select : emails
@@ -901,12 +899,11 @@ module.exports = function (log, error) {
   // Values : uid = $1, email = $2
   var SET_PRIMARY_EMAIL = 'CALL setPrimaryEmail_1(?, ?)'
   MySql.prototype.setPrimaryEmail = function (uid, email) {
-    const emailBuffer = Buffer.from(email, 'hex')
     return this.write(
       SET_PRIMARY_EMAIL,
       [
         uid,
-        emailBuffer.toString('utf8')
+        email
       ]
     )
   }
@@ -915,12 +912,11 @@ module.exports = function (log, error) {
   // Values : uid = $1, email = $2
   var DELETE_EMAIL = 'CALL deleteEmail_2(?, ?)'
   MySql.prototype.deleteEmail = function (uid, email) {
-    const emailBuffer = Buffer.from(email, 'hex')
     return this.write(
       DELETE_EMAIL,
       [
         uid,
-        emailBuffer.toString('utf8')
+        email
       ]
     )
       .catch(function(err){

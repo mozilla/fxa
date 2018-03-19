@@ -94,23 +94,23 @@ function createServer(db) {
   api.post('/account/:id/emails', withIdAndBody(db.createEmail))
   api.del('/account/:id/emails/:email',
     op(function (req) {
-      return db.deleteEmail(req.params.id, req.params.email)
+      return db.deleteEmail(req.params.id, bufferize.hexToUtf8(req.params.email))
     })
   )
 
   api.get('/email/:email',
     op(function (req) {
-      return db.getSecondaryEmail(req.params.email)
+      return db.getSecondaryEmail(bufferize.hexToUtf8(req.params.email))
     })
   )
   api.get('/email/:email/account',
     op(function (req) {
-      return db.accountRecord(req.params.email)
+      return db.accountRecord(bufferize.hexToUtf8(req.params.email))
     })
   )
   api.post('/email/:email/account/:id',
     op(function (req) {
-      return db.setPrimaryEmail(req.params.id, req.params.email)
+      return db.setPrimaryEmail(req.params.id, bufferize.hexToUtf8(req.params.email))
     })
   )
 

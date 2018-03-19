@@ -49,8 +49,13 @@ function bufferizeRequest(keys, req, res, next) {
   return next()
 }
 
+function hexToUtf8(value) {
+  return Buffer.from(value,'hex').toString('utf8')
+}
+
 module.exports = {
   unbuffer: unbuffer,
   bufferize: bufferize,
-  bufferizeRequest: bufferizeRequest
+  bufferizeRequest: bufferizeRequest,
+  hexToUtf8: hexToUtf8
 }

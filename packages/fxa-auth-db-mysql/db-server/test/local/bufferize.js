@@ -13,10 +13,11 @@ describe('bufferize', () => {
 
       var bufferize = require('../../lib/bufferize')
       assert.equal(typeof bufferize, 'object', 'bufferize exports object')
-      assert.equal(Object.keys(bufferize).length, 3, 'bufferize exports three functions')
+      assert.equal(Object.keys(bufferize).length, 4, 'bufferize exports four functions')
       assert.equal(typeof bufferize.unbuffer, 'function', 'bufferize exports unbuffer function')
       assert.equal(typeof bufferize.bufferize, 'function', 'bufferize exports bufferize function')
       assert.equal(typeof bufferize.bufferizeRequest, 'function', 'bufferize exports bufferizeRequest function')
+      assert.equal(typeof bufferize.hexToUtf8, 'function', 'bufferize exports hexToUtf8 function')
 
       var result = bufferize.unbuffer({
         foo: Buffer.from('42', 'hex'),
