@@ -4,9 +4,12 @@
 
 'use strict'
 
+const error = require('../error')
+const isA = require('joi')
+const P = require('../promise')
 const validators = require('./validators')
 
-module.exports = function (log, P, isA, error, signer, db, domain, devices) {
+module.exports = (log, signer, db, domain, devices) => {
 
   const HOUR = 1000 * 60 * 60
 
@@ -16,7 +19,7 @@ module.exports = function (log, P, isA, error, signer, db, domain, devices) {
       path: '/certificate/sign',
       config: {
         auth: {
-          strategy: 'sessionTokenWithDevice',
+          strategy: 'sessionToken',
           payload: 'required'
         },
         validate: {
@@ -45,11 +48,33 @@ module.exports = function (log, P, isA, error, signer, db, domain, devices) {
         var duration = request.payload.duration
         var service = request.query.service
         var deviceId, uid, certResult
+        if (request.headers['user-agent']) {
+          const {
+            browser: uaBrowser,
+            browserVersion: uaBrowserVersion,
+            os: uaOS,
+            osVersion: uaOSVersion,
+            deviceType: uaDeviceType,
+            formFactor: uaFormFactor
+          } = request.app.ua
+          sessionToken.setUserAgentInfo({
+            uaBrowser,
+            uaBrowserVersion,
+            uaOS,
+            uaOSVersion,
+            uaDeviceType,
+            uaFormFactor,
+            lastAccessTime: Date.now()
+          })
+          // No need to wait for a response, update in the background.
+          db.touchSessionToken(sessionToken, request.app.geo)
+        } else {
+          log.warn({
+            op: 'signer.updateSessionToken', message: 'no user agent string, session token not updated'
+          })
+        }
 
-        // No need to wait for a response, update in the background.
-        db.updateSessionToken(sessionToken, request.headers['user-agent'])
-
-        if (!sessionToken.emailVerified) {
+        if (! sessionToken.emailVerified) {
           return reply(error.unverifiedAccount())
         }
 
@@ -57,13 +82,21 @@ module.exports = function (log, P, isA, error, signer, db, domain, devices) {
           .then(
             function () {
               if (sessionToken.deviceId) {
-                deviceId = sessionToken.deviceId.toString('hex')
+                deviceId = sessionToken.deviceId
               } else if (! service || service === 'sync') {
-                // Synthesize a device record for Sync sessions that don't already have one
-                return devices.upsert(request, sessionToken, {})
+                // Synthesize a device record for Sync sessions that don't already have one.
+                // Include the UA info so that we can synthesize a device name
+                // for any push notifications.
+                var deviceInfo = {
+                  uaBrowser: sessionToken.uaBrowser,
+                  uaBrowserVersion: sessionToken.uaBrowserVersion,
+                  uaOS: sessionToken.uaOS,
+                  uaOSVersion: sessionToken.uaOSVersion
+                }
+                return devices.upsert(request, sessionToken, deviceInfo)
                   .then(
                     function (result) {
-                      deviceId = result.id.toString('hex')
+                      deviceId = result.id
                     }
                   )
               }
@@ -72,29 +105,29 @@ module.exports = function (log, P, isA, error, signer, db, domain, devices) {
           .then(
             function () {
               if (publicKey.algorithm === 'RS') {
-                if (!publicKey.n) {
-                  return reply(error.missingRequestParameter('n'))
+                if (! publicKey.n) {
+                  throw error.missingRequestParameter('n')
                 }
-                if (!publicKey.e) {
-                  return reply(error.missingRequestParameter('e'))
+                if (! publicKey.e) {
+                  throw error.missingRequestParameter('e')
                 }
               }
               else { // DS
-                if (!publicKey.y) {
-                  return reply(error.missingRequestParameter('y'))
+                if (! publicKey.y) {
+                  throw error.missingRequestParameter('y')
                 }
-                if (!publicKey.p) {
-                  return reply(error.missingRequestParameter('p'))
+                if (! publicKey.p) {
+                  throw error.missingRequestParameter('p')
                 }
-                if (!publicKey.q) {
-                  return reply(error.missingRequestParameter('q'))
+                if (! publicKey.q) {
+                  throw error.missingRequestParameter('q')
                 }
-                if (!publicKey.g) {
-                  return reply(error.missingRequestParameter('g'))
+                if (! publicKey.g) {
+                  throw error.missingRequestParameter('g')
                 }
               }
 
-              if (!sessionToken.locale) {
+              if (! sessionToken.locale) {
                 if (request.app.acceptLanguage) {
                   // Log details to sanity-check locale backfilling.
                   log.info({
@@ -114,7 +147,7 @@ module.exports = function (log, P, isA, error, signer, db, domain, devices) {
                   })
                 }
               }
-              uid = sessionToken.uid.toString('hex')
+              uid = sessionToken.uid
 
               return signer.sign(
                 {
@@ -136,7 +169,6 @@ module.exports = function (log, P, isA, error, signer, db, domain, devices) {
               certResult = result
               return request.emitMetricsEvent('account.signed', {
                 uid: uid,
-                account_created_at: sessionToken.accountCreatedAt,
                 device_id: deviceId
               })
             }

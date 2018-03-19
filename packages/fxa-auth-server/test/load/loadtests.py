@@ -6,6 +6,7 @@ import hashlib
 import fxa.errors
 from fxa._utils import APIClient
 from fxa.core import Client
+from fxa.tests.utils import TestEmailAccount
 
 from loads import TestCase
 
@@ -124,7 +125,14 @@ class LoadTest(TestCase):
             n_poll_reqs = random.randint(LOGIN_POLL_REQS_MIN,
                                          LOGIN_POLL_REQS_MAX)
             for i in xrange(n_poll_reqs):
-                session.get_email_status()
+                status = session.get_email_status()
+            # Ensure we have a verified session to continue
+            if not status["verified"]:
+                code = self._get_code_from_email(session.emailAcct, "x-verify-code")
+                assert code is not None, "failed to get verify code"
+                session.verify_email_code(code)
+                status = session.get_email_status()
+                assert status["verified"]
             # Always fetch the keys.
             session.fetch_keys()
             # Sometimes check the session status.
@@ -157,19 +165,22 @@ class LoadTest(TestCase):
     def _get_stretchpwd(self, email):
         return hashlib.sha256(email).hexdigest()
 
-    def _get_new_user_email(self):
+    def _get_new_user_email_acct(self):
         uid = uniq()
-        return "loads-fxa-{}-new@restmail.lcip.org".format(uid)
+        email = "loads-fxa-{}-new@restmail.net".format(uid)
+        return TestEmailAccount(email)
 
-    def _get_existing_user_email(self):
+    def _get_existing_user_email_acct(self):
         uid = random.randint(1, 999)
-        return "loads-fxa-{}-old@restmail.lcip.org".format(uid)
+        email = "loads-fxa-{}-old@restmail.net".format(uid)
+        return TestEmailAccount(email)
 
     def _authenticate_as_new_user(self):
         # Authenticate as a brand-new user account.
         # Assume it doesn't exist, and try to create the account.
         # But it's not big deal if it happens to already exist.
-        email = self._get_new_user_email()
+        emailAcct = self._get_new_user_email_acct()
+        email = emailAcct.email
         kwds = {
             "email": email,
             "stretchpwd": self._get_stretchpwd(email),
@@ -193,6 +204,7 @@ class LoadTest(TestCase):
             except fxa.errors.ClientError as e:
                 if e.errno != ERROR_INVALID_CODE:
                     raise
+        session.emailAcct = emailAcct
         return session
 
     def _authenticate_as_existing_user(self):
@@ -200,43 +212,72 @@ class LoadTest(TestCase):
         # We select from a small pool of known accounts, creating it
         # if it does not exist.  This should mean that all the accounts
         # are created quickly at the start of the loadtest run.
-        email = self._get_existing_user_email()
+        emailAcct = self._get_existing_user_email_acct()
+        email = emailAcct.email
         kwds = {
             "email": email,
             "stretchpwd": self._get_stretchpwd(email),
             "keys": True,
         }
         try:
-            return self.client.login(**kwds)
+            session = self.client.login(**kwds)
         except fxa.errors.ClientError as e:
             if e.errno != ERROR_UNKNOWN_ACCOUNT:
                 raise
             kwds["preVerified"] = True
             # Account creation might likewise fail due to a race.
             try:
-                return self.client.create_account(**kwds)
+                session = self.client.create_account(**kwds)
             except fxa.errors.ClientError as e:
                 if e.errno != ERROR_ACCOUNT_EXISTS:
                     raise
                 # Assume a normal login will now succeed.
                 kwds.pop("preVerified")
-                return self.client.login(**kwds)
+                session = self.client.login(**kwds)
+        session.emailAcct = emailAcct
+        return session
 
     def test_password_reset_flow(self):
-        email = self._get_existing_user_email()
-        pft = self.client.send_reset_code(email)
-        # XXX TODO: how to get the reset code?
-        # I don't want to actually poll restmail during a loadtest...
-        pft.get_status()
+        emailAcct = self._get_existing_user_email_acct()
+        email = emailAcct.email
         try:
-            pft.verify_code("0" * 32)
+            pft = self.client.send_reset_code(email)
         except fxa.errors.ClientError as e:
+            if e.errno != ERROR_UNKNOWN_ACCOUNT:
+                raise
+            # Create the "existing" account if it doesn't yet exist.
+            kwds = {
+                "email": email,
+                "stretchpwd": self._get_stretchpwd(email),
+                "preVerified": True,
+            }
+            try:
+                self.client.create_account(**kwds)
+            except fxa.errors.ClientError as e:
+                if e.errno != ERROR_ACCOUNT_EXISTS:
+                    raise
+            pft = self.client.send_reset_code(email)
+        assert "tries" in pft.get_status()
+        # Get the recovery code  and redeem it.
+        code = self._get_code_from_email(emailAcct, "x-recovery-code")
+        assert code is not None, "failed to get code"
+        try:
+            pft.verify_code(code)
+        except fxa.errors.ClientError as e:
+            # There's a small chance this might fail due to a race.
             if e.errno != ERROR_INVALID_CODE:
                 raise
-        pft.get_status()
+        else:
+            try:
+                pft.get_status()
+            except fxa.errors.ClientError as e:
+                if e.errno != ERROR_INVALID_TOKEN:
+                    raise
+            else:
+                assert False, "password forgot token should have been consumed"
 
     def test_password_change_flow(self):
-        email = self._get_existing_user_email()
+        email = self._get_existing_user_email_acct().email
         stretchpwd = self._get_stretchpwd(email)
         try:
             self.client.change_password(
@@ -247,7 +288,7 @@ class LoadTest(TestCase):
         except fxa.errors.ClientError as e:
             if e.errno != ERROR_UNKNOWN_ACCOUNT:
                 raise
-            # Create the "existing" account if it doens't yet exist.
+            # Create the "existing" account if it doesn't yet exist.
             kwds = {
                 "email": email,
                 "stretchpwd": stretchpwd,
@@ -256,7 +297,7 @@ class LoadTest(TestCase):
             try:
                 self.client.create_account(**kwds)
             except fxa.errors.ClientError as e:
-                if e.errno != ERROR_UNKNOWN_ACCOUNT:
+                if e.errno != ERROR_ACCOUNT_EXISTS:
                     raise
             else:
                 self.client.change_password(
@@ -268,3 +309,16 @@ class LoadTest(TestCase):
     def test_support_doc_flow(self):
         base_url = self.server_url[:-3]
         self.session.get(base_url + "/.well-known/browserid")
+
+    def _get_code_from_email(self, emailAcct, header):
+        # Due to possible race conditions, and previous test runs
+        # leaving junk in the restmail account, we look for the last
+        # matching email rather than the first.  There's still a small
+        # chance that we pull out the wrong code here.
+        num_retries = 10
+        for _ in xrange(num_retries):
+            emailAcct.fetch()
+            for m in reversed(emailAcct.messages):
+                if header in m["headers"]:
+                    return m["headers"][header]
+        return None

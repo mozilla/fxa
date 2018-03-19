@@ -15,8 +15,6 @@ describe('remote account create', function() {
   this.timeout(15000)
   let server
   before(() => {
-    // XXX: update this later to avoid issues.
-    process.env.NODE_ENV = 'dev'
     return TestServer.start(config)
       .then(s => {
         server = s
@@ -83,6 +81,7 @@ describe('remote account create', function() {
         )
         .then(
           function (emailData) {
+            assert.equal(emailData.headers['x-mailer'], undefined)
             assert.equal(emailData.headers['x-template-name'], 'verifySyncEmail')
             assert.equal(emailData.html.indexOf('IP address') > -1, true) // Ensure some location data is present
             return emailData.headers['x-verify-code']

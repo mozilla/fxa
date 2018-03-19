@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 // Not all non-english locales have tranlated some things yet.
 // So there are these unfortunate bits of custom mappings that
 // will need to change over time.

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 var P = require('../lib/promise')
 var request = require('request')
 const EventEmitter = require('events').EventEmitter
@@ -24,8 +26,12 @@ module.exports = function (host, port, printLogs) {
     return waitForEmail(email)
       .then(
         function (emailData) {
-          return emailData.headers['x-verify-code'] ||
-                 emailData.headers['x-recovery-code']
+          var code =  emailData.headers['x-verify-code'] ||
+                      emailData.headers['x-recovery-code']
+          if (! code) {
+            throw new Error('email did not contain a verification code')
+          }
+          return code
         }
       )
   }
@@ -45,7 +51,7 @@ module.exports = function (host, port, printLogs) {
           return cb(e)
         }
 
-        if(!json) {
+        if (! json) {
           if (tries === 0) {
             return cb(new Error('could not get mail for ' + url))
           }
@@ -74,9 +80,14 @@ module.exports = function (host, port, printLogs) {
     return d.promise
   }
 
+  function waitForSms (phoneNumber) {
+    return waitForEmail(`sms.${phoneNumber}@restmail.net`)
+  }
+
   return {
     waitForEmail: waitForEmail,
     waitForCode: waitForCode,
+    waitForSms: waitForSms,
     eventEmitter: eventEmitter
   }
 }

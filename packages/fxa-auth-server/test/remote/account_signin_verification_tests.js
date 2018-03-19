@@ -8,6 +8,7 @@ const assert = require('insist')
 var TestServer = require('../test_server')
 const Client = require('../client')()
 var config = require('../../config').getProperties()
+config.redis.enabled = false
 var url = require('url')
 var jwtool = require('fxa-jwtool')
 var pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile)
@@ -24,8 +25,8 @@ describe('remote account signin verification', function() {
   this.timeout(30000)
   let server
   before(() => {
-    process.env.IP_PROFILING_ENABLED = false
-
+    config.securityHistory.ipProfiling.allowedRecency = 0
+    config.signinConfirmation.skipForNewAccounts.enabled = false
     return TestServer.start(config)
       .then(s => {
         server = s
@@ -62,8 +63,8 @@ describe('remote account signin verification', function() {
         )
         .then(
           function (response) {
-            assert(!response.verificationMethod, 'no challenge method set')
-            assert(!response.verificationReason, 'no challenge reason set')
+            assert(! response.verificationMethod, 'no challenge method set')
+            assert(! response.verificationReason, 'no challenge reason set')
             assert.equal(response.verified, true, 'verified set true')
           }
         )
@@ -701,6 +702,76 @@ describe('remote account signin verification', function() {
           function () {
             // Verify the account will set tokens verified.
             return client.verifyEmail(tokenCode)
+          }
+        )
+        .then(
+          function () {
+            return client.emailStatus()
+          }
+        )
+        .then(
+          function (status) {
+            assert.equal(status.verified, true, 'account is verified')
+            assert.equal(status.emailVerified, true, 'account email is verified')
+            assert.equal(status.sessionVerified, true, 'account session is  verified')
+          }
+        )
+        .then(
+          function () {
+            // Can retrieve keys now that account tokens verified
+            return client.keys()
+          }
+        )
+        .then(
+          function (keys) {
+            assert.ok(keys.kA, 'has kA keys')
+            assert.ok(keys.kB, 'has kB keys')
+            assert.ok(keys.wrapKb, 'has wrapKb keys')
+          }
+        )
+    }
+  )
+
+  it(
+    'unverified account is verified on sign-in confirmation',
+    () => {
+      var email = server.uniqueEmail()
+      var password = 'allyourbasearebelongtous'
+      var client = null
+      var tokenCode
+
+      return Client.create(config.publicUrl, email, password, server.mailbox, {keys:true})
+        .then(
+          function (c) {
+            client = c
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            assert.equal(emailData.headers['x-template-name'], 'verifyEmail')
+            tokenCode = emailData.headers['x-verify-code']
+            assert.ok(tokenCode, 'sent verify code')
+          }
+        )
+        .then(
+          function () {
+            return client.login({keys:true})
+          }
+        )
+        .then(
+          function (c) {
+            client = c
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            assert.equal(emailData.headers['x-template-name'], 'verifyEmail')
+            const siginToken = emailData.headers['x-verify-code']
+            assert.notEqual(tokenCode, siginToken, 'login codes should not match')
+
+            return client.verifyEmail(siginToken)
           }
         )
         .then(

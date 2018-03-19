@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, inherits, Token, random, lifetime) {
+'use strict'
+
+const inherits = require('util').inherits
+const random = require('../crypto/random')
+
+module.exports = (log, Token, lifetime) => {
 
   function PasswordForgotToken(keys, details) {
     details.lifetime = lifetime
@@ -22,7 +27,7 @@ module.exports = function (log, inherits, Token, random, lifetime) {
       uid: details.uid,
       email: details.email
     })
-    return random(16)
+    return random.hex(16)
       .then(bytes => {
         details.passCode = bytes
         details.tries = 3
@@ -37,7 +42,7 @@ module.exports = function (log, inherits, Token, random, lifetime) {
   }
 
   PasswordForgotToken.prototype.failAttempt = function () {
-    this.tries--
+    this.tries --
     return this.tries < 1
   }
 

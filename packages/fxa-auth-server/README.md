@@ -2,6 +2,8 @@ Firefox Accounts Server
 =======================
 
 [![Build Status](https://travis-ci.org/mozilla/fxa-auth-server.svg?branch=master)](https://travis-ci.org/mozilla/fxa-auth-server)
+[![Coverage Status](https://coveralls.io/repos/github/mozilla/fxa-auth-server/badge.svg?branch=master)](https://coveralls.io/github/mozilla/fxa-auth-server?branch=master)
+[![CircleCI](https://circleci.com/gh/mozilla/fxa-auth-server.svg?style=svg)](https://circleci.com/gh/mozilla/fxa-auth-server)
 
 This project implements the core server-side API for Firefox Accounts.  It
 provides account, device and encryption-key management for the Mozilla Cloud
@@ -17,9 +19,10 @@ Services ecosystem.
 
 ## Prerequisites
 
-* node 4.5.0 or higher
-* npm
+* node 6+
+* npm 2
 * Grunt
+* postfix
 
 ## Install
 
@@ -41,7 +44,6 @@ This runs a script `scripts/start-local.sh` as defined in `package.json`. This w
 * `bin/key_server.js` on port 9000
 * `test/mail_helper.js` on port 9001
 * `./node_modules/fxa-customs-server/bin/customs_server.js` on port 7000
-* `bin/notifier.js` (no port)
 
 When you `Ctrl-c` your server, all 4 processes will be stopped.
 
@@ -60,6 +62,31 @@ To select a specific glob of tests to run:
     npm test -- test/local/account_routes.js test/local/password_*
 
 * Note: stop the auth-server before running tests. Otherwise, they will fail with obscure errors.
+* You can use `LOG_LEVEL`, such as `LOG_LEVEL=debug` to specify the test logging level.
+
+## Mailer
+
+The mailer library is located in `mailer/` directory.
+
+The emails are written to postfix which tends sends them off to SES.
+
+The auth-mailer also includes a restify API to send emails, but the auth server is using it as a library at the moment.
+
+### Changing Templates
+
+If you are changing or adding templates then you need to update `.html` and `.txt` templates.
+In `mailer/`, use the `/partials` directory to make changes to the HTML templates, then run `grunt templates` to regenerate the template.
+This saves the HTML template into `/templates`. Then make changes to the `.txt` template in the `/templates` directory.
+
+### L10N
+
+After updating a string in one of the templates in `./mailer/templates` you'll need to extract the strings.
+Follow the instructions at [mozilla/fxa-content-server-l10n](https://github.com/mozilla/fxa-content-server-l10n#string-extraction).
+
+#### Production
+
+Use the `FXA_L10N_SHA` to pin L10N files to certain SHA. If not set then the `master` SHA will be used.
+
 
 ## Reference Client
 

@@ -1,348 +1,1324 @@
-<a name="1.78.2"></a>
-## [1.78.2](https://github.com/mozilla/fxa-auth-server/compare/v1.78.1...v1.78.2) (2017-01-18)
+<a name="1.107.2"></a>
+## [1.107.2](https://github.com/mozilla/fxa-auth-server/compare/v1.107.1...v1.107.2) (2018-03-15)
+
+
+### Bug Fixes
+
+* **emails:** prevent unsafe content from reaching rendered email body ([8da511c](https://github.com/mozilla/fxa-auth-server/commit/8da511c))
+
+
+
+<a name="1.107.1"></a>
+## [1.107.1](https://github.com/mozilla/fxa-auth-server/compare/v1.107.0...v1.107.1) (2018-03-10)
+
+
+### chore
+
+* **uplift:** uplift token validation fixes (#2335) r=@vladikoff ([a35411a](https://github.com/mozilla/fxa-auth-server/commit/a35411a)), closes [#2335](https://github.com/mozilla/fxa-auth-server/issues/2335)
+
+
+
+<a name="1.107.0"></a>
+# [1.107.0](https://github.com/mozilla/fxa-auth-server/compare/v1.106.0...v1.107.0) (2018-03-07)
+
+
+### Bug Fixes
+
+* **redis:** delete clashing tokens from redis in createSessionToken ([e9ec39d](https://github.com/mozilla/fxa-auth-server/commit/e9ec39d))
+* **tests:** Make email-polling-expiry tests pass in March. (#2324) r=@vladikoff ([597bfab](https://github.com/mozilla/fxa-auth-server/commit/597bfab)), closes [#2324](https://github.com/mozilla/fxa-auth-server/issues/2324)
+
+### chore
+
+* **deps:** Update hapi to v16.6.3 (#2330) ([ad1888a](https://github.com/mozilla/fxa-auth-server/commit/ad1888a)), closes [#2330](https://github.com/mozilla/fxa-auth-server/issues/2330)
+
+### Features
+
+* **emails:** delete bounced registrations that are younger than 6 hours (#2305); r=rfk ([e2d2a7e](https://github.com/mozilla/fxa-auth-server/commit/e2d2a7e)), closes [#2305](https://github.com/mozilla/fxa-auth-server/issues/2305)
+* **totp:** update to use new verification methods (#2321), r=@philbooth, @vladikoff ([45ae7b2](https://github.com/mozilla/fxa-auth-server/commit/45ae7b2)), closes [#2321](https://github.com/mozilla/fxa-auth-server/issues/2321)
+
+
+
+<a name="1.106.0"></a>
+# [1.106.0](https://github.com/mozilla/fxa-auth-server/compare/v1.105.0...v1.106.0) (2018-02-21)
+
+
+### Bug Fixes
+
+* **api:** make authentication required on GET /account/profile (#2290) r=@vladikoff ([6411c5a](https://github.com/mozilla/fxa-auth-server/commit/6411c5a)), closes [#2290](https://github.com/mozilla/fxa-auth-server/issues/2290)
+* **docs:** Support declaration of extra error types in route config. ([9254e31](https://github.com/mozilla/fxa-auth-server/commit/9254e31))
+* **logging:** Make oauth_client_info use shared logging instance. (#2299) r=@vladikoff ([bb2c677](https://github.com/mozilla/fxa-auth-server/commit/bb2c677)), closes [#2299](https://github.com/mozilla/fxa-auth-server/issues/2299)
+* **reauth:** Don't send a "new device" email during session re-auth. ([e2cd9f9](https://github.com/mozilla/fxa-auth-server/commit/e2cd9f9))
+* **tests:** Add `verifyTokenCode` support for mem keyFetchToken (#2287), r=@philbooth ([5cb76e5](https://github.com/mozilla/fxa-auth-server/commit/5cb76e5)), closes [#2287](https://github.com/mozilla/fxa-auth-server/issues/2287)
+* **tests:** Test that unauthenticated /account/profile rejects cleanly. (#2296) r=@philbooth ([79b2876](https://github.com/mozilla/fxa-auth-server/commit/79b2876)), closes [#2296](https://github.com/mozilla/fxa-auth-server/issues/2296)
+
+### chore
+
+* **emails:** delete bin/mailer_server.js (#2303) r=@vladikoff ([d8bd876](https://github.com/mozilla/fxa-auth-server/commit/d8bd876)), closes [#2303](https://github.com/mozilla/fxa-auth-server/issues/2303)
+* **emails:** remove all verification reminder code ([a33756e](https://github.com/mozilla/fxa-auth-server/commit/a33756e))
+* **logging:** downgrade redis.watch.conflict to warning level (#2307) r=@vladikoff ([d219cdd](https://github.com/mozilla/fxa-auth-server/commit/d219cdd)), closes [#2307](https://github.com/mozilla/fxa-auth-server/issues/2307)
+* **nsp:** ignore hoek warning ([695499a](https://github.com/mozilla/fxa-auth-server/commit/695499a))
+
+### Features
+
+* **cad:** change destination of CAD in email to FxA-controlled page (#2297) r=@philbooth ([2a05116](https://github.com/mozilla/fxa-auth-server/commit/2a05116)), closes [#2297](https://github.com/mozilla/fxa-auth-server/issues/2297) [#1860](https://github.com/mozilla/fxa-auth-server/issues/1860)
+* **emails:** fetch service names from OAuth servers, use in emails (#2284) r=@rfk ([f0ecf0a](https://github.com/mozilla/fxa-auth-server/commit/f0ecf0a)), closes [#2284](https://github.com/mozilla/fxa-auth-server/issues/2284) [#2213](https://github.com/mozilla/fxa-auth-server/issues/2213) [#2249](https://github.com/mozilla/fxa-auth-server/issues/2249)
+* **reset:** improve reset for reliers (#2298) r=@ryanfeeley,@vbudhram ([a937c16](https://github.com/mozilla/fxa-auth-server/commit/a937c16)), closes [#2298](https://github.com/mozilla/fxa-auth-server/issues/2298) [mozilla/fxa-content-server#5776](https://github.com/mozilla/fxa-content-server/issues/5776) [mozilla/fxa-content-server#5896](https://github.com/mozilla/fxa-content-server/issues/5896)
+* **sessions:** Add ability to reauth within an existing login session. ([aa388cc](https://github.com/mozilla/fxa-auth-server/commit/aa388cc))
+* **totp:** TOTP Management APIs (#2300), r=@philbooth ([c805f9c](https://github.com/mozilla/fxa-auth-server/commit/c805f9c)), closes [#2300](https://github.com/mozilla/fxa-auth-server/issues/2300)
+
+
+
+<a name="1.105.0"></a>
+# [1.105.0](https://github.com/mozilla/fxa-auth-server/compare/v1.104.1...v1.105.0) (2018-02-06)
+
+
+### Bug Fixes
+
+* **bounce:** Update bounces lib to use `accountRecord` (#2273) r=@rfk,@vladikoff ([3953051](https://github.com/mozilla/fxa-auth-server/commit/3953051)), closes [#2273](https://github.com/mozilla/fxa-auth-server/issues/2273) [#2272](https://github.com/mozilla/fxa-auth-server/issues/2272)
+* **email:** log to recipient alongside smtp message-id ([993fd02](https://github.com/mozilla/fxa-auth-server/commit/993fd02))
+* **emails:** Reset account tokens when deleting an email address. (#2266); r=philbooth ([70d0f96](https://github.com/mozilla/fxa-auth-server/commit/70d0f96)), closes [#2266](https://github.com/mozilla/fxa-auth-server/issues/2266)
+* **redis:** delete session tokens from redis in db.deleteDevice ([11f7024](https://github.com/mozilla/fxa-auth-server/commit/11f7024))
+* **tests:** Use higher test timeout under Windows Subsystem for Linux ([c9baa00](https://github.com/mozilla/fxa-auth-server/commit/c9baa00))
+* **unblock:** Send correct primary email when blocked (#2271), r=@rfk ([0e4b77f](https://github.com/mozilla/fxa-auth-server/commit/0e4b77f)), closes [#2271](https://github.com/mozilla/fxa-auth-server/issues/2271)
+
+### chore
+
+* **ci:** stop setting USE_REDIS in the test invocations (#2281), r=@vbudhram ([26a5a8a](https://github.com/mozilla/fxa-auth-server/commit/26a5a8a)), closes [#2281](https://github.com/mozilla/fxa-auth-server/issues/2281)
+* **code:** eliminate duplicate pool and db modules ([924e8ca](https://github.com/mozilla/fxa-auth-server/commit/924e8ca))
+* **tests:** Set defaults for env vars in test-local.sh script. ([0960eaf](https://github.com/mozilla/fxa-auth-server/commit/0960eaf))
+
+### Features
+
+* **sessions:** Add /session/duplicate API ([669f59a](https://github.com/mozilla/fxa-auth-server/commit/669f59a))
+
+
+
+<a name="1.104.1"></a>
+## [1.104.1](https://github.com/mozilla/fxa-auth-server/compare/v1.104.0...v1.104.1) (2018-01-29)
+
+
+### Bug Fixes
+
+* **metrics:** ensure amplitude events always have a metrics context ([f7ce4d0](https://github.com/mozilla/fxa-auth-server/commit/f7ce4d0))
+
+
+
+<a name="1.104.0"></a>
+# [1.104.0](https://github.com/mozilla/fxa-auth-server/compare/v1.103.0...v1.104.0) (2018-01-24)
+
+
+### Bug Fixes
+
+* **redis:** pack redis tokens inside db.deleteSessionToken ([1b2d1d9](https://github.com/mozilla/fxa-auth-server/commit/1b2d1d9))
+* **tests:** Fix account destroy device test (#2263), r=@rfk ([220d57d](https://github.com/mozilla/fxa-auth-server/commit/220d57d)), closes [#2263](https://github.com/mozilla/fxa-auth-server/issues/2263)
+
+### chore
+
+* **deps:** update fxa-geodb ([e7bbb86](https://github.com/mozilla/fxa-auth-server/commit/e7bbb86))
+
+### Features
+
+* **auth:** Enable hawk payload validation for additional replay protection (#2252); r=pboot ([af3a9eb](https://github.com/mozilla/fxa-auth-server/commit/af3a9eb)), closes [#2252](https://github.com/mozilla/fxa-auth-server/issues/2252)
+* **redis:** eliminate property names from redis-stored tokens ([fcddf0b](https://github.com/mozilla/fxa-auth-server/commit/fcddf0b))
+* **redis:** prune expired session tokens from redis ([a9a61f0](https://github.com/mozilla/fxa-auth-server/commit/a9a61f0))
+
+
+
+<a name="1.103.0"></a>
+# [1.103.0](https://github.com/mozilla/fxa-auth-server/compare/v1.102.0...v1.103.0) (2018-01-09)
+
+
+### Bug Fixes
+
+* **node:** use node 6.12.3 (#2251) r=@vladikoff ([c804acd](https://github.com/mozilla/fxa-auth-server/commit/c804acd)), closes [#2251](https://github.com/mozilla/fxa-auth-server/issues/2251)
+* **scripts:** use latest Husky module for git hooks (#2250); r=rfk ([f76015c](https://github.com/mozilla/fxa-auth-server/commit/f76015c)), closes [#2250](https://github.com/mozilla/fxa-auth-server/issues/2250) [#2128](https://github.com/mozilla/fxa-auth-server/issues/2128)
+* **tests:** fix failing geolocation tests (#2253) r=@vladikoff ([804344d](https://github.com/mozilla/fxa-auth-server/commit/804344d)), closes [#2253](https://github.com/mozilla/fxa-auth-server/issues/2253)
+
+### Features
+
+* **sms:** Enable SMS in australia (#2248) r=@rfk ([86369d0](https://github.com/mozilla/fxa-auth-server/commit/86369d0)), closes [#2248](https://github.com/mozilla/fxa-auth-server/issues/2248)
+
+
+
+<a name="1.102.0"></a>
+# [1.102.0](https://github.com/mozilla/fxa-auth-server/compare/v1.101.1...v1.102.0) (2017-12-13)
+
+
+### Features
+
+* **codes:** don't send delete notification when deleting unverified email (#2246), r=@rfk ([ae36ddf](https://github.com/mozilla/fxa-auth-server/commit/ae36ddf))
+* **sms:** Enable SMS in Denmark (DK) and the Netherlands (NL) (#2238) r=@vladikoff,@vbudhr ([c8e55fe](https://github.com/mozilla/fxa-auth-server/commit/c8e55fe)), closes [#2237](https://github.com/mozilla/fxa-auth-server/issues/2237)
+
+
+
+<a name="1.101.1"></a>
+## [1.101.1](https://github.com/mozilla/fxa-auth-server/compare/v1.101.0...v1.101.1) (2017-12-05)
+
+
+### Bug Fixes
+
+* **push:** Send a notification to the device that's being disconnected. (#2245); r=eoger ([9da5305](https://github.com/mozilla/fxa-auth-server/commit/9da5305))
+
+
+
+<a name="1.101.0"></a>
+# [1.101.0](https://github.com/mozilla/fxa-auth-server/compare/v1.100.0...v1.101.0) (2017-11-29)
+
+
+### Bug Fixes
+
+* **db:** implement safe redis write semantics ([91cd539](https://github.com/mozilla/fxa-auth-server/commit/91cd539))
+* **metrics:** include oauth_client_id in amplitude event properties (#2240); r=rfk ([3034a41](https://github.com/mozilla/fxa-auth-server/commit/3034a41))
+* **metrics:** stop sending raw client ids to amplitude (#2239) r=@vladikoff ([0069873](https://github.com/mozilla/fxa-auth-server/commit/0069873))
+* **tests:** test against actual redis instance ([f68e4bb](https://github.com/mozilla/fxa-auth-server/commit/f68e4bb))
+
+### chore
+
+* **email:** remove check_can_add_secondary_address route (#2234), r=@philbooth ([90646b9](https://github.com/mozilla/fxa-auth-server/commit/90646b9))
+* **email:** Remove FF57 gating logic (#2232), r=@philbooth ([2617b5a](https://github.com/mozilla/fxa-auth-server/commit/2617b5a))
+* **nsp:** ignore warning about redos for date parsing in moment ([a5e0a2c](https://github.com/mozilla/fxa-auth-server/commit/a5e0a2c))
+
+### Features
+
+* **sms:** Enable SMS in Spain (ES), Portugal (PT), Italy (IT) (#2229) r=@philbooth ([043ee6c](https://github.com/mozilla/fxa-auth-server/commit/043ee6c)), closes [#2228](https://github.com/mozilla/fxa-auth-server/issues/2228)
+
+
+
+<a name="1.100.0"></a>
+# [1.100.0](https://github.com/mozilla/fxa-auth-server/compare/v1.99.2...v1.100.0) (2017-11-15)
+
+
+### Bug Fixes
+
+* **db:** sanely handle redis errors ([8826364](https://github.com/mozilla/fxa-auth-server/commit/8826364))
+* **emails:** update accountExists to check for secondary emails (#2216); r=rfk ([a8130d3](https://github.com/mozilla/fxa-auth-server/commit/a8130d3))
+* **newrelic:** allow enabling newrelic in background daemons r=@vladikoff ([2d59a0c](https://github.com/mozilla/fxa-auth-server/commit/2d59a0c))
+
+### chore
+
+* **nodejs:** update to 6.12.0 (#2219) r=@vladikoff ([983c369](https://github.com/mozilla/fxa-auth-server/commit/983c369))
+
+### Features
+
+* **sms:** Enable SMS in Belgium, France, Luxembourg (#2211) r=@vladikoff ([afccd3a](https://github.com/mozilla/fxa-auth-server/commit/afccd3a))
+
+
+
+<a name="1.99.2"></a>
+## [1.99.2](https://github.com/mozilla/fxa-auth-server/compare/v1.99.1...v1.99.2) (2017-11-03)
+
+
+### Bug Fixes
+
+* **emails:** add post change email template (#2194), r=@philbooth ([f3261a6](https://github.com/mozilla/fxa-auth-server/commit/f3261a6))
+* **links:** use a custom url when verifying primary email (#2196), r=@vladikoff ([e6da576](https://github.com/mozilla/fxa-auth-server/commit/e6da576))
+* **logo:** fix FF57 logo width and height (#2204) r=@ryanfeeley ([9f74735](https://github.com/mozilla/fxa-auth-server/commit/9f74735)), closes [#2204](https://github.com/mozilla/fxa-auth-server/issues/2204) [#2203](https://github.com/mozilla/fxa-auth-server/issues/2203)
+* **tests:** add local test coverage for english device locations (#2201), r=@vbudhram ([686c3eb](https://github.com/mozilla/fxa-auth-server/commit/686c3eb))
+* **travis:** run tests with 6 and 8 (#2195); r=rfk ([d6910cd](https://github.com/mozilla/fxa-auth-server/commit/d6910cd))
+
+
+
+<a name="1.99.1"></a>
+## [1.99.1](https://github.com/mozilla/fxa-auth-server/compare/v1.99.0...v1.99.1) (2017-11-02)
+
+
+### Bug Fixes
+
+* **logging:** don't log errors if location is not set (#2200) ([ddb3bc9](https://github.com/mozilla/fxa-auth-server/commit/ddb3bc9))
+
+
+
+<a name="1.99.0"></a>
+# [1.99.0](https://github.com/mozilla/fxa-auth-server/compare/v1.98.2...v1.99.0) (2017-10-31)
+
+
+### Bug Fixes
+
+* **email:** add missing whitespace after semi-colon (#2192), r=@vbudhram ([0a5ea8c](https://github.com/mozilla/fxa-auth-server/commit/0a5ea8c))
+* **email:** Added secondary to subject line (#2174), r=@vbudhram ([163dd9c](https://github.com/mozilla/fxa-auth-server/commit/163dd9c))
+
+### chore
+
+* **deps:** update shrinkwrap ([f170820](https://github.com/mozilla/fxa-auth-server/commit/f170820))
+* **email:** regenerate templates from partials (#2193) r=vladikoff ([23c54c1](https://github.com/mozilla/fxa-auth-server/commit/23c54c1))
+
+### Features
+
+* **devices:** return approximateLastAccessTime for old devices ([b498fbd](https://github.com/mozilla/fxa-auth-server/commit/b498fbd))
+* **devices:** translate location in devices and sessions response ([b18079f](https://github.com/mozilla/fxa-auth-server/commit/b18079f))
+* **metrics:** add newsletter_state property to amplitude events ([b55bfb0](https://github.com/mozilla/fxa-auth-server/commit/b55bfb0))
+* **scripts:** warn about no work in email template version bumper ([84a567d](https://github.com/mozilla/fxa-auth-server/commit/84a567d))
+* **session:** Add email templates (#2184), r=@philbooth ([dd68d88](https://github.com/mozilla/fxa-auth-server/commit/dd68d88))
+* **sms:** Enable SMS in Austria, Germany. (#2179) r=@philbooth ([2e6fcd6](https://github.com/mozilla/fxa-auth-server/commit/2e6fcd6)), closes [#2177](https://github.com/mozilla/fxa-auth-server/issues/2177)
+* **tokens:** add city and stateCode to sessionTokens ([563851f](https://github.com/mozilla/fxa-auth-server/commit/563851f))
+
+
+
+<a name="1.98.2"></a>
+## [1.98.2](https://github.com/mozilla/fxa-auth-server/compare/v1.98.1...v1.98.2) (2017-10-30)
+
+
+### chore
+
+* **logo:** add new logo to email templates (#2190), r=@philbooth ([a5c4105](https://github.com/mozilla/fxa-auth-server/commit/a5c4105))
+
+
+
+<a name="1.98.1"></a>
+## [1.98.1](https://github.com/mozilla/fxa-auth-server/compare/v1.98.0...v1.98.1) (2017-10-26)
+
+
+### chore
+
+* **docker:** Update to node v6.11.5 for security fix ([2e7c769](https://github.com/mozilla/fxa-auth-server/commit/2e7c769))
+
+
+
+<a name="1.98.0"></a>
+# [1.98.0](https://github.com/mozilla/fxa-auth-server/compare/v1.97.5...v1.98.0) (2017-10-18)
+
+
+### Bug Fixes
+
+* **config:** add smsmock to dev config ([6852ce6](https://github.com/mozilla/fxa-auth-server/commit/6852ce6))
+* **devices:** Avoid reporting stale last-access times when feature is disabled. (#2144); r=phi ([e8ce382](https://github.com/mozilla/fxa-auth-server/commit/e8ce382))
+* **logging:** more clearly distinguish amplitude error messages ([d205c9a](https://github.com/mozilla/fxa-auth-server/commit/d205c9a))
+* **logging:** silence annoying redis log noise (#2164), r=@vbudhram ([a397b67](https://github.com/mozilla/fxa-auth-server/commit/a397b67))
+* **metrics:** don't emit os_version if os_name is unset (#2165), r=@vbudhram ([c60f198](https://github.com/mozilla/fxa-auth-server/commit/c60f198))
+* **metrics:** map service event property from client id ([5be3475](https://github.com/mozilla/fxa-auth-server/commit/5be3475))
+* **push:** Allow sending verification messages from /devices/notify (#2161), r=@rfk ([717253f](https://github.com/mozilla/fxa-auth-server/commit/717253f))
+* **push:** Target `Firefox Beta` for account verification messages (#2167), r=@rfk (#2170) ([37349fe](https://github.com/mozilla/fxa-auth-server/commit/37349fe))
+* **tests:** unify the mock log implementations ([d959491](https://github.com/mozilla/fxa-auth-server/commit/d959491))
+
+### Features
+
+* **sqs:** Add timestamp to notify services sqs message (#2168), r=@rfk ([89e1ad1](https://github.com/mozilla/fxa-auth-server/commit/89e1ad1))
+
+### Refactor
+
+* **tokens:** prefer token.id to token.tokenId ([80d3de1](https://github.com/mozilla/fxa-auth-server/commit/80d3de1))
+
+
+
+<a name="1.97.5"></a>
+## [1.97.5](https://github.com/mozilla/fxa-auth-server/compare/v1.97.4...v1.97.5) (2017-10-17)
+
+
+### Bug Fixes
+
+* **devices:** Always report a name and type in device registration response. ([00e69f2](https://github.com/mozilla/fxa-auth-server/commit/00e69f2))
+
+
+
+<a name="1.97.2"></a>
+## [1.97.2](https://github.com/mozilla/fxa-auth-server/compare/v1.97.1...v1.97.2) (2017-10-05)
+
+
+### chore
+
+* **logging:** log email headers to diagnose #2133 ([8d23ca9](https://github.com/mozilla/fxa-auth-server/commit/8d23ca9))
+
+
+
+<a name="1.97.1"></a>
+## [1.97.1](https://github.com/mozilla/fxa-auth-server/compare/v1.97.0...v1.97.1) (2017-10-05)
+
+
+### Bug Fixes
+
+* **email:** Make blocking rule for complaints match that for hard bounces (#2152), r=@vbudhr ([272a4cf](https://github.com/mozilla/fxa-auth-server/commit/272a4cf))
+
+### Features
+
+* **push:** Drop collection_changed push notifications for first sync sent to iOS devices (# ([b6d9490](https://github.com/mozilla/fxa-auth-server/commit/b6d9490))
+
+
+
+<a name="1.97.0"></a>
+# [1.97.0](https://github.com/mozilla/fxa-auth-server/compare/v1.96.3...v1.97.0) (2017-10-04)
+
+
+### Bug Fixes
+
+* **deps:** update deps (#2143), r=@vbudhram ([b328873](https://github.com/mozilla/fxa-auth-server/commit/b328873))
+* **devices:** return the whole device record in POST /device response (#2132); r=rfk ([6fe2dac](https://github.com/mozilla/fxa-auth-server/commit/6fe2dac))
+* **docs:** update dependencies for api doc generation (#2131), r=@vbudhram ([06071b5](https://github.com/mozilla/fxa-auth-server/commit/06071b5))
+* **email:** Show proper error and delete email if postfix fails to send (#2147), r=@vladikof ([f4c54da](https://github.com/mozilla/fxa-auth-server/commit/f4c54da)), closes [#2147](https://github.com/mozilla/fxa-auth-server/issues/2147)
+* **email:** Update secondary email footers (#2136), r=@rfk ([1d834a9](https://github.com/mozilla/fxa-auth-server/commit/1d834a9))
+* **sessions:** update the access time on /sign checking (#2149) r=rfk ([2543bf0](https://github.com/mozilla/fxa-auth-server/commit/2543bf0))
+
+### Features
+
+* **metrics:** implement email_version amplitude property ([925760a](https://github.com/mozilla/fxa-auth-server/commit/925760a))
+
+
+
+<a name="1.96.3"></a>
+## [1.96.3](https://github.com/mozilla/fxa-auth-server/compare/v1.96.2...v1.96.3) (2017-09-25)
+
+
+### Bug Fixes
+
+* **metrics:** fix the data on email sent events ([4f6f367](https://github.com/mozilla/fxa-auth-server/commit/4f6f367))
+* **metrics:** prefer standard amplitude properties ([8a255c9](https://github.com/mozilla/fxa-auth-server/commit/8a255c9))
+
+
+
+<a name="1.96.2"></a>
+## [1.96.2](https://github.com/mozilla/fxa-auth-server/compare/v1.96.1...v1.96.2) (2017-09-22)
+
+
+### chore
+
+* **logs:** log error if headers are missing in email notifications ([34bf492](https://github.com/mozilla/fxa-auth-server/commit/34bf492))
+
+
+
+<a name="1.96.1"></a>
+## [1.96.1](https://github.com/mozilla/fxa-auth-server/compare/v1.96.0...v1.96.1) (2017-09-20)
+
+
+### Bug Fixes
+
+* **push:** return pushEndpointExpired as a boolean (#2127); r=rfk ([eec0a43](https://github.com/mozilla/fxa-auth-server/commit/eec0a43))
+
+### chore
+
+* **package:** update shrinkwrap ([cd32fd8](https://github.com/mozilla/fxa-auth-server/commit/cd32fd8))
+
+### Features
+
+* **email:** Throw error when attempting to resend email code for email that doesn't belong t ([4325eb0](https://github.com/mozilla/fxa-auth-server/commit/4325eb0))
+* **metrics:** include fxa_services_used in amplitude user properties ([938ef5c](https://github.com/mozilla/fxa-auth-server/commit/938ef5c))
+
+### Refactor
+
+* **server:** extract unblock_codes routes to a separate module (#2126) r=vladikoff ([189240f](https://github.com/mozilla/fxa-auth-server/commit/189240f)), closes [#1445](https://github.com/mozilla/fxa-auth-server/issues/1445)
+
+
+
+<a name="1.96.0"></a>
+# [1.96.0](https://github.com/mozilla/fxa-auth-server/compare/v1.95.2...v1.96.0) (2017-09-19)
+
+
+### Bug Fixes
+
+* **basket:** reinstate utm params to the metrics context bundle ([549b891](https://github.com/mozilla/fxa-auth-server/commit/549b891))
+* **metrics:** include missing user_properties on amplitude events ([0567350](https://github.com/mozilla/fxa-auth-server/commit/0567350))
+* **server:** enforce 'use strict' everywhere (#2124), r=@vbudhram ([df6cd60](https://github.com/mozilla/fxa-auth-server/commit/df6cd60))
+* **tests:** silence obnoxious "possible memory leak detected" warning ([dae0e58](https://github.com/mozilla/fxa-auth-server/commit/dae0e58))
+
+### chore
+
+* **deps:** Update hapi to latest version ([68e2c12](https://github.com/mozilla/fxa-auth-server/commit/68e2c12))
+* **docs:** update docs for node 6 (#2120) r=rfk ([0c0ef30](https://github.com/mozilla/fxa-auth-server/commit/0c0ef30))
+
+### Features
+
+* **logs:** add Sentry integration (#2116) r=vbudhram ([ceab903](https://github.com/mozilla/fxa-auth-server/commit/ceab903)), closes [#2115](https://github.com/mozilla/fxa-auth-server/issues/2115)
+* **password:** notify attached services when a user changes their password (#2117); r=rfk ([e8cc49d](https://github.com/mozilla/fxa-auth-server/commit/e8cc49d))
+* **server:** lazily get all request.app properties ([3518b0c](https://github.com/mozilla/fxa-auth-server/commit/3518b0c))
+* **server:** lazily get devices array on the request object (#2107) r=vladikoff,vbudhram ([f084830](https://github.com/mozilla/fxa-auth-server/commit/f084830)), closes [#2106](https://github.com/mozilla/fxa-auth-server/issues/2106)
+
+### Refactor
+
+* **secondary-email:** Remove "add secondary email" feature flag. (#2121), r=@vbudhram ([359caeb](https://github.com/mozilla/fxa-auth-server/commit/359caeb))
+
+
+
+<a name="1.95.3"></a>
+## [1.95.3](https://github.com/mozilla/fxa-auth-server/compare/v1.95.1...v1.95.3) (2017-09-13)
+
+### chore
+
+* **deps:** Update hapi to latest version ([eed3203](https://github.com/mozilla/fxa-auth-server/commit/eed3203))
+
+
+
+<a name="1.95.2"></a>
+## [1.95.2](https://github.com/mozilla/fxa-auth-server/compare/v1.95.1...v1.95.2) (2017-09-12)
+
+
+### Bug Fixes
+
+* **email:** Block sending if gated primary and unverified secondary. (#2098), r=@vbudhram ([36ba048](https://github.com/mozilla/fxa-auth-server/commit/36ba048))
+* **profile:** progress logging for handleProfileUpdated (#2094) r=vladikoff,eoger ([55e1a91](https://github.com/mozilla/fxa-auth-server/commit/55e1a91))
+* **server:** make geo data lazily available on the request ([2238b37](https://github.com/mozilla/fxa-auth-server/commit/2238b37))
+
+### Features
+
+* **db:** allow BMP chars in device name (#2053) r=rfk,jbuck ([2e8e674](https://github.com/mozilla/fxa-auth-server/commit/2e8e674))
+
+### Refactor
+
+* **l10n:** take l10n repo out of node_modules (#2079) ([1f36c6d](https://github.com/mozilla/fxa-auth-server/commit/1f36c6d)), closes [#1678](https://github.com/mozilla/fxa-auth-server/issues/1678)
+
+
+
+<a name="1.95.1"></a>
+## [1.95.1](https://github.com/mozilla/fxa-auth-server/compare/v1.95.0...v1.95.1) (2017-09-12)
+
+
+### Bug Fixes
+
+* **push:** Only send device connection push msgs to iOS 10+ (#2108) r=vladikoff ([6b1f73d](https://github.com/mozilla/fxa-auth-server/commit/6b1f73d))
+
+
+
+<a name="1.95.0"></a>
+# [1.95.0](https://github.com/mozilla/fxa-auth-server/compare/v1.94.2...v1.95.0) (2017-09-06)
+
+
+### Bug Fixes
+
+* **bounces:** Handle mis-formatted bounce addrs as best we can. (#2090); r=jrgm ([a2e3d1e](https://github.com/mozilla/fxa-auth-server/commit/a2e3d1e))
+* **metrics:** add missing device_id and user_id amplitude properties ([b36ea32](https://github.com/mozilla/fxa-auth-server/commit/b36ea32))
+* **metrics:** remove the forgot_sent amplitude event (#2078) r=vladikoff ([32f2caa](https://github.com/mozilla/fxa-auth-server/commit/32f2caa))
+* **profile:** Handle incoming uids as strings, not buffers. (#2089) r=philbooth ([a6d8bc0](https://github.com/mozilla/fxa-auth-server/commit/a6d8bc0))
+* **push:** Allow device connection push messages for Firefox iOS >= 9.0 (#2088); r=vbudhram ([d04778c](https://github.com/mozilla/fxa-auth-server/commit/d04778c))
+* **push:** send push notification after a device is deleted ([87a410e](https://github.com/mozilla/fxa-auth-server/commit/87a410e))
+
+### chore
+
+* **docs:** Auto-generated docs update ([a45cbc3](https://github.com/mozilla/fxa-auth-server/commit/a45cbc3))
+* **package:** update shrinkwrap ([bd9b53a](https://github.com/mozilla/fxa-auth-server/commit/bd9b53a))
+
+### Features
+
+* **logging:** send amplitude events to the logs ([5800418](https://github.com/mozilla/fxa-auth-server/commit/5800418))
+* **push:** add a pushEndpointExpired flag for devices that need to re-register their push e ([735f323](https://github.com/mozilla/fxa-auth-server/commit/735f323))
+
+### Refactor
+
+* **api:** extract device schema to a common definition ([f136268](https://github.com/mozilla/fxa-auth-server/commit/f136268))
+* **mailer:** automatically pass through args to mailer methods (#2075) r=vladikoff,shane-toml ([cc2da2a](https://github.com/mozilla/fxa-auth-server/commit/cc2da2a))
+
+
+
+<a name="1.94.2"></a>
+## [1.94.2](https://github.com/mozilla/fxa-auth-server/compare/v1.93.1...v1.94.2) (2017-08-23)
+
+
+### Bug Fixes
+
+* **deps:** update shrinkwrap ([4694cd1](https://github.com/mozilla/fxa-auth-server/commit/4694cd1))
+* **devices:** saner mobile/tablet recognition for devices (#2051), r=@vbudhram ([3e5859f](https://github.com/mozilla/fxa-auth-server/commit/3e5859f))
+* **l10n:** fix l10n updates ([2d3c4ab](https://github.com/mozilla/fxa-auth-server/commit/2d3c4ab))
+* **senders:** update gettext dependency that can parse es6 syntax (#2057) r=vladikoff ([12dd0fe](https://github.com/mozilla/fxa-auth-server/commit/12dd0fe))
+* **strings:** change "to" to "for" for verify secondary email (#2048), r=@vbudhram ([742be75](https://github.com/mozilla/fxa-auth-server/commit/742be75))
+* **tests:** update remote db tests for uaFormFactor column ([c4d1e50](https://github.com/mozilla/fxa-auth-server/commit/c4d1e50))
+
+### chore
+
+* **ci:** remove node4 test target from travis-ci (#2054) r=vladikoff ([e1de16d](https://github.com/mozilla/fxa-auth-server/commit/e1de16d))
+* **docs:** update precommit doc script to use grunt-newer ([fd62a8d](https://github.com/mozilla/fxa-auth-server/commit/fd62a8d))
+* **eslint:** fix eslint task config so newer works (#2055) r=vladikoff ([12a14fc](https://github.com/mozilla/fxa-auth-server/commit/12a14fc)), closes [#2055](https://github.com/mozilla/fxa-auth-server/issues/2055)
+* **git:** remove prepush git hook (#2058) r=vladikoff ([8e1de31](https://github.com/mozilla/fxa-auth-server/commit/8e1de31))
+
+### Features
+
+* **email:** Notify services when user changes primary email (#2066) r=vladikoff,rfk ([7bbdd44](https://github.com/mozilla/fxa-auth-server/commit/7bbdd44))
+* **server:** add parsed user agent info to the request object (#2061), r=@vbudhram ([cc69b36](https://github.com/mozilla/fxa-auth-server/commit/cc69b36))
+
+### Refactor
+
+* **email:** extract common flow id boilerplate (#2065) r=vladikoff ([8d5f2b0](https://github.com/mozilla/fxa-auth-server/commit/8d5f2b0))
+* **sms:** unleash es6 in senders/sms (#2064), r=@vbudhram ([a37589c](https://github.com/mozilla/fxa-auth-server/commit/a37589c))
+
+
+
+<a name="1.94.1"></a>
+## [1.94.1](https://github.com/mozilla/fxa-auth-server/compare/v1.94.0...v1.94.1) (2017-08-23)
+
+
+### Bug Fixes
+
+* **deps:** update shrinkwrap ([4694cd1](https://github.com/mozilla/fxa-auth-server/commit/4694cd1))
+
+
+
+<a name="1.94.0"></a>
+# [1.94.0](https://github.com/mozilla/fxa-auth-server/compare/v1.93.1...v1.94.0) (2017-08-22)
+
+
+### Bug Fixes
+
+* **devices:** saner mobile/tablet recognition for devices (#2051), r=@vbudhram ([3e5859f](https://github.com/mozilla/fxa-auth-server/commit/3e5859f))
+* **l10n:** fix l10n updates ([2d3c4ab](https://github.com/mozilla/fxa-auth-server/commit/2d3c4ab))
+* **senders:** update gettext dependency that can parse es6 syntax (#2057) r=vladikoff ([12dd0fe](https://github.com/mozilla/fxa-auth-server/commit/12dd0fe))
+* **strings:** change "to" to "for" for verify secondary email (#2048), r=@vbudhram ([742be75](https://github.com/mozilla/fxa-auth-server/commit/742be75))
+
+### chore
+
+* **ci:** remove node4 test target from travis-ci (#2054) r=vladikoff ([e1de16d](https://github.com/mozilla/fxa-auth-server/commit/e1de16d))
+* **docs:** update precommit doc script to use grunt-newer ([fd62a8d](https://github.com/mozilla/fxa-auth-server/commit/fd62a8d))
+* **eslint:** fix eslint task config so newer works (#2055) r=vladikoff ([12a14fc](https://github.com/mozilla/fxa-auth-server/commit/12a14fc)), closes [#2055](https://github.com/mozilla/fxa-auth-server/issues/2055)
+* **git:** remove prepush git hook (#2058) r=vladikoff ([8e1de31](https://github.com/mozilla/fxa-auth-server/commit/8e1de31))
+
+### Features
+
+* **email:** Notify services when user changes primary email (#2066) r=vladikoff,rfk ([7bbdd44](https://github.com/mozilla/fxa-auth-server/commit/7bbdd44))
+* **server:** add parsed user agent info to the request object (#2061), r=@vbudhram ([cc69b36](https://github.com/mozilla/fxa-auth-server/commit/cc69b36))
+
+### Refactor
+
+* **email:** extract common flow id boilerplate (#2065) r=vladikoff ([8d5f2b0](https://github.com/mozilla/fxa-auth-server/commit/8d5f2b0))
+* **sms:** unleash es6 in senders/sms (#2064), r=@vbudhram ([a37589c](https://github.com/mozilla/fxa-auth-server/commit/a37589c))
+
+
+
+<a name="1.93.1"></a>
+## [1.93.1](https://github.com/mozilla/fxa-auth-server/compare/v1.93.0...v1.93.1) (2017-08-11)
+
+
+### Bug Fixes
+
+* **devices:** ditch OS in synthesized name if form factor is present (#2047) r=vladikoff ([d96f299](https://github.com/mozilla/fxa-auth-server/commit/d96f299))
+
+
+
+<a name="1.93.0"></a>
+# [1.93.0](https://github.com/mozilla/fxa-auth-server/compare/v1.92.0...v1.93.0) (2017-08-09)
+
+
+### Bug Fixes
+
+* **db:** expose config options for Poolee timeout and maxPending (#2027) ([bfecf6d](https://github.com/mozilla/fxa-auth-server/commit/bfecf6d))
+* **email:** Fix issue where you couldn't delete account after changing email (#2036) r=vladi ([5eca134](https://github.com/mozilla/fxa-auth-server/commit/5eca134)), closes [#2036](https://github.com/mozilla/fxa-auth-server/issues/2036)
+* **email:** Notify all verified emails when a secondary email is removed (#2016) r=vladikoff ([4c394cf](https://github.com/mozilla/fxa-auth-server/commit/4c394cf)), closes [#1948](https://github.com/mozilla/fxa-auth-server/issues/1948)
+* **push:** Send push notification to devices when email has changed (#2038), r=@philbooth ([26f6104](https://github.com/mozilla/fxa-auth-server/commit/26f6104))
+* **redisSessions:** improve redis session lookup performance (#2026) r=vladikoff,rfk ([10e8310](https://github.com/mozilla/fxa-auth-server/commit/10e8310)), closes [#2025](https://github.com/mozilla/fxa-auth-server/issues/2025)
+* **sms:** make the sms copy friendlier ([1d80d81](https://github.com/mozilla/fxa-auth-server/commit/1d80d81))
+* **tests:** add coverage for failing redis requests ([3cced62](https://github.com/mozilla/fxa-auth-server/commit/3cced62))
+
+### chore
+
+* **docs:** regular maintenance for the metrics doc ([8e0af2e](https://github.com/mozilla/fxa-auth-server/commit/8e0af2e))
+* **docs:** update AUTHORS list (#2024) ([4143efc](https://github.com/mozilla/fxa-auth-server/commit/4143efc))
+* **logs:** add log when stale emails hit recovery endpoint (#2020) r=vladikoff ([b58e822](https://github.com/mozilla/fxa-auth-server/commit/b58e822))
+* **tests:** tidy up the remote db session token tests ([3031098](https://github.com/mozilla/fxa-auth-server/commit/3031098))
+
+### Features
+
+* **devices:** include form factor in synthesized device name ([5a59afa](https://github.com/mozilla/fxa-auth-server/commit/5a59afa))
+* **session:** add location to sessions query (#1993) r=vladikoff,philbooth ([27ca0e4](https://github.com/mozilla/fxa-auth-server/commit/27ca0e4))
+
+
+
+<a name="1.92.0"></a>
+# [1.92.0](https://github.com/mozilla/fxa-auth-server/compare/v1.91.3...v1.92.0) (2017-07-26)
+
+
+### Bug Fixes
+
+* **config:** set token updates to true by default (#1994) r=udaraweerasinghege ([bdf7db6](https://github.com/mozilla/fxa-auth-server/commit/bdf7db6))
+* **emails:** check against original account email (#2011), r=@philbooth ([76aedd2](https://github.com/mozilla/fxa-auth-server/commit/76aedd2))
+* **tokens:** add is memory token property to sessions (#2004) r=vladikoff ([1f57821](https://github.com/mozilla/fxa-auth-server/commit/1f57821))
+
+### chore
+
+* **timestamps:** add two timestamps to sessions and devices (#2009) r=vladikoff ([516826b](https://github.com/mozilla/fxa-auth-server/commit/516826b))
+
+### Features
+
+* **emails:** Add ability to change email (#1983), r=@philbooth ([0541f13](https://github.com/mozilla/fxa-auth-server/commit/0541f13))
+* **errors:** include conflicting device id in errno 124 response ([0217750](https://github.com/mozilla/fxa-auth-server/commit/0217750))
+* **metrics:** emit route performance events ([50c55f1](https://github.com/mozilla/fxa-auth-server/commit/50c55f1))
+* **signin:** Skip signin confirmation for new accounts by default (#1992) r=vladikoff ([9900c42](https://github.com/mozilla/fxa-auth-server/commit/9900c42)), closes [#1991](https://github.com/mozilla/fxa-auth-server/issues/1991)
+* **style:** update to new device image (#2014) r=ryanfeeley ([9568c70](https://github.com/mozilla/fxa-auth-server/commit/9568c70)), closes [#1914](https://github.com/mozilla/fxa-auth-server/issues/1914)
+* **tokens:** delete account all reset tokens on password reset (#1979) r=vladikoff ([310e199](https://github.com/mozilla/fxa-auth-server/commit/310e199))
+* **tokens:** expire session tokens that have no device record ([4941dd5](https://github.com/mozilla/fxa-auth-server/commit/4941dd5))
+
+### Refactor
+
+* **server:** extract email-related routes to a separate module (#1989), r=@vbudhram ([2903609](https://github.com/mozilla/fxa-auth-server/commit/2903609))
+
+
+
+<a name="1.91.2"></a>
+## [1.91.2](https://github.com/mozilla/fxa-auth-server/compare/v1.91.1...v1.91.2) (2017-07-18)
+
+
+### Bug Fixes
+
+* **tests:** update tests to match recent db changes (#1995), r=@vbudhram ([c059518](https://github.com/mozilla/fxa-auth-server/commit/c059518))
+
+
+
+<a name="1.91.1"></a>
+## [1.91.1](https://github.com/mozilla/fxa-auth-server/compare/v1.91.0...v1.91.1) (2017-07-12)
+
+
+### Bug Fixes
+
+* **nodejs:** update to 6.11.1 for security fixes ([b653e4c](https://github.com/mozilla/fxa-auth-server/commit/b653e4c))
+
+
+
+<a name="1.91.0"></a>
+# [1.91.0](https://github.com/mozilla/fxa-auth-server/compare/v1.90.2...v1.91.0) (2017-07-12)
+
+
+### Bug Fixes
+
+* **hawk:** key passed to hawk must be a Buffer ([8d2a861](https://github.com/mozilla/fxa-auth-server/commit/8d2a861))
+* **nodejs:** update to node:4.8.4-alpine ([2945ef9](https://github.com/mozilla/fxa-auth-server/commit/2945ef9))
+* **push:** Don't notify the originating device about pwd change. (#1931) r=mhammond,vladiko ([baed71d](https://github.com/mozilla/fxa-auth-server/commit/baed71d))
+* **server:** return sane user agent from /account/sessions ([2f10d1b](https://github.com/mozilla/fxa-auth-server/commit/2f10d1b))
+* **tests:** update db tests to match recent session token changes (#1986), r=@vbudhram ([aecb7f1](https://github.com/mozilla/fxa-auth-server/commit/aecb7f1))
+
+### chore
+
+* **docs:** git add generated api docs in precommit hook ([a1f3373](https://github.com/mozilla/fxa-auth-server/commit/a1f3373))
+* **package:** update api docs on precommit (#1972) r=vladikoff ([7d59790](https://github.com/mozilla/fxa-auth-server/commit/7d59790))
+
+### Features
+
+* **account:** receive marketingOptIn when verifying email codes ([1d2a9f4](https://github.com/mozilla/fxa-auth-server/commit/1d2a9f4))
+* **account:** send marketingOptIn to attached services on registration ([ea93642](https://github.com/mozilla/fxa-auth-server/commit/ea93642)), closes [#1973](https://github.com/mozilla/fxa-auth-server/issues/1973)
+* **email:** When primary email gated, send to secondary email if avalible (#1954), r=@seanmo ([979968a](https://github.com/mozilla/fxa-auth-server/commit/979968a))
+* **node:** upgrade to Nodejs 6!!! ([c9be152](https://github.com/mozilla/fxa-auth-server/commit/c9be152))
+
+### Refactor
+
+* **lib:** use strings instead of buffers for as much as possible ([0cfd39c](https://github.com/mozilla/fxa-auth-server/commit/0cfd39c))
+* **routes:** break out device-related routes to a separate module ([ba5c927](https://github.com/mozilla/fxa-auth-server/commit/ba5c927))
+* **server:** eliminate some unnecessary serial invocation (#1965), r=@vbudhram ([91f8e43](https://github.com/mozilla/fxa-auth-server/commit/91f8e43))
+
+
+
+<a name="1.90.2"></a>
+## [1.90.2](https://github.com/mozilla/fxa-auth-server/compare/v1.90.1...v1.90.2) (2017-07-06)
+
+
+
+
+<a name="1.90.1"></a>
+## [1.90.1](https://github.com/mozilla/fxa-auth-server/compare/v1.90.0...v1.90.1) (2017-07-05)
+
+
+### Bug Fixes
+
+* **server:** stop using raw user agent string for browser name ([14f0bf9](https://github.com/mozilla/fxa-auth-server/commit/14f0bf9))
+
+
+
+<a name="1.90.0"></a>
+# [1.90.0](https://github.com/mozilla/fxa-auth-server/compare/v1.89.1...v1.90.0) (2017-06-28)
+
+
+### Bug Fixes
+
+* **ios:** only notify ios devices for collection change events (#1960) r=vladikoff ([111bfbb](https://github.com/mozilla/fxa-auth-server/commit/111bfbb))
+* **notifications:** Make data fields consistent across all notifyAttachedServices calls. (#1879); r= ([88a9fc8](https://github.com/mozilla/fxa-auth-server/commit/88a9fc8))
+* **server:** do not return flowId from consumeSigninCodes endpoint ([6fd020d](https://github.com/mozilla/fxa-auth-server/commit/6fd020d))
+* **server:** step in before node-uap parses Sync UA strings ([3f78f6e](https://github.com/mozilla/fxa-auth-server/commit/3f78f6e))
+* **test:** Make db tests more independent and update auth-db dev version ([ed4d9ad](https://github.com/mozilla/fxa-auth-server/commit/ed4d9ad))
+
+### chore
+
+* **docs:** document the newsletter flow events ([307f24c](https://github.com/mozilla/fxa-auth-server/commit/307f24c))
+
+### Features
+
+* **metrics:** emit a flow.continued event for signinCodes ([13eeab2](https://github.com/mozilla/fxa-auth-server/commit/13eeab2))
+
+
+
+<a name="1.89.1"></a>
+## [1.89.1](https://github.com/mozilla/fxa-auth-server/compare/v1.89.0...v1.89.1) (2017-06-28)
+
+
+### Features
+
+* **sms:** Switch to AWS SNS for SMS ([7ce5c05](https://github.com/mozilla/fxa-auth-server/commit/7ce5c05))
+
+
+
+<a name="1.89.0"></a>
+# [1.89.0](https://github.com/mozilla/fxa-auth-server/compare/v1.88.1...v1.89.0) (2017-06-14)
+
+
+### Bug Fixes
+
+* **CAD:** Document CAD flow events. ([aa789f8](https://github.com/mozilla/fxa-auth-server/commit/aa789f8))
+* **CAD:** Fix connectMethod table formatting. (#1941), r=@philbooth ([fa9ebc7](https://github.com/mozilla/fxa-auth-server/commit/fa9ebc7)), closes [#1941](https://github.com/mozilla/fxa-auth-server/issues/1941)
+* **email:** Escape device name in HTML emails. (#1944), r=@philbooth ([bcad58c](https://github.com/mozilla/fxa-auth-server/commit/bcad58c))
+* **email:** log a 'sent' email event for each CC address (#1936), r=@vbudhram ([82b24e2](https://github.com/mozilla/fxa-auth-server/commit/82b24e2))
+* **server:** remove duplicate URL-safe base 64 validator ([50f6303](https://github.com/mozilla/fxa-auth-server/commit/50f6303))
+* **sms:** Use the real email sender when sending via MockNexmo ([577db70](https://github.com/mozilla/fxa-auth-server/commit/577db70))
+* **test:** Add tests for the `sender` and `from` fields in mock-nexmo. ([068791a](https://github.com/mozilla/fxa-auth-server/commit/068791a))
+* **test:** Fix the broken smsSend test. ([ef2cc2a](https://github.com/mozilla/fxa-auth-server/commit/ef2cc2a))
+* **tests:** add CC suport to mail_helper (#1937) r=vbudhram ([8dfb5e3](https://github.com/mozilla/fxa-auth-server/commit/8dfb5e3))
+* **tests:** Update loadtests to cope with sign-in confirmation (#1890) r=jrgm,vladikoff ([be2d1ef](https://github.com/mozilla/fxa-auth-server/commit/be2d1ef))
+
+### chore
+
+* **log:** Remove datadog/statsd integration (#1921); r=vladikoff ([3f7ed68](https://github.com/mozilla/fxa-auth-server/commit/3f7ed68))
+
+### Features
+
+* **bounces:** add tiers to bounce blocklist ([09e18e5](https://github.com/mozilla/fxa-auth-server/commit/09e18e5)), closes [#1893](https://github.com/mozilla/fxa-auth-server/issues/1893)
+* **emails:** Add email metrics documentation (#1919) r=vladikoff,davismtl ([ae0a4f8](https://github.com/mozilla/fxa-auth-server/commit/ae0a4f8))
+* **emails:** Add endpoint to check if secondary emails are enabled (#1926), r=@philbooth, @rf ([a459ff1](https://github.com/mozilla/fxa-auth-server/commit/a459ff1))
+
+
+
+<a name="1.88.1"></a>
+## [1.88.1](https://github.com/mozilla/fxa-auth-server/compare/v1.88.0...v1.88.1) (2017-06-01)
+
+
+### Bug Fixes
+
+* **sms:** ditch the balance checks due to rate-limiting woe ([2394652](https://github.com/mozilla/fxa-auth-server/commit/2394652))
+
+
+
+<a name="1.88.0"></a>
+# [1.88.0](https://github.com/mozilla/fxa-auth-server/compare/v1.87.0...v1.88.0) (2017-05-31)
+
+
+### Bug Fixes
+
+* **devices:** handle new user agent string from Sync client lib ([009428e](https://github.com/mozilla/fxa-auth-server/commit/009428e))
+* **docs:** overhaul the metrics events documentation ([2d5943c](https://github.com/mozilla/fxa-auth-server/commit/2d5943c))
+* **email:** check case insensitive headers in EmailSent event (#1916), r=@philbooth, @vbudhr ([23593c7](https://github.com/mozilla/fxa-auth-server/commit/23593c7))
+* **notifications:** Send disable notification to all devices ([91ce14c](https://github.com/mozilla/fxa-auth-server/commit/91ce14c))
+* **push:** add extra logs ([5362c64](https://github.com/mozilla/fxa-auth-server/commit/5362c64))
+* **push:** correct params types in push.js ([7ba4f67](https://github.com/mozilla/fxa-auth-server/commit/7ba4f67))
+* **push:** Validate push public keys at registration time. ([8920a01](https://github.com/mozilla/fxa-auth-server/commit/8920a01))
+* **tests:** adjust public keys in tests ([43b8fd8](https://github.com/mozilla/fxa-auth-server/commit/43b8fd8))
+
+### chore
+
+* **ci:** always get most recent node 4 on travis ([4e9b8b4](https://github.com/mozilla/fxa-auth-server/commit/4e9b8b4))
+* **push:** Add a link to nodejs ECDH issue in code comments. ([0503479](https://github.com/mozilla/fxa-auth-server/commit/0503479))
+
+### Features
+
+* **docs:** automatically generate API docs from the code ([643ed85](https://github.com/mozilla/fxa-auth-server/commit/643ed85))
+* **push:** send push notification on account deletion ([163e2f4](https://github.com/mozilla/fxa-auth-server/commit/163e2f4))
+* **server:** add endpoint for consuming signinCodes ([f10655d](https://github.com/mozilla/fxa-auth-server/commit/f10655d))
+* **server:** include signinCode in the installFirefox SMS ([2610d2f](https://github.com/mozilla/fxa-auth-server/commit/2610d2f))
+* **sms:** Show SMS links in the mail helper. ([fd4b85a](https://github.com/mozilla/fxa-auth-server/commit/fd4b85a))
+
+
+
+<a name="1.87.1"></a>
+## [1.87.1](https://github.com/mozilla/fxa-auth-server/compare/v1.87.0...v1.87.1) (2017-05-26)
+
+
+### Bug Fixes
+
+* **push:** add extra logs ([5362c64](https://github.com/mozilla/fxa-auth-server/commit/5362c64))
+* **push:** Validate push public keys at registration time. ([8920a01](https://github.com/mozilla/fxa-auth-server/commit/8920a01))
+
+
+
+<a name="1.87.0"></a>
+# [1.87.0](https://github.com/mozilla/fxa-auth-server/compare/v1.86.0...v1.87.0) (2017-05-17)
+
+
+### Bug Fixes
+
+* **config:** Add email regex feature flag for secondary email ([d62995e](https://github.com/mozilla/fxa-auth-server/commit/d62995e))
+* **config:** Update secondary email config to support softvision and restmail (#1894) r=vladi ([b3edcef](https://github.com/mozilla/fxa-auth-server/commit/b3edcef)), closes [#1891](https://github.com/mozilla/fxa-auth-server/issues/1891)
+* **devices:** Add test for unicode device names. (#1758) r=vladikoff ([46861c3](https://github.com/mozilla/fxa-auth-server/commit/46861c3))
+* **emails:** Can create secondary email if it is unverified in another account (#1892) r=vlad ([34e3841](https://github.com/mozilla/fxa-auth-server/commit/34e3841))
+* **emails:** Fix issue where change password link was undefined (#1886) r=vladikoff ([e62aab1](https://github.com/mozilla/fxa-auth-server/commit/e62aab1)), closes [#1886](https://github.com/mozilla/fxa-auth-server/issues/1886)
+* **emails:** Only send email notifications to verified secondary emails (#1888) r=rfk,philboo ([3bc36eb](https://github.com/mozilla/fxa-auth-server/commit/3bc36eb)), closes [#1887](https://github.com/mozilla/fxa-auth-server/issues/1887)
+* **metrics:** handle and log missing payload (#1875) r=vbudhram ([36ec6f7](https://github.com/mozilla/fxa-auth-server/commit/36ec6f7)), closes [#1817](https://github.com/mozilla/fxa-auth-server/issues/1817)
+* **push:** add support for dev and stage push servers (#1895) r=vbudhram ([495acd6](https://github.com/mozilla/fxa-auth-server/commit/495acd6)), closes [#1799](https://github.com/mozilla/fxa-auth-server/issues/1799)
+
+### chore
+
+* **deps:** update nexmo (#1899), r=@vbudhram ([362aa6b](https://github.com/mozilla/fxa-auth-server/commit/362aa6b))
+
+### Features
+
+* **emails:** enable secondary email for matching emails (#1896), r=@vbudhram ([ff78b04](https://github.com/mozilla/fxa-auth-server/commit/ff78b04))
+* **mailer:** disable X-Mailer header in emails (#1881) r=vladikoff,philbooth ([4948a7e](https://github.com/mozilla/fxa-auth-server/commit/4948a7e))
+
+
+
+<a name="1.86.0"></a>
+# [1.86.0](https://github.com/mozilla/fxa-auth-server/compare/v1.85.1...v1.86.0) (2017-05-03)
+
+
+### Bug Fixes
+
+* **circle:** fix string comparison on docker push (#1870) r=vladikoff ([9f660d4](https://github.com/mozilla/fxa-auth-server/commit/9f660d4)), closes [#1870](https://github.com/mozilla/fxa-auth-server/issues/1870)
+* **circle:** if branch master, tag is latest (#1869) r=vladikoff ([6462d6c](https://github.com/mozilla/fxa-auth-server/commit/6462d6c))
+* **config:** Add config for unverified account to exist before secondary email can be create  ([d0b5976](https://github.com/mozilla/fxa-auth-server/commit/d0b5976))
+* **config:** Correctly resolve isSecondaryEmailEnabled and add more checks for config (#1872) ([ae95582](https://github.com/mozilla/fxa-auth-server/commit/ae95582)), closes [#1872](https://github.com/mozilla/fxa-auth-server/issues/1872)
+* **mailer:** escape json output (#1853) r=vladikoff ([b06033e](https://github.com/mozilla/fxa-auth-server/commit/b06033e))
+* **metrics:** include template name in sms.sent event ([2e9963c](https://github.com/mozilla/fxa-auth-server/commit/2e9963c))
+* **notifier:** disable notifier in key_server.js (#1852) r=jrgm ([bb35ed2](https://github.com/mozilla/fxa-auth-server/commit/bb35ed2))
+* **tests:** Add timeout for sms (#1866) r=vladikoff ([93bb872](https://github.com/mozilla/fxa-auth-server/commit/93bb872))
+
+### chore
+
+* **deps:** update shrinkwrap and latest eslint (#1868) ([10d5b56](https://github.com/mozilla/fxa-auth-server/commit/10d5b56))
+* **docker:** Use official node image & update to Node.js v4.8.2 (#1840) r=vladikoff ([3d80e82](https://github.com/mozilla/fxa-auth-server/commit/3d80e82))
+* **email:** Remove unused `emailSent` (#1846) r=vladikoff,philbooth ([a5ff7ca](https://github.com/mozilla/fxa-auth-server/commit/a5ff7ca))
+
+### Features
+
+* **deps:** update shrinkwrap ([5e80168](https://github.com/mozilla/fxa-auth-server/commit/5e80168))
+* **devices:** return OS from user agent os (#1848) r=philbooth ([3fd0418](https://github.com/mozilla/fxa-auth-server/commit/3fd0418)), closes [#1829](https://github.com/mozilla/fxa-auth-server/issues/1829)
+* **docker:** add feature branches (#1865) ([cb7e8c3](https://github.com/mozilla/fxa-auth-server/commit/cb7e8c3))
+* **emails:** Add custom error for users logging in with secondary email (#1850), r=@vladikoff ([f509bcb](https://github.com/mozilla/fxa-auth-server/commit/f509bcb))
+* **emails:** Throw unique error if initiating password reset from secondary email (#1874) r=v ([d1fae0d](https://github.com/mozilla/fxa-auth-server/commit/d1fae0d)), closes [mozilla/fxa-content-server#4996](https://github.com/mozilla/fxa-content-server/issues/4996)
+* **emails:** Use new verification link, pass type, pass email verified (#1864), r=@vladikoff ([e7697e0](https://github.com/mozilla/fxa-auth-server/commit/e7697e0))
+* **session:** add a 'state' property in `/session/status` ([a74a1f7](https://github.com/mozilla/fxa-auth-server/commit/a74a1f7))
+
+### Refactor
+
+* **server:** extract memcached usage to a dedicated module ([5698537](https://github.com/mozilla/fxa-auth-server/commit/5698537))
+* **server:** remove separate notifier process (#1800) r=vbudhram ([7414ee8](https://github.com/mozilla/fxa-auth-server/commit/7414ee8))
+
+
+
+<a name="1.85.1"></a>
+## [1.85.1](https://github.com/mozilla/fxa-auth-server/compare/v1.85.0...v1.85.1) (2017-04-18)
+
+
+### Bug Fixes
+
+* **starup:** handle promise rejected on bind failure (#1838) r=vladikoff,seanmonstar ([7fd45e3](https://github.com/mozilla/fxa-auth-server/commit/7fd45e3))
+
+
+
+<a name="1.85.0"></a>
+# [1.85.0](https://github.com/mozilla/fxa-auth-server/compare/v1.84.2...v1.85.0) (2017-04-18)
+
+
+### Bug Fixes
+
+* **config:** bring back signin confirmation in dev (#1830) ([e9f8c23](https://github.com/mozilla/fxa-auth-server/commit/e9f8c23))
+* **config:** change default BOUNCES_SOFT_DURATION to '5 minutes' (#1813) r=vladikoff ([9cb75ac](https://github.com/mozilla/fxa-auth-server/commit/9cb75ac))
+* **config:** Merge auth and mailer configs (#1798), r=@philbooth ([64c96d6](https://github.com/mozilla/fxa-auth-server/commit/64c96d6))
+* **config:** stop using envc; interferes with docker --env-file (#1833) r=vladikoff ([82bd9b5](https://github.com/mozilla/fxa-auth-server/commit/82bd9b5))
+* **mailer:** bring back process ports for mailer_server.js (#1815) r=jrgm ([4a4df8e](https://github.com/mozilla/fxa-auth-server/commit/4a4df8e)), closes [#1814](https://github.com/mozilla/fxa-auth-server/issues/1814)
+* **metrics:** fix metrics context errors ([fb5997e](https://github.com/mozilla/fxa-auth-server/commit/fb5997e))
+* **promise:** log unhandled rejections instead of throwing (#1818) r=vladikoff ([adc6d3e](https://github.com/mozilla/fxa-auth-server/commit/adc6d3e))
+* **routes:** Add a /__lbheartbeat__ route. (#1807) r=vladikoff ([89f5cac](https://github.com/mozilla/fxa-auth-server/commit/89f5cac))
+* **test:** remove obsolete test check (#1824) r=vladikoff ([c8dece9](https://github.com/mozilla/fxa-auth-server/commit/c8dece9))
+* **tests:** add remote tests for POST /sms ([9ac11ac](https://github.com/mozilla/fxa-auth-server/commit/9ac11ac))
+* **tests:** remove leftover ./test/.env.dev file (#1836) r=vladikoff ([646fa64](https://github.com/mozilla/fxa-auth-server/commit/646fa64))
+
+### chore
+
+* **config:** remove verifier version (#1834) ([e396ea6](https://github.com/mozilla/fxa-auth-server/commit/e396ea6))
+* **docs:** add npm test LOG_LEVEL docs ([7631997](https://github.com/mozilla/fxa-auth-server/commit/7631997))
+
+### Features
+
+* **db:** update to latest db v1.85.0 (#1837) r=jrgm ([f1a02f0](https://github.com/mozilla/fxa-auth-server/commit/f1a02f0))
+* **emails:** Add secondary emails api support Part 2 (#1768) r=vladikoff ([7ecad75](https://github.com/mozilla/fxa-auth-server/commit/7ecad75))
+
+
+
+<a name="1.84.1"></a>
+## [1.84.1](https://github.com/mozilla/fxa-auth-server/compare/v1.83.4...v1.84.1) (2017-04-05)
+
+
+### Bug Fixes
+
+* **locale:** Fix merge conflicts (#1794) ([5a7e4a7](https://github.com/mozilla/fxa-auth-server/commit/5a7e4a7)), closes [#1794](https://github.com/mozilla/fxa-auth-server/issues/1794)
+
+
+
+<a name="1.83.4"></a>
+## [1.83.4](https://github.com/mozilla/fxa-auth-server/compare/v1.84.0...v1.83.4) (2017-04-05)
+
+
+### Bug Fixes
+
+* **server:** remove crippled isLocaleAcceptable functionality (#1793), r=@vbudhram, @rfk ([748fcee](https://github.com/mozilla/fxa-auth-server/commit/748fcee))
+
+
+
+<a name="1.84.4"></a>
+## [1.84.4](https://github.com/mozilla/fxa-auth-server/compare/v1.84.3...v1.84.4) (2017-04-13)
+
+
+### Bug Fixes
+
+* **metrics:** fix metrics context errors ([7880d41](https://github.com/mozilla/fxa-auth-server/commit/7880d41))
+
+
+
+<a name="1.84.3"></a>
+## [1.84.3](https://github.com/mozilla/fxa-auth-server/compare/v1.84.2...v1.84.3) (2017-04-13)
+
+
+### Bug Fixes
+
+* **promise:** log unhandled rejections instead of throwing ([9f90711](https://github.com/mozilla/fxa-auth-server/commit/9f90711))
+* **server:** set useDomains to true ([bf96223](https://github.com/mozilla/fxa-auth-server/commit/bf96223))
+
+
+
+<a name="1.84.2"></a>
+## [1.84.2](https://github.com/mozilla/fxa-auth-server/compare/v1.84.0...v1.84.2) (2017-04-11)
+
+
+### Bug Fixes
+
+* **config:** update the default SMS install link ([f82797c](https://github.com/mozilla/fxa-auth-server/commit/f82797c))
+* **locale:** Fix merge conflicts (#1794) ([5406b56](https://github.com/mozilla/fxa-auth-server/commit/5406b56)), closes [#1794](https://github.com/mozilla/fxa-auth-server/issues/1794)
+
+### Features
+
+* **keys:** Add key id and created-at timestamp to our public keys. (#1734); r=seanmonstar ([59cdb4c](https://github.com/mozilla/fxa-auth-server/commit/59cdb4c))
+
+
+
+<a name="1.84.1"></a>
+## [1.84.1](https://github.com/mozilla/fxa-auth-server/compare/v1.84.0...v1.84.1) (2017-04-05)
+
+
+### Bug Fixes
+
+* **locale:** Fix merge conflicts (#1794) ([5406b56](https://github.com/mozilla/fxa-auth-server/commit/5406b56)), closes [#1794](https://github.com/mozilla/fxa-auth-server/issues/1794)
+
+### Features
+
+* **keys:** Add key id and created-at timestamp to our public keys. (#1734); r=seanmonstar ([59cdb4c](https://github.com/mozilla/fxa-auth-server/commit/59cdb4c))
+
+
+
+<a name="1.84.0"></a>
+# [1.84.0](https://github.com/mozilla/fxa-auth-server/compare/v1.83.3...v1.84.0) (2017-04-04)
+
+
+### Bug Fixes
+
+* **config:** environment expose verification reminder config ([3a71789](https://github.com/mozilla/fxa-auth-server/commit/3a71789))
+* **config:** Graduate security history and ip profiling ([2b7e712](https://github.com/mozilla/fxa-auth-server/commit/2b7e712))
+* **logging:** don't emit null or undefined uid on flow events ([23c58b9](https://github.com/mozilla/fxa-auth-server/commit/23c58b9))
+* **push:** reject extra push-payloads properties instead of removing them ([c90719a](https://github.com/mozilla/fxa-auth-server/commit/c90719a))
+* **script:** fix broken write email template script (#1775) r=vladikoff ([3697246](https://github.com/mozilla/fxa-auth-server/commit/3697246)), closes [#1775](https://github.com/mozilla/fxa-auth-server/issues/1775)
+* **scripts:** fix the broken sms scripts (#1773), r=@vbudhram ([5c78f7f](https://github.com/mozilla/fxa-auth-server/commit/5c78f7f)), closes [#1773](https://github.com/mozilla/fxa-auth-server/issues/1773)
+* **server:** recognise the new iOS client UA string ([72687c2](https://github.com/mozilla/fxa-auth-server/commit/72687c2))
+* **tests:** add missing require statement (#1784), r=@vbudhram ([79488e4](https://github.com/mozilla/fxa-auth-server/commit/79488e4))
+
+### chore
+
+* **ci:** kill the broken cross-repo tests (#1723) r=vladikoff ([6b310a1](https://github.com/mozilla/fxa-auth-server/commit/6b310a1))
+* **config:** Added environment variable support for verificationReminders.pollTime ([c77df31](https://github.com/mozilla/fxa-auth-server/commit/c77df31))
+* **docs:** document the flow_experiments table (#1780), r=@vbudhram ([ef2878e](https://github.com/mozilla/fxa-auth-server/commit/ef2878e))
+* **docs:** update node version in docs ([9c49c5f](https://github.com/mozilla/fxa-auth-server/commit/9c49c5f))
+* **files:** remove vagrant config ([48f3ee9](https://github.com/mozilla/fxa-auth-server/commit/48f3ee9))
+* **test:** fix mail_helper to run if require.main is mail_helper (#1763) ([a77c591](https://github.com/mozilla/fxa-auth-server/commit/a77c591)), closes [#1763](https://github.com/mozilla/fxa-auth-server/issues/1763) [#1762](https://github.com/mozilla/fxa-auth-server/issues/1762)
+* **tests:** move test/local/lib/* up to test/local/ (#1790) r=vladikoff ([597371c](https://github.com/mozilla/fxa-auth-server/commit/597371c))
+
+### Features
+
+* **emails:** Mailer accept multiple emails Part 1 (#1767), r=@philbooth ([b06b0da](https://github.com/mozilla/fxa-auth-server/commit/b06b0da))
+* **metrics:** emit a flow event for the sms region ([b062d79](https://github.com/mozilla/fxa-auth-server/commit/b062d79))
+* **profile:** send push notifications after a profile update ([2e83420](https://github.com/mozilla/fxa-auth-server/commit/2e83420))
+* **sms:** Mock out Nexmo for functional tests. ([e8a932d](https://github.com/mozilla/fxa-auth-server/commit/e8a932d))
+* **sms:** return country code from /sms/status ([e9ed457](https://github.com/mozilla/fxa-auth-server/commit/e9ed457))
+
+### Refactor
+
+* **bounces:** pull bounce logic into separate module ([48d7625](https://github.com/mozilla/fxa-auth-server/commit/48d7625))
+* **db:** remove unnecessary dependency injection for DB ([cbad916](https://github.com/mozilla/fxa-auth-server/commit/cbad916))
+* **routes:** remove unnecessary dependency injection in routes ([a6b97a7](https://github.com/mozilla/fxa-auth-server/commit/a6b97a7))
+* **token:** remove ability to pass createdAt to Token.create ([dac8f64](https://github.com/mozilla/fxa-auth-server/commit/dac8f64))
+* **tokens:** reduce unnecessary dependency injection in Tokens ([a393413](https://github.com/mozilla/fxa-auth-server/commit/a393413))
+
+### test
+
+* **mailer:** simplify TestServer using in mailer remote tests ([93da89b](https://github.com/mozilla/fxa-auth-server/commit/93da89b))
+* **remote:** refactor to run remote tests in a single process ([8d5c1ed](https://github.com/mozilla/fxa-auth-server/commit/8d5c1ed))
+
+
+
+<a name="1.83.4"></a>
+## [1.83.4](https://github.com/mozilla/fxa-auth-server/compare/v1.83.3...v1.83.4) (2017-04-05)
+
+
+### Bug Fixes
+
+* **server:** remove crippled isLocaleAcceptable functionality (#1793), r=@vbudhram, @rfk ([748fcee](https://github.com/mozilla/fxa-auth-server/commit/748fcee))
+
+
+
+<a name="1.83.3"></a>
+## [1.83.3](https://github.com/mozilla/fxa-auth-server/compare/v1.83.2...v1.83.3) (2017-03-28)
+
+
+### Bug Fixes
+
+* **sms:** propagate countryCode through our fxa-geodb wrapper ([176c63e](https://github.com/mozilla/fxa-auth-server/commit/176c63e))
+
+
+
+<a name="1.83.1"></a>
+## [1.83.1](https://github.com/mozilla/fxa-auth-server/compare/v1.83.0...v1.83.1) (2017-03-21)
+
+
+### Features
+
+* **email:** Pass correct args to verify_email (#1754), r=@philbooth ([1fc8617](https://github.com/mozilla/fxa-auth-server/commit/1fc8617))
+
+
+
+<a name="1.83.0"></a>
+# [1.83.0](https://github.com/mozilla/fxa-auth-server/compare/v1.82.2...v1.83.0) (2017-03-21)
+
+
+### Bug Fixes
+
+* **config:** sync up both auth and mailer configs (#58) r=jrgm ([ac1e208](https://github.com/mozilla/fxa-auth-server/commit/ac1e208))
+* **config:** Use a more generic server url pattern for push registrations. ([3099acc](https://github.com/mozilla/fxa-auth-server/commit/3099acc))
+* **docker:** prevent duplicate installation of dev dependencies (#1730) r=vladikoff ([ef8f1c1](https://github.com/mozilla/fxa-auth-server/commit/ef8f1c1))
+* **docs:** fix broken links in metrics events docs (#1738) r=vladikoff ([a843f74](https://github.com/mozilla/fxa-auth-server/commit/a843f74)), closes [#1738](https://github.com/mozilla/fxa-auth-server/issues/1738)
+* **errors:** fix misleading error string for featureNotEnabled ([1c8511a](https://github.com/mozilla/fxa-auth-server/commit/1c8511a))
+* **mailer:** fix sender from field. uplift ([ba6a8de](https://github.com/mozilla/fxa-auth-server/commit/ba6a8de))
+* **mailer:** fix sender from field. uplift ([461c52f](https://github.com/mozilla/fxa-auth-server/commit/461c52f))
+* **metrics:** log locale instead of accept languages on flow events ([2a5d3d0](https://github.com/mozilla/fxa-auth-server/commit/2a5d3d0))
+* **metrics:** suppress route flow events if metrics context is invalid ([c2dc6fc](https://github.com/mozilla/fxa-auth-server/commit/c2dc6fc))
+* **push:** fix push payload validation and disallow additional props (#57) r=vladikoff ([32750a2](https://github.com/mozilla/fxa-auth-server/commit/32750a2)), closes [#57](https://github.com/mozilla/fxa-auth-server/issues/57)
+* **scripts:** mend the broken write-emails-to-disk script (#1701) r=vladikoff,vbudhram ([56a6538](https://github.com/mozilla/fxa-auth-server/commit/56a6538))
+* **sessions:** improve tests and fix incorrect buffer conversion (#1708) r=vbuhdram ([bbdaa64](https://github.com/mozilla/fxa-auth-server/commit/bbdaa64)), closes [#1708](https://github.com/mozilla/fxa-auth-server/issues/1708)
+* **sms:** ditch the silly ad-hoc config file for sender ids ([4cd6f9e](https://github.com/mozilla/fxa-auth-server/commit/4cd6f9e))
+* **tests:** fix bad assertion in mailer tests ([fb916c2](https://github.com/mozilla/fxa-auth-server/commit/fb916c2))
+* **tests:** invoke mocha recursively on test directories ([1a907f7](https://github.com/mozilla/fxa-auth-server/commit/1a907f7))
+* **tokens:** Don't override createdAt when deserializing an existing token. (#1744); r=philbo ([3be60f3](https://github.com/mozilla/fxa-auth-server/commit/3be60f3))
+* **tokens:** ensure account reset tokens get a fresh createdAt ([efed703](https://github.com/mozilla/fxa-auth-server/commit/efed703))
+* **version:** use cwd and env var to get version in dev ([a456c76](https://github.com/mozilla/fxa-auth-server/commit/a456c76))
+
+### chore
+
+* **config:** change SMS region config from regex to array (#1743) r=vladikoff ([33041e9](https://github.com/mozilla/fxa-auth-server/commit/33041e9))
+* **docs:** add circle badge (#1703) ([5a1561b](https://github.com/mozilla/fxa-auth-server/commit/5a1561b))
+* **docs:** update the metrics documentation (#1732), r=@vbudhram ([917d7d8](https://github.com/mozilla/fxa-auth-server/commit/917d7d8))
+
+### Features
+
+* **db:** make database fault tolerant of db server (#1716) r=vladikoff ([5138ad7](https://github.com/mozilla/fxa-auth-server/commit/5138ad7))
+* **docker:** add docker support with circle-ci (#1692) r=vladikoff,jbuck ([4fbc25f](https://github.com/mozilla/fxa-auth-server/commit/4fbc25f))
+* **logging:** Use correct logging format (#60) r=vladikoff ([1932afe](https://github.com/mozilla/fxa-auth-server/commit/1932afe))
+* **mailer:** check for hard bounced or complaints before sending emails ([51f85ce](https://github.com/mozilla/fxa-auth-server/commit/51f85ce))
+* **metrics:** Log metrics event for sending a tab between devices. (#1700); r=pb,vbudhram,sean ([e2942c2](https://github.com/mozilla/fxa-auth-server/commit/e2942c2))
+* **sessions:** add /sessions support (#1617) r=vbudhram ([d79f63a](https://github.com/mozilla/fxa-auth-server/commit/d79f63a))
+
+### Refactor
+
+* **logging:** Log email domain if popular otherwise log `other` (#1666), r=@rfk, @vladikoff ([357d2f7](https://github.com/mozilla/fxa-auth-server/commit/357d2f7))
+* **logging:** Log email domain if popular otherwise log `other` (#1666), r=@rfk, @vladikoff (# ([37d6569](https://github.com/mozilla/fxa-auth-server/commit/37d6569))
+* **routes:** remove preVerifyToken support (#1690) r=rfk ([e440d8f](https://github.com/mozilla/fxa-auth-server/commit/e440d8f)), closes [#1599](https://github.com/mozilla/fxa-auth-server/issues/1599)
+
+
+
+<a name="1.82.7"></a>
+## [1.82.7](https://github.com/mozilla/fxa-auth-server/compare/v1.82.6-private...v1.82.7) (2017-03-17)
+
+
+### Features
+
+* **logging:** Use correct logging format (#60) r=vladikoff ([1932afe](https://github.com/mozilla/fxa-auth-server/commit/1932afe))
+
+
+
+<a name="1.82.6"></a>
+## [1.82.6](https://github.com/mozilla/fxa-auth-server/compare/v1.82.5-private...v1.82.6) (2017-03-17)
+
+
+### Refactor
+
+* **logging:** Log email domain if popular otherwise log `other` (#1666), r=@rfk, @vladikoff (# ([37d6569](https://github.com/mozilla/fxa-auth-server/commit/37d6569))
+
+
+
+<a name="1.82.5"></a>
+## [1.82.5](https://github.com/mozilla/fxa-auth-server/compare/v1.82.4-private...v1.82.5) (2017-03-16)
+
+
+### Bug Fixes
+
+* **config:** sync up both auth and mailer configs (#58) r=jrgm ([ac1e208](https://github.com/mozilla/fxa-auth-server/commit/ac1e208))
+
+
+
+<a name="1.82.4"></a>
+## [1.82.4](https://github.com/mozilla/fxa-auth-server/compare/v1.82.3-private...v1.82.4) (2017-03-11)
+
+
+### Bug Fixes
+
+* **mailer:** fix sender from field. uplift ([ba6a8de](https://github.com/mozilla/fxa-auth-server/commit/ba6a8de))
+
+
+
+<a name="1.82.3"></a>
+## [1.82.3](https://github.com/mozilla/fxa-auth-server/compare/v1.82.2...v1.82.3) (2017-03-08)
+
+
+### Bug Fixes
+
+* **push:** fix push payload validation and disallow additional props (#57) r=vladikoff ([32750a2](https://github.com/mozilla/fxa-auth-server/commit/32750a2)), closes [#57](https://github.com/mozilla/fxa-auth-server/issues/57)
+
+
+
+<a name="1.82.2"></a>
+## [1.82.2](https://github.com/mozilla/fxa-auth-server/compare/v1.82.1...v1.82.2) (2017-03-08)
+
+
+### Features
+
+* **metrics:** Log metrics event for sending a tab between devices. (#1700); r=pb,vbudhram,sean ([55bba26](https://github.com/mozilla/fxa-auth-server/commit/55bba26))
+
+
+
+<a name="1.82.1"></a>
+## [1.82.1](https://github.com/mozilla/fxa-auth-server/compare/v1.82.0...v1.82.1) (2017-03-06)
+
+
+### Bug Fixes
+
+* **push:** add extra validation to pushCallback payload param (#1698) r=rfk ([9fd2ca3](https://github.com/mozilla/fxa-auth-server/commit/9fd2ca3))
+
+
+
+<a name="1.82.0"></a>
+# [1.82.0](https://github.com/mozilla/fxa-auth-server/compare/v1.81.0...v1.82.0) (2017-03-06)
+
+
+### Bug Fixes
+
+* **config:** change reminder poll for many servers (#257), r=@vbudhram ([a721920](https://github.com/mozilla/fxa-auth-server/commit/a721920))
+* **db:** update to latest db ([3a6101f](https://github.com/mozilla/fxa-auth-server/commit/3a6101f))
+* **dependencies:** update bluebird, nodemailer, convict, moment-timezone (#251) r=vladikoff ([02fbda3](https://github.com/mozilla/fxa-auth-server/commit/02fbda3))
+* **git:** update husky to unbreak git hooks on ubuntu (#258) r=vladikoff ([83e9458](https://github.com/mozilla/fxa-auth-server/commit/83e9458))
+* **merge:** update shrinkwrap and library refs ([f32a867](https://github.com/mozilla/fxa-auth-server/commit/f32a867))
+* **project:** move mailer files into proper directories (#1676) r=vladikoff ([d09759c](https://github.com/mozilla/fxa-auth-server/commit/d09759c))
+* **push:** don't wait on push methods to reply in account/devices/notify r=vladikoff ([09e2e00](https://github.com/mozilla/fxa-auth-server/commit/09e2e00)), closes [#1657](https://github.com/mozilla/fxa-auth-server/issues/1657)
+
+### chore
+
+* **ci:** clean up travis ci files and docs ([4e1bab6](https://github.com/mozilla/fxa-auth-server/commit/4e1bab6))
+* **deps:** update bluebird (#1688) r=vladikoff ([838b602](https://github.com/mozilla/fxa-auth-server/commit/838b602))
+* **deps:** update to latest db-mysql ([31f8d6b](https://github.com/mozilla/fxa-auth-server/commit/31f8d6b))
+* **docs:** add coverage badge ([6f49d99](https://github.com/mozilla/fxa-auth-server/commit/6f49d99))
+* **docs:** remove extra AUTHORS file ([404fdec](https://github.com/mozilla/fxa-auth-server/commit/404fdec))
+* **docs:** update docs, AUTHORS ([c71e577](https://github.com/mozilla/fxa-auth-server/commit/c71e577))
+* **docs:** update mailer docs ([87d97e2](https://github.com/mozilla/fxa-auth-server/commit/87d97e2))
+* **git:** move repo into subdir ([458cc46](https://github.com/mozilla/fxa-auth-server/commit/458cc46))
+* **scripts:** install mailer during install ([8f647a4](https://github.com/mozilla/fxa-auth-server/commit/8f647a4))
+* **style:** update eslint styles and .gitignore ([df8070a](https://github.com/mozilla/fxa-auth-server/commit/df8070a))
+
+### Features
+
+* **logs:** disable statsd reporting in config (#1673), r=@vbudhram ([0c52a7c](https://github.com/mozilla/fxa-auth-server/commit/0c52a7c))
+* **mailer:** add support for sending SMS messages ([3bc1027](https://github.com/mozilla/fxa-auth-server/commit/3bc1027))
+* **server:** implement GET /sms/status ([34f4390](https://github.com/mozilla/fxa-auth-server/commit/34f4390))
+
+### Refactor
+
+* **sms:** swap out ad hoc error structures for lib/error (#1696) r=vladikoff ([388fd50](https://github.com/mozilla/fxa-auth-server/commit/388fd50))
+
+
+<a name="1.81.0"></a>
+# [1.81.0](https://github.com/mozilla/fxa-auth-server/compare/v1.80.0...v1.81.0) (2017-02-22)
+
+
+### Bug Fixes
+
+* **dev:** disable ip profile in dev (#1643) r=vbudhram ([d9b6bd9](https://github.com/mozilla/fxa-auth-server/commit/d9b6bd9))
+* **docs:** Document that devices should reigster before attempting to sync. (#1667); r=phil ([496be0e](https://github.com/mozilla/fxa-auth-server/commit/496be0e))
+* **docs:** document the /sms endpoint ([7226ce0](https://github.com/mozilla/fxa-auth-server/commit/7226ce0))
+* **logging:** log errors when we encounter unexpected createdAt values ([a3d4f56](https://github.com/mozilla/fxa-auth-server/commit/a3d4f56))
+* **push:** notify a device connected only when account verified ([901525b](https://github.com/mozilla/fxa-auth-server/commit/901525b)), closes [#1651](https://github.com/mozilla/fxa-auth-server/issues/1651)
+* **server:** disallow any query or payload params without validation (#1668) r=vladikoff ([0acab56](https://github.com/mozilla/fxa-auth-server/commit/0acab56))
+* **sms:** make the fallback error case work sanely ([3eff2d3](https://github.com/mozilla/fxa-auth-server/commit/3eff2d3))
+* **tests:** add missing tests for log.begin and log.summary calls ([e1265ff](https://github.com/mozilla/fxa-auth-server/commit/e1265ff))
+
+### chore
+
+* **docs:** Add some more details on metrics db column contents. ([06913c6](https://github.com/mozilla/fxa-auth-server/commit/06913c6))
+
+### Features
+
+* **api:** add an endpoint for sending SMS messages ([d35d442](https://github.com/mozilla/fxa-auth-server/commit/d35d442))
+* **email:** record email bounces in database ([b4279c1](https://github.com/mozilla/fxa-auth-server/commit/b4279c1))
+* **logging:** add optional uid and locale to flow event data ([038d457](https://github.com/mozilla/fxa-auth-server/commit/038d457))
+* **server:** auto-unbuffer binary data when crossing API boundaries ([35115f9](https://github.com/mozilla/fxa-auth-server/commit/35115f9))
+
+### Refactor
+
+* **server:** unify the unbuffering functions to one place ([a649b78](https://github.com/mozilla/fxa-auth-server/commit/a649b78))
+* **unblock:** Graduate sign-in unblock ([5f07f22](https://github.com/mozilla/fxa-auth-server/commit/5f07f22))
+
+### style
+
+* **lib:** update let to const when possible ([29c9f39](https://github.com/mozilla/fxa-auth-server/commit/29c9f39))
+
+
+
+<a name="1.80.0"></a>
+# [1.80.0](https://github.com/mozilla/fxa-auth-server/compare/v1.78.0...v1.80.0) (2017-02-07)
+
+
+### Bug Fixes
+
+* **docs:** document recent flow event changes (#1630), r=@vbudhram ([e5eaccf](https://github.com/mozilla/fxa-auth-server/commit/e5eaccf))
+* **email:** turn on SES Event Publishing metrics ([9105f87](https://github.com/mozilla/fxa-auth-server/commit/9105f87))
+* **logging:** Log bounced complaint ([0fa378e](https://github.com/mozilla/fxa-auth-server/commit/0fa378e))
+* **logging:** Log templates that don't have flow event data (#1618), r=@philbooth ([e6a1b87](https://github.com/mozilla/fxa-auth-server/commit/e6a1b87))
+* **push:** Try to always send a deviceName in the 'device connected' push message. (#1633); ([2b4777a](https://github.com/mozilla/fxa-auth-server/commit/2b4777a))
+* **shrinkwrap:** update shrinkwrap to latest version ([1a709fa](https://github.com/mozilla/fxa-auth-server/commit/1a709fa))
+* **style:** adjust config code style issue ([bb5f5d0](https://github.com/mozilla/fxa-auth-server/commit/bb5f5d0))
+
+### chore
+
+* **mailer:** update fxa-auth-mailer (and other shrinkwrap) (#1620) ([04aa467](https://github.com/mozilla/fxa-auth-server/commit/04aa467))
+* **travis:** add node6 test target (#1632) r=vladikoff ([05f9dd6](https://github.com/mozilla/fxa-auth-server/commit/05f9dd6))
+
+### Features
+
+* **ci:** add config for cross-repo testing ([81428f3](https://github.com/mozilla/fxa-auth-server/commit/81428f3))
+* **docs:** document the fix for duplicate flow events (#1634) r=vladikoff ([da5edc5](https://github.com/mozilla/fxa-auth-server/commit/da5edc5)), closes [#1634](https://github.com/mozilla/fxa-auth-server/issues/1634)
+* **email:** Add flow events for email delivery notifications (#1626), r=@philbooth ([2e84e07](https://github.com/mozilla/fxa-auth-server/commit/2e84e07))
+* **ip-profiling:** make IP Profiling allowed recency use config (#1615), r=@vbudhram ([ca4419a](https://github.com/mozilla/fxa-auth-server/commit/ca4419a)), closes [#1614](https://github.com/mozilla/fxa-auth-server/issues/1614)
+* **logs:** log endpoint errors for better debugging (#1627) r=vbudhram,philbooth ([3719437](https://github.com/mozilla/fxa-auth-server/commit/3719437))
+
+### Refactor
+
+* **email:** Don't flag logins with incorrect email case (#1623). r=@rfk ([88cd267](https://github.com/mozilla/fxa-auth-server/commit/88cd267))
+* **tests:** Reorganize local tests (#1629) r=vladikoff,philbooth ([38d4957](https://github.com/mozilla/fxa-auth-server/commit/38d4957))
+
+
+
+<a name="1.79.0"></a>
+# [1.79.0](https://github.com/mozilla/fxa-auth-server/compare/v1.78.0...v1.79.0) (2017-01-30)
 
 
 ### Bug Fixes
 
 * **email:** turn on SES Event Publishing metrics ([9105f87](https://github.com/mozilla/fxa-auth-server/commit/9105f87))
+* **logging:** Log bounced complaint ([0fa378e](https://github.com/mozilla/fxa-auth-server/commit/0fa378e))
 * **logging:** Log templates that don't have flow event data (#1618), r=@philbooth ([e6a1b87](https://github.com/mozilla/fxa-auth-server/commit/e6a1b87))
-
-
-
-<a name="1.78.1"></a>
-## [1.78.1](https://github.com/mozilla/fxa-auth-server/compare/v1.64.0...v1.78.1) (2017-01-12)
-
-
-### Bug Fixes
-
-* **bypass:** Don't bypass sign-in confirmation for forced emails (#1554), r=@seanmonstar ([1fa95a9](https://github.com/mozilla/fxa-auth-server/commit/1fa95a9))
-* **config:** Added new url configs for mailer (#1397) r=vladikoff ([d44cb56](https://github.com/mozilla/fxa-auth-server/commit/d44cb56))
-* **config:** adjust local dev config to support signin confirmation (#1313) r=vbudhram,shane- ([282271b](https://github.com/mozilla/fxa-auth-server/commit/282271b))
-* **config:** increase flowId expiration to 2 hours (#1487); r=jrgm,rfk ([798ef83](https://github.com/mozilla/fxa-auth-server/commit/798ef83))
-* **config:** Remove unused URL opions from mailer config. ([8de1230](https://github.com/mozilla/fxa-auth-server/commit/8de1230))
-* **config:** return parsed RegExp instances from config ([020235f](https://github.com/mozilla/fxa-auth-server/commit/020235f))
-* **customs:** Mark suspicious requests, even if they were rate-limited. ([02e8f19](https://github.com/mozilla/fxa-auth-server/commit/02e8f19))
-* **customs:** Report errno to customs when password check fails. ([bdd5d0c](https://github.com/mozilla/fxa-auth-server/commit/bdd5d0c))
-* **customs:** Sanitize 'oldAuthPW' field when sending to customs ([76aad23](https://github.com/mozilla/fxa-auth-server/commit/76aad23))
-* **deps:** downgrade to hapi 14 ([7c6d5f7](https://github.com/mozilla/fxa-auth-server/commit/7c6d5f7))
-* **deps:** downgrade to hapi 14 (#1485) r=seanmonstar ([fe803da](https://github.com/mozilla/fxa-auth-server/commit/fe803da))
-* **deps:** update dev deps and latest eslint ([a929f9c](https://github.com/mozilla/fxa-auth-server/commit/a929f9c))
-* **deps:** update fxa-content-server-l10n dependency ([ab3b232](https://github.com/mozilla/fxa-auth-server/commit/ab3b232))
-* **deps:** update most dev dependencies ([dc4c5ff](https://github.com/mozilla/fxa-auth-server/commit/dc4c5ff))
-* **deps:** update npm-shrinkwrap.json w/ newest auth-mailer & fxa-content-server-l10n (#129 ([56b6ad1](https://github.com/mozilla/fxa-auth-server/commit/56b6ad1))
-* **deps:** update request to latest version (#1370) r=vbudhram ([0e3c463](https://github.com/mozilla/fxa-auth-server/commit/0e3c463))
-* **deps:** Update shrinkwrap for the new auth-mailer ([05da657](https://github.com/mozilla/fxa-auth-server/commit/05da657))
-* **deps:** update shrinkwrap, add missing deps (#1407) r=vbudhram ([5062a66](https://github.com/mozilla/fxa-auth-server/commit/5062a66))
-* **deps:** update tap and db mysql dependencies (#1356) r=vladikoff ([93723eb](https://github.com/mozilla/fxa-auth-server/commit/93723eb)), closes [#1353](https://github.com/mozilla/fxa-auth-server/issues/1353)
-* **deps:** use poolee@1.0.1 (#1436) ([ba11125](https://github.com/mozilla/fxa-auth-server/commit/ba11125))
-* **device:** remember devices to push-notify before resetting account on password change/rese ([69c1eef](https://github.com/mozilla/fxa-auth-server/commit/69c1eef)), closes [#1391](https://github.com/mozilla/fxa-auth-server/issues/1391)
-* **devices:** add special-case recognition of Firefox-iOS (#1558) r=vladikoff ([1d1d16b](https://github.com/mozilla/fxa-auth-server/commit/1d1d16b))
-* **devices:** serialize push payload in /devices/notify route ([b91a982](https://github.com/mozilla/fxa-auth-server/commit/b91a982)), closes [#1386](https://github.com/mozilla/fxa-auth-server/issues/1386)
-* **docs:** add links to prs under "significant changes" (#1582) r=vladikoff ([1d49428](https://github.com/mozilla/fxa-auth-server/commit/1d49428))
-* **docs:** add unblock code API docs ([3655cfd](https://github.com/mozilla/fxa-auth-server/commit/3655cfd)), closes [#1577](https://github.com/mozilla/fxa-auth-server/issues/1577)
-* **docs:** correct the acitvity event data documentation (#1322) r=vladikoff ([9b8747b](https://github.com/mozilla/fxa-auth-server/commit/9b8747b))
-* **docs:** document recent fix that affects flow events (#1560), r=@vbudhram ([70ff376](https://github.com/mozilla/fxa-auth-server/commit/70ff376)), closes [#1560](https://github.com/mozilla/fxa-auth-server/issues/1560)
-* **docs:** document recent flow event changes ([7c97bb8](https://github.com/mozilla/fxa-auth-server/commit/7c97bb8))
-* **docs:** document the new flow events ([7ffa73c](https://github.com/mozilla/fxa-auth-server/commit/7ffa73c))
-* **docs:** document the recent flow event changes ([0a31229](https://github.com/mozilla/fxa-auth-server/commit/0a31229))
-* **e2e-email:** fix e2e-email test ([4e1d200](https://github.com/mozilla/fxa-auth-server/commit/4e1d200))
-* **email:** Refactor to send `sendEmailIfUnverified` via query params, add `emailSent` to re ([19753fc](https://github.com/mozilla/fxa-auth-server/commit/19753fc))
-* **emails:** Fix bug when signin with unverified session and not using signin confirmation ([ad9272c](https://github.com/mozilla/fxa-auth-server/commit/ad9272c))
-* **emails:** Fixed comment ([aaccab2](https://github.com/mozilla/fxa-auth-server/commit/aaccab2))
-* **emails:** Fixed regression where verification email was being sent to already verified ema ([41f4632](https://github.com/mozilla/fxa-auth-server/commit/41f4632))
-* **emails:** On login, delegate email sending to auth-server (#1435), r=@rfk ([e072e35](https://github.com/mozilla/fxa-auth-server/commit/e072e35))
-* **emails:** PR Fixes ([9d30cc0](https://github.com/mozilla/fxa-auth-server/commit/9d30cc0))
-* **emails:** remove /v1/ api prefix (#1605); r=rfk ([5e99cf3](https://github.com/mozilla/fxa-auth-server/commit/5e99cf3)), closes [#1605](https://github.com/mozilla/fxa-auth-server/issues/1605) [#1059](https://github.com/mozilla/fxa-auth-server/issues/1059)
-* **emails:** Remove extra `customs.flag` mock ([7929de7](https://github.com/mozilla/fxa-auth-server/commit/7929de7))
-* **error:** Include more specific error messages in invalidToken(). ([b38bace](https://github.com/mozilla/fxa-auth-server/commit/b38bace))
-* **geodb:** 8.8.8.8 in latest data not in Mountain View; point to moz MTV ([db23e8e](https://github.com/mozilla/fxa-auth-server/commit/db23e8e))
-* **geodb:** if you write a module that takes a hash argument, call it with a hash argument ([3feefa6](https://github.com/mozilla/fxa-auth-server/commit/3feefa6))
-* **geodb:** load at startup and log configuration used (#1414) r=vladikoff ([4085c78](https://github.com/mozilla/fxa-auth-server/commit/4085c78))
-* **geodb:** update to fxa-geodb 0.0.7 (#1418) ([b8b6e2b](https://github.com/mozilla/fxa-auth-server/commit/b8b6e2b))
-* **l10n:** bump content-server-l10n to current HEAD ([e097090](https://github.com/mozilla/fxa-auth-server/commit/e097090))
-* **lib:** make all calls to crypto.randomBytes async ([9f59235](https://github.com/mozilla/fxa-auth-server/commit/9f59235)), closes [#1474](https://github.com/mozilla/fxa-auth-server/issues/1474)
-* **log:** Add comments and clarify naming for logging methods. ([35c7f68](https://github.com/mozilla/fxa-auth-server/commit/35c7f68))
-* **logging:** device.created is not a flow event ([82e579c](https://github.com/mozilla/fxa-auth-server/commit/82e579c))
-* **logging:** device.created is not a flow event (#1483), r=@vbudhram ([7337af0](https://github.com/mozilla/fxa-auth-server/commit/7337af0))
-* **logging:** drop invalid metrics context data ([97ad615](https://github.com/mozilla/fxa-auth-server/commit/97ad615))
-* **logging:** emit flow events for sign-in unblock, not activity events (#1508); r=seanmonstar ([9a4e89c](https://github.com/mozilla/fxa-auth-server/commit/9a4e89c))
-* **logging:** handle /v1 path prefix in route summary flow events ([686306e](https://github.com/mozilla/fxa-auth-server/commit/686306e))
-* **logging:** ignore account.signed flow events from the content server ([f3f2468](https://github.com/mozilla/fxa-auth-server/commit/f3f2468))
-* **logging:** not all activity events are flow events (#1416) r=vladikoff ([1a6c3af](https://github.com/mozilla/fxa-auth-server/commit/1a6c3af))
-* **logging:** remove raw token data from error log (#1572) r=vladikoff ([f9112d1](https://github.com/mozilla/fxa-auth-server/commit/f9112d1))
-* **logging:** silence spurious "missing token" error noise ([f8f8a21](https://github.com/mozilla/fxa-auth-server/commit/f8f8a21))
-* **login:** fix handling of sign-in confirmation for keyless logins ([3f03557](https://github.com/mozilla/fxa-auth-server/commit/3f03557))
-* **logs:** account.verified & account.confirmed are mutually exclusive ([d59edd3](https://github.com/mozilla/fxa-auth-server/commit/d59edd3))
-* **logs:** look in response.source for uid ([2224f87](https://github.com/mozilla/fxa-auth-server/commit/2224f87))
-* **node6:** update to scrypt-hash@1.1.14 for node6 compat (#1494) r=vladikoff ([aee737c](https://github.com/mozilla/fxa-auth-server/commit/aee737c))
-* **password:** Remove raw token support ([882317d](https://github.com/mozilla/fxa-auth-server/commit/882317d)), closes [#1351](https://github.com/mozilla/fxa-auth-server/issues/1351)
-* **password:** Remove raw token support ([bb5f28b](https://github.com/mozilla/fxa-auth-server/commit/bb5f28b)), closes [#1351](https://github.com/mozilla/fxa-auth-server/issues/1351)
-* **pool:** Reject with an Error instance for HTTP errors. ([60c15c8](https://github.com/mozilla/fxa-auth-server/commit/60c15c8))
-* **process:** remove process.domain in token.js (#1456) r=rfk ([9fb1f71](https://github.com/mozilla/fxa-auth-server/commit/9fb1f71)), closes [#740](https://github.com/mozilla/fxa-auth-server/issues/740)
-* **push:** Add metrics events for reason=accountConfirm ([d2dc5c0](https://github.com/mozilla/fxa-auth-server/commit/d2dc5c0))
-* **push:** do not throw if push fails on the notify endpoint ([90b37d5](https://github.com/mozilla/fxa-auth-server/commit/90b37d5)), closes [#1510](https://github.com/mozilla/fxa-auth-server/issues/1510)
-* **push:** Fix and re-enable the end-to-end push tests. (#1467) r=vladikoff ([f5f3abf](https://github.com/mozilla/fxa-auth-server/commit/f5f3abf)), closes [#1467](https://github.com/mozilla/fxa-auth-server/issues/1467)
-* **push:** notify devices after successful sign-in confirmation ([190442f](https://github.com/mozilla/fxa-auth-server/commit/190442f))
-* **reminders:** fix disabled state (#1536) r=vbudhram ([d01e115](https://github.com/mozilla/fxa-auth-server/commit/d01e115)), closes [#1536](https://github.com/mozilla/fxa-auth-server/issues/1536) [#1408](https://github.com/mozilla/fxa-auth-server/issues/1408)
-* **reminders:** fix issue with reminder rate (#1410) ([c4c087e](https://github.com/mozilla/fxa-auth-server/commit/c4c087e)), closes [#1410](https://github.com/mozilla/fxa-auth-server/issues/1410) [#1408](https://github.com/mozilla/fxa-auth-server/issues/1408)
-* **scripts:** nicely stringify regexps when logging config ([479b034](https://github.com/mozilla/fxa-auth-server/commit/479b034))
-* **security:** Fix the security event calls to the DB. ([f780e59](https://github.com/mozilla/fxa-auth-server/commit/f780e59)), closes [#1464](https://github.com/mozilla/fxa-auth-server/issues/1464)
-* **security:** Use correct param names in call to db-server ([abb23af](https://github.com/mozilla/fxa-auth-server/commit/abb23af))
-* **server:** add unit tests for the request helpers ([9a4954d](https://github.com/mozilla/fxa-auth-server/commit/9a4954d))
-* **server:** assign fresh createdAt timestamp to passwordForgotTokens ([21c5df7](https://github.com/mozilla/fxa-auth-server/commit/21c5df7))
-* **server:** ensure tokens get a fresh createdAt timestamp (#1389) r=vladikoff ([6acb9e0](https://github.com/mozilla/fxa-auth-server/commit/6acb9e0))
-* **server:** fix bad sessionTokenId arg in call to updateDevice (#1324) r=vladikoff ([4777a8a](https://github.com/mozilla/fxa-auth-server/commit/4777a8a)), closes [#1324](https://github.com/mozilla/fxa-auth-server/issues/1324)
-* **server:** Fixes based on @vladikoff and @rfk feedback. ([29d7fde](https://github.com/mozilla/fxa-auth-server/commit/29d7fde))
-* **server:** hide session token lastAccessTime updates behind a flag ([51d7cdd](https://github.com/mozilla/fxa-auth-server/commit/51d7cdd))
-* **server:** make account.reset a flow event ([ed9ec79](https://github.com/mozilla/fxa-auth-server/commit/ed9ec79))
-* **server:** propagate metrics context in /account/reset ([30ec03d](https://github.com/mozilla/fxa-auth-server/commit/30ec03d))
-* **server:** reinstate default user agent fallback (#1422) r=vladikoff ([470fd52](https://github.com/mozilla/fxa-auth-server/commit/470fd52))
-* **server:** reinstate placeholder devices for sync sessions ([e12cd08](https://github.com/mozilla/fxa-auth-server/commit/e12cd08))
-* **server:** remove default user agent fallback pending legal ok ([8b8f00d](https://github.com/mozilla/fxa-auth-server/commit/8b8f00d))
-* **server:** remove metricsContext from payloads where it is never sent ([0649a30](https://github.com/mozilla/fxa-auth-server/commit/0649a30))
-* **server:** remove placeholder device records for sync sessions ([1af5624](https://github.com/mozilla/fxa-auth-server/commit/1af5624))
-* **server:** remove placeholder device records for sync sessions ([c4c6733](https://github.com/mozilla/fxa-auth-server/commit/c4c6733))
-* **server:** remove redundant metrics context fields ([f027f0b](https://github.com/mozilla/fxa-auth-server/commit/f027f0b))
-* **server:** remove unused createAccountResetToken method ([2c95903](https://github.com/mozilla/fxa-auth-server/commit/2c95903))
-* **server:** Return undefined from Customs.prototype.flag if everyting is OK ([e265694](https://github.com/mozilla/fxa-auth-server/commit/e265694))
-* **server:** tolerate missing payload in AppError.translate ([a19ff6d](https://github.com/mozilla/fxa-auth-server/commit/a19ff6d))
-* **ses:** add status and diagnosticCode for bounce (#1401) r=seanmonstar,vbudhram ([61941e8](https://github.com/mozilla/fxa-auth-server/commit/61941e8)), closes [#834](https://github.com/mozilla/fxa-auth-server/issues/834)
-* **signin:** Let /password/change/finish accept session tokens by id. ([b589b79](https://github.com/mozilla/fxa-auth-server/commit/b589b79))
-* **signin:** No signin confirmation for email regexp match if keys not requested ([61d1de4](https://github.com/mozilla/fxa-auth-server/commit/61d1de4)), closes [#1374](https://github.com/mozilla/fxa-auth-server/issues/1374)
-* **signup:** Return canonical email address in 'account exists' error. (#1589), r=@vbudhram ([ddd4fdb](https://github.com/mozilla/fxa-auth-server/commit/ddd4fdb))
-* **tests:** disable e2e tests until push server fixed (#1369) r=vbudhram ([bf72778](https://github.com/mozilla/fxa-auth-server/commit/bf72778)), closes [#1369](https://github.com/mozilla/fxa-auth-server/issues/1369)
-* **tests:** es-ES is now 100% supported (#1493) ([23234c6](https://github.com/mozilla/fxa-auth-server/commit/23234c6))
-* **tests:** fix test runner to exit with proper exit code ([b978b6e](https://github.com/mozilla/fxa-auth-server/commit/b978b6e))
-* **tests:** make stub implementation of gather match reality ([94c377f](https://github.com/mozilla/fxa-auth-server/commit/94c377f))
-* **tests:** remove duplicate assignment ([7659b58](https://github.com/mozilla/fxa-auth-server/commit/7659b58))
-* **tests:** switch coverage tool, adjust log_tests (#1348) r=vbudhram ([8451a56](https://github.com/mozilla/fxa-auth-server/commit/8451a56)), closes [#1340](https://github.com/mozilla/fxa-auth-server/issues/1340)
-* **tests:** Test fixes for upcoming change to db-mysql behaviour (#1552); r=vladikoff ([8cd0a8e](https://github.com/mozilla/fxa-auth-server/commit/8cd0a8e)), closes [#1552](https://github.com/mozilla/fxa-auth-server/issues/1552)
-* **tokens:** Do not override the `createdAt` field on existing tokens. ([af0eb33](https://github.com/mozilla/fxa-auth-server/commit/af0eb33))
-* **unblock:** Fix db.createUnblockCode - code generation is async. ([2d1a6a2](https://github.com/mozilla/fxa-auth-server/commit/2d1a6a2)), closes [#1531](https://github.com/mozilla/fxa-auth-server/issues/1531)
-* **unblock:** Remove 'context' check from unblock feature-flag. ([764c96a](https://github.com/mozilla/fxa-auth-server/commit/764c96a))
-* **unblock:** rethrow customs server error when account is unknown ([b5bda6b](https://github.com/mozilla/fxa-auth-server/commit/b5bda6b))
-* **unblock:** Use normalized email address for feature-flag calculation. ([83ef76a](https://github.com/mozilla/fxa-auth-server/commit/83ef76a))
-* **verify:** Don't sent post-verify email when `service` is blank. ([06bf05a](https://github.com/mozilla/fxa-auth-server/commit/06bf05a))
 
 ### chore
 
-* **cleanup:** Remove signer-stub.js (#1541), r=@seanmonstar ([edcc433](https://github.com/mozilla/fxa-auth-server/commit/edcc433))
-* **debug:** Expose debug port for spawned process (#1550) r=vladikoff ([767d53d](https://github.com/mozilla/fxa-auth-server/commit/767d53d))
-* **deps:** update dev deps, fix husky issues (#1430), r=@vbudhram ([a610337](https://github.com/mozilla/fxa-auth-server/commit/a610337)), closes [#1430](https://github.com/mozilla/fxa-auth-server/issues/1430) [#1429](https://github.com/mozilla/fxa-auth-server/issues/1429)
-* **deps:** update l10n, shrinkwrap ([16d3d99](https://github.com/mozilla/fxa-auth-server/commit/16d3d99))
-* **deps:** update shrinkwrap ([10f857a](https://github.com/mozilla/fxa-auth-server/commit/10f857a))
-* **deps:** update shrinkwrap ([aa14433](https://github.com/mozilla/fxa-auth-server/commit/aa14433))
-* **deps:** update tap testing to latest version (#1339) r=vladikoff ([6648da0](https://github.com/mozilla/fxa-auth-server/commit/6648da0))
-* **deps:** update to latest version of hapi (#1330) r=rfk,seanmonstar,vbudhram ([b3adbcf](https://github.com/mozilla/fxa-auth-server/commit/b3adbcf))
-* **docs:** add more docs to activity events. (#1304) r=philbooth ([31177ad](https://github.com/mozilla/fxa-auth-server/commit/31177ad)), closes [#1202](https://github.com/mozilla/fxa-auth-server/issues/1202)
-* **git:** ignore npm-debug.log ([3529d47](https://github.com/mozilla/fxa-auth-server/commit/3529d47))
-* **login:** Remove the legacy `contentToken` parameter from login ([505b627](https://github.com/mozilla/fxa-auth-server/commit/505b627))
-* **mocks:** Extract mockCustoms into shared helper. ([39bd65a](https://github.com/mozilla/fxa-auth-server/commit/39bd65a))
-* **nsp:** Add NSP exception for https://nodesecurity.io/advisories/121 ([9465a99](https://github.com/mozilla/fxa-auth-server/commit/9465a99))
-* **nsp:** remove exceptions (#1455) r=seanmonstar ([55e93b6](https://github.com/mozilla/fxa-auth-server/commit/55e93b6))
-* **scripts:** Add stricter error handling to bash scripts ([7d595c2](https://github.com/mozilla/fxa-auth-server/commit/7d595c2))
-* **server:** Add some comments about why a some strange patterns are used. ([2fba045](https://github.com/mozilla/fxa-auth-server/commit/2fba045))
-* **shrinkwrap:** add npm script for shrinkwrap (#1568) r=vladikoff ([3be3e63](https://github.com/mozilla/fxa-auth-server/commit/3be3e63)), closes [#1564](https://github.com/mozilla/fxa-auth-server/issues/1564)
-* **signin:** Add commentary about temporary workarounds in sign-in confirmation config. ([e62b1c0](https://github.com/mozilla/fxa-auth-server/commit/e62b1c0))
-* **tests:** allow passing a glob to npm test ([37f0fe4](https://github.com/mozilla/fxa-auth-server/commit/37f0fe4))
-* **tests:** Make remote db tests independent ([d3635e3](https://github.com/mozilla/fxa-auth-server/commit/d3635e3))
-* **travis:** remove the old tmp workaround ([5032982](https://github.com/mozilla/fxa-auth-server/commit/5032982))
-
-### docs
-
-* **config:** clarify sample rate for sign in confirmation (#1315) r=vladikoff ([bc9d79d](https://github.com/mozilla/fxa-auth-server/commit/bc9d79d))
-
-### feature
-
-* **newrelic:** add optional newrelic integration ([c811ebe](https://github.com/mozilla/fxa-auth-server/commit/c811ebe))
+* **mailer:** update fxa-auth-mailer (and other shrinkwrap) (#1620) ([04aa467](https://github.com/mozilla/fxa-auth-server/commit/04aa467))
 
 ### Features
 
-* **account:** devices push notify endpoint ([699caa1](https://github.com/mozilla/fxa-auth-server/commit/699caa1)), closes [#1357](https://github.com/mozilla/fxa-auth-server/issues/1357)
-* **customs:** Rate-limit verification of email codes. ([2580333](https://github.com/mozilla/fxa-auth-server/commit/2580333))
-* **customs:** return localized retry after data (#1453) r=vbudhram ([5603ad3](https://github.com/mozilla/fxa-auth-server/commit/5603ad3))
-* **customs:** Send more request metadata to customs-server for checking. ([70944d3](https://github.com/mozilla/fxa-auth-server/commit/70944d3))
-* **devices:** add tablet detection ([e09406a](https://github.com/mozilla/fxa-auth-server/commit/e09406a))
-* **docs:** document the event data available in redshift/redash ([9611019](https://github.com/mozilla/fxa-auth-server/commit/9611019))
-* **docs:** document the new activity events ([62b1255](https://github.com/mozilla/fxa-auth-server/commit/62b1255))
-* **geo:** add state code to location response (#1478) r=vbudhram ([eabfcc6](https://github.com/mozilla/fxa-auth-server/commit/eabfcc6))
-* **geolocation:** add geolocation data to emails (#1334) ([8132d55](https://github.com/mozilla/fxa-auth-server/commit/8132d55))
-* **hpkp:** Add hpkp support (#1499), r=@philbooth ([9b77446](https://github.com/mozilla/fxa-auth-server/commit/9b77446))
-* **l10n:** localize device list (#1420) r=vbudhram ([7a91f31](https://github.com/mozilla/fxa-auth-server/commit/7a91f31)), closes [#1404](https://github.com/mozilla/fxa-auth-server/issues/1404)
-* **logging:** emit a flow.complete event ([44e044b](https://github.com/mozilla/fxa-auth-server/commit/44e044b))
-* **logging:** emit account.deleted activity event ([01828ab](https://github.com/mozilla/fxa-auth-server/commit/01828ab))
-* **logging:** emit an account.confirmed activity event ([4107e58](https://github.com/mozilla/fxa-auth-server/commit/4107e58))
-* **logging:** Log email template header if available (#1466), r=@jbuck ([cccd899](https://github.com/mozilla/fxa-auth-server/commit/cccd899))
-* **metrics:** add account.login.blocked flow event ([15cd8d8](https://github.com/mozilla/fxa-auth-server/commit/15cd8d8))
-* **metrics:** add account.login.invalidUnblockCode flow event ([2e3ea80](https://github.com/mozilla/fxa-auth-server/commit/2e3ea80))
-* **metrics:** add flow events for email sent and clicked" ([d903b6c](https://github.com/mozilla/fxa-auth-server/commit/d903b6c)), closes [#1511](https://github.com/mozilla/fxa-auth-server/issues/1511)
-* **metrics:** add flowEvent support to all activityEvents and customs (#1409) r=philbooth ([8d36f00](https://github.com/mozilla/fxa-auth-server/commit/8d36f00)), closes [#1402](https://github.com/mozilla/fxa-auth-server/issues/1402) [#1403](https://github.com/mozilla/fxa-auth-server/issues/1403)
-* **metrics:** Add password reset flow metrics (#1520), r=@philbooth ([145d537](https://github.com/mozilla/fxa-auth-server/commit/145d537))
-* **metrics:** Drop invalid flowids so they dont confuse our metrics. ([8827b91](https://github.com/mozilla/fxa-auth-server/commit/8827b91))
-* **metrics:** Emit an `account.changedPassword` activity event. ([37c408d](https://github.com/mozilla/fxa-auth-server/commit/37c408d))
-* **metrics:** log flowEvents of all requests ([7153da7](https://github.com/mozilla/fxa-auth-server/commit/7153da7))
-* **metrics:** set metricsContext expiry to 2 hours ([2f03ce5](https://github.com/mozilla/fxa-auth-server/commit/2f03ce5)), closes [#1513](https://github.com/mozilla/fxa-auth-server/issues/1513)
-* **profiling:** IP Profiling (#1525), r=@seanmonstar ([21723e8](https://github.com/mozilla/fxa-auth-server/commit/21723e8))
-* **push:** Add VAPID identification to push messages. (#1468); r=philbooth ([6e6b28c](https://github.com/mozilla/fxa-auth-server/commit/6e6b28c))
-* **push:** Send proper push messages for password change/reset (#1381) r=vladikoff,rfk ([8cd9403](https://github.com/mozilla/fxa-auth-server/commit/8cd9403)), closes [#1380](https://github.com/mozilla/fxa-auth-server/issues/1380)
-* **reset:** Accept metricsContext bundle on password-reset endpoints. ([05a3b4e](https://github.com/mozilla/fxa-auth-server/commit/05a3b4e))
-* **security:** record event names and ip addresses for important events ([05485b4](https://github.com/mozilla/fxa-auth-server/commit/05485b4))
-* **server:** emit new activity events for kpi dashboards ([ace64e7](https://github.com/mozilla/fxa-auth-server/commit/ace64e7))
-* **server:** Rate limit account/devices/notify with the new UIDRecord (#1394) r=vladikoff ([09aee43](https://github.com/mozilla/fxa-auth-server/commit/09aee43)), closes [#1372](https://github.com/mozilla/fxa-auth-server/issues/1372)
-* **server:** Remove the account lockout feature. ([df3b0de](https://github.com/mozilla/fxa-auth-server/commit/df3b0de)), closes [#1359](https://github.com/mozilla/fxa-auth-server/issues/1359)
-* **server:** synthesize device records for sync sessions ([b536fd7](https://github.com/mozilla/fxa-auth-server/commit/b536fd7))
-* **signin:** Add support for keyFetchToken verification (#1320), r=@rfk ([10ee322](https://github.com/mozilla/fxa-auth-server/commit/10ee322))
-* **signin:** Always do sign-in confirmation on suspicious requests. ([cb8f33b](https://github.com/mozilla/fxa-auth-server/commit/cb8f33b))
-* **signin:** Remove feature flag from sign-in confirmation. (#1530); r=vbudhram ([5f0f3ba](https://github.com/mozilla/fxa-auth-server/commit/5f0f3ba))
-* **unblock:** add Signin Unblock feature ([c3a66c2](https://github.com/mozilla/fxa-auth-server/commit/c3a66c2)), closes [#1398](https://github.com/mozilla/fxa-auth-server/issues/1398)
-* **unblock:** change unblock codes to base32 (#1529) r=vladikoff ([f82db02](https://github.com/mozilla/fxa-auth-server/commit/f82db02)), closes [#1497](https://github.com/mozilla/fxa-auth-server/issues/1497)
-* **unblock:** log when an unverfied user successfully unblocked ([b9a7111](https://github.com/mozilla/fxa-auth-server/commit/b9a7111))
+* **ci:** add config for cross-repo testing ([81428f3](https://github.com/mozilla/fxa-auth-server/commit/81428f3))
+* **email:** Add flow events for email delivery notifications (#1626), r=@philbooth ([2e84e07](https://github.com/mozilla/fxa-auth-server/commit/2e84e07))
+* **ip-profiling:** make IP Profiling allowed recency use config (#1615), r=@vbudhram ([ca4419a](https://github.com/mozilla/fxa-auth-server/commit/ca4419a)), closes [#1614](https://github.com/mozilla/fxa-auth-server/issues/1614)
+* **logs:** log endpoint errors for better debugging (#1627) r=vbudhram,philbooth ([3719437](https://github.com/mozilla/fxa-auth-server/commit/3719437))
 
 ### Refactor
 
-* **customs:** Add function to scrub payload before performing customs check ([f44872d](https://github.com/mozilla/fxa-auth-server/commit/f44872d))
-* **email:** Fix lint ([383198a](https://github.com/mozilla/fxa-auth-server/commit/383198a))
-* **email:** Remove `sendEmailIfUnverified` ([d742d67](https://github.com/mozilla/fxa-auth-server/commit/d742d67))
-* **l10n:** use fxa-shared locale list (#1411) ([b70caed](https://github.com/mozilla/fxa-auth-server/commit/b70caed))
-* **logging:** decorate request object with metricsContext methods ([16cf030](https://github.com/mozilla/fxa-auth-server/commit/16cf030))
-* **logging:** eliminate the event argument from stash and gather ([4dd3f7e](https://github.com/mozilla/fxa-auth-server/commit/4dd3f7e))
-* **logging:** move activity/flow event decision out of log object ([957a883](https://github.com/mozilla/fxa-auth-server/commit/957a883))
-* **logging:** remove request argument from log methods ([a8f8c4a](https://github.com/mozilla/fxa-auth-server/commit/a8f8c4a))
-* **openid:** remove openid login support ([8cb651e](https://github.com/mozilla/fxa-auth-server/commit/8cb651e)), closes [#1336](https://github.com/mozilla/fxa-auth-server/issues/1336)
-* **push:** provide pushToDevice, pushToDevices and pushToAllDevices methods ([89083cd](https://github.com/mozilla/fxa-auth-server/commit/89083cd))
-* **server:** eliminate duplicate calls to user-agent parser ([4ac625c](https://github.com/mozilla/fxa-auth-server/commit/4ac625c))
-* **signin:** Add support for sending flow metrics in email (#1593); r=pb,vladikoff ([6955261](https://github.com/mozilla/fxa-auth-server/commit/6955261))
-* **signin:** Extract unblock-code-checking into a separate helper function. ([0c4beb7](https://github.com/mozilla/fxa-auth-server/commit/0c4beb7))
-* **signin:** Skip sign-in confirmation depending on account age (#1591), r=@seanmonstar, @rfk ([1d1fa41](https://github.com/mozilla/fxa-auth-server/commit/1d1fa41))
-* **signin:** Use new verify account sync template and add location data to others (#1600), r= ([6fc0c50](https://github.com/mozilla/fxa-auth-server/commit/6fc0c50))
-
-### style
-
-* **error:** order ERRNO constant numerically ([2f6b203](https://github.com/mozilla/fxa-auth-server/commit/2f6b203)), closes [#1518](https://github.com/mozilla/fxa-auth-server/issues/1518)
-
-### test
-
-* **all:** switch tap runner for mocha ([6c815d0](https://github.com/mozilla/fxa-auth-server/commit/6c815d0))
-* **lint:** add lint for synchronous randomBytes usage ([f4d02a1](https://github.com/mozilla/fxa-auth-server/commit/f4d02a1))
-
-
-
-<a name="1.62.5"></a>
-## [1.62.5](https://github.com/mozilla/fxa-auth-server/compare/v1.62.4...v1.62.5) (2016-05-27)
-
-
-### Bug Fixes
-
-* **l10n:** update to fix broken lt locale ([512576d](https://github.com/mozilla/fxa-auth-server/commit/512576d))
-
-
-
-<a name="1.62.4"></a>
-## [1.62.4](https://github.com/mozilla/fxa-auth-server/compare/v1.62.3...v1.62.4) (2016-05-24)
-
-
-
-
-<a name="1.62.3"></a>
-## [1.62.3](https://github.com/mozilla/fxa-auth-server/compare/v1.62.2...v1.62.3) (2016-05-24)
-
-
-### chore
-
-* **shrinkwrap:** update auth-mailer/content-server-l10n on v1.62.2 ([3e1027a](https://github.com/mozilla/fxa-auth-server/commit/3e1027a))
-
-
-
-<a name="1.62.2"></a>
-## [1.62.2](https://github.com/mozilla/fxa-auth-server/compare/v1.62.1...v1.62.2) (2016-05-20)
-
-
-### Bug Fixes
-
-* **token:** Use new REQUEST_BLOCKED error for bad content tokens. ([c0696be](https://github.com/mozilla/fxa-auth-server/commit/c0696be))
-
-
-
-<a name="1.60.4"></a>
-## [1.60.4](https://github.com/mozilla/fxa-auth-server/compare/v1.60.3...v1.60.4) (2016-04-29)
-
-
-### Bug Fixes
-
-* **devices:** Avoid spurious writes to device record if nothing has changed ([5017913](https://github.com/mozilla/fxa-auth-server/commit/5017913))
-* **token:** Tweak regex for samsung user-agents in content-token allow list ([13e13b2](https://github.com/mozilla/fxa-auth-server/commit/13e13b2))
-
-
-
-<a name="1.60.3"></a>
-## [1.60.3](https://github.com/mozilla/fxa-auth-server/compare/v1.60.2...v1.60.3) (2016-04-20)
-
-
-### Bug Fixes
-
-* **token:** Add end-of-string anchor in contenttoken email regex. ([c1aae28](https://github.com/mozilla/fxa-auth-server/commit/c1aae28))
-
-
-
-<a name="1.60.2"></a>
-## [1.60.2](https://github.com/mozilla/fxa-auth-server/compare/v1.60.1...v1.60.2) (2016-04-19)
-
-
-### Bug Fixes
-
-* **token:** Add samsung user-agents to content-token allow list ([96f2190](https://github.com/mozilla/fxa-auth-server/commit/96f2190))
-
-
-
-<a name="1.60.1"></a>
-## [1.60.1](https://github.com/mozilla/fxa-auth-server/compare/v1.60.0...v1.60.1) (2016-04-19)
-
-
-### Bug Fixes
-
-* **account:** flag unknown attempts for the emailRecord ([b4fa3f6](https://github.com/mozilla/fxa-auth-server/commit/b4fa3f6))
-* **bulk-mailer:** Remove the locale prefix on filenames w/ --write ([3c9d584](https://github.com/mozilla/fxa-auth-server/commit/3c9d584))
-* **bulk-mailer:** Set error rate to 0, we are done testing. ([06b4c91](https://github.com/mozilla/fxa-auth-server/commit/06b4c91))
-* **clientAddress:** allow location of the client ip address in forward headers to be specified in co ([3440484](https://github.com/mozilla/fxa-auth-server/commit/3440484))
-* **contentToken:** don't let hapi give validation errors about contentToken ([5725061](https://github.com/mozilla/fxa-auth-server/commit/5725061))
-* **contentToken:** fix docs ([dd68374](https://github.com/mozilla/fxa-auth-server/commit/dd68374))
-* **contentToken:** update metrics, remove ip ([89dd85b](https://github.com/mozilla/fxa-auth-server/commit/89dd85b))
-* **customs:** Check more password-related actions with customs-server. ([cf76513](https://github.com/mozilla/fxa-auth-server/commit/cf76513))
-* **customs:** fix type for form.email ([398c98e](https://github.com/mozilla/fxa-auth-server/commit/398c98e))
-* **customs:** provide email properly to customs ([b28fb17](https://github.com/mozilla/fxa-auth-server/commit/b28fb17))
-* **email:** Add feature-flag for new-login notification email. ([1868914](https://github.com/mozilla/fxa-auth-server/commit/1868914))
-* **email:** Point to private fork of auth-mailer for prod deploy. ([26f7b3a](https://github.com/mozilla/fxa-auth-server/commit/26f7b3a))
-* **email:** reinstate new sync device emails ([9f7ff9f](https://github.com/mozilla/fxa-auth-server/commit/9f7ff9f))
-* **email:** send additional template data for new-login email. ([e35eba8](https://github.com/mozilla/fxa-auth-server/commit/e35eba8))
-* **errors:** move bad content error up ([e67990c](https://github.com/mozilla/fxa-auth-server/commit/e67990c))
-* **must-reset:** exit code 1 on reset account error ([3774ea8](https://github.com/mozilla/fxa-auth-server/commit/3774ea8))
-* **tests:** Build and test fixes for latest fxa-auth-mailer update. ([e3eb504](https://github.com/mozilla/fxa-auth-server/commit/e3eb504))
-* **token:** Allow certain emails to bypass the content-token restriction (#27) ([2a162e6](https://github.com/mozilla/fxa-auth-server/commit/2a162e6))
-* **token:** Allow the UA for a specific partner device. ([6401431](https://github.com/mozilla/fxa-auth-server/commit/6401431))
-* **token:** Fix test bustage from missing contentToken config ([6924d5c](https://github.com/mozilla/fxa-auth-server/commit/6924d5c))
-* **token:** More diagnostic logging for content-token errors. (#25) ([33f6307](https://github.com/mozilla/fxa-auth-server/commit/33f6307))
-* **token:** Validate and log metrics on content-tokens even when they're optional ([002219b](https://github.com/mozilla/fxa-auth-server/commit/002219b))
-
-### chore
-
-* **bulk-mailer:** Settle on the "password_reset_required" template ([90de303](https://github.com/mozilla/fxa-auth-server/commit/90de303))
-* **bulk-mailer:** Stop all processing on error. ([ae83d72](https://github.com/mozilla/fxa-auth-server/commit/ae83d72))
-* **customs:** use named error constant for UNEXPECTED_ERROR ([ead6134](https://github.com/mozilla/fxa-auth-server/commit/ead6134))
-* **doc:** add usage info to scripts/must-reset.js ([8d02f8b](https://github.com/mozilla/fxa-auth-server/commit/8d02f8b))
-* **docs:** Add more docs to the reset-send-batch script. ([975132e](https://github.com/mozilla/fxa-auth-server/commit/975132e))
-* **shrinkwrap:** pick up new versions auth-mailer and content-l10n ([3fb3186](https://github.com/mozilla/fxa-auth-server/commit/3fb3186))
-
-### Features
-
-* **bulk-mailer:** `--errors` and `--unsent` now have defaults. ([61c092d](https://github.com/mozilla/fxa-auth-server/commit/61c092d))
-* **bulk-mailer:** Add some utilities to work with batches ([21a9033](https://github.com/mozilla/fxa-auth-server/commit/21a9033))
-* **contentToken:** add customs flag on bad token ([e811ced](https://github.com/mozilla/fxa-auth-server/commit/e811ced))
-* **contentToken:** add tests, add new error code ([8372a62](https://github.com/mozilla/fxa-auth-server/commit/8372a62))
-* **contentToken:** adjust user agents ([70bc661](https://github.com/mozilla/fxa-auth-server/commit/70bc661))
-* **customs:** include errno in customs flags ([d50f959](https://github.com/mozilla/fxa-auth-server/commit/d50f959))
-* **login:** add content token support ([a2ac3ad](https://github.com/mozilla/fxa-auth-server/commit/a2ac3ad))
-* **reset:** Added "must reset account" error state ([e86d16f](https://github.com/mozilla/fxa-auth-server/commit/e86d16f))
-* **scripts:** Add a bulk mailer ([09c2671](https://github.com/mozilla/fxa-auth-server/commit/09c2671))
+* **email:** Don't flag logins with incorrect email case (#1623). r=@rfk ([88cd267](https://github.com/mozilla/fxa-auth-server/commit/88cd267))
+* **tests:** Reorganize local tests (#1629) r=vladikoff,philbooth ([38d4957](https://github.com/mozilla/fxa-auth-server/commit/38d4957))
 
 
 

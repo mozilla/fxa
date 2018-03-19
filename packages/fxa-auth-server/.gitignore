@@ -8,11 +8,14 @@
 server.log*
 secret*
 *.gpg
+*.log
 /test/load/bin
 /test/load/lib*
 /test/load/include
 *~
 *.pyc
-/.vagrant
 .nyc_output
 npm-debug.log
+server.pot
+.mail_output
+fxa-content-server-l10n/

@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 /* eslint-disable no-console */
 var cp = require('child_process')
 var split = require('binary-split')
@@ -42,7 +44,7 @@ server.stderr
           console.log(json)
         }
         if (json.op && json.op === 'request.summary') {
-          if (!start) start = Date.now()
+          if (! start) start = Date.now()
           requests++
           if (json.code === 200) { pass++ } else { fail++ }
           var stat = pathStats[json.path] || {}

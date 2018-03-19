@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 /*  Base class for handling various types of token.
  *
  *  This module provides the basic functionality for handling authentication
@@ -10,10 +12,10 @@
  *
  *    - Each token is created from an initial data seed of 32 random bytes.
  *
- *    - From the seed data we HKDF-derive three 32-byte values: a tokenId,
+ *    - From the seed data we HKDF-derive three 32-byte values: an id,
  *      an authKey and a bundleKey.
  *
- *    - The tokenId/authKey pair can be used as part of a request-signing
+ *    - The id/authKey pair can be used as part of a request-signing
  *      authentication scheme.
  *
  *    - The bundleKey can be used to encrypt data as part of the request.
@@ -23,9 +25,13 @@
  *
  */
 
-var config = require('../../config').getProperties()
+const Bundle = require('./bundle')
+const hkdf = require('../crypto/hkdf')
+const random = require('../crypto/random')
 
-module.exports = function (log, random, P, hkdf, Bundle, error) {
+const KEYS = ['data', 'id', 'authKey', 'bundleKey']
+
+module.exports = (log, config) => {
 
   // Token constructor.
   //
@@ -33,45 +39,24 @@ module.exports = function (log, random, P, hkdf, Bundle, error) {
   // You probably want to call a helper rather than use this directly.
   //
   function Token(keys, details) {
-    this.data = keys.data
-    this.tokenId = keys.tokenId
-    this.authKey = keys.authKey
-    this.bundleKey = keys.bundleKey
-    this.algorithm = 'sha256'
+    KEYS.forEach(name => {
+      this[name] = keys[name] && keys[name].toString('hex')
+    })
     this.uid = details.uid || null
     this.lifetime = details.lifetime || Infinity
     this.createdAt = details.createdAt || 0
-  }
-
-  function optionallyOverrideCreatedAt (timestamp) {
-    var now = Date.now()
-
-    // In the wild, all tokens should have a fresh createdAt timestamp.
-    // For testing purposes only, allow createdAt to be overridden.
-    if (timestamp !== undefined) {
-      if (config.isProduction) {
-        throw new Error('unexpected value for createdAt')
-      }
-
-      if (timestamp >= 0 && timestamp <= now) {
-        return timestamp
-      }
-    }
-
-    return now
   }
 
   // Create a new token of the given type.
   // This uses randomly-generated seed data to derive the keys.
   //
   Token.createNewToken = function(TokenType, details) {
+    // Avoid modifying the argument.
+    details = Object.assign({}, details)
+    details.createdAt = Date.now()
     return random(32)
       .then(bytes => Token.deriveTokenKeys(TokenType, bytes))
-      .then(keys => {
-        details = details || {}
-        details.createdAt = optionallyOverrideCreatedAt(details.createdAt)
-        return new TokenType(keys, details)
-      })
+      .then(keys => new TokenType(keys, details))
   }
 
 
@@ -79,13 +64,13 @@ module.exports = function (log, random, P, hkdf, Bundle, error) {
   // This uses known seed data to derive the keys.
   //
   Token.createTokenFromHexData = function(TokenType, hexData, details) {
-    var data = Buffer(hexData, 'hex')
+    var data = Buffer.from(hexData, 'hex')
     return Token.deriveTokenKeys(TokenType, data)
       .then(keys => new TokenType(keys, details || {}))
   }
 
 
-  // Derive tokenId, authKey and bundleKey from token seed data.
+  // Derive id, authKey and bundleKey from token seed data.
   //
   Token.deriveTokenKeys = function (TokenType, data) {
     return hkdf(data, TokenType.tokenTypeID, null, 3 * 32)
@@ -93,7 +78,7 @@ module.exports = function (log, random, P, hkdf, Bundle, error) {
         function (keyMaterial) {
           return {
             data: data,
-            tokenId: keyMaterial.slice(0, 32),
+            id: keyMaterial.slice(0, 32),
             authKey: keyMaterial.slice(32, 64),
             bundleKey: keyMaterial.slice(64, 96)
           }
@@ -131,11 +116,8 @@ module.exports = function (log, random, P, hkdf, Bundle, error) {
   Object.defineProperties(
     Token.prototype,
     {
-      id: {
-        get: function () { return this.tokenId.toString('hex') }
-      },
       key: {
-        get: function () { return this.authKey }
+        get: function () { return Buffer.from(this.authKey, 'hex') }
       },
       algorithm: {
         get: function () { return 'sha256' }

@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
+var crypto = require('crypto')
+var base64url = require('base64url')
 var webpush = require('web-push')
 var P = require('./promise')
 
@@ -9,19 +13,22 @@ var ERR_NO_PUSH_CALLBACK = 'No Push Callback'
 var ERR_DATA_BUT_NO_KEYS = 'Data payload present but missing key(s)'
 var ERR_TOO_MANY_DEVICES = 'Too many devices connected to account'
 
-var LOG_OP_PUSH_TO_DEVICES = 'push.pushToDevices'
+var LOG_OP_PUSH_TO_DEVICES = 'push.sendPush'
 
 var PUSH_PAYLOAD_SCHEMA_VERSION = 1
 var PUSH_COMMANDS = {
   DEVICE_CONNECTED: 'fxaccounts:device_connected',
   DEVICE_DISCONNECTED: 'fxaccounts:device_disconnected',
+  PROFILE_UPDATED: 'fxaccounts:profile_updated',
   PASSWORD_CHANGED: 'fxaccounts:password_changed',
-  PASSWORD_RESET: 'fxaccounts:password_reset'
+  PASSWORD_RESET: 'fxaccounts:password_reset',
+  ACCOUNT_DESTROYED: 'fxaccounts:account_destroyed'
 }
 
 var TTL_DEVICE_DISCONNECTED = 5 * 3600 // 5 hours
 var TTL_PASSWORD_CHANGED = 6 * 3600 // 6 hours
 var TTL_PASSWORD_RESET = TTL_PASSWORD_CHANGED
+var TTL_ACCOUNT_DESTROYED = TTL_DEVICE_DISCONNECTED
 
 // An arbitrary, but very generous, limit on the number of active devices.
 // Currently only for metrics purposes, not enforced.
@@ -76,6 +83,14 @@ var reasonToEvents = {
     noCallback: 'push.device_disconnected.no_push_callback',
     noKeys: 'push.device_disconnected.data_but_no_keys'
   },
+  profileUpdated: {
+    send: 'push.profile_updated.send',
+    success: 'push.profile_updated.success',
+    resetSettings: 'push.profile_updated.reset_settings',
+    failed: 'push.profile_updated.failed',
+    noCallback: 'push.profile_updated.no_push_callback',
+    noKeys: 'push.profile_updated.data_but_no_keys'
+  },
   devicesNotify: {
     send: 'push.devices_notify.send',
     success: 'push.devices_notify.success',
@@ -83,8 +98,22 @@ var reasonToEvents = {
     failed: 'push.devices_notify.failed',
     noCallback: 'push.devices_notify.no_push_callback',
     noKeys: 'push.devices_notify.data_but_no_keys'
+  },
+  accountDestroyed: {
+    send: 'push.account_destroyed.send',
+    success: 'push.account_destroyed.success',
+    resetSettings: 'push.account_destroyed.reset_settings',
+    failed: 'push.account_destroyed.failed',
+    noCallback: 'push.account_destroyed.no_push_callback',
+    noKeys: 'push.account_destroyed.data_but_no_keys'
   }
 }
+
+/**
+ * A device object returned by the db,
+ * typically obtained by calling db.devices(uid).
+ * @typedef {Object} Device
+ */
 
 module.exports = function (log, db, config) {
   var vapid
@@ -100,10 +129,9 @@ module.exports = function (log, db, config) {
   /**
    * Reports push errors to logs
    *
-   * @param err
-   * Error object
-   * @param deviceId
-   * The device id
+   * @param {Error} err
+   * @param {String} uid
+   * @param {String} deviceId
    */
   function reportPushError(err, uid, deviceId) {
     log.error({
@@ -117,8 +145,7 @@ module.exports = function (log, db, config) {
   /**
    * Reports push increment actions to logs
    *
-   * @param name
-   * Name of the push action
+   * @param {String} name
    */
   function incrementPushAction(name) {
     if (name) {
@@ -126,7 +153,6 @@ module.exports = function (log, db, config) {
         op: LOG_OP_PUSH_TO_DEVICES,
         name: name
       })
-      log.increment(name)
     }
   }
 
@@ -134,7 +160,7 @@ module.exports = function (log, db, config) {
    * Copy sendPush authorized options from an existing options object
    * to a new one
    *
-   * @param options
+   * @param {Object} options
    */
   function filterOptions(options) {
     var allowedProps = ['TTL', 'data']
@@ -146,170 +172,253 @@ module.exports = function (log, db, config) {
     }, {})
   }
 
-  return {
-    /**
-     * Notifies all devices that there was an update to the account
-     *
-     * @param uid
-     * @param reason
-     * @promise
-     */
-    notifyUpdate: function notifyUpdate(uid, reason) {
-      reason = reason || 'accountVerify'
-      return this.pushToAllDevices(uid, reason)
-    },
-
-    /**
-     * Notifies all devices (except the one who joined) that a new device joined the account
-     *
-     * @param uid
-     * @param deviceName
-     * @param currentDeviceId
-     * @promise
-     */
-    notifyDeviceConnected: function notifyDeviceConnected(uid, deviceName, currentDeviceId) {
-      var data = new Buffer(JSON.stringify({
-        version: PUSH_PAYLOAD_SCHEMA_VERSION,
-        command: PUSH_COMMANDS.DEVICE_CONNECTED,
-        data: {
-          deviceName: deviceName
-        }
-      }))
-      var options = { data: data, excludedDeviceIds: [currentDeviceId] }
-      return this.pushToAllDevices(uid, 'deviceConnected', options)
-    },
-
-    /**
-     * Notifies a device that it is now disconnected from the account
-     *
-     * @param uid
-     * @param idToDisconnect
-     * @promise
-     */
-    notifyDeviceDisconnected: function notifyDeviceDisconnected(uid, idToDisconnect) {
-      var data = new Buffer(JSON.stringify({
-        version: PUSH_PAYLOAD_SCHEMA_VERSION,
-        command: PUSH_COMMANDS.DEVICE_DISCONNECTED,
-        data: {
-          id: idToDisconnect
-        }
-      }))
-      var options = { data: data, TTL: TTL_DEVICE_DISCONNECTED }
-      return this.pushToDevice(uid, idToDisconnect, 'deviceDisconnected', options)
-    },
-
-    /**
-     * Notifies a set of devices that the password was changed
-     *
-     * @param uid
-     * @param {Object[]} devices (complete devices objects)
-     * @promise
-     */
-    notifyPasswordChanged: function notifyPasswordChanged(uid, devices) {
-      var data = new Buffer(JSON.stringify({
-        version: PUSH_PAYLOAD_SCHEMA_VERSION,
-        command: PUSH_COMMANDS.PASSWORD_CHANGED
-      }))
-      var options = { data: data, TTL: TTL_PASSWORD_CHANGED }
-      return this.sendPush(uid, devices, 'passwordChange', options)
-    },
-
-    /**
-     * Notifies a set of devices that the password was reset
-     *
-     * @param uid
-     * @param {Object[]} devices (complete devices objects)
-     * @promise
-     */
-    notifyPasswordReset: function notifyPasswordReset(uid, devices) {
-      var data = new Buffer(JSON.stringify({
-        version: PUSH_PAYLOAD_SCHEMA_VERSION,
-        command: PUSH_COMMANDS.PASSWORD_RESET
-      }))
-      var options = { data: data, TTL: TTL_PASSWORD_RESET }
-      return this.sendPush(uid, devices, 'passwordReset', options)
-    },
-
-    /**
-     * Send a push notification with or without data to all the devices in the account (except the ones in the excludedDeviceIds)
-     *
-     * @param uid
-     * @param reason
-     * @param {Object} options
-     * @param {String} options.excludedDeviceIds
-     * @param {String} options.data
-     * @param {String} options.TTL (in seconds)
-     * @promise
-     */
-    pushToAllDevices: function pushToAllDevices(uid, reason, options) {
-      options = options || {}
-      var self = this
-      return db.devices(uid).then(
-        function (devices) {
-          if (options.excludedDeviceIds) {
-            devices = devices.filter(function(device) {
-              return options.excludedDeviceIds.indexOf(device.id.toString('hex')) === -1
-            })
-          }
-          var pushOptions = filterOptions(options)
-          return self.sendPush(uid, devices, reason, pushOptions)
-        })
-    },
-
-    /**
-     * Send a push notification with or without data to a set of devices in the account
-     *
-     * @param uid
-     * @param {Array} ids
-     * @param reason
-     * @param {Object} options
-     * @param {String} options.data
-     * @param {String} options.TTL (in seconds)
-     * @promise
-     */
-    pushToDevices: function pushToDevices(uid, ids, reason, options) {
-      var self = this
-      return db.devices(uid).then(
-        function (devices) {
-          devices = devices.filter(function(device) {
-            return ids.indexOf(device.id.toString('hex')) !== -1
+  /**
+   * iOS clients don't yet support all commands types, and due to
+   * platform limitations they have to show some bad fallback UX
+   * if they receive an unsupported message type.  Filter out
+   * devices that we know won't respond well to the given command.
+   *
+   * @param {Object} payload
+   * The push message payload
+   * @param {Device[]} devices
+   * The list of devices to which to send the push.
+   */
+  function filterSupportedDevices(payload, devices) {
+    const command = (payload && payload.command) || null
+    let canSendToIOSVersion/* ({Number} version) => bool */
+    switch (command) {
+    case 'sync:collection_changed':
+      canSendToIOSVersion = () => payload.data.reason !== 'firstsync'
+      break
+    case null: // In the null case this is an account verification push message
+      canSendToIOSVersion = (deviceVersion, deviceBrowser) => {
+        return deviceVersion >= 10.0 && deviceBrowser === 'Firefox Beta'
+      }
+      break
+    case 'fxaccounts:device_connected':
+    case 'fxaccounts:device_disconnected':
+      canSendToIOSVersion = deviceVersion => deviceVersion >= 10.0
+      break
+    default:
+      canSendToIOSVersion = () => false
+    }
+    return devices.filter(function(device) {
+      const deviceOS = device.uaOS && device.uaOS.toLowerCase()
+      if (deviceOS === 'ios') {
+        const deviceVersion = device.uaBrowserVersion ? parseFloat(device.uaBrowserVersion) : 0
+        const deviceBrowserName = device.uaBrowser
+        if (! canSendToIOSVersion(deviceVersion, deviceBrowserName)) {
+          log.info({
+            op: 'push.filteredUnsupportedDevice',
+            command: command,
+            uaOS: device.uaOS,
+            uaBrowserVersion: device.uaBrowserVersion
           })
-          if (devices.length === 0) {
-            return P.reject('Devices ids not found in devices')
-          }
-          var pushOptions = filterOptions(options || {})
-          return self.sendPush(uid, devices, reason, pushOptions)
-        })
+          return false
+        }
+      }
+      return true
+    })
+  }
+
+  /**
+   * Checks whether the given string is a valid public key for push.
+   * This is a little tricky because we need to work around a bug in nodejs
+   * where using an invalid ECDH key can cause a later (unrelated) attempt
+   * to generate an RSA signature to fail:
+   *
+   *   https://github.com/nodejs/node/pull/13275
+   *
+   * @param key
+   * The public key as a b64url string.
+   */
+
+  var dummySigner = crypto.createSign('RSA-SHA256')
+  var dummyKey = Buffer.alloc(0)
+  var dummyCurve = crypto.createECDH('prime256v1')
+  dummyCurve.generateKeys()
+
+  function isValidPublicKey(publicKey) {
+    // Try to use the key in an ECDH agreement.
+    // If the key is invalid then this will throw an error.
+    try {
+      dummyCurve.computeSecret(base64url.toBuffer(publicKey))
+      return true
+    } catch (err) {
+      log.info({
+        op: 'push.isValidPublicKey',
+        name: 'Bad public key detected'
+      })
+      // However!  The above call might have left some junk
+      // sitting around on the openssl error stack.
+      // Clear it by deliberately triggering a signing error
+      // before anything yields the event loop.
+      try {
+        dummySigner.sign(dummyKey)
+      } catch (e) {}
+      return false
+    }
+  }
+
+  return {
+
+    isValidPublicKey,
+
+    /**
+     * Notify devices that there was an update to the account
+     *
+     * @param {String} uid
+     * @param {Device[]} devices
+     * @param {String} reason
+     * @param {Object} [options]
+     *   @param {String[]} [options.includedDeviceIds]
+     *   @param {String[]} [options.excludedDeviceIds]
+     *   @param {Object} [options.data]
+     *   @param {String} [options.TTL] (in seconds)
+     * @promise
+     */
+    notifyUpdate (uid, devices, reason, options = {}) {
+      if (options.includedDeviceIds) {
+        const include = new Set(options.includedDeviceIds)
+        devices = devices.filter(device => include.has(device.id))
+
+        if (devices.length === 0) {
+          return P.reject('devices empty')
+        }
+      } else if (options.excludedDeviceIds) {
+        const exclude = new Set(options.excludedDeviceIds)
+        devices = devices.filter(device => ! exclude.has(device.id))
+      }
+
+      return this.sendPush(uid, devices, reason, filterOptions(options))
     },
 
     /**
-     * Send a push notification with or without data to one device in the account
+     * Notify devices (except currentDeviceId) that a new device was connected
      *
-     * @param uid
-     * @param id
-     * @param reason
-     * @param {Object} options
-     * @param {String} options.data
-     * @param {String} options.TTL (in seconds)
+     * @param {String} uid
+     * @param {Device[]} devices
+     * @param {String} deviceName
+     * @param {String} currentDeviceId
      * @promise
      */
-    pushToDevice: function pushToDevice(uid, id, reason, options) {
-      return this.pushToDevices(uid, [id], reason, options)
+    notifyDeviceConnected (uid, devices, deviceName, currentDeviceId) {
+      return this.notifyUpdate(uid, devices, 'deviceConnected', {
+        data: {
+          version: PUSH_PAYLOAD_SCHEMA_VERSION,
+          command: PUSH_COMMANDS.DEVICE_CONNECTED,
+          data: {
+            deviceName
+          }
+        },
+        excludedDeviceIds: [ currentDeviceId ]
+      })
+    },
+
+    /**
+     * Notify devices that a device was disconnected from the account
+     *
+     * @param {String} uid
+     * @param {Device[]} devices
+     * @param {String} idToDisconnect
+     * @promise
+     */
+    notifyDeviceDisconnected (uid, devices, idToDisconnect) {
+      return this.sendPush(uid, devices, 'deviceDisconnected', {
+        data: {
+          version: PUSH_PAYLOAD_SCHEMA_VERSION,
+          command: PUSH_COMMANDS.DEVICE_DISCONNECTED,
+          data: {
+            id: idToDisconnect
+          }
+        },
+        TTL: TTL_DEVICE_DISCONNECTED
+      })
+    },
+
+    /**
+     * Notify devices that the profile attached to the account was updated
+     *
+     * @param {String} uid
+     * @param {Device[]} devices
+     * @promise
+     */
+    notifyProfileUpdated (uid, devices) {
+      return this.sendPush(uid, devices, 'profileUpdated', {
+        data: {
+          version: PUSH_PAYLOAD_SCHEMA_VERSION,
+          command: PUSH_COMMANDS.PROFILE_UPDATED
+        }
+      })
+    },
+
+    /**
+     * Notify devices that the password was changed
+     *
+     * @param {String} uid
+     * @param {Device[]} devices
+     * @promise
+     */
+    notifyPasswordChanged (uid, devices) {
+      return this.sendPush(uid, devices, 'passwordChange', {
+        data: {
+          version: PUSH_PAYLOAD_SCHEMA_VERSION,
+          command: PUSH_COMMANDS.PASSWORD_CHANGED
+        },
+        TTL: TTL_PASSWORD_CHANGED
+      })
+    },
+
+    /**
+     * Notify devices that the password was reset
+     *
+     * @param {String} uid
+     * @param {Device[]} devices
+     * @promise
+     */
+    notifyPasswordReset (uid, devices) {
+      return this.sendPush(uid, devices, 'passwordReset', {
+        data: {
+          version: PUSH_PAYLOAD_SCHEMA_VERSION,
+          command: PUSH_COMMANDS.PASSWORD_RESET
+        },
+        TTL: TTL_PASSWORD_RESET
+      })
+    },
+
+    /**
+     * Notify devices that the account no longer exists
+     *
+     * @param {String} uid
+     * @param {Device[]} devices
+     * @promise
+     */
+    notifyAccountDestroyed (uid, devices) {
+      return this.sendPush(uid, devices, 'accountDestroyed', {
+        data: {
+          version: PUSH_PAYLOAD_SCHEMA_VERSION,
+          command: PUSH_COMMANDS.ACCOUNT_DESTROYED,
+          data: {
+            uid
+          }
+        },
+        TTL: TTL_ACCOUNT_DESTROYED
+      })
     },
 
     /**
      * Send a push notification with or without data to a list of devices
      *
-     * @param uid
-     * @param devices
-     * @param reason
+     * @param {String} uid
+     * @param {Device[]} devices
+     * @param {String} reason
      * @param {Object} options
-     * @param {String} options.data
+     * @param {Object} options.data
      * @param {String} options.TTL (in seconds)
      * @promise
      */
-    sendPush: function sendPush(uid, devices, reason, options) {
-      options = options || {}
+    sendPush: function sendPush(uid, devices, reason, options = {}) {
+      devices = filterSupportedDevices(options.data, devices)
       var events = reasonToEvents[reason]
       if (! events) {
         return P.reject('Unknown push reason: ' + reason)
@@ -320,7 +429,7 @@ module.exports = function (log, db, config) {
         reportPushError(new Error(ERR_TOO_MANY_DEVICES), uid, null)
       }
       return P.each(devices, function(device) {
-        var deviceId = device.id.toString('hex')
+        var deviceId = device.id
 
         log.trace({
           op: LOG_OP_PUSH_TO_DEVICES,
@@ -329,14 +438,14 @@ module.exports = function (log, db, config) {
           pushCallback: device.pushCallback
         })
 
-        if (device.pushCallback) {
+        if (device.pushCallback && ! device.pushEndpointExpired) {
           // send the push notification
           incrementPushAction(events.send)
           var pushSubscription = { endpoint: device.pushCallback }
           var pushPayload = null
           var pushOptions = { 'TTL': options.TTL || '0' }
           if (options.data) {
-            if (!device.pushPublicKey || !device.pushAuthKey) {
+            if (! device.pushPublicKey || ! device.pushAuthKey) {
               reportPushError(new Error(ERR_DATA_BUT_NO_KEYS), uid, deviceId)
               incrementPushAction(events.noKeys)
               return
@@ -345,7 +454,7 @@ module.exports = function (log, db, config) {
               p256dh: device.pushPublicKey,
               auth: device.pushAuthKey
             }
-            pushPayload = options.data
+            pushPayload = Buffer.from(JSON.stringify(options.data))
           }
           if (vapid) {
             pushOptions.vapidDetails = vapid
@@ -356,15 +465,22 @@ module.exports = function (log, db, config) {
               incrementPushAction(events.success)
             },
             function (err) {
+              // If we've stored an invalid key in the db for some reason, then we
+              // might get an encryption failure here.  Check the key, which also
+              // happens to work around bugginess in node's handling of said failures.
+              var keyWasInvalid = false
+              if (! err.statusCode && device.pushPublicKey) {
+                if (! isValidPublicKey(device.pushPublicKey)) {
+                  keyWasInvalid = true
+                }
+              }
               // 404 or 410 error from the push servers means
               // the push settings need to be reset.
               // the clients will check this and re-register push endpoints
-              if (err.statusCode === 404 || err.statusCode === 410) {
-                // reset device push configuration
+              if (err.statusCode === 404 || err.statusCode === 410 || keyWasInvalid) {
+                // set the push endpoint expired flag
                 // Warning: this method is called without any session tokens or auth validation.
-                device.pushCallback = ''
-                device.pushPublicKey = ''
-                device.pushAuthKey = ''
+                device.pushEndpointExpired = true
                 return db.updateDevice(uid, null, device).catch(function (err) {
                   reportPushError(err, uid, deviceId)
                 }).then(function() {
@@ -385,3 +501,4 @@ module.exports = function (log, db, config) {
     }
   }
 }
+

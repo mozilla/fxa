@@ -14,6 +14,7 @@ var config = require('../../config').getProperties()
 describe('remote account reset', function() {
   this.timeout(15000)
   let server
+  config.signinConfirmation.skipForNewAccounts.enabled = true
   before(() => {
     return TestServer.start(config)
       .then(s => {
@@ -62,9 +63,9 @@ describe('remote account reset', function() {
         )
         .then(
           function (response) {
-            assert(!response.sessionToken, 'session token is not in response')
-            assert(!response.keyFetchToken, 'keyFetchToken token is not in response')
-            assert(!response.verified, 'verified is not in response')
+            assert(! response.sessionToken, 'session token is not in response')
+            assert(! response.keyFetchToken, 'keyFetchToken token is not in response')
+            assert(! response.verified, 'verified is not in response')
           }
         )
         .then(
@@ -82,7 +83,7 @@ describe('remote account reset', function() {
         .then(
           function () {
             // make sure we can still login after password reset
-            return Client.login(config.publicUrl, email, newPassword, server.mailbox, {keys:true})
+            return Client.login(config.publicUrl, email, newPassword, {keys:true})
           }
         )
         .then(
@@ -93,10 +94,10 @@ describe('remote account reset', function() {
         )
         .then(
           function (keys) {
-            assert.ok(Buffer.isBuffer(keys.wrapKb), 'yep, wrapKb')
-            assert.notDeepEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
-            assert.deepEqual(kA, keys.kA, 'kA was not reset')
-            assert.equal(client.kB.length, 32, 'kB exists, has the right length')
+            assert.notEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
+            assert.equal(kA, keys.kA, 'kA was not reset')
+            assert.equal(typeof client.kB, 'string')
+            assert.equal(client.kB.length, 64, 'kB exists, has the right length')
           }
         )
     }
@@ -163,7 +164,7 @@ describe('remote account reset', function() {
         .then(
           function () {
             // make sure we can still login after password reset
-            return Client.login(config.publicUrl, email, newPassword, server.mailbox, {keys:true})
+            return Client.login(config.publicUrl, email, newPassword, {keys:true})
           }
         )
         .then(
@@ -174,10 +175,10 @@ describe('remote account reset', function() {
         )
         .then(
           function (keys) {
-            assert.ok(Buffer.isBuffer(keys.wrapKb), 'yep, wrapKb')
-            assert.notDeepEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
-            assert.deepEqual(kA, keys.kA, 'kA was not reset')
-            assert.equal(client.kB.length, 32, 'kB exists, has the right length')
+            assert.notEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
+            assert.equal(kA, keys.kA, 'kA was not reset')
+            assert.equal(typeof client.kB, 'string')
+            assert.equal(client.kB.length, 64, 'kB exists, has the right length')
           }
         )
     }
@@ -218,10 +219,56 @@ describe('remote account reset', function() {
         .then(
           function (response) {
             assert.ok(response.sessionToken, 'session token is in response')
-            assert(!response.keyFetchToken, 'keyFetchToken token is not in response')
+            assert(! response.keyFetchToken, 'keyFetchToken token is not in response')
             assert.equal(response.verified, true,  'verified is true')
           }
         )
+    }
+  )
+
+  it(
+    'account reset deletes tokens',
+    () => {
+      const email = server.uniqueEmail()
+      const password = 'allyourbasearebelongtous'
+      const newPassword = 'ez'
+      let client = null
+      let originalCode = null
+      const opts = {
+        keys: true
+      }
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, opts)
+        .then((x) => {
+          client = x
+
+          return client.forgotPassword()
+        })
+        .then(() => server.mailbox.waitForCode(email))
+        .then((code) => {
+          // Stash original reset code then attempt to use it after another reset
+          originalCode = code
+
+          return client.forgotPassword()
+        })
+        .then(() => server.mailbox.waitForCode(email))
+        .then((code) => {
+          assert.throws(() => client.resetPassword(newPassword))
+
+          return resetPassword(client, code, newPassword, undefined, opts)
+        })
+        .then(() => server.mailbox.waitForEmail(email))
+        .then((emailData) => {
+          const templateName = emailData.headers['x-template-name']
+          assert.equal(templateName, 'passwordResetEmail')
+
+          return resetPassword(client, originalCode, newPassword, undefined, opts)
+            .then(() => assert.fail('Should not have succeeded password reset'),
+              (err) => {
+                // Ensure that password reset fails with unknown token error codes
+                assert.equal(err.code, 401)
+                assert.equal(err.errno, 110)
+              })
+        })
     }
   )
 

@@ -1,0 +1,1 @@
+FROM fxa-auth-server:build

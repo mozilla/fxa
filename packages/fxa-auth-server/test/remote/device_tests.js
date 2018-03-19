@@ -5,21 +5,23 @@
 'use strict'
 
 const assert = require('insist')
-var TestServer = require('../test_server')
+const TestServer = require('../test_server')
 const Client = require('../client')()
-var config = require('../../config').getProperties()
-var crypto = require('crypto')
-var base64url = require('base64url')
-var P = require('../../lib/promise')
+const config = require('../../config').getProperties()
+const crypto = require('crypto')
+const base64url = require('base64url')
+const P = require('../../lib/promise')
+const mocks = require('../mocks')
 
-describe('remote device', function() {
+describe('remote device', function () {
   this.timeout(15000)
   let server
   before(() => {
-    // HACK: Force-enable devices.lastAccessTime in the spawned server process
-    process.env.LASTACCESSTIME_UPDATES_ENABLED = 'true'
-    process.env.LASTACCESSTIME_UPDATES_EMAIL_ADDRESSES = '.*'
-    process.env.LASTACCESSTIME_UPDATES_SAMPLE_RATE = '1'
+    config.lastAccessTimeUpdates = {
+      enabled: true,
+      sampleRate: 1,
+      earliestSaneTimestamp: config.lastAccessTimeUpdates.earliestSaneTimestamp
+    }
 
     return TestServer.start(config)
       .then(s => {
@@ -36,7 +38,7 @@ describe('remote device', function() {
         .then(
           function (client) {
             var deviceInfo = {
-              name: 'test device',
+              name: 'test device 🍓🔥在𝌆',
               type: 'mobile',
               pushCallback: '',
               pushPublicKey: '',
@@ -58,6 +60,7 @@ describe('remote device', function() {
                   assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
                   assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
                   assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
+                  assert.equal(device.pushEndpointExpired, false, 'device.pushEndpointExpired is correct')
                 }
               )
               .then(
@@ -73,6 +76,7 @@ describe('remote device', function() {
                   assert.equal(devices[0].pushCallback, '', 'devices returned empty pushCallback')
                   assert.equal(devices[0].pushPublicKey, '', 'devices returned correct pushPublicKey')
                   assert.equal(devices[0].pushAuthKey, '', 'devices returned correct pushAuthKey')
+                  assert.equal(devices[0].pushEndpointExpired, '', 'devices returned correct pushEndpointExpired')
                   return client.destroyDevice(devices[0].id)
                 }
               )
@@ -109,6 +113,7 @@ describe('remote device', function() {
                   assert.equal(device.pushCallback, undefined, 'device.pushCallback is undefined')
                   assert.equal(device.pushPublicKey, undefined, 'device.pushPublicKey is undefined')
                   assert.equal(device.pushAuthKey, undefined, 'device.pushAuthKey is undefined')
+                  assert.equal(device.pushEndpointExpired, false, 'device.pushEndpointExpired is false')
                 }
               )
               .then(
@@ -124,7 +129,45 @@ describe('remote device', function() {
                   assert.equal(devices[0].pushCallback, null, 'devices returned undefined pushCallback')
                   assert.equal(devices[0].pushPublicKey, null, 'devices returned undefined pushPublicKey')
                   assert.equal(devices[0].pushAuthKey, null, 'devices returned undefined pushAuthKey')
+                  assert.equal(devices[0].pushEndpointExpired, false, 'devices returned false pushEndpointExpired')
                   return client.destroyDevice(devices[0].id)
+                }
+              )
+          }
+        )
+    }
+  )
+
+  it(
+    'device registration with unicode characters in the name',
+    () => {
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            var deviceInfo = {
+              // That's a beta, and a CJK character from https://bugzilla.mozilla.org/show_bug.cgi?id=1348298
+              name: 'Firefox \u5728 \u03b2 test',
+              type: 'desktop',
+            }
+            return client.updateDevice(deviceInfo)
+              .then(
+                function (device) {
+                  assert.ok(device.id, 'device.id was set')
+                  assert.ok(device.createdAt > 0, 'device.createdAt was set')
+                  assert.equal(device.name, deviceInfo.name, 'device.name is correct')
+                }
+              )
+              .then(
+                function () {
+                  return client.devices()
+                }
+              )
+              .then(
+                function (devices) {
+                  assert.equal(devices.length, 1, 'devices returned one item')
+                  assert.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
                 }
               )
           }
@@ -183,33 +226,146 @@ describe('remote device', function() {
   )
 
   it(
-    'device registration with unsupported characters in the name',
+    'update device fails with bad callbackUrl',
     () => {
+      var badPushCallback = 'https://updates.push.services.mozilla.com.different-push-server.technology'
       var email = server.uniqueEmail()
       var password = 'test password'
+      var deviceInfo = {
+        id: crypto.randomBytes(16).toString('hex'),
+        name: 'test device',
+        type: 'desktop',
+        pushCallback: badPushCallback,
+        pushPublicKey: mocks.MOCK_PUSH_KEY,
+        pushAuthKey: base64url(crypto.randomBytes(16))
+      }
       return Client.create(config.publicUrl, email, password)
         .then(
           function (client) {
-            var deviceInfo = {
-              id: crypto.randomBytes(16).toString('hex'),
-              name: 'unicodepooforyou: \uD83D\uDCA9',
-              type: 'mobile',
-            }
             return client.updateDevice(deviceInfo)
               .then(
-                function () {
+                function (r) {
                   assert(false, 'request should have failed')
                 }
               )
               .catch(
                 function (err) {
                   assert.equal(err.code, 400, 'err.code was 400')
-                  assert.equal(err.errno, 107, 'err.errno was 107')
-                  assert.equal(err.validation.keys[0], 'name', 'name was rejected')
+                  assert.equal(err.errno, 107, 'err.errno was 107, invalid parameter')
+                  assert.equal(err.validation.keys[0], 'pushCallback', 'bad pushCallback caught in validation')
                 }
               )
-          }
-        )
+          })
+    }
+  )
+
+  it(
+    'update device works with stage servers',
+    () => {
+      var goodPushCallback = 'https://updates-autopush.stage.mozaws.net'
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            var deviceInfo = {
+              name: 'test device',
+              type: 'mobile',
+              pushCallback: goodPushCallback,
+              pushPublicKey: '',
+              pushAuthKey: ''
+            }
+            return client.devices()
+              .then(
+                function (devices) {
+                  assert.equal(devices.length, 0, 'devices returned no items')
+                  return client.updateDevice(deviceInfo)
+                }
+              )
+              .then(
+                function (device) {
+                  assert.ok(device.id, 'device.id was set')
+                  assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
+                }
+              )
+              .catch(
+                function (err) {
+                  assert.fail(err, 'request should have worked')
+                }
+              )
+          })
+    }
+  )
+
+  it(
+    'update device works with dev servers',
+    () => {
+      var goodPushCallback = 'https://updates-autopush.dev.mozaws.net'
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            var deviceInfo = {
+              name: 'test device',
+              type: 'mobile',
+              pushCallback: goodPushCallback,
+              pushPublicKey: '',
+              pushAuthKey: ''
+            }
+            return client.devices()
+              .then(
+                function (devices) {
+                  assert.equal(devices.length, 0, 'devices returned no items')
+                  return client.updateDevice(deviceInfo)
+                }
+              )
+              .then(
+                function (device) {
+                  assert.ok(device.id, 'device.id was set')
+                  assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
+                }
+              )
+              .catch(
+                function (err) {
+                  assert.fail(err, 'request should have worked')
+                }
+              )
+          })
+    }
+  )
+
+  it(
+    'update device fails with bad dev callbackUrl',
+    () => {
+      var badPushCallback = 'https://evil.mozaws.net'
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      var deviceInfo = {
+        id: crypto.randomBytes(16).toString('hex'),
+        name: 'test device',
+        type: 'desktop',
+        pushCallback: badPushCallback,
+        pushPublicKey: mocks.MOCK_PUSH_KEY,
+        pushAuthKey: base64url(crypto.randomBytes(16))
+      }
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            return client.updateDevice(deviceInfo)
+              .then(
+                function (r) {
+                  assert(false, 'request should have failed')
+                }
+              )
+              .catch(
+                function (err) {
+                  assert.equal(err.code, 400, 'err.code was 400')
+                  assert.equal(err.errno, 107, 'err.errno was 107, invalid parameter')
+                  assert.equal(err.validation.keys[0], 'pushCallback', 'bad pushCallback caught in validation')
+                }
+              )
+          })
     }
   )
 
@@ -293,8 +449,8 @@ describe('remote device', function() {
       var deviceInfo = {
         name: 'test device',
         type: 'desktop',
-        pushCallback: 'https://foo/bar',
-        pushPublicKey: base64url(Buffer.concat([new Buffer('\x04'), crypto.randomBytes(64)])),
+        pushCallback: 'https://updates.push.services.mozilla.com/qux',
+        pushPublicKey: mocks.MOCK_PUSH_KEY,
         pushAuthKey: base64url(crypto.randomBytes(16))
       }
       return Client.create(config.publicUrl, email, password)
@@ -311,22 +467,29 @@ describe('remote device', function() {
                 assert.equal(devices[0].pushCallback, deviceInfo.pushCallback, 'devices returned correct pushCallback')
                 assert.equal(devices[0].pushPublicKey, deviceInfo.pushPublicKey, 'devices returned correct pushPublicKey')
                 assert.equal(devices[0].pushAuthKey, deviceInfo.pushAuthKey, 'devices returned correct pushAuthKey')
+                assert.equal(devices[0].pushEndpointExpired, false, 'devices returned correct pushEndpointExpired')
                 return client.updateDevice({
                   id: client.device.id,
-                  pushCallback: 'https://bar/foo'
+                  pushCallback: 'https://updates.push.services.mozilla.com/foo'
                 })
               }
             )
             .then(
-              function () {
+              function (device) {
+                assert.equal(device.id, client.device.id)
+                assert.equal(device.name, deviceInfo.name)
+                assert.equal(device.pushCallback, 'https://updates.push.services.mozilla.com/foo')
+                assert.equal(device.pushPublicKey, '')
+                assert.equal(device.pushAuthKey, '')
                 return client.devices()
               }
             )
             .then(
               function (devices) {
-                assert.equal(devices[0].pushCallback, 'https://bar/foo', 'devices returned correct pushCallback')
+                assert.equal(devices[0].pushCallback, 'https://updates.push.services.mozilla.com/foo', 'devices returned correct pushCallback')
                 assert.equal(devices[0].pushPublicKey, '', 'devices returned newly empty pushPublicKey')
                 assert.equal(devices[0].pushAuthKey, '', 'devices returned newly empty pushAuthKey')
+                assert.equal(devices[0].pushEndpointExpired, false, 'devices returned false pushEndpointExpired')
               }
             )
         }
@@ -335,103 +498,98 @@ describe('remote device', function() {
   )
 
   it(
-    // Regression test for https://github.com/mozilla/fxa-auth-server/issues/1197
-    'devices list, sessionToken.lastAccessTime === 0 (regression test for #1197)',
+    'invalid public keys are cleanly rejected',
     () => {
       var email = server.uniqueEmail()
       var password = 'test password'
+      var invalidPublicKey = Buffer.alloc(65)
+      invalidPublicKey.fill('\0')
       var deviceInfo = {
         name: 'test device',
-        type: 'mobile'
+        type: 'desktop',
+        pushCallback: 'https://updates.push.services.mozilla.com/qux',
+        pushPublicKey: base64url(invalidPublicKey),
+        pushAuthKey: base64url(crypto.randomBytes(16))
       }
-      return Client.create(config.publicUrl, email, password, {
-        createdAt: '0'
-      })
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
       .then(
         function (client) {
           return client.updateDevice(deviceInfo)
             .then(
               function () {
-                return client.devices()
+                assert(false, 'request should have failed')
+              },
+              function (err) {
+                assert.equal(err.code, 400, 'err.code was 400')
+                assert.equal(err.errno, 107, 'err.errno was 107')
               }
             )
-            .then(
-              function (devices) {
-                assert.equal(devices.length, 1, 'devices returned one item')
-                assert.strictEqual(devices[0].lastAccessTime, 0, 'devices returned correct lastAccessTime')
-                assert.strictEqual(devices[0].lastAccessTimeFormatted, '',
-                  'devices returned empty lastAccessTimeFormatted because lastAccesstime is 0')
-                assert.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
-                assert.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
-                return client.destroyDevice(devices[0].id)
-              }
-            )
-        }
-      )
-    }
-  )
-
-  it(
-    'devices list, sessionToken.lastAccessTime === -1',
-    () => {
-      var email = server.uniqueEmail()
-      var password = 'test password'
-      return Client.create(config.publicUrl, email, password, {
-        createdAt: '-1'
-      })
-      .then(
-        () => assert(false),
-        err => {
-          assert.equal(err.code, 400)
-        }
-      )
-
-    }
-  )
-
-  it(
-    'devices list, sessionToken.lastAccessTime === THE FUTURE',
-    () => {
-      var email = server.uniqueEmail()
-      var password = 'test password'
-      var deviceInfo = {
-        name: 'test device',
-        type: 'mobile'
-      }
-      var theFuture = Date.now() + 10000
-      return Client.create(config.publicUrl, email, password, {
-        createdAt: '' + theFuture
-      })
-      .then(
-        function (client) {
-          return client.updateDevice(deviceInfo)
+            // A rather strange nodejs bug means that invalid push keys
+            // can cause a subsequent /certificate/sign to fail.
+            // Test that we've successfully mitigated that bug.
             .then(
               function () {
-                return client.devices()
+                var publicKey = {
+                  'algorithm': 'RS',
+                  'n': '4759385967235610503571494339196749614544606692567785' +
+                       '7909539347682027142806529730913413168629935827890798' +
+                       '72007974809511698859885077002492642203267408776123',
+                  'e': '65537'
+                }
+                return client.sign(publicKey, 1000 * 60 * 5)
               }
             )
             .then(
-              function (devices) {
-                assert.equal(devices.length, 1, 'devices returned one item')
-                assert.ok(devices[0].lastAccessTime > 0, 'devices returned correct lastAccessTime')
-                assert.ok(devices[0].lastAccessTime < theFuture, 'devices returned correct lastAccessTime')
-                assert.strictEqual(devices[0].lastAccessTimeFormatted, 'a few seconds ago',
-                  'devices returned correct lastAccessTimeFormatted')
-                assert.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
-                assert.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
-                return client.destroyDevice(devices[0].id)
+              function (cert) {
+                assert.equal(typeof(cert), 'string', 'cert was successfully signed')
               }
             )
         }
       )
+    }
+  )
+
+  it(
+    'device updates can correctly handle upgrades from placeholder record',
+    () => {
+      const email = server.uniqueEmail()
+      const password = 'test password'
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+        .then((client) => {
+          const deviceInfo = {
+            name: 'test device'
+          }
+          // Sign a certificate to generate a placeholder device record.
+          const publicKey = {
+            'algorithm': 'RS',
+            'n': '4759385967235610503571494339196749614544606692567785' +
+                 '7909539347682027142806529730913413168629935827890798' +
+                 '72007974809511698859885077002492642203267408776123',
+            'e': '65537'
+          }
+          return client.sign(publicKey, 1000 * 60 * 5, undefined, { service: 'sync' })
+            .then(() => {
+              return client.devices()
+            })
+            .then((devices) => {
+              assert.equal(devices.length, 1, 'devices returned 1 item')
+              assert.equal(devices[0].name, '', 'placeholder device record had no name')
+              assert.equal(devices[0].type, 'desktop', 'placeholder device record type defaults to desktop')
+
+              // Now attempt to update the name on the placeholder record.
+              deviceInfo.id = devices[0].id
+              return client.updateDevice(deviceInfo)
+            })
+            .then((device) => {
+              assert.equal(device.id, deviceInfo.id, 'device.id was set correctly')
+              assert.equal(device.name, deviceInfo.name, 'device name was updated correctly')
+              assert.equal(device.type, 'desktop', 'device type still defaults to desktop')
+            })
+        })
     }
   )
 
   after(() => {
-    delete process.env.LASTACCESSTIME_UPDATES_ENABLED
-    delete process.env.LASTACCESSTIME_UPDATES_EMAIL_ADDRESSES
-    delete process.env.LASTACCESSTIME_UPDATES_SAMPLE_RATE
-
     return TestServer.stop(server)
   })
 })

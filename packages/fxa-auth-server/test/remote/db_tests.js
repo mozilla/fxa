@@ -5,52 +5,51 @@
 'use strict'
 
 const assert = require('insist')
-var uuid = require('uuid')
-var crypto = require('crypto')
-var base64url = require('base64url')
-var log = { trace() {}, info() {} }
+const base64url = require('base64url')
+const config = require('../../config').getProperties()
+const crypto = require('crypto')
+const P = require('../../lib/promise')
+const sinon = require('sinon')
+const TestServer = require('../test_server')
+const UnblockCode = require('../../lib/crypto/base32')(config.signinUnblock.codeLength)
+const uuid = require('uuid')
 
-var config = require('../../config').getProperties()
-var P = require('../../lib/promise')
-var UnblockCode = require('../../lib/crypto/base32')(config.signinUnblock.codeLength)
-var TestServer = require('../test_server')
+const log = { trace () {}, info () {}, error () {} }
+
 const lastAccessTimeUpdates = {
   enabled: true,
-  enabledEmailAddresses: /.*/,
   sampleRate: 1
 }
 const Token = require('../../lib/tokens')(log, {
-  lastAccessTimeUpdates: lastAccessTimeUpdates
+  lastAccessTimeUpdates: lastAccessTimeUpdates,
+  tokenLifetimes: {
+    sessionTokenWithoutDevice: 2419200000
+  }
 })
-const DB = require('../../lib/db')(
-  { lastAccessTimeUpdates: lastAccessTimeUpdates },
-  log,
-  Token.error,
-  Token.SessionToken,
-  Token.KeyFetchToken,
-  Token.AccountResetToken,
-  Token.PasswordForgotToken,
-  Token.PasswordChangeToken,
-  UnblockCode
-)
 
-var TOKEN_FRESHNESS_THRESHOLD = require('../../lib/tokens/session_token').TOKEN_FRESHNESS_THRESHOLD
-
-var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex')
-var zeroBuffer32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
-
-var ACCOUNT = {
-  uid: uuid.v4('binary'),
-  email: 'foo@bar.com',
-  emailCode: zeroBuffer16,
-  emailVerified: false,
-  verifierVersion: 1,
-  verifyHash: zeroBuffer32,
-  authSalt: zeroBuffer32,
-  kA: zeroBuffer32,
-  wrapWrapKb: zeroBuffer32,
-  tokenVerificationId: zeroBuffer16
+const tokenPruning = {
+  enabled: true,
+  maxAge: 1000 * 60 * 60
 }
+const DB = require('../../lib/db')({
+  lastAccessTimeUpdates,
+  signinCodeSize: config.signinCodeSize,
+  redis: Object.assign({}, config.redis, { enabled: true }),
+  tokenLifetimes: {},
+  tokenPruning
+}, log, Token, UnblockCode)
+
+const redis = require('redis').createClient({
+  host: config.redis.host,
+  port: config.redis.port,
+  prefix: config.redis.sessionsKeyPrefix,
+  enable_offline_queue: false
+})
+
+const zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex').toString('hex')
+const zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex')
+
+let account, secondEmail
 
 describe('remote db', function() {
   this.timeout(20000)
@@ -63,11 +62,40 @@ describe('remote db', function() {
       })
       .then(x => {
         db = x
-        return db.createAccount(ACCOUNT)
       })
+  })
+
+  beforeEach(() => {
+    account = {
+      uid: uuid.v4('binary').toString('hex'),
+      email: dbServer.uniqueEmail(),
+      emailCode: zeroBuffer16,
+      emailVerified: false,
+      verifierVersion: 1,
+      verifyHash: zeroBuffer32,
+      authSalt: zeroBuffer32,
+      kA: zeroBuffer32,
+      wrapWrapKb: zeroBuffer32,
+      tokenVerificationId: zeroBuffer16
+    }
+
+    return db.createAccount(account)
       .then((account) => {
-        assert.deepEqual(account.uid, ACCOUNT.uid, 'account.uid is the same as the input ACCOUNT.uid')
+        assert.deepEqual(account.uid, account.uid, 'account.uid is the same as the input account.uid')
+
+        secondEmail = dbServer.uniqueEmail()
+        const emailData = {
+          email: secondEmail,
+          emailCode: crypto.randomBytes(16).toString('hex'),
+          normalizedEmail: secondEmail.toLowerCase(),
+          isVerified: true,
+          isPrimary: false,
+          uid: account.uid
+        }
+        return db.createEmail(account.uid, emailData)
       })
+      // Ensure redis is empty for the uid
+      .then(() => redis.delAsync(account.uid))
   })
 
   it(
@@ -80,23 +108,23 @@ describe('remote db', function() {
   it(
     'account creation',
     () => {
-      return db.accountExists(ACCOUNT.email)
+      return db.accountExists(account.email)
         .then(function(exists) {
           assert.ok(exists, 'account exists for this email address')
         })
         .then(function() {
-          return db.account(ACCOUNT.uid)
+          return db.account(account.uid)
         })
         .then(function(account) {
-          assert.deepEqual(account.uid, ACCOUNT.uid, 'uid')
-          assert.equal(account.email, ACCOUNT.email, 'email')
-          assert.deepEqual(account.emailCode, ACCOUNT.emailCode, 'emailCode')
-          assert.equal(account.emailVerified, ACCOUNT.emailVerified, 'emailVerified')
-          assert.deepEqual(account.kA, ACCOUNT.kA, 'kA')
-          assert.deepEqual(account.wrapWrapKb, ACCOUNT.wrapWrapKb, 'wrapWrapKb')
-          assert(!account.verifyHash, 'verifyHash')
-          assert.deepEqual(account.authSalt, ACCOUNT.authSalt, 'authSalt')
-          assert.equal(account.verifierVersion, ACCOUNT.verifierVersion, 'verifierVersion')
+          assert.deepEqual(account.uid, account.uid, 'uid')
+          assert.equal(account.email, account.email, 'email')
+          assert.deepEqual(account.emailCode, account.emailCode, 'emailCode')
+          assert.equal(account.emailVerified, account.emailVerified, 'emailVerified')
+          assert.deepEqual(account.kA, account.kA, 'kA')
+          assert.deepEqual(account.wrapWrapKb, account.wrapWrapKb, 'wrapWrapKb')
+          assert(! account.verifyHash, 'verifyHash')
+          assert.deepEqual(account.authSalt, account.authSalt, 'authSalt')
+          assert.equal(account.verifierVersion, account.verifierVersion, 'verifierVersion')
           assert.ok(account.createdAt, 'createdAt')
         })
     }
@@ -105,262 +133,483 @@ describe('remote db', function() {
   it(
     'session token handling',
     () => {
-      var tokenId
-      return db.sessions(ACCOUNT.uid)
-        .then(function(sessions) {
+      let tokenId
+
+      // Fetch all sessions for the account
+      return db.sessions(account.uid)
+        .then(sessions => {
           assert.ok(Array.isArray(sessions), 'sessions is array')
           assert.equal(sessions.length, 0, 'sessions is empty')
-          return db.emailRecord(ACCOUNT.email)
+
+          // Fetch the email record
+          return db.emailRecord(account.email)
         })
-        .then(function(emailRecord) {
-          emailRecord.createdAt = Date.now()
-          emailRecord.tokenVerificationId = ACCOUNT.tokenVerificationId
-          return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
+        .then(emailRecord => {
+          emailRecord.createdAt = Date.now() - 1000
+          emailRecord.tokenVerificationId = account.tokenVerificationId
+          emailRecord.uaBrowser = 'Firefox'
+          emailRecord.uaBrowserVersion = '41'
+          emailRecord.uaOS = 'Mac OS X'
+          emailRecord.uaOSVersion = '10.10'
+          emailRecord.uaDeviceType = emailRecord.uaFormFactor = null
+
+          // Create a session token
+          return db.createSessionToken(emailRecord)
         })
-        .then(function(sessionToken) {
-          assert.deepEqual(sessionToken.uid, ACCOUNT.uid)
-          tokenId = sessionToken.tokenId
-          return db.sessions(ACCOUNT.uid)
+        .then(sessionToken => {
+          assert.deepEqual(sessionToken.uid, account.uid)
+          tokenId = sessionToken.id
+
+          // Fetch all sessions for the account
+          return db.sessions(account.uid)
         })
-        .then(function(sessions) {
+        .then(sessions => {
           assert.equal(sessions.length, 1, 'sessions contains one item')
-          assert.equal(Object.keys(sessions[0]).length, 9, 'session has nine properties')
-          assert.ok(Buffer.isBuffer(sessions[0].tokenId), 'tokenId property is buffer')
-          assert.equal(sessions[0].uid.toString('hex'), ACCOUNT.uid.toString('hex'), 'uid property is correct')
-          assert.ok(sessions[0].createdAt >= ACCOUNT.createdAt, 'createdAt property seems correct')
+          assert.equal(Object.keys(sessions[0]).length, 19, 'session has correct number of properties')
+          assert.equal(typeof sessions[0].id, 'string', 'id property is not a buffer')
+          assert.equal(sessions[0].uid, account.uid, 'uid property is correct')
+          assert.ok(sessions[0].createdAt >= account.createdAt, 'createdAt property seems correct')
           assert.equal(sessions[0].uaBrowser, 'Firefox', 'uaBrowser property is correct')
           assert.equal(sessions[0].uaBrowserVersion, '41', 'uaBrowserVersion property is correct')
           assert.equal(sessions[0].uaOS, 'Mac OS X', 'uaOS property is correct')
           assert.equal(sessions[0].uaOSVersion, '10.10', 'uaOSVersion property is correct')
           assert.equal(sessions[0].uaDeviceType, null, 'uaDeviceType property is correct')
+          assert.equal(sessions[0].uaFormFactor, null, 'uaFormFactor property is correct')
           assert.equal(sessions[0].lastAccessTime, sessions[0].createdAt, 'lastAccessTime property is correct')
+          assert.equal(sessions[0].authAt, sessions[0].createdAt, 'authAt property is correct')
+          assert.equal(sessions[0].location, undefined, 'location property is correct')
+
+          // Fetch the session token
           return db.sessionToken(tokenId)
         })
-        .then(function(sessionToken) {
-          assert.deepEqual(sessionToken.tokenId, tokenId, 'token id matches')
+        .then(sessionToken => {
+          assert.equal(sessionToken.id, tokenId, 'token id matches')
           assert.equal(sessionToken.uaBrowser, 'Firefox')
           assert.equal(sessionToken.uaBrowserVersion, '41')
           assert.equal(sessionToken.uaOS, 'Mac OS X')
           assert.equal(sessionToken.uaOSVersion, '10.10')
           assert.equal(sessionToken.uaDeviceType, null)
           assert.equal(sessionToken.lastAccessTime, sessionToken.createdAt)
-          assert.deepEqual(sessionToken.uid, ACCOUNT.uid)
-          assert.equal(sessionToken.email, ACCOUNT.email)
-          assert.deepEqual(sessionToken.emailCode, ACCOUNT.emailCode)
-          assert.equal(sessionToken.emailVerified, ACCOUNT.emailVerified)
-          return sessionToken
+          assert.equal(sessionToken.uid, account.uid)
+          assert.equal(sessionToken.email, account.email)
+          assert.equal(sessionToken.emailCode, account.emailCode)
+          assert.equal(sessionToken.emailVerified, account.emailVerified)
+          assert.equal(sessionToken.lifetime < Infinity, true)
+
+          // Disable session token updates
+          lastAccessTimeUpdates.enabled = false
+
+          // Attempt to update the session token
+          return db.touchSessionToken(sessionToken, {})
         })
-        .then(function(sessionToken) {
-          sessionToken.lastAccessTime -= 59 * 60 * 1000
-          return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
+        .then(result => {
+          assert.equal(result, undefined)
+
+          // Fetch all sessions for the account
+          return db.sessions(account.uid)
         })
-        .then(function() {
+        .then(sessions => {
+          assert.equal(sessions.length, 1, 'sessions contains one item')
+          assert.equal(Object.keys(sessions[0]).length, 19, 'session has correct number of properties')
+          assert.equal(sessions[0].uid, account.uid, 'uid property is correct')
+          assert.equal(sessions[0].lastAccessTime, undefined, 'lastAccessTime not reported if disabled')
+          assert.equal(sessions[0].location, undefined, 'location property is correct')
+
+          // Re-enable session token updates
+          lastAccessTimeUpdates.enabled = true
+
+          // Fetch the session token
           return db.sessionToken(tokenId)
         })
-        .then(function(sessionToken) {
-          assert.equal(sessionToken.lastAccessTime, sessionToken.createdAt, 'session token was not updated')
-          return sessionToken
+        .then(sessionToken => {
+          // Update the session token
+          return db.touchSessionToken(Object.assign({}, sessionToken, {
+            lastAccessTime: Date.now()
+          }), {
+            location: {
+              city: 'Bournemouth',
+              country: 'United Kingdom',
+              countryCode: 'GB',
+              state: 'England',
+              stateCode: 'EN'
+            },
+            timeZone: 'Europe/London'
+          })
         })
-        .then(function(sessionToken) {
-          sessionToken.lastAccessTime -= TOKEN_FRESHNESS_THRESHOLD
-          return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
+        .then(() => {
+          // Fetch all sessions for the account
+          return db.sessions(account.uid)
         })
-        .then(function() {
+        .then(sessions => {
+          assert.equal(sessions.length, 1, 'sessions contains one item')
+          assert.equal(sessions[0].uid, account.uid, 'uid property is correct')
+          assert.ok(sessions[0].lastAccessTime > sessions[0].createdAt, 'lastAccessTime is correct')
+          assert.equal(sessions[0].location.city, 'Bournemouth', 'city is correct')
+          assert.equal(sessions[0].location.country, 'United Kingdom', 'country is correct')
+          assert.equal(sessions[0].location.countryCode, 'GB', 'countryCode is correct')
+          assert.equal(sessions[0].location.state, 'England', 'state is correct')
+          assert.equal(sessions[0].location.stateCode, 'EN', 'stateCode is correct')
+          assert.equal(sessions[0].location.timeZone, undefined, 'timeZone is not set')
+
+          // Fetch the session token
           return db.sessionToken(tokenId)
         })
-        .then(function(sessionToken) {
-          assert.ok(sessionToken.lastAccessTime > sessionToken.createdAt, 'session token was updated')
-          return sessionToken
+        .then(sessionToken => {
+          // Update the session token
+          return db.touchSessionToken(Object.assign({}, sessionToken, {
+            uaBrowser: 'Firefox Mobile',
+            uaBrowserVersion: '42',
+            uaOS: 'Android',
+            uaOSVersion: '4.4',
+            uaDeviceType: 'mobile',
+            uaFormFactor: null
+          }), {})
         })
-        .then(function(sessionToken) {
-          return db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0')
+        .then(() => {
+          // Fetch all sessions for the account
+          return db.sessions(account.uid)
         })
-        .then(function() {
-          return db.sessions(ACCOUNT.uid)
-        })
-        .then(function(sessions) {
+        .then(sessions => {
           assert.equal(sessions.length, 1, 'sessions still contains one item')
           assert.equal(sessions[0].uaBrowser, 'Firefox Mobile', 'uaBrowser property is correct')
-          assert.equal(sessions[0].uaBrowserVersion, '41', 'uaBrowserVersion property is correct')
+          assert.equal(sessions[0].uaBrowserVersion, '42', 'uaBrowserVersion property is correct')
           assert.equal(sessions[0].uaOS, 'Android', 'uaOS property is correct')
           assert.equal(sessions[0].uaOSVersion, '4.4', 'uaOSVersion property is correct')
           assert.equal(sessions[0].uaDeviceType, 'mobile', 'uaDeviceType property is correct')
+          assert.equal(sessions[0].uaFormFactor, null, 'uaFormFactor property is correct')
+          assert.equal(sessions[0].location, null, 'location property is correct')
+        })
+        .then(() => {
+          // Fetch the session token
           return db.sessionToken(tokenId)
         })
-        .then(function(sessionToken) {
-          assert.equal(sessionToken.uaBrowser, 'Firefox Mobile')
+        .then(sessionToken => {
+          // this returns previously stored data since sessionToken doesnt read from cache
+          assert.equal(sessionToken.uaBrowser, 'Firefox')
           assert.equal(sessionToken.uaBrowserVersion, '41')
-          assert.equal(sessionToken.uaOS, 'Android')
-          assert.equal(sessionToken.uaOSVersion, '4.4')
-          assert.equal(sessionToken.uaDeviceType, 'mobile')
-          assert.ok(sessionToken.lastAccessTime >= sessionToken.createdAt)
-          assert.ok(sessionToken.lastAccessTime <= Date.now())
-          return sessionToken
+          assert.equal(sessionToken.uaOS, 'Mac OS X')
+          assert.equal(sessionToken.uaOSVersion, '10.10')
+          assert.equal(sessionToken.lastAccessTime, sessionToken.createdAt)
+
+          // Attempt to prune a session token that is younger than maxAge
+          sessionToken.createdAt = Date.now() - tokenPruning.maxAge + 10000
+          return db.pruneSessionTokens(account.uid, [ sessionToken ])
         })
-        .then(function(sessionToken) {
+        .then(() => {
+          // Fetch all sessions for the account
+          return db.sessions(account.uid)
+        })
+        .then(sessions => {
+          assert.equal(sessions.length, 1, 'sessions still contains one item')
+          assert.equal(sessions[0].uaBrowser, 'Firefox Mobile', 'uaBrowser property is correct')
+          assert.equal(sessions[0].uaBrowserVersion, '42', 'uaBrowserVersion property is correct')
+          assert.equal(sessions[0].uaOS, 'Android', 'uaOS property is correct')
+          assert.equal(sessions[0].uaOSVersion, '4.4', 'uaOSVersion property is correct')
+          assert.equal(sessions[0].uaDeviceType, 'mobile', 'uaDeviceType property is correct')
+          assert.equal(sessions[0].uaFormFactor, null, 'uaFormFactor property is correct')
+
+          // Fetch the session token
+          return db.sessionToken(tokenId)
+        })
+        .then(sessionToken => {
+          // Prune a session token that is older than maxAge
+          sessionToken.createdAt = Date.now() - tokenPruning.maxAge - 1
+          return db.pruneSessionTokens(account.uid, [ sessionToken ])
+        })
+        .then(() => {
+          // Fetch all sessions for the account
+          return db.sessions(account.uid)
+        })
+        .then(sessions => {
+          assert.equal(sessions.length, 1, 'sessions still contains one item')
+          assert.equal(sessions[0].uaBrowser, 'Firefox', 'uaBrowser property is the original value')
+          assert.equal(sessions[0].uaBrowserVersion, '41', 'uaBrowserVersion property is the original value')
+          assert.equal(sessions[0].uaOS, 'Mac OS X', 'uaOS property is the original value')
+          assert.equal(sessions[0].uaOSVersion, '10.10', 'uaOSVersion property is the original value')
+          assert.equal(sessions[0].uaDeviceType, null, 'uaDeviceType property is the original value')
+          assert.equal(sessions[0].uaFormFactor, null, 'uaFormFactor property is the original value')
+
+          // Fetch the session token
+          return db.sessionToken(tokenId)
+        })
+        .then(sessionToken => {
+          // Delete the session token
           return db.deleteSessionToken(sessionToken)
         })
-        .then(function() {
-          return db.sessionToken(tokenId)
-          .then(function(sessionToken) {
-            assert(false, 'The above sessionToken() call should fail, since the sessionToken has been deleted')
-          }, function(err) {
-            assert.equal(err.errno, 110, 'sessionToken() fails with the correct error code')
-            var msg = 'Error: The authentication token could not be found'
-            assert.equal(msg, '' + err, 'sessionToken() fails with the correct message')
-          })
+        .then(() => {
+          // Fetch all sessions for the account
+          return db.sessions(account.uid)
         })
+        .then(sessions => {
+          assert.equal(sessions.length, 0, 'sessions is empty')
+
+          // Attempt to delete the deleted session token
+          return db.sessionToken(tokenId)
+            .then(sessionToken => {
+              assert(false, 'db.sessionToken should have failed')
+            }, err => {
+              assert.equal(err.errno, 110, 'sessionToken() fails with the correct error code')
+              var msg = 'Error: The authentication token could not be found'
+              assert.equal(msg, '' + err, 'sessionToken() fails with the correct message')
+            })
+        })
+        .then(() => {
+          // Fetch the email record again
+          return db.emailRecord(account.email)
+        })
+        .then(emailRecord => {
+          emailRecord.createdAt = Date.now() - 1000
+          emailRecord.tokenVerificationId = account.tokenVerificationId
+          emailRecord.uaBrowser = 'Firefox'
+          emailRecord.uaBrowserVersion = '41'
+          emailRecord.uaOS = 'Mac OS X'
+          emailRecord.uaOSVersion = '10.10'
+          emailRecord.uaDeviceType = emailRecord.uaFormFactor = null
+
+          // Create a session token with the same data as the deleted token
+          return db.createSessionToken(emailRecord)
+        })
+        .then(() => {
+          // Fetch all sessions for the account
+          return db.sessions(account.uid)
+        })
+        .then(sessions => {
+          // Make sure that the data got deleted from redis too
+          assert.equal(sessions.length, 1, 'sessions contains one item')
+          assert.equal(sessions[0].lastAccessTime, sessions[0].createdAt, 'lastAccessTime property is correct')
+          assert.equal(sessions[0].location, undefined, 'location property is correct')
+
+          // Delete the session token again
+          return db.deleteSessionToken(sessions[0])
+        })
+        .then(() => redis.getAsync(account.uid))
+        .then(result => assert.equal(result, null, 'redis was cleared'))
     }
   )
 
   it(
     'device registration',
     () => {
-      var sessionToken
-      var deviceInfo = {
-        id: crypto.randomBytes(16),
+      let sessionToken, anotherSessionToken
+      const deviceInfo = {
+        id: crypto.randomBytes(16).toString('hex'),
         name: '',
         type: 'mobile',
         pushCallback: 'https://foo/bar',
-        pushPublicKey: base64url(Buffer.concat([new Buffer('\x04'), crypto.randomBytes(64)])),
+        pushPublicKey: base64url(Buffer.concat([Buffer.from('\x04'), crypto.randomBytes(64)])),
         pushAuthKey: base64url(crypto.randomBytes(16))
       }
-      return db.emailRecord(ACCOUNT.email)
-          .then(function (emailRecord) {
-            emailRecord.tokenVerificationId = ACCOUNT.tokenVerificationId
-            // Create a session token
-            return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0')
-          })
-          .then(function (result) {
-            sessionToken = result
-            // Attempt to update a non-existent device
-            return db.updateDevice(ACCOUNT.uid, sessionToken.tokenId, deviceInfo)
-              .then(function () {
-                assert(false, 'updating a non-existent device should have failed')
-              }, function (err) {
-                assert.equal(err.errno, 123, 'err.errno === 123')
-              })
-          })
-          .then(function () {
-            // Attempt to delete a non-existent device
-            return db.deleteDevice(ACCOUNT.uid, deviceInfo.id)
-              .then(function () {
-                assert(false, 'deleting a non-existent device should have failed')
-              }, function (err) {
-                assert.equal(err.errno, 123, 'err.errno === 123')
-              })
-          })
-          .then(function () {
-            // Fetch all of the devices for the account
-            return db.devices(ACCOUNT.uid)
-              .catch(function () {
-                assert(false, 'getting devices should not have failed')
-              })
-          })
-          .then(function (devices) {
-            assert.ok(Array.isArray(devices), 'devices is array')
-            assert.equal(devices.length, 0, 'devices array is empty')
-            // Create a device
-            return db.createDevice(ACCOUNT.uid, sessionToken.tokenId, deviceInfo)
-              .catch(function (err) {
-                assert(false, 'adding a new device should not have failed')
-              })
-          })
-          .then(function (device) {
-            assert.ok(Buffer.isBuffer(device.id), 'device.id is set')
-            assert.ok(device.createdAt > 0, 'device.createdAt is set')
-            assert.equal(device.name, deviceInfo.name, 'device.name is correct')
-            assert.equal(device.type, deviceInfo.type, 'device.type is correct')
-            assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
-            assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
-            assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
-            // Attempt to create a device with a duplicate session token
-            return db.createDevice(ACCOUNT.uid, sessionToken.tokenId, deviceInfo)
-              .then(function () {
-                assert(false, 'adding a device with a duplicate session token should have failed')
-              }, function (err) {
-                assert.equal(err.errno, 124, 'err.errno')
-              })
-          })
-          .then(function () {
-            // Fetch all of the devices for the account
-            return db.devices(ACCOUNT.uid)
-          })
-          .then(function (devices) {
-            assert.equal(devices.length, 1, 'devices array contains one item')
+      const conflictingDeviceInfo = {
+        id: crypto.randomBytes(16).toString('hex'),
+        name: 'wibble'
+      }
+
+      return db.emailRecord(account.email)
+        .then((emailRecord) => {
+          emailRecord.tokenVerificationId = account.tokenVerificationId
+          emailRecord.uaBrowser = 'Firefox Mobile'
+          emailRecord.uaBrowserVersion = '41'
+          emailRecord.uaOS = 'Android'
+          emailRecord.uaOSVersion = '4.4'
+          emailRecord.uaDeviceType = 'mobile'
+          emailRecord.uaFormFactor = null
+
+          // Create a session token
+          return db.createSessionToken(emailRecord)
+        })
+        .then((result) => {
+          sessionToken = result
+          // Attempt to update a non-existent device
+          return db.updateDevice(account.uid, sessionToken.id, deviceInfo)
+            .then(() => {
+              assert(false, 'updating a non-existent device should have failed')
+            }, (err) => {
+              assert.equal(err.errno, 123, 'err.errno === 123')
+            })
+        })
+        .then(() => {
+          // Attempt to delete a non-existent device
+          return db.deleteDevice(account.uid, deviceInfo.id)
+            .then(function () {
+              assert(false, 'deleting a non-existent device should have failed')
+            }, function (err) {
+              assert.equal(err.errno, 123, 'err.errno === 123')
+            })
+        })
+        .then(() => {
+          // Fetch all of the devices for the account
+          return db.devices(account.uid)
+            .catch(function () {
+              assert(false, 'getting devices should not have failed')
+            })
+        })
+        .then((devices) => {
+          assert.ok(Array.isArray(devices), 'devices is array')
+          assert.equal(devices.length, 0, 'devices array is empty')
+          // Create a device
+          return db.createDevice(account.uid, sessionToken.id, deviceInfo)
+            .catch((err) => {
+              assert(false, 'adding a new device should not have failed')
+            })
+        })
+        .then((device) => {
+          assert.ok(device.id, 'device.id is set')
+          assert.ok(device.createdAt > 0, 'device.createdAt is set')
+          assert.equal(device.name, deviceInfo.name, 'device.name is correct')
+          assert.equal(device.type, deviceInfo.type, 'device.type is correct')
+          assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
+          assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
+          assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
+          assert.equal(device.pushEndpointExpired, false, 'device.pushEndpointExpired is correct')
+          // Fetch the session token
+          return db.sessionToken(sessionToken.id)
+        })
+        .then(sessionToken => {
+          assert.equal(sessionToken.lifetime, Infinity)
+          // Attempt to create a device with a duplicate session token
+          return db.createDevice(account.uid, sessionToken.id, conflictingDeviceInfo)
+            .then(() => {
+              assert(false, 'adding a device with a duplicate session token should have failed')
+            }, (err) => {
+              assert.equal(err.errno, 124, 'err.errno')
+              assert.equal(err.output.payload.deviceId, deviceInfo.id)
+            })
+        })
+        .then(() => {
+          // Fetch all of the devices for the account
+          return db.devices(account.uid)
+        })
+        .then((devices) => {
+          assert.equal(devices.length, 1, 'devices array contains one item')
+          return devices[0]
+        })
+        .then((device) => {
+          assert.ok(device.id, 'device.id is set')
+          assert.ok(device.lastAccessTime > 0, 'device.lastAccessTime is set')
+          assert.equal(device.name, deviceInfo.name, 'device.name is correct')
+          assert.equal(device.type, deviceInfo.type, 'device.type is correct')
+          assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
+          assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
+          assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
+          assert.equal(device.pushEndpointExpired, false, 'device.pushEndpointExpired is correct')
+          assert.equal(device.uaBrowser, 'Firefox Mobile', 'device.uaBrowser is correct')
+          assert.equal(device.uaBrowserVersion, '41', 'device.uaBrowserVersion is correct')
+          assert.equal(device.uaOS, 'Android', 'device.uaOS is correct')
+          assert.equal(device.uaOSVersion, '4.4', 'device.uaOSVersion is correct')
+          assert.equal(device.uaDeviceType, 'mobile', 'device.uaDeviceType is correct')
+          assert.equal(device.uaFormFactor, null, 'device.uaFormFactor is correct')
+          assert.equal(device.location, undefined, 'device.location was not set')
+          deviceInfo.id = device.id
+          deviceInfo.name = 'wibble'
+          deviceInfo.type = 'desktop'
+          deviceInfo.pushCallback = ''
+          deviceInfo.pushPublicKey = ''
+          deviceInfo.pushAuthKey = ''
+          sessionToken.lastAccessTime = 42
+          sessionToken.uaBrowser = 'Firefox'
+          sessionToken.uaBrowserVersion = '44'
+          sessionToken.uaOS = 'Mac OS X'
+          sessionToken.uaOSVersion = '10.10'
+          sessionToken.uaDeviceType = sessionToken.uaFormFactor = null
+          // Update the device and the session token
+          return P.all([
+            db.updateDevice(account.uid, sessionToken.id, deviceInfo),
+            db.touchSessionToken(sessionToken, {
+              location: {
+                city: 'Mountain View',
+                country: 'United States',
+                countryCode: 'US',
+                state: 'California',
+                stateCode: 'CA'
+              },
+              timeZone: 'America/Los_Angeles'
+            })
+          ])
+        })
+        .then(results => {
+          // Create another session token
+          return db.createSessionToken(sessionToken)
+        })
+        .then(result => {
+          anotherSessionToken = result
+          // Create another device
+          return db.createDevice(account.uid, anotherSessionToken.id, conflictingDeviceInfo)
+        })
+        .then(() => {
+          // Attempt to update a device with a duplicate session token
+          return db.updateDevice(account.uid, anotherSessionToken.id, deviceInfo)
+            .then(() => {
+              assert(false, 'updating a device with a duplicate session token should have failed')
+            }, (err) => {
+              assert.equal(err.errno, 124, 'err.errno')
+              assert.equal(err.output.payload.deviceId, conflictingDeviceInfo.id)
+            })
+        })
+        .then(() => {
+          // Fetch all of the devices for the account
+          return db.devices(account.uid)
+        })
+        .then((devices) => {
+          assert.equal(devices.length, 2, 'devices array contains two items')
+
+          if (devices[0].id === deviceInfo.id) {
             return devices[0]
-          })
-          .then(function (device) {
-            assert.ok(Buffer.isBuffer(device.id), 'device.id is set')
-            assert.ok(device.lastAccessTime > 0, 'device.lastAccessTime is set')
-            assert.equal(device.name, deviceInfo.name, 'device.name is correct')
-            assert.equal(device.type, deviceInfo.type, 'device.type is correct')
-            assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
-            assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
-            assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
-            assert.equal(device.uaBrowser, 'Firefox Mobile', 'device.uaBrowser is correct')
-            assert.equal(device.uaBrowserVersion, '41', 'device.uaBrowserVersion is correct')
-            assert.equal(device.uaOS, 'Android', 'device.uaOS is correct')
-            assert.equal(device.uaOSVersion, '4.4', 'device.uaOSVersion is correct')
-            assert.equal(device.uaDeviceType, 'mobile', 'device.uaDeviceType is correct')
-            deviceInfo.id = device.id
-            deviceInfo.name = 'wibble'
-            deviceInfo.type = 'desktop'
-            deviceInfo.pushCallback = ''
-            deviceInfo.pushPublicKey = ''
-            deviceInfo.pushAuthKey = ''
-            // Update the device and the session token
-            return P.all([
-              db.updateDevice(ACCOUNT.uid, sessionToken.tokenId, deviceInfo),
-              db.updateSessionToken(sessionToken, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:44.0) Gecko/20100101 Firefox/44.0')
-            ])
-              .catch(function (err) {
-                assert(false, 'updating a new device or existing session token should not have failed')
-              })
-          })
-          .then(function (device) {
-            // Fetch all of the devices for the account
-            return db.devices(ACCOUNT.uid)
-          })
-          .then(function (devices) {
-            assert.equal(devices.length, 1, 'devices array contains one item')
-            return devices[0]
-          })
-          .then(function (device) {
-            assert.ok(device.lastAccessTime > 0, 'device.lastAccessTime is set')
-            assert.equal(device.name, deviceInfo.name, 'device.name is correct')
-            assert.equal(device.type, deviceInfo.type, 'device.type is correct')
-            assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
-            assert.equal(device.pushPublicKey, '', 'device.pushPublicKey is correct')
-            assert.equal(device.pushAuthKey, '', 'device.pushAuthKey is correct')
-            assert.equal(device.uaBrowser, 'Firefox', 'device.uaBrowser is correct')
-            assert.equal(device.uaBrowserVersion, '44', 'device.uaBrowserVersion is correct')
-            assert.equal(device.uaOS, 'Mac OS X', 'device.uaOS is correct')
-            assert.equal(device.uaOSVersion, '10.10', 'device.uaOSVersion is correct')
-            assert.equal(device.uaDeviceType, null, 'device.uaDeviceType is correct')
-            // Disable the lastAccessTime property
-            lastAccessTimeUpdates.enabled = false
-            // Fetch all of the devices for the account
-            return db.devices(ACCOUNT.uid)
-          })
-          .then(function(devices) {
-            assert.equal(devices.length, 1, 'devices array still contains one item')
-            assert.equal(devices[0].lastAccessTime, null, 'device.lastAccessTime should be null')
-            // Reinstate the lastAccessTime property
-            lastAccessTimeUpdates.enabled = true
-            // Delete the device
-            return db.deleteDevice(ACCOUNT.uid, deviceInfo.id)
-              .catch(function () {
-                assert(false, 'deleting a device should not have failed')
-              })
-          })
-          .then(function () {
-            // Fetch all of the devices for the account
-            return db.devices(ACCOUNT.uid)
-          })
-          .then(function (devices) {
-            assert.equal(devices.length, 0, 'devices array is empty')
-          })
+          }
+
+          return devices[1]
+        })
+        .then((device) => {
+          assert.equal(device.lastAccessTime, 42, 'device.lastAccessTime is correct')
+          assert.equal(device.name, deviceInfo.name, 'device.name is correct')
+          assert.equal(device.type, deviceInfo.type, 'device.type is correct')
+          assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
+          assert.equal(device.pushPublicKey, '', 'device.pushPublicKey is correct')
+          assert.equal(device.pushAuthKey, '', 'device.pushAuthKey is correct')
+          assert.equal(device.pushEndpointExpired, false, 'device.pushEndpointExpired is correct')
+          assert.equal(device.uaBrowser, 'Firefox', 'device.uaBrowser is correct')
+          assert.equal(device.uaBrowserVersion, '44', 'device.uaBrowserVersion is correct')
+          assert.equal(device.uaOS, 'Mac OS X', 'device.uaOS is correct')
+          assert.equal(device.uaOSVersion, '10.10', 'device.uaOSVersion is correct')
+          assert.equal(device.uaDeviceType, null, 'device.uaDeviceType is correct')
+          assert.equal(device.uaFormFactor, null, 'device.uaFormFactor is correct')
+          assert.equal(device.location.city, 'Mountain View', 'device.location.city is correct')
+          assert.equal(device.location.country, 'United States', 'device.location.country is correct')
+          assert.equal(device.location.countryCode, 'US', 'device.location.countryCode is correct')
+          assert.equal(device.location.state, 'California', 'device.location.state is correct')
+          assert.equal(device.location.stateCode, 'CA', 'device.location.stateCode is correct')
+
+          // Disable session token updates
+          lastAccessTimeUpdates.enabled = false
+          return db.devices(account.uid)
+        })
+        .then((devices) => {
+          assert.equal(devices.length, 2, 'devices array contains two items')
+          assert.equal(devices[0].lastAccessTime, undefined, 'lastAccessTime is not set when feature is disabled')
+          assert.equal(devices[1].lastAccessTime, undefined, 'lastAccessTime is not set when feature is disabled')
+
+          // Re-enable session token updates
+          lastAccessTimeUpdates.enabled = true
+
+          // Delete the devices
+          return db.deleteDevice(account.uid, deviceInfo.id)
+        })
+        // Deleting these serially ensures there's no Redis WATCH conflict for account.uid
+        .then(() => db.deleteDevice(account.uid, conflictingDeviceInfo.id))
+        // Deleting the devices should also have cleared the data from Redis
+        .then(() => redis.getAsync(account.uid))
+        .then(result => {
+          assert.equal(result, null, 'redis was cleared')
+        })
+        .then(function () {
+          // Fetch all of the devices for the account
+          return db.devices(account.uid)
+        })
+        .then(function (devices) {
+          assert.equal(devices.length, 0, 'devices array is empty')
+
+          // Delete the account
+          return db.deleteAccount(account)
+        })
     }
   )
 
@@ -368,25 +617,25 @@ describe('remote db', function() {
     'keyfetch token handling',
     () => {
       var tokenId
-      return db.emailRecord(ACCOUNT.email)
+      return db.emailRecord(account.email)
         .then(function(emailRecord) {
           return db.createKeyFetchToken({
             uid: emailRecord.uid,
             kA: emailRecord.kA,
-            wrapKb: ACCOUNT.wrapWrapKb
+            wrapKb: account.wrapWrapKb
           })
         })
         .then(function(keyFetchToken) {
-          assert.deepEqual(keyFetchToken.uid, ACCOUNT.uid)
-          tokenId = keyFetchToken.tokenId
+          assert.deepEqual(keyFetchToken.uid, account.uid)
+          tokenId = keyFetchToken.id
         })
         .then(function() {
           return db.keyFetchToken(tokenId)
         })
         .then(function(keyFetchToken) {
-          assert.deepEqual(keyFetchToken.tokenId, tokenId, 'token id matches')
-          assert.deepEqual(keyFetchToken.uid, ACCOUNT.uid)
-          assert.equal(keyFetchToken.emailVerified, ACCOUNT.emailVerified)
+          assert.deepEqual(keyFetchToken.id, tokenId, 'token id matches')
+          assert.deepEqual(keyFetchToken.uid, account.uid)
+          assert.equal(keyFetchToken.emailVerified, account.emailVerified)
           return keyFetchToken
         })
         .then(function(keyFetchToken) {
@@ -409,23 +658,27 @@ describe('remote db', function() {
     'reset token handling',
     () => {
       var tokenId
-      return db.emailRecord(ACCOUNT.email)
+      return db.emailRecord(account.email)
         .then(function(emailRecord) {
           return db.createPasswordForgotToken(emailRecord)
         })
         .then(function(passwordForgotToken) {
           return db.forgotPasswordVerified(passwordForgotToken)
+            .then(accountResetToken => {
+              assert.ok(accountResetToken.createdAt > passwordForgotToken.createdAt, 'account reset token should be newer than password forgot token')
+              return accountResetToken
+            })
         })
         .then(function(accountResetToken) {
-          assert.deepEqual(accountResetToken.uid, ACCOUNT.uid, 'account reset token uid should be the same as the account.uid')
-          tokenId = accountResetToken.tokenId
+          assert.deepEqual(accountResetToken.uid, account.uid, 'account reset token uid should be the same as the account.uid')
+          tokenId = accountResetToken.id
         })
         .then(function() {
           return db.accountResetToken(tokenId)
         })
         .then(function(accountResetToken) {
-          assert.deepEqual(accountResetToken.tokenId, tokenId, 'token id matches')
-          assert.deepEqual(accountResetToken.uid, ACCOUNT.uid, 'account reset token uid should still be the same as the account.uid')
+          assert.deepEqual(accountResetToken.id, tokenId, 'token id matches')
+          assert.deepEqual(accountResetToken.uid, account.uid, 'account reset token uid should still be the same as the account.uid')
           return accountResetToken
         })
         .then(function(accountResetToken) {
@@ -449,20 +702,20 @@ describe('remote db', function() {
     () => {
       var token1
       var token1tries = 0
-      return db.emailRecord(ACCOUNT.email)
+      return db.emailRecord(account.email)
         .then(function(emailRecord) {
           return db.createPasswordForgotToken(emailRecord)
         })
         .then(function(passwordForgotToken) {
-          assert.deepEqual(passwordForgotToken.uid, ACCOUNT.uid, 'passwordForgotToken uid same as ACCOUNT.uid')
+          assert.deepEqual(passwordForgotToken.uid, account.uid, 'passwordForgotToken uid same as account.uid')
           token1 = passwordForgotToken
           token1tries = token1.tries
         })
         .then(function() {
-          return db.passwordForgotToken(token1.tokenId)
+          return db.passwordForgotToken(token1.id)
         })
         .then(function(passwordForgotToken) {
-          assert.deepEqual(passwordForgotToken.tokenId, token1.tokenId, 'token id matches')
+          assert.deepEqual(passwordForgotToken.id, token1.id, 'token id matches')
           assert.deepEqual(passwordForgotToken.uid, token1.uid, 'tokens are identical')
           return passwordForgotToken
         })
@@ -471,10 +724,10 @@ describe('remote db', function() {
           return db.updatePasswordForgotToken(passwordForgotToken)
         })
         .then(function() {
-          return db.passwordForgotToken(token1.tokenId)
+          return db.passwordForgotToken(token1.id)
         })
         .then(function(passwordForgotToken) {
-          assert.deepEqual(passwordForgotToken.tokenId, token1.tokenId, 'token id matches again')
+          assert.deepEqual(passwordForgotToken.id, token1.id, 'token id matches again')
           assert.equal(passwordForgotToken.tries, token1tries - 1, '')
           return passwordForgotToken
         })
@@ -482,7 +735,7 @@ describe('remote db', function() {
           return db.deletePasswordForgotToken(passwordForgotToken)
         })
         .then(function() {
-          return db.passwordForgotToken(token1.tokenId)
+          return db.passwordForgotToken(token1.id)
         })
         .then(function(passwordForgotToken) {
           assert(false, 'The above passwordForgotToken() call should fail, since the passwordForgotToken has been deleted')
@@ -497,12 +750,12 @@ describe('remote db', function() {
   it(
     'email verification',
     () => {
-      return db.emailRecord(ACCOUNT.email)
+      return db.emailRecord(account.email)
         .then(function(emailRecord) {
-          return db.verifyEmail(emailRecord)
+          return db.verifyEmail(emailRecord, emailRecord.emailCode)
         })
         .then(function() {
-          return db.account(ACCOUNT.uid)
+          return db.account(account.uid)
         })
         .then(function(account) {
           assert.ok(account.emailVerified, 'account should now be emailVerified')
@@ -514,7 +767,7 @@ describe('remote db', function() {
     'db.forgotPasswordVerified',
     () => {
       var token1
-      return db.emailRecord(ACCOUNT.email)
+      return db.emailRecord(account.email)
         .then(function(emailRecord) {
           return db.createPasswordForgotToken(emailRecord)
         })
@@ -522,14 +775,14 @@ describe('remote db', function() {
           return db.forgotPasswordVerified(passwordForgotToken)
         })
         .then(function(accountResetToken) {
-          assert.deepEqual(accountResetToken.uid, ACCOUNT.uid, 'uid is the same as ACCOUNT.uid')
+          assert.deepEqual(accountResetToken.uid, account.uid, 'uid is the same as account.uid')
           token1 = accountResetToken
         })
         .then(function() {
-          return db.accountResetToken(token1.tokenId)
+          return db.accountResetToken(token1.id)
         })
         .then(function(accountResetToken) {
-          assert.deepEqual(accountResetToken.uid, ACCOUNT.uid)
+          assert.deepEqual(accountResetToken.uid, account.uid)
           return db.deleteAccountResetToken(token1)
         })
     }
@@ -538,20 +791,29 @@ describe('remote db', function() {
   it(
     'db.resetAccount',
     () => {
-      return db.emailRecord(ACCOUNT.email)
+      return db.emailRecord(account.email)
         .then(function(emailRecord) {
-          emailRecord.tokenVerificationId = ACCOUNT.tokenVerificationId
-          return db.createSessionToken(emailRecord, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0')
+          emailRecord.tokenVerificationId = account.tokenVerificationId
+          emailRecord.uaBrowser = 'Firefox'
+          emailRecord.uaBrowserVersion = '41'
+          emailRecord.uaOS = 'Mac OS X'
+          emailRecord.uaOSVersion = '10.10'
+          emailRecord.uaDeviceType = emailRecord.uaFormFactor = null
+          return db.createSessionToken(emailRecord)
         })
         .then(function(sessionToken) {
           return db.forgotPasswordVerified(sessionToken)
         })
         .then(function(accountResetToken) {
-          return db.resetAccount(accountResetToken, ACCOUNT)
+          return db.resetAccount(accountResetToken, account)
         })
-        .then(function() {
+        .then(() => {
+          return redis.getAsync(account.uid)
+        })
+        .then(result => {
+          assert.equal(result, null, 'redis was cleared')
           // account should STILL exist for this email address
-          return db.accountExists(ACCOUNT.email)
+          return db.accountExists(account.email)
         })
         .then(function(exists) {
           assert.equal(exists, true, 'account should still exist')
@@ -565,7 +827,7 @@ describe('remote db', function() {
       return db.securityEvent({
         ipAddr: '127.0.0.1',
         name: 'account.create',
-        uid: ACCOUNT.uid
+        uid: account.uid
       })
       .then(function(resp) {
         assert.equal(typeof resp, 'object')
@@ -574,7 +836,7 @@ describe('remote db', function() {
         return db.securityEvent({
           ipAddr: '127.0.0.1',
           name: 'account.login',
-          uid: ACCOUNT.uid
+          uid: account.uid
         })
       })
       .then(function(resp) {
@@ -587,12 +849,19 @@ describe('remote db', function() {
   it(
     'db.securityEvents',
     () => {
-      return db.securityEvents({
+      return db.securityEvent({
         ipAddr: '127.0.0.1',
-        uid: ACCOUNT.uid
+        name: 'account.create',
+        uid: account.uid
+      })
+      .then(() => {
+        return db.securityEvents({
+          ipAddr: '127.0.0.1',
+          uid: account.uid
+        })
       })
       .then(function (events) {
-        assert.equal(events.length, 2)
+        assert.equal(events.length, 1)
       })
     }
   )
@@ -601,12 +870,12 @@ describe('remote db', function() {
     'unblock code',
     () => {
       var unblockCode
-      return db.createUnblockCode(ACCOUNT.uid)
+      return db.createUnblockCode(account.uid)
         .then(function(_unblockCode) {
           assert.ok(_unblockCode)
           unblockCode = _unblockCode
 
-          return db.consumeUnblockCode(ACCOUNT.uid, 'NOTREAL')
+          return db.consumeUnblockCode(account.uid, 'NOTREAL')
         })
         .then(
           function () {
@@ -620,13 +889,13 @@ describe('remote db', function() {
         )
         .then(
           function() {
-            return db.consumeUnblockCode(ACCOUNT.uid, unblockCode)
+            return db.consumeUnblockCode(account.uid, unblockCode)
           }
         )
         .then(
           function() {
             // re-use unblock code, no longer valid
-            return db.consumeUnblockCode(ACCOUNT.uid, unblockCode)
+            return db.consumeUnblockCode(account.uid, unblockCode)
           }, function (err) {
             assert(false, 'consumeUnblockCode() with a valid unblock code should succeed')
           }
@@ -644,23 +913,128 @@ describe('remote db', function() {
     }
   )
 
+  it('signinCodes', () => {
+    let previousCode
+    const flowId = crypto.randomBytes(32).toString('hex')
+
+    // Create a signinCode without a flowId
+    return db.createSigninCode(account.uid)
+      .then(code => {
+        assert.equal(typeof code, 'string', 'db.createSigninCode should return a string')
+        assert.equal(Buffer.from(code, 'hex').length, config.signinCodeSize, 'db.createSigninCode should return the correct size code')
+
+        previousCode = code
+
+        // Stub crypto.randomBytes to return a duplicate code
+        sinon.stub(crypto, 'randomBytes', (size, callback) => {
+          // Reinstate the real crypto.randomBytes after we've returned a duplicate
+          crypto.randomBytes.restore()
+
+          if (! callback) {
+            return previousCode
+          }
+
+          callback(null, previousCode)
+        })
+
+        // Create a signinCode with crypto.randomBytes rigged to return a duplicate,
+        // and this time specifying a flowId
+        return db.createSigninCode(account.uid, flowId)
+      })
+      .then(code => {
+        assert.equal(typeof code, 'string', 'db.createSigninCode should return a string')
+        assert.notEqual(code, previousCode, 'db.createSigninCode should not return a duplicate code')
+        assert.equal(Buffer.from(code, 'hex').length, config.signinCodeSize, 'db.createSigninCode should return the correct size code')
+
+        // Consume both signinCodes
+        return P.all([
+          db.consumeSigninCode(previousCode),
+          db.consumeSigninCode(code)
+        ])
+      })
+      .then(results => {
+        assert.equal(results[0].email, account.email, 'db.consumeSigninCode should return the email address')
+        assert.equal(results[1].email, account.email, 'db.consumeSigninCode should return the email address')
+        if (results[1].flowId) {
+          // This assertion is conditional so that tests pass regardless of db version
+          assert.equal(results[1].flowId, flowId, 'db.consumeSigninCode should return the flowId')
+        }
+
+        // Attempt to consume a consumed signinCode
+        return db.consumeSigninCode(previousCode)
+          .then(() => assert.fail('db.consumeSigninCode should have failed'))
+          .catch(err => {
+            assert.equal(err.errno, 146, 'db.consumeSigninCode should fail with errno 146')
+            assert.equal(err.message, 'Invalid signin code', 'db.consumeSigninCode should fail with message "Invalid signin code"')
+            assert.equal(err.output.statusCode, 400, 'db.consumeSigninCode should fail with status 400')
+          })
+      })
+  })
+
   it(
     'account deletion',
     () => {
-      return db.emailRecord(ACCOUNT.email)
+      return db.emailRecord(account.email)
         .then(function(emailRecord) {
-          assert.deepEqual(emailRecord.uid, ACCOUNT.uid, 'retrieving uid should be the same')
+          assert.deepEqual(emailRecord.uid, account.uid, 'retrieving uid should be the same')
           return db.deleteAccount(emailRecord)
         })
-        .then(function() {
+        .then(() => {
+          return redis.getAsync(account.uid)
+        })
+        .then(result => {
+          assert.equal(result, null, 'redis was cleared')
           // account should no longer exist for this email address
-          return db.accountExists(ACCOUNT.email)
+          return db.accountExists(account.email)
         })
         .then(function(exists) {
           assert.equal(exists, false, 'account should no longer exist')
         })
     }
   )
+
+  describe('account record', () => {
+    it('can retrieve account from account email', () => {
+      return P.all([db.emailRecord(account.email), db.accountRecord(account.email)])
+        .spread(function (emailRecord, accountRecord) {
+          assert.equal(emailRecord.email, accountRecord.email, 'original account and email records should be equal')
+          assert.deepEqual(emailRecord.emails, accountRecord.emails, 'emails should be equal')
+          assert.deepEqual(emailRecord.primaryEmail, accountRecord.primaryEmail, 'primary emails should be equal')
+        })
+    })
+
+    it('can retrieve account from secondary email', () => {
+      return P.all([db.accountRecord(account.email), db.accountRecord(secondEmail)])
+        .spread(function (accountRecord, accountRecordFromSecondEmail) {
+          assert.equal(accountRecordFromSecondEmail.email, accountRecord.email, 'original account and email records should be equal')
+          assert.deepEqual(accountRecordFromSecondEmail.emails, accountRecord.emails, 'emails should be equal')
+          assert.deepEqual(accountRecordFromSecondEmail.primaryEmail, accountRecord.primaryEmail, 'primary emails should be equal')
+        })
+    })
+
+    it('returns unknown account', () => {
+      return db.accountRecord('idontexist@email.com')
+        .then(function () {
+          assert.fail('should not have retrieved non-existent account')
+        })
+        .catch((err) => {
+          assert.equal(err.errno, 102, 'unknown account error code')
+        })
+    })
+  })
+
+  describe('set primary email', () => {
+    it('can set primary email address', () => {
+      return db.setPrimaryEmail(account.uid, secondEmail)
+        .then(function (res) {
+          assert.ok(res, 'ok response')
+          return db.accountRecord(secondEmail)
+        })
+        .then(function (accountRecord) {
+          assert.equal(accountRecord.primaryEmail.email, secondEmail, 'primary email set')
+        })
+    })
+  })
 
   after(() => {
     return TestServer.stop(dbServer)

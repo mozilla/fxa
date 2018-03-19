@@ -18,6 +18,8 @@ describe('remote password forgot', function() {
   this.timeout(15000)
   let server
   before(() => {
+    config.securityHistory.ipProfiling.allowedRecency = 0
+    config.signinConfirmation.skipForNewAccounts.enabled = true
     return TestServer.start(config)
       .then(s => {
         server = s
@@ -61,6 +63,7 @@ describe('remote password forgot', function() {
             assert.equal(emailData.html.indexOf('IP address') > -1, true, 'contains ip location data')
             assert.equal(emailData.headers['x-flow-begin-time'], opts.metricsContext.flowBeginTime, 'flow begin time set')
             assert.equal(emailData.headers['x-flow-id'], opts.metricsContext.flowId, 'flow id set')
+            assert.equal(emailData.headers['x-template-name'], 'recoveryEmail', 'correct template set')
             return emailData.headers['x-recovery-code']
           }
         )
@@ -83,30 +86,27 @@ describe('remote password forgot', function() {
 
             assert.equal(emailData.headers['x-flow-begin-time'], opts.metricsContext.flowBeginTime, 'flow begin time set')
             assert.equal(emailData.headers['x-flow-id'], opts.metricsContext.flowId, 'flow id set')
+            assert.equal(emailData.headers['x-template-name'], 'passwordResetEmail', 'correct template set')
+          }
+        )
+        .then( // make sure we can still login after password reset
+          function () {
+            return Client.login(config.publicUrl, email, newPassword, {keys:true})
           }
         )
         .then(
-          function () {
+          function (x) {
+            client = x
             return client.keys()
           }
         )
         .then(
           function (keys) {
-            assert.ok(Buffer.isBuffer(keys.wrapKb), 'yep, wrapKb')
-            assert.notDeepEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
-            assert.deepEqual(kA, keys.kA, 'kA was not reset')
-            assert.equal(client.kB.length, 32, 'kB exists, has the right length')
-          }
-        )
-        .then( // make sure we can still login after password reset
-          function () {
-            return Client.login(config.publicUrl, email, newPassword)
-          }
-        )
-        .then(
-          function () {
-            // clear new-login notification email
-            return server.mailbox.waitForEmail(email)
+            assert.equal(typeof keys.wrapKb, 'string', 'yep, wrapKb')
+            assert.notEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
+            assert.equal(kA, keys.kA, 'kA was not reset')
+            assert.equal(typeof client.kB, 'string')
+            assert.equal(client.kB.length, 64, 'kB exists, has the right length')
           }
         )
     }
@@ -388,8 +388,8 @@ describe('remote password forgot', function() {
             return client.updateDevice({
               name: 'baz',
               type: 'mobile',
-              pushCallback: 'https://example.com/qux',
-              pushPublicKey: base64url(Buffer.concat([new Buffer('\x04'), crypto.randomBytes(64)])),
+              pushCallback: 'https://updates.push.services.mozilla.com/qux',
+              pushPublicKey: mocks.MOCK_PUSH_KEY,
               pushAuthKey: base64url(crypto.randomBytes(16))
             })
           }

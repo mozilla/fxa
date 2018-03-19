@@ -45,7 +45,7 @@ module.exports = config => {
     }
     // We do a shallow clone to avoid tainting the caller's copy of `headers`.
     headers = JSON.parse(JSON.stringify(headers))
-    if (token && !headers.Authorization) {
+    if (token && ! headers.Authorization) {
       headers.Authorization = hawkHeader(token, method, url, payload, this.timeOffset)
     }
     var options = {
@@ -101,8 +101,7 @@ module.exports = config => {
    *   {}
    *
    */
-  ClientApi.prototype.accountCreate = function (email, authPW, options) {
-    options = options || {}
+  ClientApi.prototype.accountCreate = function (email, authPW, options = {}) {
 
     var url = this.baseURL + '/account/create' + getQueryString(options)
     return this.doRequest(
@@ -116,7 +115,6 @@ module.exports = config => {
         service: options.service || undefined,
         redirectTo: options.redirectTo || undefined,
         resume: options.resume || undefined,
-        preVerifyToken: options.preVerifyToken || undefined,
         device: options.device || undefined,
         metricsContext: options.metricsContext || undefined
       },
@@ -126,26 +124,28 @@ module.exports = config => {
     )
   }
 
-  ClientApi.prototype.accountLogin = function (email, authPW, opts) {
-    if (!opts) {
-      opts = { keys: true }
+  ClientApi.prototype.accountLogin = function (email, authPW, options) {
+    if (! options) {
+      options = { keys: true }
     }
 
     return this.doRequest(
       'POST',
-      this.baseURL + '/account/login' + getQueryString(opts),
+      this.baseURL + '/account/login' + getQueryString(options),
       null,
       {
         email: email,
         authPW: authPW.toString('hex'),
-        service: opts.service || undefined,
-        resume: opts.resume || undefined,
-        reason: opts.reason || undefined,
-        device: opts.device || undefined,
-        metricsContext: opts.metricsContext || undefined
+        service: options.service || undefined,
+        resume: options.resume || undefined,
+        reason: options.reason || undefined,
+        device: options.device || undefined,
+        metricsContext: options.metricsContext || undefined,
+        originalLoginEmail: options.originalLoginEmail || undefined,
+        verificationMethod: options.verificationMethod || undefined
       },
       {
-        'accept-language': opts.lang
+        'accept-language': options.lang
       }
     )
   }
@@ -248,8 +248,7 @@ module.exports = config => {
     }
   }
 
-  ClientApi.prototype.accountReset = function (accountResetTokenHex, authPW, headers, options) {
-    options = options || {}
+  ClientApi.prototype.accountReset = function (accountResetTokenHex, authPW, headers, options = {}) {
     var qs = getQueryString(options)
 
     // Default behavior is to request sessionToken
@@ -299,8 +298,7 @@ module.exports = config => {
       )
   }
 
-  ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex, options) {
-    options = options || {}
+  ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex, options = {}) {
 
     return tokens.SessionToken.fromHex(sessionTokenHex)
       .then(
@@ -312,15 +310,16 @@ module.exports = config => {
             {
               service: options.service || undefined,
               redirectTo: options.redirectTo || undefined,
-              resume: options.resume || undefined
+              resume: options.resume || undefined,
+              email: options.email || undefined,
+              type: options.type || undefined
             }
           )
         }.bind(this)
       )
   }
 
-  ClientApi.prototype.recoveryEmailVerifyCode = function (uid, code, options) {
-    options = options || {}
+  ClientApi.prototype.recoveryEmailVerifyCode = function (uid, code, options = {}) {
     return this.doRequest(
       'POST',
       this.baseURL + '/recovery_email/verify_code',
@@ -328,7 +327,9 @@ module.exports = config => {
       {
         uid: uid,
         code: code,
-        service: options.service || undefined
+        service: options.service || undefined,
+        type: options.type || undefined,
+        verifiedEmail: options.verifiedEmail || undefined,
       },
       {
         'accept-language': options.lang
@@ -336,14 +337,17 @@ module.exports = config => {
     )
   }
 
-  ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, duration, locale, options) {
-    options = options || {}
+  ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, duration, locale, options = {}) {
     return tokens.SessionToken.fromHex(sessionTokenHex)
       .then(
         function (token) {
+          let url = this.baseURL + '/certificate/sign'
+          if (options.service) {
+            url += '?service=' + options.service
+          }
           return this.doRequest(
             'POST',
-            this.baseURL + '/certificate/sign',
+            url,
             token,
             {
               publicKey: publicKey,
@@ -405,8 +409,7 @@ module.exports = config => {
   }
 
 
-  ClientApi.prototype.passwordForgotSendCode = function (email, options, lang) {
-    options = options || {}
+  ClientApi.prototype.passwordForgotSendCode = function (email, options = {}, lang) {
     var headers = {}
     if (lang) {
       headers = {
@@ -428,8 +431,7 @@ module.exports = config => {
     )
   }
 
-  ClientApi.prototype.passwordForgotResendCode = function (passwordForgotTokenHex, email, options) {
-    options = options || {}
+  ClientApi.prototype.passwordForgotResendCode = function (passwordForgotTokenHex, email, options = {}) {
     return tokens.PasswordForgotToken.fromHex(passwordForgotTokenHex)
       .then(
         function (token) {
@@ -449,7 +451,7 @@ module.exports = config => {
   }
 
   ClientApi.prototype.passwordForgotVerifyCode = function (passwordForgotTokenHex, code, headers, options) {
-    if (!options) {
+    if (! options) {
       options = {}
     }
 
@@ -495,8 +497,7 @@ module.exports = config => {
     )
   }
 
-  ClientApi.prototype.accountUnlockResendCode = function (email, options, lang) {
-    options = options || {}
+  ClientApi.prototype.accountUnlockResendCode = function (email, options = {}, lang) {
     var headers = {}
     if (lang) {
       headers = {
@@ -529,13 +530,70 @@ module.exports = config => {
     )
   }
 
-  ClientApi.prototype.sessionDestroy = function (sessionTokenHex) {
+  ClientApi.prototype.sessionDestroy = function (sessionTokenHex, options) {
+    var data = null
+
+    if (options && options.customSessionToken) {
+      data = {
+        customSessionToken: options.customSessionToken
+      }
+    }
+
     return tokens.SessionToken.fromHex(sessionTokenHex)
       .then(
         function (token) {
           return this.doRequest(
             'POST',
             this.baseURL + '/session/destroy',
+            token,
+            data
+          )
+        }.bind(this)
+      )
+  }
+
+  ClientApi.prototype.sessionReauth = function (sessionTokenHex, email, authPW, options = {}) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then(
+        function (token) {
+          return this.doRequest(
+            'POST',
+            this.baseURL + '/session/reauth' + getQueryString(options),
+            token,
+            {
+              email: email,
+              authPW: authPW.toString('hex'),
+              service: options.service || undefined,
+              resume: options.resume || undefined,
+              reason: options.reason || undefined,
+              metricsContext: options.metricsContext || undefined
+            }
+          )
+        }.bind(this)
+      )
+  }
+
+  ClientApi.prototype.sessionDuplicate = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then(
+        function (token) {
+          return this.doRequest(
+            'POST',
+            this.baseURL + '/session/duplicate',
+            token,
+            {}
+          )
+        }.bind(this)
+      )
+  }
+
+  ClientApi.prototype.sessions = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then(
+        function (token) {
+          return this.doRequest(
+            'GET',
+            this.baseURL + '/account/sessions',
             token
           )
         }.bind(this)
@@ -570,12 +628,182 @@ module.exports = config => {
       )
   }
 
+  ClientApi.prototype.smsSend = function (sessionTokenHex, phoneNumber, messageId, features) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then(token => this.doRequest(
+        'POST',
+        `${this.baseURL}/sms`,
+        token,
+        { phoneNumber, messageId, features }
+      ))
+  }
+
+  ClientApi.prototype.smsStatus = function (sessionTokenHex, country, clientIpAddress) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then(token => this.doRequest(
+        'GET',
+        `${this.baseURL}/sms/status${country ? `?country=${country}` : ''}`,
+        token,
+        null,
+        { 'X-Forwarded-For': clientIpAddress || '8.8.8.8' }
+      ))
+  }
+
+  ClientApi.prototype.accountEmails = function (sessionTokenHex) {
+    var o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null)
+    return o.then(
+      function (token) {
+        return this.doRequest(
+          'GET',
+          this.baseURL + '/recovery_emails',
+          token
+        )
+      }.bind(this)
+    )
+  }
+
+  ClientApi.prototype.createEmail = function (sessionTokenHex, email) {
+    var o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null)
+    return o.then(
+      function (token) {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/recovery_email',
+          token,
+          {
+            email: email
+          }
+        )
+      }.bind(this)
+    )
+  }
+
+  ClientApi.prototype.deleteEmail = function (sessionTokenHex, email) {
+    var o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null)
+    return o.then(
+      function (token) {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/recovery_email/destroy',
+          token,
+          {
+            email: email
+          }
+        )
+      }.bind(this)
+    )
+  }
+
+  ClientApi.prototype.setPrimaryEmail = function (sessionTokenHex, email) {
+    var o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null)
+    return o.then(
+      function (token) {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/recovery_email/set_primary',
+          token,
+          {
+            email: email
+          }
+        )
+      }.bind(this)
+    )
+  }
+
+  ClientApi.prototype.sendUnblockCode = function (email) {
+    return this.doRequest(
+      'POST',
+      this.baseURL + '/account/login/send_unblock_code',
+      null,
+      {
+        email: email
+      }
+    )
+  }
+
+  ClientApi.prototype.consumeSigninCode = function (code, metricsContext) {
+    return this.doRequest(
+      'POST',
+      `${this.baseURL}/signinCodes/consume`,
+      null,
+      { code, metricsContext }
+    )
+  }
+
+  ClientApi.prototype.verifyTokenCode = function (sessionTokenHex, code, options = {}) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/session/verify/token',
+          token,
+          {
+            code: code,
+            uid: options.uid || undefined,
+            metricsContext: options.metricsContext
+          }
+        )
+      })
+  }
+
+  ClientApi.prototype.createTotpToken = function (sessionTokenHex, options = {}) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/totp/create',
+          token,
+          {
+            metricsContext: options.metricsContext
+          }
+        )
+      })
+  }
+
+  ClientApi.prototype.deleteTotpToken = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/totp/destroy',
+          token,
+          {}
+        )
+      })
+  }
+
+  ClientApi.prototype.checkTotpTokenExists = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'GET',
+          this.baseURL + '/totp/exists',
+          token
+        ).bind(this)
+      })
+  }
+
+  ClientApi.prototype.verifyTotpCode = function (sessionTokenHex, code, options = {}) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/session/verify/totp',
+          token,
+          {
+            code: code,
+            metricsContext: options.metricsContext
+          }
+        )
+      })
+  }
+
   ClientApi.heartbeat = function (origin) {
     return (new ClientApi(origin)).doRequest('GET', origin + '/__heartbeat__')
   }
 
   function getQueryString (options) {
-    let qs = []
+    const qs = []
 
     if (options.keys) {
       qs.push('keys=true')

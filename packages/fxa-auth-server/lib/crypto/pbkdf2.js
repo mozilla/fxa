@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 var sjcl = require('sjcl')
 var P = require('../promise')
 
@@ -16,7 +18,7 @@ function derive(input, salt, iterations, len) {
   var saltBits = sjcl.codec.hex.toBits(salt.toString('hex'))
   var result = sjcl.misc.pbkdf2(password, saltBits, iterations, len * 8, sjcl.misc.hmac)
 
-  return P.resolve(Buffer(sjcl.codec.hex.fromBits(result), 'hex'))
+  return P.resolve(Buffer.from(sjcl.codec.hex.fromBits(result), 'hex'))
 }
 
 module.exports.derive = derive

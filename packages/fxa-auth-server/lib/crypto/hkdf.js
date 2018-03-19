@@ -2,17 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 var HKDF = require('hkdf')
 var P = require('../promise')
 
 const NAMESPACE = 'identity.mozilla.com/picl/v1/'
 
 function KWE(name, email) {
-  return Buffer(NAMESPACE + name + ':' + email)
+  return Buffer.from(NAMESPACE + name + ':' + email)
 }
 
 function KW(name) {
-  return Buffer(NAMESPACE + name)
+  return Buffer.from(NAMESPACE + name)
 }
 
 function hkdf(km, info, salt, len) {

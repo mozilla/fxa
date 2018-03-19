@@ -16,7 +16,7 @@ describe('remote concurrect', function() {
   this.timeout(15000)
   let server
   before(() => {
-    process.env.VERIFIER_VERSION = '1'
+    config.verifierVersion = 1
     return TestServer.start(config)
       .then(s => {
         server = s
@@ -41,7 +41,7 @@ describe('remote concurrect', function() {
           // Note that P.all fails fast when one of the requests fails,
           // but we have to wait for *both* to complete before tearing
           // down the test infrastructure.  Bleh.
-          if (!r1.isRejected()) {
+          if (! r1.isRejected()) {
             return r1
           } else {
             return r2
@@ -56,7 +56,6 @@ describe('remote concurrect', function() {
   )
 
   after(() => {
-    delete process.env.VERIFIER_VERSION
     return TestServer.stop(server)
   })
 })

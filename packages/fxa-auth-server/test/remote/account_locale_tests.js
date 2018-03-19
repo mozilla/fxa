@@ -9,6 +9,7 @@ const TestServer = require('../test_server')
 const Client = require('../client')()
 
 var config = require('../../config').getProperties()
+config.redis.enabled = false
 var key = {
   'algorithm': 'RS',
   'n': '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
@@ -41,7 +42,7 @@ describe('remote account locale', function() {
         )
         .then(
           function (response) {
-            assert.ok(!response.locale, 'account has no locale')
+            assert.ok(! response.locale, 'account has no locale')
             return client.login()
           }
         )
@@ -77,7 +78,7 @@ describe('remote account locale', function() {
         config.publicUrl,
         email,
         password,
-        { lang: Buffer(128).toString('hex') }
+        { lang: Buffer.alloc(128).toString('hex') }
       )
       .then(
         function (c) {
@@ -86,7 +87,7 @@ describe('remote account locale', function() {
       )
       .then(
         function (response) {
-          assert.ok(!response.locale, 'account has no locale')
+          assert.ok(! response.locale, 'account has no locale')
         }
       )
     }
@@ -101,7 +102,7 @@ describe('remote account locale', function() {
         config.publicUrl,
         email,
         password,
-        { lang: 'en-US,en;q=0.8,' + Buffer(128).toString('hex') }
+        { lang: 'en-US,en;q=0.8,' + Buffer.alloc(128).toString('hex') }
       )
       .then(
         function (c) {

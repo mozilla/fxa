@@ -1,6 +1,6 @@
 # Auth server metrics events
 
-The auth server emits two types of event
+The auth server emits three types of event
 that are imported to redshift
 and made available to
 metrics queries in redash:
@@ -15,6 +15,35 @@ metrics queries in redash:
   or state changes
   at the account level.
 
+* [Email events](#email-events),
+  which represent significant actions
+  for a user that involves email deliverability.
+
+* [Flow events](#flow-events)
+  * [`flow_metadata`](#flow_metadata)
+  * [`flow_events`](#flow_events)
+  * [`flow_experiments`](#flow_experiments)
+  * [Success event names](#success-event-names)
+    * [View names](#view-names)
+    * [Action names](#action-names)
+    * [Link names](#link-names)
+    * [Experiment names](#experiment-names)
+    * [Connect method names](#connect-method-names)
+    * [Template names](#template-names)
+  * [Error event names](#error-event-names)
+* [Activity events](#activity-events)
+  * [`activity_events`](#activity_events)
+  * [`daily_activity_per_device`](#daily_activity_per_device)
+  * [`daily_multi_device_users`](#daily_multi_device_users)
+  * [`strict_daily_multi_device_users`](#strict_daily_multi_device_users)
+  * [Event names](#event-names)
+* [Email events](#email-events)
+  * [`email_events`](#email_events)
+* [Sampled data sets](#sampled-data-sets)
+* [Significant changes](#significant-changes)
+
+## Flow events
+
 Flow events are used
 to plot charts for
 sign-in and sign-up user funnels.
@@ -23,16 +52,82 @@ follow individual user journeys
 for the length of each flow,
 even when those journeys
 span over multiple devices or browsers.
-They also power the chart for our
-"time taken for device connection" KPI.
 
-Activity events are used
-for analysing user behaviour
-in a more general way.
-They are behind the charts for our
-"engagement ratio" and "multi-device usage" KPIs.
+In redshift,
+flow event data is stored
+in three tables:
 
-## Flow events
+* [`flow_metadata`](#flow_metadata),
+  containing all of the data
+  relating to a flow
+  as a single entity.
+
+* [`flow_events`](#flow_events),
+  containing data
+  for the individual events
+  within each flow.
+
+* [`flow_experiments`](#flow_experiments),
+  containing data for flows
+  that are part of a feature experiment.
+
+### flow_metadata
+
+The `flow_metadata` table
+contains the following fields:
+
+|Name|Description|
+|----|-----------|
+|`flow_id`|The flow identifier. A randomly-generated opaque id.|
+|`begin_time`|The time at which the `flow.begin` event occurred.|
+|`duration`|The length of time from the `flow.begin` event until the last event of the flow.|
+|`completed`|Boolean indicating whether the flow was successfully completed.|
+|`new_account`|Boolean indicating whether the flow was a sign-up.|
+|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db. Not every flow has a `uid`.|
+|`locale`|The user's locale. For cases where we aren't localised in their favoured locale(s), the value will be `en-US.default`|
+|`ua_browser`|The user's web browser, e.g. 'Firefox' or 'Chrome'.|
+|`ua_version`|The user's browser version.|
+|`ua_os`|The user's operating system, e.g. 'Windows 10' or 'Android'.|
+|`context`|FxA auth broker context. This is related to browser platform and version |
+|`entrypoint`|The entrypoint of the first flow in the session. Typically a UI touchpoint like "preferences".|
+|`migration`|Sync migration.|
+|`service`|The service identifier. For Sync it may be empty or `sync`. For OAuth reliers it is their hex client id.|
+|`utm_campaign`|Marketing campaign identifier for the first flow in the session. Not stored if the `DNT` request header was `1`.|
+|`utm_content`|Marketing campaign content identifier for the first flow in the session. Not stored if the `DNT` request header was `1`.|
+|`utm_medium`|Marketing campaign medium for the first flow in the session. Not stored if the `DNT` request header was `1`.|
+|`utm_source`|Marketing campaign source for the first flow in the session. Not stored if the `DNT` request header was `1`.|
+|`utm_term`|Marketing campaign search term for the first flow in the session. Not stored if the `DNT` request header was `1`.|
+|`export_date`|The date that the `flow.begin` event was exported to S3 by the metrics pipeline.|
+
+### flow_events
+
+The `flow_events` table
+contains the following fields:
+
+|Name|Description|
+|----|-----------|
+|`timestamp`|The time at which the event occurred.|
+|`flow_time`|The time since the beginning of the flow.|
+|`flow_id`|The flow identifier.|
+|`type`|The event name.|
+|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db. Not every flow event has a `uid`.|
+|`locale`|The user's locale. For cases where we aren't localised in their favoured locale(s), the value will be `en-US.default`|
+
+### flow_experiments
+
+The `flow_experiments` table
+contains the following fields:
+
+|Name|Description|
+|----|-----------|
+|`experiment`|The name of the experiment.|
+|`cohort`|The experiment group that this flow was part of, usually one of `treatment` or `control`.|
+|`timestamp`|The time at which the experiment event occurred, indicating when the flow was assigned to the experiment.|
+|`flow_id`|The flow identifier. A randomly-generated opaque id.|
+|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db. Not every experiment has a `uid`.|
+|`export_date`|The date that the experiment event was exported to S3 by the metrics pipeline.|
+
+### Success event names
 
 The following flow events
 represent a successful step
@@ -47,7 +142,19 @@ in a sign-in or sign-up flow:
 |`flow.${viewName}.have-account`|A user has clicked on the 'Already have an account?' link.|
 |`flow.${viewName}.create-account`|A user has clicked on the 'Create an account' link.|
 |`flow.${viewName}.forgot-password`|A user has clicked on the 'Forgot password?' link.|
+|`flow.${viewName}.install_from.${connectMethod}`|A user has been shown a suggested 'connect another device' method.|
+|`flow.${viewName}.link.${linkName}`|A user has clicked on a link.|
+|`flow.${viewName}.signedin.(true|false)`|Is the user signed in during the connect another device flow?.|
+|`flow.${viewName}.signin.eligible`|A user is eligible to sign in during the connect another device flow.|
+|`flow.${viewName}.signin.ineligible`|A user is not eligible to sign in during the connect another device flow.|
 |`flow.${action}.attempt`|The content server has sent a sign-in/up request to the auth server.|
+|`flow.experiment.${experiment}.${group}`|A user has been included in an active experiment.|
+|`flow.performance`|`flow_time` for this event indicates the number of milliseconds a user waited until the first view rendered and they were able to interact with the page.|
+|`flow.performance.network`|`flow_time` for this event is a number that approximates the relative speed of a user's network performance (lower is faster).|
+|`flow.performance.server`|`flow_time` for this event is a number that approximates the relative speed of the server performance (lower is faster).|
+|`flow.performance.client`|`flow_time` for this event is a number that approximates the relative speed of a user's client-side performance (lower is faster).|
+|`flow.newsletter.subscribed`|A user has subscribed to the Firefox Accounts newsletter. This may occur during sign-up or later on, via the settings screen.|
+|`flow.newsletter.unsubscribed`|A user has unsubscribed from the Firefox Accounts newsletter. This only occurs via the settings screen.|
 |`account.login`|An existing account has been signed in to.|
 |`account.created`|A new account has been created.|
 |`email.confirmation.sent`|A sign-in confirmation email has been sent to a user.|
@@ -55,8 +162,11 @@ in a sign-in or sign-up flow:
 |`email.confirmation.resent`|A sign-in confirmation email has been re-sent to a user.|
 |`email.verification.resent`|A sign-up verification email has been re-sent to a user.|
 |`email.verify_code.clicked`|A user has clicked on the link in a confirmation/verification email.|
+|`email.${templateName}.delivered`|An email was delivered to a user.|
+|`sms.region.${region}`|A user has tried to send SMS to `region`.|
+|`sms.${templateName}.sent`|An SMS message has been sent to a user's phone.|
+|`signinCode.consumed`|A sign-in code has been consumed on the server.|
 |`account.confirmed`|Sign-in to an existing account has been confirmed via email.|
-|`account.reminder`|A new account has been verified via a reminder email.|
 |`account.verified`|A new account has been verified via email.|
 |`account.keyfetch`|Sync encryption keys have been fetched.|
 |`account.signed`|A certificate has been signed.|
@@ -71,6 +181,96 @@ in a sign-in or sign-up flow:
 |`password.forgot.verify_code.completed`|A password reset has been successfully completed on the server.|
 |`route.${path}.200`| A route responded with a 200 status code. Example: `route./account/login.200`|
 |`flow.complete`|A user has successfully completed a sign-in or sign-up flow.|
+|`totpToken.created`|A user has successfully created a totp token.|
+|`totpToken.unverified`|A user failed to verify a totp code.|
+|`totpToken.verified`|A user verified a totp code.|
+
+#### View names
+
+Possible values for `${viewName}` include,
+but are not limited to:
+
+View name|Description
+---------|-----------
+`signup`|The sign-up form
+`confirm`|Displayed while awaiting account verification
+`signup-confirmed`|The tab the user signed up from, after account verification
+`signup-verified`|The tab the user verified their email in, after account verification
+`signin`|The sign-in form
+`confirm-signin`|Displayed while awaiting sign-in confirmation
+`signin-confirmed`|The tab the user signed in from, after sign-in confirmation
+`complete-signin`|The tab the user attempted to verify a signin in, before sign-in confirmation
+`reset-password`|The reset password form
+`confirm-reset-password`|The tab the user initiated the password reset from, before verification
+`reset-password-confirmed`|The tab the user initiated the password reset from, after verification
+`reset-password-verified`|The tab the user has verified the password reset in, after verification
+`complete-reset-password`|The tab the user attempted to verify the password reset in, before verification
+`signin-bounced`|Displayed to the user after sign-in, if their email receives a hard bounce or complaint
+`signin-unblock`|The sign-in unblock screen
+`choose-what-to-sync`|Choose what to Sync
+`connect-another-device`|Connect another device, phase 1
+`sms`|Connect another device, phase 2, Send an SMS form
+`sms.sent`|Connect another device, phase 2, SMS sent
+`cookies-disabled`|Error page shown if local storage or cookies are disabled
+
+#### Action names
+
+Possible values for `${action}` are:
+
+Action name|Description
+-----------|-----------
+`signup`|Create an account, i.e. `/account/create`
+`signin`|Sign in to an existing account, i.e. `/account/login`
+
+#### Link names
+
+Possible values for `${linkName}` are:
+
+Link name|Description
+---------|-----------
+`app-store.android`|A Google Play Store link
+`app-store.ios`|An iOS App Store link
+`maybe_later`|'Maybe later' link
+`signin`|'Sign in' link
+`why`|'Why is this required?' link
+`create-account`|'Create an account' link
+`back`|'Back' link
+`support`|A SUMO link
+
+#### Experiment names
+
+Possible values for `${experiment}` are:
+
+Experiment name|Description
+---------------|-----------
+`connectAnotherDevice`|Connect another device, phase 1
+`sendSms`|Connect another device, phases 2 and 3
+
+#### Connect method names
+
+Possible values for `${connectMethod}` are:
+
+Connect method name|Description
+-------------------|------------
+`signin_from.fx_android`|User has verified in Firefox for Android, is not signed in, and can do so.
+`signin_from.fx_desktop`|User has verified in Firefox Desktop, is not signed in, and can do so.
+`signin_from.fx_ios`|User has verified in Firefox for iOS, is not signed in, and can do so.
+`install_from.fx_android`|User has verified in Firefox for Android, is signed in, and should install Firefox on another mobile device.
+`install_from.fx_deskop`|User has verified in Firefox Desktop, is signed in, and should install Firefox on a mobile device.
+`install_from.other_android`|User has verified a non-Firefox browser for Android, and should install Firefox on their mobile device.
+`install_from.other_ios`|User has verified a non-Firefox browser for iOS, and should install Firefox on their mobile device.
+`install_from.other`|User has verified in a non-firefox browser, and should install Firefox on another mobile device.
+
+#### Template names
+
+Possible values for `${templateName}` are:
+
+Template name|Description
+-------------|-----------
+`installFirefox`|Firefox app store link
+`1`|Historically, there was [a bug] where message ids were in included in the event instead of template names. For that reason, `1` is the pre-train-86 version of `installFirefox`.
+
+### Error event names
 
 The following flow events
 represent error conditions,
@@ -80,59 +280,85 @@ to a flow:
 |Name|Description|
 |----|-----------|
 |`customs.blocked`|A request was blocked by the customs server.|
-|`route.${path}.${statusCode}.${errno}`| A route responded with a >=400 status code. Includes `errno`. Example: `route./account/login.400.103`|
+|`route.${path}.${statusCode}.${errno}`| A route responded with a >=400 status code. Example: `route./account/login.400.103`|
+|`email.${templateName}.bounced`|An email bounced.|
 
-In redshift,
-these events are stored
-in two tables:
+## Activity events
 
-* `flow_metadata`,
-  containing all of the data
-  relating to a flow
-  as a single entity.
+Activity events are used
+for analysing behaviour
+at the user level.
+The data is stored
+in the [`activity_events` table](#activity_events).
 
-* `flow_events`,
-  containing data
-  for the individual events
-  within each flow.
+Three further tables
+summarise daily activity
+for Sync-connected devices:
 
-The `flow_metadata` table
-contains the following fields:
+* [`daily_activity_per_device`](#daily_activity_per_device),
+  contains data about the devices
+  that are active on each day.
 
-|Name|Description|
-|----|-----------|
-|`flow_id`|The flow identifier.|
-|`begin_time`|The time at which the `flow.begin` event occurred.|
-|`duration`|The length of time from the `flow.begin` event until the last event of the flow.|
-|`completed`|Boolean indicating whether the flow was successfully completed.|
-|`new_account`|Boolean indicating whether the flow was a sign-up.|
-|`ua_browser`|The user's web browser.|
-|`ua_version`|The user's browser version.|
-|`ua_os`|The user's operating system.|
-|`context`|FxA auth broker context.|
-|`entrypoint`|The entrypoint for the flow.|
-|`migration`|Sync migration.|
-|`service`|The service identifier. For Sync it may be empty or `sync`. For OAuth reliers it is their hex id.|
-|`utm_campaign`|Marketing campaign identifier. Not stored if the `DNT` request header was `1`.|
-|`utm_content`|Marketing campaign content identifier. Not stored if the `DNT` request header was `1`.|
-|`utm_medium`|Marketing campaign medium. Not stored if the `DNT` request header was `1`.|
-|`utm_source`|Marketing campaign source. Not stored if the `DNT` request header was `1`.|
-|`utm_term`|Marketing campaign search term. Not stored if the `DNT` request header was `1`.|
+* [`daily_multi_device_users`](#daily_multi_device_users),
+  contains data for users
+  with multiple active devices
+  within a five-day period.
 
-The `flow_events` table
+* [`strict_daily_multi_device_users`](#strict_daily_multi_device_users),
+  filters `daily_multi_device_users` to disregard users
+  for whom the second active device
+  shows no activity before the first active device.
+  The intention here is to ignore false positives
+  from users who are forced to sign in repeatedly,
+  leaving behind zombie device records in the database.
+
+### activity_events
+
+The `activity_events` table
 contains the following fields:
 
 |Name|Description|
 |----|-----------|
 |`timestamp`|The time at which the event occurred.|
-|`flow_time`|The time since the beginning of the flow.|
-|`flow_id`|The flow identifier.|
-|`type`|The event name.|
+|`type`|The name of the event.|
+|`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db.|
+|`device_id`|Optional. The id of the device record.  This *does* correlate back to a record the FxA user db.|
+|`service`|Optional. The id of the requesting service. For Sync this may be `'sync'` or the empty string.|
+|`ua_browser`|The user's web browser.|
+|`ua_version`|The user's browser version.|
+|`ua_os`|The user's operating system.|
 
-## Activity events
+### daily_activity_per_device
 
-The following activity events
-are emitted:
+The `daily_activity_per_device` table
+contains the following fields:
+
+|Name|Description|
+|----|-----------|
+|`day`|The date of the activity.|
+|`uid`|The HMACed user id.|
+|`device_id`|The id of the active device.|
+|`service`|The id of the requesting service.|
+|`ua_browser`|The user's web browser.|
+|`ua_version`|The user's browser version.|
+|`ua_os`|The user's operating system.|
+
+### daily_multi_device_users
+
+The `daily_multi_device_users` table
+contains the following fields:
+
+|Name|Description|
+|----|-----------|
+|`day`|The date of the activity.|
+|`uid`|The HMACed user id.|
+
+### strict_daily_multi_device_users
+
+The `strict_daily_multi_device_users` table
+has the same schema as `daily_multi_device_users`.
+
+### Event names
 
 |Name|Description|
 |----|-----------|
@@ -147,66 +373,179 @@ are emitted:
 |`device.created`|A device record has been created for a Sync account.|
 |`device.updated`|Device record is updated on a Sync account.|
 |`device.deleted`|Device record has been deleted from a Sync account.|
+|`sync.sentTabToDevice`|Device sent a push message for send-tab-to-device feature.|
 
-In redshift,
-these events are stored
-in the `activity_events` table
-with the following fields:
+## Email events
+
+Email events are used
+for analysing email deliverability for
+FxA. These events are stored in the
+[`email_events` table](#email_events).
+
+### email_events
+
+The `email_events` table
+contains the following fields:
 
 |Name|Description|
 |----|-----------|
 |`timestamp`|The time at which the event occurred.|
-|`type`|The name of the event.|
-|`uid`|The user id, HMACed so as not to leak PII.|
-|`device_id`|Optional. The id of the device record.|
-|`service`|Optional. The id of the requesting service. For Sync this may be `'sync'` or the empty string.|
-|`ua_browser`|The user's web browser.|
-|`ua_version`|The user's browser version.|
-|`ua_os`|The user's operating system.|
+|`flow_id`|The corresponding `flow_id` of the event.|
+|`domain`|The email domain that email was sent to.|
+|`template`|The email template that was sent.|
+|`type`|The type of email event that has occurred.|
+|`bounced`|Boolean whether this is a bounced email.|
+|`complaint`|Boolean whether this email has flagged as a complaint.|
+|`locale`|The locale that the email was sent in.|
 
-Two further tables,
-summarising device usage,
-are populated
-based on the activity event data.
+#### Domain names
 
-The table `daily_activity_per_device`
-contains the following fields:
+Possible values for `${domain}` include this
+list of top 20 FxA [email domains](https://github.com/mozilla/fxa-auth-server/blob/master/config/popular-email-domains.js). If an email is not on the list, then the
+value `other` is stored.
 
-|Name|Description|
-|----|-----------|
-|`day`|The date of the activity.|
-|`uid`|The HMACed user id.|
-|`device_id`|The id of the active device.|
-|`service`|The id of the requesting service.|
-|`ua_browser`|The user's web browser.|
-|`ua_version`|The user's browser version.|
-|`ua_os`|The user's operating system.|
+#### Template names
 
-The table `daily_multi_device_users`
-contains the following fields:
+Possible values for `${template}` include
 
 |Name|Description|
 |----|-----------|
-|`day`|The date of the activity.|
-|`uid`|The HMACed user id.|
+|`newDeviceLoginEmail`|Email sent when a login has occurred from a new device.|
+|`passwordChangedEmail`|Email sent when a user has successfully changed their password.|
+|`passwordResetEmail`|Email sent when a user has reset their password.|
+|`postVerifyEmail`|Email sent when a user has verified their account.|
+|`recoveryEmail`|Email sent when a user attempts to reset their password.|
+|`unblockCodeEmail`|Email sent containing the account unblock code.|
+|`verifyEmail`|Email sent to verify a user's account.|
+|`verifyLoginEmail`|Sign-in confirmation email was sent.|
+|`verifySyncEmail`|Email to verify a Sync user's account.|
+|`postVerifySecondaryEmail`|Email sent when a user has added a secondary email.|
+|`verifySecondaryEmail`|Email to confirm adding a secondary email.|
 
-For this table,
-a multi-device user is defined as
-somebody who was also active
-on a different device
-in the preceding five days.
+#### Type names
+
+Possible values for `${type}` include
+
+|Name|Description|
+|----|-----------|
+|`sent`|Email sent as reported by nodemailer.|
+|`delivered`|Email has been delivered as reported by Amazon SES.|
+|`bounced`|Email has been bounced as reported by Amazon SES.|
+
+#### Locale names
+
+Possible values for `${locale}` include
+any valid parsed locale via auth-server
+[translator](https://github.com/mozilla/fxa-auth-server/blob/master/lib/senders/translator.js).
+
+## Sampled data sets
+
+For all of the tables mentioned above,
+related to both flow events
+and activity events,
+data automatically expires
+when it reaches the end
+of a rolling three-month window.
+This is to keep the number of records
+in each data set
+within reasonable limits
+so that queries don't run too slowly.
+
+We also maintain down-sampled equivalents
+of each data set,
+which have a longer history
+but contain only a subset
+of the available events.
+There is a 50%-sampled set,
+which includes data
+for the preceding six months,
+and a 10%-sampled set,
+which includes data
+for the preceding two years.
+If you want to use one of these data sets
+in your queries,
+just add the appropriate suffix
+to each of the table names mentioned above:
+
+* `_sampled_50` for the 50%-sampled sets,
+  e.g. `flow_metadata_sampled_50`.
+
+* `_sampled_10` for the 10%-sampled sets,
+  e.g. `activity_events_sampled_10`.
 
 ## Significant changes
+
+### Train 90
+
+* [The `flow.newsletter.subscribed` and `flow.newsletter.unsubscribed` events
+  were implemented](https://github.com/mozilla/fxa-content-server/pull/5160).
+
+### Train 88
+
+ * [Flow events added for clicks on app store
+   install links](https://github.com/mozilla/fxa-content-server/pull/5113)
+   * flow.{viewName}.link.app-store.(android|ios)
+
+### Train 86
+
+* [The template name
+  in the `sms.${templateName}.sent` event
+  was fixed.
+  Previously the message id
+  was logged in its place](https://github.com/mozilla/fxa-auth-server/pull/1843).
+
+* [The bucketing of users
+  into experiments was fixed,
+  drastically changing the number of users
+  going through our `sendSms` experiment](https://github.com/mozilla/fxa-content-server/pull/4977).
+
+### Train 84
+
+* [The `sms.region.${region}` event
+  was implemented](https://github.com/mozilla/fxa-auth-server/pull/1783).
+
+### Train 83
+
+* [`locale` was added
+  to the `flow_events`
+  and `flow_metadata` schemata](https://github.com/mozilla/fxa-auth-server/pull/1702).
+
+### Train 82
+
+* [The `flow.performance.*` events
+  were added](https://github.com/mozilla/fxa-content-server/pull/4776).
+
+* [The `flow.experiment.${experiment}.${group}` event
+  was added](https://github.com/mozilla/fxa-content-server/pull/4775).
+
+### Train 81
+
+* [`uid` was added
+  to the `flow_events`
+  and `flow_metadata` schemata](https://github.com/mozilla/fxa-auth-server/pull/1650).
+
+### Train 80
+
+* [A known cause
+  of duplicate flow ids
+  being logged
+  was fixed](https://github.com/mozilla/fxa-content-server/pull/4676).
+
+### Train 78
+
+* [Logging for the `route.*` events
+  was fixed](https://github.com/mozilla/fxa-auth-server/pull/1606).
+
+* [Logging for the `email.${templateName}.bounced` event
+  was fixed](https://github.com/mozilla/fxa-auth-server/pull/1609).
 
 ### Train 76
 
 * [Duplicate flow events
-  were fixed in the content server]
-  (https://github.com/mozilla/fxa-content-server/pull/4478).
+  were fixed in the content server](https://github.com/mozilla/fxa-content-server/pull/4478).
 
 * [The `account.reset` event
-  was made a flow event]
-  (https://github.com/mozilla/fxa-auth-server/pull/1584).
+  was made a flow event](https://github.com/mozilla/fxa-auth-server/pull/1584).
 
 ### Train 75
 
@@ -215,94 +554,74 @@ in the preceding five days.
   for OAuth reliers,
   stopping those requests from
   being identified as originating from
-  the content server]
-  (https://github.com/mozilla/fxa-content-server/pull/4419).
+  the content server](https://github.com/mozilla/fxa-content-server/pull/4419).
 
 * [The `flow.${viewName}.view` event
-  was implemented]
-  (https://github.com/mozilla/fxa-content-server/pull/4440).
+  was implemented](https://github.com/mozilla/fxa-content-server/pull/4440).
 
 * [The `flow.${viewName}.begin` event
-  was changed back to `flow.begin`]
-  (https://github.com/mozilla/fxa-content-server/pull/4440).
+  was changed back to `flow.begin`](https://github.com/mozilla/fxa-content-server/pull/4440).
 
 * [Validation of the `utm_*` parameters
-  was implemented]
-  (https://github.com/mozilla/fxa-content-server/pull/4446).
+  was implemented](https://github.com/mozilla/fxa-content-server/pull/4446).
 
-* [The `route.*` events were implemented]
-  (https://github.com/mozilla/fxa-auth-server/pull/1576).
+* [The `route.*` events were implemented](https://github.com/mozilla/fxa-auth-server/pull/1576).
 
 ### Train 74
 
 * [Flow event data validation
-  was implemented]
-  (https://github.com/mozilla/fxa-content-server/pull/4383).
+  was implemented](https://github.com/mozilla/fxa-content-server/pull/4383).
 
 * [The `${viewName}` part of
   `flow.${viewName}.begin`,
   `flow.${viewName}.engage` and
   `flow.${viewName}.submit`
-  was fixed]
-  (https://github.com/mozilla/fxa-content-server/pull/4317).
+  was fixed](https://github.com/mozilla/fxa-content-server/pull/4317).
 
 * [The `flow.have-account` event
-  was changed to `flow.${viewName}.have-account`]
-  (https://github.com/mozilla/fxa-content-server/pull/4317).
+  was changed to `flow.${viewName}.have-account`](https://github.com/mozilla/fxa-content-server/pull/4317).
 
 * [The `flow.${viewName}.create-account` event
-  was implemented]
-  (https://github.com/mozilla/fxa-content-server/pull/4317).
+  was implemented](https://github.com/mozilla/fxa-content-server/pull/4317).
 
 * [The `flow.${viewName}.forgot-password` event
-  was implemented]
-  (https://github.com/mozilla/fxa-content-server/pull/4317).
+  was implemented](https://github.com/mozilla/fxa-content-server/pull/4317).
 
 * [The `flow.${action}.attempt` event
-  was implemented]
-  (https://github.com/mozilla/fxa-content-server/pull/4317).
+  was implemented](https://github.com/mozilla/fxa-content-server/pull/4317).
 
 ### Train 73
 
 * [Expiry time
   for metrics context data in memcached
   was increased from 30 minutes
-  to 2 hours]
-  (https://github.com/mozilla/fxa-auth-server/pull/1519).
+  to 2 hours](https://github.com/mozilla/fxa-auth-server/pull/1519).
 
 * [The `flow.complete` event
-  was implemented]
-  (https://github.com/mozilla/fxa-auth-server/pull/1515).
+  was implemented](https://github.com/mozilla/fxa-auth-server/pull/1515).
 
 ### Train 72
 
 * [A change to the memcached key
   used when stashing metrics context data
   introduced a 30-minute partial blip
-  in flow event data]
-  (https://github.com/mozilla/fxa-auth-server/pull/1500).
+  in flow event data](https://github.com/mozilla/fxa-auth-server/pull/1500).
 
 ### Train 71
 
 * [The `flow.begin` event
-  was changed to `flow.${viewName}.begin`]
-  (https://github.com/mozilla/fxa-content-server/pull/4224).
+  was changed to `flow.${viewName}.begin`](https://github.com/mozilla/fxa-content-server/pull/4224).
 
 * [Timestamps were fixed
-  on the begin, engage and submit events]
-  (https://github.com/mozilla/fxa-content-server/pull/4351).
+  on the begin, engage and submit events](https://github.com/mozilla/fxa-content-server/pull/4351).
 
 * [Metrics context data was added
-  to the begin, engage and submit events]
-  (https://github.com/mozilla/fxa-content-server/pull/4234).
+  to the begin, engage and submit events](https://github.com/mozilla/fxa-content-server/pull/4234).
 
 * [Erroneous `"none"` values were removed
   from empty metrics context properties
-  in the content server]
-  (https://github.com/mozilla/fxa-content-server/pull/4234).
+  in the content server](https://github.com/mozilla/fxa-content-server/pull/4234).
 
 * [Expiry time for flow ids
   was increased from 30 minutes
-  to two hours]
-  (https://github.com/mozilla/fxa-auth-server/pull/1487).
-
+  to two hours](https://github.com/mozilla/fxa-auth-server/pull/1487).

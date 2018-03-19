@@ -1,33 +1,30 @@
 language: node_js
 
 node_js:
- - "4.5"
+ - "6"
+ - "8"
 
 dist: trusty
-sudo: required
+
+services:
+  - redis-server
 
 addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
     packages:
-    - g++-4.8
     - mysql-server-5.6
     - mysql-client-core-5.6
     - mysql-client-5.6
 
 env:
-  global:
-    - NODE_ENV=test
   matrix:
     - DB=memory
     - DB=mysql
 
 notifications:
   email:
-    - zcarter@mozilla.com
-    - dcoates@mozilla.com
-    - jbonacci@mozilla.com
     - rfkelly@mozilla.com
     - jrgm@mozilla.com
   irc:
@@ -39,12 +36,12 @@ notifications:
 before_install:
   - npm config set spin false
 
-install:
-  # use c++-11 with node4, default compiler on downlevel versions
-  - if [ $TRAVIS_NODE_VERSION == "4" ]; then CXX=g++-4.8 npm install; else npm install; fi
-
 script:
   - if [ $DB == "mysql" ]; then ./scripts/start-travis-auth-db-mysql.sh; fi
-  - COVERALLS_REPO_TOKEN=vKN3jjhAOwxkv9HG0VBX4EYIlWLPwiJ9d npm test
+  - COVERALLS_REPO_TOKEN=vKN3jjhAOwxkv9HG0VBX4EYIlWLPwiJ9d npm run test-ci
   - npm run test-e2e
+  # Test fxa-auth-mailer
+  - grunt templates && git status -s | (! grep 'M lib/senders/templates/')
+  - grunt l10n-extract
+  # NSP check
   - grunt nsp

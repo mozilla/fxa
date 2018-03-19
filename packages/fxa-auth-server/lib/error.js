@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 var inherits = require('util').inherits
 var messages = require('joi/lib/language').errors
 
@@ -32,6 +34,39 @@ var ERRNO = {
   ACCOUNT_RESET: 126,
   INVALID_UNBLOCK_CODE: 127,
   // MISSING_TOKEN: 128,
+  INVALID_PHONE_NUMBER: 129,
+  INVALID_REGION: 130,
+  INVALID_MESSAGE_ID: 131,
+  MESSAGE_REJECTED: 132,
+  BOUNCE_COMPLAINT: 133,
+  BOUNCE_HARD: 134,
+  BOUNCE_SOFT: 135,
+  EMAIL_EXISTS: 136,
+  EMAIL_DELETE_PRIMARY: 137,
+  SESSION_UNVERIFIED: 138,
+  USER_PRIMARY_EMAIL_EXISTS: 139,
+  VERIFIED_PRIMARY_EMAIL_EXISTS: 140,
+  // If there exists an account that was created under 24hrs and
+  // has not verified their email address, this error is thrown
+  // if another user attempts to add that email to their account
+  // as a secondary email.
+  UNVERIFIED_PRIMARY_EMAIL_NEWLY_CREATED: 141,
+  LOGIN_WITH_SECONDARY_EMAIL: 142,
+  SECONDARY_EMAIL_UNKNOWN: 143,
+  VERIFIED_SECONDARY_EMAIL_EXISTS: 144,
+  RESET_PASSWORD_WITH_SECONDARY_EMAIL: 145,
+  INVALID_SIGNIN_CODE: 146,
+  CHANGE_EMAIL_TO_UNVERIFIED_EMAIL: 147,
+  CHANGE_EMAIL_TO_UNOWNED_EMAIL: 148,
+  LOGIN_WITH_INVALID_EMAIL: 149,
+  RESEND_EMAIL_CODE_TO_UNOWNED_EMAIL: 150,
+  FAILED_TO_SEND_EMAIL: 151,
+  INVALID_TOKEN_VERIFICATION_CODE: 152,
+  EXPIRED_TOKEN_VERIFICATION_CODE: 153,
+
+  TOTP_TOKEN_EXISTS: 154,
+  TOTP_TOKEN_NOT_FOUND: 155,
+
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
   UNEXPECTED_ERROR: 999
@@ -58,7 +93,7 @@ function AppError(options, extra, headers) {
   this.message = options.message || DEFAULTS.message
   this.isBoom = true
   this.stack = options.stack
-  if (!this.stack) {
+  if (! this.stack) {
     Error.captureStackTrace(this, AppError)
   }
   this.errno = options.errno || DEFAULTS.errno
@@ -92,9 +127,9 @@ AppError.prototype.backtrace = function (traced) {
   this.output.payload.log = traced
 }
 
-/*/
+/**
   Translates an error from Hapi format to our format
-/*/
+*/
 AppError.translate = function (response) {
   var error
   if (response instanceof AppError) {
@@ -129,7 +164,7 @@ AppError.translate = function (response) {
       error = AppError.invalidRequestParameter(payload.validation)
     }
   }
-  else if (payload.statusCode === 400 && TOO_LARGE.test(payload.message)) {
+  else if (payload.statusCode === 413 && TOO_LARGE.test(payload.message)) {
     error = AppError.requestBodyTooLarge()
   }
   else {
@@ -335,7 +370,7 @@ AppError.requestBodyTooLarge = function () {
 }
 
 AppError.tooManyRequests = function (retryAfter, retryAfterLocalized, canUnblock) {
-  if (!retryAfter) {
+  if (! retryAfter) {
     retryAfter = 30
   }
 
@@ -383,7 +418,7 @@ AppError.requestBlocked = function (canUnblock) {
 }
 
 AppError.serviceUnavailable = function (retryAfter) {
-  if (!retryAfter) {
+  if (! retryAfter) {
     retryAfter = 30
   }
   return new AppError(
@@ -403,7 +438,7 @@ AppError.serviceUnavailable = function (retryAfter) {
 }
 
 AppError.featureNotEnabled = function (retryAfter) {
-  if (!retryAfter) {
+  if (! retryAfter) {
     retryAfter = 30
   }
   return new AppError(
@@ -411,7 +446,7 @@ AppError.featureNotEnabled = function (retryAfter) {
       code: 503,
       error: 'Feature not enabled',
       errno: ERRNO.FEATURE_NOT_ENABLED,
-      message: 'Service unavailable'
+      message: 'Feature not enabled'
     },
     {
       retryAfter: retryAfter
@@ -456,15 +491,13 @@ AppError.unknownDevice = function () {
   )
 }
 
-AppError.deviceSessionConflict = function () {
-  return new AppError(
-    {
-      code: 400,
-      error: 'Bad Request',
-      errno: ERRNO.DEVICE_CONFLICT,
-      message: 'Session already registered by another device'
-    }
-  )
+AppError.deviceSessionConflict = function (deviceId) {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.DEVICE_CONFLICT,
+    message: 'Session already registered by another device'
+  }, { deviceId })
 }
 
 AppError.invalidUnblockCode = function () {
@@ -474,6 +507,273 @@ AppError.invalidUnblockCode = function () {
     errno: ERRNO.INVALID_UNBLOCK_CODE,
     message: 'Invalid unblock code'
   })
+}
+
+AppError.invalidPhoneNumber = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INVALID_PHONE_NUMBER,
+    message: 'Invalid phone number'
+  })
+}
+
+AppError.invalidRegion = region => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INVALID_REGION,
+    message: 'Invalid region'
+  }, {
+    region
+  })
+}
+
+AppError.invalidMessageId = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INVALID_MESSAGE_ID,
+    message: 'Invalid message id'
+  })
+}
+
+AppError.messageRejected = (reason, reasonCode) => {
+  return new AppError({
+    code: 500,
+    error: 'Bad Request',
+    errno: ERRNO.MESSAGE_REJECTED,
+    message: 'Message rejected'
+  }, {
+    reason,
+    reasonCode
+  })
+}
+
+AppError.emailComplaint = (bouncedAt) => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.BOUNCE_COMPLAINT,
+    message: 'Email account sent complaint'
+  }, {
+    bouncedAt
+  })
+}
+
+AppError.emailBouncedHard = (bouncedAt) => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.BOUNCE_HARD,
+    message: 'Email account hard bounced'
+  }, {
+    bouncedAt
+  })
+}
+
+AppError.emailBouncedSoft = (bouncedAt) => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.BOUNCE_SOFT,
+    message: 'Email account soft bounced'
+  }, {
+    bouncedAt
+  })
+}
+
+AppError.emailExists = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.EMAIL_EXISTS,
+    message: 'Email already exists'
+  })
+}
+
+AppError.cannotDeletePrimaryEmail = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.EMAIL_DELETE_PRIMARY,
+    message: 'Can not delete primary email'
+  })
+}
+
+AppError.unverifiedSession = function () {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.SESSION_UNVERIFIED,
+    message: 'Unverified session'
+  })
+}
+
+AppError.yourPrimaryEmailExists = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.USER_PRIMARY_EMAIL_EXISTS,
+    message: 'Can not add secondary email that is same as your primary'
+  })
+}
+
+AppError.verifiedPrimaryEmailAlreadyExists = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.VERIFIED_PRIMARY_EMAIL_EXISTS,
+    message: 'Email already exists'
+  })
+}
+
+AppError.verifiedSecondaryEmailAlreadyExists = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.VERIFIED_SECONDARY_EMAIL_EXISTS,
+    message: 'Email already exists'
+  })
+}
+
+// This error is thrown when someone attempts to add a secondary email
+// that is the same as the primary email of another account, but the account
+// was recently created ( < 24hrs).
+AppError.unverifiedPrimaryEmailNewlyCreated = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.UNVERIFIED_PRIMARY_EMAIL_NEWLY_CREATED,
+    message: 'Email already exists'
+  })
+}
+
+AppError.cannotLoginWithSecondaryEmail = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.LOGIN_WITH_SECONDARY_EMAIL,
+    message: 'Sign in with this email type is not currently supported'
+  })
+}
+
+AppError.unknownSecondaryEmail = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.SECONDARY_EMAIL_UNKNOWN,
+    message: 'Unknown email'
+  })
+}
+
+AppError.cannotResetPasswordWithSecondaryEmail = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.RESET_PASSWORD_WITH_SECONDARY_EMAIL,
+    message: 'Reset password with this email type is not currently supported'
+  })
+}
+
+AppError.invalidSigninCode = function () {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INVALID_SIGNIN_CODE,
+    message: 'Invalid signin code'
+  })
+}
+
+AppError.cannotChangeEmailToUnverifiedEmail = function () {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.CHANGE_EMAIL_TO_UNVERIFIED_EMAIL,
+    message: 'Can not change primary email to an unverified email'
+  })
+}
+
+AppError.cannotChangeEmailToUnownedEmail = function () {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.CHANGE_EMAIL_TO_UNOWNED_EMAIL,
+    message: 'Can not change primary email to an email that does not belong to this account'
+  })
+}
+
+AppError.cannotLoginWithEmail = function () {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.LOGIN_WITH_INVALID_EMAIL,
+    message: 'This email can not currently be used to login'
+  })
+}
+
+AppError.cannotResendEmailCodeToUnownedEmail = function () {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.RESEND_EMAIL_CODE_TO_UNOWNED_EMAIL,
+    message: 'Can not resend email code to an email that does not belong to this account'
+  })
+}
+
+AppError.cannotSendEmail = function () {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.FAILED_TO_SEND_EMAIL,
+    message: 'Failed to send email'
+  })
+}
+
+AppError.invalidTokenVerficationCode = function (details) {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.INVALID_TOKEN_VERIFICATION_CODE,
+      message: 'Invalid token verification code'
+    },
+    details
+  )
+}
+
+AppError.expiredTokenVerficationCode = function (details) {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.EXPIRED_TOKEN_VERIFICATION_CODE,
+      message: 'Expired token verification code'
+    },
+    details
+  )
+}
+
+AppError.totpTokenAlreadyExists = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.TOTP_TOKEN_EXISTS,
+    message: 'A TOTP token already exists for this account.'
+  })
+}
+
+AppError.totpTokenNotFound = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.TOTP_TOKEN_NOT_FOUND,
+    message: 'A TOTP token not found.'
+  })
+}
+
+AppError.unexpectedError = () => {
+  return new AppError({})
 }
 
 module.exports = AppError

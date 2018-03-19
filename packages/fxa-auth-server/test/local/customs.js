@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
+const ROOT_DIR = '../..'
+
 const assert = require('insist')
 const log = {
   trace: () => {},
@@ -10,10 +14,10 @@ const log = {
   error() {}
 }
 const mocks = require('../mocks')
-var error = require('../../lib/error.js')
+const error = require(`${ROOT_DIR}/lib/error.js`)
 var nock = require('nock')
 
-var Customs = require('../../lib/customs.js')(log, error)
+const Customs = require(`${ROOT_DIR}/lib/customs.js`)(log, error)
 
 var CUSTOMS_URL_REAL = 'http://localhost:7000'
 var CUSTOMS_URL_MISSING = 'http://localhost:7001'
@@ -55,6 +59,12 @@ describe('Customs', () => {
         })
         .then(function(result) {
           assert.equal(result, undefined, 'Nothing is returned when /passwordReset succeeds')
+        })
+        .then(() => {
+          return customsNoUrl.checkIpOnly(request, action)
+        })
+        .then(result => {
+          assert.equal(result, undefined, 'Nothing is returned when /checkIpOnly succeeds')
         })
     }
   )
@@ -190,8 +200,24 @@ describe('Customs', () => {
           assert.equal(err.message, 'The request was blocked for security reasons', 'Error message is correct')
           assert.ok(err.isBoom, 'The error causes a boom')
           assert.equal(err.output.statusCode, 400, 'Status Code is correct')
-          assert(!err.output.payload.retryAfter, 'retryAfter field is not present')
-          assert(!err.output.headers['retry-after'], 'retryAfter header is not present')
+          assert(! err.output.payload.retryAfter, 'retryAfter field is not present')
+          assert(! err.output.headers['retry-after'], 'retryAfter header is not present')
+        })
+        .then(() => {
+          customsServer.post('/checkIpOnly', function (body) {
+            assert.deepEqual(body, {
+              ip: ip,
+              action: action
+            }, 'first call to /check had expected request params')
+            return true
+          }).reply(200, {
+            block: false,
+            retryAfter: 0
+          })
+          return customsWithUrl.checkIpOnly(request, action)
+        })
+        .then(result => {
+          assert.equal(result, undefined, 'Nothing is returned when /check succeeds')
         })
     }
   )
@@ -431,4 +457,3 @@ function newAction() {
 
   return EMAIL_ACTIONS[Math.floor(Math.random() * EMAIL_ACTIONS.length)]
 }
-

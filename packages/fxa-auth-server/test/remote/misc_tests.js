@@ -5,13 +5,13 @@
 'use strict'
 
 const assert = require('insist')
-var TestServer = require('../test_server')
+const TestServer = require('../test_server')
 const Client = require('../client')()
-var P = require('../../lib/promise')
-var hawk = require('hawk')
-var request = P.promisify(require('request'))
+const P = require('../../lib/promise')
+const hawk = require('hawk')
+const request = P.promisify(require('request'), { multiArgs: true })
 
-var config = require('../../config').getProperties()
+const config = require('../../config').getProperties()
 
 describe('remote misc', function() {
   this.timeout(15000)
@@ -61,6 +61,24 @@ describe('remote misc', function() {
     () => {
       return request(config.publicUrl + '/v0/account/create').spread((res) => {
         assert.equal(res.statusCode, 410, 'http gone')
+      })
+    }
+  )
+
+  it(
+    '/__heartbeat__ returns a 200 OK',
+    () => {
+      return request(config.publicUrl + '/__heartbeat__').spread((res) => {
+        assert.equal(res.statusCode, 200, 'http ok')
+      })
+    }
+  )
+
+  it(
+    '/__lbheartbeat__ returns a 200 OK',
+    () => {
+      return request(config.publicUrl + '/__lbheartbeat__').spread((res) => {
+        assert.equal(res.statusCode, 200, 'http ok')
       })
     }
   )
@@ -191,7 +209,7 @@ describe('remote misc', function() {
         client.api.baseURL + '/get_random_bytes',
         null,
         // See payload.maxBytes in ../../server/server.js
-        { big: Buffer(8192).toString('hex')}
+        { big: Buffer.alloc(8192).toString('hex')}
       )
       .then(
         function (body) {
@@ -264,6 +282,50 @@ describe('remote misc', function() {
           )
         }
       )
+    }
+  )
+
+  it(
+    'fail on hawk payload mismatch',
+    () => {
+      const email = server.uniqueEmail()
+      const password = 'allyourbasearebelongtous'
+      let url = null
+      let client = null
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+        .then((c) => {
+          client = c
+          return client.api.Token.SessionToken.fromHex(client.sessionToken)
+        })
+        .then((token) => {
+          url = client.api.baseURL + '/account/device'
+          const method = 'POST'
+          const payload = {
+            name: 'my cool device',
+            type: 'desktop'
+          }
+          const verify = {
+            credentials: token,
+            payload: JSON.stringify(payload),
+            timestamp: Math.floor(Date.now() / 1000)
+          }
+          const headers = {
+            Authorization: hawk.client.header(url, method, verify).field
+          }
+          payload.name = 'my stealthily-changed device name'
+          return request(
+            {
+              method: method,
+              url: url,
+              headers: headers,
+              body: JSON.stringify(payload)
+            })
+            .spread((res) => {
+              const body = JSON.parse(res.body)
+              assert.equal(res.statusCode, 401, 'the request was rejected')
+              assert.equal(body.errno, 109, 'the errno indicates an invalid signature')
+            })
+        })
     }
   )
 

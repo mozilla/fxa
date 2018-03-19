@@ -2,13 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var path = require('path')
-var cp = require('child_process')
-const util = require('util')
+'use strict'
 
-var version = require('../../package.json').version
+const path = require('path')
+const cp = require('child_process')
+const error = require('../error')
+
+const version = require('../../package.json').version
 var commitHash
 var sourceRepo
+
+const UNKNOWN = 'unknown'
 
 // Production and stage provide './config/version.json'. Try to load this at
 // startup; punt on failure. For dev environments, we'll get this from `git`
@@ -22,7 +26,7 @@ try {
   /* ignore */
 }
 
-module.exports = function (log, P, db, error) {
+module.exports = (log, db) => {
 
   function versionHandler(request, reply) {
     log.begin('Defaults.root', request)
@@ -44,13 +48,12 @@ module.exports = function (log, P, db, error) {
 
     // ignore errors and default to 'unknown' if not found
     var gitDir = path.resolve(__dirname, '..', '..', '.git')
-    var cmd = util.format('git --git-dir=%s rev-parse HEAD', gitDir)
-    cp.exec(cmd, function(err, stdout1) {
+    cp.exec('git rev-parse HEAD', { cwd: gitDir }, function(err, stdout1) {
       var configPath = path.join(gitDir, 'config')
-      var cmd = util.format('git config --file %s --get remote.origin.url', configPath)
-      cp.exec(cmd, function(err, stdout2) {
-        commitHash = (stdout1 && stdout1.trim()) || 'unknown'
-        sourceRepo = (stdout2 && stdout2.trim()) || 'unknown'
+      var cmd = 'git config --get remote.origin.url'
+      cp.exec(cmd, { env: { GIT_CONFIG: configPath, PATH: process.env.PATH } }, function(err, stdout2) {
+        commitHash = (stdout1 && stdout1.trim()) || UNKNOWN
+        sourceRepo = (stdout2 && stdout2.trim()) || UNKNOWN
         return sendReply()
       })
     })
@@ -73,7 +76,7 @@ module.exports = function (log, P, db, error) {
       handler: function heartbeat(request, reply) {
         log.begin('Defaults.heartbeat', request)
         db.ping()
-          .done(
+          .then(
             function () {
               reply({})
             },
@@ -82,6 +85,14 @@ module.exports = function (log, P, db, error) {
               reply(error.serviceUnavailable())
             }
           )
+      }
+    },
+    {
+      method: 'GET',
+      path: '/__lbheartbeat__',
+      handler: function heartbeat(request, reply) {
+        log.begin('Defaults.lbheartbeat', request)
+        reply({})
       }
     },
     {

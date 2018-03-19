@@ -4,14 +4,38 @@
 
 'use strict'
 
-module.exports = function (log, db, push) {
-  return {
-    upsert: upsert,
-    synthesizeName: synthesizeName
-  }
+const isA = require('joi')
+const {
+  DISPLAY_SAFE_UNICODE_WITH_NON_BMP,
+  HEX_STRING,
+  URL_SAFE_BASE_64
+} = require('./routes/validators')
+const PUSH_SERVER_REGEX = require('../config').get('push.allowedServerRegex')
+
+const SCHEMA = {
+  id: isA.string().length(32).regex(HEX_STRING),
+  location: isA.object({
+    city: isA.string().optional().allow(null),
+    country: isA.string().optional().allow(null),
+    state: isA.string().optional().allow(null),
+    stateCode: isA.string().optional().allow(null)
+  }),
+  name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE_WITH_NON_BMP),
+  // We previously allowed devices to register with arbitrary unicode names,
+  // so we can't assert DISPLAY_SAFE_UNICODE_WITH_NON_BMP in the response schema.
+  nameResponse: isA.string().max(255),
+  type: isA.string().max(16),
+  pushCallback: isA.string().uri({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow(''),
+  pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).allow(''),
+  pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).allow(''),
+  pushEndpointExpired: isA.boolean().strict()
+}
+
+module.exports = (log, db, push) => {
+  return { upsert, synthesizeName }
 
   function upsert (request, sessionToken, deviceInfo) {
-    var operation, event, result
+    let operation, event, result
     if (deviceInfo.id) {
       operation = 'updateDevice'
       event = 'device.updated'
@@ -19,20 +43,30 @@ module.exports = function (log, db, push) {
       operation = 'createDevice'
       event = 'device.created'
     }
-    var isPlaceholderDevice = Object.keys(deviceInfo).length === 0
+    const isPlaceholderDevice = ! deviceInfo.id && ! deviceInfo.name && ! deviceInfo.type
 
-    return db[operation](sessionToken.uid, sessionToken.tokenId, deviceInfo)
-      .then(function (device) {
+    return db[operation](sessionToken.uid, sessionToken.id, deviceInfo)
+      .then(device => {
         result = device
         return request.emitMetricsEvent(event, {
-          uid: sessionToken.uid.toString('hex'),
-          device_id: result.id.toString('hex'),
+          uid: sessionToken.uid,
+          device_id: result.id,
           is_placeholder: isPlaceholderDevice
         })
       })
-      .then(function () {
+      .then(() => {
         if (operation === 'createDevice') {
-          push.notifyDeviceConnected(sessionToken.uid, result.name, result.id.toString('hex'))
+          // Clients expect this notification to always include a name,
+          // so try to synthesize one if necessary.
+          let deviceName = result.name
+          if (! deviceName) {
+            deviceName = synthesizeName(deviceInfo)
+          }
+          if (sessionToken.tokenVerified) {
+            request.app.devices.then(devices =>
+              push.notifyDeviceConnected(sessionToken.uid, devices, deviceName, result.id)
+            )
+          }
           if (isPlaceholderDevice) {
             log.info({
               op: 'device:createPlaceholder',
@@ -55,30 +89,40 @@ module.exports = function (log, db, push) {
   }
 
   function synthesizeName (device) {
-    var browserPart = part('uaBrowser')
-    var osPart = part('uaOS')
+    const uaBrowser = device.uaBrowser
+    const uaBrowserVersion = device.uaBrowserVersion
+    const uaOS = device.uaOS
+    const uaOSVersion = device.uaOSVersion
+    const uaFormFactor = device.uaFormFactor
+    let result = ''
 
-    if (browserPart) {
-      if (osPart) {
-        return browserPart + ', ' + osPart
+    if (uaBrowser) {
+      if (uaBrowserVersion) {
+        result = `${uaBrowser} ${uaBrowserVersion}`
+      } else {
+        result = uaBrowser
       }
 
-      return browserPart
-    }
-
-    return osPart || ''
-
-    function part (key) {
-      if (device[key]) {
-        var versionKey = key + 'Version'
-
-        if (device[versionKey]) {
-          return device[key] + ' ' + device[versionKey]
-        }
-
-        return device[key]
+      if (uaOS || uaFormFactor) {
+        result += ', '
       }
     }
+
+    if (uaFormFactor) {
+      return `${result}${uaFormFactor}`
+    }
+
+    if (uaOS) {
+      result += uaOS
+
+      if (uaOSVersion) {
+        result += ` ${uaOSVersion}`
+      }
+    }
+
+    return result
   }
 }
+
+module.exports.schema = SCHEMA
 

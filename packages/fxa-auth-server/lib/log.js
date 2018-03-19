@@ -4,23 +4,12 @@
 
 'use strict'
 
-var EventEmitter = require('events').EventEmitter
-var util = require('util')
-var mozlog = require('mozlog')
-var config = require('../config')
-var logConfig = config.get('log')
-var StatsDCollector = require('./metrics/statsd')
+const EventEmitter = require('events').EventEmitter
+const util = require('util')
+const mozlog = require('mozlog')
+const config = require('../config')
+const logConfig = config.get('log')
 
-function unbuffer(object) {
-  var keys = Object.keys(object)
-  for (var i = 0; i < keys.length; i++) {
-    var x = object[keys[i]]
-    if (Buffer.isBuffer(x)) {
-      object[keys[i]] = x.toString('hex')
-    }
-  }
-  return object
-}
 
 function Lug(options) {
   EventEmitter.call(this)
@@ -35,13 +24,11 @@ function Lug(options) {
 
   this.stdout = options.stdout || process.stdout
 
-  this.statsd = new StatsDCollector(this.logger)
-  this.statsd.init()
+  this.notifier = require('./notifier')(this)
 }
 util.inherits(Lug, EventEmitter)
 
 Lug.prototype.close = function() {
-  return this.statsd.close()
 }
 
 // Expose the standard error/warn/info/debug/etc log methods.
@@ -55,7 +42,7 @@ Lug.prototype.error = function (data) {
   // lift it into top-level fields so that our
   // PII-scrubbing tool is able to find it.
   if (data.err && data.err.email) {
-    if (!data.email) {
+    if (! data.email) {
       data.email = data.err.email
     }
     data.err.email = null
@@ -79,26 +66,9 @@ Lug.prototype.begin = function (op, request) {
   this.logger.debug(op)
 }
 
-// Expose some statsd helpers directly on the logger object.
-
-Lug.prototype.increment = function(event) {
-  this.statsd.write({
-    event: event
-  })
-}
-
 Lug.prototype.stat = function (stats) {
   this.logger.info('stat', stats)
 }
-
-Lug.prototype.timing = function(name, timing, tags) {
-  this.statsd.timing(name, timing, tags)
-}
-
-Lug.prototype.histogram = function(name, value, tags) {
-  this.statsd.histogram(name, value, tags)
-}
-
 
 // Log a request summary line.
 // This gets called once for each compelted request.
@@ -139,28 +109,29 @@ Lug.prototype.summary = function (request, response) {
   if (line.code >= 500) {
     line.trace = request.app.traced
     line.stack = response.stack
-    this.error(unbuffer(line), response.message)
+    this.error(line, response.message)
   }
   else {
-    this.info(unbuffer(line))
+    this.info(line)
   }
 }
 
 
 // Broadcast an event to attached services, such as sync.
-// In production, these events are read from stdout
-// and broadcast to relying services over SNS/SQS.
-
+// In production, these events are broadcast to relying services over SNS/SQS.
 Lug.prototype.notifyAttachedServices = function (name, request, data) {
   return request.gatherMetricsContext({})
     .then(
       metricsContextData => {
-        var e = {
+        // Add a timestamp that this event occurred to help attached services resolve any
+        // potential timing issues
+        data.ts = data.ts || Date.now() / 1000 // Convert to float seconds
+        const e = {
           event: name,
-          data: unbuffer(data)
+          data: data
         }
         e.data.metricsContext = metricsContextData
-        this.stdout.write(JSON.stringify(e) + '\n')
+        this.notifier.send(e)
       }
     )
 }
@@ -176,7 +147,6 @@ Lug.prototype.activityEvent = function (data) {
   }
 
   this.logger.info('activityEvent', data)
-  this.statsd.write(data)
 }
 
 // Log a flow metrics event.
@@ -191,8 +161,21 @@ Lug.prototype.flowEvent = function (data) {
   this.logger.info('flowEvent', data)
 }
 
-module.exports = function (level, name, options) {
-  options = options || {}
+Lug.prototype.amplitudeEvent = function (data) {
+  if (! data || ! data.event_type || (! data.device_id && ! data.user_id)) {
+    this.error({ op: 'amplitude.missingData', data })
+    return
+  }
+
+  this.logger.info('amplitudeEvent', data)
+}
+
+module.exports = function (level, name, options = {}) {
+  if (arguments.length === 1 && typeof level === 'object') {
+    options = level
+    level = options.level
+    name = options.name
+  }
   options.name = name
   options.level = level
   options.fmt = logConfig.fmt

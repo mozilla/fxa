@@ -5,11 +5,12 @@
 'use strict'
 
 const crypto = require('crypto')
+const isA = require('joi')
+
+const SCHEMA = isA.array().items(isA.string()).optional()
 
 module.exports = config => {
-  const lastAccessTimeUpdates = config.lastAccessTimeUpdates
-  const signinUnblock = config.signinUnblock
-  const securityHistory = config.securityHistory
+  const lastAccessTimeUpdates = config.lastAccessTimeUpdates || {}
 
   return {
     /**
@@ -19,61 +20,9 @@ module.exports = config => {
      * @param uid   Buffer or String
      * @param email String
      */
-    isLastAccessTimeEnabledForUser (uid, email) {
-      return lastAccessTimeUpdates.enabled && (
-        isSampledUser(lastAccessTimeUpdates.sampleRate, uid, 'lastAccessTimeUpdates') ||
-        lastAccessTimeUpdates.enabledEmailAddresses.test(email)
-      )
-    },
-
-    /**
-     * Returns whether or not to use signin unblock feature on a request.
-     *
-     * @param uid   Buffer or String
-     * @param email String
-     * @param request
-     * @returns {boolean}
-     */
-    isSigninUnblockEnabledForUser(uid, email, request) {
-      if (! signinUnblock.enabled) {
-        return false
-      }
-
-      if (signinUnblock.forcedEmailAddresses && signinUnblock.forcedEmailAddresses.test(email)) {
-        return true
-      }
-
-      if (signinUnblock.allowedEmailAddresses.test(email)) {
-        return true
-      }
-
-      // Check to see if user in roll-out cohort.
-      return isSampledUser(signinUnblock.sampleRate, uid, 'signinUnblock')
-    },
-
-    /**
-     * Return whether tracking of security history events is enabled.
-     *
-     * @returns {boolean}
-     */
-    isSecurityHistoryTrackingEnabled() {
-      return securityHistory.enabled
-    },
-
-    /**
-     * Return whether or not we can bypass sign-in confirmation based
-     * on previously seen security event history.
-     *
-     * @returns {boolean}
-     */
-    isSecurityHistoryProfilingEnabled() {
-      if (! securityHistory.enabled) {
-        return false
-      }
-      if (! securityHistory.ipProfiling || ! securityHistory.ipProfiling.enabled) {
-        return false
-      }
-      return true
+    isLastAccessTimeEnabledForUser (uid) {
+      return lastAccessTimeUpdates.enabled &&
+        isSampledUser(lastAccessTimeUpdates.sampleRate, uid, 'lastAccessTimeUpdates')
     },
 
     /**
@@ -102,10 +51,6 @@ function isSampledUser (sampleRate, uid, key) {
     return false
   }
 
-  if (Buffer.isBuffer(uid)) {
-    uid = uid.toString('hex')
-  }
-
   // Extract the maximum entropy we can safely handle as a number then reduce
   // it to a value between 0 and 1 for comparison against the sample rate.
   const cohort = parseInt(
@@ -123,4 +68,7 @@ function hash (uid, key) {
   h.update(key)
   return h.digest('hex')
 }
+
+// Joi schema for endpoints that can take a `features` parameter.
+module.exports.schema = SCHEMA
 

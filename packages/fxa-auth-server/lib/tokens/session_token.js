@@ -2,119 +2,100 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var userAgent = require('../userAgent')
-var ONE_HOUR = 60 * 60 * 1000
+'use strict'
 
-// setting to "forever" to eliminate ~99% of the updates to sessionToken
-// (A small percentage do qualify as "fresh" due to changes in UA).
-// See https://github.com/mozilla/fxa-auth-server/pull/1169
-var TOKEN_FRESHNESS_THRESHOLD = 50 * 365 * 24 * ONE_HOUR // 50 years or post Y2038 ;-)
+module.exports = (log, Token, config) => {
+  const MAX_AGE_WITHOUT_DEVICE = config.tokenLifetimes.sessionTokenWithoutDevice
 
-module.exports = (log, inherits, Token, config) => {
-  const features = require('../features')(config)
+  // Convert verificationMethod to a more readable format. Maps to
+  // https://github.com/mozilla/fxa-auth-db-mysql/blob/master/lib/db/util.js#L34
+  const VERIFICATION_METHODS = new Map(
+    [
+      [0, 'email'],
+      [1, 'email-2fa'],
+      [2, 'totp-2fa']
+    ]
+  )
 
-  function SessionToken(keys, details) {
-    Token.call(this, keys, details)
-    this.setUserAgentInfo(details)
-    this.setDeviceInfo(details)
-    this.email = details.email || null
-    this.emailCode = details.emailCode || null
-    this.emailVerified = !!details.emailVerified
-    this.verifierSetAt = details.verifierSetAt
-    this.locale = details.locale || null
-    this.mustVerify = !!details.mustVerify || false
-    this.accountCreatedAt = details.accountCreatedAt || null
+  class SessionToken extends Token {
 
-    // Tokens are considered verified if no tokenVerificationId exists
-    this.tokenVerificationId = details.tokenVerificationId || null
-    this.tokenVerified = this.tokenVerificationId ? false : true
-  }
-  inherits(SessionToken, Token)
+    constructor(keys, details) {
+      super(keys, details)
 
-  SessionToken.tokenTypeID = 'sessionToken'
+      if (MAX_AGE_WITHOUT_DEVICE && ! details.deviceId) {
+        this.lifetime = MAX_AGE_WITHOUT_DEVICE
+      }
 
-  SessionToken.create = function (details) {
-    details = details || {}
-    log.trace({ op: 'SessionToken.create', uid: details.uid })
-    return Token.createNewToken(SessionToken, details)
-  }
+      this.setUserAgentInfo(details)
+      this.setDeviceInfo(details)
+      this.email = details.email || null
+      this.emailCode = details.emailCode || null
+      this.emailVerified = !! details.emailVerified
+      this.verifierSetAt = details.verifierSetAt
+      this.authAt = details.authAt || 0
+      this.locale = details.locale || null
+      this.mustVerify = !! details.mustVerify || false
 
-  SessionToken.fromHex = function (string, details) {
-    log.trace({ op: 'SessionToken.fromHex' })
-    return Token.createTokenFromHexData(SessionToken, string, details || {})
-  }
+      // Tokens are considered verified if no tokenVerificationId exists
+      this.tokenVerificationId = details.tokenVerificationId || null
+      this.tokenVerified = this.tokenVerificationId ? false : true
 
-  SessionToken.prototype.lastAuthAt = function () {
-    return Math.floor(this.createdAt / 1000)
-  }
+      this.tokenVerificationCode = details.tokenVerificationCode || null
+      this.tokenVerificationCodeExpiresAt = details.tokenVerificationCodeExpiresAt || null
 
-  // Parse the user agent string, then check the result to see whether
-  // the session token needs updating.
-  //
-  // If the session token has not changed, allowing up to an hour of
-  // leeway for lastAccessTime, return false.
-  //
-  // Otherwise, update properties on this then return true.
-  //
-  // It is the caller's responsibility to update the database.
-  SessionToken.prototype.update = function (userAgentString) {
-    log.trace({ op: 'SessionToken.update', uid: this.uid })
-
-    var freshData = userAgent.call({
-      lastAccessTime: Date.now()
-    }, userAgentString, log)
-
-    if (this.isFresh(freshData)) {
-      return false
+      this.verificationMethod = details.verificationMethod || null
+      this.verificationMethodValue = VERIFICATION_METHODS.get(this.verificationMethod)
+      this.verifiedAt = details.verifiedAt || null
     }
 
-    this.setUserAgentInfo(freshData)
+    static create(details) {
+      details = details || {}
+      log.trace({ op: 'SessionToken.create', uid: details.uid })
+      return Token.createNewToken(SessionToken, details)
+    }
 
-    return true
+    static fromHex(string, details) {
+      log.trace({ op: 'SessionToken.fromHex' })
+      return Token.createTokenFromHexData(SessionToken, string, details || {})
+    }
+
+    lastAuthAt() {
+      return Math.floor((this.authAt || this.createdAt) / 1000)
+    }
+
+    get state() {
+      if (this.tokenVerified) {
+        return 'verified'
+      } else {
+        return 'unverified'
+      }
+    }
+
+    setUserAgentInfo(data) {
+      this.uaBrowser = data.uaBrowser
+      this.uaBrowserVersion = data.uaBrowserVersion
+      this.uaOS = data.uaOS
+      this.uaOSVersion = data.uaOSVersion
+      this.uaDeviceType = data.uaDeviceType
+      this.uaFormFactor = data.uaFormFactor
+      if (data.lastAccessTime) {
+        this.lastAccessTime = data.lastAccessTime
+      }
+    }
+
+    setDeviceInfo(data) {
+      this.deviceId = data.deviceId
+      this.deviceName = data.deviceName
+      this.deviceType = data.deviceType
+      this.deviceCreatedAt = data.deviceCreatedAt
+      this.callbackURL = data.callbackURL
+      this.callbackPublicKey = data.callbackPublicKey
+      this.callbackAuthKey = data.callbackAuthKey
+      this.callbackIsExpired = data.callbackIsExpired
+    }
   }
 
-  SessionToken.prototype.isFresh = function (freshData) {
-    var result = this.uaBrowser === freshData.uaBrowser &&
-      this.uaBrowserVersion === freshData.uaBrowserVersion &&
-      this.uaOS === freshData.uaOS &&
-      this.uaOSVersion === freshData.uaOSVersion &&
-      this.uaDeviceType === freshData.uaDeviceType &&
-      (
-        ! features.isLastAccessTimeEnabledForUser(this.uid, this.email) ||
-        this.lastAccessTime + TOKEN_FRESHNESS_THRESHOLD > freshData.lastAccessTime
-      )
-
-    log.info({
-      op: 'SessionToken.isFresh',
-      uid: this.uid,
-      tokenAge: freshData.lastAccessTime - this.lastAccessTime,
-      fresh: result
-    })
-
-    return result
-  }
-
-  SessionToken.prototype.setUserAgentInfo = function (data) {
-    this.uaBrowser = data.uaBrowser
-    this.uaBrowserVersion = data.uaBrowserVersion
-    this.uaOS = data.uaOS
-    this.uaOSVersion = data.uaOSVersion
-    this.uaDeviceType = data.uaDeviceType
-    this.lastAccessTime = data.lastAccessTime
-  }
-
-  SessionToken.prototype.setDeviceInfo = function (data) {
-    this.deviceId = data.deviceId
-    this.deviceName = data.deviceName
-    this.deviceType = data.deviceType
-    this.deviceCreatedAt = data.deviceCreatedAt
-    this.callbackURL = data.callbackURL
-    this.callbackPublicKey = data.callbackPublicKey
-    this.callbackAuthKey = data.callbackAuthKey
-  }
-
+  SessionToken.tokenTypeID = 'sessionToken'
   return SessionToken
 }
 
-// For use by the tests.
-module.exports.TOKEN_FRESHNESS_THRESHOLD = TOKEN_FRESHNESS_THRESHOLD

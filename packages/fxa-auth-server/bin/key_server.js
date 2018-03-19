@@ -2,32 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
+// This MUST be the first require in the program.
 // Only `require()` the newrelic module if explicity enabled.
 // If required, modules will be instrumented.
 require('../lib/newrelic')()
 
-var config = require('../config').getProperties()
 var jwtool = require('fxa-jwtool')
+var P = require('../lib/promise')
 
-var log = require('../lib/log')(config.log.level)
-var getGeoData = require('../lib/geodb')(log)
 
-function main() {
+function run(config) {
+  var log = require('../lib/log')(config.log)
+  var getGeoData = require('../lib/geodb')(log)
   // Force the geo to load and run at startup, not waiting for it to run on
   // some route later.
-  var knownIp = '63.245.221.32' // Mozilla MTV
-  getGeoData(knownIp)
-    .then(function(result) {
-      log.info({ op: 'geodb.check', result: result })
-    })
+  const knownIp = '63.245.221.32' // Mozilla MTV
+  const location = getGeoData(knownIp)
+  log.info({ op: 'geodb.check', result: location })
 
   // RegExp instances serialise to empty objects, display regex strings instead.
   const stringifiedConfig =
     JSON.stringify(config, (k, v) =>
       v && v.constructor === RegExp ? v.toString() : v
     )
-
-  process.stdout.write('{"event":"config","data":' + stringifiedConfig + '}\n')
 
   if (config.env !== 'prod') {
     log.info(stringifiedConfig, 'starting config')
@@ -64,7 +63,7 @@ function main() {
 
   var Server = require('../lib/server')
   var server = null
-  var mailer = null
+  var senders = null
   var statsInterval = null
   var database = null
   var customs = null
@@ -74,90 +73,114 @@ function main() {
     log.stat(Password.stat())
   }
 
-  require('../lib/mailer')(config, log)
-    .done(
-      function(m) {
-        mailer = m
+  var DB = require('../lib/db')(
+    config,
+    log,
+    Token,
+    UnblockCode
+  )
 
-        var DB = require('../lib/db')(
-          config,
-          log,
-          error,
-          Token.SessionToken,
-          Token.KeyFetchToken,
-          Token.AccountResetToken,
-          Token.PasswordForgotToken,
-          Token.PasswordChangeToken,
-          UnblockCode
-        )
+  return P.all([
+    DB.connect(config[config.db.backend]),
+    require('../lib/senders/translator')(config.i18n.supportedLanguages, config.i18n.defaultLanguage)
+  ])
+    .spread(
+      (db, translator) => {
+        database = db
+        const bounces = require('../lib/bounces')(config, db)
 
-        DB.connect(config[config.db.backend])
-          .done(
-            function (db) {
-              database = db
-              customs = new Customs(config.customsUrl)
-              var routes = require('../lib/routes')(
-                log,
-                error,
-                serverPublicKeys,
-                signer,
-                db,
-                mailer,
-                Password,
-                config,
-                customs
-              )
-              server = Server.create(log, error, config, routes, db)
+        return require('../lib/senders')(log, config, error, bounces, translator)
+          .then(result => {
+            senders = result
+            customs = new Customs(config.customsUrl)
+            var routes = require('../lib/routes')(
+              log,
+              serverPublicKeys,
+              signer,
+              db,
+              senders.email,
+              senders.sms,
+              Password,
+              config,
+              customs
+            )
+            server = Server.create(log, error, config, routes, db, translator)
+            statsInterval = setInterval(logStatInfo, 15000)
 
+            return new P((resolve, reject) => {
               server.start(
                 function (err) {
                   if (err) {
                     log.error({ op: 'server.start.1', msg: 'failed startup with error',
                       err: { message: err.message } })
-                    process.exit(1)
+                    reject(err)
                   } else {
                     log.info({ op: 'server.start.1', msg: 'running on ' + server.info.uri })
+                    resolve()
                   }
                 }
               )
-              statsInterval = setInterval(logStatInfo, 15000)
-            },
-            function (err) {
-              log.error({ op: 'DB.connect', err: { message: err.message } })
-              process.exit(1)
-            }
-          )
-
+            })
+          })
+      },
+      function (err) {
+        log.error({ op: 'DB.connect', err: { message: err.message } })
+        process.exit(1)
       }
     )
-
-  process.on(
-    'uncaughtException',
-    function (err) {
-      log.fatal(err)
-      process.exit(8)
-    }
-  )
-  process.on('SIGINT', shutdown)
-  log.on('error', shutdown)
-
-  function shutdown() {
-    log.info({ op: 'shutdown' })
-    clearInterval(statsInterval)
-    server.stop(
-      function () {
-        customs.close()
-        try {
-          mailer.stop()
-        } catch (e) {
-          // XXX: simplesmtp module may quit early and set socket to `false`, stopping it may fail
-          log.warn({ op: 'shutdown', message: 'Mailer client already disconnected' })
+    .then(() => {
+      return {
+        log: log,
+        close() {
+          return new P((resolve) => {
+            log.info({ op: 'shutdown' })
+            clearInterval(statsInterval)
+            server.stop(
+              function () {
+                customs.close()
+                try {
+                  senders.email.stop()
+                } catch (e) {
+                  // XXX: simplesmtp module may quit early and set socket to `false`, stopping it may fail
+                  log.warn({ op: 'shutdown', message: 'Mailer client already disconnected' })
+                }
+                database.close()
+                resolve()
+              }
+            )
+          })
         }
-        database.close()
-        process.exit() //XXX: because of openid dep ಠ_ಠ
       }
-    )
-  }
+    })
 }
 
-main()
+function main() {
+  const config = require('../config').getProperties()
+  run(config).then(server => {
+    process.on('uncaughtException', (err) => {
+      server.log.fatal(err)
+      process.exit(8)
+    })
+    process.on('unhandledRejection', (reason, promise) => {
+      server.log.fatal({
+        op: 'promise.unhandledRejection',
+        error: reason
+      })
+    })
+    process.on('SIGINT', shutdown)
+    server.log.on('error', shutdown)
+
+    function shutdown() {
+      server.close().then(() => {
+        process.exit() //XXX: because of openid dep ಠ_ಠ
+      })
+    }
+  })
+  .catch(process.exit.bind(null, 8))
+}
+
+if (require.main === module) {
+  main()
+} else {
+  module.exports = run
+}

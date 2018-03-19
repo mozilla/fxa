@@ -4,6 +4,7 @@
 
 'use strict'
 
+const error = require('../error')
 const P = require('../promise')
 
 const ACTIVITY_EVENTS = new Set([
@@ -18,7 +19,8 @@ const ACTIVITY_EVENTS = new Set([
   'account.verified',
   'device.created',
   'device.deleted',
-  'device.updated'
+  'device.updated',
+  'sync.sentTabToDevice'
 ])
 
 // We plan to emit a vast number of flow events to cover all
@@ -30,7 +32,8 @@ const NOT_FLOW_EVENTS = new Set([
   'account.deleted',
   'device.created',
   'device.deleted',
-  'device.updated'
+  'device.updated',
+  'sync.sentTabToDevice'
 ])
 
 // It's an error if a flow event doesn't have a flow_id
@@ -54,12 +57,15 @@ const FLOW_EVENT_ROUTES = new Set([
   '/account/login/send_unblock_code',
   '/account/reset',
   '/recovery_email/resend_code',
-  '/recovery_email/verify_code'
+  '/recovery_email/verify_code',
+  '/sms'
 ])
 
 const PATH_PREFIX = /^\/v1/
 
-module.exports = log => {
+module.exports = (log, config) => {
+  const amplitude = require('./amplitude')(log, config)
+
   return {
     /**
      * Asynchronously emit a flow event and/or an activity event.
@@ -77,6 +83,7 @@ module.exports = log => {
       }
 
       const request = this
+      let isFlowCompleteSignal = false
 
       return P.resolve().then(() => {
         if (ACTIVITY_EVENTS.has(event)) {
@@ -93,7 +100,25 @@ module.exports = log => {
           return
         }
 
-        return emitFlowEvent(event, request)
+        return emitFlowEvent(event, request, data)
+      })
+      .then(metricsContext => {
+        if (metricsContext) {
+          isFlowCompleteSignal = event === metricsContext.flowCompleteSignal
+          return metricsContext
+        }
+
+        return request.gatherMetricsContext({})
+      })
+      .then(metricsContext => {
+        return amplitude(event, request, data, metricsContext)
+          .then(() => {
+            if (isFlowCompleteSignal) {
+              log.flowEvent(Object.assign({}, metricsContext, { event: 'flow.complete' }))
+              return amplitude('flow.complete', request, data, metricsContext)
+                .then(() => request.clearMetricsContext())
+            }
+          })
       })
     },
 
@@ -114,11 +139,25 @@ module.exports = log => {
       }
 
       let status = response.statusCode || response.output.statusCode
+      const errno = response.errno || (response.output && response.output.errno)
+
       if (status >= 400) {
-        status = `${status}.${response.errno || 999}`
+        if (errno === error.ERRNO.INVALID_PARAMETER && ! request.validateMetricsContext()) {
+          // Don't emit flow events if the metrics context failed validation
+          return P.resolve()
+        }
+
+        status = `${status}.${errno || 999}`
       }
 
       return emitFlowEvent(`route.${path}.${status}`, request)
+        .then(data => {
+          if (status >= 200 && status < 300) {
+            // Limit to success responses so that short-cut logic (e.g. errors, 304s)
+            // doesn't skew distribution of the performance data
+            return emitPerformanceEvent(path, request, data)
+          }
+        })
     }
   }
 
@@ -133,7 +172,7 @@ module.exports = log => {
     log.activityEvent(data)
   }
 
-  function emitFlowEvent (event, request) {
+  function emitFlowEvent (event, request, optionalData) {
     if (! request || ! request.headers) {
       log.error({ op: 'metricsEvents.emitFlowEvent', event, badRequest: true })
       return P.resolve()
@@ -141,24 +180,29 @@ module.exports = log => {
 
     return request.gatherMetricsContext({
       event: event,
+      locale: request.app && request.app.locale,
       userAgent: request.headers['user-agent']
     }).then(data => {
       if (data.flow_id) {
-        optionallySetService(data, request)
+        const uid = coalesceUid(optionalData, request)
+        if (uid) {
+          data.uid = uid
+        }
 
         log.flowEvent(data)
-
-        if (event === data.flowCompleteSignal) {
-          log.flowEvent(Object.assign({}, data, {
-            event: 'flow.complete'
-          }))
-
-          request.clearMetricsContext()
-        }
       } else if (! OPTIONAL_FLOW_EVENTS[event]) {
         log.error({ op: 'metricsEvents.emitFlowEvent', event, missingFlowId: true })
       }
+
+      return data
     })
+  }
+
+  function emitPerformanceEvent (path, request, data) {
+    return log.flowEvent(Object.assign({}, data, {
+      event: `route.performance.${path}`,
+      flow_time: Date.now() - request.info.received
+    }))
   }
 }
 
@@ -170,5 +214,15 @@ function optionallySetService (data, request) {
   data.service =
     (request.payload && request.payload.service) ||
     (request.query && request.query.service)
+}
+
+function coalesceUid (data, request) {
+  if (data && data.uid) {
+    return data.uid
+  }
+
+  return request.auth &&
+    request.auth.credentials &&
+    request.auth.credentials.uid
 }
 

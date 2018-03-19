@@ -6,42 +6,38 @@
 
 const bufferEqualConstantTime = require('buffer-equal-constant-time')
 const crypto = require('crypto')
-const HEX = require('../routes/validators').HEX_STRING
+const HEX_STRING = require('../routes/validators').HEX_STRING
 const isA = require('joi')
-const Memcached = require('memcached')
 const P = require('../promise')
-
-P.promisifyAll(Memcached.prototype)
 
 const FLOW_ID_LENGTH = 64
 
 const SCHEMA = isA.object({
-  flowId: isA.string().length(64).regex(HEX).optional(),
-  flowBeginTime: isA.number().integer().positive().optional()
+  // The metrics context device id is a client-generated property
+  // that is entirely separate to the devices table in our db.
+  // All clients can generate a metrics context device id, whereas
+  // only Sync creates records in the devices table.
+  deviceId: isA.string().length(32).regex(HEX_STRING).optional(),
+  flowId: isA.string().length(64).regex(HEX_STRING).optional(),
+  flowBeginTime: isA.number().integer().positive().optional(),
+  utmCampaign: isA.string().optional(),
+  utmContent: isA.string().optional(),
+  utmMedium: isA.string().optional(),
+  utmSource: isA.string().optional(),
+  utmTerm: isA.string().optional()
 })
   .unknown(false)
   .and('flowId', 'flowBeginTime')
-  .optional()
-
-const NOP = function () {
-  return P.resolve()
-}
-
-const NULL_MEMCACHED = {
-  delAsync: NOP,
-  getAsync: NOP,
-  setAsync: NOP
-}
 
 module.exports = function (log, config) {
-  let _memcached
+  const cache = require('../cache')(log, config, 'fxa-metrics~')
 
   return {
-    stash: stash,
-    gather: gather,
-    clear: clear,
-    validate: validate,
-    setFlowCompleteSignal: setFlowCompleteSignal
+    stash,
+    gather,
+    clear,
+    validate,
+    setFlowCompleteSignal
   }
 
   /**
@@ -59,8 +55,10 @@ module.exports = function (log, config) {
       return P.resolve()
     }
 
+    metadata.service = this.payload.service || this.query.service
+
     return P.resolve()
-      .then(() => getMemcached().setAsync(getKey(token), metadata, config.memcached.lifetime))
+      .then(() => cache.set(getKey(token), metadata))
       .catch(err => log.error({
         op: 'metricsContext.stash',
         err: err,
@@ -68,31 +66,6 @@ module.exports = function (log, config) {
         hasId: !! (token && token.id),
         hasUid: !! (token && token.uid)
       }))
-  }
-
-  function getMemcached () {
-    if (_memcached) {
-      return _memcached
-    }
-
-    try {
-      if (config.memcached.address !== 'none') {
-        _memcached = new Memcached(config.memcached.address, {
-          timeout: 500,
-          retries: 1,
-          retry: 1000,
-          reconnect: 1000,
-          idle: config.memcached.idle,
-          namespace: 'fxa-metrics~'
-        })
-
-        return _memcached
-      }
-    } catch (err) {
-      log.error({ op: 'metricsContext.getMemcached', err: err })
-    }
-
-    return NULL_MEMCACHED
   }
 
   /**
@@ -118,15 +91,31 @@ module.exports = function (log, config) {
 
         token = getToken(this)
         if (token) {
-          return getMemcached().getAsync(getKey(token))
+          return cache.get(getKey(token))
         }
       })
       .then(metadata => {
         if (metadata) {
           data.time = Date.now()
+          data.device_id = metadata.deviceId
           data.flow_id = metadata.flowId
           data.flow_time = calculateFlowTime(data.time, metadata.flowBeginTime)
+          data.flowBeginTime = metadata.flowBeginTime
           data.flowCompleteSignal = metadata.flowCompleteSignal
+          data.flowType = metadata.flowType
+
+          if (metadata.service) {
+            data.service = metadata.service
+          }
+
+          const doNotTrack = this.headers && this.headers.dnt === '1'
+          if (! doNotTrack) {
+            data.utm_campaign = metadata.utmCampaign
+            data.utm_content = metadata.utmContent
+            data.utm_medium = metadata.utmMedium
+            data.utm_source = metadata.utmSource
+            data.utm_term = metadata.utmTerm
+          }
         }
       })
       .catch(err => log.error({
@@ -146,7 +135,7 @@ module.exports = function (log, config) {
 
     if (request.payload && request.payload.uid && request.payload.code) {
       return {
-        uid: Buffer(request.payload.uid, 'hex'),
+        uid: request.payload.uid,
         id: request.payload.code
       }
     }
@@ -163,7 +152,7 @@ module.exports = function (log, config) {
       .then(() => {
         const token = getToken(this)
         if (token) {
-          return getMemcached().delAsync(getKey(token))
+          return cache.del(getKey(token))
         }
       })
   }
@@ -177,15 +166,19 @@ module.exports = function (log, config) {
    * @this request
    */
   function validate() {
+    if (! this.payload) {
+      return logInvalidContext(this, 'missing payload')
+    }
+
     const metadata = this.payload.metricsContext
 
-    if (!metadata) {
+    if (! metadata) {
       return logInvalidContext(this, 'missing context')
     }
-    if (!metadata.flowId) {
+    if (! metadata.flowId) {
       return logInvalidContext(this, 'missing flowId')
     }
-    if (!metadata.flowBeginTime) {
+    if (! metadata.flowBeginTime) {
       return logInvalidContext(this, 'missing flowBeginTime')
     }
 
@@ -194,12 +187,16 @@ module.exports = function (log, config) {
       return logInvalidContext(this, 'expired flowBeginTime')
     }
 
+    if (! HEX_STRING.test(metadata.flowId)) {
+      return logInvalidContext(this, 'invalid flowId')
+    }
+
     // The first half of the id is random bytes, the second half is a HMAC of
     // additional contextual information about the request.  It's a simple way
     // to check that the metrics came from the right place, without having to
     // share state between content-server and auth-server.
     const flowSignature = metadata.flowId.substr(FLOW_ID_LENGTH / 2, FLOW_ID_LENGTH)
-    const flowSignatureBytes = new Buffer(flowSignature, 'hex')
+    const flowSignatureBytes = Buffer.from(flowSignature, 'hex')
     const expectedSignatureBytes = calculateFlowSignatureBytes(this, metadata)
     if (! bufferEqualConstantTime(flowSignatureBytes, expectedSignatureBytes)) {
       return logInvalidContext(this, 'invalid signature')
@@ -210,12 +207,11 @@ module.exports = function (log, config) {
       valid: true,
       agent: this.headers['user-agent']
     })
-    log.increment('metrics.context.valid')
     return true
   }
 
   function logInvalidContext(request, reason) {
-    if (request.payload.metricsContext) {
+    if (request.payload && request.payload.metricsContext) {
       delete request.payload.metricsContext.flowId
       delete request.payload.metricsContext.flowBeginTime
     }
@@ -225,7 +221,6 @@ module.exports = function (log, config) {
       reason: reason,
       agent: request.headers['user-agent']
     })
-    log.increment('metrics.context.invalid')
     return false
   }
 
@@ -251,11 +246,20 @@ module.exports = function (log, config) {
    * @this request
    * @param {String} flowCompleteSignal
    */
-  function setFlowCompleteSignal (flowCompleteSignal) {
+  function setFlowCompleteSignal (flowCompleteSignal, flowType) {
     if (this.payload && this.payload.metricsContext) {
       this.payload.metricsContext.flowCompleteSignal = flowCompleteSignal
+      this.payload.metricsContext.flowType = flowType
     }
   }
+}
+
+function calculateFlowTime (time, flowBeginTime) {
+  if (time <= flowBeginTime) {
+    return 0
+  }
+
+  return time - flowBeginTime
 }
 
 function getKey (token) {
@@ -271,13 +275,8 @@ function getKey (token) {
   return hash.digest('base64')
 }
 
-function calculateFlowTime (time, flowBeginTime) {
-  if (time <= flowBeginTime) {
-    return 0
-  }
-
-  return time - flowBeginTime
-}
-
-module.exports.schema = SCHEMA
+// HACK: Force the API docs to expand SCHEMA inline
+module.exports.SCHEMA = SCHEMA
+module.exports.schema = SCHEMA.optional()
+module.exports.requiredSchema = SCHEMA.required()
 

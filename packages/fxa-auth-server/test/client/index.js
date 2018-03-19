@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 module.exports = config => {
   var P = require('../../lib/promise')
   const ClientApi = require('./api')(config)
@@ -31,7 +33,7 @@ module.exports = config => {
   Client.prototype.setupCredentials = function (email, password) {
     return P.resolve().then(() => {
       this.email = email
-      return pbkdf2.derive(Buffer(password), hkdf.KWE('quickStretch', email), 1000, 32)
+      return pbkdf2.derive(Buffer.from(password), hkdf.KWE('quickStretch', email), 1000, 32)
         .then(
           function (stretch) {
             return hkdf(stretch, 'authPW', null, 32)
@@ -52,14 +54,14 @@ module.exports = config => {
     })
   }
 
-  Client.create = function (origin, email, password, options) {
+  Client.create = function (origin, email, password, options = {}) {
     var c = new Client(origin)
-    c.options = options || {}
+    c.options = options
 
     return c.setupCredentials(email, password)
       .then(
         function() {
-          return c.create()
+          return c.create(options)
         }
       )
   }
@@ -212,8 +214,67 @@ module.exports = config => {
     return p
   }
 
+  Client.prototype.reauth = function (opts) {
+    return this.api.sessionReauth(this.sessionToken, this.email, this.authPW, opts)
+      .then(
+        function (data) {
+          this.uid = data.uid
+          this.keyFetchToken = data.keyFetchToken || null
+          this.emailVerified = data.verified
+          this.authAt = data.authAt
+          this.verificationReason = data.verificationReason
+          this.verificationMethod = data.verificationMethod
+          this.verified = data.verified
+          return this
+        }.bind(this)
+      )
+  }
+
+  Client.prototype.duplicate = function () {
+    var c = new Client(this.api.origin)
+    c.uid = this.uid
+    c.authAt = this.authAt
+    c.email = this.email
+    c.emailVerified = this.emailVerified
+    c.authToken = this.authToken
+    c.sessionToken = this.sessionToken
+    c.kA = this.kA
+    c.kB = this.kB
+    c.wrapKb = this.wrapKb
+    c.unwrapBKey = this.unwrapBKey
+    c.authPW = this.authPW
+    c.options = this.options
+    return P.resolve().then(() => {
+      if (this.sessionToken) {
+        return this.api.sessionDuplicate(this.sessionToken)
+          .then((data) => {
+            c.uid = data.uid
+            c.sessionToken = data.sessionToken
+            c.authAt = data.authAt
+            c.verified = data.verified
+            c.verificationReason = data.verificationReason
+            c.verificationMetho = data.verificationMethod
+          })
+      }
+    }).then(() => {
+      return c
+    })
+  }
+
+  Client.prototype.verifySecondaryEmail = function (code, secondaryEmail) {
+    const options = {
+      type: 'secondary',
+      secondaryEmail: secondaryEmail
+    }
+    return this.api.recoveryEmailVerifyCode(this.uid, code, options)
+  }
+
   Client.prototype.verifyEmail = function (code, options) {
     return this.api.recoveryEmailVerifyCode(this.uid, code, options)
+  }
+
+  Client.prototype.verifyTokenCode = function (code, options) {
+    return this.api.verifyTokenCode(this.sessionToken, code, options)
   }
 
   Client.prototype.emailStatus = function () {
@@ -264,7 +325,7 @@ module.exports = config => {
       )
       .then(
         function () {
-          this.wrapKb = butil.xorBuffers(this.kB, this.unwrapBKey)
+          this.wrapKb = butil.xorBuffers(this.kB, this.unwrapBKey).toString('hex')
           return this.api.passwordChangeFinish(this.passwordChangeToken, this.authPW, this.wrapKb, headers, sessionToken)
         }.bind(this)
       )
@@ -304,7 +365,7 @@ module.exports = config => {
         this.keyFetchToken = null
         this.kA = keys.kA
         this.wrapKb = keys.wrapKb
-        this.kB = keys.kB = butil.xorBuffers(this.wrapKb, this.unwrapBKey)
+        this.kB = keys.kB = butil.xorBuffers(this.wrapKb, this.unwrapBKey).toString('hex')
         return keys
       }.bind(this),
       function (err) {
@@ -416,12 +477,57 @@ module.exports = config => {
     return this.api.accountUnlockVerifyCode(uid, code)
   }
 
+  Client.prototype.accountEmails = function () {
+    return this.api.accountEmails(this.sessionToken)
+  }
+
+  Client.prototype.createEmail = function (email) {
+    return this.api.createEmail(this.sessionToken, email)
+  }
+
+  Client.prototype.deleteEmail = function (email) {
+    return this.api.deleteEmail(this.sessionToken, email)
+  }
+
+  Client.prototype.setPrimaryEmail = function (email) {
+    return this.api.setPrimaryEmail(this.sessionToken, email)
+  }
+
+  Client.prototype.sendUnblockCode = function (email) {
+    return this.api.sendUnblockCode(email)
+  }
+
+  Client.prototype.createTotpToken = function (options = {}) {
+    return this.api.createTotpToken(this.sessionToken, options)
+  }
+
+  Client.prototype.deleteTotpToken = function () {
+    return this.api.deleteTotpToken(this.sessionToken)
+  }
+
+  Client.prototype.checkTotpTokenExists = function () {
+    return this.api.checkTotpTokenExists(this.sessionToken)
+  }
+
+  Client.prototype.verifyTotpCode = function (code, options = {}) {
+    return this.api.verifyTotpCode(this.sessionToken, code, options)
+  }
+
   Client.prototype.resetPassword = function (newPassword, headers, options) {
-    if (!this.accountResetToken) {
+    if (! this.accountResetToken) {
       throw new Error('call verifyPasswordResetCode before calling resetPassword')
     }
-    // this will generate a new wrapKb on the server
-    return this.setupCredentials(this.email, newPassword)
+
+    // With introduction of change email, the client can choose what to hash the password with.
+    // To keep consistency, we hash with the email used to originally create the account.
+    // This will generate a new wrapKb on the server
+    var email = this.email
+
+    if (options && options.emailToHashWith) {
+      email = options.emailToHashWith
+    }
+
+    return this.setupCredentials(email, newPassword)
       .then(
         function (/* bundle */) {
           return this.api.accountReset(
@@ -430,7 +536,7 @@ module.exports = config => {
             headers,
             options
           )
-            .then(function (response) {
+            .then(response => {
               // Update to the new verified tokens
               this.sessionToken = response.sessionToken
               this.keyFetchToken = response.keyFetchToken
@@ -440,6 +546,25 @@ module.exports = config => {
 
         }.bind(this)
       )
+  }
+
+  Client.prototype.smsSend = function (phoneNumber, messageId, features, mailbox) {
+    return this.api.smsSend(this.sessionToken, phoneNumber, messageId, features)
+      .then(result => {
+        if (mailbox) {
+          return mailbox.waitForSms(phoneNumber)
+        }
+
+        return result
+      })
+  }
+
+  Client.prototype.smsStatus = function (country, clientIpAddress) {
+    return this.api.smsStatus(this.sessionToken, country, clientIpAddress)
+  }
+
+  Client.prototype.consumeSigninCode = function (code, metricsContext) {
+    return this.api.consumeSigninCode(code, metricsContext)
   }
 
   return Client

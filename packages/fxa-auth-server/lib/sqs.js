@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 var AWS = require('aws-sdk')
 var inherits = require('util').inherits
 var EventEmitter = require('events').EventEmitter
@@ -33,7 +35,7 @@ module.exports = function (log) {
       function (err, data) {
         if (err) {
           log.error({ op: 'fetch', url: url, err: err })
-          if (!errTimer) {
+          if (! errTimer) {
             // unacceptable! this aws lib will call the callback
             // more than once with different errors. ಠ_ಠ
             errTimer = setTimeout(this.fetch.bind(this, url), 2000)

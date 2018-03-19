@@ -2,11 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var HEX = /^(?:[a-fA-F0-9]{2})+$/
+'use strict'
 
-module.exports.ONES = Buffer('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'hex')
+module.exports.ONES = Buffer.from('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 'hex')
 
 module.exports.buffersAreEqual = function buffersAreEqual(buffer1, buffer2) {
+  buffer1 = Buffer.from(buffer1, 'hex')
+  buffer2 = Buffer.from(buffer2, 'hex')
   var mismatch = buffer1.length - buffer2.length
   if (mismatch) {
     return false
@@ -18,6 +20,8 @@ module.exports.buffersAreEqual = function buffersAreEqual(buffer1, buffer2) {
 }
 
 module.exports.xorBuffers = function xorBuffers(buffer1, buffer2) {
+  buffer1 = Buffer.from(buffer1, 'hex')
+  buffer2 = Buffer.from(buffer2, 'hex')
   if (buffer1.length !== buffer2.length) {
     throw new Error(
       'XOR buffers must be same length (%d != %d)',
@@ -25,40 +29,9 @@ module.exports.xorBuffers = function xorBuffers(buffer1, buffer2) {
       buffer2.length
     )
   }
-  var result = Buffer(buffer1.length)
+  var result = Buffer.alloc(buffer1.length)
   for (var i = 0; i < buffer1.length; i++) {
     result[i] = buffer1[i] ^ buffer2[i]
   }
   return result
-}
-
-module.exports.unbuffer = function unbuffer(object, inplace) {
-  var keys = Object.keys(object)
-  var copy = inplace ? object : {}
-  for (var i = 0; i < keys.length; i++) {
-    var x = object[keys[i]]
-    copy[keys[i]] = Buffer.isBuffer(x) ? x.toString('hex') : x
-  }
-  return copy
-}
-
-module.exports.bufferize = function bufferize(object, options) {
-  var keys = Object.keys(object)
-  options = options || {}
-  var copy = options.inplace ? object : {}
-  var ignore = options.ignore || []
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i]
-    var value = object[key]
-    if (
-      ignore.indexOf(key) === -1 &&
-      typeof value === 'string' &&
-      HEX.test(value)
-    ) {
-      copy[key] = Buffer(value, 'hex')
-    } else {
-      copy[key] = value
-    }
-  }
-  return copy
 }

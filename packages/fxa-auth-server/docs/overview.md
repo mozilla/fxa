@@ -44,7 +44,6 @@ These events contain the `uid` of the account to be able to better understand ne
 * account.keyfetch - [Sync encryption keys have been fetched](api.md#get-v1accountkeys)
 * account.signed - [Certificate signed](api.md#post-v1certificatesign)
 * account.reset - [Account reset event](api.md#post-v1accountreset)
-* account.reminder - Account is verified using a reminder
 * account.deleted - [Account is deleted](api.md#post-v1accountdestroy)
 * device.created - Device record is created
 * device.updated - Device record is updated

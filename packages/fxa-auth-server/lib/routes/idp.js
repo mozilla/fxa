@@ -2,10 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 var jwtool = require('fxa-jwtool')
 
 function b64toDec(str) {
-  var n = new jwtool.BN(Buffer(str, 'base64'))
+  var n = new jwtool.BN(Buffer.from(str, 'base64'))
   return n.toString(10)
 }
 
@@ -17,6 +19,8 @@ function browseridFormat(keys) {
   var primary = keys[0]
   return {
     'public-key': {
+      kid: primary.jwk.kid,
+      'fxa-createdAt': primary.jwk['fxa-createdAt'],
       algorithm: primary.jwk.algorithm,
       n: toDec(primary.jwk.n),
       e: toDec(primary.jwk.e)

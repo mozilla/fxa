@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 /* eslint-disable no-console */
 var Client = require('../client')()
 
@@ -69,7 +71,7 @@ client.setupCredentials(config.email, config.password)
 
       function loop(ms) {
         run(client)
-          .done(
+          .then(
             function () {
               if (Date.now() - begin < ms) {
                 loop(ms)

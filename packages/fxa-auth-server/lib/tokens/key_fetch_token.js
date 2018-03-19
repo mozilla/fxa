@@ -2,12 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, inherits, Token, P, error) {
+'use strict'
+
+const inherits = require('util').inherits
+const P = require('../promise')
+
+module.exports = function (log, Token) {
 
   function KeyFetchToken(keys, details) {
     Token.call(this, keys, details)
     this.keyBundle = details.keyBundle
-    this.emailVerified = !!details.emailVerified
+    this.emailVerified = !! details.emailVerified
 
     // Tokens are considered verified if no tokenVerificationId exists
     this.tokenVerificationId = details.tokenVerificationId || null
@@ -25,7 +30,7 @@ module.exports = function (log, inherits, Token, P, error) {
           return token.bundleKeys(details.kA, details.wrapKb)
             .then(
               function (keyBundle) {
-                token.keyBundle = Buffer(keyBundle, 'hex') //TODO see if we can skip hex
+                token.keyBundle = keyBundle
                 return token
               }
             )
@@ -35,7 +40,7 @@ module.exports = function (log, inherits, Token, P, error) {
 
   KeyFetchToken.fromId = function (id, details) {
     log.trace({ op: 'KeyFetchToken.fromId' })
-    return P.resolve(new KeyFetchToken({ tokenId: id, authKey: details.authKey }, details))
+    return P.resolve(new KeyFetchToken({ id, authKey: details.authKey }, details))
   }
 
   KeyFetchToken.fromHex = function (string, details) {
@@ -45,6 +50,8 @@ module.exports = function (log, inherits, Token, P, error) {
 
   KeyFetchToken.prototype.bundleKeys = function (kA, wrapKb) {
     log.trace({ op: 'keyFetchToken.bundleKeys', id: this.id })
+    kA = Buffer.from(kA, 'hex')
+    wrapKb = Buffer.from(wrapKb, 'hex')
     return this.bundle('account/keys', Buffer.concat([kA, wrapKb]))
   }
 
@@ -54,8 +61,8 @@ module.exports = function (log, inherits, Token, P, error) {
       .then(
         function (plaintext) {
           return {
-            kA: plaintext.slice(0, 32),
-            wrapKb: plaintext.slice(32, 64)
+            kA: plaintext.slice(0, 64), // strings, not buffers
+            wrapKb: plaintext.slice(64, 128)
           }
         }
       )

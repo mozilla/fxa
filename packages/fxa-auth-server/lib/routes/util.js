@@ -4,17 +4,19 @@
 
 'use strict'
 
+const isA = require('joi')
+const random = require('../crypto/random')
 const validators = require('./validators')
 const HEX_STRING = validators.HEX_STRING
 
-module.exports = (log, random, isA, config, redirectDomain) => {
+module.exports = (log, config, redirectDomain) => {
   return [
     {
       method: 'POST',
       path: '/get_random_bytes',
       handler: function getRandomBytes(request, reply) {
         random(32)
-          .done(
+          .then(
             bytes => reply({ data: bytes.toString('hex') }),
             err => reply(err)
           )

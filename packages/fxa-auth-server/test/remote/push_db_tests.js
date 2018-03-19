@@ -10,7 +10,7 @@ var uuid = require('uuid')
 var crypto = require('crypto')
 var base64url = require('base64url')
 var proxyquire = require('proxyquire')
-var log = { trace() {}, info() {} }
+const log = { trace () {}, info () {}, error () {} }
 
 var config = require('../../config').getProperties()
 var TestServer = require('../test_server')
@@ -18,20 +18,15 @@ var Token = require('../../lib/tokens')(log)
 const DB = require('../../lib/db')(
   config,
   log,
-  Token.error,
-  Token.SessionToken,
-  Token.KeyFetchToken,
-  Token.AccountResetToken,
-  Token.PasswordForgotToken,
-  Token.PasswordChangeToken
+  Token
 )
 
-var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex')
-var zeroBuffer32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
+var zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex').toString('hex')
+var zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex')
 
 var SESSION_TOKEN_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0'
 var ACCOUNT = {
-  uid: uuid.v4('binary'),
+  uid: uuid.v4('binary').toString('hex'),
   email: 'push' + Math.random() + '@bar.com',
   emailCode: zeroBuffer16,
   emailVerified: false,
@@ -73,12 +68,13 @@ describe('remote push db', function() {
     () => {
       var sessionTokenId
       var deviceInfo = {
-        id: crypto.randomBytes(16),
+        id: crypto.randomBytes(16).toString('hex'),
         name: 'my push device',
         type: 'mobile',
         pushCallback: 'https://foo/bar',
-        pushPublicKey: base64url(Buffer.concat([new Buffer('\x04'), crypto.randomBytes(64)])),
-        pushAuthKey: base64url(crypto.randomBytes(16))
+        pushPublicKey: base64url(Buffer.concat([Buffer.from('\x04'), crypto.randomBytes(64)])),
+        pushAuthKey: base64url(crypto.randomBytes(16)),
+        pushEndpointExpired: false
       }
       // two tests below, first for unknown 400 level error the device push info will stay the same
       // second, for a known 400 error we reset the device
@@ -111,7 +107,7 @@ describe('remote push db', function() {
           })
 
           .then(function (sessionToken) {
-            sessionTokenId = sessionToken.tokenId
+            sessionTokenId = sessionToken.id
             return db.createDevice(ACCOUNT.uid, sessionTokenId, deviceInfo)
           })
           .then(function (device) {
@@ -123,10 +119,9 @@ describe('remote push db', function() {
           .then(function () {
             return db.devices(ACCOUNT.uid)
           })
-
-          .then(function () {
-            var pushWithUnknown400 = proxyquire('../../lib/push', mocksUnknown400)(mockLog, db, {})
-            return pushWithUnknown400.pushToAllDevices(ACCOUNT.uid, 'accountVerify')
+          .then(devices => {
+            const pushWithUnknown400 = proxyquire('../../lib/push', mocksUnknown400)(mockLog, db, {})
+            return pushWithUnknown400.notifyUpdate(ACCOUNT.uid, devices, 'accountVerify')
           })
           .then(function () {
             return db.devices(ACCOUNT.uid)
@@ -137,11 +132,10 @@ describe('remote push db', function() {
             assert.equal(device.pushCallback, deviceInfo.pushCallback)
             assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
             assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
-          })
+            assert.equal(device.pushEndpointExpired, deviceInfo.pushEndpointExpired, 'device.pushEndpointExpired is correct')
 
-          .then(function () {
-            var pushWithKnown400 = proxyquire('../../lib/push', mocksKnown400)(mockLog, db, {})
-            return pushWithKnown400.pushToAllDevices(ACCOUNT.uid, 'accountVerify')
+            const pushWithKnown400 = proxyquire('../../lib/push', mocksKnown400)(mockLog, db, {})
+            return pushWithKnown400.notifyUpdate(ACCOUNT.uid, devices, 'accountVerify')
           })
           .then(function () {
             return db.devices(ACCOUNT.uid)
@@ -149,9 +143,7 @@ describe('remote push db', function() {
           .then(function (devices) {
             var device = devices[0]
             assert.equal(device.name, deviceInfo.name)
-            assert.equal(device.pushCallback, '')
-            assert.equal(device.pushPublicKey, '', 'device.pushPublicKey is correct')
-            assert.equal(device.pushAuthKey, '', 'device.pushAuthKey is correct')
+            assert.equal(device.pushEndpointExpired, true, 'device.pushEndpointExpired is correct')
           })
     }
   )

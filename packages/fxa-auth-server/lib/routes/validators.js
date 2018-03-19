@@ -2,19 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 var url = require('url')
-var punycode = require('punycode')
+var punycode = require('punycode.js')
 var isA = require('joi')
 
 // Match any non-empty hex-encoded string.
 module.exports.HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
-// Match an encoded JWT.
-module.exports.BASE64_JWT = /^(?:[a-zA-Z0-9-_]+[=]{0,2}\.){2}[a-zA-Z0-9-_]+[=]{0,2}$/
-
-module.exports.URLSAFEBASE64 = /^[a-zA-Z0-9-_]*$/
-
 module.exports.BASE_36 = /^[a-zA-Z0-9]*$/
+
+// RFC 4648, section 5
+module.exports.URL_SAFE_BASE_64 = /^[A-Za-z0-9_-]+$/
+
+// Crude phone number validation. The handler code does it more thoroughly.
+exports.E164_NUMBER = /^\+[1-9]\d{1,14}$/
+
+exports.DIGITS = /^[0-9]+$/
 
 // Match display-safe unicode characters.
 // We're pretty liberal with what's allowed in a unicode string,
@@ -32,6 +37,10 @@ module.exports.BASE_36 = /^[a-zA-Z0-9]*$/
 
 const DISPLAY_SAFE_UNICODE = /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFF])*$/
 module.exports.DISPLAY_SAFE_UNICODE = DISPLAY_SAFE_UNICODE
+
+// Similar display-safe match but includes non-BMP characters
+const DISPLAY_SAFE_UNICODE_WITH_NON_BMP = /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uE000-\uF8FF\uFFF9-\uFFFF])*$/
+module.exports.DISPLAY_SAFE_UNICODE_WITH_NON_BMP = DISPLAY_SAFE_UNICODE_WITH_NON_BMP
 
 
 // Joi validator to match any valid email address.
@@ -71,7 +80,7 @@ module.exports.service = isA.string().max(16).regex(/^[a-zA-Z0-9\-]*$/g)
 
 module.exports.isValidEmailAddress = function(value) {
   // It cant be empty or end with strange chars.
-  if (!value) {
+  if (! value) {
     return false
   }
   if (value[value.length - 1] === '.' || value[value.length - 1] === '-') {
@@ -89,7 +98,7 @@ module.exports.isValidEmailAddress = function(value) {
   domain = punycode.toASCII(domain)
   // The username portion must contain only allowed characters.
   for (var i = 0; i < username.length; i++) {
-    if (!username[i].match(/[a-zA-Z0-9.!#$%&'*+-\/=?^_`{|}~]/)) {
+    if (! username[i].match(/[a-zA-Z0-9.!#$%&'*+-\/=?^_`{|}~]/)) {
       return false
     }
   }
@@ -112,7 +121,7 @@ module.exports.isValidEmailAddress = function(value) {
       if (domain[i - 1] === '.') {
         return false
       }
-    } else if (!domain[i].match(/[a-zA-Z0-9-]/)) {
+    } else if (! domain[i].match(/[a-zA-Z0-9-]/)) {
       // The domain characters must be alphanumeric.
       return false
     }
@@ -124,7 +133,7 @@ module.exports.isValidEmailAddress = function(value) {
 
 module.exports.redirectTo = function (base) {
   var redirectTo = isA.string().max(512)
-  if (!base) { return redirectTo }
+  if (! base) { return redirectTo }
   var regex = new RegExp('(?:\\.|^)' + base.replace('.', '\\.') + '$')
   redirectTo._tests.push(
     {
@@ -146,3 +155,5 @@ module.exports.isValidUrl = function (redirect, regex) {
   var parsed = url.parse(redirect)
   return regex.test(parsed.hostname) && /^https?:$/.test(parsed.protocol)
 }
+
+module.exports.verificationMethod = isA.string().valid(['email', 'email-2fa', 'email-captcha'])

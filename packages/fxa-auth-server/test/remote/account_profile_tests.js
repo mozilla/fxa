@@ -5,14 +5,13 @@
 'use strict'
 
 const assert = require('insist')
-var path = require('path')
 var TestServer = require('../test_server')
 const Client = require('../client')()
 
 var config = require('../../config').getProperties()
 
 function makeMockOAuthHeader(opts) {
-  var token = new Buffer(JSON.stringify(opts)).toString('hex')
+  var token = Buffer.from(JSON.stringify(opts)).toString('hex')
   return 'Bearer ' + token
 }
 
@@ -21,7 +20,7 @@ describe('remote account profile', function() {
 
   let server
   before(() => {
-    process.env.CONFIG_FILES = path.join(__dirname, '../config/mock_oauth.json')
+    config.oauth.url = 'http://localhost:9010'
     return TestServer.start(config)
       .then(s => {
         server = s
@@ -64,6 +63,22 @@ describe('remote account profile', function() {
           function (response) {
             assert.ok(response.email, 'email address is returned')
             assert.equal(response.locale, 'en-US', 'locale is returned')
+          }
+        )
+    }
+  )
+
+  it(
+    'account profile with no authentication returns a 401',
+    () => {
+      return Client.create(config.publicUrl, server.uniqueEmail(), 'password', { lang: 'en-US' })
+        .then(c => {
+          return c.api.accountProfile(null, {})
+        })
+        .then(
+          (response) => { assert.fail('request should have failed') },
+          (err) => {
+            assert.equal(err.code, 401, 'request failed with a 401')
           }
         )
     }
@@ -164,7 +179,7 @@ describe('remote account profile', function() {
         .then(
           function (response) {
             assert.ok(response.email, 'email address is returned')
-            assert.ok(!response.locale, 'locale should not be returned')
+            assert.ok(! response.locale, 'locale should not be returned')
           }
         )
         .then(
@@ -179,7 +194,7 @@ describe('remote account profile', function() {
         )
         .then(
           function (response) {
-            assert.ok(!response.email, 'email address should not be returned')
+            assert.ok(! response.email, 'email address should not be returned')
             assert.equal(response.locale, 'en-US', 'locale is returned')
           }
         )
@@ -220,7 +235,7 @@ describe('remote account profile', function() {
         )
         .then(
           function (response) {
-            assert.ok(!response.email, 'email address should not be returned')
+            assert.ok(! response.email, 'email address should not be returned')
             assert.ok(response.locale, 'locale is returned')
           }
         )
@@ -237,7 +252,7 @@ describe('remote account profile', function() {
         .then(
           function (response) {
             assert.ok(response.email, 'email address is returned')
-            assert.ok(!response.locale, 'locale should not be returned')
+            assert.ok(! response.locale, 'locale should not be returned')
           }
         )
     }
@@ -262,7 +277,6 @@ describe('remote account profile', function() {
   )
 
   after(() => {
-    delete process.env.CONFIG_FILES
     return TestServer.stop(server)
   })
 })

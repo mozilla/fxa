@@ -4,65 +4,57 @@
 
 'use strict'
 
-const P = require('../promise')
-const uuid = require('uuid')
-const isA = require('joi')
 const url = require('url')
-const random = require('../crypto/random')
 
 module.exports = function (
   log,
-  error,
   serverPublicKeys,
   signer,
   db,
   mailer,
+  smsImpl,
   Password,
   config,
   customs
   ) {
-  const isPreVerified = require('../preverifier')(error, config)
-  const defaults = require('./defaults')(log, P, db, error)
+  const defaults = require('./defaults')(log, db)
   const idp = require('./idp')(log, serverPublicKeys)
-  const checkPassword = require('./utils/password_check')(log, config, Password, customs, db)
+  const signinUtils = require('./utils/signin')(log, config, customs, db, mailer)
   const push = require('../push')(log, db, config)
-  const devices = require('../devices')(log, db, push)
   const account = require('./account')(
     log,
-    random,
-    P,
-    uuid,
-    isA,
-    error,
     db,
     mailer,
     Password,
     config,
     customs,
-    isPreVerified,
-    checkPassword,
-    push,
-    devices
+    signinUtils,
+    push
   )
+  const devicesImpl = require('../devices')(log, db, push)
+  const devicesSessions = require('./devices-and-sessions')(log, db, config, customs, push, devicesImpl)
+  const emails = require('./emails')(log, db, mailer, config, customs, push)
   const password = require('./password')(
     log,
-    isA,
-    error,
     db,
     Password,
     config.smtp.redirectDomain,
     mailer,
     config.verifierVersion,
     customs,
-    checkPassword,
-    push
+    signinUtils,
+    push,
+    config
   )
-  const session = require('./session')(log, isA, error, db)
-  const sign = require('./sign')(log, P, isA, error, signer, db, config.domain, devices)
+  const tokenCodes = require('./token-codes')(log, db, config, customs)
+  const session = require('./session')(log, db, Password, config, signinUtils)
+  const sign = require('./sign')(log, signer, db, config.domain, devicesImpl)
+  const signinCodes = require('./signin-codes')(log, db, customs)
+  const smsRoute = require('./sms')(log, db, config, customs, smsImpl)
+  const unblockCodes = require('./unblock-codes')(log, db, mailer, config.signinUnblock, customs)
+  const totp = require('./totp')(log, db, mailer, customs, config.totp)
   const util = require('./util')(
     log,
-    random,
-    isA,
     config,
     config.smtp.redirectDomain
   )
@@ -72,14 +64,35 @@ module.exports = function (
 
   const v1Routes = [].concat(
     account,
+    devicesSessions,
+    emails,
     password,
+    tokenCodes,
     session,
+    signinCodes,
     sign,
+    smsRoute,
+    totp,
+    unblockCodes,
     util
   )
   v1Routes.forEach(r => { r.path = basePath + '/v1' + r.path })
   defaults.forEach(r => { r.path = basePath + r.path })
   const allRoutes = defaults.concat(idp, v1Routes)
+
+  allRoutes.forEach(r => {
+    // Default auth.payload to 'optional' for all authenticated routes.
+    // We'll validate the payload hash if the client provides it,
+    // but allow them to skip it if they can't or don't want to.
+    const auth = r.config && r.config.auth
+    if (auth && ! auth.hasOwnProperty('payload')) {
+      auth.payload = 'optional'
+    }
+
+    // Remove custom `apidoc` key which we use for generating docs,
+    // but which Hapi doesn't like if it's there at runtime.
+    delete r.apidoc
+  })
 
   return allRoutes
 }

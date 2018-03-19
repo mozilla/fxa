@@ -4,12 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict'
+
 var commandLineOptions = require('commander')
 var config = require('../config').getProperties()
 var fs = require('fs')
 var leftpad = require('leftpad')
 var log = require('../lib/log')(config.log.level, 'bulk-mailer')
-var Mailer = require('fxa-auth-mailer')
+var Mailer = require('../mailer/index')
 var nodeMailerMock = require('./bulk-mailer/nodemailer-mock')
 var P = require('../lib/promise')
 var path = require('path')
@@ -248,7 +250,7 @@ function createMailer () {
     locales: config.i18n.supportedLanguages,
     defaultLanguage: defaultLanguage,
     mail: config.smtp
-  }, sender)
+  }, sender).email
 }
 
 function checkRequiredOption(optionName) {
@@ -276,7 +278,7 @@ function readRecords() {
   var records = []
   try {
     records = require(inputFileName)
-  } catch(e) {
+  } catch (e) {
     console.error(inputFileName, 'does not contain JSON')
     process.exit(1)
   }

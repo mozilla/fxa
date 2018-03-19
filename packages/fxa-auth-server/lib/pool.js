@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var P = require('./promise')
-var Poolee = require('poolee')
+'use strict'
+
+const P = require('./promise')
+const Poolee = require('poolee')
 
 function parseUrl(url) {
   var match = /([a-zA-Z]+):\/\/(\S+)/.exec(url)
@@ -16,8 +18,7 @@ function parseUrl(url) {
   throw new Error('url is invalid: ' + url)
 }
 
-function Pool(url, options) {
-  options = options || {}
+function Pool(url, options = {}) {
   var parsedUrl = parseUrl(url)
   var protocol = require(parsedUrl.protocol)
   this.poolee = new Poolee(
@@ -25,6 +26,7 @@ function Pool(url, options) {
     [parsedUrl.host],
     {
       timeout: options.timeout || 5000,
+      maxPending: options.maxPending || 1000,
       keepAlive: true,
       maxRetries: 0
     }
@@ -125,4 +127,3 @@ function safeParse (json) {
   catch (e) {
   }
 }
-
