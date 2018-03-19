@@ -663,6 +663,7 @@ Content-Type: application/json
         "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
         "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong",
         "callbackIsExpired": false,
+        "capabilities": ["pushbox"],
         "uaBrowser": "Firefox",
         "uaBrowserVersion": "42",
         "uaOS": "Android",
@@ -720,7 +721,8 @@ Content-Type: application/json
     "callbackURL": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
     "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
     "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong",
-    "callbackIsExpired": false
+    "callbackIsExpired": false,
+    "capabilities": ["pushbox"]
 }
 ```
 
@@ -755,7 +757,8 @@ curl \
       "callbackURL": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
       "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
       "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong",
-      "callbackIsExpired": false
+      "callbackIsExpired": false,
+      "capabilities": ["pushbox"]
     }'
 ```
 
@@ -775,6 +778,10 @@ Content-Type: application/json
     * Conditions: if id already exists or sessionTokenId is already used by a different device
     * Content-Type : 'application/json'
     * Body : `{"errno":101",message":"Record already exists"}`
+* Status Code : 400 Bad Request
+    * Conditions: if the device in the request body contained an unknown capability name
+    * Content-Type : 'application/json'
+    * Body : `{"errno":139",message":"Unknown device capability"}`
 * Status Code : 500 Internal Server Error
     * Conditions: if something goes wrong on the server
     * Content-Type : 'application/json'
@@ -799,7 +806,8 @@ curl \
       "callbackURL": "https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef",
       "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
       "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong",
-      "callbackIsExpired": false
+      "callbackIsExpired": false,
+      "capabilities": ["pushbox"]
     }'
 ```
 
@@ -819,6 +827,10 @@ Content-Type: application/json
     * Conditions: if sessionTokenId is already used by a different device
     * Content-Type : 'application/json'
     * Body : `{"errno":101",message":"Record already exists"}`
+* Status Code : 400 Bad Request
+    * Conditions: if the device in the request body contained an unknown capability name
+    * Content-Type : 'application/json'
+    * Body : `{"errno":139",message":"Unknown device capability"}`
 * Status Code : 404 Not Found
     * Conditions: if device(uid,id) is not found in the database
     * Content-Type : 'application/json'
@@ -909,6 +921,7 @@ Content-Length: 285
     "deviceCallbackURL":null,
     "deviceCallbackPublicKey":null,
     "deviceCallbackIsExpired":false,
+    "deviceCapabilities":["pushbox"],
     "mustVerify":true,
     "tokenVerificationId":"12c41fac80fd6149f3f695e188b5f846"
 }
@@ -975,6 +988,7 @@ Content-Length: 285
     "deviceCallbackURL":null,
     "deviceCallbackPublicKey":null,
     "deviceCallbackIsExpired":false,
+    "deviceCapabilities":["pushbox"],
     "mustVerify":true,
     "tokenVerificationId":"12c41fac80fd6149f3f695e188b5f846"
 }

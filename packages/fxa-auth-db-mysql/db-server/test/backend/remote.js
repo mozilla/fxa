@@ -337,7 +337,7 @@ module.exports = function(cfg, makeServer) {
             respOk(r)
             var sessions = r.obj
             assert.equal(sessions.length, 1, 'sessions contains one item')
-            assert.equal(Object.keys(sessions[0]).length, 19, 'session has correct properties')
+            assert.equal(Object.keys(sessions[0]).length, 20, 'session has correct properties')
             assert.equal(sessions[0].tokenId, user.sessionTokenId, 'tokenId is correct')
             assert.equal(sessions[0].uid, user.accountId, 'uid is correct')
             assert.equal(sessions[0].createdAt, user.sessionToken.createdAt, 'createdAt is correct')
@@ -525,6 +525,7 @@ module.exports = function(cfg, makeServer) {
             assert(s.deviceCallbackPublicKey)
             assert.equal(s.deviceCallbackURL, 'fake callback URL')
             assert.equal(s.deviceCallbackIsExpired, false)
+            assert.deepEqual(s.deviceCapabilities, ['pushbox'])
             assert(s.deviceCreatedAt)
             assert(s.deviceId)
             assert.equal(s.deviceName, 'fake device name')
@@ -594,6 +595,27 @@ module.exports = function(cfg, makeServer) {
           })
           .then(function(r) {
             assert.equal(r.obj.length, 0, 'devices is empty')
+            const myDevice = Object.assign({}, user.device, {
+              capabilities: ['unknown', 'pushbox']
+            })
+            return client.putThen('/account/' + user.accountId + '/device/' + user.deviceId, myDevice)
+            .then(() => {
+              assert(false, 'a device with an unknown capability should make the request fail')
+            })
+            .catch(err => {
+              assert.equal(err.statusCode, 400, 'err.statusCode should be 400')
+              assert.deepEqual(err.body, {
+                message: 'Unknown device capability',
+                errno: 139,
+                error: 'Bad request',
+                code: 400
+              }, 'err.body should have correct properties set')
+            })
+          }).then(function () {
+            return client.getThen('/account/' + user.accountId + '/devices')
+          })
+          .then(function(r) {
+            assert.equal(r.obj.length, 0, 'devices is empty')
             return client.putThen('/account/' + user.accountId + '/device/' + user.deviceId, user.device)
           })
           .then(function(r) {
@@ -604,7 +626,7 @@ module.exports = function(cfg, makeServer) {
             respOk(r)
             var devices = r.obj
             assert.equal(devices.length, 1, 'devices contains one item')
-            assert.equal(Object.keys(devices[0]).length, 18, 'device has eighteen properties')
+            assert.equal(Object.keys(devices[0]).length, 19, 'device has nineteen properties')
             assert.equal(devices[0].uid, user.accountId, 'uid is correct')
             assert.equal(devices[0].id, user.deviceId, 'id is correct')
             assert.equal(devices[0].sessionTokenId, user.sessionTokenId, 'sessionTokenId is correct')
@@ -615,6 +637,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(devices[0].callbackPublicKey, user.device.callbackPublicKey, 'callbackPublicKey is correct')
             assert.equal(devices[0].callbackAuthKey, user.device.callbackAuthKey, 'callbackAuthKey is correct')
             assert.equal(devices[0].callbackIsExpired, user.device.callbackIsExpired, 'callbackIsExpired is correct')
+            assert.deepEqual(devices[0].capabilities, user.device.capabilities, 'capabilities is correct')
             assert.equal(devices[0].uaBrowser, user.sessionToken.uaBrowser, 'uaBrowser is correct')
             assert.equal(devices[0].uaBrowserVersion, user.sessionToken.uaBrowserVersion, 'uaBrowserVersion is correct')
             assert.equal(devices[0].uaOS, user.sessionToken.uaOS, 'uaOS is correct')
@@ -638,6 +661,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(device.callbackPublicKey, user.device.callbackPublicKey, 'callbackPublicKey is correct')
             assert.equal(device.callbackAuthKey, user.device.callbackAuthKey, 'callbackAuthKey is correct')
             assert.equal(device.callbackIsExpired, user.device.callbackIsExpired, 'callbackIsExpired is correct')
+            assert.deepEqual(device.capabilities, user.device.capabilities, 'capabilities is correct')
 
             return client.postThen('/account/' + user.accountId + '/device/' + user.deviceId + '/update', {
               name: 'wibble',
@@ -645,7 +669,8 @@ module.exports = function(cfg, makeServer) {
               callbackURL: '',
               callbackPublicKey: null,
               callbackAuthKey: null,
-              callbackIsExpired: null
+              callbackIsExpired: null,
+              capabilities: []
             })
           })
           .then(function(r) {
@@ -666,6 +691,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(devices[0].callbackPublicKey, user.device.callbackPublicKey, 'callbackPublicKey is correct')
             assert.equal(devices[0].callbackAuthKey, user.device.callbackAuthKey, 'callbackAuthKey is correct')
             assert.equal(devices[0].callbackIsExpired, false, 'callbackIsExpired is correct')
+            assert.deepEqual(devices[0].capabilities, [], 'capabilities is correct')
             assert.equal(devices[0].uaBrowser, user.sessionToken.uaBrowser, 'uaBrowser is correct')
             assert.equal(devices[0].uaBrowserVersion, user.sessionToken.uaBrowserVersion, 'uaBrowserVersion is correct')
             assert.equal(devices[0].uaOS, user.sessionToken.uaOS, 'uaOS is correct')

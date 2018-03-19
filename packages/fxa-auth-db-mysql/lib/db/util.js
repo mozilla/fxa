@@ -37,7 +37,23 @@ const VERIFICATION_METHODS = new Map([
   ['totp-2fa', 2]   // TOTP code
 ])
 
+// If you modify one of these maps, modify the other.
+const DEVICE_CAPABILITIES = new Map([
+  ['pushbox', 1]
+])
+const DEVICE_CAPABILITIES_IDS = new Map([
+  [1, 'pushbox']
+])
+
 module.exports = {
+
+  mapDeviceCapability(val) {
+    if (typeof val === 'number') {
+      return DEVICE_CAPABILITIES_IDS.get(val) || null
+    } else {
+      return DEVICE_CAPABILITIES.get(val) || null
+    }
+  },
 
   mapEmailBounceType(val) {
     if (typeof val === 'number') {

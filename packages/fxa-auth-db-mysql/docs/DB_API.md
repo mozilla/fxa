@@ -510,6 +510,7 @@ The deviceCallbackPublicKey and deviceCallbackAuthKey fields are urlsafe-base64 
                  d.callbackPublicKey AS deviceCallbackPublicKey,
                  d.callbackAuthKey AS deviceCallbackAuthKey,
                  d.callbackIsExpired AS deviceCallbackIsExpired,
+                 d.capabilities AS deviceCapabilities,
                  ut.mustVerify, ut.tokenVerificationId
 * keyFetchToken : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified, a.verifierSetAt
 * keyFetchTokenWithVerificationStatus : t.authKey, t.uid, t.keyBundle, t.createdAt, a.emailVerified,
@@ -743,6 +744,8 @@ Parameters:
     Public key for push service
   * `callbackAuthKey` (string):
     Auth key for push service
+  * `capabilities` (array):
+    Array of strings describing the current device capabilities
 
 Returns:
 
@@ -750,6 +753,7 @@ Returns:
   * An empty object `{}`
 * Rejects with:
   * `error.duplicate()` if a device already exists with the same `uid` and `deviceId`
+  * `error.unknownDeviceCapability()` if the input device contained an unknown capability name
   * Any error from the underlying storage system (wrapped in `error.wrap()`)
 
 ## updateDevice(uid, deviceId, device)
@@ -777,12 +781,15 @@ Parameters:
     Public key for push service
   * `callbackAuthKey` (string):
     Auth key for push service
+  * `capabilities` (array):
+    Array of strings describing the current device capabilities
 
 Returns:
 
 * Resolves with:
   * An empty object `{}`
 * Rejects with:
+  * `error.unknownDeviceCapability()` if the input device contained an unknown capability name
   * Any error from the underlying storage system (wrapped in `error.wrap()`)
 
 ## deleteDevice(uid, deviceId)

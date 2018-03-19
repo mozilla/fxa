@@ -75,7 +75,8 @@ module.exports.newUserDataHex = function() {
     callbackURL: 'fake callback URL',
     callbackPublicKey: base64_65(),
     callbackAuthKey: base64_16(),
-    callbackIsExpired: false
+    callbackIsExpired: false,
+    capabilities: ['pushbox']
   }
 
   // keyFetchToken

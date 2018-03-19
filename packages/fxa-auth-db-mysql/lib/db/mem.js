@@ -35,7 +35,8 @@ var DEVICE_FIELDS = [
   'callbackURL',
   'callbackPublicKey',
   'callbackAuthKey',
-  'callbackIsExpired'
+  'callbackIsExpired',
+  'capabilities'
 ]
 
 const SESSION_DEVICE_FIELDS = [
@@ -201,6 +202,16 @@ module.exports = function (log, error) {
     return P.resolve({})
   }
 
+  function checkCapabilities(deviceInfo) {
+    if (deviceInfo.capabilities) {
+      for (const capability of deviceInfo.capabilities) {
+        if (dbUtil.mapDeviceCapability(capability) == null) {
+          throw error.unknownDeviceCapability()
+        }
+      }
+    }
+  }
+
   Memory.prototype.createDevice = function (uid, deviceId, deviceInfo) {
     return getAccountByUid(uid)
       .then(
@@ -213,6 +224,7 @@ module.exports = function (log, error) {
             uid: uid,
             id: deviceId
           }
+          checkCapabilities(deviceInfo)
           deviceInfo.callbackIsExpired = false // mimic the db behavior assigning a default false value
           account.devices[deviceKey] = updateDeviceRecord(device, deviceInfo, deviceKey)
           return {}
@@ -260,6 +272,7 @@ module.exports = function (log, error) {
           if (! account.devices[deviceKey]) {
             throw error.notFound()
           }
+          checkCapabilities(deviceInfo)
           var device = account.devices[deviceKey]
           if (device.sessionTokenId) {
             if (deviceInfo.sessionTokenId) {
@@ -515,7 +528,8 @@ module.exports = function (log, error) {
             callbackURL: device.callbackURL,
             callbackPublicKey: device.callbackPublicKey,
             callbackAuthKey: device.callbackAuthKey,
-            callbackIsExpired: device.callbackIsExpired
+            callbackIsExpired: device.callbackIsExpired,
+            capabilities: device.capabilities || []
           })
         }
       )
@@ -593,6 +607,7 @@ module.exports = function (log, error) {
           item.deviceCallbackPublicKey = device.callbackPublicKey
           item.deviceCallbackAuthKey = device.callbackAuthKey
           item.deviceCallbackIsExpired = device.callbackIsExpired
+          item.deviceCapabilities = device.capabilities || []
         }
 
         return item
@@ -671,6 +686,7 @@ module.exports = function (log, error) {
           deviceCallbackPublicKey: deviceInfo.callbackPublicKey || null,
           deviceCallbackAuthKey: deviceInfo.callbackAuthKey || null,
           deviceCallbackIsExpired: deviceInfo.callbackIsExpired !== undefined ? deviceInfo.callbackIsExpired : null,
+          deviceCapabilities: deviceInfo.capabilities || []
         }
 
         return session

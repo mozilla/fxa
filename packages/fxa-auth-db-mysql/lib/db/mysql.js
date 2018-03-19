@@ -288,49 +288,79 @@ module.exports = function (log, error) {
     )
   }
 
+  const ADD_CAPABILITY = 'CALL addCapability_1(?, ?, ?)'
+  const PURGE_CAPABILITIES = 'CALL purgeCapabilities_1(?, ?)'
+
   var CREATE_DEVICE = 'CALL createDevice_4(?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
+  function makeCapabilitiesStatements(uid, deviceId, deviceInfo) {
+    const capabilities = deviceInfo.capabilities || []
+    return capabilities.reduce((acc, c) => {
+      const index = dbUtil.mapDeviceCapability(c)
+      if (index == null) {
+        throw error.unknownDeviceCapability()
+      }
+      acc.push({sql: ADD_CAPABILITY, params: [uid, deviceId, index]})
+      return acc
+    }, [])
+  }
+
   MySql.prototype.createDevice = function (uid, deviceId, deviceInfo) {
-    return this.write(
-      CREATE_DEVICE,
-      [
-        uid,
-        deviceId,
-        deviceInfo.sessionTokenId,
-        deviceInfo.name, // inNameUtf8
-        deviceInfo.type,
-        deviceInfo.createdAt,
-        deviceInfo.callbackURL,
-        deviceInfo.callbackPublicKey,
-        deviceInfo.callbackAuthKey
-      ]
-    )
+    // The server assumes that we reject and do not throw.
+    // makeCapabilitiesStatements does throw. Let's wrap everything in a promise.
+    return Promise.resolve().then(() => {
+      const statements = [{
+        sql: CREATE_DEVICE,
+        params: [
+          uid,
+          deviceId,
+          deviceInfo.sessionTokenId,
+          deviceInfo.name, // inNameUtf8
+          deviceInfo.type,
+          deviceInfo.createdAt,
+          deviceInfo.callbackURL,
+          deviceInfo.callbackPublicKey,
+          deviceInfo.callbackAuthKey
+        ]
+      }]
+      if (deviceInfo.hasOwnProperty('capabilities')) {
+        statements.push(...makeCapabilitiesStatements(uid, deviceId, deviceInfo))
+      }
+      return this.writeMultiple(statements)
+    })
   }
 
   var UPDATE_DEVICE = 'CALL updateDevice_5(?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.updateDevice = function (uid, deviceId, deviceInfo) {
-    return this.write(
-      UPDATE_DEVICE,
-      [
-        uid,
-        deviceId,
-        deviceInfo.sessionTokenId,
-        deviceInfo.name, // inNameUtf8
-        deviceInfo.type,
-        deviceInfo.callbackURL,
-        deviceInfo.callbackPublicKey,
-        deviceInfo.callbackAuthKey,
-        deviceInfo.callbackIsExpired
-      ],
-      function (result) {
-        if (result.affectedRows === 0) {
-          log.error('MySql.updateDevice', { err: result })
-          throw error.notFound()
+    return Promise.resolve().then(() => {
+      const statements = [{
+        sql: UPDATE_DEVICE,
+        params: [
+          uid,
+          deviceId,
+          deviceInfo.sessionTokenId,
+          deviceInfo.name, // inNameUtf8
+          deviceInfo.type,
+          deviceInfo.callbackURL,
+          deviceInfo.callbackPublicKey,
+          deviceInfo.callbackAuthKey,
+          deviceInfo.callbackIsExpired
+        ],
+        resultHandler(result) {
+          // If the UPDATE_DEVICE fails, no need to continue!
+          if (result.affectedRows === 0) {
+            log.error('MySql.updateDevice', { err: result })
+            throw error.notFound()
+          }
         }
-        return {}
+      }]
+      if (deviceInfo.hasOwnProperty('capabilities')) {
+        statements.push({sql: PURGE_CAPABILITIES, params: [uid, deviceId]},
+                        ...makeCapabilitiesStatements(uid, deviceId, deviceInfo))
       }
-    )
+      return this.writeMultiple(statements)
+    })
   }
 
   // READ
@@ -363,32 +393,59 @@ module.exports = function (log, error) {
     })
   }
 
-  // Select : devices d, sessionTokens s, accounts a
+  // This function takes a result and unwraps comma-separated values to Arrays
+  // and eventually applies transforms.
+  function unwrapArrays(result, fields, separator = ',') {
+    for (const {name, transform} of fields) {
+      const arr = result[name] ? result[name].split(separator) : []
+      result[name] = transform ? transform(arr) : arr
+    }
+  }
+
+  function unwrapCapabilities(result, fieldName) {
+    const field = {
+      name: fieldName,
+      transform(capabilityIds) {
+        return capabilityIds.reduce((acc, c) => {
+          const capabilityStr = dbUtil.mapDeviceCapability(parseInt(c))
+          if (capabilityStr != null) {
+            acc.push(capabilityStr)
+          }
+          return acc
+        }, [])
+      }
+    }
+    const toUnwrap = Array.isArray(result) ? result : [result]
+    toUnwrap.forEach(r => unwrapArrays(r, [field]))
+    return result
+  }
+
+  // Select : devices d, deviceCapabilities dc, sessionTokens s, accounts a
   // Fields : d.uid, d.id, d.sessionTokenId, d.name, d.type, d.createdAt, d.callbackURL,
-  //          d.callbackPublicKey, d.callbackAuthKey, d.callbackIsExpired,
+  //          d.callbackPublicKey, d.callbackAuthKey, d.callbackIsExpired, dc.capabilities,
   //          s.uaBrowser, s.uaBrowserVersion, s.uaOS, s.uaOSVersion, s.uaDeviceType,
   //          s.uaFormFactor, s.lastAccessTime, a.email
   // Where  : d.uid = $1
-  var ACCOUNT_DEVICES = 'CALL accountDevices_12(?)'
+  var ACCOUNT_DEVICES = 'CALL accountDevices_13(?)'
 
   MySql.prototype.accountDevices = function (uid) {
     return this.readOneFromFirstResult(ACCOUNT_DEVICES, [uid])
+      .then(results => unwrapCapabilities(results, 'capabilities'))
   }
 
-  // Select : devices d, unverifiedTokens u
-  // Fields : d.id AS deviceId, d.name AS deviceName, d.type AS deviceType, d.createdAt
-  //          AS deviceCreatedAt, d.callbackURL AS deviceCallbackURL, d.callbackPublicKey
-  //          AS deviceCallbackPublicKey, d.callbackAuthKey AS deviceCallbackAuthKey,
-  //          d.callbackIsExpired AS deviceCallbackIsExpired
+  // Select : devices d, deviceCapabilities dc, unverifiedTokens u
+  // Fields : d.id, d.name, d.type, d.createdAt, d.callbackURL, d.callbackPublicKey,
+  //          d.callbackAuthKey, d.callbackIsExpired, dc.capabilities
   // Where  : u.uid = $1 AND u.tokenVerificationId = $2 AND
   //          u.tokenId = d.sessionTokenId AND u.uid = d.uid
-  var DEVICE_FROM_TOKEN_VERIFICATION_ID = 'CALL deviceFromTokenVerificationId_3(?, ?)'
+  var DEVICE_FROM_TOKEN_VERIFICATION_ID = 'CALL deviceFromTokenVerificationId_4(?, ?)'
 
   MySql.prototype.deviceFromTokenVerificationId = function (uid, tokenVerificationId) {
     return this.readFirstResult(DEVICE_FROM_TOKEN_VERIFICATION_ID, [uid, tokenVerificationId])
+      .then(result => unwrapCapabilities(result, 'capabilities'))
   }
 
-  // Select : sessionTokens t, accounts a, devices d, unverifiedTokens ut
+  // Select : sessionTokens t, accounts a, devices d, deviceCapabilities dc, unverifiedTokens ut
   // Fields : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion, t.uaOS,
   //          t.uaOSVersion, t.uaDeviceType, t.uaFormFactor, t.lastAccessTime, t.authAt,
   //          a.emailVerified, a.email, a.emailCode, a.verifierSetAt, a.locale,
@@ -397,26 +454,31 @@ module.exports = function (log, error) {
   //          AS deviceCreatedAt, d.callbackURL AS deviceCallbackURL, d.callbackPublicKey
   //          AS deviceCallbackPublicKey, d.callbackAuthKey AS deviceCallbackAuthKey,
   //          d.callbackIsExpired AS deviceCallbackIsExpired,
+  //          dc.capabilities AS deviceCapabilities
   //          ut.tokenVerificationId, ut.mustVerify
   // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = d.sessionTokenId AND
   //          t.uid = d.uid AND t.tokenId = u.tokenId
-  var SESSION_DEVICE = 'CALL sessionWithDevice_12(?)'
+  var SESSION_DEVICE = 'CALL sessionWithDevice_13(?)'
 
   MySql.prototype.sessionToken = function (id) {
     return this.readFirstResult(SESSION_DEVICE, [id])
+      .then(result => unwrapCapabilities(result, 'deviceCapabilities'))
   }
 
-  // Select : sessionTokens
-  // Fields : tokenId, uid, createdAt, uaBrowser, uaBrowserVersion,
-  //          uaOS, uaOSVersion, uaDeviceType, uaFormFactor, lastAccessTime, authAt,
-  //          deviceId, deviceName, deviceType, deviceCreatedAt, deviceCallbackURL,
-  //          deviceCallbackPublicKey, deviceCallbackAuthKey, deviceCallbackIsExpired
+  // Select : sessionTokens t, devices d, deviceCapabilities dc
+  // Fields : t.tokenId, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion,
+  //          t.uaOS, t.uaOSVersion, t.uaDeviceType, t.uaFormFactor, t.lastAccessTime, t.authAt,
+  //          d.id AS deviceId, d.name AS deviceName, d.type AS deviceType,
+  //          d.createdAt AS deviceCreatedAt, d.callbackURL AS deviceCallbackURL,
+  //          d.callbackPublicKey AS deviceCallbackPublicKey, d.callbackAuthKey AS deviceCallbackAuthKey,
+  //          d.callbackIsExpired AS deviceCallbackIsExpired, dc.capabilities AS deviceCapabilities
   // Where  : t.uid = $1 AND t.tokenId = d.sessionTokenId AND
   //          t.uid = d.uid AND t.tokenId = u.tokenId
-  var SESSIONS = 'CALL sessions_8(?)'
+  var SESSIONS = 'CALL sessions_9(?)'
 
   MySql.prototype.sessions = function (uid) {
     return this.readOneFromFirstResult(SESSIONS, [uid])
+      .then(results => unwrapCapabilities(results, 'deviceCapabilities'))
   }
 
   // Select : keyFetchTokens t, accounts a
@@ -1038,6 +1100,35 @@ module.exports = function (log, error) {
           throw err
         }
       )
+  }
+
+  MySql.prototype.writeMultiple = function (queries) {
+    return this.transaction(connection => {
+      return P.each(queries, ({sql, params, resultHandler}) => {
+        return query(connection, sql, params)
+        .then(
+          function (result) {
+            log.trace('MySql.writeMultiple', { sql, result })
+            if (resultHandler) {
+              return resultHandler(result)
+            }
+          },
+          function (err) {
+            log.error('MySql.writeMultiple', { sql, err })
+            if (err.errno === ER_DUP_ENTRY) {
+              err = error.duplicate()
+            }
+            else {
+              err = error.wrap(err)
+            }
+            throw err
+          }
+        )
+      })
+    })
+    .then(() => {
+      return {}
+    })
   }
 
   MySql.prototype.getConnection = function (name) {

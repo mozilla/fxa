@@ -103,7 +103,8 @@ function makeMockDevice(tokenId) {
     callbackURL: 'https://push.server',
     callbackPublicKey: 'foo',
     callbackAuthKey: 'bar',
-    callbackIsExpired: false
+    callbackIsExpired: false,
+    capabilities: ['pushbox']
   }
   device.deviceId = newUuid()
   return device
@@ -272,7 +273,7 @@ module.exports = function (config, DB) {
             assert(Array.isArray(sessions), 'sessions is an array')
             assert.equal(sessions.length, 1, 'sessions has one item')
 
-            assert.equal(Object.keys(sessions[0]).length, 19, 'session has correct properties')
+            assert.equal(Object.keys(sessions[0]).length, 20, 'session has correct properties')
             assert.equal(sessions[0].tokenId.toString('hex'), sessionTokenData.tokenId.toString('hex'), 'tokenId is correct')
             assert.equal(sessions[0].uid.toString('hex'), accountData.uid.toString('hex'), 'uid is correct')
             assert.equal(sessions[0].createdAt, sessionTokenData.createdAt, 'createdAt is correct')
@@ -479,6 +480,7 @@ module.exports = function (config, DB) {
               assert.equal(sessions[0].deviceCallbackPublicKey, 'foo')
               assert.equal(sessions[0].deviceCallbackAuthKey, 'bar')
               assert.equal(sessions[0].deviceCallbackIsExpired, false)
+              assert.deepEqual(sessions[0].deviceCapabilities, ['pushbox'])
             })
         })
 
@@ -887,7 +889,9 @@ module.exports = function (config, DB) {
 
         return db.createSessionToken(sessionTokenData.tokenId, sessionTokenData)
           .then(() => db.createDevice(accountData.uid, deviceInfo.deviceId, deviceInfo))
-          .then((result) => assert.deepEqual(result, {}, 'returned empty object'))
+          .then((result) => {
+            return assert.deepEqual(result, {}, 'returned empty object')
+          })
       })
 
       it('should have created device', () => {
@@ -902,6 +906,7 @@ module.exports = function (config, DB) {
             assert.equal(s.deviceCallbackPublicKey, deviceInfo.callbackPublicKey, 'callbackPublicKey')
             assert.equal(s.deviceCallbackAuthKey, deviceInfo.callbackAuthKey, 'callbackAuthKey')
             assert.equal(s.deviceCallbackIsExpired, deviceInfo.callbackIsExpired, 'callbackIsExpired')
+            assert.deepEqual(s.deviceCapabilities, deviceInfo.capabilities, 'capabilities')
             assert.equal(!! s.mustVerify, !! sessionTokenData.mustVerify, 'mustVerify is correct')
             assert.deepEqual(s.tokenVerificationId, sessionTokenData.tokenVerificationId, 'tokenVerificationId is correct')
           })
@@ -921,6 +926,7 @@ module.exports = function (config, DB) {
             assert.equal(device.callbackPublicKey, deviceInfo.callbackPublicKey, 'callbackPublicKey')
             assert.equal(device.callbackAuthKey, deviceInfo.callbackAuthKey, 'callbackAuthKey')
             assert.equal(device.callbackIsExpired, deviceInfo.callbackIsExpired, 'callbackIsExpired')
+            assert.deepEqual(device.capabilities, deviceInfo.capabilities, 'capabilities')
             assert(device.lastAccessTime > 0, 'has a lastAccessTime')
             assert.equal(device.email, accountData.email, 'email should be account email')
           })
@@ -933,6 +939,7 @@ module.exports = function (config, DB) {
         deviceInfo.callbackPublicKey = ''
         deviceInfo.callbackAuthKey = ''
         deviceInfo.callbackIsExpired = true
+        deviceInfo.capabilities = []
 
         const newSessionTokenData = makeMockSessionToken(accountData.uid)
         deviceInfo.sessionTokenId = newSessionTokenData.tokenId
@@ -955,6 +962,7 @@ module.exports = function (config, DB) {
             assert.equal(device.callbackPublicKey, '', 'callbackPublicKey unchanged')
             assert.equal(device.callbackAuthKey, '', 'callbackAuthKey unchanged')
             assert.equal(device.callbackIsExpired, true, 'callbackIsExpired unchanged')
+            assert.deepEqual(device.capabilities, [], 'capabilities updated')
           })
       })
 
@@ -986,6 +994,40 @@ module.exports = function (config, DB) {
             assert.equal(err.code, 404, 'err.code')
             assert.equal(err.errno, 116, 'err.errno')
           })
+      })
+
+      it('should fail to update a device with unknown capabilities', () => {
+        const newDevice = Object.assign({}, deviceInfo, {
+          capabilities: ['unknown', 'newpushbox']
+        })
+        return db.updateDevice(accountData.uid, deviceInfo.deviceId, newDevice)
+          .then(assert.fail, (err) => {
+            assert.equal(err.code, 400, 'err.code')
+            assert.equal(err.errno, 139, 'err.errno')
+            return db.accountDevices(accountData.uid)
+          })
+          .then((devices) => assert.deepEqual(devices[0].capabilities, ['pushbox']))
+      })
+
+      it('capabilities are not cleared if not specified', () => {
+        const newDevice = Object.assign({}, deviceInfo)
+        delete newDevice.capabilities
+        return db.updateDevice(accountData.uid, deviceInfo.deviceId, newDevice)
+          .then(() => {
+            return db.accountDevices(accountData.uid)
+          })
+          .then((devices) => assert.deepEqual(devices[0].capabilities, ['pushbox']))
+      })
+
+      it('capabilities are overwritten on update', () => {
+        const newDevice = Object.assign({}, deviceInfo, {
+          capabilities: []
+        })
+        return db.updateDevice(accountData.uid, deviceInfo.deviceId, newDevice)
+          .then(() => {
+            return db.accountDevices(accountData.uid)
+          })
+          .then((devices) => assert.deepEqual(devices[0].capabilities, []))
       })
 
       it('should fail to delete non-existent device', () => {
