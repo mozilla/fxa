@@ -10,8 +10,7 @@ P.promisifyAll(Memcached.prototype)
 
 var config = {
   memcache: {
-    host: '127.0.0.1',
-    port: '11211'
+    address: '127.0.0.1:11211',
   },
   limits: {
     blockIntervalSeconds: 1,

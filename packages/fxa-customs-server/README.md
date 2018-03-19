@@ -14,13 +14,15 @@ Clone the git repository and install dependencies:
     cd fxa-customs-server
     npm install
 
-You'll also need to [install memcached](http://www.memcached.org/downloads),
-otherwise all requests will be blocked.
-By default, the customs server tries to connect to memcached
-using port `11211` on `127.0.0.1`.
-You can specify a different port and IP address
-using the `memcache.address` configuration setting
-or the `MEMCACHE_ADDRESS` environment variable.
+Install memcached
+
+    You'll need to [install memcached](http://www.memcached.org/downloads),
+    otherwise all requests will be blocked.
+    By default, the customs server tries to connect to memcached
+    using port `11211` on `127.0.0.1`.
+    You can specify a different port and IP address
+    using the `memcache.address` configuration setting
+    or the `MEMCACHE_ADDRESS` environment variable.
 
 To start the server, run:
 
@@ -39,12 +41,6 @@ To run the customs server via Docker:
 Run tests with:
 
     npm test
-
-On Mac OS X, memcached must be manually started for the tests to run.
-
-    memcached &
-    npm test
-
 
 To run tests via Docker:
 

@@ -11,4 +11,13 @@ if test "$NO_COVERAGE" = ""; then
   cov="--coverage --cov"
 fi
 
+if ! echo stats | nc localhost 11211 | grep -q 'STAT'; then
+  memcached &
+  MC=$!
+fi
+
 tap test/local test/remote $cov
+
+if [[ $MC ]]; then
+  kill $MC
+fi
