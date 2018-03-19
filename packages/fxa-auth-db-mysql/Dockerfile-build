@@ -1,4 +1,4 @@
-FROM node:6.12.3-alpine
+FROM node:6.13.1-alpine
 
 RUN apk add --no-cache make git gcc g++ python
 
