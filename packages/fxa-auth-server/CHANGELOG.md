@@ -1,3 +1,13 @@
+<a name="1.107.3"></a>
+## [1.107.3](https://github.com/mozilla/fxa-auth-server/compare/v1.107.2-private-b...v1.107.3) (2018-03-16)
+
+
+### Bug Fixes
+
+* **validators:** Normalize redirectTo url to avoid parsing edge-cases. (#71) r=@vladikoff ([bb17257](https://github.com/mozilla/fxa-auth-server/commit/bb17257)), closes [#71](https://github.com/mozilla/fxa-auth-server/issues/71)
+
+
+
 <a name="1.107.2"></a>
 ## [1.107.2](https://github.com/mozilla/fxa-auth-server/compare/v1.107.1...v1.107.2) (2018-03-15)
 
