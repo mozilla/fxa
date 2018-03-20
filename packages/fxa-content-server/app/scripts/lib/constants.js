@@ -98,6 +98,7 @@ module.exports = {
   CLIENT_TYPE_WEB_SESSION: 'webSession',
 
   DEFAULT_XHR_TIMEOUT_MS: 2500,
+  DEFAULT_BUNDLE_PATH: '/bundle/',
 
   // Login delay for iOS broker
   IOS_V1_LOGIN_MESSAGE_DELAY_MS: 5000,

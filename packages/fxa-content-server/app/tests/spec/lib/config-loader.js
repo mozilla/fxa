@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const { assert } = require('chai');
   const ConfigLoader = require('lib/config-loader');
+  const Constants = require('lib/constants');
   const ConfigLoaderErrors = ConfigLoader.Errors;
   const sinon = require('sinon');
 
@@ -117,6 +118,17 @@ define(function (require, exports, module) {
               assert.isTrue(configLoader._parseHTMLConfig.called);
             });
         });
+      });
+    });
+
+
+    describe('_setWebpackPublicPath', () => {
+      it('sets the bundle path', () => {
+        /*eslint-disable camelcase*/
+        configLoader._setWebpackPublicPath('somepath');
+        assert.equal(__webpack_public_path__, 'somepath'); //eslint-disable-line no-undef
+        configLoader._setWebpackPublicPath();
+        assert.equal(__webpack_public_path__, Constants.DEFAULT_BUNDLE_PATH); //eslint-disable-line no-undef
       });
     });
 

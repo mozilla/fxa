@@ -21,6 +21,7 @@ module.exports = function (config) {
   const SCOPED_KEYS_VALIDATION = config.get('scopedKeys.validation');
   // add version from package.json to config
   const RELEASE = require('../../../package.json').version;
+  const WEBPACK_PUBLIC_PATH = `${STATIC_RESOURCE_URL}/${config.get('jsResourcePath')}/`;
 
   const serializedConfig = encodeURIComponent(JSON.stringify({
     authServerUrl: AUTH_SERVER_URL,
@@ -33,6 +34,8 @@ module.exports = function (config) {
     release: RELEASE,
     scopedKeysEnabled: SCOPED_KEYS_ENABLED,
     scopedKeysValidation: SCOPED_KEYS_VALIDATION,
+    staticResourceUrl: STATIC_RESOURCE_URL,
+    webpackPublicPath: WEBPACK_PUBLIC_PATH,
   }));
 
   const route = {};

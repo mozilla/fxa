@@ -5,11 +5,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const $ = require('jquery');
   const AppStart = require('lib/app-start');
   const { assert } = require('chai');
   const BaseBroker = require('models/auth_brokers/base');
-  const ConfigLoaderErrors = require('lib/config-loader').Errors;
   const Constants = require('lib/constants');
   const ErrorUtils = require('lib/error-utils');
   const FxDesktopV1Broker = require('models/auth_brokers/fx-desktop-v1');
@@ -116,43 +114,12 @@ define(function (require, exports, module) {
           user: userMock,
           window: windowMock
         });
-
-        appStart.useConfig({});
       });
 
       it('starts the app, does not redirect', () => {
         return appStart.startApp()
           .then(() => {
             assert.isFalse(routerMock.navigate.called);
-          });
-      });
-
-      it('logs an error `fatalError` if config is missing', () => {
-        appStart.useConfig(null);
-
-        sinon.stub(appStart, 'fatalError').callsFake(() => {});
-
-        return appStart.startApp()
-          .then(() => {
-            assert.isTrue(appStart.fatalError.calledOnce);
-            const err = appStart.fatalError.args[0][0];
-            assert.isTrue(ConfigLoaderErrors.is(err, 'MISSING_CONFIG'));
-          });
-      });
-
-      it('logs an error `fatalError` if config is invalid', () => {
-        appStart.useConfig(null);
-
-        sinon.stub(appStart, 'fatalError').callsFake(() => {});
-
-        $('head').append('<meta name="fxa-content-server/config" content="asdf" />');
-        return appStart.startApp()
-          .then(() => {
-            assert.isTrue(appStart.fatalError.calledOnce);
-            const err = appStart.fatalError.args[0][0];
-            assert.isTrue(ConfigLoaderErrors.is(err, 'INVALID_CONFIG'));
-
-            $('meta[name="fxa-content-server/config"]').remove();
           });
       });
 
@@ -492,8 +459,6 @@ define(function (require, exports, module) {
 
         sinon.stub(appStart, 'upgradeStorageFormats').callsFake(() => Promise.resolve());
         sandbox.stub(appStart, '_getUserStorageInstance').callsFake(() => new NullStorage());
-
-        appStart.useConfig({});
       });
 
       afterEach(() => {
@@ -530,7 +495,6 @@ define(function (require, exports, module) {
           router: routerMock,
           window: windowMock
         });
-        appStart.useConfig({});
       });
 
       it('skips error metrics on empty config', () => {
@@ -545,7 +509,6 @@ define(function (require, exports, module) {
       });
 
       it('skips error metrics if env is not defined', () => {
-        appStart.useConfig({ });
         appStart.initializeExperimentGroupingRules();
 
         appStart.initializeErrorMetrics();
@@ -555,11 +518,13 @@ define(function (require, exports, module) {
       it('creates error metrics', () => {
         var appStart = new AppStart({
           broker: brokerMock,
+          config: {
+            env: 'development'
+          },
           history: backboneHistoryMock,
           router: routerMock,
           window: windowMock
         });
-        appStart.useConfig({ env: 'development' });
         appStart.initializeExperimentGroupingRules();
 
         var ableChoose = sinon.stub(appStart._experimentGroupingRules, 'choose').callsFake(() => {
@@ -581,7 +546,6 @@ define(function (require, exports, module) {
           router: routerMock,
           window: windowMock
         });
-        appStart.useConfig({});
       });
 
       it('creates a user id', () => {
@@ -597,7 +561,6 @@ define(function (require, exports, module) {
           notifier: notifier,
           window: windowMock
         });
-        appStart.useConfig({});
       });
 
       it('creates a router', () => {

@@ -7,9 +7,9 @@ const webpack = require('webpack');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const HappyPack = require('happypack');
 const path = require('path');
+const config = require('./server/lib/configuration').getProperties();
 
-const ENV = process.env.NODE_ENV || 'development';
-const versionInfo = require('./server/lib/version');
+const ENV = config.env;
 const webpackConfig = {
   context: path.resolve(__dirname, 'app/scripts'),
   entry: {
@@ -40,8 +40,8 @@ const webpackConfig = {
     crossOriginLoading: 'anonymous',
     filename: '[name].bundle.js',
     chunkFilename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'dist', `bundle-${versionInfo.commit}`),
-    publicPath: process.env.NODE_ENV === 'production' ? `/bundle-${versionInfo.commit}/` : `/bundle/`
+    path: path.resolve(__dirname, 'dist', config.jsResourcePath),
+    publicPath: `/${config.jsResourcePath}/`
   },
 
   resolve: {
