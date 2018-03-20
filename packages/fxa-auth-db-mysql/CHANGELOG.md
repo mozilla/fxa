@@ -1,3 +1,26 @@
+<a name="1.108.0"></a>
+# [1.108.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.107.0...v1.108.0) (2018-03-20)
+
+
+### Bug Fixes
+
+* **buffers:** convert remaining Buffer to Buffer.from r=@vladikoff ([5092779](https://github.com/mozilla/fxa-auth-db-mysql/commit/5092779)), closes [#316](https://github.com/mozilla/fxa-auth-db-mysql/issues/316)
+* **db:** remove database configuration option, hardcode 'fxa'  (#314) r=@vladikoff ([c2e21dd](https://github.com/mozilla/fxa-auth-db-mysql/commit/c2e21dd)), closes [#290](https://github.com/mozilla/fxa-auth-db-mysql/issues/290)
+* **email:** Use email buffer for DEL ‘/email/:email’ route (#315), r=@vladikoff, @vbudhram ([cc6e08b](https://github.com/mozilla/fxa-auth-db-mysql/commit/cc6e08b))
+* **test:** correct promises error handling (#325) r=@eoger ([7effcb3](https://github.com/mozilla/fxa-auth-db-mysql/commit/7effcb3))
+
+### chore
+
+* **api:** remove bufferization from db layer ([818edcf](https://github.com/mozilla/fxa-auth-db-mysql/commit/818edcf))
+
+### Features
+
+* **devices:** Devices capabilities (#320) r=@philbooth ([4808a1c](https://github.com/mozilla/fxa-auth-db-mysql/commit/4808a1c))
+* **node:** update to node v6.13.1 r=@jbuck ([7727d88](https://github.com/mozilla/fxa-auth-db-mysql/commit/7727d88))
+* **totp:** initial recovery codes (#319), r=@philbooth ([995d52b](https://github.com/mozilla/fxa-auth-db-mysql/commit/995d52b))
+
+
+
 <a name="1.107.0"></a>
 # [1.107.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.106.0...v1.107.0) (2018-03-07)
 
