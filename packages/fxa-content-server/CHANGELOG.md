@@ -1,3 +1,46 @@
+<a name="1.108.0"></a>
+# 1.108.0 (2018-03-20)
+
+
+### Bug Fixes
+
+* **account:** fix [object Object] errors in Sentry (#5971) r=@philbooth ([498c392](https://github.com/mozilla/fxa-content-server/commit/498c392)), closes [(#5971](https://github.com/(/issues/5971) [#5364](https://github.com/mozilla/fxa-content-server/issues/5364)
+* **buffer:** Remove 'new Buffer' call in flow-metrics (#5979) r=@vladikoff ([99ab929](https://github.com/mozilla/fxa-content-server/commit/99ab929)), closes [#5978](https://github.com/mozilla/fxa-content-server/issues/5978)
+* **tests:** add totp functional tests (#5980), r=@vladikoff ([d6e7976](https://github.com/mozilla/fxa-content-server/commit/d6e7976))
+
+### chore
+
+* **package:** update speed-trap, regenerate shrinkwrap (#5974) r=@vladikoff ([5a1dfe9](https://github.com/mozilla/fxa-content-server/commit/5a1dfe9))
+* **typo:** fix test typo in fxa-client (#5954) ([449ee73](https://github.com/mozilla/fxa-content-server/commit/449ee73)), closes [(#5954](https://github.com/(/issues/5954)
+
+### Features
+
+* **clients:** Add Lockbox icon, fix Pontoon icon (#5959), r=@vbudhram ([a3ac644](https://github.com/mozilla/fxa-content-server/commit/a3ac644)), closes [(#5959](https://github.com/(/issues/5959)
+* **metrics:** emit view, engage & submit events for CAD ([2a707ac](https://github.com/mozilla/fxa-content-server/commit/2a707ac))
+* **oauth:** force validate provided redirect uri (#5948) r=@rfk ([339ed9a](https://github.com/mozilla/fxa-content-server/commit/339ed9a))
+* **styles:** make SVG hearts beat (#5960) r=@ryanfeeley,@vbudhram ([bac9441](https://github.com/mozilla/fxa-content-server/commit/bac9441))
+* **webpack:** load imports from CDN (#5989) r=@philbooth ([eacab12](https://github.com/mozilla/fxa-content-server/commit/eacab12)), closes [#5989](https://github.com/mozilla/fxa-content-server/issues/5989)
+
+### Refactor
+
+* **js:** remove require.js remains (#5953) r=@vbudhram ([abe0536](https://github.com/mozilla/fxa-content-server/commit/abe0536))
+* **metrics:** Removed get-metrics-errors.js (#5976) r=@vladikoff ([3105aa0](https://github.com/mozilla/fxa-content-server/commit/3105aa0)), closes [#5970](https://github.com/mozilla/fxa-content-server/issues/5970)
+
+### style
+
+* **server templates:** remove unnecessary conditional comments (#5973) r=@vladikoff ([9ff8db0](https://github.com/mozilla/fxa-content-server/commit/9ff8db0))
+* **settings:** Disabled the done button on secondary email(#5981), r=@vbudhram ([7d67920](https://github.com/mozilla/fxa-content-server/commit/7d67920))
+
+
+### BREAKING CHANGES
+
+* OAuth redirect uris must be updated in the database
+
+Fixes #5827
+
+
+
+
 <a name="1.107.5"></a>
 ## 1.107.5 (2018-03-13)
 
