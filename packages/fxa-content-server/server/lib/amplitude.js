@@ -29,8 +29,9 @@ const SERVICES = require('./configuration').get('oauth_client_id_map');
 const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(require('../../package.json').version)[1];
 
 const GROUPS = {
+  connectDevice: 'fxa_connect_device',
   email: 'fxa_email',
-  'email-first': 'fxa_email_first',
+  emailFirst: 'fxa_email_first',
   login: 'fxa_login',
   registration: 'fxa_reg',
   settings: 'fxa_pref',
@@ -38,19 +39,31 @@ const GROUPS = {
 };
 
 const ENGAGE_SUBMIT_EVENT_GROUPS = {
-  'enter-email': GROUPS['email-first'],
+  'connect-another-device': GROUPS.connectDevice,
+  'enter-email': GROUPS.emailFirst,
   'force-auth': GROUPS.login,
+  install_from: GROUPS.connectDevice,
+  signin_from: GROUPS.connectDevice,
   signin: GROUPS.login,
-  signup: GROUPS.registration
+  signup: GROUPS.registration,
+  sms: GROUPS.connectDevice
 };
 
 const VIEW_EVENT_GROUPS = {
-  'enter-email': GROUPS['email-first'],
+  'connect-another-device': GROUPS.connectDevice,
+  'enter-email': GROUPS.emailFirst,
   'force-auth': GROUPS.login,
   settings: GROUPS.settings,
   signin: GROUPS.login,
   signup: GROUPS.registration,
-  sms: GROUPS.sms
+  sms: GROUPS.connectDevice
+};
+
+const CONNECT_DEVICE_FLOWS = {
+  'connect-another-device': 'cad',
+  install_from: 'store_buttons',
+  signin_from: 'signin',
+  sms: 'sms'
 };
 
 const EMAIL_TYPES = {
@@ -93,6 +106,10 @@ const FUZZY_EVENTS = new Map([
     group: GROUPS.registration,
     event: 'have_account'
   } ],
+  [ /^flow\.((?:install|signin)_from)\.\w+$/, {
+    group: GROUPS.connectDevice,
+    event: 'engage'
+  } ],
   [ /^flow\.([\w-]+)\.submit$/, {
     isDynamicGroup: true,
     group: eventCategory => ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
@@ -118,24 +135,22 @@ const FUZZY_EVENTS = new Map([
   } ]
 ]);
 
-const NOP = () => {};
-
 const EVENT_PROPERTIES = {
+  [GROUPS.connectDevice]: mapConnectDeviceFlow,
   [GROUPS.email]: mixProperties(mapEmailType, mapService),
-  [GROUPS['email-first']]: mapService,
+  [GROUPS.emailFirst]: mapService,
   [GROUPS.login]: mapService,
   [GROUPS.registration]: mapService,
-  [GROUPS.settings]: mapDisconnectReason,
-  [GROUPS.sms]: NOP
+  [GROUPS.settings]: mapDisconnectReason
 };
 
 const USER_PROPERTIES = {
+  [GROUPS.connectDevice]: mapFlowId,
   [GROUPS.email]: mapFlowId,
-  [GROUPS['email-first']]: mixProperties(mapFlowId, mapUtmProperties),
+  [GROUPS.emailFirst]: mixProperties(mapFlowId, mapUtmProperties),
   [GROUPS.login]: mixProperties(mapFlowId, mapUtmProperties),
   [GROUPS.registration]: mixProperties(mapFlowId, mapUtmProperties),
-  [GROUPS.settings]: mapNewsletterState,
-  [GROUPS.sms]: mapFlowId
+  [GROUPS.settings]: mapNewsletterState
 };
 
 module.exports = receiveEvent;
@@ -297,6 +312,13 @@ function toSnakeCase (string) {
 function mapDisconnectReason (event, eventCategory) {
   if (event === 'disconnect_device' && eventCategory) {
     return { reason: eventCategory };
+  }
+}
+
+function mapConnectDeviceFlow (event, eventCategory) {
+  const connect_device_flow = CONNECT_DEVICE_FLOWS[eventCategory];
+  if (connect_device_flow) {
+    return { connect_device_flow };
   }
 }
 
