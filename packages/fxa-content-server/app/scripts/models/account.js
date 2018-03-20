@@ -794,7 +794,7 @@ define(function (require, exports, module) {
       var fxaClient = this._fxaClient;
       var email = this.get('email');
 
-      return fxaClient.checkPassword(email, oldPassword)
+      return fxaClient.checkPassword(email, oldPassword, this.get('sessionToken'))
         .then(() => {
           if (oldPassword === newPassword) {
             throw AuthErrors.toError('PASSWORDS_MUST_BE_DIFFERENT');

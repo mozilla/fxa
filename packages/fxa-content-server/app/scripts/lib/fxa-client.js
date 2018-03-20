@@ -169,19 +169,28 @@ define(function (require, exports, module) {
      *
      * @param {String} email
      * @param {String} password
+     * @param {String} sessionToken
+     * An optional existing sessionToken for the user's account, which
+     * can be used to check the password without creating a new session.
      * @returns {Promise}
      */
-    checkPassword: withClient((client, email, password) => {
-      return client.signIn(email, password, {
-        reason: SignInReasons.PASSWORD_CHECK
-      }).then(function (sessionInfo) {
-        // a session was created on the backend to check the user's
-        // password. Delete the newly created session immediately
-        // so that the session token is not left in the database.
-        if (sessionInfo && sessionInfo.sessionToken) {
-          return client.sessionDestroy(sessionInfo.sessionToken);
-        }
-      });
+    checkPassword: withClient((client, email, password, sessionToken) => {
+      if (sessionToken) {
+        return client.sessionReauth(sessionToken, email, password, {
+          reason: SignInReasons.PASSWORD_CHECK
+        });
+      } else {
+        return client.signIn(email, password, {
+          reason: SignInReasons.PASSWORD_CHECK
+        }).then(function (sessionInfo) {
+          // a session was created on the backend to check the user's
+          // password. Delete the newly created session immediately
+          // so that the session token is not left in the database.
+          if (sessionInfo && sessionInfo.sessionToken) {
+            return client.sessionDestroy(sessionInfo.sessionToken);
+          }
+        });
+      }
     }),
 
     /**

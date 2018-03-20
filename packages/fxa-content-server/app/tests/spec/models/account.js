@@ -1862,7 +1862,7 @@ define(function (require, exports, module) {
         return account.changePassword(oldPassword, newPassword, relier)
           .then(function () {
             assert.isTrue(fxaClient.checkPassword.calledWith(
-              EMAIL, oldPassword));
+              EMAIL, oldPassword, 'sessionToken'));
             assert.isTrue(fxaClient.changePassword.calledWith(
               EMAIL, oldPassword, newPassword, 'sessionToken', 'foo', relier));
 

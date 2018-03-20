@@ -1063,6 +1063,37 @@ define(function (require, exports, module) {
             assert.isTrue(realClient.sessionDestroy.calledWith('session token'));
           });
       });
+
+      it('re-authenticates an existing sessionToken if provided', () => {
+        const sessionToken = 'session token';
+        email = trim(email);
+
+        sinon.stub(realClient, 'sessionReauth').callsFake(() => {
+          return Promise.resolve({});
+        });
+
+        sinon.stub(realClient, 'signIn').callsFake(() => {
+          return Promise.resolve({});
+        });
+
+        sinon.stub(realClient, 'sessionDestroy').callsFake(() => {
+          return Promise.resolve();
+        });
+
+        return client.checkPassword(email, password, sessionToken)
+          .then(() => {
+            assert.isTrue(realClient.sessionReauth.calledWith(
+              sessionToken,
+              email,
+              password,
+              {
+                reason: SignInReasons.PASSWORD_CHECK
+              }
+            ));
+            assert.isFalse(realClient.signIn.called);
+            assert.isFalse(realClient.sessionDestroy.called);
+          });
+      });
     });
 
     describe('changePassword', function () {
