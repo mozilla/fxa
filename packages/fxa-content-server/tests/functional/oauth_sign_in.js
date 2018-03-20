@@ -11,25 +11,37 @@ const FunctionalHelpers = require('./lib/helpers');
 const config = intern._config;
 const OAUTH_APP = config.fxaOAuthApp;
 const SIGNIN_ROOT = config.fxaContentRoot + 'oauth/signin';
+const otplib = require('otplib');
+const selectors = require('./lib/selectors');
+
+// Default options for TOTP
+otplib.authenticator.options = {encoding: 'hex'};
+
+const SIGNUP_URL = `${config.fxaContentRoot}signup`;
+const SETTINGS_URL = `${config.fxaContentRoot}settings?showTwoStepAuthentication=true`;
 
 const PASSWORD = 'password';
-var email;
+let authenticator, email, secret, code;
 
 const thenify = FunctionalHelpers.thenify;
 
-const click = FunctionalHelpers.click;
-const createUser = FunctionalHelpers.createUser;
-const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-const fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-const openFxaFromRp = FunctionalHelpers.openFxaFromRp;
-const openPage = FunctionalHelpers.openPage;
-const openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
-const reOpenWithAdditionalQueryParams = FunctionalHelpers.reOpenWithAdditionalQueryParams;
-const testElementExists = FunctionalHelpers.testElementExists;
-const testUrlPathnameEquals = FunctionalHelpers.testUrlPathnameEquals;
-const type = FunctionalHelpers.type;
-const visibleByQSA = FunctionalHelpers.visibleByQSA;
+const {
+  clearBrowserState,
+  click,
+  createUser,
+  fillOutSignIn,
+  fillOutSignInUnblock,
+  fillOutSignUp,
+  openFxaFromRp,
+  openPage,
+  openVerificationLinkInSameTab,
+  reOpenWithAdditionalQueryParams,
+  testElementExists,
+  testSuccessWasShown,
+  testUrlPathnameEquals,
+  type,
+  visibleByQSA
+} = FunctionalHelpers;
 
 const testAtOAuthApp = thenify(function () {
   return this.parent
@@ -41,6 +53,14 @@ const testAtOAuthApp = thenify(function () {
       assert.ok(url.indexOf(OAUTH_APP) > -1);
     });
 });
+
+const generateCode = (secret) => {
+  secret = secret.replace(/[- ]*/g, '');
+  authenticator = new otplib.authenticator.Authenticator();
+  authenticator.options = otplib.authenticator.options;
+  code = authenticator.generate(secret);
+  return code;
+};
 
 registerSuite('oauth signin', {
   beforeEach: function () {
@@ -210,5 +230,92 @@ registerSuite('oauth signin', {
 
         .then(testAtOAuthApp());
     }
+  }
+});
+
+registerSuite('oauth - TOTP', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
+    return this.remote.then(clearBrowserState())
+      .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
+      .then(fillOutSignUp(email, PASSWORD))
+      .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+      .then(openVerificationLinkInSameTab(email, 0))
+      .then(testElementExists(selectors.SETTINGS.HEADER))
+
+      .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
+      .then(testElementExists(selectors.SETTINGS.HEADER))
+      .then(testElementExists(selectors.TOTP.MENU_BUTTON))
+
+      .then(click(selectors.TOTP.MENU_BUTTON))
+
+      .then(testElementExists(selectors.TOTP.QR_CODE))
+      .then(testElementExists(selectors.TOTP.SHOW_CODE_LINK))
+
+      .then(click(selectors.TOTP.SHOW_CODE_LINK))
+      .then(testElementExists(selectors.TOTP.MANUAL_CODE))
+
+      // Store the secret key to recalculate the code later
+      .findByCssSelector(selectors.TOTP.MANUAL_CODE)
+      .getVisibleText()
+      .then((secretKey) => {
+        secret = secretKey;
+      })
+      .end();
+  },
+
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
+
+  tests: {
+    'can add TOTP to account and confirm oauth signin': function () {
+      return this.remote
+      // Shows success for confirming token
+        .then(type(selectors.TOTP.CONFIRM_CODE_INPUT, generateCode(secret)))
+        .then(click(selectors.TOTP.CONFIRM_CODE_BUTTON))
+        .then(testSuccessWasShown)
+        .then(testElementExists(selectors.TOTP.STATUS_ENABLED))
+
+        .then(clearBrowserState({
+          '123done': true,
+          contentServer: true
+        }))
+
+        .then(openFxaFromRp('signin'))
+        .then(fillOutSignIn(email, PASSWORD))
+
+        // Correctly submits the totp code and navigates to oauth page
+        .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
+        .then(type(selectors.TOTP_SIGNIN.INPUT, generateCode(secret)))
+        .then(click(selectors.TOTP_SIGNIN.SUBMIT))
+
+        .then(testAtOAuthApp());
+    },
+
+    'can remove TOTP from account and skip confirmation': function () {
+      return this.remote
+        .then(type(selectors.TOTP.CONFIRM_CODE_INPUT, generateCode(secret)))
+        .then(click(selectors.TOTP.CONFIRM_CODE_BUTTON))
+        .then(testSuccessWasShown)
+        .then(testElementExists(selectors.TOTP.STATUS_ENABLED))
+
+        // Remove token
+        .then(click(selectors.TOTP.DELETE_BUTTON))
+        .then(testSuccessWasShown)
+        .then(testElementExists(selectors.TOTP.MENU_BUTTON))
+
+        // Does not prompt for code
+        .then(click(selectors.SETTINGS.SIGNOUT))
+
+        .then(clearBrowserState({
+          '123done': true,
+          contentServer: true
+        }))
+        .then(openFxaFromRp('signin'))
+        .then(fillOutSignIn(email, PASSWORD))
+
+        .then(testAtOAuthApp());
+    },
   }
 });

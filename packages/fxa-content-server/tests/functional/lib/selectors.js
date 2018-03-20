@@ -248,6 +248,22 @@ module.exports = {
   SMS_WHY_IS_THIS_REQUIRED: {
     CLOSE: '.connect-another-device button[type="submit"]',
     HEADER: '#fxa-why-connect-another-device-header',
-  }
+  },
+  TOTP: {
+    CANCEL_BUTTON: '.totp-cancel',
+    CONFIRM_CODE_BUTTON: '.totp-confirm-code',
+    CONFIRM_CODE_INPUT: '.totp-code',
+    DELETE_BUTTON: '.totp-delete',
+    MANUAL_CODE: '.code',
+    MENU_BUTTON: '#totp-section .settings-unit-toggle',
+    QR_CODE: '.qr-image',
+    SHOW_CODE_LINK: '.show-code-link',
+    STATUS_ENABLED: '#totp-status .enabled',
+  },
+  TOTP_SIGNIN: {
+    HEADER: '#fxa-totp-code-header',
+    INPUT: '.totp-code',
+    SUBMIT: 'button[type="submit"]',
+  },
 };
 /*eslint-enable max-len*/

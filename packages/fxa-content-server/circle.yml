@@ -15,7 +15,7 @@ dependencies:
     - npm i --production
     - CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt build
     - nohup bash -c "CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt serverproc:dist &"
-    - npm install intern xmlhttprequest firefox-profile request sync-exec convict yargs leadfoot
+    - npm install intern xmlhttprequest firefox-profile request sync-exec convict yargs leadfoot otplib
   post:
     - curl 127.0.0.1:3030
     - /home/ubuntu/fxa-content-server/firefox/firefox --version

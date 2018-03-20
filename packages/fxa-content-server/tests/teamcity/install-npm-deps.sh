@@ -27,6 +27,7 @@ node ./tests/teamcity/install-npm-deps.js \
   node-statsd                     \
   node-uap                        \
   on-headers                      \
+  otplib                          \
   proxyquire                      \
   raven                           \
   sinon                           \

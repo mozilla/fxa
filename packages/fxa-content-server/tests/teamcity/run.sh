@@ -79,6 +79,7 @@ node ./tests/teamcity/install-npm-deps.js \
   got                             \
   intern                          \
   leadfoot                        \
+  otplib                          \
   sync-exec                       \
   xmlhttprequest                  \
   yargs

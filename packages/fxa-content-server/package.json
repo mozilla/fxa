@@ -146,6 +146,7 @@
     "intern": "4.1.5",
     "leadfoot": "1.7.4",
     "npmshrink": "1.0.1",
+    "otplib": "7.1.0",
     "proxyquire": "1.7.4",
     "sinon": "3.2.1",
     "sync-exec": "0.6.2",
