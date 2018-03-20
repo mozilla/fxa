@@ -88,6 +88,8 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
             assert.equal(token.verificationMethod, token2.verificationMethod)
             assert.equal(token.verificationMethodValue, 'totp-2fa')
             assert.equal(token.verifiedAt, token2.verifiedAt)
+            assert.deepEqual(token.authenticationMethods, token2.authenticationMethods)
+            assert.deepEqual(token.authenticatorAssuranceLevel, token2.authenticatorAssuranceLevel)
           }
         )
     }
@@ -243,6 +245,49 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
       const token = new SessionToken({}, {})
       token.tokenVerified = true
       assert.equal(token.state, 'verified')
+    })
+  })
+
+  describe('authenticationMethods', () => {
+
+    it('should be [`pwd`] for unverified tokens', () => {
+      return SessionToken.create(Object.assign({}, TOKEN, {
+        verificationMethod: null,
+        verifiedAt: null
+      }))
+      .then(token => {
+        assert.deepEqual(Array.from(token.authenticationMethods).sort(), ['pwd'])
+      })
+    })
+
+    it('should be [`pwd`, `email`] for verified tokens', () => {
+      return SessionToken.create(Object.assign({}, TOKEN, {
+        tokenVerificationId: null,
+        verificationMethod: null,
+        verifiedAt: null
+      }))
+      .then(token => {
+        assert.deepEqual(Array.from(token.authenticationMethods).sort(), ['email', 'pwd'])
+      })
+    })
+
+    it('should be [`pwd`, `email`] for tokens verified via email-2fa', () => {
+      return SessionToken.create(Object.assign({}, TOKEN, {
+        tokenVerificationId: null,
+        verificationMethod: 1
+      }))
+      .then(token => {
+        assert.deepEqual(Array.from(token.authenticationMethods).sort(), ['email', 'pwd'])
+      })
+    })
+
+    it('should be [`pwd`, `otp`] for tokens verified via totp-2fa', () => {
+      return SessionToken.create(Object.assign({}, TOKEN, {
+        verificationMethod: 2
+      }))
+      .then(token => {
+        assert.deepEqual(Array.from(token.authenticationMethods).sort(), ['otp', 'pwd'])
+      })
     })
   })
 })

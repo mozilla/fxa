@@ -12,6 +12,7 @@ const random = require('../crypto/random')
 const requestHelper = require('../routes/utils/request_helper')
 const uuid = require('uuid')
 const validators = require('./validators')
+const authMethods = require('../authMethods')
 
 const HEX_STRING = validators.HEX_STRING
 
@@ -815,6 +816,14 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
             'sessionToken',
             'oauthToken'
           ]
+        },
+        response: {
+          schema: {
+            email: isA.string().optional(),
+            locale: isA.string().optional().allow(null),
+            authenticationMethods: isA.array().items(isA.string().required()).optional(),
+            authenticatorAssuranceLevel: isA.number().min(0)
+          }
         }
       },
       handler: function (request, reply) {
@@ -846,18 +855,24 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           }
           return false
         }
+        const res = {}
         db.account(uid)
-          .then(
-            function (account) {
-              reply({
-                email: hasProfileItemScope('email') ? account.primaryEmail.email : undefined,
-                locale: hasProfileItemScope('locale') ? account.locale : undefined
-              })
-            },
-            function (err) {
-              reply(err)
+          .then(account => {
+            if (hasProfileItemScope('email')) {
+              res.email = account.primaryEmail.email
             }
-          )
+            if (hasProfileItemScope('locale')) {
+              res.locale = account.locale
+            }
+            if (hasProfileItemScope('amr')) {
+              return authMethods.availableAuthenticationMethods(db, account)
+                .then(amrValues => {
+                  res.authenticationMethods = Array.from(amrValues)
+                  res.authenticatorAssuranceLevel = authMethods.maximumAssuranceLevel(amrValues)
+                })
+            }
+          })
+          .then(() => reply(res), reply)
       }
     },
     {

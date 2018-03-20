@@ -740,11 +740,38 @@ the scopes that the token is authorized for:
 
 * `email` requires `profile:email` scope.
 
-* `locale` require `profile:locale` scope.
+* `locale` requires `profile:locale` scope.
 
-The `profile` scope includes both
-of the `email` and `locale` sub-scopes.
+* `authenticationMethods` and `authenticatorAssuranceLevel` require `profile:amr` scope.
+
+The `profile` scope includes all the above sub-scopes.
 <!--end-route-get-accountprofile-->
+
+##### Response body
+
+* `email`: *string, optional*
+
+  <!--begin-response-body-get-accountprofile-email-->
+  
+  <!--end-response-body-get-accountprofile-email-->
+
+* `locale`: *string, optional*
+
+  <!--begin-response-body-get-accountprofile-locale-->
+  
+  <!--end-response-body-get-accountprofile-locale-->
+
+* `authenticationMethods`: *array, items(string, required), optional*
+
+  <!--begin-response-body-get-accountprofile-authenticationMethods-->
+  
+  <!--end-response-body-get-accountprofile-authenticationMethods-->
+
+* `authenticatorAssuranceLevel`: *number, min(0)*
+
+  <!--begin-response-body-get-accountprofile-authenticatorAssuranceLevel-->
+  
+  <!--end-response-body-get-accountprofile-authenticatorAssuranceLevel-->
 
 
 #### GET /account/keys

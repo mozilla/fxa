@@ -5,6 +5,8 @@
 'use strict'
 
 module.exports = config => {
+  const otplib = require('otplib')
+  const crypto = require('crypto')
   var P = require('../../lib/promise')
   const ClientApi = require('./api')(config)
   var butil = require('../../lib/crypto/butil')
@@ -25,6 +27,7 @@ module.exports = config => {
     this.passwordForgotToken = null
     this.kA = null
     this.wrapKb = null
+    this.totpAuthenticator = null
     this.options = {}
   }
 
@@ -118,6 +121,36 @@ module.exports = config => {
             )
         }
       )
+  }
+
+  Client.createAndVerifyAndTOTP = function (origin, email, password, mailbox, options) {
+    return Client.createAndVerify(origin, email, password, mailbox, options)
+      .then(client => {
+        client.totpAuthenticator = new otplib.Authenticator()
+        return client.createTotpToken()
+          .then(result => {
+            client.totpAuthenticator.options = {
+              secret: result.secret,
+              crypto: crypto
+            }
+            return client.verifyTotpCode(client.totpAuthenticator.generate())
+          })
+          .then(() => {
+            // The above enables TOTP on the account, but doesn't mark the
+            // session as being verified via TOTP, because it was already verified
+            // via email.  Create a new session that's explicitly TOTP-verified.
+            return client.setupCredentials(email, password)
+          })
+          .then(() => {
+            return client.auth(options)
+          })
+          .then(() => {
+            return client.verifyTotpCode(client.totpAuthenticator.generate())
+          })
+          .then(() => {
+            return client
+          })
+      })
   }
 
   Client.loginAndVerify = function (origin, email, password, mailbox, options) {

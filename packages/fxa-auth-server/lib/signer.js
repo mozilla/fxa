@@ -25,7 +25,9 @@ module.exports = function (secretKeyFile, domain) {
           'fxa-lastAuthAt': data.lastAuthAt,
           'fxa-verifiedEmail': data.verifiedEmail,
           'fxa-deviceId': data.deviceId,
-          'fxa-tokenVerified': data.tokenVerified
+          'fxa-tokenVerified': data.tokenVerified,
+          'fxa-amr': data.authenticationMethods,
+          'fxa-aal': data.authenticatorAssuranceLevel
         }
       )
       .then(
