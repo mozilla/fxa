@@ -5,6 +5,8 @@
 'use strict'
 
 const crypto = require('crypto')
+const P = require('../promise')
+const randomBytes = P.promisify(require('crypto').randomBytes)
 
 const BOUNCE_TYPES = new Map([
   ['__fxa__unmapped', 0], // a bounce type we don't yet recognize
@@ -34,7 +36,8 @@ const BOUNCE_SUB_TYPES = new Map([
 const VERIFICATION_METHODS = new Map([
   ['email', 0],     // sign-in confirmation email link
   ['email-2fa', 1], // sign-in confirmation email code (token code)
-  ['totp-2fa', 2]   // TOTP code
+  ['totp-2fa', 2],   // TOTP code
+  ['recovery-code', 3]   // Recovery code
 ])
 
 // If you modify one of these maps, modify the other.
@@ -86,5 +89,28 @@ module.exports = {
       hash.update(arg)
     })
     return hash.digest()
+  },
+
+  createHashSha512 () {
+    const hash = crypto.createHash('sha512')
+    const args = [...arguments]
+    args.forEach((arg) => {
+      hash.update(arg)
+    })
+    return hash.digest()
+  },
+
+  generateRecoveryCodes(count) {
+    const randomByteCodes = []
+    for (let i = 0; i < count; i++) {
+      randomByteCodes.push(randomBytes(4))
+    }
+
+    return P.all(randomByteCodes)
+      .then((result) => {
+        return result.map((randomCode) => {
+          return randomCode.toString('hex')
+        })
+      })
   }
 }

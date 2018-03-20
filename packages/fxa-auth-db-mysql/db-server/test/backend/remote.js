@@ -1627,7 +1627,7 @@ module.exports = function(cfg, makeServer) {
           .then((res) => respOkEmpty(res))
       })
 
-      it('set session verification method', () => {
+      it('set session verification method - totp-2fa', () => {
         const verifyOptions = {
           verificationMethod: 'totp-2fa',
         }
@@ -1643,6 +1643,60 @@ module.exports = function(cfg, makeServer) {
           })
       })
 
+      it('set session verification method - recovery-code', () => {
+        const verifyOptions = {
+          verificationMethod: 'recovery-code',
+        }
+        return client.postThen('/tokens/' + user.sessionTokenId + '/verifyWithMethod', verifyOptions)
+          .then((res) => {
+            respOkEmpty(res)
+            return client.getThen('/sessionToken/' + user.sessionTokenId + '/device')
+          })
+          .then((sessionToken) => {
+            sessionToken = sessionToken.obj
+            assert.equal(sessionToken.verificationMethod, 3, 'verificationMethod set')
+            assert.ok(sessionToken.verifiedAt, 'verifiedAt set')
+          })
+      })
+    })
+
+    describe('recovery codes', () => {
+      let user
+      beforeEach(() => {
+        user = fake.newUserDataHex()
+        return client.putThen('/account/' + user.accountId, user.account)
+          .then((r) => {
+            respOkEmpty(r)
+          })
+      })
+
+      it('should generate new recovery codes', () => {
+        return client.postThen('/account/' + user.accountId + '/recoveryCodes', {count: 8})
+          .then((res) => {
+            const codes = res.obj
+            assert.equal(codes.length, 8, 'correct number of codes')
+          })
+      })
+
+      it('should fail to consume unknown recovery code', () => {
+        return client.postThen('/account/' + user.accountId + '/recoveryCodes/' + '12345678')
+          .then(assert.fail, (err) => {
+            testNotFound(err)
+          })
+      })
+
+      it('should consume recovery code', () => {
+        return client.postThen('/account/' + user.accountId + '/recoveryCodes', {count: 8})
+          .then((res) => {
+            const codes = res.obj
+            assert.equal(codes.length, 8, 'correct number of codes')
+            return client.postThen('/account/' + user.accountId + '/recoveryCodes/' + codes[0])
+          })
+          .then((res) => {
+            const result = res.obj
+            assert.equal(result.remaining, 7, 'correct number of remaining codes')
+          })
+      })
     })
 
     after(() => server.close())

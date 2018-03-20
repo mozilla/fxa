@@ -100,6 +100,9 @@ The following datatypes are used throughout this document:
     * totpToken                 : `GET /totp/:id`
     * deleteTotpToken           : `DEL /totp/:id`
     * updateTotpToken           : `POST /totp/:id/update`
+* Recovery codes:
+    * replaceRecoveryCodes      : `POST /account/:id/recoveryCodes`
+    * consumeRecoveryCode       : `POST /account/:id/recoveryCodes/:code`
 
 ## Ping : `GET /`
 
@@ -2062,6 +2065,93 @@ Content-Length: 2
 * Status Code : `200 OK`
     * Content-Type : `application/json`
     * Body : `{}`  
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`
+
+## replaceRecoveryCodes : `GET /account/:uid/recoveryCodes`
+
+Replaces a users current recovery codes with new ones.
+
+### Example
+
+```
+curl \
+    -v \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -d '{
+        "count" : 8        
+    }'
+    http://localhost:8000/account/1234567890ab/recoveryCodes   
+```
+
+### Request
+
+* Method : `POST`
+* Path : `/account/<uid>/recoveryCodes`
+    * `uid` : hex   
+*
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+["code1", "code2"]
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `["code1", "code2"]`
+* Status Code : `404 Not Found`
+    * Conditions: if no user found
+    * Content-Type : `application/json`
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`
+
+## consumeRecoveryCode : `POST /account/:uid/recoveryCodes/:code`
+
+Consumes a recovery code.
+
+### Example
+
+```
+curl \
+    -v \
+    -X POST \
+    -H "Content-Type: application/json" \    
+    http://localhost:8000/account/1234567890ab/recoveryCodes/1123  
+```
+
+### Request
+
+* Method : `POST`
+* Path : `/account/<uid>/recoveryCodes/<code>`
+    * `uid` : hex
+    * `code`: hex
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{"remaining" : 1}
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `{"remaining" : 1}`
+* Status Code : `404 Not Found`
+    * Conditions: if no user found or code not found
+    * Content-Type : `application/json`
 * Status Code : `500 Internal Server Error`
     * Conditions: if something goes wrong on the server
     * Content-Type : `application/json`

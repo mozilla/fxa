@@ -26,6 +26,7 @@ var emailBounces = {}
 var emails = {}
 var signinCodes = {}
 const totpTokens = {}
+const recoveryCodes = {}
 
 var DEVICE_FIELDS = [
   'sessionTokenId',
@@ -1302,6 +1303,55 @@ module.exports = function (log, error) {
         return Promise.resolve({})
       })
   }
+
+  Memory.prototype.replaceRecoveryCodes = function (uid, count) {
+    uid = uid.toString('hex')
+    return getAccountByUid(uid)
+      .then(() => {
+        return dbUtil.generateRecoveryCodes(count)
+          .then((codes) => {
+            recoveryCodes[uid] = codes.map((code) => {
+              return {
+                codeHash: dbUtil.createHashSha512(code)
+              }
+            })
+            return codes
+          })
+      })
+  }
+
+  Memory.prototype.consumeRecoveryCode = function (uid, code) {
+    uid = uid.toString('hex')
+    const codeHash = dbUtil.createHashSha512(code).toString('hex')
+
+    return getAccountByUid(uid)
+      .then(() => {
+        const codes = recoveryCodes[uid]
+
+        if (! codes) {
+          throw error.notFound()
+        }
+
+        let foundCode, foundIndex
+        for (let i = 0; i < codes.length; i++) {
+          const code = codes[i]
+          if (codeHash === code.codeHash.toString('hex')) {
+            foundCode = code
+            foundIndex = i
+            break
+          }
+        }
+
+        if (! foundCode) {
+          throw error.notFound()
+        }
+
+        codes.splice(foundIndex, 1)
+
+        return {createdAt: foundCode.createdAt, remaining: codes.length}
+      })
+  }
+
 
   // UTILITY FUNCTIONS
 

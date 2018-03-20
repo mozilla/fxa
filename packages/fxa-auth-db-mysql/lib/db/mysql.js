@@ -1413,5 +1413,62 @@ module.exports = function (log, error) {
       })
   }
 
+  const DELETE_RECOVERY_CODES = 'CALL deleteRecoveryCodes_1(?)'
+  const INSERT_RECOVERY_CODE = 'CALL createRecoveryCode_1(?, ?)'
+  MySql.prototype.replaceRecoveryCodes = function (uid, count) {
+
+    // Because of the hashing requirements the process of replacing
+    // recovery codes is done is two separate procedures. First one
+    // deletes all current codes and the second one inserts the
+    // hashed randomly generated codes.
+    return dbUtil.generateRecoveryCodes(count)
+      .then((codeList) => {
+        return this.read(DELETE_RECOVERY_CODES, [uid])
+          .then(() => {
+            if (codeList <= 0) {
+              return P.resolve([])
+            }
+
+            const queries = []
+            codeList.forEach((code) => {
+              queries.push({
+                sql: INSERT_RECOVERY_CODE,
+                params: [uid, dbUtil.createHashSha512(code)]
+              })
+            })
+
+            return this.writeMultiple(queries)
+          })
+          .then(() => {
+            return P.resolve(codeList)
+          })
+          .catch((err) => {
+            if (err.errno === 1643) {
+              throw error.notFound()
+            }
+
+            throw err
+          })
+
+      })
+  }
+
+  const CONSUME_RECOVERY_CODE = 'CALL consumeRecoveryCode_1(?, ?)'
+  MySql.prototype.consumeRecoveryCode = function (uid, code) {
+    return this.readFirstResult(CONSUME_RECOVERY_CODE, [uid, dbUtil.createHashSha512(code)])
+      .then((result) => {
+        return P.resolve({
+          remaining: result.count
+        })
+      })
+      .catch((err) => {
+        if (err.errno === 1643) {
+          throw error.notFound()
+        }
+
+        throw err
+      })
+  }
+
   return MySql
 }

@@ -1985,6 +1985,103 @@ module.exports = function (config, DB) {
       })
     })
 
+    describe('recovery codes', () => {
+      let account
+      beforeEach(() => {
+        account = createAccount()
+        account.emailVerified = true
+        return db.createAccount(account.uid, account)
+      })
+
+      it('should fail to generate for unknown user', () => {
+        return db.replaceRecoveryCodes(hex16(), 2)
+          .then(assert.fail, (err) => {
+            assert.equal(err.errno, 116, 'correct errno, not found')
+          })
+      })
+
+      const codeLengthTest = [0, 4, 8]
+      codeLengthTest.forEach((num) => {
+        it('should generate ' + num + ' recovery codes', () => {
+          return db.replaceRecoveryCodes(account.uid, num)
+            .then((codes) => {
+              assert.equal(codes.length, num, 'correct number of codes')
+            }, (err) => {
+              assert.equal(err.errno, 116, 'correct errno, not found')
+            })
+        })
+      })
+
+      it('should replace recovery codes', () => {
+        let firstCodes
+        return db.replaceRecoveryCodes(account.uid, 2)
+          .then((codes) => {
+            firstCodes = codes
+            assert.equal(firstCodes.length, 2, 'correct number of codes')
+
+            return db.replaceRecoveryCodes(account.uid, 3)
+          })
+          .then((codes) => {
+            assert.equal(codes.length, 3, 'correct number of codes')
+            assert.notDeepEqual(codes, firstCodes, 'codes are different')
+          })
+      })
+
+      describe('should consume recovery codes', () => {
+        let recoveryCodes
+        beforeEach(() => {
+          return db.replaceRecoveryCodes(account.uid, 2)
+            .then((codes) => {
+              recoveryCodes = codes
+              assert.equal(recoveryCodes.length, 2, 'correct number of recovery codes')
+            })
+        })
+
+        it('should fail to consume recovery code with unknown uid', () => {
+          return db.consumeRecoveryCode(hex16(), 'recoverycodez')
+            .then(assert.fail, (err) => {
+              assert.equal(err.errno, 116, 'correct errno, not found')
+            })
+        })
+
+        it('should fail to consume recovery code with unknown code', () => {
+          return db.replaceRecoveryCodes(account.uid, 3)
+            .then(() => {
+              return db.consumeRecoveryCode(account.uid, 'notvalidcode')
+                .then(assert.fail, (err) => {
+                  assert.equal(err.errno, 116, 'correct errno, unknown recovery code')
+                })
+            })
+        })
+
+        it('should fail to consume code twice', () => {
+          return db.consumeRecoveryCode(account.uid, recoveryCodes[0])
+            .then((result) => {
+              assert.equal(result.remaining, 1, 'correct number of remaining codes')
+
+              // Should fail to consume code twice
+              return db.consumeRecoveryCode(account.uid, recoveryCodes[0])
+                .then(assert.fail, (err) => {
+                  assert.equal(err.errno, 116, 'correct errno, unknown recovery code')
+                })
+            })
+        })
+
+        it('should consume code', () => {
+          return db.consumeRecoveryCode(account.uid, recoveryCodes[0])
+            .then((result) => {
+              assert.equal(result.remaining, 1, 'correct number of remaining codes')
+
+              return db.consumeRecoveryCode(account.uid, recoveryCodes[1])
+                .then((result) => {
+                  assert.equal(result.remaining, 0, 'correct number of remaining codes')
+                })
+            })
+        })
+      })
+    })
+
+
     after(() => db.close())
   })
 }

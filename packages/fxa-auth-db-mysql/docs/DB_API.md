@@ -67,6 +67,9 @@ There are a number of methods that a DB storage backend should implement:
     * .totpToken(uid)
     * .deleteTotpToken(uid)
     * .updateTotpToken(uid, tokenData)
+* Recovery codes
+    * .replaceRecoveryCodes(uid, count)
+    * .consumeRecoveryCode(uid, code)
 * General
     * .ping()
     * .close()
@@ -814,76 +817,115 @@ Returns:
 
 ## createTotpToken(uid, sharedSecret, epoch)
 
-  Creates a new TOTP token for the user.
+Creates a new TOTP token for the user.
 
-  Parameters:
+Parameters:
 
-  * `uid` (Buffer16):
-    The uid of the owning account
-  * `sharedSecret` (string):
-    The shared secret used to generate TOTP code
-  * `epoch` (number):
-    The epoch used to generate TOTP code (default 0)
+* `uid` (Buffer16):
+  The uid of the owning account
+* `sharedSecret` (string):
+  The shared secret used to generate TOTP code
+* `epoch` (number):
+  The epoch used to generate TOTP code (default 0)
 
-  Returns:
+Returns:
 
-  * Resolves with:
-    * An empty object `{}`
-  * Rejects with:
-    * Any error from the underlying storage system (wrapped in `error.wrap()`)
-    * `error.duplicate()` if this user had a token already
+* Resolves with:
+  * An empty object `{}`
+* Rejects with:
+  * Any error from the underlying storage system (wrapped in `error.wrap()`)
+  * `error.duplicate()` if this user had a token already
 
 ## totpToken(uid)
 
-  Get's the TOTP token for the user.
+Get's the TOTP token for the user.
 
-  Parameters:
+Parameters:
 
-  * `uid` (Buffer16):
-    The uid of the owning account
+* `uid` (Buffer16):
+  The uid of the owning account
 
-  Returns:
+Returns:
 
-  * Resolves with:
-    * An object `{}`
-       * sharedSecret
-       * epoch
-  * Rejects with:
-    * Any error from the underlying storage system (wrapped in `error.wrap()`)
-    * `error.notFound()` if this user does not have a token
+* Resolves with:
+  * An object `{}`
+     * sharedSecret
+     * epoch
+* Rejects with:
+  * Any error from the underlying storage system (wrapped in `error.wrap()`)
+  * `error.notFound()` if this user does not have a token
 
 ## deleteTotpToken(uid)
 
-  Delete the TOTP token for the user.
+Delete the TOTP token for the user.
 
-  Parameters:
+Parameters:
 
-  * `uid` (Buffer16):
-    The uid of the owning account
+* `uid` (Buffer16):
+  The uid of the owning account
 
-  Returns:
+Returns:
 
-  * Resolves with:
-    * An empty object `{}`
-  * Rejects with:
-    * Any error from the underlying storage system (wrapped in `error.wrap()`)
+* Resolves with:
+  * An empty object `{}`
+* Rejects with:
+  * Any error from the underlying storage system (wrapped in `error.wrap()`)
 
 ## updateTotpToken(uid, tokenData)
 
-  Update the TOTP token for the user.
+Update the TOTP token for the user.
 
-  Parameters:
+Parameters:
 
-  * `uid` (Buffer16):
-    The uid of the owning account
-  * `tokenData`
-    * `verified`: Boolean whether TOTP token has been verified
-    * `enabled`: Boolean whether TOTP token is enabled
+* `uid` (Buffer16):
+  The uid of the owning account
+* `tokenData`
+  * `verified`: Boolean whether TOTP token has been verified
+  * `enabled`: Boolean whether TOTP token is enabled
 
-  Returns:
+Returns:
 
-  * Resolves with:
-    * An empty object `{}`
-  * Rejects with:
-    * Any error from the underlying storage system (wrapped in `error.wrap()`)
-    * `error.notFound()` if this user does not have a token
+* Resolves with:
+  * An empty object `{}`
+* Rejects with:
+  * Any error from the underlying storage system (wrapped in `error.wrap()`)
+  * `error.notFound()` if this user does not have a token
+
+## replaceRecoveryCodes(uid, count)
+
+Replaces user's recovery codes with new ones.
+
+Parameters:
+
+* `uid` (Buffer16):
+  The uid of the owning account
+* `count` (Integer):
+  The number of recovery codes to create
+
+Returns:
+
+* Resolves with:
+  * An array of recovery codes `[]`
+* Rejects with:
+  * Any error from the underlying storage system (wrapped in `error.wrap()`)
+  * `error.notFound()` if this user not found
+
+## consumeRecoveryCode(uid, code)
+
+Consume a recovery code.
+
+Parameters:
+
+* `uid` (Buffer16):
+  The uid of the owning account
+* `code` (String):
+  The code to consume
+
+Returns:
+
+* Resolves with:
+  * An array object containing
+    * `remaining` - number of recovery codes remaining
+* Rejects with:
+  * Any error from the underlying storage system (wrapped in `error.wrap()`)
+  * `error.notFound()` if this user or code not found

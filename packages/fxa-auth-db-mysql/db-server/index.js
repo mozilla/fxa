@@ -225,6 +225,16 @@ function createServer(db) {
     op(req => db.consumeSigninCode(req.params.code))
   )
 
+  api.post('/account/:id/recoveryCodes',
+    op((req) => {
+      return db.replaceRecoveryCodes(req.params.id, req.body.count)
+    })
+  )
+
+  api.post('/account/:id/recoveryCodes/:code',
+    op((req) => db.consumeRecoveryCode(req.params.id, req.params.code))
+  )
+
   api.get(
     '/',
     function (req, res, next) {
