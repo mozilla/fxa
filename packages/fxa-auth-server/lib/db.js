@@ -499,6 +499,7 @@ module.exports = (
             location: mergedInfo.location,
             name: device.name,
             type: device.type,
+            capabilities: device.capabilities || [],
             pushCallback: device.callbackURL,
             pushPublicKey: device.callbackPublicKey,
             pushAuthKey: device.callbackAuthKey,
@@ -671,6 +672,7 @@ module.exports = (
             createdAt: deviceInfo.createdAt,
             name: deviceInfo.name,
             type: deviceInfo.type,
+            capabilities: deviceInfo.capabilities,
             callbackURL: deviceInfo.pushCallback,
             callbackPublicKey: deviceInfo.pushPublicKey,
             callbackAuthKey: deviceInfo.pushAuthKey
@@ -726,6 +728,7 @@ module.exports = (
         sessionTokenId: sessionTokenId,
         name: deviceInfo.name,
         type: deviceInfo.type,
+        capabilities: deviceInfo.capabilities,
         callbackURL: deviceInfo.pushCallback,
         callbackPublicKey: deviceInfo.pushPublicKey,
         callbackAuthKey: deviceInfo.pushAuthKey,

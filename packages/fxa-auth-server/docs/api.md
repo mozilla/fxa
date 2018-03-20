@@ -341,6 +341,7 @@ those common validations are defined here.
 * `service`: `string, max(16), regex(/^[a-zA-Z0-9\-]*$/g)`
 * `verificationMethod`: `string, valid()`
 * `E164_NUMBER`: `/^\+[1-9]\d{1,14}$/`
+* `DIGITS`: `/^[0-9]+$/`
 
 #### lib/metrics/context
 
@@ -373,6 +374,7 @@ those common validations are defined here.
     * `name`: isA.string.max(255).regex(DISPLAY_SAFE_UNICODE_WITH_NON_BMP)
     * `nameResponse`: isA.string.max(255)
     * `type`: isA.string.max(16)
+    * `capabilities`: isA.array.items(isA.string)
     * `pushCallback`: isA.string.uri({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow('')
     * `pushPublicKey`: isA.string.max(88).regex(URL_SAFE_BASE_64).allow('')
     * `pushAuthKey`: isA.string.max(24).regex(URL_SAFE_BASE_64).allow('')
@@ -755,7 +757,7 @@ The `profile` scope includes all the above sub-scopes.
   
   <!--end-response-body-get-accountprofile-email-->
 
-* `locale`: *string, optional*
+* `locale`: *string, optional, allow(null)*
 
   <!--begin-response-body-get-accountprofile-locale-->
   
@@ -988,6 +990,12 @@ can be made available to other connected devices.
   
   <!--end-request-body-post-accountdevice-type-->
 
+* `capabilities`: *DEVICES_SCHEMA.capabilities.optional*
+
+  <!--begin-request-body-post-accountdevice-capabilities-->
+  
+  <!--end-request-body-post-accountdevice-capabilities-->
+
 * `pushCallback`: *DEVICES_SCHEMA.pushCallback.optional*
 
   <!--begin-request-body-post-accountdevice-pushCallback-->
@@ -1031,6 +1039,12 @@ can be made available to other connected devices.
   <!--begin-response-body-post-accountdevice-type-->
   
   <!--end-response-body-post-accountdevice-type-->
+
+* `capabilities`: *DEVICES_SCHEMA.capabilities.optional*
+
+  <!--begin-response-body-post-accountdevice-capabilities-->
+  
+  <!--end-response-body-post-accountdevice-capabilities-->
 
 * `pushCallback`: *DEVICES_SCHEMA.pushCallback.optional*
 
@@ -1199,6 +1213,12 @@ for the authenticated user.
   
   <!--end-response-body-get-accountdevices-type-->
 
+* `capabilities`: *DEVICES_SCHEMA.capabilities.optional*
+
+  <!--begin-response-body-get-accountdevices-capabilities-->
+  
+  <!--end-response-body-get-accountdevices-capabilities-->
+
 * `pushCallback`: *DEVICES_SCHEMA.pushCallback.allow(null).optional*
 
   <!--begin-response-body-get-accountdevices-pushCallback-->
@@ -1312,6 +1332,12 @@ for the authenticated user.
   <!--begin-response-body-get-accountsessions-deviceType-->
   
   <!--end-response-body-get-accountsessions-deviceType-->
+
+* `deviceCapabilities`: *DEVICES_SCHEMA.capabilities.optional*
+
+  <!--begin-response-body-get-accountsessions-deviceCapabilities-->
+  
+  <!--end-response-body-get-accountsessions-deviceCapabilities-->
 
 * `deviceCallbackURL`: *DEVICES_SCHEMA.pushCallback.allow(null).required*
 
@@ -2604,7 +2630,7 @@ Verifies the current session if the passed TOTP code is valid.
 
 ##### Request body
 
-* `code`: *string, max(32), required*
+* `code`: *string, max(32), regex(validators.DIGITS), required*
 
   <!--begin-request-body-post-sessionverifytotp-code-->
   The TOTP code to check

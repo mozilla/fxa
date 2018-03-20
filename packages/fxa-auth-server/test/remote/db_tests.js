@@ -165,7 +165,7 @@ describe('remote db', function() {
         })
         .then(sessions => {
           assert.equal(sessions.length, 1, 'sessions contains one item')
-          assert.equal(Object.keys(sessions[0]).length, 19, 'session has correct number of properties')
+          assert.equal(Object.keys(sessions[0]).length, 20, 'session has correct number of properties')
           assert.equal(typeof sessions[0].id, 'string', 'id property is not a buffer')
           assert.equal(sessions[0].uid, account.uid, 'uid property is correct')
           assert.ok(sessions[0].createdAt >= account.createdAt, 'createdAt property seems correct')
@@ -178,6 +178,7 @@ describe('remote db', function() {
           assert.equal(sessions[0].lastAccessTime, sessions[0].createdAt, 'lastAccessTime property is correct')
           assert.equal(sessions[0].authAt, sessions[0].createdAt, 'authAt property is correct')
           assert.equal(sessions[0].location, undefined, 'location property is correct')
+          assert.deepEqual(sessions[0].deviceCapabilities, [], 'deviceCapabilities property is correct')
 
           // Fetch the session token
           return db.sessionToken(tokenId)
@@ -210,7 +211,7 @@ describe('remote db', function() {
         })
         .then(sessions => {
           assert.equal(sessions.length, 1, 'sessions contains one item')
-          assert.equal(Object.keys(sessions[0]).length, 19, 'session has correct number of properties')
+          assert.equal(Object.keys(sessions[0]).length, 20, 'session has correct number of properties')
           assert.equal(sessions[0].uid, account.uid, 'uid property is correct')
           assert.equal(sessions[0].lastAccessTime, undefined, 'lastAccessTime not reported if disabled')
           assert.equal(sessions[0].location, undefined, 'location property is correct')
@@ -395,6 +396,7 @@ describe('remote db', function() {
         id: crypto.randomBytes(16).toString('hex'),
         name: '',
         type: 'mobile',
+        capabilities: ['pushbox'],
         pushCallback: 'https://foo/bar',
         pushPublicKey: base64url(Buffer.concat([Buffer.from('\x04'), crypto.randomBytes(64)])),
         pushAuthKey: base64url(crypto.randomBytes(16))
@@ -457,6 +459,7 @@ describe('remote db', function() {
           assert.ok(device.createdAt > 0, 'device.createdAt is set')
           assert.equal(device.name, deviceInfo.name, 'device.name is correct')
           assert.equal(device.type, deviceInfo.type, 'device.type is correct')
+          assert.deepEqual(device.capabilities, deviceInfo.capabilities, 'device.capabilities is correct')
           assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
           assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
           assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
@@ -488,6 +491,7 @@ describe('remote db', function() {
           assert.ok(device.lastAccessTime > 0, 'device.lastAccessTime is set')
           assert.equal(device.name, deviceInfo.name, 'device.name is correct')
           assert.equal(device.type, deviceInfo.type, 'device.type is correct')
+          assert.deepEqual(device.capabilities, deviceInfo.capabilities, 'device.capabilities is correct')
           assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
           assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
           assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
@@ -502,6 +506,7 @@ describe('remote db', function() {
           deviceInfo.id = device.id
           deviceInfo.name = 'wibble'
           deviceInfo.type = 'desktop'
+          deviceInfo.capabilities = []
           deviceInfo.pushCallback = ''
           deviceInfo.pushPublicKey = ''
           deviceInfo.pushAuthKey = ''
@@ -562,6 +567,7 @@ describe('remote db', function() {
           assert.equal(device.lastAccessTime, 42, 'device.lastAccessTime is correct')
           assert.equal(device.name, deviceInfo.name, 'device.name is correct')
           assert.equal(device.type, deviceInfo.type, 'device.type is correct')
+          assert.deepEqual(device.capabilities, deviceInfo.capabilities, 'device.capabilities is correct')
           assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
           assert.equal(device.pushPublicKey, '', 'device.pushPublicKey is correct')
           assert.equal(device.pushAuthKey, '', 'device.pushAuthKey is correct')
