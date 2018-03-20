@@ -1,11 +1,17 @@
 #!/bin/sh
 
-set -eu
+set -e
 
-glob=$*
-if [ -z "$glob" ]; then
-  glob="--recursive test/*.js test/routes/*.js test/db/*.js"
+if [ -z "$NODE_ENV" ]; then export NODE_ENV=test; fi;
+
+set -u
+
+GLOB=$*
+if [ -z "$GLOB" ]; then
+  GLOG="test/*.js test/routes/*.js test/db/*.js"
 fi
 
-./scripts/mocha-coverage.js -R spec $glob --timeout 20000
+DEFAULT_ARGS="-R spec --timeout 20000 --recursive"
+
+./scripts/mocha-coverage.js $DEFAULT_ARGS $GLOB
 grunt lint copyright

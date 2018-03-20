@@ -23,6 +23,9 @@ const USERID = unique(16).toString('hex');
 const VEMAIL = unique(4).toString('hex') + '@mozilla.com';
 const AUTH_AT = Math.floor(Date.now() / 1000);
 const STALE_AUTH_AT = AUTH_AT - (2 * 24 * 60 * 60);
+const AMR = ['pwd', 'email'];
+const AAL = 1;
+const ACR = 'AAL1';
 const VERIFY_GOOD = JSON.stringify({
   status: 'okay',
   email: USERID + '@' + config.get('browserid.issuer'),
@@ -30,7 +33,10 @@ const VERIFY_GOOD = JSON.stringify({
   idpClaims: {
     'fxa-verifiedEmail': VEMAIL,
     'fxa-lastAuthAt': AUTH_AT,
-    'fxa-generation': 123456
+    'fxa-generation': 123456,
+    'fxa-tokenVerified': true,
+    'fxa-amr': AMR,
+    'fxa-aal': AAL
   }
 });
 const VERIFY_GOOD_BUT_STALE = JSON.stringify({
@@ -40,7 +46,10 @@ const VERIFY_GOOD_BUT_STALE = JSON.stringify({
   idpClaims: {
     'fxa-verifiedEmail': VEMAIL,
     'fxa-lastAuthAt': STALE_AUTH_AT,
-    'fxa-generation': 123456
+    'fxa-generation': 123456,
+    'fxa-tokenVerified': true,
+    'fxa-amr': AMR,
+    'fxa-aal': AAL
   }
 });
 
@@ -121,7 +130,7 @@ function newToken(payload, options) {
   options = options || {};
   var ttl = payload.ttl || MAX_TTL_S;
   delete payload.ttl;
-  mockAssertion().reply(200, VERIFY_GOOD);
+  mockAssertion().reply(200, options.verifierResponse || VERIFY_GOOD);
   return Server.api.post({
     url: '/authorization',
     payload: authParams(payload, options)
@@ -1813,15 +1822,15 @@ describe('/v1', function() {
         };
       }
 
-      it('should return an id_token', function() {
-        return newToken({ scope: 'openid' }).then(function(res) {
+      it('should return an id_token', () => {
+        return newToken({ scope: 'openid' }).then(res => {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert(res.result.access_token);
           assert(res.result.id_token);
-          var jwt = decodeJWT(res.result.id_token);
-          var header = jwt.header;
-          var claims = jwt.claims;
+          const jwt = decodeJWT(res.result.id_token);
+          const header = jwt.header;
+          const claims = jwt.claims;
 
           assert.equal(header.alg, 'RS256');
           assert.equal(header.kid, config.get('openid.key').kid);
@@ -1829,15 +1838,58 @@ describe('/v1', function() {
           assert.equal(claims.sub, USERID);
           assert.equal(claims.aud, clientId);
           assert.equal(claims.iss, config.get('openid.issuer'));
-          var now = Math.floor(Date.now() / 1000);
+          const now = Math.floor(Date.now() / 1000);
           assert(claims.iat <= now);
           assert(claims.exp > now);
+          assert.deepEqual(claims.amr, AMR);
+          assert.equal(claims.acr, ACR);
+          assert.equal(claims['fxa-aal'], AAL);
+        });
+      });
+
+      it('should omit amr claim when not given in the assertion', () => {
+        let verifierResponse = JSON.parse(VERIFY_GOOD);
+        delete verifierResponse.idpClaims['fxa-amr'];
+        verifierResponse = JSON.stringify(verifierResponse);
+        return newToken({ scope: 'openid' }, { verifierResponse }).then(res => {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+          assert(res.result.id_token);
+          const jwt = decodeJWT(res.result.id_token);
+          const claims = jwt.claims;
+
+          assert.equal(claims.sub, USERID);
+          assert.equal(claims.aud, clientId);
+          assert.equal(claims.iss, config.get('openid.issuer'));
+          assert.equal(claims.amr, undefined);
+          assert.equal(claims.acr, ACR);
+          assert.equal(claims['fxa-aal'], AAL);
+        });
+      });
+
+      it('should omit acr and fxa-aal claims when not given in the assertion', () => {
+        let verifierResponse = JSON.parse(VERIFY_GOOD);
+        delete verifierResponse.idpClaims['fxa-aal'];
+        verifierResponse = JSON.stringify(verifierResponse);
+        return newToken({ scope: 'openid' }, { verifierResponse }).then(res => {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+          assert(res.result.id_token);
+          const jwt = decodeJWT(res.result.id_token);
+          const claims = jwt.claims;
+
+          assert.equal(claims.sub, USERID);
+          assert.equal(claims.aud, clientId);
+          assert.equal(claims.iss, config.get('openid.issuer'));
+          assert.deepEqual(claims.amr, AMR);
+          assert.equal(claims.acr, undefined);
+          assert.equal(claims['fxa-aal'], undefined);
         });
       });
 
       it('should be available to untrusted reliers', function() {
-        var client = clientByName('Untrusted');
-        return newToken({ scope: 'openid' }, { client_id: client.id }).then(function(res) {
+        const client = clientByName('Untrusted');
+        return newToken({ scope: 'openid' }, { client_id: client.id }).then(res => {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert(res.result.access_token);

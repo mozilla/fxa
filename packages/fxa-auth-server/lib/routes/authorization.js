@@ -69,6 +69,8 @@ function generateCode(claims, client, scope, req) {
     email: claims['fxa-verifiedEmail'],
     scope: scope,
     authAt: claims['fxa-lastAuthAt'],
+    amr: claims['fxa-amr'],
+    aal: claims['fxa-aal'],
     offline: req.payload.access_type === ACCESS_TYPE_OFFLINE,
     codeChallengeMethod: req.payload.code_challenge_method,
     codeChallenge: req.payload.code_challenge,

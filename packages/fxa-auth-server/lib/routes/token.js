@@ -453,6 +453,13 @@ function generateIdToken(options) {
     iat: now,
     exp: now + ID_TOKEN_EXPIRATION
   };
+  if (options.amr) {
+    claims.amr = options.amr;
+  }
+  if (options.aal) {
+    claims['fxa-aal'] = options.aal;
+    claims.acr = 'AAL' + options.aal;
+  }
   return ID_TOKEN_KEY.sign(claims);
 }
 
