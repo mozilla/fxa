@@ -19,6 +19,12 @@
 * **node:** update to node v6.13.1 r=@jbuck ([7727d88](https://github.com/mozilla/fxa-auth-db-mysql/commit/7727d88))
 * **totp:** initial recovery codes (#319), r=@philbooth ([995d52b](https://github.com/mozilla/fxa-auth-db-mysql/commit/995d52b))
 
+<a name="1.107.1"></a>
+# [1.107.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.107.0...v1.107.1) (2018-03-21)
+
+
+### Bug Fixes
+* **emails:** Make all request paths containing an email use hex encoding. (#1); r=philbooth ([6059aca](https://github.com/mozilla/fxa-auth-db-mysql/commit/6059aca))
 
 
 <a name="1.107.0"></a>
