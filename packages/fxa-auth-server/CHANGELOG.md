@@ -1,3 +1,26 @@
+<a name="1.108.0"></a>
+# [1.108.0](https://github.com/mozilla/fxa-auth-server/compare/v1.107.3-private...v1.108.0) (2018-03-21)
+
+
+### Bug Fixes
+
+* **buffers:** migrate from 'Buffer()' constructor calls r=@vladikoff ([4815505](https://github.com/mozilla/fxa-auth-server/commit/4815505)), closes [#2333](https://github.com/mozilla/fxa-auth-server/issues/2333)
+* **codes:** Take token-code uid from the token, not the request payload. (#2339), r=@vbudhra ([ab17bf8](https://github.com/mozilla/fxa-auth-server/commit/ab17bf8)), closes [#2339](https://github.com/mozilla/fxa-auth-server/issues/2339)
+* **deprecation:** check for deprecated APIs r=@vladikoff ([2262ce8](https://github.com/mozilla/fxa-auth-server/commit/2262ce8)), closes [#2343](https://github.com/mozilla/fxa-auth-server/issues/2343)
+* **emails:** add location to `verify primary email` (#2341), r=@philbooth ([ab7ba5a](https://github.com/mozilla/fxa-auth-server/commit/ab7ba5a)), closes [#2341](https://github.com/mozilla/fxa-auth-server/issues/2341)
+* **metrics:** ensure service is set when possible on amplitude events ([c681053](https://github.com/mozilla/fxa-auth-server/commit/c681053))
+* **params:** use default parameters in options (#2332) r=@vladikoff ([65f9802](https://github.com/mozilla/fxa-auth-server/commit/65f9802)), closes [#2332](https://github.com/mozilla/fxa-auth-server/issues/2332)
+* **totp:** Restrict allowed chars in TOTP code input. (#2340); r=vbudhram ([86de08b](https://github.com/mozilla/fxa-auth-server/commit/86de08b)), closes [#2340](https://github.com/mozilla/fxa-auth-server/issues/2340)
+
+### Features
+
+* **amr:** Report AMR and AAL in relier-facing APIs. (#2346); r=vbudhram ([517f482](https://github.com/mozilla/fxa-auth-server/commit/517f482)), closes [#2346](https://github.com/mozilla/fxa-auth-server/issues/2346)
+* **devices:** Devices capabilities (#2350) r=@philbooth ([2067dba](https://github.com/mozilla/fxa-auth-server/commit/2067dba)), closes [#2350](https://github.com/mozilla/fxa-auth-server/issues/2350)
+* **emails:** totp notification emails (#2331), r=@philbooth ([8d3928d](https://github.com/mozilla/fxa-auth-server/commit/8d3928d)), closes [#2331](https://github.com/mozilla/fxa-auth-server/issues/2331)
+* **node:** update to node v6.13.1 r=@jbuck ([75d8737](https://github.com/mozilla/fxa-auth-server/commit/75d8737))
+
+
+
 <a name="1.107.3"></a>
 ## [1.107.3](https://github.com/mozilla/fxa-auth-server/compare/v1.107.2-private-b...v1.107.3) (2018-03-16)
 

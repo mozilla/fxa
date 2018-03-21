@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.107.3",
+  "version": "1.108.0",
   "dependencies": {
     "acorn": {
       "version": "5.0.3",
@@ -338,9 +338,9 @@
       "resolved": "git+https://github.com/mozilla/eslint-plugin-fxa.git#e082927b4c6dc17d21414e35f4c94312adbaba92"
     },
     "fxa-auth-db-mysql": {
-      "version": "1.107.0",
+      "version": "1.108.0",
       "from": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
-      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#4808a1c47901caab28a709c58a31bd531a7c2d9c",
+      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#8b8b2424beb4389589ea84eca57af4478f4c16da",
       "dependencies": {
         "base64url": {
           "version": "2.0.0",
