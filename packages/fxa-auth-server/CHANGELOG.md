@@ -1,3 +1,17 @@
+<a name"1.108.0"></a>
+## 1.108.0 (2018-03-21)
+
+
+#### Bug Fixes
+
+* **buffer:** #527 Migrate deprecated buffer calls (#528) r=@vladikoff ([fd852072](https://github.com/mozilla/fxa-oauth-server/commit/fd852072), closes [#527](https://github.com/mozilla/fxa-oauth-server/issues/527))
+
+
+#### Features
+
+* **amr:** Report `amr` and `acr` claims in the id_token. (#530); r=vbudhram ([8181f7f6](https://github.com/mozilla/fxa-oauth-server/commit/8181f7f6))
+
+
 <a name"1.107.0"></a>
 ## 1.107.0 (2018-03-08)
 
