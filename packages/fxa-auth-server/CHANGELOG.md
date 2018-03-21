@@ -1,3 +1,13 @@
+<a name="1.107.4"></a>
+## [1.107.4](https://github.com/mozilla/fxa-auth-server/compare/v1.107.3-private...v1.107.4) (2018-03-21)
+
+
+### Bug Fixes
+
+* **emails:** Make all DB request paths containing an email use hex encoding (#72); r=philboot ([d275d7a](https://github.com/mozilla/fxa-auth-server/commit/d275d7a)), closes [#72](https://github.com/mozilla/fxa-auth-server/issues/72)
+
+
+
 <a name="1.107.3"></a>
 ## [1.107.3](https://github.com/mozilla/fxa-auth-server/compare/v1.107.2-private-b...v1.107.3) (2018-03-16)
 
