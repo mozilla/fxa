@@ -1,3 +1,13 @@
+<a name="1.107.1"></a>
+## [1.107.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.107.0...v1.107.1) (2018-03-21)
+
+
+### Bug Fixes
+
+* **emails:** Make all request paths containing an email use hex encoding. (#1); r=philbooth ([6059aca](https://github.com/mozilla/fxa-auth-db-mysql/commit/6059aca))
+
+
+
 <a name="1.107.0"></a>
 # [1.107.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.106.0...v1.107.0) (2018-03-07)
 
