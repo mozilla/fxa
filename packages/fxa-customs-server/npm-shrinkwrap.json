@@ -1,6 +1,6 @@
 {
   "name": "fxa-customs-server",
-  "version": "1.106.0",
+  "version": "1.108.0",
   "dependencies": {
     "bl": {
       "version": "1.1.2",

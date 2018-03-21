@@ -1,3 +1,13 @@
+<a name="1.108.0"></a>
+# 1.108.0 (2018-03-21)
+
+
+### Bug Fixes
+
+* **test:** start memcached as part of 'npm test' r=@vladikoff ([475bf23](https://github.com/mozilla/fxa-customs-server/commit/475bf23)), closes [#228](https://github.com/mozilla/fxa-customs-server/issues/228)
+
+
+
 <a name="1.106.0"></a>
 # 1.106.0 (2018-02-21)
 
