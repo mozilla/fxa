@@ -12,7 +12,7 @@ module.exports = {
   validate: {
     payload: {
       token: validators.token.required(),
-      email: Joi.boolean().default(true)
+      email: Joi.boolean().default(false)
     }
   },
   response: {
