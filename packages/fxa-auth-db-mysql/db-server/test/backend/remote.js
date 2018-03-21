@@ -192,7 +192,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(!! result[2].isPrimary, false, 'isPrimary is false on thirdEmailRecord email')
             assert.equal(!! result[2].isVerified, false, 'matches secondEmail thirdEmailRecord')
 
-            return client.delThen('/account/' + user.accountId + '/emails/' + secondEmailRecord.email)
+            return client.delThen('/account/' + user.accountId + '/emails/' + emailToHex(secondEmailRecord.email))
           })
           .then(function (r) {
             respOkEmpty(r)

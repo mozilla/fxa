@@ -94,7 +94,7 @@ function createServer(db) {
   api.post('/account/:id/emails', withIdAndBody(db.createEmail))
   api.del('/account/:id/emails/:email',
     op(function (req) {
-      return db.deleteEmail(req.params.id, req.params.email)
+      return db.deleteEmail(req.params.id, Buffer(req.params.email, 'hex').toString('utf8'))
     })
   )
 
