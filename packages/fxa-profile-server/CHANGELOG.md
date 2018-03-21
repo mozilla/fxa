@@ -1,3 +1,13 @@
+<a name="1.108.0"></a>
+# [1.108.0](https://github.com/mozilla/fxa-profile-server/compare/v1.107.0...v1.108.0) (2018-03-21)
+
+
+### Bug Fixes
+
+* **buffer:** Clean up 'Buffer' calls to deprecated API (#310) r=@vladikoff ([ed50ba1](https://github.com/mozilla/fxa-profile-server/commit/ed50ba1)), closes [#309](https://github.com/mozilla/fxa-profile-server/issues/309)
+
+
+
 <a name="1.107.0"></a>
 # [1.107.0](https://github.com/mozilla/fxa-profile-server/compare/v1.106.0...v1.107.0) (2018-03-07)
 
