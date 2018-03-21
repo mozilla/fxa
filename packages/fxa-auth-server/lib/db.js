@@ -1099,7 +1099,7 @@ module.exports = (
       uid: uid
     })
 
-    return this.pool.del('/account/' + uid + '/emails/' + email)
+    return this.pool.del('/account/' + uid + '/emails/' + hexEncode(email))
       .catch(
         function (err) {
           if (isEmailDeletePrimaryError(err)) {
