@@ -244,7 +244,7 @@ function mapUserAgentProperties (userAgent, key, familyProperty, versionProperty
   if (family && family !== 'Other') {
     return {
       [familyProperty]: family,
-      [versionProperty]: marshallVersion(group)
+      [versionProperty]: group.toVersionString()
     };
   }
 }
@@ -256,23 +256,6 @@ function mapLocation (location) {
       region: location.state
     };
   }
-}
-
-function marshallVersion (version) {
-  // To maintain consistency with metrics emitted by the auth server,
-  // we can't rely on toVersionString() here. Ultimately, this code
-  // should be refactored out of the content server as part of
-  // https://github.com/mozilla/fxa-shared/issues/11
-
-  if (! version.major) {
-    return;
-  }
-
-  if (! version.minor || parseInt(version.minor) === 0) {
-    return version.major;
-  }
-
-  return `${version.major}.${version.minor}`;
 }
 
 function mapDevice (userAgent) {

@@ -111,7 +111,7 @@ registerSuite('amplitude', {
           ],
           flow_id: 'wibble',
           ua_browser: 'Firefox',
-          ua_version: '58',
+          ua_version: '58.0',
           utm_campaign: 'melm',
           utm_content: 'florg',
           utm_medium: 'derp',
@@ -161,7 +161,7 @@ registerSuite('amplitude', {
         language: 'f',
         op: 'amplitudeEvent',
         os_name: 'iOS',
-        os_version: '6',
+        os_version: '6.0',
         region: 'California',
         session_id: 'd',
         time: 'a',
@@ -169,7 +169,7 @@ registerSuite('amplitude', {
         user_properties: {
           entrypoint: 'c',
           ua_browser: 'Mobile Safari',
-          ua_version: '6'
+          ua_version: '6.0'
         }
       });
     },
