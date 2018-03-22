@@ -35,13 +35,11 @@ describe('userAgent, mocked dependency', () => {
       parserResult = {
         ua: {
           family: 'foo',
-          major: '1',
-          minor: '0'
+          toVersionString: () => '1'
         },
         os: {
           family: 'bar',
-          major: '2',
-          minor: '0'
+          toVersionString: () => '2'
         },
         device: {
           family: 'baz'
@@ -68,13 +66,11 @@ describe('userAgent, mocked dependency', () => {
       parserResult = {
         ua: {
           family: 'Other',
-          major: '1',
-          minor: '0'
+          toVersionString: () => '1.0'
         },
         os: {
           family: 'Other',
-          major: '2',
-          minor: '0'
+          toVersionString: () => '2.0'
         },
         device: {
           family: 'Other'
@@ -87,34 +83,11 @@ describe('userAgent, mocked dependency', () => {
 
       assert.equal(Object.keys(result).length, 6)
       assert.equal(result.browser, null)
+      assert.equal(result.browserVersion, '1.0')
       assert.equal(result.os, null)
+      assert.equal(result.osVersion, '2.0')
       assert.equal(result.deviceType, null)
       assert.equal(result.formFactor, null)
-    }
-  )
-
-  it(
-    'appends minor version if set',
-    () => {
-      parserResult = {
-        ua: {
-          family: 'foo',
-          major: '1',
-          minor: '1'
-        },
-        os: {
-          family: 'bar',
-          major: '2',
-          minor: '34567'
-        },
-        device: {
-          family: 'baz'
-        }
-      }
-      const result = userAgent()
-
-      assert.equal(result.browserVersion, '1.1')
-      assert.equal(result.osVersion, '2.34567')
     }
   )
 
@@ -125,13 +98,11 @@ describe('userAgent, mocked dependency', () => {
         userAgent: 'Mozilla/5.0 (Android 7.1.2; Mobile; rv:56.0) Gecko/56.0 Firefox/56.0',
         ua: {
           family: 'foo',
-          major: '1',
-          minor: '0'
+          toVersionString: () => '1.0'
         },
         os: {
           family: 'Android',
-          major: '2',
-          minor: '0'
+          toVersionString: () => '2.0'
         },
         device: {
           family: 'Other'
@@ -150,13 +121,11 @@ describe('userAgent, mocked dependency', () => {
       parserResult = {
         ua: {
           family: 'foo',
-          major: '1',
-          minor: '0'
+          toVersionString: () => '1.0'
         },
         os: {
           family: 'iOS',
-          major: '2',
-          minor: '0'
+          toVersionString: () => '2.0'
         },
         device: {
           family: 'iPhone 7'
@@ -175,13 +144,11 @@ describe('userAgent, mocked dependency', () => {
       parserResult = {
         ua: {
           family: 'foo',
-          major: '1',
-          minor: '0'
+          toVersionString: () => '1.0'
         },
         os: {
           family: 'Firefox OS',
-          major: '2',
-          minor: '0'
+          toVersionString: () => '2.0'
         },
         device: {
           family: 'Other'
@@ -199,13 +166,11 @@ describe('userAgent, mocked dependency', () => {
       parserResult = {
         ua: {
           family: 'foo',
-          major: '1',
-          minor: '0'
+          toVersionString: () => '1.0'
         },
         os: {
           family: 'Windows Phone',
-          major: '2',
-          minor: '0'
+          toVersionString: () => '2.0'
         },
         device: {
           family: 'Other'
@@ -223,13 +188,11 @@ describe('userAgent, mocked dependency', () => {
       parserResult = {
         ua: {
           family: 'foo',
-          major: '1',
-          minor: '0'
+          toVersionString: () => '1.0'
         },
         os: {
           family: 'BlackBerry OS',
-          major: '2',
-          minor: '0'
+          toVersionString: () => '2.0'
         },
         device: {
           family: 'Other'
@@ -247,13 +210,11 @@ describe('userAgent, mocked dependency', () => {
       parserResult = {
         ua: {
           family: 'foo',
-          major: '1',
-          minor: '0'
+          toVersionString: () => '1.0'
         },
         os: {
           family: 'Mac OS X',
-          major: '2',
-          minor: '0'
+          toVersionString: () => '2.0'
         },
         device: {
           family: 'Other'
@@ -271,13 +232,11 @@ describe('userAgent, mocked dependency', () => {
       parserResult = {
         ua: {
           family: 'foo',
-          major: '1',
-          minor: '0'
+          toVersionString: () => '1.0'
         },
         os: {
           family: 'Linux',
-          major: '2',
-          minor: '0'
+          toVersionString: () => '2.0'
         },
         device: {
           family: 'Other'
@@ -295,13 +254,11 @@ describe('userAgent, mocked dependency', () => {
       parserResult = {
         ua: {
           family: 'foo',
-          major: '1',
-          minor: '0'
+          toVersionString: () => '1.0'
         },
         os: {
           family: 'Windows',
-          major: '2',
-          minor: '0'
+          toVersionString: () => '2.0'
         },
         device: {
           family: 'Other'
@@ -320,13 +277,11 @@ describe('userAgent, mocked dependency', () => {
         userAgent: 'Mozilla/5.0 (iPad; CPU OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Mobile/11A465',
         ua: {
           family: 'Mobile Safari UI/WKWebView',
-          major: '7',
-          minor: '0'
+          toVersionString: () => '7.0'
         },
         os: {
           family: 'iOS',
-          major: '7',
-          minor: '0'
+          toVersionString: () => '7.0'
         },
         device: {
           family: 'iPad Pro'
@@ -346,13 +301,11 @@ describe('userAgent, mocked dependency', () => {
         userAgent: 'Mozilla/5.0 (Linux; Android 4.4.2; Nexus 7 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.59 Safari/537.36',
         ua: {
           family: 'Chrome Mobile',
-          major: '31',
-          minor: '0'
+          toVersionString: () => '31.0'
         },
         os: {
           family: 'Android',
-          major: '4',
-          minor: '4'
+          toVersionString: () => '4.4'
         },
         device: {
           family: 'Nexus 7'
@@ -370,13 +323,11 @@ describe('userAgent, mocked dependency', () => {
       userAgent: 'Mozilla/5.0 (Mobile; rv:26.0) Gecko/26.0 Firefox/26.0',
       ua: {
         family: 'Firefox Mobile',
-        major: '26',
-        minor: '0'
+        toVersionString: () => '26.0'
       },
       os: {
         family: 'Firefox OS',
-        major: '1',
-        minor: '2'
+        toVersionString: () => '1.2'
       },
       device: {
         family: 'Generic Smartphone',
@@ -394,13 +345,11 @@ describe('userAgent, mocked dependency', () => {
       userAgent: 'Mozilla/5.0 (Tablet; rv:26.0) Gecko/26.0 Firefox/26.0',
       ua: {
         family: 'Firefox Mobile',
-        major: '26',
-        minor: '0'
+        toVersionString: () => '26.0'
       },
       os: {
         family: 'Firefox OS',
-        major: '1',
-        minor: '2'
+        toVersionString: () => '1.2'
       },
       device: {
         family: 'Generic Tablet',
@@ -418,13 +367,11 @@ describe('userAgent, mocked dependency', () => {
       userAgent: 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0',
       ua: {
         family: 'Firefox Mobile',
-        major: '41',
-        minor: '0'
+        toVersionString: () => '41.0'
       },
       os: {
         family: 'Android',
-        major: '4',
-        minor: '4'
+        toVersionString: () => '4.4'
       },
       device: {
         family: 'Generic Smartphone',
@@ -499,10 +446,12 @@ describe('userAgent, mocked dependency', () => {
     parserResult = {
       userAgent: 'Firefox AndroidSync 1.51.0.0 (Firefox)',
       ua: {
-        family: 'Other'
+        family: 'Other',
+        toVersionString: () => {}
       },
       os: {
-        family: 'Android'
+        family: 'Android',
+        toVersionString: () => {}
       },
       device: {
         family: 'Generic Smartphone',
@@ -547,10 +496,12 @@ describe('userAgent, mocked dependency', () => {
     parserResult = {
       userAgent: 'Mozilla/5.0 (Linux; U; en-US) AppleWebKit/528.5+ (KHTML, like Gecko, Safari/528.5+) Version/4.0 Kindle/3.0 (screen 600×800; rotate)',
       ua: {
-        family: 'Kindle'
+        family: 'Kindle',
+        toVersionString: () => {}
       },
       os: {
-        family: 'Kindle'
+        family: 'Kindle',
+        toVersionString: () => {}
       },
       device: {
         family: 'Kindle',
@@ -572,15 +523,11 @@ describe('userAgent, mocked dependency', () => {
       userAgent: 'Mozilla/5.0 (Linux; U; Android 2.3.4; en-us; Kindle Fire Build/GINGERBREAD) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1',
       ua: {
         family: 'Android',
-        major: '2',
-        minor: '3',
-        patch: '4'
+        toVersionString: () => '2.3.4'
       },
       os: {
         family: 'Android',
-        major: '2',
-        minor: '3',
-        patch: '4'
+        toVersionString: () => '2.3.4'
       },
       device: {
         family: 'Kindle',
@@ -591,7 +538,7 @@ describe('userAgent, mocked dependency', () => {
     const result = userAgent()
 
     assert.equal(result.browser, 'Android')
-    assert.equal(result.browserVersion, '2.3')
+    assert.equal(result.browserVersion, '2.3.4')
     assert.equal(result.os, 'Android')
     assert.equal(result.deviceType, 'tablet')
     assert.equal(result.formFactor, 'Kindle')
@@ -608,9 +555,9 @@ describe('userAgent, real dependency', () => {
   it('drops dodgy-looking fields from vulnerable node-uap regexes', () => {
     assert.deepEqual(userAgent('http://example.com-iPad/1.0 CFNetwork'), {
       browser: null,
-      browserVersion: '1',
+      browserVersion: '1.0',
       os: 'iOS',
-      osVersion: '1',
+      osVersion: '1.0',
       deviceType: 'mobile',
       formFactor: null
     })

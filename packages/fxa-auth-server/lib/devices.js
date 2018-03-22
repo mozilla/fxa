@@ -99,7 +99,8 @@ module.exports = (log, db, push) => {
 
     if (uaBrowser) {
       if (uaBrowserVersion) {
-        result = `${uaBrowser} ${uaBrowserVersion}`
+        const splitIndex = uaBrowserVersion.indexOf('.')
+        result = `${uaBrowser} ${splitIndex === -1 ? uaBrowserVersion : uaBrowserVersion.substr(0, splitIndex)}`
       } else {
         result = uaBrowser
       }

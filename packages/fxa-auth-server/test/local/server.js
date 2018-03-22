@@ -183,7 +183,7 @@ describe('lib/server', () => {
           it('parsed user agent correctly', () => {
             assert.ok(request.app.ua)
             assert.equal(request.app.ua.browser, 'Firefox')
-            assert.equal(request.app.ua.browserVersion, '57')
+            assert.equal(request.app.ua.browserVersion, '57.0')
             assert.equal(request.app.ua.os, 'Mac OS X')
             assert.equal(request.app.ua.osVersion, '10.11')
             assert.equal(request.app.ua.deviceType, null)
@@ -311,7 +311,7 @@ describe('lib/server', () => {
             const args = log.begin.args[0]
             assert.equal(args[1].app.locale, 'en')
             assert.equal(args[1].app.ua.browser, 'Chrome Mobile iOS')
-            assert.equal(args[1].app.ua.browserVersion, '56')
+            assert.equal(args[1].app.ua.browserVersion, '56.0.2924')
             assert.equal(args[1].app.ua.os, 'iOS')
             assert.equal(args[1].app.ua.osVersion, '10.3')
             assert.equal(args[1].app.ua.deviceType, 'mobile')
