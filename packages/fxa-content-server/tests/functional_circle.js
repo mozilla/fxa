@@ -30,12 +30,13 @@ function selectCircleTests (allTests) {
 }
 
 module.exports = selectCircleTests([
+  'tests/functional/sign_in_totp.js',
+  // flaky tests go above here.
   'tests/functional/sync_v3_email_first.js',
   'tests/functional/fx_firstrun_v2_email_first.js',
   'tests/functional/sync_v3_sign_up.js',
   'tests/functional/fx_desktop_handshake.js',
   'tests/functional/settings_secondary_emails.js',
-  // flaky tests go above here.
   'tests/functional/avatar.js',
   'tests/functional/back_button_after_start.js',
   'tests/functional/bounced_email.js',
@@ -64,7 +65,6 @@ module.exports = selectCircleTests([
   'tests/functional/settings_common.js',
   'tests/functional/sign_in_blocked.js',
   'tests/functional/sign_in_cached.js',
-  'tests/functional/sign_in_totp.js',
   'tests/functional/sync_v3_force_auth.js',
   'tests/functional/sync_v3_reset_password.js',
   'tests/functional/sync_v3_settings.js',
