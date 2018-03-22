@@ -168,6 +168,12 @@ define(function (require, exports, module) {
       if (account.get('uid') !== this.relier.get('uid') &&
           this.broker.hasCapability('allowUidChange')) {
         this.relier.set('uid', account.get('uid'));
+      } else if (account.get('email') !== this.relier.get('email')) {
+        // if the broker does not support `allowUidChange`, we still
+        // need to update `email` and `uid` otherwise login will fail
+        // for a deleted account. See #4316
+        this.relier.set('email', account.get('email'));
+        this.relier.set('uid', account.get('uid'));
       }
 
       // This is the generic signin.success metric. The one

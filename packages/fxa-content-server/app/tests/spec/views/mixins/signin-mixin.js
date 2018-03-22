@@ -433,6 +433,30 @@ define(function (require, exports, module) {
           });
         });
       });
+
+
+      describe('onSignInSuccess', () => {
+        it('updates relier email and uid from account', () => {
+          account.set('uid', 'foo');
+          account.set('email', 'a@a.com');
+          relier.set('uid', 'bar');
+          relier.set('uid', 'b@b.com');
+          view.onSignInSuccess(account);
+          assert.equal(relier.get('uid'), account.get('uid'));
+          assert.equal(relier.get('email'), account.get('email'));
+        });
+
+        it('updates relier uid with the allowUidChange broker', () => {
+          account.set('uid', 'foo');
+          account.set('email', 'a@a.com');
+          relier.set('uid', 'bar');
+          relier.set('email', 'b@b.com');
+          broker.hasCapability((cap) => cap === 'allowUidChange');
+          view.onSignInSuccess(account);
+          assert.equal(relier.get('uid'), account.get('uid'));
+          assert.equal(relier.get('email'), account.get('email'));
+        });
+      });
     });
   });
 });

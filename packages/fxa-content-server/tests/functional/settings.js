@@ -249,7 +249,7 @@ registerSuite('settings with expired session', {
       return this.remote
         .then(focus())
 
-        .then(testElementExists('#fxa-signin-header'));
+        .then(testElementExists('#fxa-force-auth-header'));
     }
   }
 });
