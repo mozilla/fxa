@@ -53,6 +53,7 @@ module.exports = function (
   const smsRoute = require('./sms')(log, db, config, customs, smsImpl)
   const unblockCodes = require('./unblock-codes')(log, db, mailer, config.signinUnblock, customs)
   const totp = require('./totp')(log, db, mailer, customs, config.totp)
+  const recoveryCodes = require('./recovery-codes')(log, db, config.totp, customs, mailer)
   const util = require('./util')(
     log,
     config,
@@ -67,11 +68,12 @@ module.exports = function (
     devicesSessions,
     emails,
     password,
-    tokenCodes,
+    recoveryCodes,
     session,
     signinCodes,
     sign,
     smsRoute,
+    tokenCodes,
     totp,
     unblockCodes,
     util

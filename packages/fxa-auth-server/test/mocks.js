@@ -59,6 +59,7 @@ const DB_METHOD_NAMES = [
   'passwordChangeToken',
   'passwordForgotToken',
   'pruneSessionTokens',
+  'replaceRecoveryCodes',
   'resetAccount',
   'resetAccountTokens',
   'securityEvent',

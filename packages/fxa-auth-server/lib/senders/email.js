@@ -37,6 +37,8 @@ module.exports = function (log, config) {
     'postVerifySecondaryEmail': 'account-email-verified',
     'postAddTwoStepAuthenticationEmail': 'account-two-step-enabled',
     'postRemoveTwoStepAuthenticationEmail': 'account-two-step-disabled',
+    'postConsumeRecoveryCodeEmail': 'account-consume-recovery-code',
+    'postNewRecoveryCodesEmail': 'account-replace-recovery-codes',
     'recoveryEmail': 'forgot-password',
     'unblockCode': 'new-unblock',
     'verifyEmail': 'welcome',
@@ -60,6 +62,8 @@ module.exports = function (log, config) {
     'postVerifySecondaryEmail': 'manage-account',
     'postAddTwoStepAuthenticationEmail': 'manage-account',
     'postRemoveTwoStepAuthenticationEmail': 'manage-account',
+    'postConsumeRecoveryCodeEmail': 'manage-account',
+    'postNewRecoveryCodesEmail': 'manage-account',
     'recoveryEmail': 'reset-password',
     'unblockCode': 'unblock-code',
     'verifyEmail': 'activate',
@@ -933,7 +937,7 @@ module.exports = function (log, config) {
   }
 
   Mailer.prototype.postRemoveTwoStepAuthenticationEmail = function (message) {
-    log.trace({ op: 'mailer.postRemoveTwoStepAuthenticationEmail', email: message.email, uid: message.uid })
+    log.trace({op: 'mailer.postRemoveTwoStepAuthenticationEmail', email: message.email, uid: message.uid})
 
     const templateName = 'postRemoveTwoStepAuthenticationEmail'
     const links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
@@ -949,6 +953,78 @@ module.exports = function (log, config) {
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Two-step authentication removed'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
+      }
+    }))
+  }
+
+  Mailer.prototype.postNewRecoveryCodesEmail = function (message) {
+    log.trace({ op: 'mailer.postNewRecoveryCodesEmail', email: message.email, uid: message.uid })
+
+    const templateName = 'postNewRecoveryCodesEmail'
+    const links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+
+    const headers = {
+      'X-Link': links.link
+    }
+
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
+    return this.send(Object.assign({}, message, {
+      headers,
+      subject: gettext('New recovery codes generated'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
+      }
+    }))
+  }
+
+  Mailer.prototype.postConsumeRecoveryCodeEmail = function (message) {
+    log.trace({ op: 'mailer.postConsumeRecoveryCodeEmail', email: message.email, uid: message.uid })
+
+    const templateName = 'postConsumeRecoveryCodeEmail'
+    const links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+
+    const headers = {
+      'X-Link': links.link
+    }
+
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
+    return this.send(Object.assign({}, message, {
+      headers,
+      subject: gettext('Recovery code consumed'),
       template: templateName,
       templateValues: {
         androidLink: links.androidLink,

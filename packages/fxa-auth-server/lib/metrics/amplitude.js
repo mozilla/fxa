@@ -85,6 +85,8 @@ const EMAIL_TYPES = {
   postRemoveSecondaryEmail: 'secondary_email',
   postVerifyEmail: 'registration',
   postVerifySecondaryEmail: 'secondary_email',
+  postConsumeRecoveryCodeEmail: '2fa',
+  postNewRecoveryCodesEmail: '2fa',
   recoveryEmail: 'reset_password',
   unblockCode: 'unblock',
   verifyEmail: 'registration',

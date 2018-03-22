@@ -17,5 +17,7 @@
   "verifySecondaryEmail": 1,
   "verifySyncEmail": 1,
   "postAddTwoStepAuthenticationEmail": 4,
-  "postRemoveTwoStepAuthenticationEmail": 4
+  "postRemoveTwoStepAuthenticationEmail": 4,
+  "postConsumeRecoveryCodeEmail": 1,
+  "postNewRecoveryCodesEmail": 1
 }

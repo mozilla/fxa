@@ -1204,6 +1204,26 @@ module.exports = (
       })
   }
 
+  DB.prototype.replaceRecoveryCodes = function (uid, count) {
+    log.trace({op: 'DB.replaceRecoveryCodes', uid})
+
+    return this.pool.post(`/account/${uid}/recoveryCodes`, {
+      count: count
+    })
+  }
+
+  DB.prototype.consumeRecoveryCode = function (uid, code) {
+    log.trace({op: 'DB.consumeRecoveryCode', uid})
+
+    return this.pool.post(`/account/${uid}/recoveryCodes/${code}`)
+      .catch((err) => {
+        if (isNotFoundError(err)) {
+          throw error.recoveryCodeNotFound()
+        }
+        throw err
+      })
+  }
+
   function wrapTokenNotFoundError (err) {
     if (isNotFoundError(err)) {
       err = error.invalidToken('The authentication token could not be found')

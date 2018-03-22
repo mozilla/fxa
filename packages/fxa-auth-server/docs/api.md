@@ -53,6 +53,9 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [POST /password/forgot/resend_code (:lock: passwordForgotToken)](#post-passwordforgotresend_code)
     * [POST /password/forgot/verify_code (:lock: passwordForgotToken)](#post-passwordforgotverify_code)
     * [GET /password/forgot/status (:lock: passwordForgotToken)](#get-passwordforgotstatus)
+  * [Recovery codes](#recovery-codes)
+    * [GET /recoveryCodes (:lock: sessionToken)](#get-recoverycodes)
+    * [POST /session/verify/recoveryCode (:lock: sessionToken)](#post-sessionverifyrecoverycode)
   * [Session](#session)
     * [POST /session/destroy (:lock: sessionToken)](#post-sessiondestroy)
     * [POST /session/reauth (:lock: sessionToken)](#post-sessionreauth)
@@ -273,6 +276,8 @@ for `code` and `errno` are:
   A TOTP token already exists for this account.
 * `code: 400, errno: 155`:
   A TOTP token not found.
+* `code: 400, errno: 156`:
+  Recovery code not found.
 * `code: 503, errno: 201`:
   Service unavailable
 * `code: 503, errno: 202`:
@@ -2141,6 +2146,48 @@ will be returned.
   <!--end-response-body-get-passwordforgotstatus-ttl-->
 
 
+### Recovery codes
+
+#### GET /recoveryCodes
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-get-recoverycodes-->
+Return new recovery codes while removing old ones.
+<!--end-route-get-recoverycodes-->
+
+##### Response body
+
+* `recoveryCodes`: *array, items(string, regex(validators.HEX_STRING))*
+
+  <!--begin-response-body-get-recoverycodes-recoveryCodes-->
+  
+  <!--end-response-body-get-recoverycodes-recoveryCodes-->
+
+
+#### POST /session/verify/recoveryCode
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-sessionverifyrecoverycode-->
+Verify a session using a recovery code.
+<!--end-route-post-sessionverifyrecoverycode-->
+
+##### Request body
+
+* `code`: *string, min(RECOVERY_CODE_LENGTH), max(RECOVERY_CODE_LENGTH), regex(HEX_STRING), required*
+
+  <!--begin-request-body-post-sessionverifyrecoverycode-code-->
+  
+  <!--end-request-body-post-sessionverifyrecoverycode-code-->
+
+##### Response body
+
+* `remaining`: *number*
+
+  <!--begin-response-body-post-sessionverifyrecoverycode-remaining-->
+  
+  <!--end-response-body-post-sessionverifyrecoverycode-remaining-->
+
+
 ### Session
 
 #### POST /session/destroy
@@ -2647,6 +2694,20 @@ Verifies the current session if the passed TOTP code is valid.
   <!--begin-request-body-post-sessionverifytotp-service-->
   
   <!--end-request-body-post-sessionverifytotp-service-->
+
+##### Response body
+
+* `success`: *boolean, required*
+
+  <!--begin-response-body-post-sessionverifytotp-success-->
+  
+  <!--end-response-body-post-sessionverifytotp-success-->
+
+* `recoveryCodes`: *array, items(string, regex(HEX_STRING)), optional*
+
+  <!--begin-response-body-post-sessionverifytotp-recoveryCodes-->
+  
+  <!--end-response-body-post-sessionverifytotp-recoveryCodes-->
 
 
 ### Unblock codes

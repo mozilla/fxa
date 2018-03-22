@@ -48,9 +48,11 @@ describe('remote totp', function () {
             // Verify TOTP token
             const code = otplib.authenticator.generate()
             return client.verifyTotpCode(code, {metricsContext})
+
           })
           .then((response) => {
             assert.equal(response.success, true, 'totp codes match')
+            assert.equal(response.recoveryCodes.length, 8, 'recovery codes returned')
             return server.mailbox.waitForEmail(email)
           })
           .then((emailData) => {

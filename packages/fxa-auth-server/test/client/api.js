@@ -798,6 +798,32 @@ module.exports = config => {
       })
   }
 
+  ClientApi.prototype.replaceRecoveryCodes = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'GET',
+          this.baseURL + '/recoveryCodes',
+          token
+        )
+      })
+  }
+
+  ClientApi.prototype.consumeRecoveryCode = function (sessionTokenHex, code, options = {}) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/session/verify/recoveryCode',
+          token,
+          {
+            code: code,
+            metricsContext: options.metricsContext
+          }
+        )
+      })
+  }
+
   ClientApi.heartbeat = function (origin) {
     return (new ClientApi(origin)).doRequest('GET', origin + '/__heartbeat__')
   }

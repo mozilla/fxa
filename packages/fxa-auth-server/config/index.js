@@ -796,6 +796,18 @@ var conf = convict({
       default: 30,
       format: 'nat',
       env: 'TOTP_STEP_SIZE'
+    },
+    recoveryCodes: {
+      length: {
+        doc: 'The length of a recovery code',
+        default: 8,
+        env: 'RECOVERY_CODE_LENGTH'
+      },
+      count: {
+        doc: 'Number of recovery codes to create',
+        default: 8,
+        env: 'RECOVERY_CODE_COUNT'
+      }
     }
   }
 })

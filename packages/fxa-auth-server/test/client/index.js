@@ -546,6 +546,14 @@ module.exports = config => {
     return this.api.verifyTotpCode(this.sessionToken, code, options)
   }
 
+  Client.prototype.replaceRecoveryCodes = function (options = {}) {
+    return this.api.replaceRecoveryCodes(this.sessionToken, options)
+  }
+
+  Client.prototype.consumeRecoveryCode = function (code, options = {}) {
+    return this.api.consumeRecoveryCode(this.sessionToken, code, options)
+  }
+
   Client.prototype.resetPassword = function (newPassword, headers, options) {
     if (! this.accountResetToken) {
       throw new Error('call verifyPasswordResetCode before calling resetPassword')

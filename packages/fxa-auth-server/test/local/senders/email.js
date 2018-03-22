@@ -30,6 +30,8 @@ const messageTypes = [
   'postAddTwoStepAuthenticationEmail',
   'postChangePrimaryEmail',
   'postRemoveTwoStepAuthenticationEmail',
+  'postConsumeRecoveryCodeEmail',
+  'postNewRecoveryCodesEmail',
   'postVerifyEmail',
   'postVerifySecondaryEmail',
   'recoveryEmail',
@@ -72,6 +74,9 @@ const typesContainPasswordChangeLinks = [
   'postChangePrimaryEmail',
   'postRemoveTwoStepAuthenticationEmail',
   'postVerifySecondaryEmail',
+  'postVerifySecondaryEmail',
+  'postConsumeRecoveryCodeEmail',
+  'postNewRecoveryCodesEmail',
 ]
 
 const typesContainUnblockCode = [
@@ -104,7 +109,9 @@ const typesContainLocationData = [
   'verifyEmail',
   'verifyLoginEmail',
   'verifyPrimaryEmail',
-  'verifySecondaryEmail'
+  'verifySecondaryEmail',
+  'postConsumeRecoveryCodeEmail',
+  'postNewRecoveryCodesEmail',
 ]
 
 const typesContainPasswordManagerInfoLinks = [

@@ -264,6 +264,34 @@ module.exports = (log, config, error, bounces, translator, sender) => {
             }))
           })
       },
+      sendPostNewRecoveryCodesNotification: function (emails, account, opts) {
+        return getSafeMailerWithEmails(emails)
+          .then(function (result) {
+            const mailer = result.ungatedMailer
+            const primaryEmail = result.ungatedPrimaryEmail
+            const ccEmails = result.ungatedCcEmails
+
+            return mailer.postNewRecoveryCodesEmail(Object.assign({}, opts, {
+              acceptLanguage: opts.acceptLanguage || defaultLanguage,
+              ccEmails,
+              email: primaryEmail
+            }))
+          })
+      },
+      sendPostConsumeRecoveryCodeNotification: function (emails, account, opts) {
+        return getSafeMailerWithEmails(emails)
+          .then(function (result) {
+            const mailer = result.ungatedMailer
+            const primaryEmail = result.ungatedPrimaryEmail
+            const ccEmails = result.ungatedCcEmails
+
+            return mailer.postConsumeRecoveryCodeEmail(Object.assign({}, opts, {
+              acceptLanguage: opts.acceptLanguage || defaultLanguage,
+              ccEmails,
+              email: primaryEmail
+            }))
+          })
+      },
       sendUnblockCode: function (emails, account, opts) {
         return getSafeMailerWithEmails(emails)
           .then(function (result) {

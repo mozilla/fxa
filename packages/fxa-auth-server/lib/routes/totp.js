@@ -11,6 +11,7 @@ const P = require('../promise')
 const otplib = require('otplib')
 const qrcode = require('qrcode')
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
+const HEX_STRING = validators.HEX_STRING
 
 module.exports = (log, db, mailer, customs, config) => {
 
@@ -25,6 +26,8 @@ module.exports = (log, db, mailer, customs, config) => {
   // scan the image better.
   // Ref: https://github.com/soldair/node-qrcode#error-correction-level
   const qrCodeOptions = {errorCorrectionLevel: 'H'}
+
+  const RECOVERY_CODE_COUNT = config.recoveryCodes && config.recoveryCodes.codeCount || 8
 
   P.promisify(qrcode.toDataURL)
 
@@ -208,7 +211,12 @@ module.exports = (log, db, mailer, customs, config) => {
             service: validators.service
           }
         },
-        response: {}
+        response: {
+          schema: {
+            success: isA.boolean().required(),
+            recoveryCodes: isA.array().items(isA.string().regex(HEX_STRING)).optional()
+          }
+        }
       },
       handler(request, reply) {
         log.begin('session.verify.totp', request)
@@ -216,16 +224,27 @@ module.exports = (log, db, mailer, customs, config) => {
         const code = request.payload.code
         const sessionToken = request.auth.credentials
         const uid = sessionToken.uid
-        let sharedSecret, isValidCode, tokenVerified
+        let sharedSecret, isValidCode, tokenVerified, recoveryCodes
 
         customs.check(request, 'sessionVerifyTotp')
           .then(getTotpToken)
           .then(verifyTotpCode)
           .then(verifyTotpToken)
+          .then(replaceRecoveryCodes)
           .then(verifySession)
           .then(emitMetrics)
           .then(sendEmailNotification)
-          .then(() => reply({success: isValidCode}), reply)
+          .then(() => {
+            const response = {
+              success: isValidCode
+            }
+
+            if (recoveryCodes) {
+              response.recoveryCodes = recoveryCodes
+            }
+
+            return reply(response)
+          }, reply)
 
         function getTotpToken() {
           return db.totpToken(sessionToken.uid)
@@ -247,6 +266,14 @@ module.exports = (log, db, mailer, customs, config) => {
               verified: true,
               enabled: true
             })
+          }
+        }
+
+        // If this is a new registration, replace and generate recovery codes
+        function replaceRecoveryCodes() {
+          if (isValidCode && ! tokenVerified) {
+            return db.replaceRecoveryCodes(uid, RECOVERY_CODE_COUNT)
+              .then((result) => recoveryCodes = result)
           }
         }
 
