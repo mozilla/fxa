@@ -30,7 +30,7 @@ registerSuite('remote-address', {
     const result = remoteAddress({
       connection: {},
       headers: {
-        'x-forwarded-for': ' 194.12.187.0 , 127.0.0.1,127.0.0.1'
+        'x-forwarded-for': ' 194.12.187.0 , 127.0.0.1,wibble,127.0.0.1'
       }
     });
     assert.deepEqual(result, {
@@ -107,5 +107,33 @@ registerSuite('remote-address', {
       addresses: [ '127.0.0.1', '194.12.187.0', '127.0.0.1', '192.168.1.254' ],
       clientAddress: '194.12.187.0'
     });
-  }
+  },
+
+  'ignores bad request.connection.remoteAddress': () => {
+    const result = remoteAddress({
+      connection: {
+        remoteAddress: 'wibble'
+      },
+      headers: {
+        'x-forwarded-for': '127.0.0.1'
+      }
+    });
+    assert.deepEqual(result, {
+      addresses: [ '127.0.0.1' ],
+      clientAddress: '127.0.0.1'
+    });
+  },
+
+  'ignores bad request.ip': () => {
+    const result = remoteAddress({
+      headers: {
+        'x-forwarded-for': '127.0.0.1'
+      },
+      ip: 'wibble'
+    });
+    assert.deepEqual(result, {
+      addresses: [ '127.0.0.1' ],
+      clientAddress: '127.0.0.1'
+    });
+  },
 });

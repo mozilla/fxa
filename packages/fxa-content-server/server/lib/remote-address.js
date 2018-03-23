@@ -6,14 +6,18 @@
 
 'use strict';
 
+const joi = require('joi');
+
 const CLIENT_IP_ADDRESS_DEPTH = require('./configuration').get('clientAddressDepth') || 1;
+
+const IP_ADDRESS = joi.string().ip().required();
 
 module.exports = request => {
   let ipAddresses = (request.headers['x-forwarded-for'] || '')
     .split(',')
     .map(address => address.trim());
   ipAddresses.push(request.ip || request.connection.remoteAddress);
-  ipAddresses = ipAddresses.filter(ipAddress => !! ipAddress);
+  ipAddresses = ipAddresses.filter(ipAddress => ! joi.validate(ipAddress, IP_ADDRESS).error);
 
   let clientAddressIndex = ipAddresses.length - CLIENT_IP_ADDRESS_DEPTH;
   if (clientAddressIndex < 0) {
