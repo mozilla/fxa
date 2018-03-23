@@ -116,7 +116,7 @@ describe('lib/server', () => {
               headers: {
                 'accept-language': 'fr-CH, fr;q=0.9, en-GB, en;q=0.5',
                 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:57.0) Gecko/20100101 Firefox/57.0',
-                'x-forwarded-for': '63.245.221.32'
+                'x-forwarded-for': '63.245.221.32 , moo , 1.2.3.4'
               },
               method: 'POST',
               url: '/account/create',
@@ -161,9 +161,10 @@ describe('lib/server', () => {
 
           it('parsed remote address chain correctly', () => {
             assert.ok(Array.isArray(request.app.remoteAddressChain))
-            assert.equal(request.app.remoteAddressChain.length, 2)
+            assert.equal(request.app.remoteAddressChain.length, 3)
             assert.equal(request.app.remoteAddressChain[0], '63.245.221.32')
-            assert.equal(request.app.remoteAddressChain[1], request.app.remoteAddressChain[0])
+            assert.equal(request.app.remoteAddressChain[1], '1.2.3.4')
+            assert.equal(request.app.remoteAddressChain[2], request.app.remoteAddressChain[0])
           })
 
           it('parsed client address correctly', () => {
@@ -302,7 +303,8 @@ describe('lib/server', () => {
               },
               method: 'POST',
               url: '/account/create',
-              payload: {}
+              payload: {},
+              remoteAddress: 'this is not an ip address'
             }).then(response => request = response.request)
           })
 
@@ -329,6 +331,10 @@ describe('lib/server', () => {
           it('parsed features correctly', () => {
             assert.ok(request.app.features)
             assert.equal(request.app.features.has('signinCodes'), false)
+          })
+
+          it('ignored invalid remoteAddress', () => {
+            assert.equal(request.app.clientAddress, undefined)
           })
         })
 

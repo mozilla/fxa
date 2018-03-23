@@ -21,6 +21,8 @@ exports.E164_NUMBER = /^\+[1-9]\d{1,14}$/
 
 exports.DIGITS = /^[0-9]+$/
 
+exports.IP_ADDRESS = isA.string().ip()
+
 // Match display-safe unicode characters.
 // We're pretty liberal with what's allowed in a unicode string,
 // but we exclude the following classes of characters:
