@@ -109,14 +109,33 @@ module.exports = (log, db, mailer, customs, config) => {
 
         const sessionToken = request.auth.credentials
         const uid = sessionToken.uid
+        let hasEnabledToken = false
 
         customs.check(request, 'totpDestroy')
+          .then(checkTotpToken)
           .then(deleteTotpToken)
           .then(sendEmailNotification)
           .then(() => reply({}), reply)
 
+        function checkTotpToken() {
+          // If a TOTP token is not verified, we should be able to safely delete regardless of session
+          // verification state.
+          return db.totpToken(uid)
+            .then((result) => {
+              if (result && result.verified && result.enabled) {
+                hasEnabledToken = true
+                return
+              }
+            }, (err) => {
+              if (err.errno === errors.ERRNO.TOTP_TOKEN_NOT_FOUND) {
+                return
+              }
+              throw err
+            })
+        }
+
         function deleteTotpToken() {
-          if (sessionToken.tokenVerificationId) {
+          if (hasEnabledToken && (sessionToken.tokenVerificationId || sessionToken.authenticatorAssuranceLevel <= 1)) {
             throw errors.unverifiedSession()
           }
 
@@ -124,6 +143,10 @@ module.exports = (log, db, mailer, customs, config) => {
         }
 
         function sendEmailNotification() {
+          if (! hasEnabledToken) {
+            return
+          }
+
           return db.account(sessionToken.uid)
             .then((account) => {
               const geoData = request.app.geo
@@ -282,7 +305,7 @@ module.exports = (log, db, mailer, customs, config) => {
 
         // If a valid code was sent, this verifies the session using the `totp-2fa` method.
         function verifySession() {
-          if (isValidCode && sessionToken.tokenVerificationId) {
+          if (isValidCode && sessionToken.authenticatorAssuranceLevel <= 1) {
             return db.verifyTokensWithMethod(sessionToken.id, 'totp-2fa')
           }
         }

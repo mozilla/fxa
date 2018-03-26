@@ -143,6 +143,20 @@ describe('remote totp', function () {
       })
   })
 
+  it('should not bypass `totp-2fa` by resending sign-in confirmation code', () => {
+    return Client.login(config.publicUrl, email, password)
+      .then((response) => {
+        client = response
+        assert.equal(response.verificationMethod, 'totp-2fa', 'verification method set')
+        assert.equal(response.verificationReason, 'login', 'verification reason set')
+
+        return client.requestVerifyEmail()
+          .then((res) => {
+            assert.deepEqual(res, {}, 'returns empty response')
+          })
+      })
+  })
+
   describe('totp code verification', () => {
     beforeEach(() => {
       // Create a new unverified session to test totp codes

@@ -340,7 +340,7 @@
     "fxa-auth-db-mysql": {
       "version": "1.108.0",
       "from": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
-      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#1361ba44715409dd421451bffa7a84930b49d0bf",
+      "resolved": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#9c433ba3073d7db12757fc77fbb4f45299f4e425",
       "dependencies": {
         "base64url": {
           "version": "2.0.0",

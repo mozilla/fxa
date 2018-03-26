@@ -66,6 +66,14 @@ describe('totp', () => {
         })
     })
 
+    it('should not delete TOTP token in non-totp verified session', () => {
+      requestOptions.credentials.authenticatorAssuranceLevel = 1
+      return setup({db: {email: TEST_EMAIL}}, {}, '/totp/destroy', requestOptions)
+        .then(assert.fail, (err) => {
+          assert.deepEqual(err.errno, 138, 'unverified session error')
+        })
+    })
+
     it('should be disabled in unverified session', () => {
       requestOptions.credentials.tokenVerificationId = 'notverified'
       return setup({db: {email: TEST_EMAIL}}, {}, '/totp/destroy', requestOptions)
@@ -145,10 +153,16 @@ function makeRoutes(options = {}) {
   const db = options.db || mocks.mockDB()
   const mailer = options.mailer || mocks.mockMailer()
 
-  db.totpToken = sinon.spy(() => {
+  db.createTotpToken = sinon.spy(() => {
     return P.resolve({
       qrCodeUrl: 'some base64 encoded png',
       sharedSecret: 'asdf'
+    })
+  })
+  db.totpToken = sinon.spy(() => {
+    return P.resolve({
+      verified: true,
+      enabled: true
     })
   })
   const customs = options.customs || mocks.mockCustoms()
