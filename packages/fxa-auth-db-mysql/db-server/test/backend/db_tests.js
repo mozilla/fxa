@@ -1956,6 +1956,30 @@ module.exports = function (config, DB) {
           })
       })
 
+      it('should update session verificationMethod', () => {
+        const verifyOptions = {
+          verificationMethod: 'totp-2fa'
+        }
+        return db.verifyTokens(sessionToken.tokenVerificationId, account)
+          .then(() => {
+            return db.sessionToken(tokenId)
+          }, assert.fail)
+          .then((token) => {
+            assert.equal(token.mustVerify, false, 'mustVerify is false')
+            assert.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
+            assert.equal(token.verificationMethod, null, 'verificationMethod is null')
+            return db.verifyTokensWithMethod(tokenId, verifyOptions)
+          })
+          .then(() => {
+            return db.sessionToken(tokenId)
+          }, assert.fail)
+          .then((token) => {
+            assert.equal(token.mustVerify, false, 'mustVerify is false')
+            assert.equal(token.tokenVerificationId, null, 'tokenVerificationId is null')
+            assert.equal(token.verificationMethod, 2, 'verificationMethod is set')
+          })
+      })
+
       it('should fail to verify unknown verification method', () => {
         const verifyOptions = {
           verificationMethod: 'super-invalid-method'

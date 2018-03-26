@@ -558,7 +558,7 @@ module.exports = function (log, error) {
     item.authAt = sessionTokens[id].authAt || sessionTokens[id].createdAt
     item.verificationMethod = sessionTokens[id].verificationMethod || null
     item.verifiedAt = sessionTokens[id].verifiedAt || null
-    item.mustVerify = sessionTokens[id].mustVerify || null
+    item.mustVerify = !! sessionTokens[id].mustVerify
 
     var accountId = sessionTokens[id].uid.toString('hex')
     var account = accounts[accountId]

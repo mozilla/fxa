@@ -1388,7 +1388,7 @@ module.exports = function (log, error) {
     })
   }
 
-  const VERIFY_SESSION_WITH_METHOD = 'CALL verifyTokensWithMethod_1(?, ?, ?)'
+  const VERIFY_SESSION_WITH_METHOD = 'CALL verifyTokensWithMethod_2(?, ?, ?)'
   MySql.prototype.verifyTokensWithMethod = function (tokenId, data) {
     return P.resolve()
       .then(() => {
