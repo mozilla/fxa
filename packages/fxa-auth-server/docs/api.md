@@ -2180,6 +2180,12 @@ Verify a session using a recovery code.
   
   <!--end-request-body-post-sessionverifyrecoverycode-code-->
 
+* `metricsContext`: *metricsContext.schema*
+
+  <!--begin-request-body-post-sessionverifyrecoverycode-metricsContext-->
+  
+  <!--end-request-body-post-sessionverifyrecoverycode-metricsContext-->
+
 ##### Response body
 
 * `remaining`: *number*

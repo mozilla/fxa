@@ -8,6 +8,7 @@ const errors = require('../error')
 const isA = require('joi')
 const validators = require('./validators')
 const HEX_STRING = validators.HEX_STRING
+const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
 
 module.exports = (log, db, config, customs, mailer) => {
   const codeConfig = config.recoveryCodes
@@ -92,7 +93,8 @@ module.exports = (log, db, config, customs, mailer) => {
         },
         validate: {
           payload: {
-            code: isA.string().length(RECOVERY_CODE_LENGTH).regex(HEX_STRING).required()
+            code: isA.string().length(RECOVERY_CODE_LENGTH).regex(HEX_STRING).required(),
+            metricsContext: METRICS_CONTEXT_SCHEMA
           }
         },
         response: {

@@ -96,7 +96,7 @@ describe('remote recovery codes', function () {
     })
 
     it('should fail to consume unknown recovery code', () => {
-      return client.consumeRecoveryCode('1234abcd')
+      return client.consumeRecoveryCode('1234abcd', {metricsContext})
         .then(assert.fail, (err) => {
           assert.equal(err.code, 400, 'correct error code')
           assert.equal(err.errno, 156, 'correct error errno')
@@ -104,7 +104,7 @@ describe('remote recovery codes', function () {
     })
 
     it('should consume recovery and verify session', () => {
-      return client.consumeRecoveryCode(recoveryCodes[0])
+      return client.consumeRecoveryCode(recoveryCodes[0], {metricsContext})
         .then((res) => {
           assert.equal(res.remaining, 7, 'correct remaining codes')
           return client.emailStatus()
