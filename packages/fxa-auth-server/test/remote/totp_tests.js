@@ -26,6 +26,9 @@ describe('remote totp', function () {
   }
 
   before(() => {
+    config.securityHistory.ipProfiling = {}
+    config.signinConfirmation.skipForNewAccounts.enabled = false
+
     return TestServer.start(config)
       .then(s => {
         server = s
@@ -73,6 +76,19 @@ describe('remote totp', function () {
       })
   })
 
+  it('should fail check for totp token if in unverified session', () => {
+    email = server.uniqueEmail()
+    return client.login()
+      .then(() => client.sessionStatus())
+      .then((result) => {
+        assert.equal(result.state, 'unverified', 'session is unverified')
+        return client.checkTotpTokenExists()
+      })
+      .then(assert.fail, (err) => {
+        assert.equal(err.errno, 138, 'correct unverified session errno')
+      })
+  })
+
   it('should fail to create second totp token for same user', () => {
     return client.createTotpToken()
       .then(assert.fail, (err) => {
@@ -117,13 +133,13 @@ describe('remote totp', function () {
       })
   })
 
-  it('should login if user has unverified totp token', () => {
+  it('should not have `totp-2fa` verification if user has unverified totp token', () => {
     return client.deleteTotpToken()
       .then(() => client.createTotpToken())
       .then(() => Client.login(config.publicUrl, email, password))
       .then((response) => {
-        assert.equal(response.verificationMethod, undefined, 'verification method not set')
-        assert.equal(response.verificationReason, undefined, 'verification reason not set')
+        assert.notEqual(response.verificationMethod, 'totp-2fa', 'verification method not set to `totp-2fa`')
+        assert.equal(response.verificationReason, 'login', 'verification reason set to `login`')
       })
   })
 

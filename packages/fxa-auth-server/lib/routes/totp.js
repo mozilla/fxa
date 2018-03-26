@@ -169,13 +169,16 @@ module.exports = (log, db, mailer, customs, config) => {
           .then(() => reply({exists}), reply)
 
         function getTotpToken() {
-          if (sessionToken.tokenVerificationId) {
-            throw errors.unverifiedSession()
-          }
+          return P.resolve()
+            .then(() => {
+              if (sessionToken.tokenVerificationId) {
+                throw errors.unverifiedSession()
+              }
 
-          return db.totpToken(sessionToken.uid)
+              return db.totpToken(sessionToken.uid)
+            })
+
             .then((token) => {
-
               // If the token is not verified, lets delete it and report that
               // it doesn't exist. This will help prevent some edge
               // cases where the user started creating a token but never completed.
