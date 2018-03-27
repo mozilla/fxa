@@ -8,7 +8,7 @@ set -u
 
 GLOB=$*
 if [ -z "$GLOB" ]; then
-  GLOG="test/*.js test/routes/*.js test/db/*.js"
+  GLOB="test/*.js test/routes/*.js test/db/*.js"
 fi
 
 DEFAULT_ARGS="-R spec --timeout 20000 --recursive"
