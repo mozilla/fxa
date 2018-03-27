@@ -7,7 +7,7 @@
  * only Fx >= 57 until the logo is publicly released.
  */
 
-const uaParser = require('node-uap');
+const uaParser = require('./user-agent');
 
 function shouldSee57Icon(uaHeader) {
   const agent = uaParser.parse(uaHeader);

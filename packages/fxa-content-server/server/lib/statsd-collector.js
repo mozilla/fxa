@@ -5,7 +5,7 @@
 'use strict';
 const logger = require('./logging/log')('server.statsd');
 const StatsD = require('node-statsd');
-const uaParser = require('node-uap');
+const uaParser = require('./user-agent');
 
 // An arbitrary choice of 2 minutes. Nothing scientific, it just seems
 // pages can be reasonably expected to load in under 2 minutes.

@@ -27,7 +27,7 @@
 'use strict';
 const helmet = require('helmet');
 const htmlOnly = require('./html-middleware');
-const uaParser = require('node-uap');
+const uaParser = require('./user-agent');
 
 function isAllowedToFrame(req, allowedContexts) {
   return isContextAllowedToFrame(req.query.context, allowedContexts) &&

@@ -22,7 +22,7 @@
 'use strict';
 
 const geolocate = require('./geo-locate');
-const ua = require('node-uap');
+const ua = require('./user-agent');
 
 const SERVICES = require('./configuration').get('oauth_client_id_map');
 
