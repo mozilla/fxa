@@ -11,7 +11,7 @@ let Server;
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-const db = require('../lib/db');
+
 
 const assert = require('insist');
 const P = require('../lib/promise');
@@ -64,12 +64,13 @@ function makeProfileReq(uid) {
 
 describe('profile cache', function() {
   beforeEach(() => {
-    Server = require('./lib/server');
     clearRequireCache();
+    Server = require('./lib/server');
   });
 
   afterEach(() => {
     mock.done();
+    require('../lib/db')._teardown();
   });
 
   it('should cache profile info initially, and invalidate cache after 2 seconds', function(done) {
@@ -231,8 +232,4 @@ describe('profile cache', function() {
       });
     });
   });
-});
-
-after(()=> {
-  return db._clear();
 });

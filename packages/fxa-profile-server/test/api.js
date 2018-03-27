@@ -1038,6 +1038,6 @@ describe('/display_name', function() {
 
 });
 
-after(function() {
-  return db._clear();
+after(() => {
+  return db._teardown();
 });

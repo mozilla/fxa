@@ -288,6 +288,17 @@ MysqlStore.prototype = {
         });
       });
     });
+  },
+
+  disconnect: function disconnect() {
+    return new P((resolve, reject) => {
+      this._pool.end((err) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve();
+      });
+    });
   }
 };
 

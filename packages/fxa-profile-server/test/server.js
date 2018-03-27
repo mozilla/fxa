@@ -7,6 +7,8 @@ const assertSecurityHeaders = require('./lib/util').assertSecurityHeaders;
 
 const Server = require('./lib/server');
 
+const db = require('../lib/db');
+
 /*global describe,it*/
 
 describe('server', function() {
@@ -54,4 +56,8 @@ describe('server', function() {
       });
     });
   });
+});
+
+after(() => {
+  return db._teardown();
 });

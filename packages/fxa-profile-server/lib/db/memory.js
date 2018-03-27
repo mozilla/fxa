@@ -123,6 +123,10 @@ MemoryStore.prototype = {
       this.profile[id] = { displayName: displayName };
     }
     return P.resolve();
+  },
+
+  disconnect: function disconnect() {
+    return P.resolve();
   }
 };
 

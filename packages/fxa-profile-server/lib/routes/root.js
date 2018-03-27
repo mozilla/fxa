@@ -8,11 +8,11 @@ const path = require('path');
 const Joi = require('joi');
 
 const version = require('../../package.json').version;
-var commitHash, source;
+let commitHash, source;
 
 // See if config/version.json exists (part of rpm builds)
 try {
-  var info = require('../../config/version.json');
+  const info = require('../../config/version.json');
   commitHash = info.version.hash;
   source = info.version.source;
 } catch (e) {
@@ -41,12 +41,13 @@ module.exports = {
     }
 
     // figure it out from .git
-    var gitDir = path.resolve(__dirname, '..', '..', '.git');
-    exec('git rev-parse HEAD', { cwd: gitDir }, function(err, stdout) { // eslint-disable-line handle-callback-err
+    const gitDir = path.resolve(__dirname, '..', '..', '.git');
+    exec('git rev-parse HEAD', { cwd: gitDir }, (err, stdout) => { // eslint-disable-line handle-callback-err
       commitHash = stdout.replace(/\s+/, '');
-      var configPath = path.join(gitDir, 'config');
-      var cmd = 'git config --get remote.origin.url';
-      exec(cmd, { env: { GIT_CONFIG: configPath } }, function(err, stdout) { // eslint-disable-line handle-callback-err
+      const configPath = path.join(gitDir, 'config');
+      const cmd = 'git config --get remote.origin.url';
+      const env = Object.assign({}, process.env, { GIT_CONFIG: configPath });
+      exec(cmd, { env }, (err, stdout) => { // eslint-disable-line handle-callback-err
         source = stdout.replace(/\s+/, '');
         return sendReply();
       });

@@ -8,7 +8,7 @@
     "preinstall": "./scripts/check_gm.sh",
     "shrink": "npmshrink",
     "start": "scripts/run_dev.js",
-    "test": "grunt test --node-env=test"
+    "test": "scripts/test-local.sh"
   },
   "dependencies": {
     "aws-sdk": "2.4.7",
@@ -36,7 +36,6 @@
     "stream-to-array": "2.3.0"
   },
   "devDependencies": {
-    "blanket": "1.1.6",
     "commander": "2.9.0",
     "eslint-plugin-fxa": "git://github.com/mozilla/eslint-plugin-fxa.git#41504c9dd30e8b52900c15b524946aa0428aef95",
     "fxa-conventional-changelog": "1.1.0",
@@ -54,6 +53,7 @@
     "mocha-text-cov": "0.1.1",
     "nock": "8.0.0",
     "npmshrink": "1.0.1",
+    "nyc": "11.6.0",
     "pngparse": "2.0.1",
     "rimraf": "2.5.3",
     "sinon": "1.17.5",
