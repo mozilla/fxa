@@ -16,6 +16,7 @@ define([
   'tests/lib/metricsContext',
   'tests/lib/misc',
   'tests/lib/passwordChange',
+  'tests/lib/recoveryCodes',
   'tests/lib/recoveryEmail',
   'tests/lib/request',
   'tests/lib/session',

@@ -369,6 +369,10 @@ define([
       status: 200,
       body: '{"exists": true}'
     },
+    verifyTotpCodeTrueEnableToken: {
+      status: 200,
+      body: '{"success": true, "recoveryCodes": ["01001112", "01001113", "01001114", "01001115", "01001116", "01001117", "01001118", "01001119"]}'
+    },
     verifyTotpCodeTrue: {
       status: 200,
       body: '{"success": true}'
@@ -376,6 +380,22 @@ define([
     verifyTotpCodeFalse: {
       status: 200,
       body: '{"success": false}'
+    },
+    consumeRecoveryCodeInvalidCode: {
+      status: 400,
+      body: '{"errno": 156}'
+    },
+    consumeRecoveryCodeSuccess: {
+      status: 200,
+      body: '{"remaining": 7}'
+    },
+    replaceRecoveryCodesSuccess: {
+      status: 200,
+      body: '{"recoveryCodes": ["01001112", "01001113", "01001114", "01001115", "01001116", "01001117", "01001118", "01001119"]}'
+    },
+    replaceRecoveryCodesSuccessNew: {
+      status: 200,
+      body: '{"recoveryCodes": ["99999999", "01001113", "01001114", "01001115", "01001116", "01001117", "01001118", "01001119"]}'
     }
   };
 });

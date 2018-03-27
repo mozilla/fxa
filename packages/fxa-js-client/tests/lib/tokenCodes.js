@@ -35,7 +35,19 @@ define([
         // This test is intended to run against a local auth-server. To test
         // against a mock auth-server would be pointless for this assertion.
         test('verify session with invalid tokenCode', function () {
-          return client.verifyTokenCode(account.signIn.sessionToken, account.signIn.uid, 'INVALIDCODE')
+          var opts = {verificationMethod: 'email-2fa'};
+          return respond(client.signIn(account.input.email, account.input.password, opts), RequestMocks.signInWithVerificationMethodEmail2faResponse)
+            .then(function (res) {
+              assert.equal(res.verificationMethod, 'email-2fa', 'should return correct verificationMethod');
+              assert.equal(res.verificationReason, 'login', 'should return correct verificationReason');
+              return respond(mail.wait(account.input.user, 3), RequestMocks.signInWithVerificationMethodEmail2faCode);
+            })
+            .then(function (emails) {
+              // should contain token code
+              var code = emails[2].headers['x-signin-verify-code'];
+              code = code === '00000000' ? '00000001' : '00000000';
+              return client.verifyTokenCode(account.signIn.sessionToken, account.signIn.uid, code);
+            })
             .then(function () {
               assert.fail('should reject if tokenCode is invalid');
             }, function (err) {

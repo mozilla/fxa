@@ -130,13 +130,14 @@ define([
       });
 
       test('#verifyTotpCode - fails for invalid code', function () {
-        return respond(client.verifyTotpCode(account.signIn.sessionToken, 'wrongCode'), RequestMocks.verifyTotpCodeFalse)
+        var code = authenticator.generate(secret) === '000000' ? '000001' : '000000';
+        return respond(client.verifyTotpCode(account.signIn.sessionToken, code), RequestMocks.verifyTotpCodeFalse)
           .then(function (res) {
             assert.equal(xhrOpen.args[0][0], 'POST', 'method is correct');
             assert.include(xhrOpen.args[0][1], '/session/verify/totp', 'path is correct');
             var sentData = JSON.parse(xhrSend.args[0][0]);
             assert.equal(Object.keys(sentData).length, 1);
-            assert.equal(sentData.code, 'wrongCode', 'code is correct');
+            assert.equal(sentData.code, code, 'code is correct');
 
             assert.equal(res.success, false);
           });

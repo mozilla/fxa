@@ -1819,6 +1819,64 @@ define([
   };
 
   /**
+   * Replace user's recovery codes.
+   *
+   * @method replaceRecoveryCodes
+   * @param {String} sessionToken SessionToken obtained from signIn
+   */
+  FxAccountClient.prototype.replaceRecoveryCodes = function (sessionToken) {
+    var request = this.request;
+    return Promise.resolve()
+      .then(function () {
+        required(sessionToken, 'sessionToken');
+
+        return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+      })
+      .then(function (creds) {
+
+        return request.send('/recoveryCodes', 'GET', creds);
+      });
+  };
+
+  /**
+   * Consume recovery code.
+   *
+   * @method consumeRecoveryCode
+   * @param {String} sessionToken SessionToken obtained from signIn
+   * @param {String} code recovery code
+   * @param {Object} [options.metricsContext={}] Metrics context metadata
+   *   @param {String} options.metricsContext.deviceId identifier for the current device
+   *   @param {String} options.metricsContext.flowId identifier for the current event flow
+   *   @param {Number} options.metricsContext.flowBeginTime flow.begin event time
+   *   @param {Number} options.metricsContext.utmCampaign marketing campaign identifier
+   *   @param {Number} options.metricsContext.utmContent content identifier
+   *   @param {Number} options.metricsContext.utmMedium acquisition medium
+   *   @param {Number} options.metricsContext.utmSource traffic source
+   *   @param {Number} options.metricsContext.utmTerm search terms
+   */
+  FxAccountClient.prototype.consumeRecoveryCode = function (sessionToken, code, options) {
+    var request = this.request;
+    return Promise.resolve()
+      .then(function () {
+        required(sessionToken, 'sessionToken');
+        required(code, 'code');
+
+        return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+      })
+      .then(function (creds) {
+        var data = {
+          code: code
+        };
+
+        if (options && options.metricsContext) {
+          data.metricsContext = metricsContext.marshall(options.metricsContext);
+        }
+
+        return request.send('/session/verify/recoveryCode', 'POST', creds, data);
+      });
+  };
+
+  /**
    * Check for a required argument. Exposed for unit testing.
    *
    * @param {Value} val - value to check
