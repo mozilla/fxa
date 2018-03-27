@@ -15,6 +15,11 @@ const dbUtil = require('./util')
 const REQUIRED_CHARSET = 'UTF8MB4_BIN'
 const DATABASE_NAME = require('../constants').DATABASE_NAME
 
+const REQUIRED_SQL_MODES = [
+  'STRICT_ALL_TABLES',
+  'NO_ENGINE_SUBSTITUTION',
+]
+
 // http://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html
 const ER_TOO_MANY_CONNECTIONS = 1040
 const ER_DUP_ENTRY = 1062
@@ -66,6 +71,18 @@ module.exports = function (log, error) {
 
     options.master.charset = options.charset
     options.slave.charset = options.charset
+
+    var mode = REQUIRED_SQL_MODES.join(',')
+    if (options.sql_mode && options.sql_mode !== mode) {
+      log.error('createPoolCluster.invalidSqlMode', { sql_mode: options.sql_mode })
+      throw new Error(`You cannot use any sql mode other than ${mode}`)
+    } else {
+      options.sql_mode = REQUIRED_SQL_MODES.join(',')
+    }
+
+    options.master.sql_mode = options.sql_mode
+    options.slave.sql_mode = options.sql_mode
+
 
     // Use separate pools for master and slave connections.
     this.poolCluster.add('MASTER', options.master)
@@ -1138,14 +1155,20 @@ module.exports = function (log, error) {
           return resolve(connection)
         }
 
-        connection.query('SET NAMES utf8mb4 COLLATE utf8mb4_bin;', (err) => {
+        var mode = REQUIRED_SQL_MODES.join(',')
+        connection.query(`SET SESSION sql_mode = '${mode}';`, (err) => {
           if (err) {
             return reject(err)
           }
 
-          connection._fxa_initialized = true
+          connection.query('SET NAMES utf8mb4 COLLATE utf8mb4_bin;', (err) => {
+            if (err) {
+              return reject(err)
+            }
 
-          resolve(connection)
+            connection._fxa_initialized = true
+            resolve(connection)
+          })
         })
 
       })
@@ -1247,7 +1270,8 @@ module.exports = function (log, error) {
       'collation_server',
       'max_connections',
       'version',
-      'wait_timeout'
+      'wait_timeout',
+      'sql_mode'
     ]
 
     return this.getConnection(poolName)

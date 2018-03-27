@@ -42,6 +42,26 @@ describe('MySQL', () => {
   )
 
   it(
+    'forces REQUIRED_SQL_MODES for connections',
+    () => {
+      const configSqlMode = Object.assign({}, config)
+      const REQUIRED_SQL_MODES = [
+        'STRICT_ALL_TABLES',
+        'NO_ENGINE_SUBSTITUTION',
+      ]
+      var mode = REQUIRED_SQL_MODES.join(',')
+      configSqlMode.sql_mode = 'xyz'
+      return DB.connect(configSqlMode)
+        .then(
+          assert.fail,
+          err => {
+            assert.equal(err.message, `You cannot use any sql mode other than ${mode}`)
+          }
+        )
+    }
+  )
+
+  it(
     'a select on an unknown table should result in an error',
     () => {
       var query = 'SELECT mumble as id FROM mumble.mumble WHERE mumble = ?'
