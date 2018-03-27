@@ -756,7 +756,7 @@ describe('/account/sessions', () => {
   const sessions = [
     {
       id: tokenIds[0], uid: 'qux', createdAt: times[0], lastAccessTime: times[1],
-      uaBrowser: 'Firefox', uaBrowserVersion: '50', uaOS: 'Windows', uaOSVersion: '10',
+      uaBrowser: 'Firefox', uaBrowserVersion: '50.0', uaOS: 'Windows', uaOSVersion: '10',
       uaDeviceType: null, deviceId: null, deviceCreatedAt: times[2], deviceCapabilities: ['pushbox'],
       deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
       deviceCallbackIsExpired: false,

@@ -456,7 +456,8 @@ module.exports = (log, db, config, customs, push, devices) => {
               } else if (! session.uaBrowserVersion) {
                 userAgent = session.uaBrowser
               } else {
-                userAgent = `${session.uaBrowser} ${session.uaBrowserVersion}`
+                const { uaBrowser: browser, uaBrowserVersion: version } = session
+                userAgent = `${browser} ${version.split('.')[0]}`
               }
 
               return Object.assign({
