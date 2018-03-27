@@ -280,7 +280,9 @@ function mapEntrypoint (data) {
 function mapExperiments (data) {
   if (data.experiments && data.experiments.length > 0) {
     return {
-      experiments: data.experiments.map(e => `${toSnakeCase(e.choice)}_${toSnakeCase(e.group)}`)
+      '$append': {
+        experiments: data.experiments.map(e => `${toSnakeCase(e.choice)}_${toSnakeCase(e.group)}`)
+      }
     };
   }
 }

@@ -103,12 +103,6 @@ registerSuite('amplitude', {
         user_id: 'soop',
         user_properties: {
           entrypoint: 'baz',
-          experiments: [
-            'first_experiment_group_one',
-            'second_experiment_group_two',
-            'third_experiment_group_three',
-            'fourth_experiment_group_four'
-          ],
           flow_id: 'wibble',
           ua_browser: 'Firefox',
           ua_version: '58.0',
@@ -116,7 +110,15 @@ registerSuite('amplitude', {
           utm_content: 'florg',
           utm_medium: 'derp',
           utm_source: 'bnag',
-          utm_term: 'plin'
+          utm_term: 'plin',
+          '$append': {
+            experiments: [
+              'first_experiment_group_one',
+              'second_experiment_group_two',
+              'third_experiment_group_three',
+              'fourth_experiment_group_four'
+            ]
+          }
         }
       });
     },
