@@ -2664,12 +2664,12 @@ describe('/v1', function() {
           assert.equal(res.result.user, USERID);
           assert.equal(res.result.client_id, clientId);
           assert.equal(res.result.scope[0], 'profile');
-          assert.equal(res.result.email, VEMAIL);
+          assert.equal(res.result.email, undefined);
         });
       });
     });
 
-    it('should return the email with profile:email scope', function() {
+    it('should not return the email by default for profile:email scope', function() {
       return newToken({ scope: 'profile:email' }).then(function(res) {
         assert.equal(res.statusCode, 200);
         assertSecurityHeaders(res);
@@ -2682,11 +2682,11 @@ describe('/v1', function() {
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
         assertSecurityHeaders(res);
-        assert.equal(res.result.email, VEMAIL);
+        assert.equal(res.result.email, undefined);
       });
     });
 
-    it('should not return the email if opted out', function() {
+    it('should not return the email if email:false for profile:email scope', function() {
       return newToken({ scope: 'profile:email' }).then(function(res) {
         assert.equal(res.statusCode, 200);
         assertSecurityHeaders(res);
@@ -2701,6 +2701,24 @@ describe('/v1', function() {
         assert.equal(res.statusCode, 200);
         assertSecurityHeaders(res);
         assert.equal(res.result.email, undefined);
+      });
+    });
+
+    it('should return the email if opted in', function() {
+      return newToken({ scope: 'profile:email' }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
+        return Server.api.post({
+          url: '/verify',
+          payload: {
+            token: res.result.access_token,
+            email: true
+          }
+        });
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
+        assert.equal(res.result.email, VEMAIL);
       });
     });
 
