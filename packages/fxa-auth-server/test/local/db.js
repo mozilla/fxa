@@ -138,8 +138,11 @@ describe('db with redis disabled:', () => {
     return db.sessions('fakeUid')
       .then(result => {
         assert.equal(pool.get.callCount, 1)
-        assert.equal(pool.get.args[0].length, 1)
-        assert.equal(pool.get.args[0][0], '/account/fakeUid/sessions')
+        const args = pool.get.args[0]
+        assert.equal(args.length, 2)
+        assert.equal(typeof args[0].render, 'function')
+        assert.equal(args[0].constructor.name, 'SafeUrl')
+        assert.deepEqual(args[1], { uid: 'fakeUid' })
         assert.deepEqual(result, [])
       })
   })
@@ -149,8 +152,11 @@ describe('db with redis disabled:', () => {
     return db.devices('fakeUid')
       .then(result => {
         assert.equal(pool.get.callCount, 1)
-        assert.equal(pool.get.args[0].length, 1)
-        assert.equal(pool.get.args[0][0], '/account/fakeUid/devices')
+        const args = pool.get.args[0]
+        assert.equal(args.length, 2)
+        assert.equal(typeof args[0].render, 'function')
+        assert.equal(args[0].constructor.name, 'SafeUrl')
+        assert.deepEqual(args[1], { uid: 'fakeUid' })
         assert.deepEqual(result, [])
       })
   })
@@ -159,8 +165,11 @@ describe('db with redis disabled:', () => {
     return db.deleteAccount({ uid: 'fakeUid' })
       .then(() => {
         assert.equal(pool.del.callCount, 1)
-        assert.equal(pool.del.args[0].length, 1)
-        assert.equal(pool.del.args[0][0], '/account/fakeUid')
+        const args = pool.del.args[0]
+        assert.equal(args.length, 2)
+        assert.equal(typeof args[0].render, 'function')
+        assert.equal(args[0].constructor.name, 'SafeUrl')
+        assert.deepEqual(args[1], { uid: 'fakeUid' })
       })
   })
 
@@ -168,8 +177,11 @@ describe('db with redis disabled:', () => {
     return db.deleteSessionToken({ id: 'foo', uid: 'bar'})
       .then(() => {
         assert.equal(pool.del.callCount, 1)
-        assert.equal(pool.del.args[0].length, 1)
-        assert.equal(pool.del.args[0][0], '/sessionToken/foo')
+        const args = pool.del.args[0]
+        assert.equal(args.length, 2)
+        assert.equal(typeof args[0].render, 'function')
+        assert.equal(args[0].constructor.name, 'SafeUrl')
+        assert.deepEqual(args[1], { id: 'foo' })
       })
   })
 
@@ -178,8 +190,11 @@ describe('db with redis disabled:', () => {
     return db.deleteDevice('foo', 'bar')
       .then(() => {
         assert.equal(pool.del.callCount, 1)
-        assert.equal(pool.del.args[0].length, 1)
-        assert.equal(pool.del.args[0][0], '/account/foo/device/bar')
+        const args = pool.del.args[0]
+        assert.equal(args.length, 2)
+        assert.equal(typeof args[0].render, 'function')
+        assert.equal(args[0].constructor.name, 'SafeUrl')
+        assert.deepEqual(args[1], { uid: 'foo', deviceId: 'bar' })
       })
   })
 
@@ -189,11 +204,14 @@ describe('db with redis disabled:', () => {
       .then(() => {
         const end = Date.now()
         assert.equal(pool.post.callCount, 1)
-        assert.equal(pool.post.args[0].length, 2)
-        assert.equal(pool.post.args[0][0], '/account/fakeUid/reset')
-        assert.equal(Object.keys(pool.post.args[0][1]).length, 1)
-        assert.ok(pool.post.args[0][1].verifierSetAt >= start)
-        assert.ok(pool.post.args[0][1].verifierSetAt <= end)
+        const args = pool.post.args[0]
+        assert.equal(args.length, 3)
+        assert.equal(typeof args[0].render, 'function')
+        assert.equal(args[0].constructor.name, 'SafeUrl')
+        assert.deepEqual(args[1], { uid: 'fakeUid' })
+        assert.equal(Object.keys(args[2]).length, 1)
+        assert.ok(args[2].verifierSetAt >= start)
+        assert.ok(args[2].verifierSetAt <= end)
       })
   })
 
@@ -218,11 +236,12 @@ describe('db with redis disabled:', () => {
       .then(() => {
         assert.equal(pool.put.callCount, 1)
         const args = pool.put.args[0]
-        assert.equal(args.length, 2)
-        const id = /^\/sessionToken\/([0-9a-f]{64})$/.exec(args[0])[1]
-        assert.ok(id)
-        assert.equal(args[1].tokenId, id)
-        assert.equal(args[1].uid, 'foo')
+        assert.equal(args.length, 3)
+        assert.equal(typeof args[0].render, 'function')
+        assert.equal(args[0].constructor.name, 'SafeUrl')
+        assert.ok(args[1].id)
+        assert.equal(args[2].tokenId, args[1].id)
+        assert.equal(args[2].uid, 'foo')
       })
   })
 })

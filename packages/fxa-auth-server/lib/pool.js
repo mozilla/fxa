@@ -33,7 +33,15 @@ function Pool(url, options = {}) {
   )
 }
 
-Pool.prototype.request = function (method, path, data) {
+Pool.prototype.request = function (method, url, params, data) {
+  let path
+  try {
+    path = url.render(params)
+  }
+  catch (err) {
+    return P.reject(err)
+  }
+
   var d = P.defer()
   this.poolee.request(
     {
@@ -78,24 +86,24 @@ Pool.prototype.request = function (method, path, data) {
   }
 }
 
-Pool.prototype.post = function (path, data) {
-  return this.request('POST', path, data)
+Pool.prototype.post = function (path, params, data) {
+  return this.request('POST', path, params, data)
 }
 
-Pool.prototype.put = function (path, data) {
-  return this.request('PUT', path, data)
+Pool.prototype.put = function (path, params, data) {
+  return this.request('PUT', path, params, data)
 }
 
-Pool.prototype.get = function (path) {
-  return this.request('GET', path)
+Pool.prototype.get = function (path, params) {
+  return this.request('GET', path, params)
 }
 
-Pool.prototype.del = function (path, data) {
-  return this.request('DELETE', path, data)
+Pool.prototype.del = function (path, params, data) {
+  return this.request('DELETE', path, params, data)
 }
 
-Pool.prototype.head = function (path) {
-  return this.request('HEAD', path)
+Pool.prototype.head = function (path, params) {
+  return this.request('HEAD', path, params)
 }
 
 Pool.prototype.close = function () {
