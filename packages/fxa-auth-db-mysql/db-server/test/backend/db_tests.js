@@ -1334,12 +1334,16 @@ module.exports = function (config, DB) {
     })
 
     describe('unblockCodes', () => {
-      let uid1, code1
+      let uid1, code1, code2
       beforeEach(() => {
         uid1 = newUuid()
         code1 = unblockCode()
 
-        return db.createUnblockCode(uid1, code1)
+        code2 = unblockCode()
+        return P.all([
+          db.createUnblockCode(uid1, code1),
+          db.createUnblockCode(uid1, code2)
+        ])
       })
 
       it('should fail to consume unknown code', () => {
@@ -1347,6 +1351,18 @@ module.exports = function (config, DB) {
           .then(assert.fail, (err) => {
             assert.equal(err.code, 404, 'err.code')
             assert.equal(err.errno, 116, 'err.errno')
+          })
+      })
+
+      it('should fail to consume old unblock code', () => {
+        return db.consumeUnblockCode(uid1, code1)
+          .then((code) => {
+            assert.ok(code)
+            return db.consumeUnblockCode(uid1, code2)
+              .then(assert.fail, (err) => {
+                assert.equal(err.code, 404, 'err.code')
+                assert.equal(err.errno, 116, 'err.errno')
+              })
           })
       })
 

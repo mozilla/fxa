@@ -1050,7 +1050,8 @@ module.exports = function (log, error) {
       return P.reject(error.notFound())
     }
     var timestamp = row[code]
-    delete row[code]
+    // Delete all codes for that uid
+    unblockCodes[uid.toString('hex')] = null
 
     return P.resolve({ createdAt: timestamp })
   }

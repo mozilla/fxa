@@ -848,7 +848,7 @@ module.exports = function (log, error) {
     )
   }
 
-  var CONSUME_UNBLOCK_CODE = 'CALL consumeUnblockCode_1(?, ?)'
+  var CONSUME_UNBLOCK_CODE = 'CALL consumeUnblockCode_2(?, ?)'
 
   MySql.prototype.consumeUnblockCode = function (uid, code) {
     // hash the code since it's like a password
