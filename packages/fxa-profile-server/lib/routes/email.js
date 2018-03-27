@@ -5,11 +5,7 @@
 const Joi = require('joi');
 
 const AppError = require('../error');
-const config = require('../config');
 const logger = require('../logging')('routes.email');
-const request = require('../request');
-
-const AUTH_SERVER_URL = config.get('authServer.url') + '/account/profile';
 
 module.exports = {
   auth: {
@@ -22,49 +18,28 @@ module.exports = {
     }
   },
   handler: function email(req, reply) {
-    request.get(AUTH_SERVER_URL, {
-      headers: {
-        Authorization: 'Bearer ' + req.auth.credentials.token
-      },
-      json: true
-    }, function(err, res, body) {
-      if (err) {
-        logger.error('request.auth_server.network', err);
-        return reply(new AppError.authError('network error'));
+    req.server.inject({
+      allowInternals: true,
+      method: 'get',
+      url: '/v1/_core_profile',
+      headers: req.headers,
+      credentials: req.auth.credentials
+    }, res => {
+      if (res.statusCode !== 200) {
+        return reply(res);
       }
-      if (res.statusCode >= 400) {
-        body = body && body.code ? body : { code: res.statusCode };
-        if (res.statusCode >= 500) {
-          logger.error('request.auth_server.fail', body);
-          return reply(new AppError.authError('auth-server server error'));
-        }
-        // Return Unauthorized if the token turned out to be invalid,
-        // or if the account has been deleted on the auth-server.
-        // (we can still have valid oauth tokens for deleted accounts,
-        // because distributed state).
-        if (body.code === 401 || body.errno === 102) {
-          logger.info('request.auth_server.fail', body);
-          return reply(new AppError.unauthorized(body.message));
-        }
-        // There should be no other 400-level errors, unless we're
-        // sending a badly-formed request of our own.  That warrants
-        // an "Internal Server Error" on our part.
-        logger.error('request.auth_server.fail', body);
+      // Since this route requires 'email' scope,
+      // we should always get an email field back.
+      if (! res.result.email) {
+        logger.error('request.auth_server.fail', res.result);
         return reply(new AppError({
           code: 500,
-          message: 'error communicating with auth server'
+          message: 'auth server did not return email'
         }));
       }
-
-      if (! body || ! body.email) {
-        return reply(
-          new AppError('email field missing from auth response')
-        );
-      }
-      reply({
-        email: body.email
+      return reply({
+        email: res.result.email
       });
     });
   }
 };
-

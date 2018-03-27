@@ -6,18 +6,13 @@ const Boom = require('boom');
 const Joi = require('joi');
 const checksum = require('checksum');
 
-const avatarShared = require('./avatar/_shared');
-const config = require('../config');
 const logger = require('../logging')('routes.profile');
-
-const DEFAULT_AVATAR_URL = avatarShared.fxaUrl(config.get('img.defaultAvatarId'));
 
 function hasAllowedScope(scopes) {
   for (var i = 0, len = scopes.length; i < len; i++) {
     var scope = scopes[i];
     // careful to not match a scope of 'profilebogie'
-    if (scope === 'profile' || scope === 'email'
-        || scope.indexOf('profile:') === 0) {
+    if (scope === 'profile' || scope.indexOf('profile:') === 0 || scope === 'email') {
       return true;
     }
   }
@@ -42,12 +37,15 @@ module.exports = {
       avatar: Joi.string().allow(null),
       avatarDefault: Joi.boolean().allow(null),
       displayName: Joi.string().allow(null),
+      locale: Joi.string().allow(null),
+      amrValues: Joi.array().items(Joi.string().required()).allow(null),
+      twoFactorAuthentication: Joi.boolean().allow(null),
 
       //openid-connect
       sub: Joi.string().allow(null)
     }
   },
-  handler: function email(req, reply) {
+  handler: function profile(req, reply) {
     const server = req.server;
     const creds = req.auth.credentials;
 
@@ -58,24 +56,17 @@ module.exports = {
     server.methods.batch(
       req,
       {
-        email: '/v1/email',
-        uid: '/v1/uid',
-        avatar: '/v1/avatar',
-        displayName: '/v1/display_name'
+        '/v1/_core_profile': true,
+        '/v1/uid': true,
+        '/v1/avatar': ['avatar', 'avatarDefault'],
+        '/v1/display_name': true
       },
-      function(err, result, cached, report) {
+      (err, result, cached, report) => {
         if (err) {
           return reply(err);
         }
         if (creds.scope.indexOf('openid') !== -1) {
           result.sub = creds.user;
-        }
-
-        if (result.avatar) {
-          // currently the batch requests extract a single property.
-          // to avoid refactoring the batch requests to support multiple properties,
-          // set the default flag here
-          result.avatarDefault = result.avatar === DEFAULT_AVATAR_URL;
         }
 
         var rep = reply(result);

@@ -68,7 +68,7 @@ The currently-defined error responses are:
 
 - scope: `profile`
 
-Retrieves all properties of a profile.
+Retrieves all properties of a profile that the caller has permission to read.
 
 #### Request
 
@@ -84,6 +84,9 @@ curl -v \
 {
   "uid": "6d940dd41e636cc156074109b8092f96",
   "email": "user@example.domain",
+  "locale": "en-US",
+  "amrValues": ["pwd", "otp"],
+  "twoFactorAuthentication": true,
   "avatar": "https://firefoxusercontent.com/a9bff302615cd015692a099f691205cc",
   "avatarDefault": false
 }

@@ -157,6 +157,13 @@ module.exports = function mock(options) {
         .reply(body.code || 500, body);
     },
 
+    coreProfile: function mockEmail(body) {
+      const parts = url.parse(config.get('authServer.url'));
+      return nock(parts.protocol + '//' + parts.host)
+        .get(parts.path + '/account/profile')
+        .reply(200, body);
+    },
+
     workerFailure: function workerFailure(action, bytes) {
       if (action !== 'post' && action !== 'delete') {
         throw new Error('failure must be post or delete');

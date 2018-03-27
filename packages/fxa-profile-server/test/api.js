@@ -84,31 +84,31 @@ describe('/profile', function() {
     });
   });
 
-  it('should handle auth server errors', function() {
+  it('should handle auth server errors', () => {
     mock.token({
       user: USERID,
       scope: ['profile:write']
     });
     mock.emailFailure();
 
-    mock.log('server', function(rec) {
+    mock.log('server', rec => {
       return rec.levelname === 'ERROR'
           && rec.args[0] === 'summary'
-          && rec.args[1].path === '/v1/email';
+          && rec.args[1].path === '/v1/_core_profile';
     });
 
-    mock.log('batch', function(rec) {
+    mock.log('batch', rec => {
       return rec.levelname === 'ERROR'
-          && rec.args[0] === 'email.503';
+          && rec.args[0] === '/v1/_core_profile:503';
     });
 
-    mock.log('server', function(rec) {
+    mock.log('server', rec => {
       return rec.levelname === 'ERROR'
           && rec.args[0] === 'summary'
           && rec.args[1].path === '/v1/profile';
     });
 
-    mock.log('routes.email', function(rec) {
+    mock.log('routes._core_profile', rec => {
       return rec.levelname === 'ERROR'
           && rec.args[0] === 'request.auth_server.fail';
     });
@@ -118,26 +118,26 @@ describe('/profile', function() {
       headers: {
         authorization: 'Bearer ' + tok
       }
-    }).then(function(res) {
+    }).then(res => {
       assert.equal(res.statusCode, 503);
       assert.equal(res.result.errno, 105);
       assertSecurityHeaders(res);
     });
   });
 
-  it('should handle accounts deleted on auth server', function() {
+  it('should handle accounts deleted on auth server', () => {
     mock.token({
       user: USERID,
       scope: ['profile:write']
     });
     mock.emailFailure({ code: 400, errno: 102 });
 
-    mock.log('batch', function(rec) {
+    mock.log('batch', rec => {
       return rec.levelname === 'ERROR'
-          && rec.args[0] === 'email.401';
+          && rec.args[0] === '/v1/_core_profile:401';
     });
 
-    mock.log('routes.email', function(rec) {
+    mock.log('routes._core_profile', rec => {
       return rec.levelname === 'INFO'
           && rec.args[0] === 'request.auth_server.fail'
           && rec.args[1].errno === 102;
@@ -148,26 +148,26 @@ describe('/profile', function() {
       headers: {
         authorization: 'Bearer ' + tok
       }
-    }).then(function(res) {
+    }).then(res => {
       assert.equal(res.statusCode, 401);
       assert.equal(res.result.errno, 100);
       assertSecurityHeaders(res);
     });
   });
 
-  it('should handle unexpected 401 errors from auth server', function() {
+  it('should handle unexpected 401 errors from auth server', () => {
     mock.token({
       user: USERID,
       scope: ['profile:write']
     });
     mock.emailFailure({ code: 401 });
 
-    mock.log('batch', function(rec) {
+    mock.log('batch', rec => {
       return rec.levelname === 'ERROR'
-          && rec.args[0] === 'email.401';
+          && rec.args[0] === '/v1/_core_profile:401';
     });
 
-    mock.log('routes.email', function(rec) {
+    mock.log('routes._core_profile', rec => {
       return rec.levelname === 'INFO'
           && rec.args[0] === 'request.auth_server.fail'
           && rec.args[1].code === 401;
@@ -178,26 +178,26 @@ describe('/profile', function() {
       headers: {
         authorization: 'Bearer ' + tok
       }
-    }).then(function(res) {
+    }).then(res => {
       assert.equal(res.statusCode, 401);
       assert.equal(res.result.errno, 100);
       assertSecurityHeaders(res);
     });
   });
 
-  it('should error out on unexpected 400s from auth server', function() {
+  it('should error out on unexpected 400s from auth server', () => {
     mock.token({
       user: USERID,
       scope: ['profile:write']
     });
     mock.emailFailure({ code: 400, errno: 107 });
 
-    mock.log('batch', function(rec) {
+    mock.log('batch', rec => {
       return rec.levelname === 'ERROR'
-          && rec.args[0] === 'email.500';
+          && rec.args[0] === '/v1/_core_profile:500';
     });
 
-    mock.log('routes.email', function(rec) {
+    mock.log('routes._core_profile', rec => {
       return rec.levelname === 'ERROR'
           && rec.args[0] === 'request.auth_server.fail'
           && rec.args[1].code === 400;
@@ -208,7 +208,7 @@ describe('/profile', function() {
       headers: {
         authorization: 'Bearer ' + tok
       }
-    }).then(function(res) {
+    }).then(res => {
       assert.equal(res.statusCode, 500);
       assert.equal(res.result.errno, 999);
       assertSecurityHeaders(res);
@@ -391,6 +391,143 @@ describe('/email', function() {
       }
     }).then(function(res) {
       assert.equal(res.statusCode, 403);
+      assertSecurityHeaders(res);
+    });
+  });
+});
+
+describe('/_core_profile', () => {
+  const tok = token();
+
+  it('should be hidden from external callers by default', () => {
+    return Server.api.get({
+      url: '/_core_profile',
+      headers: {
+        authorization: 'Bearer ' + tok
+      }
+    }).then(res => {
+      assert.equal(res.statusCode, 404);
+    });
+  });
+
+  it('should return all fields returned by auth-server', () => {
+    mock.tokenGood();
+    mock.coreProfile({
+      email: 'user@example.domain',
+      locale: 'en-US',
+      authenticationMethods: ['pwd'],
+      authenticatorAssuranceLevel: 1
+    });
+    return Server.api.get({
+      allowInternals: true,
+      url: '/_core_profile',
+      headers: {
+        authorization: 'Bearer ' + tok
+      }
+    }).then(res => {
+      assert.equal(res.statusCode, 200);
+      const body = JSON.parse(res.payload);
+      assert.equal(Object.keys(body).length, 4);
+      assert.equal(body.email, 'user@example.domain');
+      assert.equal(body.locale, 'en-US');
+      assert.deepEqual(body.amrValues, ['pwd']);
+      assert.equal(body.twoFactorAuthentication, false);
+      assertSecurityHeaders(res);
+    });
+  });
+
+  it('should omit `email` if not returned by auth-server', () => {
+    mock.tokenGood();
+    mock.coreProfile({
+      locale: 'en-US',
+      authenticationMethods: ['pwd'],
+      authenticatorAssuranceLevel: 1
+    });
+    return Server.api.get({
+      allowInternals: true,
+      url: '/_core_profile',
+      headers: {
+        authorization: 'Bearer ' + tok
+      }
+    }).then(res => {
+      assert.equal(res.statusCode, 200);
+      const body = JSON.parse(res.payload);
+      assert.equal(Object.keys(body).length, 3);
+      assert.equal(body.locale, 'en-US');
+      assert.deepEqual(body.amrValues, ['pwd']);
+      assert.equal(body.twoFactorAuthentication, false);
+      assertSecurityHeaders(res);
+    });
+  });
+
+  it('should omit `locale` if not returned by auth-server', () => {
+    mock.tokenGood();
+    mock.coreProfile({
+      email: 'user@example.domain',
+      authenticationMethods: ['pwd'],
+      authenticatorAssuranceLevel: 1
+    });
+    return Server.api.get({
+      allowInternals: true,
+      url: '/_core_profile',
+      headers: {
+        authorization: 'Bearer ' + tok
+      }
+    }).then(res => {
+      assert.equal(res.statusCode, 200);
+      const body = JSON.parse(res.payload);
+      assert.equal(Object.keys(body).length, 3);
+      assert.equal(body.email, 'user@example.domain');
+      assert.deepEqual(body.amrValues, ['pwd']);
+      assert.equal(body.twoFactorAuthentication, false);
+      assertSecurityHeaders(res);
+    });
+  });
+
+  it('should omit auth info if not returned by auth-server', () => {
+    mock.tokenGood();
+    mock.coreProfile({
+      email: 'user@example.domain',
+      locale: 'en-AU'
+    });
+    return Server.api.get({
+      allowInternals: true,
+      url: '/_core_profile',
+      headers: {
+        authorization: 'Bearer ' + tok
+      }
+    }).then(res => {
+      assert.equal(res.statusCode, 200);
+      const body = JSON.parse(res.payload);
+      assert.equal(Object.keys(body).length, 2);
+      assert.equal(body.email, 'user@example.domain');
+      assert.equal(body.locale, 'en-AU');
+      assertSecurityHeaders(res);
+    });
+  });
+
+  it('should correctly reflect 2FA status of the account', () => {
+    mock.tokenGood();
+    mock.coreProfile({
+      email: 'user@example.domain',
+      locale: 'en-AU',
+      authenticationMethods: ['pwd', 'otp'],
+      authenticatorAssuranceLevel: 2
+    });
+    return Server.api.get({
+      allowInternals: true,
+      url: '/_core_profile',
+      headers: {
+        authorization: 'Bearer ' + tok
+      }
+    }).then(res => {
+      assert.equal(res.statusCode, 200);
+      const body = JSON.parse(res.payload);
+      assert.equal(Object.keys(body).length, 4);
+      assert.equal(body.email, 'user@example.domain');
+      assert.equal(body.locale, 'en-AU');
+      assert.deepEqual(body.amrValues, ['pwd', 'otp']);
+      assert.equal(body.twoFactorAuthentication, true);
       assertSecurityHeaders(res);
     });
   });
