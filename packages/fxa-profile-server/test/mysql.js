@@ -33,6 +33,10 @@ describe('mysql db backend', function() {
     });
   });
 
+  afterEach(() => {
+    return store.disconnect();
+  });
+
   it('should force new connections into strict mode', function() {
     mockResponses.push([null, [{ mode: 'DUMMY_VALUE,NO_ENGINE_SUBSTITUTION' }]]);
     mockResponses.push([null, []]);

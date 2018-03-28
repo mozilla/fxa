@@ -7,6 +7,7 @@ const P = require('../../lib/promise');
 const Server = require('../../lib/server');
 
 var server = Server.create();
+
 function request(options) {
   var deferred = P.defer();
   server.inject(options, deferred.resolve.bind(deferred));

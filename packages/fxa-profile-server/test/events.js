@@ -192,3 +192,7 @@ describe('events', function() {
     });
   });
 });
+
+after(() => {
+  return db._teardown();
+});

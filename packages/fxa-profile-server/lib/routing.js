@@ -31,6 +31,11 @@ module.exports = [
   },
   {
     method: 'GET',
+    path: v('/_core_profile'),
+    config: require('./routes/_core_profile')
+  },
+  {
+    method: 'GET',
     path: v('/profile'),
     config: require('./routes/profile')
   },

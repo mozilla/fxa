@@ -14,57 +14,63 @@ function inject(server, options) {
 }
 
 // called in a route as `batch(req, map)`, where map is an Object
-// mapping property names to routes.
+// mapping routes to fields that should be extracted from their response.
+// Mapping a route to `true` will include all of its returned fields,
+// while mapping it to an array will include only the fields named
+// in the array.  For example:
 //
-// Ex: batch(req, { email: '/v1/email', avatar: '/v1/avatar' }).done(reply)
+//   batch(req, {
+//     // Include all fields returned by /v1/email
+//     '/v1/email': true
+//     // Include only two of the fields returned by /v1/avatar
+//     '/v1/avatar': ['avatar', 'avatarDefault']
+//   }).done(reply)
 //
-// The above will fetch both routes as GET requests, into `emailRes` and
-// `avatarRes`. The end result of the returned promise would then be:
-//
-// { email: emailRes['email'], avatar: avatarRes['avatar'] }
-function batch(request, map, next) {
-  var result = {};
-  var email;
-  Object.keys(map).forEach(function(prop) {
-    var url = map[prop];
-    result[prop] = inject(request.server, {
+function batch(request, routeFieldsMap, next) {
+  const result = {};
+  let email;
+  return P.all(Object.keys(routeFieldsMap).map(url => {
+    return inject(request.server, {
+      allowInternals: true,
       method: 'get',
       url: url,
       headers: request.headers,
       credentials: request.auth.credentials
-    }).then(function(res) {
+    }).then(res => {
+      let fields;
       switch (res.statusCode) {
       case 200:
-        if (prop === 'email') {
-          email = res.result.email;
+        fields = routeFieldsMap[url];
+        if (fields === true) {
+          fields = Object.keys(res.result);
         }
-        return res.result[prop];
+        fields.forEach(field => {
+          if (field === 'email') {
+            email = res.result.email;
+          }
+          result[field] = res.result[field];
+        });
+        break;
       case 204:
       case 403:
       case 404:
-        logger.debug(prop + '.' + res.statusCode, {
+        logger.debug(url + ':' + res.statusCode, {
           scope: request.auth.credentials.scope,
           response: res.result
         });
-        return undefined;
+        break;
       default:
-        logger.error(prop + '.' + res.statusCode, res.result);
-        return AppError.from(res.result);
+        logger.error(url + ':' + res.statusCode, res.result);
+        throw AppError.from(res.result);
       }
     });
-  });
-  P.props(result).then(function(result) {
-    Object.keys(result).forEach(function(key) {
-      if (result[key] === undefined) {
-        delete result[key];
-      } else if (result[key].isBoom) {
-        return next(result[key]);
-      }
-    });
+  }))
+  .then(() => {
     const shouldCache = config.serverCache.enabledEmailAddresses.test(email);
     const ttl = shouldCache ? undefined : 0;
     return next(null, result, ttl);
-  });
+  })
+  .catch(next);
 }
 
 module.exports = batch;
