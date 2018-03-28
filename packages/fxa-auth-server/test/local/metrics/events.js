@@ -641,6 +641,9 @@ describe('metrics/events', () => {
         }, 'log.amplitudeEvent was passed correct event properties')
         assert.deepEqual(log.amplitudeEvent.args[0][0].user_properties, {
           flow_id: 'bar',
+          sync_active_devices_day: 0,
+          sync_active_devices_week: 0,
+          sync_active_devices_month: 0,
           sync_device_count: 0,
           ua_browser: request.app.ua.browser,
           ua_version: request.app.ua.browserVersion

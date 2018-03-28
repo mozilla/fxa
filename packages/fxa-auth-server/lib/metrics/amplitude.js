@@ -22,6 +22,10 @@ const P = require('../promise')
 
 const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(require('../../package.json').version)[1]
 
+const DAY = 1000 * 60 * 60 * 24
+const WEEK = DAY * 7
+const MONTH_ISH = DAY * 30
+
 const GROUPS = {
   activity: 'fxa_activity',
   email: 'fxa_email',
@@ -233,10 +237,12 @@ module.exports = (log, config) => {
     const { browser, browserVersion } = request.app.ua
     return Object.assign({
       flow_id: getFromMetricsContext(metricsContext, 'flow_id', request, 'flowId'),
-      sync_device_count: data.devices && data.devices.length,
       ua_browser: safeGet(browser),
       ua_version: safeGet(browserVersion)
-    }, getServicesUsed(request, metricsContext), getNewsletterState(data))
+    },
+      getDeviceProperties(data.devices),
+      getServicesUsed(request, metricsContext),
+      getNewsletterState(data))
   }
 
   function safeGet (value) {
@@ -251,6 +257,21 @@ module.exports = (log, config) => {
 
   function getLocationProperty (data, key) {
     return safeGet(data.location && data.location[key])
+  }
+
+  function getDeviceProperties (devices) {
+    if (Array.isArray(devices)) {
+      return {
+        sync_device_count: devices.length,
+        sync_active_devices_day: countDevices(devices, DAY),
+        sync_active_devices_week: countDevices(devices, WEEK),
+        sync_active_devices_month: countDevices(devices, MONTH_ISH)
+      }
+    }
+  }
+
+  function countDevices (devices, period) {
+    return devices.filter(device => device.lastAccessTime >= Date.now() - period).length
   }
 
   function getServicesUsed (request, metricsContext) {
