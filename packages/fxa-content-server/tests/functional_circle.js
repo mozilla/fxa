@@ -30,7 +30,7 @@ function selectCircleTests (allTests) {
 }
 
 module.exports = selectCircleTests([
-  'tests/functional/sign_in_totp.js',
+  // 'tests/functional/sign_in_totp.js', Disabled until fixed: https://github.com/mozilla/fxa-content-server/issues/6005
   // flaky tests go above here.
   'tests/functional/sync_v3_email_first.js',
   'tests/functional/fx_firstrun_v2_email_first.js',
