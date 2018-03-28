@@ -36,10 +36,10 @@ describe('redirectTo() validator', () => {
       assert.equal(res.value, 'mailto:test@example.com')
     })
 
-    it('normalizes trisky quoted chars in the hostname', function () {
+    it('rejects tricksy quoted chars in the hostname', function () {
       const res = v.validate('https://example.com%2Eevil.com')
-      assert.ok(! res.error)
-      assert.equal(res.value, 'https://example.com/%2Eevil.com')
+      assert.ok(res.error)
+      assert.equal(res.value, 'https://example.com%2Eevil.com')
     })
   })
 
@@ -82,16 +82,14 @@ describe('redirectTo() validator', () => {
       assert.equal(res.value, 'http://test.example.com/path')
     })
 
-    it('normalizes trisky quoted chars after the base hostname', function () {
-      const res = v.validate('https://mozilla.com%2Eevil.com')
-      assert.ok(! res.error)
-      assert.equal(res.value, 'https://mozilla.com/%2Eevil.com')
-    })
-
-    it('rejects trisky quoted chars before the base hostname', function () {
-      const res = v.validate('https://evil.com%2Emozilla.com')
+    it('rejects tricksy quoted chars in the hostname', function () {
+      let res = v.validate('https://evil.com%2Emozilla.com')
       assert.ok(res.error)
       assert.equal(res.value, 'https://evil.com%2Emozilla.com')
+
+      res = v.validate('https://mozilla.com%2Eevil.com')
+      assert.ok(res.error)
+      assert.equal(res.value, 'https://mozilla.com%2Eevil.com')
     })
   })
 })

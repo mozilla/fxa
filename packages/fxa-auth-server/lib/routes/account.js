@@ -382,7 +382,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
             email: validators.email().required(),
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
             service: validators.service,
-            redirectTo: isA.string().uri().optional(),
+            redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().optional(),
             reason: isA.string().max(16).optional(),
             unblockCode: signinUtils.validators.UNBLOCK_CODE,

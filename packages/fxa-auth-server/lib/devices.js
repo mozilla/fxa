@@ -5,11 +5,12 @@
 'use strict'
 
 const isA = require('joi')
+const validators = require('./routes/validators')
 const {
   DISPLAY_SAFE_UNICODE_WITH_NON_BMP,
   HEX_STRING,
   URL_SAFE_BASE_64
-} = require('./routes/validators')
+} = validators
 const PUSH_SERVER_REGEX = require('../config').get('push.allowedServerRegex')
 
 const SCHEMA = {
@@ -26,7 +27,7 @@ const SCHEMA = {
   nameResponse: isA.string().max(255),
   type: isA.string().max(16),
   capabilities: isA.array().items(isA.string()),
-  pushCallback: isA.string().uri({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow(''),
+  pushCallback: validators.url({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow(''),
   pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).allow(''),
   pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).allow(''),
   pushEndpointExpired: isA.boolean().strict()

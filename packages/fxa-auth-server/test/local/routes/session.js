@@ -14,6 +14,7 @@ const sinon = require('sinon')
 
 function makeRoutes (options = {}) {
   const config = options.config || {}
+  config.smtp = config.smtp ||  {}
   const db = options.db || mocks.mockDB()
   const log = options.log || mocks.mockLog()
   const mailer = options.mailer || {}

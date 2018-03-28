@@ -4,9 +4,9 @@
 
 'use strict'
 
-var url = require('url')
-var punycode = require('punycode.js')
-var isA = require('joi')
+const { URL } = require('url')
+const punycode = require('punycode.js')
+const isA = require('joi')
 
 // Match any non-empty hex-encoded string.
 module.exports.HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
@@ -134,40 +134,67 @@ module.exports.isValidEmailAddress = function(value) {
 }
 
 module.exports.redirectTo = function redirectTo(base) {
-  const redirectTo = isA.string().max(512)
+  const validator = isA.string().max(512)
   let hostnameRegex = null
   if (base) {
     hostnameRegex = new RegExp('(?:\\.|^)' + base.replace('.', '\\.') + '$')
   }
-  redirectTo._tests.push(
+  validator._tests.push(
     {
       func: (value, state, options) => {
         if (value !== undefined && value !== null) {
-          const normalizedValue = module.exports.isValidUrl(value, hostnameRegex)
-          if (normalizedValue) {
-            return normalizedValue
+          if (isValidUrl(value, hostnameRegex)) {
+            return value
           }
         }
 
-        return redirectTo.createError('string.base', { value }, state, options)
+        return validator.createError('string.base', { value }, state, options)
       }
     }
   )
-  return redirectTo
+  return validator
 }
 
-module.exports.isValidUrl = function (redirect, hostnameRegex) {
-  var parsed = url.parse(redirect)
+module.exports.url = function url(options) {
+  const validator = isA.string().uri(options)
+  validator._tests.push(
+    {
+      func: (value, state, options) => {
+        if (value !== undefined && value !== null) {
+          if (isValidUrl(value)) {
+            return value
+          }
+        }
+
+        return validator.createError('string.base', { value }, state, options)
+      }
+    }
+  )
+  return validator
+}
+
+function isValidUrl(url, hostnameRegex) {
+  let parsed
+  try {
+    parsed = new URL(url)
+  } catch (err) {
+    return false
+  }
   if (hostnameRegex && ! hostnameRegex.test(parsed.hostname)) {
     return false
   }
   if (! /^https?:$/.test(parsed.protocol)) {
     return false
   }
-  // Normalize to the full URL string as understood by node.
-  // This helps avoid edge-cases where the browser might parse the URL
-  // differently to the way that node parsed it.
-  // See e.g. https://bugzilla.mozilla.org/show_bug.cgi?id=1445927
+  // Reject anything that won't round-trip unambiguously
+  // through a parse.  This puts the onus on the requestor
+  // to e.g. escape special characters, normalize ports, etc.
+  // The only trick here is that `new URL()` will add a trailing
+  // slash if there's no path component, which is why we also
+  // compare to `origin` below.
+  if (parsed.href !== url && parsed.origin !== url) {
+    return false
+  }
   return parsed.href
 }
 
