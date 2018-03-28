@@ -1384,6 +1384,23 @@ module.exports = function (config, DB) {
               })
           })
       })
+
+      it('should delete all code when successfully consumed code', () => {
+        return db.consumeUnblockCode(uid1, 'NOTREAL')
+          .then(assert.fail, (err) => {
+            assert.equal(err.code, 404, 'err.code')
+            assert.equal(err.errno, 116, 'err.errno')
+            return db.consumeUnblockCode(uid1, code1)
+          })
+          .then((code) => {
+            assert(code.createdAt <= Date.now(), 'returns unblock code timestamp')
+            return db.consumeUnblockCode(uid1, code2)
+          }, assert.fail)
+          .then(assert.fail, (err) => {
+            assert.equal(err.code, 404, 'err.code')
+            assert.equal(err.errno, 116, 'err.errno')
+          })
+      })
     })
 
     it(
