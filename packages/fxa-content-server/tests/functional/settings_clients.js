@@ -71,7 +71,7 @@ registerSuite('settings clients', {
         // first session has the user agent
         .then(testElementTextEquals(
           '.client-webSession:nth-child(1) .client-name',
-          'Web Session, Firefox 40.0'
+          'Web Session, Firefox 40'
         ))
 
         // second session is the node.js session from test setup
