@@ -381,7 +381,7 @@ those common validations are defined here.
     * `nameResponse`: isA.string.max(255)
     * `type`: isA.string.max(16)
     * `capabilities`: isA.array.items(isA.string)
-    * `pushCallback`: isA.string.uri({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow('')
+    * `pushCallback`: validators.url({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow('')
     * `pushPublicKey`: isA.string.max(88).regex(URL_SAFE_BASE_64).allow('')
     * `pushAuthKey`: isA.string.max(24).regex(URL_SAFE_BASE_64).allow('')
     * `pushEndpointExpired`: isA.boolean.strict
@@ -565,7 +565,7 @@ Obtain a `sessionToken` and, optionally, a `keyFetchToken` if `keys=true`.
   Opaque alphanumeric token to be included in verification links.
   <!--end-request-body-post-accountlogin-service-->
 
-* `redirectTo`: *string, uri, optional*
+* `redirectTo`: *validators.redirectTo(config.smtp.redirectDomain).optional*
 
   <!--begin-request-body-post-accountlogin-redirectTo-->
   
@@ -2280,7 +2280,7 @@ such as verification and device registration.
   
   <!--end-request-body-post-sessionreauth-service-->
 
-* `redirectTo`: *string, uri, optional*
+* `redirectTo`: *validators.redirectTo(config.smtp.redirectDomain).optional*
 
   <!--begin-request-body-post-sessionreauth-redirectTo-->
   
