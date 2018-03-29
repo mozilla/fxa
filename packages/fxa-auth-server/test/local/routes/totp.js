@@ -7,12 +7,13 @@
 const assert = require('insist')
 const getRoute = require('../../routes_helpers').getRoute
 const mocks = require('../../mocks')
+const otplib = require('otplib')
 const P = require('../../../lib/promise')
 const sinon = require('sinon')
-const proxyquire = require('proxyquire').noPreserveCache()
 
-let log, db, customs, otplibMock, routes, route, request, requestOptions, isValidCode = true, mailer
+let log, db, customs, routes, route, request, requestOptions, mailer
 const TEST_EMAIL = 'test@email.com'
+const secret = 'KE3TGQTRNIYFO2KOPE4G6ULBOV2FQQTN'
 
 describe('totp', () => {
   beforeEach(() => {
@@ -102,7 +103,12 @@ describe('totp', () => {
   })
 
   describe('/session/verify/totp', () => {
-    it('should return false for valid TOTP code', () => {
+    it('should return true for valid TOTP code', () => {
+      const authenticator = new otplib.authenticator.Authenticator()
+      authenticator.options = Object.assign({}, otplib.authenticator.options, {secret})
+      requestOptions.payload = {
+        code: authenticator.generate(secret)
+      }
       return setup({db: {email: TEST_EMAIL}}, {}, '/session/verify/totp', requestOptions)
         .then((response) => {
           assert.equal(response.success, true, 'should be valid code')
@@ -117,7 +123,9 @@ describe('totp', () => {
     })
 
     it('should return false for invalid TOTP code', () => {
-      isValidCode = false
+      requestOptions.payload = {
+        code: 'NOTVALID'
+      }
       return setup({db: {email: TEST_EMAIL}}, {}, '/session/verify/totp', requestOptions)
         .then((response) => {
           assert.equal(response.success, false, 'should be valid code')
@@ -156,30 +164,19 @@ function makeRoutes(options = {}) {
   db.createTotpToken = sinon.spy(() => {
     return P.resolve({
       qrCodeUrl: 'some base64 encoded png',
-      sharedSecret: 'asdf'
+      sharedSecret: secret
     })
   })
   db.totpToken = sinon.spy(() => {
     return P.resolve({
       verified: true,
-      enabled: true
+      enabled: true,
+      sharedSecret: secret
     })
   })
   const customs = options.customs || mocks.mockCustoms()
 
-  otplibMock = {
-    'otplib': {
-      'authenticator': {
-        check: () => isValidCode,
-        generateSecret: () => 'KE3TGQTRNIYFO2KOPE4G6ULBOV2FQQTN',
-        keyuri: () => P.resolve('otpauth://totp/service:test@email.com?secret=KE3TGQTRNIYFO2KOPE4G6ULBOV2FQQTN&issuer=service')
-      }
-    },
-    'qrcode': {
-      toDataURL: () => P.resolve('someurl')
-    }
-  }
-  return proxyquire('../../../lib/routes/totp', otplibMock)(log, db, mailer, customs, config)
+  return require('../../../lib/routes/totp')(log, db, mailer, customs, config)
 }
 
 function runTest(route, request) {

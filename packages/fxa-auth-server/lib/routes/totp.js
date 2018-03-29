@@ -18,7 +18,8 @@ module.exports = (log, db, mailer, customs, config) => {
   // Default options for TOTP
   otplib.authenticator.options = {
     encoding: 'hex',
-    step: config.step
+    step: config.step,
+    window: config.window
   }
 
   // Currently, QR codes are rendered with the highest possible
@@ -64,7 +65,9 @@ module.exports = (log, db, mailer, customs, config) => {
           .then(createResponse)
           .then(() => reply(response), reply)
 
-        const secret = otplib.authenticator.generateSecret()
+        const authenticator = new otplib.authenticator.Authenticator()
+        authenticator.options = otplib.authenticator.options
+        const secret = authenticator.generateSecret()
 
         function createTotpToken() {
           if (sessionToken.tokenVerificationId) {
@@ -75,7 +78,7 @@ module.exports = (log, db, mailer, customs, config) => {
         }
 
         function createResponse() {
-          const otpauth = otplib.authenticator.keyuri(sessionToken.email, config.serviceName, secret)
+          const otpauth = authenticator.keyuri(sessionToken.email, config.serviceName, secret)
 
           return qrcode.toDataURL(otpauth, qrCodeOptions)
             .then((qrCodeUrl) => {
@@ -281,7 +284,9 @@ module.exports = (log, db, mailer, customs, config) => {
         }
 
         function verifyTotpCode() {
-          isValidCode = otplib.authenticator.check(code, sharedSecret)
+          const authenticator = new otplib.authenticator.Authenticator()
+          authenticator.options = Object.assign({}, otplib.authenticator.options, {secret: sharedSecret})
+          isValidCode = authenticator.check(code, sharedSecret)
         }
 
         // Once a valid TOTP code has been detected, the token becomes verified

@@ -68,7 +68,7 @@
     "nexmo": "2.0.2",
     "node-uap": "git+https://github.com/vladikoff/node-uap.git#9cdd16247",
     "nodemailer": "2.7.2",
-    "otplib": "7.0.0",
+    "otplib": "8.0.1",
     "po2json": "0.4.5",
     "poolee": "1.0.1",
     "punycode.js": "2.1.0",

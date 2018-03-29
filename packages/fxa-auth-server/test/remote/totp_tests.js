@@ -5,13 +5,14 @@
 'use strict'
 
 const assert = require('insist')
+const crypto = require('crypto')
 const config = require('../../config').getProperties()
 const TestServer = require('../test_server')
 const Client = require('../client')()
 const otplib = require('otplib')
 
 describe('remote totp', function () {
-  let server, client, email, totpToken
+  let server, client, email, totpToken, authenticator
   const password = 'pssssst'
   const metricsContext = {
     flowBeginTime: Date.now(),
@@ -21,8 +22,10 @@ describe('remote totp', function () {
   this.timeout(10000)
 
   otplib.authenticator.options = {
+    crypto: crypto,
     encoding: 'hex',
-    step: config.step
+    step: 1,
+    window: 4
   }
 
   before(() => {
@@ -43,13 +46,12 @@ describe('remote totp', function () {
         assert.ok(client.authAt, 'authAt was set')
         return client.createTotpToken({metricsContext})
           .then((result) => {
-            otplib.authenticator.options = {
-              secret: result.secret
-            }
+            authenticator = new otplib.authenticator.Authenticator()
+            authenticator.options = Object.assign({}, otplib.authenticator.options, {secret: result.secret})
             totpToken = result
 
             // Verify TOTP token
-            const code = otplib.authenticator.generate()
+            const code = authenticator.generate()
             return client.verifyTotpCode(code, {metricsContext})
 
           })
@@ -165,7 +167,7 @@ describe('remote totp', function () {
     })
 
     it('should fail to verify totp code', () => {
-      const code = otplib.authenticator.generate()
+      const code = authenticator.generate()
       const incorrectCode = code === '123456' ? '123455' : '123456'
       return client.verifyTotpCode(incorrectCode, {metricsContext})
         .then((result) => {
@@ -196,7 +198,7 @@ describe('remote totp', function () {
     })
 
     it('should verify totp code', () => {
-      const code = otplib.authenticator.generate()
+      const code = authenticator.generate()
       return client.verifyTotpCode(code, {metricsContext})
         .then((response) => {
           assert.equal(response.success, true, 'totp codes match')
@@ -204,6 +206,30 @@ describe('remote totp', function () {
         })
         .then((emailData) => {
           assert.equal(emailData.headers['x-template-name'], 'newDeviceLoginEmail', 'correct template sent')
+        })
+    })
+
+    it('should verify totp code from previous code window', () => {
+      const futureAuthenticator = new otplib.Authenticator()
+      futureAuthenticator.options = Object.assign({}, authenticator.options, {epoch: -10000})
+      const code = authenticator.generate()
+      return client.verifyTotpCode(code, {metricsContext})
+        .then((response) => {
+          assert.equal(response.success, true, 'totp codes match')
+          return server.mailbox.waitForEmail(email)
+        })
+        .then((emailData) => {
+          assert.equal(emailData.headers['x-template-name'], 'newDeviceLoginEmail', 'correct template sent')
+        })
+    })
+
+    it('should not verify totp code from future code window', () => {
+      const futureAuthenticator = new otplib.Authenticator()
+      futureAuthenticator.options = Object.assign({}, authenticator.options, {epoch: 10000})
+      const code = futureAuthenticator.generate()
+      return client.verifyTotpCode(code, {metricsContext})
+        .then((response) => {
+          assert.equal(response.success, false, 'totp codes do not match')
         })
     })
   })

@@ -803,6 +803,12 @@ var conf = convict({
       format: 'nat',
       env: 'TOTP_STEP_SIZE'
     },
+    window: {
+      doc: 'Tokens in the previous x-windows that should be considered valid',
+      default: 1,
+      format: 'nat',
+      env: 'TOTP_WINDOW'
+    },
     recoveryCodes: {
       length: {
         doc: 'The length of a recovery code',
