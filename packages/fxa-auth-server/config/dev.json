@@ -37,7 +37,7 @@
       "id": "c6d74070a481bc10",
       "name": "Firefox Notes Dev",
       "hashedSecret": "9c716ed2927c96cdc0fb7efe57d5f124fb4161066c1ff7f4263069822256ec3f",
-      "redirectUri": "https://dee85c67bd72f3de1f0a0fb62a8fe9b9b1a166d7.extensions.allizom.org",
+      "redirectUri": "https://dee85c67bd72f3de1f0a0fb62a8fe9b9b1a166d7.extensions.allizom.org/",
       "imageUri": "",
       "canGrant": false,
       "termsUri": "",
