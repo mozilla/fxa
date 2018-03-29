@@ -12,6 +12,7 @@ const AWS = require('aws-sdk')
 const config = require('../config')
 
 const notifierSnsTopicArn = config.get('snsTopicArn')
+const notifierSnsTopicEndpoint = config.get('snsTopicEndpoint')
 let sns = { publish: function (msg, cb) {
   cb(null, {disabled: true})
 }}
@@ -24,7 +25,7 @@ if (notifierSnsTopicArn !== 'disabled') {
   // This will pull in default credentials, region data etc
   // from the metadata service available to the instance.
   // It's magic, and it's awesome.
-  sns = new AWS.SNS({region: region})
+  sns = new AWS.SNS({endpoint: notifierSnsTopicEndpoint, region: region})
 }
 
 module.exports = function notifierLog(log) {
