@@ -1037,6 +1037,14 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Returns `true` if `keyFetchToken` and `unwrapBKey` are set.
+     * @returns {boolean}
+     */
+    canFetchKeys() {
+      return this.has('keyFetchToken') && this.has('unwrapBKey');
+    },
+
+    /**
      * Fetch keys for the account. Requires account to have
      * `keyFetchToken` and `unwrapBKey`
      *
@@ -1044,7 +1052,7 @@ define(function (require, exports, module) {
      *   can be generated, resolves with null otherwise.
      */
     accountKeys () {
-      if (! this.has('keyFetchToken') || ! this.has('unwrapBKey')) {
+      if (! this.canFetchKeys()) {
         return Promise.resolve(null);
       }
 

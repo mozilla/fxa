@@ -50,7 +50,7 @@ define(function (require, exports, module) {
     },
 
     afterVisible () {
-      var account = this.user.initAccount({ email: this.model.get('email') });
+      const account = this.user.initAccount({ email: this.model.get('email') });
       return this.broker.persistVerificationData(account)
         .then(() => {
           return this._waitForConfirmation()
@@ -58,6 +58,12 @@ define(function (require, exports, module) {
               this.logViewEvent('verification.success');
               // The password was reset, future attempts should ask confirmation.
               this.relier.set('resetPasswordConfirm', true);
+
+              // for scoped key OAuth reliers, if key tokens are missing, ask the user to login again
+              // and get those tokens
+              if (! account.canFetchKeys() && this.relier.wantsKeys() && this.relier.isOAuth()) {
+                return this._finishPasswordResetDifferentBrowser();
+              }
               // The original window should finish the flow if the user
               // completes verification in the same browser and has sessionInfo
               // passed over from tab 2.

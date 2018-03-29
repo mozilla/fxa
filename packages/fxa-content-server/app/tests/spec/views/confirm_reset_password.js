@@ -197,6 +197,33 @@ define(function (require, exports, module) {
         destroyView();
       });
 
+      it('calls `_finishPasswordResetSameBrowser` for scoped-key reliers with missing key tokens', function () {
+        const sessionInfo = { sessionToken: 'sessiontoken' };
+
+        sinon.stub(view, '_waitForConfirmation').callsFake(function () {
+          return Promise.resolve(sessionInfo);
+        });
+
+        sinon.stub(view, '_finishPasswordResetDifferentBrowser').callsFake(function () {
+          return Promise.resolve();
+        });
+
+        sinon.stub(relier, 'isOAuth').callsFake(() => {
+          return true;
+        });
+
+        sinon.stub(relier, 'wantsKeys').callsFake(() => {
+          return true;
+        });
+
+        return view.afterVisible()
+          .then(function () {
+            assert.isTrue(broker.persistVerificationData.called);
+            assert.isTrue(view._finishPasswordResetDifferentBrowser.called);
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'confirm_reset_password.verification.success'));
+          });
+      });
+
       it('calls `_finishPasswordResetSameBrowser` if `_waitForConfirmation` returns session info', function () {
         var sessionInfo = { sessionToken: 'sessiontoken' };
 

@@ -124,12 +124,10 @@ define(function (require, exports, module) {
      */
     _provisionScopedKeys (account, assertion) {
       const relier = this.relier;
-      const keyFetchToken = account.get('keyFetchToken');
-      const unwrapBKey = account.get('unwrapBKey');
       const uid = account.get('uid');
 
       return Promise.resolve().then(() => {
-        if (unwrapBKey && keyFetchToken) {
+        if (account.canFetchKeys()) {
           // check if requested scopes provide scoped keys
           return this._oAuthClient.getClientKeyData({
             assertion: assertion,
