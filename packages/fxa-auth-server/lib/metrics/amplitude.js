@@ -24,7 +24,7 @@ const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(require('../../package.json').ver
 
 const DAY = 1000 * 60 * 60 * 24
 const WEEK = DAY * 7
-const MONTH_ISH = DAY * 30
+const MONTH_ISH = DAY * 28
 
 const GROUPS = {
   activity: 'fxa_activity',

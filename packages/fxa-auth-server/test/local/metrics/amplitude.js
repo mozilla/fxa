@@ -10,7 +10,7 @@ const mocks = require('../../mocks')
 
 const DAY = 1000 * 60 * 60 * 24
 const WEEK = DAY * 7
-const MONTH = DAY * 30
+const MONTH = DAY * 28
 
 describe('metrics/amplitude', () => {
   it('interface is correct', () => {
