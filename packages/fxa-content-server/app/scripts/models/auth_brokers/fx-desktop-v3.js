@@ -23,7 +23,7 @@ define(function (require, exports, module) {
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       allowUidChange: true,
       emailFirst: true,
-      tokenCode: true
+      tokenCode: false
     }),
 
     type: 'fx-desktop-v3',

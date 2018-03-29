@@ -1,3 +1,13 @@
+<a name="1.108.1"></a>
+## 1.108.1 (2018-03-28)
+
+
+### Bug Fixes
+
+* **token:** disable token code experiment for sync users (#6007) r=@vladikoff ([df1c4f2](https://github.com/mozilla/fxa-content-server/commit/df1c4f2))
+
+
+
 <a name="1.108.0"></a>
 # 1.108.0 (2018-03-20)
 

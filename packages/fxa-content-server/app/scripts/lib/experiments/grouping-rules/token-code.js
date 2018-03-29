@@ -27,7 +27,7 @@ define(function (require, exports, module) {
     constructor() {
       super();
       this.name = 'tokenCode';
-      this.SYNC_ROLLOUT_RATE = 0.054; // 1.8% for each cohort = 5.4% total rollout
+      this.SYNC_ROLLOUT_RATE = 0.00;
     }
 
     choose(subject) {

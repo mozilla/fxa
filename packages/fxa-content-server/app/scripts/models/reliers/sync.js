@@ -42,7 +42,7 @@ define(function (require, exports, module) {
       action: undefined,
       customizeSync: false,
       signinCode: undefined,
-      tokenCode: true
+      tokenCode: false
     }),
 
     initialize (attributes, options = {}) {
