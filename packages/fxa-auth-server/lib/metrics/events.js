@@ -49,16 +49,11 @@ const IGNORE_FLOW_EVENTS_FROM_SERVICES = {
   'account.signed': 'content-server'
 }
 
-const FLOW_EVENT_ROUTES = new Set([
-  '/account/create',
-  '/account/destroy',
-  '/account/keys',
-  '/account/login',
-  '/account/login/send_unblock_code',
-  '/account/reset',
-  '/recovery_email/resend_code',
-  '/recovery_email/verify_code',
-  '/sms'
+const IGNORE_ROUTE_FLOW_EVENTS_FOR_PATHS = new Set([
+  '/account/devices',
+  '/account/profile',
+  '/account/sessions',
+  '/certificate/sign'
 ])
 
 const PATH_PREFIX = /^\/v1/
@@ -134,7 +129,7 @@ module.exports = (log, config) => {
       const request = this
       const path = request.path.replace(PATH_PREFIX, '')
 
-      if (! FLOW_EVENT_ROUTES.has(path)) {
+      if (IGNORE_ROUTE_FLOW_EVENTS_FOR_PATHS.has(path)) {
         return P.resolve()
       }
 
