@@ -38,19 +38,7 @@ const GROUPS = {
   sms: 'fxa_sms'
 };
 
-const ENGAGE_SUBMIT_EVENT_GROUPS = {
-  'connect-another-device': GROUPS.connectDevice,
-  'enter-email': GROUPS.emailFirst,
-  'force-auth': GROUPS.login,
-  install_from: GROUPS.connectDevice,
-  signin_from: GROUPS.connectDevice,
-  signin: GROUPS.login,
-  signup: GROUPS.registration,
-  sms: GROUPS.connectDevice
-};
-
-const VIEW_EVENT_GROUPS = {
-  'connect-another-device': GROUPS.connectDevice,
+const VIEW_ENGAGE_SUBMIT_EVENT_GROUPS = {
   'enter-email': GROUPS.emailFirst,
   'force-auth': GROUPS.login,
   settings: GROUPS.settings,
@@ -60,7 +48,7 @@ const VIEW_EVENT_GROUPS = {
 };
 
 const CONNECT_DEVICE_FLOWS = {
-  'connect-another-device': 'cad',
+  'app-store': 'store_buttons',
   install_from: 'store_buttons',
   signin_from: 'signin',
   sms: 'sms'
@@ -92,10 +80,12 @@ const EVENTS = {
   },
 };
 
+// In the following regular expressions, the first match group is exposed to
+// the rest of the code as `eventCategory` and the second as `eventTarget`.
 const FUZZY_EVENTS = new Map([
   [ /^flow\.([\w-]+)\.engage$/, {
     isDynamicGroup: true,
-    group: eventCategory => ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
+    group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
     event: 'engage'
   } ],
   [ /^flow\.[\w-]+\.forgot-password$/, {
@@ -108,16 +98,20 @@ const FUZZY_EVENTS = new Map([
   } ],
   [ /^flow\.((?:install|signin)_from)\.\w+$/, {
     group: GROUPS.connectDevice,
+    event: 'view'
+  } ],
+  [ /^flow\.connect-another-device\.link\.(app-store)\.([\w-]+)$/, {
+    group: GROUPS.connectDevice,
     event: 'engage'
   } ],
   [ /^flow\.([\w-]+)\.submit$/, {
     isDynamicGroup: true,
-    group: eventCategory => ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
+    group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
     event: 'submit'
   } ],
   [ /^screen\.([\w-]+)$/, {
     isDynamicGroup: true,
-    group: eventCategory => VIEW_EVENT_GROUPS[eventCategory],
+    group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
     event: 'view'
   } ],
   [ /^settings\.communication-preferences\.(optIn|optOut)\.success$/, {
@@ -162,15 +156,18 @@ function receiveEvent (event, request, data) {
 
   const eventType = event.type;
   let mapping = EVENTS[eventType];
-  let eventCategory;
+  let eventCategory, eventTarget;
 
   if (! mapping) {
     for (const [ key, value ] of FUZZY_EVENTS.entries()) {
       const match = key.exec(eventType);
       if (match) {
         mapping = value;
-        if (match.length === 2) {
+        if (match.length >= 2) {
           eventCategory = match[1];
+          if (match.length === 3) {
+            eventTarget = match[2];
+          }
         }
         break;
       }
@@ -198,7 +195,7 @@ function receiveEvent (event, request, data) {
           device_id: marshallOptionalValue(data.deviceId),
           event_type: `${group} - ${mapping.event}`,
           session_id: data.flowBeginTime,
-          event_properties: mapEventProperties(group, mapping.event, eventCategory, data),
+          event_properties: mapEventProperties(group, mapping.event, eventCategory, eventTarget, data),
           user_properties: mapUserProperties(group, eventCategory, data, userAgent),
           app_version: APP_VERSION,
           language: data.lang
@@ -208,10 +205,10 @@ function receiveEvent (event, request, data) {
   }
 }
 
-function mapEventProperties (group, event, eventCategory, data) {
+function mapEventProperties (group, event, eventCategory, eventTarget, data) {
   return Object.assign({
     device_id: marshallOptionalValue(data.deviceId)
-  }, EVENT_PROPERTIES[group](event, eventCategory, data));
+  }, EVENT_PROPERTIES[group](event, eventCategory, eventTarget, data));
 }
 
 function mapUserProperties (group, eventCategory, data, userAgent) {
@@ -266,8 +263,7 @@ function mapDevice (userAgent) {
 }
 
 function mixProperties (...mappers) {
-  return (event, eventCategory, data) =>
-    Object.assign({}, ...mappers.map(m => m(event, eventCategory, data)));
+  return (...args) => Object.assign({}, ...mappers.map(m => m(...args)));
 }
 
 function mapEntrypoint (data) {
@@ -300,10 +296,16 @@ function mapDisconnectReason (event, eventCategory) {
   }
 }
 
-function mapConnectDeviceFlow (event, eventCategory) {
+function mapConnectDeviceFlow (event, eventCategory, eventTarget) {
   const connect_device_flow = CONNECT_DEVICE_FLOWS[eventCategory];
   if (connect_device_flow) {
-    return { connect_device_flow };
+    const result = { connect_device_flow };
+
+    if (eventTarget) {
+      result.connect_device_os = eventTarget;
+    }
+
+    return result;
   }
 }
 
@@ -314,7 +316,7 @@ function mapEmailType (event, eventCategory) {
   }
 }
 
-function mapService (event, eventCategory, data) {
+function mapService (event, eventCategory, eventTarget, data) {
   const service = marshallOptionalValue(data.service);
   if (service) {
     let serviceName, clientId;
