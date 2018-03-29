@@ -32,6 +32,7 @@ const {
 const {
   BOOLEAN: BOOLEAN_TYPE,
   DIMENSION: DIMENSION_TYPE,
+  DOMAIN: DOMAIN_TYPE,
   HEX32: HEX32_TYPE,
   INTEGER: INTEGER_TYPE,
   OFFSET: OFFSET_TYPE,
@@ -51,6 +52,7 @@ const BODY_SCHEMA = {
   context: STRING_TYPE.regex(CONTEXT_PATTERN).required(),
   deviceId: HEX32_TYPE.allow('none').required(),
   duration: OFFSET_TYPE.required(),
+  emailDomain: DOMAIN_TYPE.optional(),
   entryPoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
   entrypoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
   events: joi.array().items(joi.object().keys({
@@ -108,7 +110,7 @@ const BODY_SCHEMA = {
   service: STRING_TYPE.regex(SERVICE_PATTERN).required(),
   startTime: TIME_TYPE.required(),
   timers: joi.object().optional(), // this is never consumed.
-  uid: HEX32_TYPE.allow('none').optional(),
+  uid: HEX32_TYPE.allow('none').required(),
   uniqueUserId: STRING_TYPE.regex(UNIQUE_USER_ID_PATTERN).allow('none').required(),
   // the crazy long allow comes from the firstrun page.
   'utm_campaign': UTM_TYPE.allow('page+referral+-+not+part+of+a+campaign').required(),

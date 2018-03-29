@@ -108,6 +108,11 @@ define(function (require, exports, module) {
 
       this._boundOnChange = this.onChange.bind(this);
       this.on('change', this._boundOnChange);
+
+      const email = this.get('email');
+      if (email && this._notifier) {
+        this._notifier.trigger('set-email-domain', this.get('email'));
+      }
     },
 
     resumeTokenFields: ['email', 'needsOptedInToMarketingEmail'],

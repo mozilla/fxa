@@ -40,6 +40,7 @@ define(function (require, exports, module) {
     'context',
     'deviceId',
     'duration',
+    'emailDomain',
     'entrypoint',
     'events',
     'experiments',
@@ -96,6 +97,19 @@ define(function (require, exports, module) {
     }
   }
 
+  function marshallEmailDomain (email) {
+    if (! email) {
+      return;
+    }
+
+    const domain = email.split('@')[1];
+    if (Constants.POPULAR_EMAIL_DOMAINS[domain]) {
+      return domain;
+    }
+
+    return Constants.OTHER_EMAIL_DOMAIN;
+  }
+
   function Metrics (options = {}) {
     this._speedTrap = new SpeedTrap();
     this._speedTrap.init();
@@ -115,6 +129,7 @@ define(function (require, exports, module) {
     this._context = options.context || Constants.CONTENT_SERVER_CONTEXT;
     this._deviceId = options.deviceId || NOT_REPORTED_VALUE;
     this._devicePixelRatio = options.devicePixelRatio || NOT_REPORTED_VALUE;
+    this._emailDomain = NOT_REPORTED_VALUE;
     this._entrypoint = options.entrypoint || NOT_REPORTED_VALUE;
     this._env = options.environment || new Environment(this._window);
     this._eventMemory = {};
@@ -172,6 +187,7 @@ define(function (require, exports, module) {
       /* eslint-disable sorting/sort-object-props */
       'flow.initialize': '_initializeFlowModel',
       'flow.event': '_logFlowEvent',
+      'set-email-domain': '_setEmailDomain',
       'set-uid': '_setUid',
       'clear-uid': '_clearUid',
       'once!view-shown': '_setInitialView'
@@ -335,6 +351,7 @@ define(function (require, exports, module) {
         broker: this._brokerType,
         context: this._context,
         deviceId: this._deviceId,
+        emailDomain: this._emailDomain,
         entrypoint: this._entrypoint,
         experiments: flattenHashIntoArrayOfObjects(this._activeExperiments),
         flowBeginTime: flowData.flowBeginTime,
@@ -649,6 +666,13 @@ define(function (require, exports, module) {
      */
     logNumStoredAccounts (numStoredAccounts) {
       this._numStoredAccounts = numStoredAccounts;
+    },
+
+    _setEmailDomain (email) {
+      const domain = marshallEmailDomain(email);
+      if (domain) {
+        this._emailDomain = domain;
+      }
     },
 
     _setUid (uid) {

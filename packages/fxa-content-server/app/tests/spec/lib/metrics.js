@@ -76,10 +76,11 @@ define(function (require, exports, module) {
     });
 
     it('has the expected notifications', () => {
-      assert.lengthOf(Object.keys(metrics.notifications), 5);
+      assert.lengthOf(Object.keys(metrics.notifications), 6);
 
       assert.isTrue('flow.initialize' in metrics.notifications);
       assert.isTrue('flow.event' in metrics.notifications);
+      assert.isTrue('set-email-domain' in metrics.notifications);
       assert.isTrue('set-uid' in metrics.notifications);
       assert.isTrue('clear-uid' in metrics.notifications);
       assert.isTrue('once!view-shown' in metrics.notifications);
@@ -190,6 +191,7 @@ define(function (require, exports, module) {
         assert.equal(filteredData.service, 'sync');
         assert.equal(filteredData.broker, 'fx-desktop-v1');
         assert.equal(filteredData.lang, 'db_LB');
+        assert.equal(filteredData.emailDomain, 'none');
         assert.equal(filteredData.entrypoint, 'menupanel');
         assert.equal(filteredData.migration, 'sync1.5');
         assert.equal(filteredData.uniqueUserId, '0ae7fe2b-244f-4a78-9857-dff3ae263927');
@@ -319,11 +321,12 @@ define(function (require, exports, module) {
               assert.equal(windowMock.navigator.sendBeacon.getCall(0).args[0], '/metrics');
 
               var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
-              assert.lengthOf(Object.keys(data), 29);
+              assert.lengthOf(Object.keys(data), 30);
               assert.equal(data.broker, 'none');
               assert.equal(data.context, Constants.CONTENT_SERVER_CONTEXT);
               assert.equal(data.deviceId, 'mock device id');
               assert.isNumber(data.duration);
+              assert.equal(data.emailDomain, 'none');
               assert.equal(data.entrypoint, 'none');
               assert.isArray(data.events);
               assert.lengthOf(data.events, 4);
@@ -380,6 +383,32 @@ define(function (require, exports, module) {
                 assert.equal(data.flowId, FLOW_ID);
                 assert.equal(data.flowBeginTime, FLOW_BEGIN_TIME);
               });
+            });
+          });
+
+          describe('sendBeacon after set-email-domain (other domain)', () => {
+            beforeEach(() => {
+              notifier.trigger('set-email-domain', 'foo@example.com');
+              sandbox.spy(windowMock.navigator, 'sendBeacon');
+              return metrics.flush();
+            });
+
+            it('set emailDomain correctly', () => {
+              const data = JSON.parse(windowMock.navigator.sendBeacon.args[0][1]);
+              assert.equal(data.emailDomain, 'other');
+            });
+          });
+
+          describe('sendBeacon after set-email-domain (popular domain)', () => {
+            beforeEach(() => {
+              notifier.trigger('set-email-domain', 'pmbooth@gmail.com');
+              sandbox.spy(windowMock.navigator, 'sendBeacon');
+              return metrics.flush();
+            });
+
+            it('set emailDomain correctly', () => {
+              const data = JSON.parse(windowMock.navigator.sendBeacon.args[0][1]);
+              assert.equal(data.emailDomain, 'gmail.com');
             });
           });
 
@@ -465,7 +494,7 @@ define(function (require, exports, module) {
               assert.equal(settings.contentType, 'application/json');
 
               var data = JSON.parse(settings.data);
-              assert.lengthOf(Object.keys(data), 28);
+              assert.lengthOf(Object.keys(data), 29);
               assert.equal(data.deviceId, 'mock device id');
               assert.isArray(data.events);
               assert.lengthOf(data.events, 5);
@@ -545,7 +574,7 @@ define(function (require, exports, module) {
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 28);
+            assert.lengthOf(Object.keys(data), 29);
             assert.lengthOf(data.events, 5);
             assert.equal(data.events[0].type, 'foo');
             assert.equal(data.events[1].type, 'flow.bar');
@@ -570,7 +599,7 @@ define(function (require, exports, module) {
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 28);
+            assert.lengthOf(Object.keys(data), 29);
             assert.lengthOf(data.events, 5);
             assert.equal(data.events[0].type, 'foo');
             assert.equal(data.events[1].type, 'flow.bar');

@@ -878,6 +878,7 @@ registerSuite('amplitude', {
         }
       }, {
         deviceId: 'b',
+        emailDomain: 'other',
         entrypoint: 'c',
         flowBeginTime: 'd',
         flowId: 'e',
@@ -899,6 +900,7 @@ registerSuite('amplitude', {
         device_id: 'b',
         event_properties: {
           device_id: 'b',
+          email_domain: 'other',
           email_type: 'reset_password',
           service: 'sync'
         },
@@ -926,6 +928,7 @@ registerSuite('amplitude', {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        emailDomain: 'none',
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -934,6 +937,7 @@ registerSuite('amplitude', {
       assert.equal(process.stderr.write.callCount, 1);
       const arg = JSON.parse(process.stderr.write.args[0]);
       assert.equal(arg.event_type, 'fxa_email - click');
+      assert.equal(arg.event_properties.email_domain, undefined);
       assert.equal(arg.event_properties.email_type, 'login');
     },
 
@@ -955,6 +959,7 @@ registerSuite('amplitude', {
       assert.equal(process.stderr.write.callCount, 1);
       const arg = JSON.parse(process.stderr.write.args[0]);
       assert.equal(arg.event_type, 'fxa_email - click');
+      assert.equal(arg.event_properties.email_domain, undefined);
       assert.equal(arg.event_properties.email_type, 'registration');
     },
 

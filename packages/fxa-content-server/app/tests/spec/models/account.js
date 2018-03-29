@@ -100,6 +100,14 @@ define(function (require, exports, module) {
       account = null;
     });
 
+    it('emits set-email-domain event correctly', () => {
+      assert.equal(notifier.trigger.callCount, 1);
+      const args = notifier.trigger.args[0];
+      assert.lengthOf(args, 2);
+      assert.equal(args[0], 'set-email-domain');
+      assert.equal(args[1], EMAIL);
+    });
+
     describe('set', function () {
       describe('`password` field on an object', function () {
         it('is not allowed', function () {
@@ -279,6 +287,10 @@ define(function (require, exports, module) {
     });
 
     describe('signIn', () => {
+      beforeEach(() => {
+        notifier.trigger.reset();
+      });
+
       describe('with a password and no sessionToken', () => {
         describe('unverified, reason === undefined', () => {
           beforeEach(() => {
@@ -956,6 +968,10 @@ define(function (require, exports, module) {
     });
 
     describe('verifySignUp', function () {
+      beforeEach(() => {
+        notifier.trigger.reset();
+      });
+
       describe('with custom server verification value', function () {
         beforeEach(function () {
           sinon.stub(fxaClient, 'verifyCode').callsFake(function () {
@@ -1074,6 +1090,7 @@ define(function (require, exports, module) {
 
     describe('signOut', () => {
       beforeEach(() => {
+        notifier.trigger.reset();
         sinon.stub(fxaClient, 'sessionDestroy').callsFake(() => Promise.resolve());
 
         account.set('sessionToken', SESSION_TOKEN);
@@ -1096,6 +1113,7 @@ define(function (require, exports, module) {
 
     describe('destroy', function () {
       beforeEach(function () {
+        notifier.trigger.reset();
         sinon.stub(fxaClient, 'deleteAccount').callsFake(function () {
           return Promise.resolve();
         });

@@ -126,8 +126,8 @@ define(function (require, exports, module) {
     });
 
     it('emits set-uid event correctly', () => {
-      assert.equal(notifier.trigger.callCount, 1);
-      const args = notifier.trigger.args[0];
+      assert.equal(notifier.trigger.callCount, 2);
+      const args = notifier.trigger.args[1];
       assert.equal(args[0], 'set-uid');
       assert.equal(args[1], validUid);
     });
@@ -566,6 +566,10 @@ define(function (require, exports, module) {
     });
 
     describe('_notifyBrokerAndComplete', () => {
+      beforeEach(() => {
+        notifier.trigger.reset();
+      });
+
       it('logs and notifies the broker', () => {
         sinon.stub(view, '_getBrokerMethod').callsFake(() => 'afterCompleteSignIn');
         sinon.stub(view, 'invokeBrokerMethod').callsFake(() => Promise.resolve());
@@ -577,8 +581,8 @@ define(function (require, exports, module) {
             assert.isTrue(view.logViewEvent.calledOnce);
             assert.isTrue(view.logViewEvent.calledWith('verification.success'));
 
-            assert.isTrue(notifier.trigger.calledTwice);
-            assert.equal(notifier.trigger.args[1][0], 'verification.success');
+            assert.isTrue(notifier.trigger.calledOnce);
+            assert.equal(notifier.trigger.args[0][0], 'verification.success');
 
             assert.isTrue(view.logEvent.calledOnce);
             assert.isTrue(view.logEvent.calledWith('signin.success'));

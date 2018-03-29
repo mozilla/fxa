@@ -309,10 +309,10 @@ function mapConnectDeviceFlow (event, eventCategory, eventTarget) {
   }
 }
 
-function mapEmailType (event, eventCategory) {
+function mapEmailType (event, eventCategory, eventTarget, data) {
   const email_type = EMAIL_TYPES[eventCategory];
   if (email_type) {
-    return { email_type };
+    return { email_type, email_domain: marshallOptionalValue(data.emailDomain) };
   }
 }
 
