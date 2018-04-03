@@ -2,12 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('tap').test;
-var path = require('path');
+'use strict';
 
-test('returns an array of languages', function (t) {
-  var languages = require(path.join(__dirname, '..', '..', 'l10n', 'supportedLanguages'));
-  t.true(Array.isArray(languages), 'requires an array');
-  t.true(languages.indexOf('es') >= 0, 'can get values');
-  t.end();
+const { assert } = require('chai');
+
+describe('supportedLanguages:', () => {
+  let supportedLanguages;
+
+  before(() => {
+    supportedLanguages = require('../../l10n/supportedLanguages');
+  });
+
+  it('returns an array of languages', () => {
+    assert.isArray(supportedLanguages);
+    assert.isAbove(supportedLanguages.length, 0);
+  });
+
+  it('includes some common languages', () => {
+    assert.isAtLeast(supportedLanguages.indexOf('de'), 0);
+    assert.isAtLeast(supportedLanguages.indexOf('en'), 0);
+    assert.isAtLeast(supportedLanguages.indexOf('es'), 0);
+    assert.isAtLeast(supportedLanguages.indexOf('fr'), 0);
+    assert.isAtLeast(supportedLanguages.indexOf('pt'), 0);
+  });
 });
