@@ -6,7 +6,7 @@
 
 const { assert } = require('chai');
 
-describe('supportedLanguages:', () => {
+describe('l10n/supportedLanguages:', () => {
   let supportedLanguages;
 
   before(() => {

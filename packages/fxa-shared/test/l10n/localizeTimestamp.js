@@ -6,7 +6,7 @@
 
 const { assert } = require('chai');
 
-describe('localizeTimestamp:', () => {
+describe('l10n/localizeTimestamp:', () => {
   let localizeTimestamp;
 
   before(() => {
