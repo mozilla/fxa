@@ -70,6 +70,12 @@ module.exports = function (fs, path, url, convict) {
       format: 'duration',
       env: 'SIGNIN_CODES_MAX_AGE',
     },
+    requiredSQLModes: {
+      doc: 'Comma-separated list of SQL mode flags to enforce on each connection',
+      default: '',
+      format: 'String',
+      env: 'REQUIRED_SQL_MODES',
+    },
     master: {
       user: {
         doc: 'The user to connect to for MySql',

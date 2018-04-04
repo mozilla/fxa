@@ -72,17 +72,15 @@ module.exports = function (log, error) {
     options.master.charset = options.charset
     options.slave.charset = options.charset
 
-    var mode = REQUIRED_SQL_MODES.join(',')
-    if (options.sql_mode && options.sql_mode !== mode) {
-      log.error('createPoolCluster.invalidSqlMode', { sql_mode: options.sql_mode })
-      throw new Error(`You cannot use any sql mode other than ${mode}`)
-    } else {
-      options.sql_mode = REQUIRED_SQL_MODES.join(',')
+    this.requiredModes = REQUIRED_SQL_MODES
+    if (options.requiredSQLModes) {
+      this.requiredModes = options.requiredSQLModes.split(',')
+      this.requiredModes.forEach(mode => {
+        if (! /^[A-Z0-9_]+$/.test(mode)) {
+          throw new Error('Invalid SQL mode: ' + mode)
+        }
+      })
     }
-
-    options.master.sql_mode = options.sql_mode
-    options.slave.sql_mode = options.sql_mode
-
 
     // Use separate pools for master and slave connections.
     this.poolCluster.add('MASTER', options.master)
@@ -1155,22 +1153,37 @@ module.exports = function (log, error) {
           return resolve(connection)
         }
 
-        var mode = REQUIRED_SQL_MODES.join(',')
-        connection.query(`SET SESSION sql_mode = '${mode}';`, (err) => {
+        // Enforce sane defaults on every new connection.
+        // These *should* be set by the database by default, but it's nice
+        // to have an additional layer of protection here.
+        connection.query('SELECT @@sql_mode AS mode;', (err, rows) => {
           if (err) {
             return reject(err)
           }
 
-          connection.query('SET NAMES utf8mb4 COLLATE utf8mb4_bin;', (err) => {
+          const currentModes = rows[0]['mode'].split(',')
+          this.requiredModes.forEach(requiredMode => {
+            if (currentModes.indexOf(requiredMode) === -1) {
+              currentModes.push(requiredMode)
+            }
+          })
+
+          const newMode = currentModes.join(',')
+          connection.query(`SET SESSION sql_mode = '${newMode}';`, (err) => {
             if (err) {
               return reject(err)
             }
 
-            connection._fxa_initialized = true
-            resolve(connection)
+            connection.query('SET NAMES utf8mb4 COLLATE utf8mb4_bin;', (err) => {
+              if (err) {
+                return reject(err)
+              }
+
+              connection._fxa_initialized = true
+              resolve(connection)
+            })
           })
         })
-
       })
     })
   }

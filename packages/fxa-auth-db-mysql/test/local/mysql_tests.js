@@ -26,7 +26,7 @@ describe('MySQL', () => {
   })
 
   it(
-    'forces REQUIRED_CHARSET for connections',
+    'validates REQUIRED_CHARSET for connections',
     () => {
       const configCharset = Object.assign({}, config)
       configCharset.charset = 'wat'
@@ -42,20 +42,51 @@ describe('MySQL', () => {
   )
 
   it(
-    'forces REQUIRED_SQL_MODES for connections',
+    'accepts REQUIRED_SQL_MODES from config',
     () => {
-      const configSqlMode = Object.assign({}, config)
-      const REQUIRED_SQL_MODES = [
-        'STRICT_ALL_TABLES',
-        'NO_ENGINE_SUBSTITUTION',
-      ]
-      var mode = REQUIRED_SQL_MODES.join(',')
-      configSqlMode.sql_mode = 'xyz'
-      return DB.connect(configSqlMode)
+      const configModes = Object.assign({}, config)
+      configModes.requiredSQLModes = 'STRICT_TRANS_TABLES,NO_ZERO_DATE'
+
+      return DB.connect(configModes)
+        .then(
+          db => {
+            assert.deepEqual(db.requiredModes, [
+              'STRICT_TRANS_TABLES',
+              'NO_ZERO_DATE'
+            ])
+          },
+          assert.fail
+        )
+    }
+  )
+
+  it(
+    'rejects unrecognized REQUIRED_SQL_MODES values from config',
+    () => {
+      const configModes = Object.assign({}, config)
+      configModes.requiredSQLModes = 'UNRECOGNIZED_SQL_MODE_NONSENSE'
+
+      return DB.connect(configModes)
         .then(
           assert.fail,
           err => {
-            assert.equal(err.message, `You cannot use any sql mode other than ${mode}`)
+            assert.equal(err.message, 'ER_WRONG_VALUE_FOR_VAR')
+          }
+        )
+    }
+  )
+
+  it(
+    'rejects badly-formed REQUIRED_SQL_MODES from config, for safety',
+    () => {
+      const configModes = Object.assign({}, config)
+      configModes.requiredSQLModes = 'TEST,MODE,\'; DROP TABLE users;'
+
+      return DB.connect(configModes)
+        .then(
+          assert.fail,
+          err => {
+            assert.ok(err.message.indexOf('Invalid SQL mode') === 0)
           }
         )
     }
