@@ -84,6 +84,8 @@ const PAYLOAD_SCHEMA = Joi.object({
       then: Joi.forbidden()
     }),
 
+  redirect_uri: validators.redirectUri.optional(),
+
   grant_type: Joi.string()
     .valid(GRANT_AUTHORIZATION_CODE, GRANT_REFRESH_TOKEN, GRANT_JWT)
     .default(GRANT_AUTHORIZATION_CODE)
@@ -98,7 +100,7 @@ const PAYLOAD_SCHEMA = Joi.object({
   scope: Joi.alternatives().when('grant_type', {
     is: GRANT_REFRESH_TOKEN,
     then: validators.scope,
-    otherwise: Joi.forbidden()
+    otherwise: Joi.optional()
   }),
 
   code: Joi.string()

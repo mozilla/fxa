@@ -1899,6 +1899,70 @@ describe('/v1', function() {
 
     });
 
+    describe('?redirect_uri', () => {
+      function getCode(clientId) {
+        mockAssertion().reply(200, VERIFY_GOOD);
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            client_id: clientId
+          })
+        }).then((res) => {
+          return url.parse(res.result.redirect, true).query.code;
+        });
+      }
+      it('works with https redirect_uri', () => {
+        return getCode(clientId).then((code) => {
+          return Server.api.post({
+            url: '/token',
+            payload: {
+              client_id: clientId,
+              client_secret: secret,
+              code: code,
+              redirect_uri: 'https://2aa95473a5115d5f3deb36bb6875cf76f05e4c4d.extensions.allizom.org/'
+            }
+          });
+        }).then((res) => {
+          assert.equal(res.statusCode, 200);
+        });
+      });
+
+      it('works with app redirect_uri', () => {
+        return getCode(clientId).then((code) => {
+          return Server.api.post({
+            url: '/token',
+            payload: {
+              client_id: clientId,
+              client_secret: secret,
+              code: code,
+              redirect_uri: 'testpilot-notes://redirect.android'
+            }
+          });
+        }).then((res) => {
+          assert.equal(res.statusCode, 200);
+        });
+      });
+
+      it('is validated', () => {
+        return getCode(clientId).then((code) => {
+          return Server.api.post({
+            url: '/token',
+            payload: {
+              client_id: clientId,
+              client_secret: secret,
+              code: code,
+              redirect_uri: 'https://foo\n\n<>\n\r'
+            }
+          });
+        }).then((res) => {
+          assert.equal(res.statusCode, 400);
+          assertInvalidRequestParam(res.result, 'redirect_uri');
+          assertSecurityHeaders(res);
+        });
+      });
+
+    });
+
   });
 
   describe('/client', function() {
