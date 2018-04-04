@@ -84,7 +84,7 @@ contains the following fields:
 |`completed`|Boolean indicating whether the flow was successfully completed.|
 |`new_account`|Boolean indicating whether the flow was a sign-up.|
 |`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db. Not every flow has a `uid`.|
-|`locale`|The user's locale. For cases where we aren't localised in their favoured locale(s), the value will be `en-US.default`|
+|`locale`|The user's locale.|
 |`ua_browser`|The user's web browser, e.g. 'Firefox' or 'Chrome'.|
 |`ua_version`|The user's browser version.|
 |`ua_os`|The user's operating system, e.g. 'Windows 10' or 'Android'.|
@@ -111,7 +111,7 @@ contains the following fields:
 |`flow_id`|The flow identifier.|
 |`type`|The event name.|
 |`uid`|The user id. An opaque token, HMACed to avoid correlation back to FxA user db. Not every flow event has a `uid`.|
-|`locale`|The user's locale. For cases where we aren't localised in their favoured locale(s), the value will be `en-US.default`|
+|`locale`|The user's locale.|
 
 ### flow_experiments
 
