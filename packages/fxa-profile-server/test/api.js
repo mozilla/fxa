@@ -203,6 +203,18 @@ describe('/profile', function() {
           && rec.args[1].code === 400;
     });
 
+    mock.log('server', function(rec) {
+      return rec.levelname === 'ERROR'
+          && rec.args[0] === 'summary'
+          && rec.args[1].path === '/v1/_core_profile';
+    });
+
+    mock.log('server', function(rec) {
+      return rec.levelname === 'ERROR'
+          && rec.args[0] === 'summary'
+          && rec.args[1].path === '/v1/profile';
+    });
+
     return Server.api.get({
       url: '/profile',
       headers: {
