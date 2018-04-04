@@ -1,3 +1,57 @@
+<a name="1.109.0"></a>
+# [1.109.0](https://github.com/mozilla/fxa-auth-server/compare/v1.107.4...v1.109.0) (2018-04-04)
+
+
+### Bug Fixes
+
+* **metrics:** count 28 days per metric month ([e327e4f](https://github.com/mozilla/fxa-auth-server/commit/e327e4f))
+* **metrics:** emit route flow events from more endpoints ([35544c7](https://github.com/mozilla/fxa-auth-server/commit/35544c7))
+* **metrics:** include full version information in event data (#2356) ([85da7f2](https://github.com/mozilla/fxa-auth-server/commit/85da7f2)), closes [#2356](https://github.com/mozilla/fxa-auth-server/issues/2356) [mozilla/fxa-amplitude-send#58](https://github.com/mozilla/fxa-amplitude-send/issues/58)
+* **metrics:** pass metricsContext to consumeRecoveryCode (#2367) r=@vladikoff ([6e0b56c](https://github.com/mozilla/fxa-auth-server/commit/6e0b56c)), closes [#2367](https://github.com/mozilla/fxa-auth-server/issues/2367)
+* **node:** Use Node.js v6.14.0 (#2374) ([632dc35](https://github.com/mozilla/fxa-auth-server/commit/632dc35)), closes [#2374](https://github.com/mozilla/fxa-auth-server/issues/2374)
+* **server:** validate ip addresses before setting them on request object ([b181738](https://github.com/mozilla/fxa-auth-server/commit/b181738))
+* **sessions:** only return major rev for browser version (#2363) r=@vladikoff ([be6cc00](https://github.com/mozilla/fxa-auth-server/commit/be6cc00)), closes [#2363](https://github.com/mozilla/fxa-auth-server/issues/2363)
+* **totp:** add totp code window validation config (#2371), r=@vladikoff ([110190d](https://github.com/mozilla/fxa-auth-server/commit/110190d)), closes [#2371](https://github.com/mozilla/fxa-auth-server/issues/2371)
+* **totp:** ensure correct session verification state before deleting totp (#2365), r=@rfk ([0b1d075](https://github.com/mozilla/fxa-auth-server/commit/0b1d075)), closes [#2365](https://github.com/mozilla/fxa-auth-server/issues/2365)
+* **totp:** throw unverified session in promise chain (#2364), r=@rfk ([575b899](https://github.com/mozilla/fxa-auth-server/commit/575b899)), closes [#2364](https://github.com/mozilla/fxa-auth-server/issues/2364)
+* **validation:** Reject URLs with unexpected characters. (#2370); r=pb ([10e934f](https://github.com/mozilla/fxa-auth-server/commit/10e934f)), closes [#2370](https://github.com/mozilla/fxa-auth-server/issues/2370)
+
+### chore
+
+* **db:** prevent the possibility of future url-injection bugs ([fd26a4a](https://github.com/mozilla/fxa-auth-server/commit/fd26a4a))
+* **deps:** upgrade joi to 12.0.0 (#2358) ([5040060](https://github.com/mozilla/fxa-auth-server/commit/5040060)), closes [#2358](https://github.com/mozilla/fxa-auth-server/issues/2358)
+* **emails:** use popular email domain list from fxa-shared ([d3eeab1](https://github.com/mozilla/fxa-auth-server/commit/d3eeab1))
+
+### Features
+
+* **metrics:** add user properties for active device counts ([a23eeaa](https://github.com/mozilla/fxa-auth-server/commit/a23eeaa)), closes [mozilla/fxa-amplitude-send#60](https://github.com/mozilla/fxa-amplitude-send/issues/60)
+* **totp:** initial recovery codes (#2349), r=@philbooth ([81700da](https://github.com/mozilla/fxa-auth-server/commit/81700da)), closes [#2349](https://github.com/mozilla/fxa-auth-server/issues/2349)
+
+
+
+<a name="1.108.0"></a>
+# [1.108.0](https://github.com/mozilla/fxa-auth-server/compare/v1.107.3-private...v1.108.0) (2018-03-21)
+
+
+### Bug Fixes
+
+* **buffers:** migrate from 'Buffer()' constructor calls r=@vladikoff ([4815505](https://github.com/mozilla/fxa-auth-server/commit/4815505)), closes [#2333](https://github.com/mozilla/fxa-auth-server/issues/2333)
+* **codes:** Take token-code uid from the token, not the request payload. (#2339), r=@vbudhra ([ab17bf8](https://github.com/mozilla/fxa-auth-server/commit/ab17bf8)), closes [#2339](https://github.com/mozilla/fxa-auth-server/issues/2339)
+* **deprecation:** check for deprecated APIs r=@vladikoff ([2262ce8](https://github.com/mozilla/fxa-auth-server/commit/2262ce8)), closes [#2343](https://github.com/mozilla/fxa-auth-server/issues/2343)
+* **emails:** add location to `verify primary email` (#2341), r=@philbooth ([ab7ba5a](https://github.com/mozilla/fxa-auth-server/commit/ab7ba5a)), closes [#2341](https://github.com/mozilla/fxa-auth-server/issues/2341)
+* **metrics:** ensure service is set when possible on amplitude events ([c681053](https://github.com/mozilla/fxa-auth-server/commit/c681053))
+* **params:** use default parameters in options (#2332) r=@vladikoff ([65f9802](https://github.com/mozilla/fxa-auth-server/commit/65f9802)), closes [#2332](https://github.com/mozilla/fxa-auth-server/issues/2332)
+* **totp:** Restrict allowed chars in TOTP code input. (#2340); r=vbudhram ([86de08b](https://github.com/mozilla/fxa-auth-server/commit/86de08b)), closes [#2340](https://github.com/mozilla/fxa-auth-server/issues/2340)
+
+### Features
+
+* **amr:** Report AMR and AAL in relier-facing APIs. (#2346); r=vbudhram ([517f482](https://github.com/mozilla/fxa-auth-server/commit/517f482)), closes [#2346](https://github.com/mozilla/fxa-auth-server/issues/2346)
+* **devices:** Devices capabilities (#2350) r=@philbooth ([2067dba](https://github.com/mozilla/fxa-auth-server/commit/2067dba)), closes [#2350](https://github.com/mozilla/fxa-auth-server/issues/2350)
+* **emails:** totp notification emails (#2331), r=@philbooth ([8d3928d](https://github.com/mozilla/fxa-auth-server/commit/8d3928d)), closes [#2331](https://github.com/mozilla/fxa-auth-server/issues/2331)
+* **node:** update to node v6.13.1 r=@jbuck ([75d8737](https://github.com/mozilla/fxa-auth-server/commit/75d8737))
+
+
+
 <a name="1.108.0"></a>
 # [1.108.0](https://github.com/mozilla/fxa-auth-server/compare/v1.107.3-private...v1.108.0) (2018-03-21)
 
