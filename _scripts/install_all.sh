@@ -50,4 +50,6 @@ cd 123done; npm i; CONFIG_123DONE=./config-local.json node ./scripts/gen_keys.js
 
 cd syncserver; make build; cd ..
 
+docker pull pafortin/goaws
+
 ln -sf node_modules/.bin/pm2 pm2

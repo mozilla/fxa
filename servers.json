@@ -167,6 +167,13 @@
       "script": "_scripts/memcached.js",
       "max_restarts": "1",
       "min_uptime": "2m"
+    },
+    {
+      "name": "Fake SQS/SNS PORT 4100",
+      "script": "_scripts/goaws.sh",
+      "max_restarts": "1",
+      "min_uptime": "5s",
+      "autorestart": false
     }
   ]
 }
