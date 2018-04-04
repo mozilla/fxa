@@ -1,3 +1,21 @@
+<a name="1.109.0"></a>
+# [1.109.0](https://github.com/mozilla/fxa-profile-server/compare/v1.108.0...v1.109.0) (2018-04-04)
+
+
+### Bug Fixes
+
+* **node:** Use Node.js v6.14.0 (#312)  r=@vladikoff ([8e91e81](https://github.com/mozilla/fxa-profile-server/commit/8e91e81))
+
+### chore
+
+* **tests:** Use nyc for code coverage. ([ecb4fec](https://github.com/mozilla/fxa-profile-server/commit/ecb4fec))
+
+### Features
+
+* **amr:** Report authentication info in profile data. ([afdbcf1](https://github.com/mozilla/fxa-profile-server/commit/afdbcf1))
+
+
+
 <a name="1.108.0"></a>
 # [1.108.0](https://github.com/mozilla/fxa-profile-server/compare/v1.107.0...v1.108.0) (2018-03-21)
 
