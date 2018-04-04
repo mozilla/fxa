@@ -1,3 +1,19 @@
+<a name"1.109.0"></a>
+## 1.109.0 (2018-04-03)
+
+
+#### Bug Fixes
+
+* **node:** Use Node.js v6.14.0 (#537) ([f32a3d7c](https://github.com/mozilla/fxa-oauth-server/commit/f32a3d7c))
+* **route:** make email false by default (#533) r=@rfk ([aa68fb9d](https://github.com/mozilla/fxa-oauth-server/commit/aa68fb9d))
+* **scripts:** Fix varname typo in test runner script. (#535) ([02804a81](https://github.com/mozilla/fxa-oauth-server/commit/02804a81))
+
+
+#### Features
+
+* **oauth:** make server compatible with AppAuth (#534) r=@rfk ([ff9e4228](https://github.com/mozilla/fxa-oauth-server/commit/ff9e4228))
+
+
 <a name"1.108.0"></a>
 ## 1.108.0 (2018-03-21)
 
