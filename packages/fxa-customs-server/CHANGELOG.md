@@ -1,3 +1,17 @@
+<a name="1.109.0"></a>
+# 1.109.0 (2018-04-04)
+
+
+### Bug Fixes
+
+* **node:** Use Node.js v6.14.0 (#232)  r=@vladikoff ([de0ddc7](https://github.com/mozilla/fxa-customs-server/commit/de0ddc7))
+
+### chore
+
+* **deps:** update ip-reputation-js-client (#231) r=@vladikoff ([abac95c](https://github.com/mozilla/fxa-customs-server/commit/abac95c))
+
+
+
 <a name="1.108.0"></a>
 # 1.108.0 (2018-03-21)
 
