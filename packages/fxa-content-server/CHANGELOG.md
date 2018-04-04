@@ -1,3 +1,13 @@
+<a name="1.109.1"></a>
+## 1.109.1 (2018-04-04)
+
+
+### Bug Fixes
+
+* **server:** ensure unsafe input doesn't leak from user-agent strings ([e73873c](https://github.com/mozilla/fxa-content-server/commit/e73873c))
+
+
+
 <a name="1.109.0"></a>
 # 1.109.0 (2018-04-04)
 
