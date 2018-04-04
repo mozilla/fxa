@@ -1,3 +1,18 @@
+<a name="1.109.2"></a>
+## 1.109.2 (2018-04-04)
+
+
+### Bug Fixes
+
+* **circle:** change Firefox destination (#36); r=@rfk ([b1cb431](https://github.com/mozilla/fxa-content-server/commit/b1cb431))
+* **server:** fix broken require path (#34) r=@vladikoff ([467199d](https://github.com/mozilla/fxa-content-server/commit/467199d)), closes [(#34](https://github.com/(/issues/34)
+
+### Features
+
+* **oauth:** support Notes Android redirect (#6020) r=@rfk ([bd97464](https://github.com/mozilla/fxa-content-server/commit/bd97464))
+
+
+
 <a name="1.109.1"></a>
 ## 1.109.1 (2018-04-04)
 
