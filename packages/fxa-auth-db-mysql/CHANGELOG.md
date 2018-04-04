@@ -1,3 +1,44 @@
+<a name="1.109.0"></a>
+# [1.109.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.107.1...v1.109.0) (2018-04-04)
+
+
+### Bug Fixes
+
+* **codes:** drop all codes when one is consumed (#326) r=@rfk ([f6ab498](https://github.com/mozilla/fxa-auth-db-mysql/commit/f6ab498))
+* **node:** Use Node.js v6.14.0 (#332) ([1400a26](https://github.com/mozilla/fxa-auth-db-mysql/commit/1400a26))
+* **unblock:** update consume unblock code (#330) r=@vladikoff ([9bdb47b](https://github.com/mozilla/fxa-auth-db-mysql/commit/9bdb47b))
+* **verify:** update verifyWithMethod to update a session verification status (#329), r=@philb ([9c433ba](https://github.com/mozilla/fxa-auth-db-mysql/commit/9c433ba))
+
+### Features
+
+* **mysql:** Add config option for REQUIRED_SQL_MODES. (#334) r=@philbooth,@vladikoff ([a229ddc](https://github.com/mozilla/fxa-auth-db-mysql/commit/a229ddc))
+* **mysql:** STRICT_ALL_TABLES and NO_ENGINE_SUBSTITUTION required in sql (#327) r=@vladikoff ([c226b07](https://github.com/mozilla/fxa-auth-db-mysql/commit/c226b07))
+
+
+
+<a name="1.108.0"></a>
+# [1.108.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.107.0...v1.108.0) (2018-03-20)
+
+
+### Bug Fixes
+
+* **buffers:** convert remaining Buffer to Buffer.from r=@vladikoff ([5092779](https://github.com/mozilla/fxa-auth-db-mysql/commit/5092779)), closes [#316](https://github.com/mozilla/fxa-auth-db-mysql/issues/316)
+* **db:** remove database configuration option, hardcode 'fxa'  (#314) r=@vladikoff ([c2e21dd](https://github.com/mozilla/fxa-auth-db-mysql/commit/c2e21dd)), closes [#290](https://github.com/mozilla/fxa-auth-db-mysql/issues/290)
+* **email:** Use email buffer for DEL ‘/email/:email’ route (#315), r=@vladikoff, @vbudhram ([cc6e08b](https://github.com/mozilla/fxa-auth-db-mysql/commit/cc6e08b))
+* **test:** correct promises error handling (#325) r=@eoger ([7effcb3](https://github.com/mozilla/fxa-auth-db-mysql/commit/7effcb3))
+
+### chore
+
+* **api:** remove bufferization from db layer ([818edcf](https://github.com/mozilla/fxa-auth-db-mysql/commit/818edcf))
+
+### Features
+
+* **devices:** Devices capabilities (#320) r=@philbooth ([4808a1c](https://github.com/mozilla/fxa-auth-db-mysql/commit/4808a1c))
+* **node:** update to node v6.13.1 r=@jbuck ([7727d88](https://github.com/mozilla/fxa-auth-db-mysql/commit/7727d88))
+* **totp:** initial recovery codes (#319), r=@philbooth ([995d52b](https://github.com/mozilla/fxa-auth-db-mysql/commit/995d52b))
+
+
+
 <a name="1.108.0"></a>
 # [1.108.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.107.0...v1.108.0) (2018-03-20)
 
