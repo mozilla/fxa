@@ -1,3 +1,31 @@
+<a name="1.109.0"></a>
+# 1.109.0 (2018-04-04)
+
+
+### Bug Fixes
+
+* **metrics:** ensure CAD view and engage events are correct (#6008) ([0b3f687](https://github.com/mozilla/fxa-content-server/commit/0b3f687))
+* **metrics:** include full version information in amplitude event data ([90582ef](https://github.com/mozilla/fxa-content-server/commit/90582ef))
+* **metrics:** use $append on the experiments user property ([c5db581](https://github.com/mozilla/fxa-content-server/commit/c5db581))
+* **node:** Use Node.js v6.14.0 (#6011) ([f760603](https://github.com/mozilla/fxa-content-server/commit/f760603))
+* **oauth:** fix password reset for scoped reliers verifying in same browser (#6010) r=@rfk ([a777ecf](https://github.com/mozilla/fxa-content-server/commit/a777ecf)), closes [(#6010](https://github.com/(/issues/6010) [#5934](https://github.com/mozilla/fxa-content-server/issues/5934)
+* **server:** validate ip addresses before use ([1c86c67](https://github.com/mozilla/fxa-content-server/commit/1c86c67))
+* **signin:** Handle deleted account and new email login afterwards (#5997) r=@vbudhram ([f93cbd2](https://github.com/mozilla/fxa-content-server/commit/f93cbd2)), closes [#4316](https://github.com/mozilla/fxa-content-server/issues/4316)
+* **tests:** disable TOTP tests on Circle ([bce6467](https://github.com/mozilla/fxa-content-server/commit/bce6467))
+* **tests:** fix websession test (#6000) ([d31d21b](https://github.com/mozilla/fxa-content-server/commit/d31d21b)), closes [(#6000](https://github.com/(/issues/6000)
+* **tests:** move totp to flaky tests ([0a0cc0e](https://github.com/mozilla/fxa-content-server/commit/0a0cc0e))
+
+### Features
+
+* **metrics:** add an email_domain property to amplitude click events ([ec082c1](https://github.com/mozilla/fxa-content-server/commit/ec082c1))
+* **password:** Check old password using sessionReauth if possible. (#5946), r=@vbudhram ([4fb90da](https://github.com/mozilla/fxa-content-server/commit/4fb90da))
+
+### Reverts
+
+* **tests:** fix websession test ([a967cbe](https://github.com/mozilla/fxa-content-server/commit/a967cbe))
+
+
+
 <a name="1.108.1"></a>
 ## 1.108.1 (2018-03-28)
 
