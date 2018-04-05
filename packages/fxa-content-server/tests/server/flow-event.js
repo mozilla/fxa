@@ -35,7 +35,8 @@ registerSuite('flow-event', {
       request: {
         headers: {
           'user-agent': 'bar'
-        }
+        },
+        locale: 'en'
       },
       time: 1479127399349
     };
@@ -92,6 +93,7 @@ registerSuite('flow-event', {
             flow_id: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
             flow_time: 0,
             hostname: os.hostname(),
+            locale: 'en',
             migration: 'sync11',
             op: 'flowEvent',
             pid: process.pid,
@@ -109,7 +111,7 @@ registerSuite('flow-event', {
 
         'second call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[1][0]);
-          assert.lengthOf(Object.keys(arg), 17);
+          assert.lengthOf(Object.keys(arg), 18);
           assert.equal(arg.event, 'flow.signup.view');
           assert.equal(arg.flow_time, 5);
           assert.equal(arg.time, new Date(mocks.time - 995).toISOString());
@@ -117,14 +119,14 @@ registerSuite('flow-event', {
 
         'third call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[2][0]);
-          assert.lengthOf(Object.keys(arg), 17);
+          assert.lengthOf(Object.keys(arg), 18);
           assert.equal(arg.event, 'flow.signup.good-offset-now');
           assert.equal(arg.time, new Date(mocks.time).toISOString());
         },
 
         'fourth call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[3][0]);
-          assert.lengthOf(Object.keys(arg), 17);
+          assert.lengthOf(Object.keys(arg), 18);
           assert.equal(arg.event, 'flow.signup.good-offset-oldest');
           assert.equal(arg.time, new Date(mocks.time - config.flow_id_expiry).toISOString());
         },
@@ -396,6 +398,7 @@ registerSuite('flow-event', {
         const timeSinceFlowBegin = 1000;
         const flowBeginTime = mocks.time - timeSinceFlowBegin;
         flowMetricsValidateResult = true;
+        mocks.request.locale = 'ar';
         flowEvent(mocks.request, {
           events: [
             {offset: 0, type: 'flow.begin'}
@@ -410,6 +413,7 @@ registerSuite('flow-event', {
         'process.stderr.write was called once': () => {
           assert.equal(process.stderr.write.callCount, 1);
           const arg = JSON.parse(process.stderr.write.args[0][0]);
+          assert.equal(arg.locale, 'ar');
           assert.isUndefined(arg.context);
           assert.isUndefined(arg.entrypoint);
           assert.isUndefined(arg.migration);
@@ -813,7 +817,7 @@ registerSuite('flow-event', {
         'process.stderr.write was called correctly': () => {
           assert.equal(process.stderr.write.callCount, 1);
           const arg = JSON.parse(process.stderr.write.args[0][0]);
-          assert.lengthOf(Object.keys(arg), 16);
+          assert.lengthOf(Object.keys(arg), 17);
           assert.isUndefined(arg.utm_campaign); //eslint-disable-line camelcase
         }
       }
@@ -830,7 +834,7 @@ registerSuite('flow-event', {
         'process.stderr.write was called correctly': () => {
           assert.equal(process.stderr.write.callCount, 1);
           const arg = JSON.parse(process.stderr.write.args[0][0]);
-          assert.lengthOf(Object.keys(arg), 16);
+          assert.lengthOf(Object.keys(arg), 17);
           assert.isUndefined(arg.utm_content); //eslint-disable-line camelcase
         }
       }
@@ -847,7 +851,7 @@ registerSuite('flow-event', {
         'process.stderr.write was called correctly': () => {
           assert.equal(process.stderr.write.callCount, 1);
           const arg = JSON.parse(process.stderr.write.args[0][0]);
-          assert.lengthOf(Object.keys(arg), 16);
+          assert.lengthOf(Object.keys(arg), 17);
           assert.isUndefined(arg.utm_medium); //eslint-disable-line camelcase
         }
       }
@@ -864,7 +868,7 @@ registerSuite('flow-event', {
         'process.stderr.write was called correctly': () => {
           assert.equal(process.stderr.write.callCount, 1);
           const arg = JSON.parse(process.stderr.write.args[0][0]);
-          assert.lengthOf(Object.keys(arg), 16);
+          assert.lengthOf(Object.keys(arg), 17);
           assert.isUndefined(arg.utm_source); //eslint-disable-line camelcase
         }
       }
