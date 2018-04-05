@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const popularEmailDomains = require('./popular-email-domains.json');
+
 /*eslint-disable sorting/sort-object-props*/
 module.exports = {
   // All browsers have a max length of URI that they can handle.
@@ -116,11 +118,7 @@ module.exports = {
 
   // 20 most popular email domains, used for metrics. Matches the list
   // we use in the auth server, converted to a map for faster lookup.
-  POPULAR_EMAIL_DOMAINS: [
-    'gmail.com', 'hotmail.com', 'yahoo.com', 'mail.ru', 'outlook.com', 'aol.com', 'qq.com',
-    'web.de', 'yandex.ru', 'gmx.de', 'live.com', 'comcast.net', 't-online.de', 'hotmail.fr',
-    'msn.com', 'yahoo.fr', 'orange.fr', '163.com', 'icloud.com', 'hotmail.co.uk'
-  ].reduce((map, domain) => {
+  POPULAR_EMAIL_DOMAINS: popularEmailDomains.reduce((map, domain) => {
     map[domain] = true;
     return map;
   }, {}),
