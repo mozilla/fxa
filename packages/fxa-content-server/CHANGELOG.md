@@ -1,3 +1,13 @@
+<a name="1.109.3"></a>
+## 1.109.3 (2018-04-06)
+
+
+### Features
+
+* **recovery:** add initial recovery codes ([c3732cd](https://github.com/mozilla/fxa-content-server/commit/c3732cd))
+
+
+
 <a name="1.109.2"></a>
 ## 1.109.2 (2018-04-04)
 
