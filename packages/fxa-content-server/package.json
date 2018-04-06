@@ -5,7 +5,7 @@
   "scripts": {
     "build-production": "NODE_ENV=production grunt build",
     "postinstall": "scripts/download_l10n.sh",
-    "prepush": "npm run lint",
+    "prepush": "npm run lint && grunt sasslint",
     "shrink": "npmshrink:prod",
     "lint": "eslint app server tests --cache",
     "start": "node scripts/check-local-config && grunt server",
@@ -54,7 +54,7 @@
     "fxa-checkbox": "git://github.com/mozilla/fxa-checkbox.git#7f856afffd394a144f718e28e6fb79092d6ccddd",
     "fxa-crypto-relier": "2.1.0",
     "fxa-geodb": "1.0.0",
-    "fxa-js-client": "1.0.2",
+    "fxa-js-client": "1.0.3",
     "fxa-mustache-loader": "0.0.2",
     "fxa-shared": "1.0.4",
     "got": "6.7.1",

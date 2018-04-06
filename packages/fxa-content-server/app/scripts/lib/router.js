@@ -38,6 +38,7 @@ define(function (require, exports, module) {
   const ResetPasswordView = require('../views/reset_password');
   const SettingsView = require('../views/settings');
   const SignInBouncedView = require('../views/sign_in_bounced');
+  const SignInRecoveryCodeView = require('../views/sign_in_recovery_code');
   const SignInTokenCodeView = require('../views/sign_in_token_code');
   const SignInTotpCodeView = require('../views/sign_in_totp_code');
   const SignInPasswordView = require('../views/sign_in_password');
@@ -51,6 +52,7 @@ define(function (require, exports, module) {
   const Storage = require('./storage');
   const TosView = require('../views/tos');
   const TwoStepAuthenticationView = require('../views/settings/two_step_authentication');
+  const RecoveryCodesView = require('../views/settings/recovery_codes');
   const VerificationReasons = require('./verification-reasons');
   const WhyConnectAnotherDeviceView = require('../views/why_connect_another_device');
 
@@ -110,10 +112,12 @@ define(function (require, exports, module) {
       'settings/display_name(/)': createChildViewHandler(DisplayNameView, SettingsView),
       'settings/emails(/)': createChildViewHandler(EmailsView, SettingsView),
       'settings/two_step_authentication(/)': createChildViewHandler(TwoStepAuthenticationView, SettingsView),
+      'settings/two_step_authentication/recovery_codes(/)': createChildViewHandler(RecoveryCodesView, SettingsView),
       'signin(/)': 'onSignIn',
       'signin_bounced(/)': createViewHandler(SignInBouncedView),
       'signin_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN }),
       'signin_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_IN }),
+      'signin_recovery_code(/)': createViewHandler(SignInRecoveryCodeView),
       'signin_reported(/)': createViewHandler(SignInReportedView),
       'signin_token_code(/)': createViewHandler(SignInTokenCodeView),
       'signin_totp_code(/)': createViewHandler(SignInTotpCodeView),

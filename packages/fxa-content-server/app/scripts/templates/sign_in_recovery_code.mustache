@@ -1,6 +1,6 @@
 <div id="main-content" class="card">
   <header>
-    <h1 id="fxa-totp-code-header">{{#t}}Enter security code{{/t}}
+    <h1 id="fxa-recovery-code-header">{{#t}}Enter recovery code{{/t}}
         {{#serviceName}}
             <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
         {{/serviceName}}
@@ -11,15 +11,15 @@
     <div class="error"></div>
     <div class="success"></div>
 
-    <div class="graphic graphic-two-factor-auth"></div>
+    <div class="graphic graphic-recovery-codes"></div>
 
-    <p class="verification-totp-message">
-    {{#t}}Open your authentication app and enter the security code it provides.{{/t}}
+    <p class="verification-recovery-code-message">
+    {{#t}}Please enter a recovery code that was provided to you during setup.{{/t}}
     </p>
 
     <form novalidate>
       <div class="input-row token-code-row">
-        <input type="text" class="tooltip-below totp-code" placeholder="{{#t}}Enter 6-digit code{{/t}}" required autofocus />
+        <input type="text" class="tooltip-below recovery-code" placeholder="{{#t}}Enter 8-digit recovery code{{/t}}" required autofocus />
       </div>
 
       <div class="button-row">
@@ -29,7 +29,7 @@
     </form>
 
     <div class="links">
-        <a id="use-recovery-code-link" class="right" href="/signin_recovery_code">{{#t}}Use recovery code{{/t}}</a>
+        <a id="use-backup-link" class="right" href="/signin_totp_code">{{#t}}Enter security code{{/t}}</a>
     </div>
   </section>
 </div>

@@ -106,6 +106,8 @@ module.exports = {
   BLOCKED_SIGNIN_SUPPORT_URL: 'https://support.mozilla.org/kb/accounts-blocked',
   UNBLOCK_CODE_LENGTH: 8,
 
+  RECOVERY_CODE_LENGTH: 8,
+
   MARKETING_ID_SPRING_2015: 'spring-2015-android-ios-sync',
   MARKETING_ID_AUTUMN_2016: 'autumn-2016-connect-another-device',
 

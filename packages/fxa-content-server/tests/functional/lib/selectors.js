@@ -175,6 +175,14 @@ module.exports = {
     PASSWORD: 'input[type=password]',
     SUBMIT: 'button[type="submit"]',
   },
+  SIGNIN_RECOVERY_CODE: {
+    DONE_BUTTON: '.two-step-authentication-done',
+    FIRST_CODE: '.recovery-code:first-child',
+    INPUT: '.recovery-code',
+    LINK: '#use-recovery-code-link',
+    MODAL: '#recovery-codes',
+    SUBMIT: 'button[type="submit"]',
+  },
   SIGNIN_TOKEN_CODE: {
     EMAIL_FIELD: '.verification-email-message',
     ERROR: '.error',
@@ -265,5 +273,6 @@ module.exports = {
     INPUT: '.totp-code',
     SUBMIT: 'button[type="submit"]',
   },
+
 };
 /*eslint-enable max-len*/

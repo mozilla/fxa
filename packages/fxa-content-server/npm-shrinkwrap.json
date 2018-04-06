@@ -4188,8 +4188,8 @@
     },
     "fxa-js-client": {
       "version": "1.0.2",
-      "from": "fxa-js-client@1.0.2",
-      "resolved": "https://registry.npmjs.org/fxa-js-client/-/fxa-js-client-1.0.2.tgz",
+      "from": "https://github.com/mozilla/fxa-js-client.git#master",
+      "resolved": "https://github.com/mozilla/fxa-js-client.git#13b889e14ad8192c689e7378c27e4bb0db52f056",
       "dependencies": {
         "sjcl": {
           "version": "1.0.1",
