@@ -792,7 +792,8 @@ module.exports = config => {
           token,
           {
             code: code,
-            metricsContext: options.metricsContext
+            metricsContext: options.metricsContext,
+            service: options.service
           }
         )
       })

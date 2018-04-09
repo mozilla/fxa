@@ -52,7 +52,7 @@ describe('remote totp', function () {
 
             // Verify TOTP token
             const code = authenticator.generate()
-            return client.verifyTotpCode(code, {metricsContext})
+            return client.verifyTotpCode(code, {metricsContext, service: 'sync'})
 
           })
           .then((response) => {
@@ -169,14 +169,14 @@ describe('remote totp', function () {
     it('should fail to verify totp code', () => {
       const code = authenticator.generate()
       const incorrectCode = code === '123456' ? '123455' : '123456'
-      return client.verifyTotpCode(incorrectCode, {metricsContext})
+      return client.verifyTotpCode(incorrectCode, {metricsContext, service: 'sync'})
         .then((result) => {
           assert.equal(result.success, false, 'failed')
         })
     })
 
     it('should reject non-numeric codes', () => {
-      return client.verifyTotpCode('wrong', {metricsContext})
+      return client.verifyTotpCode('wrong', {metricsContext, service: 'sync'})
         .then( assert.fail, (err) => {
           assert.equal(err.code, 400, 'correct error code')
           assert.equal(err.errno, 107, 'correct error errno')
@@ -189,7 +189,7 @@ describe('remote totp', function () {
         .then((x) => {
           client = x
           assert.ok(client.authAt, 'authAt was set')
-          return client.verifyTotpCode('123456', {metricsContext})
+          return client.verifyTotpCode('123456', {metricsContext, service: 'sync'})
             .then(assert.fail, (err) => {
               assert.equal(err.code, 400, 'correct error code')
               assert.equal(err.errno, 155, 'correct error errno')
@@ -199,7 +199,7 @@ describe('remote totp', function () {
 
     it('should verify totp code', () => {
       const code = authenticator.generate()
-      return client.verifyTotpCode(code, {metricsContext})
+      return client.verifyTotpCode(code, {metricsContext, service: 'sync'})
         .then((response) => {
           assert.equal(response.success, true, 'totp codes match')
           return server.mailbox.waitForEmail(email)
@@ -213,7 +213,7 @@ describe('remote totp', function () {
       const futureAuthenticator = new otplib.Authenticator()
       futureAuthenticator.options = Object.assign({}, authenticator.options, {epoch: -10000})
       const code = authenticator.generate()
-      return client.verifyTotpCode(code, {metricsContext})
+      return client.verifyTotpCode(code, {metricsContext, service: 'sync'})
         .then((response) => {
           assert.equal(response.success, true, 'totp codes match')
           return server.mailbox.waitForEmail(email)
@@ -227,7 +227,7 @@ describe('remote totp', function () {
       const futureAuthenticator = new otplib.Authenticator()
       futureAuthenticator.options = Object.assign({}, authenticator.options, {epoch: 10000})
       const code = futureAuthenticator.generate()
-      return client.verifyTotpCode(code, {metricsContext})
+      return client.verifyTotpCode(code, {metricsContext, service: 'sync'})
         .then((response) => {
           assert.equal(response.success, false, 'totp codes do not match')
         })

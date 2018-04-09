@@ -358,7 +358,13 @@ module.exports = (log, db, mailer, customs, config) => {
                 return mailer.sendPostAddTwoStepAuthNotification(account.emails, account, emailOptions)
               }
 
-              return mailer.sendNewDeviceLoginNotification(account.emails, account, emailOptions)
+              // All accounts that have a TOTP token, force the session to be verified, therefore
+              // we can not check `session.mustVerify=true` to determine sending the new device
+              // login email. Instead, lets perform a basic check that the service is `sync`, otherwise
+              // don't send.
+              if (service === 'sync') {
+                return mailer.sendNewDeviceLoginNotification(account.emails, account, emailOptions)
+              }
             })
         }
       }
