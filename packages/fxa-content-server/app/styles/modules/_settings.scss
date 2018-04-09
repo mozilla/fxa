@@ -232,7 +232,7 @@ body.settings #main-content.card {
       border-color: $button-border-hover-color;
     }
 
-    &:active {
+    &:hover:active {
       background: $button-background-active-color;
       border-color: $button-border-active-color;
     }
@@ -259,7 +259,7 @@ body.settings #main-content.card {
       border-color: $button-border-disabled-color;
     }
 
-    &:active {
+    &:hover:active {
       background: $button-border-disabled-color;
       border-color: $color-grey-dark;
       color: $color-black;
@@ -295,7 +295,7 @@ body.settings #main-content.card {
       background: darken($error-background-color, 5);
     }
 
-    &:active {
+    &:hover:active {
       background: darken($error-background-color, 10);
     }
 
