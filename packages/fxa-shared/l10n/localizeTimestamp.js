@@ -59,7 +59,7 @@ module.exports = function (options) {
             }
           }
         }
-      } catch(e) {
+      } catch (e) {
         // failed to parse the header, fallback to defaultLanguage
       }
 

@@ -1,0 +1,11 @@
+plugins:
+  - fxa
+extends: plugin:fxa/server
+
+env:
+    mocha: true
+
+rules:
+  handle-callback-err: off
+  semi: off
+  quotes: off

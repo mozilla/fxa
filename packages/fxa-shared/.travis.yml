@@ -12,3 +12,7 @@ notifications:
       - 'irc.mozilla.org#fxa-bots'
     use_notice: false
     skip_join: false
+
+script:
+  - npm test
+  - npm run lint
