@@ -103,7 +103,7 @@ describe('remote recovery codes', function () {
         })
     })
 
-    it('should consume recovery and verify session', () => {
+    it('should consume recovery code and verify session', () => {
       return client.consumeRecoveryCode(recoveryCodes[0], {metricsContext})
         .then((res) => {
           assert.equal(res.remaining, 7, 'correct remaining codes')
@@ -115,6 +115,25 @@ describe('remote recovery codes', function () {
         })
         .then((emailData) => {
           assert.equal(emailData.headers['x-template-name'], 'postConsumeRecoveryCodeEmail', 'correct template sent')
+        })
+    })
+
+    it('should consume recovery code and can remove TOTP token', () => {
+      return client.consumeRecoveryCode(recoveryCodes[0], {metricsContext})
+        .then((res) => {
+          assert.equal(res.remaining, 7, 'correct remaining codes')
+          return server.mailbox.waitForEmail(email)
+        })
+        .then((emailData) => {
+          assert.equal(emailData.headers['x-template-name'], 'postConsumeRecoveryCodeEmail', 'correct template sent')
+          return client.deleteTotpToken()
+        })
+        .then((result) => {
+          assert.ok(result, 'delete totp token successfully')
+          return server.mailbox.waitForEmail(email)
+        })
+        .then((emailData) => {
+          assert.equal(emailData.headers['x-template-name'], 'postRemoveTwoStepAuthenticationEmail', 'correct template sent')
         })
     })
   })

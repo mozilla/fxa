@@ -136,18 +136,6 @@ module.exports = config => {
             return client.verifyTotpCode(client.totpAuthenticator.generate())
           })
           .then(() => {
-            // The above enables TOTP on the account, but doesn't mark the
-            // session as being verified via TOTP, because it was already verified
-            // via email.  Create a new session that's explicitly TOTP-verified.
-            return client.setupCredentials(email, password)
-          })
-          .then(() => {
-            return client.auth(options)
-          })
-          .then(() => {
-            return client.verifyTotpCode(client.totpAuthenticator.generate())
-          })
-          .then(() => {
             return client
           })
       })

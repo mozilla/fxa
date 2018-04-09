@@ -15,7 +15,8 @@ module.exports = (log, Token, config) => {
     [
       [0, 'email'],
       [1, 'email-2fa'],
-      [2, 'totp-2fa']
+      [2, 'totp-2fa'],
+      [3, 'recovery-code']
     ]
   )
 

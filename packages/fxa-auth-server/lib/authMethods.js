@@ -17,7 +17,8 @@ const METHOD_TO_AMR = {
   'email': 'email',
   'email-captcha': 'email',
   'email-2fa': 'email',
-  'totp-2fa': 'otp'
+  'totp-2fa': 'otp',
+  'recovery-code': 'otp'
 }
 
 // Maps AMR values to the type of authenticator they represent, e.g.

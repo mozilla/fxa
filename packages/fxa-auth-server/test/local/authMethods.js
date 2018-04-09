@@ -89,6 +89,10 @@ describe('verificationMethodToAMR', () => {
     assert.equal(authMethods.verificationMethodToAMR('totp-2fa'), 'otp')
   })
 
+  it('maps `recovery-code` to `otp`', () => {
+    assert.equal(authMethods.verificationMethodToAMR('recovery-code'), 'otp')
+  })
+
   it('throws when given an unknown verification method', () => {
     assert.throws(() => { authMethods.verificationMethodToAMR('email-gotcha') }, /unknown verificationMethod/)
   })
