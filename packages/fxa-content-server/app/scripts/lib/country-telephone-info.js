@@ -98,7 +98,7 @@ module.exports = {
     normalize: ensurePrefix('+32'),
     pattern: /^(?:\+32\d{9}|\d{10})$/,
     prefix: '+32',
-    rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=BE`
+    rolloutRate: 0.5
   },
   // Germany
   // https://en.wikipedia.org/wiki/Telephone_numbers_in_Germany
@@ -170,7 +170,7 @@ module.exports = {
     normalize: ensurePrefix('+31'),
     pattern: /^(?:\+31)?\d{4,}$/, // Non-geographical numbers have no fixed length. 3 access digits + at least one other digit.
     prefix: '+31',
-    rolloutRate: 0.0 // being soft launched. Testers will need to open `/sms?service=sync&country=NL`
+    rolloutRate: 0.5
   },
   // Portugal
   // https://en.wikipedia.org/wiki/Telephone_numbers_in_Portugal
