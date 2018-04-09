@@ -213,7 +213,6 @@ describe('metrics/amplitude', () => {
           oauth_client_id: '1'
         })
         assert.deepEqual(args[0].user_properties, {
-          flow_id: undefined,
           sync_active_devices_day: 0,
           sync_active_devices_week: 0,
           sync_active_devices_month: 0,

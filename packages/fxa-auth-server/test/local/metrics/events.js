@@ -18,6 +18,7 @@ const events = require('../../../lib/metrics/events')(log, {
   }
 })
 const mocks = require('../../mocks')
+const P = require('../../../lib/promise')
 
 describe('metrics/events', () => {
   afterEach(() => {
@@ -220,7 +221,10 @@ describe('metrics/events', () => {
     const metricsContext = mocks.mockMetricsContext()
     const request = {
       app: {
-        locale: 'en'
+        devices: P.resolve(),
+        geo: {},
+        locale: 'en',
+        ua: {}
       },
       auth: null,
       clearMetricsContext: metricsContext.clear,
@@ -472,6 +476,11 @@ describe('metrics/events', () => {
   it('.emit with flow event and missing headers', () => {
     const metricsContext = mocks.mockMetricsContext()
     const request = {
+      app: {
+        devices: P.resolve(),
+        geo: {},
+        ua: {}
+      },
       clearMetricsContext: metricsContext.clear,
       gatherMetricsContext: metricsContext.gather,
       payload: {
@@ -635,10 +644,7 @@ describe('metrics/events', () => {
         assert.equal(log.amplitudeEvent.args[0][0].event_type, 'fxa_activity - cert_signed', 'log.amplitudeEvent was passed correct event_type')
         assert.equal(log.amplitudeEvent.args[0][0].device_id, 'foo', 'log.amplitudeEvent was passed correct device_id')
         assert.equal(log.amplitudeEvent.args[0][0].session_id, flowBeginTime, 'log.amplitudeEvent was passed correct session_id')
-        assert.deepEqual(log.amplitudeEvent.args[0][0].event_properties, {
-          service: undefined,
-          oauth_client_id: undefined
-        }, 'log.amplitudeEvent was passed correct event properties')
+        assert.deepEqual(log.amplitudeEvent.args[0][0].event_properties, {}, 'log.amplitudeEvent was passed correct event properties')
         assert.deepEqual(log.amplitudeEvent.args[0][0].user_properties, {
           flow_id: 'bar',
           sync_active_devices_day: 0,
