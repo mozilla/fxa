@@ -18,6 +18,7 @@ const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin${QUERY_PARAMS}`;
 
 let email;
 const PASSWORD = '12345678';
+const PASSWORD_WITH_TYPO = '123456789';
 
 const {
   clearBrowserState,
@@ -30,6 +31,7 @@ const {
   switchToWindow,
   testElementExists,
   testElementValueEquals,
+  testErrorTextInclude,
   testIsBrowserNotified,
   type,
   visibleByQSA,
@@ -93,8 +95,16 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
         .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
+
+        // passwords do not match should cause an error
         .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
+        .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD_WITH_TYPO))
         .then(type(selectors.SIGNUP_PASSWORD.AGE, 21))
+        .then(click(selectors.SIGNUP_PASSWORD.SUBMIT, selectors.SIGNUP_PASSWORD.ERROR_PASSWORDS_DO_NOT_MATCH))
+        .then(testErrorTextInclude('Passwords do not match'))
+
+        // fix the password mismatch
+        .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
         .then(click(selectors.SIGNUP_PASSWORD.SUBMIT, selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
         .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))

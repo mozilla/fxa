@@ -7,6 +7,7 @@ define(function (require, exports, module) {
 
   const Account = require('models/account');
   const { assert } = require('chai');
+  const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
   const FormPrefill = require('models/form-prefill');
   const Notifier = require('lib/channels/notifier');
@@ -92,6 +93,7 @@ define(function (require, exports, module) {
         assert.lengthOf(view.$('input[type=email]'), 1);
         assert.equal(view.$('input[type=email]').val(), EMAIL);
         assert.lengthOf(view.$('#password'), 1);
+        assert.lengthOf(view.$('#vpassword'), 1);
         assert.lengthOf(view.$('#age'), 1);
         assert.lengthOf(view.$('#fxa-tos'), 1);
         assert.lengthOf(view.$('#fxa-pp'), 1);
@@ -108,15 +110,32 @@ define(function (require, exports, module) {
         sinon.spy(view, 'displayError');
       });
 
+      describe('password and vpassword do not match', () => {
+        it('displays an error', () => {
+          view.$('#password').val('password');
+          view.$('#vpassword').val('different_password');
+          view.$('#age').val('21');
+
+          return Promise.resolve(view.validateAndSubmit())
+            .then(assert.fail, () => {
+              assert.isFalse(view.signUp.called);
+              assert.isTrue(view.displayError.calledOnce);
+              const displayedError = view.displayError.args[0][0];
+              assert.isTrue(AuthErrors.is(displayedError, 'PASSWORDS_DO_NOT_MATCH'));
+            });
+        });
+      });
+
       describe('user is too young', () => {
         it('delegates to `tooYoung`', () => {
           view.$('#password').val('password');
+          view.$('#vpassword').val('password');
           view.$('#age').val('11');
 
           return Promise.resolve(view.validateAndSubmit())
             .then(() => {
               assert.isTrue(view.tooYoung.calledOnce);
-              assert.isFalse(view.signUp.calledOnce);
+              assert.isFalse(view.signUp.called);
               assert.isFalse(view.displayError.called);
             });
         });
@@ -125,6 +144,7 @@ define(function (require, exports, module) {
       describe('user is old enough', () => {
         it('signs up the user', () => {
           view.$('#password').val('password');
+          view.$('#vpassword').val('password');
           view.$('#age').val('21');
 
           sinon.stub(view, 'hasOptedInToMarketingEmail').callsFake(() => true);
