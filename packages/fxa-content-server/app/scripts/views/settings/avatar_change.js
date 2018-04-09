@@ -48,6 +48,7 @@ define(function (require, exports, module) {
     setInitialContext (context) {
       var account = this.getSignedInAccount();
       context.set({
+        'avatarDefault': account.get('profileImageUrlDefault'),
         'hasProfileImage': account.has('profileImageUrl')
       });
     },

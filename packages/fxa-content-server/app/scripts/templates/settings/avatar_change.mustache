@@ -14,9 +14,9 @@
       <input type="file" id="imageLoader" name="imageLoader" accept="image/png, image/jpeg"/>
       <a href="#" id="file">{{#t}}Upload{{/t}}</a>
       <a href="/settings/avatar/camera" id="camera">{{#t}}Camera{{/t}}</a>
-      {{#hasProfileImage}}
+      {{^avatarDefault}}
       <a href="#" class="remove">{{#t}}Clear{{/t}}</a>
-      {{/hasProfileImage}}
+      {{/avatarDefault}}
     </nav>
 
     <div class="button-row">
