@@ -27,7 +27,6 @@ module.exports = [
   'tests/server/raven.js',
   'tests/server/remote-address.js',
   'tests/server/routes/get-apple-app-site-association.js',
-  'tests/server/routes/get-favicon.js',
   'tests/server/routes/get-config.js',
   'tests/server/routes/get-verify-email.js',
   'tests/server/routes/get-fxa-client-configuration.js',
