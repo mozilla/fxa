@@ -757,7 +757,7 @@ describe('/account/sessions', () => {
     {
       id: tokenIds[0], uid: 'qux', createdAt: times[0], lastAccessTime: times[1],
       uaBrowser: 'Firefox', uaBrowserVersion: '50.0', uaOS: 'Windows', uaOSVersion: '10',
-      uaDeviceType: null, deviceId: null, deviceCreatedAt: times[2], deviceCapabilities: ['pushbox'],
+      uaDeviceType: null, deviceId: null, deviceCreatedAt: times[2], deviceCapabilities: ['messages'],
       deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
       deviceCallbackIsExpired: false,
       location: {
@@ -771,7 +771,7 @@ describe('/account/sessions', () => {
     {
       id: tokenIds[1], uid: 'wibble', createdAt: times[3], lastAccessTime: EARLIEST_SANE_TIMESTAMP - 1,
       uaBrowser: 'Nightly', uaBrowserVersion: null, uaOS: 'Android', uaOSVersion: '6',
-      uaDeviceType: 'mobile', deviceId: 'deviceId', deviceCreatedAt: times[4], deviceCapabilities: ['pushbox'],
+      uaDeviceType: 'mobile', deviceId: 'deviceId', deviceCreatedAt: times[4], deviceCapabilities: ['messages'],
       deviceCallbackURL: null, deviceCallbackPublicKey: null, deviceCallbackAuthKey: null,
       deviceCallbackIsExpired: false,
       location: {
@@ -785,7 +785,7 @@ describe('/account/sessions', () => {
     {
       id: tokenIds[2], uid: 'blee', createdAt: times[5], lastAccessTime: EARLIEST_SANE_TIMESTAMP,
       uaBrowser: null, uaBrowserVersion: '50', uaOS: null, uaOSVersion: '10',
-      uaDeviceType: 'tablet', deviceId: 'deviceId', deviceCreatedAt: times[6], deviceCapabilities: ['pushbox'],
+      uaDeviceType: 'tablet', deviceId: 'deviceId', deviceCreatedAt: times[6], deviceCapabilities: ['messages'],
       deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
       deviceCallbackIsExpired: false,
       location: null
@@ -793,7 +793,7 @@ describe('/account/sessions', () => {
     {
       id: tokenIds[3], uid: 'blee', createdAt: times[7], lastAccessTime: 1,
       uaBrowser: null, uaBrowserVersion: '50', uaOS: null, uaOSVersion: '10',
-      uaDeviceType: 'tablet', deviceId: 'deviceId', deviceCreatedAt: times[8], deviceCapabilities: ['pushbox'],
+      uaDeviceType: 'tablet', deviceId: 'deviceId', deviceCreatedAt: times[8], deviceCapabilities: ['messages'],
       deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
       deviceCallbackIsExpired: false,
       location: null
@@ -821,7 +821,7 @@ describe('/account/sessions', () => {
           deviceId: null,
           deviceName: 'Firefox 50, Windows 10',
           deviceType: 'desktop',
-          deviceCapabilities: ['pushbox'],
+          deviceCapabilities: ['messages'],
           deviceCallbackURL: 'callback',
           deviceCallbackPublicKey: 'publicKey',
           deviceCallbackAuthKey: 'authKey',
@@ -846,7 +846,7 @@ describe('/account/sessions', () => {
           deviceId: 'deviceId',
           deviceName: 'Nightly, Android 6',
           deviceType: 'mobile',
-          deviceCapabilities: ['pushbox'],
+          deviceCapabilities: ['messages'],
           deviceCallbackURL: null,
           deviceCallbackPublicKey: null,
           deviceCallbackAuthKey: null,
@@ -873,7 +873,7 @@ describe('/account/sessions', () => {
           deviceId: 'deviceId',
           deviceName: '',
           deviceType: 'tablet',
-          deviceCapabilities: ['pushbox'],
+          deviceCapabilities: ['messages'],
           deviceCallbackURL: 'callback',
           deviceCallbackPublicKey: 'publicKey',
           deviceCallbackAuthKey: 'authKey',
@@ -893,7 +893,7 @@ describe('/account/sessions', () => {
           deviceId: 'deviceId',
           deviceName: '',
           deviceType: 'tablet',
-          deviceCapabilities: ['pushbox'],
+          deviceCapabilities: ['messages'],
           deviceCallbackURL: 'callback',
           deviceCallbackPublicKey: 'publicKey',
           deviceCallbackAuthKey: 'authKey',

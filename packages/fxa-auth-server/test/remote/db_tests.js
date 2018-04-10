@@ -396,7 +396,7 @@ describe('remote db', function() {
         id: crypto.randomBytes(16).toString('hex'),
         name: '',
         type: 'mobile',
-        capabilities: ['pushbox'],
+        capabilities: ['messages'],
         pushCallback: 'https://foo/bar',
         pushPublicKey: base64url(Buffer.concat([Buffer.from('\x04'), crypto.randomBytes(64)])),
         pushAuthKey: base64url(crypto.randomBytes(16))

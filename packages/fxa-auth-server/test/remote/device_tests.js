@@ -40,7 +40,7 @@ describe('remote device', function () {
             var deviceInfo = {
               name: 'test device 🍓🔥在𝌆',
               type: 'mobile',
-              capabilities: ['pushbox'],
+              capabilities: ['messages'],
               pushCallback: '',
               pushPublicKey: '',
               pushAuthKey: ''
@@ -238,7 +238,7 @@ describe('remote device', function () {
         id: crypto.randomBytes(16).toString('hex'),
         name: 'test device',
         type: 'desktop',
-        capabilities: ['pushbox'],
+        capabilities: ['messages'],
         pushCallback: badPushCallback,
         pushPublicKey: mocks.MOCK_PUSH_KEY,
         pushAuthKey: base64url(crypto.randomBytes(16))
@@ -273,7 +273,7 @@ describe('remote device', function () {
         id: crypto.randomBytes(16).toString('hex'),
         name: 'test device',
         type: 'desktop',
-        capabilities: ['pushbox'],
+        capabilities: ['messages'],
         pushCallback: badPushCallback,
         pushPublicKey: mocks.MOCK_PUSH_KEY,
         pushAuthKey: base64url(crypto.randomBytes(16))
@@ -310,7 +310,7 @@ describe('remote device', function () {
             var deviceInfo = {
               name: 'test device',
               type: 'mobile',
-              capabilities: ['pushbox'],
+              capabilities: ['messages'],
               pushCallback: goodPushCallback,
               pushPublicKey: '',
               pushAuthKey: ''
