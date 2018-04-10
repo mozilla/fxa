@@ -292,6 +292,20 @@ describe('/v1', function() {
         });
       });
 
+      it('redirects `action=email` to `/`', function() {
+        return Server.api.get('/authorization?action=email')
+        .then(function(res) {
+          assert.equal(res.statusCode, 302);
+          assertSecurityHeaders(res);
+          var redirect = url.parse(res.headers.location, true);
+
+          var target = url.parse(config.get('contentUrl'), true);
+          assert.equal(redirect.pathname, target.pathname);
+          assert.equal(redirect.host, target.host);
+          assert.equal(redirect.query.action, 'email');
+        });
+      });
+
       it('rewrites `login_hint=foo` to `email=foo`', function() {
         var endpoint = '/authorization?action=signin&login_hint=' +
           encodeURIComponent(VEMAIL);

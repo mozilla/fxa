@@ -287,9 +287,15 @@ content-server page.
 - `redirect_uri`: Optional. If supplied, a string URL of where to redirect afterwards. Must match URL from registration.
 - `scope`: Optional. A space-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog. If this includes the scope `openid`, this will be an OpenID Connect authentication request.
 - `access_type`: Optional. If provided, should be `online` or `offline`. `offline` will result in a refresh_token being provided, so that the access_token can be refreshed after it expires.
-- `action`: Optional. If provided, should be `signup`, `signin`, or `force_auth`. Send to improve the user experience, based on whether they clicked on a Sign In or Sign Up button. `force_auth` requires the user to sign in using the address specified in `email`. If unspecified then Firefox Accounts will try choose intelligently between `signin` and `signup` based on the user's browser state.
-- `email`: Optional if `action` is `signup` or `signin`. Required if `action`
+- `action`: Optional. If provided, should be `email`, `signup`, `signin`, or `force_auth`. Send to improve the user experience.
+  - If unspecified then Firefox Accounts will try choose intelligently between `signin` and `signup` based on the user's browser state.
+  - `email` triggers the email-first flow, which uses the email address to determine whether to display signup or signin.
+  - `signin` triggers the signin flow.
+  - `signup` triggers the signup flow.
+  - `force_auth` requires the user to sign in using the address specified in `email`.
+- `email`: Optional if `action` is `email`, `signup` or `signin`. Required if `action`
   is `force_auth`.
+  - if `action` is `email`, the email address will be used to determine whether to display the signup or signin form, but the user is free to change it.
   - If `action` is `signup` or `signin`, the email address will be pre-filled into the account form, but the user is free to change it.
   - If `action` is `signin`, the literal string `blank` will force the user to enter an email address and the last signed in email address will be ignored.
   - If `action` is `signin` and no email address is specified, the last
@@ -380,7 +386,7 @@ particular user.
     - `code`: A string that was received from the [authorization][] endpoint.
   - If `refresh_token`:
     - `client_id`: The id returned from client registration.
-    - `client_secret`: The secret returned from client registration. 
+    - `client_secret`: The secret returned from client registration.
       This must not be set if the client is a public (PKCE) client.
     - `refresh_token`: A string that received from the [token][]
       endpoint specifically as a refresh token.

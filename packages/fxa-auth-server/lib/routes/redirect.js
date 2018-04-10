@@ -7,15 +7,20 @@ const url = require('url');
 const config = require('../config');
 const AppError = require('../error');
 
+const ACTION_TO_PATHNAMES = {
+  'email': '',
+  'signin': 'signin',
+  'signup': 'signup',
+  'force_auth': 'force_auth'
+};
+
 function actionToPathname(action) {
-  if (action === 'signup') {
-    return 'signup';
-  } else if (action === 'force_auth') {
-    return 'force_auth';
-  } else if (action === 'signin') {
-    return 'signin';
-  } else if (action === undefined) {
+  if (action === undefined) {
     return '';
+  }
+
+  if (ACTION_TO_PATHNAMES.hasOwnProperty(action)) {
+    return ACTION_TO_PATHNAMES[action];
   }
 
   throw new Error('Bad action parameter');
@@ -34,7 +39,13 @@ module.exports = {
     }
 
     if (! err) {
-      delete req.query.action;
+      if (req.query.action !== 'email') {
+        // only `action=email` is propagated as a hint
+        // to the content server to show the email-first
+        // flow. All other actions redirect to a named
+        // endpoint.
+        delete req.query.action;
+      }
 
       if (req.query.login_hint && ! req.query.email) {
         req.query.email = req.query.login_hint;
