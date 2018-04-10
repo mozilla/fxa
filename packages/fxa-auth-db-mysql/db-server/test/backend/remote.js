@@ -528,7 +528,7 @@ module.exports = function(cfg, makeServer) {
             assert(s.deviceCallbackPublicKey)
             assert.equal(s.deviceCallbackURL, 'fake callback URL')
             assert.equal(s.deviceCallbackIsExpired, false)
-            assert.deepEqual(s.deviceCapabilities, ['pushbox'])
+            assert.deepEqual(s.deviceCapabilities, ['messages'])
             assert(s.deviceCreatedAt)
             assert(s.deviceId)
             assert.equal(s.deviceName, 'fake device name')
@@ -599,7 +599,7 @@ module.exports = function(cfg, makeServer) {
           .then(function(r) {
             assert.equal(r.obj.length, 0, 'devices is empty')
             const myDevice = Object.assign({}, user.device, {
-              capabilities: ['unknown', 'pushbox']
+              capabilities: ['unknown', 'messages']
             })
             return client.putThen('/account/' + user.accountId + '/device/' + user.deviceId, myDevice)
             .then(() => {

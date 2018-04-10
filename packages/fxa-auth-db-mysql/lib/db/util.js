@@ -42,10 +42,12 @@ const VERIFICATION_METHODS = new Map([
 
 // If you modify one of these maps, modify the other.
 const DEVICE_CAPABILITIES = new Map([
-  ['pushbox', 1]
+  ['messages', 1],
+  ['messages.sendtab', 2]
 ])
 const DEVICE_CAPABILITIES_IDS = new Map([
-  [1, 'pushbox']
+  [1, 'messages'],
+  [2, 'messages.sendtab']
 ])
 
 module.exports = {

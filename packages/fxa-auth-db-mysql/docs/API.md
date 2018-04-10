@@ -666,7 +666,7 @@ Content-Type: application/json
         "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
         "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong",
         "callbackIsExpired": false,
-        "capabilities": ["pushbox"],
+        "capabilities": ["messages"],
         "uaBrowser": "Firefox",
         "uaBrowserVersion": "42",
         "uaOS": "Android",
@@ -725,7 +725,7 @@ Content-Type: application/json
     "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
     "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong",
     "callbackIsExpired": false,
-    "capabilities": ["pushbox"]
+    "capabilities": ["messages"]
 }
 ```
 
@@ -761,7 +761,7 @@ curl \
       "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
       "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong",
       "callbackIsExpired": false,
-      "capabilities": ["pushbox"]
+      "capabilities": ["messages"]
     }'
 ```
 
@@ -810,7 +810,7 @@ curl \
       "callbackPublicKey": "BCp93zru09_hab2Bg37LpTNG__Pw6eMPEP2hrQpwuytoj3h4chXpGc-3qqdKyqjuvAiEupsnOd_RLyc7erJHWgA",
       "callbackAuthKey": "w3b14Zjc-Afj2SDOLOyong",
       "callbackIsExpired": false,
-      "capabilities": ["pushbox"]
+      "capabilities": ["messages"]
     }'
 ```
 
@@ -924,7 +924,7 @@ Content-Length: 285
     "deviceCallbackURL":null,
     "deviceCallbackPublicKey":null,
     "deviceCallbackIsExpired":false,
-    "deviceCapabilities":["pushbox"],
+    "deviceCapabilities":["messages"],
     "mustVerify":true,
     "tokenVerificationId":"12c41fac80fd6149f3f695e188b5f846"
 }
@@ -991,7 +991,7 @@ Content-Length: 285
     "deviceCallbackURL":null,
     "deviceCallbackPublicKey":null,
     "deviceCallbackIsExpired":false,
-    "deviceCapabilities":["pushbox"],
+    "deviceCapabilities":["messages"],
     "mustVerify":true,
     "tokenVerificationId":"12c41fac80fd6149f3f695e188b5f846"
 }
