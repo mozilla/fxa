@@ -70,6 +70,17 @@ define(function (require, exports, module) {
         assert.equal(expInt3.forceExperiment, 'something');
         assert.isTrue(expInt3.initialized, 'forceExperiment overrides user agent');
       });
+
+      it('supports webdriver override', () => {
+        expOptions.window.navigator.webdriver = true;
+        const expInt = new ExperimentInterface(expOptions);
+        assert.isFalse(expInt.initialized, 'do not init if webdriver override');
+
+        expOptions.window.location.search = 'forceExperiment=something';
+        const expInt2 = new ExperimentInterface(expOptions);
+        assert.equal(expInt2.forceExperiment, 'something');
+        assert.isTrue(expInt2.initialized, 'forceExperiment overrides user agent');
+      });
     });
 
     describe('createExperiment', () => {

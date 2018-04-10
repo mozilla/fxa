@@ -63,8 +63,9 @@ define(function (require, exports, module) {
     this.user = options.user;
 
     const agent = this.window.navigator.userAgent;
+    const isWebDriver = this.window.navigator.webdriver;
     // if this is running in functional test mode then we do not want any unpredictable experiments
-    if (agent.indexOf(UA_OVERRIDE) >= 0 && ! this.forceExperiment) {
+    if ((isWebDriver || agent.indexOf(UA_OVERRIDE) >= 0) && ! this.forceExperiment) {
       this.initialized = false;
       return;
     }
