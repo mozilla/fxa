@@ -148,10 +148,10 @@
     },
     {
       "name": "sync server PORT 5000",
-      "script": "../_scripts/syncserver.sh",
-      "cwd": "syncserver",
+      "script": "_scripts/syncserver.sh",
       "max_restarts": "1",
-      "min_uptime": "2m"
+      "min_uptime": "2m",
+      "autorestart": false
     },
     {
       "name": "redis PORT 6379",
@@ -172,7 +172,7 @@
       "name": "Fake SQS/SNS PORT 4100",
       "script": "_scripts/goaws.sh",
       "max_restarts": "1",
-      "min_uptime": "5s",
+      "min_uptime": "2m",
       "autorestart": false
     }
   ]

@@ -106,6 +106,19 @@ sudo easy_install pip && sudo pip install virtualenv
 sudo apt-get install build-essential git-core libgmp3-dev graphicsmagick redis-server python-virtualenv
 python-dev memcached docker-ce
 ```
+Docker commands require sudo, to avoid it, follow steps below:  
+1. Add the docker group if it doesn't already exist
+```
+sudo groupadd docker
+```
+2. Add the connected user $USER to the docker group
+```
+sudo gpasswd -a $USER docker
+```
+3. Restart the docker daemon
+```
+sudo service docker restart
+```
 
 #### Installing Node.js
 

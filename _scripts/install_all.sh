@@ -26,8 +26,6 @@ git clone https://github.com/mozilla/fxa-basket-proxy.git &
 
 git clone https://github.com/mozilla/123done.git -b oauth &
 
-git clone https://github.com/mozilla-services/syncserver.git &
-
 wait
 
 # Install and Setup all the projects
@@ -48,7 +46,7 @@ cd fxa-basket-proxy; npm i; cd ..
 
 cd 123done; npm i; CONFIG_123DONE=./config-local.json node ./scripts/gen_keys.js; cd ..
 
-cd syncserver; make build; cd ..
+docker pull mozilla/syncserver
 
 docker pull pafortin/goaws
 
