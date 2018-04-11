@@ -68,54 +68,37 @@ $(document).ready(function() {
         });
     };
 
-    function authenticate (endpoint, flow) {
-      if (window.location.href.indexOf('iframe') > -1) {
-        $.getJSON('/api/' + endpoint)
-          .done(function (data) {
-            var relierClient = new FxaRelierClient(data.client_id, {
-              oauthHost: data.oauth_uri,
-              contentHost: data.content_uri
-            });
-
-            relierClient.auth[flow]({
-              ui: 'lightbox',
-              state: data.state,
-              scope: data.scope,
-              redirectUri: data.redirect_uri
-            }).then(function (result) {
-              document.location.href = result.redirect;
-            }, function (err) {
-              console.log('iframe auth err: %s', JSON.stringify(err));
-            });
+    function authenticate (endpoint) {
+      $.getJSON('/api/' + endpoint)
+        .done(function (data) {
+          var queryParams = {
+            client_id: data.client_id,
+            action: data.action,
+            state: data.state,
+            scope: 'profile',
+          };
+          window.location.href = data.oauth_uri + '/authorization' + objectToQueryString(queryParams);
         });
-      } else {
-        $.getJSON('/api/' + endpoint)
-          .done(function (data) {
-            var relierClient = new FxaRelierClient(data.client_id, {
-              oauthHost: data.oauth_uri,
-              contentHost: data.content_uri
-            });
-
-            relierClient.auth[flow]({
-              ui: 'redirect',
-              state: data.state,
-              scope: data.scope,
-              redirectUri: data.redirect_uri
-            });
-        });
-      }
     }
 
     $('button.signin').click(function(ev) {
-      authenticate('login', 'signIn');
+      authenticate('login');
     });
 
     $('button.signup').click(function(ev) {
-      authenticate('signup', 'signUp');
+      authenticate('signup');
     });
 
     $('button.sign-choose').click(function(ev) {
-      authenticate('best_choice', 'bestChoice');
+      authenticate('best_choice');
+    });
+
+    $('button.sign-choose').click(function(ev) {
+      authenticate('best_choice');
+    });
+
+    $('button.email-first').click(function(ev) {
+      authenticate('email_first');
     });
 
     // upon click of logout link navigator.id.logout()
@@ -130,4 +113,37 @@ $(document).ready(function() {
     State.load();
     $('body').addClass('ready').addClass('ready-hash-' + window.location.hash.substr(1));
   });
+
+  /**
+ * Create a query parameter string from a key and value
+ *
+ * @method createQueryParam
+ * @param {String} key
+ * @param {Variant} value
+ * @returns {String}
+ * URL safe serialized query parameter
+ */
+function createQueryParam(key, value) {
+  return encodeURIComponent(key) + '=' + encodeURIComponent(value);
+}
+
+
+/**
+ * Create a query string out of an object.
+ * @method objectToQueryString
+ * @param {Object} obj
+ * Object to create query string from
+ * @returns {String}
+ * URL safe query string
+ */
+function objectToQueryString(obj) {
+  var queryParams = [];
+
+  for (var key in obj) {
+    queryParams.push(createQueryParam(key, obj[key]));
+  }
+
+  return '?' + queryParams.join('&');
+}
+
 });

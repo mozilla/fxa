@@ -87,6 +87,18 @@ module.exports = function(app, db) {
     });
   });
 
+  // begin a new oauth email-first flow
+  app.get('/api/email_first', function(req, res) {
+    var nonce = generateAndSaveNonce(req);
+    var oauthInfo = getOAuthInfo('email', nonce);
+    res.format({
+      'application/json': function () {
+        res.json(oauthInfo);
+      }
+    });
+  });
+
+
   // begin a force auth flow
   app.get('/api/force_auth', function(req, res) {
     var nonce = generateAndSaveNonce(req);
