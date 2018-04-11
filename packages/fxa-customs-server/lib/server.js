@@ -14,6 +14,7 @@ var blockReasons = require('./block_reasons')
 var P = require('bluebird')
 P.promisifyAll(Memcached.prototype)
 var Raven = require('raven')
+const utils = require('./utils')
 
 // Create and return a restify server instance
 // from the given config.
@@ -76,10 +77,29 @@ module.exports = function createServer(config, log) {
   var IpEmailRecord = require('./ip_email_record')(limits)
   var EmailRecord = require('./email_record')(limits)
   var IpRecord = require('./ip_record')(limits)
+  const Record = require('./record')
   var UidRecord = require('./uid_record')(limits)
   var smsRecord = require('./sms_record')(limits)
 
   var handleBan = P.promisify(require('./bans/handler')(config.memcache.recordLifetimeSeconds, mc, EmailRecord, IpRecord, log))
+
+  // Pre compute user defined rules into a Map<action, array of rule name>
+  function computeUserDefinedRules() {
+    const result = new Map()
+    const rules = config.userDefinedRateLimitRules
+    Object.keys(config.userDefinedRateLimitRules).forEach((key) => {
+      rules[key].actions.forEach((action) => {
+        const items = result.get(action)
+        if (! items) {
+          result.set(action, [key])
+        } else {
+          result.set(action, items.push(key))
+        }
+      })
+    })
+    return result
+  }
+  const computedRules = computeUserDefinedRules()
 
   var api = restify.createServer({
     formatters: {
@@ -196,140 +216,180 @@ module.exports = function createServer(config, log) {
     return rawEmail.toLowerCase()
   }
 
-  api.post(
-    '/check',
-    function (req, res, next) {
-      var email = req.body.email
-      var ip = req.body.ip
-      var action = req.body.action
-      var headers = req.body.headers || {}
-      var payload = req.body.payload || {}
+  api.post('/check', (req, res, next) => {
+    let email = req.body.email
+    const ip = req.body.ip
+    const action = req.body.action
+    const headers = req.body.headers || {}
+    const payload = req.body.payload || {}
 
-      if (!email || !ip || !action) {
-        var err = {code: 'MissingParameters', message: 'email, ip and action are all required'}
-        log.error({ op: 'request.check', email: email, ip: ip, action: action, err: err })
-        res.send(400, err)
-        return next()
-      }
-      email = normalizedEmail(email)
-
-      // Phone number is optional
-      var phoneNumber
-      if (req.body.payload && req.body.payload.phoneNumber) {
-        phoneNumber = req.body.payload.phoneNumber
-      }
-
-
-      fetchRecords(ip, email, phoneNumber)
-        .spread(
-          function (ipRecord, reputation, emailRecord, ipEmailRecord, smsRecord) {
-            if (ipRecord.isBlocked()) {
-              // a blocked ip should just be ignored completely
-              // it's malicious, it shouldn't penalize emails or allow
-              // (most) escape hatches. just abort!
-              return {
-                block: true,
-                retryAfter: ipRecord.retryAfter()
-              }
-            }
-
-            var wantsUnblock = req.body.payload && req.body.payload.unblockCode
-            var blockEmail = emailRecord.update(action, !!wantsUnblock)
-            var blockIpEmail = ipEmailRecord.update(action)
-            var blockIp = ipRecord.update(action, email)
-
-            var blockSMS = 0
-            if (smsRecord) {
-              blockSMS = smsRecord.update(action)
-            }
-
-            if (blockIpEmail && ipEmailRecord.unblockIfReset(emailRecord.pr)) {
-              blockIpEmail = 0
-            }
-
-            var retryAfter = [blockEmail, blockIpEmail, blockIp, blockSMS].reduce(max)
-            var block = retryAfter > 0
-            var suspect = false
-            var blockReason = null
-
-            if (block) {
-              blockReason = blockReasons.OTHER
-            }
-
-            if (requestChecks.treatEveryoneWithSuspicion || reputationService.isSuspectBelow(reputation)) {
-              suspect = true
-            }
-            // The private branch puts some additional request checks here.
-            // We just use the variables so that eslint doesn't complain about them.
-            payload || headers
-
-            var canUnblock = emailRecord.canUnblock()
-
-            // IP's that are in blocklist should be blocked
-            // and not return a retryAfter because it is not known
-            // when they would be removed from blocklist
-            if (config.ipBlocklist.enable && blockListManager.contains(ip)) {
-              block = true
-              blockReason = blockReasons.IP_IN_BLOCKLIST
-              retryAfter = 0
-            }
-
-            if (reputationService.isBlockBelow(reputation)) {
-              block = true
-              retryAfter = ipRecord.retryAfter()
-              blockReason = blockReasons.IP_BAD_REPUTATION
-            }
-
-            return setRecords(ip, ipRecord, email, emailRecord, ipEmailRecord, phoneNumber, smsRecord)
-              .then(
-                function () {
-                  return {
-                    block: block,
-                    blockReason: blockReason,
-                    retryAfter: retryAfter,
-                    unblock: canUnblock,
-                    suspect: suspect
-                  }
-                }
-              )
-          }
-        )
-        .then(
-          function (result) {
-            allowWhitelisted(result, ip, email, phoneNumber)
-
-            log.info({
-              op: 'request.check',
-              email: email,
-              ip: ip,
-              action: action,
-              block: result.block,
-              unblock: result.unblock,
-              suspect: result.suspect
-            })
-            res.send({
-              block: result.block,
-              retryAfter: result.retryAfter,
-              unblock: result.unblock,
-              suspect: result.suspect
-            })
-
-            optionallyReportIp(result, ip, action)
-          },
-          function (err) {
-            log.error({ op: 'request.check', email: email, ip: ip, action: action, err: err })
-
-            // Default is to block request on any server based error
-            res.send({
-              block: true,
-              retryAfter: limits.rateLimitIntervalSeconds,
-              unblock: false
-            })
-          }
-        )
-        .done(next, next)
+    if (!email || !ip || !action) {
+      const err = {code: 'MissingParameters', message: 'email, ip and action are all required'}
+      log.error({op: 'request.check', email, ip, action, err})
+      res.send(400, err)
+      return next()
     }
-  )
+    email = normalizedEmail(email)
+
+    // Phone number is optional
+    let phoneNumber
+    if (payload.phoneNumber) {
+      phoneNumber = payload.phoneNumber
+    }
+
+    function checkRecords(ipRecord, reputation, emailRecord, ipEmailRecord, smsRecord) {
+      if (ipRecord.isBlocked()) {
+        // a blocked ip should just be ignored completely
+        // it's malicious, it shouldn't penalize emails or allow
+        // (most) escape hatches. just abort!
+        return {
+          block: true,
+          retryAfter: ipRecord.retryAfter()
+        }
+      }
+
+      // Check each record type to see if a retryAfter has been set
+      const wantsUnblock = payload.unblockCode
+      const blockEmail = emailRecord.update(action, !!wantsUnblock)
+      let blockIpEmail = ipEmailRecord.update(action)
+      const blockIp = ipRecord.update(action, email)
+
+      let blockSMS = 0
+      if (smsRecord) {
+        blockSMS = smsRecord.update(action)
+      }
+
+      if (blockIpEmail && ipEmailRecord.unblockIfReset(emailRecord.pr)) {
+        blockIpEmail = 0
+      }
+
+      let retryAfter = [blockEmail, blockIpEmail, blockIp, blockSMS].reduce(max)
+      let block = retryAfter > 0
+      let suspect = false
+      let blockReason = null
+
+      if (block) {
+        blockReason = blockReasons.OTHER
+      }
+
+      if (requestChecks.treatEveryoneWithSuspicion || reputationService.isSuspectBelow(reputation)) {
+        suspect = true
+      }
+      // The private branch puts some additional request checks here.
+      // We just use the variables so that eslint doesn't complain about them.
+      payload || headers
+
+      let canUnblock = emailRecord.canUnblock()
+
+      // IP's that are in blocklist should be blocked
+      // and not return a retryAfter because it is not known
+      // when they would be removed from blocklist
+      if (config.ipBlocklist.enable && blockListManager.contains(ip)) {
+        block = true
+        blockReason = blockReasons.IP_IN_BLOCKLIST
+        retryAfter = 0
+      }
+
+      if (reputationService.isBlockBelow(reputation)) {
+        block = true
+        retryAfter = ipRecord.retryAfter()
+        blockReason = blockReasons.IP_BAD_REPUTATION
+      }
+
+      return setRecords(ip, ipRecord, email, emailRecord, ipEmailRecord, phoneNumber, smsRecord)
+        .then(() => {
+          return {
+            block,
+            blockReason,
+            retryAfter,
+            unblock: canUnblock,
+            suspect
+          }
+        })
+    }
+
+    function checkUserDefinedRateLimitRules(result) {
+      // Get all the user defined rules that might apply to this action
+      const rules = config.userDefinedRateLimitRules
+      const checkRules = computedRules.get(action)
+
+      // No need to check if no user defined rules
+      if (! checkRules || checkRules.length <= 0) {
+        return result
+      }
+
+      const retries = []
+      return P.each(checkRules, (ruleName) => {
+        let retryAfter = null
+        const recordKey = ruleName + ':' + utils.createHashHex(email, ip)
+        return mc.getAsync(recordKey)
+          .then((object) => {
+            return new Record(object, rules[ruleName])
+          }, () => {
+            return new Record({}, rules[ruleName])
+          })
+          .then((record) => {
+            retryAfter = record.update(action)
+            const minLifetimeMS = record.getMinLifetimeMS()
+
+            // To save space in memcache, don't store limits and
+            // actions since they can be referenced from config
+            record.limits = null
+            record.actions = null
+
+            const lifetime = Math.max(config.memcache.recordLifetimeSeconds, minLifetimeMS / 1000)
+            return mc.setAsync(recordKey, record, lifetime)
+          })
+          .then(() => retries.push(retryAfter))
+      })
+      .then(() => {
+        const maxRetry = Math.max(retries)
+        const block = maxRetry > 0
+        const retryAfter = maxRetry || 0
+
+        // Only update the retryAfter if it has a larger rate limit
+        if (retryAfter && retryAfter > result.retryAfter) {
+          result.retryAfter = retryAfter
+          result.block = block
+        }
+
+        return result
+      })
+    }
+
+    function createResponse(result) {
+      const {block, unblock, suspect} = result
+
+      allowWhitelisted(result, ip, email, phoneNumber)
+
+      log.info({op: 'request.check', email, ip, action, block, unblock, suspect})
+      res.send({
+        block: result.block,
+        retryAfter: result.retryAfter,
+        unblock: result.unblock,
+        suspect: result.suspect
+      })
+
+      optionallyReportIp(result, ip, action)
+    }
+
+    function handleError(err) {
+      log.error({op: 'request.check', email: email, ip: ip, action: action, err: err})
+
+      // Default is to block request on any server based error
+      res.send({
+        block: true,
+        retryAfter: limits.rateLimitIntervalSeconds,
+        unblock: false
+      })
+    }
+
+    return fetchRecords(ip, email, phoneNumber)
+      .spread(checkRecords)
+      .then(checkUserDefinedRateLimitRules)
+      .then(createResponse, handleError)
+      .done(next, next)
+  })
 
   api.post(
     '/checkAuthenticated',

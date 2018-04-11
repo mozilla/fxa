@@ -279,6 +279,37 @@ module.exports = function (fs, path, url, convict) {
       default: '',
       format: 'String',
       env: 'SENTRY_DSN'
+    },
+    userDefinedRateLimitRules: {
+      totpCodeRules: {
+        actions: {
+          doc: 'Array of actions that this rule should be applied to',
+          default: [
+            'verifyTotpCode',
+          ],
+          format: Array
+        },
+        limits: {
+          max: {
+            doc: 'max actions during `period` that can occur before rate limit is applied',
+            format: 'nat',
+            default: 2,
+            env: 'TOTP_CODE_RULE_MAX'
+          },
+          periodMs: {
+            doc: 'period needed before rate limit is reset',
+            format: 'duration',
+            default: '30 seconds',
+            env: 'TOTP_CODE_RULE_PERIOD_MS'
+          },
+          rateLimitIntervalMs: {
+            doc: 'how long rate limit is applied',
+            format: 'duration',
+            default: '30 seconds',
+            env: 'TOTP_CODE_RULE_LIMIT_INTERVAL_MS'
+          }
+        }
+      }
     }
   })
 
