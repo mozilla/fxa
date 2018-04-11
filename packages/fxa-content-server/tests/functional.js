@@ -11,6 +11,7 @@ module.exports = [
   'tests/functional/sign_in_cached.js',
   'tests/functional/sign_in_blocked.js',
   'tests/functional/sign_in_totp.js',
+  'tests/functional/sign_in_recovery_code.js',
   'tests/functional/sync_sign_in.js',
   'tests/functional/sync_force_auth.js',
   'tests/functional/sign_up.js',

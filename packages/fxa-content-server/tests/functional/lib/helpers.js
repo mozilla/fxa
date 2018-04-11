@@ -11,6 +11,11 @@ const Querystring = require('querystring');
 const nodeXMLHttpRequest = require('xmlhttprequest');
 const assert = intern.getPlugin('chai').assert;
 
+// Default options for TOTP
+const otplib = require('otplib');
+otplib.authenticator.options = {encoding: 'hex'};
+
+
 const FxaClient = require('fxa-js-client');
 const got = require('got');
 const config = intern._config;
@@ -2094,6 +2099,22 @@ const waitForUrl = thenify(function (url) {
     });
 });
 
+const generateTotpCode = (secret) => {
+  secret = secret.replace(/[- ]*/g, '');
+  const authenticator = new otplib.authenticator.Authenticator();
+  authenticator.options = otplib.authenticator.options;
+  return authenticator.generate(secret);
+};
+
+const confirmTotpCode = thenify(function (secret) {
+  return this.parent.then(type(selectors.TOTP.CONFIRM_CODE_INPUT, generateTotpCode(secret)))
+    .then(click(selectors.TOTP.CONFIRM_CODE_BUTTON))
+    .then(testElementExists(selectors.SIGNIN_RECOVERY_CODE.MODAL))
+    .then(click(selectors.SIGNIN_RECOVERY_CODE.DONE_BUTTON))
+    .then(testSuccessWasShown)
+    .then(testElementExists(selectors.TOTP.STATUS_ENABLED));
+});
+
 module.exports = {
   cleanMemory,
   clearBrowserNotifications: clearBrowserNotifications,
@@ -2101,6 +2122,7 @@ module.exports = {
   clearSessionStorage: clearSessionStorage,
   click: click,
   closeCurrentWindow: closeCurrentWindow,
+  confirmTotpCode,
   createUser: createUser,
   deleteAllEmails,
   deleteAllSms,
@@ -2117,6 +2139,7 @@ module.exports = {
   fillOutSignInUnblock: fillOutSignInUnblock,
   fillOutSignUp: fillOutSignUp,
   focus: focus,
+  generateTotpCode,
   getEmail,
   getEmailHeaders: getEmailHeaders,
   getFxaClient: getFxaClient,

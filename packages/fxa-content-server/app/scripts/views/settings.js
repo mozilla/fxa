@@ -32,12 +32,14 @@ define(function (require, exports, module) {
   const UserAgentMixin = require('../lib/user-agent-mixin');
 
   const TwoStepAuthenticationView = require('./settings/two_step_authentication');
+  const RecoveryCodesView = require('./settings/recovery_codes');
 
   var PANEL_VIEWS = [
     AvatarView,
     DisplayNameView,
     EmailsView,
     TwoStepAuthenticationView,
+    RecoveryCodesView,
     ClientsView,
     ClientDisconnectView,
     CommunicationPreferencesView,

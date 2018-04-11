@@ -44,6 +44,8 @@ define(function (require, exports, module) {
     onModalCancel () {
       if (this.currentPage === 'settings/clients/disconnect') {
         this._returnToClients();
+      } else if (this.currentPage === 'settings/two_step_authentication/recovery_codes') {
+        this._returnToTwoFactorAuthentication();
       } else {
         this._returnToSettings();
       }

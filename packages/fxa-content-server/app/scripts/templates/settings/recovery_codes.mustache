@@ -1,0 +1,43 @@
+<div id="recovery-codes">
+    <section class="modal-panel">
+        <p class="modal-success">{{modalSuccessMsg}}</p>
+        <div class="error"></div>
+
+        <h2>{{#t}}Recovery codes{{/t}}</h2>
+
+        <p class="description">
+            <span class="note">{{#t}}NOTE:{{/t}}</span>
+            {{#t}}
+                These codes will only be shown and can only be used once. Store them in a safe place in the event you lose access to your mobile device.
+            {{/t}}
+        </p>
+
+        <form novalidate>
+            <div id="recovery-code-container">
+                {{#recoveryCodes}}
+                    <div class="recovery-code">{{code}}</div>
+                {{/recoveryCodes}}
+            </div>
+            <div class="link-options">
+                <a class="replace-codes-link">{{#t}}Generate new recovery codes{{/t}}</a>
+            </div>
+            <div class="button-row recovery-code-options">
+                <a class="recovery-code-option download-codes">
+                    <div class="graphic graphic-recovery-codes-download"></div>
+                    <p class="name">{{#t}}Download{{/t}}</p>
+                </a>
+                <a class="recovery-code-option copy-codes">
+                    <div class="graphic graphic-recovery-codes-copy"></div>
+                    <p class="name">{{#t}}Copy{{/t}}</p>
+                </a>
+                <a class="recovery-code-option print-codes">
+                    <div class="graphic graphic-recovery-codes-print"></div>
+                    <p class="name">{{#t}}Print{{/t}}</p>
+                </a>
+            </div>
+            <div class="button-row">
+                <button class="settings-button secondary two-step-authentication-done">{{#t}}Done{{/t}}</button>
+            </div>
+        </form>
+    </section>
+</div>

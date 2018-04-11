@@ -1005,7 +1005,27 @@ define(function (require, exports, module) {
      * @param {String} code TOTP code
      * @returns {Promise} resolves when complete
      */
-    verifyTotpCode: createClientDelegate('verifyTotpCode')
+    verifyTotpCode: createClientDelegate('verifyTotpCode'),
+
+    /**
+     * Consume and verifies a session with a recovery code.
+     *
+     * @param {String} sessionToken SessionToken obtained from signIn
+     * @param {String} code Recovery code
+     * @param {Object} [options={}] Options
+     *   @param {String} [options.metricsContext] - context metadata for use in
+     *                   flow events
+     * @returns {Promise} resolves when complete
+     */
+    consumeRecoveryCode: createClientDelegate('consumeRecoveryCode'),
+
+    /**
+     * Replace all user recovery codes.
+     *
+     * @param {String} sessionToken SessionToken obtained from signIn
+     * @returns {Promise} resolves when complete
+     */
+    replaceRecoveryCodes: createClientDelegate('replaceRecoveryCodes')
   };
 
   module.exports = FxaClientWrapper;

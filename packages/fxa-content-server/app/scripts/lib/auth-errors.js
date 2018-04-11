@@ -206,10 +206,6 @@ define(function (require, exports, module) {
       errno: 153,
       message: t('This verification code has expired')
     },
-    INVALID_TOTP_CODE: {
-      errno: 154,
-      message: t('Invalid two-step authentication code')
-    },
     // Secondary Email errors end
     SERVER_BUSY: {
       errno: 201,
@@ -460,6 +456,22 @@ define(function (require, exports, module) {
     REUSED_PRIMARY_EMAIL_VERIFICATION_CODE: {
       errno: 1052,
       message: t('That confirmation link was already used, and can only be used once.')
+    },
+    TOTP_CODE_REQUIRED: {
+      errno: 1053,
+      message: t('Two-step authentication code required')
+    },
+    INVALID_TOTP_CODE: {
+      errno: 1054,
+      message: t('Invalid two-step authentication code')
+    },
+    RECOVERY_CODE_REQUIRED: {
+      errno: 1055,
+      message: t('Recovery code required')
+    },
+    INVALID_RECOVERY_CODE: {
+      errno: 1056,
+      message: t('Invalid recovery code')
     },
   };
   /*eslint-enable sorting/sort-object-props*/

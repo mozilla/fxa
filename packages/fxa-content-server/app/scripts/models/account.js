@@ -1294,6 +1294,34 @@ define(function (require, exports, module) {
       return this._fxaClient.checkTotpTokenExists(
         this.get('sessionToken')
       );
+    },
+
+    /**
+     * Consume a recovery code.
+     *
+     * @param {String} code
+
+     * @returns {Promise}
+     */
+    consumeRecoveryCode (code) {
+      return this._fxaClient.consumeRecoveryCode(
+        this.get('sessionToken'),
+        code,
+        {
+          metricsContext: this._metrics.getFlowEventMetadata(),
+        }
+      );
+    },
+
+    /**
+     * Replaces all current recovery codes.
+     *
+     * @returns {Promise}
+     */
+    replaceRecoveryCodes () {
+      return this._fxaClient.replaceRecoveryCodes(
+        this.get('sessionToken')
+      );
     }
 
   }, {

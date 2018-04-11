@@ -16,7 +16,7 @@
 
 const { EMAIL_TYPES, GROUPS, initialize } = require('fxa-shared/metrics/amplitude');
 const geolocate = require('./geo-locate');
-const ua = require('node-uap');
+const ua = require('./user-agent');
 
 const SERVICES = require('./configuration').get('oauth_client_id_map');
 

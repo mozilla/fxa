@@ -143,13 +143,13 @@ describe('views/settings/two_step_authentication', () => {
         return initView()
           .then(() => {
             sinon.spy(view, 'showValidationError');
-            return view.confirmCode();
+            return view.submit();
           });
       });
 
       it('display error', () => {
         assert.equal(view.showValidationError.callCount, 1);
-        assert.equal(view.showValidationError.args[0][1].errno, 154, 'invalid code errno');
+        assert.equal(view.showValidationError.args[0][1].errno, 1054, 'invalid code errno');
       });
     });
 
@@ -160,7 +160,7 @@ describe('views/settings/two_step_authentication', () => {
           .then(() => {
             sinon.spy(view, 'render');
             sinon.spy(view, 'displaySuccess');
-            view.confirmCode();
+            view.submit();
           });
       });
 

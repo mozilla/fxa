@@ -28,12 +28,12 @@ const View = FormView.extend({
   viewName: 'settings.two-step-authentication',
 
   events: {
+    'click .replace-codes-link': preventDefaultThen('_replaceRecoveryCodes'),
     'click .show-code-link': preventDefaultThen('_showCode'),
     'click .totp-cancel': preventDefaultThen('cancel'),
-    'click .totp-confirm-code': preventDefaultThen('confirmCode'),
     'click .totp-create': preventDefaultThen('createToken'),
     'click .totp-delete': preventDefaultThen('deleteToken'),
-    'click .totp-refresh': preventDefaultThen('refresh'),
+    'click .totp-refresh': preventDefaultThen('refresh')
   },
 
   _checkTokenExists() {
@@ -44,19 +44,12 @@ const View = FormView.extend({
       });
   },
 
-  _sanitizeCode(code) {
-    // Remove spaces and `-`
-    return code.replace(/[- ]*/g, '');
-  },
-
   _showQrCode() {
     this.$('#totp').removeClass('hidden');
   },
 
   _hideStatus() {
     this.$('.totp-list').addClass('hidden');
-    this.$('.totp-refresh').addClass('hidden');
-    this.$('.totp-confirm-code').removeClass('hidden');
   },
 
   _showCode() {
@@ -76,10 +69,23 @@ const View = FormView.extend({
     return false;
   },
 
+  _showRecoveryCodes(recoveryCodes) {
+    this.model.set('recoveryCodes', recoveryCodes);
+    this.navigate('/settings/two_step_authentication/recovery_codes', {recoveryCodes});
+  },
+
+  _replaceRecoveryCodes() {
+    const account = this.getSignedInAccount();
+    return account.replaceRecoveryCodes()
+      .then((result) => {
+        this._showRecoveryCodes(result.recoveryCodes);
+      });
+  },
+
   beforeRender() {
     // This panel is currently behind a feature flag. Only show it
     // when the query param `showTwoStepAuthentication` is specified.
-    if (! this._isPanelEnabled()) {
+    if ( ! this._isPanelEnabled()) {
       return this.remove();
     } else {
       return this._checkTokenExists();
@@ -127,24 +133,27 @@ const View = FormView.extend({
       .then(() => this.navigate('/settings'));
   },
 
-  confirmCode() {
+  submit() {
     const account = this.getSignedInAccount();
-    const code = this._sanitizeCode(this.getElementValue('input.totp-code'));
+    const code = this.getElementValue('input.totp-code');
+
     return account.verifyTotpCode(code)
       .then((result) => {
         if (result.success) {
           this.displaySuccess(t('Two-step authentication enabled'), {});
+          this._showRecoveryCodes(result.recoveryCodes);
           this.render();
         } else {
           throw AuthErrors.toError('INVALID_TOTP_CODE');
         }
       })
-      .catch((err) => this.showValidationError(this.$(CODE_INPUT_SELECTOR), err));
-
-  },
-
-  submit() {
-    return this.confirmCode();
+      .catch((err) => {
+        // For invalid code param, display invalid TOTP code error
+        if (AuthErrors.is(err, 'INVALID_PARAMETER')) {
+          err = AuthErrors.toError('INVALID_TOTP_CODE');
+        }
+        return this.showValidationError(this.$(CODE_INPUT_SELECTOR), err);
+      });
   },
 
   refresh: showProgressIndicator(function () {

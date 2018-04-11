@@ -29,6 +29,10 @@ define(function (require, exports, module) {
   Vat.register('uuid', Vat.string().test(Validate.isUuidValid));
   Vat.register('verificationCode', Vat.string().test(Validate.isCodeValid));
   Vat.register('verificationRedirect', Vat.string().test(Validate.isVerificationRedirectValid));
+
+  Vat.register('totpCode', Vat.string().test(Validate.isTotpCodeValid));
+  Vat.register('recoveryCode', Vat.string().test(Validate.isRecoveryCodeValid));
+
   // depends on hex, must come afterwards
   Vat.register('clientId', Vat.hex());
 

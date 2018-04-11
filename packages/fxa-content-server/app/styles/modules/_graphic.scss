@@ -89,3 +89,39 @@
   margin-top: 20px;
   width: auto;
 }
+
+.graphic-recovery-codes {
+  background-image: url('/images/graphic_recovery_codes.svg');
+  background-position: center center;
+  background-repeat: no-repeat;
+  height: 138px;
+  margin-top: 20px;
+  width: auto;
+}
+
+.graphic-recovery-codes-download {
+  background-image: url('/images/recovery_code_download.svg');
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  height: 32px;
+  width: 33%;
+}
+
+.graphic-recovery-codes-copy {
+  background-image: url('/images/recovery_code_copy.svg');
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  height: 32px;
+  width: 33%;
+}
+
+.graphic-recovery-codes-print {
+  background-image: url('/images/recovery_code_print.svg');
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  height: 32px;
+  width: 33%;
+}
