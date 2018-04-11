@@ -148,7 +148,7 @@
     "npmshrink": "1.0.1",
     "otplib": "7.1.0",
     "proxyquire": "1.7.4",
-    "sinon": "3.2.1",
+    "sinon": "4.5.0",
     "sync-exec": "0.6.2",
     "webpack-dev-middleware": "2.0.4",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror",

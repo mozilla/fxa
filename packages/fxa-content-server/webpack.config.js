@@ -73,7 +73,7 @@ const webpackConfig = {
       mocha: 'mocha/mocha',
       modal: path.resolve(__dirname, 'node_modules/jquery-modal/jquery.modal'),
       raven: path.resolve(__dirname, 'node_modules/raven-js/dist/raven'),
-      sinon: path.resolve(__dirname, 'node_modules/sinon/pkg/sinon-3.2.1'),
+      sinon: path.resolve(__dirname, 'node_modules/sinon/pkg/sinon'),
       'touch-punch': path.resolve(__dirname, 'node_modules/jquery-ui-touch-punch-amd/jquery.ui.touch-punch'),
       'ua-parser-js': path.resolve(__dirname, 'node_modules/ua-parser-js/src/ua-parser'),
       uuid: path.resolve(__dirname, 'node_modules/node-uuid/uuid'),

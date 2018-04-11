@@ -191,7 +191,6 @@ define(function (require, exports, module) {
 
     describe('_optIn', function () {
       it('emits a subscribed event, displays a success message when complete', function () {
-        sinon.stub(emailPrefsModel, 'optOut').callsFake(() => Promise.resolve());
         sinon.stub(view, 'navigate').callsFake(() => {});
         sinon.stub(view, 'displaySuccess').callsFake(() => {});
 
