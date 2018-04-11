@@ -5,7 +5,8 @@
 const path = require('path');
 
 module.exports = {
-  require: requireDependencies
+  require: requireDependencies,
+  log: mockLog
 };
 
 // `mocks.require`
@@ -52,3 +53,18 @@ function requireDependency(dependency, modulePath, basePath) {
   return require(localPath);
 }
 
+function mockLog(logger, cb) {
+  var root = require('../../lib/logging')();
+  var log = require('../../lib/logging')(logger);
+  var filter = {
+    filter: function(record) {
+      if (cb(record)) {
+        log.removeFilter(filter);
+        log.setLevel(root.getEffectiveLevel());
+        return false;
+      }
+      return true;
+    }
+  };
+  log.addFilter(filter);
+}

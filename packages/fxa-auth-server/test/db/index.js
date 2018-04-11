@@ -13,6 +13,7 @@ const db = require('../../lib/db');
 const config = require('../../lib/config');
 const auth = require('../../lib/auth');
 const Promise = require('bluebird');
+const mock = require('../lib/mocks');
 
 /*global describe,it,before*/
 
@@ -656,6 +657,10 @@ describe('db', function() {
       });
 
       it('should throw on empty email', function() {
+        mock.log('db', rec => {
+          return rec.levelname === 'ERROR'
+              && rec.args[0] === 'getDeveloper';
+        });
         return db.getDeveloper()
           .done(
           assert.fail,
@@ -678,6 +683,10 @@ describe('db', function() {
       });
 
       it('should not allow duplicates', function() {
+        mock.log('db', rec => {
+          return rec.levelname === 'ERROR'
+              && rec.args[0] === 'activateDeveloper';
+        });
         var email = 'email' + randomString(10) + '@mozilla.com';
 
         return db.activateDeveloper(email)
@@ -695,6 +704,10 @@ describe('db', function() {
       });
 
       it('should throw on empty email', function() {
+        mock.log('db', rec => {
+          return rec.levelname === 'ERROR'
+              && rec.args[0] === 'activateDeveloper';
+        });
         return db.activateDeveloper()
           .done(
             assert.fail,
