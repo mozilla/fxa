@@ -59,7 +59,7 @@ module.exports = (log, db, mailer, customs, config) => {
         const sessionToken = request.auth.credentials
         const uid = sessionToken.uid
 
-        customs.check(request, 'totpCreate')
+        customs.check(request, sessionToken.email, 'totpCreate')
           .then(createTotpToken)
           .then(emitMetrics)
           .then(createResponse)
@@ -114,7 +114,7 @@ module.exports = (log, db, mailer, customs, config) => {
         const uid = sessionToken.uid
         let hasEnabledToken = false
 
-        customs.check(request, 'totpDestroy')
+        customs.check(request, sessionToken.email, 'totpDestroy')
           .then(checkTotpToken)
           .then(deleteTotpToken)
           .then(sendEmailNotification)
@@ -253,9 +253,10 @@ module.exports = (log, db, mailer, customs, config) => {
         const code = request.payload.code
         const sessionToken = request.auth.credentials
         const uid = sessionToken.uid
+        const email = sessionToken.email
         let sharedSecret, isValidCode, tokenVerified, recoveryCodes
 
-        customs.check(request, 'sessionVerifyTotp')
+        customs.check(request, email, 'verifyTotpCode')
           .then(getTotpToken)
           .then(verifyTotpCode)
           .then(verifyTotpToken)
