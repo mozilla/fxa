@@ -205,9 +205,9 @@ describe('log', () => {
       assert.equal(logger.error.callCount, 1, 'logger.error was called once')
       const args = logger.error.args[0]
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
-      assert.equal(args[0], 'log.flowEvent', 'first argument was function name')
+      assert.equal(args[0], 'flow.missingData', 'first argument was op')
       assert.deepEqual(args[1], {
-        op: 'log.flowEvent',
+        op: 'flow.missingData',
         data: undefined
       }, 'argument was correct')
 
@@ -230,9 +230,9 @@ describe('log', () => {
       assert.equal(logger.error.callCount, 1, 'logger.error was called once')
       const args = logger.error.args[0]
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
-      assert.equal(args[0], 'log.flowEvent', 'first argument was function name')
+      assert.equal(args[0], 'flow.missingData', 'first argument was op')
       assert.deepEqual(args[1], {
-        op: 'log.flowEvent',
+        op: 'flow.missingData',
         data: {
           flow_id: 'wibble',
           flow_time: 1000,
@@ -259,9 +259,9 @@ describe('log', () => {
       assert.equal(logger.error.callCount, 1, 'logger.error was called once')
       const args = logger.error.args[0]
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
-      assert.equal(args[0], 'log.flowEvent', 'first argument was function name')
+      assert.equal(args[0], 'flow.missingData', 'first argument was op')
       assert.deepEqual(args[1], {
-        op: 'log.flowEvent',
+        op: 'flow.missingData',
         data: {
           event: 'wibble',
           flow_time: 1000,
@@ -288,9 +288,9 @@ describe('log', () => {
       assert.equal(logger.error.callCount, 1, 'logger.error was called once')
       const args = logger.error.args[0]
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
-      assert.equal(args[0], 'log.flowEvent', 'first argument was function name')
+      assert.equal(args[0], 'flow.missingData', 'first argument was op')
       assert.deepEqual(args[1], {
-        op: 'log.flowEvent',
+        op: 'flow.missingData',
         data: {
           event: 'wibble',
           flow_id: 'blee',
@@ -317,9 +317,9 @@ describe('log', () => {
       assert.equal(logger.error.callCount, 1, 'logger.error was called once')
       const args = logger.error.args[0]
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
-      assert.equal(args[0], 'log.flowEvent', 'first argument was function name')
+      assert.equal(args[0], 'flow.missingData', 'first argument was op')
       assert.deepEqual(args[1], {
-        op: 'log.flowEvent',
+        op: 'flow.missingData',
         data: {
           event: 'wibble',
           flow_id: 'blee',
