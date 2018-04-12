@@ -48,7 +48,7 @@
     "cors": "2.8.4",
     "duration-js": "3.6.0",
     "easterEgg": "git://github.com/mozilla/fxa-easter-egg.git#ab20cd517cf8ae9feee115e48745189d28e13bc3",
-    "es6-promise": "4.1.1",
+    "es6-promise": "4.2.4",
     "express": "4.16.2",
     "extend": "3.0.1",
     "fxa-checkbox": "git://github.com/mozilla/fxa-checkbox.git#7f856afffd394a144f718e28e6fb79092d6ccddd",
