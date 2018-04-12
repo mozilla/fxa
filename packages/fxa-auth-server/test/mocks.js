@@ -446,8 +446,7 @@ function generateMetricsContext(){
   const flowSignature = crypto.createHmac('sha256', config.metrics.flow_id_key)
     .update([
       randomBytes,
-      flowBeginTime.toString(16),
-      undefined
+      flowBeginTime.toString(16)
     ].join('\n'))
     .digest('hex')
     .substr(0, 32)
