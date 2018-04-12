@@ -191,6 +191,70 @@ describe('events', function() {
       });
     });
   });
+
+  describe('onProfileDataChanged', function () {
+    describe('should invalidate user cache', function () {
+      function Message(type, onDel) {
+        if (typeof type === 'function') {
+          onDel = type;
+          type = 'profileDataChanged';
+        }
+        return {
+          event: type,
+          uid: UID,
+          del: onDel
+        };
+      }
+      beforeEach(function () {
+        Server.server.methods.batch.cache.drop = sinon.spy(function (req, cb) {
+          cb();
+        });
+      });
+
+      it('invalidate cache', function (done) {
+        events.onData(new Message(function () {
+          var args = Server.server.methods.batch.cache.drop.getCall(0).args;
+          var callCount = Server.server.methods.batch.cache.drop.callCount;
+          assert.equal(callCount, 1);
+          assert.equal(args.length, 2);
+          assert.equal(args[0].auth.credentials.user, UID);
+          assert.equal(typeof args[1] === 'function', true);
+          done();
+        }));
+      });
+    });
+
+    describe('should delete message on invalid uid', function () {
+      function Message(type, onDel) {
+        if (typeof type === 'function') {
+          onDel = type;
+          type = 'profileDataChanged';
+        }
+        return {
+          event: type,
+          uid: 'notahexuid',
+          del: onDel
+        };
+      }
+
+      it('invalid uid', function (done) {
+        events.onData(new Message(function () {
+          assert(true, 'message.del() should be called');
+        }));
+
+        mock.log('events', function(record) {
+          if (record.levelname === 'WARN' && record.args[0] === 'getUserId') {
+            assert.equal(record.args[1].userId, 'notahexuid');
+            setTimeout(function() {
+              done();
+            }, 1);
+            return true;
+          }
+          return false;
+        });
+      });
+    });
+  });
 });
 
 after(() => {
