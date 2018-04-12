@@ -143,6 +143,11 @@ module.exports = (log, db, mailer, customs, config) => {
           }
 
           return db.deleteTotpToken(uid)
+            .then(() => {
+              return log.notifyAttachedServices('profileDataChanged', request, {
+                uid: sessionToken.uid
+              })
+            })
         }
 
         function sendEmailNotification() {
@@ -297,6 +302,10 @@ module.exports = (log, db, mailer, customs, config) => {
             return db.updateTotpToken(sessionToken.uid, {
               verified: true,
               enabled: true
+            }).then(() => {
+              return log.notifyAttachedServices('profileDataChanged', request, {
+                uid: sessionToken.uid
+              })
             })
           }
         }
