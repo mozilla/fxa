@@ -116,7 +116,7 @@ module.exports = {
     normalize: ensurePrefix('+45'),
     pattern: /^(?:\+45)?\d{8}$/,
     prefix: '+45',
-    rolloutRate: 0.0 // being soft launched. Testers will need to open `/sms?service=sync&country=DK`
+    rolloutRate: 0.5
   },
   // Spain
   // https://en.wikipedia.org/wiki/Telephone_numbers_in_Spain
