@@ -19,6 +19,7 @@ const NEW_PASSWORD = 'password1';
 
 let email;
 let secondaryEmail;
+let newPrimaryEmail;
 
 const {
   clearBrowserState,
@@ -29,12 +30,14 @@ const {
   fillOutCompleteResetPassword,
   fillOutSignUp,
   fillOutSignIn,
+  fillOutSignInUnblock,
   openPage,
   openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
   switchToWindow,
   testElementExists,
   testElementTextEquals,
+  testElementTextInclude,
   testErrorTextInclude,
   testSuccessWasShown,
   type,
@@ -75,7 +78,7 @@ registerSuite('settings change email', {
   tests: {
     'can change primary email and login': function () {
       return this.remote
-      // sign out
+        // sign out
         .then(click(selectors.SETTINGS.SIGNOUT))
         .then(testElementExists(selectors.SIGNIN.HEADER))
 
@@ -96,7 +99,7 @@ registerSuite('settings change email', {
 
     'can change primary email, change password and login': function () {
       return this.remote
-      // change password
+        // change password
         .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
         .then(fillOutChangePassword(PASSWORD, NEW_PASSWORD))
 
@@ -143,7 +146,7 @@ registerSuite('settings change email', {
 
     'can change primary email, change password, login, change email and login': function () {
       return this.remote
-      // change password
+        // change password
         .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
         .then(fillOutChangePassword(PASSWORD, NEW_PASSWORD))
 
@@ -169,6 +172,78 @@ registerSuite('settings change email', {
         .then(testElementExists(selectors.SIGNIN.HEADER))
         .then(fillOutSignIn(email, NEW_PASSWORD))
         .then(testElementExists(selectors.SETTINGS.HEADER));
+    },
+  }
+});
+
+registerSuite('settings change email - unblock', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
+
+    // Create a new primary email that is always forced through the unblock flow
+    newPrimaryEmail = TestHelpers.createEmail('block{id}');
+    return this.remote.then(clearBrowserState())
+      .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
+      .then(fillOutSignUp(email, PASSWORD))
+      .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+      .then(openVerificationLinkInSameTab(email, 0))
+      .then(testElementExists(selectors.SETTINGS.HEADER))
+      .then(click(selectors.EMAIL.MENU_BUTTON))
+
+      // add secondary email, verify
+      .then(type(selectors.EMAIL.INPUT, newPrimaryEmail))
+      .then(click(selectors.EMAIL.ADD_BUTTON))
+      .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
+      .then(openVerificationLinkInSameTab(newPrimaryEmail, 0, {}))
+      .then(testSuccessWasShown())
+
+      // set new primary email
+      .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
+      .then(click(selectors.EMAIL.MENU_BUTTON))
+      .then(testElementTextEquals(selectors.EMAIL.ADDRESS_LABEL, newPrimaryEmail))
+      .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
+      .then(click(selectors.EMAIL.SET_PRIMARY_EMAIL_BUTTON))
+      .then(visibleByQSA(selectors.EMAIL.SUCCESS))
+
+      // sign out
+      .then(click(selectors.SETTINGS.SIGNOUT))
+      .then(testElementExists(selectors.SIGNIN.HEADER));
+  },
+
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
+
+  tests: {
+    'can change primary email, get blocked with invalid password, redirect login page': function () {
+      return this.remote
+        // sign in
+        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+        .then(fillOutSignIn(newPrimaryEmail, 'INVALID_PASSWORD'))
+
+        // fill out unblock
+        .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
+        .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.VERIFICATION, newPrimaryEmail))
+        .then(fillOutSignInUnblock(newPrimaryEmail, 2))
+
+        // redirected to login
+        .then(testElementExists(selectors.SIGNIN.HEADER));
+    },
+
+    'can change primary email, get blocked with valid password, redirect settings page': function () {
+      return this.remote
+      // sign in
+        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+        .then(fillOutSignIn(newPrimaryEmail, PASSWORD))
+
+        // fill out unblock
+        .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
+        .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.VERIFICATION, newPrimaryEmail))
+        .then(fillOutSignInUnblock(newPrimaryEmail, 2))
+
+        // redirected to settings
+        .then(testElementExists(selectors.SETTINGS.HEADER));
     }
   }
 });
+

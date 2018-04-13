@@ -37,6 +37,11 @@ define(function (require, exports, module) {
     // the user since. Is it enough to just move this field to the
     // 'defaults'?
     needsOptedInToMarketingEmail: undefined,
+    // This property is set when a user has changed their primary email address and
+    // attempts to login. Similar to logging in with a different email capitalization
+    // the auth-server will return the proper email to reattempt the login. When reattempting
+    // to login, this needs to be passed back to the auth-server.
+    originalLoginEmail: undefined,
     // password field intentionally omitted to avoid unintentional leaks
     permissions: undefined,
     profileImageId: undefined,
@@ -439,8 +444,9 @@ define(function (require, exports, module) {
           // `originalLoginEmail` is specified when the account's primary email has changed.
           // This param lets the auth-server known that it should check that this email
           // is the current primary for the account.
-          if (options.originalLoginEmail) {
-            signinOptions.originalLoginEmail = options.originalLoginEmail;
+          const originalLoginEmail = this.get('originalLoginEmail');
+          if (originalLoginEmail) {
+            signinOptions.originalLoginEmail = originalLoginEmail;
           }
 
           if (options.verificationMethod) {
@@ -489,16 +495,26 @@ define(function (require, exports, module) {
         // the user's password with.
         if (AuthErrors.is(err, 'INCORRECT_EMAIL_CASE')) {
 
-          // Save the original email that was used for login so that the auth-server
-          // can verify that this is the accounts primary email address.
-          options.originalLoginEmail = email;
+          // Save the original email that was used for login. This value will be
+          // sent to the auth-server so that it can correctly look the account.
+          this.set('originalLoginEmail', email);
 
-          // The server will respond with the canonical email
-          // for this account. Use it hereafter.
+          // The email returned in the `INCORRECT_EMAIL_CASE` is either the canonical email
+          // address or if the primary email has changed, it is the email the account was first
+          // created with.
           this.set('email', err.email);
           return this.signIn(password, relier, options);
-        }
+        } else if (AuthErrors.is(err, 'THROTTLED') ||
+          AuthErrors.is(err, 'REQUEST_BLOCKED')) {
 
+          // On a throttled or block login request, the account model's email could be storing
+          // a canonical email address or email the account was created with. If this is the case
+          // set the account model's email to the email first used for the login request.
+          const originalLoginEmail = this.get('originalLoginEmail');
+          if (originalLoginEmail) {
+            this.set('email', originalLoginEmail);
+          }
+        }
         throw err;
       });
     },

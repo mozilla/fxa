@@ -194,6 +194,7 @@ module.exports = {
     EMAIL_FIELD: '.verification-email-message',
     HEADER: '#fxa-signin-unblock-header',
     SUBMIT: 'button[type="submit"]',
+    VERIFICATION: '.verification-email-message',
   },
   SIGNUP: {
     AGE: '#age',

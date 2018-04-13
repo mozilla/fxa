@@ -483,8 +483,48 @@ define(function (require, exports, module) {
               fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier, secondExpectedOptions));
 
             assert.equal(account.get('email'), EMAIL);
+            assert.equal(account.get('originalLoginEmail'), upperCaseEmail);
           });
         });
+
+        ['REQUEST_BLOCKED', 'THROTTLED'].forEach((errorName) => {
+          describe(errorName, () => {
+            const primaryEmail = 'primaryEmail@email.com';
+            const oldPrimaryEmail = EMAIL;
+
+            beforeEach(() => {
+              sinon.stub(fxaClient, 'signIn').callsFake(() => {
+                if (fxaClient.signIn.callCount === 1) {
+                  const err = AuthErrors.toError('INCORRECT_EMAIL_CASE');
+                  err.email = oldPrimaryEmail;
+                  return Promise.reject(err);
+                } else if (fxaClient.signIn.callCount === 2) {
+                  const err = AuthErrors.toError(errorName);
+                  return Promise.reject(err);
+                } else {
+                  return Promise.resolve({});
+                }
+              });
+
+              account.set('email', primaryEmail);
+              return account.signIn(PASSWORD, relier, {
+                unblockCode: 'unblock code'
+              }).then(assert.fail, (err) => {
+                assert.isTrue(AuthErrors.is(err, errorName));
+              });
+            });
+
+            it('re-tries login and restores email to primary email address', () => {
+              assert.equal(fxaClient.signIn.callCount, 2);
+              let args = fxaClient.signIn.args[0];
+              assert.equal(args[0], primaryEmail, 'sign-in first called with primary email');
+              args = fxaClient.signIn.args[1];
+              assert.equal(args[0], oldPrimaryEmail, 'sign-in then called with old primary email');
+              assert.equal(account.get('email'), primaryEmail, 'primary email restored');
+            });
+          });
+        });
+
 
         describe('error', () => {
           let err;
