@@ -6,6 +6,7 @@ const TestServer = require('../test_server')
 const Promise = require('bluebird')
 const restify = Promise.promisifyAll(require('restify'))
 const mcHelper = require('../memcache-helper')
+const testUtils = require('../utils')
 
 const TEST_IP = '192.0.2.1'
 
@@ -53,16 +54,18 @@ VERIFY_CODE_ACTIONS.forEach((action) => {
 
   test('/check `' + action + '` by email', (t) => {
     // Send requests until throttled
-    return client.postAsync('/check', {ip: TEST_IP, email: 'test1@example.com', action: action})
+    const email = testUtils.randomEmail()
+    const ip = testUtils.randomIp()
+    return client.postAsync('/check', {ip, email, action})
       .spread((req, res, obj) => {
         t.equal(res.statusCode, 200, 'returns a 200')
         t.equal(obj.block, false, 'not rate limited')
-        return client.postAsync('/check', {ip: TEST_IP, email: 'test1@example.com', action: action})
+        return client.postAsync('/check', {ip, email, action})
       })
       .spread((req, res, obj) => {
         t.equal(res.statusCode, 200, 'returns a 200')
         t.equal(obj.block, false, 'not rate limited')
-        return client.postAsync('/check', {ip: TEST_IP, email: 'test1@example.com', action: action})
+        return client.postAsync('/check', {ip, email, action})
       })
       .spread((req, res, obj) => {
         t.equal(res.statusCode, 200, 'returns a 200')
@@ -75,7 +78,7 @@ VERIFY_CODE_ACTIONS.forEach((action) => {
 
       // Reissue requests to verify that throttling is disabled
       .then(() => {
-        return client.postAsync('/check', {ip: TEST_IP, email: 'test1@example.com', action: action})
+        return client.postAsync('/check', {ip, email, action})
       })
       .spread((req, res, obj) => {
         t.equal(res.statusCode, 200, 'returns a 200')

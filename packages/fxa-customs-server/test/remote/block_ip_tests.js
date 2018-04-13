@@ -6,9 +6,9 @@ var TestServer = require('../test_server')
 var Promise = require('bluebird')
 var restify = require('restify')
 var mcHelper = require('../memcache-helper')
+const testUtils = require('../utils')
 
 var TEST_EMAIL = 'test@example.com'
-var TEST_IP = '192.0.2.1'
 var ALLOWED_IP = '192.0.3.1'
 const ENDPOINTS = [ '/check', '/checkIpOnly' ]
 
@@ -77,28 +77,30 @@ ENDPOINTS.forEach(endpoint => {
   })
 
   test(`${endpoint} well-formed request`, t => {
-    return client.postAsync(endpoint, { email: TEST_EMAIL, ip: TEST_IP, action: 'accountLogin' })
-      .spread(function (req, res, obj) {
-        t.equal(res.statusCode, 200, 'check worked')
-        t.equal(obj.block, false, 'request was not blocked')
+    const email = testUtils.randomEmail()
+    const ip = testUtils.randomIp()
+    return client.postAsync(endpoint, {email, ip, action: 'accountLogin'})
+        .spread(function (req, res, obj) {
+          t.equal(res.statusCode, 200, 'check worked')
+          t.equal(obj.block, false, 'request was not blocked')
 
-        return client.postAsync('/blockIp', { ip: TEST_IP })
-      })
-      .spread(function (req, res, obj) {
-        t.equal(res.statusCode, 200, 'block request returns a 200')
-        t.ok(obj, 'got an obj, make jshint happy')
+          return client.postAsync('/blockIp', {ip})
+        })
+        .spread(function (req, res, obj) {
+          t.equal(res.statusCode, 200, 'block request returns a 200')
+          t.ok(obj, 'got an obj, make jshint happy')
 
-        return client.postAsync(endpoint, { email: TEST_EMAIL, ip: TEST_IP, action: 'accountLogin' })
-      })
-      .spread(function (req, res, obj) {
-        t.equal(res.statusCode, 200, 'check worked')
-        t.equal(obj.block, true, 'request was blocked')
-        t.end()
-      })
-      .catch(function(err){
-        t.fail(err)
-        t.end()
-      })
+          return client.postAsync(endpoint, {email, ip, action: 'accountLogin'})
+        })
+        .spread(function (req, res, obj) {
+          t.equal(res.statusCode, 200, 'check worked')
+          t.equal(obj.block, true, 'request was blocked')
+          t.end()
+        })
+        .catch(function (err) {
+          t.fail(err)
+          t.end()
+        })
   })
 })
 

@@ -7,13 +7,12 @@ var ReputationServerStub = require('../test_reputation_server')
 var Promise = require('bluebird')
 var restify = require('restify')
 var mcHelper = require('../memcache-helper')
+const testUtils = require('../utils')
 
 var TEST_EMAIL = 'test@example.com'
 var TEST_EMAIL_2 = 'test+2@example.com'
 var TEST_IP = '192.0.2.1'
 var ALLOWED_IP = '192.0.3.1'
-var TEST_UID = 'test-uid'
-var TEST_ACTION = 'action1'
 var TEST_CHECK_ACTION = 'recoveryEmailVerifyCode'
 
 // wait for the violation to be sent for endpoints that respond
@@ -107,26 +106,29 @@ test(
 )
 
 test(
-  '/checkAuthenticated rate limited runs when sends violation fails',
-  function (t) {
-    return client.postAsync('/checkAuthenticated', { action: TEST_ACTION, ip: TEST_IP, uid: TEST_UID })
-      .spread(function (req, res, obj) {
-        t.equal(res.statusCode, 200, 'returns 200 for /checkAuthenticated 1')
-        t.equal(obj.block, false, 'not rate limited')
-        return client.postAsync('/checkAuthenticated', { action: TEST_ACTION, ip: TEST_IP, uid: TEST_UID })
-      }).spread(function (req, res, obj) {
-        t.equal(res.statusCode, 200, 'returns 200 for /checkAuthenticated 2')
-        t.equal(obj.block, false, 'not rate limited')
-        return client.postAsync('/checkAuthenticated', { action: TEST_ACTION, ip: TEST_IP, uid: TEST_UID })
-      }).spread(function (req, res, obj) {
-        t.equal(res.statusCode, 200, 'returns 200 for /checkAuthenticated 3')
-        t.equal(obj.block, true, 'rate limited')
-        t.end()
-      }).catch(function(err) {
-        t.fail(err)
-        t.end()
-      })
-  }
+    '/checkAuthenticated rate limited runs when sends violation fails',
+    function (t) {
+      const ip = testUtils.randomIp()
+      const action = testUtils.randomHexString(5)
+      const uid = testUtils.randomHexString(5)
+      return client.postAsync('/checkAuthenticated', {action, ip, uid})
+          .spread(function (req, res, obj) {
+            t.equal(res.statusCode, 200, 'returns 200 for /checkAuthenticated 1')
+            t.equal(obj.block, false, 'not rate limited')
+            return client.postAsync('/checkAuthenticated', {action, ip, uid})
+          }).spread(function (req, res, obj) {
+            t.equal(res.statusCode, 200, 'returns 200 for /checkAuthenticated 2')
+            t.equal(obj.block, false, 'not rate limited')
+            return client.postAsync('/checkAuthenticated', {action, ip, uid})
+          }).spread(function (req, res, obj) {
+            t.equal(res.statusCode, 200, 'returns 200 for /checkAuthenticated 3')
+            t.equal(obj.block, true, 'rate limited')
+            t.end()
+          }).catch(function (err) {
+            t.fail(err)
+            t.end()
+          })
+    }
 )
 
 test(
@@ -192,24 +194,26 @@ test(
 test(
   'sends violation /check resulting in lockout',
   function (t) {
-    return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: TEST_CHECK_ACTION })
+    const email = testUtils.randomEmail()
+    const ip = testUtils.randomIp()
+    return client.postAsync('/check', { email, ip, action: TEST_CHECK_ACTION })
       .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'first action noted')
         t.equal(obj.block, false, 'first action not blocked')
-        return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: TEST_CHECK_ACTION })
+        return client.postAsync('/check', { email, ip, action: TEST_CHECK_ACTION })
       }).spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'second action noted')
         t.equal(obj.block, false, 'second action not blocked')
-        return client.postAsync('/check', { email: TEST_EMAIL, ip: TEST_IP, action: TEST_CHECK_ACTION })
+        return client.postAsync('/check', { email, ip, action: TEST_CHECK_ACTION })
       }).spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'third action attempt noted')
         t.equal(obj.block, true, 'third action blocked')
         return Promise.delay(TEST_DELAY_MS)
       }).then(function () {
-        return reputationClient.getAsync('/mostRecentViolation/' + TEST_IP)
+        return reputationClient.getAsync('/mostRecentViolation/' + ip)
       }).spread(function (req, res, obj) {
         t.equal(res.body, '"fxa:request.check.block.' + TEST_CHECK_ACTION + '"', 'sends violation when /check')
-        return reputationClient.delAsync('/mostRecentViolation/' + TEST_IP)
+        return reputationClient.delAsync('/mostRecentViolation/' + ip)
       }).spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'Failed to clear sent violation from test server.')
         t.end()
@@ -223,24 +227,27 @@ test(
 test(
   'sends violation when /checkAuthenticated rate limited',
   function (t) {
-    return client.postAsync('/checkAuthenticated', { action: TEST_ACTION, ip: TEST_IP, uid: TEST_UID })
+    const ip = testUtils.randomIp()
+    const action = testUtils.randomHexString(5)
+    const uid = testUtils.randomHexString(5)
+    return client.postAsync('/checkAuthenticated', { action, ip, uid })
       .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns 200 for /checkAuthenticated 1')
         t.equal(obj.block, false, 'not rate limited')
-        return client.postAsync('/checkAuthenticated', { action: TEST_ACTION, ip: TEST_IP, uid: TEST_UID })
+        return client.postAsync('/checkAuthenticated', { action, ip, uid })
       }).spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns 200 for /checkAuthenticated 2')
         t.equal(obj.block, false, 'not rate limited')
-        return client.postAsync('/checkAuthenticated', { action: TEST_ACTION, ip: TEST_IP, uid: TEST_UID })
+        return client.postAsync('/checkAuthenticated', { action, ip, uid })
       }).spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns 200 for /checkAuthenticated 3')
         t.equal(obj.block, true, 'rate limited')
         return Promise.delay(TEST_DELAY_MS)
       }).then(function () {
-        return reputationClient.getAsync('/mostRecentViolation/' + TEST_IP)
+        return reputationClient.getAsync('/mostRecentViolation/' + ip)
       }).spread(function (req, res, obj) {
-        t.equal(res.body, '"fxa:request.checkAuthenticated.block.action1"', 'Violation sent.')
-        return reputationClient.delAsync('/mostRecentViolation/' + TEST_IP)
+        t.equal(res.body, `"fxa:request.checkAuthenticated.block.${action}"`, 'Violation sent.')
+        return reputationClient.delAsync('/mostRecentViolation/' + ip)
       }).spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'Failed to clear sent violation from test server.')
         t.end()
