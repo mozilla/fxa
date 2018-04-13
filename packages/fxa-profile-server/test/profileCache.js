@@ -45,15 +45,15 @@ const tok = token();
 const NAME = 'Fennec';
 const MOZILLA_EMAIL = 'user@mozilla.com';
 
-function mockTokens(uid) {
+function mockTokens(uid, scope) {
   mock.token({
     user: uid,
-    scope: ['profile'],
+    scope: scope || ['profile'],
   });
 }
 
-function makeProfileReq(uid) {
-  mockTokens(uid);
+function makeProfileReq(uid, scope) {
+  mockTokens(uid, scope);
   return Server.api.get({
     url: '/profile',
     headers: {
@@ -99,32 +99,6 @@ describe('profile cache', function() {
         // verify cache was invalidated due to expiration
         mock.email(MOZILLA_EMAIL);
         return makeProfileReq(userid);
-      })
-      .then(res => {
-        assert.ok(res.headers['last-modified']);
-        assert.notEqual(res.headers['last-modified'], lastModified);
-        done();
-      });
-    });
-  });
-
-  it('should not cache for non qa emails', function(done) {
-    this.timeout(5000);
-    const noCacheUid = uid();
-    const nonQaEmail = 'user@example.com';
-
-    Server.server.initialize(() => {
-      let lastModified;
-      mock.email(nonQaEmail);
-      makeProfileReq(noCacheUid)
-      .then(res => {
-        assert.ok(res.headers['last-modified']);
-        lastModified = res.headers['last-modified'];
-        return P.delay(1000);
-      })
-      .then(() => {
-        mock.email(nonQaEmail);
-        return makeProfileReq(noCacheUid);
       })
       .then(res => {
         assert.ok(res.headers['last-modified']);
@@ -228,6 +202,128 @@ describe('profile cache', function() {
       .then((res) => {
         assert.ok(res.headers['last-modified']);
         assert.notEqual(res.headers['last-modified'], lastModified);
+        done();
+      });
+    });
+  });
+
+  it('should not cache reads with unusual sets of scopes', function(done) {
+    this.timeout(5000);
+    const userid = uid();
+    const PARTIAL_SCOPES = ['profile:display_name', 'profile:uid'];
+    Server.server.initialize(() => {
+      let lastModified;
+      return makeProfileReq(userid, PARTIAL_SCOPES)
+      .then(res => {
+        assert.ok(res.headers['last-modified']);
+        lastModified = res.headers['last-modified'];
+        return P.delay(1000);
+      })
+      .then(() => {
+        return makeProfileReq(userid, PARTIAL_SCOPES);
+      })
+      .then(res => {
+        assert.ok(res.headers['last-modified']);
+        assert.ok(lastModified < res.headers['last-modified']);
+        done();
+      });
+    });
+  });
+
+  it('should separately cache full and partial profile reads', function(done) {
+    this.timeout(5000);
+    const userid = uid();
+    const PARTIAL_SCOPES = ['profile:email', 'profile:display_name', 'profile:uid'];
+    Server.server.initialize(() => {
+      let avatarUrl, lastModifiedPartial, lastModifiedFull;
+      mock.token({
+        user: userid,
+        scope: ['profile:avatar:write']
+      });
+      mock.image(imageData.length);
+      return Server.api.post({
+        url: '/avatar/upload',
+        payload: imageData,
+        headers: {
+          authorization: 'Bearer ' + tok,
+          'content-type': 'image/png',
+          'content-length': imageData.length
+        }
+      })
+      .then((res) => {
+        const body = JSON.parse(res.payload);
+        avatarUrl = body.url;
+        mock.email(MOZILLA_EMAIL);
+        return makeProfileReq(userid, PARTIAL_SCOPES);
+      })
+      .then(res => {
+        const body = JSON.parse(res.payload);
+        assert.equal(body.email, MOZILLA_EMAIL);
+        assert.equal(body.avatar, undefined);
+        assert.ok(res.headers['last-modified']);
+        lastModifiedPartial = res.headers['last-modified'];
+        return P.delay(1000);
+      })
+      .then(() => {
+        mock.email(MOZILLA_EMAIL);
+        return makeProfileReq(userid);
+      })
+      .then(res => {
+        const body = JSON.parse(res.payload);
+        assert.equal(body.email, MOZILLA_EMAIL);
+        assert.equal(body.avatar, avatarUrl);
+        assert.ok(res.headers['last-modified']);
+        lastModifiedFull = res.headers['last-modified'];
+        assert.notEqual(lastModifiedFull, lastModifiedPartial);
+      })
+      .then(() => {
+        return makeProfileReq(userid, PARTIAL_SCOPES);
+      })
+      .then(res => {
+        const body = JSON.parse(res.payload);
+        assert.equal(body.email, MOZILLA_EMAIL);
+        assert.equal(body.avatar, undefined);
+        assert.equal(lastModifiedPartial, res.headers['last-modified']);
+        return P.delay(1000);
+      })
+      .then(() => {
+        return makeProfileReq(userid);
+      })
+      .then(res => {
+        const body = JSON.parse(res.payload);
+        assert.equal(body.email, MOZILLA_EMAIL);
+        assert.equal(body.avatar, avatarUrl);
+        assert.ok(res.headers['last-modified']);
+        assert.equal(lastModifiedFull, res.headers['last-modified']);
+        done();
+      });
+    });
+  });
+
+  it('should not leak unauthorized data from cached profile', function(done) {
+    this.timeout(5000);
+    const userid = uid();
+    Server.server.initialize(() => {
+      mock.coreProfile({
+        email: MOZILLA_EMAIL,
+        authenticationMethods: ['pwd', 'otp'],
+        authenticatorAssuranceLevel: 2
+      });
+      return makeProfileReq(userid)
+      .then(res => {
+        const body = JSON.parse(res.payload);
+        assert.equal(body.email, MOZILLA_EMAIL);
+        assert.deepEqual(body.amrValues, ['pwd', 'otp']);
+        return P.delay(1000);
+      })
+      .then(() => {
+        mock.email(MOZILLA_EMAIL);
+        return makeProfileReq(userid, ['profile:email']);
+      })
+      .then(res => {
+        const body = JSON.parse(res.payload);
+        assert.equal(body.email, MOZILLA_EMAIL);
+        assert.equal(body.amrValues, undefined);
         done();
       });
     });

@@ -37,30 +37,30 @@ module.exports = {
       return reply({});
     }
 
-    req.server.methods.batch.cache.drop(req, function() {
-      const uid = req.auth.credentials.user;
-      var avatar, lookup;
+    const uid = req.auth.credentials.user;
+    let avatar, lookup;
 
+    req.server.methods.profileCache.drop(uid, () => {
       if (req.params.id) {
         lookup = getAvatar(req.params.id, uid);
       } else {
         lookup = getSelectedAvatar(uid);
       }
 
-      return lookup.then(function(av) {
+      return lookup.then(av => {
         avatar = av;
         return P.all([
           db.deleteAvatar(avatar.id),
           db.getProviderById(avatar.providerId)
         ]);
       })
-      .spread(function(_, provider) {
+      .spread((_, provider) => {
         logger.debug('provider', provider);
         if (provider.name === FXA_PROVIDER) {
           return workers.delete(avatar.id);
         }
       })
-      .then(function() {
+      .then(() => {
         notifyProfileUpdated(uid); // Don't wait on promise
         return EMPTY;
       })

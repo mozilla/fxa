@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const AppError = require('./error');
+const Boom = require('boom');
 const logger = require('./logging')('batch');
 const P = require('./promise');
-const config = require('./config').getProperties();
 
 function inject(server, options) {
   return new P(function(resolve) {
@@ -13,8 +13,11 @@ function inject(server, options) {
   });
 }
 
-// called in a route as `batch(req, map)`, where map is an Object
-// mapping routes to fields that should be extracted from their response.
+// Make multiple internal requests to routes, and merge their responses
+// into a single object.
+//
+// This should be called `batch(req, map)`, where map is an Object mapping
+// route paths to the fields that should be extracted from their response.
 // Mapping a route to `true` will include all of its returned fields,
 // while mapping it to an array will include only the fields named
 // in the array.  For example:
@@ -24,12 +27,25 @@ function inject(server, options) {
 //     '/v1/email': true
 //     // Include only two of the fields returned by /v1/avatar
 //     '/v1/avatar': ['avatar', 'avatarDefault']
-//   }).done(reply)
+//   })
 //
-function batch(request, routeFieldsMap, next) {
+// Would return (a promise of) an object like:
+//
+//  {
+//    email: 'test@example.com',
+//    avatar: 'https://example.com/avatar/test',
+//    avatarDefault: false
+//  }
+//
+// Failing requests will be excluded from the response, which allows
+// for partial reads.  If *all* requests fail with a permission error
+// then this function will throw a permission error in return.
+//
+function batch(request, routeFieldsMap) {
   const result = {};
-  let email;
-  return P.all(Object.keys(routeFieldsMap).map(url => {
+  let numForbidden = 0;
+  const routeFieldsKeys = Object.keys(routeFieldsMap);
+  return P.each(routeFieldsKeys, url => {
     return inject(request.server, {
       allowInternals: true,
       method: 'get',
@@ -45,14 +61,13 @@ function batch(request, routeFieldsMap, next) {
           fields = Object.keys(res.result);
         }
         fields.forEach(field => {
-          if (field === 'email') {
-            email = res.result.email;
-          }
           result[field] = res.result[field];
         });
         break;
-      case 204:
       case 403:
+        numForbidden++;
+        // This deliberately falls through to the following case.
+      case 204:
       case 404:
         logger.debug(url + ':' + res.statusCode, {
           scope: request.auth.credentials.scope,
@@ -64,13 +79,13 @@ function batch(request, routeFieldsMap, next) {
         throw AppError.from(res.result);
       }
     });
-  }))
-  .then(() => {
-    const shouldCache = config.serverCache.enabledEmailAddresses.test(email);
-    const ttl = shouldCache ? undefined : 0;
-    return next(null, result, ttl);
-  })
-  .catch(next);
+  }).then(() => {
+    // If *all* of the batch requests failed, fail out.
+    if (numForbidden === routeFieldsKeys.length) {
+      throw Boom.forbidden();
+    }
+    return result;
+  });
 }
 
 module.exports = batch;

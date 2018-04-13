@@ -47,12 +47,12 @@ module.exports = {
     }
   },
   handler: function upload(req, reply) {
-    req.server.methods.batch.cache.drop(req, function() {
-      var id = img.id();
+    const uid = req.auth.credentials.user;
+    req.server.methods.profileCache.drop(uid, () => {
+      const id = img.id();
       // precaution to avoid the default id from being overwritten
       assert(id !== DEFAULT_AVATAR_ID);
-      var url = avatarShared.fxaUrl(id);
-      var uid = req.auth.credentials.user;
+      const url = avatarShared.fxaUrl(id);
       workers.upload(id, req.payload, req.headers)
         .then(function save() {
           return db.addAvatar(id, uid, url, FXA_PROVIDER);

@@ -302,12 +302,6 @@ const conf = convict({
         doc: 'port for redis server'
       }
     },
-    enabledEmailAddresses: {
-      doc: 'Only enable caching for users with email addresses matching this regex.',
-      format: RegExp,
-      default: /.+@mozilla\.com$|.+@restmail\.net$|.+@softvisioninc\.eu$|.+@softvision\.(com|ro)$|.+@yahoo\.com$/,
-      env: 'EMAILS_TO_CACHE'
-    },
     useRedis: {
       default: true,
       doc: 'Enable redis cache',

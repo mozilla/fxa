@@ -142,18 +142,18 @@ describe('events', function() {
         };
       }
       beforeEach(function () {
-        Server.server.methods.batch.cache.drop = sinon.spy(function (req, cb) {
+        Server.server.methods.profileCache.drop = sinon.spy(function (uid, cb) {
           cb();
         });
       });
 
       it('invalidate cache', function (done) {
         events.onData(new Message(function () {
-          var args = Server.server.methods.batch.cache.drop.getCall(0).args;
-          var callCount = Server.server.methods.batch.cache.drop.callCount;
+          var args = Server.server.methods.profileCache.drop.getCall(0).args;
+          var callCount = Server.server.methods.profileCache.drop.callCount;
           assert.equal(callCount, 1);
           assert.equal(args.length, 2);
-          assert.equal(args[0].auth.credentials.user, UID);
+          assert.equal(args[0], UID);
           assert.equal(typeof args[1] === 'function', true);
           done();
         }));

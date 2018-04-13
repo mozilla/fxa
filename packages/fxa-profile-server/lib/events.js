@@ -44,12 +44,8 @@ module.exports = function (server) {
 
   function primaryEmailChanged(message) {
     var userId = getUserId(message);
-    return P.resolve().then(function () {
-      // We currently a generate a user's cache key from their
-      // credentials in a request object. This builds an object
-      // to match what the server is expecting.
-      var req = {auth: {credentials: {user: userId}}};
-      server.methods.batch.cache.drop(req, function () {
+    return P.resolve().then(() => {
+      server.methods.profileCache.drop(userId, () => {
         logger.info('primaryEmailChanged:cacheCleared', {uid: userId});
       });
     }).then(function () {
