@@ -1,3 +1,13 @@
+<a name="1.109.1"></a>
+## [1.109.1](https://github.com/mozilla/fxa-profile-server/compare/v1.109.0...v1.109.1) (2018-04-13)
+
+
+### Bug Fixes
+
+* **cache:** Ensure profile caching respects OAuth scopes. (#4); r=vladikoff,philbooth ([68dc42b](https://github.com/mozilla/fxa-profile-server/commit/68dc42b))
+
+
+
 <a name="1.109.0"></a>
 # [1.109.0](https://github.com/mozilla/fxa-profile-server/compare/v1.108.0...v1.109.0) (2018-04-04)
 
