@@ -213,7 +213,11 @@ registerSuite('Firefox Desktop Sync v3 email first', {
             'fxaccounts:can_link_account': {ok: true}
           }
         }))
-        .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email));
+        .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
+        // user realizes it's the wrong email address.
+        .then(click(selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL, selectors.ENTER_EMAIL.HEADER))
+
+        .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email));
     },
 
     'email specified by relier, registered': function () {
@@ -227,7 +231,11 @@ registerSuite('Firefox Desktop Sync v3 email first', {
             'fxaccounts:can_link_account': {ok: true}
           }
         }))
-        .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email));
+        .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
+        // user realizes it's the wrong email address.
+        .then(click(selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL, selectors.ENTER_EMAIL.HEADER))
+
+        .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email));
     }
   }
 });

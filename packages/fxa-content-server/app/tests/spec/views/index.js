@@ -149,8 +149,10 @@ define(function(require, exports, module) {
 
             return view.render()
               .then(() => {
-                assert.isTrue(view.checkEmail.calledOnce);
-                assert.isTrue(view.checkEmail.calledWith('testuser@testuser.com'));
+                assert.isTrue(view.checkEmail.calledOnceWith('testuser@testuser.com'));
+                assert.isFalse(relier.has('email'));
+                assert.equal(relier.get('relierEmail', 'testuser@testuser.com'));
+                assert.equal(view.formPrefill.get('email'), 'testuser@testuser.com');
               });
           });
         });

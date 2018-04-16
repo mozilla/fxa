@@ -419,6 +419,7 @@ define(function (require, exports, module) {
           router.onSignUp();
           assert.isTrue(router.showView.calledOnce);
           assert.isTrue(router.showView.calledWith(SignUpView));
+          assert.isFalse(router.canGoBack());
         });
       });
 
@@ -428,6 +429,7 @@ define(function (require, exports, module) {
           router.onSignUp();
           assert.isTrue(router.showView.calledOnce);
           assert.isTrue(router.showView.calledWith(SignUpPasswordView));
+          assert.isTrue(router.canGoBack());
         });
       });
     });
@@ -443,6 +445,7 @@ define(function (require, exports, module) {
           router.onSignIn();
           assert.isTrue(router.showView.calledOnce);
           assert.isTrue(router.showView.calledWith(SignInView));
+          assert.isFalse(router.canGoBack());
         });
       });
 
@@ -452,6 +455,7 @@ define(function (require, exports, module) {
           router.onSignIn();
           assert.isTrue(router.showView.calledOnce);
           assert.isTrue(router.showView.calledWith(SignInPasswordView));
+          assert.isTrue(router.canGoBack());
         });
       });
     });

@@ -33,6 +33,22 @@ define(function (require, exports, module) {
       return 'enter-email';
     }
 
+    beforeRender () {
+      const email = this.relier.get('email');
+      if (email) {
+        // Unsetting the relier email is to ensure the "mistyped email"
+        // link on the next page works. If the user clicks "mistyped email",
+        // they'd expect to come back here with the email prefilled and
+        // editable. If the email was still set in the relier, we'd send
+        // them right back. So, we unset the email from the relier and depend
+        // on the email being saved into formPrefill for when the user comes back.
+        this.relier.unset('email');
+        this.formPrefill.set('email', email);
+        // relierEmail is used in afterRender to decide whether to check an email.
+        this.model.set('relierEmail', email);
+      }
+    }
+
     afterRender () {
       // 1. COPPA checks whether the user is too young in beforeRender.
       // So that COPPA takes precedence, do all other checks afterwards.
@@ -46,7 +62,7 @@ define(function (require, exports, module) {
       } else if (this.isInEmailFirstExperimentGroup('treatment') || action === 'email') {
         // let's the router know to use the email-first signin/signup page
         this.notifier.trigger('email-first-flow');
-        const email = this.relier.get('email');
+        const email = this.model.get('relierEmail');
         if (email) {
           return this.checkEmail(email);
         }
