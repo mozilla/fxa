@@ -952,7 +952,7 @@ module.exports = function (log, config) {
 
     return this.send(Object.assign({}, message, {
       headers,
-      subject: gettext('Two-step authentication removed'),
+      subject: gettext('Two-step authentication disabled'),
       template: templateName,
       templateValues: {
         androidLink: links.androidLink,
