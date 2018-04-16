@@ -33,11 +33,11 @@ module.exports = {
     }
   },
   handler: function avatarPost(req, reply) {
-    var uid = req.auth.credentials.user;
-    req.server.methods.batch.cache.drop(req, function() {
-      var payload = req.payload;
+    const uid = req.auth.credentials.user;
+    req.server.methods.profileCache.drop(uid, () => {
+      const payload = req.payload;
       db.setDisplayName(uid, payload.displayName)
-        .then(function () {
+        .then(() => {
           notifyProfileUpdated(uid); // Don't wait on promise
           return EMPTY;
         })

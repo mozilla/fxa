@@ -10,7 +10,6 @@ const config = require('../config').getProperties();
 const logger = require('../logging')('server.web');
 const request = require('../request');
 const summary = require('../logging/summary');
-const batch = require('../batch');
 
 function set(arr) {
   var obj = Object.create(null);
@@ -162,13 +161,12 @@ exports.create = function createServer() {
   server.auth.strategy('oauth', 'oauth');
 
   // server method for caching profile
-  server.method('batch', batch, {
-    generateKey: function(req) {
-      return req.auth.credentials.user;
-    },
-    cache: {
-      expiresIn: config.serverCache.expiresIn,
-      generateTimeout: config.serverCache.generateTimeout
+  server.register({
+    register: require('../profileCache'),
+    options: config.serverCache
+  }, function (err) {
+    if (err) {
+      throw err;
     }
   });
 
