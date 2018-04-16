@@ -26,7 +26,7 @@
     "connect-fonts-alegreyasans": "0.0.2",
     "connect-fonts-opensans": "0.0.5",
     "express": "3.5.x",
-    "fxa-crypto-utils": "vladikoff/fxa-crypto-utils",
+    "fxa-jwtool": "0.7.x",
     "node-rsa": "0.2.26",
     "postprocess": "0.2.4",
     "redis": "0.7.1",

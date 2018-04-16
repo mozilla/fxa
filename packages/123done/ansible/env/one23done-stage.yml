@@ -1,6 +1,3 @@
-auth_uri: https://oauth.stage.mozaws.net/v1/authorization
-content_uri: https://accounts.stage.mozaws.net
-oauth_uri: https://oauth.stage.mozaws.net/v1
-profile_uri: https://profile.stage.mozaws.net/v1
+issuer_uri: https://accounts.stage.mozaws.net
 fqdn_trusted: 123done-stage.dev.lcip.org
 fqdn_untrusted: 321done-stage.dev.lcip.org

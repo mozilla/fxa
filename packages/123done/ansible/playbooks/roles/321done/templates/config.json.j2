@@ -1,13 +1,7 @@
 {
   "client_id": "{{ untrusted_client_id }}",
   "client_secret": "{{ untrusted_client_secret }}",
-  "auth_uri": "{{ auth_uri }}",
-  "content_uri": "{{ content_uri }}",
-  "oauth_uri": "{{ oauth_uri }}",
-  "profile_uri": "{{ profile_uri }}",
+  "issuer_uri": "{{ issuer_uri }}",
   "redirect_uri": "https://{{ fqdn_untrusted }}/api/oauth",
-  "preverify_email_jku": "https://{{ fqdn_untrusted }}/.well-known/public-keys",
-  "scopes": "profile:email profile:uid profile:display_name",
-  "publicKeyFile": "./public-key.json",
-  "secretKeyFile": "./secret-key.json"
+  "scopes": "profile:email profile:uid profile:display_name openid"
 }

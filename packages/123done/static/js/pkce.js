@@ -31,7 +31,7 @@ function authenticatePkce () {
           code_challenge_method: 'S256',
           code_challenge: codeChallenge
         };
-        window.location.href = data.oauth_uri + '/authorization' + objectToQueryString(queryParams);
+        window.location.href = data.authorization_endpoint + objectToQueryString(queryParams);
       });
 
     });
@@ -53,7 +53,7 @@ function detectCompletePkceFlow() {
         var tokenHeaders = new Headers();
         tokenHeaders.append('Content-Type', 'application/json');
 
-        return fetch(new Request(config.oauth_uri + '/token', {
+        return fetch(new Request(config.token_endpoint, {
           method: 'POST',
           headers: tokenHeaders,
           body: JSON.stringify({
@@ -71,7 +71,7 @@ function detectCompletePkceFlow() {
             profileHeaders.append('Content-Type', 'application/json');
             profileHeaders.append('Authorization', 'Bearer ' + token.access_token);
 
-            return fetch(new Request(config.profile_uri + '/profile', {
+            return fetch(new Request(config.userinfo_endpoint, {
               method: 'GET',
               headers: profileHeaders
             }));
