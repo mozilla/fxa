@@ -39,7 +39,8 @@
     "raven": "2.3.0",
     "request": "2.83.0",
     "restify": "4.3.0",
-    "restify-safe-json-formatter": "0.2.0"
+    "restify-safe-json-formatter": "0.2.0",
+    "scrypt-hash": "1.1.14"
   },
   "devDependencies": {
     "eslint-plugin-fxa": "git+https://github.com/mozilla/eslint-plugin-fxa#master",

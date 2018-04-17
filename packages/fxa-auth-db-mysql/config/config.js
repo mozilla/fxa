@@ -168,6 +168,20 @@ module.exports = function (fs, path, url, convict) {
       default: '',
       format: 'String',
       env: 'SENTRY_DSN'
+    },
+    recoveryCodes: {
+      keyspace: {
+        doc: 'Characters allowed in a recovery code',
+        default: 'abcdefghijklmnopqrstuvwxyz0123456789',
+        format: 'String',
+        env: 'RECOVERY_CODE_KEYSPACE'
+      },
+      length: {
+        doc: 'The length of a recovery code',
+        default: 10,
+        format: 'nat',
+        env: 'RECOVERY_CODE_LENGTH'
+      }
     }
   })
 

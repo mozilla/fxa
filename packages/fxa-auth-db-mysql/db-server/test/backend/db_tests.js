@@ -2058,11 +2058,16 @@ module.exports = function (config, DB) {
       })
 
       const codeLengthTest = [0, 4, 8]
+      const codeTest = /^[a-zA-Z0-9]{0,20}$/
       codeLengthTest.forEach((num) => {
         it('should generate ' + num + ' recovery codes', () => {
           return db.replaceRecoveryCodes(account.uid, num)
             .then((codes) => {
               assert.equal(codes.length, num, 'correct number of codes')
+              codes.forEach((code) => {
+                assert.equal(codeTest.test(code), true, 'matches recovery code format')
+              })
+              assert.equal()
             }, (err) => {
               assert.equal(err.errno, 116, 'correct errno, not found')
             })

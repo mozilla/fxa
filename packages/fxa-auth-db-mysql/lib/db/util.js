@@ -7,6 +7,7 @@
 const crypto = require('crypto')
 const P = require('../promise')
 const randomBytes = P.promisify(require('crypto').randomBytes)
+const scryptHash = P.promisify(require('scrypt-hash'))
 
 const BOUNCE_TYPES = new Map([
   ['__fxa__unmapped', 0], // a bounce type we don't yet recognize
@@ -93,25 +94,44 @@ module.exports = {
     return hash.digest()
   },
 
-  createHashSha512 () {
-    const hash = crypto.createHash('sha512')
-    const args = [...arguments]
-    args.forEach((arg) => {
-      hash.update(arg)
-    })
-    return hash.digest()
+  createHashScrypt(input) {
+    // Creates an scrypt hash from string input with a randomly generated
+    // salt. This matches process on auth-server.
+    let salt
+    return randomBytes(32)
+      .then((result) => {
+        salt = result
+        const inputBuffer = Buffer.from(input)
+        return scryptHash(inputBuffer, salt, 65536, 8, 1, 32)
+          .then((hash) => {
+            return {hash, salt}
+          })
+      })
   },
 
-  generateRecoveryCodes(count) {
+  compareHashScrypt(input, verifyHash, salt) {
+    const inputBuffer = Buffer.from(input)
+    return scryptHash(inputBuffer, salt, 65536, 8, 1, 32)
+      .then((hash) => crypto.timingSafeEqual(hash, verifyHash))
+  },
+
+  generateRecoveryCodes(count, keyspace, length) {
     const randomByteCodes = []
     for (let i = 0; i < count; i++) {
-      randomByteCodes.push(randomBytes(4))
+      randomByteCodes.push(randomBytes(length))
     }
 
     return P.all(randomByteCodes)
       .then((result) => {
         return result.map((randomCode) => {
-          return randomCode.toString('hex')
+          const charsLength = keyspace.length
+          const result = []
+          let currentIndex = 0
+          for (let i = 0; i < 10; i++) {
+            currentIndex += randomCode[i]
+            result[i] = keyspace[currentIndex % charsLength]
+          }
+          return result.join('')
         })
       })
   }

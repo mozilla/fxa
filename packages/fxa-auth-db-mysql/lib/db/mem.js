@@ -50,6 +50,9 @@ const SESSION_DEVICE_FIELDS = [
   'lastAccessTime'
 ]
 
+const RECOVERY_CODE_KEYSPACE = config.recoveryCodes.keyspace
+const RECOVERY_CODE_LENGTH = config.recoveryCodes.length
+
 module.exports = function (log, error) {
 
   function Memory(db) {}
@@ -1307,24 +1310,29 @@ module.exports = function (log, error) {
 
   Memory.prototype.replaceRecoveryCodes = function (uid, count) {
     uid = uid.toString('hex')
+    let codes = []
     return getAccountByUid(uid)
       .then(() => {
-        return dbUtil.generateRecoveryCodes(count)
-          .then((codes) => {
-            recoveryCodes[uid] = codes.map((code) => {
-              return {
-                codeHash: dbUtil.createHashSha512(code)
-              }
-            })
-            return codes
-          })
+        return dbUtil.generateRecoveryCodes(count, RECOVERY_CODE_KEYSPACE, RECOVERY_CODE_LENGTH)
+      })
+      .then((result) => {
+        codes = result
+        return codes.map((code) => dbUtil.createHashScrypt(code))
+      })
+      .all()
+      .then((hashes) => {
+        recoveryCodes[uid] = hashes.map((value) => {
+          return {
+            codeHash: value.hash,
+            salt: value.salt
+          }
+        })
+        return codes
       })
   }
 
   Memory.prototype.consumeRecoveryCode = function (uid, code) {
     uid = uid.toString('hex')
-    const codeHash = dbUtil.createHashSha512(code).toString('hex')
-
     return getAccountByUid(uid)
       .then(() => {
         const codes = recoveryCodes[uid]
@@ -1333,23 +1341,24 @@ module.exports = function (log, error) {
           throw error.notFound()
         }
 
-        let foundCode, foundIndex
-        for (let i = 0; i < codes.length; i++) {
-          const code = codes[i]
-          if (codeHash === code.codeHash.toString('hex')) {
-            foundCode = code
-            foundIndex = i
-            break
-          }
-        }
+        const hashes = codes.map((item, index) => {
+          return dbUtil.compareHashScrypt(code, item.codeHash, item.salt)
+            .then((equals) => {
+              return {index, equals}
+            })
+        })
 
-        if (! foundCode) {
-          throw error.notFound()
-        }
+        // Filter to only matching hashes
+        return P.filter(hashes, item => item.equals)
+          .then((result) => {
+            if (result.length === 0) {
+              throw error.notFound()
+            }
 
-        codes.splice(foundIndex, 1)
+            codes.splice(result[0].index, 1)
 
-        return {createdAt: foundCode.createdAt, remaining: codes.length}
+            return {remaining: codes.length}
+          })
       })
   }
 

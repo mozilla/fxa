@@ -11,6 +11,7 @@ const P = require('../promise')
 
 const patch = require('./patch')
 const dbUtil = require('./util')
+const config = require('../../config')
 
 const REQUIRED_CHARSET = 'UTF8MB4_BIN'
 const DATABASE_NAME = require('../constants').DATABASE_NAME
@@ -31,6 +32,10 @@ const ER_LOCK_ABORTED = 1689
 // custom mysql errors
 const ER_DELETE_PRIMARY_EMAIL = 2100
 const ER_EXPIRED_TOKEN_VERIFICATION_CODE = 2101
+
+
+const RECOVERY_CODE_KEYSPACE = config.recoveryCodes.keyspace
+const RECOVERY_CODE_LENGTH = config.recoveryCodes.length
 
 module.exports = function (log, error) {
 
@@ -1451,34 +1456,30 @@ module.exports = function (log, error) {
   }
 
   const DELETE_RECOVERY_CODES = 'CALL deleteRecoveryCodes_1(?)'
-  const INSERT_RECOVERY_CODE = 'CALL createRecoveryCode_1(?, ?)'
+  const INSERT_RECOVERY_CODE = 'CALL createRecoveryCode_2(?, ?, ?)'
   MySql.prototype.replaceRecoveryCodes = function (uid, count) {
 
     // Because of the hashing requirements the process of replacing
     // recovery codes is done is two separate procedures. First one
     // deletes all current codes and the second one inserts the
     // hashed randomly generated codes.
-    return dbUtil.generateRecoveryCodes(count)
-      .then((codeList) => {
+    return dbUtil.generateRecoveryCodes(count, RECOVERY_CODE_KEYSPACE, RECOVERY_CODE_LENGTH)
+      .then((codes) => {
         return this.read(DELETE_RECOVERY_CODES, [uid])
-          .then(() => {
-            if (codeList <= 0) {
-              return P.resolve([])
-            }
-
+          .then(() => codes.map((code) => dbUtil.createHashScrypt(code)))
+          .all()
+          .then((items) => {
             const queries = []
-            codeList.forEach((code) => {
+            items.forEach((item) => {
               queries.push({
                 sql: INSERT_RECOVERY_CODE,
-                params: [uid, dbUtil.createHashSha512(code)]
+                params: [uid, item.hash, item.salt]
               })
             })
 
             return this.writeMultiple(queries)
           })
-          .then(() => {
-            return P.resolve(codeList)
-          })
+          .then(() => codes)
           .catch((err) => {
             if (err.errno === 1643) {
               throw error.notFound()
@@ -1490,9 +1491,36 @@ module.exports = function (log, error) {
       })
   }
 
-  const CONSUME_RECOVERY_CODE = 'CALL consumeRecoveryCode_1(?, ?)'
-  MySql.prototype.consumeRecoveryCode = function (uid, code) {
-    return this.readFirstResult(CONSUME_RECOVERY_CODE, [uid, dbUtil.createHashSha512(code)])
+  const CONSUME_RECOVERY_CODE = 'CALL consumeRecoveryCode_2(?, ?)'
+  const RECOVERY_CODES = 'CALL recoveryCodes_1(?)'
+  MySql.prototype.consumeRecoveryCode = function (uid, submittedCode) {
+    // Consuming a recovery code is done in a two step process because
+    // the stored scrypt hash will need to be calculated against the recovery
+    // code salt.
+    return this.readOneFromFirstResult(RECOVERY_CODES, [uid])
+      .then((results) => {
+        // Throw if this user has no recovery codes
+        if (results.length === 0) {
+          throw error.notFound()
+        }
+
+        const compareResults = results.map((code) => {
+          return dbUtil.compareHashScrypt(submittedCode, code.codeHash, code.salt)
+            .then((equals) => {
+              return {code, equals}
+            })
+        })
+
+        // Filter only matching code
+        return P.filter(compareResults, result => result.equals)
+          .map((result) => result.code)
+      })
+      .then((result) => {
+        if (result.length === 0) {
+          throw error.notFound()
+        }
+        return this.readFirstResult(CONSUME_RECOVERY_CODE, [uid, result[0].codeHash])
+      })
       .then((result) => {
         return P.resolve({
           remaining: result.count
