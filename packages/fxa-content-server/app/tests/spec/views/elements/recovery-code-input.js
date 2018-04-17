@@ -67,7 +67,7 @@ describe('views/elements/recovery-code-input', function () {
     });
 
     it('if invalid, throws a `INVALID_RECOVERY_CODE`', () => {
-      testInvalidInput($element, 'notvalid', 'INVALID_RECOVERY_CODE');
+      testInvalidInput($element, 'notvalid!!', 'INVALID_RECOVERY_CODE');
     });
 
     it('does not throw if valid', () => {

@@ -97,7 +97,7 @@ registerSuite('recovery code', {
         .then(click(selectors.SIGNIN_RECOVERY_CODE.LINK))
 
         // Fails for invalid code
-        .then(type(selectors.SIGNIN_RECOVERY_CODE.INPUT, 'invalid'))
+        .then(type(selectors.SIGNIN_RECOVERY_CODE.INPUT, 'invalid!!!!'))
         .then(click(selectors.SIGNIN_RECOVERY_CODE.SUBMIT))
         .then(visibleByQSA('.tooltip'))
         .then(testElementTextInclude('.tooltip', 'invalid'))

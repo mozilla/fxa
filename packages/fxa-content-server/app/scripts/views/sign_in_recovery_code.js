@@ -25,7 +25,7 @@ const View = FormView.extend({
 
   submit() {
     const account = this.getSignedInAccount();
-    const code = this.getElementValue('input.recovery-code');
+    const code = this.getElementValue('input.recovery-code').toLowerCase();
 
     return account.consumeRecoveryCode(code)
       .then((result) => {

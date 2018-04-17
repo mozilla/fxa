@@ -45,8 +45,8 @@ define(function (require, exports, module) {
 
   // TOTP codes are 6 digits
   const TOTP_CODE = /^[0-9]{6}$/;
-  // Recovery codes are 10 alpha numeric or 8 hex strings
-  const RECOVERY_CODE = /^(([a-z0-9]{10})|([a-f0-9]{8}))$/;
+  // Recovery codes can be 8-10 alpha numeric characters
+  const RECOVERY_CODE = /^([a-zA-Z0-9]{8,10})$/;
 
   var Validate = {
     /**
