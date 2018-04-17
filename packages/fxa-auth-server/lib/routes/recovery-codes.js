@@ -6,13 +6,12 @@
 
 const errors = require('../error')
 const isA = require('joi')
-const validators = require('./validators')
-const HEX_STRING = validators.HEX_STRING
+const BASE_36 = require('./validators').BASE_36
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
+const RECOVERY_CODE_SANE_MAX_LENGTH = 20
 
 module.exports = (log, db, config, customs, mailer) => {
   const codeConfig = config.recoveryCodes
-  const RECOVERY_CODE_LENGTH = codeConfig && codeConfig.length || 8
   const RECOVERY_CODE_COUNT = codeConfig && codeConfig.count || 8
 
   return [
@@ -25,7 +24,7 @@ module.exports = (log, db, config, customs, mailer) => {
         },
         response: {
           schema: {
-            recoveryCodes: isA.array().items(isA.string().regex(HEX_STRING))
+            recoveryCodes: isA.array().items(isA.string())
           }
         }
       },
@@ -93,7 +92,7 @@ module.exports = (log, db, config, customs, mailer) => {
         },
         validate: {
           payload: {
-            code: isA.string().length(RECOVERY_CODE_LENGTH).regex(HEX_STRING).required(),
+            code: isA.string().max(RECOVERY_CODE_SANE_MAX_LENGTH).regex(BASE_36).required(),
             metricsContext: METRICS_CONTEXT_SCHEMA
           }
         },

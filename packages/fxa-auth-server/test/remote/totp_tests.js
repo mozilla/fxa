@@ -57,7 +57,7 @@ describe('remote totp', function () {
           })
           .then((response) => {
             assert.equal(response.success, true, 'totp codes match')
-            assert.equal(response.recoveryCodes.length, 8, 'recovery codes returned')
+            assert.equal(response.recoveryCodes.length > 1, true, 'recovery codes returned')
             return server.mailbox.waitForEmail(email)
           })
           .then((emailData) => {

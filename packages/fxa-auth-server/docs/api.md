@@ -2158,7 +2158,7 @@ Return new recovery codes while removing old ones.
 
 ##### Response body
 
-* `recoveryCodes`: *array, items(string, regex(validators.HEX_STRING))*
+* `recoveryCodes`: *array, items(string)*
 
   <!--begin-response-body-get-recoverycodes-recoveryCodes-->
   
@@ -2174,7 +2174,7 @@ Verify a session using a recovery code.
 
 ##### Request body
 
-* `code`: *string, length(RECOVERY_CODE_LENGTH), regex(HEX_STRING), required*
+* `code`: *string, max(RECOVERY_CODE_SANE_MAX_LENGTH), regex(BASE_36), required*
 
   <!--begin-request-body-post-sessionverifyrecoverycode-code-->
   
@@ -2710,7 +2710,7 @@ Verifies the current session if the passed TOTP code is valid.
   
   <!--end-response-body-post-sessionverifytotp-success-->
 
-* `recoveryCodes`: *array, items(string, regex(HEX_STRING)), optional*
+* `recoveryCodes`: *array, items(string), optional*
 
   <!--begin-response-body-post-sessionverifytotp-recoveryCodes-->
   

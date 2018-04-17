@@ -812,7 +812,7 @@ var conf = convict({
     recoveryCodes: {
       length: {
         doc: 'The length of a recovery code',
-        default: 8,
+        default: 10,
         env: 'RECOVERY_CODE_LENGTH'
       },
       count: {

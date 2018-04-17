@@ -11,7 +11,6 @@ const P = require('../promise')
 const otplib = require('otplib')
 const qrcode = require('qrcode')
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
-const HEX_STRING = validators.HEX_STRING
 
 module.exports = (log, db, mailer, customs, config) => {
 
@@ -248,7 +247,7 @@ module.exports = (log, db, mailer, customs, config) => {
         response: {
           schema: {
             success: isA.boolean().required(),
-            recoveryCodes: isA.array().items(isA.string().regex(HEX_STRING)).optional()
+            recoveryCodes: isA.array().items(isA.string()).optional()
           }
         }
       },

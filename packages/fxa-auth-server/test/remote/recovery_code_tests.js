@@ -9,7 +9,7 @@ const config = require('../../config').getProperties()
 const TestServer = require('../test_server')
 const Client = require('../client')()
 const otplib = require('otplib')
-const HEX_STRING = require('../../lib/routes/validators').HEX_STRING
+const BASE_36 = require('../../lib/routes/validators').BASE_36
 
 describe('remote recovery codes', function () {
   let server, client, email, recoveryCodes
@@ -52,7 +52,7 @@ describe('remote recovery codes', function () {
                 assert.equal(response.success, true, 'totp codes match')
 
                 recoveryCodes = response.recoveryCodes
-                assert.equal(response.recoveryCodes.length, 8, 'recovery codes returned')
+                assert.equal(response.recoveryCodes.length > 1, true, 'recovery codes returned')
                 return server.mailbox.waitForEmail(email)
               })
               .then((emailData) => {
@@ -64,10 +64,10 @@ describe('remote recovery codes', function () {
 
   it('should create recovery codes', () => {
     assert.ok(recoveryCodes)
-    assert.equal(recoveryCodes.length, 8, 'recovery codes returned')
+    assert.equal(recoveryCodes.length > 1, true, 'recovery codes returned')
     recoveryCodes.forEach((code) => {
-      assert.equal(code.length, 8, 'correct length')
-      assert.equal(HEX_STRING.test(code), true, 'code is hex')
+      assert.equal(code.length > 1, true, 'correct length')
+      assert.equal(BASE_36.test(code), true, 'code is hex')
     })
   })
 
