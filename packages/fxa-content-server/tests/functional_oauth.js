@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = [
+  'tests/functional/oauth_email_first.js',
   'tests/functional/oauth_handshake.js',
   'tests/functional/amo_sign_up.js',
   'tests/functional/oauth_choose_redirect.js',

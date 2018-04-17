@@ -23,7 +23,7 @@ define(function (require, exports, module) {
 
   /*eslint-disable camelcase*/
   const QUERY_PARAMETER_SCHEMA = {
-    action: Vat.string().valid('signin', 'signup', 'email'),
+    action: Vat.action(),
     // context is not available when verifying.
     context: Vat.string().min(1),
     country: Vat.string().valid(...AllowedCountries),

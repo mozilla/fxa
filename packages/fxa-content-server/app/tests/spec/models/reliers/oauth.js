@@ -29,7 +29,7 @@ define(function (require, exports, module) {
     var windowMock;
 
     var ACCESS_TYPE = 'offline';
-    var ACTION = 'signup';
+    var ACTION = 'email';
     var CLIENT_ID = 'dcdb5ae7add825d2';
     var CLIENT_IMAGE_URI = 'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.pngx';
     var PROMPT = Constants.OAUTH_PROMPT_CONSENT;
@@ -91,6 +91,8 @@ define(function (require, exports, module) {
             .then(function () {
               // context is not imported from query params
               assert.equal(relier.get('context'), Constants.OAUTH_CONTEXT);
+
+              assert.equal(relier.get('action'), ACTION);
 
               assert.equal(relier.get('prompt'), PROMPT);
 

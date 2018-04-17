@@ -94,7 +94,7 @@ define(function (require, exports, module) {
       return this.invokeBrokerMethod('beforeSignIn', account)
         .then(() => this.user.checkAccountEmailExists(account))
         .then((exists) => {
-          const nextEndpoint = exists ? 'signin' : 'signup';
+          const nextEndpoint = this.broker.transformLink(exists ? 'signin' : 'signup');
           this.navigate(nextEndpoint, { account });
         });
     }

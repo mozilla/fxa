@@ -235,10 +235,12 @@ define(function(require, exports, module) {
       describe('email is registered', () => {
         it('navigates to signin', () => {
           sinon.stub(user, 'checkAccountEmailExists').callsFake(() => Promise.resolve(true));
+          sinon.stub(broker, 'transformLink').callsFake(link => `oauth/${link}`);
+
           return view.checkEmail(EMAIL)
             .then(() => {
-              assert.isTrue(view.navigate.calledOnce);
-              assert.isTrue(view.navigate.calledWith('signin'));
+              // test ensures `transformLink` is called to handle OAuth flow.
+              assert.isTrue(view.navigate.calledOnceWith('oauth/signin'));
               const { account } = view.navigate.args[0][1];
               assert.equal(account.get('email'), EMAIL);
 

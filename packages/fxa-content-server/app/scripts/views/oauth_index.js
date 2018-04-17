@@ -12,12 +12,24 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const BaseView = require('./base');
+  const IndexView = require('./index');
 
-  module.exports = BaseView.extend({
-    beforeRender () {
+  class OAuthIndexView extends IndexView {
+    afterRender () {
       // Attempt to get email address from relier
-      const email = this.relier.get('email');
+      const action = this.relier.get('action');
+      const email = this.model.get('relierEmail');
+
+      if (action === 'email') {
+        // let's the router know to use the email-first signin/signup page
+        this.notifier.trigger('email-first-flow');
+        if (email) {
+          return this.checkEmail(email);
+        } else {
+          // show the email-first template.
+          return;
+        }
+      }
 
       return Promise.resolve().then(() => {
         if (! email) {
@@ -53,8 +65,10 @@ define(function (require, exports, module) {
           }
         }
 
-        this.navigate(url, {}, { replace: true, trigger: true });
+        this.replaceCurrentPage(url);
       });
     }
-  });
+  }
+
+  module.exports = OAuthIndexView;
 });
