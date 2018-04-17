@@ -1,3 +1,45 @@
+<a name="1.110.0"></a>
+# 1.110.0 (2018-04-17)
+
+
+### Bug Fixes
+
+* **csp:** remove gravatar from csp rules (#6015); r=@rfk ([51a32d7](https://github.com/mozilla/fxa-content-server/commit/51a32d7))
+* **css:** make qr code padding consistent (#6048), r=@shane-tomlinson ([c2ac36d](https://github.com/mozilla/fxa-content-server/commit/c2ac36d))
+* **email:** send correct email when using unblock code (#6064), r=@philbooth, @shane-tomlins ([e31e97a](https://github.com/mozilla/fxa-content-server/commit/e31e97a))
+* **email-first:** Ensure "Mistyped email" links work as expected. (#6067) r=@philbooth ([8a9a772](https://github.com/mozilla/fxa-content-server/commit/8a9a772)), closes [#6033](https://github.com/mozilla/fxa-content-server/issues/6033)
+* **experiment:** Disable A/B experiment interface for navigator.webdriver r=@rfk ([203858b](https://github.com/mozilla/fxa-content-server/commit/203858b)), closes [#6026](https://github.com/mozilla/fxa-content-server/issues/6026)
+* **htmllint:** Fixes #5668 upgrade es6-promise to 4.2.4 (#6050) r=@vladikoff ([cd41660](https://github.com/mozilla/fxa-content-server/commit/cd41660)), closes [#5668](https://github.com/mozilla/fxa-content-server/issues/5668) [(#6050](https://github.com/(/issues/6050) [#5668](https://github.com/mozilla/fxa-content-server/issues/5668)
+* **metrics:** add locale to flow events ([433cba7](https://github.com/mozilla/fxa-content-server/commit/433cba7))
+* **npm:** update to npm5 (#6042) r=@shane-tomlinson ([ccbbd1b](https://github.com/mozilla/fxa-content-server/commit/ccbbd1b))
+* **style:** disable 'clear' button for default avatar (#6037) r=@vladikoff ([f19eddf](https://github.com/mozilla/fxa-content-server/commit/f19eddf))
+* **style:** drag-off state for buttons r=@vladikoff ([0bdf73d](https://github.com/mozilla/fxa-content-server/commit/0bdf73d)), closes [#5255](https://github.com/mozilla/fxa-content-server/issues/5255)
+* **test:** Remove duplicate email_first functional test entries. (#6054), r=@vbudhram ([963188d](https://github.com/mozilla/fxa-content-server/commit/963188d))
+* **tests:** enable TOTP tests on Circle (#6066), r=@vbudhram ([7caa9ae](https://github.com/mozilla/fxa-content-server/commit/7caa9ae))
+* **tests:** update tests for recovery code updates (#6075), r=@philbooth ([c18bdf3](https://github.com/mozilla/fxa-content-server/commit/c18bdf3))
+* **totp:** Fix the "can add TOTP to account and confirm web signin" test (#6069) r=@vladiko ([47545b6](https://github.com/mozilla/fxa-content-server/commit/47545b6)), closes [(#6069](https://github.com/(/issues/6069) [#6068](https://github.com/mozilla/fxa-content-server/issues/6068)
+
+### chore
+
+* **deps:** Remove the babel-middle dependency, it's not used. (#6055) r=@vbudhram ([4e5a462](https://github.com/mozilla/fxa-content-server/commit/4e5a462))
+* **deps:** Update sinon to @4.5.0 (#6038) r=@vbudhram ([0816af5](https://github.com/mozilla/fxa-content-server/commit/0816af5))
+* **docs:** Remove obsolete oauth-in-an-iframe docs. (#6041) r=@shane-tomlinson ([9b168fd](https://github.com/mozilla/fxa-content-server/commit/9b168fd))
+* **emails:** use popular email domain list from fxa-shared ([c4f2232](https://github.com/mozilla/fxa-content-server/commit/c4f2232))
+* **favicon:** Fixes #6030 Remove OLD Firefox favicon (#6035) r=@vladikoff ([b919763](https://github.com/mozilla/fxa-content-server/commit/b919763)), closes [#6030](https://github.com/mozilla/fxa-content-server/issues/6030) [(#6035](https://github.com/(/issues/6035)
+
+### Features
+
+* **email-first:** Enable the email-first flow for OAuth reliers. (#6034) r=@philbooth ([71a20af](https://github.com/mozilla/fxa-content-server/commit/71a20af)), closes [#6009](https://github.com/mozilla/fxa-content-server/issues/6009)
+* **signup:** Add verification password to email-first signup. (#6028) r=@vbudhram ([e00b6ad](https://github.com/mozilla/fxa-content-server/commit/e00b6ad)), closes [#5947](https://github.com/mozilla/fxa-content-server/issues/5947)
+* **sms:** Partial SMS rollout in BE and NL. (#6032) ([193ca25](https://github.com/mozilla/fxa-content-server/commit/193ca25)), closes [#6031](https://github.com/mozilla/fxa-content-server/issues/6031)
+* **SMS:** Roll out Denmark(DK) to 50%. (#6065) r=@philbooth ([e052e1e](https://github.com/mozilla/fxa-content-server/commit/e052e1e))
+
+### Refactor
+
+* **metrics:** use boiler-plate amplitude code from fxa-shared ([a5ab837](https://github.com/mozilla/fxa-content-server/commit/a5ab837))
+
+
+
 <a name="1.109.3"></a>
 ## 1.109.3 (2018-04-06)
 
