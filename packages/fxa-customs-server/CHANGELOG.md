@@ -1,3 +1,22 @@
+<a name="1.110.0"></a>
+# 1.110.0 (2018-04-18)
+
+
+### Bug Fixes
+
+* **sms:** Reduce sms rate-limit interval to half an hour. (#235); r=philbooth ([0ca8c52](https://github.com/mozilla/fxa-customs-server/commit/0ca8c52))
+* **tests:** fix dependent tests (#234), r=@rfk ([2633c4c](https://github.com/mozilla/fxa-customs-server/commit/2633c4c)), closes [(#234](https://github.com/(/issues/234)
+
+### chore
+
+* **docs:** Add documentation on tagging private releases. (#237) r=@vladikoff ([2a8c180](https://github.com/mozilla/fxa-customs-server/commit/2a8c180))
+
+### Features
+
+* **totp:** add totp rate limits (#233), r=@rfk ([970f01e](https://github.com/mozilla/fxa-customs-server/commit/970f01e))
+
+
+
 <a name="1.109.0"></a>
 # 1.109.0 (2018-04-04)
 
