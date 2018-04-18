@@ -4,10 +4,8 @@ fxa
 fxa-auth-db-mem
 fxa-auth-db-mysql
 fxa-auth-db-server
-fxa-auth-mailer
 fxa-auth-server
 fxa-basket-proxy
-fxa-content-experiments
 fxa-content-server
 fxa-content-server-l10n
 fxa-customs-server
@@ -18,7 +16,6 @@ fxa-crypto-relier
 fxa-js-client-old
 fxa-jwtool
 fxa-local-dev
-fxa-notification-server
 fxa-oauth-console
 fxa-oauth-client
 fxa-oauth-server
@@ -39,6 +36,6 @@ fxa-bugzilla-mirror
 grunt-l10n-lint
 fxa-activity-metrics
 mozlog
-mozilla-services/fxa-testing-e2e
 fxa-sprint-planning
 fxa-amplitude-send
+mozilla-services/fxa-testing-e2e
