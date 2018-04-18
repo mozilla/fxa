@@ -1,3 +1,19 @@
+<a name="1.110.0"></a>
+# [1.110.0](https://github.com/mozilla/fxa-profile-server/compare/v1.109.1...v1.110.0) (2018-04-18)
+
+
+### Bug Fixes
+
+* **mozlog:** fix deprecation warning (#315) r=@vladikoff ([5050602](https://github.com/mozilla/fxa-profile-server/commit/5050602)), closes [(#315](https://github.com/(/issues/315)
+* **npm:** update to npm5 (#317) r=@shane-tomlinson ([6b45955](https://github.com/mozilla/fxa-profile-server/commit/6b45955))
+* **traceback:** add mock for summary logs in tests (#314) r=@vladikoff ([39b4ab2](https://github.com/mozilla/fxa-profile-server/commit/39b4ab2)), closes [#203](https://github.com/mozilla/fxa-profile-server/issues/203)
+
+### Features
+
+* **cache:** Clear cache when receiving a "profileDataChanged" event. (#318); r=vbudhram ([23a7cbc](https://github.com/mozilla/fxa-profile-server/commit/23a7cbc))
+
+
+
 <a name="1.109.1"></a>
 ## [1.109.1](https://github.com/mozilla/fxa-profile-server/compare/v1.109.0...v1.109.1) (2018-04-13)
 
