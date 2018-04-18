@@ -85,7 +85,18 @@ function getTosPpVersion () {
   try {
     const pkgPath = '../../node_modules/legal-docs/package.json';
     const pkgInfo = require(pkgPath);
-    return pkgInfo && pkgInfo.gitHead;
+    let gitHead = undefined;
+    // npm < 5.8 has the git hash in `gitHead`
+    if (pkgInfo && pkgInfo.gitHead) {
+      gitHead = pkgInfo.gitHead;
+    }
+
+    // npm >= 5.8 has the git hash in `_resolved`
+    if (! gitHead && pkgInfo && pkgInfo._resolved) {
+      gitHead = pkgInfo._resolved.split('#')[1];
+    }
+
+    return gitHead;
   } catch (e) {
     /* ignore */
   }
