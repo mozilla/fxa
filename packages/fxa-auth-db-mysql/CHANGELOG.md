@@ -1,3 +1,15 @@
+<a name="1.110.0"></a>
+# [1.110.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.109.0...v1.110.0) (2018-04-18)
+
+
+### Bug Fixes
+
+* **codes:** remove current recovery codes before applying migration (#337), r=@rfk ([23cbc61](https://github.com/mozilla/fxa-auth-db-mysql/commit/23cbc61))
+* **codes:** update recovery code requirements (#333), r=@philbooth ([2ca7d9f](https://github.com/mozilla/fxa-auth-db-mysql/commit/2ca7d9f))
+* **devices:** Rename pushbox capability to messages and add messages.sendtab capability (#335) ([5a1535a](https://github.com/mozilla/fxa-auth-db-mysql/commit/5a1535a))
+
+
+
 <a name="1.109.0"></a>
 # [1.109.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.107.1...v1.109.0) (2018-04-04)
 
