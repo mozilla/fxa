@@ -78,11 +78,15 @@ function generateCode(claims, client, scope, req) {
   }).then(function(code) {
     logger.debug('redirecting', { uri: req.payload.redirect_uri });
 
-    var redirect = URI(req.payload.redirect_uri)
-      .addQuery({ state: req.payload.state, code: hex(code) });
+    code = hex(code);
+    const redirect = URI(req.payload.redirect_uri)
+      .addQuery({ state: req.payload.state, code });
 
-
-    var out = { redirect: String(redirect) };
+    const out = {
+      code,
+      state: req.payload.state,
+      redirect: String(redirect)
+    };
     logger.info('generateCode', {
       request: {
         client_id: req.payload.client_id,
@@ -176,18 +180,23 @@ module.exports = {
   response: {
     schema: Joi.object().keys({
       redirect: Joi.string(),
+      code: Joi.string(),
+      state: Joi.string(),
       access_token: validators.token,
       token_type: Joi.string().valid('bearer'),
       scope: Joi.string().allow(''),
       auth_at: Joi.number(),
       expires_in: Joi.number()
-    }).without('redirect', [
-      'access_token'
-    ]).with('access_token', [
+    }).with('access_token', [
       'token_type',
       'scope',
       'auth_at',
       'expires_in'
+    ]).with('code', [
+      'state',
+      'redirect',
+    ]).without('code', [
+      'access_token'
     ])
   },
   handler: function authorizationEndpoint(req, reply) {

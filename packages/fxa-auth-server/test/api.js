@@ -142,7 +142,7 @@ function newToken(payload, options) {
       payload: {
         client_id: options.clientId || clientId,
         client_secret: options.secret || secret,
-        code: url.parse(res.result.redirect, true).query.code,
+        code: res.result.code,
         ttl: ttl
       }
     });
@@ -625,6 +625,7 @@ describe('/v1', function() {
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
+          assert.equal(res.result.state, 'aa');
           assert.equal(url.parse(res.result.redirect, true).query.state, 'aa');
         });
       });
@@ -684,6 +685,7 @@ describe('/v1', function() {
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
+          assert(res.result.code);
           assert(res.result.redirect);
         });
       });
@@ -702,6 +704,7 @@ describe('/v1', function() {
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
+          assert(res.result.code);
           assert(res.result.redirect);
         });
       });
@@ -886,7 +889,7 @@ describe('/v1', function() {
             })
           }).then((res) => {
             assert.equal(res.statusCode, 200);
-            return url.parse(res.result.redirect, true).query.code;
+            return res.result.code;
           });
         }).then((code) => {
           return Server.api.post({
@@ -923,6 +926,7 @@ describe('/v1', function() {
             assert.equal(loc.pathname, expected.pathname);
             assert.equal(loc.query.foo, expected.query.foo);
             assert(loc.query.code);
+            assert.equal(loc.query.code, res.result.code);
           });
         });
       });
@@ -1027,7 +1031,7 @@ describe('/v1', function() {
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
-            return url.parse(res.result.redirect, true).query.code;
+            return res.result.code;
           });
         }
 
@@ -1082,7 +1086,7 @@ describe('/v1', function() {
           })
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
-          return url.parse(res.result.redirect, true).query.code;
+          return res.result.code;
         }).then(function(code) {
           return Server.api.post({
             url: '/token',
@@ -1187,7 +1191,7 @@ describe('/v1', function() {
             }).then(function(res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
-              return url.parse(res.result.redirect, true).query.code;
+              return res.result.code;
             });
           }).then(function(code) {
             return Server.api.post({
@@ -1235,7 +1239,7 @@ describe('/v1', function() {
             }).then(function(res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
-              return url.parse(res.result.redirect, true).query.code;
+              return res.result.code;
             });
           }).then(function(code) {
             oauth_code = code;
@@ -1281,7 +1285,7 @@ describe('/v1', function() {
             url: '/authorization',
             payload: authParams()
           }).then(function(res) {
-            return url.parse(res.result.redirect, true).query.code;
+            return res.result.code;
           }).delay(60).then(function(code) {
             return Server.api.post({
               url: '/token',
@@ -1306,7 +1310,7 @@ describe('/v1', function() {
             url: '/authorization',
             payload: authParams()
           }).then(function(res) {
-            return url.parse(res.result.redirect, true).query.code;
+            return res.result.code;
           }).then(function(code) {
             return Server.api.post({
               url: '/token',
@@ -1352,7 +1356,7 @@ describe('/v1', function() {
                 payload: {
                   client_id: clientId,
                   client_secret: secret,
-                  code: url.parse(res.result.redirect, true).query.code,
+                  code: res.result.code,
                   foo: 'bar' // testing stripUnknown
                 }
               });
@@ -1387,7 +1391,7 @@ describe('/v1', function() {
                 payload: {
                   client_id: clientId,
                   client_secret: secret,
-                  code: url.parse(res.result.redirect, true).query.code
+                  code: res.result.code,
                 }
               });
             }).then(function(res) {
@@ -1422,7 +1426,7 @@ describe('/v1', function() {
             payload: {
               client_id: clientId,
               client_secret: secret,
-              code: url.parse(res.result.redirect, true).query.code
+              code: res.result.code,
             }
           });
         }).then(function(res) {
@@ -1922,7 +1926,7 @@ describe('/v1', function() {
             client_id: clientId
           })
         }).then((res) => {
-          return url.parse(res.result.redirect, true).query.code;
+          return res.result.code;
         });
       }
       it('works with https redirect_uri', () => {
