@@ -48,6 +48,48 @@ To run tests via Docker:
 docker-compose run mozilla/fxa_customs_server npm test
 ```
 
+## Tagging Releases
+
+Unlike other FxA services,
+the customs-server includes some non-public code changes
+that are managed in a separate private repo:
+
+  https://github.com/mozilla/fxa-customs-server-private/
+
+When tagging a new release for deployment,
+it needs to be merged to the private repo
+and re-tagged with those changes in place.
+The process looks something like this:
+
+```
+> # First, make a new public tag.
+> cd ./fxa-customs-server
+> grunt version
+> git push; git push --tags
+>
+> # Next, merge the updates to the private repo.
+> cd ../fxa-customs-server-private
+> git checkout master ; git pull
+> git remote add public https://github.com/mozilla/fxa-customs-server
+> git fetch public
+> git merge public/master
+> git push
+>
+> # Make a release branch in the private repo.
+> git checkout v1.XXX.0
+> git checkout -b train-XXX
+> git push -u origin train-XXX
+>
+> # Merge private changes from previous train.
+> git merge origin/train-(XXX-1)
+>
+> # Make a private tag to include those changes.
+> git tag v1.XXX.0-private
+> git push; git push --tags
+
+```
+
+
 ## Code
 
 Here are the main components of this project:
