@@ -17,6 +17,7 @@ module.exports = function initApp() {
   var app = express();
   app.set('x-powered-by', false);
   app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded());
   app.use(logSummary());
   app.use(cors({
     origin: CORS_ORIGIN

@@ -19,7 +19,7 @@ describe('the /unsubscribe route', function () {
     var NEWSLETTERS = 'a';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: 'basket:write'
+      scope: ['basket']
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
@@ -53,7 +53,7 @@ describe('the /unsubscribe route', function () {
     var NEWSLETTERS = 'b';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: 'basket:write'
+      scope: ['basket']
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
@@ -91,7 +91,7 @@ describe('the /unsubscribe route', function () {
     var NEWSLETTERS = 'c,d';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: 'basket:write'
+      scope: ['basket']
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
@@ -132,7 +132,7 @@ describe('the /unsubscribe route', function () {
     var NEWSLETTERS = 'b';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: 'basket:write'
+      scope: ['basket']
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
@@ -166,7 +166,7 @@ describe('the /unsubscribe route', function () {
     var NEWSLETTERS = 'b';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: 'basket:write'
+      scope: ['basket']
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
@@ -201,7 +201,7 @@ describe('the /unsubscribe route', function () {
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: 'basket:write'
+      scope: ['basket']
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
@@ -231,7 +231,7 @@ describe('the /unsubscribe route', function () {
     }
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: 'basket:write'
+      scope: ['basket']
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,

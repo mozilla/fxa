@@ -21,7 +21,7 @@ describe('the /subscribe route', function () {
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: 'basket:write'
+      scope: ['basket']
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
@@ -47,12 +47,44 @@ describe('the /subscribe route', function () {
       .end(done);
   });
 
+  it('accepts form-encoded request bodies', function (done) {
+    var EMAIL = 'test@example.com';
+    var NEWSLETTERS = 'a,b,c';
+    mocks.mockOAuthResponse().reply(200, {
+      user: UID,
+      scope: ['basket']
+    });
+    mocks.mockProfileResponse().reply(200, {
+      email: EMAIL,
+    });
+    mocks.mockBasketResponse().post('/subscribe/', function (body) {
+      /*eslint-disable camelcase */
+      assert.deepEqual(body, {
+        email: EMAIL,
+        newsletters: NEWSLETTERS,
+        source_url: DEFAULT_SOURCE_URL
+      });
+      return true;
+    }).reply(200, {
+      status: 'ok',
+    });
+    request(app)
+      .post('/subscribe')
+      .set('authorization', 'Bearer TOKEN')
+      .type('form')
+      .send({ newsletters: NEWSLETTERS })
+      .expect(200, {
+        status: 'ok',
+      })
+      .end(done);
+  });
+
   it('passes through all params from body, except email', function (done) {
     var EMAIL = 'test@example.com';
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: 'basket:write'
+      scope: ['basket']
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
@@ -100,7 +132,7 @@ describe('the /subscribe route', function () {
     var NEWSLETTERS = 'a,b,c';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: 'basket:write'
+      scope: ['basket']
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
@@ -132,7 +164,7 @@ describe('the /subscribe route', function () {
     var ACCEPT_LANG = 'Accept-Language: de; q=1.0, en; q=0.5';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: 'basket:write'
+      scope: ['basket']
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,
@@ -166,7 +198,7 @@ describe('the /subscribe route', function () {
     var SOURCE_URL = 'https://secure.example.com';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: 'basket:write'
+      scope: ['basket']
     });
     mocks.mockProfileResponse().reply(200, {
       email: EMAIL,

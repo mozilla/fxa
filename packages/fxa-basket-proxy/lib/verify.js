@@ -3,15 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-var request = require('request');
+const request = require('request');
 
-var config = require('./config');
-var logger = require('./logging')('verify');
-var basket = require('./basket');
+const config = require('./config');
+const logger = require('./logging')('verify');
+const basket = require('./basket');
 
-var VERIFY_URL = config.get('oauth_url') + '/v1/verify';
-var PROFILE_URL = config.get('fxaccount_url') + '/v1/account/profile';
-var REQUIRED_SCOPE = 'basket:write';
+const VERIFY_URL = config.get('oauth_url') + '/v1/verify';
+const PROFILE_URL = config.get('fxaccount_url') + '/v1/account/profile';
+const REQUIRED_SCOPE_REGEX = /^basket(:write)?$/;
 
 // Adds FxA OAuth token verification to an express app.
 
@@ -58,7 +58,7 @@ module.exports = function verifyOAuthToken() {
         return;
       }
 
-      if (body.scope.indexOf(REQUIRED_SCOPE) === -1) {
+      if (! body.scope.find(s => REQUIRED_SCOPE_REGEX.test(s))) {
         logger.error('auth.invalid-scope', body);
         res.status(400).json(basket.errorResponse('invalid scope', basket.errors.AUTH_ERROR));
         return;
