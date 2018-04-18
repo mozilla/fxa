@@ -1,3 +1,34 @@
+<a name="1.110.0"></a>
+# [1.110.0](https://github.com/mozilla/fxa-auth-server/compare/v1.109.0...v1.110.0) (2018-04-18)
+
+
+### Bug Fixes
+
+* **devices:** Rename pushbox capability to messages in tests (#2389) r=@rfk ([9462e34](https://github.com/mozilla/fxa-auth-server/commit/9462e34)), closes [#2389](https://github.com/mozilla/fxa-auth-server/issues/2389)
+* **docs:** remove old/misleading information about the locale property (#2382) r=@vladikoff ([098f990](https://github.com/mozilla/fxa-auth-server/commit/098f990)), closes [#2382](https://github.com/mozilla/fxa-auth-server/issues/2382)
+* **email:** only send new sign-in emails for sync when verifying with totp (#2381), r=@philb ([35da0bd](https://github.com/mozilla/fxa-auth-server/commit/35da0bd)), closes [#2381](https://github.com/mozilla/fxa-auth-server/issues/2381)
+* **metrics:** stop using user-agent string in flow id check ([445cf30](https://github.com/mozilla/fxa-auth-server/commit/445cf30))
+* **recovery:** set assuranceLevel when verifying with recovery code (#2388), r=@rfk ([b830707](https://github.com/mozilla/fxa-auth-server/commit/b830707)), closes [#2388](https://github.com/mozilla/fxa-auth-server/issues/2388)
+* **recovery:** update to latest recovery code requirements (#2397), r=@philbooth ([ed3d99e](https://github.com/mozilla/fxa-auth-server/commit/ed3d99e)), closes [#2397](https://github.com/mozilla/fxa-auth-server/issues/2397)
+* **totp:** Change 2FA removed email title to `Two-step authentication disabled` (#2396) r=@ ([5128fd8](https://github.com/mozilla/fxa-auth-server/commit/5128fd8)), closes [#2396](https://github.com/mozilla/fxa-auth-server/issues/2396) [mozilla/fxa-content-server#6073](https://github.com/mozilla/fxa-content-server/issues/6073)
+
+### chore
+
+* **logging:** use a less confusing op on flow event errors ([778fc33](https://github.com/mozilla/fxa-auth-server/commit/778fc33))
+* **tests:** remove duplicate mocking code ([25f2404](https://github.com/mozilla/fxa-auth-server/commit/25f2404)), closes [#2383](https://github.com/mozilla/fxa-auth-server/issues/2383)
+
+### Features
+
+* **docs:** Add documentation for "attached service" notification events. (#2362); r=vladiko ([766fb16](https://github.com/mozilla/fxa-auth-server/commit/766fb16)), closes [#2362](https://github.com/mozilla/fxa-auth-server/issues/2362)
+* **profile:** Send "profileDataChanged" event when modifying 2FA status. (#2390); r=vbudhram ([19162ff](https://github.com/mozilla/fxa-auth-server/commit/19162ff)), closes [#2390](https://github.com/mozilla/fxa-auth-server/issues/2390)
+* **totp:** rate limit totp verify actions (#2386), r=@rfk ([4a89201](https://github.com/mozilla/fxa-auth-server/commit/4a89201)), closes [#2386](https://github.com/mozilla/fxa-auth-server/issues/2386)
+
+### Refactor
+
+* **metrics:** use boiler-plate amplitude code from fxa-shared ([a6069e0](https://github.com/mozilla/fxa-auth-server/commit/a6069e0))
+
+
+
 <a name="1.109.0"></a>
 # [1.109.0](https://github.com/mozilla/fxa-auth-server/compare/v1.107.4...v1.109.0) (2018-04-04)
 
