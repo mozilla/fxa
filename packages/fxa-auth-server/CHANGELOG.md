@@ -1,3 +1,18 @@
+<a name"1.110.0"></a>
+## 1.110.0 (2018-04-18)
+
+
+#### Bug Fixes
+
+* **tests:** mock outstanding error logs in test suite r=@vladikoff ([6a5d3ceb](https://github.com/mozilla/fxa-oauth-server/commit/6a5d3ceb), closes [#334](https://github.com/mozilla/fxa-oauth-server/issues/334))
+
+
+#### Features
+
+* **authorization:** Directly return `code` in authorization response. (#541); r=philbooth ([7ad1e56f](https://github.com/mozilla/fxa-oauth-server/commit/7ad1e56f))
+* **email-first:** Add support for the email-first flow. (#540); r=philbooth,rfk ([cb11145e](https://github.com/mozilla/fxa-oauth-server/commit/cb11145e), closes [#539](https://github.com/mozilla/fxa-oauth-server/issues/539))
+
+
 <a name"1.109.0"></a>
 ## 1.109.0 (2018-04-03)
 
