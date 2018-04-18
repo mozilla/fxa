@@ -1,5 +1,9 @@
 SET NAMES utf8mb4 COLLATE utf8mb4_bin;
 
+-- Since we are altering the size of the `codeHash` column
+-- we need to make sure that the column is empty before it can be applied
+DELETE from recoveryCodes;
+
 ALTER TABLE recoveryCodes MODIFY COLUMN codeHash BINARY(32);
 
 ALTER TABLE recoveryCodes ADD COLUMN salt BINARY(32);
