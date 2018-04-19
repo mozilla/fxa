@@ -2089,7 +2089,11 @@ module.exports = function (config, DB) {
           })
       })
 
-      describe('should consume recovery codes', () => {
+      describe('should consume recovery codes', function () {
+        // Consuming recovery codes is more time intensive since the scrypt hashes need
+        // to be compared. Let set timeout higher than 2s default.
+        this.timeout(12000)
+
         let recoveryCodes
         beforeEach(() => {
           return db.replaceRecoveryCodes(account.uid, 2)

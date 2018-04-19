@@ -1685,7 +1685,11 @@ module.exports = function(cfg, makeServer) {
       })
     })
 
-    describe('recovery codes', () => {
+    describe('recovery codes', function () {
+      // Consuming recovery codes is more time intensive since the scrypt hashes need
+      // to be compared. Let set timeout higher than 2s default.
+      this.timeout(12000)
+
       let user
       beforeEach(() => {
         user = fake.newUserDataHex()
