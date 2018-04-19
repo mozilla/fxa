@@ -5,50 +5,48 @@
 /**
  * Should the user be part of the SMS experiment?
  */
-define(function(require, exports, module) {
-  'use strict';
+'use strict';
 
-  const BaseGroupingRule = require('./base');
-  const CountryTelephoneInfo = require('../../country-telephone-info');
+const BaseGroupingRule = require('./base');
+const CountryTelephoneInfo = require('../../country-telephone-info');
 
-  // Countries that are in the process of being rolled out
-  // have a `control` group so that we can fully compare
-  // the two treatment groups to the control group.
-  // Countries that are fully rolled out do not, because
-  // `control` fares worse.
-  const GROUPS_FOR_PARTIAL_ROLLOUT = ['control', 'signinCodes'];
+// Countries that are in the process of being rolled out
+// have a `control` group so that we can fully compare
+// the two treatment groups to the control group.
+// Countries that are fully rolled out do not, because
+// `control` fares worse.
+const GROUPS_FOR_PARTIAL_ROLLOUT = ['control', 'signinCodes'];
 
-  function isEmailInSigninCodesGroup (email) {
-    return /@softvision\.(com|ro)$/.test(email) ||
-           /@mozilla\.(com|org)$/.test(email);
+function isEmailInSigninCodesGroup (email) {
+  return /@softvision\.(com|ro)$/.test(email) ||
+          /@mozilla\.(com|org)$/.test(email);
+}
+
+module.exports = class SmsGroupingRule extends BaseGroupingRule {
+  constructor () {
+    super();
+    this.name = 'sendSms';
   }
 
-  module.exports = class SmsGroupingRule extends BaseGroupingRule {
-    constructor () {
-      super();
-      this.name = 'sendSms';
+  choose (subject = {}) {
+    if (! subject.account || ! subject.uniqueUserId || ! subject.country || ! CountryTelephoneInfo[subject.country]) {
+      return false;
     }
 
-    choose (subject = {}) {
-      if (! subject.account || ! subject.uniqueUserId || ! subject.country || ! CountryTelephoneInfo[subject.country]) {
-        return false;
-      }
+    let choice = false;
+    // If rolloutRate is not specified, assume 0.
+    const { rolloutRate } = CountryTelephoneInfo[subject.country] || 0;
 
-      let choice = false;
-      // If rolloutRate is not specified, assume 0.
-      const { rolloutRate } = CountryTelephoneInfo[subject.country] || 0;
-
-      if (isEmailInSigninCodesGroup(subject.account.get('email'))) {
-        choice = 'signinCodes';
-      } else if (rolloutRate >= 1) {
-        // country is fully rolled out.
-        choice = true;
-      } else if (this.bernoulliTrial(rolloutRate, subject.uniqueUserId)) {
-        // country is in the process of being rolled out.
-        choice = this.uniformChoice(GROUPS_FOR_PARTIAL_ROLLOUT, subject.uniqueUserId);
-      }
-
-      return choice;
+    if (isEmailInSigninCodesGroup(subject.account.get('email'))) {
+      choice = 'signinCodes';
+    } else if (rolloutRate >= 1) {
+      // country is fully rolled out.
+      choice = true;
+    } else if (this.bernoulliTrial(rolloutRate, subject.uniqueUserId)) {
+      // country is in the process of being rolled out.
+      choice = this.uniformChoice(GROUPS_FOR_PARTIAL_ROLLOUT, subject.uniqueUserId);
     }
-  };
-});
+
+    return choice;
+  }
+};

@@ -5,31 +5,29 @@
 /**
  * Are DataDog metrics enabled for the user?
  */
-define(function(require, exports, module) {
-  'use strict';
+'use strict';
 
-  const BaseGroupingRule = require('./base');
+const BaseGroupingRule = require('./base');
 
-  module.exports = class IsSampledUserGroupingRule extends BaseGroupingRule {
-    constructor () {
-      super();
-      this.name = 'isSampledUser';
-    }
+module.exports = class IsSampledUserGroupingRule extends BaseGroupingRule {
+  constructor () {
+    super();
+    this.name = 'isSampledUser';
+  }
 
-    choose (subject = {}) {
-      const sampleRate = IsSampledUserGroupingRule.sampleRate(subject.env);
-      return !! (subject.env && subject.uniqueUserId && this.bernoulliTrial(sampleRate, subject.uniqueUserId));
-    }
+  choose (subject = {}) {
+    const sampleRate = IsSampledUserGroupingRule.sampleRate(subject.env);
+    return !! (subject.env && subject.uniqueUserId && this.bernoulliTrial(sampleRate, subject.uniqueUserId));
+  }
 
-    /**
-     * Return the sample rate for `env`
-     *
-     * @static
-     * @param {String} env
-     * @returns {Number}
-     */
-    static sampleRate (env) {
-      return env === 'development' ? 1.0 : 0.1;
-    }
-  };
-});
+  /**
+   * Return the sample rate for `env`
+   *
+   * @static
+   * @param {String} env
+   * @returns {Number}
+   */
+  static sampleRate (env) {
+    return env === 'development' ? 1.0 : 0.1;
+  }
+};

@@ -11,6 +11,10 @@ define(function (require, exports, module) {
   const sinon = require('sinon');
 
   describe('lib/experiments/grouping-rules/index', () => {
+    it('EXPERIMENT_NAMES is exported', () => {
+      assert.lengthOf(ExperimentGroupingRules.EXPERIMENT_NAMES, 8);
+    });
+
     describe('choose', () => {
       let experimentGroupingRules;
       let rule1;

@@ -5,22 +5,20 @@
 /**
  * Should the user see web sessions in the apps and devices list in settings
  */
-define(function(require, exports, module) {
-  'use strict';
+'use strict';
 
-  const BaseGroupingRule = require('./base');
+const BaseGroupingRule = require('./base');
 
-  const MIN_FIREFOX_VERSION = 53;
+const MIN_FIREFOX_VERSION = 53;
 
-  module.exports = class SentryGroupingRule extends BaseGroupingRule {
-    constructor () {
-      super();
-      this.name = 'sessionsListVisible';
-      this.MIN_FIREFOX_VERSION = MIN_FIREFOX_VERSION;
-    }
+module.exports = class SentryGroupingRule extends BaseGroupingRule {
+  constructor () {
+    super();
+    this.name = 'sessionsListVisible';
+    this.MIN_FIREFOX_VERSION = MIN_FIREFOX_VERSION;
+  }
 
-    choose (subject = {}) {
-      return subject.firefoxVersion >= MIN_FIREFOX_VERSION;
-    }
-  };
-});
+  choose (subject = {}) {
+    return subject.firefoxVersion >= MIN_FIREFOX_VERSION;
+  }
+};

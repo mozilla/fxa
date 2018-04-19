@@ -13,26 +13,24 @@
  * 6. Access in views via `this.experiments.choose('name from 3')`
  *    or `this.isInExperimentGroup('name from 3', 'group name')`.
  */
-define(function(require, exports, module) {
-  'use strict';
+'use strict';
 
-  const BaseGroupingRule = require('./base');
+const BaseGroupingRule = require('./base');
 
-  module.exports = class ChangeMeGroupingRule extends BaseGroupingRule {
-    constructor () {
-      super();
-      this.name = 'CHANGE_ME';
-    }
+module.exports = class ChangeMeGroupingRule extends BaseGroupingRule {
+  constructor () {
+    super();
+    this.name = 'CHANGE_ME';
+  }
 
-    /**
-     * Use `subject` data to make a choice.
-     *
-     * @param {Object} subject data used to decide
-     * @returns {Any}
-     */
-    choose (subject) {
-      // Fill in decision logic here.
-      return true;
-    }
-  };
-});
+  /**
+   * Use `subject` data to make a choice.
+   *
+   * @param {Object} subject data used to decide
+   * @returns {Any}
+   */
+  choose (subject) {
+    // Fill in decision logic here.
+    return true;
+  }
+};

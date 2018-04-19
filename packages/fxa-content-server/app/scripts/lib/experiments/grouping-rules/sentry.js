@@ -5,32 +5,30 @@
 /**
  * Is Sentry error reporting enabled for the user?
  */
-define(function(require, exports, module) {
-  'use strict';
+'use strict';
 
-  const BaseGroupingRule = require('./base');
+const BaseGroupingRule = require('./base');
 
-  module.exports = class SentryGroupingRule extends BaseGroupingRule {
-    constructor () {
-      super();
-      this.name = 'sentryEnabled';
-    }
+module.exports = class SentryGroupingRule extends BaseGroupingRule {
+  constructor () {
+    super();
+    this.name = 'sentryEnabled';
+  }
 
-    choose (subject = {}) {
-      const sampleRate = SentryGroupingRule.sampleRate(subject.env);
+  choose (subject = {}) {
+    const sampleRate = SentryGroupingRule.sampleRate(subject.env);
 
-      return !! (subject.env && subject.uniqueUserId && this.bernoulliTrial(sampleRate, subject.uniqueUserId));
-    }
+    return !! (subject.env && subject.uniqueUserId && this.bernoulliTrial(sampleRate, subject.uniqueUserId));
+  }
 
-    /**
-     * Get the sample rate for `env`
-     *
-     * @static
-     * @param {String} env
-     * @returns {Number}
-     */
-    static sampleRate (env) {
-      return env === 'development' ? 1.0 : 0.3;
-    }
-  };
-});
+  /**
+   * Get the sample rate for `env`
+   *
+   * @static
+   * @param {String} env
+   * @returns {Number}
+   */
+  static sampleRate (env) {
+    return env === 'development' ? 1.0 : 0.3;
+  }
+};

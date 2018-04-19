@@ -6,51 +6,49 @@
  * Decide if communication preferences are visible for the user.
  */
 
-define(function(require, exports, module) {
-  'use strict';
+'use strict';
 
-  const BaseGroupingRule = require('./base');
+const BaseGroupingRule = require('./base');
 
-  const AVAILABLE_LANGUAGES = [
-    'de',
-    'en',
-    'en-[a-z]{2}',
-    'es',
-    'es-[a-z]{2}',
-    'fr',
-    'hu',
-    'id',
-    'pl',
-    'pt-br',
-    'ru',
-    'zh-tw'
-  ];
+const AVAILABLE_LANGUAGES = [
+  'de',
+  'en',
+  'en-[a-z]{2}',
+  'es',
+  'es-[a-z]{2}',
+  'fr',
+  'hu',
+  'id',
+  'pl',
+  'pt-br',
+  'ru',
+  'zh-tw'
+];
 
-  const availableLocalesRegExpStr = `^(${AVAILABLE_LANGUAGES.join('|')})$`;
-  const availableLocalesRegExp = new RegExp(availableLocalesRegExpStr);
+const availableLocalesRegExpStr = `^(${AVAILABLE_LANGUAGES.join('|')})$`;
+const availableLocalesRegExp = new RegExp(availableLocalesRegExpStr);
 
-  function normalizeLanguage(lang) {
-    return lang.toLowerCase().replace(/_/g, '-');
+function normalizeLanguage(lang) {
+  return lang.toLowerCase().replace(/_/g, '-');
+}
+
+function areCommunicationPrefsAvailable(lang) {
+  const normalizedLanguage = normalizeLanguage(lang);
+  return availableLocalesRegExp.test(normalizedLanguage);
+}
+
+module.exports = class CommunicationPrefsGroupingRule extends BaseGroupingRule {
+  constructor () {
+    super();
+    this.name = 'communicationPrefsVisible';
+    this.availableLanguages = AVAILABLE_LANGUAGES;
   }
 
-  function areCommunicationPrefsAvailable(lang) {
-    const normalizedLanguage = normalizeLanguage(lang);
-    return availableLocalesRegExp.test(normalizedLanguage);
+  choose (subject = {}) {
+    if (! subject.lang) {
+      return false;
+    }
+
+    return areCommunicationPrefsAvailable(subject.lang);
   }
-
-  module.exports = class CommunicationPrefsGroupingRule extends BaseGroupingRule {
-    constructor () {
-      super();
-      this.name = 'communicationPrefsVisible';
-      this.availableLanguages = AVAILABLE_LANGUAGES;
-    }
-
-    choose (subject = {}) {
-      if (! subject.lang) {
-        return false;
-      }
-
-      return areCommunicationPrefsAvailable(subject.lang);
-    }
-  };
-});
+};
