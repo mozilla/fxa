@@ -523,10 +523,7 @@ function getConfig () {
     oauth: {
       clientIds: {},
       url: 'http://localhost:9010',
-      keepAlive: false,
-      extra: {
-        email: false
-      }
+      keepAlive: false
     },
     env: 'prod',
     memcached: {
