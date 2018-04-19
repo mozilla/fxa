@@ -1,3 +1,13 @@
+<a name="1.110.1"></a>
+## [1.110.1](https://github.com/mozilla/fxa-auth-server/compare/v1.110.0...v1.110.1) (2018-04-19)
+
+
+### Refactor
+
+* **email:** remove email parameter from config (#2400) r=@vladikoff,@rfk ([4a021c6](https://github.com/mozilla/fxa-auth-server/commit/4a021c6)), closes [#2400](https://github.com/mozilla/fxa-auth-server/issues/2400)
+
+
+
 <a name="1.110.0"></a>
 # [1.110.0](https://github.com/mozilla/fxa-auth-server/compare/v1.109.0...v1.110.0) (2018-04-18)
 
