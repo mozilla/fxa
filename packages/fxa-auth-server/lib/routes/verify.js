@@ -12,7 +12,7 @@ module.exports = {
   validate: {
     payload: {
       token: validators.token.required(),
-      email: Joi.boolean().default(false)
+      email: Joi.boolean().optional()
     }
   },
   response: {
@@ -25,15 +25,14 @@ module.exports = {
   },
   handler: function verify(req, reply) {
     token.verify(req.payload.token).then(function(info) {
-      if (req.payload.email) {
+      if (req.payload.email !== undefined) {
         logger.warn('email.requested', {
           user: info.user,
           client_id: info.client_id,
           scope: info.scope
         });
-      } else {
-        delete info.email;
       }
+      delete info.email;
       logger.info('verify.success', {
         client_id: info.client_id,
         scope: info.scope

@@ -2768,7 +2768,7 @@ describe('/v1', function() {
       });
     });
 
-    it('should not return the email if email:false for profile:email scope', function() {
+    it('should not return email for payload having email:false', function() {
       return newToken({ scope: 'profile:email' }).then(function(res) {
         assert.equal(res.statusCode, 200);
         assertSecurityHeaders(res);
@@ -2786,7 +2786,7 @@ describe('/v1', function() {
       });
     });
 
-    it('should return the email if opted in', function() {
+    it('should not return email for payload having email:true', function() {
       return newToken({ scope: 'profile:email' }).then(function(res) {
         assert.equal(res.statusCode, 200);
         assertSecurityHeaders(res);
@@ -2800,7 +2800,7 @@ describe('/v1', function() {
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
         assertSecurityHeaders(res);
-        assert.equal(res.result.email, VEMAIL);
+        assert.equal(res.result.email, undefined);
       });
     });
 
