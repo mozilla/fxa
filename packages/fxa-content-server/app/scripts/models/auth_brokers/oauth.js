@@ -18,9 +18,7 @@ define(function (require, exports, module) {
   const OAuthErrors = require('../../lib/oauth-errors');
   const ScopedKeys = require('lib/crypto/scoped-keys');
   const Url = require('../../lib/url');
-  const UserAgent = require('../../lib/user-agent');
   const Vat = require('../../lib/vat');
-  const NavigateBehavior = require('../../views/behaviors/navigate');
 
   /**
    * Formats the OAuth "result.redirect" url into a {code, state} object
@@ -58,6 +56,7 @@ define(function (require, exports, module) {
       // the relier will take over after sign in, no need to transition.
       afterForceAuth: new HaltBehavior(),
       afterSignIn: new HaltBehavior(),
+      afterSignInConfirmationPoll: new HaltBehavior()
     }),
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
@@ -76,8 +75,6 @@ define(function (require, exports, module) {
       this._assertionLibrary = options.assertionLibrary;
       this._oAuthClient = options.oAuthClient;
       this._scopedKeys = ScopedKeys;
-      this._uap = new UserAgent(options.window.navigator.userAgent);
-      this._isChromeAndroid = this._uap.isChromeAndroid();
 
       return BaseAuthenticationBroker.prototype.initialize.call(
         this, options);
@@ -210,14 +207,7 @@ define(function (require, exports, module) {
 
     afterSignInConfirmationPoll (account) {
       return this.finishOAuthSignInFlow(account)
-        .then((serviceRedirect) => {
-          if (this._isChromeAndroid) {
-            return new NavigateBehavior('signin_confirmed', {serviceRedirect});
-          } else {
-            return new HaltBehavior();
-          }
-        });
-
+        .then(() => proto.afterSignInConfirmationPoll.call(this, account));
     },
 
     afterCompleteSignInWithCode (account) {
@@ -227,11 +217,7 @@ define(function (require, exports, module) {
 
     afterSignUpConfirmationPoll (account) {
       // The original tab always finishes the OAuth flow if it is still open.
-      return this.finishOAuthSignUpFlow(account).then((serviceRedirect) => {
-        if (this._isChromeAndroid) {
-          return new NavigateBehavior('signup_confirmed', {serviceRedirect});
-        }
-      });
+      return this.finishOAuthSignUpFlow(account);
     },
 
     afterResetPasswordConfirmationPoll (account) {

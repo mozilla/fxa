@@ -70,11 +70,10 @@ define(function (require, exports, module) {
     className: 'ready',
 
     events: {
-      'click .btn-service-redirect': 'redirectToRelier'
+      'click .btn-continue': 'continue'
     },
 
     initialize (options = {}) {
-      this._window = options.window;
       this._templateInfo = TEMPLATE_INFO[this.keyOfVerificationReason(options.type)];
     },
 
@@ -86,14 +85,16 @@ define(function (require, exports, module) {
         escapedReadyToSyncText: this._getEscapedReadyToSyncText(),
         headerId: this._getHeaderId(),
         isSync: this.relier.isSync(),
-        redirectUri: this.relier.get('redirectUri'),
         secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null,
-        serviceRedirect: this.model.get('serviceRedirect')
+        showContinueButton: !! this.model.get('continueBrokerMethod'),
       });
     },
 
-    redirectToRelier () {
-      this._window.location.href = this.model.get('serviceRedirect');
+    continue () {
+      const { account, continueBrokerMethod } = this.model.toJSON();
+      if (continueBrokerMethod && account) {
+        this.invokeBrokerMethod(continueBrokerMethod, account);
+      }
     },
 
     _getHeaderId () {

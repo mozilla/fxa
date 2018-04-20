@@ -39,6 +39,7 @@ module.exports = {
   MOBILE_IOS_V1_CONTEXT: 'mob_ios_v1',
   IFRAME_CONTEXT: 'iframe',
   OAUTH_CONTEXT: 'oauth',
+  OAUTH_CHROME_ANDROID_CONTEXT: 'oauth_chrome_android',
 
   CONTENT_SERVER_SERVICE: 'content-server',
   SYNC_SERVICE: 'sync',

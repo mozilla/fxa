@@ -15,11 +15,11 @@
     {{^isSync}}
       {{#serviceName}}
         <p class="account-ready-service">{{#t}}You are now ready to use %(serviceName)s{{/t}}</p>
-        {{#serviceRedirect}}
+        {{#showContinueButton}}
         <div class="button-row">
-          <button class="btn-service-redirect">{{#t}}Continue{{/t}}</button>
+          <button class="btn-continue">{{#t}}Continue{{/t}}</button>
         </div>
-        {{/serviceRedirect}}
+        {{/showContinueButton}}
       {{/serviceName}}
       {{^serviceName}}
           {{#emailVerified}}

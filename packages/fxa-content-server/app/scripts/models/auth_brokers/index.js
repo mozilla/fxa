@@ -60,6 +60,10 @@ define(function (require, exports, module) {
       Constructor: require('../auth_brokers/oauth-redirect')
     },
     {
+      context: Constants.OAUTH_CHROME_ANDROID_CONTEXT,
+      Constructor: require('../auth_brokers/oauth-redirect-chrome-android').default
+    },
+    {
       context: Constants.CONTENT_SERVER_CONTEXT,
       Constructor: require('../auth_brokers/web')
     }

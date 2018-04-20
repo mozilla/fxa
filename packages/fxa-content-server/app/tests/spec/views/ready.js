@@ -7,6 +7,7 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const { assert } = require('chai');
+  const Backbone = require('backbone');
   const VerificationReasons = require('lib/verification-reasons');
   const FxaClient = require('lib/fxa-client');
   const Notifier = require('lib/channels/notifier');
@@ -21,6 +22,7 @@ define(function (require, exports, module) {
     let broker;
     let fxaClient;
     let metrics;
+    let model;
     let notifier;
     let relier;
     let view;
@@ -41,6 +43,7 @@ define(function (require, exports, module) {
         window: windowMock
       });
       fxaClient = new FxaClient();
+      model = new Backbone.Model({});
       notifier = new Notifier();
 
       metrics = {
@@ -56,6 +59,7 @@ define(function (require, exports, module) {
         fxaClient: fxaClient,
         lang: lang,
         metrics: metrics,
+        model,
         notifier: notifier,
         relier: relier,
         type: type,
@@ -154,6 +158,56 @@ define(function (require, exports, module) {
             assert.equal(view.$('.marketing').length, 0);
             assert.equal(view.$('.os-general').length, 0);
           });
+      });
+
+      it('does not show the `Continue` for Sync', () => {
+        createView(VerificationReasons.SIGN_UP);
+        sinon.stub(relier, 'isSync').callsFake(() => true);
+
+        return view.render()
+          .then(() => {
+            assert.lengthOf(view.$('.btn-continue'), 0);
+          });
+      });
+
+      it('does not show the `Continue` button in OAuth flows by default', () => {
+        createView(VerificationReasons.SIGN_UP);
+        sinon.stub(relier, 'isSync').callsFake(() => false);
+        relier.set('serviceName', 'Firefox Notes');
+
+        return view.render()
+          .then(() => {
+            assert.lengthOf(view.$('.btn-continue'), 0);
+          });
+      });
+
+      it('shows the `Continue` button in OAuth flows if `continueBrokerMethod` is defined', () => {
+        model.set('continueBrokerMethod', 'finishOAuthFlow');
+        sinon.stub(relier, 'isSync').callsFake(() => false);
+        relier.set('serviceName', 'Firefox Notes');
+
+        createView(VerificationReasons.SIGN_UP);
+
+        return view.render()
+          .then(() => {
+            assert.lengthOf(view.$('.btn-continue'), 1);
+          });
+      });
+    });
+
+    describe('continue', () => {
+      it('invokes `continueBrokerMethod` with `account` from the model', () => {
+        const account = {};
+        model.set({
+          account,
+          continueBrokerMethod: 'methodName',
+        });
+
+        sinon.stub(view, 'invokeBrokerMethod');
+
+        view.continue();
+        assert.isTrue(view.invokeBrokerMethod.calledOnce);
+        assert.isTrue(view.invokeBrokerMethod.calledWith('methodName', account));
       });
     });
   });

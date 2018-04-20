@@ -21,9 +21,11 @@ define(function (require, exports, module) {
     };
 
     // used for testing
-    behavior.endpoint = endpoint;
-    behavior.halt = true;
-    behavior.type = 'navigate';
+    _.assign(behavior, options, {
+      endpoint: endpoint,
+      halt: true,
+      type: 'navigate',
+    });
 
     return behavior;
   };
