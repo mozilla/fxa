@@ -244,10 +244,17 @@ registerSuite('oauth signin', {
         .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(openFxaFromRp('signin', {
           query: {
-            forceUA: 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Mobile Safari/537.36'
+            client_id: 'd5d74070a481bc10', // eslint-disable-line camelcase
+            forceUA: 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Mobile Safari/537.36',
+            // eslint-disable-next-line camelcase
+            keys_jwk: 'eyJrdHkiOiJFQyIsImtpZCI6Im9DNGFudFBBSFZRX1pmQ09RRUYycTRaQlZYblVNZ2xISGpVRzdtSjZHOEEiLCJjcnYiOi' +
+            'JQLTI1NiIsIngiOiJDeUpUSjVwbUNZb2lQQnVWOTk1UjNvNTFLZVBMaEg1Y3JaQlkwbXNxTDk0IiwieSI6IkJCWDhfcFVZeHpTaldsdX' +
+            'U5MFdPTVZwamIzTlpVRDAyN0xwcC04RW9vckEifQ',
+            redirect_uri: 'https://mozilla.github.io/notes/fxa/android-redirect.html', // eslint-disable-line camelcase
+            scope: 'profile https://identity.mozilla.com/apps/notes'
           }
         }))
-        .then(testElementTextInclude(selectors.SIGNIN.SUB_HEADER, '123done'))
+        .then(testElementTextInclude(selectors.SIGNIN.SUB_HEADER, 'notes'))
         .then(testUrlInclude('client_id='))
         .then(testUrlInclude('state='))
 
@@ -261,15 +268,13 @@ registerSuite('oauth signin', {
         .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
         .then(noSuchElement(selectors.SIGNIN_COMPLETE.CONTINUE_BUTTON))
         // user sees the name of the RP, but cannot redirect
-        .then(testElementTextInclude(selectors.SIGNIN_COMPLETE.SERVICE_NAME, '123done'))
+        .then(testElementTextInclude(selectors.SIGNIN_COMPLETE.SERVICE_NAME, 'notes'))
 
         // switch to the original window
         .then(closeCurrentWindow())
 
         .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
-        .then(click(selectors.SIGNIN_COMPLETE.CONTINUE_BUTTON))
-
-        .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
+        .then(click(selectors.SIGNIN_COMPLETE.CONTINUE_BUTTON));
     },
 
 

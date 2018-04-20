@@ -169,7 +169,8 @@ module.exports = {
   },
   SIGNIN_COMPLETE: {
     CONTINUE_BUTTON: '.btn-continue',
-    HEADER: '#fxa-sign-in-complete-header'
+    HEADER: '#fxa-sign-in-complete-header',
+    SERVICE_NAME: '.account-ready-service'
   },
   SIGNIN_PASSWORD: {
     EMAIL: 'input[type=email]',
