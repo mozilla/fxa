@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   const OAuthAuthenticationBroker = require('../auth_brokers/oauth');
   const p = require('../../lib/promise');
   const Url = require('../../lib/url');
+  const UserAgent = require('../../lib/user-agent');
 
   const proto = OAuthAuthenticationBroker.prototype;
 
@@ -68,7 +69,19 @@ define(function (require, exports, module) {
           if (result.action) {
             extraParams['action'] = result.action;
           }
-          win.location.href = Url.updateSearchString(result.redirect, extraParams);
+
+          const redirect = Url.updateSearchString(result.redirect, extraParams);
+          const uap = new UserAgent(win.navigator.userAgent);
+
+          const isChromeAndroid = uap.isChromeAndroid();
+          if (isChromeAndroid) {
+            // For OAuth Applications redirection using Chrome Android,
+            // the action must be triggered by the user, not Javascript.
+            // See #6089
+            return redirect;
+          } else {
+            win.location.href = redirect;
+          }
         });
     },
 

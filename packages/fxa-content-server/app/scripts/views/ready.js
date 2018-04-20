@@ -69,7 +69,12 @@ define(function (require, exports, module) {
     template: Template,
     className: 'ready',
 
+    events: {
+      'click .btn-service-redirect': 'redirectToRelier'
+    },
+
     initialize (options = {}) {
+      this._window = options.window;
       this._templateInfo = TEMPLATE_INFO[this.keyOfVerificationReason(options.type)];
     },
 
@@ -82,8 +87,13 @@ define(function (require, exports, module) {
         headerId: this._getHeaderId(),
         isSync: this.relier.isSync(),
         redirectUri: this.relier.get('redirectUri'),
-        secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null
+        secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null,
+        serviceRedirect: this.model.get('serviceRedirect')
       });
+    },
+
+    redirectToRelier () {
+      this._window.location.href = this.model.get('serviceRedirect');
     },
 
     _getHeaderId () {
