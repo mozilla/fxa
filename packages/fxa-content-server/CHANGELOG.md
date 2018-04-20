@@ -1,3 +1,13 @@
+<a name="1.110.1"></a>
+## 1.110.1 (2018-04-20)
+
+
+### Bug Fixes
+
+* **server:** fix undefined dereference ([dc6e30b](https://github.com/mozilla/fxa-content-server/commit/dc6e30b))
+
+
+
 <a name="1.110.0"></a>
 # 1.110.0 (2018-04-17)
 
