@@ -34,7 +34,7 @@ function safeFamily (parent) {
 }
 
 function safeVersion (parent) {
-  if (! VALID_VERSION.test(parent.toVersionString())) {
+  if (parent && parent.toVersionString && ! VALID_VERSION.test(parent.toVersionString())) {
     parent.major = parent.minor = parent.patch = parent.patchMinor = null;
   }
 }
