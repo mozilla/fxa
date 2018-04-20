@@ -241,6 +241,7 @@ registerSuite('oauth signin', {
       // The `sync` prefix is needed to force signin confirmation.
       email = TestHelpers.createEmail('sync{id}');
       return this.remote
+        .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(openFxaFromRp('signin', {
           query: {
             forceUA: 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Mobile Safari/537.36'
@@ -250,7 +251,7 @@ registerSuite('oauth signin', {
         .then(testUrlInclude('client_id='))
         .then(testUrlInclude('state='))
 
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
         .then(openVerificationLinkInNewTab(email, 0))
