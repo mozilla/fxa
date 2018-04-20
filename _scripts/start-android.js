@@ -36,7 +36,7 @@ function createConfig () {
   setConf(content, 'FXA_PROFILE_IMAGES_URL', 'http://' + ip + ':1112');
 
   setConf(oauth, 'PUBLIC_URL', 'http://' + ip + ':9010');
-  setConf(oauth, 'CONTENT_URL', 'http://' + ip + ':3030');
+  setConf(oauth, 'CONTENT_URL', 'http://' + ip + ':3030/oauth');
   setConf(oauth, 'ISSUER', ip + ':9000');
   setConf(oauth, 'VERIFICATION_URL', 'http://' + ip + ':5050/v2');
 
