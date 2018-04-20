@@ -122,26 +122,6 @@ registerSuite('oauth signup', {
         .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
     },
 
-    'signup in Chrome for Android, verify same tab': function () {
-      return this.remote
-        .then(openFxaFromRp('signup', {
-          query: {
-            forceUA: 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Mobile Safari/537.36'
-          }
-        }))
-        .then(testElementTextInclude(selectors.SIGNUP.SUB_HEADER, '123done'))
-        .then(testUrlInclude('client_id='))
-        .then(testUrlInclude('state='))
-
-        .then(fillOutSignUp(email, PASSWORD))
-
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-        .then(openVerificationLinkInSameTab(email, 0))
-
-        // user is immediately redirected
-        .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
-    },
-
     'signup, verify same browser with original tab closed': function () {
       return this.remote
         .then(openFxaFromRp('signup'))

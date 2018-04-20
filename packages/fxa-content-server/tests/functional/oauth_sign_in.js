@@ -28,16 +28,22 @@ const thenify = FunctionalHelpers.thenify;
 const {
   clearBrowserState,
   click,
+  closeCurrentWindow,
   createUser,
   fillOutSignIn,
   fillOutSignInUnblock,
   fillOutSignUp,
+  noSuchElement,
   openFxaFromRp,
   openPage,
+  openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
   reOpenWithAdditionalQueryParams,
+  switchToWindow,
   testElementExists,
+  testElementTextInclude,
   testSuccessWasShown,
+  testUrlInclude,
   testUrlPathnameEquals,
   type,
   visibleByQSA
@@ -229,7 +235,43 @@ registerSuite('oauth signin', {
         .then(fillOutSignInUnblock(email, 1))
 
         .then(testAtOAuthApp());
-    }
+    },
+
+    'signin in Chrome for Android, verify same browser': function () {
+      // The `sync` prefix is needed to force signin confirmation.
+      email = TestHelpers.createEmail('sync{id}');
+      return this.remote
+        .then(openFxaFromRp('signin', {
+          query: {
+            forceUA: 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Mobile Safari/537.36'
+          }
+        }))
+        .then(testElementTextInclude(selectors.SIGNIN.SUB_HEADER, '123done'))
+        .then(testUrlInclude('client_id='))
+        .then(testUrlInclude('state='))
+
+        .then(fillOutSignUp(email, PASSWORD))
+
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+        .then(openVerificationLinkInNewTab(email, 0))
+
+        .then(switchToWindow(1))
+        // wait for the verified window in the new tab
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+        .then(noSuchElement(selectors.SIGNIN_COMPLETE.CONTINUE_BUTTON))
+        // user sees the name of the RP, but cannot redirect
+        .then(testElementTextInclude(selectors.SIGNIN_COMPLETE.SERVICE_NAME, '123done'))
+
+        // switch to the original window
+        .then(closeCurrentWindow())
+
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+        .then(click(selectors.SIGNIN_COMPLETE.CONTINUE_BUTTON))
+
+        .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
+    },
+
+
   }
 });
 
