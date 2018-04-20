@@ -244,7 +244,7 @@ registerSuite('oauth signin', {
         .then(createUser(email, PASSWORD, {preVerified: true}))
         .then(openFxaFromRp('signin', {
           query: {
-            client_id: 'd5d74070a481bc10', // eslint-disable-line camelcase
+            client_id: '7f368c6886429f19', // eslint-disable-line camelcase
             forceUA: 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Mobile Safari/537.36',
             // eslint-disable-next-line camelcase
             keys_jwk: 'eyJrdHkiOiJFQyIsImtpZCI6Im9DNGFudFBBSFZRX1pmQ09RRUYycTRaQlZYblVNZ2xISGpVRzdtSjZHOEEiLCJjcnYiOi' +
