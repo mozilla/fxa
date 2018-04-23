@@ -1,9 +1,7 @@
 # The names of all our repos.
 # They're all under the "mozilla" github org.
 fxa
-fxa-auth-db-mem
 fxa-auth-db-mysql
-fxa-auth-db-server
 fxa-auth-server
 fxa-basket-proxy
 fxa-content-server

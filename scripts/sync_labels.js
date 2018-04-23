@@ -16,7 +16,13 @@ var COLORS = {
   WARNING: 'eb6420',
   INFO: '207de5',
   TARGET: 'd4c5f9',
-  WELCOMING: '009800'
+  WELCOMING: '009800',
+  // Rainbow colours for P0-P4.
+  RED: 'dd1133',
+  ORANGE: 'dd5511',
+  YELLOW: 'dddd33',
+  GREEN: '33dd33',
+  BLUE: '3333dd',
 }
 
 
@@ -43,6 +49,12 @@ var STANDARD_LABELS = {
   'shipit': { color: COLORS.WARNING },
   'help wanted': { color: COLORS.WELCOMING },
   'WIP': { color: COLORS.INFO },
+  // For grooming the backlog.
+  'P0': { color: COLORS.RED },
+  'P1': { color: COLORS.ORANGE },
+  'P2': { color: COLORS.YELLOW },
+  'P3': { color: COLORS.GREEN },
+  'P4': { color: COLORS.BLUE },
   // Cross-cutting concerns that we need to account for when
   // working with or reviewing the issue.
   'i18n': { color: COLORS.INFO },
@@ -51,12 +63,12 @@ var STANDARD_LABELS = {
   // Train-number labels, for scheduling.
   // XXX TODO: calculate appropriate set of train labels
   // based on current date, rather than hard-coding them here.
-  'train-103': { color: COLORS.TARGET },
-  'train-104': { color: COLORS.TARGET },
-  'train-105': { color: COLORS.TARGET },
-  'train-106': { color: COLORS.TARGET },
-  'train-107': { color: COLORS.TARGET },
-  'train-108': { color: COLORS.TARGET }
+  'train-110': { color: COLORS.TARGET },
+  'train-111': { color: COLORS.TARGET },
+  'train-112': { color: COLORS.TARGET },
+  'train-113': { color: COLORS.TARGET },
+  'train-114': { color: COLORS.TARGET },
+  'train-115': { color: COLORS.TARGET },
 }
 
 
@@ -96,6 +108,13 @@ var OBSOLETE_LABELS = {
   'train-100': null,
   'train-101': null,
   'train-102': null,
+  'train-103': null,
+  'train-104': null,
+  'train-105': null,
+  'train-106': null,
+  'train-107': null,
+  'train-108': null,
+  'train-109': null
 }
 
 
