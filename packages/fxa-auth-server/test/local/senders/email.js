@@ -118,6 +118,16 @@ const typesContainPasswordManagerInfoLinks = [
   'passwordResetRequiredEmail',
 ]
 
+const typesContainManageSettingsLinks = [
+  'postVerifySecondaryEmail',
+  'postChangePrimaryEmail',
+  'postRemoveSecondaryEmail',
+  'postAddTwoStepAuthenticationEmail',
+  'postRemoveTwoStepAuthenticationEmail',
+  'postNewRecoveryCodesEmail',
+  'postConsumeRecoveryCodeEmail',
+]
+
 function includes(haystack, needle) {
   return (haystack.indexOf(needle) > -1)
 }
@@ -395,6 +405,18 @@ describe(
               mailer[type](message)
             }
           )
+        }
+
+        if (includes(typesContainManageSettingsLinks, type)) {
+          it('account settings info link is in email template output for ' + type, () => {
+            const accountSettingsUrl = mailer._generateSettingLinks(message, type).link
+
+            mailer.mailer.sendMail = function (emailConfig) {
+              assert.ok(includes(emailConfig.html, accountSettingsUrl))
+              assert.ok(includes(emailConfig.text, accountSettingsUrl))
+            }
+            mailer[type](message)
+          })
         }
 
         if (includes(typesContainLocationData, type)) {

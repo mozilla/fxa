@@ -810,7 +810,7 @@ module.exports = function (log, config) {
     log.trace({ op: 'mailer.postVerifySecondaryEmail', email: message.email, uid: message.uid })
 
     var templateName = 'postVerifySecondaryEmail'
-    var links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+    var links = this._generateSettingLinks(message, templateName)
 
     var headers = {
       'X-Link': links.link
@@ -841,8 +841,8 @@ module.exports = function (log, config) {
   Mailer.prototype.postChangePrimaryEmail = function (message) {
     log.trace({ op: 'mailer.postChangePrimaryEmail', email: message.email, uid: message.uid })
 
-    var templateName = 'postChangePrimaryEmail'
-    var links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+    const templateName = 'postChangePrimaryEmail'
+    const links = this._generateSettingLinks(message, templateName)
 
     var headers = {
       'X-Link': links.link
@@ -873,8 +873,8 @@ module.exports = function (log, config) {
   Mailer.prototype.postRemoveSecondaryEmail = function (message) {
     log.trace({ op: 'mailer.postRemoveSecondaryEmail', email: message.email, uid: message.uid })
 
-    var templateName = 'postRemoveSecondaryEmail'
-    var links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+    const templateName = 'postRemoveSecondaryEmail'
+    const links = this._generateSettingLinks(message, templateName)
 
     var headers = {
       'X-Link': links.link
@@ -904,7 +904,7 @@ module.exports = function (log, config) {
     log.trace({ op: 'mailer.postAddTwoStepAuthenticationEmail', email: message.email, uid: message.uid })
 
     const templateName = 'postAddTwoStepAuthenticationEmail'
-    const links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+    const links = this._generateSettingLinks(message, templateName)
 
     const headers = {
       'X-Link': links.link
@@ -940,7 +940,7 @@ module.exports = function (log, config) {
     log.trace({op: 'mailer.postRemoveTwoStepAuthenticationEmail', email: message.email, uid: message.uid})
 
     const templateName = 'postRemoveTwoStepAuthenticationEmail'
-    const links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+    const links = this._generateSettingLinks(message, templateName)
 
     const headers = {
       'X-Link': links.link
@@ -976,7 +976,7 @@ module.exports = function (log, config) {
     log.trace({ op: 'mailer.postNewRecoveryCodesEmail', email: message.email, uid: message.uid })
 
     const templateName = 'postNewRecoveryCodesEmail'
-    const links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+    const links = this._generateSettingLinks(message, templateName)
 
     const headers = {
       'X-Link': links.link
@@ -1012,7 +1012,7 @@ module.exports = function (log, config) {
     log.trace({ op: 'mailer.postConsumeRecoveryCodeEmail', email: message.email, uid: message.uid })
 
     const templateName = 'postConsumeRecoveryCodeEmail'
-    const links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+    const links = this._generateSettingLinks(message, templateName)
 
     const headers = {
       'X-Link': links.link
@@ -1103,6 +1103,15 @@ module.exports = function (log, config) {
     }
 
     return links
+  }
+
+  Mailer.prototype._generateSettingLinks = function (message, templateName) {
+    // Generate all possible links where the primary link is `accountSettingsUrl`.
+    const query = {}
+    if (message.email) {query.email = message.email}
+    if (message.uid) {query.uid = message.uid}
+
+    return this._generateLinks(this.accountSettingsUrl, message.email, query, templateName)
   }
 
   Mailer.prototype.createPasswordResetLink = function (email, templateName, emailToHashWith) {
