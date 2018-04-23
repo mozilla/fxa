@@ -153,7 +153,7 @@ describe('the route /lookup-user', function () {
       .end(done);
   });
 
-  it('returns an error if the oauth token has several incorrect scopes', function (done) {
+  it('returns an error if the oauth token has several scopes, but none match', function (done) {
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
       scope: ['profile', 'basketto', 'basket:writer']
@@ -204,7 +204,7 @@ describe('the route /lookup-user', function () {
 
   it('returns an error if the oauth response has no userid', function (done) {
     mocks.mockOAuthResponse().reply(200, {
-      scope: 'basket:write profile:email'
+      scope: ['basket', 'profile:email']
     });
     request(app)
       .get('/lookup-user')
@@ -218,10 +218,43 @@ describe('the route /lookup-user', function () {
       .end(done);
   });
 
+  it('returns an error if the oauth response has no scope', function (done) {
+    mocks.mockOAuthResponse().reply(200, {
+      user: UID,
+    });
+    request(app)
+      .get('/lookup-user')
+      .set('authorization', 'Bearer TOKEN')
+      .expect('Content-Type', /json/)
+      .expect(400, {
+        status: 'error',
+        code: 7,
+        desc: 'missing scope'
+      })
+      .end(done);
+  });
+
+  it('returns an error if the oauth response has non-array scope', function (done) {
+    mocks.mockOAuthResponse().reply(200, {
+      user: UID,
+      scope: 'basket profile:email'
+    });
+    request(app)
+      .get('/lookup-user')
+      .set('authorization', 'Bearer TOKEN')
+      .expect('Content-Type', /json/)
+      .expect(400, {
+        status: 'error',
+        code: 7,
+        desc: 'missing scope'
+      })
+      .end(done);
+  });
+
   it('returns an error if the auth server profile has no associated email', function (done) {
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket:write', 'profile:locale']
+      scope: ['basket', 'profile:locale']
     });
     mocks.mockProfileResponse().reply(200, {
       locale: 'en-AU'

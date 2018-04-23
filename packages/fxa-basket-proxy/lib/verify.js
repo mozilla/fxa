@@ -58,6 +58,12 @@ module.exports = function verifyOAuthToken() {
         return;
       }
 
+      if (! body.scope || ! (body.scope instanceof Array)) {
+        logger.error('auth.missing-scope', body);
+        res.status(400).json(basket.errorResponse('missing scope', basket.errors.AUTH_ERROR));
+        return;
+      }
+
       if (! body.scope.find(s => REQUIRED_SCOPE_REGEX.test(s))) {
         logger.error('auth.invalid-scope', body);
         res.status(400).json(basket.errorResponse('invalid scope', basket.errors.AUTH_ERROR));

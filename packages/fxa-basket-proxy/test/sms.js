@@ -19,7 +19,7 @@ describe('/sms', function () {
     var OPTIN = 'N';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket:write']
+      scope: ['basket']
     });
     mocks.mockProfileResponse().reply(200, {
       email: 'dont@ca.re',
@@ -70,7 +70,7 @@ describe('/sms', function () {
     var OPTIN = 'N';
     mocks.mockOAuthResponse().reply(200, {
       user: UID,
-      scope: ['basket:write']
+      scope: ['basket']
     });
     mocks.mockProfileResponse().reply(200, {
       email: 'dont@ca.re',

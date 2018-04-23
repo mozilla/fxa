@@ -79,6 +79,37 @@ describe('the /subscribe route', function () {
       .end(done);
   });
 
+  it('accepts a trailing slash on the path', function (done) {
+    var EMAIL = 'test@example.com';
+    var NEWSLETTERS = 'a,b,c';
+    mocks.mockOAuthResponse().reply(200, {
+      user: UID,
+      scope: ['basket']
+    });
+    mocks.mockProfileResponse().reply(200, {
+      email: EMAIL,
+    });
+    mocks.mockBasketResponse().post('/subscribe/', function (body) {
+      /*eslint-disable camelcase */
+      assert.deepEqual(body, {
+        email: EMAIL,
+        newsletters: NEWSLETTERS,
+        source_url: DEFAULT_SOURCE_URL
+      });
+      return true;
+    }).reply(200, {
+      status: 'ok',
+    });
+    request(app)
+      .post('/subscribe/')
+      .set('authorization', 'Bearer TOKEN')
+      .send({ newsletters: NEWSLETTERS })
+      .expect(200, {
+        status: 'ok',
+      })
+      .end(done);
+  });
+
   it('passes through all params from body, except email', function (done) {
     var EMAIL = 'test@example.com';
     var NEWSLETTERS = 'a,b,c';
