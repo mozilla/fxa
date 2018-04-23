@@ -88,6 +88,12 @@ define(function(require, exports, module) {
       assert.ok(VALID_TYPE.test(authBroker.prototype.type));
     });
 
+    it('get returns correct broker for oauth-redirect-chrome-android context', () => {
+      const authBroker = index.get(constants.OAUTH_CHROME_ANDROID_CONTEXT);
+      assert.equal(authBroker, require('models/auth_brokers/oauth-redirect-chrome-android').default);
+      assert.ok(VALID_TYPE.test(authBroker.prototype.type));
+    });
+
     it('get returns correct broker for web context', () => {
       const authBroker = index.get(constants.CONTENT_SERVER_CONTEXT);
       assert.equal(authBroker, require('models/auth_brokers/web'));

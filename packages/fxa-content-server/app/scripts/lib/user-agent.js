@@ -49,6 +49,15 @@ define(function (require, exports, module) {
       },
 
       /**
+       * Check if the browser is Chrome for Android
+       *
+       * @returns {Boolean}
+       */
+      isChromeAndroid () {
+        return this.browser.name === 'Chrome' && this.os.name === 'Android';
+      },
+
+      /**
        * Check if the browser is Edge
        *
        * @returns {Boolean}
