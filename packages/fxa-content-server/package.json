@@ -131,7 +131,7 @@
     "fxa-conventional-changelog": "1.1.0",
     "grunt-bump": "0.7.0",
     "grunt-contrib-csslint": "1.0.0",
-    "grunt-contrib-watch": "1.0.0",
+    "grunt-contrib-watch": "1.0.1",
     "grunt-conventional-changelog": "3.0.0",
     "grunt-copyright": "0.3.0",
     "grunt-htmllint": "git://github.com/vladikoff/grunt-htmllint#f0ceb25",
