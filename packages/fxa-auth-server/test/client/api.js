@@ -285,6 +285,20 @@ module.exports = config => {
     )
   }
 
+  ClientApi.prototype.accountDestroyWithSessionToken = function (email, authPW, sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/account/destroy',
+          token,
+          {
+            email,
+            authPW: authPW.toString('hex')
+          })
+      })
+  }
+
   ClientApi.prototype.recoveryEmailStatus = function (sessionTokenHex) {
     return tokens.SessionToken.fromHex(sessionTokenHex)
       .then(

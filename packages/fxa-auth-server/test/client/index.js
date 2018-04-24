@@ -459,6 +459,10 @@ module.exports = config => {
   }
 
   Client.prototype.destroyAccount = function () {
+    if (this.sessionToken) {
+      return this.api.accountDestroyWithSessionToken(this.email, this.authPW, this.sessionToken)
+        .then(this._clear.bind(this))
+    }
     return this.api.accountDestroy(this.email, this.authPW)
       .then(this._clear.bind(this))
   }

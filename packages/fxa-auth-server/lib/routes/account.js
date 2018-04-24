@@ -26,6 +26,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
   const tokenCodeLifetime = tokenCodeConfig && tokenCodeConfig.codeLifetime || MS_ONE_HOUR
   const tokenCodeLength = tokenCodeConfig && tokenCodeConfig.codeLength || 8
   const TokenCode = require('../../lib/crypto/base32')(tokenCodeLength)
+  const totpUtils = require('../../lib/routes/utils/totp')(log, config, db)
 
   const routes = [
     {
@@ -512,20 +513,15 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
             )
         }
 
-        function checkTotpToken () {
+        function checkTotpToken() {
           // Check to see if the user has a TOTP token and it is verified and
           // enabled, if so then the verification method is automatically forced so that
           // they have to verify the token.
-          return db.totpToken(accountRecord.uid)
+          return totpUtils.hasTotpToken(accountRecord)
             .then((result) => {
-              if (result && result.verified && result.enabled) {
+              if (result) {
                 verificationMethod = 'totp-2fa'
               }
-            }, (err) => {
-              if (err.errno === error.ERRNO.TOTP_TOKEN_NOT_FOUND) {
-                return
-              }
-              throw err
             })
         }
 
@@ -1146,6 +1142,10 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
       method: 'POST',
       path: '/account/destroy',
       config: {
+        auth: {
+          mode: 'optional',
+          strategy: 'sessionToken'
+        },
         validate: {
           payload: {
             email: validators.email().required(),
@@ -1155,68 +1155,77 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
       },
       handler: function accountDestroy(request, reply) {
         log.begin('Account.destroy', request)
-        var form = request.payload
-        var authPW = form.authPW
-        var uid
-        var devicesToNotify
-        customs.check(
-          request,
-          form.email,
-          'accountDestroy')
-          .then(db.accountRecord.bind(db, form.email))
-          .then(
-            function (emailRecord) {
-              uid = emailRecord.uid
+        const form = request.payload
+        const authPW = form.authPW
 
-              const password = new Password(authPW, emailRecord.authSalt, emailRecord.verifierVersion)
-              return signinUtils.checkPassword(emailRecord, password, request.app.clientAddress)
-                .then(
-                  function (match) {
-                    if (! match) {
-                      throw error.incorrectPassword(emailRecord.email, form.email)
-                    }
-                    // We fetch the devices to notify before deleteAccount()
-                    // because obviously we can't retrieve the devices list after!
-                    return db.devices(uid)
-                  }
-                )
-                .then(
-                  function (devices) {
-                    devicesToNotify = devices
-                    return db.deleteAccount(emailRecord)
-                  }
-                )
-                .then(
-                  function () {
-                    push.notifyAccountDestroyed(uid, devicesToNotify)
-                      .catch(() => {})
-                    return P.all([
-                      log.notifyAttachedServices('delete', request, {
-                        uid: uid,
-                        iss: config.domain
-                      }),
-                      request.emitMetricsEvent('account.deleted', {
-                        uid: uid
-                      })
-                    ])
-                  }
-                )
-                .then(
-                  function () {
-                    return {}
-                  }
-                )
-            },
-            function (err) {
-              if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-                customs.flag(request.app.clientAddress, {
-                  email: form.email,
-                  errno: err.errno
-                })
-              }
-              throw err
+        customs.check(request, form.email, 'accountDestroy')
+          .then(db.accountRecord.bind(db, form.email))
+          .then((emailRecord) => {
+            return totpUtils.hasTotpToken(emailRecord)
+              .then((hasToken) => {
+                const sessionToken = request.auth && request.auth.credentials
+
+                // Someone tried to delete an account with TOTP but did not specify a session.
+                // This shouldn't happen in practice, but just in case we throw unverified session.
+                if (! sessionToken && hasToken) {
+                  throw error.unverifiedSession()
+                }
+
+                // If TOTP is enabled, ensure that the session has the correct assurance level before
+                // deleting account.
+                if (sessionToken && hasToken && (sessionToken.tokenVerificationId || sessionToken.authenticatorAssuranceLevel <= 1)) {
+                  throw error.unverifiedSession()
+                }
+
+                // In other scenarios, fall back to the default behavior and let the user
+                // delete the account
+                return emailRecord
+              })
+          })
+          .then((emailRecord) => {
+            const uid = emailRecord.uid
+            const password = new Password(authPW, emailRecord.authSalt, emailRecord.verifierVersion)
+            let devicesToNotify
+
+            return signinUtils.checkPassword(emailRecord, password, request.app.clientAddress)
+              .then((match) => {
+                if (! match) {
+                  throw error.incorrectPassword(emailRecord.email, form.email)
+                }
+                // We fetch the devices to notify before deleteAccount()
+                // because obviously we can't retrieve the devices list after!
+                return db.devices(uid)
+              })
+              .then((devices) => {
+                devicesToNotify = devices
+                return db.deleteAccount(emailRecord)
+              })
+              .then(() => {
+                push.notifyAccountDestroyed(uid, devicesToNotify)
+                  .catch(() => {
+                    // Ignore notification errors since this account no longer exists
+                  })
+
+                return P.all([
+                  log.notifyAttachedServices('delete', request, {
+                    uid,
+                    iss: config.domain
+                  }),
+                  request.emitMetricsEvent('account.deleted', {uid})
+                ])
+              })
+              .then(() => {
+                return {}
+              })
+          }, (err) => {
+            if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+              customs.flag(request.app.clientAddress, {
+                email: form.email,
+                errno: err.errno
+              })
             }
-          )
+            throw err
+          })
           .then(reply, reply)
       }
     }

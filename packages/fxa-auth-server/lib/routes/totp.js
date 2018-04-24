@@ -14,6 +14,8 @@ const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
 
 module.exports = (log, db, mailer, customs, config) => {
 
+  const totpUtils = require('../../lib/routes/utils/totp')(log, config, db)
+
   // Default options for TOTP
   otplib.authenticator.options = {
     encoding: 'hex',
@@ -122,18 +124,8 @@ module.exports = (log, db, mailer, customs, config) => {
         function checkTotpToken() {
           // If a TOTP token is not verified, we should be able to safely delete regardless of session
           // verification state.
-          return db.totpToken(uid)
-            .then((result) => {
-              if (result && result.verified && result.enabled) {
-                hasEnabledToken = true
-                return
-              }
-            }, (err) => {
-              if (err.errno === errors.ERRNO.TOTP_TOKEN_NOT_FOUND) {
-                return
-              }
-              throw err
-            })
+          return totpUtils.hasTotpToken({uid})
+            .then((result) => hasEnabledToken = result)
         }
 
         function deleteTotpToken() {
