@@ -154,7 +154,7 @@
     "yargs": "10.0.3"
   },
   "engines": {
-    "node": ">=6"
+    "node": ">=8"
   },
   "readmeFilename": "README.md"
 }
