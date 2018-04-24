@@ -7,7 +7,6 @@ env:
     - COVERALLS_REPO_TOKEN=zSbPkOBuZrK6NktxXW1ZzVEPOUDr9ePpN
 
 node_js:
- - '6'
  - '8'
 
 sudo: false
