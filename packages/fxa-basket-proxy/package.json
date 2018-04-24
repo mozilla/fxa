@@ -48,7 +48,7 @@
     "supertest": "2.0.0"
   },
   "engines": {
-    "node": ">=6"
+    "node": ">=8"
   },
   "readmeFilename": "README.md"
 }
