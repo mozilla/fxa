@@ -21,7 +21,7 @@
     "url": "https://github.com/mozilla/fxa-oauth-server/issues"
   },
   "engines": {
-    "node": ">=6"
+    "node": ">=8"
   },
   "dependencies": {
     "bluebird": "^2.9.14",
