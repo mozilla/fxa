@@ -15,7 +15,8 @@
   "smtp": {
     "host": "127.0.0.1",
     "port": 9999,
-    "secure": false
+    "secure": false,
+    "redirectDomain": "127.0.0.1"
   },
   "snsTopicArn": "arn:aws:sns:local-01:000000000000:local-topic1",
   "snsTopicEndpoint": "http://localhost:4100/",
