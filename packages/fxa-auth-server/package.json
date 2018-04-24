@@ -82,7 +82,7 @@
     "scrypt-hash": "1.1.14",
     "through": "2.3.8",
     "uuid": "1.4.1",
-    "web-push": "3.0.0"
+    "web-push": "3.3.0"
   },
   "devDependencies": {
     "acorn": "5.0.3",
@@ -99,7 +99,7 @@
     "grunt-eslint": "19.0.0",
     "grunt-newer": "1.2.0",
     "grunt-nsp": "2.3.1",
-    "hawk": "2.3.1",
+    "hawk": "3.1.3",
     "husky": "0.14.3",
     "insist": "1.0.0",
     "jsxgettext-recursive": "1.0.1",
