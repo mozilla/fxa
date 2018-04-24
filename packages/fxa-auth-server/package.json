@@ -26,7 +26,7 @@
     "url": "git://github.com/mozilla/fxa-auth-server.git"
   },
   "engines": {
-    "node": ">=6"
+    "node": ">=8"
   },
   "bugs": "https://github.com/mozilla/fxa-auth-server/issues/",
   "homepage": "https://github.com/mozilla/fxa-auth-server/",
