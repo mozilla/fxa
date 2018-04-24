@@ -16,17 +16,25 @@
 <a name"1.109.0"></a>
 ## 1.109.0 (2018-04-03)
 
+### Bug Fixes
 
-#### Bug Fixes
+* **buffer:** #527 Migrate deprecated buffer calls (#528) r=@vladikoff ([fd85207](https://github.com/mozilla/fxa-oauth-server/commit/fd85207)), closes [#527](https://github.com/mozilla/fxa-oauth-server/issues/527)
+* **node:** Use Node.js v6.14.0 (#537) ([f32a3d7](https://github.com/mozilla/fxa-oauth-server/commit/f32a3d7))
+* **route:** make email false by default (#533) r=@rfk ([aa68fb9](https://github.com/mozilla/fxa-oauth-server/commit/aa68fb9))
+* **scripts:** Fix varname typo in test runner script. (#535) ([02804a8](https://github.com/mozilla/fxa-oauth-server/commit/02804a8)), closes [(#535](https://github.com/(/issues/535)
+* **tests:** mock outstanding error logs in test suite r=@vladikoff ([6a5d3ce](https://github.com/mozilla/fxa-oauth-server/commit/6a5d3ce))
 
-* **node:** Use Node.js v6.14.0 (#537) ([f32a3d7c](https://github.com/mozilla/fxa-oauth-server/commit/f32a3d7c))
-* **route:** make email false by default (#533) r=@rfk ([aa68fb9d](https://github.com/mozilla/fxa-oauth-server/commit/aa68fb9d))
-* **scripts:** Fix varname typo in test runner script. (#535) ([02804a81](https://github.com/mozilla/fxa-oauth-server/commit/02804a81))
+### chore
+
+* **config:** add Notes trailing slash to redirect in dev.json (#536) ([e8bf2e5](https://github.com/mozilla/fxa-oauth-server/commit/e8bf2e5))
+
+### Features
+
+* **amr:** Report `amr` and `acr` claims in the id_token. (#530); r=vbudhram ([8181f7f](https://github.com/mozilla/fxa-oauth-server/commit/8181f7f))
+* **email-first:** Add support for the email-first flow. (#540); r=philbooth,rfk ([cb11145](https://github.com/mozilla/fxa-oauth-server/commit/cb11145)), closes [#539](https://github.com/mozilla/fxa-oauth-server/issues/539)
+* **oauth:** make server compatible with AppAuth (#534) r=@rfk ([ff9e422](https://github.com/mozilla/fxa-oauth-server/commit/ff9e422))
 
 
-#### Features
-
-* **oauth:** make server compatible with AppAuth (#534) r=@rfk ([ff9e4228](https://github.com/mozilla/fxa-oauth-server/commit/ff9e4228))
 
 
 <a name"1.108.0"></a>
@@ -890,4 +898,3 @@ Closes #156
 #### Features
 
 * **server:** set HSTS header for 180 days ([d43accb9](http://github.com/mozilla/fxa-oauth-server/commit/d43accb9d7749a216840ba0cf51861becf974a81))
-

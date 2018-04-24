@@ -45,9 +45,10 @@
   },
   "devDependencies": {
     "eslint-plugin-fxa": "git://github.com/mozilla/eslint-plugin-fxa.git#41504c9dd30e8b52900c15b524946aa0428aef95",
+    "fxa-conventional-changelog": "1.1.0",
     "grunt": "^1.0.1",
     "grunt-bump": "0.8.0",
-    "grunt-conventional-changelog": "^1.1.0",
+    "grunt-conventional-changelog": "5.0.0",
     "grunt-copyright": "^0.3.0",
     "grunt-eslint": "18.0.0",
     "grunt-nodemon": "^0.4.0",
