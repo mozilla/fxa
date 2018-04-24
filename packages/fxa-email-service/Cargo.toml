@@ -1,0 +1,5 @@
+[package]
+name = "fxa-email-service"
+version = "0.1.0"
+
+[dependencies]
