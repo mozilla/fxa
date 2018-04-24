@@ -14,7 +14,7 @@ const ROLLOUT_CLIENTS = {
   },
   'dcdb5ae7add825d2': {
     name: '123Done',
-    rolloutRate: 1.0
+    rolloutRate: 0.0
   },
   'ecdb5ae7add825d4': {
     name: 'TestClient',
@@ -27,6 +27,7 @@ module.exports = class TokenCodeGroupingRule extends BaseGroupingRule {
     super();
     this.name = 'tokenCode';
     this.SYNC_ROLLOUT_RATE = 0.00;
+    this.ROLLOUT_CLIENTS = ROLLOUT_CLIENTS;
   }
 
   choose(subject) {
@@ -35,7 +36,7 @@ module.exports = class TokenCodeGroupingRule extends BaseGroupingRule {
     }
 
     if (subject.clientId) {
-      const client = ROLLOUT_CLIENTS[subject.clientId];
+      const client = this.ROLLOUT_CLIENTS[subject.clientId];
       if (client && this.bernoulliTrial(client.rolloutRate, subject.uniqueUserId)) {
         return this.uniformChoice(GROUPS, subject.uniqueUserId);
       }

@@ -9,6 +9,21 @@ define(function (require, exports, module) {
   const Experiment = require('lib/experiments/grouping-rules/token-code');
   const sinon = require('sinon');
 
+  const ROLLOUT_CLIENTS = {
+    '3a1f53aabe17ba32': {
+      name: 'Firefox Add-ons',
+      rolloutRate: 0.0 // Rollout rate between 0..1
+    },
+    'dcdb5ae7add825d2': {
+      name: '123Done',
+      rolloutRate: 1.0
+    },
+    'ecdb5ae7add825d4': {
+      name: 'TestClient',
+      rolloutRate: 0.0
+    }
+  };
+
   describe('lib/experiments/grouping-rules/token-code', () => {
     describe('choose', () => {
       let experiment;
@@ -16,6 +31,7 @@ define(function (require, exports, module) {
 
       beforeEach(() => {
         experiment = new Experiment();
+        experiment.ROLLOUT_CLIENTS = ROLLOUT_CLIENTS;
         subject = {
           experimentGroupingRules: {},
           isTokenCodeSupported: true,
