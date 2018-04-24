@@ -51,6 +51,21 @@ function check_memcached() {
   exit 1
 }
 
+function check_mysql() {
+  RETRY=12
+  for i in $(eval echo "{1..$RETRY}"); do
+    if echo PING | nc localhost 3306 | grep -q 'mysql'; then
+      return
+    else
+      if [ $i -lt $RETRY ]; then
+        sleep 10
+      fi
+    fi
+  done
+
+  exit 1
+}
+
 # content
 check 127.0.0.1:3030
 check 127.0.0.1:1114
@@ -62,7 +77,6 @@ check 127.0.0.1:9001 404
 
 # oauth
 check 127.0.0.1:9010
-check 127.0.0.1:9011 404
 
 # 123done and 321done untrusted apps
 check 127.0.0.1:8080
@@ -76,6 +90,9 @@ check 127.0.0.1:5050 405
 # sync server
 # address of the endpoint have to be the same as a public_url in settings
 check localhost:5000
+
+# auth-db
+check localhost:8000
 
 # redis server
 check_redis

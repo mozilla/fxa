@@ -33,7 +33,7 @@ before_install:
 
 install:
   - PATH="`npm bin`:`npm bin -g`:$PATH"
-  - npm install -g npm@2
+  - npm install -g npm@5
   - node --version
   - npm --version
 
@@ -42,6 +42,9 @@ script:
   - npm config set spin false
   - npm install
   - ./test/curl.sh
+  - pm2 kill
+  - pm2 start mysql_servers.json
+  - ./test/mysql.sh
 
 after_failure:
   - pm2 status

@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-docker run --rm \
+docker run --rm --name syncserver \
   -p 5000:5000 \
   -e SYNCSERVER_PUBLIC_URL=http://localhost:5000 \
   -e SYNCSERVER_SECRET=5up3rS3kr1t \

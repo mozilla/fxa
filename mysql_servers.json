@@ -1,18 +1,35 @@
 {
   "apps": [
     {
-      "name": "auth-server local mail helper",
-      "script": "test/mail_helper.js",
-      "cwd": "fxa-auth-server",
+      "name": "MySQL server PORT 3306",
+      "script": "_scripts/mysql.sh",
+      "max_restarts": "1",
+      "min_uptime": "2m"
+    },
+    {
+      "name": "auth-server db mysql PORT 8000",
+      "script": "_scripts/auth_mysql.sh",
+      "cwd": "fxa-auth-db-mysql",
       "env": {
         "NODE_ENV": "dev"
+      },
+      "max_restarts": "2",
+      "min_uptime": "2m"
+    },
+    {
+      "name": "oauth-server-internal PORT 9011",
+      "script": "bin/internal.js",
+      "cwd": "fxa-oauth-server",
+      "env": {
+        "NODE_ENV": "dev",
+        "HOST_INTERNAL": "0.0.0.0"
       },
       "max_restarts": "1",
       "min_uptime": "2m"
     },
     {
-      "name": "auth-server db memory PORT 8000",
-      "script": "node_modules/fxa-auth-db-mysql/bin/mem.js",
+      "name": "auth-server local mail helper",
+      "script": "test/mail_helper.js",
       "cwd": "fxa-auth-server",
       "env": {
         "NODE_ENV": "dev"
@@ -37,7 +54,9 @@
     {
       "name": "content-server PORT 3030",
       "script": "node_modules/.bin/grunt",
-      "args": ["server"],
+      "args": [
+        "server"
+      ],
       "cwd": "fxa-content-server",
       "env": {
         "NODE_ENV": "development"
@@ -61,23 +80,25 @@
     },
     {
       "name": "oauth-server PORT 9010",
-      "script": "bin/server.js",
+      "script": "_scripts/oauth_mysql.sh",
       "cwd": "fxa-oauth-server",
       "env": {
         "NODE_ENV": "dev",
-        "HOST" : "0.0.0.0"
+        "HOST": "0.0.0.0",
+        "DB": "mysql"
       },
       "max_restarts": "1",
       "min_uptime": "2m"
     },
     {
       "name": "profile-server PORT 1111",
-      "script": "bin/server.js",
+      "script": "_scripts/profile_mysql.sh",
       "cwd": "fxa-profile-server",
       "max_restarts": "1",
       "env": {
         "NODE_ENV": "development",
-        "HOST": "0.0.0.0"
+        "HOST": "0.0.0.0",
+        "DB": "mysql"
       },
       "min_uptime": "2m"
     },
