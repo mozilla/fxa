@@ -3,3 +3,5 @@ name = "fxa-email-service"
 version = "0.1.0"
 
 [dependencies]
+rocket = "0.3.8"
+rocket_codegen = "0.3.8"
