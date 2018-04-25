@@ -1803,6 +1803,7 @@ define([
    *   @param {Number} options.metricsContext.utmMedium acquisition medium
    *   @param {Number} options.metricsContext.utmSource traffic source
    *   @param {Number} options.metricsContext.utmTerm search terms
+   * @param {String} [options.service] Service being used
    */
   FxAccountClient.prototype.verifyTotpCode = function (sessionToken, code, options) {
     var request = this.request;
@@ -1817,6 +1818,10 @@ define([
         var data = {
           code: code
         };
+
+        if (options && options.service) {
+          data.service = options.service;
+        }
 
         if (options && options.metricsContext) {
           data.metricsContext = metricsContext.marshall(options.metricsContext);
