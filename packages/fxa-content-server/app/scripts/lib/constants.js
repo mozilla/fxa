@@ -66,6 +66,7 @@ module.exports = {
   // We only grant permissions that our UI currently prompts for. Others
   // will be stripped.
   OAUTH_UNTRUSTED_ALLOWED_PERMISSIONS: [
+    'openid',
     'profile:display_name',
     'profile:email',
     'profile:uid'

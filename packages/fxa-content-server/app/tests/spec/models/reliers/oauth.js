@@ -39,6 +39,7 @@ define(function (require, exports, module) {
     var SCOPE_PROFILE_EXPANDED = Constants.OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION.join(' ');
     var PERMISSIONS = ['profile:email', 'profile:uid'];
     var SCOPE_WITH_EXTRAS = 'profile:email profile:uid profile:non_whitelisted';
+    var SCOPE_WITH_OPENID = 'profile:email profile:uid openid';
     var SERVER_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
     var SERVICE = 'service';
     var SERVICE_NAME = '123Done';
@@ -342,8 +343,8 @@ define(function (require, exports, module) {
               });
             });
 
-            var validValues = [SCOPE_WITH_EXTRAS];
-            var expectedValues = [SCOPE];
+            var validValues = [SCOPE_WITH_EXTRAS, SCOPE_WITH_OPENID];
+            var expectedValues = [SCOPE, SCOPE_WITH_OPENID];
             testValidQueryParams('scope', validValues, 'scope', expectedValues);
 
             var invalidValues = ['profile', 'profile:unrecognized'];
