@@ -187,6 +187,21 @@ const click = thenify(function (selector, readySelector) {
   // Sometimes clicks do not register if the element is in the middle of an animation.
     .then(visibleByQSA(selector))
     .click()
+    .then(null, (err) => {
+      // If element is obsure (possibly by a verification message covering it), attempt
+      // to scroll to the top of page where it might be visible.
+      if (/obscures it/.test(err.message)) {
+        return this.parent
+          .execute(() => {
+            window.scrollTo(0, 0);
+          })
+          .findByCssSelector(selector)
+          .click()
+          .end();
+      }
+      // re-throw other errors
+      throw err;
+    })
     .end()
     .then(function () {
       if (readySelector) {

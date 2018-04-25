@@ -28,6 +28,7 @@ const thenify = FunctionalHelpers.thenify;
 const {
   clearBrowserState,
   click,
+  confirmTotpCode,
   createUser,
   fillOutSignIn,
   fillOutSignInUnblock,
@@ -271,11 +272,7 @@ registerSuite('oauth - TOTP', {
   tests: {
     'can add TOTP to account and confirm oauth signin': function () {
       return this.remote
-      // Shows success for confirming token
-        .then(type(selectors.TOTP.CONFIRM_CODE_INPUT, generateCode(secret)))
-        .then(click(selectors.TOTP.CONFIRM_CODE_BUTTON))
-        .then(testSuccessWasShown)
-        .then(testElementExists(selectors.TOTP.STATUS_ENABLED))
+        .then(confirmTotpCode(secret))
 
         .then(clearBrowserState({
           '123done': true,
@@ -295,10 +292,7 @@ registerSuite('oauth - TOTP', {
 
     'can remove TOTP from account and skip confirmation': function () {
       return this.remote
-        .then(type(selectors.TOTP.CONFIRM_CODE_INPUT, generateCode(secret)))
-        .then(click(selectors.TOTP.CONFIRM_CODE_BUTTON))
-        .then(testSuccessWasShown)
-        .then(testElementExists(selectors.TOTP.STATUS_ENABLED))
+        .then(confirmTotpCode(secret))
 
         // Remove token
         .then(click(selectors.TOTP.DELETE_BUTTON))
