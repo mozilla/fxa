@@ -1,0 +1,14 @@
+control_brace_style = "AlwaysNextLine"
+brace_style = "AlwaysNextLine"
+where_single_line = true
+imports_indent = "Block"
+imports_layout = "HorizontalVertical"
+merge_imports = true
+match_block_trailing_comma = true
+normalize_comments = true
+reorder_impl_items = true
+spaces_around_ranges = true
+struct_lit_single_line = false
+tab_spaces = 2
+use_field_init_shorthand = true
+wrap_comments = true

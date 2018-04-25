@@ -1,0 +1,10 @@
+language: rust
+cache: cargo
+rust:
+  - nightly
+before_script:
+  - rustup component add rustfmt-preview
+script:
+  - cargo fmt -- --write-mode=diff
+  - cargo build --verbose
+  - cargo test --verbose

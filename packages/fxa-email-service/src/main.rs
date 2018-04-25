@@ -4,10 +4,12 @@
 extern crate rocket;
 
 #[get("/")]
-fn index() -> &'static str {
+fn index() -> &'static str
+{
   "Hello, world!"
 }
 
-fn main() {
+fn main()
+{
   rocket::ignite().mount("/", routes![index]).launch();
 }
