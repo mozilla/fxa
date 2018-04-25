@@ -1,3 +1,13 @@
+<a name="1.110.2"></a>
+## 1.110.2 (2018-04-25)
+
+
+### Bug Fixes
+
+* **permissions:** Allow untrusted reliers to request 'openid' scope. (#6111) r=@vladikoff ([5b259ad](https://github.com/mozilla/fxa-content-server/commit/5b259ad))
+
+
+
 <a name="1.110.1"></a>
 ## 1.110.1 (2018-04-20)
 
