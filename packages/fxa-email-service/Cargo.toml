@@ -3,5 +3,11 @@ name = "fxa-email-service"
 version = "0.1.0"
 
 [dependencies]
-rocket = "0.3.8"
-rocket_codegen = "0.3.8"
+rocket = "0.3.9"
+rocket_codegen = "0.3.9"
+rocket_contrib = "0.3.9"
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
+validator = "0.6.3"
+validator_derive = "0.6.5"
