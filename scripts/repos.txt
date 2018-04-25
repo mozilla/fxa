@@ -36,4 +36,5 @@ fxa-activity-metrics
 mozlog
 fxa-sprint-planning
 fxa-amplitude-send
+fxa-email-service
 mozilla-services/fxa-testing-e2e
