@@ -54,7 +54,7 @@ define([
         var user;
         var opts = {
           service: 'sync',
-          redirectTo: 'https://sync.firefox.com/after_reset',
+          redirectTo: 'https://sync.127.0.0.1/after_reset',
           resume: 'resumejwt',
           type: 'upgradeSession'
         };

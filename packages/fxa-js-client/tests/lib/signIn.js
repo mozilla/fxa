@@ -94,7 +94,7 @@ define([
           metricsContext: {
             context: 'fx_desktop_v2'
           },
-          redirectTo: 'http://sync.firefox.com/after_reset',
+          redirectTo: 'http://sync.127.0.0.1/after_reset',
           service: 'sync'
         };
 
@@ -129,7 +129,7 @@ define([
           metricsContext: {
             context: 'fx_desktop_v2'
           },
-          redirectTo: 'http://sync.firefox.com/after_reset',
+          redirectTo: 'http://sync.127.0.0.1/after_reset',
           resume: 'resumejwt',
           service: 'sync'
         };

@@ -785,9 +785,10 @@ define([
    * @param {Object} [options={}] Options
    *   @param {Boolean} [options.skipCaseError]
    *   If `true`, the request will skip the incorrect case error
+   * @param {String} sessionToken User session token
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
-  FxAccountClient.prototype.accountDestroy = function(email, password, options) {
+  FxAccountClient.prototype.accountDestroy = function (email, password, options, sessionToken) {
     var self = this;
     options = options || {};
 
@@ -796,26 +797,33 @@ define([
         required(email, 'email');
         required(password, 'password');
 
-        return credentials.setup(email, password);
+        var defers = [credentials.setup(email, password)];
+        if (sessionToken) {
+          defers.push(hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE));
+        }
+
+        return Promise.all(defers);
       })
       .then(
-        function (result) {
+        function (results) {
+          var auth = results[0];
+          var creds = results[1];
           var data = {
-            email: result.emailUTF8,
-            authPW: sjcl.codec.hex.fromBits(result.authPW)
+            email: auth.emailUTF8,
+            authPW: sjcl.codec.hex.fromBits(auth.authPW)
           };
 
-          return self.request.send('/account/destroy', 'POST', null, data)
+          return self.request.send('/account/destroy', 'POST', creds, data)
             .then(
-              function(response) {
+              function (response) {
                 return response;
               },
-              function(error) {
+              function (error) {
                 // if incorrect email case error
                 if (error && error.email && error.errno === ERRORS.INCORRECT_EMAIL_CASE && !options.skipCaseError) {
                   options.skipCaseError = true;
 
-                  return self.accountDestroy(error.email, password, options);
+                  return self.accountDestroy(error.email, password, options, sessionToken);
                 } else {
                   throw error;
                 }

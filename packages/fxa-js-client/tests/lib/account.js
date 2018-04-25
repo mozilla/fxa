@@ -55,6 +55,83 @@ define([
         );
       });
 
+      test('#destroy with sessionToken', function () {
+        var email;
+        var password;
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (account) {
+            email = account.input.email;
+            password = account.input.password;
+
+            return respond(client.accountDestroy(email, password, {}, account.signIn.sessionToken), RequestMocks.accountDestroy);
+          })
+          .then(
+            function (res) {
+              assert.ok(res, 'got response');
+
+              return respond(client.signIn(email, password), ErrorMocks.accountDoesNotExist);
+            }
+          ).then(
+            function () {
+              assert.fail();
+            },
+            function (error) {
+              assert.equal(error.errno, 102, 'Account is gone');
+              assert.equal(error.code, 400, 'Correct status code');
+            }
+          );
+      });
+
+      test('#destroy with sessionToken, incorrect case', function () {
+        var account;
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (acc) {
+            account = acc;
+            var incorrectCaseEmail = account.input.email.charAt(0).toUpperCase() + account.input.email.slice(1);
+
+            return respond(client.accountDestroy(incorrectCaseEmail, account.input.password, {}, account.signIn.sessionToken), RequestMocks.accountDestroy);
+          })
+          .then(
+            function (res) {
+              assert.ok(res);
+
+              return respond(client.signIn(account.input.email, account.input.password, {}, account.signIn.sessionToken), ErrorMocks.accountDoesNotExist);
+            }
+          ).then(
+            function () {
+              assert.fail();
+            },
+            function (error) {
+              assert.ok(error);
+              assert.equal(error.errno, 102);
+              assert.equal(error.code, 400, 'Correct status code');
+            }
+          );
+      });
+
+      test('#destroy with sessionToken, incorrect case with skipCaseError', function () {
+        var account;
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (acc) {
+            account = acc;
+            var incorrectCaseEmail = account.input.email.charAt(0).toUpperCase() + account.input.email.slice(1);
+
+            return respond(client.accountDestroy(incorrectCaseEmail, account.input.password, {skipCaseError: true}, account.signIn.sessionToken), ErrorMocks.incorrectEmailCase);
+          })
+          .then(
+            function () {
+              assert.fail();
+            },
+            function (res) {
+              assert.equal(res.code, 400);
+              assert.equal(res.errno, 120);
+            }
+          );
+      });
+
       test('#keys', function () {
         return accountHelper.newVerifiedAccount()
           .then(function (account) {
@@ -183,7 +260,7 @@ define([
         var account;
         var opts = {
           service: 'sync',
-          redirectTo: 'https://sync.firefox.com/after_reset',
+          redirectTo: 'https://sync.127.0.0.1/after_reset',
           resume: 'resumejwt'
         };
 

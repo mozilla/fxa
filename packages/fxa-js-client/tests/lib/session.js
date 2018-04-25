@@ -297,7 +297,7 @@ define([
               },
               originalLoginEmail: email.toUpperCase(),
               reason: 'password_change',
-              redirectTo: 'http://example.io',
+              redirectTo: 'http://127.0.0.1',
               resume: 'RESUME_TOKEN',
               service: 'sync',
               verificationMethod: 'email-2fa'

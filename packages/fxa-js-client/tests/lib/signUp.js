@@ -89,7 +89,7 @@ define([
         var password = 'iliketurtles';
         var opts = {
           service: 'sync',
-          redirectTo: 'https://sync.firefox.com/after_reset',
+          redirectTo: 'https://sync.127.0.0.1/after_reset',
           resume: 'resumejwt'
         };
 
@@ -153,7 +153,7 @@ define([
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
         var opts = {
-          redirectTo: 'http://sync.firefox.com/after_reset'
+          redirectTo: 'http://sync.127.0.0.1/after_reset'
         };
 
         return respond(client.signUp(email, password, opts), RequestMocks.signUp)
