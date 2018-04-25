@@ -242,7 +242,7 @@ registerSuite('oauth permissions for untrusted reliers', {
         // the first time through, only request email and uid
         .then(openFxaFromUntrustedRp('signin', {
           query: {
-            scope: 'profile:email profile:uid'
+            scope: 'openid profile:email profile:uid'
           }
         }))
 
