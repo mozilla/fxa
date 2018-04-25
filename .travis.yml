@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-  - "6"
+  - "8"
 
 dist: trusty
 sudo: required
@@ -21,7 +21,7 @@ addons:
 
 env:
   matrix:
-  - TRAVIS_NODE_VERSION="6.11"
+  - TRAVIS_NODE_VERSION="8"
 
 matrix:
   allow_failures:
@@ -29,6 +29,7 @@ matrix:
     - fast_finish: true
 
 before_install:
+  - npm i -g npm@5
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then brew install graphicsmagick; fi
 
 install:
@@ -38,7 +39,6 @@ install:
   - npm --version
 
 script:
-  - if [ $TRAVIS_NODE_VERSION == "4.8" ]; then export CXX=g++-4.8; fi
   - npm config set spin false
   - npm install
   - ./test/curl.sh
