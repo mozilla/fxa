@@ -1456,7 +1456,7 @@ module.exports = function (log, error) {
   }
 
   const DELETE_RECOVERY_CODES = 'CALL deleteRecoveryCodes_1(?)'
-  const INSERT_RECOVERY_CODE = 'CALL createRecoveryCode_2(?, ?, ?)'
+  const INSERT_RECOVERY_CODE = 'CALL createRecoveryCode_3(?, ?, ?)'
   MySql.prototype.replaceRecoveryCodes = function (uid, count) {
 
     // Because of the hashing requirements the process of replacing
