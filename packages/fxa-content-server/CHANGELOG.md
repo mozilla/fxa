@@ -1,3 +1,13 @@
+<a name="1.110.4"></a>
+## 1.110.4 (2018-04-26)
+
+
+### Bug Fixes
+
+* **metrics:** stop using user-agent string in flow id check ([fa1c770](https://github.com/mozilla/fxa-content-server/commit/fa1c770))
+
+
+
 <a name="1.110.3"></a>
 ## 1.110.3 (2018-04-25)
 
