@@ -1,3 +1,13 @@
+<a name="1.110.3"></a>
+## 1.110.3 (2018-04-25)
+
+
+### Bug Fixes
+
+* **test:** fix totp test failures (#6117) r=@vladikoff,@jrgm ([e38e282](https://github.com/mozilla/fxa-content-server/commit/e38e282)), closes [(#6117](https://github.com/(/issues/6117)
+
+
+
 <a name="1.110.2"></a>
 ## 1.110.2 (2018-04-25)
 
