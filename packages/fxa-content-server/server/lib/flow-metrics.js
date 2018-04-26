@@ -17,7 +17,7 @@ module.exports = {
    */
   create (key, userAgent) {
     const salt = crypto.randomBytes(SALT_SIZE).toString('hex');
-    return createFlowEventData(key, salt, Date.now(), userAgent);
+    return createFlowEventData(key, salt, Date.now());
   },
 
   /**
@@ -31,26 +31,32 @@ module.exports = {
    */
   validate (key, flowId, flowBeginTime, userAgent) {
     const salt = flowId.substr(0, SALT_STRING_LENGTH);
-    const expected = createFlowEventData(key, salt, flowBeginTime, userAgent);
+    let expected = createFlowEventData(key, salt, flowBeginTime);
 
+    if (getFlowSignature(flowId) === getFlowSignature(expected.flowId)) {
+      return true;
+    }
+
+    // HACK: We're transitioning between flow id recipes so, just for one train,
+    //       fall back to trying the old way if the preceding check failed.
+    expected = createFlowEventData(key, salt, flowBeginTime, userAgent);
     return getFlowSignature(flowId) === getFlowSignature(expected.flowId);
   }
 };
 
-function createFlowEventData(key, salt, flowBeginTime, userAgent) {
+function createFlowEventData (key, ...data) {
+  const [ salt, flowBeginTime ] = data;
+  data[1] = flowBeginTime.toString(16);
+
   // Incorporate a hash of request metadata into the flow id,
   // so that receiving servers can cross-check the metrics bundle.
   const flowSignature = crypto.createHmac('sha256', key)
-    .update([
-      salt,
-      flowBeginTime.toString(16),
-      userAgent
-    ].join('\n'))
+    .update(data.join('\n'))
     .digest('hex')
     .substr(0, SALT_STRING_LENGTH);
 
   return {
-    flowBeginTime: flowBeginTime,
+    flowBeginTime,
     flowId: salt + flowSignature
   };
 }

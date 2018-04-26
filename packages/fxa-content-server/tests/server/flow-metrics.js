@@ -64,14 +64,13 @@ suite.tests['create correctly generates a known test vector'] = () => {
   //   print binascii.hexlify('MozillaFirefox!!')
   //   print hmac.new('S3CR37', '\n'.join((
   //      binascii.hexlify('MozillaFirefox!!'),
-  //      hex(1451566800000)[2:],
-  //      'Firefox'
+  //      hex(1451566800000)[2:]
   //   )), hashlib.sha256).hexdigest()[:32]
   //
-  var expectedSalt = '4d6f7a696c6c6146697265666f782121';
-  var expectedHmac = 'c89d56556d22039fbbf54d34e0baf206';
+  const expectedSalt = '4d6f7a696c6c6146697265666f782121';
+  const expectedHmac = '2a204a6d26b009b26b3116f643d84c6f';
 
-  var flowEventData = flowMetrics.create(mockFlowIdKey, mockUserAgent);
+  const flowEventData = flowMetrics.create(mockFlowIdKey, mockUserAgent);
 
   assert.equal(flowEventData.flowBeginTime, 1451566800000);
   assert.equal(flowEventData.flowId, expectedSalt + expectedHmac);
@@ -85,11 +84,11 @@ suite.tests['create generates different flowIds for different keys'] = () => {
   assert.equal(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
 };
 
-suite.tests['create generates different flowIds for different user agents'] = () => {
-  var flowEventData1 = flowMetrics.create(mockFlowIdKey, 'Firefox');
-  var flowEventData2 = flowMetrics.create(mockFlowIdKey, 'Chrome');
+suite.tests['create generates the same flowId for different user agents'] = () => {
+  const flowEventData1 = flowMetrics.create(mockFlowIdKey, 'Firefox');
+  const flowEventData2 = flowMetrics.create(mockFlowIdKey, 'Chrome');
 
-  assert.notEqual(flowEventData1.flowId, flowEventData2.flowId);
+  assert.equal(flowEventData1.flowId, flowEventData2.flowId);
   assert.equal(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
 };
 
@@ -115,7 +114,24 @@ suite.tests['create generates different flowIds for different timestamps'] = () 
   assert.notEqual(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
 };
 
-suite.tests['validate returns true for good data'] = () => {
+suite.tests['validate returns true for good data with user-agent'] = () => {
+  // Force the mocks to return bad data to be sure it really works
+  mockDateNow = 1478626838531;
+  mockFlowIdKey = 'foo';
+  mockUserAgent = 'bar';
+  mockRandomBytes = 'baz';
+
+  const result = flowMetrics.validate(
+    'S3CR37',
+    '4d6f7a696c6c6146697265666f782121c89d56556d22039fbbf54d34e0baf206',
+    1451566800000,
+    'Firefox'
+  );
+
+  assert.strictEqual(result, true);
+};
+
+suite.tests['validate returns true for good data without user-agent'] = () => {
   // Force the mocks to return bad data to be sure it really works
   mockDateNow = 1478626838531;
   mockFlowIdKey = 'foo';
@@ -125,9 +141,8 @@ suite.tests['validate returns true for good data'] = () => {
   const result = flowMetrics.validate(
     // Good data is from the create test
     'S3CR37',
-    '4d6f7a696c6c6146697265666f782121c89d56556d22039fbbf54d34e0baf206',
-    1451566800000,
-    'Firefox'
+    '4d6f7a696c6c6146697265666f7821212a204a6d26b009b26b3116f643d84c6f',
+    1451566800000
   );
 
   assert.strictEqual(result, true);
