@@ -21,7 +21,7 @@ fn single_recipient()
     .header(ContentType::JSON)
     .body(
       r#"{
-      "to": [ "foo@example.com" ],
+      "to": "foo@example.com",
       "cc": [],
       "subject": "bar",
       "body": {
@@ -48,8 +48,8 @@ fn multiple_recipients()
     .header(ContentType::JSON)
     .body(
       r#"{
-      "to": [ "foo@example.com", "bar@example.com" ],
-      "cc": [ "baz@example.com", "qux@example.com" ],
+      "to": "foo@example.com",
+      "cc": [ "bar@example.com", "baz@example.com" ],
       "subject": "wibble",
       "body": {
         "text": "blee",
@@ -75,7 +75,7 @@ fn without_optional_data()
     .header(ContentType::JSON)
     .body(
       r#"{
-      "to": [ "foo@example.com" ],
+      "to": "foo@example.com",
       "subject": "bar",
       "body": {
         "text": "baz"
@@ -146,28 +146,6 @@ fn missing_body_text_field()
       "subject": "bar",
       "body": {
         "html": "<a>qux</a>"
-      }
-    }"#,
-    )
-    .dispatch();
-
-  assert_eq!(response.status(), Status::BadRequest);
-}
-
-#[test]
-fn empty_to_field()
-{
-  let client = setup();
-
-  let response = client
-    .post("/send")
-    .header(ContentType::JSON)
-    .body(
-      r#"{
-      "to": [],
-      "subject": "bar",
-      "body": {
-        "text": "baz"
       }
     }"#,
     )

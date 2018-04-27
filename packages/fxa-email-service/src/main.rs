@@ -8,6 +8,8 @@ extern crate rocket_contrib;
 extern crate serde_derive;
 extern crate serde_json;
 extern crate validator;
+#[macro_use]
+extern crate validator_derive;
 
 mod send;
 

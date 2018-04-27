@@ -8,7 +8,7 @@ use rocket::{
   Request,
 };
 use rocket_contrib::{Json, Value};
-use validator::{self, ValidationError};
+use validator::{self, Validate, ValidationError};
 
 #[cfg(test)]
 mod test;
@@ -20,10 +20,11 @@ struct Body
   html: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Validate)]
 struct Email
 {
-  to: Vec<String>,
+  #[validate(email)]
+  to: String,
   cc: Option<Vec<String>>,
   subject: String,
   body: Body,
@@ -41,31 +42,35 @@ impl FromData for Email
       Outcome::Success(json) =>
       {
         let email = json.into_inner();
-
-        if email.to.len() == 0
+        if validate(&email)
         {
-          return fail();
+          Outcome::Success(email)
         }
-
-        if let Some(outcome) = validate_addresses(&email.to)
+        else
         {
-          return outcome;
+          fail()
         }
-
-        if let Some(ref cc) = email.cc
-        {
-          if let Some(outcome) = validate_addresses(&cc)
-          {
-            return outcome;
-          }
-        }
-
-        Outcome::Success(email)
       },
       Outcome::Failure(_error) => fail(),
       Outcome::Forward(forward) => Outcome::Forward(forward),
     }
   }
+}
+
+fn validate(email: &Email) -> bool
+{
+  if let Some(ref cc) = email.cc
+  {
+    for address in cc
+    {
+      if !validator::validate_email(&address)
+      {
+        return false;
+      }
+    }
+  }
+
+  true
 }
 
 fn fail() -> data::Outcome<Email, ValidationError>
@@ -78,19 +83,6 @@ fn fail() -> data::Outcome<Email, ValidationError>
       params: HashMap::new(),
     },
   ))
-}
-
-fn validate_addresses(addresses: &[String]) -> Option<data::Outcome<Email, ValidationError>>
-{
-  for address in addresses
-  {
-    if !validator::validate_email(&address)
-    {
-      return Some(fail());
-    }
-  }
-
-  None
 }
 
 #[post("/send", format = "application/json", data = "<_email>")]
