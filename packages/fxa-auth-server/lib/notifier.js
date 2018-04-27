@@ -28,6 +28,21 @@ if (notifierSnsTopicArn !== 'disabled') {
   sns = new AWS.SNS({endpoint: notifierSnsTopicEndpoint, region: region})
 }
 
+function formatMessageAttributes(msg) {
+  const attrs = {}
+  attrs.event_type = {
+    DataType: 'String',
+    StringValue: msg.event
+  }
+  if (msg.email) {
+    attrs.email_domain = {
+      DataType: 'String',
+      StringValue: msg.email.split('@')[1]
+    }
+  }
+  return attrs
+}
+
 module.exports = function notifierLog(log) {
   return {
     send: (event, callback) => {
@@ -36,7 +51,8 @@ module.exports = function notifierLog(log) {
 
       sns.publish({
         TopicArn: notifierSnsTopicArn,
-        Message: JSON.stringify(msg)
+        Message: JSON.stringify(msg),
+        MessageAttributes: formatMessageAttributes(msg)
       }, (err, data) => {
         if (err) {
           log.error({op: 'Notifier.publish', err: err})

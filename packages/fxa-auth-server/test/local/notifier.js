@@ -21,38 +21,103 @@ describe('notifier', () => {
     log.trace.reset()
   })
 
-  it('works with sns configuration', () => {
-    const config = {
-      get: (key) => {
-        if (key === 'snsTopicArn') {
-          return 'arn:aws:sns:us-west-2:927034868275:foo'
+  describe('with sns configuration', () => {
+    let config, notifier
+
+    beforeEach(() => {
+      config = {
+        get: (key) => {
+          if (key === 'snsTopicArn') {
+            return 'arn:aws:sns:us-west-2:927034868275:foo'
+          }
         }
       }
-    }
 
-    const notifier = proxyquire(`${ROOT_DIR}/lib/notifier`, {
-      '../config': config
-    })(log)
+      notifier = proxyquire(`${ROOT_DIR}/lib/notifier`, {
+        '../config': config
+      })(log)
 
-    notifier.__sns.publish = sinon.spy((event, cb) => {
-      cb(null, event)
+      notifier.__sns.publish = sinon.spy((event, cb) => {
+        cb(null, event)
+      })
     })
 
-    notifier.send({
-      event: {
-        stuff: true
-      }
+    it('publishes a correctly-formatted message', () => {
+      notifier.send({
+        event: 'stuff'
+      })
+
+      assert.deepEqual(log.trace.args[0][0], {
+        op: 'Notifier.publish',
+        data: {
+          TopicArn: 'arn:aws:sns:us-west-2:927034868275:foo',
+          Message: '{\"event\":\"stuff\"}',
+          MessageAttributes: {
+            event_type: {
+              DataType: 'String',
+              StringValue: 'stuff'
+            }
+          }
+        },
+        success: true
+      })
+      assert.equal(log.error.called, false)
     })
 
-    assert.deepEqual(log.trace.args[0][0], {
-      op: 'Notifier.publish',
-      data: {
-        TopicArn: 'arn:aws:sns:us-west-2:927034868275:foo',
-        Message: '{\"event\":{\"stuff\":true}}'
-      },
-      success: true
+    it('flattens additional data into the message body', () => {
+      notifier.send({
+        event: 'stuff-with-data',
+        data: {
+          cool: 'stuff',
+          more: 'stuff'
+        }
+      })
+
+      assert.deepEqual(log.trace.args[0][0], {
+        op: 'Notifier.publish',
+        data: {
+          TopicArn: 'arn:aws:sns:us-west-2:927034868275:foo',
+          Message: '{\"cool\":\"stuff\",\"more\":\"stuff\",\"event\":\"stuff-with-data\"}',
+          MessageAttributes: {
+            event_type: {
+              DataType: 'String',
+              StringValue: 'stuff-with-data'
+            }
+          }
+        },
+        success: true
+      })
+      assert.equal(log.error.called, false)
     })
-    assert.equal(log.error.called, false)
+
+    it('includes email domain in message attributes', () => {
+      notifier.send({
+        event: 'email-change',
+        data: {
+          email: 'testme@example.com'
+        }
+      })
+
+      assert.deepEqual(log.trace.args[0][0], {
+        op: 'Notifier.publish',
+        data: {
+          TopicArn: 'arn:aws:sns:us-west-2:927034868275:foo',
+          Message: '{\"email\":\"testme@example.com\",\"event\":\"email-change\"}',
+          MessageAttributes: {
+            email_domain: {
+              DataType: 'String',
+              StringValue: 'example.com'
+            },
+            event_type: {
+              DataType: 'String',
+              StringValue: 'email-change'
+            }
+          }
+        },
+        success: true
+      })
+      assert.equal(log.error.called, false)
+    })
   })
 
   it('works with disabled configuration', () => {
@@ -68,7 +133,7 @@ describe('notifier', () => {
     })(log)
 
     notifier.send({
-      stuff: true
+      event: 'stuff'
     }, () => {
       assert.deepEqual(log.trace.args[0][0], {
         op: 'Notifier.publish',
