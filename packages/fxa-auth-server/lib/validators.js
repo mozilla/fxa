@@ -34,7 +34,7 @@ exports.scope = Joi.string()
 
 exports.redirectUri = Joi.string()
   .max(256)
-  .regex(/^[a-zA-Z0-9\-_\/.:]+$/);
+  .regex(/^[a-zA-Z0-9\-_\/.:?=&]+$/);
 
 // taken from mozilla/persona/lib/validate.js
 exports.assertion = Joi.string()

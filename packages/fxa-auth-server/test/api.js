@@ -599,6 +599,22 @@ describe('/v1', function() {
           assert.equal(actual, expected);
         });
       });
+
+      it('can have query parameters', function() {
+        mockAssertion().reply(200, VERIFY_GOOD);
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            client_id: 'dcdb5ae7add825d2'
+          })
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+          var expected = 'https://example.domain/return?foo=bar';
+          var actual = res.result.redirect.substr(0, expected.length);
+          assert.equal(actual, expected);
+        });
+      });
     });
 
     describe('?state', function() {
@@ -1954,6 +1970,22 @@ describe('/v1', function() {
               client_secret: secret,
               code: code,
               redirect_uri: 'testpilot-notes://redirect.android'
+            }
+          });
+        }).then((res) => {
+          assert.equal(res.statusCode, 200);
+        });
+      });
+
+      it('works with query parameters', () => {
+        return getCode(clientId).then((code) => {
+          return Server.api.post({
+            url: '/token',
+            payload: {
+              client_id: clientId,
+              client_secret: secret,
+              code: code,
+              redirect_uri: 'https://example.com?extra=params&go=here'
             }
           });
         }).then((res) => {
