@@ -37,20 +37,15 @@ impl FromData for Email
   fn from_data(request: &Request, data: Data) -> data::Outcome<Self, Self::Error>
   {
     let result = Json::<Email>::from_data(request, data);
-    match result
-    {
-      Outcome::Success(json) =>
-      {
+    match result {
+      Outcome::Success(json) => {
         let email = json.into_inner();
-        if validate(&email)
-        {
+        if validate(&email) {
           Outcome::Success(email)
-        }
-        else
-        {
+        } else {
           fail()
         }
-      },
+      }
       Outcome::Failure(_error) => fail(),
       Outcome::Forward(forward) => Outcome::Forward(forward),
     }
@@ -59,12 +54,9 @@ impl FromData for Email
 
 fn validate(email: &Email) -> bool
 {
-  if let Some(ref cc) = email.cc
-  {
-    for address in cc
-    {
-      if !validator::validate_email(&address)
-      {
+  if let Some(ref cc) = email.cc {
+    for address in cc {
+      if !validator::validate_email(&address) {
         return false;
       }
     }
