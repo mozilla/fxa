@@ -372,7 +372,7 @@ those common validations are defined here.
 #### lib/devices
 
 * `schema`: {
-    * `id: isA.string.length(32).regex(HEX_STRING)
+    * `id`: isA.string.length(32).regex(HEX_STRING)
     * `location`: isA.object({ city: isA.string.optional.allow(null)
     * `country`: isA.string.optional.allow(null)
     * `state`: isA.string.optional.allow(null)
