@@ -11,7 +11,7 @@ const Cocktail = require('cocktail');
 const FloatingPlaceholderMixin = require('../mixins/floating-placeholder-mixin');
 const FormView = require('../form');
 const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
-const SearchParamMixin = require('../../lib/search-param-mixin');
+const UpgradeSessionMixin = require('../mixins/upgrade-session-mixin');
 const Template = require('templates/settings/two_step_authentication.mustache');
 const preventDefaultThen = require('../base').preventDefaultThen;
 const showProgressIndicator = require('../decorators/progress_indicator');
@@ -63,7 +63,7 @@ const View = FormView.extend({
   },
 
   _isPanelEnabled() {
-    if (this.getSearchParam('showTwoStepAuthentication')) {
+    if (this.broker.hasCapability('showTwoStepAuthentication')) {
       return true;
     }
     return false;
@@ -88,7 +88,12 @@ const View = FormView.extend({
     if ( ! this._isPanelEnabled()) {
       return this.remove();
     } else {
-      return this._checkTokenExists();
+      return this.setupSessionGateIfRequired()
+        .then((isEnabled) => {
+          if (isEnabled) {
+            return this._checkTokenExists();
+          }
+        });
     }
   },
 
@@ -164,10 +169,13 @@ const View = FormView.extend({
 
 Cocktail.mixin(
   View,
+  UpgradeSessionMixin({
+    gatedHref: 'settings/two_step_authentication',
+    title: t('Two-step Authentication')
+  }),
   AvatarMixin,
   SettingsPanelMixin,
-  FloatingPlaceholderMixin,
-  SearchParamMixin
+  FloatingPlaceholderMixin
 );
 
 module.exports = View;

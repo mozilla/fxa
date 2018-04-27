@@ -155,7 +155,6 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     UpgradeSessionMixin({
-      caption: t('A secondary email is an additional address for receiving security notices and confirming new Sync devices'),
       gatedHref: 'settings/emails',
       title: t('Secondary email')
     }),

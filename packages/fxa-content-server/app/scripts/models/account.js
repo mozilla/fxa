@@ -565,11 +565,16 @@ define(function (require, exports, module) {
     /**
      * Request to verify current session.
      *
+     * @param {Object} [options]
+     * @param {String} [options.redirectTo] redirectTo url
      * @returns {Promise} - resolves when complete
      */
-    requestVerifySession () {
+    requestVerifySession (options = {}) {
       return this._fxaClient.sessionVerifyResend(
-        this.get('sessionToken')
+        this.get('sessionToken'),
+        {
+          redirectTo: options.redirectTo
+        }
       );
     },
 

@@ -177,6 +177,7 @@ require('./spec/views/mixins/resend-mixin');
 require('./spec/views/mixins/resume-token-mixin');
 require('./spec/views/mixins/service-mixin');
 require('./spec/views/mixins/session-verification-poll-mixin');
+require('./spec/views/mixins/session-verified-notification-mixin');
 require('./spec/views/mixins/settings-panel-mixin');
 require('./spec/views/mixins/signed-in-notification-mixin');
 require('./spec/views/mixins/signed-out-notification-mixin');

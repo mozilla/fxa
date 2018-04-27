@@ -45,6 +45,9 @@ define(function (require, exports, module) {
         uid: Vat.uid().required()
       }
     },
+    SESSION_VERIFIED: {
+      name: 'internal:session_verified'
+    },
     SIGNED_IN: {
       name: 'internal:signed_in',
       schema: {

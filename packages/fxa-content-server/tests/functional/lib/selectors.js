@@ -274,7 +274,11 @@ module.exports = {
     MENU_BUTTON: '#totp-section .settings-unit-toggle',
     QR_CODE: '.qr-image',
     SHOW_CODE_LINK: '.show-code-link',
-    STATUS_ENABLED: '#totp-status .enabled',
+    STATUS_DISABLED: '.two-step-authentication .disabled',
+    STATUS_ENABLED: '.two-step-authentication .enabled',
+    UNLOCK_BUTTON: '.two-step-authentication .unlock-button',
+    UNLOCK_REFRESH_BUTTON: '.two-step-authentication .refresh-verification-state',
+    UNLOCK_SEND_VERIFY: '.two-step-authentication .send-verification-email',
   },
   TOTP_SIGNIN: {
     HEADER: '#fxa-totp-code-header',

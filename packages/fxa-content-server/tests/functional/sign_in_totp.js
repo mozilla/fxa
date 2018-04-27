@@ -15,6 +15,7 @@ const SIGNUP_URL = `${config.fxaContentRoot}signup`;
 const SETTINGS_URL = `${config.fxaContentRoot}settings?showTwoStepAuthentication=true`;
 const PASSWORD = 'password';
 const SYNC_SIGNIN_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync`;
+const SIGNIN_URL = `${config.fxaContentRoot}signin?showTwoStepAuthentication=true`;
 
 let email;
 let secret;
@@ -23,16 +24,22 @@ const {
   confirmTotpCode,
   clearBrowserState,
   click,
+  closeCurrentWindow,
+  createUser,
   fillOutSignUp,
   fillOutSignIn,
   generateTotpCode,
   openPage,
   noSuchElement,
+  openVerificationLinkInDifferentBrowser,
+  openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
+  switchToWindow,
   testElementExists,
   testElementTextInclude,
   testIsBrowserNotified,
   testSuccessWasShown,
+
   type,
   visibleByQSA,
 } = FunctionalHelpers;
@@ -141,5 +148,94 @@ registerSuite('TOTP', {
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
+  }
+});
+
+registerSuite('TOTP - unverified session', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail('sync{id}');
+
+    return this.remote.then(createUser(email, PASSWORD, {preVerified: true}));
+  },
+
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
+
+  tests: {
+    'gated in unverified session open verification same tab': function () {
+      return this.remote
+        // when an account is created, the original session is verified
+        // re-login to destroy original session and created an unverified one
+        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+        .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.TOTP.UNLOCK_BUTTON))
+
+        // unlock panel
+        .then(click(selectors.TOTP.UNLOCK_BUTTON))
+        .then(testElementExists(selectors.TOTP.UNLOCK_SEND_VERIFY))
+
+        // send and open verification in same tab
+        .then(click(selectors.TOTP.UNLOCK_SEND_VERIFY))
+        .then(openVerificationLinkInSameTab(email, 0))
+
+        // panel becomes verified and can be opened
+        .then(testElementExists(selectors.TOTP.STATUS_ENABLED));
+    },
+
+    'gated in unverified session open verification new tab': function () {
+      return this.remote
+        // when an account is created, the original session is verified
+        // re-login to destroy original session and created an unverified one
+        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+        .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.TOTP.UNLOCK_BUTTON))
+
+        // unlock panel
+        .then(click(selectors.TOTP.UNLOCK_BUTTON))
+        .then(testElementExists(selectors.TOTP.UNLOCK_SEND_VERIFY))
+
+        // send and open verification in same tab
+        .then(click(selectors.TOTP.UNLOCK_SEND_VERIFY))
+        .then(openVerificationLinkInNewTab(email, 0))
+        .then(switchToWindow(1))
+
+        // panel becomes verified and can be opened
+        .then(testElementExists(selectors.TOTP.STATUS_ENABLED))
+        .then(closeCurrentWindow())
+
+        .then(switchToWindow(0))
+
+        .then(testElementExists(selectors.TOTP.UNLOCK_REFRESH_BUTTON))
+        .then(click(selectors.TOTP.UNLOCK_REFRESH_BUTTON))
+
+        // when refreshing the panel, it doesn't not automatically create token
+        .then(testElementExists(selectors.TOTP.STATUS_DISABLED))
+        .then(visibleByQSA(selectors.TOTP.STATUS_DISABLED));
+    },
+
+    'gated in unverified session open verification different browser': function () {
+      return this.remote
+        // when an account is created, the original session is verified
+        // re-login to destroy original session and created an unverified one
+        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+        .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.TOTP.UNLOCK_BUTTON))
+
+        // unlock panel
+        .then(click(selectors.TOTP.UNLOCK_BUTTON))
+        .then(testElementExists(selectors.TOTP.UNLOCK_SEND_VERIFY))
+
+        // send and open verification in same tab
+        .then(click(selectors.TOTP.UNLOCK_SEND_VERIFY))
+        .then(openVerificationLinkInDifferentBrowser(email, 0))
+        .then(click(selectors.TOTP.UNLOCK_REFRESH_BUTTON))
+
+        .then(testElementExists(selectors.TOTP.UNLOCK_REFRESH_BUTTON))
+        .then(click(selectors.TOTP.UNLOCK_REFRESH_BUTTON))
+
+        .then(testElementExists(selectors.TOTP.STATUS_DISABLED))
+        .then(visibleByQSA(selectors.TOTP.STATUS_DISABLED));
+    }
   }
 });

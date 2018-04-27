@@ -51,12 +51,13 @@ define(function (require, exports, module) {
   };
 
   var VERIFICATION_QUERY_PARAMETER_SCHEMA = _.extend({}, QUERY_PARAMETER_SCHEMA, {
-    // Verication links are sometimes broken by mail user-agents.
+    // Verification links are sometimes broken by mail user-agents.
     // The rules on the following fields are relaxed for startup,
     // and then further validated by the views that use them. If
     // the fields are invalid, context specific help text is displayed
     // that helps the user remedy the problem.
     email: Vat.string().allow(Constants.DISALLOW_CACHED_CREDENTIALS),
+    redirectTo: Vat.url(),
     uid: Vat.string()
   });
 

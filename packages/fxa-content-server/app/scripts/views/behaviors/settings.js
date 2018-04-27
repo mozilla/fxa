@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const NavigateBehavior = require('../behaviors/navigate');
+
   const t = (msg) => msg;
 
   /**
@@ -20,7 +21,6 @@ define(function (require, exports, module) {
    * @param {Object} defaultBehavior - default behavior to invoke if not signed in
    * @param {Object} [options]
    *   @param {String} [options.success] - success message when redirected
-   *   @param {String} [options.endpoint] - endpoint to redirect to
    * @return {Object} promise
    */
   module.exports = function (defaultBehavior, options = {}) {
@@ -34,9 +34,19 @@ define(function (require, exports, module) {
             if (options.success) {
               success = options.success;
             }
-            if (options.endpoint) {
-              endpoint = options.endpoint;
+
+            // Check the `redirectTo` param sent from server, if it matches
+            // a known path redirect there, else just go to settings.
+            const redirectTo = view.relier.get('redirectTo');
+            if (redirectTo) {
+              if (redirectTo.indexOf('/settings/emails') > 0) {
+                endpoint = '/settings/emails';
+              } else if (redirectTo.indexOf('/settings/two_step_authentication') > 0) {
+                view.broker.setCapability('showTwoStepAuthentication', true);
+                endpoint = '/settings/two_step_authentication';
+              }
             }
+
             return new NavigateBehavior(endpoint, { success });
           }
 

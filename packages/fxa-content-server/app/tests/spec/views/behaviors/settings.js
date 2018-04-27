@@ -28,6 +28,9 @@ define(function(require, exports, module) {
       it('returns a NavigateBehavior', () => {
         const view = {
           invokeBehavior: sinon.spy(),
+          relier: {
+            get: sinon.spy()
+          }
         };
         const account = new Account();
         sinon.stub(account, 'isSignedIn').callsFake(() => Promise.resolve(true));

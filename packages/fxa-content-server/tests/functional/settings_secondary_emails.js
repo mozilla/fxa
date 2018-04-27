@@ -66,7 +66,7 @@ registerSuite('settings secondary emails', {
 
         // unlock panel
         .then(click(selectors.EMAIL.UNLOCK_BUTTON))
-        .then(testElementExists(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
+        .then(testElementExists(selectors.EMAIL.UNLOCK_SEND_BUTTON))
 
         // send and open verification in same tab
         .then(click(selectors.EMAIL.UNLOCK_SEND_BUTTON))
@@ -87,7 +87,7 @@ registerSuite('settings secondary emails', {
 
         // unlock panel
         .then(click(selectors.EMAIL.UNLOCK_BUTTON))
-        .then(testElementExists(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
+        .then(testElementExists(selectors.EMAIL.UNLOCK_SEND_BUTTON))
 
         // send and open verification in same tab
         .then(click(selectors.EMAIL.UNLOCK_SEND_BUTTON))
@@ -101,6 +101,7 @@ registerSuite('settings secondary emails', {
         .then(switchToWindow(0))
         .then(testElementExists(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
         .then(click(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
+        .then(testElementExists(selectors.EMAIL.INPUT))
         .then(visibleByQSA(selectors.EMAIL.INPUT));
     },
 
@@ -115,12 +116,14 @@ registerSuite('settings secondary emails', {
 
         // unlock panel
         .then(click(selectors.EMAIL.UNLOCK_BUTTON))
-        .then(testElementExists(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
+        .then(testElementExists(selectors.EMAIL.UNLOCK_SEND_BUTTON))
 
         // send and open verification in same tab
         .then(click(selectors.EMAIL.UNLOCK_SEND_BUTTON))
         .then(openVerificationLinkInDifferentBrowser(email, 0))
         .then(click(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
+
+        .then(testElementExists(selectors.EMAIL.INPUT))
         .then(visibleByQSA(selectors.EMAIL.INPUT));
     },
 

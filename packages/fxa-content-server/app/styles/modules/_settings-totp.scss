@@ -114,10 +114,6 @@
   .description {
     font-size: 14px;
     text-align: left;
-
-    .note {
-      color: $color-red;
-    }
   }
 
   #recovery-code-container {
@@ -175,4 +171,8 @@
 
 .recovery-code-download-link {
   display: none;
+}
+
+.note {
+  color: $color-red;
 }

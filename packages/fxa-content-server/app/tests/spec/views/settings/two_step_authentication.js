@@ -31,6 +31,7 @@ describe('views/settings/two_step_authentication', () => {
     });
 
     sinon.stub(view, '_isPanelEnabled').callsFake(() => featureEnabled);
+    sinon.stub(view, 'setupSessionGateIfRequired').callsFake(() => Promise.resolve(featureEnabled));
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
     sinon.spy(view, 'remove');
 
