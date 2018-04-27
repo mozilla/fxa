@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   const ACTION = 'email';
   const CONTEXT = 'fx_desktop_v1';
   const COUNTRY = 'RO';
-  const SYNC_MIGRATION = 'sync11';
   const SYNC_SERVICE = 'sync';
 
   describe('models/reliers/sync', () => {
@@ -50,7 +49,6 @@ define(function (require, exports, module) {
           context: CONTEXT,
           country: COUNTRY,
           customizeSync: 'true',
-          migration: SYNC_MIGRATION,
           service: SYNC_SERVICE,
           signin: 'signin-code'
         });
@@ -60,7 +58,6 @@ define(function (require, exports, module) {
             assert.equal(relier.get('action'), ACTION);
             assert.equal(relier.get('context'), CONTEXT);
             assert.equal(relier.get('country'), COUNTRY);
-            assert.equal(relier.get('migration'), SYNC_MIGRATION);
             assert.equal(relier.get('service'), SYNC_SERVICE);
             assert.isTrue(relier.get('customizeSync'));
             assert.equal(relier.get('signinCode'), 'signin-code');

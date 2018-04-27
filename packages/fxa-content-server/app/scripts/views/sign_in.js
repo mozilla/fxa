@@ -100,7 +100,6 @@ define(function (require, exports, module) {
         error: this.error,
         headerSignInText,
         isAmoMigration: this.isAmoMigration(),
-        isSyncMigration: this.isSyncMigration(),
         password: this.formPrefill.get('password'),
         suggestedAccount: hasSuggestedAccount
       });

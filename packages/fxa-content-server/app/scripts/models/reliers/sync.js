@@ -3,11 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * The Sync for Sync relier. In addition to the fields available on
- * `Relier`, provides the following:
- *
- * - context
- * - migration
+ * The Sync relier.
  */
 
 define(function (require, exports, module) {

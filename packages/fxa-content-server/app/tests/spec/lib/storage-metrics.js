@@ -7,13 +7,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const chai = require('chai');
+  const { assert } = require('chai');
   const Metrics = require('lib/metrics');
   const Storage = require('lib/storage');
   const StorageMetrics = require('lib/storage-metrics');
   const WindowMock = require('../../mocks/window');
-
-  var assert = chai.assert;
 
   describe('lib/storage-metrics', function () {
     var storageMetrics;
@@ -31,7 +29,6 @@ define(function (require, exports, module) {
         devicePixelRatio: 2,
         entrypoint: 'menupanel',
         lang: 'db_LB',
-        migration: 'sync1.5',
         screenHeight: 1200,
         screenWidth: 1600,
         service: 'sync',

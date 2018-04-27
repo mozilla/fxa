@@ -114,8 +114,19 @@ define(function (require, exports, module) {
       testInvalidQueryParam('migration', token);
     });
 
-    [undefined, Constants.AMO_MIGRATION, Constants.SYNC11_MIGRATION].forEach(function (value) {
+    [undefined, Constants.AMO_MIGRATION].forEach(function (value) {
       testValidQueryParam('migration', value, 'migration', value);
+    });
+
+    describe('sync11 migration', () => {
+      it('accepts the value, but drops it on the ground', () => {
+        windowMock.location.search = TestHelpers.toSearchString({ migration: Constants.SYNC11_MIGRATION });
+
+        return relier.fetch()
+          .then(() => {
+            assert.isFalse(relier.has('migration'));
+          });
+      });
     });
 
     describe('email non-verification flow', function () {

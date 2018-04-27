@@ -94,7 +94,7 @@ registerSuite('flow-event', {
             flow_time: 0,
             hostname: os.hostname(),
             locale: 'en',
-            migration: 'sync11',
+            migration: 'amo',
             op: 'flowEvent',
             pid: process.pid,
             service: '1234567890abcdef',
@@ -363,7 +363,7 @@ registerSuite('flow-event', {
       beforeEach() {
         flowMetricsValidateResult = true;
         setup({
-          migration: 'sync111'
+          migration: 'amo1'
         }, 1000);
       },
 
@@ -1022,7 +1022,7 @@ function setup (data, timeSinceFlowBegin, clobberNavigationTiming, navigationTim
       flowId: data.flowId || '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
       flushTime: flowBeginTime,
       initialView: data.initialView || 'signup',
-      migration: data.migration || 'sync11',
+      migration: data.migration || 'amo',
       navigationTiming: clobberNavigationTiming ? null : {
         /*eslint-disable sorting/sort-object-props*/
         navigationStart: 0,

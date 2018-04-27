@@ -284,26 +284,7 @@ define(function (require, exports, module) {
         return view.render()
           .then(() => {
             assert.lengthOf(view.$('#amo-migration'), 0);
-            assert.lengthOf(view.$('#sync-migration'), 0);
             assert.lengthOf(view.$('#suggest-sync'), 1);
-          });
-      });
-
-      it('displays migration message if isSyncMigration returns true', function () {
-        sinon.stub(view, 'isSyncMigration').callsFake(() => true);
-
-        return view.render()
-          .then(() => {
-            assert.lengthOf(view.$('#sync-migration'), 1);
-          });
-      });
-
-      it('does not display migration message if isSyncMigration returns false', function () {
-        sinon.stub(view, 'isSyncMigration').callsFake(() => false);
-
-        return view.render()
-          .then(() => {
-            assert.lengthOf(view.$('#sync-migration'), 0);
           });
       });
 

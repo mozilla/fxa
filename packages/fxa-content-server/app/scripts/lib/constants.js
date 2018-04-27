@@ -46,7 +46,7 @@ module.exports = {
   CONTENT_SERVER_SERVICE: 'content-server',
   SYNC_SERVICE: 'sync',
 
-  SYNC11_MIGRATION: 'sync11',
+  SYNC11_MIGRATION: 'sync11', // Note, with #6130 this is no longer supported, we accept and ignore the value.
   AMO_MIGRATION: 'amo',
 
   VERIFICATION_POLL_IN_MS: 4000,

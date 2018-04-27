@@ -217,34 +217,32 @@ define(function (require, exports, module) {
     });
 
     describe('migration', () => {
+      beforeEach(() => {
+        initView();
+      });
+
       it('does not display migration message if no migration', () => {
-        initView();
-
         return view.render()
           .then(() => {
-            assert.lengthOf(view.$('#sync-migration'), 0);
+            assert.lengthOf(view.$('#amo-migration'), 0);
           });
       });
 
-      it('displays migration message if isSyncMigration returns true', () => {
-        initView();
-        sinon.stub(view, 'isSyncMigration').callsFake(() => true);
+      it('displays migration message if isAmoMigration returns true', () => {
+        sinon.stub(view, 'isAmoMigration').callsFake(() => true);
 
         return view.render()
           .then(() => {
-            assert.equal(view.$('#sync-migration').html(), 'Migrate your sync data by signing in to your Firefox&nbsp;Account.');
-            view.isSyncMigration.restore();
+            assert.lengthOf(view.$('#amo-migration'), 1);
           });
       });
 
-      it('does not display migration message if isSyncMigration returns false', () => {
-        initView();
-        sinon.stub(view, 'isSyncMigration').callsFake(() => false);
+      it('does not display migration message if isAmoMigration returns false', () => {
+        sinon.stub(view, 'isAmoMigration').callsFake(() => false);
 
         return view.render()
           .then(() => {
-            assert.lengthOf(view.$('#sync-migration'), 0);
-            view.isSyncMigration.restore();
+            assert.lengthOf(view.$('#amo-migration'), 0);
           });
       });
     });

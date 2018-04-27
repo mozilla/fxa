@@ -127,6 +127,13 @@ define(function (require, exports, module) {
           this.unset('email');
           this.set('allowCachedCredentials', false);
         }
+
+        if (this.get('migration') === Constants.SYNC11_MIGRATION) {
+          // Support for the sync1.1 migration message was
+          // removed in #6130, accept the value so
+          // no errors are caused but drop the value on the ground.
+          this.unset('migration');
+        }
       });
     },
 

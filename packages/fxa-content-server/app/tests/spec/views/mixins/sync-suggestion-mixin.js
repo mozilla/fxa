@@ -46,7 +46,7 @@ define(function (require, exports, module) {
     });
 
     describe('sync suggestion', () => {
-      it('displays sync suggestion message if no migration', () => {
+      it('displays sync suggestion message if no service', () => {
         relier.set('service', null);
 
         return view.render()

@@ -74,7 +74,7 @@ suite.tests['writes formatted data to stderr'] = function () {
       assert.equal(loggedMetrics['screen.width'], 1680);
       assert.equal(loggedMetrics['screen.height'], 1050);
       assert.equal(loggedMetrics.entrypoint, 'menupanel');
-      assert.equal(loggedMetrics.migration, 'sync1.5');
+      assert.equal(loggedMetrics.migration, 'amo');
     } else if (loggedMetrics.op === 'client.marketing') {
       assert.equal(loggedMetrics.campaignId, 'survey');
       assert.isFalse(loggedMetrics.clicked, true);
@@ -85,7 +85,7 @@ suite.tests['writes formatted data to stderr'] = function () {
       assert.equal(loggedMetrics.context, 'fx_desktop_v1');
       assert.equal(loggedMetrics.entrypoint, 'menupanel');
       assert.equal(loggedMetrics.service, 'sync');
-      assert.equal(loggedMetrics.migration, 'sync1.5');
+      assert.equal(loggedMetrics.migration, 'amo');
 
       process.stderr.write = _origWrite;
       dfd.resolve();
@@ -117,7 +117,7 @@ suite.tests['writes formatted data to stderr'] = function () {
       clicked: false,
       url: 'http://mzl.la/1oV7jUy'
     }],
-    migration: 'sync1.5',
+    migration: 'amo',
     navigationTiming: {
       included: 0,
       notIncludedNull: null,

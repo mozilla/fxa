@@ -11,10 +11,6 @@ define(function (require, exports, module) {
   const Constants = require('../../lib/constants');
 
   module.exports = {
-    isSyncMigration: function isSyncMigration () {
-      return this.relier.get('migration') === Constants.SYNC11_MIGRATION;
-    },
-
     isAmoMigration: function isAmoMigration () {
       return this.relier.get('migration') === Constants.AMO_MIGRATION;
     }

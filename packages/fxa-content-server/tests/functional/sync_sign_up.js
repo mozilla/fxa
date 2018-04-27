@@ -11,7 +11,6 @@ const FxDesktopHelpers = require('./lib/fx-desktop');
 const selectors = require('./lib/selectors');
 var config = intern._config;
 var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v1&service=sync';
-var PAGE_URL_WITH_MIGRATION = PAGE_URL + '&migration=sync11';
 
 var email;
 var PASSWORD = '12345678';
@@ -29,8 +28,7 @@ const {
   switchToWindow,
   testAttributeEquals,
   testElementExists,
-  testEmailExpected,
-  visibleByQSA,
+  testEmailExpected
 } = FunctionalHelpers;
 
 const {
@@ -161,12 +159,6 @@ registerSuite('Firefox Desktop Sync sign_up', {
         .then(openPage(url, selectors.SIGNUP.HEADER))
 
         .then(testAttributeEquals(selectors.SIGNUP.CUSTOMIZE_SYNC_INPUT, 'checked', 'checked'));
-    },
-
-    'as a migrating user': function () {
-      return this.remote
-        .then(openPage(PAGE_URL_WITH_MIGRATION, selectors.SIGNUP.HEADER))
-        .then(visibleByQSA(selectors.SIGNUP.MIGRATING_USER));
     }
   }
 });

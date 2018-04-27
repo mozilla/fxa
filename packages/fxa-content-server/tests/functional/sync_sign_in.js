@@ -12,7 +12,6 @@ const selectors = require('./lib/selectors');
 const config = intern._config;
 const ROOT_URL = config.fxaContentRoot;
 const PAGE_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
-const PAGE_URL_WITH_MIGRATION = PAGE_URL + '&migration=sync11';
 
 let email;
 const PASSWORD = '12345678';
@@ -126,12 +125,6 @@ registerSuite('Firefox Desktop Sync v1 signin', {
         .then(setupTest({preVerified: false}))
 
         .then(openPage(ROOT_URL, selectors.CONFIRM_SIGNUP.HEADER));
-    },
-
-    'as a migrating user': function () {
-      return this.remote
-        .then(openPage(PAGE_URL_WITH_MIGRATION, selectors.SIGNIN.HEADER))
-        .then(visibleByQSA(selectors.SIGNIN.MIGRATION_NUDGE));
     },
 
     'verified, blocked': function () {
