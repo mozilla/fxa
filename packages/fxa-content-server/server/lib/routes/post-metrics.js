@@ -33,6 +33,7 @@ const {
   BOOLEAN: BOOLEAN_TYPE,
   DIMENSION: DIMENSION_TYPE,
   DOMAIN: DOMAIN_TYPE,
+  EXPERIMENT: EXPERIMENT_TYPE,
   HEX32: HEX32_TYPE,
   INTEGER: INTEGER_TYPE,
   OFFSET: OFFSET_TYPE,
@@ -60,7 +61,7 @@ const BODY_SCHEMA = {
     type: STRING_TYPE.regex(EVENT_TYPE_PATTERN).required()
   })).required(),
   experiments: joi.array().items(joi.object().keys({
-    choice: STRING_TYPE.regex(EXPERIMENT_PATTERN).required(),
+    choice: EXPERIMENT_TYPE.required(),
     group: STRING_TYPE.regex(EXPERIMENT_PATTERN).required()
   })).required(),
   flowBeginTime: OFFSET_TYPE.optional(),

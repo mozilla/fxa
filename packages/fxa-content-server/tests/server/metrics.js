@@ -37,6 +37,7 @@ suite.tests['#post /metrics - returns 200 with valid data'] = {
       testValidMetricsEvent('type', 'error.unknown context.auth.108'),
   'valid error-type (signin-permissions.checkbox.change.profile:display_name.unchecked)':
     testValidMetricsEvent('type', 'signin-permissions.checkbox.change.profile:display_name.unchecked'),
+  'valid experiment choice (sendSms)': testValidMetricsField('experiments', [ { choice: 'sendSms', group: 'treatment'} ]),
   'valid initialView': testValidMetricsField('initialView', 'az_-'),
   'valid lang (pt)': testValidMetricsField('lang', 'pt'),
   'valid lang (pt-BR)': testValidMetricsField('lang', 'pt-BR'),
@@ -67,8 +68,8 @@ suite.tests['#post /metrics - returns 400 with invalid data'] = {
   'invalid event offset (a)': testInvalidMetricsField('events', [{ offset: 'a', type: 'allgood'}]),
   'invalid event type (<owned>)': testInvalidMetricsField('events', [{ offset: 12, type: '<owned>'}]),
   'invalid events ({})': testInvalidMetricsField('events', {}),
-  'invalid experiment choice ({})': testInvalidMetricsField('experiments', { choice: {}, group: 'treatment'}),
-  'invalid experiment group (1255{})': testInvalidMetricsField('experiments', { choice: 'choice', group: '1255{}'}),
+  'invalid experiment choice ({})': testInvalidMetricsField('experiments', [ { choice: {}, group: 'treatment'} ]),
+  'invalid experiment group (1255{})': testInvalidMetricsField('experiments', [ { choice: 'sendSms', group: '1255{}'} ]),
   'invalid experiments (123)': testInvalidMetricsField('experiments', '123'),
   'invalid flowBeginTime (asdf)': testInvalidMetricsField('flowBeginTime', 'asdf'),
   'invalid flowId (deadbeef)': testInvalidMetricsField('flowId', 'deadbeef'),
