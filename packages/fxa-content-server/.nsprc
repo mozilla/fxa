@@ -6,6 +6,10 @@
     // moment
     "https://nodesecurity.io/advisories/532",
     // hoek
-    "https://nodesecurity.io/advisories/566"
+    "https://nodesecurity.io/advisories/566",
+    // tough-cookie
+    "https://nodesecurity.io/advisories/130",
+    "https://nodesecurity.io/advisories/525",
+    "https://nodesecurity.io/advisories/309"
   ]
 }

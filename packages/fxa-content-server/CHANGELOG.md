@@ -80,6 +80,25 @@
 
 
 
+<a name="1.109.4"></a>
+## 1.109.4 (2018-04-20)
+
+
+### Bug Fixes
+
+* **nsp:** update nsp ([84fd024](https://github.com/mozilla/fxa-content-server/commit/84fd024))
+* **oauth:** make Chrome for Android able to sign up and sign in via button confirmation ([76c24ff](https://github.com/mozilla/fxa-content-server/commit/76c24ff)), closes [#6089](https://github.com/mozilla/fxa-content-server/issues/6089)
+* **oauth:** match client id ([ae00d86](https://github.com/mozilla/fxa-content-server/commit/ae00d86))
+* **test:** Add a signin to an OAuth relier with Chrome for Android ([ac7f8a0](https://github.com/mozilla/fxa-content-server/commit/ac7f8a0))
+* **test:** Create the user before trying to verify! ([dfc68c2](https://github.com/mozilla/fxa-content-server/commit/dfc68c2))
+* **tests:** make a signin test work ([4263db2](https://github.com/mozilla/fxa-content-server/commit/4263db2))
+
+### Refactor
+
+* **oauth:** Simplify the Chrome for Android handling. ([b97f5ca](https://github.com/mozilla/fxa-content-server/commit/b97f5ca))
+
+
+
 <a name="1.109.3"></a>
 ## 1.109.3 (2018-04-06)
 

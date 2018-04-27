@@ -69,6 +69,10 @@ define(function (require, exports, module) {
     template: Template,
     className: 'ready',
 
+    events: {
+      'click .btn-continue': 'continue'
+    },
+
     initialize (options = {}) {
       this._templateInfo = TEMPLATE_INFO[this.keyOfVerificationReason(options.type)];
     },
@@ -81,9 +85,16 @@ define(function (require, exports, module) {
         escapedReadyToSyncText: this._getEscapedReadyToSyncText(),
         headerId: this._getHeaderId(),
         isSync: this.relier.isSync(),
-        redirectUri: this.relier.get('redirectUri'),
-        secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null
+        secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null,
+        showContinueButton: !! this.model.get('continueBrokerMethod'),
       });
+    },
+
+    continue () {
+      const { account, continueBrokerMethod } = this.model.toJSON();
+      if (continueBrokerMethod && account) {
+        this.invokeBrokerMethod(continueBrokerMethod, account);
+      }
     },
 
     _getHeaderId () {

@@ -21,6 +21,7 @@ const AppView = require('../views/app');
 const authBrokers = require('../models/auth_brokers/index');
 const Assertion = require('./assertion');
 const Backbone = require('backbone');
+const Cocktail = require('./cocktail');
 const Constants = require('./constants');
 const Environment = require('./environment');
 const ErrorUtils = require('./error-utils');
@@ -51,7 +52,7 @@ const Translator = require('./translator');
 const UniqueUserId = require('../models/unique-user-id');
 const Url = require('./url');
 const User = require('../models/user');
-const UserAgent = require('./user-agent');
+const UserAgentMixin = require('./user-agent-mixin');
 const uuid = require('uuid');
 const WebChannel = require('./channels/web');
 
@@ -70,7 +71,7 @@ function Start(options = {}) {
   this._storage = options.storage || Storage;
   this._translator = options.translator;
   this._user = options.user;
-  this._window = options.window || window;
+  this._window = this.window = options.window || window;
 }
 
 Start.prototype = {
@@ -304,7 +305,11 @@ Start.prototype = {
           context = Constants.FX_DESKTOP_V2_CONTEXT;
         }
       } else if (this._isOAuth()) {
-        context = Constants.OAUTH_CONTEXT;
+        if (this.getUserAgent().isChromeAndroid()) {
+          context = Constants.OAUTH_CHROME_ANDROID_CONTEXT;
+        } else {
+          context = Constants.OAUTH_CONTEXT;
+        }
       } else {
         context = this._getContext();
       }
@@ -783,7 +788,7 @@ Start.prototype = {
   _isVerificationInMobileSafari () {
     const path = this._window.location.pathname;
     const isVerificationPath = path === '/complete_signin' || path === '/verify_email';
-    const uap = new UserAgent(this._window.navigator.userAgent);
+    const uap = this.getUserAgent();
 
     return isVerificationPath && uap.isMobileSafari();
   },
@@ -792,5 +797,10 @@ Start.prototype = {
     return this._searchParam('automatedBrowser') === 'true';
   }
 };
+
+Cocktail.mixin(
+  Start,
+  UserAgentMixin,
+);
 
 module.exports = Start;

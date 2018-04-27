@@ -13,7 +13,8 @@ module.exports = {
     HEADER: '#fxa-400-header'
   },
   CHANGE_PASSWORD: {
-    CANCEL_BUTTON: '#change-password .cancel',DETAILS: '#change-password .settings-unit-details',
+    CANCEL_BUTTON: '#change-password .cancel',
+    DETAILS: '#change-password .settings-unit-details',
     ERROR: '#change-password .error',
     LINK_RESET_PASSWORD: '.reset-password',
     MENU_BUTTON: '#change-password .settings-unit-toggle',
@@ -167,7 +168,9 @@ module.exports = {
     SUPPORT: '#support'
   },
   SIGNIN_COMPLETE: {
-    HEADER: '#fxa-sign-in-complete-header'
+    CONTINUE_BUTTON: '.btn-continue',
+    HEADER: '#fxa-sign-in-complete-header',
+    SERVICE_NAME: '.account-ready-service'
   },
   SIGNIN_PASSWORD: {
     EMAIL: 'input[type=email]',
@@ -222,6 +225,7 @@ module.exports = {
     VPASSWORD: '#vpassword',
   },
   SIGNUP_COMPLETE: {
+    CONTINUE_BUTTON: '.btn-continue',
     HEADER: '#fxa-sign-up-complete-header',
     SERVICE_NAME: '.account-ready-service'
   },

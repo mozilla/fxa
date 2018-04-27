@@ -15,6 +15,11 @@
     {{^isSync}}
       {{#serviceName}}
         <p class="account-ready-service">{{#t}}You are now ready to use %(serviceName)s{{/t}}</p>
+        {{#showContinueButton}}
+        <div class="button-row">
+          <button class="btn-continue">{{#t}}Continue{{/t}}</button>
+        </div>
+        {{/showContinueButton}}
       {{/serviceName}}
       {{^serviceName}}
           {{#emailVerified}}

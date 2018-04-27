@@ -93,6 +93,7 @@ require('./spec/models/auth_brokers/mob-android-v1');
 require('./spec/models/auth_brokers/mob-ios-v1');
 require('./spec/models/auth_brokers/oauth');
 require('./spec/models/auth_brokers/oauth-redirect');
+require('./spec/models/auth_brokers/oauth-redirect-chrome-android');
 require('./spec/models/auth_brokers/web');
 require('./spec/models/device');
 require('./spec/models/email');
