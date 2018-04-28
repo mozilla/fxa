@@ -3,6 +3,9 @@ name = "fxa-email-service"
 version = "0.1.0"
 
 [dependencies]
+config = "0.8.0"
+lazy_static = "1.0"
+regex = "0.2.10"
 rocket = "0.3.9"
 rocket_codegen = "0.3.9"
 rocket_contrib = "0.3.9"

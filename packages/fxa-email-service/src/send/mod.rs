@@ -10,8 +10,14 @@ use rocket::{
 use rocket_contrib::{Json, Value};
 use validator::{self, Validate, ValidationError};
 
+use settings::Settings;
+
 #[cfg(test)]
 mod test;
+
+lazy_static! {
+  static ref SETTINGS: Settings = Settings::new().expect("Config error");
+}
 
 #[derive(Debug, Deserialize)]
 struct Body
