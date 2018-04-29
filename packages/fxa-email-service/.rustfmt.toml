@@ -1,7 +1,6 @@
 brace_style = "AlwaysNextLine"
 imports_indent = "Block"
 merge_imports = true
-reorder_impl_items = true
 tab_spaces = 2
 use_field_init_shorthand = true
 wrap_comments = true
