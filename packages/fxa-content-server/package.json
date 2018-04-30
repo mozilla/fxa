@@ -51,7 +51,7 @@
     "express": "4.16.2",
     "extend": "3.0.1",
     "fxa-checkbox": "git://github.com/mozilla/fxa-checkbox.git#7f856afffd394a144f718e28e6fb79092d6ccddd",
-    "fxa-crypto-relier": "2.1.0",
+    "fxa-crypto-relier": "2.2.1",
     "fxa-geodb": "1.0.0",
     "fxa-js-client": "1.0.3",
     "fxa-mustache-loader": "0.0.2",

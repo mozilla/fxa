@@ -31,9 +31,9 @@ define(function (require, exports, module) {
     return code;
   }
 
-  var VALID_OAUTH_CODE = generateOAuthCode();
-  var VALID_OAUTH_CODE_REDIRECT_URL = 'https://127.0.0.1:8080?state=state&code=' + VALID_OAUTH_CODE;
-  var INVALID_OAUTH_CODE_REDIRECT_URL = 'https://127.0.0.1:8080?code=code&state=state';
+  const REDIRECT_URI = 'https://127.0.0.1:8080';
+  const VALID_OAUTH_CODE = generateOAuthCode();
+  const VALID_OAUTH_CODE_REDIRECT_URL = `${REDIRECT_URI}?code=${VALID_OAUTH_CODE}&state=state`;
 
   describe('models/auth_brokers/oauth', function () {
     var account;
@@ -47,7 +47,9 @@ define(function (require, exports, module) {
       oAuthClient = new OAuthClient();
       sinon.stub(oAuthClient, 'getCode').callsFake(function () {
         return Promise.resolve({
-          redirect: VALID_OAUTH_CODE_REDIRECT_URL
+          code: VALID_OAUTH_CODE,
+          redirect: VALID_OAUTH_CODE_REDIRECT_URL,
+          state: 'state'
         });
       });
 
@@ -60,6 +62,7 @@ define(function (require, exports, module) {
       relier.set({
         action: 'action',
         clientId: 'clientId',
+        redirectUri: REDIRECT_URI,
         scope: 'scope',
         state: 'state'
       });
@@ -233,6 +236,24 @@ define(function (require, exports, module) {
           });
       });
 
+      it('locally constructs the redirect URI, ignoring any provided by the server', function () {
+        oAuthClient.getCode.restore();
+        sinon.stub(oAuthClient, 'getCode').callsFake(function () {
+          return Promise.resolve({
+            code: VALID_OAUTH_CODE,
+            redirect: 'https://the.server.got.confused',
+            state: 'state'
+          });
+        });
+        return broker.getOAuthResult(account)
+          .then(function (result) {
+            assert.isTrue(oAuthClient.getCode.calledOnce);
+            assert.equal(result.redirect, VALID_OAUTH_CODE_REDIRECT_URL);
+            assert.equal(result.state, 'state');
+            assert.equal(result.code, VALID_OAUTH_CODE);
+          });
+      });
+
       it('passes on errors from assertion generation', function () {
         assertionLibrary.generate.restore();
         sinon.stub(assertionLibrary, 'generate').callsFake(function () {
@@ -277,7 +298,7 @@ define(function (require, exports, module) {
 
         return broker.getOAuthResult(account)
           .then(assert.fail, function (err) {
-            assert.isTrue(OAuthErrors.is(err, 'INVALID_RESULT_REDIRECT'));
+            assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
           });
       });
 
@@ -285,13 +306,28 @@ define(function (require, exports, module) {
         oAuthClient.getCode.restore();
         sinon.stub(oAuthClient, 'getCode').callsFake(function () {
           return {
-            redirect: INVALID_OAUTH_CODE_REDIRECT_URL
+            code: 'invalid-code'
           };
         });
 
         return broker.getOAuthResult(account)
           .then(assert.fail, function (err) {
-            assert.isTrue(OAuthErrors.is(err, 'INVALID_RESULT_CODE'));
+            assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
+          });
+      });
+
+      it('throws an error if oAuthClient.getCode returns an invalid state', function () {
+        oAuthClient.getCode.restore();
+        sinon.stub(oAuthClient, 'getCode').callsFake(function () {
+          return {
+            code: VALID_OAUTH_CODE,
+            state: { invalid: 'state' }
+          };
+        });
+
+        return broker.getOAuthResult(account)
+          .then(assert.fail, function (err) {
+            assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
           });
       });
 

@@ -17,35 +17,14 @@ define(function (require, exports, module) {
   const HaltBehavior = require('../../views/behaviors/halt');
   const OAuthErrors = require('../../lib/oauth-errors');
   const ScopedKeys = require('lib/crypto/scoped-keys');
+  const Transform = require('../../lib/transform');
   const Url = require('../../lib/url');
   const Vat = require('../../lib/vat');
 
-  /**
-   * Formats the OAuth "result.redirect" url into a {code, state} object
-   *
-   * @param {Object} result
-   * @returns {Object}
-   */
-  function _formatOAuthResult(result) {
-
-    // get code and state from redirect params
-    if (! result) {
-      return Promise.reject(OAuthErrors.toError('INVALID_RESULT'));
-    } else if (! result.redirect) {
-      return Promise.reject(OAuthErrors.toError('INVALID_RESULT_REDIRECT'));
-    }
-
-    var redirectParams = result.redirect.split('?')[1];
-
-    result.state = Url.searchParam('state', redirectParams);
-    result.code = Url.searchParam('code', redirectParams);
-
-    if (Vat.oauthCode().validate(result.code).error) {
-      return Promise.reject(OAuthErrors.toError('INVALID_RESULT_CODE'));
-    }
-
-    return Promise.resolve(result);
-  }
+  const OAUTH_CODE_RESPONSE_SCHEMA = {
+    code: Vat.oauthCode().required(),
+    state: Vat.string()
+  };
 
   var proto = BaseAuthenticationBroker.prototype;
 
@@ -111,7 +90,21 @@ define(function (require, exports, module) {
           }
           return this._oAuthClient.getCode(oauthParams);
         })
-        .then(_formatOAuthResult);
+        .then((response) => {
+          if (! response) {
+            return Promise.reject(OAuthErrors.toError('INVALID_RESULT'));
+          }
+          // The oauth-server would previously construct and return the full redirect URI,
+          // but we now expect to receive `code` and `state` and build it ourselves
+          // using the relier's locally-validated redirectUri.
+          delete response.redirect;
+          const result = Transform.transformUsingSchema(response, OAUTH_CODE_RESPONSE_SCHEMA, OAuthErrors);
+          result.redirect = Url.updateSearchString(relier.get('redirectUri'), {
+            code: result.code,
+            state: result.state
+          });
+          return result;
+        });
     },
 
     /**

@@ -421,6 +421,44 @@ define(function (require, exports, module) {
           testInvalidClientInfoValues('trusted', invalidValues);
         });
       });
+
+      describe('scoped-keys request validation', function () {
+
+        describe('fails', function () {
+          beforeEach(function () {
+            sinon.stub(relier, '_validateKeyScopeRequest').callsFake(function () {
+              throw new Error('Invalid redirect parameter');
+            });
+
+            return fetchExpectError({
+              client_id: CLIENT_ID,
+              scope: SCOPE
+            });
+          });
+
+          it('errors correctly', function () {
+            assert.equal(err.message, 'Invalid redirect parameter');
+          });
+        });
+
+        describe('succeeds', function () {
+          beforeEach(function () {
+            sinon.stub(relier, '_validateKeyScopeRequest').callsFake(function () {
+              return true;
+            });
+
+            return fetchExpectSuccess({
+              client_id: CLIENT_ID,
+              keys_jwk: 'keysJwk',
+              scope: SCOPE
+            });
+          });
+
+          it('returns correctly', function () {
+            assert.equal(relier.get('keysJwk'), 'keysJwk');
+          });
+        });
+      });
     });
 
     describe('isTrusted', function () {
@@ -565,35 +603,20 @@ define(function (require, exports, module) {
         assert.isFalse(relier.wantsKeys());
       });
 
-      it('returns false with just keysJwk', () => {
+      it('returns false when scopedKeysEnabled is configured to false', () => {
         relier._config.scopedKeysEnabled = false;
         relier.set('keysJwk', 'jwk');
         assert.isFalse(relier.wantsKeys());
       });
 
-      it('returns false with just scopedKeysEnabled', () => {
+      it('returns false when relier did not specify keysJwk', () => {
         relier._config.scopedKeysEnabled = true;
         assert.isFalse(relier.wantsKeys());
       });
 
-      it('throws if no scopes', () => {
+      it('returns true with keysJwk and enabled scoped keys', () => {
         relier._config.scopedKeysEnabled = true;
         relier.set('keysJwk', 'jwk');
-        assert.throws(relier.wantsKeys.bind(relier), Error, 'Invalid scope parameter');
-      });
-
-      it('returns true with keysJwk, enabled scoped keys and valid scope', () => {
-        relier._config.scopedKeysEnabled = true;
-        relier._config.scopedKeysValidation = {
-          'https://identity.mozilla.com/apps/lockbox': {
-            redirectUris: [
-              'lockbox://redirect.ios'
-            ]
-          }
-        };
-        relier.set('keysJwk', 'jwk');
-        relier.set('scope', 'profile https://identity.mozilla.com/apps/lockbox');
-        relier.set('redirectUri', 'lockbox://redirect.ios');
         assert.isTrue(relier.wantsKeys());
       });
     });

@@ -104,6 +104,9 @@ define(function (require, exports, module) {
             // setupOAuthRPInfo.
             this._normalizeScopesAndPermissions();
           }
+        })
+        .then(() => {
+          this._validateKeyScopeRequest();
         });
     },
 
@@ -227,12 +230,21 @@ define(function (require, exports, module) {
      * @returns {Boolean}
      */
     wantsKeys () {
-      return !! (this._config && this._config.scopedKeysEnabled && this._validateKeyScopeRequest());
+      return !! (this._config && this._config.scopedKeysEnabled && this.has('keysJwk'));
     },
 
+
     /**
-     * Validate the requested scope with the relier redirect uri.
-     * At least one valid match must be found to successfully validate
+     * Perform additional validation for scopes that have encryption keys.
+     *
+     * If the relier is requesting keys, we check their redirect URI against
+     * against an explicit allowlist and throw an error if there's anything
+     * even slightly unexpected about the request.
+     *
+     * This provides an extra line of defence against us sending the keys
+     * somewhere unintended as a result of e.g. a config error or a
+     * badly-behaved server.
+     *
      * @returns {boolean}
      * @private
      */
@@ -244,6 +256,7 @@ define(function (require, exports, module) {
       const validation = this._config.scopedKeysValidation || {};
       let foundRedirectScopeMatch = false;
 
+      // Requesting keys, but not specifying a scope?  That's unexpected.
       if (! this.get('scope')) {
         throw new Error('Invalid scope parameter');
       }
@@ -253,18 +266,19 @@ define(function (require, exports, module) {
           if (validation[scope].redirectUris.includes(this.get('redirectUri'))) {
             foundRedirectScopeMatch = true;
           } else {
+            // Requesting keys, but trying to deliver them to an unexpected uri? Nope.
             throw new Error('Invalid redirect parameter');
           }
         }
       });
 
+      // Requesting keys, but no key-bearing scopes? That's unexpected.
       if (! foundRedirectScopeMatch) {
         throw new Error('No key-bearing scopes requested');
       }
 
       return true;
     },
-
 
     /**
      * Check whether additional permissions are requested from

@@ -354,13 +354,13 @@ define(function (require, exports, module) {
         });
 
         it('returns a Redirect broker if user directly browses to `/oauth/signin`', () => {
-          windowMock.location.href = '/oauth/signin';
+          windowMock.location.pathname = '/oauth/signin';
 
           return testExpectedBrokerCreated(RedirectBroker);
         });
 
         it('returns a Redirect broker if user directly browses to `/oauth/signup`', () => {
-          windowMock.location.href = '/oauth/signup';
+          windowMock.location.pathname = '/oauth/signup';
 
           return testExpectedBrokerCreated(RedirectBroker);
         });
@@ -368,7 +368,7 @@ define(function (require, exports, module) {
 
       describe('base', () => {
         it('returns a Base broker if the user directly browses to any other page', () => {
-          windowMock.location.href = '/settings';
+          windowMock.location.pathname = '/settings';
 
           return testExpectedBrokerCreated(BaseBroker);
         });

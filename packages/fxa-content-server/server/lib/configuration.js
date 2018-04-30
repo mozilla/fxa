@@ -440,7 +440,7 @@ const conf = module.exports = convict({
   },
   scopedKeys: {
     enabled: {
-      default: false,
+      default: true,
       doc: 'Enable Scoped Key OAuth features',
       env: 'SCOPED_KEYS_ENABLED',
       format: Boolean,

@@ -107,6 +107,8 @@ define(function (require, exports, module) {
       errno: 1001,
       message: UNEXPECTED_ERROR
     },
+    /*
+    Removed in PR #6017
     INVALID_RESULT_REDIRECT: {
       errno: 1002,
       message: UNEXPECTED_ERROR
@@ -115,6 +117,7 @@ define(function (require, exports, module) {
       errno: 1003,
       message: UNEXPECTED_ERROR
     },
+    */
     USER_CANCELED_OAUTH_LOGIN: {
       errno: 1004,
       message: t('no message')

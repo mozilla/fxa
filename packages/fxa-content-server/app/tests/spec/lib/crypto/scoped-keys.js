@@ -104,6 +104,32 @@ define(function (require, exports, module) {
           assert.deepEqual(jsonArgs[0][scope], multiScopedKey[scope]);
         });
       });
+
+      it('can encrypt special-case legacy sync keys', () => {
+        const syncScope = 'https://identity.mozilla.com/apps/oldsync';
+        const multiKeyData = Object.assign({}, clientKeyData);
+        multiKeyData[syncScope] = {
+          identifier: syncScope,
+          keyRotationSecret: '0000000000000000000000000000000000000000000000000000000000000000',
+          keyRotationTimestamp: 1510011454564
+        };
+
+        const multiScopedKey = Object.assign({}, clientScopedKey);
+        multiScopedKey[syncScope] = {
+          k: 'qopE_9Q15dEy4L3EjabABj44sPueSnvHBsEfIHpb-75RpL6l5mCG570_LotVucBFZIXXVNQIisbT9J8KNLvJsA',
+          kid: '1510011454564-xH5jmz0EO6TKxYXH_eK-9Q',
+          kty: 'oct',
+          scope: 'https://identity.mozilla.com/apps/oldsync'
+        };
+
+        return ScopedKeys.createEncryptedBundle(keys, uid, multiKeyData, keysJwk).then((bundle) => {
+          const jsonArgs = JSON.stringify.args[0];
+          assert.match(bundle, /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/);
+          console.log(jsonArgs[0]);
+          assert.deepEqual(jsonArgs[0][syncScope], multiScopedKey[syncScope]);
+          assert.deepEqual(jsonArgs[0][scope], multiScopedKey[scope]);
+        });
+      });
     });
 
   });
