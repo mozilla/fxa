@@ -751,11 +751,11 @@ var conf = convict({
       format: 'url',
       env: 'SMS_SIGNIN_CODES_BASE_URI'
     },
-    throttleWaitTime: {
-      doc: 'The number of seconds to wait if throttled by the SMS service provider',
-      default: 2,
-      format: Number,
-      env: 'SMS_THROTTLE_WAIT_TIME'
+    minimumCreditThresholdUSD: {
+      doc: 'The minimum amount of available credit that is necessary to enable SMS, in US dollars',
+      default: 200,
+      format: 'nat',
+      env: 'SMS_MINIMUM_CREDIT_THRESHOLD'
     }
   },
   secondaryEmail: {

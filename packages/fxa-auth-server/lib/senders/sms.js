@@ -4,24 +4,37 @@
 
 'use strict'
 
-const AWS = require('aws-sdk')
-const MockSNS = require('../../test/mock-sns')
-const P = require('bluebird')
+const Cloudwatch = require('aws-sdk/clients/cloudwatch')
 const error = require('../error')
+const MockSns = require('../../test/mock-sns')
+const P = require('bluebird')
+const Sns = require('aws-sdk/clients/sns')
+
+const SECONDS_PER_FIVE_MINUTES = 60 * 5
+const MILLISECONDS_PER_FIVE_MINUTES = SECONDS_PER_FIVE_MINUTES * 1000
+const MILLISECONDS_PER_HOUR = MILLISECONDS_PER_FIVE_MINUTES * 12
+
+class MockCloudwatch {
+  getMetricStatistics () {
+    return {
+      promise: () => P.resolve({ Datapoints: [ { Average: 0 } ] })
+    }
+  }
+}
 
 module.exports = (log, translator, templates, config) => {
-  const smsConfig = config.sms
-  const smsOptions = {
-    region: smsConfig.apiRegion
-  }
-  let SNS
-  if (smsConfig.useMock) {
-    SNS = new MockSNS(smsOptions, config)
-  } else {
-    SNS = new AWS.SNS(smsOptions)
-  }
+  const cloudwatch = initService(config, Cloudwatch, MockCloudwatch)
+  const sns = initService(config, Sns, MockSns)
+
+  const { minimumCreditThresholdUSD: CREDIT_THRESHOLD } = config.sms
+
+  let isBudgetOk = true
+
+  setImmediate(pollCurrentSpend)
 
   return {
+    isBudgetOk: () => isBudgetOk,
+
     send (phoneNumber, templateName, acceptLanguage, signinCode) {
       log.trace({ op: 'sms.send', templateName, acceptLanguage })
 
@@ -50,7 +63,7 @@ module.exports = (log, translator, templates, config) => {
             PhoneNumber: phoneNumber
           }
 
-          return SNS.publish(params).promise()
+          return sns.publish(params).promise()
             .then(result => {
               log.info({
                 op: 'sms.send.success',
@@ -69,6 +82,45 @@ module.exports = (log, translator, templates, config) => {
     }
   }
 
+  function pollCurrentSpend () {
+    let limit
+
+    sns.getSMSAttributes({ attributes: [ 'MonthlySpendLimit' ] }).promise()
+      .then(result => {
+        limit = parseFloat(result.attributes.MonthlySpendLimit)
+        if (isNaN(limit)) {
+          throw new Error(`Invalid getSMSAttributes result "${result.attributes.MonthlySpendLimit}"`)
+        }
+
+        const now = new Date()
+        const periodStart = new Date(now.getTime() - MILLISECONDS_PER_FIVE_MINUTES)
+        return cloudwatch.getMetricStatistics({
+          Namespace: 'AWS/SNS',
+          MetricName: 'SMSMonthToDateSpentUSD',
+          StartTime: periodStart.toISOString(),
+          EndTime: now.toISOString(),
+          Period: SECONDS_PER_FIVE_MINUTES,
+          Statistics: [ 'Average' ]
+        }).promise()
+      })
+      .then(result => {
+        const current = parseFloat(result.Datapoints[0].Average)
+
+        if (isNaN(current)) {
+          throw new Error(`Invalid getMetricStatistics result "${result.Datapoints[0].Average}"`)
+        }
+
+        isBudgetOk = current <= limit - CREDIT_THRESHOLD
+      })
+      .catch(err => {
+        log.error({ op: 'sms.budget.error', err: err.message })
+
+        // If we failed to query the data, assume current spend is fine
+        isBudgetOk = true
+      })
+      .then(() => setTimeout(pollCurrentSpend, MILLISECONDS_PER_HOUR))
+  }
+
   function getMessage (templateName, acceptLanguage, signinCode) {
     const template = templates[`sms.${templateName}`]
 
@@ -79,19 +131,31 @@ module.exports = (log, translator, templates, config) => {
 
     let link
     if (signinCode) {
-      link = `${smsConfig.installFirefoxWithSigninCodeBaseUri}/${urlSafeBase64(signinCode)}`
+      link = `${config.sms.installFirefoxWithSigninCodeBaseUri}/${urlSafeBase64(signinCode)}`
     } else {
-      link = smsConfig[`${templateName}Link`]
+      link = config.sms[`${templateName}Link`]
     }
 
     return template({ link, translator: translator.getTranslator(acceptLanguage) }).text
   }
+}
 
-  function urlSafeBase64 (hex) {
-    return Buffer.from(hex, 'hex')
-      .toString('base64')
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '')
+function initService (config, Class, MockClass) {
+  const options = {
+    region: config.sms.apiRegion
   }
+
+  if (config.sms.useMock) {
+    return new MockClass(options, config)
+  }
+
+  return new Class(options)
+}
+
+function urlSafeBase64 (hex) {
+  return Buffer.from(hex, 'hex')
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '')
 }

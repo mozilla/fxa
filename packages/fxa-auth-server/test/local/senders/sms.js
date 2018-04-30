@@ -4,77 +4,188 @@
 
 'use strict'
 
-const ROOT_DIR = '../../..'
-
 const assert = require('insist')
+const mocks = require('../../mocks')
 const P = require('bluebird')
 const proxyquire = require('proxyquire')
 const sinon = require('sinon')
 
-const log = {
-  error: sinon.spy(),
-  info: sinon.spy(),
-  trace: sinon.spy()
-}
-
-let snsResult = P.resolve({
-  MessageId: 'foo'
-})
-const publish = sinon.spy(params => ({
-  promise: () => snsResult
-}))
-function SNS () {}
-SNS.prototype.publish = publish
-
-let mockConstructed = false
-function MockSNS () {
-  mockConstructed = true
-}
-MockSNS.prototype = SNS.prototype
+const ROOT_DIR = '../../..'
+const ISO_8601_FORMAT = /^20[1-9][0-9]-[01][0-9]-[0-3][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$/
 
 describe('lib/senders/sms:', () => {
-  let sms
+  let config, log, results, cloudwatch, sns, mockSns, smsModule, translator, templates
 
-  before(() => {
+  beforeEach(() => {
+    config = {
+      smtp: {},
+      sms: {
+        apiRegion: 'us-east-1',
+        installFirefoxLink: 'https://baz/qux',
+        installFirefoxWithSigninCodeBaseUri: 'https://wibble',
+        minimumCreditThresholdUSD: 2,
+        useMock: false
+      }
+    }
+    log = mocks.mockLog()
+    results = {
+      getMetricStatistics: { Datapoints: [ { Average: 0 } ] },
+      getSMSAttributes: { attributes: { MonthlySpendLimit: config.sms.minimumCreditThresholdUSD } },
+      publish: P.resolve({ MessageId: 'foo' })
+    }
+    cloudwatch = {
+      getMetricStatistics: sinon.spy(() => ({
+        promise: () => P.resolve(results.getMetricStatistics)
+      }))
+    }
+    sns = {
+      getSMSAttributes: sinon.spy(() => ({
+        promise: () => P.resolve(results.getSMSAttributes)
+      })),
+      publish: sinon.spy(() => ({
+        promise: () => results.publish
+      }))
+    }
+    mockSns = {
+      getSMSAttributes: sinon.spy(() => ({
+        promise: () => P.resolve(results.getSMSAttributes)
+      })),
+      publish: sinon.spy(() => ({
+        promise: () => results.publish
+      }))
+    }
+    smsModule = proxyquire(`${ROOT_DIR}/lib/senders/sms`, {
+      'aws-sdk/clients/cloudwatch': function () { return cloudwatch },
+      'aws-sdk/clients/sns': function () { return sns },
+      '../../test/mock-sns': function () { return mockSns }
+    })
     return P.all([
       require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
       require(`${ROOT_DIR}/lib/senders/templates`).init()
-    ]).spread((translator, templates) => {
-      sms = proxyquire(`${ROOT_DIR}/lib/senders/sms`, {
-        'aws-sdk': { SNS }
-      })(log, translator, templates, {
-        sms: {
-          apiKey: 'foo',
-          apiSecret: 'bar',
-          installFirefoxLink: 'https://baz/qux',
-          installFirefoxWithSigninCodeBaseUri: 'https://wibble',
-          useMock: false
-        }
-      })
+    ]).then(results => {
+      translator = results[0]
+      templates = results[1]
     })
   })
 
-  afterEach(() => {
-    publish.reset()
-    log.error.reset()
-    log.info.reset()
-    log.trace.reset()
-    mockConstructed = false
-  })
+  describe('initialise:', () => {
+    let sms
 
-  it('interface is correct', () => {
-    assert.equal(typeof sms.send, 'function', 'sms.send is function')
-    assert.equal(sms.send.length, 4, 'sms.send expects 4 arguments')
+    beforeEach(() => {
+      sms = smsModule(log, translator, templates, config)
+    })
 
-    assert.equal(Object.keys(sms).length, 1, 'sms has no other methods')
-  })
+    it('returned the expected interface', () => {
+      assert.equal(typeof sms.isBudgetOk, 'function')
+      assert.equal(sms.isBudgetOk.length, 0)
 
-  it('sends a valid sms without a signinCode', () => {
-    return sms.send('+442078553000', 'installFirefox', 'en')
-      .then(() => {
-        assert.equal(publish.callCount, 1, 'AWS.SNS.publish was called once')
-        assert.equal(publish.args[0].length, 1, 'AWS.SNS.publish was passed one argument')
-        assert.deepEqual(publish.args[0][0], {
+      assert.equal(typeof sms.send, 'function')
+      assert.equal(sms.send.length, 4)
+    })
+
+    it('did not call the AWS SDK', () => {
+      assert.equal(sns.getSMSAttributes.callCount, 0)
+      assert.equal(sns.publish.callCount, 0)
+      assert.equal(cloudwatch.getMetricStatistics.callCount, 0)
+    })
+
+    it('isBudgetOk returns true', () => {
+      assert.strictEqual(sms.isBudgetOk(), true)
+    })
+
+    describe('wait a tick:', () => {
+      beforeEach(done => setImmediate(done))
+
+      it('called sns.getSMSAttributes correctly', () => {
+        assert.equal(sns.getSMSAttributes.callCount, 1)
+        const args = sns.getSMSAttributes.args[0]
+        assert.equal(args.length, 1)
+        assert.deepEqual(args[0], { attributes: [ 'MonthlySpendLimit' ] })
+      })
+
+      it('called cloudwatch.getMetricStatistics correctly', () => {
+        assert.equal(cloudwatch.getMetricStatistics.callCount, 1)
+        const args = cloudwatch.getMetricStatistics.args[0]
+        assert.equal(args.length, 1)
+        assert.equal(args[0].Namespace, 'AWS/SNS')
+        assert.equal(args[0].MetricName, 'SMSMonthToDateSpentUSD')
+        assert(ISO_8601_FORMAT.test(args[0].StartTime))
+        assert(ISO_8601_FORMAT.test(args[0].EndTime))
+        assert(new Date(args[0].StartTime).getTime() === new Date(args[0].EndTime) - 300000)
+        assert(new Date(args[0].EndTime).getTime() > Date.now() - 2000)
+        assert.equal(args[0].Period, 300)
+        assert.deepEqual(args[0].Statistics, [ 'Average' ])
+      })
+
+      it('isBudgetOk returns true', () => {
+        assert.strictEqual(sms.isBudgetOk(), true)
+      })
+
+      it('did not call sns.publish', () => {
+        assert.equal(sns.publish.callCount, 0)
+      })
+
+      it('did not call log.error', () => {
+        assert.equal(log.error.callCount, 0)
+      })
+    })
+
+    describe('spend > threshold:', () => {
+      beforeEach(() => {
+        results.getMetricStatistics.Datapoints[0].Average = 1
+      })
+
+      it('isBudgetOk returns true', () => {
+        assert.strictEqual(sms.isBudgetOk(), true)
+      })
+
+      describe('wait a tick:', () => {
+        beforeEach(done => setImmediate(done))
+
+        it('isBudgetOk returns false', () => {
+          assert.strictEqual(sms.isBudgetOk(), false)
+        })
+
+        it('did not call log.error', () => {
+          assert.equal(log.error.callCount, 0)
+        })
+      })
+    })
+
+    describe('invalid data:', () => {
+      beforeEach(() => {
+        results.getMetricStatistics.Datapoints[0].Average = 'wibble'
+      })
+
+      describe('wait a tick:', () => {
+        beforeEach(done => setImmediate(done))
+
+        it('isBudgetOk returns true', () => {
+          assert.strictEqual(sms.isBudgetOk(), true)
+        })
+
+        it('called log.error correctly', () => {
+          assert.equal(log.error.callCount, 1)
+          const args = log.error.args[0]
+          assert.equal(args.length, 1)
+          assert.deepEqual(args[0], {
+            op: 'sms.budget.error',
+            err: 'Invalid getMetricStatistics result "wibble"'
+          })
+        })
+      })
+    })
+
+    describe('send a valid sms without a signinCode:', () => {
+      beforeEach(() => {
+        return sms.send('+442078553000', 'installFirefox', 'en')
+      })
+
+      it('called sns.publish correctly', () => {
+        assert.equal(sns.publish.callCount, 1)
+        const args = sns.publish.args[0]
+        assert.equal(args.length, 1)
+        assert.deepEqual(args[0], {
           Message: 'Thanks for choosing Firefox! You can install Firefox for mobile here: https://baz/qux',
           MessageAttributes: {
             'AWS.SNS.SMS.MaxPrice': {
@@ -91,107 +202,171 @@ describe('lib/senders/sms:', () => {
             }
           },
           PhoneNumber: '+442078553000'
-        }, 'AWS.SNS.publish was passed the correct argument')
+        })
+      })
 
-        assert.equal(log.trace.callCount, 1, 'log.trace was called once')
-        assert.equal(log.trace.args[0].length, 1, 'log.trace was passed one argument')
-        assert.deepEqual(log.trace.args[0][0], {
+      it('called log.trace correctly', () => {
+        assert.equal(log.trace.callCount, 1)
+        const args = log.trace.args[0]
+        assert.equal(args.length, 1)
+        assert.deepEqual(args[0], {
           op: 'sms.send',
           templateName: 'installFirefox',
           acceptLanguage: 'en'
-        }, 'log.trace was passed the correct data')
+        })
+      })
 
-        assert.equal(log.info.callCount, 1, 'log.info was called once')
-        assert.equal(log.info.args[0].length, 1, 'log.info was passed one argument')
-        assert.deepEqual(log.info.args[0][0], {
+      it('called log.info correctly', () => {
+        assert.equal(log.info.callCount, 1)
+        const args = log.info.args[0]
+        assert.equal(args.length, 1)
+        assert.deepEqual(args[0], {
           op: 'sms.send.success',
           templateName: 'installFirefox',
           acceptLanguage: 'en',
           messageId: 'foo'
-        }, 'log.info was passed the correct data')
-
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
+        })
       })
-  })
 
-  it('sends a valid sms with a signinCode', () => {
-    return sms.send('+442078553000', 'installFirefox', 'en', Buffer.from('++//ff0=', 'base64'))
-      .then(() => {
-        assert.equal(publish.callCount, 1, 'AWS.SNS.publish was called once')
-        assert.equal(publish.args[0][0].Message, 'Thanks for choosing Firefox! You can install Firefox for mobile here: https://wibble/--__ff0', 'AWS.SNS.publish was passed the correct message')
-
-        assert.equal(log.trace.callCount, 1, 'log.trace was called once')
-        assert.equal(log.info.callCount, 1, 'log.info was called once')
-
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
+      it('did not call mockSns.publish', () => {
+        assert.equal(log.error.callCount, 0)
       })
-  })
 
-  it('fails to send an sms with an invalid template name', () => {
-    return sms.send('+442078553000', 'wibble', 'en', Buffer.from('++//ff0=', 'base64'))
-      .then(() => assert.fail('sms.send should have rejected'))
-      .catch(error => {
-        assert.equal(error.errno, 131, 'error.errno was set correctly')
-        assert.equal(error.message, 'Invalid message id', 'error.message was set correctly')
+      it('did not call log.error', () => {
+        assert.equal(log.error.callCount, 0)
+      })
+    })
 
-        assert.equal(log.trace.callCount, 1, 'log.trace was called once')
-        assert.equal(log.info.callCount, 0, 'log.info was not called')
+    describe('send a valid sms with a signinCode:', () => {
+      beforeEach(() => {
+        return sms.send('+442078553000', 'installFirefox', 'en', Buffer.from('++//ff0=', 'base64'))
+      })
 
-        assert.equal(log.error.callCount, 1, 'log.error was called once')
-        assert.deepEqual(log.error.args[0][0], {
+      it('called sns.publish correctly', () => {
+        assert.equal(sns.publish.callCount, 1)
+        assert.equal(sns.publish.args[0][0].Message, 'Thanks for choosing Firefox! You can install Firefox for mobile here: https://wibble/--__ff0')
+      })
+
+      it('did not call log.error', () => {
+        assert.equal(log.error.callCount, 0)
+      })
+    })
+
+    describe('attempt to send an sms with an invalid template name:', () => {
+      let error
+
+      beforeEach(() => {
+        return sms.send('+442078553000', 'wibble', 'en', Buffer.from('++//ff0=', 'base64'))
+          .catch(e => error = e)
+      })
+
+      it('failed correctly', () => {
+        assert.equal(error.errno, 131)
+        assert.equal(error.message, 'Invalid message id')
+      })
+
+      it('called log.error correctly', () => {
+        assert.equal(log.error.callCount, 1)
+        const args = log.error.args[0]
+        assert.equal(args.length, 1)
+        assert.deepEqual(args[0], {
           op: 'sms.getMessage.error',
           templateName: 'wibble'
-        }, 'log.error was passed the correct data')
-
-        assert.equal(publish.callCount, 0, 'AWS.SNS.publish was not called')
+        })
       })
-  })
 
-  it('fails to send an sms that is rejected by the network provider', () => {
-    snsResult = P.reject({
-      statusCode: 400,
-      code: 42,
-      message: 'this is an error'
+      it('did not call sns.publish', () => {
+        assert.equal(sns.publish.callCount, 0)
+      })
     })
-    return sms.send('+442078553000', 'installFirefox', 'en', Buffer.from('++//ff0=', 'base64'))
-      .then(() => assert.fail('sms.send should have rejected'))
-      .catch(error => {
-        assert.equal(error.errno, 132, 'error.errno was set correctly')
-        assert.equal(error.message, 'Message rejected', 'error.message was set correctly')
-        assert.equal(error.output.payload.reason, 'this is an error', 'error.reason was set correctly')
-        assert.equal(error.output.payload.reasonCode, 42, 'error.reasonCode was set correctly')
 
-        assert.equal(log.trace.callCount, 1, 'log.trace was called once')
-        assert.equal(log.info.callCount, 0, 'log.info was not called')
+    describe('attempt to send an sms that is rejected by the network provider:', () => {
+      let error
 
-        assert.equal(publish.callCount, 1, 'AWS.SNS.publish was called once')
-      })
-  })
-
-
-  it('uses the SNS constructor if `useMock: false`', () => {
-    assert.equal(mockConstructed, false)
-  })
-
-  it('uses the MockSNS constructor if `useMock: true`', () => {
-    return P.all([
-      require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
-      require(`${ROOT_DIR}/lib/senders/templates`).init()
-    ]).spread((translator, templates) => {
-      sms = proxyquire(`${ROOT_DIR}/lib/senders/sms`, {
-        'aws-sdk': { SNS },
-        '../../test/mock-sns': MockSNS
-      })(log, translator, templates, {
-        sms: {
-          apiKey: 'foo',
-          apiSecret: 'bar',
-          installFirefoxLink: 'https://baz/qux',
-          useMock: true
-        }
+      beforeEach(() => {
+        results.publish = P.reject({
+          statusCode: 400,
+          code: 42,
+          message: 'this is an error'
+        })
+        return sms.send('+442078553000', 'installFirefox', 'en', Buffer.from('++//ff0=', 'base64'))
+          .catch(e => error = e)
       })
 
-      assert.equal(mockConstructed, true)
+      it('failed correctly', () => {
+        assert.equal(error.errno, 132)
+        assert.equal(error.message, 'Message rejected')
+        assert.equal(error.output.payload.reason, 'this is an error')
+        assert.equal(error.output.payload.reasonCode, 42)
+      })
+    })
+  })
+
+  describe('initialise, useMock=true:', () => {
+    let sms
+
+    beforeEach(() => {
+      config.sms.useMock = true
+      sms = smsModule(log, translator, templates, config)
+    })
+
+    it('isBudgetOk returns true', () => {
+      assert.strictEqual(sms.isBudgetOk(), true)
+    })
+
+    describe('wait a tick:', () => {
+      beforeEach(done => setImmediate(done))
+
+      it('isBudgetOk returns true', () => {
+        assert.strictEqual(sms.isBudgetOk(), true)
+      })
+
+      it('did not call the AWS SDK', () => {
+        assert.equal(sns.getSMSAttributes.callCount, 0)
+        assert.equal(cloudwatch.getMetricStatistics.callCount, 0)
+      })
+
+      it('did not call log.error', () => {
+        assert.equal(log.error.callCount, 0)
+      })
+    })
+
+    describe('send an sms:', () => {
+      beforeEach(() => {
+        return sms.send('+442078553000', 'installFirefox', 'en')
+      })
+
+      it('called mockSns.publish correctly', () => {
+        assert.equal(mockSns.publish.callCount, 1)
+        const args = mockSns.publish.args[0]
+        assert.equal(args.length, 1)
+        assert.deepEqual(args[0], {
+          Message: 'Thanks for choosing Firefox! You can install Firefox for mobile here: https://baz/qux',
+          MessageAttributes: {
+            'AWS.SNS.SMS.MaxPrice': {
+              DataType: 'String',
+              StringValue: '1.0'
+            },
+            'AWS.SNS.SMS.SenderID': {
+              DataType: 'String',
+              StringValue: 'Firefox'
+            },
+            'AWS.SNS.SMS.SMSType': {
+              DataType: 'String',
+              StringValue: 'Promotional'
+            }
+          },
+          PhoneNumber: '+442078553000'
+        })
+      })
+
+      it('did not call sns.publish', () => {
+        assert.equal(sns.publish.callCount, 0)
+      })
+
+      it('did not call log.error', () => {
+        assert.equal(log.error.callCount, 0)
+      })
     })
   })
 })
-
