@@ -90,15 +90,12 @@ define(function (require, exports, module) {
     }
 
     describe('render', function () {
-      it('displays oAuth client name, does not display AMO help text by default', function () {
-        sinon.stub(view, 'isAmoMigration').callsFake(() => false);
-
+      it('displays oAuth client name', function () {
         return view.render()
           .then(function () {
             assert.include(view.$('#fxa-signin-header').text(), CLIENT_NAME);
             // also make sure link is correct
             assert.equal(view.$('.sign-up').attr('href'), '/oauth/signup' + encodedLocationSearch);
-            assert.lengthOf(view.$('#amo-migration'), 0);
           });
       });
 
@@ -120,17 +117,6 @@ define(function (require, exports, module) {
             assert.equal(view.$('.reset-password').attr('href'), '/reset_password' + encodedLocationSearch);
             assert.equal(view.$('.sign-up').attr('href'), '/oauth/signup' + encodedLocationSearch);
           });
-      });
-
-      describe('AMO migration', () => {
-        it('displays AMO help text', () => {
-          sinon.stub(view, 'isAmoMigration').callsFake(() => true);
-          return view.render()
-            .then(() => {
-              assert.lengthOf(view.$('#amo-migration'), 1);
-              assert.equal(view.$('#amo-migration a').attr('href'), '/oauth/signup' + encodedLocationSearch);
-            });
-        });
       });
     });
 
@@ -155,53 +141,17 @@ define(function (require, exports, module) {
     });
 
     describe('_suggestSignUp', () => {
-      let err;
-
       beforeEach(() => {
-        err = AuthErrors.toError('UNKNOWN_ACCOUNT');
+        const err = AuthErrors.toError('UNKNOWN_ACCOUNT');
         sinon.spy(view, 'unsafeDisplayError');
+        return view._suggestSignUp(err);
       });
 
-      describe('AMO migration', () => {
-        let $amoMigrationElement;
-        beforeEach(() => {
-          $amoMigrationElement = {
-            hide: sinon.spy()
-          };
-          sinon.stub(view, 'isAmoMigration').callsFake(() => true);
-          const orig$ = view.$;
-          sinon.stub(view, '$').callsFake((selector) => {
-            if (selector === '#amo-migration') {
-              return $amoMigrationElement;
-            } else {
-              return orig$.call(view, selector);
-            }
-          });
-
-          return view._suggestSignUp(err);
-        });
-
-        it('shows addons help text with link to the signup page, hides AMO migration text', () => {
-          var err = view.unsafeDisplayError.args[0][0];
-          assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
-          assert.include(err.forceMessage, '/signup');
-          assert.include(err.forceMessage, 'Add-ons');
-          assert.isTrue($amoMigrationElement.hide.calledOnce);
-        });
-      });
-
-      describe('not AMO migration', () => {
-        beforeEach(() => {
-          sinon.stub(view, 'isAmoMigration').callsFake(() => false);
-          return view._suggestSignUp(err);
-        });
-
-        it('shows a link to the signup page', () => {
-          var err = view.unsafeDisplayError.args[0][0];
-          assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
-          assert.include(err.forceMessage, '/signup');
-          assert.notInclude(err.forceMessage, 'Add-ons');
-        });
+      it('shows a link to the signup page', () => {
+        const err = view.unsafeDisplayError.args[0][0];
+        assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
+        assert.include(err.forceMessage, '/signup');
+        assert.notInclude(err.forceMessage, 'Add-ons');
       });
     });
   });

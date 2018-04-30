@@ -18,7 +18,6 @@ define(function (require, exports, module) {
   const FormPrefillMixin = require('./mixins/form-prefill-mixin');
   const FormView = require('./form');
   const mailcheck = require('../lib/mailcheck');
-  const MigrationMixin = require('./mixins/migration-mixin');
   const PasswordMixin = require('./mixins/password-mixin');
   const ServiceMixin = require('./mixins/service-mixin');
   const SignedInNotificationMixin = require('./mixins/signed-in-notification-mixin');
@@ -81,8 +80,7 @@ define(function (require, exports, module) {
     },
 
     events: {
-      'blur input.email': 'onEmailBlur',
-      'click #amo-migration a': 'onAmoSignIn'
+      'blur input.email': 'onEmailBlur'
     },
 
     getPrefillEmail () {
@@ -112,7 +110,6 @@ define(function (require, exports, module) {
         email: prefillEmail,
         error: this.error,
         forceEmail: forceEmail,
-        isAmoMigration: this.isAmoMigration(),
         isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
         isSignInEnabled: ! forceEmail,
         isSync: isSync
@@ -256,13 +253,6 @@ define(function (require, exports, module) {
       mailcheck(this.$el.find('.email'), this);
     },
 
-    onAmoSignIn () {
-      // The user has chosen to sign in with a different email, clear the
-      // email from the relier so it's not used again on the signin page.
-      this.relier.unset('email');
-      this.$('input[type=email]').val('');
-    },
-
     _isEmailSameAsBouncedEmail () {
       var bouncedEmail = this.model.get('bouncedEmail');
 
@@ -316,7 +306,6 @@ define(function (require, exports, module) {
     FloatingPlaceholderMixin,
     FlowBeginMixin,
     FormPrefillMixin,
-    MigrationMixin,
     PasswordMixin,
     ServiceMixin,
     SignInMixin,

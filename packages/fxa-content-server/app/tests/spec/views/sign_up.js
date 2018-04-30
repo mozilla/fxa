@@ -279,34 +279,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('migration', function () {
-      it('does not display migration message if no migration', function () {
-        return view.render()
-          .then(() => {
-            assert.lengthOf(view.$('#amo-migration'), 0);
-            assert.lengthOf(view.$('#suggest-sync'), 1);
-          });
-      });
-
-      it('displays migration message if isAmoMigration returns true', function () {
-        sinon.stub(view, 'isAmoMigration').callsFake(() => true);
-
-        return view.render()
-          .then(() => {
-            assert.lengthOf(view.$('#amo-migration'), 1);
-          });
-      });
-
-      it('does not display migration message if isAmoMigration returns false', function () {
-        sinon.stub(view, 'isAmoMigration').callsFake(() => false);
-
-        return view.render()
-          .then(() => {
-            assert.lengthOf(view.$('#amo-migration'), 0);
-          });
-      });
-    });
-
     describe('afterVisible', function () {
       it('shows a tooltip on the email element if model.bouncedEmail is set', function (done) {
         sinon.spy(view, 'showValidationError');
@@ -1158,27 +1130,6 @@ define(function (require, exports, module) {
             container.html(view.el);
             container.find('input[type=password]').trigger('click');
           });
-      });
-    });
-
-    describe('onAmoSignIn', function () {
-      beforeEach(function () {
-        relier.set('email', email);
-        view.$('input[type=email]').val(email);
-
-        // simulate what happens when the user clicks the AMO sign in link
-        view.onAmoSignIn();
-        view.beforeDestroy();
-      });
-
-      // these two fields are cleared to prevent the email
-      // from being displayed on the signin screen.
-      it('unsets the email on the relier', function () {
-        assert.isFalse(relier.has('email'));
-      });
-
-      it('sets an empty email on formPrefill', function () {
-        assert.equal(formPrefill.get('email'), '');
       });
     });
 

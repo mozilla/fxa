@@ -129,10 +129,11 @@ define(function (require, exports, module) {
           this.set('allowCachedCredentials', false);
         }
 
-        if (this.get('migration') === Constants.SYNC11_MIGRATION) {
+        if (this.has('migration')) {
           // Support for the sync1.1 migration message was
-          // removed in #6130, accept the value so
-          // no errors are caused but drop the value on the ground.
+          // removed in #6130, support for AMO in #6131.
+          // Accept the value so no errors are caused but
+          // drop the value on the ground.
           this.unset('migration');
         }
       });

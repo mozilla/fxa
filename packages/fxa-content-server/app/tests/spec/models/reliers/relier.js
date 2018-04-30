@@ -114,18 +114,20 @@ define(function (require, exports, module) {
       testInvalidQueryParam('migration', token);
     });
 
-    [undefined, Constants.AMO_MIGRATION].forEach(function (value) {
+    [undefined].forEach(function (value) {
       testValidQueryParam('migration', value, 'migration', value);
     });
 
-    describe('sync11 migration', () => {
-      it('accepts the value, but drops it on the ground', () => {
-        windowMock.location.search = TestHelpers.toSearchString({ migration: Constants.SYNC11_MIGRATION });
+    [Constants.SYNC11_MIGRATION, Constants.AMO_MIGRATION].forEach((migration) => {
+      describe(`${migration} migration`, () => {
+        it('accepts the value, but drops it on the ground', () => {
+          windowMock.location.search = TestHelpers.toSearchString({ migration });
 
-        return relier.fetch()
-          .then(() => {
-            assert.isFalse(relier.has('migration'));
-          });
+          return relier.fetch()
+            .then(() => {
+              assert.isFalse(relier.has('migration'));
+            });
+        });
       });
     });
 

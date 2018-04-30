@@ -216,37 +216,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('migration', () => {
-      beforeEach(() => {
-        initView();
-      });
-
-      it('does not display migration message if no migration', () => {
-        return view.render()
-          .then(() => {
-            assert.lengthOf(view.$('#amo-migration'), 0);
-          });
-      });
-
-      it('displays migration message if isAmoMigration returns true', () => {
-        sinon.stub(view, 'isAmoMigration').callsFake(() => true);
-
-        return view.render()
-          .then(() => {
-            assert.lengthOf(view.$('#amo-migration'), 1);
-          });
-      });
-
-      it('does not display migration message if isAmoMigration returns false', () => {
-        sinon.stub(view, 'isAmoMigration').callsFake(() => false);
-
-        return view.render()
-          .then(() => {
-            assert.lengthOf(view.$('#amo-migration'), 0);
-          });
-      });
-    });
-
     describe('isValid', () => {
       it('returns true if both email and password are valid', () => {
         view.$('[type=email]').val('testuser@testuser.com');

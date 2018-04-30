@@ -45,7 +45,6 @@ define(function (require, exports, module) {
         entrypoint: 'menupanel',
         isSampledUser: true,
         lang: 'db_LB',
-        migration: 'amo',
         notifier,
         screenHeight: 1200,
         screenWidth: 1600,
@@ -193,7 +192,7 @@ define(function (require, exports, module) {
         assert.equal(filteredData.lang, 'db_LB');
         assert.equal(filteredData.emailDomain, 'none');
         assert.equal(filteredData.entrypoint, 'menupanel');
-        assert.equal(filteredData.migration, 'amo');
+        assert.equal(filteredData.migration, 'none');
         assert.equal(filteredData.uniqueUserId, '0ae7fe2b-244f-4a78-9857-dff3ae263927');
         assert.equal(filteredData.startTime, 1439233336187);
 

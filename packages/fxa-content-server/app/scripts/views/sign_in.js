@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   const FlowBeginMixin = require('./mixins/flow-begin-mixin');
   const FormPrefillMixin = require('./mixins/form-prefill-mixin');
   const FormView = require('./form');
-  const MigrationMixin = require('./mixins/migration-mixin');
   const PasswordMixin = require('./mixins/password-mixin');
   const PasswordResetMixin = require('./mixins/password-reset-mixin');
   const { preventDefaultThen, t } = require('./base');
@@ -99,7 +98,6 @@ define(function (require, exports, module) {
         email: email,
         error: this.error,
         headerSignInText,
-        isAmoMigration: this.isAmoMigration(),
         password: this.formPrefill.get('password'),
         suggestedAccount: hasSuggestedAccount
       });
@@ -160,13 +158,7 @@ define(function (require, exports, module) {
     },
 
     _suggestSignUp (err) {
-      if (this.isAmoMigration()) {
-        err.forceMessage =
-          t('Unknown Firefox Account. <a href="/signup">Sign up</a> using your previous Add-ons account email address to access your Add-ons data.');
-        this.$('#amo-migration').hide();
-      } else {
-        err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
-      }
+      err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
 
       return this.unsafeDisplayError(err);
     },
@@ -283,7 +275,6 @@ define(function (require, exports, module) {
     FlowBeginMixin,
     EmailFirstExperimentMixin({ treatmentPathname: '/' }),
     FormPrefillMixin,
-    MigrationMixin,
     PasswordMixin,
     PasswordResetMixin,
     ServiceMixin,

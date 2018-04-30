@@ -5,7 +5,6 @@
 module.exports = [
   'tests/functional/oauth_email_first.js',
   'tests/functional/oauth_handshake.js',
-  'tests/functional/amo_sign_up.js',
   'tests/functional/oauth_choose_redirect.js',
   'tests/functional/oauth_query_param_validation.js',
   'tests/functional/oauth_sign_in.js',

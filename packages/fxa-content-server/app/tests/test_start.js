@@ -166,7 +166,6 @@ require('./spec/views/mixins/flow-events-mixin');
 require('./spec/views/mixins/form-prefill-mixin');
 require('./spec/views/mixins/loading-mixin');
 require('./spec/views/mixins/marketing-mixin');
-require('./spec/views/mixins/migration-mixin');
 require('./spec/views/mixins/modal-panel-mixin');
 require('./spec/views/mixins/modal-settings-panel-mixin');
 require('./spec/views/mixins/open-webmail-mixin');
