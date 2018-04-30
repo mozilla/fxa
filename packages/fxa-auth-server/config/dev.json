@@ -25,6 +25,19 @@
       "publicClient": true
     },
     {
+      "id": "22d74070a481bc73",
+      "name": "Test Client iOS",
+      "hashedSecret": "88716ed2927c96cdc0fb7efe57d5f124fb4161066c1ff7f4263069822256ec66",
+      "redirectUri": "com.mozilla.sandvich:/oauth2redirect/fxa-provider",
+      "imageUri": "",
+      "publicClient": true,
+      "canGrant": false,
+      "termsUri": "",
+      "privacyUri": "",
+      "trusted": true,
+      "allowedScopes": "https://identity.mozilla.com/apps/oldsync"
+    },
+    {
       "id": "325b4083e32fe8e7",
       "hashedSecret": "ded3c396f28123f3fe6b152784e8eab7357c6806cb5175805602a2cd67f85080",
       "name": "321Done Untrusted",
