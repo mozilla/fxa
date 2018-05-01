@@ -1,3 +1,43 @@
+<a name="1.111.0"></a>
+# 1.111.0 (2018-05-01)
+
+
+### Bug Fixes
+
+* **build:** Fix `grunt watch:livereload` by updating grunt-contrib-watch (#6097) r=@vladikof ([8f7ff77](https://github.com/mozilla/fxa-content-server/commit/8f7ff77)), closes [(#6097](https://github.com/(/issues/6097) [#6092](https://github.com/mozilla/fxa-content-server/issues/6092)
+* **ci:** clean up travis logs (#6119) ([3e4656b](https://github.com/mozilla/fxa-content-server/commit/3e4656b))
+* **code:** disable token code experiment for 123done (#6103) r=@rfk,@vladikoff ([7318438](https://github.com/mozilla/fxa-content-server/commit/7318438))
+* **css:** Update recovery code placeholder text, and recovery code css size (#6100), r=@sh ([f9d5a6e](https://github.com/mozilla/fxa-content-server/commit/f9d5a6e))
+* **ios:** iOS only shows numbers in the keyboard for the age input (#6133) r=@vbudhram ([d6d336a](https://github.com/mozilla/fxa-content-server/commit/d6d336a)), closes [#6132](https://github.com/mozilla/fxa-content-server/issues/6132)
+* **npm:** update to shrinkwrap with dev ([b99c80c](https://github.com/mozilla/fxa-content-server/commit/b99c80c))
+* **server:** strictly validate experiment names ([53bf7cc](https://github.com/mozilla/fxa-content-server/commit/53bf7cc))
+* **session:** add session token to account delete (#6099), r=@shane-tomlinson ([6862a63](https://github.com/mozilla/fxa-content-server/commit/6862a63))
+* **strings:** remove extra spaces from session (#6148) ([f38b20a](https://github.com/mozilla/fxa-content-server/commit/f38b20a))
+* **teamcity:** add a gcppoc config ([7f038db](https://github.com/mozilla/fxa-content-server/commit/7f038db))
+* **templates:** match local behaviour of templates with prod (#6110) r=@vladikoff,@jrgm ([e80c7bf](https://github.com/mozilla/fxa-content-server/commit/e80c7bf))
+* **tests:** fix OAuth permission test (#6121) r=@jrgm ([8caf2c1](https://github.com/mozilla/fxa-content-server/commit/8caf2c1)), closes [(#6121](https://github.com/(/issues/6121)
+* **tests:** teamcity server tests now need underscore ([530473c](https://github.com/mozilla/fxa-content-server/commit/530473c))
+
+### chore
+
+* **npm:** update nvmrc to node 8 ([f64f491](https://github.com/mozilla/fxa-content-server/commit/f64f491))
+* **teamcity:** add a jrgm config so I can test fxa-dev ([839201d](https://github.com/mozilla/fxa-content-server/commit/839201d))
+
+### Features
+
+* **keys:** Allow fetching scoped keys for use with Firefox Sync. (#6017); r=stomlinson,vlad ([f93c112](https://github.com/mozilla/fxa-content-server/commit/f93c112))
+* **metrics:** Generate a node.js compatible experiment name list (#6087) r=@philbooth ([0751c01](https://github.com/mozilla/fxa-content-server/commit/0751c01))
+* **node:** run travis with node 8 (#6062) r=@shane-tomlinson ([5bf0a5f](https://github.com/mozilla/fxa-content-server/commit/5bf0a5f))
+* **node:** update to node 8 (#6088) r=@jrgm ([56b5509](https://github.com/mozilla/fxa-content-server/commit/56b5509))
+* **session:** update upgrade session panel (#5922), r=@shane-tomlinson ([2e0b193](https://github.com/mozilla/fxa-content-server/commit/2e0b193))
+
+### Refactor
+
+* **oauth:** Remove support for AMO migration text (#6131) r=@vladikoff ([8f884aa](https://github.com/mozilla/fxa-content-server/commit/8f884aa)), closes [#6123](https://github.com/mozilla/fxa-content-server/issues/6123)
+* **sync:** Remove support for migration=sync11 (#6130) r=@philbooth ([f20822c](https://github.com/mozilla/fxa-content-server/commit/f20822c)), closes [#6122](https://github.com/mozilla/fxa-content-server/issues/6122)
+
+
+
 <a name="1.110.6"></a>
 ## 1.110.6 (2018-05-01)
 
