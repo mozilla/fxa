@@ -31,6 +31,16 @@ const serveStatic = require('serve-static');
 const config = require('../lib/configuration');
 const raven = require('../lib/raven');
 
+const userAgent = require('../lib/user-agent');
+if (! userAgent.isToVersionStringSupported()) {
+  // npm@3 installs the incorrect version of node-uap, one without `toVersionString`.
+  // To ensure the correct version is installed, check toVersionString is available.
+  logger.critical('dependency.version.error', {
+    error: 'node-uap does not support toVersionString()'
+  });
+  process.exit(1);
+}
+
 // This can't possibly be best way to librar-ify this module.
 const isMain = process.argv[1] === __filename;
 if (isMain) {

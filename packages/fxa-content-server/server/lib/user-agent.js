@@ -27,6 +27,22 @@ exports.parse = userAgentString => {
   return result;
 };
 
+exports.isToVersionStringSupported = (result) => {
+  if (! result) {
+    result = exports.parse('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:59.0) Gecko/20100101 Firefox/59.0');
+  }
+  if (! result || ! result.os || ! result.ua) {
+    return false;
+  }
+  if (typeof result.os.toVersionString !== 'function') {
+    return false;
+  }
+  if (typeof result.ua.toVersionString !== 'function') {
+    return false;
+  }
+  return true;
+};
+
 function safeFamily (parent) {
   if (! VALID_FAMILY.test(parent.family)) {
     parent.family = null;
