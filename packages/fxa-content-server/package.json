@@ -6,7 +6,7 @@
     "build-production": "NODE_ENV=production grunt build",
     "postinstall": "scripts/download_l10n.sh",
     "prepush": "npm run lint && grunt sasslint",
-    "shrink": "npmshrink:prod",
+    "shrink": "npmshrink",
     "lint": "eslint app server tests --cache",
     "start": "node scripts/check-local-config && grunt server",
     "start-circle": "grunt build && CONFIG_FILES=server/config/fxaci.json,server/config/production.json grunt serverproc:dist",
