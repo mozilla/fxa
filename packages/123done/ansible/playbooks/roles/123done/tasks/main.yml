@@ -13,7 +13,6 @@
        force=true
   notify:
     - install 123done dependencies
-    - generate 123done pub/priv keypair
     - restart 123done-web
 
 - name: configure 123done

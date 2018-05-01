@@ -13,7 +13,6 @@
        force=true
   notify:
     - install 321done dependencies
-    - generate 321done pub/priv keypair
     - restart 321done-web
 
 - name: configure 321done

@@ -6,11 +6,6 @@
   npm: path=/home/app/321done
   notify: restart 321done-web
 
-- name: generate 321done pub/priv keypair
-  become: true
-  command: node scripts/gen_keys.js chdir=/home/app/321done creates=/home/app/321done/secret-key.json
-  notify: restart 321done-web
-
 - name: restart 321done-web
   become: true
   supervisorctl: name=321done-web state=restarted

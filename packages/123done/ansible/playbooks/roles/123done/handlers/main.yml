@@ -6,11 +6,6 @@
   npm: path=/home/app/123done
   notify: restart 123done-web
 
-- name: generate 123done pub/priv keypair
-  become: true
-  command: node scripts/gen_keys.js chdir=/home/app/123done creates=/home/app/123done/secret-key.json
-  notify: restart 123done-web
-
 - name: restart 123done-web
   become: true
   supervisorctl: name=123done-web state=restarted
