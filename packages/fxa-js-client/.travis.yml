@@ -26,7 +26,7 @@ notifications:
     on_failure: change
 
 node_js:
-  - "6"
+  - "8"
 
 addons:
   apt:
