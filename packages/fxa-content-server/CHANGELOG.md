@@ -1,3 +1,13 @@
+<a name="1.110.6"></a>
+## 1.110.6 (2018-05-01)
+
+
+### Bug Fixes
+
+* **docker:** Force npm@5 in docker builds. (#6143) r=@vladikoff ([f707a97](https://github.com/mozilla/fxa-content-server/commit/f707a97))
+
+
+
 <a name="1.110.5"></a>
 ## 1.110.5 (2018-04-27)
 

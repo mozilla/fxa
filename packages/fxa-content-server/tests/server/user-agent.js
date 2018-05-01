@@ -15,6 +15,50 @@ registerSuite('userAgent', {
     'interface is correct': () => {
       assert.isFunction(userAgent.parse);
       assert.lengthOf(userAgent.parse, 1);
+      assert.isFunction(userAgent.isToVersionStringSupported);
+    },
+
+    'isToVersionStringSupported returns false if os.toVersionString is not available': () => {
+      assert.isFalse(userAgent.isToVersionStringSupported({
+        os: {
+          major: 1,
+          minor: 0,
+        },
+        ua: {
+          major: 1,
+          minor: 0,
+          toVersionString: function () {}
+        }
+      }));
+    },
+
+    'isToVersionStringSupported returns false if ua.toVersionString is not available': () => {
+      assert.isFalse(userAgent.isToVersionStringSupported({
+        os: {
+          major: 1,
+          minor: 0,
+          toVersionString: function () {}
+        },
+        ua: {
+          major: 1,
+          minor: 0,
+        }
+      }));
+    },
+
+    'isToVersionStringSupported returns true if toVersionString is available': () => {
+      assert.isTrue(userAgent.isToVersionStringSupported({
+        os: {
+          major: 1,
+          minor: 0,
+          toVersionString: function () {}
+        },
+        ua: {
+          major: 1,
+          minor: 0,
+          toVersionString: function () {}
+        }
+      }));
     },
 
     'parses a valid user-agent string': () => {
