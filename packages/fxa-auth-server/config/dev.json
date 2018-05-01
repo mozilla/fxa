@@ -150,6 +150,10 @@
     {
       "scope": "https://identity.mozilla.com/apps/notes",
       "hasScopedKeys": true
+    },
+    {
+      "scope": "https://identity.mozilla.com/apps/oldsync",
+      "hasScopedKeys": true
     }
   ]
 }
