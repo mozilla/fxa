@@ -675,11 +675,12 @@ define(function (require, exports, module) {
      *
      * @param {String} originalEmail Email input
      * @param {String} password Password input
+     * @param {String} sessionToken User session token
      * @return {Promise} resolves when complete
      */
-    deleteAccount: withClient((client, originalEmail, password) => {
+    deleteAccount: withClient((client, originalEmail, password, sessionToken) => {
       var email = trim(originalEmail);
-      return client.accountDestroy(email, password);
+      return client.accountDestroy(email, password, {}, sessionToken);
     }),
 
     /**

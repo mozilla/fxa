@@ -26,6 +26,7 @@ const {
   click,
   closeCurrentWindow,
   createUser,
+  fillOutDeleteAccount,
   fillOutSignUp,
   fillOutSignIn,
   generateTotpCode,
@@ -148,6 +149,19 @@ registerSuite('TOTP', {
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
+
+    'can add TOTP to account and then delete it': function () {
+      return this.remote
+        .then(confirmTotpCode(secret))
+
+        .then(click(selectors.SETTINGS_DELETE_ACCOUNT.MENU_BUTTON))
+        .then(visibleByQSA(selectors.SETTINGS_DELETE_ACCOUNT.DETAILS))
+
+        .then(fillOutDeleteAccount(PASSWORD))
+        .then(testIsBrowserNotified('fxaccounts:delete'))
+
+        .then(testElementExists(selectors.SIGNUP.HEADER));
+    }
   }
 });
 

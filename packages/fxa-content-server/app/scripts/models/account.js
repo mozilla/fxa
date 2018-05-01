@@ -672,7 +672,8 @@ define(function (require, exports, module) {
     destroy (password) {
       return this._fxaClient.deleteAccount(
         this.get('email'),
-        password
+        password,
+        this.get('sessionToken')
       ).then(() => {
         this._notifier.trigger('clear-uid');
         this.trigger('destroy', this);

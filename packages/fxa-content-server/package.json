@@ -53,7 +53,7 @@
     "fxa-checkbox": "git://github.com/mozilla/fxa-checkbox.git#7f856afffd394a144f718e28e6fb79092d6ccddd",
     "fxa-crypto-relier": "2.2.1",
     "fxa-geodb": "1.0.0",
-    "fxa-js-client": "1.0.3",
+    "fxa-js-client": "1.0.4",
     "fxa-mustache-loader": "0.0.2",
     "fxa-shared": "1.0.7",
     "got": "6.7.1",
