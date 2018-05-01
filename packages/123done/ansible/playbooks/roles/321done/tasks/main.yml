@@ -1,12 +1,12 @@
 ---
 
 - name: install libgmp
-  sudo: true
+  become: true
   yum: name=gmp state=present
 
 - name: install 321done
-  sudo: true
-  sudo_user: app
+  become: true
+  become_user: app
   git: repo={{ one23done_git_repo }}
        dest=/home/app/321done
        version={{ one23done_git_version }}
@@ -17,12 +17,12 @@
     - restart 321done-web
 
 - name: configure 321done
-  sudo: true
+  become: true
   template: src=config.json.j2 dest=/home/app/321done/config.json owner=app group=app mode=0644
   notify: restart 321done-web
 
 - name: supervise 321done-web server
-  sudo: true
+  become: true
   copy: src=321done-web.conf dest=/etc/supervisor.d/321done-web.conf
   notify: update supervisor
 
