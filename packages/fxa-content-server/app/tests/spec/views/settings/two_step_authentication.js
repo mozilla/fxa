@@ -4,8 +4,10 @@
 
 const $ = require('jquery');
 const assert = require('chai').assert;
+const Broker = require('models/auth_brokers/base');
 const Metrics = require('lib/metrics');
 const Notifier = require('lib/channels/notifier');
+const SentryMetrics = require('lib/sentry');
 const sinon = require('sinon');
 const TestHelpers = require('../../../lib/helpers');
 const User = require('models/user');
@@ -13,11 +15,14 @@ const View = require('views/settings/two_step_authentication');
 
 describe('views/settings/two_step_authentication', () => {
   let account;
+  let broker;
   let email;
   let metrics;
   let notifier;
   let featureEnabled;
   let hasToken;
+  let inTotpExperiment;
+  let sentryMetrics;
   let validCode;
   const UID = '123';
   let user;
@@ -25,13 +30,14 @@ describe('views/settings/two_step_authentication', () => {
 
   function initView() {
     view = new View({
+      broker: broker,
       metrics: metrics,
       notifier: notifier,
       user: user
     });
 
-    sinon.stub(view, '_isPanelEnabled').callsFake(() => featureEnabled);
     sinon.stub(view, 'setupSessionGateIfRequired').callsFake(() => Promise.resolve(featureEnabled));
+    sinon.stub(view, 'isInTotpExperiment').callsFake(() => inTotpExperiment);
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
     sinon.spy(view, 'remove');
 
@@ -40,9 +46,11 @@ describe('views/settings/two_step_authentication', () => {
   }
 
   beforeEach(() => {
+    broker = new Broker();
     email = TestHelpers.createEmail();
     notifier = new Notifier();
-    metrics = new Metrics({notifier});
+    sentryMetrics = new SentryMetrics();
+    metrics = new Metrics({notifier, sentryMetrics});
     user = new User();
     account = user.initAccount({
       email: email,
@@ -70,6 +78,7 @@ describe('views/settings/two_step_authentication', () => {
 
     featureEnabled = true;
     hasToken = true;
+    inTotpExperiment = true;
   });
 
   afterEach(() => {
@@ -80,19 +89,40 @@ describe('views/settings/two_step_authentication', () => {
 
   describe('feature disabled', () => {
     beforeEach(() => {
-      featureEnabled = false;
+      inTotpExperiment = false;
       return initView();
     });
 
-    it('should remove panel if `showTwoStepAuthentication` query is not specified', () => {
+    it('should not display panel if `isInTotpExperiment` is false', () => {
       assert.equal(view.remove.callCount, 1);
     });
   });
 
   describe('feature enabled', () => {
     beforeEach(() => {
-      featureEnabled = true;
       return initView();
+    });
+
+    describe('should show panel when broker capability `showTwoStepAuthentication` is true', () => {
+      beforeEach(() => {
+        view.broker.setCapability('showTwoStepAuthentication', true);
+        return initView();
+      });
+
+      it('should show panel when broker has capability', () => {
+        assert.equal(view.remove.callCount, 0);
+      });
+    });
+
+    describe('should show panel when `inTotpExperiment` is true', () => {
+      beforeEach(() => {
+        inTotpExperiment = true;
+        return initView();
+      });
+
+      it('should show panel when in experiment', () => {
+        assert.equal(view.remove.callCount, 0);
+      });
     });
 
     describe('should show token status', () => {

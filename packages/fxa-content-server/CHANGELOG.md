@@ -1,3 +1,13 @@
+<a name="1.111.1"></a>
+## 1.111.1 (2018-05-02)
+
+
+### Features
+
+* **totp:** add totp as an experiment and enable for mozilla/softvision (#6141) r=@shane-tom ([8dd33fe](https://github.com/mozilla/fxa-content-server/commit/8dd33fe))
+
+
+
 <a name="1.111.0"></a>
 # 1.111.0 (2018-05-01)
 

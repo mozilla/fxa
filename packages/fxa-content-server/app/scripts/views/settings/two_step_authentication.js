@@ -15,6 +15,7 @@ const UpgradeSessionMixin = require('../mixins/upgrade-session-mixin');
 const Template = require('templates/settings/two_step_authentication.mustache');
 const preventDefaultThen = require('../base').preventDefaultThen;
 const showProgressIndicator = require('../decorators/progress_indicator');
+const TotpExperimentMixin = require('../mixins/totp-experiment-mixin');
 
 var t = BaseView.t;
 
@@ -66,6 +67,11 @@ const View = FormView.extend({
     if (this.broker.hasCapability('showTwoStepAuthentication')) {
       return true;
     }
+
+    if (this.isInTotpExperiment()) {
+      return true;
+    }
+
     return false;
   },
 
@@ -175,7 +181,8 @@ Cocktail.mixin(
   }),
   AvatarMixin,
   SettingsPanelMixin,
-  FloatingPlaceholderMixin
+  FloatingPlaceholderMixin,
+  TotpExperimentMixin
 );
 
 module.exports = View;
