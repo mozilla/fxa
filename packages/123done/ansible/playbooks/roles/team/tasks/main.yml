@@ -1,7 +1,7 @@
 ---
 
 - name: install human tools
-  sudo: true
+  become: true
   yum: name={{ item }} state=present
   with_items:
     - emacs-nox

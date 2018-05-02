@@ -1,15 +1,15 @@
 ---
 
 - name: install nginx
-  sudo: true
+  become: true
   yum: name=nginx state=present
 
 - name: ensure /etc/nginx directory
-  sudo: true
+  become: true
   file: path=/etc/nginx state=directory mode=0755
 
 - name: clean out extra nginx configuration
-  sudo: true
+  become: true
   file: path=/etc/nginx/{{ item }} state=absent
   with_items:
     - conf.d
@@ -29,15 +29,15 @@
     - win-utf
 
 - name: template nginx.conf
-  sudo: true
+  become: true
   template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
   notify: reload nginx config
 
 - name: copy mime.types
-  sudo: true
+  become: true
   copy: src=mime.types dest=/etc/nginx/mime.types
   notify: reload nginx config
 
 - name: start nginx
-  sudo: true
+  become: true
   service: name=nginx state=started enabled=true

@@ -1,13 +1,13 @@
 ---
 
 - name: install redis
-  sudo: true
+  become: true
   yum: name={{ item }} state=present enablerepo=epel
   with_items:
     - redis
 
 - name: start redis
-  sudo: true
+  become: true
   service: name=redis enabled=yes state=started
 
 - meta: flush_handlers

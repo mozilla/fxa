@@ -1,16 +1,11 @@
 ---
 
 - name: install 321done dependencies
-  sudo: true
-  sudo_user: app
+  become: true
+  become_user: app
   npm: path=/home/app/321done
   notify: restart 321done-web
 
-- name: generate 321done pub/priv keypair
-  sudo: true
-  command: node scripts/gen_keys.js chdir=/home/app/321done creates=/home/app/321done/secret-key.json
-  notify: restart 321done-web
-
 - name: restart 321done-web
-  sudo: true
+  become: true
   supervisorctl: name=321done-web state=restarted

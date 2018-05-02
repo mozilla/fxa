@@ -1,9 +1,9 @@
 ---
 
 - name: restart supervisor
-  sudo: true
+  become: true
   service: name=supervisor state=restarted
 
 - name: update supervisor
-  sudo: true
+  become: true
   command: supervisorctl update
