@@ -18,7 +18,8 @@ const experimentGroupingRules = [
   require('./send-sms-install-link'),
   require('./sentry'),
   require('./sessions'),
-  require('./token-code')
+  require('./token-code'),
+  require('./totp'),
 ].map(ExperimentGroupingRule => new ExperimentGroupingRule());
 
 class ExperimentChoiceIndex {
