@@ -1,3 +1,22 @@
+<a name"1.111.0"></a>
+## 1.111.0 (2018-05-02)
+
+
+#### Bug Fixes
+
+* **changelog:** automated changelog is borked (#542) r=@vladikoff ([d7437211](https://github.com/mozilla/fxa-oauth-server/commit/d7437211), closes [#524](https://github.com/mozilla/fxa-oauth-server/issues/524))
+* **oauth:** another notes dev client (#546) ([9d5ec8e5](https://github.com/mozilla/fxa-oauth-server/commit/9d5ec8e5))
+* **validation:** Allow redirect uris with existing query params. (#548); r=philbooth ([b93e6a16](https://github.com/mozilla/fxa-oauth-server/commit/b93e6a16))
+
+
+#### Features
+
+* **node:** update to node 8 (#544) r=@jrgm ([e9b08ae0](https://github.com/mozilla/fxa-oauth-server/commit/e9b08ae0))
+* **sync:**
+  * add oldsync scope (#550) r=@rfk ([f2e7bb47](https://github.com/mozilla/fxa-oauth-server/commit/f2e7bb47))
+  * add local test client for sync (#549) ([61ed2e73](https://github.com/mozilla/fxa-oauth-server/commit/61ed2e73))
+
+
 <a name"1.110.0"></a>
 ## 1.110.0 (2018-04-18)
 
