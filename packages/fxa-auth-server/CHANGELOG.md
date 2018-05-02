@@ -1,3 +1,27 @@
+<a name="1.111.0"></a>
+# [1.111.0](https://github.com/mozilla/fxa-auth-server/compare/v1.110.1...v1.111.0) (2018-05-02)
+
+
+### Bug Fixes
+
+* **docs:** add missing closing code-quote ([0204096](https://github.com/mozilla/fxa-auth-server/commit/0204096))
+* **scripts:** Remove obsolete `bufferize` call from must-reset script. (#2414); r=philbooth,st ([56b00e3](https://github.com/mozilla/fxa-auth-server/commit/56b00e3)), closes [#2414](https://github.com/mozilla/fxa-auth-server/issues/2414)
+* **totp:** check totp before account deletion (#2405), r=@philbooth ([7793de3](https://github.com/mozilla/fxa-auth-server/commit/7793de3)), closes [#2405](https://github.com/mozilla/fxa-auth-server/issues/2405)
+
+### chore
+
+* **config:** update redirect domain for dev.json (#2403) r=@vladikoff ([4ce2726](https://github.com/mozilla/fxa-auth-server/commit/4ce2726)), closes [#2403](https://github.com/mozilla/fxa-auth-server/issues/2403)
+* **deps:** Update web-push to latest release. (#2407) r=@vladikoff ([9ed5a33](https://github.com/mozilla/fxa-auth-server/commit/9ed5a33)), closes [#2407](https://github.com/mozilla/fxa-auth-server/issues/2407)
+
+### Features
+
+* **emails:** add email to all manage account email links (#2392), r=@philbooth, @shane-tomlin ([308d7ff](https://github.com/mozilla/fxa-auth-server/commit/308d7ff)), closes [#2392](https://github.com/mozilla/fxa-auth-server/issues/2392)
+* **node:** update to node 8 (#2404) r=@jrgm ([b43fd28](https://github.com/mozilla/fxa-auth-server/commit/b43fd28)), closes [#2404](https://github.com/mozilla/fxa-auth-server/issues/2404)
+* **notifications:** Add SNS msg attributes for service notification filtering (#2412); r=philbooth ([0cf1bc4](https://github.com/mozilla/fxa-auth-server/commit/0cf1bc4)), closes [#2412](https://github.com/mozilla/fxa-auth-server/issues/2412)
+* **sms:** query the available budget in /sms/status ([7aedef2](https://github.com/mozilla/fxa-auth-server/commit/7aedef2))
+
+
+
 <a name="1.110.1"></a>
 ## [1.110.1](https://github.com/mozilla/fxa-auth-server/compare/v1.110.0...v1.110.1) (2018-04-19)
 
