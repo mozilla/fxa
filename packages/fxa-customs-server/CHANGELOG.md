@@ -1,3 +1,13 @@
+<a name="1.111.0"></a>
+# 1.111.0 (2018-05-02)
+
+
+### Features
+
+* **node:** update to node 8 (#239)  r=@jrgm ([e8e2e45](https://github.com/mozilla/fxa-customs-server/commit/e8e2e45))
+
+
+
 <a name="1.110.0"></a>
 # 1.110.0 (2018-04-18)
 
