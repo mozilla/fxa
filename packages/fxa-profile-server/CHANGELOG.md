@@ -1,3 +1,13 @@
+<a name="1.111.0"></a>
+# [1.111.0](https://github.com/mozilla/fxa-profile-server/compare/v1.110.0...v1.111.0) (2018-05-02)
+
+
+### Features
+
+* **node:** update to node 8 (#319) r=@jrgm ([5138b86](https://github.com/mozilla/fxa-profile-server/commit/5138b86))
+
+
+
 <a name="1.110.0"></a>
 # [1.110.0](https://github.com/mozilla/fxa-profile-server/compare/v1.109.1...v1.110.0) (2018-04-18)
 
