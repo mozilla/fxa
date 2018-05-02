@@ -1,3 +1,22 @@
+<a name="1.111.0"></a>
+# [1.111.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.110.0...v1.111.0) (2018-05-02)
+
+
+### Bug Fixes
+
+* **npm:** update shrinkwrap to npm 5.8 (#344) r=@jrgm ([a841d06](https://github.com/mozilla/fxa-auth-db-mysql/commit/a841d06))
+* **tests:** increase timeout on recovery code tests (#339), r=@jrgm ([f202197](https://github.com/mozilla/fxa-auth-db-mysql/commit/f202197))
+
+### Features
+
+* **node:** update to node 8 (#341) r=@jrgm ([8bcc7dd](https://github.com/mozilla/fxa-auth-db-mysql/commit/8bcc7dd))
+
+### Refactor
+
+* **db:** Fixes #340 Remove column createdAt on recoveryCode table (#342), r=@vbudhram ([1b59224](https://github.com/mozilla/fxa-auth-db-mysql/commit/1b59224)), closes [#340](https://github.com/mozilla/fxa-auth-db-mysql/issues/340) [(#342](https://github.com/(/issues/342)
+
+
+
 <a name="1.110.0"></a>
 # [1.110.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.109.0...v1.110.0) (2018-04-18)
 
