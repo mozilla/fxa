@@ -1,3 +1,13 @@
+<a name="1.111.2"></a>
+## 1.111.2 (2018-05-03)
+
+
+### Bug Fixes
+
+* **totp:** add sumo link for totp (#6159), r=@shane-tomlinson ([d721e0f](https://github.com/mozilla/fxa-content-server/commit/d721e0f))
+
+
+
 <a name="1.111.1"></a>
 ## 1.111.1 (2018-05-02)
 
