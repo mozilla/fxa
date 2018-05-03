@@ -1,8 +1,6 @@
 // Two main widths
 // Apply styles to div injected by backbone, rather than to the stage itself.
 #main-content {
-
-  background: $content-background-color;
   text-align: center;
 
   &.card {
@@ -20,36 +18,32 @@
     }
   }
 
-  &:focus-within {
-    box-shadow: 0 4px 16px rgba($grey-90, .1);
-    transition: box-shadow 250ms cubic-bezier(.07, .95, 0, 1);
-  }
-
   @include respond-to('big') {
+    background: $content-background-color;
     border-radius: $big-border-radius;
     box-shadow: 0 2px 8px rgba($grey-90, .1);
     margin: -15px auto 0 auto;
     min-height: 420px;
     padding: 50px 40px 40px 40px;
     transition: box-shadow 250ms cubic-bezier(.07, .95, 0, 1);
+
+    &:focus-within {
+      box-shadow: 0 4px 16px rgba($grey-90, .1);
+      transition: box-shadow 250ms cubic-bezier(.07, .95, 0, 1);
+    }
   }
 
   @include respond-to('small') {
-    border: 1px solid $marketing-border-color;
-    border-bottom: 2px solid $marketing-border-color;
-    border-radius: $small-border-radius;
-    margin: -28px auto 0 auto;
+    margin: 0 auto;
     max-width: 360px;
     min-height: 300px !important;
     min-width: 300px;
-    padding: 35px 20px 20px 20px;
+    padding: 7px 20px 20px 20px;
     position: relative;
     width: 94%;
   }
 
   @include respond-to('trustedUI') {
-    background: none;
-    border: 0;
     margin: 10px auto 0 auto;
     min-width: 250px;
     padding: 0;
