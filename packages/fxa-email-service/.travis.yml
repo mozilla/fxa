@@ -1,7 +1,7 @@
 language: rust
 cache: cargo
 rust:
-  - nightly
+  - nightly-2018-04-28
 before_script:
   - rustup component add rustfmt-preview
 script:
