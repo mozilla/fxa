@@ -14,7 +14,7 @@ module.exports = function (grunt) {
       'l10n-create-json',
       'l10n-generate-tos-pp:app',
       'css',
-      'concurrent:server',
+      'copy:styles',
       'serverproc:app'
     ]);
   });

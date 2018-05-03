@@ -91,9 +91,9 @@ function testExpectHTMLResponse(url, acceptHeader) {
     }).catch(function (err) {
       return err.response;
     }).then(function (res) {
-      var re = /styles\/en\.css/;
+      var re = /styles\/main\.css/;
       if (intern._config.fxaProduction) {
-        re = /styles\/[a-f0-9]{0,8}\.en\.css/;
+        re = /styles\/[a-f0-9]{0,8}\.main\.css/;
       }
       assert.ok(res.body.match(re));
       assert.ok(res.body.match(RE_DIR_LTR));
@@ -117,9 +117,9 @@ function testExpectHTMLResponse(url, acceptHeader) {
     }).catch(function (err) {
       return err.response;
     }).then(function (res) {
-      var re = /styles\/system-font-main\.css/;
+      var re = /styles\/main\.css/;
       if (intern._config.fxaProduction) {
-        re = /styles\/[a-f0-9]{0,8}\.he\.css/;
+        re = /styles\/[a-f0-9]{0,8}\.main\.css/;
       }
       assert.ok(res.body.match(re));
       assert.ok(res.body.match(RE_DIR_RTL));
@@ -138,9 +138,9 @@ suite.tests['#get terms page using lang in the URL'] = function () {
       'Accept': 'text/html'
     }
   }).then(function (res) {
-    var re = /styles\/system-font-main\.css/;
+    var re = /styles\/main\.css/;
     if (intern._config.fxaProduction) {
-      re = /styles\/[a-f0-9]{0,8}\.zh_CN\.css/;
+      re = /styles\/[a-f0-9]{0,8}\.main\.css/;
     }
     assert.ok(re);
     assert.ok(res.body.match(RE_DIR_LTR));
@@ -167,9 +167,9 @@ suite.tests['#get privacy page using lang in the URL'] = function () {
       'Accept': 'text/html'
     }
   }).then(function (res) {
-    var re = /styles\/system-font-main\.css/;
+    var re = /styles\/main\.css/;
     if (intern._config.fxaProduction) {
-      re = /styles\/[a-f0-9]{0,8}\.zh_CN\.css/;
+      re = /styles\/[a-f0-9]{0,8}\.main\.css/;
     }
     assert.ok(re);
     assert.ok(res.body.match(RE_DIR_LTR));

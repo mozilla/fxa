@@ -57,13 +57,6 @@ server/config/local.json
 app/i18n
 fxa-content-server-l10n/
 
-### Generated fonts CSS ###
-app/styles/fonts
-
-### Fonts copied from connect-fonts packages ###
-app/fonts/default
-app/fonts/latin
-
 ### Strings
 locale/*/*/*.po
 

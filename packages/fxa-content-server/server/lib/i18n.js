@@ -37,13 +37,6 @@ module.exports = function (config) {
 
   const abide = require('i18n-abide');
 
-  // Convert the array to an object for faster lookups
-  const fontSupportDisabled = config.fonts.unsupportedLanguages
-    .reduce(function (prev, val) {
-      prev[val] = true;
-      return prev;
-    }, {});
-
   // Configure i18n-abide for loading gettext templates.
   // This causes it to process the configuration settings, parse the
   // message files for each language, etc.
@@ -67,11 +60,7 @@ module.exports = function (config) {
   const abideObj = function (req, res, next) {
     // Call the abide middleware with our own `next` function
     // so that we can modify the request object afterward.
-    abideMiddleware(req, res, function (val) {
-      const lang = abide.normalizeLanguage(req.lang);
-      res.locals.fontSupportDisabled = req.fontSupportDisabled = fontSupportDisabled[lang];
-      next(val);
-    });
+    abideMiddleware(req, res, next);
   };
 
   // Export the langaugeFrom() function as-is.
@@ -126,8 +115,6 @@ module.exports = function (config) {
     l10n.locale = fakeReq.locale;
     l10n.gettext = fakeReq.gettext.bind(fakeReq);
     l10n.format = fakeReq.format.bind(fakeReq);
-
-    l10n.fontSupportDisabled = fontSupportDisabled[l10n.lang];
 
     return l10n;
   };

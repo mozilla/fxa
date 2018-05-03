@@ -1,8 +1,8 @@
 @import 'node_modules/photon-colors/colors.scss';
 
 //Font Family Variables
-$default-font: 'Fira Sans', Helvetica, Arial, sans-serif;
-$header-font: 'Fira Sans', Helvetica, Arial, sans-serif;
+$default-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+$header-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 
 //Default color variables
 $color-blue: $blue-50;

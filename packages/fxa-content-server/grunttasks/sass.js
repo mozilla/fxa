@@ -8,7 +8,6 @@ module.exports = function (grunt) {
       files: {
         '<%= yeoman.app %>/styles/main.css': '<%= yeoman.app %>/styles/main.scss',
         '<%= yeoman.app %>/styles/sync.css': '<%= yeoman.app %>/styles/sync.scss',
-        '<%= yeoman.app %>/styles/system-font-main.css': '<%= yeoman.app %>/styles/system-font-main.scss'
       }
     }
   });

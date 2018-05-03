@@ -67,7 +67,6 @@ module.exports = [
   'tests/functional/pages.js',
   'tests/functional/back_button_after_start.js',
   'tests/functional/cookies_disabled.js',
-  'tests/functional/fonts.js',
   'tests/functional/password_visibility.js',
   'tests/functional/avatar.js',
   'tests/functional/alternative_styles.js',

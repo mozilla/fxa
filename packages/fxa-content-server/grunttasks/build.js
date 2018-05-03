@@ -26,12 +26,9 @@ module.exports = function (grunt) {
     // general 'css' tasks:
     //    'sass', - compile SASS,
     //    'autoprefixer' - auto prefix CSS for many browsers,
-    //    'connect_fonts' - generate CSS files for connect-fonts compatible font packs.
     'css',
 
-    // 'copy:styles',
-    //  'connect_fonts_copy', - copy the generated connect fonts
-    'concurrent:dist',
+    'copy:styles',
 
     // concatenate the eastereggs, CSS. Must be before cssmin or else
     // cssmin creates empty output.

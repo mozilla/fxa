@@ -260,7 +260,7 @@ function findCssSubResources(origin, resources) {
       .then(function (res) {
         // Only a minimal check here. The resolved Promise response will be
         // checked in detail again in `checkUrls()`.
-        assert.equal(res.statusCode, 200);
+        assert.equal(res.statusCode, 200, resource.url);
 
         return parseCssUrls(res.body, resource.url);
       });

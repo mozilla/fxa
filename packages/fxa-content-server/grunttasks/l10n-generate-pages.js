@@ -127,7 +127,6 @@ module.exports = function (grunt) {
         var template = Handlebars.compile(contents);
         var data = {
           bundlePath: options.versionInfo && options.versionInfo.commit ? `/bundle-${options.versionInfo.commit}` : '/bundle',
-          fontSupportDisabled: context.fontSupportDisabled,
           l10n: context,
           lang: context.lang,
           lang_dir: context.lang_dir, //eslint-disable-line camelcase

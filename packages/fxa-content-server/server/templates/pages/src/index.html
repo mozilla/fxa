@@ -13,14 +13,9 @@
         <!--iOS Smart Banner-->
         <meta name="apple-itunes-app" content="app-id=989804926, affiliate-data=ct=smartbanner-fxa">
 
-        <!-- build:css(.tmp) /styles/{{ locale }}.css -->
+        <!-- build:css(.tmp) /styles/main.css -->
         <link rel="stylesheet" href="/styles/fontello.css">
-        {{#if fontSupportDisabled}}
-        <link rel="stylesheet" href="/styles/system-font-main.css">
-        {{else}}
-        <link rel="stylesheet" href="/styles/fonts/{{ locale }}.css">
         <link rel="stylesheet" href="/styles/main.css">
-        {{/if}}
         <!-- endbuild -->
 
         <script type="text/javascript" src="{{ bundlePath }}/head.bundle.js"></script>
@@ -40,7 +35,7 @@
         <noscript>
           {{#t}}Firefox Accounts requires JavaScript.{{/t}}
         </noscript>
-    
+
         <script type="text/javascript" src="{{ bundlePath }}/appDependencies.bundle.js"></script>
         <script type="text/javascript" src="{{ bundlePath }}/app.bundle.js"></script>
     </body>
