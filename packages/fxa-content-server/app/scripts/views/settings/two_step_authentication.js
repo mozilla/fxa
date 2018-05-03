@@ -22,6 +22,7 @@ var t = BaseView.t;
 const CODE_INPUT_SELECTOR = 'input.totp-code';
 const CODE_REFRESH_SELECTOR = 'button.settings-button.totp-refresh';
 const CODE_REFRESH_DELAY_MS = 350;
+const TOTP_SUPPORT_URL = 'https://support.mozilla.org/en-US/kb/secure-firefox-account-two-step-authentication';
 
 const View = FormView.extend({
   template: Template,
@@ -112,7 +113,8 @@ const View = FormView.extend({
     context.set({
       hasToken: this._hasToken,
       isPanelOpen: this.isPanelOpen(),
-      statusVisible: this._statusVisible
+      statusVisible: this._statusVisible,
+      totpSupportAttributes: 'class="totp-support-link" target="_blank" href="' + TOTP_SUPPORT_URL + '"'
     });
   },
 
