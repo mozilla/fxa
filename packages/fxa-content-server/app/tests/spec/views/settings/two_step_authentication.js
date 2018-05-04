@@ -103,6 +103,12 @@ describe('views/settings/two_step_authentication', () => {
       return initView();
     });
 
+    it('should show support link', () => {
+      assert.equal(view.$('.totp-support-link').length, 1);
+      assert.equal(view.$('.totp-support-link').attr('href'), 'https://support.mozilla.org/en-US/kb/secure-' +
+        'firefox-account-two-step-authentication');
+    });
+
     describe('should show panel when broker capability `showTwoStepAuthentication` is true', () => {
       beforeEach(() => {
         view.broker.setCapability('showTwoStepAuthentication', true);
