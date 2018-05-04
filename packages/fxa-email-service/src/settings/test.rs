@@ -65,18 +65,18 @@ impl<'e> Drop for CleanEnvironment<'e>
 fn env_vars_take_precedence()
 {
   let _clean_env = CleanEnvironment::new(vec![
-    "FXA_SMTP_HOST",
-    "FXA_SMTP_PORT",
-    "FXA_SMTP_SENDER",
-    "FXA_SMTP_USER",
-    "FXA_SMTP_PASSWORD",
+    "FXA_EMAIL_SENDER",
+    "FXA_EMAIL_SMTP_HOST",
+    "FXA_EMAIL_SMTP_PORT",
+    "FXA_EMAIL_SMTP_USER",
+    "FXA_EMAIL_SMTP_PASSWORD",
   ]);
 
   match Settings::new() {
     Ok(settings) => {
-      let host = format!("{}{}", settings.smtp.host, "1");
-      let port = settings.smtp.port + 2;
-      let sender = format!("{}{}", "3", settings.smtp.sender);
+      let sender = format!("{}{}", "1", &settings.sender);
+      let host = format!("{}{}", &settings.smtp.host, "2");
+      let port = settings.smtp.port + 3;
       let user = if let Some(ref user) = settings.smtp.user {
         format!("{}{}", user, "4")
       } else {
@@ -88,17 +88,17 @@ fn env_vars_take_precedence()
         String::from("5")
       };
 
-      env::set_var("FXA_SMTP_HOST", &host);
-      env::set_var("FXA_SMTP_PORT", &port.to_string());
-      env::set_var("FXA_SMTP_SENDER", &sender);
-      env::set_var("FXA_SMTP_USER", &user);
-      env::set_var("FXA_SMTP_PASSWORD", &password);
+      env::set_var("FXA_EMAIL_SENDER", &sender);
+      env::set_var("FXA_EMAIL_SMTP_HOST", &host);
+      env::set_var("FXA_EMAIL_SMTP_PORT", &port.to_string());
+      env::set_var("FXA_EMAIL_SMTP_USER", &user);
+      env::set_var("FXA_EMAIL_SMTP_PASSWORD", &password);
 
       match Settings::new() {
         Ok(env_settings) => {
+          assert_eq!(env_settings.sender, sender);
           assert_eq!(env_settings.smtp.host, host);
           assert_eq!(env_settings.smtp.port, port);
-          assert_eq!(env_settings.smtp.sender, sender);
 
           if let Some(env_user) = env_settings.smtp.user {
             assert_eq!(env_user, user);
@@ -112,18 +112,24 @@ fn env_vars_take_precedence()
             assert!(false, "smtp.password was not set");
           }
         }
-        Err(error) => assert!(false, error),
+        Err(error) => {
+          println!("{}", error);
+          assert!(false);
+        }
       }
     }
-    Err(error) => assert!(false, error),
+    Err(error) => {
+      println!("{}", error);
+      assert!(false);
+    }
   }
 }
 
 #[test]
 fn invalid_host()
 {
-  let _clean_env = CleanEnvironment::new(vec!["FXA_SMTP_HOST"]);
-  env::set_var("FXA_SMTP_HOST", "https://mail.google.com/");
+  let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_SMTP_HOST"]);
+  env::set_var("FXA_EMAIL_SMTP_HOST", "https://mail.google.com/");
 
   match Settings::new() {
     Ok(_settings) => assert!(false, "Settings::new should have failed"),
@@ -134,8 +140,8 @@ fn invalid_host()
 #[test]
 fn invalid_sender()
 {
-  let _clean_env = CleanEnvironment::new(vec!["FXA_SMTP_SENDER"]);
-  env::set_var("FXA_SMTP_SENDER", "wibble");
+  let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_SENDER"]);
+  env::set_var("FXA_EMAIL_SENDER", "wibble");
 
   match Settings::new() {
     Ok(_settings) => assert!(false, "Settings::new should have failed"),

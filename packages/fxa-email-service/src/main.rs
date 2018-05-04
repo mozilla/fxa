@@ -16,6 +16,7 @@ extern crate validator;
 #[macro_use]
 extern crate validator_derive;
 
+mod deserialize;
 mod send;
 mod settings;
 
