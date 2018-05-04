@@ -114,7 +114,7 @@ suite.tests['create generates different flowIds for different timestamps'] = () 
   assert.notEqual(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
 };
 
-suite.tests['validate returns true for good data with user-agent'] = () => {
+suite.tests['validate returns false for data with user-agent'] = () => {
   // Force the mocks to return bad data to be sure it really works
   mockDateNow = 1478626838531;
   mockFlowIdKey = 'foo';
@@ -128,7 +128,7 @@ suite.tests['validate returns true for good data with user-agent'] = () => {
     'Firefox'
   );
 
-  assert.strictEqual(result, true);
+  assert.strictEqual(result, false);
 };
 
 suite.tests['validate returns true for good data without user-agent'] = () => {
@@ -158,8 +158,7 @@ suite.tests['validate returns false for a bad flow id'] = () => {
   const result = flowMetrics.validate(
     'S3CR37',
     'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
-    1451566800000,
-    'Firefox'
+    1451566800000
   );
 
   assert.strictEqual(result, false);
@@ -174,9 +173,8 @@ suite.tests['validate returns false for a bad key'] = () => {
 
   const result = flowMetrics.validate(
     'foo',
-    '4d6f7a696c6c6146697265666f782121c89d56556d22039fbbf54d34e0baf206',
-    1451566800000,
-    'Firefox'
+    '4d6f7a696c6c6146697265666f7821212a204a6d26b009b26b3116f643d84c6f',
+    1451566800000
   );
 
   assert.strictEqual(result, false);
@@ -191,26 +189,8 @@ suite.tests['validate returns false for a bad flow begin time'] = () => {
 
   const result = flowMetrics.validate(
     'S3CR37',
-    '4d6f7a696c6c6146697265666f782121c89d56556d22039fbbf54d34e0baf206',
-    1478626838531,
-    'Firefox'
-  );
-
-  assert.strictEqual(result, false);
-};
-
-suite.tests['validate returns false for a bad user agent string'] = () => {
-  // Force the mocks to return good data to be sure it really works
-  mockDateNow = 1451566800000;
-  mockFlowIdKey = 'S3CR37';
-  mockUserAgent = 'Firefox';
-  mockRandomBytes = 'MozillaFirefox!!';
-
-  const result = flowMetrics.validate(
-    'S3CR37',
-    '4d6f7a696c6c6146697265666f782121c89d56556d22039fbbf54d34e0baf206',
-    1451566800000,
-    'foo'
+    '4d6f7a696c6c6146697265666f7821212a204a6d26b009b26b3116f643d84c6f',
+    1478626838531
   );
 
   assert.strictEqual(result, false);

@@ -26,20 +26,12 @@ module.exports = {
    * @param key String
    * @param flowId String
    * @param flowBeginTime Number
-   * @param userAgent String
    * @returns Boolean
    */
-  validate (key, flowId, flowBeginTime, userAgent) {
+  validate (key, flowId, flowBeginTime) {
     const salt = flowId.substr(0, SALT_STRING_LENGTH);
-    let expected = createFlowEventData(key, salt, flowBeginTime);
+    const expected = createFlowEventData(key, salt, flowBeginTime);
 
-    if (getFlowSignature(flowId) === getFlowSignature(expected.flowId)) {
-      return true;
-    }
-
-    // HACK: We're transitioning between flow id recipes so, just for one train,
-    //       fall back to trying the old way if the preceding check failed.
-    expected = createFlowEventData(key, salt, flowBeginTime, userAgent);
     return getFlowSignature(flowId) === getFlowSignature(expected.flowId);
   }
 };

@@ -200,7 +200,7 @@ function isValidFlowData (metrics, requestReceivedTime) {
     return false;
   }
 
-  return flowMetrics.validate(FLOW_ID_KEY, metrics.flowId, metrics.flowBeginTime, metrics.agent);
+  return flowMetrics.validate(FLOW_ID_KEY, metrics.flowId, metrics.flowBeginTime);
 }
 
 function isValidTime (time, requestReceivedTime) {
