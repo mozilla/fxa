@@ -2,9 +2,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::error::Error;
+use std::boxed::Box;
 
-use rusoto_core::Region;
+use rusoto_core::{reactor::RequestDispatcher, Region};
+use rusoto_credential::StaticProvider;
 use rusoto_ses::{Content, Destination, Message, SendEmailRequest, Ses, SesClient};
 
 use super::{Provider, ProviderError};
@@ -12,7 +13,7 @@ use settings::Settings;
 
 pub struct SesProvider
 {
-  client: SesClient,
+  client: Box<Ses>,
   sender: String,
 }
 
@@ -20,14 +21,21 @@ impl SesProvider
 {
   pub fn new(settings: &Settings) -> SesProvider
   {
+    let region = settings
+      .ses
+      .region
+      .parse::<Region>()
+      .expect("invalid region");
+
+    let client: Box<Ses> = if let Some(ref keys) = settings.ses.keys {
+      let creds = StaticProvider::new(keys.access.to_string(), keys.secret.to_string(), None, None);
+      Box::new(SesClient::new(RequestDispatcher::default(), creds, region))
+    } else {
+      Box::new(SesClient::simple(region))
+    };
+
     SesProvider {
-      client: SesClient::simple(
-        settings
-          .ses
-          .region
-          .parse::<Region>()
-          .expect("invalid region"),
-      ),
+      client,
       sender: settings.sender.clone(),
     }
   }
@@ -70,9 +78,12 @@ impl Provider for SesProvider
 
     match self.client.send_email(&request).sync() {
       Ok(response) => Ok(response.message_id),
-      Err(error) => Err(ProviderError {
-        description: error.description().to_string(),
-      }),
+      Err(error) => {
+        println!("SES error: {}", error);
+        Err(ProviderError {
+          description: error.to_string(),
+        })
+      }
     }
   }
 }

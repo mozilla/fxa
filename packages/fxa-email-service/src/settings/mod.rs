@@ -12,10 +12,20 @@ use deserialize;
 mod test;
 
 #[derive(Debug, Deserialize)]
+pub struct AwsKeys
+{
+  #[serde(deserialize_with = "deserialize::aws_access")]
+  pub access: String,
+  #[serde(deserialize_with = "deserialize::aws_secret")]
+  pub secret: String,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Ses
 {
   #[serde(deserialize_with = "deserialize::aws_region")]
   pub region: String,
+  pub keys: Option<AwsKeys>,
 }
 
 #[derive(Debug, Deserialize)]

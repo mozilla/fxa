@@ -9,6 +9,8 @@ use rusoto_core::Region;
 mod test;
 
 lazy_static! {
+  static ref AWS_ACCESS_FORMAT: Regex = Regex::new("^[A-Z0-9]+$").unwrap();
+  static ref AWS_SECRET_FORMAT: Regex = Regex::new("^[A-Za-z0-9+/=]+$").unwrap();
   static ref HOST_FORMAT: Regex = Regex::new("^[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*$").unwrap();
   static ref PROVIDER_FORMAT: Regex = Regex::new("^(?:mock|ses|smtp)$").unwrap();
   static ref SENDER_FORMAT: Regex = Regex::new(
@@ -19,6 +21,16 @@ lazy_static! {
 pub fn aws_region(value: &str) -> bool
 {
   value.parse::<Region>().is_ok()
+}
+
+pub fn aws_access(value: &str) -> bool
+{
+  AWS_ACCESS_FORMAT.is_match(value)
+}
+
+pub fn aws_secret(value: &str) -> bool
+{
+  AWS_SECRET_FORMAT.is_match(value)
 }
 
 pub fn host(value: &str) -> bool

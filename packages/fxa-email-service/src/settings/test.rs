@@ -72,6 +72,8 @@ fn env_vars_take_precedence()
     "FXA_EMAIL_PROVIDER",
     "FXA_EMAIL_SENDER",
     "FXA_EMAIL_SES_REGION",
+    "FXA_EMAIL_SES_KEYS_ACCESS",
+    "FXA_EMAIL_SES_KEYS_SECRET",
     "FXA_EMAIL_SMTP_HOST",
     "FXA_EMAIL_SMTP_PORT",
     "FXA_EMAIL_SMTP_USER",
@@ -91,6 +93,17 @@ fn env_vars_take_precedence()
       } else {
         "us-east-1"
       };
+      let ses_keys = if let Some(ref keys) = settings.ses.keys {
+        AwsKeys {
+          access: format!("{}{}", keys.access, "A"),
+          secret: format!("{}{}", keys.secret, "s"),
+        }
+      } else {
+        AwsKeys {
+          access: String::from("A"),
+          secret: String::from("s"),
+        }
+      };
       let smtp_host = format!("{}{}", &settings.smtp.host, "2");
       let smtp_port = settings.smtp.port + 3;
       let smtp_user = if let Some(ref user) = settings.smtp.user {
@@ -107,6 +120,8 @@ fn env_vars_take_precedence()
       env::set_var("FXA_EMAIL_PROVIDER", &provider);
       env::set_var("FXA_EMAIL_SENDER", &sender);
       env::set_var("FXA_EMAIL_SES_REGION", &ses_region);
+      env::set_var("FXA_EMAIL_SES_KEYS_ACCESS", &ses_keys.access);
+      env::set_var("FXA_EMAIL_SES_KEYS_SECRET", &ses_keys.secret);
       env::set_var("FXA_EMAIL_SMTP_HOST", &smtp_host);
       env::set_var("FXA_EMAIL_SMTP_PORT", &smtp_port.to_string());
       env::set_var("FXA_EMAIL_SMTP_USER", &smtp_user);
@@ -119,6 +134,13 @@ fn env_vars_take_precedence()
           assert_eq!(env_settings.ses.region, ses_region);
           assert_eq!(env_settings.smtp.host, smtp_host);
           assert_eq!(env_settings.smtp.port, smtp_port);
+
+          if let Some(env_keys) = env_settings.ses.keys {
+            assert_eq!(env_keys.access, ses_keys.access);
+            assert_eq!(env_keys.secret, ses_keys.secret);
+          } else {
+            assert!(false, "ses.keys were not set");
+          }
 
           if let Some(env_user) = env_settings.smtp.user {
             assert_eq!(env_user, smtp_user);
@@ -174,6 +196,30 @@ fn invalid_ses_region()
 {
   let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_SES_REGION"]);
   env::set_var("FXA_EMAIL_SES_REGION", "us-east-1a");
+
+  match Settings::new() {
+    Ok(_settings) => assert!(false, "Settings::new should have failed"),
+    Err(error) => assert_eq!(error.description(), "configuration error"),
+  }
+}
+
+#[test]
+fn invalid_ses_access_key()
+{
+  let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_SES_KEYS_ACCESS"]);
+  env::set_var("FXA_EMAIL_SES_KEYS_ACCESS", "DEADBEEF DEADBEEF");
+
+  match Settings::new() {
+    Ok(_settings) => assert!(false, "Settings::new should have failed"),
+    Err(error) => assert_eq!(error.description(), "configuration error"),
+  }
+}
+
+#[test]
+fn invalid_ses_secret_key()
+{
+  let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_SES_KEYS_SECRET"]);
+  env::set_var("FXA_EMAIL_SES_KEYS_SECRET", "DEADBEEF DEADBEEF");
 
   match Settings::new() {
     Ok(_settings) => assert!(false, "Settings::new should have failed"),

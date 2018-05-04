@@ -28,6 +28,42 @@ fn invalid_aws_region()
 }
 
 #[test]
+fn aws_access()
+{
+  assert!(validate::aws_access("A0"));
+  assert!(validate::aws_access("Z9"));
+  assert!(validate::aws_access("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
+}
+
+#[test]
+fn invalid_aws_access()
+{
+  assert_eq!(validate::aws_access("a0"), false);
+  assert_eq!(validate::aws_access("z9"), false);
+  assert_eq!(validate::aws_access("A0 "), false);
+  assert_eq!(validate::aws_access(" Z9"), false);
+  assert_eq!(validate::aws_access("A+"), false);
+  assert_eq!(validate::aws_access("Z/"), false);
+  assert_eq!(validate::aws_access("A="), false);
+}
+
+#[test]
+fn aws_secret()
+{
+  assert!(validate::aws_secret("09"));
+  assert!(validate::aws_secret("AZ"));
+  assert!(validate::aws_secret("az"));
+  assert!(validate::aws_secret("09AZaz+/=="));
+}
+
+#[test]
+fn invalid_aws_secret()
+{
+  assert_eq!(validate::aws_secret("AZ "), false);
+  assert_eq!(validate::aws_secret(" az"), false);
+}
+
+#[test]
 fn host()
 {
   assert!(validate::host("foo"));

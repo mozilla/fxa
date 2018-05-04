@@ -13,6 +13,20 @@ where
   deserialize(deserializer, validate::aws_region, "AWS region")
 }
 
+pub fn aws_access<'d, D>(deserializer: D) -> Result<String, D::Error>
+where
+  D: Deserializer<'d>,
+{
+  deserialize(deserializer, validate::aws_access, "AWS access key")
+}
+
+pub fn aws_secret<'d, D>(deserializer: D) -> Result<String, D::Error>
+where
+  D: Deserializer<'d>,
+{
+  deserialize(deserializer, validate::aws_secret, "AWS secret key")
+}
+
 pub fn host<'d, D>(deserializer: D) -> Result<String, D::Error>
 where
   D: Deserializer<'d>,
