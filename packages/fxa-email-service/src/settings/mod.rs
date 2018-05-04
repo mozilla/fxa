@@ -12,6 +12,13 @@ use deserialize;
 mod test;
 
 #[derive(Debug, Deserialize)]
+pub struct Ses
+{
+  #[serde(deserialize_with = "deserialize::aws_region")]
+  pub region: String,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Smtp
 {
   #[serde(deserialize_with = "deserialize::host")]
@@ -24,8 +31,11 @@ pub struct Smtp
 #[derive(Debug, Deserialize)]
 pub struct Settings
 {
+  #[serde(deserialize_with = "deserialize::provider")]
+  pub provider: String,
   #[serde(deserialize_with = "deserialize::sender")]
   pub sender: String,
+  pub ses: Ses,
   pub smtp: Smtp,
 }
 

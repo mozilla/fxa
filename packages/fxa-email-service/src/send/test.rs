@@ -31,7 +31,8 @@ fn single_recipient()
       "body": {
         "text": "baz",
         "html": "<a>qux</a>"
-      }
+      },
+      "provider": "mock"
     }"#,
     )
     .dispatch();
@@ -39,7 +40,7 @@ fn single_recipient()
   assert_eq!(response.status(), Status::Ok);
 
   let body = response.body().unwrap().into_string().unwrap();
-  assert_eq!(body, json!({ "messageId": 0 }).to_string());
+  assert_eq!(body, json!({ "messageId": "mock:deadbeef" }).to_string());
 }
 
 #[test]
@@ -58,7 +59,8 @@ fn multiple_recipients()
       "body": {
         "text": "blee",
         "html": ""
-      }
+      },
+      "provider": "mock"
     }"#,
     )
     .dispatch();
@@ -66,7 +68,7 @@ fn multiple_recipients()
   assert_eq!(response.status(), Status::Ok);
 
   let body = response.body().unwrap().into_string().unwrap();
-  assert_eq!(body, json!({ "messageId": 0 }).to_string());
+  assert_eq!(body, json!({ "messageId": "mock:deadbeef" }).to_string());
 }
 
 #[test]
@@ -83,7 +85,8 @@ fn without_optional_data()
       "subject": "bar",
       "body": {
         "text": "baz"
-      }
+      },
+      "provider": "mock"
     }"#,
     )
     .dispatch();
@@ -91,7 +94,7 @@ fn without_optional_data()
   assert_eq!(response.status(), Status::Ok);
 
   let body = response.body().unwrap().into_string().unwrap();
-  assert_eq!(body, json!({ "messageId": 0 }).to_string());
+  assert_eq!(body, json!({ "messageId": "mock:deadbeef" }).to_string());
 }
 
 #[test]
@@ -107,7 +110,8 @@ fn missing_to_field()
       "subject": "bar",
       "body": {
         "text": "baz"
-      }
+      },
+      "provider": "mock"
     }"#,
     )
     .dispatch();
@@ -128,7 +132,8 @@ fn missing_subject_field()
       "to": [ "foo@example.com" ],
       "body": {
         "text": "baz"
-      }
+      },
+      "provider": "mock"
     }"#,
     )
     .dispatch();
@@ -150,7 +155,8 @@ fn missing_body_text_field()
       "subject": "bar",
       "body": {
         "html": "<a>qux</a>"
-      }
+      },
+      "provider": "mock"
     }"#,
     )
     .dispatch();
@@ -172,7 +178,8 @@ fn invalid_to_field()
       "subject": "bar",
       "body": {
         "text": "baz"
-      }
+      },
+      "provider": "mock"
     }"#,
     )
     .dispatch();
@@ -195,7 +202,8 @@ fn invalid_cc_field()
       "subject": "baz",
       "body": {
         "text": "qux"
-      }
+      },
+      "provider": "mock"
     }"#,
     )
     .dispatch();

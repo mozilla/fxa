@@ -12,6 +12,8 @@ extern crate regex;
 extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
+extern crate rusoto_core;
+extern crate rusoto_ses;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
@@ -21,8 +23,10 @@ extern crate validator;
 extern crate validator_derive;
 
 mod deserialize;
+mod providers;
 mod send;
 mod settings;
+mod validate;
 
 fn main()
 {

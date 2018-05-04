@@ -8,19 +8,21 @@ use rocket::{
   data::{self, FromData},
   http::Status,
   Data,
+  Error,
   Outcome,
   Request,
 };
 use rocket_contrib::{Json, Value};
 use validator::{self, Validate, ValidationError};
 
-use settings::Settings;
+use providers::Providers;
+use validate;
 
 #[cfg(test)]
 mod test;
 
 lazy_static! {
-  static ref SETTINGS: Settings = Settings::new().expect("Config error");
+  static ref PROVIDERS: Providers = Providers::new();
 }
 
 #[derive(Debug, Deserialize)]
@@ -38,6 +40,7 @@ struct Email
   cc: Option<Vec<String>>,
   subject: String,
   body: Body,
+  provider: Option<String>,
 }
 
 impl FromData for Email
@@ -72,6 +75,12 @@ fn validate(email: &Email) -> bool
     }
   }
 
+  if let Some(ref provider) = email.provider {
+    if !validate::provider(provider) {
+      return false;
+    }
+  }
+
   true
 }
 
@@ -87,8 +96,34 @@ fn fail() -> data::Outcome<Email, ValidationError>
   ))
 }
 
-#[post("/send", format = "application/json", data = "<_email>")]
-fn handler(_email: Email) -> Json<Value>
+#[post("/send", format = "application/json", data = "<email>")]
+fn handler(email: Email) -> Result<Json<Value>, Error>
 {
-  Json(json!({ "messageId": 0 }))
+  let cc = if let Some(ref cc) = email.cc {
+    cc.iter().map(|s| s.as_ref()).collect()
+  } else {
+    Vec::new()
+  };
+  let html = if let Some(ref html) = email.body.html {
+    Some(html.as_ref())
+  } else {
+    None
+  };
+  let provider = if let Some(ref provider) = email.provider {
+    Some(provider.as_ref())
+  } else {
+    None
+  };
+
+  match PROVIDERS.send(
+    email.to.as_ref(),
+    cc.as_ref(),
+    email.subject.as_ref(),
+    email.body.text.as_ref(),
+    html,
+    provider,
+  ) {
+    Ok(message_id) => Ok(Json(json!({ "messageId": message_id }))),
+    Err(_error) => Err(Error::Internal),
+  }
 }

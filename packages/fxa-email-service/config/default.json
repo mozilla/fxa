@@ -1,5 +1,9 @@
 {
+  "provider": "ses",
   "sender": "Firefox Accounts <accounts@firefox.com>",
+  "ses": {
+    "region": "us-east-1"
+  },
   "smtp": {
     "host": "127.0.0.1",
     "port": 25
