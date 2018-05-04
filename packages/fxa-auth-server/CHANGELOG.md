@@ -1,3 +1,13 @@
+<a name="1.111.1"></a>
+## [1.111.1](https://github.com/mozilla/fxa-auth-server/compare/v1.111.0...v1.111.1) (2018-05-04)
+
+
+### Bug Fixes
+
+* **metrics:** remove old flow signature fallback code ([4fc70a0](https://github.com/mozilla/fxa-auth-server/commit/4fc70a0))
+
+
+
 <a name="1.111.0"></a>
 # [1.111.0](https://github.com/mozilla/fxa-auth-server/compare/v1.110.1...v1.111.0) (2018-05-02)
 
