@@ -164,7 +164,7 @@ describe('lib/router', () => {
 
   describe('set query params', () => {
     beforeEach(() => {
-      windowMock.location.search = '?context=' + Constants.FX_DESKTOP_V1_CONTEXT;
+      windowMock.location.search = '?context=' + Constants.FX_DESKTOP_V3_CONTEXT;
     });
 
     describe('navigate with default options', () => {
@@ -173,14 +173,14 @@ describe('lib/router', () => {
       });
 
       it('preserves query params', () => {
-        assert.equal(navigateUrl, '/forgot?context=' + Constants.FX_DESKTOP_V1_CONTEXT);
+        assert.equal(navigateUrl, '/forgot?context=' + Constants.FX_DESKTOP_V3_CONTEXT);
         assert.deepEqual(navigateOptions, { trigger: true });
       });
     });
 
     describe('navigate with clearQueryParams option set', () => {
       beforeEach(() => {
-        router.navigate('/forgot?context=' + Constants.FX_DESKTOP_V1_CONTEXT, {}, { clearQueryParams: true });
+        router.navigate('/forgot?context=' + Constants.FX_DESKTOP_V3_CONTEXT, {}, { clearQueryParams: true });
       });
 
       it('clears the query params if clearQueryString option is set', () => {

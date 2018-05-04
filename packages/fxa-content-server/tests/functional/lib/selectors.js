@@ -104,6 +104,9 @@ module.exports = {
     CLOSE: '.connect-another-device button[type="submit"]',
     HEADER: '#fxa-why-connect-another-device-header',
   },
+  DOWNLOAD_FIREFOX_THANKS: {
+    HEADER: '#download-button-wrapper-desktop'
+  },
   EMAIL: {
     ADDRESS_LABEL: '#emails .address',
     ADD_BUTTON: '.email-add:not(.disabled)',
@@ -344,6 +347,10 @@ module.exports = {
     HEADER: '#fxa-totp-code-header',
     INPUT: '.totp-code',
     SUBMIT: 'button[type="submit"]',
+  },
+  UPDATE_FIREFOX: {
+    BUTTON_DOWNLOAD_FIREFOX: '.primary-button',
+    HEADER: '#fxa-update-firefox-header'
   },
 
 };

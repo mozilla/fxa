@@ -10,6 +10,7 @@ const joi = require('joi');
 const { EXPERIMENT_NAMES } = require('../../app/scripts/lib/experiments/grouping-rules');
 
 const PATTERNS = {
+  ACTION: /^(email|signin|signup)$/,
   ADJUST_CHANNEL_APP_ID: /^(beta|nightly|release)$/,
   BASE64: /^[A-Za-z0-9\/+]+={0,2}$/,
   BASE64_URL_SAFE: /^[A-Za-z0-9_-]+$/,
@@ -26,11 +27,13 @@ const PATTERNS = {
 };
 
 const TYPES = {
+  ACTION: joi.string().regex(PATTERNS.ACTION),
   ADJUST_CHANNEL_APP_ID: joi.string().regex(PATTERNS.ADJUST_CHANNEL_APP_ID),
   BOOLEAN: joi.boolean(),
   DIMENSION: joi.number().integer().min(0),
   DOMAIN: joi.string().max(32).regex(PATTERNS.DOMAIN),
   EXPERIMENT: joi.string().valid(EXPERIMENT_NAMES),
+  FLOW_ID: joi.string().hex().length(64),
   HEX32: joi.string().regex(/^[0-9a-f]{32}$/),
   INTEGER: joi.number().integer(),
   OFFSET: joi.number().integer().min(0),
@@ -42,6 +45,8 @@ const TYPES = {
   URL: joi.string().max(2048).uri({ scheme: [ 'http', 'https' ]}), // 2048 is also arbitrary, the same limit we use on the front end.
   UTM: joi.string().max(128).regex(/^[\w\/.%-]+$/) // values here can be 'firefox/sync'
 };
+
+TYPES.UTM_CAMPAIGN = TYPES.UTM.allow('page+referral+-+not+part+of+a+campaign');
 
 module.exports = {
   PATTERNS,

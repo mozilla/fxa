@@ -42,27 +42,33 @@ module.exports = function (config) {
     webpackPublicPath: WEBPACK_PUBLIC_PATH,
   }));
 
-  const route = {};
-  route.method = 'get';
-  route.path = '/';
+  const NO_LONGER_SUPPORTED_CONTEXTS = new Set([
+    'fx_desktop_v1'
+  ]);
 
-  route.process = function (req, res) {
-    const flowEventData = flowMetrics.create(FLOW_ID_KEY, req.headers['user-agent']);
+  return {
+    method: 'get',
+    path: '/',
+    process: function (req, res) {
+      const flowEventData = flowMetrics.create(FLOW_ID_KEY, req.headers['user-agent']);
 
-    res.render('index', {
-      // Note that bundlePath is added to templates as a build step
-      bundlePath: '/bundle',
-      config: serializedConfig,
-      flowBeginTime: flowEventData.flowBeginTime,
-      flowId: flowEventData.flowId,
-      // Note that staticResourceUrl is added to templates as a build step
-      staticResourceUrl: STATIC_RESOURCE_URL
-    });
+      if (NO_LONGER_SUPPORTED_CONTEXTS.has(req.query.context)) {
+        return res.redirect(`/update_firefox?${req.originalUrl.split('?')[1]}`);
+      }
 
-    if (req.headers.dnt === '1') {
-      logger.info('request.headers.dnt');
+      res.render('index', {
+        // Note that bundlePath is added to templates as a build step
+        bundlePath: '/bundle',
+        config: serializedConfig,
+        flowBeginTime: flowEventData.flowBeginTime,
+        flowId: flowEventData.flowId,
+        // Note that staticResourceUrl is added to templates as a build step
+        staticResourceUrl: STATIC_RESOURCE_URL
+      });
+
+      if (req.headers.dnt === '1') {
+        logger.info('request.headers.dnt');
+      }
     }
   };
-
-  return route;
 };

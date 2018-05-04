@@ -30,10 +30,11 @@ registerSuite('routes/get-index', {
           assert.lengthOf(instance.process, 2);
         },
 
-        'route.process': {
+        'route.process with no context': {
           before: function () {
             request = {
-              headers: {}
+              headers: {},
+              query: {}
             };
             response = {render: sinon.spy()};
             instance.process(request, response);
@@ -72,6 +73,48 @@ registerSuite('routes/get-index', {
               assert.ok(sentConfig.scopedKeysValidation, 'config validation is present');
               assert.equal(sentConfig.webpackPublicPath, `${config.get('static_resource_url')}/${config.get('jsResourcePath')}/`, 'correct webpackPublicPath');
             }
+          }
+        },
+
+        'route.process with context=fx_desktop_v1': {
+          before: function () {
+            request = {
+              headers: {},
+              originalUrl: 'https://accounts.firefox.com/?context=fx_desktop_v1&service=sync',
+              query: {
+                context: 'fx_desktop_v1',
+                service: 'sync'
+              },
+            };
+            response = {redirect: sinon.spy()};
+            instance.process(request, response);
+          },
+
+          tests: {
+            'response.redirect was called correctly': function () {
+              assert.isTrue(response.redirect.calledOnceWith('/update_firefox?context=fx_desktop_v1&service=sync'));
+            }
+          }
+        }
+      },
+
+      'route.process with context=fx_desktop_v1': {
+        before: function () {
+          request = {
+            headers: {},
+            originalUrl: 'https://accounts.firefox.com/?context=fx_desktop_v3&service=sync',
+            query: {
+              context: 'fx_desktop_v3',
+              service: 'sync'
+            },
+          };
+          response = {render: sinon.spy()};
+          instance.process(request, response);
+        },
+
+        tests: {
+          'response.render was called correctly': function () {
+            assert.isTrue(response.render.calledOnceWith('index'));
           }
         }
       }

@@ -53,7 +53,7 @@ define(function (require, exports, module) {
         storage = new Storage();
 
         model = new SameBrowserVerificationModel({
-          context: 'fx_desktop_v1'
+          context: 'fx_desktop_v3'
         }, {
           code: 'a-code',
           namespace: 'context',
@@ -103,7 +103,7 @@ define(function (require, exports, module) {
 
       it('signup, stores and loads verification keyed by uid', function () {
         const persistModel = new SameBrowserVerificationModel({
-          context: 'fx_desktop_v1'
+          context: 'fx_desktop_v3'
         }, {
           namespace: 'context',
           storage: storage,
@@ -121,7 +121,7 @@ define(function (require, exports, module) {
 
         loadModel.load();
 
-        assert.equal(loadModel.get('context'), 'fx_desktop_v1');
+        assert.equal(loadModel.get('context'), 'fx_desktop_v3');
       });
 
       it('password reset, stores and loads verification keyed by email (pre-train-117)', function () {

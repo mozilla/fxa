@@ -39,6 +39,14 @@ const EVENTS = {
     group: GROUPS.settings,
     event: 'logout'
   },
+  'flow.update-firefox.engage': {
+    group: GROUPS.notify,
+    event: 'update_firefox_engage'
+  },
+  'flow.update-firefox.view': {
+    group: GROUPS.notify,
+    event: 'update_firefox_view'
+  },
 };
 
 const VIEW_ENGAGE_SUBMIT_EVENT_GROUPS = {
