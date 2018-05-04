@@ -2,35 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const { assert } = require('chai');
-  const Account = require('models/account');
-  const Experiment = require('lib/experiments/grouping-rules/q3-form-changes');
+const { assert } = require('chai');
+const Account = require('models/account');
+const Experiment = require('lib/experiments/grouping-rules/q3-form-changes');
 
-  describe('lib/experiments/grouping-rules/q3-form-changes', () => {
-    let account;
-    let experiment;
+describe('lib/experiments/grouping-rules/q3-form-changes', () => {
+  let account;
+  let experiment;
 
-    before(() => {
-      account = new Account();
-      experiment = new Experiment();
-    });
+  before(() => {
+    account = new Account();
+    experiment = new Experiment();
+  });
 
-    describe('choose', () => {
-      it('returns false if no subject or uniqueUserId', () => {
-        assert.isFalse(experiment.choose());
-        assert.isFalse(experiment.choose({}));
-      });
-
-      it('returns chooses some group ', () => {
-        assert.ok(experiment.choose({
+  describe('choose', () => {
+    it('throws', () => {
+      assert.throws(() => {
+        experiment.choose({
           account,
           uniqueUserId: 'user-id'
-        }));
+        });
       });
-
     });
   });
 });

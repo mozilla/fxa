@@ -60,6 +60,9 @@ module.exports = class BaseGroupingRule {
    * @param {Object} subject data used to decide
    */
   choose (subject) {
+    if (this.deprecated) {
+      throw new Error(`Experiment deprecated: ${this.name}`);
+    }
     throw new Error('choose must be overridden');
   }
 };

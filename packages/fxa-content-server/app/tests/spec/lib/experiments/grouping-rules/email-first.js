@@ -12,7 +12,6 @@ define(function (require, exports, module) {
   describe('lib/experiments/grouping-rules/email-first', () => {
     let experiment;
     let experimentGroupingRules;
-    let q3FormChangesChoice;
     let sandbox;
 
     before(() => {
@@ -20,9 +19,7 @@ define(function (require, exports, module) {
 
       experimentGroupingRules = {
         choose (experimentName) {
-          if (experimentName === 'q3FormChanges') {
-            return q3FormChangesChoice;
-          } else if (experimentName === 'isSampledUser') {
+          if (experimentName === 'isSampledUser') {
             return true;
           }
           return false;
@@ -31,7 +28,6 @@ define(function (require, exports, module) {
     });
 
     beforeEach(() => {
-      q3FormChangesChoice = 'emailFirst';
       sandbox = sinon.sandbox.create();
     });
 
@@ -56,7 +52,6 @@ define(function (require, exports, module) {
 
       it('returns chooses some experiment ', () => {
         sandbox.stub(experiment, 'bernoulliTrial').callsFake(() => true);
-        q3FormChangesChoice = 'emailFirst';
 
         assert.ok(experiment.choose({
           env: 'development',

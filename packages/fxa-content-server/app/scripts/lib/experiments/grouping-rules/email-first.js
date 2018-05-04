@@ -28,8 +28,6 @@ class EmailFirstGroupingRule extends BaseGroupingRule {
     } else if (! subject.isEmailFirstSupported) {
       // isEmailFirstSupported is `true` for brokers that support the email-first flow.
       return false;
-    } else if (subject.experimentGroupingRules.choose('q3FormChanges', subject) !== this.name) {
-      return  false;
     } else if (! this._isSampledUser(subject)) {
       return false;
     }
@@ -58,9 +56,6 @@ class EmailFirstGroupingRule extends BaseGroupingRule {
   _isSampledUser (subject) {
     // All users that make it to this point that also report metrics are
     // sampled users.
-    // There are 4 experiments in q3FormChanges, and 10% of users report metrics.
-    // 100% / 4 = 25% in each of the 4 experiments.
-    // 25% * .1 = 2.5% overall sample rate for this experiment.
     return subject.experimentGroupingRules.choose('isSampledUser', subject);
   }
 }

@@ -112,6 +112,14 @@ define(function (require, exports, module) {
           experiment.choose();
         }, 'choose must be overridden');
       });
+
+      it('throws if deprecated', () => {
+        assert.throws(() => {
+          experiment.name = 'oldExperiment';
+          experiment.deprecated = true;
+          experiment.choose();
+        }, 'Experiment deprecated: oldExperiment');
+      });
     });
 
     describe('one experiment choose another', () => {
