@@ -130,30 +130,14 @@
   position: relative;
 
   .sms-send {
-    background: $button-background-hover-color;
-    border: 0;
-    color: $message-text-color;
-    cursor: pointer;
-    font-size: $base-font;
+    border-radius: 0 $big-border-radius $big-border-radius 0;
+    height: 43px;
     min-width: 55px;
     padding: 0 7px;
     position: absolute;
-    text-align: center;
     top: 1px;
-    // it is very easy to accidentally select the text when clicking
-    -webkit-touch-callout: none;
-    // user select not supported by autoprefixer
-    // https://github.com/postcss/autoprefixer/issues/167
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -webkit-user-select: none;
-    user-select: none;
+    width: auto;
     z-index: 3;
-
-    &.disabled {
-      background-color: $content-background-color;
-      color: $input-placeholder-color;
-    }
 
     html[dir='ltr'] & {
       border-left: 1px solid $input-row-border-color;
@@ -161,19 +145,9 @@
     }
 
     html[dir='rtl'] & {
+      border-radius: $big-border-radius 0 0 $big-border-radius;
       border-right: 1px solid $input-row-border-color;
       left: 1px;
-    }
-
-    @include respond-to('big') {
-      border-radius: 0 $small-border-radius $small-border-radius 0;
-
-      height: 43px;
-      line-height: 42px;
-
-      html[dir='rtl'] & {
-        border-radius: $small-border-radius 0 0 $small-border-radius;
-      }
     }
 
     @include respond-to('small') {

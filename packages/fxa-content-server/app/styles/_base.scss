@@ -63,8 +63,7 @@ noscript,
   }
 }
 
-a,
-.button-link {
+a {
   color: $link-color;
   cursor: pointer; // Use the correct cursor for anchors without an href
 

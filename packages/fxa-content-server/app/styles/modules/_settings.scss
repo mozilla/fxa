@@ -87,8 +87,8 @@ body.settings #main-content.card {
   }
 
   .settings-button {
-    display: block;
     height: 30px;
+    width: 29%;
 
     html[dir='ltr'] & {
       float: right;
@@ -157,12 +157,10 @@ body.settings #main-content.card {
 
 // settings buttons
 .settings-button {
-  @include font();
-  border-radius: $small-border-radius;
-  cursor: pointer;
-  font-size: $base-font;
-  transition-duration: $short-transition;
-  transition-property: background-color;
+  border-radius: $button-border-radius-settings;
+  font-size: $button-font-size-settings;
+  font-weight: $button-font-weight-settings;
+  height: $button-height-settings;
 
   .button-row & {
     @extend .settings-button;
@@ -210,7 +208,6 @@ body.settings #main-content.card {
 
   &.settings-unit-toggle,
   &.settings-unit-loading {
-    display: block;
     height: 35px;
 
     @include respond-to('big') {
@@ -219,95 +216,6 @@ body.settings #main-content.card {
 
     @include respond-to('small') {
       width: 29%;
-    }
-  }
-
-  &.primary {
-    background: $button-background-color;
-    border: solid 1px $button-border-default-color;
-    color: $message-text-color;
-
-    &:hover {
-      background: $button-background-hover-color;
-      border-color: $button-border-hover-color;
-    }
-
-    &:hover:active {
-      background: $button-background-active-color;
-      border-color: $button-border-active-color;
-    }
-
-    &:focus {
-      box-shadow: 0 0 0 2px $button-box-shadow-color;
-    }
-
-    &:disabled,
-    &.disabled {
-      background: $button-background-default-color;
-      border: solid 1px $button-border-disabled-color;
-      color: $button-disabled-color;
-    }
-  }
-
-  &.secondary {
-    background: $secondary-button-background-color;
-    border: 1px solid $secondary-button-border-color;
-    color: $text-color;
-
-    &:hover {
-      background: darken($secondary-button-background-color, 10);
-      border-color: $button-border-disabled-color;
-    }
-
-    &:hover:active {
-      background: $button-border-disabled-color;
-      border-color: $color-grey-dark;
-      color: $color-black;
-    }
-
-    &:focus {
-      background: $secondary-button-background-color;
-      border-color: $html-background-color;
-      box-shadow: 0 0 0 2px $button-box-shadow-color;
-    }
-
-    &:disabled,
-    &.disabled {
-      background: $button-background-default-color;
-      border: solid 1px $button-border-disabled-color;
-      color: $button-disabled-color;
-      opacity: 0.5;
-    }
-  }
-
-  &.secondary-disabled {
-      background: $secondary-button-background-color;
-      border: 1px solid $secondary-button-border-color;
-      color: $text-color;
-  }
-
-  &.warning {
-    background: $error-background-color;
-    border: 0;
-    color: $message-text-color;
-
-    &:hover {
-      background: darken($error-background-color, 5);
-    }
-
-    &:hover:active {
-      background: darken($error-background-color, 10);
-    }
-
-    &:focus {
-      box-shadow: 0 0 0 2px rgba(lighten($error-background-color, 15), .75);
-    }
-
-    &:disabled,
-    &.disabled {
-      background: $button-background-default-color;
-      border: solid 1px $button-border-disabled-color;
-      color: $button-disabled-color;
     }
   }
 
@@ -557,7 +465,6 @@ section.modal-panel {
     /*is also the default computed width on desktop screen*/
     min-width: 100px;
     position: absolute;
-    text-align: center;
     top: 0;
     width: 20%;
 
@@ -572,10 +479,6 @@ section.modal-panel {
     @include respond-to('small') {
       position: relative;
     }
-  }
-
-  a.settings-button {
-    padding-top: 8px;
   }
 
   .device-current {

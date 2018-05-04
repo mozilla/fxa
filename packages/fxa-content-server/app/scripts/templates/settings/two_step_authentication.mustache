@@ -5,13 +5,13 @@
         </header>
 
         {{^hasToken}}
-            <button class="settings-button primary settings-unit-toggle totp-create" data-href="settings/two_step_authentication">
+            <button class="settings-button primary-button settings-unit-toggle totp-create" data-href="settings/two_step_authentication">
                 {{#t}}Enable…{{/t}}
             </button>
         {{/hasToken}}
 
         {{#hasToken}}
-            <button class="settings-button secondary settings-unit-toggle" data-href="settings/two_step_authentication">
+            <button class="settings-button secondary-button settings-unit-toggle" data-href="settings/two_step_authentication">
                 {{#t}}Change…{{/t}}
             </button>
         {{/hasToken}}
@@ -37,10 +37,10 @@
                     </div>
                     <div class="settings-button-group">
                         {{#hasToken}}
-                            <button class="settings-button warning totp-delete">{{#t}}Disable{{/t}}</button>
+                            <button class="settings-button warning-button totp-delete">{{#t}}Disable{{/t}}</button>
                         {{/hasToken}}
                         {{^hasToken}}
-                            <button class="settings-button secondary totp-create">{{#t}}Enable{{/t}}</button>
+                            <button class="settings-button secondary-button totp-create">{{#t}}Enable{{/t}}</button>
                         {{/hasToken}}
                     </div>
                 </li>
@@ -51,8 +51,8 @@
                 </li>
             </ul>
             <div class="button-row">
-                <button class="settings-button primary totp-refresh">{{#t}}Refresh{{/t}}</button>
-                <button class="settings-button cancel secondary enabled totp-cancel">{{#t}}Cancel{{/t}}</button>
+                <button class="settings-button primary-button totp-refresh">{{#t}}Refresh{{/t}}</button>
+                <button class="settings-button cancel secondary-button enabled totp-cancel">{{#t}}Cancel{{/t}}</button>
             </div>
         </div>
 
@@ -78,8 +78,8 @@
                 </div>
 
                 <div class="button-row">
-                    <button type="submit" class="settings-button primary totp-confirm-code">{{#t}}Confirm{{/t}}</button>
-                    <button class="settings-button cancel secondary enabled totp-cancel">{{#t}}Cancel{{/t}}</button>
+                    <button type="submit" class="settings-button primary-button totp-confirm-code">{{#t}}Confirm{{/t}}</button>
+                    <button class="settings-button cancel secondary-button enabled totp-cancel">{{#t}}Cancel{{/t}}</button>
                 </div>
             </div>
         </form>

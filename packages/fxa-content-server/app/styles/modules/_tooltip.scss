@@ -43,10 +43,10 @@
   }
 
   &.tooltip-suggest {
-    background: $button-background-color;
+    background: $button-background-color-default;
 
     &::before {
-      background-color: $button-background-color;
+      background-color: $button-background-color-default;
     }
 
     > #email-suggestion,

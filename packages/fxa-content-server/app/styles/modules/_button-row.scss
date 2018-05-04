@@ -1,88 +1,89 @@
-.button-row {
+.button,
+.settings-button,
+button {
+  @include font();
+  align-items: center;
+  background: $button-background-color-default;
+  border: 0;
+  border-radius: $button-border-radius-default;
+  color: $button-text-color-default;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: $button-font-size-default;
+  font-weight: $button-font-weight-default;
+  height: $button-height-default;
+  justify-content: center;
+  letter-spacing: 0.2px;
+  padding: 0 8px;
+  transition-duration: $short-transition;
+  transition-property: background-color;
+  // it is very easy to accidentally select the text when clicking
+  -webkit-touch-callout: none;
+  // user select not supported by autoprefixer
+  // https://github.com/postcss/autoprefixer/issues/167
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  width: 100%;
 
-  @include respond-to('reasonableUI') {
-    margin: 20px 0;
+
+  &:hover {
+    background: $button-background-color-default-hover;
   }
 
-  @include respond-to('trustedUI') {
-    margin: 10px 0;
+  &:active {
+    background: $button-background-color-default-active;
   }
 
-  .button {
-    display: inline-block;
-    text-decoration: none;
+  &:focus {
+    box-shadow: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
   }
 
-  .button,
-  button {
-    @include font();
-    background: $button-background-color;
-    border: 1px solid $button-border-default-color;
-    color: $message-text-color;
-    cursor: pointer;
-    transition-duration: $short-transition;
-    transition-property: background-color;
-    width: 100%;
+  &[type='submit'],
+  &.primary-button {
+    background: $button-background-color-primary;
+    color: $button-text-color-primary;
 
-    @include respond-to('big') {
-      border-radius: $big-border-radius;
-      font-size: $large-font;
-      height: 65px;
-      padding: 15px 0;
-    }
-
-    @include respond-to('small') {
-      border-radius: $small-border-radius;
-      font-size: $medium-font + $media-adjustment;
-      height: 46px;
-      padding: 8px 0;
-    }
-
-    @include respond-to('trustedUI') {
-      font-size: $medium-font;
-      height: 43px;
-      padding: 8px 0;
+    &:hover {
+      background: $button-background-color-primary-hover;
     }
 
     &:active {
-      background: $button-background-active-color;
-      border-color: $button-border-active-color;
+      background: $button-background-color-primary-active;
+    }
+  }
+
+  &.warning-button {
+    background: $error-background-color;
+    border: 0;
+    color: $message-text-color;
+
+    &:hover {
+      background: darken($error-background-color, 5);
+    }
+
+    &:hover:active {
+      background: darken($error-background-color, 10);
     }
 
     &:focus {
-      border-color: $html-background-color;
-      box-shadow: 0 0 0 2px $button-box-shadow-color;
+      box-shadow: 0 0 0 2px rgba(lighten($error-background-color, 15), .75);
     }
   }
 
-  button:disabled,
-  button.disabled {
-    background: $button-background-default-color;
-    border-color: $button-border-disabled-color;
-    color: $button-disabled-color;
+  &:disabled,
+  &.disabled {
     cursor: auto;
-    opacity: 0.5;
+    opacity: 0.4;
   }
+}
 
-  &.button-row-warning {
-    button {
-      background: $error-background-color;
-      border: 0;
-      color: $message-text-color;
+.button-row {
+  margin: 20px 0 24px 0;
 
-      &:hover {
-        background: darken($error-background-color, 5);
-      }
-
-      &:active {
-        background: darken($error-background-color, 10);
-      }
-
-      &:focus {
-        box-shadow: 0 0 0 2px rgba(lighten($error-background-color, 15), .75);
-      }
-    }
-
+  .button {
+    text-decoration: none;
   }
 }
 
@@ -91,16 +92,3 @@ button::-moz-focus-inner {
   padding: 0;
 }
 
-.button-link {
-  background: none;
-  border: 0;
-  color: $link-color;
-
-  &:hover {
-    text-decoration: underline;
-  }
-
-  &:focus {
-    border: 0;
-  }
-}

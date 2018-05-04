@@ -3,7 +3,7 @@
     <header class="settings-unit-summary">
       <h2 class="settings-unit-title">{{#t}}Communication preferences{{/t}}</h2>
     </header>
-    <button class="settings-button secondary settings-unit-toggle hidden"
+    <button class="settings-button secondary-button settings-unit-toggle"
       data-href="settings/communication_preferences">{{#t}}Change…{{/t}}</button>
   </div>
 
@@ -14,7 +14,7 @@
     </div>
     <form novalidate>
       <div class="button-row">
-        <button class="settings-button secondary cancel unpaired">{{#t}}Cancel{{/t}}</button>
+        <button class="settings-button secondary-button cancel unpaired">{{#t}}Cancel{{/t}}</button>
       </div>
     </form>
   {{/error}}
@@ -30,16 +30,16 @@
 
       <div class="button-row">
         {{^isOptedIn}}
-          <button type="submit" id="marketing-email-optin" class="marketing-email-optin settings-button primary" autofocus>
+          <button type="submit" id="marketing-email-optin" class="marketing-email-optin settings-button primary-button" autofocus>
             {{#t}}Subscribe{{/t}}
           </button>
-          <button class="settings-button secondary cancel" id="marketing-email-cancel">{{#t}}Cancel{{/t}}</button>
+          <button class="settings-button secondary-button cancel" id="marketing-email-cancel">{{#t}}Cancel{{/t}}</button>
         {{/isOptedIn}}
         {{#isOptedIn}}
-          <button id="marketing-email-manage" class="marketing-email-optin settings-button primary" autofocus>
+          <button id="marketing-email-manage" class="marketing-email-optin settings-button primary-button" autofocus>
             {{#t}}Manage Subscriptions{{/t}}
           </button>
-          <button class="settings-button secondary cancel" id="marketing-email-done">{{#t}}Done{{/t}}</button>
+          <button class="settings-button secondary-button cancel" id="marketing-email-done">{{#t}}Done{{/t}}</button>
         {{/isOptedIn}}
 
       </div>

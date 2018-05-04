@@ -57,7 +57,7 @@ define(function (require, exports, module) {
 
     setInitialContext (context) {
       context.set({
-        buttonClass: this._hasSecondaryEmail() ? 'secondary' : 'primary',
+        buttonClass: this._hasSecondaryEmail() ? 'secondary-button' : 'primary-button',
         emails: this._emails,
         hasSecondaryEmail: this._hasSecondaryEmail(),
         hasSecondaryVerifiedEmail: this._hasSecondaryVerifiedEmail(),

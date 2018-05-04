@@ -15,9 +15,9 @@ define(function (require, exports, module) {
   const View = FormView.extend({
     template: () => `
       <div>
-        <button type="submit" class="primary">button</button>
+        <button type="submit" class="primary-button">button</button>
         <!-- open/close panel button is ignored -->
-        <button class="primary">Open/Close Panel</button>
+        <button class="primary-button">Open/Close Panel</button>
       </div>
     `
   });

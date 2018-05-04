@@ -80,7 +80,7 @@ module.exports = {
     INPUT: '.new-email',
     MENU_BUTTON: '#emails .settings-unit-stub button',
     NOT_VERIFIED_LABEL: '.not-verified',
-    REMOVE_BUTTON: '.email-address .settings-button.warning.email-disconnect',
+    REMOVE_BUTTON: '.email-address .settings-button.warning-button.email-disconnect',
     SET_PRIMARY_EMAIL_BUTTON: '.email-address .set-primary',
     SUCCESS: '.success',
     TOOLTIP: '.tooltip',

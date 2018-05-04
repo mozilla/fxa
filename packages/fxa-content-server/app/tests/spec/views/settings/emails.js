@@ -154,7 +154,7 @@ define(function (require, exports, module) {
 
         it('has email input field', function () {
           assert.ok(view.$('input.new-email').length, 1);
-          assert.ok(view.$('.email-add.primary').length, 1);
+          assert.ok(view.$('.email-add.primary-button').length, 1);
         });
       });
 
@@ -184,14 +184,14 @@ define(function (require, exports, module) {
           assert.lengthOf(view.$('.email-address .address'), 1);
           assert.equal(view.$('.email-address .address').html(), 'another@one.com');
           assert.equal(view.$('.email-address .details .not-verified').length, 1);
-          assert.equal(view.$('.email-address .settings-button.warning.email-disconnect').length, 1);
-          assert.equal(view.$('.email-address .settings-button.warning.email-disconnect').attr('data-id'), 'another@one.com');
-          assert.equal(view.$('.email-address .settings-button.secondary.set-primary').length, 0);
+          assert.equal(view.$('.email-address .settings-button.warning-button.email-disconnect').length, 1);
+          assert.equal(view.$('.email-address .settings-button.warning-button.email-disconnect').attr('data-id'), 'another@one.com');
+          assert.equal(view.$('.email-address .settings-button.secondary-button.set-primary').length, 0);
 
         });
 
         it('can disconnect email and navigate to /emails', (done) => {
-          $('.email-address .settings-button.warning.email-disconnect').click();
+          $('.email-address .settings-button.warning-button.email-disconnect').click();
           setTimeout(function () {
             TestHelpers.wrapAssertion(() => {
               assert.isTrue(view.navigate.calledOnce);
@@ -257,12 +257,12 @@ define(function (require, exports, module) {
           assert.lengthOf(view.$('.email-address .address'), 1);
           assert.equal(view.$('.email-address .address').html(), 'another@one.com');
           assert.equal(view.$('.email-address .details .verified').length, 1);
-          assert.equal(view.$('.email-address .settings-button.warning.email-disconnect').length, 1);
-          assert.equal(view.$('.email-address .settings-button.warning.email-disconnect').attr('data-id'), 'another@one.com');
+          assert.equal(view.$('.email-address .settings-button.warning-button.email-disconnect').length, 1);
+          assert.equal(view.$('.email-address .settings-button.warning-button.email-disconnect').attr('data-id'), 'another@one.com');
         });
 
         it('can disconnect email and navigate to /emails', (done) => {
-          $('.email-address .settings-button.warning.email-disconnect').click();
+          $('.email-address .settings-button.warning-button.email-disconnect').click();
           setTimeout(() => {
             TestHelpers.wrapAssertion(() => {
               assert.isTrue(view.navigate.calledOnce);
@@ -304,14 +304,14 @@ define(function (require, exports, module) {
           assert.lengthOf(view.$('.email-address .address'), 1);
           assert.equal(view.$('.email-address .address').html(), 'secondary@email.com');
           assert.equal(view.$('.email-address .details .verified').length, 1);
-          assert.equal(view.$('.email-address .settings-button.warning.email-disconnect').length, 1);
-          assert.equal(view.$('.email-address .settings-button.warning.email-disconnect').attr('data-id'), 'secondary@email.com');
-          assert.equal(view.$('.email-address .settings-button.secondary.set-primary').length, 1);
-          assert.equal(view.$('.email-address .settings-button.secondary.set-primary').attr('data-id'), 'secondary@email.com');
+          assert.equal(view.$('.email-address .settings-button.warning-button.email-disconnect').length, 1);
+          assert.equal(view.$('.email-address .settings-button.warning-button.email-disconnect').attr('data-id'), 'secondary@email.com');
+          assert.equal(view.$('.email-address .settings-button.secondary-button.set-primary').length, 1);
+          assert.equal(view.$('.email-address .settings-button.secondary-button.set-primary').attr('data-id'), 'secondary@email.com');
         });
 
         it('can change email', (done) => {
-          $('.email-address .settings-button.secondary.set-primary').click();
+          $('.email-address .settings-button.secondary-button.set-primary').click();
           setTimeout(() => {
             TestHelpers.wrapAssertion(() => {
               assert.equal(account.get('email'), newEmail, 'account email updated');

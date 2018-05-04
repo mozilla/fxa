@@ -3,7 +3,7 @@
         <header class="settings-unit-summary">
             <h2 class="settings-unit-title">{{ title }}</h2>
         </header>
-        <button class="settings-button settings-unit-toggle secondary" data-href="{{ gatedHref }}">
+        <button class="settings-button settings-unit-toggle secondary-button" data-href="{{ gatedHref }}">
             <span class="unlock-button">{{#t}}Show{{/t}}</span>
         </button>
     </div>
@@ -31,17 +31,17 @@
             </ul>
             {{#emailSent }}
                 <div class="button-row email-sent-options">
-                    <button type="submit" class="settings-button primary refresh-verification-state"
+                    <button type="submit" class="settings-button primary-button refresh-verification-state"
                             data-id="{{ email }}">{{#t}}Refresh{{/t}}</button>
-                    <button class="settings-button secondary cancel">{{#t}}Done{{/t}}</button>
+                    <button class="settings-button secondary-button cancel">{{#t}}Done{{/t}}</button>
                 </div>
             {{/emailSent }}
 
             {{^emailSent }}
                 <div class="button-row">
-                    <button type="submit" class="settings-button primary send-verification-email"
+                    <button type="submit" class="settings-button primary-button send-verification-email"
                             data-id="{{ email }}">{{#t}}Verify{{/t}}</button>
-                    <button class="settings-button secondary cancel">{{#t}}Cancel{{/t}}</button>
+                    <button class="settings-button secondary-button cancel">{{#t}}Cancel{{/t}}</button>
                 </div>
             {{/emailSent}}
         </form>
