@@ -2,298 +2,323 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const $ = require('jquery');
-  const _ = require('underscore');
-  const chai = require('chai');
-  const sinon = require('sinon');
-  const Xhr = require('lib/xhr');
+const $ = require('jquery');
+const _ = require('underscore');
+const { assert } = require('chai');
+const sinon = require('sinon');
+const Xhr = require('lib/xhr');
 
-  var assert = chai.assert;
+let xhr;
 
-  var xhr;
+beforeEach(() => {
+  xhr = Object.create(Xhr);
+});
 
-  beforeEach(function () {
-    xhr = Object.create(Xhr);
+afterEach(() => {
+  const possiblyOverridden = ['ajax', 'get', 'post', 'getJSON'];
+  _.each(possiblyOverridden, function (funcNameToRestore) {
+    if ($[funcNameToRestore].restore) {
+      $[funcNameToRestore].restore();
+    }
   });
+});
 
-  afterEach(function () {
-    var possiblyOverridden = ['ajax', 'get', 'post', 'getJSON'];
-    _.each(possiblyOverridden, function (funcNameToRestore) {
-      if ($[funcNameToRestore].restore) {
-        $[funcNameToRestore].restore();
-      }
-    });
-  });
+describe('lib/xhr', () => {
+  describe('ajax', () => {
+    it('calls $.ajax', () => {
+      const deferred = $.Deferred();
 
-  describe('lib/xhr', function () {
-    describe('ajax', function () {
-      it('calls $.ajax', function () {
-        var deferred = $.Deferred();
-
-        sinon.stub($, 'ajax').callsFake(function () {
-          return deferred.promise();
-        });
-
-        deferred.resolve('mocked_response');
-
-        return xhr.ajax({
-          url: '/fake_endpoint'
-        }).then(function (resp) {
-          assert.equal(resp, 'mocked_response');
-          assert.isTrue($.ajax.calledWith({ url: '/fake_endpoint' }));
-        });
+      sinon.stub($, 'ajax').callsFake(() => {
+        return deferred.promise();
       });
 
-      it('$.ajax does not stringify json if processData is false', function () {
-        var deferred = $.Deferred();
+      deferred.resolve('mocked_response');
 
-        sinon.stub($, 'ajax').callsFake(function () {
-          return deferred.promise();
-        });
+      return xhr.ajax({
+        url: '/fake_endpoint'
+      }).then(function (resp) {
+        assert.equal(resp, 'mocked_response');
+        assert.isTrue($.ajax.calledWith({ url: '/fake_endpoint' }));
+      });
+    });
 
-        deferred.resolve('mocked_response');
-        var data = { foo: 'bar' };
+    it('$.ajax does not stringify json if processData is false', () => {
+      const deferred = $.Deferred();
 
-        return xhr.ajax({
+      sinon.stub($, 'ajax').callsFake(() => {
+        return deferred.promise();
+      });
+
+      deferred.resolve('mocked_response');
+      const data = { foo: 'bar' };
+
+      return xhr.ajax({
+        data: data,
+        dataType: 'json',
+        method: 'POST',
+        processData: false,
+        url: '/fake_endpoint'
+      }).then(function (resp) {
+        assert.equal(resp, 'mocked_response');
+        assert.isTrue($.ajax.calledWith({
+          accepts: { json: 'application/json' },
+          contentType: 'application/json',
           data: data,
           dataType: 'json',
           method: 'POST',
           processData: false,
           url: '/fake_endpoint'
-        }).then(function (resp) {
-          assert.equal(resp, 'mocked_response');
-          assert.isTrue($.ajax.calledWith({
-            accepts: { json: 'application/json' },
-            contentType: 'application/json',
-            data: data,
-            dataType: 'json',
-            method: 'POST',
-            processData: false,
-            url: '/fake_endpoint'
-          }));
-        });
+        }));
+      });
+    });
+
+    it('correctly handles errors', () => {
+      const data = { foo: 'bar' };
+      const errResponse = {
+        responseJSON: {
+          ok: false
+        },
+        status: 400
+      };
+
+      const deferred = $.Deferred();
+      sinon.stub($, 'ajax').callsFake(() => {
+        return deferred.promise();
+      });
+      deferred.reject(errResponse);
+
+      return xhr.ajax({
+        data: data,
+        dataType: 'json',
+        method: 'POST',
+        processData: false,
+        url: '/error_endpoint'
+      }).catch((jqXHR) => {
+        // a .fail that throws followed by a .then(null, errback)
+        // does not correctly propagate the error unless the
+        // jQuery promise is converted to an internal promise
+        assert.strictEqual(jqXHR, errResponse);
+        throw jqXHR;
+      }).then(null, (jqXHR) => {
+        assert.strictEqual(jqXHR, errResponse);
+      });
+    });
+  });
+
+  describe('oauthAjax', () => {
+    it('calls xhr.ajax with the appropriate options set', () => {
+      sinon.stub(xhr, 'ajax').callsFake(() => {
+        return Promise.resolve();
       });
 
-      it('correctly handles errors', () => {
-        const data = { foo: 'bar' };
-        const errResponse = {
-          responseJSON: {
-            ok: false
+      return xhr.oauthAjax({
+        accessToken: 'token',
+        data: { key: 'value' },
+        headers: { 'ETag': 'why not?' },
+        type: 'get',
+        url: '/endpoint'
+      }).then(() => {
+        const ajaxOptions = xhr.ajax.args[0][0];
+
+        assert.equal(ajaxOptions.url, '/endpoint');
+        assert.equal(ajaxOptions.type, 'get');
+        assert.equal(ajaxOptions.headers.Authorization, 'Bearer token');
+        assert.equal(ajaxOptions.headers.Accept, 'application/json');
+        assert.equal(ajaxOptions.headers.ETag, 'why not?');
+        assert.equal(ajaxOptions.data.key, 'value');
+      });
+    });
+
+    it('handles contentType: application/x-www-form-urlencoded', () => {
+      sinon.stub(xhr, 'ajax').callsFake(() => Promise.resolve());
+
+      return xhr.oauthAjax({
+        accessToken: 'token',
+        contentType: 'application/x-www-form-urlencoded',
+        data: { key: 'value' },
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        type: 'post',
+        url: '/endpoint',
+      }).then(() => {
+        assert.isTrue(xhr.ajax.calledOnceWith({
+          contentType: 'application/x-www-form-urlencoded',
+          data: { key: 'value' },
+          dataType: 'json',
+          headers: {
+            Accept: 'application/json',
+            Authorization: 'Bearer token',
+            'X-Requested-With': 'XMLHttpRequest'
           },
-          status: 400
-        };
-
-        const deferred = $.Deferred();
-        sinon.stub($, 'ajax').callsFake(function () {
-          return deferred.promise();
-        });
-        deferred.reject(errResponse);
-
-        return xhr.ajax({
-          data: data,
-          dataType: 'json',
-          method: 'POST',
-          processData: false,
-          url: '/error_endpoint'
-        }).catch((jqXHR) => {
-          // a .fail that throws followed by a .then(null, errback)
-          // does not correctly propagate the error unless the
-          // jQuery promise is converted to an internal promise
-          assert.strictEqual(jqXHR, errResponse);
-          throw jqXHR;
-        }).then(null, (jqXHR) => {
-          assert.strictEqual(jqXHR, errResponse);
-        });
+          timeout: undefined,
+          type: 'post',
+          url: '/endpoint'
+        }));
       });
     });
 
-    describe('oauthAjax', function () {
-      it('calls xhr.ajax with the appropriate options set', function () {
-        sinon.stub(xhr, 'ajax').callsFake(function () {
+    it('handles Blob data', () => {
+      if (typeof window.Blob !== 'undefined') {
+        sinon.stub(xhr, 'ajax').callsFake(() => {
           return Promise.resolve();
         });
 
         return xhr.oauthAjax({
           accessToken: 'token',
-          data: { key: 'value' },
-          headers: { 'ETag': 'why not?' },
+          data: new Blob(),
           type: 'get',
           url: '/endpoint'
-        }).then(function () {
-          var ajaxOptions = xhr.ajax.args[0][0];
-
-          assert.equal(ajaxOptions.url, '/endpoint');
-          assert.equal(ajaxOptions.type, 'get');
-          assert.equal(ajaxOptions.headers.Authorization, 'Bearer token');
-          assert.equal(ajaxOptions.headers.Accept, 'application/json');
-          assert.equal(ajaxOptions.headers.ETag, 'why not?');
-          assert.equal(ajaxOptions.data.key, 'value');
+        }).then(() => {
+          const ajaxOptions = xhr.ajax.args[0][0];
+          assert.equal(ajaxOptions.processData, false);
         });
+      }
+    });
+  });
+
+
+  describe('get', () => {
+    it('calls $.get, sets the default dataType to `json`', () => {
+      const deferred = $.Deferred();
+
+      sinon.stub($, 'ajax').callsFake(() => {
+        return deferred.promise();
       });
 
-      it('handles Blob data', function () {
-        if (typeof window.Blob !== 'undefined') {
-          sinon.stub(xhr, 'ajax').callsFake(function () {
-            return Promise.resolve();
-          });
+      deferred.resolve('mocked_response');
 
-          return xhr.oauthAjax({
-            accessToken: 'token',
-            data: new Blob(),
-            type: 'get',
-            url: '/endpoint'
-          }).then(function () {
-            var ajaxOptions = xhr.ajax.args[0][0];
-            assert.equal(ajaxOptions.processData, false);
-          });
-        }
-      });
+      return xhr.get('/fake_endpoint')
+        .then(function (resp) {
+          assert.equal(resp, 'mocked_response');
+
+          assert.isTrue($.ajax.calledWith({
+            accepts: { json: 'application/json' },
+            contentType: 'application/json',
+            data: undefined,
+            dataType: 'json',
+            method: 'GET',
+            success: undefined,
+            url: '/fake_endpoint'
+          }));
+        });
     });
 
+    it('calls $.get with no changes if dataType is set', () => {
+      const deferred = $.Deferred();
 
-    describe('get', function () {
-      it('calls $.get, sets the default dataType to `json`', function () {
-        var deferred = $.Deferred();
-
-        sinon.stub($, 'ajax').callsFake(function () {
-          return deferred.promise();
-        });
-
-        deferred.resolve('mocked_response');
-
-        return xhr.get('/fake_endpoint')
-          .then(function (resp) {
-            assert.equal(resp, 'mocked_response');
-
-            assert.isTrue($.ajax.calledWith({
-              accepts: { json: 'application/json' },
-              contentType: 'application/json',
-              data: undefined,
-              dataType: 'json',
-              method: 'GET',
-              success: undefined,
-              url: '/fake_endpoint'
-            }));
-          });
+      sinon.stub($, 'ajax').callsFake(() => {
+        return deferred.promise();
       });
 
-      it('calls $.get with no changes if dataType is set', function () {
-        var deferred = $.Deferred();
+      deferred.resolve('mocked_response');
 
-        sinon.stub($, 'ajax').callsFake(function () {
-          return deferred.promise();
+      return xhr.get('/fake_endpoint', { key: 'value' }, null, 'text')
+        .then(function (resp) {
+          assert.equal(resp, 'mocked_response');
+          assert.isTrue($.ajax.calledWith({
+            data: { key: 'value' },
+            dataType: 'text',
+            method: 'GET',
+            success: null,
+            url: '/fake_endpoint'
+          }));
         });
+    });
+  });
 
-        deferred.resolve('mocked_response');
+  describe('post', () => {
+    it('calls $.post, sets the default dataType to `json`', () => {
+      const deferred = $.Deferred();
 
-        return xhr.get('/fake_endpoint', { key: 'value' }, null, 'text')
-          .then(function (resp) {
-            assert.equal(resp, 'mocked_response');
-            assert.isTrue($.ajax.calledWith({
-              data: { key: 'value' },
-              dataType: 'text',
-              method: 'GET',
-              success: null,
-              url: '/fake_endpoint'
-            }));
-          });
+      sinon.stub($, 'ajax').callsFake(() => {
+        return deferred.promise();
       });
+
+      deferred.resolve('mocked_response');
+
+      return xhr.post('/fake_endpoint', { foo: 'bar' })
+        .then(function (resp) {
+          assert.equal(resp, 'mocked_response');
+          assert.isTrue($.ajax.calledWith({
+            accepts: { json: 'application/json' },
+            contentType: 'application/json',
+            data: JSON.stringify({ foo: 'bar' }),
+            dataType: 'json',
+            method: 'POST',
+            success: undefined,
+            url: '/fake_endpoint'
+          }));
+        });
     });
 
-    describe('post', function () {
-      it('calls $.post, sets the default dataType to `json`', function () {
-        var deferred = $.Deferred();
+    it('calls $.post with no changes if dataType is set', () => {
+      const deferred = $.Deferred();
 
-        sinon.stub($, 'ajax').callsFake(function () {
-          return deferred.promise();
-        });
-
-        deferred.resolve('mocked_response');
-
-        return xhr.post('/fake_endpoint', { foo: 'bar' })
-          .then(function (resp) {
-            assert.equal(resp, 'mocked_response');
-            assert.isTrue($.ajax.calledWith({
-              accepts: { json: 'application/json' },
-              contentType: 'application/json',
-              data: JSON.stringify({ foo: 'bar' }),
-              dataType: 'json',
-              method: 'POST',
-              success: undefined,
-              url: '/fake_endpoint'
-            }));
-          });
+      sinon.stub($, 'ajax').callsFake(() => {
+        return deferred.promise();
       });
 
-      it('calls $.post with no changes if dataType is set', function () {
-        var deferred = $.Deferred();
+      deferred.resolve('mocked_response');
 
-        sinon.stub($, 'ajax').callsFake(function () {
-          return deferred.promise();
+      return xhr.post('/fake_endpoint', { key: 'value' }, null, 'text')
+        .then(function (resp) {
+          assert.equal(resp, 'mocked_response');
+          assert.isTrue($.ajax.calledWith({
+            data: { key: 'value' },
+            dataType: 'text',
+            method: 'POST',
+            success: null,
+            url: '/fake_endpoint'
+          }));
         });
+    });
+  });
 
-        deferred.resolve('mocked_response');
+  describe('getJSON', () => {
+    it('calls $.getJSON', () => {
+      const deferred = $.Deferred();
 
-        return xhr.post('/fake_endpoint', { key: 'value' }, null, 'text')
-          .then(function (resp) {
-            assert.equal(resp, 'mocked_response');
-            assert.isTrue($.ajax.calledWith({
-              data: { key: 'value' },
-              dataType: 'text',
-              method: 'POST',
-              success: null,
-              url: '/fake_endpoint'
-            }));
-          });
+      sinon.stub($, 'getJSON').callsFake(() => {
+        return deferred.promise();
       });
+
+      deferred.resolve({ key: 'value' });
+
+      return xhr.getJSON('/fake_endpoint')
+        .then(function (resp) {
+          assert.deepEqual(resp, { key: 'value' });
+          assert.isTrue($.getJSON.calledWith('/fake_endpoint'));
+        });
     });
 
-    describe('getJSON', function () {
-      it('calls $.getJSON', function () {
-        var deferred = $.Deferred();
+    it('correctly handles errors', () => {
+      const errResponse = {
+        responseJSON: {
+          ok: false
+        },
+        status: 400
+      };
 
-        sinon.stub($, 'getJSON').callsFake(function () {
-          return deferred.promise();
-        });
-
-        deferred.resolve({ key: 'value' });
-
-        return xhr.getJSON('/fake_endpoint')
-          .then(function (resp) {
-            assert.deepEqual(resp, { key: 'value' });
-            assert.isTrue($.getJSON.calledWith('/fake_endpoint'));
-          });
+      const deferred = $.Deferred();
+      sinon.stub($, 'getJSON').callsFake(() => {
+        return deferred.promise();
       });
+      deferred.reject(errResponse);
 
-      it('correctly handles errors', () => {
-        const errResponse = {
-          responseJSON: {
-            ok: false
-          },
-          status: 400
-        };
-
-        const deferred = $.Deferred();
-        sinon.stub($, 'getJSON').callsFake(function () {
-          return deferred.promise();
+      return xhr.getJSON('/error_endpoint')
+        // a .fail that throws followed by a .then(null, errback)
+        // does not correctly propagate the error unless the
+        // jQuery promise is converted to an internal promise
+        .catch((jqXHR) => {
+          assert.strictEqual(jqXHR, errResponse);
+          throw jqXHR;
+        })
+        .then(null, (jqXHR) => {
+          assert.strictEqual(jqXHR, errResponse);
         });
-        deferred.reject(errResponse);
-
-        return xhr.getJSON('/error_endpoint')
-          // a .fail that throws followed by a .then(null, errback)
-          // does not correctly propagate the error unless the
-          // jQuery promise is converted to an internal promise
-          .catch((jqXHR) => {
-            assert.strictEqual(jqXHR, errResponse);
-            throw jqXHR;
-          })
-          .then(null, (jqXHR) => {
-            assert.strictEqual(jqXHR, errResponse);
-          });
-      });
     });
   });
 });
