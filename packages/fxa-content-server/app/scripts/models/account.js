@@ -1294,16 +1294,18 @@ define(function (require, exports, module) {
      * Verifies a TOTP code. If code is verified, token will be marked as verified.
      *
      * @param {String} code
-     *
+     * @param {String} service
      * @returns {Promise}
      */
-    verifyTotpCode (code) {
+    verifyTotpCode (code, service) {
+      const options = {
+        metricsContext: this._metrics.getFlowEventMetadata(),
+        service: service
+      };
       return this._fxaClient.verifyTotpCode(
         this.get('sessionToken'),
         code,
-        {
-          metricsContext: this._metrics.getFlowEventMetadata(),
-        }
+        options
       );
     },
 

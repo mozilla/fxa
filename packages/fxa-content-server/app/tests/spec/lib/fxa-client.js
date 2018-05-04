@@ -1579,13 +1579,17 @@ define(function (require, exports, module) {
         const resp = {
           success: true
         };
+        const options = {
+          metricsContext: { foo: 'bar' },
+          service: 'someservice'
+        };
         sinon.stub(realClient, 'verifyTotpCode').callsFake(() => Promise.resolve(resp));
 
-        return client.verifyTotpCode('code')
+        return client.verifyTotpCode('code', options)
           .then((_resp) => {
             assert.strictEqual(_resp, resp);
             assert.isTrue(realClient.verifyTotpCode.calledOnce);
-            assert.isTrue(realClient.verifyTotpCode.calledWith('code'));
+            assert.isTrue(realClient.verifyTotpCode.calledWith('code', options));
           });
       });
     });

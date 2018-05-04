@@ -2676,5 +2676,32 @@ define(function (require, exports, module) {
         assert.isTrue(account._isAssertionValid({ __expiresAt: Date.now() + 2 }));
       });
     });
+
+    describe('verifyTotpCode', () => {
+      const flowEventMetaData = {
+        startTime: Date.now()
+      };
+
+      beforeEach(() => {
+        sinon.stub(fxaClient, 'verifyTotpCode').callsFake(() => Promise.resolve());
+        sinon.stub(metrics, 'getFlowEventMetadata').callsFake(() => flowEventMetaData);
+
+        account.set('sessionToken', 'sessionToken');
+        return account.verifyTotpCode('000000', 'service');
+      });
+
+      it('delegates to the fxa-client', () => {
+        assert.isTrue(fxaClient.verifyTotpCode.calledOnce);
+        assert.isTrue(fxaClient.verifyTotpCode.calledWith(
+          'sessionToken',
+          '000000',
+          {
+            metricsContext: flowEventMetaData,
+            service: 'service'
+          }
+        ));
+      });
+    });
+
   });
 });

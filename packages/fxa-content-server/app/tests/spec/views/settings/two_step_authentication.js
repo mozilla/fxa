@@ -7,6 +7,7 @@ const assert = require('chai').assert;
 const Broker = require('models/auth_brokers/base');
 const Metrics = require('lib/metrics');
 const Notifier = require('lib/channels/notifier');
+const Relier = require('models/reliers/base');
 const SentryMetrics = require('lib/sentry');
 const sinon = require('sinon');
 const TestHelpers = require('../../../lib/helpers');
@@ -22,6 +23,7 @@ describe('views/settings/two_step_authentication', () => {
   let featureEnabled;
   let hasToken;
   let inTotpExperiment;
+  let relier;
   let sentryMetrics;
   let validCode;
   const UID = '123';
@@ -30,10 +32,11 @@ describe('views/settings/two_step_authentication', () => {
 
   function initView() {
     view = new View({
-      broker: broker,
-      metrics: metrics,
-      notifier: notifier,
-      user: user
+      broker,
+      metrics,
+      notifier,
+      relier,
+      user
     });
 
     sinon.stub(view, 'setupSessionGateIfRequired').callsFake(() => Promise.resolve(featureEnabled));
@@ -58,6 +61,7 @@ describe('views/settings/two_step_authentication', () => {
       uid: UID,
       verified: true
     });
+    relier = new Relier();
 
     sinon.stub(account, 'checkTotpTokenExists').callsFake(() => {
       return Promise.resolve({exists: hasToken});

@@ -150,7 +150,7 @@ const View = FormView.extend({
     const account = this.getSignedInAccount();
     const code = this.getElementValue('input.totp-code');
 
-    return account.verifyTotpCode(code)
+    return account.verifyTotpCode(code, this.relier.get('service'))
       .then((result) => {
         if (result.success) {
           this.displaySuccess(t('Two-step authentication enabled'), {});

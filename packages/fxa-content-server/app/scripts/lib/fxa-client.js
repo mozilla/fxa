@@ -1008,6 +1008,10 @@ define(function (require, exports, module) {
      *
      * @param {String} sessionToken SessionToken obtained from signIn
      * @param {String} code TOTP code
+     * @param {Object} [options={}] Options
+     *   @param {String} [options.metricsContext] - context metadata for use in
+     *                   flow events
+     *   @param {String} [options.service] - service used
      * @returns {Promise} resolves when complete
      */
     verifyTotpCode: createClientDelegate('verifyTotpCode'),
