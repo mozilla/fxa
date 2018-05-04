@@ -6,31 +6,23 @@ use std::{
   collections::{HashMap, HashSet},
   env,
   error::Error,
-  sync::{LockResult, Mutex, MutexGuard},
 };
 
 use super::*;
 
-lazy_static! {
-  // HACK: mutex to prevent tests clobbering each other's environment variables
-  static ref ENVIRONMENT_MUTEX: Mutex<bool> = Mutex::new(true);
-}
-
-struct CleanEnvironment<'e>
+struct CleanEnvironment
 {
   vars_to_reinstate: HashMap<String, String>,
   keys_to_clear: HashSet<String>,
-  _lock: LockResult<MutexGuard<'e, bool>>,
 }
 
-impl<'e> CleanEnvironment<'e>
+impl CleanEnvironment
 {
   pub fn new(keys: Vec<&str>) -> CleanEnvironment
   {
     let mut snapshot = CleanEnvironment {
       vars_to_reinstate: HashMap::new(),
       keys_to_clear: HashSet::new(),
-      _lock: ENVIRONMENT_MUTEX.lock(),
     };
 
     snapshot.initialise(keys);
@@ -51,7 +43,7 @@ impl<'e> CleanEnvironment<'e>
   }
 }
 
-impl<'e> Drop for CleanEnvironment<'e>
+impl Drop for CleanEnvironment
 {
   fn drop(&mut self)
   {
