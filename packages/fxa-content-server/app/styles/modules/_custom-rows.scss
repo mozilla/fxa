@@ -40,14 +40,6 @@
     text-align: center;
     width: fit-content;
   }
-
-  a {
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
 }
 
 .extra-links + .links {
@@ -64,18 +56,19 @@ ul.links {
   }
 }
 
-.extra-links,
-.extra-links a {
-  color: $input-placeholder-color;
+.extra-links {
+  color: $link-color-extra;
   margin-top: 20px;
   transition-duration: $short-transition;
+
+  a {
+    color: $link-color-extra;
+    text-decoration: underline;
+
+    @include anchor-default-pseudo-classes();
+  }
 }
 
-.extra-links a:active,
-.extra-links a:hover,
-.extra-links a:focus {
-  color: $link-color;
-}
 
 .verification-email-message,
 .signed-in-email-message,

@@ -63,17 +63,13 @@ noscript,
   }
 }
 
+
 a {
-  color: $link-color;
+  color: $link-color-default;
   cursor: pointer; // Use the correct cursor for anchors without an href
+  text-decoration: none;
 
-  &:active {
-    outline: none;
-  }
-
-  &:focus {
-    outline: 1px dotted $link-color;
-  }
+  @include anchor-default-pseudo-classes();
 }
 
 header {

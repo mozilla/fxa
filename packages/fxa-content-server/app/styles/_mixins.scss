@@ -55,3 +55,22 @@
     background-image: image-url('#{$filename}@2x.#{$extension}');
   }
 }
+
+@mixin anchor-default-pseudo-classes() {
+  &:hover {
+    color: $link-color-hover;
+    text-decoration: underline;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 2px $blue-60, 0 0 0 6px rgba($blue-60, 0.3);
+    color: $link-color-focus;
+    outline: none;
+  }
+
+  &:active {
+    box-shadow: none;
+    color: $link-color-active;
+    outline: none;
+  }
+}

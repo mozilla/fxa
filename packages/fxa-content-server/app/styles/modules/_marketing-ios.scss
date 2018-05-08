@@ -39,12 +39,4 @@
   @include respond-to('trustedUI') {
     display: none;
   }
-
-  a {
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
 }

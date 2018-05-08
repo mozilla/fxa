@@ -41,16 +41,6 @@
   a {
     color: $faint-text-color;
     font-size: $small-font;
-    text-decoration: none;
-
-    &:hover {
-      color: $link-color;
-      text-decoration: underline;
-    }
-
-    &:active {
-      outline-color: $html-background-color;
-    }
   }
 }
 

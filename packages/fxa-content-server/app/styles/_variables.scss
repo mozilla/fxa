@@ -85,7 +85,13 @@ $input-row-focus-box-shadow-color: $color-blue-focus-ring;
 $input-row-hover-border-color: $color-grey-text;
 $input-text-color: $color-grey-text;
 
-$link-color: $blue-60;
+$link-color-default: $blue-60;
+$link-color-hover: $blue-60;
+$link-color-active: $blue-70;
+$link-color-focus: $blue-60;
+
+$link-color-extra: $grey-50;
+
 $marketing-border-color: $color-grey-spinner;
 $message-text-color: $color-white;
 $mobile-html-background-color: $color-white;

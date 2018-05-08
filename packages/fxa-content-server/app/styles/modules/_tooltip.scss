@@ -17,6 +17,7 @@
 
   a {
     color: $message-text-color;
+    text-decoration: underline;
   }
 
   /* tooltip caret */
@@ -76,10 +77,6 @@
     &::before {
       background-color: $error-background-color;
     }
-
-    a {
-      text-decoration: underline;
-    }
   }
 
   &.tooltip-warning {
@@ -87,10 +84,6 @@
 
     &::before {
       background-color: $warning-background-color;
-    }
-
-    a {
-      text-decoration: underline;
     }
   }
 

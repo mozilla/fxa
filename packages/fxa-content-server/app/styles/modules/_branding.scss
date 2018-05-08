@@ -167,7 +167,9 @@
   margin: 10px 0;
 
   a {
-    color: $color-grey-faint-text;
+    color: $link-color-extra;
     text-decoration: underline;
+
+    @include anchor-default-pseudo-classes();
   }
 }
