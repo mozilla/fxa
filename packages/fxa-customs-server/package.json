@@ -30,7 +30,7 @@
     "lodash.isequal": "4.5.0",
     "lodash.merge": "4.6.0",
     "memcached": "2.2.1",
-    "newrelic": "2.3.2",
+    "newrelic": "4.1.0",
     "raven": "2.3.0",
     "restify": "4.1.1",
     "restify-safe-json-formatter": "0.2.0"
