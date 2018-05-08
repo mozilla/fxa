@@ -36,7 +36,7 @@
     "mozlog": "2.1.0",
     "mysql": "2.13.0",
     "mysql-patcher": "0.7.0",
-    "newrelic": "2.3.2",
+    "newrelic": "4.1.0",
     "raven": "2.3.0",
     "request": "2.83.0",
     "restify": "4.3.0",
