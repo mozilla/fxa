@@ -34,6 +34,7 @@ describe('metrics/amplitude:', () => {
     assert.isString(amplitude.EMAIL_TYPES['complete-reset-password']);
     assert.isString(amplitude.EMAIL_TYPES['complete-signin']);
     assert.isString(amplitude.EMAIL_TYPES['verify-email']);
+    assert.isString(amplitude.EMAIL_TYPES.lowRecoveryCodesEmail);
     assert.isString(amplitude.EMAIL_TYPES.newDeviceLoginEmail);
     assert.isString(amplitude.EMAIL_TYPES.passwordChangedEmail);
     assert.isString(amplitude.EMAIL_TYPES.passwordResetEmail);
