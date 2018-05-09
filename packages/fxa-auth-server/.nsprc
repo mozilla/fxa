@@ -10,6 +10,8 @@
     // mysql
     "https://nodesecurity.io/advisories/602",
     // tunnel-agent
-    "https://nodesecurity.io/advisories/598"
+    "https://nodesecurity.io/advisories/598",
+    // constantinople
+    "https://nodesecurity.io/advisories/568"
   ]
 }
