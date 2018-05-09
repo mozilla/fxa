@@ -38,6 +38,7 @@ const EMAIL_TYPES = {
   'complete-signin': 'login',
   'verify-email': 'registration',
   // Indexed by auth server template name
+  lowRecoveryCodesEmail: '2fa',
   newDeviceLoginEmail: 'login',
   passwordChangedEmail: 'change_password',
   passwordResetEmail: 'reset_password',
