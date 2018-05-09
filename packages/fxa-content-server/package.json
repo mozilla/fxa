@@ -88,7 +88,7 @@
     "jsxgettext-recursive": "git://github.com/vladikoff/jsxgettext-recursive#msgctxt-support",
     "legal-docs": "git://github.com/mozilla/legal-docs.git#master",
     "load-grunt-tasks": "3.5.2",
-    "lodash": "4.17.4",
+    "lodash": "4.17.5",
     "mailcheck": "git://github.com/mailcheck/mailcheck.git#d995fcc1d02c124a893c2cb0fce2e0ce5f36bce4",
     "mkdirp": "0.5.1",
     "mocha": "4.0.1",

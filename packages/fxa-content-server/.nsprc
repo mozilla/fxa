@@ -10,6 +10,12 @@
     // tough-cookie
     "https://nodesecurity.io/advisories/130",
     "https://nodesecurity.io/advisories/525",
-    "https://nodesecurity.io/advisories/309"
+    "https://nodesecurity.io/advisories/309",
+    // tunnel-agent
+    "https://nodesecurity.io/advisories/598",
+    // lodash
+    "https://nodesecurity.io/advisories/577",
+    // constantinople
+    "https://nodesecurity.io/advisories/568"
   ]
 }
