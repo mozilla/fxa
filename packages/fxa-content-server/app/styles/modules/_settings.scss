@@ -25,7 +25,7 @@ body.settings #main-content.card {
 // settings header controls
 #fxa-settings-header-wrapper {
   background: $color-white;
-  border-bottom: 1px solid $input-border-disabled-color;
+  border-bottom: 1px solid $color-grey-light;
 
   @include respond-to('big') {
     height: 64px;

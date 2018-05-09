@@ -7,7 +7,6 @@ define(function (require, exports, module) {
 
   const AuthErrors = require('../lib/auth-errors');
   const Cocktail = require('cocktail');
-  const FloatingPlaceholderMixin = require('./mixins/floating-placeholder-mixin');
   const FormView = require('./form');
   const FlowEventsMixin = require('./mixins/flow-events-mixin');
   const Notifier = require('../lib/channels/notifier');
@@ -156,7 +155,6 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
-    FloatingPlaceholderMixin,
     FlowEventsMixin,
     PasswordMixin,
     PasswordResetMixin,

@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const chai = require('chai');
   const Cocktail = require('cocktail');
-  const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
   const FormView = require('views/form');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
@@ -24,7 +23,6 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     SettingsPanelView,
-    FloatingPlaceholderMixin,
     SettingsPanelMixin
   );
 
@@ -125,14 +123,6 @@ define(function (require, exports, module) {
         view.displaySuccess('hi');
         assert.isTrue(view.parentView.displaySuccess.calledWith('hi'));
         assert.isTrue(view.closePanel.called);
-      });
-
-      it('clearInput', function () {
-        sinon.spy(view, 'hideFloatingPlaceholder');
-
-        view.clearInput();
-
-        assert.isTrue(view.hideFloatingPlaceholder.called);
       });
     });
 

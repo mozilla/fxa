@@ -63,11 +63,6 @@ define(function (require, exports, module) {
       const $inputEls = this.$('input');
 
       $inputEls.each((i, inputEl) => {
-        // Make no assumptions that this view has the
-        // floating-placeholder-mixin available. Check first.
-        if (this.hideFloatingPlaceholder) {
-          this.hideFloatingPlaceholder(inputEl);
-        }
         // Called to clear validation tooltips. issues/5680
         $(inputEl).change();
       });

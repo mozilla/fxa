@@ -6,7 +6,6 @@ define(function (require, exports, module) {
   'use strict';
 
   const Cocktail = require('cocktail');
-  const FloatingPlaceholderMixin = require('../mixins/floating-placeholder-mixin');
   const FormView = require('../form');
   const ModalSettingsPanelMixin = require('../mixins/modal-settings-panel-mixin');
   const SignedOutNotificationMixin = require('../mixins/signed-out-notification-mixin');
@@ -116,7 +115,6 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     ModalSettingsPanelMixin,
-    FloatingPlaceholderMixin,
     SignedOutNotificationMixin
   );
 

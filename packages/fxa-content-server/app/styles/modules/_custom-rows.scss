@@ -147,12 +147,11 @@ ul.links {
   }
 }
 
-.small-label,
-.label-helper {
+.small-label {
   border-radius: $small-border-radius;
-  color: $input-placeholder-color;
-  font-size: $small-font;
-  font-weight: normal;
+  color: $grey-90;
+  font-size: $font-size-body-10;
+  font-weight: $font-weight-body-10;
   height: 16px;
   margin: 0 10px;
 }
@@ -163,28 +162,18 @@ ul.links {
 }
 
 .password:focus ~ .show-password-label {
-  color: $input-row-focus-border-color;
+  color: $input-border-color-focus;
 }
 
 .password[type='text']:focus ~ .show-password-label {
-  background-color: $input-row-focus-border-color;
+  background-color: $input-border-color-focus;
   color: $show-password-focus-label-color;
 }
 
 .modal {
-  .small-label,
-  .label-helper {
+  .small-label {
     margin-left: 1px;
   }
-}
-
-.label-helper {
-  left: 0;
-  position: absolute;
-  top: 0;
-  transition: top 400ms,
-              color 450ms;
-  z-index: 1;
 }
 
 #permissions {

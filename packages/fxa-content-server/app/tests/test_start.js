@@ -161,7 +161,6 @@ require('./spec/views/mixins/email-first-experiment-mixin');
 require('./spec/views/mixins/email-opt-in-mixin');
 require('./spec/views/mixins/experiment-mixin');
 require('./spec/views/mixins/external-links-mixin');
-require('./spec/views/mixins/floating-placeholder-mixin');
 require('./spec/views/mixins/flow-begin-mixin');
 require('./spec/views/mixins/flow-events-mixin');
 require('./spec/views/mixins/form-prefill-mixin');

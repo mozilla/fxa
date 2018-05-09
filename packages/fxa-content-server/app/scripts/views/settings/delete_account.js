@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   const AuthErrors = require('../../lib/auth-errors');
   const BaseView = require('../base');
   const Cocktail = require('cocktail');
-  const FloatingPlaceholderMixin = require('../mixins/floating-placeholder-mixin');
   const FormView = require('../form');
   const PasswordMixin = require('../mixins/password-mixin');
   const ServiceMixin = require('../mixins/settings-panel-mixin');
@@ -60,7 +59,6 @@ define(function (require, exports, module) {
     PasswordMixin,
     SettingsPanelMixin,
     ServiceMixin,
-    FloatingPlaceholderMixin
   );
 
   module.exports = View;

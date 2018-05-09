@@ -201,14 +201,6 @@ section p {
   }
 }
 
-::-webkit-input-placeholder,
-:-moz-placeholder,
-::-moz-placeholder,
-:-ms-input-placeholder {
-  color: $input-placeholder-color !important;
-  opacity: 1;
-}
-
 .email {
   display: block;
 }

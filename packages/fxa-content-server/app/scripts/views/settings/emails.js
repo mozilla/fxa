@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   const BaseView = require('../base');
   const Cocktail = require('cocktail');
   const Email = require('../../models/email');
-  const FloatingPlaceholderMixin = require('../mixins/floating-placeholder-mixin');
   const FormView = require('../form');
   const preventDefaultThen = require('../base').preventDefaultThen;
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
@@ -160,7 +159,6 @@ define(function (require, exports, module) {
     }),
     AvatarMixin,
     SettingsPanelMixin,
-    FloatingPlaceholderMixin,
     SearchParamMixin
   );
 

@@ -11,10 +11,6 @@
   @include respond-to('small') {
     height: 40px;
   }
-
-  .label-helper {
-    left: 10px;
-  }
 }
 
 .select-row {
@@ -22,7 +18,7 @@
   background-color: $content-background-color;
   background-position: 96% center;
   background-repeat: no-repeat;
-  border: 1px solid $input-row-border-color;
+  border: 1px solid $input-border-color-default;
   border-radius: $big-border-radius;
   cursor: pointer;
   height: 45px;
@@ -58,14 +54,14 @@
 
   &:hover {
     @include hidpi-background-image('ddarrow_active', 10px 17px);
-    border-color: $input-row-hover-border-color;
+    border-color: $input-border-color-hover;
 
     @include respond-to ('trustedUI') {
       background: none;
     }
 
     select {
-      color: $input-text-color;
+      color: $input-text-color-default;
     }
 
     &.disabled {
@@ -73,7 +69,7 @@
       background-color: $content-background-color;
       background-position: 96% center;
       background-repeat: no-repeat;
-      border: 1px solid $input-row-border-color;
+      border: 1px solid $input-border-color-default;
       cursor: default;
 
       @include respond-to ('trustedUI') {
@@ -122,7 +118,7 @@
   &.select-focus {
     @include hidpi-background-image('ddarrow_active', 10px 17px);
     background-color: $html-background-color;
-    border-color: $input-row-focus-border-color;
+    border-color: $input-border-color-focus;
 
     @include respond-to ('trustedUI') {
       background: none;
@@ -130,7 +126,7 @@
 
 
     select {
-      color: $input-text-color;
+      color: $input-text-color-default;
     }
   }
 
@@ -144,11 +140,11 @@
   }
 
   select:focus::-ms-value {
-    color: $input-text-color;
+    color: $input-text-color-default;
   }
 
   select:-moz-focusring {
     color: transparent !important; /* !important must be added or else the browser ignores the request */
-    text-shadow: 0 0 0 $input-row-hover-border-color !important;
+    text-shadow: 0 0 0 $input-border-color-hover !important;
   }
 }

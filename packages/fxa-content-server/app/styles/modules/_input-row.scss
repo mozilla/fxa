@@ -1,3 +1,4 @@
+
 .input-row {
   position: relative;
   width: 100%;
@@ -14,17 +15,22 @@
     margin-bottom: 9px;
   }
 
-  &:hover input:focus {
-    border-color: $input-row-focus-border-color;
-  }
-
-  &:hover input.invalid:focus {
-    border-color: $error-background-color;
-  }
-
   input {
     transition: border-color $short-transition,
                 box-shadow $short-transition;
+
+    &::placeholder {
+      color: $input-placeholder-color !important;
+      font-size: 17px;
+      font-weight: $font-weight-body-20;
+      opacity: 1;
+    }
+
+    &::-webkit-input-placeholder {
+      // Fixes a problem in Safari/Fx for iOS where placeholder
+      // text is not vertically centered and becomes cut-off.
+      line-height: 1 !important;
+    }
 
     // disable arrows on HTML5 number inputs
     &[type='number']::-webkit-inner-spin-button,
@@ -45,26 +51,6 @@
     &[type='tel'],
     &[type='text'] {
       @include input-element();
-
-      &:hover {
-        border-color: $input-row-hover-border-color;
-      }
-
-      &:focus {
-        border-color: $input-row-focus-border-color;
-        box-shadow: 0 0 0 2px $input-row-focus-box-shadow-color;
-      }
-
-      &.invalid {
-        border-color: $error-background-color;
-        box-shadow: 0 0 0 2px rgba(lighten($error-background-color, 15), .75);
-      }
-
-      &:disabled {
-        border-color: $input-row-border-color;
-        color: $input-disabled-color;
-        cursor: not-allowed;
-      }
     }
 
     html[dir='ltr'] & {
@@ -79,20 +65,20 @@
 
     &[type='checkbox']:hover,
     &[type='checkbox']:focus {
-      border: 1px solid $input-row-focus-border-color;
+      border: 1px solid $input-border-color-focus;
     }
 
-  &.unblock-code {
-    text-transform: uppercase;
+    &.unblock-code {
+      text-transform: uppercase;
 
-    &::placeholder {
-      text-transform: none;
+      &::placeholder {
+        text-transform: none;
+      }
     }
-  }
-}
 
-  &:last-child {
-    margin-bottom: 0;
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 
   .input-help {
@@ -127,28 +113,7 @@
   label:active ~ .input-help-focused,
   label:focus ~ .input-help-focused,
   .input-help-focused.highlight {
-    color: $input-row-focus-border-color;
+    color: $input-border-color-focus;
     opacity: 1;
-  }
-
-  &.label-helper-top {
-    // input rows with a label on the top need a bit more space
-    // than the 12px margin-bottom given from the element above it,
-    // except for the first row, which only needs 15px.
-    &:first-of-type {
-      margin-top: 15px;
-    }
-
-    &:not(:first-of-type) {
-      margin-top: 30px;
-    }
-  }
-
-  .label-helper {
-    color: $input-row-border-color;
-  }
-
-  .label-helper.focused {
-    color: $input-row-focus-border-color;
   }
 }

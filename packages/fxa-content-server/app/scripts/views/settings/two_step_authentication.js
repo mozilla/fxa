@@ -9,7 +9,6 @@ const AvatarMixin = require('../mixins/avatar-mixin');
 const AuthErrors = require('lib/auth-errors');
 const BaseView = require('../base');
 const Cocktail = require('cocktail');
-const FloatingPlaceholderMixin = require('../mixins/floating-placeholder-mixin');
 const FormView = require('../form');
 const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
 const UpgradeSessionMixin = require('../mixins/upgrade-session-mixin');
@@ -184,7 +183,6 @@ Cocktail.mixin(
   }),
   AvatarMixin,
   SettingsPanelMixin,
-  FloatingPlaceholderMixin,
   TotpExperimentMixin
 );
 

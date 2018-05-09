@@ -1,8 +1,26 @@
 @import 'node_modules/photon-colors/colors.scss';
 
-//Font Family Variables
+// Font Variables
 $default-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 $header-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+
+$font-size-body-10: 13px;
+$font-weight-body-10: 400;
+
+$font-size-body-20: 15px;
+$font-weight-body-20: 400;
+
+$font-size-caption-10: 11px;
+$font-weight-caption-10: 400;
+
+$font-size-title-30: 22px;
+$font-weight-title-30: 300;
+
+$font-size-title-20: 17px;
+$font-weight-title-20: 300;
+
+$font-size-title-10: 13px;
+$font-weight-title-10: 300;
 
 //Default color variables
 $color-blue: $blue-50;
@@ -37,8 +55,7 @@ $color-white-dark: $grey-10;
 $color-white: #fff; // White
 
 
-//Button specific colors
-
+// Button variables
 $button-border-radius-default: 4px;
 $button-font-size-default: 15px;
 $button-font-weight-default: 300;
@@ -63,7 +80,7 @@ $button-text-color-primary: #fff;
 $chromeless-html-background-color: $color-white;
 $content-background-color: $color-white;
 $cropper-background-color: $color-black;
-$error-background-color: $color-red;
+$error-background-color: $red-60;
 $warning-background-color: $color-orange;
 $error-text-color: $color-red;
 $faint-text-color: $color-grey-faint-text;
@@ -71,19 +88,25 @@ $horizontal-rule-color: darken($color-grey-light, 5);
 $html-background-color: $color-white-dark;
 $info-background-color: $color-blue;
 
-//Input specific colors
-$input-background-disabled-color: $color-white-dark;
-$input-border-color: $color-grey-text;
-$input-border-disabled-color: $color-grey-light;
-$input-disabled-color: $color-grey-faint-text;
-$input-left-right-padding: 20px;
-$input-placeholder-color: $color-grey-faint-text;
-$input-row-border-color: $color-grey-faint-text;
-$input-row-box-shadow-color: $color-white-dark;
-$input-row-focus-border-color: $color-blue;
-$input-row-focus-box-shadow-color: $color-blue-focus-ring;
-$input-row-hover-border-color: $color-grey-text;
-$input-text-color: $color-grey-text;
+// Input element variables
+$input-height: 40px;
+
+$input-background-color-default: $color-white;
+
+$input-text-font-size-default: $font-size-body-20;
+$input-text-font-weight-default: $font-weight-body-20;
+
+$input-left-right-padding: 16px;
+$input-placeholder-color: rgba($grey-90, 0.4);
+
+$input-border-color-default: rgba($grey-90, 0.3);
+$input-border-color-focus: $blue-50;
+$input-border-color-hover: rgba($grey-90, 0.5);
+
+$input-text-color-default: $color-grey-text;
+$input-text-color-disabled: $color-grey-faint-text;
+
+
 
 $link-color-default: $blue-60;
 $link-color-hover: $blue-60;

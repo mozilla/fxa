@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   const EmailFirstExperimentMixin = require('./mixins/email-first-experiment-mixin');
   const EmailOptInMixin = require('./mixins/email-opt-in-mixin');
   const ExperimentMixin = require('./mixins/experiment-mixin');
-  const FloatingPlaceholderMixin = require('./mixins/floating-placeholder-mixin');
   const FlowBeginMixin = require('./mixins/flow-begin-mixin');
   const FormPrefillMixin = require('./mixins/form-prefill-mixin');
   const FormView = require('./form');
@@ -303,7 +302,6 @@ define(function (require, exports, module) {
     EmailFirstExperimentMixin({ treatmentPathname: '/' }),
     EmailOptInMixin,
     ExperimentMixin,
-    FloatingPlaceholderMixin,
     FlowBeginMixin,
     FormPrefillMixin,
     PasswordMixin,

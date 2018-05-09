@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   const AvatarMixin = require('../mixins/avatar-mixin');
   const Cocktail = require('cocktail');
   const DisableFormMixin = require('../mixins/disable-form-mixin');
-  const FloatingPlaceholderMixin = require('../mixins/floating-placeholder-mixin');
   const FormView = require('../form');
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
   const Template = require('templates/settings/display_name.mustache');
@@ -66,7 +65,6 @@ define(function (require, exports, module) {
     AvatarMixin,
     DisableFormMixin,
     SettingsPanelMixin,
-    FloatingPlaceholderMixin
   );
 
   module.exports = View;

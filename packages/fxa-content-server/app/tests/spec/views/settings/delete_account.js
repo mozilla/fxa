@@ -9,7 +9,6 @@ define(function (require, exports, module) {
   const AuthErrors = require('lib/auth-errors');
   const Broker = require('models/auth_brokers/base');
   const chai = require('chai');
-  const KeyCodes = require('lib/key-codes');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const NullChannel = require('lib/channels/null');
@@ -116,16 +115,6 @@ define(function (require, exports, module) {
 
           view.showValidationErrors();
         });
-      });
-
-      it('has floating labels on input', function () {
-        view.$('#password').val('a');
-        var event = new $.Event('input');
-        event.which = KeyCodes.ENTER;
-
-        assert.isFalse(view.$('.label-helper').text().length > 0);
-        view.$('#password').trigger(event);
-        assert.isTrue(view.$('.label-helper').text().length > 0);
       });
 
       describe('submit', function () {

@@ -8,7 +8,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const FloatingPlaceholderMixin = require('./floating-placeholder-mixin');
   const FormPrefillMixin = require('./form-prefill-mixin');
   const KeyCodes = require('../../lib/key-codes');
   const Template = require('templates/partial/coppa-age-input.mustache');
@@ -28,7 +27,7 @@ define(function (require, exports, module) {
    */
   module.exports = function (config = {}) {
     return {
-      dependsOn: [ FloatingPlaceholderMixin, FormPrefillMixin ],
+      dependsOn: [ FormPrefillMixin ],
 
       events: {
         [`input ${AGE_ELEMENT}`]: 'onCoppaInput',

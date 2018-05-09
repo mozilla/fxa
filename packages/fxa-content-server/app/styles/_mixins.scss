@@ -13,10 +13,13 @@
   // kills the form number control in Firefox
   // behavior of 'appearance' is different in FF vs iOS vs Chrome
   -moz-appearance: textfield;
-  background-color: $mobile-html-background-color;
-  border: 1px solid $input-row-border-color;
-  box-shadow: inset 0 1px 1px $input-row-box-shadow-color;
-  color: $input-text-color;
+  background-color: $input-background-color-default;
+  border: 1px solid $input-border-color-default;
+  border-radius: 2px;
+  color: $input-text-color-default;
+  font-size: $input-text-font-size-default;
+  font-weight: $input-text-font-weight-default;
+  height: $input-height;
   outline: none;
   position: relative;
   transition-duration: $short-transition;
@@ -24,20 +27,26 @@
   width: 100%;
   z-index: 2;
 
-  @include respond-to('big') {
-    border-radius: $big-border-radius;
-    font-size: $medium-font;
-    height: 45px;
+  &:hover {
+    border-color: $input-border-color-hover;
   }
 
-  @include respond-to('small') {
-    border-radius: $small-border-radius;
-    font-size: $base-font + $media-adjustment;
-    height: 40px;
+  &:focus {
+    border-color: $input-border-color-focus;
+    box-shadow: 0 0 0 3px rgba($blue-50, 0.3);
   }
 
-  @include respond-to('trustedUI') {
-    padding: 0 $input-left-right-padding * 0.5;
+  &.invalid {
+    border-color: $error-background-color;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba($error-background-color, 0.3);
+    }
+  }
+
+  &:disabled {
+    color: $input-text-color-disabled;
+    cursor: not-allowed;
   }
 }
 
