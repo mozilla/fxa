@@ -63,9 +63,10 @@ suite.tests['blockingRules'] = function () {
   assert.include(fontSrc, CDN_SERVER);
 
   const imgSrc = directives.imgSrc;
-  assert.lengthOf(imgSrc, 4);
+  assert.lengthOf(imgSrc, 5);
   assert.include(imgSrc, Sources.SELF);
   assert.include(imgSrc, Sources.DATA);
+  assert.include(imgSrc, Sources.GRAVATAR);
   assert.include(imgSrc, Sources.PROFILE_IMAGES_SERVER);
   assert.include(imgSrc, CDN_SERVER);
 

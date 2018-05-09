@@ -23,6 +23,7 @@ module.exports = function (config) {
   const BLOB = 'blob:';
   const CDN_URL = config.get('static_resource_url');
   const DATA = 'data:';
+  const GRAVATAR = 'https://secure.gravatar.com';
   const MARKETING_EMAIL_SERVER = getOrigin(config.get('marketing_email.api_url'));
   const OAUTH_SERVER = getOrigin(config.get('oauth_url'));
   const PROFILE_SERVER = getOrigin(config.get('profile_url'));
@@ -65,6 +66,10 @@ module.exports = function (config) {
       imgSrc: addCdnRuleIfRequired([
         SELF,
         DATA,
+        // Gravatar support was removed in #4927, but we don't want
+        // to break the site for users who already use a Gravatar as
+        // their profile image.
+        GRAVATAR,
         PROFILE_IMAGES_SERVER
       ]),
       mediaSrc: [BLOB],
@@ -86,6 +91,7 @@ module.exports = function (config) {
       CDN_URL,
       DATA,
       EMBEDDED_STYLE_SHA,
+      GRAVATAR,
       MARKETING_EMAIL_SERVER,
       NONE,
       OAUTH_SERVER,
