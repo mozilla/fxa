@@ -45,6 +45,11 @@
 * **mysql:** Add config option for REQUIRED_SQL_MODES. (#334) r=@philbooth,@vladikoff ([a229ddc](https://github.com/mozilla/fxa-auth-db-mysql/commit/a229ddc))
 * **mysql:** STRICT_ALL_TABLES and NO_ENGINE_SUBSTITUTION required in sql (#327) r=@vladikoff ([c226b07](https://github.com/mozilla/fxa-auth-db-mysql/commit/c226b07))
 
+### Acknowledgements
+
+Thanks to Yusuf Yazir <y.yazir@rocketmail.com> for suggesting a security improvement
+in the handling of unblock codes ([Bug 1368827](https://bugzilla.mozilla.org/show_bug.cgi?id=1368827)).
+
 
 
 <a name="1.108.0"></a>
