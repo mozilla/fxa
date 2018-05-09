@@ -4,6 +4,7 @@
 
 'use strict';
 
+const _ = require('underscore');
 const AvatarMixin = require('../mixins/avatar-mixin');
 const AuthErrors = require('lib/auth-errors');
 const BaseView = require('../base');
@@ -111,10 +112,10 @@ const View = FormView.extend({
 
   setInitialContext(context) {
     context.set({
+      escapedTotpSupportAttributes: _.escape('class=totp-support-link target=_blank href=' + TOTP_SUPPORT_URL),
       hasToken: this._hasToken,
       isPanelOpen: this.isPanelOpen(),
       statusVisible: this._statusVisible,
-      totpSupportAttributes: 'class="totp-support-link" target="_blank" href="' + TOTP_SUPPORT_URL + '"'
     });
   },
 

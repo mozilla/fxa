@@ -424,7 +424,7 @@ define(function (require, exports, module) {
     UNSAFE_INTERPOLATION_VARIABLE_NAME: {
       errno: 1046,
       // not user facing, only used for logging, not wrapped in `t`
-      message: 'String contains variables that are not escaped: %(string)s'
+      message: 'String variable name does not have escape prefix: %(string)s'
     },
     // logged when view.translate called with a string that contains
     // HTML.
