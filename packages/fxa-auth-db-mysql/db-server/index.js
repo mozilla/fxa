@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var restify = require('restify')
-var safeJsonFormatter = require('restify-safe-json-formatter')
 var bufferize = require('./lib/bufferize')
 var version = require('../package.json').version
 var errors = require('./lib/error')
+const safeJsonFormatter = require('./lib/safeJsonFormatter')
 
 function createServer(db) {
 
@@ -47,13 +47,14 @@ function createServer(db) {
     })
   }
 
-  var api = restify.createServer({
+  const api = restify.createServer({
     formatters: {
       'application/json; q=0.9': safeJsonFormatter
     }
   })
-  api.use(restify.bodyParser())
-  api.use(restify.queryParser())
+
+  api.use(restify.plugins.bodyParser())
+  api.use(restify.plugins.queryParser())
   api.use(bufferize.bufferizeRequest.bind(null, new Set([
     // These are all the different params that we handle as binary Buffers,
     // but are passed into the API as hex strings.
@@ -266,6 +267,13 @@ function createServer(db) {
       res.send(result.map(bufferize.unbuffer))
     }
     else {
+
+      // When performing a `HEAD` request, the content type is not
+      // set, manually set to application/json
+      if (req.method === 'HEAD') {
+        res.setHeader('Content-Type', 'application/json')
+      }
+
       res.send(bufferize.unbuffer(result || {}))
     }
   }

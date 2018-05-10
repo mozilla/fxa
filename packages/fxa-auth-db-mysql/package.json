@@ -34,13 +34,12 @@
     "fxa-jwtool": "0.7.2",
     "ip": "1.1.5",
     "mozlog": "2.1.0",
-    "mysql": "2.13.0",
+    "mysql": "2.15.0",
     "mysql-patcher": "0.7.0",
     "newrelic": "4.1.0",
     "raven": "2.3.0",
     "request": "2.83.0",
-    "restify": "4.3.0",
-    "restify-safe-json-formatter": "0.2.0",
+    "restify": "7.1.1",
     "scrypt-hash": "1.1.14"
   },
   "devDependencies": {
@@ -59,6 +58,7 @@
     "npmshrink": "1.0.1",
     "nyc": "10.3.2",
     "proxyquire": "1.7.10",
+    "restify-clients": "2.0.2",
     "sinon": "1.17.5"
   },
   "keywords": [

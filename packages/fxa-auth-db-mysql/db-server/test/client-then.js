@@ -1,7 +1,7 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var restify = require('restify')
+const clients = require('restify-clients')
 var P = require('../../lib/promise')
 
 var ops = [ 'head', 'get', 'post', 'put', 'del' ]
@@ -11,7 +11,7 @@ module.exports = function createClient(cfg) {
   cfg.headers = {
     connection : 'close',
   }
-  var client = restify.createJsonClient(cfg)
+  const client = clients.createJsonClient(cfg)
 
   // create a thenable version of each operation
   ops.forEach(function(name) {

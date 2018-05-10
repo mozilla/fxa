@@ -1,8 +1,3 @@
 {
-  "exceptions": [
-    // mysql
-    "https://nodesecurity.io/advisories/602",
-    // tunnel-agent
-    "https://nodesecurity.io/advisories/598"
-  ]
+  "exceptions": []
 }
