@@ -1,4 +1,5 @@
 {
+  "lowRecoveryCodesEmail": 2,
   "newDeviceLoginEmail": 1,
   "passwordChangedEmail": 1,
   "passwordResetEmail": 1,

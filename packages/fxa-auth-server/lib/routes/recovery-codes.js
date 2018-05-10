@@ -110,7 +110,7 @@ module.exports = (log, db, config, customs, mailer) => {
         const sessionToken = request.auth.credentials
         const geoData = request.app.geo
         const ip = request.app.clientAddress
-        let remaining
+        let remainingRecoveryCodes
 
         customs.check(request, 'verifyRecoveryCode')
           .then(consumeRecoveryCode)
@@ -118,17 +118,17 @@ module.exports = (log, db, config, customs, mailer) => {
           .then(sendEmailNotification)
           .then(emitMetrics)
           .then(() => {
-            return reply({remaining: remaining})
+            return reply({remaining: remainingRecoveryCodes})
           }, reply)
 
         function consumeRecoveryCode() {
           return db.consumeRecoveryCode(uid, code)
             .then((result) => {
-              remaining = result.remaining
-              if (remaining === 0) {
+              remainingRecoveryCodes = result.remaining
+              if (remainingRecoveryCodes === 0) {
                 log.info({
                   op: 'account.recoveryCode.consumedAllCodes',
-                  uid: uid
+                  uid
                 })
               }
             })
@@ -143,7 +143,9 @@ module.exports = (log, db, config, customs, mailer) => {
         function sendEmailNotification() {
           return db.account(sessionToken.uid)
             .then((account) => {
-              return mailer.sendPostConsumeRecoveryCodeNotification(account.emails, account, {
+              const defers = []
+
+              const sendConsumeEmail = mailer.sendPostConsumeRecoveryCodeNotification(account.emails, account, {
                 acceptLanguage: request.app.acceptLanguage,
                 ip: ip,
                 location: geoData.location,
@@ -155,6 +157,22 @@ module.exports = (log, db, config, customs, mailer) => {
                 uaDeviceType: request.app.ua.deviceType,
                 uid: sessionToken.uid
               })
+              defers.push(sendConsumeEmail)
+
+              if (remainingRecoveryCodes <= codeConfig.notifyLowCount) {
+                log.info({
+                  op: 'account.recoveryCode.notifyLowCount',
+                  uid,
+                  remaining: remainingRecoveryCodes
+                })
+                const sendLowCodesEmail = mailer.sendLowRecoveryCodeNotification(account.emails, account, {
+                  acceptLanguage: request.app.acceptLanguage,
+                  uid: sessionToken.uid
+                })
+                defers.push(sendLowCodesEmail)
+              }
+
+              return Promise.all(defers)
             })
         }
 

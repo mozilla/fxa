@@ -292,6 +292,20 @@ module.exports = (log, config, error, bounces, translator, sender) => {
             }))
           })
       },
+      sendLowRecoveryCodeNotification: function (emails, account, opts) {
+        return getSafeMailerWithEmails(emails)
+          .then(function (result) {
+            const mailer = result.ungatedMailer
+            const primaryEmail = result.ungatedPrimaryEmail
+            const ccEmails = result.ungatedCcEmails
+
+            return mailer.lowRecoveryCodesEmail(Object.assign({}, opts, {
+              acceptLanguage: opts.acceptLanguage || defaultLanguage,
+              ccEmails,
+              email: primaryEmail
+            }))
+          })
+      },
       sendUnblockCode: function (emails, account, opts) {
         return getSafeMailerWithEmails(emails)
           .then(function (result) {

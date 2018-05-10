@@ -24,62 +24,42 @@ describe('remote recovery email resend code', function () {
       })
   })
 
-  it(
-    'sign-in verification resend email verify code',
-    () => {
-      var email = server.uniqueEmail()
-      var password = 'something'
-      var verifyEmailCode = ''
-      var client = null
-      var options = {
-        redirectTo: 'https://sync.' + config.smtp.redirectDomain,
-        service: 'sync',
-        resume: 'resumeToken',
-        keys: true
-      }
-      return Client.create(config.publicUrl, email, password, server.mailbox, options)
-        .then(
-          function (c) {
-            client = c
-            return Client.login(config.publicUrl, email, password, server.mailbox, options)
-          }
-        )
-        .then(
-          function () {
-            return server.mailbox.waitForCode(email)
-          }
-        )
-        .then(
-          function (code) {
-            verifyEmailCode = code
-            return client.requestVerifyEmail()
-          }
-        )
-        .then(
-          function () {
-            return server.mailbox.waitForCode(email)
-          }
-        )
-        .then(
-          function (code) {
-            assert.equal(code, verifyEmailCode, 'code equal to verify email code')
-            return client.verifyEmail(code)
-          }
-        )
-        .then(
-          function () {
-            return client.emailStatus()
-          }
-        )
-        .then(
-          function (status) {
-            assert.equal(status.verified, true, 'account is verified')
-            assert.equal(status.emailVerified, true, 'account email is verified')
-            assert.equal(status.sessionVerified, true, 'account session is verified')
-          }
-        )
+  it('sign-in verification resend email verify code', () => {
+    const email = server.uniqueEmail()
+    const password = 'something'
+    let verifyEmailCode = ''
+    let client = null
+    const options = {
+      redirectTo: 'https://sync.' + config.smtp.redirectDomain,
+      service: 'sync',
+      resume: 'resumeToken',
+      keys: true
     }
-  )
+    return Client.create(config.publicUrl, email, password, server.mailbox, options)
+      .then((c) => {
+        client = c
+        // Clear first account create email and login again
+        return server.mailbox.waitForEmail(email)
+          .then(() => Client.login(config.publicUrl, email, password, server.mailbox, options))
+          .then((c) => client = c)
+      })
+      .then(() => server.mailbox.waitForCode(email))
+      .then((code) => {
+        verifyEmailCode = code
+        return client.requestVerifyEmail()
+      })
+      .then(() => server.mailbox.waitForCode(email))
+      .then((code) => {
+        assert.equal(code, verifyEmailCode, 'code equal to verify email code')
+        return client.verifyEmail(code)
+      })
+      .then(() => client.emailStatus())
+      .then((status) => {
+        assert.equal(status.verified, true, 'account is verified')
+        assert.equal(status.emailVerified, true, 'account email is verified')
+        assert.equal(status.sessionVerified, true, 'account session is verified')
+      })
+  })
 
   it(
     'sign-in verification resend login verify code',
@@ -184,12 +164,16 @@ describe('remote recovery email resend code', function () {
     const options = {
       keys: false
     }
-    return Client.create(config.publicUrl, email, password, server.mailbox, options)
-      .then((res) => {
-        client = res
+    return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, options)
+      .then((c) => {
+        client = c
+        // Create an unverified session
         return client.login()
-          .then(() => server.mailbox.waitForCode(email))
-          .then((code) => client.verifyEmail(code))
+          .then((c) => {
+            client = c
+            // Clear the verify account email
+            return server.mailbox.waitForCode(email)
+          })
           .then(() => client.sessionStatus())
       })
       .then((result) => {

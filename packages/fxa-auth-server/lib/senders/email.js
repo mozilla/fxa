@@ -27,6 +27,7 @@ module.exports = function (log, config) {
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
   const templateNameToCampaignMap = {
+    'lowRecoveryCodesEmail': 'low-recovery-codes',
     'newDeviceLoginEmail': 'new-device-signin',
     'passwordResetRequiredEmail': 'password-reset-required',
     'passwordChangedEmail': 'password-changed-success',
@@ -52,6 +53,7 @@ module.exports = function (log, config) {
   // Email template to UTM content, this is typically the main call out link/button
   // in template.
   const templateNameToContentMap = {
+    'lowRecoveryCodesEmail': 'recovery-codes',
     'newDeviceLoginEmail': 'password-change',
     'passwordChangedEmail': 'password-change',
     'passwordResetEmail': 'password-reset',
@@ -127,6 +129,7 @@ module.exports = function (log, config) {
     }
 
     this.accountSettingsUrl = config.accountSettingsUrl
+    this.accountRecoveryCodesUrl = config.accountRecoveryCodesUrl
     this.androidUrl = config.androidUrl
     this.initiatePasswordChangeUrl = config.initiatePasswordChangeUrl
     this.initiatePasswordResetUrl = config.initiatePasswordResetUrl
@@ -1044,6 +1047,38 @@ module.exports = function (log, config) {
     }))
   }
 
+  Mailer.prototype.lowRecoveryCodesEmail = function (message) {
+    log.trace({ op: 'mailer.lowRecoveryCodesEmail', email: message.email, uid: message.uid })
+
+    const templateName = 'lowRecoveryCodesEmail'
+    const links = this._generateLowRecoveryCodesLinks(message, templateName)
+
+    const headers = {
+      'X-Link': links.link
+    }
+
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
+    return this.send(Object.assign({}, message, {
+      headers,
+      subject: gettext('Low recovery codes remaining'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes
+      }
+    }))
+  }
+
   Mailer.prototype._generateUTMLink = function (link, query, templateName, content) {
     var parsedLink = url.parse(link)
 
@@ -1112,6 +1147,15 @@ module.exports = function (log, config) {
     if (message.uid) {query.uid = message.uid}
 
     return this._generateLinks(this.accountSettingsUrl, message.email, query, templateName)
+  }
+
+  Mailer.prototype._generateLowRecoveryCodesLinks = function (message, templateName) {
+    // Generate all possible links where the primary link is `accountRecoveryCodesUrl`.
+    const query = {low_recovery_codes: true}
+    if (message.email) {query.email = message.email}
+    if (message.uid) {query.uid = message.uid}
+
+    return this._generateLinks(this.accountRecoveryCodesUrl, message.email, query, templateName)
   }
 
   Mailer.prototype.createPasswordResetLink = function (email, templateName, emailToHashWith) {

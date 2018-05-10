@@ -23,6 +23,7 @@ const Mailer = require(`${ROOT_DIR}/lib/senders/email`)(mockLog, config.getPrope
 const TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/templates/_versions.json`)
 
 const messageTypes = [
+  'lowRecoveryCodesEmail',
   'newDeviceLoginEmail',
   'passwordChangedEmail',
   'passwordResetEmail',
@@ -44,6 +45,7 @@ const messageTypes = [
 ]
 
 const typesContainSupportLinks = [
+  'lowRecoveryCodesEmail',
   'newDeviceLoginEmail',
   'passwordChangedEmail',
   'passwordResetEmail',
@@ -126,6 +128,10 @@ const typesContainManageSettingsLinks = [
   'postRemoveTwoStepAuthenticationEmail',
   'postNewRecoveryCodesEmail',
   'postConsumeRecoveryCodeEmail',
+]
+
+const typesContainRecoveryCodeLinks = [
+  'lowRecoveryCodesEmail'
 ]
 
 function includes(haystack, needle) {
@@ -414,6 +420,18 @@ describe(
             mailer.mailer.sendMail = function (emailConfig) {
               assert.ok(includes(emailConfig.html, accountSettingsUrl))
               assert.ok(includes(emailConfig.text, accountSettingsUrl))
+            }
+            mailer[type](message)
+          })
+        }
+
+        if (includes(typesContainRecoveryCodeLinks, type)) {
+          it('recovery code settings info link is in email template output for ' + type, () => {
+            const url = mailer._generateLowRecoveryCodesLinks(message, type).link
+
+            mailer.mailer.sendMail = function (emailConfig) {
+              assert.ok(includes(emailConfig.html, url))
+              assert.ok(includes(emailConfig.text, url))
             }
             mailer[type](message)
           })

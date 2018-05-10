@@ -27,6 +27,7 @@ describe('remote recovery codes', function () {
   }
 
   before(() => {
+    config.totp.recoveryCodes.notifyLowCount = 6
     return TestServer.start(config)
       .then(s => {
         server = s
@@ -134,6 +135,46 @@ describe('remote recovery codes', function () {
         })
         .then((emailData) => {
           assert.equal(emailData.headers['x-template-name'], 'postRemoveTwoStepAuthenticationEmail', 'correct template sent')
+        })
+    })
+  })
+
+  describe('should notify user when recovery codes are low', () => {
+    beforeEach(() => {
+      // Create a new unverified session to test recovery codes
+      return Client.login(config.publicUrl, email, password)
+        .then((response) => {
+          client = response
+          return client.emailStatus()
+        })
+        .then((res) => assert.equal(res.sessionVerified, false, 'session not verified'))
+    })
+
+    it('should consume recovery code and verify session', () => {
+      return client.consumeRecoveryCode(recoveryCodes[0], {metricsContext})
+        .then((res) => {
+          assert.equal(res.remaining, 7, 'correct remaining codes')
+          return server.mailbox.waitForEmail(email)
+        })
+        .then((emailData) => {
+          assert.equal(emailData.headers['x-template-name'], 'postConsumeRecoveryCodeEmail', 'correct template sent')
+          return client.consumeRecoveryCode(recoveryCodes[1], {metricsContext})
+        })
+        .then((res) => {
+          assert.equal(res.remaining, 6, 'correct remaining codes')
+          return server.mailbox.waitForEmail(email)
+        })
+        .then((emails) => {
+          // The order in which the emails are sent is not guaranteed, test for both possible templates
+          const email1 = emails[0].headers['x-template-name']
+          const email2 = emails[1].headers['x-template-name']
+          if (email1 === 'postConsumeRecoveryCodeEmail') {
+            assert.equal(email2, 'lowRecoveryCodesEmail', 'correct template sent')
+          }
+
+          if (email1 === 'lowRecoveryCodesEmail') {
+            assert.equal(email2, 'postConsumeRecoveryCodeEmail', 'correct template sent')
+          }
         })
     })
   })

@@ -813,6 +813,11 @@ var conf = convict({
         doc: 'Number of recovery codes to create',
         default: 8,
         env: 'RECOVERY_CODE_COUNT'
+      },
+      notifyLowCount: {
+        doc: 'Notify the user when there are less than these many recovery codes',
+        default: 2,
+        env: 'RECOVERY_CODE_NOTIFY_LOW_COUNT'
       }
     }
   }
@@ -833,6 +838,7 @@ conf.set('domain', url.parse(conf.get('publicUrl')).host)
 
 // derive fxa-auth-mailer configuration from our content-server url
 conf.set('smtp.accountSettingsUrl', conf.get('contentServer.url') + '/settings')
+conf.set('smtp.accountRecoveryCodesUrl', conf.get('contentServer.url') + '/settings/two_step_authentication/recovery_codes')
 conf.set('smtp.verificationUrl', conf.get('contentServer.url') + '/verify_email')
 conf.set('smtp.passwordResetUrl', conf.get('contentServer.url') + '/complete_reset_password')
 conf.set('smtp.initiatePasswordResetUrl', conf.get('contentServer.url') + '/reset_password')
