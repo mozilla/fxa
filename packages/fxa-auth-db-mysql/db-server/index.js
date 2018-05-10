@@ -50,7 +50,8 @@ function createServer(db) {
   const api = restify.createServer({
     formatters: {
       'application/json; q=0.9': safeJsonFormatter
-    }
+    },
+    maxParamLength: 256
   })
 
   api.use(restify.plugins.bodyParser())
