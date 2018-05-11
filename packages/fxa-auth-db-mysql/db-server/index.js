@@ -50,7 +50,10 @@ function createServer(db) {
   const api = restify.createServer({
     formatters: {
       'application/json; q=0.9': safeJsonFormatter
-    }
+    },
+    // Auth-server accepts 255 unicode email address and sends them over has hex encoded values.
+    // These values could be as large as 1530 characters.
+    maxParamLength: 1530
   })
 
   api.use(restify.plugins.bodyParser())
