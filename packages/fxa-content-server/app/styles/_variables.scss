@@ -80,9 +80,6 @@ $button-text-color-primary: #fff;
 $chromeless-html-background-color: $color-white;
 $content-background-color: $color-white;
 $cropper-background-color: $color-black;
-$error-background-color: $red-60;
-$warning-background-color: $color-orange;
-$error-text-color: $color-red;
 $faint-text-color: $color-grey-faint-text;
 $horizontal-rule-color: darken($color-grey-light, 5);
 $html-background-color: $color-white-dark;
@@ -126,8 +123,19 @@ $show-password-background-color: $color-white;
 $show-password-focus-label-color: $color-white;
 $show-password-label-color: $color-grey-faint-text;
 
-$success-background-color: #5fad47;
-$success-text-color: $color-white;
+// Message box variables
+$success-background-color: $green-50;
+$success-text-color: $green-90;
+
+// the photon styleguide says info boxes should be grey instead of blue
+$info-background-color: $grey-20;
+$info-text-color: $grey-90;
+
+$warning-background-color: $yellow-50;
+$warning-text-color: $yellow-90;
+
+$error-background-color: $red-60;
+$error-text-color: $color-white;
 
 $text-color: $color-grey-text;
 
@@ -137,8 +145,6 @@ $modal-background-color-iframe: $color-white;
 
 //Settings Specific Colors
 $settings-header-border-bottom: $grey-40;
-$settings-success-background-color: $color-green-darker;
-$settings-success-border-color: $settings-success-background-color;
 
 //Radio Button Colors
 $radio-border-default-color: $grey-40;

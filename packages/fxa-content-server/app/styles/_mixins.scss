@@ -83,3 +83,58 @@
     outline: none;
   }
 }
+
+@mixin message-box ($background-color, $text-color) {
+  @include body10();
+
+  background: $background-color;
+  border-radius: 4px;
+  color: $text-color;
+  min-height: 32px;
+  padding: 8px 4px;
+  position: relative;
+  text-align: center;
+
+  @include respond-to('small') {
+    width: 100%;
+  }
+
+  a {
+    color: $text-color;
+    text-decoration: underline;
+  }
+
+  &.visible {
+    display: block;
+  }
+}
+
+@mixin body20() {
+  font-size: $font-size-body-20;
+  font-weight: $font-weight-body-20;
+}
+
+@mixin body10() {
+  font-size: $font-size-body-10;
+  font-weight: $font-weight-body-10;
+}
+
+@mixin caption10() {
+  font-size: $font-size-caption-10;
+  font-weight: $font-weight-caption-10;
+}
+
+@mixin title30() {
+  font-size: $font-size-title-30;
+  font-weight: $font-weight-title-30;
+}
+
+@mixin title20() {
+  font-size: $font-size-title-20;
+  font-weight: $font-weight-title-20;
+}
+
+@mixin title10() {
+  font-size: $font-size-title-10;
+  font-weight: $font-weight-title-10;
+}

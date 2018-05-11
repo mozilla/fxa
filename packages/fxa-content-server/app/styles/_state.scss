@@ -1,47 +1,7 @@
-.error,
-.success,
-.info {
-  border-radius: $small-border-radius;
-  color: $message-text-color;
-  display: none;
-  margin-bottom: 5px;
-  padding: 5px;
-  position: relative;
-  top: -15px;
-
-  @include respond-to('trustedUI') {
-    margin: 0 0 10px 0;
-    top: 0;
-  }
-
-  @include respond-to('small') {
-    top: -7px;
-  }
-
-  @include respond-to('big') {
-    top: -15px;
-  }
-
-  a {
-    color: $message-text-color;
-    text-decoration: underline;
-  }
-
-  /*Pull the message up to bring it closer to the header*/
-  &.nudge {
-    top: -10px;
-
-      &.pad {
-          padding: 10px;
-      }
-  }
-}
-
 .error {
-  background: $error-background-color;
-  &.visible {
-    display: block;
-  }
+  @include message-box($error-background-color, $error-text-color);
+  display: none;
+  margin-bottom: 10px;
 
   .loading & {
     // there is no header on the loading screen. Push the text down slightly.
@@ -49,24 +9,22 @@
   }
 }
 
+.info {
+  @include message-box($info-background-color, $info-text-color);
+}
+
 .success {
-  background: $success-background-color;
+  @include message-box($success-background-color, $success-text-color);
   display: none;
+  margin-bottom: 10px;
 
   &.visible {
-    display: block;
     top: 10px;
   }
 }
 
-.info {
-  background: $info-background-color;
-  display: block;
-}
-
-// complete is like success, but without the associated styles.
-.complete {
-  display: none;
+.warning {
+  @include message-box($warning-background-color, $warning-text-color);
 }
 
 .progress-hidden {
@@ -232,29 +190,35 @@ div + .error {
 
 // custom state indicators
 #suggest-sync {
+  /*Pull the message up to bring it closer to the header*/
+  margin: -14px auto 10px;
+
   .dismiss {
-    position: absolute;
-    top: 4px;
+    background-image: url('/images/icon-close.svg');
+    background-size: 16px;
     cursor: pointer;
+    display: inline-block;
+    height: 16px;
+    margin-top: -8px; // top & margin-top together work to vertically center the icon even if on two lines.
+    position: absolute;
+    text-indent: -9999px; // hide the text.
+    top: 50%;
+    width: 16px;
   }
 
   html[dir='ltr'] & {
-    text-align: center;
-    padding-left: 10px;
-    padding-right: 25px;
+    padding-right: 32px;
 
     .dismiss {
-      right: 10px;
+      right: 8px;
     }
   }
 
   html[dir='rtl'] & {
-    text-align: center;
-    padding-left: 25px;
-    padding-right: 10px;
+    padding-left: 32px;
 
     .dismiss {
-      left: 10px;
+      left: 8px;
     }
   }
 }

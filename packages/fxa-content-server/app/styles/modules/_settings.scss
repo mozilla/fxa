@@ -130,26 +130,11 @@ body.settings #main-content.card {
   }
 
   .settings-success {
-    background-color: $settings-success-background-color;
-    border-color: $settings-success-border-color;
-    border-style: solid;
-    color: $success-text-color;
     margin: 0 auto;
-    text-align: center;
     top: 0;
 
-    @include respond-to('big') {
-      border-radius: 0 0 $small-border-radius $small-border-radius;
-      border-width: 0 1px 1px;
-    }
-
     @include respond-to('small') {
-      border-width: 0 0 1px 0;
       width: 100%;
-    }
-
-    a {
-      color: $success-text-color;
     }
   }
 }
