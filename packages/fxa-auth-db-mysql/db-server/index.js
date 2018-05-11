@@ -51,7 +51,9 @@ function createServer(db) {
     formatters: {
       'application/json; q=0.9': safeJsonFormatter
     },
-    maxParamLength: 256
+    // Auth-server accepts 255 unicode email address and sends them over has hex encoded values.
+    // These values could be as large as 1530 characters.
+    maxParamLength: 1530
   })
 
   api.use(restify.plugins.bodyParser())
