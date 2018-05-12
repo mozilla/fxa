@@ -47,7 +47,7 @@
     "grunt-nsp": "2.3.1",
     "load-grunt-tasks": "3.5.0",
     "npmshrink": "1.0.1",
-    "request": "2.73.0",
+    "request": "2.85.0",
     "tap": "6.2.0",
     "walk": "2.3.x"
   },
