@@ -93,8 +93,8 @@ module.exports = (log, db, config, customs, push, devices) => {
         country: territories.main[language].localeDisplayNames.territories[location.countryCode]
       }
     } catch (err) {
-      log.error({
-        op: 'devices.marshallLocation.error',
+      log.warn({
+        op: 'devices.marshallLocation.warning',
         err: err.message,
         languages: request.app.acceptLanguage,
         language,
