@@ -98,7 +98,7 @@ module.exports = {
     normalize: ensurePrefix('+32'),
     pattern: /^(?:\+32\d{9}|\d{10})$/,
     prefix: '+32',
-    rolloutRate: 0.5
+    rolloutRate: 1
   },
   // Germany
   // https://en.wikipedia.org/wiki/Telephone_numbers_in_Germany
@@ -116,7 +116,7 @@ module.exports = {
     normalize: ensurePrefix('+45'),
     pattern: /^(?:\+45)?\d{8}$/,
     prefix: '+45',
-    rolloutRate: 0.5
+    rolloutRate: 1
   },
   // Spain
   // https://en.wikipedia.org/wiki/Telephone_numbers_in_Spain
@@ -170,7 +170,7 @@ module.exports = {
     normalize: ensurePrefix('+31'),
     pattern: /^(?:\+31)?\d{4,}$/, // Non-geographical numbers have no fixed length. 3 access digits + at least one other digit.
     prefix: '+31',
-    rolloutRate: 0.5
+    rolloutRate: 1
   },
   // Portugal
   // https://en.wikipedia.org/wiki/Telephone_numbers_in_Portugal
