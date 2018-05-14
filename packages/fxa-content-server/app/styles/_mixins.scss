@@ -15,7 +15,7 @@
   -moz-appearance: textfield;
   background-color: $input-background-color-default;
   border: 1px solid $input-border-color-default;
-  border-radius: 2px;
+  border-radius: $input-border-radius;
   color: $input-text-color-default;
   font-size: $input-text-font-size-default;
   font-weight: $input-text-font-weight-default;
