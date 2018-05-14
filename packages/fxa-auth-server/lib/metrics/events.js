@@ -128,15 +128,14 @@ module.exports = (log, config) => {
     emitRouteFlowEvent (response) {
       const request = this
       const path = request.path.replace(PATH_PREFIX, '')
+      let status = response.statusCode || response.output.statusCode
 
-      if (IGNORE_ROUTE_FLOW_EVENTS_FOR_PATHS.has(path)) {
+      if (status === 404 || IGNORE_ROUTE_FLOW_EVENTS_FOR_PATHS.has(path)) {
         return P.resolve()
       }
 
-      let status = response.statusCode || response.output.statusCode
-      const errno = response.errno || (response.output && response.output.errno)
-
       if (status >= 400) {
+        const errno = response.errno || (response.output && response.output.errno)
         if (errno === error.ERRNO.INVALID_PARAMETER && ! request.validateMetricsContext()) {
           // Don't emit flow events if the metrics context failed validation
           return P.resolve()

@@ -840,6 +840,36 @@ describe('metrics/events', () => {
       })
   })
 
+  it('.emitRouteFlowEvent with matching route and 404 statusCode', () => {
+    const time = Date.now()
+    sinon.stub(Date, 'now', () => time)
+    const metricsContext = mocks.mockMetricsContext()
+    const request = mocks.mockRequest({
+      headers: {
+        dnt: '1',
+        'user-agent': 'test user-agent'
+      },
+      metricsContext,
+      path: '/v1/recovery_email/resend_code',
+      payload: {
+        metricsContext: {
+          flowId: 'bar',
+          flowBeginTime: time - 1000
+        }
+      }
+    })
+    return events.emitRouteFlowEvent.call(request, { statusCode: 404 })
+      .then(() => {
+        assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
+        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
+        assert.equal(log.error.callCount, 0, 'log.error was not called')
+      }).finally(() => {
+        Date.now.restore()
+      })
+  })
+
   it('.emitRouteFlowEvent with matching route and 400 statusCode with errno', () => {
     const time = Date.now()
     sinon.stub(Date, 'now', () => time)
