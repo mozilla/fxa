@@ -127,12 +127,15 @@ const View = FormView.extend({
 
     let modalSuccessMsg = this.model.get('modalSuccessMsg');
     if (! modalSuccessMsg) {
-      modalSuccessMsg = t('Two-step authentication enabled');
+      if (recoveryCodes.length > 0) {
+        modalSuccessMsg = t('Two-step authentication enabled');
+      }
     }
 
     context.set({
       modalSuccessMsg,
-      recoveryCodes
+      recoveryCodes,
+      showRecoveryCodes: recoveryCodes.length > 0
     });
   }
 });

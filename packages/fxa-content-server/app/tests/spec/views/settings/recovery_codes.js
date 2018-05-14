@@ -171,4 +171,17 @@ describe('views/settings/recovery_codes', () => {
       assert.equal(args[0], 'settings/two_step_authentication', 'correct path set');
     });
   });
+
+  describe('should only show `generate recovery codes` if model does not have recovery codes', () => {
+    beforeEach(() => {
+      model.set('recoveryCodes', null);
+      return view.render()
+        .then(() => $('#container').html(view.$el));
+    });
+
+    it('only show `generate recovery codes`', () => {
+      assert.equal(view.$('.replace-codes-link').length, 1);
+      assert.equal(view.$('#recovery-code-container').length, 0);
+    });
+  });
 });

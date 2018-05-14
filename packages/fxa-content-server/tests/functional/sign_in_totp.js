@@ -16,6 +16,7 @@ const SETTINGS_URL = `${config.fxaContentRoot}settings?showTwoStepAuthentication
 const PASSWORD = 'password';
 const SYNC_SIGNIN_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync`;
 const SIGNIN_URL = `${config.fxaContentRoot}signin?showTwoStepAuthentication=true`;
+const RECOVERY_CODES_URL = `${config.fxaContentRoot}settings/two_step_authentication/recovery_codes?showTwoStepAuthentication=true`;
 
 const SUCCESS_MESSAGE_DELAY_MS = 5000;
 
@@ -170,7 +171,14 @@ registerSuite('TOTP', {
         .then(testIsBrowserNotified('fxaccounts:delete'))
 
         .then(testElementExists(selectors.SIGNUP.HEADER));
-    }
+    },
+
+    'can navigate directly to recovery codes': function () {
+      return this.remote
+        .then(confirmTotpCode(secret))
+        .then(openPage(RECOVERY_CODES_URL, selectors.TOTP.RECOVERY_CODES_DESCRIPTION))
+        .then(click(selectors.TOTP.RECOVERY_CODES_DONE));
+    },
   }
 });
 

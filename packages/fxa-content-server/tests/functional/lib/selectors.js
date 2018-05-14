@@ -277,6 +277,8 @@ module.exports = {
     MANUAL_CODE: '.code',
     MENU_BUTTON: '#totp-section .settings-unit-toggle',
     QR_CODE: '.qr-image',
+    RECOVERY_CODES_DESCRIPTION: '#recovery-codes .description',
+    RECOVERY_CODES_DONE: '#recovery-codes .description',
     SHOW_CODE_LINK: '.show-code-link',
     STATUS_DISABLED: '.two-step-authentication .disabled',
     STATUS_ENABLED: '.two-step-authentication .enabled',
