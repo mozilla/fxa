@@ -1,19 +1,8 @@
 
 .input-row {
+  margin-bottom: 16px;
   position: relative;
   width: 100%;
-
-  &.input-row-age {
-    margin-top: 25px;
-  }
-
-  @include respond-to('reasonableUI') {
-    margin-bottom: 12px;
-  }
-
-  @include respond-to('trustedUI') {
-    margin-bottom: 9px;
-  }
 
   input {
     transition: border-color $short-transition,

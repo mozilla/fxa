@@ -65,21 +65,21 @@
   }
 }
 
-@mixin anchor-default-pseudo-classes() {
+@mixin anchor-default-pseudo-classes($color-hover: $link-color-hover, $color-box-shadow: $blue-60, $color-focus: $link-color-focus, $color-active: $link-color-active) {
   &:hover {
-    color: $link-color-hover;
+    color: $color-hover;
     text-decoration: underline;
   }
 
   &:focus {
-    box-shadow: 0 0 0 2px $blue-60, 0 0 0 6px rgba($blue-60, 0.3);
-    color: $link-color-focus;
+    box-shadow: 0 0 0 2px $color-box-shadow, 0 0 0 6px rgba($color-box-shadow, 0.3);
+    color: $color-focus;
     outline: none;
   }
 
   &:active {
     box-shadow: none;
-    color: $link-color-active;
+    color: $color-active;
     outline: none;
   }
 }

@@ -49,7 +49,7 @@ define(function (require, exports, module) {
         // a discussion for another time.
         canGoBack: isSignIn && this.canGoBack(),
         email,
-        escapedEmail: _.escape(email),
+        escapedEmail: `<span class="email">${_.escape(email)}</span>`,
         isSignIn,
         isSignUp
       });

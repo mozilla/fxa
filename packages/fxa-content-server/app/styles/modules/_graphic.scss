@@ -1,19 +1,15 @@
 .graphic {
+  background-position: center center;
   background-repeat: no-repeat;
+  background-size: contain;
   height: 130px;
-  margin: 0 auto;
+  margin: 0 auto 20px auto;
   overflow: hidden;
   text-indent: 100%;
   white-space: nowrap;
-  width: 150px;
 
   @include respond-to('small') {
-    background-position: center center;
     height: 104px;
-  }
-
-  @include respond-to('trustedUI') {
-    margin: 40px auto 0 auto;
   }
 }
 
@@ -27,24 +23,14 @@
 
 .graphic-mail {
   background-image: url('/images/graphic_mail.svg');
-  background-position: center center;
-  height: 130px;
-  width: auto;
 
   @include respond-to('small') {
     height: 100px;
-  }
-
-  @include respond-to('trustedUI') {
-    margin: 0 auto 0 auto;
   }
 }
 
 .graphic-mail-bounced {
   background-image: url('/images/graphic_mail_bounced.svg');
-  background-position: center center;
-  height: 130px;
-  width: auto;
 
   @include respond-to('small') {
     height: 100px;
@@ -57,71 +43,52 @@
 
 .graphic-connect-another-device {
   background-image: url('/images/account-verified.svg');
-  background-position: center center;
-  height: 130px;
-  margin-top: 35px;
-  width: auto;
 
   @include respond-to('small') {
     height: 100px;
-
   }
 }
 
 .graphic-connect-another-device-hearts {
   background-image: url('/images/account-verified-hearts.svg');
-  background-position: center center;
   height: 190px;
-  margin: 25px 0 -45px 20px;
-  width: auto;
+  margin: 20px auto -20px auto;
 
   @include respond-to('small') {
     height: 140px;
-    margin: 20px 0 -25px 10px;
   }
 }
 
 .graphic-two-factor-auth {
   background-image: url('/images/graphic_two_factor_auth.svg');
-  background-position: center center;
-  background-repeat: no-repeat;
   height: 138px;
   margin-top: 20px;
-  width: auto;
 }
 
 .graphic-recovery-codes {
   background-image: url('/images/graphic_recovery_codes.svg');
-  background-position: center center;
-  background-repeat: no-repeat;
   height: 138px;
   margin-top: 20px;
-  width: auto;
 }
 
 .graphic-recovery-codes-download {
   background-image: url('/images/recovery_code_download.svg');
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: contain;
   height: 32px;
   width: 33%;
 }
 
 .graphic-recovery-codes-copy {
   background-image: url('/images/recovery_code_copy.svg');
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: contain;
   height: 32px;
   width: 33%;
 }
 
 .graphic-recovery-codes-print {
   background-image: url('/images/recovery_code_print.svg');
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: contain;
   height: 32px;
   width: 33%;
+}
+
+.graphic-choose-what-to-sync {
+  background-image: image-url('choose_what_to_sync_devices.svg');
 }

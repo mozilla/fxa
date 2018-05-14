@@ -51,7 +51,6 @@ $color-orange: $orange-50;
 
 $color-red: $red-60;
 
-$color-white-dark: $grey-10;
 $color-white: #fff; // White
 
 
@@ -82,8 +81,9 @@ $content-background-color: $color-white;
 $cropper-background-color: $color-black;
 $faint-text-color: $color-grey-faint-text;
 $horizontal-rule-color: darken($color-grey-light, 5);
-$html-background-color: $color-white-dark;
-$info-background-color: $color-blue;
+$html-background-color: $grey-10;
+
+$header-color: $grey-90;
 
 // Input element variables
 $input-height: 40px;

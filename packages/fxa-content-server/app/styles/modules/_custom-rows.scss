@@ -10,10 +10,6 @@
   padding: 1px;
   text-align: center;
 
-  + .extra-links {
-    margin: 20px 0 15px 0;
-  }
-
   .left {
     float: left;
     max-width: 50%;
@@ -42,60 +38,34 @@
   }
 }
 
-.extra-links + .links {
+.tos-pp {
+  font-size: 13px;
   margin-top: 20px;
 }
-
-ul.links {
-  list-style: none;
-  padding: 0;
-
-  li {
-    margin: 12px 0;
-    padding: 0;
-  }
-}
-
-.extra-links {
-  color: $link-color-extra;
-  margin-top: 20px;
-  transition-duration: $short-transition;
-
-  a {
-    color: $link-color-extra;
-    text-decoration: underline;
-
-    @include anchor-default-pseudo-classes();
-  }
-}
-
 
 .verification-email-message,
 .signed-in-email-message,
 .verification-recovery-code-message,
 .verification-totp-message {
+  color: $grey-60;
+  line-height: 1.5;
   word-wrap: break-word;
+
+  .email {
+    display: block;
+    font-weight: 500;
+  }
 }
 
 .customize-sync-row {
-  color: $input-placeholder-color;
+  color: $link-color-extra;
   margin-bottom: 10px !important;
 }
 
 .marketing-email-optin-row {
-  color: $input-placeholder-color;
-
-  @include respond-to('trustedUI') {
-     font-size: 12px;
-  }
-
-  @include respond-to('small') {
-    margin: 10px 0;
-  }
-
-  @include respond-to('big') {
-    margin: 20px 0 10px 0;
-  }
+  color: $link-color-extra;
+  font-size: 13px;
+  margin-top: 16px;
 
   .fxa-checkbox {
     line-height: 18px;
@@ -114,36 +84,6 @@ ul.links {
       // properly in comparison to the checkbox.
       margin-top: -3px;
     }
-  }
-}
-
-@include respond-to('small') {
-  .extra-links,
-  .links + .extra-links {
-    font-size: $small-font;
-    margin: 10px auto;
-    max-width: 340px;
-  }
-
-  .links .left,
-  .links .right {
-    display: block;
-    float: none;
-    margin: 10px auto;
-    max-width: 100%;
-    text-align: center;
-    width: fit-content;
-  }
-}
-
-@include respond-to('trustedUI') {
-  .links {
-    margin: 0;
-  }
-
-  .extra-links,
-  .links + .extra-links {
-    margin: 5px auto;
   }
 }
 
@@ -206,13 +146,6 @@ ul.links {
       // the screen to be very wide. Break the addresses.
       word-break: break-all;
     }
-  }
-}
-
-ul.permission-links {
-  li {
-    margin:  0;
-    padding: 0;
   }
 }
 

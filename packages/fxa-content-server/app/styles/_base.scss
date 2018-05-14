@@ -6,15 +6,8 @@
 }
 
 html {
+  background-color: $html-background-color;
   height: 100%;
-
-  @include respond-to('reasonableUI') {
-    background-color: $html-background-color;
-  }
-
-  @include respond-to('trustedUI') {
-    background-color: $content-background-color;
-  }
 
   &.chromeless {
     background-color: $chromeless-html-background-color;
@@ -73,6 +66,8 @@ a {
 }
 
 header {
+  margin-bottom: 16px;
+
   h1,
   h2,
   h3 {
@@ -82,42 +77,16 @@ header {
   }
 
   h1 {
-    font-weight: inherit;
-
-    @include respond-to('big') {
-      font-size: $large-font;
-      margin: 0 0 24px 0;
-    }
-
-    @include respond-to('small') {
-      font-size: $medium-font + $media-adjustment;
-      margin: 0 0 16px 0;
-    }
-
-    @include respond-to('trustedUI') {
-      font-size: $medium-font;
-      margin: 0 0 10px 0;
-    }
-
-    &#fxa-choose-what-to-sync-header {
-      margin-bottom: 10px;
-    }
+    @include title30();
+    color: $header-color;
+    line-height: 26px;
 
     .service,
     .email {
       display: block;
-
-      @include respond-to('big') {
-        font-size: $medium-font;
-        margin-top: 10px;
-      }
-
-      @include respond-to('small') {
-        font-size: $base-font;
-        font-weight: inherit;
-        margin-top: 4px;
-
-      }
+      font-size: 15px;
+      line-height: 22px;
+      margin-top: 4px;
     }
 
     .email {
@@ -129,8 +98,7 @@ header {
   }
 
   h2 {
-    font-size: $large-font;
-    font-weight: inherit;
+    @include title20();
   }
 }
 
@@ -178,26 +146,13 @@ input[type='radio'] {
 }
 
 section p {
-
-  @include respond-to('big') {
-    font-size: $medium-font;
-  }
-
-  @include respond-to('small') {
-    font-size: $base-font;
-  }
-
+  margin: 0 auto 25px 0;
 
   &.prefillEmail {
+    color: $grey-60;
+    font-size: 15px;
+    font-weight: 500;
     word-wrap: break-word;
-
-    @include respond-to('reasonableUI') {
-      margin-top: 24px;
-    }
-
-    @include respond-to('trustedUI') {
-      margin-top: 10px;
-    }
   }
 }
 

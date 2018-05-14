@@ -16,8 +16,8 @@
 
   @include respond-to('small') {
     background-position-y: 0;
-    background-size: auto 55px;
-    height: 55px;
+    background-size: auto 56px;
+    height: 56px;
     margin: 10px auto 0 auto;
     top: 0;
     width: 100%;
@@ -87,42 +87,8 @@
 
 
 .choose-what-to-sync {
-  @include respond-to('trustedUI') {
-    // padding-bottom fixes a problem where the "Save settings"
-    // button can be cut off in the firstrun flow. See #5273
-    padding-bottom: 10px;
-  }
-
-  #submit-btn {
-    margin-top: 10px;
-  }
-
-  #choose-what-to-sync-graphic {
-    background: image-url('choose_what_to_sync_devices.svg');
-    background-position: center top;
-    background-repeat: no-repeat;
-    height: 100px;
-    margin: 10px auto 10px auto;
-    width: 200px;
-
-    @include respond-to('big') {
-      background-size: 300px 138px;
-      height: 155px;
-      margin: 20px auto 0 auto;
-      width: 300px;
-    }
-
-    @include respond-to('trustedUI') {
-      margin: 10px auto 20px auto;
-    }
-  }
-
   .success-email-created {
-    margin: -35px 0 40px 0;
-
-    @include respond-to('trustedUI') {
-      margin-top: -5px;
-    }
+    margin-bottom: 26px;
   }
 }
 
@@ -130,7 +96,7 @@
   position: relative;
 
   .sms-send {
-    border-radius: 0 $big-border-radius $big-border-radius 0;
+    border-radius: 0 $small-border-radius $small-border-radius 0;
     height: $input-height - 2px;
     min-width: 55px;
     padding: 0 7px;
@@ -145,7 +111,7 @@
     }
 
     html[dir='rtl'] & {
-      border-radius: $big-border-radius 0 0 $big-border-radius;
+      border-radius: $small-border-radius 0 0 $small-border-radius;
       border-right: 1px solid $input-border-color-default;
       left: 1px;
     }
@@ -159,17 +125,17 @@
 }
 
 .faint {
-  color: $color-grey-faint-text;
+  color: $grey-50;
+  transition-duration: $short-transition;
+
+  a {
+    color: $grey-50;
+    text-decoration: underline;
+
+    @include anchor-default-pseudo-classes($grey-60, $grey-60, $grey-70, $grey-80);
+  }
 }
 
 .sms-disclaimer {
-  color: $color-grey-faint-text;
-  margin: 10px 0;
-
-  a {
-    color: $link-color-extra;
-    text-decoration: underline;
-
-    @include anchor-default-pseudo-classes();
-  }
+  margin: 16px 0;
 }
