@@ -45,7 +45,11 @@ describe('lib/senders/index', () => {
     }
 
     function createSender(config, bounces, log) {
-      return senders(log || nullLog, config, error, bounces, {})
+      return senders(log || nullLog, Object.assign({}, config, {
+        sms: {
+          enableBudgetChecks: false
+        }
+      }), error, bounces, {})
         .then(sndrs => {
           const email = sndrs.email
           email._ungatedMailer.mailer.sendMail = sinon.spy((opts, cb) => {

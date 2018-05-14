@@ -30,7 +30,9 @@ module.exports = (log, translator, templates, config) => {
 
   let isBudgetOk = true
 
-  setImmediate(pollCurrentSpend)
+  if (config.sms.enableBudgetChecks) {
+    setImmediate(pollCurrentSpend)
+  }
 
   return {
     isBudgetOk: () => isBudgetOk,
@@ -111,6 +113,7 @@ module.exports = (log, translator, templates, config) => {
         }
 
         isBudgetOk = current <= limit - CREDIT_THRESHOLD
+        log.info({ op: 'sms.budget.ok', isBudgetOk, current, limit, threshold: CREDIT_THRESHOLD })
       })
       .catch(err => {
         log.error({ op: 'sms.budget.error', err: err.message })

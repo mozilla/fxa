@@ -751,6 +751,12 @@ var conf = convict({
       format: 'url',
       env: 'SMS_SIGNIN_CODES_BASE_URI'
     },
+    enableBudgetChecks: {
+      doc: 'enable checks of the monthly SMS spend against the available budget',
+      default: true,
+      format: Boolean,
+      env: 'SMS_ENABLE_BUDGET_CHECKS'
+    },
     minimumCreditThresholdUSD: {
       doc: 'The minimum amount of available credit that is necessary to enable SMS, in US dollars',
       default: 200,
