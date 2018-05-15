@@ -394,6 +394,61 @@ describe('remote password change', function() {
     }
   )
 
+  it('shouldn\'t change password on account with TOTP without passing sessionToken', () => {
+    const email = server.uniqueEmail()
+    const password = 'ok'
+    let client
+    return Client.createAndVerifyAndTOTP(config.publicUrl, email, password, server.mailbox, {keys: true})
+      .then((res) => {
+        client = res
+
+        // Doesn't specify a sessionToken to use
+        return client.changePassword('foobar')
+      })
+      .then(assert.fail, (err) => {
+        assert.equal(err.errno, 138, 'unverified session')
+      })
+  })
+
+  it('should change password on account with TOTP with verified TOTP sessionToken', () => {
+    const email = server.uniqueEmail()
+    const password = 'ok'
+    let client, firstAuthPW
+    return Client.createAndVerifyAndTOTP(config.publicUrl, email, password, server.mailbox, {keys: true})
+      .then((res) => {
+        client = res
+        firstAuthPW = client.authPW.toString('hex')
+        return getSessionTokenId(client.sessionToken)
+      })
+      .then((sessionTokenId) => {
+        return client.changePassword('foobar', undefined, sessionTokenId)
+      })
+      .then((response) => {
+        assert(response.sessionToken, 'session token returned')
+        assert(response.keyFetchToken, 'key fetch token returned')
+        assert.notEqual(client.authPW.toString('hex'), firstAuthPW, 'password has changed')
+      })
+  })
+
+  it('shouldn\'t change password on account with TOTP with unverified sessionToken', () => {
+    const email = server.uniqueEmail()
+    const password = 'ok'
+    let client
+    return Client.createAndVerifyAndTOTP(config.publicUrl, email, password, server.mailbox, {keys: true})
+      // Create new unverified client
+      .then(() => Client.login(config.publicUrl, email, password, {keys:true}))
+      .then((res) => {
+        client = res
+        return getSessionTokenId(client.sessionToken)
+      })
+      .then((sessionTokenId) => {
+        return client.changePassword('foobar', undefined, sessionTokenId)
+      })
+      .then(assert.fail, (err) => {
+        assert.equal(err.errno, 138, 'unverified session')
+      })
+  })
+
   after(() => {
     return TestServer.stop(server)
   })

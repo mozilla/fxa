@@ -372,7 +372,7 @@ those common validations are defined here.
 #### lib/devices
 
 * `schema`: {
-    * `id`: isA.string.length(32).regex(HEX_STRING)
+    * `id: isA.string.length(32).regex(HEX_STRING)
     * `location`: isA.object({ city: isA.string.optional.allow(null)
     * `country`: isA.string.optional.allow(null)
     * `state`: isA.string.optional.allow(null)
@@ -1860,6 +1860,15 @@ Optionally returns `sessionToken` and `keyFetchToken`.
   <!--begin-request-body-post-passwordchangefinish-sessionToken-->
   Indicates whether a new `sessionToken` is required, default to `false`.
   <!--end-request-body-post-passwordchangefinish-sessionToken-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 400, errno: 138`:
+  Unverified session
 
 
 #### POST /password/forgot/send_code
