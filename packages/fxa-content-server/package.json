@@ -102,7 +102,7 @@
     "normalize.css": "3.0.1",
     "on-headers": "1.0.1",
     "photon-colors": "1.0.3",
-    "raven": "0.12.3",
+    "raven": "2.6.1",
     "raven-js": "git://github.com/vladikoff/raven-js.git#customEndpoint-3.13.0",
     "serve-static": "1.13.1",
     "speed-trap": "git://github.com/rum-diary/speed-trap#0.0.8",

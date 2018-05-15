@@ -47,11 +47,10 @@ const middlewareConfig = {
 };
 
 // if no DSN provided then error reporting is disabled
-const ravenMiddleware = new Raven.Client(SENTRY_SERVER_ERRORS_DSN, middlewareConfig);
-ravenMiddleware.setUserContext({});
+Raven.config(SENTRY_SERVER_ERRORS_DSN, middlewareConfig).install();
+Raven.setContext({});
 
 module.exports = {
   _middlewareConfig: middlewareConfig,
-  ravenMiddleware: ravenMiddleware,
   ravenModule: Raven,
 };

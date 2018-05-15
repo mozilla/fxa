@@ -91,7 +91,7 @@ function makeApp() {
   app.set('views', PAGE_TEMPLATE_DIRECTORY);
 
   // The request handler must be the first item
-  app.use(raven.ravenModule.middleware.express.requestHandler(raven.ravenMiddleware));
+  app.use(raven.ravenModule.requestHandler());
 
   // i18n adds metadata to a request to help
   // with translating templates on the server.
@@ -167,7 +167,7 @@ function makeApp() {
   app.use(fourOhFour);
 
   // The error handler must be before any other error middleware
-  app.use(raven.ravenModule.middleware.express.errorHandler(raven.ravenMiddleware));
+  app.use(raven.ravenModule.errorHandler());
 
   // log any joi validation errors
   app.use((err, req, res, next) => {
@@ -176,6 +176,8 @@ function makeApp() {
         error: err.details.map(details => details.message).join(','),
         path: req.path,
       });
+      // capture validation errors
+      raven.ravenModule.captureException(err);
     }
     next(err);
   });

@@ -10,7 +10,6 @@ var suite = {
 };
 
 suite.tests['exports correctly'] = function () {
-  assert.ok(raven.ravenMiddleware);
   assert.ok(raven.ravenModule);
   assert.ok(raven._middlewareConfig);
 };

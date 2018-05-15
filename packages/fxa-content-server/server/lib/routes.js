@@ -7,6 +7,7 @@
 const { celebrate, isCelebrate, errors: celebrateErrors } = require('celebrate');
 const cors = require('cors');
 const logger = require('./logging/log')('server.routes');
+const raven = require('./raven');
 
 /**
  * Each route has 3 attributes: `method`, `path` and `process`.
@@ -116,6 +117,8 @@ module.exports = function (config, i18n) {
         logger.error('validation.failed', { err, method: req.method, path: req.url });
       }
       defaultErrorHandler(err, req, res, next);
+      // capture validation errors
+      raven.ravenModule.captureException(err);
     });
   };
 };
