@@ -60,25 +60,28 @@
   .zoom-in,
   .zoom-out {
     color: $faint-text-color;
-    cursor: pointer;
-    -webkit-touch-callout: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -webkit-user-select: none;
-    user-select: none;
+    @include element-state-colors($grey-60, $grey-70, $grey-80);
   }
 
   .rotate {
-    background: transparent;
-    border: 0;
     color: $link-color-default;
+    @include element-state-colors($link-color-hover, $link-color-focus, $link-color-active);
   }
 
   .zoom-in,
   .zoom-out,
   .rotate {
+    background: transparent;
+    border: 0;
+    cursor: pointer;
     font-size: 20px;
+    -webkit-touch-callout: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
     vertical-align: middle;
+    width: 1em;
   }
 
   .slider {

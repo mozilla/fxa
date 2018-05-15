@@ -84,6 +84,20 @@
   }
 }
 
+@mixin element-state-colors($color-hover, $color-focus, $color-active) {
+  &:hover {
+    color: $color-hover;
+  }
+
+  &:focus {
+    color: $color-focus;
+  }
+
+  &:active {
+    color: $color-active;
+  }
+}
+
 @mixin message-box ($background-color, $text-color) {
   @include body10();
 
