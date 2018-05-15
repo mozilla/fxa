@@ -96,7 +96,7 @@
  * these are caret's attached to tooltips that hang below the
  * input element. The tooltip's top is set via JS.
  */
-html[dir='rtl'] .tooltip-below::before,
-.tooltip-below::before {
+html[dir='rtl'] .tooltip.tooltip-below::before,
+.tooltip.tooltip-below::before {
   top: -7px;
 }

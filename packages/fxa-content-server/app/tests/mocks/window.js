@@ -39,7 +39,8 @@ define(function (require, exports, module) {
       cookie: '',
       documentElement: {
         className: '',
-        clientHeight: window.document.documentElement.clientHeight
+        clientHeight: window.document.documentElement.clientHeight,
+        clientWidth: window.document.documentElement.clientWidth
       },
       referrer: window.document.referrer,
       title: window.document.title
