@@ -233,19 +233,25 @@ define(function(require, exports, module) {
       });
 
       describe('email is registered', () => {
-        it('navigates to signin', () => {
+        it('navigates to signin using the stored account so that profile images can be displayed', () => {
+          const storedAccount = user.initAccount({});
+
           sinon.stub(user, 'checkAccountEmailExists').callsFake(() => Promise.resolve(true));
+          sinon.stub(user, 'getAccountByEmail').callsFake(() => storedAccount);
           sinon.stub(broker, 'transformLink').callsFake(link => `oauth/${link}`);
 
           return view.checkEmail(EMAIL)
             .then(() => {
+              assert.isTrue(broker.beforeSignIn.calledOnce);
+              const brokerAccount = broker.beforeSignIn.args[0][0];
+              assert.equal(brokerAccount.get('email'), EMAIL);
+
               // test ensures `transformLink` is called to handle OAuth flow.
               assert.isTrue(view.navigate.calledOnceWith('oauth/signin'));
               const { account } = view.navigate.args[0][1];
+              assert.strictEqual(account, storedAccount);
+              // Ensure the email is added to the stored account.
               assert.equal(account.get('email'), EMAIL);
-
-              assert.isTrue(broker.beforeSignIn.calledOnce);
-              assert.isTrue(broker.beforeSignIn.calledWith(account));
             });
         });
       });

@@ -145,15 +145,15 @@ input[type='radio'] {
     }
 }
 
+.prefillEmail {
+  color: $grey-60;
+  font-size: 15px;
+  font-weight: 500;
+  word-wrap: break-word;
+}
+
 section p {
   margin: 0 auto 25px 0;
-
-  &.prefillEmail {
-    color: $grey-60;
-    font-size: 15px;
-    font-weight: 500;
-    word-wrap: break-word;
-  }
 }
 
 .email {

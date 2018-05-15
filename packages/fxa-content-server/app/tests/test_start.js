@@ -186,6 +186,7 @@ require('./spec/views/mixins/sms-mixin');
 require('./spec/views/mixins/sync-auth-mixin');
 require('./spec/views/mixins/sync-suggestion-mixin');
 require('./spec/views/mixins/timer-mixin');
+require('./spec/views/mixins/user-card-mixin');
 require('./spec/views/mixins/verification-reason-mixin');
 require('./spec/views/oauth_index');
 require('./spec/views/oauth_sign_in');

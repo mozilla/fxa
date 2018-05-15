@@ -1,3 +1,41 @@
+.user-card {
+  display: block;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  overflow: hidden;
+  padding: 0 0 0 91px;
+  text-align: left;
+  text-overflow: ellipsis;
+  width: 100%;
+
+  @include respond-to('small') {
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px 0 rgba(12, 12, 13, 0.1);
+  }
+
+  @include respond-to('trustedUI') {
+    box-shadow: none;
+    height: 65px;
+    padding: 0 0 0 55px;
+  }
+
+  .user-info {
+    align-items: center;
+    display: flex;
+    height: 111px;
+    padding-left: 16px;
+
+    @include respond-to('trustedUI') {
+      height: 55px;
+    }
+  }
+
+  a {
+    font-size: 13px;
+  }
+}
+
 .avatar-wrapper {
   border-radius: 50%;
   border-width: 0;
@@ -8,6 +46,31 @@
   overflow: hidden;
   position: relative;
   width: $avatar-size;
+
+  &.card-view {
+    float: left;
+    height: 71px;
+    margin: 20px 0 0 -71px;
+    width: 71px;
+
+    @include respond-to('trustedUI') {
+      height: 55px;
+      margin-left: -55px;
+      margin-top: 0;
+      width: 55px;
+    }
+
+    img {
+      display: block;
+      height: 71px;
+      width: 71px;
+
+      @include respond-to('trustedUI') {
+        height: 55px;
+        width: 55px;
+      }
+    }
+  }
 
   &.avatar-view {
     display: block;

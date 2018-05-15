@@ -85,7 +85,7 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     checkEmail (email) {
-      const account = this.user.initAccount({
+      let account = this.user.initAccount({
         email
       });
 
@@ -95,6 +95,15 @@ define(function (require, exports, module) {
         .then(() => this.user.checkAccountEmailExists(account))
         .then((exists) => {
           const nextEndpoint = this.broker.transformLink(exists ? 'signin' : 'signup');
+          if (exists) {
+            // If the account exists, use the stored account
+            // so that any stored avatars are displayed on
+            // the next page.
+            account = this.user.getAccountByEmail(email);
+            // the returned account could be the default,
+            // ensure it's email is set.
+            account.set('email', email);
+          }
           this.navigate(nextEndpoint, { account });
         });
     }
