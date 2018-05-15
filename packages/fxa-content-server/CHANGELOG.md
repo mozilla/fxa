@@ -1,3 +1,47 @@
+<a name="1.112.0"></a>
+# 1.112.0 (2018-05-15)
+
+
+### Bug Fixes
+
+* **basket:** Match the expected basket subscribe & lookup-user API (#6160) r=@rfk, @vladikoff ([c5f4fc2](https://github.com/mozilla/fxa-content-server/commit/c5f4fc2)), closes [#6076](https://github.com/mozilla/fxa-content-server/issues/6076)
+* **client:** improve messaging before delete account (#6178) ([9ce21db](https://github.com/mozilla/fxa-content-server/commit/9ce21db))
+* **metrics:** remove temporary flow validation fallback code ([0d8929c](https://github.com/mozilla/fxa-content-server/commit/0d8929c))
+* **nsp:** update devs and nsp ([c9e0ecc](https://github.com/mozilla/fxa-content-server/commit/c9e0ecc))
+* **sentry:** update sentry and fix error reporting (#6191) r=@shane-tomlinson ([8c29280](https://github.com/mozilla/fxa-content-server/commit/8c29280)), closes [(#6191](https://github.com/(/issues/6191)
+* **settings:** Fix the position of the rotate button. (#6192) r=@philbooth ([0eab619](https://github.com/mozilla/fxa-content-server/commit/0eab619)), closes [(#6192](https://github.com/(/issues/6192) [#6166](https://github.com/mozilla/fxa-content-server/issues/6166)
+* **strings:** escape totp sumo string (#6176), r=@philbooth ([fbc0c63](https://github.com/mozilla/fxa-content-server/commit/fbc0c63))
+* **teamcity:** echo $FXA_UNTRUSTED_OAUTH_APP_ROOT too ([51ad440](https://github.com/mozilla/fxa-content-server/commit/51ad440))
+* **teamcity:** point the gcppoc config at {123,321}done-poc RPs ([8b02bb7](https://github.com/mozilla/fxa-content-server/commit/8b02bb7))
+* **test:** Fix tests due to an obscured "Sign out" button. (#6194) r=@philbooth ([7deb586](https://github.com/mozilla/fxa-content-server/commit/7deb586)), closes [(#6194](https://github.com/(/issues/6194) [#6193](https://github.com/mozilla/fxa-content-server/issues/6193)
+* **tests:** adjust mozilla.org link to have www (#6199) ([b180d1d](https://github.com/mozilla/fxa-content-server/commit/b180d1d))
+* **tooltip:** Show tooltips above the input on mobile (#6195) r=@vladikoff ([fe3706c](https://github.com/mozilla/fxa-content-server/commit/fe3706c)), closes [#6188](https://github.com/mozilla/fxa-content-server/issues/6188)
+* **totp:** send service name when verifing totp token (#6153), r=@shane-tomlinson ([bf40511](https://github.com/mozilla/fxa-content-server/commit/bf40511))
+
+### Features
+
+* **recovery:** update view when low on recovery codes (#6181), r=@shane-tomlinson ([c83bd01](https://github.com/mozilla/fxa-content-server/commit/c83bd01))
+* **show-password:** replace show password with eye icon  (#6184) r=@vbudhram, @shane-tomlinson ([8c46222](https://github.com/mozilla/fxa-content-server/commit/8c46222)), closes [#6023](https://github.com/mozilla/fxa-content-server/issues/6023)
+* **signin:** Show a user "card" for the email-first signin flow. (#6187) r=@vbudhram, @vladik ([cffe58b](https://github.com/mozilla/fxa-content-server/commit/cffe58b)), closes [#6126](https://github.com/mozilla/fxa-content-server/issues/6126)
+* **sms:** Fully roll out SMS in BE, DK, NL (#6190), r=@vbudhram ([ba27a39](https://github.com/mozilla/fxa-content-server/commit/ba27a39)), closes [#6189](https://github.com/mozilla/fxa-content-server/issues/6189)
+* **style:** Apply Photon styles to the buttons (#6155) r=@vbudhram ([3dd7b77](https://github.com/mozilla/fxa-content-server/commit/3dd7b77))
+* **style:** Remove "card" view in mobile layout. (#6158) r=@vbudhram ([2a55dd5](https://github.com/mozilla/fxa-content-server/commit/2a55dd5))
+* **style:** Use system fonts instead of Fira Sans (#6146) r=@vladikoff ([1d09150](https://github.com/mozilla/fxa-content-server/commit/1d09150)), closes [#6145](https://github.com/mozilla/fxa-content-server/issues/6145)
+
+### Refactor
+
+* **experiment:** Remove the q3FormChanges experiment. (#6164) r=@vladikoff,@irrationalagent ([22d1c64](https://github.com/mozilla/fxa-content-server/commit/22d1c64)), closes [#5872](https://github.com/mozilla/fxa-content-server/issues/5872)
+* **style:** Apply Photon styles to message boxes (#6183) r=@vbudhram ([1580118](https://github.com/mozilla/fxa-content-server/commit/1580118))
+* **style:** General photon style updates (#6185) r=@vbudhram ([1d0933b](https://github.com/mozilla/fxa-content-server/commit/1d0933b))
+* **style:** Update anchors to use photon colors. (#6167) r=@philbooth ([85cc444](https://github.com/mozilla/fxa-content-server/commit/85cc444))
+* **styles:** Apply Photon styles to input fields. (#6175) r=@philbooth ([5242beb](https://github.com/mozilla/fxa-content-server/commit/5242beb))
+
+### Reverts
+
+* **csp:** revert removing csp support for gravatar (#6177), r=@shane-tomlinson ([556dcc2](https://github.com/mozilla/fxa-content-server/commit/556dcc2))
+
+
+
 <a name="1.111.2"></a>
 ## 1.111.2 (2018-05-03)
 
