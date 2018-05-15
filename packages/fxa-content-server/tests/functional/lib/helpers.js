@@ -181,6 +181,8 @@ const testElementExists = thenify(function (selector) {
  * @returns {promise}
  */
 const click = thenify(function (selector, readySelector) {
+  let clickError;
+
   return this.parent
     .findByCssSelector(selector)
   // Ensure the element is visible and not animating before attempting to click.
@@ -197,10 +199,39 @@ const click = thenify(function (selector, readySelector) {
           })
           .findByCssSelector(selector)
           .click()
+          .then(null, (err) => {
+            // STILL obscured? There may be a status message
+            // overlayed on top. Wait a few seconds and try
+            // one final time.
+            if (/obscures it/.test(err.message)) {
+              return this.parent
+                .sleep(5000)
+                .findByCssSelector(selector)
+                .click()
+                .end();
+            }
+
+            throw err;
+          })
           .end();
       }
       // re-throw other errors
       throw err;
+    })
+    .then(null, function (err) {
+      // The error has to be swallowed before a screenshot
+      // can be taken or else takeScreenshot is never called
+      // because `this.parent` is a promise that has already
+      // been rejected.
+      clickError = err;
+    })
+    .then(function () {
+      if (clickError) {
+        return this.parent.then(takeScreenshot())
+          .then(() => {
+            throw clickError;
+          });
+      }
     })
     .end()
     .then(function () {

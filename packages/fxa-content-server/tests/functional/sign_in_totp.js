@@ -18,8 +18,6 @@ const SYNC_SIGNIN_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&se
 const SIGNIN_URL = `${config.fxaContentRoot}signin?showTwoStepAuthentication=true`;
 const RECOVERY_CODES_URL = `${config.fxaContentRoot}settings/two_step_authentication/recovery_codes?showTwoStepAuthentication=true`;
 
-const SUCCESS_MESSAGE_DELAY_MS = 5000;
-
 let email;
 let secret;
 
@@ -99,8 +97,6 @@ registerSuite('TOTP', {
         .then(testElementTextInclude('.tooltip', 'invalid'))
 
         .then(confirmTotpCode(secret))
-        // give the status message time to go away or else we won't be able to click "signout"
-        .sleep(SUCCESS_MESSAGE_DELAY_MS)
 
         .then(click(selectors.SETTINGS.SIGNOUT, selectors.SIGNIN.HEADER))
         .then(fillOutSignIn(email, PASSWORD))
@@ -121,8 +117,6 @@ registerSuite('TOTP', {
     'can add TOTP to account and confirm sync signin': function () {
       return this.remote
         .then(confirmTotpCode(secret))
-        // give the status message time to go away or else we won't be able to click "signout"
-        .sleep(SUCCESS_MESSAGE_DELAY_MS)
 
         .then(click(selectors.SETTINGS.SIGNOUT, selectors.SIGNIN.HEADER))
         .then(openPage(SYNC_SIGNIN_URL, selectors.SIGNIN.HEADER, {
@@ -145,8 +139,6 @@ registerSuite('TOTP', {
     'can remove TOTP from account and skip confirmation': function () {
       return this.remote
         .then(confirmTotpCode(secret))
-        // give the status message time to go away or else we won't be able to click "signout"
-        .sleep(SUCCESS_MESSAGE_DELAY_MS)
 
         // Remove token
         .then(click(selectors.TOTP.DELETE_BUTTON))
@@ -154,7 +146,6 @@ registerSuite('TOTP', {
         .then(testElementExists(selectors.TOTP.MENU_BUTTON))
 
         // Does not prompt for code
-        .sleep(SUCCESS_MESSAGE_DELAY_MS)
         .then(click(selectors.SETTINGS.SIGNOUT))
         .then(fillOutSignIn(email, PASSWORD))
         .then(testElementExists(selectors.SETTINGS.HEADER));
