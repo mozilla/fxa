@@ -832,12 +832,26 @@ function parseDevices () {
   // HACK: Assumes the location of lib/devices.js
   return parseModuleExports('../lib/devices')
     .then(devices => devices.map(item => {
+      let nesting = 0
       item.value = marshallValidation(
         item.value
           .replace('{ ', '{\n    * `')
           .replace(/ }$/, '\n\n  }')
-          .replace(/(, [a-zA-Z]+):/g, '$1`:')
+          .replace(/isA\.object\({ ([a-zA-Z]+):/g, 'isA.object({\n    * `$1`:')
           .replace(/, /g, '\n    * `')
+          .replace(/`([a-zA-Z]+):/g, '`$1`:')
+          .split('\n')
+          .map(line => {
+            line = line.replace(/ +\*/, `    ${'  '.repeat(nesting)}*`)
+            if (line.indexOf('isA.object({') >= 0) {
+              nesting += 1
+            } else if (line.endsWith(' })')) {
+              line = line.replace(/ }\)$/, `\n    ${'  '.repeat(nesting)}* })`)
+              nesting -= 1
+            }
+            return line
+          })
+          .join('\n')
       )
       return item
     }))
