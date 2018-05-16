@@ -36,7 +36,7 @@
   "dependencies": {
     "ajv": "4.1.7",
     "aws-sdk": "2.77.0",
-    "base64url": "1.0.6",
+    "base64url": "3.0.0",
     "binary-split": "0.1.2",
     "bluebird": "3.4.7",
     "buffer-equal-constant-time": "1.0.1",
