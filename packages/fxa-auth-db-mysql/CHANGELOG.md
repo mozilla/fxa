@@ -1,3 +1,19 @@
+<a name="1.112.0"></a>
+# [1.112.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.111.0...v1.112.0) (2018-05-16)
+
+
+### Bug Fixes
+
+* **deps:** update to restify 7.1 and mysql 2.15 (#351), r=@rfk ([4415850](https://github.com/mozilla/fxa-auth-db-mysql/commit/4415850))
+* **restify:** set a sane max param length value for restify ([d84c827](https://github.com/mozilla/fxa-auth-db-mysql/commit/d84c827))
+* **restify:** update param size ([bb78be2](https://github.com/mozilla/fxa-auth-db-mysql/commit/bb78be2))
+
+### Features
+
+* **changelog:** Add an "acknowledgements" section to some changelog entries. (#350) ([5a27b0a](https://github.com/mozilla/fxa-auth-db-mysql/commit/5a27b0a))
+
+
+
 <a name="1.111.0"></a>
 # [1.111.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.110.0...v1.111.0) (2018-05-02)
 
