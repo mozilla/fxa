@@ -1,3 +1,14 @@
+<a name="1.112.0"></a>
+# 1.112.0 (2018-05-16)
+
+
+### Bug Fixes
+
+* **npm:** update shrinkwrap (#241) ([aaa2afb](https://github.com/mozilla/fxa-customs-server/commit/aaa2afb))
+* **nsp:** Update newrelic version (#240) r=@vladikoff ([40580f1](https://github.com/mozilla/fxa-customs-server/commit/40580f1))
+
+
+
 <a name="1.111.0"></a>
 # 1.111.0 (2018-05-02)
 
