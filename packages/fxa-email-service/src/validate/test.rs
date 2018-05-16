@@ -64,6 +64,33 @@ fn invalid_aws_secret()
 }
 
 #[test]
+fn base_uri()
+{
+  assert!(validate::base_uri("http://localhost/"));
+  assert!(validate::base_uri("http://localhost:8080/"));
+  assert!(validate::base_uri("http://127.0.0.1/"));
+  assert!(validate::base_uri("https://localhost/"));
+  assert!(validate::base_uri("http://localhost/foo/"));
+}
+
+#[test]
+fn invalid_base_uri()
+{
+  assert_eq!(validate::base_uri("http://localhost"), false);
+  assert_eq!(validate::base_uri("http://localhost/foo"), false);
+  assert_eq!(validate::base_uri("http://localhost/foo/?bar=baz"), false);
+  assert_eq!(validate::base_uri("http://localhost/foo/#bar"), false);
+  assert_eq!(validate::base_uri("localhost/foo/"), false);
+  assert_eq!(validate::base_uri("//localhost/foo/"), false);
+  assert_eq!(validate::base_uri("ftp://localhost/"), false);
+  assert_eq!(validate::base_uri("file:///foo/"), false);
+  assert_eq!(
+    validate::base_uri("http://localhost/http://localhost/"),
+    false
+  );
+}
+
+#[test]
 fn host()
 {
   assert!(validate::host("foo"));

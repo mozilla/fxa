@@ -16,6 +16,9 @@ lazy_static! {
   static ref SENDER_FORMAT: Regex = Regex::new(
     "^[A-Za-z0-9-]+(?: [A-Za-z0-9-]+)* <[a-z0-9-]+@[a-z0-9-]+(?:\\.[a-z0-9-]+)+>$"
   ).unwrap();
+  static ref BASE_URI_FORMAT: Regex = Regex::new(
+    "^https?://[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*(?::[0-9]+)?/(?:[A-Za-z0-9-]+/)*$"
+  ).unwrap();
 }
 
 pub fn aws_region(value: &str) -> bool
@@ -31,6 +34,11 @@ pub fn aws_access(value: &str) -> bool
 pub fn aws_secret(value: &str) -> bool
 {
   AWS_SECRET_FORMAT.is_match(value)
+}
+
+pub fn base_uri(value: &str) -> bool
+{
+  BASE_URI_FORMAT.is_match(value)
 }
 
 pub fn host(value: &str) -> bool

@@ -1,4 +1,21 @@
 {
+  "authdb": {
+    "baseuri": "http://127.0.0.1:8000/"
+  },
+  "bouncelimits": {
+    "enabled": true,
+    "complaint": [
+      { "period": "day", "limit": 0 },
+      { "period": "year", "limit": 1 }
+    ],
+    "hard": [
+      { "period": "day", "limit": 0 },
+      { "period": "year", "limit": 1 }
+    ],
+    "soft": [
+      { "period": "5 minutes", "limit": 0 }
+    ]
+  },
   "provider": "ses",
   "sender": "Firefox Accounts <accounts@firefox.com>",
   "ses": {

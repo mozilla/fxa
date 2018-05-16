@@ -3,9 +3,7 @@
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
 use std::{
-  collections::{HashMap, HashSet},
-  env,
-  error::Error,
+  collections::{HashMap, HashSet}, env, error::Error,
 };
 
 use super::*;
@@ -61,6 +59,8 @@ impl Drop for CleanEnvironment
 fn env_vars_take_precedence()
 {
   let _clean_env = CleanEnvironment::new(vec![
+    "FXA_EMAIL_AUTHDB_BASEURI",
+    "FXA_EMAIL_BOUNCELIMITS_ENABLED",
     "FXA_EMAIL_PROVIDER",
     "FXA_EMAIL_SENDER",
     "FXA_EMAIL_SES_REGION",
@@ -74,12 +74,14 @@ fn env_vars_take_precedence()
 
   match Settings::new() {
     Ok(settings) => {
+      let auth_db_base_uri = format!("{}foo/", &settings.authdb.baseuri);
+      let bounce_limits_enabled = !settings.bouncelimits.enabled;
       let provider = if settings.provider == "ses" {
         "smtp"
       } else {
         "ses"
       };
-      let sender = format!("{}{}", "1", &settings.sender);
+      let sender = format!("1{}", &settings.sender);
       let ses_region = if settings.ses.region == "us-east-1" {
         "eu-west-1"
       } else {
@@ -87,8 +89,8 @@ fn env_vars_take_precedence()
       };
       let ses_keys = if let Some(ref keys) = settings.ses.keys {
         AwsKeys {
-          access: format!("{}{}", keys.access, "A"),
-          secret: format!("{}{}", keys.secret, "s"),
+          access: format!("{}A", keys.access),
+          secret: format!("{}s", keys.secret),
         }
       } else {
         AwsKeys {
@@ -96,19 +98,24 @@ fn env_vars_take_precedence()
           secret: String::from("s"),
         }
       };
-      let smtp_host = format!("{}{}", &settings.smtp.host, "2");
+      let smtp_host = format!("{}2", &settings.smtp.host);
       let smtp_port = settings.smtp.port + 3;
       let smtp_user = if let Some(ref user) = settings.smtp.user {
-        format!("{}{}", user, "4")
+        format!("{}4", user)
       } else {
         String::from("4")
       };
       let smtp_password = if let Some(ref password) = settings.smtp.password {
-        format!("{}{}", password, "5")
+        format!("{}5", password)
       } else {
         String::from("5")
       };
 
+      env::set_var("FXA_EMAIL_AUTHDB_BASEURI", &auth_db_base_uri);
+      env::set_var(
+        "FXA_EMAIL_BOUNCELIMITS_ENABLED",
+        &bounce_limits_enabled.to_string(),
+      );
       env::set_var("FXA_EMAIL_PROVIDER", &provider);
       env::set_var("FXA_EMAIL_SENDER", &sender);
       env::set_var("FXA_EMAIL_SES_REGION", &ses_region);
@@ -121,6 +128,8 @@ fn env_vars_take_precedence()
 
       match Settings::new() {
         Ok(env_settings) => {
+          assert_eq!(env_settings.authdb.baseuri, auth_db_base_uri);
+          assert_eq!(env_settings.bouncelimits.enabled, bounce_limits_enabled);
           assert_eq!(env_settings.provider, provider);
           assert_eq!(env_settings.sender, sender);
           assert_eq!(env_settings.ses.region, ses_region);
@@ -156,6 +165,30 @@ fn env_vars_take_precedence()
       println!("{}", error);
       assert!(false);
     }
+  }
+}
+
+#[test]
+fn invalid_auth_db_base_uri()
+{
+  let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_AUTHDB_BASEURI"]);
+  env::set_var("FXA_EMAIL_AUTHDB_BASEURI", "http://example.com");
+
+  match Settings::new() {
+    Ok(_settings) => assert!(false, "Settings::new should have failed"),
+    Err(error) => assert_eq!(error.description(), "configuration error"),
+  }
+}
+
+#[test]
+fn invalid_bouncelimits_enabled()
+{
+  let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_BOUNCELIMITS_ENABLED"]);
+  env::set_var("FXA_EMAIL_BOUNCELIMITS_ENABLED", "falsey");
+
+  match Settings::new() {
+    Ok(_settings) => assert!(false, "Settings::new should have failed"),
+    Err(error) => assert_eq!(error.description(), "invalid type"),
   }
 }
 

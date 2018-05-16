@@ -5,24 +5,25 @@
 use std::{borrow::Cow, collections::HashMap};
 
 use rocket::{
-  data::{self, FromData},
-  http::Status,
-  Data,
-  Error,
-  Outcome,
-  Request,
+  data::{self, FromData}, http::Status, response::Failure, Data, Outcome, Request,
 };
 use rocket_contrib::{Json, Value};
 use validator::{self, Validate, ValidationError};
 
+use auth_db::DbClient;
+use bounces::Bounces;
 use providers::Providers;
+use settings::Settings;
 use validate;
 
 #[cfg(test)]
 mod test;
 
 lazy_static! {
-  static ref PROVIDERS: Providers = Providers::new();
+  static ref SETTINGS: Settings = Settings::new().expect("config error");
+  static ref DB: DbClient = DbClient::new(&SETTINGS);
+  static ref BOUNCES: Bounces<'static> = Bounces::new(&SETTINGS, Box::new(&*DB));
+  static ref PROVIDERS: Providers<'static> = Providers::new(&SETTINGS);
 }
 
 #[derive(Debug, Deserialize)]
@@ -97,10 +98,17 @@ fn fail() -> data::Outcome<Email, ValidationError>
 }
 
 #[post("/send", format = "application/json", data = "<email>")]
-fn handler(email: Email) -> Result<Json<Value>, Error>
+fn handler(email: Email) -> Result<Json<Value>, Failure>
 {
+  let to = email.to.as_ref();
+  BOUNCES.check(to)?;
   let cc = if let Some(ref cc) = email.cc {
-    cc.iter().map(|s| s.as_ref()).collect()
+    let mut refs = Vec::new();
+    for address in cc.iter() {
+      BOUNCES.check(address)?;
+      refs.push(address.as_ref());
+    }
+    refs
   } else {
     Vec::new()
   };
@@ -124,6 +132,6 @@ fn handler(email: Email) -> Result<Json<Value>, Error>
     provider,
   ) {
     Ok(message_id) => Ok(Json(json!({ "messageId": message_id }))),
-    Err(_error) => Err(Error::Internal),
+    Err(_error) => Err(Failure(Status::InternalServerError)),
   }
 }

@@ -2,8 +2,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
+use std::convert::TryFrom;
+
 use serde::de::{Deserialize, Deserializer, Error, Unexpected};
 
+use duration::Duration;
 use validate;
 
 pub fn aws_region<'d, D>(deserializer: D) -> Result<String, D::Error>
@@ -27,11 +30,28 @@ where
   deserialize(deserializer, validate::aws_secret, "AWS secret key")
 }
 
+pub fn base_uri<'d, D>(deserializer: D) -> Result<String, D::Error>
+where
+  D: Deserializer<'d>,
+{
+  deserialize(deserializer, validate::base_uri, "base URI")
+}
+
 pub fn host<'d, D>(deserializer: D) -> Result<String, D::Error>
 where
   D: Deserializer<'d>,
 {
   deserialize(deserializer, validate::host, "host name or IP address")
+}
+
+pub fn duration<'d, D>(deserializer: D) -> Result<u64, D::Error>
+where
+  D: Deserializer<'d>,
+{
+  let value: String = Deserialize::deserialize(deserializer)?;
+  Duration::try_from(value.as_str())
+    .map(From::from)
+    .map_err(|_| D::Error::invalid_value(Unexpected::Str(&value), &"duration"))
 }
 
 pub fn provider<'d, D>(deserializer: D) -> Result<String, D::Error>
