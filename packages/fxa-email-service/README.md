@@ -1,0 +1,179 @@
+# fxa-email-service
+
+[![Build status](https://img.shields.io/travis/mozilla/fxa-email-service.svg?style=flat-square)](https://travis-ci.org/mozilla/fxa-email-service)
+[![License](https://img.shields.io/github/license/mozilla/fxa-email-service.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+![Under construction](https://camo.githubusercontent.com/45d551b3b690a49aa6d855f9fe28fd47a5effc82/68747470733a2f2f63646e2e74686561746c616e7469632e636f6d2f6173736574732f6d656469612f696d672f706f7374732f323031352f31302f6d616d61676e6f6c69615f6163726573756e646572636f6e737472756374696f6e2f6132613838353234352e676966)
+
+* [What's this?](#whats-this)
+* [Moving to a new service seems risky. How will that work?](#moving-to-a-new-service-seems-risky-how-will-that-work)
+* [What are the long-term goals?](#what-are-the-long-term-goals)
+* [How will you make sure the new service isn't just as tightly coupled to SES?](#how-will-you-make-sure-the-new-service-isnt-just-as-tightly-coupled-to-ses)
+* [How can I set up a dev environment?](#how-can-i-set-up-a-dev-environment)
+* [How do I run the tests?](#how-do-i-run-the-tests)
+* [How can I send an email?](#how-can-i-send-an-email)
+
+## What's this?
+
+The FxA team have an OKR for Q2 2018
+about decoupling the auth server from SES
+and making it possible to send email
+via different providers.
+You can read more about that OKR
+in the [feature doc](https://docs.google.com/document/d/1SZ_uGpqofUJeOjGAu2oRKqp-qEMLbvWt8UlxK4UbFwI).
+
+This repo is our experiment
+to see what a decoupled email-sending service would look like.
+It's being written in Rust.
+
+## Moving to a new service seems risky. How will that work?
+
+As a first step,
+we're doing a like-for-like extraction
+of functionality from the auth server
+and porting it to Rust
+behind a very simple, single-endpoint API.
+The plan is to run it on a closed port
+on the same box as the auth server,
+similar to how we run the auth db server.
+
+Included in the code earmarked for extraction
+is the logic for handling bounce, complaint and delivery notifications.
+Because this logic is stateful,
+the initial plan is for the new service
+to lean on the db server directly
+and re-use the same table and stored procedures
+that are already being used.
+So in that sense,
+the switchover should be transparent
+and we can even run the new service side-by-side
+with the current auth server,
+if we want to phase it in gradually.
+
+## What are the long-term goals?
+
+Ultimately, if everything goes to plan,
+we'd like to run this as a standalone service
+that can be used by other trusted reliers
+from the Firefox/Application Services ecosystem.
+But getting to that point will require
+a number of features that are out of scope
+for the initial release,
+such as authentication, rate-limiting and a dedicated database.
+
+## How will you make sure the new service isn't just as tightly coupled to SES?
+
+The core functionality is going to be exposed behind traits
+and we will limit the AWS-specific code
+to AWS-specific trait implementations.
+To keep ourselves honest about that separation,
+we will also implement an alternative provider
+that email can be routed by on a per-request basis.
+
+## How can I set up a dev environment?
+
+We're running on the Rust nightly channel,
+so the easiest way to get set up
+is with [`rustup`](https://rustup.rs/):
+
+```
+curl https://sh.rustup.rs -sSf | sh
+```
+
+If you don't want to use nightly as your default channel,
+you can use it just for this repo instead
+by installing nightly and then running `rustup override` in this directory:
+
+```
+rustup install nightly
+rustup override set nightly
+```
+
+## How do I run the tests?
+
+A simple `cargo t` will fail
+because some of the tests are not threadsafe
+(they rely on setting environment variables
+that will conflict with other concurrent tests).
+To run the tests in a single thread instead,
+a shell script is provided
+to save you some keystrokes:
+
+```
+./t
+```
+
+That script assumes you have an instance of [`fxa-auth-db-mysql`](https://github.com/mozilla/fxa-auth-db-mysql)
+running locally on port 8000,
+which will be the case if you're running [`fxa-local-dev`](https://github.com/mozilla/fxa-local-dev).
+
+If that's not the case, don't worry.
+There is another script provided
+to save you even more keystrokes:
+
+```
+./tdb
+```
+
+That script will clone a local copy of the db repo
+and start it in the background.
+At the end of the script,
+the db process will be left running in the background
+(but subsequent runs of the script
+won't start extra db processes,
+you'll only be left with that one).
+If you want to kill your db process,
+you can find it with:
+
+```
+ps -ef | grep "node bin/server"
+```
+
+## How can I send an email?
+
+You'll need to set up some config
+with your AWS credentials.
+That can be with environment variables:
+
+* `FXA_EMAIL_SES_KEYS_ACCESS`
+* `FXA_EMAIL_SES_KEYS_SECRET`
+
+Or in `config/local.json`:
+
+```json
+{
+  "ses": {
+    "keys": {
+      "access": "...",
+      "secret": "..."
+    }
+  }
+}
+```
+
+`config/local.json` is included in `.gitignore`,
+so you don't have to worry about your keys
+being accidentally leaked on GitHub.
+
+Also note that the AWS IAM limits sending
+to approved `from` addresses.
+Again, you can set that via environment variable (`FXA_EMAIL_SENDER`)
+or in `config/local.json`:
+
+```json
+  "sender": "Firefox Accounts <verification@latest.dev.lcip.org>",
+```
+
+Once you have config set,
+you can start the service with `cargo run`.
+Then you can use `curl`
+to send requests:
+
+```
+curl \
+  -d '{"to":"foo@example.com","subject":"bar","body":{"text":"baz"}}' \
+  -H 'Content-Type: application/json' \
+  http://localhost:8001/send
+```
+
+If everything is set-up correctly,
+you should receive email pretty much instantly.
