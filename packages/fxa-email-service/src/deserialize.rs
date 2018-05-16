@@ -11,79 +11,79 @@ use validate;
 
 pub fn aws_region<'d, D>(deserializer: D) -> Result<String, D::Error>
 where
-  D: Deserializer<'d>,
+    D: Deserializer<'d>,
 {
-  deserialize(deserializer, validate::aws_region, "AWS region")
+    deserialize(deserializer, validate::aws_region, "AWS region")
 }
 
 pub fn aws_access<'d, D>(deserializer: D) -> Result<String, D::Error>
 where
-  D: Deserializer<'d>,
+    D: Deserializer<'d>,
 {
-  deserialize(deserializer, validate::aws_access, "AWS access key")
+    deserialize(deserializer, validate::aws_access, "AWS access key")
 }
 
 pub fn aws_secret<'d, D>(deserializer: D) -> Result<String, D::Error>
 where
-  D: Deserializer<'d>,
+    D: Deserializer<'d>,
 {
-  deserialize(deserializer, validate::aws_secret, "AWS secret key")
+    deserialize(deserializer, validate::aws_secret, "AWS secret key")
 }
 
 pub fn base_uri<'d, D>(deserializer: D) -> Result<String, D::Error>
 where
-  D: Deserializer<'d>,
+    D: Deserializer<'d>,
 {
-  deserialize(deserializer, validate::base_uri, "base URI")
+    deserialize(deserializer, validate::base_uri, "base URI")
 }
 
 pub fn host<'d, D>(deserializer: D) -> Result<String, D::Error>
 where
-  D: Deserializer<'d>,
+    D: Deserializer<'d>,
 {
-  deserialize(deserializer, validate::host, "host name or IP address")
+    deserialize(deserializer, validate::host, "host name or IP address")
 }
 
 pub fn duration<'d, D>(deserializer: D) -> Result<u64, D::Error>
 where
-  D: Deserializer<'d>,
+    D: Deserializer<'d>,
 {
-  let value: String = Deserialize::deserialize(deserializer)?;
-  Duration::try_from(value.as_str())
-    .map(From::from)
-    .map_err(|_| D::Error::invalid_value(Unexpected::Str(&value), &"duration"))
+    let value: String = Deserialize::deserialize(deserializer)?;
+    Duration::try_from(value.as_str())
+        .map(From::from)
+        .map_err(|_| D::Error::invalid_value(Unexpected::Str(&value), &"duration"))
 }
 
 pub fn provider<'d, D>(deserializer: D) -> Result<String, D::Error>
 where
-  D: Deserializer<'d>,
+    D: Deserializer<'d>,
 {
-  deserialize(deserializer, validate::provider, "'ses' or 'smtp'")
+    deserialize(deserializer, validate::provider, "'ses' or 'smtp'")
 }
 
 pub fn sender<'d, D>(deserializer: D) -> Result<String, D::Error>
 where
-  D: Deserializer<'d>,
+    D: Deserializer<'d>,
 {
-  deserialize(
-    deserializer,
-    validate::sender,
-    "sender name and email address",
-  )
+    deserialize(
+        deserializer,
+        validate::sender,
+        "sender name and email address",
+    )
 }
 
 fn deserialize<'d, D>(
-  deserializer: D,
-  validator: fn(&str) -> bool,
-  expected: &str,
+    deserializer: D,
+    validator: fn(&str) -> bool,
+    expected: &str,
 ) -> Result<String, D::Error>
 where
-  D: Deserializer<'d>,
+    D: Deserializer<'d>,
 {
-  let value: String = Deserialize::deserialize(deserializer)?;
-  if validator(&value) {
-    Ok(value)
-  } else {
-    Err(D::Error::invalid_value(Unexpected::Str(&value), &expected))
-  }
+    let value: String = Deserialize::deserialize(deserializer)?;
+    if validator(&value) {
+        Ok(value)
+    } else {
+        Err(D::Error::invalid_value(Unexpected::Str(&value), &expected))
+    }
 }

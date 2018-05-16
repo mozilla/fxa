@@ -3,26 +3,24 @@
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
 use rocket::{
-  self, http::{ContentType, Status}, local::Client,
+    self, http::{ContentType, Status}, local::Client,
 };
 
-fn setup() -> Client
-{
-  let server = rocket::ignite().mount("/", routes![super::handler]);
+fn setup() -> Client {
+    let server = rocket::ignite().mount("/", routes![super::handler]);
 
-  Client::new(server).unwrap()
+    Client::new(server).unwrap()
 }
 
 #[test]
-fn single_recipient()
-{
-  let client = setup();
+fn single_recipient() {
+    let client = setup();
 
-  let mut response = client
-    .post("/send")
-    .header(ContentType::JSON)
-    .body(
-      r#"{
+    let mut response = client
+        .post("/send")
+        .header(ContentType::JSON)
+        .body(
+            r#"{
       "to": "foo@example.com",
       "cc": [],
       "subject": "bar",
@@ -32,25 +30,24 @@ fn single_recipient()
       },
       "provider": "mock"
     }"#,
-    )
-    .dispatch();
+        )
+        .dispatch();
 
-  assert_eq!(response.status(), Status::Ok);
+    assert_eq!(response.status(), Status::Ok);
 
-  let body = response.body().unwrap().into_string().unwrap();
-  assert_eq!(body, json!({ "messageId": "mock:deadbeef" }).to_string());
+    let body = response.body().unwrap().into_string().unwrap();
+    assert_eq!(body, json!({ "messageId": "mock:deadbeef" }).to_string());
 }
 
 #[test]
-fn multiple_recipients()
-{
-  let client = setup();
+fn multiple_recipients() {
+    let client = setup();
 
-  let mut response = client
-    .post("/send")
-    .header(ContentType::JSON)
-    .body(
-      r#"{
+    let mut response = client
+        .post("/send")
+        .header(ContentType::JSON)
+        .body(
+            r#"{
       "to": "foo@example.com",
       "cc": [ "bar@example.com", "baz@example.com" ],
       "subject": "wibble",
@@ -60,25 +57,24 @@ fn multiple_recipients()
       },
       "provider": "mock"
     }"#,
-    )
-    .dispatch();
+        )
+        .dispatch();
 
-  assert_eq!(response.status(), Status::Ok);
+    assert_eq!(response.status(), Status::Ok);
 
-  let body = response.body().unwrap().into_string().unwrap();
-  assert_eq!(body, json!({ "messageId": "mock:deadbeef" }).to_string());
+    let body = response.body().unwrap().into_string().unwrap();
+    assert_eq!(body, json!({ "messageId": "mock:deadbeef" }).to_string());
 }
 
 #[test]
-fn without_optional_data()
-{
-  let client = setup();
+fn without_optional_data() {
+    let client = setup();
 
-  let mut response = client
-    .post("/send")
-    .header(ContentType::JSON)
-    .body(
-      r#"{
+    let mut response = client
+        .post("/send")
+        .header(ContentType::JSON)
+        .body(
+            r#"{
       "to": "foo@example.com",
       "subject": "bar",
       "body": {
@@ -86,69 +82,66 @@ fn without_optional_data()
       },
       "provider": "mock"
     }"#,
-    )
-    .dispatch();
+        )
+        .dispatch();
 
-  assert_eq!(response.status(), Status::Ok);
+    assert_eq!(response.status(), Status::Ok);
 
-  let body = response.body().unwrap().into_string().unwrap();
-  assert_eq!(body, json!({ "messageId": "mock:deadbeef" }).to_string());
+    let body = response.body().unwrap().into_string().unwrap();
+    assert_eq!(body, json!({ "messageId": "mock:deadbeef" }).to_string());
 }
 
 #[test]
-fn missing_to_field()
-{
-  let client = setup();
+fn missing_to_field() {
+    let client = setup();
 
-  let response = client
-    .post("/send")
-    .header(ContentType::JSON)
-    .body(
-      r#"{
+    let response = client
+        .post("/send")
+        .header(ContentType::JSON)
+        .body(
+            r#"{
       "subject": "bar",
       "body": {
         "text": "baz"
       },
       "provider": "mock"
     }"#,
-    )
-    .dispatch();
+        )
+        .dispatch();
 
-  assert_eq!(response.status(), Status::BadRequest);
+    assert_eq!(response.status(), Status::BadRequest);
 }
 
 #[test]
-fn missing_subject_field()
-{
-  let client = setup();
+fn missing_subject_field() {
+    let client = setup();
 
-  let response = client
-    .post("/send")
-    .header(ContentType::JSON)
-    .body(
-      r#"{
+    let response = client
+        .post("/send")
+        .header(ContentType::JSON)
+        .body(
+            r#"{
       "to": [ "foo@example.com" ],
       "body": {
         "text": "baz"
       },
       "provider": "mock"
     }"#,
-    )
-    .dispatch();
+        )
+        .dispatch();
 
-  assert_eq!(response.status(), Status::BadRequest);
+    assert_eq!(response.status(), Status::BadRequest);
 }
 
 #[test]
-fn missing_body_text_field()
-{
-  let client = setup();
+fn missing_body_text_field() {
+    let client = setup();
 
-  let response = client
-    .post("/send")
-    .header(ContentType::JSON)
-    .body(
-      r#"{
+    let response = client
+        .post("/send")
+        .header(ContentType::JSON)
+        .body(
+            r#"{
       "to": [ "foo@example.com" ],
       "subject": "bar",
       "body": {
@@ -156,22 +149,21 @@ fn missing_body_text_field()
       },
       "provider": "mock"
     }"#,
-    )
-    .dispatch();
+        )
+        .dispatch();
 
-  assert_eq!(response.status(), Status::BadRequest);
+    assert_eq!(response.status(), Status::BadRequest);
 }
 
 #[test]
-fn invalid_to_field()
-{
-  let client = setup();
+fn invalid_to_field() {
+    let client = setup();
 
-  let response = client
-    .post("/send")
-    .header(ContentType::JSON)
-    .body(
-      r#"{
+    let response = client
+        .post("/send")
+        .header(ContentType::JSON)
+        .body(
+            r#"{
       "to": [ "foo" ],
       "subject": "bar",
       "body": {
@@ -179,22 +171,21 @@ fn invalid_to_field()
       },
       "provider": "mock"
     }"#,
-    )
-    .dispatch();
+        )
+        .dispatch();
 
-  assert_eq!(response.status(), Status::BadRequest);
+    assert_eq!(response.status(), Status::BadRequest);
 }
 
 #[test]
-fn invalid_cc_field()
-{
-  let client = setup();
+fn invalid_cc_field() {
+    let client = setup();
 
-  let response = client
-    .post("/send")
-    .header(ContentType::JSON)
-    .body(
-      r#"{
+    let response = client
+        .post("/send")
+        .header(ContentType::JSON)
+        .body(
+            r#"{
       "to": [ "foo@example.com" ],
       "cc": [ "bar" ],
       "subject": "baz",
@@ -203,8 +194,8 @@ fn invalid_cc_field()
       },
       "provider": "mock"
     }"#,
-    )
-    .dispatch();
+        )
+        .dispatch();
 
-  assert_eq!(response.status(), Status::BadRequest);
+    assert_eq!(response.status(), Status::BadRequest);
 }

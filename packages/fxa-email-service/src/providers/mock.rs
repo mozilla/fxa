@@ -6,17 +6,15 @@ use super::{Provider, ProviderError};
 
 pub struct MockProvider;
 
-impl Provider for MockProvider
-{
-  fn send(
-    &self,
-    _to: &str,
-    _cc: &[&str],
-    _subject: &str,
-    _body_text: &str,
-    _body_html: Option<&str>,
-  ) -> Result<String, ProviderError>
-  {
-    Ok(String::from("deadbeef"))
-  }
+impl Provider for MockProvider {
+    fn send(
+        &self,
+        _to: &str,
+        _cc: &[&str],
+        _subject: &str,
+        _body_text: &str,
+        _body_html: Option<&str>,
+    ) -> Result<String, ProviderError> {
+        Ok(String::from("deadbeef"))
+    }
 }

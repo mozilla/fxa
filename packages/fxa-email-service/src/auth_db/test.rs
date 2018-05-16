@@ -5,22 +5,20 @@
 use super::*;
 
 #[test]
-fn get_email_bounces()
-{
-  let settings = Settings::new().expect("config error");
-  let db = DbClient::new(&settings);
-  if let Err(error) = db.get_email_bounces("foo@example.com") {
-    assert!(false, error.description().to_string());
-  }
+fn get_email_bounces() {
+    let settings = Settings::new().expect("config error");
+    let db = DbClient::new(&settings);
+    if let Err(error) = db.get_email_bounces("foo@example.com") {
+        assert!(false, error.description().to_string());
+    }
 }
 
 #[test]
-fn get_email_bounces_invalid_address()
-{
-  let settings = Settings::new().expect("config error");
-  let db = DbClient::new(&settings);
-  match db.get_email_bounces("") {
-    Ok(_) => assert!(false, "DbClient::get_email_bounces should have failed"),
-    Err(error) => assert_eq!(error.description(), "auth db response: 400 Bad Request"),
-  }
+fn get_email_bounces_invalid_address() {
+    let settings = Settings::new().expect("config error");
+    let db = DbClient::new(&settings);
+    match db.get_email_bounces("") {
+        Ok(_) => assert!(false, "DbClient::get_email_bounces should have failed"),
+        Err(error) => assert_eq!(error.description(), "auth db response: 400 Bad Request"),
+    }
 }

@@ -37,7 +37,6 @@ mod send;
 mod settings;
 mod validate;
 
-fn main()
-{
-  rocket::ignite().mount("/", routes![send::handler]).launch();
+fn main() {
+    rocket::ignite().mount("/", routes![send::handler]).launch();
 }
