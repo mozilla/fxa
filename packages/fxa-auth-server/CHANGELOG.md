@@ -1,3 +1,26 @@
+<a name="1.112.0"></a>
+# [1.112.0](https://github.com/mozilla/fxa-auth-server/compare/v1.111.1...v1.112.0) (2018-05-16)
+
+
+### Bug Fixes
+
+* **deps:** update shrink (#2431) r=@vladikoff ([291713a](https://github.com/mozilla/fxa-auth-server/commit/291713a)), closes [#2431](https://github.com/mozilla/fxa-auth-server/issues/2431)
+* **logging:** log successful sms budget checks ([9731a08](https://github.com/mozilla/fxa-auth-server/commit/9731a08))
+* **metrics:** don't emit route flow events for 404s ([f8bbfff](https://github.com/mozilla/fxa-auth-server/commit/f8bbfff))
+* **newrelic:** update newrelic module (#2424) r=@vladikoff ([690ba82](https://github.com/mozilla/fxa-auth-server/commit/690ba82)), closes [#2424](https://github.com/mozilla/fxa-auth-server/issues/2424)
+* **nsp:** update nsp for constantinople (#2430), r=@philbooth ([57118d6](https://github.com/mozilla/fxa-auth-server/commit/57118d6)), closes [#2430](https://github.com/mozilla/fxa-auth-server/issues/2430)
+* **password:** require totp verified session to change password (#2437), r=@rfk ([ab05574](https://github.com/mozilla/fxa-auth-server/commit/ab05574)), closes [#2437](https://github.com/mozilla/fxa-auth-server/issues/2437)
+
+### chore
+
+* **logging:** downgrade location translation error to warning ([6b58bf9](https://github.com/mozilla/fxa-auth-server/commit/6b58bf9))
+
+### Features
+
+* **emails:** notify users when they are running low on recovery codes (#2429), r=@shane-tomli ([a9c8aca](https://github.com/mozilla/fxa-auth-server/commit/a9c8aca)), closes [#2429](https://github.com/mozilla/fxa-auth-server/issues/2429)
+
+
+
 <a name="1.111.1"></a>
 ## [1.111.1](https://github.com/mozilla/fxa-auth-server/compare/v1.111.0...v1.111.1) (2018-05-04)
 
