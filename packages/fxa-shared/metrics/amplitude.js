@@ -32,33 +32,6 @@ const CONNECT_DEVICE_FLOWS = {
   sms: 'sms'
 };
 
-const EMAIL_TYPES = {
-  // Indexed by content server view name
-  'complete-reset-password': 'reset_password',
-  'complete-signin': 'login',
-  'verify-email': 'registration',
-  // Indexed by auth server template name
-  lowRecoveryCodesEmail: '2fa',
-  newDeviceLoginEmail: 'login',
-  passwordChangedEmail: 'change_password',
-  passwordResetEmail: 'reset_password',
-  passwordResetRequiredEmail: 'reset_password',
-  postChangePrimaryEmail: 'change_email',
-  postRemoveSecondaryEmail: 'secondary_email',
-  postVerifyEmail: 'registration',
-  postVerifySecondaryEmail: 'secondary_email',
-  postConsumeRecoveryCodeEmail: '2fa',
-  postNewRecoveryCodesEmail: '2fa',
-  recoveryEmail: 'reset_password',
-  unblockCode: 'unblock',
-  verifyEmail: 'registration',
-  verifyLoginEmail: 'login',
-  verifyLoginCodeEmail: 'login',
-  verifyPrimaryEmail: 'verify',
-  verifySyncEmail: 'registration',
-  verifySecondaryEmail: 'secondary_email'
-}
-
 const NEWSLETTER_STATES = {
   optIn: 'subscribed',
   optOut: 'unsubscribed',
@@ -92,7 +65,7 @@ function mapConnectDeviceFlow (eventType, eventCategory, eventTarget) {
 }
 
 function mapEmailType (eventType, eventCategory, eventTarget, data) {
-  const email_type = EMAIL_TYPES[eventCategory];
+  const email_type = data.emailTypes[eventCategory];
 
   if (email_type) {
     const result = { email_type, email_provider: data.emailDomain };
@@ -115,8 +88,6 @@ function mapDisconnectReason (eventType, eventCategory) {
 
 module.exports = {
   GROUPS,
-
-  EMAIL_TYPES,
 
   /**
    * Initialize an amplitude event mapper. You can read more about the amplitude

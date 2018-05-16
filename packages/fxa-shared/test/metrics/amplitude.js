@@ -29,32 +29,6 @@ describe('metrics/amplitude:', () => {
     assert.isString(amplitude.GROUPS.sms);
   });
 
-  it('exports the email types', () => {
-    assert.isObject(amplitude.EMAIL_TYPES);
-    assert.isString(amplitude.EMAIL_TYPES['complete-reset-password']);
-    assert.isString(amplitude.EMAIL_TYPES['complete-signin']);
-    assert.isString(amplitude.EMAIL_TYPES['verify-email']);
-    assert.isString(amplitude.EMAIL_TYPES.lowRecoveryCodesEmail);
-    assert.isString(amplitude.EMAIL_TYPES.newDeviceLoginEmail);
-    assert.isString(amplitude.EMAIL_TYPES.passwordChangedEmail);
-    assert.isString(amplitude.EMAIL_TYPES.passwordResetEmail);
-    assert.isString(amplitude.EMAIL_TYPES.passwordResetRequiredEmail);
-    assert.isString(amplitude.EMAIL_TYPES.postChangePrimaryEmail);
-    assert.isString(amplitude.EMAIL_TYPES.postRemoveSecondaryEmail);
-    assert.isString(amplitude.EMAIL_TYPES.postVerifyEmail);
-    assert.isString(amplitude.EMAIL_TYPES.postVerifySecondaryEmail);
-    assert.isString(amplitude.EMAIL_TYPES.postConsumeRecoveryCodeEmail);
-    assert.isString(amplitude.EMAIL_TYPES.postNewRecoveryCodesEmail);
-    assert.isString(amplitude.EMAIL_TYPES.recoveryEmail);
-    assert.isString(amplitude.EMAIL_TYPES.unblockCode);
-    assert.isString(amplitude.EMAIL_TYPES.verifyEmail);
-    assert.isString(amplitude.EMAIL_TYPES.verifyLoginEmail);
-    assert.isString(amplitude.EMAIL_TYPES.verifyLoginCodeEmail);
-    assert.isString(amplitude.EMAIL_TYPES.verifyPrimaryEmail);
-    assert.isString(amplitude.EMAIL_TYPES.verifySyncEmail);
-    assert.isString(amplitude.EMAIL_TYPES.verifySecondaryEmail);
-  });
-
   it('exports an initialize method', () => {
     assert.isFunction(amplitude.initialize);
     assert.lengthOf(amplitude.initialize, 3);
@@ -256,6 +230,9 @@ describe('metrics/amplitude:', () => {
       before(() => {
         result = transform({ type: 'verifySecondaryEmail.wibble' }, {
           emailDomain: 'foo',
+          emailTypes: {
+            verifySecondaryEmail: 'secondary_email'
+          },
           templateVersion: 'bar'
         });
       })
