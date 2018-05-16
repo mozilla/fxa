@@ -12,8 +12,31 @@
 
 'use strict'
 
-const { EMAIL_TYPES, GROUPS, initialize } = require('fxa-shared/metrics/amplitude')
+const { GROUPS, initialize } = require('fxa-shared/metrics/amplitude')
 const P = require('../promise')
+
+// Maps template name to email type
+const EMAIL_TYPES = {
+  lowRecoveryCodesEmail: '2fa',
+  newDeviceLoginEmail: 'login',
+  passwordChangedEmail: 'change_password',
+  passwordResetEmail: 'reset_password',
+  passwordResetRequiredEmail: 'reset_password',
+  postChangePrimaryEmail: 'change_email',
+  postRemoveSecondaryEmail: 'secondary_email',
+  postVerifyEmail: 'registration',
+  postVerifySecondaryEmail: 'secondary_email',
+  postConsumeRecoveryCodeEmail: '2fa',
+  postNewRecoveryCodesEmail: '2fa',
+  recoveryEmail: 'reset_password',
+  unblockCode: 'unblock',
+  verifyEmail: 'registration',
+  verifyLoginEmail: 'login',
+  verifyLoginCodeEmail: 'login',
+  verifyPrimaryEmail: 'verify',
+  verifySyncEmail: 'registration',
+  verifySecondaryEmail: 'secondary_email'
+}
 
 const EVENTS = {
   'account.confirmed': {
@@ -106,6 +129,7 @@ module.exports = (log, config) => {
           flowBeginTime: getFromMetricsContext(metricsContext, 'flowBeginTime', request, 'flowBeginTime'),
           lang: request.app.locale,
           emailDomain: data.email_domain,
+          emailTypes: EMAIL_TYPES,
           service: getService(request, data, metricsContext)
         }, getOs(request), getBrowser(request), getLocation(request)))
 
