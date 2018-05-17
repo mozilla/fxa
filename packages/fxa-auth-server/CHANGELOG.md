@@ -1,3 +1,17 @@
+<a name="1.112.1"></a>
+## [1.112.1](https://github.com/mozilla/fxa-oauth-server/compare/v1.112.0...v1.112.1) (2018-05-17)
+
+
+### Bug Fixes
+
+* **changelog:** update to latest changelog version (#556) ([bc9256e](https://github.com/mozilla/fxa-oauth-server/commit/bc9256e)), closes [#556](https://github.com/mozilla/fxa-oauth-server/issues/556)
+
+### Features
+
+* **ci:** move to CircleCI 2 (#554) r=@jbuck ([97e4f62](https://github.com/mozilla/fxa-oauth-server/commit/97e4f62)), closes [#554](https://github.com/mozilla/fxa-oauth-server/issues/554)
+
+
+
 <a name"1.112.0"></a>
 ## 1.112.0 (2018-05-16)
 
