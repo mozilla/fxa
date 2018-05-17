@@ -2,6 +2,9 @@
   "authdb": {
     "baseuri": "http://127.0.0.1:8000/"
   },
+  "aws": {
+    "region": "us-east-1"
+  },
   "bouncelimits": {
     "enabled": true,
     "complaint": [
@@ -20,9 +23,6 @@
   "sender": {
     "address": "accounts@firefox.com",
     "name": "Firefox Accounts"
-  },
-  "ses": {
-    "region": "us-east-1"
   },
   "smtp": {
     "host": "127.0.0.1",

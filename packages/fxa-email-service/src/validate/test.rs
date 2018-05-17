@@ -163,3 +163,29 @@ fn invalid_sendgrid_api_key() {
         "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._123456"
     ));
 }
+
+#[test]
+fn sqs_url() {
+    assert!(validate::sqs_url(
+        "https://sqs.us-east-1.amazonaws.com/123456789012/MyQueue"
+    ));
+    assert!(validate::sqs_url(
+        "https://sqs.us-west-2.amazonaws.com/42/fxa-email-bounce-prod"
+    ));
+}
+
+#[test]
+fn invalid_sqs_url() {
+    assert!(!validate::sqs_url(
+        "http://sqs.us-east-1.amazonaws.com/123456789012/MyQueue"
+    ));
+    assert!(!validate::sqs_url(
+        " https://sqs.us-east-1.amazonaws.com/123456789012/MyQueue"
+    ));
+    assert!(!validate::sqs_url(
+        "https://sqs.us-east-1.amazonaws.com/123456789012/MyQueue "
+    ));
+    assert!(!validate::sqs_url(
+        "https://sqs.us-east-1.wibble.com/123456789012/MyQueue"
+    ));
+}

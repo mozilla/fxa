@@ -82,6 +82,13 @@ where
     deserialize(deserializer, validate::sendgrid_api_key, "Sendgrid API key")
 }
 
+pub fn sqs_url<'d, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: Deserializer<'d>,
+{
+    deserialize(deserializer, validate::sqs_url, "SQS queue URL")
+}
+
 fn deserialize<'d, D>(
     deserializer: D,
     validator: fn(&str) -> bool,

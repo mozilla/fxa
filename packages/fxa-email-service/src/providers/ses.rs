@@ -19,12 +19,12 @@ pub struct SesProvider {
 impl SesProvider {
     pub fn new(settings: &Settings) -> SesProvider {
         let region = settings
-            .ses
+            .aws
             .region
             .parse::<Region>()
             .expect("invalid region");
 
-        let client: Box<Ses> = if let Some(ref keys) = settings.ses.keys {
+        let client: Box<Ses> = if let Some(ref keys) = settings.aws.keys {
             let creds =
                 StaticProvider::new(keys.access.to_string(), keys.secret.to_string(), None, None);
             Box::new(SesClient::new(RequestDispatcher::default(), creds, region))

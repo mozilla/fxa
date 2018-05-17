@@ -21,6 +21,8 @@ lazy_static! {
     static ref SENDER_NAME_FORMAT: Regex =
         Regex::new("^[A-Za-z0-9-]+(?: [A-Za-z0-9-]+)*$").unwrap();
     static ref SENDGRID_API_KEY_FORMAT: Regex = Regex::new("^[A-Za-z0-9._]{69}$").unwrap();
+    static ref SQS_URL_FORMAT: Regex =
+        Regex::new("^https://sqs\\.[a-z0-9-]+\\.amazonaws\\.com/[0-9]+/[A-Za-z0-9-]+$").unwrap();
 }
 
 pub fn aws_region(value: &str) -> bool {
@@ -57,4 +59,8 @@ pub fn sender_name(value: &str) -> bool {
 
 pub fn sendgrid_api_key(value: &str) -> bool {
     SENDGRID_API_KEY_FORMAT.is_match(value)
+}
+
+pub fn sqs_url(value: &str) -> bool {
+    SQS_URL_FORMAT.is_match(value)
 }

@@ -12,6 +12,7 @@
 * [How do I run the tests?](#how-do-i-run-the-tests)
 * [How can I send an email via SES?](#how-can-i-send-an-email-via-ses)
 * [How can I send an email via Sendgrid?](#how-can-i-send-an-email-via-sendgrid)
+* [How do bounce, complaint and delivery notifications work?](#how-do-bounce-complaint-and-delivery-notifications-work)
 
 ## What's this?
 
@@ -135,14 +136,14 @@ You'll need to set up some config
 with your AWS credentials.
 That can be with environment variables:
 
-* `FXA_EMAIL_SES_KEYS_ACCESS`
-* `FXA_EMAIL_SES_KEYS_SECRET`
+* `FXA_EMAIL_AWS_KEYS_ACCESS`
+* `FXA_EMAIL_AWS_KEYS_SECRET`
 
 Or in `config/local.json`:
 
 ```json
 {
-  "ses": {
+  "aws": {
     "keys": {
       "access": "...",
       "secret": "..."
@@ -223,3 +224,78 @@ curl \
 
 If everything is set-up correctly,
 you should receive email pretty much instantly.
+
+## How do bounce, complaint and delivery notifications work?
+
+For consistency with the implementation in the auth server,
+three separate SQS queues are monitored
+for bounce, complaint and delivery notifications.
+Ultimately we expect to simplify this
+to a single queue for all three notification types.
+
+Messages on these queues
+are JSON payloads of the format
+described in the [AWS docs](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html)
+and encoded in [`src/queues/notification/mod.rs`](src/queues/notification/mod.rs).
+
+When a message is received,
+three things happen in sequence:
+
+1. For bounce and complaint notification types,
+   a bounce record is created in the auth db.
+   Errors are fatal at this point,
+   steps `2` and `3` will not occur
+   if the db returns an error.
+
+2. The message is forwarded to the auth server
+   via a fourth, outgoing queue.
+   An error here is not fatal.
+
+3. The message is deleted from the origin queue.
+
+Currently, both the incoming and outgoing queues
+happen to be SQS queues but,
+since that's an implementation detail,
+the code makes some effort to separate them
+behind abstract `Incoming` and `Outgoing` traits.
+It's not a perfect abstraction
+because the `Notification` type
+was allowed to leak out of the `sqs` module
+for the sake of expediency.
+That can be easily addressed later,
+if and when we come to rely on
+a different queue implementation.
+
+The queue URLs and region
+are set via config,
+either using environment variables:
+
+* `FXA_EMAIL_AWS_REGION`
+* `FXA_EMAIL_AWS_SQSURLS_BOUNCE`
+* `FXA_EMAIL_AWS_SQSURLS_COMPLAINT`
+* `FXA_EMAIL_AWS_SQSURLS_DELIVERY`
+* `FXA_EMAIL_AWS_SQSURLS_NOTIFICATION`
+
+Or in `config/local.json`:
+
+```json
+{
+  "aws": {
+    "region": "...",
+    "sqsurls": {
+      "bounce": "...",
+      "complaint": "...",
+      "delivery": "...",
+      "notification": "..."
+    }
+  }
+}
+```
+
+The queue-handling code runs in a different process
+to the main email-sending service.
+You can run it locally like so:
+
+```
+cargo r --bin queues
+```

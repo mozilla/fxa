@@ -18,6 +18,14 @@ pub struct AuthDb {
 }
 
 #[derive(Debug, Default, Deserialize)]
+pub struct Aws {
+    pub keys: Option<AwsKeys>,
+    #[serde(deserialize_with = "deserialize::aws_region")]
+    pub region: String,
+    pub sqsurls: Option<SqsUrls>,
+}
+
+#[derive(Debug, Default, Deserialize)]
 pub struct AwsKeys {
     #[serde(deserialize_with = "deserialize::aws_access")]
     pub access: String,
@@ -55,13 +63,6 @@ pub struct Sendgrid {
 }
 
 #[derive(Debug, Default, Deserialize)]
-pub struct Ses {
-    #[serde(deserialize_with = "deserialize::aws_region")]
-    pub region: String,
-    pub keys: Option<AwsKeys>,
-}
-
-#[derive(Debug, Default, Deserialize)]
 pub struct Smtp {
     #[serde(deserialize_with = "deserialize::host")]
     pub host: String,
@@ -71,14 +72,30 @@ pub struct Smtp {
 }
 
 #[derive(Debug, Default, Deserialize)]
+pub struct SqsUrls {
+    // Queue URLs are specified here for consistency with the auth server.
+    // However, we could also store queue names instead and then fetch the
+    // URL with rusoto_sqs::GetQueueUrl. Then we might be allowed to include
+    // the production queue names in default config?
+    #[serde(deserialize_with = "deserialize::sqs_url")]
+    pub bounce: String,
+    #[serde(deserialize_with = "deserialize::sqs_url")]
+    pub complaint: String,
+    #[serde(deserialize_with = "deserialize::sqs_url")]
+    pub delivery: String,
+    #[serde(deserialize_with = "deserialize::sqs_url")]
+    pub notification: String,
+}
+
+#[derive(Debug, Default, Deserialize)]
 pub struct Settings {
     pub authdb: AuthDb,
+    pub aws: Aws,
     pub bouncelimits: BounceLimits,
     #[serde(deserialize_with = "deserialize::provider")]
     pub provider: String,
     pub sender: Sender,
     pub sendgrid: Option<Sendgrid>,
-    pub ses: Ses,
     pub smtp: Smtp,
 }
 

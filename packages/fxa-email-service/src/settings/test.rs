@@ -53,14 +53,18 @@ impl Drop for CleanEnvironment {
 fn env_vars_take_precedence() {
     let _clean_env = CleanEnvironment::new(vec![
         "FXA_EMAIL_AUTHDB_BASEURI",
+        "FXA_EMAIL_AWS_REGION",
+        "FXA_EMAIL_AWS_KEYS_ACCESS",
+        "FXA_EMAIL_AWS_KEYS_SECRET",
+        "FXA_EMAIL_AWS_SQSURLS_BOUNCE",
+        "FXA_EMAIL_AWS_SQSURLS_COMPLAINT",
+        "FXA_EMAIL_AWS_SQSURLS_DELIVERY",
+        "FXA_EMAIL_AWS_SQSURLS_NOTIFICATION",
         "FXA_EMAIL_BOUNCELIMITS_ENABLED",
         "FXA_EMAIL_PROVIDER",
         "FXA_EMAIL_SENDER_ADDRESS",
         "FXA_EMAIL_SENDER_NAME",
         "FXA_EMAIL_SENDGRID_KEY",
-        "FXA_EMAIL_SES_REGION",
-        "FXA_EMAIL_SES_KEYS_ACCESS",
-        "FXA_EMAIL_SES_KEYS_SECRET",
         "FXA_EMAIL_SMTP_HOST",
         "FXA_EMAIL_SMTP_PORT",
         "FXA_EMAIL_SMTP_USER",
@@ -70,6 +74,43 @@ fn env_vars_take_precedence() {
     match Settings::new() {
         Ok(settings) => {
             let auth_db_base_uri = format!("{}foo/", &settings.authdb.baseuri);
+            let aws_keys = if let Some(ref keys) = settings.aws.keys {
+                AwsKeys {
+                    access: format!("{}A", keys.access),
+                    secret: format!("{}s", keys.secret),
+                }
+            } else {
+                AwsKeys {
+                    access: String::from("A"),
+                    secret: String::from("s"),
+                }
+            };
+            let aws_region = if settings.aws.region == "us-east-1" {
+                "eu-west-1"
+            } else {
+                "us-east-1"
+            };
+            let aws_sqs_urls = if let Some(ref urls) = settings.aws.sqsurls {
+                SqsUrls {
+                    bounce: format!("{}B", urls.bounce),
+                    complaint: format!("{}C", urls.complaint),
+                    delivery: format!("{}D", urls.delivery),
+                    notification: format!("{}N", urls.notification),
+                }
+            } else {
+                SqsUrls {
+                    bounce: String::from("https://sqs.us-east-1.amazonaws.com/123456789012/Bounce"),
+                    complaint: String::from(
+                        "https://sqs.us-east-1.amazonaws.com/123456789012/Complaint",
+                    ),
+                    delivery: String::from(
+                        "https://sqs.us-east-1.amazonaws.com/123456789012/Delivery",
+                    ),
+                    notification: String::from(
+                        "https://sqs.us-east-1.amazonaws.com/123456789012/Notification",
+                    ),
+                }
+            };
             let bounce_limits_enabled = !settings.bouncelimits.enabled;
             let provider = if settings.provider == "ses" {
                 "smtp"
@@ -81,22 +122,6 @@ fn env_vars_take_precedence() {
             let sendgrid_api_key = String::from(
                 "000000000000000000000000000000000000000000000000000000000000000000000",
             );
-            let ses_region = if settings.ses.region == "us-east-1" {
-                "eu-west-1"
-            } else {
-                "us-east-1"
-            };
-            let ses_keys = if let Some(ref keys) = settings.ses.keys {
-                AwsKeys {
-                    access: format!("{}A", keys.access),
-                    secret: format!("{}s", keys.secret),
-                }
-            } else {
-                AwsKeys {
-                    access: String::from("A"),
-                    secret: String::from("s"),
-                }
-            };
             let smtp_host = format!("{}2", &settings.smtp.host);
             let smtp_port = settings.smtp.port + 3;
             let smtp_user = if let Some(ref user) = settings.smtp.user {
@@ -111,6 +136,16 @@ fn env_vars_take_precedence() {
             };
 
             env::set_var("FXA_EMAIL_AUTHDB_BASEURI", &auth_db_base_uri);
+            env::set_var("FXA_EMAIL_AWS_REGION", &aws_region);
+            env::set_var("FXA_EMAIL_AWS_KEYS_ACCESS", &aws_keys.access);
+            env::set_var("FXA_EMAIL_AWS_KEYS_SECRET", &aws_keys.secret);
+            env::set_var("FXA_EMAIL_AWS_SQSURLS_BOUNCE", &aws_sqs_urls.bounce);
+            env::set_var("FXA_EMAIL_AWS_SQSURLS_COMPLAINT", &aws_sqs_urls.complaint);
+            env::set_var("FXA_EMAIL_AWS_SQSURLS_DELIVERY", &aws_sqs_urls.delivery);
+            env::set_var(
+                "FXA_EMAIL_AWS_SQSURLS_NOTIFICATION",
+                &aws_sqs_urls.notification,
+            );
             env::set_var(
                 "FXA_EMAIL_BOUNCELIMITS_ENABLED",
                 &bounce_limits_enabled.to_string(),
@@ -119,9 +154,6 @@ fn env_vars_take_precedence() {
             env::set_var("FXA_EMAIL_SENDER_ADDRESS", &sender_address);
             env::set_var("FXA_EMAIL_SENDER_NAME", &sender_name);
             env::set_var("FXA_EMAIL_SENDGRID_KEY", &sendgrid_api_key);
-            env::set_var("FXA_EMAIL_SES_REGION", &ses_region);
-            env::set_var("FXA_EMAIL_SES_KEYS_ACCESS", &ses_keys.access);
-            env::set_var("FXA_EMAIL_SES_KEYS_SECRET", &ses_keys.secret);
             env::set_var("FXA_EMAIL_SMTP_HOST", &smtp_host);
             env::set_var("FXA_EMAIL_SMTP_PORT", &smtp_port.to_string());
             env::set_var("FXA_EMAIL_SMTP_USER", &smtp_user);
@@ -130,11 +162,11 @@ fn env_vars_take_precedence() {
             match Settings::new() {
                 Ok(env_settings) => {
                     assert_eq!(env_settings.authdb.baseuri, auth_db_base_uri);
+                    assert_eq!(env_settings.aws.region, aws_region);
                     assert_eq!(env_settings.bouncelimits.enabled, bounce_limits_enabled);
                     assert_eq!(env_settings.provider, provider);
                     assert_eq!(env_settings.sender.address, sender_address);
                     assert_eq!(env_settings.sender.name, sender_name);
-                    assert_eq!(env_settings.ses.region, ses_region);
                     assert_eq!(env_settings.smtp.host, smtp_host);
                     assert_eq!(env_settings.smtp.port, smtp_port);
 
@@ -144,11 +176,20 @@ fn env_vars_take_precedence() {
                         assert!(false, "settings.sendgrid was not set");
                     }
 
-                    if let Some(env_keys) = env_settings.ses.keys {
-                        assert_eq!(env_keys.access, ses_keys.access);
-                        assert_eq!(env_keys.secret, ses_keys.secret);
+                    if let Some(env_keys) = env_settings.aws.keys {
+                        assert_eq!(env_keys.access, aws_keys.access);
+                        assert_eq!(env_keys.secret, aws_keys.secret);
                     } else {
-                        assert!(false, "ses.keys were not set");
+                        assert!(false, "aws.keys were not set");
+                    }
+
+                    if let Some(env_sqs_urls) = env_settings.aws.sqsurls {
+                        assert_eq!(env_sqs_urls.bounce, aws_sqs_urls.bounce);
+                        assert_eq!(env_sqs_urls.complaint, aws_sqs_urls.complaint);
+                        assert_eq!(env_sqs_urls.delivery, aws_sqs_urls.delivery);
+                        assert_eq!(env_sqs_urls.notification, aws_sqs_urls.notification);
+                    } else {
+                        assert!(false, "aws.sqsurls were not set");
                     }
 
                     if let Some(env_user) = env_settings.smtp.user {
@@ -180,6 +221,95 @@ fn env_vars_take_precedence() {
 fn invalid_auth_db_base_uri() {
     let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_AUTHDB_BASEURI"]);
     env::set_var("FXA_EMAIL_AUTHDB_BASEURI", "http://example.com");
+
+    match Settings::new() {
+        Ok(_settings) => assert!(false, "Settings::new should have failed"),
+        Err(error) => assert_eq!(error.description(), "configuration error"),
+    }
+}
+
+#[test]
+fn invalid_aws_region() {
+    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_AWS_REGION"]);
+    env::set_var("FXA_EMAIL_AWS_REGION", "us-east-1a");
+
+    match Settings::new() {
+        Ok(_settings) => assert!(false, "Settings::new should have failed"),
+        Err(error) => assert_eq!(error.description(), "configuration error"),
+    }
+}
+
+#[test]
+fn invalid_aws_access_key() {
+    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_AWS_KEYS_ACCESS"]);
+    env::set_var("FXA_EMAIL_AWS_KEYS_ACCESS", "DEADBEEF DEADBEEF");
+
+    match Settings::new() {
+        Ok(_settings) => assert!(false, "Settings::new should have failed"),
+        Err(error) => assert_eq!(error.description(), "configuration error"),
+    }
+}
+
+#[test]
+fn invalid_aws_secret_key() {
+    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_AWS_KEYS_SECRET"]);
+    env::set_var("FXA_EMAIL_AWS_KEYS_SECRET", "DEADBEEF DEADBEEF");
+
+    match Settings::new() {
+        Ok(_settings) => assert!(false, "Settings::new should have failed"),
+        Err(error) => assert_eq!(error.description(), "configuration error"),
+    }
+}
+
+#[test]
+fn invalid_aws_bounce_queue_url() {
+    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_AWS_SQSURLS_BOUNCE"]);
+    env::set_var(
+        "FXA_EMAIL_AWS_SQSURLS_BOUNCE",
+        "http://sqs.us-east-1.amazonaws.com/123456789012/Bounce",
+    );
+
+    match Settings::new() {
+        Ok(_settings) => assert!(false, "Settings::new should have failed"),
+        Err(error) => assert_eq!(error.description(), "configuration error"),
+    }
+}
+
+#[test]
+fn invalid_aws_complaint_queue_url() {
+    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_AWS_SQSURLS_COMPLAINT"]);
+    env::set_var(
+        "FXA_EMAIL_AWS_SQSURLS_COMPLAINT",
+        "http://sqs.us-east-1.amazonaws.com/123456789012/Complaint",
+    );
+
+    match Settings::new() {
+        Ok(_settings) => assert!(false, "Settings::new should have failed"),
+        Err(error) => assert_eq!(error.description(), "configuration error"),
+    }
+}
+
+#[test]
+fn invalid_aws_delivery_queue_url() {
+    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_AWS_SQSURLS_DELIVERY"]);
+    env::set_var(
+        "FXA_EMAIL_AWS_SQSURLS_DELIVERY",
+        "http://sqs.us-east-1.amazonaws.com/123456789012/Delivery",
+    );
+
+    match Settings::new() {
+        Ok(_settings) => assert!(false, "Settings::new should have failed"),
+        Err(error) => assert_eq!(error.description(), "configuration error"),
+    }
+}
+
+#[test]
+fn invalid_aws_notification_queue_url() {
+    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_AWS_SQSURLS_NOTIFICATION"]);
+    env::set_var(
+        "FXA_EMAIL_AWS_SQSURLS_NOTIFICATION",
+        "http://sqs.us-east-1.amazonaws.com/123456789012/Notification",
+    );
 
     match Settings::new() {
         Ok(_settings) => assert!(false, "Settings::new should have failed"),
@@ -235,39 +365,6 @@ fn invalid_sender_name() {
 fn invalid_sendgrid_api_key() {
     let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_SENDGRID_KEY"]);
     env::set_var("FXA_EMAIL_SENDGRID_KEY", "foo bar");
-
-    match Settings::new() {
-        Ok(_settings) => assert!(false, "Settings::new should have failed"),
-        Err(error) => assert_eq!(error.description(), "configuration error"),
-    }
-}
-
-#[test]
-fn invalid_ses_region() {
-    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_SES_REGION"]);
-    env::set_var("FXA_EMAIL_SES_REGION", "us-east-1a");
-
-    match Settings::new() {
-        Ok(_settings) => assert!(false, "Settings::new should have failed"),
-        Err(error) => assert_eq!(error.description(), "configuration error"),
-    }
-}
-
-#[test]
-fn invalid_ses_access_key() {
-    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_SES_KEYS_ACCESS"]);
-    env::set_var("FXA_EMAIL_SES_KEYS_ACCESS", "DEADBEEF DEADBEEF");
-
-    match Settings::new() {
-        Ok(_settings) => assert!(false, "Settings::new should have failed"),
-        Err(error) => assert_eq!(error.description(), "configuration error"),
-    }
-}
-
-#[test]
-fn invalid_ses_secret_key() {
-    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_SES_KEYS_SECRET"]);
-    env::set_var("FXA_EMAIL_SES_KEYS_SECRET", "DEADBEEF DEADBEEF");
 
     match Settings::new() {
         Ok(_settings) => assert!(false, "Settings::new should have failed"),
