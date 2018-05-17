@@ -217,6 +217,16 @@ describe('/account/devices/notify', function () {
   var mockLog = mocks.mockLog()
   var mockRequest = mocks.mockRequest({
     log: mockLog,
+    devices: [
+      {
+        id: 'bogusid1',
+        type: 'mobile'
+      },
+      {
+        id: 'bogusid2',
+        type: 'desktop',
+      }
+    ],
     credentials: {
       uid: uid,
       deviceId: deviceId
@@ -249,7 +259,7 @@ describe('/account/devices/notify', function () {
       assert(false, 'should have thrown')
     })
       .then(() => assert(false), function (err) {
-        assert.equal(mockPush.notifyUpdate.callCount, 0, 'mockPush.notifyUpdate was not called')
+        assert.equal(mockPush.sendPush.callCount, 0, 'mockPush.sendPush was not called')
         assert.equal(err.errno, 107, 'Correct errno for invalid push payload')
       })
   })
@@ -261,25 +271,24 @@ describe('/account/devices/notify', function () {
       TTL: 60,
       payload: pushPayload
     }
-    // We don't wait on notifyUpdate in the request handler, that's why
+    // We don't wait on sendPush in the request handler, that's why
     // we have to wait on it manually by spying.
-    var notifyUpdatePromise = P.defer()
-    mockPush.notifyUpdate = sinon.spy(function () {
-      notifyUpdatePromise.resolve()
+    var sendPushPromise = P.defer()
+    mockPush.sendPush = sinon.spy(function () {
+      sendPushPromise.resolve()
       return P.resolve()
     })
     return runTest(route, mockRequest, function (response) {
-      return notifyUpdatePromise.promise.then(function () {
+      return sendPushPromise.promise.then(function () {
         assert.equal(mockCustoms.checkAuthenticated.callCount, 1, 'mockCustoms.checkAuthenticated was called once')
-        assert.equal(mockPush.notifyUpdate.callCount, 1, 'mockPush.notifyUpdate was called once')
-        var args = mockPush.notifyUpdate.args[0]
-        assert.equal(args.length, 4, 'mockPush.notifyUpdate was passed four arguments')
+        assert.equal(mockPush.sendPush.callCount, 1, 'mockPush.sendPush was called once')
+        var args = mockPush.sendPush.args[0]
+        assert.equal(args.length, 4, 'mockPush.sendPush was passed four arguments')
         assert.equal(args[0], uid, 'first argument was the device uid')
         assert.ok(Array.isArray(args[1]), 'second argument was devices array')
         assert.equal(args[2], 'devicesNotify', 'second argument was the devicesNotify reason')
         assert.deepEqual(args[3], {
           data: pushPayload,
-          excludedDeviceIds: ['bogusid'],
           TTL: 60
         }, 'third argument was the push options')
       })
@@ -296,11 +305,11 @@ describe('/account/devices/notify', function () {
       TTL: 60,
       payload: extraPropsPayload
     }
-    // We don't wait on notifyUpdate in the request handler, that's why
+    // We don't wait on sendPush in the request handler, that's why
     // we have to wait on it manually by spying.
-    var notifyUpdatePromise = P.defer()
-    mockPush.notifyUpdate = sinon.spy(function () {
-      notifyUpdatePromise.resolve()
+    var sendPushPromise = P.defer()
+    mockPush.sendPush = sinon.spy(function () {
+      sendPushPromise.resolve()
       return Promise.resolve()
     })
     return runTest(route, mockRequest, function () {
@@ -321,26 +330,25 @@ describe('/account/devices/notify', function () {
       TTL: 60,
       payload: pushPayload
     }
-    // We don't wait on notifyUpdate in the request handler, that's why
+    // We don't wait on sendPush in the request handler, that's why
     // we have to wait on it manually by spying.
-    var notifyUpdatePromise = P.defer()
-    mockPush.notifyUpdate = sinon.spy(function () {
-      notifyUpdatePromise.resolve()
+    var sendPushPromise = P.defer()
+    mockPush.sendPush = sinon.spy(function () {
+      sendPushPromise.resolve()
       return P.resolve()
     })
     return runTest(route, mockRequest, function (response) {
-      return notifyUpdatePromise.promise.then(function () {
+      return sendPushPromise.promise.then(function () {
         assert.equal(mockCustoms.checkAuthenticated.callCount, 1, 'mockCustoms.checkAuthenticated was called once')
-        assert.equal(mockPush.notifyUpdate.callCount, 1, 'mockPush.notifyUpdate was called once')
-        var args = mockPush.notifyUpdate.args[0]
-        assert.equal(args.length, 4, 'mockPush.notifyUpdate was passed four arguments')
+        assert.equal(mockPush.sendPush.callCount, 1, 'mockPush.sendPush was called once')
+        var args = mockPush.sendPush.args[0]
+        assert.equal(args.length, 4, 'mockPush.sendPush was passed four arguments')
         assert.equal(args[0], uid, 'first argument was the device uid')
         assert.ok(Array.isArray(args[1]), 'second argument was devices array')
         assert.equal(args[2], 'devicesNotify', 'third argument was the devicesNotify reason')
         assert.deepEqual(args[3], {
           data: pushPayload,
-          TTL: 60,
-          includedDeviceIds: [ 'bogusid1', 'bogusid2' ]
+          TTL: 60
         }, 'fourth argument was the push options')
         assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
         args = mockLog.activityEvent.args[0]
@@ -358,7 +366,7 @@ describe('/account/devices/notify', function () {
   })
 
   it('does not log activity event for non-send-tab-related messages', function () {
-    mockPush.notifyUpdate.reset()
+    mockPush.sendPush.reset()
     mockLog.activityEvent.reset()
     mockLog.error.reset()
     mockRequest.payload = {
@@ -370,7 +378,7 @@ describe('/account/devices/notify', function () {
       }
     }
     return runTest(route, mockRequest, function (response) {
-      assert.equal(mockPush.notifyUpdate.callCount, 1, 'mockPush.notifyUpdate was called once')
+      assert.equal(mockPush.sendPush.callCount, 1, 'mockPush.sendPush was called once')
       assert.equal(mockLog.activityEvent.callCount, 0, 'log.activityEvent was not called')
       assert.equal(mockLog.error.callCount, 0, 'log.error was not called')
     })
@@ -426,7 +434,7 @@ describe('/account/devices/notify', function () {
 
     var mockLog = mocks.mockLog()
     var mockPush = mocks.mockPush({
-      notifyUpdate: () => P.reject('devices empty')
+      sendPush: () => P.reject('devices empty')
     })
     var mockCustoms = {
       checkAuthenticated: () => P.resolve()
@@ -449,9 +457,9 @@ describe('/account/devices/notify', function () {
       _endpointAction: 'accountVerify',
       payload: {}
     }
-    const notifyUpdatePromise = P.defer()
-    mockPush.notifyUpdate = sinon.spy(() => {
-      notifyUpdatePromise.resolve()
+    const sendPushPromise = P.defer()
+    mockPush.sendPush = sinon.spy(() => {
+      sendPushPromise.resolve()
       return P.resolve()
     })
     const mockCustoms = {
@@ -464,10 +472,10 @@ describe('/account/devices/notify', function () {
     }), '/account/devices/notify')
 
     return runTest(route, mockRequest, () => {
-      return notifyUpdatePromise.promise.then(() => {
-        assert.equal(mockPush.notifyUpdate.callCount, 1, 'mockPush.notifyUpdate was called once')
-        const args = mockPush.notifyUpdate.args[0]
-        assert.equal(args.length, 4, 'mockPush.notifyUpdate was passed four arguments')
+      return sendPushPromise.promise.then(() => {
+        assert.equal(mockPush.sendPush.callCount, 1, 'mockPush.sendPush was called once')
+        const args = mockPush.sendPush.args[0]
+        assert.equal(args.length, 4, 'mockPush.sendPush was passed four arguments')
         assert.equal(args[0], uid, 'first argument was the device uid')
         assert.ok(Array.isArray(args[1]), 'second argument was devices array')
         assert.equal(args[2], 'accountVerify', 'second argument was the accountVerify reason')

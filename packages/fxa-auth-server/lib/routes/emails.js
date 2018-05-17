@@ -428,7 +428,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
                     uid: uid
                   })
                   request.app.devices.then(devices =>
-                    push.notifyUpdate(uid, devices, 'accountConfirm')
+                    push.notifyAccountUpdated(uid, devices, 'accountConfirm')
                   )
                 }
               })
@@ -448,9 +448,10 @@ module.exports = (log, db, mailer, config, customs, push) => {
               })
               .then(() => {
                 if (device) {
-                  request.app.devices.then(devices =>
-                    push.notifyDeviceConnected(uid, devices, device.name, device.id)
-                  )
+                  request.app.devices.then(devices => {
+                    const otherDevices = devices.filter(d => d.id !== device.id)
+                    return push.notifyDeviceConnected(uid, otherDevices, device.name)
+                  })
                 }
               })
               .then(() => {
@@ -482,7 +483,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
                   .then(() => {
                     // send a push notification to all devices that the account changed
                     request.app.devices.then(devices =>
-                      push.notifyUpdate(uid, devices, 'accountVerify')
+                      push.notifyAccountUpdated(uid, devices, 'accountVerify')
                     )
                   })
                   .then(() => {
