@@ -1,3 +1,14 @@
+<a name="1.112.1"></a>
+## [1.112.1](https://github.com/mozilla/fxa-auth-server/compare/v1.112.0...v1.112.1) (2018-05-17)
+
+
+### Bug Fixes
+
+* **docs:** fix devices validation output of the doc generator (#2440) r=@vladikoff ([957c760](https://github.com/mozilla/fxa-auth-server/commit/957c760)), closes [#2440](https://github.com/mozilla/fxa-auth-server/issues/2440) [#2434](https://github.com/mozilla/fxa-auth-server/issues/2434)
+* **nsp:** fix nsp warnings ([2b663dd](https://github.com/mozilla/fxa-auth-server/commit/2b663dd))
+
+
+
 <a name="1.112.0"></a>
 # [1.112.0](https://github.com/mozilla/fxa-auth-server/compare/v1.111.1...v1.112.0) (2018-05-16)
 
