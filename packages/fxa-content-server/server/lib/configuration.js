@@ -509,7 +509,11 @@ const conf = module.exports = convict({
       doc: 'enable UDP based statsd reporting',
       env: 'ENABLE_STATSD'
     },
-    host: 'localhost',
+    host: {
+      default: 'localhost',
+      doc: 'host for statsd reporting',
+      env: 'STATSD_HOST'
+    },
     port: {
       default: 8125,
       format: 'port'

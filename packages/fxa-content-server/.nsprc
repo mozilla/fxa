@@ -16,6 +16,10 @@
     // lodash
     "https://nodesecurity.io/advisories/577",
     // constantinople
-    "https://nodesecurity.io/advisories/568"
+    "https://nodesecurity.io/advisories/568",
+    // base64url
+    "https://nodesecurity.io/advisories/658",
+    // stringstream
+    "https://nodesecurity.io/advisories/664"
   ]
 }
