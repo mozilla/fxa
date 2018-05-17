@@ -18,19 +18,15 @@
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.config('changelog', {
-    dest: 'CHANGELOG.md'
-  });
-
   grunt.registerTask('version', [
     'bump-only:minor',
-    'changelog',
+    'conventionalChangelog:release',
     'bump-commit'
   ]);
 
   grunt.registerTask('version:patch', [
     'bump-only:patch',
-    'changelog',
+    'conventionalChangelog:release',
     'bump-commit'
   ]);
 };
