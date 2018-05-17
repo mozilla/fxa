@@ -1,3 +1,13 @@
+<a name="1.112.1"></a>
+## 1.112.1 (2018-05-17)
+
+
+### Bug Fixes
+
+* **npm:** rewrap npm for v5.10 (#6201) ([2d28818](https://github.com/mozilla/fxa-content-server/commit/2d28818))
+
+
+
 <a name="1.112.0"></a>
 # 1.112.0 (2018-05-15)
 
