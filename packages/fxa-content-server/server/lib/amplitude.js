@@ -14,11 +14,18 @@
 
 'use strict';
 
-const { EMAIL_TYPES, GROUPS, initialize } = require('fxa-shared/metrics/amplitude');
+const { GROUPS, initialize } = require('fxa-shared/metrics/amplitude');
 const geolocate = require('./geo-locate');
 const ua = require('./user-agent');
 
 const SERVICES = require('./configuration').get('oauth_client_id_map');
+
+// Maps view name to email type
+const EMAIL_TYPES = {
+  'complete-reset-password': 'reset_password',
+  'complete-signin': 'login',
+  'verify-email': 'registration'
+};
 
 const EVENTS = {
   'flow.reset-password.submit': {
@@ -104,7 +111,7 @@ function receiveEvent (event, request, data) {
   const amplitudeEvent = transform(
     event,
     Object.assign(
-      {},
+      { emailTypes: EMAIL_TYPES },
       pruneUnsetValues(data),
       mapBrowser(userAgent),
       mapOs(userAgent),
