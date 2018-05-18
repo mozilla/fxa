@@ -101,7 +101,8 @@ impl DbClient {
 
 impl Db for DbClient {
     fn get_email_bounces(&self, address: &str) -> Result<Vec<BounceRecord>, DbError> {
-        let mut response = self.request_client
+        let mut response = self
+            .request_client
             .get(self.urls.get_email_bounces(address)?)
             .send()?;
         match response.status() {
