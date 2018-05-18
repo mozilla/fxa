@@ -14,10 +14,9 @@ var request = require('request');
 var zlib = require('zlib');
 
 // set up mozlog, default is `heka`
-mozlog.config({
+var log = mozlog({
   app: 'fxa-geodb'
 });
-var log = mozlog();
 var isTestEnv = (process.env.NODE_ENV === 'test') || process.env.CI;
 var isLogQuiet = (process.env.LOG === 'quiet');
 
@@ -126,10 +125,16 @@ var MaxmindDbDownloader = function () {
     timeZone = timeZone || DEFAULTS.TIMEZONE;
     var self = this;
     // by default run periodically on Wednesday at 01:30:30.
-    new CronJob(cronTiming, function() { // eslint-disable-line no-new
+    this.cronjob = new CronJob(cronTiming, function() {
       self.downloadAll(downloadPromiseFunctions);
     }, null, true, timeZone);
     logHelper('info', 'Set up auto update with cronTiming: ' + cronTiming);
+  };
+
+  this.stop = function () {
+    if (this.cronjob) {
+      this.cronjob.stop();
+    }
   };
 };
 

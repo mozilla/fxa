@@ -31,6 +31,7 @@ describe('maxmind-db-downloader', function () {
       rimraf.sync(expectedTargetDirPath);
     }
     targetDirPath = '';
+    maxmindDbDownloader.stop();
   });
 
   describe('createTargetDir', function () {
@@ -77,7 +78,7 @@ describe('maxmind-db-downloader', function () {
       // timeout to 6 seconds to ensure that we don't
       // timeout prematurely.
       this.timeout(6000);
-      sinon.stub(maxmindDbDownloader, 'downloadAll', function () {});
+      sinon.stub(maxmindDbDownloader, 'downloadAll').callsFake(function () {});
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
       downloadPromiseFunctions = maxmindDbDownloader.setupDownloadList(path.join('..', 'sources.json'), targetDirPath);
       // set up auto update for every second of every minute

@@ -13,7 +13,7 @@ module.exports = function (options) {
   options = options || {};
   var dbPath = options.dbPath || DEFAULTS.DB_PATH;
 
-  const dbLookup = maxmind.open(dbPath);
+  const dbLookup = maxmind.openSync(dbPath);
 
   return (ip, options = {}) => {
     const userLocale = options.userLocale || DEFAULTS.USER_LOCALE;
