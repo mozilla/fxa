@@ -12,7 +12,7 @@ module.exports = class TotpGroupingRule extends BaseGroupingRule {
   constructor() {
     super();
     this.name = 'totp';
-    this.ROLLOUT_RATE = 0.00;
+    this.ROLLOUT_RATE = 0.10;
   }
 
   choose(subject) {
