@@ -1,3 +1,22 @@
+<a name="1.112.2"></a>
+## 1.112.2 (2018-05-18)
+
+
+### Bug Fixes
+
+* **config:** Allow configuring statsd host (#6208) r=@vladikoff,@shane-tomlinson ([9da130e](https://github.com/mozilla/fxa-content-server/commit/9da130e))
+* **deps:** Update fxa-geodb (#6211) r=@philbooth ([c171e6b](https://github.com/mozilla/fxa-content-server/commit/c171e6b))
+
+### Features
+
+* **totp:** enable totp for 10% of all users (#6212), r=@shane-tomlinson ([2a0b52d](https://github.com/mozilla/fxa-content-server/commit/2a0b52d))
+
+### Refactor
+
+* **metrics:** move amplitude email types back here from fxa-shared ([14a66c5](https://github.com/mozilla/fxa-content-server/commit/14a66c5))
+
+
+
 <a name="1.112.1"></a>
 ## 1.112.1 (2018-05-17)
 
