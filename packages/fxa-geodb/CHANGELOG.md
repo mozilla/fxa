@@ -1,3 +1,8 @@
+<a name="1.0.2"></a>
+
+### Bug Fixes
+* **deps:** Update all the deps to remove security warnings.
+
 <a name="0.0.8"></a>
 # 0.0.8 (2017-02-23)
 
