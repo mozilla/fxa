@@ -1,3 +1,21 @@
+<a name="1.112.0"></a>
+# [1.112.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.109.0...v1.112.0) (2018-05-21)
+
+
+### Bug Fixes
+
+* **api:** More closely match native basket api behaviour. (#56) r=@vladikoff ([fc19a0d](https://github.com/mozilla/fxa-basket-proxy/commit/fc19a0d))
+
+### chore
+
+* **api:** More tests and cleanups for basket API compatibility. (#57); r=stomlinson ([9982bc6](https://github.com/mozilla/fxa-basket-proxy/commit/9982bc6))
+
+### Features
+
+* **node:** update to node 8 (#58) r=@jrgm ([6f4f5a0](https://github.com/mozilla/fxa-basket-proxy/commit/6f4f5a0))
+
+
+
 <a name="1.109.0"></a>
 # [1.109.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.106.0...v1.109.0) (2018-04-04)
 
