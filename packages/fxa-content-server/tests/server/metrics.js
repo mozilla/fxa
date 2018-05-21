@@ -117,6 +117,7 @@ suite.tests['#post /metrics - returns 400 with invalid data'] = {
   'invalid timers ([])': testInvalidMetricsField('timers', []),
   'invalid uniqueUserId': testInvalidMetricsField('uniqueUserId', '123-123-123-123-123-123-123-123-123-123-123-123-123-123-123-123-123-123-123'),
   'invalid utm_campaign (#)': testInvalidMetricsField('utm_campaign', '#'),
+  'invalid utm_campaign (asdf#)': testInvalidMetricsField('utm_campaign', '123#'),
   'invalid utm_content (!)': testInvalidMetricsField('utm_content', '!'),
   'invalid utm_medium (,)': testInvalidMetricsField('utm_medium', ','),
   'invalid utm_source (>)': testInvalidMetricsField('utm_source', '>'),

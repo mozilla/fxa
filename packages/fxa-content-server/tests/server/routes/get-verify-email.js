@@ -57,14 +57,13 @@ registerSuite('verify_email', {
         url: '/verify_email'
       };
 
-      mockModule(mocks).process(req, res, () => {
+      mockModule(mocks).process(req, res, createAsyncTest(() => {
         var c = ravenMock.ravenMiddleware.captureMessage;
         var arg = c.args[0];
         assert.equal(c.calledOnce, true);
         assert.equal(arg[0], 'VerificationValidationError');
         assert.equal(arg[1].extra.details[0].message, '"code" is not allowed to be empty');
-        dfd.resolve();
-      });
+      }, dfd));
 
       return dfd;
     },
@@ -91,17 +90,21 @@ registerSuite('verify_email', {
       };
 
       res.redirect = () => {
-        assert.equal(logger.error.callCount, 0);
-        assert.equal(ravenMock.ravenMiddleware.captureMessage.callCount, 0);
-        assert.equal(ravenMock.ravenMiddleware.captureError.callCount, 0);
+        try {
+          assert.equal(logger.error.callCount, 0);
+          assert.equal(ravenMock.ravenMiddleware.captureMessage.callCount, 0);
+          assert.equal(ravenMock.ravenMiddleware.captureError.callCount, 0);
+        } catch (e) {
+          return dfd.reject(e);
+        }
 
-        res.redirect = () => {
+        res.redirect = createAsyncTest(() => {
           // calling with `req.query.something` captures a message to Sentry
           assert.equal(logger.error.callCount, 0);
           assert.equal(ravenMock.ravenMiddleware.captureMessage.callCount, 1);
           assert.equal(ravenMock.ravenMiddleware.captureError.callCount, 0);
-          dfd.resolve();
-        };
+        }, dfd);
+
         req.query.something = 'else';
         mockModule(mocks).process(req, res);
       };
@@ -138,16 +141,14 @@ registerSuite('verify_email', {
         url: '/verify_email'
       };
 
-      mockModule(mocks).process(req, res, () => {
+      mockModule(mocks).process(req, res, createAsyncTest(() => {
         assert.equal(logger.error.callCount, 1, 'calls error on bad request');
         assert.equal(ravenMock.ravenMiddleware.captureMessage.callCount, 0);
         assert.equal(ravenMock.ravenMiddleware.captureError.callCount, 1);
         const result = ravenMock.ravenMiddleware.captureError.args[0][0];
         assert.equal(result.statusCode, 400);
         assert.equal(result.statusMessage, 'Bad Request');
-
-        dfd.resolve();
-      });
+      }, dfd));
 
       return dfd;
     },
@@ -173,15 +174,14 @@ registerSuite('verify_email', {
         }
       };
 
-      res.redirect = () => {
+      res.redirect = createAsyncTest(() => {
         const c = ravenMock.ravenMiddleware.captureMessage;
         const arg = c.args[0];
         assert.equal(c.calledOnce, true);
         assert.equal(arg[0], 'VerificationValidationInfo');
-        const errorMessage = '"utm_campaign" with value "&#x21;" fails to match the required pattern: /^[\\w\\/.%-]+/';
+        const errorMessage = '"utm_campaign" with value "&#x21;" fails to match the required pattern: /^[\\w\\/.%-]+$/';
         assert.equal(arg[1].extra.details[0].message, errorMessage);
-        dfd.resolve();
-      };
+      }, dfd);
 
       mockModule(mocks).process(req, res);
 
@@ -207,11 +207,10 @@ registerSuite('verify_email', {
         }
       };
 
-      res.redirect = () => {
+      res.redirect = createAsyncTest(() => {
         const c = ravenMock.ravenMiddleware.captureMessage;
         assert.equal(c.callCount, 0);
-        dfd.resolve();
-      };
+      }, dfd);
 
       mockModule(mocks).process(req, res);
 
@@ -219,3 +218,14 @@ registerSuite('verify_email', {
     }
   }
 });
+
+function createAsyncTest(callback, dfd) {
+  return function () {
+    try {
+      callback();
+      dfd.resolve();
+    } catch (e) {
+      dfd.reject(e);
+    }
+  };
+}

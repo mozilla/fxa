@@ -40,7 +40,7 @@ const TYPES = {
   STRING: joi.string().max(1024), // 1024 is arbitrary, seems like it should give CSP reports plenty of space.
   TIME: joi.number().integer().min(0),
   URL: joi.string().max(2048).uri({ scheme: [ 'http', 'https' ]}), // 2048 is also arbitrary, the same limit we use on the front end.
-  UTM: joi.string().max(128).regex(/^[\w\/.%-]+/) // values here can be 'firefox/sync'
+  UTM: joi.string().max(128).regex(/^[\w\/.%-]+$/) // values here can be 'firefox/sync'
 };
 
 module.exports = {
