@@ -16,7 +16,8 @@ var zlib = require('zlib');
 // set up mozlog, default is `heka`
 var log = mozlog({
   app: 'fxa-geodb'
-});
+})();
+
 var isTestEnv = (process.env.NODE_ENV === 'test') || process.env.CI;
 var isLogQuiet = (process.env.LOG === 'quiet');
 
