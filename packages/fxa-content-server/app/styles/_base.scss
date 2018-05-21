@@ -58,6 +58,7 @@ noscript,
 
 
 a {
+  border-radius: 2px; // Give the focusring rounded corners
   color: $link-color-default;
   cursor: pointer; // Use the correct cursor for anchors without an href
   text-decoration: none;

@@ -5,21 +5,17 @@
 
 .links {
   clear: both;
-  overflow: auto;
-  // the 1px of padding allows the :focus outline on anchors to show.
-  padding: 1px;
-  text-align: center;
-
-  .left {
-    float: left;
-    max-width: 50%;
-    text-align: left;
-  }
+  display: flex;
+  justify-content: center;
 
   .right {
-    float: right;
-    max-width: 50%;
-    text-align: right;
+    html[dir='ltr'] & {
+      margin-left: auto;  // Forces the two links as far apart as can be.
+    }
+
+    html[dir='rtl'] & {
+      margin-right: auto; // Forces the two links as far apart as can be.
+    }
   }
 
   .delayed-fadein {
@@ -27,14 +23,12 @@
     opacity: 0;
   }
 
-  &.centered a:not(:only-child) {
-    display: block;
-    float: none;
-    margin: 5px auto;
-    max-width: 100%;
-    padding-bottom: 10px;
-    text-align: center;
-    width: fit-content;
+  &.centered {
+    flex-direction: column;
+
+    a:not(:only-child) {
+      margin: 0 auto 12px;
+    }
   }
 }
 

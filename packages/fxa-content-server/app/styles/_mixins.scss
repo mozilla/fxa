@@ -66,21 +66,32 @@
 }
 
 @mixin anchor-default-pseudo-classes($color-hover: $link-color-hover, $color-box-shadow: $blue-60, $color-focus: $link-color-focus, $color-active: $link-color-active) {
-  &:hover {
-    color: $color-hover;
-    text-decoration: underline;
-  }
-
   &:focus {
     box-shadow: 0 0 0 2px $color-box-shadow, 0 0 0 6px rgba($color-box-shadow, 0.3);
     color: $color-focus;
     outline: none;
   }
 
+  &:hover {
+    color: $color-hover;
+    text-decoration: underline;
+  }
+
   &:active {
     box-shadow: none;
     color: $color-active;
     outline: none;
+  }
+
+  &:focus:hover {
+    // remove the underline on hover if already focused to
+    // avoid a double underline. See #6204
+    text-decoration: none;
+  }
+
+  &:focus:active {
+    // while depressed, always show the underline.
+    text-decoration: underline;
   }
 }
 
