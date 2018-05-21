@@ -280,11 +280,6 @@ body.settings #main-content.card {
   @include respond-to('small') {
     padding: 10px 0;
   }
-
-  .error {
-    padding: 5px 10px;
-    top: 0;
-  }
 }
 
 .settings-unit-stub {
@@ -292,6 +287,7 @@ body.settings #main-content.card {
 
   .settings-unit-summary {
     display: inline-block;
+    margin-bottom: 0;
     margin-top: 2px;
     overflow: hidden;
 
@@ -365,6 +361,7 @@ body.settings #main-content.card {
 }
 
 .settings-unit-details {
+  clear: both;
   display: none;
 
   p {
