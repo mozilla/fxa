@@ -1,3 +1,14 @@
+<a name="1.112.3"></a>
+## 1.112.3 (2018-05-21)
+
+
+### Bug Fixes
+
+* **style:** Fix the error message/heading styles in settings (#6216) r=@philbooth ([07967b5](https://github.com/mozilla/fxa-content-server/commit/07967b5)), closes [(#6216](https://github.com/(/issues/6216) [#6206](https://github.com/mozilla/fxa-content-server/issues/6206)
+* **style:** Fix the link focusring style. (#6215) r=@philbooth ([35f88fa](https://github.com/mozilla/fxa-content-server/commit/35f88fa)), closes [(#6215](https://github.com/(/issues/6215)
+
+
+
 <a name="1.112.2"></a>
 ## 1.112.2 (2018-05-18)
 
