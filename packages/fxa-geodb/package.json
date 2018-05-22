@@ -10,7 +10,7 @@
   "scripts": {
     "cover": "istanbul cover _mocha",
     "lint": "grunt lint",
-    "postinstall": "LOG=quiet node scripts/start-db-download.js",
+    "postinstall": "node scripts/start-db-download.js",
     "test": "mocha"
   },
   "repository": {
