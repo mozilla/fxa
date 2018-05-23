@@ -45,7 +45,7 @@ fn create_settings(bounce_limits: Json) -> Settings {
 pub struct DbMockNoBounce;
 
 impl Db for DbMockNoBounce {
-    fn get_email_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
+    fn get_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
         let now = now_as_milliseconds();
         Ok(vec![
             BounceRecord {
@@ -109,7 +109,7 @@ fn check_soft_bounce() {
 pub struct DbMockBounceSoft;
 
 impl Db for DbMockBounceSoft {
-    fn get_email_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
+    fn get_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
         let now = now_as_milliseconds();
         Ok(vec![BounceRecord {
             address: String::from("foo@example.com"),
@@ -152,7 +152,7 @@ fn check_hard_bounce() {
 pub struct DbMockBounceHard;
 
 impl Db for DbMockBounceHard {
-    fn get_email_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
+    fn get_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
         let now = now_as_milliseconds();
         Ok(vec![BounceRecord {
             address: String::from("bar@example.com"),
@@ -195,7 +195,7 @@ fn check_complaint() {
 pub struct DbMockComplaint;
 
 impl Db for DbMockComplaint {
-    fn get_email_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
+    fn get_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
         let now = now_as_milliseconds();
         Ok(vec![BounceRecord {
             address: String::from("baz@example.com"),
@@ -237,7 +237,7 @@ fn check_db_error() {
 pub struct DbMockError;
 
 impl Db for DbMockError {
-    fn get_email_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
+    fn get_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
         Err(DbError::new(String::from("wibble blee")))
     }
 }
@@ -266,7 +266,7 @@ fn check_no_bounces_with_nonzero_limits() {
 pub struct DbMockNoBounceWithNonZeroLimits;
 
 impl Db for DbMockNoBounceWithNonZeroLimits {
-    fn get_email_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
+    fn get_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
         let now = now_as_milliseconds();
         Ok(vec![
             BounceRecord {
@@ -361,7 +361,7 @@ fn check_bounce_with_multiple_limits() {
 pub struct DbMockBounceWithMultipleLimits;
 
 impl Db for DbMockBounceWithMultipleLimits {
-    fn get_email_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
+    fn get_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
         let now = now_as_milliseconds();
         Ok(vec![
             BounceRecord {

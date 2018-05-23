@@ -116,24 +116,24 @@ impl From<RequestError> for DbError {
 
 #[derive(Debug)]
 struct DbUrls {
-    get_email_bounces: Url,
+    get_bounces: Url,
 }
 
 impl DbUrls {
     pub fn new(settings: &Settings) -> DbUrls {
         let base_uri: Url = settings.authdb.baseuri.parse().expect("invalid base URI");
         DbUrls {
-            get_email_bounces: base_uri.join("emailBounces/").expect("invalid base URI"),
+            get_bounces: base_uri.join("emailBounces/").expect("invalid base URI"),
         }
     }
 
-    pub fn get_email_bounces(&self, address: &str) -> Result<Url, UrlError> {
-        self.get_email_bounces.join(&hex::encode(address))
+    pub fn get_bounces(&self, address: &str) -> Result<Url, UrlError> {
+        self.get_bounces.join(&hex::encode(address))
     }
 }
 
 pub trait Db {
-    fn get_email_bounces(&self, address: &str) -> Result<Vec<BounceRecord>, DbError>;
+    fn get_bounces(&self, address: &str) -> Result<Vec<BounceRecord>, DbError>;
 }
 
 #[derive(Debug)]
@@ -152,10 +152,10 @@ impl DbClient {
 }
 
 impl Db for DbClient {
-    fn get_email_bounces(&self, address: &str) -> Result<Vec<BounceRecord>, DbError> {
+    fn get_bounces(&self, address: &str) -> Result<Vec<BounceRecord>, DbError> {
         let mut response = self
             .request_client
-            .get(self.urls.get_email_bounces(address)?)
+            .get(self.urls.get_bounces(address)?)
             .send()?;
         match response.status() {
             StatusCode::Ok => response.json::<Vec<BounceRecord>>().map_err(From::from),

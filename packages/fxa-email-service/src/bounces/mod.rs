@@ -84,7 +84,7 @@ impl<'a> Bounces<'a> {
     }
 
     pub fn check(&self, address: &str) -> Result<(), BounceError> {
-        let bounces = self.db.get_email_bounces(address)?;
+        let bounces = self.db.get_bounces(address)?;
         let now = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
             .expect("system time error");
