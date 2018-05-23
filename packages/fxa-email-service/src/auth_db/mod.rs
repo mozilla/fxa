@@ -114,6 +114,7 @@ impl From<RequestError> for DbError {
     }
 }
 
+#[derive(Debug)]
 struct DbUrls {
     get_email_bounces: Url,
 }
@@ -135,6 +136,7 @@ pub trait Db {
     fn get_email_bounces(&self, address: &str) -> Result<Vec<BounceRecord>, DbError>;
 }
 
+#[derive(Debug)]
 pub struct DbClient {
     urls: DbUrls,
     request_client: RequestClient,
