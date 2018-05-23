@@ -22,7 +22,7 @@ pub struct BounceError {
 }
 
 impl BounceError {
-    pub fn new(address: &str, bounce: BounceRecord) -> BounceError {
+    pub fn new(address: &str, bounce: &BounceRecord) -> BounceError {
         let description = format!(
             "email address violated {} limit",
             match bounce.bounce_type {
@@ -34,7 +34,7 @@ impl BounceError {
 
         BounceError {
             address: address.to_string(),
-            bounce: Some(bounce),
+            bounce: Some(bounce.clone()),
             description,
         }
     }
@@ -101,7 +101,7 @@ impl<'a> Bounces<'a> {
                         BounceType::Complaint => &self.limits.complaint,
                     };
                     if is_bounce_violation(*count, bounce.created_at, now, limits) {
-                        return Err(BounceError::new(address, *bounce));
+                        return Err(BounceError::new(address, bounce));
                     }
                 }
 

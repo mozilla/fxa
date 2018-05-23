@@ -5,7 +5,7 @@
 use serde_json::{self, Value as Json};
 
 use super::*;
-use auth_db::{Db, DbError};
+use auth_db::{BounceSubtype, BounceType, Db, DbError};
 use settings::Settings;
 
 const SECOND: u64 = 1000;
@@ -49,15 +49,21 @@ impl Db for DbMockNoBounce {
         let now = now_as_milliseconds();
         Ok(vec![
             BounceRecord {
+                address: String::from("foo@example.com"),
                 bounce_type: BounceType::Soft,
+                bounce_subtype: BounceSubtype::Undetermined,
                 created_at: now - DAY - 1,
             },
             BounceRecord {
+                address: String::from("foo@example.com"),
                 bounce_type: BounceType::Hard,
+                bounce_subtype: BounceSubtype::Undetermined,
                 created_at: now - WEEK - 1,
             },
             BounceRecord {
+                address: String::from("foo@example.com"),
                 bounce_type: BounceType::Complaint,
+                bounce_subtype: BounceSubtype::Undetermined,
                 created_at: now - MONTH - 1,
             },
         ])
@@ -106,7 +112,9 @@ impl Db for DbMockBounceSoft {
     fn get_email_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
         let now = now_as_milliseconds();
         Ok(vec![BounceRecord {
+            address: String::from("foo@example.com"),
             bounce_type: BounceType::Soft,
+            bounce_subtype: BounceSubtype::Undetermined,
             created_at: now - DAY + SECOND * 2,
         }])
     }
@@ -147,7 +155,9 @@ impl Db for DbMockBounceHard {
     fn get_email_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
         let now = now_as_milliseconds();
         Ok(vec![BounceRecord {
+            address: String::from("bar@example.com"),
             bounce_type: BounceType::Hard,
+            bounce_subtype: BounceSubtype::Undetermined,
             created_at: now - WEEK + SECOND * 2,
         }])
     }
@@ -188,7 +198,9 @@ impl Db for DbMockComplaint {
     fn get_email_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
         let now = now_as_milliseconds();
         Ok(vec![BounceRecord {
+            address: String::from("baz@example.com"),
             bounce_type: BounceType::Complaint,
+            bounce_subtype: BounceSubtype::Undetermined,
             created_at: now - MONTH + SECOND * 2,
         }])
     }
@@ -258,39 +270,57 @@ impl Db for DbMockNoBounceWithNonZeroLimits {
         let now = now_as_milliseconds();
         Ok(vec![
             BounceRecord {
+                address: String::from("foo@example.com"),
                 bounce_type: BounceType::Soft,
+                bounce_subtype: BounceSubtype::Undetermined,
                 created_at: now - DAY + MINUTE,
             },
             BounceRecord {
+                address: String::from("foo@example.com"),
                 bounce_type: BounceType::Hard,
+                bounce_subtype: BounceSubtype::Undetermined,
                 created_at: now - WEEK + MINUTE,
             },
             BounceRecord {
+                address: String::from("foo@example.com"),
                 bounce_type: BounceType::Complaint,
+                bounce_subtype: BounceSubtype::Undetermined,
                 created_at: now - MONTH + MINUTE,
             },
             BounceRecord {
+                address: String::from("foo@example.com"),
                 bounce_type: BounceType::Soft,
+                bounce_subtype: BounceSubtype::Undetermined,
                 created_at: now - DAY + SECOND * 2,
             },
             BounceRecord {
+                address: String::from("foo@example.com"),
                 bounce_type: BounceType::Hard,
+                bounce_subtype: BounceSubtype::Undetermined,
                 created_at: now - WEEK + SECOND * 2,
             },
             BounceRecord {
+                address: String::from("foo@example.com"),
                 bounce_type: BounceType::Complaint,
+                bounce_subtype: BounceSubtype::Undetermined,
                 created_at: now - MONTH + SECOND * 2,
             },
             BounceRecord {
+                address: String::from("foo@example.com"),
                 bounce_type: BounceType::Soft,
+                bounce_subtype: BounceSubtype::Undetermined,
                 created_at: now - DAY - 1,
             },
             BounceRecord {
+                address: String::from("foo@example.com"),
                 bounce_type: BounceType::Hard,
+                bounce_subtype: BounceSubtype::Undetermined,
                 created_at: now - WEEK - 1,
             },
             BounceRecord {
+                address: String::from("foo@example.com"),
                 bounce_type: BounceType::Complaint,
+                bounce_subtype: BounceSubtype::Undetermined,
                 created_at: now - MONTH - 1,
             },
         ])
@@ -335,19 +365,27 @@ impl Db for DbMockBounceWithMultipleLimits {
         let now = now_as_milliseconds();
         Ok(vec![
             BounceRecord {
+                address: String::from("foo@example.com"),
                 bounce_type: BounceType::Soft,
+                bounce_subtype: BounceSubtype::Undetermined,
                 created_at: now - SECOND * 4,
             },
             BounceRecord {
+                address: String::from("foo@example.com"),
                 bounce_type: BounceType::Soft,
+                bounce_subtype: BounceSubtype::Undetermined,
                 created_at: now - MINUTE * 2 + SECOND * 4,
             },
             BounceRecord {
+                address: String::from("foo@example.com"),
                 bounce_type: BounceType::Soft,
+                bounce_subtype: BounceSubtype::Undetermined,
                 created_at: now - MINUTE * 2 + SECOND * 3,
             },
             BounceRecord {
+                address: String::from("foo@example.com"),
                 bounce_type: BounceType::Soft,
+                bounce_subtype: BounceSubtype::Undetermined,
                 created_at: now - MINUTE * 2 + SECOND * 2,
             },
         ])
