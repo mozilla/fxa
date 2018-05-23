@@ -36,7 +36,4 @@ before_script:
   - grunt nsp --force
 
 script:
-  # 'npm run test-travis' runs all tests together to collect all coverage into one from mysql and db-server
-  - COVERALLS_REPO_TOKEN=mlOESL8slkePkodJpcvhF1AUKUH3llXi8 npm run test-travis
-  # memory tests are separate to avoid being included into coverage because they run through the same code
-  - npm run test-mem
+  - npm run test-travis

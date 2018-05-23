@@ -19,7 +19,7 @@
     "test-mem": "./scripts/mocha-coverage.js test/mem",
     "test-mysql": "node ./bin/db_patcher.js >/dev/null && ./scripts/mocha-coverage.js test/backend test/local",
     "test-server": "./scripts/mocha-coverage.js db-server/test/local",
-    "test-travis": "grunt && node ./bin/db_patcher.js && ./scripts/mocha-coverage.js test/backend test/local db-server/test/local"
+    "test-travis": "grunt && node ./bin/db_patcher.js && ./scripts/mocha-coverage.js test/backend test/local db-server/test/local test/mem"
   },
   "author": "Mozilla (https://mozilla.org/)",
   "homepage": "https://github.com/mozilla/fxa-auth-db-mysql",
