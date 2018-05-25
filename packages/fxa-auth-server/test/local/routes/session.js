@@ -249,19 +249,6 @@ describe('/session/reauth', () => {
     })
   })
 
-  it('correctly updates to mustVerify=true when explicit verificationMethod is requested in querystring', () => {
-    signinUtils.checkPassword = sinon.spy(() => { return P.resolve(true) })
-
-    assert.ok(! request.auth.credentials.mustVerify, 'sessionToken starts off with mustVerify=false')
-
-    request.query.verificationMethod = 'email-2fa'
-    return runTest(route, request).then((res) => {
-      assert.equal(db.updateSessionToken.callCount, 1, 'db.updateSessionToken was called')
-      const sessionToken = db.updateSessionToken.args[0][0]
-      assert.ok(sessionToken.mustVerify, 'sessionToken has updated to mustVerify=true')
-    })
-  })
-
   it('leaves mustVerify=false when not requesting keys', () => {
     signinUtils.checkPassword = sinon.spy(() => { return P.resolve(true) })
     request.query.keys = false

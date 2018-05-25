@@ -411,7 +411,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
         const email = form.email
         const authPW = form.authPW
         const originalLoginEmail = request.payload.originalLoginEmail
-        let verificationMethod = request.payload.verificationMethod || request.query.verificationMethod
+        let verificationMethod = request.payload.verificationMethod
         const requestNow = Date.now()
 
         let accountRecord, password, sessionToken, keyFetchToken, didSigninUnblock

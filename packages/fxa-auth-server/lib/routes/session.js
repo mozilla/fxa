@@ -123,7 +123,7 @@ module.exports = function (log, db, Password, config, signinUtils) {
         const email = request.payload.email
         const authPW = request.payload.authPW
         const originalLoginEmail = request.payload.originalLoginEmail
-        const verificationMethod = request.payload.verificationMethod || request.query.verificationMethod
+        const verificationMethod = request.payload.verificationMethod
 
         let accountRecord, password, keyFetchToken
 
