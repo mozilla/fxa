@@ -6,6 +6,7 @@ use std::{
     boxed::Box, fmt::{self, Debug, Formatter},
 };
 
+use futures::future::{self, Future};
 use md5;
 use rusoto_core::{reactor::RequestDispatcher, Region};
 use rusoto_credential::StaticProvider;
@@ -104,13 +105,13 @@ impl<'s> Factory<'s> for Queue<'s> {
     }
 }
 
-impl<'s> Incoming for Queue<'s> {
-    fn receive(&self) -> Result<Vec<Message>, QueueError> {
-        self.client
+impl<'s> Incoming<'s> for Queue<'s> {
+    fn receive(&'s self) -> Box<Future<Item = Vec<Message>, Error = QueueError> + 's> {
+        let future = self
+            .client
             .receive_message(&self.receive_request)
-            .sync()
             .map(|result| result.messages.unwrap_or(Vec::new()))
-            .map(|messages| {
+            .map(move |messages| {
                 messages
                     .into_iter()
                     .map(|message| {
@@ -124,35 +125,45 @@ impl<'s> Incoming for Queue<'s> {
                     })
                     .collect()
             })
-            .map_err(From::from)
+            .map_err(From::from);
+
+        Box::new(future)
     }
 
-    fn delete(&self, message: Message) -> Result<(), QueueError> {
+    fn delete(&'s self, message: Message) -> Box<Future<Item = (), Error = QueueError> + 's> {
         let request = DeleteMessageRequest {
             queue_url: self.url.to_string(),
             receipt_handle: message.id,
         };
-        self.client
-            .delete_message(&request)
-            .sync()
-            .map_err(|error| {
-                println!("Queue error deleting from {}: {:?}", self.url, error);
-                From::from(error)
-            })
+
+        let future = self.client.delete_message(&request).map_err(move |error| {
+            println!("Queue error deleting from {}: {:?}", self.url, error);
+            From::from(error)
+        });
+
+        Box::new(future)
     }
 }
 
-impl<'s> Outgoing for Queue<'s> {
-    fn send(&self, notification: &Notification) -> Result<String, QueueError> {
+impl<'s> Outgoing<'s> for Queue<'s> {
+    fn send(
+        &'s self,
+        notification: &Notification,
+    ) -> Box<Future<Item = String, Error = QueueError> + 's> {
         let mut request = SendMessageRequest::default();
-        request.message_body = serde_json::to_string(notification)?;
+        request.message_body = match serde_json::to_string(notification) {
+            Ok(body) => body,
+            Err(error) => return Box::new(future::err(From::from(error))),
+        };
         request.queue_url = self.url.to_string();
 
-        self.client
+        let future = self
+            .client
             .send_message(&request)
-            .sync()
             .map(|result| result.message_id.map_or(String::from(""), |id| id.clone()))
-            .map_err(From::from)
+            .map_err(From::from);
+
+        Box::new(future)
     }
 }
 

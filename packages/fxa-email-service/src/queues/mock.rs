@@ -3,6 +3,7 @@
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
 use chrono::Utc;
+use futures::future::{self, Future};
 
 use super::{
     notification::{
@@ -23,8 +24,8 @@ impl<'s> Factory<'s> for Queue<'s> {
     }
 }
 
-impl<'s> Incoming for Queue<'s> {
-    fn receive(&self) -> Result<Vec<Message>, QueueError> {
+impl<'s> Incoming<'s> for Queue<'s> {
+    fn receive(&'s self) -> Box<Future<Item = Vec<Message>, Error = QueueError> + 's> {
         let message = match self.id {
             "incoming-bounce" => {
                 let mut bounce_message = Message::default();
@@ -65,27 +66,48 @@ impl<'s> Incoming for Queue<'s> {
                 delivery_message
             }
 
-            _ => return Err(QueueError::new(String::from("Not implemented"))),
+            "incoming-bounce-error" => {
+                let mut invalid_message = Message::default();
+                invalid_message.notification.notification_type = NotificationType::Bounce;
+                invalid_message.notification.complaint = Some(Complaint {
+                    complained_recipients: vec![String::from(
+                        "fxa-email-service.queues.mock.complaint@example.com",
+                    )],
+                    timestamp: Utc::now(),
+                    complaint_feedback_type: None,
+                });
+                invalid_message
+            }
+
+            _ => {
+                return Box::new(future::err(QueueError::new(String::from(
+                    "Not implemented",
+                ))))
+            }
         };
 
-        Ok(vec![message])
+        Box::new(future::ok(vec![message]))
     }
 
-    fn delete(&self, _message: Message) -> Result<(), QueueError> {
+    fn delete(&'s self, _message: Message) -> Box<Future<Item = (), Error = QueueError> + 's> {
         if self.id == "outgoing" {
-            Err(QueueError::new(String::from("Not implemented")))
+            Box::new(future::err(QueueError::new(String::from(
+                "Not implemented",
+            ))))
         } else {
-            Ok(())
+            Box::new(future::ok(()))
         }
     }
 }
 
-impl<'s> Outgoing for Queue<'s> {
-    fn send(&self, _body: &Notification) -> Result<String, QueueError> {
+impl<'s> Outgoing<'s> for Queue<'s> {
+    fn send(&'s self, _body: &Notification) -> Box<Future<Item = String, Error = QueueError> + 's> {
         if self.id == "outgoing" {
-            Ok(String::from("deadbeef"))
+            Box::new(future::ok(String::from("deadbeef")))
         } else {
-            Err(QueueError::new(String::from("Not implemented")))
+            Box::new(future::err(QueueError::new(String::from(
+                "Not implemented",
+            ))))
         }
     }
 }

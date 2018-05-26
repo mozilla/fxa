@@ -6,6 +6,8 @@ use std::{
     boxed::Box, error::Error, fmt::{self, Debug, Display, Formatter},
 };
 
+use futures::future::{self, Future};
+
 use self::notification::{Notification, NotificationType};
 pub use self::sqs::Queue as Sqs;
 use auth_db::{BounceSubtype, BounceType, Db, DbClient, DbError};
@@ -19,20 +21,28 @@ mod test;
 
 #[derive(Debug)]
 pub struct Queues<'s> {
-    bounce: Box<Incoming + 's>,
-    complaint: Box<Incoming + 's>,
-    delivery: Box<Incoming + 's>,
-    notification: Box<Outgoing + 's>,
+    bounce: Box<Incoming<'s> + 's>,
+    complaint: Box<Incoming<'s> + 's>,
+    delivery: Box<Incoming<'s> + 's>,
+    notification: Box<Outgoing<'s> + 's>,
     db: DbClient,
 }
 
-pub trait Incoming: Debug + Sync {
-    fn receive(&self) -> Result<Vec<Message>, QueueError>;
-    fn delete(&self, message: Message) -> Result<(), QueueError>;
+// The return types for these traits are really ugly
+// but I couldn't work out how to alias them because
+// of the lifetime that's needed to make the boxing
+// work. When trait aliases become a thing, we'll be
+// able to alias the Future<...> part, see:
+//
+// * https://github.com/rust-lang/rfcs/pull/1733
+// * https://github.com/rust-lang/rust/issues/41517
+pub trait Incoming<'s>: Debug + Sync {
+    fn receive(&'s self) -> Box<Future<Item = Vec<Message>, Error = QueueError> + 's>;
+    fn delete(&'s self, message: Message) -> Box<Future<Item = (), Error = QueueError> + 's>;
 }
 
-pub trait Outgoing: Debug + Sync {
-    fn send(&self, body: &Notification) -> Result<String, QueueError>;
+pub trait Outgoing<'s>: Debug + Sync {
+    fn send(&'s self, body: &Notification) -> Box<Future<Item = String, Error = QueueError> + 's>;
 }
 
 pub trait Factory<'s> {
@@ -61,7 +71,7 @@ pub struct QueueIds<'s> {
 impl<'s> Queues<'s> {
     pub fn new<Q: 's>(ids: &QueueIds<'s>, settings: &Settings) -> Queues<'s>
     where
-        Q: Incoming + Outgoing + Factory<'s>,
+        Q: Incoming<'s> + Outgoing<'s> + Factory<'s>,
     {
         Queues {
             bounce: Box::new(Q::new(ids.bounce, settings)),
@@ -72,80 +82,110 @@ impl<'s> Queues<'s> {
         }
     }
 
-    pub fn process(&self) -> Result<usize, QueueError> {
-        let mut count = self.process_queue(&self.bounce, &|notification: &Notification| {
-            if let Some(ref bounce) = notification.bounce {
-                for recipient in bounce.bounced_recipients.iter() {
-                    self.db.create_bounce(
-                        &recipient,
-                        From::from(bounce.bounce_type),
-                        From::from(bounce.bounce_subtype),
-                    )?;
-                }
-                Ok(())
-            } else {
-                Err(QueueError::new(format!(
-                    "Unexpected notification type in bounce queue: {:?}",
-                    notification.notification_type
-                )))
-            }
-        })?;
+    pub fn process(&'s self) -> Box<Future<Item = usize, Error = QueueError> + 's> {
+        let joined_futures = self
+            .process_queue(&self.bounce)
+            .join3(
+                self.process_queue(&self.complaint),
+                self.process_queue(&self.delivery),
+            )
+            .map(|results| results.0 + results.1 + results.2);
 
-        count += self.process_queue(&self.complaint, &|notification: &Notification| {
-            if let Some(ref complaint) = notification.complaint {
-                for recipient in complaint.complained_recipients.iter() {
-                    let bounce_subtype =
-                        if let Some(complaint_type) = complaint.complaint_feedback_type {
-                            From::from(complaint_type)
-                        } else {
-                            BounceSubtype::Unmapped
-                        };
-                    self.db
-                        .create_bounce(&recipient, BounceType::Complaint, bounce_subtype)?;
-                }
-                Ok(())
-            } else {
-                Err(QueueError::new(format!(
-                    "Unexpected notification type in complaint queue: {:?}",
-                    notification.notification_type
-                )))
-            }
-        })?;
-
-        count += self.process_queue(&self.delivery, &|_notification| Ok(()))?;
-
-        Ok(count)
+        Box::new(joined_futures)
     }
 
     fn process_queue(
-        &self,
-        queue: &Box<Incoming + 's>,
-        handler: &Fn(&Notification) -> Result<(), QueueError>,
-    ) -> Result<usize, QueueError> {
-        let messages = queue.receive()?;
-        let mut count = 0;
-        for message in messages.into_iter() {
-            if message.notification.notification_type != NotificationType::Null {
-                self.handle_notification(&message.notification, handler)?;
-                queue.delete(message)?;
-                count += 1;
-            }
-        }
-        Ok(count)
+        &'s self,
+        queue: &'s Box<Incoming<'s> + 's>,
+    ) -> Box<Future<Item = usize, Error = QueueError> + 's> {
+        let future = queue
+            .receive()
+            .and_then(move |messages| {
+                let mut futures: Vec<
+                    Box<Future<Item = (), Error = QueueError> + 's>,
+                > = Vec::new();
+                for message in messages.into_iter() {
+                    if message.notification.notification_type != NotificationType::Null {
+                        let future = self
+                            .handle_notification(&message.notification)
+                            .and_then(move |_| queue.delete(message));
+                        futures.push(Box::new(future));
+                    }
+                }
+                future::join_all(futures.into_iter())
+            })
+            .map(|results| results.len());
+        Box::new(future)
     }
 
     fn handle_notification(
-        &self,
+        &'s self,
         notification: &Notification,
-        handler: &Fn(&Notification) -> Result<(), QueueError>,
-    ) -> Result<(), QueueError> {
-        handler(&notification)?;
-        if let Err(error) = self.notification.send(&notification) {
-            // Errors sending to this queue are non-fatal because it's only used
-            // for logging. We still want to delete the message from the queue.
-            println!("{:?}", error);
+    ) -> Box<Future<Item = (), Error = QueueError> + 's> {
+        let result = match notification.notification_type {
+            NotificationType::Bounce => self.record_bounce(notification),
+            NotificationType::Complaint => self.record_complaint(notification),
+            NotificationType::Delivery => Ok(()),
+            NotificationType::Null => {
+                Err(QueueError::new(String::from("Invalid notification type")))
+            }
+        };
+        match result {
+            Ok(_) => {
+                let future = self
+                    .notification
+                    .send(&notification)
+                    .map(|id| {
+                        println!("Sent message to notification queue, id=`{}`", id);
+                        ()
+                    })
+                    .or_else(|error| {
+                        // Errors sending to this queue are non-fatal because it's only used
+                        // for logging. We still want to delete the message from the queue.
+                        println!("{:?}", error);
+                        Ok(())
+                    });
+                Box::new(future)
+            }
+            Err(error) => Box::new(future::err(error)),
         }
-        Ok(())
+    }
+
+    fn record_bounce(&'s self, notification: &Notification) -> Result<(), QueueError> {
+        if let Some(ref bounce) = notification.bounce {
+            for recipient in bounce.bounced_recipients.iter() {
+                self.db.create_bounce(
+                    &recipient,
+                    From::from(bounce.bounce_type),
+                    From::from(bounce.bounce_subtype),
+                )?;
+            }
+            Ok(())
+        } else {
+            Err(QueueError::new(String::from(
+                "Missing payload in bounce notification",
+            )))
+        }
+    }
+
+    fn record_complaint(&'s self, notification: &Notification) -> Result<(), QueueError> {
+        if let Some(ref complaint) = notification.complaint {
+            for recipient in complaint.complained_recipients.iter() {
+                let bounce_subtype = if let Some(complaint_type) = complaint.complaint_feedback_type
+                {
+                    From::from(complaint_type)
+                } else {
+                    BounceSubtype::Unmapped
+                };
+                self.db
+                    .create_bounce(&recipient, BounceType::Complaint, bounce_subtype)?;
+            }
+            Ok(())
+        } else {
+            Err(QueueError::new(String::from(
+                "Missing payload in complaint notification",
+            )))
+        }
     }
 }
 

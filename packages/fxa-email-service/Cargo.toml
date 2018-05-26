@@ -5,6 +5,7 @@ version = "0.1.0"
 [dependencies]
 chrono = { version = "0.4.2", features = [ "serde" ] }
 config = "0.8.0"
+futures = "0.1.21"
 hex = "0.3.2"
 lazy_static = "1.0"
 md5 = "0.3.7"

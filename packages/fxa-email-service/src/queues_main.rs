@@ -8,6 +8,7 @@
 
 extern crate chrono;
 extern crate config;
+extern crate futures;
 extern crate hex;
 #[macro_use]
 extern crate lazy_static;
@@ -30,26 +31,47 @@ mod queues;
 mod settings;
 mod validate;
 
-use queues::{QueueIds, Queues, Sqs};
+use futures::future::{self, Future, Loop};
+
+use queues::{QueueError, QueueIds, Queues, Sqs};
 use settings::Settings;
 
-fn main() {
-    let settings = Settings::new().expect("config error");
-    let sqs_urls = match settings.aws.sqsurls {
-        Some(ref urls) => urls,
-        None => panic!("Missing config: aws.sqsurls.*"),
-    };
-    let queue_ids = QueueIds {
-        bounce: &sqs_urls.bounce,
-        complaint: &sqs_urls.complaint,
-        delivery: &sqs_urls.delivery,
-        notification: &sqs_urls.notification,
-    };
-    let queues = Queues::new::<Sqs>(&queue_ids, &settings);
-    loop {
-        match queues.process() {
-            Ok(count) => println!("Processed {} messages", count),
-            Err(error) => println!("{:?}", error),
+lazy_static! {
+    static ref SETTINGS: Settings = Settings::new().expect("config error");
+    static ref QUEUE_IDS: QueueIds<'static> = {
+        let sqs_urls = match SETTINGS.aws.sqsurls {
+            Some(ref urls) => urls,
+            None => panic!("Missing config: aws.sqsurls.*"),
+        };
+        QueueIds {
+            bounce: &sqs_urls.bounce,
+            complaint: &sqs_urls.complaint,
+            delivery: &sqs_urls.delivery,
+            notification: &sqs_urls.notification,
         }
-    }
+    };
+    static ref QUEUES: Queues<'static> = Queues::new::<Sqs>(&QUEUE_IDS, &SETTINGS);
+}
+
+type LoopResult = Box<Future<Item = Loop<usize, usize>, Error = QueueError>>;
+
+fn main() {
+    let process_queues: &Fn(usize) -> LoopResult = &|previous_count: usize| {
+        let future = QUEUES
+            .process()
+            .or_else(|error: QueueError| {
+                println!("{:?}", error);
+                future::ok(0)
+            })
+            .and_then(move |count: usize| {
+                let total_count = count + previous_count;
+                println!(
+                    "Processed {} messages, total message count is now {}",
+                    count, total_count
+                );
+                Ok(Loop::Continue(total_count))
+            });
+        Box::new(future)
+    };
+    future::loop_fn(0, process_queues).wait().unwrap();
 }
