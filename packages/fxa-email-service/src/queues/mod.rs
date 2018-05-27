@@ -20,33 +20,30 @@ pub mod sqs;
 mod test;
 
 #[derive(Debug)]
-pub struct Queues<'s> {
-    bounce: Box<Incoming<'s> + 's>,
-    complaint: Box<Incoming<'s> + 's>,
-    delivery: Box<Incoming<'s> + 's>,
-    notification: Box<Outgoing<'s> + 's>,
+pub struct Queues {
+    bounce: Box<Incoming>,
+    complaint: Box<Incoming>,
+    delivery: Box<Incoming>,
+    notification: Box<Outgoing>,
     db: DbClient,
 }
 
-// The return types for these traits are really ugly
-// but I couldn't work out how to alias them because
-// of the lifetime that's needed to make the boxing
-// work. When trait aliases become a thing, we'll be
-// able to alias the Future<...> part, see:
-//
-// * https://github.com/rust-lang/rfcs/pull/1733
-// * https://github.com/rust-lang/rust/issues/41517
-pub trait Incoming<'s>: Debug + Sync {
-    fn receive(&'s self) -> Box<Future<Item = Vec<Message>, Error = QueueError> + 's>;
-    fn delete(&'s self, message: Message) -> Box<Future<Item = (), Error = QueueError> + 's>;
+pub trait Incoming: Debug + Sync {
+    fn receive(&'static self) -> ReceiveFuture;
+    fn delete(&'static self, message: Message) -> DeleteFuture;
 }
 
-pub trait Outgoing<'s>: Debug + Sync {
-    fn send(&'s self, body: &Notification) -> Box<Future<Item = String, Error = QueueError> + 's>;
+type ReceiveFuture = Box<Future<Item = Vec<Message>, Error = QueueError>>;
+type DeleteFuture = Box<Future<Item = (), Error = QueueError>>;
+
+pub trait Outgoing: Debug + Sync {
+    fn send(&'static self, body: &Notification) -> SendFuture;
 }
 
-pub trait Factory<'s> {
-    fn new(id: &'s str, settings: &Settings) -> Self;
+type SendFuture = Box<Future<Item = String, Error = QueueError>>;
+
+pub trait Factory {
+    fn new(id: String, settings: &Settings) -> Self;
 }
 
 #[derive(Debug, Default)]
@@ -61,17 +58,17 @@ pub struct QueueError {
 }
 
 #[derive(Debug)]
-pub struct QueueIds<'s> {
-    pub bounce: &'s str,
-    pub complaint: &'s str,
-    pub delivery: &'s str,
-    pub notification: &'s str,
+pub struct QueueIds {
+    pub bounce: String,
+    pub complaint: String,
+    pub delivery: String,
+    pub notification: String,
 }
 
-impl<'s> Queues<'s> {
-    pub fn new<Q: 's>(ids: &QueueIds<'s>, settings: &Settings) -> Queues<'s>
+impl Queues {
+    pub fn new<Q: 'static>(ids: QueueIds, settings: &Settings) -> Queues
     where
-        Q: Incoming<'s> + Outgoing<'s> + Factory<'s>,
+        Q: Incoming + Outgoing + Factory,
     {
         Queues {
             bounce: Box::new(Q::new(ids.bounce, settings)),
@@ -82,7 +79,7 @@ impl<'s> Queues<'s> {
         }
     }
 
-    pub fn process(&'s self) -> Box<Future<Item = usize, Error = QueueError> + 's> {
+    pub fn process(&'static self) -> QueueFuture {
         let joined_futures = self
             .process_queue(&self.bounce)
             .join3(
@@ -94,16 +91,11 @@ impl<'s> Queues<'s> {
         Box::new(joined_futures)
     }
 
-    fn process_queue(
-        &'s self,
-        queue: &'s Box<Incoming<'s> + 's>,
-    ) -> Box<Future<Item = usize, Error = QueueError> + 's> {
+    fn process_queue(&'static self, queue: &'static Box<Incoming>) -> QueueFuture {
         let future = queue
             .receive()
             .and_then(move |messages| {
-                let mut futures: Vec<
-                    Box<Future<Item = (), Error = QueueError> + 's>,
-                > = Vec::new();
+                let mut futures: Vec<Box<Future<Item = (), Error = QueueError>>> = Vec::new();
                 for message in messages.into_iter() {
                     if message.notification.notification_type != NotificationType::Null {
                         let future = self
@@ -119,9 +111,9 @@ impl<'s> Queues<'s> {
     }
 
     fn handle_notification(
-        &'s self,
+        &'static self,
         notification: &Notification,
-    ) -> Box<Future<Item = (), Error = QueueError> + 's> {
+    ) -> Box<Future<Item = (), Error = QueueError>> {
         let result = match notification.notification_type {
             NotificationType::Bounce => self.record_bounce(notification),
             NotificationType::Complaint => self.record_complaint(notification),
@@ -151,7 +143,7 @@ impl<'s> Queues<'s> {
         }
     }
 
-    fn record_bounce(&'s self, notification: &Notification) -> Result<(), QueueError> {
+    fn record_bounce(&'static self, notification: &Notification) -> DbResult {
         if let Some(ref bounce) = notification.bounce {
             for recipient in bounce.bounced_recipients.iter() {
                 self.db.create_bounce(
@@ -168,7 +160,7 @@ impl<'s> Queues<'s> {
         }
     }
 
-    fn record_complaint(&'s self, notification: &Notification) -> Result<(), QueueError> {
+    fn record_complaint(&'static self, notification: &Notification) -> DbResult {
         if let Some(ref complaint) = notification.complaint {
             for recipient in complaint.complained_recipients.iter() {
                 let bounce_subtype = if let Some(complaint_type) = complaint.complaint_feedback_type
@@ -188,6 +180,9 @@ impl<'s> Queues<'s> {
         }
     }
 }
+
+type QueueFuture = Box<Future<Item = usize, Error = QueueError>>;
+type DbResult = Result<(), QueueError>;
 
 impl QueueError {
     pub fn new(description: String) -> QueueError {

@@ -38,19 +38,21 @@ use settings::Settings;
 
 lazy_static! {
     static ref SETTINGS: Settings = Settings::new().expect("config error");
-    static ref QUEUE_IDS: QueueIds<'static> = {
+    static ref QUEUES: Queues = {
         let sqs_urls = match SETTINGS.aws.sqsurls {
             Some(ref urls) => urls,
             None => panic!("Missing config: aws.sqsurls.*"),
         };
-        QueueIds {
-            bounce: &sqs_urls.bounce,
-            complaint: &sqs_urls.complaint,
-            delivery: &sqs_urls.delivery,
-            notification: &sqs_urls.notification,
-        }
+        Queues::new::<Sqs>(
+            QueueIds {
+                bounce: sqs_urls.bounce.clone(),
+                complaint: sqs_urls.complaint.clone(),
+                delivery: sqs_urls.delivery.clone(),
+                notification: sqs_urls.notification.clone(),
+            },
+            &SETTINGS,
+        )
     };
-    static ref QUEUES: Queues<'static> = Queues::new::<Sqs>(&QUEUE_IDS, &SETTINGS);
 }
 
 type LoopResult = Box<Future<Item = Loop<usize, usize>, Error = QueueError>>;

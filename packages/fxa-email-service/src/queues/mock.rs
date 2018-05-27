@@ -3,30 +3,30 @@
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
 use chrono::Utc;
-use futures::future::{self, Future};
+use futures::future;
 
 use super::{
     notification::{
         Bounce, BounceSubtype, BounceType, Complaint, Delivery, Notification, NotificationType,
     },
-    Factory, Incoming, Message, Outgoing, QueueError,
+    DeleteFuture, Factory, Incoming, Message, Outgoing, QueueError, ReceiveFuture, SendFuture,
 };
 use settings::Settings;
 
 #[derive(Debug)]
-pub struct Queue<'s> {
-    id: &'s str,
+pub struct Queue {
+    id: String,
 }
 
-impl<'s> Factory<'s> for Queue<'s> {
-    fn new(id: &'s str, _settings: &Settings) -> Queue<'s> {
+impl Factory for Queue {
+    fn new(id: String, _settings: &Settings) -> Queue {
         Queue { id }
     }
 }
 
-impl<'s> Incoming<'s> for Queue<'s> {
-    fn receive(&'s self) -> Box<Future<Item = Vec<Message>, Error = QueueError> + 's> {
-        let message = match self.id {
+impl Incoming for Queue {
+    fn receive(&'static self) -> ReceiveFuture {
+        let message = match self.id.as_ref() {
             "incoming-bounce" => {
                 let mut bounce_message = Message::default();
                 bounce_message.notification.notification_type = NotificationType::Bounce;
@@ -89,7 +89,7 @@ impl<'s> Incoming<'s> for Queue<'s> {
         Box::new(future::ok(vec![message]))
     }
 
-    fn delete(&'s self, _message: Message) -> Box<Future<Item = (), Error = QueueError> + 's> {
+    fn delete(&'static self, _message: Message) -> DeleteFuture {
         if self.id == "outgoing" {
             Box::new(future::err(QueueError::new(String::from(
                 "Not implemented",
@@ -100,8 +100,8 @@ impl<'s> Incoming<'s> for Queue<'s> {
     }
 }
 
-impl<'s> Outgoing<'s> for Queue<'s> {
-    fn send(&'s self, _body: &Notification) -> Box<Future<Item = String, Error = QueueError> + 's> {
+impl Outgoing for Queue {
+    fn send(&'static self, _body: &Notification) -> SendFuture {
         if self.id == "outgoing" {
             Box::new(future::ok(String::from("deadbeef")))
         } else {

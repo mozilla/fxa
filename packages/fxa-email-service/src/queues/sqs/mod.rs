@@ -17,18 +17,21 @@ use rusoto_sqs::{
 use serde_json::{self, Error as JsonError, Value as JsonValue};
 
 use self::notification::Notification as SqsNotification;
-use super::{notification::Notification, Factory, Incoming, Message, Outgoing, QueueError};
+use super::{
+    notification::Notification, DeleteFuture, Factory, Incoming, Message, Outgoing, QueueError,
+    ReceiveFuture, SendFuture,
+};
 use settings::Settings;
 
 pub mod notification;
 
-pub struct Queue<'s> {
+pub struct Queue {
     client: Box<Sqs>,
-    url: &'s str,
+    url: String,
     receive_request: ReceiveMessageRequest,
 }
 
-impl<'s> Queue<'s> {
+impl Queue {
     fn parse_message(&self, message: SqsMessage) -> Result<Message, QueueError> {
         let body = message.body.unwrap_or(String::from(""));
         if body == "" {
@@ -77,8 +80,8 @@ impl<'s> Queue<'s> {
     }
 }
 
-impl<'s> Factory<'s> for Queue<'s> {
-    fn new(id: &'s str, settings: &Settings) -> Queue<'s> {
+impl Factory for Queue {
+    fn new(id: String, settings: &Settings) -> Queue {
         let region = settings
             .aws
             .region
@@ -95,7 +98,7 @@ impl<'s> Factory<'s> for Queue<'s> {
 
         let mut receive_request = ReceiveMessageRequest::default();
         receive_request.max_number_of_messages = Some(10);
-        receive_request.queue_url = id.to_string();
+        receive_request.queue_url = id.clone();
 
         Queue {
             client,
@@ -105,8 +108,8 @@ impl<'s> Factory<'s> for Queue<'s> {
     }
 }
 
-impl<'s> Incoming<'s> for Queue<'s> {
-    fn receive(&'s self) -> Box<Future<Item = Vec<Message>, Error = QueueError> + 's> {
+impl Incoming for Queue {
+    fn receive(&'static self) -> ReceiveFuture {
         let future = self
             .client
             .receive_message(&self.receive_request)
@@ -130,7 +133,7 @@ impl<'s> Incoming<'s> for Queue<'s> {
         Box::new(future)
     }
 
-    fn delete(&'s self, message: Message) -> Box<Future<Item = (), Error = QueueError> + 's> {
+    fn delete(&'static self, message: Message) -> DeleteFuture {
         let request = DeleteMessageRequest {
             queue_url: self.url.to_string(),
             receipt_handle: message.id,
@@ -145,11 +148,8 @@ impl<'s> Incoming<'s> for Queue<'s> {
     }
 }
 
-impl<'s> Outgoing<'s> for Queue<'s> {
-    fn send(
-        &'s self,
-        notification: &Notification,
-    ) -> Box<Future<Item = String, Error = QueueError> + 's> {
+impl Outgoing for Queue {
+    fn send(&'static self, notification: &Notification) -> SendFuture {
         let mut request = SendMessageRequest::default();
         request.message_body = match serde_json::to_string(notification) {
             Ok(body) => body,
@@ -166,6 +166,14 @@ impl<'s> Outgoing<'s> for Queue<'s> {
         Box::new(future)
     }
 }
+
+impl Debug for Queue {
+    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+        write!(formatter, "SQS queue, url=`{}`", self.url)
+    }
+}
+
+unsafe impl Sync for Queue {}
 
 impl From<ReceiveMessageError> for QueueError {
     fn from(error: ReceiveMessageError) -> QueueError {
@@ -190,11 +198,3 @@ impl From<JsonError> for QueueError {
         QueueError::new(format!("JSON error: {:?}", error))
     }
 }
-
-impl<'s> Debug for Queue<'s> {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
-        write!(formatter, "SQS queue, url=`{}`", self.url)
-    }
-}
-
-unsafe impl<'s> Sync for Queue<'s> {}

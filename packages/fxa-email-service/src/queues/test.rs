@@ -20,22 +20,24 @@ use super::*;
 
 lazy_static! {
     static ref SETTINGS: Settings = Settings::new().expect("config error");
-    static ref GOOD_QUEUE_IDS: QueueIds<'static> = QueueIds {
-        bounce: "incoming-bounce",
-        complaint: "incoming-complaint",
-        delivery: "incoming-delivery",
-        notification: "outgoing",
-    };
-    static ref GOOD_QUEUES: Queues<'static> =
-        Queues::new::<mock::Queue>(&GOOD_QUEUE_IDS, &SETTINGS);
-    static ref BAD_BOUNCE_QUEUE_IDS: QueueIds<'static> = QueueIds {
-        bounce: "incoming-bounce-error",
-        complaint: "incoming-complaint",
-        delivery: "incoming-delivery",
-        notification: "outgoing",
-    };
-    static ref BAD_BOUNCE_QUEUE: Queues<'static> =
-        Queues::new::<mock::Queue>(&BAD_BOUNCE_QUEUE_IDS, &SETTINGS);
+    static ref GOOD_QUEUES: Queues = Queues::new::<mock::Queue>(
+        QueueIds {
+            bounce: String::from("incoming-bounce"),
+            complaint: String::from("incoming-complaint"),
+            delivery: String::from("incoming-delivery"),
+            notification: String::from("outgoing"),
+        },
+        &SETTINGS
+    );
+    static ref BAD_BOUNCE_QUEUE: Queues = Queues::new::<mock::Queue>(
+        QueueIds {
+            bounce: String::from("incoming-bounce-error"),
+            complaint: String::from("incoming-complaint"),
+            delivery: String::from("incoming-delivery"),
+            notification: String::from("outgoing"),
+        },
+        &SETTINGS
+    );
 }
 
 #[test]
