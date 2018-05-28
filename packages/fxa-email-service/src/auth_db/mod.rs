@@ -45,26 +45,56 @@ impl<'d> Deserialize<'d> for BounceType {
     }
 }
 
-#[derive(Clone, Copy, Debug, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum BounceSubtype {
     // Set by the auth db if an input string is not recognised
-    Unmapped = 0,
+    Unmapped,
     // These are mapped from the equivalent SES bounceSubType values
-    Undetermined = 1,
-    General = 2,
-    NoEmail = 3,
-    Suppressed = 4,
-    MailboxFull = 5,
-    MessageTooLarge = 6,
-    ContentRejected = 7,
-    AttachmentRejected = 8,
+    Undetermined,
+    General,
+    NoEmail,
+    Suppressed,
+    MailboxFull,
+    MessageTooLarge,
+    ContentRejected,
+    AttachmentRejected,
     // These are mapped from the equivalent SES complaintFeedbackType values
-    Abuse = 9,
-    AuthFailure = 10,
-    Fraud = 11,
-    NotSpam = 12,
-    Other = 13,
-    Virus = 14,
+    Abuse,
+    AuthFailure,
+    Fraud,
+    NotSpam,
+    Other,
+    Virus,
+}
+
+impl<'d> Deserialize<'d> for BounceSubtype {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'d>,
+    {
+        let value: u8 = Deserialize::deserialize(deserializer)?;
+        match value {
+            0 => Ok(BounceSubtype::Unmapped),
+            1 => Ok(BounceSubtype::Undetermined),
+            2 => Ok(BounceSubtype::General),
+            3 => Ok(BounceSubtype::NoEmail),
+            4 => Ok(BounceSubtype::Suppressed),
+            5 => Ok(BounceSubtype::MailboxFull),
+            6 => Ok(BounceSubtype::MessageTooLarge),
+            7 => Ok(BounceSubtype::ContentRejected),
+            8 => Ok(BounceSubtype::AttachmentRejected),
+            9 => Ok(BounceSubtype::Abuse),
+            10 => Ok(BounceSubtype::AuthFailure),
+            11 => Ok(BounceSubtype::Fraud),
+            12 => Ok(BounceSubtype::NotSpam),
+            13 => Ok(BounceSubtype::Other),
+            14 => Ok(BounceSubtype::Virus),
+            _ => Err(D::Error::invalid_value(
+                Unexpected::Unsigned(value as u64),
+                &"bounce subtype",
+            )),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Deserialize)]
