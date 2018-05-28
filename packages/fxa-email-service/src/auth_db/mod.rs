@@ -134,13 +134,13 @@ impl Display for DbError {
 
 impl From<UrlError> for DbError {
     fn from(error: UrlError) -> DbError {
-        DbError::new(format!("URL error: {}", error.description()))
+        DbError::new(format!("URL error: {:?}", error))
     }
 }
 
 impl From<RequestError> for DbError {
     fn from(error: RequestError) -> DbError {
-        DbError::new(format!("request error: {}", error.description()))
+        DbError::new(format!("request error: {:?}", error))
     }
 }
 
