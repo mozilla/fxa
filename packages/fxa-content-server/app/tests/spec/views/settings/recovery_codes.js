@@ -184,4 +184,20 @@ describe('views/settings/recovery_codes', () => {
       assert.equal(view.$('#recovery-code-container').length, 0);
     });
   });
+
+  describe('iOS copy work around', () => {
+    beforeEach(() => {
+      windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone ' +
+        'OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) ' +
+        'Version/5.1 Mobile/9A334 Safari/7534.48.3';
+      return view.render()
+        .then(() => $('#container').html(view.$el));
+    });
+
+    it('should only show `copy recovery codes`', () => {
+      assert.equal(view.$('.graphic-recovery-codes-copy').length, 1);
+      assert.equal(view.$('.graphic-recovery-codes-print').length, 0);
+      assert.equal(view.$('.graphic-recovery-codes-download').length, 0);
+    });
+  });
 });

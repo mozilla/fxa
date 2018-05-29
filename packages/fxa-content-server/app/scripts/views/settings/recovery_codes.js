@@ -9,6 +9,7 @@ const ModalSettingsPanelMixin = require('../mixins/modal-settings-panel-mixin');
 const Template = require('templates/settings/recovery_codes.mustache');
 const RecoveryCodePrintTemplate = require('templates/settings/recovery_codes_print.mustache');
 const RecoveryCode = require('../../models/recovery-code');
+const UserAgentMixin = require('../../lib/user-agent-mixin');
 
 const {preventDefaultThen, t} = FormView;
 
@@ -33,17 +34,34 @@ const View = FormView.extend({
     // This copies the recovery codes to clipboard by creating a tiny transparent
     // textArea with recovery code contents. Then it executes the
     // browser `copy` command and removes textArea.
-    $('<textArea class=\"recovery-code-text-area\"></textArea>').appendTo('#recovery-codes');
-    this.$('.recovery-code-text-area').html(this.recoveryCodesText);
-    this.$('.recovery-code-text-area').select();
-    this.$('.recovery-code-text-area').focus();
+    $('<textArea id=\"recovery-code-copy\" class=\"recovery-code-text-area\"></textArea>').appendTo('#recovery-codes');
+    this.$('textArea.recovery-code-text-area').html(this.recoveryCodesText);
+
+    if (this.getUserAgent().isIos()) {
+      // iOS does not allow you to directly use the `document.execCommand('copy')` function.
+      // The text area must have contentEditable=true and have a range selected before you can copy.
+      // https://stackoverflow.com/questions/34045777/copy-to-clipboard-using-javascript-in-ios
+      const el = this.window.document.getElementById('recovery-code-copy');
+      el.contentEditable = true;
+      // convert to readonly to stop iOS keyboard opening
+      el.readOnly = true;
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const selection = this.window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      el.setSelectionRange(0, 999999);
+    } else {
+      this.$('textArea.recovery-code-text-area').select().focus();
+    }
+
     try {
       this.window.document.execCommand('copy');
       this._displaySuccess(t('Codes copied'));
     } catch (err) {
       this._displayError(t('Failed to copy codes. Please manually copy them.'));
     }
-    this.$('.recovery-code-text-area').remove();
+    this.$('textArea.recovery-code-text-area').remove();
   },
 
   _downloadCodes() {
@@ -133,6 +151,7 @@ const View = FormView.extend({
     }
 
     context.set({
+      isIos: this.getUserAgent().isIos(),
       modalSuccessMsg,
       recoveryCodes,
       showRecoveryCodes: recoveryCodes.length > 0
@@ -142,7 +161,8 @@ const View = FormView.extend({
 
 Cocktail.mixin(
   View,
-  ModalSettingsPanelMixin
+  ModalSettingsPanelMixin,
+  UserAgentMixin
 );
 
 module.exports = View;
