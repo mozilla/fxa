@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/sh -ex
 
 docker run --rm --name syncserver \
   -p 5000:5000 \

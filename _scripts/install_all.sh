@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/sh -ex
 
 # Set ulimit, need it for npm
 ulimit -S -n 2048 || echo "Setting ulimit failed"
