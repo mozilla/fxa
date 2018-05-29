@@ -164,7 +164,12 @@ or in `config/local.json`:
 ```
 
 Once you have config set,
-you can start the service with `cargo run`.
+you can start the service with:
+
+```
+cargo r --bin service
+```
+
 Then you can use `curl`
 to send requests:
 
