@@ -11,7 +11,7 @@ const proxyquire = require('proxyquire')
 const sinon = require('sinon')
 
 const ROOT_DIR = '../../..'
-const ISO_8601_FORMAT = /^20[1-9][0-9]-[01][0-9]-[0-3][0-9]T[012][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9]{3}Z$/
+const ISO_8601_FORMAT = /^20[1-9][0-9]-[01][0-9]-[0-3][0-9]T[012][0-9]:[0-5][0-9]:00Z$/
 
 describe('lib/senders/sms:', () => {
   let config, log, results, cloudwatch, sns, mockSns, smsModule, translator, templates
@@ -30,7 +30,7 @@ describe('lib/senders/sms:', () => {
     }
     log = mocks.mockLog()
     results = {
-      getMetricStatistics: { Datapoints: [ { Average: 0 } ] },
+      getMetricStatistics: { Datapoints: [ { Maximum: 0 } ] },
       getSMSAttributes: { attributes: { MonthlySpendLimit: config.sms.minimumCreditThresholdUSD } },
       publish: P.resolve({ MessageId: 'foo' })
     }
@@ -112,10 +112,10 @@ describe('lib/senders/sms:', () => {
         assert.equal(args[0].MetricName, 'SMSMonthToDateSpentUSD')
         assert(ISO_8601_FORMAT.test(args[0].StartTime))
         assert(ISO_8601_FORMAT.test(args[0].EndTime))
-        assert(new Date(args[0].StartTime).getTime() === new Date(args[0].EndTime) - 300000)
-        assert(new Date(args[0].EndTime).getTime() > Date.now() - 2000)
-        assert.equal(args[0].Period, 300)
-        assert.deepEqual(args[0].Statistics, [ 'Average' ])
+        assert(new Date(args[0].StartTime).getTime() === new Date(args[0].EndTime).getTime() - 60000)
+        assert(new Date(args[0].EndTime).getTime() > Date.now() - 60000)
+        assert.equal(args[0].Period, 60)
+        assert.deepEqual(args[0].Statistics, [ 'Maximum' ])
       })
 
       it('called log.info correctly', () => {
@@ -146,7 +146,7 @@ describe('lib/senders/sms:', () => {
 
     describe('spend > threshold:', () => {
       beforeEach(() => {
-        results.getMetricStatistics.Datapoints[0].Average = 1
+        results.getMetricStatistics.Datapoints[0].Maximum = 1
       })
 
       it('isBudgetOk returns true', () => {
@@ -168,7 +168,7 @@ describe('lib/senders/sms:', () => {
 
     describe('invalid data:', () => {
       beforeEach(() => {
-        results.getMetricStatistics.Datapoints[0].Average = 'wibble'
+        results.getMetricStatistics.Datapoints[0].Maximum = 'wibble'
       })
 
       describe('wait a tick:', () => {

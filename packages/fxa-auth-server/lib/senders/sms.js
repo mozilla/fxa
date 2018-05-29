@@ -9,15 +9,16 @@ const error = require('../error')
 const MockSns = require('../../test/mock-sns')
 const P = require('bluebird')
 const Sns = require('aws-sdk/clients/sns')
+const time = require('../time')
 
-const SECONDS_PER_FIVE_MINUTES = 60 * 5
-const MILLISECONDS_PER_FIVE_MINUTES = SECONDS_PER_FIVE_MINUTES * 1000
-const MILLISECONDS_PER_HOUR = MILLISECONDS_PER_FIVE_MINUTES * 12
+const SECONDS_PER_MINUTE = 60
+const MILLISECONDS_PER_MINUTE = SECONDS_PER_MINUTE * 1000
+const MILLISECONDS_PER_HOUR = MILLISECONDS_PER_MINUTE * 60
 
 class MockCloudwatch {
   getMetricStatistics () {
     return {
-      promise: () => P.resolve({ Datapoints: [ { Average: 0 } ] })
+      promise: () => P.resolve({ Datapoints: [ { Maximum: 0 } ] })
     }
   }
 }
@@ -95,21 +96,21 @@ module.exports = (log, translator, templates, config) => {
         }
 
         const now = new Date()
-        const periodStart = new Date(now.getTime() - MILLISECONDS_PER_FIVE_MINUTES)
+        const minuteAgo = new Date(now.getTime() - MILLISECONDS_PER_MINUTE)
         return cloudwatch.getMetricStatistics({
           Namespace: 'AWS/SNS',
           MetricName: 'SMSMonthToDateSpentUSD',
-          StartTime: periodStart.toISOString(),
-          EndTime: now.toISOString(),
-          Period: SECONDS_PER_FIVE_MINUTES,
-          Statistics: [ 'Average' ]
+          StartTime: time.startOfMinute(minuteAgo),
+          EndTime: time.startOfMinute(now),
+          Period: SECONDS_PER_MINUTE,
+          Statistics: [ 'Maximum' ]
         }).promise()
       })
       .then(result => {
-        const current = parseFloat(result.Datapoints[0].Average)
+        const current = parseFloat(result.Datapoints[0].Maximum)
 
         if (isNaN(current)) {
-          throw new Error(`Invalid getMetricStatistics result "${result.Datapoints[0].Average}"`)
+          throw new Error(`Invalid getMetricStatistics result "${result.Datapoints[0].Maximum}"`)
         }
 
         isBudgetOk = current <= limit - CREDIT_THRESHOLD
