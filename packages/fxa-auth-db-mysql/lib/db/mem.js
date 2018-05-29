@@ -27,6 +27,7 @@ var emails = {}
 var signinCodes = {}
 const totpTokens = {}
 const recoveryCodes = {}
+const recoveryKeys = {}
 
 var DEVICE_FIELDS = [
   'sessionTokenId',
@@ -1362,6 +1363,68 @@ module.exports = function (log, error) {
       })
   }
 
+  Memory.prototype.createRecoveryKey = function (uid, data) {
+    uid = uid.toString('hex')
+    const recoveryKeyId = data.recoveryKeyId.toString('hex')
+    return getAccountByUid(uid)
+      .then(() => {
+        if (! recoveryKeys[uid]) {
+          recoveryKeys[uid] = {}
+        }
+
+        const storedKeys = recoveryKeys[uid]
+
+        if (Object.keys(storedKeys).length > 0) {
+          // Temporarily throw duplicate if more than one key exists
+          return P.reject(error.duplicate())
+        }
+
+        if (storedKeys[recoveryKeyId]) {
+          return P.reject(error.duplicate())
+        }
+
+        storedKeys[recoveryKeyId] = {
+          uid,
+          recoveryKeyId: data.recoveryKeyId,
+          recoveryData: data.recoveryData
+        }
+
+        return {}
+      })
+  }
+
+  Memory.prototype.getRecoveryKey = function (options) {
+    const uid = options.id.toString('hex')
+    const recoveryKeyId = options.recoveryKeyId.toString('hex')
+    return getAccountByUid(uid)
+      .then(() => {
+        const keys = recoveryKeys[uid]
+
+        if (! keys || ! keys[recoveryKeyId]) {
+          return P.reject(error.notFound())
+        }
+
+        return keys[recoveryKeyId]
+      })
+  }
+
+  Memory.prototype.deleteRecoveryKey = function (options) {
+    const uid = options.id.toString('hex')
+    const recoveryKeyId = options.recoveryKeyId.toString('hex')
+    return getAccountByUid(uid)
+      .then(() => {
+
+        const keys = recoveryKeys[uid]
+
+        if (! keys || ! keys[recoveryKeyId]) {
+          return {}
+        }
+
+        delete keys[recoveryKeyId]
+
+        return {}
+      })
+  }
 
   // UTILITY FUNCTIONS
 

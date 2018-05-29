@@ -70,6 +70,10 @@ There are a number of methods that a DB storage backend should implement:
 * Recovery codes
     * .replaceRecoveryCodes(uid, count)
     * .consumeRecoveryCode(uid, code)
+* Recovery keys
+    * .createRecoveryKey(uid, data)
+    * .getRecoveryKey(uid, recoveryKeyId)
+    * .deleteRecoveryKey(uid, recoveryKeyId)
 * General
     * .ping()
     * .close()
@@ -929,3 +933,62 @@ Returns:
 * Rejects with:
   * Any error from the underlying storage system (wrapped in `error.wrap()`)
   * `error.notFound()` if this user or code not found
+
+## createRecoveryKey(uid, data)
+
+Creates a recovery key for the user
+
+Parameters:
+
+* `uid` (Buffer16):
+  The uid of the owning account
+* `data` (Object):
+  * `recoveryKeyId` (String)
+  * `recoveryData` (String)
+
+Returns:
+
+* Resolves with:
+  * An empty object
+* Rejects with:
+  * Any error from the underlying storage system (wrapped in `error.wrap()`)
+  * `error.notFound()` if this user found
+
+## getRecoveryKey(uid, recoveryKeyId)
+
+Get the recovery key for this user.
+
+Parameters:
+
+* `uid` (Buffer16):
+  The uid of the owning account
+* `recoveryKeyId` (String)
+  The id for the recovery key
+
+Returns:
+
+* Resolves with:
+  * `recoveryKeyId` (String)
+  * `recoveryData` (String)
+* Rejects with:
+  * Any error from the underlying storage system (wrapped in `error.wrap()`)
+  * `error.notFound()` if this user or recovery key not found
+
+## deleteRecoveryKey(uid, recoveryKeyId)
+
+Delete the recovery key for this user.
+
+Parameters:
+
+* `uid` (Buffer16):
+  The uid of the owning account
+* `recoveryKeyId` (String)
+  The id for the recovery key
+
+Returns:
+
+* Resolves with:
+  * Empty object `{}`
+* Rejects with:
+  * Any error from the underlying storage system (wrapped in `error.wrap()`)
+  * `error.notFound()` if this user or recovery key not found

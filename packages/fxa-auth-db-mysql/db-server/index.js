@@ -196,7 +196,6 @@ function createServer(db) {
     })
   )
 
-
   api.get(
     '/account/:uid/tokens/:tokenVerificationId/device',
     op(function (req) {
@@ -238,6 +237,10 @@ function createServer(db) {
   api.post('/account/:id/recoveryCodes/:code',
     op((req) => db.consumeRecoveryCode(req.params.id, req.params.code))
   )
+
+  api.get('/account/:id/recoveryKeys/:recoveryKeyId', withParams(db.getRecoveryKey))
+  api.del('/account/:id/recoveryKeys/:recoveryKeyId', withParams(db.deleteRecoveryKey))
+  api.post('/account/:id/recoveryKeys', withIdAndBody(db.createRecoveryKey))
 
   api.get(
     '/',

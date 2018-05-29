@@ -1025,6 +1025,10 @@
         }
       }
     },
+    "eslint-plugin-fxa": {
+      "version": "git+https://github.com/mozilla/eslint-plugin-fxa.git#e082927b4c6dc17d21414e35f4c94312adbaba92",
+      "dev": true
+    },
     "espree": {
       "version": "3.5.4",
       "resolved": "https://registry.npmjs.org/espree/-/espree-3.5.4.tgz",

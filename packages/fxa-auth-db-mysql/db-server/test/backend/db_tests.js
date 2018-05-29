@@ -150,6 +150,14 @@ function makeMockAccountResetToken(uid, tokenId) {
   return token
 }
 
+function createRecoveryData() {
+  const data = {
+    recoveryKeyId: crypto.randomBytes(64),
+    recoveryData: crypto.randomBytes(64).toString('hex')
+  }
+  return data
+}
+
 // To run these tests from a new backend, pass the config and an already created
 // DB API for them to be run against.
 module.exports = function (config, DB) {
@@ -1654,7 +1662,6 @@ module.exports = function (config, DB) {
       })
     })
 
-
     it('should keep account emails and emails in sync', () => {
       return P.all([db.accountEmails(accountData.uid), db.account(accountData.uid)])
         .spread(function (emails, account) {
@@ -2147,6 +2154,81 @@ module.exports = function (config, DB) {
       })
     })
 
+    describe('account recovery key', () => {
+      let account, data
+      beforeEach(() => {
+        account = createAccount()
+        return db.createAccount(account.uid, account)
+          .then(() => {
+            data = createRecoveryData()
+            // Create a valid recovery key
+            return db.createRecoveryKey(account.uid, data)
+          })
+          .then((res) => {
+            assert.ok(res, 'empty response')
+          })
+      })
+
+      it('should fail to create for unknown user', () => {
+        return db.createRecoveryKey('12312312312', data)
+          .then(assert.fail, (err) => {
+            assert.equal(err.errno, 116, 'not found')
+          })
+      })
+
+      it('should fail to create multiple keys', () => {
+        data = createRecoveryData()
+        return db.createRecoveryKey(account.uid, data)
+          .then(assert.fail, (err) => {
+            assert.equal(err.errno, 101, 'record exists')
+          })
+      })
+
+      it('should get account recovery key', () => {
+        const options = {
+          id: account.uid,
+          recoveryKeyId: data.recoveryKeyId
+        }
+        return db.getRecoveryKey(options)
+          .then((res) => {
+            assert.equal(res.recoveryData, data.recoveryData, 'recovery data set')
+            assert.equal(res.recoveryKeyId.toString('hex'), data.recoveryKeyId.toString('hex'), 'recovery data set')
+          })
+      })
+
+      it('should fail to get key for incorrect user', () => {
+        const options = {
+          id: 'unknown',
+          recoveryKeyId: data.recoveryKeyId
+        }
+        return db.getRecoveryKey(options)
+          .then(assert.fail, (err) => {
+            assert.equal(err.errno, 116, 'not found')
+          })
+      })
+
+      it('should fail to get unknown key', () => {
+        const options = {
+          id: account.uid,
+          recoveryKeyId: 'not real recovery key'
+        }
+        return db.getRecoveryKey(options)
+          .then(assert.fail, (err) => {
+            assert.equal(err.errno, 116, 'not found')
+          })
+      })
+
+      it('should delete account recovery key', () => {
+        const options = {
+          id: account.uid,
+          recoveryKeyId: data.recoveryKeyId
+        }
+        return db.deleteRecoveryKey(options)
+          .then((res) => {
+            assert.ok(res)
+          })
+      })
+    })
 
     after(() => db.close())
   })

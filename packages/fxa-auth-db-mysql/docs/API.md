@@ -98,11 +98,15 @@ The following datatypes are used throughout this document:
 * TOTP tokens:
     * createTotpToken           : `PUT /totp/:id`
     * totpToken                 : `GET /totp/:id`
-    * deleteTotpToken           : `DEL /totp/:id`
+    * deleteTotpToken           : `DELETE /totp/:id`
     * updateTotpToken           : `POST /totp/:id/update`
 * Recovery codes:
     * replaceRecoveryCodes      : `POST /account/:id/recoveryCodes`
     * consumeRecoveryCode       : `POST /account/:id/recoveryCodes/:code`
+* Recovery keys:
+    * createRecoverykey         : `POST /account/:id/recoveryKeys`
+    * getRecoveryKey            : `GET /account/:id/recoveryKeys/:recoveryKeyId`
+    * deleteRecoveryKey         : `DELETE /account/:id/recoveryKeys/:recoveryKeyId`
 
 ## Ping : `GET /`
 
@@ -2152,6 +2156,127 @@ Content-Length: 2
 * Status Code : `404 Not Found`
     * Conditions: if no user found or code not found
     * Content-Type : `application/json`
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`
+
+## createRecoveryKey : `POST /account/:uid/recoveryKeys`
+
+Creates a new recovery key for the user.
+
+### Example
+
+```
+curl \
+    -v \
+    -X POST \
+    -H "Content-Type: application/json" \
+    http://localhost:8000/account/1234567890ab/recoveryKeys
+```
+
+### Request
+
+* Method : `POST`
+* Path : `/account/<uid>/recoveryKeys`
+    * `uid` : hex
+    * `recoveryKeyId`: hex
+    * `recoveryKeyData`: hex
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `{}`
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`
+
+## getRecoveryKey : `GET /account/:uid/recoveryKeys/:recoveryKeyId`
+
+Returns the recovery key data for a user.
+
+### Example
+
+```
+curl \
+    -v \
+    -X GET \
+    -H "Content-Type: application/json" \
+    http://localhost:8000/account/1234567890ab/recoveryKeys/1234567890ab
+```
+
+### Request
+
+* Method : `GET`
+* Path : `/account/<uid>/recoveryKeys/<recoveryKeyId>`
+    * `uid` : hex
+    * `recoveryKeyId`: hex
+    * `recoveryKeyData`: hex
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `{}`
+      * `recoveryKeyId`
+      * `recoveryData`
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`
+
+## deleteRecoveryKey : `DELETE /account/:uid/recoveryKeys/:recoveryKeyId`
+
+Delete a user's recovery data.
+
+### Example
+
+```
+curl \
+    -v \
+    -X DELETE \
+    -H "Content-Type: application/json" \
+    http://localhost:8000/account/1234567890ab/recoveryKeys/1234567890ab
+```
+
+### Request
+
+* Method : `DELETE`
+* Path : `/account/<uid>/recoveryKeys/<recoveryKeyId>`
+    * `uid` : hex
+    * `recoveryKeyId`: hex
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{}
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `{}`
 * Status Code : `500 Internal Server Error`
     * Conditions: if something goes wrong on the server
     * Content-Type : `application/json`

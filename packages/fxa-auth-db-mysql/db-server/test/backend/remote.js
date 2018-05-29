@@ -1728,8 +1728,45 @@ module.exports = function(cfg, makeServer) {
       })
     })
 
-    after(() => server.close())
+    describe('recovery keys', function () {
+      let user, recoveryKey
+      beforeEach(() => {
+        user = fake.newUserDataHex()
+        return client.putThen('/account/' + user.accountId, user.account)
+          .then((r) => {
+            respOkEmpty(r)
+            recoveryKey = {
+              recoveryKeyId: crypto.randomBytes(32).toString('hex'),
+              recoveryData: crypto.randomBytes(64).toString('hex')
+            }
+            return client.postThen('/account/' + user.accountId + '/recoveryKeys', recoveryKey)
+          })
+          .then((r) => {
+            respOkEmpty(r)
+          })
+      })
 
+      it('should create a recovery key', () => {
+        assert.ok(recoveryKey)
+      })
+
+      it('should get a recovery key', () => {
+        return client.getThen('/account/' + user.accountId + '/recoveryKeys/' + recoveryKey.recoveryKeyId)
+          .then((res) => {
+            const recoveryKeyResult = res.obj
+            assert.equal(recoveryKeyResult.recoveryData, recoveryKey.recoveryData, 'recoveryData match')
+          })
+      })
+
+      it('should delete a recovery key', () => {
+        return client.delThen('/account/' + user.accountId + '/recoveryKeys/' + recoveryKey.recoveryKeyId.toString('hex'))
+          .then((r) => {
+            respOkEmpty(r)
+          })
+      })
+    })
+
+    after(() => server.close())
   })
 
 }

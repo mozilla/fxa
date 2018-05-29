@@ -32,7 +32,7 @@ const ER_LOCK_ABORTED = 1689
 // custom mysql errors
 const ER_DELETE_PRIMARY_EMAIL = 2100
 const ER_EXPIRED_TOKEN_VERIFICATION_CODE = 2101
-
+const ER_SIGNAL_NOT_FOUND = 1643
 
 const RECOVERY_CODE_KEYSPACE = config.recoveryCodes.keyspace
 const RECOVERY_CODE_LENGTH = config.recoveryCodes.length
@@ -1481,7 +1481,7 @@ module.exports = function (log, error) {
           })
           .then(() => codes)
           .catch((err) => {
-            if (err.errno === 1643) {
+            if (err.errno === ER_SIGNAL_NOT_FOUND) {
               throw error.notFound()
             }
 
@@ -1527,11 +1527,49 @@ module.exports = function (log, error) {
         })
       })
       .catch((err) => {
-        if (err.errno === 1643) {
+        if (err.errno === ER_SIGNAL_NOT_FOUND) {
           throw error.notFound()
         }
 
         throw err
+      })
+  }
+
+  const CREATE_RECOVERY_KEY = 'CALL createRecoveryKey_1(?, ?, ?)'
+  MySql.prototype.createRecoveryKey = function (uid, data) {
+    const recoveryKeyId = data.recoveryKeyId
+    const recoveryData = data.recoveryData
+    return this.write(CREATE_RECOVERY_KEY, [uid, recoveryKeyId, recoveryData])
+      .then(() => {
+        return {}
+      })
+      .catch((err) => {
+        if (err.errno === ER_SIGNAL_NOT_FOUND) {
+          throw error.notFound()
+        }
+
+        throw err
+      })
+  }
+
+  const GET_RECOVERY_KEY = 'CALL getRecoveryKey_1(?, ?)'
+  MySql.prototype.getRecoveryKey = function (options) {
+    return this.readFirstResult(GET_RECOVERY_KEY, [options.id, options.recoveryKeyId])
+      .then((results) => {
+        // Throw if this user has no recovery keys
+        if (results.length === 0) {
+          throw error.notFound()
+        }
+
+        return results
+      })
+  }
+
+  const DELETE_RECOVERY_KEY = 'CALL deleteRecoveryKey_1(?, ?)'
+  MySql.prototype.deleteRecoveryKey = function (options) {
+    return this.write(DELETE_RECOVERY_KEY, [options.id, options.recoveryKeyId])
+      .then(() => {
+        return {}
       })
   }
 
