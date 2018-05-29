@@ -8,7 +8,10 @@ use std::{
 
 use hex;
 use reqwest::{Client as RequestClient, Error as RequestError, StatusCode, Url, UrlError};
-use serde::de::{Deserialize, Deserializer, Error as DeserializeError, Unexpected};
+use serde::{
+    de::{Deserialize, Deserializer, Error as DeserializeError, Unexpected},
+    ser::{Serialize, Serializer},
+};
 
 use settings::Settings;
 
@@ -42,6 +45,20 @@ impl<'d> Deserialize<'d> for BounceType {
                 &"bounce type",
             )),
         }
+    }
+}
+
+impl Serialize for BounceType {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let value = match self {
+            BounceType::Hard => 1,
+            BounceType::Soft => 2,
+            BounceType::Complaint => 3,
+        };
+        serializer.serialize_u8(value)
     }
 }
 
@@ -97,7 +114,33 @@ impl<'d> Deserialize<'d> for BounceSubtype {
     }
 }
 
-#[derive(Clone, Debug, Deserialize)]
+impl Serialize for BounceSubtype {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let value = match self {
+            BounceSubtype::Unmapped => 0,
+            BounceSubtype::Undetermined => 1,
+            BounceSubtype::General => 2,
+            BounceSubtype::NoEmail => 3,
+            BounceSubtype::Suppressed => 4,
+            BounceSubtype::MailboxFull => 5,
+            BounceSubtype::MessageTooLarge => 6,
+            BounceSubtype::ContentRejected => 7,
+            BounceSubtype::AttachmentRejected => 8,
+            BounceSubtype::Abuse => 9,
+            BounceSubtype::AuthFailure => 10,
+            BounceSubtype::Fraud => 11,
+            BounceSubtype::NotSpam => 12,
+            BounceSubtype::Other => 13,
+            BounceSubtype::Virus => 14,
+        };
+        serializer.serialize_u8(value)
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BounceRecord {
     #[serde(rename = "email")]
     pub address: String,
@@ -147,6 +190,7 @@ impl From<RequestError> for DbError {
 #[derive(Debug)]
 struct DbUrls {
     get_bounces: Url,
+    create_bounce: Url,
 }
 
 impl DbUrls {
@@ -154,16 +198,30 @@ impl DbUrls {
         let base_uri: Url = settings.authdb.baseuri.parse().expect("invalid base URI");
         DbUrls {
             get_bounces: base_uri.join("emailBounces/").expect("invalid base URI"),
+            create_bounce: base_uri.join("emailBounces").expect("invalid base URI"),
         }
     }
 
     pub fn get_bounces(&self, address: &str) -> Result<Url, UrlError> {
         self.get_bounces.join(&hex::encode(address))
     }
+
+    pub fn create_bounce(&self) -> Url {
+        self.create_bounce.clone()
+    }
 }
 
 pub trait Db {
     fn get_bounces(&self, address: &str) -> Result<Vec<BounceRecord>, DbError>;
+
+    fn create_bounce(
+        &self,
+        _address: &str,
+        _bounce_type: BounceType,
+        _bounce_subtype: BounceSubtype,
+    ) -> Result<(), DbError> {
+        Err(DbError::new(String::from("Not implemented")))
+    }
 }
 
 #[derive(Debug)]
@@ -189,6 +247,28 @@ impl Db for DbClient {
             .send()?;
         match response.status() {
             StatusCode::Ok => response.json::<Vec<BounceRecord>>().map_err(From::from),
+            status => Err(DbError::new(format!("auth db response: {}", status))),
+        }
+    }
+
+    fn create_bounce(
+        &self,
+        address: &str,
+        bounce_type: BounceType,
+        bounce_subtype: BounceSubtype,
+    ) -> Result<(), DbError> {
+        let response = self
+            .request_client
+            .post(self.urls.create_bounce())
+            .json(&BounceRecord {
+                address: address.to_string(),
+                bounce_type,
+                bounce_subtype,
+                created_at: 0,
+            })
+            .send()?;
+        match response.status() {
+            StatusCode::Ok => Ok(()),
             status => Err(DbError::new(format!("auth db response: {}", status))),
         }
     }
