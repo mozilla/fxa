@@ -528,7 +528,6 @@ module.exports = function(cfg, makeServer) {
             assert(s.deviceCallbackPublicKey)
             assert.equal(s.deviceCallbackURL, 'fake callback URL')
             assert.equal(s.deviceCallbackIsExpired, false)
-            assert.deepEqual(s.deviceCapabilities, ['messages'])
             assert(s.deviceCreatedAt)
             assert(s.deviceId)
             assert.equal(s.deviceName, 'fake device name')
@@ -598,38 +597,16 @@ module.exports = function(cfg, makeServer) {
           })
           .then(function(r) {
             assert.equal(r.obj.length, 0, 'devices is empty')
-            const myDevice = Object.assign({}, user.device, {
-              capabilities: ['unknown', 'messages']
-            })
-            return client.putThen('/account/' + user.accountId + '/device/' + user.deviceId, myDevice)
-            .then(() => {
-              assert(false, 'a device with an unknown capability should make the request fail')
-            })
-            .catch(err => {
-              assert.equal(err.statusCode, 400, 'err.statusCode should be 400')
-              assert.deepEqual(err.body, {
-                message: 'Unknown device capability',
-                errno: 139,
-                error: 'Bad request',
-                code: 400
-              }, 'err.body should have correct properties set')
-            })
-          }).then(function () {
-            return client.getThen('/account/' + user.accountId + '/devices')
-          })
-          .then(function(r) {
-            assert.equal(r.obj.length, 0, 'devices is empty')
             return client.putThen('/account/' + user.accountId + '/device/' + user.deviceId, user.device)
           })
           .then(function(r) {
-            respOk(r)
             return client.getThen('/account/' + user.accountId + '/devices')
           })
           .then(function(r) {
             respOk(r)
             var devices = r.obj
             assert.equal(devices.length, 1, 'devices contains one item')
-            assert.equal(Object.keys(devices[0]).length, 19, 'device has nineteen properties')
+            assert.equal(Object.keys(devices[0]).length, 18, 'device has eighteen properties')
             assert.equal(devices[0].uid, user.accountId, 'uid is correct')
             assert.equal(devices[0].id, user.deviceId, 'id is correct')
             assert.equal(devices[0].sessionTokenId, user.sessionTokenId, 'sessionTokenId is correct')
@@ -640,7 +617,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(devices[0].callbackPublicKey, user.device.callbackPublicKey, 'callbackPublicKey is correct')
             assert.equal(devices[0].callbackAuthKey, user.device.callbackAuthKey, 'callbackAuthKey is correct')
             assert.equal(devices[0].callbackIsExpired, user.device.callbackIsExpired, 'callbackIsExpired is correct')
-            assert.deepEqual(devices[0].capabilities, user.device.capabilities, 'capabilities is correct')
+            assert.deepEqual(devices[0].availableCommands, {}, 'availableCommands is correct')
             assert.equal(devices[0].uaBrowser, user.sessionToken.uaBrowser, 'uaBrowser is correct')
             assert.equal(devices[0].uaBrowserVersion, user.sessionToken.uaBrowserVersion, 'uaBrowserVersion is correct')
             assert.equal(devices[0].uaOS, user.sessionToken.uaOS, 'uaOS is correct')
@@ -648,7 +625,22 @@ module.exports = function(cfg, makeServer) {
             assert.equal(devices[0].uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType is correct')
             assert.equal(devices[0].uaFormFactor, user.sessionToken.uaFormFactor, 'uaFormFactor is correct')
             assert.equal(devices[0].lastAccessTime, user.sessionToken.createdAt, 'lastAccessTime is correct')
-            assert.equal(devices[0].email, user.account.email, 'email is correct')
+          })
+          .then(function() {
+            return client.getThen('/account/' + user.accountId + '/device/' + user.deviceId)
+          })
+          .then(function(r) {
+            respOk(r)
+            var device = r.obj
+            assert.equal(device.id, user.deviceId, 'id is correct')
+            assert.equal(device.createdAt, user.device.createdAt, 'createdAt is correct')
+            assert.equal(device.name, user.device.name, 'name is correct')
+            assert.equal(device.type, user.device.type, 'type is correct')
+            assert.equal(device.callbackURL, user.device.callbackURL, 'callbackURL is correct')
+            assert.equal(device.callbackPublicKey, user.device.callbackPublicKey, 'callbackPublicKey is correct')
+            assert.equal(device.callbackAuthKey, user.device.callbackAuthKey, 'callbackAuthKey is correct')
+            assert.equal(device.callbackIsExpired, user.device.callbackIsExpired, 'callbackIsExpired is correct')
+            assert.deepEqual(device.availableCommands, {}, 'availableCommands is correct')
           })
           .then(function() {
             return client.getThen('/account/' + user.accountId + '/tokens/' + user.sessionToken.tokenVerificationId + '/device')
@@ -664,7 +656,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(device.callbackPublicKey, user.device.callbackPublicKey, 'callbackPublicKey is correct')
             assert.equal(device.callbackAuthKey, user.device.callbackAuthKey, 'callbackAuthKey is correct')
             assert.equal(device.callbackIsExpired, user.device.callbackIsExpired, 'callbackIsExpired is correct')
-            assert.deepEqual(device.capabilities, user.device.capabilities, 'capabilities is correct')
+            assert.deepEqual(device.availableCommands, {}, 'availableCommands is correct')
 
             return client.postThen('/account/' + user.accountId + '/device/' + user.deviceId + '/update', {
               name: 'wibble',
@@ -673,7 +665,7 @@ module.exports = function(cfg, makeServer) {
               callbackPublicKey: null,
               callbackAuthKey: null,
               callbackIsExpired: null,
-              capabilities: []
+              availableCommands: {}
             })
           })
           .then(function(r) {
@@ -694,7 +686,7 @@ module.exports = function(cfg, makeServer) {
             assert.equal(devices[0].callbackPublicKey, user.device.callbackPublicKey, 'callbackPublicKey is correct')
             assert.equal(devices[0].callbackAuthKey, user.device.callbackAuthKey, 'callbackAuthKey is correct')
             assert.equal(devices[0].callbackIsExpired, false, 'callbackIsExpired is correct')
-            assert.deepEqual(devices[0].capabilities, [], 'capabilities is correct')
+            assert.deepEqual(devices[0].availableCommands, {}, 'availableCommands is correct')
             assert.equal(devices[0].uaBrowser, user.sessionToken.uaBrowser, 'uaBrowser is correct')
             assert.equal(devices[0].uaBrowserVersion, user.sessionToken.uaBrowserVersion, 'uaBrowserVersion is correct')
             assert.equal(devices[0].uaOS, user.sessionToken.uaOS, 'uaOS is correct')
@@ -702,7 +694,6 @@ module.exports = function(cfg, makeServer) {
             assert.equal(devices[0].uaDeviceType, user.sessionToken.uaDeviceType, 'uaDeviceType is correct')
             assert.equal(devices[0].uaFormFactor, user.sessionToken.uaFormFactor, 'uaFormFactor is correct')
             assert.equal(devices[0].lastAccessTime, user.sessionToken.createdAt, 'lastAccessTime is correct')
-            assert.equal(devices[0].email, user.account.email, 'email is correct')
 
             return client.postThen('/account/' + user.accountId + '/device/' + user.deviceId + '/update', {
               sessionTokenId: zombieUser.sessionTokenId
@@ -754,6 +745,13 @@ module.exports = function(cfg, makeServer) {
           .then(function(r) {
             respOk(r)
             assert.equal(r.obj.length, 0, 'devices is empty')
+
+            return client.getThen('/account/' + user.accountId + '/device' + user.deviceId)
+              .then(function () {
+                assert(false, 'A non-existent deviceId should not have returned anything')
+              }, function (err) {
+                testNotFound(err)
+              })
           })
       }
     )

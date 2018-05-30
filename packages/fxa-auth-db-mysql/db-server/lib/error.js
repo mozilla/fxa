@@ -83,17 +83,6 @@ AppError.invalidVerificationMethod = function () {
   )
 }
 
-AppError.unknownDeviceCapability = function () {
-  return new AppError(
-    {
-      code: 400,
-      error: 'Bad request',
-      errno: 139,
-      message: 'Unknown device capability'
-    }
-  )
-}
-
 AppError.wrap = function (err) {
   // Don't re-wrap!
   if (err instanceof AppError) {

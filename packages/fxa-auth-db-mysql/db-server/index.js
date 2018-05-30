@@ -41,9 +41,21 @@ function createServer(db) {
     })
   }
 
+  function withSpreadParams(fn) {
+    return reply(function (params, body, query) {
+      return fn.apply(db, Object.keys(params).map(k => params[k]))
+    })
+  }
+
   function withParamsAndBody(fn) {
     return reply(function (params, body, query) {
       return fn.call(db, params, body)
+    })
+  }
+
+  function withSpreadParamsAndBody(fn) {
+    return reply(function (params, body, query) {
+      return fn.apply(db, Object.keys(params).map(k => params[k]).concat([body]))
     })
   }
 
@@ -82,7 +94,6 @@ function createServer(db) {
   api.get('/account/:id', withIdAndBody(db.account))
   api.del('/account/:id', withIdAndBody(db.deleteAccount))
   api.put('/account/:id', withIdAndBody(db.createAccount))
-  api.get('/account/:id/devices', withIdAndBody(db.accountDevices))
   api.post('/account/:id/checkPassword', withIdAndBody(db.checkPassword))
   api.post('/account/:id/reset', withIdAndBody(db.resetAccount))
   api.post('/account/:id/resetTokens', withIdAndBody(db.resetAccountTokens))
@@ -166,6 +177,12 @@ function createServer(db) {
 
   api.get('/__heartbeat__', withIdAndBody(db.ping))
 
+  api.get('/account/:id/devices', withIdAndBody(db.accountDevices))
+  api.get('/account/:uid/device/:deviceId', withSpreadParams(db.device))
+  api.put('/account/:uid/device/:deviceId', withSpreadParamsAndBody(db.createDevice))
+  api.post('/account/:uid/device/:deviceId/update', withSpreadParamsAndBody(db.updateDevice))
+  api.del('/account/:uid/device/:deviceId', withSpreadParams(db.deleteDevice))
+
   function op(fn) {
     return function (req, res, next) {
       fn.call(null, req)
@@ -176,25 +193,6 @@ function createServer(db) {
         .then(next, next)
     }
   }
-
-  api.put(
-    '/account/:uid/device/:deviceId',
-    op(function (req) {
-      return db.createDevice(req.params.uid, req.params.deviceId, req.body)
-    })
-  )
-  api.post(
-    '/account/:uid/device/:deviceId/update',
-    op(function (req) {
-      return db.updateDevice(req.params.uid, req.params.deviceId, req.body)
-    })
-  )
-  api.del(
-    '/account/:uid/device/:deviceId',
-    op(function (req) {
-      return db.deleteDevice(req.params.uid, req.params.deviceId)
-    })
-  )
 
   api.get(
     '/account/:uid/tokens/:tokenVerificationId/device',

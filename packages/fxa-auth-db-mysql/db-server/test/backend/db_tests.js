@@ -100,7 +100,9 @@ function makeMockDevice(tokenId) {
     callbackPublicKey: 'foo',
     callbackAuthKey: 'bar',
     callbackIsExpired: false,
-    capabilities: ['messages']
+    availableCommands: {
+      'https://identity.mozilla.com/cmd/display-uri': 'metadata-bundle'
+    }
   }
   device.deviceId = newUuid()
   return device
@@ -484,7 +486,6 @@ module.exports = function (config, DB) {
               assert.equal(sessions[0].deviceCallbackPublicKey, 'foo')
               assert.equal(sessions[0].deviceCallbackAuthKey, 'bar')
               assert.equal(sessions[0].deviceCallbackIsExpired, false)
-              assert.deepEqual(sessions[0].deviceCapabilities, ['messages'])
             })
         })
 
@@ -899,6 +900,22 @@ module.exports = function (config, DB) {
       })
 
       it('should have created device', () => {
+        return db.device(sessionTokenData.uid, deviceInfo.deviceId)
+          .then((d) => {
+            assert.deepEqual(d.uid, sessionTokenData.uid, 'uid')
+            assert.deepEqual(d.id, deviceInfo.deviceId, 'id')
+            assert.equal(d.name, deviceInfo.name, 'name')
+            assert.equal(d.type, deviceInfo.type, 'type')
+            assert.equal(d.createdAt, deviceInfo.createdAt, 'createdAt')
+            assert.equal(d.callbackURL, deviceInfo.callbackURL, 'callbackURL')
+            assert.equal(d.callbackPublicKey, deviceInfo.callbackPublicKey, 'callbackPublicKey')
+            assert.equal(d.callbackAuthKey, deviceInfo.callbackAuthKey, 'callbackAuthKey')
+            assert.equal(d.callbackIsExpired, deviceInfo.callbackIsExpired, 'callbackIsExpired')
+            assert.deepEqual(d.availableCommands, deviceInfo.availableCommands, 'availableCommands')
+          })
+      })
+
+      it('should have linked device to session token', () => {
         return db.sessionToken(sessionTokenData.tokenId)
           .then((s) => {
             assert.deepEqual(s.deviceId, deviceInfo.deviceId, 'id')
@@ -910,7 +927,7 @@ module.exports = function (config, DB) {
             assert.equal(s.deviceCallbackPublicKey, deviceInfo.callbackPublicKey, 'callbackPublicKey')
             assert.equal(s.deviceCallbackAuthKey, deviceInfo.callbackAuthKey, 'callbackAuthKey')
             assert.equal(s.deviceCallbackIsExpired, deviceInfo.callbackIsExpired, 'callbackIsExpired')
-            assert.deepEqual(s.deviceCapabilities, deviceInfo.capabilities, 'capabilities')
+            assert.deepEqual(s.deviceAvailableCommands, deviceInfo.availableCommands, 'availableCommands')
             assert.equal(!! s.mustVerify, !! sessionTokenData.mustVerify, 'mustVerify is correct')
             assert.deepEqual(s.tokenVerificationId, sessionTokenData.tokenVerificationId, 'tokenVerificationId is correct')
           })
@@ -930,9 +947,8 @@ module.exports = function (config, DB) {
             assert.equal(device.callbackPublicKey, deviceInfo.callbackPublicKey, 'callbackPublicKey')
             assert.equal(device.callbackAuthKey, deviceInfo.callbackAuthKey, 'callbackAuthKey')
             assert.equal(device.callbackIsExpired, deviceInfo.callbackIsExpired, 'callbackIsExpired')
-            assert.deepEqual(device.capabilities, deviceInfo.capabilities, 'capabilities')
+            assert.deepEqual(device.availableCommands, deviceInfo.availableCommands, 'availableCommands')
             assert(device.lastAccessTime > 0, 'has a lastAccessTime')
-            assert.equal(device.email, accountData.email, 'email should be account email')
           })
       })
 
@@ -943,7 +959,7 @@ module.exports = function (config, DB) {
         deviceInfo.callbackPublicKey = ''
         deviceInfo.callbackAuthKey = ''
         deviceInfo.callbackIsExpired = true
-        deviceInfo.capabilities = []
+        deviceInfo.availableCommands = {}
 
         const newSessionTokenData = makeMockSessionToken(accountData.uid)
         deviceInfo.sessionTokenId = newSessionTokenData.tokenId
@@ -966,7 +982,7 @@ module.exports = function (config, DB) {
             assert.equal(device.callbackPublicKey, '', 'callbackPublicKey unchanged')
             assert.equal(device.callbackAuthKey, '', 'callbackAuthKey unchanged')
             assert.equal(device.callbackIsExpired, true, 'callbackIsExpired unchanged')
-            assert.deepEqual(device.capabilities, [], 'capabilities updated')
+            assert.deepEqual(device.availableCommands, {}, 'availableCommands updated')
           })
       })
 
@@ -1000,38 +1016,48 @@ module.exports = function (config, DB) {
           })
       })
 
-      it('should fail to update a device with unknown capabilities', () => {
-        const newDevice = Object.assign({}, deviceInfo, {
-          capabilities: ['unknown', 'newmessages']
-        })
-        return db.updateDevice(accountData.uid, deviceInfo.deviceId, newDevice)
-          .then(assert.fail, (err) => {
-            assert.equal(err.code, 400, 'err.code')
-            assert.equal(err.errno, 139, 'err.errno')
-            return db.accountDevices(accountData.uid)
-          })
-          .then((devices) => assert.deepEqual(devices[0].capabilities, ['messages']))
-      })
-
-      it('capabilities are not cleared if not specified', () => {
+      it('availableCommands are not cleared if not specified', () => {
         const newDevice = Object.assign({}, deviceInfo)
-        delete newDevice.capabilities
+        delete newDevice.availableCommands
         return db.updateDevice(accountData.uid, deviceInfo.deviceId, newDevice)
           .then(() => {
-            return db.accountDevices(accountData.uid)
+            return db.device(accountData.uid, deviceInfo.deviceId)
           })
-          .then((devices) => assert.deepEqual(devices[0].capabilities, ['messages']))
+          .then(device => assert.deepEqual(device.availableCommands, {
+            'https://identity.mozilla.com/cmd/display-uri': 'metadata-bundle'
+          }))
       })
 
-      it('capabilities are overwritten on update', () => {
+      it('availableCommands are overwritten on update', () => {
         const newDevice = Object.assign({}, deviceInfo, {
-          capabilities: []
+          availableCommands: {
+            foo: 'bar',
+            second: 'command'
+          }
         })
         return db.updateDevice(accountData.uid, deviceInfo.deviceId, newDevice)
           .then(() => {
-            return db.accountDevices(accountData.uid)
+            return db.device(accountData.uid, deviceInfo.deviceId)
           })
-          .then((devices) => assert.deepEqual(devices[0].capabilities, []))
+          .then(device => assert.deepEqual(device.availableCommands, {
+            foo: 'bar',
+            second: 'command'
+          }))
+      })
+
+      it('availableCommands can update metadata on an existing command', () => {
+        const newDevice = Object.assign({}, deviceInfo, {
+          availableCommands: {
+            'https://identity.mozilla.com/cmd/display-uri': 'new-metadata'
+          }
+        })
+        return db.updateDevice(accountData.uid, deviceInfo.deviceId, newDevice)
+          .then(() => {
+            return db.device(accountData.uid, deviceInfo.deviceId)
+          })
+          .then(device => assert.deepEqual(device.availableCommands, {
+            'https://identity.mozilla.com/cmd/display-uri': 'new-metadata'
+          }))
       })
 
       it('should fail to delete non-existent device', () => {
@@ -1039,6 +1065,73 @@ module.exports = function (config, DB) {
           .then(assert.fail, (err) => {
             assert.equal(err.code, 404, 'err.code')
             assert.equal(err.errno, 116, 'err.errno')
+          })
+      })
+
+      it('should correctly handle multiple devices with different availableCommands maps', () => {
+        const sessionToken2 = makeMockSessionToken(accountData.uid)
+        const deviceInfo2 = Object.assign(makeMockDevice(sessionToken2.tokenId), {
+          availableCommands: {
+            'https://identity.mozilla.com/cmd/display-uri': 'device-two-metadata',
+            'extra-command': 'extra-data'
+          }
+        })
+        const sessionToken3 = makeMockSessionToken(accountData.uid)
+        const deviceInfo3 = Object.assign(makeMockDevice(sessionToken3.tokenId), {
+          availableCommands: {}
+        })
+
+        return db.createSessionToken(sessionToken2.tokenId, sessionToken2)
+          .then(() => db.createDevice(accountData.uid, deviceInfo2.deviceId, deviceInfo2))
+          .then(() => db.createSessionToken(sessionToken3.tokenId, sessionToken3))
+          .then(() => db.createDevice(accountData.uid, deviceInfo3.deviceId, deviceInfo3))
+          .then(() => db.accountDevices(accountData.uid))
+          .then(devices => {
+            assert.equal(devices.length, 3, 'devices length 3')
+
+            const device1 = devices.find(d => d.sessionTokenId.equals(sessionTokenData.tokenId))
+            assert.ok(device1, 'found first device')
+            assert.deepEqual(device1.availableCommands, deviceInfo.availableCommands, 'device1 availableCommands')
+
+            const device2 = devices.find(d => d.sessionTokenId.equals(sessionToken2.tokenId))
+            assert.ok(device2, 'found second device')
+            assert.deepEqual(device2.availableCommands, deviceInfo2.availableCommands, 'device2 availableCommands')
+
+            const device3 = devices.find(d => d.sessionTokenId.equals(sessionToken3.tokenId))
+            assert.ok(device3, 'found third device')
+            assert.deepEqual(device3.availableCommands, deviceInfo3.availableCommands, 'device3 availableCommands')
+          })
+      })
+
+      it('should correctly handle multiple sessions with different availableCommands maps', () => {
+        const sessionToken2 = makeMockSessionToken(accountData.uid)
+        const deviceInfo2 = Object.assign(makeMockDevice(sessionToken2.tokenId), {
+          availableCommands: {
+            'https://identity.mozilla.com/cmd/display-uri': 'device-two-metadata',
+            'extra-command': 'extra-data'
+          }
+        })
+        const sessionToken3 = makeMockSessionToken(accountData.uid)
+
+        return db.createSessionToken(sessionToken2.tokenId, sessionToken2)
+          .then(() => db.createDevice(accountData.uid, deviceInfo2.deviceId, deviceInfo2))
+          .then(() => db.createSessionToken(sessionToken3.tokenId, sessionToken3))
+          .then(() => db.sessions(accountData.uid))
+          .then(sessions => {
+            assert.equal(sessions.length, 3, 'sessions length 3')
+
+            const session1 = sessions.find(s => s.tokenId.equals(sessionTokenData.tokenId))
+            assert.ok(session1, 'found first session')
+            assert.deepEqual(session1.deviceAvailableCommands, deviceInfo.availableCommands, 'session1 availableCommands')
+
+            const session2 = sessions.find(s => s.tokenId.equals(sessionToken2.tokenId))
+            assert.ok(session2, 'found second session')
+            assert.deepEqual(session2.deviceAvailableCommands, deviceInfo2.availableCommands, 'session2 availableCommands')
+
+            const session3 = sessions.find(s => s.tokenId.equals(sessionToken3.tokenId))
+            assert.ok(session3, 'found third session')
+            assert.deepEqual(session3.deviceId, null, 'session3 deviceId')
+            assert.deepEqual(session3.deviceAvailableCommands, null, 'session3 availableCommands')
           })
       })
 
