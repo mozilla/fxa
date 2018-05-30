@@ -44,7 +44,7 @@ registerSuite('flow-event', {
       './amplitude': mocks.amplitude,
       './configuration': mocks.config,
       './flow-metrics': mocks.flowMetrics
-    });
+    }).metricsRequest;
   },
 
   afterEach: function() {

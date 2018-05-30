@@ -6,7 +6,7 @@
 
 const _ = require('lodash');
 const config = require('../configuration');
-const flowEvent = require('../flow-event');
+const flowMetricsRequest = require('../flow-event').metricsRequest;
 const GACollector = require('../ga-collector');
 const joi = require('joi');
 const logger = require('../logging/log')('server.post-metrics');
@@ -174,7 +174,7 @@ module.exports = function () {
         }
         ga.write(metrics);
 
-        flowEvent(req, metrics, requestReceivedTime);
+        flowMetricsRequest(req, metrics, requestReceivedTime);
       });
     }
   };

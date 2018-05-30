@@ -45,6 +45,7 @@ module.exports = function (config, i18n) {
     require('./routes/get-lbheartbeat')(),
     require('./routes/get-openid-configuration')(config),
     require('./routes/get-version.json'),
+    require('./routes/get-metrics-flow')(config),
     require('./routes/post-metrics')(),
     require('./routes/post-metrics-errors')(),
     require('./routes/redirect-complete-to-verified')(),

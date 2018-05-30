@@ -240,6 +240,18 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('markEventLogged', function () {
+      it('does not log an event if marked logged', function () {
+        metrics.markEventLogged('event2');
+        metrics.logEventOnce('event1');
+        metrics.logEventOnce('event2');
+
+        const filteredData = metrics.getFilteredData();
+        assert.equal(filteredData.events.length, 1);
+        assert.equal(filteredData.events[0].type, 'event1');
+      });
+    });
+
     describe('startTimer/stopTimer', function () {
       it('adds a timer to output data', function () {
         metrics.startTimer('timer1');

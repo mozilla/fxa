@@ -166,6 +166,19 @@ function makeApp() {
   // it's a four-oh-four not found.
   app.use(fourOhFour);
 
+  // Handler for CORS errors
+  app.use((err, req, res, next) => {
+    if (err.message === 'CORS Error') {
+      res.status(401).json({
+        error: 'Unauthorized',
+        message: 'CORS Error',
+        statusCode: 401
+      });
+    } else {
+      next(err);
+    }
+  });
+
   // The error handler must be before any other error middleware
   app.use(raven.ravenModule.errorHandler());
 

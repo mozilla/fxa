@@ -32,7 +32,9 @@ registerSuite('routes/post-metrics', {
           return {};
         }
       },
-      flowEvent: sandbox.spy(),
+      flowEvent: {
+        metricsRequest: sandbox.spy()
+      },
       gaCollector: {
         write: sandbox.spy()
       },
@@ -220,9 +222,9 @@ registerSuite('routes/post-metrics', {
                   assert.equal(args[0], mocks.request.body);
                 },
 
-                'flowEvent was called correctly': function () {
-                  assert.strictEqual(mocks.flowEvent.callCount, 1);
-                  var args = mocks.flowEvent.args[0];
+                'flowEvent.metricsRequest was called correctly': function () {
+                  assert.strictEqual(mocks.flowEvent.metricsRequest.callCount, 1);
+                  var args = mocks.flowEvent.metricsRequest.args[0];
                   assert.lengthOf(args, 3);
                   assert.equal(args[0], mocks.request);
                   assert.equal(args[1], mocks.request.body);
@@ -290,7 +292,7 @@ registerSuite('routes/post-metrics', {
                 },
 
                 'flowEvent was called': function () {
-                  assert.strictEqual(mocks.flowEvent.callCount, 1);
+                  assert.strictEqual(mocks.flowEvent.metricsRequest.callCount, 1);
                 }
               }
             }

@@ -21,10 +21,14 @@ define(function (require, exports, module) {
     var flow;
     var sentryMetricsMock;
     var windowMock;
+    var metricsMock;
 
     beforeEach(function () {
       sentryMetricsMock = {
         captureException: sinon.spy()
+      };
+      metricsMock = {
+        markEventLogged: sinon.spy()
       };
       windowMock = new WindowMock();
       $(windowMock.document.body).removeData('flowId').removeAttr('data-flow-id');
@@ -33,6 +37,7 @@ define(function (require, exports, module) {
 
     function createFlow () {
       flow = new Flow({
+        metrics: metricsMock,
         sentryMetrics: sentryMetricsMock,
         window: windowMock
       });
@@ -74,6 +79,27 @@ define(function (require, exports, module) {
 
       assert.equal(flow.get('flowId'), RESUME_FLOW_ID);
       assert.equal(flow.get('flowBegin'), 42);
+    });
+
+    it('fetches from query parameters, if available', function () {
+      $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
+      $(windowMock.document.body).attr('data-flow-begin', '42');
+
+      const QUERY_FLOW_BEGIN = '55';
+      const QUERY_FLOW_ID = 'A1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
+
+      windowMock.location.search = Url.objToSearchString({
+        /*eslint-disable camelcase*/
+        flow_begin_time: QUERY_FLOW_BEGIN,
+        flow_id: QUERY_FLOW_ID
+        /*eslint-enable camelcase*/
+      });
+
+      createFlow();
+
+      assert.equal(flow.get('flowId'), QUERY_FLOW_ID);
+      assert.equal(flow.get('flowBegin'), QUERY_FLOW_BEGIN);
+      assert.ok(metricsMock.markEventLogged.calledOnce);
     });
 
     it('logs an error when the resume token contains `flowId` but not `flowBegin`', function () {

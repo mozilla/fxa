@@ -18,6 +18,12 @@ const conf = module.exports = convict({
     doc: 'context query parameters allowed to embed FxA within an IFRAME',
     format: Array
   },
+  allowed_metrics_flow_cors_origins: {
+    default: [],
+    doc: 'Origins that are allowed to request the /metrics-flow endpoint',
+    env: 'ALLOWED_METRICS_FLOW_ORIGINS',
+    format: Array
+  },
   allowed_parent_origins: {
     default: [],
     doc: 'Origins that are allowed to embed FxA within an IFRAME',

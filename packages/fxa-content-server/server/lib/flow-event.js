@@ -108,7 +108,7 @@ const PERFORMANCE_TIMINGS = [
 
 const AUTH_VIEWS = new Set([ 'enter-email', 'force-auth', 'signin', 'signup' ]);
 
-module.exports = (req, metrics, requestReceivedTime) => {
+const metricsRequest = (req, metrics, requestReceivedTime) => {
   if (IS_DISABLED || ! isValidFlowData(metrics, requestReceivedTime)) {
     return;
   }
@@ -292,3 +292,8 @@ function optionallySetFallbackData (eventData, key, fallback) {
     eventData[key] = limitLength(fallback);
   }
 }
+
+module.exports = {
+  logFlowEvent,
+  metricsRequest
+};
