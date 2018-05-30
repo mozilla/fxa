@@ -18,6 +18,7 @@ const UNTRUSTED_SCOPE = 'profile:uid profile:email';
 const UNTRUSTED_NO_VALID_SCOPES = 'profile';
 const TRUSTED_REDIRECT_URI = `${config.fxaOAuthApp}api/oauth`;
 const UNTRUSTED_REDIRECT_URI = `${config.fxaUntrustedOauthApp}api/oauth`;
+const AUTHORIZATION_ROOT = `${config.fxaContentRoot}authorization`;
 
 var thenify = FunctionalHelpers.thenify;
 
@@ -45,6 +46,13 @@ var openSignUpExpect400 = thenify(function (queryParams) {
     .then(openPageWithQueryParams(queryParams, '#fxa-400-header'));
 });
 
+const openAuthorizationWithQueryParams = thenify(function (queryParams, expectedHeader) {
+  var queryParamsString = '?' + Querystring.stringify(queryParams || {});
+
+  return this.parent
+    .then(openPage(AUTHORIZATION_ROOT + queryParamsString, expectedHeader));
+});
+
 var testErrorInclude = function (expected) {
   return testElementTextInclude('.error', expected);
 };
@@ -55,27 +63,19 @@ registerSuite('oauth query parameter validation', {
     return this.remote
       .then(clearBrowserState({
         contentServer: true
-      }));
+      }))
+      .then(openFxaFromRp('signup'))
+      .then(getQueryParamValue('client_id'))
+      .then(function (clientId) {
+        TRUSTED_CLIENT_ID = clientId;
+      })
+      .then(openFxaFromUntrustedRp('signup'))
+      .then(getQueryParamValue('client_id'))
+      .then(function (clientId) {
+        UNTRUSTED_CLIENT_ID = clientId;
+      });
   },
   tests: {
-    'get client_id for other tests': function () {
-      // get the trusted and untrusted client IDs by opening
-      // FxA from the reliers. This is done instead of hard coding
-      // the values because the client_ids change depending on
-      // the environment.
-      return this.remote
-        .then(openFxaFromRp('signup'))
-        .then(getQueryParamValue('client_id'))
-        .then(function (clientId) {
-          TRUSTED_CLIENT_ID = clientId;
-        })
-        .then(openFxaFromUntrustedRp('signup'))
-        .then(getQueryParamValue('client_id'))
-        .then(function (clientId) {
-          UNTRUSTED_CLIENT_ID = clientId;
-        });
-    },
-
     'service specified': function () {
       return this.remote
         .then(openSignUpExpect400({
@@ -309,7 +309,70 @@ registerSuite('oauth query parameter validation', {
           redirect_uri: UNTRUSTED_REDIRECT_URI,
           scope: UNTRUSTED_SCOPE
         }));
-    }
-  }
+    },
+
+    'authorization with no action (trusted)': function () {
+      return this.remote
+        .then(openAuthorizationWithQueryParams({
+          client_id: TRUSTED_CLIENT_ID,
+          redirect_uri: TRUSTED_REDIRECT_URI,
+          scope: TRUSTED_SCOPE
+        }, '#fxa-signup-header'));
+    },
+
+    'authorization with signin (trusted)': function () {
+      return this.remote
+        .then(openAuthorizationWithQueryParams({
+          action: 'signin',
+          client_id: TRUSTED_CLIENT_ID,
+          redirect_uri: TRUSTED_REDIRECT_URI,
+          scope: TRUSTED_SCOPE
+        }, '#fxa-signin-header'));
+    },
+
+    'authorization with force_auth with no email (trusted)': function () {
+      return this.remote
+      // 400s because there is no email set
+        .then(openAuthorizationWithQueryParams({
+          action: 'force_auth',
+          client_id: TRUSTED_CLIENT_ID,
+          redirect_uri: TRUSTED_REDIRECT_URI,
+          scope: TRUSTED_SCOPE
+        }, '#fxa-400-header'));
+    },
+
+    'authorization with unknown action (trusted)': function () {
+      return this.remote
+      // 400s because there is no email set
+        .then(openAuthorizationWithQueryParams({
+          action: 'unknown',
+          client_id: TRUSTED_CLIENT_ID,
+          redirect_uri: TRUSTED_REDIRECT_URI,
+          scope: TRUSTED_SCOPE
+        }, '#fxa-400-header'));
+    },
+
+    'authorization with force_auth (trusted)': function () {
+      return this.remote
+        .then(openAuthorizationWithQueryParams({
+          action: 'force_auth',
+          client_id: TRUSTED_CLIENT_ID,
+          email: 'test@restmail.net',
+          redirect_uri: TRUSTED_REDIRECT_URI,
+          scope: TRUSTED_SCOPE
+        }, '#fxa-signup-header'));
+    },
+
+    'authorization with email (trusted)': function () {
+      return this.remote
+        .then(openAuthorizationWithQueryParams({
+          action: 'email',
+          client_id: TRUSTED_CLIENT_ID,
+          redirect_uri: TRUSTED_REDIRECT_URI,
+          scope: TRUSTED_SCOPE
+        }, '#fxa-signup-header'));
+    },
+  },
+
 });
 /*eslint-enable camelcase */

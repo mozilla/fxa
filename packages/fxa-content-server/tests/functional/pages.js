@@ -9,6 +9,7 @@ var url = intern._config.fxaContentRoot;
 
 var pages = [
   '',
+  'authorization',
   'boom',
   'cannot_create_account',
   'choose_what_to_sync',

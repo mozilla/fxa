@@ -32,6 +32,7 @@ define(function (require, exports, module) {
     code_challenge: Vat.codeChallenge().renameTo('codeChallenge'),
     code_challenge_method: Vat.codeChallengeMethod().renameTo('codeChallengeMethod'),
     keys_jwk: Vat.keysJwk().renameTo('keysJwk'),
+    login_hint: Vat.email().renameTo('loginHint'),
     prompt: Vat.prompt(),
     redirectTo: Vat.url(),
     redirect_uri: Vat.url().renameTo('redirectUri'),
@@ -167,6 +168,9 @@ define(function (require, exports, module) {
       this.importSearchParamsUsingSchema(
         SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA, OAuthErrors);
 
+      if (! this.get('email')) {
+        this.set('email', this.get('login_hint'));
+      }
       // OAuth reliers are not allowed to specify a service. `service`
       // is used in the verification flow, it'll be set to the `client_id`.
       if (this.getSearchParam('service')) {

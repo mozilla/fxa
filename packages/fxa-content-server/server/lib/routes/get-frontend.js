@@ -6,6 +6,7 @@
 module.exports = function () {
   // The array is converted into a RegExp
   const FRONTEND_ROUTES = [
+    'authorization',
     'cannot_create_account',
     'choose_what_to_sync',
     'clear',

@@ -55,6 +55,7 @@ define(function (require, exports, module) {
   const RecoveryCodesView = require('../views/settings/recovery_codes');
   const VerificationReasons = require('./verification-reasons');
   const WhyConnectAnotherDeviceView = require('../views/why_connect_another_device');
+  const RedirectAuthView = require('../views/authorization');
 
   function createViewHandler(View, options) {
     return function () {
@@ -75,6 +76,7 @@ define(function (require, exports, module) {
   const Router = Backbone.Router.extend({
     routes: {
       '(/)': createViewHandler(IndexView),
+      'authorization(/)': createViewHandler(RedirectAuthView),
       'cannot_create_account(/)': createViewHandler(CannotCreateAccountView),
       'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
       'clear(/)': createViewHandler(ClearStorageView),

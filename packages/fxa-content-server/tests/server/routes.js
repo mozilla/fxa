@@ -27,6 +27,7 @@ const suite = {
 var routes = {
   '/.well-known/fxa-client-configuration': { statusCode: 200 },
   '/.well-known/openid-configuration': { statusCode: 200 },
+  '/authorization': { statusCode: 200 },
   '/cannot_create_account': { statusCode: 200 },
   '/choose_what_to_sync': { statusCode: 200 },
   '/complete_reset_password': { statusCode: 200 },

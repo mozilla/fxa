@@ -125,6 +125,7 @@ require('./spec/models/verification/same-browser');
 require('./spec/models/verification/sign-up');
 require('./spec/models/web-session');
 require('./spec/views/app');
+require('./spec/views/authorization');
 require('./spec/views/base');
 require('./spec/views/behaviors/connect-another-device');
 require('./spec/views/behaviors/halt');
