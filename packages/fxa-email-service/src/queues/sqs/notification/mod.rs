@@ -10,27 +10,40 @@ use serde::{
     ser::{Error as SerializeError, Serialize, Serializer},
 };
 
+use super::super::notification::{
+    Bounce as GenericBounce, Complaint as GenericComplaint, Delivery as GenericDelivery,
+    Mail as GenericMail, Notification as GenericNotification,
+};
 use auth_db::{BounceSubtype as AuthDbBounceSubtype, BounceType as AuthDbBounceType};
 
 #[cfg(test)]
 mod test;
 
-// Warning, long vehicle! This module is a direct encoding
-// of the SES notification format that's documented here:
+// This module is a direct encoding of the SES notification format documented
+// here:
 //
 // https://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html
 
-#[derive(Debug, Default, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 pub struct Notification {
     #[serde(rename = "notificationType")]
     pub notification_type: NotificationType,
     pub mail: Mail,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub bounce: Option<Bounce>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub complaint: Option<Complaint>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub delivery: Option<Delivery>,
+}
+
+impl From<Notification> for GenericNotification {
+    fn from(notification: Notification) -> GenericNotification {
+        GenericNotification {
+            notification_type: notification.notification_type,
+            mail: From::from(notification.mail),
+            bounce: notification.bounce.map(From::from),
+            complaint: notification.complaint.map(From::from),
+            delivery: notification.delivery.map(From::from),
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -96,7 +109,7 @@ impl Serialize for NotificationType {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 pub struct Mail {
     timestamp: DateTime<Utc>,
     #[serde(rename = "messageId")]
@@ -116,19 +129,14 @@ pub struct Mail {
     common_headers: Option<Vec<Header>>,
 }
 
-impl Default for Mail {
-    fn default() -> Mail {
-        Mail {
-            timestamp: Utc::now(),
-            message_id: String::from(""),
-            source: String::from(""),
-            source_arn: String::from(""),
-            source_ip: String::from(""),
-            sending_account_id: String::from(""),
-            destination: Vec::new(),
-            headers_truncated: None,
-            headers: None,
-            common_headers: None,
+impl From<Mail> for GenericMail {
+    fn from(mail: Mail) -> GenericMail {
+        GenericMail {
+            timestamp: mail.timestamp,
+            message_id: mail.message_id,
+            source: mail.source,
+            destination: mail.destination,
+            headers: mail.headers,
         }
     }
 }
@@ -145,7 +153,7 @@ pub enum HeaderValue {
     Multiple(Vec<String>),
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 pub struct Bounce {
     #[serde(rename = "bounceType")]
     pub bounce_type: BounceType,
@@ -159,6 +167,21 @@ pub struct Bounce {
     pub remote_mta_ip: Option<String>,
     #[serde(rename = "reportingMTA")]
     pub reporting_mta: Option<String>,
+}
+
+impl From<Bounce> for GenericBounce {
+    fn from(bounce: Bounce) -> GenericBounce {
+        GenericBounce {
+            bounce_type: bounce.bounce_type,
+            bounce_subtype: bounce.bounce_subtype,
+            bounced_recipients: bounce
+                .bounced_recipients
+                .into_iter()
+                .map(|recipient| recipient.email_address)
+                .collect(),
+            timestamp: bounce.timestamp,
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Serialize)]
@@ -255,7 +278,7 @@ impl<'d> Deserialize<'d> for BounceSubtype {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 pub struct BouncedRecipient {
     #[serde(rename = "emailAddress")]
     pub email_address: String,
@@ -265,7 +288,7 @@ pub struct BouncedRecipient {
     pub diagnostic_code: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 pub struct Complaint {
     #[serde(rename = "complainedRecipients")]
     pub complained_recipients: Vec<ComplainedRecipient>,
@@ -280,7 +303,21 @@ pub struct Complaint {
     pub arrival_date: DateTime<Utc>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+impl From<Complaint> for GenericComplaint {
+    fn from(complaint: Complaint) -> GenericComplaint {
+        GenericComplaint {
+            complained_recipients: complaint
+                .complained_recipients
+                .into_iter()
+                .map(|recipient| recipient.email_address)
+                .collect(),
+            complaint_feedback_type: complaint.complaint_feedback_type,
+            timestamp: complaint.timestamp,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
 pub struct ComplainedRecipient {
     #[serde(rename = "emailAddress")]
     pub email_address: String,
@@ -347,7 +384,7 @@ impl Serialize for ComplaintFeedbackType {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 pub struct Delivery {
     pub timestamp: DateTime<Utc>,
     #[serde(rename = "processingTimeMillis")]
@@ -359,4 +396,13 @@ pub struct Delivery {
     pub remote_mta_ip: Option<String>,
     #[serde(rename = "reportingMTA")]
     pub reporting_mta: Option<String>,
+}
+
+impl From<Delivery> for GenericDelivery {
+    fn from(delivery: Delivery) -> GenericDelivery {
+        GenericDelivery {
+            timestamp: delivery.timestamp,
+            recipients: delivery.recipients,
+        }
+    }
 }

@@ -15,8 +15,11 @@ use rusoto_sqs::{
 };
 use serde_json::{self, Error as JsonError, Value as JsonValue};
 
+use self::notification::Notification as SqsNotification;
 use super::{notification::Notification, Factory, Incoming, Message, Outgoing, QueueError};
 use settings::Settings;
+
+pub mod notification;
 
 pub struct Queue<'s> {
     client: Box<Sqs>,
@@ -52,7 +55,7 @@ impl<'s> Queue<'s> {
         }
 
         serde_json::from_value(JsonValue::String(body.clone()))
-            .map(|notification: Notification| {
+            .map(|notification: SqsNotification| {
                 println!(
                     "Successfully parsed SQS message, queue=`{}`, receipt_handle=`{}`, notification_type=`{}`",
                     self.url,
@@ -60,7 +63,7 @@ impl<'s> Queue<'s> {
                     notification.notification_type
                 );
                 Message {
-                    notification,
+                    notification: From::from(notification),
                     id: receipt_handle,
                 }
             })

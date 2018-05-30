@@ -236,7 +236,7 @@ to a single queue for all three notification types.
 Messages on these queues
 are JSON payloads of the format
 described in the [AWS docs](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html)
-and encoded in [`src/queues/notification/mod.rs`](src/queues/notification/mod.rs).
+and encoded in [`src/queues/sqs/notification/mod.rs`](src/queues/sqs/notification/mod.rs).
 
 When a message is received,
 three things happen in sequence:
@@ -256,15 +256,8 @@ three things happen in sequence:
 Currently, both the incoming and outgoing queues
 happen to be SQS queues but,
 since that's an implementation detail,
-the code makes some effort to separate them
-behind abstract `Incoming` and `Outgoing` traits.
-It's not a perfect abstraction
-because the `Notification` type
-was allowed to leak out of the `sqs` module
-for the sake of expediency.
-That can be easily addressed later,
-if and when we come to rely on
-a different queue implementation.
+the code separates them
+behind more abstract `Incoming` and `Outgoing` traits.
 
 The queue URLs and region
 are set via config,

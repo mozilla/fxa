@@ -6,8 +6,7 @@ use chrono::Utc;
 
 use super::{
     notification::{
-        Bounce, BounceSubtype, BounceType, BouncedRecipient, ComplainedRecipient, Complaint,
-        Delivery, Notification, NotificationType,
+        Bounce, BounceSubtype, BounceType, Complaint, Delivery, Notification, NotificationType,
     },
     Factory, Incoming, Message, Outgoing, QueueError,
 };
@@ -33,18 +32,10 @@ impl<'s> Incoming for Queue<'s> {
                 bounce_message.notification.bounce = Some(Bounce {
                     bounce_type: BounceType::Permanent,
                     bounce_subtype: BounceSubtype::General,
-                    bounced_recipients: vec![BouncedRecipient {
-                        email_address: String::from(
-                            "fxa-email-service.queues.mock.bounce@example.com",
-                        ),
-                        action: None,
-                        status: None,
-                        diagnostic_code: None,
-                    }],
+                    bounced_recipients: vec![String::from(
+                        "fxa-email-service.queues.mock.bounce@example.com",
+                    )],
                     timestamp: Utc::now(),
-                    feedback_id: String::from(""),
-                    remote_mta_ip: None,
-                    reporting_mta: None,
                 });
                 bounce_message
             }
@@ -53,16 +44,11 @@ impl<'s> Incoming for Queue<'s> {
                 let mut complaint_message = Message::default();
                 complaint_message.notification.notification_type = NotificationType::Complaint;
                 complaint_message.notification.complaint = Some(Complaint {
-                    complained_recipients: vec![ComplainedRecipient {
-                        email_address: String::from(
-                            "fxa-email-service.queues.mock.complaint@example.com",
-                        ),
-                    }],
+                    complained_recipients: vec![String::from(
+                        "fxa-email-service.queues.mock.complaint@example.com",
+                    )],
                     timestamp: Utc::now(),
-                    feedback_id: String::from(""),
-                    user_agent: None,
                     complaint_feedback_type: None,
-                    arrival_date: Utc::now(),
                 });
                 complaint_message
             }
@@ -72,13 +58,9 @@ impl<'s> Incoming for Queue<'s> {
                 delivery_message.notification.notification_type = NotificationType::Delivery;
                 delivery_message.notification.delivery = Some(Delivery {
                     timestamp: Utc::now(),
-                    processing_time_millis: 0,
                     recipients: vec![String::from(
                         "fxa-email-service.queues.mock.delivery@example.com",
                     )],
-                    smtp_response: String::from(""),
-                    remote_mta_ip: None,
-                    reporting_mta: None,
                 });
                 delivery_message
             }

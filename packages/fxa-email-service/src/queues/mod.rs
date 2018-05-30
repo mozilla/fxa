@@ -77,7 +77,7 @@ impl<'s> Queues<'s> {
             if let Some(ref bounce) = notification.bounce {
                 for recipient in bounce.bounced_recipients.iter() {
                     self.db.create_bounce(
-                        &recipient.email_address,
+                        &recipient,
                         From::from(bounce.bounce_type),
                         From::from(bounce.bounce_subtype),
                     )?;
@@ -100,11 +100,8 @@ impl<'s> Queues<'s> {
                         } else {
                             BounceSubtype::Unmapped
                         };
-                    self.db.create_bounce(
-                        &recipient.email_address,
-                        BounceType::Complaint,
-                        bounce_subtype,
-                    )?;
+                    self.db
+                        .create_bounce(&recipient, BounceType::Complaint, bounce_subtype)?;
                 }
                 Ok(())
             } else {
