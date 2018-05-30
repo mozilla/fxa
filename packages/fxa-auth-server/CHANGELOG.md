@@ -1,3 +1,28 @@
+<a name="1.113.0"></a>
+# [1.113.0](https://github.com/mozilla/fxa-auth-server/compare/v1.112.1...v1.113.0) (2018-05-30)
+
+
+### Bug Fixes
+
+* **deps:** Update fxa-geodb version, remove nexmo (#2446) r=@philbooth ([44e9dac](https://github.com/mozilla/fxa-auth-server/commit/44e9dac)), closes [#2446](https://github.com/mozilla/fxa-auth-server/issues/2446)
+* **params:** remove query param for verificationMethod (#2456) r=@vladikoff ([dc1bb44](https://github.com/mozilla/fxa-auth-server/commit/dc1bb44)), closes [#2456](https://github.com/mozilla/fxa-auth-server/issues/2456)
+* **sms:** follow documented conventions for AWS GetMetricStatistics call ([95c3364](https://github.com/mozilla/fxa-auth-server/commit/95c3364))
+
+### chore
+
+* **ci:** Remove coveralls from travis config. (#2452) ([aedd180](https://github.com/mozilla/fxa-auth-server/commit/aedd180)), closes [#2452](https://github.com/mozilla/fxa-auth-server/issues/2452)
+* **devices:** Remove notifyUpdate and filter target devices in the /devices/notify handler ([a9c6e0e](https://github.com/mozilla/fxa-auth-server/commit/a9c6e0e))
+
+### Features
+
+* **pool:** Allow pool requests to specify headers and query params. ([1f63621](https://github.com/mozilla/fxa-auth-server/commit/1f63621))
+
+### Refactor
+
+* **metrics:** move amplitude email types back here from fxa-shared ([c2767f5](https://github.com/mozilla/fxa-auth-server/commit/c2767f5))
+
+
+
 <a name="1.112.1"></a>
 ## [1.112.1](https://github.com/mozilla/fxa-auth-server/compare/v1.112.0...v1.112.1) (2018-05-17)
 
