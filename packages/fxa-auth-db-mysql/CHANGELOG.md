@@ -1,3 +1,18 @@
+<a name="1.113.0"></a>
+# [1.113.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.112.0...v1.113.0) (2018-05-30)
+
+
+### chore
+
+* **ci:** Remove coveralls from travis config. (#355) ([c94fe0b](https://github.com/mozilla/fxa-auth-db-mysql/commit/c94fe0b))
+
+### Features
+
+* **devices:** Allow devices to register "available commands". (#354); r=philbooth,eoger ([69816f6](https://github.com/mozilla/fxa-auth-db-mysql/commit/69816f6))
+* **recovery:** Add initial account recovery support (#357), r=@rfk, @philbooth ([f6716ad](https://github.com/mozilla/fxa-auth-db-mysql/commit/f6716ad))
+
+
+
 <a name="1.112.0"></a>
 # [1.112.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.111.0...v1.112.0) (2018-05-16)
 
