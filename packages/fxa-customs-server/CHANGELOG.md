@@ -1,3 +1,13 @@
+<a name="1.113.0"></a>
+# 1.113.0 (2018-05-30)
+
+
+### chore
+
+* **ci:** Remove coveralls from travis config (#246) ([3a988b6](https://github.com/mozilla/fxa-customs-server/commit/3a988b6))
+
+
+
 <a name="1.112.0"></a>
 # 1.112.0 (2018-05-16)
 
