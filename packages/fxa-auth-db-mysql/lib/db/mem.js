@@ -38,7 +38,7 @@ var DEVICE_FIELDS = [
   'callbackPublicKey',
   'callbackAuthKey',
   'callbackIsExpired',
-  'availableCommands'
+  'capabilities'
 ]
 
 const SESSION_DEVICE_FIELDS = [
@@ -207,6 +207,16 @@ module.exports = function (log, error) {
     return P.resolve({})
   }
 
+  function checkCapabilities(deviceInfo) {
+    if (deviceInfo.capabilities) {
+      for (const capability of deviceInfo.capabilities) {
+        if (dbUtil.mapDeviceCapability(capability) == null) {
+          throw error.unknownDeviceCapability()
+        }
+      }
+    }
+  }
+
   Memory.prototype.createDevice = function (uid, deviceId, deviceInfo) {
     return getAccountByUid(uid)
       .then(
@@ -217,9 +227,9 @@ module.exports = function (log, error) {
           }
           var device = {
             uid: uid,
-            id: deviceId,
-            availableCommands: {}
+            id: deviceId
           }
+          checkCapabilities(deviceInfo)
           deviceInfo.callbackIsExpired = false // mimic the db behavior assigning a default false value
           account.devices[deviceKey] = updateDeviceRecord(device, deviceInfo, deviceKey)
           return {}
@@ -267,6 +277,7 @@ module.exports = function (log, error) {
           if (! account.devices[deviceKey]) {
             throw error.notFound()
           }
+          checkCapabilities(deviceInfo)
           var device = account.devices[deviceKey]
           if (device.sessionTokenId) {
             if (deviceInfo.sessionTokenId) {
@@ -464,14 +475,15 @@ module.exports = function (log, error) {
         function(account) {
           return Object.keys(account.devices)
             .map(
-              function (deviceKey) {
-                var device = Object.assign({}, account.devices[deviceKey])
+              function (id) {
+                var device = account.devices[id]
                 var sessionKey = (device.sessionTokenId || '').toString('hex')
                 var session = sessionTokens[sessionKey]
                 if (session) {
                   SESSION_DEVICE_FIELDS.forEach(function (key) {
                     device[key] = session[key]
                   })
+                  device.email = account.email
                   return device
                 }
               }
@@ -486,17 +498,6 @@ module.exports = function (log, error) {
           return []
         }
       )
-  }
-
-  Memory.prototype.device = function (uid, deviceId) {
-    return this.accountDevices(uid)
-      .then(devices => devices.find(d => d.id.equals(deviceId)))
-      .then(device => {
-        if (! device) {
-          throw error.notFound()
-        }
-        return device
-      })
   }
 
   Memory.prototype.deviceFromTokenVerificationId = function (uid, tokenVerificationId) {
@@ -533,7 +534,7 @@ module.exports = function (log, error) {
             callbackPublicKey: device.callbackPublicKey,
             callbackAuthKey: device.callbackAuthKey,
             callbackIsExpired: device.callbackIsExpired,
-            availableCommands: device.availableCommands
+            capabilities: device.capabilities || []
           })
         }
       )
@@ -611,7 +612,7 @@ module.exports = function (log, error) {
           item.deviceCallbackPublicKey = device.callbackPublicKey
           item.deviceCallbackAuthKey = device.callbackAuthKey
           item.deviceCallbackIsExpired = device.callbackIsExpired
-          item.deviceAvailableCommands = device.availableCommands
+          item.deviceCapabilities = device.capabilities || []
         }
 
         return item
@@ -690,7 +691,7 @@ module.exports = function (log, error) {
           deviceCallbackPublicKey: deviceInfo.callbackPublicKey || null,
           deviceCallbackAuthKey: deviceInfo.callbackAuthKey || null,
           deviceCallbackIsExpired: deviceInfo.callbackIsExpired !== undefined ? deviceInfo.callbackIsExpired : null,
-          deviceAvailableCommands: deviceInfo.availableCommands || null
+          deviceCapabilities: deviceInfo.capabilities || []
         }
 
         return session

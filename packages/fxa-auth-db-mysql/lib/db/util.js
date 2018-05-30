@@ -41,7 +41,25 @@ const VERIFICATION_METHODS = new Map([
   ['recovery-code', 3]   // Recovery code
 ])
 
+// If you modify one of these maps, modify the other.
+const DEVICE_CAPABILITIES = new Map([
+  ['messages', 1],
+  ['messages.sendtab', 2]
+])
+const DEVICE_CAPABILITIES_IDS = new Map([
+  [1, 'messages'],
+  [2, 'messages.sendtab']
+])
+
 module.exports = {
+
+  mapDeviceCapability(val) {
+    if (typeof val === 'number') {
+      return DEVICE_CAPABILITIES_IDS.get(val) || null
+    } else {
+      return DEVICE_CAPABILITIES.get(val) || null
+    }
+  },
 
   mapEmailBounceType(val) {
     if (typeof val === 'number') {
@@ -116,84 +134,5 @@ module.exports = {
           return result.join('')
         })
       })
-  },
-
-  // A helper function for aggregating name:value pairs into a JSON object.
-  //
-  // In newer versions of MySQL, there's a neat function called JSON_OBJECTAGG
-  // that can be used with `GROUP BY` to collect name:value pairs into a JSON
-  // object.  Given a table like this, where each `id` can have zero, one or
-  // many names and a corresponding value for each:
-  //
-  //   +-------+-------+--------+
-  //   | id    | name  | value  |
-  //   +-------+-------+--------+
-  //   | one   | name1 | value1 |
-  //   | one   | name2 | value2 |
-  //   | two   | name1 | value1 |
-  //   | three | NULL  | NULL   |
-  //   +-------+-------+--------+
-  //
-  // Then you can do a query like:
-  //
-  //    SELECT id, JSON_OBJECTAGG(name, value) AS result
-  //    FROM data
-  //    GROUP BY 1, 2
-  //
-  // And get a result with one row per `id`, like:
-  //
-  //   +-------+----------------------------------+
-  //   | id    | result                           |
-  //   +-------+----------------------------------+
-  //   | one   | { name1: value1, name2: value2 } |
-  //   | two   | { name1: value1 }                |
-  //   | three | {}                               |
-  //   +-------+----------------------------------+
-  //
-  // Unfortunately, we're not on newer versions of MySQL, so this function implements
-  // the same aggregation logic in sofware.  To use it, select all the target rows
-  // and ensure they're sorted by grouping id:
-  //
-  //    rows = db.readAllResults("
-  //      SELECT id, name, value
-  //      FROM data
-  //      ORDER BY 1
-  //    ")
-  //
-  // Then apply `aggregateNameValuePairs` on the rows, providing the names of the
-  // columns to use for the group-by id, the keys, the values, and the resulting
-  // aggregate:
-  //
-  //    unique_rows = aggregateNameValuePairs(rows, "id", "name", "value", "result")
-  //
-  // The end result will be the same as produced by JSON_OBJECTAGG, including correct
-  // handling of NULL values in all columns.
-
-  aggregateNameValuePairs(rows, idColumn, nameColumn, valueColumn, resultColumn) {
-    return rows.reduce((items, row) => {
-      let curItem = items[items.length - 1]
-      // Start a new aggregated item if:
-      //   * we're at the start of the list, or
-      //   * the upcoming row has a different id then previous.
-      //   * the upcoming row has a NULL id (because NULLs never equal each other)
-      if (! curItem || ! row[idColumn] || ! curItem[idColumn] || ! row[idColumn].equals(curItem[idColumn])) {
-        curItem = {}
-        Object.keys(row).forEach(column => {
-          if (column !== nameColumn && column !== valueColumn) {
-            curItem[column] = row[column]
-          }
-        })
-        // If the id was NULL, this row must have resulted from
-        // an outer join with no match in the joined table.
-        // The correct aggregated result in this case is NULL.
-        curItem[resultColumn] = row[idColumn] ? {} : null
-        items.push(curItem)
-      }
-      if (row[nameColumn]) {
-        curItem[resultColumn][row[nameColumn]] = row[valueColumn]
-      }
-      return items
-    }, [])
   }
-
 }

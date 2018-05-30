@@ -42,11 +42,11 @@ describe('DB metrics', () => {
       assert.equal(typeof metrics.countAccountsWithMobileDevice, 'string', 'countAccountsWithMobileDevice string was exported')
 
       return P.all([
-        db.readAllResults(metrics.countAccounts, times[0]),
-        db.readAllResults(metrics.countVerifiedAccounts, times[0]),
-        db.readAllResults(metrics.countAccountsWithTwoOrMoreDevices, times[0]),
-        db.readAllResults(metrics.countAccountsWithThreeOrMoreDevices, times[0]),
-        db.readAllResults(metrics.countAccountsWithMobileDevice, times[0])
+        db.readOneFromFirstResult(metrics.countAccounts, times[0]),
+        db.readOneFromFirstResult(metrics.countVerifiedAccounts, times[0]),
+        db.readOneFromFirstResult(metrics.countAccountsWithTwoOrMoreDevices, times[0]),
+        db.readOneFromFirstResult(metrics.countAccountsWithThreeOrMoreDevices, times[0]),
+        db.readOneFromFirstResult(metrics.countAccountsWithMobileDevice, times[0])
       ])
       .then(function (results) {
         results.forEach(function (result, index) {
@@ -104,11 +104,11 @@ describe('DB metrics', () => {
       })
       .then(function () {
         return P.all([
-          db.readAllResults(metrics.countAccounts, times[2]),
-          db.readAllResults(metrics.countVerifiedAccounts, times[2]),
-          db.readAllResults(metrics.countAccountsWithTwoOrMoreDevices, times[2] + 1),
-          db.readAllResults(metrics.countAccountsWithThreeOrMoreDevices, times[2] + 1),
-          db.readAllResults(metrics.countAccountsWithMobileDevice, times[2] + 1)
+          db.readOneFromFirstResult(metrics.countAccounts, times[2]),
+          db.readOneFromFirstResult(metrics.countVerifiedAccounts, times[2]),
+          db.readOneFromFirstResult(metrics.countAccountsWithTwoOrMoreDevices, times[2] + 1),
+          db.readOneFromFirstResult(metrics.countAccountsWithThreeOrMoreDevices, times[2] + 1),
+          db.readOneFromFirstResult(metrics.countAccountsWithMobileDevice, times[2] + 1)
         ])
       })
       .then(function (results) {
@@ -122,9 +122,9 @@ describe('DB metrics', () => {
       })
       .then(function () {
         return P.all([
-          db.readAllResults(metrics.countAccountsWithTwoOrMoreDevices, times[2] + 1),
-          db.readAllResults(metrics.countAccountsWithThreeOrMoreDevices, times[2] + 1),
-          db.readAllResults(metrics.countAccountsWithMobileDevice, times[2] + 1)
+          db.readOneFromFirstResult(metrics.countAccountsWithTwoOrMoreDevices, times[2] + 1),
+          db.readOneFromFirstResult(metrics.countAccountsWithThreeOrMoreDevices, times[2] + 1),
+          db.readOneFromFirstResult(metrics.countAccountsWithMobileDevice, times[2] + 1)
         ])
       })
       .then(function (results) {
@@ -139,9 +139,9 @@ describe('DB metrics', () => {
       })
       .then(function () {
         return P.all([
-          db.readAllResults(metrics.countAccountsWithTwoOrMoreDevices, times[2] + 1),
-          db.readAllResults(metrics.countAccountsWithThreeOrMoreDevices, times[2] + 1),
-          db.readAllResults(metrics.countAccountsWithMobileDevice, times[2] + 1)
+          db.readOneFromFirstResult(metrics.countAccountsWithTwoOrMoreDevices, times[2] + 1),
+          db.readOneFromFirstResult(metrics.countAccountsWithThreeOrMoreDevices, times[2] + 1),
+          db.readOneFromFirstResult(metrics.countAccountsWithMobileDevice, times[2] + 1)
         ])
       })
       .then(function (results) {
@@ -152,9 +152,9 @@ describe('DB metrics', () => {
       })
       .then(function () {
         return P.all([
-          db.readAllResults(metrics.countAccountsWithTwoOrMoreDevices, times[2]),
-          db.readAllResults(metrics.countAccountsWithThreeOrMoreDevices, times[2]),
-          db.readAllResults(metrics.countAccountsWithMobileDevice, times[2])
+          db.readOneFromFirstResult(metrics.countAccountsWithTwoOrMoreDevices, times[2]),
+          db.readOneFromFirstResult(metrics.countAccountsWithThreeOrMoreDevices, times[2]),
+          db.readOneFromFirstResult(metrics.countAccountsWithMobileDevice, times[2])
         ])
       })
       .then(function (results) {
