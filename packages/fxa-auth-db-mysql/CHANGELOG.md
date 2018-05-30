@@ -1,3 +1,13 @@
+<a name="1.113.1"></a>
+## [1.113.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.113.0...v1.113.1) (2018-05-30)
+
+
+### Reverts
+
+* **devices:** Revert "available commands" for train-113. (#360); r=jrgm ([cbe7981](https://github.com/mozilla/fxa-auth-db-mysql/commit/cbe7981))
+
+
+
 <a name="1.113.0"></a>
 # [1.113.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.112.0...v1.113.0) (2018-05-30)
 
