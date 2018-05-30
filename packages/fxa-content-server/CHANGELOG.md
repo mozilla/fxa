@@ -1,3 +1,19 @@
+<a name="1.113.0"></a>
+# 1.113.0 (2018-05-30)
+
+
+### Bug Fixes
+
+* **css:** make sign-in confirm button blue (#6233) ([cd2718d](https://github.com/mozilla/fxa-content-server/commit/cd2718d))
+* **recovery:** support copying recovery codes in ios (#6232), r=@vladikoff ([59b344d](https://github.com/mozilla/fxa-content-server/commit/59b344d))
+* **validation:** Stricter utm_ parameter metrics validation (#6200) r=@philbooth ([821f276](https://github.com/mozilla/fxa-content-server/commit/821f276))
+
+### Features
+
+* **metrics:** metrics flow for iframeless flow (#6227) r=@philbooth ([0921bc5](https://github.com/mozilla/fxa-content-server/commit/0921bc5))
+
+
+
 <a name="1.112.3"></a>
 ## 1.112.3 (2018-05-21)
 
