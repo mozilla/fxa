@@ -1,3 +1,9 @@
+<a name="1.113.2"></a>
+## [1.113.2](https://github.com/mozilla/fxa-auth-server/compare/v1.113.1...v1.113.2) (2018-05-31)
+
+
+
+
 <a name="1.113.1"></a>
 ## [1.113.1](https://github.com/mozilla/fxa-auth-server/compare/v1.113.0...v1.113.1) (2018-05-30)
 
