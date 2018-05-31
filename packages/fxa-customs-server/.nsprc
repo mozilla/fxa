@@ -1,0 +1,6 @@
+{
+  "exceptions": [
+    // restify
+    "https://nodesecurity.io/advisories/598"
+  ]
+}
