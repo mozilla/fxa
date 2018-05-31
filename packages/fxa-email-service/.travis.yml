@@ -1,13 +1,13 @@
 language: rust
 cache: cargo
 rust:
-  - nightly
+  - nightly-2018-05-29
 branches:
   only:
     - master
 before_script:
   - rustup component add rustfmt-preview
 script:
-  - cargo fmt -- --write-mode=diff
+  - cargo fmt -- --check
   - cargo b
   - ./tdb
