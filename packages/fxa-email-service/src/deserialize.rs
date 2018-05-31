@@ -37,6 +37,13 @@ where
     deserialize(deserializer, validate::base_uri, "base URI")
 }
 
+pub fn email_address<'d, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: Deserializer<'d>,
+{
+    deserialize(deserializer, validate::email_address, "email address")
+}
+
 pub fn host<'d, D>(deserializer: D) -> Result<String, D::Error>
 where
     D: Deserializer<'d>,
@@ -61,15 +68,18 @@ where
     deserialize(deserializer, validate::provider, "'ses' or 'smtp'")
 }
 
-pub fn sender<'d, D>(deserializer: D) -> Result<String, D::Error>
+pub fn sender_name<'d, D>(deserializer: D) -> Result<String, D::Error>
 where
     D: Deserializer<'d>,
 {
-    deserialize(
-        deserializer,
-        validate::sender,
-        "sender name and email address",
-    )
+    deserialize(deserializer, validate::sender_name, "sender name")
+}
+
+pub fn sendgrid_api_key<'d, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: Deserializer<'d>,
+{
+    deserialize(deserializer, validate::sendgrid_api_key, "Sendgrid API key")
 }
 
 fn deserialize<'d, D>(

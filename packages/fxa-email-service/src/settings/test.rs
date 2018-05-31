@@ -55,7 +55,9 @@ fn env_vars_take_precedence() {
         "FXA_EMAIL_AUTHDB_BASEURI",
         "FXA_EMAIL_BOUNCELIMITS_ENABLED",
         "FXA_EMAIL_PROVIDER",
-        "FXA_EMAIL_SENDER",
+        "FXA_EMAIL_SENDER_ADDRESS",
+        "FXA_EMAIL_SENDER_NAME",
+        "FXA_EMAIL_SENDGRID_KEY",
         "FXA_EMAIL_SES_REGION",
         "FXA_EMAIL_SES_KEYS_ACCESS",
         "FXA_EMAIL_SES_KEYS_SECRET",
@@ -74,7 +76,11 @@ fn env_vars_take_precedence() {
             } else {
                 "ses"
             };
-            let sender = format!("1{}", &settings.sender);
+            let sender_address = format!("1{}", &settings.sender.address);
+            let sender_name = format!("{}1", &settings.sender.name);
+            let sendgrid_api_key = String::from(
+                "000000000000000000000000000000000000000000000000000000000000000000000",
+            );
             let ses_region = if settings.ses.region == "us-east-1" {
                 "eu-west-1"
             } else {
@@ -110,7 +116,9 @@ fn env_vars_take_precedence() {
                 &bounce_limits_enabled.to_string(),
             );
             env::set_var("FXA_EMAIL_PROVIDER", &provider);
-            env::set_var("FXA_EMAIL_SENDER", &sender);
+            env::set_var("FXA_EMAIL_SENDER_ADDRESS", &sender_address);
+            env::set_var("FXA_EMAIL_SENDER_NAME", &sender_name);
+            env::set_var("FXA_EMAIL_SENDGRID_KEY", &sendgrid_api_key);
             env::set_var("FXA_EMAIL_SES_REGION", &ses_region);
             env::set_var("FXA_EMAIL_SES_KEYS_ACCESS", &ses_keys.access);
             env::set_var("FXA_EMAIL_SES_KEYS_SECRET", &ses_keys.secret);
@@ -124,10 +132,17 @@ fn env_vars_take_precedence() {
                     assert_eq!(env_settings.authdb.baseuri, auth_db_base_uri);
                     assert_eq!(env_settings.bouncelimits.enabled, bounce_limits_enabled);
                     assert_eq!(env_settings.provider, provider);
-                    assert_eq!(env_settings.sender, sender);
+                    assert_eq!(env_settings.sender.address, sender_address);
+                    assert_eq!(env_settings.sender.name, sender_name);
                     assert_eq!(env_settings.ses.region, ses_region);
                     assert_eq!(env_settings.smtp.host, smtp_host);
                     assert_eq!(env_settings.smtp.port, smtp_port);
+
+                    if let Some(env_sendgrid) = env_settings.sendgrid {
+                        assert_eq!(env_sendgrid.key, sendgrid_api_key);
+                    } else {
+                        assert!(false, "settings.sendgrid was not set");
+                    }
 
                     if let Some(env_keys) = env_settings.ses.keys {
                         assert_eq!(env_keys.access, ses_keys.access);
@@ -195,9 +210,31 @@ fn invalid_provider() {
 }
 
 #[test]
-fn invalid_sender() {
-    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_SENDER"]);
-    env::set_var("FXA_EMAIL_SENDER", "foo bar@example.com");
+fn invalid_sender_address() {
+    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_SENDER_ADDRESS"]);
+    env::set_var("FXA_EMAIL_SENDER_ADDRESS", "foo");
+
+    match Settings::new() {
+        Ok(_settings) => assert!(false, "Settings::new should have failed"),
+        Err(error) => assert_eq!(error.description(), "configuration error"),
+    }
+}
+
+#[test]
+fn invalid_sender_name() {
+    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_SENDER_NAME"]);
+    env::set_var("FXA_EMAIL_SENDER_NAME", "foo@example.com");
+
+    match Settings::new() {
+        Ok(_settings) => assert!(false, "Settings::new should have failed"),
+        Err(error) => assert_eq!(error.description(), "configuration error"),
+    }
+}
+
+#[test]
+fn invalid_sendgrid_api_key() {
+    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_SENDGRID_KEY"]);
+    env::set_var("FXA_EMAIL_SENDGRID_KEY", "foo bar");
 
     match Settings::new() {
         Ok(_settings) => assert!(false, "Settings::new should have failed"),

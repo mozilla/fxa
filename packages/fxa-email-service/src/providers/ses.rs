@@ -6,7 +6,7 @@ use std::boxed::Box;
 
 use rusoto_core::{reactor::RequestDispatcher, Region};
 use rusoto_credential::StaticProvider;
-use rusoto_ses::{Content, Destination, Message, SendEmailRequest, Ses, SesClient};
+use rusoto_ses::{Content, Destination, Message, SendEmailError, SendEmailRequest, Ses, SesClient};
 
 use super::{Provider, ProviderError};
 use settings::Settings;
@@ -34,7 +34,7 @@ impl SesProvider {
 
         SesProvider {
             client,
-            sender: settings.sender.clone(),
+            sender: format!("{} <{}>", settings.sender.name, settings.sender.address),
         }
     }
 }
@@ -72,14 +72,18 @@ impl Provider for SesProvider {
         request.message = message;
         request.source = self.sender.to_string();
 
-        match self.client.send_email(&request).sync() {
-            Ok(response) => Ok(response.message_id),
-            Err(error) => {
-                println!("SES error: {}", error);
-                Err(ProviderError {
-                    description: error.to_string(),
-                })
-            }
+        self.client
+            .send_email(&request)
+            .sync()
+            .map(|response| response.message_id)
+            .map_err(From::from)
+    }
+}
+
+impl From<SendEmailError> for ProviderError {
+    fn from(error: SendEmailError) -> ProviderError {
+        ProviderError {
+            description: format!("SES error: {:?}", error),
         }
     }
 }

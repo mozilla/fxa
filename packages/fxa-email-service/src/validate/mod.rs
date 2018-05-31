@@ -11,14 +11,16 @@ mod test;
 lazy_static! {
     static ref AWS_ACCESS_FORMAT: Regex = Regex::new("^[A-Z0-9]+$").unwrap();
     static ref AWS_SECRET_FORMAT: Regex = Regex::new("^[A-Za-z0-9+/=]+$").unwrap();
-    static ref HOST_FORMAT: Regex = Regex::new("^[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*$").unwrap();
-    static ref PROVIDER_FORMAT: Regex = Regex::new("^(?:mock|ses|smtp)$").unwrap();
-    static ref SENDER_FORMAT: Regex = Regex::new(
-        "^[A-Za-z0-9-]+(?: [A-Za-z0-9-]+)* <[a-z0-9-]+@[a-z0-9-]+(?:\\.[a-z0-9-]+)+>$"
-    ).unwrap();
     static ref BASE_URI_FORMAT: Regex = Regex::new(
         "^https?://[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*(?::[0-9]+)?/(?:[A-Za-z0-9-]+/)*$"
     ).unwrap();
+    static ref EMAIL_ADDRESS_FORMAT: Regex =
+        Regex::new("^[a-z0-9-]+@[a-z0-9-]+(?:\\.[a-z0-9-]+)+$").unwrap();
+    static ref HOST_FORMAT: Regex = Regex::new("^[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*$").unwrap();
+    static ref PROVIDER_FORMAT: Regex = Regex::new("^(?:mock|sendgrid|ses|smtp)$").unwrap();
+    static ref SENDER_NAME_FORMAT: Regex =
+        Regex::new("^[A-Za-z0-9-]+(?: [A-Za-z0-9-]+)*$").unwrap();
+    static ref SENDGRID_API_KEY_FORMAT: Regex = Regex::new("^[A-Za-z0-9._]{69}$").unwrap();
 }
 
 pub fn aws_region(value: &str) -> bool {
@@ -37,6 +39,10 @@ pub fn base_uri(value: &str) -> bool {
     BASE_URI_FORMAT.is_match(value)
 }
 
+pub fn email_address(value: &str) -> bool {
+    EMAIL_ADDRESS_FORMAT.is_match(value)
+}
+
 pub fn host(value: &str) -> bool {
     HOST_FORMAT.is_match(value)
 }
@@ -45,6 +51,10 @@ pub fn provider(value: &str) -> bool {
     PROVIDER_FORMAT.is_match(value)
 }
 
-pub fn sender(value: &str) -> bool {
-    SENDER_FORMAT.is_match(value)
+pub fn sender_name(value: &str) -> bool {
+    SENDER_NAME_FORMAT.is_match(value)
+}
+
+pub fn sendgrid_api_key(value: &str) -> bool {
+    SENDGRID_API_KEY_FORMAT.is_match(value)
 }

@@ -6,10 +6,13 @@ use std::{
     boxed::Box, collections::HashMap, error::Error, fmt::{self, Display, Formatter},
 };
 
-use self::{mock::MockProvider as Mock, ses::SesProvider as Ses};
+use self::{
+    mock::MockProvider as Mock, sendgrid::SendgridProvider as Sendgrid, ses::SesProvider as Ses,
+};
 use settings::Settings;
 
 mod mock;
+mod sendgrid;
 mod ses;
 
 trait Provider {
@@ -48,22 +51,27 @@ impl Display for ProviderError {
 
 pub struct Providers<'s> {
     default_provider: &'s str,
-    providers: HashMap<String, Box<Provider>>,
+    providers: HashMap<String, Box<Provider + 's>>,
 }
 
 impl<'s> Providers<'s> {
     pub fn new(settings: &'s Settings) -> Providers {
-        let mut instance = Providers {
+        let mut providers: HashMap<String, Box<Provider + 's>> = HashMap::new();
+
+        providers.insert(String::from("mock"), Box::new(Mock));
+        providers.insert(String::from("ses"), Box::new(Ses::new(settings)));
+
+        if let Some(ref sendgrid) = settings.sendgrid {
+            providers.insert(
+                String::from("sendgrid"),
+                Box::new(Sendgrid::new(sendgrid, settings)),
+            );
+        }
+
+        Providers {
             default_provider: &settings.provider,
-            providers: HashMap::new(),
-        };
-        instance
-            .providers
-            .insert(String::from("mock"), Box::new(Mock));
-        instance
-            .providers
-            .insert(String::from("ses"), Box::new(Ses::new(settings)));
-        instance
+            providers,
+        }
     }
 
     pub fn send(

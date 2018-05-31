@@ -10,7 +10,8 @@
 * [How will you make sure the new service isn't just as tightly coupled to SES?](#how-will-you-make-sure-the-new-service-isnt-just-as-tightly-coupled-to-ses)
 * [How can I set up a dev environment?](#how-can-i-set-up-a-dev-environment)
 * [How do I run the tests?](#how-do-i-run-the-tests)
-* [How can I send an email?](#how-can-i-send-an-email)
+* [How can I send an email via SES?](#how-can-i-send-an-email-via-ses)
+* [How can I send an email via Sendgrid?](#how-can-i-send-an-email-via-sendgrid)
 
 ## What's this?
 
@@ -128,7 +129,7 @@ you can find it with:
 ps -ef | grep "node bin/server"
 ```
 
-## How can I send an email?
+## How can I send an email via SES?
 
 You'll need to set up some config
 with your AWS credentials.
@@ -156,11 +157,18 @@ being accidentally leaked on GitHub.
 
 Also note that the AWS IAM limits sending
 to approved `from` addresses.
-Again, you can set that via environment variable (`FXA_EMAIL_SENDER`)
-or in `config/local.json`:
+Again, you can set that via environment variables:
+
+* `FXA_EMAIL_SENDER_ADDRESS`
+* `FXA_EMAIL_SENDER_NAME`
+
+Or in `config/local.json`:
 
 ```json
-  "sender": "Firefox Accounts <verification@latest.dev.lcip.org>",
+  "sender": {
+    "address": "verification@latest.dev.lcip.org",
+    "name": "Firefox Accounts"
+  },
 ```
 
 Once you have config set,
@@ -176,6 +184,39 @@ to send requests:
 ```
 curl \
   -d '{"to":"foo@example.com","subject":"bar","body":{"text":"baz"}}' \
+  -H 'Content-Type: application/json' \
+  http://localhost:8001/send
+```
+
+If everything is set-up correctly,
+you should receive email pretty much instantly.
+
+## How can I send an email via Sendgrid?
+
+The process is broadly the same as for SES.
+First set your Sendgrid API key,
+either using the `FXA_EMAIL_SENGRID_KEY` environment variable
+or in `config/local.json`:
+
+```json
+{
+  "sendgrid": {
+    "key": "..."
+  }
+}
+```
+
+Then start the service:
+
+```
+cargo r --bin service
+```
+
+Then set `provider` to `sendgrid` in your request payload:
+
+```
+curl \
+  -d '{"to":"foo@example.com","subject":"bar","body":{"text":"baz"},"provider":"sendgrid"}' \
   -H 'Content-Type: application/json' \
   http://localhost:8001/send
 ```

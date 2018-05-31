@@ -20,6 +20,7 @@ extern crate rocket_contrib;
 extern crate rusoto_core;
 extern crate rusoto_credential;
 extern crate rusoto_ses;
+extern crate sendgrid;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;

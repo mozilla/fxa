@@ -17,7 +17,10 @@
     ]
   },
   "provider": "ses",
-  "sender": "Firefox Accounts <accounts@firefox.com>",
+  "sender": {
+    "address": "accounts@firefox.com",
+    "name": "Firefox Accounts"
+  },
   "ses": {
     "region": "us-east-1"
   },

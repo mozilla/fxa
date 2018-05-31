@@ -41,6 +41,20 @@ pub struct BounceLimits {
 }
 
 #[derive(Debug, Default, Deserialize)]
+pub struct Sender {
+    #[serde(deserialize_with = "deserialize::email_address")]
+    pub address: String,
+    #[serde(deserialize_with = "deserialize::sender_name")]
+    pub name: String,
+}
+
+#[derive(Debug, Default, Deserialize)]
+pub struct Sendgrid {
+    #[serde(deserialize_with = "deserialize::sendgrid_api_key")]
+    pub key: String,
+}
+
+#[derive(Debug, Default, Deserialize)]
 pub struct Ses {
     #[serde(deserialize_with = "deserialize::aws_region")]
     pub region: String,
@@ -62,8 +76,8 @@ pub struct Settings {
     pub bouncelimits: BounceLimits,
     #[serde(deserialize_with = "deserialize::provider")]
     pub provider: String,
-    #[serde(deserialize_with = "deserialize::sender")]
-    pub sender: String,
+    pub sender: Sender,
+    pub sendgrid: Option<Sendgrid>,
     pub ses: Ses,
     pub smtp: Smtp,
 }

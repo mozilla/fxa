@@ -83,6 +83,20 @@ fn invalid_base_uri() {
 }
 
 #[test]
+fn email_address() {
+    assert!(validate::email_address("foo@example.com"));
+    assert!(validate::email_address("accounts@firefox.com"));
+    assert!(validate::email_address("verification@latest.dev.lcip.org"));
+}
+
+#[test]
+fn invalid_email_address() {
+    assert!(!validate::email_address("<foo@example.com>"));
+    assert!(!validate::email_address(" foo@example.com"));
+    assert!(!validate::email_address("foo@example.com "));
+}
+
+#[test]
 fn host() {
     assert!(validate::host("foo"));
     assert!(validate::host("foo.bar"));
@@ -115,16 +129,37 @@ fn invalid_provider() {
 }
 
 #[test]
-fn sender() {
-    assert!(validate::sender("foo <bar@example.com>"));
-    assert!(validate::sender("Firefox Accounts <accounts@firefox.com>"));
+fn sender_name() {
+    assert!(validate::sender_name("foo"));
+    assert!(validate::sender_name("Firefox Accounts"));
 }
 
 #[test]
-fn invalid_sender() {
-    assert_eq!(validate::sender("foo@example.com"), false);
-    assert_eq!(validate::sender("<foo@example.com>"), false);
-    assert_eq!(validate::sender(" <foo@example.com>"), false);
-    assert_eq!(validate::sender("foo <bar@example.com> "), false);
-    assert_eq!(validate::sender("foo <bar@example.com> baz"), false);
+fn invalid_sender_name() {
+    assert!(!validate::sender_name("foo@example.com"));
+    assert!(!validate::sender_name(" foo"));
+    assert!(!validate::sender_name("foo "));
+}
+
+#[test]
+fn sendgrid_api_key() {
+    assert!(validate::sendgrid_api_key(
+        "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._12345"
+    ));
+}
+
+#[test]
+fn invalid_sendgrid_api_key() {
+    assert!(!validate::sendgrid_api_key(
+        "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._12345 "
+    ));
+    assert!(!validate::sendgrid_api_key(
+        " 1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._12345"
+    ));
+    assert!(!validate::sendgrid_api_key(
+        "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._1234"
+    ));
+    assert!(!validate::sendgrid_api_key(
+        "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._123456"
+    ));
 }
