@@ -1,3 +1,13 @@
+<a name="1.113.3"></a>
+## [1.113.3](https://github.com/mozilla/fxa-auth-server/compare/v1.113.2...v1.113.3) (2018-05-31)
+
+
+### Bug Fixes
+
+* **deps:** Really use v1.113.1 of auth-db-mysql (#2461); r=jrgm ([2f2c00c](https://github.com/mozilla/fxa-auth-server/commit/2f2c00c)), closes [#2461](https://github.com/mozilla/fxa-auth-server/issues/2461)
+
+
+
 <a name="1.113.2"></a>
 ## [1.113.2](https://github.com/mozilla/fxa-auth-server/compare/v1.113.1...v1.113.2) (2018-05-31)
 
