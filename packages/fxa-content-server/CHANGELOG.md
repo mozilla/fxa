@@ -1,3 +1,13 @@
+<a name="1.113.1"></a>
+## 1.113.1 (2018-06-01)
+
+
+### Features
+
+* **Lockbox:** Add newest Lockbox app redirect_uri (#6248) r=@vladikoff ([89cef79](https://github.com/mozilla/fxa-content-server/commit/89cef79)), closes [#6247](https://github.com/mozilla/fxa-content-server/issues/6247)
+
+
+
 <a name="1.113.0"></a>
 # 1.113.0 (2018-05-30)
 
