@@ -11,6 +11,7 @@ define(function(require, exports, module) {
   const Cocktail = require('cocktail');
   const EmailFirstExperimentMixin = require('views/mixins/email-first-experiment-mixin');
   const Notifier = require('lib/channels/notifier');
+  const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
 
   class View extends BaseView {
@@ -28,6 +29,7 @@ define(function(require, exports, module) {
   describe('views/mixins/email-first-experiment-mixin', () => {
     let broker;
     let notifier;
+    let relier;
     let sandbox;
     let view;
 
@@ -37,16 +39,19 @@ define(function(require, exports, module) {
       broker = new AuthBroker();
       broker.setCapability('emailFirst', true);
       notifier = new Notifier();
+      relier = new Relier();
 
       view = new View({
         broker,
         notifier,
+        relier,
         viewName: 'email'
       });
     });
 
     afterEach(() => {
       sandbox.restore();
+      relier.unset('action');
     });
 
     after(() => {
@@ -106,6 +111,14 @@ define(function(require, exports, module) {
       beforeEach(() => {
         sandbox.spy(view, 'createExperiment');
         sandbox.spy(view, 'replaceCurrentPage');
+      });
+
+      it('redirects to the treatment page if `action=email`', () => {
+        relier.set('action', 'email');
+
+        view.beforeRender();
+
+        assert.isTrue(view.replaceCurrentPage.calledOnceWith('/'));
       });
 
       it('does nothing for users not in the experiment', () => {

@@ -79,6 +79,37 @@ registerSuite('Firstrun Sync v2 email first', {
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
 
+    'signup - refresh when entering password': function () {
+      return this.remote
+        .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true}
+          }
+        }))
+        .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER))
+        .refresh()
+
+        .then(testElementExists(selectors.ENTER_EMAIL.HEADER));
+    },
+
+    'signin - refresh when entering password': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, {preVerified: true}))
+        .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true}
+          }
+        }))
+        .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER))
+        .refresh()
+
+        .then(testElementExists(selectors.ENTER_EMAIL.HEADER));
+    },
+
     'signin - merge cancelled': function () {
       return this.remote
         .then(createUser(email, PASSWORD, {preVerified: true}))
