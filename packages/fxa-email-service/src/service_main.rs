@@ -29,6 +29,7 @@ extern crate validator;
 #[macro_use]
 extern crate validator_derive;
 
+mod app_errors;
 mod auth_db;
 mod bounces;
 mod deserialize;
@@ -39,5 +40,15 @@ mod settings;
 mod validate;
 
 fn main() {
-    rocket::ignite().mount("/", routes![send::handler]).launch();
+    rocket::ignite()
+        .mount("/", routes![send::handler])
+        .catch(errors![
+            app_errors::bad_request,
+            app_errors::not_found,
+            app_errors::method_not_allowed,
+            app_errors::unprocessable_entity,
+            app_errors::too_many_requests,
+            app_errors::internal_server_error
+        ])
+        .launch();
 }

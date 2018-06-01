@@ -5,9 +5,21 @@
 use rocket::{
     self, http::{ContentType, Status}, local::Client,
 };
+use serde_json;
+
+use app_errors::{self, ApplicationError};
 
 fn setup() -> Client {
-    let server = rocket::ignite().mount("/", routes![super::handler]);
+    let server = rocket::ignite()
+        .mount("/", routes![super::handler])
+        .catch(errors![
+            app_errors::bad_request,
+            app_errors::not_found,
+            app_errors::method_not_allowed,
+            app_errors::unprocessable_entity,
+            app_errors::too_many_requests,
+            app_errors::internal_server_error
+        ]);
 
     Client::new(server).unwrap()
 }
@@ -95,7 +107,7 @@ fn without_optional_data() {
 fn missing_to_field() {
     let client = setup();
 
-    let response = client
+    let mut response = client
         .post("/send")
         .header(ContentType::JSON)
         .body(
@@ -110,13 +122,17 @@ fn missing_to_field() {
         .dispatch();
 
     assert_eq!(response.status(), Status::BadRequest);
+
+    let body = response.body().unwrap().into_string().unwrap();
+    let error: ApplicationError = serde_json::from_str(&body).unwrap();
+    assert_eq!(error, ApplicationError::new(400, "Bad Request"));
 }
 
 #[test]
 fn missing_subject_field() {
     let client = setup();
 
-    let response = client
+    let mut response = client
         .post("/send")
         .header(ContentType::JSON)
         .body(
@@ -131,13 +147,17 @@ fn missing_subject_field() {
         .dispatch();
 
     assert_eq!(response.status(), Status::BadRequest);
+
+    let body = response.body().unwrap().into_string().unwrap();
+    let error: ApplicationError = serde_json::from_str(&body).unwrap();
+    assert_eq!(error, ApplicationError::new(400, "Bad Request"));
 }
 
 #[test]
 fn missing_body_text_field() {
     let client = setup();
 
-    let response = client
+    let mut response = client
         .post("/send")
         .header(ContentType::JSON)
         .body(
@@ -153,13 +173,17 @@ fn missing_body_text_field() {
         .dispatch();
 
     assert_eq!(response.status(), Status::BadRequest);
+
+    let body = response.body().unwrap().into_string().unwrap();
+    let error: ApplicationError = serde_json::from_str(&body).unwrap();
+    assert_eq!(error, ApplicationError::new(400, "Bad Request"));
 }
 
 #[test]
 fn invalid_to_field() {
     let client = setup();
 
-    let response = client
+    let mut response = client
         .post("/send")
         .header(ContentType::JSON)
         .body(
@@ -175,13 +199,17 @@ fn invalid_to_field() {
         .dispatch();
 
     assert_eq!(response.status(), Status::BadRequest);
+
+    let body = response.body().unwrap().into_string().unwrap();
+    let error: ApplicationError = serde_json::from_str(&body).unwrap();
+    assert_eq!(error, ApplicationError::new(400, "Bad Request"));
 }
 
 #[test]
 fn invalid_cc_field() {
     let client = setup();
 
-    let response = client
+    let mut response = client
         .post("/send")
         .header(ContentType::JSON)
         .body(
@@ -198,4 +226,8 @@ fn invalid_cc_field() {
         .dispatch();
 
     assert_eq!(response.status(), Status::BadRequest);
+
+    let body = response.body().unwrap().into_string().unwrap();
+    let error: ApplicationError = serde_json::from_str(&body).unwrap();
+    assert_eq!(error, ApplicationError::new(400, "Bad Request"));
 }
