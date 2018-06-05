@@ -26,7 +26,6 @@ const SCHEMA = {
   // so we can't assert DISPLAY_SAFE_UNICODE_WITH_NON_BMP in the response schema.
   nameResponse: isA.string().max(255),
   type: isA.string().max(16),
-  capabilities: isA.array().items(isA.string()),
   pushCallback: validators.url({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow(''),
   pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).allow(''),
   pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).allow(''),

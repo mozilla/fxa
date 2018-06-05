@@ -120,18 +120,24 @@ module.exports = (log, db, config, customs, push, devices) => {
               id: DEVICES_SCHEMA.id.required(),
               name: DEVICES_SCHEMA.name.optional(),
               type: DEVICES_SCHEMA.type.optional(),
-              capabilities: DEVICES_SCHEMA.capabilities.optional(),
               pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
               pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
-              pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional()
+              pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional(),
+              // Some versions of desktop firefox send a zero-length
+              // "capabilities" array, for historical reasons.
+              // We accept but ignore it.
+              capabilities: isA.array().length(0).optional()
             }).or('name', 'type', 'pushCallback', 'pushPublicKey', 'pushAuthKey').and('pushPublicKey', 'pushAuthKey'),
             isA.object({
               name: DEVICES_SCHEMA.name.required(),
               type: DEVICES_SCHEMA.type.required(),
-              capabilities: DEVICES_SCHEMA.capabilities.optional(),
               pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
               pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
-              pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional()
+              pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional(),
+              // Some versions of desktop firefox send a zero-length
+              // "capabilities" array, for historical reasons.
+              // We accept but ignore it.
+              capabilities: isA.array().length(0).optional()
             }).and('pushPublicKey', 'pushAuthKey')
           )
         },
@@ -141,7 +147,6 @@ module.exports = (log, db, config, customs, push, devices) => {
             createdAt: isA.number().positive().optional(),
             name: DEVICES_SCHEMA.nameResponse.optional(),
             type: DEVICES_SCHEMA.type.optional(),
-            capabilities: DEVICES_SCHEMA.capabilities.optional(),
             pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
             pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
             pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional(),
@@ -375,7 +380,6 @@ module.exports = (log, db, config, customs, push, devices) => {
             location: DEVICES_SCHEMA.location,
             name: DEVICES_SCHEMA.nameResponse.allow('').required(),
             type: DEVICES_SCHEMA.type.required(),
-            capabilities: DEVICES_SCHEMA.capabilities.optional(),
             pushCallback: DEVICES_SCHEMA.pushCallback.allow(null).optional(),
             pushPublicKey: DEVICES_SCHEMA.pushPublicKey.allow(null).optional(),
             pushAuthKey: DEVICES_SCHEMA.pushAuthKey.allow(null).optional(),
@@ -398,7 +402,6 @@ module.exports = (log, db, config, customs, push, devices) => {
                 location: marshallLocation(device.location, request),
                 name: device.name || devices.synthesizeName(device),
                 type: device.type || device.uaDeviceType || 'desktop',
-                capabilities: device.capabilities || [],
                 pushCallback: device.pushCallback,
                 pushPublicKey: device.pushPublicKey,
                 pushAuthKey: device.pushAuthKey,
@@ -432,7 +435,6 @@ module.exports = (log, db, config, customs, push, devices) => {
             deviceId: DEVICES_SCHEMA.id.allow(null).required(),
             deviceName: DEVICES_SCHEMA.nameResponse.allow('').allow(null).required(),
             deviceType: DEVICES_SCHEMA.type.allow(null).required(),
-            deviceCapabilities: DEVICES_SCHEMA.capabilities.optional(),
             deviceCallbackURL: DEVICES_SCHEMA.pushCallback.allow(null).required(),
             deviceCallbackPublicKey: DEVICES_SCHEMA.pushPublicKey.allow(null).required(),
             deviceCallbackAuthKey: DEVICES_SCHEMA.pushAuthKey.allow(null).required(),
@@ -473,7 +475,6 @@ module.exports = (log, db, config, customs, push, devices) => {
                 deviceId,
                 deviceName,
                 deviceType: session.uaDeviceType || 'desktop',
-                deviceCapabilities: session.deviceCapabilities || [],
                 deviceCallbackURL: session.deviceCallbackURL,
                 deviceCallbackPublicKey: session.deviceCallbackPublicKey,
                 deviceCallbackAuthKey: session.deviceCallbackAuthKey,

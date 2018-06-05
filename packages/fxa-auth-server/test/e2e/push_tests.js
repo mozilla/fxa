@@ -44,7 +44,6 @@ describe('e2e/push', () => {
             lastAccessTime: 1449235471335,
             name: 'My Phone',
             type: 'mobile',
-            capabilities: ['messages'],
             pushCallback: subscription.endpoint,
             pushPublicKey: 'BBXOKjUb84pzws1wionFpfCBjDuCh4-s_1b52WA46K5wYL2gCWEOmFKWn_NkS5nmJwTBuO8qxxdjAIDtNeklvQc',
             pushAuthKey: 'GSsIiaD2Mr83iPqwFNK4rw',
