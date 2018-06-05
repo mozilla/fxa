@@ -95,6 +95,7 @@ fn fail() -> data::Outcome<Email, ValidationError> {
 fn handler(email: Email) -> Result<Json<Value>, Failure> {
     let to = email.to.as_ref();
     BOUNCES.check(to)?;
+
     let cc = if let Some(ref cc) = email.cc {
         let mut refs = Vec::new();
         for address in cc.iter() {
@@ -105,16 +106,6 @@ fn handler(email: Email) -> Result<Json<Value>, Failure> {
     } else {
         Vec::new()
     };
-    let html = if let Some(ref html) = email.body.html {
-        Some(html.as_ref())
-    } else {
-        None
-    };
-    let provider = if let Some(ref provider) = email.provider {
-        Some(provider.as_ref())
-    } else {
-        None
-    };
 
     PROVIDERS
         .send(
@@ -122,8 +113,8 @@ fn handler(email: Email) -> Result<Json<Value>, Failure> {
             cc.as_ref(),
             email.subject.as_ref(),
             email.body.text.as_ref(),
-            html,
-            provider,
+            email.body.html.as_ref().map(|html| html.as_ref()),
+            email.provider.as_ref().map(|provider| provider.as_ref()),
         )
         .map(|message_id| Json(json!({ "messageId": message_id })))
         .map_err(|error| {

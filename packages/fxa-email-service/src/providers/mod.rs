@@ -83,11 +83,7 @@ impl<'s> Providers<'s> {
         body_html: Option<&str>,
         provider_id: Option<&str>,
     ) -> Result<String, ProviderError> {
-        let resolved_provider_id = if let Some(id) = provider_id {
-            id
-        } else {
-            self.default_provider
-        };
+        let resolved_provider_id = provider_id.unwrap_or(self.default_provider);
 
         self.providers
             .get(resolved_provider_id)
