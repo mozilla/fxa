@@ -14,7 +14,9 @@ class AuthorizationView extends BaseView {
       const pathname = action === 'email' ? '/' : action;
       this.replaceCurrentPage(this.broker.transformLink(pathname));
     } else {
-      this.replaceCurrentPage('/oauth/signup');
+      // if no action is specified, let oauth-index decide based on
+      // current user signed in state.
+      this.replaceCurrentPage('/oauth/');
     }
   }
 }

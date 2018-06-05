@@ -7,6 +7,7 @@
 const { registerSuite } = intern.getInterface('object');
 const Querystring = require('querystring');
 const FunctionalHelpers = require('./lib/helpers');
+const { createEmail } = require('../lib/helpers');
 const config = intern._config;
 
 const SIGNUP_ROOT = `${config.fxaContentRoot}oauth/signup`;
@@ -357,7 +358,7 @@ registerSuite('oauth query parameter validation', {
         .then(openAuthorizationWithQueryParams({
           action: 'force_auth',
           client_id: TRUSTED_CLIENT_ID,
-          email: 'test@restmail.net',
+          email: createEmail(),
           redirect_uri: TRUSTED_REDIRECT_URI,
           scope: TRUSTED_SCOPE
         }, '#fxa-signup-header'));
@@ -368,9 +369,10 @@ registerSuite('oauth query parameter validation', {
         .then(openAuthorizationWithQueryParams({
           action: 'email',
           client_id: TRUSTED_CLIENT_ID,
+          email: createEmail(),
           redirect_uri: TRUSTED_REDIRECT_URI,
           scope: TRUSTED_SCOPE
-        }, '#fxa-signup-header'));
+        }, '#fxa-signup-password-header'));
     },
   },
 

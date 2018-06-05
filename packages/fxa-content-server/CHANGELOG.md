@@ -1,3 +1,13 @@
+<a name="1.113.2"></a>
+## 1.113.2 (2018-06-04)
+
+
+### Bug Fixes
+
+* **authorization:** Minor updates for /authorization endpoint (#6252) r=@vladikoff ([0528bf6](https://github.com/mozilla/fxa-content-server/commit/0528bf6)), closes [#6250](https://github.com/mozilla/fxa-content-server/issues/6250)
+
+
+
 <a name="1.113.1"></a>
 ## 1.113.1 (2018-06-01)
 
