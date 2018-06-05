@@ -85,6 +85,11 @@ fn invalid_base_uri() {
 #[test]
 fn email_address() {
     assert!(validate::email_address("foo@example.com"));
+    assert!(validate::email_address("foo+bar@example.com"));
+    assert!(validate::email_address("foo+this#is$valid!@example.com"));
+    assert!(validate::email_address(
+        "foo+email%validation&is|a~pain!@example.com"
+    ));
     assert!(validate::email_address("accounts@firefox.com"));
     assert!(validate::email_address("verification@latest.dev.lcip.org"));
 }
