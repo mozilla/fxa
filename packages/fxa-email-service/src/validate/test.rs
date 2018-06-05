@@ -149,23 +149,17 @@ fn invalid_sender_name() {
 #[test]
 fn sendgrid_api_key() {
     assert!(validate::sendgrid_api_key(
-        "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._12345"
+        "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._-"
     ));
 }
 
 #[test]
 fn invalid_sendgrid_api_key() {
     assert!(!validate::sendgrid_api_key(
-        "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._12345 "
+        "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._- "
     ));
     assert!(!validate::sendgrid_api_key(
-        " 1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._12345"
-    ));
-    assert!(!validate::sendgrid_api_key(
-        "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._1234"
-    ));
-    assert!(!validate::sendgrid_api_key(
-        "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._123456"
+        " 1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._-"
     ));
 }
 

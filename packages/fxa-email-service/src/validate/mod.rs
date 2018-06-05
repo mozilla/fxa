@@ -21,7 +21,7 @@ lazy_static! {
     static ref PROVIDER_FORMAT: Regex = Regex::new("^(?:mock|sendgrid|ses|smtp)$").unwrap();
     static ref SENDER_NAME_FORMAT: Regex =
         Regex::new("^[A-Za-z0-9-]+(?: [A-Za-z0-9-]+)*$").unwrap();
-    static ref SENDGRID_API_KEY_FORMAT: Regex = Regex::new("^[A-Za-z0-9._]{69}$").unwrap();
+    static ref SENDGRID_API_KEY_FORMAT: Regex = Regex::new("^[A-Za-z0-9._-]+$").unwrap();
     static ref SQS_URL_FORMAT: Regex =
         Regex::new("^https://sqs\\.[a-z0-9-]+\\.amazonaws\\.com/[0-9]+/[A-Za-z0-9-]+$").unwrap();
 }
