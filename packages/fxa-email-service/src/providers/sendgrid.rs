@@ -2,6 +2,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
+use std::str::{from_utf8, Utf8Error};
+
+use reqwest::StatusCode;
 use sendgrid::{
     errors::SendgridError,
     v3::{
@@ -68,10 +71,29 @@ impl<'s> Provider for SendgridProvider<'s> {
         });
         message.add_personalization(personalization);
 
-        self.client.send(&message)
-            // TODO: implement message ids
-            .map(|_| String::from("deadbeef"))
+        self.client
+            .send(&message)
             .map_err(From::from)
+            .and_then(|response| {
+                let status = response.status();
+                if status == StatusCode::Ok || status == StatusCode::Accepted {
+                    response
+                        .headers()
+                        .get_raw("X-Message-Id")
+                        .and_then(|raw_header| raw_header.one())
+                        .ok_or(ProviderError {
+                            description: String::from(
+                                "Missing or duplicate X-Message-Id header in Sendgrid response",
+                            ),
+                        })
+                        .and_then(|message_id| from_utf8(message_id).map_err(From::from))
+                        .map(|message_id| message_id.to_string())
+                } else {
+                    Err(ProviderError {
+                        description: format!("Sendgrid response: {}", status),
+                    })
+                }
+            })
     }
 }
 
@@ -79,6 +101,14 @@ impl From<SendgridError> for ProviderError {
     fn from(error: SendgridError) -> ProviderError {
         ProviderError {
             description: format!("Sendgrid error: {:?}", error),
+        }
+    }
+}
+
+impl From<Utf8Error> for ProviderError {
+    fn from(error: Utf8Error) -> ProviderError {
+        ProviderError {
+            description: format!("Failed to decode string as UTF-8: {:?}", error),
         }
     }
 }

@@ -89,16 +89,14 @@ impl<'s> Providers<'s> {
             self.default_provider
         };
 
-        match self.providers.get(resolved_provider_id) {
-            Some(ref provider) => match provider.send(to, cc, subject, body_text, body_html) {
-                Ok(message_id) => Ok(format!("{}:{}", resolved_provider_id, message_id)),
-                Err(error) => Err(error),
-            },
-            None => Err(ProviderError::new(format!(
-                "invalid provider '{}'",
+        self.providers
+            .get(resolved_provider_id)
+            .ok_or(ProviderError::new(format!(
+                "Invalid provider `{}`",
                 resolved_provider_id
-            ))),
-        }
+            )))
+            .and_then(|provider| provider.send(to, cc, subject, body_text, body_html))
+            .map(|message_id| format!("{}:{}", resolved_provider_id, message_id))
     }
 }
 

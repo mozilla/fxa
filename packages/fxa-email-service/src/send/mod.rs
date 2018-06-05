@@ -116,15 +116,18 @@ fn handler(email: Email) -> Result<Json<Value>, Failure> {
         None
     };
 
-    match PROVIDERS.send(
-        email.to.as_ref(),
-        cc.as_ref(),
-        email.subject.as_ref(),
-        email.body.text.as_ref(),
-        html,
-        provider,
-    ) {
-        Ok(message_id) => Ok(Json(json!({ "messageId": message_id }))),
-        Err(_error) => Err(Failure(Status::InternalServerError)),
-    }
+    PROVIDERS
+        .send(
+            email.to.as_ref(),
+            cc.as_ref(),
+            email.subject.as_ref(),
+            email.body.text.as_ref(),
+            html,
+            provider,
+        )
+        .map(|message_id| Json(json!({ "messageId": message_id })))
+        .map_err(|error| {
+            println!("{}", error);
+            Failure(Status::InternalServerError)
+        })
 }
