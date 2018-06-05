@@ -27,6 +27,13 @@ if [ "x$1" = "x" ]; then
 fi
 FXA_TEST_NAME=$1
 
+# When a new version is deployed in stage, *two* stacks are live. If the
+# Teamcity trigger notices the newer version, kicks off this script, *and* the
+# ELB now points at the older stack, then the wrong tests will be pulled for
+# execution. It's a tiny race, and probably very rare, but a short sleep
+# doesn't hurt here.
+sleep 5
+
 source $DIRNAME/defaults.sh
 source $DIRNAME/$FXA_TEST_NAME
 
