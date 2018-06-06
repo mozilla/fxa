@@ -25,9 +25,6 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
-extern crate validator;
-#[macro_use]
-extern crate validator_derive;
 
 mod app_errors;
 mod auth_db;

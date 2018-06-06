@@ -2,16 +2,14 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::{borrow::Cow, collections::HashMap};
-
 use rocket::{
     data::{self, FromData}, http::Status, response::Failure, Data, Outcome, Request,
 };
 use rocket_contrib::{Json, Value};
-use validator::{self, Validate, ValidationError};
 
 use auth_db::DbClient;
 use bounces::Bounces;
+use deserialize;
 use providers::Providers;
 use settings::Settings;
 use validate;
@@ -32,9 +30,9 @@ struct Body {
     html: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Validate)]
+#[derive(Debug, Deserialize)]
 struct Email {
-    #[validate(email)]
+    #[serde(deserialize_with = "deserialize::email_address")]
     to: String,
     cc: Option<Vec<String>>,
     subject: String,
@@ -43,7 +41,7 @@ struct Email {
 }
 
 impl FromData for Email {
-    type Error = ValidationError;
+    type Error = ();
 
     fn from_data(request: &Request, data: Data) -> data::Outcome<Self, Self::Error> {
         let result = Json::<Email>::from_data(request, data);
@@ -65,7 +63,7 @@ impl FromData for Email {
 fn validate(email: &Email) -> bool {
     if let Some(ref cc) = email.cc {
         for address in cc {
-            if !validator::validate_email(&address) {
+            if !validate::email_address(&address) {
                 return false;
             }
         }
@@ -80,15 +78,8 @@ fn validate(email: &Email) -> bool {
     true
 }
 
-fn fail() -> data::Outcome<Email, ValidationError> {
-    Outcome::Failure((
-        Status::BadRequest,
-        ValidationError {
-            code: Cow::from("400"),
-            message: None,
-            params: HashMap::new(),
-        },
-    ))
+fn fail() -> data::Outcome<Email, ()> {
+    Outcome::Failure((Status::BadRequest, ()))
 }
 
 #[post("/send", format = "application/json", data = "<email>")]
