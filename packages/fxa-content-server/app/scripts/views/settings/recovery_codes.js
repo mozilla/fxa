@@ -30,6 +30,15 @@ const View = FormView.extend({
     this.navigate('settings/two_step_authentication');
   },
 
+  _getFormatedRecoveryCodeFilename() {
+    const account = this.getSignedInAccount();
+    let formattedFilename = account.get('email') + ' ' + t('Firefox Recovery Codes');
+    if (formattedFilename.length > 200) { // 200 bytes (close to filesystem max) - 4 for '.txt' extension
+      formattedFilename = formattedFilename.substring(0, 196);
+    }
+    return `${formattedFilename}.txt`;
+  },
+
   _copyCodes() {
     // This copies the recovery codes to clipboard by creating a tiny transparent
     // textArea with recovery code contents. Then it executes the
@@ -68,10 +77,9 @@ const View = FormView.extend({
     // This dynamically creates a link with a blob data of the recovery
     // codes, clicks it to initiate download and then removes element.
     const codeBlob = new Blob([this.recoveryCodesText], {type: 'text/plain'});
-    const filename = 'Recovery Codes.txt';
     const href = URL.createObjectURL(codeBlob);
     const template = `
-      <a id="recovery-code-download-link" href="${href}" download="${filename}"></a>
+      <a id="recovery-code-download-link" href="${href}" download="${this._getFormatedRecoveryCodeFilename()}"></a>
     `;
     $(template).appendTo('#recovery-codes');
     this.window.document.getElementById('recovery-code-download-link').click();

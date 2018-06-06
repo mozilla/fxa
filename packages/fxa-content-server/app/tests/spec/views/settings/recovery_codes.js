@@ -147,6 +147,15 @@ describe('views/settings/recovery_codes', () => {
     it('download codes', () => {
       assert.equal(view.window.document.getElementById.called, true, 'getElementById called');
     });
+
+    it('should truncate long filenames', () => {
+      const padding = Array(256).join('1');
+      email = `${padding}@email.com`;
+      account.set('email', email);
+      const formattedFilename = view._getFormatedRecoveryCodeFilename();
+      assert.equal(formattedFilename.length, 200, 'truncated filename');
+      assert.equal(formattedFilename.indexOf('.txt') > 0, true, 'contains text extension');
+    });
   });
 
   describe('should replaces codes', () => {
