@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const Email = require('../../models/email');
   const FormView = require('../form');
+  const LastCheckedTimeMixin = require('../mixins/last-checked-time-mixin');
   const preventDefaultThen = require('../base').preventDefaultThen;
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
   const UpgradeSessionMixin = require('../mixins/upgrade-session-mixin');
@@ -61,6 +62,7 @@ define(function (require, exports, module) {
         hasSecondaryEmail: this._hasSecondaryEmail(),
         hasSecondaryVerifiedEmail: this._hasSecondaryVerifiedEmail(),
         isPanelOpen: this.isPanelOpen(),
+        lastCheckedTime: this.getLastCheckedTimeString(),
         newEmail: this.newEmail,
       });
     },
@@ -106,6 +108,7 @@ define(function (require, exports, module) {
     },
 
     refresh: showProgressIndicator(function() {
+      this.setLastCheckedTime();
       return this.render();
     }, EMAIL_REFRESH_SELECTOR, EMAIL_REFRESH_DELAYMS),
 
@@ -158,6 +161,7 @@ define(function (require, exports, module) {
       title: t('Secondary email')
     }),
     AvatarMixin,
+    LastCheckedTimeMixin,
     SettingsPanelMixin,
     SearchParamMixin
   );

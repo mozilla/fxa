@@ -70,7 +70,7 @@
 
             <div class="button-row">
                 {{#hasSecondaryEmail}}
-                    <button type="submit" class="settings-button email-refresh primary-button enabled">{{#t}}Refresh{{/t}}</button>
+                    <button type="submit" class="settings-button email-refresh primary-button enabled" title="{{ lastCheckedTime }}">{{#t}}Refresh Status{{/t}}</button>
 
                     <button
                         class="settings-button {{#hasSecondaryVerifiedEmail}}cancel secondary-button enabled{{/hasSecondaryVerifiedEmail}}

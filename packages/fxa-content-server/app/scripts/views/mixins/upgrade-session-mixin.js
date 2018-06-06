@@ -22,6 +22,7 @@ define(function (require, exports, module) {
   const BaseView = require('../base');
   const { preventDefaultThen } = BaseView;
   const Notifier = require('../../lib/channels/notifier');
+  const LastCheckedTimeMixin = require('./last-checked-time-mixin');
   const SessionVerifiedNotificationMixin = require('./session-verified-notification-mixin');
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
   const UpgradeSessionTemplate = require('templates/settings/upgrade_session.mustache');
@@ -43,7 +44,7 @@ define(function (require, exports, module) {
    */
   module.exports = (options = {}) => {
     return {
-      dependsOn: [SettingsPanelMixin, SessionVerifiedNotificationMixin],
+      dependsOn: [LastCheckedTimeMixin, SettingsPanelMixin, SessionVerifiedNotificationMixin],
 
       events: {
         'click .cancel-verification-email': preventDefaultThen('_clickCancelVerificationEmail'),
@@ -58,6 +59,7 @@ define(function (require, exports, module) {
       _clickRefreshVerificationState: showProgressIndicator(function() {
         return this.setupSessionGateIfRequired()
           .then((verified) => {
+            this.setLastCheckedTime();
             if (verified) {
               this.displaySuccess(t('Primary email verified successfully'), {
                 closePanel: false
@@ -65,6 +67,8 @@ define(function (require, exports, module) {
 
               this.notifier.triggerAll(Notifier.SESSION_VERIFIED);
             }
+
+            this.render();
           });
       }, EMAIL_REFRESH_SELECTOR, EMAIL_REFRESH_DELAYMS),
 
@@ -74,6 +78,7 @@ define(function (require, exports, module) {
           redirectTo: this.window.location.href
         })
           .then(() => {
+            this.setLastCheckedTime();
             this.displaySuccess(t('Verification email sent'), {
               closePanel: false
             });
