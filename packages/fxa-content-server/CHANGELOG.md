@@ -1,3 +1,13 @@
+<a name="1.113.3"></a>
+## 1.113.3 (2018-06-05)
+
+
+### chore
+
+* **totp:** enable totp for 100% of users (#6256), r=@shane-tomlinson ([5313c34](https://github.com/mozilla/fxa-content-server/commit/5313c34))
+
+
+
 <a name="1.113.2"></a>
 ## 1.113.2 (2018-06-04)
 
