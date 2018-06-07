@@ -59,12 +59,12 @@
         <form novalidate>
             <div id="totp" class="totp-details hidden">
                 <div class="qr-image-container">
-                    <img class="qr-image"/>
+                    <img class="qr-image" alt="{{ qrImageAltText }}"/>
                 </div>
 
                 <p class="setup-description">
                     {{#t}}Scan the QR code in your authentication app and then enter the security code it provides.{{/t}}
-                    <a class="show-code-link">{{#t}}Can’t scan code?{{/t}}</a>
+                    <a href="#" class="show-code-link">{{#t}}Can’t scan code?{{/t}}</a>
                 </p>
 
                 <div class="manual-code hidden">

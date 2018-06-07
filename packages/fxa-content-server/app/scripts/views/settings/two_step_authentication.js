@@ -129,6 +129,10 @@ const View = FormView.extend({
     return account.createTotpToken()
       .then(result => {
         this.$('.qr-image').attr('src', result.qrCodeUrl);
+
+        const qrImageAltText = t('Use the code %(code)s to set up two-step authentication in supported applications.');
+        this.$('.qr-image').attr('alt', this.translate(qrImageAltText, {code: result.secret}));
+
         this.$('.code').html(this._getFormattedCode(result.secret));
         this._showQrCode();
         this._hideStatus();
