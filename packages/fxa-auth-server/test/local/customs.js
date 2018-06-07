@@ -383,6 +383,51 @@ describe('Customs', () => {
     }
   )
 
+  it('can rate limit verifyTotpCode /check', () => {
+    const request = newRequest()
+    const action = 'verifyTotpCode'
+    const email = 'test@email.com'
+    const ip = request.app.clientAddress
+
+    customsWithUrl = new Customs(CUSTOMS_URL_REAL)
+    assert.ok(customsWithUrl, 'can rate limit ')
+
+    function checkRequestBody(body) {
+      assert.deepEqual(body, {
+        ip: ip,
+        email: email,
+        action: action,
+        headers: request.headers,
+        query: request.query,
+        payload: request.payload,
+      }, 'call to /check had expected request params')
+      return true
+    }
+
+    customsServer
+      .post('/check', checkRequestBody).reply(200, '{"block":false,"retryAfter":0}')
+      .post('/check', checkRequestBody).reply(200, '{"block":false,"retryAfter":0}')
+      .post('/check', checkRequestBody).reply(200, '{"block":true,"retryAfter":30}')
+
+    return customsWithUrl.check(request, email, action)
+      .then((result) => {
+        assert.equal(result, undefined, 'Nothing is returned when /check succeeds - 1')
+        return customsWithUrl.check(request, email, action)
+      })
+      .then((result) => {
+        assert.equal(result, undefined, 'Nothing is returned when /check succeeds - 2')
+        return customsWithUrl.check(request, email, action)
+      })
+      .then(assert.fail, (error) => {
+        assert.equal(error.errno, 114, 'Error number is correct')
+        assert.equal(error.message, 'Client has sent too many requests', 'Error message is correct')
+        assert.ok(error.isBoom, 'The error causes a boom')
+        assert.equal(error.output.statusCode, 429, 'Status Code is correct')
+        assert.equal(error.output.payload.retryAfter, 30, 'retryAfter is correct')
+        assert.equal(error.output.headers['retry-after'], 30, 'retryAfter header is correct')
+      })
+  })
+
   it(
     'can scrub customs request object',
     () => {

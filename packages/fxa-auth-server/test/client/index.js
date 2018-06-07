@@ -5,6 +5,8 @@
 'use strict'
 
 module.exports = config => {
+  const otplib = require('otplib')
+  const crypto = require('crypto')
   var P = require('../../lib/promise')
   const ClientApi = require('./api')(config)
   var butil = require('../../lib/crypto/butil')
@@ -25,6 +27,7 @@ module.exports = config => {
     this.passwordForgotToken = null
     this.kA = null
     this.wrapKb = null
+    this.totpAuthenticator = null
     this.options = {}
   }
 
@@ -118,6 +121,24 @@ module.exports = config => {
             )
         }
       )
+  }
+
+  Client.createAndVerifyAndTOTP = function (origin, email, password, mailbox, options) {
+    return Client.createAndVerify(origin, email, password, mailbox, options)
+      .then(client => {
+        client.totpAuthenticator = new otplib.Authenticator()
+        return client.createTotpToken()
+          .then(result => {
+            client.totpAuthenticator.options = {
+              secret: result.secret,
+              crypto: crypto
+            }
+            return client.verifyTotpCode(client.totpAuthenticator.generate())
+          })
+          .then(() => {
+            return client
+          })
+      })
   }
 
   Client.loginAndVerify = function (origin, email, password, mailbox, options) {
@@ -438,6 +459,10 @@ module.exports = config => {
   }
 
   Client.prototype.destroyAccount = function () {
+    if (this.sessionToken) {
+      return this.api.accountDestroyWithSessionToken(this.email, this.authPW, this.sessionToken)
+        .then(this._clear.bind(this))
+    }
     return this.api.accountDestroy(this.email, this.authPW)
       .then(this._clear.bind(this))
   }
@@ -511,6 +536,14 @@ module.exports = config => {
 
   Client.prototype.verifyTotpCode = function (code, options = {}) {
     return this.api.verifyTotpCode(this.sessionToken, code, options)
+  }
+
+  Client.prototype.replaceRecoveryCodes = function (options = {}) {
+    return this.api.replaceRecoveryCodes(this.sessionToken, options)
+  }
+
+  Client.prototype.consumeRecoveryCode = function (code, options = {}) {
+    return this.api.consumeRecoveryCode(this.sessionToken, code, options)
   }
 
   Client.prototype.resetPassword = function (newPassword, headers, options) {

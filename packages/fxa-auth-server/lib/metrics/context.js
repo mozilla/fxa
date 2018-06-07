@@ -197,15 +197,14 @@ module.exports = function (log, config) {
     // share state between content-server and auth-server.
     const flowSignature = metadata.flowId.substr(FLOW_ID_LENGTH / 2, FLOW_ID_LENGTH)
     const flowSignatureBytes = Buffer.from(flowSignature, 'hex')
-    const expectedSignatureBytes = calculateFlowSignatureBytes(this, metadata)
+    const expectedSignatureBytes = calculateFlowSignatureBytes(metadata)
     if (! bufferEqualConstantTime(flowSignatureBytes, expectedSignatureBytes)) {
       return logInvalidContext(this, 'invalid signature')
     }
 
     log.info({
       op: 'metrics.context.validate',
-      valid: true,
-      agent: this.headers['user-agent']
+      valid: true
     })
     return true
   }
@@ -218,23 +217,22 @@ module.exports = function (log, config) {
     log.warn({
       op: 'metrics.context.validate',
       valid: false,
-      reason: reason,
-      agent: request.headers['user-agent']
+      reason: reason
     })
     return false
   }
 
-  function calculateFlowSignatureBytes(request, metadata) {
+  function calculateFlowSignatureBytes (metadata) {
+    const hmacData = [
+      metadata.flowId.substr(0, FLOW_ID_LENGTH / 2),
+      metadata.flowBeginTime.toString(16)
+    ]
     // We want a digest that's half the length of a flowid,
     // and we want the length in bytes rather than hex.
     const signatureLength = FLOW_ID_LENGTH / 2 / 2
     const key = config.metrics.flow_id_key
     return crypto.createHmac('sha256', key)
-      .update([
-        metadata.flowId.substr(0, FLOW_ID_LENGTH / 2),
-        metadata.flowBeginTime.toString(16),
-        request.headers['user-agent']
-      ].join('\n'))
+      .update(hmacData.join('\n'))
       .digest()
       .slice(0, signatureLength)
   }

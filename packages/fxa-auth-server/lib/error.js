@@ -67,6 +67,8 @@ var ERRNO = {
   TOTP_TOKEN_EXISTS: 154,
   TOTP_TOKEN_NOT_FOUND: 155,
 
+  RECOVERY_CODE_NOT_FOUND: 156,
+
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
   UNEXPECTED_ERROR: 999
@@ -769,6 +771,15 @@ AppError.totpTokenNotFound = () => {
     error: 'Bad Request',
     errno: ERRNO.TOTP_TOKEN_NOT_FOUND,
     message: 'A TOTP token not found.'
+  })
+}
+
+AppError.recoveryCodeNotFound = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.RECOVERY_CODE_NOT_FOUND,
+    message: 'Recovery code not found.'
   })
 }
 

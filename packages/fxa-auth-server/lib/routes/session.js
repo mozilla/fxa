@@ -96,7 +96,7 @@ module.exports = function (log, db, Password, config, signinUtils) {
             email: validators.email().required(),
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
             service: validators.service,
-            redirectTo: isA.string().uri().optional(),
+            redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().optional(),
             reason: isA.string().max(16).optional(),
             unblockCode: signinUtils.validators.UNBLOCK_CODE,
@@ -123,7 +123,7 @@ module.exports = function (log, db, Password, config, signinUtils) {
         const email = request.payload.email
         const authPW = request.payload.authPW
         const originalLoginEmail = request.payload.originalLoginEmail
-        const verificationMethod = request.payload.verificationMethod || request.query.verificationMethod
+        const verificationMethod = request.payload.verificationMethod
 
         let accountRecord, password, keyFetchToken
 

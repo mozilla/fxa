@@ -49,16 +49,11 @@ const IGNORE_FLOW_EVENTS_FROM_SERVICES = {
   'account.signed': 'content-server'
 }
 
-const FLOW_EVENT_ROUTES = new Set([
-  '/account/create',
-  '/account/destroy',
-  '/account/keys',
-  '/account/login',
-  '/account/login/send_unblock_code',
-  '/account/reset',
-  '/recovery_email/resend_code',
-  '/recovery_email/verify_code',
-  '/sms'
+const IGNORE_ROUTE_FLOW_EVENTS_FOR_PATHS = new Set([
+  '/account/devices',
+  '/account/profile',
+  '/account/sessions',
+  '/certificate/sign'
 ])
 
 const PATH_PREFIX = /^\/v1/
@@ -133,15 +128,14 @@ module.exports = (log, config) => {
     emitRouteFlowEvent (response) {
       const request = this
       const path = request.path.replace(PATH_PREFIX, '')
+      let status = response.statusCode || response.output.statusCode
 
-      if (! FLOW_EVENT_ROUTES.has(path)) {
+      if (status === 404 || IGNORE_ROUTE_FLOW_EVENTS_FOR_PATHS.has(path)) {
         return P.resolve()
       }
 
-      let status = response.statusCode || response.output.statusCode
-      const errno = response.errno || (response.output && response.output.errno)
-
       if (status >= 400) {
+        const errno = response.errno || (response.output && response.output.errno)
         if (errno === error.ERRNO.INVALID_PARAMETER && ! request.validateMetricsContext()) {
           // Don't emit flow events if the metrics context failed validation
           return P.resolve()

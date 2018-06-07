@@ -59,6 +59,7 @@ const DB_METHOD_NAMES = [
   'passwordChangeToken',
   'passwordForgotToken',
   'pruneSessionTokens',
+  'replaceRecoveryCodes',
   'resetAccount',
   'resetAccountTokens',
   'securityEvent',
@@ -121,9 +122,10 @@ const PUSH_METHOD_NAMES = [
   'notifyDeviceDisconnected',
   'notifyPasswordChanged',
   'notifyPasswordReset',
+  'notifyAccountUpdated',
   'notifyAccountDestroyed',
   'notifyProfileUpdated',
-  'notifyUpdate'
+  'sendPush'
 ]
 
 module.exports = {
@@ -445,8 +447,7 @@ function generateMetricsContext(){
   const flowSignature = crypto.createHmac('sha256', config.metrics.flow_id_key)
     .update([
       randomBytes,
-      flowBeginTime.toString(16),
-      undefined
+      flowBeginTime.toString(16)
     ].join('\n'))
     .digest('hex')
     .substr(0, 32)

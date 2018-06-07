@@ -116,11 +116,10 @@ describe('devices', () => {
 
             assert.equal(push.notifyDeviceConnected.callCount, 1, 'push.notifyDeviceConnected was called once')
             args = push.notifyDeviceConnected.args[0]
-            assert.equal(args.length, 4, 'push.notifyDeviceConnected was passed four arguments')
+            assert.equal(args.length, 3, 'push.notifyDeviceConnected was passed three arguments')
             assert.equal(args[0], sessionToken.uid, 'first argument was uid')
             assert.ok(Array.isArray(args[1]), 'second argument was devices array')
-            assert.equal(args[2], device.name, 'third arguent was device name')
-            assert.equal(args[3], deviceId, 'fourth argument was device id')
+            assert.equal(args[2], device.name, 'third argument was device name')
           })
       })
 
@@ -209,14 +208,14 @@ describe('devices', () => {
     it('should synthesizeName', () => {
       assert.equal(devices.synthesizeName({
         uaBrowser: 'foo',
-        uaBrowserVersion: 'bar',
+        uaBrowserVersion: 'bar.bar',
         uaOS: 'baz',
         uaOSVersion: 'qux',
         uaFormFactor: 'wibble'
       }), 'foo bar, wibble', 'result is correct when all ua properties are set')
 
       assert.equal(devices.synthesizeName({
-        uaBrowserVersion: 'foo',
+        uaBrowserVersion: 'foo.foo',
         uaOS: 'bar',
         uaOSVersion: 'baz',
         uaFormFactor: 'wibble'
@@ -231,21 +230,21 @@ describe('devices', () => {
 
       assert.equal(devices.synthesizeName({
         uaBrowser: 'foo',
-        uaBrowserVersion: 'bar',
+        uaBrowserVersion: 'bar.bar',
         uaOSVersion: 'baz',
         uaFormFactor: 'wibble'
       }), 'foo bar, wibble', 'result is correct when uaOS property is missing')
 
       assert.equal(devices.synthesizeName({
         uaBrowser: 'foo',
-        uaBrowserVersion: 'bar',
+        uaBrowserVersion: 'bar.bar',
         uaOS: 'baz',
         uaFormFactor: 'wibble'
       }), 'foo bar, wibble', 'result is correct when uaOSVersion property is missing')
 
       assert.equal(devices.synthesizeName({
         uaBrowser: 'foo',
-        uaBrowserVersion: 'bar',
+        uaBrowserVersion: 'bar.bar',
         uaOS: 'baz',
         uaOSVersion: 'qux'
       }), 'foo bar, baz qux', 'result is correct when uaFormFactor property is missing')
@@ -257,13 +256,13 @@ describe('devices', () => {
 
       assert.equal(devices.synthesizeName({
         uaBrowser: 'wibble',
-        uaBrowserVersion: 'blee',
+        uaBrowserVersion: 'blee.blee',
         uaOSVersion: 'qux'
       }), 'wibble blee', 'result is correct when uaOS and uaFormFactor properties are missing')
 
       assert.equal(devices.synthesizeName({
         uaBrowser: 'foo',
-        uaBrowserVersion: 'bar',
+        uaBrowserVersion: 'bar.bar',
         uaOS: 'baz'
       }), 'foo bar, baz', 'result is correct when uaOSVersion and uaFormFactor properties are missing')
 

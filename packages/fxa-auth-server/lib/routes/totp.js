@@ -14,10 +14,13 @@ const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
 
 module.exports = (log, db, mailer, customs, config) => {
 
+  const totpUtils = require('../../lib/routes/utils/totp')(log, config, db)
+
   // Default options for TOTP
   otplib.authenticator.options = {
     encoding: 'hex',
-    step: config.step
+    step: config.step,
+    window: config.window
   }
 
   // Currently, QR codes are rendered with the highest possible
@@ -25,6 +28,8 @@ module.exports = (log, db, mailer, customs, config) => {
   // scan the image better.
   // Ref: https://github.com/soldair/node-qrcode#error-correction-level
   const qrCodeOptions = {errorCorrectionLevel: 'H'}
+
+  const RECOVERY_CODE_COUNT = config.recoveryCodes && config.recoveryCodes.codeCount || 8
 
   P.promisify(qrcode.toDataURL)
 
@@ -55,13 +60,15 @@ module.exports = (log, db, mailer, customs, config) => {
         const sessionToken = request.auth.credentials
         const uid = sessionToken.uid
 
-        customs.check(request, 'totpCreate')
+        customs.check(request, sessionToken.email, 'totpCreate')
           .then(createTotpToken)
           .then(emitMetrics)
           .then(createResponse)
           .then(() => reply(response), reply)
 
-        const secret = otplib.authenticator.generateSecret()
+        const authenticator = new otplib.authenticator.Authenticator()
+        authenticator.options = otplib.authenticator.options
+        const secret = authenticator.generateSecret()
 
         function createTotpToken() {
           if (sessionToken.tokenVerificationId) {
@@ -72,7 +79,7 @@ module.exports = (log, db, mailer, customs, config) => {
         }
 
         function createResponse() {
-          const otpauth = otplib.authenticator.keyuri(sessionToken.email, config.serviceName, secret)
+          const otpauth = authenticator.keyuri(sessionToken.email, config.serviceName, secret)
 
           return qrcode.toDataURL(otpauth, qrCodeOptions)
             .then((qrCodeUrl) => {
@@ -106,21 +113,39 @@ module.exports = (log, db, mailer, customs, config) => {
 
         const sessionToken = request.auth.credentials
         const uid = sessionToken.uid
+        let hasEnabledToken = false
 
-        customs.check(request, 'totpDestroy')
+        customs.check(request, sessionToken.email, 'totpDestroy')
+          .then(checkTotpToken)
           .then(deleteTotpToken)
           .then(sendEmailNotification)
           .then(() => reply({}), reply)
 
+        function checkTotpToken() {
+          // If a TOTP token is not verified, we should be able to safely delete regardless of session
+          // verification state.
+          return totpUtils.hasTotpToken({uid})
+            .then((result) => hasEnabledToken = result)
+        }
+
         function deleteTotpToken() {
-          if (sessionToken.tokenVerificationId) {
+          if (hasEnabledToken && (sessionToken.tokenVerificationId || sessionToken.authenticatorAssuranceLevel <= 1)) {
             throw errors.unverifiedSession()
           }
 
           return db.deleteTotpToken(uid)
+            .then(() => {
+              return log.notifyAttachedServices('profileDataChanged', request, {
+                uid: sessionToken.uid
+              })
+            })
         }
 
         function sendEmailNotification() {
+          if (! hasEnabledToken) {
+            return
+          }
+
           return db.account(sessionToken.uid)
             .then((account) => {
               const geoData = request.app.geo
@@ -166,13 +191,16 @@ module.exports = (log, db, mailer, customs, config) => {
           .then(() => reply({exists}), reply)
 
         function getTotpToken() {
-          if (sessionToken.tokenVerificationId) {
-            throw errors.unverifiedSession()
-          }
+          return P.resolve()
+            .then(() => {
+              if (sessionToken.tokenVerificationId) {
+                throw errors.unverifiedSession()
+              }
 
-          return db.totpToken(sessionToken.uid)
+              return db.totpToken(sessionToken.uid)
+            })
+
             .then((token) => {
-
               // If the token is not verified, lets delete it and report that
               // it doesn't exist. This will help prevent some edge
               // cases where the user started creating a token but never completed.
@@ -208,7 +236,12 @@ module.exports = (log, db, mailer, customs, config) => {
             service: validators.service
           }
         },
-        response: {}
+        response: {
+          schema: {
+            success: isA.boolean().required(),
+            recoveryCodes: isA.array().items(isA.string()).optional()
+          }
+        }
       },
       handler(request, reply) {
         log.begin('session.verify.totp', request)
@@ -216,16 +249,28 @@ module.exports = (log, db, mailer, customs, config) => {
         const code = request.payload.code
         const sessionToken = request.auth.credentials
         const uid = sessionToken.uid
-        let sharedSecret, isValidCode, tokenVerified
+        const email = sessionToken.email
+        let sharedSecret, isValidCode, tokenVerified, recoveryCodes
 
-        customs.check(request, 'sessionVerifyTotp')
+        customs.check(request, email, 'verifyTotpCode')
           .then(getTotpToken)
           .then(verifyTotpCode)
           .then(verifyTotpToken)
+          .then(replaceRecoveryCodes)
           .then(verifySession)
           .then(emitMetrics)
           .then(sendEmailNotification)
-          .then(() => reply({success: isValidCode}), reply)
+          .then(() => {
+            const response = {
+              success: isValidCode
+            }
+
+            if (recoveryCodes) {
+              response.recoveryCodes = recoveryCodes
+            }
+
+            return reply(response)
+          }, reply)
 
         function getTotpToken() {
           return db.totpToken(sessionToken.uid)
@@ -236,7 +281,9 @@ module.exports = (log, db, mailer, customs, config) => {
         }
 
         function verifyTotpCode() {
-          isValidCode = otplib.authenticator.check(code, sharedSecret)
+          const authenticator = new otplib.authenticator.Authenticator()
+          authenticator.options = Object.assign({}, otplib.authenticator.options, {secret: sharedSecret})
+          isValidCode = authenticator.check(code, sharedSecret)
         }
 
         // Once a valid TOTP code has been detected, the token becomes verified
@@ -246,13 +293,25 @@ module.exports = (log, db, mailer, customs, config) => {
             return db.updateTotpToken(sessionToken.uid, {
               verified: true,
               enabled: true
+            }).then(() => {
+              return log.notifyAttachedServices('profileDataChanged', request, {
+                uid: sessionToken.uid
+              })
             })
+          }
+        }
+
+        // If this is a new registration, replace and generate recovery codes
+        function replaceRecoveryCodes() {
+          if (isValidCode && ! tokenVerified) {
+            return db.replaceRecoveryCodes(uid, RECOVERY_CODE_COUNT)
+              .then((result) => recoveryCodes = result)
           }
         }
 
         // If a valid code was sent, this verifies the session using the `totp-2fa` method.
         function verifySession() {
-          if (isValidCode && sessionToken.tokenVerificationId) {
+          if (isValidCode && sessionToken.authenticatorAssuranceLevel <= 1) {
             return db.verifyTokensWithMethod(sessionToken.id, 'totp-2fa')
           }
         }
@@ -300,7 +359,13 @@ module.exports = (log, db, mailer, customs, config) => {
                 return mailer.sendPostAddTwoStepAuthNotification(account.emails, account, emailOptions)
               }
 
-              return mailer.sendNewDeviceLoginNotification(account.emails, account, emailOptions)
+              // All accounts that have a TOTP token, force the session to be verified, therefore
+              // we can not check `session.mustVerify=true` to determine sending the new device
+              // login email. Instead, lets perform a basic check that the service is `sync`, otherwise
+              // don't send.
+              if (service === 'sync') {
+                return mailer.sendNewDeviceLoginNotification(account.emails, account, emailOptions)
+              }
             })
         }
       }

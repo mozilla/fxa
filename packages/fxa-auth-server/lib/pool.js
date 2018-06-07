@@ -6,24 +6,23 @@
 
 const P = require('./promise')
 const Poolee = require('poolee')
-
-function parseUrl(url) {
-  var match = /([a-zA-Z]+):\/\/(\S+)/.exec(url)
-  if (match) {
-    return {
-      protocol: match[1],
-      host: match[2]
-    }
-  }
-  throw new Error('url is invalid: ' + url)
+const url = require('url')
+const PROTOCOL_MODULES = {
+  'http': require('http'),
+  'https': require('https')
 }
 
-function Pool(url, options = {}) {
-  var parsedUrl = parseUrl(url)
-  var protocol = require(parsedUrl.protocol)
+function Pool(uri, options = {}) {
+  const parsed = url.parse(uri)
+  const {protocol, host} = parsed
+  const protocolModule = PROTOCOL_MODULES[protocol.slice(0, -1)]
+  if (! protocolModule) {
+    throw new Error(`Protocol ${protocol} is not supported.`)
+  }
+  const port = parsed.port || protocolModule.globalAgent.defaultPort
   this.poolee = new Poolee(
-    protocol,
-    [parsedUrl.host],
+    protocolModule,
+    [`${host}:${port}`],
     {
       timeout: options.timeout || 5000,
       maxPending: options.maxPending || 1000,
@@ -33,16 +32,27 @@ function Pool(url, options = {}) {
   )
 }
 
-Pool.prototype.request = function (method, path, data) {
+Pool.prototype.request = function (method, url, params, query, body, headers = {}) {
+  let path
+  try {
+    path = url.render(params, query)
+  }
+  catch (err) {
+    return P.reject(err)
+  }
+
   var d = P.defer()
+  let data
+  if (body) {
+    headers['Content-Type'] = 'application/json'
+    data = JSON.stringify(body)
+  }
   this.poolee.request(
     {
       method: method || 'GET',
-      path: path,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      data: data ? JSON.stringify(data) : undefined
+      path,
+      headers,
+      data
     },
     handleResponse
   )
@@ -78,24 +88,24 @@ Pool.prototype.request = function (method, path, data) {
   }
 }
 
-Pool.prototype.post = function (path, data) {
-  return this.request('POST', path, data)
+Pool.prototype.post = function (path, params, body, {query = {}, headers = {}} = {}) {
+  return this.request('POST', path, params, query, body, headers)
 }
 
-Pool.prototype.put = function (path, data) {
-  return this.request('PUT', path, data)
+Pool.prototype.put = function (path, params, body, {query = {}, headers = {}} = {}) {
+  return this.request('PUT', path, params, query, body, headers)
 }
 
-Pool.prototype.get = function (path) {
-  return this.request('GET', path)
+Pool.prototype.get = function (path, params, {query = {}, headers = {}} = {}) {
+  return this.request('GET', path, params, query, null, headers)
 }
 
-Pool.prototype.del = function (path, data) {
-  return this.request('DELETE', path, data)
+Pool.prototype.del = function (path, params, body, {query = {}, headers = {}} = {}) {
+  return this.request('DELETE', path, params, query, body, headers)
 }
 
-Pool.prototype.head = function (path) {
-  return this.request('HEAD', path)
+Pool.prototype.head = function (path, params, {query = {}, headers = {}} = {}) {
+  return this.request('HEAD', path, params, query, null, headers)
 }
 
 Pool.prototype.close = function () {

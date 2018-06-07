@@ -4,64 +4,46 @@
 
 'use strict'
 
-var sinon = require('sinon')
-
 const assert = require('insist')
-var mocks = require('../mocks')
-var getRoute = require('../routes_helpers').getRoute
-var proxyquire = require('proxyquire')
+const crypto = require('crypto')
+const getRoute = require('../routes_helpers').getRoute
+const mocks = require('../mocks')
+const P = require('../../lib/promise')
+const proxyquire = require('proxyquire')
+const uuid = require('uuid')
 
-var P = require('../../lib/promise')
-var uuid = require('uuid')
-var crypto = require('crypto')
-var log = require('../../lib/log')
+const TEST_EMAIL = 'foo@gmail.com'
+const MS_ONE_DAY = 1000 * 60 * 60 * 24
+const UID = uuid.v4('binary').toString('hex')
 
-var TEST_EMAIL = 'foo@gmail.com'
-var MS_ONE_DAY = 1000 * 60 * 60 * 24
-
-const makeRoutes = function (options = {}, requireMocks) {
-
-  const config = options.config || {}
-  config.verifierVersion = config.verifierVersion || 0
-  config.smtp = config.smtp || {}
-  config.memcached = config.memcached || {
-    address: '127.0.0.1:1121',
-    idle: 500,
-    lifetime: 30
+function makeRoutes (options = {}, requireMocks) {
+  const { db, mailer } = options
+  const config = {
+    securityHistory: {
+      ipProfiling: {
+        allowedRecency: MS_ONE_DAY
+      }
+    },
+    signinConfirmation: {},
+    smtp: {}
   }
-  config.i18n = {
-    supportedLanguages: ['en'],
-    defaultLanguage: 'en'
+  const log = mocks.mockLog()
+  const customs = {
+    check () { return P.resolve(true) },
+    flag () {}
   }
-  config.lastAccessTimeUpdates = {}
-  config.signinConfirmation = config.signinConfirmation || {}
-  config.signinUnblock = config.signinUnblock || {}
-  config.push = {
-    allowedServerRegex: /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/
-  }
-
-  const log = options.log || mocks.mockLog()
-  const Password = options.Password || require('../../lib/crypto/password')(log, config)
-  const db = options.db || mocks.mockDB()
-  const customs = options.customs || {
-    check: () => { return P.resolve(true) }
-  }
-  const mailer = options.mailer || {}
-  const push = options.push || require('../../lib/push')(log, db, {})
-  const signinUtils = options.signinUtils || require('../../lib/routes/utils/signin')(log, config, customs, db, mailer)
-  if (options.checkPassword) {
-    signinUtils.checkPassword = options.checkPassword
-  }
+  const signinUtils = require('../../lib/routes/utils/signin')(log, config, customs, db, mailer)
+  signinUtils.checkPassword = () => P.resolve(true)
   return proxyquire('../../lib/routes/account', requireMocks || {})(
     log,
     db,
     mailer,
-    Password,
+    require('../../lib/crypto/password')(log, config),
     config,
     customs,
     signinUtils,
-    push,
-    options.devices || require('../../lib/devices')(log, db, push)
+    mocks.mockPush(),
+    mocks.mockDevices()
   )
 }
 
@@ -78,97 +60,34 @@ function runTest(route, request, assertions) {
     .then(assertions)
 }
 
-var config = {
-  securityHistory: {
-    ipProfiling: {
-      allowedRecency: MS_ONE_DAY
-    }
-  },
-  signinConfirmation: {
-    tokenVerificationCode: {
-      codeLength: 8
-    },
-    forcedEmailAddresses: /.+@mozilla\.com$/
-  },
-  signinUnblock: {},
-  secondaryEmail: {
-    enabled: false
-  }
-}
-// We want to test what's actually written to stdout by the logger.
-const mockLog = log('ERROR', 'test', {
-  stdout: {
-    on: sinon.spy(),
-    write: sinon.spy()
-  },
-  stderr: {
-    on: sinon.spy(),
-    write: sinon.spy()
-  }
-})
-const mockRequest = mocks.mockRequest({
-  payload: {
-    authPW: crypto.randomBytes(32).toString('hex'),
-    email: TEST_EMAIL,
-    service: 'sync',
-    reason: 'signin',
-    metricsContext: {
-      flowBeginTime: Date.now(),
-      flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
-    }
-  },
-  query: {
-    keys: 'true'
-  }
-})
-var keyFetchTokenId = crypto.randomBytes(16)
-var sessionTokenId = crypto.randomBytes(16)
-var uid = uuid.v4('binary').toString('hex')
-var mockDB = mocks.mockDB({
-  email: TEST_EMAIL,
-  emailVerified: true,
-  keyFetchTokenId: keyFetchTokenId,
-  sessionTokenId: sessionTokenId,
-  uid: uid
-})
-var mockMailer = mocks.mockMailer()
-var mockPush = mocks.mockPush()
-var mockCustoms = {
-  check: () => P.resolve(),
-  flag: () => P.resolve()
-}
-
-mockDB.accountRecord = function () {
-  return P.resolve({
-    authSalt: crypto.randomBytes(32),
-    data: crypto.randomBytes(32),
-    email: TEST_EMAIL,
-    emailVerified: true,
-    primaryEmail: {normalizedEmail: TEST_EMAIL, email: TEST_EMAIL, isVerified: true, isPrimary: true},
-    kA: crypto.randomBytes(32),
-    lastAuthAt: function () {
-      return Date.now()
-    },
-    uid: uid,
-    wrapWrapKb: crypto.randomBytes(32)
-  })
-}
-
 describe('IP Profiling', () => {
-
-  var route, accountRoutes
+  let route, accountRoutes, mockDB, mockMailer, mockRequest
 
   beforeEach(() => {
-    accountRoutes = makeRoutes({
-      checkPassword: function () {
-        return P.resolve(true)
+    mockDB = mocks.mockDB({
+      email: TEST_EMAIL,
+      emailVerified: true,
+      uid: UID
+    })
+    mockMailer = mocks.mockMailer()
+    mockRequest = mocks.mockRequest({
+      payload: {
+        authPW: crypto.randomBytes(32).toString('hex'),
+        email: TEST_EMAIL,
+        service: 'sync',
+        reason: 'signin',
+        metricsContext: {
+          flowBeginTime: Date.now(),
+          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
+        }
       },
-      config: config,
-      customs: mockCustoms,
+      query: {
+        keys: 'true'
+      }
+    })
+    accountRoutes = makeRoutes({
       db: mockDB,
-      log: mockLog,
-      mailer: mockMailer,
-      push: mockPush
+      mailer: mockMailer
     })
     route = getRoute(accountRoutes, '/account/login')
   })
@@ -240,14 +159,6 @@ describe('IP Profiling', () => {
       var forceSigninEmail = 'forcedemail@mozilla.com'
       mockRequest.payload.email = forceSigninEmail
 
-      var mockDB = mocks.mockDB({
-        email: forceSigninEmail,
-        emailVerified: true,
-        keyFetchTokenId: keyFetchTokenId,
-        sessionTokenId: sessionTokenId,
-        uid: uid
-      })
-
       mockDB.accountRecord = function () {
         return P.resolve({
           authSalt: crypto.randomBytes(32),
@@ -259,34 +170,10 @@ describe('IP Profiling', () => {
           lastAuthAt: function () {
             return Date.now()
           },
-          uid: uid,
+          uid: UID,
           wrapWrapKb: crypto.randomBytes(32)
         })
       }
-
-      mockDB.securityEvents = function () {
-        return P.resolve([
-          {
-            name: 'account.login',
-            createdAt: Date.now(),
-            verified: true
-          }
-        ])
-      }
-
-      var accountRoutes = makeRoutes({
-        checkPassword: function () {
-          return P.resolve(true)
-        },
-        config: config,
-        customs: mockCustoms,
-        db: mockDB,
-        log: mockLog,
-        mailer: mockMailer,
-        push: mockPush
-      })
-
-      route = getRoute(accountRoutes, '/account/login')
 
       return runTest(route, mockRequest, function (response) {
         assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
@@ -304,58 +191,8 @@ describe('IP Profiling', () => {
   it(
     'previously verified session with suspicious request',
     () => {
-      mockRequest.payload.email = TEST_EMAIL
-
-      var mockDB = mocks.mockDB({
-        email: TEST_EMAIL,
-        emailVerified: true,
-        keyFetchTokenId: keyFetchTokenId,
-        sessionTokenId: sessionTokenId,
-        uid: uid
-      })
-
-      mockDB.accountRecord = function () {
-        return P.resolve({
-          authSalt: crypto.randomBytes(32),
-          data: crypto.randomBytes(32),
-          email: TEST_EMAIL,
-          emailVerified: true,
-          primaryEmail: {normalizedEmail: TEST_EMAIL, email: TEST_EMAIL, isVerified: true, isPrimary: true},
-          kA: crypto.randomBytes(32),
-          lastAuthAt: function () {
-            return Date.now()
-          },
-          uid: uid,
-          wrapWrapKb: crypto.randomBytes(32)
-        })
-      }
-
-      mockDB.securityEvents = function () {
-        return P.resolve([
-          {
-            name: 'account.login',
-            createdAt: Date.now(),
-            verified: true
-          }
-        ])
-      }
-
-      var accountRoutes = makeRoutes({
-        checkPassword: function () {
-          return P.resolve(true)
-        },
-        config: config,
-        customs: mockCustoms,
-        db: mockDB,
-        log: mockLog,
-        mailer: mockMailer,
-        push: mockPush
-      })
-
       mockRequest.app.clientAddress = '63.245.221.32'
       mockRequest.app.isSuspiciousRequest = true
-
-      route = getRoute(accountRoutes, '/account/login')
 
       return runTest(route, mockRequest, function (response) {
         assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
@@ -369,9 +206,4 @@ describe('IP Profiling', () => {
           assert.equal(response.verified, false, 'session verified')
         })
     })
-
-  afterEach(() => {
-    mockMailer.sendVerifyLoginEmail.reset()
-    mockMailer.sendNewDeviceLoginNotification.reset()
-  })
 })

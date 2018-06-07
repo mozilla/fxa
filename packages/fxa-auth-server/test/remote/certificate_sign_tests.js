@@ -32,29 +32,54 @@ describe('remote certificate sign', function() {
   it(
     'certificate sign',
     () => {
-      var email = server.uniqueEmail()
-      var password = 'allyourbasearebelongtous'
-      var client = null
-      var duration = 1000 * 60 * 60 * 24 // 24 hours
+      const email = server.uniqueEmail()
+      const password = 'allyourbasearebelongtous'
+      const duration = 1000 * 60 * 60 * 24 // 24 hours
+      let client = null
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
-        .then(
-          function (c) {
-            client = c
-            return client.sign(publicKey, duration)
-          }
-        )
-        .then(
-          function (cert) {
-            assert.equal(typeof(cert), 'string', 'cert exists')
-            var payload = jwtool.verify(cert, pubSigKey.pem)
-            assert.equal(payload.iss, config.domain, 'issuer is correct')
-            assert.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
-            assert.ok(payload['fxa-generation'] > 0, 'cert has non-zero generation number')
-            assert.ok(new Date() - new Date(payload['fxa-lastAuthAt'] * 1000) < 1000 * 60 * 60, 'lastAuthAt is plausible')
-            assert.equal(payload['fxa-verifiedEmail'], email, 'verifiedEmail is correct')
-            assert.equal(payload['fxa-tokenVerified'], true, 'tokenVerified is correct')
-          }
-        )
+        .then(c => {
+          client = c
+          return client.sign(publicKey, duration)
+        })
+        .then(cert => {
+          assert.equal(typeof(cert), 'string', 'cert exists')
+          const payload = jwtool.verify(cert, pubSigKey.pem)
+          assert.equal(payload.iss, config.domain, 'issuer is correct')
+          assert.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
+          assert.ok(payload['fxa-generation'] > 0, 'cert has non-zero generation number')
+          assert.ok(new Date() - new Date(payload['fxa-lastAuthAt'] * 1000) < 1000 * 60 * 60, 'lastAuthAt is plausible')
+          assert.equal(payload['fxa-verifiedEmail'], email, 'verifiedEmail is correct')
+          assert.equal(payload['fxa-tokenVerified'], true, 'tokenVerified is correct')
+          assert.deepEqual(payload['fxa-amr'].sort(), ['email', 'pwd'], 'amr values are correct')
+          assert.equal(payload['fxa-aal'], 1, 'aal value is correct')
+        })
+    }
+  )
+
+  it(
+    'certificate sign with TOTP',
+    () => {
+      const email = server.uniqueEmail()
+      const password = 'allyourbasearebelongtous'
+      const duration = 1000 * 60 * 60 * 24 // 24 hours
+      let client = null
+      return Client.createAndVerifyAndTOTP(config.publicUrl, email, password, server.mailbox, {keys:true})
+        .then(c => {
+          client = c
+          return client.sign(publicKey, duration)
+        })
+        .then(cert => {
+          assert.equal(typeof(cert), 'string', 'cert exists')
+          const payload = jwtool.verify(cert, pubSigKey.pem)
+          assert.equal(payload.iss, config.domain, 'issuer is correct')
+          assert.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
+          assert.ok(payload['fxa-generation'] > 0, 'cert has non-zero generation number')
+          assert.ok(new Date() - new Date(payload['fxa-lastAuthAt'] * 1000) < 1000 * 60 * 60, 'lastAuthAt is plausible')
+          assert.equal(payload['fxa-verifiedEmail'], email, 'verifiedEmail is correct')
+          assert.equal(payload['fxa-tokenVerified'], true, 'tokenVerified is correct')
+          assert.deepEqual(payload['fxa-amr'].sort(), ['otp', 'pwd'], 'amr values are correct')
+          assert.equal(payload['fxa-aal'], 2, 'aal value is correct')
+        })
     }
   )
 

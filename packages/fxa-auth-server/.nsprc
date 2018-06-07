@@ -6,6 +6,10 @@
     // moment@2.19.2
     "https://nodesecurity.io/advisories/532",
     // hoek
-    "https://nodesecurity.io/advisories/566"
+    "https://nodesecurity.io/advisories/566",
+    // constantinople
+    "https://nodesecurity.io/advisories/568",
+    // stringstream, loaded indirectly via request, only passed validated data (service)
+    "https://nodesecurity.io/advisories/664"
   ]
 }

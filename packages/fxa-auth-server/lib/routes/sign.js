@@ -159,7 +159,9 @@ module.exports = (log, signer, db, domain, devices) => {
                   lastAuthAt: sessionToken.lastAuthAt(),
                   verifiedEmail: sessionToken.email,
                   deviceId: deviceId,
-                  tokenVerified: sessionToken.tokenVerified
+                  tokenVerified: sessionToken.tokenVerified,
+                  authenticationMethods: Array.from(sessionToken.authenticationMethods),
+                  authenticatorAssuranceLevel: sessionToken.authenticatorAssuranceLevel
                 }
               )
             }

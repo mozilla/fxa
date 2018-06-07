@@ -93,8 +93,8 @@ module.exports = (log, db, config, customs, push, devices) => {
         country: territories.main[language].localeDisplayNames.territories[location.countryCode]
       }
     } catch (err) {
-      log.error({
-        op: 'devices.marshallLocation.error',
+      log.warn({
+        op: 'devices.marshallLocation.warning',
         err: err.message,
         languages: request.app.acceptLanguage,
         language,
@@ -122,14 +122,22 @@ module.exports = (log, db, config, customs, push, devices) => {
               type: DEVICES_SCHEMA.type.optional(),
               pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
               pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
-              pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional()
+              pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional(),
+              // Some versions of desktop firefox send a zero-length
+              // "capabilities" array, for historical reasons.
+              // We accept but ignore it.
+              capabilities: isA.array().length(0).optional()
             }).or('name', 'type', 'pushCallback', 'pushPublicKey', 'pushAuthKey').and('pushPublicKey', 'pushAuthKey'),
             isA.object({
               name: DEVICES_SCHEMA.name.required(),
               type: DEVICES_SCHEMA.type.required(),
               pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
               pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
-              pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional()
+              pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional(),
+              // Some versions of desktop firefox send a zero-length
+              // "capabilities" array, for historical reasons.
+              // We accept but ignore it.
+              capabilities: isA.array().length(0).optional()
             }).and('pushPublicKey', 'pushAuthKey')
           )
         },
@@ -287,24 +295,33 @@ module.exports = (log, db, config, customs, push, devices) => {
           data: payload
         }
 
-        if (body.to !== 'all') {
-          pushOptions.includedDeviceIds = body.to
-        }
-
-        if (body.excluded) {
-          pushOptions.excludedDeviceIds = body.excluded
-        }
-
         if (body.TTL) {
           pushOptions.TTL = body.TTL
         }
 
         return customs.checkAuthenticated(endpointAction, ip, uid)
           .then(() => request.app.devices)
-          .then(devices =>
-            push.notifyUpdate(uid, devices, endpointAction, pushOptions)
+          .then(devices => {
+            if (body.to !== 'all') {
+              const include = new Set(body.to)
+              devices = devices.filter(device => include.has(device.id))
+
+              if (devices.length === 0) {
+                log.error({
+                  op: 'Account.devicesNotify',
+                  uid: uid,
+                  error: 'devices empty'
+                })
+                return
+              }
+            } else if (body.excluded) {
+              const exclude = new Set(body.excluded)
+              devices = devices.filter(device => ! exclude.has(device.id))
+            }
+
+            return push.sendPush(uid, devices, endpointAction, pushOptions)
               .catch(catchPushError)
-          )
+          })
           .then(() => {
             // Emit a metrics event for when a user sends tabs between devices.
             // In the future we will aim to get this event directly from sync telemetry,
@@ -450,7 +467,8 @@ module.exports = (log, db, config, customs, push, devices) => {
               } else if (! session.uaBrowserVersion) {
                 userAgent = session.uaBrowser
               } else {
-                userAgent = `${session.uaBrowser} ${session.uaBrowserVersion}`
+                const { uaBrowser: browser, uaBrowserVersion: version } = session
+                userAgent = `${browser} ${version.split('.')[0]}`
               }
 
               return Object.assign({

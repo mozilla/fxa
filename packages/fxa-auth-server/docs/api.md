@@ -31,7 +31,7 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [POST /account/unlock/resend_code](#post-accountunlockresend_code)
     * [POST /account/unlock/verify_code](#post-accountunlockverify_code)
     * [POST /account/reset (:lock: accountResetToken)](#post-accountreset)
-    * [POST /account/destroy](#post-accountdestroy)
+    * [POST /account/destroy (:lock::unlock: sessionToken)](#post-accountdestroy)
   * [Devices and sessions](#devices-and-sessions)
     * [POST /account/device (:lock: sessionToken)](#post-accountdevice)
     * [POST /account/devices/notify (:lock: sessionToken)](#post-accountdevicesnotify)
@@ -53,6 +53,9 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [POST /password/forgot/resend_code (:lock: passwordForgotToken)](#post-passwordforgotresend_code)
     * [POST /password/forgot/verify_code (:lock: passwordForgotToken)](#post-passwordforgotverify_code)
     * [GET /password/forgot/status (:lock: passwordForgotToken)](#get-passwordforgotstatus)
+  * [Recovery codes](#recovery-codes)
+    * [GET /recoveryCodes (:lock: sessionToken)](#get-recoverycodes)
+    * [POST /session/verify/recoveryCode (:lock: sessionToken)](#post-sessionverifyrecoverycode)
   * [Session](#session)
     * [POST /session/destroy (:lock: sessionToken)](#post-sessiondestroy)
     * [POST /session/reauth (:lock: sessionToken)](#post-sessionreauth)
@@ -273,6 +276,8 @@ for `code` and `errno` are:
   A TOTP token already exists for this account.
 * `code: 400, errno: 155`:
   A TOTP token not found.
+* `code: 400, errno: 156`:
+  Recovery code not found.
 * `code: 503, errno: 201`:
   Service unavailable
 * `code: 503, errno: 202`:
@@ -342,6 +347,7 @@ those common validations are defined here.
 * `verificationMethod`: `string, valid()`
 * `E164_NUMBER`: `/^\+[1-9]\d{1,14}$/`
 * `DIGITS`: `/^[0-9]+$/`
+* `IP_ADDRESS`: `string, ip`
 
 #### lib/metrics/context
 
@@ -366,15 +372,18 @@ those common validations are defined here.
 #### lib/devices
 
 * `schema`: {
-    * `id: isA.string.length(32).regex(HEX_STRING)
-    * `location`: isA.object({ city: isA.string.optional.allow(null)
-    * `country`: isA.string.optional.allow(null)
-    * `state`: isA.string.optional.allow(null)
-    * `stateCode`: isA.string.optional.allow(null) })
+    * `id`: isA.string.length(32).regex(HEX_STRING)
+    * `location`: isA.object({
+      * `city`: isA.string.optional.allow(null)
+      * `country`: isA.string.optional.allow(null)
+      * `state`: isA.string.optional.allow(null)
+      * `stateCode`: isA.string.optional.allow(null)
+      * })
     * `name`: isA.string.max(255).regex(DISPLAY_SAFE_UNICODE_WITH_NON_BMP)
     * `nameResponse`: isA.string.max(255)
     * `type`: isA.string.max(16)
-    * `pushCallback`: isA.string.uri({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow('')
+    * `capabilities`: isA.array.items(isA.string)
+    * `pushCallback`: validators.url({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow('')
     * `pushPublicKey`: isA.string.max(88).regex(URL_SAFE_BASE_64).allow('')
     * `pushAuthKey`: isA.string.max(24).regex(URL_SAFE_BASE_64).allow('')
     * `pushEndpointExpired`: isA.boolean.strict
@@ -558,7 +567,7 @@ Obtain a `sessionToken` and, optionally, a `keyFetchToken` if `keys=true`.
   Opaque alphanumeric token to be included in verification links.
   <!--end-request-body-post-accountlogin-service-->
 
-* `redirectTo`: *string, uri, optional*
+* `redirectTo`: *validators.redirectTo(config.smtp.redirectDomain).optional*
 
   <!--begin-request-body-post-accountlogin-redirectTo-->
   
@@ -741,11 +750,38 @@ the scopes that the token is authorized for:
 
 * `email` requires `profile:email` scope.
 
-* `locale` require `profile:locale` scope.
+* `locale` requires `profile:locale` scope.
 
-The `profile` scope includes both
-of the `email` and `locale` sub-scopes.
+* `authenticationMethods` and `authenticatorAssuranceLevel` require `profile:amr` scope.
+
+The `profile` scope includes all the above sub-scopes.
 <!--end-route-get-accountprofile-->
+
+##### Response body
+
+* `email`: *string, optional*
+
+  <!--begin-response-body-get-accountprofile-email-->
+  
+  <!--end-response-body-get-accountprofile-email-->
+
+* `locale`: *string, optional, allow(null)*
+
+  <!--begin-response-body-get-accountprofile-locale-->
+  
+  <!--end-response-body-get-accountprofile-locale-->
+
+* `authenticationMethods`: *array, items(string, required), optional*
+
+  <!--begin-response-body-get-accountprofile-authenticationMethods-->
+  
+  <!--end-response-body-get-accountprofile-authenticationMethods-->
+
+* `authenticatorAssuranceLevel`: *number, min(0)*
+
+  <!--begin-response-body-get-accountprofile-authenticatorAssuranceLevel-->
+  
+  <!--end-response-body-get-accountprofile-authenticatorAssuranceLevel-->
 
 
 #### GET /account/keys
@@ -874,6 +910,8 @@ by the following errors
 
 
 #### POST /account/destroy
+
+:lock::unlock: Optionally HAWK-authenticated with session token
 <!--begin-route-post-accountdestroy-->
 Deletes an account.
 All stored data is erased.
@@ -905,6 +943,9 @@ by the following errors
 
 * `code: 400, errno: 103`:
   Incorrect password
+
+* `code: 400, errno: 138`:
+  Unverified session
 
 
 ### Devices and sessions
@@ -962,6 +1003,12 @@ can be made available to other connected devices.
   
   <!--end-request-body-post-accountdevice-type-->
 
+* `capabilities`: *DEVICES_SCHEMA.capabilities.optional*
+
+  <!--begin-request-body-post-accountdevice-capabilities-->
+  
+  <!--end-request-body-post-accountdevice-capabilities-->
+
 * `pushCallback`: *DEVICES_SCHEMA.pushCallback.optional*
 
   <!--begin-request-body-post-accountdevice-pushCallback-->
@@ -1005,6 +1052,12 @@ can be made available to other connected devices.
   <!--begin-response-body-post-accountdevice-type-->
   
   <!--end-response-body-post-accountdevice-type-->
+
+* `capabilities`: *DEVICES_SCHEMA.capabilities.optional*
+
+  <!--begin-response-body-post-accountdevice-capabilities-->
+  
+  <!--end-response-body-post-accountdevice-capabilities-->
 
 * `pushCallback`: *DEVICES_SCHEMA.pushCallback.optional*
 
@@ -1173,6 +1226,12 @@ for the authenticated user.
   
   <!--end-response-body-get-accountdevices-type-->
 
+* `capabilities`: *DEVICES_SCHEMA.capabilities.optional*
+
+  <!--begin-response-body-get-accountdevices-capabilities-->
+  
+  <!--end-response-body-get-accountdevices-capabilities-->
+
 * `pushCallback`: *DEVICES_SCHEMA.pushCallback.allow(null).optional*
 
   <!--begin-response-body-get-accountdevices-pushCallback-->
@@ -1286,6 +1345,12 @@ for the authenticated user.
   <!--begin-response-body-get-accountsessions-deviceType-->
   
   <!--end-response-body-get-accountsessions-deviceType-->
+
+* `deviceCapabilities`: *DEVICES_SCHEMA.capabilities.optional*
+
+  <!--begin-response-body-get-accountsessions-deviceCapabilities-->
+  
+  <!--end-response-body-get-accountsessions-deviceCapabilities-->
 
 * `deviceCallbackURL`: *DEVICES_SCHEMA.pushCallback.allow(null).required*
 
@@ -1798,6 +1863,15 @@ Optionally returns `sessionToken` and `keyFetchToken`.
   Indicates whether a new `sessionToken` is required, default to `false`.
   <!--end-request-body-post-passwordchangefinish-sessionToken-->
 
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 400, errno: 138`:
+  Unverified session
+
 
 #### POST /password/forgot/send_code
 <!--begin-route-post-passwordforgotsend_code-->
@@ -2089,6 +2163,54 @@ will be returned.
   <!--end-response-body-get-passwordforgotstatus-ttl-->
 
 
+### Recovery codes
+
+#### GET /recoveryCodes
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-get-recoverycodes-->
+Return new recovery codes while removing old ones.
+<!--end-route-get-recoverycodes-->
+
+##### Response body
+
+* `recoveryCodes`: *array, items(string)*
+
+  <!--begin-response-body-get-recoverycodes-recoveryCodes-->
+  
+  <!--end-response-body-get-recoverycodes-recoveryCodes-->
+
+
+#### POST /session/verify/recoveryCode
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-sessionverifyrecoverycode-->
+Verify a session using a recovery code.
+<!--end-route-post-sessionverifyrecoverycode-->
+
+##### Request body
+
+* `code`: *string, max(RECOVERY_CODE_SANE_MAX_LENGTH), regex(BASE_36), required*
+
+  <!--begin-request-body-post-sessionverifyrecoverycode-code-->
+  
+  <!--end-request-body-post-sessionverifyrecoverycode-code-->
+
+* `metricsContext`: *metricsContext.schema*
+
+  <!--begin-request-body-post-sessionverifyrecoverycode-metricsContext-->
+  
+  <!--end-request-body-post-sessionverifyrecoverycode-metricsContext-->
+
+##### Response body
+
+* `remaining`: *number*
+
+  <!--begin-response-body-post-sessionverifyrecoverycode-remaining-->
+  
+  <!--end-response-body-post-sessionverifyrecoverycode-remaining-->
+
+
 ### Session
 
 #### POST /session/destroy
@@ -2174,7 +2296,7 @@ such as verification and device registration.
   
   <!--end-request-body-post-sessionreauth-service-->
 
-* `redirectTo`: *string, uri, optional*
+* `redirectTo`: *validators.redirectTo(config.smtp.redirectDomain).optional*
 
   <!--begin-request-body-post-sessionreauth-redirectTo-->
   
@@ -2595,6 +2717,20 @@ Verifies the current session if the passed TOTP code is valid.
   <!--begin-request-body-post-sessionverifytotp-service-->
   
   <!--end-request-body-post-sessionverifytotp-service-->
+
+##### Response body
+
+* `success`: *boolean, required*
+
+  <!--begin-response-body-post-sessionverifytotp-success-->
+  
+  <!--end-response-body-post-sessionverifytotp-success-->
+
+* `recoveryCodes`: *array, items(string), optional*
+
+  <!--begin-response-body-post-sessionverifytotp-recoveryCodes-->
+  
+  <!--end-response-body-post-sessionverifytotp-recoveryCodes-->
 
 
 ### Unblock codes

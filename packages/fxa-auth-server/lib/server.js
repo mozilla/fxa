@@ -6,12 +6,13 @@
 
 const fs = require('fs')
 const Hapi = require('hapi')
+const joi = require('joi')
 const Raven = require('raven')
 const path = require('path')
 const url = require('url')
 const userAgent = require('./userAgent')
 
-const { HEX_STRING } = require('./routes/validators')
+const { HEX_STRING, IP_ADDRESS } = require('./routes/validators')
 
 function trimLocale(header) {
   if (! header) {
@@ -265,7 +266,8 @@ function create(log, error, config, routes, db, translator) {
 
       xff.push(request.info.remoteAddress)
 
-      return xff.map(address => address.trim()).filter(address => !! address)
+      return xff.map(address => address.trim())
+        .filter(address => ! joi.validate(address, IP_ADDRESS.required()).error)
     })
 
     defineLazyGetter(request.app, 'clientAddress', () => {

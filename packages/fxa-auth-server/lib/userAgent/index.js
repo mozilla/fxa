@@ -53,9 +53,9 @@ module.exports = function (userAgentString) {
   const userAgentData = ua.parse(userAgentString)
   return {
     browser: safe.name(getFamily(userAgentData.ua)),
-    browserVersion: safe.version(getVersion(userAgentData.ua)),
+    browserVersion: safe.version(userAgentData.ua.toVersionString()),
     os: safe.name(getFamily(userAgentData.os)),
-    osVersion: safe.version(getVersion(userAgentData.os)),
+    osVersion: safe.version(userAgentData.os.toVersionString()),
     deviceType: getDeviceType(userAgentData) || null,
     formFactor: safe.name(getFormFactor(userAgentData))
   }
@@ -65,18 +65,6 @@ function getFamily (data) {
   if (data.family && data.family !== 'Other') {
     return data.family
   }
-}
-
-function getVersion (data) {
-  if (! data.major) {
-    return
-  }
-
-  if (! data.minor || parseInt(data.minor) === 0) {
-    return data.major
-  }
-
-  return data.major + '.' + data.minor
 }
 
 function getDeviceType (data) {

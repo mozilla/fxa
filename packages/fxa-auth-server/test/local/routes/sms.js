@@ -11,12 +11,10 @@ const mocks = require('../../mocks')
 const P = require('../../../lib/promise')
 const sinon = require('sinon')
 
-const sms = {}
-
 function makeRoutes (options = {}, dependencies) {
   const log = options.log || mocks.mockLog()
   const db = options.db || mocks.mockDB()
-  return require('../../../lib/routes/sms')(log, db, options.config, mocks.mockCustoms(), sms)
+  return require('../../../lib/routes/sms')(log, db, options.config, mocks.mockCustoms(), options.sms)
 }
 
 function runTest (route, request) {
@@ -32,7 +30,7 @@ function runTest (route, request) {
 }
 
 describe('/sms with the signinCodes feature included in the payload', () => {
-  let log, signinCode, db, config, routes, route, request, response
+  let log, signinCode, db, config, sms, routes, route, request, response
 
   beforeEach(() => {
     log = mocks.mockLog()
@@ -45,7 +43,10 @@ describe('/sms with the signinCodes feature included in the payload', () => {
         isStatusGeoEnabled: true
       }
     }
-    routes = makeRoutes({ log, db, config })
+    sms = {
+      send: sinon.spy(() => P.resolve())
+    }
+    routes = makeRoutes({ log, db, config, sms })
     route = getRoute(routes, '/sms')
     request = mocks.mockRequest({
       credentials: {
@@ -365,7 +366,7 @@ describe('/sms with the signinCodes feature included in the payload', () => {
 })
 
 describe('/sms without the signinCodes feature included in the payload', () => {
-  let log, signinCode, db, config, routes, route, request
+  let log, signinCode, db, config, sms, routes, route, request
 
   beforeEach(() => {
     log = mocks.mockLog()
@@ -378,7 +379,10 @@ describe('/sms without the signinCodes feature included in the payload', () => {
         isStatusGeoEnabled: true
       }
     }
-    routes = makeRoutes({ log, db, config })
+    sms = {
+      send: sinon.spy(() => P.resolve())
+    }
+    routes = makeRoutes({ log, db, config, sms })
     route = getRoute(routes, '/sms')
     request = mocks.mockRequest({
       credentials: {
@@ -442,18 +446,23 @@ describe('/sms disabled', () => {
 })
 
 describe('/sms/status', () => {
-  let log, config, routes, route
+  let log, config, sms, routes, route
 
   beforeEach(() => {
     log = mocks.mockLog()
     config = {
       sms: {
+        apiRegion: 'us-east-1',
         enabled: true,
         countryCodes: [ 'US' ],
         isStatusGeoEnabled: true
-      }
+      },
+      smtp: {}
     }
-    routes = makeRoutes({ log, config })
+    sms = {
+      isBudgetOk: () => true
+    }
+    routes = makeRoutes({ log, config, sms })
     route = getRoute(routes, '/sms/status')
   })
 
@@ -509,6 +518,34 @@ describe('/sms/status', () => {
 
     it('returned the correct response', () => {
       assert.deepEqual(response, { ok: false, country: 'CA' })
+    })
+
+    it('called log.begin once', () => {
+      assert.equal(log.begin.callCount, 1)
+    })
+
+    it('did not call log.error', () => {
+      assert.equal(log.error.callCount, 0)
+    })
+  })
+
+  describe('spend is over budget', () => {
+    let request, response
+
+    beforeEach(() => {
+      sms.isBudgetOk = () => false
+      request = mocks.mockRequest({
+        credentials: {
+          email: 'foo@example.org'
+        },
+        log: log
+      })
+      return runTest(route, request)
+        .then(r => response = r)
+    })
+
+    it('returned the correct response', () => {
+      assert.deepEqual(response, { ok: false, country: 'US' })
     })
 
     it('called log.begin once', () => {
@@ -592,7 +629,7 @@ describe('/sms/status', () => {
 })
 
 describe('/sms/status with disabled geo-ip lookup', () => {
-  let log, config, routes, route, request, response
+  let log, config, sms, routes, route, request, response
 
   beforeEach(() => {
     log = mocks.mockLog()
@@ -603,7 +640,10 @@ describe('/sms/status with disabled geo-ip lookup', () => {
         isStatusGeoEnabled: false
       }
     }
-    routes = makeRoutes({ log, config })
+    sms = {
+      isBudgetOk: () => true
+    }
+    routes = makeRoutes({ log, config, sms })
     route = getRoute(routes, '/sms/status')
     request = mocks.mockRequest({
       clientAddress: '127.0.0.1',
@@ -641,7 +681,7 @@ describe('/sms/status with disabled geo-ip lookup', () => {
 })
 
 describe('/sms/status with query param and enabled geo-ip lookup', () => {
-  let log, config, routes, route, request, response
+  let log, config, sms, routes, route, request, response
 
   beforeEach(() => {
     log = mocks.mockLog()
@@ -652,7 +692,11 @@ describe('/sms/status with query param and enabled geo-ip lookup', () => {
         isStatusGeoEnabled: true
       }
     }
-    routes = makeRoutes({ log, config })
+    sms = {
+      isBudgetOk: () => true,
+      send: sinon.spy(() => P.resolve())
+    }
+    routes = makeRoutes({ log, config, sms })
     route = getRoute(routes, '/sms/status')
     request = mocks.mockRequest({
       credentials: {
@@ -686,7 +730,7 @@ describe('/sms/status with query param and enabled geo-ip lookup', () => {
 })
 
 describe('/sms/status with query param and disabled geo-ip lookup', () => {
-  let log, config, routes, route, request, response
+  let log, config, sms, routes, route, request, response
 
   beforeEach(() => {
     log = mocks.mockLog()
@@ -697,7 +741,11 @@ describe('/sms/status with query param and disabled geo-ip lookup', () => {
         isStatusGeoEnabled: false
       }
     }
-    routes = makeRoutes({ log, config })
+    sms = {
+      isBudgetOk: () => true,
+      send: sinon.spy(() => P.resolve())
+    }
+    routes = makeRoutes({ log, config, sms })
     route = getRoute(routes, '/sms/status')
     request = mocks.mockRequest({
       credentials: {

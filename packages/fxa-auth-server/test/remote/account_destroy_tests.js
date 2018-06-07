@@ -10,12 +10,11 @@ const Client = require('../client')()
 
 const config = require('../../config').getProperties()
 
-describe('remote account destroy', () => {
-
+describe('remote account destroy', function () {
+  this.timeout(15000)
   let server
 
-  before(function() {
-    this.timeout(15000)
+  before(() => {
     return TestServer.start(config)
       .then(s => {
         server = s
@@ -78,6 +77,43 @@ describe('remote account destroy', () => {
         )
     }
   )
+
+  it('should fail to delete account with TOTP without passing sessionToken', () => {
+    const email = server.uniqueEmail()
+    const password = 'ok'
+    let client
+    return Client.createAndVerifyAndTOTP(config.publicUrl, email, password, server.mailbox, {keys: true})
+      .then((res) => {
+        client = res
+
+        // Doesn't specify a sessionToken to use
+        delete client.sessionToken
+        return client.destroyAccount()
+      })
+      .then(assert.fail, (err) => {
+        assert.equal(err.errno, 138, 'unverified session')
+      })
+  })
+
+  it('should fail to delete account with TOTP with unverified session', () => {
+    const email = server.uniqueEmail()
+    const password = 'ok'
+    let client
+    return Client.createAndVerifyAndTOTP(config.publicUrl, email, password, server.mailbox, {keys: true})
+      .then(() => {
+        // Create a new unverified session
+        return Client.login(config.publicUrl, email, password)
+      })
+      .then((response) => {
+        client = response
+        return client.emailStatus()
+      })
+      .then((res) => assert.equal(res.sessionVerified, false, 'session not verified'))
+      .then(() => client.destroyAccount())
+      .then(assert.fail, (err) => {
+        assert.equal(err.errno, 138, 'unverified session')
+      })
+  })
 
   after(() => {
     return TestServer.stop(server)

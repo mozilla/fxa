@@ -18,6 +18,7 @@ const events = require('../../../lib/metrics/events')(log, {
   }
 })
 const mocks = require('../../mocks')
+const P = require('../../../lib/promise')
 
 describe('metrics/events', () => {
   afterEach(() => {
@@ -220,7 +221,10 @@ describe('metrics/events', () => {
     const metricsContext = mocks.mockMetricsContext()
     const request = {
       app: {
-        locale: 'en'
+        devices: P.resolve(),
+        geo: {},
+        locale: 'en',
+        ua: {}
       },
       auth: null,
       clearMetricsContext: metricsContext.clear,
@@ -472,6 +476,11 @@ describe('metrics/events', () => {
   it('.emit with flow event and missing headers', () => {
     const metricsContext = mocks.mockMetricsContext()
     const request = {
+      app: {
+        devices: P.resolve(),
+        geo: {},
+        ua: {}
+      },
       clearMetricsContext: metricsContext.clear,
       gatherMetricsContext: metricsContext.gather,
       payload: {
@@ -635,12 +644,12 @@ describe('metrics/events', () => {
         assert.equal(log.amplitudeEvent.args[0][0].event_type, 'fxa_activity - cert_signed', 'log.amplitudeEvent was passed correct event_type')
         assert.equal(log.amplitudeEvent.args[0][0].device_id, 'foo', 'log.amplitudeEvent was passed correct device_id')
         assert.equal(log.amplitudeEvent.args[0][0].session_id, flowBeginTime, 'log.amplitudeEvent was passed correct session_id')
-        assert.deepEqual(log.amplitudeEvent.args[0][0].event_properties, {
-          service: undefined,
-          oauth_client_id: undefined
-        }, 'log.amplitudeEvent was passed correct event properties')
+        assert.deepEqual(log.amplitudeEvent.args[0][0].event_properties, {}, 'log.amplitudeEvent was passed correct event properties')
         assert.deepEqual(log.amplitudeEvent.args[0][0].user_properties, {
           flow_id: 'bar',
+          sync_active_devices_day: 0,
+          sync_active_devices_week: 0,
+          sync_active_devices_month: 0,
           sync_device_count: 0,
           ua_browser: request.app.ua.browser,
           ua_version: request.app.ua.browserVersion
@@ -823,6 +832,36 @@ describe('metrics/events', () => {
           userAgent: 'test user-agent'
         }, 'argument was event data')
 
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
+        assert.equal(log.error.callCount, 0, 'log.error was not called')
+      }).finally(() => {
+        Date.now.restore()
+      })
+  })
+
+  it('.emitRouteFlowEvent with matching route and 404 statusCode', () => {
+    const time = Date.now()
+    sinon.stub(Date, 'now', () => time)
+    const metricsContext = mocks.mockMetricsContext()
+    const request = mocks.mockRequest({
+      headers: {
+        dnt: '1',
+        'user-agent': 'test user-agent'
+      },
+      metricsContext,
+      path: '/v1/recovery_email/resend_code',
+      payload: {
+        metricsContext: {
+          flowId: 'bar',
+          flowBeginTime: time - 1000
+        }
+      }
+    })
+    return events.emitRouteFlowEvent.call(request, { statusCode: 404 })
+      .then(() => {
+        assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
+        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
         assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
         assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
         assert.equal(log.error.callCount, 0, 'log.error was not called')

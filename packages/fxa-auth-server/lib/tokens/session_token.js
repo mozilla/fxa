@@ -4,6 +4,8 @@
 
 'use strict'
 
+const authMethods = require('../authMethods')
+
 module.exports = (log, Token, config) => {
   const MAX_AGE_WITHOUT_DEVICE = config.tokenLifetimes.sessionTokenWithoutDevice
 
@@ -13,7 +15,8 @@ module.exports = (log, Token, config) => {
     [
       [0, 'email'],
       [1, 'email-2fa'],
-      [2, 'totp-2fa']
+      [2, 'totp-2fa'],
+      [3, 'recovery-code']
     ]
   )
 
@@ -69,6 +72,23 @@ module.exports = (log, Token, config) => {
       } else {
         return 'unverified'
       }
+    }
+
+    get authenticationMethods() {
+      const amrValues = new Set()
+      // All sessionTokens require password authentication.
+      amrValues.add('pwd')
+      // Verified sessionTokens imply some additional authentication method(s).
+      if (this.verificationMethodValue) {
+        amrValues.add(authMethods.verificationMethodToAMR(this.verificationMethodValue))
+      } else if (this.tokenVerified) {
+        amrValues.add('email')
+      }
+      return amrValues
+    }
+
+    get authenticatorAssuranceLevel() {
+      return authMethods.maximumAssuranceLevel(this.authenticationMethods)
     }
 
     setUserAgentInfo(data) {

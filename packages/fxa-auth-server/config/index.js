@@ -445,6 +445,12 @@ var conf = convict({
     env: 'SNS_TOPIC_ARN',
     default: ''
   },
+  snsTopicEndpoint: {
+    doc: 'Amazon SNS topic endpoint',
+    format: String,
+    env: 'SNS_TOPIC_ENDPOINT',
+    default: undefined
+  },
   emailNotifications: {
     region: {
       doc: 'The region where the queues live, most likely the same region we are sending email e.g. us-east-1, us-west-2',
@@ -534,12 +540,6 @@ var conf = convict({
       doc: 'Use HTTP keep-alive connections when talking to oauth server',
       env: 'OAUTH_KEEPALIVE',
       default: false
-    },
-    extra: {
-      email: {
-        doc: 'Temporary extra parameter to prevent request recursion',
-        default: false
-      }
     },
     clientIds: {
       doc: 'Mappings from client id to service name: { "id1": "name-1", "id2": "name-2" }',
@@ -751,11 +751,17 @@ var conf = convict({
       format: 'url',
       env: 'SMS_SIGNIN_CODES_BASE_URI'
     },
-    throttleWaitTime: {
-      doc: 'The number of seconds to wait if throttled by the SMS service provider',
-      default: 2,
-      format: Number,
-      env: 'SMS_THROTTLE_WAIT_TIME'
+    enableBudgetChecks: {
+      doc: 'enable checks of the monthly SMS spend against the available budget',
+      default: true,
+      format: Boolean,
+      env: 'SMS_ENABLE_BUDGET_CHECKS'
+    },
+    minimumCreditThresholdUSD: {
+      doc: 'The minimum amount of available credit that is necessary to enable SMS, in US dollars',
+      default: 200,
+      format: 'nat',
+      env: 'SMS_MINIMUM_CREDIT_THRESHOLD'
     }
   },
   secondaryEmail: {
@@ -796,6 +802,29 @@ var conf = convict({
       default: 30,
       format: 'nat',
       env: 'TOTP_STEP_SIZE'
+    },
+    window: {
+      doc: 'Tokens in the previous x-windows that should be considered valid',
+      default: 1,
+      format: 'nat',
+      env: 'TOTP_WINDOW'
+    },
+    recoveryCodes: {
+      length: {
+        doc: 'The length of a recovery code',
+        default: 10,
+        env: 'RECOVERY_CODE_LENGTH'
+      },
+      count: {
+        doc: 'Number of recovery codes to create',
+        default: 8,
+        env: 'RECOVERY_CODE_COUNT'
+      },
+      notifyLowCount: {
+        doc: 'Notify the user when there are less than these many recovery codes',
+        default: 2,
+        env: 'RECOVERY_CODE_NOTIFY_LOW_COUNT'
+      }
     }
   }
 })
@@ -815,6 +844,7 @@ conf.set('domain', url.parse(conf.get('publicUrl')).host)
 
 // derive fxa-auth-mailer configuration from our content-server url
 conf.set('smtp.accountSettingsUrl', conf.get('contentServer.url') + '/settings')
+conf.set('smtp.accountRecoveryCodesUrl', conf.get('contentServer.url') + '/settings/two_step_authentication/recovery_codes')
 conf.set('smtp.verificationUrl', conf.get('contentServer.url') + '/verify_email')
 conf.set('smtp.passwordResetUrl', conf.get('contentServer.url') + '/complete_reset_password')
 conf.set('smtp.initiatePasswordResetUrl', conf.get('contentServer.url') + '/reset_password')
@@ -825,5 +855,19 @@ conf.set('smtp.verifyPrimaryEmailUrl', conf.get('contentServer.url') + '/verify_
 conf.set('smtp.verifySecondaryEmailUrl', conf.get('contentServer.url') + '/verify_secondary_email')
 
 conf.set('isProduction', conf.get('env') === 'prod')
+
+//sns endpoint is not to be set in production
+if (conf.has('snsTopicEndpoint') && conf.get('env') !== 'dev') {
+  throw new Error('snsTopicEndpoint is only allowed in dev env')
+}
+
+if (conf.get('env') === 'dev'){
+  if (! process.env.AWS_ACCESS_KEY_ID) {
+    process.env.AWS_ACCESS_KEY_ID = 'DEV_KEY_ID'
+  }
+  if (! process.env.AWS_SECRET_ACCESS_KEY) {
+    process.env.AWS_SECRET_ACCESS_KEY = 'DEV_ACCESS_KEY'
+  }
+}
 
 module.exports = conf

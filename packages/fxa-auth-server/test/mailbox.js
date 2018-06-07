@@ -45,7 +45,11 @@ module.exports = function (host, port, printLogs) {
         log('mail body', body)
         var json = null
         try {
-          json = JSON.parse(body)[0]
+          json = JSON.parse(body)
+
+          if (json.length === 1) {
+            json = json[0]
+          }
         }
         catch (e) {
           return cb(e)

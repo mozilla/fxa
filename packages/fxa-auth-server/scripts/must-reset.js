@@ -54,9 +54,9 @@ DB.connect(config[config.db.backend])
     function (db) {
       var json = require(path.resolve(commandLineOptions.input))
 
-      var uids = butil.bufferize(json.map(function (entry) {
+      var uids = json.map(function (entry) {
         return entry.uid
-      }), {inplace: true})
+      })
 
       return P.all(uids.map(
         function (uid) {

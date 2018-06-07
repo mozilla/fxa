@@ -147,7 +147,7 @@ module.exports = (log, db, config, customs, sms) => {
         }
 
         function createResponse (isLocationOk) {
-          return { ok: isLocationOk, country }
+          return { ok: isLocationOk && sms.isBudgetOk(), country }
         }
       }
     }

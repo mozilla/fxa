@@ -3,14 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // This module contains mappings from activity/flow event names to
-// amplitude event definitions. The intention is for the returned
-// `receiveEvent` function to be invoked for every event and the
-// mappings determine which of those will be transformed into an
-// amplitude event.
-//
-// You can read more about the amplitude event structure here:
-//
-// https://amplitude.zendesk.com/hc/en-us/articles/204771828-HTTP-API
+// amplitude event definitions. A module in fxa-shared is responsible
+// for performing the actual transformations.
 //
 // You can see the event taxonomy here:
 //
@@ -18,16 +12,30 @@
 
 'use strict'
 
+const { GROUPS, initialize } = require('fxa-shared/metrics/amplitude')
 const P = require('../promise')
 
-const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(require('../../package.json').version)[1]
-
-const GROUPS = {
-  activity: 'fxa_activity',
-  email: 'fxa_email',
-  login: 'fxa_login',
-  registration: 'fxa_reg',
-  sms: 'fxa_sms'
+// Maps template name to email type
+const EMAIL_TYPES = {
+  lowRecoveryCodesEmail: '2fa',
+  newDeviceLoginEmail: 'login',
+  passwordChangedEmail: 'change_password',
+  passwordResetEmail: 'reset_password',
+  passwordResetRequiredEmail: 'reset_password',
+  postChangePrimaryEmail: 'change_email',
+  postRemoveSecondaryEmail: 'secondary_email',
+  postVerifyEmail: 'registration',
+  postVerifySecondaryEmail: 'secondary_email',
+  postConsumeRecoveryCodeEmail: '2fa',
+  postNewRecoveryCodesEmail: '2fa',
+  recoveryEmail: 'reset_password',
+  unblockCode: 'unblock',
+  verifyEmail: 'registration',
+  verifyLoginEmail: 'login',
+  verifyLoginCodeEmail: 'login',
+  verifyPrimaryEmail: 'verify',
+  verifySyncEmail: 'registration',
+  verifySecondaryEmail: 'secondary_email'
 }
 
 const EVENTS = {
@@ -63,54 +71,33 @@ const EVENTS = {
     group: GROUPS.registration,
     event: 'email_confirmed'
   },
-  'flow.complete': {
-    isDynamicGroup: true,
-    group: (request, data, metricsContext) => GROUPS[metricsContext.flowType],
-    event: 'complete'
-  },
   'sms.installFirefox.sent': {
     group: GROUPS.sms,
     event: 'sent'
   }
 }
 
-const EMAIL_EVENTS = /^email\.(\w+)\.(bounced|sent)$/
-
-const EMAIL_TYPES = {
-  newDeviceLoginEmail: 'login',
-  passwordChangedEmail: 'change_password',
-  passwordResetEmail: 'reset_password',
-  passwordResetRequiredEmail: 'reset_password',
-  postChangePrimaryEmail: 'change_email',
-  postRemoveSecondaryEmail: 'secondary_email',
-  postVerifyEmail: 'registration',
-  postVerifySecondaryEmail: 'secondary_email',
-  recoveryEmail: 'reset_password',
-  unblockCode: 'unblock',
-  verifyEmail: 'registration',
-  verifyLoginEmail: 'login',
-  verifyLoginCodeEmail: 'login',
-  verifyPrimaryEmail: 'verify',
-  verifySyncEmail: 'registration',
-  verifySecondaryEmail: 'secondary_email'
-}
-
-const NOP = () => {}
-
-const EVENT_PROPERTIES = {
-  [GROUPS.activity]: NOP,
-  [GROUPS.email]: mapEmailEventProperties,
-  [GROUPS.login]: NOP,
-  [GROUPS.registration]: NOP,
-  [GROUPS.sms]: NOP
-}
+const FUZZY_EVENTS = new Map([
+  [ /^email\.(\w+)\.bounced$/, {
+    group: eventCategory => EMAIL_TYPES[eventCategory] ? GROUPS.email : null,
+    event: 'bounced'
+  } ],
+  [ /^email\.(\w+)\.sent$/, {
+    group: eventCategory => EMAIL_TYPES[eventCategory] ? GROUPS.email : null,
+    event: 'sent'
+  } ],
+  [ /^flow\.complete\.(\w+)$/, {
+    group: eventCategory => GROUPS[eventCategory],
+    event: 'complete'
+  } ]
+])
 
 module.exports = (log, config) => {
   if (! log || ! config.oauth.clientIds) {
     throw new TypeError('Missing argument')
   }
 
-  const SERVICES = config.oauth.clientIds
+  const transformEvent = initialize(config.oauth.clientIds, EVENTS, FUZZY_EVENTS)
 
   return receiveEvent
 
@@ -120,164 +107,90 @@ module.exports = (log, config) => {
       return P.resolve()
     }
 
-    let mapping = EVENTS[event]
+    return request.app.devices
+      .catch(() => {})
+      .then(devices => {
+        const { formFactor } = request.app.ua
 
-    if (! mapping) {
-      const matches = EMAIL_EVENTS.exec(event)
-      if (matches) {
-        const eventCategory = matches[1]
-        if (EMAIL_TYPES[eventCategory]) {
-          mapping = {
-            group: GROUPS.email,
-            event: matches[2],
-            eventCategory: matches[1]
-          }
+        if (event === 'flow.complete') {
+          // HACK: Push flowType into the event so it can be parsed as eventCategory
+          event += `.${metricsContext.flowType}`
         }
-      }
-    }
 
-    if (mapping) {
-      let group = mapping.group
-      if (mapping.isDynamicGroup) {
-        group = group(request, data, metricsContext)
-        if (! group) {
-          return P.resolve()
+        const amplitudeEvent = transformEvent({
+          type: event,
+          time: metricsContext.time || Date.now()
+        }, Object.assign({}, data, {
+          devices,
+          formFactor,
+          uid: data.uid || getFromToken(request, 'uid'),
+          deviceId: getFromMetricsContext(metricsContext, 'device_id', request, 'deviceId'),
+          flowId: getFromMetricsContext(metricsContext, 'flow_id', request, 'flowId'),
+          flowBeginTime: getFromMetricsContext(metricsContext, 'flowBeginTime', request, 'flowBeginTime'),
+          lang: request.app.locale,
+          emailDomain: data.email_domain,
+          emailTypes: EMAIL_TYPES,
+          service: getService(request, data, metricsContext)
+        }, getOs(request), getBrowser(request), getLocation(request)))
+
+        if (amplitudeEvent) {
+          log.amplitudeEvent(amplitudeEvent)
         }
-      }
-
-      if (mapping.eventCategory) {
-        data.eventCategory = mapping.eventCategory
-      }
-
-      return request.app.devices
-        .catch(() => {})
-        .then(devices => {
-          const { formFactor } = request.app.ua
-
-          data.location = request.app.geo.location
-          data.devices = devices
-
-          log.amplitudeEvent(Object.assign({
-            time: metricsContext.time || Date.now(),
-            user_id: data.uid || getFromToken(request, 'uid'),
-            device_id: getFromMetricsContext(metricsContext, 'device_id', request, 'deviceId'),
-            event_type: `${group} - ${mapping.event}`,
-            session_id: getFromMetricsContext(metricsContext, 'flowBeginTime', request, 'flowBeginTime'),
-            event_properties: mapEventProperties(group, request, data, metricsContext),
-            user_properties: mapUserProperties(group, request, data, metricsContext),
-            app_version: APP_VERSION,
-            language: getLocale(request),
-            country: getLocationProperty(data, 'country'),
-            region: getLocationProperty(data, 'state'),
-            device_model: safeGet(formFactor)
-          }, mapOs(request)))
-        })
-    }
-
-    return P.resolve()
+      })
   }
+}
 
-  function mapOs (request) {
-    const { os, osVersion } = request.app.ua
-
-    if (os) {
-      return {
-        os_name: safeGet(os),
-        os_version: safeGet(osVersion)
-      }
-    }
+function getFromToken (request, key) {
+  if (request.auth && request.auth.credentials) {
+    return request.auth.credentials[key]
   }
+}
 
-  function getFromToken (request, key) {
-    if (request.auth.credentials) {
-      return request.auth.credentials[key]
-    }
+function getFromMetricsContext (metricsContext, key, request, payloadKey) {
+  return metricsContext[key] ||
+    (request.payload && request.payload.metricsContext && request.payload.metricsContext[payloadKey])
+}
+
+function getOs (request) {
+  const { os, osVersion } = request.app.ua
+
+  if (os) {
+    return { os, osVersion }
   }
+}
 
-  function getFromMetricsContext (metricsContext, key, request, payloadKey) {
-    return metricsContext[key] ||
-      (request.payload.metricsContext && request.payload.metricsContext[payloadKey])
+function getBrowser (request) {
+  const { browser, browserVersion } = request.app.ua
+
+  if (browser) {
+    return { browser, browserVersion }
   }
+}
 
-  function mapEventProperties (group, request, data, metricsContext) {
-    const { serviceName, clientId } = getServiceNameAndClientId(request, data, metricsContext)
+function getLocation (request) {
+  const { location } = request.app.geo
 
-    return Object.assign({
-      service: serviceName,
-      oauth_client_id: clientId
-    }, EVENT_PROPERTIES[group](request, data, metricsContext))
-  }
-
-  function getServiceNameAndClientId (request, data, metricsContext) {
-    let serviceName, clientId
-    const service = data.service ||
-      request.payload.service ||
-      request.query.service ||
-      metricsContext.service
-
-    if (service && service !== 'content-server') {
-      if (service === 'sync') {
-        serviceName = service
-      } else {
-        serviceName = SERVICES[service] || 'undefined_oauth'
-        clientId = service
-      }
-    }
-
-    return { serviceName, clientId }
-  }
-
-  function mapUserProperties (group, request, data, metricsContext) {
-    const { browser, browserVersion } = request.app.ua
-    return Object.assign({
-      flow_id: getFromMetricsContext(metricsContext, 'flow_id', request, 'flowId'),
-      sync_device_count: data.devices && data.devices.length,
-      ua_browser: safeGet(browser),
-      ua_version: safeGet(browserVersion)
-    }, getServicesUsed(request, metricsContext), getNewsletterState(data))
-  }
-
-  function safeGet (value) {
-    // Prevent null or the empty string from accidentally nuking
-    // properties in Amplitude (undefined is not serialised).
-    return value || undefined
-  }
-
-  function getLocale (request) {
-    return safeGet(request.app.locale)
-  }
-
-  function getLocationProperty (data, key) {
-    return safeGet(data.location && data.location[key])
-  }
-
-  function getServicesUsed (request, metricsContext) {
-    const { serviceName } = getServiceNameAndClientId(request, {}, metricsContext)
-    if (serviceName) {
-      return {
-        '$append': {
-          fxa_services_used: serviceName
-        }
-      }
-    }
-  }
-
-  function getNewsletterState (data) {
-    if (data.marketingOptIn === true || data.marketingOptIn === false) {
-      return { newsletter_state: data.marketingOptIn ? 'subscribed' : 'unsubscribed' }
+  if (location && (location.country || location.state)) {
+    return {
+      country: location.country,
+      region: location.state
     }
   }
 }
 
-function mapEmailEventProperties (request, data) {
-  const emailType = EMAIL_TYPES[data.eventCategory]
-  if (emailType) {
-    return {
-      email_provider: data.email_domain,
-      email_template: data.eventCategory,
-      email_type: emailType,
-      email_version: data.templateVersion
-    }
+function getService (request, data, metricsContext) {
+  if (data.service) {
+    return data.service
   }
+
+  if (request.payload && request.payload.service) {
+    return request.payload.service
+  }
+
+  if (request.query && request.query.service) {
+    return request.query.service
+  }
+
+  return metricsContext.service
 }
 

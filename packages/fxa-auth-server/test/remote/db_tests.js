@@ -165,7 +165,7 @@ describe('remote db', function() {
         })
         .then(sessions => {
           assert.equal(sessions.length, 1, 'sessions contains one item')
-          assert.equal(Object.keys(sessions[0]).length, 19, 'session has correct number of properties')
+          assert.equal(Object.keys(sessions[0]).length, 20, 'session has correct number of properties')
           assert.equal(typeof sessions[0].id, 'string', 'id property is not a buffer')
           assert.equal(sessions[0].uid, account.uid, 'uid property is correct')
           assert.ok(sessions[0].createdAt >= account.createdAt, 'createdAt property seems correct')
@@ -210,7 +210,7 @@ describe('remote db', function() {
         })
         .then(sessions => {
           assert.equal(sessions.length, 1, 'sessions contains one item')
-          assert.equal(Object.keys(sessions[0]).length, 19, 'session has correct number of properties')
+          assert.equal(Object.keys(sessions[0]).length, 20, 'session has correct number of properties')
           assert.equal(sessions[0].uid, account.uid, 'uid property is correct')
           assert.equal(sessions[0].lastAccessTime, undefined, 'lastAccessTime not reported if disabled')
           assert.equal(sessions[0].location, undefined, 'location property is correct')

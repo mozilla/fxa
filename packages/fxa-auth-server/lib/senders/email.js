@@ -27,6 +27,7 @@ module.exports = function (log, config) {
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
   const templateNameToCampaignMap = {
+    'lowRecoveryCodesEmail': 'low-recovery-codes',
     'newDeviceLoginEmail': 'new-device-signin',
     'passwordResetRequiredEmail': 'password-reset-required',
     'passwordChangedEmail': 'password-changed-success',
@@ -37,6 +38,8 @@ module.exports = function (log, config) {
     'postVerifySecondaryEmail': 'account-email-verified',
     'postAddTwoStepAuthenticationEmail': 'account-two-step-enabled',
     'postRemoveTwoStepAuthenticationEmail': 'account-two-step-disabled',
+    'postConsumeRecoveryCodeEmail': 'account-consume-recovery-code',
+    'postNewRecoveryCodesEmail': 'account-replace-recovery-codes',
     'recoveryEmail': 'forgot-password',
     'unblockCode': 'new-unblock',
     'verifyEmail': 'welcome',
@@ -50,6 +53,7 @@ module.exports = function (log, config) {
   // Email template to UTM content, this is typically the main call out link/button
   // in template.
   const templateNameToContentMap = {
+    'lowRecoveryCodesEmail': 'recovery-codes',
     'newDeviceLoginEmail': 'password-change',
     'passwordChangedEmail': 'password-change',
     'passwordResetEmail': 'password-reset',
@@ -60,6 +64,8 @@ module.exports = function (log, config) {
     'postVerifySecondaryEmail': 'manage-account',
     'postAddTwoStepAuthenticationEmail': 'manage-account',
     'postRemoveTwoStepAuthenticationEmail': 'manage-account',
+    'postConsumeRecoveryCodeEmail': 'manage-account',
+    'postNewRecoveryCodesEmail': 'manage-account',
     'recoveryEmail': 'reset-password',
     'unblockCode': 'unblock-code',
     'verifyEmail': 'activate',
@@ -123,6 +129,7 @@ module.exports = function (log, config) {
     }
 
     this.accountSettingsUrl = config.accountSettingsUrl
+    this.accountRecoveryCodesUrl = config.accountRecoveryCodesUrl
     this.androidUrl = config.androidUrl
     this.initiatePasswordChangeUrl = config.initiatePasswordChangeUrl
     this.initiatePasswordResetUrl = config.initiatePasswordResetUrl
@@ -806,7 +813,7 @@ module.exports = function (log, config) {
     log.trace({ op: 'mailer.postVerifySecondaryEmail', email: message.email, uid: message.uid })
 
     var templateName = 'postVerifySecondaryEmail'
-    var links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+    var links = this._generateSettingLinks(message, templateName)
 
     var headers = {
       'X-Link': links.link
@@ -837,8 +844,8 @@ module.exports = function (log, config) {
   Mailer.prototype.postChangePrimaryEmail = function (message) {
     log.trace({ op: 'mailer.postChangePrimaryEmail', email: message.email, uid: message.uid })
 
-    var templateName = 'postChangePrimaryEmail'
-    var links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+    const templateName = 'postChangePrimaryEmail'
+    const links = this._generateSettingLinks(message, templateName)
 
     var headers = {
       'X-Link': links.link
@@ -869,8 +876,8 @@ module.exports = function (log, config) {
   Mailer.prototype.postRemoveSecondaryEmail = function (message) {
     log.trace({ op: 'mailer.postRemoveSecondaryEmail', email: message.email, uid: message.uid })
 
-    var templateName = 'postRemoveSecondaryEmail'
-    var links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+    const templateName = 'postRemoveSecondaryEmail'
+    const links = this._generateSettingLinks(message, templateName)
 
     var headers = {
       'X-Link': links.link
@@ -900,7 +907,7 @@ module.exports = function (log, config) {
     log.trace({ op: 'mailer.postAddTwoStepAuthenticationEmail', email: message.email, uid: message.uid })
 
     const templateName = 'postAddTwoStepAuthenticationEmail'
-    const links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+    const links = this._generateSettingLinks(message, templateName)
 
     const headers = {
       'X-Link': links.link
@@ -933,10 +940,10 @@ module.exports = function (log, config) {
   }
 
   Mailer.prototype.postRemoveTwoStepAuthenticationEmail = function (message) {
-    log.trace({ op: 'mailer.postRemoveTwoStepAuthenticationEmail', email: message.email, uid: message.uid })
+    log.trace({op: 'mailer.postRemoveTwoStepAuthenticationEmail', email: message.email, uid: message.uid})
 
     const templateName = 'postRemoveTwoStepAuthenticationEmail'
-    const links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+    const links = this._generateSettingLinks(message, templateName)
 
     const headers = {
       'X-Link': links.link
@@ -948,7 +955,7 @@ module.exports = function (log, config) {
 
     return this.send(Object.assign({}, message, {
       headers,
-      subject: gettext('Two-step authentication removed'),
+      subject: gettext('Two-step authentication disabled'),
       template: templateName,
       templateValues: {
         androidLink: links.androidLink,
@@ -964,6 +971,110 @@ module.exports = function (log, config) {
         ip: message.ip,
         location: this._constructLocationString(message),
         timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
+      }
+    }))
+  }
+
+  Mailer.prototype.postNewRecoveryCodesEmail = function (message) {
+    log.trace({ op: 'mailer.postNewRecoveryCodesEmail', email: message.email, uid: message.uid })
+
+    const templateName = 'postNewRecoveryCodesEmail'
+    const links = this._generateSettingLinks(message, templateName)
+
+    const headers = {
+      'X-Link': links.link
+    }
+
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
+    return this.send(Object.assign({}, message, {
+      headers,
+      subject: gettext('New recovery codes generated'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
+      }
+    }))
+  }
+
+  Mailer.prototype.postConsumeRecoveryCodeEmail = function (message) {
+    log.trace({ op: 'mailer.postConsumeRecoveryCodeEmail', email: message.email, uid: message.uid })
+
+    const templateName = 'postConsumeRecoveryCodeEmail'
+    const links = this._generateSettingLinks(message, templateName)
+
+    const headers = {
+      'X-Link': links.link
+    }
+
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
+    return this.send(Object.assign({}, message, {
+      headers,
+      subject: gettext('Recovery code consumed'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
+      }
+    }))
+  }
+
+  Mailer.prototype.lowRecoveryCodesEmail = function (message) {
+    log.trace({ op: 'mailer.lowRecoveryCodesEmail', email: message.email, uid: message.uid })
+
+    const templateName = 'lowRecoveryCodesEmail'
+    const links = this._generateLowRecoveryCodesLinks(message, templateName)
+
+    const headers = {
+      'X-Link': links.link
+    }
+
+    if (this.sesConfigurationSet) {
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
+    }
+
+    return this.send(Object.assign({}, message, {
+      headers,
+      subject: gettext('Low recovery codes remaining'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes
       }
     }))
   }
@@ -1027,6 +1138,24 @@ module.exports = function (log, config) {
     }
 
     return links
+  }
+
+  Mailer.prototype._generateSettingLinks = function (message, templateName) {
+    // Generate all possible links where the primary link is `accountSettingsUrl`.
+    const query = {}
+    if (message.email) {query.email = message.email}
+    if (message.uid) {query.uid = message.uid}
+
+    return this._generateLinks(this.accountSettingsUrl, message.email, query, templateName)
+  }
+
+  Mailer.prototype._generateLowRecoveryCodesLinks = function (message, templateName) {
+    // Generate all possible links where the primary link is `accountRecoveryCodesUrl`.
+    const query = {low_recovery_codes: true}
+    if (message.email) {query.email = message.email}
+    if (message.uid) {query.uid = message.uid}
+
+    return this._generateLinks(this.accountRecoveryCodesUrl, message.email, query, templateName)
   }
 
   Mailer.prototype.createPasswordResetLink = function (email, templateName, emailToHashWith) {

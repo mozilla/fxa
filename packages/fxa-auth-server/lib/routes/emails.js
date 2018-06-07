@@ -153,6 +153,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
         let emails = []
         let flowId
         let flowBeginTime
+        let sendEmail = true
 
         // Return immediately if this session or token is already verified. Only exception
         // is if the email param has been specified, which means that this is
@@ -170,6 +171,10 @@ module.exports = (log, db, mailer, config, customs, push) => {
           .then(setVerifyCode)
           .then(setVerifyFunction)
           .then(() => {
+            if (! sendEmail) {
+              return
+            }
+
             const mailerOpts = {
               code,
               deviceId: sessionToken.deviceId,
@@ -192,8 +197,8 @@ module.exports = (log, db, mailer, config, customs, push) => {
             }
 
             return verifyFunction(emails, sessionToken, mailerOpts)
+              .then(() => request.emitMetricsEvent(`email.${event}.resent`))
           })
-          .then(() => request.emitMetricsEvent(`email.${event}.resent`))
           .then(
             () => reply({}),
             reply
@@ -225,8 +230,26 @@ module.exports = (log, db, mailer, config, customs, push) => {
                   return reply({})
                 }
               } else if (sessionToken.tokenVerificationId) {
+
                 emails = emailData
                 code = sessionToken.tokenVerificationId
+
+                // Check to see if this account has a verified TOTP token. If so, then it should
+                // not be allowed to bypass TOTP requirement by sending a sign-in confirmation email.
+                return db.totpToken(sessionToken.uid)
+                  .then((result) => {
+                    if (result && result.verified && result.enabled) {
+                      sendEmail = false
+                      return
+                    }
+                    code = sessionToken.tokenVerificationId
+                  }, (err) => {
+                    if (err.errno === error.ERRNO.TOTP_TOKEN_NOT_FOUND) {
+                      code = sessionToken.tokenVerificationId
+                      return
+                    }
+                    throw err
+                  })
               } else {
                 code = sessionToken.emailCode
               }
@@ -405,7 +428,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
                     uid: uid
                   })
                   request.app.devices.then(devices =>
-                    push.notifyUpdate(uid, devices, 'accountConfirm')
+                    push.notifyAccountUpdated(uid, devices, 'accountConfirm')
                   )
                 }
               })
@@ -425,9 +448,10 @@ module.exports = (log, db, mailer, config, customs, push) => {
               })
               .then(() => {
                 if (device) {
-                  request.app.devices.then(devices =>
-                    push.notifyDeviceConnected(uid, devices, device.name, device.id)
-                  )
+                  request.app.devices.then(devices => {
+                    const otherDevices = devices.filter(d => d.id !== device.id)
+                    return push.notifyDeviceConnected(uid, otherDevices, device.name)
+                  })
                 }
               })
               .then(() => {
@@ -459,7 +483,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
                   .then(() => {
                     // send a push notification to all devices that the account changed
                     request.app.devices.then(devices =>
-                      push.notifyUpdate(uid, devices, 'accountVerify')
+                      push.notifyAccountUpdated(uid, devices, 'accountVerify')
                     )
                   })
                   .then(() => {

@@ -121,7 +121,7 @@ describe('remote push db', function() {
           })
           .then(devices => {
             const pushWithUnknown400 = proxyquire('../../lib/push', mocksUnknown400)(mockLog, db, {})
-            return pushWithUnknown400.notifyUpdate(ACCOUNT.uid, devices, 'accountVerify')
+            return pushWithUnknown400.sendPush(ACCOUNT.uid, devices, 'accountVerify')
           })
           .then(function () {
             return db.devices(ACCOUNT.uid)
@@ -135,7 +135,7 @@ describe('remote push db', function() {
             assert.equal(device.pushEndpointExpired, deviceInfo.pushEndpointExpired, 'device.pushEndpointExpired is correct')
 
             const pushWithKnown400 = proxyquire('../../lib/push', mocksKnown400)(mockLog, db, {})
-            return pushWithKnown400.notifyUpdate(ACCOUNT.uid, devices, 'accountVerify')
+            return pushWithKnown400.sendPush(ACCOUNT.uid, devices, 'accountVerify')
           })
           .then(function () {
             return db.devices(ACCOUNT.uid)

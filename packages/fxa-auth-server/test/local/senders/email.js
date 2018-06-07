@@ -23,6 +23,7 @@ const Mailer = require(`${ROOT_DIR}/lib/senders/email`)(mockLog, config.getPrope
 const TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/templates/_versions.json`)
 
 const messageTypes = [
+  'lowRecoveryCodesEmail',
   'newDeviceLoginEmail',
   'passwordChangedEmail',
   'passwordResetEmail',
@@ -30,6 +31,8 @@ const messageTypes = [
   'postAddTwoStepAuthenticationEmail',
   'postChangePrimaryEmail',
   'postRemoveTwoStepAuthenticationEmail',
+  'postConsumeRecoveryCodeEmail',
+  'postNewRecoveryCodesEmail',
   'postVerifyEmail',
   'postVerifySecondaryEmail',
   'recoveryEmail',
@@ -42,6 +45,7 @@ const messageTypes = [
 ]
 
 const typesContainSupportLinks = [
+  'lowRecoveryCodesEmail',
   'newDeviceLoginEmail',
   'passwordChangedEmail',
   'passwordResetEmail',
@@ -72,6 +76,9 @@ const typesContainPasswordChangeLinks = [
   'postChangePrimaryEmail',
   'postRemoveTwoStepAuthenticationEmail',
   'postVerifySecondaryEmail',
+  'postVerifySecondaryEmail',
+  'postConsumeRecoveryCodeEmail',
+  'postNewRecoveryCodesEmail',
 ]
 
 const typesContainUnblockCode = [
@@ -104,11 +111,27 @@ const typesContainLocationData = [
   'verifyEmail',
   'verifyLoginEmail',
   'verifyPrimaryEmail',
-  'verifySecondaryEmail'
+  'verifySecondaryEmail',
+  'postConsumeRecoveryCodeEmail',
+  'postNewRecoveryCodesEmail',
 ]
 
 const typesContainPasswordManagerInfoLinks = [
   'passwordResetRequiredEmail',
+]
+
+const typesContainManageSettingsLinks = [
+  'postVerifySecondaryEmail',
+  'postChangePrimaryEmail',
+  'postRemoveSecondaryEmail',
+  'postAddTwoStepAuthenticationEmail',
+  'postRemoveTwoStepAuthenticationEmail',
+  'postNewRecoveryCodesEmail',
+  'postConsumeRecoveryCodeEmail',
+]
+
+const typesContainRecoveryCodeLinks = [
+  'lowRecoveryCodesEmail'
 ]
 
 function includes(haystack, needle) {
@@ -388,6 +411,30 @@ describe(
               mailer[type](message)
             }
           )
+        }
+
+        if (includes(typesContainManageSettingsLinks, type)) {
+          it('account settings info link is in email template output for ' + type, () => {
+            const accountSettingsUrl = mailer._generateSettingLinks(message, type).link
+
+            mailer.mailer.sendMail = function (emailConfig) {
+              assert.ok(includes(emailConfig.html, accountSettingsUrl))
+              assert.ok(includes(emailConfig.text, accountSettingsUrl))
+            }
+            mailer[type](message)
+          })
+        }
+
+        if (includes(typesContainRecoveryCodeLinks, type)) {
+          it('recovery code settings info link is in email template output for ' + type, () => {
+            const url = mailer._generateLowRecoveryCodesLinks(message, type).link
+
+            mailer.mailer.sendMail = function (emailConfig) {
+              assert.ok(includes(emailConfig.html, url))
+              assert.ok(includes(emailConfig.text, url))
+            }
+            mailer[type](message)
+          })
         }
 
         if (includes(typesContainLocationData, type)) {

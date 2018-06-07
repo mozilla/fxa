@@ -68,22 +68,7 @@ describe('push', () => {
   })
 
   it(
-    'notifyUpdate rejects on device not found',
-    () => {
-      const push = require(pushModulePath)(mockLog(), mockDb, mockConfig)
-      sinon.spy(push, 'sendPush')
-
-      return push.notifyUpdate(mockUid, mockDevices, 'wibble', {
-        includedDeviceIds: [ 'bogusid' ]
-      }).then(
-        () => assert(false, 'must throw'),
-        err => assert(! push.sendPush.called)
-      )
-    }
-  )
-
-  it(
-    'notifyUpdate does not reject on empty device array',
+    'sendPush does not reject on empty device array',
     () => {
       const thisMockLog = mockLog({
         info: function (log) {
@@ -94,45 +79,7 @@ describe('push', () => {
       })
       const push = require(pushModulePath)(thisMockLog, mockDb, mockConfig)
 
-      return push.notifyUpdate(mockUid, [], 'accountVerify')
-    }
-  )
-
-  it(
-    'notifyUpdate does not send notification to an excluded device',
-    () => {
-      const mocks = {
-        'web-push': {
-          sendNotification: function (sub, payload, options) {
-            return P.resolve()
-          }
-        }
-      }
-      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
-      const options = { excludedDeviceIds: [ mockDevices[0].id ] }
-
-      return push.notifyUpdate(mockUid, mockDevices, 'accountVerify', options)
-    }
-  )
-
-  it(
-    'notifyUpdate calls sendPush',
-    () => {
-      const push = require(pushModulePath)(mockLog(), mockDb, mockConfig)
-      sinon.stub(push, 'sendPush', () => P.resolve())
-      const excluded = [ mockDevices[0].id, mockDevices[2].id ]
-      const data = Buffer.from('foobar')
-      const options = { data: data, excludedDeviceIds: excluded, TTL: TTL }
-
-      return push.notifyUpdate(mockUid, mockDevices, 'deviceConnected', options)
-      .then(function() {
-        assert.ok(push.sendPush.calledOnce, 'push was called')
-        assert.equal(push.sendPush.getCall(0).args[0], mockUid)
-        assert.deepEqual(push.sendPush.getCall(0).args[1], [mockDevices[1]])
-        assert.equal(push.sendPush.getCall(0).args[2], 'deviceConnected')
-        assert.deepEqual(push.sendPush.getCall(0).args[3], { data: data, TTL: TTL })
-        push.sendPush.restore()
-      })
+      return push.sendPush(mockUid, [], 'accountVerify')
     }
   )
 
@@ -595,11 +542,17 @@ describe('push', () => {
   )
 
   it(
-    'notifyDeviceConnected calls notifyUpdate',
+    'notifyDeviceConnected calls sendPush',
     () => {
-      const push = require(pushModulePath)(mockLog(), mockDb, mockConfig)
-      sinon.spy(push, 'notifyUpdate')
-      var deviceId = 'gjfkd5434jk5h5fd'
+      const mocks = {
+        'web-push': {
+          sendNotification: function (sub, payload, options) {
+            return P.resolve()
+          }
+        }
+      }
+      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
+      sinon.spy(push, 'sendPush')
       var deviceName = 'My phone'
       var expectedData = {
         version: 1,
@@ -608,23 +561,22 @@ describe('push', () => {
           deviceName: deviceName
         }
       }
-      return push.notifyDeviceConnected(mockUid, mockDevices, deviceName, deviceId)
+      return push.notifyDeviceConnected(mockUid, mockDevices, deviceName)
         .catch(err => {
           assert.fail('must not throw')
           throw err
         })
         .then(() => {
-          assert.ok(push.notifyUpdate.calledOnce, 'notifyUpdate was called')
-          assert.equal(push.notifyUpdate.getCall(0).args[0], mockUid)
-          assert.equal(push.notifyUpdate.getCall(0).args[1], mockDevices)
-          assert.equal(push.notifyUpdate.getCall(0).args[2], 'deviceConnected')
-          const options = push.notifyUpdate.getCall(0).args[3]
+          assert.ok(push.sendPush.calledOnce, 'sendPush was called')
+          assert.equal(push.sendPush.getCall(0).args[0], mockUid)
+          assert.equal(push.sendPush.getCall(0).args[1], mockDevices)
+          assert.equal(push.sendPush.getCall(0).args[2], 'deviceConnected')
+          const options = push.sendPush.getCall(0).args[3]
           assert.deepEqual(options.data, expectedData)
           const schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
           const schema = JSON.parse(fs.readFileSync(schemaPath))
           assert.ok(ajv.validate(schema, options.data))
-          assert.deepEqual(options.excludedDeviceIds, [deviceId])
-          push.notifyUpdate.restore()
+          push.sendPush.restore()
         })
     }
   )
@@ -735,6 +687,33 @@ describe('push', () => {
         var schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
         var schema = JSON.parse(fs.readFileSync(schemaPath))
         assert.ok(ajv.validate(schema, options.data))
+        push.sendPush.restore()
+      })
+    }
+  )
+
+  it(
+    'notifyAccountUpdated calls sendPush',
+    () => {
+      var mocks = {
+        'web-push': {
+          sendNotification: function (sub, payload, options) {
+            return P.resolve()
+          }
+        }
+      }
+      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
+      sinon.stub(push, 'sendPush', () => P.resolve())
+
+      return push.notifyAccountUpdated(mockUid, mockDevices, 'deviceConnected').catch(function (err) {
+        assert.fail('must not throw')
+        throw err
+      })
+      .then(function() {
+        assert.ok(push.sendPush.calledOnce, 'push was called')
+        assert.equal(push.sendPush.getCall(0).args[0], mockUid)
+        assert.deepEqual(push.sendPush.getCall(0).args[1], mockDevices)
+        assert.equal(push.sendPush.getCall(0).args[2], 'deviceConnected')
         push.sendPush.restore()
       })
     }

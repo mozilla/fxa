@@ -8,6 +8,10 @@ const assert = require('insist')
 const amplitudeModule = require('../../../lib/metrics/amplitude')
 const mocks = require('../../mocks')
 
+const DAY = 1000 * 60 * 60 * 24
+const WEEK = DAY * 7
+const MONTH = DAY * 28
+
 describe('metrics/amplitude', () => {
   it('interface is correct', () => {
     assert.equal(typeof amplitudeModule, 'function')
@@ -86,6 +90,7 @@ describe('metrics/amplitude', () => {
 
     describe('account.confirmed', () => {
       beforeEach(() => {
+        const now = Date.now()
         return amplitude('account.confirmed', mocks.mockRequest({
           uaBrowser: 'foo',
           uaBrowserVersion: 'bar',
@@ -97,7 +102,12 @@ describe('metrics/amplitude', () => {
           credentials: {
             uid: 'blee'
           },
-          devices: [ {}, {}, {} ],
+          devices: [
+            { lastAccessTime: now - DAY + 10000 },
+            { lastAccessTime: now - WEEK + 10000 },
+            { lastAccessTime: now - MONTH + 10000 },
+            { lastAccessTime: now - MONTH - 1 }
+          ],
           geo: {
             location: {
               country: 'United Kingdom',
@@ -141,7 +151,10 @@ describe('metrics/amplitude', () => {
         })
         assert.deepEqual(args[0].user_properties, {
           flow_id: 'udge',
-          sync_device_count: 3,
+          sync_active_devices_day: 1,
+          sync_active_devices_week: 2,
+          sync_active_devices_month: 3,
+          sync_device_count: 4,
           ua_browser: 'foo',
           ua_version: 'bar',
           '$append': {
@@ -200,7 +213,9 @@ describe('metrics/amplitude', () => {
           oauth_client_id: '1'
         })
         assert.deepEqual(args[0].user_properties, {
-          flow_id: undefined,
+          sync_active_devices_day: 0,
+          sync_active_devices_week: 0,
+          sync_active_devices_month: 0,
           sync_device_count: 0,
           ua_browser: 'a',
           ua_version: 'b',
@@ -235,6 +250,9 @@ describe('metrics/amplitude', () => {
         assert.deepEqual(args[0].user_properties['$append'], {
           fxa_services_used: 'undefined_oauth'
         })
+        assert.equal(args[0].user_properties.sync_active_devices_day, undefined)
+        assert.equal(args[0].user_properties.sync_active_devices_week, undefined)
+        assert.equal(args[0].user_properties.sync_active_devices_month, undefined)
         assert.equal(args[0].user_properties.sync_device_count, undefined)
       })
     })

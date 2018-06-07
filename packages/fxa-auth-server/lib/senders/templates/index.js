@@ -59,11 +59,14 @@ module.exports = {
   generateTemplateName,
   init: () => P.all(
     [
+      'low_recovery_codes',
       'new_device_login',
       'password_changed',
       'password_reset',
       'password_reset_required',
       'post_change_primary',
+      'post_new_recovery_codes',
+      'post_consume_recovery_code',
       'post_remove_secondary',
       'post_verify',
       'post_verify_secondary',

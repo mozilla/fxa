@@ -5,11 +5,12 @@
 'use strict'
 
 const isA = require('joi')
+const validators = require('./routes/validators')
 const {
   DISPLAY_SAFE_UNICODE_WITH_NON_BMP,
   HEX_STRING,
   URL_SAFE_BASE_64
-} = require('./routes/validators')
+} = validators
 const PUSH_SERVER_REGEX = require('../config').get('push.allowedServerRegex')
 
 const SCHEMA = {
@@ -25,7 +26,7 @@ const SCHEMA = {
   // so we can't assert DISPLAY_SAFE_UNICODE_WITH_NON_BMP in the response schema.
   nameResponse: isA.string().max(255),
   type: isA.string().max(16),
-  pushCallback: isA.string().uri({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow(''),
+  pushCallback: validators.url({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow(''),
   pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).allow(''),
   pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).allow(''),
   pushEndpointExpired: isA.boolean().strict()
@@ -63,9 +64,10 @@ module.exports = (log, db, push) => {
             deviceName = synthesizeName(deviceInfo)
           }
           if (sessionToken.tokenVerified) {
-            request.app.devices.then(devices =>
-              push.notifyDeviceConnected(sessionToken.uid, devices, deviceName, result.id)
-            )
+            request.app.devices.then(devices => {
+              const otherDevices = devices.filter(device => device.id !== result.id)
+              return push.notifyDeviceConnected(sessionToken.uid, otherDevices, deviceName)
+            })
           }
           if (isPlaceholderDevice) {
             log.info({
@@ -98,7 +100,8 @@ module.exports = (log, db, push) => {
 
     if (uaBrowser) {
       if (uaBrowserVersion) {
-        result = `${uaBrowser} ${uaBrowserVersion}`
+        const splitIndex = uaBrowserVersion.indexOf('.')
+        result = `${uaBrowser} ${splitIndex === -1 ? uaBrowserVersion : uaBrowserVersion.substr(0, splitIndex)}`
       } else {
         result = uaBrowser
       }

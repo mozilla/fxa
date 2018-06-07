@@ -29,6 +29,8 @@ module.exports = function (
   config
   ) {
 
+  const totpUtils = require('../../lib/routes/utils/totp')(log, config, db)
+
   function failVerifyAttempt(passwordForgotToken) {
     return (passwordForgotToken.failAttempt()) ?
       db.deletePasswordForgotToken(passwordForgotToken) :
@@ -153,9 +155,10 @@ module.exports = function (
         var wantsKeys = requestHelper.wantsKeys(request)
         const ip = request.app.clientAddress
         var account, verifyHash, sessionToken, keyFetchToken, verifiedStatus,
-          devicesToNotify, originatingDeviceId
+          devicesToNotify, originatingDeviceId, hasTotp = false
 
-        getSessionVerificationStatus()
+        checkTotpToken()
+          .then(getSessionVerificationStatus)
           .then(fetchDevicesToNotify)
           .then(changePassword)
           .then(notifyAccount)
@@ -163,6 +166,21 @@ module.exports = function (
           .then(createKeyFetchToken)
           .then(createResponse)
           .then(reply, reply)
+
+        function checkTotpToken() {
+          return totpUtils.hasTotpToken(passwordChangeToken)
+            .then((result) => {
+              hasTotp = result
+
+              // Currently, users that have a TOTP token must specify a sessionTokenId to complete the
+              // password change process. While the `sessionTokenId` is optional, we require it
+              // in the case of TOTP because we want to check that session has been verified
+              // by TOTP.
+              if (result && ! sessionTokenId) {
+                throw error.unverifiedSession()
+              }
+            })
+        }
 
         function getSessionVerificationStatus() {
           if (sessionTokenId) {
@@ -172,6 +190,10 @@ module.exports = function (
                   verifiedStatus = tokenData.tokenVerified
                   if (tokenData.deviceId) {
                     originatingDeviceId = tokenData.deviceId
+                  }
+
+                  if (hasTotp && tokenData.authenticatorAssuranceLevel <= 1) {
+                    throw error.unverifiedSession()
                   }
                 }
               )

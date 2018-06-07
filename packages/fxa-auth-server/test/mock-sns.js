@@ -24,6 +24,12 @@ function MockSNS (options, config) {
   const mailer = require('nodemailer').createTransport(mailerOptions)
 
   return {
+    getSMSAttributes () {
+      return {
+        promise: () => P.resolve({ attributes: { MonthlySpendLimit: config.sms.minimumCreditThresholdUSD } })
+      }
+    },
+
     publish (params) {
       const promise = new P(resolve => {
         // HACK: Enable remote tests to see what was sent

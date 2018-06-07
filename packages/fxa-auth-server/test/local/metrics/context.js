@@ -587,7 +587,7 @@ describe('metricsContext', () => {
     'metricsContext.validate with valid data',
     () => {
       const flowBeginTime = 1451566800000
-      const flowId = '1234567890abcdef1234567890abcdef6a7c0469a1e3d6dfa7d9bed7ae209672'
+      const flowId = '1234567890abcdef1234567890abcdef06146f1d05e7ae215885a4e45b66ff1f'
       sinon.stub(Date, 'now', function() {
         return flowBeginTime + 59999
       })
@@ -615,14 +615,13 @@ describe('metricsContext', () => {
       const result = metricsContext.validate.call(mockRequest)
 
       assert.strictEqual(result, true, 'result was true')
-      assert.equal(mockRequest.payload.metricsContext.flowId, '1234567890abcdef1234567890abcdef6a7c0469a1e3d6dfa7d9bed7ae209672', 'valid flow data was not removed')
+      assert.equal(mockRequest.payload.metricsContext.flowId, '1234567890abcdef1234567890abcdef06146f1d05e7ae215885a4e45b66ff1f', 'valid flow data was not removed')
       assert.equal(mockLog.warn.callCount, 0, 'log.warn was not called')
       assert.equal(mockLog.info.callCount, 1, 'log.info was called once')
       assert.equal(mockLog.info.args[0].length, 1, 'log.info was passed one argument')
       assert.deepEqual(mockLog.info.args[0][0], {
         op: 'metrics.context.validate',
-        valid: true,
-        agent: 'test-agent'
+        valid: true
       }, 'log.info was passed correct argument')
 
       Date.now.restore()
@@ -655,8 +654,7 @@ describe('metricsContext', () => {
       assert.ok(mockLog.warn.calledWithExactly({
         op: 'metrics.context.validate',
         valid: false,
-        reason: 'missing payload',
-        agent: 'test-agent'
+        reason: 'missing payload'
       }), 'log.warn was called with the expected log data')
     }
   )
@@ -691,8 +689,7 @@ describe('metricsContext', () => {
       assert.ok(mockLog.warn.calledWithExactly({
         op: 'metrics.context.validate',
         valid: false,
-        reason: 'missing context',
-        agent: 'test-agent'
+        reason: 'missing context'
       }), 'log.warn was called with the expected log data')
     }
   )
@@ -729,8 +726,7 @@ describe('metricsContext', () => {
       assert.ok(mockLog.warn.calledWithExactly({
         op: 'metrics.context.validate',
         valid: false,
-        reason: 'missing flowId',
-        agent: 'test-agent'
+        reason: 'missing flowId'
       }), 'log.warn was called with the expected log data')
     }
   )
@@ -767,8 +763,7 @@ describe('metricsContext', () => {
       assert.ok(mockLog.warn.calledWithExactly({
         op: 'metrics.context.validate',
         valid: false,
-        reason: 'missing flowBeginTime',
-        agent: 'test-agent'
+        reason: 'missing flowBeginTime'
       }), 'log.warn was called with the expected log data')
     }
   )
@@ -806,8 +801,7 @@ describe('metricsContext', () => {
       assert.ok(mockLog.warn.calledWithExactly({
         op: 'metrics.context.validate',
         valid: false,
-        reason: 'expired flowBeginTime',
-        agent: 'test-agent'
+        reason: 'expired flowBeginTime'
       }), 'log.warn was called with the expected log data')
     }
   )
@@ -845,8 +839,7 @@ describe('metricsContext', () => {
       assert.ok(mockLog.warn.calledWithExactly({
         op: 'metrics.context.validate',
         valid: false,
-        reason: 'invalid signature',
-        agent: 'test-agent'
+        reason: 'invalid signature'
       }), 'log.warn was called with the expected log data')
     }
   )
@@ -856,7 +849,7 @@ describe('metricsContext', () => {
     () => {
       var expectedTime = 1451566800000
       var expectedSalt = '4d6f7a696c6c6146697265666f782121'
-      var expectedHmac = 'c89d56556d22039fbbf54d34e0baf206'
+      var expectedHmac = '2a204a6d26b009b26b3116f643d84c6f'
       var mockLog = mocks.mockLog()
       var mockConfig = {
         memcached: {},
@@ -894,8 +887,7 @@ describe('metricsContext', () => {
       assert.ok(mockLog.warn.calledWithExactly({
         op: 'metrics.context.validate',
         valid: false,
-        reason: 'invalid signature',
-        agent: 'Firefox'
+        reason: 'invalid signature'
       }), 'log.warn was called with the expected log data')
     }
   )
@@ -905,7 +897,7 @@ describe('metricsContext', () => {
     () => {
       var expectedTime = 1451566800000
       var expectedSalt = '4d6f7a696c6c6146697265666f782121'
-      var expectedHmac = 'c89d56556d22039fbbf54d34e0baf206'
+      var expectedHmac = '2a204a6d26b009b26b3116f643d84c6f'
       var mockLog = mocks.mockLog()
       var mockConfig = {
         memcached: {},
@@ -943,16 +935,18 @@ describe('metricsContext', () => {
       assert.ok(mockLog.warn.calledWithExactly({
         op: 'metrics.context.validate',
         valid: false,
-        reason: 'invalid signature',
-        agent: 'Firefox'
+        reason: 'invalid signature'
       }), 'log.warn was called with the expected log data')
     }
   )
 
   it(
-    'metricsContext.validate with flow signature from different user agent',
+    'metricsContext.validate with flow signature including user agent',
     () => {
       var expectedTime = 1451566800000
+      // This is the correct signature for the *old* recipe, where we used
+      // to include the user agent string in the hash. The test is expected
+      // to fail because we don't support that recipe any more.
       var expectedSalt = '4d6f7a696c6c6146697265666f782121'
       var expectedHmac = 'c89d56556d22039fbbf54d34e0baf206'
       var mockLog = mocks.mockLog()
@@ -965,7 +959,7 @@ describe('metricsContext', () => {
       }
       var mockRequest = {
         headers: {
-          'user-agent': 'ThisIsNotFirefox'
+          'user-agent': 'Firefox'
         },
         payload: {
           metricsContext: {
@@ -992,11 +986,45 @@ describe('metricsContext', () => {
       assert.ok(mockLog.warn.calledWithExactly({
         op: 'metrics.context.validate',
         valid: false,
-        reason: 'invalid signature',
-        agent: 'ThisIsNotFirefox'
+        reason: 'invalid signature'
       }), 'log.warn was called with the expected log data')
     }
   )
+
+  it('metricsContext.validate with flow signature compared without user agent', () => {
+    const flowBeginTime = 1451566800000
+    const flowId = '1234567890abcdef1234567890abcdef06146f1d05e7ae215885a4e45b66ff1f'
+    sinon.stub(Date, 'now', () => flowBeginTime + 59999)
+    const mockLog = mocks.mockLog()
+    const mockConfig = {
+      memcached: {},
+      metrics: {
+        flow_id_expiry: 60000,
+        flow_id_key: 'S3CR37'
+      }
+    }
+    const mockRequest = {
+      headers: {
+        'user-agent': 'some other user agent'
+      },
+      payload: {
+        metricsContext: {
+          flowId,
+          flowBeginTime
+        }
+      }
+    }
+
+    const metricsContext = require(modulePath)(mockLog, mockConfig)
+    const result = metricsContext.validate.call(mockRequest)
+
+    assert.strictEqual(result, true, 'validate returned true')
+    assert.equal(mockRequest.payload.metricsContext.flowId, '1234567890abcdef1234567890abcdef06146f1d05e7ae215885a4e45b66ff1f', 'valid flow data was not removed')
+    assert.equal(mockLog.warn.callCount, 0, 'log.warn was not called')
+    assert.equal(mockLog.info.callCount, 1, 'log.info was called once')
+
+    Date.now.restore()
+  })
 
   it(
     'setFlowCompleteSignal',

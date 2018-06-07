@@ -435,6 +435,7 @@
   * id
   * name
   * type
+  * capabilities
   * pushCallback
   * pushPublicKey
   * pushAuthKey
@@ -443,6 +444,7 @@
   * createdAt
   * name
   * type
+  * capabilities
   * pushCallback
   * pushPublicKey
   * pushAuthKey
@@ -458,6 +460,7 @@
     * isCurrentDevice
     * name
     * type
+    * capabilities
     * pushCallback
     * pushPublicKey
     * pushAuthKey

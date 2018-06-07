@@ -13,11 +13,16 @@ var localizeTimestamp = require('fxa-shared').l10n.localizeTimestamp({
 })
 
 module.exports = function (log, error) {
+  const SafeUrl = require('./safe-url')(log)
+  const SAFE_URLS = {}
 
   // Perform a deep clone of payload and remove user password.
   function sanitizePayload(payload) {
-    // Once we move to Node4, use https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
-    var clonePayload = JSON.parse(JSON.stringify(payload))
+    if (! payload) {
+      return
+    }
+
+    const clonePayload = Object.assign({}, payload)
 
     if (clonePayload.authPW) {
       delete clonePayload.authPW
@@ -41,10 +46,12 @@ module.exports = function (log, error) {
     }
   }
 
+  SAFE_URLS.check = new SafeUrl('/check')
   Customs.prototype.check = function (request, email, action) {
     log.trace({ op: 'customs.check', email: email, action: action })
     return this.pool.post(
-      '/check',
+      SAFE_URLS.check,
+      undefined,
       {
         ip: request.app.clientAddress,
         email: email,
@@ -94,11 +101,13 @@ module.exports = function (log, error) {
     }
   }
 
+  SAFE_URLS.checkAuthenticated = new SafeUrl('/checkAuthenticated')
   Customs.prototype.checkAuthenticated = function (action, ip, uid) {
     log.trace({ op: 'customs.checkAuthenticated', action: action,  uid: uid })
 
     return this.pool.post(
-      '/checkAuthenticated',
+      SAFE_URLS.checkAuthenticated,
+      undefined,
       {
         action: action,
         ip: ip,
@@ -124,9 +133,10 @@ module.exports = function (log, error) {
     )
   }
 
+  SAFE_URLS.checkIpOnly = new SafeUrl('/checkIpOnly')
   Customs.prototype.checkIpOnly = function (request, action) {
     log.trace({ op: 'customs.checkIpOnly', action: action })
-    return this.pool.post('/checkIpOnly', {
+    return this.pool.post(SAFE_URLS.checkIpOnly, undefined, {
       ip: request.app.clientAddress,
       action: action
     })
@@ -142,12 +152,14 @@ module.exports = function (log, error) {
     )
   }
 
+  SAFE_URLS.failedLoginAttempt = new SafeUrl('/failedLoginAttempt')
   Customs.prototype.flag = function (ip, info) {
     var email = info.email
     var errno = info.errno || error.ERRNO.UNEXPECTED_ERROR
     log.trace({ op: 'customs.flag', ip: ip, email: email, errno: errno })
     return this.pool.post(
-      '/failedLoginAttempt',
+      SAFE_URLS.failedLoginAttempt,
+      undefined,
       {
         ip: ip,
         email: email,
@@ -167,10 +179,12 @@ module.exports = function (log, error) {
     )
   }
 
+  SAFE_URLS.passwordReset = new SafeUrl('/passwordReset')
   Customs.prototype.reset = function (email) {
     log.trace({ op: 'customs.reset', email: email })
     return this.pool.post(
-      '/passwordReset',
+      SAFE_URLS.passwordReset,
+      undefined,
       {
         email: email
       }
