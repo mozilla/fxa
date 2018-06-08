@@ -8,8 +8,8 @@ const AuthErrors = require('lib/auth-errors');
 const TotpEl = require('views/elements/totp-code-input');
 
 const TEMPLATE =
-  '<input type="text" class="totp-code"></input>' +
-  '<input type="text" class="not-code"></input>';
+  '<input type="number" pattern="\d*" class="totp-code"></input>' +
+  '<input type="number" pattern="\d*" class="not-code"></input>';
 
 describe('views/elements/totp-code-input', function () {
   let $element;
@@ -37,14 +37,14 @@ describe('views/elements/totp-code-input', function () {
 
   describe('val', () => {
     it('strips, -, spaces', () => {
-      $element.val('  000000');
-      assert.equal($element.val(), '000000');
+      $element.val('  000001');
+      assert.equal($element.val(), '000001');
 
-      $element.val('000-000');
-      assert.equal($element.val(), '000000');
+      $element.val('000-002');
+      assert.equal($element.val(), '000002');
 
-      $element.val('000 000');
-      assert.equal($element.val(), '000000');
+      $element.val('000 003');
+      assert.equal($element.val(), '000003');
     });
   });
 
@@ -67,7 +67,7 @@ describe('views/elements/totp-code-input', function () {
     });
 
     it('if invalid, throws a `INVALID_TOTP_CODE`', () => {
-      testInvalidInput($element, 'notvalid', 'INVALID_TOTP_CODE');
+      testInvalidInput($element, '000000000', 'INVALID_TOTP_CODE');
     });
 
     it('does not throw if valid', () => {

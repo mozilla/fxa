@@ -91,7 +91,7 @@ registerSuite('TOTP', {
     'can add TOTP to account and confirm web signin': function () {
       return this.remote
       // Show's tool tip for invalid codes on setup
-        .then(type(selectors.TOTP.CONFIRM_CODE_INPUT, 'INVALID'))
+        .then(type(selectors.TOTP.CONFIRM_CODE_INPUT, '123432'))
         .then(click(selectors.TOTP.CONFIRM_CODE_BUTTON))
         .then(visibleByQSA('.tooltip'))
         .then(testElementTextInclude('.tooltip', 'invalid'))

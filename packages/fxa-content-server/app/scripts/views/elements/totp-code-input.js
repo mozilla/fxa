@@ -9,15 +9,15 @@ const Vat = require('../../lib/vat');
 const element = Object.create(textInput);
 
 element.match = function ($el) {
-  return $el.attr('type') === 'text' && $el.hasClass('totp-code');
+  return $el.attr('type') === 'number' && $el.hasClass('totp-code');
 };
 
 element.val = function (val) {
   if (arguments.length === 1) {
-    return this.__val(val);
+    return this.__val(val.replace(/[- ]*/g, ''));
   }
 
-  return this.__val().replace(/[- ]*/g, '');
+  return this.__val();
 };
 
 element.validate = function () {
