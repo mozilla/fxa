@@ -45,7 +45,6 @@ require('./spec/lib/experiments/grouping-rules/is-sampled-user');
 require('./spec/lib/experiments/grouping-rules/q3-form-changes');
 require('./spec/lib/experiments/grouping-rules/send-sms-install-link');
 require('./spec/lib/experiments/grouping-rules/sentry');
-require('./spec/lib/experiments/grouping-rules/sessions');
 require('./spec/lib/experiments/grouping-rules/token-code');
 require('./spec/lib/experiments/grouping-rules/totp');
 require('./spec/lib/fxa-client');

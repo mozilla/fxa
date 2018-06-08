@@ -17,7 +17,6 @@ const experimentGroupingRules = [
   require('./q3-form-changes'),
   require('./send-sms-install-link'),
   require('./sentry'),
-  require('./sessions'),
   require('./token-code'),
   require('./totp'),
 ].map(ExperimentGroupingRule => new ExperimentGroupingRule());
