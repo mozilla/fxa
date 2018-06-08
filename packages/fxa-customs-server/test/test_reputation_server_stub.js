@@ -20,7 +20,7 @@ var reputationsByIp = {}
 
 server.put('/violations/:ip', function (req, res, next) {
   var ip = req.params.ip
-  mostRecentViolationByIp[ip] = req.body.Violation
+  mostRecentViolationByIp[ip] = req.body.violation
   console.log('put req', req.url)
   res.send(200)
   next()
@@ -52,7 +52,7 @@ server.get('/:ip', function (req, res, next) {
   if (ip === '9.9.9.9') {
     res.send(500)
   } else if (reputationsByIp.hasOwnProperty(ip)) {
-    res.send(200, {Reputation: reputationsByIp[ip]})
+    res.send(200, {reputation: reputationsByIp[ip]})
   } else {
     res.send(404)
   }

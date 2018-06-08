@@ -30,8 +30,8 @@ var get = function (log, ipClient, ip) {
   return ipClient.get(ip)
     .then(function (response) {
       if (response && response.body && response.statusCode === 200) {
-        log.info({ op: 'fetchIPReputation', ip: ip, reputation: response.body.Reputation })
-        return response.body.Reputation
+        log.info({ op: 'fetchIPReputation', ip: ip, reputation: response.body.reputation })
+        return response.body.reputation
       }
 
       if (response.statusCode === 404) {
