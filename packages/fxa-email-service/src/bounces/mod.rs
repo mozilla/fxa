@@ -63,10 +63,14 @@ impl From<DbError> for BounceError {
 }
 
 impl From<BounceError> for Failure {
-    fn from(_error: BounceError) -> Failure {
+    fn from(error: BounceError) -> Failure {
         // Eventually we should be able to do something richer than this,
         // as per https://github.com/SergioBenitez/Rocket/issues/586.
-        Failure(Status::TooManyRequests)
+        Failure(
+            error
+                .bounce
+                .map_or(Status::InternalServerError, |_| Status::TooManyRequests),
+        )
     }
 }
 

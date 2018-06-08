@@ -2,6 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
+use rocket::http::Status;
 use serde_json::{self, Value as Json};
 
 use super::*;
@@ -97,11 +98,13 @@ fn check_soft_bounce() {
                 "email address violated soft bounce limit"
             );
             assert_eq!(error.address, "foo@example.com");
-            if let Some(bounce) = error.bounce {
+            if let Some(ref bounce) = error.bounce {
                 assert_eq!(bounce.bounce_type, BounceType::Soft);
             } else {
                 assert!(false, "Error::bounce should be set");
             }
+            let failure: Failure = From::from(error);
+            assert_eq!(failure.0, Status::TooManyRequests);
         }
     }
 }
@@ -140,11 +143,13 @@ fn check_hard_bounce() {
                 "email address violated hard bounce limit"
             );
             assert_eq!(error.address, "bar@example.com");
-            if let Some(bounce) = error.bounce {
+            if let Some(ref bounce) = error.bounce {
                 assert_eq!(bounce.bounce_type, BounceType::Hard);
             } else {
                 assert!(false, "Error::bounce should be set");
             }
+            let failure: Failure = From::from(error);
+            assert_eq!(failure.0, Status::TooManyRequests);
         }
     }
 }
@@ -183,11 +188,13 @@ fn check_complaint() {
                 "email address violated complaint limit"
             );
             assert_eq!(error.address, "baz@example.com");
-            if let Some(bounce) = error.bounce {
+            if let Some(ref bounce) = error.bounce {
                 assert_eq!(bounce.bounce_type, BounceType::Complaint);
             } else {
                 assert!(false, "Error::bounce should be set");
             }
+            let failure: Failure = From::from(error);
+            assert_eq!(failure.0, Status::TooManyRequests);
         }
     }
 }
@@ -230,6 +237,8 @@ fn check_db_error() {
             if let Some(_) = error.bounce {
                 assert!(false, "Error::bounce should not be set");
             }
+            let failure: Failure = From::from(error);
+            assert_eq!(failure.0, Status::InternalServerError);
         }
     }
 }
