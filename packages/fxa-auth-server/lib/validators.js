@@ -30,7 +30,7 @@ exports.token = Joi.string()
 
 exports.scope = Joi.string()
   .max(256)
-  .regex(/^[a-zA-Z0-9 _\/.:]+$/);
+  .regex(/^[a-zA-Z0-9 _\/.:-]+$/);
 
 exports.redirectUri = Joi.string()
   .max(256)

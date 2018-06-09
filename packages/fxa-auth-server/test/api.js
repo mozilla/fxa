@@ -52,6 +52,19 @@ const VERIFY_GOOD_BUT_STALE = JSON.stringify({
     'fxa-aal': AAL
   }
 });
+const VERIFY_GOOD_BUT_UNVERIFIED = JSON.stringify({
+  status: 'okay',
+  email: USERID + '@' + config.get('browserid.issuer'),
+  issuer: config.get('browserid.issuer'),
+  idpClaims: {
+    'fxa-verifiedEmail': VEMAIL,
+    'fxa-lastAuthAt': AUTH_AT,
+    'fxa-generation': 123456,
+    'fxa-tokenVerified': false,
+    'fxa-amr': AMR,
+    'fxa-aal': AAL
+  }
+});
 
 const MAX_TTL_S = config.get('expiration.accessToken') / 1000;
 
@@ -60,6 +73,11 @@ const JWT_PUB_KEY = require('./lib/pubkey.json');
 JWT_PUB_KEY.kid = 'dev-1';
 JWT_PUB_KEY.use = 'sig';
 JWT_PUB_KEY.alg = 'RS';
+
+const SCOPED_CLIENT_ID = 'aaa6b9b3a65a1871';
+const NO_KEY_SCOPES_CLIENT_ID = '38a6b9b3a65a1871';
+const BAD_CLIENT_ID = '0006b9b3a65a1871';
+const SCOPE_CAN_SCOPE_KEY = 'https://identity.mozilla.com/apps/sample-scope-can-scope-key';
 
 
 function mockAssertion() {
@@ -494,6 +512,32 @@ describe('/v1', function() {
         return Server.api.post({
           url: '/authorization',
           payload: authParams()
+        }).then(function(res) {
+          assert.equal(res.result.code, 401);
+          assert.equal(res.result.message, 'Invalid assertion');
+          assertSecurityHeaders(res);
+        });
+      });
+
+      it('succeeds by default when fxa-tokenVerified is false', function() {
+        mockAssertion().reply(200, VERIFY_GOOD_BUT_UNVERIFIED);
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams()
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+        });
+      });
+
+      it('errors when fxa-tokenVerified is false and a scope has keys', function() {
+        mockAssertion().reply(200, VERIFY_GOOD_BUT_UNVERIFIED);
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            client_id: SCOPED_CLIENT_ID,
+            scope: SCOPE_CAN_SCOPE_KEY
+          })
         }).then(function(res) {
           assert.equal(res.result.code, 401);
           assert.equal(res.result.message, 'Invalid assertion');
@@ -2542,10 +2586,6 @@ describe('/v1', function() {
     });
 
     describe('POST /key-data', function() {
-      const SCOPED_CLIENT_ID = 'aaa6b9b3a65a1871';
-      const NO_KEY_SCOPES_CLIENT_ID = '38a6b9b3a65a1871';
-      const BAD_CLIENT_ID = '0006b9b3a65a1871';
-      const SCOPE_CAN_SCOPE_KEY = 'https://identity.mozilla.com/apps/sample-scope-can-scope-key';
       let genericRequest;
 
       beforeEach(function () {

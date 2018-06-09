@@ -238,6 +238,28 @@ module.exports = {
           exitEarly = true;
           throw AppError.invalidAssertion();
         }
+        // Any request for a key-bearing scope should be using a verified token.
+        // Double-check that here as a defense-in-depth measure.
+        if (! claims['fxa-tokenVerified']) {
+          return P.each(scope.values(), scope => {
+            // Don't bother hitting the DB if other checks have failed.
+            if (exitEarly) {
+              return;
+            }
+            // We know only URL-format scopes can have keys,
+            // so avoid trips to the DB for common scopes like 'profile'.
+            if (scope.startsWith('https://')) {
+              return db.getScope(scope).then(s => {
+                if (s.hasScopedKeys) {
+                  exitEarly = true;
+                  throw AppError.invalidAssertion();
+                }
+              });
+            }
+          }).then(() => {
+            return claims;
+          });
+        }
         return claims;
       }),
       db.getClient(Buffer.from(req.payload.client_id, 'hex')).then(function(client) {
@@ -286,6 +308,9 @@ module.exports = {
         checkPKCEParams(req, client);
 
         return client;
+      }).catch(err => {
+        exitEarly = true;
+        throw err;
       }),
       scope.values(),
       req

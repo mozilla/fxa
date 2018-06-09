@@ -26,7 +26,7 @@ module.exports = {
     payload: {
       client_id: validators.clientId,
       assertion: validators.assertion.required(),
-      scope: Joi.string()
+      scope: validators.scope
     }
   },
   response: {
