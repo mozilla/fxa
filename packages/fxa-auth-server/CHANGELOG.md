@@ -1,3 +1,17 @@
+<a name="1.113.1"></a>
+## [1.113.1](https://github.com/mozilla/fxa-oauth-server/compare/v1.113.0...v1.113.1) (2018-06-09)
+
+
+### Bug Fixes
+
+* **pkce:** Don't require PKCE in the direct grant flow. (#566) r=@vladikoff ([d70fe6d](https://github.com/mozilla/fxa-oauth-server/commit/d70fe6d)), closes [#566](https://github.com/mozilla/fxa-oauth-server/issues/566) [#559](https://github.com/mozilla/fxa-oauth-server/issues/559)
+
+### Features
+
+* **authorization:** Require tokenVerified=true for key-bearing scopes. (#561) r=@vladikoff ([f9ad63e](https://github.com/mozilla/fxa-oauth-server/commit/f9ad63e)), closes [#561](https://github.com/mozilla/fxa-oauth-server/issues/561) [/github.com/mozilla-services/tokenserver/blob/master/tokenserver/views.py#L140](https://github.com//github.com/mozilla-services/tokenserver/blob/master/tokenserver/views.py/issues/L140)
+
+
+
 <a name="1.113.0"></a>
 # [1.113.0](https://github.com/mozilla/fxa-oauth-server/compare/v1.112.1...v1.113.0) (2018-05-30)
 
