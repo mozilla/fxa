@@ -421,6 +421,22 @@ describe('/v1', function() {
         });
       });
 
+      it('should allow Public Clients to direct grant without PKCE', function() {
+        var client = clientByName('Admin');
+        mockAssertion().reply(200, VERIFY_GOOD);
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            client_id: client.id,
+            response_type: 'token',
+            scope: 'profile profile:write profile:uid',
+          })
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+        });
+      });
+
       it('only works with Public Clients', function() {
         var client = clientByName('Mocha');
         mockAssertion().reply(200, VERIFY_GOOD);

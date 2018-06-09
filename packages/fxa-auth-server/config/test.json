@@ -17,7 +17,8 @@
       "imageUri": "https://example2.domain/logo",
       "redirectUri": "https://example2.domain/redirect",
       "trusted": true,
-      "canGrant": true
+      "canGrant": true,
+      "publicClient": true
     },
     {
       "id": "98e6508e88680e1b",

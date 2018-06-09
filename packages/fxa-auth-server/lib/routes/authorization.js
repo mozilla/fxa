@@ -119,6 +119,31 @@ function generateGrant(claims, client, scope, req) {
   });
 }
 
+// Check that PKCE is provided if and only if appropriate.
+function checkPKCEParams(req, client) {
+  if (req.payload.response_type === TOKEN) {
+    // Direct token grant can't use PKCE.
+    if (req.payload.code_challenge_method) {
+      throw new AppError.invalidRequestParameter('code_challenge_method');
+    }
+    if (req.payload.code_challenge) {
+      throw new AppError.invalidRequestParameter('code_challenge');
+    }
+  } else if (client.publicClient) {
+    // Public clients *must* use PKCE.
+    if (! req.payload.code_challenge_method || ! req.payload.code_challenge) {
+      logger.info('client.missingPkceParameters');
+      throw AppError.missingPkceParameters();
+    }
+  } else {
+    // non-Public Clients can't use PKCE.
+    if (req.payload.code_challenge_method || req.payload.code_challenge) {
+      logger.info('client.notPublicClient');
+      throw AppError.notPublicClient({ id: req.payload.client_id });
+    }
+  }
+}
+
 module.exports = {
   validate: {
     payload: {
@@ -233,19 +258,6 @@ module.exports = {
           }
         }
 
-        // PKCE client enforcement
-        if (client.publicClient &&
-           (! req.payload.code_challenge_method || ! req.payload.code_challenge)) {
-          // only Public Clients support code_challenge
-          logger.info('client.missingPkceParameters');
-          throw AppError.missingPkceParameters();
-        } else if (! client.publicClient &&
-            (req.payload.code_challenge_method || req.payload.code_challenge)) {
-          // non-Public Clients do not allow code challenge
-          logger.info('client.notPublicClient');
-          throw AppError.notPublicClient({ id: req.payload.client_id });
-        }
-
         var uri = req.payload.redirect_uri || client.redirectUri;
 
         if (uri !== client.redirectUri) {
@@ -270,6 +282,8 @@ module.exports = {
         }
 
         req.payload.redirect_uri = uri;
+
+        checkPKCEParams(req, client);
 
         return client;
       }),

@@ -206,7 +206,7 @@ module.exports = {
         return getClientById(clientId).then(function(client) {
           var confirmClientPromise;
 
-          if (client.publicClient && validPublicClient(client)) {
+          if (client.publicClient) {
             if (params.client_secret) {
               throw new AppError.invalidRequestParameter('client_secret');
             }
