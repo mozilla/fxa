@@ -36,8 +36,20 @@ mod send;
 mod settings;
 mod validate;
 
+use auth_db::DbClient;
+use bounces::Bounces;
+use providers::Providers;
+use settings::Settings;
+
 fn main() {
+    let settings = Settings::new().expect("Config error.");
+    let db = DbClient::new(&settings);
+    let bounces = Bounces::new(&settings, db);
+    let providers = Providers::new(&settings);
+
     rocket::ignite()
+        .manage(bounces)
+        .manage(providers)
         .mount("/", routes![send::handler])
         .catch(errors![
             app_errors::bad_request,

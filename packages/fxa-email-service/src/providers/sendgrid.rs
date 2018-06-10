@@ -15,24 +15,21 @@ use sendgrid::{
 use super::{Provider, ProviderError};
 use settings::{Sender, Sendgrid as SendgridSettings, Settings};
 
-pub struct SendgridProvider<'s> {
+pub struct SendgridProvider {
     client: Client,
-    sender: &'s Sender,
+    sender: Sender,
 }
 
-impl<'s> SendgridProvider<'s> {
-    pub fn new(
-        sendgrid_settings: &SendgridSettings,
-        settings: &'s Settings,
-    ) -> SendgridProvider<'s> {
+impl SendgridProvider {
+    pub fn new(sendgrid_settings: &SendgridSettings, settings: &Settings) -> SendgridProvider {
         SendgridProvider {
             client: Client::new(sendgrid_settings.key.clone()),
-            sender: &settings.sender,
+            sender: settings.sender.clone(),
         }
     }
 }
 
-impl<'s> Provider for SendgridProvider<'s> {
+impl Provider for SendgridProvider {
     fn send(
         &self,
         to: &str,

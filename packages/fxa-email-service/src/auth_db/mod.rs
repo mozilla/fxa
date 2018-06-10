@@ -3,7 +3,8 @@
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
 use std::{
-    error::Error, fmt::{self, Display, Formatter},
+    error::Error,
+    fmt::{self, Display, Formatter},
 };
 
 use hex;
@@ -211,7 +212,7 @@ impl DbUrls {
     }
 }
 
-pub trait Db {
+pub trait Db: Sync {
     fn get_bounces(&self, address: &str) -> Result<Vec<BounceRecord>, DbError>;
 
     fn create_bounce(
@@ -273,5 +274,3 @@ impl Db for DbClient {
         }
     }
 }
-
-unsafe impl Sync for DbClient {}

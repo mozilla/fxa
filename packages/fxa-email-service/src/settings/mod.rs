@@ -33,14 +33,14 @@ pub struct AwsKeys {
     pub secret: String,
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize)]
 pub struct BounceLimit {
     #[serde(deserialize_with = "deserialize::duration")]
     pub period: u64,
     pub limit: u8,
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize)]
 pub struct BounceLimits {
     pub enabled: bool,
     pub complaint: Vec<BounceLimit>,
@@ -48,7 +48,7 @@ pub struct BounceLimits {
     pub soft: Vec<BounceLimit>,
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize)]
 pub struct Sender {
     #[serde(deserialize_with = "deserialize::email_address")]
     pub address: String,

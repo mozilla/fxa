@@ -3,7 +3,10 @@
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
 use rocket::{
-    data::{self, FromData}, http::Status, response::Failure, Data, Outcome, Request,
+    data::{self, FromData},
+    http::Status,
+    response::Failure,
+    Data, Outcome, Request, State,
 };
 use rocket_contrib::{Json, Value};
 
@@ -11,18 +14,10 @@ use auth_db::DbClient;
 use bounces::Bounces;
 use deserialize;
 use providers::Providers;
-use settings::Settings;
 use validate;
 
 #[cfg(test)]
 mod test;
-
-lazy_static! {
-    static ref SETTINGS: Settings = Settings::new().expect("config error");
-    static ref DB: DbClient = DbClient::new(&SETTINGS);
-    static ref BOUNCES: Bounces<'static> = Bounces::new(&SETTINGS, Box::new(&*DB));
-    static ref PROVIDERS: Providers<'static> = Providers::new(&SETTINGS);
-}
 
 #[derive(Debug, Deserialize)]
 struct Body {
@@ -83,14 +78,18 @@ fn fail() -> data::Outcome<Email, ()> {
 }
 
 #[post("/send", format = "application/json", data = "<email>")]
-fn handler(email: Email) -> Result<Json<Value>, Failure> {
+fn handler(
+    email: Email,
+    bounces: State<Bounces<DbClient>>,
+    providers: State<Providers>,
+) -> Result<Json<Value>, Failure> {
     let to = email.to.as_ref();
-    BOUNCES.check(to)?;
+    bounces.check(to)?;
 
     let cc = if let Some(ref cc) = email.cc {
         let mut refs = Vec::new();
         for address in cc.iter() {
-            BOUNCES.check(address)?;
+            bounces.check(address)?;
             refs.push(address.as_ref());
         }
         refs
@@ -98,7 +97,7 @@ fn handler(email: Email) -> Result<Json<Value>, Failure> {
         Vec::new()
     };
 
-    PROVIDERS
+    providers
         .send(
             email.to.as_ref(),
             cc.as_ref(),

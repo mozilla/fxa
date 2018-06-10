@@ -3,7 +3,8 @@
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
 use std::{
-    boxed::Box, fmt::{self, Debug, Formatter},
+    boxed::Box,
+    fmt::{self, Debug, Formatter},
 };
 
 use futures::future::{self, Future};

@@ -3,7 +3,10 @@
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
 use std::{
-    collections::HashMap, error::Error, fmt::{self, Display, Formatter}, time::SystemTime,
+    collections::HashMap,
+    error::Error,
+    fmt::{self, Display, Formatter},
+    time::SystemTime,
 };
 
 use rocket::{http::Status, response::Failure};
@@ -74,16 +77,19 @@ impl From<BounceError> for Failure {
     }
 }
 
-pub struct Bounces<'a> {
-    db: Box<&'a Db>,
-    limits: &'a BounceLimits,
+pub struct Bounces<D: Db> {
+    db: D,
+    limits: BounceLimits,
 }
 
-impl<'a> Bounces<'a> {
-    pub fn new(settings: &'a Settings, db: Box<&'a Db>) -> Bounces<'a> {
+impl<D> Bounces<D>
+where
+    D: Db,
+{
+    pub fn new(settings: &Settings, db: D) -> Bounces<D> {
         Bounces {
             db,
-            limits: &settings.bouncelimits,
+            limits: settings.bouncelimits.clone(),
         }
     }
 
@@ -115,7 +121,7 @@ impl<'a> Bounces<'a> {
     }
 }
 
-unsafe impl<'a> Sync for Bounces<'a> {}
+unsafe impl<D> Sync for Bounces<D> where D: Db {}
 
 fn is_bounce_violation(count: u8, created_at: u64, now: u64, limits: &Vec<BounceLimit>) -> bool {
     for limit in limits.iter() {

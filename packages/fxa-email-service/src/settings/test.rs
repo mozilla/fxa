@@ -3,7 +3,9 @@
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
 use std::{
-    collections::{HashMap, HashSet}, env, error::Error,
+    collections::{HashMap, HashSet},
+    env,
+    error::Error,
 };
 
 use super::*;

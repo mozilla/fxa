@@ -31,7 +31,7 @@ fn check_no_bounces() {
     ]
   }));
     let db = DbMockNoBounce;
-    let bounces = Bounces::new(&settings, Box::new(&db));
+    let bounces = Bounces::new(&settings, db);
     if let Err(error) = bounces.check("foo@example.com") {
         assert!(false, error.description().to_string());
     }
@@ -89,7 +89,7 @@ fn check_soft_bounce() {
     "complaint": []
   }));
     let db = DbMockBounceSoft;
-    let bounces = Bounces::new(&settings, Box::new(&db));
+    let bounces = Bounces::new(&settings, db);
     match bounces.check("foo@example.com") {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {
@@ -134,7 +134,7 @@ fn check_hard_bounce() {
     "complaint": []
   }));
     let db = DbMockBounceHard;
-    let bounces = Bounces::new(&settings, Box::new(&db));
+    let bounces = Bounces::new(&settings, db);
     match bounces.check("bar@example.com") {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {
@@ -179,7 +179,7 @@ fn check_complaint() {
     ]
   }));
     let db = DbMockComplaint;
-    let bounces = Bounces::new(&settings, Box::new(&db));
+    let bounces = Bounces::new(&settings, db);
     match bounces.check("baz@example.com") {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {
@@ -228,7 +228,7 @@ fn check_db_error() {
     ]
   }));
     let db = DbMockError;
-    let bounces = Bounces::new(&settings, Box::new(&db));
+    let bounces = Bounces::new(&settings, db);
     match bounces.check("foo@example.com") {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {
@@ -266,7 +266,7 @@ fn check_no_bounces_with_nonzero_limits() {
     ]
   }));
     let db = DbMockNoBounceWithNonZeroLimits;
-    let bounces = Bounces::new(&settings, Box::new(&db));
+    let bounces = Bounces::new(&settings, db);
     if let Err(error) = bounces.check("foo@example.com") {
         assert!(false, error.description().to_string());
     }
@@ -349,7 +349,7 @@ fn check_bounce_with_multiple_limits() {
     "complaint": []
   }));
     let db = DbMockBounceWithMultipleLimits;
-    let bounces = Bounces::new(&settings, Box::new(&db));
+    let bounces = Bounces::new(&settings, db);
     match bounces.check("foo@example.com") {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {

@@ -3,7 +3,9 @@
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
 use std::{
-    convert::{From, TryFrom}, error::Error, fmt::{self, Display, Formatter},
+    convert::{From, TryFrom},
+    error::Error,
+    fmt::{self, Display, Formatter},
 };
 
 use regex::Regex;
