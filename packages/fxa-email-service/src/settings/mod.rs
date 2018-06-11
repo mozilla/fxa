@@ -92,6 +92,7 @@ pub struct Settings {
     pub authdb: AuthDb,
     pub aws: Aws,
     pub bouncelimits: BounceLimits,
+    pub mozlog: bool,
     #[serde(deserialize_with = "deserialize::provider")]
     pub provider: String,
     pub sender: Sender,

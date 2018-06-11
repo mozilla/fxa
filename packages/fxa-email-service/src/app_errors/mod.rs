@@ -2,12 +2,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::collections::HashMap;
+use std::{collections::HashMap, result};
 
+use failure::Error;
 use rocket_contrib::Json;
 
 #[cfg(test)]
 mod test;
+
+pub type AppResult<T> = result::Result<T, Error>;
 
 #[error(400)]
 pub fn bad_request() -> Json<ApplicationError> {
