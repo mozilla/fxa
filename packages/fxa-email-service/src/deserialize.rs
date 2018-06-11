@@ -44,13 +44,6 @@ where
     deserialize(deserializer, validate::email_address, "email address")
 }
 
-pub fn host<'d, D>(deserializer: D) -> Result<String, D::Error>
-where
-    D: Deserializer<'d>,
-{
-    deserialize(deserializer, validate::host, "host name or IP address")
-}
-
 pub fn duration<'d, D>(deserializer: D) -> Result<u64, D::Error>
 where
     D: Deserializer<'d>,
@@ -65,7 +58,7 @@ pub fn provider<'d, D>(deserializer: D) -> Result<String, D::Error>
 where
     D: Deserializer<'d>,
 {
-    deserialize(deserializer, validate::provider, "'ses' or 'smtp'")
+    deserialize(deserializer, validate::provider, "'ses' or 'sendgrid'")
 }
 
 pub fn sender_name<'d, D>(deserializer: D) -> Result<String, D::Error>

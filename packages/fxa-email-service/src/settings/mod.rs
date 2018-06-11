@@ -63,15 +63,6 @@ pub struct Sendgrid {
 }
 
 #[derive(Debug, Default, Deserialize)]
-pub struct Smtp {
-    #[serde(deserialize_with = "deserialize::host")]
-    pub host: String,
-    pub port: u16,
-    pub user: Option<String>,
-    pub password: Option<String>,
-}
-
-#[derive(Debug, Default, Deserialize)]
 pub struct SqsUrls {
     // Queue URLs are specified here for consistency with the auth server.
     // However, we could also store queue names instead and then fetch the
@@ -97,7 +88,6 @@ pub struct Settings {
     pub provider: String,
     pub sender: Sender,
     pub sendgrid: Option<Sendgrid>,
-    pub smtp: Smtp,
 }
 
 impl Settings {

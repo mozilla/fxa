@@ -67,10 +67,6 @@ fn env_vars_take_precedence() {
         "FXA_EMAIL_SENDER_ADDRESS",
         "FXA_EMAIL_SENDER_NAME",
         "FXA_EMAIL_SENDGRID_KEY",
-        "FXA_EMAIL_SMTP_HOST",
-        "FXA_EMAIL_SMTP_PORT",
-        "FXA_EMAIL_SMTP_USER",
-        "FXA_EMAIL_SMTP_PASSWORD",
     ]);
 
     match Settings::new() {
@@ -115,7 +111,7 @@ fn env_vars_take_precedence() {
             };
             let bounce_limits_enabled = !settings.bouncelimits.enabled;
             let provider = if settings.provider == "ses" {
-                "smtp"
+                "sendgrid"
             } else {
                 "ses"
             };
@@ -124,18 +120,6 @@ fn env_vars_take_precedence() {
             let sendgrid_api_key = String::from(
                 "000000000000000000000000000000000000000000000000000000000000000000000",
             );
-            let smtp_host = format!("{}2", &settings.smtp.host);
-            let smtp_port = settings.smtp.port + 3;
-            let smtp_user = if let Some(ref user) = settings.smtp.user {
-                format!("{}4", user)
-            } else {
-                String::from("4")
-            };
-            let smtp_password = if let Some(ref password) = settings.smtp.password {
-                format!("{}5", password)
-            } else {
-                String::from("5")
-            };
 
             env::set_var("FXA_EMAIL_AUTHDB_BASEURI", &auth_db_base_uri);
             env::set_var("FXA_EMAIL_AWS_REGION", &aws_region);
@@ -156,10 +140,6 @@ fn env_vars_take_precedence() {
             env::set_var("FXA_EMAIL_SENDER_ADDRESS", &sender_address);
             env::set_var("FXA_EMAIL_SENDER_NAME", &sender_name);
             env::set_var("FXA_EMAIL_SENDGRID_KEY", &sendgrid_api_key);
-            env::set_var("FXA_EMAIL_SMTP_HOST", &smtp_host);
-            env::set_var("FXA_EMAIL_SMTP_PORT", &smtp_port.to_string());
-            env::set_var("FXA_EMAIL_SMTP_USER", &smtp_user);
-            env::set_var("FXA_EMAIL_SMTP_PASSWORD", &smtp_password);
 
             match Settings::new() {
                 Ok(env_settings) => {
@@ -169,8 +149,6 @@ fn env_vars_take_precedence() {
                     assert_eq!(env_settings.provider, provider);
                     assert_eq!(env_settings.sender.address, sender_address);
                     assert_eq!(env_settings.sender.name, sender_name);
-                    assert_eq!(env_settings.smtp.host, smtp_host);
-                    assert_eq!(env_settings.smtp.port, smtp_port);
 
                     if let Some(env_sendgrid) = env_settings.sendgrid {
                         assert_eq!(env_sendgrid.key, sendgrid_api_key);
@@ -192,18 +170,6 @@ fn env_vars_take_precedence() {
                         assert_eq!(env_sqs_urls.notification, aws_sqs_urls.notification);
                     } else {
                         assert!(false, "aws.sqsurls were not set");
-                    }
-
-                    if let Some(env_user) = env_settings.smtp.user {
-                        assert_eq!(env_user, smtp_user);
-                    } else {
-                        assert!(false, "smtp.user was not set");
-                    }
-
-                    if let Some(env_password) = env_settings.smtp.password {
-                        assert_eq!(env_password, smtp_password);
-                    } else {
-                        assert!(false, "smtp.password was not set");
                     }
                 }
                 Err(error) => {
@@ -333,7 +299,7 @@ fn invalid_bouncelimits_enabled() {
 #[test]
 fn invalid_provider() {
     let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_PROVIDER"]);
-    env::set_var("FXA_EMAIL_PROVIDER", "smtps");
+    env::set_var("FXA_EMAIL_PROVIDER", "sess");
 
     match Settings::new() {
         Ok(_settings) => assert!(false, "Settings::new should have failed"),
@@ -367,17 +333,6 @@ fn invalid_sender_name() {
 fn invalid_sendgrid_api_key() {
     let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_SENDGRID_KEY"]);
     env::set_var("FXA_EMAIL_SENDGRID_KEY", "foo bar");
-
-    match Settings::new() {
-        Ok(_settings) => assert!(false, "Settings::new should have failed"),
-        Err(error) => assert_eq!(error.description(), "configuration error"),
-    }
-}
-
-#[test]
-fn invalid_smtp_host() {
-    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_SMTP_HOST"]);
-    env::set_var("FXA_EMAIL_SMTP_HOST", "https://mail.google.com/");
 
     match Settings::new() {
         Ok(_settings) => assert!(false, "Settings::new should have failed"),

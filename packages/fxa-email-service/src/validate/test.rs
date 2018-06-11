@@ -122,15 +122,14 @@ fn invalid_host() {
 fn provider() {
     assert!(validate::provider("mock"));
     assert!(validate::provider("ses"));
-    assert!(validate::provider("smtp"));
 }
 
 #[test]
 fn invalid_provider() {
     assert_eq!(validate::provider("sses"), false);
-    assert_eq!(validate::provider("smtps"), false);
+    assert_eq!(validate::provider("sendgrids"), false);
     assert_eq!(validate::provider("ses "), false);
-    assert_eq!(validate::provider(" smtp"), false);
+    assert_eq!(validate::provider(" sendgrid"), false);
 }
 
 #[test]
