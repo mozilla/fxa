@@ -28,8 +28,6 @@ slog = ">=2.2.3"
 slog-async = ">=2.3.0"
 slog-mozlog-json = ">=0.1.0"
 slog-term = ">=2.4.0"
-validator = ">=0.6.3"
-validator_derive = ">=0.6.5"
 
 [[bin]]
 name = "service"
