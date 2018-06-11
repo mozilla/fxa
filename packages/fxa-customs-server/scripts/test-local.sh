@@ -18,6 +18,6 @@ fi
 
 tap test/local test/remote $cov
 
-if [[ $MC ]]; then
+if [ -n $MC ]; then
   kill $MC
 fi
