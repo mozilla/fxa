@@ -90,10 +90,9 @@ impl Providers {
 
         self.providers
             .get(resolved_provider_id)
-            .ok_or(ProviderError::new(format!(
-                "Invalid provider `{}`",
-                resolved_provider_id
-            )))
+            .ok_or_else(|| {
+                ProviderError::new(format!("Invalid provider `{}`", resolved_provider_id))
+            })
             .and_then(|provider| provider.send(to, cc, subject, body_text, body_html))
             .map(|message_id| format!("{}:{}", resolved_provider_id, message_id))
     }

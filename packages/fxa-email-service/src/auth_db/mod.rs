@@ -42,7 +42,7 @@ impl<'d> Deserialize<'d> for BounceType {
             2 => Ok(BounceType::Soft),
             3 => Ok(BounceType::Complaint),
             _ => Err(D::Error::invalid_value(
-                Unexpected::Unsigned(value as u64),
+                Unexpected::Unsigned(u64::from(value)),
                 &"bounce type",
             )),
         }
@@ -108,7 +108,7 @@ impl<'d> Deserialize<'d> for BounceSubtype {
             13 => Ok(BounceSubtype::Other),
             14 => Ok(BounceSubtype::Virus),
             _ => Err(D::Error::invalid_value(
-                Unexpected::Unsigned(value as u64),
+                Unexpected::Unsigned(u64::from(value)),
                 &"bounce subtype",
             )),
         }

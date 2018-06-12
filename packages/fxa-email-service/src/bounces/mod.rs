@@ -123,7 +123,7 @@ where
 
 unsafe impl<D> Sync for Bounces<D> where D: Db {}
 
-fn is_bounce_violation(count: u8, created_at: u64, now: u64, limits: &Vec<BounceLimit>) -> bool {
+fn is_bounce_violation(count: u8, created_at: u64, now: u64, limits: &[BounceLimit]) -> bool {
     for limit in limits.iter() {
         if count > limit.limit && created_at >= now - limit.period {
             return true;

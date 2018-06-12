@@ -98,7 +98,7 @@ impl Queues {
             .receive()
             .and_then(move |messages| {
                 let mut futures: Vec<Box<Future<Item = (), Error = QueueError>>> = Vec::new();
-                for message in messages.into_iter() {
+                for message in messages {
                     if message.notification.notification_type != NotificationType::Null {
                         let future = self
                             .handle_notification(&message.notification)
@@ -147,7 +147,7 @@ impl Queues {
 
     fn record_bounce(&'static self, notification: &Notification) -> DbResult {
         if let Some(ref bounce) = notification.bounce {
-            for recipient in bounce.bounced_recipients.iter() {
+            for recipient in &bounce.bounced_recipients {
                 self.db.create_bounce(
                     &recipient,
                     From::from(bounce.bounce_type),
@@ -164,7 +164,7 @@ impl Queues {
 
     fn record_complaint(&'static self, notification: &Notification) -> DbResult {
         if let Some(ref complaint) = notification.complaint {
-            for recipient in complaint.complained_recipients.iter() {
+            for recipient in &complaint.complained_recipients {
                 let bounce_subtype = if let Some(complaint_type) = complaint.complaint_feedback_type
                 {
                     From::from(complaint_type)

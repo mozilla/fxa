@@ -34,7 +34,7 @@ pub struct Queue {
 
 impl Queue {
     fn parse_message(&self, message: SqsMessage) -> Result<Message, QueueError> {
-        let body = message.body.unwrap_or(String::from(""));
+        let body = message.body.unwrap_or_else(|| String::from(""));
         if body == "" {
             return Err(QueueError::new(format!(
                 "Missing message body, queue=`{}`",
@@ -51,7 +51,7 @@ impl Queue {
             }
         }
 
-        let receipt_handle = message.receipt_handle.unwrap_or(String::from(""));
+        let receipt_handle = message.receipt_handle.unwrap_or_else(String::new);
         if receipt_handle == "" {
             return Err(QueueError::new(format!(
                 "Missing receipt handle, queue=`{}`",
@@ -114,7 +114,7 @@ impl Incoming for Queue {
         let future = self
             .client
             .receive_message(&self.receive_request)
-            .map(|result| result.messages.unwrap_or(Vec::new()))
+            .map(|result| result.messages.unwrap_or_default())
             .map(move |messages| {
                 messages
                     .into_iter()

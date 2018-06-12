@@ -38,7 +38,7 @@ impl RequestMozlogFields {
             remote: headers
                 .get_one("X-Forwarded-For")
                 .map(&str::to_owned)
-                .or(request.remote().map(|addr| addr.ip().to_string())),
+                .or_else(|| request.remote().map(|addr| addr.ip().to_string())),
         }
     }
 }
