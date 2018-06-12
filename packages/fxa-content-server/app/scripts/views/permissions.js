@@ -195,8 +195,8 @@ define(function (require, exports, module) {
 
         // convert label to the required label
         if (permission.required) {
-          permission.label = Strings.interpolate(requiredPermissionLabel, {
-            permissionName: permission.label
+          permission.label = Strings.interpolate(this.translate(requiredPermissionLabel), {
+            permissionName: this.translate(permission.label)
           });
         }
 

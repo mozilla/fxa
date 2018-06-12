@@ -123,6 +123,29 @@ define(function (require, exports, module) {
         it('renders some permissions', function () {
           assert.ok(view.$('.permission').length);
         });
+
+        it('translates the permissions', () => {
+          const TRANSLATED_PERMISSION_NAME = 'Адрес электронной почты';
+          const TRANSLATED_PERMISSION_PLACEHOLDER = '%(permissionName)s (обязательно)';
+
+          view.translator = {
+            get: (untranslatedText) => {
+              if (untranslatedText === '%(permissionName)s (required)') {
+                return TRANSLATED_PERMISSION_PLACEHOLDER;
+              }
+              if (untranslatedText === 'Email address') {
+                return TRANSLATED_PERMISSION_NAME;
+              }
+
+              return untranslatedText;
+            }
+          };
+
+          return view.render().then(() => {
+            assert.equal(view.$('.fxa-checkbox__label:eq(0)').text(), 'Адрес электронной почты (обязательно)');
+          });
+        });
+
       });
 
       describe('without a sessionToken', function () {
