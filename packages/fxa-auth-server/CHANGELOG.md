@@ -1,3 +1,18 @@
+<a name="1.114.0"></a>
+# [1.114.0](https://github.com/mozilla/fxa-auth-server/compare/v1.113.3...v1.114.0) (2018-06-13)
+
+
+### Bug Fixes
+
+* **devices:** Remove the unused "device capabilities" API. (#2460); r=eoger ([9e53247](https://github.com/mozilla/fxa-auth-server/commit/9e53247)), closes [#2460](https://github.com/mozilla/fxa-auth-server/issues/2460)
+* **docker:** base image node:8-alpine and upgrade to npm6 (#2470) r=@jbuck ([e990d39](https://github.com/mozilla/fxa-auth-server/commit/e990d39)), closes [#2470](https://github.com/mozilla/fxa-auth-server/issues/2470)
+
+### chore
+
+* **merge:** Reverse merge v1.113.5-private into origin/master (#2472) r=@vbudhram ([be7e6f1](https://github.com/mozilla/fxa-auth-server/commit/be7e6f1)), closes [#2472](https://github.com/mozilla/fxa-auth-server/issues/2472)
+
+
+
 <a name="1.113.5"></a>
 ## [1.113.5](https://github.com/mozilla/fxa-auth-server/compare/v1.113.4-private...v1.113.5) (2018-06-08)
 
