@@ -1,3 +1,13 @@
+<a name="1.114.1"></a>
+## 1.114.1 (2018-06-13)
+
+
+### Bug Fixes
+
+* **tests:** fix test-local.sh bug introduced in d177360 ([3590801](https://github.com/mozilla/fxa-customs-server/commit/3590801))
+
+
+
 <a name="1.114.0"></a>
 # 1.114.0 (2018-06-13)
 
