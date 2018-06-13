@@ -1,3 +1,15 @@
+<a name="1.114.0"></a>
+# 1.114.0 (2018-06-13)
+
+
+### Bug Fixes
+
+* **deps:** Update ip rep client to v3 (#247), r=@vbudhram ([c40684e](https://github.com/mozilla/fxa-customs-server/commit/c40684e))
+* **deps:** update ip rep client to v4 (#249) r=@vladikoff ([ab1fb6e](https://github.com/mozilla/fxa-customs-server/commit/ab1fb6e))
+* **tests:** remove bash builtin from test-local.sh (#250) r=@vladikoff ([d177360](https://github.com/mozilla/fxa-customs-server/commit/d177360))
+
+
+
 <a name="1.113.0"></a>
 # 1.113.0 (2018-05-30)
 
