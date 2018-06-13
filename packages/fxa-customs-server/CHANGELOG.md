@@ -1,3 +1,13 @@
+<a name="1.114.2"></a>
+## 1.114.2 (2018-06-13)
+
+
+### Bug Fixes
+
+* **docker:** base image node:8-alpine and upgrade to npm6 ([60a9013](https://github.com/mozilla/fxa-customs-server/commit/60a9013))
+
+
+
 <a name="1.114.1"></a>
 ## 1.114.1 (2018-06-13)
 
