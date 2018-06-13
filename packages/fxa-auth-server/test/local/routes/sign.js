@@ -168,7 +168,31 @@ describe('/certificate/sign', () => {
     })
   })
 
-  function runTest (options, request, assertions) {
+  it('with session that requires verification', () => {
+    mockRequest.auth.credentials.mustVerify = true
+    mockRequest.auth.credentials.tokenVerified = false
+
+    return runTest({
+      log: mockLog
+    }, mockRequest, (r) => {
+      assert.fail('should have errored')
+    }, (e) => {
+      assert.equal(e.errno, 138, 'failed due to unverified session')
+    })
+  })
+
+  it('with unverified session that does not require verification', () => {
+    mockRequest.auth.credentials.mustVerify = false
+    mockRequest.auth.credentials.tokenVerified = false
+
+    return runTest({
+      log: mockLog
+    }, mockRequest, (res) => {
+      assert.ok(res)
+    })
+  })
+
+  function runTest (options, request, onSuccess, onError) {
     return new P(function (resolve, reject) {
       getRoute(makeRoutes(options), '/certificate/sign')
         .handler(request, (res) => {
@@ -179,7 +203,7 @@ describe('/certificate/sign', () => {
           }
         })
     })
-    .then(assertions)
+    .then(onSuccess, onError)
   }
 
   function makeRoutes (options = {}) {

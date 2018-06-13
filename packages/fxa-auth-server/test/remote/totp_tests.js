@@ -159,6 +159,44 @@ describe('remote totp', function () {
       })
   })
 
+  it('should not bypass `totp-2fa` by signing a cert with an unverified session', () => {
+    return Client.login(config.publicUrl, email, password, { keys: false })
+      .then((response) => {
+        client = response
+        assert.equal(response.verificationMethod, 'totp-2fa', 'verification method set')
+        assert.equal(response.verificationReason, 'login', 'verification reason set')
+
+        const publicKey = {
+          'algorithm': 'RS',
+          'n': '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862' +
+               '993582789079872007974809511698859885077002492642203267408776123',
+          'e': '65537'
+        }
+        return client.sign(publicKey, 600)
+          .then(() => {
+            assert.fail('should not have succeeded')
+          }, (err) => {
+            assert.equal(err.errno, 138, 'should have failed due to unverified session')
+          })
+      })
+  })
+
+  it('should not bypass `totp-2fa` by when using session reauth', () => {
+    return Client.login(config.publicUrl, email, password)
+      .then((response) => {
+        client = response
+        assert.equal(response.verificationMethod, 'totp-2fa', 'verification method set')
+        assert.equal(response.verificationReason, 'login', 'verification reason set')
+
+        // Lets attempt to sign-in reusing session reauth
+        return client.reauth()
+          .then((response) => {
+            assert.equal(response.verificationMethod, 'totp-2fa', 'verification method set')
+            assert.equal(response.verificationReason, 'login', 'verification reason set')
+          })
+      })
+  })
+
   describe('totp code verification', () => {
     beforeEach(() => {
       // Create a new unverified session to test totp codes

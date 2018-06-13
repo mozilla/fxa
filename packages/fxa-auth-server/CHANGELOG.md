@@ -1,3 +1,22 @@
+<a name="1.113.5"></a>
+## [1.113.5](https://github.com/mozilla/fxa-auth-server/compare/v1.113.4-private...v1.113.5) (2018-06-08)
+
+
+### Bug Fixes
+
+* **2FA:** enforce 2FA on /reauth (#75) r=@rfk,@vbudhram ([181a7ec](https://github.com/mozilla/fxa-auth-server/commit/181a7ec)), closes [#75](https://github.com/mozilla/fxa-auth-server/issues/75) [#76](https://github.com/mozilla/fxa-auth-server/issues/76)
+
+
+
+<a name="1.113.4"></a>
+## [1.113.4](https://github.com/mozilla/fxa-auth-server/compare/v1.113.3...v1.113.4-private) (2018-06-07)
+
+### Bug Fixes
+
+* **signing:** Don't let mustVerify sessions sign a certificate if unverified. ([706541a](https://github.com/mozilla/fxa-auth-server/commit/706541a))
+
+
+
 <a name="1.113.3"></a>
 ## [1.113.3](https://github.com/mozilla/fxa-auth-server/compare/v1.113.2...v1.113.3) (2018-05-31)
 
