@@ -1,3 +1,13 @@
+<a name="1.114.1"></a>
+## [1.114.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.114.0...v1.114.1) (2018-06-13)
+
+
+### Bug Fixes
+
+* **docker:** base image node:8-alpine and upgrade to npm6 ([c66d3f0](https://github.com/mozilla/fxa-auth-db-mysql/commit/c66d3f0))
+
+
+
 <a name="1.114.0"></a>
 # [1.114.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.113.1...v1.114.0) (2018-06-13)
 
