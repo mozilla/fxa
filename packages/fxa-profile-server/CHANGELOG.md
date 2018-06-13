@@ -1,3 +1,13 @@
+<a name="1.114.1"></a>
+## [1.114.1](https://github.com/mozilla/fxa-profile-server/compare/v1.114.0...v1.114.1) (2018-06-13)
+
+
+### Bug Fixes
+
+* **docker:** base image node:8-alpine and upgrade to npm6 ([9d2dc18](https://github.com/mozilla/fxa-profile-server/commit/9d2dc18))
+
+
+
 <a name="1.114.0"></a>
 # [1.114.0](https://github.com/mozilla/fxa-profile-server/compare/v1.113.0...v1.114.0) (2018-06-13)
 
