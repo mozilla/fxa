@@ -1,3 +1,17 @@
+<a name="1.114.1"></a>
+## 1.114.1 (2018-06-13)
+
+
+### Bug Fixes
+
+* **docker:** base image node:8-alpine and upgrade to npm6 ([401165f](https://github.com/mozilla/fxa-content-server/commit/401165f))
+
+### chore
+
+* **shrinkwrap:** Update the version in npm-shrinkwrap.json ([b3a08b0](https://github.com/mozilla/fxa-content-server/commit/b3a08b0))
+
+
+
 <a name="1.114.0"></a>
 # 1.114.0 (2018-06-13)
 
