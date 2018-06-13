@@ -91,7 +91,10 @@ $input-border-radius: 2px;
 
 $input-background-color-default: $color-white;
 
-$input-text-font-size-default: $font-size-body-20;
+// 16px is the minimum input element font size needed
+// to prevent iOS from zooming in on a page when
+// clicking on an input element.
+$input-text-font-size-default: 16px;
 $input-text-font-weight-default: $font-weight-body-20;
 
 $input-left-right-padding: 16px;
