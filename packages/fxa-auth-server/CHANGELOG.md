@@ -1,3 +1,13 @@
+<a name="1.114.0"></a>
+# [1.114.0](https://github.com/mozilla/fxa-oauth-server/compare/v1.113.1...v1.114.0) (2018-06-13)
+
+
+### Bug Fixes
+
+* **docker:** base image node:8-alpine and upgrade to npm6 (#567) r=@jbuck,@vladikoff ([d4060be](https://github.com/mozilla/fxa-oauth-server/commit/d4060be)), closes [#567](https://github.com/mozilla/fxa-oauth-server/issues/567)
+
+
+
 <a name="1.113.1"></a>
 ## [1.113.1](https://github.com/mozilla/fxa-oauth-server/compare/v1.113.0...v1.113.1) (2018-06-09)
 
