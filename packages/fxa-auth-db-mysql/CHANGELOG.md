@@ -1,3 +1,13 @@
+<a name="1.114.0"></a>
+# [1.114.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.113.1...v1.114.0) (2018-06-13)
+
+
+### Features
+
+* **devices:** Allow devices to register "available commands". (#354); r=philbooth,eoger ([10bb799](https://github.com/mozilla/fxa-auth-db-mysql/commit/10bb799))
+
+
+
 <a name="1.113.1"></a>
 ## [1.113.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.113.0...v1.113.1) (2018-05-30)
 
