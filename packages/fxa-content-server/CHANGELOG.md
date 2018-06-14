@@ -1,3 +1,13 @@
+<a name="1.114.2"></a>
+## 1.114.2 (2018-06-14)
+
+
+### Bug Fixes
+
+* **docker:** let's do only one npm version override ([4a498d4](https://github.com/mozilla/fxa-content-server/commit/4a498d4))
+
+
+
 <a name="1.114.1"></a>
 ## 1.114.1 (2018-06-13)
 
