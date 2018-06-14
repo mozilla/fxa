@@ -1,3 +1,13 @@
+<a name="1.114.1"></a>
+## [1.114.1](https://github.com/mozilla/fxa-auth-server/compare/v1.114.0...v1.114.1) (2018-06-14)
+
+
+### Bug Fixes
+
+* **l10n:** Enable nb-NO locale by updating fxa-shared (#2474) r=@philbooth,@vladikoff ([3a60d05](https://github.com/mozilla/fxa-auth-server/commit/3a60d05)), closes [#2474](https://github.com/mozilla/fxa-auth-server/issues/2474)
+
+
+
 <a name="1.114.0"></a>
 # [1.114.0](https://github.com/mozilla/fxa-auth-server/compare/v1.113.3...v1.114.0) (2018-06-13)
 
