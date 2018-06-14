@@ -2,39 +2,17 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
-#![feature(assoc_unix_epoch)]
-#![feature(try_from)]
-#![feature(type_ascription)]
-
-extern crate chrono;
-extern crate config;
 extern crate futures;
-extern crate hex;
+extern crate fxa_email_service;
 #[macro_use]
 extern crate lazy_static;
-extern crate md5;
-extern crate regex;
-extern crate reqwest;
-extern crate rusoto_core;
-extern crate rusoto_credential;
-extern crate rusoto_ses;
-extern crate rusoto_sqs;
-extern crate serde;
-#[macro_use]
-extern crate serde_derive;
-extern crate serde_json;
-
-mod auth_db;
-mod deserialize;
-mod duration;
-mod queues;
-mod settings;
-mod validate;
 
 use futures::future::{self, Future, Loop};
 
-use queues::{QueueError, QueueIds, Queues, Sqs};
-use settings::Settings;
+use fxa_email_service::{
+    queues::{QueueError, QueueIds, Queues, Sqs},
+    settings::Settings,
+};
 
 lazy_static! {
     static ref SETTINGS: Settings = Settings::new().expect("config error");

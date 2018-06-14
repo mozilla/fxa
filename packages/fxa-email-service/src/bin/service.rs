@@ -2,62 +2,25 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
-#![feature(assoc_unix_epoch)]
 #![feature(plugin)]
-#![feature(try_from)]
-#![feature(type_ascription)]
 #![plugin(rocket_codegen)]
 
-extern crate config;
-extern crate failure;
-extern crate hex;
-#[macro_use]
-extern crate lazy_static;
-extern crate mozsvc_common;
-extern crate regex;
-extern crate reqwest;
+extern crate fxa_email_service;
 extern crate rocket;
-#[macro_use]
-extern crate rocket_contrib;
-extern crate rusoto_core;
-extern crate rusoto_credential;
-extern crate rusoto_ses;
-extern crate sendgrid;
-extern crate serde;
-#[macro_use]
-extern crate serde_derive;
-extern crate serde_json;
-#[macro_use(
-    slog_o, slog_info, slog_kv, slog_log, slog_record, slog_b, slog_record_static, slog_error
-)]
+#[macro_use(slog_b, slog_error, slog_info, slog_kv, slog_log, slog_record, slog_record_static)]
 extern crate slog;
-extern crate slog_async;
-extern crate slog_mozlog_json;
-extern crate slog_term;
 
-mod app_errors;
-mod auth_db;
-mod bounces;
-mod deserialize;
-mod duration;
-mod logging;
-mod providers;
-mod send;
-mod settings;
-mod validate;
-
-use auth_db::DbClient;
-use bounces::Bounces;
-use providers::Providers;
-use settings::Settings;
+use fxa_email_service::{
+    app_errors, auth_db::DbClient, bounces::Bounces, logging::MozlogLogger, providers::Providers,
+    send, settings::Settings,
+};
 
 fn main() {
     let settings = Settings::new().expect("Config error.");
     let db = DbClient::new(&settings);
     let bounces = Bounces::new(&settings, db);
+    let logger = MozlogLogger::new(&settings).expect("MozlogLogger::init error");
     let providers = Providers::new(&settings);
-
-    let logger = logging::MozlogLogger::new(&settings).expect("MozlogLogger init error.");
 
     rocket::ignite()
         .manage(bounces)
@@ -73,13 +36,13 @@ fn main() {
             app_errors::internal_server_error
         ])
         .attach(rocket::fairing::AdHoc::on_request(|request, _| {
-            let log = logging::MozlogLogger::with_request(request)
-                .expect("MozlogLogger init with request error.");
+            let log =
+                MozlogLogger::with_request(request).expect("MozlogLogger::with_request error");
             slog_info!(log, "{}", "Request started.");
         }))
         .attach(rocket::fairing::AdHoc::on_response(|request, response| {
-            let log = logging::MozlogLogger::with_request(request)
-                .expect("MozlogLogger init with request error.");
+            let log =
+                MozlogLogger::with_request(request).expect("MozlogLogger::with_request error");
             if response.status().code == 200 {
                 slog_info!(log, "{}", "Request finished succesfully."; 
                     "status_code" => response.status().code, "status_msg" => response.status().reason);
