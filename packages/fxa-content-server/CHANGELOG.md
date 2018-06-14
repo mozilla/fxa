@@ -1,3 +1,13 @@
+<a name="1.114.3"></a>
+## 1.114.3 (2018-06-14)
+
+
+### Bug Fixes
+
+* **l10n:** Enable nb-NO locale by updating fxa-shared (#6280)  r=@philbooth,@vladikoff ([9cdf6dd](https://github.com/mozilla/fxa-content-server/commit/9cdf6dd))
+
+
+
 <a name="1.114.2"></a>
 ## 1.114.2 (2018-06-14)
 
