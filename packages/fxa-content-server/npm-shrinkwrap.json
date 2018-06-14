@@ -412,9 +412,9 @@
       "dev": true
     },
     "@types/node": {
-      "version": "10.3.2",
-      "resolved": "https://registry.npmjs.org/@types/node/-/node-10.3.2.tgz",
-      "integrity": "sha512-9NfEUDp3tgRhmoxzTpTo+lq+KIVFxZahuRX0LHF/9IzKHaWuoWsIrrJ61zw5cnnlGINX8lqJzXYfQTOICS5Q+A==",
+      "version": "10.3.3",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-10.3.3.tgz",
+      "integrity": "sha512-/gwCgiI2e9RzzZTKbl+am3vgNqOt7a9fJ/uxv4SqYKxenoEDNVU3KZEadlpusWhQI0A0dOrZ0T68JYKVjzmgdQ==",
       "dev": true
     },
     "@types/platform": {
@@ -2267,9 +2267,9 @@
       "integrity": "sha1-FkpUg+Yw+kMh5a8HAg5TGDGyYJs="
     },
     "caniuse-db": {
-      "version": "1.0.30000852",
-      "resolved": "https://registry.npmjs.org/caniuse-db/-/caniuse-db-1.0.30000852.tgz",
-      "integrity": "sha1-w3pwYEj42B+HlGp8E/Oe1jaHZlk="
+      "version": "1.0.30000855",
+      "resolved": "https://registry.npmjs.org/caniuse-db/-/caniuse-db-1.0.30000855.tgz",
+      "integrity": "sha1-NPiL8Vd6pQU5XkjkEtwh991B7zs="
     },
     "capture-stack-trace": {
       "version": "1.0.0",
@@ -5540,9 +5540,9 @@
       }
     },
     "fxa-shared": {
-      "version": "1.0.9",
-      "resolved": "https://registry.npmjs.org/fxa-shared/-/fxa-shared-1.0.9.tgz",
-      "integrity": "sha512-H8ECHQG/V7yqU5vAJFBbcS7IcEona0qj8xE+K8LAtMvcEr4QR2jlr3Q/DE139r3/CzKc3ocQRRpJ/nFIv1Yo6g==",
+      "version": "1.0.10",
+      "resolved": "https://registry.npmjs.org/fxa-shared/-/fxa-shared-1.0.10.tgz",
+      "integrity": "sha512-uUqvQjBl3vwtdbOGRSQ2nEAlTdMeW8PXKc8XK7HcZEsyxuG9wERPUnhxz8tN77TWgEmJfJsgeQlP9iVx4c+KVg==",
       "requires": {
         "accept-language": "2.0.17",
         "moment": "2.20.1"
