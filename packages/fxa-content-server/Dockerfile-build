@@ -1,4 +1,6 @@
-FROM node:8.11.1-alpine
+FROM node:8-alpine
+
+RUN npm install -g npm@6 && rm -rf ~app/.npm /tmp/*
 
 RUN addgroup -g 10001 app && \
     adduser -D -G app -h /app -u 10001 app
@@ -14,9 +16,6 @@ RUN apk add --no-cache git
 COPY npm-shrinkwrap.json npm-shrinkwrap.json
 COPY package.json package.json
 COPY scripts/download_l10n.sh scripts/download_l10n.sh
-
-# node@6 uses npm@3 by default, which resolves dependencies incorrectly
-RUN npm install -g npm@5
 
 RUN npm install --production --unsafe-perm && rm -rf ~/.cache ~/.npm /tmp/*
 

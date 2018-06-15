@@ -1,3 +1,65 @@
+<a name="1.114.3"></a>
+## 1.114.3 (2018-06-14)
+
+
+### Bug Fixes
+
+* **l10n:** Enable nb-NO locale by updating fxa-shared (#6280)  r=@philbooth,@vladikoff ([9cdf6dd](https://github.com/mozilla/fxa-content-server/commit/9cdf6dd))
+
+
+
+<a name="1.114.2"></a>
+## 1.114.2 (2018-06-14)
+
+
+### Bug Fixes
+
+* **docker:** let's do only one npm version override ([4a498d4](https://github.com/mozilla/fxa-content-server/commit/4a498d4))
+
+
+
+<a name="1.114.1"></a>
+## 1.114.1 (2018-06-13)
+
+
+### Bug Fixes
+
+* **docker:** base image node:8-alpine and upgrade to npm6 ([401165f](https://github.com/mozilla/fxa-content-server/commit/401165f))
+
+### chore
+
+* **shrinkwrap:** Update the version in npm-shrinkwrap.json ([b3a08b0](https://github.com/mozilla/fxa-content-server/commit/b3a08b0))
+
+
+
+<a name="1.114.0"></a>
+# 1.114.0 (2018-06-13)
+
+
+### Bug Fixes
+
+* **codes:** adds more support for assistive technologies (#6239), r=@shane-tomlinson ([53da50a](https://github.com/mozilla/fxa-content-server/commit/53da50a))
+* **codes:** append email to recovery code download file (#6237), r=@shane-tomlinson ([a99c286](https://github.com/mozilla/fxa-content-server/commit/a99c286))
+* **codes:** use number pad when entering totp code (#6269), r=@vladikoff ([66d5278](https://github.com/mozilla/fxa-content-server/commit/66d5278))
+* **css:** make "show password" button background white on blur (#6260) r=@vladikoff ([7354d47](https://github.com/mozilla/fxa-content-server/commit/7354d47))
+* **dep:** update to fxa-crypto-relier 2.3.0 (#6246) r=@shane-tomlinson ([f6820f7](https://github.com/mozilla/fxa-content-server/commit/f6820f7))
+* **email-first:** Handle email-first refresh on /signup, /signin (#6245) r=@vladikoff,@philbooth ([82e30b5](https://github.com/mozilla/fxa-content-server/commit/82e30b5)), closes [#6243](https://github.com/mozilla/fxa-content-server/issues/6243)
+* **oauth:** translate oauth permissions (#6271) r=@vbudhram ([054b392](https://github.com/mozilla/fxa-content-server/commit/054b392)), closes [#4758](https://github.com/mozilla/fxa-content-server/issues/4758)
+* **refresh:** adds `Last checked:` as tooltip, updates `Refresh` to `Refresh Status` (#6238),  ([32d9d68](https://github.com/mozilla/fxa-content-server/commit/32d9d68))
+* **style:** Fix input element zoom issues on iOS. ([6f7a48d](https://github.com/mozilla/fxa-content-server/commit/6f7a48d))
+* **teamcity:** fix small potential race on teamcity test kickoff (#6255) ([f5f8f3e](https://github.com/mozilla/fxa-content-server/commit/f5f8f3e)), closes [(#6255](https://github.com/(/issues/6255)
+
+### chore
+
+* **deps:** Use native promises instead of bluebird. ([ef6a097](https://github.com/mozilla/fxa-content-server/commit/ef6a097))
+* **totp:** enable totp for 100% of users (#6256), r=@shane-tomlinson ([7e3ddfd](https://github.com/mozilla/fxa-content-server/commit/7e3ddfd))
+
+### Features
+
+* **websessions:** reenable websessions (#6270) r=@vbudhram ([b4d82d9](https://github.com/mozilla/fxa-content-server/commit/b4d82d9))
+
+
+
 <a name="1.113.3"></a>
 ## 1.113.3 (2018-06-05)
 
