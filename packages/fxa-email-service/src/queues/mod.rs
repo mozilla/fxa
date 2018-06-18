@@ -12,22 +12,23 @@ use futures::future::{self, Future};
 
 use self::notification::{Notification, NotificationType};
 pub use self::sqs::Queue as Sqs;
-use auth_db::{BounceSubtype, BounceType, Db, DbClient, DbError};
+use auth_db::DbClient;
+use bounces::{BounceError, Bounces};
 use settings::Settings;
 
 mod mock;
-mod notification;
+pub mod notification;
 pub mod sqs;
 #[cfg(test)]
 mod test;
 
 #[derive(Debug)]
 pub struct Queues {
-    bounce: Box<Incoming>,
-    complaint: Box<Incoming>,
-    delivery: Box<Incoming>,
-    notification: Box<Outgoing>,
-    db: DbClient,
+    bounce_queue: Box<Incoming>,
+    complaint_queue: Box<Incoming>,
+    delivery_queue: Box<Incoming>,
+    notification_queue: Box<Outgoing>,
+    bounces: Bounces<DbClient>,
 }
 
 pub trait Incoming: Debug + Sync {
@@ -73,20 +74,20 @@ impl Queues {
         Q: Incoming + Outgoing + Factory,
     {
         Queues {
-            bounce: Box::new(Q::new(ids.bounce, settings)),
-            complaint: Box::new(Q::new(ids.complaint, settings)),
-            delivery: Box::new(Q::new(ids.delivery, settings)),
-            notification: Box::new(Q::new(ids.notification, settings)),
-            db: DbClient::new(settings),
+            bounce_queue: Box::new(Q::new(ids.bounce, settings)),
+            complaint_queue: Box::new(Q::new(ids.complaint, settings)),
+            delivery_queue: Box::new(Q::new(ids.delivery, settings)),
+            notification_queue: Box::new(Q::new(ids.notification, settings)),
+            bounces: Bounces::new(settings, DbClient::new(settings)),
         }
     }
 
     pub fn process(&'static self) -> QueueFuture {
         let joined_futures = self
-            .process_queue(&self.bounce)
+            .process_queue(&self.bounce_queue)
             .join3(
-                self.process_queue(&self.complaint),
-                self.process_queue(&self.delivery),
+                self.process_queue(&self.complaint_queue),
+                self.process_queue(&self.delivery_queue),
             )
             .map(|results| results.0 + results.1 + results.2);
 
@@ -127,7 +128,7 @@ impl Queues {
         match result {
             Ok(_) => {
                 let future = self
-                    .notification
+                    .notification_queue
                     .send(&notification)
                     .map(|id| {
                         println!("Sent message to notification queue, id=`{}`", id);
@@ -148,11 +149,8 @@ impl Queues {
     fn record_bounce(&'static self, notification: &Notification) -> DbResult {
         if let Some(ref bounce) = notification.bounce {
             for recipient in &bounce.bounced_recipients {
-                self.db.create_bounce(
-                    &recipient,
-                    From::from(bounce.bounce_type),
-                    From::from(bounce.bounce_subtype),
-                )?;
+                self.bounces
+                    .record_bounce(&recipient, bounce.bounce_type, bounce.bounce_subtype)?;
             }
             Ok(())
         } else {
@@ -165,14 +163,8 @@ impl Queues {
     fn record_complaint(&'static self, notification: &Notification) -> DbResult {
         if let Some(ref complaint) = notification.complaint {
             for recipient in &complaint.complained_recipients {
-                let bounce_subtype = if let Some(complaint_type) = complaint.complaint_feedback_type
-                {
-                    From::from(complaint_type)
-                } else {
-                    BounceSubtype::Unmapped
-                };
-                self.db
-                    .create_bounce(&recipient, BounceType::Complaint, bounce_subtype)?;
+                self.bounces
+                    .record_complaint(&recipient, complaint.complaint_feedback_type)?;
             }
             Ok(())
         } else {
@@ -204,8 +196,8 @@ impl Display for QueueError {
     }
 }
 
-impl From<DbError> for QueueError {
-    fn from(error: DbError) -> QueueError {
-        QueueError::new(format!("database error: {:?}", error))
+impl From<BounceError> for QueueError {
+    fn from(error: BounceError) -> QueueError {
+        QueueError::new(format!("bounce error: {:?}", error))
     }
 }

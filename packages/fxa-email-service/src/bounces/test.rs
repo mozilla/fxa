@@ -6,7 +6,10 @@ use rocket::http::Status;
 use serde_json::{self, Value as Json};
 
 use super::*;
-use auth_db::{BounceSubtype, BounceType, Db, DbError};
+use auth_db::{
+    BounceSubtype as DbBounceSubtype, BounceType as DbBounceType, Db, DbClient, DbError,
+};
+use queues::notification::{BounceSubtype, BounceType, ComplaintFeedbackType};
 use settings::Settings;
 
 const SECOND: u64 = 1000;
@@ -43,6 +46,7 @@ fn create_settings(bounce_limits: Json) -> Settings {
     settings
 }
 
+#[derive(Debug)]
 pub struct DbMockNoBounce;
 
 impl Db for DbMockNoBounce {
@@ -51,21 +55,21 @@ impl Db for DbMockNoBounce {
         Ok(vec![
             BounceRecord {
                 address: String::from("foo@example.com"),
-                bounce_type: BounceType::Soft,
-                bounce_subtype: BounceSubtype::Undetermined,
-                created_at: now - DAY - 1,
+                bounce_type: DbBounceType::Soft,
+                bounce_subtype: DbBounceSubtype::Undetermined,
+                created_at: now - DAY - 1000,
             },
             BounceRecord {
                 address: String::from("foo@example.com"),
-                bounce_type: BounceType::Hard,
-                bounce_subtype: BounceSubtype::Undetermined,
-                created_at: now - WEEK - 1,
+                bounce_type: DbBounceType::Hard,
+                bounce_subtype: DbBounceSubtype::Undetermined,
+                created_at: now - WEEK - 1000,
             },
             BounceRecord {
                 address: String::from("foo@example.com"),
-                bounce_type: BounceType::Complaint,
-                bounce_subtype: BounceSubtype::Undetermined,
-                created_at: now - MONTH - 1,
+                bounce_type: DbBounceType::Complaint,
+                bounce_subtype: DbBounceSubtype::Undetermined,
+                created_at: now - MONTH - 1000,
             },
         ])
     }
@@ -75,7 +79,7 @@ fn now_as_milliseconds() -> u64 {
     let now = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
         .expect("system time error");
-    now.as_secs() * 1000
+    now.as_secs() * 1000 + u64::from(now.subsec_millis())
 }
 
 #[test]
@@ -99,7 +103,7 @@ fn check_soft_bounce() {
             );
             assert_eq!(error.address, "foo@example.com");
             if let Some(ref bounce) = error.bounce {
-                assert_eq!(bounce.bounce_type, BounceType::Soft);
+                assert_eq!(bounce.bounce_type, DbBounceType::Soft);
             } else {
                 assert!(false, "Error::bounce should be set");
             }
@@ -109,6 +113,7 @@ fn check_soft_bounce() {
     }
 }
 
+#[derive(Debug)]
 pub struct DbMockBounceSoft;
 
 impl Db for DbMockBounceSoft {
@@ -116,8 +121,8 @@ impl Db for DbMockBounceSoft {
         let now = now_as_milliseconds();
         Ok(vec![BounceRecord {
             address: String::from("foo@example.com"),
-            bounce_type: BounceType::Soft,
-            bounce_subtype: BounceSubtype::Undetermined,
+            bounce_type: DbBounceType::Soft,
+            bounce_subtype: DbBounceSubtype::Undetermined,
             created_at: now - DAY + SECOND * 2,
         }])
     }
@@ -144,7 +149,7 @@ fn check_hard_bounce() {
             );
             assert_eq!(error.address, "bar@example.com");
             if let Some(ref bounce) = error.bounce {
-                assert_eq!(bounce.bounce_type, BounceType::Hard);
+                assert_eq!(bounce.bounce_type, DbBounceType::Hard);
             } else {
                 assert!(false, "Error::bounce should be set");
             }
@@ -154,6 +159,7 @@ fn check_hard_bounce() {
     }
 }
 
+#[derive(Debug)]
 pub struct DbMockBounceHard;
 
 impl Db for DbMockBounceHard {
@@ -161,8 +167,8 @@ impl Db for DbMockBounceHard {
         let now = now_as_milliseconds();
         Ok(vec![BounceRecord {
             address: String::from("bar@example.com"),
-            bounce_type: BounceType::Hard,
-            bounce_subtype: BounceSubtype::Undetermined,
+            bounce_type: DbBounceType::Hard,
+            bounce_subtype: DbBounceSubtype::Undetermined,
             created_at: now - WEEK + SECOND * 2,
         }])
     }
@@ -189,7 +195,7 @@ fn check_complaint() {
             );
             assert_eq!(error.address, "baz@example.com");
             if let Some(ref bounce) = error.bounce {
-                assert_eq!(bounce.bounce_type, BounceType::Complaint);
+                assert_eq!(bounce.bounce_type, DbBounceType::Complaint);
             } else {
                 assert!(false, "Error::bounce should be set");
             }
@@ -199,6 +205,7 @@ fn check_complaint() {
     }
 }
 
+#[derive(Debug)]
 pub struct DbMockComplaint;
 
 impl Db for DbMockComplaint {
@@ -206,8 +213,8 @@ impl Db for DbMockComplaint {
         let now = now_as_milliseconds();
         Ok(vec![BounceRecord {
             address: String::from("baz@example.com"),
-            bounce_type: BounceType::Complaint,
-            bounce_subtype: BounceSubtype::Undetermined,
+            bounce_type: DbBounceType::Complaint,
+            bounce_subtype: DbBounceSubtype::Undetermined,
             created_at: now - MONTH + SECOND * 2,
         }])
     }
@@ -243,6 +250,7 @@ fn check_db_error() {
     }
 }
 
+#[derive(Debug)]
 pub struct DbMockError;
 
 impl Db for DbMockError {
@@ -272,6 +280,7 @@ fn check_no_bounces_with_nonzero_limits() {
     }
 }
 
+#[derive(Debug)]
 pub struct DbMockNoBounceWithNonZeroLimits;
 
 impl Db for DbMockNoBounceWithNonZeroLimits {
@@ -280,57 +289,57 @@ impl Db for DbMockNoBounceWithNonZeroLimits {
         Ok(vec![
             BounceRecord {
                 address: String::from("foo@example.com"),
-                bounce_type: BounceType::Soft,
-                bounce_subtype: BounceSubtype::Undetermined,
+                bounce_type: DbBounceType::Soft,
+                bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - DAY + MINUTE,
             },
             BounceRecord {
                 address: String::from("foo@example.com"),
-                bounce_type: BounceType::Hard,
-                bounce_subtype: BounceSubtype::Undetermined,
+                bounce_type: DbBounceType::Hard,
+                bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - WEEK + MINUTE,
             },
             BounceRecord {
                 address: String::from("foo@example.com"),
-                bounce_type: BounceType::Complaint,
-                bounce_subtype: BounceSubtype::Undetermined,
+                bounce_type: DbBounceType::Complaint,
+                bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - MONTH + MINUTE,
             },
             BounceRecord {
                 address: String::from("foo@example.com"),
-                bounce_type: BounceType::Soft,
-                bounce_subtype: BounceSubtype::Undetermined,
+                bounce_type: DbBounceType::Soft,
+                bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - DAY + SECOND * 2,
             },
             BounceRecord {
                 address: String::from("foo@example.com"),
-                bounce_type: BounceType::Hard,
-                bounce_subtype: BounceSubtype::Undetermined,
+                bounce_type: DbBounceType::Hard,
+                bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - WEEK + SECOND * 2,
             },
             BounceRecord {
                 address: String::from("foo@example.com"),
-                bounce_type: BounceType::Complaint,
-                bounce_subtype: BounceSubtype::Undetermined,
+                bounce_type: DbBounceType::Complaint,
+                bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - MONTH + SECOND * 2,
             },
             BounceRecord {
                 address: String::from("foo@example.com"),
-                bounce_type: BounceType::Soft,
-                bounce_subtype: BounceSubtype::Undetermined,
-                created_at: now - DAY - 1,
+                bounce_type: DbBounceType::Soft,
+                bounce_subtype: DbBounceSubtype::Undetermined,
+                created_at: now - DAY - 1000,
             },
             BounceRecord {
                 address: String::from("foo@example.com"),
-                bounce_type: BounceType::Hard,
-                bounce_subtype: BounceSubtype::Undetermined,
-                created_at: now - WEEK - 1,
+                bounce_type: DbBounceType::Hard,
+                bounce_subtype: DbBounceSubtype::Undetermined,
+                created_at: now - WEEK - 1000,
             },
             BounceRecord {
                 address: String::from("foo@example.com"),
-                bounce_type: BounceType::Complaint,
-                bounce_subtype: BounceSubtype::Undetermined,
-                created_at: now - MONTH - 1,
+                bounce_type: DbBounceType::Complaint,
+                bounce_subtype: DbBounceSubtype::Undetermined,
+                created_at: now - MONTH - 1000,
             },
         ])
     }
@@ -359,7 +368,7 @@ fn check_bounce_with_multiple_limits() {
             );
             assert_eq!(error.address, "foo@example.com");
             if let Some(bounce) = error.bounce {
-                assert_eq!(bounce.bounce_type, BounceType::Soft);
+                assert_eq!(bounce.bounce_type, DbBounceType::Soft);
             } else {
                 assert!(false, "Error::bounce should be set");
             }
@@ -367,6 +376,7 @@ fn check_bounce_with_multiple_limits() {
     }
 }
 
+#[derive(Debug)]
 pub struct DbMockBounceWithMultipleLimits;
 
 impl Db for DbMockBounceWithMultipleLimits {
@@ -375,28 +385,83 @@ impl Db for DbMockBounceWithMultipleLimits {
         Ok(vec![
             BounceRecord {
                 address: String::from("foo@example.com"),
-                bounce_type: BounceType::Soft,
-                bounce_subtype: BounceSubtype::Undetermined,
+                bounce_type: DbBounceType::Soft,
+                bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - SECOND * 4,
             },
             BounceRecord {
                 address: String::from("foo@example.com"),
-                bounce_type: BounceType::Soft,
-                bounce_subtype: BounceSubtype::Undetermined,
+                bounce_type: DbBounceType::Soft,
+                bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - MINUTE * 2 + SECOND * 4,
             },
             BounceRecord {
                 address: String::from("foo@example.com"),
-                bounce_type: BounceType::Soft,
-                bounce_subtype: BounceSubtype::Undetermined,
+                bounce_type: DbBounceType::Soft,
+                bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - MINUTE * 2 + SECOND * 3,
             },
             BounceRecord {
                 address: String::from("foo@example.com"),
-                bounce_type: BounceType::Soft,
-                bounce_subtype: BounceSubtype::Undetermined,
+                bounce_type: DbBounceType::Soft,
+                bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - MINUTE * 2 + SECOND * 2,
             },
         ])
     }
+}
+
+#[test]
+fn record_bounce() {
+    let settings = Settings::new().unwrap();
+    let db = DbClient::new(&settings);
+    let bounces = Bounces::new(&settings, db);
+    let address = create_address("record_bounce");
+    bounces
+        .record_bounce(
+            &address,
+            BounceType::Transient,
+            BounceSubtype::AttachmentRejected,
+        )
+        .unwrap();
+    let db = DbClient::new(&settings);
+    let bounce_records = db.get_bounces(&address).unwrap();
+    let now = now_as_milliseconds();
+    assert_eq!(bounce_records.len(), 1);
+    assert_eq!(bounce_records[0].address, address);
+    assert_eq!(bounce_records[0].bounce_type, DbBounceType::Soft);
+    assert_eq!(
+        bounce_records[0].bounce_subtype,
+        DbBounceSubtype::AttachmentRejected
+    );
+    assert!(bounce_records[0].created_at < now);
+    assert!(bounce_records[0].created_at > now - 1000);
+}
+
+fn create_address(test: &str) -> String {
+    format!(
+        "fxa-email-service.bounces.test.{}.{}@example.com",
+        test,
+        now_as_milliseconds()
+    )
+}
+
+#[test]
+fn record_complaint() {
+    let settings = Settings::new().unwrap();
+    let db = DbClient::new(&settings);
+    let bounces = Bounces::new(&settings, db);
+    let address = create_address("record_complaint");
+    bounces
+        .record_complaint(&address, Some(ComplaintFeedbackType::Virus))
+        .unwrap();
+    let db = DbClient::new(&settings);
+    let bounce_records = db.get_bounces(&address).unwrap();
+    let now = now_as_milliseconds();
+    assert_eq!(bounce_records.len(), 1);
+    assert_eq!(bounce_records[0].address, address);
+    assert_eq!(bounce_records[0].bounce_type, DbBounceType::Complaint);
+    assert_eq!(bounce_records[0].bounce_subtype, DbBounceSubtype::Virus);
+    assert!(bounce_records[0].created_at < now);
+    assert!(bounce_records[0].created_at > now - 1000);
 }

@@ -11,7 +11,10 @@ use std::{
 
 use rocket::{http::Status, response::Failure};
 
-use auth_db::{BounceRecord, BounceType, Db, DbError};
+use auth_db::{
+    BounceRecord, BounceSubtype as DbBounceSubtype, BounceType as DbBounceType, Db, DbError,
+};
+use queues::notification::{BounceSubtype, BounceType, ComplaintFeedbackType};
 use settings::{BounceLimit, BounceLimits, Settings};
 
 #[cfg(test)]
@@ -29,9 +32,9 @@ impl BounceError {
         let description = format!(
             "email address violated {} limit",
             match bounce.bounce_type {
-                BounceType::Hard => "hard bounce",
-                BounceType::Soft => "soft bounce",
-                BounceType::Complaint => "complaint",
+                DbBounceType::Hard => "hard bounce",
+                DbBounceType::Soft => "soft bounce",
+                DbBounceType::Complaint => "complaint",
             }
         );
 
@@ -77,6 +80,7 @@ impl From<BounceError> for Failure {
     }
 }
 
+#[derive(Debug)]
 pub struct Bounces<D: Db> {
     db: D,
     limits: BounceLimits,
@@ -106,9 +110,9 @@ where
                     let count = counts.entry(&bounce.bounce_type).or_insert(0);
                     *count += 1;
                     let limits = match bounce.bounce_type {
-                        BounceType::Hard => &self.limits.hard,
-                        BounceType::Soft => &self.limits.soft,
-                        BounceType::Complaint => &self.limits.complaint,
+                        DbBounceType::Hard => &self.limits.hard,
+                        DbBounceType::Soft => &self.limits.soft,
+                        DbBounceType::Complaint => &self.limits.complaint,
                     };
                     if is_bounce_violation(*count, bounce.created_at, now, limits) {
                         return Err(BounceError::new(address, bounce));
@@ -118,6 +122,28 @@ where
                 Ok(counts)
             })
             .map(|_| ())
+    }
+
+    pub fn record_bounce(
+        &self,
+        address: &str,
+        bounce_type: BounceType,
+        bounce_subtype: BounceSubtype,
+    ) -> Result<(), BounceError> {
+        self.db
+            .create_bounce(address, From::from(bounce_type), From::from(bounce_subtype))?;
+        Ok(())
+    }
+
+    pub fn record_complaint(
+        &self,
+        address: &str,
+        complaint_type: Option<ComplaintFeedbackType>,
+    ) -> Result<(), BounceError> {
+        let bounce_subtype = complaint_type.map_or(DbBounceSubtype::Unmapped, |ct| From::from(ct));
+        self.db
+            .create_bounce(address, DbBounceType::Complaint, bounce_subtype)?;
+        Ok(())
     }
 }
 

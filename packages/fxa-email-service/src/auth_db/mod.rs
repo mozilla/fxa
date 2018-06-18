@@ -4,7 +4,7 @@
 
 use std::{
     error::Error,
-    fmt::{self, Display, Formatter},
+    fmt::{self, Debug, Display, Formatter},
 };
 
 use hex;
@@ -212,7 +212,7 @@ impl DbUrls {
     }
 }
 
-pub trait Db: Sync {
+pub trait Db: Debug + Sync {
     fn get_bounces(&self, address: &str) -> Result<Vec<BounceRecord>, DbError>;
 
     fn create_bounce(
