@@ -4,14 +4,14 @@
 
 use std::{io, ops::Deref};
 
-use failure::err_msg;
+use failure::{err_msg, Error};
 use rocket::{Request, State};
-use slog::{self, Drain, Record, Serializer, KV};
+use serde_json;
+use slog::{self, Drain, Record, Serializer, Value, KV};
 use slog_async;
 use slog_mozlog_json::MozLogJson;
 use slog_term;
 
-use app_errors::AppResult;
 use settings::Settings;
 
 lazy_static! {
@@ -53,7 +53,14 @@ impl KV for RequestMozlogFields {
         }
         serializer.emit_str("path", &self.path)?;
         serializer.emit_str("method", self.method)?;
+        Ok(())
+    }
+}
 
+impl Value for Settings {
+    fn serialize(&self, _: &Record, _: &'static str, serializer: &mut Serializer) -> slog::Result {
+        let settings_json = serde_json::to_string(&self).unwrap();
+        serializer.emit_str("settings", &settings_json)?;
         Ok(())
     }
 }
@@ -61,7 +68,7 @@ impl KV for RequestMozlogFields {
 pub struct MozlogLogger(slog::Logger);
 
 impl MozlogLogger {
-    pub fn new(settings: &Settings) -> AppResult<MozlogLogger> {
+    pub fn new(settings: &Settings) -> Result<MozlogLogger, Error> {
         let logger = if settings.mozlog {
             let drain = MozLogJson::new(io::stdout())
                 .logger_name(LOGGER_NAME.to_owned())
@@ -80,7 +87,7 @@ impl MozlogLogger {
         Ok(MozlogLogger(logger))
     }
 
-    pub fn with_request(request: &Request) -> AppResult<MozlogLogger> {
+    pub fn with_request(request: &Request) -> Result<MozlogLogger, Error> {
         let logger = request
             .guard::<State<MozlogLogger>>()
             .success_or(err_msg("Internal error: No managed MozlogLogger"))?;

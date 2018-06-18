@@ -7,25 +7,28 @@ use std::env;
 use config::{Config, ConfigError, Environment, File};
 
 use deserialize;
+use logging::MozlogLogger;
+use serialize;
 
 #[cfg(test)]
 mod test;
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct AuthDb {
     #[serde(deserialize_with = "deserialize::base_uri")]
     pub baseuri: String,
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Aws {
+    #[serde(serialize_with = "serialize::hidden_or_not_set")]
     pub keys: Option<AwsKeys>,
     #[serde(deserialize_with = "deserialize::aws_region")]
     pub region: String,
     pub sqsurls: Option<SqsUrls>,
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct AwsKeys {
     #[serde(deserialize_with = "deserialize::aws_access")]
     pub access: String,
@@ -33,14 +36,14 @@ pub struct AwsKeys {
     pub secret: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct BounceLimit {
     #[serde(deserialize_with = "deserialize::duration")]
     pub period: u64,
     pub limit: u8,
 }
 
-#[derive(Clone, Debug, Default, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct BounceLimits {
     pub enabled: bool,
     pub complaint: Vec<BounceLimit>,
@@ -48,7 +51,7 @@ pub struct BounceLimits {
     pub soft: Vec<BounceLimit>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Sender {
     #[serde(deserialize_with = "deserialize::email_address")]
     pub address: String,
@@ -56,13 +59,13 @@ pub struct Sender {
     pub name: String,
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Sendgrid {
     #[serde(deserialize_with = "deserialize::sendgrid_api_key")]
     pub key: String,
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct SqsUrls {
     // Queue URLs are specified here for consistency with the auth server.
     // However, we could also store queue names instead and then fetch the
@@ -78,7 +81,7 @@ pub struct SqsUrls {
     pub notification: String,
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Settings {
     pub authdb: AuthDb,
     pub aws: Aws,
@@ -87,6 +90,7 @@ pub struct Settings {
     #[serde(deserialize_with = "deserialize::provider")]
     pub provider: String,
     pub sender: Sender,
+    #[serde(serialize_with = "serialize::hidden_or_not_set")]
     pub sendgrid: Option<Sendgrid>,
 }
 
@@ -122,8 +126,9 @@ impl Settings {
 
         match config.try_into::<Settings>() {
             Ok(settings) => {
-                // TODO: replace this with proper logging when we have it
-                println!("config: {:?}", settings);
+                let logger =
+                    MozlogLogger::new(&settings).expect("Unable to create MozlogLogger instance.");
+                slog_info!(logger, "Settings::new"; "settings" => &settings);
                 Ok(settings)
             }
             Err(error) => Err(error),

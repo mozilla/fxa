@@ -8,6 +8,8 @@ use std::{
     error::Error,
 };
 
+use serde_json::{self, Value};
+
 use super::*;
 
 struct CleanEnvironment {
@@ -182,6 +184,36 @@ fn env_vars_take_precedence() {
             println!("{}", error);
             assert!(false);
         }
+    }
+}
+
+#[test]
+fn hidden_aws_and_sendgrid_keys() {
+    let _clean_env = CleanEnvironment::new(vec![
+        "FXA_EMAIL_AWS_KEYS_ACCESS",
+        "FXA_EMAIL_AWS_KEYS_SECRET",
+        "FXA_EMAIL_SENDGRID_KEY",
+    ]);
+
+    let aws_keys = AwsKeys {
+        access: String::from("A"),
+        secret: String::from("s"),
+    };
+
+    let sendgrid_api_key =
+        String::from("000000000000000000000000000000000000000000000000000000000000000000000");
+
+    env::set_var("FXA_EMAIL_AWS_KEYS_ACCESS", &aws_keys.access);
+    env::set_var("FXA_EMAIL_AWS_KEYS_SECRET", &aws_keys.secret);
+    env::set_var("FXA_EMAIL_SENDGRID_KEY", &sendgrid_api_key);
+    match Settings::new() {
+        Ok(settings) => {
+            let json = serde_json::to_string(&settings).unwrap();
+            let s: Value = serde_json::from_str(&json).unwrap();
+            assert_eq!(s["sendgrid"], "[hidden]");
+            assert_eq!(s["aws"]["keys"], "[hidden]");
+        }
+        Err(_error) => assert!(false, "Settings::new shouldn't have failed"),
     }
 }
 

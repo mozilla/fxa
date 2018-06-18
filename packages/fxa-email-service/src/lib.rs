@@ -31,7 +31,8 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
-#[macro_use(slog_kv, slog_o)]
+extern crate serde_test;
+#[macro_use(slog_b, slog_info, slog_kv, slog_log, slog_o, slog_record, slog_record_static)]
 extern crate slog;
 extern crate slog_async;
 extern crate slog_mozlog_json;
@@ -46,5 +47,6 @@ pub mod logging;
 pub mod providers;
 pub mod queues;
 pub mod send;
+pub mod serialize;
 pub mod settings;
 pub mod validate;
