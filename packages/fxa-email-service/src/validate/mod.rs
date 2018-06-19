@@ -17,6 +17,7 @@ lazy_static! {
     static ref EMAIL_ADDRESS_FORMAT: Regex = Regex::new(
         "^[a-z0-9\\-!#\\$%\\&`\\*\\+/=\\?\\^{\\|}~]+@[a-z0-9-]+(?:\\.[a-z0-9-]+)+$"
     ).unwrap();
+    static ref HOST_FORMAT: Regex = Regex::new("^[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*$").unwrap();
     static ref PROVIDER_FORMAT: Regex = Regex::new("^(?:mock|sendgrid|ses)$").unwrap();
     static ref SENDER_NAME_FORMAT: Regex =
         Regex::new("^[A-Za-z0-9-]+(?: [A-Za-z0-9-]+)*$").unwrap();
@@ -45,11 +46,8 @@ pub fn email_address(value: &str) -> bool {
     value.len() < 254 && EMAIL_ADDRESS_FORMAT.is_match(value)
 }
 
-#[cfg(test)]
 pub fn host(value: &str) -> bool {
-    Regex::new("^[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*$")
-        .unwrap()
-        .is_match(value)
+    HOST_FORMAT.is_match(value)
 }
 
 pub fn provider(value: &str) -> bool {

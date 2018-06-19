@@ -66,6 +66,8 @@ fn env_vars_take_precedence() {
         "FXA_EMAIL_AWS_SQSURLS_NOTIFICATION",
         "FXA_EMAIL_BOUNCELIMITS_ENABLED",
         "FXA_EMAIL_PROVIDER",
+        "FXA_EMAIL_REDIS_HOST",
+        "FXA_EMAIL_REDIS_PORT",
         "FXA_EMAIL_SENDER_ADDRESS",
         "FXA_EMAIL_SENDER_NAME",
         "FXA_EMAIL_SENDGRID_KEY",
@@ -117,6 +119,8 @@ fn env_vars_take_precedence() {
             } else {
                 "ses"
             };
+            let redis_host = format!("{}1", &settings.redis.host);
+            let redis_port = settings.redis.port + 1;
             let sender_address = format!("1{}", &settings.sender.address);
             let sender_name = format!("{}1", &settings.sender.name);
             let sendgrid_api_key = String::from(
@@ -139,6 +143,8 @@ fn env_vars_take_precedence() {
                 &bounce_limits_enabled.to_string(),
             );
             env::set_var("FXA_EMAIL_PROVIDER", &provider);
+            env::set_var("FXA_EMAIL_REDIS_HOST", &redis_host);
+            env::set_var("FXA_EMAIL_REDIS_PORT", &redis_port.to_string());
             env::set_var("FXA_EMAIL_SENDER_ADDRESS", &sender_address);
             env::set_var("FXA_EMAIL_SENDER_NAME", &sender_name);
             env::set_var("FXA_EMAIL_SENDGRID_KEY", &sendgrid_api_key);
@@ -149,6 +155,8 @@ fn env_vars_take_precedence() {
                     assert_eq!(env_settings.aws.region, aws_region);
                     assert_eq!(env_settings.bouncelimits.enabled, bounce_limits_enabled);
                     assert_eq!(env_settings.provider, provider);
+                    assert_eq!(env_settings.redis.host, redis_host);
+                    assert_eq!(env_settings.redis.port, redis_port);
                     assert_eq!(env_settings.sender.address, sender_address);
                     assert_eq!(env_settings.sender.name, sender_name);
 
@@ -332,6 +340,17 @@ fn invalid_bouncelimits_enabled() {
 fn invalid_provider() {
     let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_PROVIDER"]);
     env::set_var("FXA_EMAIL_PROVIDER", "sess");
+
+    match Settings::new() {
+        Ok(_settings) => assert!(false, "Settings::new should have failed"),
+        Err(error) => assert_eq!(error.description(), "configuration error"),
+    }
+}
+
+#[test]
+fn invalid_redis_host() {
+    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_REDIS_HOST"]);
+    env::set_var("FXA_EMAIL_REDIS_HOST", "foo bar");
 
     match Settings::new() {
         Ok(_settings) => assert!(false, "Settings::new should have failed"),

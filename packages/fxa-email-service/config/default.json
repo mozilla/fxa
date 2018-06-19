@@ -19,8 +19,13 @@
       { "period": "5 minutes", "limit": 0 }
     ]
   },
+  "message_id_hmac_key": "YOU MUST CHANGE ME",
   "mozlog": "true",
   "provider": "ses",
+  "redis": {
+    "host": "127.0.0.1",
+    "port": 6379
+  },
   "sender": {
     "address": "accounts@firefox.com",
     "name": "Firefox Accounts"

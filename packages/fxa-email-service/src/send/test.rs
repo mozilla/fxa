@@ -12,6 +12,7 @@ use serde_json;
 use app_errors::{self, ApplicationError};
 use auth_db::DbClient;
 use bounces::Bounces;
+use message_data::MessageData;
 use providers::Providers;
 use settings::Settings;
 
@@ -19,9 +20,11 @@ fn setup() -> Client {
     let settings = Settings::new().unwrap();
     let db = DbClient::new(&settings);
     let bounces = Bounces::new(&settings, db);
+    let message_data = MessageData::new(&settings);
     let providers = Providers::new(&settings);
     let server = rocket::ignite()
         .manage(bounces)
+        .manage(message_data)
         .manage(providers)
         .mount("/", routes![super::handler])
         .catch(errors![

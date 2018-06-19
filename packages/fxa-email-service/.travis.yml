@@ -1,4 +1,6 @@
 language: rust
+services:
+  - redis-server
 cache: cargo
 rust:
   - nightly

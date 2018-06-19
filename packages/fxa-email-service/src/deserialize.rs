@@ -54,6 +54,13 @@ where
         .map_err(|_| D::Error::invalid_value(Unexpected::Str(&value), &"duration"))
 }
 
+pub fn host<'d, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: Deserializer<'d>,
+{
+    deserialize(deserializer, validate::host, "host name or IP address")
+}
+
 pub fn provider<'d, D>(deserializer: D) -> Result<String, D::Error>
 where
     D: Deserializer<'d>,

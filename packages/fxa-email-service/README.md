@@ -90,6 +90,23 @@ rustup install nightly
 rustup override set nightly
 ```
 
+You will also need to install Redis.
+If your Redis instance
+is not running on the default port (6379),
+you will need to set the correct port
+in `config/local.json`:
+
+```json
+{
+  "redis": {
+    "port": "..."
+  }
+}
+```
+
+You can also set `host` in the same way,
+if your Redis instance is not running locally.
+
 ## How do I run the tests?
 
 A simple `cargo t` will fail

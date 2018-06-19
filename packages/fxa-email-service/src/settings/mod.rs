@@ -51,6 +51,13 @@ pub struct BounceLimits {
     pub soft: Vec<BounceLimit>,
 }
 
+#[derive(Debug, Default, Deserialize, Serialize)]
+pub struct Redis {
+    #[serde(deserialize_with = "deserialize::host")]
+    pub host: String,
+    pub port: u16,
+}
+
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Sender {
     #[serde(deserialize_with = "deserialize::email_address")]
@@ -86,9 +93,11 @@ pub struct Settings {
     pub authdb: AuthDb,
     pub aws: Aws,
     pub bouncelimits: BounceLimits,
+    pub message_id_hmac_key: String,
     pub mozlog: bool,
     #[serde(deserialize_with = "deserialize::provider")]
     pub provider: String,
+    pub redis: Redis,
     pub sender: Sender,
     #[serde(serialize_with = "serialize::hidden_or_not_set")]
     pub sendgrid: Option<Sendgrid>,

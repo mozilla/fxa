@@ -13,6 +13,7 @@ use rocket_contrib::{Json, Value};
 use auth_db::DbClient;
 use bounces::Bounces;
 use deserialize;
+use message_data::MessageData;
 use providers::Providers;
 use validate;
 
@@ -33,6 +34,7 @@ struct Email {
     subject: String,
     body: Body,
     provider: Option<String>,
+    metadata: Option<String>,
 }
 
 impl FromData for Email {
@@ -81,6 +83,7 @@ fn fail() -> data::Outcome<Email, ()> {
 fn handler(
     email: Email,
     bounces: State<Bounces<DbClient>>,
+    message_data: State<MessageData>,
     providers: State<Providers>,
 ) -> Result<Json<Value>, Failure> {
     let to = email.to.as_ref();
@@ -106,7 +109,14 @@ fn handler(
             email.body.html.as_ref().map(|html| html.as_ref()),
             email.provider.as_ref().map(|provider| provider.as_ref()),
         )
-        .map(|message_id| Json(json!({ "messageId": message_id })))
+        .map(|message_id| {
+            email
+                .metadata
+                .as_ref()
+                .and_then(|metadata| message_data.set(message_id.as_str(), metadata).err())
+                .map(|error| println!("{}", error));
+            Json(json!({ "messageId": message_id }))
+        })
         .map_err(|error| {
             println!("{}", error);
             Failure(Status::InternalServerError)
