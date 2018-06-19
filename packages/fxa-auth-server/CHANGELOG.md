@@ -1,3 +1,12 @@
+<a name="1.114.2"></a>
+## [1.114.2](https://github.com/mozilla/fxa-auth-server/compare/v1.114.1...v1.114.2) (2018-06-19)
+
+
+### Bug Fixes
+
+* **devices:** Do not echo 'capabilities' field in device registration response. (#2478); r=jrg ([9bbc715](https://github.com/mozilla/fxa-auth-server/commit/9bbc715)), closes [#2478](https://github.com/mozilla/fxa-auth-server/issues/2478)
+
+
 <a name="1.114.1"></a>
 ## [1.114.1](https://github.com/mozilla/fxa-auth-server/compare/v1.114.0...v1.114.1) (2018-06-14)
 

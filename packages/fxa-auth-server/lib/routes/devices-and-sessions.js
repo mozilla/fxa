@@ -160,6 +160,9 @@ module.exports = (log, db, config, customs, push, devices) => {
         const payload = request.payload
         const sessionToken = request.auth.credentials
 
+        // Remove obsolete field, so we don't try to echo it back to the client.
+        delete payload.capabilities
+
         // Some additional, slightly tricky validation to detect bad public keys.
         if (payload.pushPublicKey && ! push.isValidPublicKey(payload.pushPublicKey)) {
           return reply(error.invalidRequestParameter('invalid pushPublicKey'))
