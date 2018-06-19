@@ -404,6 +404,33 @@ describe('remote device', function () {
   )
 
   it(
+    'device registration ignores deprecated "capabilities" field',
+    () => {
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            var deviceInfo = {
+              name: 'a very capable device',
+              type: 'desktop',
+              capabilities: [],
+            }
+            return client.updateDevice(deviceInfo)
+              .then(
+                function (device) {
+                  assert.ok(device.id, 'device.id was set')
+                  assert.ok(device.createdAt > 0, 'device.createdAt was set')
+                  assert.equal(device.name, deviceInfo.name, 'device.name is correct')
+                  assert.ok(! device.capabilities, 'device.capabilities was ignored')
+                }
+              )
+          }
+        )
+    }
+  )
+
+  it(
     'device registration from a different session',
     () => {
       var email = server.uniqueEmail()
