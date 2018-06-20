@@ -9,6 +9,9 @@ use serde::de::{Deserialize, Deserializer, Error, Unexpected};
 use duration::Duration;
 use validate;
 
+#[cfg(test)]
+mod test;
+
 pub fn aws_region<'d, D>(deserializer: D) -> Result<String, D::Error>
 where
     D: Deserializer<'d>,
@@ -41,7 +44,8 @@ pub fn email_address<'d, D>(deserializer: D) -> Result<String, D::Error>
 where
     D: Deserializer<'d>,
 {
-    deserialize(deserializer, validate::email_address, "email address")
+    let email = deserialize(deserializer, validate::email_address, "email address")?;
+    Ok(email.to_lowercase())
 }
 
 pub fn duration<'d, D>(deserializer: D) -> Result<u64, D::Error>

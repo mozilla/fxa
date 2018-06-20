@@ -18,6 +18,7 @@ extern crate hmac;
 extern crate lazy_static;
 extern crate md5;
 extern crate mozsvc_common;
+extern crate rand;
 extern crate redis;
 extern crate regex;
 extern crate reqwest;

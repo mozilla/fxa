@@ -15,7 +15,7 @@ lazy_static! {
         "^https?://[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*(?::[0-9]+)?/(?:[A-Za-z0-9-]+/)*$"
     ).unwrap();
     static ref EMAIL_ADDRESS_FORMAT: Regex = Regex::new(
-        "^[a-z0-9\\-!#\\$%\\&`\\*\\+/=\\?\\^{\\|}~]+@[a-z0-9-]+(?:\\.[a-z0-9-]+)+$"
+        "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]{1,64}@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)+$"
     ).unwrap();
     static ref HOST_FORMAT: Regex = Regex::new("^[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*$").unwrap();
     static ref PROVIDER_FORMAT: Regex = Regex::new("^(?:mock|sendgrid|ses)$").unwrap();

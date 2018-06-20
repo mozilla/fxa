@@ -2,7 +2,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
+use rand::{distributions::Alphanumeric, thread_rng, Rng};
 use validate;
+
+fn random_alphanum_string(len: usize) -> String {
+    thread_rng().sample_iter(&Alphanumeric).take(len).collect()
+}
 
 #[test]
 fn aws_region() {
@@ -85,6 +90,7 @@ fn invalid_base_uri() {
 #[test]
 fn email_address() {
     assert!(validate::email_address("foo@example.com"));
+    assert!(validate::email_address("foo.bar@example.com"));
     assert!(validate::email_address("foo+bar@example.com"));
     assert!(validate::email_address("foo+this#is$valid!@example.com"));
     assert!(validate::email_address(
@@ -92,13 +98,31 @@ fn email_address() {
     ));
     assert!(validate::email_address("accounts@firefox.com"));
     assert!(validate::email_address("verification@latest.dev.lcip.org"));
+    assert!(validate::email_address(&format!(
+        "{}@example.com",
+        random_alphanum_string(64)
+    )));
+    assert!(validate::email_address(&format!(
+        "a@{}.b",
+        random_alphanum_string(249)
+    )));
 }
 
 #[test]
 fn invalid_email_address() {
     assert!(!validate::email_address("<foo@example.com>"));
     assert!(!validate::email_address(" foo@example.com"));
-    assert!(!validate::email_address("foo@example.com "));
+    assert!(!validate::email_address("@example.com "));
+    assert!(!validate::email_address("foo@"));
+    assert!(!validate::email_address("foo@example"));
+    assert!(!validate::email_address(&format!(
+        "{}@example.com",
+        random_alphanum_string(65)
+    )));
+    assert!(!validate::email_address(&format!(
+        "a@{}.b",
+        random_alphanum_string(250)
+    )));
 }
 
 #[test]
