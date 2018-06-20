@@ -14,6 +14,7 @@ use self::notification::{Notification, NotificationType};
 pub use self::sqs::Queue as Sqs;
 use auth_db::DbClient;
 use bounces::{BounceError, Bounces};
+use message_data::MessageData;
 use settings::Settings;
 
 mod mock;
@@ -29,6 +30,7 @@ pub struct Queues {
     delivery_queue: Box<Incoming>,
     notification_queue: Box<Outgoing>,
     bounces: Bounces<DbClient>,
+    message_data: MessageData,
 }
 
 pub trait Incoming: Debug + Sync {
@@ -79,6 +81,7 @@ impl Queues {
             delivery_queue: Box::new(Q::new(ids.delivery, settings)),
             notification_queue: Box::new(Q::new(ids.notification, settings)),
             bounces: Bounces::new(settings, DbClient::new(settings)),
+            message_data: MessageData::new(settings),
         }
     }
 
@@ -99,10 +102,10 @@ impl Queues {
             .receive()
             .and_then(move |messages| {
                 let mut futures: Vec<Box<Future<Item = (), Error = QueueError>>> = Vec::new();
-                for message in messages {
+                for mut message in messages {
                     if message.notification.notification_type != NotificationType::Null {
                         let future = self
-                            .handle_notification(&message.notification)
+                            .handle_notification(&mut message.notification)
                             .and_then(move |_| queue.delete(message));
                         futures.push(Box::new(future));
                     }
@@ -115,7 +118,7 @@ impl Queues {
 
     fn handle_notification(
         &'static self,
-        notification: &Notification,
+        notification: &mut Notification,
     ) -> Box<Future<Item = (), Error = QueueError>> {
         let result = match notification.notification_type {
             NotificationType::Bounce => self.record_bounce(notification),
@@ -127,6 +130,10 @@ impl Queues {
         };
         match result {
             Ok(_) => {
+                notification.metadata = self
+                    .message_data
+                    .consume(&notification.mail.message_id)
+                    .ok();
                 let future = self
                     .notification_queue
                     .send(&notification)

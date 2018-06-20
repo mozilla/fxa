@@ -39,6 +39,7 @@ impl From<Notification> for GenericNotification {
         GenericNotification {
             notification_type: notification.notification_type,
             mail: From::from(notification.mail),
+            metadata: None,
             bounce: notification.bounce.map(From::from),
             complaint: notification.complaint.map(From::from),
             delivery: notification.delivery.map(From::from),

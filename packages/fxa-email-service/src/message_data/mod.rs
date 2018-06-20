@@ -32,6 +32,18 @@ impl MessageData {
         }
     }
 
+    pub fn consume(&self, message_id: &str) -> Result<String, MessageDataError> {
+        let key = self.generate_key(message_id)?;
+        let key_str = key.as_str();
+        self.client
+            .get(key_str)
+            .map(|metadata| {
+                self.client.del::<&str, u8>(key_str).ok();
+                metadata
+            })
+            .map_err(From::from)
+    }
+
     pub fn set(&self, message_id: &str, metadata: &str) -> Result<(), MessageDataError> {
         let key = self.generate_key(message_id)?;
         self.client.set(key.as_str(), metadata).map_err(From::from)

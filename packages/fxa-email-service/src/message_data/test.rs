@@ -11,34 +11,70 @@ use sha2::Sha256;
 use super::*;
 use settings::Settings;
 
+#[derive(Debug)]
+struct TestFixture {
+    pub unhashed_key: String,
+    pub internal_key: String,
+    pub message_data: MessageData,
+    pub redis_client: RedisClient,
+}
+
 #[test]
 fn set() {
-    let settings = Settings::new().expect("config error");
-    let message_data = MessageData::new(&settings);
-    let key = &generate_key("set");
-    if let Err(error) = message_data.set(key.as_str(), "wibble") {
+    let test = TestFixture::setup("set");
+    if let Err(error) = test.message_data.set(test.unhashed_key.as_str(), "wibble") {
         assert!(false, error.description().to_string());
     } else {
-        let redis_client = RedisClient::open(
-            format!("redis://{}:{}/", settings.redis.host, settings.redis.port).as_str(),
-        ).unwrap();
-        let key_exists: bool = redis_client.exists(key.as_str()).unwrap();
+        let key_exists: bool = test
+            .redis_client
+            .exists(test.unhashed_key.as_str())
+            .unwrap();
         assert!(!key_exists, "unhashed key should not exist in redis");
-        let internal_key =
-            generate_internal_key(settings.message_id_hmac_key.as_bytes(), key.as_bytes());
-        let value: String = redis_client.get(internal_key.as_str()).unwrap();
+        let value: String = test.redis_client.get(test.internal_key.as_str()).unwrap();
         assert_eq!(value, "wibble");
     }
 }
 
-fn generate_key(test: &str) -> String {
-    format!("fxa-email-service.test.message-data.{}.{}", test, now())
+#[test]
+fn consume() {
+    let test = TestFixture::setup("consume");
+    test.message_data
+        .set(test.unhashed_key.as_str(), "blee")
+        .unwrap();
+    assert_eq!(
+        test.message_data.consume(&test.unhashed_key).unwrap(),
+        "blee"
+    );
+    let key_exists: bool = test
+        .redis_client
+        .exists(test.internal_key.as_str())
+        .unwrap();
+    assert!(
+        !key_exists,
+        "internal key should not exist in redis after being consumed"
+    );
+    match test.message_data.consume(&test.unhashed_key) {
+        Ok(_) => assert!(false, "consume should fail when called a second time"),
+        Err(error) => assert_eq!(error.description(), "redis error: Response was of incompatible type: \"Response type not string compatible.\" (response was nil)"),
+    }
 }
 
-fn generate_internal_key(hmac_key: &[u8], unhashed_key: &[u8]) -> String {
-    let mut hmac = Hmac::<Sha256>::new_varkey(hmac_key).unwrap();
-    hmac.input(unhashed_key);
-    format!("msg:{:x}", hmac.result().code())
+impl TestFixture {
+    pub fn setup(test: &str) -> TestFixture {
+        let settings = Settings::new().expect("config error");
+        let unhashed_key = format!("fxa-email-service.test.message-data.{}.{}", test, now());
+        let mut hmac = Hmac::<Sha256>::new_varkey(settings.message_id_hmac_key.as_bytes()).unwrap();
+        hmac.input(unhashed_key.as_bytes());
+        let internal_key = format!("msg:{:x}", hmac.result().code());
+        TestFixture {
+            unhashed_key,
+            internal_key,
+            message_data: MessageData::new(&settings),
+            redis_client: RedisClient::open(
+                format!("redis://{}:{}/", settings.redis.host, settings.redis.port).as_str(),
+            ).unwrap(),
+        }
+    }
 }
 
 fn now() -> u64 {

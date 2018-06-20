@@ -20,6 +20,8 @@ pub struct Notification {
     pub notification_type: NotificationType,
     pub mail: Mail,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub bounce: Option<Bounce>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub complaint: Option<Complaint>,
