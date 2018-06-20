@@ -1,0 +1,38 @@
+{
+  "name": "fxa-sendgrid-event-proxy",
+  "version": "0.0.0",
+  "description": "Proxies events from Sendgrid to FxA SQS queues",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "mocha --ui tdd ./test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozilla/fxa-email-service.git"
+  },
+  "keywords": [
+    "fxa",
+    "sendgrid",
+    "email",
+    "events",
+    "proxy"
+  ],
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/mozilla/fxa-email-service/issues"
+  },
+  "homepage": "https://github.com/mozilla/fxa-email-service#readme",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "sqs": "^2.0.2"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "eslint": "^4.19.1",
+    "mocha": "^5.2.0",
+    "proxyquire": "^2.0.1",
+    "sinon": "^6.0.0"
+  }
+}
