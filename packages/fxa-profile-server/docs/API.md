@@ -87,6 +87,7 @@ curl -v \
   "locale": "en-US",
   "amrValues": ["pwd", "otp"],
   "twoFactorAuthentication": true,
+  "displayName": "Max Power",
   "avatar": "https://firefoxusercontent.com/a9bff302615cd015692a099f691205cc",
   "avatarDefault": false
 }
