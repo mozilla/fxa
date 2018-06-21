@@ -8,8 +8,10 @@
 #![feature(type_ascription)]
 #![plugin(rocket_codegen)]
 
+extern crate base64;
 extern crate chrono;
 extern crate config;
+extern crate emailmessage;
 extern crate failure;
 extern crate futures;
 extern crate hex;

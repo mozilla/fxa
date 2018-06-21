@@ -18,11 +18,14 @@ mod mock;
 mod sendgrid;
 mod ses;
 
+pub type Headers = HashMap<String, String>;
+
 trait Provider {
     fn send(
         &self,
         to: &str,
         cc: &[&str],
+        headers: Option<&Headers>,
         subject: &str,
         body_text: &str,
         body_html: Option<&str>,
@@ -37,6 +40,12 @@ pub struct ProviderError {
 impl ProviderError {
     pub fn new(description: String) -> ProviderError {
         ProviderError { description }
+    }
+}
+
+impl From<String> for ProviderError {
+    fn from(error: String) -> Self {
+        ProviderError::new(error)
     }
 }
 
@@ -81,6 +90,7 @@ impl Providers {
         &self,
         to: &str,
         cc: &[&str],
+        headers: Option<&Headers>,
         subject: &str,
         body_text: &str,
         body_html: Option<&str>,
@@ -93,7 +103,7 @@ impl Providers {
             .ok_or_else(|| {
                 ProviderError::new(format!("Invalid provider `{}`", resolved_provider_id))
             })
-            .and_then(|provider| provider.send(to, cc, subject, body_text, body_html))
+            .and_then(|provider| provider.send(to, cc, headers, subject, body_text, body_html))
             .map(|message_id| format!("{}:{}", resolved_provider_id, message_id))
     }
 }

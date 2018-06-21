@@ -12,7 +12,7 @@ use sendgrid::{
     },
 };
 
-use super::{Provider, ProviderError};
+use super::{Headers, Provider, ProviderError};
 use settings::{Sender, Sendgrid as SendgridSettings, Settings};
 
 pub struct SendgridProvider {
@@ -34,6 +34,7 @@ impl Provider for SendgridProvider {
         &self,
         to: &str,
         cc: &[&str],
+        headers: Option<&Headers>,
         subject: &str,
         body_text: &str,
         body_html: Option<&str>,
@@ -66,6 +67,9 @@ impl Provider for SendgridProvider {
             cc_address.set_email(cc);
             personalization.add_cc(cc_address);
         });
+        if let Some(headers) = headers {
+            personalization.add_headers(headers.clone());
+        }
         message.add_personalization(personalization);
 
         self.client

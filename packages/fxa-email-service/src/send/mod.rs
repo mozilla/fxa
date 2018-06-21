@@ -14,7 +14,7 @@ use auth_db::DbClient;
 use bounces::Bounces;
 use deserialize;
 use message_data::MessageData;
-use providers::Providers;
+use providers::{Headers, Providers};
 use validate;
 
 #[cfg(test)]
@@ -31,6 +31,7 @@ struct Email {
     #[serde(deserialize_with = "deserialize::email_address")]
     to: String,
     cc: Option<Vec<String>>,
+    headers: Option<Headers>,
     subject: String,
     body: Body,
     provider: Option<String>,
@@ -104,6 +105,7 @@ fn handler(
         .send(
             email.to.as_ref(),
             cc.as_ref(),
+            email.headers.as_ref(),
             email.subject.as_ref(),
             email.body.text.as_ref(),
             email.body.html.as_ref().map(|html| html.as_ref()),
