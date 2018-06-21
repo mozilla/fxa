@@ -1,3 +1,17 @@
+<a name="1.114.3"></a>
+## [1.114.3](https://github.com/mozilla/fxa-auth-server/compare/v1.114.2...v1.114.3) (2018-06-21)
+
+
+### Bug Fixes
+
+* **recovery-codes:** Correctly rate-limit recovery code consumption. ([e6b3043](https://github.com/mozilla/fxa-auth-server/commit/e6b3043))
+
+### chore
+
+* **release:** Reverse merge train-114 into master (#2475) r=@vbudhram ([177fa46](https://github.com/mozilla/fxa-auth-server/commit/177fa46)), closes [#2475](https://github.com/mozilla/fxa-auth-server/issues/2475)
+
+
+
 <a name="1.114.2"></a>
 ## [1.114.2](https://github.com/mozilla/fxa-auth-server/compare/v1.114.1...v1.114.2) (2018-06-19)
 
