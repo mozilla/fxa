@@ -30,6 +30,17 @@ module.exports = { main }
 
 async function main (data) {
   try {
+    if (data.body) {
+      // HACK: This function has to work with both the test input for Lambda,
+      //       which is just the data we're interested in, and the test input
+      //       for the API gateway, which is a big fat request object.
+      data = JSON.parse(data.body)
+    }
+
+    if (! Array.isArray(data)) {
+      data = [ data ]
+    }
+
     let results = await processEvents(data)
     return {
       statusCode: 200,

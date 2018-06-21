@@ -40,7 +40,7 @@ suite('fxa-sendgrid-event-proxy:', () => {
     assert.lengthOf(proxy.main, 1)
   })
 
-  suite('call with valid JSON:', () => {
+  suite('call with an event array:', () => {
     let promise
 
     setup(done => {
@@ -459,6 +459,46 @@ suite('fxa-sendgrid-event-proxy:', () => {
           assert.equal(result.body.indexOf('Error'), 0)
         })
       })
+    })
+  })
+
+  suite('call with a request object:', () => {
+    setup(done => {
+      proxy.main({
+        body: JSON.stringify({
+          email: 'foo@example.com',
+          timestamp: 1529507950,
+          event: 'delivered',
+          sg_event_id: 'be8eYqItNxixRpMOG1eoGg==',
+          sg_message_id: '14c5d75ce93.dfd.64b469.filter0001.16648.5515E0B88.0',
+          response: '200 OK'
+        })
+      })
+      setImmediate(done)
+    })
+
+    test('sqs.push was called once', () => {
+      assert.equal(sqs.push.callCount, 1)
+    })
+
+    test('sqs.push was called correctly', () => {
+      const args = sqs.push.args[0]
+      assert.lengthOf(args, 3)
+      assert.equal(args[0], 'fxa-email-delivery-wibble')
+      assert.deepEqual(args[1], {
+        notificationType: 'Delivery',
+        mail: {
+          timestamp: '2018-06-20T15:19:10.000Z',
+          messageId: '14c5d75ce93.dfd.64b469'
+        },
+        delivery: {
+          timestamp: '2018-06-20T15:19:10.000Z',
+          recipients: [ 'foo@example.com' ],
+          smtpResponse: '200 OK'
+        }
+      })
+      assert.isFunction(args[2])
+      assert.lengthOf(args[2], 2)
     })
   })
 })
