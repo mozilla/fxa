@@ -10,48 +10,48 @@
  * the view.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+import { each, without } from 'underscore';
 
-  const _ = require('underscore');
-
-  var Mixin = {
-    setTimeout (callback, timeoutMS) {
-      if (! this._timeouts) {
-        this._timeouts = [];
-        // clear all timeouts when the view is destroyed.
-        this.on('destroy', clearAllTimeouts.bind(this));
-      }
-
-      var win = this.window || window;
-      var timeout = win.setTimeout(() => {
-        this.clearTimeout(timeout);
-        callback.call(this);
-      }, timeoutMS);
-
-      this._timeouts.push(timeout);
-
-      return timeout;
-    },
-
-    clearTimeout (timeout) {
-      var win = this.window || window;
-      win.clearTimeout(timeout);
-
-      this._timeouts = _.without(this._timeouts, timeout);
+const Mixin = {
+  setTimeout (callback, timeoutMS) {
+    if (! this._timeouts) {
+      this._timeouts = [];
     }
-  };
 
-  function clearAllTimeouts() {
-    var win = this.window || window;
+    if (! this._isListeningForDestroy) {
+      this._isListeningForDestroy = true;
+      this.on('destroy', clearAllTimeouts.bind(this));
+    }
 
-    _.each(this._timeouts, function (timeout) {
-      win.clearTimeout(timeout);
-    });
+    const win = this.window || window;
+    const timeout = win.setTimeout(() => {
+      this.clearTimeout(timeout);
+      callback.call(this);
+    }, timeoutMS);
 
-    this._timeouts = null;
+    this._timeouts.push(timeout);
+
+    return timeout;
+  },
+
+  clearTimeout (timeout) {
+    if (! timeout) {
+      return;
+    }
+    const win = this.window || window;
+    win.clearTimeout(timeout);
+    this._timeouts = without(this._timeouts, timeout);
   }
+};
 
-  module.exports = Mixin;
-});
+function clearAllTimeouts() {
+  const win = this.window || window;
 
+  each(this._timeouts, function (timeout) {
+    win.clearTimeout(timeout);
+  });
+
+  this._timeouts = null;
+}
+
+module.exports = Mixin;
