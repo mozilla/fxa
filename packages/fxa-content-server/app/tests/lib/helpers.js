@@ -68,6 +68,7 @@ define(function (require, exports, module) {
       fn();
     } catch (e) {
       done(e);
+      return;
     }
     done();
   }
