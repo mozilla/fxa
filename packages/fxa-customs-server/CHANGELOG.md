@@ -1,3 +1,13 @@
+<a name="1.114.3"></a>
+## 1.114.3 (2018-06-21)
+
+
+### Features
+
+* **actions:** Add 'verifyRecoveryCode' as a code-checking action. ([fd4a1a3](https://github.com/mozilla/fxa-customs-server/commit/fd4a1a3))
+
+
+
 <a name="1.114.2"></a>
 ## 1.114.2 (2018-06-13)
 
