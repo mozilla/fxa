@@ -15,7 +15,7 @@ use rusoto_sqs::{
     DeleteMessageError, DeleteMessageRequest, Message as SqsMessage, ReceiveMessageError,
     ReceiveMessageRequest, SendMessageError, SendMessageRequest, Sqs, SqsClient,
 };
-use serde_json::{self, Error as JsonError, Value as JsonValue};
+use serde_json::{self, Error as JsonError};
 
 use self::notification::Notification as SqsNotification;
 use super::{
@@ -59,7 +59,7 @@ impl Queue {
             )));
         }
 
-        serde_json::from_value(JsonValue::String(body.clone()))
+        serde_json::from_str(&body)
             .map(|notification: SqsNotification| {
                 println!(
                     "Successfully parsed SQS message, queue=`{}`, receipt_handle=`{}`, notification_type=`{}`",
