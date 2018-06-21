@@ -44,7 +44,7 @@ suite('fxa-sendgrid-event-proxy:', () => {
     let promise
 
     setup(done => {
-      promise = proxy.main(JSON.stringify([
+      promise = proxy.main([
         {
           email: 'foo@example.com',
           timestamp: 1529507950,
@@ -165,7 +165,7 @@ suite('fxa-sendgrid-event-proxy:', () => {
           sg_event_id: 'NjTlbHZDYoLQuqhcgyQtqw==',
           sg_message_id: '14c5d75ce93.dfd.64b469.filter0001.16648.5515E0B88.0'
         }
-      ]))
+      ])
       setImmediate(done)
     })
 

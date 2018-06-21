@@ -28,12 +28,7 @@ SQS_CLIENT.pushAsync = Promise.promisify(SQS_CLIENT.push)
 
 module.exports = { main }
 
-function main (data) {
-  return Promise.resolve()
-    .then(() => processEvents(JSON.parse(data)))
-}
-
-function processEvents (events) {
+function main (events) {
   return Promise.all(
     events.map(marshallEvent)
       .filter(event => !! event)
