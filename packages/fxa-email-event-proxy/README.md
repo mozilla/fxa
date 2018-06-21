@@ -8,7 +8,7 @@ to our SES bounce, complaint and delivery queues.
 In doing so,
 it acts as a bridge
 that enables our existing queue-processing logic
-in [`fxa-email-service`](https://github.com/mozilla/fxa-email-service).
+in [`fxa-email-service`](https://github.com/mozilla/fxa-email-service)
 to handle notifications that originate from Sendgrid.
 It runs in AWS Lambda,
 using the name `fxa-sendgrid-event-proxy`.
