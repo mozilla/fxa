@@ -31,6 +31,7 @@ const DB_METHOD_NAMES = [
   'checkPassword',
   'consumeUnblockCode',
   'consumeSigninCode',
+  'consumeRecoveryCode',
   'createAccount',
   'createDevice',
   'createEmailBounce',
