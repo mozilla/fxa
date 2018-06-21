@@ -22,7 +22,15 @@ mod test;
 // This module is a direct encoding of the SES notification format documented
 // here:
 //
-// https://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html
+//   https://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html
+//
+// It also receives synthesized events from our Sendgrid event proxy:
+//
+//   https://github.com/mozilla/fxa-sendgrid-event-proxy
+//
+// Because we don't have all of the data to fill out an entire Notification
+// struct with the data that Sendgrid provides, many of the fields which are
+// not optional in the spec are Option-wrapped anyway.
 
 #[derive(Debug, Deserialize)]
 pub struct Notification {
@@ -115,14 +123,14 @@ pub struct Mail {
     timestamp: DateTime<Utc>,
     #[serde(rename = "messageId")]
     message_id: String,
-    source: String,
+    source: Option<String>,
     #[serde(rename = "sourceArn")]
-    source_arn: String,
+    source_arn: Option<String>,
     #[serde(rename = "sourceIp")]
-    source_ip: String,
+    source_ip: Option<String>,
     #[serde(rename = "sendingAccountId")]
-    sending_account_id: String,
-    destination: Vec<String>,
+    sending_account_id: Option<String>,
+    destination: Option<Vec<String>>,
     #[serde(rename = "headersTruncated")]
     headers_truncated: Option<String>,
     headers: Option<Vec<Header>>,
@@ -301,7 +309,7 @@ pub struct Complaint {
     #[serde(rename = "complaintFeedbackType")]
     pub complaint_feedback_type: Option<ComplaintFeedbackType>,
     #[serde(rename = "arrivalDate")]
-    pub arrival_date: DateTime<Utc>,
+    pub arrival_date: Option<DateTime<Utc>>,
 }
 
 impl From<Complaint> for GenericComplaint {
@@ -389,10 +397,10 @@ impl Serialize for ComplaintFeedbackType {
 pub struct Delivery {
     pub timestamp: DateTime<Utc>,
     #[serde(rename = "processingTimeMillis")]
-    pub processing_time_millis: u32,
+    pub processing_time_millis: Option<u32>,
     pub recipients: Vec<String>,
     #[serde(rename = "smtpResponse")]
-    pub smtp_response: String,
+    pub smtp_response: Option<String>,
     #[serde(rename = "remoteMtaIp")]
     pub remote_mta_ip: Option<String>,
     #[serde(rename = "reportingMTA")]

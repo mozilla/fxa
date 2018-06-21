@@ -34,8 +34,8 @@ pub struct Mail {
     pub timestamp: DateTime<Utc>,
     #[serde(rename = "messageId")]
     pub message_id: String,
-    pub source: String,
-    pub destination: Vec<String>,
+    pub source: Option<String>,
+    pub destination: Option<Vec<String>>,
     pub headers: Option<Vec<Header>>,
 }
 
@@ -44,8 +44,8 @@ impl Default for Mail {
         Mail {
             timestamp: Utc::now(),
             message_id: String::from(""),
-            source: String::from(""),
-            destination: Vec::new(),
+            source: None,
+            destination: None,
             headers: None,
         }
     }
