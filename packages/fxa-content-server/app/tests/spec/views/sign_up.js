@@ -287,10 +287,11 @@ define(function (require, exports, module) {
         view.render()
           .then(() => view.afterVisible())
           .then(function () {
-            assert.isTrue(view.showValidationError.called);
-            setTimeout(function () {
-              assert.isTrue(view.$('input[type="email"]').hasClass('invalid'));
-              done();
+            setTimeout(() => {
+              TestHelpers.wrapAssertion(function () {
+                assert.isTrue(view.showValidationError.called);
+                assert.isTrue(view.$('input[type="email"]').hasClass('invalid'));
+              }, done);
             }, 50);
           });
       });

@@ -66,10 +66,10 @@ define(function (require, exports, module) {
   function wrapAssertion(fn, done) {
     try {
       fn();
+      done();
     } catch (e) {
       done(e);
     }
-    done();
   }
 
   function createRandomString(length, base = 36) {
