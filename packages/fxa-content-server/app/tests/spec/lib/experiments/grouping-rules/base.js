@@ -122,6 +122,20 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('isTestEmail', () => {
+      ['tester@mozilla.com', 'testuser@mozilla.org', 'tester@softvision.ro', 'tester@softvision.com'].forEach((email) => {
+        it(`returns 'true' for test email: ${email}`, () => {
+          assert.isTrue(experiment.isTestEmail(email));
+        });
+      });
+
+      ['tester@google.com', 'tester@mozilla.es'].forEach((email) => {
+        it(`returns false for other non-test email: ${email}`, () => {
+          assert.isFalse(experiment.isTestEmail(email));
+        });
+      });
+    });
+
     describe('one experiment choose another', () => {
       /**
        * See #5378. This test is to ensure the hashing function has a uniform distribution

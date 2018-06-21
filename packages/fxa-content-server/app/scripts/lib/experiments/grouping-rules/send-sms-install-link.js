@@ -17,11 +17,6 @@ const CountryTelephoneInfo = require('../../country-telephone-info');
 // `control` fares worse.
 const GROUPS_FOR_PARTIAL_ROLLOUT = ['control', 'signinCodes'];
 
-function isEmailInSigninCodesGroup (email) {
-  return /@softvision\.(com|ro)$/.test(email) ||
-          /@mozilla\.(com|org)$/.test(email);
-}
-
 module.exports = class SmsGroupingRule extends BaseGroupingRule {
   constructor () {
     super();
@@ -37,7 +32,7 @@ module.exports = class SmsGroupingRule extends BaseGroupingRule {
     // If rolloutRate is not specified, assume 0.
     const { rolloutRate } = CountryTelephoneInfo[subject.country] || 0;
 
-    if (isEmailInSigninCodesGroup(subject.account.get('email'))) {
+    if (this.isTestEmail(subject.account.get('email'))) {
       choice = 'signinCodes';
     } else if (rolloutRate >= 1) {
       // country is fully rolled out.

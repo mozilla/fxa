@@ -65,4 +65,15 @@ module.exports = class BaseGroupingRule {
     }
     throw new Error('choose must be overridden');
   }
+
+  /**
+   * Is this a test email?
+   *
+   * @param {String} email
+   * @returns {Boolean}
+   */
+  isTestEmail (email) {
+    return /.+@softvision\.(com|ro)$/.test(email) ||
+           /.+@mozilla\.(com|org)$/.test(email);
+  }
 };
