@@ -28,7 +28,24 @@ SQS_CLIENT.pushAsync = Promise.promisify(SQS_CLIENT.push)
 
 module.exports = { main }
 
-function main (events) {
+async function main (data) {
+  try {
+    let results = await processEvents(data)
+    return {
+      statusCode: 200,
+      body: `Processed ${results.length} events`,
+      isBase64Encoded: false
+    }
+  } catch(error) {
+    return {
+      statusCode: 500,
+      body: error.stack,
+      isBase64Encoded: false
+    }
+  }
+}
+
+async function processEvents (events) {
   return Promise.all(
     events.map(marshallEvent)
       .filter(event => !! event)

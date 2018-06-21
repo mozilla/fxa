@@ -436,13 +436,28 @@ suite('fxa-sendgrid-event-proxy:', () => {
       test('promise is resolved', () => {
         assert.isFulfilled(promise)
       })
+
+      test('result is correct', () => {
+        return promise.then(result => assert.deepEqual(result, {
+          statusCode: 200,
+          body: 'Processed 9 events',
+          isBase64Encoded: false
+        }))
+      })
     })
 
     suite('call all callbacks with one error:', () => {
       setup(() => sqs.push.args.forEach((args, index) => args[2](index === 8 ? new Error() : null)))
 
-      test('promise is rejected', () => {
-        assert.isRejected(promise)
+      test('promise is resolved', () => {
+        assert.isFulfilled(promise)
+      })
+
+      test('result is correct', () => {
+        return promise.then(result => {
+          assert.equal(result.statusCode, 500)
+          assert.equal(result.body.indexOf('Error'), 0)
+        })
       })
     })
   })
