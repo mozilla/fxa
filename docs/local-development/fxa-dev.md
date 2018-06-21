@@ -15,6 +15,8 @@ You can ssh into the EC2 instance with `ssh ec2-user@meta-{{ whatever you config
 
 ### Ansible Logs
 
+If the box failed to deploy properly, ssh into it and check `/var/log/cloud-init-output.log`
+
 The Ansible polling / update log can be found here: `/var/log/ansible/update.log`
 
 ### Docker Commands
