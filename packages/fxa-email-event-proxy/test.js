@@ -365,6 +365,8 @@ suite('fxa-sendgrid-event-proxy:', () => {
         setImmediate(done)
       })
 
+      teardown(() => promise.catch(() => {}))
+
       test('console.log was not called', () => {
         assert.equal(console.log.callCount, 0)
       })
