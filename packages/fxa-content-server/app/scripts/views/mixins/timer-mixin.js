@@ -15,8 +15,12 @@ import { each, without } from 'underscore';
 const Mixin = {
   setTimeout (callback, timeoutMS) {
     if (! this._timeouts) {
-      this.on('destroy', clearAllTimeouts.bind(this));
       this._timeouts = [];
+    }
+
+    if (! this._isListeningForDestroy) {
+      this._isListeningForDestroy = true;
+      this.on('destroy', clearAllTimeouts.bind(this));
     }
 
     const win = this.window || window;

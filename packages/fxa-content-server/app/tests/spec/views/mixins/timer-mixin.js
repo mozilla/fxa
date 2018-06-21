@@ -60,7 +60,10 @@ describe('views/mixins/timer-mixin', function () {
   });
 
   describe('destroying the view', function () {
-    it('removes any outstanding timeouts', function (done) {
+    it('removes any outstanding timeouts even if clearTimeout called before setTimeout', function (done) {
+      view.clearTimeout('invalid timer');
+      view.clearTimeout();
+
       let isTimeoutCalled = false;
       view.setTimeout(function () {
         isTimeoutCalled = true;
