@@ -35,19 +35,16 @@ suite('fxa-sendgrid-event-proxy:', () => {
   })
 
   test('interface is correct', () => {
-    assert.isFunction(proxy)
-    assert.lengthOf(proxy, 1)
-  })
-
-  test('fails when passed invalid JSON', () => {
-    assert.isRejected(proxy('foo'))
+    assert.isObject(proxy)
+    assert.isFunction(proxy.main)
+    assert.lengthOf(proxy.main, 1)
   })
 
   suite('call with valid JSON:', () => {
     let promise
 
     setup(done => {
-      promise = proxy(JSON.stringify([
+      promise = proxy.main(JSON.stringify([
         {
           email: 'foo@example.com',
           timestamp: 1529507950,

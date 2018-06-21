@@ -26,7 +26,7 @@ const QUEUES = {
 const SQS_CLIENT = sqs()
 SQS_CLIENT.pushAsync = Promise.promisify(SQS_CLIENT.push)
 
-module.exports = main
+module.exports = { main }
 
 function main (data) {
   return Promise.resolve()
