@@ -1,3 +1,70 @@
+<a name="1.114.3"></a>
+## [1.114.3](https://github.com/mozilla/fxa-auth-server/compare/v1.114.2...v1.114.3) (2018-06-21)
+
+
+### Bug Fixes
+
+* **recovery-codes:** Correctly rate-limit recovery code consumption. ([e6b3043](https://github.com/mozilla/fxa-auth-server/commit/e6b3043))
+
+### chore
+
+* **release:** Reverse merge train-114 into master (#2475) r=@vbudhram ([177fa46](https://github.com/mozilla/fxa-auth-server/commit/177fa46)), closes [#2475](https://github.com/mozilla/fxa-auth-server/issues/2475)
+
+
+
+<a name="1.114.2"></a>
+## [1.114.2](https://github.com/mozilla/fxa-auth-server/compare/v1.114.1...v1.114.2) (2018-06-19)
+
+
+### Bug Fixes
+
+* **devices:** Do not echo 'capabilities' field in device registration response. (#2478); r=jrg ([9bbc715](https://github.com/mozilla/fxa-auth-server/commit/9bbc715)), closes [#2478](https://github.com/mozilla/fxa-auth-server/issues/2478)
+
+
+<a name="1.114.1"></a>
+## [1.114.1](https://github.com/mozilla/fxa-auth-server/compare/v1.114.0...v1.114.1) (2018-06-14)
+
+
+### Bug Fixes
+
+* **l10n:** Enable nb-NO locale by updating fxa-shared (#2474) r=@philbooth,@vladikoff ([3a60d05](https://github.com/mozilla/fxa-auth-server/commit/3a60d05)), closes [#2474](https://github.com/mozilla/fxa-auth-server/issues/2474)
+
+
+
+<a name="1.114.0"></a>
+# [1.114.0](https://github.com/mozilla/fxa-auth-server/compare/v1.113.3...v1.114.0) (2018-06-13)
+
+
+### Bug Fixes
+
+* **devices:** Remove the unused "device capabilities" API. (#2460); r=eoger ([9e53247](https://github.com/mozilla/fxa-auth-server/commit/9e53247)), closes [#2460](https://github.com/mozilla/fxa-auth-server/issues/2460)
+* **docker:** base image node:8-alpine and upgrade to npm6 (#2470) r=@jbuck ([e990d39](https://github.com/mozilla/fxa-auth-server/commit/e990d39)), closes [#2470](https://github.com/mozilla/fxa-auth-server/issues/2470)
+
+### chore
+
+* **merge:** Reverse merge v1.113.5-private into origin/master (#2472) r=@vbudhram ([be7e6f1](https://github.com/mozilla/fxa-auth-server/commit/be7e6f1)), closes [#2472](https://github.com/mozilla/fxa-auth-server/issues/2472)
+
+
+
+<a name="1.113.5"></a>
+## [1.113.5](https://github.com/mozilla/fxa-auth-server/compare/v1.113.4-private...v1.113.5) (2018-06-08)
+
+
+### Bug Fixes
+
+* **2FA:** enforce 2FA on /reauth (#75) r=@rfk,@vbudhram ([181a7ec](https://github.com/mozilla/fxa-auth-server/commit/181a7ec)), closes [#75](https://github.com/mozilla/fxa-auth-server/issues/75) [#76](https://github.com/mozilla/fxa-auth-server/issues/76)
+
+
+
+<a name="1.113.4"></a>
+## [1.113.4](https://github.com/mozilla/fxa-auth-server/compare/v1.113.3...v1.113.4-private) (2018-06-07)
+
+### Bug Fixes
+
+* **signing:** Don't let mustVerify sessions sign a certificate if unverified. ([706541a](https://github.com/mozilla/fxa-auth-server/commit/706541a))
+
+
+
 <a name="1.113.3"></a>
 ## [1.113.3](https://github.com/mozilla/fxa-auth-server/compare/v1.113.2...v1.113.3) (2018-05-31)
 

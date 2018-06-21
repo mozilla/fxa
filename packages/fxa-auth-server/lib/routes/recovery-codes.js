@@ -37,8 +37,7 @@ module.exports = (log, db, config, customs, mailer) => {
         const ip = request.app.clientAddress
         let codes
 
-        customs.check(request, 'replaceRecoveryCodes')
-          .then(replaceRecoveryCodes)
+        replaceRecoveryCodes()
           .then(sendEmailNotification)
           .then(emitMetrics)
           .then(() => reply({recoveryCodes: codes}), reply)
@@ -112,7 +111,7 @@ module.exports = (log, db, config, customs, mailer) => {
         const ip = request.app.clientAddress
         let remainingRecoveryCodes
 
-        customs.check(request, 'verifyRecoveryCode')
+        customs.check(request, sessionToken.email, 'verifyRecoveryCode')
           .then(consumeRecoveryCode)
           .then(verifySession)
           .then(sendEmailNotification)

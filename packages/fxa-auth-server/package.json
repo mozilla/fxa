@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.113.3",
+  "version": "1.114.3",
   "description": "Firefox Accounts, an identity provider for Mozilla cloud services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
@@ -46,7 +46,7 @@
     "email-addresses": "2.0.2",
     "fxa-geodb": "1.0.2",
     "fxa-jwtool": "0.7.1",
-    "fxa-shared": "1.0.9",
+    "fxa-shared": "1.0.10",
     "generic-pool": "3.2.0",
     "google-libphonenumber": "2.0.10",
     "grunt-nunjucks-2-html": "vitkarpov/grunt-nunjucks-2-html#1900f91a756b2eaf900b20",

@@ -2534,6 +2534,9 @@ by the following errors
 * `code: 400, errno: 108`:
   Missing parameter in request body
 
+* `code: 400, errno: 138`:
+  Unverified session
+
 
 ### Signin codes
 

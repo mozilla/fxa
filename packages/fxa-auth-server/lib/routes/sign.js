@@ -77,6 +77,9 @@ module.exports = (log, signer, db, domain, devices) => {
         if (! sessionToken.emailVerified) {
           return reply(error.unverifiedAccount())
         }
+        if (sessionToken.mustVerify && ! sessionToken.tokenVerified) {
+          return reply(error.unverifiedSession())
+        }
 
         return P.resolve()
           .then(

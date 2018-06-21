@@ -15,6 +15,7 @@ const validators = require('./validators')
 const HEX_STRING = validators.HEX_STRING
 
 module.exports = function (log, db, Password, config, signinUtils) {
+  const totpUtils = require('../../lib/routes/utils/totp')(log, config, db)
 
   const routes = [
     {
@@ -123,7 +124,7 @@ module.exports = function (log, db, Password, config, signinUtils) {
         const email = request.payload.email
         const authPW = request.payload.authPW
         const originalLoginEmail = request.payload.originalLoginEmail
-        const verificationMethod = request.payload.verificationMethod
+        let verificationMethod = request.payload.verificationMethod
 
         let accountRecord, password, keyFetchToken
 
@@ -131,11 +132,24 @@ module.exports = function (log, db, Password, config, signinUtils) {
 
         return checkCustomsAndLoadAccount()
           .then(checkEmailAndPassword)
+          .then(checkTotpToken)
           .then(updateSessionToken)
           .then(sendSigninNotifications)
           .then(createKeyFetchToken)
           .then(createResponse)
           .then(reply, reply)
+
+        function checkTotpToken() {
+          // Check to see if the user has a TOTP token and it is verified and
+          // enabled, if so then the verification method is automatically forced so that
+          // they have to verify the token.
+          return totpUtils.hasTotpToken(accountRecord)
+            .then((result) => {
+              if (result) {
+                verificationMethod = 'totp-2fa'
+              }
+            })
+        }
 
         function checkCustomsAndLoadAccount() {
           return signinUtils.checkCustomsAndLoadAccount(request, email).then(res => {

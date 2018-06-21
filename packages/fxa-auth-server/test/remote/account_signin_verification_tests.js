@@ -398,7 +398,7 @@ describe('remote account signin verification', function() {
   )
 
   it(
-    'certificate sign with unverified session',
+    'certificate sign with unverified session, keys=true',
     () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
@@ -445,22 +445,20 @@ describe('remote account signin verification', function() {
           }
         )
         .then(
-          function (cert) {
-            assert.equal(typeof(cert), 'string', 'cert exists')
-            var payload = jwtool.verify(cert, pubSigKey.pem)
-            assert.equal(payload.iss, config.domain, 'issuer is correct')
-            assert.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
-            assert.ok(payload['fxa-generation'] > 0, 'cert has non-zero generation number')
-            assert.ok(new Date() - new Date(payload['fxa-lastAuthAt'] * 1000) < 1000 * 60 * 60, 'lastAuthAt is plausible')
-            assert.equal(payload['fxa-verifiedEmail'], email, 'verifiedEmail is correct')
-            assert.equal(payload['fxa-tokenVerified'], false, 'tokenVerified is not verified')
+          function () {
+            assert.fail('should not have succeeded')
+          },
+          function (err){
+            assert.equal(err.errno, 138, 'Correct error number')
+            assert.equal(err.code, 400, 'Correct error code')
+            assert.equal(err.message, 'Unverified session', 'Correct error message')
           }
         )
     }
   )
 
   it(
-    'certificate sign with keys=false session',
+    'certificate sign with unverified session, keys=false',
     () => {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
