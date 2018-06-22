@@ -76,6 +76,10 @@ async function processEvents (events) {
 }
 
 function marshallEvent (event) {
+  if (! event || ! event.timestamp || ! event.sg_message_id || ! event.event) {
+    return
+  }
+
   const timestamp = mapTimestamp(event.timestamp)
   const mail = marshallMailObject(event, timestamp)
 
@@ -97,18 +101,14 @@ function mapTimestamp (timestamp) {
 }
 
 function marshallMailObject (event, timestamp) {
-  let messageId
-
-  if (event.sg_message_id) {
-    // Although I haven't seen it documented explicitly, sg_message_id appears to be
-    // the message id that Sendgrid returned from the call to `send`, appended with
-    // some stuff that begins with the string ".filter". This step just ensures we
-    // strip off the extra stuff.
-    //
-    // Example input: 14c5d75ce93.dfd.64b469.filter0001.16648.5515E0B88.0
-    // Example output: 14c5d75ce93.dfd.64b469
-    messageId = event.sg_message_id.split('.filter')[0]
-  }
+  // Although I haven't seen it documented explicitly, sg_message_id appears to be
+  // the message id that Sendgrid returned from the call to `send`, appended with
+  // some stuff that begins with the string ".filter". This step just ensures we
+  // strip off the extra stuff.
+  //
+  // Example input: 14c5d75ce93.dfd.64b469.filter0001.16648.5515E0B88.0
+  // Example output: 14c5d75ce93.dfd.64b469
+  const messageId = event.sg_message_id.split('.filter')[0]
 
   return {
     timestamp,
@@ -119,7 +119,7 @@ function marshallMailObject (event, timestamp) {
 function marshallBounceEvent (event, timestamp) {
   let bounceType, bounceSubType
 
-  if (event.eventType === EVENTS.DROPPED) {
+  if (event.event === EVENTS.DROPPED) {
     bounceType = 'Permanent'
     bounceSubType = 'Suppressed'
   } else {

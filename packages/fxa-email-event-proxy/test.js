@@ -131,6 +131,31 @@ suite('fxa-sendgrid-event-proxy:', () => {
           status: '5.6.0'
         },
         {
+          email: 'foo@example.com',
+          timestamp: 0,
+          event: 'bounce',
+          sg_event_id: 'EFhGF8ap7qNCE8sEnJr2nQ==',
+          sg_message_id: '5.filter0001.16648.5515E0B88.0',
+          status: '5.6.0'
+        },
+        {
+          email: 'foo@example.com',
+          timestamp: 1529507950,
+          event: '',
+          sg_event_id: 'EFhGF8ap7qNCE8sEnJr2nQ==',
+          sg_message_id: '5.filter0001.16648.5515E0B88.0',
+          status: '5.6.0'
+        },
+        {
+          email: 'foo@example.com',
+          timestamp: 1529507950,
+          event: 'bounce',
+          sg_event_id: 'EFhGF8ap7qNCE8sEnJr2nQ==',
+          sg_message_id: '',
+          status: '5.6.0'
+        },
+        {},
+        {
           email: 'pop@example.com',
           timestamp: 1529507958,
           event: 'dropped',
@@ -317,7 +342,7 @@ suite('fxa-sendgrid-event-proxy:', () => {
         },
         bounce: {
           bounceType: 'Permanent',
-          bounceSubType: 'General',
+          bounceSubType: 'Suppressed',
           bouncedRecipients: [ { emailAddress: 'pop@example.com' } ],
           feedbackId: 'df7Bf7jbphkC1SxCbaF_og==',
           timestamp: '2018-06-20T15:19:18.000Z'
