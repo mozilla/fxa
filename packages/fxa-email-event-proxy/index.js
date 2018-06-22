@@ -61,7 +61,7 @@ async function main (data) {
   } catch(error) {
     return {
       statusCode: 500,
-      body: error.stack,
+      body: 'Internal Server Error',
       isBase64Encoded: false
     }
   }

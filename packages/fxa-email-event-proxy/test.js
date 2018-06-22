@@ -482,10 +482,11 @@ suite('fxa-sendgrid-event-proxy:', () => {
       })
 
       test('result is correct', () => {
-        return promise.then(result => {
-          assert.equal(result.statusCode, 500)
-          assert.equal(result.body.indexOf('Error'), 0)
-        })
+        return promise.then(result => assert.deepEqual(result, {
+          statusCode: 500,
+          body: 'Internal Server Error',
+          isBase64Encoded: false
+        }))
       })
     })
   })
