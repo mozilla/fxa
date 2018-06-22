@@ -41,7 +41,8 @@ test('startup', (t) => {
 const VERIFY_CODE_ACTIONS = [
   'recoveryEmailVerifyCode',
   'passwordForgotVerifyCode',
-  'verifyTokenCode'
+  'verifyTokenCode',
+  'verifyRecoveryCode'
 ]
 
 VERIFY_CODE_ACTIONS.forEach((action) => {
