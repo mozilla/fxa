@@ -169,6 +169,7 @@ require('./spec/views/mixins/loading-mixin');
 require('./spec/views/mixins/marketing-mixin');
 require('./spec/views/mixins/modal-panel-mixin');
 require('./spec/views/mixins/modal-settings-panel-mixin');
+require('./spec/views/mixins/one-visible-of-type-mixin');
 require('./spec/views/mixins/open-webmail-mixin');
 require('./spec/views/mixins/password-mixin');
 require('./spec/views/mixins/password-reset-mixin');

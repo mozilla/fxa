@@ -9,10 +9,11 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import BaseView from './base';
+import Cocktail from 'cocktail';
 import KeyCodes from '../lib/key-codes';
+import OneVisibleOfTypeMixin from './mixins/one-visible-of-type-mixin';
 import ScreenInfo from '../lib/screen-info';
 
-let displayedTooltip;
 const PADDING_BELOW_TOOLTIP_PX = 2;
 const PADDING_ABOVE_TOOLTIP_PX = 4;
 
@@ -55,12 +56,6 @@ const Tooltip = BaseView.extend({
   },
 
   afterRender () {
-    // only one tooltip at a time!
-    if (displayedTooltip) {
-      displayedTooltip.destroy(true);
-    }
-    displayedTooltip = this;
-
     const tooltipContainer = this.invalidEl.closest('.input-row,.select-row-wrapper');
 
     this.$el.addClass(this.extraClassNames);
@@ -77,9 +72,11 @@ const Tooltip = BaseView.extend({
     return proto.afterRender.call(this);
   },
 
-  beforeDestroy () {
-    displayedTooltip = null;
+  removeAndDestroy () {
+    this.destroy(true);
+  },
 
+  beforeDestroy () {
     // ditch the events we manually added to reduce interference
     // between tooltips.
     const invalidEl = this.invalidEl;
@@ -153,5 +150,14 @@ const Tooltip = BaseView.extend({
     }.bind(this));
   }
 });
+
+Cocktail.mixin(
+  Tooltip,
+  OneVisibleOfTypeMixin({
+    hideMethod: 'removeAndDestroy',
+    showMethod: 'afterRender',
+    viewType: 'tooltip',
+  })
+);
 
 module.exports = Tooltip;
