@@ -1,3 +1,19 @@
+<a name="1.114.5"></a>
+## 1.114.5 (2018-06-22)
+
+
+
+
+<a name="1.114.4"></a>
+## 1.114.4 (2018-06-22)
+
+
+### Bug Fixes
+
+* **codes:** add totp experiment to manual experiments (#6297), r=@philbooth ([59f21f2](https://github.com/mozilla/fxa-content-server/commit/59f21f2))
+
+
+
 <a name="1.114.3"></a>
 ## 1.114.3 (2018-06-14)
 
@@ -58,6 +74,14 @@
 
 * **websessions:** reenable websessions (#6270) r=@vbudhram ([b4d82d9](https://github.com/mozilla/fxa-content-server/commit/b4d82d9))
 
+
+<a name="1.113.4"></a>
+## 1.113.4 (2018-06-10)
+
+
+### Features
+
+* **oauth:** Allow lockbox to request the "oldsync" OAuth scope. (#6272) r=@vladikoff ([306af32](https://github.com/mozilla/fxa-content-server/commit/306af32))
 
 
 <a name="1.113.3"></a>
