@@ -1,3 +1,13 @@
+<a name="1.114.4"></a>
+## 1.114.4 (2018-06-22)
+
+
+### Bug Fixes
+
+* **codes:** add totp experiment to manual experiments (#6297), r=@philbooth ([59f21f2](https://github.com/mozilla/fxa-content-server/commit/59f21f2))
+
+
+
 <a name="1.114.3"></a>
 ## 1.114.3 (2018-06-14)
 
