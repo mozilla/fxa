@@ -18,6 +18,7 @@ suite('fxa-sendgrid-event-proxy:', () => {
   let sqs, proxy
 
   setup(() => {
+    process.env.AUTH = 'authentication string'
     process.env.SQS_SUFFIX = 'wibble'
     sqs = {
       push: sinon.spy()
@@ -466,7 +467,6 @@ suite('fxa-sendgrid-event-proxy:', () => {
 
   suite('call with an authorised request object:', () => {
     setup(done => {
-      process.env.AUTH = 'authentication string'
       proxy.main({
         body: JSON.stringify({
           email: 'foo@example.com',
@@ -512,7 +512,6 @@ suite('fxa-sendgrid-event-proxy:', () => {
     let promise
 
     setup(() => {
-      process.env.AUTH = 'authentication string'
       promise = proxy.main({
         body: JSON.stringify({
           email: 'foo@example.com',

@@ -14,7 +14,11 @@ const EVENTS = {
   SPAM: 'spamreport'
 }
 
-const { SQS_SUFFIX } = process.env
+const { AUTH, SQS_SUFFIX } = process.env
+
+if (! AUTH || ! SQS_SUFFIX) {
+  throw new Error('Missing config')
+}
 
 const QUEUES = {
   Bounce: `fxa-email-bounce-${SQS_SUFFIX}`,
@@ -33,7 +37,7 @@ async function main (data) {
     // If there's a body, it's a request from the API gateway
     if (data.body) {
       // Requests from the API gateway must be authenticated
-      if (! data.queryStringParameters || data.queryStringParameters.auth !== process.env.AUTH) {
+      if (! data.queryStringParameters || data.queryStringParameters.auth !== AUTH) {
         return {
           statusCode: 401,
           body: 'Unauthorized',
