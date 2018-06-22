@@ -52,7 +52,12 @@ describe('views/sign_in_totp_code', () => {
     });
 
     notifier = _.extend({}, Backbone.Events);
-    metrics = new Metrics({notifier});
+    metrics = new Metrics({
+      notifier,
+      sentryMetrics: {
+        captureException () {}
+      }
+    });
 
     view = new View({
       broker,
@@ -66,6 +71,10 @@ describe('views/sign_in_totp_code', () => {
     });
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => model.get('account'));
+
+    $(windowMock.document.body).attr('data-flow-id', '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef');
+    $(windowMock.document.body).attr('data-flow-begin', Date.now());
+    sinon.spy(view, 'logFlowEvent');
 
     return view.render()
       .then(() => $('#container').html(view.$el));
@@ -151,6 +160,10 @@ describe('views/sign_in_totp_code', () => {
       it('calls correct broker methods', () => {
         assert.isTrue(account.verifyTotpCode.calledWith(TOTP_CODE), 'verify with correct code');
         assert.isTrue(view.invokeBrokerMethod.calledWith('afterCompleteSignInWithCode', account));
+      });
+
+      it('logs flowEvent', () => {
+        assert.equal(view.logFlowEvent.callCount, 1);
       });
     });
 

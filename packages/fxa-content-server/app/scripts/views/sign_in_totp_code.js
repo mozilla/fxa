@@ -9,6 +9,8 @@ const SignInMixin = require('./mixins/signin-mixin');
 const ServiceMixin = require('./mixins/service-mixin');
 const Template = require('templates/sign_in_totp_code.mustache');
 const VerificationReasonMixin = require('./mixins/verification-reason-mixin');
+const FlowEventsMixin = require('./mixins/flow-events-mixin');
+const TotpExperimentMixin = require('./mixins/totp-experiment-mixin');
 
 const CODE_INPUT_SELECTOR = 'input.totp-code';
 
@@ -30,7 +32,7 @@ const View = FormView.extend({
     return account.verifyTotpCode(code, this.relier.get('service'))
       .then((result) => {
         if (result.success) {
-          this.logViewEvent('success');
+          this.logFlowEvent('success', this.viewName);
           return this.invokeBrokerMethod('afterCompleteSignInWithCode', account);
         } else {
           throw AuthErrors.toError('INVALID_TOTP_CODE');
@@ -55,8 +57,10 @@ const View = FormView.extend({
 
 Cocktail.mixin(
   View,
+  FlowEventsMixin,
   SignInMixin,
   ServiceMixin,
+  TotpExperimentMixin,
   VerificationReasonMixin
 );
 
