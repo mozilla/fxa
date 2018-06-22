@@ -30,10 +30,17 @@ module.exports = { main }
 
 async function main (data) {
   try {
+    // If there's a body, it's a request from the API gateway
     if (data.body) {
-      // HACK: This function has to work with both the test input for Lambda,
-      //       which is just the data we're interested in, and the test input
-      //       for the API gateway, which is a big fat request object.
+      // Requests from the API gateway must be authenticated
+      if (! data.queryStringParameters || data.queryStringParameters.auth !== process.env.AUTH) {
+        return {
+          statusCode: 401,
+          body: 'Unauthorized',
+          isBase64Encoded: false
+        }
+      }
+
       data = JSON.parse(data.body)
     }
 

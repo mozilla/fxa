@@ -464,8 +464,9 @@ suite('fxa-sendgrid-event-proxy:', () => {
     })
   })
 
-  suite('call with a request object:', () => {
+  suite('call with an authorised request object:', () => {
     setup(done => {
+      process.env.AUTH = 'authentication string'
       proxy.main({
         body: JSON.stringify({
           email: 'foo@example.com',
@@ -474,7 +475,10 @@ suite('fxa-sendgrid-event-proxy:', () => {
           sg_event_id: 'be8eYqItNxixRpMOG1eoGg==',
           sg_message_id: '14c5d75ce93.dfd.64b469.filter0001.16648.5515E0B88.0',
           response: '200 OK'
-        })
+        }),
+        queryStringParameters: {
+          auth: 'authentication string'
+        }
       })
       setImmediate(done)
     })
@@ -501,6 +505,78 @@ suite('fxa-sendgrid-event-proxy:', () => {
       })
       assert.isFunction(args[2])
       assert.lengthOf(args[2], 2)
+    })
+  })
+
+  suite('call with an unauthorised request object:', () => {
+    let promise
+
+    setup(() => {
+      process.env.AUTH = 'authentication string'
+      promise = proxy.main({
+        body: JSON.stringify({
+          email: 'foo@example.com',
+          timestamp: 1529507950,
+          event: 'delivered',
+          sg_event_id: 'be8eYqItNxixRpMOG1eoGg==',
+          sg_message_id: '14c5d75ce93.dfd.64b469.filter0001.16648.5515E0B88.0',
+          response: '200 OK'
+        }),
+        queryStringParameters: {
+          auth: 'authentication stringx'
+        }
+      })
+      return promise
+    })
+
+    test('sqs.push was not called', () => {
+      assert.equal(sqs.push.callCount, 0)
+    })
+
+    test('promise is resolved', () => {
+      assert.isFulfilled(promise)
+    })
+
+    test('result is correct', () => {
+      return promise.then(result => assert.deepEqual(result, {
+        statusCode: 401,
+        body: 'Unauthorized',
+        isBase64Encoded: false
+      }))
+    })
+  })
+
+  suite('call without query params:', () => {
+    let promise
+
+    setup(() => {
+      promise = proxy.main({
+        body: JSON.stringify({
+          email: 'foo@example.com',
+          timestamp: 1529507950,
+          event: 'delivered',
+          sg_event_id: 'be8eYqItNxixRpMOG1eoGg==',
+          sg_message_id: '14c5d75ce93.dfd.64b469.filter0001.16648.5515E0B88.0',
+          response: '200 OK'
+        })
+      })
+      return promise
+    })
+
+    test('sqs.push was not called', () => {
+      assert.equal(sqs.push.callCount, 0)
+    })
+
+    test('promise is resolved', () => {
+      assert.isFulfilled(promise)
+    })
+
+    test('result is correct', () => {
+      return promise.then(result => assert.deepEqual(result, {
+        statusCode: 401,
+        body: 'Unauthorized',
+        isBase64Encoded: false
+      }))
     })
   })
 })
