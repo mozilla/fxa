@@ -100,6 +100,13 @@ function marshallMailObject (event, timestamp) {
   let messageId
 
   if (event.sg_message_id) {
+    // Although I haven't seen it documented explicitly, sg_message_id appears to be
+    // the message id that Sendgrid returned from the call to `send`, appended with
+    // some stuff that begins with the string ".filter". This step just ensures we
+    // strip off the extra stuff.
+    //
+    // Example input: 14c5d75ce93.dfd.64b469.filter0001.16648.5515E0B88.0
+    // Example output: 14c5d75ce93.dfd.64b469
     messageId = event.sg_message_id.split('.filter')[0]
   }
 
