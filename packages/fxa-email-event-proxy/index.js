@@ -4,6 +4,7 @@
 
 'use strict'
 
+const crypto = require('crypto')
 const Promise = require('bluebird')
 const sqs = require('sqs')
 
@@ -19,6 +20,8 @@ const { AUTH, SQS_SUFFIX } = process.env
 if (! AUTH || ! SQS_SUFFIX) {
   throw new Error('Missing config')
 }
+
+const AUTH_HASH = createHash(AUTH)
 
 const QUEUES = {
   Bounce: `fxa-email-bounce-${SQS_SUFFIX}`,
@@ -37,7 +40,7 @@ async function main (data) {
     // If there's a body, it's a request from the API gateway
     if (data.body) {
       // Requests from the API gateway must be authenticated
-      if (! data.queryStringParameters || data.queryStringParameters.auth !== AUTH) {
+      if (! data.queryStringParameters || ! authenticate(data.queryStringParameters.auth)) {
         return {
           statusCode: 401,
           body: 'Unauthorized',
@@ -65,6 +68,18 @@ async function main (data) {
       isBase64Encoded: false
     }
   }
+}
+
+function authenticate (auth) {
+  const authHash = createHash(auth)
+  return AUTH_HASH.split('')
+    .reduce((equal, char, index) => equal && char === authHash[index], true)
+}
+
+function createHash (value) {
+  const hash = crypto.createHash('sha256')
+  hash.update(value)
+  return hash.digest('base64')
 }
 
 async function processEvents (events) {
