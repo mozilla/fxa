@@ -21,7 +21,7 @@ if (! AUTH || ! SQS_SUFFIX) {
   throw new Error('Missing config')
 }
 
-const AUTH_HASH = createHash(AUTH)
+const AUTH_HASH = createHash(AUTH).split('')
 
 const QUEUES = {
   Bounce: `fxa-email-bounce-${SQS_SUFFIX}`,
@@ -72,7 +72,7 @@ async function main (data) {
 
 function authenticate (auth) {
   const authHash = createHash(auth)
-  return AUTH_HASH.split('')
+  return AUTH_HASH
     .reduce((equal, char, index) => equal && char === authHash[index], true)
 }
 
