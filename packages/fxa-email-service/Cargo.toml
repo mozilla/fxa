@@ -2,6 +2,14 @@
 name = "fxa_email_service"
 version = "0.1.0"
 
+[[bin]]
+name = "fxa-email-service"
+path = "src/bin/service.rs"
+
+[[bin]]
+name = "fxa-email-queues"
+path = "src/bin/queues.rs"
+
 [dependencies]
 base64 = ">=0.6.0"
 chrono = { version = ">=0.4.2", features = [ "serde" ] }
