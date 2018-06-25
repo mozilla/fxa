@@ -473,6 +473,14 @@ define(function (require, exports, module) {
       errno: 1056,
       message: t('Invalid recovery code')
     },
+    PASSWORD_SAME_AS_EMAIL: {
+      errno: 1057,
+      message: 'Password must not be your email address' // only used for logging, no need for translation
+    },
+    PASSWORD_TOO_COMMON: {
+      errno: 1058,
+      message: 'Password is too common' // only used for logging, no need for translation
+    }
   };
   /*eslint-enable sorting/sort-object-props*/
 

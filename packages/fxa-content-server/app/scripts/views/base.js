@@ -390,7 +390,7 @@ define(function (require, exports, module) {
       // use cached context, if available. This prevents the context()
       // function from being called multiple times per render.
       if (! this._context) {
-        this._context = new Backbone.Model({});
+        this._context = new Backbone.Model(this.model.toJSON());
         this.setInitialContext(this._context);
       }
       return this._context.toJSON();

@@ -175,7 +175,7 @@ define(function (require, exports, module) {
             view.highlightSignupPasswordHelper({
               target: '#vpassword'
             });
-            assert.equal(view.$('.input-help-balloon').css('top'), '-5px');
+            assert.equal(view.$('.input-help-balloon').css('top'), 'auto');
           });
       });
 

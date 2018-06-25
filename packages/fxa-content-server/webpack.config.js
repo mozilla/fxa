@@ -110,7 +110,7 @@ const webpackConfig = {
         query: {
           cacheDirectory: true,
           presets: ['babel-preset-es2015'],
-          plugins: ['babel-plugin-syntax-dynamic-import']
+          plugins: ['babel-plugin-syntax-dynamic-import', 'transform-class-properties']
         }
       }],
       threads: 4,

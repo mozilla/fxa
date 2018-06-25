@@ -116,6 +116,24 @@ define(function (require, exports, module) {
       view = windowMock = metrics = null;
     });
 
+    it('getContext copies data from the model, then calls `setInitialContext`', () => {
+      // ensure context is not set or else the cached value is returned.
+      view._context = null;
+      model.set('key', 'value');
+      sinon.stub(view, 'setInitialContext').callsFake((context) => {
+        context.set({
+          key2: 'value2',
+          key3: 'value3'
+        });
+      });
+
+      assert.deepEqual(view.getContext(), {
+        key: 'value',
+        key2: 'value2',
+        key3: 'value3'
+      });
+    });
+
     describe('renderTemplate', () => {
       it('invokes the template with merged `context` and `additionalContext` and translation helpers', () => {
         const template = sinon.spy();

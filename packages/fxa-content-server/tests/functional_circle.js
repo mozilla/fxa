@@ -31,6 +31,7 @@ function selectCircleTests (allTests) {
 
 module.exports = selectCircleTests([
   'tests/functional/sign_in_totp.js',
+  'tests/functional/password_strength_experiment.js',
   // flaky tests go above here.
   'tests/functional/sync_v3_email_first.js',
   'tests/functional/fx_firstrun_v2_email_first.js',

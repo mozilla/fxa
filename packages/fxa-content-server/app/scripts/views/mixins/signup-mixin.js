@@ -40,6 +40,9 @@ define(function (require, exports, module) {
           if (this.formPrefill) {
             this.formPrefill.clear();
           }
+          // A message is triggered on account creation for experiments
+          // can track whether their UI affects account creation rate.
+          this.notifier.trigger('account.created');
 
           var onSubmitComplete = this.onSignUpSuccess.bind(this);
 

@@ -53,6 +53,9 @@ define(function (require, exports, module) {
           logFlowEvent: sinon.spy(),
           logViewEvent: sinon.spy(),
           navigate: sinon.spy(),
+          notifier: {
+            trigger: sinon.spy()
+          },
           onSignUpSuccess: SignUpMixin.onSignUpSuccess,
           relier,
           signUp: SignUpMixin.signUp,
@@ -67,6 +70,10 @@ define(function (require, exports, module) {
           });
 
           return view.signUp(account, 'password');
+        });
+
+        it('triggers an account.created on the notifier', () => {
+          assert.isTrue(view.notifier.trigger.calledOnceWith('account.created'));
         });
 
         it('calls user.signUpAccount correctly', () => {

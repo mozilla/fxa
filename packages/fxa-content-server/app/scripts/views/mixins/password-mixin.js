@@ -12,7 +12,7 @@ define(function (require, exports, module) {
   const showPasswordTemplate = require('templates/partial/show-password.mustache');
 
   const SELECTOR_SIGNUP_PASSWORD_HELPER = '.input-help-signup';
-  const SELECTOR_PASSWORD_HELPER_BALLOON = '.input-help-balloon';
+  const SELECTOR_PASSWORD_HELPER_BALLOON = '.input-help-balloon.follow-focus';
 
   module.exports = {
     events: {
@@ -203,12 +203,12 @@ define(function (require, exports, module) {
     },
 
     showPasswordHelper () {
-      this.$('.input-help').css('opacity', '1');
+      this.$('.input-help:not(.password-strength-balloon)').css('opacity', '1');
     },
 
     hidePasswordHelper () {
       // Hide all input-help classes except input-help-forgot-pw
-      this.$('.input-help:not(.input-help-forgot-pw)').css('opacity', '0');
+      this.$('.input-help:not(.input-help-forgot-pw,.password-strength-balloon)').css('opacity', '0');
     },
 
     /**
@@ -225,7 +225,7 @@ define(function (require, exports, module) {
       if (event && this.$(event.target).is('#password')) {
         this.$(SELECTOR_PASSWORD_HELPER_BALLOON).css('top', '-80px');
       } else {
-        this.$(SELECTOR_PASSWORD_HELPER_BALLOON).css('top', '-5px');
+        this.$(SELECTOR_PASSWORD_HELPER_BALLOON).css('top', '');
       }
       this.showPasswordHelper();
     },

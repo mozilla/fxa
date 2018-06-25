@@ -6,6 +6,7 @@ module.exports = [
   'tests/functional/mailcheck.js',
   'tests/functional/sync_v3_email_first.js',
   'tests/functional/fx_firstrun_v2_email_first.js',
+  'tests/functional/password_strength_experiment.js',
   // new and flaky tests above here',
   'tests/functional/sign_in.js',
   'tests/functional/sign_in_cached.js',

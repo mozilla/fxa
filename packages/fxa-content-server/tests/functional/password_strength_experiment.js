@@ -1,0 +1,76 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+'use strict';
+
+const { registerSuite } = intern.getInterface('object');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+
+const config = intern._config;
+const PAGE_URL = `${config.fxaContentRoot}?context=fx_firstrun_v2&service=sync&action=email&forceExperiment=passwordStrength&forceExperimentGroup=designF`; //eslint-disable-line max-len
+
+let email;
+
+const {
+  clearBrowserState,
+  click,
+  openPage,
+  testElementExists,
+  type,
+} = FunctionalHelpers;
+
+registerSuite('password strength experiment', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail('sync{id}');
+
+    return this.remote
+      .then(clearBrowserState({ force: true }));
+  },
+
+  tests: {
+
+    'signup': function () {
+      return this.remote
+        .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true}
+          }
+        }))
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER))
+
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.BALLOON))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_UNMET))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_UNMET))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_UNMET))
+
+        .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, 'p'))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_UNMET))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_UNMET))
+
+        .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, 'password'))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_MET))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_MET))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_FAIL))
+
+        .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, email))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_MET))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_FAIL))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_UNMET))
+
+        .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, ''))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_UNMET))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_UNMET))
+
+        .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, 'password123123'))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_MET))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_MET))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_MET));
+    }
+  }
+});
