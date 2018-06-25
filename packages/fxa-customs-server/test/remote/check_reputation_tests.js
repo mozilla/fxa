@@ -36,6 +36,18 @@ var config = {
   }
 }
 
+// We use a restify based test reputation client to query the reputation server stub
+// in here for testing purposes, but also instantiate an instance of the actual reputation
+// client to verify some of the behavior in the module.
+var repJSClientConfig = {
+  serviceUrl: config.reputationService.baseUrl,
+  id: 'root',
+  key: 'toor',
+  timeout: 25
+}
+var ipr = require('ip-reputation-js-client')
+var repJSClient = new ipr(repJSClientConfig)
+
 // Override limit values for testing
 process.env.ALLOWED_IPS = ALLOWED_IP
 
@@ -90,6 +102,24 @@ ENDPOINTS.forEach(endpoint => {
     )
   })
 
+  test('query reputation stub directly using ip-reputation-js-client', t => {
+    return reputationClient.delAsync('/' + TEST_IP)
+      .spread(function (req, res, obj) {
+        t.equal(res.statusCode, 200, 'clears reputation for TEST_IP')
+        return repJSClient.get(TEST_IP)
+      }).then(function (response) {
+        t.equal(response.statusCode, 404, 'reputation value for TEST_IP not found')
+        var f = response && response.timingPhases && response.timingPhases.total &&
+          typeof(response.timingPhases.total) === 'number' &&
+          response.timingPhases.total > 0.0
+        t.equal(f, true, 'response contains timing data')
+        t.end()
+      }).catch(function(err) {
+        t.fail(err)
+        t.end()
+      })
+  })
+
   test(`does not block ${endpoint} for IP with nonexistent reputation`, t => {
     return reputationClient.delAsync('/' + TEST_IP)
       .spread(function (req, res, obj) {
@@ -109,9 +139,9 @@ ENDPOINTS.forEach(endpoint => {
     return reputationClient.delAsync('/' + TEST_IP)
       .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'clears reputation for TEST_IP')
-        return reputationClient.postAsync('/', {ip: TEST_IP, reputation: 60})
+        return reputationClient.putAsync('/' + TEST_IP, {ip: TEST_IP, reputation: 60})
       }).spread(function (req, res, obj) {
-        t.equal(res.statusCode, 201, 'sets reputation for TEST_IP')
+        t.equal(res.statusCode, 200, 'sets reputation for TEST_IP')
         return client.postAsync(endpoint, { email: TEST_EMAIL, ip: TEST_IP, action: TEST_CHECK_ACTION })
       }).spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check returns 200')
@@ -127,9 +157,9 @@ ENDPOINTS.forEach(endpoint => {
     return reputationClient.delAsync('/' + TEST_IP)
       .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'clears reputation for TEST_IP')
-        return reputationClient.postAsync('/', {ip: TEST_IP, reputation: 55})
+        return reputationClient.putAsync('/' + TEST_IP, {ip: TEST_IP, reputation: 55})
       }).spread(function (req, res, obj) {
-        t.equal(res.statusCode, 201, 'sets reputation for TEST_IP')
+        t.equal(res.statusCode, 200, 'sets reputation for TEST_IP')
         return client.postAsync(endpoint, { email: TEST_EMAIL, ip: TEST_IP, action: TEST_CHECK_ACTION })
       }).spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check returns 200')
@@ -146,9 +176,9 @@ ENDPOINTS.forEach(endpoint => {
     return reputationClient.delAsync('/' + TEST_IP)
       .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'clears reputation for TEST_IP')
-        return reputationClient.postAsync('/', {ip: TEST_IP, reputation: 10})
+        return reputationClient.putAsync('/', {ip: TEST_IP, reputation: 10})
       }).spread(function (req, res, obj) {
-        t.equal(res.statusCode, 201, 'sets reputation for TEST_IP')
+        t.equal(res.statusCode, 200, 'sets reputation for TEST_IP')
         return client.postAsync(endpoint, { email: TEST_EMAIL, ip: TEST_IP, action: TEST_CHECK_ACTION })
       }).spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check returns 200')
@@ -171,9 +201,9 @@ ENDPOINTS.forEach(endpoint => {
     return reputationClient.delAsync('/' + ALLOWED_IP)
       .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'clears reputation for ALLOWED_IP')
-        return reputationClient.postAsync('/', {ip: ALLOWED_IP, reputation: 10})
+        return reputationClient.putAsync('/' + ALLOWED_IP, {ip: ALLOWED_IP, reputation: 10})
       }).spread(function (req, res, obj) {
-        t.equal(res.statusCode, 201, 'sets reputation for ALLOWED_IP')
+        t.equal(res.statusCode, 200, 'sets reputation for ALLOWED_IP')
         return client.postAsync(endpoint, { email: TEST_EMAIL, ip: ALLOWED_IP, action: TEST_CHECK_ACTION })
       }).spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check returns 200')

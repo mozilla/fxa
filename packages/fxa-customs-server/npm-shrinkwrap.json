@@ -1948,9 +1948,9 @@
       "integrity": "sha1-ErFilKOJJUhtYYoRA1BuTrT4spY="
     },
     "ip-reputation-js-client": {
-      "version": "4.0.1",
-      "resolved": "https://registry.npmjs.org/ip-reputation-js-client/-/ip-reputation-js-client-4.0.1.tgz",
-      "integrity": "sha512-R6aIpkpr4/AhxK2G5VwduxFcM2o7yka7KGVuUyV/5yQHIQoSD26vZ5zisaOsPyeEDJ2UuXQzxDvqLqYiFj3Lcg==",
+      "version": "4.0.2",
+      "resolved": "https://registry.npmjs.org/ip-reputation-js-client/-/ip-reputation-js-client-4.0.2.tgz",
+      "integrity": "sha512-+zDcQz1nQorSukbCa0CIO7W8RpLzaC1kFHtyVuRLejwax6oWXhGzy60ODB+lkUQkTy6RmR/K8XTGzK/xHGlqTQ==",
       "requires": {
         "bluebird": "3.5.1",
         "joi": "13",

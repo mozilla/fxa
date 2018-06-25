@@ -26,7 +26,7 @@ server.put('/violations/:ip', function (req, res, next) {
   next()
 })
 
-// not real tigerblood endpoints
+// not real iprepd endpoints
 server.get('/mostRecentViolation/:ip', function (req, res, next) {
   var ip = req.params.ip
   console.log('get req', req.url)
@@ -52,7 +52,7 @@ server.get('/:ip', function (req, res, next) {
   if (ip === '9.9.9.9') {
     res.send(500)
   } else if (reputationsByIp.hasOwnProperty(ip)) {
-    res.send(200, {reputation: reputationsByIp[ip]})
+    res.send(200, {reputation: reputationsByIp[ip], reviewed: false})
   } else {
     res.send(404)
   }
@@ -66,14 +66,10 @@ server.del('/:ip', function (req, res, next) {
   res.send(200)
   next()
 })
-server.post('/', function (req, res, next) {
+server.put('/:ip', function (req, res, next) {
   var ip = req.params.ip
-  if (reputationsByIp.hasOwnProperty(ip)) {
-    res.send(405)
-  } else {
-    reputationsByIp[ip] = req.params.reputation
-    res.send(201)
-  }
+  reputationsByIp[ip] = req.body.reputation
+  res.send(200)
   next()
 })
 

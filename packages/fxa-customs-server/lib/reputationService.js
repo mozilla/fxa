@@ -15,11 +15,23 @@ var alwaysFalse = function () {
   return false
 }
 
+function getRequestTime(result) {
+  if (!(result && result.timingPhases && result.timingPhases.total)) {
+    return 0
+  }
+  var ret = Number.parseFloat(result.timingPhases.total).toFixed(2)
+  if (isNaN(ret)) {
+    return 0
+  }
+  return ret
+}
+
 var report = function (log, ipClient, ip, action) {
   return ipClient.sendViolation(ip, action)
     .then(function(result) {
       var statusCode = result && result.statusCode
-      log.info({ op: action + '.sendViolation', ip: ip, statusCode: statusCode })
+      log.info({ op: action + '.sendViolation', ip: ip, statusCode: statusCode,
+        rtime: getRequestTime(result) })
     })
     .catch(function (err) {
       log.error({ op: action + '.sendViolation', ip: ip, err: err })
@@ -30,15 +42,17 @@ var get = function (log, ipClient, ip) {
   return ipClient.get(ip)
     .then(function (response) {
       if (response && response.body && response.statusCode === 200) {
-        log.info({ op: 'fetchIPReputation', ip: ip, reputation: response.body.reputation })
+        log.info({ op: 'fetchIPReputation', ip: ip, reputation: response.body.reputation,
+          rtime: getRequestTime(response) })
         return response.body.reputation
       }
 
       if (response.statusCode === 404) {
-        log.info({ op: 'fetchIPReputation', ip: ip, err: 'Reputation not found for IP.'})
+        log.info({ op: 'fetchIPReputation', ip: ip, err: 'Reputation not found for IP.',
+          rtime: getRequestTime(response) })
       } else {
         var err = { status: response.statusCode, body: response.body }
-        log.error({ op: 'fetchIPReputation', ip: ip, err: err })
+        log.error({ op: 'fetchIPReputation', ip: ip, err: err, rtime: getRequestTime(response) })
       }
 
       return null
