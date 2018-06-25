@@ -16,6 +16,7 @@ var COLORS = {
   WARNING: 'eb6420',
   INFO: '207de5',
   TARGET: 'd4c5f9',
+  TARGET_QA_NEEDED: '55e09d',
   WELCOMING: '009800',
   // Rainbow colours for P0-P4.
   RED: 'dd1133',
@@ -63,12 +64,13 @@ var STANDARD_LABELS = {
   // Train-number labels, for scheduling.
   // XXX TODO: calculate appropriate set of train labels
   // based on current date, rather than hard-coding them here.
-  'train-110': { color: COLORS.TARGET },
-  'train-111': { color: COLORS.TARGET },
-  'train-112': { color: COLORS.TARGET },
-  'train-113': { color: COLORS.TARGET },
   'train-114': { color: COLORS.TARGET },
   'train-115': { color: COLORS.TARGET },
+  'train-115:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
+  'train-116': { color: COLORS.TARGET },
+  'train-116:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
+  'train-117': { color: COLORS.TARGET },
+  'train-117:qa-needed': { color: COLORS.TARGET_QA_NEEDED }
 }
 
 
@@ -114,7 +116,11 @@ var OBSOLETE_LABELS = {
   'train-106': null,
   'train-107': null,
   'train-108': null,
-  'train-109': null
+  'train-109': null,
+  'train-110': null,
+  'train-111': null,
+  'train-112': null,
+  'train-113': null,
 }
 
 
