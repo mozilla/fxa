@@ -1,3 +1,7 @@
+<a name="1.115.0"></a>
+# [1.115.0](https://github.com/mozilla/fxa-oauth-server/compare/v1.113.1...v1.115.0) (2018-06-25)
+
+
 <a name="1.114.0"></a>
 # [1.114.0](https://github.com/mozilla/fxa-oauth-server/compare/v1.113.1...v1.114.0) (2018-06-13)
 
