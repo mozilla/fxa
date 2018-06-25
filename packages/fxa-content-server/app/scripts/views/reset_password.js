@@ -18,7 +18,11 @@ define(function (require, exports, module) {
 
   const t = (msg) => msg;
 
-  class ResetPasswordView extends FormView {
+  const ResetPasswordView = FormView.extend({
+    events: {
+      'click .remember-password': preventDefaultThen('_rememberPassword')
+    },
+
     initialize (options) {
       this.template = Template;
       this.className = 'reset_password';
@@ -28,21 +32,15 @@ define(function (require, exports, module) {
       // the user doesn't enter an address. See comment in beforeDestroy
       this._formPrefill = options.formPrefill;
 
-      this.events = {
-        'click .remember-password': preventDefaultThen('_rememberPassword')
-      };
-
-      super.initialize(options);
-    }
-
+      FormView.prototype.initialize.call(this, options);
+    },
 
     setInitialContext (context) {
-      super.setInitialContext(context);
-
       context.set({
         forceEmail: this.model.get('forceEmail')
       });
-    }
+      FormView.prototype.setInitialContext.call(this, context);
+    },
 
     beforeRender () {
       var email = this.relier.get('email');
@@ -54,9 +52,8 @@ define(function (require, exports, module) {
             this.model.set('error', err);
           });
       }
-
-      return super.beforeRender();
-    }
+      FormView.prototype.beforeRender.call(this);
+    },
 
     beforeDestroy () {
       const email = this.getElementValue('.email');
@@ -70,11 +67,11 @@ define(function (require, exports, module) {
       if (email) {
         this._formPrefill.set({ email });
       }
-    }
+    },
 
     submit () {
       return this._resetPassword(this.getElementValue('.email'));
-    }
+    },
 
     /**
      *
@@ -86,7 +83,7 @@ define(function (require, exports, module) {
       } else {
         this.navigate('signin');
       }
-    }
+    },
 
     _resetPassword (email) {
       return this.resetPassword(email)
@@ -105,7 +102,7 @@ define(function (require, exports, module) {
           throw err;
         });
     }
-  }
+  });
 
   Cocktail.mixin(
     ResetPasswordView,

@@ -72,6 +72,15 @@ define(function (require, exports, module) {
       view = metrics = null;
     });
 
+    it('registers for the expected events', () => {
+      assert.isFunction(view.events['click .remember-password']);
+      assert.isFunction(view.events['click a']);
+      assert.isFunction(view.events['click input']);
+      assert.isFunction(view.events['input input']);
+      assert.isFunction(view.events['keyup input']);
+      assert.isFunction(view.events['submit']);
+    });
+
     describe('render', function () {
       it('renders template', function () {
         assert.ok($('#fxa-reset-password-header').length);
