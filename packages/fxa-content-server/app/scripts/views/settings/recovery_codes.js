@@ -127,7 +127,7 @@ const View = FormView.extend({
     this.recoveryCodesText = '';
     if (codes) {
       this.recoveryCodes = codes;
-      this.recoveryCodesText = this.recoveryCodes.join('\n');
+      this.recoveryCodesText = this.recoveryCodes.join(' \r\n');
       this.model.set('recoveryCodes', codes);
 
       if (msg) {
