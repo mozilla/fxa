@@ -1271,6 +1271,37 @@ module.exports = (
       })
   }
 
+  SAFE_URLS.createRecoveryKey = new SafeUrl(
+    '/account/:uid/recoveryKeys',
+    'db.createRecoveryKey'
+  )
+  DB.prototype.createRecoveryKey = function (uid, recoveryKeyId, recoveryData) {
+    log.trace({op: 'DB.createRecoveryKey', uid})
+
+    return this.pool.post(SAFE_URLS.createRecoveryKey, { uid }, { recoveryKeyId, recoveryData })
+  }
+
+  SAFE_URLS.getRecoveryKey = new SafeUrl(
+    '/account/:uid/recoveryKeys/:recoveryKeyId',
+    'db.getRecoveryKey'
+  )
+  DB.prototype.getRecoveryKey = function (uid, recoveryKeyId) {
+    log.trace({op: 'DB.getRecoveryKey', uid})
+
+    return this.pool.get(SAFE_URLS.getRecoveryKey, { uid, recoveryKeyId })
+  }
+
+  SAFE_URLS.deleteRecoveryKey = new SafeUrl(
+    '/account/:uid/recoveryKeys/:recoveryKeyId',
+    'db.createRecoveryKey'
+  )
+  DB.prototype.deleteRecoveryKey = function (uid, recoveryKeyId) {
+    log.trace({op: 'DB.deleteRecoveryKey', uid})
+
+    return this.pool.del(SAFE_URLS.deleteRecoveryKey, { uid, recoveryKeyId })
+  }
+
+
   function wrapTokenNotFoundError (err) {
     if (isNotFoundError(err)) {
       err = error.invalidToken('The authentication token could not be found')

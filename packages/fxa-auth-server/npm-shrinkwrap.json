@@ -10895,14 +10895,9 @@
       "from": "git+https://github.com/vladikoff/node-uap.git#9cdd16247",
       "requires": {
         "array.prototype.find": "2.0.0",
+        "uap-core": "git://github.com/ua-parser/uap-core.git#590f66f40b00644efa6045d06e3c2a605eb22ea1",
         "uap-ref-impl": "0.2.0",
         "yamlparser": "0.0.2"
-      },
-      "dependencies": {
-        "uap-core": {
-          "version": "git://github.com/ua-parser/uap-core.git#590f66f40b00644efa6045d06e3c2a605eb22ea1",
-          "from": "git://github.com/ua-parser/uap-core.git#590f66f40b00644efa6045d06e3c2a605eb22ea1"
-        }
       }
     },
     "nodemailer": {
@@ -14191,6 +14186,10 @@
       "version": "0.0.6",
       "resolved": "https://registry.npmjs.org/typedarray/-/typedarray-0.0.6.tgz",
       "integrity": "sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c="
+    },
+    "uap-core": {
+      "version": "git://github.com/ua-parser/uap-core.git#590f66f40b00644efa6045d06e3c2a605eb22ea1",
+      "from": "git://github.com/ua-parser/uap-core.git"
     },
     "uap-ref-impl": {
       "version": "0.2.0",

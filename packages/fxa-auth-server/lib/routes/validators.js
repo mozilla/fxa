@@ -9,7 +9,8 @@ const punycode = require('punycode.js')
 const isA = require('joi')
 
 // Match any non-empty hex-encoded string.
-module.exports.HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
+const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
+module.exports.HEX_STRING = HEX_STRING
 
 module.exports.BASE_36 = /^[a-zA-Z0-9]*$/
 
@@ -199,3 +200,9 @@ function isValidUrl(url, hostnameRegex) {
 }
 
 module.exports.verificationMethod = isA.string().valid(['email', 'email-2fa', 'email-captcha'])
+
+module.exports.authPW = isA.string().length(64).regex(HEX_STRING).required()
+module.exports.wrapKb = isA.string().length(64).regex(HEX_STRING)
+
+module.exports.recoveryKeyId = isA.string().regex(HEX_STRING).max(32)
+module.exports.recoveryData = isA.string().regex(/[a-zA-Z0-9.]/).max(1024).required()

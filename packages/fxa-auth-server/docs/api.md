@@ -56,6 +56,9 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
   * [Recovery codes](#recovery-codes)
     * [GET /recoveryCodes (:lock: sessionToken)](#get-recoverycodes)
     * [POST /session/verify/recoveryCode (:lock: sessionToken)](#post-sessionverifyrecoverycode)
+  * [Recovery keys](#recovery-keys)
+    * [POST /recoveryKeys (:lock: sessionToken)](#post-recoverykeys)
+    * [GET /recoveryKeys/{recoveryKeyId} (:lock: accountResetToken)](#get-recoverykeysrecoverykeyid)
   * [Session](#session)
     * [POST /session/destroy (:lock: sessionToken)](#post-sessiondestroy)
     * [POST /session/reauth (:lock: sessionToken)](#post-sessionreauth)
@@ -345,6 +348,10 @@ those common validations are defined here.
 * `DISPLAY_SAFE_UNICODE_WITH_NON_BMP`: `/^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uE000-\uF8FF\uFFF9-\uFFFF])*$/`
 * `service`: `string, max(16), regex(/^[a-zA-Z0-9\-]*$/g)`
 * `verificationMethod`: `string, valid()`
+* `authPW`: `string, length(64), regex(HEX_STRING), required`
+* `wrapKb`: `string, length(64), regex(/^(?:[a-fA-F0-9]{2})+$/)`
+* `recoveryKeyId`: `string, regex(HEX_STRING), max(32)`
+* `recoveryData`: `string, regex(/[a-zA-Z0-9.]/), max(1024), required`
 * `E164_NUMBER`: `/^\+[1-9]\d{1,14}$/`
 * `DIGITS`: `/^[0-9]+$/`
 * `IP_ADDRESS`: `string, ip`
@@ -382,7 +389,6 @@ those common validations are defined here.
     * `name`: isA.string.max(255).regex(DISPLAY_SAFE_UNICODE_WITH_NON_BMP)
     * `nameResponse`: isA.string.max(255)
     * `type`: isA.string.max(16)
-    * `capabilities`: isA.array.items(isA.string)
     * `pushCallback`: validators.url({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow('')
     * `pushPublicKey`: isA.string.max(88).regex(URL_SAFE_BASE_64).allow('')
     * `pushAuthKey`: isA.string.max(24).regex(URL_SAFE_BASE_64).allow('')
@@ -438,7 +444,7 @@ if the url has a query parameter of `keys=true`.
   The primary email for this account.
   <!--end-request-body-post-accountcreate-email-->
 
-* `authPW`: *string, min(64), max(64), regex(HEX_STRING), required*
+* `authPW`: *validators.authPW*
 
   <!--begin-request-body-post-accountcreate-authPW-->
   The PBKDF2/HKDF-stretched password as a hex string.
@@ -555,7 +561,7 @@ Obtain a `sessionToken` and, optionally, a `keyFetchToken` if `keys=true`.
   The primary email for this account.
   <!--end-request-body-post-accountlogin-email-->
 
-* `authPW`: *string, min(64), max(64), regex(HEX_STRING), required*
+* `authPW`: *validators.authPW*
 
   <!--begin-request-body-post-accountlogin-authPW-->
   The PBKDF2/HKDF stretched password as a hex string.
@@ -881,11 +887,23 @@ a new `sessionToken` and `keyFetchToken`.
 
 ##### Request body
 
-* `authPW`: *string, min(64), max(64), regex(HEX_STRING), required*
+* `authPW`: *validators.authPW*
 
   <!--begin-request-body-post-accountreset-authPW-->
   The PBKDF2/HKDF-stretched password as a hex string.
   <!--end-request-body-post-accountreset-authPW-->
+
+* `wrapKb`: *validators.wrapKb.optional*
+
+  <!--begin-request-body-post-accountreset-wrapKb-->
+  
+  <!--end-request-body-post-accountreset-wrapKb-->
+
+* `recoveryKeyId`: *validators.recoveryKeyId.optional*
+
+  <!--begin-request-body-post-accountreset-recoveryKeyId-->
+  
+  <!--end-request-body-post-accountreset-recoveryKeyId-->
 
 * `sessionToken`: *boolean, optional*
 
@@ -929,7 +947,7 @@ before deleting the user's account data.
   Primary email address of the account.
   <!--end-request-body-post-accountdestroy-email-->
 
-* `authPW`: *string, min(64), max(64), regex(HEX_STRING), required*
+* `authPW`: *validators.authPW*
 
   <!--begin-request-body-post-accountdestroy-authPW-->
   The PBKDF2/HKDF-stretched password as a hex string.
@@ -1003,12 +1021,6 @@ can be made available to other connected devices.
   
   <!--end-request-body-post-accountdevice-type-->
 
-* `capabilities`: *DEVICES_SCHEMA.capabilities.optional*
-
-  <!--begin-request-body-post-accountdevice-capabilities-->
-  
-  <!--end-request-body-post-accountdevice-capabilities-->
-
 * `pushCallback`: *DEVICES_SCHEMA.pushCallback.optional*
 
   <!--begin-request-body-post-accountdevice-pushCallback-->
@@ -1026,6 +1038,12 @@ can be made available to other connected devices.
   <!--begin-request-body-post-accountdevice-pushAuthKey-->
   
   <!--end-request-body-post-accountdevice-pushAuthKey-->
+
+* `capabilities`: *array, length(0), optional*
+
+  <!--begin-request-body-post-accountdevice-capabilities-->
+  
+  <!--end-request-body-post-accountdevice-capabilities-->
 
 ##### Response body
 
@@ -1052,12 +1070,6 @@ can be made available to other connected devices.
   <!--begin-response-body-post-accountdevice-type-->
   
   <!--end-response-body-post-accountdevice-type-->
-
-* `capabilities`: *DEVICES_SCHEMA.capabilities.optional*
-
-  <!--begin-response-body-post-accountdevice-capabilities-->
-  
-  <!--end-response-body-post-accountdevice-capabilities-->
 
 * `pushCallback`: *DEVICES_SCHEMA.pushCallback.optional*
 
@@ -1226,12 +1238,6 @@ for the authenticated user.
   
   <!--end-response-body-get-accountdevices-type-->
 
-* `capabilities`: *DEVICES_SCHEMA.capabilities.optional*
-
-  <!--begin-response-body-get-accountdevices-capabilities-->
-  
-  <!--end-response-body-get-accountdevices-capabilities-->
-
 * `pushCallback`: *DEVICES_SCHEMA.pushCallback.allow(null).optional*
 
   <!--begin-response-body-get-accountdevices-pushCallback-->
@@ -1345,12 +1351,6 @@ for the authenticated user.
   <!--begin-response-body-get-accountsessions-deviceType-->
   
   <!--end-response-body-get-accountsessions-deviceType-->
-
-* `deviceCapabilities`: *DEVICES_SCHEMA.capabilities.optional*
-
-  <!--begin-response-body-get-accountsessions-deviceCapabilities-->
-  
-  <!--end-response-body-get-accountsessions-deviceCapabilities-->
 
 * `deviceCallbackURL`: *DEVICES_SCHEMA.pushCallback.allow(null).required*
 
@@ -1811,7 +1811,7 @@ Also returns a single-use `keyFetchToken`.
   Primary email address of the account.
   <!--end-request-body-post-passwordchangestart-email-->
 
-* `oldAuthPW`: *string, min(64), max(64), regex(HEX_STRING), required*
+* `oldAuthPW`: *validators.authPW*
 
   <!--begin-request-body-post-passwordchangestart-oldAuthPW-->
   The PBKDF2/HKDF-stretched password as a hex string.
@@ -1845,13 +1845,13 @@ Optionally returns `sessionToken` and `keyFetchToken`.
 
 ##### Request body
 
-* `authPW`: *string, min(64), max(64), regex(HEX_STRING), required*
+* `authPW`: *validators.authPW*
 
   <!--begin-request-body-post-passwordchangefinish-authPW-->
   The PBKDF2/HKDF-stretched password as a hex string.
   <!--end-request-body-post-passwordchangefinish-authPW-->
 
-* `wrapKb`: *string, min(64), max(64), regex(HEX_STRING), required*
+* `wrapKb`: *validators.wrapKb*
 
   <!--begin-request-body-post-passwordchangefinish-wrapKb-->
   The new `wrapKb` value as a hex string.
@@ -2211,6 +2211,44 @@ Verify a session using a recovery code.
   <!--end-response-body-post-sessionverifyrecoverycode-remaining-->
 
 
+### Recovery keys
+
+#### POST /recoveryKeys
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-recoverykeys-->
+Creates a new recovery key for a user.
+
+Recovery keys are one-time-use tokens
+that can be used to recover the user's kB
+if they forget their password.
+For more details, see the
+[recovery keys](recovery_keys.md) docs.
+<!--end-route-post-recoverykeys-->
+
+##### Request body
+
+* `recoveryKeyId`: *validators.recoveryKeyId*
+
+  <!--begin-request-body-post-recoverykeys-recoveryKeyId-->
+  A unique identifier for this recovery key, derived from the key via HKDF.
+  <!--end-request-body-post-recoverykeys-recoveryKeyId-->
+
+* `recoveryData`: *validators.recoveryData*
+
+  <!--begin-request-body-post-recoverykeys-recoveryData-->
+  An encrypted bundle containing the user's kB.
+  <!--end-request-body-post-recoverykeys-recoveryData-->
+
+
+#### GET /recoveryKeys/{recoveryKeyId}
+
+:lock: HAWK-authenticated with account reset token
+<!--begin-route-get-recoverykeysrecoverykeyid-->
+Retrieve the account recovery data associated with the given recovery key.
+<!--end-route-get-recoverykeysrecoverykeyid-->
+
+
 ### Session
 
 #### POST /session/destroy
@@ -2284,7 +2322,7 @@ such as verification and device registration.
   
   <!--end-request-body-post-sessionreauth-email-->
 
-* `authPW`: *string, min(64), max(64), regex(HEX_STRING), required*
+* `authPW`: *validators.authPW*
 
   <!--begin-request-body-post-sessionreauth-authPW-->
   

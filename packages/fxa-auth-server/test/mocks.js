@@ -38,6 +38,7 @@ const DB_METHOD_NAMES = [
   'createEmail',
   'createKeyFetchToken',
   'createPasswordForgotToken',
+  'createRecoveryKey',
   'createSessionToken',
   'createSigninCode',
   'createTotpToken',
@@ -49,11 +50,13 @@ const DB_METHOD_NAMES = [
   'deletePasswordChangeToken',
   'deleteSessionToken',
   'deviceFromTokenVerificationId',
+  'deleteRecoveryKey',
   'deleteTotpToken',
   'devices',
   'emailBounces',
   'emailRecord',
   'forgotPasswordVerified',
+  'getRecoveryKey',
   'getSecondaryEmail',
   'keyFetchToken',
   'keyFetchTokenWithVerificationStatus',
@@ -325,6 +328,11 @@ function mockDB (data, errors) {
     getSecondaryEmail: sinon.spy(() => {
       return P.reject(error.unknownSecondaryEmail())
     }),
+    getRecoveryKey: sinon.spy(() => {
+      return P.resolve({
+        recoveryData: data.recoveryData
+      })
+    }),
     securityEvents: sinon.spy(() => {
       return P.resolve([])
     }),
@@ -516,6 +524,7 @@ function mockRequest (data, errors) {
       received: data.received || Date.now() - 1
     },
     path: data.path,
+    params: data.params || {},
     payload: data.payload || {},
     query: data.query || {},
     setMetricsFlowCompleteSignal: metricsContext.setFlowCompleteSignal,

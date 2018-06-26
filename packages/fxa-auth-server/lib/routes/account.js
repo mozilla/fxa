@@ -40,7 +40,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           },
           payload: {
             email: validators.email().required(),
-            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
+            authPW: validators.authPW,
             preVerified: isA.boolean(),
             service: validators.service,
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
@@ -381,7 +381,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           },
           payload: {
             email: validators.email().required(),
-            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
+            authPW: validators.authPW,
             service: validators.service,
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().optional(),
@@ -949,11 +949,13 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           query: {
             keys: isA.boolean().optional()
           },
-          payload: {
-            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
+          payload: isA.object({
+            authPW: validators.authPW,
+            wrapKb: validators.wrapKb.optional(),
+            recoveryKeyId: validators.recoveryKeyId.optional(),
             sessionToken: isA.boolean().optional(),
             metricsContext: METRICS_CONTEXT_SCHEMA
-          }
+          }).and('wrapKb', 'recoveryKeyId')
         }
       },
       handler: function accountReset(request, reply) {
@@ -961,7 +963,9 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
         const accountResetToken = request.auth.credentials
         const authPW = request.payload.authPW
         const hasSessionToken = request.payload.sessionToken
-        let account, sessionToken, keyFetchToken, verifyHash, wrapKb
+        let wrapKb = request.payload.wrapKb
+        const recoveryKeyId = request.payload.recoveryKeyId
+        let account, sessionToken, keyFetchToken, verifyHash, wrapWrapKb, password
 
         request.validateMetricsContext()
 
@@ -973,78 +977,93 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
         }
         request.setMetricsFlowCompleteSignal(flowCompleteSignal)
 
-        return resetAccountData()
+        return checkRecoveryKey()
+          .then(resetAccountData)
+          .then(deleteRecoveryKey)
           .then(createSessionToken)
           .then(createKeyFetchToken)
           .then(recordSecurityEvent)
           .then(createResponse)
           .then(reply, reply)
 
+        function checkRecoveryKey() {
+          if (recoveryKeyId) {
+            return db.getRecoveryKey(accountResetToken.uid, recoveryKeyId)
+          }
+
+          return P.resolve()
+        }
+
         function resetAccountData () {
-          let authSalt, password, wrapWrapKb
-          return random.hex(32, 32)
-            .then(hexes => {
-              authSalt = hexes[0]
-              wrapWrapKb = hexes[1]
+          let authSalt
+          return random.hex(32)
+            .then(hex => {
+              authSalt = hex
               password = new Password(authPW, authSalt, config.verifierVersion)
               return password.verifyHash()
             })
-            .then(
-              function (verifyHashData) {
-                verifyHash = verifyHashData
+            .then((verifyHashData) => {
+              verifyHash = verifyHashData
 
-                return db.resetAccount(
-                  accountResetToken,
-                  {
-                    authSalt: authSalt,
-                    verifyHash: verifyHash,
-                    wrapWrapKb: wrapWrapKb,
-                    verifierVersion: password.version
-                  }
-                )
-              }
-            )
-            .then(
-              function () {
-                // Delete all passwordChangeTokens, passwordForgotTokens and
-                // accountResetTokens associated with this uid
-                return db.resetAccountTokens(accountResetToken.uid)
-              }
-            )
-            .then(
-              function () {
-                // Notify the devices that the account has changed.
-                request.app.devices.then(devices =>
-                  push.notifyPasswordReset(accountResetToken.uid, devices)
-                )
+              return setupKb()
+            })
+            .then(() => {
+              return db.resetAccount(
+                accountResetToken,
+                {
+                  authSalt,
+                  verifyHash,
+                  wrapWrapKb,
+                  verifierVersion: password.version
+                }
+              )
+            })
+            .then(() => {
+              // Delete all passwordChangeTokens, passwordForgotTokens and
+              // accountResetTokens associated with this uid
+              return db.resetAccountTokens(accountResetToken.uid)
+            })
+            .then(() => {
+              // Notify the devices that the account has changed.
+              request.app.devices.then(devices => push.notifyPasswordReset(accountResetToken.uid, devices))
 
-                return db.account(accountResetToken.uid)
-                  .then((accountData) => {
-                    account = accountData
-                  })
-              }
-            )
-            .then(
-              function () {
-                return P.all([
-                  request.emitMetricsEvent('account.reset', {
-                    uid: account.uid
-                  }),
-                  log.notifyAttachedServices('reset', request, {
-                    uid: account.uid,
-                    iss: config.domain,
-                    generation: account.verifierSetAt
-                  }),
-                  customs.reset(account.email),
-                  password.unwrap(account.wrapWrapKb)
-                ])
-              }
-            )
-            .then(
-              function (results) {
-                wrapKb = results[3]
-              }
-            )
+              return db.account(accountResetToken.uid)
+                .then((accountData) => account = accountData)
+            })
+            .then(() => {
+              return P.all([
+                request.emitMetricsEvent('account.reset', {
+                  uid: account.uid
+                }),
+                log.notifyAttachedServices('reset', request, {
+                  uid: account.uid,
+                  iss: config.domain,
+                  generation: account.verifierSetAt
+                }),
+                customs.reset(account.email)
+              ])
+            })
+        }
+
+        function setupKb() {
+          if (recoveryKeyId) {
+            // We have the previous kB, just re-wrap it with the new password.
+            return password.wrap(wrapKb).then(result => wrapWrapKb = result)
+          } else {
+            // We need to regenerate kB and wrap it with the new password.
+            return random.hex(32).then(result => {
+              wrapWrapKb = result
+              return password.unwrap(wrapWrapKb).then(result => wrapKb = result)
+            })
+          }
+        }
+
+        function deleteRecoveryKey() {
+          if (recoveryKeyId) {
+            return db.deleteRecoveryKey(account.uid, recoveryKeyId)
+          }
+
+          return P.resolve()
         }
 
         function createSessionToken () {
@@ -1149,7 +1168,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
         validate: {
           payload: {
             email: validators.email().required(),
-            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required()
+            authPW: validators.authPW
           }
         }
       },

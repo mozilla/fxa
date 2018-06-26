@@ -95,7 +95,7 @@ module.exports = function (log, db, Password, config, signinUtils) {
           },
           payload: {
             email: validators.email().required(),
-            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
+            authPW: validators.authPW,
             service: validators.service,
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().optional(),

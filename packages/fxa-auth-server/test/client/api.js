@@ -273,6 +273,28 @@ module.exports = config => {
       )
   }
 
+  ClientApi.prototype.accountResetWithRecoveryKey = function (accountResetTokenHex, authPW, wrapKb, recoveryKeyId, headers, options = {}) {
+    const qs = getQueryString(options)
+
+    return tokens.AccountResetToken.fromHex(accountResetTokenHex)
+      .then(
+        function (token) {
+          return this.doRequest(
+            'POST',
+            this.baseURL + '/account/reset' + qs,
+            token,
+            {
+              authPW: authPW.toString('hex'),
+              wrapKb,
+              sessionToken: true,
+              recoveryKeyId
+            },
+            headers
+          )
+        }.bind(this)
+      )
+  }
+
   ClientApi.prototype.accountDestroy = function (email, authPW) {
     return this.doRequest(
       'POST',
@@ -835,6 +857,32 @@ module.exports = config => {
             code: code,
             metricsContext: options.metricsContext || undefined
           }
+        )
+      })
+  }
+
+  ClientApi.prototype.createRecoveryKey = function (sessionTokenHex, recoveryKeyId, recoveryData) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/recoveryKeys',
+          token,
+          {
+            recoveryKeyId,
+            recoveryData
+          }
+        )
+      })
+  }
+
+  ClientApi.prototype.getRecoveryKey = function (accountResetTokenHex, recoveryKeyId) {
+    return tokens.AccountResetToken.fromHex(accountResetTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'GET',
+          `${this.baseURL}/recoveryKeys/${recoveryKeyId}`,
+          token
         )
       })
   }

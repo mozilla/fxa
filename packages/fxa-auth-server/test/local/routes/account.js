@@ -77,11 +77,14 @@ function runTest (route, request, assertions) {
 }
 
 describe('/account/reset', function () {
-  it('should do things', () => {
-    var uid = uuid.v4('binary').toString('hex')
-    const mockLog = mocks.mockLog()
-    const mockMetricsContext = mocks.mockMetricsContext()
-    const mockRequest = mocks.mockRequest({
+  let uid, mockLog, mockMetricsContext, mockRequest, keyFetchTokenId, sessionTokenId,
+    mockDB, mockCustoms, mockPush, accountRoutes, route, clientAddress
+
+  beforeEach(() => {
+    uid = uuid.v4('binary').toString('hex')
+    mockLog = mocks.mockLog()
+    mockMetricsContext = mocks.mockMetricsContext()
+    mockRequest = mocks.mockRequest({
       credentials: {
         uid: uid
       },
@@ -103,18 +106,18 @@ describe('/account/reset', function () {
       uaOS: 'Mac OS X',
       uaOSVersion: '10.11'
     })
-    const keyFetchTokenId = hexString(16)
-    const sessionTokenId = hexString(16)
-    const mockDB = mocks.mockDB({
+    keyFetchTokenId = hexString(16)
+    sessionTokenId = hexString(16)
+    mockDB = mocks.mockDB({
       uid: uid,
       email: TEST_EMAIL,
       keyFetchTokenId: keyFetchTokenId,
       sessionTokenId: sessionTokenId,
       wrapWrapKb: hexString(32)
     })
-    var mockCustoms = mocks.mockCustoms()
-    var mockPush = mocks.mockPush()
-    var accountRoutes = makeRoutes({
+    mockCustoms = mocks.mockCustoms()
+    mockPush = mocks.mockPush()
+    accountRoutes = makeRoutes({
       config: {
         securityHistory: {
           enabled: true
@@ -125,9 +128,96 @@ describe('/account/reset', function () {
       log: mockLog,
       push: mockPush
     })
-    var route = getRoute(accountRoutes, '/account/reset')
+    route = getRoute(accountRoutes, '/account/reset')
 
-    var clientAddress = mockRequest.app.clientAddress
+    clientAddress = mockRequest.app.clientAddress
+  })
+
+  describe('reset account with recovery key', () => {
+    let res
+    beforeEach(() => {
+      mockRequest.payload.wrapKb = hexString(32)
+      mockRequest.payload.recoveryKeyId = hexString(16)
+      return runTest(route, mockRequest, (result) => res = result)
+    })
+
+    it('should return response', () => {
+      assert.ok(res.sessionToken, 'return sessionToken')
+      assert.ok(res.keyFetchToken, 'return keyFetchToken')
+    })
+
+    it('should have checked for recovery key', () => {
+      assert.equal(mockDB.getRecoveryKey.callCount, 1)
+      const args = mockDB.getRecoveryKey.args[0]
+      assert.equal(args.length, 2, 'db.getRecoveryKey passed correct number of args')
+      assert.equal(args[0], uid, 'uid passed')
+      assert.equal(args[1], mockRequest.payload.recoveryKeyId, 'recovery key id passed')
+    })
+
+    it('should have reset account with recovery key', () => {
+      assert.equal(mockDB.resetAccount.callCount, 1)
+      assert.equal(mockDB.resetAccountTokens.callCount, 1)
+      assert.equal(mockDB.createKeyFetchToken.callCount, 1)
+      const args = mockDB.createKeyFetchToken.args[0]
+      assert.equal(args.length, 1, 'db.createKeyFetchToken passed correct number of args')
+      assert.equal(args[0].uid, uid, 'uid passed')
+      assert.equal(args[0].wrapKb, mockRequest.payload.wrapKb, 'wrapKb passed')
+    })
+
+    it('should have deleted recovery key', () => {
+      assert.equal(mockDB.deleteRecoveryKey.callCount, 1)
+      const args = mockDB.deleteRecoveryKey.args[0]
+      assert.equal(args.length, 2, 'db.deleteRecoveryKey passed correct number of args')
+      assert.equal(args[0], uid, 'uid passed')
+      assert.equal(args[1], mockRequest.payload.recoveryKeyId, 'recoveryKeyId passed')
+    })
+
+    it('should have reset custom server', () => {
+      assert.equal(mockCustoms.reset.callCount, 1)
+    })
+
+    it('should have recorded security event', () => {
+      assert.equal(mockDB.securityEvent.callCount, 1, 'db.securityEvent was called')
+      const securityEvent = mockDB.securityEvent.args[0][0]
+      assert.equal(securityEvent.uid, uid)
+      assert.equal(securityEvent.ipAddr, clientAddress)
+      assert.equal(securityEvent.name, 'account.reset')
+    })
+
+    it('should have emitted metrics', () => {
+      assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+      let args = mockLog.activityEvent.args[0]
+      assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+      assert.deepEqual(args[0], {
+        event: 'account.reset',
+        service: undefined,
+        userAgent: 'test user-agent',
+        uid: uid
+      }, 'event data was correct')
+
+      assert.equal(mockMetricsContext.validate.callCount, 1, 'metricsContext.validate was called')
+      assert.equal(mockMetricsContext.validate.args[0].length, 0, 'validate was called without arguments')
+      assert.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 1, 'metricsContext.setFlowCompleteSignal was called once')
+      args = mockMetricsContext.setFlowCompleteSignal.args[0]
+      assert.equal(args.length, 1, 'metricsContext.setFlowCompleteSignal was passed one argument')
+      assert.equal(args[0], 'account.signed', 'argument was event name')
+      assert.equal(mockMetricsContext.stash.callCount, 2, 'metricsContext.stash was called twice')
+    })
+
+    it('should have created session', () => {
+      assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called once')
+      const args = mockDB.createSessionToken.args[0]
+      assert.equal(args.length, 1, 'db.createSessionToken was passed one argument')
+      assert.equal(args[0].uaBrowser, 'Firefox', 'db.createSessionToken was passed correct browser')
+      assert.equal(args[0].uaBrowserVersion, '57', 'db.createSessionToken was passed correct browser version')
+      assert.equal(args[0].uaOS, 'Mac OS X', 'db.createSessionToken was passed correct os')
+      assert.equal(args[0].uaOSVersion, '10.11', 'db.createSessionToken was passed correct os version')
+      assert.equal(args[0].uaDeviceType, null, 'db.createSessionToken was passed correct device type')
+      assert.equal(args[0].uaFormFactor, null, 'db.createSessionToken was passed correct form factor')
+    })
+  })
+
+  it('should reset account', () => {
     return runTest(route, mockRequest, function (res) {
       assert.equal(mockDB.resetAccount.callCount, 1)
       assert.equal(mockDB.resetAccountTokens.callCount, 1)

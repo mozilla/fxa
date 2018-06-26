@@ -45,7 +45,7 @@ module.exports = function (
         validate: {
           payload: {
             email: validators.email().required(),
-            oldAuthPW: isA.string().min(64).max(64).regex(HEX_STRING).required()
+            oldAuthPW: validators.authPW
           }
         }
       },
@@ -140,8 +140,8 @@ module.exports = function (
             keys: isA.boolean().optional()
           },
           payload: {
-            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
-            wrapKb: isA.string().min(64).max(64).regex(HEX_STRING).required(),
+            authPW: validators.authPW,
+            wrapKb: validators.wrapKb,
             sessionToken: isA.string().min(64).max(64).regex(HEX_STRING).optional()
           }
         }
