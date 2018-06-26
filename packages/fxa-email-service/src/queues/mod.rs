@@ -12,8 +12,9 @@ use futures::future::{self, Future};
 
 use self::notification::{Notification, NotificationType};
 pub use self::sqs::Queue as Sqs;
+use app_errors::AppError;
 use auth_db::DbClient;
-use bounces::{BounceError, Bounces};
+use bounces::Bounces;
 use message_data::MessageData;
 use settings::Settings;
 
@@ -203,8 +204,8 @@ impl Display for QueueError {
     }
 }
 
-impl From<BounceError> for QueueError {
-    fn from(error: BounceError) -> QueueError {
+impl From<AppError> for QueueError {
+    fn from(error: AppError) -> QueueError {
         QueueError::new(format!("bounce error: {:?}", error))
     }
 }

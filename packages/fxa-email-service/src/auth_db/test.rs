@@ -24,11 +24,17 @@ fn deserialize_bounce_type() {
 fn deserialize_invalid_bounce_type() {
     match serde_json::from_value::<BounceType>(From::from(4)) {
         Ok(_) => assert!(false, "serde_json::from_value should have failed"),
-        Err(error) => assert_eq!(error.description(), "JSON error"),
+        Err(error) => assert_eq!(
+            format!("{}", error),
+            "invalid value: integer `4`, expected bounce type"
+        ),
     }
     match serde_json::from_value::<BounceType>(From::from(-1)) {
         Ok(_) => assert!(false, "serde_json::from_value should have failed"),
-        Err(error) => assert_eq!(error.description(), "JSON error"),
+        Err(error) => assert_eq!(
+            format!("{}", error),
+            "invalid value: integer `-1`, expected u8"
+        ),
     }
 }
 
@@ -80,11 +86,17 @@ fn deserialize_bounce_subtype() {
 fn deserialize_invalid_bounce_subtype() {
     match serde_json::from_value::<BounceSubtype>(From::from(15)) {
         Ok(_) => assert!(false, "serde_json::from_value should have failed"),
-        Err(error) => assert_eq!(error.description(), "JSON error"),
+        Err(error) => assert_eq!(
+            format!("{}", error),
+            "invalid value: integer `15`, expected bounce subtype"
+        ),
     }
     match serde_json::from_value::<BounceSubtype>(From::from(-1)) {
         Ok(_) => assert!(false, "serde_json::from_value should have failed"),
-        Err(error) => assert_eq!(error.description(), "JSON error"),
+        Err(error) => assert_eq!(
+            format!("{}", error),
+            "invalid value: integer `-1`, expected u8"
+        ),
     }
 }
 
@@ -127,7 +139,7 @@ fn get_bounces() {
     let settings = Settings::new().expect("config error");
     let db = DbClient::new(&settings);
     if let Err(error) = db.get_bounces("foo@example.com") {
-        assert!(false, error.description().to_string());
+        assert!(false, format!("{}", error));
     }
 }
 
@@ -137,7 +149,7 @@ fn get_bounces_invalid_address() {
     let db = DbClient::new(&settings);
     match db.get_bounces("") {
         Ok(_) => assert!(false, "DbClient::get_bounces should have failed"),
-        Err(error) => assert_eq!(error.description(), "auth db response: 400 Bad Request"),
+        Err(error) => assert_eq!(format!("{}", error), "\"400 Bad Request\""),
     }
 }
 

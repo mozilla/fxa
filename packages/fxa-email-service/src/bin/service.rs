@@ -7,7 +7,7 @@
 
 extern crate fxa_email_service;
 extern crate rocket;
-#[macro_use(slog_b, slog_error, slog_info, slog_kv, slog_log, slog_record, slog_record_static)]
+#[macro_use(slog_b, slog_info, slog_kv, slog_log, slog_record, slog_record_static)]
 extern crate slog;
 
 use fxa_email_service::{
@@ -47,9 +47,6 @@ fn main() {
                 MozlogLogger::with_request(request).expect("MozlogLogger::with_request error");
             if response.status().code == 200 {
                 slog_info!(log, "{}", "Request finished succesfully."; 
-                    "status_code" => response.status().code, "status_msg" => response.status().reason);
-            } else {
-                slog_error!(log, "{}", "Request errored."; 
                     "status_code" => response.status().code, "status_msg" => response.status().reason);
             }
         }))

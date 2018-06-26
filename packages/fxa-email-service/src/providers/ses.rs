@@ -10,7 +10,8 @@ use rusoto_core::{reactor::RequestDispatcher, Region};
 use rusoto_credential::StaticProvider;
 use rusoto_ses::{RawMessage, SendRawEmailError, SendRawEmailRequest, Ses, SesClient};
 
-use super::{Headers, Provider, ProviderError};
+use super::{Headers, Provider};
+use app_errors::{AppError, AppErrorKind, AppResult};
 use settings::Settings;
 
 pub struct SesProvider {
@@ -50,7 +51,7 @@ impl Provider for SesProvider {
         subject: &str,
         body_text: &str,
         body_html: Option<&str>,
-    ) -> Result<String, ProviderError> {
+    ) -> AppResult<String> {
         let mut all_headers = header::Headers::new();
         all_headers.set(header::From(vec![self.sender.parse::<Mailbox>()?]));
         all_headers.set(header::To(vec![to.parse::<Mailbox>()?]));
@@ -108,10 +109,17 @@ impl Provider for SesProvider {
     }
 }
 
-impl From<SendRawEmailError> for ProviderError {
-    fn from(error: SendRawEmailError) -> ProviderError {
-        ProviderError {
-            description: format!("SES error: {:?}", error),
-        }
+impl From<String> for AppError {
+    fn from(error: String) -> Self {
+        AppErrorKind::EmailParsingError(format!("{:?}", error)).into()
+    }
+}
+
+impl From<SendRawEmailError> for AppError {
+    fn from(error: SendRawEmailError) -> AppError {
+        AppErrorKind::ProviderError {
+            _name: String::from("SES"),
+            _description: format!("{:?}", error),
+        }.into()
     }
 }

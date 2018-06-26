@@ -12,7 +12,8 @@ use sendgrid::{
     },
 };
 
-use super::{Headers, Provider, ProviderError};
+use super::{Headers, Provider};
+use app_errors::{AppError, AppErrorKind, AppResult};
 use settings::{Sender, Sendgrid as SendgridSettings, Settings};
 
 pub struct SendgridProvider {
@@ -38,7 +39,7 @@ impl Provider for SendgridProvider {
         subject: &str,
         body_text: &str,
         body_html: Option<&str>,
-    ) -> Result<String, ProviderError> {
+    ) -> AppResult<String> {
         let mut message = Message::new();
         let mut from_address = EmailAddress::new();
         from_address.set_email(&self.sender.address);
@@ -82,34 +83,40 @@ impl Provider for SendgridProvider {
                         .headers()
                         .get_raw("X-Message-Id")
                         .and_then(|raw_header| raw_header.one())
-                        .ok_or(ProviderError {
-                            description: String::from(
-                                "Missing or duplicate X-Message-Id header in Sendgrid response",
-                            ),
-                        })
+                        .ok_or(
+                            AppErrorKind::ProviderError {
+                                _name: String::from("Sendgrid"),
+                                _description: String::from(
+                                    "Missing or duplicate X-Message-Id header in Sendgrid response",
+                                ),
+                            }.into(),
+                        )
                         .and_then(|message_id| from_utf8(message_id).map_err(From::from))
                         .map(|message_id| message_id.to_string())
                 } else {
-                    Err(ProviderError {
-                        description: format!("Sendgrid response: {}", status),
-                    })
+                    Err(AppErrorKind::ProviderError {
+                        _name: String::from("Sendgrid"),
+                        _description: format!("Unsuccesful response status: {}", status),
+                    }.into())
                 }
             })
     }
 }
 
-impl From<SendgridError> for ProviderError {
-    fn from(error: SendgridError) -> ProviderError {
-        ProviderError {
-            description: format!("Sendgrid error: {:?}", error),
-        }
+impl From<SendgridError> for AppError {
+    fn from(error: SendgridError) -> AppError {
+        AppErrorKind::ProviderError {
+            _name: String::from("Sendgrid"),
+            _description: format!("{:?}", error),
+        }.into()
     }
 }
 
-impl From<Utf8Error> for ProviderError {
-    fn from(error: Utf8Error) -> ProviderError {
-        ProviderError {
-            description: format!("Failed to decode string as UTF-8: {:?}", error),
-        }
+impl From<Utf8Error> for AppError {
+    fn from(error: Utf8Error) -> AppError {
+        AppErrorKind::ProviderError {
+            _name: String::from("Sendgrid"),
+            _description: format!("Failed to decode string as UTF-8: {:?}", error),
+        }.into()
     }
 }

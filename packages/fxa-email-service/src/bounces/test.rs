@@ -6,8 +6,9 @@ use rocket::http::Status;
 use serde_json::{self, Value as Json};
 
 use super::*;
+use app_errors::{AppErrorKind, AppResult};
 use auth_db::{
-    BounceSubtype as DbBounceSubtype, BounceType as DbBounceType, Db, DbClient, DbError,
+    BounceRecord, BounceSubtype as DbBounceSubtype, BounceType as DbBounceType, Db, DbClient,
 };
 use queues::notification::{BounceSubtype, BounceType, ComplaintFeedbackType};
 use settings::Settings;
@@ -36,7 +37,7 @@ fn check_no_bounces() {
     let db = DbMockNoBounce;
     let bounces = Bounces::new(&settings, db);
     if let Err(error) = bounces.check("foo@example.com") {
-        assert!(false, error.description().to_string());
+        assert!(false, format!("{}", error));
     }
 }
 
@@ -50,7 +51,7 @@ fn create_settings(bounce_limits: Json) -> Settings {
 pub struct DbMockNoBounce;
 
 impl Db for DbMockNoBounce {
-    fn get_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
+    fn get_bounces(&self, _address: &str) -> AppResult<Vec<BounceRecord>> {
         let now = now_as_milliseconds();
         Ok(vec![
             BounceRecord {
@@ -97,18 +98,22 @@ fn check_soft_bounce() {
     match bounces.check("foo@example.com") {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {
-            assert_eq!(
-                error.description(),
-                "email address violated soft bounce limit"
-            );
-            assert_eq!(error.address, "foo@example.com");
-            if let Some(ref bounce) = error.bounce {
-                assert_eq!(bounce.bounce_type, DbBounceType::Soft);
+            assert_eq!(format!("{}", error), "Email account soft bounced.");
+            let err_data = error.kind().additional_fields();
+            let address = err_data.get("address");
+            if let Some(ref address) = address {
+                assert_eq!("foo@example.com", address.as_str().unwrap());
+            } else {
+                assert!(false, "Error::address should be set");
+            }
+            let bounce = err_data.get("bounce");
+            if let Some(ref bounce) = bounce {
+                let record: Json = serde_json::from_str(bounce.as_str().unwrap()).unwrap();
+                assert_eq!(record["bounceType"], 2);
             } else {
                 assert!(false, "Error::bounce should be set");
             }
-            let failure: Failure = From::from(error);
-            assert_eq!(failure.0, Status::TooManyRequests);
+            assert_eq!(error.kind().http_status(), Status::TooManyRequests);
         }
     }
 }
@@ -117,7 +122,7 @@ fn check_soft_bounce() {
 pub struct DbMockBounceSoft;
 
 impl Db for DbMockBounceSoft {
-    fn get_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
+    fn get_bounces(&self, _address: &str) -> AppResult<Vec<BounceRecord>> {
         let now = now_as_milliseconds();
         Ok(vec![BounceRecord {
             address: String::from("foo@example.com"),
@@ -143,18 +148,22 @@ fn check_hard_bounce() {
     match bounces.check("bar@example.com") {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {
-            assert_eq!(
-                error.description(),
-                "email address violated hard bounce limit"
-            );
-            assert_eq!(error.address, "bar@example.com");
-            if let Some(ref bounce) = error.bounce {
-                assert_eq!(bounce.bounce_type, DbBounceType::Hard);
+            assert_eq!(format!("{}", error), "Email account hard bounced.");
+            let err_data = error.kind().additional_fields();
+            let address = err_data.get("address");
+            if let Some(ref address) = address {
+                assert_eq!("bar@example.com", address.as_str().unwrap());
+            } else {
+                assert!(false, "Error::address should be set");
+            }
+            let bounce = err_data.get("bounce");
+            if let Some(ref bounce) = bounce {
+                let record: Json = serde_json::from_str(bounce.as_str().unwrap()).unwrap();
+                assert_eq!(record["bounceType"], 1);
             } else {
                 assert!(false, "Error::bounce should be set");
             }
-            let failure: Failure = From::from(error);
-            assert_eq!(failure.0, Status::TooManyRequests);
+            assert_eq!(error.kind().http_status(), Status::TooManyRequests);
         }
     }
 }
@@ -163,7 +172,7 @@ fn check_hard_bounce() {
 pub struct DbMockBounceHard;
 
 impl Db for DbMockBounceHard {
-    fn get_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
+    fn get_bounces(&self, _address: &str) -> AppResult<Vec<BounceRecord>> {
         let now = now_as_milliseconds();
         Ok(vec![BounceRecord {
             address: String::from("bar@example.com"),
@@ -189,18 +198,22 @@ fn check_complaint() {
     match bounces.check("baz@example.com") {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {
-            assert_eq!(
-                error.description(),
-                "email address violated complaint limit"
-            );
-            assert_eq!(error.address, "baz@example.com");
-            if let Some(ref bounce) = error.bounce {
-                assert_eq!(bounce.bounce_type, DbBounceType::Complaint);
+            assert_eq!(format!("{}", error), "Email account sent complaint.");
+            let err_data = error.kind().additional_fields();
+            let address = err_data.get("address");
+            if let Some(ref address) = address {
+                assert_eq!("baz@example.com", address.as_str().unwrap());
+            } else {
+                assert!(false, "Error::address should be set");
+            }
+            let bounce = err_data.get("bounce");
+            if let Some(ref bounce) = bounce {
+                let record: Json = serde_json::from_str(bounce.as_str().unwrap()).unwrap();
+                assert_eq!(record["bounceType"], 3);
             } else {
                 assert!(false, "Error::bounce should be set");
             }
-            let failure: Failure = From::from(error);
-            assert_eq!(failure.0, Status::TooManyRequests);
+            assert_eq!(error.kind().http_status(), Status::TooManyRequests);
         }
     }
 }
@@ -209,7 +222,7 @@ fn check_complaint() {
 pub struct DbMockComplaint;
 
 impl Db for DbMockComplaint {
-    fn get_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
+    fn get_bounces(&self, _address: &str) -> AppResult<Vec<BounceRecord>> {
         let now = now_as_milliseconds();
         Ok(vec![BounceRecord {
             address: String::from("baz@example.com"),
@@ -239,13 +252,8 @@ fn check_db_error() {
     match bounces.check("foo@example.com") {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {
-            assert_eq!(error.description(), "database error: wibble blee");
-            assert_eq!(error.address, "");
-            if let Some(_) = error.bounce {
-                assert!(false, "Error::bounce should not be set");
-            }
-            let failure: Failure = From::from(error);
-            assert_eq!(failure.0, Status::InternalServerError);
+            assert_eq!(format!("{}", error), "\"wibble blee\"");
+            assert_eq!(error.kind().http_status(), Status::InternalServerError);
         }
     }
 }
@@ -254,8 +262,8 @@ fn check_db_error() {
 pub struct DbMockError;
 
 impl Db for DbMockError {
-    fn get_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
-        Err(DbError::new(String::from("wibble blee")))
+    fn get_bounces(&self, _address: &str) -> AppResult<Vec<BounceRecord>> {
+        Err(AppErrorKind::DbError(String::from("wibble blee")).into())
     }
 }
 
@@ -276,7 +284,7 @@ fn check_no_bounces_with_nonzero_limits() {
     let db = DbMockNoBounceWithNonZeroLimits;
     let bounces = Bounces::new(&settings, db);
     if let Err(error) = bounces.check("foo@example.com") {
-        assert!(false, error.description().to_string());
+        assert!(false, format!("{}", error));
     }
 }
 
@@ -284,7 +292,7 @@ fn check_no_bounces_with_nonzero_limits() {
 pub struct DbMockNoBounceWithNonZeroLimits;
 
 impl Db for DbMockNoBounceWithNonZeroLimits {
-    fn get_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
+    fn get_bounces(&self, _address: &str) -> AppResult<Vec<BounceRecord>> {
         let now = now_as_milliseconds();
         Ok(vec![
             BounceRecord {
@@ -362,13 +370,18 @@ fn check_bounce_with_multiple_limits() {
     match bounces.check("foo@example.com") {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {
-            assert_eq!(
-                error.description(),
-                "email address violated soft bounce limit"
-            );
-            assert_eq!(error.address, "foo@example.com");
-            if let Some(bounce) = error.bounce {
-                assert_eq!(bounce.bounce_type, DbBounceType::Soft);
+            assert_eq!(format!("{}", error), "Email account soft bounced.");
+            let err_data = error.kind().additional_fields();
+            let address = err_data.get("address");
+            if let Some(ref address) = address {
+                assert_eq!("foo@example.com", address.as_str().unwrap());
+            } else {
+                assert!(false, "Error::address should be set");
+            }
+            let bounce = err_data.get("bounce");
+            if let Some(ref bounce) = bounce {
+                let record: Json = serde_json::from_str(bounce.as_str().unwrap()).unwrap();
+                assert_eq!(record["bounceType"], 2);
             } else {
                 assert!(false, "Error::bounce should be set");
             }
@@ -380,7 +393,7 @@ fn check_bounce_with_multiple_limits() {
 pub struct DbMockBounceWithMultipleLimits;
 
 impl Db for DbMockBounceWithMultipleLimits {
-    fn get_bounces(&self, _address: &str) -> Result<Vec<BounceRecord>, DbError> {
+    fn get_bounces(&self, _address: &str) -> AppResult<Vec<BounceRecord>> {
         let now = now_as_milliseconds();
         Ok(vec![
             BounceRecord {

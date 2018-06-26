@@ -2,52 +2,52 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
-use super::ApplicationError;
+use super::AppErrorKind;
 
 #[test]
 fn bad_request() {
     assert_eq!(
-        super::bad_request().into_inner(),
-        ApplicationError::new(400, "Bad Request")
+        format!("{}", super::bad_request().unwrap_err().kind()),
+        format!("{}", AppErrorKind::BadRequest)
     );
 }
 
 #[test]
 fn not_found() {
     assert_eq!(
-        super::not_found().into_inner(),
-        ApplicationError::new(404, "Not Found")
+        format!("{}", super::not_found().unwrap_err().kind()),
+        format!("{}", AppErrorKind::NotFound)
     );
 }
 
 #[test]
 fn method_not_allowed() {
     assert_eq!(
-        super::method_not_allowed().into_inner(),
-        ApplicationError::new(405, "Method Not Allowed")
+        format!("{}", super::method_not_allowed().unwrap_err().kind()),
+        format!("{}", AppErrorKind::MethodNotAllowed)
     );
 }
 
 #[test]
 fn unprocessable_entity() {
     assert_eq!(
-        super::unprocessable_entity().into_inner(),
-        ApplicationError::new(422, "Unprocessable Entity")
+        format!("{}", super::unprocessable_entity().unwrap_err().kind()),
+        format!("{}", AppErrorKind::UnprocessableEntity)
     );
 }
 
 #[test]
 fn too_many_requests() {
     assert_eq!(
-        super::too_many_requests().into_inner(),
-        ApplicationError::new(429, "Too Many Requests")
+        format!("{}", super::too_many_requests().unwrap_err().kind()),
+        format!("{}", AppErrorKind::TooManyRequests)
     );
 }
 
 #[test]
 fn internal_server_error() {
     assert_eq!(
-        super::internal_server_error().into_inner(),
-        ApplicationError::new(500, "Internal Server Error")
+        format!("{}", super::internal_server_error().unwrap_err().kind()),
+        format!("{}", AppErrorKind::InternalServerError)
     );
 }

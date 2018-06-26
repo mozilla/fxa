@@ -5,11 +5,11 @@
 use rocket::{
     data::{self, FromData},
     http::Status,
-    response::Failure,
     Data, Outcome, Request, State,
 };
 use rocket_contrib::{Json, Value};
 
+use app_errors::{AppError, AppErrorKind, AppResult};
 use auth_db::DbClient;
 use bounces::Bounces;
 use deserialize;
@@ -39,7 +39,7 @@ struct Email {
 }
 
 impl FromData for Email {
-    type Error = ();
+    type Error = AppError;
 
     fn from_data(request: &Request, data: Data) -> data::Outcome<Self, Self::Error> {
         let result = Json::<Email>::from_data(request, data);
@@ -49,10 +49,13 @@ impl FromData for Email {
                 if validate(&email) {
                     Outcome::Success(email)
                 } else {
-                    fail()
+                    Outcome::Failure((Status::BadRequest, AppErrorKind::InvalidEmailParams.into()))
                 }
             }
-            Outcome::Failure(_error) => fail(),
+            Outcome::Failure((_status, error)) => Outcome::Failure((
+                Status::BadRequest,
+                AppErrorKind::MissingEmailParams(error.to_string()).into(),
+            )),
             Outcome::Forward(forward) => Outcome::Forward(forward),
         }
     }
@@ -76,17 +79,15 @@ fn validate(email: &Email) -> bool {
     true
 }
 
-fn fail() -> data::Outcome<Email, ()> {
-    Outcome::Failure((Status::BadRequest, ()))
-}
-
 #[post("/send", format = "application/json", data = "<email>")]
 fn handler(
-    email: Email,
+    email: AppResult<Email>,
     bounces: State<Bounces<DbClient>>,
     message_data: State<MessageData>,
     providers: State<Providers>,
-) -> Result<Json<Value>, Failure> {
+) -> AppResult<Json<Value>> {
+    let email = email?;
+
     let to = email.to.as_ref();
     bounces.check(to)?;
 
@@ -119,8 +120,5 @@ fn handler(
                 .map(|error| println!("{}", error));
             Json(json!({ "messageId": message_id }))
         })
-        .map_err(|error| {
-            println!("{}", error);
-            Failure(Status::InternalServerError)
-        })
+        .map_err(|error| error)
 }

@@ -2,10 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::{
-    error::Error,
-    fmt::{self, Debug, Display, Formatter},
-};
+use std::fmt::Debug;
 
 use hex;
 use reqwest::{Client as RequestClient, Error as RequestError, StatusCode, Url, UrlError};
@@ -14,6 +11,7 @@ use serde::{
     ser::{Serialize, Serializer},
 };
 
+use app_errors::{AppError, AppErrorKind, AppResult};
 use settings::Settings;
 
 #[cfg(test)]
@@ -63,7 +61,7 @@ impl Serialize for BounceType {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum BounceSubtype {
     // Set by the auth db if an input string is not recognised
     Unmapped,
@@ -141,7 +139,7 @@ impl Serialize for BounceSubtype {
     }
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Serialize, PartialEq)]
 pub struct BounceRecord {
     #[serde(rename = "email")]
     pub address: String,
@@ -153,38 +151,15 @@ pub struct BounceRecord {
     pub created_at: u64,
 }
 
-#[derive(Debug)]
-pub struct DbError {
-    description: String,
-}
-
-impl DbError {
-    pub fn new(description: String) -> DbError {
-        DbError { description }
+impl From<UrlError> for AppError {
+    fn from(error: UrlError) -> AppError {
+        AppErrorKind::DbError(format!("{}", error)).into()
     }
 }
 
-impl Error for DbError {
-    fn description(&self) -> &str {
-        &self.description
-    }
-}
-
-impl Display for DbError {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
-        write!(formatter, "{}", self.description)
-    }
-}
-
-impl From<UrlError> for DbError {
-    fn from(error: UrlError) -> DbError {
-        DbError::new(format!("URL error: {:?}", error))
-    }
-}
-
-impl From<RequestError> for DbError {
-    fn from(error: RequestError) -> DbError {
-        DbError::new(format!("request error: {:?}", error))
+impl From<RequestError> for AppError {
+    fn from(error: RequestError) -> AppError {
+        AppErrorKind::DbError(format!("{}", error)).into()
     }
 }
 
@@ -213,15 +188,15 @@ impl DbUrls {
 }
 
 pub trait Db: Debug + Sync {
-    fn get_bounces(&self, address: &str) -> Result<Vec<BounceRecord>, DbError>;
+    fn get_bounces(&self, address: &str) -> AppResult<Vec<BounceRecord>>;
 
     fn create_bounce(
         &self,
         _address: &str,
         _bounce_type: BounceType,
         _bounce_subtype: BounceSubtype,
-    ) -> Result<(), DbError> {
-        Err(DbError::new(String::from("Not implemented")))
+    ) -> AppResult<()> {
+        Err(AppErrorKind::NotImplemented.into())
     }
 }
 
@@ -241,14 +216,14 @@ impl DbClient {
 }
 
 impl Db for DbClient {
-    fn get_bounces(&self, address: &str) -> Result<Vec<BounceRecord>, DbError> {
+    fn get_bounces(&self, address: &str) -> AppResult<Vec<BounceRecord>> {
         let mut response = self
             .request_client
             .get(self.urls.get_bounces(address)?)
             .send()?;
         match response.status() {
             StatusCode::Ok => response.json::<Vec<BounceRecord>>().map_err(From::from),
-            status => Err(DbError::new(format!("auth db response: {}", status))),
+            status => Err(AppErrorKind::DbError(format!("{}", status)).into()),
         }
     }
 
@@ -257,7 +232,7 @@ impl Db for DbClient {
         address: &str,
         bounce_type: BounceType,
         bounce_subtype: BounceSubtype,
-    ) -> Result<(), DbError> {
+    ) -> AppResult<()> {
         let response = self
             .request_client
             .post(self.urls.create_bounce())
@@ -270,7 +245,7 @@ impl Db for DbClient {
             .send()?;
         match response.status() {
             StatusCode::Ok => Ok(()),
-            status => Err(DbError::new(format!("auth db response: {}", status))),
+            status => Err(AppErrorKind::DbError(format!("{}", status)).into()),
         }
     }
 }
