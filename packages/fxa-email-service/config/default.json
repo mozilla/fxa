@@ -20,7 +20,7 @@
     ]
   },
   "message_id_hmac_key": "YOU MUST CHANGE ME",
-  "mozlog": "true",
+  "logging": "mozlog",
   "provider": "ses",
   "redis": {
     "host": "127.0.0.1",

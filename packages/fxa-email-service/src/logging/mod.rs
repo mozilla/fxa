@@ -7,7 +7,7 @@ use std::{io, ops::Deref};
 use failure::{err_msg, Error};
 use rocket::{Request, State};
 use serde_json;
-use slog::{self, Drain, Record, Serializer, Value, KV};
+use slog::{self, Discard, Drain, Record, Serializer, Value, KV};
 use slog_async;
 use slog_mozlog_json::MozLogJson;
 use slog_term;
@@ -69,22 +69,27 @@ pub struct MozlogLogger(slog::Logger);
 
 impl MozlogLogger {
     pub fn new(settings: &Settings) -> Result<MozlogLogger, Error> {
-        let logger = if settings.mozlog {
-            let drain = MozLogJson::new(io::stdout())
-                .logger_name(LOGGER_NAME.to_owned())
-                .msg_type(MSG_TYPE.to_owned())
-                .build()
-                .fuse();
-            let drain = slog_async::Async::new(drain).build().fuse();
-            slog::Logger::root(drain, slog_o!())
-        } else {
-            let decorator = slog_term::TermDecorator::new().build();
-            let drain = slog_term::FullFormat::new(decorator).build().fuse();
-            let drain = slog_async::Async::new(drain).build().fuse();
-            slog::Logger::root(drain, slog_o!())
+        let logger = match &*settings.logging {
+            "mozlog" => {
+                let drain = MozLogJson::new(io::stdout())
+                    .logger_name(LOGGER_NAME.to_owned())
+                    .msg_type(MSG_TYPE.to_owned())
+                    .build()
+                    .fuse();
+                let drain = slog_async::Async::new(drain).build().fuse();
+                Ok(slog::Logger::root(drain, slog_o!()))
+            }
+            "pretty" => {
+                let decorator = slog_term::TermDecorator::new().build();
+                let drain = slog_term::FullFormat::new(decorator).build().fuse();
+                let drain = slog_async::Async::new(drain).build().fuse();
+                Ok(slog::Logger::root(drain, slog_o!()))
+            }
+            "null" => Ok(slog::Logger::root(Discard, slog_o!())),
+            _0 => Err(err_msg(format!("Unknown logger format: {}", _0))),
         };
 
-        Ok(MozlogLogger(logger))
+        Ok(MozlogLogger(logger?))
     }
 
     pub fn with_request(request: &Request) -> Result<MozlogLogger, Error> {

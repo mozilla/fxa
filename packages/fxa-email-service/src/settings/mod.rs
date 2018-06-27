@@ -94,7 +94,7 @@ pub struct Settings {
     pub aws: Aws,
     pub bouncelimits: BounceLimits,
     pub message_id_hmac_key: String,
-    pub mozlog: bool,
+    pub logging: String,
     #[serde(deserialize_with = "deserialize::provider")]
     pub provider: String,
     pub redis: Redis,
