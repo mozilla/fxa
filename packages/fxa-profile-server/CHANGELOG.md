@@ -1,3 +1,17 @@
+<a name="1.115.0"></a>
+# [1.115.0](https://github.com/mozilla/fxa-profile-server/compare/v1.114.1...v1.115.0) (2018-06-27)
+
+
+### Bug Fixes
+
+* **docs:** Include "displayName" in example profile response. (#326) r=@vladikoff,@eoger ([b3b7e90](https://github.com/mozilla/fxa-profile-server/commit/b3b7e90)), closes [#325](https://github.com/mozilla/fxa-profile-server/issues/325)
+
+### Features
+
+* **ci:** migrate to CircleCI 2 (#321) r=@jbuck ([56e8d1e](https://github.com/mozilla/fxa-profile-server/commit/56e8d1e))
+
+
+
 <a name="1.114.1"></a>
 ## [1.114.1](https://github.com/mozilla/fxa-profile-server/compare/v1.114.0...v1.114.1) (2018-06-13)
 
