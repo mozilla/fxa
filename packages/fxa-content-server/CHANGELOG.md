@@ -1,3 +1,35 @@
+<a name="1.115.0"></a>
+# 1.115.0 (2018-06-27)
+
+
+### Bug Fixes
+
+* **codes:** use new line carriage return and spaces to separate recovery codes (#6307) r=@rf ([8ed9554](https://github.com/mozilla/fxa-content-server/commit/8ed9554))
+* **metrics:** prevent reset-password from clobbering mixed-in events ([5ba15f8](https://github.com/mozilla/fxa-content-server/commit/5ba15f8))
+* **teamcity:** add config file for stable3 ([ba358e3](https://github.com/mozilla/fxa-content-server/commit/ba358e3))
+* **test:** Fix the sign_up->afterVisible test ([c9f4a65](https://github.com/mozilla/fxa-content-server/commit/c9f4a65)), closes [#6290](https://github.com/mozilla/fxa-content-server/issues/6290)
+* **timers:** Always destroy timers created in view.setTimeout. ([5d10672](https://github.com/mozilla/fxa-content-server/commit/5d10672)), closes [#6291](https://github.com/mozilla/fxa-content-server/issues/6291)
+* **timers:** Ensure listeners are bound even if an invalid timer is passed to clearTimeout ([e64af66](https://github.com/mozilla/fxa-content-server/commit/e64af66))
+* **typo:** Moved the period outside of link ([1fd05d2](https://github.com/mozilla/fxa-content-server/commit/1fd05d2))
+
+### chore
+
+* **release:** Merge train-114 into master r=@shane-tomlinson ([edcf013](https://github.com/mozilla/fxa-content-server/commit/edcf013))
+* **test:** Make the `wrapAssertion` method easier to read. ([feb9510](https://github.com/mozilla/fxa-content-server/commit/feb9510))
+
+### Features
+
+* **pw-strength:** Design F (#6273) r=@vbudhram, @philbooth ([d951180](https://github.com/mozilla/fxa-content-server/commit/d951180))
+
+### Refactor
+
+* **experiment:** Extract a common `isTestEmail` function for all experiments. (#6294) r=@philboot ([cc8bd89](https://github.com/mozilla/fxa-content-server/commit/cc8bd89))
+* **module:** Remove AMD wrapper from SignUpPasswordView (#6287) r=@vladikoff ([fe9c262](https://github.com/mozilla/fxa-content-server/commit/fe9c262))
+* **module:** Remove the AMD wrapper on lib/experiment.js (#6303) r=@vbudhram ([0c68a0c](https://github.com/mozilla/fxa-content-server/commit/0c68a0c))
+* **tooltip:** Extract the "one tooltip at a time" logic (#6302) r=@vbudhram ([81eea37](https://github.com/mozilla/fxa-content-server/commit/81eea37))
+
+
+
 <a name="1.114.5"></a>
 ## 1.114.5 (2018-06-22)
 
