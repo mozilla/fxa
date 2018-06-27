@@ -130,11 +130,18 @@ impl Settings {
         }
 
         config.merge(File::with_name("config/local").required(false))?;
-
         config.merge(Environment::with_prefix("fxa_email"))?;
 
         match config.try_into::<Settings>() {
             Ok(settings) => {
+                if let Ok(rocket_env) = env::var("ROCKET_ENV") {
+                    if rocket_env == "production"
+                        && &settings.message_id_hmac_key == "YOU MUST CHANGE ME"
+                    {
+                        panic!("Please set a valid HMAC key.")
+                    }
+                }
+
                 let logger =
                     MozlogLogger::new(&settings).expect("Unable to create MozlogLogger instance.");
                 slog_info!(logger, "Settings::new"; "settings" => &settings);

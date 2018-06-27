@@ -1,2 +1,11 @@
 [development]
+address = "127.0.0.1"
+port = 8001
+
+[staging]
+address = "127.0.0.1"
+port = 8001
+
+[production]
+address = "127.0.0.1"
 port = 8001
