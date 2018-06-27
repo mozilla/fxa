@@ -36,6 +36,12 @@ function loadConf() {
       default: false,
       env: "INSECURE_SSL"
     },
+    forceInsecureLookupOverHTTP: {
+      doc: "(testing only) Lookup /.well-known/browserid documents over HTTP",
+      format: Boolean,
+      default: false,
+      env: "FORCE_INSECURE_LOOKUP_OVER_HTTP"
+    },
     toobusy: {
       maxLag: {
         doc: "Max event-loop lag before toobusy reports failure",

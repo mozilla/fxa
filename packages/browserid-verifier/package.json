@@ -17,7 +17,7 @@
   "dependencies": {
     "async": "2.0.1",
     "body-parser": "1.18.2",
-    "browserid-local-verify": "0.5.0",
+    "browserid-local-verify": "0.5.1",
     "compute-cluster": "0.0.9",
     "convict": "1.5.0",
     "express": "4.15.5",

@@ -296,8 +296,8 @@
       }
     },
     "browserid-local-verify": {
-      "version": "0.5.0",
-      "from": "browserid-local-verify@0.5.0",
+      "version": "0.5.1",
+      "from": "browserid-local-verify@0.5.1",
       "resolved": "https://registry.npmjs.org/browserid-local-verify/-/browserid-local-verify-0.5.0.tgz",
       "dependencies": {
         "browserid-crypto": {
