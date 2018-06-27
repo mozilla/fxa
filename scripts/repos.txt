@@ -24,7 +24,6 @@ fxa-shared
 hapi-fxa-oauth
 PyFxA
 fxa-easter-egg
-fxa-password-strength-checker
 browserid-verifier
 browserid-local-verify
 fxa-checkbox
@@ -38,3 +37,5 @@ fxa-sprint-planning
 fxa-amplitude-send
 fxa-email-service
 mozilla-services/fxa-testing-e2e
+#fxa-common-password-list <-- Github rejects creating heart labels saying "name must contain more than native emoji"
+
