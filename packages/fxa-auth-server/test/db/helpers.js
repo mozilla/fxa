@@ -6,13 +6,13 @@ const assert = require('insist');
 const helpers = require('../../lib/db/helpers');
 const unique = require('../../lib/unique');
 
-describe('getActiveClientTokens', function() {
+describe('aggregateActiveClients', function() {
   var uid;
-  var activeClientIds;
+  var activeClientTokens;
   beforeEach(function() {
     uid = unique(16).toString('hex');
 
-    activeClientIds = [
+    activeClientTokens = [
       {
         id: uid,
         createdAt: '2017-01-26T14:28:16.219Z',
@@ -34,11 +34,11 @@ describe('getActiveClientTokens', function() {
     ];
   });
 
-  it('returns union of sorted scopes and latest createdAt', function() {
-    var res = helpers.getActiveClientTokens(activeClientIds);
+  it('returns union of sorted scopes, and latest createdAt as last access time', function() {
+    var res = helpers.aggregateActiveClients(activeClientTokens);
     assert.equal(res[0].id, uid);
     assert.equal(res[0].name, '123Done');
     assert.deepEqual(res[0].scope, ['clients:write', 'profile', 'profile:write']);
-    assert.equal(res[0].createdAt, '2017-01-28T14:28:16.219Z');
+    assert.equal(res[0].lastAccessTime, '2017-01-28T14:28:16.219Z');
   });
 });

@@ -10,16 +10,20 @@ const unbuf = require('buf').unbuf.hex;
 
 module.exports = {
   /**
-   * This helper converts the provided 'activeClientTokens' array and
-   * groups them by the token OAuth client.
-   * In the end it creates a sorted array where all token scopes are unified together.
+   * This helper takes a list of active oauth tokens and produces an aggregate
+   * summary of the active clients, by:
+   *
+   *   * merging all scopes into a single set
+   *   * taking the max token creation time a the last access time
+   *
+   * The resulting array is in sorted order by last access time, then client name.
    *
    * @param {Array} activeClientTokens
-   * A joined array of tokens and their client names:
+   * An array of OAuth tokens, annotated with client name:
    * (OAuth client) name|(OAuth client) id|(Token) createdAt|(Token) scope
    * @returns {Array}
    */
-  getActiveClientTokens: function getActiveTokens(activeClientTokens) {
+  aggregateActiveClients: function aggregateActiveClients(activeClientTokens) {
     if (! activeClientTokens) {
       return [];
     }
@@ -32,50 +36,40 @@ module.exports = {
 
       if (! activeClients[clientIdHex]) {
         // add the OAuth client if not already in the Object
-        activeClients[clientIdHex] = clientTokenObj;
-        activeClients[clientIdHex].scope = [];
+        activeClients[clientIdHex] = {
+          id: clientTokenObj.id,
+          name: clientTokenObj.name,
+          lastAccessTime: clientTokenObj.createdAt,
+          scope: new Set()
+        };
       }
 
       scope.forEach(function (clientScope) {
         // aggregate the scopes from all available tokens
-        if (activeClients[clientIdHex].scope.indexOf(clientScope) === -1) {
-          activeClients[clientIdHex].scope.push(clientScope);
-        }
+        activeClients[clientIdHex].scope.add(clientScope);
       });
 
       var clientTokenTime = clientTokenObj.createdAt;
-      if (clientTokenTime > activeClients[clientIdHex].createdAt) {
+      if (clientTokenTime > activeClients[clientIdHex].lastAccessTime) {
         // only update the createdAt if it is newer
-        activeClients[clientIdHex].createdAt = clientTokenTime;
+        activeClients[clientIdHex].lastAccessTime = clientTokenTime;
       }
     });
 
     // Sort the scopes alphabetically, convert the Object structure to an array
     var activeClientsArray = Object.keys(activeClients).map(function (key) {
       var scopes = activeClients[key].scope;
-      scopes.sort(function(a, b) {
-        if (b < a) {
-          return 1;
-        }
-
-        if (b > a) {
-          return -1;
-        }
-
-        return 0;
-      });
-      activeClients[key].scope = scopes;
+      activeClients[key].scope = Array.from(scopes.values()).sort();
       return activeClients[key];
     });
 
-    // Sort the final Array structure first by createdAt and then name
-    var customSort = activeClientsArray.slice(0);
-    customSort.sort(function(a, b) {
-      if (b.createdAt > a.createdAt) {
+    // Sort the final Array structure first by lastAccessTime and then name
+    activeClientsArray.sort(function(a, b) {
+      if (b.lastAccessTime > a.lastAccessTime) {
         return 1;
       }
 
-      if (b.createdAt < a.createdAt) {
+      if (b.lastAccessTime < a.lastAccessTime) {
         return -1;
       }
 
@@ -90,6 +84,6 @@ module.exports = {
       return 0;
     });
 
-    return customSort;
+    return activeClientsArray;
   }
 };

@@ -264,7 +264,7 @@ MemoryStore.prototype = {
    * @param {String} uid User ID as hex
    * @returns {Promise}
    */
-  getActiveClientTokensByUid: function getActiveServicesByUid(uid) {
+  getActiveClientsByUid: function getActiveClientsByUid(uid) {
     var self = this;
     if (! uid) {
       return P.reject(new Error('Uid is required'));
@@ -288,7 +288,7 @@ MemoryStore.prototype = {
       }
     }
 
-    return P.resolve(helpers.getActiveClientTokens(activeClientTokens));
+    return P.resolve(helpers.aggregateActiveClients(activeClientTokens));
   },
 
   /**

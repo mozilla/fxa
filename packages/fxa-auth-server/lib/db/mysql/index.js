@@ -193,10 +193,9 @@ const QUERY_PURGE_EXPIRED_TOKENS = 'DELETE FROM tokens WHERE clientId NOT IN (?)
 // Returns the most recent token used with a client name and client id.
 // Does not include clients that canGrant.
 const QUERY_ACTIVE_CLIENT_TOKENS_BY_UID =
-  'SELECT DISTINCT clients.name, clients.id, tokens.createdAt as createdAt, tokens.scope as scope FROM clients, tokens ' +
-  'WHERE tokens.expiresAt > NOW() AND clients.canGrant = 0 AND clients.id = tokens.clientId AND tokens.userId=? ' +
-  'ORDER BY createdAt DESC, clients.name ' +
-  'LIMIT 10000;';
+  'SELECT tokens.clientId, tokens.createdAt, tokens.scope, clients.name ' +
+  'FROM tokens LEFT OUTER JOIN clients ON clients.id = tokens.clientId ' +
+  'WHERE tokens.userId=? AND tokens.expiresAt > NOW() AND clients.canGrant = 0;';
 const DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID =
   'DELETE FROM tokens WHERE clientId=? AND userId=?';
 const DELETE_ACTIVE_REFRESH_TOKENS_BY_CLIENT_AND_UID =
@@ -459,11 +458,11 @@ MysqlStore.prototype = {
    * @param {String} uid User ID as hex
    * @returns {Promise}
    */
-  getActiveClientTokensByUid: function getActiveClientTokensByUid(uid) {
+  getActiveClientsByUid: function getActiveClientsByUid(uid) {
     return this._read(QUERY_ACTIVE_CLIENT_TOKENS_BY_UID, [
       buf(uid)
     ]).then(function(activeClientTokens) {
-      return helpers.getActiveClientTokens(activeClientTokens);
+      return helpers.aggregateActiveClients(activeClientTokens);
     });
   },
 

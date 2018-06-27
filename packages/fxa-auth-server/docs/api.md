@@ -68,6 +68,8 @@ The currently-defined error responses are:
   - [POST /v1/developer/activate][developer-activate]
 - [POST /v1/verify][verify]
 - [POST /v1/key-data][key-data]
+- [GET /v1/client-tokens][client-tokens]
+- [DELETE /v1/client-tokens/:id][client-tokens-delete]
 
 ### GET /v1/client/:id
 
@@ -575,6 +577,78 @@ A valid response will return JSON the scoped key information for every scope tha
 }
 ```
 
+### GET /v1/client-tokens
+
+This endpoint returns a list of all clients with active OAuth tokens for the user,
+including the the scopes granted to each client
+and the last time each client was active.
+It must be authenticated with an OAuth token bearing scope "clients:write".
+
+#### Request
+
+**Example:**
+
+```sh
+curl -X GET \
+  https://oauth.accounts.firefox.com/v1/client-tokens \
+  -H 'cache-control: no-cache' \
+  -H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0"
+```
+
+#### Response
+
+A valid 200 response will be a JSON array
+where each item as the following properties:
+
+- `id`: The hex id of the client.
+- `name`: The string name of the client.
+- `lastAccessTime`: Integer last-access time for the client.
+- `lastAccessTimeFormatted`: Localized string last-access time for the client.
+- `scope`: Sorted list of all scopes granted to the client.
+
+**Example:**
+
+```json
+[
+  {
+    "id": "5901bd09376fadaa",
+    "name": "Example",
+    "lastAccessTime": 1528334748000,
+    "lastAccessTimeFormatted": "13 days ago",
+    "scope": ["openid", "profile"]
+  },
+  {
+    "id": "23d10a14f474ca41",
+    "name": "Example Two",
+    "lastAccessTime": 1476677854037,
+    "lastAccessTimeFormatted": "2 years ago",
+    "scope": ["profile:email", "profile:uid"]
+  }
+]
+```
+
+### DELETE /v1/client-tokens/:id
+
+This endpoint deletes all tokens granted to a given client.
+It must be authenticated with an OAuth token bearing scope "clients:write".
+
+#### Request Parameters
+
+- `id`: The `client_id` of the client whose tokens should be deleted.
+
+**Example:**
+
+```sh
+curl -X DELETE
+  https://oauth.accounts.firefox.com/v1/client-tokens/5901bd09376fadaa
+  -H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0"
+```
+
+#### Response
+
+A valid 200 response will return an empty JSON object.
+
+
 
 [client]: #get-v1clientid
 [register]: #post-v1clientregister
@@ -589,5 +663,7 @@ A valid response will return JSON the scoped key information for every scope tha
 [developer-activate]: #post-v1developeractivate
 [jwks]: #get-v1jwks
 [key-data]: #post-v1post-keydata
+[client-tokens]: #get-v1client-tokens
+[client-tokens-delete]: #delete-v1client-tokensid
 
 [Service Clients]: ./service-clients.md
