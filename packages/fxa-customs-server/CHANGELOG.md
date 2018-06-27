@@ -1,3 +1,13 @@
+<a name="1.115.0"></a>
+# 1.115.0 (2018-06-27)
+
+
+### test
+
+* **reputation:** adds compose based integration test with iprepd (#253) r=@vladikoff ([458f94d](https://github.com/mozilla/fxa-customs-server/commit/458f94d))
+
+
+
 <a name="1.114.3"></a>
 ## 1.114.3 (2018-06-21)
 
