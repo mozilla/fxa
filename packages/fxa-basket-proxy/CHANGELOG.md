@@ -1,3 +1,13 @@
+<a name="1.115.0"></a>
+# [1.115.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.112.0...v1.115.0) (2018-06-27)
+
+
+### Bug Fixes
+
+* **docker:** base image node:8-alpine and upgrade to npm6 (#59) r=@vladikoff ([215f960](https://github.com/mozilla/fxa-basket-proxy/commit/215f960))
+
+
+
 <a name="1.112.0"></a>
 # [1.112.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.109.0...v1.112.0) (2018-05-21)
 
