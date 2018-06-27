@@ -1,3 +1,13 @@
+<a name="1.115.1"></a>
+## [1.115.1](https://github.com/mozilla/fxa-oauth-server/compare/v1.115.0...v1.115.1) (2018-06-27)
+
+
+### Bug Fixes
+
+* **tokens:** Avoid quadratic behaviour when listing active clients. (#9); r=vladikoff ([15c3065](https://github.com/mozilla/fxa-oauth-server/commit/15c3065)), closes [#9](https://github.com/mozilla/fxa-oauth-server/issues/9)
+
+
+
 <a name="1.115.0"></a>
 # [1.115.0](https://github.com/mozilla/fxa-oauth-server/compare/v1.113.1...v1.115.0) (2018-06-25)
 
