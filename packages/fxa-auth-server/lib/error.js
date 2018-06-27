@@ -68,6 +68,7 @@ var ERRNO = {
   TOTP_TOKEN_NOT_FOUND: 155,
 
   RECOVERY_CODE_NOT_FOUND: 156,
+  DEVICE_COMMAND_UNAVAILABLE: 157,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -780,6 +781,15 @@ AppError.recoveryCodeNotFound = () => {
     error: 'Bad Request',
     errno: ERRNO.RECOVERY_CODE_NOT_FOUND,
     message: 'Recovery code not found.'
+  })
+}
+
+AppError.unavailableDeviceCommand = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.DEVICE_COMMAND_UNAVAILABLE,
+    message: 'Unavailable device command.'
   })
 }
 

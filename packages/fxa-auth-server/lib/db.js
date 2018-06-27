@@ -513,30 +513,9 @@ module.exports = (
     }
     return P.all(promises)
       .spread((devices, redisSessionTokens = {}) => {
-        // for each device, if there is a redis token with a matching tokenId,
-        // overwrite device's ua properties and lastAccessTime with redis token values
         const lastAccessTimeEnabled = isRedisOk && features.isLastAccessTimeEnabledForUser(uid)
         return devices.map(device => {
-          const token = redisSessionTokens[device.sessionTokenId]
-          const mergedInfo = Object.assign({}, device, token)
-          return {
-            id: device.id,
-            sessionToken: device.sessionTokenId,
-            lastAccessTime: lastAccessTimeEnabled ? mergedInfo.lastAccessTime : null,
-            location: mergedInfo.location,
-            name: device.name,
-            type: device.type,
-            pushCallback: device.callbackURL,
-            pushPublicKey: device.callbackPublicKey,
-            pushAuthKey: device.callbackAuthKey,
-            pushEndpointExpired: !! device.callbackIsExpired,
-            uaBrowser: mergedInfo.uaBrowser,
-            uaBrowserVersion: mergedInfo.uaBrowserVersion,
-            uaOS: mergedInfo.uaOS,
-            uaOSVersion: mergedInfo.uaOSVersion,
-            uaDeviceType: mergedInfo.uaDeviceType,
-            uaFormFactor: mergedInfo.uaFormFactor
-          }
+          return mergeDeviceInfoFromRedis(device, redisSessionTokens, lastAccessTimeEnabled)
         })
       })
       .catch(err =>{
@@ -566,7 +545,7 @@ module.exports = (
 
   SAFE_URLS.updatePasswordForgotToken = new SafeUrl(
     '/passwordForgotToken/:id/update',
-    'db.udatePasswordForgotToken'
+    'db.updatePasswordForgotToken'
   )
   DB.prototype.updatePasswordForgotToken = function (token) {
     log.trace({ op: 'DB.udatePasswordForgotToken', uid: token && token.uid })
@@ -692,6 +671,41 @@ module.exports = (
     })
   }
 
+  SAFE_URLS.device = new SafeUrl('/account/:uid/device/:deviceId', 'db.device')
+  DB.prototype.device = function (uid, deviceId) {
+    log.trace({ op: 'DB.device', uid: uid, id: deviceId })
+
+    const promises = [
+      this.pool.get(SAFE_URLS.device, { uid, deviceId })
+    ]
+
+    let isRedisOk = true
+    if (redis) {
+      promises.push(
+        safeRedisGet(uid)
+          .then(result => {
+            if (result === false) {
+              // Ensure that we don't return lastAccessTime if redis is down
+              isRedisOk = false
+            }
+            return unpackTokensFromRedis(result)
+          })
+      )
+    }
+
+    return P.all(promises)
+      .spread((device, redisSessionTokens = {}) => {
+        const lastAccessTimeEnabled = isRedisOk && features.isLastAccessTimeEnabledForUser(uid)
+        return mergeDeviceInfoFromRedis(device, redisSessionTokens, lastAccessTimeEnabled)
+      })
+      .catch(err =>{
+        if (isNotFoundError(err)) {
+          throw error.unknownDevice()
+        }
+        throw err
+      })
+  }
+
   SAFE_URLS.createDevice = new SafeUrl('/account/:uid/device/:id', 'db.createDevice')
   DB.prototype.createDevice = function (uid, sessionTokenId, deviceInfo) {
     log.trace({ op: 'DB.createDevice', uid: uid, id: deviceInfo.id })
@@ -710,7 +724,8 @@ module.exports = (
             type: deviceInfo.type,
             callbackURL: deviceInfo.pushCallback,
             callbackPublicKey: deviceInfo.pushPublicKey,
-            callbackAuthKey: deviceInfo.pushAuthKey
+            callbackAuthKey: deviceInfo.pushAuthKey,
+            availableCommands: deviceInfo.availableCommands
           }
         )
       })
@@ -768,7 +783,8 @@ module.exports = (
         callbackURL: deviceInfo.pushCallback,
         callbackPublicKey: deviceInfo.pushPublicKey,
         callbackAuthKey: deviceInfo.pushAuthKey,
-        callbackIsExpired: !! deviceInfo.pushEndpointExpired
+        callbackIsExpired: !! deviceInfo.pushEndpointExpired,
+        availableCommands: deviceInfo.availableCommands
       }
     )
     .then(
@@ -1340,6 +1356,32 @@ module.exports = (
         return packTokensForRedis(sessionTokens)
       }
     })
+  }
+
+  function mergeDeviceInfoFromRedis(device, redisSessionTokens, lastAccessTimeEnabled) {
+    // If there's a matching sessionToken in redis, use the more up-to-date
+    // location and access-time info from there rather than from the DB.
+    const token = redisSessionTokens[device.sessionTokenId]
+    const mergedInfo = Object.assign({}, device, token)
+    return {
+      id: mergedInfo.id,
+      sessionToken: mergedInfo.sessionTokenId,
+      lastAccessTime: lastAccessTimeEnabled ? mergedInfo.lastAccessTime : null,
+      location: mergedInfo.location,
+      name: mergedInfo.name,
+      type: mergedInfo.type,
+      pushCallback: mergedInfo.callbackURL,
+      pushPublicKey: mergedInfo.callbackPublicKey,
+      pushAuthKey: mergedInfo.callbackAuthKey,
+      pushEndpointExpired: !! mergedInfo.callbackIsExpired,
+      availableCommands: mergedInfo.availableCommands || {},
+      uaBrowser: mergedInfo.uaBrowser,
+      uaBrowserVersion: mergedInfo.uaBrowserVersion,
+      uaOS: mergedInfo.uaOS,
+      uaOSVersion: mergedInfo.uaOSVersion,
+      uaDeviceType: mergedInfo.uaDeviceType,
+      uaFormFactor: mergedInfo.uaFormFactor
+    }
   }
 
   // Reduce redis memory usage by not encoding the keys. Store properties

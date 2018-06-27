@@ -4,6 +4,7 @@
 
 'use strict'
 
+const { URL } = require('url')
 const Ajv = require('ajv')
 const ajv = new Ajv()
 const error = require('../error')
@@ -18,7 +19,8 @@ const HEX_STRING = validators.HEX_STRING
 const DEVICES_SCHEMA = require('../devices').schema
 const PUSH_PAYLOADS_SCHEMA_PATH = path.resolve(__dirname, '../../docs/pushpayloads.schema.json')
 
-module.exports = (log, db, config, customs, push, devices) => {
+
+module.exports = (log, db, config, customs, push, pushbox, devices) => {
   // Loads and compiles a json validator for the payloads received
   // in /account/devices/notify
   const validatePushSchema = JSON.parse(fs.readFileSync(PUSH_PAYLOADS_SCHEMA_PATH))
@@ -123,22 +125,27 @@ module.exports = (log, db, config, customs, push, devices) => {
               pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
               pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
               pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional(),
+              availableCommands: DEVICES_SCHEMA.availableCommands.optional(),
               // Some versions of desktop firefox send a zero-length
               // "capabilities" array, for historical reasons.
               // We accept but ignore it.
               capabilities: isA.array().length(0).optional()
-            }).or('name', 'type', 'pushCallback', 'pushPublicKey', 'pushAuthKey').and('pushPublicKey', 'pushAuthKey'),
+            })
+            .or('name', 'type', 'pushCallback', 'pushPublicKey', 'pushAuthKey', 'availableCommands')
+            .and('pushPublicKey', 'pushAuthKey'),
             isA.object({
               name: DEVICES_SCHEMA.name.required(),
               type: DEVICES_SCHEMA.type.required(),
               pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
               pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
               pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional(),
+              availableCommands: DEVICES_SCHEMA.availableCommands.optional(),
               // Some versions of desktop firefox send a zero-length
               // "capabilities" array, for historical reasons.
               // We accept but ignore it.
               capabilities: isA.array().length(0).optional()
-            }).and('pushPublicKey', 'pushAuthKey')
+            })
+            .and('pushPublicKey', 'pushAuthKey')
           )
         },
         response: {
@@ -150,7 +157,8 @@ module.exports = (log, db, config, customs, push, devices) => {
             pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
             pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
             pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional(),
-            pushEndpointExpired: DEVICES_SCHEMA.pushEndpointExpired.optional()
+            pushEndpointExpired: DEVICES_SCHEMA.pushEndpointExpired.optional(),
+            availableCommands: DEVICES_SCHEMA.availableCommands.optional(),
           }).and('pushPublicKey', 'pushAuthKey')
         }
       },
@@ -203,10 +211,11 @@ module.exports = (log, db, config, customs, push, devices) => {
             // including any default values for missing fields.
             reply(Object.assign({
               // These properties can be picked from sessionToken or device as appropriate.
-              pushCallback: sessionToken.callbackURL,
-              pushPublicKey: sessionToken.callbackPublicKey,
-              pushAuthKey: sessionToken.callbackAuthKey,
-              pushEndpointExpired: sessionToken.callbackIsExpired
+              pushCallback: sessionToken.deviceCallbackURL,
+              pushPublicKey: sessionToken.deviceCallbackPublicKey,
+              pushAuthKey: sessionToken.deviceCallbackAuthKey,
+              pushEndpointExpired: sessionToken.deviceCallbackIsExpired,
+              availableCommands: sessionToken.deviceAvailableCommands
             }, device, {
               // But these need to be non-falsey, using default fallbacks if necessary
               id: device.id || sessionToken.deviceId,
@@ -241,8 +250,115 @@ module.exports = (log, db, config, customs, push, devices) => {
             spurious = false
           }
 
+          if (payload.availableCommands) {
+            spurious = spurious && Object.keys(payload.availableCommands).some(key => {
+              return payload.availableCommands[key] !== token.deviceAvailableCommands[key]
+            })
+            spurious = spurious && Object.keys(token.deviceAvailableCommands).some(key => {
+              return payload.availableCommands[key] !== token.deviceAvailableCommands[key]
+            })
+          }
+
           return spurious
         }
+      }
+    },
+    {
+      method: 'GET',
+      path: '/account/device/commands',
+      config: {
+        validate: {
+          query: {
+            index: isA.number().optional(),
+            limit: isA.number().optional().min(0).max(100).default(100),
+          }
+        },
+        auth: {
+          strategy: 'sessionToken'
+        },
+        response: {
+          schema: isA.object({
+            index: isA.number().required(),
+            last: isA.boolean().optional(),
+            messages: isA.array().items(isA.object({
+              index: isA.number().required(),
+              data: isA.object({
+                command: isA.string().max(255).required(),
+                payload: isA.object().required(),
+                sender: DEVICES_SCHEMA.id.optional()
+              }).required()
+            })).optional()
+          }).and('last', 'messages')
+        }
+      },
+      handler (request, reply) {
+        log.begin('Account.deviceCommands', request)
+
+        const sessionToken = request.auth.credentials
+        const uid = sessionToken.uid
+        const deviceId = sessionToken.deviceId
+        const query = request.query || {}
+        const {index, limit} = query
+
+        return pushbox.retrieve(uid, deviceId, limit, index)
+          .then(resp => {
+            log.info({ op: 'commands.fetch', resp: resp })
+            return resp
+          })
+          .then(reply, reply)
+      }
+    },
+    {
+      method: 'POST',
+      path: '/account/devices/invoke_command',
+      config: {
+        auth: {
+          strategy: 'sessionToken'
+        },
+        validate: {
+          payload: {
+            target: DEVICES_SCHEMA.id.required(),
+            command: isA.string().required(),
+            payload: isA.object().required(),
+            ttl: isA.number().integer().min(0).max(10000000).optional()
+          }
+        },
+        response: {
+          schema: {}
+        }
+      },
+      handler (request, reply) {
+        log.begin('Account.invokeDeviceCommand', request)
+
+        const {target, command, payload, ttl} = request.payload
+        const sessionToken = request.auth.credentials
+        const uid = sessionToken.uid
+        const sender = sessionToken.deviceId
+        const ip = request.app.clientAddress
+
+        return customs.checkAuthenticated('invokeDeviceCommand', ip, uid)
+          .then(() => db.device(uid, target))
+          .then(device => {
+            if (! device.availableCommands.hasOwnProperty(command)) {
+              throw error.unavailableDeviceCommand()
+            }
+            const data = {
+              command,
+              payload,
+              sender,
+            }
+            return pushbox.store(uid, device.id, data, ttl)
+              .then(({index}) => {
+                const url = new URL('v1/account/device/commands', config.publicUrl)
+                url.searchParams.set('index', index)
+                url.searchParams.set('limit', 1)
+                return push.notifyCommandReceived(uid, device, command, sender, index, url.href, ttl)
+              })
+          })
+          .then(
+            () => reply({}),
+            reply
+          )
       }
     },
     {
@@ -386,7 +502,8 @@ module.exports = (log, db, config, customs, push, devices) => {
             pushCallback: DEVICES_SCHEMA.pushCallback.allow(null).optional(),
             pushPublicKey: DEVICES_SCHEMA.pushPublicKey.allow(null).optional(),
             pushAuthKey: DEVICES_SCHEMA.pushAuthKey.allow(null).optional(),
-            pushEndpointExpired: DEVICES_SCHEMA.pushEndpointExpired.optional()
+            pushEndpointExpired: DEVICES_SCHEMA.pushEndpointExpired.optional(),
+            availableCommands: DEVICES_SCHEMA.availableCommands.optional(),
           }).and('pushPublicKey', 'pushAuthKey'))
         }
       },
@@ -408,7 +525,8 @@ module.exports = (log, db, config, customs, push, devices) => {
                 pushCallback: device.pushCallback,
                 pushPublicKey: device.pushPublicKey,
                 pushAuthKey: device.pushAuthKey,
-                pushEndpointExpired: device.pushEndpointExpired
+                pushEndpointExpired: device.pushEndpointExpired,
+                availableCommands: device.availableCommands
               }, marshallLastAccessTime(device.lastAccessTime, request))
             }))
           },
@@ -437,6 +555,7 @@ module.exports = (log, db, config, customs, push, devices) => {
             os: isA.string().max(255).allow('').allow(null),
             deviceId: DEVICES_SCHEMA.id.allow(null).required(),
             deviceName: DEVICES_SCHEMA.nameResponse.allow('').allow(null).required(),
+            deviceAvailableCommands: DEVICES_SCHEMA.availableCommands.allow(null).required(),
             deviceType: DEVICES_SCHEMA.type.allow(null).required(),
             deviceCallbackURL: DEVICES_SCHEMA.pushCallback.allow(null).required(),
             deviceCallbackPublicKey: DEVICES_SCHEMA.pushPublicKey.allow(null).required(),
@@ -478,6 +597,7 @@ module.exports = (log, db, config, customs, push, devices) => {
                 deviceId,
                 deviceName,
                 deviceType: session.uaDeviceType || 'desktop',
+                deviceAvailableCommands: session.deviceAvailableCommands || null,
                 deviceCallbackURL: session.deviceCallbackURL,
                 deviceCallbackPublicKey: session.deviceCallbackPublicKey,
                 deviceCallbackAuthKey: session.deviceCallbackAuthKey,

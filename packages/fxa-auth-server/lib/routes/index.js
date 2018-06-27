@@ -31,8 +31,9 @@ module.exports = function (
     signinUtils,
     push
   )
+  const pushbox = require('../pushbox')(log, config)
   const devicesImpl = require('../devices')(log, db, push)
-  const devicesSessions = require('./devices-and-sessions')(log, db, config, customs, push, devicesImpl)
+  const devicesSessions = require('./devices-and-sessions')(log, db, config, customs, push, pushbox, devicesImpl)
   const emails = require('./emails')(log, db, mailer, config, customs, push)
   const password = require('./password')(
     log,

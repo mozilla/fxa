@@ -708,6 +708,32 @@ var conf = convict({
       default: /^https:\/\/[a-zA-Z0-9._-]+(\.services\.mozilla\.com|autopush\.dev\.mozaws\.net|autopush\.stage\.mozaws\.net)(\/.*)?$/
     }
   },
+  pushbox: {
+    enabled: {
+      doc: 'Indicates whether talking to the Pushbox server is enabled',
+      format: Boolean,
+      default: false,
+      env: 'PUSHBOX_ENABLED'
+    },
+    url: {
+      doc: 'Pushbox Server URL',
+      format: 'url',
+      default: 'https://pushbox.services.mozilla.com/',
+      env: 'PUSHBOX_URL'
+    },
+    key: {
+      doc: 'Authentication key to use when accessing pushbox server',
+      format: String,
+      default: 'Correct_Horse_Battery_Staple_1',
+      env: 'PUSHBOX_KEY'
+    },
+    maxTTL: {
+      doc: 'Maximum TTL to set on items written to pushbox',
+      format: 'duration',
+      default: '28 days',
+      env: 'PUSHBOX_MAX_TTL'
+    }
+  },
   sms: {
     enabled: {
       doc: 'Indicates whether POST /sms is enabled',

@@ -161,6 +161,20 @@ describe('db with redis disabled:', () => {
       })
   })
 
+  it('db.device succeeds without a redis instance', () => {
+    results.pool = { id: 'fakeDeviceId' }
+    return db.device('fakeUid', 'fakeDeviceId')
+      .then(result => {
+        assert.equal(pool.get.callCount, 1)
+        const args = pool.get.args[0]
+        assert.equal(args.length, 2)
+        assert.equal(typeof args[0].render, 'function')
+        assert.equal(args[0].constructor.name, 'SafeUrl')
+        assert.deepEqual(args[1], { uid: 'fakeUid', deviceId: 'fakeDeviceId' })
+        assert.equal(result.id, 'fakeDeviceId')
+      })
+  })
+
   it('db.deleteAccount succeeds without a redis instance', () => {
     return db.deleteAccount({ uid: 'fakeUid' })
       .then(() => {
@@ -317,6 +331,16 @@ describe('redis enabled, token-pruning enabled:', () => {
       })
   })
 
+  it('should call redis and the db in db.device if uid is not falsey', () => {
+    return db.device('wibble', 'wobble')
+      .then(() => {
+        assert.equal(pool.get.callCount, 1)
+        assert.equal(redis.get.callCount, 1)
+        assert.equal(redis.get.args[0].length, 1)
+        assert.equal(redis.get.args[0][0], 'wibble')
+      })
+  })
+
   it('should call redis.get in db.sessions', () => {
     return db.sessions('wibble')
       .then(() => {
@@ -447,6 +471,7 @@ describe('redis enabled, token-pruning enabled:', () => {
           pushPublicKey: undefined,
           pushAuthKey: undefined,
           pushEndpointExpired: false,
+          availableCommands: {},
           lastAccessTime: 42,
           uaBrowser: 'Firefox',
           uaBrowserVersion: '59',
@@ -467,6 +492,7 @@ describe('redis enabled, token-pruning enabled:', () => {
           sessionToken: 'newFormat',
           name: undefined,
           type: undefined,
+          availableCommands: {},
           pushCallback: undefined,
           pushPublicKey: undefined,
           pushAuthKey: undefined,
@@ -797,6 +823,21 @@ describe('redis enabled, token-pruning enabled:', () => {
 
     it('should log the error in db.devices', () => {
       return db.devices('wibble')
+        .then(() => {
+          assert.equal(redis.get.callCount, 1)
+
+          assert.equal(log.error.callCount, 1)
+          assert.equal(log.error.args[0].length, 1)
+          assert.deepEqual(log.error.args[0][0], {
+            op: 'redis.get.error',
+            key: 'wibble',
+            err: 'mock redis.get error'
+          })
+        })
+    })
+
+    it('should log the error in db.device', () => {
+      return db.device('wibble', 'wobble')
         .then(() => {
           assert.equal(redis.get.callCount, 1)
 

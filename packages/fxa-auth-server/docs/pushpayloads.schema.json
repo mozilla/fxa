@@ -10,7 +10,8 @@
     { "$ref":"#/definitions/collectionsChanged" },
     { "$ref":"#/definitions/passwordChanged" },
     { "$ref":"#/definitions/passwordReset" },
-    { "$ref":"#/definitions/accountDestroyed" }
+    { "$ref":"#/definitions/accountDestroyed" },
+    { "$ref":"#/definitions/commandReceived" }
   ],
   "definitions":{
     "deviceConnected":{
@@ -201,6 +202,52 @@
             "uid":{
               "type":"string",
               "description":"The UID of the account which was destroyed"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "commandReceived":{
+      "required":[
+        "version",
+        "command",
+        "data"
+      ],
+      "properties":{
+        "version":{
+          "type":"integer"
+        },
+        "command":{
+          "type":"string",
+          "enum":[
+            "fxaccounts:command_received"
+          ]
+        },
+        "data":{
+          "type":"object",
+          "required":[
+            "command",
+            "index",
+            "url"
+          ],
+          "properties":{
+            "command":{
+              "type":"string",
+              "description":"URI identifying the command that was invoked"
+            },
+            "index":{
+              "type":"integer",
+              "description":"index of this command in the device's command queue"
+            },
+            "sender":{
+              "type":"string",
+              "description":"The device ID from which the command was sent, if known"
+            },
+            "url":{
+              "type":"string",
+              "description":"URL at which to fetch the full command payload"
             }
           },
           "additionalProperties": false

@@ -4,7 +4,8 @@
 
 'use strict'
 
-const assert = require('insist')
+const sinon = require('sinon')
+const assert = Object.assign({}, sinon.assert, require('insist'))
 const crypto = require('crypto')
 const error = require('../../../lib/error')
 const getRoute = require('../../routes_helpers').getRoute
@@ -13,7 +14,6 @@ const mocks = require('../../mocks')
 const moment = require('fxa-shared/node_modules/moment') // Ensure consistency with production code
 const P = require('../../../lib/promise')
 const proxyquire = require('proxyquire')
-const sinon = require('sinon')
 const uuid = require('uuid')
 
 const EARLIEST_SANE_TIMESTAMP = 31536000000
@@ -37,6 +37,7 @@ function makeRoutes (options = {}, requireMocks) {
   config.lastAccessTimeUpdates = {
     earliestSaneTimestamp: EARLIEST_SANE_TIMESTAMP
   }
+  config.publicUrl = 'https://public.url'
 
   const log = options.log || mocks.mockLog()
   const db = options.db || mocks.mockDB()
@@ -44,13 +45,14 @@ function makeRoutes (options = {}, requireMocks) {
     check: function () { return P.resolve(true) }
   }
   const push = options.push || require('../../../lib/push')(log, db, {})
+  const pushbox = options.pushbox || mocks.mockPushbox()
   return proxyquire('../../../lib/routes/devices-and-sessions', requireMocks || {})(
-    log, db, config, customs, push,
+    log, db, config, customs, push, pushbox,
     options.devices || require('../../../lib/devices')(log, db, push)
   )
 }
 
-function runTest (route, request, assertions) {
+function runTest (route, request, onSuccess, onError) {
   return new P(function (resolve, reject) {
     route.handler(request, function (response) {
       //resolve(response)
@@ -61,7 +63,7 @@ function runTest (route, request, assertions) {
       }
     })
   })
-    .then(assertions)
+    .then(onSuccess, onError)
 }
 
 function hexString (bytes) {
@@ -365,7 +367,7 @@ describe('/account/devices/notify', function () {
     })
   })
 
-  it('does not log activity event for non-send-tab-related messages', function () {
+  it('does not log activity event for non-send-tab-related notifications', function () {
     mockPush.sendPush.reset()
     mockLog.activityEvent.reset()
     mockLog.error.reset()
@@ -411,7 +413,7 @@ describe('/account/devices/notify', function () {
     }
     config.deviceNotificationsEnabled = true
 
-    mockCustoms = mocks.mockCustoms({
+    const mockCustoms = mocks.mockCustoms({
       checkAuthenticated: error.tooManyRequests(1)
     })
     route = getRoute(makeRoutes({customs: mockCustoms}), '/account/devices/notify')
@@ -502,6 +504,264 @@ describe('/account/devices/notify', function () {
       assert.fail('should not have succeed')
     }, (err) => {
       assert.equal(err.errno, 107, 'invalid parameter in request body')
+    })
+  })
+})
+
+describe('/account/device/commands', function () {
+  const uid = uuid.v4('binary').toString('hex')
+  const deviceId = crypto.randomBytes(16).toString('hex')
+  const mockLog = mocks.mockLog()
+  const mockRequest = mocks.mockRequest({
+    log: mockLog,
+    credentials: {
+      uid: uid,
+      deviceId: deviceId
+    }
+  })
+  const mockCustoms = mocks.mockCustoms()
+
+  it('retrieves messages using the pushbox service', () => {
+    const mockResponse = {
+      last: true,
+      index: 4,
+      messages: [
+        { index: 3, data: { number: 'three' } },
+        { index: 4, data: { number: 'four'} }
+      ]
+    }
+    const mockPushbox = mocks.mockPushbox()
+    mockPushbox.retrieve = sinon.spy(() => P.resolve(mockResponse))
+
+    mockRequest.query = {
+      index: 2
+    }
+    const route = getRoute(makeRoutes({
+      customs: mockCustoms,
+      log: mockLog,
+      pushbox: mockPushbox
+    }), '/account/device/commands')
+
+    mockRequest.query = isA.validate(mockRequest.query, route.config.validate.query).value
+    assert.ok(mockRequest.query)
+    return runTest(route, mockRequest).then(response => {
+      assert.equal(mockPushbox.retrieve.callCount, 1, 'pushbox was called')
+      assert.calledWithExactly(mockPushbox.retrieve, uid, deviceId, 100, 2)
+      assert.deepEqual(response, mockResponse)
+    })
+  })
+
+  it('accepts a custom limit parameter', () => {
+    const mockPushbox = mocks.mockPushbox()
+    mockRequest.query = {
+      index: 2,
+      limit: 12
+    }
+    const route = getRoute(makeRoutes({
+      customs: mockCustoms,
+      log: mockLog,
+      pushbox: mockPushbox
+    }), '/account/device/commands')
+
+    return runTest(route, mockRequest).then(() => {
+      assert.equal(mockPushbox.retrieve.callCount, 1, 'pushbox was called')
+      assert.calledWithExactly(mockPushbox.retrieve, uid, deviceId, 12, 2)
+    })
+  })
+
+  it('relays errors from the pushbox service', () => {
+    const mockPushbox = mocks.mockPushbox({
+      retrieve() {
+        const error = new Error()
+        error.message = 'Boom!'
+        error.statusCode = 500
+        return Promise.reject(error)
+      }
+    })
+    mockRequest.query = {
+      index: 2
+    }
+    const route = getRoute(makeRoutes({
+      customs: mockCustoms,
+      log: mockLog,
+      pushbox: mockPushbox
+    }), '/account/device/commands')
+
+    return runTest(route, mockRequest).then(() => {
+      assert.ok(false, 'should not go here')
+    }, (err) => {
+      assert.equal(err.message, 'Boom!')
+      assert.equal(err.statusCode, 500)
+    })
+  })
+})
+
+describe('/account/devices/invoke_command', function () {
+  const uid = uuid.v4('binary').toString('hex')
+  const command = 'bogusCommandName'
+  const mockDevices = [
+    {
+      id: 'bogusid1',
+      type: 'mobile',
+      availableCommands: {
+        bogusCommandName: 'bogusData'
+      }
+    },
+    {
+      id: 'bogusid2',
+      type: 'desktop',
+    }
+  ]
+  let mockLog, mockDB, mockRequest, mockPush, mockCustoms
+
+  beforeEach(() => {
+    mockLog = mocks.mockLog()
+    mockDB = mocks.mockDB({
+      devices: mockDevices
+    })
+    mockRequest = mocks.mockRequest({
+      log: mockLog,
+      credentials: {
+        uid: uid,
+        deviceId: 'bogusid2'
+      }
+    })
+    mockPush = mocks.mockPush()
+    mockCustoms = mocks.mockCustoms()
+  })
+
+  it('stores commands using the pushbox service and sends a notification', () => {
+    const mockPushbox = mocks.mockPushbox({
+      store: sinon.spy(() => {
+        return Promise.resolve({ index: 15 })
+      })
+    })
+    const target = 'bogusid1'
+    const sender = 'bogusid2'
+    const payload = { 'bogus': 'payload' }
+    mockRequest.payload = {
+      target,
+      command,
+      payload
+    }
+    const route = getRoute(makeRoutes({
+      customs: mockCustoms,
+      log: mockLog,
+      push: mockPush,
+      pushbox: mockPushbox,
+      db: mockDB
+    }), '/account/devices/invoke_command')
+
+    return runTest(route, mockRequest).then(() => {
+      assert.equal(mockDB.device.callCount, 1, 'device record was fetched')
+      assert.calledWithExactly(mockDB.device, uid, target)
+
+      assert.equal(mockPushbox.store.callCount, 1, 'pushbox was called')
+      assert.calledWithExactly(mockPushbox.store, uid, target, {
+        command,
+        payload,
+        sender,
+      }, undefined)
+
+      assert.equal(mockPush.notifyCommandReceived.callCount, 1, 'notifyCommandReceived was called')
+      assert.calledWithExactly(mockPush.notifyCommandReceived,
+         uid,
+         mockDevices[0],
+         command,
+         sender,
+         15,
+         'https://public.url/v1/account/device/commands?index=15&limit=1',
+         undefined
+      )
+    })
+  })
+
+  it('rejects if sending to an unknown device', () => {
+    const mockPushbox = mocks.mockPushbox()
+    const target = 'unknowndevice'
+    const payload = { 'bogus': 'payload' }
+    mockRequest.payload = {
+      target,
+      command,
+      payload
+    }
+    mockDB.device = sinon.spy(() => P.reject(error.unknownDevice()))
+    const route = getRoute(makeRoutes({
+      customs: mockCustoms,
+      log: mockLog,
+      push: mockPush,
+      pushbox: mockPushbox,
+      db: mockDB
+    }), '/account/devices/invoke_command')
+
+    return runTest(route, mockRequest, () => {
+      assert(false, 'should have thrown')
+    }, (err) => {
+      assert.equal(err.errno, 123, 'Unknown device')
+      assert.equal(mockPushbox.store.callCount, 0, 'pushbox was not called')
+      assert.equal(mockPush.notifyCommandReceived.callCount, 0, 'notifyMessageReceived was not called')
+    })
+  })
+
+  it('rejects if invoking an unavailable command', () => {
+    const mockPushbox = mocks.mockPushbox()
+    const target = 'bogusid1'
+    const payload = { 'bogus': 'payload' }
+    mockRequest.payload = {
+      target,
+      command: 'nonexistentCommandName',
+      payload
+    }
+    const route = getRoute(makeRoutes({
+      customs: mockCustoms,
+      log: mockLog,
+      push: mockPush,
+      pushbox: mockPushbox,
+      db: mockDB
+    }), '/account/devices/invoke_command')
+
+    return runTest(route, mockRequest, () => {
+      assert(false, 'should have thrown')
+    }, (err) => {
+      assert.equal(err.errno, 157, 'unavailable device command')
+      assert.equal(mockPushbox.store.callCount, 0, 'pushbox was not called')
+      assert.equal(mockPush.notifyCommandReceived.callCount, 0,
+        'notifyMessageReceived was not called')
+    })
+  })
+
+  it('relays errors from the pushbox service', () => {
+    const mockPushbox = mocks.mockPushbox({
+      store: sinon.spy(() => {
+        const error = new Error()
+        error.message = 'Boom!'
+        error.statusCode = 500
+        return Promise.reject(error)
+      })
+    })
+    const target = 'bogusid1'
+    const payload = { 'bogus': 'payload' }
+    mockRequest.payload = {
+      target,
+      command,
+      payload
+    }
+    const route = getRoute(makeRoutes({
+      customs: mockCustoms,
+      log: mockLog,
+      push: mockPush,
+      pushbox: mockPushbox,
+      db: mockDB
+    }), '/account/devices/invoke_command')
+
+    return runTest(route, mockRequest, () => {
+      assert(false, 'should have thrown')
+    }, (err) => {
+      assert.equal(mockPushbox.store.callCount, 1, 'pushbox was called')
+      assert.equal(err.message, 'Boom!')
+      assert.equal(err.statusCode, 500)
+      assert.equal(mockPush.notifyCommandReceived.callCount, 0,
+        'notifyMessageReceived was not called')
     })
   })
 })
@@ -765,7 +1025,7 @@ describe('/account/sessions', () => {
     {
       id: tokenIds[0], uid: 'qux', createdAt: times[0], lastAccessTime: times[1],
       uaBrowser: 'Firefox', uaBrowserVersion: '50.0', uaOS: 'Windows', uaOSVersion: '10',
-      uaDeviceType: null, deviceId: null, deviceCreatedAt: times[2],
+      uaDeviceType: null, deviceId: null, deviceCreatedAt: times[2], deviceAvailableCommands: { 'foo': 'bar' },
       deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
       deviceCallbackIsExpired: false,
       location: {
@@ -779,7 +1039,7 @@ describe('/account/sessions', () => {
     {
       id: tokenIds[1], uid: 'wibble', createdAt: times[3], lastAccessTime: EARLIEST_SANE_TIMESTAMP - 1,
       uaBrowser: 'Nightly', uaBrowserVersion: null, uaOS: 'Android', uaOSVersion: '6',
-      uaDeviceType: 'mobile', deviceId: 'deviceId', deviceCreatedAt: times[4],
+      uaDeviceType: 'mobile', deviceId: 'deviceId', deviceCreatedAt: times[4], deviceAvailableCommands: { 'foo': 'bar' },
       deviceCallbackURL: null, deviceCallbackPublicKey: null, deviceCallbackAuthKey: null,
       deviceCallbackIsExpired: false,
       location: {
@@ -793,7 +1053,7 @@ describe('/account/sessions', () => {
     {
       id: tokenIds[2], uid: 'blee', createdAt: times[5], lastAccessTime: EARLIEST_SANE_TIMESTAMP,
       uaBrowser: null, uaBrowserVersion: '50', uaOS: null, uaOSVersion: '10',
-      uaDeviceType: 'tablet', deviceId: 'deviceId', deviceCreatedAt: times[6],
+      uaDeviceType: 'tablet', deviceId: 'deviceId', deviceCreatedAt: times[6], deviceAvailableCommands: {},
       deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
       deviceCallbackIsExpired: false,
       location: null
@@ -801,7 +1061,7 @@ describe('/account/sessions', () => {
     {
       id: tokenIds[3], uid: 'blee', createdAt: times[7], lastAccessTime: 1,
       uaBrowser: null, uaBrowserVersion: '50', uaOS: null, uaOSVersion: '10',
-      uaDeviceType: 'tablet', deviceId: 'deviceId', deviceCreatedAt: times[8],
+      uaDeviceType: 'tablet', deviceId: 'deviceId', deviceCreatedAt: times[8], deviceAvailableCommands: {},
       deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
       deviceCallbackIsExpired: false,
       location: null
@@ -829,6 +1089,7 @@ describe('/account/sessions', () => {
           deviceId: null,
           deviceName: 'Firefox 50, Windows 10',
           deviceType: 'desktop',
+          deviceAvailableCommands: { 'foo': 'bar' },
           deviceCallbackURL: 'callback',
           deviceCallbackPublicKey: 'publicKey',
           deviceCallbackAuthKey: 'authKey',
@@ -853,6 +1114,7 @@ describe('/account/sessions', () => {
           deviceId: 'deviceId',
           deviceName: 'Nightly, Android 6',
           deviceType: 'mobile',
+          deviceAvailableCommands: { 'foo': 'bar' },
           deviceCallbackURL: null,
           deviceCallbackPublicKey: null,
           deviceCallbackAuthKey: null,
@@ -879,6 +1141,7 @@ describe('/account/sessions', () => {
           deviceId: 'deviceId',
           deviceName: '',
           deviceType: 'tablet',
+          deviceAvailableCommands: {},
           deviceCallbackURL: 'callback',
           deviceCallbackPublicKey: 'publicKey',
           deviceCallbackAuthKey: 'authKey',
@@ -898,6 +1161,7 @@ describe('/account/sessions', () => {
           deviceId: 'deviceId',
           deviceName: '',
           deviceType: 'tablet',
+          deviceAvailableCommands: {},
           deviceCallbackURL: 'callback',
           deviceCallbackPublicKey: 'publicKey',
           deviceCallbackAuthKey: 'authKey',

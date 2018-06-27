@@ -22,6 +22,8 @@ exports.E164_NUMBER = /^\+[1-9]\d{1,14}$/
 
 exports.DIGITS = /^[0-9]+$/
 
+exports.DEVICE_COMMAND_NAME = /^[a-zA-Z0-9._\/\-:]{1,100}$/
+
 exports.IP_ADDRESS = isA.string().ip()
 
 // Match display-safe unicode characters.

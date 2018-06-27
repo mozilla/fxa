@@ -101,8 +101,6 @@ describe('remote session', function() {
           })
           .then(() => {
             return client.api.sessionStatus(sessionTokenCreate)
-          }, () => {
-            assert(false, 'failed to destroy the session')
           })
           .then((status) => {
             assert(false, 'got status with destroyed session')

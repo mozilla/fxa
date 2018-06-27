@@ -54,7 +54,7 @@
     "hapi": "16.6.3",
     "hapi-auth-hawk": "3.0.1",
     "hapi-fxa-oauth": "2.2.0",
-    "hapi-hpkp": "git+https://github.com/vbudhram/hapi-hpkp.git#master",
+    "hapi-hpkp": "1.0.0",
     "hkdf": "0.0.2",
     "i18n-abide": "0.0.25",
     "inert": "4.0.2",

@@ -40,6 +40,7 @@ describe('remote device', function () {
             var deviceInfo = {
               name: 'test device 🍓🔥在𝌆',
               type: 'mobile',
+              availableCommands: { 'foo': 'bar' },
               pushCallback: '',
               pushPublicKey: '',
               pushAuthKey: ''
@@ -57,6 +58,7 @@ describe('remote device', function () {
                   assert.ok(device.createdAt > 0, 'device.createdAt was set')
                   assert.equal(device.name, deviceInfo.name, 'device.name is correct')
                   assert.equal(device.type, deviceInfo.type, 'device.type is correct')
+                  assert.deepEqual(device.availableCommands, deviceInfo.availableCommands, 'device.availableCommands is correct')
                   assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
                   assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
                   assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
@@ -73,6 +75,7 @@ describe('remote device', function () {
                   assert.equal(devices.length, 1, 'devices returned one item')
                   assert.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
                   assert.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
+                  assert.deepEqual(devices[0].availableCommands, deviceInfo.availableCommands, 'devices returned correct availableCommands')
                   assert.equal(devices[0].pushCallback, '', 'devices returned empty pushCallback')
                   assert.equal(devices[0].pushPublicKey, '', 'devices returned correct pushPublicKey')
                   assert.equal(devices[0].pushAuthKey, '', 'devices returned correct pushAuthKey')
@@ -235,6 +238,7 @@ describe('remote device', function () {
         id: crypto.randomBytes(16).toString('hex'),
         name: 'test device',
         type: 'desktop',
+        availableCommands: {},
         pushCallback: badPushCallback,
         pushPublicKey: mocks.MOCK_PUSH_KEY,
         pushAuthKey: base64url(crypto.randomBytes(16))
@@ -269,6 +273,7 @@ describe('remote device', function () {
         id: crypto.randomBytes(16).toString('hex'),
         name: 'test device',
         type: 'desktop',
+        availableCommands: {},
         pushCallback: badPushCallback,
         pushPublicKey: mocks.MOCK_PUSH_KEY,
         pushAuthKey: base64url(crypto.randomBytes(16))
@@ -305,6 +310,7 @@ describe('remote device', function () {
             var deviceInfo = {
               name: 'test device',
               type: 'mobile',
+              availableCommands: {},
               pushCallback: goodPushCallback,
               pushPublicKey: '',
               pushAuthKey: ''

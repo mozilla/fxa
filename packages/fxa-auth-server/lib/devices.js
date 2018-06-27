@@ -29,7 +29,9 @@ const SCHEMA = {
   pushCallback: validators.url({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow(''),
   pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).allow(''),
   pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).allow(''),
-  pushEndpointExpired: isA.boolean().strict()
+  pushEndpointExpired: isA.boolean().strict(),
+  // An object mapping command names to metadata bundles.
+  availableCommands: isA.object().pattern(validators.DEVICE_COMMAND_NAME, isA.string().max(2048))
 }
 
 module.exports = (log, db, push) => {
