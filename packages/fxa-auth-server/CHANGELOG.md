@@ -1,3 +1,14 @@
+<a name="1.115.0"></a>
+# [1.115.0](https://github.com/mozilla/fxa-auth-server/compare/v1.114.2...v1.115.0) (2018-06-27)
+
+
+### Features
+
+* **devices:** Introduce infrastructure for "device commands". (#2449); r=philbooth,eoger ([f359006](https://github.com/mozilla/fxa-auth-server/commit/f359006)), closes [#2449](https://github.com/mozilla/fxa-auth-server/issues/2449)
+* **recovery:** account recovery apis (#2463), r=@rfk ([ba27d41](https://github.com/mozilla/fxa-auth-server/commit/ba27d41)), closes [#2463](https://github.com/mozilla/fxa-auth-server/issues/2463)
+
+
+
 <a name="1.114.3"></a>
 ## [1.114.3](https://github.com/mozilla/fxa-auth-server/compare/v1.114.2...v1.114.3) (2018-06-21)
 
