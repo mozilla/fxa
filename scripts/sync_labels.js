@@ -44,8 +44,6 @@ var STANDARD_LABELS = {
   'resolved:duplicate': { color: COLORS.RESOLUTION },
   'resolved:worksforme': { color: COLORS.RESOLUTION },
   // For calling out really important stuff.
-  '❤': { color: COLORS.ALERT },
-  '❤❤❤': { color: COLORS.ALERT },
   'blocker': { color: COLORS.ALERT },
   'shipit': { color: COLORS.WARNING },
   'help wanted': { color: COLORS.WELCOMING },
