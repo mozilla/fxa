@@ -63,7 +63,7 @@ impl TestFixture {
     pub fn setup(test: &str) -> TestFixture {
         let settings = Settings::new().expect("config error");
         let unhashed_key = format!("fxa-email-service.test.message-data.{}.{}", test, now());
-        let mut hmac = Hmac::<Sha256>::new_varkey(settings.message_id_hmac_key.as_bytes()).unwrap();
+        let mut hmac = Hmac::<Sha256>::new_varkey(settings.hmackey.as_bytes()).unwrap();
         hmac.input(unhashed_key.as_bytes());
         let internal_key = format!("msg:{:x}", hmac.result().code());
         TestFixture {

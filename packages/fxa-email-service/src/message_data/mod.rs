@@ -28,7 +28,7 @@ impl MessageData {
             client: RedisClient::open(
                 format!("redis://{}:{}/", settings.redis.host, settings.redis.port).as_str(),
             ).expect("redis connection error"),
-            hmac_key: settings.message_id_hmac_key.clone(),
+            hmac_key: settings.hmackey.clone(),
         }
     }
 

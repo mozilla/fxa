@@ -19,7 +19,7 @@
       { "period": "5 minutes", "limit": 0 }
     ]
   },
-  "message_id_hmac_key": "YOU MUST CHANGE ME",
+  "hmackey": "YOU MUST CHANGE ME",
   "logging": "mozlog",
   "provider": "ses",
   "redis": {

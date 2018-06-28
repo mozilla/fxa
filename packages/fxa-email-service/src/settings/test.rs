@@ -65,6 +65,7 @@ fn env_vars_take_precedence() {
         "FXA_EMAIL_AWS_SQSURLS_DELIVERY",
         "FXA_EMAIL_AWS_SQSURLS_NOTIFICATION",
         "FXA_EMAIL_BOUNCELIMITS_ENABLED",
+        "FXA_EMAIL_MESSAGEDATA_HMACKEY",
         "FXA_EMAIL_PROVIDER",
         "FXA_EMAIL_REDIS_HOST",
         "FXA_EMAIL_REDIS_PORT",
@@ -114,6 +115,7 @@ fn env_vars_take_precedence() {
                 }
             };
             let bounce_limits_enabled = !settings.bouncelimits.enabled;
+            let hmac_key = String::from("something else");
             let provider = if settings.provider == "ses" {
                 "sendgrid"
             } else {
@@ -142,6 +144,7 @@ fn env_vars_take_precedence() {
                 "FXA_EMAIL_BOUNCELIMITS_ENABLED",
                 &bounce_limits_enabled.to_string(),
             );
+            env::set_var("FXA_EMAIL_HMACKEY", &hmac_key.to_string());
             env::set_var("FXA_EMAIL_PROVIDER", &provider);
             env::set_var("FXA_EMAIL_REDIS_HOST", &redis_host);
             env::set_var("FXA_EMAIL_REDIS_PORT", &redis_port.to_string());
@@ -154,6 +157,7 @@ fn env_vars_take_precedence() {
                     assert_eq!(env_settings.authdb.baseuri, auth_db_base_uri);
                     assert_eq!(env_settings.aws.region, aws_region);
                     assert_eq!(env_settings.bouncelimits.enabled, bounce_limits_enabled);
+                    assert_eq!(env_settings.hmackey, hmac_key);
                     assert_eq!(env_settings.provider, provider);
                     assert_eq!(env_settings.redis.host, redis_host);
                     assert_eq!(env_settings.redis.port, redis_port);

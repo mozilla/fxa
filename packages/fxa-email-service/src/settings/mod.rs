@@ -93,7 +93,7 @@ pub struct Settings {
     pub authdb: AuthDb,
     pub aws: Aws,
     pub bouncelimits: BounceLimits,
-    pub message_id_hmac_key: String,
+    pub hmackey: String,
     pub logging: String,
     #[serde(deserialize_with = "deserialize::provider")]
     pub provider: String,
@@ -130,14 +130,17 @@ impl Settings {
         }
 
         config.merge(File::with_name("config/local").required(false))?;
-        config.merge(Environment::with_prefix("fxa_email"))?;
+        let mut env = Environment::with_prefix("fxa_email");
+        // Event though "_" is the default separator for config-rs right now,
+        // that is going to change for the next versions.
+        // https://github.com/mehcode/config-rs/commit/536f52fed4a22ed158681edce08211845abff985
+        env.separator("_".to_string());
+        config.merge(env)?;
 
         match config.try_into::<Settings>() {
             Ok(settings) => {
                 if let Ok(rocket_env) = env::var("ROCKET_ENV") {
-                    if rocket_env == "production"
-                        && &settings.message_id_hmac_key == "YOU MUST CHANGE ME"
-                    {
+                    if rocket_env == "production" && &settings.hmackey == "YOU MUST CHANGE ME" {
                         panic!("Please set a valid HMAC key.")
                     }
                 }
