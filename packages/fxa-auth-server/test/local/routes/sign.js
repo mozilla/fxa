@@ -12,11 +12,12 @@ const uuid = require('uuid')
 const getRoute = require('../../routes_helpers').getRoute
 const mocks = require('../../mocks')
 const P = require(`${ROOT_DIR}/lib/promise`)
+const error = require(`${ROOT_DIR}/lib/error`)
 
 describe('/certificate/sign', () => {
   let db, deviceId, mockDevices, mockLog, sessionToken, mockRequest
 
-  before(() => {
+  beforeEach(() => {
     db = mocks.mockDB()
     deviceId = crypto.randomBytes(16).toString('hex')
     mockDevices = mocks.mockDevices({
@@ -111,10 +112,6 @@ describe('/certificate/sign', () => {
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:55.0) Gecko/20100101 Firefox/55.0'
       }, 'argument was event data')
     })
-    .finally(function () {
-      mockLog.activityEvent.reset()
-      mockDevices.upsert.reset()
-    })
   })
 
   it('with service=sync', () => {
@@ -126,10 +123,6 @@ describe('/certificate/sign', () => {
     }, mockRequest, function () {
       assert.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once')
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
-    })
-    .finally(function () {
-      mockLog.activityEvent.reset()
-      mockDevices.upsert.reset()
     })
   })
 
@@ -143,10 +136,6 @@ describe('/certificate/sign', () => {
       assert.equal(mockDevices.upsert.callCount, 0, 'devices.upsert was not called')
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
       assert.equal(mockLog.activityEvent.args[0][0].device_id, undefined, 'device_id was undefined')
-    })
-    .finally(function () {
-      mockLog.activityEvent.reset()
-      mockDevices.upsert.reset()
     })
   })
 
@@ -162,13 +151,27 @@ describe('/certificate/sign', () => {
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
       assert.equal(mockLog.activityEvent.args[0][0].device_id, mockRequest.auth.credentials.deviceId.toString('hex'), 'device_id was correct')
     })
-    .finally(function () {
-      mockLog.activityEvent.reset()
-      mockDevices.upsert.reset()
+  })
+
+  it('with concurrent registration of a device record', () => {
+    mockRequest.query.service = 'sync'
+    const conflictingDeviceId = crypto.randomBytes(16).toString('hex')
+    mockDevices = mocks.mockDevices({}, {
+      upsert: error.deviceSessionConflict(conflictingDeviceId)
+    })
+
+    return runTest({
+      devices: mockDevices,
+      log: mockLog
+    }, mockRequest, () => {
+      assert.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once')
+      assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+      assert.equal(mockLog.activityEvent.args[0][0].device_id, conflictingDeviceId, 'device_id was correct')
     })
   })
 
   it('with session that requires verification', () => {
+    mockRequest.query.service = 'foo'
     mockRequest.auth.credentials.mustVerify = true
     mockRequest.auth.credentials.tokenVerified = false
 
@@ -182,6 +185,7 @@ describe('/certificate/sign', () => {
   })
 
   it('with unverified session that does not require verification', () => {
+    mockRequest.query.service = 'foo'
     mockRequest.auth.credentials.mustVerify = false
     mockRequest.auth.credentials.tokenVerified = false
 

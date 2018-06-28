@@ -419,11 +419,15 @@ function mockPushbox (methods) {
   return pushbox
 }
 
-function mockDevices (data) {
+function mockDevices (data, errors) {
   data = data || {}
+  errors = errors || {}
 
   return {
     upsert: sinon.spy(() => {
+      if (errors.upsert) {
+        return P.reject(errors.upsert)
+      }
       return P.resolve({
         id: data.deviceId || crypto.randomBytes(16).toString('hex'),
         name: data.deviceName || 'mock device name',

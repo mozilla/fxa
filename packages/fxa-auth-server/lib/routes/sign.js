@@ -97,11 +97,17 @@ module.exports = (log, signer, db, domain, devices) => {
                   uaOSVersion: sessionToken.uaOSVersion
                 }
                 return devices.upsert(request, sessionToken, deviceInfo)
-                  .then(
-                    function (result) {
-                      deviceId = result.id
+                  .then(result => {
+                    deviceId = result.id
+                  })
+                  .catch(err => {
+                    // There's a small chance that a device registration was performed
+                    // concurrently.  If so, just use that device id.
+                    if (err.errno !== error.ERRNO.DEVICE_CONFLICT) {
+                      throw err
                     }
-                  )
+                    deviceId = err.output.payload.deviceId
+                  })
               }
             }
           )

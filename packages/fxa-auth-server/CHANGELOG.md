@@ -1,3 +1,13 @@
+<a name="1.115.1"></a>
+## [1.115.1](https://github.com/mozilla/fxa-auth-server/compare/v1.115.0...v1.115.1) (2018-06-28)
+
+
+### Bug Fixes
+
+* **devices:** Fix race between real and placeholder device registration. (#2492); r=philbooth ([4c0bab6](https://github.com/mozilla/fxa-auth-server/commit/4c0bab6)), closes [#2492](https://github.com/mozilla/fxa-auth-server/issues/2492)
+
+
+
 <a name="1.115.0"></a>
 # [1.115.0](https://github.com/mozilla/fxa-auth-server/compare/v1.114.2...v1.115.0) (2018-06-27)
 
