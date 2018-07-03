@@ -1,3 +1,3 @@
 #!/bin/sh
 
-cargo run --bin service
+cargo run --bin fxa-email-service

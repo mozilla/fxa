@@ -194,7 +194,7 @@ Once you have config set,
 you can start the service with:
 
 ```
-cargo r --bin service
+cargo r --bin fxa-email-service
 ```
 
 Then you can use `curl`
@@ -228,7 +228,7 @@ or in `config/local.json`:
 Then start the service:
 
 ```
-cargo r --bin service
+cargo r --bin fxa-email-service
 ```
 
 Then set `provider` to `sendgrid` in your request payload:
@@ -308,5 +308,5 @@ to the main email-sending service.
 You can run it locally like so:
 
 ```
-cargo r --bin queues
+cargo r --bin fxa-email-queues
 ```
