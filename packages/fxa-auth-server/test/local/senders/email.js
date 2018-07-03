@@ -806,5 +806,88 @@ describe(
         })
       })
     })
+
+    describe(
+      'sends request to the right mailer',
+      () => {
+        before(() => {
+          sinon.stub(
+            mailer.mailer,
+            'sendMail',
+            function (config, cb) {
+              cb(null, { resp: 'whatevs' })
+            }
+          )
+          sinon.stub(
+            mailer.emailService,
+            'sendMail',
+            function (config, cb) {
+              cb(null, { resp: 'whatevs' })
+            }
+          )
+        })
+
+        beforeEach(() => {
+          mailer.mailer.sendMail.reset()
+          mailer.emailService.sendMail.reset()
+        })
+
+        after(() => {
+          mailer.mailer.sendMail.restore()
+          mailer.emailService.sendMail.restore()
+        })
+
+        it(
+          'sends request to fxa-email-server when the email pattern is right',
+          function() {
+            const message = {
+              email: 'emailservice.foo@restmail.net',
+              subject: 'subject',
+              template: 'verifyLoginEmail',
+              uid: 'foo'
+            }
+
+            return mailer.send(message)
+              .then(
+                response => {
+                  assert(mailer.emailService.sendMail.called)
+                  assert(! mailer.mailer.sendMail.called)
+                  assert.equal(mailer.emailService.sendMail.args[0][0].to, 'emailservice.foo@restmail.net')
+                  assert.equal(mailer.emailService.sendMail.args[0][0].subject, 'subject')
+                  assert.equal(mailer.emailService.sendMail.args[0][0].headers['X-Template-Name'], 'verifyLoginEmail')
+                  assert.equal(mailer.emailService.sendMail.args[0][0].headers['X-Uid'], 'foo')
+                  assert.equal(typeof mailer.emailService.sendMail.args[0][1], 'function')
+                }
+              )
+          }
+        )
+
+        it(
+          'doesn\'t send request to fxa-email-service when the email pattern is not right',
+          function() {
+            const message = {
+              email: 'foo@restmail.net',
+              subject: 'subject',
+              template: 'verifyLoginEmail',
+              uid: 'foo'
+            }
+
+            return mailer.send(message)
+              .then(
+                response => {
+                  assert(! mailer.emailService.sendMail.called)
+                  assert( mailer.mailer.sendMail.called)
+                  assert.equal(mailer.mailer.sendMail.args[0][0].to, 'foo@restmail.net')
+                  assert.equal(mailer.mailer.sendMail.args[0][0].subject, 'subject')
+                  assert.equal(mailer.mailer.sendMail.args[0][0].headers['X-Template-Name'], 'verifyLoginEmail')
+                  assert.equal(mailer.mailer.sendMail.args[0][0].headers['X-Uid'], 'foo')
+                  assert.equal(typeof mailer.mailer.sendMail.args[0][1], 'function')
+                }
+              )
+          }
+        )
+
+      }
+    )
   }
 )

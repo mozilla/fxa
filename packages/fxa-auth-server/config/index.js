@@ -166,6 +166,26 @@ var conf = convict({
       env: 'CONTENT_SERVER_URL'
     }
   },
+  emailService: {
+    host: {
+      doc: 'host for fxa-email-service',
+      format: 'ipaddress',
+      default: '127.0.0.1',
+      env: 'EMAIL_SERVICE_HOST'
+    },
+    port: {
+      doc: 'port for fxa-email-service',
+      format: 'port',
+      default: 8001,
+      env: 'EMAIL_SERVICE_PORT'
+    },
+    forcedEmailAddresses: {
+      doc: 'force usage of fxa-email-service when sending emails to addresses that match this pattern',
+      format: RegExp,
+      default: /emailservice.[A-Za-z0-9._%+-]+@restmail.net$/,
+      env: 'EMAIL_SERVICE_FORCE_EMAIL_REGEX'
+    },
+  },
   smtp: {
     api: {
       host: {

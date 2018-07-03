@@ -113,43 +113,44 @@ module.exports = function (log, config) {
     return 'messageType=fxa-' + templateName + ', app=fxa'
   }
 
-  function Mailer(translator, templates, config, sender) {
+  function Mailer(translator, templates, mailerConfig, sender) {
     var options = {
-      host: config.host,
-      secure: config.secure,
-      ignoreTLS: ! config.secure,
-      port: config.port
+      host: mailerConfig.host,
+      secure: mailerConfig.secure,
+      ignoreTLS: ! mailerConfig.secure,
+      port: mailerConfig.port
     }
 
-    if (config.user && config.password) {
+    if (mailerConfig.user && mailerConfig.password) {
       options.auth = {
-        user: config.user,
-        pass: config.password
+        user: mailerConfig.user,
+        pass: mailerConfig.password
       }
     }
 
-    this.accountSettingsUrl = config.accountSettingsUrl
-    this.accountRecoveryCodesUrl = config.accountRecoveryCodesUrl
-    this.androidUrl = config.androidUrl
-    this.initiatePasswordChangeUrl = config.initiatePasswordChangeUrl
-    this.initiatePasswordResetUrl = config.initiatePasswordResetUrl
-    this.iosUrl = config.iosUrl
-    this.iosAdjustUrl = config.iosAdjustUrl
+    this.accountSettingsUrl = mailerConfig.accountSettingsUrl
+    this.accountRecoveryCodesUrl = mailerConfig.accountRecoveryCodesUrl
+    this.androidUrl = mailerConfig.androidUrl
+    this.initiatePasswordChangeUrl = mailerConfig.initiatePasswordChangeUrl
+    this.initiatePasswordResetUrl = mailerConfig.initiatePasswordResetUrl
+    this.iosUrl = mailerConfig.iosUrl
+    this.iosAdjustUrl = mailerConfig.iosAdjustUrl
     this.mailer = sender || nodemailer.createTransport(options)
-    this.passwordManagerInfoUrl = config.passwordManagerInfoUrl
-    this.passwordResetUrl = config.passwordResetUrl
-    this.privacyUrl = config.privacyUrl
-    this.reportSignInUrl = config.reportSignInUrl
-    this.sender = config.sender
-    this.sesConfigurationSet = config.sesConfigurationSet
-    this.supportUrl = config.supportUrl
-    this.syncUrl = config.syncUrl
+    this.emailService = require('./email_service')(config)
+    this.passwordManagerInfoUrl = mailerConfig.passwordManagerInfoUrl
+    this.passwordResetUrl = mailerConfig.passwordResetUrl
+    this.privacyUrl = mailerConfig.privacyUrl
+    this.reportSignInUrl = mailerConfig.reportSignInUrl
+    this.sender = mailerConfig.sender
+    this.sesmailerConfigurationSet = mailerConfig.sesmailerConfigurationSet
+    this.supportUrl = mailerConfig.supportUrl
+    this.syncUrl = mailerConfig.syncUrl
     this.templates = templates
     this.translator = translator.getTranslator
-    this.verificationUrl = config.verificationUrl
-    this.verifyLoginUrl = config.verifyLoginUrl
-    this.verifySecondaryEmailUrl = config.verifySecondaryEmailUrl
-    this.verifyPrimaryEmailUrl = config.verifyPrimaryEmailUrl
+    this.verificationUrl = mailerConfig.verificationUrl
+    this.verifyLoginUrl = mailerConfig.verifyLoginUrl
+    this.verifySecondaryEmailUrl = mailerConfig.verifySecondaryEmailUrl
+    this.verifyPrimaryEmailUrl = mailerConfig.verifyPrimaryEmailUrl
   }
 
   Mailer.prototype.stop = function () {
@@ -242,7 +243,6 @@ module.exports = function (log, config) {
 
   Mailer.prototype.send = function (message) {
     log.trace({ op: 'mailer.' + message.template, email: message.email, uid: message.uid })
-
     const localized = this.localize(message)
 
     const template = message.template
@@ -298,8 +298,12 @@ module.exports = function (log, config) {
       headers: Object.keys(headers).join(',')
     })
 
+    let mailer = this.mailer
+    if (config.emailService.forcedEmailAddresses.test(emailConfig.to)) {
+      mailer = this.emailService
+    }
     var d = P.defer()
-    this.mailer.sendMail(
+    mailer.sendMail(
       emailConfig,
       function (err, status) {
         if (err) {
