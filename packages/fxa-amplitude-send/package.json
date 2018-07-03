@@ -4,7 +4,7 @@
   "dependencies": {
     "bluebird": "^3.5.1",
     "node-parquet": "^0.2.6",
-    "request": "^2.83.0",
+    "request": "^2.87.0",
     "request-promise": "^4.2.2",
     "s3": "^4.4.0"
   },
