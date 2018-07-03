@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
+//! Error definitions.
+
 use std::{fmt, result};
 
 use failure::{Backtrace, Context, Fail};
@@ -22,6 +24,14 @@ mod test;
 
 pub type AppResult<T> = result::Result<T, AppError>;
 
+/// The main error type
+/// returned by this service.
+///
+/// Error responses are serialised with a JSON body
+/// that honours the same format
+/// used by other FxA services:
+///
+/// `{ code, error, errno, message }`
 #[derive(Debug)]
 pub struct AppError {
     inner: Context<AppErrorKind>,

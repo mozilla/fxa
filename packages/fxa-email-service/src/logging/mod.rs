@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
+//! Mozlog-compatible logging.
+
 use std::{io, ops::Deref};
 
 use failure::{err_msg, Error};
@@ -65,9 +67,11 @@ impl Value for Settings {
     }
 }
 
+/// Mozlog-compatible logger type.
 pub struct MozlogLogger(slog::Logger);
 
 impl MozlogLogger {
+    /// Construct a logger.
     pub fn new(settings: &Settings) -> Result<MozlogLogger, Error> {
         let logger = match &*settings.logging {
             "mozlog" => {
@@ -92,6 +96,7 @@ impl MozlogLogger {
         Ok(MozlogLogger(logger?))
     }
 
+    /// Log a rocket request.
     pub fn with_request(request: &Request) -> Result<MozlogLogger, Error> {
         let logger = request
             .guard::<State<MozlogLogger>>()

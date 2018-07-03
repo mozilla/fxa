@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
+//! Bounce and complaint handling.
+
 use std::{collections::HashMap, time::SystemTime};
 
 use app_errors::{AppErrorKind, AppResult};
@@ -12,6 +14,14 @@ use settings::{BounceLimit, BounceLimits, Settings};
 #[cfg(test)]
 mod test;
 
+/// Bounce/complaint registry.
+///
+/// Currently just a nicer abstraction
+/// over the `emailBounces` table
+/// in `fxa-auth-db-mysql`,
+/// but longer-term we'll migrate
+/// to something specifically tailored
+/// for this service.
 #[derive(Debug)]
 pub struct Bounces<D: Db> {
     db: D,
@@ -22,6 +32,7 @@ impl<D> Bounces<D>
 where
     D: Db,
 {
+    /// Instantiate the registry.
     pub fn new(settings: &Settings, db: D) -> Bounces<D> {
         Bounces {
             db,
@@ -29,6 +40,15 @@ where
         }
     }
 
+    /// Check an email address
+    /// against bounce/complaint records
+    /// from the registry.
+    ///
+    /// If matching records are found,
+    /// they are checked against thresholds
+    /// defined in the [`BounceLimits` setting][limits].
+    ///
+    /// [limits]: ../settings/struct.BounceLimits.html
     pub fn check(&self, address: &str) -> AppResult<()> {
         let bounces = self.db.get_bounces(address)?;
         let now = SystemTime::now()
@@ -69,6 +89,8 @@ where
             .map(|_| ())
     }
 
+    /// Record a hard or soft bounce
+    /// against an email address.
     pub fn record_bounce(
         &self,
         address: &str,
@@ -80,6 +102,8 @@ where
         Ok(())
     }
 
+    /// Record a complaint
+    /// against an email address.
     pub fn record_complaint(
         &self,
         address: &str,

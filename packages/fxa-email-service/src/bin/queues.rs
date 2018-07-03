@@ -2,6 +2,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
+//! The queue-processing loop for fxa_email_service.
+//!
+//! Configuration is via [`settings::Settings`][settings].
+//!
+//! [settings]: ../fxa_email_service/settings/struct.Settings.html
+
 extern crate futures;
 extern crate fxa_email_service;
 #[macro_use]

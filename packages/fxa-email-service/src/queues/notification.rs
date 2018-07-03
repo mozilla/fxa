@@ -2,18 +2,27 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
+//! Generic queue notification types.
+
 use chrono::{DateTime, Utc};
 
 pub use super::sqs::notification::{
     BounceSubtype, BounceType, ComplaintFeedbackType, Header, HeaderValue, NotificationType,
 };
 
-// This "generic" notification type is actually just a subset of the SQS
-// notification type in src/queues/sqs/notification/mod.rs. That's mostly
-// so we can easily interface with existing auth server code that already
-// knows about the SQS message format. Longer-term we can do whatever we
-// want in here.
-
+/// The root notification type.
+///
+/// This "generic" type
+/// is really just a subset
+/// of the [SQS notification type][sqs].
+/// That's mostly so we can easily interface
+/// with existing auth server code
+/// that already knows about
+/// the SQS message format.
+/// Longer-term we can do whatever we want
+/// in here.
+///
+/// [sqs]: ../sqs/notification/struct.Notification.html
 #[derive(Debug, Default, Serialize)]
 pub struct Notification {
     #[serde(rename = "notificationType")]

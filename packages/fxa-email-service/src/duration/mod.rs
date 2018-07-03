@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
+//! Maps duration strings to millisecond values.
+
 use std::{
     convert::{From, TryFrom},
     error::Error,
@@ -28,6 +30,7 @@ lazy_static! {
         Regex::new("^(?:([0-9]+) )?(second|minute|hour|day|week|month|year)s?$").unwrap();
 }
 
+/// The error type returned by `Duration::try_from`.
 #[derive(Debug)]
 pub struct DurationError {
     pub value: String,
@@ -45,6 +48,14 @@ impl Display for DurationError {
     }
 }
 
+/// A duration type
+/// represented in milliseconds,
+/// for compatibility with
+/// the rest of the FxA ecosystem.
+///
+/// Can be deserialized from duration strings
+/// of the format `"{number} {period}"`,
+/// e.g. `"1 hour"` or `"10 minutes"`.
 #[derive(Debug, PartialEq)]
 pub struct Duration(u64);
 

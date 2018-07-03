@@ -1,3 +1,3 @@
 #!/bin/sh
 
-cargo run --bin fxa-email-queues
+cargo run --bin fxa_email_queues

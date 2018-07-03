@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
+//! Generic abstraction of specific email providers.
+
 use std::{boxed::Box, collections::HashMap};
 
 use self::{
@@ -14,6 +16,7 @@ mod mock;
 mod sendgrid;
 mod ses;
 
+/// Email headers.
 pub type Headers = HashMap<String, String>;
 
 trait Provider {
@@ -28,12 +31,14 @@ trait Provider {
     ) -> AppResult<String>;
 }
 
+/// Generic provider wrapper.
 pub struct Providers {
     default_provider: String,
     providers: HashMap<String, Box<Provider>>,
 }
 
 impl Providers {
+    /// Instantiate the provider clients.
     pub fn new(settings: &Settings) -> Providers {
         let mut providers: HashMap<String, Box<Provider>> = HashMap::new();
 
@@ -53,6 +58,7 @@ impl Providers {
         }
     }
 
+    /// Send an email via an underlying provider.
     pub fn send(
         &self,
         to: &str,

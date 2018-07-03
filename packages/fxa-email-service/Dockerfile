@@ -16,8 +16,8 @@ RUN \
     cargo build --release && \
     cp -R /app/config/* /app/bin/config && \
     cp /app/Rocket.toml /app/bin && \
-    cp /app/target/release/fxa-email-service /app/bin && \
-    cp /app/target/release/fxa-email-queues /app/bin
+    cp /app/target/release/fxa_email_send /app/bin && \
+    cp /app/target/release/fxa_email_queues /app/bin
 
 
 FROM debian:stretch-slim
@@ -38,4 +38,4 @@ USER app
 
 ENV ROCKET_ENV production
 
-CMD ["/app/bin/fxa-email-service"]
+CMD ["/app/bin/fxa_email_send"]

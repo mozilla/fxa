@@ -2,6 +2,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
+//! The main process for fxa-email-service.
+//! Starts a Rocket server
+//! that exposes one endpoint: `POST /send`
+//!
+//! Configuration is via [`settings::Settings`][settings].
+//! By default the server listens on `127.0.0.1:8001`.
+//!
+//! [settings]: ../fxa_email_service/settings/struct.Settings.html
+
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
 
@@ -46,7 +55,7 @@ fn main() {
             let log =
                 MozlogLogger::with_request(request).expect("MozlogLogger::with_request error");
             if response.status().code == 200 {
-                slog_info!(log, "{}", "Request finished succesfully."; 
+                slog_info!(log, "{}", "Request finished succesfully.";
                     "status_code" => response.status().code, "status_msg" => response.status().reason);
             }
         }))

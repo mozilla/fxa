@@ -1,1 +1,1 @@
-scripts/run_service.sh
+scripts/run_send.sh

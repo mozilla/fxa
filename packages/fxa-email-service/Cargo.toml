@@ -4,11 +4,11 @@ version = "1.115.0"
 publish = false
 
 [[bin]]
-name = "fxa-email-service"
+name = "fxa_email_send"
 path = "src/bin/service.rs"
 
 [[bin]]
-name = "fxa-email-queues"
+name = "fxa_email_queues"
 path = "src/bin/queues.rs"
 
 [dependencies]

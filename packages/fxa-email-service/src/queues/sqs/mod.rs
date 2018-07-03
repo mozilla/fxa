@@ -2,6 +2,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
+//! Concrete trait implementations
+//! for AWS SQS queues.
+
 use std::{
     boxed::Box,
     fmt::{self, Debug, Formatter},
@@ -26,6 +29,7 @@ use settings::Settings;
 
 pub mod notification;
 
+/// An AWS SQS queue type.
 pub struct Queue {
     client: Box<Sqs>,
     url: String,

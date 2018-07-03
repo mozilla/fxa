@@ -1,4 +1,4 @@
-# fxa-email-service
+# fxa_email_service
 
 [![Build status](https://img.shields.io/travis/mozilla/fxa-email-service.svg?style=flat-square)](https://travis-ci.org/mozilla/fxa-email-service)
 [![CircleCI](https://circleci.com/gh/mozilla/fxa-email-service/tree/master.svg?style=svg)](https://circleci.com/gh/mozilla/fxa-email-service/tree/master)
@@ -194,7 +194,7 @@ Once you have config set,
 you can start the service with:
 
 ```
-cargo r --bin fxa-email-service
+cargo r --bin fxa_email_send
 ```
 
 Then you can use `curl`
@@ -228,7 +228,7 @@ or in `config/local.json`:
 Then start the service:
 
 ```
-cargo r --bin fxa-email-service
+cargo r --bin fxa_email_send
 ```
 
 Then set `provider` to `sendgrid` in your request payload:
@@ -308,5 +308,5 @@ to the main email-sending service.
 You can run it locally like so:
 
 ```
-cargo r --bin fxa-email-queues
+cargo r --bin fxa_email_queues
 ```

@@ -2,6 +2,28 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
+//! These are the developer docs
+//! for the Firefox Accounts email-sending service.
+//! For higher-level documentation,
+//! see the [readme].
+//!
+//! The project is compiled as a library
+//! that is linked against by
+//! two separate binaries:
+//!
+//! * [`fxa_email_send`][send] runs a Rocket server
+//!   exposing an endpoint that enables callers
+//!   to send email.
+//!
+//! * [`fxa_email_queues`][queues] runs a process
+//!   that loops infinitely,
+//!   polling SQS queues for
+//!   SES bounce, complaint and delivery notifications.
+//!
+//! [readme]: https://github.com/mozilla/fxa-email-service/blob/master/README.md#fxa_email_service
+//! [send]: ../fxa_email_send/index.html
+//! [queues]: ../fxa_email_queues/index.html
+
 #![feature(assoc_unix_epoch)]
 #![feature(plugin)]
 #![feature(try_from)]

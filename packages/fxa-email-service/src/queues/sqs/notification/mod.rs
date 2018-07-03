@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
+//! SQS queue notification types.
+
 use std::fmt::{self, Display, Formatter};
 
 use chrono::{DateTime, Utc};
@@ -19,19 +21,22 @@ use auth_db::{BounceSubtype as AuthDbBounceSubtype, BounceType as AuthDbBounceTy
 #[cfg(test)]
 mod test;
 
-// This module is a direct encoding of the SES notification format documented
-// here:
-//
-//   https://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html
-//
-// It also receives synthesized events from our Sendgrid event proxy:
-//
-//   https://github.com/mozilla/fxa-sendgrid-event-proxy
-//
-// Because we don't have all of the data to fill out an entire Notification
-// struct with the data that Sendgrid provides, many of the fields which are
-// not optional in the spec are Option-wrapped anyway.
-
+/// The root SQS queue notification type.
+///
+/// This type is a direct encoding
+/// of the [SES notification format][format].
+///
+/// It also receives synthesized notifications
+/// from our [Sendgrid event proxy][proxy].
+/// Because we don't have all of the data
+/// necessary to fill out an entire `Notification`
+/// from the data that Sendgrid provides,
+/// many of the fields
+/// which are not optional in the spec
+/// are `Option`-wrapped anyway.
+///
+/// [format]: https://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html
+/// [proxy]: https://github.com/mozilla/fxa-sendgrid-event-proxy
 #[derive(Debug, Deserialize)]
 pub struct Notification {
     #[serde(rename = "notificationType")]

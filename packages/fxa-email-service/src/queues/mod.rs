@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
+//! Queue-processing abstractions.
+
 use std::{
     boxed::Box,
     error::Error,
@@ -24,6 +26,7 @@ pub mod sqs;
 #[cfg(test)]
 mod test;
 
+/// Top-level queue wrapper.
 #[derive(Debug)]
 pub struct Queues {
     bounce_queue: Box<Incoming>,
@@ -34,6 +37,7 @@ pub struct Queues {
     message_data: MessageData,
 }
 
+/// An incoming bounce/complaint queue.
 pub trait Incoming: Debug + Sync {
     fn receive(&'static self) -> ReceiveFuture;
     fn delete(&'static self, message: Message) -> DeleteFuture;
@@ -42,27 +46,34 @@ pub trait Incoming: Debug + Sync {
 type ReceiveFuture = Box<Future<Item = Vec<Message>, Error = QueueError>>;
 type DeleteFuture = Box<Future<Item = (), Error = QueueError>>;
 
+/// An outgoing notification queue.
 pub trait Outgoing: Debug + Sync {
     fn send(&'static self, body: &Notification) -> SendFuture;
 }
 
 type SendFuture = Box<Future<Item = String, Error = QueueError>>;
 
+/// A queue factory.
 pub trait Factory {
     fn new(id: String, settings: &Settings) -> Self;
 }
 
+/// Generic message type.
 #[derive(Debug, Default)]
 pub struct Message {
     pub id: String,
     pub notification: Notification,
 }
 
+/// The error type returned by queue methods.
 #[derive(Debug)]
 pub struct QueueError {
     description: String,
 }
 
+/// Queue "ids"
+/// (which is really just a generic name
+/// for SQS queue URLs).
 #[derive(Debug)]
 pub struct QueueIds {
     pub bounce: String,
@@ -72,6 +83,7 @@ pub struct QueueIds {
 }
 
 impl Queues {
+    /// Instantiate the queue clients.
     pub fn new<Q: 'static>(ids: QueueIds, settings: &Settings) -> Queues
     where
         Q: Incoming + Outgoing + Factory,
@@ -86,6 +98,7 @@ impl Queues {
         }
     }
 
+    /// Poll all queues and handle any notifications.
     pub fn process(&'static self) -> QueueFuture {
         let joined_futures = self
             .process_queue(&self.bounce_queue)

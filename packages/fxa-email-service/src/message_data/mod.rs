@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
+//! Temporary storage for message metadata.
+
 use std::{
     error::Error,
     fmt::{self, Display, Formatter},
@@ -16,6 +18,15 @@ use settings::Settings;
 #[cfg(test)]
 mod test;
 
+/// Message data store.
+///
+/// Currently uses Redis
+/// under the hood,
+/// although that may not
+/// always be the case.
+///
+/// Data is keyed by
+/// a hash of the message id.
 #[derive(Debug)]
 pub struct MessageData {
     client: RedisClient,
@@ -23,6 +34,7 @@ pub struct MessageData {
 }
 
 impl MessageData {
+    /// Instantiate a storage client.
     pub fn new(settings: &Settings) -> MessageData {
         MessageData {
             client: RedisClient::open(
@@ -32,6 +44,11 @@ impl MessageData {
         }
     }
 
+    /// Consume (read and delete) message metadata.
+    ///
+    /// This is a destructive operation.
+    /// Once consumed,
+    /// the data is permanently destroyed.
     pub fn consume(&self, message_id: &str) -> Result<String, MessageDataError> {
         let key = self.generate_key(message_id)?;
         let key_str = key.as_str();
@@ -44,6 +61,10 @@ impl MessageData {
             .map_err(From::from)
     }
 
+    /// Store message metadata.
+    ///
+    /// Any data previously stored for the message id
+    /// will be replaced.
     pub fn set(&self, message_id: &str, metadata: &str) -> Result<(), MessageDataError> {
         let key = self.generate_key(message_id)?;
         self.client.set(key.as_str(), metadata).map_err(From::from)
@@ -56,6 +77,7 @@ impl MessageData {
     }
 }
 
+/// The error type returned by `MessageData` methods.
 #[derive(Debug)]
 pub struct MessageDataError {
     description: String,

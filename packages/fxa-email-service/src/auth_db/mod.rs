@@ -2,6 +2,20 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
+//! Strongly-typed wrapper
+//! for a subset of [`fxa-auth-db-mysql`][authdb].
+//!
+//! Ultimately we will move away
+//! from the auth db
+//! so, to avoid unnecessary coupling,
+//! this module MUST NOT be used directly.
+//! Instead,
+//! all access should be via
+//! [`bounces::Bounces`][bounces].
+//!
+//! [authdb]: https://github.com/mozilla/fxa-auth-db-mysql/
+//! [bounces]: ../bounces/struct.Bounces.html
+
 use std::fmt::Debug;
 
 use hex;
