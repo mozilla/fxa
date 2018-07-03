@@ -17,6 +17,7 @@ dependencies:
         | tee config/version.json version.json
 
     - docker build -f Dockerfile-build -t fxa-customs-server:build .
+    - docker run --rm -it fxa-customs-server:build npm ls --production
     - docker build -f Dockerfile-test -t fxa-customs-server:test .
 
 test:
