@@ -108,6 +108,10 @@ in `config/local.json`:
 You can also set `host` in the same way,
 if your Redis instance is not running locally.
 
+You can find out more
+about the structure of the code
+from the [developer docs](https://mozilla.github.io/fxa-email-service/fxa_email_service/).
+
 ## How do I run the tests?
 
 A simple `cargo t` will fail

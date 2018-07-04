@@ -13,3 +13,5 @@ script:
   - cargo fmt -- --check
   - cargo b
   - ./tdb
+  - cargo doc --no-deps
+  - ./scripts/gh-pages.sh
