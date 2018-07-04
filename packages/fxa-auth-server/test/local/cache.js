@@ -43,7 +43,9 @@ describe('cache:', () => {
   it('exports the correct interface', () => {
     assert.ok(cache)
     assert.equal(typeof cache, 'object')
-    assert.equal(Object.keys(cache).length, 3)
+    assert.equal(Object.keys(cache).length, 4)
+    assert.equal(typeof cache.add, 'function')
+    assert.equal(cache.add.length, 2)
     assert.equal(typeof cache.del, 'function')
     assert.equal(cache.del.length, 1)
     assert.equal(typeof cache.get, 'function')
@@ -54,9 +56,30 @@ describe('cache:', () => {
 
   describe('memcached resolves:', () => {
     beforeEach(() => {
+      sandbox.stub(Memcached.prototype, 'addAsync', () => P.resolve())
       sandbox.stub(Memcached.prototype, 'delAsync', () => P.resolve())
       sandbox.stub(Memcached.prototype, 'getAsync', () => P.resolve('mock get result'))
       sandbox.stub(Memcached.prototype, 'setAsync', () => P.resolve())
+    })
+
+    describe('add:', () => {
+      beforeEach(() => {
+        return cache.add(digest, 'wibble')
+      })
+
+      it('calls memcached.addAsync correctly', () => {
+        assert.equal(Memcached.prototype.addAsync.callCount, 1)
+        const args = Memcached.prototype.addAsync.args[0]
+        assert.equal(args.length, 3)
+        assert.equal(args[0], digest)
+        assert.equal(args[1], 'wibble')
+        assert.equal(args[2], 30)
+
+        assert.equal(Memcached.prototype.delAsync.callCount, 0)
+        assert.equal(Memcached.prototype.getAsync.callCount, 0)
+        assert.equal(Memcached.prototype.setAsync.callCount, 0)
+        assert.equal(log.error.callCount, 0)
+      })
     })
 
     describe('del:', () => {
@@ -70,6 +93,7 @@ describe('cache:', () => {
         assert.equal(args.length, 1)
         assert.equal(args[0], digest)
 
+        assert.equal(Memcached.prototype.addAsync.callCount, 0)
         assert.equal(Memcached.prototype.getAsync.callCount, 0)
         assert.equal(Memcached.prototype.setAsync.callCount, 0)
         assert.equal(log.error.callCount, 0)
@@ -94,6 +118,7 @@ describe('cache:', () => {
         assert.equal(args.length, 1)
         assert.equal(args[0], digest)
 
+        assert.equal(Memcached.prototype.addAsync.callCount, 0)
         assert.equal(Memcached.prototype.delAsync.callCount, 0)
         assert.equal(Memcached.prototype.setAsync.callCount, 0)
         assert.equal(log.error.callCount, 0)
@@ -113,6 +138,7 @@ describe('cache:', () => {
         assert.equal(args[1], 'wibble')
         assert.equal(args[2], 30)
 
+        assert.equal(Memcached.prototype.addAsync.callCount, 0)
         assert.equal(Memcached.prototype.delAsync.callCount, 0)
         assert.equal(Memcached.prototype.getAsync.callCount, 0)
         assert.equal(log.error.callCount, 0)
@@ -122,9 +148,23 @@ describe('cache:', () => {
 
   describe('memcached rejects:', () => {
     beforeEach(() => {
-      sandbox.stub(Memcached.prototype, 'delAsync', () => P.reject('foo'))
-      sandbox.stub(Memcached.prototype, 'getAsync', () => P.reject('bar'))
-      sandbox.stub(Memcached.prototype, 'setAsync', () => P.reject('baz'))
+      sandbox.stub(Memcached.prototype, 'addAsync', () => P.reject('foo'))
+      sandbox.stub(Memcached.prototype, 'delAsync', () => P.reject('bar'))
+      sandbox.stub(Memcached.prototype, 'getAsync', () => P.reject('baz'))
+      sandbox.stub(Memcached.prototype, 'setAsync', () => P.reject('qux'))
+    })
+
+    describe('add:', () => {
+      let error
+
+      beforeEach(() => {
+        return cache.add(digest, 'wibble')
+          .catch(e => error = e)
+      })
+
+      it('propagates the error', () => {
+        assert.equal(error, 'foo')
+      })
     })
 
     describe('del:', () => {
@@ -136,7 +176,7 @@ describe('cache:', () => {
       })
 
       it('propagates the error', () => {
-        assert.equal(error, 'foo')
+        assert.equal(error, 'bar')
       })
     })
 
@@ -149,7 +189,7 @@ describe('cache:', () => {
       })
 
       it('propagates the error', () => {
-        assert.equal(error, 'bar')
+        assert.equal(error, 'baz')
       })
     })
 
@@ -162,7 +202,7 @@ describe('cache:', () => {
       })
 
       it('propagates the error', () => {
-        assert.equal(error, 'baz')
+        assert.equal(error, 'qux')
       })
     })
   })
@@ -185,12 +225,23 @@ describe('null cache:', () => {
       uid: Buffer.alloc(32, 'cd'),
       id: 'deadbeef'
     }
+    sandbox.stub(Memcached.prototype, 'addAsync', () => P.resolve())
     sandbox.stub(Memcached.prototype, 'delAsync', () => P.resolve())
     sandbox.stub(Memcached.prototype, 'getAsync', () => P.resolve())
     sandbox.stub(Memcached.prototype, 'setAsync', () => P.resolve())
   })
 
   afterEach(() => sandbox.restore())
+
+  describe('add:', () => {
+    beforeEach(() => {
+      return cache.add(token, {})
+    })
+
+    it('did not call memcached.addAsync', () => {
+      assert.equal(Memcached.prototype.addAsync.callCount, 0)
+    })
+  })
 
   describe('del:', () => {
     beforeEach(() => {
