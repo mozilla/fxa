@@ -130,6 +130,21 @@ function extractUrls(body) {
   });
 }
 
+const IGNORE_URL_REGEXPS = [
+  // Do not check support.mozilla.org URLs. Issue #4712
+  // In February 2017 SUMO links started returning 404s to non-browser redirect requests
+  /support\.mozilla\.org/,
+  // skip the livereload link in the mocha tests
+  /localhost:35729/,
+  // Ignore firefox-source-docs URLs, two URLs in the Firefox Privacy Policy are wrong.
+  // See #6330. Remove this section once https://github.com/mozilla/legal-docs/pull/1135 merges.
+  /firefox-source-docs\.mozilla\.org/
+];
+
+function isUrlIgnored (url) {
+  return IGNORE_URL_REGEXPS.find(domainRegExp => domainRegExp.test(url));
+}
+
 function checkUrls(origin, resources) {
   findCssSubResources(origin, resources)
     .then((cssSubResources) => {
@@ -151,10 +166,7 @@ function checkUrls(origin, resources) {
 
         var promise = makeRequest(resource.url, requestOptions)
           .then(function (res) {
-            if (/support.mozilla.org/.test(resource.url) || /localhost:35729/.test(resource.url)) {
-              // Do not check support.mozilla.org URLs. Issue #4712
-              // In February 2017 SUMO links started returning 404s to non-browser redirect requests
-              // Also skip the livereload link in the mocha tests
+            if (isUrlIgnored(resource.url)) {
               return;
             }
 
