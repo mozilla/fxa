@@ -193,7 +193,7 @@ const QUERY_PURGE_EXPIRED_TOKENS = 'DELETE FROM tokens WHERE clientId NOT IN (?)
 // Returns the most recent token used with a client name and client id.
 // Does not include clients that canGrant.
 const QUERY_ACTIVE_CLIENT_TOKENS_BY_UID =
-  'SELECT tokens.clientId, tokens.createdAt, tokens.scope, clients.name ' +
+  'SELECT tokens.clientId AS id, tokens.createdAt, tokens.scope, clients.name ' +
   'FROM tokens LEFT OUTER JOIN clients ON clients.id = tokens.clientId ' +
   'WHERE tokens.userId=? AND tokens.expiresAt > NOW() AND clients.canGrant = 0;';
 const DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID =
