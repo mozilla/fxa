@@ -12,7 +12,7 @@ const localizeTimestamp = require('fxa-shared').l10n.localizeTimestamp({
 });
 
 function serialize(client, acceptLanguage) {
-  var lastAccessTime = client.createdAt.getTime();
+  var lastAccessTime = client.lastAccessTime.getTime();
   var lastAccessTimeFormatted = localizeTimestamp.format(lastAccessTime, acceptLanguage);
 
   return {
@@ -30,7 +30,7 @@ module.exports = {
     scope: [SCOPE_CLIENT_WRITE]
   },
   handler: function activeServices(req, reply) {
-    return db.getActiveClientTokensByUid(req.auth.credentials.user)
+    return db.getActiveClientsByUid(req.auth.credentials.user)
       .done(function(clients) {
         reply(clients.map(function(client) {
           return serialize(client, req.headers['accept-language']);

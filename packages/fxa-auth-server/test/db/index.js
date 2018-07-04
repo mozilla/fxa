@@ -589,11 +589,11 @@ describe('db', function() {
 
   describe('client-tokens', function () {
 
-    describe('getActiveClientTokensByUid', function() {
+    describe('getActiveClientsByUid', function() {
       var userId = buf(randomString(16));
 
       it('should return the active clients', function() {
-        return db.getActiveClientTokensByUid(userId)
+        return db.getActiveClientsByUid(userId)
           .then(
             function(result) {
               assert.equal(result.length, 0);
