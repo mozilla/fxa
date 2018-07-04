@@ -215,6 +215,10 @@ define(function (require, exports, module) {
       errno: 202,
       message: t('Feature not enabled')
     },
+    BACKEND_SERVICE_FAILURE: {
+      errno: 203,
+      message: t('System unavailable, try again soon')
+    },
     ENDPOINT_NOT_SUPPORTED: {
       errno: 116,
       message: t('This endpoint is no longer supported')
