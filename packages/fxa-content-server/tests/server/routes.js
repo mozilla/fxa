@@ -141,7 +141,8 @@ Object.keys(redirectedRoutes).forEach(redirectTest);
 registerSuite('front end routes', suite.tests);
 
 function routeTest(route, expectedStatusCode, requestOptions) {
-  suite.tests['#https get ' + httpsUrl + route] = function () {
+  const testName = `#https get ${httpsUrl}${route}`;
+  suite.tests[testName] = function () {
     var dfd = this.async(intern._config.asyncTimeout);
 
     makeRequest(httpsUrl + route, requestOptions)
@@ -149,9 +150,8 @@ function routeTest(route, expectedStatusCode, requestOptions) {
         assert.equal(res.statusCode, expectedStatusCode);
         checkHeaders(routes, route, res);
 
-        return res;
+        return extractAndCheckUrls(res, testName);
       })
-      .then(extractAndCheckUrls)
       .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 
     return dfd;

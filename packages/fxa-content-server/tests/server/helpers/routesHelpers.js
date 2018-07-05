@@ -68,11 +68,11 @@ function checkHeaders(routes, route, res) {
  * each URL exists, responds with a 200, and in the case of JS, CSS
  * and fonts, that the correct CORS headers are set.
  */
-function extractAndCheckUrls(res) {
+function extractAndCheckUrls(res, testName) {
   var href = url.parse(res.url);
   var origin = [ href.protocol, '//', href.host ].join('');
   return extractUrls(res.body)
-    .then(checkUrls.bind(null, origin));
+    .then((resources) => checkUrls(origin, resources, testName));
 }
 
 function extractUrls(body) {
@@ -145,7 +145,7 @@ function isUrlIgnored (url) {
   return IGNORE_URL_REGEXPS.find(domainRegExp => domainRegExp.test(url));
 }
 
-function checkUrls(origin, resources) {
+function checkUrls(origin, resources, testName = '') {
   findCssSubResources(origin, resources)
     .then((cssSubResources) => {
       resources = resources.concat(cssSubResources);
@@ -170,7 +170,7 @@ function checkUrls(origin, resources) {
               return;
             }
 
-            assert.equal(res.statusCode, 200);
+            assert.equal(res.statusCode, 200, `${testName}: ${resource.url}`);
 
             // If prod-like, Check all CSS and JS (except experiments.bundle.js)
             // for SRI `integrity=` attribute on the link, and that the checksum
