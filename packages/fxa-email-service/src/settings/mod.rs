@@ -13,8 +13,8 @@ use config::{Config, ConfigError, Environment, File};
 use serde::de::{Deserialize, Deserializer, Error, Unexpected};
 
 use duration::Duration;
+use email_address::EmailAddress;
 use logging::MozlogLogger;
-use send::EmailAddress;
 use serialize;
 use validate;
 

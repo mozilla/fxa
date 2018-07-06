@@ -11,11 +11,11 @@ use rocket::{
     Data, Outcome, Request, State,
 };
 use rocket_contrib::{Json, Value};
-use serde::de::{Deserialize, Deserializer, Error, Unexpected};
 
 use app_errors::{AppError, AppErrorKind, AppResult};
 use auth_db::DbClient;
 use bounces::Bounces;
+use email_address::EmailAddress;
 use message_data::MessageData;
 use providers::{Headers, Providers};
 use validate;
@@ -27,26 +27,6 @@ mod test;
 struct Body {
     text: String,
     html: Option<String>,
-}
-
-#[derive(Clone, Debug, Default, Serialize, PartialEq)]
-pub struct EmailAddress(pub String);
-
-impl<'d> Deserialize<'d> for EmailAddress {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'d>,
-    {
-        let value: String = Deserialize::deserialize(deserializer)?;
-        if validate::email_address(&value) {
-            Ok(EmailAddress(value.to_lowercase()))
-        } else {
-            Err(D::Error::invalid_value(
-                Unexpected::Str(&value),
-                &"email address",
-            ))
-        }
-    }
 }
 
 #[derive(Debug, Deserialize)]
