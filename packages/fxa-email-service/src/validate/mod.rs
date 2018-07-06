@@ -29,6 +29,7 @@ lazy_static! {
         "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]{1,64}@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)+$"
     ).unwrap();
     static ref HOST_FORMAT: Regex = Regex::new("^[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*$").unwrap();
+    static ref LOGGING_FORMAT: Regex = Regex::new("^(?:mozlog|pretty|null)$").unwrap();
     static ref PROVIDER_FORMAT: Regex = Regex::new("^(?:mock|sendgrid|ses)$").unwrap();
     static ref SENDER_NAME_FORMAT: Regex =
         Regex::new("^[A-Za-z0-9-]+(?: [A-Za-z0-9-]+)*$").unwrap();
@@ -65,6 +66,11 @@ pub fn email_address(value: &str) -> bool {
 /// Validate a host name or IP address.
 pub fn host(value: &str) -> bool {
     HOST_FORMAT.is_match(value)
+}
+
+/// Validate logging level.
+pub fn logging(value: &str) -> bool {
+    LOGGING_FORMAT.is_match(value)
 }
 
 /// Validate an email provider.

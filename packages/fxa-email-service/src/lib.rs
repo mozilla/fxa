@@ -72,7 +72,6 @@ extern crate slog_term;
 pub mod app_errors;
 pub mod auth_db;
 pub mod bounces;
-pub mod deserialize;
 pub mod duration;
 pub mod logging;
 pub mod message_data;

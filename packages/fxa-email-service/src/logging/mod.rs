@@ -73,7 +73,7 @@ pub struct MozlogLogger(slog::Logger);
 impl MozlogLogger {
     /// Construct a logger.
     pub fn new(settings: &Settings) -> Result<MozlogLogger, Error> {
-        let logger = match &*settings.logging {
+        let logger = match &*settings.logging.0.as_ref() {
             "mozlog" => {
                 let drain = MozLogJson::new(io::stdout())
                     .logger_name(LOGGER_NAME.to_owned())

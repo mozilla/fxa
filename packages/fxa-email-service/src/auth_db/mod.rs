@@ -185,7 +185,7 @@ struct DbUrls {
 
 impl DbUrls {
     pub fn new(settings: &Settings) -> DbUrls {
-        let base_uri: Url = settings.authdb.baseuri.parse().expect("invalid base URI");
+        let base_uri: Url = settings.authdb.baseuri.0.parse().expect("invalid base URI");
         DbUrls {
             get_bounces: base_uri.join("emailBounces/").expect("invalid base URI"),
             create_bounce: base_uri.join("emailBounces").expect("invalid base URI"),

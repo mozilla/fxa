@@ -53,7 +53,7 @@ impl Providers {
         }
 
         Providers {
-            default_provider: settings.provider.clone(),
+            default_provider: settings.provider.0.clone(),
             providers,
         }
     }

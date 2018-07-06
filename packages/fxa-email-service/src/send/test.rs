@@ -7,7 +7,9 @@ use rocket::{
     http::{ContentType, Status},
     local::Client,
 };
+use serde_test::{assert_de_tokens, Token};
 
+use super::EmailAddress;
 use app_errors::{self, AppError, AppErrorKind};
 use auth_db::DbClient;
 use bounces::Bounces;
@@ -39,6 +41,46 @@ fn setup() -> Client {
         ]);
 
     Client::new(server).unwrap()
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
+struct TestEmailStruct {
+    email: EmailAddress,
+}
+
+#[test]
+fn always_lowercase_email() {
+    let lowercase = TestEmailStruct {
+        email: EmailAddress(String::from("foo@example.com")),
+    };
+    assert_de_tokens(
+        &lowercase,
+        &[
+            Token::Struct {
+                name: "TestEmailStruct",
+                len: 1,
+            },
+            Token::Str("email"),
+            Token::Str("foo@example.com"),
+            Token::StructEnd,
+        ],
+    );
+
+    let uppercase = TestEmailStruct {
+        email: EmailAddress(String::from("foo@example.com")),
+    };
+    assert_de_tokens(
+        &uppercase,
+        &[
+            Token::Struct {
+                name: "TestEmailStruct",
+                len: 1,
+            },
+            Token::Str("email"),
+            Token::Str("FOO@EXAMPLE.COM"),
+            Token::StructEnd,
+        ],
+    );
 }
 
 #[test]

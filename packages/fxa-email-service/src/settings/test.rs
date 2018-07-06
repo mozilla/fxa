@@ -79,51 +79,53 @@ fn env_vars_take_precedence() {
             let auth_db_base_uri = format!("{}foo/", &settings.authdb.baseuri);
             let aws_keys = if let Some(ref keys) = settings.aws.keys {
                 AwsKeys {
-                    access: format!("{}A", keys.access),
-                    secret: format!("{}s", keys.secret),
+                    access: AwsAccess(format!("{}A", keys.access)),
+                    secret: AwsSecret(format!("{}s", keys.secret)),
                 }
             } else {
                 AwsKeys {
-                    access: String::from("A"),
-                    secret: String::from("s"),
+                    access: AwsAccess(String::from("A")),
+                    secret: AwsSecret(String::from("s")),
                 }
             };
-            let aws_region = if settings.aws.region == "us-east-1" {
+            let aws_region = if settings.aws.region.0 == "us-east-1" {
                 "eu-west-1"
             } else {
                 "us-east-1"
             };
             let aws_sqs_urls = if let Some(ref urls) = settings.aws.sqsurls {
                 SqsUrls {
-                    bounce: format!("{}B", urls.bounce),
-                    complaint: format!("{}C", urls.complaint),
-                    delivery: format!("{}D", urls.delivery),
-                    notification: format!("{}N", urls.notification),
+                    bounce: SqsUrl(format!("{}B", urls.bounce)),
+                    complaint: SqsUrl(format!("{}C", urls.complaint)),
+                    delivery: SqsUrl(format!("{}D", urls.delivery)),
+                    notification: SqsUrl(format!("{}N", urls.notification)),
                 }
             } else {
                 SqsUrls {
-                    bounce: String::from("https://sqs.us-east-1.amazonaws.com/123456789012/Bounce"),
-                    complaint: String::from(
+                    bounce: SqsUrl(String::from(
+                        "https://sqs.us-east-1.amazonaws.com/123456789012/Bounce",
+                    )),
+                    complaint: SqsUrl(String::from(
                         "https://sqs.us-east-1.amazonaws.com/123456789012/Complaint",
-                    ),
-                    delivery: String::from(
+                    )),
+                    delivery: SqsUrl(String::from(
                         "https://sqs.us-east-1.amazonaws.com/123456789012/Delivery",
-                    ),
-                    notification: String::from(
+                    )),
+                    notification: SqsUrl(String::from(
                         "https://sqs.us-east-1.amazonaws.com/123456789012/Notification",
-                    ),
+                    )),
                 }
             };
             let bounce_limits_enabled = !settings.bouncelimits.enabled;
             let hmac_key = String::from("something else");
-            let provider = if settings.provider == "ses" {
+            let provider = if settings.provider == Provider("ses".to_string()) {
                 "sendgrid"
             } else {
                 "ses"
             };
             let redis_host = format!("{}1", &settings.redis.host);
             let redis_port = settings.redis.port + 1;
-            let sender_address = format!("1{}", &settings.sender.address);
+            let sender_address = format!("1{}", &settings.sender.address.0);
             let sender_name = format!("{}1", &settings.sender.name);
             let sendgrid_api_key = String::from(
                 "000000000000000000000000000000000000000000000000000000000000000000000",
@@ -131,14 +133,14 @@ fn env_vars_take_precedence() {
 
             env::set_var("FXA_EMAIL_AUTHDB_BASEURI", &auth_db_base_uri);
             env::set_var("FXA_EMAIL_AWS_REGION", &aws_region);
-            env::set_var("FXA_EMAIL_AWS_KEYS_ACCESS", &aws_keys.access);
-            env::set_var("FXA_EMAIL_AWS_KEYS_SECRET", &aws_keys.secret);
-            env::set_var("FXA_EMAIL_AWS_SQSURLS_BOUNCE", &aws_sqs_urls.bounce);
-            env::set_var("FXA_EMAIL_AWS_SQSURLS_COMPLAINT", &aws_sqs_urls.complaint);
-            env::set_var("FXA_EMAIL_AWS_SQSURLS_DELIVERY", &aws_sqs_urls.delivery);
+            env::set_var("FXA_EMAIL_AWS_KEYS_ACCESS", &aws_keys.access.0);
+            env::set_var("FXA_EMAIL_AWS_KEYS_SECRET", &aws_keys.secret.0);
+            env::set_var("FXA_EMAIL_AWS_SQSURLS_BOUNCE", &aws_sqs_urls.bounce.0);
+            env::set_var("FXA_EMAIL_AWS_SQSURLS_COMPLAINT", &aws_sqs_urls.complaint.0);
+            env::set_var("FXA_EMAIL_AWS_SQSURLS_DELIVERY", &aws_sqs_urls.delivery.0);
             env::set_var(
                 "FXA_EMAIL_AWS_SQSURLS_NOTIFICATION",
-                &aws_sqs_urls.notification,
+                &aws_sqs_urls.notification.0,
             );
             env::set_var(
                 "FXA_EMAIL_BOUNCELIMITS_ENABLED",
@@ -154,18 +156,18 @@ fn env_vars_take_precedence() {
 
             match Settings::new() {
                 Ok(env_settings) => {
-                    assert_eq!(env_settings.authdb.baseuri, auth_db_base_uri);
-                    assert_eq!(env_settings.aws.region, aws_region);
+                    assert_eq!(env_settings.authdb.baseuri, BaseUri(auth_db_base_uri));
+                    assert_eq!(env_settings.aws.region, AwsRegion(aws_region.to_string()));
                     assert_eq!(env_settings.bouncelimits.enabled, bounce_limits_enabled);
                     assert_eq!(env_settings.hmackey, hmac_key);
-                    assert_eq!(env_settings.provider, provider);
-                    assert_eq!(env_settings.redis.host, redis_host);
+                    assert_eq!(env_settings.provider, Provider(provider.to_string()));
+                    assert_eq!(env_settings.redis.host, Host(redis_host));
                     assert_eq!(env_settings.redis.port, redis_port);
-                    assert_eq!(env_settings.sender.address, sender_address);
-                    assert_eq!(env_settings.sender.name, sender_name);
+                    assert_eq!(env_settings.sender.address, EmailAddress(sender_address));
+                    assert_eq!(env_settings.sender.name, SenderName(sender_name));
 
                     if let Some(env_sendgrid) = env_settings.sendgrid {
-                        assert_eq!(env_sendgrid.key, sendgrid_api_key);
+                        assert_eq!(env_sendgrid.key, SendgridApiKey(sendgrid_api_key));
                     } else {
                         assert!(false, "settings.sendgrid was not set");
                     }
@@ -208,15 +210,15 @@ fn hidden_aws_and_sendgrid_keys() {
     ]);
 
     let aws_keys = AwsKeys {
-        access: String::from("A"),
-        secret: String::from("s"),
+        access: AwsAccess(String::from("A")),
+        secret: AwsSecret(String::from("s")),
     };
 
     let sendgrid_api_key =
         String::from("000000000000000000000000000000000000000000000000000000000000000000000");
 
-    env::set_var("FXA_EMAIL_AWS_KEYS_ACCESS", &aws_keys.access);
-    env::set_var("FXA_EMAIL_AWS_KEYS_SECRET", &aws_keys.secret);
+    env::set_var("FXA_EMAIL_AWS_KEYS_ACCESS", &aws_keys.access.0);
+    env::set_var("FXA_EMAIL_AWS_KEYS_SECRET", &aws_keys.secret.0);
     env::set_var("FXA_EMAIL_SENDGRID_KEY", &sendgrid_api_key);
     match Settings::new() {
         Ok(settings) => {

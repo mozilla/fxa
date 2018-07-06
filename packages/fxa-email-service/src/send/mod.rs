@@ -11,11 +11,11 @@ use rocket::{
     Data, Outcome, Request, State,
 };
 use rocket_contrib::{Json, Value};
+use serde::de::{Deserialize, Deserializer, Error, Unexpected};
 
 use app_errors::{AppError, AppErrorKind, AppResult};
 use auth_db::DbClient;
 use bounces::Bounces;
-use deserialize;
 use message_data::MessageData;
 use providers::{Headers, Providers};
 use validate;
@@ -29,10 +29,29 @@ struct Body {
     html: Option<String>,
 }
 
+#[derive(Clone, Debug, Default, Serialize, PartialEq)]
+pub struct EmailAddress(pub String);
+
+impl<'d> Deserialize<'d> for EmailAddress {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'d>,
+    {
+        let value: String = Deserialize::deserialize(deserializer)?;
+        if validate::email_address(&value) {
+            Ok(EmailAddress(value.to_lowercase()))
+        } else {
+            Err(D::Error::invalid_value(
+                Unexpected::Str(&value),
+                &"email address",
+            ))
+        }
+    }
+}
+
 #[derive(Debug, Deserialize)]
 struct Email {
-    #[serde(deserialize_with = "deserialize::email_address")]
-    to: String,
+    to: EmailAddress,
     cc: Option<Vec<String>>,
     headers: Option<Headers>,
     subject: String,
@@ -91,7 +110,7 @@ fn handler(
 ) -> AppResult<Json<Value>> {
     let email = email?;
 
-    let to = email.to.as_ref();
+    let to = email.to.0.as_ref();
     bounces.check(to)?;
 
     let cc = if let Some(ref cc) = email.cc {
@@ -107,7 +126,7 @@ fn handler(
 
     providers
         .send(
-            email.to.as_ref(),
+            email.to.0.as_ref(),
             cc.as_ref(),
             email.headers.as_ref(),
             email.subject.as_ref(),

@@ -11,6 +11,7 @@ use std::{
 };
 
 use regex::Regex;
+use serde::de::{Deserialize, Deserializer, Error as SerdeError, Unexpected};
 
 #[cfg(test)]
 mod test;
@@ -56,8 +57,24 @@ impl Display for DurationError {
 /// Can be deserialized from duration strings
 /// of the format `"{number} {period}"`,
 /// e.g. `"1 hour"` or `"10 minutes"`.
-#[derive(Debug, PartialEq)]
-pub struct Duration(u64);
+#[derive(Clone, Debug, Default, Serialize, PartialEq)]
+pub struct Duration(pub u64);
+
+impl<'d> Deserialize<'d> for Duration {
+    /// Validate and deserialize a
+    /// duration from a string
+    /// of the format `"{number} {period}"`,
+    /// e.g. `"1 hour"` or `"10 minutes"`.
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'d>,
+    {
+        let value: String = Deserialize::deserialize(deserializer)?;
+        Duration::try_from(value.as_str())
+            .map(From::from)
+            .map_err(|_| D::Error::invalid_value(Unexpected::Str(&value), &"duration"))
+    }
+}
 
 impl From<Duration> for u64 {
     fn from(value: Duration) -> u64 {

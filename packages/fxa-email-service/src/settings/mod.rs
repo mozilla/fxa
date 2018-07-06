@@ -4,16 +4,63 @@
 
 //! Application settings.
 
-use std::env;
+use std::{
+    env,
+    fmt::{self, Display},
+};
 
 use config::{Config, ConfigError, Environment, File};
+use serde::de::{Deserialize, Deserializer, Error, Unexpected};
 
-use deserialize;
+use duration::Duration;
 use logging::MozlogLogger;
+use send::EmailAddress;
 use serialize;
+use validate;
 
 #[cfg(test)]
 mod test;
+
+macro_rules! deserialize_and_validate {
+    ($(($type:ident, $validator:ident, $expected:expr)),+) => ($(
+        #[derive(Clone, Debug, Default, Serialize, PartialEq)]
+        pub struct $type(pub String);
+
+        impl Display for $type {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                f.write_str(&self.0)
+            }
+        }
+
+        impl<'d> Deserialize<'d> for $type {
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+            where
+                D: Deserializer<'d>,
+            {
+                let value: String = Deserialize::deserialize(deserializer)?;
+                if validate::$validator(&value) {
+                    Ok($type(value))
+                } else {
+                    let expected = $expected;
+                    Err(D::Error::invalid_value(Unexpected::Str(&value), &expected))
+                }
+            }
+        }
+    )*);
+}
+
+deserialize_and_validate! {
+    (AwsAccess, aws_access, "aws access"),
+    (AwsRegion, aws_region, "aws region"),
+    (AwsSecret, aws_secret, "aws secret"),
+    (BaseUri, base_uri, "base uri"),
+    (Host, host, "host name or ip address"),
+    (Logging, logging, "'mozlog', 'pretty' ou 'null'"),
+    (Provider, provider, "'ses' or 'sendgrid'"),
+    (SenderName, sender_name, "sender name"),
+    (SendgridApiKey, sendgrid_api_key, "sendgrid api key"),
+    (SqsUrl, sqs_url, "sqs queue url")
+}
 
 /// Settings related to `fxa-auth-db-mysql`,
 /// which is used to store
@@ -21,8 +68,7 @@ mod test;
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct AuthDb {
     /// The base URI for the `fxa-auth-db-mysql` instance.
-    #[serde(deserialize_with = "deserialize::base_uri")]
-    pub baseuri: String,
+    pub baseuri: BaseUri,
 }
 
 /// Settings for AWS.
@@ -33,8 +79,7 @@ pub struct Aws {
     pub keys: Option<AwsKeys>,
 
     /// The AWS region for SES and SQS.
-    #[serde(deserialize_with = "deserialize::aws_region")]
-    pub region: String,
+    pub region: AwsRegion,
 
     /// URLs for SQS queues.
     pub sqsurls: Option<SqsUrls>,
@@ -46,12 +91,10 @@ pub struct Aws {
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct AwsKeys {
     /// The AWS access key.
-    #[serde(deserialize_with = "deserialize::aws_access")]
-    pub access: String,
+    pub access: AwsAccess,
 
     /// The AWS secret key.
-    #[serde(deserialize_with = "deserialize::aws_secret")]
-    pub secret: String,
+    pub secret: AwsSecret,
 }
 
 /// A definition object for a bounce/complaint limit.
@@ -59,11 +102,7 @@ pub struct AwsKeys {
 pub struct BounceLimit {
     /// The time period
     /// within which to limit bounces/complaints.
-    /// Deserialized from a string
-    /// of the format `"{number} {period}"`,
-    /// e.g. `"1 hour"` or `"10 minutes"`.
-    #[serde(deserialize_with = "deserialize::duration")]
-    pub period: u64,
+    pub period: Duration,
 
     /// The maximum number of bounces/complaints
     /// to permit within the specified time period.
@@ -94,8 +133,7 @@ pub struct BounceLimits {
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Redis {
     /// The host name or IP address.
-    #[serde(deserialize_with = "deserialize::host")]
-    pub host: String,
+    pub host: Host,
 
     /// TCP port number.
     pub port: u16,
@@ -107,13 +145,11 @@ pub struct Redis {
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Sender {
     /// The email address.
-    #[serde(deserialize_with = "deserialize::email_address")]
-    pub address: String,
+    pub address: EmailAddress,
 
     /// The name
     /// (may contain spaces).
-    #[serde(deserialize_with = "deserialize::sender_name")]
-    pub name: String,
+    pub name: SenderName,
 }
 
 /// Settings for Sendgrid.
@@ -122,8 +158,7 @@ pub struct Sendgrid {
     /// The API key.
     /// This is sensitive data
     /// and will not be logged.
-    #[serde(deserialize_with = "deserialize::sendgrid_api_key")]
-    pub key: String,
+    pub key: SendgridApiKey,
 }
 
 /// URLs for SQS queues.
@@ -143,22 +178,18 @@ pub struct SqsUrls {
     /// and then fetch the URL with rusoto_sqs::GetQueueUrl.
     /// Then we might be allowed to include
     /// the production queue names in default config?
-    #[serde(deserialize_with = "deserialize::sqs_url")]
-    pub bounce: String,
+    pub bounce: SqsUrl,
 
     /// The incoming complaint queue URL.
-    #[serde(deserialize_with = "deserialize::sqs_url")]
-    pub complaint: String,
+    pub complaint: SqsUrl,
 
     /// The incoming delivery queue URL.
-    #[serde(deserialize_with = "deserialize::sqs_url")]
-    pub delivery: String,
+    pub delivery: SqsUrl,
 
     /// The outgoing notification queue URL,
     /// used to forward notifications
     /// for additional processing by callers.
-    #[serde(deserialize_with = "deserialize::sqs_url")]
-    pub notification: String,
+    pub notification: SqsUrl,
 }
 
 /// The root settings object.
@@ -189,14 +220,13 @@ pub struct Settings {
 
     /// The logging format to use,
     /// can be `"mozlog"`, `"pretty"` or `"null"`.
-    pub logging: String,
+    pub logging: Logging,
 
     /// The default email provider to use,
     /// can be `"ses"`, `"sendgrid"` or `"mock"`.
     /// Note that this setting can be overridden
     /// on a per-request basis.
-    #[serde(deserialize_with = "deserialize::provider")]
-    pub provider: String,
+    pub provider: Provider,
 
     /// Settings for Redis,
     /// which is used to store metadata
