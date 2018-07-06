@@ -89,7 +89,8 @@ export default function (config = {}) {
     showValidationErrorsStart () {
       const experimentGroup = this._getPasswordStrengthExperimentGroup();
       if (experimentGroup === DESIGN_F_GROUP && this.passwordModel.validate()) {
-        // does not show any additional tooltips if the model says there are any errors
+        this.focus(passwordEl);
+        // do not show any additional tooltips if the model says there are any errors
         // under the assumption our PasswordStrengthBalloonView will display errors.
         return true;
       }

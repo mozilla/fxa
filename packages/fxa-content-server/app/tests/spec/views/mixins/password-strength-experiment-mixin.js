@@ -32,6 +32,7 @@ Cocktail.mixin(
   PasswordStrenghExperimentMixin(mixinConfig)
 );
 
+
 describe('views/mixins/password-strength-experiment-mixin', () => {
   let account;
   let view;
@@ -166,6 +167,7 @@ describe('views/mixins/password-strength-experiment-mixin', () => {
   describe('showValidationErrorsStart', () => {
     it('designF treatment', () => {
       sinon.stub(view, '_getPasswordStrengthExperimentGroup').callsFake(() => 'designF');
+      sinon.stub(view, 'focus');
       let validationError = undefined;
       view.passwordModel = {
         validate: sinon.spy(() => validationError)
@@ -176,6 +178,8 @@ describe('views/mixins/password-strength-experiment-mixin', () => {
       validationError = new Error('uh oh');
       assert.isTrue(view.showValidationErrorsStart());
       assert.isTrue(view.passwordModel.validate.calledTwice);
+
+      assert.isTrue(view.focus.calledOnceWith('#password'));
     });
 
     it('control', () => {
@@ -212,5 +216,4 @@ describe('views/mixins/password-strength-experiment-mixin', () => {
 
     assert.isTrue(view.notifier.trigger.calledOnceWith('password.error', error));
   });
-
 });

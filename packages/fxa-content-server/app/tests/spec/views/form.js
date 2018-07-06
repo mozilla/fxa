@@ -358,31 +358,50 @@ describe('views/form', function () {
       view.showValidationError('#focusMe', err);
     });
 
-    it('adds invalid class to the invalid element', function (done) {
+    it('marks the element invalid', function (done) {
+      sinon.stub(view, 'markElementInvalid').callsFake(() => done());
       view.showValidationError('#focusMe', 'this is an error');
-      setTimeout(function () {
-        assert.isTrue(view.$('#focusMe').hasClass('invalid'));
-        done();
-      }, 20);
     });
 
-    it('invalid class is removed as soon as element is valid again', function (done) {
-      view.on('validation_error', function () {
-        assert.isTrue(view.$('#focusMe').hasClass('invalid'));
+    it('element marked valid as soon as element is valid again', function (done) {
+      sinon.stub(view, 'markElementInvalid');
+      sinon.stub(view, 'markElementValid');
 
+      view.on('validation_error', function () {
         // add a value, causing the validation error to be removed.
         view.$('#focusMe').val('heyya!');
         view.$('#focusMe').trigger('keyup');
       });
 
       view.on('validation_error_removed', function () {
-        assert.isFalse(view.$('#focusMe').hasClass('invalid'));
-        done();
+        TestHelpers.wrapAssertion(function () {
+          assert.isTrue(view.markElementInvalid.calledOnce);
+          assert.isTrue(view.markElementValid.calledOnce);
+        }, done);
       });
 
       // element is required, has no value
       view.showValidationError('#focusMe', 'Field is required');
     });
+  });
+
+  it('markElementInvalid adds the invalid class, aria-invalid attribute, and aria-described-by', () => {
+    const $invalidEl = view.$('#focusMe');
+    view.markElementInvalid($invalidEl, '#otherElement');
+
+    assert.isTrue($invalidEl.hasClass('invalid'));
+    assert.equal($invalidEl.attr('aria-invalid'), 'true');
+    assert.equal($invalidEl.attr('aria-described-by'), '#otherElement');
+  });
+
+  it('markElementValid removes the invalid class, aria-invalid attribute, and aria-described-by', () => {
+    const $invalidEl = view.$('#focusMe');
+    view.markElementInvalid($invalidEl, '#otherElement');
+    view.markElementValid($invalidEl);
+
+    assert.isFalse($invalidEl.hasClass('invalid'));
+    assert.isUndefined($invalidEl.attr('aria-invalid'));
+    assert.isUndefined($invalidEl.attr('aria-described-by'));
   });
 
   describe('getFormElements', () => {

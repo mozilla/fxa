@@ -362,20 +362,26 @@ var FormView = BaseView.extend({
   showValidationError (el, err) {
     this.logError(err);
 
-    var invalidEl = this.$(el);
-    var message = AuthErrors.toMessage(err);
+    const $invalidEl = this.$(el);
+    const message = AuthErrors.toMessage(err);
+
+    // tooltipId is used to bind the invalid element
+    // with the tooltip using `aria-described-by`
+    const tooltipId = `error-tooltip-${err.errno}`;
 
     var tooltip = new Tooltip({
-      invalidEl: invalidEl,
-      message: message
+      id: tooltipId,
+      invalidEl: $invalidEl,
+      message
     });
 
     tooltip.on('destroyed', () => {
-      invalidEl.removeClass('invalid');
+      this.markElementValid($invalidEl);
       this.trigger('validation_error_removed', el);
     }).render().then(() => {
+      this.markElementInvalid($invalidEl, tooltipId);
       try {
-        invalidEl.addClass('invalid').get(0).focus();
+        $invalidEl.get(0).focus();
       } catch (e) {
         // IE can blow up if the element is not visible.
       }
@@ -387,6 +393,28 @@ var FormView = BaseView.extend({
     this.trackChildView(tooltip);
 
     return message;
+  },
+
+  /**
+   * Mark an element as invalid
+   *
+   * @param {Element} $el to mark invalid
+   * @param {String} [describedById] if set, sets 'aria-described-by' attribute on `$el`
+   */
+  markElementInvalid($el, describedById) {
+    $el.addClass('invalid').attr('aria-invalid', 'true');
+    if (describedById) {
+      $el.attr('aria-described-by', describedById);
+    }
+  },
+
+  /**
+   * Mark an element as valid
+   *
+   * @param {Element} $el to mark valid
+   */
+  markElementValid($el) {
+    $el.removeClass('invalid').attr('aria-invalid', null).attr('aria-described-by', null);
   },
 
   /**
