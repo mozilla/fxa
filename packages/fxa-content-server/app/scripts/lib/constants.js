@@ -127,6 +127,8 @@ module.exports = {
     return map;
   }, {}),
 
-  OTHER_EMAIL_DOMAIN: 'other'
+  OTHER_EMAIL_DOMAIN: 'other',
+
+  UTM_SOURCE_EMAIL: 'email'
 };
 /*eslint-enable sorting/sort-object-props*/

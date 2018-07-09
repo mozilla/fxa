@@ -441,7 +441,11 @@ define(function (require, exports, module) {
 
         assert.isTrue(view.getEscapedSyncUrl.calledOnce);
         assert.isTrue(view.getEscapedSyncUrl.calledWith(
-          'signin', View.ENTRYPOINT, { email: 'testuser@testuser.com' }));
+          'signin', View.ENTRYPOINT, {
+            email: 'testuser@testuser.com',
+            //eslint-disable-next-line camelcase
+            utm_source: 'email'
+          }));
       });
     });
 
