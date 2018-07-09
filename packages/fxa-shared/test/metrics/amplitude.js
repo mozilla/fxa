@@ -230,6 +230,8 @@ describe('metrics/amplitude:', () => {
       before(() => {
         result = transform({ type: 'verifySecondaryEmail.wibble' }, {
           emailDomain: 'foo',
+          emailSender: 'ses',
+          emailService: 'fxa-email-service',
           emailTypes: {
             verifySecondaryEmail: 'secondary_email'
           },
@@ -241,6 +243,8 @@ describe('metrics/amplitude:', () => {
         assert.equal(result.event_type, 'fxa_email - emailEvent');
         assert.deepEqual(result.event_properties, {
           email_provider: 'foo',
+          email_sender: 'ses',
+          email_service: 'fxa-email-service',
           email_template: 'verifySecondaryEmail',
           email_type: 'secondary_email',
           email_version: 'bar'
