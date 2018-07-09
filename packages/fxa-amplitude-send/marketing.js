@@ -3,63 +3,23 @@
 const AutoDetectDecoderStream = require('autodetect-decoder-stream')
 const crypto = require('crypto')
 const csv = require('csv-parser')
-const fs = require('fs')
 const Promise = require('bluebird')
 const request = require('request-promise')
-const s3 = require('s3')
 const moment = require('moment-timezone')
 const { lookup } = require('lookup-dns-cache')
 
-fs.unlinkAsync = Promise.promisify(fs.unlink)
-
-const TIMESTAMP = /^(20[1-9][0-9])-([01][0-9])-([0-3][1-9])-([0-2][0-9])-([0-5][0-9])$/
 const EVENT = /^mktg-([a-z]+-[a-z]+)$/
-
-const AWS_ACCESS_KEY = process.env.FXA_AWS_ACCESS_KEY
-const AWS_SECRET_KEY = process.env.FXA_AWS_SECRET_KEY
-const AWS_S3_BUCKET = '*** TODO ***'
-const AWS_S3_PREFIX = '*** TODO ***'
 
 const MAX_EVENTS_PER_BATCH = 10
 const HMAC_KEY = process.env.FXA_AMPLITUDE_HMAC_KEY
 const API_KEY = process.env.FXA_AMPLITUDE_API_KEY
-
-if (process.argv.length !== 3) {
-  console.error(`Usage: ${process.argv[1]} {YYYY-MM-DD-hh-mm | LOCAL PATH}`)
-  console.error('If specifying YYYY-MM-DD-hh-mm as the arg, note that the script will try to send events')
-  console.error('for all times from YYYY-MM-DD-hh-mm to the most recent available in S3. If any times in')
-  console.error('that range are missing, they will be skipped without failing the process.')
-  process.exit(1)
-}
 
 if (! HMAC_KEY || ! API_KEY) {
   console.error('Error: You must set FXA_AMPLITUDE_HMAC_KEY and FXA_AMPLITUDE_API_KEY environment variables')
   process.exit(1)
 }
 
-processData()
-  .catch(error => {
-    console.error(error.stack)
-    process.exit(1)
-  })
-
-function processData () {
-  const timeParts = TIMESTAMP.exec(process.argv[2])
-
-  if (timeParts && timeParts.length === 6) {
-    if (! AWS_ACCESS_KEY || ! AWS_SECRET_KEY) {
-      console.error('Error: You must set AWS_ACCESS_KEY and AWS_SECRET_KEY environment variables')
-      process.exit(1)
-    }
-
-    return processDataFromS3(timeParts.slice(1))
-      .then(counts => counts.reduce((sum, count) => sum + count, 0))
-  }
-
-  return processStream(fs.createReadStream(process.argv[2]))
-}
-
-function processStream (stream) {
+module.exports.processStream = function processStream (stream) {
   let eventCount = 0, batch = [], error
 
   process.on('exit', () => {
@@ -105,7 +65,14 @@ function processStream (stream) {
     }
 
     return sendBatch(localBatch)
-      .then(() => eventCount += localBatch.length)
+      .then((body) => {
+        if (body == "success") {
+          eventCount += localBatch.length
+        } else {
+          console.log(body)
+        }
+
+      })
       .catch(e => {
         error = e
         throw error
@@ -196,36 +163,3 @@ function sendBatch (batch) {
     }
   })
 }
-
-function processDataFromS3 (timeParts) {
-  const client = s3.createClient({
-    s3Options: {
-      accessKeyId: AWS_ACCESS_KEY,
-      secretKey: AWS_SECRET_KEY,
-    }
-  })
-
-  return getKeysFromS3(client, timeParts)
-    .then(keys => Promise.all(keys.map(key => processStream(client.downloadStream({
-      Bucket: AWS_S3_BUCKET,
-      Key: key
-    })))))
-}
-
-function getKeysFromS3 (client, timeParts) {
-  return new Promise((resolve, reject) => {
-    const keys = []
-    const emitter = client.listObjects({
-      s3Params: {
-        Bucket: AWS_S3_BUCKET,
-        // TODO: change this to match the file names in S3
-        Marker: `${AWS_S3_PREFIX}/${timeParts.join('-')}`,
-        Prefix: AWS_S3_PREFIX
-      }
-    })
-    emitter.on('error', error => reject(error))
-    emitter.on('data', data => data.Contents.forEach(datum => keys.push(datum.key)))
-    emitter.on('end', () => resolve(keys))
-  })
-}
-
