@@ -215,6 +215,9 @@ var FormView = BaseView.extend({
           .then(() => {
             return this.afterSubmit();
           });
+      })
+      .finally(() => {
+        this.trigger('submitEnd');
       });
   }),
 

@@ -297,7 +297,10 @@ const type = thenify(function (selector, text, options) {
       // focus it will just type 1 number, split the type
       // commands for each character to avoid issues with the
       // test runner
-      if (type === 'number') {
+      // password is added because of the password_strength_experiment.
+      // calling `type` with more than one character on the "signup_password"
+      // screen causes nothing to be written on the second attempt.
+      if (type === 'number' || type === 'password') {
         var index = 0;
         var parent = this.parent;
 

@@ -34,11 +34,12 @@ class PasswordStrengthBalloonView extends BaseView {
     this.delayBeforeUpdateMS = config.delayBeforeUpdateMS || DELAY_BEFORE_UPDATE_MS;
     this.delayBeforeHideMS = config.delayBeforeHideMS || DELAY_BEFORE_HIDE_MS;
 
-    // on model change, render after a delay to reduce jank. Render will
-    // occur after a short delay after the last `change` event.
-    this.listenTo(this.model, 'change', () => this.renderAfterDelay());
-    this.listenTo(this.model, 'valid', () => this.hideAfterDelay());
-    this.listenTo(this.model, 'invalid', () => this.render());
+    this.listenTo(this.model, 'change:hasEnteredPassword', () => this.update());
+    this.listenTo(this.model, 'change:isCommon', () => this.update());
+    this.listenTo(this.model, 'change:isSameAsEmail', () => this.update());
+    this.listenTo(this.model, 'change:isTooShort', () => this.update());
+
+    this.listenTo(this.model, 'change:isValid', () => this.hideIfValid());
   }
 
   setInitialContext (context) {
@@ -48,8 +49,26 @@ class PasswordStrengthBalloonView extends BaseView {
   }
 
   afterRender () {
+    // Show the balloon if the model is already invalid.
     if (this.model.validate()) {
       this.show();
+    }
+  }
+
+  hideIfValid () {
+    if (this.model.get('isValid')) {
+      this.clearTimeouts();
+      return this.hideAfterDelay();
+    }
+  }
+
+  update () {
+    // Render immediately if submitting so the user sees immediate
+    // feedback, otherwise introduce a short delay to reduce jank.
+    if (this.model.get('isSubmitting')) {
+      return this.render();
+    } else {
+      return this.renderAfterDelay();
     }
   }
 
@@ -68,11 +87,13 @@ class PasswordStrengthBalloonView extends BaseView {
   }
 
   show () {
+    this.model.set('isVisible', true);
     this.$(PASSWORD_STRENGTH_BALLOON_SELECTOR).show().css('opacity', '1');
   }
 
   hide () {
     const $balloonEl = this.$(PASSWORD_STRENGTH_BALLOON_SELECTOR);
+    this.model.set('isVisible', false);
     $balloonEl.css('opacity', '0');
     this._hideBalloonElTimeout = this.setTimeout(() => {
       // In addition to the opacity, the element must be hidden
@@ -84,13 +105,20 @@ class PasswordStrengthBalloonView extends BaseView {
   }
 
   hideAfterDelay () {
-    // force a re-render so that the list-item icons
-    // update just before hiding
-    this.renderAfterDelay();
+    // Only hide if already visible. This helps to prevent
+    // jank if the bubble goes away, the user removes
+    // one character to make the password invalid, then
+    // they immediately type a character again making the
+    // password valid again.
+    if (this.model.get('isVisible')) {
+      // force a re-render so that the list-item icons
+      // update just before hiding
+      this.renderAfterDelay();
 
-    this._hideTimeout = this.setTimeout(() => {
-      this.hide();
-    }, this.delayBeforeHideMS);
+      this._hideTimeout = this.setTimeout(() => {
+        this.hide();
+      }, this.delayBeforeHideMS);
+    }
   }
 }
 

@@ -94,6 +94,7 @@ describe('views/mixins/password-strength-experiment-mixin', () => {
     sinon.stub(view, '_createPasswordWithStrengthBalloonView').callsFake(() => passwordView);
     sinon.stub(view, 'trackChildView');
     sinon.stub(view, 'listenTo');
+    sinon.stub(view, 'on');
 
     return view._setupDesignF()
       .then((result) => {
@@ -101,10 +102,30 @@ describe('views/mixins/password-strength-experiment-mixin', () => {
 
         assert.isTrue(view._createPasswordStrengthBalloonModel.calledOnce);
         assert.isTrue(view.listenTo.calledOnceWith(passwordModel, 'change'));
+        assert.isTrue(view.on.calledTwice);
 
         assert.isTrue(view._createPasswordWithStrengthBalloonView.calledOnce);
         assert.isTrue(view.trackChildView.calledOnceWith(passwordView));
         assert.isTrue(passwordView.afterRender.calledOnce);
+      });
+  });
+
+  it('submitStart and submitEnd update the passwordModel', () => {
+    const passwordModel = new Model({});
+    const passwordView = {
+      afterRender: sinon.spy(() => Promise.resolve('heyo')),
+      on: sinon.spy()
+    };
+
+    sinon.stub(view, '_createPasswordStrengthBalloonModel').callsFake(() => passwordModel);
+    sinon.stub(view, '_createPasswordWithStrengthBalloonView').callsFake(() => passwordView);
+
+    return view._setupDesignF()
+      .then(() => {
+        view.trigger('submitStart');
+        assert.isTrue(passwordModel.get('isSubmitting'));
+        view.trigger('submitEnd');
+        assert.isFalse(passwordModel.get('isSubmitting'));
       });
   });
 

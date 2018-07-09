@@ -49,7 +49,7 @@ const PasswordWithStrengthBalloonView = FormView.extend({
   },
 
   updateModelForPassword () {
-    this.model.updateForPassword(this.$el.val());
+    this.model.set('password', this.$el.val());
   },
 
   updateStyles () {

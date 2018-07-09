@@ -38,15 +38,22 @@ export default class PasswordStrengthBalloonModel extends Model {
   constructor (attrs = {}, config = {}) {
     const attrsWithDefaults = assign({
       hasEnteredPassword: false,
+      hasSubmit: false,
       isCommon: false,
       isSameAsEmail: false,
-      isTooShort: true,
+      isSubmitting: false,
+      isTooShort: false,
       isValid: false,
+      password: ''
     }, attrs);
     super(attrsWithDefaults, config);
 
     // Asynchronously load the common password list as soon as the model is created.
     this._getCommonPasswordList();
+
+    this.on('change:isSubmitting', () => this.set('hasSubmit', true));
+    this.on('change:hasSubmit', () => this.updateForPassword());
+    this.on('change:password', () => this.updateForPassword());
   }
 
   _getCommonPasswordList () {
@@ -54,40 +61,33 @@ export default class PasswordStrengthBalloonModel extends Model {
   }
 
   /**
-   * Calculate model values for `password`
+   * Calculate model values for the updated password
    *
-   * @param {String} password
    * @returns {Promise} resolves when complete
    */
-  updateForPassword (password) {
+  updateForPassword () {
     return this._getCommonPasswordList().then((commonPasswordList => {
       // The password list only stores lowercase words,
       // use the lowercase password for comparison everywhere.
-      const lowercasePassword = password.toLowerCase();
+      const lowercasePassword = this.get('password').toLowerCase();
 
       // each criterion can only be true if the previous criterion is `false`,
       // except hasEnteredPassword must be `true`.
-      const hasEnteredPassword = !! (this.get('hasEnteredPassword') || lowercasePassword.length);
+      // hasSubmit means the user has submit the form, that's equivalent to hasEnteredPassword
+      // except that it causes the PW strength bubble to update immediately.
+      const hasEnteredPassword = !! (this.get('hasEnteredPassword') || lowercasePassword.length) || this.get('hasSubmit');
       const isTooShort = hasEnteredPassword && lowercasePassword.length < PASSWORD_MIN_LENGTH;
-      const isSameAsEmail = ! isTooShort && this.isSameAsEmail(lowercasePassword);
-      const isCommon = ! isSameAsEmail && this.isCommon(commonPasswordList, lowercasePassword);
+      const isSameAsEmail = hasEnteredPassword && ! isTooShort && this.isSameAsEmail(lowercasePassword);
+      const isCommon = hasEnteredPassword && ! isSameAsEmail && this.isCommon(commonPasswordList, lowercasePassword);
+      const isValid = hasEnteredPassword && ! isTooShort && ! isSameAsEmail && ! isCommon;
 
       this.set({
         hasEnteredPassword,
         isCommon,
         isSameAsEmail,
         isTooShort,
+        isValid
       });
-
-      const isValid = hasEnteredPassword && ! isTooShort && ! isSameAsEmail && ! isCommon;
-      const previousIsValid = this.get('isValid');
-      // isValid is for internal use and should not cause a `changed` event to be emit
-      this.set({ isValid }, { silent: true });
-      if (isValid && ! previousIsValid) {
-        this.trigger('valid');
-      } else if (! isValid && previousIsValid) {
-        this.trigger('invalid');
-      }
     }));
   }
 

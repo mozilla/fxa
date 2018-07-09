@@ -19,23 +19,30 @@ describe('models/password_strength/password_strength_balloon', () => {
     assert.deepEqual(model.toJSON(), {
       email: 'testuser@testuser.com',
       hasEnteredPassword: false,
+      hasSubmit: false,
       isCommon: false,
       isSameAsEmail: false,
-      isTooShort: true,
-      isValid: false
+      isSubmitting: false,
+      isTooShort: false,
+      isValid: false,
+      password: ''
     });
   });
 
   describe('updateForPassword', () => {
     it('catches if password is too short', () => {
-      return model.updateForPassword('passwor').then(() => {
+      model.set('password', 'passwor', { silent: true });
+      return model.updateForPassword().then(() => {
         assert.deepEqual(model.toJSON(), {
           email: 'testuser@testuser.com',
           hasEnteredPassword: true,
+          hasSubmit: false,
           isCommon: false,
           isSameAsEmail: false,
+          isSubmitting: false,
           isTooShort: true,
-          isValid: false
+          isValid: false,
+          password: 'passwor',
         });
       });
     });
@@ -49,15 +56,19 @@ describe('models/password_strength/password_strength_balloon', () => {
       '12345678TESTUSER',              // local part is 50% of password
     ].forEach((password) => {
       it(`catches ${password} as too similar to email`, () => {
-        return model.updateForPassword(password)
+        model.set('password', password, { silent: true });
+        return model.updateForPassword()
           .then(() => {
             assert.deepEqual(model.toJSON(), {
               email: 'testuser@testuser.com',
               hasEnteredPassword: true,
+              hasSubmit: false,
               isCommon: false,
               isSameAsEmail: true,
+              isSubmitting: false,
               isTooShort: false,
-              isValid: false
+              isValid: false,
+              password,
             });
           });
       });
@@ -68,15 +79,19 @@ describe('models/password_strength/password_strength_balloon', () => {
       '123456789TESTUSER',    // local part < 50%, not at the beginning
     ].forEach((password) => {
       it(`catches ${password} as too similar to email`, () => {
-        return model.updateForPassword(password)
+        model.set('password', password, { silent: true });
+        return model.updateForPassword()
           .then(() => {
             assert.deepEqual(model.toJSON(), {
               email: 'testuser@testuser.com',
               hasEnteredPassword: true,
+              hasSubmit: false,
               isCommon: false,
               isSameAsEmail: false,
+              isSubmitting: false,
               isTooShort: false,
-              isValid: true
+              isValid: true,
+              password,
             });
           });
       });
@@ -99,47 +114,62 @@ describe('models/password_strength/password_strength_balloon', () => {
       'fxaccounts',
       'addonsMozilla',
       'SUMOFirefox'
-    ].forEach((commonPassword) => {
-      it(`considers '${commonPassword}' common`, () => {
-        return model.updateForPassword(commonPassword)
+    ].forEach((password) => {
+      it(`considers '${password}' common`, () => {
+        model.set('password', password, { silent: true });
+        return model.updateForPassword()
           .then(() => {
             assert.deepEqual(model.toJSON(), {
               email: 'testuser@testuser.com',
               hasEnteredPassword: true,
+              hasSubmit: false,
               isCommon: true,
               isSameAsEmail: false,
+              isSubmitting: false,
               isTooShort: false,
-              isValid: false
+              isValid: false,
+              password,
             });
           });
       });
     });
 
     it('`hasEnteredPassword` remains true after entering then deleting password', () => {
-      return model.updateForPassword('p')
-        .then(() => model.updateForPassword(''))
+      model.set({
+        hasEnteredPassword: true,
+        password: ''
+      }, { silent: false });
+      return model.updateForPassword()
         .then(() => {
           assert.deepEqual(model.toJSON(), {
             email: 'testuser@testuser.com',
             hasEnteredPassword: true,
+            hasSubmit: false,
             isCommon: false,
             isSameAsEmail: false,
+            isSubmitting: false,
             isTooShort: true,
-            isValid: false
+            isValid: false,
+            password: '',
           });
         });
     });
 
     it('sets `isValid: true` if all criteria are met', () => {
-      return model.updateForPassword('15asdgljk325sadglkasdgklasdjlg')
+      const password = '15asdgljk325sadglkasdgklasdjlg';
+      model.set('password', password, { silent: true });
+      return model.updateForPassword()
         .then(() => {
           assert.deepEqual(model.toJSON(), {
             email: 'testuser@testuser.com',
             hasEnteredPassword: true,
+            hasSubmit: false,
             isCommon: false,
             isSameAsEmail: false,
+            isSubmitting: false,
             isTooShort: false,
-            isValid: true
+            isValid: true,
+            password
           });
         });
     });
@@ -190,5 +220,10 @@ describe('models/password_strength/password_strength_balloon', () => {
       });
       assert.isUndefined(model.validate());
     });
+  });
+
+  it('updating isSubmitting changes `hasSubmit` to true', () => {
+    model.set('isSubmitting', true);
+    assert.isTrue(model.get('hasSubmit'));
   });
 });

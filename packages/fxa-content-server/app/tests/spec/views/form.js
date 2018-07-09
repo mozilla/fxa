@@ -193,10 +193,20 @@ describe('views/form', function () {
   });
 
   describe('validateAndSubmit', function () {
-    it('triggers a `submitStart` event', (done) => {
-      view.on('submitStart', () => done());
+    it('triggers a `submitStart` and `submitEnd` event', () => {
+      const submitStartSpy = sinon.spy();
+      view.on('submitStart', submitStartSpy);
+      const submitEndSpy = sinon.spy();
+      view.on('submitEnd', submitEndSpy);
 
-      view.validateAndSubmit();
+      return view.validateAndSubmit()
+        .then(assert.fail, (err) => {
+          // the form is invalid, swallow the error
+        })
+        .then(() => {
+          assert.isTrue(submitStartSpy.calledOnce);
+          assert.isTrue(submitEndSpy.calledOnce);
+        });
     });
 
     it('submits form if isValid returns true', function () {

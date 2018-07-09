@@ -50,6 +50,9 @@ export default function (config = {}) {
       // chances of spurious warnings being logged as us helping the user.
       this.listenTo(passwordModel, 'change', debounce(() => this._logErrorIfInvalid(), delayBeforeLogReasonMS));
 
+      this.on('submitStart', () => passwordModel.set('isSubmitting', true));
+      this.on('submitEnd', () => passwordModel.set('isSubmitting', false));
+
       const passwordView = this._createPasswordWithStrengthBalloonView(passwordModel);
       this.trackChildView(passwordView);
 

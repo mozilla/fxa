@@ -94,25 +94,41 @@ describe('views/password_strength/password_strength_balloon', () => {
 
   it('hides if the model is valid', () => {
     sinon.spy(view, 'hideAfterDelay');
-    model.trigger('valid');
+    model.set('isValid', true);
 
     assert.isTrue(view.hideAfterDelay.calledOnce);
   });
 
-  it('renders if the model is invalid', () => {
-    // Use a stub for render because it's asynchronous
-    // and its promises are not completed before the
-    // view is destroyed in `afterEach`
-    sinon.stub(view, 'render');
-    model.trigger('invalid');
+  [
+    'hasEnteredPassword',
+    'isCommon',
+    'isSameAsEmail',
+    'isTooShort'
+  ].forEach(attributeName => {
+    it(`updates when ${attributeName} changes`, () => {
+      model.set(attributeName, false, { silent: true });
 
-    assert.isTrue(view.render.calledOnce);
+      sinon.stub(view, 'update');
+      model.set(attributeName, true);
+
+      assert.isTrue(view.update.calledOnce);
+    });
   });
 
-  it('renders after a delay on change', () => {
-    sinon.spy(view, 'renderAfterDelay');
-    model.trigger('change');
+  it('hideAfterDelay re-renders and then hides if the view is supposed to be visible', () => {
+    sinon.stub(view, 'setTimeout').callsFake((callback) => callback.call(view));
+    sinon.stub(view, 'renderAfterDelay');
+    sinon.stub(view, 'hide');
+
+    model.set('isVisible', false);
+    view.hideAfterDelay();
+    assert.isFalse(view.renderAfterDelay.called);
+
+    model.set('isVisible', true);
+    view.hideAfterDelay();
 
     assert.isTrue(view.renderAfterDelay.calledOnce);
+    assert.isTrue(view.setTimeout.calledOnce);
+    assert.isTrue(view.hide.calledOnce);
   });
 });

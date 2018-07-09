@@ -58,9 +58,9 @@ describe('views/password_strength/password_with_strength_ballon', () => {
 
   it('updateModelForPassword updates delegates to the model', () => {
     $('#password').val('password');
-    sinon.spy(model, 'updateForPassword');
+    sinon.spy(model, 'set');
     view.updateModelForPassword();
-    assert.isTrue(model.updateForPassword.calledOnceWith('password'));
+    assert.isTrue(model.set.calledOnceWith('password', 'password'));
   });
 
   it('the element is marked as invalid if password has been entered and is invalid', () => {
