@@ -9,13 +9,29 @@
  * @class PasswordStrengthBalloonModel
  * @extends {Model}
  */
-import { assign } from 'underscore';
+import { assign, find } from 'underscore';
 import AuthErrors from '../../lib/auth-errors';
 import { Model } from 'backbone';
 import { PASSWORD_MIN_LENGTH } from '../../lib/constants';
 
-// Ban passwords that start with firefox, fxaccounts, lockbox, addons, sumo
-const BANNED_SERVICE_REGEXP = /^(firefox|fxaccounts|lockbox|addons|sumo).*$/;
+const BANNED_SERVICE_NAMES = [
+  'addons',
+  'firefox',
+  'fxaccount',
+  'firefox account',
+  'firefoxaccount',
+  'fxsync',
+  'firefox sync',
+  'firefoxsync',
+  'lockbox',
+  'fxlockbox',
+  'mozilla',
+  'sumo',
+  'sync'
+// These need to be sorted by length so that the largest match
+// is found first in isPasswordMostlyCommonService
+].sort((a, b) => b.length - a.length);
+
 const BANNED_URL_REGEXP = /^(?:firefox|mozilla)\.(?:com|org)$/;
 
 export default class PasswordStrengthBalloonModel extends Model {
@@ -79,7 +95,7 @@ export default class PasswordStrengthBalloonModel extends Model {
     const email = this.get('email').toLowerCase();
     return this.doesPasswordContainFullEmail(lowercasePassword, email) ||
            this.isPasswordSubstringOfEmail(lowercasePassword, email) ||
-           this.doesPasswordStartWithLocalPartOfEmail(lowercasePassword, email);
+           this.isPasswordMostlyLocalPartOfEmail(lowercasePassword, email);
   }
 
   doesPasswordContainFullEmail (lowercasePassword, email) {
@@ -90,19 +106,31 @@ export default class PasswordStrengthBalloonModel extends Model {
     return email.indexOf(lowercasePassword) !== -1;
   }
 
-  doesPasswordStartWithLocalPartOfEmail (lowercasePassword, email) {
+  isPasswordMostlyLocalPartOfEmail (lowercasePassword, email) {
     const [localPartOfEmail] = email.split('@');
-    // 4 is arbitrary, set a lower bound on the length of the local part
-    // so passwords that start with `a` are not banned if the user's email
-    // address is `a@domain.com`.
-    return localPartOfEmail.length >= 4 && lowercasePassword.indexOf(localPartOfEmail) === 0;
+    // if the local part comprises >= half of the password, banned.
+    return this.isPasswordMostlyWord(lowercasePassword, localPartOfEmail);
+  }
+
+  isPasswordMostlyWord (lowercasePassword, word) {
+    return (word.length * 2) >= lowercasePassword.length && lowercasePassword.indexOf(word) !== -1;
+  }
+
+  isPasswordMostlyCommonServiceName (lowercasePassword) {
+    const matchingService = find(BANNED_SERVICE_NAMES, (serviceName) => {
+      return lowercasePassword.indexOf(serviceName) !== -1;
+    });
+
+    if (matchingService) {
+      return this.isPasswordMostlyWord(lowercasePassword, matchingService);
+    }
   }
 
   isCommon (commonPasswordList, lowercasePassword) {
     // The password list only stores lowercase words
     // Consider common Firefox related services and URLs as banned.
     return commonPasswordList.test(lowercasePassword) ||
-           BANNED_SERVICE_REGEXP.test(lowercasePassword) ||
+           this.isPasswordMostlyCommonServiceName(lowercasePassword) ||
            BANNED_URL_REGEXP.test(lowercasePassword);
   }
 

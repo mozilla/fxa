@@ -43,7 +43,10 @@ describe('models/password_strength/password_strength_balloon', () => {
     [
       'asdftesTusEr@Testuser.Com!@%$', // contains the full email
       'TESTUSER!@%%ASDF',              // local part at the beginning
+      '!@#TESTUSER!@%%F',              // local part not at the beginning
       'TESTUSER@testuser',             // substring of email at the beginning
+      '123TESTUSER',                   // local part comprises over 50% of password
+      '12345678TESTUSER',              // local part is 50% of password
     ].forEach((password) => {
       it(`catches ${password} as too similar to email`, () => {
         return model.updateForPassword(password)
@@ -60,16 +63,9 @@ describe('models/password_strength/password_strength_balloon', () => {
       });
     });
 
-    it('local part of email must be >= 4 characters in length to be banned', () => {
-      model.set('email', 'tes@domain.com');
-      assert.isFalse(model.isSameAsEmail('testuser'));
-      model.set('email', 'test@domain.com');
-      assert.isTrue(model.isSameAsEmail('testuser'));
-    });
-
     [
-      '!@#TESTUSER!@%%ASDF',              // local part not at the beginning
-      '!%@TESTUSER@testuser',             // substring of email at the beginning
+      'tes12345',             // local part < 50%, at the beginning
+      '123456789TESTUSER',    // local part < 50%, not at the beginning
     ].forEach((password) => {
       it(`catches ${password} as too similar to email`, () => {
         return model.updateForPassword(password)
@@ -88,10 +84,13 @@ describe('models/password_strength/password_strength_balloon', () => {
 
     [
       'password',
-      'firefox account',
+      '12firefox account34',
       'firefox accounts',
-      'FirefoxAccounts', 'firefox sync',
+      'FirefoxAccounts',
+      'firefox sync',
       'Firefox   SYNC',
+      'mozilla123',
+      '123mozilla', // mozilla doesn't have to be at the start, but comprises over half the password
       'Mozilla.com',
       'mozilla.org',
       'firefox.com',
