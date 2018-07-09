@@ -62,13 +62,18 @@ var STANDARD_LABELS = {
   // Train-number labels, for scheduling.
   // XXX TODO: calculate appropriate set of train labels
   // based on current date, rather than hard-coding them here.
-  'train-114': { color: COLORS.TARGET },
-  'train-115': { color: COLORS.TARGET },
-  'train-115:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
   'train-116': { color: COLORS.TARGET },
   'train-116:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
   'train-117': { color: COLORS.TARGET },
-  'train-117:qa-needed': { color: COLORS.TARGET_QA_NEEDED }
+  'train-117:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
+  'train-118': { color: COLORS.TARGET },
+  'train-118:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
+  'train-119': { color: COLORS.TARGET },
+  'train-119:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
+  'train-120': { color: COLORS.TARGET },
+  'train-120:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
+  'train-121': { color: COLORS.TARGET },
+  'train-121:qa-needed': { color: COLORS.TARGET_QA_NEEDED }
 }
 
 
@@ -119,6 +124,9 @@ var OBSOLETE_LABELS = {
   'train-111': null,
   'train-112': null,
   'train-113': null,
+  'train-114': null,
+  'train-115': null,
+  'train-115:qa-needed': null
 }
 
 
