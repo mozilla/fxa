@@ -34,6 +34,8 @@ const main = async () => {
 
       const eventCount = await marketing.processStream(remote_file_stream)
       console.log(`Done sending ${eventCount} events to Amplitude`)
+
+      // TODO: Delete message from SQS after successful send
     }
   }
 }

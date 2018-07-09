@@ -30,7 +30,7 @@ module.exports.processStream = function processStream (stream) {
     stream
       .pipe(new AutoDetectDecoderStream())
       .pipe(csv())
-      .on('data', row => {
+      .on('data', async (row) => {
         const event = createEvent(row)
         if (! event) {
           return
@@ -44,39 +44,30 @@ module.exports.processStream = function processStream (stream) {
 
         const localBatch = batch.slice()
         batch = []
-        send(localBatch).catch(reject)
+        await send(localBatch)
       })
-      .on('end', () => {
+      .on('end', async () => {
         if (error) {
           reject(error)
         } else if (batch.length === 0) {
           resolve(eventCount)
         } else {
-          send(batch)
+          await send(batch)
             .then(() => resolve(eventCount))
-            .catch(reject)
         }
       })
   })
 
-  function send (localBatch) {
-    if (error) {
-      return Promise.reject(error)
+  async function send (localBatch) {
+    const body = await sendBatch(localBatch)
+
+    if (body == "success") {
+      eventCount += localBatch.length
+    } else {
+      console.log(body)
     }
 
-    return sendBatch(localBatch)
-      .then((body) => {
-        if (body == "success") {
-          eventCount += localBatch.length
-        } else {
-          console.log(body)
-        }
-
-      })
-      .catch(e => {
-        error = e
-        throw error
-      })
+    return Promise.resolve(eventCount)
   }
 }
 
