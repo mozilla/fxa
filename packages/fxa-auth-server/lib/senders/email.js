@@ -1092,7 +1092,6 @@ module.exports = function (log, config) {
       parsedQuery[key] = query[key]
     })
 
-    parsedQuery['utm_source'] = 'email'
     parsedQuery['utm_medium'] = 'email'
 
     var campaign = templateNameToCampaignMap[templateName]
