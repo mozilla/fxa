@@ -31,7 +31,7 @@ module.exports = (config) => {
 
     request(options, function(err, res, body) {
       cb(err, {
-        messageId: body.messageId,
+        messageId: body && body.messageId,
         message: err ? err.message : body.message
       })
     })
