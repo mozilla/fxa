@@ -72,6 +72,7 @@ var ERRNO = {
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
+  BACKEND_SERVICE_FAILURE: 203,
   UNEXPECTED_ERROR: 999
 }
 
@@ -544,7 +545,7 @@ AppError.invalidMessageId = () => {
 AppError.messageRejected = (reason, reasonCode) => {
   return new AppError({
     code: 500,
-    error: 'Bad Request',
+    error: 'Internal Server Error',
     errno: ERRNO.MESSAGE_REJECTED,
     message: 'Message rejected'
   }, {
@@ -790,6 +791,18 @@ AppError.unavailableDeviceCommand = () => {
     error: 'Bad Request',
     errno: ERRNO.DEVICE_COMMAND_UNAVAILABLE,
     message: 'Unavailable device command.'
+  })
+}
+
+AppError.backendServiceFailure = (service, operation) => {
+  return new AppError({
+    code: 500,
+    error: 'Internal Server Error',
+    errno: ERRNO.BACKEND_SERVICE_FAILURE,
+    message: 'A backend service request failed.'
+  }, {
+    service,
+    operation
   })
 }
 

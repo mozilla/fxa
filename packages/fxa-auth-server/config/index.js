@@ -155,7 +155,7 @@ var conf = convict({
     }
   },
   customsUrl: {
-    doc: 'fraud / abuse server url',
+    doc: 'fraud / abuse server url; set to the string \'none\' to disable',
     default: 'http://127.0.0.1:7000',
     env: 'CUSTOMS_SERVER_URL'
   },
