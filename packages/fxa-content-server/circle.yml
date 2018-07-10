@@ -9,6 +9,7 @@ dependencies:
     - bash tests/ci/setvncpass.sh
   override:
     - tightvncserver :1
+    - npm install -g npm@6
     - npm install --global retry-cli
     - export DISPLAY=:1
     - cp server/config/local.json-dist server/config/local.json
@@ -22,7 +23,7 @@ dependencies:
 
 machine:
   node:
-    version: 6
+    version: 8
   services:
     - docker
 
