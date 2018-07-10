@@ -109,6 +109,10 @@ define([
       status: 200,
       body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}]'
     },
+    resetMailpasswordForgotRecoveryKey: {
+      status: 200,
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}]'
+    },
     resetMailUnlock: {
       status: 200,
       body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}]'
@@ -396,6 +400,14 @@ define([
     replaceRecoveryCodesSuccessNew: {
       status: 200,
       body: '{"recoveryCodes": ["99999999", "01001113", "01001114", "01001115", "01001116", "01001117", "01001118", "01001119"]}'
+    },
+    createRecoveryKey: {
+      status: 200,
+      body: '{}'
+    },
+    getRecoveryKey: {
+      status: 200,
+      body: '{"recoveryData": "eyJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiZGlyIiwia2lkIjoiODE4NDIwZjBkYTU4ZDIwZjZhZTRkMmM5YmVhYjkyNTEifQ..D29EXHp8ubLvftaZ.xHJd2Nl2Uco2RyywYPLkUU7fHpgO2FztY12Zjpq1ffiyLRIUcQVfmiNC6aMiHBl7Hp-lXEbb5mR1uXHrTH9iRXEBVaAfyf9KEAWOukWGVSH8EaOkr7cfu2Yr0K93Ec8glsssjiKp8NGB8VKTUJ-lmBv2cIrG68V4eTUVDoDhMbXhrF-Mv4JNeh338pPeatTnyg.Ow2bhEYWxzxfSPMxVwKmSA"}'
     }
   };
 });

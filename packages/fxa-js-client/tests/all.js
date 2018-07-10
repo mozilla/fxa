@@ -17,6 +17,7 @@ define([
   'tests/lib/misc',
   'tests/lib/passwordChange',
   'tests/lib/recoveryCodes',
+  'tests/lib/recoveryKeys',
   'tests/lib/recoveryEmail',
   'tests/lib/request',
   'tests/lib/session',

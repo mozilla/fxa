@@ -8,7 +8,7 @@ define([
   './lib/errors',
   './lib/hawkCredentials',
   './lib/metricsContext',
-  './lib/request',
+  './lib/request'
 ], function (ES6Promise, sjcl, credentials, ERRORS, hawkCredentials, metricsContext, Request) {
   'use strict';
 
@@ -1886,6 +1886,145 @@ define([
         }
 
         return request.send('/session/verify/recoveryCode', 'POST', creds, data);
+      });
+  };
+
+  /**
+   * Creates a new recovery key for the account. The recovery key contains encrypted
+   * data the corresponds the the accounts current `kB`. This data can be used during
+   * the password reset process to avoid regenerating the `kB`.
+   *
+   * @param sessionToken
+   * @param recoveryKeyId The recoveryKeyId that can be used to retrieve saved bundle
+   * @param bundle The encrypted recovery bundle to store
+   * @returns {Promise} A promise that will be fulfilled with decoded recovery data (`kB`)
+   */
+  FxAccountClient.prototype.createRecoveryKey = function (sessionToken, recoveryKeyId, bundle) {
+    var request = this.request;
+    return Promise.resolve()
+      .then(function () {
+        required(sessionToken, 'sessionToken');
+        required(recoveryKeyId, 'recoveryKeyId');
+        required(bundle, 'bundle');
+
+        return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+      })
+      .then(function (creds) {
+        var data = {
+          recoveryKeyId: recoveryKeyId,
+          recoveryData: bundle
+        };
+
+        return request.send('/recoveryKeys', 'POST', creds, data);
+      });
+  };
+
+  /**
+   * Retrieves the encrypted recovery data that corresponds to the recovery key which
+   * then gets decoded into the stored `kB`.
+   *
+   * @param accountResetToken
+   * @param recoveryKeyId The recovery key id to retrieve encrypted bundle
+   * @returns {Promise} A promise that will be fulfilled with decoded recovery data (`kB`)
+   */
+  FxAccountClient.prototype.getRecoveryKey = function (accountResetToken, recoveryKeyId) {
+    var request = this.request;
+    return Promise.resolve()
+      .then(function () {
+        required(accountResetToken, 'accountResetToken');
+        required(recoveryKeyId, 'recoveryKeyId');
+
+        return hawkCredentials(accountResetToken, 'accountResetToken',  HKDF_SIZE);
+      })
+      .then(function (creds) {
+        return request.send('/recoveryKeys/' + recoveryKeyId, 'GET', creds);
+      });
+  };
+
+  /**
+   * Reset a user's account using keys (kB) derived from a recovery key. This
+   * process can be used to maintain the account's original kB.
+   *
+   * @param accountResetToken The account reset token
+   * @param email The current email of the account
+   * @param newPassword The new password of the account
+   * @param recoveryKeyId The recovery key id used for account recovery
+   * @param keys Keys used to create the new wrapKb
+   * @param {Object} [options={}] Options
+   *   @param {Boolean} [options.keys]
+   *   If `true`, a new `keyFetchToken` is provisioned. `options.sessionToken`
+   *   is required if `options.keys` is true.
+   *   @param {Boolean} [options.sessionToken]
+   *   If `true`, a new `sessionToken` is provisioned.
+   *   @param {Object} [options.metricsContext={}] Metrics context metadata
+   *     @param {String} options.metricsContext.deviceId identifier for the current device
+   *     @param {String} options.metricsContext.flowId identifier for the current event flow
+   *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
+   *     @param {Number} options.metricsContext.utmCampaign marketing campaign identifier
+   *     @param {Number} options.metricsContext.utmContent content identifier
+   *     @param {Number} options.metricsContext.utmMedium acquisition medium
+   *     @param {Number} options.metricsContext.utmSource traffic source
+   *     @param {Number} options.metricsContext.utmTerm search terms
+   * @returns {Promise} A promise that will be fulfilled with updated account data
+   */
+  FxAccountClient.prototype.resetPasswordWithRecoveryKey = function (accountResetToken, email, newPassword, recoveryKeyId, keys, options) {
+    options = options || {};
+    var request = this.request;
+    return Promise.resolve()
+      .then(function () {
+        required(email, 'email');
+        required(newPassword, 'new password');
+        required(keys, 'keys');
+        required(keys.kB, 'keys.kB');
+        required(accountResetToken, 'accountResetToken');
+        required(recoveryKeyId, 'recoveryKeyId');
+
+        var defers = [];
+        defers.push(credentials.setup(email, newPassword));
+        defers.push(hawkCredentials(accountResetToken, 'accountResetToken', HKDF_SIZE));
+
+        return Promise.all(defers);
+      })
+      .then(function (results) {
+        var newCreds = results[0];
+        var hawkCreds = results[1];
+        var newWrapKb = sjcl.codec.hex.fromBits(
+          credentials.xor(
+            sjcl.codec.hex.toBits(keys.kB),
+            newCreds.unwrapBKey
+          )
+        );
+
+        var data = {
+          wrapKb: newWrapKb,
+          authPW: sjcl.codec.hex.fromBits(newCreds.authPW),
+          recoveryKeyId: recoveryKeyId
+        };
+
+        if (options.sessionToken) {
+          data.sessionToken = options.sessionToken;
+        }
+
+        if (options.keys) {
+          required(options.sessionToken, 'sessionToken');
+        }
+
+        if (options.metricsContext) {
+          data.metricsContext = metricsContext.marshall(options.metricsContext);
+        }
+
+        var queryParams = '';
+        if (options.keys) {
+          queryParams = '?keys=true';
+        }
+
+        return request.send('/account/reset' + queryParams, 'POST', hawkCreds, data)
+          .then(function (accountData) {
+            if (options.keys && accountData.keyFetchToken) {
+              accountData.unwrapBKey = sjcl.codec.hex.fromBits(newCreds.unwrapBKey);
+            }
+            return accountData;
+          });
       });
   };
 
