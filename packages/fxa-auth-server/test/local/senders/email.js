@@ -208,7 +208,7 @@ describe(
           }
         )
 
-        it(`Contains device, flow, service and uid headers for ${type}`, () => {
+        it(`Contains metrics headers for ${type}`, () => {
           mailer.mailer.sendMail = emailConfig => {
             const headers = emailConfig.headers
             assert.equal(headers['X-Device-Id'], message.deviceId, 'device id header is correct')
@@ -216,6 +216,7 @@ describe(
             assert.equal(headers['X-Flow-Begin-Time'], message.flowBeginTime, 'flow begin time header is correct')
             assert.equal(headers['X-Service-Id'], message.service, 'service id header is correct')
             assert.equal(headers['X-Uid'], message.uid, 'uid header is correct')
+            assert.equal(headers['X-Email-Service'], 'fxa-auth-server')
           }
           mailer[type](message)
         })
@@ -875,6 +876,8 @@ describe(
                   assert.equal(mailer.emailService.sendMail.args[0][0].to, 'emailservice.foo@restmail.net')
                   assert.equal(mailer.emailService.sendMail.args[0][0].subject, 'subject')
                   assert.equal(mailer.emailService.sendMail.args[0][0].headers['X-Template-Name'], 'verifyLoginEmail')
+                  assert.equal(mailer.emailService.sendMail.args[0][0].headers['X-Email-Service'], 'fxa-email-service')
+                  assert.equal(mailer.emailService.sendMail.args[0][0].headers['X-Email-Sender'], 'ses')
                   assert.equal(mailer.emailService.sendMail.args[0][0].headers['X-Uid'], 'foo')
                   assert.equal(typeof mailer.emailService.sendMail.args[0][1], 'function')
                 }

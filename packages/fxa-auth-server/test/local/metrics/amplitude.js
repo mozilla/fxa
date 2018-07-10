@@ -476,6 +476,8 @@ describe('metrics/amplitude', () => {
       beforeEach(() => {
         return amplitude('email.newDeviceLoginEmail.bounced', mocks.mockRequest({}), {
           email_domain: 'gmail',
+          email_sender: 'ses',
+          email_service: 'fxa-email-service',
           templateVersion: 'wibble'
         })
       })
@@ -490,6 +492,8 @@ describe('metrics/amplitude', () => {
         assert.equal(args[0].event_type, 'fxa_email - bounced')
         assert.equal(args[0].event_properties.email_type, 'login')
         assert.equal(args[0].event_properties.email_provider, 'gmail')
+        assert.equal(args[0].event_properties.email_sender, 'ses')
+        assert.equal(args[0].event_properties.email_service, 'fxa-email-service')
         assert.equal(args[0].event_properties.email_template, 'newDeviceLoginEmail')
         assert.equal(args[0].event_properties.email_version, 'wibble')
       })

@@ -129,6 +129,8 @@ module.exports = (log, config) => {
           flowBeginTime: getFromMetricsContext(metricsContext, 'flowBeginTime', request, 'flowBeginTime'),
           lang: request.app.locale,
           emailDomain: data.email_domain,
+          emailSender: data.email_sender,
+          emailService: data.email_service,
           emailTypes: EMAIL_TYPES,
           service: getService(request, data, metricsContext)
         }, getOs(request), getBrowser(request), getLocation(request)))

@@ -299,9 +299,19 @@ module.exports = function (log, config) {
     })
 
     let mailer = this.mailer
+    let emailService, emailSender
     if (config.emailService.forcedEmailAddresses.test(emailConfig.to)) {
       mailer = this.emailService
+      emailService = 'fxa-email-service'
+      emailSender = 'ses'
+    } else {
+      emailService = 'fxa-auth-server'
     }
+
+    // Set headers that let us attribute success/failure correctly
+    message.emailService = emailConfig.headers['X-Email-Service'] = emailService
+    message.emailSender = emailConfig.headers['X-Email-Sender'] = emailSender
+
     var d = P.defer()
     mailer.sendMail(
       emailConfig,
