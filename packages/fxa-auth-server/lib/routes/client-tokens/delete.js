@@ -12,7 +12,7 @@ module.exports = {
   },
   handler: function activeServices(req, reply) {
     var clientId = req.params.client_id;
-    return db.deleteActiveClientTokens(clientId, req.auth.credentials.user)
+    return db.deleteClientAuthorization(clientId, req.auth.credentials.user)
       .done(function() {
         reply({});
       }, reply);

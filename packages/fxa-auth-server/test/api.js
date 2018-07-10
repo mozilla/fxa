@@ -26,45 +26,27 @@ const STALE_AUTH_AT = AUTH_AT - (2 * 24 * 60 * 60);
 const AMR = ['pwd', 'email'];
 const AAL = 1;
 const ACR = 'AAL1';
-const VERIFY_GOOD = JSON.stringify({
-  status: 'okay',
-  email: USERID + '@' + config.get('browserid.issuer'),
-  issuer: config.get('browserid.issuer'),
-  idpClaims: {
-    'fxa-verifiedEmail': VEMAIL,
-    'fxa-lastAuthAt': AUTH_AT,
-    'fxa-generation': 123456,
-    'fxa-tokenVerified': true,
-    'fxa-amr': AMR,
-    'fxa-aal': AAL
-  }
-});
-const VERIFY_GOOD_BUT_STALE = JSON.stringify({
-  status: 'okay',
-  email: USERID + '@' + config.get('browserid.issuer'),
-  issuer: config.get('browserid.issuer'),
-  idpClaims: {
-    'fxa-verifiedEmail': VEMAIL,
-    'fxa-lastAuthAt': STALE_AUTH_AT,
-    'fxa-generation': 123456,
-    'fxa-tokenVerified': true,
-    'fxa-amr': AMR,
-    'fxa-aal': AAL
-  }
-});
-const VERIFY_GOOD_BUT_UNVERIFIED = JSON.stringify({
-  status: 'okay',
-  email: USERID + '@' + config.get('browserid.issuer'),
-  issuer: config.get('browserid.issuer'),
-  idpClaims: {
-    'fxa-verifiedEmail': VEMAIL,
-    'fxa-lastAuthAt': AUTH_AT,
-    'fxa-generation': 123456,
-    'fxa-tokenVerified': false,
-    'fxa-amr': AMR,
-    'fxa-aal': AAL
-  }
-});
+
+function mockVerifierResult(opts) {
+  opts = opts || {};
+  return JSON.stringify({
+    status: opts.status || 'okay',
+    email: (opts.uid ||  USERID) + '@' + config.get('browserid.issuer'),
+    issuer: opts.issuer || config.get('browserid.issuer'),
+    idpClaims: {
+      'fxa-verifiedEmail': opts.vemail || VEMAIL,
+      'fxa-lastAuthAt': opts.authAt || AUTH_AT,
+      'fxa-generation': opts.generation || 123456,
+      'fxa-tokenVerified': opts.hasOwnProperty('tokenVerified') ? opts.tokenVerified : true,
+      'fxa-amr': opts.amr || AMR,
+      'fxa-aal': opts.aal || AAL
+    }
+  });
+}
+
+const VERIFY_GOOD = mockVerifierResult();
+const VERIFY_GOOD_BUT_STALE = mockVerifierResult({ authAt: STALE_AUTH_AT });
+const VERIFY_GOOD_BUT_UNVERIFIED = mockVerifierResult({ tokenVerified: false });
 
 const MAX_TTL_S = config.get('expiration.accessToken') / 1000;
 
@@ -3416,6 +3398,41 @@ describe('/v1', function() {
             assertSecurityHeaders(res);
             assert.equal(res.result.length, 1);
           });
+      });
+
+      it('deletes outstanding authorization codes for the client', () => {
+        let code;
+        mockAssertion().reply(200, mockVerifierResult({ uid: user1.uid }));
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            scope: 'profile',
+          })
+        }).then(res => {
+          code = res.result.code;
+          assert.ok(code, 'an authorization code was generated');
+          return Server.api.delete({
+            url: '/client-tokens/' + clientId.toString('hex'),
+            headers: {
+              authorization: 'Bearer ' + tokenWithClientWrite
+            }
+          });
+        }).then(res => {
+          return Server.api.post({
+            url: '/token',
+            payload: {
+              client_id: clientId,
+              client_secret: secret,
+              code,
+            }
+          });
+        }).then(res => {
+          assert.equal(res.statusCode, 400);
+          assert.equal(res.result.code, 400);
+          assert.equal(res.result.errno, 105);
+          assert.equal(res.result.message, 'Unknown code');
+          assertSecurityHeaders(res);
+        });
       });
 
       it('errors for invalid tokens', function() {

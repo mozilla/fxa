@@ -292,13 +292,13 @@ MemoryStore.prototype = {
   },
 
   /**
-   * Delete all non-expired tokens for some clientId and uid.
+   * Delete all authorization grants for some clientId and uid.
    *
    * @param {String} clientId Client ID
    * @param {String} uid User Id as Hex
-   * @returns {Promise}
+   e @returns {Promise}
    */
-  deleteActiveClientTokens: function deleteActiveClientTokens(clientId, uid) {
+  deleteClientAuthorization: function deleteClientAuthorization(clientId, uid) {
     if (! clientId || ! uid) {
       return P.reject(new Error('clientId and uid are required'));
     }
@@ -314,6 +314,7 @@ MemoryStore.prototype = {
       }
     }
 
+    deleteToken(this.codes);
     deleteToken(this.tokens);
     deleteToken(this.refreshTokens);
 

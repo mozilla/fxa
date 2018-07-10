@@ -605,12 +605,12 @@ describe('db', function() {
       });
     });
 
-    describe('deleteActiveClientTokens', function() {
+    describe('deleteClientAuthorization', function() {
       var clientId = buf(randomString(8));
       var userId = buf(randomString(16));
 
       it('should delete client tokens', function() {
-        return db.deleteActiveClientTokens(clientId, userId)
+        return db.deleteClientAuthorization(clientId, userId)
           .then(
             function(result) {
               assert.ok(result);

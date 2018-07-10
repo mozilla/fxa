@@ -196,6 +196,8 @@ const QUERY_ACTIVE_CLIENT_TOKENS_BY_UID =
   'SELECT tokens.clientId AS id, tokens.createdAt, tokens.scope, clients.name ' +
   'FROM tokens LEFT OUTER JOIN clients ON clients.id = tokens.clientId ' +
   'WHERE tokens.userId=? AND tokens.expiresAt > NOW() AND clients.canGrant = 0;';
+const DELETE_ACTIVE_CODES_BY_CLIENT_AND_UID =
+  'DELETE FROM codes WHERE clientId=? AND userId=?';
 const DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID =
   'DELETE FROM tokens WHERE clientId=? AND userId=?';
 const DELETE_ACTIVE_REFRESH_TOKENS_BY_CLIENT_AND_UID =
@@ -467,13 +469,18 @@ MysqlStore.prototype = {
   },
 
   /**
-   * Delete all tokens for some clientId and uid.
+   * Delete all authorization grants for some clientId and uid.
    *
    * @param {String} clientId Client ID
    * @param {String} uid User Id as Hex
    * @returns {Promise}
    */
-  deleteActiveClientTokens: function deleteActiveClientTokens(clientId, uid) {
+  deleteClientAuthorization: function deleteClientAuthorization(clientId, uid) {
+    const deleteCodes = this._write(DELETE_ACTIVE_CODES_BY_CLIENT_AND_UID, [
+      buf(clientId),
+      buf(uid)
+    ]);
+
     const deleteTokens = this._write(DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID, [
       buf(clientId),
       buf(uid)
@@ -485,6 +492,7 @@ MysqlStore.prototype = {
     ]);
 
     return P.all([
+      deleteCodes,
       deleteTokens,
       deleteRefreshTokens
     ]);
