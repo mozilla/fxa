@@ -34,7 +34,6 @@ const ER_DELETE_PRIMARY_EMAIL = 2100
 const ER_EXPIRED_TOKEN_VERIFICATION_CODE = 2101
 const ER_SIGNAL_NOT_FOUND = 1643
 
-const RECOVERY_CODE_KEYSPACE = config.recoveryCodes.keyspace
 const RECOVERY_CODE_LENGTH = config.recoveryCodes.length
 
 module.exports = function (log, error) {
@@ -1460,7 +1459,7 @@ module.exports = function (log, error) {
     // recovery codes is done is two separate procedures. First one
     // deletes all current codes and the second one inserts the
     // hashed randomly generated codes.
-    return dbUtil.generateRecoveryCodes(count, RECOVERY_CODE_KEYSPACE, RECOVERY_CODE_LENGTH)
+    return dbUtil.generateRecoveryCodes(count, RECOVERY_CODE_LENGTH)
       .then((codes) => {
         return this.read(DELETE_RECOVERY_CODES, [uid])
           .then(() => codes.map((code) => dbUtil.createHashScrypt(code)))

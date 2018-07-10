@@ -8,6 +8,7 @@ const crypto = require('crypto')
 const P = require('../promise')
 const randomBytes = P.promisify(require('crypto').randomBytes)
 const scryptHash = P.promisify(require('scrypt-hash'))
+const base32 = require('./random')
 
 const BOUNCE_TYPES = new Map([
   ['__fxa__unmapped', 0], // a bounce type we don't yet recognize
@@ -40,6 +41,7 @@ const VERIFICATION_METHODS = new Map([
   ['totp-2fa', 2],   // TOTP code
   ['recovery-code', 3]   // Recovery code
 ])
+
 
 module.exports = {
 
@@ -97,25 +99,15 @@ module.exports = {
       .then((hash) => crypto.timingSafeEqual(hash, verifyHash))
   },
 
-  generateRecoveryCodes(count, keyspace, length) {
-    const randomByteCodes = []
+
+  generateRecoveryCodes(count, length) {
+    const randomCodes = []
     for (let i = 0; i < count; i++) {
-      randomByteCodes.push(randomBytes(length))
+      randomCodes.push(base32(length))
     }
 
-    return P.all(randomByteCodes)
-      .then((result) => {
-        return result.map((randomCode) => {
-          const charsLength = keyspace.length
-          const result = []
-          let currentIndex = 0
-          for (let i = 0; i < 10; i++) {
-            currentIndex += randomCode[i]
-            result[i] = keyspace[currentIndex % charsLength]
-          }
-          return result.join('')
-        })
-      })
+    return P.all(randomCodes)
+
   },
 
   // A helper function for aggregating name:value pairs into a JSON object.

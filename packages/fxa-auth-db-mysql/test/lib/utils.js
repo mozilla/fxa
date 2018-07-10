@@ -49,10 +49,10 @@ describe('utils', () => {
   })
 
   describe('generateRecoveryCodes', () => {
-    const codeLength = 10, codeCount = 5, keyspace = 'abcdefghijklmnopqrstuvwxyz0123456789'
+    const codeLength = 10, codeCount = 5
     let codes
     before(() => {
-      return dbUtils.generateRecoveryCodes(codeCount, keyspace, codeLength)
+      return dbUtils.generateRecoveryCodes(codeCount, codeLength)
         .then((result) => codes = result)
     })
 

@@ -51,7 +51,6 @@ const SESSION_DEVICE_FIELDS = [
   'lastAccessTime'
 ]
 
-const RECOVERY_CODE_KEYSPACE = config.recoveryCodes.keyspace
 const RECOVERY_CODE_LENGTH = config.recoveryCodes.length
 
 module.exports = function (log, error) {
@@ -1313,7 +1312,7 @@ module.exports = function (log, error) {
     let codes = []
     return getAccountByUid(uid)
       .then(() => {
-        return dbUtil.generateRecoveryCodes(count, RECOVERY_CODE_KEYSPACE, RECOVERY_CODE_LENGTH)
+        return dbUtil.generateRecoveryCodes(count, RECOVERY_CODE_LENGTH)
       })
       .then((result) => {
         codes = result
