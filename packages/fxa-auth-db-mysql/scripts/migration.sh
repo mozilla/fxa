@@ -33,12 +33,13 @@ fi
 printf "Generating migration boilerplate for patch level $NEW_LEVEL..."
 
 echo "SET NAMES utf8mb4 COLLATE utf8mb4_bin;\n" > "$FWD_SCHEMA"
+echo "CALL assertPatchLevel('$PREV_LEVEL');\n" >> "$FWD_SCHEMA"
 echo "-- TODO: Implement your forward migration here\n" >> "$FWD_SCHEMA"
-echo "UPDATE dbMetadata SET value = '$NEW_LEVEL' WHERE name = 'schema-patch-level';\n" >> "$FWD_SCHEMA"
+echo "UPDATE dbMetadata SET value = '$NEW_LEVEL' WHERE name = 'schema-patch-level';" >> "$FWD_SCHEMA"
 
-echo '-- -- TODO: Implement your *commented-out* reverse migration here\n' > "$REV_SCHEMA"
-echo "-- SET NAMES utf8mb4 COLLATE utf8mb4_bin;\n" >> "$REV_SCHEMA"
-echo "-- UPDATE dbMetadata SET value = '$PREV_LEVEL' WHERE name = 'schema-patch-level';\n" >> "$REV_SCHEMA"
+echo "-- SET NAMES utf8mb4 COLLATE utf8mb4_bin;\n" > "$REV_SCHEMA"
+echo '-- -- TODO: Implement your *commented-out* reverse migration here\n' >> "$REV_SCHEMA"
+echo "-- UPDATE dbMetadata SET value = '$PREV_LEVEL' WHERE name = 'schema-patch-level';" >> "$REV_SCHEMA"
 
 sed -i '' "s/^module.exports.level = $PREV_LEVEL\$/module.exports.level = $NEW_LEVEL/" $PATCH_SRC
 

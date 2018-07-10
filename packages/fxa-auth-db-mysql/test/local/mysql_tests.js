@@ -468,6 +468,33 @@ describe('MySQL', () => {
     ])
   })
 
+  it('assertPatchLevel fails with an invalid patch level', () => {
+    const selectPatchLevel = 'SELECT value FROM dbMetadata WHERE name = \'schema-patch-level\';'
+    return db.readAllResults(selectPatchLevel, [])
+      .then(patchLevel => {
+        patchLevel = parseInt(patchLevel.value)
+        assert(patchLevel > 0)
+        assert(patchLevel < Infinity)
+        const assertPatchLevel = `CALL assertPatchLevel('${patchLevel + 1}');`
+        return db.write(assertPatchLevel, [])
+          .catch(err => {
+            assert.equal(err.code, 500)
+            assert.equal(err.errno, 1643)
+            assert.equal(err.message, 'ER_SIGNAL_NOT_FOUND')
+            assert(err.stack.indexOf('Missing migration detected') >= 0)
+          })
+      })
+  })
+
+  it('assertPatchLevel succeeds with an valid patch level', () => {
+    const selectPatchLevel = 'SELECT value FROM dbMetadata WHERE name = \'schema-patch-level\';'
+    return db.readAllResults(selectPatchLevel, [])
+      .then(patchLevel => {
+        const assertPatchLevel = `CALL assertPatchLevel('${patchLevel.value}');`
+        return db.write(assertPatchLevel, [])
+      })
+  })
+
   after(() => db.close())
 
 })
