@@ -81,16 +81,12 @@ If you get an `error` status for any of the servers please verify that you insta
 ### Dependencies
 > Required developer dependencies:
 [Git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git),
-[node.js **8+**, with npm 5](http://nodejs.org/),
+[node.js **8+** with npm 6](http://nodejs.org/),
 [Python 2.6+](https://www.python.org/),
 [Java 8+](https://www.java.com/en/download/),
-[Redis](http://redis.io/),
 [libgmp](https://gmplib.org/),
 [graphicsmagick](http://www.graphicsmagick.org/),
-[memcached](https://memcached.org/),
 [docker](https://docs.docker.com/).
-
-**Note:** Please use Node.js 8+.
 
 ##### OS X (with [Brew](http://brew.sh/)):
 
@@ -100,15 +96,14 @@ xcode-select --install
 ```
 then:
 ```
-brew install gmp redis graphicsmagick memcached
 sudo easy_install pip && sudo pip install virtualenv
 ```
 [Install Docker for Mac](https://docs.docker.com/docker-for-mac/install/)
 
 ##### Ubuntu:
 ```
-sudo apt-get install build-essential git-core libgmp3-dev graphicsmagick redis-server python-virtualenv
-python-dev memcached docker-ce
+sudo apt-get install build-essential git-core libgmp3-dev graphicsmagick  python-virtualenv
+python-dev docker-ce
 ```
 Docker commands require sudo, to avoid it, follow steps below:  
 1. Add the docker group if it doesn't already exist
@@ -128,9 +123,6 @@ sudo service docker restart
 
 > NOTE: If you are experienced with Node.js: Use [nvm](https://github.com/creationix/nvm) to force node 8
 just for `fxa-local-dev` using `nvm use 8`. (Install it first with `nvm install 8`)
-
-##### OS X
-Use this if you do not rely on other node.js programs on your system: Find the latest Node 8 LTS `.pkg` download at [nodejs.org/en/download/](https://nodejs.org/en/download/) and install it.
 
 ##### Ubuntu / Debian:
 

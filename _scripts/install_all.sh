@@ -1,4 +1,5 @@
 #!/bin/sh -ex
+_scripts/check.sh
 
 # Set ulimit, need it for npm
 ulimit -S -n 2048 || echo "Setting ulimit failed"
@@ -47,6 +48,8 @@ cd fxa-profile-server; npm i; mkdir -p var/public/; cd ..
 cd fxa-basket-proxy; npm i; cd ..
 
 cd 123done; npm i; cd ..
+
+docker pull memcached
 
 docker pull mozilla/syncserver
 

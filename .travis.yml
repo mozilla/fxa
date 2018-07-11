@@ -29,12 +29,12 @@ matrix:
     - fast_finish: true
 
 before_install:
-  - npm i -g npm@5
+  - npm i -g npm@6
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then brew install graphicsmagick; fi
 
 install:
   - PATH="`npm bin`:`npm bin -g`:$PATH"
-  - npm install -g npm@5
+  - npm install -g npm@6
   - node --version
   - npm --version
 
