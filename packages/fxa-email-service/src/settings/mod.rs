@@ -64,7 +64,7 @@ deserialize_and_validate! {
     /// Logging format type.
     (Logging, logging, "'mozlog', 'pretty' or 'null'"),
     /// Email provider type.
-    (Provider, provider, "'ses' or 'sendgrid'"),
+    (Provider, provider, "'ses', 'sendgrid' or 'smtp'"),
     /// Sender name type.
     (SenderName, sender_name, "sender name"),
     /// Sendgrid API key type.
@@ -172,6 +172,30 @@ pub struct Sendgrid {
     pub key: SendgridApiKey,
 }
 
+/// Settings for SMTP custom provider.
+#[derive(Debug, Default, Deserialize, Serialize)]
+pub struct Smtp {
+    /// SMTP host IP address.
+    pub host: Host,
+
+    /// SMTP host port.
+    pub port: u16,
+
+    /// Optional SMTP credentials.
+    pub credentials: Option<SmtpCredentials>,
+}
+
+/// Settings for SMTP custom provider optional credentials.
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct SmtpCredentials {
+    ///SMTP user.
+    pub user: String,
+
+    ///SMTP password.
+    #[serde(serialize_with = "serialize::hidden")]
+    pub password: String,
+}
+
 /// URLs for SQS queues.
 ///
 /// Note that these are separate queues right now
@@ -253,6 +277,9 @@ pub struct Settings {
     /// Settings for Sendgrid.
     #[serde(serialize_with = "serialize::hidden_or_not_set")]
     pub sendgrid: Option<Sendgrid>,
+
+    /// Settings for SMTP custom provider.
+    pub smtp: Smtp,
 }
 
 impl Settings {

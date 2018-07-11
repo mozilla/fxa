@@ -41,6 +41,8 @@ extern crate hex;
 extern crate hmac;
 #[macro_use]
 extern crate lazy_static;
+extern crate lettre;
+extern crate lettre_email;
 extern crate md5;
 extern crate mozsvc_common;
 extern crate rand;
@@ -62,7 +64,14 @@ extern crate serde_json;
 extern crate serde_test;
 extern crate sha2;
 #[macro_use(
-    slog_b, slog_error, slog_info, slog_kv, slog_log, slog_o, slog_record, slog_record_static
+    slog_b,
+    slog_error,
+    slog_info,
+    slog_kv,
+    slog_log,
+    slog_o,
+    slog_record,
+    slog_record_static
 )]
 extern crate slog;
 extern crate slog_async;

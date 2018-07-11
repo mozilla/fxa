@@ -8,6 +8,7 @@ use std::{boxed::Box, collections::HashMap};
 
 use self::{
     mock::MockProvider as Mock, sendgrid::SendgridProvider as Sendgrid, ses::SesProvider as Ses,
+    smtp::SmtpProvider as Smtp,
 };
 use app_errors::{AppErrorKind, AppResult};
 use settings::Settings;
@@ -15,6 +16,7 @@ use settings::Settings;
 mod mock;
 mod sendgrid;
 mod ses;
+mod smtp;
 
 /// Email headers.
 pub type Headers = HashMap<String, String>;
@@ -42,6 +44,7 @@ impl Providers {
     pub fn new(settings: &Settings) -> Providers {
         let mut providers: HashMap<String, Box<Provider>> = HashMap::new();
 
+        providers.insert(String::from("smtp"), Box::new(Smtp::new(settings)));
         providers.insert(String::from("mock"), Box::new(Mock));
         providers.insert(String::from("ses"), Box::new(Ses::new(settings)));
 

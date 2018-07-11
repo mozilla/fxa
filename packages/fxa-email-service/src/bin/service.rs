@@ -16,7 +16,14 @@
 
 extern crate fxa_email_service;
 extern crate rocket;
-#[macro_use(slog_b, slog_info, slog_kv, slog_log, slog_record, slog_record_static)]
+#[macro_use(
+    slog_b,
+    slog_info,
+    slog_kv,
+    slog_log,
+    slog_record,
+    slog_record_static
+)]
 extern crate slog;
 
 use fxa_email_service::{

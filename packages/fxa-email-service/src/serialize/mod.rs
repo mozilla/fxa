@@ -24,3 +24,12 @@ where
         serializer.serialize_str("[not set]")
     }
 }
+
+/// Serialize any sensitive data
+/// to `"[hidden]"`.
+pub fn hidden<T, S>(ref _item: &T, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: ser::Serializer,
+{
+    serializer.serialize_str("[hidden]")
+}

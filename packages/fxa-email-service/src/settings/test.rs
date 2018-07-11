@@ -72,6 +72,10 @@ fn env_vars_take_precedence() {
         "FXA_EMAIL_SENDER_ADDRESS",
         "FXA_EMAIL_SENDER_NAME",
         "FXA_EMAIL_SENDGRID_KEY",
+        "FXA_EMAIL_SMTP_HOST",
+        "FXA_EMAIL_SMTP_PORT",
+        "FXA_EMAIL_SMTP_USER",
+        "FXA_EMAIL_SMTP_PASSWORD",
     ]);
 
     match Settings::new() {
@@ -130,6 +134,19 @@ fn env_vars_take_precedence() {
             let sendgrid_api_key = String::from(
                 "000000000000000000000000000000000000000000000000000000000000000000000",
             );
+            let smtp_host = format!("{}2", &settings.smtp.host);
+            let smtp_port = settings.smtp.port + 3;
+            let smtp_credentials = if let Some(ref credentials) = settings.smtp.credentials {
+                SmtpCredentials {
+                    user: format!("{}4", credentials.user),
+                    password: format!("{}5", credentials.password),
+                }
+            } else {
+                SmtpCredentials {
+                    user: String::from("4"),
+                    password: String::from("5"),
+                }
+            };
 
             env::set_var("FXA_EMAIL_AUTHDB_BASEURI", &auth_db_base_uri);
             env::set_var("FXA_EMAIL_AWS_REGION", &aws_region);
@@ -153,6 +170,13 @@ fn env_vars_take_precedence() {
             env::set_var("FXA_EMAIL_SENDER_ADDRESS", &sender_address);
             env::set_var("FXA_EMAIL_SENDER_NAME", &sender_name);
             env::set_var("FXA_EMAIL_SENDGRID_KEY", &sendgrid_api_key);
+            env::set_var("FXA_EMAIL_SMTP_HOST", &smtp_host);
+            env::set_var("FXA_EMAIL_SMTP_PORT", &smtp_port.to_string());
+            env::set_var("FXA_EMAIL_SMTP_CREDENTIALS_USER", &smtp_credentials.user);
+            env::set_var(
+                "FXA_EMAIL_SMTP_CREDENTIALS_PASSWORD",
+                &smtp_credentials.password,
+            );
 
             match Settings::new() {
                 Ok(env_settings) => {
@@ -165,6 +189,8 @@ fn env_vars_take_precedence() {
                     assert_eq!(env_settings.redis.port, redis_port);
                     assert_eq!(env_settings.sender.address, EmailAddress(sender_address));
                     assert_eq!(env_settings.sender.name, SenderName(sender_name));
+                    assert_eq!(env_settings.smtp.host, Host(smtp_host));
+                    assert_eq!(env_settings.smtp.port, smtp_port);
 
                     if let Some(env_sendgrid) = env_settings.sendgrid {
                         assert_eq!(env_sendgrid.key, SendgridApiKey(sendgrid_api_key));
@@ -186,6 +212,13 @@ fn env_vars_take_precedence() {
                         assert_eq!(env_sqs_urls.notification, aws_sqs_urls.notification);
                     } else {
                         assert!(false, "aws.sqsurls were not set");
+                    }
+
+                    if let Some(env_smtp_credentials) = env_settings.smtp.credentials {
+                        assert_eq!(env_smtp_credentials.user, smtp_credentials.user);
+                        assert_eq!(env_smtp_credentials.password, smtp_credentials.password);
+                    } else {
+                        assert!(false, "smtp.credentials was not set");
                     }
                 }
                 Err(error) => {
@@ -339,6 +372,17 @@ fn invalid_bouncelimits_enabled() {
     match Settings::new() {
         Ok(_settings) => assert!(false, "Settings::new should have failed"),
         Err(error) => assert_eq!(error.description(), "invalid type"),
+    }
+}
+
+#[test]
+fn invalid_smtp_host() {
+    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_SMTP_HOST"]);
+    env::set_var("FXA_EMAIL_SMTP_HOST", "https://mail.google.com/");
+
+    match Settings::new() {
+        Ok(_settings) => assert!(false, "Settings::new should have failed"),
+        Err(error) => assert_eq!(error.description(), "configuration error"),
     }
 }
 
