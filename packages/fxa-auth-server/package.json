@@ -1,6 +1,6 @@
 {
   "name": "fxa-oauth-server",
-  "version": "1.115.2",
+  "version": "1.116.0",
   "private": true,
   "description": "Firefox Accounts OAuth2 server.",
   "scripts": {

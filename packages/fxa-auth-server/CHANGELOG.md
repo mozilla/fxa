@@ -1,3 +1,13 @@
+<a name="1.116.0"></a>
+# [1.116.0](https://github.com/mozilla/fxa-oauth-server/compare/v1.115.2...v1.116.0) (2018-07-11)
+
+
+### Features
+
+* **codes:** Delete authorization codes when revoking client access. (#578); r=philbooth ([b905b7c](https://github.com/mozilla/fxa-oauth-server/commit/b905b7c)), closes [#578](https://github.com/mozilla/fxa-oauth-server/issues/578)
+
+
+
 <a name="1.115.2"></a>
 ## [1.115.2](https://github.com/mozilla/fxa-oauth-server/compare/v1.115.1...v1.115.2) (2018-07-04)
 
