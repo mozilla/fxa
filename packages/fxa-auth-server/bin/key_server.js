@@ -104,23 +104,26 @@ function run(config) {
               config,
               customs
             )
-            server = Server.create(log, error, config, routes, db, translator)
+
             statsInterval = setInterval(logStatInfo, 15000)
 
-            return new P((resolve, reject) => {
-              server.start(
-                function (err) {
-                  if (err) {
-                    log.error({ op: 'server.start.1', msg: 'failed startup with error',
-                      err: { message: err.message } })
-                    reject(err)
-                  } else {
-                    log.info({ op: 'server.start.1', msg: 'running on ' + server.info.uri })
-                    resolve()
+            async function init() {
+              server = await Server.create(log, error, config, routes, db, translator)
+              try {
+                await server.start()
+                log.info({op: 'server.start.1', msg: 'running on ' + server.info.uri})
+              } catch (err) {
+                log.error(
+                  {
+                    op: 'server.start.1', msg: 'failed startup with error',
+                    err: {message: err.message}
                   }
-                }
-              )
-            })
+                )
+              }
+            }
+
+            init()
+
           })
       },
       function (err) {
@@ -135,19 +138,17 @@ function run(config) {
           return new P((resolve) => {
             log.info({ op: 'shutdown' })
             clearInterval(statsInterval)
-            server.stop(
-              function () {
-                customs.close()
-                try {
-                  senders.email.stop()
-                } catch (e) {
-                  // XXX: simplesmtp module may quit early and set socket to `false`, stopping it may fail
-                  log.warn({ op: 'shutdown', message: 'Mailer client already disconnected' })
-                }
-                database.close()
-                resolve()
+            server.stop().then(() => {
+              customs.close()
+              try {
+                senders.email.stop()
+              } catch (e) {
+                // XXX: simplesmtp module may quit early and set socket to `false`, stopping it may fail
+                log.warn({op: 'shutdown', message: 'Mailer client already disconnected'})
               }
-            )
+              database.close()
+              resolve()
+            })
           })
         }
       }

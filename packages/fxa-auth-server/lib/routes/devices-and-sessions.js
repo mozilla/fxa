@@ -112,7 +112,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
     {
       method: 'POST',
       path: '/account/device',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -162,7 +162,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
           }).and('pushPublicKey', 'pushAuthKey')
         }
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('Account.device', request)
 
         const payload = request.payload
@@ -173,19 +173,19 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
 
         // Some additional, slightly tricky validation to detect bad public keys.
         if (payload.pushPublicKey && ! push.isValidPublicKey(payload.pushPublicKey)) {
-          return reply(error.invalidRequestParameter('invalid pushPublicKey'))
+          throw error.invalidRequestParameter('invalid pushPublicKey')
         }
 
         if (payload.id) {
           // Don't write out the update if nothing has actually changed.
           if (isSpuriousUpdate(payload, sessionToken)) {
-            return reply(payload)
+            return payload
           }
 
           // We also reserve the right to disable updates until
           // we're confident clients are behaving correctly.
           if (config.deviceUpdatesEnabled === false) {
-            return reply(error.featureNotEnabled())
+            throw error.featureNotEnabled()
           }
         } else if (sessionToken.deviceId) {
           // Keep the old id, which is probably from a synthesized device record
@@ -205,11 +205,11 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
           }
         }
 
-        devices.upsert(request, sessionToken, payload)
+        return devices.upsert(request, sessionToken, payload)
           .then(function (device) {
             // We must respond with the full device record,
             // including any default values for missing fields.
-            reply(Object.assign({
+            return Object.assign({
               // These properties can be picked from sessionToken or device as appropriate.
               pushCallback: sessionToken.deviceCallbackURL,
               pushPublicKey: sessionToken.deviceCallbackPublicKey,
@@ -221,8 +221,8 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
               id: device.id || sessionToken.deviceId,
               name: device.name || sessionToken.deviceName || devices.synthesizeName(sessionToken),
               type: device.type || sessionToken.deviceType || 'desktop',
-            }))
-          }, reply)
+            })
+          })
 
         // Clients have been known to send spurious device updates,
         // which generates lots of unnecessary database load.
@@ -266,7 +266,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
     {
       method: 'GET',
       path: '/account/device/commands',
-      config: {
+      options: {
         validate: {
           query: {
             index: isA.number().optional(),
@@ -291,7 +291,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
           }).and('last', 'messages')
         }
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('Account.deviceCommands', request)
 
         const sessionToken = request.auth.credentials
@@ -305,13 +305,12 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
             log.info({ op: 'commands.fetch', resp: resp })
             return resp
           })
-          .then(reply, reply)
       }
     },
     {
       method: 'POST',
       path: '/account/devices/invoke_command',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -327,7 +326,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
           schema: {}
         }
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('Account.invokeDeviceCommand', request)
 
         const {target, command, payload, ttl} = request.payload
@@ -355,16 +354,13 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
                 return push.notifyCommandReceived(uid, device, command, sender, index, url.href, ttl)
               })
           })
-          .then(
-            () => reply({}),
-            reply
-          )
+          .then(() => { return {} })
       }
     },
     {
       method: 'POST',
       path: '/account/devices/notify',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -389,13 +385,13 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
           schema: {}
         }
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('Account.devicesNotify', request)
 
         // We reserve the right to disable notifications until
         // we're confident clients are behaving correctly.
         if (config.deviceNotificationsEnabled === false) {
-          return reply(error.featureNotEnabled())
+          throw error.featureNotEnabled()
         }
 
         const body = request.payload
@@ -407,7 +403,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
 
 
         if (! validatePushPayload(payload, endpointAction)) {
-          return reply(error.invalidRequestParameter('invalid payload'))
+          throw error.invalidRequestParameter('invalid payload')
         }
 
         const pushOptions = {
@@ -465,10 +461,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
               })
             }
           })
-          .then(
-            () => reply({}),
-            reply
-          )
+          .then(() => { return {} })
 
         function catchPushError (err) {
           // push may fail due to not found devices or a bad push action
@@ -484,7 +477,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
     {
       method: 'GET',
       path: '/account/devices',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -507,15 +500,15 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
           }).and('pushPublicKey', 'pushAuthKey'))
         }
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('Account.devices', request)
 
         const sessionToken = request.auth.credentials
         const uid = sessionToken.uid
 
-        db.devices(uid)
+        return db.devices(uid)
           .then(deviceArray => {
-            reply(deviceArray.map(device => {
+            return deviceArray.map(device => {
               return Object.assign({
                 id: device.id,
                 isCurrentDevice: device.sessionToken === sessionToken.id,
@@ -528,16 +521,15 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
                 pushEndpointExpired: device.pushEndpointExpired,
                 availableCommands: device.availableCommands
               }, marshallLastAccessTime(device.lastAccessTime, request))
-            }))
-          },
-          reply
+            })
+          }
         )
       }
     },
     {
       method: 'GET',
       path: '/account/sessions',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -566,15 +558,15 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
           }))
         }
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('Account.sessions', request)
 
         const sessionToken = request.auth.credentials
         const uid = sessionToken.uid
 
-        db.sessions(uid)
+        return db.sessions(uid)
           .then(sessions => {
-            reply(sessions.map(session => {
+            return sessions.map(session => {
               const deviceId = session.deviceId
               const isDevice = !! deviceId
 
@@ -614,16 +606,15 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
                 os: session.uaOS,
                 userAgent
               }, marshallLastAccessTime(session.lastAccessTime, request))
-            }))
-          },
-          reply
+            })
+          }
         )
       }
     },
     {
       method: 'POST',
       path: '/account/device/destroy',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -636,7 +627,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
           schema: {}
         }
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('Account.deviceDestroy', request)
 
         const sessionToken = request.auth.credentials
@@ -666,7 +657,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
               })
             ])
           })
-          .then(() => reply({}), reply)
+          .then(() => { return {} })
       }
     }
   ]

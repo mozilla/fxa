@@ -32,7 +32,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
     {
       method: 'POST',
       path: '/account/create',
-      config: {
+      options : {
         validate: {
           query: {
             keys: isA.boolean().optional(),
@@ -57,9 +57,8 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           }
         }
       },
-      handler: function accountCreate(request, reply) {
+      handler: async function (request) {
         log.begin('Account.create', request)
-
         const form = request.payload
         const query = request.query
         const email = form.email
@@ -81,7 +80,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           flowBeginTime = request.payload.metricsContext.flowBeginTime
         }
 
-        customs.check(request, email, 'accountCreate')
+        return customs.check(request, email, 'accountCreate')
           .then(deleteAccountIfUnverified)
           .then(setMetricsFlowCompleteSignal)
           .then(generateRandomValues)
@@ -92,7 +91,6 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           .then(createKeyFetchToken)
           .then(recordSecurityEvent)
           .then(createResponse)
-          .then(reply, reply)
 
 
         function deleteAccountIfUnverified() {
@@ -355,7 +353,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
             response.keyFetchToken = keyFetchToken.data
           }
 
-          return P.resolve(response)
+          return response
         }
       }
     },
@@ -372,7 +370,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           error.cannotLoginWithEmail
         ]
       },
-      config: {
+      options: {
         validate: {
           query: {
             keys: isA.boolean().optional(),
@@ -404,7 +402,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           }
         }
       },
-      handler: function (request, reply) {
+      handler: async function (request) {
         log.begin('Account.login', request)
 
         const form = request.payload
@@ -427,7 +425,6 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           .then(sendSigninNotifications)
           .then(createKeyFetchToken)
           .then(createResponse)
-          .then(reply, reply)
 
         function checkCustomsAndLoadAccount() {
           return signinUtils.checkCustomsAndLoadAccount(request, email).then((res) => {
@@ -684,14 +681,14 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
                         uid: sessionToken.uid
                       }
                     )
-                    .catch(e => {
-                      // If we couldn't email them, no big deal. Log
-                      // and pretend everything worked.
-                      log.trace({
-                        op: 'Account.login.sendNewDeviceLoginNotification.error',
-                        error: e
+                      .catch(e => {
+                        // If we couldn't email them, no big deal. Log
+                        // and pretend everything worked.
+                        log.trace({
+                          op: 'Account.login.sendNewDeviceLoginNotification.error',
+                          error: e
+                        })
                       })
-                    })
                   }
                 }
               }
@@ -720,14 +717,14 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
 
           Object.assign(response, signinUtils.getSessionVerificationStatus(sessionToken, verificationMethod))
 
-          return P.resolve(response)
+          return response
         }
       }
     },
     {
       method: 'GET',
       path: '/account/status',
-      config: {
+      options: {
         auth: {
           mode: 'optional',
           strategy: 'sessionToken'
@@ -738,35 +735,35 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           }
         }
       },
-      handler: function (request, reply) {
+      handler: async function (request) {
         var sessionToken = request.auth.credentials
         if (sessionToken) {
-          reply({ exists: true, locale: sessionToken.locale })
+          return { exists: true, locale: sessionToken.locale }
         }
         else if (request.query.uid) {
           var uid = request.query.uid
-          db.account(uid)
+          return db.account(uid)
             .then(
               function (account) {
-                reply({ exists: true })
+                return { exists: true }
               },
               function (err) {
                 if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-                  return reply({ exists: false })
+                  return { exists: false }
                 }
-                reply(err)
+                throw err
               }
             )
         }
         else {
-          reply(error.missingRequestParameter('uid'))
+          throw error.missingRequestParameter('uid')
         }
       }
     },
     {
       method: 'POST',
       path: '/account/status',
-      config: {
+      options: {
         validate: {
           payload: {
             email: validators.email().required()
@@ -778,27 +775,27 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           }
         }
       },
-      handler: function (request, reply) {
+      handler: async function (request) {
         var email = request.payload.email
 
-        customs.check(
+        return customs.check(
           request,
           email,
           'accountStatusCheck')
-          .then(
-            db.accountExists.bind(db, email)
-          )
+          .then(() => {
+            return db.accountExists(email)
+          })
           .then(
             function (exist) {
-              reply({
+              return {
                 exists: exist
-              })
+              }
             },
             function (err) {
               if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-                return reply({ exists: false })
+                return { exists: false }
               }
-              reply(err)
+              throw err
             }
           )
       }
@@ -806,7 +803,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
     {
       method: 'GET',
       path: '/account/profile',
-      config: {
+      options: {
         auth: {
           strategies: [
             'sessionToken',
@@ -822,7 +819,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           }
         }
       },
-      handler: function (request, reply) {
+      handler: async function (request) {
         var auth = request.auth
         var uid
         if (auth.strategy === 'sessionToken') {
@@ -830,6 +827,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
         } else {
           uid = auth.credentials.user
         }
+
         function hasProfileItemScope(item) {
           if (auth.strategy === 'sessionToken') {
             return true
@@ -852,7 +850,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           return false
         }
         const res = {}
-        db.account(uid)
+        return db.account(uid)
           .then(account => {
             if (hasProfileItemScope('email')) {
               res.email = account.primaryEmail.email
@@ -868,13 +866,15 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
                 })
             }
           })
-          .then(() => reply(res), reply)
+          .then(() => {
+            return res
+          })
       }
     },
     {
       method: 'GET',
       path: '/account/keys',
-      config: {
+      options: {
         auth: {
           strategy: 'keyFetchTokenWithVerificationStatus'
         },
@@ -884,16 +884,16 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           }
         }
       },
-      handler: function accountKeys(request, reply) {
+      handler: async function accountKeys(request) {
         log.begin('Account.keys', request)
         var keyFetchToken = request.auth.credentials
 
         var verified = keyFetchToken.tokenVerified && keyFetchToken.emailVerified
         if (! verified) {
           // don't delete the token on use until the account is verified
-          return reply(error.unverifiedAccount())
+          throw error.unverifiedAccount()
         }
-        db.deleteKeyFetchToken(keyFetchToken)
+        return db.deleteKeyFetchToken(keyFetchToken)
           .then(
             function () {
               return request.emitMetricsEvent('account.keyfetch', {
@@ -908,39 +908,38 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
               }
             }
           )
-          .then(reply, reply)
       }
     },
     {
       method: 'POST',
       path: '/account/unlock/resend_code',
-      config: {
+      options: {
         validate: {
           payload: true
         }
       },
-      handler: function (request, reply) {
+      handler: async function (request) {
         log.error({ op: 'Account.UnlockCodeResend', request: request })
-        reply(error.gone())
+        throw error.gone()
       }
     },
     {
       method: 'POST',
       path: '/account/unlock/verify_code',
-      config: {
+      options: {
         validate: {
           payload: true
         }
       },
-      handler: function (request, reply) {
+      handler: async function (request) {
         log.error({ op: 'Account.UnlockCodeVerify', request: request })
-        reply(error.gone())
+        throw error.gone()
       }
     },
     {
       method: 'POST',
       path: '/account/reset',
-      config: {
+      options: {
         auth: {
           strategy: 'accountResetToken',
           payload: 'required'
@@ -958,7 +957,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           }).and('wrapKb', 'recoveryKeyId')
         }
       },
-      handler: function accountReset(request, reply) {
+      handler: async function accountReset(request) {
         log.begin('Account.reset', request)
         const accountResetToken = request.auth.credentials
         const authPW = request.payload.authPW
@@ -984,7 +983,6 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           .then(createKeyFetchToken)
           .then(recordSecurityEvent)
           .then(createResponse)
-          .then(reply, reply)
 
         function checkRecoveryKey() {
           if (recoveryKeyId) {
@@ -1116,12 +1114,12 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
               wrapKb: wrapKb,
               emailVerified: account.primaryEmail.isVerified
             })
-            .then(
-              function (result) {
-                keyFetchToken = result
-                return request.stashMetricsContext(keyFetchToken)
-              }
-            )
+              .then(
+                function (result) {
+                  keyFetchToken = result
+                  return request.stashMetricsContext(keyFetchToken)
+                }
+              )
           }
         }
 
@@ -1160,7 +1158,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
     {
       method: 'POST',
       path: '/account/destroy',
-      config: {
+      options: {
         auth: {
           mode: 'optional',
           strategy: 'sessionToken'
@@ -1172,12 +1170,12 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           }
         }
       },
-      handler: function accountDestroy(request, reply) {
+      handler: async function accountDestroy(request) {
         log.begin('Account.destroy', request)
         const form = request.payload
         const authPW = form.authPW
 
-        customs.check(request, form.email, 'accountDestroy')
+        return customs.check(request, form.email, 'accountDestroy')
           .then(db.accountRecord.bind(db, form.email))
           .then((emailRecord) => {
             return totpUtils.hasTotpToken(emailRecord)
@@ -1233,39 +1231,36 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
                   request.emitMetricsEvent('account.deleted', {uid})
                 ])
               })
-              .then(() => {
-                return {}
-              })
           }, (err) => {
             if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-              customs.flag(request.app.clientAddress, {
+              return customs.flag(request.app.clientAddress, {
                 email: form.email,
                 errno: err.errno
               })
             }
             throw err
           })
-          .then(reply, reply)
+
       }
     }
   ]
 
   if (config.isProduction) {
-    delete routes[0].config.validate.payload.preVerified
+    delete routes[0].options.validate.payload.preVerified
   } else {
     // programmatic account lockout was only available in
     // non-production mode.
     routes.push({
       method: 'POST',
       path: '/account/lock',
-      config: {
+      options: {
         validate: {
           payload: true
         }
       },
-      handler: function (request, reply) {
+      handler: async function (request) {
         log.error({ op: 'Account.lock', request: request })
-        reply(error.gone())
+        throw error.gone()
       }
     })
   }

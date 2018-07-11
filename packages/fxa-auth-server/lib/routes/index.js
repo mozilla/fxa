@@ -89,7 +89,7 @@ module.exports = function (
     // Default auth.payload to 'optional' for all authenticated routes.
     // We'll validate the payload hash if the client provides it,
     // but allow them to skip it if they can't or don't want to.
-    const auth = r.config && r.config.auth
+    const auth = r.options && r.options.auth
     if (auth && ! auth.hasOwnProperty('payload')) {
       auth.payload = 'optional'
     }

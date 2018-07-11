@@ -12,7 +12,7 @@ module.exports = (log, db, Password, verifierVersion, customs) => {
     {
       method: 'POST',
       path: '/recoveryKeys',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -23,16 +23,16 @@ module.exports = (log, db, Password, verifierVersion, customs) => {
           }
         }
       },
-      handler(request, reply) {
+      handler: async function (request) {
         log.begin('createRecoveryKey', request)
 
         const uid = request.auth.credentials.uid
         const sessionToken = request.auth.credentials
         const {recoveryKeyId, recoveryData} = request.payload
 
-        createRecoveryKey()
+        return createRecoveryKey()
           .then(emitMetrics)
-          .then(() => reply({}), reply)
+          .then(() => { return {} })
 
         function createRecoveryKey() {
           if (sessionToken.tokenVerificationId) {
@@ -55,7 +55,7 @@ module.exports = (log, db, Password, verifierVersion, customs) => {
     {
       method: 'GET',
       path: '/recoveryKeys/{recoveryKeyId}',
-      config: {
+      options: {
         auth: {
           strategy: 'accountResetToken'
         },
@@ -65,7 +65,7 @@ module.exports = (log, db, Password, verifierVersion, customs) => {
           }
         }
       },
-      handler(request, reply) {
+      handler: async function (request) {
         log.begin('getRecoveryKey', request)
 
         const uid = request.auth.credentials.uid
@@ -73,9 +73,9 @@ module.exports = (log, db, Password, verifierVersion, customs) => {
         const recoveryKeyId = request.params.recoveryKeyId
         let recoveryData
 
-        customs.checkAuthenticated('getRecoveryKey', ip, uid)
+        return customs.checkAuthenticated('getRecoveryKey', ip, uid)
           .then(getRecoveryKey)
-          .then(() => reply({recoveryData}), reply)
+          .then(() => { return {recoveryData} })
 
         function getRecoveryKey() {
           return db.getRecoveryKey(uid, recoveryKeyId)

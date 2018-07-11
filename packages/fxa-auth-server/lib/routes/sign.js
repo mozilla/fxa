@@ -17,7 +17,7 @@ module.exports = (log, signer, db, domain, devices) => {
     {
       method: 'POST',
       path: '/certificate/sign',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken',
           payload: 'required'
@@ -41,7 +41,7 @@ module.exports = (log, signer, db, domain, devices) => {
           }
         }
       },
-      handler: function certificateSign(request, reply) {
+      handler: async function certificateSign(request) {
         log.begin('Sign.cert', request)
         var sessionToken = request.auth.credentials
         var publicKey = request.payload.publicKey
@@ -75,10 +75,10 @@ module.exports = (log, signer, db, domain, devices) => {
         }
 
         if (! sessionToken.emailVerified) {
-          return reply(error.unverifiedAccount())
+          throw error.unverifiedAccount()
         }
         if (sessionToken.mustVerify && ! sessionToken.tokenVerified) {
-          return reply(error.unverifiedSession())
+          throw error.unverifiedSession()
         }
 
         return P.resolve()
@@ -184,12 +184,7 @@ module.exports = (log, signer, db, domain, devices) => {
               })
             }
           )
-          .then(
-            function () {
-              reply(certResult)
-            },
-            reply
-          )
+          .then(() => { return certResult })
       }
     }
   ]

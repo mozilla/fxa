@@ -37,7 +37,7 @@ module.exports = (log, db, mailer, customs, config) => {
     {
       method: 'POST',
       path: '/totp/create',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -53,22 +53,24 @@ module.exports = (log, db, mailer, customs, config) => {
           })
         }
       },
-      handler(request, reply) {
+      handler: async function (request) {
         log.begin('totp.create', request)
 
         let response
+        let secret
         const sessionToken = request.auth.credentials
         const uid = sessionToken.uid
-
-        customs.check(request, sessionToken.email, 'totpCreate')
-          .then(createTotpToken)
-          .then(emitMetrics)
-          .then(createResponse)
-          .then(() => reply(response), reply)
-
         const authenticator = new otplib.authenticator.Authenticator()
         authenticator.options = otplib.authenticator.options
-        const secret = authenticator.generateSecret()
+
+        return customs.check(request, sessionToken.email, 'totpCreate')
+          .then(() => {
+            secret = authenticator.generateSecret()
+            return createTotpToken()
+          })
+          .then(emitMetrics)
+          .then(createResponse)
+          .then(() => response)
 
         function createTotpToken() {
           if (sessionToken.tokenVerificationId) {
@@ -102,24 +104,24 @@ module.exports = (log, db, mailer, customs, config) => {
     {
       method: 'POST',
       path: '/totp/destroy',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
         response: {}
       },
-      handler(request, reply) {
+      handler: async function (request) {
         log.begin('totp.destroy', request)
 
         const sessionToken = request.auth.credentials
         const uid = sessionToken.uid
         let hasEnabledToken = false
 
-        customs.check(request, sessionToken.email, 'totpDestroy')
+        return customs.check(request, sessionToken.email, 'totpDestroy')
           .then(checkTotpToken)
           .then(deleteTotpToken)
           .then(sendEmailNotification)
-          .then(() => reply({}), reply)
+          .then(() => { return {} })
 
         function checkTotpToken() {
           // If a TOTP token is not verified, we should be able to safely delete regardless of session
@@ -171,7 +173,7 @@ module.exports = (log, db, mailer, customs, config) => {
     {
       method: 'GET',
       path: '/totp/exists',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -181,14 +183,14 @@ module.exports = (log, db, mailer, customs, config) => {
           })
         }
       },
-      handler(request, reply) {
+      handler: async function (request) {
         log.begin('totp.exists', request)
 
         const sessionToken = request.auth.credentials
         let exists = false
 
         return getTotpToken()
-          .then(() => reply({exists}), reply)
+          .then(() => { return {exists} })
 
         function getTotpToken() {
           return P.resolve()
@@ -225,7 +227,7 @@ module.exports = (log, db, mailer, customs, config) => {
     {
       method: 'POST',
       path: '/session/verify/totp',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -243,7 +245,7 @@ module.exports = (log, db, mailer, customs, config) => {
           }
         }
       },
-      handler(request, reply) {
+      handler: async function (request) {
         log.begin('session.verify.totp', request)
 
         const code = request.payload.code
@@ -252,7 +254,7 @@ module.exports = (log, db, mailer, customs, config) => {
         const email = sessionToken.email
         let sharedSecret, isValidCode, tokenVerified, recoveryCodes
 
-        customs.check(request, email, 'verifyTotpCode')
+        return customs.check(request, email, 'verifyTotpCode')
           .then(getTotpToken)
           .then(verifyTotpCode)
           .then(verifyTotpToken)
@@ -269,8 +271,8 @@ module.exports = (log, db, mailer, customs, config) => {
               response.recoveryCodes = recoveryCodes
             }
 
-            return reply(response)
-          }, reply)
+            return response
+          })
 
         function getTotpToken() {
           return db.totpToken(sessionToken.uid)

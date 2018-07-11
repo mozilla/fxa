@@ -9,7 +9,6 @@ const ROOT_DIR = '../..'
 const assert = require('insist')
 const EndpointError = require('poolee/lib/error')(require('util').inherits)
 const error = require(`${ROOT_DIR}/lib/error`)
-const hapi = require('hapi')
 const hawk = require('hawk')
 const mocks = require('../mocks')
 const server = require(`${ROOT_DIR}/lib/server`)
@@ -85,11 +84,10 @@ describe('lib/server', () => {
         db = mocks.mockDB({
           devices: [ { id: 'fake device id' } ]
         })
-        instance = server.create(log, error, config, routes, db, translator, Token)
-      })
 
-      it('returned a hapi Server instance', () => {
-        assert.ok(instance instanceof hapi.Server)
+        return server.create(log, error, config, routes, db, translator, Token).then((s) => {
+          instance = s
+        })
       })
 
       describe('server.start:', () => {
@@ -443,24 +441,27 @@ describe('lib/server', () => {
           uid: 'blee',
           expired: true
         })
-        instance = server.create(log, error, config, routes, db, translator, Token)
-        return instance.start()
-          .then(() => {
-            const auth = hawk.client.header(`${config.publicUrl}account/status`, 'GET', {
-              credentials: {
-                id: 'deadbeef',
-                key: 'baadf00d',
-                algorithm: 'sha256'
-              }
+
+        return server.create(log, error, config, routes, db, translator, Token).then((s) => {
+          instance = s
+          return instance.start()
+            .then(() => {
+              const auth = hawk.client.header(`${config.publicUrl}account/status`, 'GET', {
+                credentials: {
+                  id: 'deadbeef',
+                  key: 'baadf00d',
+                  algorithm: 'sha256'
+                }
+              })
+              return instance.inject({
+                headers: {
+                  authorization: auth.field
+                },
+                method: 'GET',
+                url: '/account/status'
+              })
             })
-            return instance.inject({
-              headers: {
-                authorization: auth.field
-              },
-              method: 'GET',
-              url: '/account/status'
-            })
-          })
+        })
       })
 
       afterEach(() => instance.stop())
@@ -485,8 +486,8 @@ describe('lib/server', () => {
         {
           path: '/account/create',
           method: 'POST',
-          handler (request, reply) {
-            return reply(response)
+          handler (request) {
+            return response
           }
         },
         {
@@ -498,8 +499,8 @@ describe('lib/server', () => {
               strategy: 'sessionToken'
             }
           },
-          handler (request, reply) {
-            return reply(response)
+          handler (request) {
+            return response
           }
         }
       ]

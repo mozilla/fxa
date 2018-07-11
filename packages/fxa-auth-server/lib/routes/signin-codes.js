@@ -14,7 +14,7 @@ module.exports = (log, db, customs) => {
     {
       method: 'POST',
       path: '/signinCodes/consume',
-      config: {
+      options: {
         validate: {
           payload: {
             code: isA.string().regex(validators.URL_SAFE_BASE_64).required(),
@@ -27,14 +27,13 @@ module.exports = (log, db, customs) => {
           }
         }
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('signinCodes.consume', request)
         request.validateMetricsContext()
 
-        customs.checkIpOnly(request, 'consumeSigninCode')
+        return customs.checkIpOnly(request, 'consumeSigninCode')
           .then(hexSigninCode)
           .then(consumeSigninCode)
-          .then(reply, reply)
 
         function hexSigninCode () {
           let base64 = request.payload.code.replace(/-/g, '+').replace(/_/g, '/')

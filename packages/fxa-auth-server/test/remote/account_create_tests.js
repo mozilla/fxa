@@ -14,11 +14,9 @@ const mocks = require('../mocks')
 describe('remote account create', function() {
   this.timeout(15000)
   let server
-  before(() => {
-    return TestServer.start(config)
-      .then(s => {
-        server = s
-      })
+  before(async () => {
+    server = await TestServer.start(config)
+    return server
   })
 
   it(
@@ -28,22 +26,18 @@ describe('remote account create', function() {
       var password = 'allyourbasearebelongtous'
       var client = null
       return Client.create(config.publicUrl, email, password)
-        .then(
-          function (x) {
-            client = x
-            assert.ok(client.authAt, 'authAt was set')
-          }
-        )
-        .then(
-          function () {
+        .then( x => {
+          client = x
+          assert.ok(client.authAt, 'authAt was set')
+        }
+       )
+        .then(() => {
             return client.keys()
-          }
-        )
-        .then(
-          function (keys) {
+        })
+        .then((keys)  => {
             assert(false, 'got keys before verifying email')
           },
-          function (err) {
+          (err) => {
             assert.equal(err.errno, 104, 'Unverified account error code')
             assert.equal(err.message, 'Unverified account', 'Unverified account error message')
           }
@@ -337,20 +331,15 @@ describe('remote account create', function() {
         redirectTo: 'http://accounts.firefox.com.evil.us'
       }
       return api.accountCreate(email, authPW, options)
-      .then(
-        assert.fail,
-        function (err) {
+      .then(assert.fail, (err) => {
           assert.equal(err.errno, 107, 'bad redirectTo rejected')
         }
       )
-      .then(
-        function () {
+      .then(() => {
           return api.passwordForgotSendCode(email, options)
         }
       )
-      .then(
-        assert.fail,
-        function (err) {
+      .then(assert.fail, (err) => {
           assert.equal(err.errno, 107, 'bad redirectTo rejected')
         }
       )
@@ -368,22 +357,17 @@ describe('remote account create', function() {
       }
 
       return api.accountCreate(email, authPW, options)
-      .then(
-        assert.fail,
-        function (err) {
+      .then(assert.fail, (err) => {
           assert.equal(err.errno, 107, 'bad redirectTo rejected')
         }
       )
-      .then(
-        function () {
+      .then(() => {
           return api.passwordForgotSendCode(email, {
             redirectTo: 'https://fakefirefox.com'
           })
         }
       )
-      .then(
-        assert.fail,
-        function (err) {
+      .then(assert.fail, (err) => {
           assert.equal(err.errno, 107, 'bad redirectTo rejected')
         }
       )

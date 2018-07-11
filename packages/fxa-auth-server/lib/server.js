@@ -48,7 +48,7 @@ function logEndpointErrors(response, log) {
   }
 }
 
-function create(log, error, config, routes, db, translator) {
+async function create (log, error, config, routes, db, translator) {
   const getGeoData = require('./geodb')(log)
 
   // Hawk needs to calculate request signatures based on public URL,
@@ -67,23 +67,24 @@ function create(log, error, config, routes, db, translator) {
     // the timestamp checks by setting it to a humongous value.
     timestampSkewSec: 20 * 365 * 24 * 60 * 60,  // 20 years, +/- a few days
 
-    nonceFunc: function nonceCheck(key, nonce, ts, cb) {
+    nonceFunc: function nonceCheck(key, nonce, ts) {
       // Since we've disabled timestamp checks, there's not much point
       // keeping a nonce cache.  Instead we use this as an opportunity
       // to report on the clock skew values seen in the wild.
       var skew = (Date.now() / 1000) - (+ts)
       log.trace({ op: 'server.nonceFunc', skew: skew })
-      return cb()
     }
   }
 
+
   function makeCredentialFn(dbGetFn) {
-    return function (id, cb) {
+    return function (id) {
       log.trace({ op: 'DB.getToken', id: id })
       if (! HEX_STRING.test(id)) {
-        return process.nextTick(cb.bind(null, null, null)) // not found
+        return null
       }
-      dbGetFn(id)
+
+      return dbGetFn(id)
         .then(token => {
           if (token.expired(Date.now())) {
             const err = error.invalidToken('The authentication token has expired')
@@ -91,62 +92,60 @@ function create(log, error, config, routes, db, translator) {
             if (token.tokenTypeID === 'sessionToken') {
               return db.pruneSessionTokens(token.uid, [ token ])
                 .catch(() => {})
-                .then(() => cb(err))
+                .then(() => { throw err })
             }
-
-            return cb(err)
+            return null
           }
+          return token
+        })
 
-          return cb(null, token)
-        }, cb)
     }
   }
 
   var serverOptions = {
-    connections: {
-      routes: {
-        cors: {
-          additionalExposedHeaders: ['Timestamp', 'Accept-Language'],
-          origin: config.corsOrigin
-        },
-        security: {
-          hsts: {
-            maxAge: 15552000,
-            includeSubdomains: true
-          }
-        },
-        state: {
-          parse: false
-        },
-        payload: {
-          maxBytes: 16384
-        },
-        files: {
-          relativeTo: path.dirname(__dirname)
-        },
-        validate: {
-          options: {
-            stripUnknown: true
-          }
+    host: config.listen.host,
+    port: config.listen.port,
+    routes: {
+      cors: {
+        additionalExposedHeaders: ['Timestamp', 'Accept-Language'],
+        origin: config.corsOrigin
+      },
+      security: {
+        hsts: {
+          maxAge: 15552000,
+          includeSubdomains: true
         }
       },
-      load: {
-        maxEventLoopDelay: config.maxEventLoopDelay
-      }
+      state: {
+        parse: false
+      },
+      payload: {
+        maxBytes: 16384
+      },
+      files: {
+        relativeTo: path.dirname(__dirname)
+      },
+      validate: {
+        options: {
+          stripUnknown: true
+        },
+        failAction: async (request, h, err) => {
+          // Starting with Hapi 17, the framework hides the validation info
+          // We want the full validation information and use it in `onPreResponse` below
+
+          // See: https://github.com/hapijs/hapi/issues/3706#issuecomment-349765943
+          throw err;
+        }
+      },
     },
     load: {
-      sampleInterval: 1000
+      sampleInterval: 1000,
+      maxEventLoopDelay: config.maxEventLoopDelay
     },
-    useDomains: true
-  }
-
-  var connectionOptions = {
-    host: config.listen.host,
-    port: config.listen.port
   }
 
   if (config.useHttps) {
-    connectionOptions.tls = {
+    serverOptions.tls = {
       key: fs.readFileSync(config.keyPath),
       cert: fs.readFileSync(config.certPath)
     }
@@ -154,113 +153,12 @@ function create(log, error, config, routes, db, translator) {
 
   var server = new Hapi.Server(serverOptions)
 
-  // register 'inert' to support service static files
-  server.register(require('inert'), function () {
-    // callback required
-  })
-
-  server.connection(connectionOptions)
-
-  if (config.hpkpConfig && config.hpkpConfig.enabled) {
-    var hpkpOptions = {
-      maxAge: config.hpkpConfig.maxAge,
-      sha256s: config.hpkpConfig.sha256s,
-      includeSubdomains: config.hpkpConfig.includeSubDomains
-    }
-
-    if (config.hpkpConfig.reportUri){
-      hpkpOptions.reportUri = config.hpkpConfig.reportUri
-    }
-
-    if (config.hpkpConfig.reportOnly){
-      hpkpOptions.reportOnly = config.hpkpConfig.reportOnly
-    }
-
-    server.register({
-      register: require('hapi-hpkp'),
-      options: hpkpOptions
-    }, function (err) {
-      if (err) {
-        throw err
-      }
-    })
-  }
-
-  server.register(require('hapi-auth-hawk'), function (err) {
-    if (err) {
-      throw err
-    }
-
-    server.auth.strategy(
-      'sessionToken',
-      'hawk',
-      {
-        getCredentialsFunc: makeCredentialFn(db.sessionToken.bind(db)),
-        hawk: hawkOptions
-      }
-    )
-    server.auth.strategy(
-      'keyFetchToken',
-      'hawk',
-      {
-        getCredentialsFunc: makeCredentialFn(db.keyFetchToken.bind(db)),
-        hawk: hawkOptions
-      }
-    )
-    server.auth.strategy(
-      // This strategy fetches the keyFetchToken with its
-      // verification state. It doesn't check that state.
-      'keyFetchTokenWithVerificationStatus',
-      'hawk',
-      {
-        getCredentialsFunc: makeCredentialFn(db.keyFetchTokenWithVerificationStatus.bind(db)),
-        hawk: hawkOptions
-      }
-    )
-    server.auth.strategy(
-      'accountResetToken',
-      'hawk',
-      {
-        getCredentialsFunc: makeCredentialFn(db.accountResetToken.bind(db)),
-        hawk: hawkOptions
-      }
-    )
-    server.auth.strategy(
-      'passwordForgotToken',
-      'hawk',
-      {
-        getCredentialsFunc: makeCredentialFn(db.passwordForgotToken.bind(db)),
-        hawk: hawkOptions
-      }
-    )
-    server.auth.strategy(
-      'passwordChangeToken',
-      'hawk',
-      {
-        getCredentialsFunc: makeCredentialFn(db.passwordChangeToken.bind(db)),
-        hawk: hawkOptions
-      }
-    )
-
-    server.register(require('hapi-fxa-oauth'), function (err) {
-      if (err) {
-        throw err
-      }
-
-      server.auth.strategy('oauthToken', 'fxa-oauth', config.oauth)
-
-      // routes should be registered after all auth strategies have initialized:
-      // ref: http://hapijs.com/tutorials/auth
-      server.route(routes)
-    })
-  })
-
-  server.ext('onRequest', (request, reply) => {
+  server.ext('onRequest', (request, h) => {
     log.begin('server.onRequest', request)
-    reply.continue()
+    return h.continue
   })
 
-  server.ext('onPreAuth', (request, reply) => {
+  server.ext('onPreAuth', (request, h) => {
     defineLazyGetter(request.app, 'remoteAddressChain', () => {
       const xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/)
 
@@ -310,17 +208,17 @@ function create(log, error, config, routes, db, translator) {
       })
     }
 
-    reply.continue()
+    return h.continue
   })
 
-  server.ext('onPreHandler', (request, reply) => {
+  server.ext('onPreHandler', (request, h) => {
     const features = request.payload && request.payload.features
     request.app.features = new Set(Array.isArray(features) ? features : [])
 
-    reply.continue()
+    return h.continue
   })
 
-  server.ext('onPreResponse', (request, reply) => {
+  server.ext('onPreResponse', (request) => {
     let response = request.response
     if (response.isBoom) {
       logEndpointErrors(response, log)
@@ -331,14 +229,14 @@ function create(log, error, config, routes, db, translator) {
     }
     response.header('Timestamp', '' + Math.floor(Date.now() / 1000))
     log.summary(request, response)
-    reply(response)
+    return response
   })
 
   // configure Sentry
   const sentryDsn = config.sentryDsn
   if (sentryDsn) {
     Raven.config(sentryDsn, {})
-    server.on('request-error', function (request, err) {
+    server.events.on('request-error', function (request, err) {
       let exception = ''
       if (err && err.stack) {
         try {
@@ -375,6 +273,92 @@ function create(log, error, config, routes, db, translator) {
     }
   }
 
+
+  // register 'inert' to support service static files
+  await server.register(require('inert'))
+
+  //register hpkp
+  if (config.hpkpConfig && config.hpkpConfig.enabled) {
+    var hpkpOptions = {
+      maxAge: config.hpkpConfig.maxAge,
+      sha256s: config.hpkpConfig.sha256s,
+      includeSubdomains: config.hpkpConfig.includeSubDomains
+    }
+
+    if (config.hpkpConfig.reportUri){
+      hpkpOptions.reportUri = config.hpkpConfig.reportUri
+    }
+
+    if (config.hpkpConfig.reportOnly){
+      hpkpOptions.reportOnly = config.hpkpConfig.reportOnly
+    }
+
+    await server.register({
+      plugin: require('hapi-hpkp'),
+      options: hpkpOptions
+    })
+
+  }
+
+  await server.register(require('hapi-auth-hawk'))
+
+  server.auth.strategy(
+    'sessionToken',
+    'hawk',
+    {
+      getCredentialsFunc: makeCredentialFn(db.sessionToken.bind(db)),
+      hawk: hawkOptions
+    }
+  )
+  server.auth.strategy(
+    'keyFetchToken',
+    'hawk',
+    {
+      getCredentialsFunc: makeCredentialFn(db.keyFetchToken.bind(db)),
+      hawk: hawkOptions
+    }
+  )
+  server.auth.strategy(
+    // This strategy fetches the keyFetchToken with its
+    // verification state. It doesn't check that state.
+    'keyFetchTokenWithVerificationStatus',
+    'hawk',
+    {
+      getCredentialsFunc: makeCredentialFn(db.keyFetchTokenWithVerificationStatus.bind(db)),
+      hawk: hawkOptions
+    }
+  )
+  server.auth.strategy(
+    'accountResetToken',
+    'hawk',
+    {
+      getCredentialsFunc: makeCredentialFn(db.accountResetToken.bind(db)),
+      hawk: hawkOptions
+    }
+  )
+  server.auth.strategy(
+    'passwordForgotToken',
+    'hawk',
+    {
+      getCredentialsFunc: makeCredentialFn(db.passwordForgotToken.bind(db)),
+      hawk: hawkOptions
+    }
+  )
+  server.auth.strategy(
+    'passwordChangeToken',
+    'hawk',
+    {
+      getCredentialsFunc: makeCredentialFn(db.passwordChangeToken.bind(db)),
+      hawk: hawkOptions
+    }
+  )
+  await server.register(require('hapi-fxa-oauth'))
+
+  server.auth.strategy('oauthToken', 'fxa-oauth', config.oauth)
+  // routes should be registered after all auth strategies have initialized:
+  // ref: http://hapijs.com/tutorials/auth
+
+  server.route(routes)
   return server
 }
 

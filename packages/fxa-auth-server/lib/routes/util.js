@@ -14,18 +14,18 @@ module.exports = (log, config, redirectDomain) => {
     {
       method: 'POST',
       path: '/get_random_bytes',
-      handler: function getRandomBytes(request, reply) {
-        random(32)
-          .then(
-            bytes => reply({ data: bytes.toString('hex') }),
-            err => reply(err)
-          )
+      handler: async function getRandomBytes(request) {
+        return random(32)
+        .then(
+          bytes => { return { data: bytes.toString('hex') }},
+          err => { throw err }
+        )
       }
     },
     {
       method: 'GET',
       path: '/verify_email',
-      config: {
+      options: {
         validate: {
           query: {
             code: isA.string().max(32).regex(HEX_STRING).required(),
@@ -35,14 +35,14 @@ module.exports = (log, config, redirectDomain) => {
           }
         }
       },
-      handler: function (request, reply) {
-        return reply().redirect(config.contentServer.url + request.raw.req.url)
+      handler: async function (request, h) {
+        return h.redirect(config.contentServer.url + request.raw.req.url)
       }
     },
     {
       method: 'GET',
       path: '/complete_reset_password',
-      config: {
+      options: {
         validate: {
           query: {
             email: validators.email().required(),
@@ -53,8 +53,8 @@ module.exports = (log, config, redirectDomain) => {
           }
         }
       },
-      handler: function (request, reply) {
-        return reply().redirect(config.contentServer.url + request.raw.req.url)
+      handler: async function (request, h) {
+        return h.redirect(config.contentServer.url + request.raw.req.url)
       }
     }
   ]

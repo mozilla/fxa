@@ -63,17 +63,15 @@ var makeRoutes = function (options = {}, requireMocks) {
   )
 }
 
-function runTest (route, request, assertions) {
+function runTest(route, request, assertions) {
   return new P(function (resolve, reject) {
-    route.handler(request, function (response) {
-      if (response instanceof Error) {
-        reject(response)
-      } else {
-        resolve(response)
-      }
-    })
+    try {
+      return route.handler(request).then(resolve, reject)
+    } catch (err) {
+      reject(err)
+    }
   })
-  .then(assertions)
+    .then(assertions)
 }
 
 describe('/account/reset', function () {
