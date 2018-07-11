@@ -289,6 +289,8 @@ for `code` and `errno` are:
   Service unavailable
 * `code: 503, errno: 202`:
   Feature not enabled
+* `code: 500, errno: 203`:
+  A backend service request failed.
 * `code: 500, errno: 999`:
   Unspecified error
 
@@ -317,6 +319,7 @@ include additional response properties:
 * `errno: 153`
 * `errno: 201`: retryAfter
 * `errno: 202`: retryAfter
+* `errno: 203`: service, operation
 
 #### Responses from intermediary servers
 <!--begin-responses-from-intermediary-servers-->

@@ -1,3 +1,20 @@
+<a name="1.116.0"></a>
+# [1.116.0](https://github.com/mozilla/fxa-auth-server/compare/v1.115.1...v1.116.0) (2018-07-11)
+
+
+### Bug Fixes
+
+* **customs:** Fail closed if customs-server gives an error. (#2483) r=@vladikoff,@shane-tomlin ([acef9ef](https://github.com/mozilla/fxa-auth-server/commit/acef9ef)), closes [#2483](https://github.com/mozilla/fxa-auth-server/issues/2483)
+* **email:** gracefully handle errors from fxa-email-service (#2510) r=@vladikoff ([d46526f](https://github.com/mozilla/fxa-auth-server/commit/d46526f)), closes [#2510](https://github.com/mozilla/fxa-auth-server/issues/2510) [#2509](https://github.com/mozilla/fxa-auth-server/issues/2509)
+* **metrics:** don't force utm_source=email on links in emails ([e47b710](https://github.com/mozilla/fxa-auth-server/commit/e47b710))
+
+### Features
+
+* **email:** use fxa-email-server for specific email addresses ([4b5bd9a](https://github.com/mozilla/fxa-auth-server/commit/4b5bd9a))
+* **metrics:** add amplitude event properties for email service/sender ([55b3290](https://github.com/mozilla/fxa-auth-server/commit/55b3290))
+
+
+
 <a name="1.115.1"></a>
 ## [1.115.1](https://github.com/mozilla/fxa-auth-server/compare/v1.115.0...v1.115.1) (2018-06-28)
 
