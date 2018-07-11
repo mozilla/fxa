@@ -199,6 +199,35 @@ describe('push', () => {
   )
 
   it(
+    'sendPush pushes to all ios devices if it is triggered with a "commands received" command',
+    () => {
+      const data = {
+        command: 'fxaccounts:command_received',
+        data: { foo: 'bar' }
+      }
+      const endPoints = []
+      const mocks = {
+        'web-push': {
+          sendNotification: function (sub, payload, options) {
+            endPoints.push(sub.endpoint)
+            return P.resolve()
+          }
+        }
+      }
+
+      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
+      const options = { data: data }
+      return push.sendPush(mockUid, mockDevices, 'devicesNotify', options)
+        .then(() => {
+          assert.equal(endPoints.length, 3)
+          assert.equal(endPoints[0], mockDevices[0].pushCallback)
+          assert.equal(endPoints[1], mockDevices[1].pushCallback)
+          assert.equal(endPoints[2], mockDevices[2].pushCallback)
+        })
+    }
+  )
+
+  it(
     'sendPush pushes to all ios devices if it is triggered with a "collection changed" command',
     () => {
       const data = {
