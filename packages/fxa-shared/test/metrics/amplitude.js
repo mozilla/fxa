@@ -59,6 +59,10 @@ describe('metrics/amplitude:', () => {
           group: eventCategory => eventCategory === 'wibble' ? amplitude.GROUPS.registration : null,
           event: 'targetEvent4'
         } ],
+        [ /wobble\.(\w+)\.(\w+)/, {
+          group: amplitude.GROUPS.login,
+          event: (eventCategory, eventTarget) => `${eventCategory}.${eventTarget}`
+        } ],
         [ /(sms)\.(\w+)/, {
           group: amplitude.GROUPS.connectDevice,
           event: 'cadEvent'
@@ -205,6 +209,18 @@ describe('metrics/amplitude:', () => {
 
       it('returned the correct event type', () => {
         assert.equal(result.event_type, 'fxa_reg - targetEvent4');
+      });
+    });
+
+    describe('transform a fuzzy event with an event function:', () => {
+      let result;
+
+      before(() => {
+        result = transform({ type: 'wobble.glick.gluck' }, {});
+      })
+
+      it('returned the correct event type', () => {
+        assert.equal(result.event_type, 'fxa_login - glick.gluck');
       });
     });
 
