@@ -1,3 +1,17 @@
+<a name="1.116.0"></a>
+# 1.116.0 (2018-07-11)
+
+
+### Bug Fixes
+
+* **circle:** docker run --rm -it fxa-customs-server:build npm ls --production fxa#302 ([5037ee8](https://github.com/mozilla/fxa-customs-server/commit/5037ee8))
+
+### chore
+
+* **release:** Merge mozilla/train-115 into master r=@shane-tomlinson ([5112862](https://github.com/mozilla/fxa-customs-server/commit/5112862))
+
+
+
 <a name="1.115.0"></a>
 # 1.115.0 (2018-06-27)
 
