@@ -31,6 +31,8 @@ require('./spec/lib/cocktail');
 require('./spec/lib/config-loader');
 require('./spec/lib/country-telephone-info');
 require('./spec/lib/cropper');
+require('./spec/lib/crypto/base32');
+require('./spec/lib/crypto/recovery-keys');
 require('./spec/lib/crypto/scoped-keys');
 require('./spec/lib/dom-writer');
 require('./spec/lib/environment');

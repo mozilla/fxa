@@ -63,6 +63,7 @@ const webpackConfig = {
       fxaCheckbox: path.resolve(__dirname, 'node_modules/fxa-checkbox/checkbox'),
       fxaClient: 'fxa-js-client/client/FxAccountClient',
       fxaCryptoDeriver: path.resolve(__dirname, 'node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'),
+      'base32-decode': path.resolve(__dirname, 'node_modules/base32-decode/index'),
       // jwcrypto is used by the main app and only contains DSA
       // jwcrypto.rs is used by the unit tests to unbundle and verify
       // assertions, which require RSA.
