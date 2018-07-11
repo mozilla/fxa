@@ -12,10 +12,16 @@ const main = async () => {
   console.log(`Fetching message from ${queue_url}`)
   const messages = await SQS.receiveMessage({
     MaxNumberOfMessages: 1,
-    QueueUrl: queue_url
+    QueueUrl: queue_url,
+    WaitTimeSeconds: 20
   }).promise()
 
+  if (!messages.Messages) {
+    return console.log('No messages in queue')
+  }
+
   for (const message of messages.Messages) {
+    const receipt_handle = message.ReceiptHandle
     const s3_notification = JSON.parse(message.Body)
 
     if (!s3_notification.Records) {
@@ -35,7 +41,11 @@ const main = async () => {
       const eventCount = await marketing.processStream(remote_file_stream)
       console.log(`Done sending ${eventCount} events to Amplitude`)
 
-      // TODO: Delete message from SQS after successful send
+      const delete_response = await SQS.deleteMessage({
+        QueueUrl: queue_url,
+        ReceiptHandle: receipt_handle
+      }).promise()
+      console.log(delete_response)
     }
   }
 }

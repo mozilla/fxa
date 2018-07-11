@@ -7,12 +7,14 @@ const Promise = require('bluebird')
 const request = require('request-promise')
 const moment = require('moment-timezone')
 const { lookup } = require('lookup-dns-cache')
+const async = require('async');
 
 const EVENT = /^mktg-([a-z]+-[a-z]+)$/
 
 const MAX_EVENTS_PER_BATCH = 10
 const HMAC_KEY = process.env.FXA_AMPLITUDE_HMAC_KEY
 const API_KEY = process.env.FXA_AMPLITUDE_API_KEY
+const WORKERS = process.env.FXA_AMPLITUDE_WORKERS || 8
 
 if (! HMAC_KEY || ! API_KEY) {
   console.error('Error: You must set FXA_AMPLITUDE_HMAC_KEY and FXA_AMPLITUDE_API_KEY environment variables')
@@ -22,11 +24,21 @@ if (! HMAC_KEY || ! API_KEY) {
 module.exports.processStream = function processStream (stream) {
   let eventCount = 0, batch = [], error
 
+  let cargo = async.cargo(async (tasks, callback) => {
+    await send(tasks)
+    callback()
+  }, MAX_EVENTS_PER_BATCH)
+  cargo.concurrency = WORKERS
+
   process.on('exit', () => {
     console.log(`Sent ${eventCount} events!`)
   })
 
   return new Promise((resolve, reject) => {
+    cargo.drain = () => {
+      resolve(eventCount)
+    }
+
     stream
       .pipe(new AutoDetectDecoderStream())
       .pipe(csv())
@@ -36,25 +48,7 @@ module.exports.processStream = function processStream (stream) {
           return
         }
 
-        batch.push(event)
-
-        if (batch.length < MAX_EVENTS_PER_BATCH) {
-          return
-        }
-
-        const localBatch = batch.slice()
-        batch = []
-        await send(localBatch)
-      })
-      .on('end', async () => {
-        if (error) {
-          reject(error)
-        } else if (batch.length === 0) {
-          resolve(eventCount)
-        } else {
-          await send(batch)
-            .then(() => resolve(eventCount))
-        }
+        cargo.push(event)
       })
   })
 

@@ -2,6 +2,7 @@
   "name": "fxa-amplitude-send",
   "version": "0.0.0",
   "dependencies": {
+    "async": "^2.6.1",
     "autodetect-decoder-stream": "^1.0.0",
     "aws-sdk": "^2.270.1",
     "bluebird": "^3.5.1",
