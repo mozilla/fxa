@@ -1,3 +1,30 @@
+<a name="1.116.0"></a>
+# 1.116.0 (2018-07-11)
+
+
+### Bug Fixes
+
+* **circle:** run tests on a node8 box (#6348) r=@jrgm ([555d1cd](https://github.com/mozilla/fxa-content-server/commit/555d1cd)), closes [#6328](https://github.com/mozilla/fxa-content-server/issues/6328)
+* **codes:** add account recovery crypto (#6323), r=@rfk, @linuxwolf ([f775f44](https://github.com/mozilla/fxa-content-server/commit/f775f44))
+* **form:** Catch the form validation errors, no more console message. (#6337) r=@philbooth ([13b15e4](https://github.com/mozilla/fxa-content-server/commit/13b15e4)), closes [#6025](https://github.com/mozilla/fxa-content-server/issues/6025)
+* **l10n:** Fix the string extraction script (#6344) r=@vladikoff ([c19e0fa](https://github.com/mozilla/fxa-content-server/commit/c19e0fa)), closes [(#6344](https://github.com/(/issues/6344) [#6343](https://github.com/mozilla/fxa-content-server/issues/6343)
+* **metrics:** force utm_source=email when signing in from CAD ([17ab1fd](https://github.com/mozilla/fxa-content-server/commit/17ab1fd))
+* **password-reset:** Update the password reset text for clarity. (#6305) r=@philbooth ([f4033bb](https://github.com/mozilla/fxa-content-server/commit/f4033bb)), closes [#6213](https://github.com/mozilla/fxa-content-server/issues/6213)
+* **pw-strength:** Ban service names anywhere in password if > 1/2 of password. (#6341) r=@philboot ([394f5e9](https://github.com/mozilla/fxa-content-server/commit/394f5e9)), closes [#6321](https://github.com/mozilla/fxa-content-server/issues/6321)
+* **pw-strength:** Immediately update pw balloon on submit (#6340) r=@philbooth ([a6ca166](https://github.com/mozilla/fxa-content-server/commit/a6ca166)), closes [#6299](https://github.com/mozilla/fxa-content-server/issues/6299)
+* **pw-strength:** Make the tooltips, pw-strength balloon more a11y friendly.  (#6338) r=@philbooth ([a072a10](https://github.com/mozilla/fxa-content-server/commit/a072a10))
+
+### chore
+
+* **release:** Merge mozilla/train-115 into master r=@shane-tomlinson ([eb10ac8](https://github.com/mozilla/fxa-content-server/commit/eb10ac8))
+
+### Features
+
+* **errors:** Add error message for auth-server errno 203. (#6329); r=shane-tomlinson ([91749fc](https://github.com/mozilla/fxa-content-server/commit/91749fc))
+* **test:** Show more helpful error messages for the route check. (#6332) r=@vladikoff ([17b0d2a](https://github.com/mozilla/fxa-content-server/commit/17b0d2a))
+
+
+
 <a name="1.115.0"></a>
 # 1.115.0 (2018-06-27)
 
