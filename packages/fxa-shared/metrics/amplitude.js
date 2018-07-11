@@ -107,7 +107,7 @@ module.exports = {
    * @param {Object} services An object of client-id:service-name mappings.
    *
    * @param {Object} events   An object of name:definition event mappings, where
-   *                          each defintion value is itself an object with `group`
+   *                          each definition value is itself an object with `group`
    *                          and `event` string properties.
    *
    * @param {Map} fuzzyEvents A map of regex:definition event mappings. Each regex
@@ -165,6 +165,13 @@ module.exports = {
 
       if (mapping) {
         eventType = mapping.event;
+        if (typeof eventType === 'function') {
+          eventType = eventType(eventCategory, eventTarget)
+          if (! eventType) {
+            return;
+          }
+        }
+
         let eventGroup = mapping.group;
         if (typeof eventGroup === 'function') {
           eventGroup = eventGroup(eventCategory);
