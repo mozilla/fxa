@@ -1,3 +1,22 @@
+<a name="1.116.0"></a>
+# [1.116.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.115.0...v1.116.0) (2018-07-11)
+
+
+### chore
+
+* **package:** update shrinkwrap ([98755f7](https://github.com/mozilla/fxa-auth-db-mysql/commit/98755f7))
+* **release:** Merge mozilla/train-115 into master r=@shane-tomlinson ([b5c0f0e](https://github.com/mozilla/fxa-auth-db-mysql/commit/b5c0f0e))
+
+### Features
+
+* **scripts:** add boilerplate to detect missing migrations ([7ef4c66](https://github.com/mozilla/fxa-auth-db-mysql/commit/7ef4c66))
+
+### Refactor
+
+* **recovery:** Use base32 for recovery code generation (#372), r=@vbudhram ([77a6fdd](https://github.com/mozilla/fxa-auth-db-mysql/commit/77a6fdd))
+
+
+
 <a name="1.115.0"></a>
 # [1.115.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.114.1...v1.115.0) (2018-06-27)
 
