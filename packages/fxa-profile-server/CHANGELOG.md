@@ -1,3 +1,13 @@
+<a name="1.116.0"></a>
+# [1.116.0](https://github.com/mozilla/fxa-profile-server/compare/v1.115.0...v1.116.0) (2018-07-11)
+
+
+### chore
+
+* **release:** Merge mozilla/train-115 into master r=@shane-tomlinson ([d30540f](https://github.com/mozilla/fxa-profile-server/commit/d30540f))
+
+
+
 <a name="1.115.0"></a>
 # [1.115.0](https://github.com/mozilla/fxa-profile-server/compare/v1.114.1...v1.115.0) (2018-06-27)
 
