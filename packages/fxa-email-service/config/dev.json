@@ -1,3 +1,7 @@
 {
-  "logging": "pretty"
+  "logging": "pretty",
+  "provider": "smtp",
+  "smtp": {
+    "port": 9999
+  }
 }
