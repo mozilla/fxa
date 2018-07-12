@@ -1,3 +1,33 @@
+<a name="1.116.0"></a>
+## 1.116.0 (2018-07-12)
+
+
+#### Breaking Changes
+
+* **logging:**  turn off rocket logs for production (#125) r=@vladikoff ([825e3993](825e3993), closes [#111](111))
+
+#### Bug Fixes
+
+* **docs:**  better docs for the settings module ([ba9f8b88](ba9f8b88))
+* **scripts:**
+  *  don't try to deploy docs if they haven't changed ([e6e3350c](e6e3350c))
+  *  stop gh-pages script from failing for pull requests ([8e48f36e](8e48f36e))
+  *  update references to bin names with `fxa-email-` prefix ([fb56a209](fb56a209))
+* **settings:**  get message data hmac key setting to work with env variables (#110) r=@philbooth,@vladikoff ([90bec93f](90bec93f), closes [#109](109))
+
+#### Features
+
+* **docker:**
+  *  copy Rocket.toml in the docker image (#107) r=@brizental ([05f93b9d](05f93b9d), closes [#106](106))
+  *  set ROCKET_ENV to prod (#105) r=@brizental ([b3e3ac29](b3e3ac29))
+* **docs:**  generate developer docs with rustdoc ([f2edb78c](f2edb78c))
+* **logging:**
+  *  turn off rocket logs for production (#125) r=@vladikoff ([825e3993](825e3993), closes [#111](111))
+  *  add null logger for testing environment (#102) r=@philbooth,@vladikoff ([199cd825](199cd825), closes [#82](82))
+* **providers:**  implement smtp provider ([20b7fc08](20b7fc08))
+
+
+
 <a name="1.115.0"></a>
 ## 1.115.0 (2018-06-26)
 
