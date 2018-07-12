@@ -273,6 +273,26 @@ registerSuite('amplitude', {
       assert.equal(arg.event_type, 'fxa_pref - logout');
     },
 
+    'experiment.designF.passwordStrength.blocked': () => {
+      amplitude({
+        time: 'a',
+        type: 'experiment.designF.passwordStrength.blocked'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_reg - password_blocked');
+    },
+
     'flow.enter-email.engage': () => {
       amplitude({
         time: 'a',

@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "1.116.0",
+  "version": "1.116.1",
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "build-production": "NODE_ENV=production grunt build",
@@ -56,7 +56,7 @@
     "fxa-geodb": "1.0.2",
     "fxa-js-client": "1.0.4",
     "fxa-mustache-loader": "0.0.2",
-    "fxa-shared": "1.0.10",
+    "fxa-shared": "1.0.12",
     "got": "6.7.1",
     "grunt": "1.0.1",
     "grunt-autoprefixer": "3.0.4",

@@ -1,3 +1,13 @@
+<a name="1.116.1"></a>
+## 1.116.1 (2018-07-12)
+
+
+### Bug Fixes
+
+* **pw-strength:** Report password strength metrics to amplitude (#6353) r=@vladikoff ([34c7d46](https://github.com/mozilla/fxa-content-server/commit/34c7d46)), closes [#6349](https://github.com/mozilla/fxa-content-server/issues/6349)
+
+
+
 <a name="1.116.0"></a>
 # 1.116.0 (2018-07-11)
 

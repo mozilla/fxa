@@ -24,46 +24,46 @@ describe('lib/experiments/password-strength', () => {
       notifier
     });
 
-    sinon.stub(experiment, 'saveState');
+    sinon.stub(experiment, 'logEvent');
   });
 
   describe('password.error', () => {
     it('handles PASSWORD_REQUIRED', () => {
       notifier.trigger('password.error', AuthErrors.toError('PASSWORD_REQUIRED'));
 
-      assert.isTrue(experiment.saveState.calledTwice);
-      assert.equal(experiment.saveState.args[0][0], 'blocked');
-      assert.equal(experiment.saveState.args[1][0], 'missing');
+      assert.isTrue(experiment.logEvent.calledTwice);
+      assert.equal(experiment.logEvent.args[0][0], 'blocked');
+      assert.equal(experiment.logEvent.args[1][0], 'missing');
     });
 
     it('handles PASSWORD_TOO_SHORT', () => {
       notifier.trigger('password.error', AuthErrors.toError('PASSWORD_TOO_SHORT'));
 
-      assert.isTrue(experiment.saveState.calledTwice);
-      assert.equal(experiment.saveState.args[0][0], 'blocked');
-      assert.equal(experiment.saveState.args[1][0], 'too_short');
+      assert.isTrue(experiment.logEvent.calledTwice);
+      assert.equal(experiment.logEvent.args[0][0], 'blocked');
+      assert.equal(experiment.logEvent.args[1][0], 'too_short');
     });
 
     it('handles PASSWORD_SAME_AS_EMAIL', () => {
       notifier.trigger('password.error', AuthErrors.toError('PASSWORD_SAME_AS_EMAIL'));
 
-      assert.isTrue(experiment.saveState.calledTwice);
-      assert.equal(experiment.saveState.args[0][0], 'blocked');
-      assert.equal(experiment.saveState.args[1][0], 'email');
+      assert.isTrue(experiment.logEvent.calledTwice);
+      assert.equal(experiment.logEvent.args[0][0], 'blocked');
+      assert.equal(experiment.logEvent.args[1][0], 'email');
     });
 
     it('handles PASSWORD_TOO_COMMON', () => {
       notifier.trigger('password.error', AuthErrors.toError('PASSWORD_TOO_COMMON'));
 
-      assert.isTrue(experiment.saveState.calledTwice);
-      assert.equal(experiment.saveState.args[0][0], 'blocked');
-      assert.equal(experiment.saveState.args[1][0], 'common');
+      assert.isTrue(experiment.logEvent.calledTwice);
+      assert.equal(experiment.logEvent.args[0][0], 'blocked');
+      assert.equal(experiment.logEvent.args[1][0], 'common');
     });
   });
 
   it('account.created saves `account.created`', () => {
     notifier.trigger('account.created');
 
-    assert.isTrue(experiment.saveState.calledOnceWith('account.created'));
+    assert.isTrue(experiment.logEvent.calledOnceWith('account.created'));
   });
 });

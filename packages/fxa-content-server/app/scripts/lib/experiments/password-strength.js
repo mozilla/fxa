@@ -15,24 +15,24 @@ class PasswordStrengthExperiment extends BaseExperiment {
   };
 
   onAccountCreated () {
-    this.saveState('account.created');
+    this.logEvent('account.created');
   }
 
   onPasswordError (error) {
     if (AuthErrors.is(error, 'PASSWORD_REQUIRED')) {
-      this.savePasswordBlockedState('missing');
+      this.logPasswordBlockedError('missing');
     } else if (AuthErrors.is(error, 'PASSWORD_TOO_SHORT')) {
-      this.savePasswordBlockedState('too_short');
+      this.logPasswordBlockedError('too_short');
     } else if (AuthErrors.is(error, 'PASSWORD_SAME_AS_EMAIL')) {
-      this.savePasswordBlockedState('email');
+      this.logPasswordBlockedError('email');
     } else if (AuthErrors.is(error, 'PASSWORD_TOO_COMMON')) {
-      this.savePasswordBlockedState('common');
+      this.logPasswordBlockedError('common');
     }
   }
 
-  savePasswordBlockedState (state) {
-    this.saveState('blocked');
-    this.saveState(state);
+  logPasswordBlockedError (state) {
+    this.logEvent('blocked');
+    this.logEvent(state);
   }
 }
 
