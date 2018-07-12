@@ -7,5 +7,6 @@ address = "127.0.0.1"
 port = 8001
 
 [production]
+log = "off"
 address = "127.0.0.1"
 port = 8001

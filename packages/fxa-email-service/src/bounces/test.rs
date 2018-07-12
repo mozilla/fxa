@@ -22,18 +22,21 @@ const MONTH: u64 = DAY * 30;
 
 #[test]
 fn check_no_bounces() {
-    let settings = create_settings(json!({
-    "enabled": true,
-    "soft": [
-      { "period": "day", "limit": 0 }
-    ],
-    "hard": [
-      { "period": "week", "limit": 0 }
-    ],
-    "complaint": [
-      { "period": "month", "limit": 0 }
-    ]
-  }));
+    let bounce_settings: Json = serde_json::from_str(
+        r#"{
+        "enabled": true,
+        "soft": [
+        { "period": "day", "limit": 0 }
+        ],
+        "hard": [
+        { "period": "week", "limit": 0 }
+        ],
+        "complaint": [
+        { "period": "month", "limit": 0 }
+        ]
+        }"#,
+    ).expect("Unexpected json parsing error.");
+    let settings = create_settings(bounce_settings);
     let db = DbMockNoBounce;
     let bounces = Bounces::new(&settings, db);
     if let Err(error) = bounces.check("foo@example.com") {
@@ -85,14 +88,17 @@ fn now_as_milliseconds() -> u64 {
 
 #[test]
 fn check_soft_bounce() {
-    let settings = create_settings(json!({
-    "enabled": true,
-    "soft": [
-      { "period": "day", "limit": 0 }
-    ],
-    "hard": [],
-    "complaint": []
-  }));
+    let bounce_settings: Json = serde_json::from_str(
+        r#"{
+        "enabled": true,
+        "soft": [
+        { "period": "day", "limit": 0 }
+        ],
+        "hard": [],
+        "complaint": []
+        }"#,
+    ).expect("Unexpected json parsing error.");
+    let settings = create_settings(bounce_settings);
     let db = DbMockBounceSoft;
     let bounces = Bounces::new(&settings, db);
     match bounces.check("foo@example.com") {
@@ -135,14 +141,17 @@ impl Db for DbMockBounceSoft {
 
 #[test]
 fn check_hard_bounce() {
-    let settings = create_settings(json!({
-    "enabled": true,
-    "soft": [],
-    "hard": [
-      { "period": "week", "limit": 0 }
-    ],
-    "complaint": []
-  }));
+    let bounce_settings: Json = serde_json::from_str(
+        r#"{
+        "enabled": true,
+        "soft": [],
+        "hard": [
+        { "period": "week", "limit": 0 }
+        ],
+        "complaint": []
+        }"#,
+    ).expect("Unexpected json parsing error.");
+    let settings = create_settings(bounce_settings);
     let db = DbMockBounceHard;
     let bounces = Bounces::new(&settings, db);
     match bounces.check("bar@example.com") {
@@ -185,14 +194,17 @@ impl Db for DbMockBounceHard {
 
 #[test]
 fn check_complaint() {
-    let settings = create_settings(json!({
-    "enabled": true,
-    "soft": [],
-    "hard": [],
-    "complaint": [
-      { "period": "month", "limit": 0 }
-    ]
-  }));
+    let bounce_settings: Json = serde_json::from_str(
+        r#"{
+        "enabled": true,
+        "soft": [],
+        "hard": [],
+        "complaint": [
+        { "period": "month", "limit": 0 }
+        ]
+        }"#,
+    ).expect("Unexpected json parsing error.");
+    let settings = create_settings(bounce_settings);
     let db = DbMockComplaint;
     let bounces = Bounces::new(&settings, db);
     match bounces.check("baz@example.com") {
@@ -235,18 +247,21 @@ impl Db for DbMockComplaint {
 
 #[test]
 fn check_db_error() {
-    let settings = create_settings(json!({
-    "enabled": true,
-    "soft": [
-      { "period": "day", "limit": 0 }
-    ],
-    "hard": [
-      { "period": "week", "limit": 0 }
-    ],
-    "complaint": [
-      { "period": "month", "limit": 0 }
-    ]
-  }));
+    let bounce_settings: Json = serde_json::from_str(
+        r#"{
+        "enabled": true,
+        "soft": [
+        { "period": "day", "limit": 0 }
+        ],
+        "hard": [
+        { "period": "week", "limit": 0 }
+        ],
+        "complaint": [
+        { "period": "month", "limit": 0 }
+        ]
+        }"#,
+    ).expect("Unexpected json parsing error.");
+    let settings = create_settings(bounce_settings);
     let db = DbMockError;
     let bounces = Bounces::new(&settings, db);
     match bounces.check("foo@example.com") {
@@ -269,18 +284,21 @@ impl Db for DbMockError {
 
 #[test]
 fn check_no_bounces_with_nonzero_limits() {
-    let settings = create_settings(json!({
-    "enabled": true,
-    "soft": [
-      { "period": "day", "limit": 2 }
-    ],
-    "hard": [
-      { "period": "week", "limit": 2 }
-    ],
-    "complaint": [
-      { "period": "month", "limit": 2 }
-    ]
-  }));
+    let bounce_settings: Json = serde_json::from_str(
+        r#"{
+        "enabled": true,
+        "soft": [
+        { "period": "day", "limit": 2 }
+        ],
+        "hard": [
+        { "period": "week", "limit": 2 }
+        ],
+        "complaint": [
+        { "period": "month", "limit": 2 }
+        ]
+        }"#,
+    ).expect("Unexpected json parsing error.");
+    let settings = create_settings(bounce_settings);
     let db = DbMockNoBounceWithNonZeroLimits;
     let bounces = Bounces::new(&settings, db);
     if let Err(error) = bounces.check("foo@example.com") {
@@ -355,16 +373,19 @@ impl Db for DbMockNoBounceWithNonZeroLimits {
 
 #[test]
 fn check_bounce_with_multiple_limits() {
-    let settings = create_settings(json!({
-    "enabled": true,
-    "soft": [
-      { "period": "2 seconds", "limit": 0 },
-      { "period": "2 minutes", "limit": 1 },
-      { "period": "2 hours", "limit": 2 }
-    ],
-    "hard": [],
-    "complaint": []
-  }));
+    let bounce_settings: Json = serde_json::from_str(
+        r#"{
+        "enabled": true,
+        "soft": [
+        { "period": "2 seconds", "limit": 0 },
+        { "period": "2 minutes", "limit": 1 },
+        { "period": "2 hours", "limit": 2 }
+        ],
+        "hard": [],
+        "complaint": []
+        }"#,
+    ).expect("Unexpected json parsing error.");
+    let settings = create_settings(bounce_settings);
     let db = DbMockBounceWithMultipleLimits;
     let bounces = Bounces::new(&settings, db);
     match bounces.check("foo@example.com") {

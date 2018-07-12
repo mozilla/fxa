@@ -10,7 +10,7 @@ use rocket::{
     http::Status,
     Data, Outcome, Request, State,
 };
-use rocket_contrib::{Json, Value};
+use rocket_contrib::{Json, JsonValue};
 
 use app_errors::{AppError, AppErrorKind, AppResult};
 use auth_db::DbClient;
@@ -87,7 +87,7 @@ fn handler(
     bounces: State<Bounces<DbClient>>,
     message_data: State<MessageData>,
     providers: State<Providers>,
-) -> AppResult<Json<Value>> {
+) -> AppResult<Json<JsonValue>> {
     let email = email?;
 
     let to = email.to.0.as_ref();

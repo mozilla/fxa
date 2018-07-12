@@ -29,9 +29,10 @@ rand = ">=0.5.1"
 redis = ">=0.8.0"
 regex = ">=1.0"
 reqwest = ">=0.8.5"
-rocket = ">=0.3.14"
-rocket_codegen = ">=0.3.14"
-rocket_contrib = ">=0.3.14"
+# Remove once a new version of rocket containing this commit is released.
+rocket = { git = "https://github.com/SergioBenitez/Rocket", rev="18a91c938eb534a410a76137fbf114333ab38643" }
+rocket_codegen = { git = "https://github.com/SergioBenitez/Rocket", rev="18a91c938eb534a410a76137fbf114333ab38643" }
+rocket_contrib = { git = "https://github.com/SergioBenitez/Rocket", rev="18a91c938eb534a410a76137fbf114333ab38643" }
 rusoto_core = ">=0.32.0"
 rusoto_credential = ">=0.11.0"
 rusoto_ses = ">=0.32.0"

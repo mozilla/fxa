@@ -25,6 +25,7 @@
 //! [queues]: ../fxa_email_queues/index.html
 
 #![feature(assoc_unix_epoch)]
+#![feature(decl_macro)]
 #![feature(plugin)]
 #![feature(try_from)]
 #![feature(type_ascription)]

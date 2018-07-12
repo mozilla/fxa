@@ -13,7 +13,7 @@ use rocket::{
     response::{self, Responder, Response},
     Request,
 };
-use rocket_contrib::Json;
+use rocket_contrib::{Json, JsonValue};
 use serde_json::{map::Map, ser::to_string, Value};
 
 use auth_db::BounceRecord;
@@ -38,7 +38,7 @@ pub struct AppError {
 }
 
 impl AppError {
-    pub fn json(&self) -> Value {
+    pub fn json(&self) -> JsonValue {
         let kind = self.kind();
         let status = kind.http_status();
 
@@ -264,32 +264,32 @@ impl<'r> Responder<'r> for AppError {
     }
 }
 
-#[error(400)]
+#[catch(400)]
 pub fn bad_request() -> AppResult<()> {
     Err(AppErrorKind::BadRequest)?
 }
 
-#[error(404)]
+#[catch(404)]
 pub fn not_found() -> AppResult<()> {
     Err(AppErrorKind::NotFound)?
 }
 
-#[error(405)]
+#[catch(405)]
 pub fn method_not_allowed() -> AppResult<()> {
     Err(AppErrorKind::MethodNotAllowed)?
 }
 
-#[error(422)]
+#[catch(422)]
 pub fn unprocessable_entity() -> AppResult<()> {
     Err(AppErrorKind::UnprocessableEntity)?
 }
 
-#[error(429)]
+#[catch(429)]
 pub fn too_many_requests() -> AppResult<()> {
     Err(AppErrorKind::TooManyRequests)?
 }
 
-#[error(500)]
+#[catch(500)]
 pub fn internal_server_error() -> AppResult<()> {
     Err(AppErrorKind::InternalServerError)?
 }

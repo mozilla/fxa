@@ -45,7 +45,7 @@ fn main() {
         .manage(message_data)
         .manage(providers)
         .mount("/", routes![send::handler])
-        .catch(errors![
+        .catch(catchers![
             app_errors::bad_request,
             app_errors::not_found,
             app_errors::method_not_allowed,
