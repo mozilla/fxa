@@ -54,6 +54,10 @@ const VIEW_ENGAGE_SUBMIT_EVENT_GROUPS = {
 // In the following regular expressions, the first match group is
 // exposed as `eventCategory` and the second as `eventTarget`.
 const FUZZY_EVENTS = new Map([
+  [ /^experiment\.(?:control|designF|designG)\.passwordStrength\.([\w]+)$/, {
+    group: GROUPS.registration,
+    event: (eventCategory, eventTarget) => `password_${eventCategory}`
+  } ],
   [ /^flow\.([\w-]+)\.engage$/, {
     group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
     event: 'engage'
