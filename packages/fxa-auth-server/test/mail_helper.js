@@ -99,7 +99,15 @@ module.exports = (printLogs) => {
         req.accept()
       }
     )
-    smtp.listen(config.smtp.port, config.smtp.host)
+
+    smtp.listen(config.smtp.port, function(err) {
+      if (! err) {
+        console.log(`Local SMTP server listening on port ${config.smtp.port}`)
+      } else {
+        console.log('Error starting SMTP server...')
+        console.log(err.message)
+      }
+    })
 
     // HTTP half
 
