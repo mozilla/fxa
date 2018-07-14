@@ -18,6 +18,7 @@ RUN \
     cp /app/Rocket.toml /app/bin && \
     cp /app/target/release/fxa_email_send /app/bin && \
     cp /app/target/release/fxa_email_queues /app/bin
+COPY version.json /app
 
 
 FROM debian:stretch-slim
@@ -31,6 +32,7 @@ RUN \
     update-ca-certificates && \
     rm -rf /var/lib/apt/lists
 
+COPY --from=builder /app/version.json /app/version.json
 COPY --from=builder /app/bin /app/bin
 
 WORKDIR /app/bin
