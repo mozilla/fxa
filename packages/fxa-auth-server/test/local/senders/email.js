@@ -914,3 +914,47 @@ describe(
     )
   }
 )
+
+describe('mailer constructor:', () => {
+  let config, mailer
+
+  beforeEach(() => {
+    config = [
+      'accountSettingsUrl',
+      'accountRecoveryCodesUrl',
+      'androidUrl',
+      'initiatePasswordChangeUrl',
+      'initiatePasswordResetUrl',
+      'iosUrl',
+      'iosAdjustUrl',
+      'passwordManagerInfoUrl',
+      'passwordResetUrl',
+      'privacyUrl',
+      'reportSignInUrl',
+      'sender',
+      'sesConfigurationSet',
+      'supportUrl',
+      'syncUrl',
+      'verificationUrl',
+      'verifyLoginUrl',
+      'verifySecondaryEmailUrl',
+      'verifyPrimaryEmailUrl'
+    ].reduce((target, key) => {
+      target[key] = `mock ${key}`
+      return target
+    }, {})
+
+    return P.all([
+      require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
+      require(`${ROOT_DIR}/lib/senders/templates`).init()
+    ]).spread((translator, templates) => {
+      mailer = new Mailer(translator, templates, config)
+    })
+  })
+
+  it('set properties on self from config correctly', () => {
+    Object.entries(config).forEach(([key, expected]) => {
+      assert.equal(mailer[key], expected, `${key} was correct`)
+    })
+  })
+})
