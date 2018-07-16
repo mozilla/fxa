@@ -1,3 +1,13 @@
+<a name="1.116.1"></a>
+## [1.116.1](https://github.com/mozilla/fxa-auth-server/compare/v1.116.0...v1.116.1) (2018-07-16)
+
+
+### Bug Fixes
+
+* **email:** fix broken X-SES-CONFIGURATION-SET header (#2523) r=@vladikoff ([a3c994f](https://github.com/mozilla/fxa-auth-server/commit/a3c994f)), closes [#2523](https://github.com/mozilla/fxa-auth-server/issues/2523)
+
+
+
 <a name="1.116.0"></a>
 # [1.116.0](https://github.com/mozilla/fxa-auth-server/compare/v1.115.1...v1.116.0) (2018-07-11)
 
