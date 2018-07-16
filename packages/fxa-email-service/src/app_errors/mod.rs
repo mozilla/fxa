@@ -121,8 +121,8 @@ pub enum AppErrorKind {
     #[fail(display = "Invalid provider name: {}", _0)]
     InvalidProvider(String),
     /// An error for when we get an error from a provider.
-    #[fail(display = "{}", _description)]
-    ProviderError { _name: String, _description: String },
+    #[fail(display = "{}", description)]
+    ProviderError { name: String, description: String },
     /// An error for when we have trouble parsing the email message.
     #[fail(display = "{:?}", _0)]
     EmailParsingError(String),
@@ -130,18 +130,18 @@ pub enum AppErrorKind {
     /// An error for when a bounce violation happens.
     #[fail(display = "Email account sent complaint.")]
     BounceComplaintError {
-        _address: String,
-        _bounce: Option<BounceRecord>,
+        address: String,
+        bounce: Option<BounceRecord>,
     },
     #[fail(display = "Email account soft bounced.")]
     BounceSoftError {
-        _address: String,
-        _bounce: Option<BounceRecord>,
+        address: String,
+        bounce: Option<BounceRecord>,
     },
     #[fail(display = "Email account hard bounced.")]
     BounceHardError {
-        _address: String,
-        _bounce: Option<BounceRecord>,
+        address: String,
+        bounce: Option<BounceRecord>,
     },
 
     /// An error for when an error happens on a request to the db.
@@ -202,33 +202,30 @@ impl AppErrorKind {
     pub fn additional_fields(&self) -> Map<String, Value> {
         let mut fields = Map::new();
         match self {
-            AppErrorKind::ProviderError {
-                ref _name,
-                ref _description,
-            } => {
-                fields.insert(String::from("name"), Value::String(format!("{}", _name)));
+            AppErrorKind::ProviderError { ref name, .. } => {
+                fields.insert(String::from("name"), Value::String(format!("{}", name)));
             }
 
             AppErrorKind::BounceComplaintError {
-                ref _address,
-                ref _bounce,
+                ref address,
+                ref bounce,
             }
             | AppErrorKind::BounceSoftError {
-                ref _address,
-                ref _bounce,
+                ref address,
+                ref bounce,
             }
             | AppErrorKind::BounceHardError {
-                ref _address,
-                ref _bounce,
+                ref address,
+                ref bounce,
             } => {
                 fields.insert(
                     String::from("address"),
-                    Value::String(format!("{}", _address)),
+                    Value::String(format!("{}", address)),
                 );
-                if let Some(_bounce) = _bounce {
+                if let Some(bounce) = bounce {
                     fields.insert(
                         String::from("bounce"),
-                        Value::String(to_string(_bounce).unwrap_or(String::from("{}"))),
+                        Value::String(to_string(bounce).unwrap_or(String::from("{}"))),
                     );
                 }
             }

@@ -69,16 +69,16 @@ where
                     if is_bounce_violation(*count, bounce.created_at, now, limits) {
                         return match bounce.bounce_type {
                             DbBounceType::Hard => Err(AppErrorKind::BounceHardError {
-                                _address: address.to_string(),
-                                _bounce: Some(bounce.clone()),
+                                address: address.to_string(),
+                                bounce: Some(bounce.clone()),
                             }.into()),
                             DbBounceType::Soft => Err(AppErrorKind::BounceSoftError {
-                                _address: address.to_string(),
-                                _bounce: Some(bounce.clone()),
+                                address: address.to_string(),
+                                bounce: Some(bounce.clone()),
                             }.into()),
                             DbBounceType::Complaint => Err(AppErrorKind::BounceComplaintError {
-                                _address: address.to_string(),
-                                _bounce: Some(bounce.clone()),
+                                address: address.to_string(),
+                                bounce: Some(bounce.clone()),
                             }.into()),
                         };
                     }

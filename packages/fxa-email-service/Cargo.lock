@@ -477,6 +477,7 @@ dependencies = [
  "rocket_contrib 0.4.0-dev (git+https://github.com/SergioBenitez/Rocket?rev=18a91c938eb534a410a76137fbf114333ab38643)",
  "rusoto_core 0.32.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rusoto_credential 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rusoto_mock 0.26.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rusoto_ses 0.32.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rusoto_sqs 0.32.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "sendgrid 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1302,6 +1303,17 @@ dependencies = [
  "regex 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.22 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-core 0.1.17 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "rusoto_mock"
+version = "0.26.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "chrono 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "futures 0.1.23 (registry+https://github.com/rust-lang/crates.io-index)",
+ "hyper 0.11.27 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rusoto_core 0.32.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2208,6 +2220,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum rocket_http 0.4.0-dev (git+https://github.com/SergioBenitez/Rocket?rev=18a91c938eb534a410a76137fbf114333ab38643)" = "<none>"
 "checksum rusoto_core 0.32.0 (registry+https://github.com/rust-lang/crates.io-index)" = "12daaa6d62d64f6447bf0299ce775f4e05f8e75e5418e817da094b9de04ad22d"
 "checksum rusoto_credential 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)" = "53199d09fd1b7d4f5ac50f4d23106577624238ea77cae2b44eb1d1fc4cd956a4"
+"checksum rusoto_mock 0.26.0 (registry+https://github.com/rust-lang/crates.io-index)" = "4eecb9cf02c12eb9276f61589aa2d47ab06d9aa6fa04b2dfdc8a39b6786c8289"
 "checksum rusoto_ses 0.32.0 (registry+https://github.com/rust-lang/crates.io-index)" = "88d4645c94b099369602db7d814b1741f991b3d6821d8076b2ac67824b8cc130"
 "checksum rusoto_sqs 0.32.0 (registry+https://github.com/rust-lang/crates.io-index)" = "995322c1530460a18fadd2f16761f22ba3f4e1fe630e344ca97e81d921abfb00"
 "checksum rust-ini 0.12.2 (registry+https://github.com/rust-lang/crates.io-index)" = "ac66e816614e124a692b6ac1b8437237a518c9155a3aacab83a373982630c715"

@@ -72,8 +72,8 @@ impl Provider for SmtpProvider {
             Ok(format!("{}", &result.code))
         } else {
             Err(AppErrorKind::ProviderError {
-                _name: String::from("Smtp"),
-                _description: format!("{:?}", result),
+                name: String::from("Smtp"),
+                description: format!("{:?}", result),
             }.into())
         }
     }
@@ -82,8 +82,8 @@ impl Provider for SmtpProvider {
 impl From<SmtpError> for AppError {
     fn from(error: SmtpError) -> AppError {
         AppErrorKind::ProviderError {
-            _name: String::from("Smtp"),
-            _description: format!("{:?}", error),
+            name: String::from("Smtp"),
+            description: format!("{:?}", error),
         }.into()
     }
 }
@@ -91,8 +91,8 @@ impl From<SmtpError> for AppError {
 impl From<EmailError> for AppError {
     fn from(error: EmailError) -> AppError {
         AppErrorKind::ProviderError {
-            _name: String::from("Smtp"),
-            _description: format!("{:?}", error),
+            name: String::from("Smtp"),
+            description: format!("{:?}", error),
         }.into()
     }
 }

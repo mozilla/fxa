@@ -5,14 +5,16 @@
 use std::boxed::Box;
 
 use base64::encode;
-use emailmessage::{header, Mailbox, Message, MultiPart, SinglePart};
 use rusoto_core::{reactor::RequestDispatcher, Region};
 use rusoto_credential::StaticProvider;
 use rusoto_ses::{RawMessage, SendRawEmailError, SendRawEmailRequest, Ses, SesClient};
 
-use super::{Headers, Provider};
+use super::{build_multipart_mime, Headers, Provider};
 use app_errors::{AppError, AppErrorKind, AppResult};
 use settings::Settings;
+
+#[cfg(test)]
+mod test;
 
 pub struct SesProvider {
     client: Box<Ses>,
@@ -53,49 +55,8 @@ impl Provider for SesProvider {
         body_text: &str,
         body_html: Option<&str>,
     ) -> AppResult<String> {
-        let mut all_headers = header::Headers::new();
-        all_headers.set(header::From(vec![self.sender.parse::<Mailbox>()?]));
-        all_headers.set(header::To(vec![to.parse::<Mailbox>()?]));
-        all_headers.set(header::Subject(subject.into()));
-        all_headers.set(header::MIME_VERSION_1_0);
-
-        if cc.len() > 0 {
-            let mut parsed_cc: Vec<Mailbox> = Vec::new();
-            for address in cc.iter() {
-                parsed_cc.push(address.parse::<Mailbox>()?)
-            }
-            all_headers.set(header::Cc(parsed_cc))
-        }
-
-        if let Some(headers) = headers {
-            for (name, value) in headers {
-                all_headers.append_raw(name.to_owned(), value.to_owned())
-            }
-        }
-
-        let mut message: Message<MultiPart<String>> = Message::new().with_headers(all_headers);
-
-        let mut body: MultiPart<String> = MultiPart::alternative().with_singlepart(
-            SinglePart::quoted_printable()
-                .with_header(header::ContentType(
-                    "text/plain; charset=utf8".parse().unwrap(),
-                ))
-                .with_body(body_text.to_owned()),
-        );
-        if let Some(body_html) = body_html {
-            body = body.with_multipart(
-                MultiPart::related().with_singlepart(
-                    SinglePart::eight_bit()
-                        .with_header(header::ContentType(
-                            "text/html; charset=utf8".parse().unwrap(),
-                        ))
-                        .with_body(body_html.to_owned()),
-                ),
-            )
-        }
-
-        message = message.with_body(MultiPart::mixed().with_multipart(body));
-
+        let message =
+            build_multipart_mime(&self.sender, to, cc, headers, subject, body_text, body_html)?;
         let encoded_message = encode(&format!("{}", message));
         let mut request = SendRawEmailRequest::default();
         request.raw_message = RawMessage {
@@ -119,8 +80,8 @@ impl From<String> for AppError {
 impl From<SendRawEmailError> for AppError {
     fn from(error: SendRawEmailError) -> AppError {
         AppErrorKind::ProviderError {
-            _name: String::from("SES"),
-            _description: format!("{:?}", error),
+            name: String::from("SES"),
+            description: format!("{:?}", error),
         }.into()
     }
 }

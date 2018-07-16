@@ -85,8 +85,8 @@ impl Provider for SendgridProvider {
                         .and_then(|raw_header| raw_header.one())
                         .ok_or(
                             AppErrorKind::ProviderError {
-                                _name: String::from("Sendgrid"),
-                                _description: String::from(
+                                name: String::from("Sendgrid"),
+                                description: String::from(
                                     "Missing or duplicate X-Message-Id header in Sendgrid response",
                                 ),
                             }.into(),
@@ -95,8 +95,8 @@ impl Provider for SendgridProvider {
                         .map(|message_id| message_id.to_string())
                 } else {
                     Err(AppErrorKind::ProviderError {
-                        _name: String::from("Sendgrid"),
-                        _description: format!("Unsuccesful response status: {}", status),
+                        name: String::from("Sendgrid"),
+                        description: format!("Unsuccesful response status: {}", status),
                     }.into())
                 }
             })
@@ -106,8 +106,8 @@ impl Provider for SendgridProvider {
 impl From<SendgridError> for AppError {
     fn from(error: SendgridError) -> AppError {
         AppErrorKind::ProviderError {
-            _name: String::from("Sendgrid"),
-            _description: format!("{:?}", error),
+            name: String::from("Sendgrid"),
+            description: format!("{:?}", error),
         }.into()
     }
 }
@@ -115,8 +115,8 @@ impl From<SendgridError> for AppError {
 impl From<Utf8Error> for AppError {
     fn from(error: Utf8Error) -> AppError {
         AppErrorKind::ProviderError {
-            _name: String::from("Sendgrid"),
-            _description: format!("Failed to decode string as UTF-8: {:?}", error),
+            name: String::from("Sendgrid"),
+            description: format!("Failed to decode string as UTF-8: {:?}", error),
         }.into()
     }
 }

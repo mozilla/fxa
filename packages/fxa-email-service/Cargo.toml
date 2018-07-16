@@ -35,6 +35,7 @@ rocket_codegen = { git = "https://github.com/SergioBenitez/Rocket", rev="18a91c9
 rocket_contrib = { git = "https://github.com/SergioBenitez/Rocket", rev="18a91c938eb534a410a76137fbf114333ab38643" }
 rusoto_core = ">=0.32.0"
 rusoto_credential = ">=0.11.0"
+rusoto_mock = ">=0.26.0"
 rusoto_ses = ">=0.32.0"
 rusoto_sqs = ">=0.32.0"
 sendgrid = ">=0.7.1"
