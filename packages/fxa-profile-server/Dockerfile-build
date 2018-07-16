@@ -1,3 +1,31 @@
+FROM node:8-alpine AS builder
+
+RUN npm install -g npm@6 && rm -rf ~app/.npm /tmp/*
+
+RUN addgroup -g 10001 app && \
+    adduser -D -G app -h /app -u 10001 app
+WORKDIR /app
+
+# S3 bucket in Cloud Services prod IAM
+ADD https://s3.amazonaws.com/dumb-init-dist/v1.2.0/dumb-init_1.2.0_amd64 /usr/local/bin/dumb-init
+RUN chmod +x /usr/local/bin/dumb-init
+ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
+
+RUN apk add --repository http://dl-cdn.alpinelinux.org/alpine/v3.5/community/ --no-cache graphicsmagick git && \
+    apk add --repository http://dl-cdn.alpinelinux.org/alpine/v3.5/community/ --no-cache --virtual .build-deps git python make g++
+
+USER app
+
+COPY npm-shrinkwrap.json npm-shrinkwrap.json
+COPY package.json package.json
+COPY scripts/check_gm.sh scripts/check_gm.sh
+
+RUN npm install --production && rm -rf ~app/.npm /tmp/*
+
+COPY . /app
+
+
+# Build final image by copying from builder
 FROM node:8-alpine
 
 RUN npm install -g npm@6 && rm -rf ~app/.npm /tmp/*
@@ -15,10 +43,4 @@ RUN apk add --repository http://dl-cdn.alpinelinux.org/alpine/v3.5/community/ --
 
 USER app
 
-COPY npm-shrinkwrap.json npm-shrinkwrap.json
-COPY package.json package.json
-COPY scripts/check_gm.sh scripts/check_gm.sh
-
-RUN npm install --production && rm -rf ~app/.npm /tmp/*
-
-COPY . /app
+COPY --from=builder --chown=app /app/ /app/

@@ -32,6 +32,10 @@ jobs:
           command: docker build -f Dockerfile-build -t fxa-profile-server:build .
 
       - run:
+          name: Check npm install
+          command: docker run --rm -it fxa-profile-server:build npm ls --production
+
+      - run:
           name: Build test container image
           command: docker build -f Dockerfile-test -t fxa-profile-server:test .
 
