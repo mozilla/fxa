@@ -30,10 +30,6 @@ module.exports.processStream = function processStream (stream) {
   }, MAX_EVENTS_PER_BATCH)
   cargo.concurrency = WORKERS
 
-  process.on('exit', () => {
-    console.log(`Sent ${eventCount} events!`)
-  })
-
   return new Promise((resolve, reject) => {
     cargo.drain = () => {
       resolve(eventCount)
@@ -60,8 +56,6 @@ module.exports.processStream = function processStream (stream) {
     } else {
       console.log(body)
     }
-
-    return Promise.resolve(eventCount)
   }
 }
 
