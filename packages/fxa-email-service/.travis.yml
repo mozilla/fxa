@@ -3,7 +3,7 @@ services:
   - redis-server
 cache: cargo
 rust:
-  - nightly
+  - nightly-2018-07-14
 branches:
   only:
     - master

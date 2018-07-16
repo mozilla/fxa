@@ -309,12 +309,8 @@ impl Settings {
         }
 
         config.merge(File::with_name("config/local").required(false))?;
-        let mut env = Environment::with_prefix("fxa_email");
-        // Event though "_" is the default separator for config-rs right now,
-        // that is going to change for the next versions.
-        // https://github.com/mehcode/config-rs/commit/536f52fed4a22ed158681edce08211845abff985
-        env.separator("_".to_string());
-        config.merge(env)?;
+        let env = Environment::with_prefix("fxa_email");
+        config.merge(env.separator("_"))?;
 
         match config.try_into::<Settings>() {
             Ok(settings) => {
