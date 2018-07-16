@@ -41,27 +41,25 @@ module.exports = function (log, serverPublicKeys) {
     {
       method: 'GET',
       path: '/.well-known/browserid',
-      config: {
+      options: {
         cache: {
           privacy: 'public',
           expiresIn: 10000
         }
       },
-      handler: function (request, reply) {
+      handler: async function (request) {
         log.begin('browserid', request)
-        reply(browserid)
+        return browserid
       }
     },
     {
       method: 'GET',
       path: '/.well-known/public-keys',
-      handler: function (request, reply) {
+      handler: async function (request) {
         // FOR DEV PURPOSES ONLY
-        reply(
-          {
+        return {
             keys: keys
-          }
-        )
+        }
       }
     },
     {

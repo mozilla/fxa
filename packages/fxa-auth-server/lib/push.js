@@ -118,6 +118,9 @@ module.exports = function (log, db, config) {
     const command = (payload && payload.command) || null
     let canSendToIOSVersion/* ({Number} version) => bool */
     switch (command) {
+    case 'fxaccounts:command_received':
+      canSendToIOSVersion = () => true
+      break
     case 'sync:collection_changed':
       canSendToIOSVersion = () => payload.data.reason !== 'firstsync'
       break

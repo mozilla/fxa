@@ -52,18 +52,10 @@ function makeRoutes (options = {}, requireMocks) {
   )
 }
 
-function runTest (route, request, onSuccess, onError) {
-  return new P(function (resolve, reject) {
-    route.handler(request, function (response) {
-      //resolve(response)
-      if (response instanceof Error) {
-        reject(response)
-      } else {
-        resolve(response)
-      }
-    })
-  })
+function runTest(route, request, onSuccess, onError) {
+  return route.handler(request)
     .then(onSuccess, onError)
+    .catch(onError)
 }
 
 function hexString (bytes) {
@@ -542,7 +534,7 @@ describe('/account/device/commands', function () {
       pushbox: mockPushbox
     }), '/account/device/commands')
 
-    mockRequest.query = isA.validate(mockRequest.query, route.config.validate.query).value
+    mockRequest.query = isA.validate(mockRequest.query, route.options.validate.query).value
     assert.ok(mockRequest.query)
     return runTest(route, mockRequest).then(response => {
       assert.equal(mockPushbox.retrieve.callCount, 1, 'pushbox was called')
@@ -985,7 +977,7 @@ describe('/account/devices', () => {
         pushEndpointExpired: false
       }
     ]
-    isA.assert(res, route.config.response.schema)
+    isA.assert(res, route.options.response.schema)
   })
 
   it('should allow returning approximateLastAccessTime', () => {
@@ -999,7 +991,7 @@ describe('/account/devices', () => {
       name: 'test',
       type: 'test',
       pushEndpointExpired: false
-    }], route.config.response.schema)
+    }], route.options.response.schema)
   })
 
   it('should not allow returning approximateLastAccessTime < EARLIEST_SANE_TIMESTAMP', () => {
@@ -1183,4 +1175,3 @@ describe('/account/sessions', () => {
     })
   })
 })
-

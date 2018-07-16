@@ -198,16 +198,19 @@ describe('/certificate/sign', () => {
 
   function runTest (options, request, onSuccess, onError) {
     return new P(function (resolve, reject) {
-      getRoute(makeRoutes(options), '/certificate/sign')
-        .handler(request, (res) => {
-          if (res instanceof Error) {
-            reject(res)
-          } else {
-            resolve(res)
-          }
-        })
+      try {
+        const response = getRoute(makeRoutes(options), '/certificate/sign').handler(request)
+        if (response instanceof Error) {
+          reject(response)
+        } else {
+          resolve(response)
+        }
+      } catch (e) {
+        reject(e)
+      }
     })
-    .then(onSuccess, onError)
+    .then(onSuccess)
+    .catch(onError)
   }
 
   function makeRoutes (options = {}) {

@@ -19,7 +19,7 @@ module.exports = (log, db, config, customs) => {
     {
       method: 'POST',
       path: '/session/verify/token',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -30,18 +30,18 @@ module.exports = (log, db, config, customs) => {
           }
         }
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('session.verify.token', request)
 
         const code = request.payload.code.toUpperCase()
         const uid = request.auth.credentials.uid
         const email = request.auth.credentials.email
 
-        customs.check(request, email, 'verifyTokenCode')
+        return customs.check(request, email, 'verifyTokenCode')
           .then(checkOptionalUidParam)
           .then(verifyCode)
           .then(emitMetrics)
-          .then(reply, reply)
+          .then(() => { return {} })
 
         function checkOptionalUidParam() {
           // For b/w compat we accept `uid` in the request body,

@@ -17,7 +17,7 @@ module.exports = (log, db, mailer, config, customs) => {
     {
       method: 'POST',
       path: '/account/login/send_unblock_code',
-      config: {
+      options: {
         validate: {
           payload: {
             email: validators.email().required(),
@@ -25,7 +25,7 @@ module.exports = (log, db, mailer, config, customs) => {
           }
         }
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('Account.SendUnblockCode', request)
 
         const email = request.payload.email
@@ -45,9 +45,7 @@ module.exports = (log, db, mailer, config, customs) => {
           .then(createUnblockCode)
           .then(mailUnblockCode)
           .then(() => request.emitMetricsEvent('account.login.sentUnblockCode'))
-          .then(() => {
-            reply({})
-          }, reply)
+          .then(() => { return {} })
 
         function lookupAccount () {
           return db.accountRecord(email)
@@ -95,7 +93,7 @@ module.exports = (log, db, mailer, config, customs) => {
     {
       method: 'POST',
       path: '/account/login/reject_unblock_code',
-      config: {
+      options: {
         validate: {
           payload: {
             uid: isA.string().max(32).regex(HEX_STRING).required(),
@@ -103,18 +101,17 @@ module.exports = (log, db, mailer, config, customs) => {
           }
         }
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('Account.RejectUnblockCode', request)
 
         const uid = request.payload.uid
         const code = request.payload.unblockCode.toUpperCase()
 
-        db.consumeUnblockCode(uid, code)
+        return db.consumeUnblockCode(uid, code)
           .then(() => {
             log.info({ op: 'account.login.rejectedUnblockCode', uid, unblockCode: code })
             return {}
           })
-          .then(reply, reply)
       }
     }
   ]

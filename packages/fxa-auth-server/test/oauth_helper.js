@@ -11,8 +11,7 @@ const P = require('../lib/promise')
 
 module.exports = () => {
   return new P((resolve, reject) => {
-    const api = new hapi.Server()
-    api.connection({
+    const api = new hapi.Server({
       host: url.parse(config.oauth.url).hostname,
       port: parseInt(url.parse(config.oauth.url).port)
     })
@@ -22,15 +21,15 @@ module.exports = () => {
         {
           method: 'POST',
           path: '/v1/verify',
-          handler: function (request, reply) {
+          handler: async function (request, h) {
             const data = JSON.parse(Buffer.from(request.payload.token, 'hex'))
-            return reply(data).code(data.code || 200)
+            return h.response(data).code(data.code || 200)
           }
         }
       ]
     )
 
-    api.start((err) => {
+    api.start().then((err) => {
       if (err) {
         console.log(err) // eslint-disable-line no-console
         return reject(err)
@@ -38,7 +37,7 @@ module.exports = () => {
       resolve({
         close() {
           return new P((resolve, reject) => {
-            api.stop(err => {
+            api.stop().then((err) => {
               if (err) {
                 reject(err)
               } else {
