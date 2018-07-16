@@ -63,12 +63,20 @@
   background-image: url('/images/graphic_two_factor_auth.svg');
   height: 138px;
   margin-top: 20px;
+
+  @include respond-to('small') {
+    height: 70px;
+  }
 }
 
 .graphic-recovery-codes {
   background-image: url('/images/graphic_recovery_codes.svg');
   height: 138px;
   margin-top: 20px;
+
+  @include respond-to('small') {
+    height: 70px;
+  }
 }
 
 .graphic-recovery-codes-download {
