@@ -298,7 +298,7 @@ var conf = convict({
             'X-SES-MESSAGE-TAGS headers will be added to emails. Only ' +
             'intended for Production/Stage use.'),
       format: String,
-      default: undefined,
+      default: '',
       env: 'SES_CONFIGURATION_SET'
     },
     bounces: {

@@ -254,6 +254,7 @@ describe(
         it(
           'If sesConfigurationSet is not defined, then outgoing email does not contain X-SES* headers, for type ' + type,
           function () {
+            assert.ok('sesConfigurationSet' in mailer, 'configuration key exists')
             mailer.mailer.sendMail = function (emailConfig) {
               var sesConfigurationSetHeader = emailConfig.headers['X-SES-CONFIGURATION-SET']
               assert.ok(! sesConfigurationSetHeader)
@@ -268,6 +269,7 @@ describe(
         it(
           'If sesConfigurationSet is defined, then outgoing email will contain X-SES* headers, for type ' + type,
           function () {
+            assert.ok('sesConfigurationSet' in mailer, 'configuration key exists')
             var savedSesConfigurationSet = mailer.sesConfigurationSet
             mailer.sesConfigurationSet = 'some-defined-value'
 
