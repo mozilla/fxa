@@ -1531,7 +1531,7 @@ module.exports = function (log, error) {
       })
   }
 
-  const CREATE_RECOVERY_KEY = 'CALL createRecoveryKey_1(?, ?, ?)'
+  const CREATE_RECOVERY_KEY = 'CALL createRecoveryKey_2(?, ?, ?)'
   MySql.prototype.createRecoveryKey = function (uid, data) {
     const recoveryKeyId = data.recoveryKeyId
     const recoveryData = data.recoveryData
@@ -1548,9 +1548,9 @@ module.exports = function (log, error) {
       })
   }
 
-  const GET_RECOVERY_KEY = 'CALL getRecoveryKey_1(?, ?)'
+  const GET_RECOVERY_KEY = 'CALL getRecoveryKey_2(?)'
   MySql.prototype.getRecoveryKey = function (options) {
-    return this.readFirstResult(GET_RECOVERY_KEY, [options.id, options.recoveryKeyId])
+    return this.readFirstResult(GET_RECOVERY_KEY, [options.id])
       .then((results) => {
         // Throw if this user has no recovery keys
         if (results.length === 0) {
@@ -1561,9 +1561,9 @@ module.exports = function (log, error) {
       })
   }
 
-  const DELETE_RECOVERY_KEY = 'CALL deleteRecoveryKey_1(?, ?)'
+  const DELETE_RECOVERY_KEY = 'CALL deleteRecoveryKey_2(?)'
   MySql.prototype.deleteRecoveryKey = function (options) {
-    return this.write(DELETE_RECOVERY_KEY, [options.id, options.recoveryKeyId])
+    return this.write(DELETE_RECOVERY_KEY, [options.id])
       .then(() => {
         return {}
       })

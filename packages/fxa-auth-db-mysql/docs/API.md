@@ -1912,9 +1912,9 @@ Used to create a TOTP token for a user.
 curl \
     -v \
     -X PUT \
-    -H "Content-Type: application/json" \  
-    -d '{"sharedSecret": "LEVXGTLWMFITC6BSIF2DOQKTIU2WUOKJ", "epoch": 0}' \  
-    http://localhost:8000/totp/1234567890ab    
+    -H "Content-Type: application/json" \
+    -d '{"sharedSecret": "LEVXGTLWMFITC6BSIF2DOQKTIU2WUOKJ", "epoch": 0}' \
+    http://localhost:8000/totp/1234567890ab
 ```
 
 ### Request
@@ -1924,7 +1924,7 @@ curl \
     * `uid` : hex
 * Params:
     * `sharedSecret` : hex10
-    * `epoch` : epoch    
+    * `epoch` : epoch
 
 ### Response
 
@@ -1958,7 +1958,7 @@ Get the user's TOTP token.
 curl \
     -v \
     -X GET \
-    -H "Content-Type: application/json" \    
+    -H "Content-Type: application/json" \
     http://localhost:8000/totp/1234567890ab
 ```
 
@@ -1966,7 +1966,7 @@ curl \
 
 * Method : `GET`
 * Path : `/totp/<uid>`
-    * `uid` : hex   
+    * `uid` : hex
 
 ### Response
 
@@ -2004,15 +2004,15 @@ Delete the user's TOTP token.
 curl \
     -v \
     -X DEL \
-    -H "Content-Type: application/json" \    
-    http://localhost:8000/totp/1234567890ab    
+    -H "Content-Type: application/json" \
+    http://localhost:8000/totp/1234567890ab
 ```
 
 ### Request
 
 * Method : `DEL`
 * Path : `/totp/<uid>`
-    * `uid` : hex   
+    * `uid` : hex
 
 ### Response
 
@@ -2026,7 +2026,7 @@ Content-Length: 2
 
 * Status Code : `200 OK`
     * Content-Type : `application/json`
-    * Body : `{}`  
+    * Body : `{}`
 * Status Code : `500 Internal Server Error`
     * Conditions: if something goes wrong on the server
     * Content-Type : `application/json`
@@ -2046,15 +2046,15 @@ curl \
     -d '{
         "verified" : true,
         "enable": true
-    }' \    
-    http://localhost:8000/totp/1234567890ab/update   
+    }' \
+    http://localhost:8000/totp/1234567890ab/update
 ```
 
 ### Request
 
 * Method : `POST`
 * Path : `/totp/<uid>/update`
-    * `uid` : hex   
+    * `uid` : hex
 
 ### Response
 
@@ -2068,7 +2068,7 @@ Content-Length: 2
 
 * Status Code : `200 OK`
     * Content-Type : `application/json`
-    * Body : `{}`  
+    * Body : `{}`
 * Status Code : `500 Internal Server Error`
     * Conditions: if something goes wrong on the server
     * Content-Type : `application/json`
@@ -2086,16 +2086,16 @@ curl \
     -X POST \
     -H "Content-Type: application/json" \
     -d '{
-        "count" : 8        
+        "count" : 8
     }'
-    http://localhost:8000/account/1234567890ab/recoveryCodes   
+    http://localhost:8000/account/1234567890ab/recoveryCodes
 ```
 
 ### Request
 
 * Method : `POST`
 * Path : `/account/<uid>/recoveryCodes`
-    * `uid` : hex   
+    * `uid` : hex
 *
 
 ### Response
@@ -2129,8 +2129,8 @@ Consumes a recovery code.
 curl \
     -v \
     -X POST \
-    -H "Content-Type: application/json" \    
-    http://localhost:8000/account/1234567890ab/recoveryCodes/1123  
+    -H "Content-Type: application/json" \
+    http://localhost:8000/account/1234567890ab/recoveryCodes/1123
 ```
 
 ### Request
@@ -2201,9 +2201,9 @@ Content-Length: 2
     * Content-Type : `application/json`
     * Body : `{"code":"InternalError","message":"..."}`
 
-## getRecoveryKey : `GET /account/:uid/recoveryKeys/:recoveryKeyId`
+## getRecoveryKey : `GET /account/:uid/recoveryKey`
 
-Returns the recovery key data for a user.
+Returns recovery key data for a user.
 
 ### Example
 
@@ -2212,16 +2212,14 @@ curl \
     -v \
     -X GET \
     -H "Content-Type: application/json" \
-    http://localhost:8000/account/1234567890ab/recoveryKeys/1234567890ab
+    http://localhost:8000/account/1234567890ab/recoveryKey
 ```
 
 ### Request
 
 * Method : `GET`
-* Path : `/account/<uid>/recoveryKeys/<recoveryKeyId>`
+* Path : `/account/<uid>/recoveryKey`
     * `uid` : hex
-    * `recoveryKeyId`: hex
-    * `recoveryKeyData`: hex
 
 ### Response
 
@@ -2230,7 +2228,10 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Length: 2
 
-{}
+{
+    "recoveryKeyId": "6aa248931704886f54ac64b81b111bc0",
+    "recoveryData": "eyJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiZGlyIiwia2lkIjoiNmFhMjQ4OTMxNzA0ODg2ZjU0YWM2NGI4MWIxMTFiYzAifQ"
+}
 ```
 
 * Status Code : `200 OK`
@@ -2243,7 +2244,7 @@ Content-Length: 2
     * Content-Type : `application/json`
     * Body : `{"code":"InternalError","message":"..."}`
 
-## deleteRecoveryKey : `DELETE /account/:uid/recoveryKeys/:recoveryKeyId`
+## deleteRecoveryKey : `DELETE /account/:uid/recoveryKey`
 
 Delete a user's recovery data.
 
@@ -2254,15 +2255,14 @@ curl \
     -v \
     -X DELETE \
     -H "Content-Type: application/json" \
-    http://localhost:8000/account/1234567890ab/recoveryKeys/1234567890ab
+    http://localhost:8000/account/1234567890ab/recoveryKey
 ```
 
 ### Request
 
 * Method : `DELETE`
-* Path : `/account/<uid>/recoveryKeys/<recoveryKeyId>`
+* Path : `/account/<uid>/recoveryKey`
     * `uid` : hex
-    * `recoveryKeyId`: hex
 
 ### Response
 

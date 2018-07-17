@@ -154,8 +154,8 @@ function makeMockAccountResetToken(uid, tokenId) {
 
 function createRecoveryData() {
   const data = {
-    recoveryKeyId: crypto.randomBytes(64),
-    recoveryData: crypto.randomBytes(64).toString('hex')
+    recoveryKeyId: hex(16),
+    recoveryData: crypto.randomBytes(32).toString('hex')
   }
   return data
 }
@@ -2279,8 +2279,7 @@ module.exports = function (config, DB) {
 
       it('should get account recovery key', () => {
         const options = {
-          id: account.uid,
-          recoveryKeyId: data.recoveryKeyId
+          id: account.uid
         }
         return db.getRecoveryKey(options)
           .then((res) => {
@@ -2291,8 +2290,7 @@ module.exports = function (config, DB) {
 
       it('should fail to get key for incorrect user', () => {
         const options = {
-          id: 'unknown',
-          recoveryKeyId: data.recoveryKeyId
+          id: 'unknown'
         }
         return db.getRecoveryKey(options)
           .then(assert.fail, (err) => {
@@ -2301,13 +2299,16 @@ module.exports = function (config, DB) {
       })
 
       it('should fail to get unknown key', () => {
-        const options = {
-          id: account.uid,
-          recoveryKeyId: 'not real recovery key'
-        }
-        return db.getRecoveryKey(options)
-          .then(assert.fail, (err) => {
-            assert.equal(err.errno, 116, 'not found')
+        account = createAccount()
+        return db.createAccount(account.uid, account)
+          .then(() => {
+            const options = {
+              id: account.uid
+            }
+            return db.getRecoveryKey(options)
+              .then(assert.fail, (err) => {
+                assert.equal(err.errno, 116, 'not found')
+              })
           })
       })
 

@@ -1363,25 +1363,13 @@ module.exports = function (log, error) {
 
   Memory.prototype.createRecoveryKey = function (uid, data) {
     uid = uid.toString('hex')
-    const recoveryKeyId = data.recoveryKeyId.toString('hex')
     return getAccountByUid(uid)
       .then(() => {
-        if (! recoveryKeys[uid]) {
-          recoveryKeys[uid] = {}
-        }
-
-        const storedKeys = recoveryKeys[uid]
-
-        if (Object.keys(storedKeys).length > 0) {
-          // Temporarily throw duplicate if more than one key exists
+        if (recoveryKeys[uid]) {
           return P.reject(error.duplicate())
         }
 
-        if (storedKeys[recoveryKeyId]) {
-          return P.reject(error.duplicate())
-        }
-
-        storedKeys[recoveryKeyId] = {
+        recoveryKeys[uid] = {
           uid,
           recoveryKeyId: data.recoveryKeyId,
           recoveryData: data.recoveryData
@@ -1393,32 +1381,24 @@ module.exports = function (log, error) {
 
   Memory.prototype.getRecoveryKey = function (options) {
     const uid = options.id.toString('hex')
-    const recoveryKeyId = options.recoveryKeyId.toString('hex')
     return getAccountByUid(uid)
       .then(() => {
-        const keys = recoveryKeys[uid]
+        const recoveryKey = recoveryKeys[uid]
 
-        if (! keys || ! keys[recoveryKeyId]) {
+        if (! recoveryKey) {
           return P.reject(error.notFound())
         }
 
-        return keys[recoveryKeyId]
+        return recoveryKey
       })
   }
 
   Memory.prototype.deleteRecoveryKey = function (options) {
     const uid = options.id.toString('hex')
-    const recoveryKeyId = options.recoveryKeyId.toString('hex')
     return getAccountByUid(uid)
       .then(() => {
 
-        const keys = recoveryKeys[uid]
-
-        if (! keys || ! keys[recoveryKeyId]) {
-          return {}
-        }
-
-        delete keys[recoveryKeyId]
+        delete recoveryKeys[uid]
 
         return {}
       })

@@ -72,8 +72,8 @@ There are a number of methods that a DB storage backend should implement:
     * .consumeRecoveryCode(uid, code)
 * Recovery keys
     * .createRecoveryKey(uid, data)
-    * .getRecoveryKey(uid, recoveryKeyId)
-    * .deleteRecoveryKey(uid, recoveryKeyId)
+    * .getRecoveryKey(uid)
+    * .deleteRecoveryKey(uid)
 * General
     * .ping()
     * .close()
@@ -422,7 +422,7 @@ Returns:
         * emailCode - (Buffer16)
         * isPrimary - (boolean)
         * isVerified - (boolean)
-        * normalizedEmail - (string)        
+        * normalizedEmail - (string)
         * createdAt - (number)
 * rejects: with one of:
     * `error.notFound()` if no email address exists on emails table
@@ -617,7 +617,7 @@ Returns a promise that:
   if there was no matching token.
 * Rejects with any error
   from the underlying storage system
-  (wrapped in `error.wrap()`).  
+  (wrapped in `error.wrap()`).
 
 ## .verifyTokenCode(code, accountData)
 
@@ -638,7 +638,7 @@ Returns a promise that:
     if token expired.
   * Rejects with any error
     from the underlying storage system
-    (wrapped in `error.wrap()`).  
+    (wrapped in `error.wrap()`).
 
 ## .forgotPasswordVerified(tokenId, accountResetToken) ##
 
@@ -954,7 +954,7 @@ Returns:
   * Any error from the underlying storage system (wrapped in `error.wrap()`)
   * `error.notFound()` if this user found
 
-## getRecoveryKey(uid, recoveryKeyId)
+## getRecoveryKey(uid)
 
 Get the recovery key for this user.
 
@@ -962,8 +962,6 @@ Parameters:
 
 * `uid` (Buffer16):
   The uid of the owning account
-* `recoveryKeyId` (String)
-  The id for the recovery key
 
 Returns:
 
@@ -974,7 +972,7 @@ Returns:
   * Any error from the underlying storage system (wrapped in `error.wrap()`)
   * `error.notFound()` if this user or recovery key not found
 
-## deleteRecoveryKey(uid, recoveryKeyId)
+## deleteRecoveryKey(uid)
 
 Delete the recovery key for this user.
 
@@ -982,8 +980,6 @@ Parameters:
 
 * `uid` (Buffer16):
   The uid of the owning account
-* `recoveryKeyId` (String)
-  The id for the recovery key
 
 Returns:
 

@@ -83,6 +83,7 @@ function createServer(db) {
     'kA',
     'keyBundle',
     'passCode',
+    'recoveryKeyId',
     'sessionTokenId',
     'tokenId',
     'tokenVerificationId',
@@ -236,9 +237,9 @@ function createServer(db) {
     op((req) => db.consumeRecoveryCode(req.params.id, req.params.code))
   )
 
-  api.get('/account/:id/recoveryKeys/:recoveryKeyId', withParams(db.getRecoveryKey))
-  api.del('/account/:id/recoveryKeys/:recoveryKeyId', withParams(db.deleteRecoveryKey))
-  api.post('/account/:id/recoveryKeys', withIdAndBody(db.createRecoveryKey))
+  api.get('/account/:id/recoveryKey', withParams(db.getRecoveryKey))
+  api.del('/account/:id/recoveryKey', withParams(db.deleteRecoveryKey))
+  api.post('/account/:id/recoveryKey', withIdAndBody(db.createRecoveryKey))
 
   api.get(
     '/',

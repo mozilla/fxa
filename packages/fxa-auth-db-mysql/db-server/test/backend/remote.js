@@ -1726,7 +1726,7 @@ module.exports = function(cfg, makeServer) {
       })
     })
 
-    describe('recovery keys', function () {
+    describe('recovery key', function () {
       let user, recoveryKey
       beforeEach(() => {
         user = fake.newUserDataHex()
@@ -1734,10 +1734,10 @@ module.exports = function(cfg, makeServer) {
           .then((r) => {
             respOkEmpty(r)
             recoveryKey = {
-              recoveryKeyId: crypto.randomBytes(32).toString('hex'),
+              recoveryKeyId: crypto.randomBytes(16).toString('hex'),
               recoveryData: crypto.randomBytes(64).toString('hex')
             }
-            return client.postThen('/account/' + user.accountId + '/recoveryKeys', recoveryKey)
+            return client.postThen('/account/' + user.accountId + '/recoveryKey', recoveryKey)
           })
           .then((r) => {
             respOkEmpty(r)
@@ -1749,7 +1749,7 @@ module.exports = function(cfg, makeServer) {
       })
 
       it('should get a recovery key', () => {
-        return client.getThen('/account/' + user.accountId + '/recoveryKeys/' + recoveryKey.recoveryKeyId)
+        return client.getThen('/account/' + user.accountId + '/recoveryKey')
           .then((res) => {
             const recoveryKeyResult = res.obj
             assert.equal(recoveryKeyResult.recoveryData, recoveryKey.recoveryData, 'recoveryData match')
@@ -1757,7 +1757,7 @@ module.exports = function(cfg, makeServer) {
       })
 
       it('should delete a recovery key', () => {
-        return client.delThen('/account/' + user.accountId + '/recoveryKeys/' + recoveryKey.recoveryKeyId.toString('hex'))
+        return client.delThen('/account/' + user.accountId + '/recoveryKey')
           .then((r) => {
             respOkEmpty(r)
           })
