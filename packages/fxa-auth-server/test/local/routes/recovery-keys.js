@@ -9,6 +9,7 @@ const getRoute = require('../../routes_helpers').getRoute
 const mocks = require('../../mocks')
 const P = require('../../../lib/promise')
 const sinon = require('sinon')
+const errors = require('../../../lib/error')
 
 let log, db, customs, routes, route, request, response
 const email = 'test@email.com'
@@ -16,7 +17,7 @@ const recoveryKeyId = '000000'
 const recoveryData = '11111111111'
 const uid = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
 
-describe('POST /recoveryKeys', () => {
+describe('POST /recoveryKey', () => {
   describe('should create recovery key', () => {
     beforeEach(() => {
       const requestOptions = {
@@ -24,7 +25,7 @@ describe('POST /recoveryKeys', () => {
         log,
         payload: {recoveryKeyId, recoveryData}
       }
-      return setup({db: {}}, {}, '/recoveryKeys', requestOptions).then(r => response = r)
+      return setup({db: {}}, {}, '/recoveryKey', requestOptions).then(r => response = r)
     })
 
     it('returned the correct response', () => {
@@ -68,15 +69,15 @@ describe('POST /recoveryKeys', () => {
       const requestOptions = {
         credentials: {uid, email, tokenVerificationId: '1232311'},
       }
-      return setup({db: {}}, {}, '/recoveryKeys', requestOptions)
+      return setup({db: {}}, {}, '/recoveryKey', requestOptions)
         .then(assert.fail, (err) => {
-          assert.deepEqual(err.errno, 138, 'returns unverified session error')
+          assert.deepEqual(err.errno, errors.ERRNO.SESSION_UNVERIFIED, 'returns unverified session error')
         })
     })
   })
 })
 
-describe('GET /recoveryKeys/{recoveryKeyId}', () => {
+describe('GET /recoveryKey/{recoveryKeyId}', () => {
   describe('should get recovery key', () => {
     beforeEach(() => {
       const requestOptions = {
@@ -84,7 +85,7 @@ describe('GET /recoveryKeys/{recoveryKeyId}', () => {
         params: {recoveryKeyId},
         log
       }
-      return setup({db: {recoveryData}}, {}, '/recoveryKeys/{recoveryKeyId}', requestOptions)
+      return setup({db: {recoveryData, recoveryKeyId}}, {}, '/recoveryKey/{recoveryKeyId}', requestOptions)
         .then(r => response = r)
     })
 
@@ -112,9 +113,143 @@ describe('GET /recoveryKeys/{recoveryKeyId}', () => {
     it('called db.getRecoveryKey correctly', () => {
       assert.equal(db.getRecoveryKey.callCount, 1)
       const args = db.getRecoveryKey.args[0]
-      assert.equal(args.length, 2)
+      assert.equal(args.length, 1)
       assert.equal(args[0], uid)
-      assert.equal(args[1], recoveryKeyId)
+    })
+  })
+
+  describe('fails to return recovery data with recoveryKeyId mismatch', () => {
+    beforeEach(() => {
+      const requestOptions = {
+        credentials: {uid, email},
+        params: {recoveryKeyId},
+        log
+      }
+      return setup({db: {recoveryData, recoveryKeyId: '11111'}}, {}, '/recoveryKey/{recoveryKeyId}', requestOptions)
+        .then(assert.fail, (err) => response = err)
+    })
+
+    it('returned the correct response', () => {
+      assert.deepEqual(response.errno, errors.ERRNO.RECOVERY_KEY_INVALID, 'correct invalid recovery key errno')
+    })
+  })
+})
+
+describe('POST /recoveryKey/exists', () => {
+  describe('should check if recovery key exists using sessionToken', () => {
+    beforeEach(() => {
+      const requestOptions = {
+        credentials: {uid, email},
+        log
+      }
+      return setup({db: {recoveryData, }}, {}, '/recoveryKey/exists', requestOptions)
+        .then(r => response = r)
+    })
+
+    it('returned the correct response', () => {
+      assert.deepEqual(response.exists, true, 'exists ')
+    })
+
+    it('called log.begin correctly', () => {
+      assert.equal(log.begin.callCount, 1)
+      const args = log.begin.args[0]
+      assert.equal(args.length, 2)
+      assert.equal(args[0], 'recoveryKeyExists')
+      assert.equal(args[1], request)
+    })
+
+    it('called db.getRecoveryKey correctly', () => {
+      assert.equal(db.getRecoveryKey.callCount, 1)
+      const args = db.getRecoveryKey.args[0]
+      assert.equal(args.length, 1)
+      assert.equal(args[0], uid)
+    })
+  })
+
+  describe('should check if recovery key exists using email', () => {
+    beforeEach(() => {
+      const requestOptions = {
+        payload: {email},
+        log
+      }
+      return setup({db: {uid, email, recoveryData}}, {}, '/recoveryKey/exists', requestOptions)
+        .then(r => response = r)
+    })
+
+    it('returned the correct response', () => {
+      assert.deepEqual(response.exists, true, 'exists ')
+    })
+
+    it('called log.begin correctly', () => {
+      assert.equal(log.begin.callCount, 1)
+      const args = log.begin.args[0]
+      assert.equal(args.length, 2)
+      assert.equal(args[0], 'recoveryKeyExists')
+      assert.equal(args[1], request)
+    })
+
+    it('called customs.check correctly', () => {
+      assert.equal(customs.check.callCount, 1)
+      const args = customs.check.args[0]
+      assert.equal(args.length, 3)
+      assert.equal(args[1], email)
+      assert.equal(args[2], 'recoveryKeyExists')
+    })
+
+    it('called db.getRecoveryKey correctly', () => {
+      assert.equal(db.getRecoveryKey.callCount, 1)
+      const args = db.getRecoveryKey.args[0]
+      assert.equal(args.length, 1)
+      assert.equal(args[0], uid)
+    })
+  })
+})
+
+describe('DELETE /recoveryKey', () => {
+  describe('should delete recovery key', () => {
+    beforeEach(() => {
+      const requestOptions = {
+        method: 'DELETE',
+        credentials: {uid, email},
+        log
+      }
+      return setup({db: {recoveryData}}, {}, '/recoveryKey', requestOptions)
+        .then(r => response = r)
+    })
+
+    it('returned the correct response', () => {
+      assert.ok(response, 'empty response ')
+    })
+
+    it('called log.begin correctly', () => {
+      assert.equal(log.begin.callCount, 1)
+      const args = log.begin.args[0]
+      assert.equal(args.length, 2)
+      assert.equal(args[0], 'recoveryKeyDelete')
+      assert.equal(args[1], request)
+    })
+
+    it('called db.deleteRecoveryKey correctly', () => {
+      assert.equal(db.deleteRecoveryKey.callCount, 1)
+      const args = db.deleteRecoveryKey.args[0]
+      assert.equal(args.length, 1)
+      assert.equal(args[0], uid)
+    })
+  })
+
+  describe('should fail for unverified session', () => {
+    beforeEach(() => {
+      const requestOptions = {
+        method: 'DELETE',
+        credentials: {uid, email, tokenVerificationId: 'unverified'},
+        log
+      }
+      return setup({db: {recoveryData}}, {}, '/recoveryKey', requestOptions)
+        .then(assert.fail, (err) => response = err)
+    })
+
+    it('returned the correct response', () => {
+      assert.equal(response.errno, errors.ERRNO.SESSION_UNVERIFIED, 'unverified session')
     })
   })
 })
@@ -127,7 +262,7 @@ function setup(results, errors, path, requestOptions) {
   db = mocks.mockDB(results.db, errors.db)
   customs = mocks.mockCustoms(errors.customs)
   routes = makeRoutes({log, db, customs})
-  route = getRoute(routes, path)
+  route = getRoute(routes, path, requestOptions.method)
   request = mocks.mockRequest(requestOptions)
   request.emitMetricsEvent = sinon.spy(() => P.resolve({}))
   return runTest(route, request)
@@ -139,7 +274,7 @@ function makeRoutes(options = {}) {
   const customs = options.customs || mocks.mockCustoms()
   const config = options.config || {signinConfirmation: {}}
   const Password = require('../../../lib/crypto/password')(log, config)
-  return require('../../../lib/routes/recovery-keys')(log, db, Password, config.verifierVersion, customs)
+  return require('../../../lib/routes/recovery-key')(log, db, Password, config.verifierVersion, customs)
 }
 
 function runTest(route, request) {

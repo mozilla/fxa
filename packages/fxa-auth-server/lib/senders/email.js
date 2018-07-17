@@ -610,6 +610,7 @@ module.exports = function (log, config) {
   Mailer.prototype.recoveryEmail = function (message) {
     var templateName = 'recoveryEmail'
     var query = {
+      uid: message.uid,
       token: message.token,
       code: message.code,
       email: message.email

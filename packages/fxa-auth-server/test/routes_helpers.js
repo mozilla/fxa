@@ -4,12 +4,20 @@
 
 'use strict'
 
-exports.getRoute = function (routes, path) {
+exports.getRoute = function (routes, path, method) {
   var route = null
 
   routes.some(function (r) {
     if (r.path === path) {
       route = r
+
+      if (method) {
+        if (r.method === method) {
+          return true
+        }
+        return false
+      }
+
       return true
     }
   })

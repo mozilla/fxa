@@ -21,7 +21,7 @@ Creating a new recovery key involves the following steps:
   * recover-data = JWE(recover-enc, {"alg": "dir", "enc": "A256GCM", "kid": recover-kid}, kB)
 * FxA web-content submits recovery data to FxA server for storage,
   associating it with the fingerprint (recover-kid)
-  * `POST /recoveryKeys`, providing `recoveryKeyId` and `recoveryData` in the request body.
+  * `POST /recoveryKey`, providing `recoveryKeyId` and `recoveryData` in the request body.
 
 This scheme ensures someone in posession of the recovery key,
 can request the encrypted recovery data
@@ -42,7 +42,7 @@ as follows:
 * FxA web-content uses the recovery code to derive the fingerprint
   and encryption key (recover-kid and recover-enc as defined above).
 * FxA web-content requests recover-data from FxA server, providing recover-kid.
-  * `GET /recoveryKeys/:recoveryKeyId`, authenticated with `accountResetToken`.
+  * `GET /recoveryKey/:recoveryKeyId`, authenticated with `accountResetToken`.
   * Providing the `:recoveryKeyId` here proves that the user posesses the recovery key,
     while the `accountResetToken` proves that they control the email address
     of the account.

@@ -1288,7 +1288,7 @@ module.exports = (
   }
 
   SAFE_URLS.createRecoveryKey = new SafeUrl(
-    '/account/:uid/recoveryKeys',
+    '/account/:uid/recoveryKey',
     'db.createRecoveryKey'
   )
   DB.prototype.createRecoveryKey = function (uid, recoveryKeyId, recoveryData) {
@@ -1298,23 +1298,29 @@ module.exports = (
   }
 
   SAFE_URLS.getRecoveryKey = new SafeUrl(
-    '/account/:uid/recoveryKeys/:recoveryKeyId',
+    '/account/:uid/recoveryKey',
     'db.getRecoveryKey'
   )
-  DB.prototype.getRecoveryKey = function (uid, recoveryKeyId) {
+  DB.prototype.getRecoveryKey = function (uid) {
     log.trace({op: 'DB.getRecoveryKey', uid})
 
-    return this.pool.get(SAFE_URLS.getRecoveryKey, { uid, recoveryKeyId })
+    return this.pool.get(SAFE_URLS.getRecoveryKey, {uid})
+      .catch(err => {
+        if (isNotFoundError(err)) {
+          throw error.recoveryKeyNotFound()
+        }
+        throw err
+      })
   }
 
   SAFE_URLS.deleteRecoveryKey = new SafeUrl(
-    '/account/:uid/recoveryKeys/:recoveryKeyId',
-    'db.createRecoveryKey'
+    '/account/:uid/recoveryKey',
+    'db.deleteRecoveryKey'
   )
-  DB.prototype.deleteRecoveryKey = function (uid, recoveryKeyId) {
+  DB.prototype.deleteRecoveryKey = function (uid) {
     log.trace({op: 'DB.deleteRecoveryKey', uid})
 
-    return this.pool.del(SAFE_URLS.deleteRecoveryKey, { uid, recoveryKeyId })
+    return this.pool.del(SAFE_URLS.deleteRecoveryKey, { uid })
   }
 
 

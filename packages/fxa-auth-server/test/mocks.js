@@ -345,6 +345,7 @@ function mockDB (data, errors) {
     }),
     getRecoveryKey: sinon.spy(() => {
       return P.resolve({
+        recoveryKeyId: data.recoveryKeyId,
         recoveryData: data.recoveryData
       })
     }),
@@ -553,6 +554,7 @@ function mockRequest (data, errors) {
     },
     path: data.path,
     params: data.params || {},
+    method: data.method || undefined,
     payload: data.payload || {},
     query: data.query || {},
     setMetricsFlowCompleteSignal: metricsContext.setFlowCompleteSignal,

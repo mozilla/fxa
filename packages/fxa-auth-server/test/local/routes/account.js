@@ -165,9 +165,8 @@ describe('/account/reset', function () {
     it('should have deleted recovery key', () => {
       assert.equal(mockDB.deleteRecoveryKey.callCount, 1)
       const args = mockDB.deleteRecoveryKey.args[0]
-      assert.equal(args.length, 2, 'db.deleteRecoveryKey passed correct number of args')
+      assert.equal(args.length, 1, 'db.deleteRecoveryKey passed correct number of args')
       assert.equal(args[0], uid, 'uid passed')
-      assert.equal(args[1], mockRequest.payload.recoveryKeyId, 'recoveryKeyId passed')
     })
 
     it('should have reset custom server', () => {

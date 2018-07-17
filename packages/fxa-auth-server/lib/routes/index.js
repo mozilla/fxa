@@ -55,7 +55,7 @@ module.exports = function (
   const unblockCodes = require('./unblock-codes')(log, db, mailer, config.signinUnblock, customs)
   const totp = require('./totp')(log, db, mailer, customs, config.totp)
   const recoveryCodes = require('./recovery-codes')(log, db, config.totp, customs, mailer)
-  const recoveryKeys = require('./recovery-keys')(log, db, Password, config.verifierVersion, customs)
+  const recoveryKey = require('./recovery-key')(log, db, Password, config.verifierVersion, customs)
   const util = require('./util')(
     log,
     config,
@@ -79,7 +79,7 @@ module.exports = function (
     totp,
     unblockCodes,
     util,
-    recoveryKeys
+    recoveryKey
   )
   v1Routes.forEach(r => { r.path = basePath + '/v1' + r.path })
   defaults.forEach(r => { r.path = basePath + r.path })

@@ -866,7 +866,7 @@ module.exports = config => {
       .then((token) => {
         return this.doRequest(
           'POST',
-          this.baseURL + '/recoveryKeys',
+          this.baseURL + '/recoveryKey',
           token,
           {
             recoveryKeyId,
@@ -881,7 +881,39 @@ module.exports = config => {
       .then((token) => {
         return this.doRequest(
           'GET',
-          `${this.baseURL}/recoveryKeys/${recoveryKeyId}`,
+          `${this.baseURL}/recoveryKey/${recoveryKeyId}`,
+          token
+        )
+      })
+  }
+
+  ClientApi.prototype.getRecoveryKeyExistsWithSession = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'POST',
+          `${this.baseURL}/recoveryKey/exists`,
+          token,
+          {}
+        )
+      })
+  }
+
+  ClientApi.prototype.getRecoveryKeyExistsWithEmail = function (email) {
+    return this.doRequest(
+      'POST',
+      `${this.baseURL}/recoveryKey/exists`,
+      undefined,
+      {email}
+    )
+  }
+
+  ClientApi.prototype.deleteRecoveryKey = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'DELETE',
+          `${this.baseURL}/recoveryKey`,
           token
         )
       })

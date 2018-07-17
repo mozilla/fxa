@@ -1058,7 +1058,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
 
         function deleteRecoveryKey() {
           if (recoveryKeyId) {
-            return db.deleteRecoveryKey(account.uid, recoveryKeyId)
+            return db.deleteRecoveryKey(account.uid)
           }
 
           return P.resolve()

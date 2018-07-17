@@ -75,6 +75,14 @@ describe('remote recovery keys', function () {
       })
   })
 
+  it('should fail to get unknown recovery key', () => {
+    return getAccountResetToken(client, server, email)
+      .then(() => client.getRecoveryKey('abce1234567890'))
+      .then(assert.fail, (err) => {
+        assert.equal(err.errno, 159, 'recovery key is not valid')
+      })
+  })
+
   it('should fail if recoveryKeyId is missing', () => {
     return getAccountResetToken(client, server, email)
       .then(() => client.getRecoveryKey(recoveryKeyId))
@@ -120,6 +128,62 @@ describe('remote recovery keys', function () {
             assert.equal(res.kB, keys.kB, 'kB are equal returned')
           })
       })
+  })
+
+  it('should delete recovery key', () => {
+    return client.deleteRecoveryKey()
+      .then((res) => {
+        assert.ok(res, 'empty response')
+        return client.getRecoveryKeyExists()
+          .then((result) => {
+            assert.equal(result.exists, false, 'recovery key deleted')
+          })
+      })
+  })
+
+  describe('check recovery key status', () => {
+    describe('with sessionToken', () => {
+      it('should return true if recovery key exists', () => {
+        return client.getRecoveryKeyExists()
+          .then((res) => {
+            assert.equal(res.exists, true, 'recovery key exists')
+          })
+      })
+
+      it('should return false if recovery key doesn\'t exist', () => {
+        email = server.uniqueEmail()
+        return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys: true})
+          .then((c) => {
+            client = c
+            return client.getRecoveryKeyExists()
+          })
+          .then((res) => {
+            assert.equal(res.exists, false, 'recovery key doesnt exists')
+          })
+      })
+    })
+
+    describe('with email', () => {
+      it('should return true if recovery key exists', () => {
+        return client.getRecoveryKeyExists(email)
+          .then((res) => {
+            assert.equal(res.exists, true, 'recovery key exists')
+          })
+      })
+
+      it('should return false if recovery key doesn\'t exist', () => {
+        email = server.uniqueEmail()
+        return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys: true})
+          .then((c) => {
+            client = c
+            return client.getRecoveryKeyExists(email)
+          })
+          .then((res) => {
+            assert.equal(res.exists, false, 'recovery key doesn\'t exist')
+          })
+      })
+    })
+
   })
 
   after(() => {

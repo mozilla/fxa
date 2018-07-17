@@ -558,6 +558,18 @@ module.exports = config => {
     return this.api.getRecoveryKey(this.accountResetToken, recoveryKeyId)
   }
 
+  Client.prototype.getRecoveryKeyExists = function (email) {
+    if (! email) {
+      return this.api.getRecoveryKeyExistsWithSession(this.sessionToken)
+    } else {
+      return this.api.getRecoveryKeyExistsWithEmail(email)
+    }
+  }
+
+  Client.prototype.deleteRecoveryKey = function () {
+      return this.api.deleteRecoveryKey(this.sessionToken)
+  }
+
   Client.prototype.resetAccountWithRecoveryKey = function (newPassword, kB, recoveryKeyId, headers, options = {}) {
     if (! this.accountResetToken) {
       throw new Error('call verifyPasswordResetCode before calling resetAccountWithRecoveryKey')

@@ -58,9 +58,11 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
   * [Recovery codes](#recovery-codes)
     * [GET /recoveryCodes (:lock: sessionToken)](#get-recoverycodes)
     * [POST /session/verify/recoveryCode (:lock: sessionToken)](#post-sessionverifyrecoverycode)
-  * [Recovery keys](#recovery-keys)
-    * [POST /recoveryKeys (:lock: sessionToken)](#post-recoverykeys)
-    * [GET /recoveryKeys/{recoveryKeyId} (:lock: accountResetToken)](#get-recoverykeysrecoverykeyid)
+  * [Recovery key](#recovery-key)
+    * [POST /recoveryKey (:lock: sessionToken)](#post-recoverykey)
+    * [GET /recoveryKey/:recoveryKeyId (:lock: accountResetToken)](#get-recoverykey)
+    * [POST /recoveryKey/exists (:lock: sessionToken)](#post-recoverykeyexists)
+    * [DELETE /recoveryKey (:lock: sessionToken)](#delete-recoverykey)
   * [Session](#session)
     * [POST /session/destroy (:lock: sessionToken)](#post-sessiondestroy)
     * [POST /session/reauth (:lock: sessionToken)](#post-sessionreauth)
@@ -285,6 +287,10 @@ for `code` and `errno` are:
   Recovery code not found.
 * `code: 400, errno: 157`:
   Unavailable device command.
+* `code: 400, errno: 158`:
+  Recovery key not found.
+* `code: 400, errno: 159`:
+  Recovery key is not valid.
 * `code: 503, errno: 201`:
   Service unavailable
 * `code: 503, errno: 202`:
@@ -2346,12 +2352,12 @@ Verify a session using a recovery code.
   <!--end-response-body-post-sessionverifyrecoverycode-remaining-->
 
 
-### Recovery keys
+### Recovery key
 
-#### POST /recoveryKeys
+#### POST /recoveryKey
 
 :lock: HAWK-authenticated with session token
-<!--begin-route-post-recoverykeys-->
+<!--begin-route-post-recoverykey-->
 Creates a new recovery key for a user.
 
 Recovery keys are one-time-use tokens
@@ -2359,30 +2365,68 @@ that can be used to recover the user's kB
 if they forget their password.
 For more details, see the
 [recovery keys](recovery_keys.md) docs.
-<!--end-route-post-recoverykeys-->
+<!--end-route-post-recoverykey-->
 
 ##### Request body
 
 * `recoveryKeyId`: *validators.recoveryKeyId*
 
-  <!--begin-request-body-post-recoverykeys-recoveryKeyId-->
+  <!--begin-request-body-post-recoverykey-recoveryKeyId-->
   A unique identifier for this recovery key, derived from the key via HKDF.
-  <!--end-request-body-post-recoverykeys-recoveryKeyId-->
+  <!--end-request-body-post-recoverykey-recoveryKeyId-->
 
 * `recoveryData`: *validators.recoveryData*
 
-  <!--begin-request-body-post-recoverykeys-recoveryData-->
+  <!--begin-request-body-post-recoverykey-recoveryData-->
   An encrypted bundle containing the user's kB.
-  <!--end-request-body-post-recoverykeys-recoveryData-->
+  <!--end-request-body-post-recoverykey-recoveryData-->
 
 
-#### GET /recoveryKeys/{recoveryKeyId}
+#### GET /recoveryKey/:recoveryKeyId
 
 :lock: HAWK-authenticated with account reset token
-<!--begin-route-get-recoverykeysrecoverykeyid-->
+<!--begin-route-get-recoverykeyrecoverykeyid-->
 Retrieve the account recovery data associated with the given recovery key.
-<!--end-route-get-recoverykeysrecoverykeyid-->
+<!--end-route-get-recoverykeyrecoverykeyid-->
 
+##### Response body
+
+* `recoveryData`: *string*
+
+  <!--begin-response-body-post-recoverykeyrecoverykeyid-recoverydata-->
+  
+  <!--end-response-body-post-recoverykeyrecoverykeyid-recoverydata-->
+
+#### POST /recoveryKey/exists
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-recoverykeyexists-->
+This route checks to see if given user has setup an account recovery key.
+When used during the password reset flow, an email can be provided (instead
+of a sessionToken) to check for the status. However, when
+using an email, the request is rate limited.
+<!--end-route-post-recoverykeyexists-->
+
+##### Request body
+
+* `email`: *validators.email.required*
+
+  <!--begin-request-body-post-recoverykeyexists-email-->
+
+  <!--end-request-body-post-recoverykeyexists-email-->
+
+##### Response body
+
+* `status`: *boolean, required*
+
+  <!--begin-response-body-post-recoverykeyexists-email-->
+
+  <!--end-response-body-post-recoverykeyexists-email-->
+
+#### DELETE /recoveryKey
+<!--begin-route-delete-recoverykey-->
+This route remove an account's recovery key. When the key is
+removed, it can no longer be used to restore an account's kB.
+<!--end-route-delete-recoverykey-->
 
 ### Session
 

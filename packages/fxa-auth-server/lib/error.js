@@ -70,6 +70,9 @@ var ERRNO = {
   RECOVERY_CODE_NOT_FOUND: 156,
   DEVICE_COMMAND_UNAVAILABLE: 157,
 
+  RECOVERY_KEY_NOT_FOUND: 158,
+  RECOVERY_KEY_INVALID: 159,
+
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
   BACKEND_SERVICE_FAILURE: 203,
@@ -791,6 +794,24 @@ AppError.unavailableDeviceCommand = () => {
     error: 'Bad Request',
     errno: ERRNO.DEVICE_COMMAND_UNAVAILABLE,
     message: 'Unavailable device command.'
+  })
+}
+
+AppError.recoveryKeyNotFound = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.RECOVERY_KEY_NOT_FOUND,
+    message: 'Recovery key not found.'
+  })
+}
+
+AppError.recoveryKeyInvalid = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.RECOVERY_KEY_INVALID,
+    message: 'Recovery key is not valid.'
   })
 }
 
