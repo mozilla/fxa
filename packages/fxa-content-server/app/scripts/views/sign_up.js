@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   const AccountResetMixin = require('./mixins/account-reset-mixin');
   const AuthErrors = require('../lib/auth-errors');
   const BaseView = require('./base');
-  const CheckboxMixin = require('./mixins/checkbox-mixin');
   const Cocktail = require('cocktail');
   const CoppaMixin = require('./mixins/coppa-mixin');
   const EmailFirstExperimentMixin = require('./mixins/email-first-experiment-mixin');
@@ -298,7 +297,6 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     AccountResetMixin,
-    CheckboxMixin,
     CoppaMixin({ required: false }),
     EmailFirstExperimentMixin({ treatmentPathname: '/' }),
     EmailOptInMixin,

@@ -60,23 +60,95 @@
   color: $link-color-extra;
   font-size: 13px;
   margin-top: 16px;
-
-  .fxa-checkbox {
-    line-height: 18px;
-  }
 }
 
 .choose-what-to-sync-row,
 .checkbox-row {
   text-align: left;
+}
 
-  label {
-    display: inline;
+input[type='checkbox'] {
+  appearance: none;
+  // The background image is preloaded but forced out of the viewport
+  // until checked. Without the preload there, when the user clicks the
+  // checkbox there is a delay while the image is fetched.
+  background-image: url('/images/icon-check-white.svg');
+  background-position: 100px 100px;
+  background-repeat: no-repeat;
+  border: 1px solid rgba($grey-90, 0.3);
+  border-radius: 2px;
+  cursor: pointer;
+  display: inline-block;
+  height: 18px;
+  margin-right: 4px;
+  padding: 0 !important;
+  width: 18px;
 
-    .fxa-checkbox__label {
-      // The default is 0px, but -3px sets the label
-      // properly in comparison to the checkbox.
-      margin-top: -3px;
+  &:not(:checked) {
+    background-color: rgba($grey-90, 0.1);
+
+    &:hover {
+      background-color: rgba($grey-90, 0.2);
+      border-color: rgba($grey-90, 0.3);
+    }
+
+    &:active {
+      background-color: rgba($grey-90, 0.3);
+    }
+
+    &:focus {
+      border: 0;
+      box-shadow: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
+    }
+
+    &:focus:active {
+      background-color: rgba($grey-90, 0.3);
+    }
+
+    &:disabled {
+      background-color: rgba($grey-90, 0.1);
+    }
+  }
+
+  &:checked {
+    background-color: $blue-60;
+    background-position: center center;
+
+    &:hover {
+      background-color: $blue-70;
+    }
+
+    &:active {
+      background-color: $blue-80;
+    }
+
+    &:focus {
+      border: 0;
+      box-shadow: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
+    }
+
+    &:focus:active {
+      background-color: rgba($grey-90, 0.3);
+    }
+
+    &:disabled {
+      background-color: $blue-60;
+    }
+  }
+
+  ~ label {
+    cursor: pointer;
+    position: relative;
+    top: -4px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+
+    ~ label {
+      cursor: not-allowed;
+      opacity: 0.4;
     }
   }
 }
@@ -121,25 +193,19 @@
     width: 50px;
   }
 
-  .fxa-checkbox {
-    color: $color-grey;
-    height: auto;
+  .fxa-checkbox__label {
+    color: $color-grey-faint-text;
+    font-size: 14px;
+    margin-top: 2px;
+    padding-left: 26px;
+  }
 
-    .fxa-checkbox__label {
-      color: $color-grey-faint-text;
-      font-size: 14px;
-      margin-top: auto;
-      /*from fxa-checkbox-repo, the padding needs to be 24px*/
-      padding-left: 24px;
-    }
-
-    .fxa-checkbox__value {
-      font-size: 18px;
-      line-height: 18px;
-      // email addresses can overflow the label and cause
-      // the screen to be very wide. Break the addresses.
-      word-break: break-all;
-    }
+  .fxa-checkbox__value {
+    font-size: 18px;
+    line-height: 18px;
+    // email addresses can overflow the label and cause
+    // the screen to be very wide. Break the addresses.
+    word-break: break-all;
   }
 }
 
@@ -161,13 +227,5 @@
 
   @include respond-to('trustedUI') {
     column-width: 118px;
-
-    .fxa-checkbox {
-      line-height: 18px;
-    }
-
-    .fxa-checkbox__label {
-      font-size: 14px;
-    }
   }
 }

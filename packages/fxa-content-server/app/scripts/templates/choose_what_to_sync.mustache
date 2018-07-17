@@ -16,12 +16,7 @@
       <div class="two-col-items">
         {{#engines}}
           <div class="input-row choose-what-to-sync-row">
-            <label class="fxa-checkbox" id="sync-engine-{{id}}">
-              <input name="sync-content" type="checkbox" class="customize-sync" {{#checked}}checked="checked"{{/checked}} value="{{id}}" tabindex="{{tabindex}}">
-              <span class="fxa-checkbox__label">
-                {{text}}
-              </span>
-            </label>
+            <input name="sync-content" id="sync-engine-{{id}}" type="checkbox" class="customize-sync" {{#checked}}checked="checked"{{/checked}} value="{{id}}" tabindex="{{tabindex}}" /><label class="fxa-checkbox__label" for="sync-engine-{{id}}">{{text}}</label>
           </div>
         {{/engines}}
       </div>

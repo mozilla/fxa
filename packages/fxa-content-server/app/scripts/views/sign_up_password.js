@@ -4,7 +4,6 @@
 
 import AuthErrors from '../lib/auth-errors';
 import BackMixin from './mixins/back-mixin';
-import CheckboxMixin from './mixins/checkbox-mixin';
 import Cocktail from 'cocktail';
 import CoppaMixin from './mixins/coppa-mixin';
 import EmailOptInMixin from './mixins/email-opt-in-mixin';
@@ -80,7 +79,6 @@ class SignUpPasswordView extends FormView {
 Cocktail.mixin(
   SignUpPasswordView,
   BackMixin,
-  CheckboxMixin,
   CoppaMixin({
     required: true
   }),

@@ -9,7 +9,6 @@ define(function (require, exports, module) {
   const Account = require('../models/account');
   const BackMixin = require('./mixins/back-mixin');
   const BaseView = require('./base');
-  const CheckboxMixin = require('./mixins/checkbox-mixin');
   const Cocktail = require('cocktail');
   const FormView = require('./form');
   const OAuthErrors = require('../lib/oauth-errors');
@@ -276,7 +275,6 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     BackMixin,
-    CheckboxMixin,
     ServiceMixin,
     VerificationReasonMixin
   );

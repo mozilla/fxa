@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   const _ = require('underscore');
   const $ = require('jquery');
   const BackMixin = require('./mixins/back-mixin');
-  const CheckboxMixin = require('./mixins/checkbox-mixin');
   const Cocktail = require('cocktail');
   const FormView = require('./form');
   const SessionVerificationPollMixin = require('./mixins/session-verification-poll-mixin');
@@ -158,7 +157,6 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     BackMixin,
-    CheckboxMixin,
     SessionVerificationPollMixin
   );
 
