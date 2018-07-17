@@ -148,8 +148,8 @@ function getLocationMessage (location) {
   }
 }
 
-function sesMessageTagsHeaderValue(templateName) {
-  return 'messageType=fxa-' + templateName + ', app=fxa'
+function sesMessageTagsHeaderValue(templateName, serviceName) {
+  return `messageType=fxa-${templateName}, app=fxa, service=${serviceName}`
 }
 
 describe(
@@ -278,7 +278,7 @@ describe(
               assert.equal(sesConfigurationSetHeader, 'some-defined-value')
 
               var sesMessageTags = emailConfig.headers['X-SES-MESSAGE-TAGS']
-              var expectedSesMessageTags = sesMessageTagsHeaderValue(type)
+              var expectedSesMessageTags = sesMessageTagsHeaderValue(type, 'fxa-auth-server')
               assert.equal(sesMessageTags, expectedSesMessageTags)
 
               mailer.sesConfigurationSet = savedSesConfigurationSet
@@ -861,7 +861,7 @@ describe(
         })
 
         it(
-          'sends request to fxa-email-server when the email pattern is right',
+          'sends request to fxa-email-service when the email pattern is right',
           function() {
             const message = {
               email: 'emailservice.foo@restmail.net',
@@ -869,19 +869,32 @@ describe(
               template: 'verifyLoginEmail',
               uid: 'foo'
             }
+            mailer.sesConfigurationSet = 'wibble'
 
             return mailer.send(message)
               .then(
                 response => {
-                  assert(mailer.emailService.sendMail.called)
+                  assert(mailer.emailService.sendMail.calledOnce)
                   assert(! mailer.mailer.sendMail.called)
-                  assert.equal(mailer.emailService.sendMail.args[0][0].to, 'emailservice.foo@restmail.net')
-                  assert.equal(mailer.emailService.sendMail.args[0][0].subject, 'subject')
-                  assert.equal(mailer.emailService.sendMail.args[0][0].headers['X-Template-Name'], 'verifyLoginEmail')
-                  assert.equal(mailer.emailService.sendMail.args[0][0].headers['X-Email-Service'], 'fxa-email-service')
-                  assert.equal(mailer.emailService.sendMail.args[0][0].headers['X-Email-Sender'], 'ses')
-                  assert.equal(mailer.emailService.sendMail.args[0][0].headers['X-Uid'], 'foo')
-                  assert.equal(typeof mailer.emailService.sendMail.args[0][1], 'function')
+
+                  const args = mailer.emailService.sendMail.args[0]
+
+                  assert.equal(args.length, 2)
+                  assert.equal(args[0].to, 'emailservice.foo@restmail.net')
+                  assert.equal(args[0].subject, 'subject')
+
+                  const headers = args[0].headers
+
+                  assert.equal(headers['X-Template-Name'], 'verifyLoginEmail')
+                  assert.equal(headers['X-Email-Service'], 'fxa-email-service')
+                  assert.equal(headers['X-Email-Sender'], 'ses')
+                  assert.equal(headers['X-Uid'], 'foo')
+
+                  const expectedSesMessageTags = sesMessageTagsHeaderValue(message.template, 'fxa-email-service')
+                  assert.equal(headers['X-SES-MESSAGE-TAGS'], expectedSesMessageTags)
+                  assert.equal(headers['X-SES-CONFIGURATION-SET'], 'wibble')
+
+                  assert.equal(typeof args[1], 'function')
                 }
               )
           }

@@ -109,8 +109,8 @@ module.exports = function (log, config) {
     return time.format('LTS (z) dddd, ll')
   }
 
-  function sesMessageTagsHeaderValue(templateName) {
-    return 'messageType=fxa-' + templateName + ', app=fxa'
+  function sesMessageTagsHeaderValue(templateName, serviceName) {
+    return `messageType=fxa-${templateName}, app=fxa, service=${serviceName}`
   }
 
   function Mailer(translator, templates, mailerConfig, sender) {
@@ -267,6 +267,35 @@ module.exports = function (log, config) {
       optionalHeader('X-Uid', message.uid)
     )
 
+    let mailer = this.mailer
+    let emailService, emailSender
+    if (config.emailService.forcedEmailAddresses.test(message.email)) {
+      mailer = this.emailService
+      emailService = 'fxa-email-service'
+      emailSender = 'ses'
+    } else {
+      emailService = 'fxa-auth-server'
+    }
+
+    // Set headers that let us attribute success/failure correctly
+    message.emailService = headers['X-Email-Service'] = emailService
+    message.emailSender = headers['X-Email-Sender'] = emailSender
+
+    if (this.sesConfigurationSet) {
+      // Note on SES Event Publishing: The X-SES-CONFIGURATION-SET and
+      // X-SES-MESSAGE-TAGS email headers will be stripped by SES from the
+      // actual outgoing email messages.
+      headers[X_SES_CONFIGURATION_SET] = this.sesConfigurationSet
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(message.metricsTemplate || template, emailService)
+    }
+
+    log.info({
+      email: message.email,
+      op: 'mailer.send',
+      template,
+      headers: Object.keys(headers).join(',')
+    })
+
     var emailConfig = {
       sender: this.sender,
       from: this.sender,
@@ -283,34 +312,6 @@ module.exports = function (log, config) {
     if (message.ccEmails) {
       emailConfig.cc = message.ccEmails
     }
-
-    if (this.sesConfigurationSet) {
-      // Note on SES Event Publishing: The X-SES-CONFIGURATION-SET and
-      // X-SES-MESSAGE-TAGS email headers will be stripped by SES from the
-      // actual outgoing email messages.
-      emailConfig.headers[X_SES_CONFIGURATION_SET] = this.sesConfigurationSet
-    }
-
-    log.info({
-      email: message.email,
-      op: 'mailer.send',
-      template: message.template,
-      headers: Object.keys(headers).join(',')
-    })
-
-    let mailer = this.mailer
-    let emailService, emailSender
-    if (config.emailService.forcedEmailAddresses.test(emailConfig.to)) {
-      mailer = this.emailService
-      emailService = 'fxa-email-service'
-      emailSender = 'ses'
-    } else {
-      emailService = 'fxa-auth-server'
-    }
-
-    // Set headers that let us attribute success/failure correctly
-    message.emailService = emailConfig.headers['X-Email-Service'] = emailService
-    message.emailSender = emailConfig.headers['X-Email-Sender'] = emailSender
 
     var d = P.defer()
     mailer.sendMail(
@@ -349,6 +350,7 @@ module.exports = function (log, config) {
     log.trace({ op: 'mailer.verifyEmail', email: message.email, uid: message.uid })
 
     var templateName = 'verifyEmail'
+    const metricsTemplateName = templateName
     var subject = gettext('Verify your Firefox Account')
     var query = {
       uid: message.uid,
@@ -364,10 +366,6 @@ module.exports = function (log, config) {
     var headers = {
       'X-Link': links.link,
       'X-Verify-Code': message.code
-    }
-
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     if (message.service === 'sync') {
@@ -390,7 +388,8 @@ module.exports = function (log, config) {
         sync: message.service,
         supportUrl: links.supportUrl,
         supportLinkAttributes: links.supportLinkAttributes
-      }
+      },
+      metricsTemplate: metricsTemplateName
     }))
   }
 
@@ -409,10 +408,6 @@ module.exports = function (log, config) {
     var headers = {
       'X-Unblock-Code': message.unblockCode,
       'X-Report-SignIn-Link': links.reportSignInLink
-    }
-
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     return this.send(Object.assign({}, message, {
@@ -452,10 +447,6 @@ module.exports = function (log, config) {
     var headers = {
       'X-Link': links.link,
       'X-Verify-Code': message.code
-    }
-
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     return oauthClientInfo.fetch(message.service).then((clientInfo) => {
@@ -507,10 +498,6 @@ module.exports = function (log, config) {
       'X-Signin-Verify-Code': message.code
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Sign-in code for Firefox'),
@@ -551,10 +538,6 @@ module.exports = function (log, config) {
     const headers = {
       'X-Link': links.link,
       'X-Verify-Code': message.code
-    }
-
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     return this.send(Object.assign({}, message, {
@@ -600,10 +583,6 @@ module.exports = function (log, config) {
       'X-Verify-Code': message.code
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Verify secondary email'),
@@ -647,10 +626,6 @@ module.exports = function (log, config) {
       'X-Recovery-Code': message.code
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Reset your Firefox Account password'),
@@ -679,10 +654,6 @@ module.exports = function (log, config) {
       'X-Link': links.resetLink
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Your Firefox Account password has been changed'),
@@ -709,10 +680,6 @@ module.exports = function (log, config) {
       'X-Link': links.resetLink
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Firefox Account password changed'),
@@ -735,10 +702,6 @@ module.exports = function (log, config) {
       'X-Link': links.resetLink
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Firefox Account password reset required'),
@@ -759,10 +722,6 @@ module.exports = function (log, config) {
 
     var headers = {
       'X-Link': links.passwordChangeLink
-    }
-
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     return oauthClientInfo.fetch(message.service).then((clientInfo) => {
@@ -802,10 +761,6 @@ module.exports = function (log, config) {
       'X-Link': links.link
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Firefox Account verified'),
@@ -831,10 +786,6 @@ module.exports = function (log, config) {
 
     var headers = {
       'X-Link': links.link
-    }
-
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     return this.send(Object.assign({}, message, {
@@ -865,10 +816,6 @@ module.exports = function (log, config) {
       'X-Link': links.link
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Firefox Account new primary email'),
@@ -897,10 +844,6 @@ module.exports = function (log, config) {
       'X-Link': links.link
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Secondary Firefox Account email removed'),
@@ -925,10 +868,6 @@ module.exports = function (log, config) {
 
     const headers = {
       'X-Link': links.link
-    }
-
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     return this.send(Object.assign({}, message, {
@@ -963,10 +902,6 @@ module.exports = function (log, config) {
       'X-Link': links.link
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Two-step authentication disabled'),
@@ -997,10 +932,6 @@ module.exports = function (log, config) {
 
     const headers = {
       'X-Link': links.link
-    }
-
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     return this.send(Object.assign({}, message, {
@@ -1035,10 +966,6 @@ module.exports = function (log, config) {
       'X-Link': links.link
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Recovery code consumed'),
@@ -1069,10 +996,6 @@ module.exports = function (log, config) {
 
     const headers = {
       'X-Link': links.link
-    }
-
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     return this.send(Object.assign({}, message, {
