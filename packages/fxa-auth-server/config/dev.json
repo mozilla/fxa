@@ -142,6 +142,7 @@
     "fmt": "pretty"
   },
   "openid": {
+    "issuer": "http://127.0.0.1:3030",
     "keyFile": "../config/key.json",
     "key": {}
   },
