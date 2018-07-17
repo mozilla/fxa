@@ -22,7 +22,8 @@ const CODE_VERIFYING_ACTION = {
 }
 
 // Actions that, if allowed, would allow an attacker
-// to check whether an account exists for a particular user.
+// to check whether an account exists or has certain
+// properties for a particular user.
 // Basically any unauthenticated endpoint that takes
 // an email address as input.
 const ACCOUNT_STATUS_ACTION = {
@@ -32,7 +33,8 @@ const ACCOUNT_STATUS_ACTION = {
   passwordChange: true,
   passwordForgotSendCode: true,
   accountStatusCheck: true,
-  sendUnblockCode: true
+  sendUnblockCode: true,
+  recoveryKeyExists: true,
 }
 
 // Actions that send an email, and hence might make
