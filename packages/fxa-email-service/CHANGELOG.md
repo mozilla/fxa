@@ -1,3 +1,18 @@
+<a name="1.116.1"></a>
+## 1.116.1 (2018-07-18)
+
+
+#### Features
+
+* **project:**  create healthcheck endpoints and make $PORT an env variable (#134) r=@philbooth,@vladikoff ([b69cfb53](b69cfb53), closes [#132](132), [#133](133))
+
+#### Bug Fixes
+
+* **deploy:**  pin to a known compatible rust version in docker and ci (#131) r=@vladikoff ([7512acf0](7512acf0), closes [#130](130))
+* **docker:**  include /app/version.json in final image (dockerflow required) (#129) ([16f7630f](16f7630f))
+
+
+
 <a name="1.116.0"></a>
 ## 1.116.0 (2018-07-12)
 
