@@ -2,65 +2,62 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+import _ from 'underscore';
+import AuthErrors from '../lib/auth-errors';
+import { cancelEventThen, t } from './base';
+import Cocktail from 'cocktail';
+import FormView from './form';
+import NullBehavior from './behaviors/null';
+import PasswordResetMixin from './mixins/password-reset-mixin';
+import SignInView from './sign_in';
+import Template from 'templates/force_auth.mustache';
+import Transform from '../lib/transform';
+import Vat from '../lib/vat';
 
-  const _ = require('underscore');
-  const AuthErrors = require('../lib/auth-errors');
-  const { cancelEventThen, t } = require('./base');
-  const Cocktail = require('cocktail');
-  const FormView = require('./form');
-  const NullBehavior = require('./behaviors/null');
-  const PasswordResetMixin = require('./mixins/password-reset-mixin');
-  const SignInView = require('./sign_in');
-  const Template = require('templates/force_auth.mustache');
-  const Transform = require('../lib/transform');
-  const Vat = require('../lib/vat');
+var RELIER_DATA_SCHEMA = {
+  email: Vat.email().required(),
+  uid: Vat.uid().allow(null)
+};
 
-  var RELIER_DATA_SCHEMA = {
-    email: Vat.email().required(),
-    uid: Vat.uid().allow(null)
-  };
+var proto = SignInView.prototype;
 
-  var proto = SignInView.prototype;
+var View = SignInView.extend({
+  template: Template,
+  className: 'force-auth',
 
-  var View = SignInView.extend({
-    template: Template,
-    className: 'force-auth',
+  // used by the signin-mixin to decide which broker method to
+  // call with which data when signin is successful.
+  afterSignInBrokerMethod: 'afterForceAuth',
+  afterSignInNavigateData: { clearQueryParams: true },
 
-    // used by the signin-mixin to decide which broker method to
-    // call with which data when signin is successful.
-    afterSignInBrokerMethod: 'afterForceAuth',
-    afterSignInNavigateData: { clearQueryParams: true },
+  _getAndValidateAccountData () {
+    var fieldsToPick = ['email', 'uid'];
+    var accountData = {};
+    var relier = this.relier;
 
-    _getAndValidateAccountData () {
-      var fieldsToPick = ['email', 'uid'];
-      var accountData = {};
-      var relier = this.relier;
-
-      fieldsToPick.forEach(function (fieldName) {
-        if (relier.has(fieldName)) {
-          accountData[fieldName] = relier.get(fieldName);
-        }
-      });
-
-      return Transform.transformUsingSchema(
-        accountData, RELIER_DATA_SCHEMA, AuthErrors);
-    },
-
-    beforeRender () {
-      var accountData;
-
-      try {
-        accountData = this._getAndValidateAccountData();
-      } catch (err) {
-        // uid query parameter validation errors are not handled here,
-        // rather they are handled on startup by the relier.
-        this.fatalError(err);
-        return false;
+    fieldsToPick.forEach(function (fieldName) {
+      if (relier.has(fieldName)) {
+        accountData[fieldName] = relier.get(fieldName);
       }
+    });
 
-      /**
+    return Transform.transformUsingSchema(
+      accountData, RELIER_DATA_SCHEMA, AuthErrors);
+  },
+
+  beforeRender () {
+    var accountData;
+
+    try {
+      accountData = this._getAndValidateAccountData();
+    } catch (err) {
+      // uid query parameter validation errors are not handled here,
+      // rather they are handled on startup by the relier.
+      this.fatalError(err);
+      return false;
+    }
+
+    /**
        * If the relier specifies a UID, check whether the UID is still
        * registered. If the uid is not registered, the account
        * was probably deleted. If the broker supports UID changes,
@@ -68,17 +65,17 @@ define(function (require, exports, module) {
        * whether the email is registered. If not, show a useful error
        * and do not allow the user to continue.
        */
-      var account = this.user.initAccount({
-        email: accountData.email,
-        uid: accountData.uid
-      });
+    var account = this.user.initAccount({
+      email: accountData.email,
+      uid: accountData.uid
+    });
 
-      if (accountData.uid) {
-        return Promise.all([
-          this.user.checkAccountEmailExists(account),
-          this.user.checkAccountUidExists(account)
-        ]).then(([emailExists, uidExists]) => {
-          /*
+    if (accountData.uid) {
+      return Promise.all([
+        this.user.checkAccountEmailExists(account),
+        this.user.checkAccountUidExists(account)
+      ]).then(([emailExists, uidExists]) => {
+        /*
            * uidExists: false, emailExists: false
            *   Let user sign up w/ email.
            * uidExists: true, emailExists: false
@@ -89,115 +86,114 @@ define(function (require, exports, module) {
            * uidExists: true, emailExists: true
            *   Assume for the same account, try to sign in
            */
-          if (! emailExists) {
-            return this._signUpIfUidChangeSupported(account);
-          } if (! uidExists) {
-            return this._signInIfUidChangeSupported(account);
-          }
-
-          // email and uid are both registered, continue as normal
-        });
-      } else {
-        // relier did not specify a uid, there's a bit more flexibility.
-        // If the email no longer exists, sign up the user.
-        return this.user.checkAccountEmailExists(account)
-          .then((emailExists) => {
-            if (! emailExists) {
-              return this._navigateToForceSignUp(account);
-            }
-          });
-      }
-    },
-
-    _signUpIfUidChangeSupported (account) {
-      if (this.broker.hasCapability('allowUidChange')) {
-        return this._navigateToForceSignUp(account);
-      } else {
-        this.model.set('error', AuthErrors.toError('DELETED_ACCOUNT'));
-      }
-    },
-
-    _signInIfUidChangeSupported (account) {
-      // if the broker supports a UID change, use force_auth to sign in,
-      // otherwise print a big error message.
-      if (! this.broker.hasCapability('allowUidChange')) {
-        this.model.set('error', AuthErrors.toError('DELETED_ACCOUNT'));
-      }
-    },
-
-    _navigateToForceSignUp (account) {
-      // The default behavior of FxDesktop brokers is to halt before
-      // the signup confirmation poll because about:accounts takes care
-      // of polling and updating the UI. /force_auth is not opened in
-      // about:accounts and unless beforeSignUpConfirmationPoll is
-      // overridden, the user receives no visual feedback in this
-      // tab once the verification is complete.
-      this.broker.setBehavior(
-        'beforeSignUpConfirmationPoll', new NullBehavior());
-
-      return this.navigate(this.broker.transformLink('signup'), {
-        error: AuthErrors.toError('DELETED_ACCOUNT'),
-        forceEmail: account.get('email')
-      });
-    },
-
-    _navigateToForceResetPassword () {
-      return this.navigate(this.broker.transformLink('reset_password'), {
-        forceEmail: this.relier.get('email')
-      });
-    },
-
-    setInitialContext (context) {
-      /// submit button
-      const buttonSignInText = this.translate(t('Sign in'), { msgctxt: 'submit button' });
-
-      context.set({
-        buttonSignInText,
-        email: this.relier.get('email')
-      });
-    },
-
-    events: _.extend({}, SignInView.prototype.events, {
-      'click a[href="/reset_password"]': cancelEventThen('_navigateToForceResetPassword')
-    }),
-
-    onSignInError (account, password, error) {
-      if (AuthErrors.is(error, 'UNKNOWN_ACCOUNT')) {
-        if (this.relier.has('uid')) {
-          if (this.broker.hasCapability('allowUidChange')) {
-            return this._navigateToForceSignUp(account);
-          } else {
-            this.displayError(AuthErrors.toError('DELETED_ACCOUNT'));
-          }
-        } else {
-          return this._navigateToForceSignUp(account);
+        if (! emailExists) {
+          return this._signUpIfUidChangeSupported(account);
+        } if (! uidExists) {
+          return this._signInIfUidChangeSupported(account);
         }
+
+        // email and uid are both registered, continue as normal
+      });
+    } else {
+      // relier did not specify a uid, there's a bit more flexibility.
+      // If the email no longer exists, sign up the user.
+      return this.user.checkAccountEmailExists(account)
+        .then((emailExists) => {
+          if (! emailExists) {
+            return this._navigateToForceSignUp(account);
+          }
+        });
+    }
+  },
+
+  _signUpIfUidChangeSupported (account) {
+    if (this.broker.hasCapability('allowUidChange')) {
+      return this._navigateToForceSignUp(account);
+    } else {
+      this.model.set('error', AuthErrors.toError('DELETED_ACCOUNT'));
+    }
+  },
+
+  _signInIfUidChangeSupported (account) {
+    // if the broker supports a UID change, use force_auth to sign in,
+    // otherwise print a big error message.
+    if (! this.broker.hasCapability('allowUidChange')) {
+      this.model.set('error', AuthErrors.toError('DELETED_ACCOUNT'));
+    }
+  },
+
+  _navigateToForceSignUp (account) {
+    // The default behavior of FxDesktop brokers is to halt before
+    // the signup confirmation poll because about:accounts takes care
+    // of polling and updating the UI. /force_auth is not opened in
+    // about:accounts and unless beforeSignUpConfirmationPoll is
+    // overridden, the user receives no visual feedback in this
+    // tab once the verification is complete.
+    this.broker.setBehavior(
+      'beforeSignUpConfirmationPoll', new NullBehavior());
+
+    return this.navigate(this.broker.transformLink('signup'), {
+      error: AuthErrors.toError('DELETED_ACCOUNT'),
+      forceEmail: account.get('email')
+    });
+  },
+
+  _navigateToForceResetPassword () {
+    return this.navigate(this.broker.transformLink('reset_password'), {
+      forceEmail: this.relier.get('email')
+    });
+  },
+
+  setInitialContext (context) {
+    /// submit button
+    const buttonSignInText = this.translate(t('Sign in'), { msgctxt: 'submit button' });
+
+    context.set({
+      buttonSignInText,
+      email: this.relier.get('email')
+    });
+  },
+
+  events: _.extend({}, SignInView.prototype.events, {
+    'click a[href="/reset_password"]': cancelEventThen('_navigateToForceResetPassword')
+  }),
+
+  onSignInError (account, password, error) {
+    if (AuthErrors.is(error, 'UNKNOWN_ACCOUNT')) {
+      if (this.relier.has('uid')) {
+        if (this.broker.hasCapability('allowUidChange')) {
+          return this._navigateToForceSignUp(account);
+        } else {
+          this.displayError(AuthErrors.toError('DELETED_ACCOUNT'));
+        }
+      } else {
+        return this._navigateToForceSignUp(account);
       }
+    }
 
-      return proto.onSignInError.call(this, account, password, error);
-    },
+    return proto.onSignInError.call(this, account, password, error);
+  },
 
-    /**
+  /**
      * Displays the account's avatar
      *
      * @returns {Promise}
      */
-    afterVisible () {
-      var email = this.relier.get('email');
-      var account = this.user.getAccountByEmail(email);
+  afterVisible () {
+    var email = this.relier.get('email');
+    var account = this.user.getAccountByEmail(email);
 
-      // Use FormView's afterVisible because SignIn attempts to
-      // display a profile image for the "suggested" account.
-      FormView.prototype.afterVisible.call(this);
-      // Display the profile image if possible, otherwise show a placeholder.
-      return this.displayAccountProfileImage(account, { spinner: true });
-    }
-  });
-
-  Cocktail.mixin(
-    View,
-    PasswordResetMixin
-  );
-
-  module.exports = View;
+    // Use FormView's afterVisible because SignIn attempts to
+    // display a profile image for the "suggested" account.
+    FormView.prototype.afterVisible.call(this);
+    // Display the profile image if possible, otherwise show a placeholder.
+    return this.displayAccountProfileImage(account, { spinner: true });
+  }
 });
+
+Cocktail.mixin(
+  View,
+  PasswordResetMixin
+);
+
+module.exports = View;

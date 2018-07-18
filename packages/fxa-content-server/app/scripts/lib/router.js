@@ -2,180 +2,176 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+import _ from 'underscore';
+import AvatarCameraView from '../views/settings/avatar_camera';
+import AvatarChangeView from '../views/settings/avatar_change';
+import AvatarCropView from '../views/settings/avatar_crop';
+import Backbone from 'backbone';
+import CannotCreateAccountView from '../views/cannot_create_account';
+import ChangePasswordView from '../views/settings/change_password';
+import ChooseWhatToSyncView from '../views/choose_what_to_sync';
+import ClearStorageView from '../views/clear_storage';
+import ClientDisconnectView from '../views/settings/client_disconnect';
+import ClientsView from '../views/settings/clients';
+import CommunicationPreferencesView from '../views/settings/communication_preferences';
+import CompleteResetPasswordView from '../views/complete_reset_password';
+import CompleteSignUpView from '../views/complete_sign_up';
+import ConfirmResetPasswordView from '../views/confirm_reset_password';
+import ConfirmView from '../views/confirm';
+import ConnectAnotherDeviceView from '../views/connect_another_device';
+import CookiesDisabledView from '../views/cookies_disabled';
+import DeleteAccountView from '../views/settings/delete_account';
+import DisplayNameView from '../views/settings/display_name';
+import EmailsView from '../views/settings/emails';
+import ForceAuthView from '../views/force_auth';
+import IndexView from '../views/index';
+import LegalView from '../views/legal';
+import OAuthIndexView from '../views/oauth_index';
+import PermissionsView from '../views/permissions';
+import PpView from '../views/pp';
+import ReadyView from '../views/ready';
+import ReportSignInView from '../views/report_sign_in';
+import ResetPasswordView from '../views/reset_password';
+import SettingsView from '../views/settings';
+import SignInBouncedView from '../views/sign_in_bounced';
+import SignInRecoveryCodeView from '../views/sign_in_recovery_code';
+import SignInTokenCodeView from '../views/sign_in_token_code';
+import SignInTotpCodeView from '../views/sign_in_totp_code';
+import SignInPasswordView from '../views/sign_in_password';
+import SignInReportedView from '../views/sign_in_reported';
+import SignInUnblockView from '../views/sign_in_unblock';
+import SignInView from '../views/sign_in';
+import SignUpView from '../views/sign_up';
+import SignUpPasswordView from '../views/sign_up_password';
+import SmsSendView from '../views/sms_send';
+import SmsSentView from '../views/sms_sent';
+import Storage from './storage';
+import TosView from '../views/tos';
+import TwoStepAuthenticationView from '../views/settings/two_step_authentication';
+import RecoveryCodesView from '../views/settings/recovery_codes';
+import VerificationReasons from './verification-reasons';
+import WhyConnectAnotherDeviceView from '../views/why_connect_another_device';
+import RedirectAuthView from '../views/authorization';
 
+function createViewHandler(View, options) {
+  return function () {
+    return this.showView(View, options);
+  };
+}
 
-  const _ = require('underscore');
-  const AvatarCameraView = require('../views/settings/avatar_camera');
-  const AvatarChangeView = require('../views/settings/avatar_change');
-  const AvatarCropView = require('../views/settings/avatar_crop');
-  const Backbone = require('backbone');
-  const CannotCreateAccountView = require('../views/cannot_create_account');
-  const ChangePasswordView = require('../views/settings/change_password');
-  const ChooseWhatToSyncView = require('../views/choose_what_to_sync');
-  const ClearStorageView = require('../views/clear_storage');
-  const ClientDisconnectView = require('../views/settings/client_disconnect');
-  const ClientsView = require('../views/settings/clients');
-  const CommunicationPreferencesView = require('../views/settings/communication_preferences');
-  const CompleteResetPasswordView = require('../views/complete_reset_password');
-  const CompleteSignUpView = require('../views/complete_sign_up');
-  const ConfirmResetPasswordView = require('../views/confirm_reset_password');
-  const ConfirmView = require('../views/confirm');
-  const ConnectAnotherDeviceView = require('../views/connect_another_device');
-  const CookiesDisabledView = require('../views/cookies_disabled');
-  const DeleteAccountView = require('../views/settings/delete_account');
-  const DisplayNameView = require('../views/settings/display_name');
-  const EmailsView = require('../views/settings/emails');
-  const ForceAuthView = require('../views/force_auth');
-  const IndexView = require('../views/index');
-  const LegalView = require('../views/legal');
-  const OAuthIndexView = require('../views/oauth_index');
-  const PermissionsView = require('../views/permissions');
-  const PpView = require('../views/pp');
-  const ReadyView = require('../views/ready');
-  const ReportSignInView = require('../views/report_sign_in');
-  const ResetPasswordView = require('../views/reset_password');
-  const SettingsView = require('../views/settings');
-  const SignInBouncedView = require('../views/sign_in_bounced');
-  const SignInRecoveryCodeView = require('../views/sign_in_recovery_code');
-  const SignInTokenCodeView = require('../views/sign_in_token_code');
-  const SignInTotpCodeView = require('../views/sign_in_totp_code');
-  const SignInPasswordView = require('../views/sign_in_password');
-  const SignInReportedView = require('../views/sign_in_reported');
-  const SignInUnblockView = require('../views/sign_in_unblock');
-  const SignInView = require('../views/sign_in');
-  const SignUpView = require('../views/sign_up');
-  const SignUpPasswordView = require('../views/sign_up_password');
-  const SmsSendView = require('../views/sms_send');
-  const SmsSentView = require('../views/sms_sent');
-  const Storage = require('./storage');
-  const TosView = require('../views/tos');
-  const TwoStepAuthenticationView = require('../views/settings/two_step_authentication');
-  const RecoveryCodesView = require('../views/settings/recovery_codes');
-  const VerificationReasons = require('./verification-reasons');
-  const WhyConnectAnotherDeviceView = require('../views/why_connect_another_device');
-  const RedirectAuthView = require('../views/authorization');
+function createChildViewHandler(ChildView, ParentView, options) {
+  return function () {
+    return this.showChildView(ChildView, ParentView, options);
+  };
+}
 
-  function createViewHandler(View, options) {
-    return function () {
-      return this.showView(View, options);
-    };
-  }
+function createViewModel(data) {
+  return new Backbone.Model(data || {});
+}
 
-  function createChildViewHandler(ChildView, ParentView, options) {
-    return function () {
-      return this.showChildView(ChildView, ParentView, options);
-    };
-  }
+const Router = Backbone.Router.extend({
+  routes: {
+    '(/)': createViewHandler(IndexView),
+    'authorization(/)': createViewHandler(RedirectAuthView),
+    'cannot_create_account(/)': createViewHandler(CannotCreateAccountView),
+    'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
+    'clear(/)': createViewHandler(ClearStorageView),
+    'complete_reset_password(/)': createViewHandler(CompleteResetPasswordView),
+    'complete_signin(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SIGN_IN }),
+    'confirm(/)': createViewHandler(ConfirmView, { type: VerificationReasons.SIGN_UP }),
+    'confirm_reset_password(/)': createViewHandler(ConfirmResetPasswordView),
+    'confirm_signin(/)': createViewHandler(ConfirmView, { type: VerificationReasons.SIGN_IN }),
+    'connect_another_device(/)': createViewHandler(ConnectAnotherDeviceView),
+    'connect_another_device/why(/)': createChildViewHandler(WhyConnectAnotherDeviceView, ConnectAnotherDeviceView),
+    'cookies_disabled(/)': createViewHandler(CookiesDisabledView),
+    'force_auth(/)': createViewHandler(ForceAuthView),
+    'legal(/)': createViewHandler(LegalView),
+    'legal/privacy(/)': createViewHandler(PpView),
+    'legal/terms(/)': createViewHandler(TosView),
+    'oauth(/)': createViewHandler(OAuthIndexView),
+    'oauth/force_auth(/)': createViewHandler(ForceAuthView),
+    'oauth/signin(/)': 'onSignIn',
+    'oauth/signup(/)': 'onSignUp',
+    'primary_email_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.PRIMARY_EMAIL_VERIFIED }),
+    'report_signin(/)': createViewHandler(ReportSignInView),
+    'reset_password(/)': createViewHandler(ResetPasswordView),
+    'reset_password_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.PASSWORD_RESET }),
+    'reset_password_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.PASSWORD_RESET }),
+    'secondary_email_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.SECONDARY_EMAIL_VERIFIED }),
+    'settings(/)': createViewHandler(SettingsView),
+    'settings/avatar/camera(/)': createChildViewHandler(AvatarCameraView, SettingsView),
+    'settings/avatar/change(/)': createChildViewHandler(AvatarChangeView, SettingsView),
+    'settings/avatar/crop(/)': createChildViewHandler(AvatarCropView, SettingsView),
+    'settings/change_password(/)': createChildViewHandler(ChangePasswordView, SettingsView),
+    'settings/clients(/)': createChildViewHandler(ClientsView, SettingsView),
+    'settings/clients/disconnect(/)': createChildViewHandler(ClientDisconnectView, SettingsView),
+    'settings/communication_preferences(/)': createChildViewHandler(CommunicationPreferencesView, SettingsView),
+    'settings/delete_account(/)': createChildViewHandler(DeleteAccountView, SettingsView),
+    'settings/display_name(/)': createChildViewHandler(DisplayNameView, SettingsView),
+    'settings/emails(/)': createChildViewHandler(EmailsView, SettingsView),
+    'settings/two_step_authentication(/)': createChildViewHandler(TwoStepAuthenticationView, SettingsView),
+    'settings/two_step_authentication/recovery_codes(/)': createChildViewHandler(RecoveryCodesView, SettingsView),
+    'signin(/)': 'onSignIn',
+    'signin_bounced(/)': createViewHandler(SignInBouncedView),
+    'signin_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN }),
+    'signin_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_IN }),
+    'signin_recovery_code(/)': createViewHandler(SignInRecoveryCodeView),
+    'signin_reported(/)': createViewHandler(SignInReportedView),
+    'signin_token_code(/)': createViewHandler(SignInTokenCodeView),
+    'signin_totp_code(/)': createViewHandler(SignInTotpCodeView),
+    'signin_unblock(/)': createViewHandler(SignInUnblockView),
+    'signin_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN }),
+    'signup(/)': 'onSignUp',
+    'signup_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_UP }),
+    'signup_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_UP }),
+    'signup_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_UP }),
+    'sms(/)': createViewHandler(SmsSendView),
+    'sms/sent(/)': createViewHandler(SmsSentView),
+    'sms/why(/)': createChildViewHandler(WhyConnectAnotherDeviceView, SmsSendView),
+    'verify_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SIGN_UP }),
+    'verify_primary_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.PRIMARY_EMAIL_VERIFIED }),
+    'verify_secondary_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SECONDARY_EMAIL_VERIFIED })
+  },
 
-  function createViewModel(data) {
-    return new Backbone.Model(data || {});
-  }
+  initialize (options = {}) {
+    this.metrics = options.metrics;
+    this.notifier = options.notifier;
+    this.relier = options.relier;
+    this.user = options.user;
+    this.window = options.window || window;
+    this._viewModelStack = [];
 
-  const Router = Backbone.Router.extend({
-    routes: {
-      '(/)': createViewHandler(IndexView),
-      'authorization(/)': createViewHandler(RedirectAuthView),
-      'cannot_create_account(/)': createViewHandler(CannotCreateAccountView),
-      'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
-      'clear(/)': createViewHandler(ClearStorageView),
-      'complete_reset_password(/)': createViewHandler(CompleteResetPasswordView),
-      'complete_signin(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SIGN_IN }),
-      'confirm(/)': createViewHandler(ConfirmView, { type: VerificationReasons.SIGN_UP }),
-      'confirm_reset_password(/)': createViewHandler(ConfirmResetPasswordView),
-      'confirm_signin(/)': createViewHandler(ConfirmView, { type: VerificationReasons.SIGN_IN }),
-      'connect_another_device(/)': createViewHandler(ConnectAnotherDeviceView),
-      'connect_another_device/why(/)': createChildViewHandler(WhyConnectAnotherDeviceView, ConnectAnotherDeviceView),
-      'cookies_disabled(/)': createViewHandler(CookiesDisabledView),
-      'force_auth(/)': createViewHandler(ForceAuthView),
-      'legal(/)': createViewHandler(LegalView),
-      'legal/privacy(/)': createViewHandler(PpView),
-      'legal/terms(/)': createViewHandler(TosView),
-      'oauth(/)': createViewHandler(OAuthIndexView),
-      'oauth/force_auth(/)': createViewHandler(ForceAuthView),
-      'oauth/signin(/)': 'onSignIn',
-      'oauth/signup(/)': 'onSignUp',
-      'primary_email_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.PRIMARY_EMAIL_VERIFIED }),
-      'report_signin(/)': createViewHandler(ReportSignInView),
-      'reset_password(/)': createViewHandler(ResetPasswordView),
-      'reset_password_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.PASSWORD_RESET }),
-      'reset_password_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.PASSWORD_RESET }),
-      'secondary_email_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.SECONDARY_EMAIL_VERIFIED }),
-      'settings(/)': createViewHandler(SettingsView),
-      'settings/avatar/camera(/)': createChildViewHandler(AvatarCameraView, SettingsView),
-      'settings/avatar/change(/)': createChildViewHandler(AvatarChangeView, SettingsView),
-      'settings/avatar/crop(/)': createChildViewHandler(AvatarCropView, SettingsView),
-      'settings/change_password(/)': createChildViewHandler(ChangePasswordView, SettingsView),
-      'settings/clients(/)': createChildViewHandler(ClientsView, SettingsView),
-      'settings/clients/disconnect(/)': createChildViewHandler(ClientDisconnectView, SettingsView),
-      'settings/communication_preferences(/)': createChildViewHandler(CommunicationPreferencesView, SettingsView),
-      'settings/delete_account(/)': createChildViewHandler(DeleteAccountView, SettingsView),
-      'settings/display_name(/)': createChildViewHandler(DisplayNameView, SettingsView),
-      'settings/emails(/)': createChildViewHandler(EmailsView, SettingsView),
-      'settings/two_step_authentication(/)': createChildViewHandler(TwoStepAuthenticationView, SettingsView),
-      'settings/two_step_authentication/recovery_codes(/)': createChildViewHandler(RecoveryCodesView, SettingsView),
-      'signin(/)': 'onSignIn',
-      'signin_bounced(/)': createViewHandler(SignInBouncedView),
-      'signin_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN }),
-      'signin_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_IN }),
-      'signin_recovery_code(/)': createViewHandler(SignInRecoveryCodeView),
-      'signin_reported(/)': createViewHandler(SignInReportedView),
-      'signin_token_code(/)': createViewHandler(SignInTokenCodeView),
-      'signin_totp_code(/)': createViewHandler(SignInTotpCodeView),
-      'signin_unblock(/)': createViewHandler(SignInUnblockView),
-      'signin_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN }),
-      'signup(/)': 'onSignUp',
-      'signup_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_UP }),
-      'signup_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_UP }),
-      'signup_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_UP }),
-      'sms(/)': createViewHandler(SmsSendView),
-      'sms/sent(/)': createViewHandler(SmsSentView),
-      'sms/why(/)': createChildViewHandler(WhyConnectAnotherDeviceView, SmsSendView),
-      'verify_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SIGN_UP }),
-      'verify_primary_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.PRIMARY_EMAIL_VERIFIED }),
-      'verify_secondary_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SECONDARY_EMAIL_VERIFIED })
-    },
+    this.notifier.once('view-shown', this._afterFirstViewHasRendered.bind(this));
+    this.notifier.on('navigate', this.onNavigate.bind(this));
+    this.notifier.on('navigate-back', this.onNavigateBack.bind(this));
+    this.notifier.on('email-first-flow', () => this._onEmailFirstFlow());
 
-    initialize (options = {}) {
-      this.metrics = options.metrics;
-      this.notifier = options.notifier;
-      this.relier = options.relier;
-      this.user = options.user;
-      this.window = options.window || window;
-      this._viewModelStack = [];
+    this.storage = Storage.factory('sessionStorage', this.window);
+  },
 
-      this.notifier.once('view-shown', this._afterFirstViewHasRendered.bind(this));
-      this.notifier.on('navigate', this.onNavigate.bind(this));
-      this.notifier.on('navigate-back', this.onNavigateBack.bind(this));
-      this.notifier.on('email-first-flow', () => this._onEmailFirstFlow());
+  onSignUp () {
+    const View = this._isEmailFirstFlow ? SignUpPasswordView : SignUpView;
+    return this.showView(View);
+  },
 
-      this.storage = Storage.factory('sessionStorage', this.window);
-    },
+  onSignIn () {
+    const View = this._isEmailFirstFlow ? SignInPasswordView : SignInView;
+    return this.showView(View);
+  },
 
-    onSignUp () {
-      const View = this._isEmailFirstFlow ? SignUpPasswordView : SignUpView;
-      return this.showView(View);
-    },
+  onNavigate (event) {
+    if (event.server) {
+      return this.navigateAway(event.url);
+    }
 
-    onSignIn () {
-      const View = this._isEmailFirstFlow ? SignInPasswordView : SignInView;
-      return this.showView(View);
-    },
+    this.navigate(event.url, event.nextViewData, event.routerOptions);
+  },
 
-    onNavigate (event) {
-      if (event.server) {
-        return this.navigateAway(event.url);
-      }
+  onNavigateBack (event) {
+    this.navigateBack(event.nextViewData);
+  },
 
-      this.navigate(event.url, event.nextViewData, event.routerOptions);
-    },
-
-    onNavigateBack (event) {
-      this.navigateBack(event.nextViewData);
-    },
-
-    /**
+  /**
      * Navigate to `url` using `nextViewData` as the data for the view's model.
      *
      * @param {String} url
@@ -186,158 +182,158 @@ define(function (require, exports, module) {
      *   @param {Boolean} [options.trigger=true] Show the new view?
      * @returns {any}
      */
-    navigate (url, nextViewData = {}, options = {}) {
-      if (options.replace && this._viewModelStack.length) {
-        this._viewModelStack[this._viewModelStack.length - 1] = createViewModel(nextViewData);
-      } else {
-        this._viewModelStack.push(createViewModel(nextViewData));
-      }
+  navigate (url, nextViewData = {}, options = {}) {
+    if (options.replace && this._viewModelStack.length) {
+      this._viewModelStack[this._viewModelStack.length - 1] = createViewModel(nextViewData);
+    } else {
+      this._viewModelStack.push(createViewModel(nextViewData));
+    }
 
-      if (! options.hasOwnProperty('trigger')) {
-        options.trigger = true;
-      }
+    if (! options.hasOwnProperty('trigger')) {
+      options.trigger = true;
+    }
 
-      // If the caller has not asked us to clear the query params
-      // and the new URL does not contain query params, propagate
-      // the current query params to the next view.
-      if (! options.clearQueryParams && ! /\?/.test(url)) {
-        url = url + this.window.location.search;
-      }
+    // If the caller has not asked us to clear the query params
+    // and the new URL does not contain query params, propagate
+    // the current query params to the next view.
+    if (! options.clearQueryParams && ! /\?/.test(url)) {
+      url = url + this.window.location.search;
+    }
 
-      return Backbone.Router.prototype.navigate.call(this, url, options);
-    },
+    return Backbone.Router.prototype.navigate.call(this, url, options);
+  },
 
-    /**
+  /**
      * Navigate externally to the application, flushing the metrics
      * before doing so.
      *
      * @param {String} url
      * @returns {Promise}
      */
-    navigateAway (url) {
-      return this.metrics.flush()
-        .then(() => {
-          this.window.location.href = url;
-        });
-    },
+  navigateAway (url) {
+    return this.metrics.flush()
+      .then(() => {
+        this.window.location.href = url;
+      });
+  },
 
-    /**
+  /**
      * Go back one URL, combining the previous view's viewModel
      * with the data in `previousViewData`.
      *
      * @param {Object} [previousViewData={}]
      */
-    navigateBack (previousViewData = {}) {
-      if (this.canGoBack()) {
-        // ditch the current view's model, go back to the previous view's model.
-        this._viewModelStack.pop();
-        const viewModel = this.getCurrentViewModel();
-        if (viewModel) {
-          viewModel.set(previousViewData);
-        }
-        this.window.history.back();
+  navigateBack (previousViewData = {}) {
+    if (this.canGoBack()) {
+      // ditch the current view's model, go back to the previous view's model.
+      this._viewModelStack.pop();
+      const viewModel = this.getCurrentViewModel();
+      if (viewModel) {
+        viewModel.set(previousViewData);
       }
-    },
+      this.window.history.back();
+    }
+  },
 
-    /**
+  /**
      * Get the current viewModel, if one is available.
      *
      * @returns {Object}
      */
-    getCurrentViewModel () {
-      if (this._viewModelStack.length) {
-        return this._viewModelStack[this._viewModelStack.length - 1];
-      }
-    },
+  getCurrentViewModel () {
+    if (this._viewModelStack.length) {
+      return this._viewModelStack[this._viewModelStack.length - 1];
+    }
+  },
 
-    /**
+  /**
      * Get the options to pass to a View constructor.
      *
      * @param {Object} options - additional options
      * @returns {Object}
      */
-    getViewOptions (options) {
-      // passed in options block can override
-      // default options.
-      return _.extend({
-        canGoBack: this.canGoBack(),
-        currentPage: this.getCurrentPage(),
-        model: this.getCurrentViewModel(),
-        viewName: this.getCurrentViewName()
-      }, options);
-    },
+  getViewOptions (options) {
+    // passed in options block can override
+    // default options.
+    return _.extend({
+      canGoBack: this.canGoBack(),
+      currentPage: this.getCurrentPage(),
+      model: this.getCurrentViewModel(),
+      viewName: this.getCurrentViewName()
+    }, options);
+  },
 
-    /**
+  /**
      * Is it possible to go back?
      *
      * @returns {Boolean}
      */
-    canGoBack () {
-      return !! this.storage.get('canGoBack');
-    },
+  canGoBack () {
+    return !! this.storage.get('canGoBack');
+  },
 
-    /**
+  /**
      * Get the pathname of the current page.
      *
      * @returns {String}
      */
-    getCurrentPage () {
-      const fragment = Backbone.history.fragment || '';
-      // strip leading /
-      return fragment.replace(/^\//, '')
-        // strip trailing /
-        .replace(/\/$/, '')
-        // we only want the pathname
-        .replace(/\?.*/, '');
-    },
+  getCurrentPage () {
+    const fragment = Backbone.history.fragment || '';
+    // strip leading /
+    return fragment.replace(/^\//, '')
+    // strip trailing /
+      .replace(/\/$/, '')
+    // we only want the pathname
+      .replace(/\?.*/, '');
+  },
 
-    getCurrentViewName () {
-      return this.fragmentToViewName(this.getCurrentPage());
-    },
+  getCurrentViewName () {
+    return this.fragmentToViewName(this.getCurrentPage());
+  },
 
-    _afterFirstViewHasRendered () {
-      // back is enabled after the first view is rendered or
-      // if the user re-starts the app.
-      this.storage.set('canGoBack', true);
-    },
+  _afterFirstViewHasRendered () {
+    // back is enabled after the first view is rendered or
+    // if the user re-starts the app.
+    this.storage.set('canGoBack', true);
+  },
 
-    _onEmailFirstFlow () {
-      this._isEmailFirstFlow = true;
+  _onEmailFirstFlow () {
+    this._isEmailFirstFlow = true;
 
-      // back is enabled for email-first so that
-      // users can go back to the / screen from "Mistyped email".
-      // The initial navigation to the next screen
-      // happens before the / page is rendered, causing
-      // `canGoBack` to not be set.
-      this.storage.set('canGoBack', true);
-    },
+    // back is enabled for email-first so that
+    // users can go back to the / screen from "Mistyped email".
+    // The initial navigation to the next screen
+    // happens before the / page is rendered, causing
+    // `canGoBack` to not be set.
+    this.storage.set('canGoBack', true);
+  },
 
-    fragmentToViewName (fragment) {
-      fragment = fragment || '';
-      // strip leading /
-      return fragment.replace(/^\//, '')
-        // strip trailing /
-        .replace(/\/$/, '')
-        // any other slashes get converted to '.'
-        .replace(/\//g, '.')
-        // search params can contain sensitive info
-        .replace(/\?.*/, '')
-        // replace _ with -
-        .replace(/_/g, '-');
-    },
+  fragmentToViewName (fragment) {
+    fragment = fragment || '';
+    // strip leading /
+    return fragment.replace(/^\//, '')
+    // strip trailing /
+      .replace(/\/$/, '')
+    // any other slashes get converted to '.'
+      .replace(/\//g, '.')
+    // search params can contain sensitive info
+      .replace(/\?.*/, '')
+    // replace _ with -
+      .replace(/_/g, '-');
+  },
 
-    /**
+  /**
      * Notify the system a new View should be shown.
      *
      * @param {Function} View - view constructor
      * @param {Object} [options]
      */
-    showView (View, options) {
-      this.notifier.trigger(
-        'show-view', View, this.getViewOptions(options));
-    },
+  showView (View, options) {
+    this.notifier.trigger(
+      'show-view', View, this.getViewOptions(options));
+  },
 
-    /**
+  /**
      * Notify the system a new ChildView should be shown.
      *
      * @param {Function} ChildView - view constructor
@@ -345,21 +341,21 @@ define(function (require, exports, module) {
      *     the parent of the ChildView
      * @param {Object} [options]
      */
-    showChildView (ChildView, ParentView, options) {
-      this.notifier.trigger(
-        'show-child-view', ChildView, ParentView, this.getViewOptions(options));
-    },
+  showChildView (ChildView, ParentView, options) {
+    this.notifier.trigger(
+      'show-child-view', ChildView, ParentView, this.getViewOptions(options));
+  },
 
-    /**
+  /**
      * Create a route handler that is used to display a View
      *
      * @param {Function} View - constructor of view to show
      * @param {Object} [options] - options to pass to View constructor
      * @returns {Function} - a function that can be given to the router.
      */
-    createViewHandler: createViewHandler,
+  createViewHandler: createViewHandler,
 
-    /**
+  /**
      * Create a route handler that is used to display a ChildView inside of
      * a ParentView. Views will be created as needed.
      *
@@ -369,8 +365,7 @@ define(function (require, exports, module) {
      *     ParentView constructors
      * @returns {Function} - a function that can be given to the router.
      */
-    createChildViewHandler: createChildViewHandler
-  });
-
-  module.exports = Router;
+  createChildViewHandler: createChildViewHandler
 });
+
+module.exports = Router;

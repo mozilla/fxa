@@ -9,66 +9,62 @@
  *
  * @module views/oauth_index
  */
-define(function (require, exports, module) {
-  'use strict';
+import IndexView from './index';
 
-  const IndexView = require('./index');
+class OAuthIndexView extends IndexView {
+  afterRender () {
+    // Attempt to get email address from relier
+    const action = this.relier.get('action');
+    const email = this.model.get('relierEmail');
 
-  class OAuthIndexView extends IndexView {
-    afterRender () {
-      // Attempt to get email address from relier
-      const action = this.relier.get('action');
-      const email = this.model.get('relierEmail');
+    if (action === 'email') {
+      // let's the router know to use the email-first signin/signup page
+      this.notifier.trigger('email-first-flow');
+      if (email) {
+        return this.checkEmail(email);
+      } else {
+        // show the email-first template.
+        return;
+      }
+    }
 
-      if (action === 'email') {
-        // let's the router know to use the email-first signin/signup page
-        this.notifier.trigger('email-first-flow');
-        if (email) {
-          return this.checkEmail(email);
+    return Promise.resolve().then(() => {
+      if (! email) {
+        // If no email in relier, choose navigation page based on
+        // whether account is a default account.
+        return;
+      }
+
+      // Attempt to get account status of email and navigate
+      // to correct signin/signup page if exists.
+      const account = this.user.initAccount({ email });
+      return this.user.checkAccountEmailExists(account)
+        .then(function (exists) {
+          if (exists) {
+            return 'oauth/signin';
+          } else {
+            return 'oauth/signup';
+          }
+        }, (err) => {
+          // The error here is a throttling error or server error (500).
+          // In either case, we don't want to stop the user from
+          // navigating to a signup/signin page. Instead, we fallback
+          // to choosing navigation page based on whether account is
+          // a default account. Swallow and log error.
+          this.logError(err);
+        });
+    }).then((url) => {
+      if (! url) {
+        if (this.user.getChooserAccount().isDefault()) {
+          url = 'oauth/signup';
         } else {
-          // show the email-first template.
-          return;
+          url = 'oauth/signin';
         }
       }
 
-      return Promise.resolve().then(() => {
-        if (! email) {
-          // If no email in relier, choose navigation page based on
-          // whether account is a default account.
-          return;
-        }
-
-        // Attempt to get account status of email and navigate
-        // to correct signin/signup page if exists.
-        const account = this.user.initAccount({ email });
-        return this.user.checkAccountEmailExists(account)
-          .then(function (exists) {
-            if (exists) {
-              return 'oauth/signin';
-            } else {
-              return 'oauth/signup';
-            }
-          }, (err) => {
-            // The error here is a throttling error or server error (500).
-            // In either case, we don't want to stop the user from
-            // navigating to a signup/signin page. Instead, we fallback
-            // to choosing navigation page based on whether account is
-            // a default account. Swallow and log error.
-            this.logError(err);
-          });
-      }).then((url) => {
-        if (! url) {
-          if (this.user.getChooserAccount().isDefault()) {
-            url = 'oauth/signup';
-          } else {
-            url = 'oauth/signin';
-          }
-        }
-
-        this.replaceCurrentPage(url);
-      });
-    }
+      this.replaceCurrentPage(url);
+    });
   }
+}
 
-  module.exports = OAuthIndexView;
-});
+module.exports = OAuthIndexView;

@@ -2,130 +2,126 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+import _ from 'underscore';
+import AuthErrors from '../lib/auth-errors';
+import BackMixin from './mixins/back-mixin';
+import BaseView from './base';
+import Cocktail from 'cocktail';
+import ConnectAnotherDeviceMixin from './mixins/connect-another-device-mixin';
+import OpenConfirmationEmailMixin from './mixins/open-webmail-mixin';
+import PulseGraphicMixin from './mixins/pulse-graphic-mixin';
+import ResendMixin from './mixins/resend-mixin';
+import ResumeTokenMixin from './mixins/resume-token-mixin';
+import ServiceMixin from './mixins/service-mixin';
+import SessionVerificationPollMixin from './mixins/session-verification-poll-mixin';
+import Template from 'templates/confirm.mustache';
 
-  const _ = require('underscore');
-  const AuthErrors = require('../lib/auth-errors');
-  const BackMixin = require('./mixins/back-mixin');
-  const BaseView = require('./base');
-  const Cocktail = require('cocktail');
-  const ConnectAnotherDeviceMixin = require('./mixins/connect-another-device-mixin');
-  const OpenConfirmationEmailMixin = require('./mixins/open-webmail-mixin');
-  const PulseGraphicMixin = require('./mixins/pulse-graphic-mixin');
-  const ResendMixin = require('./mixins/resend-mixin')();
-  const ResumeTokenMixin = require('./mixins/resume-token-mixin');
-  const ServiceMixin = require('./mixins/service-mixin');
-  const SessionVerificationPollMixin = require('./mixins/session-verification-poll-mixin');
-  const Template = require('templates/confirm.mustache');
+const proto = BaseView.prototype;
+const View = BaseView.extend({
+  template: Template,
+  className: 'confirm',
 
-  const proto = BaseView.prototype;
-  const View = BaseView.extend({
-    template: Template,
-    className: 'confirm',
+  initialize (options = {}) {
+    // Account data is passed in from sign up and sign in flows.
+    // It's important for Sync flows where account data holds
+    // ephemeral properties like unwrapBKey and keyFetchToken
+    // that need to be sent to the browser.
+    this._account = this.user.initAccount(this.model.get('account'));
+  },
 
-    initialize (options = {}) {
-      // Account data is passed in from sign up and sign in flows.
-      // It's important for Sync flows where account data holds
-      // ephemeral properties like unwrapBKey and keyFetchToken
-      // that need to be sent to the browser.
-      this._account = this.user.initAccount(this.model.get('account'));
-    },
+  getAccount () {
+    return this._account;
+  },
 
-    getAccount () {
-      return this._account;
-    },
+  setInitialContext (context) {
+    var email = this.getAccount().get('email');
+    var isSignIn = this.isSignIn();
+    var isSignUp = this.isSignUp();
 
-    setInitialContext (context) {
-      var email = this.getAccount().get('email');
-      var isSignIn = this.isSignIn();
-      var isSignUp = this.isSignUp();
+    context.set({
+      // Back button is only available for signin for now. We haven't fully
+      // figured out whether re-signing up a user and sending a new
+      // email/sessionToken to the browser will cause problems. I don't think
+      // it will since that's what happens on a bounced email, but that's
+      // a discussion for another time.
+      canGoBack: isSignIn && this.canGoBack(),
+      email,
+      escapedEmail: `<span class="email">${_.escape(email)}</span>`,
+      isSignIn,
+      isSignUp
+    });
+  },
 
-      context.set({
-        // Back button is only available for signin for now. We haven't fully
-        // figured out whether re-signing up a user and sending a new
-        // email/sessionToken to the browser will cause problems. I don't think
-        // it will since that's what happens on a bounced email, but that's
-        // a discussion for another time.
-        canGoBack: isSignIn && this.canGoBack(),
-        email,
-        escapedEmail: `<span class="email">${_.escape(email)}</span>`,
-        isSignIn,
-        isSignUp
-      });
-    },
+  _getMissingSessionTokenScreen () {
+    var screenUrl = this.isSignUp() ? 'signup' : 'signin';
+    return this.broker.transformLink(screenUrl);
+  },
 
-    _getMissingSessionTokenScreen () {
-      var screenUrl = this.isSignUp() ? 'signup' : 'signin';
-      return this.broker.transformLink(screenUrl);
-    },
+  beforeRender () {
+    // user cannot confirm if they have not initiated a sign up.
+    if (! this.getAccount().get('sessionToken')) {
+      this.navigate(this._getMissingSessionTokenScreen());
+    }
+  },
 
-    beforeRender () {
-      // user cannot confirm if they have not initiated a sign up.
-      if (! this.getAccount().get('sessionToken')) {
-        this.navigate(this._getMissingSessionTokenScreen());
-      }
-    },
+  afterVisible () {
+    // the view is always rendered, but the confirmation poll may be
+    // prevented by the broker. An example is Firefox Desktop where the
+    // browser is already performing a poll, so a second poll is not needed.
+    const account = this.getAccount();
+    return proto.afterVisible.call(this)
+      .then(() => this.broker.persistVerificationData(account))
+      .then(() =>
+        this.invokeBrokerMethod('beforeSignUpConfirmationPoll', account)
+      )
+      .then(() =>
+        this.waitForSessionVerification(account, () => this._gotoNextScreen())
+      );
+  },
 
-    afterVisible () {
-      // the view is always rendered, but the confirmation poll may be
-      // prevented by the broker. An example is Firefox Desktop where the
-      // browser is already performing a poll, so a second poll is not needed.
-      const account = this.getAccount();
-      return proto.afterVisible.call(this)
-        .then(() => this.broker.persistVerificationData(account))
-        .then(() =>
-          this.invokeBrokerMethod('beforeSignUpConfirmationPoll', account)
-        )
-        .then(() =>
-          this.waitForSessionVerification(account, () => this._gotoNextScreen())
-        );
-    },
+  _gotoNextScreen () {
+    const account = this.getAccount();
+    return this.user.setAccount(account)
+      .then(() => {
+        this.logViewEvent('verification.success');
+        this.notifier.trigger('verification.success');
 
-    _gotoNextScreen () {
-      const account = this.getAccount();
-      return this.user.setAccount(account)
-        .then(() => {
-          this.logViewEvent('verification.success');
-          this.notifier.trigger('verification.success');
-
-          var brokerMethod =
+        var brokerMethod =
             this.isSignUp() ?
               'afterSignUpConfirmationPoll' :
               'afterSignInConfirmationPoll';
 
-          return this.invokeBrokerMethod(brokerMethod, account);
-        });
-    },
-
-    resend () {
-      const account = this.getAccount();
-      return account.retrySignUp(this.relier, {
-        resume: this.getStringifiedResumeToken(account)
-      }).catch((err) => {
-        if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-          return this.navigate('signup', {
-            error: err
-          });
-        }
-
-        // unexpected error, rethrow for display.
-        throw err;
+        return this.invokeBrokerMethod(brokerMethod, account);
       });
-    }
-  });
+  },
 
-  Cocktail.mixin(
-    View,
-    BackMixin,
-    ConnectAnotherDeviceMixin,
-    OpenConfirmationEmailMixin,
-    PulseGraphicMixin,
-    ResendMixin,
-    ResumeTokenMixin,
-    ServiceMixin,
-    SessionVerificationPollMixin
-  );
+  resend () {
+    const account = this.getAccount();
+    return account.retrySignUp(this.relier, {
+      resume: this.getStringifiedResumeToken(account)
+    }).catch((err) => {
+      if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+        return this.navigate('signup', {
+          error: err
+        });
+      }
 
-  module.exports = View;
+      // unexpected error, rethrow for display.
+      throw err;
+    });
+  }
 });
+
+Cocktail.mixin(
+  View,
+  BackMixin,
+  ConnectAnotherDeviceMixin,
+  OpenConfirmationEmailMixin,
+  PulseGraphicMixin,
+  ResendMixin(),
+  ResumeTokenMixin,
+  ServiceMixin,
+  SessionVerificationPollMixin
+);
+
+module.exports = View;

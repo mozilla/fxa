@@ -2,95 +2,92 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+import _ from 'underscore';
+import Account from '../models/account';
+import AuthErrors from '../lib/auth-errors';
+import BaseView from './base';
+import Cocktail from 'cocktail';
+import Notifier from '../lib/channels/notifier';
+import PasswordResetMixin from './mixins/password-reset-mixin';
+import OpenResetPasswordEmailMixin from './mixins/open-webmail-mixin';
+import ResendMixin from './mixins/resend-mixin';
+import ServiceMixin from './mixins/service-mixin';
+import Session from '../lib/session';
+import Template from 'templates/confirm_reset_password.mustache';
+import { VERIFICATION_POLL_IN_MS } from '../lib/constants';
 
-  const _ = require('underscore');
-  const Account = require('../models/account');
-  const AuthErrors = require('../lib/auth-errors');
-  const BaseView = require('./base');
-  const Cocktail = require('cocktail');
-  const Notifier = require('../lib/channels/notifier');
-  const PasswordResetMixin = require('./mixins/password-reset-mixin');
-  const OpenResetPasswordEmailMixin = require('./mixins/open-webmail-mixin');
-  const ResendMixin = require('./mixins/resend-mixin')();
-  const ServiceMixin = require('./mixins/service-mixin');
-  const Session = require('../lib/session');
-  const Template = require('templates/confirm_reset_password.mustache');
-  const { VERIFICATION_POLL_IN_MS } = require('../lib/constants');
+const t = BaseView.t;
 
-  const t = BaseView.t;
+const View = BaseView.extend({
+  template: Template,
+  className: 'confirm-reset-password',
 
-  const View = BaseView.extend({
-    template: Template,
-    className: 'confirm-reset-password',
-
-    initialize (options = {}) {
-      this._verificationPollMS =
+  initialize (options = {}) {
+    this._verificationPollMS =
         options.verificationPollMS || VERIFICATION_POLL_IN_MS;
-    },
+  },
 
-    setInitialContext (context) {
-      var email = this.model.get('email');
-      var isSignInEnabled = this.relier.get('resetPasswordConfirm');
+  setInitialContext (context) {
+    var email = this.model.get('email');
+    var isSignInEnabled = this.relier.get('resetPasswordConfirm');
 
-      context.set({
-        email: email,
-        encodedEmail: encodeURIComponent(email),
-        forceAuth: this.broker.isForceAuth(),
-        isSignInEnabled: isSignInEnabled
-      });
-    },
+    context.set({
+      email: email,
+      encodedEmail: encodeURIComponent(email),
+      forceAuth: this.broker.isForceAuth(),
+      isSignInEnabled: isSignInEnabled
+    });
+  },
 
-    beforeRender () {
-      // user cannot confirm if they have not initiated a reset password
-      if (! this.model.has('passwordForgotToken')) {
-        this.navigate('reset_password');
-      }
-    },
+  beforeRender () {
+    // user cannot confirm if they have not initiated a reset password
+    if (! this.model.has('passwordForgotToken')) {
+      this.navigate('reset_password');
+    }
+  },
 
-    afterVisible () {
-      const account = this.user.initAccount({ email: this.model.get('email') });
-      return this.broker.persistVerificationData(account)
-        .then(() => {
-          return this._waitForConfirmation()
-            .then((sessionInfo) => {
-              this.logViewEvent('verification.success');
-              // The password was reset, future attempts should ask confirmation.
-              this.relier.set('resetPasswordConfirm', true);
+  afterVisible () {
+    const account = this.user.initAccount({ email: this.model.get('email') });
+    return this.broker.persistVerificationData(account)
+      .then(() => {
+        return this._waitForConfirmation()
+          .then((sessionInfo) => {
+            this.logViewEvent('verification.success');
+            // The password was reset, future attempts should ask confirmation.
+            this.relier.set('resetPasswordConfirm', true);
 
-              // for scoped key OAuth reliers, if key tokens are missing, ask the user to login again
-              // and get those tokens
-              if (! account.canFetchKeys() && this.relier.wantsKeys() && this.relier.isOAuth()) {
-                return this._finishPasswordResetDifferentBrowser();
-              }
-              // The original window should finish the flow if the user
-              // completes verification in the same browser and has sessionInfo
-              // passed over from tab 2.
-              if (sessionInfo) {
-                return this._finishPasswordResetSameBrowser(sessionInfo);
-              }
-
+            // for scoped key OAuth reliers, if key tokens are missing, ask the user to login again
+            // and get those tokens
+            if (! account.canFetchKeys() && this.relier.wantsKeys() && this.relier.isOAuth()) {
               return this._finishPasswordResetDifferentBrowser();
-            })
-            .catch(this.displayError.bind(this));
-        });
-    },
+            }
+            // The original window should finish the flow if the user
+            // completes verification in the same browser and has sessionInfo
+            // passed over from tab 2.
+            if (sessionInfo) {
+              return this._finishPasswordResetSameBrowser(sessionInfo);
+            }
 
-    _waitForConfirmation () {
-      return new Promise((resolve, reject) => {
-        // If either the `login` message comes through or the `login` message
-        // timeout elapses after the server confirms the user is verified,
-        // stop waiting all together and move to the next view.
-        const onComplete = (response) => {
-          this._stopWaiting();
-          resolve(response);
-        };
+            return this._finishPasswordResetDifferentBrowser();
+          })
+          .catch(this.displayError.bind(this));
+      });
+  },
 
-        const onError = (err) => {
-          this._stopWaiting();
-          reject(err);
-        };
+  _waitForConfirmation () {
+    return new Promise((resolve, reject) => {
+      // If either the `login` message comes through or the `login` message
+      // timeout elapses after the server confirms the user is verified,
+      // stop waiting all together and move to the next view.
+      const onComplete = (response) => {
+        this._stopWaiting();
+        resolve(response);
+      };
+
+      const onError = (err) => {
+        this._stopWaiting();
+        reject(err);
+      };
 
         /**
          * A short message on password reset verification:
@@ -131,135 +128,134 @@ define(function (require, exports, module) {
          *
          * Once the `login` message has arrived, notify the browser. BOOM.
          */
-        this.notifier.on(Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN, () => {
-          if (! this._isWaitingForLoginMessage) {
-            this._waitForLoginMessage().then(onComplete, onError);
-            this._stopWaitingForServerConfirmation();
-          }
-        });
-
-        this._waitForServerConfirmation().then(onComplete, onError);
+      this.notifier.on(Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN, () => {
+        if (! this._isWaitingForLoginMessage) {
+          this._waitForLoginMessage().then(onComplete, onError);
+          this._stopWaitingForServerConfirmation();
+        }
       });
-    },
 
-    _finishPasswordResetSameBrowser (sessionInfo) {
-      const account = this.user.getAccountByUid(sessionInfo.uid);
+      this._waitForServerConfirmation().then(onComplete, onError);
+    });
+  },
 
-      // A bug in e10s causes localStorage in about:accounts and content tabs to be isolated from
-      // each other. Writes to localStorage from /complete_reset_password are not able to be read
-      // from within about:accounts. Because of this, all account data needed to sign in must
-      // be passed between windows. See https://github.com/mozilla/fxa-content-server/issues/4763
-      // and https://bugzilla.mozilla.org/show_bug.cgi?id=666724
-      account.set(_.pick(sessionInfo, Account.ALLOWED_KEYS));
+  _finishPasswordResetSameBrowser (sessionInfo) {
+    const account = this.user.getAccountByUid(sessionInfo.uid);
 
-      if (account.isDefault()) {
-        return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
-      }
+    // A bug in e10s causes localStorage in about:accounts and content tabs to be isolated from
+    // each other. Writes to localStorage from /complete_reset_password are not able to be read
+    // from within about:accounts. Because of this, all account data needed to sign in must
+    // be passed between windows. See https://github.com/mozilla/fxa-content-server/issues/4763
+    // and https://bugzilla.mozilla.org/show_bug.cgi?id=666724
+    account.set(_.pick(sessionInfo, Account.ALLOWED_KEYS));
 
-      // The OAuth flow needs the sessionToken to finish the flow.
-      return this.user.setSignedInAccount(account)
-        .then(() => {
-          this.displaySuccess(t('Password reset'));
+    if (account.isDefault()) {
+      return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+    }
 
-          return this.invokeBrokerMethod(
-            'afterResetPasswordConfirmationPoll', account);
-        })
-        .then(() => {
-          this.navigate('reset_password_confirmed');
-        });
-    },
+    // The OAuth flow needs the sessionToken to finish the flow.
+    return this.user.setSignedInAccount(account)
+      .then(() => {
+        this.displaySuccess(t('Password reset'));
 
-    _getSignInRoute () {
-      return this.broker.transformLink('/signin').replace(/^\//, '');
-    },
-
-    _finishPasswordResetDifferentBrowser () {
-      // user verified in a different browser, make them sign in. OAuth
-      // users will be redirected back to the RP, Sync users will be
-      // taken to the Sync controlled completion page.
-      Session.clear();
-      this.navigate(this._getSignInRoute(), {
-        success: t('Password reset successfully. Sign in to continue.')
+        return this.invokeBrokerMethod(
+          'afterResetPasswordConfirmationPoll', account);
+      })
+      .then(() => {
+        this.navigate('reset_password_confirmed');
       });
-    },
+  },
 
-    _isWaitingForServerConfirmation: false,
-    _waitForServerConfirmation () {
-      // only check if still waiting.
-      this._isWaitingForServerConfirmation = true;
+  _getSignInRoute () {
+    return this.broker.transformLink('/signin').replace(/^\//, '');
+  },
 
-      const email = this.model.get('email');
-      const account = this.user.initAccount({ email });
-      const token = this.model.get('passwordForgotToken');
-      return account.isPasswordResetComplete(token)
-        .then((isComplete) => {
-          if (! this._isWaitingForServerConfirmation) {
-            // we no longer care about the response, the other tab has opened.
-            // drop the response on the ground and never resolve.
-            return new Promise(() => {});
-          } else if (isComplete) {
-            return null;
-          }
+  _finishPasswordResetDifferentBrowser () {
+    // user verified in a different browser, make them sign in. OAuth
+    // users will be redirected back to the RP, Sync users will be
+    // taken to the Sync controlled completion page.
+    Session.clear();
+    this.navigate(this._getSignInRoute(), {
+      success: t('Password reset successfully. Sign in to continue.')
+    });
+  },
 
-          return new Promise((resolve) => {
-            this._waitForServerConfirmationTimeout = this.setTimeout(() => {
-              if (this._isWaitingForServerConfirmation) {
-                resolve(this._waitForServerConfirmation());
-              }
-            }, this._verificationPollMS);
-          });
-        });
-    },
+  _isWaitingForServerConfirmation: false,
+  _waitForServerConfirmation () {
+    // only check if still waiting.
+    this._isWaitingForServerConfirmation = true;
 
-    _stopWaitingForServerConfirmation () {
-      if (this._waitForServerConfirmationTimeout) {
-        this.clearTimeout(this._waitForServerConfirmationTimeout);
-      }
-      this._isWaitingForServerConfirmation = false;
-    },
-
-    _isWaitingForLoginMessage: false,
-    _waitForLoginMessage () {
-      return new Promise((resolve) => {
-        this._isWaitingForLoginMessage = true;
-        this.notifier.on(Notifier.SIGNED_IN, resolve);
-      });
-    },
-
-    _stopListeningForInterTabMessages () {
-      this._isWaitingForLoginMessage = false;
-      this.notifier.off();
-    },
-
-    _stopWaiting () {
-      this._stopWaitingForServerConfirmation();
-      this._stopListeningForInterTabMessages();
-    },
-
-    resend () {
-      return this.retryResetPassword(
-        this.model.get('email'),
-        this.model.get('passwordForgotToken')
-      ).catch((err) => {
-        if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-          return this.navigate('reset_password', {
-            error: err
-          });
+    const email = this.model.get('email');
+    const account = this.user.initAccount({ email });
+    const token = this.model.get('passwordForgotToken');
+    return account.isPasswordResetComplete(token)
+      .then((isComplete) => {
+        if (! this._isWaitingForServerConfirmation) {
+          // we no longer care about the response, the other tab has opened.
+          // drop the response on the ground and never resolve.
+          return new Promise(() => {});
+        } else if (isComplete) {
+          return null;
         }
 
-        // unexpected error, rethrow for display.
-        throw err;
+        return new Promise((resolve) => {
+          this._waitForServerConfirmationTimeout = this.setTimeout(() => {
+            if (this._isWaitingForServerConfirmation) {
+              resolve(this._waitForServerConfirmation());
+            }
+          }, this._verificationPollMS);
+        });
       });
+  },
+
+  _stopWaitingForServerConfirmation () {
+    if (this._waitForServerConfirmationTimeout) {
+      this.clearTimeout(this._waitForServerConfirmationTimeout);
     }
-  });
+    this._isWaitingForServerConfirmation = false;
+  },
 
-  Cocktail.mixin(
-    View,
-    PasswordResetMixin,
-    OpenResetPasswordEmailMixin,
-    ResendMixin,
-    ServiceMixin
-  );
+  _isWaitingForLoginMessage: false,
+  _waitForLoginMessage () {
+    return new Promise((resolve) => {
+      this._isWaitingForLoginMessage = true;
+      this.notifier.on(Notifier.SIGNED_IN, resolve);
+    });
+  },
 
-  module.exports = View;
+  _stopListeningForInterTabMessages () {
+    this._isWaitingForLoginMessage = false;
+    this.notifier.off();
+  },
+
+  _stopWaiting () {
+    this._stopWaitingForServerConfirmation();
+    this._stopListeningForInterTabMessages();
+  },
+
+  resend () {
+    return this.retryResetPassword(
+      this.model.get('email'),
+      this.model.get('passwordForgotToken')
+    ).catch((err) => {
+      if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+        return this.navigate('reset_password', {
+          error: err
+        });
+      }
+
+      // unexpected error, rethrow for display.
+      throw err;
+    });
+  }
 });
+
+Cocktail.mixin(
+  View,
+  PasswordResetMixin,
+  OpenResetPasswordEmailMixin,
+  ResendMixin(),
+  ServiceMixin
+);
+
+module.exports = View;

@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const OAuthBroker = require('models/auth_brokers/oauth');
-const OAuthClient = require('lib/oauth-client');
-const OAuthRelier = require('models/reliers/oauth');
-const Session = require('lib/session');
-const SentryMetrics = require('lib/sentry');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const sinon = require('sinon');
-const View = require('views/authorization');
-const WindowMock = require('../../mocks/window');
-const { assert } = require('chai');
+import { assert } from 'chai';
+import OAuthBroker from 'models/auth_brokers/oauth';
+import OAuthClient from 'lib/oauth-client';
+import OAuthRelier from 'models/reliers/oauth';
+import Session from 'lib/session';
+import SentryMetrics from 'lib/sentry';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import sinon from 'sinon';
+import View from 'views/authorization';
+import WindowMock from '../../mocks/window';
 
 describe('views/authorization', function () {
   let broker;

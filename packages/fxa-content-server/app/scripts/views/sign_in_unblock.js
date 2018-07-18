@@ -6,105 +6,102 @@
  * Allow the user to unblock their signin by entering
  * in a verification code that is sent in an email.
  */
-define(function (require, exports, module) {
-  'use strict';
 
-  const AuthErrors = require('../lib/auth-errors');
-  const Cocktail = require('cocktail');
-  const Constants = require('../lib/constants');
-  const FormView = require('./form');
-  const ResendMixin = require('./mixins/resend-mixin')();
-  const ResumeTokenMixin = require('./mixins/resume-token-mixin');
-  const SignInMixin = require('./mixins/signin-mixin');
-  const Template = require('templates/sign_in_unblock.mustache');
+import AuthErrors from '../lib/auth-errors';
+import Cocktail from 'cocktail';
+import Constants from '../lib/constants';
+import FormView from './form';
+import ResendMixin from './mixins/resend-mixin';
+import ResumeTokenMixin from './mixins/resume-token-mixin';
+import SignInMixin from './mixins/signin-mixin';
+import Template from 'templates/sign_in_unblock.mustache';
 
-  const View = FormView.extend({
-    template: Template,
-    className: 'sign-in-unblock',
+const View = FormView.extend({
+  template: Template,
+  className: 'sign-in-unblock',
 
-    getAccount () {
-      return this.model.get('account');
-    },
+  getAccount () {
+    return this.model.get('account');
+  },
 
-    beforeRender () {
-      if (! this.model.get('account')) {
-        this.navigate(this._getAuthPage());
-      }
-    },
+  beforeRender () {
+    if (! this.model.get('account')) {
+      this.navigate(this._getAuthPage());
+    }
+  },
 
-    setInitialContext (context) {
-      const email = this.getAccount().get('email');
-      const supportLink = this._getSupportLink();
+  setInitialContext (context) {
+    const email = this.getAccount().get('email');
+    const supportLink = this._getSupportLink();
 
-      context.set({
-        email,
-        escapedSupportLink: encodeURI(supportLink),
-        hasSupportLink: !! supportLink,
-        unblockCodeLength: Constants.UNBLOCK_CODE_LENGTH
+    context.set({
+      email,
+      escapedSupportLink: encodeURI(supportLink),
+      hasSupportLink: !! supportLink,
+      unblockCodeLength: Constants.UNBLOCK_CODE_LENGTH
+    });
+  },
+
+  submit () {
+    const account = this.getAccount();
+    const password = this.model.get('password');
+    const unblockCode = this.getElementValue('#unblock_code');
+
+    return this.signIn(account, password, { unblockCode })
+      .catch((err) => this.onSignInError(account, password, err));
+  },
+
+  onSignInError (account, password, err) {
+    if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
+      // The user must go enter the correct password this time.
+      this.navigate(this._getAuthPage(), {
+        email: account.get('email'),
+        error: err
       });
-    },
+    } else {
+      // re-throw, it'll be displayed at a lower level.
+      throw err;
+    }
+  },
 
-    submit () {
-      const account = this.getAccount();
-      const password = this.model.get('password');
-      const unblockCode = this.getElementValue('#unblock_code');
+  resend () {
+    return this._sendUnblockEmail();
+  },
 
-      return this.signIn(account, password, { unblockCode })
-        .catch((err) => this.onSignInError(account, password, err));
-    },
+  _sendUnblockEmail () {
+    return this.getAccount().sendUnblockEmail()
+      .catch((err) => this.displayError(err));
+  },
 
-    onSignInError (account, password, err) {
-      if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
-        // The user must go enter the correct password this time.
-        this.navigate(this._getAuthPage(), {
-          email: account.get('email'),
-          error: err
-        });
-      } else {
-        // re-throw, it'll be displayed at a lower level.
-        throw err;
-      }
-    },
-
-    resend () {
-      return this._sendUnblockEmail();
-    },
-
-    _sendUnblockEmail () {
-      return this.getAccount().sendUnblockEmail()
-        .catch((err) => this.displayError(err));
-    },
-
-    /**
+  /**
      * Get the URL of the page for users that
      * must enter their password.
      *
      * @returns {String}
      */
-    _getAuthPage () {
-      const authPage =
+  _getAuthPage () {
+    const authPage =
         this.model.get('lastPage') === 'force_auth' ? 'force_auth' : 'signin';
 
-      return this.broker.transformLink(authPage);
-    },
+    return this.broker.transformLink(authPage);
+  },
 
-    /**
+  /**
      * Get the SUMO link for `Why is this happening to me?`. Could be
      * `undefined` if no link is available.
      *
      * @returns {String}
      */
-    _getSupportLink () {
-      return Constants.BLOCKED_SIGNIN_SUPPORT_URL;
-    }
-  });
-
-  Cocktail.mixin(
-    View,
-    ResendMixin,
-    ResumeTokenMixin,
-    SignInMixin
-  );
-
-  module.exports = View;
+  _getSupportLink () {
+    return Constants.BLOCKED_SIGNIN_SUPPORT_URL;
+  }
 });
+
+Cocktail.mixin(
+  View,
+  ResendMixin(),
+  ResumeTokenMixin,
+  SignInMixin
+);
+
+module.exports = View;
