@@ -1,3 +1,17 @@
+<a name="1.116.2"></a>
+## 1.116.2 (2018-07-18)
+
+
+### Bug Fixes
+
+* **oauth:** handle '+' in scope normalization (#6365) ([f57c087](https://github.com/mozilla/fxa-content-server/commit/f57c087))
+
+### chore
+
+* **release:** Merge train-116 into master(#6350) r=@vladikoff ([3a8fca4](https://github.com/mozilla/fxa-content-server/commit/3a8fca4))
+
+
+
 <a name="1.116.1"></a>
 ## 1.116.1 (2018-07-12)
 
