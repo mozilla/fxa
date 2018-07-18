@@ -70,7 +70,16 @@ define(function (require, exports, module) {
     load () {
       var id = this._getUsersStorageId();
       if (id) {
-        var usersStoredInfo = (this._storage.get(STORAGE_KEY) || {})[id];
+        const allStoredInfo = this._storage.get(STORAGE_KEY) || {};
+        // During password reset, SameBrowserVerificationModel will persist
+        // info keyed by email since the uid is not known when the flow is
+        // initiated. All other flows key by uid.
+        // As of train-117 links in the password reset emails contain
+        // both a uid and an email.
+        // First, try fetching the info using uid since that'll cover all
+        // flows except password reset. If that fails, try email to
+        // handle password reset.
+        const usersStoredInfo = allStoredInfo[this._uid] || allStoredInfo[this._email];
         if (usersStoredInfo) {
           this.set(usersStoredInfo[this._namespace] || {});
         }
