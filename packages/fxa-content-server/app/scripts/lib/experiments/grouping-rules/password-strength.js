@@ -5,7 +5,7 @@
 const BaseGroupingRule = require('./base');
 
 const GROUPS_FOR_PARTIAL_ROLLOUT = ['control', 'designF'];
-const ROLLOUT_RATE = 0;
+const ROLLOUT_RATE = 0.1;
 
 const EXPERIMENT_NAME = 'passwordStrength';
 
