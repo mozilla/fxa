@@ -47,7 +47,7 @@
       "canGrant": false
     },
     {
-      "id": "d5d74070a481bc10",
+      "id": "7f368c6886429f19",
       "name": "Firefox Notes Android Dev",
       "hashedSecret": "9c716ed2927c96cdc0fb7efe57d5f124fb4161066c1ff7f4263069822256ec3f",
       "redirectUri": "https://mozilla.github.io/notes/fxa/android-redirect.html",
