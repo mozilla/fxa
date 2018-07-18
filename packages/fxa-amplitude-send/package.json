@@ -20,6 +20,7 @@
     "eslint-plugin-fxa": "^1.0.0"
   },
   "scripts": {
+    "build-node-docker-image": "docker build -f Dockerfile-nodejs -t mozilla/fxa-amplitude-send:`git describe`-node .",
     "lint": "eslint *.js"
   },
   "repository": {
