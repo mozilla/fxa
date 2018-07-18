@@ -350,6 +350,23 @@ define(function (require, exports, module) {
             it('transforms to permissions', function () {
               assert.deepEqual(relier.get('permissions'), PERMISSIONS);
             });
+
+            it('transforms plus scopes to permissions', function () {
+              const SCOPE = 'profile:email+profile:uid';
+
+              windowMock.location.search = TestHelpers.toSearchString({
+                action: ACTION,
+                client_id: CLIENT_ID,
+                redirect_uri: QUERY_REDIRECT_URI,
+                scope: SCOPE,
+                state: STATE
+              });
+
+              return relier.fetch()
+                .then(() => {
+                  assert.deepEqual(relier.get('permissions'), PERMISSIONS);
+                });
+            });
           });
 
           describe('untrusted reliers', function () {
