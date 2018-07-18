@@ -1,3 +1,13 @@
+<a name="1.116.3"></a>
+## 1.116.3 (2018-07-18)
+
+
+### Features
+
+* **pw-strength:** Enable the experiment for 10% of users. (#6355) r=@vladikoff ([2f300a9](https://github.com/mozilla/fxa-content-server/commit/2f300a9)), closes [#6354](https://github.com/mozilla/fxa-content-server/issues/6354)
+
+
+
 <a name="1.116.2"></a>
 ## 1.116.2 (2018-07-18)
 
