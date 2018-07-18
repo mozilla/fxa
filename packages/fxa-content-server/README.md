@@ -91,7 +91,6 @@ To change the default auth server edit `server/config/*.json` on your deployed i
 ## Servers
 
 * latest development - https://latest.dev.lcip.org/
-* content - https://content.dev.lcip.org/
 * stable - https://stable.dev.lcip.org/
 * stage - https://accounts.stage.mozaws.net/
 * production - https://accounts.firefox.com/
