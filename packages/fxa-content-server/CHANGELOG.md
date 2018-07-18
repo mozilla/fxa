@@ -1,3 +1,13 @@
+<a name="1.116.4"></a>
+## 1.116.4 (2018-07-18)
+
+
+### Bug Fixes
+
+* **pw-reset:** Ensure pw reset completes w/ uid & email specified in email (#6369) r=@vbudhram, ([f793a2f](https://github.com/mozilla/fxa-content-server/commit/f793a2f)), closes [#6368](https://github.com/mozilla/fxa-content-server/issues/6368)
+
+
+
 <a name="1.116.3"></a>
 ## 1.116.3 (2018-07-18)
 
