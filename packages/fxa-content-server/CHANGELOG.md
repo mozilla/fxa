@@ -1,3 +1,37 @@
+<a name="1.116.4"></a>
+## 1.116.4 (2018-07-18)
+
+
+### Bug Fixes
+
+* **pw-reset:** Ensure pw reset completes w/ uid & email specified in email (#6369) r=@vbudhram, ([f793a2f](https://github.com/mozilla/fxa-content-server/commit/f793a2f)), closes [#6368](https://github.com/mozilla/fxa-content-server/issues/6368)
+
+
+
+<a name="1.116.3"></a>
+## 1.116.3 (2018-07-18)
+
+
+### Features
+
+* **pw-strength:** Enable the experiment for 10% of users. (#6355) r=@vladikoff ([2f300a9](https://github.com/mozilla/fxa-content-server/commit/2f300a9)), closes [#6354](https://github.com/mozilla/fxa-content-server/issues/6354)
+
+
+
+<a name="1.116.2"></a>
+## 1.116.2 (2018-07-18)
+
+
+### Bug Fixes
+
+* **oauth:** handle '+' in scope normalization (#6365) ([f57c087](https://github.com/mozilla/fxa-content-server/commit/f57c087))
+
+### chore
+
+* **release:** Merge train-116 into master(#6350) r=@vladikoff ([3a8fca4](https://github.com/mozilla/fxa-content-server/commit/3a8fca4))
+
+
+
 <a name="1.116.1"></a>
 ## 1.116.1 (2018-07-12)
 

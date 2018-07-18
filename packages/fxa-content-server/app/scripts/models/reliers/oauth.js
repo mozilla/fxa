@@ -321,7 +321,8 @@ define(function (require, exports, module) {
 
     var trimmedScopes = scopes.trim();
     if (trimmedScopes.length) {
-      return _.uniq(scopes.split(/\s+/g));
+      // matches any whitespace character OR matches the character '+' literally
+      return _.uniq(scopes.split(/\s+|\++/g));
     } else {
       return [];
     }

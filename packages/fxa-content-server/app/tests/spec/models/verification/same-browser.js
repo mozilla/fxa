@@ -75,21 +75,6 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('load', function () {
-        beforeEach(function () {
-          model.persist();
-
-          model.unset('context');
-          sinon.spy(model, 'set');
-          model.load();
-        });
-
-        it('loads verification info from localStorage', function () {
-          assert.isTrue(storage.get.calledWith(model._STORAGE_KEY));
-          assert.equal(model.get('context'), 'fx_desktop_v1');
-        });
-      });
-
       describe('clear', function () {
         beforeEach(function () {
           model.persist();
@@ -106,6 +91,82 @@ define(function (require, exports, module) {
         it('does not reload erased data', function () {
           assert.isFalse(model.has('context'));
         });
+      });
+    });
+
+    describe('persist/load', function () {
+      let storage;
+
+      this.beforeEach(() => {
+        storage = new Storage();
+      });
+
+      it('signup, stores and loads verification keyed by uid', function () {
+        const persistModel = new SameBrowserVerificationModel({
+          context: 'fx_desktop_v1'
+        }, {
+          namespace: 'context',
+          storage: storage,
+          uid: 'a-uid',
+        });
+
+        persistModel.persist();
+
+        const loadModel = new SameBrowserVerificationModel({
+        }, {
+          namespace: 'context',
+          storage: storage,
+          uid: 'a-uid',
+        });
+
+        loadModel.load();
+
+        assert.equal(loadModel.get('context'), 'fx_desktop_v1');
+      });
+
+      it('password reset, stores and loads verification keyed by email (pre-train-117)', function () {
+        const persistModel = new SameBrowserVerificationModel({
+          context: 'fx_desktop_v2'
+        }, {
+          email: 'testuser@testuser.com',
+          namespace: 'context',
+          storage: storage,
+        });
+
+        persistModel.persist();
+
+        const loadModel = new SameBrowserVerificationModel({
+        }, {
+          email: 'testuser@testuser.com',
+          namespace: 'context',
+          storage: storage,
+        });
+
+        loadModel.load();
+        assert.equal(loadModel.get('context'), 'fx_desktop_v2');
+      });
+
+      it('password reset, stores and loads verification keyed by email, both uid and email specified in load (>= train-117)', function () {
+        const persistModel = new SameBrowserVerificationModel({
+          context: 'fx_desktop_v3'
+        }, {
+          email: 'testuser@testuser.com',
+          namespace: 'context',
+          storage: storage,
+        });
+
+        persistModel.persist();
+
+        const loadModel = new SameBrowserVerificationModel({
+        }, {
+          email: 'testuser@testuser.com',
+          namespace: 'context',
+          storage: storage,
+          uid: 'a-uid'
+        });
+
+        loadModel.load();
+        assert.equal(loadModel.get('context'), 'fx_desktop_v3');
       });
     });
   });
