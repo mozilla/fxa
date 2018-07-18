@@ -24,6 +24,7 @@ fn setup() -> Client {
     let message_data = MessageData::new(&settings);
     let providers = Providers::new(&settings);
     let server = rocket::ignite()
+        .manage(settings)
         .manage(bounces)
         .manage(logger)
         .manage(message_data)

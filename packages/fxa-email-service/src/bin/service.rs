@@ -27,24 +27,36 @@ extern crate rocket;
 extern crate slog;
 
 use fxa_email_service::{
-    app_errors, auth_db::DbClient, bounces::Bounces, logging::MozlogLogger,
+    app_errors, auth_db::DbClient, bounces::Bounces, healthcheck, logging::MozlogLogger,
     message_data::MessageData, providers::Providers, send, settings::Settings,
 };
 
 fn main() {
-    let settings = Settings::new().expect("Config error.");
+    let settings = Settings::new().expect("Settings::new error");
     let db = DbClient::new(&settings);
     let bounces = Bounces::new(&settings, db);
     let logger = MozlogLogger::new(&settings).expect("MozlogLogger::init error");
     let message_data = MessageData::new(&settings);
     let providers = Providers::new(&settings);
 
-    rocket::ignite()
+    let config = settings
+        .build_rocket_config()
+        .expect("Error creating rocket config");
+    rocket::custom(config)
+        .manage(settings)
         .manage(bounces)
         .manage(logger)
         .manage(message_data)
         .manage(providers)
-        .mount("/", routes![send::handler])
+        .mount(
+            "/",
+            routes![
+                send::handler,
+                healthcheck::heartbeat,
+                healthcheck::lbheartbeat,
+                healthcheck::version
+            ],
+        )
         .catch(catchers![
             app_errors::bad_request,
             app_errors::not_found,

@@ -10,6 +10,10 @@ use std::{
 };
 
 use config::{Config, ConfigError, Environment, File};
+use rocket::config::{
+    Config as RocketConfig, ConfigError as RocketConfigError, Environment as RocketEnvironment,
+    LoggingLevel,
+};
 use serde::de::{Deserialize, Deserializer, Error, Unexpected};
 
 use duration::Duration;
@@ -254,9 +258,14 @@ pub struct Settings {
     /// and will not be logged.
     pub hmackey: String,
 
+    pub host: Host,
+
     /// The logging format to use,
     /// can be `"mozlog"`, `"pretty"` or `"null"`.
     pub logging: Logging,
+
+    /// The port this application is listening to.
+    pub port: u16,
 
     /// The default email provider to use,
     /// can be `"ses"`, `"sendgrid"` or `"mock"`.
@@ -314,8 +323,8 @@ impl Settings {
 
         match config.try_into::<Settings>() {
             Ok(settings) => {
-                if let Ok(rocket_env) = env::var("ROCKET_ENV") {
-                    if rocket_env == "production" && &settings.hmackey == "YOU MUST CHANGE ME" {
+                if let Ok(node_env) = env::var("NODE_ENV") {
+                    if node_env == "production" && &settings.hmackey == "YOU MUST CHANGE ME" {
                         panic!("Please set a valid HMAC key.")
                     }
                 }
@@ -326,6 +335,28 @@ impl Settings {
                 Ok(settings)
             }
             Err(error) => Err(error),
+        }
+    }
+
+    /// Create rocket configuration based on the `NODE_ENV` environment
+    /// variable. Defaults to `dev` mode if `NODE_ENV` is not set.
+    pub fn build_rocket_config(&self) -> Result<RocketConfig, RocketConfigError> {
+        match env::var("NODE_ENV").as_ref().map(String::as_ref) {
+            Ok("production") => RocketConfig::build(RocketEnvironment::Production)
+                .address(self.host.0.clone())
+                .port(self.port.clone())
+                .log_level(LoggingLevel::Off)
+                .finalize(),
+            Ok("staging") => RocketConfig::build(RocketEnvironment::Staging)
+                .address(self.host.0.clone())
+                .port(self.port.clone())
+                .log_level(LoggingLevel::Critical)
+                .finalize(),
+            _ => RocketConfig::build(RocketEnvironment::Development)
+                .address(self.host.0.clone())
+                .port(self.port.clone())
+                .log_level(LoggingLevel::Normal)
+                .finalize(),
         }
     }
 }

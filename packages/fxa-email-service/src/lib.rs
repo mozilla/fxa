@@ -84,6 +84,7 @@ pub mod auth_db;
 pub mod bounces;
 pub mod duration;
 pub mod email_address;
+pub mod healthcheck;
 pub mod logging;
 pub mod message_data;
 pub mod providers;
