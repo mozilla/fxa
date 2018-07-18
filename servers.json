@@ -130,7 +130,8 @@
       "cwd": "browserid-verifier",
       "env": {
         "PORT": "5050",
-        "IP_ADDRESS": "0.0.0.0"
+        "IP_ADDRESS": "0.0.0.0",
+        "FORCE_INSECURE_LOOKUP_OVER_HTTP": "true"
       },
       "max_restarts": "1",
       "min_uptime": "2m"

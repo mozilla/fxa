@@ -16,7 +16,7 @@ git clone https://github.com/mozilla/fxa-auth-db-mysql.git &
 
 git clone https://github.com/mozilla/fxa-customs-server.git &
 
-git clone https://github.com/vladikoff/browserid-verifier.git -b http &
+git clone https://github.com/mozilla/browserid-verifier.git &
 
 git clone https://github.com/mozilla/fxa-oauth-server.git &
 git clone https://github.com/mozilla/fxa-oauth-console.git &
@@ -38,8 +38,7 @@ cd fxa-auth-server; npm i; node ./scripts/gen_keys.js; node ./scripts/gen_vapid_
 
 cd fxa-auth-db-mysql; npm i; cd ..
 
-# Install a custom http only verifier
-cd browserid-verifier; npm i; npm i vladikoff/browserid-local-verify#http; cd ..
+cd browserid-verifier; npm i; cd ..
 
 cd fxa-oauth-server; npm i; cd ..
 
