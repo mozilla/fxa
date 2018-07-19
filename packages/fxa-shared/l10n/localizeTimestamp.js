@@ -68,6 +68,6 @@ module.exports = function (options) {
       // return a formatted `timeago` type string
       return lastAccessTime.fromNow();
     }
-  }
+  };
 
-}
+};

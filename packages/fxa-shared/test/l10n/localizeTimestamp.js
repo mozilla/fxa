@@ -20,7 +20,7 @@ describe('l10n/localizeTimestamp:', () => {
 
   it('throws if called without defaultLanguage', () => {
     assert.throws(() => localizeTimestamp({ supportedLanguages: [ 'en' ] }));
-  })
+  });
 
   describe('call with supported language:', () => {
     let format;
