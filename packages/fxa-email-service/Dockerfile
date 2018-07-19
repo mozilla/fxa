@@ -15,7 +15,6 @@ RUN \
     mkdir -m 755 bin/config && \
     cargo build --release && \
     cp -R /app/config/* /app/bin/config && \
-    cp /app/Rocket.toml /app/bin && \
     cp /app/target/release/fxa_email_send /app/bin && \
     cp /app/target/release/fxa_email_queues /app/bin
 COPY version.json /app
