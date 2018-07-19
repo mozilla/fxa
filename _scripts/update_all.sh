@@ -9,7 +9,9 @@ git pull https://github.com/mozilla/fxa-local-dev.git master
 
 (cd fxa-auth-db-mysql && git checkout master && git pull origin master && npm i && cd ..) || echo "fxa-auth-db-mysql update failed"
 
-(cd browserid-verifier && git checkout http && git pull origin http && npm i && npm i vladikoff/browserid-local-verify#http && cd ..)|| echo "browserid update failed"
+(cd fxa-email-service && git checkout master && git pull origin master && npm i && cd ..) || echo "fxa-email-service update failed"
+
+(cd browserid-verifier && git checkout master && git pull origin master && npm i && cd ..)|| echo "browserid update failed"
 (cd fxa-oauth-server && git checkout master && git pull origin master && npm i && cd ..) || echo "fxa-oauth-server update failed"
 
 (cd fxa-profile-server && git checkout master && git pull origin master && npm i && cd ..) || echo "fxa-profile-server update failed"

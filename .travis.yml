@@ -38,6 +38,15 @@ install:
   - npm install -g npm@6
   - node --version
   - npm --version
+  - curl -sSf https://sh.rustup.rs | sh -s -- -y --verbose
+  - PATH=$PATH:$HOME/.cargo/bin
+  - rustup install nightly-2018-06-23
+  - rustc --version
+
+cache:
+  directories:
+    - $HOME/.cargo
+    - $HOME/.rustup
 
 script:
   - npm config set spin false

@@ -84,6 +84,7 @@ If you get an `error` status for any of the servers please verify that you insta
 [node.js **8+** with npm 6](http://nodejs.org/),
 [Python 2.6+](https://www.python.org/),
 [Java 8+](https://www.java.com/en/download/),
+[Rust nightly+](https://doc.rust-lang.org/1.5.0/book/nightly-rust.html),
 [libgmp](https://gmplib.org/),
 [graphicsmagick](http://www.graphicsmagick.org/),
 [docker](https://docs.docker.com/).

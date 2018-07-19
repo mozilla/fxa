@@ -14,6 +14,8 @@ git clone https://github.com/mozilla/fxa-js-client.git &
 git clone https://github.com/mozilla/fxa-auth-server.git &
 git clone https://github.com/mozilla/fxa-auth-db-mysql.git &
 
+git clone https://github.com/mozilla/fxa-email-service.git &
+
 git clone https://github.com/mozilla/fxa-customs-server.git &
 
 git clone https://github.com/mozilla/browserid-verifier.git &
@@ -31,12 +33,13 @@ wait
 
 # Install and Setup all the projects
 
-
 cd fxa-content-server; npm i --production; npm i; cp server/config/local.json-dist server/config/local.json; cd ..
 
 cd fxa-auth-server; npm i; node ./scripts/gen_keys.js; node ./scripts/gen_vapid_keys.js ; cd ..
 
 cd fxa-auth-db-mysql; npm i; cd ..
+
+cd fxa-email-service; rustup override set nightly-2018-06-23; cargo build --bin fxa_email_send; cd ..
 
 cd browserid-verifier; npm i; cd ..
 

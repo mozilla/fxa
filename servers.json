@@ -164,6 +164,16 @@
       "max_restarts": "1",
       "min_uptime": "2m",
       "autorestart": false
+    },
+    {
+      "name": "email-service PORT 8001",
+      "script": "scripts/run_send.sh",
+      "cwd": "fxa-email-service",
+      "env": {
+        "NODE_ENV": "dev"
+      },
+      "max_restarts": "1",
+      "min_uptime": "2m"
     }
   ]
 }

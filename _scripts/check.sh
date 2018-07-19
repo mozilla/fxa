@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+if [[ ! $(which rustup) ]]; then
+  curl https://sh.rustup.rs -sSf | sh
+  export PATH=$PATH:$HOME/.cargo/bin/
+  exit 1
+fi
+
 if [[ $(which node) && $(node --version) ]]; then
   node _scripts/check_node_version.js
 else
