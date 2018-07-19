@@ -6,6 +6,7 @@ const path = require('path');
 
 const buf = require('buf').hex;
 const hex = require('buf').to.hex;
+const moment = require('moment');
 const mysql = require('mysql');
 const MysqlPatcher = require('mysql-patcher');
 
@@ -189,6 +190,11 @@ const QUERY_CODE_DELETE_USER = 'DELETE FROM codes WHERE userId=?';
 const QUERY_DEVELOPER = 'SELECT * FROM developers WHERE email=?';
 const QUERY_DEVELOPER_DELETE = 'DELETE FROM developers WHERE email=?';
 const QUERY_PURGE_EXPIRED_TOKENS = 'DELETE FROM tokens WHERE clientId NOT IN (?) AND expiresAt < NOW() LIMIT ?;';
+const QUERY_EXPIRED_TOKENS =
+  'SELECT expiresAt, token, clientId FROM tokens WHERE expiresAt >= ? AND expiresAt <= NOW() ORDER BY expiresAt ASC LIMIT ?';
+const QUERY_DELETE_EXPIRED_TOKENS = 'DELETE FROM tokens WHERE token IN (?) AND clientId NOT IN (?) AND expiresAt <= NOW()';
+const QUERY_LAST_PURGE_TIME = 'SELECT value FROM dbMetadata WHERE name = "last-purge-time"';
+const QUERY_REPLACE_LAST_PURGE_TIME = 'REPLACE INTO dbMetadata (name, value) VALUES ("last-purge-time", ?)';
 // Token management by uid.
 // Returns the most recent token used with a client name and client id.
 // Does not include clients that canGrant.
@@ -562,8 +568,12 @@ MysqlStore.prototype = {
     });
   },
 
-  purgeExpiredTokens: function purgeExpiredTokens(numberOfTokens, delaySeconds, ignoreClientId){
-    var self = this;
+  purgeExpiredTokens: function purgeExpiredTokens(numberOfTokens,
+                                                  delaySeconds,
+                                                  ignoreClientId,
+                                                  deleteBatchSize = 200)
+  {
+    const self = this;
     if (! ignoreClientId) {
       throw new Error('empty ignoreClientId');
     }
@@ -572,31 +582,29 @@ MysqlStore.prototype = {
       ignoreClientId = [ ignoreClientId ];
     }
 
-    var clientIds = ignoreClientId.map(function (id) {
+    const clientIds = ignoreClientId.map((id) => {
       return self.getClient(id);
     });
 
     return P.all(clientIds)
-      .then(function (results) {
+      .then((results) => {
         // This ensures that purgeExpiredTokens can not be called with an
         // unknown ignoreClientId(s).
-        results.forEach(function (ignoreClient) {
+        results.forEach((ignoreClient) => {
           if (! ignoreClient) {
             throw new Error('unknown ignoreClientId ' + ignoreClientId);
           }
         });
       })
-      .then(function () {
-        var deleteBatchSize = 200;
+      .then(() => {
         if (numberOfTokens <= deleteBatchSize) {
           deleteBatchSize = numberOfTokens;
         }
 
-        var message = '';
-        var deletedItems = 0;
-        var promiseWhile = P.method(function () {
+        let deletedItems = 0;
+        const promiseWhile = P.method(() => {
           if (deletedItems >= numberOfTokens) {
-            message = 'deletedItems >= numberOfTokens';
+            const message = 'deletedItems >= numberOfTokens';
             logger.info('purgeExpiredTokens', {
               message: message,
               deletedItems: deletedItems,
@@ -606,18 +614,18 @@ MysqlStore.prototype = {
             return;
           }
 
-          var clientIn = ignoreClientId.map(function(id) {
+          const clientIn = ignoreClientId.map((id) => {
             return buf(id);
           });
 
           return self._write(QUERY_PURGE_EXPIRED_TOKENS, [clientIn, deleteBatchSize])
-            .then(function (res) {
+            .then((res) => {
               logger.info('purgeExpiredTokens', { affectedRows: res.affectedRows });
 
               // Break loop if no items were effected by delete.
               // All expired tokens have been deleted.
               if (res.affectedRows === 0) {
-                message = '0 affectedRows. Bailing out.';
+                const message = '0 affectedRows. Bailing out.';
                 logger.info('purgeExpiredTokens', { message: message });
                 return;
               }
@@ -625,7 +633,7 @@ MysqlStore.prototype = {
               deletedItems = deletedItems + res.affectedRows;
 
               return P.delay(delaySeconds * 1000)
-                .then(function () {
+                .then(() => {
                   return promiseWhile();
                 });
             });
@@ -633,8 +641,130 @@ MysqlStore.prototype = {
 
         return promiseWhile();
       })
-      .then(function() {
+      .then(() => {
         logger.info('purgeExpiredTokens', { message: 'completed' });
+      });
+  },
+
+
+  // This version of purgeExpiredTokens uses the strategy of selecting a set
+  // of tokens to delete and then issuing deletes by primary key.
+  purgeExpiredTokensById: function purgeExpiredTokensById(numberOfTokens,
+                                                          delaySeconds,
+                                                          ignoreClientId,
+                                                          deleteBatchSize = 200)
+  {
+    const self = this;
+    if (! ignoreClientId) {
+      throw new Error('empty ignoreClientId');
+    }
+
+    if (! Array.isArray(ignoreClientId)) {
+      ignoreClientId = [ ignoreClientId ];
+    }
+
+    if (numberOfTokens <= deleteBatchSize) {
+      deleteBatchSize = numberOfTokens;
+    }
+
+    const clientIds = ignoreClientId.map((id) => {
+      return self.getClient(id);
+    });
+
+    let lastPurgeTime;
+
+    return P.all(clientIds)
+      .then((results) => {
+        // This ensures that purgeExpiredTokensById can not be called with an
+        // unknown ignoreClientId(s).
+        results.forEach((ignoreClient) => {
+          if (! ignoreClient) {
+            throw new Error('unknown ignoreClientId ' + ignoreClientId);
+          }
+        });
+      })
+      .then(() => {
+        // Continue from the last recorded 'last-purge-time', if available.
+        return self._readOne(QUERY_LAST_PURGE_TIME)
+          .then((res) => {
+            const OLDEST_POSSIBLE_TOKEN_EXPIRY = '2015-03-01 00:00:00';
+            lastPurgeTime = (res && res.value) || OLDEST_POSSIBLE_TOKEN_EXPIRY;
+            logger.info('purgeExpiredTokensById', { lastPurgeTime: lastPurgeTime });
+          });
+      })
+      .then(() => {
+        let deletedItems = 0;
+        const promiseWhile = P.method(() => {
+          if (deletedItems >= numberOfTokens) {
+            const message = 'deletedItems >= numberOfTokens';
+            logger.info('purgeExpiredTokensById', {
+              message: message,
+              deletedItems: deletedItems,
+              numberOfTokens: numberOfTokens,
+              deleteBatchSize: deleteBatchSize
+            });
+            return;
+          }
+
+          const clientIn = ignoreClientId.map((id) => {
+            return buf(id);
+          });
+
+          return self._read(QUERY_EXPIRED_TOKENS, [lastPurgeTime, deleteBatchSize])
+            .then((res) => {
+              logger.info('purgeExpiredTokensById', { rowsReturned: res.length });
+
+              const tokensForDeletion = res.filter((row) => {
+                const expiresAt = moment(row.expiresAt).format('YYYY-MM-DD HH:mm:ss');
+                if (expiresAt > lastPurgeTime) {
+                  lastPurgeTime = expiresAt;
+                }
+
+                if (ignoreClientId.includes(hex(row.clientId))) {
+                  return false;
+                }
+
+                return true;
+              }).map((row) => row.token);
+
+              // Break loop if we have no candidate rows to delete.
+              if (tokensForDeletion.length === 0) {
+                const message = '0 tokensForDeletion. Bailing out.';
+                logger.info('purgeExpiredTokensById', { message: message });
+                return;
+              }
+
+              logger.info('purgeExpiredTokensById', { tokensForDeletion: tokensForDeletion.length, lastPurgeTime: lastPurgeTime });
+
+              return self._write(QUERY_DELETE_EXPIRED_TOKENS, [ tokensForDeletion, clientIn ])
+                .then((res) => {
+                  logger.info('purgeExpiredTokensById', { affectedRows: res.affectedRows });
+
+                  // Break loop if no items were effected by delete.
+                  // All expired tokens have been deleted.
+                  if (res.affectedRows === 0) {
+                    const message = '0 affectedRows. Bailing out.';
+                    logger.info('purgeExpiredTokensById', { message: message });
+                    return;
+                  }
+
+                  deletedItems = deletedItems + res.affectedRows;
+
+                  logger.info('purgeExpiredTokensById', { lastPurgeTime: lastPurgeTime });
+                  // Update 'last-purge-time' and schedule next iteration.
+                  return self._write(QUERY_REPLACE_LAST_PURGE_TIME, [ lastPurgeTime ])
+                    .delay(delaySeconds * 1000)
+                    .then(() => {
+                      return promiseWhile();
+                    });
+                });
+            });
+        });
+
+        return promiseWhile();
+      })
+      .then(() => {
+        logger.info('purgeExpiredTokensById', { message: 'completed' });
       });
   },
 
