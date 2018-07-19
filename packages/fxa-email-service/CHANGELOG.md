@@ -1,3 +1,13 @@
+<a name="v1.116.2"></a>
+## v1.116.2 (2018-07-19)
+
+
+#### Bug Fixes
+
+* **docker:**  Rocket.toml no longer exists, so don't copy it (#136) ([b915b7e8](b915b7e8))
+
+
+
 <a name="1.116.1"></a>
 ## 1.116.1 (2018-07-18)
 
