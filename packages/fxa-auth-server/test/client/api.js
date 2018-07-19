@@ -35,7 +35,7 @@ module.exports = config => {
     if (offset) {
       verify.localtimeOffsetMsec = offset
     }
-    return hawk.client.header(url, method, verify).field
+    return hawk.client.header(url, method, verify).header
   }
 
   ClientApi.prototype.doRequest = function (method, url, token, payload, headers) {

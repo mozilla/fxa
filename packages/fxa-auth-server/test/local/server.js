@@ -410,7 +410,7 @@ describe('lib/server', () => {
             })
             return instance.inject({
               headers: {
-                authorization: auth.field
+                authorization: auth.header
               },
               method: 'GET',
               url: '/account/status'
@@ -455,7 +455,7 @@ describe('lib/server', () => {
               })
               return instance.inject({
                 headers: {
-                  authorization: auth.field
+                  authorization: auth.header
                 },
                 method: 'GET',
                 url: '/account/status'

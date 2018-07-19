@@ -883,7 +883,7 @@ var envConfig = path.join(__dirname, conf.get('env') + '.json')
 envConfig = envConfig + ',' + (process.env.CONFIG_FILES || '')
 var files = envConfig.split(',').filter(fs.existsSync)
 conf.loadFile(files)
-conf.validate({ strict: true })
+conf.validate({ allowed: 'strict' })
 
 // set the public url as the issuer domain for assertions
 conf.set('domain', url.parse(conf.get('publicUrl')).host)

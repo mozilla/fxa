@@ -168,7 +168,7 @@ describe('remote misc', function() {
               timestamp: Math.floor(Date.now() / 1000)
             }
             var headers = {
-              Authorization: hawk.client.header(url, method, verify).field
+              Authorization: hawk.client.header(url, method, verify).header
             }
             return request(
               {
@@ -310,7 +310,7 @@ describe('remote misc', function() {
             timestamp: Math.floor(Date.now() / 1000)
           }
           const headers = {
-            Authorization: hawk.client.header(url, method, verify).field
+            Authorization: hawk.client.header(url, method, verify).header
           }
           payload.name = 'my stealthily-changed device name'
           return request(
