@@ -7,5 +7,5 @@ env:
 
 rules:
   handle-callback-err: off
-  semi: off
+  semi: [2, "always"]
   quotes: off

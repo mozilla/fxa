@@ -46,7 +46,7 @@ const EVENT_PROPERTIES = {
   [GROUPS.registration]: NOP,
   [GROUPS.settings]: mapDisconnectReason,
   [GROUPS.sms]: NOP
-}
+};
 
 function NOP () {}
 
@@ -166,7 +166,7 @@ module.exports = {
       if (mapping) {
         eventType = mapping.event;
         if (typeof eventType === 'function') {
-          eventType = eventType(eventCategory, eventTarget)
+          eventType = eventType(eventCategory, eventTarget);
           if (! eventType) {
             return;
           }
@@ -198,7 +198,7 @@ module.exports = {
           user_properties: mapUserProperties(eventGroup, eventCategory, data)
         });
       }
-    }
+    };
 
     function mapEventProperties (eventType, eventGroup, eventCategory, eventTarget, data) {
       const { serviceName, clientId } = getServiceNameAndClientId(data);
@@ -206,7 +206,7 @@ module.exports = {
       return Object.assign(pruneUnsetValues({
         service: serviceName,
         oauth_client_id: clientId
-      }), EVENT_PROPERTIES[eventGroup](eventType, eventCategory, eventTarget, data))
+      }), EVENT_PROPERTIES[eventGroup](eventType, eventCategory, eventTarget, data));
     }
 
     function getServiceNameAndClientId (data) {
@@ -215,14 +215,14 @@ module.exports = {
       const { service } = data;
       if (service && service !== 'content-server') {
         if (service === 'sync') {
-          serviceName = service
+          serviceName = service;
         } else {
-          serviceName = services[service] || 'undefined_oauth'
-          clientId = service
+          serviceName = services[service] || 'undefined_oauth';
+          clientId = service;
         }
       }
 
-      return { serviceName, clientId }
+      return { serviceName, clientId };
     }
 
     function mapUserProperties (eventGroup, eventCategory, data) {
@@ -276,7 +276,7 @@ function pruneUnsetValues (data) {
     if (value || value === false) {
       result[key] = value;
     }
-  })
+  });
 
   return result;
 }
@@ -312,7 +312,7 @@ function mapSyncDevices (data) {
 }
 
 function countDevices (devices, period) {
-  return devices.filter(device => device.lastAccessTime >= Date.now() - period).length
+  return devices.filter(device => device.lastAccessTime >= Date.now() - period).length;
 }
 
 function mapNewsletterState (eventCategory, data) {
