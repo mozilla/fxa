@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   const AuthErrors = require('../../lib/auth-errors');
   const NavigateBehavior = require('../behaviors/navigate');
   const ResumeTokenMixin = require('./resume-token-mixin');
-  const SearchParamMixin = require('../../lib/search-param-mixin');
   const VerificationMethods = require('../../lib/verification-methods');
   const VerificationReasons = require('../../lib/verification-reasons');
   const TokenCodeExperimentMixin = require('../mixins/token-code-experiment-mixin');
@@ -18,7 +17,6 @@ define(function (require, exports, module) {
   module.exports = {
     dependsOn: [
       ResumeTokenMixin,
-      SearchParamMixin,
       TokenCodeExperimentMixin
     ],
 

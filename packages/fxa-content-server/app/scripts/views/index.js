@@ -15,7 +15,6 @@ import TokenCodeExperimentMixin from './mixins/token-code-experiment-mixin';
 import FlowBeginMixin from './mixins/flow-begin-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
-import SearchParamMixin from '../lib/search-param-mixin';
 import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/index.mustache';
 
@@ -113,7 +112,6 @@ Cocktail.mixin(
   TokenCodeExperimentMixin,
   FlowBeginMixin,
   FormPrefillMixin,
-  SearchParamMixin,
   ServiceMixin
 );
 

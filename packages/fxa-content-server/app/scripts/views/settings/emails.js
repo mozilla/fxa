@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   const preventDefaultThen = require('../base').preventDefaultThen;
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
   const UpgradeSessionMixin = require('../mixins/upgrade-session-mixin');
-  const SearchParamMixin = require('../../lib/search-param-mixin');
   const Strings = require('../../lib/strings');
   const showProgressIndicator = require('../decorators/progress_indicator');
   const Template = require('templates/settings/emails.mustache');
@@ -162,8 +161,7 @@ define(function (require, exports, module) {
     }),
     AvatarMixin,
     LastCheckedTimeMixin,
-    SettingsPanelMixin,
-    SearchParamMixin
+    SettingsPanelMixin
   );
 
   module.exports = View;
