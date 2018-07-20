@@ -56,13 +56,6 @@ describe('utils', () => {
         .then((result) => codes = result)
     })
 
-    it('should not fail for empty keyspace', () => {
-      return dbUtils.generateRecoveryCodes(1, '', 1)
-        .then((result) => {
-          assert.equal(result[0], '')
-        })
-    })
-
     it('should generate correct count of codes', () => {
       assert.equal(codes.length, codeCount, 'correct number of codees generated')
     })
