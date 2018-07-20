@@ -5,7 +5,6 @@
 import AuthErrors from 'lib/auth-errors';
 import Cocktail from 'cocktail';
 import FormView from './form';
-import SignInMixin from './mixins/signin-mixin';
 import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/sign_in_totp_code.mustache';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
@@ -58,7 +57,6 @@ const View = FormView.extend({
 Cocktail.mixin(
   View,
   FlowEventsMixin,
-  SignInMixin,
   ServiceMixin,
   TotpExperimentMixin,
   VerificationReasonMixin

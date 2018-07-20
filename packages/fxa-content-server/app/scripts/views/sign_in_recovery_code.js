@@ -5,10 +5,8 @@
 import AuthErrors from 'lib/auth-errors';
 import Cocktail from 'cocktail';
 import FormView from './form';
-import SignInMixin from './mixins/signin-mixin';
 import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/sign_in_recovery_code.mustache';
-import VerificationReasonMixin from './mixins/verification-reason-mixin';
 
 const CODE_INPUT_SELECTOR = 'input.recovery-code';
 
@@ -60,9 +58,7 @@ const View = FormView.extend({
 
 Cocktail.mixin(
   View,
-  SignInMixin,
   ServiceMixin,
-  VerificationReasonMixin
 );
 
 module.exports = View;

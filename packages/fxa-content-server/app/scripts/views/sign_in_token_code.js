@@ -6,13 +6,9 @@
  * Allow the user to unblock their signin by entering
  * in a verification code that is sent in an email.
  */
-import Cocktail from 'cocktail';
 import Constants from '../lib/constants';
 import FormView from './form';
-import ResendMixin from './mixins/resend-mixin';
-import SignInMixin from './mixins/signin-mixin';
 import Template from 'templates/sign_in_token_code.mustache';
-import VerificationReasonMixin from './mixins/verification-reason-mixin';
 
 const View = FormView.extend({
   className: 'sign-in-token-code',
@@ -67,12 +63,5 @@ const View = FormView.extend({
     return this.broker.transformLink(authPage);
   }
 });
-
-Cocktail.mixin(
-  View,
-  ResendMixin(),
-  SignInMixin,
-  VerificationReasonMixin
-);
 
 module.exports = View;
