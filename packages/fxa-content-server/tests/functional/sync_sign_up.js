@@ -144,7 +144,7 @@ registerSuite('Firefox Desktop Sync sign_up', {
         .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER))
         .execute(listenForFxaCommands)
 
-        .then(testAttributeEquals(selectors.SIGNUP.CUSTOMIZE_SYNC_INPUT, 'checked', null))
+        .then(testAttributeEquals(selectors.SIGNUP.CUSTOMIZE_SYNC_CHECKBOX, 'checked', null))
         .then(fillOutSignUp(email, PASSWORD, {customizeSync: true}))
 
         .then(testIsBrowserNotifiedOfLogin(email))
@@ -158,7 +158,7 @@ registerSuite('Firefox Desktop Sync sign_up', {
       return this.remote
         .then(openPage(url, selectors.SIGNUP.HEADER))
 
-        .then(testAttributeEquals(selectors.SIGNUP.CUSTOMIZE_SYNC_INPUT, 'checked', 'checked'));
+        .then(testAttributeEquals(selectors.SIGNUP.CUSTOMIZE_SYNC_CHECKBOX, 'checked', 'checked'));
     }
   }
 });

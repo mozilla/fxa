@@ -105,7 +105,7 @@ module.exports = {
     HEADER: '.header-content'
   },
   OAUTH_PERMISSIONS: {
-    CHECKBOX_DISPLAY_NAME: 'input[name="profile:display_name"] + span',
+    CHECKBOX_DISPLAY_NAME: 'input[name="profile:display_name"]',
     HEADER: '#fxa-permissions-header',
     SUBMIT: '#accept'
   },
@@ -206,10 +206,7 @@ module.exports = {
   },
   SIGNUP: {
     AGE: '#age',
-    // The original checkbox is not clickable after the material conversion. The span
-    // next to the element holds the label text, click it instead. See #5425
-    CUSTOMIZE_SYNC_CHECKBOX: '#customize-sync + span',
-    CUSTOMIZE_SYNC_INPUT: '#customize-sync',
+    CUSTOMIZE_SYNC_CHECKBOX: '#customize-sync',
     EMAIL: 'input[type=email]',
     ERROR: '.error',
     HEADER: '#fxa-signup-header',
@@ -217,7 +214,7 @@ module.exports = {
     LINK_SUGGEST_EMAIL_DOMAIN_CORRECTION: '#email-suggestion',
     LINK_SUGGEST_SIGN_IN: '.error a[href="/signin"]',
     LINK_SUGGEST_SYNC: '#suggest-sync a',
-    MARKETING_EMAIL_OPTIN: 'input.marketing-email-optin + span',
+    MARKETING_EMAIL_OPTIN: 'input.marketing-email-optin',
     MIGRATING_USER: '#suggest-sync',
     PASSWORD: '#password',
     SUBMIT: 'button[type="submit"]',
