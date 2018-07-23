@@ -37,6 +37,7 @@ const BANNED_URL_REGEXP = /^(?:firefox|mozilla)\.(?:com|org)$/;
 export default class PasswordStrengthBalloonModel extends Model {
   constructor (attrs = {}, config = {}) {
     const attrsWithDefaults = assign({
+      hasCheckedPassword: false,
       hasEnteredPassword: false,
       hasSubmit: false,
       isCommon: false,
@@ -82,6 +83,7 @@ export default class PasswordStrengthBalloonModel extends Model {
       const isValid = hasEnteredPassword && ! isTooShort && ! isSameAsEmail && ! isCommon;
 
       this.set({
+        hasCheckedPassword: true,
         hasEnteredPassword,
         isCommon,
         isSameAsEmail,
@@ -135,7 +137,7 @@ export default class PasswordStrengthBalloonModel extends Model {
   }
 
   validate () {
-    if (! this.get('hasEnteredPassword')) {
+    if (! this.get('password')) {
       return AuthErrors.toError('PASSWORD_REQUIRED');
     } else if (this.get('isTooShort')) {
       return AuthErrors.toError('PASSWORD_TOO_SHORT');

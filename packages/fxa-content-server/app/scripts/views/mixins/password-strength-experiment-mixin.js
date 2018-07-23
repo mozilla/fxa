@@ -120,6 +120,15 @@ export default function (config = {}) {
     },
 
     _logErrorIfInvalid () {
+      // The model's `change` event occurs when any of the attributes are
+      // updated. Because the model's `updateForPassword` method is
+      // asynchronous, it's possible for a `change` event to be triggered
+      // and the model be considered invalid before the password has
+      // been checked. Only log errors after the password has been checked.
+      if (! this.passwordModel.get('hasCheckedPassword')) {
+        return;
+      }
+
       const error = this.passwordModel.validate();
       if (error) {
         this.logError(error);
