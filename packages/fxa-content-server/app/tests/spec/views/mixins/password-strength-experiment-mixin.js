@@ -216,13 +216,19 @@ describe('views/mixins/password-strength-experiment-mixin', () => {
     });
   });
 
-  it('_logErrorIfInvalid logs the validation error', () => {
+  it('_logErrorIfInvalid only logs validation errors if the password has been checked', () => {
     const error = new Error('uh oh');
+    let hasCheckedPassword = false;
     view.passwordModel = {
+      get: () => hasCheckedPassword,
       validate: sinon.spy(() => error)
     };
     sinon.stub(view, 'logError');
 
+    view._logErrorIfInvalid();
+    assert.isFalse(view.logError.called);
+
+    hasCheckedPassword = true;
     view._logErrorIfInvalid();
     assert.isTrue(view.logError.calledOnceWith(error));
   });

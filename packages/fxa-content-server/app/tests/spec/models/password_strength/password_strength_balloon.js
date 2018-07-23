@@ -18,6 +18,7 @@ describe('models/password_strength/password_strength_balloon', () => {
   it('has the expected defaults', () => {
     assert.deepEqual(model.toJSON(), {
       email: 'testuser@testuser.com',
+      hasCheckedPassword: false,
       hasEnteredPassword: false,
       hasSubmit: false,
       isCommon: false,
@@ -35,6 +36,7 @@ describe('models/password_strength/password_strength_balloon', () => {
       return model.updateForPassword().then(() => {
         assert.deepEqual(model.toJSON(), {
           email: 'testuser@testuser.com',
+          hasCheckedPassword: true,
           hasEnteredPassword: true,
           hasSubmit: false,
           isCommon: false,
@@ -61,6 +63,7 @@ describe('models/password_strength/password_strength_balloon', () => {
           .then(() => {
             assert.deepEqual(model.toJSON(), {
               email: 'testuser@testuser.com',
+              hasCheckedPassword: true,
               hasEnteredPassword: true,
               hasSubmit: false,
               isCommon: false,
@@ -84,6 +87,7 @@ describe('models/password_strength/password_strength_balloon', () => {
           .then(() => {
             assert.deepEqual(model.toJSON(), {
               email: 'testuser@testuser.com',
+              hasCheckedPassword: true,
               hasEnteredPassword: true,
               hasSubmit: false,
               isCommon: false,
@@ -121,6 +125,7 @@ describe('models/password_strength/password_strength_balloon', () => {
           .then(() => {
             assert.deepEqual(model.toJSON(), {
               email: 'testuser@testuser.com',
+              hasCheckedPassword: true,
               hasEnteredPassword: true,
               hasSubmit: false,
               isCommon: true,
@@ -143,6 +148,7 @@ describe('models/password_strength/password_strength_balloon', () => {
         .then(() => {
           assert.deepEqual(model.toJSON(), {
             email: 'testuser@testuser.com',
+            hasCheckedPassword: true,
             hasEnteredPassword: true,
             hasSubmit: false,
             isCommon: false,
@@ -162,6 +168,7 @@ describe('models/password_strength/password_strength_balloon', () => {
         .then(() => {
           assert.deepEqual(model.toJSON(), {
             email: 'testuser@testuser.com',
+            hasCheckedPassword: true,
             hasEnteredPassword: true,
             hasSubmit: false,
             isCommon: false,
@@ -187,6 +194,7 @@ describe('models/password_strength/password_strength_balloon', () => {
         isCommon: false,
         isSameAsEmail: false,
         isTooShort: true,
+        password: 'pass',
       });
       assert.isTrue(AuthErrors.is(model.validate(), 'PASSWORD_TOO_SHORT'));
     });
@@ -197,6 +205,7 @@ describe('models/password_strength/password_strength_balloon', () => {
         isCommon: false,
         isSameAsEmail: true,
         isTooShort: false,
+        password: 'testuser',
       });
       assert.isTrue(AuthErrors.is(model.validate(), 'PASSWORD_SAME_AS_EMAIL'));
     });
@@ -207,6 +216,7 @@ describe('models/password_strength/password_strength_balloon', () => {
         isCommon: true,
         isSameAsEmail: false,
         isTooShort: false,
+        password: 'password',
       });
       assert.isTrue(AuthErrors.is(model.validate(), 'PASSWORD_TOO_COMMON'));
     });
@@ -217,6 +227,7 @@ describe('models/password_strength/password_strength_balloon', () => {
         isCommon: false,
         isSameAsEmail: false,
         isTooShort: false,
+        password: 'password123123',
       });
       assert.isUndefined(model.validate());
     });
