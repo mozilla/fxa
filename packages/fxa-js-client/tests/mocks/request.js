@@ -408,6 +408,18 @@ define([
     getRecoveryKey: {
       status: 200,
       body: '{"recoveryData": "eyJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiZGlyIiwia2lkIjoiODE4NDIwZjBkYTU4ZDIwZjZhZTRkMmM5YmVhYjkyNTEifQ..D29EXHp8ubLvftaZ.xHJd2Nl2Uco2RyywYPLkUU7fHpgO2FztY12Zjpq1ffiyLRIUcQVfmiNC6aMiHBl7Hp-lXEbb5mR1uXHrTH9iRXEBVaAfyf9KEAWOukWGVSH8EaOkr7cfu2Yr0K93Ec8glsssjiKp8NGB8VKTUJ-lmBv2cIrG68V4eTUVDoDhMbXhrF-Mv4JNeh338pPeatTnyg.Ow2bhEYWxzxfSPMxVwKmSA"}'
+    },
+    deleteRecoveryKey: {
+      status: 200,
+      body: '{}'
+    },
+    recoveryKeyExistsFalse: {
+      status: 200,
+      body: '{"exists": false}'
+    },
+    recoveryKeyExistsTrue: {
+      status: 200,
+      body: '{"exists": true}'
     }
   };
 });

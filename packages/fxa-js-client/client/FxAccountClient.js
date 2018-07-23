@@ -1915,7 +1915,7 @@ define([
           recoveryData: bundle
         };
 
-        return request.send('/recoveryKeys', 'POST', creds, data);
+        return request.send('/recoveryKey', 'POST', creds, data);
       });
   };
 
@@ -1937,7 +1937,7 @@ define([
         return hawkCredentials(accountResetToken, 'accountResetToken',  HKDF_SIZE);
       })
       .then(function (creds) {
-        return request.send('/recoveryKeys/' + recoveryKeyId, 'GET', creds);
+        return request.send('/recoveryKey/' + recoveryKeyId, 'GET', creds);
       });
   };
 
@@ -2025,6 +2025,55 @@ define([
             }
             return accountData;
           });
+      });
+  };
+
+  /**
+   * Deletes the recovery key associated with this user.
+   *
+   * @param sessionToken
+   */
+  FxAccountClient.prototype.deleteRecoveryKey = function (sessionToken) {
+    var request = this.request;
+    return Promise.resolve()
+      .then(function () {
+        required(sessionToken, 'sessionToken');
+
+        return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+      })
+      .then(function (creds) {
+        return request.send('/recoveryKey', 'DELETE', creds, {});
+      });
+  };
+
+  /**
+   * This checks to see if a recovery key exists for a user. This check
+   * can be performed with either a sessionToken or an email.
+   *
+   * Typically, sessionToken is used when checking from within the `/settings`
+   * view. If it exists, we can give the user an option to revoke the key.
+   *
+   * Checking with an email is typically performed during the password reset
+   * flow. It is used to decide whether or not we can redirect a user to
+   * the `Reset password with recovery key` page or regular password reset page.
+   *
+   * @param sessionToken
+   * @param {String} email User's email
+   * @returns {Promise} A promise that will be fulfilled with whether or not account has recovery ket
+   */
+  FxAccountClient.prototype.recoveryKeyExists = function (sessionToken, email) {
+    var request = this.request;
+    return Promise.resolve()
+      .then(function () {
+
+        if (sessionToken) {
+          return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE)
+            .then(function (creds) {
+              return request.send('/recoveryKey/exists', 'POST', creds, {});
+            });
+        }
+
+        return request.send('/recoveryKey/exists', 'POST', null, {email: email});
       });
   };
 

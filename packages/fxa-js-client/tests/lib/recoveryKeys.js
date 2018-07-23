@@ -10,7 +10,7 @@ define([
 ], function (tdd, assert, Environment, sinon) {
 
   with (tdd) {
-    suite('recovery keys', function () {
+    suite('recovery key', function () {
       var account;
       var accountHelper;
       var respond;
@@ -61,7 +61,8 @@ define([
 
       test('#can create and get a recovery key that can be used to reset an account', function () {
         return respond(client.createRecoveryKey(account.signIn.sessionToken, recoveryKeyId, bundle), RequestMocks.createRecoveryKey)
-          .then(function () {
+          .then(function (res) {
+            assert.ok(res);
             return respond(client.passwordForgotSendCode(email), RequestMocks.passwordForgotSendCode);
           })
           .then(function (result) {
@@ -84,7 +85,7 @@ define([
           })
           .then(function (res) {
             assert.equal(xhrOpen.args[4][0], 'GET', 'method is correct');
-            assert.include(xhrOpen.args[4][1], '/recoveryKeys/' + recoveryKeyId, 'path is correct');
+            assert.include(xhrOpen.args[4][1], '/recoveryKey/' + recoveryKeyId, 'path is correct');
             assert.ok(res.recoveryData, 'contains recovery data');
 
             var options = {
@@ -121,6 +122,58 @@ define([
             } else {
               assert.equal(res.kB, keys.kB, 'kB is equal to original kB');
             }
+          });
+      });
+
+      test('#can create and delete recovery key', function () {
+        return respond(client.createRecoveryKey(account.signIn.sessionToken, recoveryKeyId, bundle), RequestMocks.createRecoveryKey)
+          .then(function (res) {
+            assert.ok(res);
+            return respond(client.deleteRecoveryKey(account.signIn.sessionToken), RequestMocks.deleteRecoveryKey);
+          })
+          .then(function (res) {
+            assert.ok(res);
+            assert.equal(xhrOpen.args[1][0], 'DELETE', 'method is correct');
+            assert.include(xhrOpen.args[1][1], '/recoveryKey', 'path is correct');
+          });
+      });
+
+      test('#can check if recovery exist using sessionToken', function () {
+        return respond(client.recoveryKeyExists(account.signIn.sessionToken), RequestMocks.recoveryKeyExistsFalse)
+          .then(function (res) {
+            assert.equal(res.exists, false, 'recovery key does not exist');
+            assert.equal(xhrOpen.args[0][0], 'POST', 'method is correct');
+            assert.include(xhrOpen.args[0][1], '/recoveryKey/exists', 'path is correct');
+            return respond(client.createRecoveryKey(account.signIn.sessionToken, recoveryKeyId, bundle), RequestMocks.createRecoveryKey);
+          })
+          .then(function (res) {
+            assert.ok(res);
+            return respond(client.recoveryKeyExists(account.signIn.sessionToken), RequestMocks.recoveryKeyExistsTrue);
+          })
+          .then(function (res) {
+            assert.equal(res.exists, true, 'recovery key exists');
+            assert.equal(xhrOpen.args[2][0], 'POST', 'method is correct');
+            assert.include(xhrOpen.args[2][1], '/recoveryKey/exists', 'path is correct');
+          });
+      });
+
+      test('#can check if recovery exist using email', function () {
+        return respond(client.recoveryKeyExists(undefined, account.input.email), RequestMocks.recoveryKeyExistsFalse)
+          .then(function (res) {
+            assert.equal(res.exists, false, 'recovery key does not exist');
+            assert.equal(xhrOpen.args[0][0], 'POST', 'method is correct');
+            assert.include(xhrOpen.args[0][1], '/recoveryKey/exists', 'path is correct');
+
+            return respond(client.createRecoveryKey(account.signIn.sessionToken, recoveryKeyId, bundle), RequestMocks.createRecoveryKey);
+          })
+          .then(function (res) {
+            assert.ok(res);
+            return respond(client.recoveryKeyExists(undefined, account.input.email), RequestMocks.recoveryKeyExistsTrue);
+          })
+          .then(function (res) {
+            assert.equal(res.exists, true, 'recovery key exists');
+            assert.equal(xhrOpen.args[2][0], 'POST', 'method is correct');
+            assert.include(xhrOpen.args[2][1], '/recoveryKey/exists', 'path is correct');
           });
       });
     });
