@@ -1,3 +1,13 @@
+<a name="1.116.5"></a>
+## 1.116.5 (2018-07-23)
+
+
+### Bug Fixes
+
+* **pw-strength:** "password_missing" no longer emit when view is shown (#6377) r=@philbooth ([b56af2e](https://github.com/mozilla/fxa-content-server/commit/b56af2e)), closes [#6375](https://github.com/mozilla/fxa-content-server/issues/6375)
+
+
+
 <a name="1.116.4"></a>
 ## 1.116.4 (2018-07-18)
 
