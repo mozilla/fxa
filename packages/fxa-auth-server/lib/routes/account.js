@@ -13,6 +13,7 @@ const requestHelper = require('../routes/utils/request_helper')
 const uuid = require('uuid')
 const validators = require('./validators')
 const authMethods = require('../authMethods')
+const ScopeSet = require('fxa-shared').oauth.scopes
 
 const HEX_STRING = validators.HEX_STRING
 
@@ -820,45 +821,26 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
         }
       },
       handler: async function (request) {
-        var auth = request.auth
-        var uid
+        const auth = request.auth
+        let uid, scope
         if (auth.strategy === 'sessionToken') {
           uid = auth.credentials.uid
+          scope = { contains: () => true }
         } else {
           uid = auth.credentials.user
+          scope = ScopeSet.fromArray(auth.credentials.scope)
         }
 
-        function hasProfileItemScope(item) {
-          if (auth.strategy === 'sessionToken') {
-            return true
-          }
-          var scopes = auth.credentials.scope
-          for (var i = 0; i < scopes.length; i++) {
-            if (scopes[i] === 'profile') {
-              return true
-            }
-            if (scopes[i] === 'profile:write') {
-              return true
-            }
-            if (scopes[i] === 'profile:' + item) {
-              return true
-            }
-            if (scopes[i] === 'profile:' + item + ':write') {
-              return true
-            }
-          }
-          return false
-        }
         const res = {}
         return db.account(uid)
           .then(account => {
-            if (hasProfileItemScope('email')) {
+            if (scope.contains('profile:email')) {
               res.email = account.primaryEmail.email
             }
-            if (hasProfileItemScope('locale')) {
+            if (scope.contains('profile:locale')) {
               res.locale = account.locale
             }
-            if (hasProfileItemScope('amr')) {
+            if (scope.contains('profile:amr')) {
               return authMethods.availableAuthenticationMethods(db, account)
                 .then(amrValues => {
                   res.authenticationMethods = Array.from(amrValues)

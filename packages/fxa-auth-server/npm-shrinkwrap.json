@@ -2179,9 +2179,9 @@
       }
     },
     "extend": {
-      "version": "3.0.1",
-      "resolved": "https://registry.npmjs.org/extend/-/extend-3.0.1.tgz",
-      "integrity": "sha1-p1Xqe8Gt/MWjHOfnYtuq3F5jZEQ="
+      "version": "3.0.2",
+      "resolved": "https://registry.npmjs.org/extend/-/extend-3.0.2.tgz",
+      "integrity": "sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g=="
     },
     "extglob": {
       "version": "0.3.2",
@@ -2839,7 +2839,7 @@
       "integrity": "sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A=="
     },
     "fxa-auth-db-mysql": {
-      "version": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#29b9b4bc65784659ff103d77a390dc043e41992c",
+      "version": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#677d02b8c51f0a5fa0e20bd429a4e076923f5bc6",
       "from": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
       "dev": true,
       "requires": {
@@ -8415,9 +8415,9 @@
       }
     },
     "fxa-shared": {
-      "version": "1.0.11",
-      "resolved": "https://registry.npmjs.org/fxa-shared/-/fxa-shared-1.0.11.tgz",
-      "integrity": "sha512-xNCUbslljOL28+14zM71ufKVc7ZOgFOl83f3DeeHKJXTpPG4H+3yJZWMeEz4z4gEoe0I7YQdbLthLjG2By24fA==",
+      "version": "1.0.13",
+      "resolved": "https://registry.npmjs.org/fxa-shared/-/fxa-shared-1.0.13.tgz",
+      "integrity": "sha512-jy9FehibrocELTpXPEfr6cWMrac+N//7CBBPACAK17ZHuN/ZP5iJuIG3nB18ZIZKBSmJH0TgO8C6p3XocSx2mA==",
       "requires": {
         "accept-language": "2.0.17",
         "moment": "2.20.1"
@@ -10973,7 +10973,7 @@
       "from": "git+https://github.com/vladikoff/node-uap.git#9cdd16247",
       "requires": {
         "array.prototype.find": "2.0.0",
-        "uap-core": "git://github.com/ua-parser/uap-core.git#590f66f40b00644efa6045d06e3c2a605eb22ea1",
+        "uap-core": "git://github.com/ua-parser/uap-core.git#fdee91274bbd6c36dd9f7d9b6673db80505d2c53",
         "uap-ref-impl": "0.2.0",
         "yamlparser": "0.0.2"
       }
@@ -13736,7 +13736,7 @@
       "integrity": "sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c="
     },
     "uap-core": {
-      "version": "git://github.com/ua-parser/uap-core.git#590f66f40b00644efa6045d06e3c2a605eb22ea1",
+      "version": "git://github.com/ua-parser/uap-core.git#fdee91274bbd6c36dd9f7d9b6673db80505d2c53",
       "from": "git://github.com/ua-parser/uap-core.git"
     },
     "uap-ref-impl": {
