@@ -1,3 +1,33 @@
+<a name="1.117.0"></a>
+# 1.117.0 (2018-07-24)
+
+
+### Bug Fixes
+
+* **image:** use smaller 2fa images (#6359) r=@vladikoff ([1dc73e3](https://github.com/mozilla/fxa-content-server/commit/1dc73e3)), closes [#6347](https://github.com/mozilla/fxa-content-server/issues/6347)
+* **oauth:** Fix `login_hint` support (#6385) ([d1c3942](https://github.com/mozilla/fxa-content-server/commit/d1c3942)), closes [(#6385](https://github.com/(/issues/6385) [#6383](https://github.com/mozilla/fxa-content-server/issues/6383)
+* **test:** Fix the checkbox clicking functional tests (#6381) r=@vladikoff ([5ab28b4](https://github.com/mozilla/fxa-content-server/commit/5ab28b4)), closes [(#6381](https://github.com/(/issues/6381)
+
+### chore
+
+* **docs:** remove old server box (#6366) r=@shane-tomlinson ([d5fa009](https://github.com/mozilla/fxa-content-server/commit/d5fa009))
+* **release:** Merge train-116 into master r=@shane-tomlinson ([7e00c35](https://github.com/mozilla/fxa-content-server/commit/7e00c35))
+
+### Features
+
+* **style:** Use the Photon checkbox styling. (#6308) r=@vladikoff,@ryanfeeley ([dae81e1](https://github.com/mozilla/fxa-content-server/commit/dae81e1)), closes [#6029](https://github.com/mozilla/fxa-content-server/issues/6029)
+
+### Refactor
+
+* Remove unused file ([a54d170](https://github.com/mozilla/fxa-content-server/commit/a54d170))
+* Remove unused file ([72cfd8b](https://github.com/mozilla/fxa-content-server/commit/72cfd8b))
+* **deps:** Remove SearchParamMixin where unneeded. (#6373) r=@philbooth ([dd86dc2](https://github.com/mozilla/fxa-content-server/commit/dd86dc2))
+* **mixins:** Remove SigninMixin from views where it isn't used. (#6374) r=@philbooth ([521016c](https://github.com/mozilla/fxa-content-server/commit/521016c))
+* **modules:** Convert a bunch of modules to ES6 format (#6363) r=@vladikoff ([41860aa](https://github.com/mozilla/fxa-content-server/commit/41860aa))
+* **router:** Do all link transformation from the router. (#6361) r=@vladikoff ([3573ecf](https://github.com/mozilla/fxa-content-server/commit/3573ecf))
+
+
+
 <a name="1.116.5"></a>
 ## 1.116.5 (2018-07-23)
 
