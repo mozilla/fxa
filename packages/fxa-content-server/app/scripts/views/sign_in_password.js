@@ -2,17 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
-const BackMixin = require('./mixins/back-mixin');
-const Cocktail = require('cocktail');
-const FlowEventsMixin = require('./mixins/flow-events-mixin');
-const FormPrefillMixin = require('./mixins/form-prefill-mixin');
-const FormView = require('./form');
-const PasswordMixin = require('./mixins/password-mixin');
-const ServiceMixin = require('./mixins/service-mixin');
-const SignInMixin = require('./mixins/signin-mixin');
-const Template = require('templates/sign_in_password.mustache');
+import BackMixin from './mixins/back-mixin';
+import Cocktail from 'cocktail';
+import FlowEventsMixin from './mixins/flow-events-mixin';
+import FormPrefillMixin from './mixins/form-prefill-mixin';
+import FormView from './form';
+import PasswordMixin from './mixins/password-mixin';
+import ServiceMixin from './mixins/service-mixin';
+import SignInMixin from './mixins/signin-mixin';
+import Template from 'templates/sign_in_password.mustache';
 import UserCardMixin from './mixins/user-card-mixin';
 
 class SignInPasswordView extends FormView {
