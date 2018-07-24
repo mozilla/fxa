@@ -1,3 +1,14 @@
+<a name="1.117.0"></a>
+# 1.117.0 (2018-07-24)
+
+
+### Features
+
+* **ci:** update to circle 2 (#260) r=@vbudhram ([c346bb8](https://github.com/mozilla/fxa-customs-server/commit/c346bb8))
+* **code:** add `recoveryKeyExists` to account status actions (#259) r=@vladikoff ([1d7ea3b](https://github.com/mozilla/fxa-customs-server/commit/1d7ea3b))
+
+
+
 <a name="1.116.0"></a>
 # 1.116.0 (2018-07-11)
 
