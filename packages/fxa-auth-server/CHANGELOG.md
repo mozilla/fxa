@@ -1,3 +1,20 @@
+<a name="1.117.0"></a>
+# [1.117.0](https://github.com/mozilla/fxa-oauth-server/compare/v1.115.2...v1.117.0) (2018-07-24)
+
+
+### Bug Fixes
+
+* **clients:** match the notes client with fxa-dev and other envs (#585); r=rfk ([e24a582](https://github.com/mozilla/fxa-oauth-server/commit/e24a582)), closes [#585](https://github.com/mozilla/fxa-oauth-server/issues/585)
+* **config:** For dev, the openid issuer is http://127.0.0.1:3030 (#583) r=@vladikoff ([38e1d73](https://github.com/mozilla/fxa-oauth-server/commit/38e1d73)), closes [#583](https://github.com/mozilla/fxa-oauth-server/issues/583) [mozilla/fxa-content-server#6362](https://github.com/mozilla/fxa-content-server/issues/6362)
+* **doc:** Putting a little emphasis on email first (#584) r=@shane-tomlinson ([8ad17c1](https://github.com/mozilla/fxa-oauth-server/commit/8ad17c1)), closes [#584](https://github.com/mozilla/fxa-oauth-server/issues/584)
+* **purge:** add purgeExpiredTokensById to select, then delete by primary key (#580); r=rfk ([adfff65](https://github.com/mozilla/fxa-oauth-server/commit/adfff65)), closes [#580](https://github.com/mozilla/fxa-oauth-server/issues/580)
+
+### Features
+
+* **codes:** Delete authorization codes when revoking client access. (#578); r=philbooth ([b905b7c](https://github.com/mozilla/fxa-oauth-server/commit/b905b7c)), closes [#578](https://github.com/mozilla/fxa-oauth-server/issues/578)
+
+
+
 <a name="1.116.0"></a>
 # [1.116.0](https://github.com/mozilla/fxa-oauth-server/compare/v1.115.2...v1.116.0) (2018-07-11)
 
