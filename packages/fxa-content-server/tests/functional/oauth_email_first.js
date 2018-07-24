@@ -102,7 +102,6 @@ registerSuite('oauth email first', {
         .then(testAtOAuthApp());
     },
 
-
     'email specified by relier, not registered': function () {
       return this.remote
         .then(openFxaFromRp('email-first', { header: selectors.ENTER_EMAIL.HEADER }))
@@ -115,6 +114,16 @@ registerSuite('oauth email first', {
 
     },
 
+    'login_hint specified by relier, not registered': function () {
+      return this.remote
+        .then(openFxaFromRp('email-first', { header: selectors.ENTER_EMAIL.HEADER }))
+        .then(reOpenWithAdditionalQueryParams({
+          'login_hint': email
+        }, selectors.SIGNUP_PASSWORD.HEADER))
+
+        .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email));
+    },
+
     'email specified by relier, registered': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -125,6 +134,16 @@ registerSuite('oauth email first', {
         .then(click(selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL, selectors.ENTER_EMAIL.HEADER))
 
         .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email));
+    },
+
+    'login_hint specified by relier, registered': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openFxaFromRp('email-first', { header: selectors.ENTER_EMAIL.HEADER }))
+        .then(reOpenWithAdditionalQueryParams({
+          'login_hint': email
+        }, selectors.SIGNIN_PASSWORD.HEADER ))
+        .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email));
     }
   }
 });
