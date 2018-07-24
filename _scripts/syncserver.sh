@@ -16,6 +16,5 @@ docker run --net=host --rm --name syncserver \
   -e SYNCSERVER_SQLURI=sqlite:////tmp/syncserver.db \
   -e SYNCSERVER_BATCH_UPLOAD_ENABLED=true \
   -e SYNCSERVER_FORCE_WSGI_ENVIRON=false \
-  mozilla/syncserver:latest \
-  /usr/local/bin/gunicorn --bind 0.0.0.0:5000 \
-  syncserver.wsgi_app
+  -e PORT=5000 \
+  mozilla/syncserver:latest
