@@ -132,14 +132,14 @@ var View = SignInView.extend({
     this.broker.setBehavior(
       'beforeSignUpConfirmationPoll', new NullBehavior());
 
-    return this.navigate(this.broker.transformLink('signup'), {
+    return this.navigate('signup', {
       error: AuthErrors.toError('DELETED_ACCOUNT'),
       forceEmail: account.get('email')
     });
   },
 
   _navigateToForceResetPassword () {
-    return this.navigate(this.broker.transformLink('reset_password'), {
+    return this.navigate('reset_password', {
       forceEmail: this.relier.get('email')
     });
   },

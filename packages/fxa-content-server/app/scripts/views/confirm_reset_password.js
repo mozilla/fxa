@@ -166,16 +166,12 @@ const View = BaseView.extend({
       });
   },
 
-  _getSignInRoute () {
-    return this.broker.transformLink('/signin').replace(/^\//, '');
-  },
-
   _finishPasswordResetDifferentBrowser () {
     // user verified in a different browser, make them sign in. OAuth
     // users will be redirected back to the RP, Sync users will be
     // taken to the Sync controlled completion page.
     Session.clear();
-    this.navigate(this._getSignInRoute(), {
+    this.navigate('signin', {
       success: t('Password reset successfully. Sign in to continue.')
     });
   },

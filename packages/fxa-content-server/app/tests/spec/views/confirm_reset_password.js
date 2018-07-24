@@ -383,17 +383,11 @@ describe('views/confirm_reset_password', function () {
 
   describe('_finishPasswordResetDifferentBrowser', function () {
     it('redirects to page specified by broker if user verifies in a second browser', function () {
-      sinon.stub(broker, 'transformLink').callsFake(function () {
-        // synthesize the OAuth broker.
-        return '/oauth/signin';
-      });
-
       sinon.spy(view, 'navigate');
 
       view._finishPasswordResetDifferentBrowser();
 
-      // leading slash should be removed from the url.
-      assert(view.navigate.calledWith('oauth/signin'));
+      assert(view.navigate.calledOnceWith('signin'));
     });
   });
 

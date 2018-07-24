@@ -235,7 +235,6 @@ describe('views/index', () => {
 
         sinon.stub(user, 'checkAccountEmailExists').callsFake(() => Promise.resolve(true));
         sinon.stub(user, 'getAccountByEmail').callsFake(() => storedAccount);
-        sinon.stub(broker, 'transformLink').callsFake(link => `oauth/${link}`);
 
         return view.checkEmail(EMAIL)
           .then(() => {
@@ -243,8 +242,7 @@ describe('views/index', () => {
             const brokerAccount = broker.beforeSignIn.args[0][0];
             assert.equal(brokerAccount.get('email'), EMAIL);
 
-            // test ensures `transformLink` is called to handle OAuth flow.
-            assert.isTrue(view.navigate.calledOnceWith('oauth/signin'));
+            assert.isTrue(view.navigate.calledOnceWith('signin'));
             const { account } = view.navigate.args[0][1];
             assert.strictEqual(account, storedAccount);
             // Ensure the email is added to the stored account.

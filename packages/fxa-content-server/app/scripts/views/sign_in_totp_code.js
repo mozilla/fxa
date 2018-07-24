@@ -47,10 +47,7 @@ const View = FormView.extend({
    * @returns {String}
    */
   _getAuthPage () {
-    const authPage =
-      this.model.get('lastPage') === 'force_auth' ? 'force_auth' : 'signin';
-
-    return this.broker.transformLink(authPage);
+    return this.model.get('lastPage') === 'force_auth' ? 'force_auth' : 'signin';
   }
 });
 

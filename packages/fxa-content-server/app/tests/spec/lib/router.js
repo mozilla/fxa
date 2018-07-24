@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 import { assert } from 'chai';
+import AuthBroker from 'models/auth_brokers/base';
 import Backbone from 'backbone';
 import BaseView from 'views/base';
 import Constants from 'lib/constants';
@@ -22,6 +22,7 @@ import User from 'models/user';
 import WindowMock from '../../mocks/window';
 
 describe('lib/router', function () {
+  let broker;
   var metrics;
   var navigateOptions;
   var navigateUrl;
@@ -39,11 +40,14 @@ describe('lib/router', function () {
     user = new User();
     windowMock = new WindowMock();
 
+    broker = new AuthBroker();
+
     relier = new Relier({
       window: windowMock
     });
 
     router = new Router({
+      broker,
       metrics: metrics,
       notifier: notifier,
       relier: relier,
@@ -65,9 +69,12 @@ describe('lib/router', function () {
 
   describe('navigate', function () {
     it('tells the router to navigate to a page', function () {
+      sinon.stub(broker, 'transformLink').callsFake((url) => `/oauth/${url}`);
       windowMock.location.search = '';
-      router.navigate('/signin');
-      assert.equal(navigateUrl, '/signin');
+      router.navigate('signin');
+
+      assert.isTrue(broker.transformLink.calledOnceWith('signin'));
+      assert.equal(navigateUrl, '/oauth/signin');
       assert.deepEqual(navigateOptions, { trigger: true });
     });
   });
@@ -122,6 +129,7 @@ describe('lib/router', function () {
     beforeEach(() => {
       sinon.spy(metrics, 'flush');
       sinon.spy(router, 'navigate');
+      sinon.stub(broker, 'transformLink').callsFake((url) => `/oauth/${url}`);
 
       return router.navigateAway('blee');
     });
@@ -132,8 +140,9 @@ describe('lib/router', function () {
     });
 
     it('navigated correctly', function () {
+      assert.isTrue(broker.transformLink.calledOnceWith('blee'));
       assert.equal(router.navigate.callCount, 0);
-      assert.equal(windowMock.location.href, 'blee');
+      assert.equal(windowMock.location.href, '/oauth/blee');
     });
   });
 
@@ -171,7 +180,7 @@ describe('lib/router', function () {
 
     describe('navigate with clearQueryParams option set', function () {
       beforeEach(function () {
-        router.navigate('/forgot', {}, { clearQueryParams: true });
+        router.navigate('/forgot?context=' + Constants.FX_DESKTOP_V1_CONTEXT, {}, { clearQueryParams: true });
       });
 
       it('clears the query params if clearQueryString option is set', function () {

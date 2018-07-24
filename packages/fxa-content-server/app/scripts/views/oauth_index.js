@@ -9,6 +9,7 @@
  *
  * @module views/oauth_index
  */
+
 import IndexView from './index';
 
 class OAuthIndexView extends IndexView {
@@ -41,9 +42,9 @@ class OAuthIndexView extends IndexView {
       return this.user.checkAccountEmailExists(account)
         .then(function (exists) {
           if (exists) {
-            return 'oauth/signin';
+            return 'signin';
           } else {
-            return 'oauth/signup';
+            return 'signup';
           }
         }, (err) => {
           // The error here is a throttling error or server error (500).
@@ -56,14 +57,15 @@ class OAuthIndexView extends IndexView {
     }).then((url) => {
       if (! url) {
         if (this.user.getChooserAccount().isDefault()) {
-          url = 'oauth/signup';
+          url = 'signup';
         } else {
-          url = 'oauth/signin';
+          url = 'signin';
         }
       }
 
       this.replaceCurrentPage(url);
     });
+
   }
 }
 

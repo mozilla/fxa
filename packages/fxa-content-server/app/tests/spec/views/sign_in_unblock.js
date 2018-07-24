@@ -247,18 +247,8 @@ describe('views/sign_in_unblock', () => {
         model.set('lastPage', 'force_auth');
       });
 
-      it('returns `force_auth`', () => {
+      it('returns `force_auth', () => {
         assert.equal(view._getAuthPage(), 'force_auth');
-      });
-    });
-
-    describe('broker modifies URL', () => {
-      beforeEach(() => {
-        sinon.stub(broker, 'transformLink').callsFake((url) => `/oauth/${url}`);
-      });
-
-      it('returns URL the broker returns', () => {
-        assert.equal(view._getAuthPage(), '/oauth/signin');
       });
     });
   });

@@ -53,8 +53,7 @@ const View = BaseView.extend({
   },
 
   _getMissingSessionTokenScreen () {
-    var screenUrl = this.isSignUp() ? 'signup' : 'signin';
-    return this.broker.transformLink(screenUrl);
+    return this.isSignUp() ? 'signup' : 'signin';
   },
 
   beforeRender () {

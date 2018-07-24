@@ -134,6 +134,7 @@ const Router = Backbone.Router.extend({
   },
 
   initialize (options = {}) {
+    this.broker = options.broker;
     this.metrics = options.metrics;
     this.notifier = options.notifier;
     this.relier = options.relier;
@@ -183,6 +184,8 @@ const Router = Backbone.Router.extend({
      * @returns {any}
      */
   navigate (url, nextViewData = {}, options = {}) {
+    url = this.broker.transformLink(url);
+
     if (options.replace && this._viewModelStack.length) {
       this._viewModelStack[this._viewModelStack.length - 1] = createViewModel(nextViewData);
     } else {
@@ -193,11 +196,16 @@ const Router = Backbone.Router.extend({
       options.trigger = true;
     }
 
+    const shouldClearQueryParams = !! options.clearQueryParams;
+    const hasQueryParams = /\?/.test(url);
+
     // If the caller has not asked us to clear the query params
     // and the new URL does not contain query params, propagate
     // the current query params to the next view.
-    if (! options.clearQueryParams && ! /\?/.test(url)) {
+    if (! shouldClearQueryParams && ! hasQueryParams) {
       url = url + this.window.location.search;
+    } else if (shouldClearQueryParams && hasQueryParams) {
+      url = url.split('?')[0];
     }
 
     return Backbone.Router.prototype.navigate.call(this, url, options);
@@ -211,6 +219,7 @@ const Router = Backbone.Router.extend({
      * @returns {Promise}
      */
   navigateAway (url) {
+    url = this.broker.transformLink(url);
     return this.metrics.flush()
       .then(() => {
         this.window.location.href = url;

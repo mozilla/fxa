@@ -11,8 +11,8 @@ class AuthorizationView extends BaseView {
   beforeRender () {
     const action = this.relier.get('action');
     if (action) {
-      const pathname = action === 'email' ? '/' : action;
-      this.replaceCurrentPage(this.broker.transformLink(pathname));
+      const pathname = action === 'email' ? '/oauth/' : action;
+      this.replaceCurrentPage(pathname);
     } else {
       // if no action is specified, let oauth-index decide based on
       // current user signed in state.

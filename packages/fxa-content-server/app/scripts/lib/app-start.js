@@ -491,6 +491,7 @@ Start.prototype = {
   initializeRouter () {
     if (! this._router) {
       this._router = new Router({
+        broker: this._authenticationBroker,
         createView: this.createView.bind(this),
         metrics: this._metrics,
         notifier: this._notifier,

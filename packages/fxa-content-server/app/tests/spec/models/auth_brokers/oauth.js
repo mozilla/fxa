@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Account from 'models/account';
+import { assert } from 'chai';
 import Assertion from 'lib/assertion';
 import AuthErrors from 'lib/auth-errors';
-import chai from 'chai';
 import Constants from 'lib/constants';
 import OAuthAuthenticationBroker from 'models/auth_brokers/oauth';
 import OAuthClient from 'lib/oauth-client';
@@ -14,8 +14,6 @@ import Relier from 'models/reliers/relier';
 import Session from 'lib/session';
 import sinon from 'sinon';
 import User from 'models/user';
-
-var assert = chai.assert;
 
 var HEX_CHARSET = '0123456789abcdef';
 function generateOAuthCode() {
@@ -343,15 +341,26 @@ describe('models/auth_brokers/oauth', function () {
     });
   });
 
-  describe('transformLink', function () {
-    it('prepends `/oauth` to the link', function () {
-      var transformed = broker.transformLink('/signin');
-      assert.include(transformed, '/oauth/signin');
+  describe('transformLink', () => {
+    [
+      'force_auth',
+      'signin',
+      'signup',
+    ].forEach(route => {
+      describe(`${route}`, () => {
+        it('prepends `/oauth` to the link', () => {
+          assert.include(broker.transformLink(`/${route}`), `/oauth/${route}`);
+          assert.include(broker.transformLink(`${route}`), `/oauth/${route}`);
+        });
+      });
     });
 
-    it('adds necessary separator', function () {
-      var transformed = broker.transformLink('signin');
-      assert.include(transformed, '/oauth/signin');
+    describe('not transformed', () => {
+      it('does not include the oauth prefix', () => {
+        const transformed = broker.transformLink('not_oauth');
+        assert.notInclude(transformed, 'oauth/not_oauth');
+        assert.include(transformed, 'not_oauth');
+      });
     });
   });
 
@@ -386,6 +395,8 @@ describe('models/auth_brokers/oauth', function () {
         uid: 'uid',
         unwrapBKey: 'unwrap-b-key'
       });
+
+      relier.set('keysJwk', keysJwk);
 
       sinon.stub(accountKey, 'accountKeys').callsFake((args) => {
         return Promise.resolve(keys);

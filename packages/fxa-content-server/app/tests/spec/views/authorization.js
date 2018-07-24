@@ -89,7 +89,7 @@ describe('views/authorization', function () {
 
       return view.render()
         .then(() => {
-          assert.ok(view.replaceCurrentPage.calledOnceWith(broker.transformLink('signin')), 'called with proper signin action');
+          assert.ok(view.replaceCurrentPage.calledOnceWith('signin'), 'called with proper signin action');
         });
     });
 
@@ -107,7 +107,7 @@ describe('views/authorization', function () {
 
       return view.render()
         .then(() => {
-          assert.ok(view.replaceCurrentPage.calledOnceWith(broker.transformLink('/')), 'called default action for action=email');
+          assert.ok(view.replaceCurrentPage.calledOnceWith('/oauth/'), 'called default action for action=email');
         });
     });
   });

@@ -90,7 +90,7 @@ class IndexView extends FormView {
     return this.invokeBrokerMethod('beforeSignIn', account)
       .then(() => this.user.checkAccountEmailExists(account))
       .then((exists) => {
-        const nextEndpoint = this.broker.transformLink(exists ? 'signin' : 'signup');
+        const nextEndpoint = exists ? 'signin' : 'signup';
         if (exists) {
           // If the account exists, use the stored account
           // so that any stored avatars are displayed on

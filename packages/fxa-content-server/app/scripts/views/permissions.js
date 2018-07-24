@@ -5,17 +5,15 @@
 import _ from 'underscore';
 import Account from '../models/account';
 import BackMixin from './mixins/back-mixin';
-import BaseView from './base';
 import Cocktail from 'cocktail';
 import FormView from './form';
 import OAuthErrors from '../lib/oauth-errors';
 import PermissionTemplate from 'templates/partial/permission.mustache';
 import ServiceMixin from './mixins/service-mixin';
 import Strings from '../lib/strings';
+import { t } from './base';
 import Template from 'templates/permissions.mustache';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
-
-var t = BaseView.t;
 
 // Reduce the number of strings to translate by interpolating
 // to create the required variant of a label.
@@ -262,8 +260,7 @@ var View = FormView.extend({
   },
 
   _previousView () {
-    var page = this.isSignUp() ? '/signup' : '/signin';
-    return this.broker.transformLink(page);
+    return this.isSignUp() ? '/signup' : '/signin';
   }
 }, {
   PERMISSIONS: PERMISSIONS

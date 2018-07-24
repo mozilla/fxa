@@ -70,7 +70,7 @@ describe('views/oauth_index', () => {
       it('navigates to signup page if there is no current account', () => {
         return view.render()
           .then(() => {
-            assert.isTrue(view.replaceCurrentPage.calledOnceWith('oauth/signup'));
+            assert.isTrue(view.replaceCurrentPage.calledOnceWith('signup'));
           });
       });
 
@@ -81,7 +81,7 @@ describe('views/oauth_index', () => {
 
         return view.render()
           .then(() => {
-            assert.isTrue(view.replaceCurrentPage.calledOnceWith('oauth/signin'));
+            assert.isTrue(view.replaceCurrentPage.calledOnceWith('signin'));
           });
       });
     });
@@ -96,7 +96,7 @@ describe('views/oauth_index', () => {
 
         return view.render()
           .then(() => {
-            assert.isTrue(view.replaceCurrentPage.calledOnceWith('oauth/signup'));
+            assert.isTrue(view.replaceCurrentPage.calledOnceWith('signup'));
           });
       });
 
@@ -105,7 +105,7 @@ describe('views/oauth_index', () => {
 
         return view.render()
           .then(() => {
-            assert.isTrue(view.replaceCurrentPage.calledOnceWith('oauth/signin'));
+            assert.isTrue(view.replaceCurrentPage.calledOnceWith('signin'));
           });
       });
 
@@ -120,7 +120,7 @@ describe('views/oauth_index', () => {
         return view.render()
           .then(() => {
             assert.isTrue(view.logError.calledWith(err));
-            assert.isTrue(view.replaceCurrentPage.calledOnceWith('oauth/signup'));
+            assert.isTrue(view.replaceCurrentPage.calledOnceWith('signup'));
           });
       });
     });
