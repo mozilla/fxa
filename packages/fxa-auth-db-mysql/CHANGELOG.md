@@ -1,3 +1,18 @@
+<a name="1.117.0"></a>
+# [1.117.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.116.0...v1.117.0) (2018-07-24)
+
+
+### Bug Fixes
+
+* **tests:** move local utils tests so they get run by npm t (#377) r=@vladikoff ([677d02b](https://github.com/mozilla/fxa-auth-db-mysql/commit/677d02b))
+
+### Features
+
+* **ci:** update to circle 2 (#375) r=@vbudhram ([5d7b35b](https://github.com/mozilla/fxa-auth-db-mysql/commit/5d7b35b))
+* **recovery:** update account recovery GET/DEL to not accept recoveryKeyId (#374), r=@rfk ([29b9b4b](https://github.com/mozilla/fxa-auth-db-mysql/commit/29b9b4b))
+
+
+
 <a name="1.116.0"></a>
 # [1.116.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.115.0...v1.116.0) (2018-07-11)
 
