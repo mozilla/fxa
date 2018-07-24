@@ -260,28 +260,6 @@ describe('remote misc', function() {
           return doc
         }
       )
-      .then(
-        function (doc) {
-          return fetch(doc.authentication)
-          .then(
-            function (authPage) {
-              assert.ok(authPage, 'auth page can be fetched')
-              return doc
-            }
-          )
-        }
-      )
-      .then(
-        function (doc) {
-          return fetch(doc.provisioning)
-          .then(
-            function (provPage) {
-              assert.ok(provPage, 'provisioning page can be fetched')
-              return doc
-            }
-          )
-        }
-      )
     }
   )
 

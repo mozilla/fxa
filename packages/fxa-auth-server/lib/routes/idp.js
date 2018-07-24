@@ -25,8 +25,8 @@ function browseridFormat(keys) {
       n: toDec(primary.jwk.n),
       e: toDec(primary.jwk.e)
     },
-    authentication: '/.well-known/browserid/sign_in.html',
-    provisioning: '/.well-known/browserid/provision.html',
+    authentication: '/.well-known/browserid/nonexistent.html',
+    provisioning: '/.well-known/browserid/nonexistent.html',
     keys: keys
   }
 }
@@ -60,20 +60,6 @@ module.exports = function (log, serverPublicKeys) {
         return {
             keys: keys
         }
-      }
-    },
-    {
-      method: 'GET',
-      path: '/.well-known/browserid/sign_in.html',
-      handler: {
-        file: './lib/routes/static/sign_in.html'
-      }
-    },
-    {
-      method: 'GET',
-      path: '/.well-known/browserid/provision.html',
-      handler: {
-        file: './lib/routes/static/provision.html'
       }
     }
   ]

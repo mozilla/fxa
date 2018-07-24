@@ -273,10 +273,6 @@ async function create (log, error, config, routes, db, translator) {
     }
   }
 
-
-  // register 'inert' to support service static files
-  await server.register(require('inert'))
-
   //register hpkp
   if (config.hpkpConfig && config.hpkpConfig.enabled) {
     var hpkpOptions = {

@@ -29,7 +29,7 @@ describe('remote sign key', function() {
         .spread((res, body) => {
           assert.equal(res.statusCode, 200)
           var json = JSON.parse(body)
-          assert.equal(json.authentication, '/.well-known/browserid/sign_in.html')
+          assert.equal(json.authentication, '/.well-known/browserid/nonexistent.html')
           assert.equal(json.keys.length, 2)
         })
     }
