@@ -8,7 +8,6 @@ const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
-const CountryTelephoneInfo = require('../../app/scripts/lib/country-telephone-info');
 
 const config = intern._config;
 
@@ -69,9 +68,7 @@ const suite = {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     testPhoneNumber = TestHelpers.createPhoneNumber();
-    const countryInfo = CountryTelephoneInfo['US'];
-    formattedPhoneNumber =
-      countryInfo.format(countryInfo.normalize(testPhoneNumber));
+    formattedPhoneNumber = `${testPhoneNumber.substr(0, 3)}-${testPhoneNumber.substr(3, 3)}-${testPhoneNumber.substr(6)}`;
 
     // User needs a sessionToken to be able to send an SMS. Sign up,
     // no need to verify.
