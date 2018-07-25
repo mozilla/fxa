@@ -17,7 +17,8 @@ use providers::Providers;
 use settings::Settings;
 
 fn setup() -> Client {
-    let settings = Settings::new().unwrap();
+    let mut settings = Settings::new().unwrap();
+    settings.forceprovider = false;
     let db = DbClient::new(&settings);
     let bounces = Bounces::new(&settings, db);
     let logger = MozlogLogger::new(&settings).expect("MozlogLogger::init error");

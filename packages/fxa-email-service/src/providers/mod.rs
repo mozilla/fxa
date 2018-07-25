@@ -13,7 +13,7 @@ use self::{
     smtp::SmtpProvider as Smtp, socketlabs::SocketLabsProvider as SocketLabs,
 };
 use app_errors::{AppErrorKind, AppResult};
-use settings::Settings;
+use settings::{Provider as SettingsProvider, Settings};
 
 mod mock;
 mod sendgrid;
@@ -95,6 +95,7 @@ trait Provider {
 /// Generic provider wrapper.
 pub struct Providers {
     default_provider: String,
+    force_default_provider: bool,
     providers: HashMap<String, Box<Provider>>,
 }
 
@@ -103,26 +104,31 @@ impl Providers {
     pub fn new(settings: &Settings) -> Providers {
         let mut providers: HashMap<String, Box<Provider>> = HashMap::new();
 
-        providers.insert(String::from("smtp"), Box::new(Smtp::new(settings)));
-        providers.insert(String::from("mock"), Box::new(Mock));
-        providers.insert(String::from("ses"), Box::new(Ses::new(settings)));
+        macro_rules! set_provider {
+            ($id:expr, $constructor:expr) => {
+                if !settings.forceprovider
+                    || settings.provider == SettingsProvider(String::from($id))
+                {
+                    providers.insert(String::from($id), Box::new($constructor));
+                }
+            };
+        }
+
+        set_provider!("mock", Mock);
+        set_provider!("ses", Ses::new(settings));
+        set_provider!("smtp", Smtp::new(settings));
 
         if let Some(ref sendgrid) = settings.sendgrid {
-            providers.insert(
-                String::from("sendgrid"),
-                Box::new(Sendgrid::new(sendgrid, settings)),
-            );
+            set_provider!("sendgrid", Sendgrid::new(sendgrid, settings));
         }
 
         if settings.socketlabs.is_some() {
-            providers.insert(
-                String::from("socketlabs"),
-                Box::new(SocketLabs::new(settings)),
-            );
+            set_provider!("socketlabs", SocketLabs::new(settings));
         }
 
         Providers {
             default_provider: settings.provider.0.clone(),
+            force_default_provider: settings.forceprovider,
             providers,
         }
     }
@@ -138,7 +144,11 @@ impl Providers {
         body_html: Option<&str>,
         provider_id: Option<&str>,
     ) -> AppResult<String> {
-        let resolved_provider_id = provider_id.unwrap_or(&self.default_provider);
+        let resolved_provider_id = if self.force_default_provider {
+            &self.default_provider
+        } else {
+            provider_id.unwrap_or(&self.default_provider)
+        };
 
         self.providers
             .get(resolved_provider_id)

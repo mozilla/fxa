@@ -284,6 +284,13 @@ pub struct Settings {
     /// It defaults to `dev` if not set.
     pub env: Env,
 
+    /// Flag indicating whether
+    /// the default `provider` from config
+    /// should be enforced
+    /// in preference to
+    /// the per-request `provider` param.
+    pub forceprovider: bool,
+
     /// The HMAC key to use internally
     /// for hashing message ids.
     /// This is sensitive data

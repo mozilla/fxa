@@ -4,6 +4,7 @@
     "format": "pretty"
   },
   "provider": "smtp",
+  "forceprovider": true,
   "smtp": {
     "port": 9999
   }

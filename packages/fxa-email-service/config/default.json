@@ -27,6 +27,7 @@
   },
   "port": 8001,
   "provider": "ses",
+  "forceprovider": false,
   "redis": {
     "host": "127.0.0.1",
     "port": 6379

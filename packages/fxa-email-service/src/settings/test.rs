@@ -134,6 +134,7 @@ fn env_vars_take_precedence() {
             } else {
                 "ses"
             };
+            let forceprovider = !settings.forceprovider;
             let redis_host = format!("{}1", &settings.redis.host);
             let redis_port = settings.redis.port + 1;
             let secretkey = String::from("ampqampqampqampqampqampqampqampqampqampqamo=");
@@ -201,6 +202,7 @@ fn env_vars_take_precedence() {
             env::set_var("FXA_EMAIL_LOG_LEVEL", &log.level.0);
             env::set_var("FXA_EMAIL_LOG_FORMAT", &log.format.0);
             env::set_var("FXA_EMAIL_PROVIDER", &provider);
+            env::set_var("FXA_EMAIL_FORCEPROVIDER", forceprovider.to_string());
             env::set_var("FXA_EMAIL_REDIS_HOST", &redis_host);
             env::set_var("FXA_EMAIL_REDIS_PORT", &redis_port.to_string());
             env::set_var("FXA_EMAIL_SECRETKEY", &secretkey);
@@ -230,6 +232,7 @@ fn env_vars_take_precedence() {
                     assert_eq!(env_settings.log.level, log.level);
                     assert_eq!(env_settings.log.format, log.format);
                     assert_eq!(env_settings.provider, Provider(provider.to_string()));
+                    assert_eq!(env_settings.forceprovider, forceprovider);
                     assert_eq!(env_settings.redis.host, Host(redis_host));
                     assert_eq!(env_settings.redis.port, redis_port);
                     assert_eq!(env_settings.secretkey, secretkey);
@@ -475,6 +478,17 @@ fn invalid_provider() {
     match Settings::new() {
         Ok(_settings) => assert!(false, "Settings::new should have failed"),
         Err(error) => assert_eq!(error.description(), "configuration error"),
+    }
+}
+
+#[test]
+fn invalid_forceprovider() {
+    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_FORCEPROVIDER"]);
+    env::set_var("FXA_EMAIL_FORCEPROVIDER", "wibble");
+
+    match Settings::new() {
+        Ok(_settings) => assert!(false, "Settings::new should have failed"),
+        Err(error) => assert_eq!(error.description(), "invalid type"),
     }
 }
 
