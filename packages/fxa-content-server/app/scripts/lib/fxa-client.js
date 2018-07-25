@@ -149,7 +149,7 @@ define(function (require, exports, module) {
       }
 
       return importFxaClient().then((FxaClient) => {
-        const client = new FxaClient(this._authServerUrl);
+        const client = new FxaClient.default(this._authServerUrl);
         this._client = wrapClientToNormalizeErrors(client);
         return this._client;
       });

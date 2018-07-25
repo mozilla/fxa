@@ -11,6 +11,7 @@ const config = require('./server/lib/configuration').getProperties();
 
 const ENV = config.env;
 const webpackConfig = {
+  mode: ENV,
   context: path.resolve(__dirname, 'app/scripts'),
   entry: {
     app: './app.js',
@@ -84,6 +85,24 @@ const webpackConfig = {
   module: {
     rules: [
       {
+        test: require.resolve('jquery'),
+        use: [{
+          loader: 'expose-loader',
+          options: 'jQuery'
+        },
+          {
+            loader: 'expose-loader',
+            options: '$'
+          }],
+      },
+      {
+        test: require.resolve('mocha'),
+        use: [{
+          loader: 'expose-loader',
+          options: 'mocha'
+        }],
+      },
+      {
         test: /\.mustache$/,
         loader: 'fxa-mustache-loader'
       },
@@ -102,6 +121,17 @@ const webpackConfig = {
       }
     ]
   },
+  optimization: {
+    splitChunks: { // CommonsChunkPlugin()
+      cacheGroups: {
+        appDependencies: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'appDependencies',
+          chunks: 'initial'
+        }
+      }
+    },
+  },
   plugins: ([
     new HappyPack({
       loaders: [{
@@ -115,49 +145,7 @@ const webpackConfig = {
       threads: 4,
       debug: false
     }),
-    new webpack.NamedChunksPlugin(),
-    new webpack.optimize.CommonsChunkPlugin({
-      chunks: ["app", "test", "testDependencies"],
-      name: "appDependencies",
-      minChunks: Infinity,
-    }),
-  ]).concat(ENV === 'production' ? [
-    new UglifyJsPlugin({
-      uglifyOptions: {
-        compress: {
-          unsafe_comps: true,
-          properties: true,
-          keep_fargs: false,
-          pure_getters: true,
-          collapse_vars: true,
-          unsafe: true,
-          warnings: false,
-          sequences: true,
-          dead_code: true,
-          drop_debugger: true,
-          comparisons: true,
-          conditionals: true,
-          evaluate: true,
-          booleans: true,
-          loops: true,
-          unused: true,
-          hoist_funs: true,
-          if_return: true,
-          join_vars: true,
-          drop_console: true
-        },
-      },
-      sourceMap: true,
-      cache: true,
-      parallel: true
-    }),
-  ] : []).concat(ENV === 'development' ? [
-    new webpack.optimize.CommonsChunkPlugin({
-      chunks: ["test"],
-      name: "testDependencies",
-      minChunks: Infinity,
-    })
-  ]: []),
+  ]),
 
   stats: { colors: true },
 
@@ -174,10 +162,45 @@ if (ENV === 'development') {
   Object.assign(webpackConfig.entry, {
     test: '../tests/webpack.js',
     testDependencies: [
+      'jquery',
       'chai',
       'jquery-simulate',
       'mocha',
       'sinon',
+    ]
+  });
+} else {
+  Object.assign(webpackConfig.optimization, {
+    minimizer: [
+      new UglifyJsPlugin({
+        uglifyOptions: {
+          compress: {
+            unsafe_comps: true,
+            properties: true,
+            keep_fargs: false,
+            pure_getters: true,
+            collapse_vars: true,
+            unsafe: true,
+            warnings: false,
+            sequences: true,
+            dead_code: true,
+            drop_debugger: true,
+            comparisons: true,
+            conditionals: true,
+            evaluate: true,
+            booleans: true,
+            loops: true,
+            unused: true,
+            hoist_funs: true,
+            if_return: true,
+            join_vars: true,
+            drop_console: true
+          },
+        },
+        sourceMap: true,
+        cache: true,
+        parallel: true
+      }),
     ]
   });
 }
