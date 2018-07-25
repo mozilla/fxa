@@ -78,6 +78,7 @@ extern crate slog;
 extern crate slog_async;
 extern crate slog_mozlog_json;
 extern crate slog_term;
+extern crate socketlabs;
 
 pub mod app_errors;
 pub mod auth_db;

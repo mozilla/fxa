@@ -76,6 +76,8 @@ fn env_vars_take_precedence() {
         "FXA_EMAIL_SMTP_PORT",
         "FXA_EMAIL_SMTP_USER",
         "FXA_EMAIL_SMTP_PASSWORD",
+        "FXA_EMAIL_SOCKETLABS_SERVERID",
+        "FXA_EMAIL_SOCKETLABS_KEY",
     ]);
 
     match Settings::new() {
@@ -147,6 +149,17 @@ fn env_vars_take_precedence() {
                     password: String::from("5"),
                 }
             };
+            let socketlabs = if let Some(ref socketlabs) = settings.socketlabs {
+                SocketLabs {
+                    serverid: socketlabs.serverid + 1,
+                    key: format!("{}key", socketlabs.key),
+                }
+            } else {
+                SocketLabs {
+                    serverid: 99,
+                    key: "key".to_string(),
+                }
+            };
 
             env::set_var("FXA_EMAIL_AUTHDB_BASEURI", &auth_db_base_uri);
             env::set_var("FXA_EMAIL_AWS_REGION", &aws_region);
@@ -177,6 +190,11 @@ fn env_vars_take_precedence() {
                 "FXA_EMAIL_SMTP_CREDENTIALS_PASSWORD",
                 &smtp_credentials.password,
             );
+            env::set_var(
+                "FXA_EMAIL_SOCKETLABS_SERVERID",
+                &socketlabs.serverid.to_string(),
+            );
+            env::set_var("FXA_EMAIL_SOCKETLABS_KEY", &socketlabs.key);
 
             match Settings::new() {
                 Ok(env_settings) => {
@@ -220,6 +238,13 @@ fn env_vars_take_precedence() {
                     } else {
                         assert!(false, "smtp.credentials was not set");
                     }
+
+                    if let Some(env_socketlabs) = env_settings.socketlabs {
+                        assert_eq!(env_socketlabs.serverid, socketlabs.serverid);
+                        assert_eq!(env_socketlabs.key, socketlabs.key);
+                    } else {
+                        assert!(false, "smtp.credentials was not set");
+                    }
                 }
                 Err(error) => {
                     println!("{}", error);
@@ -235,11 +260,13 @@ fn env_vars_take_precedence() {
 }
 
 #[test]
-fn hidden_aws_and_sendgrid_keys() {
+fn hidden_sensitive_data() {
     let _clean_env = CleanEnvironment::new(vec![
         "FXA_EMAIL_AWS_KEYS_ACCESS",
         "FXA_EMAIL_AWS_KEYS_SECRET",
         "FXA_EMAIL_SENDGRID_KEY",
+        "FXA_EMAIL_SOCKETLABS_SERVERID",
+        "FXA_EMAIL_SOCKETLABS_KEY",
     ]);
 
     let aws_keys = AwsKeys {
@@ -250,15 +277,26 @@ fn hidden_aws_and_sendgrid_keys() {
     let sendgrid_api_key =
         String::from("000000000000000000000000000000000000000000000000000000000000000000000");
 
+    let socketlabs = SocketLabs {
+        serverid: 99,
+        key: "key".to_string(),
+    };
+
     env::set_var("FXA_EMAIL_AWS_KEYS_ACCESS", &aws_keys.access.0);
     env::set_var("FXA_EMAIL_AWS_KEYS_SECRET", &aws_keys.secret.0);
     env::set_var("FXA_EMAIL_SENDGRID_KEY", &sendgrid_api_key);
+    env::set_var(
+        "FXA_EMAIL_SOCKETLABS_SERVERID",
+        &socketlabs.serverid.to_string(),
+    );
+    env::set_var("FXA_EMAIL_SOCKETLABS_KEY", &socketlabs.key);
     match Settings::new() {
         Ok(settings) => {
             let json = serde_json::to_string(&settings).unwrap();
             let s: Value = serde_json::from_str(&json).unwrap();
-            assert_eq!(s["sendgrid"], "[hidden]");
             assert_eq!(s["aws"]["keys"], "[hidden]");
+            assert_eq!(s["sendgrid"], "[hidden]");
+            assert_eq!(s["socketlabs"], "[hidden]");
         }
         Err(_error) => assert!(false, "Settings::new shouldn't have failed"),
     }

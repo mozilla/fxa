@@ -30,7 +30,7 @@ lazy_static! {
     ).unwrap();
     static ref HOST_FORMAT: Regex = Regex::new("^[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*$").unwrap();
     static ref LOGGING_FORMAT: Regex = Regex::new("^(?:mozlog|pretty|null)$").unwrap();
-    static ref PROVIDER_FORMAT: Regex = Regex::new("^(?:mock|sendgrid|ses|smtp)$").unwrap();
+    static ref PROVIDER_FORMAT: Regex = Regex::new("^(?:mock|sendgrid|ses|smtp|socketlabs)$").unwrap();
     static ref SENDER_NAME_FORMAT: Regex =
         Regex::new("^[A-Za-z0-9-]+(?: [A-Za-z0-9-]+)*$").unwrap();
     static ref SENDGRID_API_KEY_FORMAT: Regex = Regex::new("^[A-Za-z0-9._-]+$").unwrap();

@@ -48,3 +48,4 @@ slog = ">=2.2.3"
 slog-async = ">=2.3.0"
 slog-mozlog-json = ">=0.1.0"
 slog-term = ">=2.4.0"
+socketlabs = { git = "https://github.com/brizental/socketlabs-rs.git" }

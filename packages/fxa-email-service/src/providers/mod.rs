@@ -10,7 +10,7 @@ use emailmessage::{header, Mailbox, Message, MultiPart, SinglePart};
 
 use self::{
     mock::MockProvider as Mock, sendgrid::SendgridProvider as Sendgrid, ses::SesProvider as Ses,
-    smtp::SmtpProvider as Smtp,
+    smtp::SmtpProvider as Smtp, socketlabs::SocketLabsProvider as SocketLabs,
 };
 use app_errors::{AppErrorKind, AppResult};
 use settings::Settings;
@@ -19,6 +19,7 @@ mod mock;
 mod sendgrid;
 mod ses;
 mod smtp;
+mod socketlabs;
 #[cfg(test)]
 mod test;
 
@@ -110,6 +111,13 @@ impl Providers {
             providers.insert(
                 String::from("sendgrid"),
                 Box::new(Sendgrid::new(sendgrid, settings)),
+            );
+        }
+
+        if settings.socketlabs.is_some() {
+            providers.insert(
+                String::from("socketlabs"),
+                Box::new(SocketLabs::new(settings)),
             );
         }
 

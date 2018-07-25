@@ -145,7 +145,10 @@ fn invalid_host() {
 #[test]
 fn provider() {
     assert!(validate::provider("mock"));
+    assert!(validate::provider("smtp"));
     assert!(validate::provider("ses"));
+    assert!(validate::provider("sendgrid"));
+    assert!(validate::provider("socketlabs"));
 }
 
 #[test]

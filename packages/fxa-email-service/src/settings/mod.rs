@@ -200,6 +200,20 @@ pub struct SmtpCredentials {
     pub password: String,
 }
 
+/// Settings for SocketLabs.
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct SocketLabs {
+    /// The server ID.
+    /// This is sensitive data
+    /// and will not be logged.
+    pub serverid: u16,
+
+    /// The API key.
+    /// This is sensitive data
+    /// and will not be logged.
+    pub key: String,
+}
+
 /// URLs for SQS queues.
 ///
 /// Note that these are separate queues right now
@@ -289,6 +303,10 @@ pub struct Settings {
 
     /// Settings for SMTP custom provider.
     pub smtp: Smtp,
+
+    /// Settings for SocketLabs.
+    #[serde(serialize_with = "serialize::hidden_or_not_set")]
+    pub socketlabs: Option<SocketLabs>,
 }
 
 impl Settings {
