@@ -1,3 +1,16 @@
+<a name="v1.116.3"></a>
+## v1.116.3 (2018-07-26)
+
+#### Refactor
+
+* **settings:** drop NODE_ENV and add LOG_LEVEL (#141) r=@vladikoff
+
+#### Features
+
+* **providers:**  create socketlabs provider ([13cd2213](13cd2213))
+
+
+
 <a name="v1.116.2"></a>
 ## v1.116.2 (2018-07-19)
 
