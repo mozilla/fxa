@@ -37,6 +37,7 @@ COPY --from=builder /app/bin /app/bin
 WORKDIR /app/bin
 USER app
 
+ENV FXA_EMAIL_ENV production
 ENV ROCKET_ENV production
 
 CMD ["/app/bin/fxa_email_send"]

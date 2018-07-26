@@ -28,7 +28,9 @@ lazy_static! {
     static ref EMAIL_ADDRESS_FORMAT: Regex = Regex::new(
         "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]{1,64}@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)+$"
     ).unwrap();
+    static ref ENV: Regex = Regex::new("^(?:dev|staging|production|test)$").unwrap();
     static ref HOST_FORMAT: Regex = Regex::new("^[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*$").unwrap();
+    static ref LOGGING_LEVEL: Regex = Regex::new("^(?:normal|debug|critical|off)$").unwrap();
     static ref LOGGING_FORMAT: Regex = Regex::new("^(?:mozlog|pretty|null)$").unwrap();
     static ref PROVIDER_FORMAT: Regex = Regex::new("^(?:mock|sendgrid|ses|smtp|socketlabs)$").unwrap();
     static ref SENDER_NAME_FORMAT: Regex =
@@ -63,13 +65,23 @@ pub fn email_address(value: &str) -> bool {
     value.len() < 254 && EMAIL_ADDRESS_FORMAT.is_match(value)
 }
 
+/// Validate env.
+pub fn env(value: &str) -> bool {
+    ENV.is_match(value)
+}
+
 /// Validate a host name or IP address.
 pub fn host(value: &str) -> bool {
     HOST_FORMAT.is_match(value)
 }
 
 /// Validate logging level.
-pub fn logging(value: &str) -> bool {
+pub fn logging_level(value: &str) -> bool {
+    LOGGING_LEVEL.is_match(value)
+}
+
+/// Validate logging format.
+pub fn logging_format(value: &str) -> bool {
     LOGGING_FORMAT.is_match(value)
 }
 

@@ -17,8 +17,8 @@ fi
 
 sleep 2
 
-if [ -z "$NODE_ENV" ]; then
-  export NODE_ENV=test
+if [ -z "$FXA_EMAIL_LOG_FORMAT" ]; then
+  export FXA_EMAIL_LOG_FORMAT=null
 fi
 
 export RUST_BACKTRACE=1

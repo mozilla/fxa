@@ -65,6 +65,9 @@ fn env_vars_take_precedence() {
         "FXA_EMAIL_AWS_SQSURLS_DELIVERY",
         "FXA_EMAIL_AWS_SQSURLS_NOTIFICATION",
         "FXA_EMAIL_BOUNCELIMITS_ENABLED",
+        "FXA_EMAIL_ENV",
+        "FXA_EMAIL_LOG_LEVEL",
+        "FXA_EMAIL_LOG_FORMAT",
         "FXA_EMAIL_MESSAGEDATA_HMACKEY",
         "FXA_EMAIL_PROVIDER",
         "FXA_EMAIL_REDIS_HOST",
@@ -123,6 +126,7 @@ fn env_vars_take_precedence() {
                 }
             };
             let bounce_limits_enabled = !settings.bouncelimits.enabled;
+            let current_env = Env(String::from("test"));
             let hmac_key = String::from("something else");
             let provider = if settings.provider == Provider("ses".to_string()) {
                 "sendgrid"
@@ -149,6 +153,7 @@ fn env_vars_take_precedence() {
                     password: String::from("5"),
                 }
             };
+
             let socketlabs = if let Some(ref socketlabs) = settings.socketlabs {
                 SocketLabs {
                     serverid: socketlabs.serverid + 1,
@@ -159,6 +164,19 @@ fn env_vars_take_precedence() {
                     serverid: 99,
                     key: "key".to_string(),
                 }
+            };
+
+            let log = Log {
+                level: if settings.log.level == LoggingLevel("debug".to_string()) {
+                    LoggingLevel("off".to_string())
+                } else {
+                    LoggingLevel("debug".to_string())
+                },
+                format: if settings.log.format == LoggingFormat("null".to_string()) {
+                    LoggingFormat("pretty".to_string())
+                } else {
+                    LoggingFormat("null".to_string())
+                },
             };
 
             env::set_var("FXA_EMAIL_AUTHDB_BASEURI", &auth_db_base_uri);
@@ -177,6 +195,9 @@ fn env_vars_take_precedence() {
                 &bounce_limits_enabled.to_string(),
             );
             env::set_var("FXA_EMAIL_HMACKEY", &hmac_key.to_string());
+            env::set_var("FXA_EMAIL_ENV", &current_env.0);
+            env::set_var("FXA_EMAIL_LOG_LEVEL", &log.level.0);
+            env::set_var("FXA_EMAIL_LOG_FORMAT", &log.format.0);
             env::set_var("FXA_EMAIL_PROVIDER", &provider);
             env::set_var("FXA_EMAIL_REDIS_HOST", &redis_host);
             env::set_var("FXA_EMAIL_REDIS_PORT", &redis_port.to_string());
@@ -201,7 +222,10 @@ fn env_vars_take_precedence() {
                     assert_eq!(env_settings.authdb.baseuri, BaseUri(auth_db_base_uri));
                     assert_eq!(env_settings.aws.region, AwsRegion(aws_region.to_string()));
                     assert_eq!(env_settings.bouncelimits.enabled, bounce_limits_enabled);
+                    assert_eq!(env_settings.env, current_env);
                     assert_eq!(env_settings.hmackey, hmac_key);
+                    assert_eq!(env_settings.log.level, log.level);
+                    assert_eq!(env_settings.log.format, log.format);
                     assert_eq!(env_settings.provider, Provider(provider.to_string()));
                     assert_eq!(env_settings.redis.host, Host(redis_host));
                     assert_eq!(env_settings.redis.port, redis_port);
@@ -256,6 +280,16 @@ fn env_vars_take_precedence() {
             println!("{}", error);
             assert!(false);
         }
+    }
+}
+
+#[test]
+fn default_env() {
+    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_ENV"]);
+
+    match Settings::new() {
+        Ok(settings) => assert_eq!(settings.env, Env("dev".to_string())),
+        Err(_error) => assert!(false, "Settings::new shouldn't have failed"),
     }
 }
 

@@ -12,7 +12,7 @@ use std::{
 use config::{Config, ConfigError, Environment, File};
 use rocket::config::{
     Config as RocketConfig, ConfigError as RocketConfigError, Environment as RocketEnvironment,
-    LoggingLevel,
+    LoggingLevel as RocketLoggingLevel,
 };
 use serde::de::{Deserialize, Deserializer, Error, Unexpected};
 
@@ -63,10 +63,14 @@ deserialize_and_validate! {
     (AwsSecret, aws_secret, "AWS secret key"),
     /// Base URI type.
     (BaseUri, base_uri, "base URI"),
+    /// Env type.
+    (Env, env, "'dev', 'staging', 'production' or 'test'"),
     /// Host name or IP address type.
     (Host, host, "host name or IP address"),
+    /// Logging level type.
+    (LoggingLevel, logging_level, "'normal', 'debug', 'critical' or 'off'"),
     /// Logging format type.
-    (Logging, logging, "'mozlog', 'pretty' or 'null'"),
+    (LoggingFormat, logging_format, "'mozlog', 'pretty' or 'null'"),
     /// Email provider type.
     (Provider, provider, "'ses', 'sendgrid' or 'smtp'"),
     /// Sender name type.
@@ -142,6 +146,16 @@ pub struct BounceLimits {
 
     /// Limits for soft (transient) bounces.
     pub soft: Vec<BounceLimit>,
+}
+
+/// Settings for logging.
+#[derive(Debug, Default, Deserialize, Serialize)]
+pub struct Log {
+    /// The logging level.
+    pub level: LoggingLevel,
+
+    /// The logging format.
+    pub format: LoggingFormat,
 }
 
 /// Settings for Redis.
@@ -266,6 +280,10 @@ pub struct Settings {
     /// will fail with a `429` error.
     pub bouncelimits: BounceLimits,
 
+    /// The env sets which environment we are in.
+    /// It defaults to `dev` if not set.
+    pub env: Env,
+
     /// The HMAC key to use internally
     /// for hashing message ids.
     /// This is sensitive data
@@ -274,9 +292,9 @@ pub struct Settings {
 
     pub host: Host,
 
-    /// The logging format to use,
-    /// can be `"mozlog"`, `"pretty"` or `"null"`.
-    pub logging: Logging,
+    /// The logging settings,
+    /// about level and formatting.
+    pub log: Log,
 
     /// The port this application is listening to.
     pub port: u16,
@@ -317,12 +335,8 @@ impl Settings {
     ///
     ///   1. Environment variables: `$FXA_EMAIL_<UPPERCASE_KEY_NAME>`
     ///   2. File: `config/local.json`
-    ///   3. File: `config/<$NODE_ENV>.json`
+    ///   3. File: `config/<$FXA_EMAIL_ENV>.json`
     ///   4. File: `config/default.json`
-    ///
-    /// `$NODE_ENV` is used so that this service automatically picks up the
-    /// appropriate state from our existing node.js ecosystem, without needing
-    /// to manage an extra environment variable.
     ///
     /// Immediately before returning, the parsed config object will be logged to
     /// the console.
@@ -331,9 +345,12 @@ impl Settings {
 
         config.merge(File::with_name("config/default"))?;
 
-        if let Ok(node_env) = env::var("NODE_ENV") {
-            config.merge(File::with_name(&format!("config/{}", node_env)).required(false))?;
-        }
+        let current_env = match env::var("FXA_EMAIL_ENV") {
+            Ok(env) => env,
+            _ => String::from("dev"),
+        };
+        config.merge(File::with_name(&format!("config/{}", current_env)).required(false))?;
+        config.set_default("env", "dev")?;
 
         config.merge(File::with_name("config/local").required(false))?;
         let env = Environment::with_prefix("fxa_email");
@@ -341,10 +358,8 @@ impl Settings {
 
         match config.try_into::<Settings>() {
             Ok(settings) => {
-                if let Ok(node_env) = env::var("NODE_ENV") {
-                    if node_env == "production" && &settings.hmackey == "YOU MUST CHANGE ME" {
-                        panic!("Please set a valid HMAC key.")
-                    }
+                if current_env == "production" && &settings.hmackey == "YOU MUST CHANGE ME" {
+                    panic!("Please set a valid HMAC key.")
                 }
 
                 let logger =
@@ -356,25 +371,24 @@ impl Settings {
         }
     }
 
-    /// Create rocket configuration based on the `NODE_ENV` environment
-    /// variable. Defaults to `dev` mode if `NODE_ENV` is not set.
+    /// Create rocket configuration based on the environment
+    /// variable. Defaults to `dev` mode if `FXA_EMAIL_ENV` is not set.
     pub fn build_rocket_config(&self) -> Result<RocketConfig, RocketConfigError> {
-        match env::var("NODE_ENV").as_ref().map(String::as_ref) {
-            Ok("production") => RocketConfig::build(RocketEnvironment::Production)
-                .address(self.host.0.clone())
-                .port(self.port.clone())
-                .log_level(LoggingLevel::Off)
-                .finalize(),
-            Ok("staging") => RocketConfig::build(RocketEnvironment::Staging)
-                .address(self.host.0.clone())
-                .port(self.port.clone())
-                .log_level(LoggingLevel::Critical)
-                .finalize(),
-            _ => RocketConfig::build(RocketEnvironment::Development)
-                .address(self.host.0.clone())
-                .port(self.port.clone())
-                .log_level(LoggingLevel::Normal)
-                .finalize(),
-        }
+        let log_level = match self.log.level.0.as_str() {
+            "debug" => RocketLoggingLevel::Debug,
+            "critical" => RocketLoggingLevel::Critical,
+            "off" => RocketLoggingLevel::Off,
+            _ => RocketLoggingLevel::Normal,
+        };
+        let rocket_config = match self.env.0.as_str() {
+            "production" => RocketEnvironment::Production,
+            "staging" => RocketEnvironment::Staging,
+            _ => RocketEnvironment::Development,
+        };
+        RocketConfig::build(rocket_config)
+            .address(self.host.0.clone())
+            .port(self.port.clone())
+            .log_level(log_level)
+            .finalize()
     }
 }

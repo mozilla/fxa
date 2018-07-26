@@ -21,7 +21,10 @@
   },
   "hmackey": "YOU MUST CHANGE ME",
   "host": "127.0.0.1",
-  "logging": "mozlog",
+  "log": {
+    "level": "off",
+    "format": "mozlog"
+  },
   "port": 8001,
   "provider": "ses",
   "redis": {

@@ -1,5 +1,8 @@
 {
-  "logging": "pretty",
+  "log": {
+    "level": "normal",
+    "format": "pretty"
+  },
   "provider": "smtp",
   "smtp": {
     "port": 9999

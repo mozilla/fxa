@@ -126,10 +126,36 @@ fn invalid_email_address() {
 }
 
 #[test]
+fn env() {
+    assert!(validate::env("test"));
+    assert!(validate::env("dev"));
+    assert!(validate::env("staging"));
+    assert!(validate::env("production"));
+    assert_eq!(false, validate::env("something else"));
+}
+
+#[test]
 fn host() {
     assert!(validate::host("foo"));
     assert!(validate::host("foo.bar"));
     assert!(validate::host("127.0.0.1"));
+}
+
+#[test]
+fn logging_level() {
+    assert!(validate::logging_level("normal"));
+    assert!(validate::logging_level("debug"));
+    assert!(validate::logging_level("critical"));
+    assert!(validate::logging_level("off"));
+    assert_eq!(false, validate::logging_level("something else"));
+}
+
+#[test]
+fn logging_format() {
+    assert!(validate::logging_format("mozlog"));
+    assert!(validate::logging_format("pretty"));
+    assert!(validate::logging_format("null"));
+    assert_eq!(false, validate::logging_format("something else"));
 }
 
 #[test]
