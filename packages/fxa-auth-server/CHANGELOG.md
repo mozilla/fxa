@@ -1,3 +1,13 @@
+<a name="1.117.1"></a>
+## [1.117.1](https://github.com/mozilla/fxa-auth-server/compare/v1.117.0...v1.117.1) (2018-07-26)
+
+
+### Bug Fixes
+
+* **hapi:** use the new server event error handler (#2543) r=@rfk ([2d52887](https://github.com/mozilla/fxa-auth-server/commit/2d52887)), closes [#2543](https://github.com/mozilla/fxa-auth-server/issues/2543) [#2542](https://github.com/mozilla/fxa-auth-server/issues/2542) [hapijs/hapi#3658](https://github.com/hapijs/hapi/issues/3658)
+
+
+
 <a name="1.117.0"></a>
 # [1.117.0](https://github.com/mozilla/fxa-auth-server/compare/v1.116.1...v1.117.0) (2018-07-24)
 
