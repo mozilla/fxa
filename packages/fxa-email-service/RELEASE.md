@@ -10,6 +10,8 @@ cargo install clog-cli
 
 * Update `Cargo.toml` and `Cargo.lock` with the new version.
 
+* Set ENV variable for the version. Example: `export FXA_EMAIL_SERVICE_VERSION="v1.117.3"`
+
 * Generate the changelog:
 ```
 clog -F --setversion $FXA_EMAIL_SERVICE_VERSION -i CHANGELOG.md -o CHANGELOG.md
