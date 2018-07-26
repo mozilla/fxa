@@ -73,6 +73,9 @@ function verify(verifier, req, res) {
     res._summary.assertion_verification_time = reqTime;
 
     if (err) {
+      if (typeof err !== 'string') {
+        err = 'unexpected error';
+      }
       if (err.indexOf("compute cluster") === 0) {
         log.info("service_failure");
         res.json(503, {"status":"failure", reason: "service unavailable"});

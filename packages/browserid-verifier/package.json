@@ -12,7 +12,7 @@
   "bugs": "https://github.com/mozilla/browserid-verifier/issues/",
   "main": "lib/server.js",
   "engines": {
-    "node": ">=6"
+    "node": ">=8"
   },
   "dependencies": {
     "async": "2.0.1",
@@ -24,11 +24,10 @@
     "intel": "1.1.1",
     "morgan": "1.7.0",
     "optimist": "0.6.1",
-    "toobusy-js": "strml/node-toobusy#ed8b8bb6909a82ae3007940cd5ac42f0488b00ab",
+    "toobusy-js": "0.5.1",
     "underscore": "1.8.3"
   },
   "devDependencies": {
-    "ass": "git://github.com/jrgm/ass.git#5be99ee7abc9fcf63f9ebcc37b151b9c822146d1",
     "jshint": "2.9.3",
     "mocha": "3.1.0",
     "request": "2.82.0",

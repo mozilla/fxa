@@ -1,25 +1,20 @@
-FROM node:6.14.0-slim
+FROM node:10-alpine
 
 # add a non-privileged user for installing and running
 # the application
-RUN groupadd --gid 10001 app && \
-    useradd --uid 10001 --gid 10001 --home /app --create-home app
+RUN addgroup -g 10001 app && \
+    adduser -D -G app -h /app -u 10001 app
 
 WORKDIR /app
 
 # Install node requirements and clean up temporary files
 COPY package.json package.json
-RUN apt-get update && \
-    apt-get install -y libgmp-dev git python build-essential && \
-    su app -c "npm --loglevel warn install" && \
-    npm cache clear && \
-    apt remove -y libgmp-dev git python build-essential && \
-    apt-get autoremove -y && \
-    apt-get clean && \
+RUN apk add --update build-base ca-certificates git python gmp-dev && \
+    npm --loglevel warn install && \
+    npm cache clear --force && \
+    apk del --purge build-base gcc git python && \
     rm -rf ~app/.node-gyp && \
-    rm -rf ~app/.npm && \
-    rm -r /tmp/* && \
-    rm -r /var/lib/apt/lists/*
+    rm -rf ~app/.npm
 
 COPY . /app
 
