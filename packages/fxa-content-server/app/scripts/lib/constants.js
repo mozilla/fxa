@@ -129,6 +129,8 @@ module.exports = {
 
   OTHER_EMAIL_DOMAIN: 'other',
 
-  UTM_SOURCE_EMAIL: 'email'
+  UTM_SOURCE_EMAIL: 'email',
+
+  RECOVERY_KEY_LENGTH: 16
 };
 /*eslint-enable sorting/sort-object-props*/

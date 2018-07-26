@@ -3,6 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import _ from 'underscore';
+import AccountRecoveryView from '../views/settings/account_recovery/account_recovery';
+import AccountRecoveryConfirmPasswordView from '../views/settings/account_recovery/confirm_password';
+import AccountRecoveryConfirmRevokeView from '../views/settings/account_recovery/confirm_revoke';
+import AccountRecoveryKeyView from '../views/settings/account_recovery/recovery_key';
 import AvatarCameraView from '../views/settings/avatar_camera';
 import AvatarChangeView from '../views/settings/avatar_change';
 import AvatarCropView from '../views/settings/avatar_crop';
@@ -99,6 +103,10 @@ const Router = Backbone.Router.extend({
     'reset_password_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.PASSWORD_RESET }),
     'secondary_email_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.SECONDARY_EMAIL_VERIFIED }),
     'settings(/)': createViewHandler(SettingsView),
+    'settings/account_recovery(/)': createChildViewHandler(AccountRecoveryView, SettingsView),
+    'settings/account_recovery/confirm_password(/)': createChildViewHandler(AccountRecoveryConfirmPasswordView, SettingsView),
+    'settings/account_recovery/confirm_revoke(/)': createChildViewHandler(AccountRecoveryConfirmRevokeView, SettingsView),
+    'settings/account_recovery/recovery_key(/)': createChildViewHandler(AccountRecoveryKeyView, SettingsView),
     'settings/avatar/camera(/)': createChildViewHandler(AvatarCameraView, SettingsView),
     'settings/avatar/change(/)': createChildViewHandler(AvatarChangeView, SettingsView),
     'settings/avatar/crop(/)': createChildViewHandler(AvatarCropView, SettingsView),

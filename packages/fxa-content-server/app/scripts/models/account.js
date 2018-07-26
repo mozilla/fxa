@@ -1346,6 +1346,47 @@ define(function (require, exports, module) {
       return this._fxaClient.replaceRecoveryCodes(
         this.get('sessionToken')
       );
+    },
+
+    /**
+     * Creates a new recovery key bundle for the current user.
+     *
+     * @param {String} password The current password for the user
+     * @returns {Promise}
+     */
+    createRecoveryBundle (password) {
+      return this._fxaClient.createRecoveryBundle(
+        this.get('email'),
+        password,
+        this.get('sessionToken'),
+        this.get('uid')
+      );
+    },
+
+    /**
+     * Deletes the recovery key associated with this user.
+     *
+     * @returns {Promise} resolves when complete.
+     */
+    deleteRecoveryKey () {
+      return this._fxaClient.deleteRecoveryKey(
+        this.get('sessionToken')
+      );
+    },
+
+    /**
+     * This checks to see if a recovery key exists for a user.
+     *
+     * @returns {Promise} resolves with response when complete.
+     *
+     * Response: {
+     *   exists: <boolean>
+     * }
+     */
+    checkRecoveryKeyExists () {
+      return this._fxaClient.recoveryKeyExists(
+        this.get('sessionToken')
+      );
     }
 
   }, {

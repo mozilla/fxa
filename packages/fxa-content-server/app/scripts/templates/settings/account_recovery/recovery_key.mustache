@@ -1,0 +1,32 @@
+<div id="account-recovery-key">
+    <section class="modal-panel">
+        <div class="error"></div>
+
+        <h2>{{#t}}Recovery key{{/t}}</h2>
+
+        <p class="description">
+            {{#unsafeTranslate}}<span class="note">NOTE: </span>Keep your recovery key in a safe place. You will not be able to access this page again. You can download or print your key or email it to someone you trust{{/unsafeTranslate}}
+        </p>
+
+        <div class="recovery-key-container">
+            <div class="recovery-key">{{recoveryKey}}</div>
+        </div>
+
+        <div class="options">
+            <div class="title-container">
+                <div class="line">&boxh;&boxh;&boxh;&nbsp;</div>
+                <div class="title">{{#t}}Download your recovery key or print it{{/t}}</div>
+                <div class="line">&nbsp;&boxh;&boxh;&boxh;</div>
+            </div>
+
+            <div class="buttons">
+                <button class="download-key"><img alt="{{#t}}Download button image{{/t}}" class="recovery-icon-option" src="/images/recovery_key_download.svg">{{#t}}Download{{/t}}</button>
+                <button class="print-key"><img alt="{{#t}}Print button image{{/t}}" class="recovery-icon-option" src="/images/recovery_key_print.svg">{{#t}}Print{{/t}}</button>
+            </div>
+        </div>
+
+        <div class="button-row">
+            <button class="secondary-button done-link">{{#t}}Done, Recovery Key Set{{/t}}</button>
+        </div>
+    </section>
+</div>
