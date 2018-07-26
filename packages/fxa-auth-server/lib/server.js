@@ -236,7 +236,8 @@ async function create (log, error, config, routes, db, translator) {
   const sentryDsn = config.sentryDsn
   if (sentryDsn) {
     Raven.config(sentryDsn, {})
-    server.events.on('request-error', function (request, err) {
+    server.events.on({ name: 'request', channel: 'error' }, function (request, event) {
+      const err = event && event.error || null
       let exception = ''
       if (err && err.stack) {
         try {
