@@ -1,3 +1,27 @@
+<a name="1.117.0"></a>
+# [1.117.0](https://github.com/mozilla/fxa-auth-server/compare/v1.116.1...v1.117.0) (2018-07-24)
+
+
+### Bug Fixes
+
+* **email:** make config.sesConfigurationSet default the empty string ([35ac5f0](https://github.com/mozilla/fxa-auth-server/commit/35ac5f0))
+* **package:** fixes for npm security audit ([2bfa482](https://github.com/mozilla/fxa-auth-server/commit/2bfa482))
+* **push:** send FxA commands push messages to iOS devices (#2517) r=@vladikoff,@eoger ([c020798](https://github.com/mozilla/fxa-auth-server/commit/c020798)), closes [#2517](https://github.com/mozilla/fxa-auth-server/issues/2517)
+
+### chore
+
+* **browserid:** Remove unnecessary browserid routes. (#2539); r=philbooth,stomlinson ([a1e64dd](https://github.com/mozilla/fxa-auth-server/commit/a1e64dd)), closes [#2539](https://github.com/mozilla/fxa-auth-server/issues/2539)
+* **emails:** log smtp port in mail_helper.js (#2519) ([6dbf15a](https://github.com/mozilla/fxa-auth-server/commit/6dbf15a)), closes [#2519](https://github.com/mozilla/fxa-auth-server/issues/2519)
+
+### Features
+
+* **email:** add a service property to the X-SES-MESSAGE-TAGS header ([b6908b9](https://github.com/mozilla/fxa-auth-server/commit/b6908b9))
+* **recovery:** update delete recovery key and get recovery key endpoints (#2518), r=@rfk ([4d109a0](https://github.com/mozilla/fxa-auth-server/commit/4d109a0)), closes [#2518](https://github.com/mozilla/fxa-auth-server/issues/2518)
+* **scopes:** Use shared code lib for checking OAuth scopes. (#2501); r=vbudhram,shane-tomlins ([59de0ae](https://github.com/mozilla/fxa-auth-server/commit/59de0ae)), closes [#2501](https://github.com/mozilla/fxa-auth-server/issues/2501)
+* **server:** Update to hapi 17 (#2486) r=@vbudhram,@philbooth ([63738c8](https://github.com/mozilla/fxa-auth-server/commit/63738c8)), closes [#2486](https://github.com/mozilla/fxa-auth-server/issues/2486) [#2438](https://github.com/mozilla/fxa-auth-server/issues/2438)
+
+
+
 <a name="1.116.1"></a>
 ## [1.116.1](https://github.com/mozilla/fxa-auth-server/compare/v1.116.0...v1.116.1) (2018-07-16)
 
