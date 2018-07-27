@@ -63,6 +63,8 @@ module.exports = (config, log) => {
   return REDIS_COMMANDS.reduce((result, command) => {
     result[command] = (...args) => P.using(pool.acquire(), connection => connection[command](...args))
     return result
-  }, {})
+  }, {
+    close: () => pool.close()
+  })
 }
 

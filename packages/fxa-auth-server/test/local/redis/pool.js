@@ -74,8 +74,9 @@ describe('redis/pool:', () => {
   })
 
   it('returned pool object', () => {
-    assert.equal(Object.keys(redisPool).length, 1)
+    assert.equal(Object.keys(redisPool).length, 2)
     assert.equal(typeof redisPool.acquire, 'function')
+    assert.equal(typeof redisPool.close, 'function')
   })
 
   it('did not call connection.isValid', () => {

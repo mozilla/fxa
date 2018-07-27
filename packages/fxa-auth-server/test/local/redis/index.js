@@ -73,11 +73,12 @@ describe('redis enabled:', () => {
   })
 
   it('returned interface', () => {
-    assert.equal(Object.keys(redis).length, 4)
+    assert.equal(Object.keys(redis).length, 5)
     assert.equal(typeof redis.get, 'function')
     assert.equal(typeof redis.set, 'function')
     assert.equal(typeof redis.del, 'function')
     assert.equal(typeof redis.update, 'function')
+    assert.equal(typeof redis.close, 'function')
   })
 
   it('did not call pool.acquire', () => {
