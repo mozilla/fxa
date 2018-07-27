@@ -13,7 +13,7 @@ use self::{
     smtp::SmtpProvider as Smtp, socketlabs::SocketLabsProvider as SocketLabs,
 };
 use app_errors::{AppErrorKind, AppResult};
-use settings::{Provider as SettingsProvider, Settings};
+use settings::{DefaultProvider, Settings};
 
 mod mock;
 mod sendgrid;
@@ -106,8 +106,8 @@ impl Providers {
 
         macro_rules! set_provider {
             ($id:expr, $constructor:expr) => {
-                if !settings.forceprovider
-                    || settings.provider == SettingsProvider(String::from($id))
+                if !settings.provider.forcedefault
+                    || settings.provider.default == DefaultProvider(String::from($id))
                 {
                     providers.insert(String::from($id), Box::new($constructor));
                 }
@@ -127,8 +127,8 @@ impl Providers {
         }
 
         Providers {
-            default_provider: settings.provider.0.clone(),
-            force_default_provider: settings.forceprovider,
+            default_provider: settings.provider.default.0.clone(),
+            force_default_provider: settings.provider.forcedefault,
             providers,
         }
     }

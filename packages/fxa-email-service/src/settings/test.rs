@@ -129,12 +129,16 @@ fn env_vars_take_precedence() {
             let bounce_limits_enabled = !settings.bouncelimits.enabled;
             let current_env = Env(String::from("test"));
             let hmac_key = String::from("something else");
-            let provider = if settings.provider == Provider("ses".to_string()) {
-                "sendgrid"
-            } else {
-                "ses"
+            let provider = Provider {
+                default: DefaultProvider(
+                    if settings.provider.default == DefaultProvider("ses".to_string()) {
+                        "sendgrid"
+                    } else {
+                        "ses"
+                    }.to_string(),
+                ),
+                forcedefault: !settings.provider.forcedefault,
             };
-            let forceprovider = !settings.forceprovider;
             let redis_host = format!("{}1", &settings.redis.host);
             let redis_port = settings.redis.port + 1;
             let secretkey = String::from("ampqampqampqampqampqampqampqampqampqampqamo=");
@@ -201,8 +205,11 @@ fn env_vars_take_precedence() {
             env::set_var("FXA_EMAIL_ENV", &current_env.0);
             env::set_var("FXA_EMAIL_LOG_LEVEL", &log.level.0);
             env::set_var("FXA_EMAIL_LOG_FORMAT", &log.format.0);
-            env::set_var("FXA_EMAIL_PROVIDER", &provider);
-            env::set_var("FXA_EMAIL_FORCEPROVIDER", forceprovider.to_string());
+            env::set_var("FXA_EMAIL_PROVIDER_DEFAULT", &provider.default.0);
+            env::set_var(
+                "FXA_EMAIL_PROVIDER_FORCEDEFAULT",
+                provider.forcedefault.to_string(),
+            );
             env::set_var("FXA_EMAIL_REDIS_HOST", &redis_host);
             env::set_var("FXA_EMAIL_REDIS_PORT", &redis_port.to_string());
             env::set_var("FXA_EMAIL_SECRETKEY", &secretkey);
@@ -231,8 +238,8 @@ fn env_vars_take_precedence() {
                     assert_eq!(env_settings.hmackey, hmac_key);
                     assert_eq!(env_settings.log.level, log.level);
                     assert_eq!(env_settings.log.format, log.format);
-                    assert_eq!(env_settings.provider, Provider(provider.to_string()));
-                    assert_eq!(env_settings.forceprovider, forceprovider);
+                    assert_eq!(env_settings.provider.default, provider.default);
+                    assert_eq!(env_settings.provider.forcedefault, provider.forcedefault);
                     assert_eq!(env_settings.redis.host, Host(redis_host));
                     assert_eq!(env_settings.redis.port, redis_port);
                     assert_eq!(env_settings.secretkey, secretkey);
@@ -471,9 +478,9 @@ fn invalid_smtp_host() {
 }
 
 #[test]
-fn invalid_provider() {
-    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_PROVIDER"]);
-    env::set_var("FXA_EMAIL_PROVIDER", "sess");
+fn invalid_provider_default() {
+    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_PROVIDER_DEFAULT"]);
+    env::set_var("FXA_EMAIL_PROVIDER_DEFAULT", "sess");
 
     match Settings::new() {
         Ok(_settings) => assert!(false, "Settings::new should have failed"),
@@ -482,9 +489,9 @@ fn invalid_provider() {
 }
 
 #[test]
-fn invalid_forceprovider() {
-    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_FORCEPROVIDER"]);
-    env::set_var("FXA_EMAIL_FORCEPROVIDER", "wibble");
+fn invalid_provider_forcedefault() {
+    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_PROVIDER_FORCEDEFAULT"]);
+    env::set_var("FXA_EMAIL_PROVIDER_FORCEDEFAULT", "wibble");
 
     match Settings::new() {
         Ok(_settings) => assert!(false, "Settings::new should have failed"),

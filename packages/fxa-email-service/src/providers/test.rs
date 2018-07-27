@@ -105,13 +105,13 @@ fn build_mime_with_body_html() {
 #[test]
 fn constructor() {
     let mut settings = Settings::new().expect("config error");
-    settings.forceprovider = false;
+    settings.provider.forcedefault = false;
     let providers = Providers::new(&settings);
     assert!(providers.providers.len() > 1);
     assert_eq!(providers.force_default_provider, false);
 
     settings = Settings::new().expect("config error");
-    settings.forceprovider = true;
+    settings.provider.forcedefault = true;
     let providers = Providers::new(&settings);
     assert_eq!(providers.providers.len(), 1);
     assert_eq!(providers.force_default_provider, true);
@@ -120,8 +120,8 @@ fn constructor() {
 #[test]
 fn send() {
     let mut settings = Settings::new().expect("config error");
-    settings.forceprovider = true;
-    settings.provider = SettingsProvider(String::from("mock"));
+    settings.provider.forcedefault = true;
+    settings.provider.default = DefaultProvider(String::from("mock"));
     let providers = Providers::new(&settings);
     let result = providers.send("foo", &vec![], None, "bar", "baz", None, Some("ses"));
     assert!(result.is_ok(), "Providers::send should not have failed");
@@ -129,8 +129,8 @@ fn send() {
         assert_eq!(message_id, "mock:deadbeef");
     }
 
-    settings.forceprovider = false;
-    settings.provider = SettingsProvider(String::from("ses"));
+    settings.provider.forcedefault = false;
+    settings.provider.default = DefaultProvider(String::from("ses"));
     let providers = Providers::new(&settings);
     let result = providers.send("foo", &vec![], None, "bar", "baz", None, Some("mock"));
     assert!(result.is_ok(), "Providers::send should not have failed");

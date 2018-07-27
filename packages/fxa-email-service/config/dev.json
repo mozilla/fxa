@@ -3,8 +3,10 @@
     "level": "normal",
     "format": "pretty"
   },
-  "provider": "smtp",
-  "forceprovider": true,
+  "provider": {
+    "default": "smtp",
+    "forcedefault": true
+  },
   "smtp": {
     "port": 9999
   }
