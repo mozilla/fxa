@@ -72,6 +72,7 @@ fn env_vars_take_precedence() {
         "FXA_EMAIL_PROVIDER",
         "FXA_EMAIL_REDIS_HOST",
         "FXA_EMAIL_REDIS_PORT",
+        "FXA_EMAIL_SECRETKEY",
         "FXA_EMAIL_SENDER_ADDRESS",
         "FXA_EMAIL_SENDER_NAME",
         "FXA_EMAIL_SENDGRID_KEY",
@@ -135,6 +136,7 @@ fn env_vars_take_precedence() {
             };
             let redis_host = format!("{}1", &settings.redis.host);
             let redis_port = settings.redis.port + 1;
+            let secretkey = String::from("ampqampqampqampqampqampqampqampqampqampqamo=");
             let sender_address = format!("1{}", &settings.sender.address.0);
             let sender_name = format!("{}1", &settings.sender.name);
             let sendgrid_api_key = String::from(
@@ -201,6 +203,7 @@ fn env_vars_take_precedence() {
             env::set_var("FXA_EMAIL_PROVIDER", &provider);
             env::set_var("FXA_EMAIL_REDIS_HOST", &redis_host);
             env::set_var("FXA_EMAIL_REDIS_PORT", &redis_port.to_string());
+            env::set_var("FXA_EMAIL_SECRETKEY", &secretkey);
             env::set_var("FXA_EMAIL_SENDER_ADDRESS", &sender_address);
             env::set_var("FXA_EMAIL_SENDER_NAME", &sender_name);
             env::set_var("FXA_EMAIL_SENDGRID_KEY", &sendgrid_api_key);
@@ -229,6 +232,7 @@ fn env_vars_take_precedence() {
                     assert_eq!(env_settings.provider, Provider(provider.to_string()));
                     assert_eq!(env_settings.redis.host, Host(redis_host));
                     assert_eq!(env_settings.redis.port, redis_port);
+                    assert_eq!(env_settings.secretkey, secretkey);
                     assert_eq!(env_settings.sender.address, EmailAddress(sender_address));
                     assert_eq!(env_settings.sender.name, SenderName(sender_name));
                     assert_eq!(env_settings.smtp.host, Host(smtp_host));
@@ -298,6 +302,7 @@ fn hidden_sensitive_data() {
     let _clean_env = CleanEnvironment::new(vec![
         "FXA_EMAIL_AWS_KEYS_ACCESS",
         "FXA_EMAIL_AWS_KEYS_SECRET",
+        "FXA_EMAIL_SECRETKEY",
         "FXA_EMAIL_SENDGRID_KEY",
         "FXA_EMAIL_SOCKETLABS_SERVERID",
         "FXA_EMAIL_SOCKETLABS_KEY",
@@ -307,6 +312,8 @@ fn hidden_sensitive_data() {
         access: AwsAccess(String::from("A")),
         secret: AwsSecret(String::from("s")),
     };
+
+    let secretkey = String::from("ampqampqampqampqampqampqampqampqampqampqamo=");
 
     let sendgrid_api_key =
         String::from("000000000000000000000000000000000000000000000000000000000000000000000");
@@ -318,6 +325,7 @@ fn hidden_sensitive_data() {
 
     env::set_var("FXA_EMAIL_AWS_KEYS_ACCESS", &aws_keys.access.0);
     env::set_var("FXA_EMAIL_AWS_KEYS_SECRET", &aws_keys.secret.0);
+    env::set_var("FXA_EMAIL_SECRETKEY", &secretkey);
     env::set_var("FXA_EMAIL_SENDGRID_KEY", &sendgrid_api_key);
     env::set_var(
         "FXA_EMAIL_SOCKETLABS_SERVERID",
@@ -329,6 +337,7 @@ fn hidden_sensitive_data() {
             let json = serde_json::to_string(&settings).unwrap();
             let s: Value = serde_json::from_str(&json).unwrap();
             assert_eq!(s["aws"]["keys"], "[hidden]");
+            assert_eq!(s["secretkey"], "[hidden]");
             assert_eq!(s["sendgrid"], "[hidden]");
             assert_eq!(s["socketlabs"], "[hidden]");
         }

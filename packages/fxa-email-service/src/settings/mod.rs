@@ -310,6 +310,11 @@ pub struct Settings {
     /// associated with a message.
     pub redis: Redis,
 
+    /// Setting for a secret key
+    /// used by Rocket.
+    #[serde(serialize_with = "serialize::hidden")]
+    pub secretkey: String,
+
     /// Controls the name and email address
     /// that are used for the `From` and `Sender`
     /// email headers.
@@ -358,8 +363,13 @@ impl Settings {
 
         match config.try_into::<Settings>() {
             Ok(settings) => {
-                if current_env == "production" && &settings.hmackey == "YOU MUST CHANGE ME" {
-                    panic!("Please set a valid HMAC key.")
+                if current_env == "production" {
+                    if &settings.hmackey == "YOU MUST CHANGE ME" {
+                        panic!("Please set a valid HMAC key.")
+                    }
+                    if &settings.secretkey == "youmustchangethisfortheproductionenvironment" {
+                        panic!("Please set a valid secret key. It must be a 256-bit base64 encoded string.")
+                    }
                 }
 
                 let logger =
@@ -386,6 +396,7 @@ impl Settings {
             _ => RocketEnvironment::Development,
         };
         RocketConfig::build(rocket_config)
+            .secret_key(self.secretkey.clone())
             .address(self.host.0.clone())
             .port(self.port.clone())
             .log_level(log_level)
