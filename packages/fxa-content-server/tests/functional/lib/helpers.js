@@ -34,6 +34,7 @@ const UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
 
 /**
  * Convert a function to a form that can be used as a `then` callback.
+ * If the callback fails a screenshot will be taken.
  *
  * Example usage:
  *
@@ -54,7 +55,29 @@ function thenify(callback, context) {
   return function () {
     var args = arguments;
     return function () {
-      return callback.apply(context || this, args);
+      let capturedError;
+      return callback.apply(context || this, args)
+        .then(null, err => {
+          // The error has to be swallowed before a screenshot
+          // can be taken or else takeScreenshot is never called
+          // because `this.parent` is a promise that has already
+          // been rejected.
+          capturedError = err;
+        })
+        .then(function (result) {
+          if (capturedError) {
+            if (! capturedError.screenshotTaken) {
+              capturedError.screenshotTaken = true;
+              return this.parent.then(takeScreenshot()) //eslint-disable-line no-use-before-define
+                .then(() => {
+                  throw capturedError;
+                });
+            } else {
+              throw capturedError;
+            }
+          }
+          return result;
+        });
     };
   };
 }
@@ -62,19 +85,21 @@ function thenify(callback, context) {
 /**
  * Take a screen shot, write a base64 encoded image to the console
  */
-const takeScreenshot = thenify(function () {
-  return this.parent.takeScreenshot()
-    .then(function (buffer) {
-      const screenCaptureHost = 'https://screencap.co.uk';
-      return got.post(`${screenCaptureHost}/png`, { body: buffer, followRedirect: false })
-        .then((res) => {
-          console.log(`Screenshot saved at: ${screenCaptureHost}${res.headers.location}`);
-        }, (err) => {
-          console.error('Capturing base64 screenshot:');
-          console.error(`data:image/png;base64,${buffer.toString('base64')}`);
-        });
-    });
-});
+const takeScreenshot = function () {
+  return function () {
+    return this.parent.takeScreenshot()
+      .then(function (buffer) {
+        const screenCaptureHost = 'https://screencap.co.uk';
+        return got.post(`${screenCaptureHost}/png`, { body: buffer, followRedirect: false })
+          .then((res) => {
+            console.log(`Screenshot saved at: ${screenCaptureHost}${res.headers.location}`);
+          }, (err) => {
+            console.error('Capturing base64 screenshot:');
+            console.error(`data:image/png;base64,${buffer.toString('base64')}`);
+          });
+      });
+  };
+};
 
 /**
  * Use document.querySelectorAll to find visible elements
@@ -88,10 +113,8 @@ const takeScreenshot = thenify(function () {
  * @param {Object} options
  *        options include polling `timeout`
  */
-const visibleByQSA = thenify(function (selector, options) {
-  options = options || {};
+const visibleByQSA = thenify(function (selector, options = {}) {
   var timeout = options.timeout || config.pageLoadTimeout;
-  var pollError;
 
   return this.parent
     .then(pollUntil(function (selector, options) {
@@ -124,22 +147,10 @@ const visibleByQSA = thenify(function (selector, options) {
       return true;
     }, [ selector, options ], timeout))
     .then(null, function (err) {
-      // The error has to be swallowed before a screenshot
-      // can be taken or else takeScreenshot is never called
-      // because `this.parent` is a promise that has already
-      // been rejected.
-      pollError = err;
-    })
-    .then(() => {
-      if (pollError) {
-        return this.parent.then(takeScreenshot())
-          .then(() => {
-            if (/ScriptTimeout/.test(String(pollError))) {
-              throw new Error(`ElementNotVisible - ${selector}`);
-            } else {
-              throw pollError;
-            }
-          });
+      if (/ScriptTimeout/.test(String(err))) {
+        throw new Error(`ElementNotVisible - ${selector}`);
+      } else {
+        throw err;
       }
     });
 });
@@ -151,24 +162,8 @@ const visibleByQSA = thenify(function (selector, options) {
  * @returns {promise} rejects if element does not exist
  */
 const testElementExists = thenify(function (selector) {
-  var findError;
   return this.parent
     .findByCssSelector(selector)
-    .then(null, function (err) {
-      // The error has to be swallowed before a screenshot
-      // can be taken or else takeScreenshot is never called
-      // because `this.parent` is a promise that has already
-      // been rejected.
-      findError = err;
-    })
-    .then(function () {
-      if (findError) {
-        return this.parent.then(takeScreenshot())
-          .then(() => {
-            throw findError;
-          });
-      }
-    })
     .end();
 });
 
@@ -181,8 +176,6 @@ const testElementExists = thenify(function (selector) {
  * @returns {promise}
  */
 const click = thenify(function (selector, readySelector) {
-  let clickError;
-
   return this.parent
     .findByCssSelector(selector)
   // Ensure the element is visible and not animating before attempting to click.
@@ -217,21 +210,6 @@ const click = thenify(function (selector, readySelector) {
       }
       // re-throw other errors
       throw err;
-    })
-    .then(null, function (err) {
-      // The error has to be swallowed before a screenshot
-      // can be taken or else takeScreenshot is never called
-      // because `this.parent` is a promise that has already
-      // been rejected.
-      clickError = err;
-    })
-    .then(function () {
-      if (clickError) {
-        return this.parent.then(takeScreenshot())
-          .then(() => {
-            throw clickError;
-          });
-      }
     })
     .end()
     .then(function () {
@@ -273,9 +251,7 @@ const focus = thenify(function (selector) {
  *   typing. Defaults to true.
  * @returns {promise}
  */
-const type = thenify(function (selector, text, options) {
-  options = options || {};
-
+const type = thenify(function (selector, text, options = {}) {
   // always clear unless explicitly overridden
   var clearValue = options.clearValue !== false;
 
@@ -474,19 +450,18 @@ const clearSessionStorage = thenify(function () {
  * @param {String} selector
  *        QSA compatible selector string
  */
-function imageLoadedByQSA(selector, timeout) {
-  timeout = timeout || 10000;
+const imageLoadedByQSA = thenify(function(selector, timeout = 10000) {
+  return this.parent
+    .then(pollUntil(function (selector) {
+      var match = document.querySelectorAll(selector);
 
-  return pollUntil(function (selector) {
-    var match = document.querySelectorAll(selector);
+      if (match.length > 1) {
+        throw new Error('Multiple elements matched. Make a more precise selector');
+      }
 
-    if (match.length > 1) {
-      throw new Error('Multiple elements matched. Make a more precise selector');
-    }
-
-    return match[0] && match[0].naturalWidth > 0 ? true : null;
-  }, [ selector ], timeout);
-}
+      return match[0] && match[0].naturalWidth > 0 ? true : null;
+    }, [ selector ], timeout));
+});
 
 
 /**
@@ -499,13 +474,12 @@ function imageLoadedByQSA(selector, timeout) {
  * @param {Number} [timeout]
  *        Timeout to wait until element is gone
  */
-function pollUntilGoneByQSA(selector, timeout) {
-  timeout = timeout || 10000;
-
-  return pollUntil(function (selector) {
-    return document.querySelectorAll(selector).length === 0 ? true : null;
-  }, [ selector ], timeout);
-}
+const pollUntilGoneByQSA = thenify(function(selector, timeout = 10000) {
+  return this.parent
+    .then(pollUntil(function (selector) {
+      return document.querySelectorAll(selector).length === 0 ? true : null;
+    }, [ selector ], timeout));
+});
 
 /**
  * Poll until an element is either removed from the DOM or hidden.
@@ -516,8 +490,6 @@ function pollUntilGoneByQSA(selector, timeout) {
  *        Timeout to wait until element is gone or hidden
  */
 const pollUntilHiddenByQSA = thenify(function (selector, timeout = config.pageLoadTimeout) {
-  let pollError;
-
   return this.parent
     .then(pollUntil(function (selector) {
       const matchingEls = document.querySelectorAll(selector);
@@ -549,22 +521,10 @@ const pollUntilHiddenByQSA = thenify(function (selector, timeout = config.pageLo
       return null;
     }, [ selector ], timeout))
     .then(null, function (err) {
-      // The error has to be swallowed before a screenshot
-      // can be taken or else takeScreenshot is never called
-      // because `this.parent` is a promise that has already
-      // been rejected.
-      pollError = err;
-    })
-    .then(() => {
-      if (pollError) {
-        return this.parent.then(takeScreenshot())
-          .then(() => {
-            if (/ScriptTimeout/.test(String(pollError))) {
-              throw new Error(`ElementNotHidden - ${selector}`);
-            } else {
-              throw pollError;
-            }
-          });
+      if (/ScriptTimeout/.test(String(err))) {
+        throw new Error(`ElementNotHidden - ${selector}`);
+      } else {
+        throw err;
       }
     });
 });
@@ -907,9 +867,8 @@ const openExternalSite = thenify(function () {
  *   @param {object} [options.query] extra query parameters to add to the verification link
  * @returns {promise} resolves when complete
  */
-const openVerificationLinkInNewTab = thenify(function (email, index, options) {
+const openVerificationLinkInNewTab = thenify(function (email, index, options = {}) {
   var user = TestHelpers.emailToUser(email);
-  options = options || {};
 
   return this.parent
     .then(getVerificationLink(user, index))
@@ -920,9 +879,8 @@ const openVerificationLinkInNewTab = thenify(function (email, index, options) {
     });
 });
 
-const openVerificationLinkInSameTab = thenify(function (email, index, options) {
+const openVerificationLinkInSameTab = thenify(function (email, index, options = {}) {
   var user = TestHelpers.emailToUser(email);
-  options = options || {};
 
   return this.parent
     .then(getVerificationLink(user, index))
@@ -1591,6 +1549,25 @@ const clearBrowserNotifications = thenify(function () {
     });
 });
 
+function waitForWebChannelCommand (command, done) {
+  function check() {
+    var storedEvents;
+    try {
+      storedEvents = JSON.parse(sessionStorage.getItem('webChannelEvents')) || [];
+    } catch (e) {
+      storedEvents = [];
+    }
+
+    if (storedEvents.indexOf(command) > -1) {
+      done();
+    } else {
+      setTimeout(check, 50);
+    }
+  }
+
+  check();
+}
+
 /**
  * Test to ensure the browser has received a web channel notification.
  *
@@ -1598,47 +1575,17 @@ const clearBrowserNotifications = thenify(function () {
  * @returns {promise} rejects if message has not been received.
  */
 const testIsBrowserNotified = thenify(function (command) {
-  let err;
   return this.parent
     // Allow some time for the event to come through.
     .setExecuteAsyncTimeout(4000)
-    .executeAsync(function (command, done) {
-      function check() {
-        var storedEvents;
-        try {
-          storedEvents = JSON.parse(sessionStorage.getItem('webChannelEvents')) || [];
-        } catch (e) {
-          storedEvents = [];
-        }
-
-        if (storedEvents.indexOf(command) > -1) {
-          done();
-        } else {
-          setTimeout(check, 50);
-        }
-      }
-
-      check();
-    }, [command])
-    .then(null, function (_err) {
-      // Since this is a promise reject handler, this.parent is null
-      // and it's not possible to take a screenshot. Save the error,
-      // go back to a resolve handler where this.parent is available,
-      // take the screenshot, then continue.
-      err = _err;
-    })
-    .then(function () {
-      if (err) {
-        return this.parent.then(takeScreenshot())
-          .then(() => {
-            if (/ScriptTimeout/.test(String(err))) {
-              var noSuchNotificationError = new Error('NoSuchBrowserNotification');
-              noSuchNotificationError.command = command;
-              throw noSuchNotificationError;
-            } else {
-              throw err;
-            }
-          });
+    .executeAsync(waitForWebChannelCommand, [command])
+    .then(null, function (err) {
+      if (/ScriptTimeout/.test(String(err))) {
+        var noSuchNotificationError = new Error('NoSuchBrowserNotification');
+        noSuchNotificationError.command = command;
+        throw noSuchNotificationError;
+      } else {
+        throw err;
       }
     });
 });
@@ -1651,16 +1598,16 @@ const testIsBrowserNotified = thenify(function (command) {
  */
 const noSuchBrowserNotification = thenify(function (command) {
   return this.parent
-    .then(testIsBrowserNotified(command))
+    // Allow some time for the event to come through.
+    .setExecuteAsyncTimeout(4000)
+    .executeAsync(waitForWebChannelCommand, [command])
     .then(function () {
-      return this.parent.then(takeScreenshot())
-        .then(() => {
-          var unexpectedNotificationError = new Error('UnexpectedBrowserNotification');
-          unexpectedNotificationError.command = command;
-          throw unexpectedNotificationError;
-        });
+      var unexpectedNotificationError = new Error('UnexpectedBrowserNotification');
+      unexpectedNotificationError.command = command;
+      throw unexpectedNotificationError;
     }, function (err) {
-      if (! /NoSuchBrowserNotification/.test(String(err))) {
+      if (! /ScriptTimeout/.test(String(err))) {
+        // script timeouts are expected here!
         throw err;
       }
     });
