@@ -11,6 +11,8 @@ module.exports = function (grunt) {
     // Select 'dist' configuration files for the running environment.
     'selectconfig:dist',
 
+    'webpack',
+
     // l10n-generate-pages needs to be run before useminPrepare to seed
     // the list of resources to minimize. Generated pages are placed into
     // `server/templates/pages/dist` where they will be post-processed
@@ -20,13 +22,6 @@ module.exports = function (grunt) {
     // prepares the configuration to transform specific blocks
     // in the scrutinized file into a single line, targeting an optimized version of the files.
     'useminPrepare',
-
-    'webpack',
-
-    // general 'css' tasks:
-    //    'sass', - compile SASS,
-    //    'autoprefixer' - auto prefix CSS for many browsers,
-    'css',
 
     'copy:styles',
 

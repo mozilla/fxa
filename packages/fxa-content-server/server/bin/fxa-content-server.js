@@ -82,7 +82,8 @@ function makeApp() {
     const webpackCompiler = webpack(webpackConfig);
 
     app.use(webpackMiddleware(webpackCompiler, {
-      publicPath: '/bundle/'
+      publicPath: '/bundle/',
+      writeToDisk: true
     }));
   }
 

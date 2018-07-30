@@ -32,6 +32,7 @@ const webpackConfig = {
       'uuid',
       'vat',
       'webrtc',
+      'styles/main.scss'
     ],
     head: './head/boot.js'
   },
@@ -118,6 +119,30 @@ const webpackConfig = {
         use: {
           loader: 'happypack/loader',
         }
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].css',
+              outputPath: '../../app/styles',
+            }
+          },
+          {
+            loader: 'extract-loader'
+          },
+          {
+            loader: 'css-loader'
+          },
+          {
+            loader: 'postcss-loader'
+          },
+          {
+            loader: 'sass-loader'
+          },
+        ]
       }
     ]
   },

@@ -14,9 +14,5 @@ module.exports = function (grunt) {
         livereload: true
       }
     },
-    sass: {
-      files: '<%= yeoman.app %>/styles/**/*.scss',
-      tasks: ['sass', 'autoprefixer']
-    }
   });
 };

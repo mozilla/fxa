@@ -39,8 +39,6 @@ browser_modules
 *.sass-cache
 
 app/styles/*.css
-!app/styles/fontello.css
-
 
 ### Yeoman ###
 dist

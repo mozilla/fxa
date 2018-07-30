@@ -33,14 +33,9 @@ Please note that fxa-local-dev is the preferred way of contributing to Firefox A
 
 ## Development Notes
 
-### Changes to stylesheets
+### Changes to stylesheets, scripts and templates
 
-To have the css resources automatically rebuilt after changes, run `grunt sass watch`.
-Now whenever a change is made to the `.scss` files, the corresponding css resources will be rebuilt.
-
-### Changes to scripts and templates
-
-Any changes made to the scripts or the template files will automatically be reflected on page refresh.
+Any changes made to the css resources, scripts or the template files will automatically be reflected on page refresh.
 
 ---
 
@@ -79,7 +74,6 @@ To change the default auth server edit `server/config/*.json` on your deployed i
 | `grunt build` | build production resources. See [task source](grunttasks/build.js) for more documentation |
 | `grunt clean` | remove any built production resources. |
 | `grunt lint` | run ESLint, Sass-lint, amdcheck and JSONLint on client side and testing JavaScript. |
-| `grunt sass watch` | rebuild css resources automatically when changes are made to the `.scss` files (file needs to be saved). |
 | `grunt server` | run a local server running on port 3030 with development resources. |
 | `grunt server:dist` | run a local server running on port 3030 with production resources. Production resources will be built as part of the task. |
 | `grunt test` | run local Intern tests. |
