@@ -63,9 +63,9 @@ DB.connect(config[config.db.backend])
           return db.resetAccount(
             { uid: uid },
             {
-              authSalt: butil.ONES,
-              verifyHash: butil.ONES,
-              wrapWrapKb: crypto.randomBytes(32),
+              authSalt: butil.ONES.toString('hex'),
+              verifyHash: butil.ONES.toString('hex'),
+              wrapWrapKb: crypto.randomBytes(32).toString('hex'),
               verifierVersion: 1
             }
           )
