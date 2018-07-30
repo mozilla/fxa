@@ -63,6 +63,8 @@ deserialize_and_validate! {
     (AwsSecret, aws_secret, "AWS secret key"),
     /// Base URI type.
     (BaseUri, base_uri, "base URI"),
+    /// Default email provider.
+    (DefaultProvider, provider, "'ses', 'sendgrid', 'socketlabs' or 'smtp'"),
     /// Env type.
     (Env, env, "'dev', 'staging', 'production' or 'test'"),
     /// Host name or IP address type.
@@ -71,8 +73,6 @@ deserialize_and_validate! {
     (LoggingLevel, logging_level, "'normal', 'debug', 'critical' or 'off'"),
     /// Logging format type.
     (LoggingFormat, logging_format, "'mozlog', 'pretty' or 'null'"),
-    /// Email provider type.
-    (Provider, provider, "'ses', 'sendgrid' or 'smtp'"),
     /// Sender name type.
     (SenderName, sender_name, "sender name"),
     /// Sendgrid API key type.
@@ -156,6 +156,21 @@ pub struct Log {
 
     /// The logging format.
     pub format: LoggingFormat,
+}
+
+/// Email provider settings.
+#[derive(Debug, Default, Deserialize, Serialize)]
+pub struct Provider {
+    /// The default email provider to use,
+    /// can be `"ses"`, `"sendgrid"`, `"socketlabs"`, `"smtp"` or `"mock"`.
+    /// Note that this setting can be overridden
+    /// on a per-request basis
+    /// unless `forcedefault` is `true`.
+    pub default: DefaultProvider,
+
+    /// Flag indicating whether the default provider should be enforced
+    /// in preference to the per-request `provider` param.
+    pub forcedefault: bool,
 }
 
 /// Settings for Redis.
@@ -299,10 +314,7 @@ pub struct Settings {
     /// The port this application is listening to.
     pub port: u16,
 
-    /// The default email provider to use,
-    /// can be `"ses"`, `"sendgrid"` or `"mock"`.
-    /// Note that this setting can be overridden
-    /// on a per-request basis.
+    /// Settings controlling the default email provider.
     pub provider: Provider,
 
     /// Settings for Redis,

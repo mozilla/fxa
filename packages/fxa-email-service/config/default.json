@@ -26,7 +26,10 @@
     "format": "mozlog"
   },
   "port": 8001,
-  "provider": "ses",
+  "provider": {
+    "default": "ses",
+    "forcedefault": false
+  },
   "redis": {
     "host": "127.0.0.1",
     "port": 6379

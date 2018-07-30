@@ -4,7 +4,7 @@
 
 use std::collections::HashMap;
 
-use super::build_multipart_mime;
+use super::*;
 
 #[test]
 fn build_mime_without_optional_data() {
@@ -100,4 +100,41 @@ fn build_mime_with_body_html() {
     assert_eq!("Content-Transfer-Encoding: 8bit", &message[18]);
     assert_eq!("Content-Type: text/html; charset=utf8", &message[19]);
     assert_eq!("<p>body</p>", &message[21]);
+}
+
+#[test]
+fn constructor() {
+    let mut settings = Settings::new().expect("config error");
+    settings.provider.forcedefault = false;
+    let providers = Providers::new(&settings);
+    assert!(providers.providers.len() > 1);
+    assert_eq!(providers.force_default_provider, false);
+
+    settings = Settings::new().expect("config error");
+    settings.provider.forcedefault = true;
+    let providers = Providers::new(&settings);
+    assert_eq!(providers.providers.len(), 1);
+    assert_eq!(providers.force_default_provider, true);
+}
+
+#[test]
+fn send() {
+    let mut settings = Settings::new().expect("config error");
+    settings.provider.forcedefault = true;
+    settings.provider.default = DefaultProvider(String::from("mock"));
+    let providers = Providers::new(&settings);
+    let result = providers.send("foo", &vec![], None, "bar", "baz", None, Some("ses"));
+    assert!(result.is_ok(), "Providers::send should not have failed");
+    if let Ok(ref message_id) = result {
+        assert_eq!(message_id, "mock:deadbeef");
+    }
+
+    settings.provider.forcedefault = false;
+    settings.provider.default = DefaultProvider(String::from("ses"));
+    let providers = Providers::new(&settings);
+    let result = providers.send("foo", &vec![], None, "bar", "baz", None, Some("mock"));
+    assert!(result.is_ok(), "Providers::send should not have failed");
+    if let Ok(ref message_id) = result {
+        assert_eq!(message_id, "mock:deadbeef");
+    }
 }
