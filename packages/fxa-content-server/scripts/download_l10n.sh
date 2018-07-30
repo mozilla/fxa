@@ -11,14 +11,17 @@ if [ -z "$FXA_L10N_SHA" ]; then
     FXA_L10N_SHA="master"
 fi
 
-rm -rf fxa-content-server-l10n
-
 DOWNLOAD_PATH="https://github.com/mozilla/fxa-content-server-l10n.git"
 
-echo "Downloading L10N files from $DOWNLOAD_PATH..."
 # Download L10N using git
-git clone --depth=20 $DOWNLOAD_PATH
+if [ ! -d "fxa-content-server-l10n" ]; then
+	echo "Downloading L10N files from $DOWNLOAD_PATH..."
+	git clone --depth=20 $DOWNLOAD_PATH
+fi
 cd fxa-content-server-l10n
+echo "Updating L10N files"
+git checkout -- .
 git checkout $FXA_L10N_SHA
+git pull
 git rev-parse $FXA_L10N_SHA >> git-head.txt
 cd ..
