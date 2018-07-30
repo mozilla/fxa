@@ -310,7 +310,7 @@ module.exports = (
               // Ensure that we don't return lastAccessTime if redis is down
               isRedisOk = false
             }
-            return unpackTokensFromRedis(result)
+            return this.safeUnpackTokensFromRedis(uid, result)
           })
       )
     }
@@ -511,7 +511,7 @@ module.exports = (
               // Ensure that we don't return lastAccessTime if redis is down
               isRedisOk = false
             }
-            return unpackTokensFromRedis(result)
+            return this.safeUnpackTokensFromRedis(uid, result)
           })
       )
     }
@@ -692,7 +692,7 @@ module.exports = (
               // Ensure that we don't return lastAccessTime if redis is down
               isRedisOk = false
             }
-            return unpackTokensFromRedis(result)
+            return this.safeUnpackTokensFromRedis(uid, result)
           })
       )
     }
@@ -1327,13 +1327,34 @@ module.exports = (
     return this.pool.del(SAFE_URLS.deleteRecoveryKey, { uid })
   }
 
-
   DB.prototype.safeRedisGet = function (key) {
     return this.redis.get(key)
       .catch(err => {
         log.error({ op: 'redis.get.error', key, err: err.message })
         // Allow callers to distinguish between the null result and connection errors
         return false
+      })
+  }
+
+  // Unpacks a tokens string from Redis, with logic to recover from it being
+  // invalid JSON. In this case, "recover" means "delete the data from Redis and
+  // return an empty object to the caller". We've seen this situation occur once
+  // in prod, but we're not sure how it came about:
+  //
+  //     https://github.com/mozilla/fxa-auth-server/issues/2537
+  //
+  DB.prototype.safeUnpackTokensFromRedis = function (uid, tokens) {
+    return P.resolve()
+      .then(() => unpackTokensFromRedis(tokens))
+      .catch(err => {
+        log.error({ op: 'db.unpackTokensFromRedis.error', err: err.message })
+
+        if (err instanceof SyntaxError) {
+          return this.redis.del(uid)
+            .then(() => ({}))
+        }
+
+        throw err
       })
   }
 

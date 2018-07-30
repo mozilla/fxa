@@ -810,6 +810,7 @@ describe('redis enabled, token-pruning enabled:', () => {
       return db.sessions('wibble')
         .then(() => {
           assert.equal(redis.get.callCount, 1)
+          assert.equal(redis.del.callCount, 0)
 
           assert.equal(log.error.callCount, 1)
           assert.equal(log.error.args[0].length, 1)
@@ -825,6 +826,7 @@ describe('redis enabled, token-pruning enabled:', () => {
       return db.devices('wibble')
         .then(() => {
           assert.equal(redis.get.callCount, 1)
+          assert.equal(redis.del.callCount, 0)
 
           assert.equal(log.error.callCount, 1)
           assert.equal(log.error.args[0].length, 1)
@@ -840,6 +842,7 @@ describe('redis enabled, token-pruning enabled:', () => {
       return db.device('wibble', 'wobble')
         .then(() => {
           assert.equal(redis.get.callCount, 1)
+          assert.equal(redis.del.callCount, 0)
 
           assert.equal(log.error.callCount, 1)
           assert.equal(log.error.args[0].length, 1)
@@ -847,6 +850,64 @@ describe('redis enabled, token-pruning enabled:', () => {
             op: 'redis.get.error',
             key: 'wibble',
             err: 'mock redis.get error'
+          })
+        })
+    })
+  })
+
+  describe('redis.get returns invalid JSON:', () => {
+    beforeEach(() => {
+      redis.get = sinon.spy(() => P.resolve('{"wibble":nonsense}'))
+    })
+
+    it('should log the error in db.sessions', () => {
+      return db.sessions('wibble')
+        .then(result => {
+          assert.deepEqual(result, [])
+
+          assert.equal(redis.get.callCount, 1)
+
+          assert.equal(redis.del.callCount, 1)
+          assert.equal(redis.del.args[0].length, 1)
+          assert.equal(redis.del.args[0][0], 'wibble')
+
+          assert.equal(log.error.callCount, 1)
+          assert.equal(log.error.args[0].length, 1)
+          assert.deepEqual(log.error.args[0][0], {
+            op: 'db.unpackTokensFromRedis.error',
+            err: 'Unexpected token o in JSON at position 11'
+          })
+        })
+    })
+
+    it('should log the error in db.devices', () => {
+      return db.devices('wibble')
+        .then(result => {
+          assert.deepEqual(result, [])
+
+          assert.equal(redis.get.callCount, 1)
+          assert.equal(redis.del.callCount, 1)
+
+          assert.equal(log.error.callCount, 1)
+          assert.equal(log.error.args[0].length, 1)
+          assert.deepEqual(log.error.args[0][0], {
+            op: 'db.unpackTokensFromRedis.error',
+            err: 'Unexpected token o in JSON at position 11'
+          })
+        })
+    })
+
+    it('should log the error in db.device', () => {
+      return db.device('wibble', 'wobble')
+        .then(() => {
+          assert.equal(redis.get.callCount, 1)
+          assert.equal(redis.del.callCount, 1)
+
+          assert.equal(log.error.callCount, 1)
+          assert.equal(log.error.args[0].length, 1)
+          assert.deepEqual(log.error.args[0][0], {
+            op: 'db.unpackTokensFromRedis.error',
+            err: 'Unexpected token o in JSON at position 11'
           })
         })
     })
