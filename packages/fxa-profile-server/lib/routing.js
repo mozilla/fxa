@@ -61,12 +61,7 @@ module.exports = [
   },
   {
     method: 'DELETE',
-    path: v('/avatar'),
-    config: require('./routes/avatar/delete')
-  },
-  {
-    method: 'DELETE',
-    path: v('/avatar/{id}'),
+    path: v('/avatar/{id?}'),
     config: require('./routes/avatar/delete')
   },
   {

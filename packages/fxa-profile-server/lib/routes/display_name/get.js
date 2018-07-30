@@ -10,7 +10,7 @@ const db = require('../../db');
 module.exports = {
   auth: {
     strategy: 'oauth',
-    scope: ['profile', 'profile:display_name']
+    scope: ['profile:display_name']
   },
   response: {
     schema: {

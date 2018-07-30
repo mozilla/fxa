@@ -20,7 +20,7 @@ module.exports = {
   isInternal: true,
   auth: {
     strategy: 'oauth',
-    scope: ['profile', 'profile:email', 'profile:locale', 'profile:amr', /* openid-connect scope */'email' ]
+    scope: ['profile:email', 'profile:locale', 'profile:amr', /* openid-connect scope */'email' ]
   },
   response: {
     schema: {

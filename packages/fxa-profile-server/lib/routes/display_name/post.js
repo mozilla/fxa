@@ -25,7 +25,7 @@ const ALLOWED_DISPLAY_NAME_CHARS = /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028
 module.exports = {
   auth: {
     strategy: 'oauth',
-    scope: ['profile:write', 'profile:display_name:write']
+    scope: ['profile:display_name:write']
   },
   validate: {
     payload: {

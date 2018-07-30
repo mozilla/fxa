@@ -10,7 +10,7 @@ const logger = require('../logging')('routes.email');
 module.exports = {
   auth: {
     strategy: 'oauth',
-    scope: ['profile', 'profile:email', /* openid-connect scope */'email' ]
+    scope: ['profile:email', /* openid-connect scope */'email' ]
   },
   response: {
     schema: {

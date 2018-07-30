@@ -48,6 +48,14 @@
         }
       }
     },
+    "accept-language": {
+      "version": "2.0.17",
+      "resolved": "https://registry.npmjs.org/accept-language/-/accept-language-2.0.17.tgz",
+      "integrity": "sha1-Q/CRtMgUSVV/e3d9iApRAQUwwGA=",
+      "requires": {
+        "bcp47": "^1.1.2"
+      }
+    },
     "acorn": {
       "version": "5.7.1",
       "resolved": "https://registry.npmjs.org/acorn/-/acorn-5.7.1.tgz",
@@ -270,6 +278,11 @@
       "version": "1.0.0",
       "resolved": "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.0.tgz",
       "integrity": "sha1-ibTRmasr7kneFk6gK4nORi1xt2c="
+    },
+    "bcp47": {
+      "version": "1.1.2",
+      "resolved": "https://registry.npmjs.org/bcp47/-/bcp47-1.1.2.tgz",
+      "integrity": "sha1-NUvjMH/9CEM6ePXh4glYRfifx/4="
     },
     "bcrypt-pbkdf": {
       "version": "1.0.2",
@@ -1202,9 +1215,9 @@
       "dev": true
     },
     "extend": {
-      "version": "3.0.1",
-      "resolved": "https://registry.npmjs.org/extend/-/extend-3.0.1.tgz",
-      "integrity": "sha1-p1Xqe8Gt/MWjHOfnYtuq3F5jZEQ="
+      "version": "3.0.2",
+      "resolved": "https://registry.npmjs.org/extend/-/extend-3.0.2.tgz",
+      "integrity": "sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g=="
     },
     "extsprintf": {
       "version": "1.3.0",
@@ -1371,6 +1384,22 @@
           "version": "0.4.2",
           "resolved": "https://registry.npmjs.org/xmlbuilder/-/xmlbuilder-0.4.2.tgz",
           "integrity": "sha1-F3bWXz/brUcKCNhgTN6xxOVA/4M="
+        }
+      }
+    },
+    "fxa-shared": {
+      "version": "1.0.13",
+      "resolved": "https://registry.npmjs.org/fxa-shared/-/fxa-shared-1.0.13.tgz",
+      "integrity": "sha512-jy9FehibrocELTpXPEfr6cWMrac+N//7CBBPACAK17ZHuN/ZP5iJuIG3nB18ZIZKBSmJH0TgO8C6p3XocSx2mA==",
+      "requires": {
+        "accept-language": "2.0.17",
+        "moment": "2.20.1"
+      },
+      "dependencies": {
+        "moment": {
+          "version": "2.20.1",
+          "resolved": "https://registry.npmjs.org/moment/-/moment-2.20.1.tgz",
+          "integrity": "sha512-Yh9y73JRljxW5QxN08Fner68eFLxM5ynNOAw2LbIB1YAGeQzZT8QFSUvkAz609Zf+IHhhaUxqZK8dG3W/+HEvg=="
         }
       }
     },
@@ -1935,9 +1964,9 @@
           }
         },
         "isemail": {
-          "version": "3.1.2",
-          "resolved": "https://registry.npmjs.org/isemail/-/isemail-3.1.2.tgz",
-          "integrity": "sha512-zfRhJn9rFSGhzU5tGZqepRSAj3+g6oTOHxMGGriWNJZzyLPUK8H7VHpqKntegnW8KLyGA9zwuNaCoopl40LTpg==",
+          "version": "3.1.3",
+          "resolved": "https://registry.npmjs.org/isemail/-/isemail-3.1.3.tgz",
+          "integrity": "sha512-5xbsG5wYADIcB+mfLsd+nst1V/D+I7EU7LEZPo2GOIMu4JzfcRs5yQoypP4avA7QtUqgxYLKBYNv4IdzBmbhdw==",
           "requires": {
             "punycode": "2.x.x"
           }
@@ -2856,23 +2885,16 @@
       "integrity": "sha1-dTHjnUlJwoGma4xabgJl6LBYlNo="
     },
     "mime-db": {
-      "version": "1.34.0",
-      "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.34.0.tgz",
-      "integrity": "sha1-RS0Oz/XDA0am3B5kseruDTcZ/5o="
+      "version": "1.35.0",
+      "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.35.0.tgz",
+      "integrity": "sha512-JWT/IcCTsB0Io3AhWUMjRqucrHSPsSf2xKLaRldJVULioggvkJvggZ3VXNNSRkCddE6D+BUI4HEIZIA2OjwIvg=="
     },
     "mime-types": {
-      "version": "2.1.18",
-      "resolved": "https://registry.npmjs.org/mime-types/-/mime-types-2.1.18.tgz",
-      "integrity": "sha512-lc/aahn+t4/SWV/qcmumYjymLsWfN3ELhpmVuUFjgsORruuZPVSwAQryq+HHGvO/SI2KVX26bx+En+zhM8g8hQ==",
+      "version": "2.1.19",
+      "resolved": "https://registry.npmjs.org/mime-types/-/mime-types-2.1.19.tgz",
+      "integrity": "sha512-P1tKYHVSZ6uFo26mtnve4HQFE3koh1UWVkp8YUC+ESBHe945xWSoXuHHiGarDqcEZ+whpCDnlNw5LON0kLo+sw==",
       "requires": {
-        "mime-db": "~1.33.0"
-      },
-      "dependencies": {
-        "mime-db": {
-          "version": "1.33.0",
-          "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.33.0.tgz",
-          "integrity": "sha512-BHJ/EKruNIqJf/QahvxwQZXKygOQ256myeN/Ew+THcAa5q+PjyTTMMeNQC4DZw5AwfvelsUrA6B67NKMqXDbzQ=="
-        }
+        "mime-db": "~1.35.0"
       }
     },
     "mimos": {

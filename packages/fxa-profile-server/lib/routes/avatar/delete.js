@@ -21,7 +21,7 @@ const FXA_PROVIDER = 'fxa';
 module.exports = {
   auth: {
     strategy: 'oauth',
-    scope: ['profile:write', 'profile:avatar:write']
+    scope: ['profile:avatar:write']
   },
   validate: {
     params: {

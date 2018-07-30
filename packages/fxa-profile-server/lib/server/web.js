@@ -4,20 +4,13 @@
 
 const Hapi = require('hapi');
 const Raven = require('raven');
+const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const AppError = require('../error');
 const config = require('../config').getProperties();
 const logger = require('../logging')('server.web');
 const request = require('../request');
 const summary = require('../logging/summary');
-
-function set(arr) {
-  var obj = Object.create(null);
-  arr.forEach(function(name) {
-    obj[name] = name;
-  });
-  return Object.keys(obj);
-}
 
 function trimLocale(header) {
   if (! header) {
@@ -177,23 +170,14 @@ exports.create = function createServer() {
       delete route.config.response;
     });
   }
-  // make sure all `read` scopes include `write`, and all include `profile`
+
+  // Expand the scope list on each route to include all super-scopes,
+  // so that Hapi can easily check them via simple string comparison.
   routes.forEach(function(route) {
-    var scopes = route.config.auth && route.config.auth.scope;
-    if (! scopes) {
-      return;
+    var scope = route.config.auth && route.config.auth.scope;
+    if (scope) {
+      route.config.auth.scope = ScopeSet.fromArray(scope).getImplicantValues();
     }
-    var profileScope = route.method === 'GET' ? 'profile' : 'profile:write';
-    if (scopes.indexOf(profileScope) === -1) {
-      scopes.push(profileScope);
-    }
-    for (var i = 0, len = scopes.length; i < len; i++) {
-      var scope = scopes[i];
-      if (scope.indexOf(':write') === -1) {
-        scopes.push(scope + ':write');
-      }
-    }
-    scopes = set(scopes);
   });
 
   routes.forEach(function(route) {

@@ -25,7 +25,7 @@ assert(DEFAULT_AVATAR_ID.length === 32, 'img.default');
 module.exports = {
   auth: {
     strategy: 'oauth',
-    scope: ['profile:write', 'profile:avatar:write']
+    scope: ['profile:avatar:write']
   },
   validate: {
     headers: Joi.object({

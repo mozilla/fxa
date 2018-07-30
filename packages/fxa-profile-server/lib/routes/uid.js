@@ -5,7 +5,7 @@
 module.exports = {
   auth: {
     strategy: 'oauth',
-    scope: ['profile', 'profile:uid']
+    scope: ['profile:uid']
   },
   handler: function email(req, reply) {
     reply({

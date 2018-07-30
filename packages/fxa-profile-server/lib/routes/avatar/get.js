@@ -31,7 +31,7 @@ function avatarOrDefault(avatar) {
 module.exports = {
   auth: {
     strategy: 'oauth',
-    scope: ['profile', 'profile:avatar']
+    scope: ['profile:avatar']
   },
   response: {
     schema: {
