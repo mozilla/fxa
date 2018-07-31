@@ -12,7 +12,7 @@ const selectors = require('./lib/selectors');
 const config = intern._config;
 
 const SIGNUP_URL = `${config.fxaContentRoot}signup`;
-const SETTINGS_URL = `${config.fxaContentRoot}settings?showTwoStepAuthentication=true`;
+const SETTINGS_URL = `${config.fxaContentRoot}settings`;
 const PASSWORD = 'password';
 const SYNC_SIGNIN_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync`;
 

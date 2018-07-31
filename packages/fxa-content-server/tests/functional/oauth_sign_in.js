@@ -18,7 +18,7 @@ const selectors = require('./lib/selectors');
 otplib.authenticator.options = {encoding: 'hex'};
 
 const SIGNUP_URL = `${config.fxaContentRoot}signup`;
-const SETTINGS_URL = `${config.fxaContentRoot}settings?showTwoStepAuthentication=true`;
+const SETTINGS_URL = `${config.fxaContentRoot}settings`;
 
 const PASSWORD = 'password';
 let authenticator, email, secret, code;

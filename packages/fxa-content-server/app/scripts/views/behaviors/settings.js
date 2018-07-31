@@ -42,7 +42,6 @@ define(function (require, exports, module) {
               if (redirectTo.indexOf('/settings/emails') > 0) {
                 endpoint = '/settings/emails';
               } else if (redirectTo.indexOf('/settings/two_step_authentication') > 0) {
-                view.broker.setCapability('showTwoStepAuthentication', true);
                 endpoint = '/settings/two_step_authentication';
               }
             }
