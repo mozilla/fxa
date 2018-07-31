@@ -1,3 +1,13 @@
+<a name="1.117.1"></a>
+## 1.117.1 (2018-07-31)
+
+
+### Bug Fixes
+
+* **totp:** remove totp experiment (#6403) r=@vladikoff,@shane-tomlinson ([074a89c](https://github.com/mozilla/fxa-content-server/commit/074a89c))
+
+
+
 <a name="1.117.0"></a>
 # 1.117.0 (2018-07-24)
 
