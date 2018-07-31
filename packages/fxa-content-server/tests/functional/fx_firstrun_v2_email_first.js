@@ -22,6 +22,7 @@ const {
   closeCurrentWindow,
   createUser,
   openPage,
+  openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
   switchToWindow,
   testElementExists,
@@ -217,6 +218,32 @@ registerSuite('Firstrun Sync v2 email first', {
         .then(click(selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL, selectors.ENTER_EMAIL.HEADER))
 
         .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email));
-    }
+    },
+
+    'cached credentials': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, { webChannelResponses: {
+          'fxaccounts:can_link_account': { ok: true },
+          'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
+        }}))
+
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER))
+
+        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT, selectors.CONFIRM_SIGNIN.HEADER))
+        .then(openVerificationLinkInDifferentBrowser(email, 0))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+
+        // Use cached credentials form last time, but user must enter password
+        .then(openPage(PAGE_URL, selectors.SIGNIN_PASSWORD.HEADER, { webChannelResponses: {
+          'fxaccounts:can_link_account': { ok: true },
+          'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
+        }}))
+        .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
+        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT, selectors.CONFIRM_SIGNIN.HEADER));
+    },
   }
 });

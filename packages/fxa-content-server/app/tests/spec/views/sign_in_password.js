@@ -10,6 +10,7 @@ import FormPrefill from 'models/form-prefill';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
+import User from 'models/user';
 import View from 'views/sign_in_password';
 
 const EMAIL = 'testuser@testuser.com';
@@ -21,6 +22,7 @@ describe('views/sign_in_password', () => {
   let model;
   let notifier;
   let relier;
+  let user;
   let view;
 
   beforeEach(() => {
@@ -34,6 +36,7 @@ describe('views/sign_in_password', () => {
       service: 'sync',
       serviceName: 'Firefox Sync'
     });
+    user = new User();
 
     view = new View({
       broker,
@@ -41,6 +44,7 @@ describe('views/sign_in_password', () => {
       model,
       notifier,
       relier,
+      user,
       viewName: 'signin/password'
     });
 
@@ -102,6 +106,16 @@ describe('views/sign_in_password', () => {
             assert.isTrue(view.signIn.calledOnce);
             assert.isTrue(view.signIn.calledWith(account, 'password'));
           });
+      });
+    });
+
+    describe('useDifferentAccount', () => {
+      it('navigates to `/` with the account', () => {
+        sinon.spy(view, 'navigate');
+
+        view.useDifferentAccount();
+
+        assert.isTrue(view.navigate.calledOnceWith('/', { account }));
       });
     });
   });

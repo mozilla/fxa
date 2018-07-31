@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { assign } from 'underscore';
 import AuthErrors from '../lib/auth-errors';
-import BackMixin from './mixins/back-mixin';
 import Cocktail from 'cocktail';
 import CoppaMixin from './mixins/coppa-mixin';
 import EmailOptInMixin from './mixins/email-opt-in-mixin';
@@ -12,15 +12,28 @@ import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
 import PasswordMixin from './mixins/password-mixin';
 import PasswordStrengthExperimentMixin from './mixins/password-strength-experiment-mixin';
+import { preventDefaultThen } from './base';
 import ServiceMixin from './mixins/service-mixin';
 import SignUpMixin from './mixins/signup-mixin';
 import Template from 'templates/sign_up_password.mustache';
 
 class SignUpPasswordView extends FormView {
   constructor (options) {
-    super(options);
+    options.events = assign({}, options.events, {
+      'click .use-different': preventDefaultThen('useDifferentAccount')
+    });
 
-    this.template = Template;
+    super(options);
+  }
+
+  template = Template;
+
+  useDifferentAccount () {
+    // a user who came from an OAuth relier and was
+    // directed directly to /signin will not be able
+    // to go back. Send them directly to `/` with the
+    // account. The email will be prefilled on that page.
+    this.navigate('/', { account: this.getAccount() });
   }
 
   getAccount () {
@@ -78,7 +91,6 @@ class SignUpPasswordView extends FormView {
 
 Cocktail.mixin(
   SignUpPasswordView,
-  BackMixin,
   CoppaMixin({
     required: true
   }),

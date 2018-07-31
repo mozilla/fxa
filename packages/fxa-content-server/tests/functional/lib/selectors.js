@@ -179,7 +179,7 @@ module.exports = {
   SIGNIN_PASSWORD: {
     EMAIL: 'input[type=email]',
     HEADER: '#fxa-signin-password-header',
-    LINK_MISTYPED_EMAIL: '#back',
+    LINK_MISTYPED_EMAIL: '.use-different',
     PASSWORD: 'input[type=password]',
     SUBMIT: 'button[type="submit"]',
   },
@@ -235,7 +235,7 @@ module.exports = {
     EMAIL: 'input[type=email]',
     ERROR_PASSWORDS_DO_NOT_MATCH: '.error',
     HEADER: '#fxa-signup-password-header',
-    LINK_MISTYPED_EMAIL: '#back',
+    LINK_MISTYPED_EMAIL: '.use-different',
     PASSWORD: '#password',
     PASSWORD_BALLOON: {
       BALLOON: '.password-strength-balloon',

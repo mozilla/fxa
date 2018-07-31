@@ -8,6 +8,7 @@
  *
  * @module views/index
  */
+import CachedCredentialsMixin from './mixins/cached-credentials-mixin';
 import Cocktail from 'cocktail';
 import CoppaMixin from './mixins/coppa-mixin';
 import EmailFirstExperimentMixin from './mixins/email-first-experiment-mixin';
@@ -19,29 +20,20 @@ import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/index.mustache';
 
 class IndexView extends FormView {
-  constructor (options) {
-    super(options);
-
-    this.template = Template;
-  }
+  template = Template;
 
   get viewName () {
     return 'enter-email';
   }
 
+  getAccount () {
+    return this.model.get('account');
+  }
+
   beforeRender () {
-    const email = this.relier.get('email');
-    if (email) {
-      // Unsetting the relier email is to ensure the "mistyped email"
-      // link on the next page works. If the user clicks "mistyped email",
-      // they'd expect to come back here with the email prefilled and
-      // editable. If the email was still set in the relier, we'd send
-      // them right back. So, we unset the email from the relier and depend
-      // on the email being saved into formPrefill for when the user comes back.
-      this.relier.unset('email');
-      this.formPrefill.set('email', email);
-      // relierEmail is used in afterRender to decide whether to check an email.
-      this.model.set('relierEmail', email);
+    const account = this.getAccount();
+    if (account) {
+      this.formPrefill.set(account.pick('email'));
     }
   }
 
@@ -51,20 +43,35 @@ class IndexView extends FormView {
     // 2. action=email is specified by the firstrun page to specify
     // the email-first flow.
     const action = this.relier.get('action');
-    if (this.user.getSignedInAccount().get('sessionToken')) {
-      this.replaceCurrentPage('settings');
-    } else if (action && action !== 'email') {
+    if (action && action !== 'email') {
       this.replaceCurrentPage(action);
     } else if (this.isInEmailFirstExperimentGroup('treatment') || action === 'email') {
-      // let's the router know to use the email-first signin/signup page
-      this.notifier.trigger('email-first-flow');
-      const email = this.model.get('relierEmail');
-      if (email) {
-        return this.checkEmail(email);
-      }
+      return this.chooseEmailActionPage();
+    } else if (this.getSignedInAccount().get('sessionToken')) {
+      this.replaceCurrentPage('settings');
     } else {
       this.replaceCurrentPage('signup');
     }
+  }
+
+  chooseEmailActionPage () {
+    const relierEmail = this.relier.get('email');
+    const accountFromPreviousScreen = this.getAccount();
+    const suggestedAccount = this.suggestedAccount();
+    // let's the router know to use the email-first signin/signup page
+    this.notifier.trigger('email-first-flow');
+
+    if (accountFromPreviousScreen) {
+      // intentionally empty
+      // shows the email-first template, the prefill email was set in beforeRender
+    } else if (relierEmail) {
+      return this.checkEmail(relierEmail);
+    } else if (this.allowSuggestedAccount(suggestedAccount)) {
+      this.replaceCurrentPage('signin', {
+        account: suggestedAccount
+      });
+    }
+    // else, show the email-first template.
   }
 
   submit () {
@@ -85,16 +92,16 @@ class IndexView extends FormView {
       email
     });
 
-      // before checking whether the email exists, check
-      // that accounts can be merged.
+    // before checking whether the email exists, check
+    // that accounts can be merged.
     return this.invokeBrokerMethod('beforeSignIn', account)
       .then(() => this.user.checkAccountEmailExists(account))
       .then((exists) => {
         const nextEndpoint = exists ? 'signin' : 'signup';
         if (exists) {
-          // If the account exists, use the stored account
-          // so that any stored avatars are displayed on
-          // the next page.
+        // If the account exists, use the stored account
+        // so that any stored avatars are displayed on
+        // the next page.
           account = this.user.getAccountByEmail(email);
           // the returned account could be the default,
           // ensure it's email is set.
@@ -107,6 +114,7 @@ class IndexView extends FormView {
 
 Cocktail.mixin(
   IndexView,
+  CachedCredentialsMixin,
   CoppaMixin({}),
   EmailFirstExperimentMixin(),
   TokenCodeExperimentMixin,

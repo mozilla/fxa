@@ -1279,8 +1279,7 @@ const reOpenWithAdditionalQueryParams = thenify(function (additionalQueryParams,
  * @param {boolean} [options.untrusted] - if `true`, opens the Untrusted
  * relier. Defaults to `true`
  */
-const openFxaFromRp = thenify(function (page, options) {
-  options = options || {};
+const openFxaFromRp = thenify(function (page, options = {}) {
   var app = options.untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
   var expectedHeader = options.header || '#fxa-' + page.replace('_', '-') + '-header';
   var queryParams = options.query || {};

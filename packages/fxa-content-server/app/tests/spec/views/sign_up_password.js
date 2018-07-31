@@ -160,5 +160,15 @@ define(function (require, exports, module) {
         });
       });
     });
+
+    describe('useDifferentAccount', () => {
+      it('navigates to `/` with the account', () => {
+        sinon.spy(view, 'navigate');
+
+        view.useDifferentAccount();
+
+        assert.isTrue(view.navigate.calledOnceWith('/', { account }));
+      });
+    });
   });
 });

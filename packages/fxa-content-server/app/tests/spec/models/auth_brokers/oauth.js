@@ -355,6 +355,12 @@ describe('models/auth_brokers/oauth', function () {
       });
     });
 
+    describe('/', () => {
+      it('prepends `/oauth` to the link', () => {
+        assert.include(broker.transformLink('/'), '/oauth/');
+      });
+    });
+
     describe('not transformed', () => {
       it('does not include the oauth prefix', () => {
         const transformed = broker.transformLink('not_oauth');

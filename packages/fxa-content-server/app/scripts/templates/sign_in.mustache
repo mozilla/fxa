@@ -44,9 +44,11 @@
         {{/chooserAskForPassword}}
 
         {{^chooserAskForPassword}}
-          <div class="button-row">
-            <button type="submit" class="use-logged-in" autofocus>{{{buttonSignInText}}}</button>
-          </div>
+          <form novalidate>
+            <div class="button-row">
+              <button id="submit-btn" type="submit" class="use-logged-in" autofocus>{{{buttonSignInText}}}</button>
+            </div>
+          </form>
 
           <div class="links">
             <a href="/signin?email=blank" class="use-different" data-flow-event="use-different-account">{{#t}}Use a different account{{/t}}</a><br/>

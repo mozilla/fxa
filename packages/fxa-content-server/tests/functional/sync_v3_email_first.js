@@ -11,7 +11,7 @@ const selectors = require('./lib/selectors');
 
 const config = intern._config;
 
-const QUERY_PARAMS = '?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true&forceExperiment=emailFirst&forceExperimentGroup=treatment'; //eslint-disable-line max-len
+const QUERY_PARAMS = '?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true&action=email';
 const INDEX_PAGE_URL = `${config.fxaContentRoot}${QUERY_PARAMS}`;
 const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup${QUERY_PARAMS}`;
 const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin${QUERY_PARAMS}`;
@@ -27,6 +27,7 @@ const {
   createUser,
   noPageTransition,
   openPage,
+  openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
   switchToWindow,
   testElementExists,
@@ -95,6 +96,11 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
         .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
+        // user thinks they mistyped their email
+        .then(click(selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL, selectors.ENTER_EMAIL.HEADER))
+
+        .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER))
 
         // passwords do not match should cause an error
         .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
@@ -152,6 +158,11 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         .then(type(selectors.ENTER_EMAIL.EMAIL, email))
         .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+
+        // user thinks they mistyped their email
+        .then(click(selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL, selectors.ENTER_EMAIL.HEADER))
+        .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER))
 
         .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
         .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
@@ -236,6 +247,37 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         .then(click(selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL, selectors.ENTER_EMAIL.HEADER))
 
         .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email));
-    }
+    },
+
+    'cached credentials': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, { webChannelResponses: {
+          'fxaccounts:can_link_account': { ok: true },
+          'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
+        }}))
+
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER))
+
+        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT, selectors.CONFIRM_SIGNIN.HEADER))
+        .then(openVerificationLinkInDifferentBrowser(email, 0))
+        .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER))
+
+        // Use cached credentials form last time, but user must enter password
+        .then(openPage(INDEX_PAGE_URL, selectors.SIGNIN_PASSWORD.HEADER, { webChannelResponses: {
+          'fxaccounts:can_link_account': { ok: true },
+          'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
+        }}))
+        .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
+        // user wants to use a different email
+        .then(click(selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL, selectors.ENTER_EMAIL.HEADER))
+        .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER))
+
+        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT, selectors.CONFIRM_SIGNIN.HEADER));
+    },
   }
 });

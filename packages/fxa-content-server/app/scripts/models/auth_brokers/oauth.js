@@ -219,7 +219,8 @@ var OAuthAuthenticationBroker = BaseAuthenticationBroker.extend({
       link = '/' + link;
     }
 
-    if (/^\/(force_auth|signin|signup)$/.test(link)) {
+    // in addition to named routes, also transforms `/`
+    if (/^\/(force_auth|signin|signup)?$/.test(link)) {
       link = '/oauth' + link;
     }
 

@@ -14,19 +14,10 @@ import IndexView from './index';
 
 class OAuthIndexView extends IndexView {
   afterRender () {
-    // Attempt to get email address from relier
-    const action = this.relier.get('action');
-    const email = this.model.get('relierEmail');
+    const { action, email } = this.relier.toJSON();
 
     if (action === 'email') {
-      // let's the router know to use the email-first signin/signup page
-      this.notifier.trigger('email-first-flow');
-      if (email) {
-        return this.checkEmail(email);
-      } else {
-        // show the email-first template.
-        return;
-      }
+      return this.chooseEmailActionPage();
     }
 
     return Promise.resolve().then(() => {

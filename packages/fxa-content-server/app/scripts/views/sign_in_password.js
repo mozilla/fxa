@@ -2,12 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import BackMixin from './mixins/back-mixin';
+import AccountResetMixin from './mixins/account-reset-mixin';
+import { assign } from 'underscore';
+import AuthErrors from '../lib/auth-errors';
+import CachedCredentialsMixin from './mixins/cached-credentials-mixin';
 import Cocktail from 'cocktail';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
 import PasswordMixin from './mixins/password-mixin';
+import { preventDefaultThen } from './base';
 import ServiceMixin from './mixins/service-mixin';
 import SignInMixin from './mixins/signin-mixin';
 import Template from 'templates/sign_in_password.mustache';
@@ -15,9 +19,21 @@ import UserCardMixin from './mixins/user-card-mixin';
 
 class SignInPasswordView extends FormView {
   constructor (options) {
-    super(options);
+    options.events = assign({}, options.events, {
+      'click .use-different': preventDefaultThen('useDifferentAccount')
+    });
 
-    this.template = Template;
+    super(options);
+  }
+
+  template = Template;
+
+  useDifferentAccount () {
+    // a user who came from an OAuth relier and was
+    // directed directly to /signin will not be able
+    // to go back. Send them directly to `/` with the
+    // account. The email will be prefilled on that page.
+    this.navigate('/', { account: this.getAccount() });
   }
 
   getAccount () {
@@ -31,19 +47,45 @@ class SignInPasswordView extends FormView {
   }
 
   setInitialContext (context) {
-    context.set(this.getAccount().pick('email'));
+    const account = this.getAccount();
+
+    context.set({
+      email: account.get('email'),
+      isPasswordNeeded: this.isPasswordNeededForAccount(account)
+    });
   }
 
   submit () {
-    const password = this.getElementValue('input[type=password]');
+    const account = this.getAccount();
+    if (this.isPasswordNeededForAccount(account)) {
+      const password = this.getElementValue('input[type=password]');
+      return this.signIn(account, password)
+        .catch((error) => this.onSignInError(account, password, error));
+    } else {
+      return this.useLoggedInAccount(account);
+    }
+  }
 
-    return this.signIn(this.getAccount(), password);
+  onSignInError (account, password, err) {
+    if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+      this.logViewEvent('canceled');
+      // if user canceled login, just stop
+      return;
+    } else if (AuthErrors.is(err, 'ACCOUNT_RESET')) {
+      return this.notifyOfResetAccount(account);
+    } else if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
+      return this.showValidationError(this.$('input[type=password]'), err);
+    }
+
+    // re-throw error, it will be handled at a lower level.
+    throw err;
   }
 }
 
 Cocktail.mixin(
   SignInPasswordView,
-  BackMixin,
+  AccountResetMixin,
+  CachedCredentialsMixin,
   FlowEventsMixin,
   FormPrefillMixin,
   PasswordMixin,

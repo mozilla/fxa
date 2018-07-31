@@ -158,6 +158,7 @@ require('./spec/views/marketing_snippet');
 require('./spec/views/mixins/account-reset-mixin');
 require('./spec/views/mixins/avatar-mixin');
 require('./spec/views/mixins/back-mixin');
+require('./spec/views/mixins/cached-credentials-mixin');
 require('./spec/views/mixins/connect-another-device-mixin');
 require('./spec/views/mixins/coppa-mixin');
 require('./spec/views/mixins/disable-form-mixin');

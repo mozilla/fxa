@@ -147,9 +147,6 @@ describe('views/index', () => {
           return view.render()
             .then(() => {
               assert.isTrue(view.checkEmail.calledOnceWith('testuser@testuser.com'));
-              assert.isFalse(relier.has('email'));
-              assert.equal(relier.get('relierEmail', 'testuser@testuser.com'));
-              assert.equal(view.formPrefill.get('email'), 'testuser@testuser.com');
             });
         });
       });

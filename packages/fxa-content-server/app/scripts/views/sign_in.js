@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import AccountResetMixin from './mixins/account-reset-mixin';
-import allowOnlyOneSubmit from './decorators/allow_only_one_submit';
 import AuthErrors from '../lib/auth-errors';
 import AvatarMixin from './mixins/avatar-mixin';
+import CachedCredentialsMixin from './mixins/cached-credentials-mixin';
 import Cocktail from 'cocktail';
 import EmailFirstExperimentMixin from './mixins/email-first-experiment-mixin';
 import FlowBeginMixin from './mixins/flow-begin-mixin';
@@ -13,13 +13,16 @@ import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
 import PasswordMixin from './mixins/password-mixin';
 import PasswordResetMixin from './mixins/password-reset-mixin';
-import { preventDefaultThen, t } from './base';
+import { preventDefaultThen } from './base';
 import ServiceMixin from './mixins/service-mixin';
 import Session from '../lib/session';
-import showProgressIndicator from './decorators/progress_indicator';
 import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import SignInMixin from './mixins/signin-mixin';
 import SignInTemplate from 'templates/sign_in.mustache';
+import { t } from './base';
+
+const EMAIL_SELECTOR = 'input[type=email]';
+const PASSWORD_SELECTOR = 'input[type=password]';
 
 const proto = FormView.prototype;
 const View = FormView.extend({
@@ -38,7 +41,7 @@ const View = FormView.extend({
   },
 
   beforeRender () {
-    this._account = this._suggestedAccount();
+    this._account = this.suggestedAccount();
   },
 
   afterVisible () {
@@ -49,10 +52,8 @@ const View = FormView.extend({
     const account = this.getAccount();
     this.listenTo(account, 'change:accessToken', () => {
       // if no access token and password is not visible we need to show the password field.
-      if (! account.has('accessToken') && this.$('.password').is(':hidden')) {
-        // accessToken could be changed async by an external request after render
-        // If the ProfileClient fails to get an OAuth token with the current token then reset the view
-        this.chooserAskForPassword = true;
+      if (! account.has('accessToken') && this.$(PASSWORD_SELECTOR).is(':hidden')) {
+        this.model.set('chooserAskForPassword', true);
         return this.render().then(() => this.setDefaultPlaceholderAvatar());
       }
     });
@@ -64,18 +65,8 @@ const View = FormView.extend({
     return this._account;
   },
 
-  getPrefillEmail () {
-    // formPrefill.email comes first because users can edit the email,
-    // go to another view, edit the email again, and come back here. We
-    // want the last used email.
-    return this.formPrefill.get('email') || this.relier.get('email');
-  },
-
   getEmail () {
-    var suggestedAccount = this.getAccount();
-    var hasSuggestedAccount = suggestedAccount.get('email');
-    return hasSuggestedAccount ?
-      suggestedAccount.get('email') : this.getPrefillEmail();
+    return this.getAccount().get('email') || this.getPrefillEmail();
   },
 
   setInitialContext (context) {
@@ -91,7 +82,7 @@ const View = FormView.extend({
 
     context.set({
       buttonSignInText,
-      chooserAskForPassword: this._suggestedAccountAskPassword(suggestedAccount),
+      chooserAskForPassword: this.isPasswordNeededForAccount(suggestedAccount),
       email: email,
       error: this.error,
       headerSignInText,
@@ -102,36 +93,43 @@ const View = FormView.extend({
 
   events: {
     'click .use-different': 'useDifferentAccount',
-    'click .use-logged-in': 'useLoggedInAccount'
   },
 
   submit () {
-    const email = this.getElementValue('.email');
-    const password = this.getElementValue('.password');
-
-    // Re-authenticate the current account if we're signing in
-    // with the same email address; otherwise start afresh.
     let account = this.getAccount();
-    if (! account || ! account.has('email') || account.get('email').toLowerCase() !== email.toLowerCase()) {
-      account = this.user.initAccount({
-        email: email
-      });
+
+    if (this.$(PASSWORD_SELECTOR).length) {
+      const email = this.getElementValue(EMAIL_SELECTOR);
+      const password = this.getElementValue(PASSWORD_SELECTOR);
+
+      // Re-authenticate the current account if we're signing in
+      // with the same email address; otherwise start afresh.
+      if (shouldCreateNewAccount(account, email)) {
+        account = this.user.initAccount({
+          email
+        });
+      }
+      return this._signIn(account, password);
+    } else {
+      return this.useLoggedInAccount(account);
     }
 
-    return this._signIn(account, password);
+    function shouldCreateNewAccount (account, email) {
+      return ! account || ! account.has('email') || account.get('email').toLowerCase() !== email.toLowerCase();
+    }
   },
 
   /**
-     * Sign in a user
-     *
-     * @param {Account} account
-     *     @param {String} account.sessionToken
-     *     Session token from the account
-     * @param {String} [password] - the user's password. Can be null if
-     *  user is signing in with a sessionToken.
-     * @returns {Promise}
-     * @private
-     */
+   * Sign in a user
+   *
+   * @param {Account} account
+   *     @param {String} account.sessionToken
+   *     Session token from the account
+   * @param {String} [password] - the user's password. Can be null if
+   *  user is signing in with a sessionToken.
+   * @returns {Promise}
+   * @private
+   */
   _signIn (account, password) {
     return this.signIn(account, password)
       .catch(this.onSignInError.bind(this, account, password));
@@ -154,32 +152,9 @@ const View = FormView.extend({
     throw err;
   },
 
-  _suggestSignUp (err) {
-    err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
-
-    return this.unsafeDisplayError(err);
-  },
-
   /**
-     * Used for the special "Sign In" button
-     * which is present when there is already a logged in user in the session
-     */
-  useLoggedInAccount: allowOnlyOneSubmit(showProgressIndicator(function () {
-    var account = this.getAccount();
-
-    return this._signIn(account, null)
-      .catch(() => {
-        this.chooserAskForPassword = true;
-        return this.render().then(() => {
-          this.user.removeAccount(account);
-          return this.displayError(AuthErrors.toError('SESSION_EXPIRED'));
-        });
-      });
-  })),
-
-  /**
-     * Render to a basic sign in view, used with "Use a different account" button
-     */
+   * Render to a basic sign in view, used with "Use a different account" button
+   */
   useDifferentAccount: preventDefaultThen(function () {
     // TODO when the UI allows removal of individual accounts,
     // only clear the current account.
@@ -191,77 +166,10 @@ const View = FormView.extend({
     return this.render();
   }),
 
-  /**
-     * Get the "suggested" account
-     *
-     * @returns {Object} the suggested Account
-     * @private
-     */
-  _suggestedAccount () {
-    const user = this.user;
-    const account = user.getChooserAccount();
-    if (this._allowSuggestedAccount(account)) {
-      return account;
-    } else {
-      return user.initAccount({});
-    }
-  },
+  _suggestSignUp (err) {
+    err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
 
-  _allowSuggestedAccount (account) {
-    const prefillEmail = this.getPrefillEmail();
-    return !! (
-    // the relier can overrule cached creds.
-      this.relier.allowCachedCredentials() &&
-        // prefilled email must be the same or absent
-        (prefillEmail === account.get('email') || ! prefillEmail)
-    );
-  },
-
-  /**
-     * Determines if the suggested user must be asked for a password.
-     * @param {Account} account
-     * @returns {Boolean}
-     * @private
-     */
-  _suggestedAccountAskPassword (account) {
-    // If there's no email, obviously we'll have to ask for the password.
-    if (! account.get('email')) {
-      this.logViewEvent('ask-password.shown.account-unknown');
-      return true;
-    }
-
-    // If the relier wants keys, then the user must authenticate and the password must be requested.
-    // This includes sync, which must skip the login chooser at all cost
-    if (this.relier.wantsKeys()) {
-      this.logViewEvent('ask-password.shown.keys-required');
-      return true;
-    }
-
-    // We need to ask the user again for their password unless the credentials came from Sync.
-    // Otherwise they aren't able to "fully" log out. Only Sync has a clear path to disconnect/log out
-    // your account that invalidates your sessionToken.
-    if (! this.user.isSyncAccount(account)) {
-      this.logViewEvent('ask-password.shown.session-from-web');
-      return true;
-    }
-
-    // Ask when 'chooserAskForPassword' is explicitly set.
-    // This happens in response to an expired session token.
-    if (this.chooserAskForPassword === true) {
-      this.logViewEvent('ask-password.shown.session-expired');
-      return true;
-    }
-
-    // Ask when a prefill email does not match the account email.
-    var prefillEmail = this.getPrefillEmail();
-    if (prefillEmail && prefillEmail !== account.get('email')) {
-      this.logViewEvent('ask-password.shown.email-mismatch');
-      return true;
-    }
-
-    // If none of that is true, it's safe to proceed without asking for the password.
-    this.logViewEvent('ask-password.skipped');
-    return false;
+    return this.unsafeDisplayError(err);
   }
 });
 
@@ -269,6 +177,7 @@ Cocktail.mixin(
   View,
   AccountResetMixin,
   AvatarMixin,
+  CachedCredentialsMixin,
   FlowBeginMixin,
   EmailFirstExperimentMixin({ treatmentPathname: '/' }),
   FormPrefillMixin,

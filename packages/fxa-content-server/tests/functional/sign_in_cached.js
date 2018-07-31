@@ -9,6 +9,7 @@ const assert = intern.getPlugin('chai').assert;
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const Constants = require('../../app/scripts/lib/constants');
+const selectors = require('./lib/selectors');
 var FX_DESKTOP_V2_CONTEXT = Constants.FX_DESKTOP_V2_CONTEXT;
 
 var config = intern._config;
@@ -165,6 +166,7 @@ registerSuite('sign_in cached', {
         // Session expired error should show.
         .then(visibleByQSA('.error'))
 
+        .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
         .then(type('input.password', PASSWORD))
         .then(click('button[type="submit"]'))
 
