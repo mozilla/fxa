@@ -16,7 +16,6 @@ const UpgradeSessionMixin = require('../mixins/upgrade-session-mixin');
 const Template = require('templates/settings/two_step_authentication.mustache');
 const preventDefaultThen = require('../base').preventDefaultThen;
 const showProgressIndicator = require('../decorators/progress_indicator');
-const TotpExperimentMixin = require('../mixins/totp-experiment-mixin');
 
 var t = BaseView.t;
 
@@ -65,18 +64,6 @@ const View = FormView.extend({
     return code.replace(/(\w{4})/g, '$1 ');
   },
 
-  _isPanelEnabled() {
-    if (this.broker.hasCapability('showTwoStepAuthentication')) {
-      return true;
-    }
-
-    if (this.isInTotpExperiment()) {
-      return true;
-    }
-
-    return false;
-  },
-
   _showRecoveryCodes(recoveryCodes) {
     this.model.set('recoveryCodes', recoveryCodes);
     this.navigate('/settings/two_step_authentication/recovery_codes', {recoveryCodes});
@@ -91,18 +78,12 @@ const View = FormView.extend({
   },
 
   beforeRender() {
-    // This panel is currently behind a feature flag. Only show it
-    // when the query param `showTwoStepAuthentication` is specified.
-    if ( ! this._isPanelEnabled()) {
-      return this.remove();
-    } else {
-      return this.setupSessionGateIfRequired()
-        .then((isEnabled) => {
-          if (isEnabled) {
-            return this._checkTokenExists();
-          }
-        });
-    }
+    return this.setupSessionGateIfRequired()
+      .then((isEnabled) => {
+        if (isEnabled) {
+          return this._checkTokenExists();
+        }
+      });
   },
 
   initialize() {
@@ -189,8 +170,7 @@ Cocktail.mixin(
   }),
   AvatarMixin,
   LastCheckedTimeMixin,
-  SettingsPanelMixin,
-  TotpExperimentMixin
+  SettingsPanelMixin
 );
 
 module.exports = View;

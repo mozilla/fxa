@@ -12,11 +12,11 @@ const selectors = require('./lib/selectors');
 const config = intern._config;
 
 const SIGNUP_URL = `${config.fxaContentRoot}signup`;
-const SETTINGS_URL = `${config.fxaContentRoot}settings?showTwoStepAuthentication=true`;
+const SETTINGS_URL = `${config.fxaContentRoot}settings`;
 const PASSWORD = 'password';
 const SYNC_SIGNIN_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync`;
-const SIGNIN_URL = `${config.fxaContentRoot}signin?showTwoStepAuthentication=true`;
-const RECOVERY_CODES_URL = `${config.fxaContentRoot}settings/two_step_authentication/recovery_codes?showTwoStepAuthentication=true`;
+const SIGNIN_URL = `${config.fxaContentRoot}signin`;
+const RECOVERY_CODES_URL = `${config.fxaContentRoot}settings/two_step_authentication/recovery_codes`;
 
 let email;
 let secret;
@@ -32,7 +32,6 @@ const {
   fillOutSignIn,
   generateTotpCode,
   openPage,
-  noSuchElement,
   openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
@@ -81,13 +80,6 @@ registerSuite('TOTP', {
     return this.remote.then(clearBrowserState());
   },
   tests: {
-    'does not show panel when query `showTwoStepAuthentication` is not set': function () {
-      return this.remote
-        .then(openPage(config.fxaContentRoot + 'settings', selectors.SETTINGS.HEADER))
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(noSuchElement(selectors.TOTP.MENU_BUTTON));
-    },
-
     'can add TOTP to account and confirm web signin': function () {
       return this.remote
       // Show's tool tip for invalid codes on setup

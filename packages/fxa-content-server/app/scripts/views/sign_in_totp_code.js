@@ -9,7 +9,6 @@ import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/sign_in_totp_code.mustache';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
 import FlowEventsMixin from './mixins/flow-events-mixin';
-import TotpExperimentMixin from './mixins/totp-experiment-mixin';
 
 const CODE_INPUT_SELECTOR = 'input.totp-code';
 
@@ -55,7 +54,6 @@ Cocktail.mixin(
   View,
   FlowEventsMixin,
   ServiceMixin,
-  TotpExperimentMixin,
   VerificationReasonMixin
 );
 
