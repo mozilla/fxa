@@ -23,7 +23,7 @@ describe('remote recovery codes', function () {
 
   otplib.authenticator.options = {
     encoding: 'hex',
-    step: config.step
+    window: 10
   }
 
   before(() => {

@@ -24,8 +24,7 @@ describe('remote totp', function () {
   otplib.authenticator.options = {
     crypto: crypto,
     encoding: 'hex',
-    step: 1,
-    window: 4
+    window: 10
   }
 
   before(() => {
@@ -249,8 +248,8 @@ describe('remote totp', function () {
 
     it('should verify totp code from previous code window', () => {
       const futureAuthenticator = new otplib.Authenticator()
-      futureAuthenticator.options = Object.assign({}, authenticator.options, {epoch: -10000})
-      const code = authenticator.generate()
+      futureAuthenticator.options = Object.assign({}, authenticator.options, {epoch: Date.now() / 1000 - 30})
+      const code = futureAuthenticator.generate()
       return client.verifyTotpCode(code, {metricsContext, service: 'sync'})
         .then((response) => {
           assert.equal(response.success, true, 'totp codes match')
@@ -263,7 +262,7 @@ describe('remote totp', function () {
 
     it('should not verify totp code from future code window', () => {
       const futureAuthenticator = new otplib.Authenticator()
-      futureAuthenticator.options = Object.assign({}, authenticator.options, {epoch: 10000})
+      futureAuthenticator.options = Object.assign({}, authenticator.options, {epoch: Date.now() / 1000 + 3000})
       const code = futureAuthenticator.generate()
       return client.verifyTotpCode(code, {metricsContext, service: 'sync'})
         .then((response) => {
