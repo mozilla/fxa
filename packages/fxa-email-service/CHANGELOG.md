@@ -1,3 +1,15 @@
+<a name="v1.117.0"></a>
+## v1.117.0 (2018-08-01)
+
+
+#### Features
+
+* **settings:**
+  *  enable the default provider to override requests ([ca4b2011](ca4b2011))
+  *  add secret_key to settings (#147) r=@vladikoff ([1db8d449](1db8d449), closes [#146](146))
+
+
+
 <a name="v1.116.3"></a>
 ## v1.116.3 (2018-07-26)
 
