@@ -623,7 +623,8 @@ module.exports = function (
         validate: {
           payload: {
             code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
-            metricsContext: METRICS_CONTEXT_SCHEMA
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+            accountResetWithRecoveryKey: isA.boolean().optional()
           }
         },
         response: {
@@ -636,6 +637,7 @@ module.exports = function (
         log.begin('Password.forgotVerify', request)
         var passwordForgotToken = request.auth.credentials
         var code = request.payload.code
+        const accountResetWithRecoveryKey = request.payload.accountResetWithRecoveryKey
 
         request.validateMetricsContext()
 
@@ -659,6 +661,14 @@ module.exports = function (
                     function (accountResetToken) {
                       return db.accountEmails(passwordForgotToken.uid)
                         .then((emails) => {
+
+                          if (accountResetWithRecoveryKey) {
+                            // To prevent multiple password change emails being sent to a user,
+                            // we check for a flag to see if this is a reset using an account recovery key.
+                            // If it is, then the notification email will be sent in `/account/reset`
+                            return P.resolve()
+                          }
+
                           return mailer.sendPasswordResetNotification(
                             emails,
                             passwordForgotToken,

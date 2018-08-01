@@ -500,7 +500,8 @@ module.exports = config => {
             token,
             {
               code: code,
-              metricsContext: options.metricsContext || undefined
+              metricsContext: options.metricsContext || undefined,
+              accountResetWithRecoveryKey: options.accountResetWithRecoveryKey || undefined
             },
             headers
           )

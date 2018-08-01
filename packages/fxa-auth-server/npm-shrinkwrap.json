@@ -2839,7 +2839,7 @@
       "integrity": "sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A=="
     },
     "fxa-auth-db-mysql": {
-      "version": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#677d02b8c51f0a5fa0e20bd429a4e076923f5bc6",
+      "version": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#29b9b4bc65784659ff103d77a390dc043e41992c",
       "from": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
       "dev": true,
       "requires": {
@@ -10945,7 +10945,7 @@
       "from": "git+https://github.com/vladikoff/node-uap.git#9cdd16247",
       "requires": {
         "array.prototype.find": "2.0.0",
-        "uap-core": "git://github.com/ua-parser/uap-core.git#fdee91274bbd6c36dd9f7d9b6673db80505d2c53",
+        "uap-core": "git://github.com/ua-parser/uap-core.git#590f66f40b00644efa6045d06e3c2a605eb22ea1",
         "uap-ref-impl": "0.2.0",
         "yamlparser": "0.0.2"
       }
@@ -13708,7 +13708,7 @@
       "integrity": "sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c="
     },
     "uap-core": {
-      "version": "git://github.com/ua-parser/uap-core.git#fdee91274bbd6c36dd9f7d9b6673db80505d2c53",
+      "version": "git://github.com/ua-parser/uap-core.git#590f66f40b00644efa6045d06e3c2a605eb22ea1",
       "from": "git://github.com/ua-parser/uap-core.git"
     },
     "uap-ref-impl": {

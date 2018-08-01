@@ -20,5 +20,8 @@
   "postAddTwoStepAuthenticationEmail": 4,
   "postRemoveTwoStepAuthenticationEmail": 4,
   "postConsumeRecoveryCodeEmail": 1,
-  "postNewRecoveryCodesEmail": 1
+  "postNewRecoveryCodesEmail": 1,
+  "passwordResetAccountRecoveryEmail": 2,
+  "postAddAccountRecoveryEmail": 2,
+  "postRemoveAccountRecoveryEmail": 2
 }

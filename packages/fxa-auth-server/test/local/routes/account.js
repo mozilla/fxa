@@ -76,7 +76,7 @@ function runTest(route, request, assertions) {
 
 describe('/account/reset', function () {
   let uid, mockLog, mockMetricsContext, mockRequest, keyFetchTokenId, sessionTokenId,
-    mockDB, mockCustoms, mockPush, accountRoutes, route, clientAddress
+    mockDB, mockCustoms, mockPush, accountRoutes, route, clientAddress, mailer
 
   beforeEach(() => {
     uid = uuid.v4('binary').toString('hex')
@@ -115,6 +115,7 @@ describe('/account/reset', function () {
     })
     mockCustoms = mocks.mockCustoms()
     mockPush = mocks.mockPush()
+    mailer = mocks.mockMailer()
     accountRoutes = makeRoutes({
       config: {
         securityHistory: {
@@ -124,7 +125,8 @@ describe('/account/reset', function () {
       customs: mockCustoms,
       db: mockDB,
       log: mockLog,
-      push: mockPush
+      push: mockPush,
+      mailer
     })
     route = getRoute(accountRoutes, '/account/reset')
 
@@ -167,6 +169,13 @@ describe('/account/reset', function () {
       const args = mockDB.deleteRecoveryKey.args[0]
       assert.equal(args.length, 1, 'db.deleteRecoveryKey passed correct number of args')
       assert.equal(args[0], uid, 'uid passed')
+    })
+
+    it('called mailer.sendPasswordResetAccountRecoveryNotification correctly', () => {
+      assert.equal(mailer.sendPasswordResetAccountRecoveryNotification.callCount, 1)
+      const args = mailer.sendPasswordResetAccountRecoveryNotification.args[0]
+      assert.equal(args.length, 3)
+      assert.equal(args[0][0].email, TEST_EMAIL)
     })
 
     it('should have reset custom server', () => {

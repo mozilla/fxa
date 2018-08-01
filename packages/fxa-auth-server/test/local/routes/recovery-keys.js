@@ -11,7 +11,7 @@ const P = require('../../../lib/promise')
 const sinon = require('sinon')
 const errors = require('../../../lib/error')
 
-let log, db, customs, routes, route, request, response
+let log, db, customs, mailer, routes, route, request, response
 const email = 'test@email.com'
 const recoveryKeyId = '000000'
 const recoveryData = '11111111111'
@@ -25,7 +25,7 @@ describe('POST /recoveryKey', () => {
         log,
         payload: {recoveryKeyId, recoveryData}
       }
-      return setup({db: {}}, {}, '/recoveryKey', requestOptions).then(r => response = r)
+      return setup({db: {email}}, {}, '/recoveryKey', requestOptions).then(r => response = r)
     })
 
     it('returned the correct response', () => {
@@ -61,6 +61,13 @@ describe('POST /recoveryKey', () => {
       const args = request.emitMetricsEvent.args[0]
       assert.equal(args[0], 'recoveryKey.created', 'called emitMetricsEvent with correct event')
       assert.equal(args[1]['uid'], uid, 'called emitMetricsEvent with correct event')
+    })
+
+    it('called mailer.sendPostAddAccountRecoveryNotification correctly', () => {
+      assert.equal(mailer.sendPostAddAccountRecoveryNotification.callCount, 1)
+      const args = mailer.sendPostAddAccountRecoveryNotification.args[0]
+      assert.equal(args.length, 3)
+      assert.equal(args[0][0].email, email)
     })
   })
 
@@ -213,7 +220,7 @@ describe('DELETE /recoveryKey', () => {
         credentials: {uid, email},
         log
       }
-      return setup({db: {recoveryData}}, {}, '/recoveryKey', requestOptions)
+      return setup({db: {recoveryData, email}}, {}, '/recoveryKey', requestOptions)
         .then(r => response = r)
     })
 
@@ -234,6 +241,13 @@ describe('DELETE /recoveryKey', () => {
       const args = db.deleteRecoveryKey.args[0]
       assert.equal(args.length, 1)
       assert.equal(args[0], uid)
+    })
+
+    it('called mailer.sendPostRemoveAccountRecoveryNotification correctly', () => {
+      assert.equal(mailer.sendPostRemoveAccountRecoveryNotification.callCount, 1)
+      const args = mailer.sendPostRemoveAccountRecoveryNotification.args[0]
+      assert.equal(args.length, 3)
+      assert.equal(args[0][0].email, email)
     })
   })
 
@@ -261,7 +275,8 @@ function setup(results, errors, path, requestOptions) {
   log = mocks.mockLog()
   db = mocks.mockDB(results.db, errors.db)
   customs = mocks.mockCustoms(errors.customs)
-  routes = makeRoutes({log, db, customs})
+  mailer = mocks.mockMailer()
+  routes = makeRoutes({log, db, customs, mailer})
   route = getRoute(routes, path, requestOptions.method)
   request = mocks.mockRequest(requestOptions)
   request.emitMetricsEvent = sinon.spy(() => P.resolve({}))
@@ -274,7 +289,8 @@ function makeRoutes(options = {}) {
   const customs = options.customs || mocks.mockCustoms()
   const config = options.config || {signinConfirmation: {}}
   const Password = require('../../../lib/crypto/password')(log, config)
-  return require('../../../lib/routes/recovery-key')(log, db, Password, config.verifierVersion, customs)
+  const mailer = options.mailer || mocks.mockMailer()
+  return require('../../../lib/routes/recovery-key')(log, db, Password, config.verifierVersion, customs, mailer)
 }
 
 function runTest(route, request) {

@@ -24,7 +24,7 @@ describe('remote recovery keys', function () {
   function createMockRecoveryKey() {
     // The auth-server does not care about the encryption details of the recovery data.
     // To simplify things, we can mock out some random bits to be stored. Check out
-    // /docs/recovery_keys.md for a more details on the encryption that a client
+    // /docs/recovery_keys.md for more details on the encryption that a client
     // could perform.
     const recoveryCode = crypto.randomBytes(16).toString('hex')
     const recoveryKeyId = crypto.randomBytes(16).toString('hex')
@@ -63,6 +63,10 @@ describe('remote recovery keys', function () {
             // Should create recovery key
             return client.createRecoveryKey(result.recoveryKeyId, result.recoveryData)
               .then((res) => assert.ok(res, 'empty response'))
+              .then(() => server.mailbox.waitForEmail(email))
+              .then((emailData) => {
+                assert.equal(emailData.headers['x-template-name'], 'postAddAccountRecoveryEmail', 'correct template sent')
+              })
           })
       })
   })
@@ -111,6 +115,10 @@ describe('remote recovery keys', function () {
       .then((res) => {
         assert.equal(res.uid, client.uid, 'uid returned')
         assert.ok(res.sessionToken, 'sessionToken return')
+        return server.mailbox.waitForEmail(email)
+      })
+      .then((emailData) => {
+        assert.equal(emailData.headers['x-template-name'], 'passwordResetAccountRecoveryEmail', 'correct template sent')
         return client.keys()
       })
       .then((res) => {
@@ -137,6 +145,10 @@ describe('remote recovery keys', function () {
         return client.getRecoveryKeyExists()
           .then((result) => {
             assert.equal(result.exists, false, 'recovery key deleted')
+          })
+          .then(() => server.mailbox.waitForEmail(email))
+          .then((emailData) => {
+            assert.equal(emailData.headers['x-template-name'], 'postRemoveAccountRecoveryEmail', 'correct template sent')
           })
       })
   })
@@ -194,5 +206,5 @@ describe('remote recovery keys', function () {
 function getAccountResetToken(client, server, email) {
   return client.forgotPassword()
     .then(() => server.mailbox.waitForCode(email))
-    .then((code) => client.verifyPasswordResetCode(code))
+    .then((code) => client.verifyPasswordResetCode(code, {}, {accountResetWithRecoveryKey: true}))
 }

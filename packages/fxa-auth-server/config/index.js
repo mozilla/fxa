@@ -897,6 +897,8 @@ conf.set('smtp.initiatePasswordResetUrl', conf.get('contentServer.url') + '/rese
 conf.set('smtp.initiatePasswordChangeUrl', conf.get('contentServer.url') + '/settings/change_password')
 conf.set('smtp.verifyLoginUrl', conf.get('contentServer.url') + '/complete_signin')
 conf.set('smtp.reportSignInUrl', conf.get('contentServer.url') + '/report_signin')
+conf.set('smtp.revokeAccountRecoveryUrl', conf.get('contentServer.url') + '/settings/account_recovery/confirm_revoke')
+conf.set('smtp.createAccountRecoveryUrl', conf.get('contentServer.url') + '/settings/account_recovery/confirm_password')
 conf.set('smtp.verifyPrimaryEmailUrl', conf.get('contentServer.url') + '/verify_primary_email')
 conf.set('smtp.verifySecondaryEmailUrl', conf.get('contentServer.url') + '/verify_secondary_email')
 

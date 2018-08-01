@@ -55,7 +55,7 @@ module.exports = function (
   const unblockCodes = require('./unblock-codes')(log, db, mailer, config.signinUnblock, customs)
   const totp = require('./totp')(log, db, mailer, customs, config.totp)
   const recoveryCodes = require('./recovery-codes')(log, db, config.totp, customs, mailer)
-  const recoveryKey = require('./recovery-key')(log, db, Password, config.verifierVersion, customs)
+  const recoveryKey = require('./recovery-key')(log, db, Password, config.verifierVersion, customs, mailer)
   const util = require('./util')(
     log,
     config,

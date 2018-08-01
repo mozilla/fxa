@@ -32,6 +32,7 @@ module.exports = function (log, config) {
     'passwordResetRequiredEmail': 'password-reset-required',
     'passwordChangedEmail': 'password-changed-success',
     'passwordResetEmail': 'password-reset-success',
+    'passwordResetAccountRecoveryEmail': 'password-reset-account-recovery-success',
     'postRemoveSecondaryEmail': 'account-email-removed',
     'postVerifyEmail': 'account-verified',
     'postChangePrimaryEmail': 'account-email-changed',
@@ -40,6 +41,8 @@ module.exports = function (log, config) {
     'postRemoveTwoStepAuthenticationEmail': 'account-two-step-disabled',
     'postConsumeRecoveryCodeEmail': 'account-consume-recovery-code',
     'postNewRecoveryCodesEmail': 'account-replace-recovery-codes',
+    'postAddAccountRecoveryEmail': 'account-recovery-generated',
+    'postRemoveAccountRecoveryEmail': 'account-recovery-removed',
     'recoveryEmail': 'forgot-password',
     'unblockCode': 'new-unblock',
     'verifyEmail': 'welcome',
@@ -57,6 +60,7 @@ module.exports = function (log, config) {
     'newDeviceLoginEmail': 'password-change',
     'passwordChangedEmail': 'password-change',
     'passwordResetEmail': 'password-reset',
+    'passwordResetAccountRecoveryEmail': 'create-recovery-key',
     'passwordResetRequiredEmail': 'password-reset',
     'postRemoveSecondaryEmail': 'account-email-removed',
     'postVerifyEmail': 'connect-device',
@@ -66,6 +70,8 @@ module.exports = function (log, config) {
     'postRemoveTwoStepAuthenticationEmail': 'manage-account',
     'postConsumeRecoveryCodeEmail': 'manage-account',
     'postNewRecoveryCodesEmail': 'manage-account',
+    'postAddAccountRecoveryEmail': 'manage-account',
+    'postRemoveAccountRecoveryEmail': 'manage-account',
     'recoveryEmail': 'reset-password',
     'unblockCode': 'unblock-code',
     'verifyEmail': 'activate',
@@ -141,6 +147,8 @@ module.exports = function (log, config) {
     this.passwordResetUrl = mailerConfig.passwordResetUrl
     this.privacyUrl = mailerConfig.privacyUrl
     this.reportSignInUrl = mailerConfig.reportSignInUrl
+    this.revokeAccountRecoveryUrl = mailerConfig.revokeAccountRecoveryUrl
+    this.createAccountRecoveryUrl = mailerConfig.createAccountRecoveryUrl
     this.sender = mailerConfig.sender
     this.sesConfigurationSet = mailerConfig.sesConfigurationSet
     this.supportUrl = mailerConfig.supportUrl
@@ -1017,6 +1025,104 @@ module.exports = function (log, config) {
     }))
   }
 
+  Mailer.prototype.postAddAccountRecoveryEmail = function (message) {
+    log.trace({ op: 'mailer.postAddAccountRecoveryEmail', email: message.email, uid: message.uid })
+
+    const templateName = 'postAddAccountRecoveryEmail'
+    const links = this._generateSettingLinks(message, templateName)
+
+    const headers = {
+      'X-Link': links.link
+    }
+
+    return this.send(Object.assign({}, message, {
+      headers,
+      subject: gettext('Account recovery key generated'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+        revokeAccountRecoveryLink: links.revokeAccountRecoveryLink,
+        revokeAccountRecoveryLinkAttributes: links.revokeAccountRecoveryLinkAttributes,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
+      }
+    }))
+  }
+
+  Mailer.prototype.postRemoveAccountRecoveryEmail = function (message) {
+    log.trace({ op: 'mailer.postRemoveAccountRecoveryEmail', email: message.email, uid: message.uid })
+
+    const templateName = 'postRemoveAccountRecoveryEmail'
+    const links = this._generateSettingLinks(message, templateName)
+
+    const headers = {
+      'X-Link': links.link
+    }
+
+    return this.send(Object.assign({}, message, {
+      headers,
+      subject: gettext('Account recovery key removed'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
+      }
+    }))
+  }
+
+  Mailer.prototype.passwordResetAccountRecoveryEmail = function (message) {
+    log.trace({ op: 'mailer.passwordResetAccountRecoveryEmail', email: message.email, uid: message.uid })
+
+    const templateName = 'passwordResetAccountRecoveryEmail'
+    const links = this._generateCreateAccountRecoveryLinks(message, templateName)
+
+    const headers = {
+      'X-Link': links.link
+    }
+
+    return this.send(Object.assign({}, message, {
+      headers,
+      subject: gettext('Firefox Account password reset with recovery key'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
+      }
+    }))
+  }
+
   Mailer.prototype._generateUTMLink = function (link, query, templateName, content) {
     var parsedLink = url.parse(link)
 
@@ -1069,6 +1175,11 @@ module.exports = function (log, config) {
     links['reportSignInLink'] = this.createReportSignInLink(templateName, query)
     links['reportSignInLinkAttributes'] = this._reportSignInLinkAttributes(email, templateName, query)
 
+    links['revokeAccountRecoveryLink'] = this.createRevokeAccountRecoveryLink(templateName)
+    links['revokeAccountRecoveryLinkAttributes'] = this._revokeAccountRecoveryLinkAttributes(templateName)
+
+    links['createAccountRecoveryLink'] = this.createAccountRecoveryLink(templateName)
+
     var queryOneClick = extend(query, {one_click: true})
     if (primaryLink && utmContent) {
       links['oneClickLink'] = this._generateUTMLink(primaryLink, queryOneClick, templateName, utmContent + '-oneclick')
@@ -1093,6 +1204,15 @@ module.exports = function (log, config) {
     if (message.uid) {query.uid = message.uid}
 
     return this._generateLinks(this.accountRecoveryCodesUrl, message.email, query, templateName)
+  }
+
+  Mailer.prototype._generateCreateAccountRecoveryLinks = function (message, templateName) {
+    // Generate all possible links where the primary link is `createAccountRecoveryUrl`.
+    const query = {}
+    if (message.email) {query.email = message.email}
+    if (message.uid) {query.uid = message.uid}
+
+    return this._generateLinks(this.createAccountRecoveryUrl, message.email, query, templateName)
   }
 
   Mailer.prototype.createPasswordResetLink = function (email, templateName, emailToHashWith) {
@@ -1127,6 +1247,18 @@ module.exports = function (log, config) {
 
   Mailer.prototype.createPrivacyLink = function (templateName) {
     return this._generateUTMLink(this.privacyUrl, {}, templateName, 'privacy')
+  }
+
+  Mailer.prototype.createRevokeAccountRecoveryLink = function (templateName) {
+    return this._generateUTMLink(this.revokeAccountRecoveryUrl, {}, templateName, 'report')
+  }
+
+  Mailer.prototype._revokeAccountRecoveryLinkAttributes = function (templateName) {
+    return linkAttributes(this.createRevokeAccountRecoveryLink(templateName))
+  }
+
+  Mailer.prototype.createAccountRecoveryLink = function (templateName) {
+    return this._generateUTMLink(this.createAccountRecoveryUrl, {}, templateName)
   }
 
   return Mailer

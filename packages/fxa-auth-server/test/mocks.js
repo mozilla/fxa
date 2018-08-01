@@ -111,7 +111,10 @@ const MAILER_METHOD_NAMES = [
   'sendVerifyLoginEmail',
   'sendVerifyLoginCodeEmail',
   'sendVerifySecondaryEmail',
-  'sendRecoveryCode'
+  'sendRecoveryCode',
+  'sendPostAddAccountRecoveryNotification',
+  'sendPostRemoveAccountRecoveryNotification',
+  'sendPasswordResetAccountRecoveryNotification'
 ]
 
 const METRICS_CONTEXT_METHOD_NAMES = [

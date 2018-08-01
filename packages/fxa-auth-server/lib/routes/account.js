@@ -960,7 +960,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
 
         return checkRecoveryKey()
           .then(resetAccountData)
-          .then(deleteRecoveryKey)
+          .then(recoveryKeyDeleteAndEmailNotification)
           .then(createSessionToken)
           .then(createKeyFetchToken)
           .then(recordSecurityEvent)
@@ -1038,9 +1038,29 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           }
         }
 
-        function deleteRecoveryKey() {
+        function recoveryKeyDeleteAndEmailNotification() {
+          // If the password was reset with a recovery key, then we explicitly delete the
+          // recovery key and send an email that the account was reset with it.
           if (recoveryKeyId) {
             return db.deleteRecoveryKey(account.uid)
+              .then(() => {
+                const geoData = request.app.geo
+                const ip = request.app.clientAddress
+                const emailOptions = {
+                  acceptLanguage: request.app.acceptLanguage,
+                  ip: ip,
+                  location: geoData.location,
+                  timeZone: geoData.timeZone,
+                  uaBrowser: request.app.ua.browser,
+                  uaBrowserVersion: request.app.ua.browserVersion,
+                  uaOS: request.app.ua.os,
+                  uaOSVersion: request.app.ua.osVersion,
+                  uaDeviceType: request.app.ua.deviceType,
+                  uid: account.uid
+                }
+
+                return mailer.sendPasswordResetAccountRecoveryNotification(account.emails, account, emailOptions)
+              })
           }
 
           return P.resolve()

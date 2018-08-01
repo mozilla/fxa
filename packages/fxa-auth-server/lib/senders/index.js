@@ -349,6 +349,48 @@ module.exports = (log, config, error, bounces, translator, sender) => {
             }))
           })
       },
+      sendPostAddAccountRecoveryNotification: function (emails, account, opts) {
+        return getSafeMailerWithEmails(emails)
+          .then(function (result) {
+            const mailer = result.ungatedMailer
+            const primaryEmail = result.ungatedPrimaryEmail
+            const ccEmails = result.ungatedCcEmails
+
+            return mailer.postAddAccountRecoveryEmail(Object.assign({}, opts, {
+              acceptLanguage: opts.acceptLanguage || defaultLanguage,
+              ccEmails,
+              email: primaryEmail
+            }))
+          })
+      },
+      sendPostRemoveAccountRecoveryNotification: function (emails, account, opts) {
+        return getSafeMailerWithEmails(emails)
+          .then(function (result) {
+            const mailer = result.ungatedMailer
+            const primaryEmail = result.ungatedPrimaryEmail
+            const ccEmails = result.ungatedCcEmails
+
+            return mailer.postRemoveAccountRecoveryEmail(Object.assign({}, opts, {
+              acceptLanguage: opts.acceptLanguage || defaultLanguage,
+              ccEmails,
+              email: primaryEmail
+            }))
+          })
+      },
+      sendPasswordResetAccountRecoveryNotification: function (emails, account, opts) {
+        return getSafeMailerWithEmails(emails)
+          .then(function (result) {
+            const mailer = result.ungatedMailer
+            const primaryEmail = result.ungatedPrimaryEmail
+            const ccEmails = result.ungatedCcEmails
+
+            return mailer.passwordResetAccountRecoveryEmail(Object.assign({}, opts, {
+              acceptLanguage: opts.acceptLanguage || defaultLanguage,
+              ccEmails,
+              email: primaryEmail
+            }))
+          })
+      },
       translator: function () {
         return ungatedMailer.translator.apply(ungatedMailer, arguments)
       },

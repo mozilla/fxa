@@ -9,7 +9,7 @@ const validators = require('./validators')
 const isA = require('joi')
 const butil = require('../crypto/butil')
 
-module.exports = (log, db, Password, verifierVersion, customs) => {
+module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
   return [
     {
       method: 'POST',
@@ -34,7 +34,10 @@ module.exports = (log, db, Password, verifierVersion, customs) => {
 
         return createRecoveryKey()
           .then(emitMetrics)
-          .then(() => { return {} })
+          .then(sendNotificationEmails)
+          .then(() => {
+            return {}
+          })
 
         function createRecoveryKey() {
           if (sessionToken.tokenVerificationId) {
@@ -51,6 +54,28 @@ module.exports = (log, db, Password, verifierVersion, customs) => {
           })
 
           return request.emitMetricsEvent('recoveryKey.created', {uid})
+        }
+
+        function sendNotificationEmails() {
+          return db.account(uid)
+            .then((account) => {
+              const geoData = request.app.geo
+              const ip = request.app.clientAddress
+              const emailOptions = {
+                acceptLanguage: request.app.acceptLanguage,
+                ip: ip,
+                location: geoData.location,
+                timeZone: geoData.timeZone,
+                uaBrowser: request.app.ua.browser,
+                uaBrowserVersion: request.app.ua.browserVersion,
+                uaOS: request.app.ua.os,
+                uaOSVersion: request.app.ua.osVersion,
+                uaDeviceType: request.app.ua.deviceType,
+                uid: sessionToken.uid
+              }
+
+              return mailer.sendPostAddAccountRecoveryNotification(account.emails, account, emailOptions)
+            })
         }
       }
     },
@@ -77,7 +102,9 @@ module.exports = (log, db, Password, verifierVersion, customs) => {
 
         return customs.checkAuthenticated('getRecoveryKey', ip, uid)
           .then(getRecoveryKey)
-          .then(() => { return {recoveryData} })
+          .then(() => {
+            return {recoveryData}
+          })
 
         function getRecoveryKey() {
           return db.getRecoveryKey(uid)
@@ -171,19 +198,42 @@ module.exports = (log, db, Password, verifierVersion, customs) => {
       handler(request) {
         log.begin('recoveryKeyDelete', request)
 
+        const sessionToken = request.auth.credentials
+
         return Promise.resolve()
+          .then(deleteRecoveryKey)
+          .then(sendNotificationEmail)
           .then(() => {
-            const sessionToken = request.auth.credentials
-
-            if (sessionToken.tokenVerificationId) {
-              throw errors.unverifiedSession()
-            }
-
-            return db.deleteRecoveryKey(sessionToken.uid)
-              .then(() => {
-                return {}
-              })
+            return {}
           })
+
+        function deleteRecoveryKey() {
+          if (sessionToken.tokenVerificationId) {
+            throw errors.unverifiedSession()
+          }
+
+          return db.deleteRecoveryKey(sessionToken.uid)
+        }
+
+        function sendNotificationEmail() {
+          const geoData = request.app.geo
+          const ip = request.app.clientAddress
+          const emailOptions = {
+            acceptLanguage: request.app.acceptLanguage,
+            ip: ip,
+            location: geoData.location,
+            timeZone: geoData.timeZone,
+            uaBrowser: request.app.ua.browser,
+            uaBrowserVersion: request.app.ua.browserVersion,
+            uaOS: request.app.ua.os,
+            uaOSVersion: request.app.ua.osVersion,
+            uaDeviceType: request.app.ua.deviceType,
+            uid: sessionToken.uid
+          }
+
+          return db.account(sessionToken.uid)
+            .then((account) => mailer.sendPostRemoveAccountRecoveryNotification(account.emails, account, emailOptions))
+        }
       }
     }
   ]
