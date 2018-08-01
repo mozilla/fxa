@@ -48,6 +48,31 @@ function logEndpointErrors(response, log) {
   }
 }
 
+function configureSentry(server, config) {
+  const sentryDsn = config.sentryDsn
+  if (sentryDsn) {
+    Raven.config(sentryDsn, {})
+    server.events.on({ name: 'request', channels: 'error' }, function (request, event) {
+      const err = event && event.error || null
+      let exception = ''
+      if (err && err.stack) {
+        try {
+          exception = err.stack.split('\n')[0]
+        } catch (e) {
+          // ignore bad stack frames
+        }
+      }
+
+      Raven.captureException(err, {
+        extra: {
+          exception: exception
+        }
+      })
+    })
+  }
+}
+
+
 async function create (log, error, config, routes, db, translator) {
   const getGeoData = require('./geodb')(log)
 
@@ -233,27 +258,7 @@ async function create (log, error, config, routes, db, translator) {
   })
 
   // configure Sentry
-  const sentryDsn = config.sentryDsn
-  if (sentryDsn) {
-    Raven.config(sentryDsn, {})
-    server.events.on({ name: 'request', channels: 'error' }, function (request, event) {
-      const err = event && event.error || null
-      let exception = ''
-      if (err && err.stack) {
-        try {
-          exception = err.stack.split('\n')[0]
-        } catch (e) {
-          // ignore bad stack frames
-        }
-      }
-
-      Raven.captureException(err, {
-        extra: {
-          exception: exception
-        }
-      })
-    })
-  }
+  configureSentry(server, config)
 
   const metricsContext = require('./metrics/context')(log, config)
   server.decorate('request', 'stashMetricsContext', metricsContext.stash)
@@ -375,6 +380,7 @@ function defineLazyGetter (object, key, getter) {
 module.exports = {
   create: create,
   // Functions below exported for testing
-  _trimLocale: trimLocale,
-  _logEndpointErrors: logEndpointErrors
+  _configureSentry: configureSentry,
+  _logEndpointErrors: logEndpointErrors,
+  _trimLocale: trimLocale
 }
