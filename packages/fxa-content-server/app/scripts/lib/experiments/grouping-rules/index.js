@@ -18,7 +18,8 @@ const experimentGroupingRules = [
   require('./q3-form-changes'),
   require('./send-sms-install-link'),
   require('./sentry'),
-  require('./token-code')
+  require('./token-code'),
+  require('./recovery-key')
 ].map(ExperimentGroupingRule => new ExperimentGroupingRule());
 
 class ExperimentChoiceIndex {
