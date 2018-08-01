@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const AuthErrors = require('./auth-errors');
   const Constants = require('./constants');
+  const RecoveryKey = require('./crypto/recovery-keys');
   const Session = require('./session');
   const SignInReasons = require('./sign-in-reasons');
   const VerificationReasons = require('./verification-reasons');
@@ -1034,7 +1035,59 @@ define(function (require, exports, module) {
      * @param {String} sessionToken SessionToken obtained from signIn
      * @returns {Promise} resolves when complete
      */
-    replaceRecoveryCodes: createClientDelegate('replaceRecoveryCodes')
+    replaceRecoveryCodes: createClientDelegate('replaceRecoveryCodes'),
+
+    /**
+     * Creates a new recovery key bundle for the current user. To
+     * create a recovery key first a session re-auth is performed,
+     * then the account keys are fetched and finally the recovery
+     * bundle stores an encrypted copy of the original user's `kB`
+     *
+     * @param {String} email - email address
+     * @param {String} password - current password of the user
+     * @param {String} sessionToken - SessionToken obtained from signIn
+     * @param {String} uid - current uid of the user
+     * @returns {Promise} resolves with response when complete.
+     */
+    createRecoveryBundle: withClient((client, email, password, sessionToken, uid) => {
+      let recoveryKey, keys, recoveryJwk;
+
+      return client.sessionReauth(sessionToken, email, password, {keys: true})
+        .then((res) => client.accountKeys(res.keyFetchToken, res.unwrapBKey))
+        .then((result) => {
+          keys = result;
+          return RecoveryKey.generateRecoveryKey(Constants.RECOVERY_KEY_LENGTH)
+            .then((result) => {
+              recoveryKey = result;
+              return RecoveryKey.getRecoveryJwk(uid, recoveryKey);
+            });
+        })
+        .then((result) => {
+          recoveryJwk = result;
+          return RecoveryKey.bundleRecoveryData(recoveryJwk, keys);
+        })
+        .then((bundle) => client.createRecoveryKey(sessionToken, recoveryJwk.kid, bundle))
+        .then(() => {
+          return {recoveryKey};
+        });
+    }),
+
+    /**
+     * Deletes the recovery key associated with this user.
+     *
+     * @param sessionToken
+     */
+    deleteRecoveryKey: createClientDelegate('deleteRecoveryKey'),
+
+    /**
+     * This checks to see if a recovery key exists for a user.
+     *
+     * @param sessionToken
+     * @param {String} email User's email
+     * @returns {Promise} resolves with response when complete.
+     */
+    recoveryKeyExists: createClientDelegate('recoveryKeyExists'),
+
   };
 
   module.exports = FxaClientWrapper;

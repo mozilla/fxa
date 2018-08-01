@@ -181,7 +181,7 @@
     },
     "@sinonjs/formatio": {
       "version": "2.0.0",
-      "resolved": "https://registry.npmjs.org/@sinonjs/formatio/-/formatio-2.0.0.tgz",
+      "resolved": "http://registry.npmjs.org/@sinonjs/formatio/-/formatio-2.0.0.tgz",
       "integrity": "sha512-ls6CAMA6/5gG+O/IdsBcblvnd8qcO/l1TYoNeAzp3wcISOxlPXQEus0mLcdwazEkWjaBdaJ3TaxmNgCLWwvWzg==",
       "dev": true,
       "requires": {
@@ -6247,9 +6247,9 @@
       }
     },
     "fxa-js-client": {
-      "version": "1.0.4",
-      "resolved": "https://registry.npmjs.org/fxa-js-client/-/fxa-js-client-1.0.4.tgz",
-      "integrity": "sha512-OQXwnEhVckwOsaQ5vZ8Ob4SA5A4cnrD6DlIgz3Ag5QnkAbhOh5nsJJINPsgVkwqJrpc2FkcoFlNC9SuEP/NXng==",
+      "version": "1.0.5",
+      "resolved": "https://registry.npmjs.org/fxa-js-client/-/fxa-js-client-1.0.5.tgz",
+      "integrity": "sha512-k6LJGv4PtkDxutoUBYbHkrXYFMscheL3tHpFYnGwXHIG/bfiaXQXY8tIIzWIYPmVBUoqksiSAEER1SMsB0pprw==",
       "requires": {
         "es6-promise": "4.1.1",
         "sjcl": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8ef32329bc8d7bc28a438372b5acb46616b",
@@ -10912,7 +10912,7 @@
       }
     },
     "legal-docs": {
-      "version": "git://github.com/mozilla/legal-docs.git#83697c8fb90b21efa33ff659330ac729ba195c8f",
+      "version": "git://github.com/mozilla/legal-docs.git#edda55840ea4c4015adbf6f7e23436e3d4df778f",
       "from": "git://github.com/mozilla/legal-docs.git#master"
     },
     "levn": {
@@ -12283,7 +12283,7 @@
       "from": "git://github.com/vladikoff/node-uap.git#9cdd16247",
       "requires": {
         "array.prototype.find": "2.0.0",
-        "uap-core": "git://github.com/ua-parser/uap-core.git#fdee91274bbd6c36dd9f7d9b6673db80505d2c53",
+        "uap-core": "git://github.com/ua-parser/uap-core.git#590f66f40b00644efa6045d06e3c2a605eb22ea1",
         "uap-ref-impl": "0.2.0",
         "yamlparser": "0.0.2"
       }
@@ -15544,7 +15544,7 @@
       "from": "git://github.com/vladikoff/ua-parser-js.git#fxa-version"
     },
     "uap-core": {
-      "version": "git://github.com/ua-parser/uap-core.git#fdee91274bbd6c36dd9f7d9b6673db80505d2c53",
+      "version": "git://github.com/ua-parser/uap-core.git#590f66f40b00644efa6045d06e3c2a605eb22ea1",
       "from": "git://github.com/ua-parser/uap-core.git"
     },
     "uap-ref-impl": {

@@ -7,6 +7,10 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const allowOnlyOneSubmit = require('./decorators/allow_only_one_submit');
+  const AccountRecoveryView = require('./settings/account_recovery/account_recovery');
+  const AccountRecoveryConfirmPasswordView = require('./settings/account_recovery/confirm_password');
+  const AccountRecoveryConfirmRevokeView = require('./settings/account_recovery/confirm_revoke');
+  const AccountRecoveryKeyView = require('./settings/account_recovery/recovery_key');
   const AvatarCameraView = require('./settings/avatar_camera');
   const AvatarChangeView = require('./settings/avatar_change');
   const AvatarCropView = require('./settings/avatar_crop');
@@ -37,6 +41,10 @@ define(function (require, exports, module) {
   var PANEL_VIEWS = [
     AvatarView,
     DisplayNameView,
+    AccountRecoveryView,
+    AccountRecoveryConfirmPasswordView,
+    AccountRecoveryConfirmRevokeView,
+    AccountRecoveryKeyView,
     EmailsView,
     TwoStepAuthenticationView,
     RecoveryCodesView,

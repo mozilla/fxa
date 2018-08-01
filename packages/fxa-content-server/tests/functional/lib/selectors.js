@@ -109,6 +109,16 @@ module.exports = {
     HEADER: '#fxa-permissions-header',
     SUBMIT: '#accept'
   },
+  RECOVERY_KEY: {
+    CANCEL_BUTTON: '.cancel',
+    CONFIRM_PASSWORD_CONTINUE: '.generate-key-link',
+    GENERATE_KEY_BUTTON: '.confirm-password',
+    MENU_BUTTON: '#account-recovery-section .settings-unit-toggle',
+    PASSWORD_INPUT: '#account-recovery-confirm-password #password',
+    RECOVERY_KEY_DONE_BUTTON: '.done-link',
+    RECOVERY_KEY_TEXT: '.recovery-key',
+    STATUS_ENABLED: '.enabled'
+  },
   RESET_PASSWORD: {
     BACK: '.remember-password',
     EMAIL: 'input[type=email]',

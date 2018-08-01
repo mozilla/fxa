@@ -53,6 +53,7 @@ module.exports = [
   'tests/functional/delete_account.js',
   'tests/functional/reset_password.js',
   'tests/functional/sync_reset_password.js',
+  'tests/functional/recovery_key.js',
   'tests/functional/robots_txt.js',
   'tests/functional/settings.js',
   'tests/functional/settings_clients.js',

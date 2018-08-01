@@ -606,23 +606,6 @@ section.modal-panel {
       }
     }
 
-    .details {
-      color: $color-grey;
-      font-size: 12px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      width: calc(95% - 95px);
-
-      & .not-verified {
-        color: $color-red;
-      }
-
-      & .verified {
-        color: $color-green;
-      }
-    }
-
     .settings-button-group {
       position: absolute;
       top: 0;
@@ -694,5 +677,53 @@ section.modal-panel {
     @media screen and (min-width: 400px) {
       display: none;
     }
+  }
+}
+
+.details {
+  color: $color-grey;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: calc(95% - 95px);
+
+  & .not-verified {
+    color: $color-red;
+  }
+
+  & .verified {
+    color: $color-green;
+  }
+
+  & .disabled {
+    color: $color-red;
+  }
+
+  & .enabled {
+    color: $color-green;
+  }
+}
+
+.panel-settings-button-group {
+  position: absolute;
+  top: 0;
+
+  html[dir='ltr'] & {
+    right: 0;
+  }
+
+  html[dir='rtl'] & {
+    left: 0;
+  }
+
+  .settings-button {
+    height: 35px;
+    margin-left: 10px;
+    /*minimum width required for the button to look good without occupying too much space*/
+    /*is also the default computed width on desktop screen*/
+    min-width: 100px;
+    text-align: center;
+    width: 20%;
   }
 }

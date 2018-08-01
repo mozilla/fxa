@@ -37,16 +37,42 @@ define(function (require, exports, module) {
       this.navigate('settings/two_step_authentication');
     },
 
+    _returnToAccountRecovery (hasRecoveryKey) {
+      this.navigate('settings/account_recovery', {hasRecoveryKey});
+    },
+
+    _showAccountRecoveryKey () {
+      this.navigate('settings/account_recovery/recovery_key', {
+        hasRecoveryKey: true
+      });
+    },
+
     _returnToSettings () {
       this.navigate('settings');
     },
 
-    onModalCancel () {
-      if (this.currentPage === 'settings/clients/disconnect') {
+    onModalCancel() {
+      switch (this.currentPage) {
+      case 'settings/clients/disconnect':
         this._returnToClients();
-      } else if (this.currentPage === 'settings/two_step_authentication/recovery_codes') {
+        break;
+      case 'settings/two_step_authentication/recovery_codes':
         this._returnToTwoFactorAuthentication();
-      } else {
+        break;
+      case 'settings/account_recovery/recovery_key' :
+        this._returnToAccountRecovery(true);
+        break;
+      case 'settings/account_recovery/confirm_revoke' :
+        this._returnToAccountRecovery(false);
+        break;
+      case 'settings/account_recovery/confirm_password' :
+        if (this.showRecoveryKeyView) {
+          this._showAccountRecoveryKey();
+        } else {
+          this._returnToAccountRecovery(false);
+        }
+        break;
+      default:
         this._returnToSettings();
       }
     },
