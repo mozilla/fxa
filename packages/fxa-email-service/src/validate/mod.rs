@@ -23,21 +23,21 @@ lazy_static! {
     static ref AWS_ACCESS_FORMAT: Regex = Regex::new("^[A-Z0-9]+$").unwrap();
     static ref AWS_SECRET_FORMAT: Regex = Regex::new("^[A-Za-z0-9+/=]+$").unwrap();
     static ref BASE_URI_FORMAT: Regex = Regex::new(
-        "^https?://[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*(?::[0-9]+)?/(?:[A-Za-z0-9-]+/)*$"
+        r"^https?://[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*(?::[0-9]+)?/(?:[A-Za-z0-9-]+/)*$"
     ).unwrap();
     static ref EMAIL_ADDRESS_FORMAT: Regex = Regex::new(
-        "^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]{1,64}@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)+$"
+        r"^[a-zA-Z0-9.\pL\pN!#$%&’*+/=?^_`{|}~-]{1,64}@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)+$"
     ).unwrap();
-    static ref ENV: Regex = Regex::new("^(?:dev|staging|production|test)$").unwrap();
-    static ref HOST_FORMAT: Regex = Regex::new("^[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*$").unwrap();
-    static ref LOGGING_LEVEL: Regex = Regex::new("^(?:normal|debug|critical|off)$").unwrap();
-    static ref LOGGING_FORMAT: Regex = Regex::new("^(?:mozlog|pretty|null)$").unwrap();
-    static ref PROVIDER_FORMAT: Regex = Regex::new("^(?:mock|sendgrid|ses|smtp|socketlabs)$").unwrap();
+    static ref ENV: Regex = Regex::new(r"^(?:dev|staging|production|test)$").unwrap();
+    static ref HOST_FORMAT: Regex = Regex::new(r"^[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*$").unwrap();
+    static ref LOGGING_LEVEL: Regex = Regex::new(r"^(?:normal|debug|critical|off)$").unwrap();
+    static ref LOGGING_FORMAT: Regex = Regex::new(r"^(?:mozlog|pretty|null)$").unwrap();
+    static ref PROVIDER_FORMAT: Regex = Regex::new(r"^(?:mock|sendgrid|ses|smtp|socketlabs)$").unwrap();
     static ref SENDER_NAME_FORMAT: Regex =
-        Regex::new("^[A-Za-z0-9-]+(?: [A-Za-z0-9-]+)*$").unwrap();
+        Regex::new(r"^[A-Za-z0-9-]+(?: [A-Za-z0-9-]+)*$").unwrap();
     static ref SENDGRID_API_KEY_FORMAT: Regex = Regex::new("^[A-Za-z0-9._-]+$").unwrap();
     static ref SQS_URL_FORMAT: Regex =
-        Regex::new("^https://sqs\\.[a-z0-9-]+\\.amazonaws\\.com/[0-9]+/[A-Za-z0-9-]+$").unwrap();
+        Regex::new(r"^https://sqs\.[a-z0-9-]+\.amazonaws\.com/[0-9]+/[A-Za-z0-9-]+$").unwrap();
 }
 
 /// Validate an AWS region.
