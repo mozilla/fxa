@@ -1,4 +1,7 @@
 {
+  "aws": {
+    "region": "us-east-1"
+  },
   "log": {
     "level": "normal",
     "format": "pretty"
