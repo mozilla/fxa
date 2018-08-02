@@ -381,13 +381,11 @@ function _getCommitInfo(gh, repo, gitargs) {
            })
          }
        }).then(function() {
-         if (!commitInfo.fromPR) {
-           if ((/Release v[0-9\.]+/).test(commitInfo.message.trim())) {
-             commitInfo.ignore = true
-           } else {
-             console.warn('Warning: commit with no PR:', commit)
-             console.warn('         ' + (commitInfo.message.split('\n')[0] || '<no commit msg>'))
-           }
+         if (shouldIgnoreCommit(commitInfo)) {
+           commitInfo.ignore = true
+         } else if (!commitInfo.fromPR) {
+           console.warn('Warning: commit with no PR:', commit)
+           console.warn('         ' + (commitInfo.message.split('\n')[0] || '<no commit msg>'))
          } else {
            var pr = commitInfo.fromPR
            if (!pr.milestone) {
@@ -406,6 +404,10 @@ function _getCommitInfo(gh, repo, gitargs) {
   })
 }
 
+function shouldIgnoreCommit(commitInfo) {
+  return /Release v[0-9\.]+/.test(commitInfo.message.trim()) ||
+         /(uplift|master|train-[0-9]+)/i.test(commitInfo.message.split('\n')[0])
+}
 
 function isDirectory(path) {
   try {
@@ -506,7 +508,7 @@ function findPullRequestForCommit(gh, repo, commit) {
     var match = pattern.exec(res.body)
     while (match) {
       refs.push(parseInt(match[1], 10))
-      var match = pattern.exec(commitInfo.message)
+      var match = pattern.exec(res.body)
     }
     if (refs.length === 1) {
       return refs[0]
@@ -518,13 +520,20 @@ function findPullRequestForCommit(gh, repo, commit) {
   });
 }
 
+const pullRequestCache = {};
+
 function getPullRequestData(gh, repo, mergeCommit, pr) {
+  if (typeof pr === 'number' && pullRequestCache[pr]) {
+    return Promise.resolve(pullRequestCache[pr]);
+  }
   return P.resolve().then(function() {
     if (pr && pr.id) {
+      pullRequestCache[pr.id] = pr
       return pr
     }
     return gh.pullRequests.get({ repo: repo.name, number: pr })
       .then(function (prs) {
+        pullRequestCache[pr] = prs[0]
         return prs[0]
       })
   }).then(function (pr) {
