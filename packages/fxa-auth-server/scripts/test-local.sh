@@ -12,13 +12,7 @@ if [ -z "$GLOB" ]; then
   GLOB="test/local test/remote"
 fi
 
-DEFAULT_ARGS="-R dot --recursive"
-
-# When running under Windows Subsystem for Linux,
-# some tests take unusually long to complete.
-if uname -a | grep -q 'Microsoft'; then
-  DEFAULT_ARGS="$DEFAULT_ARGS --timeout 5000"
-fi
+DEFAULT_ARGS="-R dot --recursive --timeout 5000"
 
 ./scripts/gen_keys.js
 ./scripts/gen_vapid_keys.js
