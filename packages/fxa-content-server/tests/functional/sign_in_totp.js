@@ -136,6 +136,7 @@ registerSuite('TOTP', {
         .then(click(selectors.TOTP.DELETE_BUTTON))
         .then(testSuccessWasShown)
         .then(testElementExists(selectors.TOTP.MENU_BUTTON))
+        .refresh()
 
         // Does not prompt for code
         .then(click(selectors.SETTINGS.SIGNOUT))
