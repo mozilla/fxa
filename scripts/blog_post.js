@@ -56,12 +56,16 @@ ghlib.ensureLocalRepos()
   }).then(function () {
     var outfile = process.stdout
 
-    outfile.write('\n\n')
+    outfile.write('---\n')
+    outfile.write(`title: Firefox Accounts Train-${trainNumber}\n`)
+    outfile.write('author: <XXX>\n')
+    outfile.write('authorURL: <XXX>\n')
+    outfile.write('---\n\n')
     outfile.write('Hi All,\n')
     outfile.write('\n')
     outfile.write('This week we shipped FxA train-' + trainNumber + ' to production,\n')
     outfile.write('with the following highlights:\n')
-    outfile.write('\n')
+    outfile.write('\n<!--truncate-->\n\n')
 
     var submittedByUser = {}
     var reviewedByUser = {}
@@ -89,6 +93,8 @@ ghlib.ensureLocalRepos()
       if (!repoInfo.commits) {
         return
       }
+      const listedPRs = new Set();
+
       var currentCommitSummary = []
       return P.each(repoInfo.commits, function(commit) {
         commitInfo = repoInfo.commitInfo[commit];
@@ -109,12 +115,12 @@ ghlib.ensureLocalRepos()
           currentCommitSummary = []
           commitsByMilestone[milestone].push(currentCommitSummary)
           if (prInfo) {
-            currentCommitSummary.push('  * #' + prInfo.number + ' in ' + repoName)
-            currentCommitSummary.push('    ' + prInfo.html_url)
-            currentCommitSummary.push('    Submitter: ' + prInfo.submitter)
-            currentCommitSummary.push('    Reviewers: ' + prInfo.reviewers.join(','))
-            currentCommitSummary.push('    Commenters: ' + prInfo.commenters.join(','))
-            currentCommitSummary.push('      ' + commitInfo.message.replace(/\n/g,'\n      '))
+            if (listedPRs.has(prInfo.number)) {
+              return;
+            }
+            listedPRs.add(prInfo.number)
+            currentCommitSummary.push('  * ' + prInfo.html_url)
+            currentCommitSummary.push('      ' + commitInfo.message.split('\n')[0])
             incr(submittedByUser, prInfo.submitter)
             incrEach(reviewedByUser, prInfo.reviewers)
             incrEach(commentedByUser, prInfo.commenters)
@@ -122,9 +128,6 @@ ghlib.ensureLocalRepos()
             currentCommitSummary.push('  * #<unknown> in ' + repoName)
             currentCommitSummary.push('      ' + commitInfo.message.replace(/\n/g,'\n      '))
           }
-        } else {
-           // It's part of a broader PR, print summary indented for visual nesting.
-           currentCommitSummary.push('        * ' + commitInfo.message.replace(/\n/g,'\n          '))
         }
       })
     })
@@ -149,9 +152,10 @@ ghlib.ensureLocalRepos()
         return 1
       })
       sortedMilestones.forEach(function(milestone) {
-        outfile.write('\n----\n')
-        outfile.write(milestone || 'No milestone')
         outfile.write('\n')
+        outfile.write(`## ${milestone || 'No milestone'}\n`)
+        outfile.write('\n')
+        outfile.write('<XXX>Summary\n')
         commitsByMilestone[milestone].forEach(function(commitSummary) {
           outfile.write('\n')
           outfile.write(commitSummary.join('\n'))
@@ -185,25 +189,14 @@ ghlib.ensureLocalRepos()
       return P.each(Object.keys(TRAIN_REPOS), function(repoName) {
         var repoInfo = TRAIN_REPOS[repoName]
         if (repoInfo.commits) {
-          outfile.write('  https://github.com/mozilla/')
+          outfile.write('  * https://github.com/mozilla/')
           outfile.write(repoName + '/blob/' + repoInfo.trainTag + '/CHANGELOG.md\n')
         }
       })
     })
-    // Sign off as though this were written by a real person.
-    .then(function () {
-      outfile.write('\n\n')
-      outfile.write('There are also detailed PR metrics included below if you\'re interested.\n')
-      outfile.write('\n\n')
-      outfile.write('  Cheers,\n')
-      outfile.write('\n')
-      outfile.write('    The FxA Team\n')
-      outfile.write('\n')
-    })
     // List some basic PR stats.
     .then(function () {
       outfile.write('\n\n')
-      outfile.write('------------\n\n')
       var totalPRs = 0
       Object.keys(submittedByUser).forEach(function(username) {
         totalPRs += submittedByUser[username]
