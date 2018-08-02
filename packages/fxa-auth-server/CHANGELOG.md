@@ -1,3 +1,13 @@
+<a name="1.117.2"></a>
+## [1.117.2](https://github.com/mozilla/fxa-auth-server/compare/v1.117.1...v1.117.2) (2018-08-01)
+
+
+### Bug Fixes
+
+* **sentry:** server.events.on takes channels, not channel ([5bc7b87](https://github.com/mozilla/fxa-auth-server/commit/5bc7b87))
+
+
+
 <a name="1.117.1"></a>
 ## [1.117.1](https://github.com/mozilla/fxa-auth-server/compare/v1.117.0...v1.117.1) (2018-07-26)
 
