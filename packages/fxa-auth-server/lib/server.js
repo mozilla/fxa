@@ -114,7 +114,7 @@ async function create (log, error, config, routes, db, translator) {
           if (token.expired(Date.now())) {
             const err = error.invalidToken('The authentication token has expired')
 
-            if (token.tokenTypeID === 'sessionToken') {
+            if (token.constructor.tokenTypeID === 'sessionToken') {
               return db.pruneSessionTokens(token.uid, [ token ])
                 .catch(() => {})
                 .then(() => { throw err })

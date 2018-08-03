@@ -373,9 +373,10 @@ function mockDB (data, errors) {
         uaOS: data.uaOS,
         uaOSVersion: data.uaOSVersion,
         uaDeviceType: data.uaDeviceType,
-        tokenTypeID: 'sessionToken',
         expired: () => data.expired || false
       }
+      // SessionToken is a class, and tokenTypeID is a class attribute. Fake that.
+      res.constructor.tokenTypeID = 'sessionToken'
       if (data.devices && data.devices.length > 0) {
         Object.keys(data.devices[0]).forEach(key => {
           var keyOnSession = 'device' + key.charAt(0).toUpperCase() + key.substr(1)
