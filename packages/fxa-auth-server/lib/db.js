@@ -75,7 +75,7 @@ module.exports = (
     }
 
     this.pool = new Pool(options.url, pooleeOptions)
-    this.redis = require('./redis')(config.redis, log)
+    this.redis = require('./redis')({ ...config.redis, ...config.redis.sessionTokens }, log)
   }
 
   DB.connect = function (options) {

@@ -9,7 +9,9 @@ const moment = require('moment-timezone')
 const nodemailer = require('nodemailer')
 const P = require('bluebird')
 const qs = require('querystring')
+const safeRegex = require('safe-regex')
 const safeUserAgent = require('../userAgent/safe')
+const Sandbox = require('sandbox')
 const url = require('url')
 
 const TEMPLATE_VERSIONS = require('./templates/_versions.json')
@@ -21,8 +23,21 @@ const UTM_PREFIX = 'fx-'
 const X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET'
 const X_SES_MESSAGE_TAGS = 'X-SES-MESSAGE-TAGS'
 
+const SERVICES = {
+  internal: Symbol(),
+  external: {
+    sendgrid: Symbol(),
+    socketlabs: Symbol(),
+    ses: Symbol()
+  }
+}
+
 module.exports = function (log, config) {
   const oauthClientInfo = require('./oauth_client_info')(log, config)
+  const redis = require('../redis')(Object.assign({}, config.redis, config.redis.email), log) || {
+    // Fallback to a stub implementation if redis is disabled
+    get: () => P.resolve()
+  }
 
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
@@ -261,97 +276,257 @@ module.exports = function (log, config) {
     }
     message.templateVersion = templateVersion
 
-    const headers = Object.assign(
-      {
-        'Content-Language': localized.language,
-        'X-Template-Name': template,
-        'X-Template-Version': templateVersion
-      },
-      message.headers,
-      optionalHeader('X-Device-Id', message.deviceId),
-      optionalHeader('X-Flow-Id', message.flowId),
-      optionalHeader('X-Flow-Begin-Time', message.flowBeginTime),
-      optionalHeader('X-Service-Id', message.service),
-      optionalHeader('X-Uid', message.uid)
-    )
-
-    let mailer = this.mailer
-    let emailService, emailSender
-    if (config.emailService.forcedEmailAddresses.test(message.email)) {
-      mailer = this.emailService
-      emailService = 'fxa-email-service'
-      emailSender = 'ses'
-    } else {
-      emailService = 'fxa-auth-server'
-    }
-
-    // Set headers that let us attribute success/failure correctly
-    message.emailService = headers['X-Email-Service'] = emailService
-    message.emailSender = headers['X-Email-Sender'] = emailSender
-
-    if (this.sesConfigurationSet) {
-      // Note on SES Event Publishing: The X-SES-CONFIGURATION-SET and
-      // X-SES-MESSAGE-TAGS email headers will be stripped by SES from the
-      // actual outgoing email messages.
-      headers[X_SES_CONFIGURATION_SET] = this.sesConfigurationSet
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(message.metricsTemplate || template, emailService)
-    }
-
-    log.info({
-      email: message.email,
-      op: 'mailer.send',
-      template,
-      headers: Object.keys(headers).join(',')
-    })
-
-    var emailConfig = {
-      sender: this.sender,
-      from: this.sender,
-      to: message.email,
-      subject: localized.subject,
-      text: localized.text,
-      html: localized.html,
-      xMailer: false,
-      headers
-    }
-
-    // Utilize nodemailer's cc ability to send to multiple addresses
-    // Ref: https://nodemailer.com/message/
-    if (message.ccEmails) {
-      emailConfig.cc = message.ccEmails
-    }
-
-    var d = P.defer()
-    mailer.sendMail(
-      emailConfig,
-      function (err, status) {
-        if (err) {
-          log.error(
+    return this.selectEmailServices(message)
+      .then(services => {
+        return P.all(services.map(service => {
+          const headers = Object.assign(
             {
+              'Content-Language': localized.language,
+              'X-Template-Name': template,
+              'X-Template-Version': templateVersion
+            },
+            message.headers,
+            optionalHeader('X-Device-Id', message.deviceId),
+            optionalHeader('X-Flow-Id', message.flowId),
+            optionalHeader('X-Flow-Begin-Time', message.flowBeginTime),
+            optionalHeader('X-Service-Id', message.service),
+            optionalHeader('X-Uid', message.uid)
+          )
+
+          const { mailer, emailAddresses, emailService, emailSender } = service
+
+          // Set headers that let us attribute success/failure correctly
+          message.emailService = headers['X-Email-Service'] = emailService
+          message.emailSender = headers['X-Email-Sender'] = emailSender
+
+          if (this.sesConfigurationSet && emailSender === 'ses') {
+            // Note on SES Event Publishing: The X-SES-CONFIGURATION-SET and
+            // X-SES-MESSAGE-TAGS email headers will be stripped by SES from the
+            // actual outgoing email messages.
+            headers[X_SES_CONFIGURATION_SET] = this.sesConfigurationSet
+            headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(message.metricsTemplate || template, emailService)
+          }
+
+          log.info({
+            email: emailAddresses[0],
+            op: 'mailer.send',
+            template,
+            headers: Object.keys(headers).join(',')
+          })
+
+          const emailConfig = {
+            sender: this.sender,
+            from: this.sender,
+            to: emailAddresses[0],
+            subject: localized.subject,
+            text: localized.text,
+            html: localized.html,
+            xMailer: false,
+            headers
+          }
+
+          if (emailAddresses.length > 1) {
+            emailConfig.cc = emailAddresses.slice(1)
+          }
+
+          if (emailService === 'fxa-email-service') {
+            emailConfig.provider = emailSender
+          }
+
+          const d = P.defer()
+          mailer.sendMail(emailConfig, (err, status) => {
+            if (err) {
+              log.error({
+                op: 'mailer.send.1',
+                err: err && err.message,
+                status: status && status.message,
+                id: status && status.messageId,
+                to: emailConfig && emailConfig.to,
+                emailSender,
+                emailService
+              })
+
+              return d.reject(err)
+            }
+
+            log.info({
               op: 'mailer.send.1',
-              err: err && err.message,
               status: status && status.message,
               id: status && status.messageId,
-              to: emailConfig && emailConfig.to
-            }
-          )
-          return d.reject(err)
+              to: emailConfig && emailConfig.to,
+              emailSender,
+              emailService
+            })
+
+            emailUtils.logEmailEventSent(log, message)
+
+            return d.resolve(status)
+          })
+
+          return d.promise
+        }))
+      })
+  }
+
+  // Based on the to and cc email addresses of a message, return an array of
+  // `Service` objects that control how email traffic will be routed.
+  //
+  // It will attempt to read live config data from Redis and live config takes
+  // precedence over local static config. If no config is found at all, email
+  // will be routed locally via the auth server.
+  //
+  // Live config looks like this (every property is optional):
+  //
+  // {
+  //   sendgrid: {
+  //     percentage: 100,
+  //     regex: "^.+@example\.com$"
+  //   },
+  //   socketlabs: {
+  //     percentage: 100,
+  //     regex: "^.+@example\.org$"
+  //   },
+  //   ses: {
+  //     percentage: 10,
+  //     regex: ".*",
+  //   }
+  // }
+  //
+  // Where a percentage and a regex are both present, an email address must
+  // satisfy both criteria to count as a match. Where an email address matches
+  // sendgrid and ses, sendgrid wins. Where an email address matches socketlabs
+  // and ses, socketlabs wins. Where an email address matches sendgrid and
+  // socketlabs, sendgrid wins.
+  //
+  // If a regex has a star height greater than 1, the email address will be
+  // treated as a non-match without executing the regex (to prevent us redosing
+  // ourselves). If a regex takes longer than 100 milliseconds to execute,
+  // it will be killed and the email address will be treated as a non-match.
+  //
+  // @param {Object} message
+  //
+  // @returns {Promise} Resolves to an array of `Service` objects.
+  //
+  // @typedef {Object} Service
+  //
+  // @property {Object} mailer           The object on which to invoke the `sendMail`
+  //                                     method.
+  //
+  // @property {String[]} emailAddresses The array of email addresses to send to.
+  //                                     The address at index 0 will be used as the
+  //                                     `to` address and any remaining addresses
+  //                                     will be included as `cc` addresses.
+  //
+  // @property {String} emailService     The name of the email service for metrics.
+  //
+  // @property {String} emailSender      The name of the underlying email sender,
+  //                                     used for both metrics and sent as the
+  //                                     `provider` param in external requests.
+  Mailer.prototype.selectEmailServices = function (message) {
+    const emailAddresses = [ message.email ]
+    if (Array.isArray(message.ccEmails)) {
+      emailAddresses.push(...message.ccEmails)
+    }
+
+    return redis.get('config')
+      .catch(() => {})
+      .then(liveConfig => {
+        return emailAddresses.reduce((promise, emailAddress) => {
+          let services, isMatched
+
+          return promise
+            .then(s => {
+              services = s
+
+              if (liveConfig) {
+                return [ 'sendgrid', 'socketlabs', 'ses' ].reduce((promise, key) => {
+                  const senderConfig = liveConfig[key]
+
+                  return promise
+                    .then(() => {
+                      if (senderConfig) {
+                        return isLiveConfigMatch(senderConfig, emailAddress)
+                      }
+                    })
+                    .then(result => {
+                      if (isMatched) {
+                        return
+                      }
+
+                      isMatched = result
+
+                      if (isMatched) {
+                        upsertServicesMap(services, SERVICES.external[key], emailAddress, {
+                          mailer: this.emailService,
+                          emailService: 'fxa-email-service',
+                          emailSender: key
+                        })
+                      }
+                    })
+                }, promise)
+              }
+            })
+            .then(() => {
+              if (isMatched) {
+                return services
+              }
+
+              if (config.emailService.forcedEmailAddresses.test(emailAddress)) {
+                return upsertServicesMap(services, SERVICES.external.ses, emailAddress, {
+                  mailer: this.emailService,
+                  emailService: 'fxa-email-service',
+                  emailSender: 'ses'
+                })
+              }
+
+              return upsertServicesMap(services, SERVICES.internal, emailAddress, {
+                mailer: this.mailer,
+                emailService: 'fxa-auth-server',
+                emailSender: 'ses'
+              })
+            })
+        }, P.resolve(new Map()))
+      })
+      .then(services => Array.from(services.values()))
+
+    function isLiveConfigMatch (liveConfig, emailAddress) {
+      return new P(resolve => {
+        const { percentage, regex } = liveConfig
+
+        if (percentage >= 0 && percentage < 100 && Math.floor(Math.random() * 100) >= percentage) {
+          resolve(false)
+          return
         }
-        log.info(
-          {
-            op: 'mailer.send.1',
-            status: status && status.message,
-            id: status && status.messageId,
-            to: emailConfig && emailConfig.to
+
+        if (regex) {
+          if (regex.indexOf('"') !== -1 || emailAddress.indexOf('"') !== -1 || ! safeRegex(regex)) {
+            resolve(false)
+            return
           }
-        )
 
-        emailUtils.logEmailEventSent(log, message)
+          // Execute the regex inside a sandbox and kill it if it takes > 100 ms
+          const sandbox = new Sandbox({ timeout: 100 })
+          sandbox.run(`new RegExp("${regex}").test("${emailAddress}")`, output => {
+            resolve(output.result === 'true')
+          })
+          return
+        }
 
-        return d.resolve(status)
+        resolve(true)
+      })
+    }
+
+    function upsertServicesMap (services, service, emailAddress, data) {
+      if (services.has(service)) {
+        services.get(service).emailAddresses.push(emailAddress)
+      } else {
+        services.set(service, Object.assign({
+          emailAddresses: [ emailAddress ]
+        }, data))
       }
-    )
-    return d.promise
+
+      return services
+    }
   }
 
   Mailer.prototype.verifyEmail = function (message) {

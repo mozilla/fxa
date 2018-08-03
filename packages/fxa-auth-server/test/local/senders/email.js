@@ -7,18 +7,12 @@
 const ROOT_DIR = '../../..'
 
 const assert = require('insist')
-const sinon = require('sinon')
+const mocks = require('../../mocks')
 const P = require('bluebird')
-
-const mockLog = {
-  amplitudeEvent () {},
-  trace () {},
-  info: sinon.spy(),
-  error () {}
-}
+const proxyquire = require('proxyquire').noPreserveCache()
+const sinon = require('sinon')
 
 const config = require(`${ROOT_DIR}/config`)
-const Mailer = require(`${ROOT_DIR}/lib/senders/email`)(mockLog, config.getProperties())
 
 const TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/templates/_versions.json`)
 
@@ -177,20 +171,25 @@ function sesMessageTagsHeaderValue(templateName, serviceName) {
 describe(
   'lib/senders/email:',
   () => {
-    let mailer
+    let mockLog, redis, mailer
 
-    before(() => {
+    beforeEach(() => {
       return P.all([
         require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
         require(`${ROOT_DIR}/lib/senders/templates`).init()
       ]).spread((translator, templates) => {
+        mockLog = mocks.mockLog()
+        redis = {
+          get: sinon.spy(() => P.resolve())
+        }
+        const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, {
+          '../redis': () => redis
+        })(mockLog, config.getProperties())
         mailer = new Mailer(translator, templates, config.get('smtp'))
       })
     })
 
-    afterEach(() => {
-      mockLog.info.reset()
-    })
+    afterEach(() => mailer.stop())
 
     messageTypes.forEach(
       function (type) {
@@ -785,14 +784,15 @@ describe(
       }
     )
 
-    it(
-      'resolves sendMail status',
-      function () {
+    describe('mock sendMail method:', () => {
+      beforeEach(() => {
         sinon.stub(mailer.mailer, 'sendMail', function (config, cb) {
           cb(null, { resp: 'ok' })
         })
+      })
 
-        var message = {
+      it('resolves sendMail status', () => {
+        const message = {
           email: 'test@restmail.net',
           subject: 'subject',
           template: 'verifyLoginEmail',
@@ -800,16 +800,13 @@ describe(
         }
 
         return mailer.send(message)
-          .then(function (status) {
-            assert.equal(status.resp, 'ok')
+          .then(status => {
+            assert.deepEqual(status, [ { resp: 'ok' } ])
           })
-      }
-    )
+      })
 
-    it(
-      'logs emailEvent on send',
-      function () {
-        var message = {
+      it('logs emailEvent on send', () => {
+        const message = {
           email: 'test@restmail.net',
           flowId: 'wibble',
           subject: 'subject',
@@ -818,7 +815,7 @@ describe(
         }
 
         return mailer.send(message)
-          .then(function () {
+          .then(() => {
             assert.equal(mockLog.info.callCount, 3, 'calls log emailEvent')
             const emailEventLog = mockLog.info.getCalls()[2]
             assert.equal(emailEventLog.args[0].op, 'emailEvent', 'logs emailEvent')
@@ -830,13 +827,10 @@ describe(
             assert.equal(mailerSend1.args[0].op, 'mailer.send.1', 'logs mailer.send.1')
             assert.equal(mailerSend1.args[0].to, message.email, 'logs sender to email address')
           })
-      }
-    )
+      })
 
-    it(
-      'rejects sendMail status',
-      function () {
-        var message = {
+      it('rejects sendMail status', () => {
+        const message = {
           email: 'test@restmail.net',
           subject: 'subject',
           template: 'verifyLoginEmail',
@@ -844,14 +838,14 @@ describe(
         }
 
         return mailer.send(message)
-          .then(assert.notOk, function (err) {
+          .then(assert.notOk, err => {
             assert.equal(err.message, 'Fail')
           })
-      }
-    )
+      })
+    })
 
     describe('delete template versions', () => {
-      before(() => {
+      beforeEach(() => {
         Object.keys(TEMPLATE_VERSIONS).forEach(key => TEMPLATE_VERSIONS[key] = undefined)
       })
 
@@ -881,7 +875,7 @@ describe(
     describe(
       'sends request to the right mailer',
       () => {
-        before(() => {
+        beforeEach(() => {
           sinon.stub(
             mailer.mailer,
             'sendMail',
@@ -896,16 +890,6 @@ describe(
               cb(null, { resp: 'whatevs' })
             }
           )
-        })
-
-        beforeEach(() => {
-          mailer.mailer.sendMail.reset()
-          mailer.emailService.sendMail.reset()
-        })
-
-        after(() => {
-          mailer.mailer.sendMail.restore()
-          mailer.emailService.sendMail.restore()
         })
 
         it(
@@ -930,6 +914,7 @@ describe(
                   assert.equal(args.length, 2)
                   assert.equal(args[0].to, 'emailservice.foo@restmail.net')
                   assert.equal(args[0].subject, 'subject')
+                  assert.equal(args[0].provider, 'ses')
 
                   const headers = args[0].headers
 
@@ -943,6 +928,8 @@ describe(
                   assert.equal(headers['X-SES-CONFIGURATION-SET'], 'wibble')
 
                   assert.equal(typeof args[1], 'function')
+
+                  assert.equal(redis.get.callCount, 1)
                 }
               )
           }
@@ -962,27 +949,749 @@ describe(
               .then(
                 response => {
                   assert(! mailer.emailService.sendMail.called)
-                  assert( mailer.mailer.sendMail.called)
-                  assert.equal(mailer.mailer.sendMail.args[0][0].to, 'foo@restmail.net')
-                  assert.equal(mailer.mailer.sendMail.args[0][0].subject, 'subject')
-                  assert.equal(mailer.mailer.sendMail.args[0][0].headers['X-Template-Name'], 'verifyLoginEmail')
-                  assert.equal(mailer.mailer.sendMail.args[0][0].headers['X-Uid'], 'foo')
+                  assert( mailer.mailer.sendMail.calledOnce)
+                  const args = mailer.mailer.sendMail.args[0]
+                  assert.equal(args.length, 2)
+                  assert.equal(args[0].to, 'foo@restmail.net')
+                  assert.equal(args[0].subject, 'subject')
+                  assert.equal(args[0].headers['X-Template-Name'], 'verifyLoginEmail')
+                  assert.equal(args[0].headers['X-Uid'], 'foo')
+                  assert.equal(args[0].provider, undefined)
                   assert.equal(typeof mailer.mailer.sendMail.args[0][1], 'function')
+
+                  assert.equal(redis.get.callCount, 1)
                 }
               )
           }
         )
 
+        it('sends request to fxa-email-service when selectEmailServices tells it to', () => {
+          const message = {
+            email: 'foo@example.com',
+            subject: 'subject',
+            template: 'verifyLoginEmail'
+          }
+          mailer.selectEmailServices = sinon.spy(() => P.resolve([
+            {
+              emailAddresses: [ message.email ],
+              emailService: 'fxa-email-service',
+              emailSender: 'sendgrid',
+              mailer: mailer.emailService
+            }
+          ]))
+
+          return mailer.send(message)
+            .then(() => {
+              assert.equal(mailer.selectEmailServices.callCount, 1)
+
+              let args = mailer.selectEmailServices.args[0]
+              assert.equal(args.length, 1)
+              assert.equal(args[0], message)
+
+              assert.equal(mailer.emailService.sendMail.callCount, 1)
+              assert.equal(mailer.mailer.sendMail.callCount, 0)
+
+              args = mailer.emailService.sendMail.args[0]
+              assert.equal(args.length, 2)
+              assert.equal(args[0].to, 'foo@example.com')
+              assert.equal(args[0].provider, 'sendgrid')
+
+              const headers = args[0].headers
+              assert.equal(headers['X-Email-Service'], 'fxa-email-service')
+              assert.equal(headers['X-Email-Sender'], 'sendgrid')
+            })
+        })
+
+        it('correctly handles multiple email addresses from selectEmailServices', () => {
+          const message = {
+            email: 'foo@example.com',
+            ccEmails: [ 'bar@example.com', 'baz@example.com' ],
+            subject: 'subject',
+            template: 'verifyLoginEmail'
+          }
+          mailer.selectEmailServices = sinon.spy(() => P.resolve([
+            {
+              emailAddresses: [ message.email, ...message.ccEmails ],
+              emailService: 'fxa-auth-server',
+              emailSender: 'ses',
+              mailer: mailer.mailer
+            }
+          ]))
+
+          return mailer.send(message)
+            .then(() => {
+              assert.equal(mailer.selectEmailServices.callCount, 1)
+              assert.equal(mailer.mailer.sendMail.callCount, 1)
+              assert.equal(mailer.emailService.sendMail.callCount, 0)
+
+              const args = mailer.mailer.sendMail.args[0]
+              assert.equal(args.length, 2)
+              assert.equal(args[0].to, 'foo@example.com')
+              assert.deepEqual(args[0].cc, [ 'bar@example.com', 'baz@example.com' ])
+
+              const headers = args[0].headers
+              assert.equal(headers['X-Email-Service'], 'fxa-auth-server')
+              assert.equal(headers['X-Email-Sender'], 'ses')
+            })
+        })
+
+        it('correctly handles multiple services from selectEmailServices', () => {
+          const message = {
+            email: 'foo@example.com',
+            ccEmails: [ 'bar@example.com', 'baz@example.com' ],
+            subject: 'subject',
+            template: 'verifyLoginEmail'
+          }
+          mailer.selectEmailServices = sinon.spy(() => P.resolve([
+            {
+              emailAddresses: [ message.email ],
+              emailService: 'fxa-email-service',
+              emailSender: 'sendgrid',
+              mailer: mailer.emailService
+            },
+            {
+              emailAddresses: message.ccEmails.slice(0, 1),
+              emailService: 'fxa-email-service',
+              emailSender: 'ses',
+              mailer: mailer.emailService
+            },
+            {
+              emailAddresses: message.ccEmails.slice(1),
+              emailService: 'fxa-auth-server',
+              emailSender: 'ses',
+              mailer: mailer.mailer
+            }
+          ]))
+
+          return mailer.send(message)
+            .then(() => {
+              assert.equal(mailer.selectEmailServices.callCount, 1)
+              assert.equal(mailer.emailService.sendMail.callCount, 2)
+              assert.equal(mailer.mailer.sendMail.callCount, 1)
+
+              let args = mailer.emailService.sendMail.args[0]
+              assert.equal(args.length, 2)
+              assert.equal(args[0].to, 'foo@example.com')
+              assert.equal(args[0].cc, undefined)
+              assert.equal(args[0].provider, 'sendgrid')
+
+              let headers = args[0].headers
+              assert.equal(headers['X-Email-Service'], 'fxa-email-service')
+              assert.equal(headers['X-Email-Sender'], 'sendgrid')
+
+              args = mailer.emailService.sendMail.args[1]
+              assert.equal(args.length, 2)
+              assert.equal(args[0].to, 'bar@example.com')
+              assert.equal(args[0].cc, undefined)
+              assert.equal(args[0].provider, 'ses')
+
+              headers = args[0].headers
+              assert.equal(headers['X-Email-Service'], 'fxa-email-service')
+              assert.equal(headers['X-Email-Sender'], 'ses')
+
+              args = mailer.mailer.sendMail.args[0]
+              assert.equal(args.length, 2)
+              assert.equal(args[0].to, 'baz@example.com')
+              assert.equal(args[0].cc, undefined)
+              assert.equal(args[0].provider, undefined)
+
+              headers = args[0].headers
+              assert.equal(headers['X-Email-Service'], 'fxa-auth-server')
+              assert.equal(headers['X-Email-Sender'], 'ses')
+            })
+        })
       }
     )
+
+    describe('single email address:', () => {
+      const emailAddress = 'foo@example.com'
+
+      describe('redis.get returns sendgrid percentage-only match:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({ sendgrid: { percentage: 11 } }))
+          sinon.stub(Math, 'random', () => 0.109)
+        })
+
+        afterEach(() => Math.random.restore())
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.emailService,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-email-service',
+                emailSender: 'sendgrid'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns sendgrid percentage-only mismatch:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({ sendgrid: { percentage: 11 } }))
+          sinon.stub(Math, 'random', () => 0.11)
+        })
+
+        afterEach(() => Math.random.restore())
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.mailer,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-auth-server',
+                emailSender: 'ses'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns sendgrid regex-only match:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({ sendgrid: { regex: '^foo@example\.com$' } }))
+        })
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.emailService,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-email-service',
+                emailSender: 'sendgrid'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns sendgrid regex-only mismatch:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({ sendgrid: { regex: '^fo@example\.com$' } }))
+        })
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.mailer,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-auth-server',
+                emailSender: 'ses'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns sendgrid combined match:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({
+            sendgrid: {
+              percentage: 1,
+              regex: '^foo@example\.com$'
+            }
+          }))
+          sinon.stub(Math, 'random', () => 0.009)
+        })
+
+        afterEach(() => Math.random.restore())
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.emailService,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-email-service',
+                emailSender: 'sendgrid'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns sendgrid combined mismatch (percentage):', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({
+            sendgrid: {
+              percentage: 1,
+              regex: '^foo@example\.com$'
+            }
+          }))
+          sinon.stub(Math, 'random', () => 0.01)
+        })
+
+        afterEach(() => Math.random.restore())
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.mailer,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-auth-server',
+                emailSender: 'ses'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns sendgrid combined mismatch (regex):', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({
+            sendgrid: {
+              percentage: 1,
+              regex: '^ffoo@example\.com$'
+            }
+          }))
+          sinon.stub(Math, 'random', () => 0)
+        })
+
+        afterEach(() => Math.random.restore())
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.mailer,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-auth-server',
+                emailSender: 'ses'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns socketlabs percentage-only match:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({ socketlabs: { percentage: 42 } }))
+          sinon.stub(Math, 'random', () => 0.419)
+        })
+
+        afterEach(() => Math.random.restore())
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.emailService,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-email-service',
+                emailSender: 'socketlabs'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns socketlabs percentage-only mismatch:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({ socketlabs: { percentage: 42 } }))
+          sinon.stub(Math, 'random', () => 0.42)
+        })
+
+        afterEach(() => Math.random.restore())
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.mailer,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-auth-server',
+                emailSender: 'ses'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns socketlabs regex-only match:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({ socketlabs: { regex: '^foo@example\.com$' } }))
+        })
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.emailService,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-email-service',
+                emailSender: 'socketlabs'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns ses percentage-only match:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({ ses: { percentage: 100 } }))
+          sinon.stub(Math, 'random', () => 0.999)
+        })
+
+        afterEach(() => Math.random.restore())
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.emailService,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-email-service',
+                emailSender: 'ses'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns ses percentage-only mismatch:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({ ses: { percentage: 99 } }))
+          sinon.stub(Math, 'random', () => 0.999)
+        })
+
+        afterEach(() => Math.random.restore())
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.mailer,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-auth-server',
+                emailSender: 'ses'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns ses regex-only match:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({ ses: { regex: '^foo@example\.com$' } }))
+        })
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.emailService,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-email-service',
+                emailSender: 'ses'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns sendgrid and ses matches:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({
+            sendgrid: { percentage: 10 },
+            ses: { regex: '^foo@example\.com$' }
+          }))
+          sinon.stub(Math, 'random', () => 0.09)
+        })
+
+        afterEach(() => Math.random.restore())
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.emailService,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-email-service',
+                emailSender: 'sendgrid'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns sendgrid match and ses mismatch:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({
+            sendgrid: { percentage: 10 },
+            ses: { regex: '^ffoo@example\.com$' }
+          }))
+          sinon.stub(Math, 'random', () => 0.09)
+        })
+
+        afterEach(() => Math.random.restore())
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.emailService,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-email-service',
+                emailSender: 'sendgrid'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns sendgrid mismatch and ses match:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({
+            sendgrid: { percentage: 10 },
+            ses: { regex: '^foo@example\.com$' }
+          }))
+          sinon.stub(Math, 'random', () => 0.1)
+        })
+
+        afterEach(() => Math.random.restore())
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.emailService,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-email-service',
+                emailSender: 'ses'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns sendgrid and ses mismatches:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({
+            sendgrid: { percentage: 10 },
+            ses: { regex: '^ffoo@example\.com$' }
+          }))
+          sinon.stub(Math, 'random', () => 0.1)
+        })
+
+        afterEach(() => Math.random.restore())
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.mailer,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-auth-server',
+                emailSender: 'ses'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns undefined:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve())
+        })
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.mailer,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-auth-server',
+                emailSender: 'ses'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns unsafe regex:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({ sendgrid: { regex: '^(.+)+@example\.com$' } }))
+        })
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.mailer,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-auth-server',
+                emailSender: 'ses'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns quote-terminating regex:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({ sendgrid: { regex: '"@example\.com$' } }))
+        })
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.mailer,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-auth-server',
+                emailSender: 'ses'
+              }
+            ]))
+        })
+      })
+
+      describe('email address contains quote-terminator:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({ sendgrid: { regex: '@example\.com$' } }))
+        })
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: '"@example.com' })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.mailer,
+                emailAddresses: [ '"@example.com' ],
+                emailService: 'fxa-auth-server',
+                emailSender: 'ses'
+              }
+            ]))
+        })
+      })
+    })
+
+    describe('single email address matching local static email service config:', () => {
+      const emailAddress = 'emailservice.1@restmail.net'
+
+      describe('redis.get returns sendgrid match:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({ sendgrid: { regex: 'restmail' } }))
+        })
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.emailService,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-email-service',
+                emailSender: 'sendgrid'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns sendgrid mismatch:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({ sendgrid: { regex: 'rustmail' } }))
+        })
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({ email: emailAddress })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.emailService,
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-email-service',
+                emailSender: 'ses'
+              }
+            ]))
+        })
+      })
+    })
+
+    describe('multiple email addresses:', () => {
+      const emailAddresses = [ 'a@example.com', 'b@example.com', 'c@example.com' ]
+
+      describe('redis.get returns sendgrid and ses matches and a mismatch:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({
+            sendgrid: { regex: '^a' },
+            ses: { regex: '^b' }
+          }))
+        })
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({
+            email: emailAddresses[0],
+            ccEmails: emailAddresses.slice(1)
+          })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.emailService,
+                emailAddresses: emailAddresses.slice(0, 1),
+                emailService: 'fxa-email-service',
+                emailSender: 'sendgrid'
+              },
+              {
+                mailer: mailer.emailService,
+                emailAddresses: emailAddresses.slice(1, 2),
+                emailService: 'fxa-email-service',
+                emailSender: 'ses'
+              },
+              {
+                mailer: mailer.mailer,
+                emailAddresses: emailAddresses.slice(2),
+                emailService: 'fxa-auth-server',
+                emailSender: 'ses'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns a sendgrid match and two ses matches:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({
+            sendgrid: { regex: '^a' },
+            ses: { regex: '^b|c' }
+          }))
+        })
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({
+            email: emailAddresses[0],
+            ccEmails: emailAddresses.slice(1)
+          })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.emailService,
+                emailAddresses: emailAddresses.slice(0, 1),
+                emailService: 'fxa-email-service',
+                emailSender: 'sendgrid'
+              },
+              {
+                mailer: mailer.emailService,
+                emailAddresses: emailAddresses.slice(1),
+                emailService: 'fxa-email-service',
+                emailSender: 'ses'
+              }
+            ]))
+        })
+      })
+
+      describe('redis.get returns three mismatches:', () => {
+        beforeEach(() => {
+          redis.get = sinon.spy(() => P.resolve({
+            sendgrid: { regex: 'wibble' },
+            ses: { regex: 'blee' }
+          }))
+        })
+
+        it('selectEmailServices returns the correct data', () => {
+          return mailer.selectEmailServices({
+            email: emailAddresses[0],
+            ccEmails: emailAddresses.slice(1)
+          })
+            .then(result => assert.deepEqual(result, [
+              {
+                mailer: mailer.mailer,
+                emailAddresses: emailAddresses,
+                emailService: 'fxa-auth-server',
+                emailSender: 'ses'
+              }
+            ]))
+        })
+      })
+    })
   }
 )
 
 describe('mailer constructor:', () => {
-  let config, mailer
+  let mailerConfig, mockLog, mailer
 
   beforeEach(() => {
-    config = [
+    mailerConfig = [
       'accountSettingsUrl',
       'accountRecoveryCodesUrl',
       'androidUrl',
@@ -1006,18 +1715,161 @@ describe('mailer constructor:', () => {
       target[key] = `mock ${key}`
       return target
     }, {})
+    mockLog = mocks.mockLog()
 
     return P.all([
       require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
       require(`${ROOT_DIR}/lib/senders/templates`).init()
     ]).spread((translator, templates) => {
-      mailer = new Mailer(translator, templates, config)
+      const Mailer = require(`${ROOT_DIR}/lib/senders/email`)(mockLog, config.getProperties())
+      mailer = new Mailer(translator, templates, mailerConfig)
     })
   })
 
+  afterEach(() => mailer.stop())
+
   it('set properties on self from config correctly', () => {
-    Object.entries(config).forEach(([key, expected]) => {
+    Object.entries(mailerConfig).forEach(([key, expected]) => {
       assert.equal(mailer[key], expected, `${key} was correct`)
     })
+  })
+})
+
+describe('call selectEmailServices with mocked sandbox:', () => {
+  const emailAddress = 'foo@example.com'
+  let mockLog, redis, Sandbox, sandbox, mailer, promise, result, failed
+
+  beforeEach(done => {
+    P.all([
+      require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
+      require(`${ROOT_DIR}/lib/senders/templates`).init()
+    ]).spread((translator, templates) => {
+      mockLog = mocks.mockLog()
+      redis = {
+        get: sinon.spy(() => P.resolve({ sendgrid: { regex: '^foo@example\.com$' } }))
+      }
+      Sandbox = sinon.spy(function () { return sandbox })
+      sandbox = {
+        run: sinon.spy()
+      }
+      const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, {
+        '../redis': () => redis,
+        'sandbox': Sandbox
+      })(mockLog, config.getProperties())
+      mailer = new Mailer(translator, templates, config.get('smtp'))
+      promise = mailer.selectEmailServices({
+        email: emailAddress
+      })
+        .then(r => result = r)
+        .catch(() => failed = true)
+      setImmediate(done)
+    })
+  })
+
+  afterEach(() => mailer.stop())
+
+  it('called the sandbox correctly', () => {
+    assert.equal(Sandbox.callCount, 1)
+
+    let args = Sandbox.args[0]
+    assert.equal(args.length, 1)
+    assert.deepEqual(args[0], {
+      timeout: 100
+    })
+
+    assert.equal(sandbox.run.callCount, 1)
+
+    args = sandbox.run.args[0]
+    assert.equal(args.length, 2)
+    assert.equal(args[0], 'new RegExp("^foo@example\.com$").test("foo@example.com")')
+    assert.equal(typeof args[1], 'function')
+  })
+
+  describe('call sandbox result handler with match:', () => {
+    beforeEach(() => {
+      sandbox.run.args[0][1]({ result: 'true' })
+      return promise
+    })
+
+    it('resolved', () => {
+      assert.deepEqual(result, [
+        {
+          emailAddresses: [ 'foo@example.com' ],
+          mailer: mailer.emailService,
+          emailService: 'fxa-email-service',
+          emailSender: 'sendgrid'
+        }
+      ])
+    })
+
+    it('did not fail', () => {
+      assert.equal(failed, undefined)
+    })
+  })
+
+  describe('call sandbox result handler with timeout:', () => {
+    beforeEach(() => {
+      sandbox.run.args[0][1]({ result: 'TimeoutError' })
+      return promise
+    })
+
+    it('resolved', () => {
+      assert.deepEqual(result, [
+        {
+          emailAddresses: [ 'foo@example.com' ],
+          mailer: mailer.mailer,
+          emailService: 'fxa-auth-server',
+          emailSender: 'ses'
+        }
+      ])
+    })
+
+    it('did not fail', () => {
+      assert.equal(failed, undefined)
+    })
+  })
+})
+
+describe('call selectEmailServices with mocked safe-regex, regex-only match and redos regex:', () => {
+  const emailAddress = 'foo@example.com'
+  let mockLog, redis, safeRegex, mailer
+
+  beforeEach(() => {
+    return P.all([
+      require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
+      require(`${ROOT_DIR}/lib/senders/templates`).init()
+    ]).spread((translator, templates) => {
+      mockLog = mocks.mockLog()
+      redis = {
+        get: sinon.spy(() => P.resolve({ sendgrid: { regex: '^((((.*)*)*)*)*@example\.com$' } }))
+      }
+      safeRegex = sinon.spy(function () { return true })
+      const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, {
+        '../redis': () => redis,
+        'safe-regex': safeRegex
+      })(mockLog, config.getProperties())
+      mailer = new Mailer(translator, templates, config.get('smtp'))
+    })
+  })
+
+  afterEach(() => mailer.stop())
+
+  it('email address was treated as mismatch', () => {
+    return mailer.selectEmailServices({ email: emailAddress })
+      .then(result => {
+        assert.deepEqual(result, [
+          {
+            mailer: mailer.mailer,
+            emailAddresses: [ emailAddress ],
+            emailService: 'fxa-auth-server',
+            emailSender: 'ses'
+          }
+        ])
+
+        assert.equal(safeRegex.callCount, 1)
+        const args = safeRegex.args[0]
+        assert.equal(args.length, 1)
+        assert.equal(args[0], '^((((.*)*)*)*)*@example\.com$')
+      })
   })
 })

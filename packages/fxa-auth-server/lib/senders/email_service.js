@@ -29,6 +29,10 @@ module.exports = (config) => {
       }
     }
 
+    if (emailConfig.provider) {
+      options.body.provider = emailConfig.provider
+    }
+
     request(options, function(err, res, body) {
       cb(err, {
         messageId: body && body.messageId,

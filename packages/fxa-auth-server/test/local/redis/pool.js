@@ -39,7 +39,7 @@ describe('redis/pool:', () => {
     })({
       host: 'foo',
       port: 'bar',
-      sessionsKeyPrefix: 'baz',
+      prefix: 'baz',
       retryCount: 3,
       initialBackoff: 100,
       maxConnections: 'qux',

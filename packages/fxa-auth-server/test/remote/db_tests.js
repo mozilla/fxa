@@ -34,7 +34,11 @@ const tokenPruning = {
 const DB = require('../../lib/db')({
   lastAccessTimeUpdates,
   signinCodeSize: config.signinCodeSize,
-  redis: Object.assign({}, config.redis, { enabled: true }),
+  redis: {
+    enabled: true,
+    ...config.redis,
+    ...config.redis.sessionTokens
+  },
   tokenLifetimes: {},
   tokenPruning
 }, log, Token, UnblockCode)
@@ -42,7 +46,7 @@ const DB = require('../../lib/db')({
 const redis = require('redis').createClient({
   host: config.redis.host,
   port: config.redis.port,
-  prefix: config.redis.sessionsKeyPrefix,
+  prefix: config.redis.sessionTokens.prefix,
   enable_offline_queue: false
 })
 

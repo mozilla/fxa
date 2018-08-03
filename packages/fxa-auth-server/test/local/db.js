@@ -128,7 +128,7 @@ describe('db with redis disabled:', () => {
     const DB = proxyquire(`${LIB_DIR}/db`, {
       './pool': function () { return pool },
       './redis': () => {}
-    })({ tokenLifetimes, tokenPruning: {} }, log, tokens, {})
+    })({ redis: {}, tokenLifetimes, tokenPruning: {} }, log, tokens, {})
     return DB.connect({})
       .then(result => db = result)
   })
@@ -290,14 +290,27 @@ describe('redis enabled, token-pruning enabled:', () => {
       './pool': function () { return pool },
       './redis': (...args) => {
         assert.equal(args.length, 2, 'redisPool was passed two arguments')
-        assert.equal(args[0], 'mock redis config', 'redisPool was passed config')
+        assert.equal(args[0].foo, 'bar', 'redisPool was passed config')
+        assert.equal(args[0].baz, 'qux', 'redisPool was passed session token config')
+        assert.equal(args[0].prefix, 'wibble', 'redisPool was passed session token prefix')
+        assert.equal(args[0].blee, undefined, 'redisPool was not passed email service config')
         assert.equal(args[1], log, 'redisPool was passed log')
         return redis
       }
     })({
       tokenLifetimes,
       tokenPruning,
-      redis: 'mock redis config',
+      redis: {
+        foo: 'bar',
+        sessionTokens: {
+          baz: 'qux',
+          prefix: 'wibble'
+        },
+        email: {
+          blee: 'blee',
+          prefix: 'blee'
+        }
+      },
       lastAccessTimeUpdates: {
         enabled: true,
         sampleRate: 1,
@@ -1178,7 +1191,10 @@ describe('redis enabled, token-pruning disabled:', () => {
       './pool': function () { return pool },
       './redis': (...args) => {
         assert.equal(args.length, 2, 'redisPool was passed two arguments')
-        assert.equal(args[0], 'mock redis config', 'redisPool was passed config')
+        assert.equal(args[0].foo, 'bar', 'redisPool was passed config')
+        assert.equal(args[0].baz, 'qux', 'redisPool was passed session token config')
+        assert.equal(args[0].prefix, 'wibble', 'redisPool was passed session token prefix')
+        assert.equal(args[0].blee, undefined, 'redisPool was not passed email service config')
         assert.equal(args[1], log, 'redisPool was passed log')
         return redis
       }
@@ -1187,7 +1203,17 @@ describe('redis enabled, token-pruning disabled:', () => {
       tokenPruning: {
         enabled: false
       },
-      redis: 'mock redis config',
+      redis: {
+        foo: 'bar',
+        sessionTokens: {
+          baz: 'qux',
+          prefix: 'wibble'
+        },
+        email: {
+          blee: 'blee',
+          prefix: 'blee'
+        }
+      },
       lastAccessTimeUpdates: {
         enabled: true,
         sampleRate: 1,
