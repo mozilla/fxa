@@ -183,7 +183,7 @@ const click = thenify(function (selector, readySelector) {
     .then(visibleByQSA(selector))
     .click()
     .then(null, (err) => {
-      // If element is obsure (possibly by a verification message covering it), attempt
+      // If element is obscured (possibly by a verification message covering it), attempt
       // to scroll to the top of page where it might be visible.
       if (/obscures it/.test(err.message)) {
         return this.parent
@@ -198,7 +198,7 @@ const click = thenify(function (selector, readySelector) {
             // one final time.
             if (/obscures it/.test(err.message)) {
               return this.parent
-                .sleep(5000)
+                .sleep(6000)
                 .findByCssSelector(selector)
                 .click()
                 .end();
