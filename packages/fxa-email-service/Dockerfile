@@ -3,7 +3,7 @@ FROM rust:1.26.0-stretch as builder
 ADD . /app
 WORKDIR /app
 # Make sure that this matches in .travis.yml
-ARG RUST_TOOLCHAIN=nightly-2018-07-14
+ARG RUST_TOOLCHAIN=nightly-2018-08-06
 RUN \
     apt-get -qq update && \
     apt-get -qq install -y default-libmysqlclient-dev && \

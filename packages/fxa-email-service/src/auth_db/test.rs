@@ -160,13 +160,13 @@ fn create_bounce() {
     let email_addresses = vec![generate_email_address("foo"), generate_email_address("bar")];
 
     let bounces_before = db.get_bounces(&email_addresses[0]).expect("db error");
-    let bounces_after =
-        db.create_bounce(
+    let bounces_after = db
+        .create_bounce(
             &email_addresses[0],
             BounceType::Hard,
             BounceSubtype::General,
         ).and_then(|_| db.get_bounces(&email_addresses[0]))
-            .expect("db error");
+        .expect("db error");
     let now = now_as_milliseconds();
 
     // The next assertion is conditional because fxa-auth-db-mysql limits
@@ -183,13 +183,13 @@ fn create_bounce() {
     assert_eq!(bounce.bounce_subtype, BounceSubtype::General);
     assert!(bounce.created_at > now - 1000);
 
-    let bounces_after =
-        db.create_bounce(
+    let bounces_after = db
+        .create_bounce(
             &email_addresses[1],
             BounceType::Soft,
             BounceSubtype::MailboxFull,
         ).and_then(|_| db.get_bounces(&email_addresses[1]))
-            .expect("db error");
+        .expect("db error");
     let now = now_as_milliseconds();
 
     let second_bounce = &bounces_after[0];

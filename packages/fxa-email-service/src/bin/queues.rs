@@ -48,8 +48,7 @@ fn main() {
             .or_else(|error: QueueError| {
                 println!("{:?}", error);
                 future::ok(0)
-            })
-            .and_then(move |count: usize| {
+            }).and_then(move |count: usize| {
                 let total_count = count + previous_count;
                 println!(
                     "Processed {} messages, total message count is now {}",

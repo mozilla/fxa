@@ -105,8 +105,7 @@ impl Queues {
             .join3(
                 self.process_queue(&self.complaint_queue),
                 self.process_queue(&self.delivery_queue),
-            )
-            .map(|results| results.0 + results.1 + results.2);
+            ).map(|results| results.0 + results.1 + results.2);
 
         Box::new(joined_futures)
     }
@@ -125,8 +124,7 @@ impl Queues {
                     }
                 }
                 future::join_all(futures.into_iter())
-            })
-            .map(|results| results.len());
+            }).map(|results| results.len());
         Box::new(future)
     }
 
@@ -154,8 +152,7 @@ impl Queues {
                     .map(|id| {
                         println!("Sent message to notification queue, id=`{}`", id);
                         ()
-                    })
-                    .or_else(|error| {
+                    }).or_else(|error| {
                         // Errors sending to this queue are non-fatal because it's only used
                         // for logging. We still want to delete the message from the queue.
                         println!("{:?}", error);
@@ -170,8 +167,11 @@ impl Queues {
     fn record_bounce(&'static self, notification: &Notification) -> DbResult {
         if let Some(ref bounce) = notification.bounce {
             for recipient in &bounce.bounced_recipients {
-                self.bounces
-                    .record_bounce(&recipient, bounce.bounce_type, bounce.bounce_subtype)?;
+                self.bounces.record_bounce(
+                    &recipient,
+                    bounce.bounce_type,
+                    bounce.bounce_subtype,
+                )?;
             }
             Ok(())
         } else {

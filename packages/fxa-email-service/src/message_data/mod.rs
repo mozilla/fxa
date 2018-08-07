@@ -57,8 +57,7 @@ impl MessageData {
             .map(|metadata| {
                 self.client.del::<&str, u8>(key_str).ok();
                 metadata
-            })
-            .map_err(From::from)
+            }).map_err(From::from)
     }
 
     /// Store message metadata.

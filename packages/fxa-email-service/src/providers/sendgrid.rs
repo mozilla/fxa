@@ -90,8 +90,7 @@ impl Provider for SendgridProvider {
                                     "Missing or duplicate X-Message-Id header in Sendgrid response",
                                 ),
                             }.into(),
-                        )
-                        .and_then(|message_id| from_utf8(message_id).map_err(From::from))
+                        ).and_then(|message_id| from_utf8(message_id).map_err(From::from))
                         .map(|message_id| message_id.to_string())
                 } else {
                     Err(AppErrorKind::ProviderError {

@@ -24,7 +24,7 @@ fn ses_send_handles_ok_response() {
     "#;
     let mock_dispatcher = MockRequestDispatcher::with_status(200).with_body(&body);
     let mock_ses = SesProvider {
-        client: Box::new(SesClient::new(
+        client: Box::new(SesClient::new_with(
             mock_dispatcher,
             MockCredentialsProvider,
             Region::SaEast1,
@@ -51,7 +51,7 @@ fn ses_send_handles_unicode_characters() {
     "#;
     let mock_dispatcher = MockRequestDispatcher::with_status(200).with_body(&body);
     let mock_ses = SesProvider {
-        client: Box::new(SesClient::new(
+        client: Box::new(SesClient::new_with(
             mock_dispatcher,
             MockCredentialsProvider,
             Region::SaEast1,
@@ -76,7 +76,7 @@ fn ses_send_handles_error_response() {
     let body = "FREAKOUT";
     let mock_dispatcher = MockRequestDispatcher::with_status(500).with_body(&body);
     let mock_ses = SesProvider {
-        client: Box::new(SesClient::new(
+        client: Box::new(SesClient::new_with(
             mock_dispatcher,
             MockCredentialsProvider,
             Region::SaEast1,
