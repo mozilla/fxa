@@ -337,10 +337,11 @@ module.exports = function (log, config) {
           mailer.sendMail(emailConfig, (err, status) => {
             if (err) {
               log.error({
-                op: 'mailer.send.1',
-                err: err && err.message,
-                status: status && status.message,
-                id: status && status.messageId,
+                op: 'mailer.send.error',
+                err: err.message,
+                code: err.code,
+                errno: err.errno,
+                message: status && status.message,
                 to: emailConfig && emailConfig.to,
                 emailSender,
                 emailService

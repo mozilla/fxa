@@ -5,6 +5,14 @@
 'use strict'
 
 const request = require('request')
+const error = require('../error')
+
+const ERRNO = {
+  // From fxa-email-service, src/app_errors/mod.rs
+  COMPLAINT: '106',
+  SOFT_BOUNCE: '107',
+  HARD_BOUNCE: '108'
+}
 
 module.exports = (config) => {
   function sendMail(emailConfig, cb) {
@@ -34,11 +42,34 @@ module.exports = (config) => {
     }
 
     request(options, function(err, res, body) {
+      if (! err && res.statusCode >= 400) {
+        err = marshallError(res.statusCode, body)
+      }
       cb(err, {
         messageId: body && body.messageId,
-        message: err ? err.message : body.message
+        message: body && body.message
       })
     })
+  }
+
+  function marshallError (status, body) {
+    if (status === 429) {
+      return marshallBounceError(body.errno, body.bouncedAt)
+    }
+
+    return error.unexpectedError()
+  }
+
+  function marshallBounceError (errno, bouncedAt) {
+    switch (errno) {
+      case ERRNO.COMPLAINT:
+        return error.emailComplaint(bouncedAt)
+      case ERRNO.SOFT_BOUNCE:
+        return error.emailBouncedSoft(bouncedAt)
+      case ERRNO.HARD_BOUNCE:
+      default:
+        return error.emailBouncedHard(bouncedAt)
+    }
   }
 
   function close() {
