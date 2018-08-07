@@ -47,7 +47,7 @@ describe(
       })
     })
 
-    it('emailService handles successfull request and response', () => {
+    it('emailService handles successful request and response', () => {
       const mock = {
         'request': function (config, cb) {
           cb(null, {
@@ -66,15 +66,15 @@ describe(
       })
     })
 
-    it('emailService handles successfull request, but unsuccessfull response', () => {
+    it('emailService handles 500 response', () => {
       const mock = {
         'request': function (config, cb) {
           cb(null, {
             statusCode: 500
           }, {
-            code: 500,
+            code: '500',
             error: 'InternalServerError',
-            errno: 104,
+            errno: '104',
             message: 'FREAKOUT',
             name: 'SES'
           })
@@ -83,13 +83,39 @@ describe(
 
       const emailService = proxyquire(`${ROOT_DIR}/lib/senders/email_service`, mock)(config)
       emailService.sendMail(emailConfig, (err, body) => {
-        assert.equal(err, null)
+        assert.equal(err.errno, 999)
+        assert.equal(err.output.statusCode, 500)
         assert.equal(body.messageId, undefined)
         assert.equal(body.message, 'FREAKOUT')
       })
     })
 
-    it('emailService handles unsuccessfull request', () => {
+    it('emailService handles 429 response', () => {
+      const mock = {
+        'request': function (config, cb) {
+          cb(null, {
+            statusCode: 429
+          }, {
+            code: '429',
+            errno: '106',
+            error: 'BounceComplaintError',
+            message: 'FREAKOUT',
+            bounceAt: 1533641031755
+          })
+        }
+      }
+
+      const emailService = proxyquire(`${ROOT_DIR}/lib/senders/email_service`, mock)(config)
+      emailService.sendMail(emailConfig, (err, body) => {
+        assert.equal(err.errno, 133)
+        assert.equal(err.output.statusCode, 400)
+        assert.equal(err.message, 'Email account sent complaint')
+        assert.equal(body.messageId, undefined)
+        assert.equal(body.message, 'FREAKOUT')
+      })
+    })
+
+    it('emailService handles unsuccessful request', () => {
       const mock = {
         'request': function (config, cb) {
           cb(Error('FREAKOUT'), undefined, undefined)
@@ -98,9 +124,10 @@ describe(
 
       const emailService = proxyquire(`${ROOT_DIR}/lib/senders/email_service`, mock)(config)
       emailService.sendMail(emailConfig, (err, body) => {
-        assert.equal(typeof err, 'object')
+        assert(err instanceof Error)
+        assert.equal(err.message, 'FREAKOUT')
         assert.equal(body.messageId, undefined)
-        assert.equal(body.message, 'FREAKOUT')
+        assert.equal(body.message, undefined)
       })
     })
   }
