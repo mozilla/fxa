@@ -48,6 +48,10 @@ describe('views/settings/account_recovery/account_recovery', () => {
       return Promise.resolve({exists: hasRecoveryKey});
     });
 
+    sinon.stub(account, 'sessionVerificationStatus').callsFake(() => {
+      return Promise.resolve({sessionVerified: true});
+    });
+
     sinon.stub(broker, 'hasCapability').callsFake(() => showAccountRecovery);
 
     hasRecoveryKey = true;

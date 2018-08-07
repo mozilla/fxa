@@ -16,6 +16,7 @@ define(function (require, exports, module) {
   Vat.register('codeChallengeMethod', Vat.string().valid('S256'));
   Vat.register('email', Vat.string().test(Validate.isEmailValid));
   Vat.register('hex', Vat.string().test(Validate.isHexValid));
+  Vat.register('base32', Vat.string().test(Validate.isBase32Valid));
   Vat.register('keyFetchToken', Vat.string());
   Vat.register('keysJwk', Vat.string().test(Validate.isBase64Url));
   Vat.register('oauthCode', Vat.string().test(Validate.isOAuthCodeValid));

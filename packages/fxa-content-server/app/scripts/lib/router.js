@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import _ from 'underscore';
+import AccountRecoveryConfirmKey from '../views/account_recovery_confirm_key';
 import AccountRecoveryView from '../views/settings/account_recovery/account_recovery';
 import AccountRecoveryConfirmPasswordView from '../views/settings/account_recovery/confirm_password';
 import AccountRecoveryConfirmRevokeView from '../views/settings/account_recovery/confirm_revoke';
@@ -76,6 +77,8 @@ function createViewModel(data) {
 const Router = Backbone.Router.extend({
   routes: {
     '(/)': createViewHandler(IndexView),
+    'account_recovery_confirm_key(/)': createViewHandler(AccountRecoveryConfirmKey),
+    'account_recovery_reset_password(/)': createViewHandler(CompleteResetPasswordView),
     'authorization(/)': createViewHandler(RedirectAuthView),
     'cannot_create_account(/)': createViewHandler(CannotCreateAccountView),
     'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),

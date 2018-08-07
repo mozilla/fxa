@@ -25,6 +25,7 @@ define(function (require, exports, module) {
 
   // Account attributes that can be persisted
   var PERSISTENT = {
+    accountResetToken: undefined,
     displayName: undefined,
     email: undefined,
     grantedPermissions: undefined,
@@ -47,6 +48,7 @@ define(function (require, exports, module) {
     profileImageId: undefined,
     profileImageUrl: undefined,
     profileImageUrlDefault: undefined,
+    recoveryKeyId: undefined,
     sessionToken: undefined,
     // Hint for future code spelunkers. sessionTokenContext is a misnomer,
     // what the field is really used for is to indicate whether the
@@ -1387,6 +1389,75 @@ define(function (require, exports, module) {
       return this._fxaClient.recoveryKeyExists(
         this.get('sessionToken')
       );
+    },
+
+    /**
+     * This checks to see if a recovery key exists for a given
+     * email.
+     *
+     * Response: {
+     *   exists: <boolean>
+     * }
+     * @returns {Promise} resolves with response when complete.
+     */
+    checkRecoveryKeyExistsByEmail () {
+      return this._fxaClient.recoveryKeyExists(
+        undefined,
+        this.get('email')
+      );
+    },
+
+    /**
+     * Verify password forgot token to retrieve `accountResetToken`.
+     *
+     * @param {String} code
+     * @param {String} token
+     * @returns {Promise} resolves with response when complete.
+     */
+    passwordForgotVerifyCode (code, token) {
+      return this._fxaClient.passwordForgotVerifyCode(
+        code,
+        token
+      );
+    },
+
+    /**
+     * Get this user's recovery bundle, which contains their `kB`.
+     *
+     * @param {String} uid - Uid of user
+     * @param  {String} recoveryKey - Recovery key for user
+     * @returns {Promise} resolves with response when complete.
+     */
+    getRecoveryBundle (uid, recoveryKey) {
+      return this._fxaClient.getRecoveryBundle(
+        this.get('accountResetToken'),
+        uid,
+        recoveryKey
+      );
+    },
+
+    /**
+     * Reset an account using an account recovery key.
+     *
+     * @param {String} accountResetToken
+     * @param {String} password - new password
+     * @param {String} recoveryKeyId - recoveryKeyId that maps to recovery key
+     * @param {String} kB - original kB
+     * @param {Object} relier - relier being signed in to.
+     * @returns {Promise} resolves with response when complete.
+     */
+    resetPasswordWithRecoveryKey(accountResetToken, password, recoveryKeyId, kB, relier) {
+      return this._fxaClient.resetPasswordWithRecoveryKey(
+        accountResetToken,
+        this.get('email'),
+        password,
+        recoveryKeyId,
+        kB,
+        relier,
+        {
+          metricsContext: this._metrics.getFlowEventMetadata()
+        })
+        .then(this.set.bind(this));
     }
 
   }, {

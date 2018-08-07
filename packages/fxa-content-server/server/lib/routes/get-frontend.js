@@ -6,6 +6,8 @@
 module.exports = function () {
   // The array is converted into a RegExp
   const FRONTEND_ROUTES = [
+    'account_recovery_confirm_key',
+    'account_recovery_reset_password',
     'authorization',
     'cannot_create_account',
     'choose_what_to_sync',

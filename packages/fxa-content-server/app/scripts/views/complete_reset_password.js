@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const _ = require('underscore');
   const AuthErrors = require('../lib/auth-errors');
   const Cocktail = require('cocktail');
   const FormView = require('./form');
@@ -17,17 +18,42 @@ define(function (require, exports, module) {
   const Template = require('templates/complete_reset_password.mustache');
   const Url = require('../lib/url');
   const VerificationInfo = require('../models/verification/reset-password');
+  const AccountRecoveryVerificationInfo = require('../models/verification/account-recovery');
 
   const proto = FormView.prototype;
   const View = FormView.extend({
     template: Template,
     className: 'complete-reset-password',
 
+    events: _.extend({}, FormView.prototype.events, {
+      'click .remember-password': FormView.preventDefaultThen('_navigateToSignin')
+    }),
+
+    _navigateToSignin: function () {
+      this.navigate('signin');
+    },
+
     initialize (options) {
       options = options || {};
 
       var searchParams = Url.searchParams(this.window.location.search);
       this._verificationInfo = new VerificationInfo(searchParams);
+
+      const model = options.model;
+
+      // If this property is set, this will ensure that a regular password reset
+      // is preformed by *not* setting any `recoveryKeyId` data.
+      this.lostRecoveryKey = model && model.get('lostRecoveryKey');
+      if (this.lostRecoveryKey) {
+        return;
+      }
+
+      // If the complete password screen was navigated from the account recovery confirm
+      // key view, then these properties must be set in order to recover the account
+      // using the recovery key.
+      if (model && model.get('recoveryKeyId')) {
+        this._accountRecoveryVerficationInfo = new AccountRecoveryVerificationInfo(model.toJSON());
+      }
     },
 
     getAccount () {
@@ -53,10 +79,27 @@ define(function (require, exports, module) {
       const token = verificationInfo.get('token');
       return account.isPasswordResetComplete(token)
         .then((isComplete) => {
-          if (isComplete) {
+
+          if (this._accountRecoveryVerficationInfo || this.lostRecoveryKey) {
+            return;
+          }
+
+          if (isComplete && ! this._accountRecoveryVerficationInfo) {
             verificationInfo.markExpired();
             this.logError(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
+            return;
           }
+
+          // When the user clicks the confirm password reset link from their
+          // email, we should check to see if they have an account recovery key.
+          // If so, navigate to the confirm recovery key view, else continue with
+          // a regular password reset.
+          return account.checkRecoveryKeyExistsByEmail()
+            .then((result) => {
+              if (result.exists) {
+                return this.navigate('account_recovery_confirm_key');
+              }
+            });
         });
     },
 
@@ -72,6 +115,13 @@ define(function (require, exports, module) {
       var doesLinkValidate = verificationInfo.isValid();
       var isLinkExpired = verificationInfo.isExpired();
       var showSyncWarning = this.relier.get('resetPasswordConfirm');
+      const showAccountRecoveryInfo = !! this._accountRecoveryVerficationInfo;
+
+      if (showAccountRecoveryInfo) {
+        // Don't show the sync warning if the user is reseting password with
+        // account recovery
+        showSyncWarning = false;
+      }
 
       // damaged and expired links have special messages.
       context.set({
@@ -79,7 +129,8 @@ define(function (require, exports, module) {
         isLinkDamaged: ! doesLinkValidate,
         isLinkExpired: isLinkExpired,
         isLinkValid: doesLinkValidate && ! isLinkExpired,
-        showSyncWarning: showSyncWarning
+        showAccountRecoveryInfo: showAccountRecoveryInfo,
+        showSyncWarning: showSyncWarning,
       });
     },
 
@@ -109,13 +160,30 @@ define(function (require, exports, module) {
       // it will fetch the sessionToken from localStorage and go to town.
       var account = this.getAccount();
 
-      return this.user.completeAccountPasswordReset(
-        account,
-        password,
-        token,
-        code,
-        this.relier
-      )
+      return Promise.resolve()
+        .then(() => {
+
+          // The account recovery verification info will be set from the
+          // `confirm recovery key` view. If the are not set, then perform
+          // a regular password reset.
+          const accountRecoveryVerificationInfo = this._accountRecoveryVerficationInfo;
+          if (accountRecoveryVerificationInfo) {
+            return this.user.completeAccountPasswordResetWithRecoveryKey(
+              account,
+              password,
+              accountRecoveryVerificationInfo.get('accountResetToken'),
+              accountRecoveryVerificationInfo.get('recoveryKeyId'),
+              accountRecoveryVerificationInfo.get('kB'),
+              this.relier);
+          }
+
+          return this.user.completeAccountPasswordReset(
+            account,
+            password,
+            token,
+            code,
+            this.relier);
+        })
         .then((updatedAccount) => {
           // The password was reset, future attempts should ask confirmation.
           this.relier.set('resetPasswordConfirm', true);
@@ -130,6 +198,7 @@ define(function (require, exports, module) {
         .catch((err) => {
           if (AuthErrors.is(err, 'INVALID_TOKEN')) {
             this.logError(err);
+            delete this._accountRecoveryVerficationInfo;
             // The token has expired since the first check, re-render to
             // show a view that allows the user to receive a new link.
             return this.render();

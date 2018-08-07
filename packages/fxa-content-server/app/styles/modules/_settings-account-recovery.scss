@@ -48,6 +48,12 @@
   }
 }
 
+#fxa-recovery-key-confirm {
+  margin-bottom: 40px;
+}
+
+.account-recovery-confirm-key,
+.account-recovery-create-password,
 #account-recovery-confirm-password,
 #account-recovery-confirm-revoke,
 #account-recovery-key {
@@ -111,11 +117,6 @@
     }
   }
 
-  .description {
-    font-size: 14px;
-    text-align: center;
-  }
-
   .email {
     font-size: 1.3em;
     font-weight: bold;
@@ -126,8 +127,13 @@
     margin: 0 auto 75px 0;
   }
 
-  button.cancel-link {
-    background: $color-white;
-    color: $color-blue;
+  .description {
+    font-size: 14px;
+    text-align: left;
   }
+}
+
+button.button-link {
+  background: $color-white;
+  color: $color-blue;
 }

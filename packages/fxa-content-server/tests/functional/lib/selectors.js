@@ -35,6 +35,12 @@ module.exports = {
     EXPIRED_LINK_HEADER: '#fxa-reset-link-expired-header',
     HEADER: '#fxa-complete-reset-password-header',
   },
+  COMPLETE_RESET_PASSWORD_RECOVERY_KEY: {
+    HEADER: '#fxa-recovery-key-confirm',
+    INPUT: '#recovery-key',
+    LOST_KEY: '.lost-recovery-key',
+    SUBMIT: 'button[type="submit"]'
+  },
   COMPLETE_SIGNIN: {
     LINK_RESEND: '#resend',
     VERIFICATION_LINK_DAMAGED: '#fxa-verification-link-damaged-header',
@@ -112,12 +118,16 @@ module.exports = {
   RECOVERY_KEY: {
     CANCEL_BUTTON: '.cancel',
     CONFIRM_PASSWORD_CONTINUE: '.generate-key-link',
+    CONFIRM_REVOKE: '.confirm-revoke',
+    CONFIRM_REVOKE_DESCRIPTION: '.revoke-description',
+    CONFIRM_REVOKE_OK: '#account-recovery-confirm-revoke .revoke',
     GENERATE_KEY_BUTTON: '.confirm-password',
     MENU_BUTTON: '#account-recovery-section .settings-unit-toggle',
     PASSWORD_INPUT: '#account-recovery-confirm-password #password',
     RECOVERY_KEY_DONE_BUTTON: '.done-link',
     RECOVERY_KEY_TEXT: '.recovery-key',
-    STATUS_ENABLED: '.enabled'
+    STATUS_DISABLED: '.disabled',
+    STATUS_ENABLED: '.enabled',
   },
   RESET_PASSWORD: {
     BACK: '.remember-password',

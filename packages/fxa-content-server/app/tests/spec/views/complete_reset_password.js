@@ -85,6 +85,10 @@ define(function (require, exports, module) {
         return Promise.resolve(isPasswordResetComplete);
       });
 
+      sinon.stub(fxaClient, 'recoveryKeyExists').callsFake(function () {
+        return Promise.resolve({exists: false});
+      });
+
       return view.render()
         .then(() => $('#container').html(view.$el));
     });

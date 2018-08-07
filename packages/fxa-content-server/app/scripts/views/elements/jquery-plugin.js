@@ -20,6 +20,7 @@ define(function (require, exports, module) {
   const emailInput = require('./email-input');
   const passwordInput = require('./password-input');
   const recoveryCodeInput = require('./recovery-code-input');
+  const recoveryKeyInput = require('./recovery-key-input');
   const telInput = require('./tel-input');
   const textInput = require('./text-input');
   const totpCodeInput = require('./totp-code-input');
@@ -28,6 +29,7 @@ define(function (require, exports, module) {
   const elementHelpers = [
     totpCodeInput,
     recoveryCodeInput,
+    recoveryKeyInput,
     checkboxInput,
     coppaAgeInput,
     emailInput,

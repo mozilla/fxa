@@ -1088,6 +1088,58 @@ define(function (require, exports, module) {
      */
     recoveryKeyExists: createClientDelegate('recoveryKeyExists'),
 
+    /**
+     * Verify passwordForgotCode which returns an `accountResetToken`.
+     *
+     * @param {String} passwordForgotCode - password forgot code
+     * @param {String} passwordForgotToken - password forgot token
+     * @returns {Promise} resolves with response when complete.
+     */
+    passwordForgotVerifyCode: withClient((client, passwordForgotCode, passwordForgotToken) => {
+      return client.passwordForgotVerifyCode(passwordForgotCode, passwordForgotToken, {});
+    }),
+
+    /**
+     * Gets recovery key bundle for the current user.
+     *
+     * @param {String} accountResetToken
+     * @param {String} uid - Uid of user
+     * @param {String} recoveryKey - User's recovery key
+     * @returns {Promise} resolves with response when complete.
+     */
+    getRecoveryBundle: withClient((client, accountResetToken, uid, recoveryKey) => {
+      return RecoveryKey.getRecoveryJwk(uid, recoveryKey)
+        .then((recoveryJwk) => {
+          return client.getRecoveryKey(accountResetToken, recoveryJwk.kid)
+            .then((bundle) => RecoveryKey.unbundleRecoveryData(recoveryJwk, bundle.recoveryData))
+            .then((data) => {
+              return {
+                keys: data,
+                recoveryKeyId: recoveryJwk.kid
+              };
+            });
+        });
+    }),
+
+    /**
+     * Reset an account using a recovery key. This maintains a user's original encryption keys.
+     *
+     * @param {String} accountResetToken
+     * @param {String} email - Email of user
+     * @param {String} newPassword - New password for user
+     * @param {String} recoveryKeyId - The recoveryKeyId that mapped to original recovery key
+     * @param {String} kB - Wrap new password with this kB
+     * @param {String} relier - Relier to sign-in
+     * @returns {Promise} resolves with response when complete.
+     */
+    resetPasswordWithRecoveryKey: withClient((client, accountResetToken, email, newPassword, recoveryKeyId, kB, relier) => {
+      const keys = {kB};
+      return client.resetPasswordWithRecoveryKey(accountResetToken, email, newPassword, recoveryKeyId, keys, { keys: true, sessionToken: true })
+        .then(accountData => {
+          return getUpdatedSessionData(email, relier, accountData);
+        });
+    })
+
   };
 
   module.exports = FxaClientWrapper;

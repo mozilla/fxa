@@ -10,6 +10,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const _ = require('underscore');
   const Cocktail = require('cocktail');
   const Constants = require('../lib/constants');
   const ExperimentMixin = require('./mixins/experiment-mixin');
@@ -20,6 +21,7 @@ define(function (require, exports, module) {
   const ServiceMixin = require('./mixins/service-mixin');
   const Template = require('templates/ready.mustache');
   const VerificationReasonMixin = require('./mixins/verification-reason-mixin');
+  const RecoverykeyExperiment = require('./mixins/recovery-key-experiment-mixin');
 
   const t = msg => msg;
 
@@ -69,12 +71,15 @@ define(function (require, exports, module) {
     template: Template,
     className: 'ready',
 
-    events: {
-      'click .btn-continue': 'continue'
-    },
+    events: _.extend({}, FormView.prototype.events, {
+      'click .btn-continue': FormView.preventDefaultThen('continue'),
+      'click .btn-create-recovery-key': FormView.preventDefaultThen('createRecoveryKey'),
+      'click .btn-goto-account': FormView.preventDefaultThen('gotoSettings')
+    }),
 
     initialize (options = {}) {
       this._templateInfo = TEMPLATE_INFO[this.keyOfVerificationReason(options.type)];
+      this.type = options.type;
     },
 
     setInitialContext (context) {
@@ -84,6 +89,7 @@ define(function (require, exports, module) {
         escapedHeaderTitle: this._getEscapedHeaderTitle(),
         escapedReadyToSyncText: this._getEscapedReadyToSyncText(),
         headerId: this._getHeaderId(),
+        isPasswordReset: this.isPasswordReset(),
         isSync: this.relier.isSync(),
         secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null,
         showContinueButton: !! this.model.get('continueBrokerMethod'),
@@ -95,6 +101,23 @@ define(function (require, exports, module) {
       if (continueBrokerMethod && account) {
         this.invokeBrokerMethod(continueBrokerMethod, account);
       }
+    },
+
+    createRecoveryKey() {
+      this.navigate('settings/account_recovery/confirm_password');
+    },
+
+    gotoSettings() {
+      this.navigate('settings');
+    },
+
+    isPasswordReset() {
+      // Only show account recovery options if in experiment
+      if (this.getRecoveryKeyExperimentGroup() === 'treatment') {
+        return this.type === 'reset_password';
+      }
+
+      return false;
     },
 
     _getHeaderId () {
@@ -141,6 +164,7 @@ define(function (require, exports, module) {
     FlowEventsMixin,
     MarketingMixin({ marketingId: Constants.MARKETING_ID_SPRING_2015 }),
     PulseGraphicMixin,
+    RecoverykeyExperiment,
     ServiceMixin,
     VerificationReasonMixin
   );

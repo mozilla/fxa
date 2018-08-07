@@ -16,6 +16,9 @@ define(function (require, exports, module) {
   // taken from the fxa-oauth-server
   const B64URL_STRING = /^[A-Za-z0-9-_]+$/;
 
+  // Crockford base32 Regex. Excludes I, L, O, U
+  const B32_STRING = /^[0-9A-HJ-NP-TV-Z]+$/;
+
   // URL RegEx taken from http://blog.mattheworiordan.com/post/13174566389/url-regular-expression-for-links-with-or-without
   const urlRegEx = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/; //eslint-disable-line max-len
 
@@ -204,6 +207,16 @@ define(function (require, exports, module) {
      */
     isHexValid: function isHexValid(value) {
       return HEX_STRING.test(value);
+    },
+
+    /**
+     * Checks if value is composed of only base32 characters.
+     *
+     * @param {String} value
+     * @returns {Boolean}
+     */
+    isBase32Valid: function isBase32Valid(value) {
+      return B32_STRING.test(value);
     },
 
     /**

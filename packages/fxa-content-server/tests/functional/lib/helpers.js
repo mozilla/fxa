@@ -1428,6 +1428,13 @@ const fillOutSignUp = thenify(function (email, password, options) {
     });
 });
 
+const fillOutRecoveryKey = thenify(function (recoveryKey) {
+  return this.parent
+    .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.HEADER))
+    .then(type(selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.INPUT, recoveryKey))
+    .then(click(selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.SUBMIT));
+});
+
 const fillOutResetPassword = thenify(function (email, options) {
   options = options || {};
 
@@ -2128,6 +2135,7 @@ module.exports = {
   fillOutCompleteResetPassword: fillOutCompleteResetPassword,
   fillOutDeleteAccount: fillOutDeleteAccount,
   fillOutForceAuth: fillOutForceAuth,
+  fillOutRecoveryKey: fillOutRecoveryKey,
   fillOutResetPassword: fillOutResetPassword,
   fillOutSignIn: fillOutSignIn,
   fillOutSignInTokenCode: fillOutSignInTokenCode,

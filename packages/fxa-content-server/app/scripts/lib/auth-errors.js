@@ -206,6 +206,10 @@ define(function (require, exports, module) {
       errno: 153,
       message: t('This verification code has expired')
     },
+    INVALID_RECOVERY_KEY: {
+      errno: 159,
+      message: t('Invalid recovery key')
+    },
     // Secondary Email errors end
     SERVER_BUSY: {
       errno: 201,
@@ -484,6 +488,10 @@ define(function (require, exports, module) {
     PASSWORD_TOO_COMMON: {
       errno: 1058,
       message: 'Password is too common' // only used for logging, no need for translation
+    },
+    RECOVERY_KEY_REQUIRED: {
+      errno: 1059,
+      message: t('Recovery key required')
     }
   };
   /*eslint-enable sorting/sort-object-props*/

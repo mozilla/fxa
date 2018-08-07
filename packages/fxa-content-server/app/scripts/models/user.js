@@ -626,6 +626,26 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Complete a password reset for the account using a recovery key. Notifies other tabs
+     * of signin on success.
+     *
+     * @param {Object} account - account to sign up
+     * @param {String} password - the user's new password
+     * @param {String} accountResetToken - token used to issue request
+     * @param {String} recoveryKeyId - recoveryKeyId that maps to recovery code
+     * @param {String} kB - original kB
+     * @param {Object} relier - relier being signed in to
+     * @returns {Promise} - resolves when complete
+     */
+    completeAccountPasswordResetWithRecoveryKey (account, password, accountResetToken, recoveryKeyId, kB, relier) {
+      return account.resetPasswordWithRecoveryKey(accountResetToken, password, recoveryKeyId, kB, relier)
+        .then(() => {
+          this._notifyOfAccountSignIn(account);
+          return this.setSignedInAccount(account);
+        });
+    },
+
+    /**
      *
      * @param {Object} account - account object
      * @param {Object} client - an attached client

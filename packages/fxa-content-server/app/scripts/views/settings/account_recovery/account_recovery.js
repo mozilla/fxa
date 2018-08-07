@@ -8,10 +8,13 @@ import SettingsPanelMixin from '../../mixins/settings-panel-mixin';
 import Template from 'templates/settings/account_recovery/account_recovery.mustache';
 import showProgressIndicator from '../../decorators/progress_indicator';
 import LastCheckedTimeMixin from '../../mixins/last-checked-time-mixin';
+import UpgradeSessionMixin from '../../mixins/upgrade-session-mixin';
 
 const CODE_REFRESH_SELECTOR = 'button.settings-button.refresh-status';
 const CODE_REFRESH_DELAY_MS = 350;
 const ACCOUNT_RECOVERY_SUPPORT_URL = '#';
+
+var t = BaseView.t;
 
 const View = BaseView.extend({
   template: Template,
@@ -49,9 +52,12 @@ const View = BaseView.extend({
       return this.remove();
     }
 
-    return account.checkRecoveryKeyExists()
-      .then((status) => {
-        this.model.set('hasRecoveryKey', status.exists);
+    return this.setupSessionGateIfRequired()
+      .then(() => {
+        return account.checkRecoveryKeyExists()
+          .then((status) => {
+            this.model.set('hasRecoveryKey', status.exists);
+          });
       });
   },
 
@@ -72,6 +78,10 @@ const View = BaseView.extend({
 
 Cocktail.mixin(
   View,
+  UpgradeSessionMixin({
+    gatedHref: 'settings/account_recovery',
+    title: t('Account Recovery')
+  }),
   SettingsPanelMixin,
   LastCheckedTimeMixin
 );

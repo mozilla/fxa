@@ -68,6 +68,14 @@
     &:last-child {
       margin-bottom: 0;
     }
+
+    &.recovery-key {
+      text-transform: uppercase;
+
+      &::placeholder {
+        text-transform: none;
+      }
+    }
   }
 
   .input-help {

@@ -66,6 +66,8 @@ define(function (require, exports, module) {
         viewName: 'ready',
         window: windowMock
       });
+
+      sinon.stub(view, 'getSignedInAccount').callsFake(() => {});
     }
 
     describe('render', function () {
@@ -191,6 +193,17 @@ define(function (require, exports, module) {
         return view.render()
           .then(() => {
             assert.lengthOf(view.$('.btn-continue'), 1);
+          });
+      });
+
+      it('shows `Create recovery key` if in recoveryKey `treatment`', () => {
+        createView(VerificationReasons.PASSWORD_RESET);
+        sinon.stub(view, 'isPasswordReset').callsFake(() => true);
+        sinon.stub(view, 'getRecoveryKeyExperimentGroup').callsFake(() => 'treatment');
+
+        return view.render()
+          .then(() => {
+            assert.lengthOf(view.$('.btn-continue'), 0);
           });
       });
     });
