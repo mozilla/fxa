@@ -10,6 +10,7 @@ jobs:
   build:
     docker:
       - image: circleci/node
+
     steps:
       - checkout
       - setup_remote_docker
@@ -40,8 +41,17 @@ jobs:
           command: docker build -f Dockerfile-test -t fxa-oauth-server:test .
 
       - run:
-          name: Run Tests
+          name: Run MySQL
+          command: docker run -d --name=mydb -e MYSQL_ALLOW_EMPTY_PASSWORD=true -e MYSQL_ROOT_HOST=% -p 3306:3306 mysql/mysql-server:5.6
+          background: true
+
+      - run:
+          name: Run Memory DB Tests
           command: docker run fxa-oauth-server:test npm test
+
+      - run:
+          name: Run MySQL DB Tests
+          command: docker run --net=host -p 3306:3306 -e DB="mysql" fxa-oauth-server:test npm test
 
       - run:
           name: Push to Dockerhub
