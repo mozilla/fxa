@@ -135,10 +135,7 @@ const IGNORE_URL_REGEXPS = [
   // In February 2017 SUMO links started returning 404s to non-browser redirect requests
   /support\.mozilla\.org/,
   // skip the livereload link in the mocha tests
-  /localhost:35729/,
-  // Ignore firefox-source-docs URLs, two URLs in the Firefox Privacy Policy are wrong.
-  // See #6330. Remove this section once https://github.com/mozilla/legal-docs/pull/1135 merges.
-  /firefox-source-docs\.mozilla\.org/
+  /localhost:35729/
 ];
 
 function isUrlIgnored (url) {
