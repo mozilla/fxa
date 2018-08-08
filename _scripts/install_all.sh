@@ -39,7 +39,7 @@ cd fxa-auth-server; npm i; node ./scripts/gen_keys.js; node ./scripts/gen_vapid_
 
 cd fxa-auth-db-mysql; npm i; cd ..
 
-cd fxa-email-service; rustup override set nightly-2018-06-23; cargo build --bin fxa_email_send; cd ..
+cd fxa-email-service; rustup override set nightly-2018-08-06; cargo build --bin fxa_email_send; cd ..
 
 cd browserid-verifier; npm i; cd ..
 
