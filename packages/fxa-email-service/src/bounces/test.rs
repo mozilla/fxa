@@ -456,8 +456,7 @@ fn record_bounce() {
             &address,
             BounceType::Transient,
             BounceSubtype::AttachmentRejected,
-        )
-        .unwrap();
+        ).unwrap();
     let db = DbClient::new(&settings);
     let bounce_records = db.get_bounces(&address).unwrap();
     let now = now_as_milliseconds();

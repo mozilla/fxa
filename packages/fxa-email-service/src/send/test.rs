@@ -61,8 +61,7 @@ fn single_recipient() {
       },
       "provider": "mock"
     }"#,
-        )
-        .dispatch();
+        ).dispatch();
 
     assert_eq!(response.status(), Status::Ok);
 
@@ -88,8 +87,7 @@ fn multiple_recipients() {
       },
       "provider": "mock"
     }"#,
-        )
-        .dispatch();
+        ).dispatch();
 
     assert_eq!(response.status(), Status::Ok);
 
@@ -113,8 +111,7 @@ fn without_optional_data() {
       },
       "provider": "mock"
     }"#,
-        )
-        .dispatch();
+        ).dispatch();
 
     assert_eq!(response.status(), Status::Ok);
 
@@ -138,8 +135,7 @@ fn unicode_email_field() {
       },
       "provider": "mock"
     }"#,
-        )
-        .dispatch();
+        ).dispatch();
 
     assert_eq!(response.status(), Status::Ok);
 
@@ -164,8 +160,7 @@ fn unicode_message_body() {
       },
       "provider": "mock"
     }"#,
-        )
-        .dispatch();
+        ).dispatch();
 
     assert_eq!(response.status(), Status::Ok);
 
@@ -189,8 +184,7 @@ fn unicode_message_subject() {
       },
       "provider": "mock"
     }"#,
-        )
-        .dispatch();
+        ).dispatch();
 
     assert_eq!(response.status(), Status::Ok);
 
@@ -213,8 +207,7 @@ fn missing_to_field() {
       },
       "provider": "mock"
     }"#,
-        )
-        .dispatch();
+        ).dispatch();
 
     assert_eq!(response.status(), Status::BadRequest);
 
@@ -238,8 +231,7 @@ fn missing_subject_field() {
       },
       "provider": "mock"
     }"#,
-        )
-        .dispatch();
+        ).dispatch();
 
     assert_eq!(response.status(), Status::BadRequest);
 
@@ -264,8 +256,7 @@ fn missing_body_text_field() {
       },
       "provider": "mock"
     }"#,
-        )
-        .dispatch();
+        ).dispatch();
 
     assert_eq!(response.status(), Status::BadRequest);
 
@@ -290,8 +281,7 @@ fn invalid_to_field() {
       },
       "provider": "mock"
     }"#,
-        )
-        .dispatch();
+        ).dispatch();
 
     assert_eq!(response.status(), Status::BadRequest);
 
@@ -317,8 +307,7 @@ fn invalid_cc_field() {
       },
       "provider": "mock"
     }"#,
-        )
-        .dispatch();
+        ).dispatch();
 
     assert_eq!(response.status(), Status::BadRequest);
 

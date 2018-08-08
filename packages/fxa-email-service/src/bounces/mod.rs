@@ -85,8 +85,7 @@ where
                 }
 
                 Ok(counts)
-            })
-            .map(|_| ())
+            }).map(|_| ())
     }
 
     /// Record a hard or soft bounce

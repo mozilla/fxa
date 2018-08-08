@@ -5,7 +5,7 @@
 use std::boxed::Box;
 
 use base64::encode;
-use rusoto_core::{reactor::RequestDispatcher, Region};
+use rusoto_core::{request::HttpClient, Region};
 use rusoto_credential::StaticProvider;
 use rusoto_ses::{RawMessage, SendRawEmailError, SendRawEmailRequest, Ses, SesClient};
 
@@ -33,9 +33,13 @@ impl SesProvider {
         let client: Box<Ses> = if let Some(ref keys) = settings.aws.keys {
             let creds =
                 StaticProvider::new(keys.access.0.clone(), keys.secret.0.clone(), None, None);
-            Box::new(SesClient::new(RequestDispatcher::default(), creds, region))
+            Box::new(SesClient::new_with(
+                HttpClient::new().expect("Couldn't start HTTP Client."),
+                creds,
+                region,
+            ))
         } else {
-            Box::new(SesClient::simple(region))
+            Box::new(SesClient::new(region))
         };
 
         SesProvider {
@@ -64,7 +68,7 @@ impl Provider for SesProvider {
         };
 
         self.client
-            .send_raw_email(&request)
+            .send_raw_email(request)
             .sync()
             .map(|response| response.message_id)
             .map_err(From::from)

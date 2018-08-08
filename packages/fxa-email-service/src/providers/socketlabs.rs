@@ -57,17 +57,17 @@ impl Provider for SocketLabsProvider {
             self.settings.key.clone(),
             vec![message],
         )?.send()
-            .map_err(From::from)
-            .and_then(|response| {
-                if response.error_code == PostMessageErrorCode::Success {
-                    Ok("".to_string())
-                } else {
-                    Err(AppErrorKind::ProviderError {
-                        name: String::from("SocketLabs"),
-                        description: format!("{:?}: {}", response.error_code, response.error_code),
-                    }.into())
-                }
-            })
+        .map_err(From::from)
+        .and_then(|response| {
+            if response.error_code == PostMessageErrorCode::Success {
+                Ok("".to_string())
+            } else {
+                Err(AppErrorKind::ProviderError {
+                    name: String::from("SocketLabs"),
+                    description: format!("{:?}: {}", response.error_code, response.error_code),
+                }.into())
+            }
+        })
     }
 }
 

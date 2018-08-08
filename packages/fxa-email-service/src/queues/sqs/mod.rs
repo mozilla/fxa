@@ -12,7 +12,7 @@ use std::{
 
 use futures::future::{self, Future};
 use md5;
-use rusoto_core::{reactor::RequestDispatcher, Region};
+use rusoto_core::{request::HttpClient, Region};
 use rusoto_credential::StaticProvider;
 use rusoto_sqs::{
     DeleteMessageError, DeleteMessageRequest, Message as SqsMessage, ReceiveMessageError,
@@ -97,9 +97,13 @@ impl Factory for Queue {
         let client: Box<Sqs> = if let Some(ref keys) = settings.aws.keys {
             let creds =
                 StaticProvider::new(keys.access.0.clone(), keys.secret.0.clone(), None, None);
-            Box::new(SqsClient::new(RequestDispatcher::default(), creds, region))
+            Box::new(SqsClient::new_with(
+                HttpClient::new().expect("Couldn't start HTTP Client."),
+                creds,
+                region,
+            ))
         } else {
-            Box::new(SqsClient::simple(region))
+            Box::new(SqsClient::new(region))
         };
 
         let mut receive_request = ReceiveMessageRequest::default();
@@ -118,7 +122,7 @@ impl Incoming for Queue {
     fn receive(&'static self) -> ReceiveFuture {
         let future = self
             .client
-            .receive_message(&self.receive_request)
+            .receive_message(self.receive_request.clone())
             .map(|result| result.messages.unwrap_or_default())
             .map(move |messages| {
                 messages
@@ -131,10 +135,8 @@ impl Incoming for Queue {
                             println!("Queue error receiving from {}: {:?}", self.url, error);
                             Message::default()
                         })
-                    })
-                    .collect()
-            })
-            .map_err(From::from);
+                    }).collect()
+            }).map_err(From::from);
 
         Box::new(future)
     }
@@ -145,7 +147,7 @@ impl Incoming for Queue {
             receipt_handle: message.id,
         };
 
-        let future = self.client.delete_message(&request).map_err(move |error| {
+        let future = self.client.delete_message(request).map_err(move |error| {
             println!("Queue error deleting from {}: {:?}", self.url, error);
             From::from(error)
         });
@@ -165,7 +167,7 @@ impl Outgoing for Queue {
 
         let future = self
             .client
-            .send_message(&request)
+            .send_message(request)
             .map(|result| result.message_id.map_or(String::from(""), |id| id.clone()))
             .map_err(From::from);
 

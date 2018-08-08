@@ -62,8 +62,7 @@ fn build_multipart_mime(
         SinglePart::quoted_printable()
             .with_header(header::ContentType(
                 "text/plain; charset=utf8".parse().unwrap(),
-            ))
-            .with_body(body_text.to_owned()),
+            )).with_body(body_text.to_owned()),
     );
     if let Some(body_html) = body_html {
         body = body.with_multipart(
@@ -71,8 +70,7 @@ fn build_multipart_mime(
                 SinglePart::eight_bit()
                     .with_header(header::ContentType(
                         "text/html; charset=utf8".parse().unwrap(),
-                    ))
-                    .with_body(body_html.to_owned()),
+                    )).with_body(body_html.to_owned()),
             ),
         )
     }

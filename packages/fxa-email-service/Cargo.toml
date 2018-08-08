@@ -16,7 +16,7 @@ base64 = ">=0.6.0"
 chrono = { version = ">=0.4.2", features = [ "serde" ] }
 config = ">=0.8.0"
 emailmessage = ">=0.1.0"
-failure = ">=0.1.1"
+failure = ">=0.1.2"
 futures = ">=0.1.21,<0.2"
 hex = ">=0.3.2"
 hmac = ">=0.6.2"
@@ -30,14 +30,14 @@ redis = ">=0.8.0"
 regex = ">=1.0"
 reqwest = ">=0.8.5"
 # Remove once a new version of rocket containing this commit is released.
-rocket = { git = "https://github.com/SergioBenitez/Rocket", rev="18a91c938eb534a410a76137fbf114333ab38643" }
-rocket_codegen = { git = "https://github.com/SergioBenitez/Rocket", rev="18a91c938eb534a410a76137fbf114333ab38643" }
-rocket_contrib = { git = "https://github.com/SergioBenitez/Rocket", rev="18a91c938eb534a410a76137fbf114333ab38643" }
-rusoto_core = ">=0.32.0"
-rusoto_credential = ">=0.11.0"
-rusoto_mock = ">=0.26.0"
-rusoto_ses = ">=0.32.0"
-rusoto_sqs = ">=0.32.0"
+rocket = { git = "https://github.com/SergioBenitez/Rocket", rev="d7f6d82fe4d35ee79c424dd4164733b22f17f80a" }
+rocket_codegen = { git = "https://github.com/SergioBenitez/Rocket", rev="d7f6d82fe4d35ee79c424dd4164733b22f17f80a" }
+rocket_contrib = { git = "https://github.com/SergioBenitez/Rocket", rev="d7f6d82fe4d35ee79c424dd4164733b22f17f80a" }
+rusoto_core = { git = "https://github.com/rusoto/rusoto/", rev="9e22eb3876a02375b3dbe14d0340f9b5c1fc55e9" }
+rusoto_credential = { git = "https://github.com/rusoto/rusoto/", rev="9e22eb3876a02375b3dbe14d0340f9b5c1fc55e9" }
+rusoto_mock = { git = "https://github.com/rusoto/rusoto/", rev="9e22eb3876a02375b3dbe14d0340f9b5c1fc55e9" }
+rusoto_ses = { git = "https://github.com/rusoto/rusoto/", rev="9e22eb3876a02375b3dbe14d0340f9b5c1fc55e9" }
+rusoto_sqs = { git = "https://github.com/rusoto/rusoto/", rev="9e22eb3876a02375b3dbe14d0340f9b5c1fc55e9" }
 sendgrid = ">=0.7.1"
 serde = ">=1.0"
 serde_derive = ">=1.0"

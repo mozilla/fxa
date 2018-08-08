@@ -255,8 +255,7 @@ impl Db for DbClient {
                 bounce_type,
                 bounce_subtype,
                 created_at: 0,
-            })
-            .send()?;
+            }).send()?;
         match response.status() {
             StatusCode::Ok => Ok(()),
             status => Err(AppErrorKind::DbError(format!("{}", status)).into()),
