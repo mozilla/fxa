@@ -1,3 +1,33 @@
+<a name="1.118.0"></a>
+# 1.118.0 (2018-08-08)
+
+
+### Bug Fixes
+
+* **codes:** align center totp back links (#6416) r=@shane-tomlinson ([70fbdd9](https://github.com/mozilla/fxa-content-server/commit/70fbdd9))
+* **links:** add account recovery sumo link (#6421) r=@shane-tomlinson ([fd3c924](https://github.com/mozilla/fxa-content-server/commit/fd3c924))
+* **tests:** update test timeout (#6415), r=@vladikoff ([b7058b0](https://github.com/mozilla/fxa-content-server/commit/b7058b0))
+* **tests:** update token code experiment tests (#6419), r=@shane-tomlinson ([f89cf6a](https://github.com/mozilla/fxa-content-server/commit/f89cf6a))
+
+### chore
+
+* **es6:** Convert sign_in_* to use ES6 modules. ([1abdc39](https://github.com/mozilla/fxa-content-server/commit/1abdc39))
+* **install:** Only clone the l10n repo if needed. (#6393) r=@vladikoff ([df68a56](https://github.com/mozilla/fxa-content-server/commit/df68a56))
+* **test:** Re-enable link checks in Fx TOS/PP (#6412), r=@philbooth ([25a561f](https://github.com/mozilla/fxa-content-server/commit/25a561f))
+
+### Features
+
+* **css:** build CSS using webpack instead of grunt-sass (#6351) r=@vladikoff ([6320f41](https://github.com/mozilla/fxa-content-server/commit/6320f41)), closes [#6165](https://github.com/mozilla/fxa-content-server/issues/6165)
+* **email-first:** Use cached creds if available in email-first (#6360) r=@philbooth ([5e57926](https://github.com/mozilla/fxa-content-server/commit/5e57926)), closes [#6082](https://github.com/mozilla/fxa-content-server/issues/6082)
+* **recovery:** account recovery password reset screens (#6411), r=@philbooth ([fdf1a5d](https://github.com/mozilla/fxa-content-server/commit/fdf1a5d))
+* **recovery:** account recovery setup screens ([93ffd92](https://github.com/mozilla/fxa-content-server/commit/93ffd92))
+* **recovery:** add account recovery experiment ([1bafd3a](https://github.com/mozilla/fxa-content-server/commit/1bafd3a))
+* **test:** All helper failures cause a screenshot to be taken. (#6382) r=@philbooth ([f2fce6c](https://github.com/mozilla/fxa-content-server/commit/f2fce6c))
+* **tests:** migrate to circle 2 (#6410) r=@vbudhram ([40ba1d3](https://github.com/mozilla/fxa-content-server/commit/40ba1d3)), closes [#6336](https://github.com/mozilla/fxa-content-server/issues/6336)
+* **webpack:** upgrade to webpack 4 r=@vladikoff ([652aad7](https://github.com/mozilla/fxa-content-server/commit/652aad7))
+
+
+
 <a name="1.117.1"></a>
 ## 1.117.1 (2018-07-31)
 
