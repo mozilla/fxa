@@ -232,7 +232,7 @@ registerSuite('Firefox Desktop Sync v3 signin', {
 
 registerSuite('Firefox Desktop Sync v3 signin - token code', {
   beforeEach: function () {
-    email = TestHelpers.createEmail();
+    email = TestHelpers.createEmail('sync{id}');
 
     return this.remote
       .then(clearBrowserState({force: true}))
