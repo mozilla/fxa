@@ -1,3 +1,34 @@
+<a name="1.118.0"></a>
+# [1.118.0](https://github.com/mozilla/fxa-auth-server/compare/v1.117.1...v1.118.0) (2018-08-08)
+
+
+### Bug Fixes
+
+* **email:** ensure email-service errors fail the call to sendMail ([bdc7c7a](https://github.com/mozilla/fxa-auth-server/commit/bdc7c7a))
+* **redis:** Close the redis pool when closing the DB. ([855d681](https://github.com/mozilla/fxa-auth-server/commit/855d681))
+* **redis:** recover from invalid token JSON in Redis ([db8022f](https://github.com/mozilla/fxa-auth-server/commit/db8022f))
+* **reset:** update must-verify script to use string instead of buffer (#2551) r=@vladikoff ([2a2eeab](https://github.com/mozilla/fxa-auth-server/commit/2a2eeab)), closes [#2551](https://github.com/mozilla/fxa-auth-server/issues/2551)
+* **sentry:** server.events.on takes channels, not channel ([7d69830](https://github.com/mozilla/fxa-auth-server/commit/7d69830))
+* **sessionTokens:** actually prune expired session tokens ([72809f8](https://github.com/mozilla/fxa-auth-server/commit/72809f8))
+* **test:** increase totp code window (#2548), r=@vladikoff ([fecc9e3](https://github.com/mozilla/fxa-auth-server/commit/fecc9e3)), closes [#2548](https://github.com/mozilla/fxa-auth-server/issues/2548)
+* **test:** set default test timeout to 5000 (#2560), r=@philbooth ([5caedf3](https://github.com/mozilla/fxa-auth-server/commit/5caedf3)), closes [#2560](https://github.com/mozilla/fxa-auth-server/issues/2560)
+* **tests:** add a check from sentry setup ([7f60f8c](https://github.com/mozilla/fxa-auth-server/commit/7f60f8c))
+
+### chore
+
+* **install:** Only clone the l10n repo if needed. (#2546) r=@vladikoff ([0e91f45](https://github.com/mozilla/fxa-auth-server/commit/0e91f45)), closes [#2546](https://github.com/mozilla/fxa-auth-server/issues/2546)
+* **tests:** add tests to email_service.js ([abfb6be](https://github.com/mozilla/fxa-auth-server/commit/abfb6be))
+
+### Features
+
+* **admin:** Add an admin script to delete an account. ([2074d56](https://github.com/mozilla/fxa-auth-server/commit/2074d56))
+* **ci:** update to circle 2 (#2529), r=@vbudhram ([395a02e](https://github.com/mozilla/fxa-auth-server/commit/395a02e)), closes [#2529](https://github.com/mozilla/fxa-auth-server/issues/2529)
+* **codes:** expose verificationMethod as optional (#2564), r=@philbooth ([fb256ff](https://github.com/mozilla/fxa-auth-server/commit/fb256ff)), closes [#2564](https://github.com/mozilla/fxa-auth-server/issues/2564)
+* **email:** read live email-sending config from redis ([bc55e8b](https://github.com/mozilla/fxa-auth-server/commit/bc55e8b))
+* **recovery:** add account recovery email templates (#2553), r=philbooth ([8f36f62](https://github.com/mozilla/fxa-auth-server/commit/8f36f62)), closes [#2553](https://github.com/mozilla/fxa-auth-server/issues/2553)
+
+
+
 <a name="1.117.2"></a>
 ## [1.117.2](https://github.com/mozilla/fxa-auth-server/compare/v1.117.1...v1.117.2) (2018-08-01)
 
