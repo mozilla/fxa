@@ -543,11 +543,16 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
             needsVerificationId = false
           }
 
-          // If the request wants keys or specifies a verificationMethod, user *must* confirm their
-          // login session before they can actually use it. Otherwise, they don't *have* to verify
-          // their session. All sessions are created unverified because it prevents them from being
-          // used for sync.
-          const mustVerifySession = needsVerificationId && (requestHelper.wantsKeys(request) || verificationMethod)
+          // If the request wants keys , user *must* confirm their login session before they can actually
+          // use it. Otherwise, they don't *have* to verify their session. All sessions are created
+          // unverified because it prevents them from being used for sync.
+          let mustVerifySession = needsVerificationId && requestHelper.wantsKeys(request)
+
+          // For accounts with TOTP, we always force verifying a session.
+          if (verificationMethod === 'totp-2fa') {
+            mustVerifySession = true
+            needsVerificationId = true
+          }
 
           return P.resolve()
             .then(() => {
@@ -605,11 +610,6 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
                 return true
               }
             }
-          }
-
-          // If relier has specified a verification method we should use it
-          if (verificationMethod) {
-            return true
           }
 
           return false
