@@ -87,6 +87,14 @@ describe('views/settings/account_recovery/account_recovery', () => {
       });
     });
 
+    describe('should show support link', () => {
+      it('should show support link', () => {
+        assert.lengthOf(view.$('.account-recovery-support-link'), 1);
+        assert.equal(view.$('.account-recovery-support-link').attr('href'), 'https://support.mozilla.org/kb/' +
+          'reset-your-firefox-account-password-recovery-keys');
+      });
+    });
+
     describe('should give option to create recovery key if none exists', () => {
       beforeEach(() => {
         hasRecoveryKey = false;

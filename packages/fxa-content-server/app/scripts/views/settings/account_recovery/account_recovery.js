@@ -12,7 +12,7 @@ import UpgradeSessionMixin from '../../mixins/upgrade-session-mixin';
 
 const CODE_REFRESH_SELECTOR = 'button.settings-button.refresh-status';
 const CODE_REFRESH_DELAY_MS = 350;
-const ACCOUNT_RECOVERY_SUPPORT_URL = '#';
+const ACCOUNT_RECOVERY_SUPPORT_URL = 'https://support.mozilla.org/kb/reset-your-firefox-account-password-recovery-keys';
 
 var t = BaseView.t;
 
@@ -64,7 +64,7 @@ const View = BaseView.extend({
   setInitialContext(context) {
     const hasRecoveryKey = this.model.get('hasRecoveryKey');
     context.set({
-      escapedLearnMoreLinkAttributes: `target="_blank" href="${encodeURI(ACCOUNT_RECOVERY_SUPPORT_URL)}"`,
+      escapedLearnMoreLinkAttributes: `class="account-recovery-support-link" target="_blank" href="${encodeURI(ACCOUNT_RECOVERY_SUPPORT_URL)}"`,
       hasRecoveryKey: !! hasRecoveryKey,
       isPanelOpen: this.isPanelOpen(),
     });
