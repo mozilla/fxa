@@ -1,3 +1,13 @@
+<a name="1.118.0"></a>
+# 1.118.0 (2018-08-08)
+
+
+### Bug Fixes
+
+* **deps:** update ip-reputation-js-client to 4.1.0 (#263) r=@vladikoff ([3fd7639](https://github.com/mozilla/fxa-customs-server/commit/3fd7639))
+
+
+
 <a name="1.117.0"></a>
 # 1.117.0 (2018-07-24)
 
