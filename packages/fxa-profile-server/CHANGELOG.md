@@ -1,3 +1,13 @@
+<a name="1.118.0"></a>
+# [1.118.0](https://github.com/mozilla/fxa-profile-server/compare/v1.117.0...v1.118.0) (2018-08-08)
+
+
+### Features
+
+* **scopes:** Use shared code lib for checking OAuth scopes. (#329) r=@vladikoff ([4602fc8](https://github.com/mozilla/fxa-profile-server/commit/4602fc8))
+
+
+
 <a name="1.117.0"></a>
 # [1.117.0](https://github.com/mozilla/fxa-profile-server/compare/v1.115.0...v1.117.0) (2018-07-24)
 
