@@ -40,6 +40,7 @@ script:
   - if [ $DB == "mysql" ]; then ./scripts/start-travis-auth-db-mysql.sh; fi
   - npm run test-ci
   - npm run test-e2e
+  - npm run test-scripts
   # Test fxa-auth-mailer
   - grunt templates && git status -s | (! grep 'M lib/senders/templates/')
   - grunt l10n-extract
