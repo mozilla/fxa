@@ -1108,7 +1108,7 @@ describe(
 
       describe('redis.get returns sendgrid percentage-only match:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({ sendgrid: { percentage: 11 } }))
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({ sendgrid: { percentage: 11 } })))
           sinon.stub(Math, 'random', () => 0.109)
         })
 
@@ -1129,7 +1129,7 @@ describe(
 
       describe('redis.get returns sendgrid percentage-only mismatch:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({ sendgrid: { percentage: 11 } }))
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({ sendgrid: { percentage: 11 } })))
           sinon.stub(Math, 'random', () => 0.11)
         })
 
@@ -1150,7 +1150,7 @@ describe(
 
       describe('redis.get returns sendgrid regex-only match:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({ sendgrid: { regex: '^foo@example\.com$' } }))
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({ sendgrid: { regex: '^foo@example\.com$' } })))
         })
 
         it('selectEmailServices returns the correct data', () => {
@@ -1168,7 +1168,7 @@ describe(
 
       describe('redis.get returns sendgrid regex-only mismatch:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({ sendgrid: { regex: '^fo@example\.com$' } }))
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({ sendgrid: { regex: '^fo@example\.com$' } })))
         })
 
         it('selectEmailServices returns the correct data', () => {
@@ -1186,12 +1186,12 @@ describe(
 
       describe('redis.get returns sendgrid combined match:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({
             sendgrid: {
               percentage: 1,
               regex: '^foo@example\.com$'
             }
-          }))
+          })))
           sinon.stub(Math, 'random', () => 0.009)
         })
 
@@ -1212,12 +1212,12 @@ describe(
 
       describe('redis.get returns sendgrid combined mismatch (percentage):', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({
             sendgrid: {
               percentage: 1,
               regex: '^foo@example\.com$'
             }
-          }))
+          })))
           sinon.stub(Math, 'random', () => 0.01)
         })
 
@@ -1238,12 +1238,12 @@ describe(
 
       describe('redis.get returns sendgrid combined mismatch (regex):', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({
             sendgrid: {
               percentage: 1,
               regex: '^ffoo@example\.com$'
             }
-          }))
+          })))
           sinon.stub(Math, 'random', () => 0)
         })
 
@@ -1264,7 +1264,7 @@ describe(
 
       describe('redis.get returns socketlabs percentage-only match:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({ socketlabs: { percentage: 42 } }))
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({ socketlabs: { percentage: 42 } })))
           sinon.stub(Math, 'random', () => 0.419)
         })
 
@@ -1285,7 +1285,7 @@ describe(
 
       describe('redis.get returns socketlabs percentage-only mismatch:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({ socketlabs: { percentage: 42 } }))
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({ socketlabs: { percentage: 42 } })))
           sinon.stub(Math, 'random', () => 0.42)
         })
 
@@ -1306,7 +1306,7 @@ describe(
 
       describe('redis.get returns socketlabs regex-only match:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({ socketlabs: { regex: '^foo@example\.com$' } }))
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({ socketlabs: { regex: '^foo@example\.com$' } })))
         })
 
         it('selectEmailServices returns the correct data', () => {
@@ -1324,7 +1324,7 @@ describe(
 
       describe('redis.get returns ses percentage-only match:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({ ses: { percentage: 100 } }))
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({ ses: { percentage: 100 } })))
           sinon.stub(Math, 'random', () => 0.999)
         })
 
@@ -1345,7 +1345,7 @@ describe(
 
       describe('redis.get returns ses percentage-only mismatch:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({ ses: { percentage: 99 } }))
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({ ses: { percentage: 99 } })))
           sinon.stub(Math, 'random', () => 0.999)
         })
 
@@ -1366,7 +1366,7 @@ describe(
 
       describe('redis.get returns ses regex-only match:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({ ses: { regex: '^foo@example\.com$' } }))
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({ ses: { regex: '^foo@example\.com$' } })))
         })
 
         it('selectEmailServices returns the correct data', () => {
@@ -1384,10 +1384,10 @@ describe(
 
       describe('redis.get returns sendgrid and ses matches:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({
             sendgrid: { percentage: 10 },
             ses: { regex: '^foo@example\.com$' }
-          }))
+          })))
           sinon.stub(Math, 'random', () => 0.09)
         })
 
@@ -1408,10 +1408,10 @@ describe(
 
       describe('redis.get returns sendgrid match and ses mismatch:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({
             sendgrid: { percentage: 10 },
             ses: { regex: '^ffoo@example\.com$' }
-          }))
+          })))
           sinon.stub(Math, 'random', () => 0.09)
         })
 
@@ -1432,10 +1432,10 @@ describe(
 
       describe('redis.get returns sendgrid mismatch and ses match:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({
             sendgrid: { percentage: 10 },
             ses: { regex: '^foo@example\.com$' }
-          }))
+          })))
           sinon.stub(Math, 'random', () => 0.1)
         })
 
@@ -1456,10 +1456,10 @@ describe(
 
       describe('redis.get returns sendgrid and ses mismatches:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({
             sendgrid: { percentage: 10 },
             ses: { regex: '^ffoo@example\.com$' }
-          }))
+          })))
           sinon.stub(Math, 'random', () => 0.1)
         })
 
@@ -1498,7 +1498,7 @@ describe(
 
       describe('redis.get returns unsafe regex:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({ sendgrid: { regex: '^(.+)+@example\.com$' } }))
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({ sendgrid: { regex: '^(.+)+@example\.com$' } })))
         })
 
         it('selectEmailServices returns the correct data', () => {
@@ -1516,7 +1516,7 @@ describe(
 
       describe('redis.get returns quote-terminating regex:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({ sendgrid: { regex: '"@example\.com$' } }))
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({ sendgrid: { regex: '"@example\.com$' } })))
         })
 
         it('selectEmailServices returns the correct data', () => {
@@ -1534,7 +1534,7 @@ describe(
 
       describe('email address contains quote-terminator:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({ sendgrid: { regex: '@example\.com$' } }))
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({ sendgrid: { regex: '@example\.com$' } })))
         })
 
         it('selectEmailServices returns the correct data', () => {
@@ -1556,7 +1556,7 @@ describe(
 
       describe('redis.get returns sendgrid match:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({ sendgrid: { regex: 'restmail' } }))
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({ sendgrid: { regex: 'restmail' } })))
         })
 
         it('selectEmailServices returns the correct data', () => {
@@ -1574,7 +1574,7 @@ describe(
 
       describe('redis.get returns sendgrid mismatch:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({ sendgrid: { regex: 'rustmail' } }))
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({ sendgrid: { regex: 'rustmail' } })))
         })
 
         it('selectEmailServices returns the correct data', () => {
@@ -1596,10 +1596,10 @@ describe(
 
       describe('redis.get returns sendgrid and ses matches and a mismatch:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({
             sendgrid: { regex: '^a' },
             ses: { regex: '^b' }
-          }))
+          })))
         })
 
         it('selectEmailServices returns the correct data', () => {
@@ -1632,10 +1632,10 @@ describe(
 
       describe('redis.get returns a sendgrid match and two ses matches:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({
             sendgrid: { regex: '^a' },
             ses: { regex: '^b|c' }
-          }))
+          })))
         })
 
         it('selectEmailServices returns the correct data', () => {
@@ -1662,10 +1662,10 @@ describe(
 
       describe('redis.get returns three mismatches:', () => {
         beforeEach(() => {
-          redis.get = sinon.spy(() => P.resolve({
+          redis.get = sinon.spy(() => P.resolve(JSON.stringify({
             sendgrid: { regex: 'wibble' },
             ses: { regex: 'blee' }
-          }))
+          })))
         })
 
         it('selectEmailServices returns the correct data', () => {
@@ -1746,7 +1746,7 @@ describe('call selectEmailServices with mocked sandbox:', () => {
     ]).spread((translator, templates) => {
       mockLog = mocks.mockLog()
       redis = {
-        get: sinon.spy(() => P.resolve({ sendgrid: { regex: '^foo@example\.com$' } }))
+        get: sinon.spy(() => P.resolve(JSON.stringify({ sendgrid: { regex: '^foo@example\.com$' } })))
       }
       Sandbox = sinon.spy(function () { return sandbox })
       sandbox = {
@@ -1841,7 +1841,7 @@ describe('call selectEmailServices with mocked safe-regex, regex-only match and 
     ]).spread((translator, templates) => {
       mockLog = mocks.mockLog()
       redis = {
-        get: sinon.spy(() => P.resolve({ sendgrid: { regex: '^((((.*)*)*)*)*@example\.com$' } }))
+        get: sinon.spy(() => P.resolve(JSON.stringify({ sendgrid: { regex: '^((((.*)*)*)*)*@example\.com$' } })))
       }
       safeRegex = sinon.spy(function () { return true })
       const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, {

@@ -432,6 +432,10 @@ module.exports = function (log, config) {
     return redis.get('config')
       .catch(() => {})
       .then(liveConfig => {
+        if (liveConfig) {
+          liveConfig = JSON.parse(liveConfig)
+        }
+
         return emailAddresses.reduce((promise, emailAddress) => {
           let services, isMatched
 
