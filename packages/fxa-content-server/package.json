@@ -9,7 +9,7 @@
     "shrink": "npmshrink",
     "lint": "eslint app server tests --cache",
     "start": "node scripts/check-local-config && grunt server",
-    "start-circle": "grunt build && CONFIG_FILES=server/config/fxaci.json,server/config/production.json grunt serverproc:dist",
+    "start-circle": "NODE_ENV=production grunt build && CONFIG_FILES=server/config/fxaci.json,server/config/production.json grunt serverproc:dist",
     "start-production": "NODE_ENV=production grunt build && CONFIG_FILES=server/config/local.json,server/config/production.json grunt serverproc:dist",
     "start-remote": "scripts/run_remote_dev.sh",
     "test": "node tests/intern.js --unit=true",
