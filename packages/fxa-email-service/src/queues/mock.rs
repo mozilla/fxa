@@ -9,8 +9,9 @@ use super::{
     notification::{
         Bounce, BounceSubtype, BounceType, Complaint, Delivery, Notification, NotificationType,
     },
-    DeleteFuture, Factory, Incoming, Message, Outgoing, QueueError, ReceiveFuture, SendFuture,
+    DeleteFuture, Factory, Incoming, Message, Outgoing, ReceiveFuture, SendFuture,
 };
+use app_errors::AppErrorKind;
 use settings::Settings;
 
 #[derive(Debug)]
@@ -79,11 +80,7 @@ impl Incoming for Queue {
                 invalid_message
             }
 
-            _ => {
-                return Box::new(future::err(QueueError::new(String::from(
-                    "Not implemented",
-                ))))
-            }
+            _ => return Box::new(future::err(AppErrorKind::NotImplemented.into())),
         };
 
         Box::new(future::ok(vec![message]))
@@ -91,9 +88,7 @@ impl Incoming for Queue {
 
     fn delete(&'static self, _message: Message) -> DeleteFuture {
         if self.id == "outgoing" {
-            Box::new(future::err(QueueError::new(String::from(
-                "Not implemented",
-            ))))
+            Box::new(future::err(AppErrorKind::NotImplemented.into()))
         } else {
             Box::new(future::ok(()))
         }
@@ -105,9 +100,7 @@ impl Outgoing for Queue {
         if self.id == "outgoing" {
             Box::new(future::ok(String::from("deadbeef")))
         } else {
-            Box::new(future::err(QueueError::new(String::from(
-                "Not implemented",
-            ))))
+            Box::new(future::err(AppErrorKind::NotImplemented.into()))
         }
     }
 }

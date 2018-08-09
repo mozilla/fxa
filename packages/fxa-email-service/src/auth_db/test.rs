@@ -149,7 +149,7 @@ fn get_bounces_invalid_address() {
     let db = DbClient::new(&settings);
     match db.get_bounces("") {
         Ok(_) => assert!(false, "DbClient::get_bounces should have failed"),
-        Err(error) => assert_eq!(format!("{}", error), "\"400 Bad Request\""),
+        Err(error) => assert_eq!(format!("{}", error), "400 Bad Request"),
     }
 }
 

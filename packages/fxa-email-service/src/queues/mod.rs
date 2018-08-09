@@ -4,19 +4,17 @@
 
 //! Queue-processing abstractions.
 
-use std::{
-    boxed::Box,
-    error::Error,
-    fmt::{self, Debug, Display, Formatter},
-};
+use std::{boxed::Box, fmt::Debug};
 
 use futures::future::{self, Future};
+use slog_scope;
 
 use self::notification::{Notification, NotificationType};
 pub use self::sqs::Queue as Sqs;
-use app_errors::AppError;
+use app_errors::{AppError, AppErrorKind, AppResult};
 use auth_db::DbClient;
 use bounces::Bounces;
+use logging::MozlogLogger;
 use message_data::MessageData;
 use settings::Settings;
 
@@ -43,15 +41,15 @@ pub trait Incoming: Debug + Sync {
     fn delete(&'static self, message: Message) -> DeleteFuture;
 }
 
-type ReceiveFuture = Box<Future<Item = Vec<Message>, Error = QueueError>>;
-type DeleteFuture = Box<Future<Item = (), Error = QueueError>>;
+type ReceiveFuture = Box<Future<Item = Vec<Message>, Error = AppError>>;
+type DeleteFuture = Box<Future<Item = (), Error = AppError>>;
 
 /// An outgoing notification queue.
 pub trait Outgoing: Debug + Sync {
     fn send(&'static self, body: &Notification) -> SendFuture;
 }
 
-type SendFuture = Box<Future<Item = String, Error = QueueError>>;
+type SendFuture = Box<Future<Item = String, Error = AppError>>;
 
 /// A queue factory.
 pub trait Factory {
@@ -63,12 +61,6 @@ pub trait Factory {
 pub struct Message {
     pub id: String,
     pub notification: Notification,
-}
-
-/// The error type returned by queue methods.
-#[derive(Debug)]
-pub struct QueueError {
-    description: String,
 }
 
 /// Queue "ids"
@@ -114,7 +106,7 @@ impl Queues {
         let future = queue
             .receive()
             .and_then(move |messages| {
-                let mut futures: Vec<Box<Future<Item = (), Error = QueueError>>> = Vec::new();
+                let mut futures: Vec<Box<Future<Item = (), Error = AppError>>> = Vec::new();
                 for mut message in messages {
                     if message.notification.notification_type != NotificationType::Null {
                         let future = self
@@ -131,14 +123,12 @@ impl Queues {
     fn handle_notification(
         &'static self,
         notification: &mut Notification,
-    ) -> Box<Future<Item = (), Error = QueueError>> {
+    ) -> Box<Future<Item = (), Error = AppError>> {
         let result = match notification.notification_type {
             NotificationType::Bounce => self.record_bounce(notification),
             NotificationType::Complaint => self.record_complaint(notification),
             NotificationType::Delivery => Ok(()),
-            NotificationType::Null => {
-                Err(QueueError::new(String::from("Invalid notification type")))
-            }
+            NotificationType::Null => Err(AppErrorKind::InvalidNotificationType.into()),
         };
         match result {
             Ok(_) => {
@@ -150,12 +140,15 @@ impl Queues {
                     .notification_queue
                     .send(&notification)
                     .map(|id| {
-                        println!("Sent message to notification queue, id=`{}`", id);
+                        info!("{}", "Sent message to notification queue"; "id" => id);
                         ()
                     }).or_else(|error| {
                         // Errors sending to this queue are non-fatal because it's only used
                         // for logging. We still want to delete the message from the queue.
-                        println!("{:?}", error);
+                        let logger = MozlogLogger(slog_scope::logger());
+                        let log = MozlogLogger::with_app_error(&logger, &error)
+                            .expect("MozlogLogger::with_app_error error");
+                        slog_error!(log, "{}", "Error sending notification to queue");
                         Ok(())
                     });
                 Box::new(future)
@@ -164,7 +157,7 @@ impl Queues {
         }
     }
 
-    fn record_bounce(&'static self, notification: &Notification) -> DbResult {
+    fn record_bounce(&'static self, notification: &Notification) -> AppResult<()> {
         if let Some(ref bounce) = notification.bounce {
             for recipient in &bounce.bounced_recipients {
                 self.bounces.record_bounce(
@@ -175,13 +168,11 @@ impl Queues {
             }
             Ok(())
         } else {
-            Err(QueueError::new(String::from(
-                "Missing payload in bounce notification",
-            )))
+            Err(AppErrorKind::MissingNotificationPayload("bounce".to_string()).into())
         }
     }
 
-    fn record_complaint(&'static self, notification: &Notification) -> DbResult {
+    fn record_complaint(&'static self, notification: &Notification) -> AppResult<()> {
         if let Some(ref complaint) = notification.complaint {
             for recipient in &complaint.complained_recipients {
                 self.bounces
@@ -189,36 +180,9 @@ impl Queues {
             }
             Ok(())
         } else {
-            Err(QueueError::new(String::from(
-                "Missing payload in complaint notification",
-            )))
+            Err(AppErrorKind::MissingNotificationPayload("complaint".to_string()).into())
         }
     }
 }
 
-type QueueFuture = Box<Future<Item = usize, Error = QueueError>>;
-type DbResult = Result<(), QueueError>;
-
-impl QueueError {
-    pub fn new(description: String) -> QueueError {
-        QueueError { description }
-    }
-}
-
-impl Error for QueueError {
-    fn description(&self) -> &str {
-        &self.description
-    }
-}
-
-impl Display for QueueError {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
-        write!(formatter, "{}", self.description)
-    }
-}
-
-impl From<AppError> for QueueError {
-    fn from(error: AppError) -> QueueError {
-        QueueError::new(format!("bounce error: {:?}", error))
-    }
-}
+type QueueFuture = Box<Future<Item = usize, Error = AppError>>;

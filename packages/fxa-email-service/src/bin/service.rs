@@ -68,13 +68,13 @@ fn main() {
         .attach(rocket::fairing::AdHoc::on_request(|request, _| {
             let log =
                 MozlogLogger::with_request(request).expect("MozlogLogger::with_request error");
-            slog_info!(log, "{}", "Request started.");
+            slog_info!(log, "{}", "Request started");
         }))
         .attach(rocket::fairing::AdHoc::on_response(|request, response| {
             let log =
                 MozlogLogger::with_request(request).expect("MozlogLogger::with_request error");
             if response.status().code == 200 {
-                slog_info!(log, "{}", "Request finished succesfully.";
+                slog_info!(log, "{}", "Request finished succesfully";
                     "status_code" => response.status().code, "status_msg" => response.status().reason);
             }
         }))

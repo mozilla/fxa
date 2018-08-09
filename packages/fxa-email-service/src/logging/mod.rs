@@ -8,12 +8,13 @@ use std::{io, ops::Deref};
 
 use failure::{err_msg, Error};
 use rocket::{Request, State};
-use serde_json;
+use serde_json::{self, Map, Value as JsonValue};
 use slog::{self, Discard, Drain, Record, Serializer, Value, KV};
 use slog_async;
 use slog_mozlog_json::MozLogJson;
 use slog_term;
 
+use app_errors::AppError;
 use settings::Settings;
 
 lazy_static! {
@@ -59,6 +60,46 @@ impl KV for RequestMozlogFields {
     }
 }
 
+#[derive(Clone)]
+struct AppErrorFields {
+    code: u16,
+    error: String,
+    errno: Option<u16>,
+    message: String,
+    additional_fields: Map<String, JsonValue>,
+}
+
+impl AppErrorFields {
+    pub fn from_app_error(error: &AppError) -> AppErrorFields {
+        let kind = error.kind();
+        let status = kind.http_status();
+
+        AppErrorFields {
+            code: status.code,
+            error: status.reason.to_string(),
+            errno: kind.errno(),
+            message: format!("{}", error),
+            additional_fields: kind.additional_fields(),
+        }
+    }
+}
+
+impl KV for AppErrorFields {
+    fn serialize(&self, _: &Record, serializer: &mut Serializer) -> slog::Result {
+        serializer.emit_u16("code", self.code)?;
+        serializer.emit_str("error", &self.error)?;
+        if let Some(errno) = self.errno {
+            serializer.emit_u16("errno", errno)?;
+        }
+        serializer.emit_str("message", &self.message)?;
+        serializer.emit_str(
+            "additional_fields",
+            &serde_json::to_string(&self.additional_fields).unwrap_or("{}".to_string()),
+        )?;
+        Ok(())
+    }
+}
+
 impl Value for Settings {
     fn serialize(&self, _: &Record, _: &'static str, serializer: &mut Serializer) -> slog::Result {
         let settings_json = serde_json::to_string(&self).unwrap();
@@ -68,7 +109,7 @@ impl Value for Settings {
 }
 
 /// Mozlog-compatible logger type.
-pub struct MozlogLogger(slog::Logger);
+pub struct MozlogLogger(pub slog::Logger);
 
 impl MozlogLogger {
     /// Construct a logger.
@@ -103,6 +144,13 @@ impl MozlogLogger {
             .success_or(err_msg("Internal error: No managed MozlogLogger"))?;
         Ok(MozlogLogger(
             logger.new(slog_o!(RequestMozlogFields::from_request(request))),
+        ))
+    }
+
+    /// Log an application error.
+    pub fn with_app_error(logger: &MozlogLogger, error: &AppError) -> Result<MozlogLogger, Error> {
+        Ok(MozlogLogger(
+            logger.new(slog_o!(AppErrorFields::from_app_error(error))),
         ))
     }
 }

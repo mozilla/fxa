@@ -16,6 +16,7 @@ use app_errors::{AppError, AppErrorKind, AppResult};
 use auth_db::DbClient;
 use bounces::Bounces;
 use email_address::EmailAddress;
+use logging::MozlogLogger;
 use message_data::MessageData;
 use providers::{Headers, Providers};
 use validate;
@@ -85,6 +86,7 @@ fn validate(email: &Email) -> bool {
 fn handler(
     email: AppResult<Email>,
     bounces: State<Bounces<DbClient>>,
+    logger: State<MozlogLogger>,
     message_data: State<MessageData>,
     providers: State<Providers>,
 ) -> AppResult<Json<JsonValue>> {
@@ -118,7 +120,11 @@ fn handler(
                 .metadata
                 .as_ref()
                 .and_then(|metadata| message_data.set(message_id.as_str(), metadata).err())
-                .map(|error| println!("{}", error));
+                .map(|error| {
+                    let log = MozlogLogger::with_app_error(&logger, &error)
+                        .expect("MozlogLogger::with_request error");
+                    slog_error!(log, "{}", "Request errored");
+                });
             Json(json!({ "messageId": message_id }))
         }).map_err(|error| error)
 }

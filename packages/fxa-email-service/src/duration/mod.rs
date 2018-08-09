@@ -4,12 +4,9 @@
 
 //! Maps duration strings to millisecond values.
 
-use std::{
-    convert::{From, TryFrom},
-    error::Error,
-    fmt::{self, Display, Formatter},
-};
+use std::convert::{From, TryFrom};
 
+use app_errors::{AppError, AppErrorKind};
 use regex::Regex;
 use serde::de::{Deserialize, Deserializer, Error as SerdeError, Unexpected};
 
@@ -29,24 +26,6 @@ const YEAR: u64 = DAY * 365;
 lazy_static! {
     static ref DURATION_FORMAT: Regex =
         Regex::new("^(?:([0-9]+) )?(second|minute|hour|day|week|month|year)s?$").unwrap();
-}
-
-/// The error type returned by `Duration::try_from`.
-#[derive(Debug)]
-pub struct DurationError {
-    pub value: String,
-}
-
-impl Error for DurationError {
-    fn description(&self) -> &str {
-        "invalid duration"
-    }
-}
-
-impl Display for DurationError {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
-        write!(formatter, "invalid duration: {}", self.value)
-    }
 }
 
 /// A duration type
@@ -83,13 +62,11 @@ impl From<Duration> for u64 {
 }
 
 impl<'v> TryFrom<&'v str> for Duration {
-    type Error = DurationError;
+    type Error = AppError;
 
-    fn try_from(value: &str) -> Result<Duration, DurationError> {
-        fn fail(value: &str) -> Result<Duration, DurationError> {
-            Err(DurationError {
-                value: value.to_string(),
-            })
+    fn try_from(value: &str) -> Result<Duration, AppError> {
+        fn fail(value: &str) -> Result<Duration, AppError> {
+            Err(AppErrorKind::DurationError(value.to_string()).into())
         }
 
         if let Some(matches) = DURATION_FORMAT.captures(value) {

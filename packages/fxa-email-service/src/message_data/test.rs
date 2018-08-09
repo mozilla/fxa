@@ -23,7 +23,7 @@ struct TestFixture {
 fn set() {
     let test = TestFixture::setup("set");
     if let Err(error) = test.message_data.set(test.unhashed_key.as_str(), "wibble") {
-        assert!(false, error.description().to_string());
+        assert!(false, format!("{}", error));
     } else {
         let key_exists: bool = test
             .redis_client
@@ -55,7 +55,7 @@ fn consume() {
     );
     match test.message_data.consume(&test.unhashed_key) {
         Ok(_) => assert!(false, "consume should fail when called a second time"),
-        Err(error) => assert_eq!(error.description(), "redis error: Response was of incompatible type: \"Response type not string compatible.\" (response was nil)"),
+        Err(error) => assert_eq!(format!("{}", error), "redis error: Response was of incompatible type: \"Response type not string compatible.\" (response was nil)"),
     }
 }
 

@@ -84,11 +84,21 @@ fn ses_send_handles_error_response() {
         sender: "Foo Bar <a@a.com>".to_string(),
     };
     match mock_ses.send("b@b.com", &[], None, "subject", "body", None) {
-        Ok(_) => assert!(false, "Request should have failed."),
+        Ok(_) => assert!(false, "Request should have failed"),
         Err(error) => {
             let error = error.json();
-            assert_eq!("500", &error["code"]);
-            assert_eq!("104", &error["errno"]);
+            assert_eq!(
+                500,
+                error["code"]
+                    .as_u64()
+                    .expect("Error code should be a number")
+            );
+            assert_eq!(
+                104,
+                error["errno"]
+                    .as_u64()
+                    .expect("Error errno should be a number")
+            );
             assert_eq!("Internal Server Error", &error["error"]);
             assert_eq!("Unknown(\"FREAKOUT\")", &error["message"]);
             assert_eq!("SES", &error["name"]);

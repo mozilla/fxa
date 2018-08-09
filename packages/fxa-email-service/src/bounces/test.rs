@@ -35,7 +35,7 @@ fn check_no_bounces() {
         { "period": "month", "limit": 0 }
         ]
         }"#,
-    ).expect("Unexpected json parsing error.");
+    ).expect("Unexpected json parsing error");
     let settings = create_settings(bounce_settings);
     let db = DbMockNoBounce;
     let bounces = Bounces::new(&settings, db);
@@ -97,14 +97,14 @@ fn check_soft_bounce() {
         "hard": [],
         "complaint": []
         }"#,
-    ).expect("Unexpected json parsing error.");
+    ).expect("Unexpected json parsing error");
     let settings = create_settings(bounce_settings);
     let db = DbMockBounceSoft;
     let bounces = Bounces::new(&settings, db);
     match bounces.check("foo@example.com") {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {
-            assert_eq!(format!("{}", error), "Email account soft bounced.");
+            assert_eq!(format!("{}", error), "Email account soft bounced");
             let err_data = error.kind().additional_fields();
             let address = err_data.get("address");
             if let Some(ref address) = address {
@@ -150,14 +150,14 @@ fn check_hard_bounce() {
         ],
         "complaint": []
         }"#,
-    ).expect("Unexpected json parsing error.");
+    ).expect("Unexpected json parsing error");
     let settings = create_settings(bounce_settings);
     let db = DbMockBounceHard;
     let bounces = Bounces::new(&settings, db);
     match bounces.check("bar@example.com") {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {
-            assert_eq!(format!("{}", error), "Email account hard bounced.");
+            assert_eq!(format!("{}", error), "Email account hard bounced");
             let err_data = error.kind().additional_fields();
             let address = err_data.get("address");
             if let Some(ref address) = address {
@@ -203,14 +203,14 @@ fn check_complaint() {
         { "period": "month", "limit": 0 }
         ]
         }"#,
-    ).expect("Unexpected json parsing error.");
+    ).expect("Unexpected json parsing error");
     let settings = create_settings(bounce_settings);
     let db = DbMockComplaint;
     let bounces = Bounces::new(&settings, db);
     match bounces.check("baz@example.com") {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {
-            assert_eq!(format!("{}", error), "Email account sent complaint.");
+            assert_eq!(format!("{}", error), "Email account sent complaint");
             let err_data = error.kind().additional_fields();
             let address = err_data.get("address");
             if let Some(ref address) = address {
@@ -260,14 +260,14 @@ fn check_db_error() {
         { "period": "month", "limit": 0 }
         ]
         }"#,
-    ).expect("Unexpected json parsing error.");
+    ).expect("Unexpected json parsing error");
     let settings = create_settings(bounce_settings);
     let db = DbMockError;
     let bounces = Bounces::new(&settings, db);
     match bounces.check("foo@example.com") {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {
-            assert_eq!(format!("{}", error), "\"wibble blee\"");
+            assert_eq!(format!("{}", error), "wibble blee");
             assert_eq!(error.kind().http_status(), Status::InternalServerError);
         }
     }
@@ -297,7 +297,7 @@ fn check_no_bounces_with_nonzero_limits() {
         { "period": "month", "limit": 2 }
         ]
         }"#,
-    ).expect("Unexpected json parsing error.");
+    ).expect("Unexpected json parsing error");
     let settings = create_settings(bounce_settings);
     let db = DbMockNoBounceWithNonZeroLimits;
     let bounces = Bounces::new(&settings, db);
@@ -384,14 +384,14 @@ fn check_bounce_with_multiple_limits() {
         "hard": [],
         "complaint": []
         }"#,
-    ).expect("Unexpected json parsing error.");
+    ).expect("Unexpected json parsing error");
     let settings = create_settings(bounce_settings);
     let db = DbMockBounceWithMultipleLimits;
     let bounces = Bounces::new(&settings, db);
     match bounces.check("foo@example.com") {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {
-            assert_eq!(format!("{}", error), "Email account soft bounced.");
+            assert_eq!(format!("{}", error), "Email account soft bounced");
             let err_data = error.kind().additional_fields();
             let address = err_data.get("address");
             if let Some(ref address) = address {

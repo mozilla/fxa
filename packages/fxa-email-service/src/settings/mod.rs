@@ -377,15 +377,15 @@ impl Settings {
             Ok(settings) => {
                 if current_env == "production" {
                     if &settings.hmackey == "YOU MUST CHANGE ME" {
-                        panic!("Please set a valid HMAC key.")
+                        panic!("Please set a valid HMAC key")
                     }
                     if &settings.secretkey == "youmustchangethisfortheproductionenvironment" {
-                        panic!("Please set a valid secret key. It must be a 256-bit base64 encoded string.")
+                        panic!("Please set a valid secret key. It must be a 256-bit base64 encoded string")
                     }
                 }
 
                 let logger =
-                    MozlogLogger::new(&settings).expect("Unable to create MozlogLogger instance.");
+                    MozlogLogger::new(&settings).expect("Unable to create MozlogLogger instance");
                 slog_info!(logger, "Settings::new"; "settings" => &settings);
                 Ok(settings)
             }
