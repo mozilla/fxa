@@ -9,9 +9,9 @@ const error = require('../error')
 
 const ERRNO = {
   // From fxa-email-service, src/app_errors/mod.rs
-  COMPLAINT: '106',
-  SOFT_BOUNCE: '107',
-  HARD_BOUNCE: '108'
+  COMPLAINT: 106,
+  SOFT_BOUNCE: 107,
+  HARD_BOUNCE: 108
 }
 
 module.exports = (config) => {
