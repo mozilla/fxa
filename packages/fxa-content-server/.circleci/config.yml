@@ -216,4 +216,7 @@ workflows:
             - test4:
                   requires:
                     - build
-            - dockerpush
+            - dockerpush:
+                  filters:
+                      tags:
+                          only: /.*/
