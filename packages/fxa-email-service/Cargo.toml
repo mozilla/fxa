@@ -33,11 +33,11 @@ reqwest = ">=0.8.5"
 rocket = { git = "https://github.com/SergioBenitez/Rocket", rev="d7f6d82fe4d35ee79c424dd4164733b22f17f80a" }
 rocket_codegen = { git = "https://github.com/SergioBenitez/Rocket", rev="d7f6d82fe4d35ee79c424dd4164733b22f17f80a" }
 rocket_contrib = { git = "https://github.com/SergioBenitez/Rocket", rev="d7f6d82fe4d35ee79c424dd4164733b22f17f80a" }
-rusoto_core = { git = "https://github.com/rusoto/rusoto/", rev="9e22eb3876a02375b3dbe14d0340f9b5c1fc55e9" }
-rusoto_credential = { git = "https://github.com/rusoto/rusoto/", rev="9e22eb3876a02375b3dbe14d0340f9b5c1fc55e9" }
-rusoto_mock = { git = "https://github.com/rusoto/rusoto/", rev="9e22eb3876a02375b3dbe14d0340f9b5c1fc55e9" }
-rusoto_ses = { git = "https://github.com/rusoto/rusoto/", rev="9e22eb3876a02375b3dbe14d0340f9b5c1fc55e9" }
-rusoto_sqs = { git = "https://github.com/rusoto/rusoto/", rev="9e22eb3876a02375b3dbe14d0340f9b5c1fc55e9" }
+rusoto_core = { git = "https://github.com/brizental/rusoto", branch="request-body-params" }
+rusoto_credential = { git = "https://github.com/brizental/rusoto", branch="request-body-params" }
+rusoto_mock = { git = "https://github.com/brizental/rusoto", branch="request-body-params" }
+rusoto_ses = { git = "https://github.com/brizental/rusoto", branch="request-body-params" }
+rusoto_sqs = { git = "https://github.com/brizental/rusoto", branch="request-body-params" }
 sendgrid = ">=0.7.1"
 serde = ">=1.0"
 serde_derive = ">=1.0"
