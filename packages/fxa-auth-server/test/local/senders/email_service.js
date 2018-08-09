@@ -25,7 +25,7 @@ const emailConfig = {
 describe(
   'lib/senders/email_service',
   () => {
-    it('emailService serializes options correctly', () => {
+    it('emailService serializes options correctly', (done) => {
       const mock = {
         'request': function (config, cb) {
           cb(config)
@@ -44,10 +44,11 @@ describe(
         assert.equal(serialized.body.body.html, '<p>html</p>')
         assert.equal(serialized.body.headers['x-header'], 'yeah')
         assert.equal(serialized.body.headers['x-numbers'], '9999')
+        done()
       })
     })
 
-    it('emailService handles successful request and response', () => {
+    it('emailService handles successful request and response', (done) => {
       const mock = {
         'request': function (config, cb) {
           cb(null, {
@@ -63,10 +64,11 @@ describe(
         assert.equal(err, null)
         assert.equal(body.messageId, 'woopwoop')
         assert.equal(body.message, undefined)
+        done()
       })
     })
 
-    it('emailService handles 500 response', () => {
+    it('emailService handles 500 response', (done) => {
       const mock = {
         'request': function (config, cb) {
           cb(null, {
@@ -74,7 +76,7 @@ describe(
           }, {
             code: '500',
             error: 'InternalServerError',
-            errno: '104',
+            errno: 104,
             message: 'FREAKOUT',
             name: 'SES'
           })
@@ -87,17 +89,18 @@ describe(
         assert.equal(err.output.statusCode, 500)
         assert.equal(body.messageId, undefined)
         assert.equal(body.message, 'FREAKOUT')
+        done()
       })
     })
 
-    it('emailService handles 429 response', () => {
+    it('emailService handles 429 response', (done) => {
       const mock = {
         'request': function (config, cb) {
           cb(null, {
             statusCode: 429
           }, {
             code: '429',
-            errno: '106',
+            errno: 106,
             error: 'BounceComplaintError',
             message: 'FREAKOUT',
             bounceAt: 1533641031755
@@ -112,10 +115,11 @@ describe(
         assert.equal(err.message, 'Email account sent complaint')
         assert.equal(body.messageId, undefined)
         assert.equal(body.message, 'FREAKOUT')
+        done()
       })
     })
 
-    it('emailService handles unsuccessful request', () => {
+    it('emailService handles unsuccessful request', (done) => {
       const mock = {
         'request': function (config, cb) {
           cb(Error('FREAKOUT'), undefined, undefined)
@@ -128,6 +132,7 @@ describe(
         assert.equal(err.message, 'FREAKOUT')
         assert.equal(body.messageId, undefined)
         assert.equal(body.message, undefined)
+        done()
       })
     })
   }
