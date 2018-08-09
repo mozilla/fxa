@@ -1,3 +1,13 @@
+<a name="v1.118.0"></a>
+## v1.118.0 (2018-08-09)
+
+
+#### Bug Fixes
+
+* **ses:**  use updated rusoto version that sends message in body (#164) r=@vladikoff ([c085cbb3](c085cbb3))
+
+
+
 <a name="v1.117.0"></a>
 ## v1.117.0 (2018-08-01)
 
