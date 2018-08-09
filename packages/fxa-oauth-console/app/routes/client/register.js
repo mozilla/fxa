@@ -8,7 +8,9 @@ import AuthenticatedRouteMixin from 'ember-simple-auth/mixins/authenticated-rout
 export default Ember.Route.extend(AuthenticatedRouteMixin, {
   controllerName: 'client/register',
   actions: {
-    create: function(model) {
+    create: function() {
+      var model = this.controllerFor('client.register').get('model');
+
       return model.save().then(
         () =>
           this.controllerFor('client.register').set('registrationSuccess', true)
