@@ -1235,7 +1235,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
               })
           }, (err) => {
             if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-              return customs.flag(request.app.clientAddress, {
+              customs.flag(request.app.clientAddress, {
                 email: form.email,
                 errno: err.errno
               })
