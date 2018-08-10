@@ -1884,7 +1884,8 @@ if (config.get('redis.email.enabled')) {
   [ 'sendgrid', 'ses', 'socketlabs' ].reduce((promise, service) => {
     return promise.then(() => {
       return new P((resolve, reject) => {
-        describe(`call selectEmailServices with real redis containing ${service} config:`, () => {
+        describe(`call selectEmailServices with real redis containing ${service} config:`, function () {
+          this.timeout(10000)
           let mailer, result
 
           before(() => {
