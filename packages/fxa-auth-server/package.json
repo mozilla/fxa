@@ -19,6 +19,7 @@
     "test": "VERIFIER_VERSION=0 MEMCACHE_METRICS_CONTEXT_ADDRESS=none NO_COVERAGE=1 scripts/test-local.sh",
     "test-ci": "scripts/test-local.sh",
     "test-e2e": "NODE_ENV=dev mocha test/e2e",
+    "test-scripts": "mocha test/scripts",
     "test-remote": "MAILER_HOST=restmail.net MAILER_PORT=80 CORS_ORIGIN=http://baz mocha --timeout=300000 test/remote"
   },
   "repository": {

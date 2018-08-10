@@ -7,10 +7,14 @@
 const ROOT_DIR = '../../..'
 
 const assert = require('insist')
+const cp = require('child_process')
 const mocks = require('../../mocks')
 const P = require('bluebird')
+const path = require('path')
 const proxyquire = require('proxyquire').noPreserveCache()
 const sinon = require('sinon')
+
+cp.execAsync = P.promisify(cp.exec)
 
 const config = require(`${ROOT_DIR}/config`)
 
@@ -1873,3 +1877,67 @@ describe('call selectEmailServices with mocked safe-regex, regex-only match and 
       })
   })
 })
+
+if (config.get('redis.email.enabled')) {
+  const emailAddress = 'foo@example.com';
+
+  [ 'sendgrid', 'ses', 'socketlabs' ].reduce((promise, service) => {
+    return promise.then(() => {
+      return new P((resolve, reject) => {
+        describe(`call selectEmailServices with real redis containing ${service} config:`, function () {
+          this.timeout(10000)
+          let mailer, result
+
+          before(() => {
+            return P.all([
+              require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
+              require(`${ROOT_DIR}/lib/senders/templates`).init()
+            ]).spread((translator, templates) => {
+              const mockLog = mocks.mockLog()
+              const Mailer = require(`${ROOT_DIR}/lib/senders/email`)(mockLog, config.getProperties())
+              mailer = new Mailer(translator, templates, config.get('smtp'))
+              return redisWrite({
+                [service]: {
+                  regex: '^foo@example\.com$',
+                  percentage: 100
+                }
+              })
+            })
+            .then(() => mailer.selectEmailServices({ email: emailAddress }))
+            .then(r => result = r)
+          })
+
+          after(() => {
+            return redisRevert()
+              .then(() => mailer.stop())
+              .then(resolve)
+              .catch(reject)
+          })
+
+          it('returned the correct result', () => {
+            assert.deepEqual(result, [
+              {
+                emailAddresses: [ emailAddress ],
+                emailService: 'fxa-email-service',
+                emailSender: service,
+                mailer: mailer.emailService
+              }
+            ])
+          })
+        })
+      })
+    })
+  }, P.resolve())
+}
+
+function redisWrite (config) {
+  return cp.execAsync(`echo '${JSON.stringify(config)}' | node scripts/email-config write`, {
+    cwd: path.resolve(__dirname, '../../..')
+  })
+}
+
+function redisRevert () {
+  return cp.execAsync('node scripts/email-config revert', {
+    cwd: path.resolve(__dirname, '../../..')
+  })
+}
