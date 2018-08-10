@@ -81,7 +81,7 @@ const ensureUsers = thenify(function () {
 
 registerSuite('Firefox desktop user info handshake', {
   beforeEach: function () {
-    return this.remote.then(clearBrowserState())
+    return this.remote.then(clearBrowserState({ force: true }))
       .then(ensureUsers());
   },
 
