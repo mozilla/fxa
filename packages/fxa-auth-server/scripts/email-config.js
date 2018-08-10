@@ -13,7 +13,7 @@ const Promise = require(`${LIB_DIR}/promise`)
 const redis = require(`${LIB_DIR}/redis`)({ ...config.redis, ...config.redis.email }, log)
 
 if (! redis) {
-  console.error('redis is disabled in config, aborting')
+  console.error('Redis is disabled in config, aborting')
   process.exit(1)
 }
 
@@ -27,6 +27,11 @@ const KEYS = {
   current: 'config',
   previous: 'config.previous'
 }
+const VALID_SERVICES = new Set([ 'sendgrid', 'ses', 'socketlabs' ])
+const VALID_PROPERTIES = new Map([
+  [ 'percentage', value => value >= 0 && value <= 100 ],
+  [ 'regex', value => value && typeof value === 'string' ]
+])
 
 const { argv } = process
 
@@ -84,10 +89,37 @@ async function read () {
 }
 
 async function write () {
-  // Parse then stringify for validation
-  const current = JSON.stringify(JSON.parse(await stdin()))
+  const current = JSON.parse(await stdin())
+  const services = Object.entries(current)
+
+  if (services.length === 0) {
+    throw new Error('Empty config')
+  }
+
+  services.forEach(([ service, serviceConfig ]) => {
+    if (! VALID_SERVICES.has(service)) {
+      throw new Error(`Invalid service "${service}"`)
+    }
+
+    const properties = Object.entries(serviceConfig)
+
+    if (properties.length === 0) {
+      throw new Error(`Empty config for "${service}"`)
+    }
+
+    properties.forEach(([ property, value ]) => {
+      if (! VALID_PROPERTIES.has(property)) {
+        throw new Error(`Invalid property "${service}.${property}"`)
+      }
+
+      if (! VALID_PROPERTIES.get(property)(value)) {
+        throw new Error(`Invalid value for "${service}.${property}"`)
+      }
+    })
+  })
+
   const previous = await redis.get(KEYS.current)
-  await redis.set(KEYS.current, current)
+  await redis.set(KEYS.current, JSON.stringify(current))
   if (previous) {
     await redis.set(KEYS.previous, previous)
   }

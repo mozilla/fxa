@@ -67,13 +67,53 @@ describe('scripts/email-config:', () => {
   })
 
   it('write does not fail', () => {
-    return cp.execAsync('echo "{}" | node scripts/email-config write', { cwd })
+    return cp.execAsync('echo \'{"sendgrid":{"percentage":1,"regex":".*"}}\' | node scripts/email-config write', { cwd })
   })
 
   it('write fails if stdin is not valid JSON', () => {
     return cp.execAsync('echo "wibble" | node scripts/email-config write', { cwd })
-      .then(() => assert(false, 'script should have failed'))
-      .catch(() => {})
+      .then(() => assert(false, 'script should have failed'), () => {})
+  })
+
+  it('write fails if stdin is empty object', () => {
+    return cp.execAsync('echo "{}" | node scripts/email-config write', { cwd })
+      .then(() => assert(false, 'script should have failed'), () => {})
+  })
+
+  it('write fails if stdin contains unexpected key', () => {
+    return cp.execAsync('echo \'{"sendgrid":{"percentage":1,"regx":".*"}}\' | node scripts/email-config write', { cwd })
+      .then(() => assert(false, 'script should have failed'), () => {})
+  })
+
+  it('write fails if percentage is greater than 100', () => {
+    return cp.execAsync('echo \'{"sendgrid":{"percentage":101,"regex":".*"}}\' | node scripts/email-config write', { cwd })
+      .then(() => assert(false, 'script should have failed'), () => {})
+  })
+
+  it('write fails if regex is not string', () => {
+    return cp.execAsync('echo \'{"sendgrid":{"percentage":1,"regex":{}}}\' | node scripts/email-config write', { cwd })
+      .then(() => assert(false, 'script should have failed'), () => {})
+  })
+
+  it('write does not fail if percentage is missing', () => {
+    return cp.execAsync('echo \'{"sendgrid":{"regex":".*"}}\' | node scripts/email-config write', { cwd })
+  })
+
+  it('write fails if service is invalid', () => {
+    return cp.execAsync('echo \'{"sendgri":{"percentage":1,"regex":{}}}\' | node scripts/email-config write', { cwd })
+      .then(() => assert(false, 'script should have failed'), () => {})
+  })
+
+  it('write does not fail if regex is missing', () => {
+    return cp.execAsync('echo \'{"sendgrid":{"percentage":1}}\' | node scripts/email-config write', { cwd })
+  })
+
+  it('write does not fail if service is ses', () => {
+    return cp.execAsync('echo \'{"ses":{"percentage":1}}\' | node scripts/email-config write', { cwd })
+  })
+
+  it('write does not fail if service is socketlabs', () => {
+    return cp.execAsync('echo \'{"socketlabs":{"percentage":1}}\' | node scripts/email-config write', { cwd })
   })
 
   it('revert does not fail', () => {
@@ -86,8 +126,7 @@ describe('scripts/email-config:', () => {
 
   it('check fails without argument', () => {
     return cp.execAsync('node scripts/email-config check', { cwd })
-      .then(() => assert(false, 'script should have failed'))
-      .catch(() => {})
+      .then(() => assert(false, 'script should have failed'), () => {})
   })
 
   describe('write config with regex:', () => {
