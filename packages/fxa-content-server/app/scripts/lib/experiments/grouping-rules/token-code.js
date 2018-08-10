@@ -6,17 +6,24 @@
 
 const BaseGroupingRule = require('./base');
 const Constants = require('../../../lib/constants');
-const GROUPS = ['control', 'treatment-code', 'treatment-link'];
+const GROUPS_DEFAULT = ['control', 'treatment-code', 'treatment-link'];
+
 const ROLLOUT_CLIENTS = {
-  '3a1f53aabe17ba32': {
-    name: 'Firefox Add-ons',
-    rolloutRate: 0.0 // Rollout rate between 0..1
-  },
-  'dcdb5ae7add825d2': {
-    name: '123Done',
+  '37fdfa37698f251a': {
+    enableTestEmails: false,
+    groups: GROUPS_DEFAULT,
+    name: 'Lockbox Extension',
     rolloutRate: 0.0
   },
+  '98adfa37698f255b': {
+    enableTestEmails: true,
+    groups: ['treatment-code'],
+    name: 'Lockbox Extension iOS',
+    rolloutRate: 0.0,
+  },
   'ecdb5ae7add825d4': {
+    enableTestEmails: false,
+    groups: GROUPS_DEFAULT,
     name: 'TestClient',
     rolloutRate: 0.0
   }
@@ -31,14 +38,24 @@ module.exports = class TokenCodeGroupingRule extends BaseGroupingRule {
   }
 
   choose(subject) {
-    if (! subject || ! subject.uniqueUserId || ! subject.experimentGroupingRules || ! subject.isTokenCodeSupported) {
+    if (! subject || ! subject.uniqueUserId || ! subject.experimentGroupingRules || ! subject.isTokenCodeSupported || ! subject.account) {
       return false;
     }
 
     if (subject.clientId) {
       const client = this.ROLLOUT_CLIENTS[subject.clientId];
-      if (client && this.bernoulliTrial(client.rolloutRate, subject.uniqueUserId)) {
-        return this.uniformChoice(GROUPS, subject.uniqueUserId);
+
+      if (client) {
+        const groups = client.groups || GROUPS_DEFAULT;
+
+        // Check if this client supports test emails
+        if (client.enableTestEmails && this.isTestEmail(subject.account.get('email'))) {
+          return this.uniformChoice(groups, subject.uniqueUserId);
+        }
+
+        if (this.bernoulliTrial(client.rolloutRate, subject.uniqueUserId)) {
+          return this.uniformChoice(groups, subject.uniqueUserId);
+        }
       }
 
       // If a clientId was specified but not defined in the rollout configuration, the default
@@ -48,7 +65,7 @@ module.exports = class TokenCodeGroupingRule extends BaseGroupingRule {
 
     if (subject.service && subject.service === Constants.SYNC_SERVICE) {
       if (this.bernoulliTrial(this.SYNC_ROLLOUT_RATE, subject.uniqueUserId)) {
-        return this.uniformChoice(GROUPS, subject.uniqueUserId);
+        return this.uniformChoice(GROUPS_DEFAULT, subject.uniqueUserId);
       }
     }
 
