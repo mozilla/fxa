@@ -112,7 +112,7 @@ module.exports = function createServer(config, log) {
   // idle-time is 5 seconds.  This can cause a lot of unneeded churn in server
   // connections. Setting this to 120s makes node8 behave more like node6. -
   // https://nodejs.org/docs/latest-v8.x/api/http.html#http_server_keepalivetimeout
-  api.keepAliveTimeout = 120000
+  api.server.keepAliveTimeout = 120000
 
   api.use(restify.bodyParser())
 
