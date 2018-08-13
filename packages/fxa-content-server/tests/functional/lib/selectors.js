@@ -39,7 +39,8 @@ module.exports = {
     HEADER: '#fxa-recovery-key-confirm',
     INPUT: '#recovery-key',
     LOST_KEY: '.lost-recovery-key',
-    SUBMIT: 'button[type="submit"]'
+    SUBMIT: 'button[type="submit"]',
+    TOOLTIP: '.tooltip',
   },
   COMPLETE_SIGNIN: {
     LINK_RESEND: '#resend',
@@ -128,6 +129,9 @@ module.exports = {
     RECOVERY_KEY_TEXT: '.recovery-key',
     STATUS_DISABLED: '.disabled',
     STATUS_ENABLED: '.enabled',
+    UNLOCK_BUTTON: '.account-recovery .unlock-button',
+    UNLOCK_REFRESH_BUTTON: '.account-recovery .refresh-verification-state',
+    UNLOCK_SEND_VERIFY: '.account-recovery .send-verification-email',
   },
   RESET_PASSWORD: {
     BACK: '.remember-password',

@@ -52,39 +52,28 @@
   margin-bottom: 40px;
 }
 
-.account-recovery-confirm-key,
-.account-recovery-create-password,
+.recovery-key-icon {
+  background-image: image-url('recovery_key_key.svg');
+  background-repeat: no-repeat;
+  background-size: 24px;
+  padding-left: 35px;
+}
+
 #account-recovery-confirm-password,
 #account-recovery-confirm-revoke,
+.account-recovery-create-password,
+#account-recovery-section,
 #account-recovery-key {
   .note {
     font-weight: bold;
   }
 
   .options {
-    .title-container {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 15px;
-
-      .line {
-        color: $modal-recovery-key-border;
-      }
-
-      .title {
-        color: $modal-recovery-key-color;
-        font-size: 12px;
-        font-weight: bold;
-      }
-    }
-
     .buttons {
       display: flex;
       justify-content: center;
 
       button {
-        background-color: $color-white;
-        border: 1px solid $modal-recovery-key-option-border-color;
         font-size: 12px;
         font-weight: bold;
         margin-bottom: 15px;
@@ -105,14 +94,14 @@
   .recovery-key-container {
     background-color: $modal-recovery-key-background;
     border-color: $modal-recovery-key-border;
-    border-style: solid;
+    border-style: dotted;
     border-width: 2px;
     margin-bottom: 25px;
 
     .recovery-key {
       color: $modal-recovery-key-color;
-      font-size: 1.3em;
-      font-weight: bold;
+      font-family: monospace;
+      font-size: 1.6em;
       padding: 25px 0 25px 0;
     }
   }

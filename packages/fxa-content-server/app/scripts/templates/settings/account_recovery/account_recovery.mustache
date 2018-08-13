@@ -19,22 +19,23 @@
 
 
     <div class="settings-unit-details">
-        <p>
-            {{#unsafeTranslate}}Your Firefox Account password is used to secure all of the information you’ve saved to Firefox. If you need to reset your password, you’ll need a recovery key to regain access to this information. <a %(escapedLearnMoreLinkAttributes)s>Learn more</a>{{/unsafeTranslate}}
-        </p>
+        <p>{{#t}}Generate a recovery key to regain access to your Firefox bookmarks, passwords, and synced data if you forget your password.{{/t}}</p>
 
         <div class="list">
             <ul id="status">
                 <li class="type">
-                    <div class="name">{{#t}}Recovery key{{/t}}</div>
-                    <div class="details">
-                        {{#hasRecoveryKey}}
-                            <div class="enabled">{{#t}}Enabled{{/t}}</div>
-                        {{/hasRecoveryKey}}
-                        {{^hasRecoveryKey}}
-                            <div class="disabled">{{#t}}Not set{{/t}}</div>
-                        {{/hasRecoveryKey}}
+                    <div class="recovery-key-icon">
+                        <div class="name">{{#t}}Recovery key{{/t}}</div>
+                        <div class="details">
+                            {{#hasRecoveryKey}}
+                                <div class="enabled">{{#t}}Enabled{{/t}}</div>
+                            {{/hasRecoveryKey}}
+                            {{^hasRecoveryKey}}
+                                <div class="disabled">{{#t}}Not set{{/t}}</div>
+                            {{/hasRecoveryKey}}
+                        </div>
                     </div>
+
                     <div class="panel-settings-button-group">
                         {{#hasRecoveryKey}}
                             <button class="settings-button warning-button confirm-revoke">{{#t}}Revoke{{/t}}</button>
@@ -45,9 +46,12 @@
                     </div>
                 </li>
             </ul>
+
+            <p>{{#unsafeTranslate}}<span class="note">NOTE: </span>Your Firefox Account password encrypts your Firefox data. Only your password or recovery key can access your data. <a %(escapedLearnMoreLinkAttributes)s>Learn more</a>{{/unsafeTranslate}}</p>
+
             <div class="button-row">
                 <button class="settings-button primary-button refresh-status">{{#t}}Refresh Status{{/t}}</button>
-                <button class="settings-button cancel secondary-button enabled">{{#t}}Cancel{{/t}}</button>
+                <button class="settings-button cancel secondary-button enabled">{{#t}}Done{{/t}}</button>
             </div>
         </div>
     </div>

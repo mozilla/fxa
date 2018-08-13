@@ -41,11 +41,11 @@ define(function (require, exports, module) {
   var PANEL_VIEWS = [
     AvatarView,
     DisplayNameView,
+    EmailsView,
     AccountRecoveryView,
     AccountRecoveryConfirmPasswordView,
     AccountRecoveryConfirmRevokeView,
     AccountRecoveryKeyView,
-    EmailsView,
     TwoStepAuthenticationView,
     RecoveryCodesView,
     ClientsView,

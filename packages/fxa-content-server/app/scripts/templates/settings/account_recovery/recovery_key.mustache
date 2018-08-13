@@ -2,31 +2,23 @@
     <section class="modal-panel">
         <div class="error"></div>
 
-        <h2>{{#t}}Recovery key{{/t}}</h2>
+        <h2>{{#t}}Step 2 of 2: Save Recovery key{{/t}}</h2>
 
-        <p class="description">
-            {{#unsafeTranslate}}<span class="note">NOTE: </span>Keep your recovery key in a safe place. You will not be able to access this page again. You can download or print your key or email it to someone you trust{{/unsafeTranslate}}
-        </p>
+        <p class="description">{{#unsafeTranslate}}<span class="note">NOTE: </span>If you forget your password, this key is required to regain access to your data. Save your recovery key in a safe location, where you can find it easily later.{{/unsafeTranslate}}</p>
 
         <div class="recovery-key-container">
             <div class="recovery-key">{{recoveryKey}}</div>
         </div>
 
         <div class="options">
-            <div class="title-container">
-                <div class="line">&boxh;&boxh;&boxh;&nbsp;</div>
-                <div class="title">{{#t}}Download your recovery key or print it{{/t}}</div>
-                <div class="line">&nbsp;&boxh;&boxh;&boxh;</div>
-            </div>
-
             <div class="buttons">
-                <button class="download-key"><img alt="{{#t}}Download button image{{/t}}" class="recovery-icon-option" src="/images/recovery_key_download.svg">{{#t}}Download{{/t}}</button>
                 <button class="print-key"><img alt="{{#t}}Print button image{{/t}}" class="recovery-icon-option" src="/images/recovery_key_print.svg">{{#t}}Print{{/t}}</button>
+                <button class="download-key"><img alt="{{#t}}Download button image{{/t}}" class="recovery-icon-option" src="/images/recovery_key_download.svg">{{#t}}Download{{/t}}</button>
             </div>
         </div>
 
         <div class="button-row">
-            <button class="secondary-button done-link">{{#t}}Done, Recovery Key Set{{/t}}</button>
+            <button class="primary-button done-link">{{#t}}Done, Recovery key saved{{/t}}</button>
         </div>
     </section>
 </div>

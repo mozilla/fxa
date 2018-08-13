@@ -11,8 +11,8 @@ const selectors = require('./lib/selectors');
 
 const config = intern._config;
 
-const SIGNUP_URL = `${config.fxaContentRoot}signup?`;
-const SIGNIN_URL = `${config.fxaContentRoot}signin?`;
+const SIGNUP_URL = `${config.fxaContentRoot}signup?showAccountRecovery=true`;
+const SIGNIN_URL = `${config.fxaContentRoot}signin?showAccountRecovery=true`;
 const SETTINGS_URL = `${config.fxaContentRoot}settings?showAccountRecovery=true`;
 const RESET_PASSWORD_URL = config.fxaContentRoot + 'reset_password?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true';
 const PASSWORD = 'password';
@@ -20,19 +20,24 @@ const NEW_PASSWORD = '()()():|';
 let email, recoveryKey;
 
 const {
+  createUser,
   clearBrowserState,
   click,
+  closeCurrentWindow,
   fillOutRecoveryKey,
   fillOutCompleteResetPassword,
   fillOutResetPassword,
   fillOutSignIn,
   fillOutSignUp,
   openPage,
+  openVerificationLinkInDifferentBrowser,
+  openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
+  switchToWindow,
   testIsBrowserNotified,
   testElementExists,
-  type,
-  visibleByQSA
+  testElementTextInclude,
+  type
 } = FunctionalHelpers;
 
 registerSuite('Recovery key', {
@@ -50,7 +55,11 @@ registerSuite('Recovery key', {
 
       .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
       .then(testElementExists(selectors.SETTINGS.HEADER))
-      .then(visibleByQSA(selectors.RECOVERY_KEY.MENU_BUTTON))
+
+      // Perform a slight sleep here to ensure that the checks
+      // to enable the panel have been performed.
+      .sleep(1000)
+
       .then(click(selectors.RECOVERY_KEY.MENU_BUTTON))
       .then(testElementExists(selectors.RECOVERY_KEY.STATUS_DISABLED))
 
@@ -106,6 +115,9 @@ registerSuite('Recovery key', {
         .then(openVerificationLinkInSameTab(email, 2))
         .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.HEADER))
 
+        .then(fillOutRecoveryKey('N8TVALID'))
+        .then(testElementTextInclude(selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.TOOLTIP, 'invalid'))
+
         .then(fillOutRecoveryKey(recoveryKey))
 
         .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.HEADER))
@@ -153,5 +165,94 @@ registerSuite('Recovery key', {
         .then(fillOutSignIn(email, NEW_PASSWORD))
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
+
+    'can not re-use recovery key': function () {
+      const query = {showAccountRecovery: true};
+      return this.remote
+        .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER, {
+          query,
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {capabilities: null, signedInUser: null}
+          }
+        }))
+        .then(fillOutResetPassword(email))
+        .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
+        .then(openVerificationLinkInSameTab(email, 2))
+        .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.HEADER))
+
+        .then(fillOutRecoveryKey(recoveryKey))
+
+        .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.HEADER))
+        .then(fillOutCompleteResetPassword(NEW_PASSWORD, NEW_PASSWORD))
+
+        .then(testElementExists(selectors.RESET_PASSWORD_COMPLETE.HEADER))
+        .then(testElementExists(selectors.RESET_PASSWORD_COMPLETE.SUB_HEADER))
+
+        .then(testIsBrowserNotified('fxaccounts:login'))
+
+        // Attempt to re-use reset link, shows expired link
+        .then(openVerificationLinkInSameTab(email, 2))
+        .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.EXPIRED_LINK_HEADER));
+    },
   }
 });
+
+registerSuite('Recovery key - unverified session', {
+  beforeEach: function () {
+    email = TestHelpers.createEmail('sync{id}');
+
+    return this.remote.then(createUser(email, PASSWORD, {preVerified: true}))
+      // when an account is created, the original session is verified
+      // re-login to destroy original session and created an unverified one
+      .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+      .then(fillOutSignIn(email, PASSWORD))
+
+      // Perform a slight sleep here to ensure that the checks
+      // to enable the panel have been performed.
+      .sleep(2000)
+
+      // unlock panel
+      .then(click(selectors.RECOVERY_KEY.UNLOCK_BUTTON));
+  },
+
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
+
+  tests: {
+    'gated in unverified session open verification same tab': function () {
+      return this.remote
+        // send and open verification in same tab
+        .then(click(selectors.RECOVERY_KEY.UNLOCK_SEND_VERIFY))
+        .then(openVerificationLinkInSameTab(email, 0))
+
+        // panel becomes verified and can be opened
+        .then(testElementExists(selectors.RECOVERY_KEY.STATUS_ENABLED));
+    },
+
+    'gated in unverified session open verification new tab': function () {
+      return this.remote
+        // send and open verification in new tab
+        .then(click(selectors.RECOVERY_KEY.UNLOCK_SEND_VERIFY))
+        .then(openVerificationLinkInNewTab(email, 0))
+        .then(switchToWindow(1))
+
+        // panel becomes verified and can be opened
+        .then(testElementExists(selectors.RECOVERY_KEY.STATUS_ENABLED))
+        .then(closeCurrentWindow())
+        .then(switchToWindow(0))
+        .then(click(selectors.RECOVERY_KEY.UNLOCK_REFRESH_BUTTON))
+        .then(testElementExists(selectors.RECOVERY_KEY.STATUS_DISABLED));
+    },
+
+    'gated in unverified session open verification different browser': function () {
+      return this.remote
+        // send and open verification in different browser
+        .then(click(selectors.RECOVERY_KEY.UNLOCK_SEND_VERIFY))
+        .then(openVerificationLinkInDifferentBrowser(email, 0))
+        .then(click(selectors.RECOVERY_KEY.UNLOCK_REFRESH_BUTTON))
+        .then(testElementExists(selectors.RECOVERY_KEY.STATUS_DISABLED));
+    }
+  }
+});
+
