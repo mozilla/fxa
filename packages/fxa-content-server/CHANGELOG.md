@@ -1,3 +1,17 @@
+<a name="1.118.2"></a>
+## 1.118.2 (2018-08-13)
+
+
+### Bug Fixes
+
+* **email-first:** Enable the "show password" button on email first. (#6442) r=@vbudhram ([70ac6bf](https://github.com/mozilla/fxa-content-server/commit/70ac6bf)), closes [#6434](https://github.com/mozilla/fxa-content-server/issues/6434)
+
+### Features
+
+* **password-strength:** Bump experiment to 100% in en, 20% in de (#6447) r=@vladikoff ([8f5d0b5](https://github.com/mozilla/fxa-content-server/commit/8f5d0b5)), closes [#6446](https://github.com/mozilla/fxa-content-server/issues/6446)
+
+
+
 <a name="1.118.1"></a>
 ## 1.118.1 (2018-08-09)
 

@@ -26,6 +26,11 @@ describe('lib/experiments/grouping-rules/password-strength', () => {
       };
     });
 
+    it('has the expected rollout rates defined', () => {
+      assert.equal(experiment.ROLLOUT_RATES.de, 0.2);
+      assert.equal(experiment.ROLLOUT_RATES.en, 1.0);
+    });
+
     ['a@mozilla.org', 'a@softvision.com', 'a@softvision.ro', 'a@softvision.com'].forEach((email) => {
       it(`returns 'designF' experiment for ${email} email`, () => {
         subject.account.set('email', email);
@@ -34,23 +39,52 @@ describe('lib/experiments/grouping-rules/password-strength', () => {
     });
 
     it('delegates to uniformChoice if in rollout', () => {
-      experiment.ROLLOUT_RATE = 1.0;
+      experiment.ROLLOUT_RATES = {
+        en: 1.0
+      };
       sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
       experiment.choose(subject);
       assert.isTrue(experiment.uniformChoice.calledOnceWith(['control', 'designF']));
     });
 
+    it.only('delegates to uniformChoice if in rollout using extended lang', () => {
+      experiment.ROLLOUT_RATES = {
+        de: 1.0,
+        en: 1.0
+      };
+      sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
+
+      experiment.choose(Object.assign({}, subject, { lang: 'en-GB' }));
+      assert.isTrue(experiment.uniformChoice.calledOnceWith(['control', 'designF']));
+
+      experiment.choose(Object.assign({}, subject, { lang: 'de-AT' }));
+      assert.isTrue(experiment.uniformChoice.calledTwice);
+      assert.deepEqual(experiment.uniformChoice.args[1][0], [ 'control', 'designF' ]);
+    });
+
     it('returns false if not in rollout', () => {
-      experiment.ROLLOUT_RATE = 0.0;
+      experiment.ROLLOUT_RATES = {
+        de: 1.0
+      };
       assert.isFalse(experiment.choose(subject));
     });
 
-    it('returns false if lang is not en based', () => {
-      const deSubject = Object.assign({}, subject, { lang: 'de' });
-      experiment.ROLLOUT_RATE = 1.0;
+    it('returns false if rollout set to 0', () => {
+      experiment.ROLLOUT_RATES = {
+        en: 0.0
+      };
+      assert.isFalse(experiment.choose(subject));
+    });
+
+    it('returns false if lang is not defined', () => {
+      const esSubject = Object.assign({}, subject, { lang: 'es' });
+      experiment.ROLLOUT_RATES = {
+        'de': 0.2,
+        'en': 1.0,
+      };
       sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
 
-      assert.isFalse(experiment.choose(deSubject));
+      assert.isFalse(experiment.choose(esSubject));
     });
   });
 });

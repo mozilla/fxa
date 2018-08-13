@@ -17,16 +17,13 @@ import ServiceMixin from './mixins/service-mixin';
 import SignUpMixin from './mixins/signup-mixin';
 import Template from 'templates/sign_up_password.mustache';
 
-class SignUpPasswordView extends FormView {
-  constructor (options) {
-    options.events = assign({}, options.events, {
-      'click .use-different': preventDefaultThen('useDifferentAccount')
-    });
+const proto = FormView.prototype;
+const SignUpPasswordView = FormView.extend({
+  template: Template,
 
-    super(options);
-  }
-
-  template = Template;
+  events: assign({}, FormView.prototype.events, {
+    'click .use-different': preventDefaultThen('useDifferentAccount')
+  }),
 
   useDifferentAccount () {
     // a user who came from an OAuth relier and was
@@ -34,35 +31,35 @@ class SignUpPasswordView extends FormView {
     // to go back. Send them directly to `/` with the
     // account. The email will be prefilled on that page.
     this.navigate('/', { account: this.getAccount() });
-  }
+  },
 
   getAccount () {
     return this.model.get('account');
-  }
+  },
 
   beforeRender () {
     if (! this.getAccount()) {
       this.navigate('/');
     }
-  }
+  },
 
   setInitialContext (context) {
     context.set(this.getAccount().pick('email'));
-  }
+  },
 
   isValidEnd () {
     if (! this._doPasswordsMatch()) {
       return false;
     }
 
-    return super.isValidEnd();
-  }
+    return proto.isValidEnd.call(this);
+  },
 
   showValidationErrorsEnd () {
     if (! this._doPasswordsMatch()) {
       this.displayError(AuthErrors.toError('PASSWORDS_DO_NOT_MATCH'));
     }
-  }
+  },
 
   submit () {
     return Promise.resolve().then(() => {
@@ -74,20 +71,20 @@ class SignUpPasswordView extends FormView {
       account.set('needsOptedInToMarketingEmail', this.hasOptedInToMarketingEmail());
       return this.signUp(account, this._getPassword());
     });
-  }
+  },
 
   _getPassword () {
     return this.getElementValue('#password');
-  }
+  },
 
   _getVPassword () {
     return this.getElementValue('#vpassword');
-  }
+  },
 
   _doPasswordsMatch() {
     return this._getPassword() === this._getVPassword();
-  }
-}
+  },
+});
 
 Cocktail.mixin(
   SignUpPasswordView,

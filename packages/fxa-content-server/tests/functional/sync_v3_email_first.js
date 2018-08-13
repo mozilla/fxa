@@ -104,7 +104,9 @@ registerSuite('Firefox Desktop Sync v3 email first', {
 
         // passwords do not match should cause an error
         .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.SHOW_PASSWORD))
         .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD_WITH_TYPO))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.SHOW_VPASSWORD))
         .then(type(selectors.SIGNUP_PASSWORD.AGE, 21))
         .then(click(selectors.SIGNUP_PASSWORD.SUBMIT, selectors.SIGNUP_PASSWORD.ERROR_PASSWORDS_DO_NOT_MATCH))
         .then(testErrorTextInclude('Passwords do not match'))
@@ -166,6 +168,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
 
         .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
         .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+        .then(testElementExists(selectors.SIGNIN_PASSWORD.SHOW_PASSWORD))
         .then(click(selectors.SIGNIN_PASSWORD.SUBMIT, selectors.CONFIRM_SIGNIN.HEADER))
 
         .then(testIsBrowserNotified('fxaccounts:login'))
