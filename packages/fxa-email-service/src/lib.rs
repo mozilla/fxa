@@ -81,6 +81,7 @@ extern crate slog_mozlog_json;
 extern crate slog_scope;
 extern crate slog_term;
 extern crate socketlabs;
+extern crate uuid;
 
 pub mod app_errors;
 pub mod auth_db;
