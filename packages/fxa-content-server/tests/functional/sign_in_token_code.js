@@ -40,7 +40,7 @@ const testAtOAuthApp = thenify(function () {
 
 registerSuite('signin token code', {
   beforeEach: function () {
-    email = TestHelpers.createEmail();
+    email = TestHelpers.createEmail('sync{id}');
 
     return this.remote
       .then(FunctionalHelpers.clearBrowserState({
