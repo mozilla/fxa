@@ -128,7 +128,6 @@
     "babel-eslint": "8.2.1",
     "babel-plugin-dynamic-import-webpack": "1.0.2",
     "chai": "1.8.1",
-    "coveralls": "2.11.9",
     "css": "2.2.1",
     "eslint": "4.16.0",
     "eslint-plugin-fxa": "git://github.com/mozilla/eslint-plugin-fxa.git#41504c9dd30e8b52900c15b524946aa0428aef95",
