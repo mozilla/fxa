@@ -201,6 +201,7 @@ module.exports = {
     HEADER: '#fxa-signin-password-header',
     LINK_MISTYPED_EMAIL: '.use-different',
     PASSWORD: 'input[type=password]',
+    SHOW_PASSWORD: '#password ~ .show-password-label',
     SUBMIT: 'button[type="submit"]',
   },
   SIGNIN_RECOVERY_CODE: {
@@ -269,6 +270,8 @@ module.exports = {
       NOT_EMAIL_MET: '.not-email.met',
       NOT_EMAIL_UNMET: '.not-email.unmet',
     },
+    SHOW_PASSWORD: '#password ~ .show-password-label',
+    SHOW_VPASSWORD: '#vpassword ~ .show-password-label',
     SUBMIT: 'button[type="submit"]',
     VPASSWORD: '#vpassword',
   },

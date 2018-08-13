@@ -71,7 +71,10 @@ registerSuite('oauth email first', {
 
         .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
         .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.SHOW_PASSWORD))
+
         .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.SHOW_VPASSWORD))
         .then(type(selectors.SIGNUP_PASSWORD.AGE, 21))
         .then(click(selectors.SIGNUP_PASSWORD.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER))
 
@@ -91,6 +94,8 @@ registerSuite('oauth email first', {
 
         .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
         .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+        .then(testElementExists(selectors.SIGNIN_PASSWORD.SHOW_PASSWORD))
+
         .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
 
         .then(testAtOAuthApp());

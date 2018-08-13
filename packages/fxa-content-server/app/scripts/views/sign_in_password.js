@@ -17,16 +17,12 @@ import SignInMixin from './mixins/signin-mixin';
 import Template from 'templates/sign_in_password.mustache';
 import UserCardMixin from './mixins/user-card-mixin';
 
-class SignInPasswordView extends FormView {
-  constructor (options) {
-    options.events = assign({}, options.events, {
-      'click .use-different': preventDefaultThen('useDifferentAccount')
-    });
+const SignInPasswordView = FormView.extend({
+  template: Template,
 
-    super(options);
-  }
-
-  template = Template;
+  events: assign({}, FormView.prototype.events, {
+    'click .use-different': preventDefaultThen('useDifferentAccount')
+  }),
 
   useDifferentAccount () {
     // a user who came from an OAuth relier and was
@@ -34,17 +30,17 @@ class SignInPasswordView extends FormView {
     // to go back. Send them directly to `/` with the
     // account. The email will be prefilled on that page.
     this.navigate('/', { account: this.getAccount() });
-  }
+  },
 
   getAccount () {
     return this.model.get('account');
-  }
+  },
 
   beforeRender () {
     if (! this.getAccount()) {
       this.navigate('/');
     }
-  }
+  },
 
   setInitialContext (context) {
     const account = this.getAccount();
@@ -53,7 +49,7 @@ class SignInPasswordView extends FormView {
       email: account.get('email'),
       isPasswordNeeded: this.isPasswordNeededForAccount(account)
     });
-  }
+  },
 
   submit () {
     const account = this.getAccount();
@@ -64,7 +60,7 @@ class SignInPasswordView extends FormView {
     } else {
       return this.useLoggedInAccount(account);
     }
-  }
+  },
 
   onSignInError (account, password, err) {
     if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
@@ -80,7 +76,7 @@ class SignInPasswordView extends FormView {
     // re-throw error, it will be handled at a lower level.
     throw err;
   }
-}
+});
 
 Cocktail.mixin(
   SignInPasswordView,
