@@ -1,3 +1,13 @@
+<a name="1.118.1"></a>
+## 1.118.1 (2018-08-09)
+
+
+### Bug Fixes
+
+* **ci:** build on tags (#6424) r=@jrgm ([566b579](https://github.com/mozilla/fxa-content-server/commit/566b579))
+
+
+
 <a name="1.118.0"></a>
 # 1.118.0 (2018-08-08)
 
