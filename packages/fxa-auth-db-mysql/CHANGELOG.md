@@ -1,3 +1,14 @@
+<a name="1.118.0"></a>
+# [1.118.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.117.0...v1.118.0) (2018-08-14)
+
+
+### Bug Fixes
+
+* **restify:** set keepAliveTimeout correctly on api.server object (#381) ([afc376c](https://github.com/mozilla/fxa-auth-db-mysql/commit/afc376c))
+* **restify:** set server.keepAliveTimeout to 120s, similar to in node6 (#380) ([5ece670](https://github.com/mozilla/fxa-auth-db-mysql/commit/5ece670))
+
+
+
 <a name="1.117.0"></a>
 # [1.117.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.116.0...v1.117.0) (2018-07-24)
 
