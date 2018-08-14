@@ -47,7 +47,7 @@ describe('lib/experiments/grouping-rules/password-strength', () => {
       assert.isTrue(experiment.uniformChoice.calledOnceWith(['control', 'designF']));
     });
 
-    it.only('delegates to uniformChoice if in rollout using extended lang', () => {
+    it('delegates to uniformChoice if in rollout using extended lang', () => {
       experiment.ROLLOUT_RATES = {
         de: 1.0,
         en: 1.0
