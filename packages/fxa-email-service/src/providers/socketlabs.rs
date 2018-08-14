@@ -6,6 +6,7 @@ use socketlabs::{
     error::Error as SocketLabsError, message::Message, request::Request,
     response::PostMessageErrorCode,
 };
+use uuid::Uuid;
 
 use super::{Headers, Provider};
 use app_errors::{AppError, AppErrorKind, AppResult};
@@ -51,6 +52,8 @@ impl Provider for SocketLabsProvider {
         if let Some(html) = body_html {
             message.set_html(html);
         }
+        let message_id = Uuid::new_v4().to_string();
+        message.set_message_id(message_id.clone());
 
         Request::new(
             self.settings.serverid,
@@ -60,7 +63,7 @@ impl Provider for SocketLabsProvider {
         .map_err(From::from)
         .and_then(|response| {
             if response.error_code == PostMessageErrorCode::Success {
-                Ok("".to_string())
+                Ok(message_id)
             } else {
                 Err(AppErrorKind::ProviderError {
                     name: String::from("SocketLabs"),
