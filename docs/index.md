@@ -107,6 +107,13 @@ Links:
     - [Dev deployment](https://github.com/mozilla/fxa-auth-server#dev-deployment)
     - [Python API client (primarily a reference client)](https://github.com/warner/picl-spec-crypto)
 
+
+#### [fxa-email-service](https://github.com/mozilla/fxa-email-service)
+- The goal of the fxa-email-service is to decouple the auth server from SES and make it possible to send email via different providers.
+- Links:
+    - [Documentation](https://github.com/mozilla/fxa-email-service)
+
+
 #### [fxa-oauth-server](https://github.com/mozilla/fxa-oauth-server)
 - The OAuth Server provides an HTTP API that:
     - accepts BrowserID assertions from the auth-server as authentication
@@ -182,3 +189,11 @@ There is also a "Core/FxAccounts" bugzilla component that covers the accounts co
 
 
 [LucidChart View](https://www.lucidchart.com/documents/edit/677146e7-0fb8-4486-99a7-7eacaa16b6be/1)
+
+
+******
+
+[![](https://www.lucidchart.com/publicSegments/view/4bd7fdda-9255-4e3a-9380-6994b2f4cff5/image.jpeg)](https://www.lucidchart.com/publicSegments/view/4bd7fdda-9255-4e3a-9380-6994b2f4cff5/image.jpeg)
+
+
+[LucidChart View](https://www.lucidchart.com/documents/edit/677146e7-0fb8-4486-99a7-7eacaa16b6be/5)
