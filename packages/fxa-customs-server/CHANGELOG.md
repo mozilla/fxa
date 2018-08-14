@@ -1,3 +1,14 @@
+<a name="1.118.1"></a>
+## 1.118.1 (2018-08-14)
+
+
+### Bug Fixes
+
+* **restify:** set keepAliveTimeout correctly on api.server object (#267) ([17a4715](https://github.com/mozilla/fxa-customs-server/commit/17a4715))
+* **restify:** set server.keepAliveTimeout to 120s, similar to in node6 (#266) ([c10d339](https://github.com/mozilla/fxa-customs-server/commit/c10d339))
+
+
+
 <a name="1.118.0"></a>
 # 1.118.0 (2018-08-08)
 
