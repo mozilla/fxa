@@ -5,46 +5,47 @@
 'use strict';
 
 const {registerSuite} = intern.getInterface('object');
-const assert = intern.getPlugin('chai').assert;
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
-const config = intern._config;
-const OAUTH_APP = config.fxaOAuthApp;
 const selectors = require('./lib/selectors');
 
 const PASSWORD = 'password';
 let email;
 
-const thenify = FunctionalHelpers.thenify;
 const click = FunctionalHelpers.click;
+const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
 const createUser = FunctionalHelpers.createUser;
 const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
 const fillOutSignInTokenCode = FunctionalHelpers.fillOutSignInTokenCode;
+const noSuchElement = FunctionalHelpers.noSuchElement;
 const openFxaFromRp = FunctionalHelpers.openFxaFromRp;
 const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
+const switchToWindow = FunctionalHelpers.switchToWindow;
 const testElementExists = FunctionalHelpers.testElementExists;
 const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
 const type = FunctionalHelpers.type;
 const visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-const testAtOAuthApp = thenify(function () {
-  return this.parent
-    .then(testElementExists('#loggedin'))
-
-    .getCurrentUrl()
-    .then((url) => {
-      // redirected back to the App
-      assert.ok(url.indexOf(OAUTH_APP) > -1);
-    });
-});
+const experimentParams = {
+  query: {
+    client_id: '7f368c6886429f19', // eslint-disable-line camelcase
+    forceUA: 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Mobile Safari/537.36',
+    // eslint-disable-next-line camelcase
+    keys_jwk: 'eyJrdHkiOiJFQyIsImtpZCI6Im9DNGFudFBBSFZRX1pmQ09RRUYycTRaQlZYblVNZ2xISGpVRzdtSjZHOEEiLCJjcnYiOi' +
+    'JQLTI1NiIsIngiOiJDeUpUSjVwbUNZb2lQQnVWOTk1UjNvNTFLZVBMaEg1Y3JaQlkwbXNxTDk0IiwieSI6IkJCWDhfcFVZeHpTaldsdX' +
+    'U5MFdPTVZwamIzTlpVRDAyN0xwcC04RW9vckEifQ',
+    redirect_uri: 'https://mozilla.github.io/notes/fxa/android-redirect.html', // eslint-disable-line camelcase
+    scope: 'profile https://identity.mozilla.com/apps/notes'
+  }
+};
 
 registerSuite('signin token code', {
   beforeEach: function () {
+    // The `sync` prefix is needed to force confirmation.
     email = TestHelpers.createEmail('sync{id}');
 
     return this.remote
       .then(FunctionalHelpers.clearBrowserState({
-        '123done': true,
         contentServer: true
       }))
       .then(createUser(email, PASSWORD, {preVerified: true}));
@@ -52,17 +53,36 @@ registerSuite('signin token code', {
 
   tests: {
     'verified - control': function () {
-      const experimentParams = {query: {forceExperiment: 'tokenCode', forceExperimentGroup: 'control'}};
+      experimentParams.query.forceExperiment = 'tokenCode';
+
+      // Currently the control will default to which ever verification
+      // the auth-server chooses which is sign-in link.
+      experimentParams.query.forceExperimentGroup = 'control';
       return this.remote
         .then(openFxaFromRp('signin', experimentParams))
 
         .then(fillOutSignIn(email, PASSWORD))
 
-        .then(testAtOAuthApp());
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+        .then(openVerificationLinkInNewTab(email, 0))
+
+        .then(switchToWindow(1))
+        // wait for the verified window in the new tab
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+        .then(noSuchElement(selectors.SIGNIN_COMPLETE.CONTINUE_BUTTON))
+        // user sees the name of the RP, but cannot redirect
+        .then(testElementTextInclude(selectors.SIGNIN_COMPLETE.SERVICE_NAME, 'notes'))
+
+        // switch to the original window
+        .then(closeCurrentWindow())
+
+        .then(testElementTextInclude(selectors.SIGNIN_COMPLETE.SERVICE_NAME, 'notes'));
     },
 
     'verified - treatment-code - valid code': function () {
-      const experimentParams = {query: {forceExperiment: 'tokenCode', forceExperimentGroup: 'treatment-code'}};
+      experimentParams.query.forceExperiment = 'tokenCode';
+      experimentParams.query.forceExperimentGroup = 'treatment-code';
+
       return this.remote
         .then(openFxaFromRp('signin', experimentParams))
         .then(fillOutSignIn(email, PASSWORD))
@@ -71,11 +91,12 @@ registerSuite('signin token code', {
         .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
         .then(fillOutSignInTokenCode(email, 0))
 
-        .then(testAtOAuthApp());
+        .then(testElementTextInclude(selectors.SIGNIN_COMPLETE.SERVICE_NAME, 'notes'));
     },
 
     'verified - treatment-code - valid code then click back': function () {
-      const experimentParams = {query: {forceExperiment: 'tokenCode', forceExperimentGroup: 'treatment-code'}};
+      experimentParams.query.forceExperiment = 'tokenCode';
+      experimentParams.query.forceExperimentGroup = 'treatment-code';
       return this.remote
         .then(openFxaFromRp('signin', experimentParams))
         .then(fillOutSignIn(email, PASSWORD))
@@ -84,14 +105,15 @@ registerSuite('signin token code', {
         .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
         .then(fillOutSignInTokenCode(email, 0))
 
-        .then(testAtOAuthApp())
+        .then(testElementTextInclude(selectors.SIGNIN_COMPLETE.SERVICE_NAME, 'notes'))
 
         .goBack()
         .then(testElementExists(selectors.SIGNIN.HEADER));
     },
 
     'verified - treatment-code - invalid code': function () {
-      const experimentParams = {query: {forceExperiment: 'tokenCode', forceExperimentGroup: 'treatment-code'}};
+      experimentParams.query.forceExperiment = 'tokenCode';
+      experimentParams.query.forceExperimentGroup = 'treatment-code';
       return this.remote
         .then(openFxaFromRp('signin', experimentParams))
         .then(fillOutSignIn(email, PASSWORD))
@@ -106,7 +128,8 @@ registerSuite('signin token code', {
     },
 
     'verified - treatment-link - open link new tab': function () {
-      const experimentParams = {query: {forceExperiment: 'tokenCode', forceExperimentGroup: 'treatment-link'}};
+      experimentParams.query.forceExperiment = 'tokenCode';
+      experimentParams.query.forceExperimentGroup = 'treatment-link';
       return this.remote
         .then(openFxaFromRp('signin', experimentParams))
         .then(fillOutSignIn(email, PASSWORD))
@@ -114,7 +137,7 @@ registerSuite('signin token code', {
         .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
         .then(openVerificationLinkInNewTab(email, 0))
 
-        .then(testAtOAuthApp());
+        .then(testElementTextInclude(selectors.SIGNIN_COMPLETE.SERVICE_NAME, 'notes'));
     }
   }
 });
