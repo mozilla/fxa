@@ -5,6 +5,7 @@
 const Hapi = require('hapi');
 const Raven = require('raven');
 const ScopeSet = require('fxa-shared').oauth.scopes;
+const cloneDeep = require('lodash.clonedeep');
 
 const AppError = require('../error');
 const config = require('../config').getProperties();
@@ -148,19 +149,22 @@ exports.create = function createServer() {
 
   // Expand the scope list on each route to include all super-scopes,
   // so that Hapi can easily check them via simple string comparison.
-  routes.forEach(function(route) {
+  routes = routes.map(function(routeDefinition) {
+    // create a copy of the route definition to avoid cross-unit test
+    // contamination since we make local changes to the definition object.
+    const route = cloneDeep(routeDefinition);
     var scope = route.config.auth && route.config.auth.scope;
     if (scope) {
       route.config.auth.scope = ScopeSet.fromArray(scope).getImplicantValues();
     }
-  });
-
-  routes.forEach(function(route) {
+    return route;
+  }).map(function(route) {
     if (route.config.cache === undefined) {
       route.config.cache = {
         otherwise: 'private, no-cache, no-store, must-revalidate'
       };
     }
+    return route;
   });
 
   server.route(routes);
