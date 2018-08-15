@@ -8,7 +8,7 @@ const SCOPE_CLIENT_WRITE = require('../../auth_bearer').SCOPE_CLIENT_WRITE;
 module.exports = {
   auth: {
     strategy: 'authBearer',
-    scope: [SCOPE_CLIENT_WRITE]
+    scope: SCOPE_CLIENT_WRITE.getImplicantValues()
   },
   handler: function activeServices(req, reply) {
     var clientId = req.params.client_id;

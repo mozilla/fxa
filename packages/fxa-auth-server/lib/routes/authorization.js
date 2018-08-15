@@ -12,7 +12,7 @@ const config = require('../config');
 const db = require('../db');
 const logger = require('../logging')('routes.authorization');
 const P = require('../promise');
-const Scope = require('../scope');
+const ScopeSet = require('fxa-shared').oauth.scopes;
 const validators = require('../validators');
 const verify = require('../browserid');
 
@@ -27,12 +27,12 @@ const PKCE_CODE_CHALLENGE_LENGTH = 43;
 
 const MAX_TTL_S = config.get('expiration.accessToken') / 1000;
 
-const UNTRUSTED_CLIENT_ALLOWED_SCOPES = [
+const UNTRUSTED_CLIENT_ALLOWED_SCOPES = ScopeSet.fromArray([
   'openid',
   'profile:uid',
   'profile:email',
   'profile:display_name'
-];
+]);
 
 const allowHttpRedirects = config.get('allowHttpRedirects');
 
@@ -48,18 +48,6 @@ if (allowHttpRedirects === true) {
 function isLocalHost(url) {
   var host = new URI(url).hostname();
   return host === 'localhost' || host === '127.0.0.1';
-}
-
-function detectInvalidScopes(requestedScopes, validScopes) {
-  var invalidScopes = [];
-
-  requestedScopes.forEach(function(scope) {
-    if (validScopes.indexOf(scope) === -1) {
-      invalidScopes.push(scope);
-    }
-  });
-
-  return invalidScopes;
 }
 
 function generateCode(claims, client, scope, req) {
@@ -113,7 +101,7 @@ function generateGrant(claims, client, scope, req) {
       access_token: hex(token.token),
       token_type: 'bearer',
       expires_in: Math.floor((token.expiresAt - Date.now()) / 1000),
-      scope: scope.join(' '),
+      scope: scope.toString(),
       auth_at: claims['fxa-lastAuthAt']
     };
   });
@@ -230,7 +218,7 @@ module.exports = {
     var start = Date.now();
     var wantsGrant = req.payload.response_type === TOKEN;
     var exitEarly = false;
-    var scope = Scope(req.payload.scope || []);
+    var scope = ScopeSet.fromString(req.payload.scope || '');
     P.all([
       verify(req.payload.assertion).then(function(claims) {
         logger.info('time.browserid_verify', { ms: Date.now() - start });
@@ -241,7 +229,7 @@ module.exports = {
         // Any request for a key-bearing scope should be using a verified token.
         // Double-check that here as a defense-in-depth measure.
         if (! claims['fxa-tokenVerified']) {
-          return P.each(scope.values(), scope => {
+          return P.each(scope.getScopeValues(), scope => {
             // Don't bother hitting the DB if other checks have failed.
             if (exitEarly) {
               return;
@@ -272,11 +260,9 @@ module.exports = {
           logger.debug('notFound', { id: req.payload.client_id });
           throw AppError.unknownClient(req.payload.client_id);
         } else if (! client.trusted) {
-          var invalidScopes = detectInvalidScopes(scope.values(),
-                                UNTRUSTED_CLIENT_ALLOWED_SCOPES);
-
-          if (invalidScopes.length) {
-            throw AppError.invalidScopes(invalidScopes);
+          var invalidScopes = scope.difference(UNTRUSTED_CLIENT_ALLOWED_SCOPES);
+          if (! invalidScopes.isEmpty()) {
+            throw AppError.invalidScopes(invalidScopes.getScopeValues());
           }
         }
 
@@ -312,7 +298,7 @@ module.exports = {
         exitEarly = true;
         throw err;
       }),
-      scope.values(),
+      scope,
       req
     ])
     .spread(wantsGrant ? generateGrant : generateCode)

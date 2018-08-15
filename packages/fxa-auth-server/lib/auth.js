@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const ScopeSet = require('fxa-shared').oauth.scopes;
+
 const AppError = require('./error');
 const logger = require('./logging')('server.auth');
 const token = require('./token');
@@ -15,7 +17,7 @@ const WHITELIST = require('./config').get('admin.whitelist').map(function(re) {
 exports.AUTH_STRATEGY = 'dogfood';
 exports.AUTH_SCHEME = 'bearer';
 
-exports.SCOPE_CLIENT_MANAGEMENT = 'oauth';
+exports.SCOPE_CLIENT_MANAGEMENT = ScopeSet.fromArray(['oauth']);
 
 exports.strategy = function() {
   return {
@@ -32,7 +34,7 @@ exports.strategy = function() {
       }
 
       token.verify(tok).done(function tokenFound(details) {
-        if (details.scope.indexOf(exports.SCOPE_CLIENT_MANAGEMENT) !== -1) {
+        if (details.scope.contains(exports.SCOPE_CLIENT_MANAGEMENT)) {
           logger.debug('check.whitelist');
           var blocked = ! WHITELIST.some(function(re) {
             return re.test(details.email);
@@ -47,6 +49,7 @@ exports.strategy = function() {
         }
 
         logger.info('success', details);
+        details.scope = details.scope.getScopeValues();
         reply.continue({
           credentials: details
         });

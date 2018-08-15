@@ -17,7 +17,7 @@ function developerResponse(developer) {
 module.exports = {
   auth: {
     strategy: auth.AUTH_STRATEGY,
-    scope: [auth.SCOPE_CLIENT_MANAGEMENT]
+    scope: auth.SCOPE_CLIENT_MANAGEMENT.getImplicantValues()
   },
   handler: function activateRegistration(req, reply) {
     var email = req.auth.credentials.email;

@@ -25,6 +25,7 @@ module.exports = {
   },
   handler: function verify(req, reply) {
     token.verify(req.payload.token).then(function(info) {
+      info.scope = info.scope.getScopeValues();
       if (req.payload.email !== undefined) {
         logger.warn('email.requested', {
           user: info.user,

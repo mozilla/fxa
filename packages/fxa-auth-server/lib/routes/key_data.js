@@ -10,7 +10,7 @@ const logger = require('../logging')('routes.key_data');
 const P = require('../promise');
 const validators = require('../validators');
 const verify = require('../browserid');
-const Scope = require('../scope');
+const ScopeSet = require('fxa-shared').oauth.scopes;
 const config = require('../config');
 
 const AUTH_EXPIRES_AFTER_MS = config.get('expiration.keyDataAuth');
@@ -44,23 +44,17 @@ module.exports = {
       payload: req.payload
     });
 
-    const requestedScopes = Scope(req.payload.scope);
+    const requestedScopes = ScopeSet.fromString(req.payload.scope);
     const requestedClientId = req.payload.client_id;
 
     P.all([
       verify(req.payload.assertion),
       db.getClient(Buffer.from(requestedClientId, 'hex')).then((client) => {
         if (client) {
-          // find all requested scopes in allowed scopes
-          const scopeRequests = [];
-          const allowedScopes = Scope(client.allowedScopes);
-          requestedScopes.values().forEach((s) => {
-            if (allowedScopes.has(s)) {
-              scopeRequests.push(db.getScope(s));
-            }
-          });
-
-          return P.all(scopeRequests).then((result) => {
+          // find all requested scopes that are allowed for this client.
+          const allowedScopes = ScopeSet.fromString(client.allowedScopes);
+          const scopeLookups = requestedScopes.filtered(allowedScopes).getScopeValues().map(s => db.getScope(s));
+          return P.all(scopeLookups).then((result) => {
             return result.filter((s) => !! s.hasScopedKeys);
           });
         } else {

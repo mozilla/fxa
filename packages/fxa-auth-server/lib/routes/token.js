@@ -11,13 +11,13 @@ const buf = require('buf').hex;
 const hex = require('buf').to.hex;
 const Joi = require('joi');
 const JwTool = require('fxa-jwtool');
+const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const config = require('../config');
 const db = require('../db');
 const encrypt = require('../encrypt');
 const logger = require('../logging')('routes.token');
 const P = require('../promise');
-const Scope = require('../scope');
 const util = require('../util');
 const validators = require('../validators');
 
@@ -36,7 +36,7 @@ const SERVICE_JWTOOL = new JwTool(config.get('serviceClients').map(function(clie
   return client.jku;
 }));
 
-const SCOPE_OPENID = 'openid';
+const SCOPE_OPENID = ScopeSet.fromArray(['openid']);
 
 const ID_TOKEN_EXPIRATION = Math.floor(config.get('openid.ttl') / 1000);
 const ID_TOKEN_ISSUER = config.get('openid.issuer');
@@ -173,6 +173,7 @@ module.exports = {
   },
   handler: function tokenEndpoint(req, reply) {
     var params = req.payload;
+    params.scope = ScopeSet.fromString(params.scope || '');
     P.try(function() {
 
       // Clients are allowed to provide credentials in either
@@ -201,8 +202,8 @@ module.exports = {
           }
         });
       } else if (params.grant_type === GRANT_REFRESH_TOKEN) {
-        // If the client has a client_secret, check that it's provided and valid in the refresh request
-        // If the client does not have client_secret, check that one was not provided in the refresh request
+        // If the client has a client_secret, check that it's provided and valid in the refresh request.
+        // If the client does not have client_secret, check that one was not provided in the refresh request.
         return getClientById(clientId).then(function(client) {
           var confirmClientPromise;
 
@@ -231,7 +232,7 @@ module.exports = {
     })
     .then(function(vals) {
       vals.ttl = params.ttl;
-      if (vals.scope && Scope(vals.scope).has(SCOPE_OPENID)) {
+      if (vals.scope && vals.scope.contains(SCOPE_OPENID)) {
         vals.idToken = true;
       }
       return vals;
@@ -356,7 +357,7 @@ function confirmRefreshToken(params) {
         code: tokObj.clientId
       });
       throw AppError.invalidToken();
-    } else if (! Scope(tokObj.scope).has(params.scope)) {
+    } else if (! tokObj.scope.contains(params.scope)) {
       logger.debug('refresh_token.invalidScopes', {
         allowed: tokObj.scope,
         requested: params.scope
@@ -402,7 +403,8 @@ function confirmJwt(params) {
       throw AppError.invalidAssertion();
     }
 
-    if (! Scope(client.scope).has(payload.scope)) {
+    const requestedScope = ScopeSet.fromString(payload.scope);
+    if (! ScopeSet.fromString(client.scope).contains(requestedScope)) {
       logger.debug('jwt.invalid.scopes', {
         allowed: client.scope,
         requested: payload.scope
@@ -427,7 +429,7 @@ function confirmJwt(params) {
     return {
       clientId: client.id,
       userId: uid,
-      scope: payload.scope,
+      scope: requestedScope,
       email: ''
     };
   });
@@ -485,7 +487,7 @@ function generateTokens(options) {
     var json = {
       access_token: access.token.toString('hex'),
       token_type: access.type,
-      scope: Scope(access.scope).toString()
+      scope: access.scope.toString()
     };
     if (options.authAt) {
       json.auth_at = options.authAt;

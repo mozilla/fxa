@@ -14,7 +14,7 @@ const config = require('../../config');
 const encrypt = require('../../encrypt');
 const helpers = require('../helpers');
 const P = require('../../promise');
-const Scope = require('../../scope');
+const ScopeSet = require('fxa-shared').oauth.scopes;
 const unique = require('../../unique');
 const patch = require('./patch');
 
@@ -386,7 +386,7 @@ MysqlStore.prototype = {
       codeObj.clientId,
       codeObj.userId,
       codeObj.email,
-      codeObj.scope.join(' '),
+      codeObj.scope.toString(),
       codeObj.authAt,
       codeObj.amr ? codeObj.amr.join(',') : null,
       codeObj.aal || null,
@@ -403,7 +403,7 @@ MysqlStore.prototype = {
     var hash = encrypt.hash(code);
     return this._readOne(QUERY_CODE_FIND, [hash]).then(function(code) {
       if (code) {
-        code.scope = code.scope.split(' ');
+        code.scope = ScopeSet.fromString(code.scope);
         if (code.amr !== null) {
           code.amr = code.amr.split(',');
         }
@@ -420,7 +420,7 @@ MysqlStore.prototype = {
       clientId: buf(vals.clientId),
       userId: buf(vals.userId),
       email: vals.email,
-      scope: Scope(vals.scope),
+      scope: vals.scope,
       token: unique.token(),
       type: 'bearer',
       expiresAt: vals.expiresAt || new Date(Date.now() + (vals.ttl  * 1000 || MAX_TTL))
@@ -446,7 +446,7 @@ MysqlStore.prototype = {
   getAccessToken: function getAccessToken(id) {
     return this._readOne(QUERY_ACCESS_TOKEN_FIND, [buf(id)]).then(function(t) {
       if (t) {
-        t.scope = t.scope.split(' ');
+        t.scope = ScopeSet.fromString(t.scope);
       }
       return t;
     });
@@ -470,6 +470,9 @@ MysqlStore.prototype = {
     return this._read(QUERY_ACTIVE_CLIENT_TOKENS_BY_UID, [
       buf(uid)
     ]).then(function(activeClientTokens) {
+      activeClientTokens.forEach(t => {
+        t.scope = ScopeSet.fromString(t.scope);
+      });
       return helpers.aggregateActiveClients(activeClientTokens);
     });
   },
@@ -509,7 +512,7 @@ MysqlStore.prototype = {
       clientId: vals.clientId,
       userId: vals.userId,
       email: vals.email,
-      scope: Scope(vals.scope)
+      scope: vals.scope
     };
     var token = unique.token();
     var hash = encrypt.hash(token);
@@ -529,7 +532,7 @@ MysqlStore.prototype = {
     return this._readOne(QUERY_REFRESH_TOKEN_FIND, [buf(token)])
     .then(function(t) {
       if (t) {
-        t.scope = t.scope.split(' ');
+        t.scope = ScopeSet.fromString(t.scope);
       }
       return t;
     });

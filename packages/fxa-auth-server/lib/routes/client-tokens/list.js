@@ -27,7 +27,7 @@ function serialize(client, acceptLanguage) {
 module.exports = {
   auth: {
     strategy: 'authBearer',
-    scope: [SCOPE_CLIENT_WRITE]
+    scope: SCOPE_CLIENT_WRITE.getImplicantValues()
   },
   handler: function activeServices(req, reply) {
     return db.getActiveClientsByUid(req.auth.credentials.user)

@@ -282,7 +282,7 @@ MemoryStore.prototype = {
             id: this.tokens[id].clientId,
             createdAt: this.tokens[id].createdAt,
             name: client.name,
-            scope: String(this.tokens[id].scope)
+            scope: this.tokens[id].scope
           });
         }
       }

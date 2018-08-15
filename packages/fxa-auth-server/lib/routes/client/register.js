@@ -15,7 +15,7 @@ const AppError = require('../../error');
 module.exports = {
   auth: {
     strategy: auth.AUTH_STRATEGY,
-    scope: [auth.SCOPE_CLIENT_MANAGEMENT]
+    scope: auth.SCOPE_CLIENT_MANAGEMENT.getImplicantValues()
   },
   validate: {
     payload: {

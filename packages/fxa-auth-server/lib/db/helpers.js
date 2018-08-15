@@ -7,6 +7,7 @@
  **/
 
 const unbuf = require('buf').unbuf.hex;
+const ScopeSet = require('fxa-shared').oauth.scopes;
 
 module.exports = {
   /**
@@ -32,7 +33,6 @@ module.exports = {
     var activeClients = {};
     activeClientTokens.forEach(function (clientTokenObj) {
       var clientIdHex = unbuf(clientTokenObj.id);
-      var scope = String(clientTokenObj.scope).split(/[\s,]+/);
 
       if (! activeClients[clientIdHex]) {
         // add the OAuth client if not already in the Object
@@ -40,14 +40,11 @@ module.exports = {
           id: clientTokenObj.id,
           name: clientTokenObj.name,
           lastAccessTime: clientTokenObj.createdAt,
-          scope: new Set()
+          scope: ScopeSet.fromArray([])
         };
       }
 
-      scope.forEach(function (clientScope) {
-        // aggregate the scopes from all available tokens
-        activeClients[clientIdHex].scope.add(clientScope);
-      });
+      activeClients[clientIdHex].scope.add(clientTokenObj.scope);
 
       var clientTokenTime = clientTokenObj.createdAt;
       if (clientTokenTime > activeClients[clientIdHex].lastAccessTime) {
@@ -58,8 +55,7 @@ module.exports = {
 
     // Sort the scopes alphabetically, convert the Object structure to an array
     var activeClientsArray = Object.keys(activeClients).map(function (key) {
-      var scopes = activeClients[key].scope;
-      activeClients[key].scope = Array.from(scopes.values()).sort();
+      activeClients[key].scope = activeClients[key].scope.getScopeValues().sort();
       return activeClients[key];
     });
 

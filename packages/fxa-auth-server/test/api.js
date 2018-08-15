@@ -8,6 +8,7 @@ const nock = require('nock');
 const buf = require('buf').hex;
 const generateRSAKeypair = require('keypair');
 const JWTool = require('fxa-jwtool');
+const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const auth = require('../lib/auth');
 const config = require('../lib/config');
@@ -178,7 +179,7 @@ function getUniqueUserAndToken(cId, options) {
     clientId: buf(cId),
     userId: buf(uid),
     email: email,
-    scope: options.scopes || [auth.SCOPE_CLIENT_MANAGEMENT]
+    scope: options.scopes ? ScopeSet.fromArray(options.scopes) : auth.SCOPE_CLIENT_MANAGEMENT
   }).then(function (token) {
     return {
       uid: uid,
@@ -358,15 +359,32 @@ describe('/v1', function() {
           url: '/authorization',
           payload: authParams({
             client_id: client.id,
-            scope: 'profile profile:write profile:uid'
+            scope: 'profile:write'
           })
         }).then(function(res) {
           assert.equal(res.statusCode, 400);
           assertSecurityHeaders(res);
           assert.equal(res.result.errno, 114);
-          assert.ok(res.result.invalidScopes.indexOf('profile') !== -1);
           assert.ok(res.result.invalidScopes.indexOf('profile:write') !== -1);
-          assert.ok(res.result.invalidScopes.indexOf('profile:uid') === -1);
+        });
+      });
+
+      it('should report all invalid scopes', function() {
+        var client = clientByName('Untrusted');
+        mockAssertion().reply(200, VERIFY_GOOD);
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            client_id: client.id,
+            scope: 'profile:email profile:locale profile:amr'
+          })
+        }).then(function(res) {
+          assert.equal(res.statusCode, 400);
+          assertSecurityHeaders(res);
+          assert.equal(res.result.errno, 114);
+          assert.ok(res.result.invalidScopes.indexOf('profile:email') === -1);
+          assert.ok(res.result.invalidScopes.indexOf('profile:locale') !== -1);
+          assert.ok(res.result.invalidScopes.indexOf('profile:amr') !== -1);
         });
       });
 
@@ -2069,14 +2087,14 @@ describe('/v1', function() {
         clientId: buf(clientId),
         userId: buf(USERID),
         email: VEMAIL,
-        scope: [auth.SCOPE_CLIENT_MANAGEMENT]
+        scope: auth.SCOPE_CLIENT_MANAGEMENT
       }).then(function(token) {
         tok = token.token.toString('hex');
         return db.generateAccessToken({
           clientId: buf(clientId),
           userId: unique(16),
           email: 'user@not.allow.ed',
-          scope: [auth.SCOPE_CLIENT_MANAGEMENT]
+          scope: auth.SCOPE_CLIENT_MANAGEMENT
         });
       }).then(function(token) {
         badTok = token.token.toString('hex');
@@ -3068,6 +3086,7 @@ describe('/v1', function() {
             });
           })
           .then(function (res) {
+            assert.equal(res.statusCode, 200);
             // The API sorts the results by createdAt and then by name
             // The precision is one second, this test guarantees that if
             // the tokens were created in the same second, they will still be sorted by name.
@@ -3185,7 +3204,7 @@ describe('/v1', function() {
             assert.equal(result[0].id, client1Id.toString('hex'));
             assert.equal(result[0].lastAccessTime, tok.createdAt.getTime(), 'lastAccessTime should be equal to the latest Token createdAt time');
             assertSecurityHeaders(res);
-            assert.deepEqual(result[0].scope, ['clients:write', 'profile', 'profile:write']);
+            assert.deepEqual(result[0].scope, ['clients:write', 'profile:write']);
           });
       });
 
@@ -3206,7 +3225,7 @@ describe('/v1', function() {
             return getUniqueUserAndToken(client1Id.toString('hex'), {
               uid: user1.uid,
               email: user1.email,
-              scopes: ['basket:write', 'profile:email']
+              scopes: ['basket', 'profile:email']
             });
           })
           .then(function () {
@@ -3226,7 +3245,7 @@ describe('/v1', function() {
           })
           .then(function (res) {
             var result = res.result;
-            assert.deepEqual(result[0].scope, ['basket:write', 'clients:write', 'profile', 'profile:email', 'profile:uid', 'profile:write']);
+            assert.deepEqual(result[0].scope, ['basket', 'clients:write', 'profile:write']);
           });
       });
 

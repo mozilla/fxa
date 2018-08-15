@@ -2,15 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const ScopeSet = require('fxa-shared').oauth.scopes;
+
 const AppError = require('./error');
-const auth = require('./auth');
 const config = require('./config');
 const db = require('./db');
 const encrypt = require('./encrypt');
-const Scope = require('./scope');
 const logger  = require('./logging')('token');
 
 const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
+const SCOPES_REQUIRING_EMAIL = ScopeSet.fromArray(['profile:email', 'oauth']);
 
 exports.verify = function verify(token) {
   return db.getAccessToken(encrypt.hash(token))
@@ -33,7 +35,7 @@ exports.verify = function verify(token) {
       logger.warn('token.verify.expired', {
         user: token.userId.toString('hex'),
         client_id: token.clientId.toString('hex'),
-        scope: token.scope,
+        scope: token.scope.toString(),
         created_at: token.createdAt,
         expires_at: token.expiresAt
       });
@@ -55,8 +57,7 @@ exports.verify = function verify(token) {
       scope: token.scope
     };
 
-    var scope = Scope(token.scope);
-    if (scope.has('profile:email') || scope.has(auth.SCOPE_CLIENT_MANAGEMENT)) {
+    if (token.scope.intersects(SCOPES_REQUIRING_EMAIL)) {
       tokenInfo.email = token.email;
     }
 
