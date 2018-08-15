@@ -11,6 +11,7 @@ const config = require(`${ROOT_DIR}/config`).getProperties()
 const log = require(`${ROOT_DIR}/test/mocks`).mockLog()
 const Promise = require(`${LIB_DIR}/promise`)
 const redis = require(`${LIB_DIR}/redis`)({ ...config.redis, ...config.redis.email }, log)
+const safeRegex = require('safe-regex')
 
 if (! redis) {
   console.error('Redis is disabled in config, aborting')
@@ -30,7 +31,9 @@ const KEYS = {
 const VALID_SERVICES = new Set([ 'sendgrid', 'ses', 'socketlabs' ])
 const VALID_PROPERTIES = new Map([
   [ 'percentage', value => value >= 0 && value <= 100 ],
-  [ 'regex', value => value && typeof value === 'string' ]
+  [ 'regex', value =>
+    value && typeof value === 'string' && value.indexOf('"') === -1 && safeRegex(value)
+  ]
 ])
 
 const { argv } = process

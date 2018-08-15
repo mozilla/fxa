@@ -67,7 +67,7 @@ describe('scripts/email-config:', () => {
   })
 
   it('write does not fail', () => {
-    return cp.execAsync('echo \'{"sendgrid":{"percentage":1,"regex":".*"}}\' | node scripts/email-config write', { cwd })
+    return cp.execAsync('echo \'{"sendgrid":{"percentage":100,"regex":".*"}}\' | node scripts/email-config write', { cwd })
   })
 
   it('write fails if stdin is not valid JSON', () => {
@@ -86,12 +86,27 @@ describe('scripts/email-config:', () => {
   })
 
   it('write fails if percentage is greater than 100', () => {
-    return cp.execAsync('echo \'{"sendgrid":{"percentage":101,"regex":".*"}}\' | node scripts/email-config write', { cwd })
+    return cp.execAsync('echo \'{"sendgrid":{"percentage":100.1,"regex":".*"}}\' | node scripts/email-config write', { cwd })
+      .then(() => assert(false, 'script should have failed'), () => {})
+  })
+
+  it('write fails if percentage is less than 0', () => {
+    return cp.execAsync('echo \'{"sendgrid":{"percentage":-0.1,"regex":".*"}}\' | node scripts/email-config write', { cwd })
       .then(() => assert(false, 'script should have failed'), () => {})
   })
 
   it('write fails if regex is not string', () => {
     return cp.execAsync('echo \'{"sendgrid":{"percentage":1,"regex":{}}}\' | node scripts/email-config write', { cwd })
+      .then(() => assert(false, 'script should have failed'), () => {})
+  })
+
+  it('write fails if regex contains quote character', () => {
+    return cp.execAsync('echo \'{"sendgrid":{"percentage":1,"regex":".*\\""}}\' | node scripts/email-config write', { cwd })
+      .then(() => assert(false, 'script should have failed'), () => {})
+  })
+
+  it('write fails if regex is unsafe', () => {
+    return cp.execAsync('echo \'{"sendgrid":{"percentage":1,"regex":"(.*)*"}}\' | node scripts/email-config write', { cwd })
       .then(() => assert(false, 'script should have failed'), () => {})
   })
 
