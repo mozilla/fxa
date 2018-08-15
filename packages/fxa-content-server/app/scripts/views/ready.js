@@ -7,167 +7,165 @@
  * "All ready! You can go visit {{ service }}"
  */
 
-define(function (require, exports, module) {
-  'use strict';
+import _ from 'underscore';
+import Cocktail from 'cocktail';
+import Constants from '../lib/constants';
+import ExperimentMixin from './mixins/experiment-mixin';
+import FlowEventsMixin from './mixins/flow-events-mixin';
+import FormView from './form';
+import MarketingMixin from './mixins/marketing-mixin';
+import PulseGraphicMixin from './mixins/pulse-graphic-mixin';
+import ServiceMixin from './mixins/service-mixin';
+import Template from 'templates/ready.mustache';
+import VerificationReasonMixin from './mixins/verification-reason-mixin';
+import RecoverykeyExperiment from './mixins/recovery-key-experiment-mixin';
 
-  const _ = require('underscore');
-  const Cocktail = require('cocktail');
-  const Constants = require('../lib/constants');
-  const ExperimentMixin = require('./mixins/experiment-mixin');
-  const FlowEventsMixin = require('./mixins/flow-events-mixin');
-  const FormView = require('./form');
-  const MarketingMixin = require('./mixins/marketing-mixin');
-  const PulseGraphicMixin = require('./mixins/pulse-graphic-mixin');
-  const ServiceMixin = require('./mixins/service-mixin');
-  const Template = require('templates/ready.mustache');
-  const VerificationReasonMixin = require('./mixins/verification-reason-mixin');
-  const RecoverykeyExperiment = require('./mixins/recovery-key-experiment-mixin');
+const t = msg => msg;
 
-  const t = msg => msg;
+/*eslint-disable camelcase*/
 
-  /*eslint-disable camelcase*/
-
-  /**
+/**
    * Some template strings are fetched from JS to keep
    * the template marginally cleaner and easier to read.
    */
-  const TEMPLATE_INFO = {
-    FORCE_AUTH: {
-      headerId: 'fxa-force-auth-complete-header',
-      headerTitle: t('Welcome back'),
-      readyToSyncText: t('Firefox Sync will resume momentarily'),
-    },
-    PASSWORD_RESET: {
-      headerId: 'fxa-reset-password-complete-header',
-      headerTitle: t('Your password has been reset'),
-      readyToSyncText: t('Complete set-up by entering the new password on your other Firefox devices.')
-    },
-    PRIMARY_EMAIL_VERIFIED: {
-      emailReadyText: t('You are now ready to make changes to your Firefox Account.'),
-      headerId: 'fxa-sign-up-complete-header',
-      headerTitle: t('Primary email verified')
-    },
-    SECONDARY_EMAIL_VERIFIED: {
-      emailReadyText: t('Account notifications will now also be sent to %(secondaryEmailVerified)s.'),
-      headerId: 'fxa-sign-up-complete-header',
-      headerTitle: t('Secondary email verified')
-    },
-    // signin_confirmed and signin_verified are only shown to Sync for now.
-    SIGN_IN: {
-      headerId: 'fxa-sign-in-complete-header',
-      headerTitle: t('Sign-in confirmed'),
-      readyToSyncText: t('You are now ready to use %(serviceName)s')
-    },
-    SIGN_UP: {
-      headerId: 'fxa-sign-up-complete-header',
-      headerTitle: t('Account verified'),
-      readyToSyncText: t('You are now ready to use %(serviceName)s')
-    }
-  };
+const TEMPLATE_INFO = {
+  FORCE_AUTH: {
+    headerId: 'fxa-force-auth-complete-header',
+    headerTitle: t('Welcome back'),
+    readyToSyncText: t('Firefox Sync will resume momentarily'),
+  },
+  PASSWORD_RESET: {
+    headerId: 'fxa-reset-password-complete-header',
+    headerTitle: t('Your password has been reset'),
+    readyToSyncText: t('Complete set-up by entering the new password on your other Firefox devices.')
+  },
+  PRIMARY_EMAIL_VERIFIED: {
+    emailReadyText: t('You are now ready to make changes to your Firefox Account.'),
+    headerId: 'fxa-sign-up-complete-header',
+    headerTitle: t('Primary email verified')
+  },
+  SECONDARY_EMAIL_VERIFIED: {
+    emailReadyText: t('Account notifications will now also be sent to %(secondaryEmailVerified)s.'),
+    headerId: 'fxa-sign-up-complete-header',
+    headerTitle: t('Secondary email verified')
+  },
+  // signin_confirmed and signin_verified are only shown to Sync for now.
+  SIGN_IN: {
+    headerId: 'fxa-sign-in-complete-header',
+    headerTitle: t('Sign-in confirmed'),
+    readyToSyncText: t('You are now ready to use %(serviceName)s')
+  },
+  SIGN_UP: {
+    headerId: 'fxa-sign-up-complete-header',
+    headerTitle: t('Account verified'),
+    readyToSyncText: t('You are now ready to use %(serviceName)s')
+  }
+};
 
   /*eslint-enable camelcase*/
 
-  const View = FormView.extend({
-    template: Template,
-    className: 'ready',
+const View = FormView.extend({
+  template: Template,
+  className: 'ready',
 
-    events: _.extend({}, FormView.prototype.events, {
-      'click .btn-continue': FormView.preventDefaultThen('continue'),
-      'click .btn-create-recovery-key': FormView.preventDefaultThen('createRecoveryKey'),
-      'click .btn-goto-account': FormView.preventDefaultThen('gotoSettings')
-    }),
+  events: _.extend({}, FormView.prototype.events, {
+    'click .btn-continue': FormView.preventDefaultThen('continue'),
+    'click .btn-create-recovery-key': FormView.preventDefaultThen('createRecoveryKey'),
+    'click .btn-goto-account': FormView.preventDefaultThen('gotoSettings')
+  }),
 
-    initialize (options = {}) {
-      this._templateInfo = TEMPLATE_INFO[this.keyOfVerificationReason(options.type)];
-      this.type = options.type;
-    },
+  initialize (options = {}) {
+    this._templateInfo = TEMPLATE_INFO[this.keyOfVerificationReason(options.type)];
+    this.type = options.type;
+  },
 
-    setInitialContext (context) {
-      context.set({
-        emailVerified: this.getSearchParam('secondary_email_verified') || this.getSearchParam('primary_email_verified'),
-        escapedEmailReadyText: this._getEscapedEmailReadyText(),
-        escapedHeaderTitle: this._getEscapedHeaderTitle(),
-        escapedReadyToSyncText: this._getEscapedReadyToSyncText(),
-        headerId: this._getHeaderId(),
-        isPasswordReset: this.isPasswordReset(),
-        isSync: this.relier.isSync(),
-        secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null,
-        showContinueButton: !! this.model.get('continueBrokerMethod'),
-      });
-    },
+  setInitialContext (context) {
+    context.set({
+      emailVerified: this.getSearchParam('secondary_email_verified') || this.getSearchParam('primary_email_verified'),
+      escapedEmailReadyText: this._getEscapedEmailReadyText(),
+      escapedHeaderTitle: this._getEscapedHeaderTitle(),
+      escapedReadyToSyncText: this._getEscapedReadyToSyncText(),
+      headerId: this._getHeaderId(),
+      isPasswordReset: this.isPasswordReset(),
+      isSync: this.relier.isSync(),
+      secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null,
+      showContinueButton: !! this.model.get('continueBrokerMethod'),
+    });
+  },
 
-    continue () {
+  continue () {
+    return Promise.resolve().then(() => {
       const { account, continueBrokerMethod } = this.model.toJSON();
       if (continueBrokerMethod && account) {
-        this.invokeBrokerMethod(continueBrokerMethod, account);
+        return this.invokeBrokerMethod(continueBrokerMethod, account);
       }
-    },
+    }).catch(err => this.displayError(err));
+  },
 
-    createRecoveryKey() {
-      this.navigate('settings/account_recovery/confirm_password');
-    },
+  createRecoveryKey() {
+    this.navigate('settings/account_recovery/confirm_password');
+  },
 
-    gotoSettings() {
-      this.navigate('settings');
-    },
+  gotoSettings() {
+    this.navigate('settings');
+  },
 
-    isPasswordReset() {
-      // Only show account recovery options if in experiment
-      if (this.getRecoveryKeyExperimentGroup() === 'treatment') {
-        return this.type === 'reset_password';
-      }
+  isPasswordReset() {
+    // Only show account recovery options if in experiment
+    if (this.getRecoveryKeyExperimentGroup() === 'treatment') {
+      return this.type === 'reset_password';
+    }
 
-      return false;
-    },
+    return false;
+  },
 
-    _getHeaderId () {
-      return this._templateInfo.headerId;
-    },
+  _getHeaderId () {
+    return this._templateInfo.headerId;
+  },
 
-    /**
+  /**
      * Get the HTML escaped header title
      *
      * @returns {String}
      */
-    _getEscapedHeaderTitle () {
-      const title = this._templateInfo.headerTitle;
-      // translateInTemplate HTML escapes
-      return this.translateInTemplate(title);
-    },
+  _getEscapedHeaderTitle () {
+    const title = this._templateInfo.headerTitle;
+    // translateInTemplate HTML escapes
+    return this.translateInTemplate(title);
+  },
 
-    /**
+  /**
      * Get the HTML escaped "Ready to Sync" text
      *
      * @returns {String}
      */
-    _getEscapedReadyToSyncText () {
-      const readyToSyncText = this._templateInfo.readyToSyncText;
-      // translateInTemplate HTML escapes
-      return this.translateInTemplate(readyToSyncText);
-    },
+  _getEscapedReadyToSyncText () {
+    const readyToSyncText = this._templateInfo.readyToSyncText;
+    // translateInTemplate HTML escapes
+    return this.translateInTemplate(readyToSyncText);
+  },
 
-    /**
+  /**
      * Get the HTML escaped "Email Ready" text.
      *
      * @returns {String}
      */
-    _getEscapedEmailReadyText () {
-      const emailReadyText = this._templateInfo.emailReadyText;
-      // translateInTemplate HTML escapes
-      return this.translateInTemplate(emailReadyText);
-    }
-  });
-
-  Cocktail.mixin(
-    View,
-    ExperimentMixin,
-    FlowEventsMixin,
-    MarketingMixin({ marketingId: Constants.MARKETING_ID_SPRING_2015 }),
-    PulseGraphicMixin,
-    RecoverykeyExperiment,
-    ServiceMixin,
-    VerificationReasonMixin
-  );
-
-  module.exports = View;
+  _getEscapedEmailReadyText () {
+    const emailReadyText = this._templateInfo.emailReadyText;
+    // translateInTemplate HTML escapes
+    return this.translateInTemplate(emailReadyText);
+  }
 });
+
+Cocktail.mixin(
+  View,
+  ExperimentMixin,
+  FlowEventsMixin,
+  MarketingMixin({ marketingId: Constants.MARKETING_ID_SPRING_2015 }),
+  PulseGraphicMixin,
+  RecoverykeyExperiment,
+  ServiceMixin,
+  VerificationReasonMixin
+);
+
+module.exports = View;
