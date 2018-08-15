@@ -22,9 +22,14 @@ const View = BaseView.extend({
   viewName: 'settings.account-recovery',
 
   events: {
+    'click .account-recovery-support-link': '_clickedSupportLink',
     'click .confirm-password': '_confirmPassword',
     'click .confirm-revoke': '_confirmRevoke',
     'click .refresh-status': 'refresh'
+  },
+
+  _clickedSupportLink() {
+    this.logFlowEvent('clicked-support-link', this.viewName);
   },
 
   _confirmPassword() {
@@ -72,6 +77,7 @@ const View = BaseView.extend({
 
   refresh: showProgressIndicator(function () {
     this.setLastCheckedTime();
+    this.logFlowEvent('refresh', this.viewName);
     return this.render();
   }, CODE_REFRESH_SELECTOR, CODE_REFRESH_DELAY_MS)
 });

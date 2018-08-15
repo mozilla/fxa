@@ -118,7 +118,7 @@ define(function (require, exports, module) {
       const showAccountRecoveryInfo = !! this._accountRecoveryVerficationInfo;
 
       if (showAccountRecoveryInfo) {
-        // Don't show the sync warning if the user is reseting password with
+        // Don't show the sync warning if the user is resetting password with
         // account recovery
         showSyncWarning = false;
       }
@@ -193,7 +193,12 @@ define(function (require, exports, module) {
             'afterCompleteResetPassword', updatedAccount);
         })
         .then(() => {
-          this.navigate('reset_password_verified');
+          const accountRecoveryVerificationInfo = this._accountRecoveryVerficationInfo;
+          if (! accountRecoveryVerificationInfo) {
+            this.navigate('reset_password_verified');
+          } else {
+            this.navigate('reset_password_with_recovery_key_verified');
+          }
         })
         .catch((err) => {
           if (AuthErrors.is(err, 'INVALID_TOKEN')) {

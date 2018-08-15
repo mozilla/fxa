@@ -6,6 +6,7 @@ import _ from 'underscore';
 import AuthErrors from '../../../lib/auth-errors';
 import Cocktail from 'cocktail';
 import FormView from '../../form';
+import FlowEventsMixin from '../../mixins/flow-events-mixin';
 import PasswordMixin from '../../mixins/password-mixin';
 import ModalSettingsPanelMixin from '../../mixins/modal-settings-panel-mixin';
 import Template from 'templates/settings/account_recovery/confirm_password.mustache';
@@ -22,6 +23,7 @@ const View = FormView.extend({
   }),
 
   _cancelPasswordConfirm() {
+    this.logFlowEvent('cancel', this.viewName);
     this.navigate('settings/account_recovery', {
       hasRecoveryKey: false
     });
@@ -40,12 +42,14 @@ const View = FormView.extend({
     const password = this.getElementValue('#password');
     return account.createRecoveryBundle(password)
       .then((result) => {
+        this.logFlowEvent('success', this.viewName);
         this.model.set('recoveryKey', result.recoveryKey);
         this.showRecoveryKeyView = true;
         this.navigate('settings/account_recovery/recovery_key', result);
       })
       .catch((err) => {
         if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
+          this.logFlowEvent('invalidPassword', this.viewName);
           return this.showValidationError(this.$(PASSWORD_SELECTOR), err);
         }
         throw err;
@@ -55,6 +59,7 @@ const View = FormView.extend({
 
 Cocktail.mixin(
   View,
+  FlowEventsMixin,
   ModalSettingsPanelMixin,
   PasswordMixin
 );

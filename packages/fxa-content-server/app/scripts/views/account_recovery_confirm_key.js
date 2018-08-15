@@ -6,6 +6,7 @@ import _ from 'underscore';
 import AuthErrors from '../lib/auth-errors';
 import Cocktail from 'cocktail';
 import FormView from './form';
+import FlowEventsMixin from './mixins/flow-events-mixin';
 import PasswordResetMixin from './mixins/password-reset-mixin';
 import ResendMixin from './mixins/resend-mixin';
 import Template from 'templates/account_recovery_confirm_key.mustache';
@@ -17,12 +18,14 @@ const RECOVERY_KEY_SELECTOR = '.recovery-key';
 const View = FormView.extend({
   className: 'recovery-key-confirm',
   template: Template,
+  viewName: 'account-recovery-confirm-key',
 
   events: _.extend({}, FormView.prototype.events, {
     'click .lost-recovery-key': FormView.preventDefaultThen('_lostRecoveryKey')
   }),
 
   _lostRecoveryKey() {
+    this.logFlowEvent('lost-recovery-key', this.viewName);
     this.navigate('/complete_reset_password', {
       lostRecoveryKey: true
     });
@@ -69,6 +72,7 @@ const View = FormView.extend({
       .then((accountResetToken) => {
         return account.getRecoveryBundle(uid, recoveryKey)
           .then((data) => {
+            this.logFlowEvent('success', this.viewName);
             this.navigate('/account_recovery_reset_password', {
               accountResetToken,
               email,
@@ -86,6 +90,7 @@ const View = FormView.extend({
         }
 
         if (AuthErrors.is(err, 'INVALID_RECOVERY_KEY')){
+          this.logFlowEvent('invalidRecoveryKey', this.viewName);
           return this.showValidationError(this.$(RECOVERY_KEY_SELECTOR), err);
         }
 
@@ -101,6 +106,7 @@ const View = FormView.extend({
 
 Cocktail.mixin(
   View,
+  FlowEventsMixin,
   PasswordResetMixin,
   ResendMixin
 );

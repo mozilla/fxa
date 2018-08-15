@@ -27,6 +27,7 @@ describe('views/settings/account_recovery/confirm_password', () => {
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
     sinon.spy(view, 'remove');
+    sinon.spy(view, 'logFlowEvent');
 
     return view.render()
       .then(() => $('#container').html(view.$el));
@@ -82,6 +83,8 @@ describe('views/settings/account_recovery/confirm_password', () => {
         assert.equal(account.createRecoveryBundle.callCount, 1, 'called create recovery bundle');
         assert.equal(view.navigate.args[0][0], 'settings/account_recovery/recovery_key', 'navigated to account recovery');
         assert.equal(view.navigate.args[0][1].recoveryKey, '123123', 'passes correct args');
+        assert.equal(view.logFlowEvent.args[0][0], 'success', 'passes correct args');
+        assert.equal(view.logFlowEvent.args[0][1], 'settings.account-recovery.confirm-password', 'passes correct args');
       });
     });
 
@@ -113,6 +116,8 @@ describe('views/settings/account_recovery/confirm_password', () => {
       assert.equal(account.createRecoveryBundle.callCount, 0, 'did not create recovery key');
       assert.equal(view.navigate.args[0][0], 'settings/account_recovery', 'navigated to account recovery');
       assert.equal(view.navigate.args[0][1].hasRecoveryKey, false, 'passes correct args');
+      assert.equal(view.logFlowEvent.args[0][0], 'cancel', 'passes correct args');
+      assert.equal(view.logFlowEvent.args[0][1], 'settings.account-recovery.confirm-password', 'passes correct args');
     });
   });
 });

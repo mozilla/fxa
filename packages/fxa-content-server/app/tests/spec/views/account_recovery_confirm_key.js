@@ -39,6 +39,7 @@ describe('views/account_recovery_confirm_key', () => {
     });
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
+    sinon.spy(view, 'logFlowEvent');
 
     return view.render()
       .then(() => $('#container').html(view.$el));
@@ -100,6 +101,11 @@ describe('views/account_recovery_confirm_key', () => {
       assert.equal(args[1].kB, keys.kB, 'kB set');
       assert.equal(args[1].recoveryKeyId, recoveryKeyId, 'recoveryKeyId set');
     });
+
+    it('should log flowEvents', () => {
+      assert.equal(view.logFlowEvent.args[0][0], 'success', 'passes correct args');
+      assert.equal(view.logFlowEvent.args[0][1], 'account-recovery-confirm-key', 'passes correct args');
+    });
   });
 
   describe('should set token expired and re-render', () => {
@@ -140,6 +146,8 @@ describe('views/account_recovery_confirm_key', () => {
 
     it('displays tooltip error', () => {
       assert.equal(view.showValidationError.callCount, 1, 'showValidationError called correctly');
+      assert.equal(view.logFlowEvent.args[0][0], 'invalidRecoveryKey', 'passes correct args');
+      assert.equal(view.logFlowEvent.args[0][1], 'account-recovery-confirm-key', 'passes correct args');
     });
   });
 

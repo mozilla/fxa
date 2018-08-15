@@ -26,6 +26,7 @@ describe('views/settings/account_recovery/confirm_revoke', () => {
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
     sinon.spy(view, 'remove');
+    sinon.spy(view, 'logFlowEvent');
 
     return view.render()
       .then(() => $('#container').html(view.$el));
@@ -75,6 +76,8 @@ describe('views/settings/account_recovery/confirm_revoke', () => {
         assert.equal(account.deleteRecoveryKey.callCount, 1, 'called delete key');
         assert.equal(view.navigate.args[0][0], 'settings/account_recovery', 'navigated to account recovery');
         assert.equal(view.navigate.args[0][1].hasRecoveryKey, false, 'passes correct args');
+        assert.equal(view.logFlowEvent.args[0][0], 'success', 'passes correct args');
+        assert.equal(view.logFlowEvent.args[0][1], 'settings.account-recovery.confirm-revoke', 'passes correct args');
       });
     });
   });

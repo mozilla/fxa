@@ -26,6 +26,7 @@ describe('views/settings/account_recovery/account_recovery', () => {
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
     sinon.spy(view, 'remove');
+    sinon.spy(view, 'logFlowEvent');
 
     return view.render()
       .then(() => $('#container').html(view.$el));
@@ -92,6 +93,12 @@ describe('views/settings/account_recovery/account_recovery', () => {
         assert.lengthOf(view.$('.account-recovery-support-link'), 1);
         assert.equal(view.$('.account-recovery-support-link').attr('href'), 'https://support.mozilla.org/kb/' +
           'reset-your-firefox-account-password-recovery-keys');
+      });
+
+      it('should log flowEvent when link clicked', () => {
+        view.$('.account-recovery-support-link').click();
+        assert.equal(view.logFlowEvent.args[0][0], 'clicked-support-link', 'passes correct args');
+        assert.equal(view.logFlowEvent.args[0][1], 'settings.account-recovery', 'passes correct args');
       });
     });
 

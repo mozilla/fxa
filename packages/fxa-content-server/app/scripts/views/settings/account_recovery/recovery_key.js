@@ -49,6 +49,7 @@ const View = BaseView.extend({
     $(template).appendTo('#account-recovery-key');
     this.window.document.getElementById('recovery-key-download-link').click();
     this.$('#recovery-key-download-link').remove();
+    this.logFlowEvent('download-key', this.viewName);
   },
 
   _printKey() {
@@ -61,6 +62,7 @@ const View = BaseView.extend({
     printWindow.focus();
     printWindow.print();
     printWindow.close();
+    this.logFlowEvent('print-key', this.viewName);
   },
 
   _done() {

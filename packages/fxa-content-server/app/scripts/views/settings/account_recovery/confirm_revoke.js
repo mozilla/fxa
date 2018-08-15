@@ -4,6 +4,7 @@
 
 import _ from 'underscore';
 import Cocktail from 'cocktail';
+import FlowEventsMixin from '../../mixins/flow-events-mixin';
 import FormView from '../../form';
 import PasswordMixin from '../../mixins/password-mixin';
 import ModalSettingsPanelMixin from '../../mixins/modal-settings-panel-mixin';
@@ -32,6 +33,7 @@ const View = FormView.extend({
     const account = this.getSignedInAccount();
     return account.deleteRecoveryKey()
       .then(() => {
+        this.logFlowEvent('success', this.viewName);
         this.navigate('settings/account_recovery', {
           hasRecoveryKey: false
         });
@@ -41,6 +43,7 @@ const View = FormView.extend({
 
 Cocktail.mixin(
   View,
+  FlowEventsMixin,
   ModalSettingsPanelMixin,
   PasswordMixin
 );

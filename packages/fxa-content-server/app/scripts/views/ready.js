@@ -39,6 +39,11 @@ const TEMPLATE_INFO = {
     headerTitle: t('Your password has been reset'),
     readyToSyncText: t('Complete set-up by entering the new password on your other Firefox devices.')
   },
+  PASSWORD_RESET_WITH_RECOVERY_KEY: {
+    headerId: 'fxa-reset-password-complete-header',
+    headerTitle: t('Your password has been reset'),
+    readyToSyncText: t('Complete set-up by entering the new password on your other Firefox devices.')
+  },
   PRIMARY_EMAIL_VERIFIED: {
     emailReadyText: t('You are now ready to make changes to your Firefox Account.'),
     headerId: 'fxa-sign-up-complete-header',
@@ -62,8 +67,7 @@ const TEMPLATE_INFO = {
   }
 };
 
-  /*eslint-enable camelcase*/
-
+/*eslint-enable camelcase*/
 const View = FormView.extend({
   template: Template,
   className: 'ready',
@@ -111,12 +115,7 @@ const View = FormView.extend({
   },
 
   isPasswordReset() {
-    // Only show account recovery options if in experiment
-    if (this.getRecoveryKeyExperimentGroup() === 'treatment') {
-      return this.type === 'reset_password';
-    }
-
-    return false;
+    return this.type === 'reset_password_with_recovery_key';
   },
 
   _getHeaderId () {

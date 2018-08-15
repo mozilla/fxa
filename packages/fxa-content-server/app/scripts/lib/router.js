@@ -104,6 +104,7 @@ const Router = Backbone.Router.extend({
     'reset_password(/)': createViewHandler(ResetPasswordView),
     'reset_password_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.PASSWORD_RESET }),
     'reset_password_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.PASSWORD_RESET }),
+    'reset_password_with_recovery_key_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.PASSWORD_RESET_WITH_RECOVERY_KEY }),
     'secondary_email_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.SECONDARY_EMAIL_VERIFIED }),
     'settings(/)': createViewHandler(SettingsView),
     'settings/account_recovery(/)': createChildViewHandler(AccountRecoveryView, SettingsView),
