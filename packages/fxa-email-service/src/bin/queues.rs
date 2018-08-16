@@ -12,6 +12,8 @@ extern crate futures;
 extern crate fxa_email_service;
 #[macro_use]
 extern crate lazy_static;
+#[macro_use]
+extern crate sentry;
 #[macro_use(
     slog_b,
     slog_error,
@@ -27,6 +29,7 @@ extern crate slog_scope;
 extern crate tokio;
 
 use futures::future::{self, Future, Loop};
+use sentry::integrations::panic::register_panic_handler;
 
 use fxa_email_service::{
     app_errors::AppError,
@@ -57,6 +60,17 @@ lazy_static! {
 type LoopResult = Box<Future<Item = Loop<usize, usize>, Error = AppError>>;
 
 fn main() {
+    if let Some(ref sentry) = SETTINGS.sentry {
+        sentry::init((
+            sentry.dsn.0.clone(),
+            sentry::ClientOptions {
+                release: sentry_crate_release!(),
+                ..Default::default()
+            },
+        ));
+        register_panic_handler();
+    }
+
     let logger = MozlogLogger::new(&SETTINGS).expect("MozlogLogger::init error");
     let _guard = slog_scope::set_global_logger(logger.0);
     let process_queues: &Fn(usize) -> LoopResult = &|previous_count: usize| {

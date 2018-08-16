@@ -217,6 +217,32 @@ fn invalid_sendgrid_api_key() {
 }
 
 #[test]
+fn sentry_dsn() {
+    assert!(validate::sentry_dsn(
+        "https://lakjhsdf.akdjfasdfa.kajhsdf@kajshfkagshdfa/12341234"
+    ));
+}
+
+#[test]
+fn invalid_sentry_dsn() {
+    assert!(!validate::sentry_dsn(
+        "lakjhsdf.akdjfasdfa.kajhsdf@kajshfkagshdfa/12341234"
+    ));
+    assert!(!validate::sentry_dsn(
+        " https://lakjhsdf.akdjfasdfa.kajhsdf@kajshfkagshdfa/12341234"
+    ));
+    assert!(!validate::sentry_dsn(
+        "https://lakjhsdf.akdjfasdfa.kajhsdf@kajshfkagshdfa/12341234 "
+    ));
+    assert!(!validate::sentry_dsn(
+        "https://lakjhsdf.akdjfasdfa.kajhsdfkajshfkagshdfa/12341234"
+    ));
+    assert!(!validate::sentry_dsn(
+        "https://lakjhsdf.akdjfasdfa.kajhsdfkajshfkagshdfa/12341asdfa234"
+    ));
+}
+
+#[test]
 fn sqs_url() {
     assert!(validate::sqs_url(
         "https://sqs.us-east-1.amazonaws.com/123456789012/MyQueue"

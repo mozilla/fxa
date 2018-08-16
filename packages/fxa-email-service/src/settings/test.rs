@@ -76,6 +76,7 @@ fn env_vars_take_precedence() {
         "FXA_EMAIL_SENDER_ADDRESS",
         "FXA_EMAIL_SENDER_NAME",
         "FXA_EMAIL_SENDGRID_KEY",
+        "FXA_EMAIL_SENTRY_DSN",
         "FXA_EMAIL_SMTP_HOST",
         "FXA_EMAIL_SMTP_PORT",
         "FXA_EMAIL_SMTP_USER",
@@ -147,6 +148,15 @@ fn env_vars_take_precedence() {
             let sendgrid_api_key = String::from(
                 "000000000000000000000000000000000000000000000000000000000000000000000",
             );
+            let sentry = if let Some(ref sentry) = settings.sentry {
+                Sentry {
+                    dsn: SentryDsn(format!("{}1", sentry.dsn.0)),
+                }
+            } else {
+                Sentry {
+                    dsn: SentryDsn("https://l.ljahsdlfa@lajhsdfad/19823".to_string()),
+                }
+            };
             let smtp_host = format!("{}2", &settings.smtp.host);
             let smtp_port = settings.smtp.port + 3;
             let smtp_credentials = if let Some(ref credentials) = settings.smtp.credentials {
@@ -216,6 +226,7 @@ fn env_vars_take_precedence() {
             env::set_var("FXA_EMAIL_SENDER_ADDRESS", &sender_address);
             env::set_var("FXA_EMAIL_SENDER_NAME", &sender_name);
             env::set_var("FXA_EMAIL_SENDGRID_KEY", &sendgrid_api_key);
+            env::set_var("FXA_EMAIL_SENTRY_DSN", &sentry.dsn.0);
             env::set_var("FXA_EMAIL_SMTP_HOST", &smtp_host);
             env::set_var("FXA_EMAIL_SMTP_PORT", &smtp_port.to_string());
             env::set_var("FXA_EMAIL_SMTP_CREDENTIALS_USER", &smtp_credentials.user);
@@ -252,6 +263,12 @@ fn env_vars_take_precedence() {
                         assert_eq!(env_sendgrid.key, SendgridApiKey(sendgrid_api_key));
                     } else {
                         assert!(false, "settings.sendgrid was not set");
+                    }
+
+                    if let Some(env_sentry) = env_settings.sentry {
+                        assert_eq!(env_sentry.dsn, SentryDsn(sentry.dsn.0));
+                    } else {
+                        assert!(false, "settings.sentry was not set");
                     }
 
                     if let Some(env_keys) = env_settings.aws.keys {

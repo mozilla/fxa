@@ -39,6 +39,7 @@ rusoto_mock = { git = "https://github.com/brizental/rusoto", branch="request-bod
 rusoto_ses = { git = "https://github.com/brizental/rusoto", branch="request-body-params" }
 rusoto_sqs = { git = "https://github.com/brizental/rusoto", branch="request-body-params" }
 sendgrid = ">=0.7.1"
+sentry = ">=0.7.0"
 serde = ">=1.0"
 serde_derive = ">=1.0"
 serde_json = ">=1.0"

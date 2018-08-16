@@ -8,6 +8,7 @@ use std::{io, ops::Deref};
 
 use failure::{err_msg, Error};
 use rocket::{Request, State};
+use sentry::integrations::failure::capture_fail;
 use serde_json::{self, Map, Value as JsonValue};
 use slog::{self, Discard, Drain, Record, Serializer, Value, KV};
 use slog_async;
@@ -149,6 +150,7 @@ impl MozlogLogger {
 
     /// Log an application error.
     pub fn with_app_error(logger: &MozlogLogger, error: &AppError) -> Result<MozlogLogger, Error> {
+        capture_fail(error);
         Ok(MozlogLogger(
             logger.new(slog_o!(AppErrorFields::from_app_error(error))),
         ))

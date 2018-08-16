@@ -36,6 +36,8 @@ lazy_static! {
     static ref SENDER_NAME_FORMAT: Regex =
         Regex::new(r"^[A-Za-z0-9-]+(?: [A-Za-z0-9-]+)*$").unwrap();
     static ref SENDGRID_API_KEY_FORMAT: Regex = Regex::new("^[A-Za-z0-9._-]+$").unwrap();
+    static ref SENTRY_DSN_FORMAT: Regex =
+        Regex::new(r"^https?://[A-Za-z0-9+/:=\.]+@[A-Za-z0-9+/:=\.]+/[0-9]+$").unwrap();
     static ref SQS_URL_FORMAT: Regex =
         Regex::new(r"^https://sqs\.[a-z0-9-]+\.amazonaws\.com/[0-9]+/[A-Za-z0-9-]+$").unwrap();
 }
@@ -98,6 +100,11 @@ pub fn sender_name(value: &str) -> bool {
 /// Validate a Sendgrid API key.
 pub fn sendgrid_api_key(value: &str) -> bool {
     SENDGRID_API_KEY_FORMAT.is_match(value)
+}
+
+/// Validate a Sentry DSN.
+pub fn sentry_dsn(value: &str) -> bool {
+    SENTRY_DSN_FORMAT.is_match(value)
 }
 
 /// Validate an AWS SQS URL.

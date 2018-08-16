@@ -25,6 +25,10 @@ extern crate rocket;
     slog_record_static
 )]
 extern crate slog;
+#[macro_use]
+extern crate sentry;
+
+use sentry::integrations::panic::register_panic_handler;
 
 use fxa_email_service::{
     app_errors, auth_db::DbClient, bounces::Bounces, healthcheck, logging::MozlogLogger,
@@ -38,6 +42,17 @@ fn main() {
     let logger = MozlogLogger::new(&settings).expect("MozlogLogger::init error");
     let message_data = MessageData::new(&settings);
     let providers = Providers::new(&settings);
+
+    if let Some(ref sentry) = settings.sentry {
+        sentry::init((
+            sentry.dsn.0.clone(),
+            sentry::ClientOptions {
+                release: sentry_crate_release!(),
+                ..Default::default()
+            },
+        ));
+        register_panic_handler();
+    }
 
     let config = settings
         .build_rocket_config()

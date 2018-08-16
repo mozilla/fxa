@@ -77,6 +77,8 @@ deserialize_and_validate! {
     (SenderName, sender_name, "sender name"),
     /// Sendgrid API key type.
     (SendgridApiKey, sendgrid_api_key, "Sendgrid API key"),
+    /// Sentry DSN type.
+    (SentryDsn, sentry_dsn, "sentry dsn"),
     /// AWS SQS queue URL type.
     (SqsUrl, sqs_url, "SQS queue URL")
 }
@@ -203,6 +205,13 @@ pub struct Sendgrid {
     /// This is sensitive data
     /// and will not be logged.
     pub key: SendgridApiKey,
+}
+
+/// Settings for Sentry.
+#[derive(Debug, Default, Deserialize, Serialize)]
+pub struct Sentry {
+    /// The Sentry Data Source Name
+    pub dsn: SentryDsn,
 }
 
 /// Settings for SMTP custom provider.
@@ -335,6 +344,10 @@ pub struct Settings {
     /// Settings for Sendgrid.
     #[serde(serialize_with = "serialize::hidden_or_not_set")]
     pub sendgrid: Option<Sendgrid>,
+
+    /// Settings for Sentry.
+    #[serde(serialize_with = "serialize::hidden_or_not_set")]
+    pub sentry: Option<Sentry>,
 
     /// Settings for SMTP custom provider.
     pub smtp: Smtp,

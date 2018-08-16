@@ -58,6 +58,7 @@ extern crate rusoto_credential;
 extern crate rusoto_ses;
 extern crate rusoto_sqs;
 extern crate sendgrid;
+extern crate sentry;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
