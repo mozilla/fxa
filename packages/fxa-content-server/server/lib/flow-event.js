@@ -60,6 +60,7 @@ const PERFORMANCE_TIMINGS = [
   {
     event: 'network',
     timings: [
+      { from: 'redirectStart', until: 'redirectEnd' },
       { from: 'domainLookupStart', until: 'domainLookupEnd' },
       { from: 'connectStart', until: 'connectEnd' },
       { from: 'responseStart', until: 'responseEnd' }
@@ -75,33 +76,6 @@ const PERFORMANCE_TIMINGS = [
     event: 'client',
     timings: [
       { from: 'domLoading', until: 'domComplete' }
-    ]
-  },
-  // These timings were identified as strongly correlating with user behaviour,
-  // specifically whether the user completes the flow. We're not entirely sure
-  // what that means yet, so they're retained for further analysis.
-  {
-    event: 'connectStart',
-    timings: [
-      { from: 'navigationStart', until: 'connectStart' }
-    ]
-  },
-  {
-    event: 'domainLookupEnd',
-    timings: [
-      { from: 'navigationStart', until: 'domainLookupEnd' }
-    ]
-  },
-  {
-    event: 'redirectEnd',
-    timings: [
-      { from: 'navigationStart', until: 'redirectEnd' }
-    ]
-  },
-  {
-    event: 'requestStart',
-    timings: [
-      { from: 'navigationStart', until: 'requestStart' }
     ]
   }
 ];
