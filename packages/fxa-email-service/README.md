@@ -3,7 +3,6 @@
 [![Build status](https://img.shields.io/travis/mozilla/fxa-email-service.svg?style=flat-square)](https://travis-ci.org/mozilla/fxa-email-service)
 [![CircleCI](https://circleci.com/gh/mozilla/fxa-email-service/tree/master.svg?style=svg)](https://circleci.com/gh/mozilla/fxa-email-service/tree/master)
 [![License](https://img.shields.io/github/license/mozilla/fxa-email-service.svg?style=flat-square)](https://opensource.org/licenses/MPL-2.0)
-![Under construction](https://camo.githubusercontent.com/45d551b3b690a49aa6d855f9fe28fd47a5effc82/68747470733a2f2f63646e2e74686561746c616e7469632e636f6d2f6173736574732f6d656469612f696d672f706f7374732f323031352f31302f6d616d61676e6f6c69615f6163726573756e646572636f6e737472756374696f6e2f6132613838353234352e676966)
 
 * [What's this?](#whats-this)
 * [Moving to a new service seems risky. How will that work?](#moving-to-a-new-service-seems-risky-how-will-that-work)
