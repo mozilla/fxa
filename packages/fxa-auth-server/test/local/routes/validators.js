@@ -16,11 +16,13 @@ describe('lib/routes/validators:', () => {
     assert.strictEqual(validators.isValidEmailAddress('.+#$!%&|*/+-=?^_{}~`@example.com'), true)
     assert.strictEqual(validators.isValidEmailAddress('Δ٢@example.com'), true)
     assert.strictEqual(validators.isValidEmailAddress('🦀🧙@example.com'), true)
+    assert.strictEqual(validators.isValidEmailAddress(`${new Array(64).fill('a').join('')}@example.com`), true)
     assert.strictEqual(validators.isValidEmailAddress('foo@EXAMPLE.com'), true)
     assert.strictEqual(validators.isValidEmailAddress('foo@42.com'), true)
     assert.strictEqual(validators.isValidEmailAddress('foo@ex-ample.com'), true)
     assert.strictEqual(validators.isValidEmailAddress('foo@Δ٢.com'), true)
     assert.strictEqual(validators.isValidEmailAddress('foo@ex🦀ample.com'), true)
+    assert.strictEqual(validators.isValidEmailAddress(`foo@${new Array(251).fill('a').join('')}.com`), true)
   })
 
   it('isValidEmailAddress returns false for undefined', () => {
@@ -63,6 +65,10 @@ describe('lib/routes/validators:', () => {
     assert.strictEqual(validators.isValidEmailAddress('foo;@example.com'), false)
     assert.strictEqual(validators.isValidEmailAddress('foo:@example.com'), false)
     assert.strictEqual(validators.isValidEmailAddress('foo"@example.com'), false)
+  })
+
+  it('isValidEmailAddress returns false if the user part exceeds 64 characters', () => {
+    assert.strictEqual(validators.isValidEmailAddress(`${new Array(65).fill('a').join('')}@example.com`), false)
   })
 
   it('isValidEmailAddress returns false if the domain part does not have a period', () => {
@@ -113,6 +119,10 @@ describe('lib/routes/validators:', () => {
     assert.strictEqual(validators.isValidEmailAddress('foo@ex:ample.com'), false)
     assert.strictEqual(validators.isValidEmailAddress('foo@ex\'ample.com'), false)
   })
+
+  it('isValidEmailAddress returns false if the domain part exceeds 255 characters', () => {
+     assert.strictEqual(validators.isValidEmailAddress(`foo@${new Array(252).fill('a').join('')}.com`), false)
+   })
 
   describe('validators.redirectTo without base hostname:', () => {
     const v = validators.redirectTo()

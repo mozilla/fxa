@@ -91,9 +91,10 @@ module.exports.isValidEmailAddress = function(value) {
   if (value[value.length - 1] === '.' || value[value.length - 1] === '-') {
     return false
   }
-  // It must contain an '@' somewhere in the middle.
-  var atPos = value.indexOf('@')
-  if (atPos === -1 || atPos === 0 || atPos === value.length) {
+  const atPos = value.indexOf('@')
+  // User part must be between 1 and 64 characters, domain part must be between
+  // 1 and 255 characters
+  if (atPos < 1 || atPos > 64 || atPos === value.length || atPos < value.length - 256) {
     return false
   }
   var username = value.substring(0, atPos)
