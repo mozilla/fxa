@@ -104,7 +104,7 @@ module.exports.isValidEmailAddress = function(value) {
   domain = punycode.toASCII(domain)
   // The username portion must contain only allowed characters.
   for (var i = 0; i < username.length; i++) {
-    if (! username[i].match(/[a-zA-Z0-9.!#$%&'*+-\/=?^_`{|}~]/)) {
+    if (! username[i].match(/[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]/)) {
       return false
     }
   }

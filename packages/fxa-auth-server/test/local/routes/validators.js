@@ -62,6 +62,7 @@ describe('lib/routes/validators:', () => {
   })
 
   it('isValidEmailAddress returns false if the user part contains other disallowed characters', () => {
+    assert.strictEqual(validators.isValidEmailAddress('foo,@example.com'), false)
     assert.strictEqual(validators.isValidEmailAddress('foo;@example.com'), false)
     assert.strictEqual(validators.isValidEmailAddress('foo:@example.com'), false)
     assert.strictEqual(validators.isValidEmailAddress('foo"@example.com'), false)
