@@ -5,21 +5,26 @@
 'use strict'
 
 const crypto = require('crypto')
+const qs = require('qs')
 const Promise = require('bluebird')
 const sqs = require('sqs')
 
-const EVENTS = {
-  BOUNCE: 'bounce',
-  DELIVERED: 'delivered',
-  DROPPED: 'dropped',
-  SPAM: 'spamreport'
-}
+const { AUTH, SQS_SUFFIX, PROVIDER } = process.env
 
-const { AUTH, SQS_SUFFIX } = process.env
-
-if (! AUTH || ! SQS_SUFFIX) {
+if (! AUTH || ! SQS_SUFFIX || ! PROVIDER) {
   throw new Error('Missing config')
 }
+
+const ACCEPTED_PROVIDERS = [
+  'sendgrid',
+  'socketlabs'
+]
+
+if (! ACCEPTED_PROVIDERS.includes(PROVIDER)) { 
+  throw new Error(`Only the following providers are supported: ${ACCEPTED_PROVIDERS.join(', ')}`)
+}
+
+const provider = require(`./${PROVIDER}`)
 
 const AUTH_HASH = createHash(AUTH).split('')
 
@@ -41,30 +46,53 @@ async function main (data) {
     if (data.body) {
       // Requests from the API gateway must be authenticated
       if (! data.queryStringParameters || ! authenticate(data.queryStringParameters.auth)) {
+        const errorResponse = { 
+          error: 'Unauthorized', 
+          errno: 999,
+          code: 401,
+          message: 'Request must provide a valid auth query param.'
+        }
         return {
           statusCode: 401,
-          body: 'Unauthorized',
+          body: JSON.stringify(errorResponse),
           isBase64Encoded: false
         }
       }
 
-      data = JSON.parse(data.body)
+      if (data.headers && data.headers['Content-Type'] === 'application/x-www-form-urlencoded') {
+        data = qs.parse(data.body)
+      } else {
+        data = JSON.parse(data.body)
+      }
     }
 
     if (! Array.isArray(data)) {
       data = [ data ]
     }
+    
+    if (PROVIDER === 'socketlabs' && provider.shouldValidate(data[0])) {
+      return provider.validationResponse()
+    }
 
     let results = await processEvents(data)
+    let response = { 
+      result: `Processed ${results.length} events` 
+    }
     return {
       statusCode: 200,
-      body: `Processed ${results.length} events`,
+      body: JSON.stringify(response),
       isBase64Encoded: false
     }
   } catch(error) {
+    const errorResponse = { 
+      error: 'Internal Server Error', 
+      errno: 999,
+      code: 500,
+      message: error && error.message ? error.message : 'Unspecified error'
+    }
     return {
       statusCode: 500,
-      body: 'Internal Server Error',
+      body: JSON.stringify(errorResponse),
       isBase64Encoded: false
     }
   }
@@ -84,132 +112,10 @@ function createHash (value) {
 
 async function processEvents (events) {
   return Promise.all(
-    events.map(marshallEvent)
+    events.map(provider.marshallEvent)
       .filter(event => !! event)
       .map(sendEvent)
   )
-}
-
-function marshallEvent (event) {
-  if (! event || ! event.timestamp || ! event.sg_message_id || ! event.event) {
-    return
-  }
-
-  const timestamp = mapTimestamp(event.timestamp)
-  const mail = marshallMailObject(event, timestamp)
-
-  switch (event.event) {
-    case EVENTS.BOUNCE:
-    case EVENTS.DROPPED:
-      return { mail, ...marshallBounceEvent(event, timestamp) }
-
-    case EVENTS.DELIVERED:
-      return { mail, ...marshallDeliveryEvent(event, timestamp) }
-
-    case EVENTS.SPAM:
-      return { mail, ...marshallComplaintEvent(event, timestamp) }
-  }
-}
-
-function mapTimestamp (timestamp) {
-  return new Date(timestamp * 1000).toISOString()
-}
-
-function marshallMailObject (event, timestamp) {
-  // Although I haven't seen it documented explicitly, sg_message_id appears to be
-  // the message id that Sendgrid returned from the call to `send`, appended with
-  // some stuff that begins with the string ".filter". This step just ensures we
-  // strip off the extra stuff.
-  //
-  // Example input: 14c5d75ce93.dfd.64b469.filter0001.16648.5515E0B88.0
-  // Example output: 14c5d75ce93.dfd.64b469
-  const messageId = event.sg_message_id.split('.filter')[0]
-
-  return {
-    timestamp,
-    messageId
-  }
-}
-
-function marshallBounceEvent (event, timestamp) {
-  let bounceType, bounceSubType
-
-  if (event.event === EVENTS.DROPPED) {
-    bounceType = 'Permanent'
-    bounceSubType = 'Suppressed'
-  } else {
-    // These status mappings aren't perfect but they're good enough. See
-    // the RFCs and the IANA registry for all the gory detail on statuses:
-    //
-    //   * https://tools.ietf.org/html/rfc5248
-    //   * https://tools.ietf.org/html/rfc3463
-    //   * https://www.iana.org/assignments/smtp-enhanced-status-codes/smtp-enhanced-status-codes.xhtml
-    const statusParts = event.status && event.status.split('.')
-    if (statusParts && statusParts.length === 3) {
-      if (statusParts[0] === '5') {
-        bounceType = 'Permanent'
-      }
-
-      bounceSubType = mapStatusToBounceSubType(statusParts)
-    }
-  }
-
-  return {
-    notificationType: 'Bounce',
-    bounce: {
-      bounceType: bounceType || 'Transient',
-      bounceSubType: bounceSubType || 'General',
-      bouncedRecipients: [
-        { emailAddress: event.email }
-      ],
-      timestamp,
-      feedbackId: event.sg_event_id
-    }
-  }
-}
-
-function mapStatusToBounceSubType (statusParts) {
-  switch (statusParts[1]) {
-    case '1':
-      return 'NoEmail'
-
-    case '2':
-      switch (statusParts[2]) {
-        case '2':
-          return 'MailboxFull'
-
-        case '3':
-          return 'MessageTooLarge'
-      }
-      break
-
-    case '6':
-      return 'ContentRejected'
-  }
-}
-
-function marshallDeliveryEvent (event, timestamp) {
-  return {
-    notificationType: 'Delivery',
-    delivery: {
-      timestamp,
-      recipients: [ event.email ],
-      smtpResponse: event.response
-    }
-  }
-}
-
-function marshallComplaintEvent (event, timestamp) {
-  return {
-    notificationType: 'Complaint',
-    complaint: {
-      complainedRecipients: [
-        { emailAddress: event.email }
-      ],
-      timestamp,
-      feedbackId: event.sg_event_id
-    }
-  }
 }
 
 function sendEvent (event) {
