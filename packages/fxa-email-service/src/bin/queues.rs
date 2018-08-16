@@ -12,8 +12,6 @@ extern crate futures;
 extern crate fxa_email_service;
 #[macro_use]
 extern crate lazy_static;
-
-use futures::future::{self, Future, Loop};
 #[macro_use(
     slog_b,
     slog_error,
@@ -26,6 +24,9 @@ use futures::future::{self, Future, Loop};
 extern crate slog;
 #[macro_use]
 extern crate slog_scope;
+extern crate tokio;
+
+use futures::future::{self, Future, Loop};
 
 use fxa_email_service::{
     app_errors::AppError,
@@ -77,5 +78,7 @@ fn main() {
             });
         Box::new(future)
     };
-    future::loop_fn(0, process_queues).wait().unwrap();
+    let mut rt = tokio::runtime::current_thread::Runtime::new().unwrap();
+    rt.block_on(future::loop_fn(0, process_queues))
+        .expect("tokio error");
 }
