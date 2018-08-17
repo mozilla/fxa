@@ -8,8 +8,124 @@ const assert = require('insist')
 
 const validators = require('../../../lib/routes/validators')
 
-describe('redirectTo() validator', () => {
-  describe('with no base hostname', () => {
+describe('lib/routes/validators:', () => {
+  it('isValidEmailAddress returns true for valid email addresses', () => {
+    assert.strictEqual(validators.isValidEmailAddress('foo@example.com'), true)
+    assert.strictEqual(validators.isValidEmailAddress('FOO@example.com'), true)
+    assert.strictEqual(validators.isValidEmailAddress('42@example.com'), true)
+    assert.strictEqual(validators.isValidEmailAddress('.+#$!%&|*/+-=?^_{}~`@example.com'), true)
+    assert.strictEqual(validators.isValidEmailAddress('Δ٢@example.com'), true)
+    assert.strictEqual(validators.isValidEmailAddress('🦀🧙@example.com'), true)
+    assert.strictEqual(validators.isValidEmailAddress(`${new Array(64).fill('a').join('')}@example.com`), true)
+    assert.strictEqual(validators.isValidEmailAddress('foo@EXAMPLE.com'), true)
+    assert.strictEqual(validators.isValidEmailAddress('foo@42.com'), true)
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex-ample.com'), true)
+    assert.strictEqual(validators.isValidEmailAddress('foo@Δ٢.com'), true)
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex🦀ample.com'), true)
+    assert.strictEqual(validators.isValidEmailAddress(`foo@${new Array(251).fill('a').join('')}.com`), true)
+  })
+
+  it('isValidEmailAddress returns false for undefined', () => {
+    assert.strictEqual(validators.isValidEmailAddress(), false)
+  })
+
+  it('isValidEmailAddress returns false if the string has no @', () => {
+    assert.strictEqual(validators.isValidEmailAddress('fooexample.com'), false)
+  })
+
+  it('isValidEmailAddress returns false if the string begins with @', () => {
+    assert.strictEqual(validators.isValidEmailAddress('@example.com'), false)
+  })
+
+  it('isValidEmailAddress returns false if the string ends with @', () => {
+    assert.strictEqual(validators.isValidEmailAddress('foo@'), false)
+  })
+
+  it('isValidEmailAddress returns false if the string contains multiple @', () => {
+    assert.strictEqual(validators.isValidEmailAddress('foo@foo@example.com'), false)
+  })
+
+  it('isValidEmailAddress returns false if the user part contains whitespace', () => {
+    assert.strictEqual(validators.isValidEmailAddress('foo @example.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo\x160@example.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo\t@example.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo\v@example.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo\r@example.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo\n@example.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo\f@example.com'), false)
+  })
+
+  it('isValidEmailAddress returns false if the user part contains other control characters', () => {
+    assert.strictEqual(validators.isValidEmailAddress('foo\0@example.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo\b@example.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo\x128@example.com'), false)
+  })
+
+  it('isValidEmailAddress returns false if the user part contains other disallowed characters', () => {
+    assert.strictEqual(validators.isValidEmailAddress('foo,@example.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo;@example.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo:@example.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo"@example.com'), false)
+  })
+
+  it('isValidEmailAddress returns false if the user part exceeds 64 characters', () => {
+    assert.strictEqual(validators.isValidEmailAddress(`${new Array(65).fill('a').join('')}@example.com`), false)
+  })
+
+  it('isValidEmailAddress returns false if the domain part does not have a period', () => {
+    assert.strictEqual(validators.isValidEmailAddress('foo@example'), false)
+  })
+
+  it('isValidEmailAddress returns false if the domain part ends with a period', () => {
+    assert.strictEqual(validators.isValidEmailAddress('foo@example.com.'), false)
+  })
+
+  it('isValidEmailAddress returns false if the domain part ends with a hyphen', () => {
+    assert.strictEqual(validators.isValidEmailAddress('foo@example.com-'), false)
+  })
+
+  it('isValidEmailAddress returns false if the domain part follows a period with a hyphen', () => {
+    assert.strictEqual(validators.isValidEmailAddress('foo@example.-com'), false)
+  })
+
+  it('isValidEmailAddress returns false if the domain part follows a hyphen with a period', () => {
+    assert.strictEqual(validators.isValidEmailAddress('foo@example-.com'), false)
+  })
+
+  it('isValidEmailAddress returns false if the domain part contains whitespace', () => {
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex ample.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex\x160ample.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex\tample.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex\vample.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex\rample.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex\nample.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex\fample.com'), false)
+  })
+
+  it('isValidEmailAddress returns false if the domain part contains other control characters', () => {
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex\0ample.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo@e\bxample.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex\x128ample.com'), false)
+  })
+
+  it('isValidEmailAddress returns false if the domain part contains other disallowed characters', () => {
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex+ample.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex_ample.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex#ample.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex$ample.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex!ample.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex~ample.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex,ample.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex;ample.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex:ample.com'), false)
+    assert.strictEqual(validators.isValidEmailAddress('foo@ex\'ample.com'), false)
+  })
+
+  it('isValidEmailAddress returns false if the domain part exceeds 255 characters', () => {
+     assert.strictEqual(validators.isValidEmailAddress(`foo@${new Array(252).fill('a').join('')}.com`), false)
+   })
+
+  describe('validators.redirectTo without base hostname:', () => {
     const v = validators.redirectTo()
 
     it('accepts a well-formed https:// URL', function () {
@@ -43,7 +159,7 @@ describe('redirectTo() validator', () => {
     })
   })
 
-  describe('with a base hostname', () => {
+  describe('validators.redirectTo with a base hostname:', () => {
     const v = validators.redirectTo('mozilla.com')
 
     it('accepts a well-formed https:// URL at the base hostname', function () {

@@ -78,62 +78,37 @@ module.exports.service = isA.string().max(16).regex(/^[a-zA-Z0-9\-]*$/g)
 
 
 // Function to validate an email address.
-// This is a transliteration of the HTML5 email-validation logic
-// inside Firefox.  It splits the username and domain portions,
-// translates tham into IDN punycode syntax, then does some very
-// basic sanity-checking.
+//
+// Uses regexes based on the ones in fxa-email-service, tweaked slightly
+// because Node's support for unicode regexes is hidden behind a harmony
+// flag. As soon as we have default support for unicode regexes, we should
+// be able to just use the regex from there directly (and ditch the punycode
+// transformation).
+//
+// https://github.com/mozilla/fxa-email-service/blob/6fc6c31043598b246102cd1fdd27fc325f4514fb/src/validate/mod.rs#L28-L30
+
+const EMAIL_USER = /^[A-Z0-9.!#$%&'*+\/=?^_`{|}~-]{1,64}$/i
+const EMAIL_DOMAIN = /^[A-Z0-9](?:[A-Z0-9-]{0,253}[A-Z0-9])?(?:\.[A-Z0-9](?:[A-Z0-9-]{0,253}[A-Z0-9])?)+$/i
 
 module.exports.isValidEmailAddress = function(value) {
-  // It cant be empty or end with strange chars.
   if (! value) {
     return false
   }
-  if (value[value.length - 1] === '.' || value[value.length - 1] === '-') {
+
+  const parts = value.split('@')
+  if (parts.length !== 2 || parts[1].length > 255) {
     return false
   }
-  // It must contain an '@' somewhere in the middle.
-  var atPos = value.indexOf('@')
-  if (atPos === -1 || atPos === 0 || atPos === value.length) {
+
+  if (! EMAIL_USER.test(punycode.toASCII(parts[0]))) {
     return false
   }
-  var username = value.substring(0, atPos)
-  var domain = value.substring(atPos + 1)
-  // Unicode is hard, let's work with ascii only.
-  username = punycode.toASCII(username)
-  domain = punycode.toASCII(domain)
-  // The username portion must contain only allowed characters.
-  for (var i = 0; i < username.length; i++) {
-    if (! username[i].match(/[a-zA-Z0-9.!#$%&'*+-\/=?^_`{|}~]/)) {
-      return false
-    }
-  }
-  // The domain portion can't begin with a dot or a dash.
-  if (domain[0] === '.' || domain[0] === '-') {
+
+  if (! EMAIL_DOMAIN.test(punycode.toASCII(parts[1]))) {
     return false
   }
-  var hasDot = false
-  // The domain portion must be a valid punycode domain.
-  for (i = 0; i < domain.length; i++) {
-    if (domain[i] === '.') {
-      hasDot = true
-      // A dot can't follow a dot or a dash.
-      if (domain[i - 1] === '.' || domain[i - 1] === '-') {
-        return false
-      }
-    }
-    else if (domain[i] === '-') {
-      // A dash can't follow a dot.
-      if (domain[i - 1] === '.') {
-        return false
-      }
-    } else if (! domain[i].match(/[a-zA-Z0-9-]/)) {
-      // The domain characters must be alphanumeric.
-      return false
-    }
-  }
-  // Even though the RFC doesn't require it, we need a dot. See:
-  // https://github.com/mozilla/fxa-auth-server/issues/1193
-  return hasDot
+
+  return true
 }
 
 module.exports.redirectTo = function redirectTo(base) {
