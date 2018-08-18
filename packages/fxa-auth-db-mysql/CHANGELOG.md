@@ -1,3 +1,13 @@
+<a name="1.118.1"></a>
+## [1.118.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.118.0...v1.118.1) (2018-08-18)
+
+
+### chore
+
+* **db:** stop calling the upsertAvailableCommands procedure ([06554f5](https://github.com/mozilla/fxa-auth-db-mysql/commit/06554f5))
+
+
+
 <a name="1.118.0"></a>
 # [1.118.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.117.0...v1.118.0) (2018-08-14)
 
