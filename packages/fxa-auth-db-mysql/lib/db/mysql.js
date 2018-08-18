@@ -307,19 +307,22 @@ module.exports = function (log, error) {
     )
   }
 
+  // eslint-disable-next-line no-unused-vars
   const UPSERT_AVAILABLE_COMMAND = 'CALL upsertAvailableCommand_1(?, ?, ?, ?)'
   const PURGE_AVAILABLE_COMMANDS = 'CALL purgeAvailableCommands_1(?, ?)'
 
   function makeStatementsToAddAvailableCommands(uid, deviceId, deviceInfo) {
-    const availableCommands = deviceInfo.availableCommands || {}
-    return Object.keys(availableCommands).reduce((acc, commandName) => {
-      const commandData = availableCommands[commandName]
-      acc.push({
-        sql: UPSERT_AVAILABLE_COMMAND,
-        params: [uid, deviceId, commandName, commandData]
-      })
-      return acc
-    }, [])
+    // HACK: Disabled while we work through issues in prod
+    return []
+    //const availableCommands = deviceInfo.availableCommands || {}
+    //return Object.keys(availableCommands).reduce((acc, commandName) => {
+    //  const commandData = availableCommands[commandName]
+    //  acc.push({
+    //    sql: UPSERT_AVAILABLE_COMMAND,
+    //    params: [uid, deviceId, commandName, commandData]
+    //  })
+    //  return acc
+    //}, [])
   }
 
   const CREATE_DEVICE = 'CALL createDevice_4(?, ?, ?, ?, ?, ?, ?, ?, ?)'

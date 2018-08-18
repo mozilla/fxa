@@ -101,7 +101,8 @@ function makeMockDevice(tokenId) {
     callbackAuthKey: 'bar',
     callbackIsExpired: false,
     availableCommands: {
-      'https://identity.mozilla.com/cmd/display-uri': 'metadata-bundle'
+      // HACK: Disabled while we work through issues in prod
+      //'https://identity.mozilla.com/cmd/display-uri': 'metadata-bundle'
     }
   }
   device.deviceId = newUuid()
@@ -1024,15 +1025,17 @@ module.exports = function (config, DB) {
             return db.device(accountData.uid, deviceInfo.deviceId)
           })
           .then(device => assert.deepEqual(device.availableCommands, {
-            'https://identity.mozilla.com/cmd/display-uri': 'metadata-bundle'
+            // HACK: Disabled while we work through issues in prod
+            //'https://identity.mozilla.com/cmd/display-uri': 'metadata-bundle'
           }))
       })
 
       it('availableCommands are overwritten on update', () => {
         const newDevice = Object.assign({}, deviceInfo, {
           availableCommands: {
-            foo: 'bar',
-            second: 'command'
+            // HACK: Disabled while we work through issues in prod
+            //foo: 'bar',
+            //second: 'command'
           }
         })
         return db.updateDevice(accountData.uid, deviceInfo.deviceId, newDevice)
@@ -1040,15 +1043,17 @@ module.exports = function (config, DB) {
             return db.device(accountData.uid, deviceInfo.deviceId)
           })
           .then(device => assert.deepEqual(device.availableCommands, {
-            foo: 'bar',
-            second: 'command'
+            // HACK: Disabled while we work through issues in prod
+            //foo: 'bar',
+            //second: 'command'
           }))
       })
 
       it('availableCommands can update metadata on an existing command', () => {
         const newDevice = Object.assign({}, deviceInfo, {
           availableCommands: {
-            'https://identity.mozilla.com/cmd/display-uri': 'new-metadata'
+            // HACK: Disabled while we work through issues in prod
+            //'https://identity.mozilla.com/cmd/display-uri': 'new-metadata'
           }
         })
         return db.updateDevice(accountData.uid, deviceInfo.deviceId, newDevice)
@@ -1056,7 +1061,8 @@ module.exports = function (config, DB) {
             return db.device(accountData.uid, deviceInfo.deviceId)
           })
           .then(device => assert.deepEqual(device.availableCommands, {
-            'https://identity.mozilla.com/cmd/display-uri': 'new-metadata'
+            // HACK: Disabled while we work through issues in prod
+            //'https://identity.mozilla.com/cmd/display-uri': 'new-metadata'
           }))
       })
 
@@ -1072,8 +1078,9 @@ module.exports = function (config, DB) {
         const sessionToken2 = makeMockSessionToken(accountData.uid)
         const deviceInfo2 = Object.assign(makeMockDevice(sessionToken2.tokenId), {
           availableCommands: {
-            'https://identity.mozilla.com/cmd/display-uri': 'device-two-metadata',
-            'extra-command': 'extra-data'
+            // HACK: Disabled while we work through issues in prod
+            //'https://identity.mozilla.com/cmd/display-uri': 'device-two-metadata',
+            //'extra-command': 'extra-data'
           }
         })
         const sessionToken3 = makeMockSessionToken(accountData.uid)
@@ -1107,8 +1114,9 @@ module.exports = function (config, DB) {
         const sessionToken2 = makeMockSessionToken(accountData.uid)
         const deviceInfo2 = Object.assign(makeMockDevice(sessionToken2.tokenId), {
           availableCommands: {
-            'https://identity.mozilla.com/cmd/display-uri': 'device-two-metadata',
-            'extra-command': 'extra-data'
+            // HACK: Disabled while we work through issues in prod
+            //'https://identity.mozilla.com/cmd/display-uri': 'device-two-metadata',
+            //'extra-command': 'extra-data'
           }
         })
         const sessionToken3 = makeMockSessionToken(accountData.uid)
