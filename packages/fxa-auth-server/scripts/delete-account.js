@@ -83,7 +83,8 @@ return DB.connect(config[config.db.backend]).then(db => {
           // to action the deletion.
           const mockRequest = {
             app: {
-              clientAddress: '0.0.0.0'
+              clientAddress: '0.0.0.0',
+              devices: db.devices(account.uid)
             },
             emitMetricsEvent: () => { return P.resolve() },
             gatherMetricsContext: () => { return P.resolve({}) },

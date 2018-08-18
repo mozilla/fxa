@@ -504,9 +504,8 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
         log.begin('Account.devices', request)
 
         const sessionToken = request.auth.credentials
-        const uid = sessionToken.uid
 
-        return db.devices(uid)
+        return request.app.devices
           .then(deviceArray => {
             return deviceArray.map(device => {
               return Object.assign({
