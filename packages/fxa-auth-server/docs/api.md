@@ -60,8 +60,8 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [POST /session/verify/recoveryCode (:lock: sessionToken)](#post-sessionverifyrecoverycode)
   * [Recovery key](#recovery-key)
     * [POST /recoveryKey (:lock: sessionToken)](#post-recoverykey)
-    * [GET /recoveryKey/:recoveryKeyId (:lock: accountResetToken)](#get-recoverykey)
-    * [POST /recoveryKey/exists (:lock: sessionToken)](#post-recoverykeyexists)
+    * [GET /recoveryKey/{recoveryKeyId} (:lock: accountResetToken)](#get-recoverykeyrecoverykeyid)
+    * [POST /recoveryKey/exists (:lock::unlock: sessionToken)](#post-recoverykeyexists)
     * [DELETE /recoveryKey (:lock: sessionToken)](#delete-recoverykey)
   * [Session](#session)
     * [POST /session/destroy (:lock: sessionToken)](#post-sessiondestroy)
@@ -2258,6 +2258,12 @@ to reset the account password and `wrapKb`.
   
   <!--end-request-body-post-passwordforgotverify_code-metricsContext-->
 
+* `accountResetWithRecoveryKey`: *boolean, optional*
+
+  <!--begin-request-body-post-passwordforgotverify_code-accountResetWithRecoveryKey-->
+  
+  <!--end-request-body-post-passwordforgotverify_code-accountResetWithRecoveryKey-->
+
 ##### Response body
 
 * `accountResetToken`: *string*
@@ -2382,23 +2388,17 @@ For more details, see the
   <!--end-request-body-post-recoverykey-recoveryData-->
 
 
-#### GET /recoveryKey/:recoveryKeyId
+#### GET /recoveryKey/{recoveryKeyId}
 
 :lock: HAWK-authenticated with account reset token
 <!--begin-route-get-recoverykeyrecoverykeyid-->
 Retrieve the account recovery data associated with the given recovery key.
 <!--end-route-get-recoverykeyrecoverykeyid-->
 
-##### Response body
-
-* `recoveryData`: *string*
-
-  <!--begin-response-body-post-recoverykeyrecoverykeyid-recoverydata-->
-  
-  <!--end-response-body-post-recoverykeyrecoverykeyid-recoverydata-->
 
 #### POST /recoveryKey/exists
-:lock: HAWK-authenticated with session token
+
+:lock::unlock: Optionally HAWK-authenticated with session token
 <!--begin-route-post-recoverykeyexists-->
 This route checks to see if given user has setup an account recovery key.
 When used during the password reset flow, an email can be provided (instead
@@ -2408,25 +2408,29 @@ using an email, the request is rate limited.
 
 ##### Request body
 
-* `email`: *validators.email.required*
+* `email`: *validators.email.optional*
 
   <!--begin-request-body-post-recoverykeyexists-email-->
-
+  
   <!--end-request-body-post-recoverykeyexists-email-->
 
 ##### Response body
 
-* `status`: *boolean, required*
+* `exists`: *boolean, required*
 
-  <!--begin-response-body-post-recoverykeyexists-email-->
+  <!--begin-response-body-post-recoverykeyexists-exists-->
+  
+  <!--end-response-body-post-recoverykeyexists-exists-->
 
-  <!--end-response-body-post-recoverykeyexists-email-->
 
 #### DELETE /recoveryKey
+
+:lock: HAWK-authenticated with session token
 <!--begin-route-delete-recoverykey-->
 This route remove an account's recovery key. When the key is
 removed, it can no longer be used to restore an account's kB.
 <!--end-route-delete-recoverykey-->
+
 
 ### Session
 

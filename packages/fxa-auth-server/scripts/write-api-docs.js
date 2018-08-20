@@ -23,6 +23,7 @@ const render = handlebars.compile(
 // will be propagated to the same place each time the docs are regenerated.
 const DOCS_DATA = /<!--begin-([a-z_]+(?:-[a-z_]+)*)-->((?:.*?\n?.*?)*?)<!--end-([a-z_]+(?:-[a-z_]+)*)-->/gi
 const ACORN_OPTIONS = {
+  ecmaVersion: 10,
   locations: true,
   sourceType: 'script'
 }
@@ -481,7 +482,7 @@ function findRouteMethod (route, filePath) {
 }
 
 function findRouteConfig (route, filePath) {
-  return findProperty(route, 'config', OBJECT_TYPES, filePath)
+  return findProperty(route, 'options', OBJECT_TYPES, filePath)
 }
 
 function findRouteAuthentication (config, filePath) {
