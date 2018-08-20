@@ -251,12 +251,16 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
           }
 
           if (payload.availableCommands) {
-            spurious = spurious && Object.keys(payload.availableCommands).some(key => {
-              return payload.availableCommands[key] !== token.deviceAvailableCommands[key]
-            })
-            spurious = spurious && Object.keys(token.deviceAvailableCommands).some(key => {
-              return payload.availableCommands[key] !== token.deviceAvailableCommands[key]
-            })
+            if (token.deviceAvailableCommands) {
+              spurious = spurious && Object.keys(payload.availableCommands).some(key => {
+                return payload.availableCommands[key] !== token.deviceAvailableCommands[key]
+              })
+              spurious = spurious && Object.keys(token.deviceAvailableCommands).some(key => {
+                return payload.availableCommands[key] !== token.deviceAvailableCommands[key]
+              })
+            } else {
+              spurious = false
+            }
           }
 
           return spurious

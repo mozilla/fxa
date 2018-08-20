@@ -1051,7 +1051,7 @@ describe('/account/sessions', () => {
     {
       id: tokenIds[3], uid: 'blee', createdAt: times[7], lastAccessTime: 1,
       uaBrowser: null, uaBrowserVersion: '50', uaOS: null, uaOSVersion: '10',
-      uaDeviceType: 'tablet', deviceId: 'deviceId', deviceCreatedAt: times[8], deviceAvailableCommands: {},
+      uaDeviceType: 'tablet', deviceId: 'deviceId', deviceCreatedAt: times[8],
       deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
       deviceCallbackIsExpired: false,
       location: null
@@ -1151,7 +1151,7 @@ describe('/account/sessions', () => {
           deviceId: 'deviceId',
           deviceName: '',
           deviceType: 'tablet',
-          deviceAvailableCommands: {},
+          deviceAvailableCommands: null,
           deviceCallbackURL: 'callback',
           deviceCallbackPublicKey: 'publicKey',
           deviceCallbackAuthKey: 'authKey',
