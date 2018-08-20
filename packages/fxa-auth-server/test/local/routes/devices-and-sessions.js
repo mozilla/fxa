@@ -817,24 +817,22 @@ describe('/account/device/destroy', function () {
 
 describe('/account/devices', () => {
   it('should return the devices list (translated)', () => {
-    const mockRequest = mocks.mockRequest({
-      acceptLanguage: 'en;q=0.5, fr;q=0.51',
-      credentials: {
-        uid: crypto.randomBytes(16).toString('hex'),
-        id: crypto.randomBytes(16).toString('hex')
-      },
-      payload: {}
-    })
+    const credentials = {
+      uid: crypto.randomBytes(16).toString('hex'),
+      id: crypto.randomBytes(16).toString('hex')
+    }
     const unnamedDevice = {
       sessionToken: crypto.randomBytes(16).toString('hex'),
       lastAccessTime: EARLIEST_SANE_TIMESTAMP
     }
-    const mockDB = mocks.mockDB({
+    const mockRequest = mocks.mockRequest({
+      acceptLanguage: 'en;q=0.5, fr;q=0.51',
+      credentials,
       devices: [
         {
           name: 'current session',
           type: 'mobile',
-          sessionToken: mockRequest.auth.credentials.id,
+          sessionToken: credentials.id,
           lastAccessTime: Date.now()
         },
         {
@@ -856,8 +854,10 @@ describe('/account/devices', () => {
           }
         },
         unnamedDevice
-      ]
+      ],
+      payload: {}
     })
+    const mockDB = mocks.mockDB()
     const mockDevices = mocks.mockDevices()
     const log = mocks.mockLog()
     const accountRoutes = makeRoutes({
@@ -912,9 +912,7 @@ describe('/account/devices', () => {
 
       assert.equal(log.error.callCount, 0, 'log.error was not called')
 
-      assert.equal(mockDB.devices.callCount, 1, 'db.devices was called once')
-      assert.equal(mockDB.devices.args[0].length, 1, 'db.devices was passed one argument')
-      assert.deepEqual(mockDB.devices.args[0][0], mockRequest.auth.credentials.uid, 'db.devices was passed uid')
+      assert.equal(mockDB.devices.callCount, 0, 'db.devices was not called')
 
       assert.equal(mockDevices.synthesizeName.callCount, 1, 'mockDevices.synthesizeName was called once')
       assert.equal(mockDevices.synthesizeName.args[0].length, 1, 'mockDevices.synthesizeName was passed one argument')
@@ -923,19 +921,17 @@ describe('/account/devices', () => {
   })
 
   it('should return the devices list (not translated)', () => {
+    const credentials = {
+      uid: crypto.randomBytes(16).toString('hex'),
+      id: crypto.randomBytes(16).toString('hex')
+    }
     const request = mocks.mockRequest({
       acceptLanguage: 'en-US,en;q=0.5',
-      credentials: {
-        uid: crypto.randomBytes(16).toString('hex'),
-        id: crypto.randomBytes(16).toString('hex')
-      },
-      payload: {}
-    })
-    const db = mocks.mockDB({
+      credentials,
       devices: [
         {
           name: 'wibble',
-          sessionToken: request.auth.credentials.id,
+          sessionToken: credentials.id,
           lastAccessTime: Date.now(),
           location: {
             city: 'Bournemouth',
@@ -945,8 +941,10 @@ describe('/account/devices', () => {
             countryCode: 'GB'
           }
         }
-      ]
+      ],
+      payload: {}
     })
+    const db = mocks.mockDB()
     const devices = mocks.mockDevices()
     const log = mocks.mockLog()
     const accountRoutes = makeRoutes({ db, devices, log })
