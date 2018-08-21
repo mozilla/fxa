@@ -32,7 +32,7 @@
     "internal-ip": "1.2.0",
     "lodash": "4.16.2",
     "minimist": "1.1.1",
-    "pm2": "2.9.3",
+    "pm2": "3.0.3",
     "replace-in-file": "0.2.1"
   }
 }
