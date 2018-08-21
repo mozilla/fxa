@@ -67,33 +67,37 @@ impl Queue {
             }.into());
         }
 
-        if let Some(ref message) = serde_json::from_str::<JsonValue>(&body)?["Message"].as_str() {
-            serde_json::from_str(message)
-                .map(|notification: SqsNotification| {
-                    info!(
-                        "Successfully parsed SQS message";
-                        "queue" => &self.url.clone(), 
-                        "receipt_handle" => &receipt_handle, 
-                        "notification_type" => &format!("{}", notification.notification_type)
-                    );
-                    Message {
-                        notification: From::from(notification),
-                        id: receipt_handle,
-                    }
-                }).map_err(|error| {
-                    AppErrorKind::SqsMessageParsingError {
-                        message: format!("{:?}", error),
-                        queue: self.url.clone(),
-                        body: format!("{}", body),
-                    }.into()
-                })
+        // The notification might come nested inside
+        // the `Message` property of a JSON or not.
+        let body_value = serde_json::from_str::<JsonValue>(&body)?;
+        // If the body has a "Message" property, it
+        // means the notification is nested inside it.
+        let notification = if let Some(notification) = body_value["Message"].as_str() {
+            notification
         } else {
-            Err(AppErrorKind::SqsMessageParsingError {
-                message: format!("{}", "Unexpected SQS message structure"),
-                queue: self.url.clone(),
-                body: format!("{}", body),
-            }.into())
-        }
+            &body
+        };
+
+        serde_json::from_str(notification)
+            .map(|notification: SqsNotification| {
+                debug!("{:?}", notification);
+                info!(
+                    "Successfully parsed SQS message";
+                    "queue" => &self.url.clone(), 
+                    "receipt_handle" => &receipt_handle, 
+                    "notification_type" => &format!("{}", notification.notification_type)
+                );
+                Message {
+                    notification: From::from(notification),
+                    id: receipt_handle,
+                }
+            }).map_err(|error| {
+                AppErrorKind::SqsMessageParsingError {
+                    message: format!("{:?}", error),
+                    queue: self.url.clone(),
+                    body: format!("{}", body),
+                }.into()
+            })
     }
 }
 

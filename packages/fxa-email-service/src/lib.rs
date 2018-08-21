@@ -67,6 +67,7 @@ extern crate serde_test;
 extern crate sha2;
 #[macro_use(
     slog_b,
+    slog_debug,
     slog_error,
     slog_info,
     slog_kv,
