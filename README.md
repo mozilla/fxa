@@ -99,7 +99,7 @@ then:
 ```
 sudo easy_install pip && sudo pip install virtualenv
 ```
-[Install Docker for Mac](https://docs.docker.com/docker-for-mac/install/)
+[Install Docker for Mac](https://download.docker.com/mac/stable/Docker.dmg) | [Docs](https://docs.docker.com/docker-for-mac/install/)
 
 ##### Ubuntu:
 ```
