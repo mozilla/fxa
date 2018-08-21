@@ -178,7 +178,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
 
         if (payload.id) {
           // Don't write out the update if nothing has actually changed.
-          if (isSpuriousUpdate(payload, sessionToken)) {
+          if (devices.isSpuriousUpdate(payload, sessionToken)) {
             return payload
           }
 
@@ -223,48 +223,6 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
               type: device.type || sessionToken.deviceType || 'desktop',
             })
           })
-
-        // Clients have been known to send spurious device updates,
-        // which generates lots of unnecessary database load.
-        // Check if anything has actually changed, and log lots metrics on what.
-        function isSpuriousUpdate (payload, token) {
-          let spurious = true
-
-          if (! token.deviceId || payload.id !== token.deviceId) {
-            spurious = false
-          }
-
-          if (payload.name && payload.name !== token.deviceName) {
-            spurious = false
-          }
-
-          if (payload.type && payload.type !== token.deviceType) {
-            spurious = false
-          }
-
-          if (payload.pushCallback && payload.pushCallback !== token.deviceCallbackURL) {
-            spurious = false
-          }
-
-          if (payload.pushPublicKey && payload.pushPublicKey !== token.deviceCallbackPublicKey) {
-            spurious = false
-          }
-
-          if (payload.availableCommands) {
-            if (token.deviceAvailableCommands) {
-              spurious = spurious && Object.keys(payload.availableCommands).some(key => {
-                return payload.availableCommands[key] !== token.deviceAvailableCommands[key]
-              })
-              spurious = spurious && Object.keys(token.deviceAvailableCommands).some(key => {
-                return payload.availableCommands[key] !== token.deviceAvailableCommands[key]
-              })
-            } else {
-              spurious = false
-            }
-          }
-
-          return spurious
-        }
       }
     },
     {

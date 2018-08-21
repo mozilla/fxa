@@ -5,23 +5,22 @@
 'use strict'
 
 const assert = require('insist')
-var uuid = require('uuid')
-var crypto = require('crypto')
+const crypto = require('crypto')
 const mocks = require('../mocks')
+const uuid = require('uuid')
 
-const modulePath = '../../lib/devices'
+const MODULE_PATH = '../../lib/devices'
 
-describe('devices', () => {
+describe('lib/devices:', () => {
   it('should export the correct interface', () => {
-    assert.equal(typeof require(modulePath), 'function', 'require returns function')
-    assert.equal(require(modulePath).length, 3, 'returned function expects three arguments')
-    assert.equal(typeof require(modulePath).schema, 'object', 'devices.schema is object')
-    assert.notEqual(require(modulePath).schema, null, 'devices.schema is not null')
+    assert.equal(typeof require(MODULE_PATH), 'function')
+    assert.equal(require(MODULE_PATH).length, 3)
+    assert.equal(typeof require(MODULE_PATH).schema, 'object')
+    assert.notEqual(require(MODULE_PATH).schema, null)
   })
 
-  describe('instance', () => {
-
-    var log, deviceCreatedAt, deviceId, device, db, push, devices
+  describe('instantiate:', () => {
+    let log, deviceCreatedAt, deviceId, device, db, push, devices
 
     beforeEach(() => {
       log = mocks.mockLog()
@@ -37,23 +36,194 @@ describe('devices', () => {
         deviceId: deviceId
       })
       push = mocks.mockPush()
-      devices = require(modulePath)(log, db, push)
+      devices = require(MODULE_PATH)(log, db, push)
     })
 
-    it('should instantiate', () => {
+    it('returns the expected interface', () => {
+      assert.equal(typeof devices, 'object')
+      assert.equal(Object.keys(devices).length, 3)
 
-      assert.equal(typeof devices, 'object', 'devices is object')
-      assert.equal(Object.keys(devices).length, 2, 'devices has two properties')
+      assert.equal(typeof devices.isSpuriousUpdate, 'function')
+      assert.equal(devices.isSpuriousUpdate.length, 2)
 
-      assert.equal(typeof devices.upsert, 'function', 'devices has upsert method')
-      assert.equal(devices.upsert.length, 3, 'devices.upsert expects three arguments')
+      assert.equal(typeof devices.upsert, 'function')
+      assert.equal(devices.upsert.length, 3)
 
-      assert.equal(typeof devices.synthesizeName, 'function', 'devices has synthesizeName method')
-      assert.equal(devices.synthesizeName.length, 1, 'devices.synthesizeName expects 1 argument')
-
+      assert.equal(typeof devices.synthesizeName, 'function')
+      assert.equal(devices.synthesizeName.length, 1)
     })
 
-    describe('.upsert', () => {
+    describe('isSpuriousUpdate:', () => {
+      it('returns false when token has no device record', () => {
+        assert.strictEqual(devices.isSpuriousUpdate({}, {}), false)
+      })
+
+      it('returns false when token has different device id', () => {
+        assert.strictEqual(devices.isSpuriousUpdate({
+          id: 'foo'
+        }, {
+          deviceId: 'bar'
+        }), false)
+      })
+
+      it('returns true when ids match', () => {
+        assert.strictEqual(devices.isSpuriousUpdate({
+          id: 'foo'
+        }, {
+          deviceId: 'foo'
+        }), true)
+      })
+
+      it('returns false when token has different device name', () => {
+        assert.strictEqual(devices.isSpuriousUpdate({
+          id: 'foo',
+          name: 'foo'
+        }, {
+          deviceId: 'foo',
+          deviceName: 'bar'
+        }), false)
+      })
+
+      it('returns true when ids and names match', () => {
+        assert.strictEqual(devices.isSpuriousUpdate({
+          id: 'foo',
+          name: 'foo'
+        }, {
+          deviceId: 'foo',
+          deviceName: 'foo'
+        }), true)
+      })
+
+      it('returns false when token has different device type', () => {
+        assert.strictEqual(devices.isSpuriousUpdate({
+          id: 'foo',
+          type: 'foo'
+        }, {
+          deviceId: 'foo',
+          deviceType: 'bar'
+        }), false)
+      })
+
+      it('returns true when ids and types match', () => {
+        assert.strictEqual(devices.isSpuriousUpdate({
+          id: 'foo',
+          type: 'foo'
+        }, {
+          deviceId: 'foo',
+          deviceType: 'foo'
+        }), true)
+      })
+
+      it('returns false when token has different device callback URL', () => {
+        assert.strictEqual(devices.isSpuriousUpdate({
+          id: 'foo',
+          pushCallback: 'foo'
+        }, {
+          deviceId: 'foo',
+          deviceCallbackURL: 'bar'
+        }), false)
+      })
+
+      it('returns true when ids and callback URLs match', () => {
+        assert.strictEqual(devices.isSpuriousUpdate({
+          id: 'foo',
+          pushCallback: 'foo'
+        }, {
+          deviceId: 'foo',
+          deviceCallbackURL: 'foo'
+        }), true)
+      })
+
+      it('returns false when token has different device callback public key', () => {
+        assert.strictEqual(devices.isSpuriousUpdate({
+          id: 'foo',
+          pushPublicKey: 'foo'
+        }, {
+          deviceId: 'foo',
+          deviceCallbackPublicKey: 'bar'
+        }), false)
+      })
+
+      it('returns true when ids and callback public keys match', () => {
+        assert.strictEqual(devices.isSpuriousUpdate({
+          id: 'foo',
+          pushPublicKey: 'foo'
+        }, {
+          deviceId: 'foo',
+          deviceCallbackPublicKey: 'foo'
+        }), true)
+      })
+
+      it('returns false when payload has different available commands', () => {
+        assert.strictEqual(devices.isSpuriousUpdate({
+          id: 'foo',
+          availableCommands: {
+            foo: 'bar',
+            baz: 'qux'
+          }
+        }, {
+          deviceId: 'foo',
+          deviceAvailableCommands: {
+            foo: 'bar'
+          }
+        }), false)
+      })
+
+      it('returns false when token has different device available commands', () => {
+        assert.strictEqual(devices.isSpuriousUpdate({
+          id: 'foo',
+          availableCommands: {
+            foo: 'bar'
+          }
+        }, {
+          deviceId: 'foo',
+          deviceAvailableCommands: {
+            foo: 'bar',
+            baz: 'qux'
+          }
+        }), false)
+      })
+
+      it('returns true when ids and available commands match', () => {
+        assert.strictEqual(devices.isSpuriousUpdate({
+          id: 'foo',
+          availableCommands: {
+            foo: 'bar'
+          }
+        }, {
+          deviceId: 'foo',
+          deviceAvailableCommands: {
+            foo: 'bar'
+          }
+        }), true)
+      })
+
+      it('returns true when all properties match', () => {
+        assert.strictEqual(devices.isSpuriousUpdate({
+          id: 'foo',
+          name: 'bar',
+          type: 'baz',
+          pushCallback: 'wibble',
+          pushPublicKey: 'blee',
+          availableCommands: {
+            frop: 'punv',
+            thib: 'blap'
+          }
+        }, {
+          deviceId: 'foo',
+          deviceName: 'bar',
+          deviceType: 'baz',
+          deviceCallbackURL: 'wibble',
+          deviceCallbackPublicKey: 'blee',
+          deviceAvailableCommands: {
+            frop: 'punv',
+            thib: 'blap'
+          }
+        }), true)
+      })
+    })
+
+    describe('upsert:', () => {
 
       var request, sessionToken
 

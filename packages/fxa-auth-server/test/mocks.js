@@ -429,6 +429,7 @@ function mockDevices (data, errors) {
   errors = errors || {}
 
   return {
+    isSpuriousUpdate: sinon.spy(() => data.spurious || false),
     upsert: sinon.spy(() => {
       if (errors.upsert) {
         return P.reject(errors.upsert)

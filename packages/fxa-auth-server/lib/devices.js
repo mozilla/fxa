@@ -35,7 +35,49 @@ const SCHEMA = {
 }
 
 module.exports = (log, db, push) => {
-  return { upsert, synthesizeName }
+  return { isSpuriousUpdate, upsert, synthesizeName }
+
+  // Clients have been known to send spurious device updates,
+  // which generates lots of unnecessary database load.
+  // Check if anything has actually changed.
+  function isSpuriousUpdate (payload, token) {
+    let spurious = true
+
+    if (! token.deviceId || payload.id !== token.deviceId) {
+      spurious = false
+    }
+
+    if (payload.name && payload.name !== token.deviceName) {
+      spurious = false
+    }
+
+    if (payload.type && payload.type !== token.deviceType) {
+      spurious = false
+    }
+
+    if (payload.pushCallback && payload.pushCallback !== token.deviceCallbackURL) {
+      spurious = false
+    }
+
+    if (payload.pushPublicKey && payload.pushPublicKey !== token.deviceCallbackPublicKey) {
+      spurious = false
+    }
+
+    if (payload.availableCommands) {
+      if (token.deviceAvailableCommands) {
+        spurious = spurious && Object.keys(payload.availableCommands).some(key => {
+          return payload.availableCommands[key] !== token.deviceAvailableCommands[key]
+        })
+        spurious = spurious && Object.keys(token.deviceAvailableCommands).some(key => {
+          return payload.availableCommands[key] !== token.deviceAvailableCommands[key]
+        })
+      } else {
+        spurious = false
+      }
+    }
+
+    return spurious
+  }
 
   function upsert (request, sessionToken, deviceInfo) {
     let operation, event, result
