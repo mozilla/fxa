@@ -41,42 +41,41 @@ module.exports = (log, db, push) => {
   // which generates lots of unnecessary database load.
   // Check if anything has actually changed.
   function isSpuriousUpdate (payload, token) {
-    let spurious = true
-
     if (! token.deviceId || payload.id !== token.deviceId) {
-      spurious = false
+      return false
     }
 
     if (payload.name && payload.name !== token.deviceName) {
-      spurious = false
+      return false
     }
 
     if (payload.type && payload.type !== token.deviceType) {
-      spurious = false
+      return false
     }
 
     if (payload.pushCallback && payload.pushCallback !== token.deviceCallbackURL) {
-      spurious = false
+      return false
     }
 
     if (payload.pushPublicKey && payload.pushPublicKey !== token.deviceCallbackPublicKey) {
-      spurious = false
+      return false
     }
 
     if (payload.availableCommands) {
-      if (token.deviceAvailableCommands) {
-        spurious = spurious && ! Object.keys(payload.availableCommands).some(key => {
-          return payload.availableCommands[key] !== token.deviceAvailableCommands[key]
-        })
-        spurious = spurious && ! Object.keys(token.deviceAvailableCommands).some(key => {
-          return payload.availableCommands[key] !== token.deviceAvailableCommands[key]
-        })
-      } else {
-        spurious = false
+      if (! token.deviceAvailableCommands) {
+        return false
+      }
+
+      if (! isLike(token.deviceAvailableCommands, payload.availableCommands)) {
+        return false
+      }
+
+      if (! isLike(payload.availableCommands, token.deviceAvailableCommands)) {
+        return false
       }
     }
 
-    return spurious
+    return true
   }
 
   function upsert (request, sessionToken, deviceInfo) {
@@ -173,3 +172,6 @@ module.exports = (log, db, push) => {
 
 module.exports.schema = SCHEMA
 
+function isLike (object, archetype) {
+  return Object.entries(archetype).every(([ key, value ]) => object[key] === value)
+}
