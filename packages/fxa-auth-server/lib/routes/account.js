@@ -1213,7 +1213,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
                 }
                 // We fetch the devices to notify before deleteAccount()
                 // because obviously we can't retrieve the devices list after!
-                return request.app.devices
+                return db.devices(uid)
               })
               .then((devices) => {
                 devicesToNotify = devices
