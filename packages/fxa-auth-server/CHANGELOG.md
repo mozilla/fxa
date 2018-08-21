@@ -1,3 +1,59 @@
+<a name="1.119.0"></a>
+# [1.119.0](https://github.com/mozilla/fxa-auth-server/compare/v1.117.1...v1.119.0) (2018-08-21)
+
+
+### Bug Fixes
+
+* **devices:** check token.deviceAvailableCommands before dereferencing ([eedf321](https://github.com/mozilla/fxa-auth-server/commit/eedf321))
+* **devices:** treat matching device commands as spurious updates ([71f8c18](https://github.com/mozilla/fxa-auth-server/commit/71f8c18))
+* **devices:** used cached devices property during requests ([3015a40](https://github.com/mozilla/fxa-auth-server/commit/3015a40))
+* **email:** ensure email-service errors fail the call to sendMail ([bdc7c7a](https://github.com/mozilla/fxa-auth-server/commit/bdc7c7a))
+* **email:** JSON.parse live email config after reading from redis ([dd262a9](https://github.com/mozilla/fxa-auth-server/commit/dd262a9))
+* **redis:** Close the redis pool when closing the DB. ([855d681](https://github.com/mozilla/fxa-auth-server/commit/855d681))
+* **redis:** recover from invalid token JSON in Redis ([db8022f](https://github.com/mozilla/fxa-auth-server/commit/db8022f))
+* **reset:** update must-verify script to use string instead of buffer (#2551) r=@vladikoff ([2a2eeab](https://github.com/mozilla/fxa-auth-server/commit/2a2eeab)), closes [#2551](https://github.com/mozilla/fxa-auth-server/issues/2551)
+* **scripts:** fix the broken api docs generator script ([fedaa23](https://github.com/mozilla/fxa-auth-server/commit/fedaa23)), closes [#2521](https://github.com/mozilla/fxa-auth-server/issues/2521)
+* **scripts:** improve regex validation for email-config script ([14694e4](https://github.com/mozilla/fxa-auth-server/commit/14694e4))
+* **scripts:** stop email-config script logging config to stdout ([807e4ac](https://github.com/mozilla/fxa-auth-server/commit/807e4ac))
+* **sentry:** server.events.on takes channels, not channel ([7d69830](https://github.com/mozilla/fxa-auth-server/commit/7d69830))
+* **server:** do not return customs.flag in the destroy route (#2573) ([4998f2b](https://github.com/mozilla/fxa-auth-server/commit/4998f2b)), closes [#2573](https://github.com/mozilla/fxa-auth-server/issues/2573) [#2563](https://github.com/mozilla/fxa-auth-server/issues/2563)
+* **sessionTokens:** actually prune expired session tokens ([72809f8](https://github.com/mozilla/fxa-auth-server/commit/72809f8))
+* **test:** increase totp code window (#2548), r=@vladikoff ([fecc9e3](https://github.com/mozilla/fxa-auth-server/commit/fecc9e3)), closes [#2548](https://github.com/mozilla/fxa-auth-server/issues/2548)
+* **test:** set default test timeout to 5000 (#2560), r=@philbooth ([5caedf3](https://github.com/mozilla/fxa-auth-server/commit/5caedf3)), closes [#2560](https://github.com/mozilla/fxa-auth-server/issues/2560)
+* **tests:** add a check from sentry setup ([7f60f8c](https://github.com/mozilla/fxa-auth-server/commit/7f60f8c))
+* **tests:** adjust async tests ([9e20e69](https://github.com/mozilla/fxa-auth-server/commit/9e20e69))
+* **tests:** increase timeout on selectEmailService integration tests ([cd5f341](https://github.com/mozilla/fxa-auth-server/commit/cd5f341))
+* **tests:** temporarily disable deviceCommands assertions ([08f5ee9](https://github.com/mozilla/fxa-auth-server/commit/08f5ee9))
+* **validation:** don't treat `+-\/` as a character range in email regex ([cfb9704](https://github.com/mozilla/fxa-auth-server/commit/cfb9704))
+* **validation:** validate length of user and domain email address parts ([a872363](https://github.com/mozilla/fxa-auth-server/commit/a872363)), closes [#2568](https://github.com/mozilla/fxa-auth-server/issues/2568)
+
+### chore
+
+* **install:** Only clone the l10n repo if needed. (#2546) r=@vladikoff ([0e91f45](https://github.com/mozilla/fxa-auth-server/commit/0e91f45)), closes [#2546](https://github.com/mozilla/fxa-auth-server/issues/2546)
+* **package:** update shrinkwrap ([842aae4](https://github.com/mozilla/fxa-auth-server/commit/842aae4))
+* **tests:** add tests to email_service.js ([abfb6be](https://github.com/mozilla/fxa-auth-server/commit/abfb6be))
+
+### Features
+
+* **admin:** Add an admin script to delete an account. ([2074d56](https://github.com/mozilla/fxa-auth-server/commit/2074d56))
+* **ci:** update to circle 2 (#2529), r=@vbudhram ([395a02e](https://github.com/mozilla/fxa-auth-server/commit/395a02e)), closes [#2529](https://github.com/mozilla/fxa-auth-server/issues/2529)
+* **codes:** expose verificationMethod as optional (#2564), r=@philbooth ([fb256ff](https://github.com/mozilla/fxa-auth-server/commit/fb256ff)), closes [#2564](https://github.com/mozilla/fxa-auth-server/issues/2564)
+* **email:** change the email service errno values to numbers ([577237d](https://github.com/mozilla/fxa-auth-server/commit/577237d)), closes [#2569](https://github.com/mozilla/fxa-auth-server/issues/2569)
+* **email:** read live email-sending config from redis ([bc55e8b](https://github.com/mozilla/fxa-auth-server/commit/bc55e8b))
+* **email:** write live email-sending config to redis ([c6ad402](https://github.com/mozilla/fxa-auth-server/commit/c6ad402))
+* **pushbox:** activate pushbox in dev environments (#2567) r=@vladikoff ([03e1e6e](https://github.com/mozilla/fxa-auth-server/commit/03e1e6e)), closes [#2567](https://github.com/mozilla/fxa-auth-server/issues/2567) [mozilla/fxa-local-dev#122](https://github.com/mozilla/fxa-local-dev/issues/122)
+* **recovery:** add account recovery email templates (#2553), r=philbooth ([8f36f62](https://github.com/mozilla/fxa-auth-server/commit/8f36f62)), closes [#2553](https://github.com/mozilla/fxa-auth-server/issues/2553)
+* **scripts:** validate inputs in the email-config script ([122ce3b](https://github.com/mozilla/fxa-auth-server/commit/122ce3b))
+* **tests:** write unit tests for email address validation ([eaf3615](https://github.com/mozilla/fxa-auth-server/commit/eaf3615))
+
+### Refactor
+
+* **devices:** extract and write tests for devices.isSpuriousUpdate ([bebee79](https://github.com/mozilla/fxa-auth-server/commit/bebee79))
+* **devices:** shortcut redundant tests for spurious device updates ([0bce944](https://github.com/mozilla/fxa-auth-server/commit/0bce944))
+* **validation:** simplify the validation logic for email addresses ([8dee2e8](https://github.com/mozilla/fxa-auth-server/commit/8dee2e8))
+
+
+
 <a name="1.118.0"></a>
 # [1.118.0](https://github.com/mozilla/fxa-auth-server/compare/v1.117.1...v1.118.0) (2018-08-08)
 
