@@ -83,7 +83,8 @@ describe('/account/device', function () {
       name: mockDeviceName
     }
   })
-  var mockDevices = mocks.mockDevices()
+  const devicesData = {}
+  var mockDevices = mocks.mockDevices(devicesData)
   var mockLog = mocks.mockLog()
   var accountRoutes = makeRoutes({
     config: config,
@@ -93,16 +94,25 @@ describe('/account/device', function () {
   var route = getRoute(accountRoutes, '/account/device')
 
   it('identical data', function () {
+    devicesData.spurious = true
     return runTest(route, mockRequest, function (response) {
-      assert.equal(mockDevices.upsert.callCount, 0, 'the device was not updated')
+      assert.equal(mockDevices.isSpuriousUpdate.callCount, 1)
+      const args = mockDevices.isSpuriousUpdate.args[0]
+      assert.equal(args.length, 2)
+      assert.equal(args[0], mockRequest.payload)
+      assert.equal(args[1], mockRequest.auth.credentials)
+
+      assert.equal(mockDevices.upsert.callCount, 0)
       assert.deepEqual(response, mockRequest.payload)
     })
       .then(function () {
+        mockDevices.isSpuriousUpdate.reset()
         mockDevices.upsert.reset()
       })
   })
 
   it('different data', function () {
+    devicesData.spurious = false
     mockRequest.auth.credentials.deviceId = crypto.randomBytes(16).toString('hex')
     var payload = mockRequest.payload
     payload.name = 'my even awesomer device'
@@ -111,6 +121,7 @@ describe('/account/device', function () {
     payload.pushPublicKey = mocks.MOCK_PUSH_KEY
 
     return runTest(route, mockRequest, function (response) {
+      assert.equal(mockDevices.isSpuriousUpdate.callCount, 1)
       assert.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once')
       var args = mockDevices.upsert.args[0]
       assert.equal(args.length, 3, 'devices.upsert was passed three arguments')
@@ -120,11 +131,13 @@ describe('/account/device', function () {
       assert.deepEqual(args[2], mockRequest.payload, 'third argument was payload')
     })
       .then(function () {
+        mockDevices.isSpuriousUpdate.reset()
         mockDevices.upsert.reset()
       })
   })
 
   it('with no id in payload', function () {
+    devicesData.spurious = false
     mockRequest.payload.id = undefined
 
     return runTest(route, mockRequest, function (response) {
@@ -133,6 +146,7 @@ describe('/account/device', function () {
       assert.equal(args[2].id, mockRequest.auth.credentials.deviceId.toString('hex'), 'payload.id defaulted to credentials.deviceId')
     })
       .then(function () {
+        mockDevices.isSpuriousUpdate.reset()
         mockDevices.upsert.reset()
       })
   })
@@ -1051,7 +1065,7 @@ describe('/account/sessions', () => {
     {
       id: tokenIds[3], uid: 'blee', createdAt: times[7], lastAccessTime: 1,
       uaBrowser: null, uaBrowserVersion: '50', uaOS: null, uaOSVersion: '10',
-      uaDeviceType: 'tablet', deviceId: 'deviceId', deviceCreatedAt: times[8], deviceAvailableCommands: {},
+      uaDeviceType: 'tablet', deviceId: 'deviceId', deviceCreatedAt: times[8],
       deviceCallbackURL: 'callback', deviceCallbackPublicKey: 'publicKey', deviceCallbackAuthKey: 'authKey',
       deviceCallbackIsExpired: false,
       location: null
@@ -1151,7 +1165,7 @@ describe('/account/sessions', () => {
           deviceId: 'deviceId',
           deviceName: '',
           deviceType: 'tablet',
-          deviceAvailableCommands: {},
+          deviceAvailableCommands: null,
           deviceCallbackURL: 'callback',
           deviceCallbackPublicKey: 'publicKey',
           deviceCallbackAuthKey: 'authKey',
