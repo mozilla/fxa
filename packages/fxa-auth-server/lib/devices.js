@@ -65,10 +65,10 @@ module.exports = (log, db, push) => {
 
     if (payload.availableCommands) {
       if (token.deviceAvailableCommands) {
-        spurious = spurious && Object.keys(payload.availableCommands).some(key => {
+        spurious = spurious && ! Object.keys(payload.availableCommands).some(key => {
           return payload.availableCommands[key] !== token.deviceAvailableCommands[key]
         })
-        spurious = spurious && Object.keys(token.deviceAvailableCommands).some(key => {
+        spurious = spurious && ! Object.keys(token.deviceAvailableCommands).some(key => {
           return payload.availableCommands[key] !== token.deviceAvailableCommands[key]
         })
       } else {
