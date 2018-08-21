@@ -238,7 +238,7 @@ module.exports = {
             // so avoid trips to the DB for common scopes like 'profile'.
             if (scope.startsWith('https://')) {
               return db.getScope(scope).then(s => {
-                if (s.hasScopedKeys) {
+                if (s && s.hasScopedKeys) {
                   exitEarly = true;
                   throw AppError.invalidAssertion();
                 }

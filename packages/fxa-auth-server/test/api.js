@@ -545,6 +545,20 @@ describe('/v1', function() {
         });
       });
 
+      it('succeeds when fxa-tokenVerified is false and an unknown URL scope is requested', function() {
+        mockAssertion().reply(200, VERIFY_GOOD_BUT_UNVERIFIED);
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            client_id: SCOPED_CLIENT_ID,
+            scope: 'https://example.com/unknown-scope'
+          })
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+        });
+      });
+
     });
 
     describe('?redirect_uri', function() {
