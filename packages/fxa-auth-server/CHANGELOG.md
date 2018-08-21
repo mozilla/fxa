@@ -1,3 +1,13 @@
+<a name="1.119.1"></a>
+## [1.119.1](https://github.com/mozilla/fxa-auth-server/compare/v1.119.0...v1.119.1) (2018-08-21)
+
+
+### Bug Fixes
+
+* **devices:** disable cached devices in account destroy (#2588) r=@philbooth ([326881b](https://github.com/mozilla/fxa-auth-server/commit/326881b)), closes [#2588](https://github.com/mozilla/fxa-auth-server/issues/2588)
+
+
+
 <a name="1.119.0"></a>
 # [1.119.0](https://github.com/mozilla/fxa-auth-server/compare/v1.117.1...v1.119.0) (2018-08-21)
 
