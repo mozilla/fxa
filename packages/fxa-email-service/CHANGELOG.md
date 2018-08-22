@@ -1,3 +1,21 @@
+<a name="v1.119.0"></a>
+## v1.119.0 (2018-08-22)
+
+
+#### Features
+
+* **logging:**  add sentry support (#176) r=@vladikoff ([73d07bd7](73d07bd7))
+* **socketlabs:**  create and return id for socketlabs messages ([30639fc3](30639fc3))
+
+#### Bug Fixes
+
+* **logging:**  remove unnecessary and add debug logs in queues (#177) r=@vladikoff ([0f790c16](0f790c16))
+* **queues:**
+  *  make queue parsing logic follow the sns format (#178) r=@vladikoff ([7beca536](7beca536))
+  *  fix executor error on queues process (#174) r=@vladikoff,@philbooth ([5e9f2688](5e9f2688))
+
+
+
 <a name="v1.118.0"></a>
 ## v1.118.0 (2018-08-09)
 
