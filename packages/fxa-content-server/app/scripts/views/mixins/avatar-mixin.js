@@ -185,7 +185,7 @@ define(function (require, exports, module) {
         .then((profileImage) => account.deleteAvatar(account.get('profileImageId')))
         .then(() => {
           // A blank image will clear the cache
-          this.updateProfileImage(new ProfileImage(), account);
+          this.updateProfileImage(new ProfileImage({default: true}), account);
         });
     },
 
