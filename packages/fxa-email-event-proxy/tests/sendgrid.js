@@ -204,7 +204,7 @@ suite('sendgrid:', () => {
       const args = sqs.push.args[0]
       assert.lengthOf(args, 3)
       assert.equal(args[0], 'fxa-email-delivery-wibble')
-      assert.deepEqual(args[1], {
+      assert.deepEqual(JSON.parse(args[1].Message), {
         notificationType: 'Delivery',
         mail: {
           timestamp: '2018-06-20T15:19:11.000Z',
@@ -224,7 +224,7 @@ suite('sendgrid:', () => {
       const args = sqs.push.args[1]
       assert.lengthOf(args, 3)
       assert.equal(args[0], 'fxa-email-bounce-wibble')
-      assert.deepEqual(args[1], {
+      assert.deepEqual(JSON.parse(args[1].Message), {
         notificationType: 'Bounce',
         mail: {
           timestamp: '2018-06-20T15:19:12.000Z',
@@ -245,7 +245,7 @@ suite('sendgrid:', () => {
 
     test('sqs.push was called correctly third time', () => {
       const args = sqs.push.args[2]
-      assert.deepEqual(args[1], {
+      assert.deepEqual(JSON.parse(args[1].Message), {
         notificationType: 'Bounce',
         mail: {
           timestamp: '2018-06-20T15:19:13.000Z',
@@ -263,7 +263,7 @@ suite('sendgrid:', () => {
 
     test('sqs.push was called correctly fourth time', () => {
       const args = sqs.push.args[3]
-      assert.deepEqual(args[1], {
+      assert.deepEqual(JSON.parse(args[1].Message), {
         notificationType: 'Bounce',
         mail: {
           timestamp: '2018-06-20T15:19:14.000Z',
@@ -281,7 +281,7 @@ suite('sendgrid:', () => {
 
     test('sqs.push was called correctly fifth time', () => {
       const args = sqs.push.args[4]
-      assert.deepEqual(args[1], {
+      assert.deepEqual(JSON.parse(args[1].Message), {
         notificationType: 'Bounce',
         mail: {
           timestamp: '2018-06-20T15:19:15.000Z',
@@ -299,7 +299,7 @@ suite('sendgrid:', () => {
 
     test('sqs.push was called correctly sixth time', () => {
       const args = sqs.push.args[5]
-      assert.deepEqual(args[1], {
+      assert.deepEqual(JSON.parse(args[1].Message), {
         notificationType: 'Bounce',
         mail: {
           timestamp: '2018-06-20T15:19:16.000Z',
@@ -317,7 +317,7 @@ suite('sendgrid:', () => {
 
     test('sqs.push was called correctly seventh time', () => {
       const args = sqs.push.args[6]
-      assert.deepEqual(args[1], {
+      assert.deepEqual(JSON.parse(args[1].Message), {
         notificationType: 'Bounce',
         mail: {
           timestamp: '2018-06-20T15:19:17.000Z',
@@ -335,7 +335,7 @@ suite('sendgrid:', () => {
 
     test('sqs.push was called correctly eighth time', () => {
       const args = sqs.push.args[7]
-      assert.deepEqual(args[1], {
+      assert.deepEqual(JSON.parse(args[1].Message), {
         notificationType: 'Bounce',
         mail: {
           timestamp: '2018-06-20T15:19:18.000Z',
@@ -353,7 +353,7 @@ suite('sendgrid:', () => {
 
     test('sqs.push was called correctly ninth time', () => {
       const args = sqs.push.args[8]
-      assert.deepEqual(args[1], {
+      assert.deepEqual(JSON.parse(args[1].Message), {
         notificationType: 'Complaint',
         mail: {
           timestamp: '2018-06-20T15:19:19.000Z',
@@ -518,7 +518,7 @@ suite('sendgrid:', () => {
       const args = sqs.push.args[0]
       assert.lengthOf(args, 3)
       assert.equal(args[0], 'fxa-email-delivery-wibble')
-      assert.deepEqual(args[1], {
+      assert.deepEqual(JSON.parse(args[1].Message), {
         notificationType: 'Delivery',
         mail: {
           timestamp: '2018-06-20T15:19:10.000Z',

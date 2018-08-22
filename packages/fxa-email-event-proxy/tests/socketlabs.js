@@ -44,6 +44,71 @@ suite('socketlabs:', () => {
     assert.lengthOf(proxy.main, 1)
   })
 
+  suite('call with a correct delivery event:', () => {
+    let promise
+
+    setup((done) => {
+      promise = proxy.main({
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: 'Type=Delivered&DateTime=Tue%2C%2014%20Aug%202018%2016%3A35%3A37%20GMT&MailingId=&MessageId=ca327159-f652-4193-ac67-d3cad0c0fafa&Address=real.email%40example.com&SecretKey=secret&RemoteMta=real-smtp-in.l.example.com&ServerId=99999&Response=250%202.0.0%20OK%201534264537%20z7-v6si7118563qta.91%20-%20gsmtp%0D%0A&LocalIp=10.24.177.135&FromAddress=verification%40latest.dev.lcip.org',
+        queryStringParameters: {
+          auth: 'authentication string'
+        }
+      })
+      setImmediate(done)
+    })
+
+    test('sqs.push was called once', () => {
+      assert.equal(sqs.push.callCount, 1)
+    })
+
+    test('sqs.push was called correctly', () => {
+      const args = sqs.push.args[0]
+      assert.deepEqual(JSON.parse(args[1].Message), {
+        notificationType: 'Delivery',
+        mail: {
+          timestamp: '2018-08-14T16:35:37.000Z',
+          messageId: 'ca327159-f652-4193-ac67-d3cad0c0fafa'
+        },
+        delivery: {
+          timestamp: '2018-08-14T16:35:37.000Z',
+          recipients: [ 'real.email@example.com' ],
+          smtpResponse: '250 2.0.0 OK 1534264537 z7-v6si7118563qta.91 - gsmtp\r\n'
+        }
+      })
+    })
+
+    suite('call all callbacks without errors:', () => {
+      setup(() => sqs.push.args.forEach(args => args[2]()))
+
+      test('promise is resolved', () => {
+        assert.isFulfilled(promise)
+      })
+
+      test('result is correct', () => {
+        return promise.then(result => assert.deepEqual(result, {
+          statusCode: 200,
+          body: '{"result":"Processed 1 events"}',
+          isBase64Encoded: false
+        }))
+      })
+
+      test('console.log was called correctly', () => {
+        assert.equal(console.log.callCount, 1)
+        const args = console.log.args[0]
+        assert.lengthOf(args, 2)
+        assert.equal(args[0], 'Sent:')
+        assert.equal(args[1], 'Delivery')
+      })
+  
+      test('console.error was not called', () => {
+        assert.equal(console.error.callCount, 0)
+      })
+    })
+  })
+
   suite('call with a correct failure event:', () => {
     let promise
 
@@ -66,7 +131,7 @@ suite('socketlabs:', () => {
 
     test('sqs.push was called correctly', () => {
       const args = sqs.push.args[0]
-      assert.deepEqual(args[1], {
+      assert.deepEqual(JSON.parse(args[1].Message), {
         notificationType: 'Bounce',
         mail: {
           timestamp: '2018-08-13T20:29:59.000Z',
@@ -113,71 +178,6 @@ suite('socketlabs:', () => {
     })
   })
 
-  suite('call with a correct delivery event:', () => {
-    let promise
-
-    setup((done) => {
-      promise = proxy.main({
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: 'Type=Delivered&DateTime=Tue%2C%2014%20Aug%202018%2016%3A35%3A37%20GMT&MailingId=&MessageId=ca327159-f652-4193-ac67-d3cad0c0fafa&Address=real.email%40example.com&SecretKey=secret&RemoteMta=real-smtp-in.l.example.com&ServerId=99999&Response=250%202.0.0%20OK%201534264537%20z7-v6si7118563qta.91%20-%20gsmtp%0D%0A&LocalIp=10.24.177.135&FromAddress=verification%40latest.dev.lcip.org',
-        queryStringParameters: {
-          auth: 'authentication string'
-        }
-      })
-      setImmediate(done)
-    })
-
-    test('sqs.push was called once', () => {
-      assert.equal(sqs.push.callCount, 1)
-    })
-
-    test('sqs.push was called correctly', () => {
-      const args = sqs.push.args[0]
-      assert.deepEqual(args[1], {
-        notificationType: 'Delivery',
-        mail: {
-          timestamp: '2018-08-14T16:35:37.000Z',
-          messageId: 'ca327159-f652-4193-ac67-d3cad0c0fafa'
-        },
-        delivery: {
-          timestamp: '2018-08-14T16:35:37.000Z',
-          recipients: [ 'real.email@example.com' ],
-          smtpResponse: '250 2.0.0 OK 1534264537 z7-v6si7118563qta.91 - gsmtp\r\n'
-        }
-      })
-    })
-
-    suite('call all callbacks without errors:', () => {
-      setup(() => sqs.push.args.forEach(args => args[2]()))
-
-      test('promise is resolved', () => {
-        assert.isFulfilled(promise)
-      })
-
-      test('result is correct', () => {
-        return promise.then(result => assert.deepEqual(result, {
-          statusCode: 200,
-          body: '{"result":"Processed 1 events"}',
-          isBase64Encoded: false
-        }))
-      })
-
-      test('console.log was called correctly', () => {
-        assert.equal(console.log.callCount, 1)
-        const args = console.log.args[0]
-        assert.lengthOf(args, 2)
-        assert.equal(args[0], 'Sent:')
-        assert.equal(args[1], 'Delivery')
-      })
-  
-      test('console.error was not called', () => {
-        assert.equal(console.error.callCount, 0)
-      })
-    })
-  })
-
   suite('call with a correct complaint event:', () => {
     let promise
 
@@ -200,7 +200,7 @@ suite('socketlabs:', () => {
 
     test('sqs.push was called correctly', () => {
       const args = sqs.push.args[0]
-      assert.deepEqual(args[1], {
+      assert.deepEqual(JSON.parse(args[1].Message), {
         notificationType: 'Complaint',
         mail: {
           timestamp: '2012-10-01T14:07:26.000Z',
