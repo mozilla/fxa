@@ -72,6 +72,7 @@ registerSuite('routes/get-metrics-flow', {
       const argsFlowEvent = mocks.flowEvent.logFlowEvent.args[0];
       assert.equal(argsFlowEvent.length, 3);
     },
+
     'supports query params': function () {
       request = {
         headers: {},
@@ -89,6 +90,27 @@ registerSuite('routes/get-metrics-flow', {
       assert.ok(eventData.time);
       assert.equal(eventData.type, 'flow.begin');
       assert.equal(metricsData.entrypoint, 'zoo');
+      assert.ok(metricsData.flowId);
+    },
+
+    'logs enter-email.view event if form_type email is set': function () {
+      request = {
+        headers: {},
+        query: {
+          entrypoint: 'bar',
+          form_type: 'email' // eslint-disable-line camelcase
+        }
+      };
+      instance.process(request, response);
+
+      assert.equal(mocks.flowEvent.logFlowEvent.callCount, 2);
+      const argsFlowEmailEvent = mocks.flowEvent.logFlowEvent.args[1];
+      const eventData = argsFlowEmailEvent[0];
+      const metricsData = argsFlowEmailEvent[1];
+      assert.ok(eventData.flowTime);
+      assert.ok(eventData.time);
+      assert.equal(eventData.type, 'flow.enter-email.view');
+      assert.equal(metricsData.entrypoint, 'bar');
       assert.ok(metricsData.flowId);
     },
 
