@@ -1,3 +1,9 @@
+<a name="1.119.0"></a>
+# [1.119.0](https://github.com/mozilla/fxa-profile-server/compare/v1.118.0...v1.119.0) (2018-08-21)
+
+
+
+
 <a name="1.118.0"></a>
 # [1.118.0](https://github.com/mozilla/fxa-profile-server/compare/v1.117.0...v1.118.0) (2018-08-08)
 
