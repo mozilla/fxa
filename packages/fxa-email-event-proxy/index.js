@@ -119,7 +119,17 @@ async function processEvents (events) {
 }
 
 function sendEvent (event) {
-  return SQS_CLIENT.pushAsync(QUEUES[event.notificationType], event)
+  // The message we send to SQS has to have this structure to
+  // mimic exactly the message SNS sends to it in the SES -> SNS -> SQS flow.
+  // See documentation: https://docs.aws.amazon.com/sns/latest/dg/SendMessageToSQS.html
+  return SQS_CLIENT.pushAsync(
+    QUEUES[event.notificationType],
+    {
+      Message: JSON.stringify(event),
+      Type: 'Notification',
+      Timestamp: event.mail && event.mail.timestamp ? event.mail.timestamp : new Date().toISOString()
+    }
+  )
     .then(() => console.log('Sent:', event.notificationType))
     .catch(error => {
       console.error('Failed to send event:', event)
