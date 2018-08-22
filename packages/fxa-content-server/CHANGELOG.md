@@ -1,3 +1,35 @@
+<a name="1.119.0"></a>
+# 1.119.0 (2018-08-21)
+
+
+### Bug Fixes
+
+* **ci:** fix circle ci warning about 'env' (#6441) r=@shane-tomlinson ([6738986](https://github.com/mozilla/fxa-content-server/commit/6738986)), closes [(#6441](https://github.com/(/issues/6441) [#6348](https://github.com/mozilla/fxa-content-server/issues/6348)
+* **css:** Maximized visible password area (#6433) r=@shane-tomlinson ([379dc87](https://github.com/mozilla/fxa-content-server/commit/379dc87))
+* **email-first:** Enable the "show password" button on email first. (#6442) r=@vbudhram ([70ac6bf](https://github.com/mozilla/fxa-content-server/commit/70ac6bf)), closes [#6434](https://github.com/mozilla/fxa-content-server/issues/6434)
+* **metrics:** stop sending unused performance flow events ([213e613](https://github.com/mozilla/fxa-content-server/commit/213e613))
+* **oauth:** Show an error message when clicking "continue" errors. (#6460) r=@philbooth ([c8bfb02](https://github.com/mozilla/fxa-content-server/commit/c8bfb02))
+* **recovery:** account recovery updates from ux review (#6418), r=@shane-tomlinson ([932d32f](https://github.com/mozilla/fxa-content-server/commit/932d32f))
+* **recovery:** use `enable` instead of `add` button (#6461) r=@shane-tomlinson ([50f29c3](https://github.com/mozilla/fxa-content-server/commit/50f29c3))
+* **scripts:** update `npm run-script start-circle` script (#6426), r=@vladikoff ([e496561](https://github.com/mozilla/fxa-content-server/commit/e496561))
+* **test:** Fix the handshake test. (#6432), r=@vbudhram ([fb9267d](https://github.com/mozilla/fxa-content-server/commit/fb9267d)), closes [(#6432](https://github.com/(/issues/6432)
+* **test:** Fix the token code tests. (#6436) r=@philbooth ([e1182be](https://github.com/mozilla/fxa-content-server/commit/e1182be)), closes [(#6436](https://github.com/(/issues/6436) [#6435](https://github.com/mozilla/fxa-content-server/issues/6435)
+* **test:** Run all the unit tests! (#6455) r=@vbudhram ([79b9b7a](https://github.com/mozilla/fxa-content-server/commit/79b9b7a))
+* **tests:** fix broken token code oauth tests (#6449), r=@shane-tomlinson ([dca3665](https://github.com/mozilla/fxa-content-server/commit/dca3665)), closes [(#6449](https://github.com/(/issues/6449)
+
+### chore
+
+* **deps:** Remove coveralls (#6443) r=@vladikoff ([98b6d80](https://github.com/mozilla/fxa-content-server/commit/98b6d80))
+* **deps:** Remove grunt-contrib-watch (#6444) r=@vbudhram,@vladikoff ([f4494e2](https://github.com/mozilla/fxa-content-server/commit/f4494e2))
+* **modules:** Convert account.js & tests to use ES6 modules (#6453) r=@vladikoff ([b117629](https://github.com/mozilla/fxa-content-server/commit/b117629))
+
+### Features
+
+* **password-strength:** Bump experiment to 100% in en, 20% in de (#6447) r=@vladikoff ([8f5d0b5](https://github.com/mozilla/fxa-content-server/commit/8f5d0b5)), closes [#6446](https://github.com/mozilla/fxa-content-server/issues/6446)
+* **recovery:** add recovery key metrics (#6431), r=@shane-tomlinson ([9d77430](https://github.com/mozilla/fxa-content-server/commit/9d77430))
+
+
+
 <a name="1.118.2"></a>
 ## 1.118.2 (2018-08-13)
 
