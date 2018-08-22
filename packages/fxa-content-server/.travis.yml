@@ -51,6 +51,7 @@ before_install:
 install:
   # install everything for full dev in the fxa-content-server.
   - travis_retry npm install --silent
+  - npm audit || true # only log errors at this point
   - grunt lint
   # copy over the configuration that can be used to start the server.
   - cp server/config/local.json-dist server/config/local.json
@@ -61,7 +62,6 @@ install:
 
 # now run the tests!
 script:
-  - travis_retry grunt nsp # check for vulnerable modules via nodesecurity.io
   - grunt selectconfig:dist l10n-generate-pages &> /dev/null
   - grunt htmllint:dist
   - which firefox
