@@ -1,3 +1,13 @@
+<a name="1.119.1"></a>
+## 1.119.1 (2018-08-22)
+
+
+### Features
+
+* **metrics:** log 'enter-email.view' in metrics-flow (#6469) ([d2e3147](https://github.com/mozilla/fxa-content-server/commit/d2e3147)), closes [#6395](https://github.com/mozilla/fxa-content-server/issues/6395)
+
+
+
 <a name="1.119.0"></a>
 # 1.119.0 (2018-08-21)
 
