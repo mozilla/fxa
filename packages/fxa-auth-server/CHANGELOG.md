@@ -1,3 +1,15 @@
+<a name="1.119.0"></a>
+# [1.119.0](https://github.com/mozilla/fxa-oauth-server/compare/v1.117.0...v1.119.0) (2018-08-21)
+
+
+### Bug Fixes
+
+* **authorization:** Correctly handle non-existing URL scopes during authorization. (#594) r=@vladiko ([21654a3](https://github.com/mozilla/fxa-oauth-server/commit/21654a3)), closes [#594](https://github.com/mozilla/fxa-oauth-server/issues/594) [#593](https://github.com/mozilla/fxa-oauth-server/issues/593)
+* **ci:** Run MySQL tests in Circle (#586) r=@vbudhram ([4b1c4e4](https://github.com/mozilla/fxa-oauth-server/commit/4b1c4e4)), closes [#586](https://github.com/mozilla/fxa-oauth-server/issues/586) [#581](https://github.com/mozilla/fxa-oauth-server/issues/581)
+* **scopes:** Document scope-handling rules, use shared code to enforce them. (#551); r=vbudhr ([237886d](https://github.com/mozilla/fxa-oauth-server/commit/237886d)), closes [#551](https://github.com/mozilla/fxa-oauth-server/issues/551)
+
+
+
 <a name="1.117.0"></a>
 # [1.117.0](https://github.com/mozilla/fxa-oauth-server/compare/v1.115.2...v1.117.0) (2018-07-24)
 
