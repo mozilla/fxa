@@ -91,6 +91,10 @@ define(function (require, exports, module) {
       errno: 118,
       message: 'PKCE parameters missing'
     },
+    STALE_AUTHENTICATION_TIMESTAMP: {
+      errno: 119,
+      message: 'Stale authentication timestamp'
+    },
     SERVICE_UNAVAILABLE: {
       errno: 998,
       message: t('System unavailable, try again soon')
