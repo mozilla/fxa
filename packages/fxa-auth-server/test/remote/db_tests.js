@@ -496,7 +496,7 @@ describe('remote db', function() {
           assert.ok(device.lastAccessTime > 0, 'device.lastAccessTime is set')
           assert.equal(device.name, deviceInfo.name, 'device.name is correct')
           assert.equal(device.type, deviceInfo.type, 'device.type is correct')
-          //assert.deepEqual(device.availableCommands, deviceInfo.availableCommands, 'device.availableCommands is correct')
+          assert.deepEqual(device.availableCommands, deviceInfo.availableCommands, 'device.availableCommands is correct')
           assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
           assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
           assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')

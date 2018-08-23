@@ -205,6 +205,13 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
           }
         }
 
+        // We're doing a gradual rollout of the 'device commands' feature
+        // in support of pushbox, so accept an 'availableCommands' field
+        // if pushbox is enabled.
+        if (payload.availableCommands && ! config.pushbox.enabled) {
+            payload.availableCommands = {}
+        }
+
         return devices.upsert(request, sessionToken, payload)
           .then(function (device) {
             // We must respond with the full device record,
