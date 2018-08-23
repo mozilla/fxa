@@ -5,9 +5,14 @@
 const BaseGroupingRule = require('./base');
 
 const GROUPS_FOR_PARTIAL_ROLLOUT = ['control', 'designF'];
+
+// These locales only see designF
+const FULLY_ROLLED_OUT = [
+  'en'
+];
+
 const ROLLOUT_RATES = {
   'de': 0.2, // german is 10% control, 10% treatment
-  'en': 1.0, // english is rolled out to 50% control, 50% treatment
 };
 
 const EXPERIMENT_NAME = 'passwordStrength';
@@ -15,6 +20,7 @@ const EXPERIMENT_NAME = 'passwordStrength';
 class PasswordStrengthExperiment extends BaseGroupingRule {
   constructor () {
     super();
+    this.FULLY_ROLLED_OUT = FULLY_ROLLED_OUT;
     this.ROLLOUT_RATES = ROLLOUT_RATES;
     this.name = EXPERIMENT_NAME;
   }
@@ -29,6 +35,11 @@ class PasswordStrengthExperiment extends BaseGroupingRule {
     }
 
     const rolloutLang = subject.lang.substr(0, 2);
+
+    if (this.FULLY_ROLLED_OUT.indexOf(rolloutLang) > -1) {
+      return 'designF';
+    }
+
     const rolloutRate = this.ROLLOUT_RATES[rolloutLang];
 
     if (! rolloutRate) {
