@@ -5,7 +5,7 @@
 ### Bug Fixes
 
 * **devices:** Add feature-flag for the "device commands" functionality. (#2591) r=@vladikoff ([85889ee](https://github.com/mozilla/fxa-auth-server/commit/85889ee)), closes [#2591](https://github.com/mozilla/fxa-auth-server/issues/2591)
-
+* **npm:**  new shrinkwrap
 
 
 <a name="1.119.1"></a>
