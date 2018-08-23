@@ -134,17 +134,20 @@ pub enum AppErrorKind {
     #[fail(display = "Email account sent complaint")]
     BounceComplaintError {
         address: String,
-        bounce: Option<BounceRecord>,
+        bounced_at: u64,
+        bounce: BounceRecord,
     },
     #[fail(display = "Email account soft bounced")]
     BounceSoftError {
         address: String,
-        bounce: Option<BounceRecord>,
+        bounced_at: u64,
+        bounce: BounceRecord,
     },
     #[fail(display = "Email account hard bounced")]
     BounceHardError {
         address: String,
-        bounce: Option<BounceRecord>,
+        bounced_at: u64,
+        bounce: BounceRecord,
     },
 
     /// An error for when an error happens on a request to the db.
@@ -260,26 +263,31 @@ impl AppErrorKind {
 
             AppErrorKind::BounceComplaintError {
                 ref address,
+                ref bounced_at,
                 ref bounce,
             }
             | AppErrorKind::BounceSoftError {
                 ref address,
+                ref bounced_at,
                 ref bounce,
             }
             | AppErrorKind::BounceHardError {
                 ref address,
+                ref bounced_at,
                 ref bounce,
             } => {
                 fields.insert(
                     String::from("address"),
                     Value::String(format!("{}", address)),
                 );
-                if let Some(bounce) = bounce {
-                    fields.insert(
-                        String::from("bounce"),
-                        Value::String(to_string(bounce).unwrap_or(String::from("{}"))),
-                    );
-                }
+                fields.insert(
+                    String::from("bouncedAt"),
+                    Value::Number(bounced_at.clone().into()),
+                );
+                fields.insert(
+                    String::from("bounce"),
+                    Value::String(to_string(bounce).unwrap_or(String::from("{}"))),
+                );
             }
 
             AppErrorKind::MissingSqsMessageFields {

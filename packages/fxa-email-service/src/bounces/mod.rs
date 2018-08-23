@@ -70,15 +70,18 @@ where
                         return match bounce.bounce_type {
                             DbBounceType::Hard => Err(AppErrorKind::BounceHardError {
                                 address: address.to_string(),
-                                bounce: Some(bounce.clone()),
+                                bounced_at: bounce.created_at,
+                                bounce: bounce.clone(),
                             }.into()),
                             DbBounceType::Soft => Err(AppErrorKind::BounceSoftError {
                                 address: address.to_string(),
-                                bounce: Some(bounce.clone()),
+                                bounced_at: bounce.created_at,
+                                bounce: bounce.clone(),
                             }.into()),
                             DbBounceType::Complaint => Err(AppErrorKind::BounceComplaintError {
                                 address: address.to_string(),
-                                bounce: Some(bounce.clone()),
+                                bounced_at: bounce.created_at,
+                                bounce: bounce.clone(),
                             }.into()),
                         };
                     }

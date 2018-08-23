@@ -116,6 +116,7 @@ fn check_soft_bounce() {
             if let Some(ref bounce) = bounce {
                 let record: Json = serde_json::from_str(bounce.as_str().unwrap()).unwrap();
                 assert_eq!(record["bounceType"], 2);
+                assert_eq!(&record["createdAt"], err_data.get("bouncedAt").unwrap());
             } else {
                 assert!(false, "Error::bounce should be set");
             }
@@ -169,6 +170,7 @@ fn check_hard_bounce() {
             if let Some(ref bounce) = bounce {
                 let record: Json = serde_json::from_str(bounce.as_str().unwrap()).unwrap();
                 assert_eq!(record["bounceType"], 1);
+                assert_eq!(&record["createdAt"], err_data.get("bouncedAt").unwrap());
             } else {
                 assert!(false, "Error::bounce should be set");
             }
@@ -222,6 +224,7 @@ fn check_complaint() {
             if let Some(ref bounce) = bounce {
                 let record: Json = serde_json::from_str(bounce.as_str().unwrap()).unwrap();
                 assert_eq!(record["bounceType"], 3);
+                assert_eq!(&record["createdAt"], err_data.get("bouncedAt").unwrap());
             } else {
                 assert!(false, "Error::bounce should be set");
             }
@@ -403,6 +406,7 @@ fn check_bounce_with_multiple_limits() {
             if let Some(ref bounce) = bounce {
                 let record: Json = serde_json::from_str(bounce.as_str().unwrap()).unwrap();
                 assert_eq!(record["bounceType"], 2);
+                assert_eq!(&record["createdAt"], err_data.get("bouncedAt").unwrap());
             } else {
                 assert!(false, "Error::bounce should be set");
             }
