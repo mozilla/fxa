@@ -30,6 +30,8 @@ node ./tests/teamcity/install-npm-deps.js \
   otplib                          \
   proxyquire                      \
   raven                           \
+  request                         \
+  request-promise                 \
   sinon                           \
   sync-exec                       \
   underscore                      \
