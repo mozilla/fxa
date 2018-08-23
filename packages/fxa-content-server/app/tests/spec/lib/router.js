@@ -21,7 +21,7 @@ import sinon from 'sinon';
 import User from 'models/user';
 import WindowMock from '../../mocks/window';
 
-describe('lib/router', function () {
+describe('lib/router', () => {
   let broker;
   var metrics;
   var navigateOptions;
@@ -32,7 +32,7 @@ describe('lib/router', function () {
   var user;
   var windowMock;
 
-  beforeEach(function () {
+  beforeEach(() => {
     navigateUrl = navigateOptions = null;
 
     notifier = new Notifier();
@@ -61,14 +61,14 @@ describe('lib/router', function () {
     });
   });
 
-  afterEach(function () {
+  afterEach(() => {
     metrics.destroy();
     windowMock = router = navigateUrl = navigateOptions = metrics = null;
     Backbone.Router.prototype.navigate.restore();
   });
 
-  describe('navigate', function () {
-    it('tells the router to navigate to a page', function () {
+  describe('navigate', () => {
+    it('tells the router to navigate to a page', () => {
       sinon.stub(broker, 'transformLink').callsFake((url) => `/oauth/${url}`);
       windowMock.location.search = '';
       router.navigate('signin');
@@ -79,8 +79,8 @@ describe('lib/router', function () {
     });
   });
 
-  describe('`navigate` notifier message', function () {
-    beforeEach(function () {
+  describe('`navigate` notifier message', () => {
+    beforeEach(() => {
       sinon.spy(router, 'navigate');
 
       notifier.trigger('navigate', {
@@ -95,7 +95,7 @@ describe('lib/router', function () {
       });
     });
 
-    it('calls `navigate` correctly', function () {
+    it('calls `navigate` correctly', () => {
       assert.isTrue(router.navigate.calledWith('signin', {
         key: 'value'
       }, {
@@ -139,15 +139,15 @@ describe('lib/router', function () {
       assert.lengthOf(metrics.flush.args[0], 0);
     });
 
-    it('navigated correctly', function () {
+    it('navigated correctly', () => {
       assert.isTrue(broker.transformLink.calledOnceWith('blee'));
       assert.equal(router.navigate.callCount, 0);
       assert.equal(windowMock.location.href, '/oauth/blee');
     });
   });
 
-  describe('`navigate-back` notifier message', function () {
-    beforeEach(function () {
+  describe('`navigate-back` notifier message', () => {
+    beforeEach(() => {
       sinon.spy(router, 'navigateBack');
 
       notifier.trigger('navigate-back', {
@@ -157,48 +157,48 @@ describe('lib/router', function () {
       });
     });
 
-    it('calls `navigateBack` correctly', function () {
+    it('calls `navigateBack` correctly', () => {
       assert.isTrue(router.navigateBack.called);
     });
   });
 
-  describe('set query params', function () {
-    beforeEach(function () {
+  describe('set query params', () => {
+    beforeEach(() => {
       windowMock.location.search = '?context=' + Constants.FX_DESKTOP_V1_CONTEXT;
     });
 
-    describe('navigate with default options', function () {
-      beforeEach(function () {
+    describe('navigate with default options', () => {
+      beforeEach(() => {
         router.navigate('/forgot');
       });
 
-      it('preserves query params', function () {
+      it('preserves query params', () => {
         assert.equal(navigateUrl, '/forgot?context=' + Constants.FX_DESKTOP_V1_CONTEXT);
         assert.deepEqual(navigateOptions, { trigger: true });
       });
     });
 
-    describe('navigate with clearQueryParams option set', function () {
-      beforeEach(function () {
+    describe('navigate with clearQueryParams option set', () => {
+      beforeEach(() => {
         router.navigate('/forgot?context=' + Constants.FX_DESKTOP_V1_CONTEXT, {}, { clearQueryParams: true });
       });
 
-      it('clears the query params if clearQueryString option is set', function () {
+      it('clears the query params if clearQueryString option is set', () => {
         assert.equal(navigateUrl, '/forgot');
         assert.deepEqual(navigateOptions, { clearQueryParams: true, trigger: true });
       });
     });
   });
 
-  describe('navigateBack', function () {
-    beforeEach(function () {
+  describe('navigateBack', () => {
+    beforeEach(() => {
       sinon.spy(windowMock.history, 'back');
       sinon.stub(router, 'canGoBack').callsFake(() => true);
 
       router.navigateBack();
     });
 
-    it('calls `window.history.back`', function () {
+    it('calls `window.history.back`', () => {
       assert.isTrue(windowMock.history.back.called);
     });
   });
@@ -275,41 +275,41 @@ describe('lib/router', function () {
     });
   });
 
-  describe('_afterFirstViewHasRendered', function () {
-    it('sets `canGoBack`', function () {
+  describe('_afterFirstViewHasRendered', () => {
+    it('sets `canGoBack`', () => {
       router._afterFirstViewHasRendered();
 
       assert.isTrue(router.storage.get('canGoBack'));
     });
   });
 
-  describe('pathToViewName', function () {
-    it('strips leading /', function () {
+  describe('pathToViewName', () => {
+    it('strips leading /', () => {
       assert.equal(router.fragmentToViewName('/signin'), 'signin');
     });
 
-    it('strips trailing /', function () {
+    it('strips trailing /', () => {
       assert.equal(router.fragmentToViewName('signup/'), 'signup');
     });
 
-    it('converts middle / to .', function () {
+    it('converts middle / to .', () => {
       assert.equal(router.fragmentToViewName('/legal/tos/'), 'legal.tos');
     });
 
-    it('converts _ to -', function () {
+    it('converts _ to -', () => {
       assert.equal(router.fragmentToViewName('complete_sign_up'),
         'complete-sign-up');
     });
 
-    it('strips search parameters', function () {
+    it('strips search parameters', () => {
       assert.equal(router.fragmentToViewName('complete_sign_up?email=testuser@testuser.com'),
         'complete-sign-up');
     });
 
   });
 
-  describe('showView', function () {
-    it('triggers a `show-view` notification', function () {
+  describe('showView', () => {
+    it('triggers a `show-view` notification', () => {
       sinon.spy(notifier, 'trigger');
 
       var options = { key: 'value' };
@@ -320,8 +320,8 @@ describe('lib/router', function () {
     });
   });
 
-  describe('showChildView', function () {
-    it('triggers a `show-child-view` notification', function () {
+  describe('showChildView', () => {
+    it('triggers a `show-child-view` notification', () => {
       sinon.spy(notifier, 'trigger');
 
       var options = { key: 'value' };
@@ -332,12 +332,12 @@ describe('lib/router', function () {
     });
   });
 
-  describe('canGoBack initial value', function () {
-    it('is `false` if sessionStorage.canGoBack is not set', function () {
+  describe('canGoBack initial value', () => {
+    it('is `false` if sessionStorage.canGoBack is not set', () => {
       assert.isUndefined(router.storage._backend.getItem('canGoBack'));
     });
 
-    it('is `true` if sessionStorage.canGoBack is set', function () {
+    it('is `true` if sessionStorage.canGoBack is set', () => {
       windowMock.sessionStorage.setItem('canGoBack', true);
       router = new Router({
         metrics: metrics,
@@ -350,8 +350,8 @@ describe('lib/router', function () {
     });
   });
 
-  describe('getCurrentPage', function () {
-    it('returns the current screen URL based on Backbone.history.fragment', function () {
+  describe('getCurrentPage', () => {
+    it('returns the current screen URL based on Backbone.history.fragment', () => {
       Backbone.history.fragment = 'settings';
       assert.equal(router.getCurrentPage(), 'settings');
     });
@@ -372,26 +372,42 @@ describe('lib/router', function () {
     });
   });
 
-  describe('createViewHandler', function () {
+  describe('createViewHandler', () => {
     function View() {
     }
     var viewConstructorOptions = {};
 
-    it('returns a function that can be used by the router to show a View', function () {
+    beforeEach(() => {
       sinon.spy(router, 'showView');
+    });
+
+    it('returns a function that can be used by the router to show a View', () => {
 
       var routeHandler = router.createViewHandler(View, viewConstructorOptions);
       assert.isFunction(routeHandler);
       assert.isFalse(router.showView.called);
 
-      routeHandler.call(router);
+      return routeHandler.call(router)
+        .then(() => {
+          assert.isTrue(
+            router.showView.calledWith(View, viewConstructorOptions));
+        });
+    });
 
-      assert.isTrue(
-        router.showView.calledWith(View, viewConstructorOptions));
+    it('handles module names for the view', () => {
+      var routeHandler = router.createViewHandler('sign_in', viewConstructorOptions);
+      assert.isFunction(routeHandler);
+      assert.isFalse(router.showView.called);
+
+      return routeHandler.call(router)
+        .then(() => {
+          assert.isTrue(
+            router.showView.calledWith(SignInView, viewConstructorOptions));
+        });
     });
   });
 
-  describe('createChildViewHandler', function () {
+  describe('createChildViewHandler', () => {
     function ParentView() {
     }
     function ChildView() {
@@ -399,8 +415,11 @@ describe('lib/router', function () {
 
     var viewConstructorOptions = {};
 
-    it('returns a function that can be used by the router to show a ChildView within a ParentView', function () {
+    beforeEach(() => {
       sinon.spy(router, 'showChildView');
+    });
+
+    it('returns a function that can be used by the router to show a ChildView within a ParentView', () => {
 
       var routeHandler = router.createChildViewHandler(
         ChildView, ParentView, viewConstructorOptions);
@@ -408,11 +427,25 @@ describe('lib/router', function () {
       assert.isFunction(routeHandler);
       assert.isFalse(router.showChildView.called);
 
-      routeHandler.call(router);
-
-      assert.isTrue(router.showChildView.calledWith(
-        ChildView, ParentView, viewConstructorOptions));
+      return routeHandler.call(router)
+        .then(() => {
+          assert.isTrue(router.showChildView.calledWith(
+            ChildView, ParentView, viewConstructorOptions));
+        });
     });
+
+    it('handles module names for the view', () => {
+      var routeHandler = router.createChildViewHandler('sign_in', ParentView, viewConstructorOptions);
+      assert.isFunction(routeHandler);
+      assert.isFalse(router.showChildView.called);
+
+      return routeHandler.call(router)
+        .then(() => {
+          assert.isTrue(
+            router.showChildView.calledWith(SignInView, ParentView, viewConstructorOptions));
+        });
+    });
+
   });
 
   describe('signup flow', () => {

@@ -2,98 +2,101 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+import $ from 'jquery';
+import { assert } from 'chai';
+import BaseView from 'views/base';
+import Cocktail from 'cocktail';
+import ModalSettingsPanelMixin from 'views/mixins/modal-settings-panel-mixin';
+import Notifier from 'lib/channels/notifier';
+import sinon from 'sinon';
+import TestTemplate from 'templates/test_template.mustache';
 
-  const $ = require('jquery');
-  const { assert } = require('chai');
-  const BaseView = require('views/base');
-  const Cocktail = require('cocktail');
-  const ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
-  const Notifier = require('lib/channels/notifier');
-  const sinon = require('sinon');
-  const TestTemplate = require('templates/test_template.mustache');
+const ModalSettingsPanelView = BaseView.extend({
+  template: TestTemplate
+});
 
-  const ModalSettingsPanelView = BaseView.extend({
-    template: TestTemplate
+Cocktail.mixin(
+  ModalSettingsPanelView,
+  ModalSettingsPanelMixin
+);
+
+describe('views/mixins/modal-settings-panel-mixin', () => {
+  let notifier;
+  let view;
+
+  beforeEach(() => {
+    notifier = new Notifier();
+
+    view = new ModalSettingsPanelView({
+      notifier,
+      parentView: {
+        displaySuccess: sinon.spy()
+      },
+    });
+
+    return view.render();
   });
 
-  Cocktail.mixin(
-    ModalSettingsPanelView,
-    ModalSettingsPanelMixin
-  );
+  afterEach(() => {
+    view.remove();
+    view.destroy();
 
-  describe('views/mixins/modal-settings-panel-mixin', function () {
-    let notifier;
-    let view;
+    view = null;
+  });
 
-    beforeEach(function () {
-      notifier = new Notifier();
-
-      view = new ModalSettingsPanelView({
-        notifier,
-        parentView: {
-          displaySuccess: sinon.spy()
-        },
-      });
-
-      return view.render();
+  describe('events', () => {
+    beforeEach(() => {
+      $('#container').html(view.$el);
     });
 
-    afterEach(function () {
-      view.remove();
-      view.destroy();
-
-      view = null;
+    it('cancel button click navigates to settings', () => {
+      sinon.stub(view, 'navigate').callsFake(() => {});
+      // there are two button.cancel's in the DOM, only click the first or else
+      // two navigate calls are made.
+      $('button.cancel:nth(0)').click();
+      assert.isTrue(view.navigate.calledOnceWith('settings'));
     });
 
-    describe('events', () => {
-      beforeEach(() => {
-        $('#container').html(view.$el);
-      });
+    it('back button click navigates to settings/avatar/change', () => {
+      sinon.stub(view, 'navigate').callsFake(() => { });
+      $('.modal-panel #back').click();
+      assert.isTrue(view.navigate.calledOnceWith('settings/avatar/change'));
+    });
+  });
 
-      it('cancel button click navigates to settings', function () {
-        sinon.stub(view, 'navigate').callsFake(() => {});
-        $('button.cancel').click();
-        assert.isTrue(view.navigate.calledWith('settings'));
-      });
+  it('displaySuccess delegates to the parent view', () => {
+    view.displaySuccess('hi');
+    assert.isTrue(view.parentView.displaySuccess.calledOnceWith('hi'));
+  });
 
-      it('back button click navigates to settings/avatar/change', function () {
-        sinon.stub(view, 'navigate').callsFake(function () { });
-        $('.modal-panel #back').click();
-        assert.isTrue(view.navigate.calledWith('settings/avatar/change'));
+  describe('modal-cancel event', () => {
+    beforeEach(() => {
+      sinon.stub(view, 'navigate').callsFake(function () {
+        this._hasNavigated = true;
       });
     });
 
-    it('displaySuccess delegates to the parent view', function () {
-      view.displaySuccess('hi');
-      assert.isTrue(view.parentView.displaySuccess.calledWith('hi'));
+    describe('cancel from clients disconnect modal navigates to /settings/clients', () => {
+      it('navigates to /settings/clients', () => {
+        view.currentPage = 'settings/clients/disconnect';
+        view.trigger('modal-cancel');
+        assert.isTrue(view.navigate.calledOnceWith('settings/clients'));
+      });
     });
 
-    describe('modal-cancel event', () => {
-      beforeEach(() => {
-        sinon.stub(view, 'navigate').callsFake(function () {
-          this._hasNavigated = true;
-        });
+    describe('cancel from other modal navigates to /settings', () => {
+      it('does not navigate to settings', () => {
+        view.currentPage = 'settings/avatar/change';
+        view.trigger('modal-cancel');
+        assert.isTrue(view.navigate.calledOnceWith('settings'));
       });
+    });
 
-      describe('cancel from clients disconnect modal navigates to /settings/clients', () => {
-        it('navigates to /settings/clients', () => {
-          view.currentPage = 'settings/clients/disconnect';
-          view.trigger('modal-cancel');
-          assert.isTrue(view.navigate.calledOnce);
-          assert.isTrue(view.navigate.calledWith('settings/clients'));
-        });
-      });
-
-      describe('cancel from other modal navigates to /settings', () => {
-        it('does not navigate to settings', () => {
-          view.currentPage = 'settings/avatar/change';
-          view.trigger('modal-cancel');
-          assert.isTrue(view.navigate.calledOnce);
-          assert.isTrue(view.navigate.calledWith('settings'));
-        });
-      });
+    it('modal-cancel event is ignored if a navigate occurs', () => {
+      view.navigate('settings');
+      view.currentPage = 'settings/clients/disconnect';
+      view.trigger('modal-cancel');
+      assert.isTrue(view.navigate.calledOnceWith('settings'));
     });
   });
 });

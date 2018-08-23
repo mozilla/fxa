@@ -823,12 +823,12 @@ define(function (require, exports, module) {
         this.logError(nextViewData.error);
       }
 
+      this._hasNavigated = true;
       this.notifier.trigger('navigate', {
         nextViewData: nextViewData,
         routerOptions: routerOptions,
         url: url
       });
-      this._hasNavigated = true;
     },
 
     /**
@@ -837,11 +837,11 @@ define(function (require, exports, module) {
      * @param {String} url
      */
     navigateAway (url) {
+      this._hasNavigated = true;
       this.notifier.trigger('navigate', {
         server: true,
         url
       });
-      this._hasNavigated = true;
     },
 
     /**
