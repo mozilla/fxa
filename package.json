@@ -14,5 +14,8 @@
     "bluebird": "3.4.7",
     "github": "8.1.1",
     "got": "6.7.1"
+  },
+  "devDependencies": {
+    "mustache": "2.3.0"
   }
 }
