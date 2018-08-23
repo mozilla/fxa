@@ -7,16 +7,13 @@
  * Requires the object to have this.window.location.search
  */
 
-define(function (require, exports, module) {
-  'use strict';
+import SearchParamMixin from '../../lib/search-param-mixin';
+import Transform from '../../lib/transform';
 
-  const SearchParamMixin = require('../../lib/search-param-mixin');
-  const Transform = require('../../lib/transform');
+module.exports = {
+  dependsOn: [ SearchParamMixin ],
 
-  module.exports = {
-    dependsOn: [ SearchParamMixin ],
-
-    /**
+  /**
      * Import search parameters defined in the schema. Parameters are
      * transformed and validated based on the rules defined in the `schema`.
      *
@@ -32,10 +29,9 @@ define(function (require, exports, module) {
      * `INVALID_PARAMETER` error is generated, with the error's
      * `param` field set to the invalid field's name.
      */
-    importSearchParamsUsingSchema (schema, Errors) {
-      var params = this.getSearchParams(Object.keys(schema));
-      var result = Transform.transformUsingSchema(params, schema, Errors);
-      this.set(result);
-    }
-  };
-});
+  importSearchParamsUsingSchema (schema, Errors) {
+    var params = this.getSearchParams(Object.keys(schema));
+    var result = Transform.transformUsingSchema(params, schema, Errors);
+    this.set(result);
+  }
+};

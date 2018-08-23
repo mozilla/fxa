@@ -2,116 +2,108 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
+import Backbone from 'backbone';
+import Cocktail from 'cocktail';
+import SearchParamMixin from 'models/mixins/search-param';
+import TestHelpers from '../../../lib/helpers';
+import Vat from 'vat';
+import WindowMock from '../../../mocks/window';
 
-  const AuthErrors = require('lib/auth-errors');
-  const Backbone = require('backbone');
-  const chai = require('chai');
-  const Cocktail = require('cocktail');
-  const SearchParamMixin = require('models/mixins/search-param');
-  const TestHelpers = require('../../../lib/helpers');
-  const Vat = require('vat');
-  const WindowMock = require('../../../mocks/window');
+describe('models/mixins/search-param', function () {
+  var windowMock;
+  var model;
 
-  var assert = chai.assert;
+  var Model = Backbone.Model.extend({
+    initialize (options) {
+      this.window = options.window;
+    }
+  });
 
-  describe('models/mixins/search-param', function () {
-    var windowMock;
-    var model;
+  Cocktail.mixin(
+    Model,
+    SearchParamMixin
+  );
 
-    var Model = Backbone.Model.extend({
-      initialize (options) {
-        this.window = options.window;
-      }
-    });
+  beforeEach(function () {
+    windowMock = new WindowMock();
+    model = new Model({ window: windowMock });
+  });
 
-    Cocktail.mixin(
-      Model,
-      SearchParamMixin
-    );
-
-    beforeEach(function () {
-      windowMock = new WindowMock();
-      model = new Model({ window: windowMock });
-    });
-
-    describe('getSearchParam', function () {
-      it('returns the value of a search parameter, if available', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          searchParam: 'value'
-        });
-        assert.equal(model.getSearchParam('searchParam'), 'value');
-        assert.isUndefined(model.getSearchParam('notAvailable'));
+  describe('getSearchParam', function () {
+    it('returns the value of a search parameter, if available', function () {
+      windowMock.location.search = TestHelpers.toSearchString({
+        searchParam: 'value'
       });
+      assert.equal(model.getSearchParam('searchParam'), 'value');
+      assert.isUndefined(model.getSearchParam('notAvailable'));
     });
+  });
 
-    describe('importSearchParamsUsingSchema', function () {
-      var schema = {
-        optional: Vat.string().optional(),
-        required: Vat.string().valid('value').required()
-      };
+  describe('importSearchParamsUsingSchema', function () {
+    var schema = {
+      optional: Vat.string().optional(),
+      required: Vat.string().valid('value').required()
+    };
 
-      describe('passes validation', function () {
-        beforeEach(function () {
-          windowMock.location.search =
+    describe('passes validation', function () {
+      beforeEach(function () {
+        windowMock.location.search =
             TestHelpers.toSearchString({ ignored: true, required: 'value' });
-          model.importSearchParamsUsingSchema(schema, AuthErrors);
+        model.importSearchParamsUsingSchema(schema, AuthErrors);
+      });
+
+      it('imports fields in the schema that have values', function () {
+        assert.equal(model.get('required'), 'value');
+      });
+
+      it('does not import optional fields in the schema w/o values', function () {
+        assert.isFalse(model.has('optional'));
+      });
+
+      it('ignores fields not in the schema', function () {
+        assert.isFalse(model.has('ignored'));
+      });
+    });
+
+    describe('does not pass validation', function () {
+      var err;
+
+      describe('missing data', function () {
+        beforeEach(function () {
+          windowMock.location.search = TestHelpers.toSearchString({});
+          try {
+            model.importSearchParamsUsingSchema(schema, AuthErrors);
+          } catch (e) {
+            err = e;
+          }
         });
 
-        it('imports fields in the schema that have values', function () {
-          assert.equal(model.get('required'), 'value');
-        });
-
-        it('does not import optional fields in the schema w/o values', function () {
-          assert.isFalse(model.has('optional'));
-        });
-
-        it('ignores fields not in the schema', function () {
-          assert.isFalse(model.has('ignored'));
+        it('throws a MISSING_PARAMETER error', function () {
+          assert.isTrue(AuthErrors.is(err, 'MISSING_PARAMETER'));
+          assert.equal(err.param, 'required');
         });
       });
 
-      describe('does not pass validation', function () {
-        var err;
-
-        describe('missing data', function () {
-          beforeEach(function () {
-            windowMock.location.search = TestHelpers.toSearchString({});
-            try {
-              model.importSearchParamsUsingSchema(schema, AuthErrors);
-            } catch (e) {
-              err = e;
-            }
+      describe('invalid data', function () {
+        beforeEach(function () {
+          windowMock.location.search = TestHelpers.toSearchString({
+            required: 'invalid'
           });
 
-          it('throws a MISSING_PARAMETER error', function () {
-            assert.isTrue(AuthErrors.is(err, 'MISSING_PARAMETER'));
-            assert.equal(err.param, 'required');
-          });
+          try {
+            model.importSearchParamsUsingSchema(schema, AuthErrors);
+          } catch (e) {
+            err = e;
+          }
         });
 
-        describe('invalid data', function () {
-          beforeEach(function () {
-            windowMock.location.search = TestHelpers.toSearchString({
-              required: 'invalid'
-            });
-
-            try {
-              model.importSearchParamsUsingSchema(schema, AuthErrors);
-            } catch (e) {
-              err = e;
-            }
-          });
-
-          it('throws a INVALID_PARAMETER', function () {
-            assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
-            assert.equal(err.param, 'required');
-          });
+        it('throws a INVALID_PARAMETER', function () {
+          assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
+          assert.equal(err.param, 'required');
         });
       });
     });
   });
 });
-
-

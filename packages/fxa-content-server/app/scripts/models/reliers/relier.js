@@ -10,153 +10,149 @@
  * query parameter.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+import _ from 'underscore';
+import AuthErrors from '../../lib/auth-errors';
+import BaseRelier from './base';
+import Cocktail from 'cocktail';
+import Constants from '../../lib/constants';
+import ResumeTokenMixin from '../mixins/resume-token';
+import SearchParamMixin from '../mixins/search-param';
+import Vat from '../../lib/vat';
 
-  const _ = require('underscore');
-  const AuthErrors = require('../../lib/auth-errors');
-  const BaseRelier = require('./base');
-  const Cocktail = require('cocktail');
-  const Constants = require('../../lib/constants');
-  const ResumeTokenMixin = require('../mixins/resume-token');
-  const SearchParamMixin = require('../mixins/search-param');
-  const Vat = require('../../lib/vat');
-
-  var RELIER_FIELDS_IN_RESUME_TOKEN = [
-    'entrypoint',
-    'resetPasswordConfirm',
-    'utmCampaign',
-    'utmContent',
-    'utmMedium',
-    'utmSource',
-    'utmTerm'
-  ];
+var RELIER_FIELDS_IN_RESUME_TOKEN = [
+  'entrypoint',
+  'resetPasswordConfirm',
+  'utmCampaign',
+  'utmContent',
+  'utmMedium',
+  'utmSource',
+  'utmTerm'
+];
 
   /*eslint-disable camelcase*/
-  var QUERY_PARAMETER_SCHEMA = {
-    email: Vat.email().allow(Constants.DISALLOW_CACHED_CREDENTIALS),
-    // FxDesktop declares both `entryPoint` (capital P) and
-    // `entrypoint` (lowcase p). Normalize to `entrypoint`.
-    entryPoint: Vat.string(),
-    entrypoint: Vat.string(),
-    migration: Vat.string().valid(Constants.AMO_MIGRATION, Constants.SYNC11_MIGRATION),
-    reset_password_confirm: Vat.boolean().renameTo('resetPasswordConfirm'),
-    setting: Vat.string(),
-    uid: Vat.uid(),
-    utm_campaign: Vat.string().renameTo('utmCampaign'),
-    utm_content: Vat.string().renameTo('utmContent'),
-    utm_medium: Vat.string().renameTo('utmMedium'),
-    utm_source: Vat.string().renameTo('utmSource'),
-    utm_term: Vat.string().renameTo('utmTerm')
-  };
+var QUERY_PARAMETER_SCHEMA = {
+  email: Vat.email().allow(Constants.DISALLOW_CACHED_CREDENTIALS),
+  // FxDesktop declares both `entryPoint` (capital P) and
+  // `entrypoint` (lowcase p). Normalize to `entrypoint`.
+  entryPoint: Vat.string(),
+  entrypoint: Vat.string(),
+  migration: Vat.string().valid(Constants.AMO_MIGRATION, Constants.SYNC11_MIGRATION),
+  reset_password_confirm: Vat.boolean().renameTo('resetPasswordConfirm'),
+  setting: Vat.string(),
+  uid: Vat.uid(),
+  utm_campaign: Vat.string().renameTo('utmCampaign'),
+  utm_content: Vat.string().renameTo('utmContent'),
+  utm_medium: Vat.string().renameTo('utmMedium'),
+  utm_source: Vat.string().renameTo('utmSource'),
+  utm_term: Vat.string().renameTo('utmTerm')
+};
 
-  var VERIFICATION_QUERY_PARAMETER_SCHEMA = _.extend({}, QUERY_PARAMETER_SCHEMA, {
-    // Verification links are sometimes broken by mail user-agents.
-    // The rules on the following fields are relaxed for startup,
-    // and then further validated by the views that use them. If
-    // the fields are invalid, context specific help text is displayed
-    // that helps the user remedy the problem.
-    email: Vat.string().allow(Constants.DISALLOW_CACHED_CREDENTIALS),
-    redirectTo: Vat.url(),
-    uid: Vat.string()
-  });
+var VERIFICATION_QUERY_PARAMETER_SCHEMA = _.extend({}, QUERY_PARAMETER_SCHEMA, {
+  // Verification links are sometimes broken by mail user-agents.
+  // The rules on the following fields are relaxed for startup,
+  // and then further validated by the views that use them. If
+  // the fields are invalid, context specific help text is displayed
+  // that helps the user remedy the problem.
+  email: Vat.string().allow(Constants.DISALLOW_CACHED_CREDENTIALS),
+  redirectTo: Vat.url(),
+  uid: Vat.string()
+});
 
   /*eslint-enable camelcase*/
 
-  var Relier = BaseRelier.extend({
-    defaults: {
-      allowCachedCredentials: true,
-      // This ensures for non-oauth reliers, SOME context is sent to the auth
-      // server to let the auth server know requests come from the content
-      // server and not some other service.
-      context: Constants.CONTENT_SERVER_CONTEXT,
-      email: null,
-      entrypoint: null,
-      migration: null,
-      resetPasswordConfirm: true,
-      setting: null,
-      uid: null,
-      utmCampaign: null,
-      utmContent: null,
-      utmMedium: null,
-      utmSource: null,
-      utmTerm: null
-    },
+var Relier = BaseRelier.extend({
+  defaults: {
+    allowCachedCredentials: true,
+    // This ensures for non-oauth reliers, SOME context is sent to the auth
+    // server to let the auth server know requests come from the content
+    // server and not some other service.
+    context: Constants.CONTENT_SERVER_CONTEXT,
+    email: null,
+    entrypoint: null,
+    migration: null,
+    resetPasswordConfirm: true,
+    setting: null,
+    uid: null,
+    utmCampaign: null,
+    utmContent: null,
+    utmMedium: null,
+    utmSource: null,
+    utmTerm: null
+  },
 
-    initialize (attributes, options = {}) {
-      this._queryParameterSchema = options.isVerification ?
-        VERIFICATION_QUERY_PARAMETER_SCHEMA : QUERY_PARAMETER_SCHEMA;
+  initialize (attributes, options = {}) {
+    this._queryParameterSchema = options.isVerification ?
+      VERIFICATION_QUERY_PARAMETER_SCHEMA : QUERY_PARAMETER_SCHEMA;
 
-      this.sentryMetrics = options.sentryMetrics;
-      this.window = options.window || window;
-    },
+    this.sentryMetrics = options.sentryMetrics;
+    this.window = options.window || window;
+  },
 
-    /**
-     * Hydrate the model. Returns a promise to allow
-     * for an asynchronous load. Sub-classes that override
-     * fetch should still call Relier's version before completing.
-     *
-     * e.g.
-     *
-     * fetch () {
-     *   return Relier.prototype.fetch.call(this)
-     *       .then(function () {
-     *         // do overriding behavior here.
-     *       });
-     * }
-     *
-     * @method fetch
-     * @returns {Promise}
-     */
-    fetch () {
-      return Promise.resolve().then(() => {
-        // parse the resume token before importing any other data.
-        // query parameters and server provided data override
-        // resume provided data.
-        this.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
-        // TODO - validate data coming from the resume token
+  /**
+   * Hydrate the model. Returns a promise to allow
+   * for an asynchronous load. Sub-classes that override
+   * fetch should still call Relier's version before completing.
+   *
+   * e.g.
+   *
+   * fetch () {
+   *   return Relier.prototype.fetch.call(this)
+   *       .then(function () {
+   *         // do overriding behavior here.
+   *       });
+   * }
+   *
+   * @method fetch
+   * @returns {Promise}
+   */
+  fetch () {
+    return Promise.resolve().then(() => {
+      // parse the resume token before importing any other data.
+      // query parameters and server provided data override
+      // resume provided data.
+      this.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
+      // TODO - validate data coming from the resume token
 
-        this.importSearchParamsUsingSchema(this._queryParameterSchema, AuthErrors);
+      this.importSearchParamsUsingSchema(this._queryParameterSchema, AuthErrors);
 
-        // FxDesktop declares both `entryPoint` (capital P) and
-        // `entrypoint` (lowcase p). Normalize to `entrypoint`.
-        if (this.has('entryPoint') && ! this.has('entrypoint')) {
-          this.set('entrypoint', this.get('entryPoint'));
-        }
+      // FxDesktop declares both `entryPoint` (capital P) and
+      // `entrypoint` (lowcase p). Normalize to `entrypoint`.
+      if (this.has('entryPoint') && ! this.has('entrypoint')) {
+        this.set('entrypoint', this.get('entryPoint'));
+      }
 
-        if (this.get('email') === Constants.DISALLOW_CACHED_CREDENTIALS) {
-          this.unset('email');
-          this.set('allowCachedCredentials', false);
-        }
+      if (this.get('email') === Constants.DISALLOW_CACHED_CREDENTIALS) {
+        this.unset('email');
+        this.set('allowCachedCredentials', false);
+      }
 
-        if (this.has('migration')) {
-          // Support for the sync1.1 migration message was
-          // removed in #6130, support for AMO in #6131.
-          // Accept the value so no errors are caused but
-          // drop the value on the ground.
-          this.unset('migration');
-        }
-      });
-    },
+      if (this.has('migration')) {
+        // Support for the sync1.1 migration message was
+        // removed in #6130, support for AMO in #6131.
+        // Accept the value so no errors are caused but
+        // drop the value on the ground.
+        this.unset('migration');
+      }
+    });
+  },
 
-    /**
-     * Check if the relier allows cached credentials. A relier
-     * can set email=blank to indicate they do not.
-     *
-     * @returns {Boolean}
-     */
-    allowCachedCredentials () {
-      return this.get('allowCachedCredentials');
-    },
+  /**
+   * Check if the relier allows cached credentials. A relier
+   * can set email=blank to indicate they do not.
+   *
+   * @returns {Boolean}
+   */
+  allowCachedCredentials () {
+    return this.get('allowCachedCredentials');
+  },
 
-    resumeTokenFields: RELIER_FIELDS_IN_RESUME_TOKEN
-  });
-
-  Cocktail.mixin(
-    Relier,
-    ResumeTokenMixin,
-    SearchParamMixin
-  );
-
-  module.exports = Relier;
+  resumeTokenFields: RELIER_FIELDS_IN_RESUME_TOKEN
 });
+
+Cocktail.mixin(
+  Relier,
+  ResumeTokenMixin,
+  SearchParamMixin
+);
+
+module.exports = Relier;

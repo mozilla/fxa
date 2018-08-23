@@ -7,31 +7,27 @@
  * Requires the object to have this.window.location.search
  */
 
-define(function (require, exports, module) {
-  'use strict';
+import Url from './url';
 
-  const Url = require('./url');
+module.exports = {
+  /**
+   * Get a value from the URL search parameter
+   *
+   * @param {String} paramName - name of the search parameter to get
+   * @returns {String}
+   */
+  getSearchParam (paramName) {
+    return Url.searchParam(paramName, this.window.location.search);
+  },
 
-  module.exports = {
-    /**
-     * Get a value from the URL search parameter
-     *
-     * @param {String} paramName - name of the search parameter to get
-     * @returns {String}
-     */
-    getSearchParam (paramName) {
-      return Url.searchParam(paramName, this.window.location.search);
-    },
-
-    /**
-     * Get values from the URL search parameters.
-     *
-     * @param {String[]} paramNames - name of the search parameters
-     * to get
-     * @returns {Object}
-     */
-    getSearchParams (paramNames) {
-      return Url.searchParams(this.window.location.search, paramNames);
-    }
-  };
-});
+  /**
+   * Get values from the URL search parameters.
+   *
+   * @param {String[]} paramNames - name of the search parameters
+   * to get
+   * @returns {Object}
+   */
+  getSearchParams (paramNames) {
+    return Url.searchParams(this.window.location.search, paramNames);
+  }
+};
