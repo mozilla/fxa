@@ -158,6 +158,22 @@ describe('views/sign_in_recovery_code', () => {
       });
     });
 
+    describe('success with no recovery codes left', () => {
+      beforeEach(() => {
+        sinon.stub(account, 'consumeRecoveryCode').callsFake(() => Promise.resolve({remaining: 0}));
+        sinon.spy(view, 'navigate');
+        view.$('.recovery-code').val(RECOVERY_CODE);
+        return view.submit();
+      });
+
+      it('navigates to recovery code modal', () => {
+        assert.isTrue(account.consumeRecoveryCode.calledWith(RECOVERY_CODE), 'verify with correct code');
+        const args = view.navigate.args[0];
+        assert.equal(args[0], '/settings/two_step_authentication/recovery_codes', 'correct viewname');
+        assert.equal(args[1].previousViewName, 'sign_in_recovery_code', 'correct previous name');
+      });
+    });
+
     describe('invalid recovery code', () => {
       beforeEach(() => {
         sinon.stub(account, 'consumeRecoveryCode').callsFake(() => Promise.reject(AuthErrors.toError('INVALID_RECOVERY_CODE')));

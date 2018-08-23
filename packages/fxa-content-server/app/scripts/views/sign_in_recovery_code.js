@@ -13,6 +13,7 @@ const CODE_INPUT_SELECTOR = 'input.recovery-code';
 const View = FormView.extend({
   className: 'sign-in-recovery-code',
   template: Template,
+  viewName: 'sign_in_recovery_code',
 
   beforeRender() {
     const account = this.getSignedInAccount();
@@ -27,8 +28,10 @@ const View = FormView.extend({
 
     return account.consumeRecoveryCode(code)
       .then((result) => {
-        if (result.remaining < 1) {
-          // TODO Lets handle automatically generating recovery codes separately
+        if (result.remaining < 2) {
+          return this.navigate('/settings/two_step_authentication/recovery_codes', {
+            previousViewName: this.viewName
+          });
         }
 
         this.logViewEvent('success');

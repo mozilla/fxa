@@ -57,6 +57,10 @@ define(function (require, exports, module) {
         this._returnToClients();
         break;
       case 'settings/two_step_authentication/recovery_codes':
+        if (this.model.get('previousViewName') === 'sign_in_recovery_code') {
+          const account = this.getSignedInAccount();
+          return this.invokeBrokerMethod('afterCompleteSignInWithCode', account);
+        }
         this._returnToTwoFactorAuthentication();
         break;
       case 'settings/account_recovery/recovery_key' :
