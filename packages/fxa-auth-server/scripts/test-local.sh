@@ -12,7 +12,7 @@ if [ -z "$GLOB" ]; then
   GLOB="test/local test/remote"
 fi
 
-DEFAULT_ARGS="-R dot --recursive --timeout 5000"
+DEFAULT_ARGS="-R dot --recursive --timeout 5000 --exit"
 
 ./scripts/gen_keys.js
 ./scripts/gen_vapid_keys.js

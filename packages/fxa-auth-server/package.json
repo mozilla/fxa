@@ -19,7 +19,7 @@
     "test": "VERIFIER_VERSION=0 MEMCACHE_METRICS_CONTEXT_ADDRESS=none NO_COVERAGE=1 scripts/test-local.sh",
     "test-ci": "scripts/test-local.sh",
     "test-e2e": "NODE_ENV=dev mocha test/e2e",
-    "test-scripts": "mocha test/scripts",
+    "test-scripts": "mocha test/scripts --exit",
     "test-remote": "MAILER_HOST=restmail.net MAILER_PORT=80 CORS_ORIGIN=http://baz mocha --timeout=300000 test/remote"
   },
   "repository": {
@@ -107,7 +107,7 @@
     "load-grunt-tasks": "3.5.2",
     "mailparser": "0.6.1",
     "mkdirp": "0.5.1",
-    "mocha": "3.1.2",
+    "mocha": "5.2.0",
     "nock": "8.0.0",
     "npmshrink": "1.0.1",
     "nyc": "13.0.0",
