@@ -307,22 +307,19 @@ module.exports = function (log, error) {
     )
   }
 
-  // eslint-disable-next-line no-unused-vars
   const UPSERT_AVAILABLE_COMMAND = 'CALL upsertAvailableCommand_1(?, ?, ?, ?)'
   const PURGE_AVAILABLE_COMMANDS = 'CALL purgeAvailableCommands_1(?, ?)'
 
   function makeStatementsToAddAvailableCommands(uid, deviceId, deviceInfo) {
-    // HACK: Disabled while we work through issues in prod
-    return []
-    //const availableCommands = deviceInfo.availableCommands || {}
-    //return Object.keys(availableCommands).reduce((acc, commandName) => {
-    //  const commandData = availableCommands[commandName]
-    //  acc.push({
-    //    sql: UPSERT_AVAILABLE_COMMAND,
-    //    params: [uid, deviceId, commandName, commandData]
-    //  })
-    //  return acc
-    //}, [])
+    const availableCommands = deviceInfo.availableCommands || {}
+    return Object.keys(availableCommands).reduce((acc, commandName) => {
+      const commandData = availableCommands[commandName]
+      acc.push({
+        sql: UPSERT_AVAILABLE_COMMAND,
+        params: [uid, deviceId, commandName, commandData]
+      })
+      return acc
+    }, [])
   }
 
   const CREATE_DEVICE = 'CALL createDevice_4(?, ?, ?, ?, ?, ?, ?, ?, ?)'
@@ -415,7 +412,7 @@ module.exports = function (log, error) {
   //          s.uaBrowser, s.uaBrowserVersion, s.uaOS, s.uaOSVersion, s.uaDeviceType,
   //          s.uaFormFactor, s.lastAccessTime, {  ci.commandName : dc.commandData }
   // Where  : d.uid = $1
-  var ACCOUNT_DEVICES = 'CALL accountDevices_14(?)'
+  var ACCOUNT_DEVICES = 'CALL accountDevices_15(?)'
 
   MySql.prototype.accountDevices = function (uid) {
     return this.readAllResults(ACCOUNT_DEVICES, [uid])
@@ -428,7 +425,7 @@ module.exports = function (log, error) {
   //          s.uaBrowser, s.uaBrowserVersion, s.uaOS, s.uaOSVersion, s.uaDeviceType,
   //          s.uaFormFactor, s.lastAccessTime, {  ci.commandName : dc.commandData }
   // Where  : d.uid = $1 AND d.id = $2
-  var DEVICE = 'CALL device_1(?, ?)'
+  var DEVICE = 'CALL device_2(?, ?)'
 
   MySql.prototype.device = function (uid, id) {
     return this.readAllResults(DEVICE, [uid, id])
@@ -446,7 +443,7 @@ module.exports = function (log, error) {
   //          d.callbackAuthKey, d.callbackIsExpired
   // Where  : u.uid = $1 AND u.tokenVerificationId = $2 AND
   //          u.tokenId = d.sessionTokenId AND u.uid = d.uid
-  var DEVICE_FROM_TOKEN_VERIFICATION_ID = 'CALL deviceFromTokenVerificationId_5(?, ?)'
+  var DEVICE_FROM_TOKEN_VERIFICATION_ID = 'CALL deviceFromTokenVerificationId_6(?, ?)'
 
   MySql.prototype.deviceFromTokenVerificationId = function (uid, tokenVerificationId) {
     return this.readAllResults(DEVICE_FROM_TOKEN_VERIFICATION_ID, [uid, tokenVerificationId])
@@ -471,7 +468,7 @@ module.exports = function (log, error) {
   //          ut.tokenVerificationId, ut.mustVerify
   // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = d.sessionTokenId AND
   //          t.uid = d.uid AND t.tokenId = u.tokenId
-  var SESSION_DEVICE = 'CALL sessionWithDevice_14(?)'
+  var SESSION_DEVICE = 'CALL sessionWithDevice_15(?)'
 
   MySql.prototype.sessionToken = function (id) {
     return this.readAllResults(SESSION_DEVICE, [id])
@@ -493,7 +490,7 @@ module.exports = function (log, error) {
   //          d.callbackIsExpired AS deviceCallbackIsExpired
   // Where  : t.uid = $1 AND t.tokenId = d.sessionTokenId AND
   //          t.uid = d.uid AND t.tokenId = u.tokenId
-  var SESSIONS = 'CALL sessions_10(?)'
+  var SESSIONS = 'CALL sessions_11(?)'
 
   MySql.prototype.sessions = function (uid) {
     return this.readAllResults(SESSIONS, [uid])

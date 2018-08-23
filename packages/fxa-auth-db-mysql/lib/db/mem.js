@@ -532,8 +532,7 @@ module.exports = function (log, error) {
             callbackPublicKey: device.callbackPublicKey,
             callbackAuthKey: device.callbackAuthKey,
             callbackIsExpired: device.callbackIsExpired,
-            // HACK: Disabled while we work through issues in prod
-            availableCommands: {}
+            availableCommands: device.availableCommands
           })
         }
       )
@@ -611,8 +610,7 @@ module.exports = function (log, error) {
           item.deviceCallbackPublicKey = device.callbackPublicKey
           item.deviceCallbackAuthKey = device.callbackAuthKey
           item.deviceCallbackIsExpired = device.callbackIsExpired
-          // HACK: Disabled while we work through issues in prod
-          item.deviceAvailableCommands = {}
+          item.deviceAvailableCommands = device.availableCommands
         }
 
         return item
@@ -691,8 +689,7 @@ module.exports = function (log, error) {
           deviceCallbackPublicKey: deviceInfo.callbackPublicKey || null,
           deviceCallbackAuthKey: deviceInfo.callbackAuthKey || null,
           deviceCallbackIsExpired: deviceInfo.callbackIsExpired !== undefined ? deviceInfo.callbackIsExpired : null,
-          // HACK: Disabled while we work through issues in prod
-          deviceAvailableCommands: deviceInfo.availableCommands ? {} : null
+          deviceAvailableCommands: deviceInfo.availableCommands || null
         }
 
         return session
