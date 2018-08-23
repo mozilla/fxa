@@ -1,3 +1,12 @@
+<a name="1.119.3"></a>
+## [1.119.3](https://github.com/mozilla/fxa-auth-server/compare/v1.119.1...v1.119.3) (2018-08-23)
+
+
+### Bug Fixes
+
+* **mysql:** fix pushbox mysql (#2597) r=@philbooth ([cd5b5cd](https://github.com/mozilla/fxa-auth-server/commit/cd5b5cd)), closes [#2597](https://github.com/mozilla/fxa-auth-server/issues/2597)
+
+
 <a name="1.119.2"></a>
 ## [1.119.2](https://github.com/mozilla/fxa-auth-server/compare/v1.119.1...v1.119.2) (2018-08-23)
 
