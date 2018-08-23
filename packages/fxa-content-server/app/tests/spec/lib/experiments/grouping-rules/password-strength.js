@@ -26,9 +26,12 @@ describe('lib/experiments/grouping-rules/password-strength', () => {
       };
     });
 
+    it('has the expected locales fully rolled out', () => {
+      assert.include(experiment.FULLY_ROLLED_OUT, 'en');
+    });
+
     it('has the expected rollout rates defined', () => {
       assert.equal(experiment.ROLLOUT_RATES.de, 0.2);
-      assert.equal(experiment.ROLLOUT_RATES.en, 1.0);
     });
 
     ['a@mozilla.org', 'a@softvision.com', 'a@softvision.ro', 'a@softvision.com'].forEach((email) => {
@@ -38,16 +41,23 @@ describe('lib/experiments/grouping-rules/password-strength', () => {
       });
     });
 
-    it('delegates to uniformChoice if in rollout', () => {
+    it('returns designF if fully rolled out, delegates to uniformChoice if partially rolled out', () => {
+      experiment.FULLY_ROLLED_OUT = ['en'];
       experiment.ROLLOUT_RATES = {
-        en: 1.0
+        de: 1.0
       };
       sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
-      experiment.choose(subject);
+
+      assert.equal(experiment.choose(subject), 'designF');
+      assert.isFalse(experiment.uniformChoice.called);
+
+      subject.lang = 'de';
+      assert.equal(experiment.choose(subject), 'control');
       assert.isTrue(experiment.uniformChoice.calledOnceWith(['control', 'designF']));
     });
 
     it('delegates to uniformChoice if in rollout using extended lang', () => {
+      experiment.FULLY_ROLLED_OUT = [];
       experiment.ROLLOUT_RATES = {
         de: 1.0,
         en: 1.0
@@ -63,6 +73,7 @@ describe('lib/experiments/grouping-rules/password-strength', () => {
     });
 
     it('returns false if not in rollout', () => {
+      experiment.FULLY_ROLLED_OUT = [];
       experiment.ROLLOUT_RATES = {
         de: 1.0
       };
@@ -70,6 +81,7 @@ describe('lib/experiments/grouping-rules/password-strength', () => {
     });
 
     it('returns false if rollout set to 0', () => {
+      experiment.FULLY_ROLLED_OUT = [];
       experiment.ROLLOUT_RATES = {
         en: 0.0
       };
@@ -78,6 +90,7 @@ describe('lib/experiments/grouping-rules/password-strength', () => {
 
     it('returns false if lang is not defined', () => {
       const esSubject = Object.assign({}, subject, { lang: 'es' });
+      experiment.FULLY_ROLLED_OUT = [];
       experiment.ROLLOUT_RATES = {
         'de': 0.2,
         'en': 1.0,

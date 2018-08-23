@@ -11,9 +11,9 @@ const selectors = require('./lib/selectors');
 
 const config = intern._config;
 
-const SIGNUP_URL = `${config.fxaContentRoot}signup?showAccountRecovery=true`;
-const SIGNIN_URL = `${config.fxaContentRoot}signin?showAccountRecovery=true`;
-const SETTINGS_URL = `${config.fxaContentRoot}settings?showAccountRecovery=true`;
+const SIGNUP_URL = `${config.fxaContentRoot}signup`;
+const SIGNIN_URL = `${config.fxaContentRoot}signin`;
+const SETTINGS_URL = `${config.fxaContentRoot}settings`;
 const RESET_PASSWORD_URL = config.fxaContentRoot + 'reset_password?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true';
 const PASSWORD = 'password';
 const NEW_PASSWORD = '()()():|';
@@ -29,6 +29,7 @@ const {
   fillOutResetPassword,
   fillOutSignIn,
   fillOutSignUp,
+  noSuchElement,
   openPage,
   openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
@@ -44,21 +45,16 @@ registerSuite('Recovery key', {
 
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
+    const queryOptions = {query: {showAccountRecovery: true}};
     const remote = this.remote;
 
     return this.remote
-      .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
+      .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER, queryOptions))
       .then(fillOutSignUp(email, PASSWORD))
       .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
       .then(openVerificationLinkInSameTab(email, 0))
       .then(testElementExists(selectors.SETTINGS.HEADER))
-
-      .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
-      .then(testElementExists(selectors.SETTINGS.HEADER))
-
-      // Perform a slight sleep here to ensure that the checks
-      // to enable the panel have been performed.
-      .sleep(1000)
+      .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER, queryOptions))
 
       .then(click(selectors.RECOVERY_KEY.MENU_BUTTON))
       .then(testElementExists(selectors.RECOVERY_KEY.STATUS_DISABLED))
@@ -197,19 +193,52 @@ registerSuite('Recovery key', {
   }
 });
 
+registerSuite('Recovery key - experiment', {
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
+
+  tests: {
+    'verified - control': function () {
+      email = TestHelpers.createEmail('sync{id}');
+      const queryOptions = {query: {forceExperiment: 'recoveryKey', forceExperimentGroup: 'control'}};
+
+      return this.remote
+        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER, queryOptions))
+        .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+        .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
+
+        .then(noSuchElement(selectors.RECOVERY_KEY.MENU_BUTTON));
+    },
+
+    'verified - treatment': function () {
+      email = TestHelpers.createEmail('sync{id}');
+      const queryOptions = {query: {forceExperiment: 'recoveryKey', forceExperimentGroup: 'treatment'}};
+
+      return this.remote
+        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER, queryOptions))
+        .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+        .then(openVerificationLinkInSameTab(email, 0))
+        .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER, queryOptions))
+
+        .then(testElementExists(selectors.RECOVERY_KEY.MENU_BUTTON));
+    }
+  }
+});
+
 registerSuite('Recovery key - unverified session', {
   beforeEach: function () {
+    const queryOptions = {query: {showAccountRecovery: true}};
     email = TestHelpers.createEmail('sync{id}');
 
     return this.remote.then(createUser(email, PASSWORD, {preVerified: true}))
       // when an account is created, the original session is verified
       // re-login to destroy original session and created an unverified one
-      .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+      .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER, queryOptions))
       .then(fillOutSignIn(email, PASSWORD))
-
-      // Perform a slight sleep here to ensure that the checks
-      // to enable the panel have been performed.
-      .sleep(2000)
 
       // unlock panel
       .then(click(selectors.RECOVERY_KEY.UNLOCK_BUTTON));

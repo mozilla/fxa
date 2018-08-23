@@ -1,3 +1,17 @@
+<a name="1.119.2"></a>
+## [1.119.2](https://github.com/mozilla/fxa-content-server/compare/v1.119.1...v1.119.2) (2018-08-23)
+
+
+### Bug Fixes
+
+* **experiment:** enable account recovery for test emails (#6468), r=@shane-tomlinson ([bc7a821](https://github.com/mozilla/fxa-content-server/commit/bc7a821)), closes [#6468](https://github.com/mozilla/fxa-content-server/issues/6468)
+
+### Features
+
+* **pw-strength:** designF is rolled out to 100% of english users. (#6477), r=@vbudhram ([e37800c](https://github.com/mozilla/fxa-content-server/commit/e37800c)), closes [#6477](https://github.com/mozilla/fxa-content-server/issues/6477)
+
+
+
 <a name="1.119.1"></a>
 ## 1.119.1 (2018-08-22)
 

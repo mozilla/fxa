@@ -54,7 +54,7 @@ module.exports = {
   _getRecoveryKeyExperimentSubject() {
     const subject = {
       account: this.getSignedInAccount(),
-      showTwoStepAuthentication: this.broker.getCapability('showAccountRecovery'),
+      showAccountRecovery: this.broker.getCapability('showAccountRecovery'),
     };
     return subject;
   }

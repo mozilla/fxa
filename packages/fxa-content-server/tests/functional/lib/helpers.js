@@ -208,6 +208,22 @@ const click = thenify(function (selector, readySelector) {
           })
           .end();
       }
+
+      // Check to see if the error is a `stale element exception` and
+      // retry clicking if it is. This could happen if a panel on
+      // the page is re-rendered causing the element to be removed
+      // from the DOM.
+      if (/either the element is no longer attached to the DOM/.test(err.message)) {
+        return this.parent
+          .sleep(2000)
+          .findByCssSelector(selector)
+          .click()
+          .then(null, (err) => {
+            throw err;
+          })
+          .end();
+      }
+
       // re-throw other errors
       throw err;
     })
