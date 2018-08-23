@@ -53,7 +53,10 @@ module.exports = (printLogs) => {
               smsLink = smsUrlMatch && smsUrlMatch[1]
             }
 
-            var name = emailName(mail.headers.to)
+            // Workaround because the email service wraps this header in `< >`.
+            // See: https://github.com/mozilla/fxa-content-server/pull/6470#issuecomment-415224438
+            var name = emailName(mail.headers.to.replace(/\<(.*?)\>/g, '$1'))
+
             if (vc) {
               console.log('\x1B[32m', link, '\x1B[39m')
             }
