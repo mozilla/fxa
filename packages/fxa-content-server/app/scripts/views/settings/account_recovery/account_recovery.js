@@ -9,6 +9,7 @@ import Template from 'templates/settings/account_recovery/account_recovery.musta
 import showProgressIndicator from '../../decorators/progress_indicator';
 import LastCheckedTimeMixin from '../../mixins/last-checked-time-mixin';
 import UpgradeSessionMixin from '../../mixins/upgrade-session-mixin';
+import RecoveryKeyExperimentMixin from '../../mixins/recovery-key-experiment-mixin';
 
 const CODE_REFRESH_SELECTOR = 'button.settings-button.refresh-status';
 const CODE_REFRESH_DELAY_MS = 350;
@@ -44,6 +45,11 @@ const View = BaseView.extend({
     if (this.broker.hasCapability('showAccountRecovery')) {
       return true;
     }
+
+    if (this.getRecoveryKeyExperimentGroup() === 'treatment') {
+      return true;
+    }
+
     return false;
   },
 
@@ -89,7 +95,8 @@ Cocktail.mixin(
     title: t('Account Recovery')
   }),
   SettingsPanelMixin,
-  LastCheckedTimeMixin
+  LastCheckedTimeMixin,
+  RecoveryKeyExperimentMixin
 );
 
 module.exports = View;

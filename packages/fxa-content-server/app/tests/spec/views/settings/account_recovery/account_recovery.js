@@ -88,6 +88,17 @@ describe('views/settings/account_recovery/account_recovery', () => {
       });
     });
 
+    describe('should show panel when using test email', () => {
+      it('should show panel when user has supported email', () => {
+        showAccountRecovery = true;
+        email = Math.random() + '@mozilla.com';
+        return initView()
+          .then(() => {
+            assert.equal(view.remove.callCount, 0);
+          });
+      });
+    });
+
     describe('should show support link', () => {
       it('should show support link', () => {
         assert.lengthOf(view.$('.account-recovery-support-link'), 1);
