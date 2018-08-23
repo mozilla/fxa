@@ -160,6 +160,25 @@ describe('/account/device', function () {
       .then(() => assert.ok(false), function (err) {
         assert.equal(err.output.statusCode, 503, 'correct status code is returned')
         assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED, 'correct errno is returned')
+        delete config.deviceUpdatesEnabled
+      })
+  })
+
+  it('pushbox feature disabled', function () {
+    config.pushbox = { enabled: false }
+    mockRequest.payload.availableCommands = {
+      'test': 'command'
+    }
+
+    return runTest(route, mockRequest, function () {
+      assert.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once')
+      var args = mockDevices.upsert.args[0]
+      assert.deepEqual(args[2].availableCommands, {}, 'availableCommands are ignored when pushbox is disabled')
+    })
+      .then(function () {
+        mockDevices.isSpuriousUpdate.reset()
+        mockDevices.upsert.reset()
+        delete config.pushbox
       })
   })
 
