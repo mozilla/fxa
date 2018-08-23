@@ -8,6 +8,8 @@ selenium-*
 servers_android.json
 
 node_modules
+package-lock.json
+
 pm2
 dump.rdb
 *.log
