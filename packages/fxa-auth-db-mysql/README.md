@@ -25,7 +25,7 @@ npm test
 
 * node.js 6
 * npm
-* MySQL (we use version 5.6.21 in production)
+* MySQL (we use version 5.6.34 in production)
 
 ## API Server
 
