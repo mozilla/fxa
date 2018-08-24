@@ -1,3 +1,21 @@
+<a name="1.119.3"></a>
+## 1.119.3 (2018-08-23)
+
+
+### Bug Fixes
+
+* **tests:** install request and request-promise in TeamCity (#6485) r=@jrgm ([1eb5793](https://github.com/mozilla/fxa-content-server/commit/1eb5793))
+
+### Features
+
+* **tests:** add E2E tests for the fxa-email-service (#6470) r=@vbudhram ([7d4cb3f](https://github.com/mozilla/fxa-content-server/commit/7d4cb3f)), closes [#6372](https://github.com/mozilla/fxa-content-server/issues/6372)
+
+### Refactor
+
+* **modules:** Convert a bunch of modules to ES6 format (#6479) r=@vladikoff ([c72ae27](https://github.com/mozilla/fxa-content-server/commit/c72ae27))
+
+
+
 <a name="1.119.2"></a>
 ## [1.119.2](https://github.com/mozilla/fxa-content-server/compare/v1.119.1...v1.119.2) (2018-08-23)
 
