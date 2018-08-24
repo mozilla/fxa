@@ -146,6 +146,7 @@ suite.tests['#post csp - returns 400 if csp-report is empty'] = function () {
 
 suite.tests['#post csp - returns 200 if CSP report is valid'] = {
   'blocked-uri (asset)': testValidCspValue('blocked-uri', 'asset'),
+  'blocked-uri (blob)': testValidCspValue('blocked-uri', 'blob'),
   'blocked-uri (data)': testValidCspValue('blocked-uri', 'data'),
   'blocked-uri (empty)': testValidCspValue('blocked-uri', ''),
   'blocked-uri (eval)': testValidCspValue('blocked-uri', 'eval'),
