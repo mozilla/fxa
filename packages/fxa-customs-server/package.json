@@ -12,7 +12,6 @@
   "homepage": "https://github.com/mozilla/fxa-customs-server/",
   "bugs": "https://github.com/mozilla/fxa-customs-server/issues/",
   "scripts": {
-    "nsp": "grunt nsp",
     "outdated": "npm outdated --depth 0 || exit 0",
     "shrink": "npmshrink",
     "start": "node bin/customs_server.js",
@@ -39,18 +38,17 @@
   "devDependencies": {
     "eslint-config-fxa": "2.1.0",
     "fxa-conventional-changelog": "1.1.0",
-    "grunt": "1.0.1",
+    "grunt": "1.0.3",
     "grunt-bump": "0.8.0",
     "grunt-cli": "1.2.0",
-    "grunt-conventional-changelog": "3.0.0",
+    "grunt-conventional-changelog": "6.1.0",
     "grunt-copyright": "0.3.0",
     "grunt-eslint": "18.0.0",
-    "grunt-nsp": "2.3.1",
     "load-grunt-tasks": "3.5.0",
     "npmshrink": "1.0.1",
     "request": "2.85.0",
     "restify-clients": "2.5.0",
-    "tap": "6.2.0",
+    "tap": "12.0.1",
     "walk": "2.3.x"
   },
   "engines": {
