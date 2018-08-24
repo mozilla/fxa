@@ -26,13 +26,13 @@
   "dependencies": {
     "bluebird": "2.10.2",
     "chalk": "1.1.1",
-    "check-node-version": "^3.2.0",
-    "foxfire": "1.0.1",
+    "check-node-version": "3.2.0",
+    "foxfire": "1.1.0",
     "fxa-dev-launcher": "vladikoff/fxa-dev-launcher",
     "internal-ip": "1.2.0",
-    "lodash": "4.16.2",
+    "lodash": "4.17.10",
     "minimist": "1.1.1",
-    "pm2": "3.0.3",
+    "pm2": "3.0.4",
     "replace-in-file": "0.2.1"
   }
 }
