@@ -585,6 +585,14 @@ define(function (require, exports, module) {
         assert.isFalse(metrics.logError.called);
       });
 
+      it('shows the WORKING error as a warning and logs a flow event', function () {
+        var error = AuthErrors.toError('WORKING');
+        error.logged = true;
+        view.displayError(error);
+        assert.equal(view.$('.error.info').html(), 'Working…');
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.working'));
+      });
+
       it('hides any previously displayed success messages', function () {
         view.displaySuccess('the success message');
         view.displayError('the error message');

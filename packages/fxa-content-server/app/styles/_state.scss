@@ -7,6 +7,10 @@
     // there is no header on the loading screen. Push the text down slightly.
     margin-top: 20px;
   }
+
+  &.error-warning {
+    background: $info-background-color;
+  }
 }
 
 .info {

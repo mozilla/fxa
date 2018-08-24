@@ -86,6 +86,15 @@ define(function (require, exports, module) {
     var translated = this.translateError(err);
 
     var $error = this.$('.error');
+
+    if (AuthErrors.is(err, 'WORKING')) {
+      this.logFlowEvent('working');
+      // Avoid a scary red warning for 'Working...'
+      $error.addClass('info');
+    } else {
+      $error.removeClass('info');
+    }
+
     if (translated) {
       $error[displayStrategy](translated);
     }
