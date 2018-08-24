@@ -10,6 +10,8 @@ import Constants from '../lib/constants';
 import FormView from './form';
 import Template from 'templates/sign_in_token_code.mustache';
 
+const CODE_INPUT_SELECTOR = 'input.token-code';
+
 const View = FormView.extend({
   className: 'sign-in-token-code',
   template: Template,
@@ -40,14 +42,13 @@ const View = FormView.extend({
 
   submit () {
     const account = this.getAccount();
-    const code = this.getElementValue('#token-code');
+    const code = this.getElementValue(CODE_INPUT_SELECTOR);
     return account.verifyTokenCode(code)
       .then(() => {
         this.logViewEvent('success');
         return this.invokeBrokerMethod('afterCompleteSignInWithCode', account);
-      }, (err) => {
-        this.displayError(err);
-      });
+      })
+      .catch((err) => this.showValidationError(this.$(CODE_INPUT_SELECTOR), err));
   },
 
   /**

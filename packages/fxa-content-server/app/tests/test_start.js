@@ -152,6 +152,7 @@ require('./spec/views/decorators/progress_indicator');
 require('./spec/views/elements/coppa-age-input');
 require('./spec/views/elements/tel-input');
 require('./spec/views/elements/totp-code-input');
+require('./spec/views/elements/token-code-input');
 require('./spec/views/elements/recovery-code-input');
 require('./spec/views/elements/recovery-key-input');
 require('./spec/views/force_auth');

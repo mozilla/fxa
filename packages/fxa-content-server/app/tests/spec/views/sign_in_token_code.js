@@ -12,14 +12,14 @@ define(function (require, exports, module) {
   const Backbone = require('backbone');
   const BaseBroker = require('models/auth_brokers/base');
   const Constants = require('lib/constants');
-  const {createRandomHexString} = require('../../lib/helpers');
+  const {createRandomString} = require('../../lib/helpers');
   const Metrics = require('lib/metrics');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const View = require('views/sign_in_token_code');
   const WindowMock = require('../../mocks/window');
 
-  const TOKEN_CODE = createRandomHexString(Constants.UNBLOCK_CODE_LENGTH);
+  const TOKEN_CODE = createRandomString(Constants.TOKEN_CODE_LENGTH, 10);
 
   describe('views/sign_in_token_code', () => {
     let account;
@@ -105,7 +105,7 @@ define(function (require, exports, module) {
 
       describe('with an empty code', () => {
         beforeEach(() => {
-          view.$('#token-code').val('');
+          view.$('input.token-code').val('');
           return view.validateAndSubmit().then(assert.fail, () => {});
         });
 
@@ -124,7 +124,7 @@ define(function (require, exports, module) {
       validCodes.forEach((code) => {
         describe(`with a valid code: '${code}'`, () => {
           beforeEach(() => {
-            view.$('#token-code').val(code);
+            view.$('input.token-code').val(code);
             return view.validateAndSubmit();
           });
 
@@ -140,7 +140,7 @@ define(function (require, exports, module) {
         beforeEach(() => {
           sinon.stub(account, 'verifyTokenCode').callsFake(() => Promise.resolve());
           sinon.stub(view, 'invokeBrokerMethod').callsFake(() => Promise.resolve());
-          view.$('#token-code').val(TOKEN_CODE);
+          view.$('input.token-code').val(TOKEN_CODE);
           return view.submit();
         });
 
@@ -155,13 +155,14 @@ define(function (require, exports, module) {
 
         beforeEach(() => {
           sinon.stub(account, 'verifyTokenCode').callsFake(() => Promise.reject(error));
-          sinon.stub(view, 'displayError').callsFake(() => Promise.resolve());
-          view.$('#token-code').val(TOKEN_CODE);
+          sinon.spy(view, 'showValidationError');
+          view.$('input.token-code').val(TOKEN_CODE);
           return view.submit();
         });
 
         it('rejects with the error for display', () => {
-          assert.isTrue(view.displayError.calledWith(error));
+          const args = view.showValidationError.args[0];
+          assert.equal(args[1], error);
         });
       });
     });

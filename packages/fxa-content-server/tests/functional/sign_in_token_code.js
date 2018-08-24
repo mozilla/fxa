@@ -24,7 +24,6 @@ const switchToWindow = FunctionalHelpers.switchToWindow;
 const testElementExists = FunctionalHelpers.testElementExists;
 const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
 const type = FunctionalHelpers.type;
-const visibleByQSA = FunctionalHelpers.visibleByQSA;
 
 const NOTES_REDIRECT_PAGE_SELECTOR = '#notes-by-firefox';
 const NOTES_PAGE_TEXT_SELECTOR = 'Notes by Firefox';
@@ -91,6 +90,11 @@ registerSuite('signin token code', {
         .then(openFxaFromRp('signin', experimentParams))
         .then(fillOutSignIn(email, PASSWORD))
 
+        // Displays invalid code errors
+        .then(type(selectors.SIGNIN_TOKEN_CODE.INPUT, '000000'))
+        .then(click(selectors.SIGNIN_TOKEN_CODE.SUBMIT))
+        .then(testElementTextInclude('.tooltip', 'valid code required'))
+
         // Correctly submits the token code and navigates to oauth page
         .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
         .then(fillOutSignInTokenCode(email, 0))
@@ -113,22 +117,6 @@ registerSuite('signin token code', {
 
         .goBack()
         .then(testElementExists(selectors.SIGNIN.HEADER));
-    },
-
-    'verified - treatment-code - invalid code': function () {
-      experimentParams.query.forceExperiment = 'tokenCode';
-      experimentParams.query.forceExperimentGroup = 'treatment-code';
-      return this.remote
-        .then(openFxaFromRp('signin', experimentParams))
-        .then(fillOutSignIn(email, PASSWORD))
-
-        // Displays invalid code errors
-        .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
-        .then(type(selectors.SIGNIN_TOKEN_CODE.INPUT, 'INVALID'))
-        .then(click(selectors.SIGNIN_TOKEN_CODE.SUBMIT))
-
-        .then(visibleByQSA(selectors.SIGNUP.ERROR))
-        .then(testElementTextInclude(selectors.SIGNUP.ERROR, 'invalid'));
     },
 
     'verified - treatment-link - open link new tab': function () {
