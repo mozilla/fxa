@@ -51,7 +51,7 @@ const BODY_SCHEMA = {
   extra: joi.object().optional(),
   fingerprint: joi.array().items(STRING_TYPE).optional(),
   level: STRING_TYPE.optional(),
-  logger: STRING_TYPE.required(),
+  logger: STRING_TYPE.optional(),
   message: STRING_TYPE.optional(),
   platform: STRING_TYPE.required(),
   project: STRING_TYPE.required(),
