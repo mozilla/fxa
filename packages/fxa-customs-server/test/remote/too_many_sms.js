@@ -4,7 +4,7 @@
 var test = require('tap').test
 var TestServer = require('../test_server')
 var Promise = require('bluebird')
-var restify = Promise.promisifyAll(require('restify'))
+var restifyClients = Promise.promisifyAll(require('restify-clients'))
 
 var TEST_IP = '192.0.2.1'
 var TEST_IP2 = '192.0.2.2'
@@ -34,7 +34,7 @@ var mcHelper = require('../memcache-helper')
 
 var testServer = new TestServer(config)
 
-var client = restify.createJsonClient({
+var client = restifyClients.createJsonClient({
   url: 'http://127.0.0.1:' + config.listen.port
 })
 

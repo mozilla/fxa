@@ -8,6 +8,7 @@
 
 var Memcached = require('memcached')
 var restify = require('restify')
+const errors = require('restify-errors')
 var safeJsonFormatter = require('restify-safe-json-formatter')
 var packageJson = require('../package.json')
 var blockReasons = require('./block_reasons')
@@ -103,7 +104,7 @@ module.exports = function createServer(config, log) {
 
   var api = restify.createServer({
     formatters: {
-      'application/json; q=0.9': safeJsonFormatter
+      'application/json': safeJsonFormatter
     }
   })
 
@@ -114,13 +115,13 @@ module.exports = function createServer(config, log) {
   // https://nodejs.org/docs/latest-v8.x/api/http.html#http_server_keepalivetimeout
   api.server.keepAliveTimeout = 120000
 
-  api.use(restify.bodyParser())
+  api.use(restify.plugins.bodyParser())
 
   api.on('uncaughtException', function (req, res, route, err) {
     if (sentryDsn) {
       Raven.captureException(err)
     }
-    res.send(new restify.errors.InternalServerError('Server Error'))
+    res.send(new errors.InternalServerError('Server Error'))
   })
 
   api.on('error', function (err) {

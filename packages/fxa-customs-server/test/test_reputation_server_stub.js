@@ -10,7 +10,7 @@ var restify = require('restify')
 // a dummy reputation server to receive violations
 var server = restify.createServer()
 server.timeout = process.env.REPUTATION_SERVICE_TIMEOUT
-server.use(restify.bodyParser())
+server.use(restify.plugins.bodyParser({ mapParams: true }))
 
 // hashmap of ip -> list of violations
 var mostRecentViolationByIp = {}
@@ -30,7 +30,7 @@ server.put('/violations/:ip', function (req, res, next) {
 server.get('/mostRecentViolation/:ip', function (req, res, next) {
   var ip = req.params.ip
   console.log('get req', req.url)
-  res.send(200, mostRecentViolationByIp[ip] || null)
+  res.send(200, mostRecentViolationByIp[ip] || {})
 
   next()
 })

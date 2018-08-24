@@ -4,7 +4,7 @@
 var test = require('tap').test
 var TestServer = require('../../test_server')
 var Promise = require('bluebird')
-var restify = require('restify')
+var restifyClients = require('restify-clients')
 var mcHelper = require('../../memcache-helper')
 
 var TEST_EMAIL = 'test@example.com'
@@ -55,7 +55,7 @@ process.env.REPUTATION_SERVICE_HAWK_KEY = config.reputationService.hawkKey
 
 var testServer = new TestServer(config)
 
-var client = restify.createJsonClient({
+var client = restifyClients.createJsonClient({
   url: 'http://127.0.0.1:' + config.listen.port
 })
 

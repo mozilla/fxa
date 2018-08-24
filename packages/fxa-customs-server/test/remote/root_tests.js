@@ -2,7 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var test = require('tap').test
-var restify = require('restify')
+var restifyClients = require('restify-clients')
 var TestServer = require('../test_server')
 var packageJson = require('../../package.json')
 
@@ -24,7 +24,7 @@ test(
   }
 )
 
-var client = restify.createJsonClient({
+var client = restifyClients.createJsonClient({
   url: 'http://127.0.0.1:' + config.listen.port
 })
 

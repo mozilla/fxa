@@ -2,7 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var test = require('tap').test
-var restify = require('restify')
+var restifyClients = require('restify-clients')
 var TestServer = require('../test_server')
 var Promise = require('bluebird')
 var mcHelper = require('../memcache-helper')
@@ -18,7 +18,7 @@ var config = {
 
 var testServer = new TestServer(config)
 
-var client = restify.createJsonClient({
+var client = restifyClients.createJsonClient({
   url: 'http://127.0.0.1:' + config.listen.port
 })
 

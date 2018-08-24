@@ -5,7 +5,7 @@ var test = require('tap').test
 var TestServer = require('../test_server')
 var ReputationServerStub = require('../test_reputation_server')
 var Promise = require('bluebird')
-var restify = require('restify')
+var restifyClients = require('restify-clients')
 var mcHelper = require('../memcache-helper')
 const testUtils = require('../utils')
 
@@ -50,10 +50,10 @@ process.env.REPUTATION_SERVICE_TIMEOUT = config.reputationService.timeout
 var testServer = new TestServer(config)
 var reputationServer = new ReputationServerStub(config)
 
-var client = restify.createJsonClient({
+var client = restifyClients.createJsonClient({
   url: 'http://127.0.0.1:' + config.listen.port
 })
-var reputationClient = restify.createJsonClient({
+var reputationClient = restifyClients.createJsonClient({
   url: config.reputationService.baseUrl
 })
 

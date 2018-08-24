@@ -5,7 +5,7 @@ var test = require('tap').test
 var TestServer = require('../test_server')
 var ReputationServerStub = require('../test_reputation_server')
 var Promise = require('bluebird')
-var restify = require('restify')
+var restifyClients = require('restify-clients')
 var mcHelper = require('../memcache-helper')
 
 var TEST_EMAIL = 'test@example.com'
@@ -61,7 +61,7 @@ process.env.REPUTATION_SERVICE_SUSPECT_BELOW = config.reputationService.suspectB
 
 var testServer = new TestServer(config)
 
-var client = restify.createJsonClient({
+var client = restifyClients.createJsonClient({
   url: 'http://127.0.0.1:' + config.listen.port
 })
 
@@ -80,7 +80,7 @@ test(
 
 ENDPOINTS.forEach(endpoint => {
   const  reputationServer = new ReputationServerStub(config)
-  const reputationClient = restify.createJsonClient({
+  const reputationClient = restifyClients.createJsonClient({
     url: config.reputationService.baseUrl
   })
   Promise.promisifyAll(reputationClient, { multiArgs: true })

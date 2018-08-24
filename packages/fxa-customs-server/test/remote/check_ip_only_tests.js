@@ -4,7 +4,7 @@
 'use strict'
 
 const memcached = require('../memcache-helper')
-const restify = require('restify')
+const restifyClients = require('restify-clients')
 const test = require('tap').test
 const TestServer = require('../test_server')
 
@@ -19,7 +19,7 @@ const config = {
 
 const testServer = new TestServer(config)
 
-const client = restify.createJsonClient({
+const client = restifyClients.createJsonClient({
   url: 'http://127.0.0.1:' + config.listen.port
 })
 
