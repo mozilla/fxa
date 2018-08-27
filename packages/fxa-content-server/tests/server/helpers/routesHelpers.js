@@ -143,7 +143,7 @@ function isUrlIgnored (url) {
 }
 
 function checkUrls(origin, resources, testName = '') {
-  findCssSubResources(origin, resources)
+  return findCssSubResources(origin, resources)
     .then((cssSubResources) => {
       resources = resources.concat(cssSubResources);
 
