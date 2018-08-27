@@ -11,12 +11,12 @@
 define(function(require, exports, module) {
   'use strict';
 
-  const SearchParamMixin = require('./search-param-mixin');
+  const UrlMixin = require('./url-mixin');
   const UserAgent = require('./user-agent');
 
   module.exports = {
     dependsOn: [
-      SearchParamMixin
+      UrlMixin
     ],
 
     /**

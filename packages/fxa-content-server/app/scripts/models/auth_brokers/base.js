@@ -18,7 +18,7 @@ define(function (require, exports, module) {
   const NavigateBehavior = require('../../views/behaviors/navigate');
   const NullBehavior = require('../../views/behaviors/null');
   const SameBrowserVerificationModel = require('../verification/same-browser');
-  const SearchParamMixin = require('../mixins/search-param');
+  const UrlMixin = require('../mixins/url');
   const SettingsIfSignedInBehavior = require('../../views/behaviors/settings');
   const t = (msg) => msg;
   const Vat = require('../../lib/vat');
@@ -559,7 +559,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     BaseAuthenticationBroker,
     NotifierMixin,
-    SearchParamMixin
+    UrlMixin
   );
 
   module.exports = BaseAuthenticationBroker;

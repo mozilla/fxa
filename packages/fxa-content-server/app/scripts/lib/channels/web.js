@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   const AuthErrors = require('lib/auth-errors');
   const Cocktail = require('cocktail');
   const DuplexChannel = require('lib/channels/duplex');
-  const SearchParamMixin = require('lib/search-param-mixin');
+  const UrlMixin = require('lib/url-mixin');
   const UserAgentMixin = require('lib/user-agent-mixin');
   const WebChannelReceiver = require('lib/channels/receivers/web-channel');
   const WebChannelSender = require('lib/channels/senders/web-channel');
@@ -106,7 +106,7 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     WebChannel,
-    SearchParamMixin,
+    UrlMixin,
     UserAgentMixin
   );
 

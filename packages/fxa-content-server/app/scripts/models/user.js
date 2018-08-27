@@ -19,7 +19,7 @@ define(function (require, exports, module) {
   const Constants = require('../lib/constants');
   const MarketingEmailErrors = require('../lib/marketing-email-errors');
   const ResumeTokenMixin = require('./mixins/resume-token');
-  const SearchParamMixin = require('./mixins/search-param');
+  const UrlMixin = require('./mixins/url');
   const Storage = require('../lib/storage');
   const vat = require('../lib/vat');
 
@@ -846,7 +846,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     User,
     ResumeTokenMixin,
-    SearchParamMixin
+    UrlMixin
   );
 
   module.exports = User;

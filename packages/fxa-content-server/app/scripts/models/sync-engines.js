@@ -13,7 +13,7 @@ define(function(require, exports, module) {
   const _ = require('underscore');
   const Backbone = require('backbone');
   const Cocktail = require('cocktail');
-  const SearchParamMixin = require('../lib/search-param-mixin');
+  const UrlMixin = require('../lib/url-mixin');
   const UserAgentMixin = require('../lib/user-agent-mixin');
 
   const t = msg => msg;
@@ -132,7 +132,7 @@ define(function(require, exports, module) {
 
   Cocktail.mixin(
     SyncEngines,
-    SearchParamMixin,
+    UrlMixin,
     UserAgentMixin
   );
 

@@ -3,8 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * A mixin that allows objects to get/import search parameters.
- * Requires the object to have this.window.location.search
+ * A mixin that allows objects to get/import search and hash parameters.
+ * Requires the object to have this.window.location.search and
+ * this.window.location.hash
  */
 
 import Url from './url';
@@ -29,5 +30,16 @@ module.exports = {
    */
   getSearchParams (paramNames) {
     return Url.searchParams(this.window.location.search, paramNames);
+  },
+
+  /**
+   * Get values from the URL hash parameters.
+   *
+   * @param {String[]} paramNames - name of the hash parameters
+   * to get
+   * @returns {Object}
+   */
+  getHashParams (paramNames) {
+    return Url.hashParams(this.window.location.hash, paramNames);
   }
 };

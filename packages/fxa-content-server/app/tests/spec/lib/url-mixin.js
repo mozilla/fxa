@@ -5,11 +5,11 @@
 import { assert } from 'chai';
 import Backbone from 'backbone';
 import Cocktail from 'cocktail';
-import SearchParamMixin from 'lib/search-param-mixin';
-import TestHelpers from '../../lib/helpers';
+import UrlMixin from 'lib/url-mixin';
+import Url from 'lib/url';
 import WindowMock from '../../mocks/window';
 
-describe('lib/search-param', () => {
+describe('lib/url-mixin', () => {
   let windowMock;
   let view;
 
@@ -21,7 +21,7 @@ describe('lib/search-param', () => {
 
   Cocktail.mixin(
     View,
-    SearchParamMixin
+    UrlMixin
   );
 
   beforeEach(() => {
@@ -31,7 +31,7 @@ describe('lib/search-param', () => {
 
   describe('getSearchParam', () => {
     it('returns the value of a search parameter, if available', () => {
-      windowMock.location.search = TestHelpers.toSearchString({
+      windowMock.location.search = Url.objToSearchString({
         searchParam: 'value'
       });
       assert.equal(view.getSearchParam('searchParam'), 'value');
@@ -45,8 +45,19 @@ describe('lib/search-param', () => {
         searchParam1: 'value1',
         searchParam2: 'value2'
       };
-      windowMock.location.search = TestHelpers.toSearchString(searchParams);
+      windowMock.location.search = Url.objToSearchString(searchParams);
       assert.deepEqual(view.getSearchParams(), searchParams);
+    });
+  });
+
+  describe('getHashParams', () => {
+    it('returns an object with all hash parameters', () => {
+      const hashParams = {
+        searchParam1: 'value1',
+        searchParam2: 'value2'
+      };
+      windowMock.location.hash = Url.objToHashString(hashParams);
+      assert.deepEqual(view.getHashParams(), hashParams);
     });
   });
 });

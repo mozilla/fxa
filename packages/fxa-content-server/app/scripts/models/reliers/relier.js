@@ -16,7 +16,7 @@ import BaseRelier from './base';
 import Cocktail from 'cocktail';
 import Constants from '../../lib/constants';
 import ResumeTokenMixin from '../mixins/resume-token';
-import SearchParamMixin from '../mixins/search-param';
+import UrlMixin from '../mixins/url';
 import Vat from '../../lib/vat';
 
 var RELIER_FIELDS_IN_RESUME_TOKEN = [
@@ -152,7 +152,7 @@ var Relier = BaseRelier.extend({
 Cocktail.mixin(
   Relier,
   ResumeTokenMixin,
-  SearchParamMixin
+  UrlMixin
 );
 
 module.exports = Relier;

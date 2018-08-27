@@ -5,32 +5,28 @@
 import { assert } from 'chai';
 import Url from 'lib/url';
 
-describe('lib/url', function () {
-  describe('searchParam', function () {
+describe('lib/url', () => {
+  describe('searchParam', () => {
     it('returns a parameter from window.location.search, if it exists',
-      function () {
+      () => {
         assert.equal(Url.searchParam('color', '?color=green'), 'green');
       });
 
-    it('returns empty if parameter is empty', function () {
+    it('returns empty if parameter is empty', () => {
       assert.equal(Url.searchParam('color', '?color='), '');
     });
 
-    it('returns empty if parameter is a space', function () {
+    it('returns empty if parameter is a space', () => {
       assert.equal(Url.searchParam('color', '?color= '), '');
     });
 
-    it('returns undefined if parameter does not exist', function () {
+    it('returns undefined if parameter does not exist', () => {
       assert.isUndefined(Url.searchParam('animal', '?color=green'));
-    });
-
-    it('throws if str override is not specified', function () {
-      assert.throws(() => Url.searchParam('animal'));
     });
   });
 
   describe('searchParams', () => {
-    const search = '?color=green&email=' + encodeURIComponent('testuser@testuser.com');
+    const search = `?color=green&email=${ encodeURIComponent('testuser@testuser.com') }#color=brown&email=${ encodeURIComponent('hash@testuser.com') }`;
 
     it('converts search string to an object, returns all key/value pairs if no allowlist specified', () => {
       const params = Url.searchParams(search);
@@ -54,8 +50,33 @@ describe('lib/url', function () {
     });
   });
 
-  describe('objToSearchString', function () {
-    it('includes all keys with values', function () {
+  describe('hashParams', () => {
+    const search = `?color=green&email=${ encodeURIComponent('testuser@testuser.com') }#color=brown&email=${ encodeURIComponent('hash@testuser.com') }`;
+
+    it('converts hash string to an object, returns all key/value pairs if no allowlist specified', () => {
+      const params = Url.hashParams(search);
+      assert.equal(params.color, 'brown');
+      assert.equal(params.email, 'hash@testuser.com');
+    });
+
+    it('returns only items in allow list of one is specified', () => {
+      const params = Url.hashParams(search, ['color', 'notDefined']);
+      assert.equal(params.color, 'brown');
+      assert.isFalse('email' in params);
+      assert.isFalse('notDefined' in params);
+    });
+
+    it('returns an empty object if no hash params', () => {
+      let params = Url.hashParams('');
+      assert.lengthOf(Object.keys(params), 0);
+
+      params = Url.hashParams('', ['blue']);
+      assert.lengthOf(Object.keys(params), 0);
+    });
+  });
+
+  describe('objToSearchString', () => {
+    it('includes all keys with values', () => {
       var params = {
         hasValue: 'value',
         nullNotIncluded: null,
@@ -65,69 +86,101 @@ describe('lib/url', function () {
       assert.equal(Url.objToSearchString(params), '?hasValue=value');
     });
 
-    it('returns an empty string if no parameters are passed in', function () {
+    it('returns an empty string if no parameters are passed in', () => {
       assert.equal(Url.objToSearchString({}), '');
     });
   });
 
-  describe('getOrigin', function () {
-    it('returns the origin portion of the URL', function () {
+  describe('objToHashString', () => {
+    it('includes all keys with values', () => {
+      var params = {
+        hasValue: 'value',
+        nullNotIncluded: null,
+        undefinedNotIncluded: undefined
+      };
+
+      assert.equal(Url.objToHashString(params), '#hasValue=value');
+    });
+
+    it('returns an empty string if no parameters are passed in', () => {
+      assert.equal(Url.objToSearchString({}), '');
+    });
+  });
+
+  describe('objToUrlString', () => {
+    it('includes all keys with values', () => {
+      var params = {
+        hasValue: 'value',
+        nullNotIncluded: null,
+        undefinedNotIncluded: undefined
+      };
+
+      assert.equal(Url.objToUrlString(params, '#'), '#hasValue=value');
+    });
+
+    it('returns an empty string if no parameters are passed in', () => {
+      assert.equal(Url.objToUrlString({}), '');
+    });
+  });
+
+  describe('getOrigin', () => {
+    it('returns the origin portion of the URL', () => {
       assert.equal(
         Url.getOrigin('https://marketplace.firefox.com/redirect/to_this_page'),
         'https://marketplace.firefox.com'
       );
     });
 
-    it('works with non-standard ports', function () {
+    it('works with non-standard ports', () => {
       assert.equal(
         Url.getOrigin('http://testdomain.org:8443/strips/this'),
         'http://testdomain.org:8443'
       );
     });
 
-    it('returns correct origin if query directly follows hostname', function () {
+    it('returns correct origin if query directly follows hostname', () => {
       assert.equal(
         Url.getOrigin('http://testdomain.org?query'),
         'http://testdomain.org'
       );
     });
 
-    it('returns correct origin if query directly follows port', function () {
+    it('returns correct origin if query directly follows port', () => {
       assert.equal(
         Url.getOrigin('http://testdomain.org:8443?query'),
         'http://testdomain.org:8443'
       );
     });
 
-    it('returns correct origin if hash directly follows hostname', function () {
+    it('returns correct origin if hash directly follows hostname', () => {
       assert.equal(
         Url.getOrigin('http://testdomain.org#hash'),
         'http://testdomain.org'
       );
     });
 
-    it('returns correct origin if hash directly follows port', function () {
+    it('returns correct origin if hash directly follows port', () => {
       assert.equal(
         Url.getOrigin('http://testdomain.org:8443#hash'),
         'http://testdomain.org:8443'
       );
     });
 
-    it('returns `null` if scheme is missing', function () {
+    it('returns `null` if scheme is missing', () => {
       assert.equal(
         Url.getOrigin('testdomain.org'),
         null
       );
     });
 
-    it('returns `null` if scheme is missing and port specified', function () {
+    it('returns `null` if scheme is missing and port specified', () => {
       assert.equal(
         Url.getOrigin('testdomain.org:8443'),
         null
       );
     });
 
-    it('returns `null` if hostname is missing', function () {
+    it('returns `null` if hostname is missing', () => {
       assert.equal(
         Url.getOrigin('http://'),
         null
@@ -135,8 +188,8 @@ describe('lib/url', function () {
     });
   });
 
-  describe('updateSearchString', function () {
-    it('adds new params while leaving the old ones intact', function () {
+  describe('updateSearchString', () => {
+    it('adds new params while leaving the old ones intact', () => {
       var updated = Url.updateSearchString('?foo=one', {
         bar: 'two',
         baz: 'three'
@@ -144,14 +197,14 @@ describe('lib/url', function () {
       assert.equal(updated, '?foo=one&bar=two&baz=three');
     });
 
-    it('updates values for existing params', function () {
+    it('updates values for existing params', () => {
       var updated = Url.updateSearchString('?foo=one', {
         foo: 'two'
       });
       assert.equal(updated, '?foo=two');
     });
 
-    it('adds a search string if none exists', function () {
+    it('adds a search string if none exists', () => {
       var updated = Url.updateSearchString('http://example.com', {
         bar: 'two',
         foo: 'one'

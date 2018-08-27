@@ -23,7 +23,7 @@ define(function (require, exports, module) {
   const Backbone = require('backbone');
   const Cocktail = require('cocktail');
   const ResumeTokenMixin = require('./mixins/resume-token');
-  const SearchParamMixin = require('./mixins/search-param');
+  const UrlMixin = require('./mixins/url');
   const Storage = require('../lib/storage');
   const uuid = require('uuid');
 
@@ -76,7 +76,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     Model,
     ResumeTokenMixin,
-    SearchParamMixin
+    UrlMixin
   );
 
   module.exports = Model;

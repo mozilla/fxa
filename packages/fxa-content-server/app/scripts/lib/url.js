@@ -11,18 +11,64 @@ module.exports = {
    * Convert a search string to its object representation, one entry
    * per query parameter
    *
-   * @param {String} str - string to convert
+   * @param {String} [str=''] - string to convert
    * @param {String[]} [allowedFields] - list of allowed fields. If not
    * declared, all fields are allowed.
    * @returns {Object}
    */
-  searchParams (str, allowedFields) {
-    const search = str.replace(/^\?/, '').trim();
+  searchParams (str = '', allowedFields) {
+    // ditch everything before the ? and from # to the end
+    const search = str.replace(/(^.*\?|#.*$)/g, '').trim();
     if (! search) {
       return {};
     }
 
-    const pairs = search.split('&');
+    return this.splitEncodedParams(search, allowedFields);
+  },
+
+  /**
+   * Return the value of a single query parameter in the string
+   *
+   * @param {String} name - name of the query parameter
+   * @param {String} [str=''] - search string
+   * @returns {String}
+   */
+  searchParam (name, str) {
+    return this.searchParams(str)[name];
+  },
+
+  /**
+   * Convert a hash string to its object representation, one entry
+   * per query parameter
+   *
+   * @param {String} [str=''] - string to convert
+   * @param {String[]} [allowedFields=[]] - list of allowed fields. If not
+   * declared, all fields are allowed.
+   * @returns {Object}
+   */
+  hashParams (str = '', allowedFields) {
+    // ditch everything before the #
+    const hash = str.replace(/^.*#/, '').trim();
+    if (! hash) {
+      return {};
+    }
+
+    return this.splitEncodedParams(hash, allowedFields);
+  },
+
+  /**
+   * Convert a URI encoded string to its object representation.
+   *
+   * `&` is the expected delimiter between parameters.
+   * `=` is the delimiter between a key and a value.
+   *
+   * @param {String} [str=''] string to split
+   * @param {String[]} [allowedFields=[]] - list of allowed fields. If not
+   * declared, all fields are allowed.
+   * @returns {Object}
+   */
+  splitEncodedParams(str = '', allowedFields) {
+    const pairs = str.split('&');
     const terms = {};
 
     _.each(pairs, (pair) => {
@@ -38,23 +84,33 @@ module.exports = {
   },
 
   /**
-   * Return the value of a single query parameter in the string
-   *
-   * @param {String} name - name of the query parameter
-   * @param {String} [str] - search string
-   * @returns {String}
-   */
-  searchParam (name, str) {
-    return this.searchParams(str)[name];
-  },
-
-  /**
    * Convert an object to a search string.
    *
-   * @param {Object} obj - object to convert
+   * @param {Object} [obj={}] - object to convert
    * @returns {String}
    */
   objToSearchString (obj) {
+    return this.objToUrlString(obj, '?');
+  },
+
+  /**
+   * Convert an object to a hash string.
+   *
+   * @param {Object} [obj={}] - object to convert
+   * @returns {String}
+   */
+  objToHashString (obj) {
+    return this.objToUrlString(obj, '#');
+  },
+
+  /**
+   * Convert an object to a URL safe string
+   *
+   * @param {Object} [obj={}] - object to convert
+   * @param {String} [prefix='?'] - prefix to append
+   * @returns {String}
+   */
+  objToUrlString (obj = {}, prefix = '?') {
     const params = [];
     for (const paramName in obj) {
       const paramValue = obj[paramName];
@@ -66,7 +122,8 @@ module.exports = {
     if (! params.length) {
       return '';
     }
-    return '?' + params.join('&');
+
+    return prefix + params.join('&');
   },
 
   /**

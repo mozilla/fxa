@@ -18,7 +18,7 @@ const Backbone = require('backbone');
 const Cocktail = require('cocktail');
 const ErrorUtils = require('../lib/error-utils');
 const ResumeTokenMixin = require('./mixins/resume-token');
-const SearchParamMixin = require('./mixins/search-param');
+const UrlMixin = require('./mixins/url');
 const vat = require('../lib/vat');
 const Url = require('../lib/url');
 
@@ -88,7 +88,7 @@ var Model = Backbone.Model.extend({
 Cocktail.mixin(
   Model,
   ResumeTokenMixin,
-  SearchParamMixin
+  UrlMixin
 );
 
 module.exports = Model;

@@ -17,7 +17,7 @@ define(function (require, exports, module) {
   const NullMetrics = require('../lib/null-metrics');
   const Logger = require('../lib/logger');
   const Raven = require('raven');
-  const SearchParamMixin = require('../lib/search-param-mixin');
+  const UrlMixin = require('../lib/url-mixin');
   const Strings = require('../lib/strings');
   const TimerMixin = require('./mixins/timer-mixin');
   const Translator = require('../lib/translator');
@@ -1102,7 +1102,7 @@ define(function (require, exports, module) {
     // view has any external links that need to have
     // their behaviors modified.
     ExternalLinksMixin,
-    SearchParamMixin,
+    UrlMixin,
     TimerMixin
   );
 
