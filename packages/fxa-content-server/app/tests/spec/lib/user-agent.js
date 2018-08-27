@@ -458,6 +458,25 @@ describe('lib/user-agent', () => {
     });
   });
 
+  describe('genericDeviceType', () => {
+    const typeToGenericType = {
+      desktop: 'desktop',
+      embedded: 'mobile',
+      mobile: 'mobile',
+      smarttv: 'mobile',
+      tablet: 'tablet',
+      wearable: 'mobile',
+    };
+
+    Object.keys(typeToGenericType).forEach(type => {
+      const genericType = typeToGenericType[type];
+      it(`converts ${type} to ${genericType}`, () => {
+        const uap = new UserAgent();
+        assert.equal(uap.genericDeviceType(type), genericType);
+      });
+    });
+  });
+
   describe('toGenericOSName', function () {
     function eq(os, expected) {
       assert.equal(UserAgent.toGenericOSName(os), expected);
