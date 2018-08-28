@@ -144,7 +144,7 @@ module.exports = function (log, error) {
          * Code below will fetch the email record and if it is an unverified new account then it will delete
          * the account.
          */
-        const suggestAccountDeletion = !! bounce && bounce.bounceType
+        const suggestAccountDeletion = !! bounce.bounceType
         const work = []
 
         if (emailIsValid) {
