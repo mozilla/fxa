@@ -650,14 +650,14 @@ var conf = convict({
     },
     tokenVerificationCode: {
       codeLength: {
-        doc: 'Number of alphanumeric digits to make up a token code',
-        default: 8,
+        doc: 'Number of digits to make up a token code',
+        default: 6,
         env: 'SIGNIN_TOKEN_CODE_LENGTH'
       },
       codeLifetime: {
         doc: 'How long code should be valid for',
         format: 'duration',
-        default: '1 hour',
+        default: '20 minutes',
         env: 'SIGNIN_TOKEN_CODE_LIFETIME'
       },
     }

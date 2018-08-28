@@ -40,7 +40,7 @@ describe('remote tokenCodes', function () {
     .then((res) => {
       client = res
       assert.equal(res.verificationMethod, 'email-2fa', 'sets correct verification method')
-      return client.verifyTokenCode('BADCODEE')
+      return client.verifyTokenCode('011001')
     })
     .then(() => {
       assert.fail('consumed invalid code')

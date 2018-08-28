@@ -35,7 +35,7 @@ function run(config) {
   var error = require('../lib/error')
   var Token = require('../lib/tokens')(log, config)
   var Password = require('../lib/crypto/password')(log, config)
-  var UnblockCode = require('../lib/crypto/base32')(config.signinUnblock.codeLength)
+  var UnblockCode = require('../lib/crypto/random').base32(config.signinUnblock.codeLength)
 
   var signer = require('../lib/signer')(config.secretKeyFile, config.domain)
   var serverPublicKeys = {

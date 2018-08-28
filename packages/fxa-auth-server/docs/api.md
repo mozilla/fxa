@@ -2867,7 +2867,7 @@ Verify a session using a token code.
 
 ##### Request body
 
-* `code`: *string, min(TOKEN_CODE_LENGTH), max(TOKEN_CODE_LENGTH), regex(BASE_36), required*
+* `code`: *string, min(TOKEN_CODE_LENGTH), max(TOKEN_CODE_LENGTH), regex(DIGITS), required*
 
   <!--begin-request-body-post-sessionverifytoken-code-->
   The code

@@ -26,7 +26,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
   const tokenCodeConfig = config.signinConfirmation.tokenVerificationCode
   const tokenCodeLifetime = tokenCodeConfig && tokenCodeConfig.codeLifetime || MS_ONE_HOUR
   const tokenCodeLength = tokenCodeConfig && tokenCodeConfig.codeLength || 8
-  const TokenCode = require('../../lib/crypto/base32')(tokenCodeLength)
+  const TokenCode = require('../../lib/crypto/random').base10(tokenCodeLength)
   const totpUtils = require('../../lib/routes/utils/totp')(log, config, db)
 
   const routes = [
