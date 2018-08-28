@@ -21,6 +21,10 @@
     margin: 10px auto 0 auto;
     top: 0;
     width: 100%;
+
+    .screen-choose-what-to-sync & {
+      display: none;
+    }
   }
 
   @include respond-to('trustedUI') {
