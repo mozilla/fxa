@@ -26,6 +26,7 @@ const {
   fillOutSignUp,
   fillOutSignIn,
   generateTotpCode,
+  noSuchBrowserNotification,
   openPage,
   openVerificationLinkInSameTab,
   testElementExists,
@@ -147,6 +148,8 @@ registerSuite('recovery code', {
 
         .then(type(selectors.SIGNIN_RECOVERY_CODE.INPUT, recoveryCode2))
         .then(click(selectors.SIGNIN_RECOVERY_CODE.SUBMIT))
+
+        .then(noSuchBrowserNotification('fxaccounts:login'))
 
         .then(testElementExists(selectors.TOTP.RECOVERY_CODES_DESCRIPTION))
         .then(click(selectors.TOTP.RECOVERY_CODES_REPLACE))
