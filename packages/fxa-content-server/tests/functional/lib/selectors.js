@@ -214,6 +214,7 @@ module.exports = {
     INPUT: '.recovery-code',
     LINK: '#use-recovery-code-link',
     MODAL: '#recovery-codes',
+    SECOND_CODE: '.recovery-code:nth-child(2)',
     SUBMIT: 'button[type="submit"]',
   },
   SIGNIN_TOKEN_CODE: {
@@ -314,7 +315,8 @@ module.exports = {
     MENU_BUTTON: '#totp-section .settings-unit-toggle',
     QR_CODE: '.qr-image',
     RECOVERY_CODES_DESCRIPTION: '#recovery-codes .description',
-    RECOVERY_CODES_DONE: '#recovery-codes .description',
+    RECOVERY_CODES_DONE: '#recovery-codes .two-step-authentication-done',
+    RECOVERY_CODES_REPLACE: '#recovery-codes .replace-codes-link',
     SHOW_CODE_LINK: '.show-code-link',
     STATUS_DISABLED: '.two-step-authentication .disabled',
     STATUS_ENABLED: '.two-step-authentication .enabled',
