@@ -884,11 +884,6 @@ var conf = convict({
       env: 'TOTP_WINDOW'
     },
     recoveryCodes: {
-      length: {
-        doc: 'The length of a recovery code',
-        default: 10,
-        env: 'RECOVERY_CODE_LENGTH'
-      },
       count: {
         doc: 'Number of recovery codes to create',
         default: 8,

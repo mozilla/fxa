@@ -13,6 +13,7 @@ const BASE_36 = require('../../lib/routes/validators').BASE_36
 
 describe('remote recovery codes', function () {
   let server, client, email, recoveryCodes
+  const recoveryCodeCount = 9
   const password = 'pssssst'
   const metricsContext = {
     flowBeginTime: Date.now(),
@@ -27,7 +28,8 @@ describe('remote recovery codes', function () {
   }
 
   before(() => {
-    config.totp.recoveryCodes.notifyLowCount = 6
+    config.totp.recoveryCodes.count = recoveryCodeCount
+    config.totp.recoveryCodes.notifyLowCount = recoveryCodeCount - 2
     return TestServer.start(config)
       .then(s => {
         server = s
@@ -53,7 +55,7 @@ describe('remote recovery codes', function () {
                 assert.equal(response.success, true, 'totp codes match')
 
                 recoveryCodes = response.recoveryCodes
-                assert.equal(response.recoveryCodes.length > 1, true, 'recovery codes returned')
+                assert.equal(response.recoveryCodes.length, recoveryCodeCount, 'recovery codes returned')
                 return server.mailbox.waitForEmail(email)
               })
               .then((emailData) => {
@@ -65,7 +67,7 @@ describe('remote recovery codes', function () {
 
   it('should create recovery codes', () => {
     assert.ok(recoveryCodes)
-    assert.equal(recoveryCodes.length > 1, true, 'recovery codes returned')
+    assert.equal(recoveryCodes.length, recoveryCodeCount, 'recovery codes returned')
     recoveryCodes.forEach((code) => {
       assert.equal(code.length > 1, true, 'correct length')
       assert.equal(BASE_36.test(code), true, 'code is hex')
@@ -75,7 +77,7 @@ describe('remote recovery codes', function () {
   it('should replace recovery codes', () => {
     return client.replaceRecoveryCodes()
       .then((result) => {
-        assert.ok(result.recoveryCodes.length, 8, 'recovery codes returned')
+        assert.ok(result.recoveryCodes.length, recoveryCodeCount, 'recovery codes returned')
         assert.notDeepEqual(result, recoveryCodes, 'recovery codes should not match')
 
         return server.mailbox.waitForEmail(email)
@@ -107,7 +109,7 @@ describe('remote recovery codes', function () {
     it('should consume recovery code and verify session', () => {
       return client.consumeRecoveryCode(recoveryCodes[0], {metricsContext})
         .then((res) => {
-          assert.equal(res.remaining, 7, 'correct remaining codes')
+          assert.equal(res.remaining, recoveryCodeCount - 1, 'correct remaining codes')
           return client.emailStatus()
         })
         .then((res) => {
@@ -122,7 +124,7 @@ describe('remote recovery codes', function () {
     it('should consume recovery code and can remove TOTP token', () => {
       return client.consumeRecoveryCode(recoveryCodes[0], {metricsContext})
         .then((res) => {
-          assert.equal(res.remaining, 7, 'correct remaining codes')
+          assert.equal(res.remaining, recoveryCodeCount - 1, 'correct remaining codes')
           return server.mailbox.waitForEmail(email)
         })
         .then((emailData) => {
@@ -153,7 +155,7 @@ describe('remote recovery codes', function () {
     it('should consume recovery code and verify session', () => {
       return client.consumeRecoveryCode(recoveryCodes[0], {metricsContext})
         .then((res) => {
-          assert.equal(res.remaining, 7, 'correct remaining codes')
+          assert.equal(res.remaining, recoveryCodeCount - 1, 'correct remaining codes')
           return server.mailbox.waitForEmail(email)
         })
         .then((emailData) => {
@@ -161,7 +163,7 @@ describe('remote recovery codes', function () {
           return client.consumeRecoveryCode(recoveryCodes[1], {metricsContext})
         })
         .then((res) => {
-          assert.equal(res.remaining, 6, 'correct remaining codes')
+          assert.equal(res.remaining, recoveryCodeCount - 2, 'correct remaining codes')
           return server.mailbox.waitForEmail(email)
         })
         .then((emails) => {

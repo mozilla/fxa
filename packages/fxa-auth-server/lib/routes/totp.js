@@ -29,7 +29,7 @@ module.exports = (log, db, mailer, customs, config) => {
   // Ref: https://github.com/soldair/node-qrcode#error-correction-level
   const qrCodeOptions = {errorCorrectionLevel: 'H'}
 
-  const RECOVERY_CODE_COUNT = config.recoveryCodes && config.recoveryCodes.codeCount || 8
+  const RECOVERY_CODE_COUNT = config.recoveryCodes && config.recoveryCodes.count || 8
 
   P.promisify(qrcode.toDataURL)
 
