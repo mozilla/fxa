@@ -160,10 +160,10 @@ function canStaticallyDetermineMx(host, mxDomain) {
   if (host === 'gmail.com' && mxDomain === 'google.com') {
     return true
   }
-  if (host === 'yahoo.com' !== -1 && mxDomain === 'yahoodns.net') {
+  if (host === 'yahoo.com' && mxDomain === 'yahoodns.net') {
     return true
   }
-  if (host === 'fastmail.fm' !== -1 && mxDomain === 'messagingengine.com') {
+  if (host === 'fastmail.fm' && mxDomain === 'messagingengine.com') {
     return true
   }
   return false
