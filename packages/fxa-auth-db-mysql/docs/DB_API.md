@@ -72,8 +72,9 @@ There are a number of methods that a DB storage backend should implement:
     * .consumeRecoveryCode(uid, code)
 * Recovery keys
     * .createRecoveryKey(uid, data)
-    * .getRecoveryKey(uid)
+    * .getRecoveryKey(data)
     * .deleteRecoveryKey(uid)
+    * .recoveryKeyExists(uid)
 * General
     * .ping()
     * .close()
@@ -954,7 +955,7 @@ Returns:
   * Any error from the underlying storage system (wrapped in `error.wrap()`)
   * `error.notFound()` if this user found
 
-## getRecoveryKey(uid)
+## getRecoveryKey(data)
 
 Get the recovery key for this user.
 
@@ -962,6 +963,8 @@ Parameters:
 
 * `uid` (Buffer16):
   The uid of the owning account
+* `recoveryKeyId` (Buffer32):
+  The recoveryKeyId for account
 
 Returns:
 
@@ -988,3 +991,19 @@ Returns:
 * Rejects with:
   * Any error from the underlying storage system (wrapped in `error.wrap()`)
   * `error.notFound()` if this user or recovery key not found
+
+## recoveryKeyExists(uid)
+
+Check to see if a recovery key exists for this user.
+
+Parameters:
+
+* `uid` (Buffer16):
+  The uid of the owning account
+
+Returns:
+
+* Resolves with:
+  * object {"exists": true}
+* Rejects with:
+  * Any error from the underlying storage system (wrapped in `error.wrap()`)

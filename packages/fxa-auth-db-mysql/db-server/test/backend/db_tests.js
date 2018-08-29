@@ -6,6 +6,7 @@
 const assert = require('insist')
 const crypto = require('crypto')
 const P = require('bluebird')
+const util = require('../../../lib/db/util')
 
 const zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex')
 const zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
@@ -2279,18 +2280,21 @@ module.exports = function (config, DB) {
 
       it('should get account recovery key', () => {
         const options = {
-          id: account.uid
+          id: account.uid,
+          recoveryKeyId: data.recoveryKeyId
         }
         return db.getRecoveryKey(options)
           .then((res) => {
             assert.equal(res.recoveryData, data.recoveryData, 'recovery data set')
-            assert.equal(res.recoveryKeyId.toString('hex'), data.recoveryKeyId.toString('hex'), 'recovery data set')
+            const recoveryKeyIdHash = util.createHash(data.recoveryKeyId)
+            assert.equal(res.recoveryKeyIdHash.toString('hex'), recoveryKeyIdHash.toString('hex'), 'recoveryKeyId set')
           })
       })
 
       it('should fail to get key for incorrect user', () => {
         const options = {
-          id: 'unknown'
+          id: 'unknown',
+          recoveryKeyId: '123'
         }
         return db.getRecoveryKey(options)
           .then(assert.fail, (err) => {
@@ -2298,12 +2302,13 @@ module.exports = function (config, DB) {
           })
       })
 
-      it('should fail to get unknown key', () => {
+      it('should fail to get non-existent key', () => {
         account = createAccount()
         return db.createAccount(account.uid, account)
           .then(() => {
             const options = {
-              id: account.uid
+              id: account.uid,
+              recoveryKeyId: 'unknown'
             }
             return db.getRecoveryKey(options)
               .then(assert.fail, (err) => {
@@ -2312,14 +2317,39 @@ module.exports = function (config, DB) {
           })
       })
 
-      it('should delete account recovery key', () => {
+      it('should fail to get key with invalid recoveryKeyId', () => {
         const options = {
           id: account.uid,
-          recoveryKeyId: data.recoveryKeyId
+          recoveryKeyId: 'incorrect recoveryKeyId'
         }
-        return db.deleteRecoveryKey(options)
+        return db.getRecoveryKey(options)
+          .then(assert.fail, (err) => {
+            assert.equal(err.errno, 159, 'incorrect recoveryKeyId')
+          })
+      })
+
+      it('should return true if recovery key exists', () => {
+        return db.recoveryKeyExists(account.uid)
           .then((res) => {
-            assert.ok(res)
+            assert.equal(res.exists, true, 'key exists')
+          })
+      })
+
+      it('should return false if recovery key doesn\'t exist', () => {
+        account = createAccount()
+        return db.createAccount(account.uid, account)
+          .then(() => {
+            return db.recoveryKeyExists(account.uid)
+              .then((res) => {
+                assert.equal(res.exists, false, 'key doesn\'t exist')
+              })
+          })
+      })
+
+      it('should throw when checking for recovery key on non-existent user', () => {
+        return db.recoveryKeyExists('nonexistent')
+          .then((res) => {
+            assert.equal(res.exists, false, 'key doesn\'t exist')
           })
       })
     })

@@ -1371,7 +1371,7 @@ module.exports = function (log, error) {
 
         recoveryKeys[uid] = {
           uid,
-          recoveryKeyId: data.recoveryKeyId,
+          recoveryKeyIdHash: dbUtil.createHash(data.recoveryKeyId).toString('hex'),
           recoveryData: data.recoveryData
         }
 
@@ -1381,6 +1381,7 @@ module.exports = function (log, error) {
 
   Memory.prototype.getRecoveryKey = function (options) {
     const uid = options.id.toString('hex')
+    const recoveryKeyIdHash = dbUtil.createHash(options.recoveryKeyId).toString('hex')
     return getAccountByUid(uid)
       .then(() => {
         const recoveryKey = recoveryKeys[uid]
@@ -1389,7 +1390,36 @@ module.exports = function (log, error) {
           return P.reject(error.notFound())
         }
 
+        if (recoveryKey.recoveryKeyIdHash !== recoveryKeyIdHash) {
+          return P.reject(error.recoveryKeyInvalid())
+        }
+
         return recoveryKey
+      })
+  }
+
+  Memory.prototype.recoveryKeyExists = function (uid) {
+    uid = uid.toString('hex')
+    let exists = true
+    return getAccountByUid(uid)
+      .then(() => {
+        const recoveryKey = recoveryKeys[uid]
+
+        if (! recoveryKey) {
+          exists = false
+        }
+
+        return {exists}
+      })
+      .catch((err) => {
+        // To match the mysql implementation, we return false when the
+        // user does not exist.
+        if (err.errno === error.notFound().errno) {
+          exists = false
+          return {exists}
+        }
+
+        throw err
       })
   }
 

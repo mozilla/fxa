@@ -1749,7 +1749,7 @@ module.exports = function(cfg, makeServer) {
       })
 
       it('should get a recovery key', () => {
-        return client.getThen('/account/' + user.accountId + '/recoveryKey')
+        return client.getThen('/account/' + user.accountId + '/recoveryKey/' + recoveryKey.recoveryKeyId)
           .then((res) => {
             const recoveryKeyResult = res.obj
             assert.equal(recoveryKeyResult.recoveryData, recoveryKey.recoveryData, 'recoveryData match')
@@ -1760,6 +1760,14 @@ module.exports = function(cfg, makeServer) {
         return client.delThen('/account/' + user.accountId + '/recoveryKey')
           .then((r) => {
             respOkEmpty(r)
+          })
+      })
+
+      it('should check if recovery key exists', () => {
+        return client.getThen('/account/' + user.accountId + '/recoveryKey')
+          .then((res) => {
+            const result = res.obj
+            assert.equal(result.exists, true, 'recovery key exists')
           })
       })
     })

@@ -83,6 +83,15 @@ AppError.invalidVerificationMethod = function () {
   )
 }
 
+AppError.recoveryKeyInvalid = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: 159,
+    message: 'Recovery key is not valid'
+  })
+}
+
 AppError.wrap = function (err) {
   // Don't re-wrap!
   if (err instanceof AppError) {
