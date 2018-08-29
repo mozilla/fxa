@@ -430,10 +430,14 @@ module.exports = function (log, config) {
     }
 
     return redis.get('config')
-      .catch(() => {})
+      .catch(err => log.error({ op: 'emailConfig.read.error', err: err.message }))
       .then(liveConfig => {
         if (liveConfig) {
-          liveConfig = JSON.parse(liveConfig)
+          try {
+            liveConfig = JSON.parse(liveConfig)
+          } catch (err) {
+            log.error({ op: 'emailConfig.parse.error', err: err.message })
+          }
         }
 
         return emailAddresses.reduce((promise, emailAddress) => {
