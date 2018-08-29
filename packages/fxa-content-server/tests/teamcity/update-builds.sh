@@ -27,7 +27,7 @@ function update_needed() {
 
 function show_firefox_versions() {
   echo "Available firefox versions:"
-  for d in latest-beta latest latest-esr; do
+  for d in latest-nightly latest-beta latest latest-esr; do
     echo -n "  "
     $CHANNELS_DIR/$d/en-US/firefox/firefox-bin --version 2>/dev/null
   done
@@ -62,7 +62,7 @@ fi
 
 cd $FXDOWNLOAD_DIR && npm install
 
-for d in beta release esr; do
+for d in nightly beta release esr; do
   ./fetch.js --install-dir $CHANNELS_DIR --channel $d
 done
 
