@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const encrypt = require('./encrypt');
+
 /**
  * .base64URLEncode
  *
@@ -22,6 +24,23 @@ const base64URLEncode = function base64URLEncode(buf) {
     .replace(/=/g, '');
 };
 
+/**
+ * Generates a hash of the access token based on
+ * http://openid.net/specs/openid-connect-core-1_0.html#CodeIDToken
+ *
+ * This value is the hash of the ascii value of the access token, then the base64url
+ * value of the left half.
+ *
+ * @param {Buffer} accessTokenBuf
+ * @returns {String}
+ * @api public
+ */
+const generateTokenHash = function generateTokenHash (accessTokenBuf) {
+  const hash = encrypt.hash(accessTokenBuf.toString('ascii'));
+  return base64URLEncode(hash.slice(0, hash.length / 2));
+};
+
 module.exports = {
-  base64URLEncode: base64URLEncode
+  base64URLEncode: base64URLEncode,
+  generateTokenHash: generateTokenHash
 };

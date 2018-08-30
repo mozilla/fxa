@@ -17,6 +17,7 @@ const encrypt = require('../lib/encrypt');
 const P = require('../lib/promise');
 const Server = require('./lib/server');
 const unique = require('../lib/unique');
+const util = require('../lib/util');
 
 const assertSecurityHeaders = require('./lib/util').assertSecurityHeaders;
 
@@ -1952,6 +1953,9 @@ describe('/v1', function() {
           assert.deepEqual(claims.amr, AMR);
           assert.equal(claims.acr, ACR);
           assert.equal(claims['fxa-aal'], AAL);
+
+          const at_hash = util.generateTokenHash(Buffer.from(res.result.access_token, 'hex'));
+          assert.equal(claims.at_hash, at_hash);
         });
       });
 

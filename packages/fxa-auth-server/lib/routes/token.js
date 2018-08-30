@@ -448,14 +448,15 @@ function _validateJwtSub(sub) {
   return sub;
 }
 
-function generateIdToken(options) {
+function generateIdToken(options, access) {
   var now = Math.floor(Date.now() / 1000);
   var claims = {
     sub: hex(options.userId),
     aud: hex(options.clientId),
     iss: ID_TOKEN_ISSUER,
     iat: now,
-    exp: now + ID_TOKEN_EXPIRATION
+    exp: now + ID_TOKEN_EXPIRATION,
+    at_hash: util.generateTokenHash(access.token)
   };
   if (options.amr) {
     claims.amr = options.amr;
@@ -467,42 +468,43 @@ function generateIdToken(options) {
   return ID_TOKEN_KEY.sign(claims);
 }
 
-function generateTokens(options) {
+function generateTokens (options) {
   // we always are generating an access token here
   // but depending on options, we may also be generating a refresh_token
-  var promises = {
-    access: db.generateAccessToken(options)
-  };
-  if (options.offline) {
-    promises.refresh = db.generateRefreshToken(options);
-  }
-  if (options.idToken) {
-    promises.idToken = generateIdToken(options);
-  }
-  return P.props(promises).then(function(result) {
-    var access = result.access;
-    var refresh = result.refresh;
-    var idToken = result.idToken;
+  return db.generateAccessToken(options)
+    .then((access) => {
+      const promises = {};
+      if (options.offline) {
+        promises.refresh = db.generateRefreshToken(options);
+      }
+      if (options.idToken) {
+        promises.idToken = generateIdToken(options, access);
+      }
 
-    var json = {
-      access_token: access.token.toString('hex'),
-      token_type: access.type,
-      scope: access.scope.toString()
-    };
-    if (options.authAt) {
-      json.auth_at = options.authAt;
-    }
-    json.expires_in = options.ttl;
-    if (refresh) {
-      json.refresh_token = refresh.token.toString('hex');
-    }
-    if (idToken) {
-      json.id_token = idToken;
-    }
-    if (options.keysJwe) {
-      json.keys_jwe = options.keysJwe;
-    }
-    return json;
-  });
+      return P.props(promises).then(function (result) {
+        const refresh = result.refresh;
+        const idToken = result.idToken;
+
+        const json = {
+          access_token: access.token.toString('hex'),
+          token_type: access.type,
+          scope: access.scope.toString()
+        };
+        if (options.authAt) {
+          json.auth_at = options.authAt;
+        }
+        json.expires_in = options.ttl;
+        if (refresh) {
+          json.refresh_token = refresh.token.toString('hex');
+        }
+        if (idToken) {
+          json.id_token = idToken;
+        }
+        if (options.keysJwe) {
+          json.keys_jwe = options.keysJwe;
+        }
+        return json;
+      });
+    });
 }
 
