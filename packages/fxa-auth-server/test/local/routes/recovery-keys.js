@@ -120,8 +120,9 @@ describe('GET /recoveryKey/{recoveryKeyId}', () => {
     it('called db.getRecoveryKey correctly', () => {
       assert.equal(db.getRecoveryKey.callCount, 1)
       const args = db.getRecoveryKey.args[0]
-      assert.equal(args.length, 1)
+      assert.equal(args.length, 2)
       assert.equal(args[0], uid)
+      assert.equal(args[1], recoveryKeyId)
     })
   })
 
@@ -132,7 +133,7 @@ describe('GET /recoveryKey/{recoveryKeyId}', () => {
         params: {recoveryKeyId},
         log
       }
-      return setup({db: {recoveryData, recoveryKeyId: '11111'}}, {}, '/recoveryKey/{recoveryKeyId}', requestOptions)
+      return setup({db: {recoveryData, recoveryKeyIdInvalid: true}}, {}, '/recoveryKey/{recoveryKeyId}', requestOptions)
         .then(assert.fail, (err) => response = err)
     })
 
@@ -149,12 +150,12 @@ describe('POST /recoveryKey/exists', () => {
         credentials: {uid, email},
         log
       }
-      return setup({db: {recoveryData, }}, {}, '/recoveryKey/exists', requestOptions)
+      return setup({db: {recoveryData}}, {}, '/recoveryKey/exists', requestOptions)
         .then(r => response = r)
     })
 
     it('returned the correct response', () => {
-      assert.deepEqual(response.exists, true, 'exists ')
+      assert.equal(response.exists, true, 'exists ')
     })
 
     it('called log.begin correctly', () => {
@@ -165,9 +166,9 @@ describe('POST /recoveryKey/exists', () => {
       assert.equal(args[1], request)
     })
 
-    it('called db.getRecoveryKey correctly', () => {
-      assert.equal(db.getRecoveryKey.callCount, 1)
-      const args = db.getRecoveryKey.args[0]
+    it('called db.recoveryKeyExists correctly', () => {
+      assert.equal(db.recoveryKeyExists.callCount, 1)
+      const args = db.recoveryKeyExists.args[0]
       assert.equal(args.length, 1)
       assert.equal(args[0], uid)
     })
@@ -203,9 +204,9 @@ describe('POST /recoveryKey/exists', () => {
       assert.equal(args[2], 'recoveryKeyExists')
     })
 
-    it('called db.getRecoveryKey correctly', () => {
-      assert.equal(db.getRecoveryKey.callCount, 1)
-      const args = db.getRecoveryKey.args[0]
+    it('called db.recoveryKeyExists correctly', () => {
+      assert.equal(db.recoveryKeyExists.callCount, 1)
+      const args = db.recoveryKeyExists.args[0]
       assert.equal(args.length, 1)
       assert.equal(args[0], uid)
     })
