@@ -595,15 +595,17 @@ define([
    * @method passwordForgotVerifyCode
    * @param {String} code
    * @param {String} passwordForgotToken
-   * @param {Object} [options.metricsContext={}] Metrics context metadata
-   *     @param {String} options.metricsContext.deviceId identifier for the current device
-   *     @param {String} options.metricsContext.flowId identifier for the current event flow
-   *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
-   *     @param {Number} options.metricsContext.utmCampaign marketing campaign identifier
-   *     @param {Number} options.metricsContext.utmContent content identifier
-   *     @param {Number} options.metricsContext.utmMedium acquisition medium
-   *     @param {Number} options.metricsContext.utmSource traffic source
-   *     @param {Number} options.metricsContext.utmTerm search terms
+   * @param {Object} [options={}] Options
+   *   @param {Boolean} [options.accountResetWithRecoveryKey] verifying code to be use in account recovery
+   *   @param {Object} [options.metricsContext={}] Metrics context metadata
+   *      @param {String} options.metricsContext.deviceId identifier for the current device
+   *      @param {String} options.metricsContext.flowId identifier for the current event flow
+   *      @param {Number} options.metricsContext.flowBeginTime flow.begin event time
+   *      @param {Number} options.metricsContext.utmCampaign marketing campaign identifier
+   *      @param {Number} options.metricsContext.utmContent content identifier
+   *      @param {Number} options.metricsContext.utmMedium acquisition medium
+   *      @param {Number} options.metricsContext.utmSource traffic source
+   *      @param {Number} options.metricsContext.utmTerm search terms
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.passwordForgotVerifyCode = function(code, passwordForgotToken, options) {
@@ -623,6 +625,10 @@ define([
 
         if (options && options.metricsContext) {
           data.metricsContext = metricsContext.marshall(options.metricsContext);
+        }
+
+        if (options && options.accountResetWithRecoveryKey ) {
+          data.accountResetWithRecoveryKey = options.accountResetWithRecoveryKey;
         }
 
         return self.request.send('/password/forgot/verify_code', 'POST', creds, data);

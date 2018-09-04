@@ -69,18 +69,23 @@ define([
             passwordForgotToken = result.passwordForgotToken;
             assert.ok(passwordForgotToken, 'passwordForgotToken is returned');
 
-            return respond(mail.wait(account.input.user, 3), RequestMocks.resetMailpasswordForgotRecoveryKey);
+            return respond(mail.wait(account.input.user, 4), RequestMocks.resetMailpasswordForgotRecoveryKey);
           })
           .then(function (emails) {
-            var code = emails[2].html.match(/code=([A-Za-z0-9]+)/)[1];
+            var code = emails[3].html.match(/code=([A-Za-z0-9]+)/)[1];
             assert.ok(code, 'code is returned: ' + code);
 
-            return respond(client.passwordForgotVerifyCode(code, passwordForgotToken), RequestMocks.passwordForgotVerifyCode);
+            return respond(client.passwordForgotVerifyCode(code, passwordForgotToken, {accountResetWithRecoveryKey: true}), RequestMocks.passwordForgotVerifyCode);
           })
           .then(function(result) {
             accountResetToken = result.accountResetToken;
             assert.ok(accountResetToken, 'accountResetToken is returned');
 
+            assert.equal(xhrOpen.args[3][0], 'POST', 'method is correct');
+            assert.include(xhrOpen.args[3][1], '/password/forgot/verify_code', 'path is correct');
+            var sentData = JSON.parse(xhrSend.args[3][0]);
+            assert.equal(Object.keys(sentData).length, 2);
+            assert.equal(sentData.accountResetWithRecoveryKey, true, 'param set');
             return respond(client.getRecoveryKey(accountResetToken, recoveryKeyId), RequestMocks.getRecoveryKey);
           })
           .then(function (res) {

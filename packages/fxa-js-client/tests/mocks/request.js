@@ -111,7 +111,7 @@ define([
     },
     resetMailpasswordForgotRecoveryKey: {
       status: 200,
-      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}]'
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}]'
     },
     resetMailUnlock: {
       status: 200,
@@ -337,7 +337,7 @@ define([
     },
     signInWithVerificationMethodEmail2faCode: {
       status: 200,
-      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Mocked code=9001","headers": {"x-signin-verify-code": "KK5R03GW" }}]'
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}, {"html":"Mocked code=9001","headers": {"x-signin-verify-code": "000111" }}]'
     },
     sessionVerifyTokenCodeSuccess: {
       status: 200,
