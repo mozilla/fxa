@@ -81,7 +81,17 @@
 
         .recovery-icon-option {
           height: 16px;
-          padding-right: 10px;
+          padding-right: 25px;
+        }
+
+        img {
+          &.download-image {
+            background: image-url('recovery_key_download.svg') no-repeat;
+          }
+
+          &.print-image {
+            background: image-url('recovery_key_print.svg') no-repeat;
+          }
         }
       }
 
