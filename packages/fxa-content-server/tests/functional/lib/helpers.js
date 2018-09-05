@@ -1387,7 +1387,7 @@ const fillOutSignInTokenCode = thenify(function (email, number) {
     .then(getTokenCode(email, number))
     .then((tokenCode) => {
       return this.parent
-        .then(type('#token-code', tokenCode));
+        .then(type(selectors.SIGNIN_TOKEN_CODE.INPUT, tokenCode));
     })
     .then(click('button[type=submit]'));
 });

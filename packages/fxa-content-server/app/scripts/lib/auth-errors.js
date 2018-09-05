@@ -200,7 +200,7 @@ define(function (require, exports, module) {
     },
     INVALID_TOKEN_VERIFICATION_CODE: {
       errno: 152,
-      message: t('Invalid sign-in verification code')
+      message: t('Valid code required')
     },
     EXPIRED_TOKEN_VERIFICATION_CODE: {
       errno: 153,
@@ -492,6 +492,10 @@ define(function (require, exports, module) {
     RECOVERY_KEY_REQUIRED: {
       errno: 1059,
       message: t('Recovery key required')
+    },
+    TOKEN_VERIFICATION_CODE_REQUIRED: {
+      errno: 1060,
+      message: t('Valid code required')
     }
   };
   /*eslint-enable sorting/sort-object-props*/

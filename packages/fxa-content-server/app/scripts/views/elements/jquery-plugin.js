@@ -24,10 +24,12 @@ define(function (require, exports, module) {
   const telInput = require('./tel-input');
   const textInput = require('./text-input');
   const totpCodeInput = require('./totp-code-input');
+  const tokenCodeInput = require('./token-code-input');
   const unblockCodeInput = require('./unblock-code-input');
 
   const elementHelpers = [
     totpCodeInput,
+    tokenCodeInput,
     recoveryCodeInput,
     recoveryKeyInput,
     checkboxInput,

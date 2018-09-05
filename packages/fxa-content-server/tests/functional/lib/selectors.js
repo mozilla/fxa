@@ -221,7 +221,7 @@ module.exports = {
     EMAIL_FIELD: '.verification-email-message',
     ERROR: '.error',
     HEADER: '#fxa-signin-code-header',
-    INPUT: '#token-code',
+    INPUT: '.token-code',
     SUBMIT: 'button[type="submit"]',
   },
   SIGNIN_UNBLOCK: {
