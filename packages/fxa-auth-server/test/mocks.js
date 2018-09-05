@@ -64,6 +64,7 @@ const DB_METHOD_NAMES = [
   'passwordChangeToken',
   'passwordForgotToken',
   'pruneSessionTokens',
+  'recoveryKeyExists',
   'replaceRecoveryCodes',
   'resetAccount',
   'resetAccountTokens',
@@ -347,9 +348,17 @@ function mockDB (data, errors) {
       return P.reject(error.unknownSecondaryEmail())
     }),
     getRecoveryKey: sinon.spy(() => {
+      if (data.recoveryKeyIdInvalid) {
+        return P.reject(error.recoveryKeyInvalid())
+      }
+
       return P.resolve({
-        recoveryKeyId: data.recoveryKeyId,
         recoveryData: data.recoveryData
+      })
+    }),
+    recoveryKeyExists: sinon.spy(() => {
+      return P.resolve({
+        exists: !! data.recoveryData
       })
     }),
     securityEvents: sinon.spy(() => {

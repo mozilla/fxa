@@ -7,7 +7,6 @@
 const errors = require('../error')
 const validators = require('./validators')
 const isA = require('joi')
-const butil = require('../crypto/butil')
 
 module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
   return [
@@ -107,16 +106,8 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           })
 
         function getRecoveryKey() {
-          return db.getRecoveryKey(uid)
-            .then((res) => {
-              // `db.getRecoveryKey` doesn't require recoveryKeyId to retrieve
-              // the recovery bundle, however, we should perform a security
-              // check to ensure that the returned bundle contains the recoveryKeyId.
-              if (! butil.buffersAreEqual(res.recoveryKeyId, recoveryKeyId)) {
-                throw errors.recoveryKeyInvalid()
-              }
-              recoveryData = res.recoveryData
-            })
+          return db.getRecoveryKey(uid, recoveryKeyId)
+            .then((res) => recoveryData = res.recoveryData)
         }
       }
     },
@@ -143,7 +134,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
         log.begin('recoveryKeyExists', request)
 
         const email = request.payload.email
-        let exists = false, uid
+        let uid
 
         if (request.auth.credentials) {
           uid = request.auth.credentials.uid
@@ -168,23 +159,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
             // When checking from `/settings` a sessionToken is required and the
             // request is not rate limited.
           })
-          .then(() => {
-            return db.getRecoveryKey(uid)
-              .then((recoveryKey) => {
-                if (recoveryKey) {
-                  exists = true
-                }
-              }, (err) => {
-                if (err.errno === errors.ERRNO.RECOVERY_KEY_NOT_FOUND) {
-                  exists = false
-                  return
-                }
-                throw err
-              })
-          })
-          .then(() => {
-            return {exists}
-          })
+          .then(() => db.recoveryKeyExists(uid))
       }
     },
     {

@@ -1302,19 +1302,34 @@ module.exports = (
   }
 
   SAFE_URLS.getRecoveryKey = new SafeUrl(
-    '/account/:uid/recoveryKey',
+    '/account/:uid/recoveryKey/:recoveryKeyId',
     'db.getRecoveryKey'
   )
-  DB.prototype.getRecoveryKey = function (uid) {
+  DB.prototype.getRecoveryKey = function (uid, recoveryKeyId) {
     log.trace({op: 'DB.getRecoveryKey', uid})
 
-    return this.pool.get(SAFE_URLS.getRecoveryKey, {uid})
+    return this.pool.get(SAFE_URLS.getRecoveryKey, {uid, recoveryKeyId})
       .catch(err => {
         if (isNotFoundError(err)) {
           throw error.recoveryKeyNotFound()
         }
+
+        if (isInvalidRecoveryError(err)) {
+          throw error.recoveryKeyInvalid()
+        }
+
         throw err
       })
+  }
+
+  SAFE_URLS.recoveryKeyExists = new SafeUrl(
+    '/account/:uid/recoveryKey',
+    'db.recoveryKeyExists'
+  )
+  DB.prototype.recoveryKeyExists = function (uid) {
+    log.trace({op: 'DB.recoveryKeyExists', uid})
+
+    return this.pool.get(SAFE_URLS.recoveryKeyExists, {uid})
   }
 
   SAFE_URLS.deleteRecoveryKey = new SafeUrl(
@@ -1523,4 +1538,8 @@ function isEmailDeletePrimaryError (err) {
 
 function isExpiredTokenVerificationCodeError (err) {
   return err.statusCode === 400 && err.errno === 137
+}
+
+function isInvalidRecoveryError (err) {
+  return err.statusCode === 400 && err.errno === 159
 }
