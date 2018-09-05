@@ -495,7 +495,7 @@ define(function (require, exports, module) {
     },
     TOKEN_VERIFICATION_CODE_REQUIRED: {
       errno: 1060,
-      message: t('Valid code required')
+      message: t('Please enter verification code')
     }
   };
   /*eslint-enable sorting/sort-object-props*/
