@@ -1531,11 +1531,11 @@ module.exports = function (log, error) {
       })
   }
 
-  const CREATE_RECOVERY_KEY = 'CALL createRecoveryKey_2(?, ?, ?)'
+  const CREATE_RECOVERY_KEY = 'CALL createRecoveryKey_3(?, ?, ?)'
   MySql.prototype.createRecoveryKey = function (uid, data) {
-    const recoveryKeyId = data.recoveryKeyId
+    const recoveryKeyIdHash = dbUtil.createHash(data.recoveryKeyId)
     const recoveryData = data.recoveryData
-    return this.write(CREATE_RECOVERY_KEY, [uid, recoveryKeyId, recoveryData])
+    return this.write(CREATE_RECOVERY_KEY, [uid, recoveryKeyIdHash, recoveryData])
       .then(() => {
         return {}
       })
@@ -1548,7 +1548,7 @@ module.exports = function (log, error) {
       })
   }
 
-  const GET_RECOVERY_KEY = 'CALL getRecoveryKey_2(?)'
+  const GET_RECOVERY_KEY = 'CALL getRecoveryKey_3(?)'
   MySql.prototype.getRecoveryKey = function (options) {
     return this.readFirstResult(GET_RECOVERY_KEY, [options.id])
       .then((results) => {
@@ -1557,7 +1557,27 @@ module.exports = function (log, error) {
           throw error.notFound()
         }
 
+        // Currently, a user can only have one recovery key. Instead of
+        // simply returning the key, lets double check that the right recoveryKeyId
+        // was specified and throw a custom error if they don't match.
+        const recoveryKeyIdHash = dbUtil.createHash(options.recoveryKeyId)
+        if (! results.recoveryKeyIdHash.equals(recoveryKeyIdHash)) {
+          throw error.recoveryKeyInvalid()
+        }
+
         return results
+      })
+  }
+
+  MySql.prototype.recoveryKeyExists = function (uid) {
+    let exists = true
+    return this.read(GET_RECOVERY_KEY, [uid])
+      .then((results) => {
+        if (results[0].length === 0) {
+          exists = false
+        }
+
+        return {exists}
       })
   }
 

@@ -2281,3 +2281,41 @@ Content-Length: 2
     * Conditions: if something goes wrong on the server
     * Content-Type : `application/json`
     * Body : `{"code":"InternalError","message":"..."}`
+
+## recoveryKeyExists : `GET /account/:uid/recoveryKey`
+
+Check if this user has a recovery key
+
+### Example
+
+```
+curl \
+    -v \
+    -X GET \
+    -H "Content-Type: application/json" \
+    http://localhost:8000/account/1234567890ab/recoveryKey
+```
+
+### Request
+
+* Method : `GET`
+* Path : `/account/<uid>/recoveryKey`
+    * `uid` : hex
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2
+
+{"exists": true}
+```
+
+* Status Code : `200 OK`
+    * Content-Type : `application/json`
+    * Body : `{"exists": true}`
+* Status Code : `500 Internal Server Error`
+    * Conditions: if something goes wrong on the server
+    * Content-Type : `application/json`
+    * Body : `{"code":"InternalError","message":"..."}`
