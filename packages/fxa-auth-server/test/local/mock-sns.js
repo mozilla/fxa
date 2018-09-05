@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 // noPreserveCache is needed to prevent the mock mailer from
 // being used for all future tests that include mock-nexmo.
 const proxyquire = require('proxyquire').noPreserveCache()

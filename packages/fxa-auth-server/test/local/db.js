@@ -6,7 +6,7 @@
 
 const LIB_DIR = '../../lib'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const mocks = require('../mocks')
 const P = require(`${LIB_DIR}/promise`)
 const proxyquire = require('proxyquire')
@@ -516,7 +516,7 @@ describe('redis enabled, token-pruning enabled:', () => {
           uaOS: 'Android',
           uaOSVersion: '8.1',
           uaDeviceType: 'mobile',
-          uaFormFactor: null,
+          uaFormFactor: undefined,
           location: {
             city: 'Mountain View',
             state: 'California',
@@ -582,8 +582,8 @@ describe('redis enabled, token-pruning enabled:', () => {
           uaBrowserVersion: '59',
           uaOS: 'Mac OS X',
           uaOSVersion: '10.11',
-          uaDeviceType: null,
-          uaFormFactor: null,
+          uaDeviceType: undefined,
+          uaFormFactor: undefined,
           location: {
             city: 'Bournemouth',
             state: 'England',

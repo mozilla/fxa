@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 
 describe('require:', () => {
   let time

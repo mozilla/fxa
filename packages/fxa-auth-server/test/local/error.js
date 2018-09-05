@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 var messages = require('joi/lib/language')
 const AppError = require('../../lib/error')
 

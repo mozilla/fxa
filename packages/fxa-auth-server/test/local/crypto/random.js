@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 
 const random = require('../../../lib/crypto/random')
 const base10 = random.base10

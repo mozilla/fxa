@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const proxyquire = require('proxyquire')
 const mockLog = require('../mocks').mockLog
 const modulePath = '../../lib/geodb'

@@ -6,7 +6,7 @@
 
 const ROOT_DIR = '../../..'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const P = require(`${ROOT_DIR}/lib/promise`)
 const { mockLog } = require('../../mocks')
 const proxyquire = require('proxyquire')

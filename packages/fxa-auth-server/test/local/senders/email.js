@@ -6,7 +6,7 @@
 
 const ROOT_DIR = '../../..'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const cp = require('child_process')
 const mocks = require('../../mocks')
 const P = require('bluebird')
@@ -831,6 +831,12 @@ describe(
             assert.equal(mailerSend1.args[0].op, 'mailer.send.1', 'logs mailer.send.1')
             assert.equal(mailerSend1.args[0].to, message.email, 'logs sender to email address')
           })
+      })
+    })
+
+    describe('mock failing sendMail method:', () => {
+      beforeEach(() => {
+        sinon.stub(mailer.mailer, 'sendMail', (config, cb) => cb(new Error('Fail')))
       })
 
       it('rejects sendMail status', () => {

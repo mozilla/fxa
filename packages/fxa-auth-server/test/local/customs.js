@@ -6,7 +6,7 @@
 
 const ROOT_DIR = '../..'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const log = {
   trace: () => {},
   activityEvent: () => {},

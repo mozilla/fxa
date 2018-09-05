@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const P = require('../../lib/promise')
 const TestServer = require('../test_server')
 const request = P.promisify(require('request'), { multiArgs: true })

@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const sinon = require('sinon')
 const P = require('../../lib/promise')
 const TestServer = require('../test_server')

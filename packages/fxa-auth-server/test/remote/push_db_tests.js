@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 var P = require('../../lib/promise')
 var uuid = require('uuid')
 var crypto = require('crypto')

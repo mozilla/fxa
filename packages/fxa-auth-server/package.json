@@ -86,6 +86,7 @@
   },
   "devDependencies": {
     "acorn": "5.0.3",
+    "chai": "4.1.2",
     "commander": "2.9.0",
     "eslint-plugin-fxa": "git+https://github.com/mozilla/eslint-plugin-fxa#master",
     "fxa-auth-db-mysql": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
@@ -100,7 +101,6 @@
     "grunt-newer": "1.2.0",
     "hawk": "7.0.7",
     "husky": "0.14.3",
-    "insist": "1.0.1",
     "jsxgettext-recursive": "1.0.1",
     "jws": "3.1.5",
     "leftpad": "0.0.0",

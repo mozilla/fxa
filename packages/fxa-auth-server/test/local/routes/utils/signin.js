@@ -5,7 +5,7 @@
 'use strict'
 
 const sinon = require('sinon')
-const assert = Object.assign({}, sinon.assert, require('insist'))
+const assert = { ...sinon.assert, ...require('chai').assert }
 
 const P = require('../../../../lib/promise')
 const mocks = require('../../../mocks')
@@ -140,12 +140,8 @@ describe('checkEmailAddress', () => {
   })
 
   it('should throw when email does not match primary after normalization', () => {
-    assert.throws(() => checkEmailAddress(accountRecord, 'secondary@test.net'), (err) => {
-      return err.errno === error.ERRNO.LOGIN_WITH_SECONDARY_EMAIL
-    }, 'threw the correct error')
-    assert.throws(() => checkEmailAddress(accountRecord, 'something@else.org'), (err) => {
-      return err.errno === error.ERRNO.LOGIN_WITH_SECONDARY_EMAIL
-    }, 'threw the correct error')
+    assert.throws(() => checkEmailAddress(accountRecord, 'secondary@test.net'), 'Sign in with this email type is not currently supported')
+    assert.throws(() => checkEmailAddress(accountRecord, 'something@else.org'), 'Sign in with this email type is not currently supported')
   })
 
   describe('with originalLoginEmail parameter', () => {
@@ -156,12 +152,8 @@ describe('checkEmailAddress', () => {
     })
 
     it('should throw when originalLoginEmail does not match primary after normalization', () => {
-      assert.throws(() => checkEmailAddress(accountRecord, 'other@email', 'secondary@test.net'), (err) => {
-        return err.errno === error.ERRNO.LOGIN_WITH_SECONDARY_EMAIL
-      }, 'threw the correct error')
-      assert.throws(() => checkEmailAddress(accountRecord, 'other@email', 'something@else.org'), (err) => {
-        return err.errno === error.ERRNO.LOGIN_WITH_SECONDARY_EMAIL
-      }, 'threw the correct error')
+      assert.throws(() => checkEmailAddress(accountRecord, 'other@email', 'secondary@test.net'), 'Sign in with this email type is not currently supported')
+      assert.throws(() => checkEmailAddress(accountRecord, 'other@email', 'something@else.org'), 'Sign in with this email type is not currently supported')
     })
   })
 })

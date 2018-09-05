@@ -6,7 +6,7 @@
 
 const ROOT_DIR = '../..'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const proxyquire = require('proxyquire')
 const sinon = require('sinon')
 const {mockLog} = require('../mocks')
@@ -52,13 +52,13 @@ describe('pushbox', () => {
           assert.equal(args.length, 3)
           assert.equal(args[0]._template.toString(), '/v1/store/:uid/:deviceId')
           assert.deepEqual(args[1], {uid: mockUid, deviceId: mockDeviceIds[0]})
-          assert.deepEqual(args[2], {query: {limit:50, index:10}, headers: {Authorization: `FxA-Server-Key ${mockConfig.pushbox.key}`}})
+          assert.deepEqual(args[2], {query: {limit:'50', index:'10'}, headers: {Authorization: `FxA-Server-Key ${mockConfig.pushbox.key}`}})
 
           assert.deepEqual(resp, {
             last: true,
-            index: '15',
+            index: 15,
             messages: [{
-              index: '15',
+              index: 15,
               data: { foo: 'bar', bar: 'bar' }
             }]
           })

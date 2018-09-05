@@ -6,7 +6,7 @@
 
 const ROOT_DIR = '../..'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const EndpointError = require('poolee/lib/error')(require('util').inherits)
 const error = require(`${ROOT_DIR}/lib/error`)
 const hawk = require('hawk')

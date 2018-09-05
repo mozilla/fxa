@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const crypto = require('crypto')
 const config = require('../../config').getProperties()
 const TestServer = require('../test_server')

@@ -5,7 +5,7 @@
 'use strict'
 
 const sinon = require('sinon')
-const assert = Object.assign({}, sinon.assert, require('insist'))
+const assert = { ...sinon.assert, ...require('chai').assert }
 
 const mocks = require('../mocks')
 const P = require('../../lib/promise')

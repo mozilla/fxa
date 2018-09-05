@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const log = {}
 const config = {}
 const Password = require('../../lib/crypto/password')(log, config)

@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const base64url = require('base64url')
 const config = require('../../config').getProperties()
 const crypto = require('crypto')

@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const proxyquire = require('proxyquire').noPreserveCache()
 const sinon = require('sinon')
 
@@ -559,12 +559,12 @@ describe('userAgent, real dependency', () => {
       os: 'iOS',
       osVersion: '1.0',
       deviceType: 'mobile',
-      formFactor: null
+      formFactor: undefined
     })
     assert.deepEqual(userAgent('<a>foo</a>-iPhone/2 CFNetwork'), {
       browser: null,
       browserVersion: '2',
-      os: null,
+      os: undefined,
       osVersion: null,
       deviceType: 'mobile',
       formFactor: 'iPhone'
@@ -572,10 +572,10 @@ describe('userAgent, real dependency', () => {
     assert.deepEqual(userAgent('wibble\t/7 CFNetwork'), {
       browser: null,
       browserVersion: '7',
-      os: null,
+      os: undefined,
       osVersion: null,
       deviceType: null,
-      formFactor: null
+      formFactor: undefined
     })
   })
 })

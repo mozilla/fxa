@@ -7,7 +7,7 @@
 const ROOT_DIR = '../..'
 const LIB_DIR = `${ROOT_DIR}/lib`
 
-const assert = require('insist')
+const { assert } = require('chai')
 const cp = require('child_process')
 const mocks = require(`${ROOT_DIR}/test/mocks`)
 const P = require('bluebird')

@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const errors = require('../../../lib/error')
 const getRoute = require('../../routes_helpers').getRoute
 const mocks = require('../../mocks')

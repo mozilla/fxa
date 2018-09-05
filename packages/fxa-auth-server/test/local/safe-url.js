@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const mocks = require('../mocks')
 
 const SOME_DISALLOWED_GRAPHEMES = [

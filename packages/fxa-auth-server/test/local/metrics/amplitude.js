@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const amplitudeModule = require('../../../lib/metrics/amplitude')
 const mocks = require('../../mocks')
 

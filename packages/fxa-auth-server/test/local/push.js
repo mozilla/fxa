@@ -8,7 +8,7 @@ const ROOT_DIR = '../..'
 
 const proxyquire = require('proxyquire')
 const sinon = require('sinon')
-const assert = Object.assign({}, sinon.assert, require('insist'))
+const assert = { ...sinon.assert, ...require('chai').assert }
 const ajv = require('ajv')()
 const fs = require('fs')
 const path = require('path')

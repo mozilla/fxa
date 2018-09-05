@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 var TestServer = require('../test_server')
 const Client = require('../client')()
 var createDBServer = require('fxa-auth-db-mysql')

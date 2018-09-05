@@ -7,7 +7,7 @@
 const ROOT_DIR = '../..'
 
 const proxyquire = require('proxyquire')
-const assert = require('insist')
+const { assert } = require('chai')
 const sinon = require('sinon')
 
 describe('notifier', () => {

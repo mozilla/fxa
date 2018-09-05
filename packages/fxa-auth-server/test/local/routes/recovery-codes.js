@@ -5,7 +5,7 @@
 'use strict'
 
 const sinon = require('sinon')
-const assert = Object.assign({}, sinon.assert, require('insist'))
+const assert = { ...sinon.assert, ...require('chai').assert }
 const getRoute = require('../../routes_helpers').getRoute
 const mocks = require('../../mocks')
 const error = require('../../../lib/error')

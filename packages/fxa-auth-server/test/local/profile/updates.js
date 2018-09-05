@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 
 const EventEmitter = require('events').EventEmitter
 const sinon = require('sinon')

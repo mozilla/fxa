@@ -6,7 +6,7 @@
 
 const ROOT_DIR = '../..'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const config = require(`${ROOT_DIR}/config`).getProperties()
 const P = require(`${ROOT_DIR}/lib/promise`)
 

@@ -6,7 +6,7 @@
 
 const ROOT_DIR = '../..'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const crypto = require('crypto')
 const Memcached = require('memcached')
 const mocks = require('../mocks')

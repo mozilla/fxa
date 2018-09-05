@@ -6,7 +6,7 @@
 
 const ROOT_DIR = '../../..'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const crypto = require('crypto')
 const uuid = require('uuid')
 const getRoute = require('../../routes_helpers').getRoute
