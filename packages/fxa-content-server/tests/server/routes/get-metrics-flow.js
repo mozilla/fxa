@@ -11,6 +11,7 @@ registerSuite('routes/get-metrics-flow', {
   before: function () {
     sandbox = sinon.sandbox.create();
     mocks = {
+      amplitude: sandbox.spy(),
       config: {
         get (key) {
           switch (key) {
@@ -28,6 +29,7 @@ registerSuite('routes/get-metrics-flow', {
       },
     };
     route = proxyquire('../../../server/lib/routes/get-metrics-flow', {
+      '../amplitude': mocks.amplitude,
       '../flow-event': mocks.flowEvent,
     });
     instance = route(mocks.config);
@@ -35,7 +37,7 @@ registerSuite('routes/get-metrics-flow', {
     request = {
       headers: {}
     };
-    response = {json: sinon.spy()};
+    response = {json: sandbox.spy()};
   },
 
   afterEach: function () {
@@ -73,7 +75,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(argsFlowEvent.length, 3);
     },
 
-    'supports query params': function () {
+    'supports query params and logs begin amplitude and flow events': function () {
       request = {
         headers: {},
         query: {
@@ -82,10 +84,19 @@ registerSuite('routes/get-metrics-flow', {
       };
       instance.process(request, response);
 
+      assert.equal(mocks.amplitude.callCount, 1);
+      let args = mocks.amplitude.args[0];
+      assert.equal(args.length, 3);
+      assert.ok(args[0].flowTime);
+      assert.ok(args[0].time);
+      assert.equal(args[0].type, 'flow.begin');
+      assert.equal(args[2].entrypoint, 'zoo');
+      assert.ok(args[2].flowId);
+
       assert.equal(mocks.flowEvent.logFlowEvent.callCount, 1);
-      const argsFlowEvent = mocks.flowEvent.logFlowEvent.args[0];
-      const eventData = argsFlowEvent[0];
-      const metricsData = argsFlowEvent[1];
+      args = mocks.flowEvent.logFlowEvent.args[0];
+      const eventData = args[0];
+      const metricsData = args[1];
       assert.ok(eventData.flowTime);
       assert.ok(eventData.time);
       assert.equal(eventData.type, 'flow.begin');
@@ -93,7 +104,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.ok(metricsData.flowId);
     },
 
-    'logs enter-email.view event if form_type email is set': function () {
+    'logs enter-email.view amplitude and flow events if form_type email is set': function () {
       request = {
         headers: {},
         query: {
@@ -103,10 +114,19 @@ registerSuite('routes/get-metrics-flow', {
       };
       instance.process(request, response);
 
+      assert.equal(mocks.amplitude.callCount, 2);
+      let args = mocks.amplitude.args[1];
+      assert.equal(args.length, 3);
+      assert.ok(args[0].flowTime);
+      assert.ok(args[0].time);
+      assert.equal(args[0].type, 'screen.enter-email.view');
+      assert.equal(args[2].entrypoint, 'bar');
+      assert.ok(args[2].flowId);
+
       assert.equal(mocks.flowEvent.logFlowEvent.callCount, 2);
-      const argsFlowEmailEvent = mocks.flowEvent.logFlowEvent.args[1];
-      const eventData = argsFlowEmailEvent[0];
-      const metricsData = argsFlowEmailEvent[1];
+      args = mocks.flowEvent.logFlowEvent.args[1];
+      const eventData = args[0];
+      const metricsData = args[1];
       assert.ok(eventData.flowTime);
       assert.ok(eventData.time);
       assert.equal(eventData.type, 'flow.enter-email.view');
