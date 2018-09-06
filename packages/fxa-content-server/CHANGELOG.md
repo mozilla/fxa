@@ -1,3 +1,13 @@
+<a name="1.120.1"></a>
+## [1.120.1](https://github.com/mozilla/fxa-content-server/compare/v1.120.0...v1.120.1) (2018-09-06)
+
+
+### Features
+
+* **pw-strength:** 50% to Arabic, 100% in German ([5e60249](https://github.com/mozilla/fxa-content-server/commit/5e60249)), closes [#6516](https://github.com/mozilla/fxa-content-server/issues/6516)
+
+
+
 <a name="1.120.0"></a>
 # [1.120.0](https://github.com/mozilla/fxa-content-server/compare/v1.119.3...v1.120.0) (2018-09-06)
 
