@@ -376,6 +376,44 @@ describe('remote device', function () {
   )
 
   it(
+    'update device works with callback urls that have ports',
+    () => {
+      var goodPushCallback = 'https://updates.push.services.mozilla.com:433'
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            var deviceInfo = {
+              name: 'test device',
+              type: 'mobile',
+              pushCallback: goodPushCallback,
+              pushPublicKey: '',
+              pushAuthKey: ''
+            }
+            return client.devices()
+              .then(
+                function (devices) {
+                  assert.equal(devices.length, 0, 'devices returned no items')
+                  return client.updateDevice(deviceInfo)
+                }
+              )
+              .then(
+                function (device) {
+                  assert.ok(device.id, 'device.id was set')
+                  assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
+                }
+              )
+              .catch(
+                function (err) {
+                  assert.fail(err, 'request should have worked')
+                }
+              )
+          })
+    }
+  )
+
+  it(
     'update device fails with bad dev callbackUrl',
     () => {
       var badPushCallback = 'https://evil.mozaws.net'

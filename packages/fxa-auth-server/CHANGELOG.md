@@ -19,6 +19,14 @@
 * **tests:** switch from insist to chai for assertions (#2608) r=@vladikoff ([1b47186](https://github.com/mozilla/fxa-auth-server/commit/1b47186)), closes [#2608](https://github.com/mozilla/fxa-auth-server/issues/2608)
 
 
+<a name="1.119.4"></a>
+## [1.119.4](https://github.com/mozilla/fxa-auth-server/compare/v1.119.3...v1.119.4) (2018-09-06)
+
+* **push:** support port numbers in push urls ([8a9859f](https://github.com/mozilla/fxa-auth-server/commit/8a9859f))
+* **tests:** add port test ([f258387](https://github.com/mozilla/fxa-auth-server/commit/f258387))
+* **tests:** adjust geodb city for now ([fd751b2](https://github.com/mozilla/fxa-auth-server/commit/fd751b2))
+
+
 
 <a name="1.119.3"></a>
 ## [1.119.3](https://github.com/mozilla/fxa-auth-server/compare/v1.119.1...v1.119.3) (2018-08-23)
