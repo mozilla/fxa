@@ -4,6 +4,7 @@
 
 'use strict';
 
+const amplitude = require('../amplitude');
 const flowMetrics = require('../flow-metrics');
 const logFlowEvent = require('../flow-event').logFlowEvent;
 const logger = require('../logging/log')('server.get-metrics-flow');
@@ -11,7 +12,8 @@ const logger = require('../logging/log')('server.get-metrics-flow');
 module.exports = function (config) {
   const FLOW_ID_KEY = config.get('flow_id_key');
   const FLOW_EVENT_NAME = 'flow.begin';
-  const FLOW_ENTER_EMAIL_EVENT_NAME = 'flow.enter-email.view';
+  const ENTER_EMAIL_SCREEN_EVENT_NAME = 'screen.enter-email.view';
+  const ENTER_EMAIL_FLOW_EVENT_NAME = 'flow.enter-email.view';
   const FORM_TYPE_EMAIL = 'email';
   const ALLOWED_CORS_ORIGINS = config.get('allowed_metrics_flow_cors_origins');
   const CORS_OPTIONS = {
@@ -37,20 +39,27 @@ module.exports = function (config) {
     const flowBeginTime = flowEventData.flowBeginTime;
     const flowId = flowEventData.flowId;
     const metricsData = req.query || {};
-
-    metricsData.flowId = flowId;
-
-    logFlowEvent({
+    const beginEvent = {
       flowTime: flowBeginTime,
       time: flowBeginTime,
       type: FLOW_EVENT_NAME
-    }, metricsData, req);
+    };
+
+    metricsData.flowId = flowId;
+
+    amplitude(beginEvent, req, metricsData);
+    logFlowEvent(beginEvent, metricsData, req);
 
     if (metricsData.form_type === FORM_TYPE_EMAIL) {
+      amplitude({
+        flowTime: flowBeginTime,
+        time: flowBeginTime,
+        type: ENTER_EMAIL_SCREEN_EVENT_NAME
+      }, req, metricsData);
       logFlowEvent({
         flowTime: flowBeginTime,
         time: flowBeginTime,
-        type: FLOW_ENTER_EMAIL_EVENT_NAME
+        type: ENTER_EMAIL_FLOW_EVENT_NAME
       }, metricsData, req);
     }
 
