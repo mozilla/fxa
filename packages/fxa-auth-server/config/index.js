@@ -753,7 +753,7 @@ var conf = convict({
     allowedServerRegex: {
       doc: 'RegExp that validates the URI format of the Push Server',
       format: RegExp,
-      default: /^https:\/\/[a-zA-Z0-9._-]+(\.services\.mozilla\.com|autopush\.dev\.mozaws\.net|autopush\.stage\.mozaws\.net)(\/.*)?$/
+      default: /^https:\/\/[a-zA-Z0-9._-]+(\.services\.mozilla\.com|autopush\.dev\.mozaws\.net|autopush\.stage\.mozaws\.net)(?:\:\d+)?(\/.*)?$/
     }
   },
   pushbox: {
