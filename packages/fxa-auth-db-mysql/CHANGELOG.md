@@ -1,3 +1,20 @@
+<a name="1.120.0"></a>
+# [1.120.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.118.1...v1.120.0) (2018-09-06)
+
+
+### Bug Fixes
+
+* **devices:** Reinstate device commands, with performance fixes. (#389) r=@vladikoff,@philboot ([a01e4aa](https://github.com/mozilla/fxa-auth-db-mysql/commit/a01e4aa)), closes [#384](https://github.com/mozilla/fxa-auth-db-mysql/issues/384) [#384](https://github.com/mozilla/fxa-auth-db-mysql/issues/384)
+* **recovery:** hash recovery key ([fe12332](https://github.com/mozilla/fxa-auth-db-mysql/commit/fe12332))
+* **scripts:** remove nonsense (but harmless) comparison of bool to -1 (#394) r=@vladikoff ([13ca415](https://github.com/mozilla/fxa-auth-db-mysql/commit/13ca415))
+
+### chore
+
+* **db:** ensure mem db behaves like mysql db ([8d5d55f](https://github.com/mozilla/fxa-auth-db-mysql/commit/8d5d55f))
+* **docs:** update mysql docs (#391) r=@rfk ([64634d4](https://github.com/mozilla/fxa-auth-db-mysql/commit/64634d4))
+
+
+
 <a name="1.119.1"></a>
 ## [1.119.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.118.1...v1.119.1) (2018-08-23)
 
