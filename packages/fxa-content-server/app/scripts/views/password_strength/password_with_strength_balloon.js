@@ -25,7 +25,9 @@ const PasswordWithStrengthBalloonView = FormView.extend({
   initialize (options = {}) {
     this.passwordHelperBalloon = options.passwordHelperBalloon || new PasswordStrengthBalloonView({
       el: options.balloonEl,
-      model: this.model
+      lang: this.lang,
+      model: this.model,
+      translator: this.translator
     });
     this.trackChildView(this.passwordHelperBalloon);
   },

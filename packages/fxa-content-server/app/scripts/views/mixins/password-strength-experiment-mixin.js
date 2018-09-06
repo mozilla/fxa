@@ -70,7 +70,9 @@ export default function (config = {}) {
       return new PasswordWithStrengthBalloonView({
         balloonEl: this.$(balloonEl),
         el: this.$(passwordEl),
-        model: passwordModel
+        lang: this.lang,
+        model: passwordModel,
+        translator: this.translator
       });
     },
 

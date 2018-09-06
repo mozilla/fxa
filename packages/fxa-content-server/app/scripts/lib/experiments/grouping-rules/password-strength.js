@@ -8,11 +8,12 @@ const GROUPS_FOR_PARTIAL_ROLLOUT = ['control', 'designF'];
 
 // These locales only see designF
 const FULLY_ROLLED_OUT = [
+  'de',
   'en'
 ];
 
 const ROLLOUT_RATES = {
-  'de': 0.2, // german is 10% control, 10% treatment
+  'ar': 0.5, // arabic is 25% control, 25% treatment
 };
 
 const EXPERIMENT_NAME = 'passwordStrength';
