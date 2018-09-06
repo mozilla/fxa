@@ -14,7 +14,7 @@ element.match = function ($el) {
 
 element.val = function (val) {
   if (arguments.length === 1) {
-    return this.__val(val.replace(/[- ]*/g, ''));
+    return this.__val(val.replace(/[- ]/g, ''));
   }
 
   return this.__val();
