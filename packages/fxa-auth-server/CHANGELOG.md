@@ -1,3 +1,33 @@
+<a name="1.120.1"></a>
+## [1.120.1](https://github.com/mozilla/fxa-auth-server/compare/v1.121.0...v1.120.1) (2018-09-06)
+
+
+
+
+
+
+<a name="1.120.0"></a>
+# [1.120.0](https://github.com/mozilla/fxa-auth-server/compare/v1.119.3...v1.120.0) (2018-09-06)
+
+
+### Bug Fixes
+
+* **config:** update correct recoveryCodes config (#2604), r=@philbooth ([67b7053](https://github.com/mozilla/fxa-auth-server/commit/67b7053)), closes [#2604](https://github.com/mozilla/fxa-auth-server/issues/2604)
+* **errors:** Surface a backendServiceFailure when connection to db fails. (#2600) r=@philboot ([2e9b9e6](https://github.com/mozilla/fxa-auth-server/commit/2e9b9e6)), closes [#2600](https://github.com/mozilla/fxa-auth-server/issues/2600) [#2599](https://github.com/mozilla/fxa-auth-server/issues/2599)
+* **logging:** log errors when reading/parsing live email config ([9fe542e](https://github.com/mozilla/fxa-auth-server/commit/9fe542e))
+* **mail_helper:** remove '<' from to headers in email service requests (#2595) r=@vladikoff ([87f0d61](https://github.com/mozilla/fxa-auth-server/commit/87f0d61)), closes [#2595](https://github.com/mozilla/fxa-auth-server/issues/2595) [mozilla/fxa-content-server#6470](https://github.com/mozilla/fxa-content-server/issues/6470)
+* **recovery:** update to support hashing recoveryKeyId ([e9bb25c](https://github.com/mozilla/fxa-auth-server/commit/e9bb25c))
+* **test:** update to latest token requirements (#2601), r=@philbooth ([000b15d](https://github.com/mozilla/fxa-auth-server/commit/000b15d)), closes [#2601](https://github.com/mozilla/fxa-auth-server/issues/2601)
+* **tests:** update to mocha 5 (#2590) r=@shane-tomlinson ([e504e39](https://github.com/mozilla/fxa-auth-server/commit/e504e39)), closes [#2590](https://github.com/mozilla/fxa-auth-server/issues/2590) [#2531](https://github.com/mozilla/fxa-auth-server/issues/2531)
+
+### chore
+
+* **docs:** add badges for LGTM analysis and alerts ([45975d6](https://github.com/mozilla/fxa-auth-server/commit/45975d6))
+* **email:** force value to boolean in account deletion check ([a00dcac](https://github.com/mozilla/fxa-auth-server/commit/a00dcac))
+* **tests:** switch from insist to chai for assertions (#2608) r=@vladikoff ([1b47186](https://github.com/mozilla/fxa-auth-server/commit/1b47186)), closes [#2608](https://github.com/mozilla/fxa-auth-server/issues/2608)
+
+
+
 <a name="1.120.0"></a>
 # [1.120.0](https://github.com/mozilla/fxa-auth-server/compare/v1.119.3...v1.120.0) (2018-09-06)
 
