@@ -1,3 +1,40 @@
+<a name="1.120.0"></a>
+# [1.120.0](https://github.com/mozilla/fxa-content-server/compare/v1.119.3...v1.120.0) (2018-09-06)
+
+
+### Bug Fixes
+
+* **codes:** fix token code regex and error message ([95c1ba4](https://github.com/mozilla/fxa-content-server/commit/95c1ba4))
+* **codes:** pr updates ([dc4c352](https://github.com/mozilla/fxa-content-server/commit/dc4c352))
+* **codes:** redirect user to replace recovery codes when they are low ([c3cf28e](https://github.com/mozilla/fxa-content-server/commit/c3cf28e))
+* **codes:** update token code requirements ([3bbdaf2](https://github.com/mozilla/fxa-content-server/commit/3bbdaf2))
+* **csp:** allow 'blob' in blocked-uri for CSP reports (#6488)  r=@vbudhram ([6f5d48e](https://github.com/mozilla/fxa-content-server/commit/6f5d48e)), closes [#6488](https://github.com/mozilla/fxa-content-server/issues/6488) [#6230](https://github.com/mozilla/fxa-content-server/issues/6230)
+* **errors:** Backend service failures restarts the poll ([21259c2](https://github.com/mozilla/fxa-content-server/commit/21259c2)), closes [mozilla/fxa-auth-server#2600](https://github.com/mozilla/fxa-auth-server/issues/2600)
+* **logs:** make logger optional in metrics-errors (#6484) r=@vbudhram ([cd817bb](https://github.com/mozilla/fxa-content-server/commit/cd817bb)), closes [#6484](https://github.com/mozilla/fxa-content-server/issues/6484) [#6225](https://github.com/mozilla/fxa-content-server/issues/6225)
+* **metrics:** send events from /metrics-flow to amplitude ([7e5ed08](https://github.com/mozilla/fxa-content-server/commit/7e5ed08))
+* **scripts:** Fix the run_remote_dev.sh script (#6505) r=@shane-tomlinson ([05d10b8](https://github.com/mozilla/fxa-content-server/commit/05d10b8)), closes [#6505](https://github.com/mozilla/fxa-content-server/issues/6505)
+* **style:** don't display firefox logo on small screens for choose what to sync (#6509) r=@v ([d1b17a9](https://github.com/mozilla/fxa-content-server/commit/d1b17a9)), closes [#6509](https://github.com/mozilla/fxa-content-server/issues/6509) [#6314](https://github.com/mozilla/fxa-content-server/issues/6314)
+* **style:** fix missing recovery code icons ([a371d1a](https://github.com/mozilla/fxa-content-server/commit/a371d1a))
+* **tests:** auto-download nightly, and config to run tests with nightly (#6510) r=@vladikoff ([7666375](https://github.com/mozilla/fxa-content-server/commit/7666375)), closes [#6510](https://github.com/mozilla/fxa-content-server/issues/6510)
+* **tests:** fix PKCE tests for token-code experiment (#6490) r=@vbudhram ([fb90fc3](https://github.com/mozilla/fxa-content-server/commit/fb90fc3)), closes [#6490](https://github.com/mozilla/fxa-content-server/issues/6490)
+* **tests:** return promise so on error it's not unhandled rejection (#6508) ([56ed71f](https://github.com/mozilla/fxa-content-server/commit/56ed71f)), closes [#6508](https://github.com/mozilla/fxa-content-server/issues/6508)
+
+### chore
+
+* **modules:** Convert a couple of modules to ES6 format. (#6501) r=@vladikoff ([ea4c8e3](https://github.com/mozilla/fxa-content-server/commit/ea4c8e3)), closes [#6501](https://github.com/mozilla/fxa-content-server/issues/6501) [#6404](https://github.com/mozilla/fxa-content-server/issues/6404)
+
+### Features
+
+* **errors:** improve metrics and style of the Working error (#6483) r=@vbudhram ([58d0cba](https://github.com/mozilla/fxa-content-server/commit/58d0cba)), closes [#6483](https://github.com/mozilla/fxa-content-server/issues/6483) [#5354](https://github.com/mozilla/fxa-content-server/issues/5354) [#4866](https://github.com/mozilla/fxa-content-server/issues/4866)
+* **mixins:** Add hash parameter processing for the pairing flow. (#6502) r=@vladikoff ([b7a6033](https://github.com/mozilla/fxa-content-server/commit/b7a6033)), closes [#6502](https://github.com/mozilla/fxa-content-server/issues/6502) [#6404](https://github.com/mozilla/fxa-content-server/issues/6404)
+* **ua-parser:** Add a `genericDeviceType` method. (#6503) r=@vbudhram ([cdf6e18](https://github.com/mozilla/fxa-content-server/commit/cdf6e18)), closes [#6503](https://github.com/mozilla/fxa-content-server/issues/6503) [#6404](https://github.com/mozilla/fxa-content-server/issues/6404)
+
+### style
+
+* **account recovery:** Centered messages of re-enter password screen ([c629faf](https://github.com/mozilla/fxa-content-server/commit/c629faf))
+
+
+
 <a name="1.119.3"></a>
 ## 1.119.3 (2018-08-23)
 
