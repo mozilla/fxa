@@ -17,7 +17,6 @@ const PASSWORD_CHECKING_ACTION = {
 const CODE_VERIFYING_ACTION = {
   recoveryEmailVerifyCode: true,
   passwordForgotVerifyCode: true,
-  verifyTokenCode: true,
   verifyRecoveryCode: true
 }
 

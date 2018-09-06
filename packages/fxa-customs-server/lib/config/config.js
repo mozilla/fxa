@@ -309,6 +309,35 @@ module.exports = function (fs, path, url, convict) {
             env: 'TOTP_CODE_RULE_LIMIT_INTERVAL_MS'
           }
         }
+      },
+      tokenCodeRules: {
+        actions: {
+          doc: 'Array of actions that this rule should be applied to',
+          default: [
+            'verifyTokenCode',
+          ],
+          format: Array
+        },
+        limits: {
+          max: {
+            doc: 'max actions during `period` that can occur before rate limit is applied',
+            format: 'nat',
+            default: 5,
+            env: 'TOKEN_CODE_RULE_MAX'
+          },
+          periodMs: {
+            doc: 'period needed before rate limit is reset',
+            format: 'duration',
+            default: '15 minutes',
+            env: 'TOKEN_CODE_RULE_PERIOD_MS'
+          },
+          rateLimitIntervalMs: {
+            doc: 'how long rate limit is applied',
+            format: 'duration',
+            default: '15 minutes',
+            env: 'TOKEN_CODE_RULE_LIMIT_INTERVAL_MS'
+          }
+        }
       }
     }
   })
