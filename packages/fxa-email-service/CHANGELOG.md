@@ -1,3 +1,14 @@
+<a name="v1.120.0"></a>
+## v1.120.0 (2018-09-06)
+
+
+#### Features
+
+* **docs:**  document errors and errno ([482f69ce](482f69ce))
+* **errors:**  return bouncedAt field in bounce error message ([d74eaec9](d74eaec9))
+
+
+
 <a name="v1.119.0"></a>
 ## v1.119.0 (2018-08-22)
 
