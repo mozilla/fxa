@@ -1,3 +1,17 @@
+<a name="1.120.0"></a>
+# 1.120.0 (2018-09-06)
+
+
+### Bug Fixes
+
+* **deps:** Remove nsp support, add npm audit support in logging only mode. (#274) r=@vladik ([884909e](https://github.com/mozilla/fxa-customs-server/commit/884909e)), closes [#271](https://github.com/mozilla/fxa-customs-server/issues/271)
+
+### Features
+
+* **deps:** Update to the newest restify. (#264) ([d50ec32](https://github.com/mozilla/fxa-customs-server/commit/d50ec32))
+
+
+
 <a name="1.119.0"></a>
 # 1.119.0 (2018-08-22)
 
