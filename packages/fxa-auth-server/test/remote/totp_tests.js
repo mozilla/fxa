@@ -70,12 +70,12 @@ describe('remote totp', function () {
     assert.ok(totpToken.qrCodeUrl)
   })
 
-  it('should check if totp token exists for user', () => {
-    return client.checkTotpTokenExists()
-      .then((response) => {
-        assert.equal(response.exists, true, 'token exists')
-      })
-  })
+  // it('should check if totp token exists for user', () => {
+  //   return client.checkTotpTokenExists()
+  //     .then((response) => {
+  //       assert.equal(response.exists, true, 'token exists')
+  //     })
+  // })
 
   it('should fail check for totp token if in unverified session', () => {
     email = server.uniqueEmail()
