@@ -1,3 +1,13 @@
+<a name="1.120.1"></a>
+## 1.120.1 (2018-09-07)
+
+
+### Features
+
+* **code:** add custom rate limits for token code ([cd949ae](https://github.com/mozilla/fxa-customs-server/commit/cd949ae))
+
+
+
 <a name="1.120.0"></a>
 # 1.120.0 (2018-09-06)
 
