@@ -1,3 +1,15 @@
+<a name="1.119.6"></a>
+## [1.119.6](https://github.com/mozilla/fxa-auth-server/compare/v1.119.5...v1.119.6) (2018-09-07)
+
+
+### Bug Fixes
+
+* **tests:** comment out flaky tests ([c505991](https://github.com/mozilla/fxa-auth-server/commit/c505991))
+* **tests:** comment out flaky tests ([c50acaf](https://github.com/mozilla/fxa-auth-server/commit/c50acaf))
+* **validation:** allow https pushCallback URLs that contain :443 ([e41522f](https://github.com/mozilla/fxa-auth-server/commit/e41522f))
+
+
+
 <a name="1.119.5"></a>
 ## [1.119.5](https://github.com/mozilla/fxa-auth-server/compare/v1.119.4...v1.119.5) (2018-09-07)
 
