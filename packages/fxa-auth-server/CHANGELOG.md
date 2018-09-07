@@ -1,3 +1,13 @@
+<a name="1.119.5"></a>
+## [1.119.5](https://github.com/mozilla/fxa-auth-server/compare/v1.119.4...v1.119.5) (2018-09-07)
+
+
+### Bug Fixes
+
+* **deps:** Pin auth-db-mysql dependency for train-119 ([3c09697](https://github.com/mozilla/fxa-auth-server/commit/3c09697))
+
+
+
 <a name="1.119.4"></a>
 ## [1.119.4](https://github.com/mozilla/fxa-auth-server/compare/v1.119.3...v1.119.4) (2018-09-06)
 
