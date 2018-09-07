@@ -27,11 +27,12 @@ describe('lib/experiments/grouping-rules/password-strength', () => {
     });
 
     it('has the expected locales fully rolled out', () => {
+      assert.include(experiment.FULLY_ROLLED_OUT, 'de');
       assert.include(experiment.FULLY_ROLLED_OUT, 'en');
     });
 
     it('has the expected rollout rates defined', () => {
-      assert.equal(experiment.ROLLOUT_RATES.de, 0.2);
+      assert.equal(experiment.ROLLOUT_RATES.ar, 0.5);
     });
 
     ['a@mozilla.org', 'a@softvision.com', 'a@softvision.ro', 'a@softvision.com'].forEach((email) => {
