@@ -151,6 +151,31 @@ module.exports.url = function url(options) {
   return validator
 }
 
+module.exports.pushCallbackUrl = function pushUrl(options) {
+  const validator = isA.string().uri(options)
+  validator._tests.push(
+    {
+      func: (value, state, options) => {
+        if (value !== undefined && value !== null) {
+          let normalizedValue = value;
+          // Fx Desktop registers https push urls with a :443 which causes `isValidUrl`
+          // to fail because the :443 is expected to have been normalized away.
+          if (/^https:\/\/[a-zA-Z0-9._-]+(:443)($|\/)/.test(value)) {
+            normalizedValue = value.replace(':443', '')
+          }
+
+          if (isValidUrl(normalizedValue)) {
+            return value
+          }
+        }
+
+        return validator.createError('string.base', { value }, state, options)
+      }
+    }
+  )
+  return validator
+}
+
 function isValidUrl(url, hostnameRegex) {
   let parsed
   try {

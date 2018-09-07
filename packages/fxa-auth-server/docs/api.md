@@ -403,7 +403,7 @@ those common validations are defined here.
     * `name`: isA.string.max(255).regex(DISPLAY_SAFE_UNICODE_WITH_NON_BMP)
     * `nameResponse`: isA.string.max(255)
     * `type`: isA.string.max(16)
-    * `pushCallback`: validators.url({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow('')
+    * `pushCallback`: validators.pushCallbackUrl({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow('')
     * `pushPublicKey`: isA.string.max(88).regex(URL_SAFE_BASE_64).allow('')
     * `pushAuthKey`: isA.string.max(24).regex(URL_SAFE_BASE_64).allow('')
     * `pushEndpointExpired`: isA.boolean.strict
