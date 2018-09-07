@@ -30,43 +30,61 @@ import DisplayNameView from '../views/settings/display_name';
 import EmailsView from '../views/settings/emails';
 import ForceAuthView from '../views/force_auth';
 import IndexView from '../views/index';
-import LegalView from '../views/legal';
 import OAuthIndexView from '../views/oauth_index';
 import PermissionsView from '../views/permissions';
-import PpView from '../views/pp';
 import ReadyView from '../views/ready';
+import RecoveryCodesView from '../views/settings/recovery_codes';
+import RedirectAuthView from '../views/authorization';
 import ReportSignInView from '../views/report_sign_in';
 import ResetPasswordView from '../views/reset_password';
 import SettingsView from '../views/settings';
 import SignInBouncedView from '../views/sign_in_bounced';
+import SignInPasswordView from '../views/sign_in_password';
 import SignInRecoveryCodeView from '../views/sign_in_recovery_code';
+import SignInReportedView from '../views/sign_in_reported';
 import SignInTokenCodeView from '../views/sign_in_token_code';
 import SignInTotpCodeView from '../views/sign_in_totp_code';
-import SignInPasswordView from '../views/sign_in_password';
-import SignInReportedView from '../views/sign_in_reported';
 import SignInUnblockView from '../views/sign_in_unblock';
 import SignInView from '../views/sign_in';
-import SignUpView from '../views/sign_up';
 import SignUpPasswordView from '../views/sign_up_password';
+import SignUpView from '../views/sign_up';
 import SmsSendView from '../views/sms_send';
 import SmsSentView from '../views/sms_sent';
 import Storage from './storage';
-import TosView from '../views/tos';
 import TwoStepAuthenticationView from '../views/settings/two_step_authentication';
-import RecoveryCodesView from '../views/settings/recovery_codes';
 import VerificationReasons from './verification-reasons';
 import WhyConnectAnotherDeviceView from '../views/why_connect_another_device';
-import RedirectAuthView from '../views/authorization';
 
-function createViewHandler(View, options) {
+function getView(ViewOrPath) {
+  if (typeof ViewOrPath === 'string') {
+    return import(`../views/${ViewOrPath}`)
+      .then((result) => {
+        if (result.default) {
+          return result.default;
+        }
+        return result;
+      });
+  } else {
+    return Promise.resolve(ViewOrPath);
+  }
+}
+
+function createViewHandler(ViewOrPath, options) {
   return function () {
-    return this.showView(View, options);
+    return getView(ViewOrPath).then(View => {
+      return this.showView(View, options);
+    });
   };
 }
 
-function createChildViewHandler(ChildView, ParentView, options) {
+function createChildViewHandler(ChildViewOrPath, ParentViewOrPath, options) {
   return function () {
-    return this.showChildView(ChildView, ParentView, options);
+    return Promise.all([
+      getView(ChildViewOrPath),
+      getView(ParentViewOrPath)
+    ]).then(([ ChildView, ParentView ]) => {
+      return this.showChildView(ChildView, ParentView, options);
+    });
   };
 }
 
@@ -92,9 +110,9 @@ const Router = Backbone.Router.extend({
     'connect_another_device/why(/)': createChildViewHandler(WhyConnectAnotherDeviceView, ConnectAnotherDeviceView),
     'cookies_disabled(/)': createViewHandler(CookiesDisabledView),
     'force_auth(/)': createViewHandler(ForceAuthView),
-    'legal(/)': createViewHandler(LegalView),
-    'legal/privacy(/)': createViewHandler(PpView),
-    'legal/terms(/)': createViewHandler(TosView),
+    'legal(/)': createViewHandler('legal'),
+    'legal/privacy(/)': createViewHandler('pp'),
+    'legal/terms(/)': createViewHandler('tos'),
     'oauth(/)': createViewHandler(OAuthIndexView),
     'oauth/force_auth(/)': createViewHandler(ForceAuthView),
     'oauth/signin(/)': 'onSignIn',

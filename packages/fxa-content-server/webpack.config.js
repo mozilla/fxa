@@ -170,6 +170,9 @@ const webpackConfig = {
       threads: 4,
       debug: false
     }),
+    // dynamically loaded routes cause the .md file to be read and a
+    // warning to be displayed on the console. Just ignore them.
+    new webpack.IgnorePlugin(/\.md$/)
   ]),
 
   stats: { colors: true },
