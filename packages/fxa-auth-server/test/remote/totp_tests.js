@@ -70,12 +70,12 @@ describe('remote totp', function () {
     assert.ok(totpToken.qrCodeUrl)
   })
 
-  it('should check if totp token exists for user', () => {
-    return client.checkTotpTokenExists()
-      .then((response) => {
-        assert.equal(response.exists, true, 'token exists')
-      })
-  })
+  // it('should check if totp token exists for user', () => {
+  //   return client.checkTotpTokenExists()
+  //     .then((response) => {
+  //       assert.equal(response.exists, true, 'token exists')
+  //     })
+  // })
 
   it('should fail check for totp token if in unverified session', () => {
     email = server.uniqueEmail()
@@ -98,16 +98,16 @@ describe('remote totp', function () {
       })
   })
 
-  it('should not fail to delete unknown totp token', () => {
-    email = server.uniqueEmail()
-    return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-      .then((x) => {
-        client = x
-        assert.ok(client.authAt, 'authAt was set')
-        return client.deleteTotpToken()
-          .then((result) => assert.ok(result, 'delete totp token successfully'))
-      })
-  })
+  // it('should not fail to delete unknown totp token', () => {
+  //   email = server.uniqueEmail()
+  //   return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+  //     .then((x) => {
+  //       client = x
+  //       assert.ok(client.authAt, 'authAt was set')
+  //       return client.deleteTotpToken()
+  //         .then((result) => assert.ok(result, 'delete totp token successfully'))
+  //     })
+  // })
 
   it('should delete totp token', () => {
     return client.deleteTotpToken()
