@@ -7,14 +7,20 @@ if [ -z "$CORS_ORIGIN" ]; then export CORS_ORIGIN="http://foo,http://bar"; fi;
 
 set -u
 
-GLOB=$*
-if [ -z "$GLOB" ]; then
-  GLOB="test/local test/remote"
-fi
-
 DEFAULT_ARGS="-R dot --recursive --timeout 5000 --exit"
 
 ./scripts/gen_keys.js
 ./scripts/gen_vapid_keys.js
-./scripts/mocha-coverage.js $DEFAULT_ARGS $GLOB
+
+GLOB=$*
+if [ -z "$GLOB" ]; then
+  echo "Local tests"
+  ./scripts/mocha-coverage.js $DEFAULT_ARGS test/local
+
+  echo "Remote tests"
+  ./scripts/mocha-coverage.js $DEFAULT_ARGS test/remote
+else
+  ./scripts/mocha-coverage.js $DEFAULT_ARGS $GLOB
+fi
+
 grunt eslint copyright

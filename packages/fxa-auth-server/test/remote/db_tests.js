@@ -683,15 +683,13 @@ describe('remote db', function() {
         .then(function(passwordForgotToken) {
           return db.forgotPasswordVerified(passwordForgotToken)
             .then(accountResetToken => {
-              assert.ok(accountResetToken.createdAt > passwordForgotToken.createdAt, 'account reset token should be newer than password forgot token')
+              assert.ok(accountResetToken.createdAt >= passwordForgotToken.createdAt, 'account reset token should be equal or newer than password forgot token')
               return accountResetToken
             })
         })
         .then(function(accountResetToken) {
           assert.deepEqual(accountResetToken.uid, account.uid, 'account reset token uid should be the same as the account.uid')
           tokenId = accountResetToken.id
-        })
-        .then(function() {
           return db.accountResetToken(tokenId)
         })
         .then(function(accountResetToken) {
@@ -702,15 +700,13 @@ describe('remote db', function() {
         .then(function(accountResetToken) {
           return db.deleteAccountResetToken(accountResetToken)
         })
-        .then(function() {
+        .then(function () {
           return db.accountResetToken(tokenId)
-        })
-        .then(function(accountResetToken) {
-          assert(false, 'The above accountResetToken() call should fail, since the accountResetToken has been deleted')
-        }, function(err) {
-          assert.equal(err.errno, 110, 'accountResetToken() fails with the correct error code')
-          var msg = 'Error: The authentication token could not be found'
-          assert.equal(msg, '' + err, 'accountResetToken() fails with the correct message')
+            .then(assert.fail, function (err) {
+              assert.equal(err.errno, 110, 'accountResetToken() fails with the correct error code')
+              var msg = 'Error: The authentication token could not be found'
+              assert.equal(msg, '' + err, 'accountResetToken() fails with the correct message')
+            })
         })
     }
   )

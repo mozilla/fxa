@@ -111,7 +111,7 @@
     "nock": "8.0.0",
     "npmshrink": "1.0.1",
     "nyc": "13.0.0",
-    "proxyquire": "1.8.0",
+    "proxyquire": "2.0.0",
     "simplesmtp": "0.3.35",
     "sinon": "1.17.5",
     "sjcl": "1.0.6",
