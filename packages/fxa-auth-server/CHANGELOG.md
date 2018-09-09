@@ -49,6 +49,28 @@
 * **tests:** switch from insist to chai for assertions (#2608) r=@vladikoff ([1b47186](https://github.com/mozilla/fxa-auth-server/commit/1b47186)), closes [#2608](https://github.com/mozilla/fxa-auth-server/issues/2608)
 
 
+<a name="1.119.6"></a>
+## [1.119.6](https://github.com/mozilla/fxa-auth-server/compare/v1.119.5...v1.119.6) (2018-09-07)
+
+
+### Bug Fixes
+
+* **tests:** comment out flaky tests ([c505991](https://github.com/mozilla/fxa-auth-server/commit/c505991))
+* **tests:** comment out flaky tests ([c50acaf](https://github.com/mozilla/fxa-auth-server/commit/c50acaf))
+* **validation:** allow https pushCallback URLs that contain :443 ([e41522f](https://github.com/mozilla/fxa-auth-server/commit/e41522f))
+
+
+
+<a name="1.119.5"></a>
+## [1.119.5](https://github.com/mozilla/fxa-auth-server/compare/v1.119.4...v1.119.5) (2018-09-07)
+
+
+### Bug Fixes
+
+* **deps:** Pin auth-db-mysql dependency for train-119 ([3c09697](https://github.com/mozilla/fxa-auth-server/commit/3c09697))
+
+
+
 <a name="1.119.4"></a>
 ## [1.119.4](https://github.com/mozilla/fxa-auth-server/compare/v1.119.3...v1.119.4) (2018-09-06)
 
