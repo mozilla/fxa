@@ -8,6 +8,7 @@
  *
  * @module views/index
  */
+import AuthErrors from '../lib/auth-errors';
 import CachedCredentialsMixin from './mixins/cached-credentials-mixin';
 import Cocktail from 'cocktail';
 import CoppaMixin from './mixins/coppa-mixin';
@@ -18,6 +19,8 @@ import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
 import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/index.mustache';
+
+const EMAIL_SELECTOR = 'input[type=email]';
 
 class IndexView extends FormView {
   template = Template;
@@ -75,9 +78,32 @@ class IndexView extends FormView {
   }
 
   submit () {
-    const email = this.getElementValue('input[type=email]');
+    return this.checkEmail(this._getEmail());
+  }
 
-    return this.checkEmail(email);
+  isValidEnd () {
+    if (this._isEmailFirefoxDomain(this._getEmail())) {
+      return false;
+    }
+
+    return super.isValidEnd.call(this);
+  }
+
+  showValidationErrorsEnd () {
+    if (this._isEmailFirefoxDomain(this._getEmail())) {
+      this.showValidationError(EMAIL_SELECTOR,
+        AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN'));
+    }
+  }
+
+  _getEmail () {
+    return this.getElementValue(EMAIL_SELECTOR);
+  }
+
+  _isEmailFirefoxDomain (email) {
+    // "@firefox" or "@firefox.com" email addresses are not valid
+    // at this time, therefore block the attempt.
+    return /@firefox(\.com)?$/.test(email);
   }
 
   /**

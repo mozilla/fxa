@@ -103,6 +103,7 @@ module.exports = {
     LINK_SUGGEST_SYNC: '#suggest-sync a',
     SUBMIT: 'button[type="submit"]',
     SUB_HEADER: '#fxa-enter-email-header .service',
+    TOOLTIP: 'input[type=email] + .tooltip',
   },
   FORCE_AUTH: {
     EMAIL: 'input[type=email]',

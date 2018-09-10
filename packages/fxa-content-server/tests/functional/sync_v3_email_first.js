@@ -31,6 +31,7 @@ const {
   openVerificationLinkInNewTab,
   switchToWindow,
   testElementExists,
+  testElementTextInclude,
   testElementValueEquals,
   testErrorTextInclude,
   testIsBrowserNotified,
@@ -81,6 +82,20 @@ registerSuite('Firefox Desktop Sync v3 email first', {
 
         // refresh sends the user back to the first step
         .then(testElementExists(selectors.ENTER_EMAIL.HEADER));
+    },
+
+    'enter a firefox.com address': function () {
+      return this.remote
+        .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true}
+          }
+        }))
+        .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
+
+        .then(type(selectors.ENTER_EMAIL.EMAIL, 'testuser@firefox.com'))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT))
+        .then(testElementTextInclude(selectors.ENTER_EMAIL.TOOLTIP, 'firefox.com does not offer email'));
     },
 
     'signup': function () {
