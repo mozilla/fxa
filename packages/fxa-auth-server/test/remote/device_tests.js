@@ -376,9 +376,86 @@ describe('remote device', function () {
   )
 
   it(
-    'update device works with callback urls that have ports',
+    'update device works with callback urls that :443 as a port',
     () => {
-      var goodPushCallback = 'https://updates.push.services.mozilla.com:433'
+      var goodPushCallback = 'https://updates.push.services.mozilla.com:443/wpush/v1/gAAAAABbkq0Eafe6IANS4OV3pmoQ5Z8AhqFSGKtozz5FIvu0CfrTGmcv07CYziPaysTv_9dgisB0yr3UjEIlGEyoprRFX1WU5VA4nG-9tofPdA3FYREPf6xh3JL1qBhTa9mEFS2dSn--'
+
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            var deviceInfo = {
+              name: 'test device',
+              type: 'mobile',
+              pushCallback: goodPushCallback,
+              pushPublicKey: '',
+              pushAuthKey: ''
+            }
+            return client.devices()
+              .then(
+                function (devices) {
+                  assert.equal(devices.length, 0, 'devices returned no items')
+                  return client.updateDevice(deviceInfo)
+                }
+              )
+              .then(
+                function (device) {
+                  assert.ok(device.id, 'device.id was set')
+                  assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
+                }
+              )
+              .catch(
+                function (err) {
+                  assert.fail(err, 'request should have worked')
+                }
+              )
+          })
+    }
+  )
+
+  it(
+    'update device works with callback urls that :4430 as a port',
+    () => {
+      var goodPushCallback = 'https://updates.push.services.mozilla.com:4430'
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            var deviceInfo = {
+              name: 'test device',
+              type: 'mobile',
+              pushCallback: goodPushCallback,
+              pushPublicKey: '',
+              pushAuthKey: ''
+            }
+            return client.devices()
+              .then(
+                function (devices) {
+                  assert.equal(devices.length, 0, 'devices returned no items')
+                  return client.updateDevice(deviceInfo)
+                }
+              )
+              .then(
+                function (device) {
+                  assert.ok(device.id, 'device.id was set')
+                  assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
+                }
+              )
+              .catch(
+                function (err) {
+                  assert.fail(err, 'request should have worked')
+                }
+              )
+          })
+    }
+  )
+
+  it(
+    'update device works with callback urls that a custom port',
+    () => {
+      var goodPushCallback = 'https://updates.push.services.mozilla.com:10332'
       var email = server.uniqueEmail()
       var password = 'test password'
       return Client.create(config.publicUrl, email, password)
