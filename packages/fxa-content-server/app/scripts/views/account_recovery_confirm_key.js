@@ -57,7 +57,7 @@ const View = FormView.extend({
       .then(() => {
         const accountResetToken = account.get('accountResetToken');
         if (! accountResetToken) {
-          return account.passwordForgotVerifyCode(code, token)
+          return account.passwordForgotVerifyCode(code, token, {accountResetWithRecoveryKey: true})
             .then((result) => {
 
               // The password forgot code can only be used once to retrieve

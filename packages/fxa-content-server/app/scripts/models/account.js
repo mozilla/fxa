@@ -1409,12 +1409,15 @@ const Account = Backbone.Model.extend({
      *
      * @param {String} code
      * @param {String} token
+     * @param {Object} [options={}] Options
+     *   @param {String} [options.accountResetWithRecoveryKey] - perform account reset with recovery key
      * @returns {Promise} resolves with response when complete.
      */
-  passwordForgotVerifyCode (code, token) {
+  passwordForgotVerifyCode (code, token, options) {
     return this._fxaClient.passwordForgotVerifyCode(
       code,
-      token
+      token,
+      options
     );
   },
 

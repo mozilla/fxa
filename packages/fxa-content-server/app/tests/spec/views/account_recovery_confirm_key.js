@@ -24,6 +24,9 @@ describe('views/account_recovery_confirm_key', () => {
   const token = 'feed';
   const recoveryKey = 'AS20HV8FM6VATAAX';
   const recoveryKeyId = '63f75aaebc74f912b552da15852fe570';
+  const options = {
+    accountResetWithRecoveryKey: true
+  };
   const keys = {
     kB: '2e2a6e11551c53db48b742fb4734760c9adce6e75e9610449baebacb2cd52fe3'
   };
@@ -84,6 +87,7 @@ describe('views/account_recovery_confirm_key', () => {
       const args = account.passwordForgotVerifyCode.args[0];
       assert.equal(args[0], code, 'called with code');
       assert.equal(args[1], token, 'called with token');
+      assert.deepEqual(args[2], options, 'called with options');
     });
 
     it('should call getRecoveryBundle', () => {
