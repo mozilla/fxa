@@ -65,7 +65,7 @@ GACollector.prototype = {
    * @param {Object} body
    */
   write: function (body) {
-    if (! body || ! body.events || ! body.events.length > 0 || ! this.analyticsId) {
+    if (! body || ! body.events || body.events.length === 0 || ! this.analyticsId) {
       return;
     }
 

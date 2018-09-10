@@ -4,8 +4,6 @@
 
 'use strict';
 
-const path = require('path');
-
 module.exports = function (grunt) {
   grunt.registerTask('eslint', 'Run eslint', function () {
     var done = this.async();

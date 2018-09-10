@@ -31,8 +31,7 @@ const View = FormView.extend({
     });
   },
 
-  initialize(options) {
-    options = options || {};
+  initialize() {
     this._searchParams = Url.searchParams(this.window.location.search);
     this._verificationInfo = new VerificationInfo(this._searchParams);
   },

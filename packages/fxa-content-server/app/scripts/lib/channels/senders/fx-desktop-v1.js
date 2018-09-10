@@ -28,7 +28,7 @@ define(function (require, exports, module) {
 
     dispatchCommand (command, data, messageId) {
       var win = this._window;
-      var event = createEvent(win, command, data, messageId);
+      var event = createEvent(win, command, data);
       win.dispatchEvent(event);
     },
 
