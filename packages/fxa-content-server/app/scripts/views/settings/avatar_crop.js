@@ -25,9 +25,7 @@ define(function (require, exports, module) {
     className: 'avatar-crop',
     viewName: 'settings.avatar.crop',
 
-    initialize (options) {
-      options = options || {};
-
+    initialize () {
       this._cropImg = this.model.get('cropImg');
 
       if (! this._cropImg && this.broker.isAutomatedBrowser()) {

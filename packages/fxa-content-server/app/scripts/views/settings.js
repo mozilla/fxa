@@ -27,7 +27,7 @@ define(function (require, exports, module) {
   const Duration = require('duration');
   const EmailsView = require('./settings/emails');
   const LoadingMixin = require('./mixins/loading-mixin');
-  const modal = require('modal'); //eslint-disable-line no-unused-vars
+  require('modal');
   const Session = require('../lib/session');
   const SettingsHeaderTemplate = require('templates/partial/settings-header.mustache');
   const SignedOutNotificationMixin = require('./mixins/signed-out-notification-mixin');
