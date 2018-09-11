@@ -201,7 +201,7 @@ function isValidUrl(url, hostnameRegex) {
   return parsed.href
 }
 
-module.exports.verificationMethod = isA.string().valid(['email', 'email-2fa', 'email-captcha'])
+module.exports.verificationMethod = isA.string().valid(['email', 'email-2fa', 'email-captcha', 'totp-2fa'])
 
 module.exports.authPW = isA.string().length(64).regex(HEX_STRING).required()
 module.exports.wrapKb = isA.string().length(64).regex(HEX_STRING)
