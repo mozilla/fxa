@@ -27,6 +27,13 @@ const View = FormView.extend({
   },
 
   _returnToTwoStepAuthentication() {
+    // If this view was navigated from `sign_in_recovery_code`, that
+    // means that the user came here to generate new recovery codes,
+    // continue the sign-in process after generating.
+    if (this.model.get('previousViewName') === 'sign_in_recovery_code') {
+      const account = this.getSignedInAccount();
+      return this.invokeBrokerMethod('afterCompleteSignInWithCode', account);
+    }
     this.navigate('settings/two_step_authentication');
   },
 

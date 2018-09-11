@@ -4,6 +4,7 @@
 
 const $ = require('jquery');
 const assert = require('chai').assert;
+const Broker = require('models/auth_brokers/base');
 const Metrics = require('lib/metrics');
 const { Model } = require('backbone');
 const Notifier = require('lib/channels/notifier');
@@ -15,6 +16,7 @@ const WindowMock = require('../../../mocks/window');
 
 describe('views/settings/recovery_codes', () => {
   let account;
+  let broker;
   let email;
   let model;
   let metrics;
@@ -33,6 +35,7 @@ describe('views/settings/recovery_codes', () => {
     };
 
     view = new View({
+      broker,
       metrics: metrics,
       model: model,
       notifier: notifier,
@@ -54,6 +57,7 @@ describe('views/settings/recovery_codes', () => {
   }
 
   beforeEach(() => {
+    broker = new Broker();
     email = TestHelpers.createEmail();
     notifier = new Notifier();
     model = new Model();
@@ -209,4 +213,20 @@ describe('views/settings/recovery_codes', () => {
       assert.equal(view.$('.graphic-recovery-codes-download').length, 0);
     });
   });
+
+  describe('should continue sign-in after generating from low recovery codes', () => {
+    beforeEach(() => {
+      view.model.set('previousViewName', 'sign_in_recovery_code');
+      sinon.spy(view, 'invokeBrokerMethod');
+      return view.$('.two-step-authentication-done').click();
+    });
+
+    it('call correct broker method', () => {
+      const args = view.invokeBrokerMethod.args[0];
+      assert.equal(view.invokeBrokerMethod.callCount, 1, 'broker called');
+      assert.equal(args[0], 'afterCompleteSignInWithCode', 'correct method');
+      assert.equal(args[1], account, 'called with account');
+    });
+  });
+
 });
