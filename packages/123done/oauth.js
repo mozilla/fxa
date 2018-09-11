@@ -43,7 +43,7 @@ function verifyIdToken(oauthConfig, token) {
     });
 }
 
-function setupOAuthFlow(req, action, email, cb) {
+function setupOAuthFlow(req, action, options = {}, cb) {
   var params = {
     client_id: config.client_id,
     pkce_client_id: config.pkce_client_id,
@@ -53,8 +53,11 @@ function setupOAuthFlow(req, action, email, cb) {
   if (action) {
     params.action = action;
   }
-  if (email) {
-    params.email = email;
+  if (options.email) {
+    params.email = options.email;
+  }
+  if (options.acrValues) {
+    params.acr_values = options.acrValues;
   }
   request.get({
     uri: config.issuer_uri + '/.well-known/openid-configuration',
@@ -86,7 +89,7 @@ function redirectUrl(params, oauthConfig) {
 module.exports = function(app, db) {
   // begin a new oauth log in flow
   app.get('/api/login', function(req, res) {
-    setupOAuthFlow(req, 'signin', null, function(err, params, oauthConfig) {
+    setupOAuthFlow(req, 'signin', {}, function(err, params, oauthConfig) {
       if (err) {
         return res.send(400, err);
       }
@@ -96,7 +99,7 @@ module.exports = function(app, db) {
 
   // begin a new oauth sign up flow
   app.get('/api/signup', function(req, res) {
-    setupOAuthFlow(req, 'signup', null, function(err, params, oauthConfig) {
+    setupOAuthFlow(req, 'signup', {}, function(err, params, oauthConfig) {
       if (err) {
         return res.send(400, err);
       }
@@ -106,7 +109,7 @@ module.exports = function(app, db) {
 
   // let the content server choose the flow
   app.get('/api/best_choice', function(req, res) {
-    setupOAuthFlow(req, null, null, function(err, params, oauthConfig) {
+    setupOAuthFlow(req, null, {}, function(err, params, oauthConfig) {
       if (err) {
         return res.send(400, err);
       }
@@ -116,7 +119,16 @@ module.exports = function(app, db) {
 
   // begin a new oauth email-first flow
   app.get('/api/email_first', function(req, res) {
-    setupOAuthFlow(req, 'email', null, function(err, params, oauthConfig) {
+    setupOAuthFlow(req, 'email', {}, function(err, params, oauthConfig) {
+      if (err) {
+        return res.send(400, err);
+      }
+      return res.redirect(redirectUrl(params, oauthConfig));
+    });
+  });
+
+  app.get('/api/two_step_authentication', function (req, res) {
+    setupOAuthFlow(req, 'email', {acrValues: 'AAL2'}, function (err, params, oauthConfig) {
       if (err) {
         return res.send(400, err);
       }
@@ -126,7 +138,7 @@ module.exports = function(app, db) {
 
   // begin a force auth flow
   app.get('/api/force_auth', function(req, res) {
-    setupOAuthFlow(req, 'force_auth', req.query.email, function(err, params, oauthConfig) {
+    setupOAuthFlow(req, 'force_auth', {email: req.query.email}, function(err, params, oauthConfig) {
       if (err) {
         return res.send(400, err);
       }
