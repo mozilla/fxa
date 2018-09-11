@@ -1,3 +1,13 @@
+<a name="1.120.2"></a>
+## [1.120.2](https://github.com/mozilla/fxa-content-server/compare/v1.120.1...v1.120.2) (2018-09-11)
+
+
+### Bug Fixes
+
+* **codes:** continue sign-in progress after generating from low recovery codes ([866c2c8](https://github.com/mozilla/fxa-content-server/commit/866c2c8))
+
+
+
 <a name="1.120.1"></a>
 ## [1.120.1](https://github.com/mozilla/fxa-content-server/compare/v1.120.0...v1.120.1) (2018-09-06)
 
