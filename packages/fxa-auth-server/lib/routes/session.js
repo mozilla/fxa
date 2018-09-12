@@ -140,7 +140,11 @@ module.exports = function (log, db, Password, config, signinUtils) {
           return totpUtils.hasTotpToken(accountRecord)
             .then((result) => {
               if (result) {
+                // User has enabled TOTP, no way around it, they must verify TOTP token
                 verificationMethod = 'totp-2fa'
+              } else if (! result && verificationMethod === 'totp-2fa') {
+                // Error if requesting TOTP verification with TOTP not setup
+                throw error.totpRequired()
               }
             })
         }

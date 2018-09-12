@@ -189,7 +189,7 @@ describe('remote account login', () => {
   describe('can use verificationMethod', () => {
     let client, email
     const password = 'foo'
-    before(() => {
+    beforeEach(() => {
       email = server.uniqueEmail('@mozilla.com')
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
     })
@@ -259,6 +259,24 @@ describe('remote account login', () => {
           assert.equal(emailData.headers['x-template-name'], 'verifyLoginCodeEmail', 'sign-in code sent')
           const code = emailData.headers['x-signin-verify-code']
           assert.ok(code, 'code is sent')
+        })
+    })
+
+    it('can use `totp-2fa` verification', () => {
+      email = server.uniqueEmail()
+      return Client.createAndVerifyAndTOTP(config.publicUrl, email, password, server.mailbox, {keys: true})
+        .then(() => {
+          return Client.login(config.publicUrl, email, password, {verificationMethod: 'totp-2fa', keys: true})
+        })
+        .then((res) => {
+          client = res
+          assert.equal(res.verificationMethod, 'totp-2fa', 'sets correct verification method')
+          return client.emailStatus()
+        })
+        .then((status) => {
+          assert.equal(status.verified, false, 'account is not verified')
+          assert.equal(status.emailVerified, true, 'email is verified')
+          assert.equal(status.sessionVerified, false, 'session is not verified')
         })
     })
 

@@ -664,6 +664,7 @@ describe('/account/login', function () {
     mockDB.getSecondaryEmail = sinon.spy(() => P.reject(error.unknownSecondaryEmail()))
     mockDB.getSecondaryEmail.reset()
     mockRequest.payload.email = TEST_EMAIL
+    mockRequest.payload.verificationMethod = undefined
   })
 
   it('emits the correct series of calls and events', function () {
@@ -1292,6 +1293,20 @@ describe('/account/login', function () {
     return runTest(route, mockRequest).then(() => assert.ok(false), (err) => {
       assert.equal(mockDB.accountRecord.callCount, 1, 'db.accountRecord was called')
       assert.equal(err.errno, 142, 'correct errno called')
+    })
+  })
+
+  it('fails login when requesting TOTP verificationMethod and TOTP not setup', function () {
+    mockDB.totpToken = sinon.spy(function () {
+      return P.resolve({
+        verified: true,
+        enabled: false
+      })
+    })
+    mockRequest.payload.verificationMethod = 'totp-2fa'
+    return runTest(route, mockRequest).then(() => assert.ok(false), (err) => {
+      assert.equal(mockDB.totpToken.callCount, 1, 'db.totpToken was called')
+      assert.equal(err.errno, 160, 'correct errno called')
     })
   })
 })
