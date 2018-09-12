@@ -23,7 +23,6 @@ module.exports = [
   'tests/server/metrics-unit.js',
   'tests/server/noindex.js',
   'tests/server/configuration.js',
-  'tests/server/statsd-collector.js',
   'tests/server/raven.js',
   'tests/server/remote-address.js',
   'tests/server/routes/get-apple-app-site-association.js',

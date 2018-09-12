@@ -11,7 +11,6 @@ const GACollector = require('../ga-collector');
 const joi = require('joi');
 const logger = require('../logging/log')('server.post-metrics');
 const MetricsCollector = require('../metrics-collector-stderr');
-const StatsDCollector = require('../statsd-collector');
 const validation = require('../validation');
 
 const clientMetricsConfig = config.get('client_metrics');
@@ -123,9 +122,7 @@ const BODY_SCHEMA = {
 
 module.exports = function () {
   const metricsCollector = new MetricsCollector();
-  const statsd = new StatsDCollector();
   const ga = new GACollector();
-  statsd.init();
 
   return {
     method: 'post',
@@ -169,8 +166,6 @@ module.exports = function () {
           if (! DISABLE_CLIENT_METRICS_STDERR) {
             metricsCollector.write(metrics);
           }
-          // send the metrics body to the StatsD collector for processing
-          statsd.write(metrics);
         }
         ga.write(metrics);
 

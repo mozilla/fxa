@@ -135,7 +135,7 @@ define(function (require, exports, module) {
     this._eventMemory = {};
     this._inactivityFlushMs = options.inactivityFlushMs || DEFAULT_INACTIVITY_TIMEOUT_MS;
     // All user metrics are sent to the backend. Data is only
-    // reported to Heka and Datadog if `isSampledUser===true`.
+    // reported to metrics if `isSampledUser===true`.
     this._isSampledUser = options.isSampledUser || false;
     this._lang = options.lang || 'unknown';
     this._marketingImpressions = {};

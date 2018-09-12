@@ -22,8 +22,6 @@ suite.tests['sanity check'] = function () {
   assert.equal(test.metrics.method, 'post');
   assert.equal(test.metrics.path, '/metrics');
   assert.equal(typeof test.metrics.process, 'function');
-  assert.equal(test.mocks.statsdCollector.init.callCount, 1);
-  assert.lengthOf(test.mocks.statsdCollector.init.getCall(0).args, 0);
 };
 
 suite.tests['process responds with success immediately, calls process.nextTick'] = function () {
@@ -57,7 +55,6 @@ suite.tests['Content-Type is unset, user is not sampled'] = function () {
   assert.equal(test.mocks.request.get.getCall(1).args[0], 'user-agent');
 
   assert.equal(test.mocks.metricsCollector.write.callCount, 0);
-  assert.equal(test.mocks.statsdCollector.write.callCount, 0);
   assert.equal(test.mocks.gaCollector.write.callCount, 1);
   assert.lengthOf(test.mocks.gaCollector.write.getCall(0).args, 1);
 };
@@ -80,10 +77,6 @@ suite.tests['Content-Type is unset, user is sampled'] = function () {
   assert.equal(data.agent, 'foo');
   assert.equal(data.bar, 'baz');
   assert.equal(data.isSampledUser, true);
-
-  assert.equal(test.mocks.statsdCollector.write.callCount, 1);
-  assert.lengthOf(test.mocks.statsdCollector.write.getCall(0).args, 1);
-  assert.equal(test.mocks.statsdCollector.write.getCall(0).args[0], data);
 
   assert.equal(test.mocks.gaCollector.write.callCount, 1);
   assert.lengthOf(test.mocks.gaCollector.write.getCall(0).args, 1);
@@ -108,7 +101,6 @@ suite.tests['Content-Type is text/plain, data is invalid JSON'] = function () {
   assert.instanceOf(test.mocks.logger.error.getCall(0).args[0], Error);
 
   assert.equal(test.mocks.metricsCollector.write.callCount, 0);
-  assert.equal(test.mocks.statsdCollector.write.callCount, 0);
   assert.equal(test.mocks.gaCollector.write.callCount, 1);
 
 };
@@ -135,9 +127,6 @@ suite.tests['Content-Type is text/plain, data is valid JSON, user is sampled'] =
   assert.equal(data.foo, 'bar');
   assert.equal(data.isSampledUser, true);
 
-  assert.equal(test.mocks.statsdCollector.write.callCount, 1);
-  assert.equal(test.mocks.statsdCollector.write.getCall(0).args[0], data);
-
   assert.equal(test.mocks.gaCollector.write.callCount, 1);
   assert.equal(test.mocks.gaCollector.write.getCall(0).args[0], data);
 };
@@ -163,9 +152,6 @@ suite.tests['Content-Type is text/plain;charset=UTF-8, data is valid JSON, user 
   assert.equal(data.agent, 'foo');
   assert.equal(data.isSampledUser, true);
 
-  assert.equal(test.mocks.statsdCollector.write.callCount, 1);
-  assert.equal(test.mocks.statsdCollector.write.getCall(0).args[0], data);
-
   assert.equal(test.mocks.gaCollector.write.callCount, 1);
   assert.equal(test.mocks.gaCollector.write.getCall(0).args[0], data);
 };
@@ -178,11 +164,7 @@ function setUp (requestGet) {
     logger: { error: sinon.stub() },
     metricsCollector: { write: sinon.stub() },
     request: { get: requestGet ? sinon.spy(requestGet) : sinon.stub() },
-    response: { json: sinon.stub() },
-    statsdCollector: {
-      init: sinon.stub(),
-      write: sinon.stub()
-    }
+    response: { json: sinon.stub() }
   };
   var callbacks = {};
 
@@ -204,9 +186,6 @@ function setUp (requestGet) {
       },
       '../metrics-collector-stderr': function () {
         return mocks.metricsCollector;
-      },
-      '../statsd-collector': function () {
-        return mocks.statsdCollector;
       },
       '../ga-collector': function () {
         return mocks.gaCollector;

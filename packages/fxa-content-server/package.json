@@ -99,7 +99,6 @@
     "mozlog": "2.2.0",
     "mustache": "2.3.0",
     "node-sass": "4.9.2",
-    "node-statsd": "0.1.1",
     "node-uap": "git://github.com/vladikoff/node-uap.git#9cdd16247",
     "node-uuid": "1.4.8",
     "node-vat": "0.0.9",
