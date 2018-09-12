@@ -81,6 +81,7 @@ define(function (require, exports, module) {
       afterSignInConfirmationPoll: new NavigateBehavior('signin_confirmed'),
       afterSignUp: new NavigateBehavior('confirm'),
       afterSignUpConfirmationPoll: new NavigateBehavior('signup_confirmed'),
+      afterSignUpRequireTOTP: new NavigateBehavior('signin'),
       beforeSignIn: new NullBehavior(),
       beforeSignUpConfirmationPoll: new NullBehavior()
     },

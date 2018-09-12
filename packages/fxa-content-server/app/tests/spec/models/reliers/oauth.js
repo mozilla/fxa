@@ -678,6 +678,28 @@ describe('models/reliers/oauth', () => {
     });
   });
 
+  describe('wantsTwoStepAuthentication', () => {
+    it('return true for acrValues=AAL2', () => {
+      relier.set('acrValues', 'AAL2');
+      assert.isTrue(relier.wantsTwoStepAuthentication());
+    });
+
+    it('return true for space delimited acrValues=AAL2 AAL1', () => {
+      relier.set('acrValues', 'AAL2 AA1');
+      assert.isTrue(relier.wantsTwoStepAuthentication());
+    });
+
+    it('return false for acrValues=undefined', () => {
+      relier.unset('acrValues');
+      assert.isFalse(relier.wantsTwoStepAuthentication());
+    });
+
+    it('return false otherwise', () => {
+      relier.set('acrValues', 'AAL1');
+      assert.isFalse(relier.wantsTwoStepAuthentication());
+    });
+  });
+
   describe('accountNeedsPermissions', () => {
     var account;
     var hasSeenPermissions;

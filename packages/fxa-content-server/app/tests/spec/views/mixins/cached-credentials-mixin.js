@@ -77,6 +77,15 @@ describe('views/mixins/cached-credentials-mixin', () => {
       assert.isTrue(view.isPasswordNeededForAccount(account));
     });
 
+    it('asks for password if the relier wants TOTP', () => {
+      account.set('email', 'testuser@testuser.com');
+      sinon.stub(relier, 'wantsTwoStepAuthentication').callsFake(() => true);
+      model.unset('chooserAskForPassword');
+      sinon.stub(view, 'getPrefillEmail').callsFake(() => 'testuser@testuser.com');
+
+      assert.isTrue(view.isPasswordNeededForAccount(account));
+    });
+
     it('asks for the password if the stored session is not from sync', () => {
       account.set('email', 'testuser@testuser.com');
       sinon.stub(relier, 'wantsKeys').callsFake(() => false);

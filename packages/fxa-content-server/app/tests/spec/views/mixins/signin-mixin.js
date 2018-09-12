@@ -71,6 +71,7 @@ define(function (require, exports, module) {
           onSignInSuccess: SignInMixin.onSignInSuccess,
           relier: relier,
           signIn: SignInMixin.signIn,
+          unsafeDisplayError: sinon.spy(),
           user: user
         };
       });
@@ -434,7 +435,6 @@ define(function (require, exports, module) {
         });
       });
 
-
       describe('onSignInSuccess', () => {
         it('updates relier email and uid from account', () => {
           account.set('uid', 'foo');
@@ -455,6 +455,35 @@ define(function (require, exports, module) {
           view.onSignInSuccess(account);
           assert.equal(relier.get('uid'), account.get('uid'));
           assert.equal(relier.get('email'), account.get('email'));
+        });
+      });
+
+      describe('wants two step authentication error', () => {
+        let err;
+
+        beforeEach(() => {
+          err = AuthErrors.toError('TOTP_REQUIRED');
+
+          user.signInAccount.restore();
+          sinon.stub(user, 'signInAccount').callsFake(() => Promise.reject(err));
+          sinon.stub(relier, 'isOAuth').callsFake(() => true);
+          sinon.stub(relier, 'wantsTwoStepAuthentication').callsFake(() => true);
+
+          return view.signIn(account, 'password');
+        });
+
+        it('failed', () => {
+          assert.isTrue(AuthErrors.is(err, 'TOTP_REQUIRED'));
+          assert.isTrue(view.unsafeDisplayError.calledWith(err));
+          const link = 'https://support.mozilla.org/en-US/kb/secure-firefox-account-two-step-authentication';
+          assert.isTrue(err.forceMessage.indexOf(link) > 0, 'contains setup link');
+
+          const args = user.signInAccount.args[0];
+          assert.equal(args[3].verificationMethod, VerificationMethods.TOTP_2FA, 'correct verification method set');
+        });
+
+        it('did not navigate', () => {
+          assert.equal(view.navigate.callCount, 0);
         });
       });
     });

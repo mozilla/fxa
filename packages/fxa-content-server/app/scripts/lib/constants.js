@@ -134,5 +134,7 @@ module.exports = {
   RECOVERY_KEY_LENGTH: 28,
 
   DEVICE_PAIRING_CHANNEL_KEY_BYTES: 32,
+
+  TWO_STEP_AUTHENTICATION_ACR: 'AAL2'
 };
 /*eslint-enable sorting/sort-object-props*/

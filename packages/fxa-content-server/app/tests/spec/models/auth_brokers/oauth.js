@@ -179,6 +179,21 @@ describe('models/auth_brokers/oauth', function () {
   });
 
   describe('afterSignUpConfirmationPoll', function () {
+    describe('relier requires TOTP', () => {
+      beforeEach(() => {
+        sinon.stub(relier, 'wantsTwoStepAuthentication').callsFake(() => {
+          return true;
+        });
+        sinon.spy(broker, 'getBehavior');
+        return broker.afterSignUpConfirmationPoll(account);
+      });
+
+      it('calls afterSignUpRequireTOTP', () => {
+        assert.equal(broker.getBehavior.callCount, 1);
+        assert.equal(broker.getBehavior.args[0][0], 'afterSignUpRequireTOTP');
+      });
+    });
+
     it('calls sendOAuthResultToRelier with the correct options', function () {
       sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(function () {
         return Promise.resolve();

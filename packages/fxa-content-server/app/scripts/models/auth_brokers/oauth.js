@@ -162,6 +162,7 @@ var OAuthAuthenticationBroker = BaseAuthenticationBroker.extend({
 
   finishOAuthFlow (account, additionalResultData = {}) {
     this.session.clear('oauth');
+
     return this.getOAuthResult(account)
       .then((result) => {
         result = _.extend(result, additionalResultData);
@@ -207,6 +208,14 @@ var OAuthAuthenticationBroker = BaseAuthenticationBroker.extend({
 
   afterSignUpConfirmationPoll (account) {
     // The original tab always finishes the OAuth flow if it is still open.
+
+    // Check to see if ths relier wants TOTP. Newly created accounts wouldn't have this
+    // so lets redirect them to signin and show a message on how it can be setup.
+    // This is temporary until we have a better landing page for this error.
+    if (this.relier.wantsTwoStepAuthentication()) {
+      return this.getBehavior('afterSignUpRequireTOTP');
+    }
+
     return this.finishOAuthSignUpFlow(account);
   },
 
