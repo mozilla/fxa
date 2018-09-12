@@ -73,6 +73,7 @@ var ERRNO = {
   RECOVERY_KEY_NOT_FOUND: 158,
   RECOVERY_KEY_INVALID: 159,
   TOTP_REQUIRED: 160,
+  RECOVERY_KEY_EXISTS: 161,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -826,6 +827,15 @@ AppError.totpRequired = () => {
     error: 'Bad Request',
     errno: ERRNO.TOTP_REQUIRED,
     message: 'This request requires two step authentication enabled on your account.'
+  })
+}
+
+AppError.recoveryKeyExists = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.RECOVERY_KEY_EXISTS,
+    message: 'Recovery key already exists.'
   })
 }
 

@@ -153,6 +153,18 @@ describe('remote recovery keys', function () {
       })
   })
 
+  it('should fail to create recovery key when one already exists', () => {
+    return createMockRecoveryKey(client.uid, keys.kB)
+      .then((result) => {
+        recoveryKeyId = result.recoveryKeyId
+        recoveryData = result.recoveryData
+        return client.createRecoveryKey(result.recoveryKeyId, result.recoveryData)
+          .then(assert.fail, (err) => {
+            assert.equal(err.errno, 161, 'correct errno')
+          });
+      })
+  })
+
   describe('check recovery key status', () => {
     describe('with sessionToken', () => {
       it('should return true if recovery key exists', () => {

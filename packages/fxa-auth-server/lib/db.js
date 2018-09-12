@@ -1299,6 +1299,13 @@ module.exports = (
     log.trace({op: 'DB.createRecoveryKey', uid})
 
     return this.pool.post(SAFE_URLS.createRecoveryKey, { uid }, { recoveryKeyId, recoveryData })
+      .catch((err) => {
+        if (isRecordAlreadyExistsError(err)) {
+          throw error.recoveryKeyExists()
+        }
+
+        throw err
+      })
   }
 
   SAFE_URLS.getRecoveryKey = new SafeUrl(
