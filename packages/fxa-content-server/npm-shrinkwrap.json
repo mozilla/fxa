@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "1.120.1",
+  "version": "1.120.2",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
@@ -4391,10 +4391,6 @@
       "version": "3.6.0",
       "resolved": "https://registry.npmjs.org/duration-js/-/duration-js-3.6.0.tgz",
       "integrity": "sha1-3PvsRw+ET6BDt+4u9+2zKeUGA2M="
-    },
-    "easterEgg": {
-      "version": "git://github.com/mozilla/fxa-easter-egg.git#ab20cd517cf8ae9feee115e48745189d28e13bc3",
-      "from": "git://github.com/mozilla/fxa-easter-egg.git#ab20cd517cf8ae9feee115e48745189d28e13bc3"
     },
     "ecc-jsbn": {
       "version": "0.1.1",
@@ -10417,7 +10413,7 @@
       "from": "git://github.com/vladikoff/node-uap.git#9cdd16247",
       "requires": {
         "array.prototype.find": "2.0.0",
-        "uap-core": "git://github.com/ua-parser/uap-core.git#f4d16a53e4771cf6deed18eb7273226606a4de21",
+        "uap-core": "git://github.com/ua-parser/uap-core.git#590f66f40b00644efa6045d06e3c2a605eb22ea1",
         "uap-ref-impl": "0.2.0",
         "yamlparser": "0.0.2"
       }
@@ -13633,7 +13629,7 @@
       "from": "git://github.com/vladikoff/ua-parser-js.git#fxa-version"
     },
     "uap-core": {
-      "version": "git://github.com/ua-parser/uap-core.git#f4d16a53e4771cf6deed18eb7273226606a4de21",
+      "version": "git://github.com/ua-parser/uap-core.git#590f66f40b00644efa6045d06e3c2a605eb22ea1",
       "from": "git://github.com/ua-parser/uap-core.git"
     },
     "uap-ref-impl": {
