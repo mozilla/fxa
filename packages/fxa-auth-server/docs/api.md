@@ -293,6 +293,8 @@ for `code` and `errno` are:
   Recovery key is not valid.
 * `code: 400, errno: 160`:
   This request requires two step authentication enabled on your account.
+* `code: 400, errno: 161`:
+  Recovery key already exists.
 * `code: 503, errno: 201`:
   Service unavailable
 * `code: 503, errno: 202`:
