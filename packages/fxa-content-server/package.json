@@ -48,7 +48,6 @@
     "cors": "2.8.4",
     "css-loader": "1.0.0",
     "duration-js": "3.6.0",
-    "easterEgg": "git://github.com/mozilla/fxa-easter-egg.git#ab20cd517cf8ae9feee115e48745189d28e13bc3",
     "es6-promise": "4.2.4",
     "expose-loader": "0.7.5",
     "express": "4.16.2",

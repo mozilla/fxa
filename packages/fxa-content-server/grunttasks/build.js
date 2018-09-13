@@ -25,7 +25,7 @@ module.exports = function (grunt) {
 
     'copy:styles',
 
-    // concatenate the eastereggs, CSS. Must be before cssmin or else
+    // concatenate the CSS & JS not processed by webpack. Must be before cssmin or else
     // cssmin creates empty output.
     'concat',
 
