@@ -5,6 +5,7 @@
 import $ from 'jquery';
 import { assert } from 'chai';
 import AuthBroker from 'models/auth_brokers/base';
+import AuthErrors from 'lib/auth-errors';
 import FormPrefill from 'models/form-prefill';
 import IndexView from 'views/index';
 import Notifier from 'lib/channels/notifier';
@@ -197,6 +198,45 @@ describe('views/index', () => {
             });
         });
       });
+    });
+  });
+
+  describe('showValidationErrorsEnd', function () {
+    beforeEach(() => {
+      relier.set('action', 'email');
+      sinon.spy(view, 'showValidationError');
+
+      return view.render();
+    });
+
+    it('shows an error if the user provides a @firefox.com email', function () {
+      view.$('input[type=email]').val('firefox@firefox.com');
+      view.showValidationErrorsEnd();
+      assert.isTrue(view.showValidationError.calledOnce);
+
+      assert.equal(view.showValidationError.args[0][0], 'input[type=email]');
+      assert.isTrue(AuthErrors.is(view.showValidationError.args[0][1], 'DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN'));
+    });
+
+    it('shows an error if the user provides a @firefox email', function () {
+      view.$('input[type=email]').val('firefox@firefox');
+      view.showValidationErrorsEnd();
+      assert.isTrue(view.showValidationError.calledOnce);
+
+      assert.equal(view.showValidationError.args[0][0], 'input[type=email]');
+      assert.isTrue(AuthErrors.is(view.showValidationError.args[0][1], 'DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN'));
+    });
+
+    it('does not show an error if firefox.com is in the local side of the email address', () => {
+      view.$('input[type=email]').val('firefox.com@testuser.com');
+      view.showValidationErrorsEnd();
+      assert.equal(view.showValidationError.callCount, 0);
+    });
+
+    it('does not show an error if the user provides non @firefox.com email', function () {
+      view.$('input[type=email]').val('another@testuser.com');
+      view.showValidationErrorsEnd();
+      assert.equal(view.showValidationError.callCount, 0);
     });
   });
 
