@@ -6,10 +6,9 @@ const BaseGroupingRule = require('./base');
 
 const GROUPS_FOR_PARTIAL_ROLLOUT = ['control', 'designF'];
 
-// These locales only see designF
+// These locales only see designF. Note, all ltr locales
+// are considered rolled out.
 const FULLY_ROLLED_OUT = [
-  'de',
-  'en'
 ];
 
 const ROLLOUT_RATES = {
@@ -27,11 +26,15 @@ class PasswordStrengthExperiment extends BaseGroupingRule {
   }
 
   choose (subject = {}) {
-    if (! subject.account || ! subject.uniqueUserId || ! subject.lang) {
+    if (! subject.account || ! subject.uniqueUserId || ! subject.lang || ! subject.langDirection) {
       return false;
     }
 
     if (this.isTestEmail(subject.account.get('email'))) {
+      return 'designF';
+    }
+
+    if (subject.langDirection === 'ltr') {
       return 'designF';
     }
 

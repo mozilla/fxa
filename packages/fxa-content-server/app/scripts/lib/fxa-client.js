@@ -1052,7 +1052,7 @@ define(function (require, exports, module) {
     createRecoveryBundle: withClient((client, email, password, sessionToken, uid) => {
       let recoveryKey, keys, recoveryJwk;
 
-      return client.sessionReauth(sessionToken, email, password, {keys: true})
+      return client.sessionReauth(sessionToken, email, password, {keys: true, reason: VerificationReasons.RECOVERY_KEY})
         .then((res) => client.accountKeys(res.keyFetchToken, res.unwrapBKey))
         .then((result) => {
           keys = result;
