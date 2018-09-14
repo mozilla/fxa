@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import $ from 'jquery';
 import { debounce } from 'underscore';
 import ExperimentMixin from './experiment-mixin';
 import PasswordStrengthBalloonModel from '../../models/password_strength/password_strength_balloon';
@@ -37,7 +38,7 @@ export default function (config = {}) {
       if (experimentGroup) {
         this.createExperiment(EXPERIMENT_NAME, experimentGroup);
 
-        if (experimentGroup === 'designF') {
+        if (experimentGroup === DESIGN_F_GROUP) {
           return this._setupDesignF();
         }
       }
@@ -102,11 +103,16 @@ export default function (config = {}) {
       // If fall through occurs, the mixin target's showValidationErrorsStart will be called.
     },
 
-    _getPasswordStrengthExperimentSubject: function () {
+    _getPasswordStrengthExperimentSubject () {
       return {
         account: this.getAccount(),
-        lang: this.lang
+        lang: this.lang,
+        langDirection: this._getLangDirection(),
       };
+    },
+
+    _getLangDirection () {
+      return ($('html').attr('dir') || 'ltr').toLowerCase();
     },
 
     _getPasswordStrengthExperimentGroup () {
