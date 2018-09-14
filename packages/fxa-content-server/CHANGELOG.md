@@ -1,3 +1,21 @@
+<a name="1.120.3"></a>
+## [1.120.3](https://github.com/mozilla/fxa-content-server/compare/v1.120.2...v1.120.3) (2018-09-14)
+
+
+### Bug Fixes
+
+* **recovery:** specify a reason when doing account recovery for metrics ([6618da1](https://github.com/mozilla/fxa-content-server/commit/6618da1))
+
+### chore
+
+* **codes:** update clients for token code experiment ([7d23730](https://github.com/mozilla/fxa-content-server/commit/7d23730))
+
+### Features
+
+* **pw-strength:** All ltr users see designF, 50/50 split for Arabic ([6f706ef](https://github.com/mozilla/fxa-content-server/commit/6f706ef)), closes [#6550](https://github.com/mozilla/fxa-content-server/issues/6550)
+
+
+
 <a name="1.120.2"></a>
 ## [1.120.2](https://github.com/mozilla/fxa-content-server/compare/v1.120.1...v1.120.2) (2018-09-11)
 
