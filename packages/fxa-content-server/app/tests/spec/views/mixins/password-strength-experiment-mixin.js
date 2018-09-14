@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import $ from 'jquery';
 import { assert } from 'chai';
 import Cocktail from 'cocktail';
 import { Model } from 'backbone';
@@ -43,9 +44,48 @@ describe('views/mixins/password-strength-experiment-mixin', () => {
     });
 
     view = new PasswordContainingView({
+      lang: 'ar',
       model: new Model({
         account
-      })
+      }),
+    });
+  });
+
+  describe('_getPasswordStrengthExperimentSubject', () => {
+    it('returns the expected properties', () => {
+      const account = {};
+      sinon.stub(view, 'getAccount').callsFake(() => account);
+      sinon.stub(view, '_getLangDirection').callsFake(() => 'rtl');
+
+      const result = view._getPasswordStrengthExperimentSubject();
+      assert.strictEqual(result.account, account);
+      assert.equal(result.lang, 'ar');
+      assert.equal(result.langDirection, 'rtl');
+
+      assert.isTrue(view.getAccount.calledOnce);
+      assert.isTrue(view._getLangDirection.calledOnce);
+    });
+  });
+
+  describe('_getLangDirection', () => {
+    let origAttr;
+    beforeEach(() => {
+      origAttr = $('html').attr('dir');
+    });
+
+    afterEach(() => {
+      $('html').attr('dir', origAttr);
+    });
+
+    it('returns html[dir] attribute', () => {
+      $('html').attr('dir', 'foo');
+
+      assert.equal(view._getLangDirection(), 'foo');
+    });
+
+    it('returns ltr if no html[dir] attribute', () => {
+      $('html').attr('dir', null);
+      assert.equal(view._getLangDirection(), 'ltr');
     });
   });
 

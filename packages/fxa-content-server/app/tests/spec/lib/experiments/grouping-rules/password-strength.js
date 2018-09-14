@@ -22,13 +22,13 @@ describe('lib/experiments/grouping-rules/password-strength', () => {
         account: account,
         experimentGroupingRules: {},
         lang: 'en',
+        langDirection: 'rtl',
         uniqueUserId: 'user-id'
       };
     });
 
     it('has the expected locales fully rolled out', () => {
-      assert.include(experiment.FULLY_ROLLED_OUT, 'de');
-      assert.include(experiment.FULLY_ROLLED_OUT, 'en');
+      assert.lengthOf(experiment.FULLY_ROLLED_OUT, 0);
     });
 
     it('has the expected rollout rates defined', () => {
@@ -40,6 +40,14 @@ describe('lib/experiments/grouping-rules/password-strength', () => {
         subject.account.set('email', email);
         assert.equal(experiment.choose(subject), 'designF');
       });
+    });
+
+    it('returns \'designF\' experiment for ltr locales', () => {
+      subject.langDirection = 'rtl';
+      assert.equal(experiment.choose(subject), false);
+
+      subject.langDirection = 'ltr';
+      assert.equal(experiment.choose(subject), 'designF');
     });
 
     it('returns designF if fully rolled out, delegates to uniformChoice if partially rolled out', () => {
