@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   const FxaClient = require('fxaClient');
   const FxaClientWrapper = require('lib/fxa-client');
   const OAuthRelier = require('models/reliers/oauth');
+  const RecoveryKey = require('lib/crypto/recovery-keys');
   const ResumeToken = require('models/resume-token');
   const sinon = require('sinon');
   const SignInReasons = require('lib/sign-in-reasons');
@@ -1590,6 +1591,51 @@ define(function (require, exports, module) {
             assert.strictEqual(_resp, resp);
             assert.isTrue(realClient.verifyTotpCode.calledOnce);
             assert.isTrue(realClient.verifyTotpCode.calledWith('code', options));
+          });
+      });
+    });
+
+    describe('createRecoveryBundle', () => {
+      let sandbox;
+
+      beforeEach(() => {
+        sandbox = sinon.sandbox.create();
+      });
+
+      afterEach(() => {
+        sandbox.restore();
+      });
+
+      it('delegates to the fxa-js-client', () => {
+        const bundle = 'some cool base64 encrypted data';
+        const keys = {
+          'kB': '12341234'
+        };
+        const recoveryKey = 'ATQ5RYC9Z5DRN4HG';
+        const recoveryJwk = {
+          kid: 'kid'
+        };
+        const uid = '1234';
+
+        sandbox.stub(realClient, 'accountKeys').callsFake(() => Promise.resolve(keys));
+        sandbox.stub(realClient, 'sessionReauth').callsFake(() => Promise.resolve({
+          keyFetchToken: 'keyFetchToken',
+          unwrapBKey: 'unwrapBKey',
+        }));
+        sandbox.stub(realClient, 'createRecoveryKey').callsFake(() => Promise.resolve({recoveryKey}));
+        sandbox.stub(RecoveryKey, 'generateRecoveryKey').callsFake(() => Promise.resolve(recoveryKey));
+        sandbox.stub(RecoveryKey, 'getRecoveryJwk').callsFake(() => Promise.resolve(recoveryJwk));
+        sandbox.stub(RecoveryKey, 'bundleRecoveryData').callsFake(() => Promise.resolve(bundle));
+
+        return client.createRecoveryBundle('email', 'password', 'sessionToken', uid)
+          .then((resp) => {
+            assert.isTrue(realClient.sessionReauth.calledOnceWith('sessionToken', 'email', 'password', {keys: true, reason: VerificationReasons.RECOVERY_KEY}));
+            assert.isTrue(realClient.accountKeys.calledOnceWith('keyFetchToken', 'unwrapBKey'));
+            assert.isTrue(realClient.createRecoveryKey.calledOnceWith('sessionToken', recoveryJwk.kid, bundle));
+            assert.isTrue(RecoveryKey.generateRecoveryKey.calledOnce);
+            assert.isTrue(RecoveryKey.getRecoveryJwk.calledOnceWith(uid, recoveryKey));
+            assert.isTrue(RecoveryKey.bundleRecoveryData.calledOnceWith(recoveryJwk, keys));
+            assert.deepEqual(resp, {recoveryKey});
           });
       });
     });
