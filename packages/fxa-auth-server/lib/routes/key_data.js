@@ -55,7 +55,7 @@ module.exports = {
           const allowedScopes = ScopeSet.fromString(client.allowedScopes);
           const scopeLookups = requestedScopes.filtered(allowedScopes).getScopeValues().map(s => db.getScope(s));
           return P.all(scopeLookups).then((result) => {
-            return result.filter((s) => !! s.hasScopedKeys);
+            return result.filter((s) => !! (s && s.hasScopedKeys));
           });
         } else {
           logger.debug('keyDataRoute.clientNotFound', { id: req.payload.client_id });

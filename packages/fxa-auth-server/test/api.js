@@ -2642,7 +2642,7 @@ describe('/v1', function() {
           .then((res) => {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
-            assert.equal(Object.keys(res.result).length, 2, 'only one scope returned');
+            assert.equal(Object.keys(res.result).length, 2, 'two scopes returned');
 
             const keyOne = res.result[SCOPE_CAN_SCOPE_KEY];
             const keyTwo = res.result[ANOTHER_CAN_SCOPE_KEY];
@@ -2670,7 +2670,7 @@ describe('/v1', function() {
           });
       });
 
-      it('fails with a non-scoped-key scope ', () => {
+      it('succeeds with a non-scoped-key scope', () => {
         genericRequest.payload.scope = 'https://identity.mozilla.com/apps/sample-scope';
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api.post(genericRequest)
@@ -2678,6 +2678,17 @@ describe('/v1', function() {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             assert.equal(Object.keys(res.result).length, 0, 'no scoped keys');
+          });
+      });
+
+      it('succeeds with scopes that arent explicitly defined in config', () => {
+        genericRequest.payload.scope += ' kv';
+        mockAssertion().reply(200, VERIFY_GOOD);
+        return Server.api.post(genericRequest)
+          .then((res) => {
+            assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
+            assert.deepEqual(Object.keys(res.result), [SCOPE_CAN_SCOPE_KEY], 'undefined scope is ignored');
           });
       });
 
