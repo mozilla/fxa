@@ -1,4 +1,4 @@
-FROM mhart/alpine-node:4.8.0
+FROM node:8-alpine
 
 # as root
 RUN apk update
