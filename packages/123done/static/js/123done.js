@@ -74,7 +74,7 @@ $(document).ready(function() {
     };
 
     function authenticate (endpoint) {
-      window.location.href = '/api/' + endpoint 
+      window.location.href = '/api/' + endpoint
     }
 
     $('button.signin').click(function(ev) {
@@ -94,7 +94,11 @@ $(document).ready(function() {
     });
 
     $('button.email-first').click(function(ev) {
-      authenticate('email_first');
+    	authenticate('email_first');
+    });
+
+    $('button.two-step-authentication').click(function(ev) {
+    	authenticate('two_step_authentication');
     });
 
     // upon click of logout link navigator.id.logout()
