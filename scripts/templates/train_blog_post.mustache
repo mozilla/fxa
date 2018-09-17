@@ -1,0 +1,53 @@
+---
+title: Firefox Accounts Train-{{ trainNumber }}
+author: {{ author }}
+authorUrl: {{ authorUrl }}
+---
+
+Hi All,
+
+This week we shipped FxA train-{{ trainNumber }} to production,
+with the following highlights:
+
+<!--truncate-->
+
+{{#milestones}}
+## {{ name }}
+
+<XXX>Generate summary based on commit messages below.
+
+{{#prs}}
+ - {{ message }}
+{{/prs}}
+
+{{#prs}}
+  * {{{ html_url }}}
+{{/prs}}
+
+{{/milestones}}
+{{#contributors.length}}
+
+Special thanks go to the following community contributors,
+who have code shipping in this train:
+
+{{#contributors}}
+  * {{ username }}
+{{/contributors}}
+{{/contributors.length}}
+
+As always, you can find more details in the changelogs for each repo:
+
+{{#repos}}
+  * https://github.com/mozilla/{{ name }}/blob/{{ trainTag }}/CHANGELOG.md
+{{/repos}}
+
+This train we had a total of {{ totalPRs }} PRs
+and {{ totalReviews }}.
+
+That includes work on the following features:
+
+{{#milestonesByTitle}}
+  * {{ title }} {{ count }} PRs (now {{ closedIssues }} / {{ totalIssues }} = {{ percComplete }}% complete)
+{{/milestonesByTitle}}
+
+Along with {{ qualityCount }} general quality improvements.
