@@ -41,6 +41,7 @@ const log = {
   trace: () => {}
 }
 
+const PRODUCTION = /^prod/i
 const RECORD_COUNT = 100
 const RETURN_STRING = { encoding: 'utf8' }
 const CREATE_PROCEDURE = /^CREATE PROCEDURE `?([A-Z]+_[0-9]+)/i
@@ -62,6 +63,11 @@ const KNOWN_ARGS = new Map([
   [ 'uaosversion', 'qux' ],
   [ 'uadevicetype', 'mobile' ],
 ])
+
+if (PRODUCTION.test(process.env.NODE_ENV)) {
+  console.error('Production environment detected, aborting.')
+  process.exit(1)
+}
 
 Mysql(log, require('../db-server').errors)
   .connect(config)
