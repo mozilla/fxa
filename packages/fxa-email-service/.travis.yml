@@ -2,8 +2,6 @@ language: rust
 services:
   - redis-server
 cache: cargo
-rust:
-  - nightly-2018-08-06
 branches:
   only:
     - master
