@@ -31,11 +31,11 @@ END;
 
 
 CREATE PROCEDURE `fetchVerificationReminders_2` (
-    IN currentTime BIGINT SIGNED,
-    IN reminderType VARCHAR(255),
-    IN reminderTime BIGINT SIGNED,
-    IN reminderTimeOutdated BIGINT SIGNED,
-    IN reminderLimit INTEGER
+    IN currentTimeArg BIGINT SIGNED,
+    IN reminderTypeArg VARCHAR(255),
+    IN reminderTimeArg BIGINT SIGNED,
+    IN reminderTimeOutdatedArg BIGINT SIGNED,
+    IN reminderLimitArg INTEGER
 )
 BEGIN
   DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -60,29 +60,29 @@ BEGIN
       FROM verificationReminders
       -- Since we want to order by `createdAt`, we have to rearrange
       -- the `WHERE` clauses so `createdAt` is positive rather than negated.
-      WHERE  createdAt < currentTime - reminderTime
-      AND createdAt > currentTime - reminderTimeOutdated
-      AND type = reminderType
+      WHERE  createdAt < currentTimeArg - reminderTimeArg
+      AND createdAt > currentTimeArg - reminderTimeOutdatedArg
+      AND type = reminderTypeArg
       ORDER BY createdAt, uid, type
-      LIMIT reminderLimit;
+      LIMIT reminderLimitArg;
 
     -- Because the query is deterministic we can delete
     -- all the selected items at once, rather than calling
     -- deleteVerificationReminder()
     DELETE FROM verificationReminders
-      WHERE  createdAt < currentTime - reminderTime
-      AND createdAt > currentTime - reminderTimeOutdated
-      AND type = reminderType
+      WHERE  createdAt < currentTimeArg - reminderTimeArg
+      AND createdAt > currentTimeArg - reminderTimeOutdatedArg
+      AND type = reminderTypeArg
       ORDER BY createdAt, uid, type
-      LIMIT reminderLimit;
+      LIMIT reminderLimitArg;
 
     -- Clean up outdated reminders.
     DELETE FROM
       verificationReminders
     WHERE
-      createdAt < currentTime - reminderTimeOutdated
+      createdAt < currentTimeArg - reminderTimeOutdatedArg
     AND
-      type = reminderType;
+      type = reminderTypeArg;
 
     -- Return the result
     SELECT * FROM reminderResults;

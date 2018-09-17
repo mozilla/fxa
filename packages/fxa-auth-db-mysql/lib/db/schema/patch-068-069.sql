@@ -6,7 +6,7 @@ UPDATE dbMetadata SET value = '0' WHERE name = 'sessionTokensPrunedUntil' AND va
 
 -- Update prune to limit total number of sessionTokens examined,
 -- and avoid producing the above empty-string bug.
-CREATE PROCEDURE `prune_7` (IN `olderThan` BIGINT UNSIGNED)
+CREATE PROCEDURE `prune_7` (IN `olderThanArg` BIGINT UNSIGNED)
 BEGIN
   DECLARE EXIT HANDLER FOR SQLEXCEPTION
   BEGIN
@@ -17,11 +17,11 @@ BEGIN
   SELECT @lockAcquired := GET_LOCK('fxa-auth-server.prune-lock', 3);
 
   IF @lockAcquired THEN
-    DELETE FROM accountResetTokens WHERE createdAt < olderThan ORDER BY createdAt LIMIT 10000;
-    DELETE FROM passwordForgotTokens WHERE createdAt < olderThan ORDER BY createdAt LIMIT 10000;
-    DELETE FROM passwordChangeTokens WHERE createdAt < olderThan ORDER BY createdAt LIMIT 10000;
-    DELETE FROM unblockCodes WHERE createdAt < olderThan ORDER BY createdAt LIMIT 10000;
-    DELETE FROM signinCodes WHERE createdAt < olderThan ORDER BY createdAt LIMIT 10000;
+    DELETE FROM accountResetTokens WHERE createdAt < olderThanArg ORDER BY createdAt LIMIT 10000;
+    DELETE FROM passwordForgotTokens WHERE createdAt < olderThanArg ORDER BY createdAt LIMIT 10000;
+    DELETE FROM passwordChangeTokens WHERE createdAt < olderThanArg ORDER BY createdAt LIMIT 10000;
+    DELETE FROM unblockCodes WHERE createdAt < olderThanArg ORDER BY createdAt LIMIT 10000;
+    DELETE FROM signinCodes WHERE createdAt < olderThanArg ORDER BY createdAt LIMIT 10000;
 
     -- Pruning session tokens is complicated because:
     --   * we can't prune them if there is an associated device record, and
@@ -42,14 +42,14 @@ BEGIN
     -- *examine*, regardless of whether it actually delete them.
     SELECT @pruneUntil := MAX(createdAt) FROM (
       SELECT createdAt FROM sessionTokens
-      WHERE createdAt >= @pruneFrom AND createdAt < olderThan
+      WHERE createdAt >= @pruneFrom AND createdAt < olderThanArg
       ORDER BY createdAt
       LIMIT 10000
     ) AS candidatesForPruning;
 
     -- This will be NULL if there are no expired tokens,
     -- in which case we have nothing to do.
-    IF @pruneUntil IS NOT NULL THEN 
+    IF @pruneUntil IS NOT NULL THEN
 
       -- Step 3: Prune sessionTokens and unverifiedTokens tables.
       -- Here we *do* filter on whether a device record exists.
