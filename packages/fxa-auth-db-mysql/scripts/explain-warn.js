@@ -68,7 +68,9 @@ Mysql(log, require('../db-server').errors)
   .then(db => {
     return populateDatabase(db, 0)
       .then(() => {
+        const ignore = parseIgnoreFile()
         return getProcedureNames()
+          .filter(procedure => ! ignore.has(procedure))
           .map(procedure => ({
             procedure,
             path: getPath(procedure)
@@ -270,6 +272,15 @@ function createAccountResetToken (db, uid, tokenId) {
       tokenId,
       uid
     }))
+}
+
+function parseIgnoreFile () {
+  return new Set(
+    fs.readFileSync('.explain-ignore', RETURN_STRING)
+      .split('\n')
+      .map(procedure => procedure.trim())
+      .filter(procedure => !! procedure)
+  )
 }
 
 function getProcedureNames () {
