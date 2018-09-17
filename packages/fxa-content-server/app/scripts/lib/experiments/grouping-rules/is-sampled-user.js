@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Are DataDog metrics enabled for the user?
+ * Are metrics enabled for the user?
  */
 'use strict';
 

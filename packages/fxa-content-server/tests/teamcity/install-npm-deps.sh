@@ -24,7 +24,6 @@ node ./tests/teamcity/install-npm-deps.js \
   lodash                          \
   morgan                          \
   mozlog                          \
-  node-statsd                     \
   node-uap                        \
   on-headers                      \
   otplib                          \

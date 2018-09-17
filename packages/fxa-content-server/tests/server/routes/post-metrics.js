@@ -43,10 +43,6 @@ registerSuite('routes/post-metrics', {
       },
       mozlog: {
         error: sandbox.spy()
-      },
-      statsdCollector: {
-        init: sandbox.spy(),
-        write: sandbox.spy()
       }
     };
     route = proxyquire(
@@ -58,9 +54,6 @@ registerSuite('routes/post-metrics', {
         },
         '../metrics-collector-stderr': function () {
           return mocks.metricsCollector;
-        },
-        '../statsd-collector': function () {
-          return mocks.statsdCollector;
         },
         '../logging/log': function () {
           return mocks.mozlog;
@@ -208,13 +201,6 @@ registerSuite('routes/post-metrics', {
                   });
                 },
 
-                'statsdCollector.write was called correctly': function () {
-                  assert.strictEqual(mocks.statsdCollector.write.callCount, 1);
-                  var args = mocks.statsdCollector.write.args[0];
-                  assert.lengthOf(args, 1);
-                  assert.equal(args[0], mocks.request.body);
-                },
-
                 'gaCollector.write was called correctly': function () {
                   assert.strictEqual(mocks.gaCollector.write.callCount, 1);
                   var args = mocks.gaCollector.write.args[0];
@@ -281,10 +267,6 @@ registerSuite('routes/post-metrics', {
 
                 'metricsCollector.write was not called': function () {
                   assert.strictEqual(mocks.metricsCollector.write.callCount, 0);
-                },
-
-                'statsdCollector.write was not called': function () {
-                  assert.strictEqual(mocks.statsdCollector.write.callCount, 0);
                 },
 
                 'gaCollector.write was called': function () {

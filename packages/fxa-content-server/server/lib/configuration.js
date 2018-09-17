@@ -255,7 +255,7 @@ const conf = module.exports = convict({
     },
     defaultLegalLang: {
       default: 'en-US',
-      doc: 'The default langauge to use for legal (tos, pp) templates',
+      doc: 'The default language to use for legal (tos, pp) templates',
       format: String
     },
     fonts: {
@@ -514,23 +514,6 @@ const conf = module.exports = convict({
     doc: 'The origin of the static resources',
     env: 'STATIC_RESOURCE_URL',
     format: 'url'
-  },
-  statsd: {
-    enabled: {
-      default: true,
-      doc: 'enable UDP based statsd reporting',
-      env: 'ENABLE_STATSD'
-    },
-    host: {
-      default: 'localhost',
-      doc: 'host for statsd reporting',
-      env: 'STATSD_HOST'
-    },
-    port: {
-      default: 8125,
-      format: 'port'
-    },
-    sample_rate: 1
   },
   sync_tokenserver_url: {
     default: 'http://127.0.0.1:5000/token',
