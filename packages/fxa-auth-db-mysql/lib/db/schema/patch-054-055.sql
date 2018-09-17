@@ -15,7 +15,7 @@ END;
 
 CREATE PROCEDURE `consumeSigninCode_4` (
   IN `hashArg` BINARY(32),
-  IN `newerThan` BIGINT UNSIGNED
+  IN `newerThanArg` BIGINT UNSIGNED
 )
 BEGIN
   DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -30,13 +30,13 @@ BEGIN
   FROM signinCodes AS sc
   INNER JOIN emails AS e
   ON sc.hash = hashArg
-  AND sc.createdAt > newerThan
+  AND sc.createdAt > newerThanArg
   AND sc.uid = e.uid
   AND e.isPrimary = true;
 
   DELETE FROM signinCodes
   WHERE hash = hashArg
-  AND createdAt > newerThan;
+  AND createdAt > newerThanArg;
 
   COMMIT;
 END;
