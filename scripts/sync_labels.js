@@ -62,18 +62,22 @@ var STANDARD_LABELS = {
   // Train-number labels, for scheduling.
   // XXX TODO: calculate appropriate set of train labels
   // based on current date, rather than hard-coding them here.
-  'train-116': { color: COLORS.TARGET },
-  'train-116:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
-  'train-117': { color: COLORS.TARGET },
-  'train-117:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
-  'train-118': { color: COLORS.TARGET },
-  'train-118:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
-  'train-119': { color: COLORS.TARGET },
-  'train-119:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
-  'train-120': { color: COLORS.TARGET },
-  'train-120:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
   'train-121': { color: COLORS.TARGET },
-  'train-121:qa-needed': { color: COLORS.TARGET_QA_NEEDED }
+  'train-121:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
+  'train-122': { color: COLORS.TARGET },
+  'train-122:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
+  'train-123': { color: COLORS.TARGET },
+  'train-123:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
+  'train-124': { color: COLORS.TARGET },
+  'train-124:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
+  'train-125': { color: COLORS.TARGET },
+  'train-125:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
+  'train-126': { color: COLORS.TARGET },
+  'train-126:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
+  'train-127': { color: COLORS.TARGET },
+  'train-127:qa-needed': { color: COLORS.TARGET_QA_NEEDED },
+  'train-128': { color: COLORS.TARGET },
+  'train-128:qa-needed': { color: COLORS.TARGET_QA_NEEDED }
 }
 
 
@@ -126,7 +130,17 @@ var OBSOLETE_LABELS = {
   'train-113': null,
   'train-114': null,
   'train-115': null,
-  'train-115:qa-needed': null
+  'train-115:qa-needed': null,
+  'train-116': null,
+  'train-116:qa-needed': null,
+  'train-117': null,
+  'train-117:qa-needed': null,
+  'train-118': null,
+  'train-118:qa-needed': null,
+  'train-119': null,
+  'train-119:qa-needed': null,
+  'train-120': null,
+  'train-120:qa-needed': null,
 }
 
 
