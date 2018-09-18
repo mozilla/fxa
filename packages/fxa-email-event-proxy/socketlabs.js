@@ -3,7 +3,10 @@
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
 // SocketLabs specific variables
-const { VALIDATION_KEY, SECRET_KEY } = process.env
+const {
+  SOCKETLABS_VALIDATION_KEY: VALIDATION_KEY,
+  SOCKETLABS_SECRET_KEY: SECRET_KEY
+} = process.env
 
 if (! VALIDATION_KEY || ! SECRET_KEY) {
   throw new Error('Missing SocketLabs config')

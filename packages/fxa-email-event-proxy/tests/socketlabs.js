@@ -21,8 +21,8 @@ suite('socketlabs:', () => {
     process.env.AUTH = 'authentication string'
     process.env.PROVIDER = 'socketlabs'
     process.env.SQS_SUFFIX = 'wibble'
-    process.env.VALIDATION_KEY = 'validation'
-    process.env.SECRET_KEY = 'secret'
+    process.env.SOCKETLABS_VALIDATION_KEY = 'validation'
+    process.env.SOCKETLABS_SECRET_KEY = 'secret'
     sqs = {
       push: sinon.spy()
     }
@@ -102,7 +102,7 @@ suite('socketlabs:', () => {
         assert.equal(args[0], 'Sent:')
         assert.equal(args[1], 'Delivery')
       })
-  
+
       test('console.error was not called', () => {
         assert.equal(console.error.callCount, 0)
       })
@@ -171,7 +171,7 @@ suite('socketlabs:', () => {
         assert.equal(args[0], 'Sent:')
         assert.equal(args[1], 'Bounce')
       })
-  
+
       test('console.error was not called', () => {
         assert.equal(console.error.callCount, 0)
       })
@@ -238,7 +238,7 @@ suite('socketlabs:', () => {
         assert.equal(args[0], 'Sent:')
         assert.equal(args[1], 'Complaint')
       })
-  
+
       test('console.error was not called', () => {
         assert.equal(console.error.callCount, 0)
       })
