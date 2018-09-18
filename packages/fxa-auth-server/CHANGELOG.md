@@ -1,3 +1,14 @@
+<a name="1.121.0"></a>
+# [1.121.0](https://github.com/mozilla/fxa-oauth-server/compare/v1.120.0...v1.121.0) (2018-09-18)
+
+
+### Bug Fixes
+
+* **ci:** remove nsp (#602) ([64ade86](https://github.com/mozilla/fxa-oauth-server/commit/64ade86)), closes [#602](https://github.com/mozilla/fxa-oauth-server/issues/602) [#596](https://github.com/mozilla/fxa-oauth-server/issues/596) [#597](https://github.com/mozilla/fxa-oauth-server/issues/597)
+* **key-data:** Correctly handle non-existent scopes when finding key data. ([34d9493](https://github.com/mozilla/fxa-oauth-server/commit/34d9493))
+
+
+
 <a name="1.120.0"></a>
 # [1.120.0](https://github.com/mozilla/fxa-oauth-server/compare/v1.117.0...v1.120.0) (2018-09-06)
 
