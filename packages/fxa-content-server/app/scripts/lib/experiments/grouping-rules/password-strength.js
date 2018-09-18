@@ -4,60 +4,18 @@
 
 const BaseGroupingRule = require('./base');
 
-const GROUPS_FOR_PARTIAL_ROLLOUT = ['control', 'designF'];
-
-// These locales only see designF. Note, all ltr locales
-// are considered rolled out.
-const FULLY_ROLLED_OUT = [
-];
-
-const ROLLOUT_RATES = {
-  'ar': 0.5, // arabic is 25% control, 25% treatment
-};
-
 const EXPERIMENT_NAME = 'passwordStrength';
 
 class PasswordStrengthExperiment extends BaseGroupingRule {
   constructor () {
     super();
-    this.FULLY_ROLLED_OUT = FULLY_ROLLED_OUT;
-    this.ROLLOUT_RATES = ROLLOUT_RATES;
     this.name = EXPERIMENT_NAME;
   }
 
   choose (subject = {}) {
-    if (! subject.account || ! subject.uniqueUserId || ! subject.lang || ! subject.langDirection) {
-      return false;
-    }
-
-    if (this.isTestEmail(subject.account.get('email'))) {
-      return 'designF';
-    }
-
-    if (subject.langDirection === 'ltr') {
-      return 'designF';
-    }
-
-    const rolloutLang = subject.lang.substr(0, 2);
-
-    if (this.FULLY_ROLLED_OUT.indexOf(rolloutLang) > -1) {
-      return 'designF';
-    }
-
-    const rolloutRate = this.ROLLOUT_RATES[rolloutLang];
-
-    if (! rolloutRate) {
-      return false;
-    }
-
-    if (this.bernoulliTrial(rolloutRate, subject.uniqueUserId)) {
-      return this.uniformChoice(GROUPS_FOR_PARTIAL_ROLLOUT, subject.uniqueUserId);
-    }
-
-    return false;
+    return 'designF';
   }
 }
-
 
 PasswordStrengthExperiment.EXPERIMENT_NAME = EXPERIMENT_NAME;
 
