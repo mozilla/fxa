@@ -1,3 +1,18 @@
+<a name="1.121.0"></a>
+# [1.121.0](https://github.com/mozilla/fxa-auth-server/compare/v1.120.2...v1.121.0) (2018-09-18)
+
+
+### Bug Fixes
+
+* **keys:** return proper error when failing to create duplicate recovery key ([4954b69](https://github.com/mozilla/fxa-auth-server/commit/4954b69))
+* **tests:** separate remote and local test runs ([499c9fa](https://github.com/mozilla/fxa-auth-server/commit/499c9fa))
+
+### Features
+
+* **totp:** allow reliers to request totp on login ([fa98878](https://github.com/mozilla/fxa-auth-server/commit/fa98878))
+
+
+
 <a name="1.120.2"></a>
 ## [1.120.2](https://github.com/mozilla/fxa-auth-server/compare/v1.119.6...v1.120.2) (2018-09-10)
 
