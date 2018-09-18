@@ -36,5 +36,6 @@ mozlog
 fxa-sprint-planning
 fxa-amplitude-send
 fxa-email-service
+fxa-email-event-proxy
 mozilla-services/fxa-testing-e2e
 fxa-common-password-list
