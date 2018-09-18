@@ -1,3 +1,13 @@
+<a name="1.121.0"></a>
+# [1.121.0](https://github.com/mozilla/fxa-profile-server/compare/v1.120.0...v1.121.0) (2018-09-18)
+
+
+### Bug Fixes
+
+* **ci:** remove nsp ([d671905](https://github.com/mozilla/fxa-profile-server/commit/d671905)), closes [#338](https://github.com/mozilla/fxa-profile-server/issues/338) [#339](https://github.com/mozilla/fxa-profile-server/issues/339)
+
+
+
 <a name="1.120.0"></a>
 # [1.120.0](https://github.com/mozilla/fxa-profile-server/compare/v1.118.0...v1.120.0) (2018-09-06)
 
