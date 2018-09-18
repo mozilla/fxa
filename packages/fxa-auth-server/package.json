@@ -52,7 +52,6 @@
     "grunt-copyright": "0.3.0",
     "grunt-eslint": "18.0.0",
     "grunt-nodemon": "0.4.2",
-    "grunt-nsp": "2.3.1",
     "insist": "1.x",
     "load-grunt-tasks": "3.5.2",
     "mocha": "3.5.3",

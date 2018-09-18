@@ -31,6 +31,7 @@ env:
   - CXX=g++-4.8 NODE_ENV=test DB=mysql
 
 before_install:
+  - npm i -g npm@6
   - npm config set spin false
 
 before_script:
@@ -41,4 +42,5 @@ before_script:
 script:
   - npm run outdated
   - npm test
-  - grunt nsp --force
+  # HACK: ignore npm audit errors for now until we get them all fixed
+  - npm audit || true
