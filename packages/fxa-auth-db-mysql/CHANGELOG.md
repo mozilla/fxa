@@ -1,3 +1,19 @@
+<a name="1.121.0"></a>
+# [1.121.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.120.0...v1.121.0) (2018-09-18)
+
+
+### chore
+
+* **scripts:** disable the explain script in production ([52447bb](https://github.com/mozilla/fxa-auth-db-mysql/commit/52447bb))
+* **scripts:** tweak some old migrations to fix explain errors ([9e9457c](https://github.com/mozilla/fxa-auth-db-mysql/commit/9e9457c))
+
+### Features
+
+* **scripts:** add an ignore file for the explain script ([b90688c](https://github.com/mozilla/fxa-auth-db-mysql/commit/b90688c))
+* **scripts:** add script to automate MySQL EXPLAIN checks ([31fff59](https://github.com/mozilla/fxa-auth-db-mysql/commit/31fff59))
+
+
+
 <a name="1.120.0"></a>
 # [1.120.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.118.1...v1.120.0) (2018-09-06)
 
