@@ -1,3 +1,33 @@
+<a name="1.121.0"></a>
+# [1.121.0](https://github.com/mozilla/fxa-content-server/compare/v1.120.3...v1.121.0) (2018-09-18)
+
+
+### Bug Fixes
+
+* **code:** fix some lgtm analysis warnings ([c9836c2](https://github.com/mozilla/fxa-content-server/commit/c9836c2))
+* **codes:** enable recovery key for 10% users ([94eefe5](https://github.com/mozilla/fxa-content-server/commit/94eefe5))
+* **email-first:** Disallow firefox.com addresses for email first ([fc69618](https://github.com/mozilla/fxa-content-server/commit/fc69618)), closes [#6027](https://github.com/mozilla/fxa-content-server/issues/6027)
+
+### chore
+
+* **deps:** Remove the easterEgg ([8832ab7](https://github.com/mozilla/fxa-content-server/commit/8832ab7)), closes [#6543](https://github.com/mozilla/fxa-content-server/issues/6543)
+* **modules:** Convert from `require` to `import` in app-start.js ([331d82d](https://github.com/mozilla/fxa-content-server/commit/331d82d)), closes [#6404](https://github.com/mozilla/fxa-content-server/issues/6404)
+
+### Features
+
+* **pw-strength:** Fully roll out designF everywhere. ([3d6ca5d](https://github.com/mozilla/fxa-content-server/commit/3d6ca5d)), closes [#6562](https://github.com/mozilla/fxa-content-server/issues/6562)
+* **router:** Groundwork to load views on demand. ([da5a9e4](https://github.com/mozilla/fxa-content-server/commit/da5a9e4)), closes [#6404](https://github.com/mozilla/fxa-content-server/issues/6404)
+
+### Performance Improvements
+
+* **accounts:** Sends only one mail when password changed (#6515), r=@vbudhram ([b291779](https://github.com/mozilla/fxa-content-server/commit/b291779)), closes [#6515](https://github.com/mozilla/fxa-content-server/issues/6515)
+
+### Refactor
+
+* **metrics:** remove datadog metrics ([bb47002](https://github.com/mozilla/fxa-content-server/commit/bb47002)), closes [#6520](https://github.com/mozilla/fxa-content-server/issues/6520)
+
+
+
 <a name="1.120.3"></a>
 ## [1.120.3](https://github.com/mozilla/fxa-content-server/compare/v1.120.2...v1.120.3) (2018-09-14)
 
