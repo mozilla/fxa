@@ -36,6 +36,9 @@ before_install:
   - npm i -g npm@6
   - npm config set spin false
 
+install:
+  - npm ci
+
 script:
   - if [ $DB == "mysql" ]; then ./scripts/start-travis-auth-db-mysql.sh; fi
   - npm run test-ci
