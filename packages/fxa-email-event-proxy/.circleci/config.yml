@@ -1,0 +1,43 @@
+version: 2
+
+jobs:
+  build:
+    working_directory: ~/fxa-email-event-proxy
+
+    docker:
+      - image: circleci/node:8.12
+
+    steps:
+      - checkout
+
+      - run:
+          name: Fetch dependencies
+          command: npm i
+
+      - run:
+          name: Build Lambda bundle
+          command: npm run build
+
+      - run:
+          name: Create artifacts directory
+          command: mkdir artifacts
+
+      - run:
+          name: Move Lambda bundle to artifacts directory with versioned filename
+          command: mv fxa-email-event-proxy.zip artifacts/fxa-email-event-proxy.$CIRCLE_TAG.zip
+
+      - store_artifacts:
+          path: artifacts
+
+workflows:
+  version: 2
+
+  build-test-push:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore: /.*/
+
+            tags:
+              only: /^v[0-9.]+$/

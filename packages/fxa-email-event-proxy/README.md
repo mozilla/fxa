@@ -43,10 +43,29 @@ like so:
 npm t
 ```
 
+You can manually build
+a zip bundle for Lambda
+like so:
+
+```
+npm run build
+```
+
+## Tagging releases
+
+```
+git tag -a v1.$TRAIN.$PATCH
+git push origin v1.$TRAIN.$PATCH
+```
+
+This will kick off a build [in CircleCI](https://circleci.com/gh/mozilla/fxa-email-event-proxy).
+
 ## Setting up Lambda
 
-1. Zip up the source directory,
-   including `node_modules`.
+1. Run `npm run build`
+   to create a zip archive,
+   or use a pre-built artifact
+   from the tag build in CI.
 
 2. Create a new Lambda function.
    Upload the zip.
