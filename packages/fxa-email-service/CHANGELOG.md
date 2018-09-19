@@ -1,3 +1,12 @@
+<a name="v1.121.0"></a>
+## v1.121.0 (2018-09-18)
+
+#### Features
+
+* **chore:**  utilize a rust-toolchain file ([3903f0b9](3903f0b9))
+
+
+
 <a name="v1.120.0"></a>
 ## v1.120.0 (2018-09-06)
 
