@@ -71,6 +71,9 @@ module.exports = function (log, error) {
   function filterAccount (account) {
     var item = extend({}, account)
     delete item.verifyHash
+
+    item.profileChangedAt = item.profileChangedAt || item.verifierSetAt || item.createdAt
+
     return P.resolve(item)
   }
 
@@ -566,6 +569,7 @@ module.exports = function (log, error) {
     var account = accounts[accountId]
 
     item.verifierSetAt = account.verifierSetAt
+    item.profileChangedAt = account.profileChangedAt || account.verifierSetAt || account.createdAt
     item.locale = account.locale
     item.accountCreatedAt = account.createdAt
 
@@ -828,6 +832,7 @@ module.exports = function (log, error) {
             // Verify email record if it matches emailCode
             if (emailRecord.emailCode.toString('hex') === emailCode.toString('hex')) {
               emailRecord.isVerified = 1
+              account.profileChangedAt = Date.now()
               return true
             }
 
@@ -883,6 +888,7 @@ module.exports = function (log, error) {
           account.wrapWrapKb = data.wrapWrapKb
           account.verifierSetAt = data.verifierSetAt
           account.verifierVersion = data.verifierVersion
+          account.profileChangedAt = data.verifierSetAt
           account.devices = {}
           return []
         }
@@ -1110,7 +1116,7 @@ module.exports = function (log, error) {
     }
 
     const uid = emails[normalizedEmail].uid
-    return P.all([this.accountEmails(uid), this.account(uid)])
+    return P.all([this.accountEmails(uid), getAccountByUid(uid)])
       .spread((emails, account) => {
 
         Object.keys(emails).some((key) => {
@@ -1156,7 +1162,11 @@ module.exports = function (log, error) {
 
     emails[email].isPrimary = true
 
-    return P.resolve({})
+    return getAccountByUid(uid)
+      .then((account) => {
+        account.profileChangedAt = Date.now()
+        return P.resolve({})
+      })
   }
 
   Memory.prototype.deleteEmail = function (uid, email) {
@@ -1184,7 +1194,11 @@ module.exports = function (log, error) {
       }
     }
 
-    return P.resolve({})
+    return getAccountByUid(uid)
+      .then((account) => {
+        account.profileChangedAt = Date.now()
+        return P.resolve({})
+      })
   }
 
   Memory.prototype.createSigninCode = (code, uid, createdAt, flowId) => {
@@ -1255,7 +1269,11 @@ module.exports = function (log, error) {
     totpToken.verified = token.verified
     totpToken.enabled = token.enabled
 
-    return Promise.resolve({})
+    return getAccountByUid(uid)
+      .then((account) => {
+        account.profileChangedAt = Date.now()
+        return Promise.resolve({})
+      })
   }
 
   Memory.prototype.totpToken = (uid) => {
@@ -1275,7 +1293,11 @@ module.exports = function (log, error) {
 
     delete totpTokens[uid]
 
-    return Promise.resolve({})
+    return getAccountByUid(uid)
+      .then((account) => {
+        account.profileChangedAt = Date.now()
+        return Promise.resolve({})
+      })
   }
 
   Memory.prototype.verifyTokensWithMethod = function (tokenId, data) {
