@@ -42,7 +42,7 @@ module.exports = function (log, error) {
       }
     }
     else {
-      this.pool = new Pool(url, { timeout: 1000 })
+      this.pool = new Pool(url, { timeout: 3000 })
     }
   }
 
