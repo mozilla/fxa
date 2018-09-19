@@ -96,7 +96,7 @@ function sendMail(mailer, messageToSend) {
 
   var message = {
     acceptLanguage: 'en;q=0.8,en-US;q=0.5,en;q=0.3"',
-    code: 'ae35999f861ffc81d594034eb4560af8',
+    code: '123123',
     email: 'testuser@testuser.com',
     ip: '10.246.67.38',
     location: {
