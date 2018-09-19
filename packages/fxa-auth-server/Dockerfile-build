@@ -16,7 +16,7 @@ COPY scripts/download_l10n.sh scripts/download_l10n.sh
 COPY scripts/gen_keys.js scripts/gen_keys.js
 COPY scripts/gen_vapid_keys.js scripts/gen_vapid_keys.js
 
-RUN npm install --production && rm -rf ~app/.npm /tmp/*
+RUN npm ci --production && rm -rf ~app/.npm /tmp/*
 
 COPY . /app
 USER root
