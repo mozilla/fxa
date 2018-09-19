@@ -1,6 +1,7 @@
 # fxa-email-event-proxy
 
 [![Build Status](https://travis-ci.org/mozilla/fxa-email-event-proxy.svg?branch=master)](https://travis-ci.org/mozilla/fxa-email-event-proxy)
+[![CircleCI](https://circleci.com/gh/mozilla/fxa-email-event-proxy/tree/master.svg?style=svg)](https://circleci.com/gh/mozilla/fxa-email-event-proxy/tree/master)
 
 This repo proxies events
 from the [Sengrid Event Webhook](https://sendgrid.com/docs/API_Reference/Event_Webhook/event.html)
