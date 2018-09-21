@@ -243,3 +243,92 @@ fn serialize_complaint_feedback_type() {
     let json = serde_json::to_string(&ComplaintFeedbackType::Virus).expect("JSON error");
     assert_eq!(json, "\"virus\"");
 }
+
+#[test]
+fn deserialize_notification() {
+    let json = include_str!("test_notifications.json");
+    let notifications: Vec<Notification> = serde_json::from_str(json).expect("JSON error");
+
+    assert_eq!(notifications.len(), 3);
+
+    assert_eq!(notifications[0].notification_type, NotificationType::Bounce);
+    assert_eq!(
+        notifications[0].mail.source,
+        Some("foo@example.com".to_string())
+    );
+    assert_eq!(
+        notifications[0].mail.destination,
+        Some(["bar@example.com".to_string()].to_vec())
+    );
+    assert!(notifications[0].bounce.is_some());
+    assert!(notifications[0].complaint.is_none());
+    assert!(notifications[0].delivery.is_none());
+    let bounce = match notifications[0].bounce {
+        Some(ref record) => record,
+        _ => panic!("Bounce record should exist."),
+    };
+    assert_eq!(bounce.bounced_recipients.len(), 3);
+    assert_eq!(
+        bounce.bounced_recipients[0].email_address,
+        "bar@example.com".to_string()
+    );
+    assert_eq!(
+        bounce.bounced_recipients[1].email_address,
+        "baz@example.com".to_string()
+    );
+    assert_eq!(
+        bounce.bounced_recipients[2].email_address,
+        "qux@example.com".to_string()
+    );
+    assert_eq!(bounce.bounce_type, BounceType::Permanent);
+    assert_eq!(bounce.bounce_subtype, BounceSubtype::General);
+
+    assert_eq!(
+        notifications[1].notification_type,
+        NotificationType::Complaint
+    );
+    assert_eq!(
+        notifications[1].mail.source,
+        Some("qux@example.com".to_string())
+    );
+    assert_eq!(
+        notifications[1].mail.destination,
+        Some(["baz@example.com".to_string()].to_vec())
+    );
+    assert!(notifications[1].bounce.is_none());
+    assert!(notifications[1].complaint.is_some());
+    assert!(notifications[1].delivery.is_none());
+    let complaint = match notifications[1].complaint {
+        Some(ref record) => record,
+        _ => panic!("Complaint record should exist."),
+    };
+    assert_eq!(
+        complaint.complained_recipients[0].email_address,
+        "baz@example.com".to_string()
+    );
+    assert_eq!(
+        complaint.complaint_feedback_type,
+        Some(ComplaintFeedbackType::Abuse)
+    );
+
+    assert_eq!(
+        notifications[2].notification_type,
+        NotificationType::Delivery
+    );
+    assert_eq!(
+        notifications[2].mail.source,
+        Some("quuz@example.com".to_string())
+    );
+    assert_eq!(
+        notifications[2].mail.destination,
+        Some(["xyzzy@example.com".to_string()].to_vec())
+    );
+    assert!(notifications[2].bounce.is_none());
+    assert!(notifications[2].complaint.is_none());
+    assert!(notifications[2].delivery.is_some());
+    let delivery = match notifications[2].delivery {
+        Some(ref record) => record,
+        _ => panic!("Delivery record should exist."),
+    };
+    assert_eq!(delivery.recipients[0], "xyzzy@example.com".to_string());
+}
