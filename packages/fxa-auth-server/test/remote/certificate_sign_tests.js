@@ -52,6 +52,7 @@ describe('remote certificate sign', function() {
           assert.equal(payload['fxa-tokenVerified'], true, 'tokenVerified is correct')
           assert.deepEqual(payload['fxa-amr'].sort(), ['email', 'pwd'], 'amr values are correct')
           assert.equal(payload['fxa-aal'], 1, 'aal value is correct')
+          assert.ok(new Date() - new Date(payload['fxa-profileChangedAt'] * 1000) < 1000 * 60 * 60, 'profileChangedAt is plausible')
         })
     }
   )
@@ -79,6 +80,7 @@ describe('remote certificate sign', function() {
           assert.equal(payload['fxa-tokenVerified'], true, 'tokenVerified is correct')
           assert.deepEqual(payload['fxa-amr'].sort(), ['otp', 'pwd'], 'amr values are correct')
           assert.equal(payload['fxa-aal'], 2, 'aal value is correct')
+          assert.ok(new Date() - new Date(payload['fxa-profileChangedAt'] * 1000) < 1000 * 60 * 60, 'profileChangedAt is plausible')
         })
     }
   )

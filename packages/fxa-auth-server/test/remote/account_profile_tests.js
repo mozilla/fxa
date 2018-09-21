@@ -39,6 +39,7 @@ describe('remote account profile', function() {
           assert.equal(response.locale, 'en-US', 'locale is returned')
           assert.deepEqual(response.authenticationMethods, ['pwd', 'email'], 'authentication methods are returned')
           assert.equal(response.authenticatorAssuranceLevel, 1, 'assurance level is returned')
+          assert.ok(response.profileChangedAt, 'profileChangedAt is returned')
         })
     }
   )
@@ -60,6 +61,7 @@ describe('remote account profile', function() {
           assert.equal(response.locale, 'en-US', 'locale is returned')
           assert.deepEqual(response.authenticationMethods, ['pwd', 'email'], 'authentication methods are returned')
           assert.equal(response.authenticatorAssuranceLevel, 1, 'assurance level is returned')
+          assert.ok(response.profileChangedAt, 'profileChangedAt is returned')
         })
     }
   )
@@ -163,6 +165,7 @@ describe('remote account profile', function() {
         .then(response => {
           assert.ok(response.email, 'email address is returned')
           assert.ok(! response.locale, 'locale should not be returned')
+          assert.ok(response.profileChangedAt, 'profileChangedAt is returned')
         })
         .then(() => {
           return client.api.accountProfile(null, {
@@ -175,6 +178,7 @@ describe('remote account profile', function() {
         .then(response => {
           assert.ok(! response.email, 'email address should not be returned')
           assert.equal(response.locale, 'en-US', 'locale is returned')
+          assert.ok(response.profileChangedAt, 'profileChangedAt is returned')
         })
     }
   )
@@ -198,6 +202,7 @@ describe('remote account profile', function() {
           assert.ok(response.locale, 'locale is returned')
           assert.ok(response.authenticationMethods, 'authenticationMethods is returned')
           assert.ok(response.authenticatorAssuranceLevel, 'authenticatorAssuranceLevel is returned')
+          assert.ok(response.profileChangedAt, 'profileChangedAt is returned')
         })
         .then(() => {
           return client.api.accountProfile(null, {
