@@ -33,7 +33,7 @@ var SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA = {
   login_hint: Vat.email().renameTo('loginHint'),
   prompt: Vat.prompt(),
   redirectTo: Vat.url(),
-  redirect_uri: Vat.url().renameTo('redirectUri'),
+  redirect_uri: Vat.url().allow(Constants.DEVICE_PAIRING_AUTHORITY_REDIRECT_URI).renameTo('redirectUri'),
   scope: Vat.string().required().min(1),
   state: Vat.string()
 };
@@ -180,8 +180,6 @@ var OAuthRelier = Relier.extend({
 
   _setupOAuthRPInfo () {
     const clientId = this.get('clientId');
-    // get the app provided redirect uri
-    const queryRedirectUri = this.get('redirectUri');
 
     return this._oAuthClient.getClientInfo(clientId)
       .then((serviceInfo) => {
@@ -194,7 +192,7 @@ var OAuthRelier = Relier.extend({
            *
            * Verification (email) flows do not have a redirect uri, nothing to validate
            */
-        if (queryRedirectUri && result.redirectUri !== queryRedirectUri) {
+        if (! isCorrectRedirect(this.get('redirectUri'), result.redirectUri)) {
           // if provided redirect uri doesn't match with client info then throw
           throw OAuthErrors.toError('INCORRECT_REDIRECT');
         }
@@ -213,6 +211,18 @@ var OAuthRelier = Relier.extend({
         }
         throw err;
       });
+
+    function isCorrectRedirect (queryRedirectUri, resultRedirectUri) {
+      if (! queryRedirectUri) {
+        return true;
+      } else if (queryRedirectUri === resultRedirectUri) {
+        return true;
+      } else if (queryRedirectUri === Constants.DEVICE_PAIRING_AUTHORITY_REDIRECT_URI) {
+        return true;
+      }
+
+      return false;
+    }
   },
 
   isTrusted () {

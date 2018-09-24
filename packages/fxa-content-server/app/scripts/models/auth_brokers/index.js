@@ -51,7 +51,15 @@ const AUTH_BROKERS = [
   {
     context: Constants.CONTENT_SERVER_CONTEXT,
     Constructor: require('../auth_brokers/web')
-  }
+  },
+  {
+    context: Constants.DEVICE_PAIRING_AUTHORITY_CONTEXT,
+    Constructor: require('../auth_brokers/pairing/authority').default
+  },
+  {
+    context: Constants.DEVICE_PAIRING_SUPPLICANT_CONTEXT,
+    Constructor: require('../auth_brokers/pairing/supplicant').default
+  },
   /* eslint-enable sorting/sort-object-props */
 ].reduce((authBrokers, authBroker) => {
   authBrokers[authBroker.context] = authBroker.Constructor;

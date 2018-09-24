@@ -10,6 +10,8 @@ import Vat from 'vat';
 Vat.register('accessType', Vat.string().test(Validate.isAccessTypeValid));
 Vat.register('action', Vat.string().valid('signin', 'signup', 'email', 'force_auth'));
 Vat.register('base32', Vat.string().test(Validate.isBase32Valid));
+Vat.register('channelId', Vat.string().test(Validate.isBase64Url));
+Vat.register('channelKey', Vat.string().test(Validate.isBase64Url));
 Vat.register('codeChallenge', Vat.string().min(43).max(128));
 Vat.register('codeChallengeMethod', Vat.string().valid('S256'));
 Vat.register('email', Vat.string().test(Validate.isEmailValid));

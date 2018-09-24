@@ -413,6 +413,20 @@ define(function (require, exports, module) {
         assert.instanceOf(appStart._relier, OAuthRelier);
       });
 
+      it('creates a SupplicantRelier', () => {
+        appStart._window.location.pathname = '/pair/supp';
+
+        appStart.initializeRelier();
+        assert.equal(appStart._relier.constructor.name, 'SupplicantRelier');
+      });
+
+      it('creates a AuthorityRelier', () => {
+        appStart._window.location.search = `?redirect_uri=${Constants.DEVICE_PAIRING_AUTHORITY_REDIRECT_URI}`;
+
+        appStart.initializeRelier();
+        assert.equal(appStart._relier.constructor.name, 'AuthorityRelier');
+      });
+
       it('creates a Relier by default', () => {
         appStart.initializeRelier();
         assert.instanceOf(appStart._relier, Relier);
@@ -728,6 +742,13 @@ define(function (require, exports, module) {
           pushState: false,
           silent: false
         }));
+      });
+
+      describe('_selectStartPage', () => {
+        it('can select a pair path', () => {
+          appStart._window.location.search = `?redirect_uri=${Constants.DEVICE_PAIRING_AUTHORITY_REDIRECT_URI}`;
+          assert.equal(appStart._selectStartPage(), 'pair/auth/allow');
+        });
       });
     });
 

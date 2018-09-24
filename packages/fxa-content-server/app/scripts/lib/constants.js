@@ -132,7 +132,10 @@ module.exports = {
   // 1 in 2^155 chance of clashing recovery keys.
   RECOVERY_KEY_LENGTH: 32,
 
-  DEVICE_PAIRING_CHANNEL_KEY_BYTES: 32,
+  DEVICE_PAIRING_AUTHORITY_CONTEXT: 'device_pairing_authority',
+  DEVICE_PAIRING_AUTHORITY_REDIRECT_URI: 'urn:ietf:wg:oauth:2.0:oob:pair-auth-webchannel',
+  DEVICE_PAIRING_SCOPES: ['profile', 'https://identity.mozilla.com/apps/oldsync'],
+  DEVICE_PAIRING_SUPPLICANT_CONTEXT: 'device_pairing_supplicant',
 
   TWO_STEP_AUTHENTICATION_ACR: 'AAL2'
 };

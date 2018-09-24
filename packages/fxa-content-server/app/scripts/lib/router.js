@@ -117,6 +117,15 @@ const Router = Backbone.Router.extend({
     'oauth/force_auth(/)': createViewHandler(ForceAuthView),
     'oauth/signin(/)': 'onSignIn',
     'oauth/signup(/)': 'onSignUp',
+    'pair(/)': createViewHandler('pair/index'),
+    'pair/auth/allow(/)': createViewHandler('pair/auth_allow'),
+    'pair/auth/complete(/)': createViewHandler('pair/auth_complete'),
+    'pair/auth/wait_for_supp(/)': createViewHandler('pair/auth_wait_for_supp'),
+    'pair/failure(/)': createViewHandler('pair/failure'),
+    'pair/success(/)': createViewHandler('pair/success'),
+    'pair/supp(/)': createViewHandler('pair/supp', { force: true }),
+    'pair/supp/allow(/)': createViewHandler('pair/supp_allow'),
+    'pair/supp/wait_for_auth(/)': createViewHandler('pair/supp_wait_for_auth'),
     'primary_email_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.PRIMARY_EMAIL_VERIFIED }),
     'report_signin(/)': createViewHandler(ReportSignInView),
     'reset_password(/)': createViewHandler(ResetPasswordView),
@@ -236,6 +245,10 @@ const Router = Backbone.Router.extend({
       url = url + this.window.location.search;
     } else if (shouldClearQueryParams && hasQueryParams) {
       url = url.split('?')[0];
+    }
+
+    if (this.window.location.hash) {
+      url += this.window.location.hash;
     }
 
     return Backbone.Router.prototype.navigate.call(this, url, options);
