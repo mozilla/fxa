@@ -13,8 +13,7 @@ const NOP = () => P.resolve()
 const NULL_CACHE = {
   addAsync: NOP,
   delAsync: NOP,
-  getAsync: NOP,
-  setAsync: NOP
+  getAsync: NOP
 }
 
 module.exports = (log, config, namespace) => {
@@ -62,19 +61,6 @@ module.exports = (log, config, namespace) => {
     get (key) {
       return getCache()
         .then(cache => cache.getAsync(key))
-    },
-
-    /**
-     * Set data in the cache, keyed by a string.
-     *
-     * Fails silently if the cache is not enabled.
-     *
-     * @param {string} key
-     * @param data
-     */
-    set (key, data) {
-      return getCache()
-        .then(cache => cache.setAsync(key, data, CACHE_LIFETIME))
     }
   }
 

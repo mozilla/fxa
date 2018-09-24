@@ -36,8 +36,7 @@ describe('metricsContext', () => {
     cache = {
       add: sinon.spy(() => results.add),
       del: sinon.spy(() => results.del),
-      get: sinon.spy(() => results.get),
-      set: sinon.spy(() => results.set)
+      get: sinon.spy(() => results.get)
     }
     cacheFactory = sinon.spy(() => cache)
     log = mocks.mockLog()
@@ -111,7 +110,6 @@ describe('metricsContext', () => {
         }, 'second argument was correct')
 
         assert.equal(cache.get.callCount, 0, 'cache.get was not called')
-        assert.equal(cache.set.callCount, 0, 'cache.set was not called')
         assert.equal(log.warn.callCount, 0, 'log.warn was not called')
         assert.equal(log.error.callCount, 0, 'log.error was not called')
       })
