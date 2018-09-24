@@ -44,6 +44,10 @@ module.exports = function (log, config) {
    * Stashes metrics context metadata using a key derived from a token.
    * Asynchronous, returns a promise.
    *
+   * A surprising aspect of this method's behaviour is that it silently
+   * fails if the key already is already stashed. This is so that UTM
+   * params can't be changed part-way through a flow.
+   *
    * @name stashMetricsContext
    * @this request
    * @param token    token to stash the metadata against
@@ -58,10 +62,13 @@ module.exports = function (log, config) {
     metadata.service = this.payload.service || this.query.service
 
     return P.resolve()
-      .then(() => cache.set(getKey(token), metadata))
+      .then(() => {
+        return cache.add(getKey(token), metadata)
+          .catch(err => log.warn({ op: 'metricsContext.stash.add', err }))
+      })
       .catch(err => log.error({
         op: 'metricsContext.stash',
-        err: err,
+        err,
         hasToken: !! token,
         hasId: !! (token && token.id),
         hasUid: !! (token && token.uid)

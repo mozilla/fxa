@@ -34,9 +34,9 @@ describe('metricsContext', () => {
       set: P.resolve()
     }
     cache = {
+      add: sinon.spy(() => results.add),
       del: sinon.spy(() => results.del),
-      get: sinon.spy(() => results.get),
-      set: sinon.spy(() => results.set)
+      get: sinon.spy(() => results.get)
     }
     cacheFactory = sinon.spy(() => cache)
     log = mocks.mockLog()
@@ -85,7 +85,7 @@ describe('metricsContext', () => {
   it(
     'metricsContext.stash',
     () => {
-      results.set = P.resolve('wibble')
+      results.add = P.resolve('wibble')
       const token = {
         uid: Array(64).fill('c').join(''),
         id: 'foo'
@@ -101,14 +101,41 @@ describe('metricsContext', () => {
       }, token).then(result => {
         assert.equal(result, 'wibble', 'result is correct')
 
-        assert.equal(cache.set.callCount, 1, 'cache.set was called once')
-        assert.equal(cache.set.args[0].length, 2, 'cache.set was passed two arguments')
-        assert.equal(cache.set.args[0][0], hashToken(token), 'first argument was correct')
-        assert.deepEqual(cache.set.args[0][1], {
+        assert.equal(cache.add.callCount, 1, 'cache.add was called once')
+        assert.equal(cache.add.args[0].length, 2, 'cache.add was passed two arguments')
+        assert.equal(cache.add.args[0][0], hashToken(token), 'first argument was correct')
+        assert.deepEqual(cache.add.args[0][1], {
           foo: 'bar',
           service: 'baz'
         }, 'second argument was correct')
 
+        assert.equal(cache.get.callCount, 0, 'cache.get was not called')
+        assert.equal(log.warn.callCount, 0, 'log.warn was not called')
+        assert.equal(log.error.callCount, 0, 'log.error was not called')
+      })
+    }
+  )
+
+  it(
+    'metricsContext.stash with clashing data',
+    () => {
+      results.add = P.reject('wibble')
+      const token = {
+        uid: Array(64).fill('c').join(''),
+        id: 'foo'
+      }
+      return metricsContext.stash.call({
+        payload: {
+          metricsContext: {
+            foo: 'bar'
+          },
+          service: 'baz'
+        },
+        query: {}
+      }, token).then(result => {
+        assert.strictEqual(result, undefined, 'result is undefined')
+        assert.equal(cache.add.callCount, 1, 'cache.add was called once')
+        assert.equal(log.warn.callCount, 1, 'log.warn was called once')
         assert.equal(log.error.callCount, 0, 'log.error was not called')
       })
     }
@@ -117,7 +144,7 @@ describe('metricsContext', () => {
   it(
     'metricsContext.stash with service query param',
     () => {
-      results.set = P.resolve('wibble')
+      results.add = P.resolve('wibble')
       const token = {
         uid: Array(64).fill('c').join(''),
         id: 'foo'
@@ -132,40 +159,10 @@ describe('metricsContext', () => {
           service: 'qux'
         }
       }, token).then(result => {
-        assert.equal(cache.set.callCount, 1, 'cache.set was called once')
-        assert.equal(cache.set.args[0][1].service, 'qux', 'service property was correct')
+        assert.equal(cache.add.callCount, 1, 'cache.add was called once')
+        assert.equal(cache.add.args[0][1].service, 'qux', 'service property was correct')
 
         assert.equal(log.error.callCount, 0, 'log.error was not called')
-      })
-    }
-  )
-
-  it(
-    'metricsContext.stash error',
-    () => {
-      results.set = P.reject('wibble')
-      return metricsContext.stash.call({
-        payload: {
-          metricsContext: {
-            foo: 'bar'
-          }
-        },
-        query: {}
-      }, {
-        uid: Array(64).fill('c').join(''),
-        id: 'foo'
-      }).then(result => {
-        assert.equal(result, undefined, 'result is undefined')
-
-        assert.equal(cache.set.callCount, 1, 'cache.set was called once')
-
-        assert.equal(log.error.callCount, 1, 'log.error was called once')
-        assert.equal(log.error.args[0].length, 1, 'log.error was passed one argument')
-        assert.equal(log.error.args[0][0].op, 'metricsContext.stash', 'argument op property was correct')
-        assert.equal(log.error.args[0][0].err, 'wibble', 'argument err property was correct')
-        assert.strictEqual(log.error.args[0][0].hasToken, true, 'hasToken property was correct')
-        assert.strictEqual(log.error.args[0][0].hasId, true, 'hasId property was correct')
-        assert.strictEqual(log.error.args[0][0].hasUid, true, 'hasUid property was correct')
       })
     }
   )
@@ -193,7 +190,7 @@ describe('metricsContext', () => {
         assert.strictEqual(log.error.args[0][0].hasId, true, 'hasId property was correct')
         assert.strictEqual(log.error.args[0][0].hasUid, false, 'hasUid property was correct')
 
-        assert.equal(cache.set.callCount, 0, 'cache.set was not called')
+        assert.equal(cache.add.callCount, 0, 'cache.add was not called')
       })
     }
   )
@@ -210,7 +207,7 @@ describe('metricsContext', () => {
       }).then(result => {
         assert.equal(result, undefined, 'result is undefined')
 
-        assert.equal(cache.set.callCount, 0, 'cache.set was not called')
+        assert.equal(cache.add.callCount, 0, 'cache.add was not called')
         assert.equal(log.error.callCount, 0, 'log.error was not called')
       })
     }

@@ -11,9 +11,9 @@ P.promisifyAll(Memcached.prototype)
 
 const NOP = () => P.resolve()
 const NULL_CACHE = {
+  addAsync: NOP,
   delAsync: NOP,
-  getAsync: NOP,
-  setAsync: NOP
+  getAsync: NOP
 }
 
 module.exports = (log, config, namespace) => {
@@ -24,6 +24,21 @@ module.exports = (log, config, namespace) => {
   const CACHE_LIFETIME = config.memcached.lifetime
 
   return {
+    /**
+     * Add data to the cache, keyed by a string.
+     * If the key already exists,
+     * the call will fail.
+     *
+     * Fails silently if the cache is not enabled.
+     *
+     * @param {string} key
+     * @param data
+     */
+    add (key, data) {
+      return getCache()
+        .then(cache => cache.addAsync(key, data, CACHE_LIFETIME))
+    },
+
     /**
      * Delete data from the cache, keyed by a string.
      *
@@ -46,19 +61,6 @@ module.exports = (log, config, namespace) => {
     get (key) {
       return getCache()
         .then(cache => cache.getAsync(key))
-    },
-
-    /**
-     * Fetch data from the cache, keyed by a string.
-     *
-     * Fails silently if the cache is not enabled.
-     *
-     * @param {string} key
-     * @param data
-     */
-    set (key, data) {
-      return getCache()
-        .then(cache => cache.setAsync(key, data, CACHE_LIFETIME))
     }
   }
 
