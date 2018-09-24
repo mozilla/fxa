@@ -17,6 +17,12 @@ if (process.argv.length > 1) {
 }
 
 if (profile) {
+
+  if (profile.isTestingPairing) {
+    // pairing UA override, this can be removed once the main catches up
+    UA_OVERRIDE = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:67.0) Gecko/20100101 Firefox/67.0 FxATester/1.0';
+  }
+
   // remove blocking of HTTP request on HTTPS domains
   myProfile.setPreference('security.mixed_content.block_active_content', false);
 
@@ -69,6 +75,13 @@ if (profile) {
   // This prevents the "Save file" dialog for the "Update Firefox" screen.
   myProfile.setPreference('browser.helperApps.neverAsk.saveToDisk', 'application/x-iso9660-image,application/x-tar,application/octet-stream');
 
+  // allowHttp for local dev
+  myProfile.setPreference('identity.fxaccounts.allowHttp', true);
+
+  myProfile.setPreference('identity.fxaccounts.pairing.enabled', true);
+  myProfile.setPreference('webchannel.allowObject.urlWhitelist', profile.fxaContentRoot.slice(0, -1));
+  myProfile.setPreference('identity.fxaccounts.remote.root', profile.fxaContentRoot.slice(0, -1));
+  myProfile.setPreference('identity.fxaccounts.autoconfig.uri', profile.fxaContentRoot.slice(0, -1));
 
   myProfile.updatePreferences();
 

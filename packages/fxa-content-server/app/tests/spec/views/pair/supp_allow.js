@@ -31,12 +31,14 @@ describe('views/pair/supp_allow', () => {
 
   beforeEach(() => {
     config = {
-      pairingChannelServerUri: 'ws://test'
+      pairingChannelServerUri: 'ws://test',
+      pairingClients: ['3c49430b43dfba77'],
     };
     relier = new Relier();
     relier.set({
       channelId: '1',
       channelKey: 'dGVzdA==',
+      clientId: '3c49430b43dfba77',
       redirectUri: 'https://example.com?code=1&state=2'
     });
     notifier = new Notifier();

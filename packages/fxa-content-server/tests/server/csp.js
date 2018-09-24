@@ -46,12 +46,14 @@ suite.tests['blockingRules'] = function () {
   const directives = blockingRules.directives;
 
   const connectSrc = directives.connectSrc;
-  assert.lengthOf(connectSrc, 5);
+  assert.lengthOf(connectSrc, 7);
   assert.include(connectSrc, Sources.SELF);
   assert.include(connectSrc, Sources.AUTH_SERVER);
   assert.include(connectSrc, Sources.OAUTH_SERVER);
   assert.include(connectSrc, Sources.PROFILE_SERVER);
   assert.include(connectSrc, Sources.MARKETING_EMAIL_SERVER);
+  assert.include(connectSrc, Sources.PAIRING_SERVER_HTTP);
+  assert.include(connectSrc, Sources.PAIRING_SERVER_WEBSOCKET);
 
   const defaultSrc = directives.defaultSrc;
   assert.lengthOf(defaultSrc, 1);

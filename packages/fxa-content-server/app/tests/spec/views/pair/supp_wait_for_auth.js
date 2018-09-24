@@ -23,7 +23,7 @@ const REMOTE_METADATA = {
   ua: 'Firefox 1.0',
 };
 
-describe('views/pair/supp_wait_for_supp', () => {
+describe('views/pair/supp_wait_for_auth', () => {
   let broker;
   let config;
   let relier;
@@ -34,12 +34,14 @@ describe('views/pair/supp_wait_for_supp', () => {
 
   beforeEach(() => {
     config = {
-      pairingChannelServerUri: 'ws://test'
+      pairingChannelServerUri: 'ws://test',
+      pairingClients: ['3c49430b43dfba77'],
     };
     relier = new Relier();
     relier.set({
       channelId: '1',
       channelKey: 'dGVzdA==',
+      clientId: '3c49430b43dfba77',
       redirectUri: 'https://example.com?code=1&state=2'
     });
     notifier = new Notifier();

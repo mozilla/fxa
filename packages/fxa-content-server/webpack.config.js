@@ -63,6 +63,7 @@ const webpackConfig = {
       'es6-promise': path.resolve(__dirname, 'node_modules/es6-promise/dist/es6-promise'),
       fxaClient: 'fxa-js-client/client/FxAccountClient',
       fxaCryptoDeriver: path.resolve(__dirname, 'node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'),
+      fxaPairingChannel: path.resolve(__dirname, 'node_modules/fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js'),
       'base32-decode': path.resolve(__dirname, 'node_modules/base32-decode/index'),
       // jwcrypto is used by the main app and only contains DSA
       // jwcrypto.rs is used by the unit tests to unbundle and verify

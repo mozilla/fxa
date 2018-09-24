@@ -25,6 +25,7 @@ module.exports = [
   'tests/server/remote-address.js',
   'tests/server/routes/get-apple-app-site-association.js',
   'tests/server/routes/get-config.js',
+  'tests/server/routes/get-frontend-pairing.js',
   'tests/server/routes/get-fxa-client-configuration.js',
   'tests/server/routes/get-index.js',
   'tests/server/routes/get-lbheartbeat.js',
