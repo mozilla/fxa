@@ -24,6 +24,9 @@ module.exports = function (options) {
   if (supportedLanguages.length === 0) {
     // must support at least one language.
     supportedLanguages = [defaultLanguage];
+  } else {
+    // default language must come first
+    supportedLanguages.unshift(defaultLanguage);
   }
 
   // setup supported languages
@@ -54,7 +57,7 @@ module.exports = function (options) {
           if (parseHeader && Array.isArray(parseHeader) && parseHeader.length > 0 && parseHeader[0].language) {
             // the 'accept-language' will fallback to unsupported locale if it cannot find anything
             // we do not want that, only set language if it is a supported locale.
-            if (supportedLanguages.indexOf(parseHeader[0].language)) {
+            if (supportedLanguages.indexOf(parseHeader[0].language) !== -1) {
               language = parseHeader[0].language;
             }
           }
