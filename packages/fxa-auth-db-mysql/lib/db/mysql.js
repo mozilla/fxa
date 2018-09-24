@@ -460,7 +460,7 @@ module.exports = function (log, error) {
   // Fields : t.tokenData, t.uid, t.createdAt, t.uaBrowser, t.uaBrowserVersion, t.uaOS,
   //          t.uaOSVersion, t.uaDeviceType, t.uaFormFactor, t.lastAccessTime, t.authAt,
   //          a.emailVerified, a.email, a.emailCode, a.verifierSetAt, a.locale,
-  //          a.createdAt AS accountCreatedAt,
+  //          a.createdAt AS accountCreatedAt, a.profileChangedAt,
   //          d.id AS deviceId, d.name AS deviceName, d.type AS deviceType, d.createdAt
   //          AS deviceCreatedAt, d.callbackURL AS deviceCallbackURL, d.callbackPublicKey
   //          AS deviceCallbackPublicKey, d.callbackAuthKey AS deviceCallbackAuthKey,
@@ -468,7 +468,7 @@ module.exports = function (log, error) {
   //          ut.tokenVerificationId, ut.mustVerify
   // Where  : t.tokenId = $1 AND t.uid = a.uid AND t.tokenId = d.sessionTokenId AND
   //          t.uid = d.uid AND t.tokenId = u.tokenId
-  var SESSION_DEVICE = 'CALL sessionWithDevice_15(?)'
+  var SESSION_DEVICE = 'CALL sessionWithDevice_16(?)'
 
   MySql.prototype.sessionToken = function (id) {
     return this.readAllResults(SESSION_DEVICE, [id])
@@ -552,9 +552,10 @@ module.exports = function (log, error) {
   }
 
   // Select : accounts
-  // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt, verifierSetAt, createdAt, locale, lockedAt
+  // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt,
+  //          verifierSetAt, createdAt, locale, lockedAt, profileChangedAt
   // Where  : accounts.uid = LOWER($1)
-  var ACCOUNT = 'CALL account_3(?)'
+  var ACCOUNT = 'CALL account_4(?)'
 
   MySql.prototype.account = function (uid) {
     return this.readFirstResult(ACCOUNT, [uid])
@@ -774,7 +775,7 @@ module.exports = function (log, error) {
   // Update : accounts
   // Set    : verifyHash = $2, authSalt = $3, wrapWrapKb = $4, verifierSetAt = $5, verifierVersion = $6
   // Where  : uid = $1
-  var RESET_ACCOUNT = 'CALL resetAccount_8(?, ?, ?, ?, ?, ?)'
+  var RESET_ACCOUNT = 'CALL resetAccount_9(?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.resetAccount = function (uid, data) {
     return this.write(
@@ -786,7 +787,7 @@ module.exports = function (log, error) {
   // Update : accounts, emails
   // Set    : emailVerified = true if email is in accounts table or isVerified = true if on email table
   // Where  : uid = $1, emailCode = $2
-  var VERIFY_EMAIL = 'CALL verifyEmail_5(?, ?)'
+  var VERIFY_EMAIL = 'CALL verifyEmail_6(?, ?)'
 
   MySql.prototype.verifyEmail = function (uid, emailCode) {
     return this.write(VERIFY_EMAIL, [uid, emailCode])
@@ -892,9 +893,10 @@ module.exports = function (log, error) {
   }
 
   // Select : accounts
-  // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt, verifierSetAt, createdAt, lockedAt, primaryEmail
+  // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt,
+  //          verifierSetAt, createdAt, lockedAt, primaryEmail, profileChangedAt
   // Where  : emails.normalizedEmail = LOWER($1)
-  var GET_ACCOUNT_RECORD = 'CALL accountRecord_2(?)'
+  var GET_ACCOUNT_RECORD = 'CALL accountRecord_3(?)'
   MySql.prototype.accountRecord = function (email) {
     return this.readFirstResult(GET_ACCOUNT_RECORD, [email])
   }
@@ -913,7 +915,7 @@ module.exports = function (log, error) {
 
   // Update : emails
   // Values : uid = $1, email = $2
-  var SET_PRIMARY_EMAIL = 'CALL setPrimaryEmail_1(?, ?)'
+  var SET_PRIMARY_EMAIL = 'CALL setPrimaryEmail_2(?, ?)'
   MySql.prototype.setPrimaryEmail = function (uid, email) {
     return this.write(
       SET_PRIMARY_EMAIL,
@@ -926,7 +928,7 @@ module.exports = function (log, error) {
 
   // Delete : emails
   // Values : uid = $1, email = $2
-  var DELETE_EMAIL = 'CALL deleteEmail_2(?, ?)'
+  var DELETE_EMAIL = 'CALL deleteEmail_3(?, ?)'
   MySql.prototype.deleteEmail = function (uid, email) {
     return this.write(
       DELETE_EMAIL,
@@ -1407,12 +1409,12 @@ module.exports = function (log, error) {
     return this.readFirstResult(GET_TOTP_TOKEN, [uid])
   }
 
-  const DELETE_TOTP_TOKEN = 'CALL deleteTotpToken_1(?)'
+  const DELETE_TOTP_TOKEN = 'CALL deleteTotpToken_2(?)'
   MySql.prototype.deleteTotpToken = function (uid) {
     return this.write(DELETE_TOTP_TOKEN, [uid])
   }
 
-  const UPDATE_TOTP_TOKEN = 'CALL updateTotpToken_1(?, ?, ?)'
+  const UPDATE_TOTP_TOKEN = 'CALL updateTotpToken_2(?, ?, ?)'
   MySql.prototype.updateTotpToken = function (uid, token) {
     return this.read(UPDATE_TOTP_TOKEN, [
       uid,

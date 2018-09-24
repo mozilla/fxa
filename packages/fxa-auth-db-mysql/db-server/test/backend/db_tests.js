@@ -224,6 +224,7 @@ module.exports = function (config, DB) {
             assert.equal(account.createdAt, accountData.createdAt, 'createdAt')
             assert.equal(account.verifierSetAt, accountData.createdAt, 'verifierSetAt has been set to the same as createdAt')
             assert.equal(account.locale, accountData.locale, 'locale')
+            assert.equal(account.profileChangedAt, account.createdAt, 'profileChangedAt set to createdAt')
           })
       })
 
@@ -330,6 +331,7 @@ module.exports = function (config, DB) {
             assert.deepEqual(token.emailCode, accountData.emailCode, 'token emailCode same as account emailCode')
             assert.equal(token.verifierSetAt, accountData.verifierSetAt, 'verifierSetAt is correct')
             assert.equal(token.accountCreatedAt, accountData.createdAt, 'accountCreatedAt is correct')
+            assert.equal(token.profileChangedAt, accountData.createdAt, 'profileChangedAt is correct')
           })
       })
 
@@ -746,6 +748,7 @@ module.exports = function (config, DB) {
         .then(function (account) {
           assert(account.emailVerified, 'account should now be emailVerified (truthy)')
           assert.equal(account.emailVerified, 1, 'account should now be emailVerified (1)')
+          assert.equal(account.profileChangedAt > account.createdAt, true, 'profileChangedAt updated')
         })
     })
 
@@ -1204,10 +1207,14 @@ module.exports = function (config, DB) {
         return db.account(accountData.uid)
           .then((account) => {
             assert.ok(account, 'account exists')
+            accountData.verifierSetAt = now + 1
             return db.resetAccount(accountData.uid, accountData)
           })
           .then(() => db.account(accountData.uid))
-          .then((account) => assert.ok(account, 'account exists'))
+          .then((account) => {
+            assert.ok(account, 'account exists')
+            assert.equal(account.profileChangedAt, account.verifierSetAt, 'profileChangedAt matches verifierSetAt')
+          })
       })
 
     })
@@ -1597,6 +1604,11 @@ module.exports = function (config, DB) {
             assert.equal(result[1].email, secondEmail.email, 'matches secondEmail email')
             assert.equal(!! result[1].isPrimary, false, 'isPrimary is false on secondEmail email')
             assert.equal(!! result[1].isVerified, true, 'secondEmail isVerified is true')
+
+            return db.account(accountData.uid)
+              .then((account) => {
+                assert.equal(account.profileChangedAt > account.createdAt, true, 'profileChangedAt updated')
+              })
           })
       })
 
@@ -1617,6 +1629,10 @@ module.exports = function (config, DB) {
             assert.equal(!! result[0].isPrimary, true, 'isPrimary is true on account email')
             assert.equal(!! result[0].isVerified, accountData.emailVerified, 'matches account emailVerified')
 
+            return db.account(accountData.uid)
+              .then((account) => {
+                assert.equal(account.profileChangedAt > account.createdAt, true, 'profileChangedAt updated')
+              })
           })
       })
 
@@ -1904,6 +1920,7 @@ module.exports = function (config, DB) {
             assert.deepEqual(res[0].primaryEmail, secondEmail.email, 'primary email should be set to update email')
             assert.ok(res[0].createdAt, 'should set createdAt')
             assert.deepEqual(res[0].createdAt, res[1].createdAt, 'account records should have the same createdAt')
+            assert.equal(res[0].profileChangedAt > res[0].createdAt, true, 'profileChangedAt updated')
           })
       })
     })
@@ -2037,6 +2054,11 @@ module.exports = function (config, DB) {
             return db.totpToken(accountData.uid)
               .then(assert.fail, (err) => {
                 assert.equal(err.errno, 116, 'correct errno, not found')
+
+                return db.account(accountData.uid)
+              })
+              .then((account) => {
+                assert.equal(account.profileChangedAt > account.createdAt, true, 'profileChangedAt updated')
               })
           })
       })
@@ -2051,6 +2073,11 @@ module.exports = function (config, DB) {
                 assert.equal(token.epoch, epoch, 'correct epoch')
                 assert.equal(token.verified, true, 'correct verified')
                 assert.equal(token.enabled, true, 'correct enable')
+
+                return db.account(accountData.uid)
+              })
+              .then((account) => {
+                assert.equal(account.profileChangedAt > account.createdAt, true, 'profileChangedAt updated')
               })
           })
       })
