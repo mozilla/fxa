@@ -150,6 +150,7 @@ define(function (require, exports, module) {
       var password = this._getPassword();
       var token = verificationInfo.get('token');
       var code = verificationInfo.get('code');
+      const emailToHashWith = verificationInfo.get('emailToHashWith');
 
       // If the user verifies in the same browser and the original tab
       // is still open, we want the original tab to redirect back to
@@ -174,7 +175,8 @@ define(function (require, exports, module) {
               accountRecoveryVerificationInfo.get('accountResetToken'),
               accountRecoveryVerificationInfo.get('recoveryKeyId'),
               accountRecoveryVerificationInfo.get('kB'),
-              this.relier);
+              this.relier,
+              emailToHashWith);
           }
 
           return this.user.completeAccountPasswordReset(
@@ -182,7 +184,8 @@ define(function (require, exports, module) {
             password,
             token,
             code,
-            this.relier);
+            this.relier,
+            emailToHashWith);
         })
         .then((updatedAccount) => {
           // The password was reset, future attempts should ask confirmation.
