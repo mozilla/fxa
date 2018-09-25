@@ -13,7 +13,7 @@
     "update-api-docs": "grunt newer:doc && git add docs/api.md",
     "precommit": "npm run bump-template-versions && npm run update-api-docs",
     "postinstall": "scripts/download_l10n.sh",
-    "shrink": "npmshrink && npm run postinstall",
+    "shrink": "npmshrink && npm run postinstall && scripts/tls-shrink.sh",
     "start": "NODE_ENV=dev scripts/start-local.sh 2>&1",
     "start-mysql": "NODE_ENV=dev scripts/start-local-mysql.sh 2>&1",
     "test": "VERIFIER_VERSION=0 MEMCACHE_METRICS_CONTEXT_ADDRESS=none NO_COVERAGE=1 scripts/test-local.sh",
