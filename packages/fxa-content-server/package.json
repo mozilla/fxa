@@ -59,7 +59,7 @@
     "fxa-geodb": "1.0.2",
     "fxa-js-client": "1.0.6",
     "fxa-mustache-loader": "0.0.2",
-    "fxa-shared": "1.0.12",
+    "fxa-shared": "1.0.14",
     "got": "6.7.1",
     "grunt": "1.0.3",
     "grunt-babel": "6.0.0",
