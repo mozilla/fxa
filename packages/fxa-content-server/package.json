@@ -6,7 +6,7 @@
     "build-production": "NODE_ENV=production grunt build",
     "postinstall": "scripts/download_l10n.sh",
     "prepush": "npm run lint && grunt sasslint",
-    "shrink": "npmshrink",
+    "shrink": "npmshrink && scripts/tls-shrink.sh",
     "lint": "eslint app server tests --cache",
     "start": "node scripts/check-local-config && grunt server",
     "start-circle": "CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt build && CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt serverproc:dist",
