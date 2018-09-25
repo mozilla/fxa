@@ -9,11 +9,8 @@
  * For more encryption details, check out
  + https://github.com/mozilla/fxa-auth-server/blob/master/docs/recovery_keys.md
  */
-const Base32 = require('./base32');
-
-function importFxaCryptoDeriver() {
-  return import(/* webpackChunkName: "fxaCryptoDeriver" */ 'fxaCryptoDeriver');
-}
+import Base32 from './base32';
+import importFxaCryptoDeriver from './deriver';
 
 function required(object, name) {
   if (! object) {

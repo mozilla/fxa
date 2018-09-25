@@ -2,11 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const base32Decode = require('base32-decode');
+import base32Decode from 'base32-decode';
+import importFxaCryptoDeriver from './deriver';
 
-function importFxaCryptoDeriver() {
-  return import(/* webpackChunkName: "fxaCryptoDeriver" */ 'fxaCryptoDeriver');
-}
 
 // Base32 encoding based on Douglas Crockford
 // Ref: https://en.wikipedia.org/wiki/Base32#Crockford.27s_Base32

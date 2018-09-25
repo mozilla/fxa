@@ -6,10 +6,7 @@
  * Derive scope-specific keys from account master keys.
  */
 
-
-function importFxaCryptoDeriver() {
-  return import(/* webpackChunkName: "fxaCryptoDeriver" */ 'fxaCryptoDeriver');
-}
+import importFxaCryptoDeriver from './deriver';
 
 /**
  * Given an inputKey, generate the matching relier-specific derived scoped key.
