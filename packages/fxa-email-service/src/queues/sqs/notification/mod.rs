@@ -4,10 +4,7 @@
 
 //! SQS queue notification types.
 
-use std::{
-    collections::HashMap,
-    fmt::{self, Display, Formatter},
-};
+use std::fmt::{self, Display, Formatter};
 
 use chrono::{DateTime, Utc};
 use serde::{
@@ -132,18 +129,8 @@ pub struct Mail {
     #[serde(rename = "messageId")]
     message_id: String,
     source: Option<String>,
-    #[serde(rename = "sourceArn")]
-    source_arn: Option<String>,
-    #[serde(rename = "sourceIp")]
-    source_ip: Option<String>,
-    #[serde(rename = "sendingAccountId")]
-    sending_account_id: Option<String>,
     destination: Option<Vec<String>>,
-    #[serde(rename = "headersTruncated")]
-    headers_truncated: Option<bool>,
     headers: Option<Vec<Header>>,
-    #[serde(rename = "commonHeaders")]
-    common_headers: Option<HashMap<String, HeaderValue>>,
 }
 
 impl From<Mail> for GenericMail {
@@ -182,10 +169,6 @@ pub struct Bounce {
     pub timestamp: DateTime<Utc>,
     #[serde(rename = "feedbackId")]
     pub feedback_id: String,
-    #[serde(rename = "remoteMtaIp")]
-    pub remote_mta_ip: Option<String>,
-    #[serde(rename = "reportingMTA")]
-    pub reporting_mta: Option<String>,
 }
 
 impl From<Bounce> for GenericBounce {
@@ -314,12 +297,8 @@ pub struct Complaint {
     pub timestamp: DateTime<Utc>,
     #[serde(rename = "feedbackId")]
     pub feedback_id: String,
-    #[serde(rename = "userAgent")]
-    pub user_agent: Option<String>,
     #[serde(rename = "complaintFeedbackType")]
     pub complaint_feedback_type: Option<ComplaintFeedbackType>,
-    #[serde(rename = "arrivalDate")]
-    pub arrival_date: Option<DateTime<Utc>>,
 }
 
 impl From<Complaint> for GenericComplaint {
@@ -406,15 +385,7 @@ impl Serialize for ComplaintFeedbackType {
 #[derive(Debug, Deserialize)]
 pub struct Delivery {
     pub timestamp: DateTime<Utc>,
-    #[serde(rename = "processingTimeMillis")]
-    pub processing_time_millis: Option<u32>,
     pub recipients: Vec<String>,
-    #[serde(rename = "smtpResponse")]
-    pub smtp_response: Option<String>,
-    #[serde(rename = "remoteMtaIp")]
-    pub remote_mta_ip: Option<String>,
-    #[serde(rename = "reportingMTA")]
-    pub reporting_mta: Option<String>,
 }
 
 impl From<Delivery> for GenericDelivery {
