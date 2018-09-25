@@ -7,6 +7,7 @@
  */
 
 import importFxaCryptoDeriver from './deriver';
+import required from '../required';
 
 /**
  * Given an inputKey, generate the matching relier-specific derived scoped key.
@@ -19,17 +20,9 @@ import importFxaCryptoDeriver from './deriver';
  */
 function _deriveScopedKeys(inputKey, uid, keyData) {
   return importFxaCryptoDeriver().then(fxaCryptoDeriver => {
-    if (! inputKey) {
-      throw new Error('Missing input key');
-    }
-
-    if (! uid) {
-      throw new Error('Missing uid');
-    }
-
-    if (! keyData) {
-      throw new Error('Missing key data');
-    }
+    required(inputKey, 'input key');
+    required(uid, 'uid');
+    required(keyData, 'key data');
 
     const scopedKeys = new fxaCryptoDeriver.ScopedKeys();
 
