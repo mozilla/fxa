@@ -10,12 +10,12 @@
  + https://github.com/mozilla/fxa-auth-server/blob/master/docs/recovery_keys.md
  */
 import Base32 from './base32';
+import hkdf from './hkdf';
 import importFxaCryptoDeriver from './deriver';
 import required from '../required';
 
 const RECOVERY_KEY_VERSION = 'A';
 const ENCRYPTION_ALGORITHM = 'A256GCM';
-const HKDF_SHA_256 = 'HKDF-SHA-256';
 
 function getRecoveryKeyVersion() {
   return RECOVERY_KEY_VERSION;
@@ -61,27 +61,22 @@ module.exports = {
       return Base32.decode(recoveryKey)
         .then((keyMaterial) => {
           const salt = Buffer.from(uid, 'hex');
-          const options = {
-            info: Buffer.from('fxa recovery encrypt key', 'utf8'),
-            length: 32,
-            salt
-          };
-          const optionsKid = {
-            info: Buffer.from('fxa recovery fingerprint', 'utf8'),
-            length: 16,
-            salt
-          };
-          return Promise.all([jose.JWA.derive(HKDF_SHA_256, keyMaterial, options), jose.JWA.derive(HKDF_SHA_256, keyMaterial, optionsKid)])
-            .then((result) => {
-              const recoveryKeyId = result[1].toString('hex');
-              const keyOptions = {
-                alg: ENCRYPTION_ALGORITHM,
-                k: jose.util.base64url.encode(result[0], 'hex'),
-                kid: recoveryKeyId,
-                kty: 'oct'
-              };
-              return jose.JWK.asKey(keyOptions);
-            });
+          const keyInfo = Buffer.from('fxa recovery encrypt key', 'utf8');
+          const kidInfo = Buffer.from('fxa recovery fingerprint', 'utf8');
+
+          return Promise.all([
+            hkdf(keyMaterial, salt, keyInfo, 32),
+            hkdf(keyMaterial, salt, kidInfo, 16),
+          ]).then((result) => {
+            const recoveryKeyId = result[1].toString('hex');
+            const keyOptions = {
+              alg: ENCRYPTION_ALGORITHM,
+              k: jose.util.base64url.encode(result[0], 'hex'),
+              kid: recoveryKeyId,
+              kty: 'oct'
+            };
+            return jose.JWK.asKey(keyOptions);
+          });
         });
     });
   },
