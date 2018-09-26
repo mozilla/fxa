@@ -35,6 +35,7 @@ module.exports = function (log, config) {
   return {
     stash,
     gather,
+    propagate,
     clear,
     validate,
     setFlowCompleteSignal
@@ -146,6 +147,36 @@ module.exports = function (log, config) {
         id: request.payload.code
       }
     }
+  }
+
+  /**
+   * Propagates metrics context metadata from one token-derived key to
+   * another. Asynchronous, returns a promise.
+   *
+   * @name propagateMetricsContext
+   * @this request
+   * @param oldToken    token to gather the metadata from
+   * @param newToken    token to stash the metadata against
+   */
+  function propagate (oldToken, newToken) {
+    const oldKey = getKey(oldToken)
+    return cache.get(oldKey)
+      .then(metadata => {
+        if (metadata) {
+          return cache.add(getKey(newToken), metadata)
+            .catch(err => log.warn({ op: 'metricsContext.propagate.add', err }))
+        }
+      })
+      .catch(err => log.error({
+        op: 'metricsContext.propagate',
+        err,
+        hasOldToken: !! oldToken,
+        hasOldTokenId: !! (oldToken && oldToken.id),
+        hasOldTokenUid: !! (oldToken && oldToken.uid),
+        hasNewToken: !! newToken,
+        hasNewTokenId: !! (newToken && newToken.id),
+        hasNewTokenUid: !! (newToken && newToken.uid),
+      }))
   }
 
   /**

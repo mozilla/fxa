@@ -53,13 +53,16 @@ describe('metricsContext', () => {
 
       assert.equal(typeof metricsContext, 'object', 'metricsContext is object')
       assert.notEqual(metricsContext, null, 'metricsContext is not null')
-      assert.equal(Object.keys(metricsContext).length, 5, 'metricsContext has 5 properties')
+      assert.lengthOf(Object.keys(metricsContext), 6)
 
       assert.equal(typeof metricsContext.stash, 'function', 'metricsContext.stash is function')
       assert.equal(metricsContext.stash.length, 1, 'metricsContext.stash expects 1 argument')
 
       assert.equal(typeof metricsContext.gather, 'function', 'metricsContext.gather is function')
       assert.equal(metricsContext.gather.length, 1, 'metricsContext.gather expects 1 argument')
+
+      assert.isFunction(metricsContext.propagate)
+      assert.lengthOf(metricsContext.propagate, 2)
 
       assert.equal(typeof metricsContext.clear, 'function', 'metricsContext.clear is function')
       assert.equal(metricsContext.clear.length, 0, 'metricsContext.gather expects no arguments')
@@ -511,6 +514,78 @@ describe('metricsContext', () => {
       })
     }
   )
+
+  it('metricsContext.propagate', () => {
+    results.get = P.resolve('wibble')
+    results.add = P.resolve()
+    const oldToken = {
+      uid: Array(64).fill('c').join(''),
+      id: 'foo'
+    }
+    const newToken = {
+      uid: Array(64).fill('d').join(''),
+      id: 'bar'
+    }
+    return metricsContext.propagate(oldToken, newToken)
+      .then(() => {
+        assert.equal(cache.get.callCount, 1)
+        let args = cache.get.args[0]
+        assert.lengthOf(args, 1)
+        assert.equal(args[0], hashToken(oldToken))
+
+        assert.equal(cache.add.callCount, 1)
+        args = cache.add.args[0]
+        assert.lengthOf(args, 2)
+        assert.equal(args[0], hashToken(newToken))
+        assert.equal(args[1], 'wibble')
+
+        assert.equal(cache.del.callCount, 0)
+        assert.equal(log.warn.callCount, 0)
+        assert.equal(log.error.callCount, 0)
+      })
+  })
+
+  it('metricsContext.propagate with clashing data', () => {
+    results.get = P.resolve('wibble')
+    results.add = P.reject('blee')
+    const oldToken = {
+      uid: Array(64).fill('c').join(''),
+      id: 'foo'
+    }
+    const newToken = {
+      uid: Array(64).fill('d').join(''),
+      id: 'bar'
+    }
+    return metricsContext.propagate(oldToken, newToken)
+      .then(() => {
+        assert.equal(cache.get.callCount, 1)
+        assert.equal(cache.add.callCount, 1)
+        assert.equal(log.warn.callCount, 1)
+        assert.equal(cache.del.callCount, 0)
+        assert.equal(log.error.callCount, 0)
+      })
+  })
+
+  it('metricsContext.propagate with get error', () => {
+    results.get = P.reject('wibble')
+    results.add = P.resolve()
+    const oldToken = {
+      uid: Array(64).fill('c').join(''),
+      id: 'foo'
+    }
+    const newToken = {
+      uid: Array(64).fill('d').join(''),
+      id: 'bar'
+    }
+    return metricsContext.propagate(oldToken, newToken)
+      .then(() => {
+        assert.equal(cache.get.callCount, 1)
+        assert.equal(log.error.callCount, 1)
+        assert.equal(cache.add.callCount, 0)
+        assert.equal(log.warn.callCount, 0)
+        assert.equal(cache.del.callCount, 0)
+      })
+  })
 
   it(
     'metricsContext.clear with token',

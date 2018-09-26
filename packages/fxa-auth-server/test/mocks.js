@@ -121,6 +121,7 @@ const MAILER_METHOD_NAMES = [
 const METRICS_CONTEXT_METHOD_NAMES = [
   'clear',
   'gather',
+  'propagate',
   'setFlowCompleteSignal',
   'stash',
   'validate'
@@ -566,10 +567,11 @@ function mockRequest (data, errors) {
     info: {
       received: data.received || Date.now() - 1
     },
-    path: data.path,
-    params: data.params || {},
     method: data.method || undefined,
+    params: data.params || {},
+    path: data.path,
     payload: data.payload || {},
+    propagateMetricsContext: metricsContext.propagate,
     query: data.query || {},
     setMetricsFlowCompleteSignal: metricsContext.setFlowCompleteSignal,
     stashMetricsContext: metricsContext.stash,
