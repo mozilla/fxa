@@ -40,7 +40,6 @@
     "grunt-copyright": "0.3.0",
     "grunt-eslint": "18.0.0",
     "grunt-nodemon": "0.4.2",
-    "grunt-nsp": "2.3.1",
     "grunt-todo": "0.5.0",
     "mocha": "3.1.0",
     "moment": "^2.19.1",
