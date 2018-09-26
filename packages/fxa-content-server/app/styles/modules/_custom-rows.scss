@@ -64,7 +64,14 @@
 
 .choose-what-to-sync-row,
 .checkbox-row {
-  text-align: left;
+  html[dir='ltr'] & {
+    text-align: left;
+  }
+
+  html[dir='rtl'] & {
+    text-align: right;
+  }
+
 }
 
 input[type='checkbox'] {
@@ -80,7 +87,7 @@ input[type='checkbox'] {
   cursor: pointer;
   display: inline-block;
   height: 18px;
-  margin-right: 4px;
+  margin-inline-start: 4px;
   padding: 0 !important;
   width: 18px;
 
