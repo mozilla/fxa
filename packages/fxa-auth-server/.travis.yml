@@ -49,5 +49,4 @@ script:
   # Test fxa-auth-mailer
   - grunt templates && git status -s | (! grep 'M lib/senders/templates/')
   - grunt l10n-extract
-  # HACK: ignore npm audit errors for now until we get them all fixed
-  - npm audit || true
+  - npm run lint:deps
