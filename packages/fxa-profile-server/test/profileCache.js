@@ -44,16 +44,19 @@ const imageData = fs.readFileSync(imagePath);
 const tok = token();
 const NAME = 'Fennec';
 const MOZILLA_EMAIL = 'user@mozilla.com';
+const PROFILE_CHANGED_AT = Date.now();
+const PROFILE_CHANGED_AT_LATER_TIME = PROFILE_CHANGED_AT + 1000;
 
-function mockTokens(uid, scope) {
+function mockTokens(uid, scope, profileChangedAt) {
   mock.token({
     user: uid,
     scope: scope || ['profile'],
+    profileChangedAt
   });
 }
 
-function makeProfileReq(uid, scope) {
-  mockTokens(uid, scope);
+function makeProfileReq(uid, scope, profileChangedAt) {
+  mockTokens(uid, scope, profileChangedAt);
   return Server.api.get({
     url: '/profile',
     headers: {
@@ -202,6 +205,41 @@ describe('profile cache', function() {
       .then((res) => {
         assert.ok(res.headers['last-modified']);
         assert.notEqual(res.headers['last-modified'], lastModified);
+        done();
+      });
+    });
+  });
+
+  it('should invalidate cache when auth-server profileChangedAt is greater than cached version', function (done) {
+    const userid = uid();
+    this.timeout(5000);
+    Server.server.initialize(() => {
+      let lastModified;
+      // first req, store last modified header
+      mock.profileChangedAt(MOZILLA_EMAIL, PROFILE_CHANGED_AT);
+      makeProfileReq(userid)
+      .then(res => {
+        assert.ok(res.headers['last-modified']);
+        lastModified = res.headers['last-modified'];
+        return P.delay(500);
+      })
+      .then(() => {
+        // second request verify cached result was returned
+        return makeProfileReq(userid);
+      })
+      .then(res => {
+        assert.ok(res.headers['last-modified']);
+        assert.equal(res.headers['last-modified'], lastModified);
+        return P.delay(500);
+      })
+      .then(() => {
+        // verify cache was invalidated due to profileChangedAt update
+        mock.profileChangedAt(MOZILLA_EMAIL, PROFILE_CHANGED_AT);
+        return makeProfileReq(userid, undefined, PROFILE_CHANGED_AT_LATER_TIME);
+      })
+      .then(res => {
+        assert.ok(res.headers['last-modified']);
+        assert.equal(res.headers['last-modified'] > lastModified, true, 'last-modified updated');
         done();
       });
     });
