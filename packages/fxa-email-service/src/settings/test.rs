@@ -559,3 +559,12 @@ fn invalid_sendgrid_api_key() {
         Err(error) => assert_eq!(error.description(), "configuration error"),
     }
 }
+
+#[test]
+fn empty_env_vars_are_ignored() {
+    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_PORT"]);
+
+    env::set_var("FXA_EMAIL_PORT", "");
+
+    assert!(Settings::new().is_ok());
+}
