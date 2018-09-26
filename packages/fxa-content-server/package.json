@@ -8,6 +8,7 @@
     "prepush": "npm run lint && grunt sasslint",
     "shrink": "npmshrink && scripts/tls-shrink.sh",
     "lint": "eslint app server tests --cache",
+    "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "start": "node scripts/check-local-config && grunt server",
     "start-circle": "CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt build && CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt serverproc:dist",
     "start-production": "NODE_ENV=production grunt build && CONFIG_FILES=server/config/local.json,server/config/production.json grunt serverproc:dist",
@@ -122,6 +123,7 @@
     "webrtc-adapter-test": "0.2.5"
   },
   "devDependencies": {
+    "audit-filter": "0.3.0",
     "babel-cli": "6.26.0",
     "babel-eslint": "8.2.1",
     "babel-plugin-dynamic-import-webpack": "1.0.2",
@@ -157,7 +159,8 @@
     "yargs": "10.0.3"
   },
   "engines": {
-    "node": ">=8"
+    "node": ">=8",
+    "npm": ">=6.4.1"
   },
   "readmeFilename": "README.md"
 }
