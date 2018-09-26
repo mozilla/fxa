@@ -4,6 +4,7 @@
   "description": "Firefox Accounts Basket Proxy Server",
   "scripts": {
     "start": "grunt server --node-env=dev",
+    "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "test": "NODE_ENV=test ./scripts/test-local.sh"
   },
   "repository": {
@@ -31,6 +32,7 @@
     "time-grunt": "1.4.0"
   },
   "devDependencies": {
+    "audit-filter": "^0.3.0",
     "eslint-plugin-fxa": "1.0.0",
     "fxa-conventional-changelog": "1.1.0",
     "grunt-bump": "0.8.0",

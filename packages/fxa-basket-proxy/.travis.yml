@@ -17,4 +17,5 @@ install:
 
 script:
   - npm test
-  - grunt nsp --force
+  - npm i npm@6
+  - npm run lint:deps
