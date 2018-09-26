@@ -248,6 +248,15 @@
       "resolved": "https://registry.npmjs.org/asynckit/-/asynckit-0.4.0.tgz",
       "integrity": "sha1-x57Zf380y48robyXkLzDZkdLS3k="
     },
+    "audit-filter": {
+      "version": "0.3.0",
+      "resolved": "https://registry.npmjs.org/audit-filter/-/audit-filter-0.3.0.tgz",
+      "integrity": "sha512-/JVgvA6bVj9D4Nw3ik6smcDTJFudUXGJApOlST3Lar17E1UjYYSSl9bc/ASZNg+2nJobqdQTZXsk21WrADtaew==",
+      "dev": true,
+      "requires": {
+        "docopt": "^0.6.2"
+      }
+    },
     "aws-sdk": {
       "version": "2.4.7",
       "resolved": "https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.4.7.tgz",
@@ -941,6 +950,12 @@
       "version": "3.3.1",
       "resolved": "https://registry.npmjs.org/diff/-/diff-3.3.1.tgz",
       "integrity": "sha512-MKPHZDMB0o6yHyDryUOScqZibp914ksXwAMYMTHj6KO8UeKsRYNJD3oNCKjTqZon+V488P7N/HzXF8t7ZR95ww==",
+      "dev": true
+    },
+    "docopt": {
+      "version": "0.6.2",
+      "resolved": "https://registry.npmjs.org/docopt/-/docopt-0.6.2.tgz",
+      "integrity": "sha1-so6eIiDaXsSffqW7JKR3h0Be6xE=",
       "dev": true
     },
     "doctrine": {
