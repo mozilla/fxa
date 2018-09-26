@@ -26,7 +26,7 @@ before_install:
   - npm config set spin false
 
 script:
-  - npm audit || true # logging only for now
+  - npm run-script lint:deps
   - npm run outdated
   - node_modules/.bin/grunt lint copyright || exit 1
   - node_modules/.bin/tap -R spec test/local test/remote
