@@ -11,12 +11,7 @@
  */
 import Base32 from './base32';
 import importFxaCryptoDeriver from './deriver';
-
-function required(object, name) {
-  if (! object) {
-    throw new Error(`Missing ${name}`);
-  }
-}
+import required from '../required';
 
 const RECOVERY_KEY_VERSION = 'A';
 const ENCRYPTION_ALGORITHM = 'A256GCM';

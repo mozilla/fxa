@@ -40,19 +40,19 @@ describe('lib/crypto/scoped-keys', () => {
 
     it('throws if no inputKey', () => {
       return ScopedKeys._deriveScopedKeys().then(assert.fail, (err) => {
-        assert.equal(err.message, 'Missing input key');
+        assert.equal(err.message, 'input key is required');
       });
     });
 
     it('throws if no uid', () => {
       return ScopedKeys._deriveScopedKeys(keys.kB).then(assert.fail, (err) => {
-        assert.equal(err.message, 'Missing uid');
+        assert.equal(err.message, 'uid is required');
       });
     });
 
     it('throws if no client data', () => {
       return ScopedKeys._deriveScopedKeys(keys.kB, uid).then(assert.fail, (err) => {
-        assert.equal(err.message, 'Missing key data');
+        assert.equal(err.message, 'key data is required');
       });
     });
   });

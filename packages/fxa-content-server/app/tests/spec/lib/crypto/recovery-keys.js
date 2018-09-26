@@ -55,14 +55,14 @@ describe('lib/crypto/recovery-keys', () => {
     it('throws if no uid', () => {
       return RecoveryKeys.getRecoveryJwk(undefined, recoveryKey)
         .then(assert.fail, (err) => {
-          assert.equal(err.message, 'Missing uid');
+          assert.equal(err.message, 'uid is required');
         });
     });
 
     it('throws if no recoveryKey', () => {
       return RecoveryKeys.getRecoveryJwk(uid, undefined)
         .then(assert.fail, (err) => {
-          assert.equal(err.message, 'Missing recoveryKey');
+          assert.equal(err.message, 'recoveryKey is required');
         });
     });
 
@@ -91,7 +91,7 @@ describe('lib/crypto/recovery-keys', () => {
     it('throws if no recoveryJwk', () => {
       return RecoveryKeys.bundleRecoveryData(undefined, recoveryData)
         .then(assert.fail, (err) => {
-          assert.equal(err.message, 'Missing recoveryJwk');
+          assert.equal(err.message, 'recoveryJwk is required');
         });
     });
 
@@ -119,14 +119,14 @@ describe('lib/crypto/recovery-keys', () => {
     it('throws if no recoveryJwk', () => {
       return RecoveryKeys.unbundleRecoveryData(undefined, recoveryBundle)
         .then(assert.fail, (err) => {
-          assert.equal(err.message, 'Missing recoveryJwk');
+          assert.equal(err.message, 'recoveryJwk is required');
         });
     });
 
     it('throws if no recoveryBundle', () => {
       return RecoveryKeys.unbundleRecoveryData(recoveryJwk, undefined)
         .then(assert.fail, (err) => {
-          assert.equal(err.message, 'Missing recoveryBundle');
+          assert.equal(err.message, 'recoveryBundle is required');
         });
     });
 

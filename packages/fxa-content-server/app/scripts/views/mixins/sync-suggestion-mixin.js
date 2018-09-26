@@ -10,80 +10,71 @@
  * which contains the HTML to display.
  */
 
-define(function(require, exports, module) {
-  'use strict';
+import Constants from '../../lib/constants';
+import FlowEventsMixin from './flow-events-mixin';
+import required from '../../lib/required';
+import SyncAuthMixin from './sync-auth-mixin';
+import SyncSuggestionTemplate from 'templates/partial/sync-suggestion.mustache';
 
-  const Constants = require('../../lib/constants');
-  const FlowEventsMixin = require('./flow-events-mixin');
-  const SyncAuthMixin = require('./sync-auth-mixin');
-  const SyncSuggestionTemplate = require('templates/partial/sync-suggestion.mustache');
+/**
+ * Create the mixin
+ *
+ * @param {Object} config
+ *   @param {String} config.entrypoint
+ *   @param {String} config.flowEvent
+ *   @param {String} config.pathname
+ * @returns {Function}
+ */
+module.exports = function (config) {
+  required(config.entrypoint, 'entrypoint');
+  required(config.flowEvent, 'flowEvent');
+  required(config.pathname, 'pathname');
 
-  function required (name, opts) {
-    if (! (name in opts)) {
-      throw new Error(`${name} is required`);
-    }
-  }
+  return {
+    dependsOn: [ FlowEventsMixin, SyncAuthMixin ],
 
-  /**
-   * Create the mixin
-   *
-   * @param {Object} config
-   *   @param {String} config.entrypoint
-   *   @param {String} config.flowEvent
-   *   @param {String} config.pathname
-   * @returns {Function}
-   */
-  module.exports = function (config) {
-    required('entrypoint', config);
-    required('flowEvent', config);
-    required('pathname', config);
-
-    return {
-      dependsOn: [ FlowEventsMixin, SyncAuthMixin ],
-
-      events: {
-        'click #suggest-sync .dismiss': 'onSuggestSyncDismiss'
-      },
+    events: {
+      'click #suggest-sync .dismiss': 'onSuggestSyncDismiss'
+    },
 
 
-      afterVisible () {
-        if (this.isSyncSuggestionEnabled()) {
-          this.logViewEvent('sync-suggest.visible');
-        }
-      },
+    afterVisible () {
+      if (this.isSyncSuggestionEnabled()) {
+        this.logViewEvent('sync-suggest.visible');
+      }
+    },
 
-      setInitialContext (context) {
-        let escapedSyncSuggestionUrl;
-        if (this.isSyncAuthSupported()) {
-          escapedSyncSuggestionUrl = this.getEscapedSyncUrl(config.pathname, config.entrypoint);
-        } else {
-          escapedSyncSuggestionUrl = encodeURI(Constants.MOZ_ORG_SYNC_GET_STARTED_LINK);
-        }
+    setInitialContext (context) {
+      let escapedSyncSuggestionUrl;
+      if (this.isSyncAuthSupported()) {
+        escapedSyncSuggestionUrl = this.getEscapedSyncUrl(config.pathname, config.entrypoint);
+      } else {
+        escapedSyncSuggestionUrl = encodeURI(Constants.MOZ_ORG_SYNC_GET_STARTED_LINK);
+      }
 
-        const escapedSyncSuggestionAttrs = `data-flow-event="${config.flowEvent}" href="${escapedSyncSuggestionUrl}"`;
+      const escapedSyncSuggestionAttrs = `data-flow-event="${config.flowEvent}" href="${escapedSyncSuggestionUrl}"`;
 
-        const syncSuggestionHTML = this.renderTemplate(SyncSuggestionTemplate, {
-          escapedSyncSuggestionAttrs,
-          showSyncSuggestion: this.isSyncSuggestionEnabled()
-        });
+      const syncSuggestionHTML = this.renderTemplate(SyncSuggestionTemplate, {
+        escapedSyncSuggestionAttrs,
+        showSyncSuggestion: this.isSyncSuggestionEnabled()
+      });
 
-        context.set({
-          syncSuggestionHTML
-        });
-      },
+      context.set({
+        syncSuggestionHTML
+      });
+    },
 
-      /**
+    /**
        * Is the Sync suggestion enabled for this integration?
        *
        * @returns {Boolean}
        */
-      isSyncSuggestionEnabled () {
-        return ! this.relier.get('service');
-      },
+    isSyncSuggestionEnabled () {
+      return ! this.relier.get('service');
+    },
 
-      onSuggestSyncDismiss () {
-        this.$('#suggest-sync').hide();
-      },
-    };
+    onSuggestSyncDismiss () {
+      this.$('#suggest-sync').hide();
+    },
   };
-});
+};
