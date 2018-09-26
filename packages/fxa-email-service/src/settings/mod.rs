@@ -383,7 +383,7 @@ impl Settings {
         config.set_default("env", "dev")?;
 
         config.merge(File::with_name("config/local").required(false))?;
-        let env = Environment::with_prefix("fxa_email");
+        let env = Environment::with_prefix("fxa_email").ignore_empty(true);
         config.merge(env.separator("_"))?;
 
         match config.try_into::<Settings>() {
