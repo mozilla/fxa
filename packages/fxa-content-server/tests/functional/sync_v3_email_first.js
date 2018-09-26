@@ -31,6 +31,7 @@ const {
   openVerificationLinkInNewTab,
   switchToWindow,
   testElementExists,
+  testElementTextEquals,
   testElementTextInclude,
   testElementValueEquals,
   testErrorTextInclude,
@@ -230,6 +231,23 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         .then(closeCurrentWindow())
 
         .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER));
+    },
+
+    'email specified by relier, invalid': function () {
+      const invalidEmail = 'invalid@';
+
+      return this.remote
+        .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+          query: {
+            email: invalidEmail
+          },
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true}
+          },
+        }))
+        .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, invalidEmail))
+        .then(testElementExists(selectors.ENTER_EMAIL.TOOLTIP))
+        .then(testElementTextEquals(selectors.ENTER_EMAIL.TOOLTIP, 'Valid email required'));
     },
 
     'email specified by relier, not registered': function () {

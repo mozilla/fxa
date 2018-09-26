@@ -19,7 +19,7 @@ import ResumeTokenMixin from '../mixins/resume-token';
 import UrlMixin from '../mixins/url';
 import Vat from '../../lib/vat';
 
-var RELIER_FIELDS_IN_RESUME_TOKEN = [
+const RELIER_FIELDS_IN_RESUME_TOKEN = [
   'entrypoint',
   'resetPasswordConfirm',
   'utmCampaign',
@@ -30,8 +30,9 @@ var RELIER_FIELDS_IN_RESUME_TOKEN = [
 ];
 
   /*eslint-disable camelcase*/
-var QUERY_PARAMETER_SCHEMA = {
-  email: Vat.email().allow(Constants.DISALLOW_CACHED_CREDENTIALS),
+const QUERY_PARAMETER_SCHEMA = {
+  action: Vat.action(),
+  // email is validated within fetch because it's handling depends on the action.
   // FxDesktop declares both `entryPoint` (capital P) and
   // `entrypoint` (lowcase p). Normalize to `entrypoint`.
   entryPoint: Vat.string(),
@@ -45,6 +46,14 @@ var QUERY_PARAMETER_SCHEMA = {
   utm_medium: Vat.string().renameTo('utmMedium'),
   utm_source: Vat.string().renameTo('utmSource'),
   utm_term: Vat.string().renameTo('utmTerm')
+};
+
+const EMAIL_FIRST_EMAIL_SCHEMA = {
+  email: Vat.string().min(1)
+};
+
+const SIGNIN_SIGNUP_EMAIL_SCHEMA = {
+  email: Vat.email().allow(Constants.DISALLOW_CACHED_CREDENTIALS)
 };
 
 var VERIFICATION_QUERY_PARAMETER_SCHEMA = _.extend({}, QUERY_PARAMETER_SCHEMA, {
@@ -81,9 +90,7 @@ var Relier = BaseRelier.extend({
   },
 
   initialize (attributes, options = {}) {
-    this._queryParameterSchema = options.isVerification ?
-      VERIFICATION_QUERY_PARAMETER_SCHEMA : QUERY_PARAMETER_SCHEMA;
-
+    this.isVerification = options.isVerification;
     this.sentryMetrics = options.sentryMetrics;
     this.window = options.window || window;
   },
@@ -113,7 +120,20 @@ var Relier = BaseRelier.extend({
       this.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
       // TODO - validate data coming from the resume token
 
-      this.importSearchParamsUsingSchema(this._queryParameterSchema, AuthErrors);
+
+      if (this.isVerification) {
+        this.importSearchParamsUsingSchema(VERIFICATION_QUERY_PARAMETER_SCHEMA, AuthErrors);
+      } else {
+        // Import using QUERY_PARAMETER_SCHEMA to get `action`, then decide how
+        // to handle the email.
+        this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
+        if (this.get('action') === 'email') {
+          this.importSearchParamsUsingSchema(EMAIL_FIRST_EMAIL_SCHEMA, AuthErrors);
+        } else {
+          this.importSearchParamsUsingSchema(SIGNIN_SIGNUP_EMAIL_SCHEMA, AuthErrors);
+        }
+      }
+
 
       // FxDesktop declares both `entryPoint` (capital P) and
       // `entrypoint` (lowcase p). Normalize to `entrypoint`.

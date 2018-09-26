@@ -35,8 +35,11 @@ class IndexView extends FormView {
 
   beforeRender () {
     const account = this.getAccount();
+    const relierEmail = this.relier.get('email');
     if (account) {
       this.formPrefill.set(account.pick('email'));
+    } else if (relierEmail) {
+      this.formPrefill.set('email', relierEmail);
     }
   }
 
@@ -68,7 +71,16 @@ class IndexView extends FormView {
       // intentionally empty
       // shows the email-first template, the prefill email was set in beforeRender
     } else if (relierEmail) {
-      return this.checkEmail(relierEmail);
+      // the relier email is in the form already since it was used as the prefillEmail
+      // in beforeRender. Check whether the email is valid, and if so submit. If the
+      // email is not valid then show a validation error to help the user. See #6584
+      if (this.isValid()) {
+        return this.checkEmail(relierEmail);
+      } else {
+        // the email was not valid, show any validation errors.
+        // The relier email set used as the prefill email in beforeRender.
+        this.showValidationErrors();
+      }
     } else if (this.allowSuggestedAccount(suggestedAccount)) {
       this.replaceCurrentPage('signin', {
         account: suggestedAccount

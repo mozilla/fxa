@@ -230,14 +230,6 @@ describe('models/reliers/oauth', () => {
         testInvalidQueryParams('access_type', invalidValues);
       });
 
-      describe('action', () => {
-        var validValues = [undefined, 'email', 'signin', 'signup', 'force_auth'];
-        testValidQueryParams('action', validValues, 'action', validValues);
-
-        var invalidValues = ['', ' ', 'invalid'];
-        testInvalidQueryParams('action', invalidValues);
-      });
-
       describe('login_hint', () => {
         var validValues = [undefined, 'test@example.com'];
         // login_hint is translated to email if no email is set.
