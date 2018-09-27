@@ -6900,6 +6900,12 @@
         "babel-core": "^6.0.12"
       }
     },
+    "grunt-ban-word": {
+      "version": "0.1.1",
+      "resolved": "https://registry.npmjs.org/grunt-ban-word/-/grunt-ban-word-0.1.1.tgz",
+      "integrity": "sha1-5E7cSwzBX9hp4b0VrEsSMuLtQlA=",
+      "dev": true
+    },
     "grunt-bump": {
       "version": "0.7.0",
       "resolved": "https://registry.npmjs.org/grunt-bump/-/grunt-bump-0.7.0.tgz",

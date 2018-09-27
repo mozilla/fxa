@@ -132,6 +132,7 @@
     "eslint-plugin-sorting": "git://github.com/shane-tomlinson/eslint-plugin-sorting.git#bcacb99d",
     "firefox-profile": "1.2.0",
     "fxa-conventional-changelog": "1.1.0",
+    "grunt-ban-word": "0.1.1",
     "grunt-bump": "0.7.0",
     "grunt-conventional-changelog": "6.1.0",
     "grunt-copyright": "0.3.0",

@@ -8,6 +8,7 @@ module.exports = function (grunt) {
 
   var SUBTASKS = [
     'eslint',
+    'word',
     'jsonlint:app',
     'sasslint'
   ];
