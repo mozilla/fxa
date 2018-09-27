@@ -98,8 +98,8 @@ A Cron job is provided in `lib/maxmind-db-downloader`, that can be configured an
   maxmindDbDownloader.setupAutoUpdate('30 30 1 * * 3', downloadPromiseFunctions);
 ```
 
-By default, the cron job runs every week on Wednesday at 01:30:30 (UTC -7) and updates the Geodata-DB from Maxmind. 
- 
+By default, the cron job runs every week on Wednesday at 01:30:30 (UTC -7) and updates the Geodata-DB from Maxmind.
+
 --
 
 ### Getting involved
@@ -113,9 +113,17 @@ Please review and understand the [Mozilla Community Participation Guidelines](ht
 ### Submitting bugs
 
 You can file issues here on GitHub. Please try to include as much information as you can and under what conditions you saw the issue.
- 
+
+--
+
+### Attribution
+
+This product includes GeoLite2 data created by MaxMind, available from
+<a href="http://www.maxmind.com">http://www.maxmind.com</a>.
+
 --
 
 ### License
 
 [MPL 2.0](LICENSE)
+
