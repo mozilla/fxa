@@ -42,11 +42,11 @@ describe('fxa-geodb', () => {
 
     assert.equal(location.country, 'United States', 'Country returned correctly');
     assert.equal(location.countryCode, 'US', 'Country code returned correctly');
-    assert.equal(location.city, 'Mountain View', 'City returned correctly');
+    assert.equal(location.city, 'Oakland', 'City returned correctly');
     assert.equal(location.continent, 'North America', 'Continent returned correctly');
     assert.deepEqual(location.latLong, {
-      latitude: 37.3885,
-      longitude: -122.0741
+      latitude: 37.7791,
+      longitude: -122.2158
     }, 'LatLong returned correctly');
     assert.equal(location.timeZone, 'America/Los_Angeles', 'Timezone returned correctly');
   });
