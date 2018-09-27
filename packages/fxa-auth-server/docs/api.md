@@ -812,6 +812,12 @@ The `profile` scope includes all the above sub-scopes.
   
   <!--end-response-body-get-accountprofile-authenticatorAssuranceLevel-->
 
+* `profileChangedAt`: *number, min(0)*
+
+  <!--begin-response-body-get-accountprofile-profileChangedAt-->
+  
+  <!--end-response-body-get-accountprofile-profileChangedAt-->
+
 
 #### GET /account/keys
 

@@ -820,13 +820,14 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
             email: isA.string().optional(),
             locale: isA.string().optional().allow(null),
             authenticationMethods: isA.array().items(isA.string().required()).optional(),
-            authenticatorAssuranceLevel: isA.number().min(0)
+            authenticatorAssuranceLevel: isA.number().min(0),
+            profileChangedAt: isA.number().min(0)
           }
         }
       },
       handler: async function (request) {
         const auth = request.auth
-        let uid, scope
+        let uid, scope, account
         if (auth.strategy === 'sessionToken') {
           uid = auth.credentials.uid
           scope = { contains: () => true }
@@ -837,7 +838,8 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
 
         const res = {}
         return db.account(uid)
-          .then(account => {
+          .then(result => {
+            account = result
             if (scope.contains('profile:email')) {
               res.email = account.primaryEmail.email
             }
@@ -853,6 +855,12 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
             }
           })
           .then(() => {
+            // If no keys set on the response, there was no valid profile scope found. We only
+            // want to return `profileChangedAt` if a valid scope was found and set.
+            if (Object.keys(res).length !== 0) {
+              res.profileChangedAt = account.profileChangedAt
+            }
+
             return res
           })
       }
