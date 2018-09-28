@@ -433,6 +433,14 @@ module.exports = function (
 
         request.validateMetricsContext()
 
+        let flowCompleteSignal
+        if (requestHelper.wantsKeys(request)) {
+          flowCompleteSignal = 'account.signed'
+        } else {
+          flowCompleteSignal = 'account.reset'
+        }
+        request.setMetricsFlowCompleteSignal(flowCompleteSignal)
+
         // Store flowId and flowBeginTime to send in email
         let flowId, flowBeginTime
         if (request.payload.metricsContext) {
@@ -440,78 +448,66 @@ module.exports = function (
           flowBeginTime = request.payload.metricsContext.flowBeginTime
         }
 
+        let passwordForgotToken
+
         return P.all([
           request.emitMetricsEvent('password.forgot.send_code.start'),
           customs.check(request, email, 'passwordForgotSendCode')
         ])
           .then(db.accountRecord.bind(db, email))
-          .then(
-            function (accountRecord) {
-              if (accountRecord.primaryEmail.normalizedEmail !== email.toLowerCase()) {
-                throw error.cannotResetPasswordWithSecondaryEmail()
-              }
-              // The token constructor sets createdAt from its argument.
-              // Clobber the timestamp to prevent prematurely expired tokens.
-              accountRecord.createdAt = undefined
-              return db.createPasswordForgotToken(accountRecord)
+          .then(accountRecord => {
+            if (accountRecord.primaryEmail.normalizedEmail !== email.toLowerCase()) {
+              throw error.cannotResetPasswordWithSecondaryEmail()
             }
-          )
-          .then(
-            function (passwordForgotToken) {
-              return db.accountEmails(passwordForgotToken.uid)
-                .then(emails => {
-                  const geoData = request.app.geo
-                  const {
-                    browser: uaBrowser,
-                    browserVersion: uaBrowserVersion,
-                    os: uaOS,
-                    osVersion: uaOSVersion,
-                    deviceType: uaDeviceType
-                  } = request.app.ua
+            // The token constructor sets createdAt from its argument.
+            // Clobber the timestamp to prevent prematurely expired tokens.
+            accountRecord.createdAt = undefined
+            return db.createPasswordForgotToken(accountRecord)
+          })
+          .then(result => {
+            passwordForgotToken = result
+            return P.all([
+              request.stashMetricsContext(passwordForgotToken),
+              db.accountEmails(passwordForgotToken.uid)
+            ])
+          })
+          .then(([_, emails]) => {
+            const geoData = request.app.geo
+            const {
+              browser: uaBrowser,
+              browserVersion: uaBrowserVersion,
+              os: uaOS,
+              osVersion: uaOSVersion,
+              deviceType: uaDeviceType
+            } = request.app.ua
 
-                  return mailer.sendRecoveryCode(emails, passwordForgotToken, {
-                    token: passwordForgotToken,
-                    code: passwordForgotToken.passCode,
-                    service: service,
-                    redirectTo: request.payload.redirectTo,
-                    resume: request.payload.resume,
-                    acceptLanguage: request.app.acceptLanguage,
-                    flowId: flowId,
-                    flowBeginTime: flowBeginTime,
-                    ip: ip,
-                    location: geoData.location,
-                    timeZone: geoData.timeZone,
-                    uaBrowser,
-                    uaBrowserVersion,
-                    uaOS,
-                    uaOSVersion,
-                    uaDeviceType,
-                    uid: passwordForgotToken.uid
-                  })
-                })
-                .then(
-                  function () {
-                    return request.emitMetricsEvent('password.forgot.send_code.completed')
-                  }
-                )
-                .then(
-                  function () {
-                    return passwordForgotToken
-                  }
-                )
-            }
-          )
-          .then(
-            function (passwordForgotToken) {
-              return {
-                passwordForgotToken: passwordForgotToken.data,
-                ttl: passwordForgotToken.ttl(),
-                codeLength: passwordForgotToken.passCode.length,
-                tries: passwordForgotToken.tries
-              }
-            },
-
-          )
+            return mailer.sendRecoveryCode(emails, passwordForgotToken, {
+              token: passwordForgotToken,
+              code: passwordForgotToken.passCode,
+              service: service,
+              redirectTo: request.payload.redirectTo,
+              resume: request.payload.resume,
+              acceptLanguage: request.app.acceptLanguage,
+              flowId: flowId,
+              flowBeginTime: flowBeginTime,
+              ip: ip,
+              location: geoData.location,
+              timeZone: geoData.timeZone,
+              uaBrowser,
+              uaBrowserVersion,
+              uaOS,
+              uaOSVersion,
+              uaDeviceType,
+              uid: passwordForgotToken.uid
+            })
+          })
+          .then(() => request.emitMetricsEvent('password.forgot.send_code.completed'))
+          .then(() => ({
+            passwordForgotToken: passwordForgotToken.data,
+            ttl: passwordForgotToken.ttl(),
+            codeLength: passwordForgotToken.passCode.length,
+            tries: passwordForgotToken.tries
+          }))
       }
     },
     {
@@ -577,13 +573,13 @@ module.exports = function (
                   return mailer.sendRecoveryCode(emails, passwordForgotToken, {
                     code: passwordForgotToken.passCode,
                     token: passwordForgotToken,
-                    service: service,
+                    service,
                     redirectTo: request.payload.redirectTo,
                     resume: request.payload.resume,
                     acceptLanguage: request.app.acceptLanguage,
-                    flowId: flowId,
-                    flowBeginTime: flowBeginTime,
-                    ip: ip,
+                    flowId,
+                    flowBeginTime,
+                    ip,
                     location: geoData.location,
                     timeZone: geoData.timeZone,
                     uaBrowser,
@@ -648,72 +644,56 @@ module.exports = function (
           flowBeginTime = request.payload.metricsContext.flowBeginTime
         }
 
+        let accountResetToken
+
         return P.all([
           request.emitMetricsEvent('password.forgot.verify_code.start'),
           customs.check(request, passwordForgotToken.email, 'passwordForgotVerifyCode')
         ])
-          .then(
-            function () {
-              if (butil.buffersAreEqual(passwordForgotToken.passCode, code) &&
-                  passwordForgotToken.ttl() > 0) {
-                return db.forgotPasswordVerified(passwordForgotToken)
-                  .then(
-                    function (accountResetToken) {
-                      return db.accountEmails(passwordForgotToken.uid)
-                        .then((emails) => {
-
-                          if (accountResetWithRecoveryKey) {
-                            // To prevent multiple password change emails being sent to a user,
-                            // we check for a flag to see if this is a reset using an account recovery key.
-                            // If it is, then the notification email will be sent in `/account/reset`
-                            return P.resolve()
-                          }
-
-                          return mailer.sendPasswordResetNotification(
-                            emails,
-                            passwordForgotToken,
-                            {
-                              code: code,
-                              acceptLanguage: request.app.acceptLanguage,
-                              flowId: flowId,
-                              flowBeginTime: flowBeginTime,
-                              uid: passwordForgotToken.uid
-                            }
-                          )
-                        })
-                        .then(
-                          function () {
-                            return request.emitMetricsEvent('password.forgot.verify_code.completed')
-                          }
-                        )
-                        .then(
-                          function () {
-                            return accountResetToken
-                          }
-                        )
-                    }
-                  )
-                  .then(
-                    function (accountResetToken) {
-                      return {
-                          accountResetToken: accountResetToken.data
-                        }
-                    }
-                  )
-              }
-              else {
-                return failVerifyAttempt(passwordForgotToken)
-                  .then(
-                    function () {
-                      throw error.invalidVerificationCode({
-                        tries: passwordForgotToken.tries,
-                        ttl: passwordForgotToken.ttl()
-                      })
-                    }
-                  )
-              }
+          .then(() => {
+            if (butil.buffersAreEqual(passwordForgotToken.passCode, code) && passwordForgotToken.ttl() > 0) {
+              return db.forgotPasswordVerified(passwordForgotToken)
             }
-          )
+
+            return failVerifyAttempt(passwordForgotToken)
+              .then(() => {
+                throw error.invalidVerificationCode({
+                  tries: passwordForgotToken.tries,
+                  ttl: passwordForgotToken.ttl()
+                })
+              })
+          })
+          .then(result => {
+            accountResetToken = result
+            return P.all([
+              request.propagateMetricsContext(passwordForgotToken, accountResetToken),
+              db.accountEmails(passwordForgotToken.uid)
+            ])
+          })
+          .then(([_, emails]) => {
+            if (accountResetWithRecoveryKey) {
+              // To prevent multiple password change emails being sent to a user,
+              // we check for a flag to see if this is a reset using an account recovery key.
+              // If it is, then the notification email will be sent in `/account/reset`
+              return P.resolve()
+            }
+
+            return mailer.sendPasswordResetNotification(
+              emails,
+              passwordForgotToken,
+              {
+                code,
+                acceptLanguage: request.app.acceptLanguage,
+                flowId,
+                flowBeginTime,
+                uid: passwordForgotToken.uid
+              }
+            )
+          })
+          .then(() => request.emitMetricsEvent('password.forgot.verify_code.completed'))
+          .then(() => ({
+            accountResetToken: accountResetToken.data
+          }))
       }
     },
     {
