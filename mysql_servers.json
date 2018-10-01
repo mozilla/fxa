@@ -151,7 +151,8 @@
       "cwd": "browserid-verifier",
       "env": {
         "PORT": "5050",
-        "IP_ADDRESS": "0.0.0.0"
+        "IP_ADDRESS": "0.0.0.0",
+        "FORCE_INSECURE_LOOKUP_OVER_HTTP": "true"
       },
       "max_restarts": "1",
       "min_uptime": "2m"
@@ -184,6 +185,23 @@
       "max_restarts": "1",
       "min_uptime": "2m",
       "autorestart": false
+    },
+    {
+      "name": "email-service PORT 8001",
+      "script": "scripts/run_send.sh",
+      "cwd": "fxa-email-service",
+      "env": {
+        "NODE_ENV": "dev"
+      },
+      "max_restarts": "1",
+      "min_uptime": "2m"
+    },
+    {
+      "name": "pushbox PORT 8002",
+      "script": "_scripts/pushbox.sh",
+      "max_restarts": "1",
+      "min_uptime": "2m",
+      "args": "3306 root@mydb:3306"
     }
   ]
 }

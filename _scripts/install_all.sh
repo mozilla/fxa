@@ -53,14 +53,16 @@ cd fxa-basket-proxy; npm i; cd ..
 
 cd 123done; npm i; cd ..
 
+docker network create fxa-net || true
+
 docker pull memcached
 
 docker pull mozilla/syncserver
 
+docker pull mozilla/pushbox
+
 docker pull pafortin/goaws
 
 docker pull redis
-
-docker pull mysql/mysql-server:5.6
 
 ln -sf node_modules/.bin/pm2 pm2

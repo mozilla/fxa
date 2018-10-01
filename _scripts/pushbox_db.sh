@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/sh -ex
 
 # This docker image doesn't react to SIGINTs (Ctrl+C) which is used by
 # pm2 to kill processes.
@@ -7,20 +7,20 @@
 # the script running.
 
 function on_singint() {
-  echo "MySQL shutting down."
-  docker stop mydb
+  echo "Pushbox DB shutting down."
+  docker stop pushbox_db
   exit 0
 }
 
 trap on_singint INT
 
-# Create pushbox db on start (because pushbox doesn't create it)
-docker run --rm --name=mydb \
+docker run --rm --name pushbox_db \
   --network fxa-net \
-  -e MYSQL_ALLOW_EMPTY_PASSWORD=true \
-  -e MYSQL_ROOT_HOST=% \
+  -p 4306:3306 \
+  -e MYSQL_ROOT_PASSWORD=random \
   -e MYSQL_DATABASE=pushbox \
-  -p 3306:3306 \
+  -e MYSQL_USER=test \
+  -e MYSQL_PASSWORD=test \
   mysql/mysql-server:5.6 &
 
 while :; do read; done

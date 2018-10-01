@@ -52,6 +52,15 @@ servers.apps.forEach((app) => {
     app.script = '_scripts/profile_mysql.sh';
   }
 
+  if(app.script === '_scripts/pushbox_db.sh') {
+    // Because we piggyback on the existing MySQL db.
+    return;
+  }
+
+  if(app.script === '_scripts/pushbox.sh') {
+    app.args = '3306 root@mydb:3306';
+  }
+
   newServers.push(app);
 });
 
