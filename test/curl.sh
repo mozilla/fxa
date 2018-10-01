@@ -89,7 +89,7 @@ check 127.0.0.1:5050 405
 
 # sync server
 # address of the endpoint have to be the same as a public_url in settings
-check localhost:5000
+check 127.0.0.1:5000
 
 # auth-db
 check localhost:8000

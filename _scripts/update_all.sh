@@ -22,5 +22,7 @@ git pull https://github.com/mozilla/fxa-local-dev.git master
 docker network create fxa-net || true # Don't error out in case the network already exists
 
 (cd 123done && git checkout -- . && git checkout oauth && git pull origin oauth && npm i && cd ..) || echo "123done update failed"
+
 docker pull mozilla/syncserver || echo "syncserver update failed"
 
+docker pull mozilla/channelserver || echo "channelserver update failed"

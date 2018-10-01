@@ -186,6 +186,12 @@
       "script": "_scripts/pushbox.sh",
       "max_restarts": "1",
       "min_uptime": "2m"
+    },
+    {
+      "name": "pairing channelserver PORT 8058",
+      "script": "_scripts/channelserver.sh",
+      "max_restarts": "1",
+      "min_uptime": "2m"
     }
   ]
 }

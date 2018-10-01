@@ -65,4 +65,8 @@ docker pull pafortin/goaws
 
 docker pull redis
 
+docker pull mysql/mysql-server:5.6
+
+docker pull mozilla/channelserver
+
 ln -sf node_modules/.bin/pm2 pm2
