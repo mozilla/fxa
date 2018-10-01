@@ -184,7 +184,33 @@ describe('lib/senders/sms:', () => {
           assert.equal(args.length, 1)
           assert.deepEqual(args[0], {
             op: 'sms.budget.error',
-            err: 'Invalid getMetricStatistics result "wibble"'
+            err: 'Invalid getMetricStatistics result "wibble"',
+            result: undefined
+          })
+        })
+      })
+    })
+
+    describe('unexpected response:', () => {
+      beforeEach(() => {
+        results.getMetricStatistics.Datapoints = []
+      })
+
+      describe('wait a tick:', () => {
+        beforeEach(done => setImmediate(done))
+
+        it('isBudgetOk returns true', () => {
+          assert.strictEqual(sms.isBudgetOk(), true)
+        })
+
+        it('called log.error correctly', () => {
+          assert.equal(log.error.callCount, 1)
+          const args = log.error.args[0]
+          assert.equal(args.length, 1)
+          assert.deepEqual(args[0], {
+            op: 'sms.budget.error',
+            err: 'Cannot read property \'Maximum\' of undefined',
+            result: JSON.stringify(results.getMetricStatistics)
           })
         })
       })
