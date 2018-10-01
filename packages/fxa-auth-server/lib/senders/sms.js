@@ -107,7 +107,14 @@ module.exports = (log, translator, templates, config) => {
         }).promise()
       })
       .then(result => {
-        const current = parseFloat(result.Datapoints[0].Maximum)
+        let current
+
+        try {
+          current = parseFloat(result.Datapoints[0].Maximum)
+        } catch (err) {
+          err.result = JSON.stringify(result)
+          throw err
+        }
 
         if (isNaN(current)) {
           throw new Error(`Invalid getMetricStatistics result "${result.Datapoints[0].Maximum}"`)
@@ -117,7 +124,7 @@ module.exports = (log, translator, templates, config) => {
         log.info({ op: 'sms.budget.ok', isBudgetOk, current, limit, threshold: CREDIT_THRESHOLD })
       })
       .catch(err => {
-        log.error({ op: 'sms.budget.error', err: err.message })
+        log.error({ op: 'sms.budget.error', err: err.message, result: err.result })
 
         // If we failed to query the data, assume current spend is fine
         isBudgetOk = true
