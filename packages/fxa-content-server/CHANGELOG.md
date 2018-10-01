@@ -1,3 +1,13 @@
+<a name="1.121.1"></a>
+## [1.121.1](https://github.com/mozilla/fxa-content-server/compare/v1.121.0...v1.121.1) (2018-10-01)
+
+
+### chore
+
+* **recovery:** roll back recoveryKey experiment to 0 percent ([b86ab5b](https://github.com/mozilla/fxa-content-server/commit/b86ab5b))
+
+
+
 <a name="1.121.0"></a>
 # [1.121.0](https://github.com/mozilla/fxa-content-server/compare/v1.120.3...v1.121.0) (2018-09-18)
 
