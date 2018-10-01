@@ -434,6 +434,11 @@ const conf = module.exports = convict({
           redirectUris: [
             'https://lockbox.firefox.com/fxa/ios-redirect.html'
           ]
+        },
+        'https://identity.mozilla.com/apps/send': {
+          redirectUris: [
+            'https://send2.dev.lcip.org/oauth'
+          ]
         }
       },
       doc: 'Validates redirect uris for requested scopes',
