@@ -126,6 +126,18 @@ describe('models/reliers/relier', function () {
     });
   });
 
+  [undefined, 'email', 'signin', 'signup', 'force_auth'].forEach((action) => {
+    describe(`valid action: ${action}`, () => {
+      testValidQueryParam('action', action, 'action', action);
+    });
+  });
+
+  ['', ' ', 'invalid'].forEach((action) => {
+    describe(`invalid action: ${action}`, () => {
+      testInvalidQueryParam('action', action);
+    });
+  });
+
   describe('email non-verification flow', function () {
     beforeEach(function () {
       relier.set('isVerification', false);
@@ -137,6 +149,16 @@ describe('models/reliers/relier', function () {
 
     ['testuser@testuser.com', 'testuser@testuser.co.uk'].forEach(function (value) {
       testValidQueryParam('email', value, 'email', value);
+    });
+  });
+
+  describe('email first flow', () => {
+    ['', ' '].forEach(function (email) {
+      testInvalidQueryParam('email', email);
+    });
+
+    ['invalid email', 'testuser@testuser.com', 'testuser@testuser.co.uk'].forEach((value) => {
+      testValidQueryParam('email', value, 'email', value.trim(), { action: 'email' });
     });
   });
 
@@ -308,10 +330,8 @@ describe('models/reliers/relier', function () {
     });
   }
 
-  function testValidQueryParam(paramName, paramValue, modelName, expectedValue) {
+  function testValidQueryParam(paramName, paramValue, modelName, expectedValue, params = {}) {
     it('valid query param succeeds (' + paramName + ':' + paramValue + ')', function () {
-      var params = {};
-
       if (! _.isUndefined(paramValue)) {
         params[paramName] = paramValue;
       } else {

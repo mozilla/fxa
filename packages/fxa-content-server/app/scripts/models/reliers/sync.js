@@ -16,7 +16,6 @@ const t = (msg) => msg;
 
 /*eslint-disable camelcase*/
 const QUERY_PARAMETER_SCHEMA = {
-  action: Vat.action(),
   // context is not available when verifying.
   context: Vat.string().min(1),
   country: Vat.string().valid(...AllowedCountries),

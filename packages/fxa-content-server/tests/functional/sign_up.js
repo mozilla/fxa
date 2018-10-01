@@ -65,7 +65,7 @@ function signUpWithExistingAccount (context, email, firstPassword, secondPasswor
 registerSuite('signup', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
-    return this.remote.then(clearBrowserState());
+    return this.remote.then(clearBrowserState({ force: true }));
   },
 
   afterEach: function () {

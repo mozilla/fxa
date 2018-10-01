@@ -27,6 +27,7 @@ const {
   openVerificationLinkInSameTab,
   reOpenWithAdditionalQueryParams,
   testElementExists,
+  testElementTextEquals,
   testElementValueEquals,
   thenify,
   type,
@@ -117,6 +118,17 @@ registerSuite('oauth email first', {
         .then(openVerificationLinkInSameTab(email, 1))
 
         .then(testAtOAuthApp());
+    },
+
+    'email specified by relier, invalid': function () {
+      const invalidEmail = 'invalid@';
+
+      return this.remote
+        .then(openFxaFromRp('email-first', { header: selectors.ENTER_EMAIL.HEADER }))
+        .then(reOpenWithAdditionalQueryParams({ email: invalidEmail }, selectors.ENTER_EMAIL.HEADER ))
+        .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, invalidEmail))
+        .then(testElementExists(selectors.ENTER_EMAIL.TOOLTIP))
+        .then(testElementTextEquals(selectors.ENTER_EMAIL.TOOLTIP, 'Valid email required'));
     },
 
     'email specified by relier, not registered': function () {
