@@ -49,6 +49,13 @@ describe('lib/crypto/recovery-keys', () => {
       return RecoveryKeys.generateRecoveryKey(1000)
         .then((key) => assert.lengthOf(key, 1000));
     });
+
+    it('should fail for length less than 27', () => {
+      return RecoveryKeys.generateRecoveryKey(26)
+        .then(assert.fail, (err) => {
+          assert.equal(err.message, 'Recovery key length must be at least 27');
+        });
+    });
   });
 
   describe('getRecoveryJwk', () => {
@@ -138,7 +145,7 @@ describe('lib/crypto/recovery-keys', () => {
     });
 
     it('should fail to unbundle with incorrect recovery key', () => {
-      const recoveryKey = 'ABCD456';
+      const recoveryKey = '00000000000000000000000000';
       return RecoveryKeys.getRecoveryJwk(uid, recoveryKey)
         .then((recoveryJwk) => {
           return RecoveryKeys.unbundleRecoveryData(recoveryJwk, recoveryBundle);

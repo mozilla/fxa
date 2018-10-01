@@ -38,9 +38,15 @@ module.exports = {
    * @returns {Promise<string>} recovery key
    */
   generateRecoveryKey: function (length = 32) {
-    return Base32.generate(length - 1)
-      .then((key) => {
-        return getRecoveryKeyVersion() + key;
+    return Promise.resolve()
+      .then(() => {
+        if (length < 27) {
+          throw new Error('Recovery key length must be at least 27');
+        }
+        return Base32.generate(length - 1)
+          .then((key) => {
+            return getRecoveryKeyVersion() + key;
+          });
       });
   },
 
