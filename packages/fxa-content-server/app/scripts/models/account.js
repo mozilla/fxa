@@ -870,9 +870,10 @@ const Account = Backbone.Model.extend({
      * @param {String} token - email verification token
      * @param {String} code - email verification code
      * @param {Object} relier - relier being signed in to.
+     * @param {String} emailToHashWith - use this email to hash password with.
      * @returns {Promise} - resolves when complete
      */
-  completePasswordReset (password, token, code, relier) {
+  completePasswordReset (password, token, code, relier, emailToHashWith) {
     return this._fxaClient.completePasswordReset(
       this.get('email'),
       password,
@@ -880,7 +881,8 @@ const Account = Backbone.Model.extend({
       code,
       relier,
       {
-        metricsContext: this._metrics.getFlowEventMetadata()
+        emailToHashWith,
+        metricsContext: this._metrics.getFlowEventMetadata(),
       }
     ).then(this.set.bind(this));
   },
@@ -1444,9 +1446,10 @@ const Account = Backbone.Model.extend({
      * @param {String} recoveryKeyId - recoveryKeyId that maps to recovery key
      * @param {String} kB - original kB
      * @param {Object} relier - relier being signed in to.
+     * @param {String} emailToHashWith - has password with this email address
      * @returns {Promise} resolves with response when complete.
      */
-  resetPasswordWithRecoveryKey(accountResetToken, password, recoveryKeyId, kB, relier) {
+  resetPasswordWithRecoveryKey(accountResetToken, password, recoveryKeyId, kB, relier, emailToHashWith) {
     return this._fxaClient.resetPasswordWithRecoveryKey(
       accountResetToken,
       this.get('email'),
@@ -1455,6 +1458,7 @@ const Account = Backbone.Model.extend({
       kB,
       relier,
       {
+        emailToHashWith,
         metricsContext: this._metrics.getFlowEventMetadata()
       })
       .then(this.set.bind(this));

@@ -146,7 +146,7 @@ registerSuite('settings change email', {
 
     'can change primary email, change password, login, change email and login': function () {
       return this.remote
-        // change password
+      // change password
         .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
         .then(fillOutChangePassword(PASSWORD, NEW_PASSWORD))
 
@@ -157,6 +157,47 @@ registerSuite('settings change email', {
         .then(visibleByQSA(selectors.SIGNIN.TOOLTIP))
 
         // sign in with new password
+        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+        .then(fillOutSignIn(secondaryEmail, NEW_PASSWORD))
+        .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, secondaryEmail))
+
+        // set primary email to original email
+        .then(click(selectors.EMAIL.MENU_BUTTON))
+        .then(testElementTextEquals(selectors.EMAIL.ADDRESS_LABEL, email))
+        .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
+        .then(click(selectors.EMAIL.SET_PRIMARY_EMAIL_BUTTON))
+
+        // sign out and login with new password
+        .then(click(selectors.SETTINGS.SIGNOUT))
+        .then(testElementExists(selectors.SIGNIN.HEADER))
+        .then(fillOutSignIn(email, NEW_PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER));
+    },
+
+    'can change primary email, reset password, login, change email and login': function () {
+      return this.remote
+        .then(click(selectors.SETTINGS.SIGNOUT))
+        .then(testElementExists(selectors.SIGNIN.HEADER))
+
+        .then(click(selectors.CHANGE_PASSWORD.LINK_RESET_PASSWORD))
+
+        .then(fillOutResetPassword(secondaryEmail))
+        .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
+
+        // user browses to another site.
+        .then(openVerificationLinkInNewTab(secondaryEmail, 2))
+
+        .then(switchToWindow(1))
+
+        .then(fillOutCompleteResetPassword(NEW_PASSWORD, NEW_PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
+        .then(testSuccessWasShown())
+
+        // switch to the original window
+        .then(closeCurrentWindow())
+
+        // sign in with new password
+        .then(click(selectors.SETTINGS.SIGNOUT))
         .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
         .then(fillOutSignIn(secondaryEmail, NEW_PASSWORD))
         .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, secondaryEmail))

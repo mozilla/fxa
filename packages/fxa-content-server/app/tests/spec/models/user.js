@@ -1152,7 +1152,7 @@ define(function (require, exports, module) {
         sinon.spy(notifier, 'triggerRemote');
 
         return user.completeAccountPasswordReset(
-          account, 'password', 'token', 'code', relierMock);
+          account, 'password', 'token', 'code', relierMock, EMAIL);
       });
 
       it('delegates to the account', function () {
@@ -1160,7 +1160,8 @@ define(function (require, exports, module) {
           'password',
           'token',
           'code',
-          relierMock
+          relierMock,
+          EMAIL
         ));
       });
 
@@ -1169,6 +1170,47 @@ define(function (require, exports, module) {
       });
 
       it('notifies remote listeners', function () {
+        testRemoteSignInMessageSent(account);
+      });
+    });
+
+    describe('completeAccountPasswordResetWithRecoveryKey', () => {
+      let account;
+      const relierMock = {};
+      const recoveryKeyId = 'recoveryKeyId';
+      const kB = 'kB';
+
+      beforeEach(() => {
+        account = user.initAccount({
+          email: EMAIL,
+          sessionToken: 'sessionToken',
+          sessionTokenContext: 'sessionTokenContext',
+          uid: createUid()
+        });
+
+        sinon.stub(account, 'resetPasswordWithRecoveryKey').callsFake(() => Promise.resolve());
+        sinon.stub(user, 'setSignedInAccount').callsFake((account) => Promise.resolve(account));
+        sinon.spy(notifier, 'triggerRemote');
+
+        return user.completeAccountPasswordResetWithRecoveryKey(account, 'password', 'token', recoveryKeyId, kB, relierMock, EMAIL);
+      });
+
+      it('delegates to the account', () => {
+        assert.isTrue(account.resetPasswordWithRecoveryKey.calledWith(
+          'token',
+          'password',
+          recoveryKeyId,
+          kB,
+          relierMock,
+          EMAIL
+        ));
+      });
+
+      it('saves the updated account data', () => {
+        assert.isTrue(user.setSignedInAccount.calledWith(account));
+      });
+
+      it('notifies remote listeners', () => {
         testRemoteSignInMessageSent(account);
       });
     });

@@ -615,10 +615,11 @@ define(function (require, exports, module) {
      * @param {String} token - email verification token
      * @param {String} code - email verification code
      * @param {Object} relier - relier being signed in to
+     * @param {String} emailToHashWith - use this email to hash password with
      * @returns {Promise} - resolves when complete
      */
-    completeAccountPasswordReset (account, password, token, code, relier) {
-      return account.completePasswordReset(password, token, code, relier)
+    completeAccountPasswordReset (account, password, token, code, relier, emailToHashWith) {
+      return account.completePasswordReset(password, token, code, relier, emailToHashWith)
         .then(() => {
           this._notifyOfAccountSignIn(account);
           return this.setSignedInAccount(account);
@@ -635,10 +636,11 @@ define(function (require, exports, module) {
      * @param {String} recoveryKeyId - recoveryKeyId that maps to recovery code
      * @param {String} kB - original kB
      * @param {Object} relier - relier being signed in to
+     * @param {String} emailToHashWith - hash password with this email
      * @returns {Promise} - resolves when complete
      */
-    completeAccountPasswordResetWithRecoveryKey (account, password, accountResetToken, recoveryKeyId, kB, relier) {
-      return account.resetPasswordWithRecoveryKey(accountResetToken, password, recoveryKeyId, kB, relier)
+    completeAccountPasswordResetWithRecoveryKey (account, password, accountResetToken, recoveryKeyId, kB, relier, emailToHashWith) {
+      return account.resetPasswordWithRecoveryKey(accountResetToken, password, recoveryKeyId, kB, relier, emailToHashWith)
         .then(() => {
           this._notifyOfAccountSignIn(account);
           return this.setSignedInAccount(account);
