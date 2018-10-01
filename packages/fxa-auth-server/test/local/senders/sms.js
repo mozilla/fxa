@@ -105,6 +105,7 @@ describe('lib/senders/sms:', () => {
       })
 
       it('called cloudwatch.getMetricStatistics correctly', () => {
+        const PERIOD_IN_MINUTES = 5 // matches setting in ../../../lib/senders/sms.js
         assert.equal(cloudwatch.getMetricStatistics.callCount, 1)
         const args = cloudwatch.getMetricStatistics.args[0]
         assert.equal(args.length, 1)
@@ -112,9 +113,9 @@ describe('lib/senders/sms:', () => {
         assert.equal(args[0].MetricName, 'SMSMonthToDateSpentUSD')
         assert(ISO_8601_FORMAT.test(args[0].StartTime))
         assert(ISO_8601_FORMAT.test(args[0].EndTime))
-        assert(new Date(args[0].StartTime).getTime() === new Date(args[0].EndTime).getTime() - 60000)
-        assert(new Date(args[0].EndTime).getTime() > Date.now() - 60000)
-        assert.equal(args[0].Period, 60)
+        assert(new Date(args[0].StartTime).getTime() === new Date(args[0].EndTime).getTime() - PERIOD_IN_MINUTES * 60000)
+        assert(new Date(args[0].EndTime).getTime() > Date.now() - PERIOD_IN_MINUTES * 60000)
+        assert.equal(args[0].Period, PERIOD_IN_MINUTES * 60)
         assert.deepEqual(args[0].Statistics, [ 'Maximum' ])
       })
 

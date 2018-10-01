@@ -14,6 +14,7 @@ const time = require('../time')
 const SECONDS_PER_MINUTE = 60
 const MILLISECONDS_PER_MINUTE = SECONDS_PER_MINUTE * 1000
 const MILLISECONDS_PER_HOUR = MILLISECONDS_PER_MINUTE * 60
+const PERIOD_IN_MINUTES = 5
 
 class MockCloudwatch {
   getMetricStatistics () {
@@ -95,14 +96,14 @@ module.exports = (log, translator, templates, config) => {
           throw new Error(`Invalid getSMSAttributes result "${result.attributes.MonthlySpendLimit}"`)
         }
 
-        const now = new Date()
-        const minuteAgo = new Date(now.getTime() - MILLISECONDS_PER_MINUTE)
+        const endTime = new Date()
+        const startTime = new Date(endTime.getTime() - PERIOD_IN_MINUTES * MILLISECONDS_PER_MINUTE)
         return cloudwatch.getMetricStatistics({
           Namespace: 'AWS/SNS',
           MetricName: 'SMSMonthToDateSpentUSD',
-          StartTime: time.startOfMinute(minuteAgo),
-          EndTime: time.startOfMinute(now),
-          Period: SECONDS_PER_MINUTE,
+          StartTime: time.startOfMinute(startTime),
+          EndTime: time.startOfMinute(endTime),
+          Period: PERIOD_IN_MINUTES * SECONDS_PER_MINUTE,
           Statistics: [ 'Maximum' ]
         }).promise()
       })
