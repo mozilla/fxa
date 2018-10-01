@@ -80,7 +80,7 @@
     "handlebars": "4.0.11",
     "happypack": "5.0.0",
     "helmet": "3.8.2",
-    "i18n-abide": "0.0.25",
+    "i18n-abide": "0.0.26",
     "joi": "10.4.1",
     "jquery": "3.1.0",
     "jquery-modal": "git://github.com/shane-tomlinson/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503",
