@@ -150,9 +150,9 @@ pub enum AppErrorKind {
         bounce: BounceRecord,
     },
 
-    /// An error for when an error happens on a request to the db.
+    /// An error occurred inside an auth db method.
     #[fail(display = "{}", _0)]
-    DbError(String),
+    AuthDbError(String),
 
     /// An error for when an error happens on the queues process.
     #[fail(display = "{}", _0)]
@@ -188,14 +188,18 @@ pub enum AppErrorKind {
     #[fail(display = "invalid duration: {}", _0)]
     DurationError(String),
 
-    /// An error for when we get erros in the message_data module.
-    #[fail(display = "{}", _0)]
-    MessageDataError(String),
+    /// An error occured inside a db method.
+    #[fail(display = "Redis error: {}", _0)]
+    DbError(String),
 
     /// An error for when we try to access functionality that is not
     /// implemented.
     #[fail(display = "Feature not implemented")]
     NotImplemented,
+
+    /// An error occured while hashing a value.
+    #[fail(display = "HMAC error: {}", _0)]
+    HmacError(String),
 }
 
 impl AppErrorKind {
@@ -230,7 +234,7 @@ impl AppErrorKind {
             AppErrorKind::BounceSoftError { .. } => Some(107),
             AppErrorKind::BounceHardError { .. } => Some(108),
 
-            AppErrorKind::DbError(_) => Some(109),
+            AppErrorKind::AuthDbError(_) => Some(109),
 
             AppErrorKind::QueueError(_) => Some(110),
             AppErrorKind::InvalidNotificationType => Some(111),
@@ -241,9 +245,11 @@ impl AppErrorKind {
             AppErrorKind::SqsMessageParsingError { .. } => Some(115),
 
             AppErrorKind::DurationError(_) => Some(116),
-            AppErrorKind::MessageDataError(_) => Some(117),
+            AppErrorKind::DbError(_) => Some(117),
 
             AppErrorKind::NotImplemented => Some(118),
+
+            AppErrorKind::HmacError(_) => Some(119),
 
             AppErrorKind::BadRequest
             | AppErrorKind::NotFound

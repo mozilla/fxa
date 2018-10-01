@@ -87,6 +87,7 @@ extern crate uuid;
 pub mod app_errors;
 pub mod auth_db;
 pub mod bounces;
+pub mod db;
 pub mod duration;
 pub mod email_address;
 pub mod healthcheck;
