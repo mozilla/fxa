@@ -1,3 +1,16 @@
+<a name="v1.122.0"></a>
+## v1.122.0 (2018-10-02)
+
+
+#### Bug Fixes
+
+* **config:**
+  *  ignore empty environment variables ([85529f7f](85529f7f))
+  *  update config version in Cargo.toml ([9a882094](9a882094))
+* **queues:**  remove unused fields from notification structs ([0f2b5740](0f2b5740))
+
+
+
 <a name="v1.121.0"></a>
 ## v1.121.0 (2018-09-18)
 
