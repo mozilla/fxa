@@ -13,7 +13,7 @@ const MOCHA_BIN = path.join(path.dirname(__dirname), 'node_modules', '.bin', 'mo
 const NYC_BIN = path.join(path.dirname(__dirname), 'node_modules', '.bin', 'nyc')
 
 let bin = NYC_BIN
-let argv = ['--cache', MOCHA_BIN]
+let argv = ['--cache', '--no-clean', MOCHA_BIN]
 
 if (process.env.NO_COVERAGE) {
   bin = MOCHA_BIN

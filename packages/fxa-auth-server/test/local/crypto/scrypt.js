@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 var promise = require('../../../lib/promise')
 var config = { scrypt: { maxPending: 5 } }
 var log = {

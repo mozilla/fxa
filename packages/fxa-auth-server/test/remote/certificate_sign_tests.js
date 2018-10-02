@@ -4,13 +4,13 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 var TestServer = require('../test_server')
 const Client = require('../client')()
 var jwtool = require('fxa-jwtool')
 
 var config = require('../../config').getProperties()
-config.redis.enabled = false
+config.redis.sessionTokens.enabled = false
 var pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile)
 
 var publicKey = {

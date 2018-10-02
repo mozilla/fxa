@@ -6,7 +6,7 @@
 
 const ROOT_DIR = '../../..'
 
-const assert = require('insist')
+const { assert } = require('chai')
 
 describe('lib/senders/templates/index:', () => {
   let templates
@@ -40,7 +40,7 @@ describe('lib/senders/templates/index:', () => {
     it('result is correct', () => {
       assert.equal(typeof result, 'object')
       const keys = Object.keys(result)
-      assert.equal(keys.length, 22)
+      assert.equal(keys.length, 25)
       keys.forEach(key => {
         const fn = result[key]
         assert.equal(typeof fn, 'function')

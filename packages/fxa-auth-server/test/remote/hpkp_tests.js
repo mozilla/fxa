@@ -4,10 +4,14 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
+const sinon = require('sinon')
 const P = require('../../lib/promise')
 const TestServer = require('../test_server')
 const request = P.promisify(require('request'), { multiArgs: true })
+const mockLog = {
+  info: sinon.spy()
+}
 
 describe('remote hpkp', function() {
   this.timeout(30000)
@@ -19,9 +23,14 @@ describe('remote hpkp', function() {
       var config = require('../../config').getProperties()
       config.hpkpConfig.enabled = true
       config.hpkpConfig.sha256s = []
-      assert.throws(() => {
-        Server.create({},{},config,{})
-      }, 'ValidationError: child "sha256s" fails because ["sha256s" must contain at least 1 items]', 'assert server error if no sha passed')
+
+      return Server.create(mockLog,{},config,{})
+        .then(assert.fail, (err) => {
+          assert.equal(
+            err.message,
+            'ValidationError: child "sha256s" fails because ["sha256s" must contain at least 1 items]',
+            'assert server error if no sha passed')
+        })
     }
   )
 

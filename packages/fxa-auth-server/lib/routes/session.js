@@ -21,7 +21,7 @@ module.exports = function (log, db, Password, config, signinUtils) {
     {
       method: 'POST',
       path: '/session/destroy',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -31,7 +31,7 @@ module.exports = function (log, db, Password, config, signinUtils) {
           }).allow(null)
         }
       },
-      handler: function (request, reply) {
+      handler: async function (request) {
         log.begin('Session.destroy', request)
         var sessionToken = request.auth.credentials
         var uid = request.auth.credentials.uid
@@ -62,12 +62,7 @@ module.exports = function (log, db, Password, config, signinUtils) {
           .then((sessionToken) => {
             return db.deleteSessionToken(sessionToken)
           })
-          .then(
-            function () {
-              reply({})
-            },
-            reply
-          )
+          .then(() => { return {} })
       }
     },
     {
@@ -83,7 +78,7 @@ module.exports = function (log, db, Password, config, signinUtils) {
           error.cannotLoginWithEmail
         ]
       },
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -95,7 +90,7 @@ module.exports = function (log, db, Password, config, signinUtils) {
           },
           payload: {
             email: validators.email().required(),
-            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
+            authPW: validators.authPW,
             service: validators.service,
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().optional(),
@@ -117,7 +112,7 @@ module.exports = function (log, db, Password, config, signinUtils) {
           }
         }
       },
-      handler: function (request, reply) {
+      handler: async function (request) {
         log.begin('Session.reauth', request)
 
         const sessionToken = request.auth.credentials
@@ -137,7 +132,6 @@ module.exports = function (log, db, Password, config, signinUtils) {
           .then(sendSigninNotifications)
           .then(createKeyFetchToken)
           .then(createResponse)
-          .then(reply, reply)
 
         function checkTotpToken() {
           // Check to see if the user has a TOTP token and it is verified and
@@ -146,7 +140,11 @@ module.exports = function (log, db, Password, config, signinUtils) {
           return totpUtils.hasTotpToken(accountRecord)
             .then((result) => {
               if (result) {
+                // User has enabled TOTP, no way around it, they must verify TOTP token
                 verificationMethod = 'totp-2fa'
+              } else if (! result && verificationMethod === 'totp-2fa') {
+                // Error if requesting TOTP verification with TOTP not setup
+                throw error.totpRequired()
               }
             })
         }
@@ -215,14 +213,14 @@ module.exports = function (log, db, Password, config, signinUtils) {
 
           Object.assign(response, signinUtils.getSessionVerificationStatus(sessionToken, verificationMethod))
 
-          return P.resolve(response)
+          return response
         }
       }
     },
     {
       method: 'GET',
       path: '/session/status',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -233,19 +231,19 @@ module.exports = function (log, db, Password, config, signinUtils) {
           }
         }
       },
-      handler(request, reply) {
+      handler: async function (request) {
         log.begin('Session.status', request)
         const sessionToken = request.auth.credentials
-        reply({
+        return {
           state: sessionToken.state,
           uid: sessionToken.uid
-        })
+        }
       }
     },
     {
       method: 'POST',
       path: '/session/duplicate',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -255,7 +253,7 @@ module.exports = function (log, db, Password, config, signinUtils) {
           }
         }
       },
-      handler: function (request, reply) {
+      handler: async function (request) {
         log.begin('Session.duplicate', request)
         const origSessionToken = request.auth.credentials
 
@@ -263,7 +261,6 @@ module.exports = function (log, db, Password, config, signinUtils) {
           .then(duplicateVerificationState)
           .then(createSessionToken)
           .then(formatResponse)
-          .then(reply, reply)
 
         function duplicateVerificationState() {
           // Copy verification state of the token, but generate

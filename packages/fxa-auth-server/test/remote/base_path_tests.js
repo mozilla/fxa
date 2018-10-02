@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const TestServer = require('../test_server')
 const Client = require('../client')()
 const P = require('../../lib/promise')
@@ -56,7 +56,7 @@ describe('remote base path', function() {
         .spread((res, body) => {
           assert.equal(res.statusCode, 200)
           var json = JSON.parse(body)
-          assert.equal(json.authentication, '/.well-known/browserid/sign_in.html')
+          assert.equal(json.authentication, '/.well-known/browserid/nonexistent.html')
         })
     }
   )

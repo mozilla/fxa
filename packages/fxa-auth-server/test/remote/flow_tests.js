@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const Client = require('../client')()
 var TestServer = require('../test_server')
 var jwtool = require('fxa-jwtool')

@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const config = require('../../config').getProperties()
 const TestServer = require('../test_server')
 const Client = require('../client')()
@@ -24,7 +24,7 @@ describe('remote tokenCodes', function () {
   })
 
   beforeEach(() => {
-    email = server.uniqueEmail()
+    email = server.uniqueEmail('@mozilla.com')
     return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
       .then(function (x) {
         client = x
@@ -34,12 +34,13 @@ describe('remote tokenCodes', function () {
 
   it('should error with invalid code', () => {
     return Client.login(config.publicUrl, email, password, {
-      verificationMethod: 'email-2fa'
+      verificationMethod: 'email-2fa',
+      keys: true
     })
     .then((res) => {
       client = res
       assert.equal(res.verificationMethod, 'email-2fa', 'sets correct verification method')
-      return client.verifyTokenCode('BADCODEE')
+      return client.verifyTokenCode('011001')
     })
     .then(() => {
       assert.fail('consumed invalid code')
@@ -56,7 +57,8 @@ describe('remote tokenCodes', function () {
 
   it('should error with invalid request param when using wrong code format', () => {
     return Client.login(config.publicUrl, email, password, {
-      verificationMethod: 'email-2fa'
+      verificationMethod: 'email-2fa',
+      keys: true
     })
       .then((res) => {
         client = res
@@ -78,7 +80,8 @@ describe('remote tokenCodes', function () {
 
   it('should consume valid code', () => {
     return Client.login(config.publicUrl, email, password, {
-      verificationMethod: 'email-2fa'
+      verificationMethod: 'email-2fa',
+      keys: true
     })
     .then((res) => {
       client = res
@@ -110,7 +113,8 @@ describe('remote tokenCodes', function () {
 
   it('should accept optional uid parameter in request body', () => {
     return Client.login(config.publicUrl, email, password, {
-      verificationMethod: 'email-2fa'
+      verificationMethod: 'email-2fa',
+      keys: true
     })
     .then((res) => {
       client = res
@@ -135,11 +139,12 @@ describe('remote tokenCodes', function () {
 
   it('should reject mismatched uid parameter in request body', () => {
     const uid1 = client.uid
-    const email2 = server.uniqueEmail()
+    const email2 = server.uniqueEmail('@mozilla.com')
     return Client.createAndVerify(config.publicUrl, email2, password, server.mailbox)
     .then(() => {
       return Client.login(config.publicUrl, email2, password, {
-        verificationMethod: 'email-2fa'
+        verificationMethod: 'email-2fa',
+        keys: true
       })
     })
     .then((res) => {

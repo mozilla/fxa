@@ -19,7 +19,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
     {
       method: 'GET',
       path: '/recovery_email/status',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -39,11 +39,10 @@ module.exports = (log, db, mailer, config, customs, push) => {
           }
         }
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('Account.RecoveryEmailStatus', request)
 
         const sessionToken = request.auth.credentials
-
         if (request.query && request.query.reason === 'push') {
           // log to the push namespace that account was verified via push
           log.info({
@@ -51,9 +50,9 @@ module.exports = (log, db, mailer, config, customs, push) => {
             name: 'recovery_email_reason.push'
           })
         }
-        cleanUpIfAccountInvalid()
+
+        return cleanUpIfAccountInvalid()
           .then(createResponse)
-          .then(reply, reply)
 
         function cleanUpIfAccountInvalid () {
           const now = new Date().getTime()
@@ -116,7 +115,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
     {
       method: 'POST',
       path: '/recovery_email/resend_code',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -135,7 +134,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
           }
         }
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('Account.RecoveryEmailResend', request)
 
         const email = request.payload.email
@@ -159,7 +158,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
         // is if the email param has been specified, which means that this is
         // a request to verify a secondary email.
         if (sessionToken.emailVerified && sessionToken.tokenVerified && ! email) {
-          return reply({})
+          return {}
         }
 
         if (request.payload.metricsContext) {
@@ -167,7 +166,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
           flowBeginTime = request.payload.metricsContext.flowBeginTime
         }
 
-        customs.check(request, sessionToken.email, 'recoveryEmailResendCode')
+        return customs.check(request, sessionToken.email, 'recoveryEmailResendCode')
           .then(setVerifyCode)
           .then(setVerifyFunction)
           .then(() => {
@@ -199,10 +198,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
             return verifyFunction(emails, sessionToken, mailerOpts)
               .then(() => request.emitMetricsEvent(`email.${event}.resent`))
           })
-          .then(
-            () => reply({}),
-            reply
-          )
+          .then(() => { return {} })
 
         function setVerifyCode () {
           return db.accountEmails(sessionToken.uid)
@@ -227,7 +223,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
 
                 // Don't resend code for already verified emails
                 if (emailVerified) {
-                  return reply({})
+                  return {}
                 }
               } else if (sessionToken.tokenVerificationId) {
 
@@ -276,7 +272,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
     {
       method: 'POST',
       path: '/recovery_email/verify_code',
-      config: {
+      options: {
         validate: {
           query: {
             service: validators.service,
@@ -295,7 +291,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
           }
         }
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('Account.RecoveryEmailVerify', request)
 
         const uid = request.payload.uid
@@ -326,7 +322,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
             // This endpoint is not authenticated, so we need to look up
             // the target email address before we can check it with customs.
             return customs.check(request, account.email, 'recoveryEmailVerifyCode')
-              .then(() => account)
+              .then(() => { return account })
           })
           .then((account) => {
             // Check if param `type` is specified and equal to `secondary`
@@ -499,16 +495,14 @@ module.exports = (log, db, mailer, config, customs, push) => {
                   })
               })
           })
-          .then(
-            () => reply({}),
-            reply
-          )
+          .then(() => { return {} })
+
       }
     },
     {
       method: 'GET',
       path: '/recovery_emails',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -521,7 +515,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
             }))
         }
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('Account.RecoveryEmailEmails', request)
 
         const sessionToken = request.auth.credentials
@@ -531,7 +525,6 @@ module.exports = (log, db, mailer, config, customs, push) => {
           .then((account) => {
             return createResponse(account.emails)
           })
-          .done(reply, reply)
 
         function createResponse (emails) {
           return emails.map((email) => ({
@@ -545,7 +538,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
     {
       method: 'POST',
       path: '/recovery_email',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -556,7 +549,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
         },
         response: {}
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('Account.RecoveryEmailCreate', request)
 
         const sessionToken = request.auth.credentials
@@ -572,7 +565,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
           uid: uid
         }
 
-        customs.check(request, primaryEmail, 'createEmail')
+        return customs.check(request, primaryEmail, 'createEmail')
           .then(() => {
             if (! sessionToken.emailVerified) {
               throw error.unverifiedAccount()
@@ -590,10 +583,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
           .then(generateRandomValues)
           .then(createEmail)
           .then(sendEmailVerification)
-          .then(
-            () => reply({}),
-            reply
-          )
+          .then(() => { return {} })
 
         function deleteAccountIfUnverified() {
           return db.getSecondaryEmail(email)
@@ -666,7 +656,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
     {
       method: 'POST',
       path: '/recovery_email/destroy',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -677,7 +667,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
         },
         response: {}
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('Account.RecoveryEmailDestroy', request)
 
         const sessionToken = request.auth.credentials
@@ -686,7 +676,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
         const email = request.payload.email
         let account
 
-        customs.check(request, primaryEmail, 'deleteEmail')
+        return customs.check(request, primaryEmail, 'deleteEmail')
           .then(() => {
             return db.account(uid)
           })
@@ -723,10 +713,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
               uid
             })
           })
-          .then(
-            () => reply({}),
-            reply
-          )
+          .then(() => { return {} })
 
         function deleteEmail () {
           return db.deleteEmail(uid, email.toLowerCase())
@@ -740,7 +727,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
     {
       method: 'POST',
       path: '/recovery_email/set_primary',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -751,7 +738,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
         },
         response: {}
       },
-      handler: function (request, reply) {
+      handler: async function (request) {
         const sessionToken = request.auth.credentials
         const uid = sessionToken.uid
         const primaryEmail = sessionToken.email
@@ -759,16 +746,16 @@ module.exports = (log, db, mailer, config, customs, push) => {
 
         log.begin('Account.RecoveryEmailSetPrimary', request)
 
-        customs.check(request, primaryEmail, 'setPrimaryEmail')
+        return customs.check(request, primaryEmail, 'setPrimaryEmail')
           .then(() => {
             if (sessionToken.tokenVerificationId) {
               throw error.unverifiedSession()
             }
           })
           .then(setPrimaryEmail)
-          .done(() => {
-            reply({})
-          }, reply)
+          .then(() => {
+            return {}
+          })
 
         function setPrimaryEmail() {
           return db.getSecondaryEmail(email)
@@ -797,7 +784,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
               return db.account(uid)
             })
             .then((account) => {
-              mailer.sendPostChangePrimaryEmail(account.emails, account, {
+              return mailer.sendPostChangePrimaryEmail(account.emails, account, {
                 acceptLanguage: request.app.acceptLanguage,
                 uid
               })
@@ -807,4 +794,3 @@ module.exports = (log, db, mailer, config, customs, push) => {
     }
   ]
 }
-

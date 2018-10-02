@@ -8,40 +8,40 @@ const errors = require('../error')
 const isA = require('joi')
 const validators = require('./validators')
 const HEX_STRING = validators.HEX_STRING
-const BASE_36 = validators.BASE_36
+const DIGITS = validators.DIGITS
 const P = require('../promise')
 
 module.exports = (log, db, config, customs) => {
   const tokenCodeConfig = config.signinConfirmation.tokenVerificationCode
-  const TOKEN_CODE_LENGTH = tokenCodeConfig && tokenCodeConfig.codeLength || 8
+  const TOKEN_CODE_LENGTH = tokenCodeConfig && tokenCodeConfig.codeLength || 6
 
   return [
     {
       method: 'POST',
       path: '/session/verify/token',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
         validate: {
           payload: {
-            code: isA.string().min(TOKEN_CODE_LENGTH).max(TOKEN_CODE_LENGTH).regex(BASE_36).required(),
+            code: isA.string().min(TOKEN_CODE_LENGTH).max(TOKEN_CODE_LENGTH).regex(DIGITS).required(),
             uid: isA.string().max(32).regex(HEX_STRING).optional()
           }
         }
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('session.verify.token', request)
 
         const code = request.payload.code.toUpperCase()
         const uid = request.auth.credentials.uid
         const email = request.auth.credentials.email
 
-        customs.check(request, email, 'verifyTokenCode')
+        return customs.check(request, email, 'verifyTokenCode')
           .then(checkOptionalUidParam)
           .then(verifyCode)
           .then(emitMetrics)
-          .then(reply, reply)
+          .then(() => { return {} })
 
         function checkOptionalUidParam() {
           // For b/w compat we accept `uid` in the request body,

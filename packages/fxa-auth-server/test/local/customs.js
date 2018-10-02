@@ -6,7 +6,7 @@
 
 const ROOT_DIR = '../..'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const log = {
   trace: () => {},
   activityEvent: () => {},
@@ -15,6 +15,7 @@ const log = {
 }
 const mocks = require('../mocks')
 const error = require(`${ROOT_DIR}/lib/error.js`)
+const P = require(`${ROOT_DIR}/lib/promise.js`)
 var nock = require('nock')
 
 const Customs = require(`${ROOT_DIR}/lib/customs.js`)(log, error)
@@ -223,7 +224,7 @@ describe('Customs', () => {
   )
 
   it(
-    'can create a customs object with non-existant customs service',
+    'failed closed when creating a customs object with non-existant customs service',
     () => {
       customsInvalidUrl = new Customs(CUSTOMS_URL_MISSING)
 
@@ -234,22 +235,22 @@ describe('Customs', () => {
       var email = newEmail()
       var action = newAction()
 
-      return customsInvalidUrl.check(request, email, action)
-        .then(function(result) {
-          assert.equal(result, undefined, 'Nothing is returned when /check succeeds even when service is non-existant')
+      return P.all([
+        customsInvalidUrl.check(request, email, action)
+        .then(assert.fail, err => {
+          assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE, 'an error is returned from /check')
+        }),
+
+        customsInvalidUrl.flag(ip, { email: email, uid: '12345' })
+        .then(assert.fail, err => {
+          assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE, 'an error is returned from /flag')
+        }),
+
+        customsInvalidUrl.reset(email)
+        .then(assert.fail, err => {
+          assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE, 'an error is returned from /passwordReset')
         })
-        .then(function() {
-          return customsInvalidUrl.flag(ip, { email: email, uid: '12345' })
-        })
-        .then(function(result) {
-          assert.equal(result, undefined, 'Nothing is returned when /failedLoginAttempt succeeds')
-        })
-        .then(function() {
-          return customsInvalidUrl.reset(email)
-        })
-        .then(function(result) {
-          assert.equal(result, undefined, 'Nothing is returned when /passwordReset succeeds')
-        })
+      ])
     }
   )
 

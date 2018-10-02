@@ -29,7 +29,10 @@
     "enabled": true,
     "sampleRate": 1
   },
-  "redis": {
-    "enabled": true
-  }
+  "pushbox": {
+    "enabled": true,
+    "url": "http://localhost:8002/",
+    "key": "Correct_Horse_Battery_Staple_1",
+    "maxTTL": "28 days"
+  },
 }

@@ -31,8 +31,9 @@ module.exports = function (
     signinUtils,
     push
   )
+  const pushbox = require('../pushbox')(log, config)
   const devicesImpl = require('../devices')(log, db, push)
-  const devicesSessions = require('./devices-and-sessions')(log, db, config, customs, push, devicesImpl)
+  const devicesSessions = require('./devices-and-sessions')(log, db, config, customs, push, pushbox, devicesImpl)
   const emails = require('./emails')(log, db, mailer, config, customs, push)
   const password = require('./password')(
     log,
@@ -54,6 +55,7 @@ module.exports = function (
   const unblockCodes = require('./unblock-codes')(log, db, mailer, config.signinUnblock, customs)
   const totp = require('./totp')(log, db, mailer, customs, config.totp)
   const recoveryCodes = require('./recovery-codes')(log, db, config.totp, customs, mailer)
+  const recoveryKey = require('./recovery-key')(log, db, Password, config.verifierVersion, customs, mailer)
   const util = require('./util')(
     log,
     config,
@@ -76,7 +78,8 @@ module.exports = function (
     tokenCodes,
     totp,
     unblockCodes,
-    util
+    util,
+    recoveryKey
   )
   v1Routes.forEach(r => { r.path = basePath + '/v1' + r.path })
   defaults.forEach(r => { r.path = basePath + r.path })
@@ -86,7 +89,7 @@ module.exports = function (
     // Default auth.payload to 'optional' for all authenticated routes.
     // We'll validate the payload hash if the client provides it,
     // but allow them to skip it if they can't or don't want to.
-    const auth = r.config && r.config.auth
+    const auth = r.options && r.options.auth
     if (auth && ! auth.hasOwnProperty('payload')) {
       auth.payload = 'optional'
     }

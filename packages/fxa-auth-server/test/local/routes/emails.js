@@ -6,7 +6,7 @@
 
 var sinon = require('sinon')
 
-const assert = require('insist')
+const { assert } = require('chai')
 var mocks = require('../../mocks')
 var getRoute = require('../../routes_helpers').getRoute
 var proxyquire = require('proxyquire')
@@ -63,17 +63,8 @@ var makeRoutes = function (options = {}, requireMocks) {
 }
 
 function runTest (route, request, assertions) {
-  return new P(function (resolve, reject) {
-    route.handler(request, function (response) {
-      //resolve(response)
-      if (response instanceof Error) {
-        reject(response)
-      } else {
-        resolve(response)
-      }
-    })
-  })
-    .then(assertions)
+  return route.handler(request)
+  .then(assertions)
 }
 
 describe('/recovery_email/status', function () {

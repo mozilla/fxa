@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 var messages = require('joi/lib/language')
 const AppError = require('../../lib/error')
 
@@ -111,4 +111,27 @@ describe('AppErrors', () => {
 
     }
   )
+
+  const reasons = ['socket hang up', 'ECONNREFUSED'];
+  reasons.forEach((reason) => {
+    it(`converts ${reason} errors to backend service error`, () => {
+      const result = AppError.translate({
+        output: {
+          payload: {
+            errno: 999,
+            statusCode: 500
+          }
+        },
+        reason
+      })
+
+      assert.ok(result instanceof AppError, 'instanceof AppError')
+      assert.equal(result.errno, 203)
+      assert.equal(result.message, 'A backend service request failed.')
+      assert.equal(result.output.statusCode, 500)
+      assert.equal(result.output.payload.error, 'Internal Server Error')
+      assert.equal(result.output.payload.errno, AppError.ERRNO.BACKEND_SERVICE_FAILURE)
+      assert.equal(result.output.payload.message, 'A backend service request failed.')
+    })
+  })
 })

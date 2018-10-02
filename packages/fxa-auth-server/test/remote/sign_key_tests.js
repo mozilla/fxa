@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const P = require('../../lib/promise')
 const TestServer = require('../test_server')
 const request = P.promisify(require('request'), { multiArgs: true })
@@ -29,7 +29,7 @@ describe('remote sign key', function() {
         .spread((res, body) => {
           assert.equal(res.statusCode, 200)
           var json = JSON.parse(body)
-          assert.equal(json.authentication, '/.well-known/browserid/sign_in.html')
+          assert.equal(json.authentication, '/.well-known/browserid/nonexistent.html')
           assert.equal(json.keys.length, 2)
         })
     }

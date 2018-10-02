@@ -35,7 +35,7 @@ module.exports = config => {
     if (offset) {
       verify.localtimeOffsetMsec = offset
     }
-    return hawk.client.header(url, method, verify).field
+    return hawk.client.header(url, method, verify).header
   }
 
   ClientApi.prototype.doRequest = function (method, url, token, payload, headers) {
@@ -273,6 +273,28 @@ module.exports = config => {
       )
   }
 
+  ClientApi.prototype.accountResetWithRecoveryKey = function (accountResetTokenHex, authPW, wrapKb, recoveryKeyId, headers, options = {}) {
+    const qs = getQueryString(options)
+
+    return tokens.AccountResetToken.fromHex(accountResetTokenHex)
+      .then(
+        function (token) {
+          return this.doRequest(
+            'POST',
+            this.baseURL + '/account/reset' + qs,
+            token,
+            {
+              authPW: authPW.toString('hex'),
+              wrapKb,
+              sessionToken: true,
+              recoveryKeyId
+            },
+            headers
+          )
+        }.bind(this)
+      )
+  }
+
   ClientApi.prototype.accountDestroy = function (email, authPW) {
     return this.doRequest(
       'POST',
@@ -478,7 +500,8 @@ module.exports = config => {
             token,
             {
               code: code,
-              metricsContext: options.metricsContext || undefined
+              metricsContext: options.metricsContext || undefined,
+              accountResetWithRecoveryKey: options.accountResetWithRecoveryKey || undefined
             },
             headers
           )
@@ -835,6 +858,64 @@ module.exports = config => {
             code: code,
             metricsContext: options.metricsContext || undefined
           }
+        )
+      })
+  }
+
+  ClientApi.prototype.createRecoveryKey = function (sessionTokenHex, recoveryKeyId, recoveryData) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/recoveryKey',
+          token,
+          {
+            recoveryKeyId,
+            recoveryData
+          }
+        )
+      })
+  }
+
+  ClientApi.prototype.getRecoveryKey = function (accountResetTokenHex, recoveryKeyId) {
+    return tokens.AccountResetToken.fromHex(accountResetTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'GET',
+          `${this.baseURL}/recoveryKey/${recoveryKeyId}`,
+          token
+        )
+      })
+  }
+
+  ClientApi.prototype.getRecoveryKeyExistsWithSession = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'POST',
+          `${this.baseURL}/recoveryKey/exists`,
+          token,
+          {}
+        )
+      })
+  }
+
+  ClientApi.prototype.getRecoveryKeyExistsWithEmail = function (email) {
+    return this.doRequest(
+      'POST',
+      `${this.baseURL}/recoveryKey/exists`,
+      undefined,
+      {email}
+    )
+  }
+
+  ClientApi.prototype.deleteRecoveryKey = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'DELETE',
+          `${this.baseURL}/recoveryKey`,
+          token
         )
       })
   }

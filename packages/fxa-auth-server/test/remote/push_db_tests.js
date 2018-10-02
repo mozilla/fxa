@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 var P = require('../../lib/promise')
 var uuid = require('uuid')
 var crypto = require('crypto')
@@ -71,6 +71,7 @@ describe('remote push db', function() {
         id: crypto.randomBytes(16).toString('hex'),
         name: 'my push device',
         type: 'mobile',
+        availableCommands: { 'foo': 'bar' },
         pushCallback: 'https://foo/bar',
         pushPublicKey: base64url(Buffer.concat([Buffer.from('\x04'), crypto.randomBytes(64)])),
         pushAuthKey: base64url(crypto.randomBytes(16)),

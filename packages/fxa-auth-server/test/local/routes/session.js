@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const crypto = require('crypto')
 const getRoute = require('../../routes_helpers').getRoute
 const mocks = require('../../mocks')
@@ -30,15 +30,7 @@ function makeRoutes (options = {}) {
 }
 
 function runTest (route, request) {
-  return new P((resolve, reject) => {
-    route.handler(request, response => {
-      if (response instanceof Error) {
-        reject(response)
-      } else {
-        resolve(response)
-      }
-    })
-  })
+  return route.handler(request)
 }
 
 function hexString(bytes) {

@@ -18,7 +18,7 @@ module.exports = (log, db, config, customs, mailer) => {
     {
       method: 'GET',
       path: '/recoveryCodes',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -28,7 +28,7 @@ module.exports = (log, db, config, customs, mailer) => {
           }
         }
       },
-      handler(request, reply) {
+      handler: async function (request) {
         log.begin('replaceRecoveryCodes', request)
 
         const uid = request.auth.credentials.uid
@@ -37,10 +37,14 @@ module.exports = (log, db, config, customs, mailer) => {
         const ip = request.app.clientAddress
         let codes
 
-        replaceRecoveryCodes()
+        return replaceRecoveryCodes()
           .then(sendEmailNotification)
           .then(emitMetrics)
-          .then(() => reply({recoveryCodes: codes}), reply)
+          .then(() => {
+            return {
+              recoveryCodes: codes
+            }
+          })
 
         function replaceRecoveryCodes() {
           if (sessionToken.tokenVerificationId) {
@@ -56,7 +60,7 @@ module.exports = (log, db, config, customs, mailer) => {
         function sendEmailNotification() {
           return db.account(sessionToken.uid)
             .then((account) => {
-              mailer.sendPostNewRecoveryCodesNotification(account.emails, account, {
+              return mailer.sendPostNewRecoveryCodesNotification(account.emails, account, {
                 acceptLanguage: request.app.acceptLanguage,
                 ip: ip,
                 location: geoData.location,
@@ -85,7 +89,7 @@ module.exports = (log, db, config, customs, mailer) => {
     {
       method: 'POST',
       path: '/session/verify/recoveryCode',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -101,7 +105,7 @@ module.exports = (log, db, config, customs, mailer) => {
           }
         }
       },
-      handler(request, reply) {
+      handler: async function (request) {
         log.begin('session.verify.recoveryCode', request)
 
         const code = request.payload.code
@@ -111,14 +115,16 @@ module.exports = (log, db, config, customs, mailer) => {
         const ip = request.app.clientAddress
         let remainingRecoveryCodes
 
-        customs.check(request, sessionToken.email, 'verifyRecoveryCode')
+        return customs.check(request, sessionToken.email, 'verifyRecoveryCode')
           .then(consumeRecoveryCode)
           .then(verifySession)
           .then(sendEmailNotification)
           .then(emitMetrics)
           .then(() => {
-            return reply({remaining: remainingRecoveryCodes})
-          }, reply)
+            return {
+              remaining: remainingRecoveryCodes
+            }
+          })
 
         function consumeRecoveryCode() {
           return db.consumeRecoveryCode(uid, code)

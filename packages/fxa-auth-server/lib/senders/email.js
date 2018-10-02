@@ -9,7 +9,9 @@ const moment = require('moment-timezone')
 const nodemailer = require('nodemailer')
 const P = require('bluebird')
 const qs = require('querystring')
+const safeRegex = require('safe-regex')
 const safeUserAgent = require('../userAgent/safe')
+const Sandbox = require('sandbox')
 const url = require('url')
 
 const TEMPLATE_VERSIONS = require('./templates/_versions.json')
@@ -21,8 +23,21 @@ const UTM_PREFIX = 'fx-'
 const X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET'
 const X_SES_MESSAGE_TAGS = 'X-SES-MESSAGE-TAGS'
 
+const SERVICES = {
+  internal: Symbol(),
+  external: {
+    sendgrid: Symbol(),
+    socketlabs: Symbol(),
+    ses: Symbol()
+  }
+}
+
 module.exports = function (log, config) {
   const oauthClientInfo = require('./oauth_client_info')(log, config)
+  const redis = require('../redis')(Object.assign({}, config.redis, config.redis.email), log) || {
+    // Fallback to a stub implementation if redis is disabled
+    get: () => P.resolve()
+  }
 
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
@@ -32,6 +47,7 @@ module.exports = function (log, config) {
     'passwordResetRequiredEmail': 'password-reset-required',
     'passwordChangedEmail': 'password-changed-success',
     'passwordResetEmail': 'password-reset-success',
+    'passwordResetAccountRecoveryEmail': 'password-reset-account-recovery-success',
     'postRemoveSecondaryEmail': 'account-email-removed',
     'postVerifyEmail': 'account-verified',
     'postChangePrimaryEmail': 'account-email-changed',
@@ -40,6 +56,8 @@ module.exports = function (log, config) {
     'postRemoveTwoStepAuthenticationEmail': 'account-two-step-disabled',
     'postConsumeRecoveryCodeEmail': 'account-consume-recovery-code',
     'postNewRecoveryCodesEmail': 'account-replace-recovery-codes',
+    'postAddAccountRecoveryEmail': 'account-recovery-generated',
+    'postRemoveAccountRecoveryEmail': 'account-recovery-removed',
     'recoveryEmail': 'forgot-password',
     'unblockCode': 'new-unblock',
     'verifyEmail': 'welcome',
@@ -57,6 +75,7 @@ module.exports = function (log, config) {
     'newDeviceLoginEmail': 'password-change',
     'passwordChangedEmail': 'password-change',
     'passwordResetEmail': 'password-reset',
+    'passwordResetAccountRecoveryEmail': 'create-recovery-key',
     'passwordResetRequiredEmail': 'password-reset',
     'postRemoveSecondaryEmail': 'account-email-removed',
     'postVerifyEmail': 'connect-device',
@@ -66,6 +85,8 @@ module.exports = function (log, config) {
     'postRemoveTwoStepAuthenticationEmail': 'manage-account',
     'postConsumeRecoveryCodeEmail': 'manage-account',
     'postNewRecoveryCodesEmail': 'manage-account',
+    'postAddAccountRecoveryEmail': 'manage-account',
+    'postRemoveAccountRecoveryEmail': 'manage-account',
     'recoveryEmail': 'reset-password',
     'unblockCode': 'unblock-code',
     'verifyEmail': 'activate',
@@ -109,47 +130,50 @@ module.exports = function (log, config) {
     return time.format('LTS (z) dddd, ll')
   }
 
-  function sesMessageTagsHeaderValue(templateName) {
-    return 'messageType=fxa-' + templateName + ', app=fxa'
+  function sesMessageTagsHeaderValue(templateName, serviceName) {
+    return `messageType=fxa-${templateName}, app=fxa, service=${serviceName}`
   }
 
-  function Mailer(translator, templates, config, sender) {
+  function Mailer(translator, templates, mailerConfig, sender) {
     var options = {
-      host: config.host,
-      secure: config.secure,
-      ignoreTLS: ! config.secure,
-      port: config.port
+      host: mailerConfig.host,
+      secure: mailerConfig.secure,
+      ignoreTLS: ! mailerConfig.secure,
+      port: mailerConfig.port
     }
 
-    if (config.user && config.password) {
+    if (mailerConfig.user && mailerConfig.password) {
       options.auth = {
-        user: config.user,
-        pass: config.password
+        user: mailerConfig.user,
+        pass: mailerConfig.password
       }
     }
 
-    this.accountSettingsUrl = config.accountSettingsUrl
-    this.accountRecoveryCodesUrl = config.accountRecoveryCodesUrl
-    this.androidUrl = config.androidUrl
-    this.initiatePasswordChangeUrl = config.initiatePasswordChangeUrl
-    this.initiatePasswordResetUrl = config.initiatePasswordResetUrl
-    this.iosUrl = config.iosUrl
-    this.iosAdjustUrl = config.iosAdjustUrl
+    this.accountSettingsUrl = mailerConfig.accountSettingsUrl
+    this.accountRecoveryCodesUrl = mailerConfig.accountRecoveryCodesUrl
+    this.androidUrl = mailerConfig.androidUrl
+    this.initiatePasswordChangeUrl = mailerConfig.initiatePasswordChangeUrl
+    this.initiatePasswordResetUrl = mailerConfig.initiatePasswordResetUrl
+    this.iosUrl = mailerConfig.iosUrl
+    this.iosAdjustUrl = mailerConfig.iosAdjustUrl
     this.mailer = sender || nodemailer.createTransport(options)
-    this.passwordManagerInfoUrl = config.passwordManagerInfoUrl
-    this.passwordResetUrl = config.passwordResetUrl
-    this.privacyUrl = config.privacyUrl
-    this.reportSignInUrl = config.reportSignInUrl
-    this.sender = config.sender
-    this.sesConfigurationSet = config.sesConfigurationSet
-    this.supportUrl = config.supportUrl
-    this.syncUrl = config.syncUrl
+    this.emailService = require('./email_service')(config)
+    this.passwordManagerInfoUrl = mailerConfig.passwordManagerInfoUrl
+    this.passwordResetUrl = mailerConfig.passwordResetUrl
+    this.privacyUrl = mailerConfig.privacyUrl
+    this.reportSignInUrl = mailerConfig.reportSignInUrl
+    this.revokeAccountRecoveryUrl = mailerConfig.revokeAccountRecoveryUrl
+    this.createAccountRecoveryUrl = mailerConfig.createAccountRecoveryUrl
+    this.sender = mailerConfig.sender
+    this.sesConfigurationSet = mailerConfig.sesConfigurationSet
+    this.supportUrl = mailerConfig.supportUrl
+    this.syncUrl = mailerConfig.syncUrl
     this.templates = templates
     this.translator = translator.getTranslator
-    this.verificationUrl = config.verificationUrl
-    this.verifyLoginUrl = config.verifyLoginUrl
-    this.verifySecondaryEmailUrl = config.verifySecondaryEmailUrl
-    this.verifyPrimaryEmailUrl = config.verifyPrimaryEmailUrl
+    this.verificationUrl = mailerConfig.verificationUrl
+    this.verifyLoginUrl = mailerConfig.verifyLoginUrl
+    this.verifySecondaryEmailUrl = mailerConfig.verifySecondaryEmailUrl
+    this.verifyPrimaryEmailUrl = mailerConfig.verifyPrimaryEmailUrl
   }
 
   Mailer.prototype.stop = function () {
@@ -242,7 +266,6 @@ module.exports = function (log, config) {
 
   Mailer.prototype.send = function (message) {
     log.trace({ op: 'mailer.' + message.template, email: message.email, uid: message.uid })
-
     const localized = this.localize(message)
 
     const template = message.template
@@ -253,88 +276,273 @@ module.exports = function (log, config) {
     }
     message.templateVersion = templateVersion
 
-    const headers = Object.assign(
-      {
-        'Content-Language': localized.language,
-        'X-Template-Name': template,
-        'X-Template-Version': templateVersion
-      },
-      message.headers,
-      optionalHeader('X-Device-Id', message.deviceId),
-      optionalHeader('X-Flow-Id', message.flowId),
-      optionalHeader('X-Flow-Begin-Time', message.flowBeginTime),
-      optionalHeader('X-Service-Id', message.service),
-      optionalHeader('X-Uid', message.uid)
-    )
-
-    var emailConfig = {
-      sender: this.sender,
-      from: this.sender,
-      to: message.email,
-      subject: localized.subject,
-      text: localized.text,
-      html: localized.html,
-      xMailer: false,
-      headers
-    }
-
-    // Utilize nodemailer's cc ability to send to multiple addresses
-    // Ref: https://nodemailer.com/message/
-    if (message.ccEmails) {
-      emailConfig.cc = message.ccEmails
-    }
-
-    if (this.sesConfigurationSet) {
-      // Note on SES Event Publishing: The X-SES-CONFIGURATION-SET and
-      // X-SES-MESSAGE-TAGS email headers will be stripped by SES from the
-      // actual outgoing email messages.
-      emailConfig.headers[X_SES_CONFIGURATION_SET] = this.sesConfigurationSet
-    }
-
-    log.info({
-      email: message.email,
-      op: 'mailer.send',
-      template: message.template,
-      headers: Object.keys(headers).join(',')
-    })
-
-    var d = P.defer()
-    this.mailer.sendMail(
-      emailConfig,
-      function (err, status) {
-        if (err) {
-          log.error(
+    return this.selectEmailServices(message)
+      .then(services => {
+        return P.all(services.map(service => {
+          const headers = Object.assign(
             {
+              'Content-Language': localized.language,
+              'X-Template-Name': template,
+              'X-Template-Version': templateVersion
+            },
+            message.headers,
+            optionalHeader('X-Device-Id', message.deviceId),
+            optionalHeader('X-Flow-Id', message.flowId),
+            optionalHeader('X-Flow-Begin-Time', message.flowBeginTime),
+            optionalHeader('X-Service-Id', message.service),
+            optionalHeader('X-Uid', message.uid)
+          )
+
+          const { mailer, emailAddresses, emailService, emailSender } = service
+
+          // Set headers that let us attribute success/failure correctly
+          message.emailService = headers['X-Email-Service'] = emailService
+          message.emailSender = headers['X-Email-Sender'] = emailSender
+
+          if (this.sesConfigurationSet && emailSender === 'ses') {
+            // Note on SES Event Publishing: The X-SES-CONFIGURATION-SET and
+            // X-SES-MESSAGE-TAGS email headers will be stripped by SES from the
+            // actual outgoing email messages.
+            headers[X_SES_CONFIGURATION_SET] = this.sesConfigurationSet
+            headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(message.metricsTemplate || template, emailService)
+          }
+
+          log.info({
+            email: emailAddresses[0],
+            op: 'mailer.send',
+            template,
+            headers: Object.keys(headers).join(',')
+          })
+
+          const emailConfig = {
+            sender: this.sender,
+            from: this.sender,
+            to: emailAddresses[0],
+            subject: localized.subject,
+            text: localized.text,
+            html: localized.html,
+            xMailer: false,
+            headers
+          }
+
+          if (emailAddresses.length > 1) {
+            emailConfig.cc = emailAddresses.slice(1)
+          }
+
+          if (emailService === 'fxa-email-service') {
+            emailConfig.provider = emailSender
+          }
+
+          const d = P.defer()
+          mailer.sendMail(emailConfig, (err, status) => {
+            if (err) {
+              log.error({
+                op: 'mailer.send.error',
+                err: err.message,
+                code: err.code,
+                errno: err.errno,
+                message: status && status.message,
+                to: emailConfig && emailConfig.to,
+                emailSender,
+                emailService
+              })
+
+              return d.reject(err)
+            }
+
+            log.info({
               op: 'mailer.send.1',
-              err: err && err.message,
               status: status && status.message,
               id: status && status.messageId,
-              to: emailConfig && emailConfig.to
-            }
-          )
-          return d.reject(err)
-        }
-        log.info(
-          {
-            op: 'mailer.send.1',
-            status: status && status.message,
-            id: status && status.messageId,
-            to: emailConfig && emailConfig.to
+              to: emailConfig && emailConfig.to,
+              emailSender,
+              emailService
+            })
+
+            emailUtils.logEmailEventSent(log, message)
+
+            return d.resolve(status)
+          })
+
+          return d.promise
+        }))
+      })
+  }
+
+  // Based on the to and cc email addresses of a message, return an array of
+  // `Service` objects that control how email traffic will be routed.
+  //
+  // It will attempt to read live config data from Redis and live config takes
+  // precedence over local static config. If no config is found at all, email
+  // will be routed locally via the auth server.
+  //
+  // Live config looks like this (every property is optional):
+  //
+  // {
+  //   sendgrid: {
+  //     percentage: 100,
+  //     regex: "^.+@example\.com$"
+  //   },
+  //   socketlabs: {
+  //     percentage: 100,
+  //     regex: "^.+@example\.org$"
+  //   },
+  //   ses: {
+  //     percentage: 10,
+  //     regex: ".*",
+  //   }
+  // }
+  //
+  // Where a percentage and a regex are both present, an email address must
+  // satisfy both criteria to count as a match. Where an email address matches
+  // sendgrid and ses, sendgrid wins. Where an email address matches socketlabs
+  // and ses, socketlabs wins. Where an email address matches sendgrid and
+  // socketlabs, sendgrid wins.
+  //
+  // If a regex has a star height greater than 1, the email address will be
+  // treated as a non-match without executing the regex (to prevent us redosing
+  // ourselves). If a regex takes longer than 100 milliseconds to execute,
+  // it will be killed and the email address will be treated as a non-match.
+  //
+  // @param {Object} message
+  //
+  // @returns {Promise} Resolves to an array of `Service` objects.
+  //
+  // @typedef {Object} Service
+  //
+  // @property {Object} mailer           The object on which to invoke the `sendMail`
+  //                                     method.
+  //
+  // @property {String[]} emailAddresses The array of email addresses to send to.
+  //                                     The address at index 0 will be used as the
+  //                                     `to` address and any remaining addresses
+  //                                     will be included as `cc` addresses.
+  //
+  // @property {String} emailService     The name of the email service for metrics.
+  //
+  // @property {String} emailSender      The name of the underlying email sender,
+  //                                     used for both metrics and sent as the
+  //                                     `provider` param in external requests.
+  Mailer.prototype.selectEmailServices = function (message) {
+    const emailAddresses = [ message.email ]
+    if (Array.isArray(message.ccEmails)) {
+      emailAddresses.push(...message.ccEmails)
+    }
+
+    return redis.get('config')
+      .catch(err => log.error({ op: 'emailConfig.read.error', err: err.message }))
+      .then(liveConfig => {
+        if (liveConfig) {
+          try {
+            liveConfig = JSON.parse(liveConfig)
+          } catch (err) {
+            log.error({ op: 'emailConfig.parse.error', err: err.message })
           }
-        )
+        }
 
-        emailUtils.logEmailEventSent(log, message)
+        return emailAddresses.reduce((promise, emailAddress) => {
+          let services, isMatched
 
-        return d.resolve(status)
+          return promise
+            .then(s => {
+              services = s
+
+              if (liveConfig) {
+                return [ 'sendgrid', 'socketlabs', 'ses' ].reduce((promise, key) => {
+                  const senderConfig = liveConfig[key]
+
+                  return promise
+                    .then(() => {
+                      if (senderConfig) {
+                        return isLiveConfigMatch(senderConfig, emailAddress)
+                      }
+                    })
+                    .then(result => {
+                      if (isMatched) {
+                        return
+                      }
+
+                      isMatched = result
+
+                      if (isMatched) {
+                        upsertServicesMap(services, SERVICES.external[key], emailAddress, {
+                          mailer: this.emailService,
+                          emailService: 'fxa-email-service',
+                          emailSender: key
+                        })
+                      }
+                    })
+                }, promise)
+              }
+            })
+            .then(() => {
+              if (isMatched) {
+                return services
+              }
+
+              if (config.emailService.forcedEmailAddresses.test(emailAddress)) {
+                return upsertServicesMap(services, SERVICES.external.ses, emailAddress, {
+                  mailer: this.emailService,
+                  emailService: 'fxa-email-service',
+                  emailSender: 'ses'
+                })
+              }
+
+              return upsertServicesMap(services, SERVICES.internal, emailAddress, {
+                mailer: this.mailer,
+                emailService: 'fxa-auth-server',
+                emailSender: 'ses'
+              })
+            })
+        }, P.resolve(new Map()))
+      })
+      .then(services => Array.from(services.values()))
+
+    function isLiveConfigMatch (liveConfig, emailAddress) {
+      return new P(resolve => {
+        const { percentage, regex } = liveConfig
+
+        if (percentage >= 0 && percentage < 100 && Math.floor(Math.random() * 100) >= percentage) {
+          resolve(false)
+          return
+        }
+
+        if (regex) {
+          if (regex.indexOf('"') !== -1 || emailAddress.indexOf('"') !== -1 || ! safeRegex(regex)) {
+            resolve(false)
+            return
+          }
+
+          // Execute the regex inside a sandbox and kill it if it takes > 100 ms
+          const sandbox = new Sandbox({ timeout: 100 })
+          sandbox.run(`new RegExp("${regex}").test("${emailAddress}")`, output => {
+            resolve(output.result === 'true')
+          })
+          return
+        }
+
+        resolve(true)
+      })
+    }
+
+    function upsertServicesMap (services, service, emailAddress, data) {
+      if (services.has(service)) {
+        services.get(service).emailAddresses.push(emailAddress)
+      } else {
+        services.set(service, Object.assign({
+          emailAddresses: [ emailAddress ]
+        }, data))
       }
-    )
-    return d.promise
+
+      return services
+    }
   }
 
   Mailer.prototype.verifyEmail = function (message) {
     log.trace({ op: 'mailer.verifyEmail', email: message.email, uid: message.uid })
 
     var templateName = 'verifyEmail'
+    const metricsTemplateName = templateName
     var subject = gettext('Verify your Firefox Account')
     var query = {
       uid: message.uid,
@@ -350,10 +558,6 @@ module.exports = function (log, config) {
     var headers = {
       'X-Link': links.link,
       'X-Verify-Code': message.code
-    }
-
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     if (message.service === 'sync') {
@@ -376,7 +580,8 @@ module.exports = function (log, config) {
         sync: message.service,
         supportUrl: links.supportUrl,
         supportLinkAttributes: links.supportLinkAttributes
-      }
+      },
+      metricsTemplate: metricsTemplateName
     }))
   }
 
@@ -395,10 +600,6 @@ module.exports = function (log, config) {
     var headers = {
       'X-Unblock-Code': message.unblockCode,
       'X-Report-SignIn-Link': links.reportSignInLink
-    }
-
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     return this.send(Object.assign({}, message, {
@@ -438,10 +639,6 @@ module.exports = function (log, config) {
     var headers = {
       'X-Link': links.link,
       'X-Verify-Code': message.code
-    }
-
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     return oauthClientInfo.fetch(message.service).then((clientInfo) => {
@@ -493,10 +690,6 @@ module.exports = function (log, config) {
       'X-Signin-Verify-Code': message.code
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Sign-in code for Firefox'),
@@ -537,10 +730,6 @@ module.exports = function (log, config) {
     const headers = {
       'X-Link': links.link,
       'X-Verify-Code': message.code
-    }
-
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     return this.send(Object.assign({}, message, {
@@ -586,10 +775,6 @@ module.exports = function (log, config) {
       'X-Verify-Code': message.code
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Verify secondary email'),
@@ -617,6 +802,7 @@ module.exports = function (log, config) {
   Mailer.prototype.recoveryEmail = function (message) {
     var templateName = 'recoveryEmail'
     var query = {
+      uid: message.uid,
       token: message.token,
       code: message.code,
       email: message.email
@@ -631,10 +817,6 @@ module.exports = function (log, config) {
     var headers = {
       'X-Link': links.link,
       'X-Recovery-Code': message.code
-    }
-
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     return this.send(Object.assign({}, message, {
@@ -665,10 +847,6 @@ module.exports = function (log, config) {
       'X-Link': links.resetLink
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Your Firefox Account password has been changed'),
@@ -695,10 +873,6 @@ module.exports = function (log, config) {
       'X-Link': links.resetLink
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Firefox Account password changed'),
@@ -721,10 +895,6 @@ module.exports = function (log, config) {
       'X-Link': links.resetLink
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Firefox Account password reset required'),
@@ -745,10 +915,6 @@ module.exports = function (log, config) {
 
     var headers = {
       'X-Link': links.passwordChangeLink
-    }
-
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     return oauthClientInfo.fetch(message.service).then((clientInfo) => {
@@ -788,10 +954,6 @@ module.exports = function (log, config) {
       'X-Link': links.link
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Firefox Account verified'),
@@ -817,10 +979,6 @@ module.exports = function (log, config) {
 
     var headers = {
       'X-Link': links.link
-    }
-
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     return this.send(Object.assign({}, message, {
@@ -851,10 +1009,6 @@ module.exports = function (log, config) {
       'X-Link': links.link
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Firefox Account new primary email'),
@@ -883,10 +1037,6 @@ module.exports = function (log, config) {
       'X-Link': links.link
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Secondary Firefox Account email removed'),
@@ -911,10 +1061,6 @@ module.exports = function (log, config) {
 
     const headers = {
       'X-Link': links.link
-    }
-
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     return this.send(Object.assign({}, message, {
@@ -949,10 +1095,6 @@ module.exports = function (log, config) {
       'X-Link': links.link
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Two-step authentication disabled'),
@@ -983,10 +1125,6 @@ module.exports = function (log, config) {
 
     const headers = {
       'X-Link': links.link
-    }
-
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
     }
 
     return this.send(Object.assign({}, message, {
@@ -1021,10 +1159,6 @@ module.exports = function (log, config) {
       'X-Link': links.link
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Recovery code consumed'),
@@ -1057,10 +1191,6 @@ module.exports = function (log, config) {
       'X-Link': links.link
     }
 
-    if (this.sesConfigurationSet) {
-      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(templateName)
-    }
-
     return this.send(Object.assign({}, message, {
       headers,
       subject: gettext('Low recovery codes remaining'),
@@ -1079,6 +1209,104 @@ module.exports = function (log, config) {
     }))
   }
 
+  Mailer.prototype.postAddAccountRecoveryEmail = function (message) {
+    log.trace({ op: 'mailer.postAddAccountRecoveryEmail', email: message.email, uid: message.uid })
+
+    const templateName = 'postAddAccountRecoveryEmail'
+    const links = this._generateSettingLinks(message, templateName)
+
+    const headers = {
+      'X-Link': links.link
+    }
+
+    return this.send(Object.assign({}, message, {
+      headers,
+      subject: gettext('Account recovery key generated'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+        revokeAccountRecoveryLink: links.revokeAccountRecoveryLink,
+        revokeAccountRecoveryLinkAttributes: links.revokeAccountRecoveryLinkAttributes,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
+      }
+    }))
+  }
+
+  Mailer.prototype.postRemoveAccountRecoveryEmail = function (message) {
+    log.trace({ op: 'mailer.postRemoveAccountRecoveryEmail', email: message.email, uid: message.uid })
+
+    const templateName = 'postRemoveAccountRecoveryEmail'
+    const links = this._generateSettingLinks(message, templateName)
+
+    const headers = {
+      'X-Link': links.link
+    }
+
+    return this.send(Object.assign({}, message, {
+      headers,
+      subject: gettext('Account recovery key removed'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
+      }
+    }))
+  }
+
+  Mailer.prototype.passwordResetAccountRecoveryEmail = function (message) {
+    log.trace({ op: 'mailer.passwordResetAccountRecoveryEmail', email: message.email, uid: message.uid })
+
+    const templateName = 'passwordResetAccountRecoveryEmail'
+    const links = this._generateCreateAccountRecoveryLinks(message, templateName)
+
+    const headers = {
+      'X-Link': links.link
+    }
+
+    return this.send(Object.assign({}, message, {
+      headers,
+      subject: gettext('Firefox Account password reset with recovery key'),
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        iosLink: links.iosLink,
+        link: links.link,
+        privacyUrl: links.privacyUrl,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        passwordChangeLink: links.passwordChangeLink,
+        supportUrl: links.supportUrl,
+        email: message.email,
+        supportLinkAttributes: links.supportLinkAttributes,
+        device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        timestamp: this._constructLocalTimeString(message.timeZone, message.acceptLanguage)
+      }
+    }))
+  }
+
   Mailer.prototype._generateUTMLink = function (link, query, templateName, content) {
     var parsedLink = url.parse(link)
 
@@ -1088,7 +1316,6 @@ module.exports = function (log, config) {
       parsedQuery[key] = query[key]
     })
 
-    parsedQuery['utm_source'] = 'email'
     parsedQuery['utm_medium'] = 'email'
 
     var campaign = templateNameToCampaignMap[templateName]
@@ -1132,6 +1359,11 @@ module.exports = function (log, config) {
     links['reportSignInLink'] = this.createReportSignInLink(templateName, query)
     links['reportSignInLinkAttributes'] = this._reportSignInLinkAttributes(email, templateName, query)
 
+    links['revokeAccountRecoveryLink'] = this.createRevokeAccountRecoveryLink(templateName)
+    links['revokeAccountRecoveryLinkAttributes'] = this._revokeAccountRecoveryLinkAttributes(templateName)
+
+    links['createAccountRecoveryLink'] = this.createAccountRecoveryLink(templateName)
+
     var queryOneClick = extend(query, {one_click: true})
     if (primaryLink && utmContent) {
       links['oneClickLink'] = this._generateUTMLink(primaryLink, queryOneClick, templateName, utmContent + '-oneclick')
@@ -1156,6 +1388,15 @@ module.exports = function (log, config) {
     if (message.uid) {query.uid = message.uid}
 
     return this._generateLinks(this.accountRecoveryCodesUrl, message.email, query, templateName)
+  }
+
+  Mailer.prototype._generateCreateAccountRecoveryLinks = function (message, templateName) {
+    // Generate all possible links where the primary link is `createAccountRecoveryUrl`.
+    const query = {}
+    if (message.email) {query.email = message.email}
+    if (message.uid) {query.uid = message.uid}
+
+    return this._generateLinks(this.createAccountRecoveryUrl, message.email, query, templateName)
   }
 
   Mailer.prototype.createPasswordResetLink = function (email, templateName, emailToHashWith) {
@@ -1190,6 +1431,18 @@ module.exports = function (log, config) {
 
   Mailer.prototype.createPrivacyLink = function (templateName) {
     return this._generateUTMLink(this.privacyUrl, {}, templateName, 'privacy')
+  }
+
+  Mailer.prototype.createRevokeAccountRecoveryLink = function (templateName) {
+    return this._generateUTMLink(this.revokeAccountRecoveryUrl, {}, templateName, 'report')
+  }
+
+  Mailer.prototype._revokeAccountRecoveryLinkAttributes = function (templateName) {
+    return linkAttributes(this.createRevokeAccountRecoveryLink(templateName))
+  }
+
+  Mailer.prototype.createAccountRecoveryLink = function (templateName) {
+    return this._generateUTMLink(this.createAccountRecoveryUrl, {}, templateName)
   }
 
   return Mailer

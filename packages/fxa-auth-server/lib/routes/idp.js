@@ -25,8 +25,8 @@ function browseridFormat(keys) {
       n: toDec(primary.jwk.n),
       e: toDec(primary.jwk.e)
     },
-    authentication: '/.well-known/browserid/sign_in.html',
-    provisioning: '/.well-known/browserid/provision.html',
+    authentication: '/.well-known/browserid/nonexistent.html',
+    provisioning: '/.well-known/browserid/nonexistent.html',
     keys: keys
   }
 }
@@ -41,41 +41,25 @@ module.exports = function (log, serverPublicKeys) {
     {
       method: 'GET',
       path: '/.well-known/browserid',
-      config: {
+      options: {
         cache: {
           privacy: 'public',
           expiresIn: 10000
         }
       },
-      handler: function (request, reply) {
+      handler: async function (request) {
         log.begin('browserid', request)
-        reply(browserid)
+        return browserid
       }
     },
     {
       method: 'GET',
       path: '/.well-known/public-keys',
-      handler: function (request, reply) {
+      handler: async function (request) {
         // FOR DEV PURPOSES ONLY
-        reply(
-          {
+        return {
             keys: keys
-          }
-        )
-      }
-    },
-    {
-      method: 'GET',
-      path: '/.well-known/browserid/sign_in.html',
-      handler: {
-        file: './lib/routes/static/sign_in.html'
-      }
-    },
-    {
-      method: 'GET',
-      path: '/.well-known/browserid/provision.html',
-      handler: {
-        file: './lib/routes/static/provision.html'
+        }
       }
     }
   ]

@@ -53,7 +53,10 @@ module.exports = (printLogs) => {
               smsLink = smsUrlMatch && smsUrlMatch[1]
             }
 
-            var name = emailName(mail.headers.to)
+            // Workaround because the email service wraps this header in `< >`.
+            // See: https://github.com/mozilla/fxa-content-server/pull/6470#issuecomment-415224438
+            var name = emailName(mail.headers.to.replace(/\<(.*?)\>/g, '$1'))
+
             if (vc) {
               console.log('\x1B[32m', link, '\x1B[39m')
             }
@@ -99,13 +102,20 @@ module.exports = (printLogs) => {
         req.accept()
       }
     )
-    smtp.listen(config.smtp.port, config.smtp.host)
+
+    smtp.listen(config.smtp.port, function(err) {
+      if (! err) {
+        console.log(`Local SMTP server listening on port ${config.smtp.port}`)
+      } else {
+        console.log('Error starting SMTP server...')
+        console.log(err.message)
+      }
+    })
 
     // HTTP half
 
     var hapi = require('hapi')
-    var api = new hapi.Server()
-    api.connection({
+    var api = new hapi.Server({
       host: config.smtp.api.host,
       port: config.smtp.api.port
     })
@@ -123,30 +133,38 @@ module.exports = (printLogs) => {
         {
           method: 'GET',
           path: '/mail/{email}',
-          handler: function (request, reply) {
-            loop(
-              decodeURIComponent(request.params.email),
-              function (emailData) {
-                reply(emailData)
-              }
-            )
+          handler: async function (request) {
+            const emailLoop = function () {
+              return new P((resolve) => {
+                loop(
+                  decodeURIComponent(request.params.email),
+                  function (emailData) {
+                    resolve(emailData)
+                  }
+                )
+              })
+            }
+
+            return emailLoop().then((emailData) => {
+               return emailData;
+            })
           }
         },
         {
           method: 'DELETE',
           path: '/mail/{email}',
-          handler: function (request, reply) {
+          handler: async function (request) {
             delete users[decodeURIComponent(request.params.email)]
-            reply()
+            return {}
           }
         }
       ]
     )
 
-    api.start(function () {
+    api.start().then(() => {
       console.log('mail_helper started...')
 
-      resolve({
+      return resolve({
         close() {
           return new P((resolve, reject) => {
             let smtpClosed = false
@@ -157,7 +175,7 @@ module.exports = (printLogs) => {
                 resolve()
               }
             })
-            api.stop(() => {
+            api.stop().then(() => {
               apiClosed = true
               if (smtpClosed) {
                 resolve()

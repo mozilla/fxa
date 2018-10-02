@@ -4,14 +4,14 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const base64url = require('base64url')
 const config = require('../../config').getProperties()
 const crypto = require('crypto')
 const P = require('../../lib/promise')
 const sinon = require('sinon')
 const TestServer = require('../test_server')
-const UnblockCode = require('../../lib/crypto/base32')(config.signinUnblock.codeLength)
+const UnblockCode = require('../../lib/crypto/random').base32(config.signinUnblock.codeLength)
 const uuid = require('uuid')
 
 const log = { trace () {}, info () {}, error () {} }
@@ -34,7 +34,11 @@ const tokenPruning = {
 const DB = require('../../lib/db')({
   lastAccessTimeUpdates,
   signinCodeSize: config.signinCodeSize,
-  redis: Object.assign({}, config.redis, { enabled: true }),
+  redis: {
+    enabled: true,
+    ...config.redis,
+    ...config.redis.sessionTokens
+  },
   tokenLifetimes: {},
   tokenPruning
 }, log, Token, UnblockCode)
@@ -42,7 +46,7 @@ const DB = require('../../lib/db')({
 const redis = require('redis').createClient({
   host: config.redis.host,
   port: config.redis.port,
-  prefix: config.redis.sessionsKeyPrefix,
+  prefix: config.redis.sessionTokens.prefix,
   enable_offline_queue: false
 })
 
@@ -178,6 +182,8 @@ describe('remote db', function() {
           assert.equal(sessions[0].lastAccessTime, sessions[0].createdAt, 'lastAccessTime property is correct')
           assert.equal(sessions[0].authAt, sessions[0].createdAt, 'authAt property is correct')
           assert.equal(sessions[0].location, undefined, 'location property is correct')
+          assert.deepEqual(sessions[0].deviceId, null, 'deviceId property is correct')
+          assert.deepEqual(sessions[0].deviceAvailableCommands, null, 'deviceAvailableCommands property is correct')
 
           // Fetch the session token
           return db.sessionToken(tokenId)
@@ -395,6 +401,7 @@ describe('remote db', function() {
         id: crypto.randomBytes(16).toString('hex'),
         name: '',
         type: 'mobile',
+        availableCommands:  { 'foo': 'bar', 'wibble': 'wobble' },
         pushCallback: 'https://foo/bar',
         pushPublicKey: base64url(Buffer.concat([Buffer.from('\x04'), crypto.randomBytes(64)])),
         pushAuthKey: base64url(crypto.randomBytes(16))
@@ -457,6 +464,7 @@ describe('remote db', function() {
           assert.ok(device.createdAt > 0, 'device.createdAt is set')
           assert.equal(device.name, deviceInfo.name, 'device.name is correct')
           assert.equal(device.type, deviceInfo.type, 'device.type is correct')
+          assert.deepEqual(device.availableCommands, deviceInfo.availableCommands, 'device.availableCommands is correct')
           assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
           assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
           assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
@@ -488,6 +496,7 @@ describe('remote db', function() {
           assert.ok(device.lastAccessTime > 0, 'device.lastAccessTime is set')
           assert.equal(device.name, deviceInfo.name, 'device.name is correct')
           assert.equal(device.type, deviceInfo.type, 'device.type is correct')
+          assert.deepEqual(device.availableCommands, deviceInfo.availableCommands, 'device.availableCommands is correct')
           assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
           assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
           assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
@@ -502,6 +511,7 @@ describe('remote db', function() {
           deviceInfo.id = device.id
           deviceInfo.name = 'wibble'
           deviceInfo.type = 'desktop'
+          deviceInfo.availableCommands = {}
           deviceInfo.pushCallback = ''
           deviceInfo.pushPublicKey = ''
           deviceInfo.pushAuthKey = ''
@@ -559,9 +569,17 @@ describe('remote db', function() {
           return devices[1]
         })
         .then((device) => {
+          // Fetch a single device
+          return db.device(account.uid, device.id).then(result => {
+            assert.deepEqual(device, result)
+            return device
+          })
+        })
+        .then((device) => {
           assert.equal(device.lastAccessTime, 42, 'device.lastAccessTime is correct')
           assert.equal(device.name, deviceInfo.name, 'device.name is correct')
           assert.equal(device.type, deviceInfo.type, 'device.type is correct')
+          assert.deepEqual(device.availableCommands, deviceInfo.availableCommands, 'device.availableCommands is correct')
           assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
           assert.equal(device.pushPublicKey, '', 'device.pushPublicKey is correct')
           assert.equal(device.pushAuthKey, '', 'device.pushAuthKey is correct')
@@ -665,15 +683,13 @@ describe('remote db', function() {
         .then(function(passwordForgotToken) {
           return db.forgotPasswordVerified(passwordForgotToken)
             .then(accountResetToken => {
-              assert.ok(accountResetToken.createdAt > passwordForgotToken.createdAt, 'account reset token should be newer than password forgot token')
+              assert.ok(accountResetToken.createdAt >= passwordForgotToken.createdAt, 'account reset token should be equal or newer than password forgot token')
               return accountResetToken
             })
         })
         .then(function(accountResetToken) {
           assert.deepEqual(accountResetToken.uid, account.uid, 'account reset token uid should be the same as the account.uid')
           tokenId = accountResetToken.id
-        })
-        .then(function() {
           return db.accountResetToken(tokenId)
         })
         .then(function(accountResetToken) {
@@ -684,15 +700,13 @@ describe('remote db', function() {
         .then(function(accountResetToken) {
           return db.deleteAccountResetToken(accountResetToken)
         })
-        .then(function() {
+        .then(function () {
           return db.accountResetToken(tokenId)
-        })
-        .then(function(accountResetToken) {
-          assert(false, 'The above accountResetToken() call should fail, since the accountResetToken has been deleted')
-        }, function(err) {
-          assert.equal(err.errno, 110, 'accountResetToken() fails with the correct error code')
-          var msg = 'Error: The authentication token could not be found'
-          assert.equal(msg, '' + err, 'accountResetToken() fails with the correct message')
+            .then(assert.fail, function (err) {
+              assert.equal(err.errno, 110, 'accountResetToken() fails with the correct error code')
+              var msg = 'Error: The authentication token could not be found'
+              assert.equal(msg, '' + err, 'accountResetToken() fails with the correct message')
+            })
         })
     }
   )

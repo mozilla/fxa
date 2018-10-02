@@ -6,7 +6,7 @@
 
 const ROOT_DIR = '../../..'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const bounces = require(`${ROOT_DIR}/lib/email/bounces`)
 const error = require(`${ROOT_DIR}/lib/error`)
 const { EventEmitter } = require('events')

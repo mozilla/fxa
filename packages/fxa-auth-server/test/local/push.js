@@ -6,9 +6,9 @@
 
 const ROOT_DIR = '../..'
 
-const assert = require('insist')
 const proxyquire = require('proxyquire')
 const sinon = require('sinon')
+const assert = { ...sinon.assert, ...require('chai').assert }
 const ajv = require('ajv')()
 const fs = require('fs')
 const path = require('path')
@@ -36,6 +36,7 @@ describe('push', () => {
         'lastAccessTime': 1449235471335,
         'name': 'My Phone',
         'type': 'mobile',
+        'availableCommands': {},
         'pushCallback': 'https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef',
         'pushPublicKey': mocks.MOCK_PUSH_KEY,
         'pushAuthKey': 'w3b14Zjc-Afj2SDOLOyong==',
@@ -47,6 +48,7 @@ describe('push', () => {
         'lastAccessTime': 1417699471335,
         'name': 'My Desktop',
         'type': null,
+        'availableCommands': {},
         'pushCallback': 'https://updates.push.services.mozilla.com/update/d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c75',
         'pushPublicKey': mocks.MOCK_PUSH_KEY,
         'pushAuthKey': 'w3b14Zjc-Afj2SDOLOyong==',
@@ -58,6 +60,7 @@ describe('push', () => {
         'lastAccessTime': 1402149471335,
         'name': 'My Ipad',
         'type': null,
+        'availableCommands': {},
         'uaOS': 'iOS',
         'pushCallback': 'https://updates.push.services.mozilla.com/update/50973923bc3e4507a0aa4e285513194a',
         'pushPublicKey': mocks.MOCK_PUSH_KEY,
@@ -191,6 +194,35 @@ describe('push', () => {
           assert.equal(endPoints.length, 2)
           assert.equal(endPoints[0], mockDevices[0].pushCallback)
           assert.equal(endPoints[1], mockDevices[1].pushCallback)
+        })
+    }
+  )
+
+  it(
+    'sendPush pushes to all ios devices if it is triggered with a "commands received" command',
+    () => {
+      const data = {
+        command: 'fxaccounts:command_received',
+        data: { foo: 'bar' }
+      }
+      const endPoints = []
+      const mocks = {
+        'web-push': {
+          sendNotification: function (sub, payload, options) {
+            endPoints.push(sub.endpoint)
+            return P.resolve()
+          }
+        }
+      }
+
+      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
+      const options = { data: data }
+      return push.sendPush(mockUid, mockDevices, 'devicesNotify', options)
+        .then(() => {
+          assert.equal(endPoints.length, 3)
+          assert.equal(endPoints[0], mockDevices[0].pushCallback)
+          assert.equal(endPoints[1], mockDevices[1].pushCallback)
+          assert.equal(endPoints[2], mockDevices[2].pushCallback)
         })
     }
   )
@@ -537,6 +569,46 @@ describe('push', () => {
       return push.sendPush(mockUid, [mockDevices[0]], 'accountVerify')
         .then(() => {
           assert.equal(count, 1)
+        })
+    }
+  )
+
+  it(
+    'notifyCommandReceived calls sendPush',
+    () => {
+      const mocks = {
+        'web-push': {
+          sendNotification: function (sub, payload, options) {
+            return P.resolve()
+          }
+        }
+      }
+      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
+      sinon.spy(push, 'sendPush')
+      return push.notifyCommandReceived(mockUid, mockDevices[0], 'commandName', 'sendingDevice', 12, 'http://fetch.url', 42)
+        .catch(err => {
+          assert.fail('must not throw')
+          throw err
+        })
+        .then(() => {
+          assert.ok(push.sendPush.calledOnce, 'sendPush was called')
+          assert.calledWithExactly(push.sendPush, mockUid, [mockDevices[0]], 'commandReceived', {
+            data: {
+              version: 1,
+              command: 'fxaccounts:command_received',
+              data: {
+                command: 'commandName',
+                index: 12,
+                sender: 'sendingDevice',
+                url: 'http://fetch.url'
+              }
+            },
+            TTL: 42
+          })
+          const schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
+          const schema = JSON.parse(fs.readFileSync(schemaPath))
+          assert.ok(ajv.validate(schema, push.sendPush.getCall(0).args[3].data))
+          push.sendPush.restore()
         })
     }
   )

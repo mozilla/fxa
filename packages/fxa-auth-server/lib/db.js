@@ -36,7 +36,6 @@ module.exports = (
   ) => {
 
   const features = require('./features')(config)
-  const redis = require('./redis')(config.redis, log)
   const SafeUrl = require('./safe-url')(log)
   const {
     SessionToken,
@@ -76,6 +75,7 @@ module.exports = (
     }
 
     this.pool = new Pool(options.url, pooleeOptions)
+    this.redis = require('./redis')({ ...config.redis, ...config.redis.sessionTokens }, log)
   }
 
   DB.connect = function (options) {
@@ -83,7 +83,11 @@ module.exports = (
   }
 
   DB.prototype.close = function () {
-    return P.resolve(this.pool.close())
+    const promises = [this.pool.close()]
+    if (this.redis) {
+      promises.push(this.redis.close())
+    }
+    return P.all(promises)
   }
 
   SAFE_URLS.ping = new SafeUrl('/__heartbeat__', 'db.ping')
@@ -122,7 +126,7 @@ module.exports = (
         const { id } = sessionToken
 
         // Ensure there are no clashes with zombie tokens left behind in Redis
-        return deleteSessionTokenFromRedis(uid, id)
+        return this.deleteSessionTokenFromRedis(uid, id)
           .catch(() => {})
           .then(() => this.pool.put(SAFE_URLS.createSessionToken, { id },
             Object.assign({
@@ -298,15 +302,15 @@ module.exports = (
     ]
     let isRedisOk = true
 
-    if (redis) {
+    if (this.redis) {
       promises.push(
-        safeRedisGet(uid)
+        this.safeRedisGet(uid)
           .then(result => {
             if (result === false) {
               // Ensure that we don't return lastAccessTime if redis is down
               isRedisOk = false
             }
-            return unpackTokensFromRedis(result)
+            return this.safeUnpackTokensFromRedis(uid, result)
           })
       )
     }
@@ -499,44 +503,23 @@ module.exports = (
     ]
     let isRedisOk = true
 
-    if (redis) {
+    if (this.redis) {
       promises.push(
-        safeRedisGet(uid)
+        this.safeRedisGet(uid)
           .then(result => {
             if (result === false) {
               // Ensure that we don't return lastAccessTime if redis is down
               isRedisOk = false
             }
-            return unpackTokensFromRedis(result)
+            return this.safeUnpackTokensFromRedis(uid, result)
           })
       )
     }
     return P.all(promises)
       .spread((devices, redisSessionTokens = {}) => {
-        // for each device, if there is a redis token with a matching tokenId,
-        // overwrite device's ua properties and lastAccessTime with redis token values
         const lastAccessTimeEnabled = isRedisOk && features.isLastAccessTimeEnabledForUser(uid)
         return devices.map(device => {
-          const token = redisSessionTokens[device.sessionTokenId]
-          const mergedInfo = Object.assign({}, device, token)
-          return {
-            id: device.id,
-            sessionToken: device.sessionTokenId,
-            lastAccessTime: lastAccessTimeEnabled ? mergedInfo.lastAccessTime : null,
-            location: mergedInfo.location,
-            name: device.name,
-            type: device.type,
-            pushCallback: device.callbackURL,
-            pushPublicKey: device.callbackPublicKey,
-            pushAuthKey: device.callbackAuthKey,
-            pushEndpointExpired: !! device.callbackIsExpired,
-            uaBrowser: mergedInfo.uaBrowser,
-            uaBrowserVersion: mergedInfo.uaBrowserVersion,
-            uaOS: mergedInfo.uaOS,
-            uaOSVersion: mergedInfo.uaOSVersion,
-            uaDeviceType: mergedInfo.uaDeviceType,
-            uaFormFactor: mergedInfo.uaFormFactor
-          }
+          return mergeDeviceInfoFromRedis(device, redisSessionTokens, lastAccessTimeEnabled)
         })
       })
       .catch(err =>{
@@ -566,7 +549,7 @@ module.exports = (
 
   SAFE_URLS.updatePasswordForgotToken = new SafeUrl(
     '/passwordForgotToken/:id/update',
-    'db.udatePasswordForgotToken'
+    'db.updatePasswordForgotToken'
   )
   DB.prototype.updatePasswordForgotToken = function (token) {
     log.trace({ op: 'DB.udatePasswordForgotToken', uid: token && token.uid })
@@ -594,11 +577,11 @@ module.exports = (
 
     log.trace({ op: 'DB.touchSessionToken', id, uid })
 
-    if (! redis || ! features.isLastAccessTimeEnabledForUser(uid)) {
+    if (! this.redis || ! features.isLastAccessTimeEnabledForUser(uid)) {
       return P.resolve()
     }
 
-    return redis.update(uid, sessionTokens => {
+    return this.redis.update(uid, sessionTokens => {
       let location
       if (geo && geo.location) {
         location = {
@@ -665,7 +648,7 @@ module.exports = (
   DB.prototype.pruneSessionTokens = function (uid, sessionTokens) {
     log.trace({ op: 'DB.pruneSessionTokens', uid, tokenCount: sessionTokens.length })
 
-    if (! redis || ! TOKEN_PRUNING_ENABLED || ! features.isLastAccessTimeEnabledForUser(uid)) {
+    if (! this.redis || ! TOKEN_PRUNING_ENABLED || ! features.isLastAccessTimeEnabledForUser(uid)) {
       return P.resolve()
     }
 
@@ -677,7 +660,7 @@ module.exports = (
       return P.resolve()
     }
 
-    return redis.update(uid, sessionTokens => {
+    return this.redis.update(uid, sessionTokens => {
       if (! sessionTokens) {
         return
       }
@@ -690,6 +673,41 @@ module.exports = (
         return packTokensForRedis(sessionTokens)
       }
     })
+  }
+
+  SAFE_URLS.device = new SafeUrl('/account/:uid/device/:deviceId', 'db.device')
+  DB.prototype.device = function (uid, deviceId) {
+    log.trace({ op: 'DB.device', uid: uid, id: deviceId })
+
+    const promises = [
+      this.pool.get(SAFE_URLS.device, { uid, deviceId })
+    ]
+
+    let isRedisOk = true
+    if (this.redis) {
+      promises.push(
+        this.safeRedisGet(uid)
+          .then(result => {
+            if (result === false) {
+              // Ensure that we don't return lastAccessTime if redis is down
+              isRedisOk = false
+            }
+            return this.safeUnpackTokensFromRedis(uid, result)
+          })
+      )
+    }
+
+    return P.all(promises)
+      .spread((device, redisSessionTokens = {}) => {
+        const lastAccessTimeEnabled = isRedisOk && features.isLastAccessTimeEnabledForUser(uid)
+        return mergeDeviceInfoFromRedis(device, redisSessionTokens, lastAccessTimeEnabled)
+      })
+      .catch(err =>{
+        if (isNotFoundError(err)) {
+          throw error.unknownDevice()
+        }
+        throw err
+      })
   }
 
   SAFE_URLS.createDevice = new SafeUrl('/account/:uid/device/:id', 'db.createDevice')
@@ -710,7 +728,8 @@ module.exports = (
             type: deviceInfo.type,
             callbackURL: deviceInfo.pushCallback,
             callbackPublicKey: deviceInfo.pushPublicKey,
-            callbackAuthKey: deviceInfo.pushAuthKey
+            callbackAuthKey: deviceInfo.pushAuthKey,
+            availableCommands: deviceInfo.availableCommands
           }
         )
       })
@@ -768,7 +787,8 @@ module.exports = (
         callbackURL: deviceInfo.pushCallback,
         callbackPublicKey: deviceInfo.pushPublicKey,
         callbackAuthKey: deviceInfo.pushAuthKey,
-        callbackIsExpired: !! deviceInfo.pushEndpointExpired
+        callbackIsExpired: !! deviceInfo.pushEndpointExpired,
+        availableCommands: deviceInfo.availableCommands
       }
     )
     .then(
@@ -807,8 +827,8 @@ module.exports = (
 
     return P.resolve()
       .then(() => {
-        if (redis) {
-          return redis.del(uid)
+        if (this.redis) {
+          return this.redis.del(uid)
         }
       })
       .then(() => this.pool.del(SAFE_URLS.deleteAccount, { uid }))
@@ -820,7 +840,7 @@ module.exports = (
 
     log.trace({ op: 'DB.deleteSessionToken', id, uid })
 
-    return deleteSessionTokenFromRedis(uid, id)
+    return this.deleteSessionTokenFromRedis(uid, id)
       .then(() => this.pool.del(SAFE_URLS.deleteSessionToken, { id }))
   }
 
@@ -866,7 +886,7 @@ module.exports = (
     log.trace({ op: 'DB.deleteDevice', uid, id: deviceId })
 
     return this.pool.del(SAFE_URLS.deleteDevice, { uid, deviceId })
-      .then(result => deleteSessionTokenFromRedis(uid, result.sessionTokenId))
+      .then(result => this.deleteSessionTokenFromRedis(uid, result.sessionTokenId))
       .catch(err => {
         if (isNotFoundError(err)) {
           throw error.unknownDevice()
@@ -900,8 +920,8 @@ module.exports = (
 
     return P.resolve()
       .then(() => {
-        if (redis) {
-          return redis.del(uid)
+        if (this.redis) {
+          return this.redis.del(uid)
         }
       })
       .then(() => {
@@ -1271,19 +1291,66 @@ module.exports = (
       })
   }
 
-  function wrapTokenNotFoundError (err) {
-    if (isNotFoundError(err)) {
-      err = error.invalidToken('The authentication token could not be found')
-    }
-    return err
+  SAFE_URLS.createRecoveryKey = new SafeUrl(
+    '/account/:uid/recoveryKey',
+    'db.createRecoveryKey'
+  )
+  DB.prototype.createRecoveryKey = function (uid, recoveryKeyId, recoveryData) {
+    log.trace({op: 'DB.createRecoveryKey', uid})
+
+    return this.pool.post(SAFE_URLS.createRecoveryKey, { uid }, { recoveryKeyId, recoveryData })
+      .catch((err) => {
+        if (isRecordAlreadyExistsError(err)) {
+          throw error.recoveryKeyExists()
+        }
+
+        throw err
+      })
   }
 
-  function hexEncode(str) {
-    return Buffer.from(str, 'utf8').toString('hex')
+  SAFE_URLS.getRecoveryKey = new SafeUrl(
+    '/account/:uid/recoveryKey/:recoveryKeyId',
+    'db.getRecoveryKey'
+  )
+  DB.prototype.getRecoveryKey = function (uid, recoveryKeyId) {
+    log.trace({op: 'DB.getRecoveryKey', uid})
+
+    return this.pool.get(SAFE_URLS.getRecoveryKey, {uid, recoveryKeyId})
+      .catch(err => {
+        if (isNotFoundError(err)) {
+          throw error.recoveryKeyNotFound()
+        }
+
+        if (isInvalidRecoveryError(err)) {
+          throw error.recoveryKeyInvalid()
+        }
+
+        throw err
+      })
   }
 
-  function safeRedisGet (key) {
-    return redis.get(key)
+  SAFE_URLS.recoveryKeyExists = new SafeUrl(
+    '/account/:uid/recoveryKey',
+    'db.recoveryKeyExists'
+  )
+  DB.prototype.recoveryKeyExists = function (uid) {
+    log.trace({op: 'DB.recoveryKeyExists', uid})
+
+    return this.pool.get(SAFE_URLS.recoveryKeyExists, {uid})
+  }
+
+  SAFE_URLS.deleteRecoveryKey = new SafeUrl(
+    '/account/:uid/recoveryKey',
+    'db.deleteRecoveryKey'
+  )
+  DB.prototype.deleteRecoveryKey = function (uid) {
+    log.trace({op: 'DB.deleteRecoveryKey', uid})
+
+    return this.pool.del(SAFE_URLS.deleteRecoveryKey, { uid })
+  }
+
+  DB.prototype.safeRedisGet = function (key) {
+    return this.redis.get(key)
       .catch(err => {
         log.error({ op: 'redis.get.error', key, err: err.message })
         // Allow callers to distinguish between the null result and connection errors
@@ -1291,12 +1358,34 @@ module.exports = (
       })
   }
 
-  function deleteSessionTokenFromRedis (uid, id) {
-    if (! redis) {
+  // Unpacks a tokens string from Redis, with logic to recover from it being
+  // invalid JSON. In this case, "recover" means "delete the data from Redis and
+  // return an empty object to the caller". We've seen this situation occur once
+  // in prod, but we're not sure how it came about:
+  //
+  //     https://github.com/mozilla/fxa-auth-server/issues/2537
+  //
+  DB.prototype.safeUnpackTokensFromRedis = function (uid, tokens) {
+    return P.resolve()
+      .then(() => unpackTokensFromRedis(tokens))
+      .catch(err => {
+        log.error({ op: 'db.unpackTokensFromRedis.error', err: err.message })
+
+        if (err instanceof SyntaxError) {
+          return this.redis.del(uid)
+            .then(() => ({}))
+        }
+
+        throw err
+      })
+  }
+
+  DB.prototype.deleteSessionTokenFromRedis = function (uid, id) {
+    if (! this.redis) {
       return P.resolve()
     }
 
-    return redis.update(uid, sessionTokens => {
+    return this.redis.update(uid, sessionTokens => {
       if (! sessionTokens) {
         return
       }
@@ -1309,6 +1398,32 @@ module.exports = (
         return packTokensForRedis(sessionTokens)
       }
     })
+  }
+
+  function mergeDeviceInfoFromRedis(device, redisSessionTokens, lastAccessTimeEnabled) {
+    // If there's a matching sessionToken in redis, use the more up-to-date
+    // location and access-time info from there rather than from the DB.
+    const token = redisSessionTokens[device.sessionTokenId]
+    const mergedInfo = Object.assign({}, device, token)
+    return {
+      id: mergedInfo.id,
+      sessionToken: mergedInfo.sessionTokenId,
+      lastAccessTime: lastAccessTimeEnabled ? mergedInfo.lastAccessTime : null,
+      location: mergedInfo.location,
+      name: mergedInfo.name,
+      type: mergedInfo.type,
+      pushCallback: mergedInfo.callbackURL,
+      pushPublicKey: mergedInfo.callbackPublicKey,
+      pushAuthKey: mergedInfo.callbackAuthKey,
+      pushEndpointExpired: !! mergedInfo.callbackIsExpired,
+      availableCommands: mergedInfo.availableCommands || {},
+      uaBrowser: mergedInfo.uaBrowser,
+      uaBrowserVersion: mergedInfo.uaBrowserVersion,
+      uaOS: mergedInfo.uaOS,
+      uaOSVersion: mergedInfo.uaOSVersion,
+      uaDeviceType: mergedInfo.uaDeviceType,
+      uaFormFactor: mergedInfo.uaFormFactor
+    }
   }
 
   // Reduce redis memory usage by not encoding the keys. Store properties
@@ -1391,6 +1506,17 @@ module.exports = (
     }, {})
   }
 
+  function wrapTokenNotFoundError (err) {
+    if (isNotFoundError(err)) {
+      err = error.invalidToken('The authentication token could not be found')
+    }
+    return err
+  }
+
+  function hexEncode(str) {
+    return Buffer.from(str, 'utf8').toString('hex')
+  }
+
   return DB
 }
 
@@ -1419,4 +1545,8 @@ function isEmailDeletePrimaryError (err) {
 
 function isExpiredTokenVerificationCodeError (err) {
   return err.statusCode === 400 && err.errno === 137
+}
+
+function isInvalidRecoveryError (err) {
+  return err.statusCode === 400 && err.errno === 159
 }

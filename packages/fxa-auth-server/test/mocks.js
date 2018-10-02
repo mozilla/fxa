@@ -38,6 +38,7 @@ const DB_METHOD_NAMES = [
   'createEmail',
   'createKeyFetchToken',
   'createPasswordForgotToken',
+  'createRecoveryKey',
   'createSessionToken',
   'createSigninCode',
   'createTotpToken',
@@ -49,17 +50,21 @@ const DB_METHOD_NAMES = [
   'deletePasswordChangeToken',
   'deleteSessionToken',
   'deviceFromTokenVerificationId',
+  'deleteRecoveryKey',
   'deleteTotpToken',
   'devices',
+  'device',
   'emailBounces',
   'emailRecord',
   'forgotPasswordVerified',
+  'getRecoveryKey',
   'getSecondaryEmail',
   'keyFetchToken',
   'keyFetchTokenWithVerificationStatus',
   'passwordChangeToken',
   'passwordForgotToken',
   'pruneSessionTokens',
+  'recoveryKeyExists',
   'replaceRecoveryCodes',
   'resetAccount',
   'resetAccountTokens',
@@ -107,7 +112,10 @@ const MAILER_METHOD_NAMES = [
   'sendVerifyLoginEmail',
   'sendVerifyLoginCodeEmail',
   'sendVerifySecondaryEmail',
-  'sendRecoveryCode'
+  'sendRecoveryCode',
+  'sendPostAddAccountRecoveryNotification',
+  'sendPostRemoveAccountRecoveryNotification',
+  'sendPasswordResetAccountRecoveryNotification'
 ]
 
 const METRICS_CONTEXT_METHOD_NAMES = [
@@ -125,8 +133,14 @@ const PUSH_METHOD_NAMES = [
   'notifyPasswordReset',
   'notifyAccountUpdated',
   'notifyAccountDestroyed',
+  'notifyCommandReceived',
   'notifyProfileUpdated',
   'sendPush'
+]
+
+const PUSHBOX_METHOD_NAMES = [
+  'retrieve',
+  'store'
 ]
 
 module.exports = {
@@ -140,6 +154,7 @@ module.exports = {
   mockMailer: mockObject(MAILER_METHOD_NAMES),
   mockMetricsContext,
   mockPush,
+  mockPushbox,
   mockRequest
 }
 
@@ -296,6 +311,13 @@ function mockDB (data, errors) {
       assert.ok(typeof uid === 'string')
       return P.resolve(data.devices || [])
     }),
+    device: sinon.spy((uid, deviceId) => {
+      assert.ok(typeof uid === 'string')
+      assert.ok(typeof deviceId === 'string')
+      const device = data.devices.find(d => d.id === deviceId)
+      assert.ok(device)
+      return P.resolve(device)
+    }),
     deleteSessionToken: sinon.spy(() => {
       return P.resolve()
     }),
@@ -325,6 +347,20 @@ function mockDB (data, errors) {
     getSecondaryEmail: sinon.spy(() => {
       return P.reject(error.unknownSecondaryEmail())
     }),
+    getRecoveryKey: sinon.spy(() => {
+      if (data.recoveryKeyIdInvalid) {
+        return P.reject(error.recoveryKeyInvalid())
+      }
+
+      return P.resolve({
+        recoveryData: data.recoveryData
+      })
+    }),
+    recoveryKeyExists: sinon.spy(() => {
+      return P.resolve({
+        exists: !! data.recoveryData
+      })
+    }),
     securityEvents: sinon.spy(() => {
       return P.resolve([])
     }),
@@ -346,9 +382,10 @@ function mockDB (data, errors) {
         uaOS: data.uaOS,
         uaOSVersion: data.uaOSVersion,
         uaDeviceType: data.uaDeviceType,
-        tokenTypeID: 'sessionToken',
         expired: () => data.expired || false
       }
+      // SessionToken is a class, and tokenTypeID is a class attribute. Fake that.
+      res.constructor.tokenTypeID = 'sessionToken'
       if (data.devices && data.devices.length > 0) {
         Object.keys(data.devices[0]).forEach(key => {
           var keyOnSession = 'device' + key.charAt(0).toUpperCase() + key.substr(1)
@@ -378,7 +415,6 @@ function mockObject (methodNames) {
 
 function mockPush (methods) {
   const push = Object.assign({}, methods)
-  // So far every push method has a uid for first argument, let's keep it simple.
   PUSH_METHOD_NAMES.forEach((name) => {
     if (! push[name]) {
       push[name] = sinon.spy(() => P.resolve())
@@ -387,11 +423,26 @@ function mockPush (methods) {
   return push
 }
 
-function mockDevices (data) {
+function mockPushbox (methods) {
+  const pushbox = Object.assign({}, methods)
+  PUSHBOX_METHOD_NAMES.forEach((name) => {
+    if (! pushbox[name]) {
+      pushbox[name] = sinon.spy(() => P.resolve())
+    }
+  })
+  return pushbox
+}
+
+function mockDevices (data, errors) {
   data = data || {}
+  errors = errors || {}
 
   return {
+    isSpuriousUpdate: sinon.spy(() => data.spurious || false),
     upsert: sinon.spy(() => {
+      if (errors.upsert) {
+        return P.reject(errors.upsert)
+      }
       return P.resolve({
         id: data.deviceId || crypto.randomBytes(16).toString('hex'),
         name: data.deviceName || 'mock device name',
@@ -516,6 +567,8 @@ function mockRequest (data, errors) {
       received: data.received || Date.now() - 1
     },
     path: data.path,
+    params: data.params || {},
+    method: data.method || undefined,
     payload: data.payload || {},
     query: data.query || {},
     setMetricsFlowCompleteSignal: metricsContext.setFlowCompleteSignal,

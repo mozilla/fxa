@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const TestServer = require('../test_server')
 const Client = require('../client')()
 const P = require('../../lib/promise')
@@ -168,7 +168,7 @@ describe('remote misc', function() {
               timestamp: Math.floor(Date.now() / 1000)
             }
             var headers = {
-              Authorization: hawk.client.header(url, method, verify).field
+              Authorization: hawk.client.header(url, method, verify).header
             }
             return request(
               {
@@ -260,28 +260,6 @@ describe('remote misc', function() {
           return doc
         }
       )
-      .then(
-        function (doc) {
-          return fetch(doc.authentication)
-          .then(
-            function (authPage) {
-              assert.ok(authPage, 'auth page can be fetched')
-              return doc
-            }
-          )
-        }
-      )
-      .then(
-        function (doc) {
-          return fetch(doc.provisioning)
-          .then(
-            function (provPage) {
-              assert.ok(provPage, 'provisioning page can be fetched')
-              return doc
-            }
-          )
-        }
-      )
     }
   )
 
@@ -310,7 +288,7 @@ describe('remote misc', function() {
             timestamp: Math.floor(Date.now() / 1000)
           }
           const headers = {
-            Authorization: hawk.client.header(url, method, verify).field
+            Authorization: hawk.client.header(url, method, verify).header
           }
           payload.name = 'my stealthily-changed device name'
           return request(

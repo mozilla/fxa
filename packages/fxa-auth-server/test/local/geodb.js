@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const proxyquire = require('proxyquire')
 const mockLog = require('../mocks').mockLog
 const modulePath = '../../lib/geodb'
@@ -27,8 +27,8 @@ describe('geodb', () => {
       const thisMockLog = mockLog({})
 
       const getGeoData = proxyquire(modulePath, moduleMocks)(thisMockLog)
-      const geoData = getGeoData('63.245.221.32') // MTV
-      assert.equal(geoData.location.city, 'Mountain View')
+      const geoData = getGeoData('63.245.221.32') // Oakland
+      assert.equal(geoData.location.city, 'Oakland')
       assert.equal(geoData.location.country, 'United States')
       assert.equal(geoData.location.countryCode, 'US')
       assert.equal(geoData.timeZone, 'America/Los_Angeles')

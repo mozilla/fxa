@@ -6,7 +6,7 @@
 
 const LIB_DIR = '../../../lib'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const mocks = require('../../mocks')
 const P = require(`${LIB_DIR}/promise`)
 const proxyquire = require('proxyquire')
@@ -39,7 +39,7 @@ describe('redis/pool:', () => {
     })({
       host: 'foo',
       port: 'bar',
-      sessionsKeyPrefix: 'baz',
+      prefix: 'baz',
       retryCount: 3,
       initialBackoff: 100,
       maxConnections: 'qux',
@@ -74,8 +74,9 @@ describe('redis/pool:', () => {
   })
 
   it('returned pool object', () => {
-    assert.equal(Object.keys(redisPool).length, 1)
+    assert.equal(Object.keys(redisPool).length, 2)
     assert.equal(typeof redisPool.acquire, 'function')
+    assert.equal(typeof redisPool.close, 'function')
   })
 
   it('did not call connection.isValid', () => {

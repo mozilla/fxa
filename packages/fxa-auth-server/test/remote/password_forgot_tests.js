@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 var url = require('url')
 const Client = require('../client')()
 var TestServer = require('../test_server')

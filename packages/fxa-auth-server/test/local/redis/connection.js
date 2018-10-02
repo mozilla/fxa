@@ -6,7 +6,7 @@
 
 const LIB_DIR = '../../../lib'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const mocks = require('../../mocks')
 const P = require(`${LIB_DIR}/promise`)
 const redisConnection = require(`${LIB_DIR}/redis/connection`)

@@ -5,7 +5,7 @@
 'use strict'
 
 const sinon = require('sinon')
-const assert = Object.assign({}, sinon.assert, require('insist'))
+const assert = { ...sinon.assert, ...require('chai').assert }
 const getRoute = require('../../routes_helpers').getRoute
 const mocks = require('../../mocks')
 const error = require('../../../lib/error')
@@ -20,15 +20,8 @@ function runTest(routePath, requestOptions) {
   route = getRoute(routes, routePath)
   request = mocks.mockRequest(requestOptions)
   request.emitMetricsEvent = sinon.spy(() => P.resolve({}))
-  return new P((resolve, reject) => {
-    route.handler(request, response => {
-      if (response instanceof Error) {
-        reject(response)
-      } else {
-        resolve(response)
-      }
-    })
-  })
+
+  return route.handler(request)
 }
 
 describe('recovery codes', () => {

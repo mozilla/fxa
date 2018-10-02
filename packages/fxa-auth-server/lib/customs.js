@@ -65,10 +65,7 @@ module.exports = function (log, error) {
       handleCustomsResult.bind(request),
       err => {
         log.error({ op: 'customs.check.1', email: email, action: action, err: err })
-        // If this happens, either:
-        // - (1) the url in config doesn't point to a real customs server
-        // - (2) the customs server returned an internal server error
-        // Either way, allow the request through so we fail open.
+        throw error.backendServiceFailure('customs', 'check')
       }
     )
   }
@@ -125,10 +122,7 @@ module.exports = function (log, error) {
       },
       function (err) {
         log.error({ op: 'customs.checkAuthenticated', uid: uid, action: action, err: err })
-        // If this happens, either:
-        // - (1) the url in config doesn't point to a real customs server
-        // - (2) the customs server returned an internal server error
-        // Either way, allow the request through so we fail open.
+        throw error.backendServiceFailure('customs', 'checkAuthenticated')
       }
     )
   }
@@ -144,10 +138,7 @@ module.exports = function (log, error) {
       handleCustomsResult.bind(request),
       err => {
         log.error({ op: 'customs.checkIpOnly.1', action: action, err: err })
-        // If this happens, either:
-        // - (1) the url in config doesn't point to a real customs server
-        // - (2) the customs server returned an internal server error
-        // Either way, allow the request through so we fail open.
+        throw error.backendServiceFailure('customs', 'checkIpOnly')
       }
     )
   }
@@ -171,10 +162,7 @@ module.exports = function (log, error) {
       function () {},
       function (err) {
         log.error({ op: 'customs.flag.1', email: email, err: err })
-        // If this happens, either:
-        // - (1) the url in config doesn't point to a real customs server
-        // - (2) the customs server returned an internal server error
-        // Either way, allow the request through so we fail open.
+        throw error.backendServiceFailure('customs', 'flag')
       }
     )
   }
@@ -194,10 +182,7 @@ module.exports = function (log, error) {
       function () {},
       function (err) {
         log.error({ op: 'customs.reset.1', email: email, err: err })
-        // If this happens, either:
-        // - (1) the url in config doesn't point to a real customs server
-        // - (2) the customs server returned an internal server error
-        // Either way, allow the request through so we fail open.
+        throw error.backendServiceFailure('customs', 'reset')
       }
     )
   }

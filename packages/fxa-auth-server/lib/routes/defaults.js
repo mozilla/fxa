@@ -28,35 +28,42 @@ try {
 
 module.exports = (log, db) => {
 
-  function versionHandler(request, reply) {
+  async function versionHandler(request, h) {
     log.begin('Defaults.root', request)
 
-    function sendReply() {
-      reply(
-        {
-          version: version,
-          commit: commitHash,
-          source: sourceRepo
-        }
-      ).spaces(2).suffix('\n')
+    function getVersion() {
+      return new Promise(function (resolve, reject) {
+        // ignore errors and default to 'unknown' if not found
+        var gitDir = path.resolve(__dirname, '..', '..', '.git')
+
+          cp.exec('git rev-parse HEAD', { cwd: gitDir },  function(err, stdout1) {
+            var configPath = path.join(gitDir, 'config')
+            var cmd = 'git config --get remote.origin.url'
+            cp.exec(cmd, { env: { GIT_CONFIG: configPath, PATH: process.env.PATH } }, function(err, stdout2) {
+               commitHash = (stdout1 && stdout1.trim()) || UNKNOWN
+               sourceRepo = (stdout2 && stdout2.trim()) || UNKNOWN
+               resolve()
+            })
+          })
+      });
+    }
+
+    function getResp() {
+        return h.response({
+            version: version,
+            commit: commitHash,
+            source: sourceRepo
+        }).spaces(2).suffix('\n')
     }
 
     // if we already have the commitHash, send the reply and return
     if (commitHash) {
-      return sendReply()
+      return getResp()
     }
 
-    // ignore errors and default to 'unknown' if not found
-    var gitDir = path.resolve(__dirname, '..', '..', '.git')
-    cp.exec('git rev-parse HEAD', { cwd: gitDir }, function(err, stdout1) {
-      var configPath = path.join(gitDir, 'config')
-      var cmd = 'git config --get remote.origin.url'
-      cp.exec(cmd, { env: { GIT_CONFIG: configPath, PATH: process.env.PATH } }, function(err, stdout2) {
-        commitHash = (stdout1 && stdout1.trim()) || UNKNOWN
-        sourceRepo = (stdout2 && stdout2.trim()) || UNKNOWN
-        return sendReply()
-      })
-    })
+     await getVersion()
+     return getResp();
+
   }
 
   var routes = [
@@ -73,16 +80,16 @@ module.exports = (log, db) => {
     {
       method: 'GET',
       path: '/__heartbeat__',
-      handler: function heartbeat(request, reply) {
+      handler: async function heartbeat(request) {
         log.begin('Defaults.heartbeat', request)
-        db.ping()
+        return db.ping()
           .then(
             function () {
-              reply({})
+              return {}
             },
             function (err) {
               log.error({ op: 'heartbeat', err: err })
-              reply(error.serviceUnavailable())
+              throw error.serviceUnavailable()
             }
           )
       }
@@ -90,23 +97,23 @@ module.exports = (log, db) => {
     {
       method: 'GET',
       path: '/__lbheartbeat__',
-      handler: function heartbeat(request, reply) {
+      handler: async function heartbeat(request) {
         log.begin('Defaults.lbheartbeat', request)
-        reply({})
+        return {}
       }
     },
     {
       method: '*',
       path: '/v0/{p*}',
-      config: {
+      options: {
         validate: {
           query: true,
           params: true
         }
       },
-      handler: function v0(request, reply) {
+      handler: async function v0(request) {
         log.begin('Defaults.v0', request)
-        reply(error.gone())
+        throw error.gone()
       }
     }
   ]

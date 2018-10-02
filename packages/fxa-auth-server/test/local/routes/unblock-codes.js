@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const getRoute = require('../../routes_helpers').getRoute
 const mocks = require('../../mocks')
 const P = require('../../../lib/promise')
@@ -26,16 +26,8 @@ function makeRoutes (options = {}, requireMocks) {
 }
 
 function runTest (route, request, assertions) {
-  return new P(function (resolve, reject) {
-    route.handler(request, response => {
-      if (response instanceof Error) {
-        reject(response)
-      } else {
-        resolve(response)
-      }
-    })
-  })
-    .then(assertions)
+  return route.handler(request)
+  .then(assertions)
 }
 
 describe('/account/login/send_unblock_code', function () {

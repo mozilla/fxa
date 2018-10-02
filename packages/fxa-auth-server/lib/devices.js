@@ -26,14 +26,57 @@ const SCHEMA = {
   // so we can't assert DISPLAY_SAFE_UNICODE_WITH_NON_BMP in the response schema.
   nameResponse: isA.string().max(255),
   type: isA.string().max(16),
-  pushCallback: validators.url({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow(''),
+  pushCallback: validators.pushCallbackUrl({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow(''),
   pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).allow(''),
   pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).allow(''),
-  pushEndpointExpired: isA.boolean().strict()
+  pushEndpointExpired: isA.boolean().strict(),
+  // An object mapping command names to metadata bundles.
+  availableCommands: isA.object().pattern(validators.DEVICE_COMMAND_NAME, isA.string().max(2048))
 }
 
 module.exports = (log, db, push) => {
-  return { upsert, synthesizeName }
+  return { isSpuriousUpdate, upsert, synthesizeName }
+
+  // Clients have been known to send spurious device updates,
+  // which generates lots of unnecessary database load.
+  // Check if anything has actually changed.
+  function isSpuriousUpdate (payload, token) {
+    if (! token.deviceId || payload.id !== token.deviceId) {
+      return false
+    }
+
+    if (payload.name && payload.name !== token.deviceName) {
+      return false
+    }
+
+    if (payload.type && payload.type !== token.deviceType) {
+      return false
+    }
+
+    if (payload.pushCallback && payload.pushCallback !== token.deviceCallbackURL) {
+      return false
+    }
+
+    if (payload.pushPublicKey && payload.pushPublicKey !== token.deviceCallbackPublicKey) {
+      return false
+    }
+
+    if (payload.availableCommands) {
+      if (! token.deviceAvailableCommands) {
+        return false
+      }
+
+      if (! isLike(token.deviceAvailableCommands, payload.availableCommands)) {
+        return false
+      }
+
+      if (! isLike(payload.availableCommands, token.deviceAvailableCommands)) {
+        return false
+      }
+    }
+
+    return true
+  }
 
   function upsert (request, sessionToken, deviceInfo) {
     let operation, event, result
@@ -129,3 +172,6 @@ module.exports = (log, db, push) => {
 
 module.exports.schema = SCHEMA
 
+function isLike (object, archetype) {
+  return Object.entries(archetype).every(([ key, value ]) => object[key] === value)
+}

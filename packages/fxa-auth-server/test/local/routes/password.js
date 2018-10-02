@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 var mocks = require('../../mocks')
 var getRoute = require('../../routes_helpers').getRoute
 
@@ -45,15 +45,7 @@ function makeRoutes(options = {}) {
 }
 
 function runRoute(routes, name, request) {
-  return new P((resolve, reject) => {
-    getRoute(routes, name).handler(request, res => {
-      if (res instanceof Error) {
-        reject(res)
-      } else {
-        resolve(res)
-      }
-    })
-  })
+  return getRoute(routes, name).handler(request)
 }
 
 describe('/password', () => {

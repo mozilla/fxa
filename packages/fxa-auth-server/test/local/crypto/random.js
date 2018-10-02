@@ -4,9 +4,11 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 
 const random = require('../../../lib/crypto/random')
+const base10 = random.base10
+const base32 = random.base32
 
 describe('random', () => {
 
@@ -72,6 +74,44 @@ describe('random', () => {
           assert(/^[0-9a-f]+$/g.test(b))
           assert.equal(b.length, 16)
         })
+    })
+  })
+
+  describe('base32', () => {
+    it('takes 1 integer argument, returns a function', () => {
+      assert.equal(typeof base32, 'function')
+      assert.equal(base32.length, 1)
+      const gen = base32(10)
+      assert.equal(typeof gen, 'function')
+      assert.equal(gen.length, 0)
+    })
+
+    it('should have correct output', () => {
+      return base32(10)().then(code => {
+        assert.equal(code.length, 10, 'matches length')
+        assert.ok(/^[0-9A-Z]+$/.test(code), 'no lowercase letters')
+        assert.equal(code.indexOf('I'), -1, 'no I')
+        assert.equal(code.indexOf('L'), -1, 'no L')
+        assert.equal(code.indexOf('O'), -1, 'no O')
+        assert.equal(code.indexOf('U'), -1, 'no U')
+      })
+    })
+  })
+
+  describe('base10', () => {
+    it('takes 1 integer argument, returns a function', () => {
+      assert.equal(typeof base10, 'function')
+      assert.equal(base10.length, 1)
+      const gen = base10(10)
+      assert.equal(typeof gen, 'function')
+      assert.equal(gen.length, 0)
+    })
+
+    it('should have correct output', () => {
+      return base10(10)().then(code => {
+        assert.equal(code.length, 10, 'matches length')
+        assert.ok(/^[0-9]+$/.test(code), 'only digits')
+      })
     })
   })
 })

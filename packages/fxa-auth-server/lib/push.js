@@ -22,13 +22,15 @@ var PUSH_COMMANDS = {
   PROFILE_UPDATED: 'fxaccounts:profile_updated',
   PASSWORD_CHANGED: 'fxaccounts:password_changed',
   PASSWORD_RESET: 'fxaccounts:password_reset',
-  ACCOUNT_DESTROYED: 'fxaccounts:account_destroyed'
+  ACCOUNT_DESTROYED: 'fxaccounts:account_destroyed',
+  COMMAND_RECEIVED: 'fxaccounts:command_received'
 }
 
-var TTL_DEVICE_DISCONNECTED = 5 * 3600 // 5 hours
-var TTL_PASSWORD_CHANGED = 6 * 3600 // 6 hours
-var TTL_PASSWORD_RESET = TTL_PASSWORD_CHANGED
-var TTL_ACCOUNT_DESTROYED = TTL_DEVICE_DISCONNECTED
+const TTL_DEVICE_DISCONNECTED = 5 * 3600 // 5 hours
+const TTL_PASSWORD_CHANGED = 6 * 3600 // 6 hours
+const TTL_PASSWORD_RESET = TTL_PASSWORD_CHANGED
+const TTL_ACCOUNT_DESTROYED = TTL_DEVICE_DISCONNECTED
+const TTL_COMMAND_RECEIVED = TTL_PASSWORD_CHANGED
 
 // An arbitrary, but very generous, limit on the number of active devices.
 // Currently only for metrics purposes, not enforced.
@@ -37,7 +39,8 @@ var MAX_ACTIVE_DEVICES = 200
 const pushReasonsToEvents = (() => {
   const reasons = ['accountVerify', 'accountConfirm', 'passwordReset',
     'passwordChange', 'deviceConnected', 'deviceDisconnected',
-    'profileUpdated', 'devicesNotify', 'accountDestroyed']
+    'profileUpdated', 'devicesNotify', 'accountDestroyed',
+    'commandReceived']
   const events = {}
   for (const reason of reasons) {
     const id = reason.replace(/[A-Z]/, c => `_${c.toLowerCase()}`) // snake-cased.
@@ -115,6 +118,9 @@ module.exports = function (log, db, config) {
     const command = (payload && payload.command) || null
     let canSendToIOSVersion/* ({Number} version) => bool */
     switch (command) {
+    case 'fxaccounts:command_received':
+      canSendToIOSVersion = () => true
+      break
     case 'sync:collection_changed':
       canSendToIOSVersion = () => payload.data.reason !== 'firstsync'
       break
@@ -191,6 +197,37 @@ module.exports = function (log, db, config) {
   return {
 
     isValidPublicKey,
+
+    /**
+     * Notify devices that a new command is ready to be retrieved.
+     *
+     * @param {String} uid
+     * @param {Device} device
+     * @param {Number} index - index of the newly-enqueued command
+     * @param {String} url - url to retrieve the command details.
+     * @param {String} topic
+     * @param {String} reason
+     * @promise
+     */
+    notifyCommandReceived(uid, device, command, sender, index, url, ttl) {
+      if (typeof ttl === 'undefined') {
+        ttl = TTL_COMMAND_RECEIVED
+      }
+      const options = {
+        data: {
+          version: PUSH_PAYLOAD_SCHEMA_VERSION,
+          command: PUSH_COMMANDS.COMMAND_RECEIVED,
+          data: {
+            command,
+            index,
+            sender,
+            url
+          }
+        },
+        TTL: ttl
+      }
+      return this.sendPush(uid, [device], 'commandReceived', options)
+    },
 
     /**
      * Notify devices that a new device was connected

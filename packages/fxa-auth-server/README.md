@@ -4,6 +4,8 @@ Firefox Accounts Server
 [![Build Status](https://travis-ci.org/mozilla/fxa-auth-server.svg?branch=master)](https://travis-ci.org/mozilla/fxa-auth-server)
 [![Coverage Status](https://coveralls.io/repos/github/mozilla/fxa-auth-server/badge.svg?branch=master)](https://coveralls.io/github/mozilla/fxa-auth-server?branch=master)
 [![CircleCI](https://circleci.com/gh/mozilla/fxa-auth-server.svg?style=svg)](https://circleci.com/gh/mozilla/fxa-auth-server)
+[![Code Quality: Javascript](https://img.shields.io/lgtm/grade/javascript/g/mozilla/fxa-auth-server.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/mozilla/fxa-auth-server/context:javascript)
+[![Total Alerts](https://img.shields.io/lgtm/alerts/g/mozilla/fxa-auth-server.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/mozilla/fxa-auth-server/alerts)
 
 This project implements the core server-side API for Firefox Accounts.  It
 provides account, device and encryption-key management for the Mozilla Cloud
@@ -133,6 +135,65 @@ can be overridden in two ways:
    ```sh
    export CONFIG_FILES="~/fxa-content-server.json,~/fxa-db.json"
    ```
+
+### Email config
+
+There is also some live config
+loaded from Redis for the email service.
+This config is stored as a JSON string
+that looks like this
+(every property is optional):
+
+```json
+{
+  "sendgrid": {
+    "percentage": 100,
+    "regex": "^.+@example\\.com$"
+  },
+  "socketlabs": {
+    "percentage": 100,
+    "regex": "^.+@example\\.org$"
+  },
+  "ses": {
+    "percentage": 10,
+    "regex": ".*"
+  }
+}
+```
+
+`scripts/email-config.js`
+has been written to help
+manage this config.
+
+* To print the current live config to stdout:
+
+  ```
+  node scripts/email-config read
+  ```
+
+* To set the live config from a JSON file on disk:
+
+  ```
+  cat foo.json | node scripts/email-config write
+  ```
+
+* To set the live config from a string:
+
+  ```
+  echo '{"sendgrid":{"percentage":10}}' | node scripts/email-config write
+  ```
+
+* To undo the last change:
+
+  ```
+  node scripts/email-config revert
+  ```
+
+* To check the resolved config for a specific email address:
+
+  ```
+  node scripts/email-config check foo@example.com
+  ```
 
 ## Troubleshooting
 

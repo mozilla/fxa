@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const Client = require('../client')()
 var config = require('../../config').getProperties()
 var TestServer = require('../test_server')

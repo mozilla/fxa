@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const log = { trace() {} }
 
 const timestamp = Date.now()

@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 var sinon = require('sinon')
 const legacyLog = require('../../../lib/senders/legacy_log')
 

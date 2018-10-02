@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const TestServer = require('../test_server')
 const Client = require('../client')()
 const config = require('../../config').getProperties()
@@ -40,6 +40,7 @@ describe('remote device', function () {
             var deviceInfo = {
               name: 'test device 🍓🔥在𝌆',
               type: 'mobile',
+              availableCommands: { 'foo': 'bar' },
               pushCallback: '',
               pushPublicKey: '',
               pushAuthKey: ''
@@ -57,6 +58,7 @@ describe('remote device', function () {
                   assert.ok(device.createdAt > 0, 'device.createdAt was set')
                   assert.equal(device.name, deviceInfo.name, 'device.name is correct')
                   assert.equal(device.type, deviceInfo.type, 'device.type is correct')
+                  assert.deepEqual(device.availableCommands, deviceInfo.availableCommands, 'device.availableCommands is correct')
                   assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
                   assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct')
                   assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey, 'device.pushAuthKey is correct')
@@ -73,6 +75,7 @@ describe('remote device', function () {
                   assert.equal(devices.length, 1, 'devices returned one item')
                   assert.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
                   assert.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
+                  assert.deepEqual(devices[0].availableCommands, deviceInfo.availableCommands, 'devices returned correct availableCommands')
                   assert.equal(devices[0].pushCallback, '', 'devices returned empty pushCallback')
                   assert.equal(devices[0].pushPublicKey, '', 'devices returned correct pushPublicKey')
                   assert.equal(devices[0].pushAuthKey, '', 'devices returned correct pushAuthKey')
@@ -235,6 +238,7 @@ describe('remote device', function () {
         id: crypto.randomBytes(16).toString('hex'),
         name: 'test device',
         type: 'desktop',
+        availableCommands: {},
         pushCallback: badPushCallback,
         pushPublicKey: mocks.MOCK_PUSH_KEY,
         pushAuthKey: base64url(crypto.randomBytes(16))
@@ -269,6 +273,7 @@ describe('remote device', function () {
         id: crypto.randomBytes(16).toString('hex'),
         name: 'test device',
         type: 'desktop',
+        availableCommands: {},
         pushCallback: badPushCallback,
         pushPublicKey: mocks.MOCK_PUSH_KEY,
         pushAuthKey: base64url(crypto.randomBytes(16))
@@ -305,6 +310,7 @@ describe('remote device', function () {
             var deviceInfo = {
               name: 'test device',
               type: 'mobile',
+              availableCommands: {},
               pushCallback: goodPushCallback,
               pushPublicKey: '',
               pushAuthKey: ''
@@ -335,6 +341,121 @@ describe('remote device', function () {
     'update device works with dev servers',
     () => {
       var goodPushCallback = 'https://updates-autopush.dev.mozaws.net'
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            var deviceInfo = {
+              name: 'test device',
+              type: 'mobile',
+              pushCallback: goodPushCallback,
+              pushPublicKey: '',
+              pushAuthKey: ''
+            }
+            return client.devices()
+              .then(
+                function (devices) {
+                  assert.equal(devices.length, 0, 'devices returned no items')
+                  return client.updateDevice(deviceInfo)
+                }
+              )
+              .then(
+                function (device) {
+                  assert.ok(device.id, 'device.id was set')
+                  assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
+                }
+              )
+              .catch(
+                function (err) {
+                  assert.fail(err, 'request should have worked')
+                }
+              )
+          })
+    }
+  )
+
+  it(
+    'update device works with callback urls that :443 as a port',
+    () => {
+      var goodPushCallback = 'https://updates.push.services.mozilla.com:443/wpush/v1/gAAAAABbkq0Eafe6IANS4OV3pmoQ5Z8AhqFSGKtozz5FIvu0CfrTGmcv07CYziPaysTv_9dgisB0yr3UjEIlGEyoprRFX1WU5VA4nG-9tofPdA3FYREPf6xh3JL1qBhTa9mEFS2dSn--'
+
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            var deviceInfo = {
+              name: 'test device',
+              type: 'mobile',
+              pushCallback: goodPushCallback,
+              pushPublicKey: '',
+              pushAuthKey: ''
+            }
+            return client.devices()
+              .then(
+                function (devices) {
+                  assert.equal(devices.length, 0, 'devices returned no items')
+                  return client.updateDevice(deviceInfo)
+                }
+              )
+              .then(
+                function (device) {
+                  assert.ok(device.id, 'device.id was set')
+                  assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
+                }
+              )
+              .catch(
+                function (err) {
+                  assert.fail(err, 'request should have worked')
+                }
+              )
+          })
+    }
+  )
+
+  it(
+    'update device works with callback urls that :4430 as a port',
+    () => {
+      var goodPushCallback = 'https://updates.push.services.mozilla.com:4430'
+      var email = server.uniqueEmail()
+      var password = 'test password'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (client) {
+            var deviceInfo = {
+              name: 'test device',
+              type: 'mobile',
+              pushCallback: goodPushCallback,
+              pushPublicKey: '',
+              pushAuthKey: ''
+            }
+            return client.devices()
+              .then(
+                function (devices) {
+                  assert.equal(devices.length, 0, 'devices returned no items')
+                  return client.updateDevice(deviceInfo)
+                }
+              )
+              .then(
+                function (device) {
+                  assert.ok(device.id, 'device.id was set')
+                  assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct')
+                }
+              )
+              .catch(
+                function (err) {
+                  assert.fail(err, 'request should have worked')
+                }
+              )
+          })
+    }
+  )
+
+  it(
+    'update device works with callback urls that a custom port',
+    () => {
+      var goodPushCallback = 'https://updates.push.services.mozilla.com:10332'
       var email = server.uniqueEmail()
       var password = 'test password'
       return Client.create(config.publicUrl, email, password)

@@ -27,7 +27,7 @@ module.exports = (log, db, config, customs, sms) => {
     {
       method: 'POST',
       path: '/sms',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -40,7 +40,7 @@ module.exports = (log, db, config, customs, sms) => {
           }
         }
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('sms.send', request)
         request.validateMetricsContext()
 
@@ -51,7 +51,7 @@ module.exports = (log, db, config, customs, sms) => {
 
         let phoneNumberUtil, parsedPhoneNumber
 
-        customs.check(request, sessionToken.email, 'connectDeviceSms')
+        return customs.check(request, sessionToken.email, 'connectDeviceSms')
           .then(parsePhoneNumber)
           .then(validatePhoneNumber)
           .then(validateRegion)
@@ -59,7 +59,6 @@ module.exports = (log, db, config, customs, sms) => {
           .then(sendMessage)
           .then(logSuccess)
           .then(createResponse)
-          .then(reply, reply)
 
         function parsePhoneNumber () {
           phoneNumberUtil = PhoneNumberUtil.getInstance()
@@ -106,7 +105,7 @@ module.exports = (log, db, config, customs, sms) => {
     {
       method: 'GET',
       path: '/sms/status',
-      config: {
+      options: {
         auth: {
           strategy: 'sessionToken'
         },
@@ -116,12 +115,12 @@ module.exports = (log, db, config, customs, sms) => {
           }
         }
       },
-      handler (request, reply) {
+      handler: async function (request) {
         log.begin('sms.status', request)
 
         let country
 
-        reply(createResponse(getLocation()))
+        return createResponse(getLocation())
 
         function getLocation () {
           country = request.query.country

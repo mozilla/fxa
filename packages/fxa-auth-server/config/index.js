@@ -155,7 +155,7 @@ var conf = convict({
     }
   },
   customsUrl: {
-    doc: 'fraud / abuse server url',
+    doc: 'fraud / abuse server url; set to the string \'none\' to disable',
     default: 'http://127.0.0.1:7000',
     env: 'CUSTOMS_SERVER_URL'
   },
@@ -165,6 +165,26 @@ var conf = convict({
       default: 'http://127.0.0.1:3030',
       env: 'CONTENT_SERVER_URL'
     }
+  },
+  emailService: {
+    host: {
+      doc: 'host for fxa-email-service',
+      format: 'ipaddress',
+      default: '127.0.0.1',
+      env: 'EMAIL_SERVICE_HOST'
+    },
+    port: {
+      doc: 'port for fxa-email-service',
+      format: 'port',
+      default: 8001,
+      env: 'EMAIL_SERVICE_PORT'
+    },
+    forcedEmailAddresses: {
+      doc: 'force usage of fxa-email-service when sending emails to addresses that match this pattern',
+      format: RegExp,
+      default: /emailservice\.[A-Za-z0-9._%+-]+@restmail\.net$/,
+      env: 'EMAIL_SERVICE_FORCE_EMAIL_REGEX'
+    },
   },
   smtp: {
     api: {
@@ -245,12 +265,12 @@ var conf = convict({
     androidUrl: {
       doc: 'url to Android product page',
       format: String,
-      default: 'https://app.adjust.com/2uo1qc?campaign=fxa-conf-email&adgroup=android&creative=button'
+      default: 'https://app.adjust.com/2uo1qc?campaign=fxa-conf-email&adgroup=android&creative=button&utm_source=email'
     },
     iosUrl: {
       doc: 'url to IOS product page',
       format: String,
-      default: 'https://app.adjust.com/2uo1qc?campaign=fxa-conf-email&adgroup=ios&creative=button&fallback=https%3A%2F%2Fitunes.apple.com%2Fapp%2Fapple-store%2Fid989804926%3Fpt%3D373246%26ct%3Dadjust_tracker%26mt%3D8'
+      default: 'https://app.adjust.com/2uo1qc?campaign=fxa-conf-email&adgroup=ios&creative=button&fallback=https%3A%2F%2Fitunes.apple.com%2Fapp%2Fapple-store%2Fid989804926%3Fpt%3D373246%26ct%3Dadjust_tracker%26mt%3D8&utm_source=email'
     },
     supportUrl: {
       doc: 'url to Mozilla Support product page',
@@ -278,7 +298,7 @@ var conf = convict({
             'X-SES-MESSAGE-TAGS headers will be added to emails. Only ' +
             'intended for Production/Stage use.'),
       format: String,
-      default: undefined,
+      default: '',
       env: 'SES_CONFIGURATION_SET'
     },
     bounces: {
@@ -341,12 +361,6 @@ var conf = convict({
     }
   },
   redis: {
-    enabled: {
-      default: true,
-      doc: 'Enable redis cache',
-      format: Boolean,
-      env: 'USE_REDIS'
-    },
     host: {
       default: '127.0.0.1',
       env: 'REDIS_HOST',
@@ -359,23 +373,57 @@ var conf = convict({
       format: 'port',
       doc: 'Port for Redis server'
     },
-    sessionsKeyPrefix: {
-      default: 'fxa-auth-session',
-      env: 'SESSIONS_REDIS_KEY_PREFIX',
-      format: String,
-      doc: 'Key prefix for session tokens in Redis'
+    sessionTokens: {
+      enabled: {
+        default: true,
+        doc: 'Enable Redis for session tokens',
+        format: Boolean,
+        env: 'USE_REDIS'
+      },
+      prefix: {
+        default: 'fxa-auth-session',
+        env: 'SESSIONS_REDIS_KEY_PREFIX',
+        format: String,
+        doc: 'Key prefix for session tokens in Redis'
+      },
+      maxConnections: {
+        default: 200,
+        env: 'REDIS_POOL_MAX_CONNECTIONS',
+        format: 'int',
+        doc: 'Maximum connection count for the session token Redis pool'
+      },
+      minConnections: {
+        default: 2,
+        env: 'REDIS_POOL_MIN_CONNECTIONS',
+        format: 'int',
+        doc: 'Minimum connection count for the session token Redis pool'
+      }
     },
-    maxConnections: {
-      default: 200,
-      env: 'REDIS_POOL_MAX_CONNECTIONS',
-      format: 'int',
-      doc: 'Maximum connection count for Redis'
-    },
-    minConnections: {
-      default: 2,
-      env: 'REDIS_POOL_MIN_CONNECTIONS',
-      format: 'int',
-      doc: 'Minimum connection count for Redis'
+    email: {
+      enabled: {
+        default: true,
+        doc: 'Enable Redis for email config',
+        format: Boolean,
+        env: 'EMAIL_CONFIG_USE_REDIS'
+      },
+      prefix: {
+        default: 'email:',
+        env: 'EMAIL_CONFIG_REDIS_KEY_PREFIX',
+        format: String,
+        doc: 'Key prefix for the email config Redis pool'
+      },
+      maxConnections: {
+        default: 10,
+        env: 'EMAIL_CONFIG_REDIS_POOL_MAX_CONNECTIONS',
+        format: 'int',
+        doc: 'Maximum connection count for the email config Redis pool'
+      },
+      minConnections: {
+        default: 1,
+        env: 'EMAIL_CONFIG_REDIS_POOL_MIN_CONNECTIONS',
+        format: 'int',
+        doc: 'Minimum connection count for the email config Redis pool'
+      }
     },
     maxPending: {
       default: 1000,
@@ -602,14 +650,14 @@ var conf = convict({
     },
     tokenVerificationCode: {
       codeLength: {
-        doc: 'Number of alphanumeric digits to make up a token code',
-        default: 8,
+        doc: 'Number of digits to make up a token code',
+        default: 6,
         env: 'SIGNIN_TOKEN_CODE_LENGTH'
       },
       codeLifetime: {
         doc: 'How long code should be valid for',
         format: 'duration',
-        default: '1 hour',
+        default: '20 minutes',
         env: 'SIGNIN_TOKEN_CODE_LIFETIME'
       },
     }
@@ -705,7 +753,33 @@ var conf = convict({
     allowedServerRegex: {
       doc: 'RegExp that validates the URI format of the Push Server',
       format: RegExp,
-      default: /^https:\/\/[a-zA-Z0-9._-]+(\.services\.mozilla\.com|autopush\.dev\.mozaws\.net|autopush\.stage\.mozaws\.net)(\/.*)?$/
+      default: /^https:\/\/[a-zA-Z0-9._-]+(\.services\.mozilla\.com|autopush\.dev\.mozaws\.net|autopush\.stage\.mozaws\.net)(?:\:\d+)?(\/.*)?$/
+    }
+  },
+  pushbox: {
+    enabled: {
+      doc: 'Indicates whether talking to the Pushbox server is enabled',
+      format: Boolean,
+      default: false,
+      env: 'PUSHBOX_ENABLED'
+    },
+    url: {
+      doc: 'Pushbox Server URL',
+      format: 'url',
+      default: 'https://pushbox.services.mozilla.com/',
+      env: 'PUSHBOX_URL'
+    },
+    key: {
+      doc: 'Authentication key to use when accessing pushbox server',
+      format: String,
+      default: 'Correct_Horse_Battery_Staple_1',
+      env: 'PUSHBOX_KEY'
+    },
+    maxTTL: {
+      doc: 'Maximum TTL to set on items written to pushbox',
+      format: 'duration',
+      default: '28 days',
+      env: 'PUSHBOX_MAX_TTL'
     }
   },
   sms: {
@@ -810,11 +884,6 @@ var conf = convict({
       env: 'TOTP_WINDOW'
     },
     recoveryCodes: {
-      length: {
-        doc: 'The length of a recovery code',
-        default: 10,
-        env: 'RECOVERY_CODE_LENGTH'
-      },
       count: {
         doc: 'Number of recovery codes to create',
         default: 8,
@@ -837,7 +906,7 @@ var envConfig = path.join(__dirname, conf.get('env') + '.json')
 envConfig = envConfig + ',' + (process.env.CONFIG_FILES || '')
 var files = envConfig.split(',').filter(fs.existsSync)
 conf.loadFile(files)
-conf.validate({ strict: true })
+conf.validate({ allowed: 'strict' })
 
 // set the public url as the issuer domain for assertions
 conf.set('domain', url.parse(conf.get('publicUrl')).host)
@@ -851,6 +920,8 @@ conf.set('smtp.initiatePasswordResetUrl', conf.get('contentServer.url') + '/rese
 conf.set('smtp.initiatePasswordChangeUrl', conf.get('contentServer.url') + '/settings/change_password')
 conf.set('smtp.verifyLoginUrl', conf.get('contentServer.url') + '/complete_signin')
 conf.set('smtp.reportSignInUrl', conf.get('contentServer.url') + '/report_signin')
+conf.set('smtp.revokeAccountRecoveryUrl', conf.get('contentServer.url') + '/settings/account_recovery/confirm_revoke')
+conf.set('smtp.createAccountRecoveryUrl', conf.get('contentServer.url') + '/settings/account_recovery/confirm_password')
 conf.set('smtp.verifyPrimaryEmailUrl', conf.get('contentServer.url') + '/verify_primary_email')
 conf.set('smtp.verifySecondaryEmailUrl', conf.get('contentServer.url') + '/verify_secondary_email')
 

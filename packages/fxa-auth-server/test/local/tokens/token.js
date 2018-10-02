@@ -4,7 +4,7 @@
 
 'use strict'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const config = require('../../../config').getProperties()
 var random = require('../../../lib/crypto/random')
 var hkdf = require('../../../lib/crypto/hkdf')

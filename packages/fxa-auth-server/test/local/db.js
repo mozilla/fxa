@@ -6,7 +6,7 @@
 
 const LIB_DIR = '../../lib'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const mocks = require('../mocks')
 const P = require(`${LIB_DIR}/promise`)
 const proxyquire = require('proxyquire')
@@ -128,7 +128,7 @@ describe('db with redis disabled:', () => {
     const DB = proxyquire(`${LIB_DIR}/db`, {
       './pool': function () { return pool },
       './redis': () => {}
-    })({ tokenLifetimes, tokenPruning: {} }, log, tokens, {})
+    })({ redis: {}, tokenLifetimes, tokenPruning: {} }, log, tokens, {})
     return DB.connect({})
       .then(result => db = result)
   })
@@ -158,6 +158,20 @@ describe('db with redis disabled:', () => {
         assert.equal(args[0].constructor.name, 'SafeUrl')
         assert.deepEqual(args[1], { uid: 'fakeUid' })
         assert.deepEqual(result, [])
+      })
+  })
+
+  it('db.device succeeds without a redis instance', () => {
+    results.pool = { id: 'fakeDeviceId' }
+    return db.device('fakeUid', 'fakeDeviceId')
+      .then(result => {
+        assert.equal(pool.get.callCount, 1)
+        const args = pool.get.args[0]
+        assert.equal(args.length, 2)
+        assert.equal(typeof args[0].render, 'function')
+        assert.equal(args[0].constructor.name, 'SafeUrl')
+        assert.deepEqual(args[1], { uid: 'fakeUid', deviceId: 'fakeDeviceId' })
+        assert.equal(result.id, 'fakeDeviceId')
       })
   })
 
@@ -276,14 +290,27 @@ describe('redis enabled, token-pruning enabled:', () => {
       './pool': function () { return pool },
       './redis': (...args) => {
         assert.equal(args.length, 2, 'redisPool was passed two arguments')
-        assert.equal(args[0], 'mock redis config', 'redisPool was passed config')
+        assert.equal(args[0].foo, 'bar', 'redisPool was passed config')
+        assert.equal(args[0].baz, 'qux', 'redisPool was passed session token config')
+        assert.equal(args[0].prefix, 'wibble', 'redisPool was passed session token prefix')
+        assert.equal(args[0].blee, undefined, 'redisPool was not passed email service config')
         assert.equal(args[1], log, 'redisPool was passed log')
         return redis
       }
     })({
       tokenLifetimes,
       tokenPruning,
-      redis: 'mock redis config',
+      redis: {
+        foo: 'bar',
+        sessionTokens: {
+          baz: 'qux',
+          prefix: 'wibble'
+        },
+        email: {
+          blee: 'blee',
+          prefix: 'blee'
+        }
+      },
       lastAccessTimeUpdates: {
         enabled: true,
         sampleRate: 1,
@@ -309,6 +336,16 @@ describe('redis enabled, token-pruning enabled:', () => {
 
   it('should call redis and the db in db.devices if uid is not falsey', () => {
     return db.devices('wibble')
+      .then(() => {
+        assert.equal(pool.get.callCount, 1)
+        assert.equal(redis.get.callCount, 1)
+        assert.equal(redis.get.args[0].length, 1)
+        assert.equal(redis.get.args[0][0], 'wibble')
+      })
+  })
+
+  it('should call redis and the db in db.device if uid is not falsey', () => {
+    return db.device('wibble', 'wobble')
       .then(() => {
         assert.equal(pool.get.callCount, 1)
         assert.equal(redis.get.callCount, 1)
@@ -447,6 +484,7 @@ describe('redis enabled, token-pruning enabled:', () => {
           pushPublicKey: undefined,
           pushAuthKey: undefined,
           pushEndpointExpired: false,
+          availableCommands: {},
           lastAccessTime: 42,
           uaBrowser: 'Firefox',
           uaBrowserVersion: '59',
@@ -467,6 +505,7 @@ describe('redis enabled, token-pruning enabled:', () => {
           sessionToken: 'newFormat',
           name: undefined,
           type: undefined,
+          availableCommands: {},
           pushCallback: undefined,
           pushPublicKey: undefined,
           pushAuthKey: undefined,
@@ -477,7 +516,7 @@ describe('redis enabled, token-pruning enabled:', () => {
           uaOS: 'Android',
           uaOSVersion: '8.1',
           uaDeviceType: 'mobile',
-          uaFormFactor: null,
+          uaFormFactor: undefined,
           location: {
             city: 'Mountain View',
             state: 'California',
@@ -543,8 +582,8 @@ describe('redis enabled, token-pruning enabled:', () => {
           uaBrowserVersion: '59',
           uaOS: 'Mac OS X',
           uaOSVersion: '10.11',
-          uaDeviceType: null,
-          uaFormFactor: null,
+          uaDeviceType: undefined,
+          uaFormFactor: undefined,
           location: {
             city: 'Bournemouth',
             state: 'England',
@@ -784,6 +823,7 @@ describe('redis enabled, token-pruning enabled:', () => {
       return db.sessions('wibble')
         .then(() => {
           assert.equal(redis.get.callCount, 1)
+          assert.equal(redis.del.callCount, 0)
 
           assert.equal(log.error.callCount, 1)
           assert.equal(log.error.args[0].length, 1)
@@ -799,6 +839,7 @@ describe('redis enabled, token-pruning enabled:', () => {
       return db.devices('wibble')
         .then(() => {
           assert.equal(redis.get.callCount, 1)
+          assert.equal(redis.del.callCount, 0)
 
           assert.equal(log.error.callCount, 1)
           assert.equal(log.error.args[0].length, 1)
@@ -806,6 +847,80 @@ describe('redis enabled, token-pruning enabled:', () => {
             op: 'redis.get.error',
             key: 'wibble',
             err: 'mock redis.get error'
+          })
+        })
+    })
+
+    it('should log the error in db.device', () => {
+      return db.device('wibble', 'wobble')
+        .then(() => {
+          assert.equal(redis.get.callCount, 1)
+          assert.equal(redis.del.callCount, 0)
+
+          assert.equal(log.error.callCount, 1)
+          assert.equal(log.error.args[0].length, 1)
+          assert.deepEqual(log.error.args[0][0], {
+            op: 'redis.get.error',
+            key: 'wibble',
+            err: 'mock redis.get error'
+          })
+        })
+    })
+  })
+
+  describe('redis.get returns invalid JSON:', () => {
+    beforeEach(() => {
+      redis.get = sinon.spy(() => P.resolve('{"wibble":nonsense}'))
+    })
+
+    it('should log the error in db.sessions', () => {
+      return db.sessions('wibble')
+        .then(result => {
+          assert.deepEqual(result, [])
+
+          assert.equal(redis.get.callCount, 1)
+
+          assert.equal(redis.del.callCount, 1)
+          assert.equal(redis.del.args[0].length, 1)
+          assert.equal(redis.del.args[0][0], 'wibble')
+
+          assert.equal(log.error.callCount, 1)
+          assert.equal(log.error.args[0].length, 1)
+          assert.deepEqual(log.error.args[0][0], {
+            op: 'db.unpackTokensFromRedis.error',
+            err: 'Unexpected token o in JSON at position 11'
+          })
+        })
+    })
+
+    it('should log the error in db.devices', () => {
+      return db.devices('wibble')
+        .then(result => {
+          assert.deepEqual(result, [])
+
+          assert.equal(redis.get.callCount, 1)
+          assert.equal(redis.del.callCount, 1)
+
+          assert.equal(log.error.callCount, 1)
+          assert.equal(log.error.args[0].length, 1)
+          assert.deepEqual(log.error.args[0][0], {
+            op: 'db.unpackTokensFromRedis.error',
+            err: 'Unexpected token o in JSON at position 11'
+          })
+        })
+    })
+
+    it('should log the error in db.device', () => {
+      return db.device('wibble', 'wobble')
+        .then(() => {
+          assert.equal(redis.get.callCount, 1)
+          assert.equal(redis.del.callCount, 1)
+
+          assert.equal(log.error.callCount, 1)
+          assert.equal(log.error.args[0].length, 1)
+          assert.deepEqual(log.error.args[0][0], {
+            op: 'db.unpackTokensFromRedis.error',
+            err: 'Unexpected token o in JSON at position 11'
           })
         })
     })
@@ -1076,7 +1191,10 @@ describe('redis enabled, token-pruning disabled:', () => {
       './pool': function () { return pool },
       './redis': (...args) => {
         assert.equal(args.length, 2, 'redisPool was passed two arguments')
-        assert.equal(args[0], 'mock redis config', 'redisPool was passed config')
+        assert.equal(args[0].foo, 'bar', 'redisPool was passed config')
+        assert.equal(args[0].baz, 'qux', 'redisPool was passed session token config')
+        assert.equal(args[0].prefix, 'wibble', 'redisPool was passed session token prefix')
+        assert.equal(args[0].blee, undefined, 'redisPool was not passed email service config')
         assert.equal(args[1], log, 'redisPool was passed log')
         return redis
       }
@@ -1085,7 +1203,17 @@ describe('redis enabled, token-pruning disabled:', () => {
       tokenPruning: {
         enabled: false
       },
-      redis: 'mock redis config',
+      redis: {
+        foo: 'bar',
+        sessionTokens: {
+          baz: 'qux',
+          prefix: 'wibble'
+        },
+        email: {
+          blee: 'blee',
+          prefix: 'blee'
+        }
+      },
       lastAccessTimeUpdates: {
         enabled: true,
         sampleRate: 1,

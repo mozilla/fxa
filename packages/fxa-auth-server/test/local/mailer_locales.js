@@ -6,7 +6,7 @@
 
 const ROOT_DIR = '../..'
 
-const assert = require('insist')
+const { assert } = require('chai')
 const config = require(`${ROOT_DIR}/config/index`).getProperties()
 const error = require(`${ROOT_DIR}/lib/error`)
 const mocks = require('../mocks')

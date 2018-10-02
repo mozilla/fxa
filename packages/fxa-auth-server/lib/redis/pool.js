@@ -16,7 +16,7 @@ module.exports = (config, log) => {
   const redisConfig = {
     host: config.host,
     port: config.port,
-    prefix: config.sessionsKeyPrefix,
+    prefix: config.prefix,
     // Prefer redis to fail fast than wait indefinitely for reconnection
     enable_offline_queue: false
   }
@@ -90,6 +90,13 @@ module.exports = (config, log) => {
      */
     acquire () {
       return pool.acquire().disposer(connection => pool.release(connection))
+    },
+
+    /**
+     * Close the pool, releasing any network connections.
+     */
+    close () {
+      return pool.drain().then(() => pool.clear())
     }
   }
 }

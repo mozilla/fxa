@@ -186,17 +186,18 @@ describe('remote account login', () => {
     }
   )
 
-  describe('can force verificationMethod', () => {
+  describe('can use verificationMethod', () => {
     let client, email
     const password = 'foo'
-    before(() => {
-      email = server.uniqueEmail()
+    beforeEach(() => {
+      email = server.uniqueEmail('@mozilla.com')
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
     })
 
     it('fails with invalid verification method', () => {
       return Client.login(config.publicUrl, email, password, {
-        verificationMethod: 'notvalid'
+        verificationMethod: 'notvalid',
+        keys: true
       })
         .then(() => {
           assert.fail('should not have succeed')
@@ -205,9 +206,10 @@ describe('remote account login', () => {
         })
     })
 
-    it('can force `email` verification', () => {
+    it('can use `email` verification', () => {
       return Client.login(config.publicUrl, email, password, {
-        verificationMethod: 'email'
+        verificationMethod: 'email',
+        keys: true
       })
         .then((res) => {
           client = res
@@ -237,9 +239,10 @@ describe('remote account login', () => {
         })
     })
 
-    it('can force `email-2fa` verification', () => {
+    it('can use `email-2fa` verification', () => {
       return Client.login(config.publicUrl, email, password, {
-        verificationMethod: 'email-2fa'
+        verificationMethod: 'email-2fa',
+        keys: true
       })
         .then((res) => {
           client = res
@@ -256,6 +259,41 @@ describe('remote account login', () => {
           assert.equal(emailData.headers['x-template-name'], 'verifyLoginCodeEmail', 'sign-in code sent')
           const code = emailData.headers['x-signin-verify-code']
           assert.ok(code, 'code is sent')
+        })
+    })
+
+    it('can use `totp-2fa` verification', () => {
+      email = server.uniqueEmail()
+      return Client.createAndVerifyAndTOTP(config.publicUrl, email, password, server.mailbox, {keys: true})
+        .then(() => {
+          return Client.login(config.publicUrl, email, password, {verificationMethod: 'totp-2fa', keys: true})
+        })
+        .then((res) => {
+          client = res
+          assert.equal(res.verificationMethod, 'totp-2fa', 'sets correct verification method')
+          return client.emailStatus()
+        })
+        .then((status) => {
+          assert.equal(status.verified, false, 'account is not verified')
+          assert.equal(status.emailVerified, true, 'email is verified')
+          assert.equal(status.sessionVerified, false, 'session is not verified')
+        })
+    })
+
+    it('should ignore verificationMethod if not requesting keys', () => {
+      return Client.login(config.publicUrl, email, password, {
+        verificationMethod: 'email',
+        keys: false
+      })
+        .then((res) => {
+          client = res
+          assert.equal(res.verificationMethod, undefined, 'sets correct verification method')
+          return client.emailStatus()
+        })
+        .then((status) => {
+          assert.equal(status.verified, true, 'account is verified')
+          assert.equal(status.emailVerified, true, 'email is verified')
+          assert.equal(status.sessionVerified, false, 'session is not verified')
         })
     })
   })

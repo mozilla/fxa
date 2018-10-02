@@ -41,20 +41,20 @@ module.exports = function (
     {
       method: 'POST',
       path: '/password/change/start',
-      config: {
+      options: {
         validate: {
           payload: {
             email: validators.email().required(),
-            oldAuthPW: isA.string().min(64).max(64).regex(HEX_STRING).required()
+            oldAuthPW: validators.authPW
           }
         }
       },
-      handler: function (request, reply) {
+      handler: async function (request) {
         log.begin('Password.changeStart', request)
         var form = request.payload
         var oldAuthPW = form.oldAuthPW
 
-        customs.check(
+        return customs.check(
           request,
           form.email,
           'passwordChange')
@@ -116,22 +116,20 @@ module.exports = function (
           )
           .then(
             function (tokens) {
-              reply(
-                {
+             return {
                   keyFetchToken: tokens.keyFetchToken.data,
                   passwordChangeToken: tokens.passwordChangeToken.data,
                   verified: tokens.keyFetchToken.emailVerified
-                }
-              )
-            },
-            reply
+             }
+
+            }
           )
       }
     },
     {
       method: 'POST',
       path: '/password/change/finish',
-      config: {
+      options: {
         auth: {
           strategy: 'passwordChangeToken'
         },
@@ -140,13 +138,13 @@ module.exports = function (
             keys: isA.boolean().optional()
           },
           payload: {
-            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
-            wrapKb: isA.string().min(64).max(64).regex(HEX_STRING).required(),
+            authPW: validators.authPW,
+            wrapKb: validators.wrapKb,
             sessionToken: isA.string().min(64).max(64).regex(HEX_STRING).optional()
           }
         }
       },
-      handler: function (request, reply) {
+      handler: async function (request) {
         log.begin('Password.changeFinish', request)
         var passwordChangeToken = request.auth.credentials
         var authPW = request.payload.authPW
@@ -157,7 +155,7 @@ module.exports = function (
         var account, verifyHash, sessionToken, keyFetchToken, verifiedStatus,
           devicesToNotify, originatingDeviceId, hasTotp = false
 
-        checkTotpToken()
+        return checkTotpToken()
           .then(getSessionVerificationStatus)
           .then(fetchDevicesToNotify)
           .then(changePassword)
@@ -165,7 +163,6 @@ module.exports = function (
           .then(createSessionToken)
           .then(createKeyFetchToken)
           .then(createResponse)
-          .then(reply, reply)
 
         function checkTotpToken() {
           return totpUtils.hasTotpToken(passwordChangeToken)
@@ -405,7 +402,7 @@ module.exports = function (
     {
       method: 'POST',
       path: '/password/forgot/send_code',
-      config: {
+      options: {
         validate: {
           query: {
             service: validators.service,
@@ -428,7 +425,7 @@ module.exports = function (
           }
         }
       },
-      handler: function (request, reply) {
+      handler: async function (request) {
         log.begin('Password.forgotSend', request)
         var email = request.payload.email
         var service = request.payload.service || request.query.service
@@ -443,7 +440,7 @@ module.exports = function (
           flowBeginTime = request.payload.metricsContext.flowBeginTime
         }
 
-        P.all([
+        return P.all([
           request.emitMetricsEvent('password.forgot.send_code.start'),
           customs.check(request, email, 'passwordForgotSendCode')
         ])
@@ -506,23 +503,21 @@ module.exports = function (
           )
           .then(
             function (passwordForgotToken) {
-              reply(
-                {
-                  passwordForgotToken: passwordForgotToken.data,
-                  ttl: passwordForgotToken.ttl(),
-                  codeLength: passwordForgotToken.passCode.length,
-                  tries: passwordForgotToken.tries
-                }
-              )
+              return {
+                passwordForgotToken: passwordForgotToken.data,
+                ttl: passwordForgotToken.ttl(),
+                codeLength: passwordForgotToken.passCode.length,
+                tries: passwordForgotToken.tries
+              }
             },
-            reply
+
           )
       }
     },
     {
       method: 'POST',
       path: '/password/forgot/resend_code',
-      config: {
+      options: {
         auth: {
           strategy: 'passwordForgotToken'
         },
@@ -547,7 +542,7 @@ module.exports = function (
           }
         }
       },
-      handler: function (request, reply) {
+      handler: async function (request) {
         log.begin('Password.forgotResend', request)
         var passwordForgotToken = request.auth.credentials
         var service = request.payload.service || request.query.service
@@ -562,7 +557,7 @@ module.exports = function (
           flowBeginTime = request.payload.metricsContext.flowBeginTime
         }
 
-        P.all([
+        return P.all([
           request.emitMetricsEvent('password.forgot.resend_code.start'),
           customs.check(request, passwordForgotToken.email, 'passwordForgotResendCode')
         ])
@@ -608,30 +603,28 @@ module.exports = function (
           )
           .then(
             function () {
-              reply(
-                {
-                  passwordForgotToken: passwordForgotToken.data,
-                  ttl: passwordForgotToken.ttl(),
-                  codeLength: passwordForgotToken.passCode.length,
-                  tries: passwordForgotToken.tries
+                return {
+                    passwordForgotToken: passwordForgotToken.data,
+                    ttl: passwordForgotToken.ttl(),
+                    codeLength: passwordForgotToken.passCode.length,
+                    tries: passwordForgotToken.tries
                 }
-              )
-            },
-            reply
+            }
           )
       }
     },
     {
       method: 'POST',
       path: '/password/forgot/verify_code',
-      config: {
+      options: {
         auth: {
           strategy: 'passwordForgotToken'
         },
         validate: {
           payload: {
             code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
-            metricsContext: METRICS_CONTEXT_SCHEMA
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+            accountResetWithRecoveryKey: isA.boolean().optional()
           }
         },
         response: {
@@ -640,10 +633,11 @@ module.exports = function (
           }
         }
       },
-      handler: function (request, reply) {
+      handler: async function (request) {
         log.begin('Password.forgotVerify', request)
         var passwordForgotToken = request.auth.credentials
         var code = request.payload.code
+        const accountResetWithRecoveryKey = request.payload.accountResetWithRecoveryKey
 
         request.validateMetricsContext()
 
@@ -654,7 +648,7 @@ module.exports = function (
           flowBeginTime = request.payload.metricsContext.flowBeginTime
         }
 
-        P.all([
+        return P.all([
           request.emitMetricsEvent('password.forgot.verify_code.start'),
           customs.check(request, passwordForgotToken.email, 'passwordForgotVerifyCode')
         ])
@@ -662,11 +656,19 @@ module.exports = function (
             function () {
               if (butil.buffersAreEqual(passwordForgotToken.passCode, code) &&
                   passwordForgotToken.ttl() > 0) {
-                db.forgotPasswordVerified(passwordForgotToken)
+                return db.forgotPasswordVerified(passwordForgotToken)
                   .then(
                     function (accountResetToken) {
                       return db.accountEmails(passwordForgotToken.uid)
                         .then((emails) => {
+
+                          if (accountResetWithRecoveryKey) {
+                            // To prevent multiple password change emails being sent to a user,
+                            // we check for a flag to see if this is a reset using an account recovery key.
+                            // If it is, then the notification email will be sent in `/account/reset`
+                            return P.resolve()
+                          }
+
                           return mailer.sendPasswordResetNotification(
                             emails,
                             passwordForgotToken,
@@ -693,28 +695,21 @@ module.exports = function (
                   )
                   .then(
                     function (accountResetToken) {
-
-                      reply(
-                        {
+                      return {
                           accountResetToken: accountResetToken.data
                         }
-                      )
-                    },
-                    reply
+                    }
                   )
               }
               else {
-                failVerifyAttempt(passwordForgotToken)
+                return failVerifyAttempt(passwordForgotToken)
                   .then(
                     function () {
-                      reply(
-                        error.invalidVerificationCode({
-                          tries: passwordForgotToken.tries,
-                          ttl: passwordForgotToken.ttl()
-                        })
-                      )
-                    },
-                    reply
+                      throw error.invalidVerificationCode({
+                        tries: passwordForgotToken.tries,
+                        ttl: passwordForgotToken.ttl()
+                      })
+                    }
                   )
               }
             }
@@ -724,7 +719,7 @@ module.exports = function (
     {
       method: 'GET',
       path: '/password/forgot/status',
-      config: {
+      options: {
         auth: {
           strategy: 'passwordForgotToken'
         },
@@ -735,15 +730,14 @@ module.exports = function (
           }
         }
       },
-      handler: function (request, reply) {
+      handler: async function (request) {
         log.begin('Password.forgotStatus', request)
         var passwordForgotToken = request.auth.credentials
-        reply(
-          {
+        return {
             tries: passwordForgotToken.tries,
             ttl: passwordForgotToken.ttl()
-          }
-        )
+        }
+
       }
     }
   ]
