@@ -63,6 +63,7 @@ function generateCode(claims, client, scope, req) {
     codeChallengeMethod: req.payload.code_challenge_method,
     codeChallenge: req.payload.code_challenge,
     keysJwe: req.payload.keys_jwe,
+    profileChangedAt: claims['fxa-profileChangedAt']
   }).then(function(code) {
     logger.debug('redirecting', { uri: req.payload.redirect_uri });
 
@@ -95,7 +96,8 @@ function generateGrant(claims, client, scope, req) {
     userId: buf(claims.uid),
     email: claims['fxa-verifiedEmail'],
     scope: scope,
-    ttl: req.payload.ttl
+    ttl: req.payload.ttl,
+    profileChangedAt: claims['fxa-profileChangedAt']
   }).then(function(token) {
     return {
       access_token: hex(token.token),

@@ -57,6 +57,10 @@ exports.verify = function verify(token) {
       scope: token.scope
     };
 
+    if (token.profileChangedAt) {
+      tokenInfo.profile_changed_at = token.profileChangedAt;
+    }
+
     if (token.scope.intersects(SCOPES_REQUIRING_EMAIL)) {
       tokenInfo.email = token.email;
     }

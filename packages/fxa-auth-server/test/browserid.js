@@ -20,6 +20,7 @@ const VERIFIED_EMAIL = 'test@exmample.com';
 const LAST_AUTH_AT = Date.now();
 const AMR = ['pwd', 'otp'];
 const AAL = 2;
+const PROFILE_CHANGED_AT = Date.now();
 
 const ERRNO_INVALID_ASSERTION = 104;
 
@@ -33,7 +34,8 @@ const GOOD_RESPONSE = {
     'fxa-lastAuthAt': LAST_AUTH_AT,
     'fxa-tokenVerified': true,
     'fxa-amr': AMR,
-    'fxa-aal': AAL
+    'fxa-aal': AAL,
+    'fxa-profileChangedAt': PROFILE_CHANGED_AT
   }
 };
 
@@ -67,7 +69,8 @@ describe('browserid verifyAssertion', function() {
         'fxa-lastAuthAt': LAST_AUTH_AT,
         'fxa-tokenVerified': true,
         'fxa-amr': AMR,
-        'fxa-aal': AAL
+        'fxa-aal': AAL,
+        'fxa-profileChangedAt': PROFILE_CHANGED_AT
       });
     });
   });
@@ -167,9 +170,10 @@ describe('browserid verifyAssertion', function() {
         'fxa-aal',
         'fxa-generation',
         'fxa-lastAuthAt',
+        'fxa-profileChangedAt',
         'fxa-tokenVerified',
         'fxa-verifiedEmail',
-        'uid'
+        'uid',
       ]);
     });
   });
@@ -182,6 +186,26 @@ describe('browserid verifyAssertion', function() {
     mockVerifierResponse(200, response);
     return verifyAssertion(MOCK_ASSERTION).then(claims => {
       assert.deepEqual(Object.keys(claims).sort(), [
+        'fxa-amr',
+        'fxa-generation',
+        'fxa-lastAuthAt',
+        'fxa-profileChangedAt',
+        'fxa-tokenVerified',
+        'fxa-verifiedEmail',
+        'uid'
+      ]);
+    });
+  });
+
+  it('should accept assertions with missing `profileChangedAt` claim', () => {
+    const response = Object.assign({}, GOOD_RESPONSE, {
+      idpClaims: Object.assign({}, GOOD_RESPONSE.idpClaims)
+    });
+    delete response['idpClaims']['fxa-profileChangedAt'];
+    mockVerifierResponse(200, response);
+    return verifyAssertion(MOCK_ASSERTION).then(claims => {
+      assert.deepEqual(Object.keys(claims).sort(), [
+        'fxa-aal',
         'fxa-amr',
         'fxa-generation',
         'fxa-lastAuthAt',

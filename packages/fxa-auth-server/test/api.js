@@ -28,6 +28,7 @@ const STALE_AUTH_AT = AUTH_AT - (2 * 24 * 60 * 60);
 const AMR = ['pwd', 'email'];
 const AAL = 1;
 const ACR = 'AAL1';
+const PROFILE_CHANGED_AT_LATER_TIME = AUTH_AT + 1000;
 
 function mockVerifierResult(opts) {
   opts = opts || {};
@@ -41,7 +42,8 @@ function mockVerifierResult(opts) {
       'fxa-generation': opts.generation || 123456,
       'fxa-tokenVerified': opts.hasOwnProperty('tokenVerified') ? opts.tokenVerified : true,
       'fxa-amr': opts.amr || AMR,
-      'fxa-aal': opts.aal || AAL
+      'fxa-aal': opts.aal || AAL,
+      'fxa-profileChangedAt': opts.profileChangedAt
     }
   });
 }
@@ -1533,7 +1535,7 @@ describe('/v1', function() {
 
     });
 
-    describe('grant_type=refresh_token', function() {
+    describe('?grant_type=refresh_token', function() {
 
       describe('?refresh_token', function() {
 
@@ -2845,10 +2847,8 @@ describe('/v1', function() {
     });
 
     describe('response', function() {
-      it('should return the correct response', function() {
-        return newToken({
-          scope: 'profile'
-        }).then(function(res) {
+      it('should return the correct response', function () {
+        return newToken({scope: 'profile'}).then(function (res) {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           return Server.api.post({
@@ -2864,6 +2864,29 @@ describe('/v1', function() {
           assert.equal(res.result.client_id, clientId);
           assert.equal(res.result.scope[0], 'profile');
           assert.equal(res.result.email, undefined);
+          assert.equal(res.result.profile_changed_at, undefined);
+        });
+      });
+
+      it('should return profile_changed_at when set', function () {
+        const verifierResponse = mockVerifierResult({profileChangedAt: PROFILE_CHANGED_AT_LATER_TIME});
+        return newToken({scope: 'profile'}, {verifierResponse}).then(function (res) {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+          return Server.api.post({
+            url: '/verify',
+            payload: {
+              token: res.result.access_token
+            }
+          });
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+          assert.equal(res.result.user, USERID);
+          assert.equal(res.result.client_id, clientId);
+          assert.equal(res.result.scope[0], 'profile');
+          assert.equal(res.result.email, undefined);
+          assert.equal(res.result.profile_changed_at, PROFILE_CHANGED_AT_LATER_TIME, 'profile changed at is correct');
         });
       });
     });

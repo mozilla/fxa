@@ -20,7 +20,8 @@ module.exports = {
       user: Joi.string().required(),
       client_id: Joi.string().required(),
       scope: Joi.array(),
-      email: Joi.string()
+      email: Joi.string(),
+      profile_changed_at: Joi.number().min(0)
     }
   },
   handler: function verify(req, reply) {

@@ -19,6 +19,7 @@ const CLAIMS_SCHEMA = Joi.object({
   'fxa-tokenVerified': Joi.boolean().optional(),
   'fxa-amr': Joi.array().items(Joi.string().alphanum()).optional(),
   'fxa-aal': Joi.number().integer().min(0).max(3).optional(),
+  'fxa-profileChangedAt': Joi.number().integer().min(0).optional()
 }).options({ stripUnknown: true });
 
 const AUDIENCE = config.get('publicUrl');

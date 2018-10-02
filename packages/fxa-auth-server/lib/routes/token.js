@@ -465,6 +465,7 @@ function generateIdToken(options, access) {
     claims['fxa-aal'] = options.aal;
     claims.acr = 'AAL' + options.aal;
   }
+
   return ID_TOKEN_KEY.sign(claims);
 }
 

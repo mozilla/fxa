@@ -165,14 +165,14 @@ const QUERY_CLIENT_UPDATE = 'UPDATE clients SET ' +
   'WHERE id=?';
 const QUERY_CLIENT_DELETE = 'DELETE FROM clients WHERE id=?';
 const QUERY_CODE_INSERT =
-  'INSERT INTO codes (clientId, userId, email, scope, authAt, amr, aal, offline, code, codeChallengeMethod, codeChallenge, keysJwe) ' +
-  'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  'INSERT INTO codes (clientId, userId, email, scope, authAt, amr, aal, offline, code, codeChallengeMethod, codeChallenge, keysJwe, profileChangedAt) ' +
+  'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 const QUERY_ACCESS_TOKEN_INSERT =
   'INSERT INTO tokens (clientId, userId, email, scope, type, expiresAt, ' +
-  'token) VALUES (?, ?, ?, ?, ?, ?, ?)';
+  'token, profileChangedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
 const QUERY_REFRESH_TOKEN_INSERT =
-  'INSERT INTO refreshTokens (clientId, userId, email, scope, token) VALUES ' +
-  '(?, ?, ?, ?, ?)';
+  'INSERT INTO refreshTokens (clientId, userId, email, scope, token, profileChangedAt) VALUES ' +
+  '(?, ?, ?, ?, ?, ?)';
 const QUERY_ACCESS_TOKEN_FIND = 'SELECT * FROM tokens WHERE token=?';
 const QUERY_REFRESH_TOKEN_FIND = 'SELECT * FROM refreshTokens where token=?';
 const QUERY_REFRESH_TOKEN_LAST_USED_UPDATE = 'UPDATE refreshTokens SET lastUsedAt=? WHERE token=?';
@@ -394,7 +394,8 @@ MysqlStore.prototype = {
       hash,
       codeObj.codeChallengeMethod,
       codeObj.codeChallenge,
-      codeObj.keysJwe
+      codeObj.keysJwe,
+      codeObj.profileChangedAt
     ]).then(function() {
       return code;
     });
@@ -423,7 +424,8 @@ MysqlStore.prototype = {
       scope: vals.scope,
       token: unique.token(),
       type: 'bearer',
-      expiresAt: vals.expiresAt || new Date(Date.now() + (vals.ttl  * 1000 || MAX_TTL))
+      expiresAt: vals.expiresAt || new Date(Date.now() + (vals.ttl  * 1000 || MAX_TTL)),
+      profileChangedAt: vals.profileChangedAt || 0
     };
     return this._write(QUERY_ACCESS_TOKEN_INSERT, [
       t.clientId,
@@ -432,7 +434,8 @@ MysqlStore.prototype = {
       t.scope.toString(),
       t.type,
       t.expiresAt,
-      encrypt.hash(t.token)
+      encrypt.hash(t.token),
+      t.profileChangedAt,
     ]).then(function() {
       return t;
     });
@@ -512,7 +515,8 @@ MysqlStore.prototype = {
       clientId: vals.clientId,
       userId: vals.userId,
       email: vals.email,
-      scope: vals.scope
+      scope: vals.scope,
+      profileChangedAt: vals.profileChangedAt
     };
     var token = unique.token();
     var hash = encrypt.hash(token);
@@ -521,7 +525,8 @@ MysqlStore.prototype = {
       t.userId,
       t.email,
       t.scope.toString(),
-      hash
+      hash,
+      t.profileChangedAt
     ]).then(function() {
       t.token = token;
       return t;
