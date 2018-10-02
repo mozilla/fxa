@@ -1,3 +1,39 @@
+<a name="1.122.0"></a>
+# [1.122.0](https://github.com/mozilla/fxa-content-server/compare/v1.121.0...v1.122.0) (2018-10-02)
+
+
+### Bug Fixes
+
+* **ci:** use npm 6 in travis ([b48fc63](https://github.com/mozilla/fxa-content-server/commit/b48fc63))
+* **CWTS:** Fix the checkbox alignment in RTL langugates. ([9d4bda3](https://github.com/mozilla/fxa-content-server/commit/9d4bda3)), closes [#6574](https://github.com/mozilla/fxa-content-server/issues/6574)
+* **email:** on password reset, hash email with the `emailToHashWith` value ([fbb6e39](https://github.com/mozilla/fxa-content-server/commit/fbb6e39))
+* **scripts:** make tls-shrink script portable ([726255a](https://github.com/mozilla/fxa-content-server/commit/726255a))
+* **show-password:** Use a show-password icon that works on low DPI screens. ([014547a](https://github.com/mozilla/fxa-content-server/commit/014547a)), closes [#6235](https://github.com/mozilla/fxa-content-server/issues/6235)
+* **test:** Force clear localStorage for the handshake tests. ([db947ad](https://github.com/mozilla/fxa-content-server/commit/db947ad)), closes [#6182](https://github.com/mozilla/fxa-content-server/issues/6182)
+
+### chore
+
+* **config:** Add scoped-keys configuration for Firefox Send. ([1950681](https://github.com/mozilla/fxa-content-server/commit/1950681))
+* **deps:** Update to the latest i18n-abide to get rid of security warnings. ([4ceca38](https://github.com/mozilla/fxa-content-server/commit/4ceca38))
+* **package:** bump fxa-shared to 1.0.14 + npm shrinkwrap ([8e29dc0](https://github.com/mozilla/fxa-content-server/commit/8e29dc0))
+
+### Features
+
+* **a256gcm:** Ban unsafeExplicitIV by default. ([023e9a8](https://github.com/mozilla/fxa-content-server/commit/023e9a8))
+* **email-first:** Allow invalid emails in query params. ([0077e47](https://github.com/mozilla/fxa-content-server/commit/0077e47)), closes [#6584](https://github.com/mozilla/fxa-content-server/issues/6584)
+* **scripts:** force registry links in shrinkwrap to use tls ([0da2fe7](https://github.com/mozilla/fxa-content-server/commit/0da2fe7))
+
+### Refactor
+
+* **pairing:** Convert lib/channels/web.js to ES6 module format. ([98bb69d](https://github.com/mozilla/fxa-content-server/commit/98bb69d)), closes [#6514](https://github.com/mozilla/fxa-content-server/issues/6514)
+* **pairing:** Extract a `required` module. ([4add95c](https://github.com/mozilla/fxa-content-server/commit/4add95c)), closes [#6514](https://github.com/mozilla/fxa-content-server/issues/6514)
+* **pairing:** Extract a256gcm related utils into its own module. ([b5f6756](https://github.com/mozilla/fxa-content-server/commit/b5f6756)), closes [#6514](https://github.com/mozilla/fxa-content-server/issues/6514)
+* **pairing:** Extract hkdf into its own module. ([f4d167d](https://github.com/mozilla/fxa-content-server/commit/f4d167d)), closes [#6514](https://github.com/mozilla/fxa-content-server/issues/6514)
+* **pairing:** Extract the fxa-crypto-deriver lazy loading ([1a94048](https://github.com/mozilla/fxa-content-server/commit/1a94048)), closes [#6514](https://github.com/mozilla/fxa-content-server/issues/6514)
+* **pairing:** Extract validate and vat formatting updates ([c2fd736](https://github.com/mozilla/fxa-content-server/commit/c2fd736)), closes [#6514](https://github.com/mozilla/fxa-content-server/issues/6514)
+
+
+
 <a name="1.121.0"></a>
 # [1.121.0](https://github.com/mozilla/fxa-content-server/compare/v1.120.3...v1.121.0) (2018-09-18)
 
