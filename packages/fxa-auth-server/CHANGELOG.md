@@ -1,3 +1,32 @@
+<a name="1.122.0"></a>
+# [1.122.0](https://github.com/mozilla/fxa-auth-server/compare/v1.121.0...v1.122.0) (2018-10-02)
+
+
+### Bug Fixes
+
+* **codes:** increase token code font size in email ([28ed315](https://github.com/mozilla/fxa-auth-server/commit/28ed315))
+* **customs:** increase customs timeout to 3000ms ([973815e](https://github.com/mozilla/fxa-auth-server/commit/973815e))
+* **deps:** Update i18n-abide to remove `npm audit` warnings ([055788c](https://github.com/mozilla/fxa-auth-server/commit/055788c))
+* **metrics:** prohibit overwriting stashed metrics context ([fafccce](https://github.com/mozilla/fxa-auth-server/commit/fafccce))
+* **metrics:** stash metrics context during the account reset flow ([804907a](https://github.com/mozilla/fxa-auth-server/commit/804907a))
+* **npm:** use npm ci for npm install ([3e66f67](https://github.com/mozilla/fxa-auth-server/commit/3e66f67)), closes [#2614](https://github.com/mozilla/fxa-auth-server/issues/2614)
+* **profile:** add profileChangedAt to cert sign ([cca665d](https://github.com/mozilla/fxa-auth-server/commit/cca665d))
+* **scripts:** make tls-shrink script portable ([721c069](https://github.com/mozilla/fxa-auth-server/commit/721c069))
+* **sms:** use a five minute period on polling ([57e82a5](https://github.com/mozilla/fxa-auth-server/commit/57e82a5))
+* **tests:** fetch cities db from S3 ([9d370fb](https://github.com/mozilla/fxa-auth-server/commit/9d370fb))
+
+### chore
+
+* **memcached:** remove the cache.set method ([2a88926](https://github.com/mozilla/fxa-auth-server/commit/2a88926))
+* **package:** bump fxa-shared to 1.0.14 + npm shrinkwrap ([04bd8f2](https://github.com/mozilla/fxa-auth-server/commit/04bd8f2))
+* **sms:** log JSON-serialised result if we fail to parse max spend ([f0b5d08](https://github.com/mozilla/fxa-auth-server/commit/f0b5d08))
+
+### Features
+
+* **scripts:** force registry links in shrinkwrap to use tls ([eae04fc](https://github.com/mozilla/fxa-auth-server/commit/eae04fc))
+
+
+
 <a name="1.121.0"></a>
 # [1.121.0](https://github.com/mozilla/fxa-auth-server/compare/v1.120.2...v1.121.0) (2018-09-18)
 
