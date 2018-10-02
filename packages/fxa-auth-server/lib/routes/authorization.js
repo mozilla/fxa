@@ -22,6 +22,8 @@ const TOKEN = 'token';
 const ACCESS_TYPE_ONLINE = 'online';
 const ACCESS_TYPE_OFFLINE = 'offline';
 
+const ACR_VALUE_AAL2 = 'AAL2';
+
 const PKCE_SHA256_CHALLENGE_METHOD = 'S256'; // This server only supports S256 PKCE, no 'plain'
 const PKCE_CODE_CHALLENGE_LENGTH = 43;
 
@@ -189,7 +191,8 @@ module.exports = {
           is: CODE,
           then: Joi.optional(),
           otherwise: Joi.forbidden()
-        })
+        }),
+      acr_values: Joi.string().max(256).optional()
     }
   },
   response: {
@@ -228,6 +231,16 @@ module.exports = {
           exitEarly = true;
           throw AppError.invalidAssertion();
         }
+
+        // Check to see if the acr value requested by oauth matches what is expected
+        const acrValues = req.payload.acr_values;
+        if (acrValues) {
+          const acrTokens = acrValues.split('\s+');
+          if (acrTokens.includes(ACR_VALUE_AAL2) && ! (claims['fxa-aal'] >= 2)) {
+            throw AppError.mismatchAcr(claims['fxa-aal']);
+          }
+        }
+
         // Any request for a key-bearing scope should be using a verified token.
         // Double-check that here as a defense-in-depth measure.
         if (! claims['fxa-tokenVerified']) {
