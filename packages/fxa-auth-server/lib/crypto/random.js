@@ -46,12 +46,16 @@ random.hex = function hex() {
 }
 
 function randomValue(base, len) {
-  return random(len)
+  // To minimize bias in element selection, we generate a
+  // 32-bit unsigned int for each element and map it to a float in [0,1).
+  // This requires 4 bytes of randomness per element.
+  return random(len * 4)
     .then(bytes => {
       const out = []
 
       for (let i = 0; i < len; i++) {
-        out.push(base[bytes[i] % base.length])
+        const r = bytes.readUInt32BE(4 * i) / 2**32
+        out.push(base[Math.floor(r * base.length)])
       }
 
       return out.join('')
