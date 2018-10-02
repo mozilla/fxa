@@ -1,3 +1,13 @@
+<a name="1.122.0"></a>
+# [1.122.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.121.0...v1.122.0) (2018-10-02)
+
+
+### Features
+
+* **account:** add `profileChangedAt` property to account table ([24917b7](https://github.com/mozilla/fxa-auth-db-mysql/commit/24917b7))
+
+
+
 <a name="1.121.0"></a>
 # [1.121.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.120.0...v1.121.0) (2018-09-18)
 
