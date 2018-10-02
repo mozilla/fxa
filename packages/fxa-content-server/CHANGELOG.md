@@ -1,3 +1,13 @@
+<a name="1.121.2"></a>
+## [1.121.2](https://github.com/mozilla/fxa-content-server/compare/v1.121.1-private...v1.121.2) (2018-10-02)
+
+
+### Bug Fixes
+
+* **recovery:** increase recovery key length to 28 ([691f1c5](https://github.com/mozilla/fxa-content-server/commit/691f1c5))
+
+
+
 <a name="1.121.1"></a>
 ## [1.121.1](https://github.com/mozilla/fxa-content-server/compare/v1.121.0...v1.121.1) (2018-10-01)
 
