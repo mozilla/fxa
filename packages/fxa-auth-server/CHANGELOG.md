@@ -1,3 +1,14 @@
+<a name="1.122.1"></a>
+## [1.122.1](https://github.com/mozilla/fxa-auth-server/compare/v1.122.0...v1.122.1) (2018-10-03)
+
+
+### chore
+
+* **docs:** add missing private releases to change log ([47ea091](https://github.com/mozilla/fxa-auth-server/commit/47ea091))
+* **package:** npm shrinkwrap ([081f7d8](https://github.com/mozilla/fxa-auth-server/commit/081f7d8))
+
+
+
 <a name="1.122.0"></a>
 # [1.122.0](https://github.com/mozilla/fxa-auth-server/compare/v1.121.0...v1.122.0) (2018-10-02)
 
@@ -24,6 +35,16 @@
 ### Features
 
 * **scripts:** force registry links in shrinkwrap to use tls ([eae04fc](https://github.com/mozilla/fxa-auth-server/commit/eae04fc))
+
+
+
+<a name="1.121.1"></a>
+## [1.121.1](https://github.com/mozilla/fxa-auth-server/compare/v1.121.0...v1.121.1) (2018-10-02)
+
+
+### Bug Fixes
+
+* **random:** Reduce bias when generating random base-10 codes. ([65dab2b](https://github.com/mozilla/fxa-auth-server/commit/65dab2b))
 
 
 
@@ -2007,6 +2028,22 @@
 
 
 
+<a name="1.78.2"></a>
+## [1.78.2](https://github.com/mozilla/fxa-auth-server/compare/v1.78.1...v1.78.2) (2017-01-18)
+
+
+
+
+<a name="1.78.1"></a>
+## [1.78.1](https://github.com/mozilla/fxa-auth-server/compare/v1.78.0...v1.78.1) (2017-01-12)
+
+
+### Bug Fixes
+
+* **tokens:** Do not override the `createdAt` field on existing tokens. ([af0eb33](https://github.com/mozilla/fxa-auth-server/commit/af0eb33))
+
+
+
 <a name="1.78.0"></a>
 # [1.78.0](https://github.com/mozilla/fxa-auth-server/compare/v1.77.0...v1.78.0) (2017-01-11)
 
@@ -2580,6 +2617,42 @@
 
 
 
+<a name="1.62.5"></a>
+## [1.62.5](https://github.com/mozilla/fxa-auth-server/compare/v1.62.4...v1.62.5) (2016-05-27)
+
+
+### Bug Fixes
+
+* **l10n:** update to fix broken lt locale ([512576d](https://github.com/mozilla/fxa-auth-server/commit/512576d))
+
+
+
+<a name="1.62.4"></a>
+## [1.62.4](https://github.com/mozilla/fxa-auth-server/compare/v1.62.3...v1.62.4) (2016-05-24)
+
+
+
+
+<a name="1.62.3"></a>
+## [1.62.3](https://github.com/mozilla/fxa-auth-server/compare/v1.62.2...v1.62.3) (2016-05-24)
+
+
+### chore
+
+* **shrinkwrap:** update auth-mailer/content-server-l10n on v1.62.2 ([3e1027a](https://github.com/mozilla/fxa-auth-server/commit/3e1027a))
+
+
+
+<a name="1.62.2"></a>
+## [1.62.2](https://github.com/mozilla/fxa-auth-server/compare/v1.62.1...v1.62.2) (2016-05-20)
+
+
+### Bug Fixes
+
+* **token:** Use new REQUEST_BLOCKED error for bad content tokens. ([c0696be](https://github.com/mozilla/fxa-auth-server/commit/c0696be))
+
+
+
 <a name="1.62.1"></a>
 ## [1.62.1](https://github.com/mozilla/fxa-auth-server/compare/v1.62.0...v1.62.1) (2016-05-20)
 
@@ -2635,6 +2708,89 @@
 ### chore
 
 * **nsp:** Update convict, add .nsprc file to silence some NSP warnings ([038f46e](https://github.com/mozilla/fxa-auth-server/commit/038f46e))
+
+
+
+<a name="1.60.4"></a>
+## [1.60.4](https://github.com/mozilla/fxa-auth-server/compare/v1.60.3...v1.60.4) (2016-04-29)
+
+
+### Bug Fixes
+
+* **devices:** Avoid spurious writes to device record if nothing has changed ([5017913](https://github.com/mozilla/fxa-auth-server/commit/5017913))
+* **token:** Tweak regex for samsung user-agents in content-token allow list ([13e13b2](https://github.com/mozilla/fxa-auth-server/commit/13e13b2))
+
+
+
+<a name="1.60.3"></a>
+## [1.60.3](https://github.com/mozilla/fxa-auth-server/compare/v1.60.2...v1.60.3) (2016-04-20)
+
+
+### Bug Fixes
+
+* **token:** Add end-of-string anchor in contenttoken email regex. ([c1aae28](https://github.com/mozilla/fxa-auth-server/commit/c1aae28))
+
+
+
+<a name="1.60.2"></a>
+## [1.60.2](https://github.com/mozilla/fxa-auth-server/compare/v1.60.1...v1.60.2) (2016-04-19)
+
+
+### Bug Fixes
+
+* **token:** Add samsung user-agents to content-token allow list ([96f2190](https://github.com/mozilla/fxa-auth-server/commit/96f2190))
+
+
+
+<a name="1.60.1"></a>
+## [1.60.1](https://github.com/mozilla/fxa-auth-server/compare/v1.60.0...v1.60.1) (2016-04-19)
+
+
+### Bug Fixes
+
+* **account:** flag unknown attempts for the emailRecord ([b4fa3f6](https://github.com/mozilla/fxa-auth-server/commit/b4fa3f6))
+* **bulk-mailer:** Remove the locale prefix on filenames w/ --write ([3c9d584](https://github.com/mozilla/fxa-auth-server/commit/3c9d584))
+* **bulk-mailer:** Set error rate to 0, we are done testing. ([06b4c91](https://github.com/mozilla/fxa-auth-server/commit/06b4c91))
+* **clientAddress:** allow location of the client ip address in forward headers to be specified in co ([3440484](https://github.com/mozilla/fxa-auth-server/commit/3440484))
+* **contentToken:** don't let hapi give validation errors about contentToken ([5725061](https://github.com/mozilla/fxa-auth-server/commit/5725061))
+* **contentToken:** fix docs ([dd68374](https://github.com/mozilla/fxa-auth-server/commit/dd68374))
+* **contentToken:** update metrics, remove ip ([89dd85b](https://github.com/mozilla/fxa-auth-server/commit/89dd85b))
+* **customs:** Check more password-related actions with customs-server. ([cf76513](https://github.com/mozilla/fxa-auth-server/commit/cf76513))
+* **customs:** fix type for form.email ([398c98e](https://github.com/mozilla/fxa-auth-server/commit/398c98e))
+* **customs:** provide email properly to customs ([b28fb17](https://github.com/mozilla/fxa-auth-server/commit/b28fb17))
+* **email:** Add feature-flag for new-login notification email. ([1868914](https://github.com/mozilla/fxa-auth-server/commit/1868914))
+* **email:** Point to private fork of auth-mailer for prod deploy. ([26f7b3a](https://github.com/mozilla/fxa-auth-server/commit/26f7b3a))
+* **email:** reinstate new sync device emails ([9f7ff9f](https://github.com/mozilla/fxa-auth-server/commit/9f7ff9f))
+* **email:** send additional template data for new-login email. ([e35eba8](https://github.com/mozilla/fxa-auth-server/commit/e35eba8))
+* **errors:** move bad content error up ([e67990c](https://github.com/mozilla/fxa-auth-server/commit/e67990c))
+* **must-reset:** exit code 1 on reset account error ([3774ea8](https://github.com/mozilla/fxa-auth-server/commit/3774ea8))
+* **tests:** Build and test fixes for latest fxa-auth-mailer update. ([e3eb504](https://github.com/mozilla/fxa-auth-server/commit/e3eb504))
+* **token:** Allow certain emails to bypass the content-token restriction (#27) ([2a162e6](https://github.com/mozilla/fxa-auth-server/commit/2a162e6)), closes [#27](https://github.com/mozilla/fxa-auth-server/issues/27)
+* **token:** Allow the UA for a specific partner device. ([6401431](https://github.com/mozilla/fxa-auth-server/commit/6401431))
+* **token:** Fix test bustage from missing contentToken config ([6924d5c](https://github.com/mozilla/fxa-auth-server/commit/6924d5c))
+* **token:** More diagnostic logging for content-token errors. (#25) ([33f6307](https://github.com/mozilla/fxa-auth-server/commit/33f6307)), closes [#25](https://github.com/mozilla/fxa-auth-server/issues/25)
+* **token:** Validate and log metrics on content-tokens even when they're optional ([002219b](https://github.com/mozilla/fxa-auth-server/commit/002219b))
+
+### chore
+
+* **bulk-mailer:** Settle on the "password_reset_required" template ([90de303](https://github.com/mozilla/fxa-auth-server/commit/90de303))
+* **bulk-mailer:** Stop all processing on error. ([ae83d72](https://github.com/mozilla/fxa-auth-server/commit/ae83d72))
+* **customs:** use named error constant for UNEXPECTED_ERROR ([ead6134](https://github.com/mozilla/fxa-auth-server/commit/ead6134))
+* **doc:** add usage info to scripts/must-reset.js ([8d02f8b](https://github.com/mozilla/fxa-auth-server/commit/8d02f8b))
+* **docs:** Add more docs to the reset-send-batch script. ([975132e](https://github.com/mozilla/fxa-auth-server/commit/975132e))
+* **shrinkwrap:** pick up new versions auth-mailer and content-l10n ([3fb3186](https://github.com/mozilla/fxa-auth-server/commit/3fb3186))
+
+### Features
+
+* **bulk-mailer:** `--errors` and `--unsent` now have defaults. ([61c092d](https://github.com/mozilla/fxa-auth-server/commit/61c092d))
+* **bulk-mailer:** Add some utilities to work with batches ([21a9033](https://github.com/mozilla/fxa-auth-server/commit/21a9033))
+* **contentToken:** add customs flag on bad token ([e811ced](https://github.com/mozilla/fxa-auth-server/commit/e811ced))
+* **contentToken:** add tests, add new error code ([8372a62](https://github.com/mozilla/fxa-auth-server/commit/8372a62))
+* **contentToken:** adjust user agents ([70bc661](https://github.com/mozilla/fxa-auth-server/commit/70bc661))
+* **customs:** include errno in customs flags ([d50f959](https://github.com/mozilla/fxa-auth-server/commit/d50f959))
+* **login:** add content token support ([a2ac3ad](https://github.com/mozilla/fxa-auth-server/commit/a2ac3ad))
+* **reset:** Added "must reset account" error state ([e86d16f](https://github.com/mozilla/fxa-auth-server/commit/e86d16f))
+* **scripts:** Add a bulk mailer ([09c2671](https://github.com/mozilla/fxa-auth-server/commit/09c2671))
 
 
 
