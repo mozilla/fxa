@@ -10,6 +10,7 @@ import FormView from './form';
 import NullBehavior from './behaviors/null';
 import PasswordResetMixin from './mixins/password-reset-mixin';
 import SignInView from './sign_in';
+import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/force_auth.mustache';
 import Transform from '../lib/transform';
 import Vat from '../lib/vat';
@@ -193,7 +194,8 @@ var View = SignInView.extend({
 
 Cocktail.mixin(
   View,
-  PasswordResetMixin
+  PasswordResetMixin,
+  ServiceMixin
 );
 
 module.exports = View;

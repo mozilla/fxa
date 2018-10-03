@@ -1,6 +1,14 @@
 <div id="main-content" class="card">
   <header>
-    <h1 id="fxa-force-auth-header">{{#t}}Sign in to continue{{/t}}</h1>
+    <h1 id="fxa-force-auth-header">
+      {{#serviceName}}
+        <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+        {{#t}}Sign in{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+      {{/serviceName}}
+      {{^serviceName}}
+        {{#t}}Sign in to continue{{/t}}
+      {{/serviceName}}
+    </h1>
   </header>
 
   <section>
