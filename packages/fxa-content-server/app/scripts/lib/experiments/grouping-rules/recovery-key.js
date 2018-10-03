@@ -11,7 +11,7 @@ module.exports = class RecoveryKeyGroupingRule extends BaseGroupingRule {
   constructor() {
     super();
     this.name = 'recoveryKey';
-    this.ROLLOUT_RATE = 0.1;
+    this.ROLLOUT_RATE = 0;
   }
 
   choose(subject) {
