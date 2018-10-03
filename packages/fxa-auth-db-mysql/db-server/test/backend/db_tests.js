@@ -1314,6 +1314,14 @@ module.exports = function (config, DB) {
         return db.securityEvents({id: newUuid(), ipAddr: addr1})
           .then((results) => assert.equal(results.length, 0, 'no events for unknown uid'))
       })
+
+      it('should delete events when account is deleted', () => {
+        return db.deleteAccount(accountData.uid)
+          .then(() => db.securityEvents({id: uid1, ipAddr: addr1}))
+          .then((res) => {
+            assert.equal(res.length, 0, 'no events returned')
+          })
+      })
     })
 
     describe('db.deleteAccount', () => {
@@ -2088,6 +2096,14 @@ module.exports = function (config, DB) {
             assert.equal(err.errno, 116, 'correct errno, not found')
           })
       })
+
+      it('should delete token when account deleted', () => {
+        return db.deleteAccount(accountData.uid)
+          .then(() => db.totpToken(accountData.uid))
+          .then(() => assert.fail('should have deleted totp token'), (err) => {
+            assert.equal(err.errno, 116, 'correct errno, not found')
+          })
+      })
     })
 
     describe('db.verifyTokensWithMethod', () => {
@@ -2214,6 +2230,19 @@ module.exports = function (config, DB) {
           .then((codes) => {
             assert.equal(codes.length, 3, 'correct number of codes')
             assert.notDeepEqual(codes, firstCodes, 'codes are different')
+          })
+      })
+
+      it('should remove codes when account deleted', () => {
+        let recoveryCodes
+        return db.replaceRecoveryCodes(account.uid, 2)
+          .then((codes) => {
+            recoveryCodes = codes
+            return db.deleteAccount(account.uid)
+          })
+          .then((result) => db.consumeRecoveryCode(account.uid, recoveryCodes[0]))
+          .then(() => assert.fail('should have removed codes'), (err) => {
+            assert.equal(err.errno, 116, 'correct errno, not found')
           })
       })
 
@@ -2377,6 +2406,18 @@ module.exports = function (config, DB) {
         return db.recoveryKeyExists('nonexistent')
           .then((res) => {
             assert.equal(res.exists, false, 'key doesn\'t exist')
+          })
+      })
+
+      it('should remove recovery key when account deleted', () => {
+        const options = {
+          id: account.uid,
+          recoveryKeyId: data.recoveryKeyId
+        }
+        return db.deleteAccount(account.uid)
+          .then(() => db.getRecoveryKey(options))
+          .then(() => assert.fail('should have deleted recovery key'), (err) => {
+            assert.equal(err.errno, 116, 'correct errno, not found')
           })
       })
     })
