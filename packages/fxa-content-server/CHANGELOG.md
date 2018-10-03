@@ -1,6 +1,10 @@
+<a name="1.122.1"></a>
+## [1.122.1](https://github.com/mozilla/fxa-content-server/compare/v1.122.0...v1.122.1) (2018-10-03)
+
+* Merge train-121 from private repo into 122
+
 <a name="1.122.0"></a>
 # [1.122.0](https://github.com/mozilla/fxa-content-server/compare/v1.121.0...v1.122.0) (2018-10-02)
-
 
 ### Bug Fixes
 
@@ -31,6 +35,23 @@
 * **pairing:** Extract hkdf into its own module. ([f4d167d](https://github.com/mozilla/fxa-content-server/commit/f4d167d)), closes [#6514](https://github.com/mozilla/fxa-content-server/issues/6514)
 * **pairing:** Extract the fxa-crypto-deriver lazy loading ([1a94048](https://github.com/mozilla/fxa-content-server/commit/1a94048)), closes [#6514](https://github.com/mozilla/fxa-content-server/issues/6514)
 * **pairing:** Extract validate and vat formatting updates ([c2fd736](https://github.com/mozilla/fxa-content-server/commit/c2fd736)), closes [#6514](https://github.com/mozilla/fxa-content-server/issues/6514)
+
+
+
+<a name="1.121.2"></a>
+## [1.121.2](https://github.com/mozilla/fxa-content-server/compare/v1.121.1-private...v1.121.2) (2018-10-02)
+
+* **recovery:** increase recovery key length to 28 ([691f1c5](https://github.com/mozilla/fxa-content-server/commit/691f1c5))
+
+
+
+<a name="1.121.1"></a>
+## [1.121.1](https://github.com/mozilla/fxa-content-server/compare/v1.121.0...v1.121.1) (2018-10-01)
+
+
+### chore
+
+* **recovery:** roll back recoveryKey experiment to 0 percent ([b86ab5b](https://github.com/mozilla/fxa-content-server/commit/b86ab5b))
 
 
 
