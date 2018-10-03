@@ -33,6 +33,7 @@ module.exports = [
   'tests/server/routes/get-openid-configuration.js',
   'tests/server/routes/get-verify-email.js',
   'tests/server/routes/get-index.js',
+  'tests/server/routes/get-well-known-change-password.js',
   'tests/server/routes/post-csp.js',
   'tests/server/routes/post-metrics.js',
   'tests/server/routes/redirect-m-to-adjust.js',
