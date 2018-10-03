@@ -27,6 +27,16 @@
 
 
 
+<a name="1.121.1"></a>
+## [1.121.1](https://github.com/mozilla/fxa-auth-server/compare/v1.121.0...v1.121.1) (2018-10-02)
+
+
+### Bug Fixes
+
+* **random:** Reduce bias when generating random base-10 codes. ([65dab2b](https://github.com/mozilla/fxa-auth-server/commit/65dab2b))
+
+
+
 <a name="1.121.0"></a>
 # [1.121.0](https://github.com/mozilla/fxa-auth-server/compare/v1.120.2...v1.121.0) (2018-09-18)
 
