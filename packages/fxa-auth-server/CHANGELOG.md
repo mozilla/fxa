@@ -1,3 +1,14 @@
+<a name="1.122.1"></a>
+## [1.122.1](https://github.com/mozilla/fxa-auth-server/compare/v1.122.0...v1.122.1) (2018-10-03)
+
+
+### chore
+
+* **docs:** add missing private releases to change log ([47ea091](https://github.com/mozilla/fxa-auth-server/commit/47ea091))
+* **package:** npm shrinkwrap ([081f7d8](https://github.com/mozilla/fxa-auth-server/commit/081f7d8))
+
+
+
 <a name="1.122.0"></a>
 # [1.122.0](https://github.com/mozilla/fxa-auth-server/compare/v1.121.0...v1.122.0) (2018-10-02)
 
