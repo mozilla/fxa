@@ -629,7 +629,8 @@ describe('/account/devices/invoke_command', function () {
       id: 'bogusid1',
       type: 'mobile',
       availableCommands: {
-        bogusCommandName: 'bogusData'
+        bogusCommandName: 'bogusData',
+        'https://identity.mozilla.com/cmd/open-uri': 'morebogusdata',
       }
     },
     {
@@ -657,9 +658,7 @@ describe('/account/devices/invoke_command', function () {
 
   it('stores commands using the pushbox service and sends a notification', () => {
     const mockPushbox = mocks.mockPushbox({
-      store: sinon.spy(() => {
-        return Promise.resolve({ index: 15 })
-      })
+      store: sinon.spy(async () => ({ index: 15 }))
     })
     const target = 'bogusid1'
     const sender = 'bogusid2'
@@ -697,6 +696,49 @@ describe('/account/devices/invoke_command', function () {
          15,
          'https://public.url/v1/account/device/commands?index=15&limit=1',
          undefined
+      )
+    })
+  })
+
+  it('uses a default TTL for send-tab commands with no TTL specified', () => {
+    const THIRTY_DAYS_IN_SECS = 30 * 24 * 3600;
+    const commandSendTab = 'https://identity.mozilla.com/cmd/open-uri'
+    const mockPushbox = mocks.mockPushbox({
+      store: sinon.spy(async () => ({ index: 15 }))
+    })
+    const target = 'bogusid1'
+    const sender = 'bogusid2'
+    const payload = { 'bogus': 'payload' }
+    mockRequest.payload = {
+      target,
+      command: commandSendTab,
+      payload
+    }
+    const route = getRoute(makeRoutes({
+      customs: mockCustoms,
+      log: mockLog,
+      push: mockPush,
+      pushbox: mockPushbox,
+      db: mockDB
+    }), '/account/devices/invoke_command')
+
+    return runTest(route, mockRequest).then(() => {
+      assert.equal(mockPushbox.store.callCount, 1, 'pushbox was called')
+      assert.calledWithExactly(mockPushbox.store, uid, target, {
+        command: commandSendTab,
+        payload,
+        sender
+      }, THIRTY_DAYS_IN_SECS)
+
+      assert.equal(mockPush.notifyCommandReceived.callCount, 1, 'notifyCommandReceived was called')
+      assert.calledWithExactly(mockPush.notifyCommandReceived,
+         uid,
+         mockDevices[0],
+         commandSendTab,
+         sender,
+         15,
+         'https://public.url/v1/account/device/commands?index=15&limit=1',
+         THIRTY_DAYS_IN_SECS
       )
     })
   })

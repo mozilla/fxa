@@ -19,6 +19,10 @@ const HEX_STRING = validators.HEX_STRING
 const DEVICES_SCHEMA = require('../devices').schema
 const PUSH_PAYLOADS_SCHEMA_PATH = path.resolve(__dirname, '../../docs/pushpayloads.schema.json')
 
+// Assign a default TTL for well-known commands if a request didn't specify it.
+const DEFAULT_COMMAND_TTL = new Map([
+  ['https://identity.mozilla.com/cmd/open-uri', 30 * 24 * 3600], // 30 days
+])
 
 module.exports = (log, db, config, customs, push, pushbox, devices) => {
   // Loads and compiles a json validator for the payloads received
@@ -298,7 +302,8 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
       handler: async function (request) {
         log.begin('Account.invokeDeviceCommand', request)
 
-        const {target, command, payload, ttl} = request.payload
+        const {target, command, payload} = request.payload
+        let {ttl} = request.payload
         const sessionToken = request.auth.credentials
         const uid = sessionToken.uid
         const sender = sessionToken.deviceId
@@ -309,6 +314,10 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
           .then(device => {
             if (! device.availableCommands.hasOwnProperty(command)) {
               throw error.unavailableDeviceCommand()
+            }
+            // 0 is perfectly acceptable TTL, hence the strict equality check.
+            if (ttl === undefined && DEFAULT_COMMAND_TTL.has(command)) {
+              ttl = DEFAULT_COMMAND_TTL.get(command);
             }
             const data = {
               command,
