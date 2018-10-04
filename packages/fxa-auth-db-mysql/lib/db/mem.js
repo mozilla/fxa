@@ -912,6 +912,10 @@ module.exports = function (log, error) {
           delete uidByNormalizedEmail[account.normalizedEmail]
           delete accounts[uid]
           delete totpTokens[uid]
+          delete recoveryCodes[uid]
+          delete recoveryKeys[uid]
+          delete securityEvents[uid]
+
           return []
         }
       )
