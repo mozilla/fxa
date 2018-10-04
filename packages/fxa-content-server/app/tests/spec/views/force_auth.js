@@ -172,8 +172,26 @@ define(function (require, exports, module) {
           assert.isFalse(view.navigate.called);
         });
 
+        it('has no service name', function () {
+          assert.lengthOf(view.$('.service'), 0);
+        });
+
         it('does not error', function () {
           assert.lengthOf(view.$('.error.visible'), 0);
+        });
+      });
+
+      describe('with service=sync', function () {
+        it('has the service title', function () {
+
+          relier.set({
+            serviceName: 'Firefox Sync',
+            uid: TestHelpers.createUid()
+          });
+
+          return view.render().then(() => {
+            assert.equal(view.$('.service').text(), 'Continue to Firefox Sync');
+          });
         });
       });
 
