@@ -55,7 +55,7 @@ fn consume() {
     );
     match test.message_data.consume(&test.unhashed_key) {
         Ok(_) => assert!(false, "consume should fail when called a second time"),
-        Err(error) => assert_eq!(format!("{}", error), "redis error: Response was of incompatible type: \"Response type not string compatible.\" (response was nil)"),
+        Err(error) => assert_eq!(format!("{}", error), "Redis error: Response was of incompatible type: \"Response type not string compatible.\" (response was nil)"),
     }
 }
 

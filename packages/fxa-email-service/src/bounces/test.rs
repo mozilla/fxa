@@ -281,7 +281,7 @@ pub struct DbMockError;
 
 impl Db for DbMockError {
     fn get_bounces(&self, _address: &str) -> AppResult<Vec<BounceRecord>> {
-        Err(AppErrorKind::DbError(String::from("wibble blee")).into())
+        Err(AppErrorKind::AuthDbError(String::from("wibble blee")).into())
     }
 }
 

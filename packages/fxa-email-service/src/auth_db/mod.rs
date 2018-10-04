@@ -167,13 +167,13 @@ pub struct BounceRecord {
 
 impl From<UrlError> for AppError {
     fn from(error: UrlError) -> AppError {
-        AppErrorKind::DbError(format!("{}", error)).into()
+        AppErrorKind::AuthDbError(format!("{}", error)).into()
     }
 }
 
 impl From<RequestError> for AppError {
     fn from(error: RequestError) -> AppError {
-        AppErrorKind::DbError(format!("{}", error)).into()
+        AppErrorKind::AuthDbError(format!("{}", error)).into()
     }
 }
 
@@ -237,7 +237,7 @@ impl Db for DbClient {
             .send()?;
         match response.status() {
             StatusCode::Ok => response.json::<Vec<BounceRecord>>().map_err(From::from),
-            status => Err(AppErrorKind::DbError(format!("{}", status)).into()),
+            status => Err(AppErrorKind::AuthDbError(format!("{}", status)).into()),
         }
     }
 
@@ -258,7 +258,7 @@ impl Db for DbClient {
             }).send()?;
         match response.status() {
             StatusCode::Ok => Ok(()),
-            status => Err(AppErrorKind::DbError(format!("{}", status)).into()),
+            status => Err(AppErrorKind::AuthDbError(format!("{}", status)).into()),
         }
     }
 }

@@ -24,7 +24,7 @@
 - `code: 429, errno: 106`: Bounce Complaint Error
 - `code: 429, errno: 107`: Bounce Soft Error
 - `code: 429, errno: 108`: Bounce Hard Error
-- `code: 500, errno: 109`: Database Error
+- `code: 500, errno: 109`: AuthDb Error
 - `code: 500, errno: 110`: Queue Error
 - `code: 500, errno: 111`: Invalid Notification Type
 - `code: 500, errno: 112`: Missing Notification Payload
@@ -32,8 +32,9 @@
 - `code: 500, errno: 114`: SQS Message Hash Mismatch
 - `code: 500, errno: 115`: SQS Message Parsing Error
 - `code: 500, errno: 116`: Duration Error
-- `code: 500, errno: 117`: MessageDataError
+- `code: 500, errno: 117`: Db Error
 - `code: 500, errno: 118`: Not Implemeneted
+- `code: 500, errno: 119`: HMAC error
 
 The following errors include additional response properties:
 
