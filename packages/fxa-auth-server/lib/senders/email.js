@@ -174,6 +174,7 @@ module.exports = function (log, config) {
     this.verifyLoginUrl = mailerConfig.verifyLoginUrl
     this.verifySecondaryEmailUrl = mailerConfig.verifySecondaryEmailUrl
     this.verifyPrimaryEmailUrl = mailerConfig.verifyPrimaryEmailUrl
+    this.prependVerificationSubdomain = mailerConfig.prependVerificationSubdomain
   }
 
   Mailer.prototype.stop = function () {
@@ -1327,7 +1328,14 @@ module.exports = function (log, config) {
       parsedQuery['utm_content'] = UTM_PREFIX + content
     }
 
-    return parsedLink.protocol + '//' + parsedLink.host + parsedLink.pathname + '?' + qs.stringify(parsedQuery)
+    parsedLink.query = parsedQuery
+
+    const isAccountOrEmailVerification = link === this.verificationUrl || link === this.verifyLoginUrl
+    if (this.prependVerificationSubdomain.enabled && isAccountOrEmailVerification) {
+      parsedLink.host = `${this.prependVerificationSubdomain.subdomain}.${parsedLink.host}`
+    }
+
+    return url.format(parsedLink)
   }
 
   Mailer.prototype._generateLinks = function (primaryLink, email, query, templateName) {

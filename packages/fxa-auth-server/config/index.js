@@ -231,6 +231,19 @@ var conf = convict({
       default: 'Firefox Accounts <no-reply@lcip.org>',
       env: 'SMTP_SENDER'
     },
+    prependVerificationSubdomain: {
+      enabled: {
+        doc: 'Flag to prepend a verification subdomain to verification emails',
+        default: false,
+        env: 'PREPEND_VERIFICATION_SUBDOMAIN_ENABLED'
+      },
+      subdomain: {
+        doc: 'Prepend this subdomain',
+        format: String,
+        default: 'confirm',
+        env: 'PREPEND_VERIFICATION_SUBDOMAIN_SUBDOMAIN'
+      },
+    },
     verificationUrl: {
       doc: 'Deprecated. uses contentServer.url',
       format: String,
