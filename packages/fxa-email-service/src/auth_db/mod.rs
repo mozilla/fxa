@@ -26,6 +26,7 @@ use serde::{
 };
 
 use app_errors::{AppError, AppErrorKind, AppResult};
+use email_address::EmailAddress;
 use settings::Settings;
 
 #[cfg(test)]
@@ -156,7 +157,7 @@ impl Serialize for BounceSubtype {
 #[derive(Clone, Debug, Deserialize, Eq, Serialize, PartialEq)]
 pub struct BounceRecord {
     #[serde(rename = "email")]
-    pub address: String,
+    pub address: EmailAddress,
     #[serde(rename = "bounceType")]
     pub bounce_type: BounceType,
     #[serde(rename = "bounceSubType")]
@@ -192,8 +193,8 @@ impl DbUrls {
         }
     }
 
-    pub fn get_bounces(&self, address: &str) -> Result<Url, UrlError> {
-        self.get_bounces.join(&hex::encode(address))
+    pub fn get_bounces(&self, address: &EmailAddress) -> Result<Url, UrlError> {
+        self.get_bounces.join(&hex::encode(address.as_ref()))
     }
 
     pub fn create_bounce(&self) -> Url {
@@ -202,11 +203,11 @@ impl DbUrls {
 }
 
 pub trait Db: Debug + Sync {
-    fn get_bounces(&self, address: &str) -> AppResult<Vec<BounceRecord>>;
+    fn get_bounces(&self, address: &EmailAddress) -> AppResult<Vec<BounceRecord>>;
 
     fn create_bounce(
         &self,
-        _address: &str,
+        _address: &EmailAddress,
         _bounce_type: BounceType,
         _bounce_subtype: BounceSubtype,
     ) -> AppResult<()> {
@@ -230,7 +231,7 @@ impl DbClient {
 }
 
 impl Db for DbClient {
-    fn get_bounces(&self, address: &str) -> AppResult<Vec<BounceRecord>> {
+    fn get_bounces(&self, address: &EmailAddress) -> AppResult<Vec<BounceRecord>> {
         let mut response = self
             .request_client
             .get(self.urls.get_bounces(address)?)
@@ -243,7 +244,7 @@ impl Db for DbClient {
 
     fn create_bounce(
         &self,
-        address: &str,
+        address: &EmailAddress,
         bounce_type: BounceType,
         bounce_subtype: BounceSubtype,
     ) -> AppResult<()> {
@@ -251,7 +252,7 @@ impl Db for DbClient {
             .request_client
             .post(self.urls.create_bounce())
             .json(&BounceRecord {
-                address: address.to_string(),
+                address: address.clone(),
                 bounce_type,
                 bounce_subtype,
                 created_at: 0,

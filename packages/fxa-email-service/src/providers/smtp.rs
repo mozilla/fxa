@@ -24,7 +24,7 @@ impl SmtpProvider {
             port: settings.smtp.port,
             _credentials: settings.smtp.credentials.clone(),
             sender: (
-                settings.sender.address.0.clone(),
+                settings.sender.address.to_string(),
                 settings.sender.name.0.clone(),
             ),
         }

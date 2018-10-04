@@ -269,16 +269,16 @@ fn deserialize_notification() {
     };
     assert_eq!(bounce.bounced_recipients.len(), 3);
     assert_eq!(
-        bounce.bounced_recipients[0].email_address,
-        "bar@example.com".to_string()
+        bounce.bounced_recipients[0].email_address.as_ref(),
+        "bar@example.com"
     );
     assert_eq!(
-        bounce.bounced_recipients[1].email_address,
-        "baz@example.com".to_string()
+        bounce.bounced_recipients[1].email_address.as_ref(),
+        "baz@example.com"
     );
     assert_eq!(
-        bounce.bounced_recipients[2].email_address,
-        "qux@example.com".to_string()
+        bounce.bounced_recipients[2].email_address.as_ref(),
+        "qux@example.com"
     );
     assert_eq!(bounce.bounce_type, BounceType::Permanent);
     assert_eq!(bounce.bounce_subtype, BounceSubtype::General);
@@ -303,8 +303,8 @@ fn deserialize_notification() {
         _ => panic!("Complaint record should exist."),
     };
     assert_eq!(
-        complaint.complained_recipients[0].email_address,
-        "baz@example.com".to_string()
+        complaint.complained_recipients[0].email_address.as_ref(),
+        "baz@example.com"
     );
     assert_eq!(
         complaint.complaint_feedback_type,
@@ -330,5 +330,5 @@ fn deserialize_notification() {
         Some(ref record) => record,
         _ => panic!("Delivery record should exist."),
     };
-    assert_eq!(delivery.recipients[0], "xyzzy@example.com".to_string());
+    assert_eq!(delivery.recipients[0].as_ref(), "xyzzy@example.com");
 }

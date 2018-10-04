@@ -34,9 +34,11 @@ impl Incoming for Queue {
                 bounce_message.notification.bounce = Some(Bounce {
                     bounce_type: BounceType::Permanent,
                     bounce_subtype: BounceSubtype::General,
-                    bounced_recipients: vec![String::from(
-                        "fxa-email-service.queues.mock.bounce@example.com",
-                    )],
+                    bounced_recipients: vec![
+                        "fxa-email-service.queues.mock.bounce@example.com"
+                            .parse()
+                            .unwrap(),
+                    ],
                     timestamp: Utc::now(),
                 });
                 bounce_message
@@ -46,9 +48,11 @@ impl Incoming for Queue {
                 let mut complaint_message = Message::default();
                 complaint_message.notification.notification_type = NotificationType::Complaint;
                 complaint_message.notification.complaint = Some(Complaint {
-                    complained_recipients: vec![String::from(
-                        "fxa-email-service.queues.mock.complaint@example.com",
-                    )],
+                    complained_recipients: vec![
+                        "fxa-email-service.queues.mock.complaint@example.com"
+                            .parse()
+                            .unwrap(),
+                    ],
                     timestamp: Utc::now(),
                     complaint_feedback_type: None,
                 });
@@ -60,9 +64,11 @@ impl Incoming for Queue {
                 delivery_message.notification.notification_type = NotificationType::Delivery;
                 delivery_message.notification.delivery = Some(Delivery {
                     timestamp: Utc::now(),
-                    recipients: vec![String::from(
-                        "fxa-email-service.queues.mock.delivery@example.com",
-                    )],
+                    recipients: vec![
+                        "fxa-email-service.queues.mock.delivery@example.com"
+                            .parse()
+                            .unwrap(),
+                    ],
                 });
                 delivery_message
             }
@@ -71,9 +77,11 @@ impl Incoming for Queue {
                 let mut invalid_message = Message::default();
                 invalid_message.notification.notification_type = NotificationType::Bounce;
                 invalid_message.notification.complaint = Some(Complaint {
-                    complained_recipients: vec![String::from(
-                        "fxa-email-service.queues.mock.complaint@example.com",
-                    )],
+                    complained_recipients: vec![
+                        "fxa-email-service.queues.mock.complaint@example.com"
+                            .parse()
+                            .unwrap(),
+                    ],
                     timestamp: Utc::now(),
                     complaint_feedback_type: None,
                 });

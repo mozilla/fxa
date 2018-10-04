@@ -138,18 +138,8 @@ fn serialize_bounce_subtype() {
 fn get_bounces() {
     let settings = Settings::new().expect("config error");
     let db = DbClient::new(&settings);
-    if let Err(error) = db.get_bounces("foo@example.com") {
+    if let Err(error) = db.get_bounces(&"foo@example.com".parse().unwrap()) {
         assert!(false, format!("{}", error));
-    }
-}
-
-#[test]
-fn get_bounces_invalid_address() {
-    let settings = Settings::new().expect("config error");
-    let db = DbClient::new(&settings);
-    match db.get_bounces("") {
-        Ok(_) => assert!(false, "DbClient::get_bounces should have failed"),
-        Err(error) => assert_eq!(format!("{}", error), "400 Bad Request"),
     }
 }
 
@@ -200,12 +190,13 @@ fn create_bounce() {
     assert!(second_bounce.created_at > bounce.created_at);
 }
 
-fn generate_email_address(variant: &str) -> String {
+fn generate_email_address(variant: &str) -> EmailAddress {
     format!(
         "fxa-email-service.test.auth-db.{}.{}@example.com",
         variant,
         now_as_milliseconds()
-    )
+    ).parse()
+    .unwrap()
 }
 
 fn now_as_milliseconds() -> u64 {

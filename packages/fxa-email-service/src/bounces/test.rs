@@ -39,7 +39,7 @@ fn check_no_bounces() {
     let settings = create_settings(bounce_settings);
     let db = DbMockNoBounce;
     let bounces = Bounces::new(&settings, db);
-    if let Err(error) = bounces.check("foo@example.com") {
+    if let Err(error) = bounces.check(&"foo@example.com".parse().unwrap()) {
         assert!(false, format!("{}", error));
     }
 }
@@ -54,23 +54,23 @@ fn create_settings(bounce_limits: Json) -> Settings {
 pub struct DbMockNoBounce;
 
 impl Db for DbMockNoBounce {
-    fn get_bounces(&self, _address: &str) -> AppResult<Vec<BounceRecord>> {
+    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<BounceRecord>> {
         let now = now_as_milliseconds();
         Ok(vec![
             BounceRecord {
-                address: String::from("foo@example.com"),
+                address: "foo@example.com".parse().unwrap(),
                 bounce_type: DbBounceType::Soft,
                 bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - DAY - 1000,
             },
             BounceRecord {
-                address: String::from("foo@example.com"),
+                address: "foo@example.com".parse().unwrap(),
                 bounce_type: DbBounceType::Hard,
                 bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - WEEK - 1000,
             },
             BounceRecord {
-                address: String::from("foo@example.com"),
+                address: "foo@example.com".parse().unwrap(),
                 bounce_type: DbBounceType::Complaint,
                 bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - MONTH - 1000,
@@ -101,7 +101,7 @@ fn check_soft_bounce() {
     let settings = create_settings(bounce_settings);
     let db = DbMockBounceSoft;
     let bounces = Bounces::new(&settings, db);
-    match bounces.check("foo@example.com") {
+    match bounces.check(&"foo@example.com".parse().unwrap()) {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {
             assert_eq!(format!("{}", error), "Email account soft bounced");
@@ -129,10 +129,10 @@ fn check_soft_bounce() {
 pub struct DbMockBounceSoft;
 
 impl Db for DbMockBounceSoft {
-    fn get_bounces(&self, _address: &str) -> AppResult<Vec<BounceRecord>> {
+    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<BounceRecord>> {
         let now = now_as_milliseconds();
         Ok(vec![BounceRecord {
-            address: String::from("foo@example.com"),
+            address: "foo@example.com".parse().unwrap(),
             bounce_type: DbBounceType::Soft,
             bounce_subtype: DbBounceSubtype::Undetermined,
             created_at: now - DAY + SECOND * 2,
@@ -155,7 +155,7 @@ fn check_hard_bounce() {
     let settings = create_settings(bounce_settings);
     let db = DbMockBounceHard;
     let bounces = Bounces::new(&settings, db);
-    match bounces.check("bar@example.com") {
+    match bounces.check(&"bar@example.com".parse().unwrap()) {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {
             assert_eq!(format!("{}", error), "Email account hard bounced");
@@ -183,10 +183,10 @@ fn check_hard_bounce() {
 pub struct DbMockBounceHard;
 
 impl Db for DbMockBounceHard {
-    fn get_bounces(&self, _address: &str) -> AppResult<Vec<BounceRecord>> {
+    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<BounceRecord>> {
         let now = now_as_milliseconds();
         Ok(vec![BounceRecord {
-            address: String::from("bar@example.com"),
+            address: "bar@example.com".parse().unwrap(),
             bounce_type: DbBounceType::Hard,
             bounce_subtype: DbBounceSubtype::Undetermined,
             created_at: now - WEEK + SECOND * 2,
@@ -209,7 +209,7 @@ fn check_complaint() {
     let settings = create_settings(bounce_settings);
     let db = DbMockComplaint;
     let bounces = Bounces::new(&settings, db);
-    match bounces.check("baz@example.com") {
+    match bounces.check(&"baz@example.com".parse().unwrap()) {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {
             assert_eq!(format!("{}", error), "Email account sent complaint");
@@ -237,10 +237,10 @@ fn check_complaint() {
 pub struct DbMockComplaint;
 
 impl Db for DbMockComplaint {
-    fn get_bounces(&self, _address: &str) -> AppResult<Vec<BounceRecord>> {
+    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<BounceRecord>> {
         let now = now_as_milliseconds();
         Ok(vec![BounceRecord {
-            address: String::from("baz@example.com"),
+            address: "baz@example.com".parse().unwrap(),
             bounce_type: DbBounceType::Complaint,
             bounce_subtype: DbBounceSubtype::Undetermined,
             created_at: now - MONTH + SECOND * 2,
@@ -267,7 +267,7 @@ fn check_db_error() {
     let settings = create_settings(bounce_settings);
     let db = DbMockError;
     let bounces = Bounces::new(&settings, db);
-    match bounces.check("foo@example.com") {
+    match bounces.check(&"foo@example.com".parse().unwrap()) {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {
             assert_eq!(format!("{}", error), "wibble blee");
@@ -280,7 +280,7 @@ fn check_db_error() {
 pub struct DbMockError;
 
 impl Db for DbMockError {
-    fn get_bounces(&self, _address: &str) -> AppResult<Vec<BounceRecord>> {
+    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<BounceRecord>> {
         Err(AppErrorKind::AuthDbError(String::from("wibble blee")).into())
     }
 }
@@ -304,7 +304,7 @@ fn check_no_bounces_with_nonzero_limits() {
     let settings = create_settings(bounce_settings);
     let db = DbMockNoBounceWithNonZeroLimits;
     let bounces = Bounces::new(&settings, db);
-    if let Err(error) = bounces.check("foo@example.com") {
+    if let Err(error) = bounces.check(&"foo@example.com".parse().unwrap()) {
         assert!(false, format!("{}", error));
     }
 }
@@ -313,59 +313,59 @@ fn check_no_bounces_with_nonzero_limits() {
 pub struct DbMockNoBounceWithNonZeroLimits;
 
 impl Db for DbMockNoBounceWithNonZeroLimits {
-    fn get_bounces(&self, _address: &str) -> AppResult<Vec<BounceRecord>> {
+    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<BounceRecord>> {
         let now = now_as_milliseconds();
         Ok(vec![
             BounceRecord {
-                address: String::from("foo@example.com"),
+                address: "foo@example.com".parse().unwrap(),
                 bounce_type: DbBounceType::Soft,
                 bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - DAY + MINUTE,
             },
             BounceRecord {
-                address: String::from("foo@example.com"),
+                address: "foo@example.com".parse().unwrap(),
                 bounce_type: DbBounceType::Hard,
                 bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - WEEK + MINUTE,
             },
             BounceRecord {
-                address: String::from("foo@example.com"),
+                address: "foo@example.com".parse().unwrap(),
                 bounce_type: DbBounceType::Complaint,
                 bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - MONTH + MINUTE,
             },
             BounceRecord {
-                address: String::from("foo@example.com"),
+                address: "foo@example.com".parse().unwrap(),
                 bounce_type: DbBounceType::Soft,
                 bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - DAY + SECOND * 2,
             },
             BounceRecord {
-                address: String::from("foo@example.com"),
+                address: "foo@example.com".parse().unwrap(),
                 bounce_type: DbBounceType::Hard,
                 bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - WEEK + SECOND * 2,
             },
             BounceRecord {
-                address: String::from("foo@example.com"),
+                address: "foo@example.com".parse().unwrap(),
                 bounce_type: DbBounceType::Complaint,
                 bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - MONTH + SECOND * 2,
             },
             BounceRecord {
-                address: String::from("foo@example.com"),
+                address: "foo@example.com".parse().unwrap(),
                 bounce_type: DbBounceType::Soft,
                 bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - DAY - 1000,
             },
             BounceRecord {
-                address: String::from("foo@example.com"),
+                address: "foo@example.com".parse().unwrap(),
                 bounce_type: DbBounceType::Hard,
                 bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - WEEK - 1000,
             },
             BounceRecord {
-                address: String::from("foo@example.com"),
+                address: "foo@example.com".parse().unwrap(),
                 bounce_type: DbBounceType::Complaint,
                 bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - MONTH - 1000,
@@ -391,7 +391,7 @@ fn check_bounce_with_multiple_limits() {
     let settings = create_settings(bounce_settings);
     let db = DbMockBounceWithMultipleLimits;
     let bounces = Bounces::new(&settings, db);
-    match bounces.check("foo@example.com") {
+    match bounces.check(&"foo@example.com".parse().unwrap()) {
         Ok(_) => assert!(false, "Bounces::check should have failed"),
         Err(error) => {
             assert_eq!(format!("{}", error), "Email account soft bounced");
@@ -418,29 +418,29 @@ fn check_bounce_with_multiple_limits() {
 pub struct DbMockBounceWithMultipleLimits;
 
 impl Db for DbMockBounceWithMultipleLimits {
-    fn get_bounces(&self, _address: &str) -> AppResult<Vec<BounceRecord>> {
+    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<BounceRecord>> {
         let now = now_as_milliseconds();
         Ok(vec![
             BounceRecord {
-                address: String::from("foo@example.com"),
+                address: "foo@example.com".parse().unwrap(),
                 bounce_type: DbBounceType::Soft,
                 bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - SECOND * 4,
             },
             BounceRecord {
-                address: String::from("foo@example.com"),
+                address: "foo@example.com".parse().unwrap(),
                 bounce_type: DbBounceType::Soft,
                 bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - MINUTE * 2 + SECOND * 4,
             },
             BounceRecord {
-                address: String::from("foo@example.com"),
+                address: "foo@example.com".parse().unwrap(),
                 bounce_type: DbBounceType::Soft,
                 bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - MINUTE * 2 + SECOND * 3,
             },
             BounceRecord {
-                address: String::from("foo@example.com"),
+                address: "foo@example.com".parse().unwrap(),
                 bounce_type: DbBounceType::Soft,
                 bounce_subtype: DbBounceSubtype::Undetermined,
                 created_at: now - MINUTE * 2 + SECOND * 2,
@@ -475,12 +475,13 @@ fn record_bounce() {
     assert!(bounce_records[0].created_at > now - 1000);
 }
 
-fn create_address(test: &str) -> String {
+fn create_address(test: &str) -> EmailAddress {
     format!(
         "fxa-email-service.bounces.test.{}.{}@example.com",
         test,
         now_as_milliseconds()
-    )
+    ).parse()
+    .unwrap()
 }
 
 #[test]
