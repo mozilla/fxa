@@ -41,6 +41,7 @@ impl MessageData {
     /// Any data previously stored for the message id
     /// will be replaced.
     pub fn set(&self, message_id: &str, metadata: &str) -> AppResult<()> {
-        self.client.set(message_id, metadata, DataType::MessageData)
+        self.client
+            .set(message_id, &metadata, DataType::MessageData)
     }
 }

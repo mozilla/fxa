@@ -201,6 +201,10 @@ pub enum AppErrorKind {
     /// An error occured while hashing a value.
     #[fail(display = "HMAC error: {}", _0)]
     HmacError(String),
+
+    /// An error occured while serializing or deserializing JSON.
+    #[fail(display = "JSON error: {}", _0)]
+    JsonError(String),
 }
 
 impl AppErrorKind {
@@ -251,6 +255,8 @@ impl AppErrorKind {
             AppErrorKind::NotImplemented => Some(118),
 
             AppErrorKind::HmacError(_) => Some(119),
+
+            AppErrorKind::JsonError(_) => Some(120),
 
             AppErrorKind::BadRequest
             | AppErrorKind::NotFound
