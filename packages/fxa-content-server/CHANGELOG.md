@@ -1,3 +1,19 @@
+<a name="1.121.3"></a>
+## [1.121.3](https://github.com/mozilla/fxa-content-server/compare/v1.121.0...v1.121.3) (2018-10-05)
+
+
+### Bug Fixes
+
+* **links:** Remove `en-US` from any SUMO/MDN links. ([43d10c5](https://github.com/mozilla/fxa-content-server/commit/43d10c5))
+* **recovery:** increase recovery key length to 28 ([691f1c5](https://github.com/mozilla/fxa-content-server/commit/691f1c5))
+
+### chore
+
+* **recovery:** enable recovery key for 10% of users ([cccd708](https://github.com/mozilla/fxa-content-server/commit/cccd708))
+* **recovery:** roll back recoveryKey experiment to 0 percent ([b86ab5b](https://github.com/mozilla/fxa-content-server/commit/b86ab5b))
+
+
+
 <a name="1.121.2"></a>
 ## [1.121.2](https://github.com/mozilla/fxa-content-server/compare/v1.121.1-private...v1.121.2) (2018-10-02)
 
