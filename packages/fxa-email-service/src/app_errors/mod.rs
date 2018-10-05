@@ -16,7 +16,7 @@ use rocket::{
 use rocket_contrib::{Json, JsonValue};
 use serde_json::{map::Map, ser::to_string, Value};
 
-use auth_db::BounceRecord;
+use delivery_problems::DeliveryProblem;
 use email_address::EmailAddress;
 use logging::MozlogLogger;
 
@@ -133,22 +133,22 @@ pub enum AppErrorKind {
 
     /// An error for when a bounce violation happens.
     #[fail(display = "Email account sent complaint")]
-    BounceComplaintError {
+    ComplaintError {
         address: EmailAddress,
-        bounced_at: u64,
-        bounce: BounceRecord,
+        time: u64,
+        problem: DeliveryProblem,
     },
     #[fail(display = "Email account soft bounced")]
     BounceSoftError {
         address: EmailAddress,
-        bounced_at: u64,
-        bounce: BounceRecord,
+        time: u64,
+        problem: DeliveryProblem,
     },
     #[fail(display = "Email account hard bounced")]
     BounceHardError {
         address: EmailAddress,
-        bounced_at: u64,
-        bounce: BounceRecord,
+        time: u64,
+        problem: DeliveryProblem,
     },
 
     /// An error occurred inside an auth db method.
@@ -215,7 +215,7 @@ impl AppErrorKind {
             AppErrorKind::MethodNotAllowed => Status::MethodNotAllowed,
             AppErrorKind::UnprocessableEntity => Status::UnprocessableEntity,
             AppErrorKind::TooManyRequests => Status::TooManyRequests,
-            AppErrorKind::BounceComplaintError { .. }
+            AppErrorKind::ComplaintError { .. }
             | AppErrorKind::BounceSoftError { .. }
             | AppErrorKind::BounceHardError { .. } => Status::TooManyRequests,
             AppErrorKind::BadRequest | AppErrorKind::InvalidEmailParams => Status::BadRequest,
@@ -235,7 +235,7 @@ impl AppErrorKind {
             AppErrorKind::ProviderError { .. } => Some(104),
             AppErrorKind::EmailParsingError(_) => Some(105),
 
-            AppErrorKind::BounceComplaintError { .. } => Some(106),
+            AppErrorKind::ComplaintError { .. } => Some(106),
             AppErrorKind::BounceSoftError { .. } => Some(107),
             AppErrorKind::BounceHardError { .. } => Some(108),
 
@@ -274,29 +274,26 @@ impl AppErrorKind {
                 fields.insert(String::from("name"), Value::String(format!("{}", name)));
             }
 
-            AppErrorKind::BounceComplaintError {
+            AppErrorKind::ComplaintError {
                 ref address,
-                ref bounced_at,
-                ref bounce,
+                ref time,
+                ref problem,
             }
             | AppErrorKind::BounceSoftError {
                 ref address,
-                ref bounced_at,
-                ref bounce,
+                ref time,
+                ref problem,
             }
             | AppErrorKind::BounceHardError {
                 ref address,
-                ref bounced_at,
-                ref bounce,
+                ref time,
+                ref problem,
             } => {
                 fields.insert(String::from("address"), Value::String(address.to_string()));
+                fields.insert(String::from("time"), Value::Number(time.clone().into()));
                 fields.insert(
-                    String::from("bouncedAt"),
-                    Value::Number(bounced_at.clone().into()),
-                );
-                fields.insert(
-                    String::from("bounce"),
-                    Value::String(to_string(bounce).unwrap_or(String::from("{}"))),
+                    String::from("problem"),
+                    Value::String(to_string(problem).unwrap_or(String::from("{}"))),
                 );
             }
 

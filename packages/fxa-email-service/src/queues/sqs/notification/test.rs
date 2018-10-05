@@ -56,13 +56,13 @@ fn serialize_null_notification_type() {
 }
 
 #[test]
-fn bounce_type_to_auth_db() {
-    let db_bounce_type: AuthDbBounceType = From::from(BounceType::Undetermined);
-    assert_eq!(db_bounce_type, AuthDbBounceType::Soft);
-    let db_bounce_type: AuthDbBounceType = From::from(BounceType::Permanent);
-    assert_eq!(db_bounce_type, AuthDbBounceType::Hard);
-    let db_bounce_type: AuthDbBounceType = From::from(BounceType::Transient);
-    assert_eq!(db_bounce_type, AuthDbBounceType::Soft);
+fn bounce_type_to_problem_type() {
+    let db_bounce_type: ProblemType = From::from(BounceType::Undetermined);
+    assert_eq!(db_bounce_type, ProblemType::SoftBounce);
+    let db_bounce_type: ProblemType = From::from(BounceType::Permanent);
+    assert_eq!(db_bounce_type, ProblemType::HardBounce);
+    let db_bounce_type: ProblemType = From::from(BounceType::Transient);
+    assert_eq!(db_bounce_type, ProblemType::SoftBounce);
 }
 
 #[test]
@@ -97,23 +97,23 @@ fn serialize_bounce_type() {
 }
 
 #[test]
-fn bounce_subtype_to_auth_db() {
-    let db_bounce_subtype: AuthDbBounceSubtype = From::from(BounceSubtype::Undetermined);
-    assert_eq!(db_bounce_subtype, AuthDbBounceSubtype::Undetermined);
-    let db_bounce_subtype: AuthDbBounceSubtype = From::from(BounceSubtype::General);
-    assert_eq!(db_bounce_subtype, AuthDbBounceSubtype::General);
-    let db_bounce_subtype: AuthDbBounceSubtype = From::from(BounceSubtype::NoEmail);
-    assert_eq!(db_bounce_subtype, AuthDbBounceSubtype::NoEmail);
-    let db_bounce_subtype: AuthDbBounceSubtype = From::from(BounceSubtype::Suppressed);
-    assert_eq!(db_bounce_subtype, AuthDbBounceSubtype::Suppressed);
-    let db_bounce_subtype: AuthDbBounceSubtype = From::from(BounceSubtype::MailboxFull);
-    assert_eq!(db_bounce_subtype, AuthDbBounceSubtype::MailboxFull);
-    let db_bounce_subtype: AuthDbBounceSubtype = From::from(BounceSubtype::MessageTooLarge);
-    assert_eq!(db_bounce_subtype, AuthDbBounceSubtype::MessageTooLarge);
-    let db_bounce_subtype: AuthDbBounceSubtype = From::from(BounceSubtype::ContentRejected);
-    assert_eq!(db_bounce_subtype, AuthDbBounceSubtype::ContentRejected);
-    let db_bounce_subtype: AuthDbBounceSubtype = From::from(BounceSubtype::AttachmentRejected);
-    assert_eq!(db_bounce_subtype, AuthDbBounceSubtype::AttachmentRejected);
+fn bounce_subtype_to_problem_subtype() {
+    let db_bounce_subtype: ProblemSubtype = From::from(BounceSubtype::Undetermined);
+    assert_eq!(db_bounce_subtype, ProblemSubtype::Undetermined);
+    let db_bounce_subtype: ProblemSubtype = From::from(BounceSubtype::General);
+    assert_eq!(db_bounce_subtype, ProblemSubtype::General);
+    let db_bounce_subtype: ProblemSubtype = From::from(BounceSubtype::NoEmail);
+    assert_eq!(db_bounce_subtype, ProblemSubtype::NoEmail);
+    let db_bounce_subtype: ProblemSubtype = From::from(BounceSubtype::Suppressed);
+    assert_eq!(db_bounce_subtype, ProblemSubtype::Suppressed);
+    let db_bounce_subtype: ProblemSubtype = From::from(BounceSubtype::MailboxFull);
+    assert_eq!(db_bounce_subtype, ProblemSubtype::MailboxFull);
+    let db_bounce_subtype: ProblemSubtype = From::from(BounceSubtype::MessageTooLarge);
+    assert_eq!(db_bounce_subtype, ProblemSubtype::MessageTooLarge);
+    let db_bounce_subtype: ProblemSubtype = From::from(BounceSubtype::ContentRejected);
+    assert_eq!(db_bounce_subtype, ProblemSubtype::ContentRejected);
+    let db_bounce_subtype: ProblemSubtype = From::from(BounceSubtype::AttachmentRejected);
+    assert_eq!(db_bounce_subtype, ProblemSubtype::AttachmentRejected);
 }
 
 #[test]
@@ -177,21 +177,19 @@ fn serialize_bounce_subtype() {
 }
 
 #[test]
-fn complaint_feedback_type_to_auth_db() {
-    let db_complaint_feedback_type: AuthDbBounceSubtype = From::from(ComplaintFeedbackType::Abuse);
-    assert_eq!(db_complaint_feedback_type, AuthDbBounceSubtype::Abuse);
-    let db_complaint_feedback_type: AuthDbBounceSubtype =
-        From::from(ComplaintFeedbackType::AuthFailure);
-    assert_eq!(db_complaint_feedback_type, AuthDbBounceSubtype::AuthFailure);
-    let db_complaint_feedback_type: AuthDbBounceSubtype = From::from(ComplaintFeedbackType::Fraud);
-    assert_eq!(db_complaint_feedback_type, AuthDbBounceSubtype::Fraud);
-    let db_complaint_feedback_type: AuthDbBounceSubtype =
-        From::from(ComplaintFeedbackType::NotSpam);
-    assert_eq!(db_complaint_feedback_type, AuthDbBounceSubtype::NotSpam);
-    let db_complaint_feedback_type: AuthDbBounceSubtype = From::from(ComplaintFeedbackType::Other);
-    assert_eq!(db_complaint_feedback_type, AuthDbBounceSubtype::Other);
-    let db_complaint_feedback_type: AuthDbBounceSubtype = From::from(ComplaintFeedbackType::Virus);
-    assert_eq!(db_complaint_feedback_type, AuthDbBounceSubtype::Virus);
+fn complaint_feedback_type_to_problem_type() {
+    let db_complaint_feedback_type: ProblemSubtype = From::from(ComplaintFeedbackType::Abuse);
+    assert_eq!(db_complaint_feedback_type, ProblemSubtype::Abuse);
+    let db_complaint_feedback_type: ProblemSubtype = From::from(ComplaintFeedbackType::AuthFailure);
+    assert_eq!(db_complaint_feedback_type, ProblemSubtype::AuthFailure);
+    let db_complaint_feedback_type: ProblemSubtype = From::from(ComplaintFeedbackType::Fraud);
+    assert_eq!(db_complaint_feedback_type, ProblemSubtype::Fraud);
+    let db_complaint_feedback_type: ProblemSubtype = From::from(ComplaintFeedbackType::NotSpam);
+    assert_eq!(db_complaint_feedback_type, ProblemSubtype::NotSpam);
+    let db_complaint_feedback_type: ProblemSubtype = From::from(ComplaintFeedbackType::Other);
+    assert_eq!(db_complaint_feedback_type, ProblemSubtype::Other);
+    let db_complaint_feedback_type: ProblemSubtype = From::from(ComplaintFeedbackType::Virus);
+    assert_eq!(db_complaint_feedback_type, ProblemSubtype::Virus);
 }
 
 #[test]
