@@ -27,7 +27,8 @@ module.exports = {
       email: Joi.string().optional(),
       locale: Joi.string().optional(),
       amrValues: Joi.array().items(Joi.string().required()).optional(),
-      twoFactorAuthentication: Joi.boolean().optional()
+      twoFactorAuthentication: Joi.boolean().optional(),
+      profileChangedAt: Joi.number().optional()
     }
   },
   handler: function _core_profile(req, reply) {
@@ -83,6 +84,9 @@ module.exports = {
       }
       if (typeof body.authenticatorAssuranceLevel !== 'undefined') {
         result.twoFactorAuthentication = body.authenticatorAssuranceLevel >= 2;
+      }
+      if (typeof body.profileChangedAt !== 'undefined') {
+        result.profileChangedAt = body.profileChangedAt;
       }
       reply(result);
     });
