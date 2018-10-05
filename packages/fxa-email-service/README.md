@@ -1,14 +1,13 @@
 # fxa_email_service
 
 [![Build status](https://img.shields.io/travis/mozilla/fxa-email-service.svg?style=flat-square)](https://travis-ci.org/mozilla/fxa-email-service)
-[![CircleCI](https://circleci.com/gh/mozilla/fxa-email-service/tree/master.svg?style=svg)](https://circleci.com/gh/mozilla/fxa-email-service/tree/master)
+[![CircleCI](https://img.shields.io/circleci/project/github/mozilla/fxa-email-service.svg?style=flat-square)](https://circleci.com/gh/mozilla/fxa-email-service)
 [![License](https://img.shields.io/github/license/mozilla/fxa-email-service.svg?style=flat-square)](https://opensource.org/licenses/MPL-2.0)
 
 * [What's this?](#whats-this)
-* [Moving to a new service seems risky. How will that work?](#moving-to-a-new-service-seems-risky-how-will-that-work)
-* [What are the long-term goals?](#what-are-the-long-term-goals)
-* [How will you make sure the new service isn't just as tightly coupled to SES?](#how-will-you-make-sure-the-new-service-isnt-just-as-tightly-coupled-to-ses)
 * [How can I set up a dev environment?](#how-can-i-set-up-a-dev-environment)
+  * [For standalone development](#for-standalone-development)
+  * [As part of the FxA stack](#as-part-of-the-FxA-stack)
 * [How do I run the tests?](#how-do-i-run-the-tests)
 * [How can I send an email via SES?](#how-can-i-send-an-email-via-ses)
 * [How can I send an email via Sendgrid?](#how-can-i-send-an-email-via-sendgrid)
@@ -16,62 +15,31 @@
 
 ## What's this?
 
-The FxA team have an OKR for Q2 2018
+The FxA team had an OKR for Q2 2018
 about decoupling the auth server from SES
 and making it possible to send email
 via different providers.
 You can read more about that OKR
 in the [feature doc](https://docs.google.com/document/d/1SZ_uGpqofUJeOjGAu2oRKqp-qEMLbvWt8UlxK4UbFwI).
+Subsequently,
+some other teams expressed an interest in
+depending on a standalone email service too.
 
-This repo is our experiment
-to see what a decoupled email-sending service would look like.
-It's being written in Rust.
+This repo started as our experiment
+to see what a decoupled email-sending service would look like,
+written in Rust.
+It is now handling some FxA email traffic in production,
+and we are gradually separating it from the FxA stack
+to run as a standalone service
+in its own right.
 
-## Moving to a new service seems risky. How will that work?
-
-As a first step,
-we're doing a like-for-like extraction
-of functionality from the auth server
-and porting it to Rust
-behind a very simple, single-endpoint API.
-The plan is to run it on a closed port
-on the same box as the auth server,
-similar to how we run the auth db server.
-
-Included in the code earmarked for extraction
-is the logic for handling bounce, complaint and delivery notifications.
-Because this logic is stateful,
-the initial plan is for the new service
-to lean on the db server directly
-and re-use the same table and stored procedures
-that are already being used.
-So in that sense,
-the switchover should be transparent
-and we can even run the new service side-by-side
-with the current auth server,
-if we want to phase it in gradually.
-
-## What are the long-term goals?
-
-Ultimately, if everything goes to plan,
-we'd like to run this as a standalone service
-that can be used by other trusted reliers
-from the Firefox/Application Services ecosystem.
-But getting to that point will require
-a number of features that are out of scope
-for the initial release,
-such as authentication, rate-limiting and a dedicated database.
-
-## How will you make sure the new service isn't just as tightly coupled to SES?
-
-The core functionality is going to be exposed behind traits
-and we will limit the AWS-specific code
-to AWS-specific trait implementations.
-To keep ourselves honest about that separation,
-we will also implement an alternative provider
-that email can be routed by on a per-request basis.
+You can find out more
+about the structure of the code
+from the [developer docs](https://mozilla.github.io/fxa-email-service/fxa_email_service/).
 
 ## How can I set up a dev environment?
+
+### For standalone development
 
 We're running on the Rust nightly channel,
 so the easiest way to get set up
@@ -107,9 +75,14 @@ in `config/local.json`:
 You can also set `host` in the same way,
 if your Redis instance is not running locally.
 
-You can find out more
-about the structure of the code
-from the [developer docs](https://mozilla.github.io/fxa-email-service/fxa_email_service/).
+### As part of the FxA stack
+
+If you're developing for FxA,
+the easiest thing to do is
+set up [`fxa-local-dev`](https://github.com/mozilla/fxa-local-dev).
+That will install everything you need
+for running locally,
+including all of the other FxA services.
 
 ## How do I run the tests?
 
@@ -127,11 +100,12 @@ to save you some keystrokes:
 
 That script assumes you have an instance of [`fxa-auth-db-mysql`](https://github.com/mozilla/fxa-auth-db-mysql)
 running locally on port 8000,
-which will be the case if you're running [`fxa-local-dev`](https://github.com/mozilla/fxa-local-dev).
+which will be the case if you're running `fxa-local-dev`
 
 If that's not the case, don't worry.
 There is another script provided
-to save you even more keystrokes:
+to save you even more keystrokes
+if you're running standalone:
 
 ```
 ./tdb
@@ -234,6 +208,12 @@ Then start the service:
 cargo r --bin fxa_email_send
 ```
 
+Or you can use the shortcut:
+
+```
+./r
+```
+
 Then set `provider` to `sendgrid` in your request payload:
 
 ```
@@ -248,7 +228,7 @@ you should receive email pretty much instantly.
 
 ## How do bounce, complaint and delivery notifications work?
 
-For consistency with the implementation in the auth server,
+For consistency with the implementation in the FxA auth server,
 three separate SQS queues are monitored
 for bounce, complaint and delivery notifications.
 Ultimately we expect to simplify this
@@ -312,4 +292,10 @@ You can run it locally like so:
 
 ```
 cargo r --bin fxa_email_queues
+```
+
+There's also a shortcut for this:
+
+```
+./rq
 ```
