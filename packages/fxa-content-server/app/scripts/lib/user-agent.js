@@ -109,7 +109,7 @@ const UserAgent = function (userAgent) {
      */
     supportsSvgTransformOrigin () {
       // everything except Safari iOS / Edge / IE support TransformOrigin
-      // Ref: https://developer.mozilla.org/en-US/docs/Web/CSS/transform-origin
+      // Ref: https://developer.mozilla.org/docs/Web/CSS/transform-origin
       return ! (this.isIos() || this.isEdge() || this.isIE());
     },
 
