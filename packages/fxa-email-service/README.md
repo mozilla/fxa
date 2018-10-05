@@ -1,7 +1,7 @@
 # fxa_email_service
 
 [![Build status](https://img.shields.io/travis/mozilla/fxa-email-service.svg?style=flat-square)](https://travis-ci.org/mozilla/fxa-email-service)
-[![CircleCI](https://circleci.com/gh/mozilla/fxa-email-service/tree/master.svg?style=svg)](https://circleci.com/gh/mozilla/fxa-email-service/tree/master)
+[![CircleCI](https://img.shields.io/circleci/project/github/mozilla/fxa-email-service.svg?style=flat-square)](https://circleci.com/gh/mozilla/fxa-email-service)
 [![License](https://img.shields.io/github/license/mozilla/fxa-email-service.svg?style=flat-square)](https://opensource.org/licenses/MPL-2.0)
 
 * [What's this?](#whats-this)
