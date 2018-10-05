@@ -10,8 +10,9 @@ use serde_json::{self, Value as Json};
 use super::*;
 use app_errors::{AppErrorKind, AppResult};
 use auth_db::{Db, DbClient};
+use db::test::TestFixture;
 use queues::notification::{BounceSubtype, BounceType, ComplaintFeedbackType};
-use settings::Settings;
+use settings::{Host, Settings};
 
 const SECOND: u64 = 1000;
 const MINUTE: u64 = SECOND * 60;
@@ -47,6 +48,8 @@ fn check_no_bounces() {
 fn create_settings(bounce_limits: Json) -> Settings {
     let mut settings = Settings::default();
     settings.bouncelimits = serde_json::from_value(bounce_limits).expect("JSON error");
+    settings.redis.host = Host(String::from("127.0.0.1"));
+    settings.redis.port = 6379;
     settings
 }
 
@@ -443,6 +446,7 @@ fn record_bounce() {
     let db = DbClient::new(&settings);
     let problems = DeliveryProblems::new(&settings, db);
     let address = create_address("record_bounce");
+    let test = TestFixture::setup(&settings, address.as_ref(), DataType::DeliveryProblem);
 
     problems
         .record_bounce(
@@ -450,6 +454,8 @@ fn record_bounce() {
             BounceType::Transient,
             BounceSubtype::AttachmentRejected,
         ).unwrap();
+
+    test.assert_set();
 
     // Ensure there is an observable difference between timestamps
     sleep(Duration::from_millis(2));
@@ -476,6 +482,14 @@ fn record_bounce() {
     );
     assert!(bounce_records[1].created_at < now);
     assert!(bounce_records[1].created_at < bounce_records[0].created_at);
+
+    test.assert_data(
+        // created_at is probably a millisecond or two different between MySQL and Redis
+        bounce_records
+            .into_iter()
+            .map(From::from)
+            .collect::<Vec<AssertFriendlyDeliveryProblem>>(),
+    );
 }
 
 fn create_address(test: &str) -> EmailAddress {
@@ -493,9 +507,14 @@ fn record_complaint() {
     let db = DbClient::new(&settings);
     let problems = DeliveryProblems::new(&settings, db);
     let address = create_address("record_complaint");
+    let test = TestFixture::setup(&settings, address.as_ref(), DataType::DeliveryProblem);
+
     problems
         .record_complaint(&address, Some(ComplaintFeedbackType::Virus))
         .unwrap();
+
+    test.assert_set();
+
     let db = DbClient::new(&settings);
     let bounce_records = db.get_bounces(&address).unwrap();
     let now = now_as_milliseconds();
@@ -505,6 +524,34 @@ fn record_complaint() {
     assert_eq!(bounce_records[0].problem_subtype, ProblemSubtype::Virus);
     assert!(bounce_records[0].created_at < now);
     assert!(bounce_records[0].created_at > now - 1000);
+
+    test.assert_data(
+        // created_at is probably a millisecond or two different between MySQL and Redis
+        bounce_records
+            .into_iter()
+            .map(From::from)
+            .collect::<Vec<AssertFriendlyDeliveryProblem>>(),
+    );
+}
+
+#[derive(Debug, Deserialize, Eq, PartialEq)]
+struct AssertFriendlyDeliveryProblem {
+    #[serde(rename = "email")]
+    pub address: EmailAddress,
+    #[serde(rename = "bounceType")]
+    pub problem_type: ProblemType,
+    #[serde(rename = "bounceSubType")]
+    pub problem_subtype: ProblemSubtype,
+}
+
+impl From<DeliveryProblem> for AssertFriendlyDeliveryProblem {
+    fn from(source: DeliveryProblem) -> Self {
+        Self {
+            address: source.address,
+            problem_type: source.problem_type,
+            problem_subtype: source.problem_subtype,
+        }
+    }
 }
 
 #[test]

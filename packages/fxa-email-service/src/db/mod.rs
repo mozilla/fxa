@@ -12,6 +12,9 @@
 //! You can read more about this decision
 //! in [#166](https://github.com/mozilla/fxa-email-service/issues/166).
 
+#[cfg(test)]
+pub mod test;
+
 use std::fmt::{self, Display, Formatter};
 
 use hmac::{crypto_mac::InvalidKeyLength, Hmac, Mac};
@@ -109,17 +112,19 @@ pub enum DataType {
     MessageData,
 }
 
+impl AsRef<str> for DataType {
+    fn as_ref(&self) -> &str {
+        match *self {
+            DataType::Configuration => "cfg",
+            DataType::DeliveryProblem => "del",
+            DataType::MessageData => "msg",
+        }
+    }
+}
+
 impl Display for DataType {
     fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
-        write!(
-            formatter,
-            "{}",
-            match *self {
-                DataType::Configuration => "cfg",
-                DataType::DeliveryProblem => "del",
-                DataType::MessageData => "msg",
-            }
-        )
+        write!(formatter, "{}", self.as_ref())
     }
 }
 

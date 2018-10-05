@@ -16,17 +16,23 @@ use serde::{
 
 use app_errors::{AppErrorKind, AppResult};
 use auth_db::Db as AuthDb;
+use db::{Client as DbClient, DataType};
 use email_address::EmailAddress;
 use queues::notification::{BounceSubtype, BounceType, ComplaintFeedbackType};
 use settings::{BounceLimit, BounceLimits, Settings};
 
 /// Bounce/complaint registry.
 ///
-/// Currently just a thing wrapper
-/// around the `emailBounces` table in `fxa-auth-db-mysql`.
+/// Currently this writes to both
+/// Redis and the `emailBounces` table in `fxa-auth-db-mysql`,
+/// but only reads from the latter.
+/// This is the first step
+/// in a gradual migration process
+/// away from the auth db.
 #[derive(Debug)]
 pub struct DeliveryProblems<D: AuthDb> {
     auth_db: D,
+    db: DbClient,
     limits: BounceLimits,
 }
 
@@ -38,6 +44,7 @@ where
     pub fn new(settings: &Settings, auth_db: D) -> DeliveryProblems<D> {
         DeliveryProblems {
             auth_db,
+            db: DbClient::new(settings),
             limits: settings.bouncelimits.clone(),
         }
     }
@@ -53,10 +60,7 @@ where
     /// [limits]: ../settings/struct.BounceLimits.html
     pub fn check(&self, address: &EmailAddress) -> AppResult<()> {
         let problems = self.auth_db.get_bounces(address)?;
-        let now = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .expect("system time error");
-        let now = now.as_secs() * 1000;
+        let timestamp = now();
         problems
             .iter()
             .try_fold(HashMap::new(), |mut counts, problem| {
@@ -68,7 +72,7 @@ where
                         ProblemType::SoftBounce => &self.limits.soft,
                         ProblemType::Complaint => &self.limits.complaint,
                     };
-                    if is_limit_violation(*count, problem.created_at, now, limits) {
+                    if is_limit_violation(*count, problem.created_at, timestamp, limits) {
                         return match problem.problem_type {
                             ProblemType::HardBounce => Err(AppErrorKind::BounceHardError {
                                 address: address.clone(),
@@ -101,8 +105,35 @@ where
         bounce_type: BounceType,
         bounce_subtype: BounceSubtype,
     ) -> AppResult<()> {
+        let problem_type: ProblemType = From::from(bounce_type);
+        let problem_subtype: ProblemSubtype = From::from(bounce_subtype);
         self.auth_db
-            .create_bounce(address, From::from(bounce_type), From::from(bounce_subtype))?;
+            .create_bounce(address, problem_type, problem_subtype)?;
+        self.record_delivery_problem(address, problem_type, problem_subtype)?;
+        Ok(())
+    }
+
+    fn record_delivery_problem(
+        &self,
+        address: &EmailAddress,
+        problem_type: ProblemType,
+        problem_subtype: ProblemSubtype,
+    ) -> AppResult<()> {
+        let mut problems: Vec<DeliveryProblem> = self
+            .db
+            .get(address.as_ref(), DataType::DeliveryProblem)?
+            .unwrap_or_else(|| Vec::new());
+        problems.insert(
+            0,
+            DeliveryProblem {
+                address: address.clone(),
+                problem_type,
+                problem_subtype,
+                created_at: now(),
+            },
+        );
+        self.db
+            .set(address.as_ref(), &problems, DataType::DeliveryProblem)?;
         Ok(())
     }
 
@@ -113,23 +144,31 @@ where
         address: &EmailAddress,
         complaint_type: Option<ComplaintFeedbackType>,
     ) -> AppResult<()> {
-        let bounce_subtype = complaint_type.map_or(ProblemSubtype::Unmapped, |ct| From::from(ct));
+        let problem_subtype = complaint_type.map_or(ProblemSubtype::Unmapped, |ct| From::from(ct));
         self.auth_db
-            .create_bounce(address, ProblemType::Complaint, bounce_subtype)?;
+            .create_bounce(address, ProblemType::Complaint, problem_subtype)?;
+        self.record_delivery_problem(address, ProblemType::Complaint, problem_subtype)?;
         Ok(())
     }
 }
 
 unsafe impl<D> Sync for DeliveryProblems<D> where D: AuthDb {}
 
-fn is_limit_violation(count: u8, created_at: u64, now: u64, limits: &[BounceLimit]) -> bool {
+fn is_limit_violation(count: u8, created_at: u64, timestamp: u64, limits: &[BounceLimit]) -> bool {
     for limit in limits.iter() {
-        if count > limit.limit && created_at >= now - limit.period.0 {
+        if count > limit.limit && created_at >= timestamp - limit.period.0 {
             return true;
         }
     }
 
     false
+}
+
+fn now() -> u64 {
+    let now = SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .expect("system time error");
+    now.as_secs() * 1000 + u64::from(now.subsec_millis())
 }
 
 /// Encapsulates some kind of delivery problem,
