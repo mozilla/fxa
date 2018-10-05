@@ -208,6 +208,12 @@ Then start the service:
 cargo r --bin fxa_email_send
 ```
 
+Or you can use the shortcut:
+
+```
+./r
+```
+
 Then set `provider` to `sendgrid` in your request payload:
 
 ```
@@ -286,4 +292,10 @@ You can run it locally like so:
 
 ```
 cargo r --bin fxa_email_queues
+```
+
+There's also a shortcut for this:
+
+```
+./rq
 ```
