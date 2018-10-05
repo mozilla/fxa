@@ -421,6 +421,10 @@ module.exports = (
       )
   }
 
+  /**
+   * This route intended for internal use only. Please use `accountRecord`
+   * for all other uses.
+   */
   SAFE_URLS.emailRecord = new SafeUrl('/emailRecord/:email', 'db.emailRecord')
   DB.prototype.emailRecord = function (email) {
     log.trace({ op: 'DB.emailRecord', email })
