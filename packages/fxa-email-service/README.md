@@ -6,6 +6,8 @@
 
 * [What's this?](#whats-this)
 * [How can I set up a dev environment?](#how-can-i-set-up-a-dev-environment)
+  * [For standalone development](#for-standalone-development)
+  * [As part of the FxA stack](#as-part-of-the-FxA-stack)
 * [How do I run the tests?](#how-do-i-run-the-tests)
 * [How can I send an email via SES?](#how-can-i-send-an-email-via-ses)
 * [How can I send an email via Sendgrid?](#how-can-i-send-an-email-via-sendgrid)
@@ -36,6 +38,8 @@ about the structure of the code
 from the [developer docs](https://mozilla.github.io/fxa-email-service/fxa_email_service/).
 
 ## How can I set up a dev environment?
+
+### For standalone development
 
 We're running on the Rust nightly channel,
 so the easiest way to get set up
@@ -71,6 +75,15 @@ in `config/local.json`:
 You can also set `host` in the same way,
 if your Redis instance is not running locally.
 
+### As part of the FxA stack
+
+If you're developing for FxA,
+the easiest thing to do is
+set up [`fxa-local-dev`](https://github.com/mozilla/fxa-local-dev).
+That will install everything you need
+for running locally,
+including all of the other FxA services.
+
 ## How do I run the tests?
 
 A simple `cargo t` will fail
@@ -87,11 +100,12 @@ to save you some keystrokes:
 
 That script assumes you have an instance of [`fxa-auth-db-mysql`](https://github.com/mozilla/fxa-auth-db-mysql)
 running locally on port 8000,
-which will be the case if you're running [`fxa-local-dev`](https://github.com/mozilla/fxa-local-dev).
+which will be the case if you're running `fxa-local-dev`
 
 If that's not the case, don't worry.
 There is another script provided
-to save you even more keystrokes:
+to save you even more keystrokes
+if you're running standalone:
 
 ```
 ./tdb
