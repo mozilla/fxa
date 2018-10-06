@@ -17,6 +17,7 @@ use super::super::notification::{
     Mail as GenericMail, Notification as GenericNotification,
 };
 use auth_db::{BounceSubtype as AuthDbBounceSubtype, BounceType as AuthDbBounceType};
+use email_address::EmailAddress;
 
 #[cfg(test)]
 mod test;
@@ -283,7 +284,7 @@ impl<'d> Deserialize<'d> for BounceSubtype {
 #[derive(Debug, Deserialize)]
 pub struct BouncedRecipient {
     #[serde(rename = "emailAddress")]
-    pub email_address: String,
+    pub email_address: EmailAddress,
     pub action: Option<String>,
     pub status: Option<String>,
     #[serde(rename = "diagnosticCode")]
@@ -318,7 +319,7 @@ impl From<Complaint> for GenericComplaint {
 #[derive(Debug, Deserialize)]
 pub struct ComplainedRecipient {
     #[serde(rename = "emailAddress")]
-    pub email_address: String,
+    pub email_address: EmailAddress,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -385,7 +386,7 @@ impl Serialize for ComplaintFeedbackType {
 #[derive(Debug, Deserialize)]
 pub struct Delivery {
     pub timestamp: DateTime<Utc>,
-    pub recipients: Vec<String>,
+    pub recipients: Vec<EmailAddress>,
 }
 
 impl From<Delivery> for GenericDelivery {

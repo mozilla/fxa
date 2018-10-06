@@ -17,6 +17,7 @@ use rocket_contrib::{Json, JsonValue};
 use serde_json::{map::Map, ser::to_string, Value};
 
 use auth_db::BounceRecord;
+use email_address::EmailAddress;
 use logging::MozlogLogger;
 
 #[cfg(test)]
@@ -133,19 +134,19 @@ pub enum AppErrorKind {
     /// An error for when a bounce violation happens.
     #[fail(display = "Email account sent complaint")]
     BounceComplaintError {
-        address: String,
+        address: EmailAddress,
         bounced_at: u64,
         bounce: BounceRecord,
     },
     #[fail(display = "Email account soft bounced")]
     BounceSoftError {
-        address: String,
+        address: EmailAddress,
         bounced_at: u64,
         bounce: BounceRecord,
     },
     #[fail(display = "Email account hard bounced")]
     BounceHardError {
-        address: String,
+        address: EmailAddress,
         bounced_at: u64,
         bounce: BounceRecord,
     },
@@ -282,10 +283,7 @@ impl AppErrorKind {
                 ref bounced_at,
                 ref bounce,
             } => {
-                fields.insert(
-                    String::from("address"),
-                    Value::String(format!("{}", address)),
-                );
+                fields.insert(String::from("address"), Value::String(address.to_string()));
                 fields.insert(
                     String::from("bouncedAt"),
                     Value::Number(bounced_at.clone().into()),

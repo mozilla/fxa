@@ -19,7 +19,6 @@ use email_address::EmailAddress;
 use logging::MozlogLogger;
 use message_data::MessageData;
 use providers::{Headers, Providers};
-use validate;
 
 #[cfg(test)]
 mod test;
@@ -33,7 +32,7 @@ struct Body {
 #[derive(Debug, Deserialize)]
 struct Email {
     to: EmailAddress,
-    cc: Option<Vec<String>>,
+    cc: Option<Vec<EmailAddress>>,
     headers: Option<Headers>,
     subject: String,
     body: Body,
@@ -47,14 +46,7 @@ impl FromData for Email {
     fn from_data(request: &Request, data: Data) -> data::Outcome<Self, Self::Error> {
         let result = Json::<Email>::from_data(request, data);
         match result {
-            Outcome::Success(json) => {
-                let email = json.into_inner();
-                if validate(&email) {
-                    Outcome::Success(email)
-                } else {
-                    Outcome::Failure((Status::BadRequest, AppErrorKind::InvalidEmailParams.into()))
-                }
-            }
+            Outcome::Success(json) => Outcome::Success(json.into_inner()),
             Outcome::Failure((_status, error)) => Outcome::Failure((
                 Status::BadRequest,
                 AppErrorKind::MissingEmailParams(error.to_string()).into(),
@@ -62,24 +54,6 @@ impl FromData for Email {
             Outcome::Forward(forward) => Outcome::Forward(forward),
         }
     }
-}
-
-fn validate(email: &Email) -> bool {
-    if let Some(ref cc) = email.cc {
-        for address in cc {
-            if !validate::email_address(&address) {
-                return false;
-            }
-        }
-    }
-
-    if let Some(ref provider) = email.provider {
-        if !validate::provider(provider) {
-            return false;
-        }
-    }
-
-    true
 }
 
 #[post("/send", format = "application/json", data = "<email>")]
@@ -92,13 +66,12 @@ fn handler(
 ) -> AppResult<Json<JsonValue>> {
     let email = email?;
 
-    let to = email.to.0.as_ref();
-    bounces.check(to)?;
+    bounces.check(&email.to)?;
 
     let cc = if let Some(ref cc) = email.cc {
         let mut refs = Vec::new();
         for address in cc.iter() {
-            bounces.check(address)?;
+            bounces.check(&address)?;
             refs.push(address.as_ref());
         }
         refs
@@ -108,7 +81,7 @@ fn handler(
 
     providers
         .send(
-            email.to.0.as_ref(),
+            email.to.as_ref(),
             cc.as_ref(),
             email.headers.as_ref(),
             email.subject.as_ref(),

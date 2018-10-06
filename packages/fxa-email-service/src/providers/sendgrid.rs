@@ -42,7 +42,7 @@ impl Provider for SendgridProvider {
     ) -> AppResult<String> {
         let mut message = Message::new();
         let mut from_address = EmailAddress::new();
-        from_address.set_email(&self.sender.address.0);
+        from_address.set_email(&self.sender.address.as_ref());
         from_address.set_name(&self.sender.name.0);
         message.set_from(from_address);
         message.set_subject(subject);

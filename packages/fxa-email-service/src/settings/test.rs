@@ -143,7 +143,7 @@ fn env_vars_take_precedence() {
             let redis_host = format!("{}1", &settings.redis.host);
             let redis_port = settings.redis.port + 1;
             let secretkey = String::from("ampqampqampqampqampqampqampqampqampqampqamo=");
-            let sender_address = format!("1{}", &settings.sender.address.0);
+            let sender_address = format!("1{}", settings.sender.address.as_ref());
             let sender_name = format!("{}1", &settings.sender.name);
             let sendgrid_api_key = String::from(
                 "000000000000000000000000000000000000000000000000000000000000000000000",
@@ -254,7 +254,7 @@ fn env_vars_take_precedence() {
                     assert_eq!(env_settings.redis.host, Host(redis_host));
                     assert_eq!(env_settings.redis.port, redis_port);
                     assert_eq!(env_settings.secretkey, secretkey);
-                    assert_eq!(env_settings.sender.address, EmailAddress(sender_address));
+                    assert_eq!(env_settings.sender.address, sender_address.parse().unwrap());
                     assert_eq!(env_settings.sender.name, SenderName(sender_name));
                     assert_eq!(env_settings.smtp.host, Host(smtp_host));
                     assert_eq!(env_settings.smtp.port, smtp_port);

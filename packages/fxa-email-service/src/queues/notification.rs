@@ -9,6 +9,7 @@ use chrono::{DateTime, Utc};
 pub use super::sqs::notification::{
     BounceSubtype, BounceType, ComplaintFeedbackType, Header, HeaderValue, NotificationType,
 };
+use email_address::EmailAddress;
 
 /// The root notification type.
 ///
@@ -66,14 +67,14 @@ pub struct Bounce {
     pub bounce_type: BounceType,
     #[serde(rename = "bounceSubType")]
     pub bounce_subtype: BounceSubtype,
-    pub bounced_recipients: Vec<String>,
+    pub bounced_recipients: Vec<EmailAddress>,
     pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Serialize)]
 pub struct Complaint {
     #[serde(rename = "complainedRecipients")]
-    pub complained_recipients: Vec<String>,
+    pub complained_recipients: Vec<EmailAddress>,
     #[serde(rename = "complaintFeedbackType")]
     pub complaint_feedback_type: Option<ComplaintFeedbackType>,
     pub timestamp: DateTime<Utc>,
@@ -82,5 +83,5 @@ pub struct Complaint {
 #[derive(Debug, Serialize)]
 pub struct Delivery {
     pub timestamp: DateTime<Utc>,
-    pub recipients: Vec<String>,
+    pub recipients: Vec<EmailAddress>,
 }

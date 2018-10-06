@@ -8,6 +8,7 @@ use std::{collections::HashMap, time::SystemTime};
 
 use app_errors::{AppErrorKind, AppResult};
 use auth_db::{BounceSubtype as DbBounceSubtype, BounceType as DbBounceType, Db};
+use email_address::EmailAddress;
 use queues::notification::{BounceSubtype, BounceType, ComplaintFeedbackType};
 use settings::{BounceLimit, BounceLimits, Settings};
 
@@ -49,7 +50,7 @@ where
     /// defined in the [`BounceLimits` setting][limits].
     ///
     /// [limits]: ../settings/struct.BounceLimits.html
-    pub fn check(&self, address: &str) -> AppResult<()> {
+    pub fn check(&self, address: &EmailAddress) -> AppResult<()> {
         let bounces = self.db.get_bounces(address)?;
         let now = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
@@ -69,17 +70,17 @@ where
                     if is_bounce_violation(*count, bounce.created_at, now, limits) {
                         return match bounce.bounce_type {
                             DbBounceType::Hard => Err(AppErrorKind::BounceHardError {
-                                address: address.to_string(),
+                                address: address.clone(),
                                 bounced_at: bounce.created_at,
                                 bounce: bounce.clone(),
                             }.into()),
                             DbBounceType::Soft => Err(AppErrorKind::BounceSoftError {
-                                address: address.to_string(),
+                                address: address.clone(),
                                 bounced_at: bounce.created_at,
                                 bounce: bounce.clone(),
                             }.into()),
                             DbBounceType::Complaint => Err(AppErrorKind::BounceComplaintError {
-                                address: address.to_string(),
+                                address: address.clone(),
                                 bounced_at: bounce.created_at,
                                 bounce: bounce.clone(),
                             }.into()),
@@ -95,7 +96,7 @@ where
     /// against an email address.
     pub fn record_bounce(
         &self,
-        address: &str,
+        address: &EmailAddress,
         bounce_type: BounceType,
         bounce_subtype: BounceSubtype,
     ) -> AppResult<()> {
@@ -108,7 +109,7 @@ where
     /// against an email address.
     pub fn record_complaint(
         &self,
-        address: &str,
+        address: &EmailAddress,
         complaint_type: Option<ComplaintFeedbackType>,
     ) -> AppResult<()> {
         let bounce_subtype = complaint_type.map_or(DbBounceSubtype::Unmapped, |ct| From::from(ct));

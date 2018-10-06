@@ -44,7 +44,11 @@ impl SesProvider {
 
         SesProvider {
             client,
-            sender: format!("{} <{}>", settings.sender.name, settings.sender.address.0),
+            sender: format!(
+                "{} <{}>",
+                settings.sender.name,
+                settings.sender.address.as_ref()
+            ),
         }
     }
 }
