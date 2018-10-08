@@ -1,3 +1,8 @@
+<a name="1.122.2"></a>
+## [1.122.2](https://github.com/mozilla/fxa-content-server/compare/v1.121.3...v1.122.2) (2018-10-08)
+
+* Merge v1.121.3 into 122
+
 <a name="1.122.1"></a>
 ## [1.122.1](https://github.com/mozilla/fxa-content-server/compare/v1.122.0...v1.122.1) (2018-10-03)
 
