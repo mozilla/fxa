@@ -31,7 +31,7 @@ fn set() {
             .unwrap();
         assert!(!key_exists, "unhashed key should not exist in redis");
         let value: String = test.redis_client.get(test.internal_key.as_str()).unwrap();
-        assert_eq!(value, "wibble");
+        assert_eq!(value, "\"wibble\"");
     }
 }
 

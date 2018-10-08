@@ -16,6 +16,8 @@ use std::fmt::{self, Display, Formatter};
 
 use hmac::{crypto_mac::InvalidKeyLength, Hmac, Mac};
 use redis::{Client as RedisClient, Commands, RedisError};
+use serde::{de::DeserializeOwned, ser::Serialize};
+use serde_json;
 use sha2::Sha256;
 
 use app_errors::{AppError, AppErrorKind, AppResult};
@@ -45,30 +47,45 @@ impl Client {
     }
 
     /// Read data.
-    pub fn get(&self, key: &str, data_type: DataType) -> AppResult<String> {
+    pub fn get<D>(&self, key: &str, data_type: DataType) -> AppResult<D>
+    where
+        D: DeserializeOwned,
+    {
         let key = self.generate_key(key, data_type)?;
-        self.client.get(key.as_str()).map_err(From::from)
+        self.client
+            .get(key.as_str())
+            .map_err(From::from)
+            .and_then(|value: String| serde_json::from_str(&value).map_err(From::from))
     }
 
     /// Read and delete data.
-    pub fn consume(&self, key: &str, data_type: DataType) -> AppResult<String> {
+    pub fn consume<D>(&self, key: &str, data_type: DataType) -> AppResult<D>
+    where
+        D: DeserializeOwned,
+    {
         let key = self.generate_key(key, data_type)?;
         let key_str = key.as_str();
         self.client
             .get(key_str)
-            .map(|metadata| {
+            .map_err(From::from)
+            .and_then(|value: String| {
                 self.client.del::<&str, u8>(key_str).ok();
-                metadata
-            }).map_err(From::from)
+                serde_json::from_str(&value).map_err(From::from)
+            })
     }
 
     /// Store data.
     ///
     /// Any data previously stored for the key
     /// will be clobbered.
-    pub fn set(&self, key: &str, data: &str, data_type: DataType) -> AppResult<()> {
+    pub fn set<D>(&self, key: &str, data: &D, data_type: DataType) -> AppResult<()>
+    where
+        D: Serialize,
+    {
         let key = self.generate_key(key, data_type)?;
-        self.client.set(key.as_str(), data).map_err(From::from)
+        self.client
+            .set(key.as_str(), serde_json::to_string(data)?)
+            .map_err(From::from)
     }
 
     fn generate_key(&self, key: &str, data_type: DataType) -> AppResult<String> {

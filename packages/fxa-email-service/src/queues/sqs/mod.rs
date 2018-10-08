@@ -222,6 +222,6 @@ impl From<DeleteMessageError> for AppError {
 
 impl From<JsonError> for AppError {
     fn from(error: JsonError) -> AppError {
-        AppErrorKind::QueueError(format!("JSON error: {:?}", error)).into()
+        AppErrorKind::JsonError(format!("JSON error: {:?}", error)).into()
     }
 }

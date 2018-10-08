@@ -35,6 +35,7 @@
 - `code: 500, errno: 117`: Db Error
 - `code: 500, errno: 118`: Not Implemeneted
 - `code: 500, errno: 119`: HMAC error
+- `code: 500, errno: 120`: JSON error
 
 The following errors include additional response properties:
 
