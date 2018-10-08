@@ -7,7 +7,7 @@
 'use strict'
 
 const path = require('path')
-const extract = require('jsxgettext-recursive')
+const extract = require('jsxgettext-recursive-next')
 
 const pkgroot = path.dirname(__dirname)
 
