@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // stub out the BroadcastChannel object for testing.
-// See https://developer.mozilla.org/en-US/docs/Web/API/Broadcast_Channel_API
+// See https://developer.mozilla.org/docs/Web/API/Broadcast_Channel_API
 
 define(function (require, exports, module) {
   'use strict';

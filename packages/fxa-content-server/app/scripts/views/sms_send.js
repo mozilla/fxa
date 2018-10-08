@@ -181,7 +181,7 @@ define(function (require, exports, module) {
     }
 
     static get LEARN_MORE_LINK () {
-      return 'https://www.mozilla.org/en-US/privacy/websites/#campaigns';
+      return 'https://www.mozilla.org/privacy/websites/#campaigns';
     }
   }
 
