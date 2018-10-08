@@ -154,6 +154,11 @@ const typesContainRecoveryCodeLinks = [
   'lowRecoveryCodesEmail'
 ]
 
+const typesPrependVerificationSubdomain = [
+  'verifyEmail',
+  'verifyLoginEmail'
+]
+
 function includes(haystack, needle) {
   return (haystack.indexOf(needle) > -1)
 }
@@ -373,6 +378,18 @@ describe(
               mailer[type](message)
             }
           )
+        }
+
+        if (includes(typesPrependVerificationSubdomain, type)) {
+          it(`can prepend verification subdomain for ${type}`, () => {
+            mailer.prependVerificationSubdomain.enabled = true
+            const subdomain = mailer.prependVerificationSubdomain.subdomain
+            mailer.mailer.sendMail = (emailConfig) => {
+              const link = emailConfig.headers['X-Link'];
+              assert.equal(link.indexOf(`http://${subdomain}.`), 0, 'link prepend with domain')
+            }
+            mailer[type](message)
+          })
         }
 
         if (includes(typesContainTokenCode, type)) {
