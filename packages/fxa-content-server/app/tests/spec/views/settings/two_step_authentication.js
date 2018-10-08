@@ -91,7 +91,7 @@ describe('views/settings/two_step_authentication', () => {
 
   it('should show support link', () => {
     assert.equal(view.$('.totp-support-link').length, 1);
-    assert.equal(view.$('.totp-support-link').attr('href'), 'https://support.mozilla.org/en-US/kb/secure-' +
+    assert.equal(view.$('.totp-support-link').attr('href'), 'https://support.mozilla.org/kb/secure-' +
       'firefox-account-two-step-authentication');
   });
 

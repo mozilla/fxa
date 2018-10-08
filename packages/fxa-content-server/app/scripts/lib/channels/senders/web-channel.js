@@ -4,7 +4,7 @@
 
 /**
  * Send a message to the browser over a WebChannel. See
- * https://developer.mozilla.org/en-US/docs/Mozilla/JavaScript_code_modules/WebChannel.jsm
+ * https://developer.mozilla.org/docs/Mozilla/JavaScript_code_modules/WebChannel.jsm
  */
 
 define(function (require, exports, module) {

@@ -3,6 +3,8 @@
 
 * Merge train-121 from private repo into 122
 
+
+
 <a name="1.122.0"></a>
 # [1.122.0](https://github.com/mozilla/fxa-content-server/compare/v1.121.0...v1.122.0) (2018-10-02)
 
@@ -35,6 +37,20 @@
 * **pairing:** Extract hkdf into its own module. ([f4d167d](https://github.com/mozilla/fxa-content-server/commit/f4d167d)), closes [#6514](https://github.com/mozilla/fxa-content-server/issues/6514)
 * **pairing:** Extract the fxa-crypto-deriver lazy loading ([1a94048](https://github.com/mozilla/fxa-content-server/commit/1a94048)), closes [#6514](https://github.com/mozilla/fxa-content-server/issues/6514)
 * **pairing:** Extract validate and vat formatting updates ([c2fd736](https://github.com/mozilla/fxa-content-server/commit/c2fd736)), closes [#6514](https://github.com/mozilla/fxa-content-server/issues/6514)
+
+
+
+<a name="1.121.3"></a>
+## [1.121.3](https://github.com/mozilla/fxa-content-server/compare/v1.121.0...v1.121.3) (2018-10-05)
+
+
+### Bug Fixes
+
+* **links:** Remove `en-US` from any SUMO/MDN links. ([43d10c5](https://github.com/mozilla/fxa-content-server/commit/43d10c5))
+
+### chore
+
+* **recovery:** enable recovery key for 10% of users ([cccd708](https://github.com/mozilla/fxa-content-server/commit/cccd708))
 
 
 
