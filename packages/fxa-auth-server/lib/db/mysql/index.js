@@ -198,7 +198,7 @@ const QUERY_CODE_DELETE_USER = 'DELETE FROM codes WHERE userId=?';
 const QUERY_DEVELOPER = 'SELECT * FROM developers WHERE email=?';
 const QUERY_DEVELOPER_DELETE = 'DELETE developers, clientDevelopers ' +
   'FROM developers ' +
-  'LEFT JOIN clientDevelopers ON developers.developerId = clientDevelopers.developerID ' +
+  'LEFT JOIN clientDevelopers ON developers.developerId = clientDevelopers.developerId ' +
   'WHERE developers.email=?';
 const QUERY_PURGE_EXPIRED_TOKENS = 'DELETE FROM tokens WHERE clientId NOT IN (?) AND expiresAt < NOW() LIMIT ?;';
 const QUERY_EXPIRED_TOKENS =
