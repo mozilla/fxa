@@ -33,7 +33,8 @@ before_script:
   - mysql -u root -e 'DROP DATABASE IF EXISTS fxa'
   - npm i grunt-cli -g
   - npm run outdated
-  - grunt nsp --force
+  # HACK: ignore npm audit errors for now until we get them all fixed
+  - npm audit || true
 
 script:
   - npm run test-travis
