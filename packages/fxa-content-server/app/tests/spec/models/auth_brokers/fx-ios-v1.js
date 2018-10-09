@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   const Account = require('models/account');
   const { assert } = require('chai');
   const FxiOSAuthenticationBroker = require('models/auth_brokers/fx-ios-v1');
+  const FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
   const NullChannel = require('lib/channels/null');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
@@ -22,6 +23,7 @@ define(function (require, exports, module) {
     const loginMessageDelayMS = 250;
     let relier;
     let windowMock;
+    let sandbox;
 
     function initializeBroker(userAgent) {
       windowMock.navigator.userAgent = userAgent;
@@ -31,14 +33,19 @@ define(function (require, exports, module) {
         relier: relier,
         window: windowMock
       });
-      sinon.stub(broker, '_hasRequiredLoginFields').callsFake(() => true);
+      sandbox.stub(broker, '_hasRequiredLoginFields').callsFake(() => true);
     }
 
     beforeEach(() => {
       channel = new NullChannel();
       relier = new Relier();
       windowMock = new WindowMock();
+      sandbox = sinon.sandbox.create();
       initializeBroker(IMMEDIATE_UNVERIFIED_LOGIN_UA_STRING);
+    });
+
+    afterEach(() => {
+      sandbox.restore();
     });
 
     describe('capabilities', () => {
@@ -76,9 +83,9 @@ define(function (require, exports, module) {
       let account;
 
       beforeEach(() => {
-        sinon.stub(broker, 'send').callsFake(() => Promise.resolve());
-        sinon.spy(windowMock, 'setTimeout');
-        sinon.spy(windowMock, 'clearTimeout');
+        sandbox.stub(broker, 'send').callsFake(() => Promise.resolve());
+        sandbox.spy(windowMock, 'setTimeout');
+        sandbox.spy(windowMock, 'clearTimeout');
         account = new Account({
           uid: 'uid'
         });
@@ -118,6 +125,24 @@ define(function (require, exports, module) {
         });
       });
 
+      describe('afterCompleteSignInWithCode', () => {
+        let account;
+
+        beforeEach(() => {
+          sandbox.spy(broker, 'afterCompleteSignInWithCode');
+          sandbox.spy(broker, '_notifyRelierOfLogin');
+          sandbox.spy(FxDesktopV1AuthenticationBroker.prototype, 'afterCompleteSignInWithCode');
+          account = new Account({
+            uid: 'uid'
+          });
+          return broker.afterCompleteSignInWithCode(account);
+        });
+
+        it('broker calls correct methods', () => {
+          assert.isTrue(FxDesktopV1AuthenticationBroker.prototype.afterCompleteSignInWithCode.called);
+          assert.isTrue(broker._notifyRelierOfLogin.called);
+        });
+      });
     });
   });
 });
