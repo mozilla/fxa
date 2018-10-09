@@ -163,7 +163,15 @@ const QUERY_CLIENT_UPDATE = 'UPDATE clients SET ' +
   'trusted=COALESCE(?, trusted), allowedScopes=COALESCE(?, allowedScopes), ' +
   'canGrant=COALESCE(?, canGrant) ' +
   'WHERE id=?';
-const QUERY_CLIENT_DELETE = 'DELETE FROM clients WHERE id=?';
+// This query deletes everythin related to the client, and is thus quite expensive!
+// Don't worry, it's not exposed to any production-facing routes.
+const QUERY_CLIENT_DELETE = 'DELETE clients, codes, tokens, refreshTokens, clientDevelopers ' +
+  'FROM clients ' +
+  'LEFT JOIN codes ON clients.id = codes.clientId ' +
+  'LEFT JOIN tokens ON clients.id = tokens.clientId ' +
+  'LEFT JOIN refreshTokens ON clients.id = refreshTokens.clientId ' +
+  'LEFT JOIN clientDevelopers ON clients.id = clientDevelopers.clientId ' +
+  'WHERE clients.id=?';
 const QUERY_CODE_INSERT =
   'INSERT INTO codes (clientId, userId, email, scope, authAt, amr, aal, offline, code, codeChallengeMethod, codeChallenge, keysJwe, profileChangedAt) ' +
   'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
@@ -188,7 +196,10 @@ const QUERY_REFRESH_TOKEN_DELETE_USER =
   'DELETE FROM refreshTokens WHERE userId=?';
 const QUERY_CODE_DELETE_USER = 'DELETE FROM codes WHERE userId=?';
 const QUERY_DEVELOPER = 'SELECT * FROM developers WHERE email=?';
-const QUERY_DEVELOPER_DELETE = 'DELETE FROM developers WHERE email=?';
+const QUERY_DEVELOPER_DELETE = 'DELETE developers, clientDevelopers ' +
+  'FROM developers ' +
+  'LEFT JOIN clientDevelopers ON developers.developerId = clientDevelopers.developerID ' +
+  'WHERE developers.email=?';
 const QUERY_PURGE_EXPIRED_TOKENS = 'DELETE FROM tokens WHERE clientId NOT IN (?) AND expiresAt < NOW() LIMIT ?;';
 const QUERY_EXPIRED_TOKENS =
   'SELECT expiresAt, token, clientId FROM tokens WHERE expiresAt >= ? AND expiresAt <= NOW() ORDER BY expiresAt ASC LIMIT ?';

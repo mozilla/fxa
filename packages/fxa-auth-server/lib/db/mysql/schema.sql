@@ -24,7 +24,6 @@ CREATE TABLE IF NOT EXISTS codes (
   code BINARY(32) PRIMARY KEY,
   clientId BINARY(8) NOT NULL,
   INDEX codes_client_id(clientId),
-  FOREIGN KEY (clientId) REFERENCES clients(id) ON DELETE CASCADE,
   userId BINARY(16) NOT NULL,
   INDEX codes_user_id(userId),
   email VARCHAR(256) NOT NULL,
@@ -39,7 +38,6 @@ CREATE TABLE IF NOT EXISTS tokens (
   token BINARY(32) PRIMARY KEY,
   clientId BINARY(8) NOT NULL,
   INDEX tokens_client_id(clientId),
-  FOREIGN KEY (clientId) REFERENCES clients(id) ON DELETE CASCADE,
   userId BINARY(16) NOT NULL,
   INDEX tokens_user_id(userId),
   email VARCHAR(256) NOT NULL,
@@ -53,25 +51,24 @@ CREATE TABLE IF NOT EXISTS tokens (
 
 CREATE TABLE IF NOT EXISTS developers (
   developerId BINARY(16) NOT NULL,
-  FOREIGN KEY (developerId) REFERENCES developers(developerId) ON DELETE CASCADE,
-  clientId BINARY(8) NOT NULL,
-  FOREIGN KEY (clientId) REFERENCES clients(id) ON DELETE CASCADE,
-  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  email VARCHAR(255) NOT NULL,
+  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(email)
 ) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS clientDevelopers (
   rowId BINARY(8) PRIMARY KEY,
   developerId BINARY(16) NOT NULL,
   clientId BINARY(8) NOT NULL,
-  FOREIGN KEY (clientId) REFERENCES clients(id) ON DELETE CASCADE,
-  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_clientDevelopers_developerId(developerId),
+  INDEX idx_clientDevelopers_clientId(clientId)
 ) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS refreshTokens (
   token BINARY(32) PRIMARY KEY,
   clientId BINARY(8) NOT NULL,
   INDEX tokens_client_id(clientId),
-  FOREIGN KEY (clientId) REFERENCES clients(id) ON DELETE CASCADE,
   userId BINARY(16) NOT NULL,
   INDEX tokens_user_id(userId),
   email VARCHAR(256) NOT NULL,
