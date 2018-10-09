@@ -533,15 +533,6 @@ define([
    *   example.
    *   @param {String} [options.lang]
    *   set the language for the 'Accept-Language' header
-   *   @param {Object} [options.metricsContext={}] Metrics context metadata
-   *     @param {String} options.metricsContext.deviceId identifier for the current device
-   *     @param {String} options.metricsContext.flowId identifier for the current event flow
-   *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
-   *     @param {Number} options.metricsContext.utmCampaign marketing campaign identifier
-   *     @param {Number} options.metricsContext.utmContent content identifier
-   *     @param {Number} options.metricsContext.utmMedium acquisition medium
-   *     @param {Number} options.metricsContext.utmSource traffic source
-   *     @param {Number} options.metricsContext.utmTerm search terms
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.passwordForgotResendCode = function(email, passwordForgotToken, options) {
@@ -574,10 +565,6 @@ define([
               'Accept-Language': options.lang
             };
           }
-
-          if (options.metricsContext) {
-            data.metricsContext = metricsContext.marshall(options.metricsContext);
-          }
         }
 
         return hawkCredentials(passwordForgotToken, 'passwordForgotToken',  HKDF_SIZE);
@@ -597,15 +584,6 @@ define([
    * @param {String} passwordForgotToken
    * @param {Object} [options={}] Options
    *   @param {Boolean} [options.accountResetWithRecoveryKey] verifying code to be use in account recovery
-   *   @param {Object} [options.metricsContext={}] Metrics context metadata
-   *      @param {String} options.metricsContext.deviceId identifier for the current device
-   *      @param {String} options.metricsContext.flowId identifier for the current event flow
-   *      @param {Number} options.metricsContext.flowBeginTime flow.begin event time
-   *      @param {Number} options.metricsContext.utmCampaign marketing campaign identifier
-   *      @param {Number} options.metricsContext.utmContent content identifier
-   *      @param {Number} options.metricsContext.utmMedium acquisition medium
-   *      @param {Number} options.metricsContext.utmSource traffic source
-   *      @param {Number} options.metricsContext.utmTerm search terms
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.passwordForgotVerifyCode = function(code, passwordForgotToken, options) {
@@ -622,10 +600,6 @@ define([
         var data = {
           code: code
         };
-
-        if (options && options.metricsContext) {
-          data.metricsContext = metricsContext.marshall(options.metricsContext);
-        }
 
         if (options && options.accountResetWithRecoveryKey ) {
           data.accountResetWithRecoveryKey = options.accountResetWithRecoveryKey;
@@ -671,15 +645,6 @@ define([
    *   is required if `options.keys` is true.
    *   @param {Boolean} [options.sessionToken]
    *   If `true`, a new `sessionToken` is provisioned.
-   *   @param {Object} [options.metricsContext={}] Metrics context metadata
-   *     @param {String} options.metricsContext.deviceId identifier for the current device
-   *     @param {String} options.metricsContext.flowId identifier for the current event flow
-   *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
-   *     @param {Number} options.metricsContext.utmCampaign marketing campaign identifier
-   *     @param {Number} options.metricsContext.utmContent content identifier
-   *     @param {Number} options.metricsContext.utmMedium acquisition medium
-   *     @param {Number} options.metricsContext.utmSource traffic source
-   *     @param {Number} options.metricsContext.utmTerm search terms
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.accountReset = function(email, newPassword, accountResetToken, options) {
@@ -691,10 +656,6 @@ define([
 
     if (options.sessionToken) {
       data.sessionToken = options.sessionToken;
-    }
-
-    if (options.metricsContext) {
-      data.metricsContext = metricsContext.marshall(options.metricsContext);
     }
 
     return Promise.resolve()
@@ -1800,15 +1761,6 @@ define([
    * @method verifyTotpCode
    * @param {String} sessionToken SessionToken obtained from signIn
    * @param {String} code TOTP code to verif
-   * @param {Object} [options.metricsContext={}] Metrics context metadata
-   *   @param {String} options.metricsContext.deviceId identifier for the current device
-   *   @param {String} options.metricsContext.flowId identifier for the current event flow
-   *   @param {Number} options.metricsContext.flowBeginTime flow.begin event time
-   *   @param {Number} options.metricsContext.utmCampaign marketing campaign identifier
-   *   @param {Number} options.metricsContext.utmContent content identifier
-   *   @param {Number} options.metricsContext.utmMedium acquisition medium
-   *   @param {Number} options.metricsContext.utmSource traffic source
-   *   @param {Number} options.metricsContext.utmTerm search terms
    * @param {String} [options.service] Service being used
    */
   FxAccountClient.prototype.verifyTotpCode = function (sessionToken, code, options) {
@@ -1827,10 +1779,6 @@ define([
 
         if (options && options.service) {
           data.service = options.service;
-        }
-
-        if (options && options.metricsContext) {
-          data.metricsContext = metricsContext.marshall(options.metricsContext);
         }
 
         return request.send('/session/verify/totp', 'POST', creds, data);
@@ -1863,17 +1811,8 @@ define([
    * @method consumeRecoveryCode
    * @param {String} sessionToken SessionToken obtained from signIn
    * @param {String} code recovery code
-   * @param {Object} [options.metricsContext={}] Metrics context metadata
-   *   @param {String} options.metricsContext.deviceId identifier for the current device
-   *   @param {String} options.metricsContext.flowId identifier for the current event flow
-   *   @param {Number} options.metricsContext.flowBeginTime flow.begin event time
-   *   @param {Number} options.metricsContext.utmCampaign marketing campaign identifier
-   *   @param {Number} options.metricsContext.utmContent content identifier
-   *   @param {Number} options.metricsContext.utmMedium acquisition medium
-   *   @param {Number} options.metricsContext.utmSource traffic source
-   *   @param {Number} options.metricsContext.utmTerm search terms
    */
-  FxAccountClient.prototype.consumeRecoveryCode = function (sessionToken, code, options) {
+  FxAccountClient.prototype.consumeRecoveryCode = function (sessionToken, code) {
     var request = this.request;
     return Promise.resolve()
       .then(function () {
@@ -1886,10 +1825,6 @@ define([
         var data = {
           code: code
         };
-
-        if (options && options.metricsContext) {
-          data.metricsContext = metricsContext.marshall(options.metricsContext);
-        }
 
         return request.send('/session/verify/recoveryCode', 'POST', creds, data);
       });
@@ -1962,15 +1897,6 @@ define([
    *   is required if `options.keys` is true.
    *   @param {Boolean} [options.sessionToken]
    *   If `true`, a new `sessionToken` is provisioned.
-   *   @param {Object} [options.metricsContext={}] Metrics context metadata
-   *     @param {String} options.metricsContext.deviceId identifier for the current device
-   *     @param {String} options.metricsContext.flowId identifier for the current event flow
-   *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
-   *     @param {Number} options.metricsContext.utmCampaign marketing campaign identifier
-   *     @param {Number} options.metricsContext.utmContent content identifier
-   *     @param {Number} options.metricsContext.utmMedium acquisition medium
-   *     @param {Number} options.metricsContext.utmSource traffic source
-   *     @param {Number} options.metricsContext.utmTerm search terms
    * @returns {Promise} A promise that will be fulfilled with updated account data
    */
   FxAccountClient.prototype.resetPasswordWithRecoveryKey = function (accountResetToken, email, newPassword, recoveryKeyId, keys, options) {
@@ -2013,10 +1939,6 @@ define([
 
         if (options.keys) {
           required(options.sessionToken, 'sessionToken');
-        }
-
-        if (options.metricsContext) {
-          data.metricsContext = metricsContext.marshall(options.metricsContext);
         }
 
         var queryParams = '';

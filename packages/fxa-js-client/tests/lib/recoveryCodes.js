@@ -81,9 +81,8 @@ define([
             assert.equal(xhrOpen.args[0][0], 'POST', 'method is correct');
             assert.include(xhrOpen.args[0][1], '/session/verify/recoveryCode', 'path is correct');
             var sentData = JSON.parse(xhrSend.args[0][0]);
-            assert.equal(Object.keys(sentData).length, 2);
+            assert.lengthOf(Object.keys(sentData), 1);
             assert.equal(sentData.code, code, 'code is correct');
-            assert.deepEqual(sentData.metricsContext, metricsContext, 'metricsContext is correct');
 
             assert.equal(res.remaining, 7, 'correct remaining recovery codes');
           });
