@@ -563,8 +563,6 @@ define(function (require, exports, module) {
         clientOptions.resume = options.resume;
       }
 
-      setMetricsContext(clientOptions, options);
-
       return client.passwordForgotResendCode(
         email,
         passwordForgotToken,
@@ -595,12 +593,8 @@ define(function (require, exports, module) {
         keys: wantsKeys(relier),
         sessionToken: true
       };
-      setMetricsContext(accountResetOptions, options);
 
-      var passwordVerifyCodeOptions = {};
-      setMetricsContext(passwordVerifyCodeOptions, options);
-
-      return client.passwordForgotVerifyCode(code, token, passwordVerifyCodeOptions)
+      return client.passwordForgotVerifyCode(code, token, {})
         .then(result => {
           let emailToHashWith = email;
 
@@ -1010,8 +1004,6 @@ define(function (require, exports, module) {
      * @param {String} sessionToken SessionToken obtained from signIn
      * @param {String} code TOTP code
      * @param {Object} [options={}] Options
-     *   @param {String} [options.metricsContext] - context metadata for use in
-     *                   flow events
      *   @param {String} [options.service] - service used
      * @returns {Promise} resolves when complete
      */
@@ -1022,9 +1014,6 @@ define(function (require, exports, module) {
      *
      * @param {String} sessionToken SessionToken obtained from signIn
      * @param {String} code Recovery code
-     * @param {Object} [options={}] Options
-     *   @param {String} [options.metricsContext] - context metadata for use in
-     *                   flow events
      * @returns {Promise} resolves when complete
      */
     consumeRecoveryCode: createClientDelegate('consumeRecoveryCode'),

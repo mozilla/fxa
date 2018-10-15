@@ -884,32 +884,6 @@ define(function (require, exports, module) {
               ));
           });
       });
-
-      it('passes along an optional `metricsContext`', function () {
-        var options = {
-          metricsContext: {},
-          resume: resumeToken
-        };
-
-        return client.passwordReset(email, relier, options)
-          .then(function () {
-            return client.passwordResetResend(email, passwordForgotToken, relier, options);
-          })
-          .then(function () {
-            var params = {
-              metricsContext: {},
-              redirectTo: REDIRECT_TO,
-              resume: resumeToken,
-              service: SYNC_SERVICE
-            };
-            assert.isTrue(
-              realClient.passwordForgotResendCode.calledWith(
-                trim(email),
-                passwordForgotToken,
-                params
-              ));
-          });
-      });
     });
 
     describe('completePasswordReset', function () {
@@ -961,21 +935,6 @@ define(function (require, exports, module) {
             assert.equal(sessionData.uid, 'uid');
             assert.equal(sessionData.unwrapBKey, 'unwrap b key');
             assert.isTrue(sessionData.verified);
-          });
-      });
-
-      it('passes along an optional `metricsContext`', function () {
-        const metricsContext = {
-          flowBeginTime: 'foo',
-          flowId: 'bar'
-        };
-
-        return client.completePasswordReset(email, password, token, code, relier, { metricsContext })
-          .then(function () {
-            assert.isTrue(realClient.passwordForgotVerifyCode.calledWith(
-              code, token, { metricsContext }));
-            assert.isTrue(realClient.accountReset.calledWith(
-              trim(email), password, 'reset_token', { keys: true, metricsContext, sessionToken: true }));
           });
       });
     });
@@ -1581,7 +1540,6 @@ define(function (require, exports, module) {
           success: true
         };
         const options = {
-          metricsContext: { foo: 'bar' },
           service: 'someservice'
         };
         sinon.stub(realClient, 'verifyTotpCode').callsFake(() => Promise.resolve(resp));
