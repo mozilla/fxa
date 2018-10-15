@@ -307,6 +307,10 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
                     tokenVerificationId: tokenVerificationId
                   })
                 }
+
+                // show an error to the user, the account is already created.
+                // the user can come back later and try again.
+                throw error.cannotSendEmail()
               })
           }
         }

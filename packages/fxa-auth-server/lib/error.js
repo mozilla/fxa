@@ -736,8 +736,8 @@ AppError.cannotResendEmailCodeToUnownedEmail = function () {
 
 AppError.cannotSendEmail = function () {
   return new AppError({
-    code: 400,
-    error: 'Bad Request',
+    code: 500,
+    error: 'Internal Server Error',
     errno: ERRNO.FAILED_TO_SEND_EMAIL,
     message: 'Failed to send email'
   })

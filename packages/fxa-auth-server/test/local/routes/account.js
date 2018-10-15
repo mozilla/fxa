@@ -522,6 +522,22 @@ describe('/account/create', () => {
       assert.equal(mockLog.error.callCount, 0)
     }).finally(() => Date.now.restore())
   })
+
+  it('should return an error if email fails to send', () => {
+    const mocked = setup()
+    const mockMailer = mocked.mockMailer
+    const mockRequest = mocked.mockRequest
+    const route = mocked.route
+
+    mockMailer.sendVerifyCode = sinon.spy(() => P.reject())
+
+    return runTest(route, mockRequest).then(assert.fail, (err) => {
+      assert.equal(err.message, 'Failed to send email')
+      assert.equal(err.output.payload.code, 500)
+      assert.equal(err.output.payload.errno, 151)
+      assert.equal(err.output.payload.error, 'Internal Server Error')
+    })
+  })
 })
 
 describe('/account/login', function () {
@@ -650,7 +666,7 @@ describe('/account/login', function () {
     mockLog.activityEvent.reset()
     mockLog.flowEvent.reset()
     mockMailer.sendNewDeviceLoginNotification = sinon.spy(() => P.resolve([]))
-    mockMailer.sendVerifyLoginEmail.reset()
+    mockMailer.sendVerifyLoginEmail = sinon.spy(() => P.resolve())
     mockMailer.sendVerifyCode.reset()
     mockDB.createSessionToken.reset()
     mockDB.sessions.reset()
@@ -934,6 +950,17 @@ describe('/account/login', function () {
         assert.ok(! response.verified, 'response indicates account is not verified')
         assert.equal(response.verificationMethod, 'email', 'verificationMethod is email')
         assert.equal(response.verificationReason, 'signup', 'verificationReason is signup')
+      })
+    })
+
+    it('should return an error if email fails to send', () => {
+      mockMailer.sendVerifyLoginEmail = sinon.spy(() => P.reject())
+
+      return runTest(route, mockRequest).then(assert.fail, (err) => {
+        assert.equal(err.message, 'Failed to send email')
+        assert.equal(err.output.payload.code, 500)
+        assert.equal(err.output.payload.errno, 151)
+        assert.equal(err.output.payload.error, 'Internal Server Error')
       })
     })
 
