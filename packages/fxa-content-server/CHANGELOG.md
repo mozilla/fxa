@@ -1,3 +1,13 @@
+<a name="1.122.4"></a>
+## [1.122.4](https://github.com/mozilla/fxa-content-server/compare/v1.122.3...v1.122.4) (2018-10-12)
+
+
+### Bug Fixes
+
+* **emails:** add recovery key images ([b0342c5](https://github.com/mozilla/fxa-content-server/commit/b0342c5))
+
+
+
 <a name="1.122.3"></a>
 ## [1.122.3](https://github.com/mozilla/fxa-content-server/compare/v1.122.2...v1.122.3) (2018-10-09)
 
