@@ -32,7 +32,7 @@ impl MessageData {
     /// This is a destructive operation.
     /// Once consumed,
     /// the data is permanently destroyed.
-    pub fn consume(&self, message_id: &str) -> AppResult<String> {
+    pub fn consume(&self, message_id: &str) -> AppResult<Option<String>> {
         self.client.consume(message_id, DataType::MessageData)
     }
 

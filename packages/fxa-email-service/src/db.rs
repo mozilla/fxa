@@ -47,7 +47,7 @@ impl Client {
     }
 
     /// Read data.
-    pub fn get<D>(&self, key: &str, data_type: DataType) -> AppResult<D>
+    pub fn get<D>(&self, key: &str, data_type: DataType) -> AppResult<Option<D>>
     where
         D: DeserializeOwned,
     {
@@ -55,11 +55,15 @@ impl Client {
         self.client
             .get(key.as_str())
             .map_err(From::from)
-            .and_then(|value: String| serde_json::from_str(&value).map_err(From::from))
+            .and_then(|value: Option<String>| {
+                value.map_or(Ok(None), |value| {
+                    serde_json::from_str(&value).map_err(From::from)
+                })
+            })
     }
 
     /// Read and delete data.
-    pub fn consume<D>(&self, key: &str, data_type: DataType) -> AppResult<D>
+    pub fn consume<D>(&self, key: &str, data_type: DataType) -> AppResult<Option<D>>
     where
         D: DeserializeOwned,
     {
@@ -68,9 +72,11 @@ impl Client {
         self.client
             .get(key_str)
             .map_err(From::from)
-            .and_then(|value: String| {
-                self.client.del::<&str, u8>(key_str).ok();
-                serde_json::from_str(&value).map_err(From::from)
+            .and_then(|value: Option<String>| {
+                value.map_or(Ok(None), |value| {
+                    self.client.del::<&str, u8>(key_str).ok();
+                    serde_json::from_str(&value).map_err(From::from)
+                })
             })
     }
 
