@@ -93,7 +93,7 @@ describe(
       })
     })
 
-    it('emailService handles 429 response', (done) => {
+    it('emailService handles old 429 response', (done) => {
       const mock = {
         'request': function (config, cb) {
           cb(null, {
@@ -103,7 +103,7 @@ describe(
             errno: 106,
             error: 'BounceComplaintError',
             message: 'FREAKOUT',
-            bounceAt: 1533641031755
+            bouncedAt: 1533641031755
           })
         }
       }
@@ -112,6 +112,34 @@ describe(
       emailService.sendMail(emailConfig, (err, body) => {
         assert.equal(err.errno, 133)
         assert.equal(err.output.statusCode, 400)
+        assert.equal(err.output.payload.bouncedAt, 1533641031755)
+        assert.equal(err.message, 'Email account sent complaint')
+        assert.equal(body.messageId, undefined)
+        assert.equal(body.message, 'FREAKOUT')
+        done()
+      })
+    })
+
+    it('emailService handles new 429 response', (done) => {
+      const mock = {
+        'request': function (config, cb) {
+          cb(null, {
+            statusCode: 429
+          }, {
+            code: '429',
+            errno: 106,
+            error: 'BounceComplaintError',
+            message: 'FREAKOUT',
+            time: 1533641031755
+          })
+        }
+      }
+
+      const emailService = proxyquire(`${ROOT_DIR}/lib/senders/email_service`, mock)(config)
+      emailService.sendMail(emailConfig, (err, body) => {
+        assert.equal(err.errno, 133)
+        assert.equal(err.output.statusCode, 400)
+        assert.equal(err.output.payload.bouncedAt, 1533641031755)
         assert.equal(err.message, 'Email account sent complaint')
         assert.equal(body.messageId, undefined)
         assert.equal(body.message, 'FREAKOUT')

@@ -54,7 +54,9 @@ module.exports = (config) => {
 
   function marshallError (status, body) {
     if (status === 429) {
-      return marshallBounceError(body.errno, body.bouncedAt)
+      // Error structure is changing in mozilla/fxa-email-service#198,
+      // temporarily handle both formats
+      return marshallBounceError(body.errno, body.bouncedAt || body.time)
     }
 
     return error.unexpectedError()
