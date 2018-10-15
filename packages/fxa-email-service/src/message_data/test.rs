@@ -42,7 +42,10 @@ fn consume() {
         .set(test.unhashed_key.as_str(), "blee")
         .unwrap();
     assert_eq!(
-        test.message_data.consume(&test.unhashed_key).unwrap(),
+        test.message_data
+            .consume(&test.unhashed_key)
+            .unwrap()
+            .unwrap(),
         "blee"
     );
     let key_exists: bool = test
@@ -53,10 +56,12 @@ fn consume() {
         !key_exists,
         "internal key should not exist in redis after being consumed"
     );
-    match test.message_data.consume(&test.unhashed_key) {
-        Ok(_) => assert!(false, "consume should fail when called a second time"),
-        Err(error) => assert_eq!(format!("{}", error), "Redis error: Response was of incompatible type: \"Response type not string compatible.\" (response was nil)"),
-    }
+    assert!(
+        test.message_data
+            .consume(&test.unhashed_key)
+            .unwrap()
+            .is_none()
+    );
 }
 
 impl TestFixture {

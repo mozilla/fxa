@@ -135,7 +135,8 @@ impl Queues {
                 notification.metadata = self
                     .message_data
                     .consume(&notification.mail.message_id)
-                    .ok();
+                    .ok()
+                    .unwrap_or(None);
                 let future = self
                     .notification_queue
                     .send(&notification)
