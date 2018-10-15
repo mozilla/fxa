@@ -83,8 +83,16 @@ define(function (require, exports, module) {
       return proto._notifyRelierOfLogin.call(this, account);
     },
 
+    /**
+     * Notify the relier that a sign-in with a code was performed.
+     *
+     * @param {Object} account
+     * @returns {Promise}
+     * @private
+     */
     afterCompleteSignInWithCode (account) {
-      return this._notifyRelierOfLogin(account);
+      return this._notifyRelierOfLogin(account)
+        .then(() => proto.afterCompleteSignInWithCode.call(this, account));
     },
   });
 
