@@ -8,7 +8,7 @@ use rocket::{self, http::Status, local::Client};
 use serde_json::{self, Value};
 
 use auth_db::DbClient;
-use bounces::Bounces;
+use delivery_problems::DeliveryProblems;
 use logging::MozlogLogger;
 use message_data::MessageData;
 use providers::Providers;
@@ -17,13 +17,13 @@ use settings::Settings;
 fn setup() -> Client {
     let settings = Settings::new().unwrap();
     let db = DbClient::new(&settings);
-    let bounces = Bounces::new(&settings, db);
+    let delivery_problems = DeliveryProblems::new(&settings, db);
     let logger = MozlogLogger::new(&settings).expect("MozlogLogger::init error");
     let message_data = MessageData::new(&settings);
     let providers = Providers::new(&settings);
     let server = rocket::ignite()
         .manage(settings)
-        .manage(bounces)
+        .manage(delivery_problems)
         .manage(logger)
         .manage(message_data)
         .manage(providers)

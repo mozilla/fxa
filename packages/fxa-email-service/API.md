@@ -21,7 +21,7 @@
 - `code: 500, errno: 103`: Invalid Provider
 - `code: 500, errno: 104`: Provider Error
 - `code: 500, errno: 105`: Email Parsing Error
-- `code: 429, errno: 106`: Bounce Complaint Error
+- `code: 429, errno: 106`: Complaint Error
 - `code: 429, errno: 107`: Bounce Soft Error
 - `code: 429, errno: 108`: Bounce Hard Error
 - `code: 500, errno: 109`: AuthDb Error
@@ -45,9 +45,9 @@ The following errors include additional response properties:
 - `errno: 103`
 - `errno: 104` name
 - `errno: 105`
-- `errno: 106` address, bouncedAt, bouce
-- `errno: 107` address, bouncedAt, bouce
-- `errno: 108` address, bouncedAt, bouce
+- `errno: 106` address, time, problem
+- `errno: 107` address, time, problem
+- `errno: 108` address, time, problem
 - `errno: 109`
 - `errno: 110`
 - `errno: 111`

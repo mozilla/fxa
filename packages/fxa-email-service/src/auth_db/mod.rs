@@ -11,170 +11,83 @@
 //! this module MUST NOT be used directly.
 //! Instead,
 //! all access should be via
-//! [`bounces::Bounces`][bounces].
+//! [`delivery_problems::DeliveryProblems`][delpro].
 //!
 //! [authdb]: https://github.com/mozilla/fxa-auth-db-mysql/
-//! [bounces]: ../bounces/struct.Bounces.html
+//! [delpro]: ../delivery_problems/struct.DeliveryProblems.html
 
 use std::fmt::Debug;
 
 use hex;
 use reqwest::{Client as RequestClient, Error as RequestError, StatusCode, Url, UrlError};
-use serde::{
-    de::{Deserialize, Deserializer, Error as DeserializeError, Unexpected},
-    ser::{Serialize, Serializer},
-};
 
 use app_errors::{AppError, AppErrorKind, AppResult};
+use delivery_problems::{DeliveryProblem, ProblemSubtype, ProblemType};
 use email_address::EmailAddress;
 use settings::Settings;
 
 #[cfg(test)]
 mod test;
 
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum BounceType {
-    Hard,
-    Soft,
-    Complaint,
+pub trait Db: Debug + Sync {
+    fn get_bounces(&self, address: &EmailAddress) -> AppResult<Vec<DeliveryProblem>>;
+
+    fn create_bounce(
+        &self,
+        _address: &EmailAddress,
+        _problem_type: ProblemType,
+        _problem_subtype: ProblemSubtype,
+    ) -> AppResult<()> {
+        Err(AppErrorKind::NotImplemented.into())
+    }
 }
 
-impl<'d> Deserialize<'d> for BounceType {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'d>,
-    {
-        let value: u8 = Deserialize::deserialize(deserializer)?;
-        match value {
-            // The auth db falls back to zero when it receives a value it doesn't recognise
-            0 => {
-                println!("Mapped default auth db bounce type to BounceType::Soft");
-                Ok(BounceType::Soft)
-            }
-            1 => Ok(BounceType::Hard),
-            2 => Ok(BounceType::Soft),
-            3 => Ok(BounceType::Complaint),
-            _ => Err(D::Error::invalid_value(
-                Unexpected::Unsigned(u64::from(value)),
-                &"bounce type",
-            )),
+#[derive(Debug)]
+pub struct DbClient {
+    urls: DbUrls,
+    request_client: RequestClient,
+}
+
+impl DbClient {
+    pub fn new(settings: &Settings) -> DbClient {
+        DbClient {
+            urls: DbUrls::new(settings),
+            request_client: RequestClient::new(),
         }
     }
 }
 
-impl Serialize for BounceType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let value = match self {
-            BounceType::Hard => 1,
-            BounceType::Soft => 2,
-            BounceType::Complaint => 3,
-        };
-        serializer.serialize_u8(value)
-    }
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum BounceSubtype {
-    // Set by the auth db if an input string is not recognised
-    Unmapped,
-    // These are mapped from the equivalent SES bounceSubType values
-    Undetermined,
-    General,
-    NoEmail,
-    Suppressed,
-    MailboxFull,
-    MessageTooLarge,
-    ContentRejected,
-    AttachmentRejected,
-    // These are mapped from the equivalent SES complaintFeedbackType values
-    Abuse,
-    AuthFailure,
-    Fraud,
-    NotSpam,
-    Other,
-    Virus,
-}
-
-impl<'d> Deserialize<'d> for BounceSubtype {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'d>,
-    {
-        let value: u8 = Deserialize::deserialize(deserializer)?;
-        match value {
-            0 => Ok(BounceSubtype::Unmapped),
-            1 => Ok(BounceSubtype::Undetermined),
-            2 => Ok(BounceSubtype::General),
-            3 => Ok(BounceSubtype::NoEmail),
-            4 => Ok(BounceSubtype::Suppressed),
-            5 => Ok(BounceSubtype::MailboxFull),
-            6 => Ok(BounceSubtype::MessageTooLarge),
-            7 => Ok(BounceSubtype::ContentRejected),
-            8 => Ok(BounceSubtype::AttachmentRejected),
-            9 => Ok(BounceSubtype::Abuse),
-            10 => Ok(BounceSubtype::AuthFailure),
-            11 => Ok(BounceSubtype::Fraud),
-            12 => Ok(BounceSubtype::NotSpam),
-            13 => Ok(BounceSubtype::Other),
-            14 => Ok(BounceSubtype::Virus),
-            _ => Err(D::Error::invalid_value(
-                Unexpected::Unsigned(u64::from(value)),
-                &"bounce subtype",
-            )),
+impl Db for DbClient {
+    fn get_bounces(&self, address: &EmailAddress) -> AppResult<Vec<DeliveryProblem>> {
+        let mut response = self
+            .request_client
+            .get(self.urls.get_bounces(address)?)
+            .send()?;
+        match response.status() {
+            StatusCode::Ok => response.json::<Vec<DeliveryProblem>>().map_err(From::from),
+            status => Err(AppErrorKind::AuthDbError(format!("{}", status)).into()),
         }
     }
-}
 
-impl Serialize for BounceSubtype {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let value = match self {
-            BounceSubtype::Unmapped => 0,
-            BounceSubtype::Undetermined => 1,
-            BounceSubtype::General => 2,
-            BounceSubtype::NoEmail => 3,
-            BounceSubtype::Suppressed => 4,
-            BounceSubtype::MailboxFull => 5,
-            BounceSubtype::MessageTooLarge => 6,
-            BounceSubtype::ContentRejected => 7,
-            BounceSubtype::AttachmentRejected => 8,
-            BounceSubtype::Abuse => 9,
-            BounceSubtype::AuthFailure => 10,
-            BounceSubtype::Fraud => 11,
-            BounceSubtype::NotSpam => 12,
-            BounceSubtype::Other => 13,
-            BounceSubtype::Virus => 14,
-        };
-        serializer.serialize_u8(value)
-    }
-}
-
-#[derive(Clone, Debug, Deserialize, Eq, Serialize, PartialEq)]
-pub struct BounceRecord {
-    #[serde(rename = "email")]
-    pub address: EmailAddress,
-    #[serde(rename = "bounceType")]
-    pub bounce_type: BounceType,
-    #[serde(rename = "bounceSubType")]
-    pub bounce_subtype: BounceSubtype,
-    #[serde(rename = "createdAt")]
-    pub created_at: u64,
-}
-
-impl From<UrlError> for AppError {
-    fn from(error: UrlError) -> AppError {
-        AppErrorKind::AuthDbError(format!("{}", error)).into()
-    }
-}
-
-impl From<RequestError> for AppError {
-    fn from(error: RequestError) -> AppError {
-        AppErrorKind::AuthDbError(format!("{}", error)).into()
+    fn create_bounce(
+        &self,
+        address: &EmailAddress,
+        problem_type: ProblemType,
+        problem_subtype: ProblemSubtype,
+    ) -> AppResult<()> {
+        let response = self
+            .request_client
+            .post(self.urls.create_bounce())
+            .json(&DeliveryProblem {
+                address: address.clone(),
+                problem_type,
+                problem_subtype,
+                created_at: 0,
+            }).send()?;
+        match response.status() {
+            StatusCode::Ok => Ok(()),
+            status => Err(AppErrorKind::AuthDbError(format!("{}", status)).into()),
+        }
     }
 }
 
@@ -202,64 +115,14 @@ impl DbUrls {
     }
 }
 
-pub trait Db: Debug + Sync {
-    fn get_bounces(&self, address: &EmailAddress) -> AppResult<Vec<BounceRecord>>;
-
-    fn create_bounce(
-        &self,
-        _address: &EmailAddress,
-        _bounce_type: BounceType,
-        _bounce_subtype: BounceSubtype,
-    ) -> AppResult<()> {
-        Err(AppErrorKind::NotImplemented.into())
+impl From<UrlError> for AppError {
+    fn from(error: UrlError) -> AppError {
+        AppErrorKind::AuthDbError(format!("{}", error)).into()
     }
 }
 
-#[derive(Debug)]
-pub struct DbClient {
-    urls: DbUrls,
-    request_client: RequestClient,
-}
-
-impl DbClient {
-    pub fn new(settings: &Settings) -> DbClient {
-        DbClient {
-            urls: DbUrls::new(settings),
-            request_client: RequestClient::new(),
-        }
-    }
-}
-
-impl Db for DbClient {
-    fn get_bounces(&self, address: &EmailAddress) -> AppResult<Vec<BounceRecord>> {
-        let mut response = self
-            .request_client
-            .get(self.urls.get_bounces(address)?)
-            .send()?;
-        match response.status() {
-            StatusCode::Ok => response.json::<Vec<BounceRecord>>().map_err(From::from),
-            status => Err(AppErrorKind::AuthDbError(format!("{}", status)).into()),
-        }
-    }
-
-    fn create_bounce(
-        &self,
-        address: &EmailAddress,
-        bounce_type: BounceType,
-        bounce_subtype: BounceSubtype,
-    ) -> AppResult<()> {
-        let response = self
-            .request_client
-            .post(self.urls.create_bounce())
-            .json(&BounceRecord {
-                address: address.clone(),
-                bounce_type,
-                bounce_subtype,
-                created_at: 0,
-            }).send()?;
-        match response.status() {
-            StatusCode::Ok => Ok(()),
-            status => Err(AppErrorKind::AuthDbError(format!("{}", status)).into()),
-        }
+impl From<RequestError> for AppError {
+    fn from(error: RequestError) -> AppError {
+        AppErrorKind::AuthDbError(format!("{}", error)).into()
     }
 }

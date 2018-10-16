@@ -16,7 +16,7 @@ use super::super::notification::{
     Bounce as GenericBounce, Complaint as GenericComplaint, Delivery as GenericDelivery,
     Mail as GenericMail, Notification as GenericNotification,
 };
-use auth_db::{BounceSubtype as AuthDbBounceSubtype, BounceType as AuthDbBounceType};
+use delivery_problems::{ProblemSubtype, ProblemType};
 use email_address::EmailAddress;
 
 #[cfg(test)]
@@ -194,15 +194,15 @@ pub enum BounceType {
     Transient,
 }
 
-impl From<BounceType> for AuthDbBounceType {
-    fn from(bounce_type: BounceType) -> AuthDbBounceType {
+impl From<BounceType> for ProblemType {
+    fn from(bounce_type: BounceType) -> ProblemType {
         match bounce_type {
             BounceType::Undetermined => {
-                info!("Mapped SesBounceType::Undetermined to AuthDbBounceType::Soft");
-                AuthDbBounceType::Soft
+                info!("Mapped SesBounceType::Undetermined to ProblemType::Soft");
+                ProblemType::SoftBounce
             }
-            BounceType::Permanent => AuthDbBounceType::Hard,
-            BounceType::Transient => AuthDbBounceType::Soft,
+            BounceType::Permanent => ProblemType::HardBounce,
+            BounceType::Transient => ProblemType::SoftBounce,
         }
     }
 }
@@ -240,17 +240,17 @@ pub enum BounceSubtype {
     AttachmentRejected,
 }
 
-impl From<BounceSubtype> for AuthDbBounceSubtype {
-    fn from(bounce_subtype: BounceSubtype) -> AuthDbBounceSubtype {
+impl From<BounceSubtype> for ProblemSubtype {
+    fn from(bounce_subtype: BounceSubtype) -> ProblemSubtype {
         match bounce_subtype {
-            BounceSubtype::Undetermined => AuthDbBounceSubtype::Undetermined,
-            BounceSubtype::General => AuthDbBounceSubtype::General,
-            BounceSubtype::NoEmail => AuthDbBounceSubtype::NoEmail,
-            BounceSubtype::Suppressed => AuthDbBounceSubtype::Suppressed,
-            BounceSubtype::MailboxFull => AuthDbBounceSubtype::MailboxFull,
-            BounceSubtype::MessageTooLarge => AuthDbBounceSubtype::MessageTooLarge,
-            BounceSubtype::ContentRejected => AuthDbBounceSubtype::ContentRejected,
-            BounceSubtype::AttachmentRejected => AuthDbBounceSubtype::AttachmentRejected,
+            BounceSubtype::Undetermined => ProblemSubtype::Undetermined,
+            BounceSubtype::General => ProblemSubtype::General,
+            BounceSubtype::NoEmail => ProblemSubtype::NoEmail,
+            BounceSubtype::Suppressed => ProblemSubtype::Suppressed,
+            BounceSubtype::MailboxFull => ProblemSubtype::MailboxFull,
+            BounceSubtype::MessageTooLarge => ProblemSubtype::MessageTooLarge,
+            BounceSubtype::ContentRejected => ProblemSubtype::ContentRejected,
+            BounceSubtype::AttachmentRejected => ProblemSubtype::AttachmentRejected,
         }
     }
 }
@@ -332,15 +332,15 @@ pub enum ComplaintFeedbackType {
     Virus,
 }
 
-impl From<ComplaintFeedbackType> for AuthDbBounceSubtype {
-    fn from(complaint_feedback_type: ComplaintFeedbackType) -> AuthDbBounceSubtype {
+impl From<ComplaintFeedbackType> for ProblemSubtype {
+    fn from(complaint_feedback_type: ComplaintFeedbackType) -> ProblemSubtype {
         match complaint_feedback_type {
-            ComplaintFeedbackType::Abuse => AuthDbBounceSubtype::Abuse,
-            ComplaintFeedbackType::AuthFailure => AuthDbBounceSubtype::AuthFailure,
-            ComplaintFeedbackType::Fraud => AuthDbBounceSubtype::Fraud,
-            ComplaintFeedbackType::NotSpam => AuthDbBounceSubtype::NotSpam,
-            ComplaintFeedbackType::Other => AuthDbBounceSubtype::Other,
-            ComplaintFeedbackType::Virus => AuthDbBounceSubtype::Virus,
+            ComplaintFeedbackType::Abuse => ProblemSubtype::Abuse,
+            ComplaintFeedbackType::AuthFailure => ProblemSubtype::AuthFailure,
+            ComplaintFeedbackType::Fraud => ProblemSubtype::Fraud,
+            ComplaintFeedbackType::NotSpam => ProblemSubtype::NotSpam,
+            ComplaintFeedbackType::Other => ProblemSubtype::Other,
+            ComplaintFeedbackType::Virus => ProblemSubtype::Virus,
         }
     }
 }

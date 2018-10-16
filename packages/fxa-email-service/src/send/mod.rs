@@ -14,7 +14,7 @@ use rocket_contrib::{Json, JsonValue};
 
 use app_errors::{AppError, AppErrorKind, AppResult};
 use auth_db::DbClient;
-use bounces::Bounces;
+use delivery_problems::DeliveryProblems;
 use email_address::EmailAddress;
 use logging::MozlogLogger;
 use message_data::MessageData;
@@ -59,7 +59,7 @@ impl FromData for Email {
 #[post("/send", format = "application/json", data = "<email>")]
 fn handler(
     email: AppResult<Email>,
-    bounces: State<Bounces<DbClient>>,
+    bounces: State<DeliveryProblems<DbClient>>,
     logger: State<MozlogLogger>,
     message_data: State<MessageData>,
     providers: State<Providers>,

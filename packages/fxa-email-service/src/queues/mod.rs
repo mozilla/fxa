@@ -13,7 +13,7 @@ use self::notification::{Notification, NotificationType};
 pub use self::sqs::Queue as Sqs;
 use app_errors::{AppError, AppErrorKind, AppResult};
 use auth_db::DbClient;
-use bounces::Bounces;
+use delivery_problems::DeliveryProblems;
 use logging::MozlogLogger;
 use message_data::MessageData;
 use settings::Settings;
@@ -31,7 +31,7 @@ pub struct Queues {
     complaint_queue: Box<Incoming>,
     delivery_queue: Box<Incoming>,
     notification_queue: Box<Outgoing>,
-    bounces: Bounces<DbClient>,
+    delivery_problems: DeliveryProblems<DbClient>,
     message_data: MessageData,
 }
 
@@ -85,7 +85,7 @@ impl Queues {
             complaint_queue: Box::new(Q::new(ids.complaint, settings)),
             delivery_queue: Box::new(Q::new(ids.delivery, settings)),
             notification_queue: Box::new(Q::new(ids.notification, settings)),
-            bounces: Bounces::new(settings, DbClient::new(settings)),
+            delivery_problems: DeliveryProblems::new(settings, DbClient::new(settings)),
             message_data: MessageData::new(settings),
         }
     }
@@ -161,7 +161,7 @@ impl Queues {
     fn record_bounce(&'static self, notification: &Notification) -> AppResult<()> {
         if let Some(ref bounce) = notification.bounce {
             for recipient in &bounce.bounced_recipients {
-                self.bounces.record_bounce(
+                self.delivery_problems.record_bounce(
                     &recipient,
                     bounce.bounce_type,
                     bounce.bounce_subtype,
@@ -176,7 +176,7 @@ impl Queues {
     fn record_complaint(&'static self, notification: &Notification) -> AppResult<()> {
         if let Some(ref complaint) = notification.complaint {
             for recipient in &complaint.complained_recipients {
-                self.bounces
+                self.delivery_problems
                     .record_complaint(&recipient, complaint.complaint_feedback_type)?;
             }
             Ok(())

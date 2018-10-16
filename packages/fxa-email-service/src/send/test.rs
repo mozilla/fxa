@@ -10,7 +10,7 @@ use rocket::{
 
 use app_errors::{self, AppError, AppErrorKind};
 use auth_db::DbClient;
-use bounces::Bounces;
+use delivery_problems::DeliveryProblems;
 use logging::MozlogLogger;
 use message_data::MessageData;
 use providers::Providers;
@@ -20,13 +20,13 @@ fn setup() -> Client {
     let mut settings = Settings::new().unwrap();
     settings.provider.forcedefault = false;
     let db = DbClient::new(&settings);
-    let bounces = Bounces::new(&settings, db);
+    let delivery_problems = DeliveryProblems::new(&settings, db);
     let logger = MozlogLogger::new(&settings).expect("MozlogLogger::init error");
     let message_data = MessageData::new(&settings);
     let providers = Providers::new(&settings);
     let server = rocket::ignite()
         .manage(settings)
-        .manage(bounces)
+        .manage(delivery_problems)
         .manage(logger)
         .manage(message_data)
         .manage(providers)

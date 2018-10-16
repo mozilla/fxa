@@ -31,14 +31,15 @@ extern crate sentry;
 use sentry::integrations::panic::register_panic_handler;
 
 use fxa_email_service::{
-    app_errors, auth_db::DbClient, bounces::Bounces, healthcheck, logging::MozlogLogger,
-    message_data::MessageData, providers::Providers, send, settings::Settings,
+    app_errors, auth_db::DbClient, delivery_problems::DeliveryProblems, healthcheck,
+    logging::MozlogLogger, message_data::MessageData, providers::Providers, send,
+    settings::Settings,
 };
 
 fn main() {
     let settings = Settings::new().expect("Settings::new error");
     let db = DbClient::new(&settings);
-    let bounces = Bounces::new(&settings, db);
+    let delivery_problems = DeliveryProblems::new(&settings, db);
     let logger = MozlogLogger::new(&settings).expect("MozlogLogger::init error");
     let message_data = MessageData::new(&settings);
     let providers = Providers::new(&settings);
@@ -59,7 +60,7 @@ fn main() {
         .expect("Error creating rocket config");
     rocket::custom(config)
         .manage(settings)
-        .manage(bounces)
+        .manage(delivery_problems)
         .manage(logger)
         .manage(message_data)
         .manage(providers)
