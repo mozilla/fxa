@@ -1,3 +1,20 @@
+<a name="1.123.0"></a>
+# [1.123.0](https://github.com/mozilla/fxa-auth-server/compare/v1.122.2...v1.123.0) (2018-10-16)
+
+
+### Bug Fixes
+
+* **email:** handle the new error structure from fxa-email-service ([787031f](https://github.com/mozilla/fxa-auth-server/commit/787031f))
+* **email:** include data from headers in email sent events ([28a4a53](https://github.com/mozilla/fxa-auth-server/commit/28a4a53))
+* **email:** throw error for failed emails during account creation ([75815f2](https://github.com/mozilla/fxa-auth-server/commit/75815f2)), closes [#2565](https://github.com/mozilla/fxa-auth-server/issues/2565)
+* **emails:** expose config to append domain to verification emails ([510bf08](https://github.com/mozilla/fxa-auth-server/commit/510bf08))
+
+### chore
+
+* **deps:** Update commander, jsxgettext-recursive to remove security warnings. ([7185ad8](https://github.com/mozilla/fxa-auth-server/commit/7185ad8))
+
+
+
 <a name="1.122.2"></a>
 ## [1.122.2](https://github.com/mozilla/fxa-auth-server/compare/v1.122.1...v1.122.2) (2018-10-04)
 
