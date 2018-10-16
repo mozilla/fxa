@@ -1,3 +1,14 @@
+<a name="1.123.0"></a>
+# [1.123.0](https://github.com/mozilla/fxa-oauth-server/compare/v1.122.0...v1.123.0) (2018-10-16)
+
+
+### Bug Fixes
+
+* **db:** Drop foreign key constraints. ([7ee117c](https://github.com/mozilla/fxa-oauth-server/commit/7ee117c))
+* **db:** Fix case-consistency of SQL query from #612 ([9e55714](https://github.com/mozilla/fxa-oauth-server/commit/9e55714)), closes [#612](https://github.com/mozilla/fxa-oauth-server/issues/612)
+
+
+
 <a name="1.122.0"></a>
 # [1.122.0](https://github.com/mozilla/fxa-oauth-server/compare/v1.120.0...v1.122.0) (2018-10-02)
 
