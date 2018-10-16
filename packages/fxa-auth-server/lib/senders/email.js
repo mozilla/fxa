@@ -360,7 +360,7 @@ module.exports = function (log, config) {
               emailService
             })
 
-            emailUtils.logEmailEventSent(log, message)
+            emailUtils.logEmailEventSent(log, Object.assign({}, message,  { headers }))
 
             return d.resolve(status)
           })
