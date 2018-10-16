@@ -123,17 +123,24 @@ where
             .db
             .get(address.as_ref(), DataType::DeliveryProblem)?
             .unwrap_or_else(|| Vec::new());
-        problems.insert(
-            0,
-            DeliveryProblem {
-                address: address.clone(),
-                problem_type,
-                problem_subtype,
-                created_at: now(),
-            },
-        );
+
+        // TODO: A direct port of the auth db behaviour here would insert at the
+        //       start rather than append to the end of the list. But it's more
+        //       efficient for us to append here and then process the list in
+        //       reverse instead. So when we come to processing data from this
+        //       data store, we must be careful to call `.rev()` beforehand (but
+        //       hopefully that will also be obvious from the failing tests without
+        //       needing to rely on this comment).
+        problems.push(DeliveryProblem {
+            address: address.clone(),
+            problem_type,
+            problem_subtype,
+            created_at: now(),
+        });
+
         self.db
             .set(address.as_ref(), &problems, DataType::DeliveryProblem)?;
+
         Ok(())
     }
 

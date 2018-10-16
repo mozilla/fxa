@@ -487,6 +487,7 @@ fn record_bounce() {
         // created_at is probably a millisecond or two different between MySQL and Redis
         bounce_records
             .into_iter()
+            .rev()
             .map(From::from)
             .collect::<Vec<AssertFriendlyDeliveryProblem>>(),
     );
