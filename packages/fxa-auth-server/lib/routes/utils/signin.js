@@ -350,6 +350,11 @@ module.exports = (log, config, customs, db, mailer)  => {
           }
         )
         .then(() => request.emitMetricsEvent('email.confirmation.sent'))
+        .catch(function (err) {
+          log.error({op: 'mailer.confirmation.error', err: err})
+
+          throw error.cannotSendEmail()
+        })
       }
 
       function sendVerifyLoginCodeEmail() {
