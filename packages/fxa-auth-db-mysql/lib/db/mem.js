@@ -1074,7 +1074,7 @@ module.exports = function (log, error) {
     bounce.createdAt = Date.now()
     bounce.bounceType = dbUtil.mapEmailBounceType(bounce.bounceType)
     bounce.bounceSubType = dbUtil.mapEmailBounceSubType(bounce.bounceSubType)
-    row.push(bounce)
+    row.unshift(bounce)
     return P.resolve({})
   }
 
