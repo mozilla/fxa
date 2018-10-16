@@ -77,17 +77,17 @@ where
                             ProblemType::HardBounce => Err(AppErrorKind::BounceHardError {
                                 address: address.clone(),
                                 time: problem.created_at,
-                                problem: problem.clone(),
+                                problem: From::from(problem.clone()),
                             }.into()),
                             ProblemType::SoftBounce => Err(AppErrorKind::BounceSoftError {
                                 address: address.clone(),
                                 time: problem.created_at,
-                                problem: problem.clone(),
+                                problem: From::from(problem.clone()),
                             }.into()),
                             ProblemType::Complaint => Err(AppErrorKind::ComplaintError {
                                 address: address.clone(),
                                 time: problem.created_at,
-                                problem: problem.clone(),
+                                problem: From::from(problem.clone()),
                             }.into()),
                         };
                     }
@@ -180,13 +180,34 @@ fn now() -> u64 {
 
 /// Encapsulates some kind of delivery problem,
 /// either a bounced email or a complaint.
-///
-/// The serialised format uses historical names
-/// that carry over from [`fxa-auth-db-mysql`](https://github.com/mozilla/fxa-auth-db-mysql/).
-/// This is to enable smooth migration from the auth db
-/// to our own data store.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct DeliveryProblem {
+    pub address: EmailAddress,
+    pub problem_type: ProblemType,
+    pub problem_subtype: ProblemSubtype,
+    pub created_at: u64,
+}
+
+impl From<LegacyDeliveryProblem> for DeliveryProblem {
+    fn from(source: LegacyDeliveryProblem) -> Self {
+        Self {
+            address: source.address,
+            problem_type: source.problem_type,
+            problem_subtype: source.problem_subtype,
+            created_at: source.created_at,
+        }
+    }
+}
+
+/// Legacy delivery problem abstraction,
+/// not to be used by new code.
+///
+/// The serialised format uses historical names
+/// that carry match [`fxa-auth-db-mysql`](https://github.com/mozilla/fxa-auth-db-mysql/).
+/// We don't want to pollute our own data store
+/// with that nomenclature.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct LegacyDeliveryProblem {
     #[serde(rename = "email")]
     pub address: EmailAddress,
     #[serde(rename = "bounceType")]
@@ -195,6 +216,17 @@ pub struct DeliveryProblem {
     pub problem_subtype: ProblemSubtype,
     #[serde(rename = "createdAt")]
     pub created_at: u64,
+}
+
+impl From<DeliveryProblem> for LegacyDeliveryProblem {
+    fn from(source: DeliveryProblem) -> Self {
+        Self {
+            address: source.address,
+            problem_type: source.problem_type,
+            problem_subtype: source.problem_subtype,
+            created_at: source.created_at,
+        }
+    }
 }
 
 /// The type of the delivery problem.

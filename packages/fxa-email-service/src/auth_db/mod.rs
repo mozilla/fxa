@@ -22,7 +22,7 @@ use hex;
 use reqwest::{Client as RequestClient, Error as RequestError, StatusCode, Url, UrlError};
 
 use app_errors::{AppError, AppErrorKind, AppResult};
-use delivery_problems::{DeliveryProblem, ProblemSubtype, ProblemType};
+use delivery_problems::{LegacyDeliveryProblem as DeliveryProblem, ProblemSubtype, ProblemType};
 use email_address::EmailAddress;
 use settings::Settings;
 

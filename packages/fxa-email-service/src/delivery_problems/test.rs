@@ -57,22 +57,22 @@ fn create_settings(bounce_limits: Json) -> Settings {
 pub struct DbMockNoBounce;
 
 impl Db for DbMockNoBounce {
-    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<DeliveryProblem>> {
+    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<LegacyDeliveryProblem>> {
         let now = now_as_milliseconds();
         Ok(vec![
-            DeliveryProblem {
+            LegacyDeliveryProblem {
                 address: "foo@example.com".parse().unwrap(),
                 problem_type: ProblemType::SoftBounce,
                 problem_subtype: ProblemSubtype::Undetermined,
                 created_at: now - DAY - 1000,
             },
-            DeliveryProblem {
+            LegacyDeliveryProblem {
                 address: "foo@example.com".parse().unwrap(),
                 problem_type: ProblemType::HardBounce,
                 problem_subtype: ProblemSubtype::Undetermined,
                 created_at: now - WEEK - 1000,
             },
-            DeliveryProblem {
+            LegacyDeliveryProblem {
                 address: "foo@example.com".parse().unwrap(),
                 problem_type: ProblemType::Complaint,
                 problem_subtype: ProblemSubtype::Undetermined,
@@ -118,8 +118,8 @@ fn check_soft_bounce() {
             let problem = err_data.get("problem");
             assert!(problem.is_some());
             let record: Json = serde_json::from_str(problem.unwrap().as_str().unwrap()).unwrap();
-            assert_eq!(record["bounceType"], 2);
-            assert_eq!(&record["createdAt"], err_data.get("time").unwrap());
+            assert_eq!(record["problem_type"], 2);
+            assert_eq!(&record["created_at"], err_data.get("time").unwrap());
             assert_eq!(error.kind().http_status(), Status::TooManyRequests);
         }
     }
@@ -129,9 +129,9 @@ fn check_soft_bounce() {
 pub struct DbMockBounceSoft;
 
 impl Db for DbMockBounceSoft {
-    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<DeliveryProblem>> {
+    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<LegacyDeliveryProblem>> {
         let now = now_as_milliseconds();
-        Ok(vec![DeliveryProblem {
+        Ok(vec![LegacyDeliveryProblem {
             address: "foo@example.com".parse().unwrap(),
             problem_type: ProblemType::SoftBounce,
             problem_subtype: ProblemSubtype::Undetermined,
@@ -169,8 +169,8 @@ fn check_hard_bounce() {
             let problem = err_data.get("problem");
             assert!(problem.is_some());
             let record: Json = serde_json::from_str(problem.unwrap().as_str().unwrap()).unwrap();
-            assert_eq!(record["bounceType"], 1);
-            assert_eq!(&record["createdAt"], err_data.get("time").unwrap());
+            assert_eq!(record["problem_type"], 1);
+            assert_eq!(&record["created_at"], err_data.get("time").unwrap());
             assert_eq!(error.kind().http_status(), Status::TooManyRequests);
         }
     }
@@ -180,9 +180,9 @@ fn check_hard_bounce() {
 pub struct DbMockBounceHard;
 
 impl Db for DbMockBounceHard {
-    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<DeliveryProblem>> {
+    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<LegacyDeliveryProblem>> {
         let now = now_as_milliseconds();
-        Ok(vec![DeliveryProblem {
+        Ok(vec![LegacyDeliveryProblem {
             address: "bar@example.com".parse().unwrap(),
             problem_type: ProblemType::HardBounce,
             problem_subtype: ProblemSubtype::Undetermined,
@@ -220,8 +220,8 @@ fn check_complaint() {
             let problem = err_data.get("problem");
             assert!(problem.is_some());
             let record: Json = serde_json::from_str(problem.unwrap().as_str().unwrap()).unwrap();
-            assert_eq!(record["bounceType"], 3);
-            assert_eq!(&record["createdAt"], err_data.get("time").unwrap());
+            assert_eq!(record["problem_type"], 3);
+            assert_eq!(&record["created_at"], err_data.get("time").unwrap());
             assert_eq!(error.kind().http_status(), Status::TooManyRequests);
         }
     }
@@ -231,9 +231,9 @@ fn check_complaint() {
 pub struct DbMockComplaint;
 
 impl Db for DbMockComplaint {
-    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<DeliveryProblem>> {
+    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<LegacyDeliveryProblem>> {
         let now = now_as_milliseconds();
-        Ok(vec![DeliveryProblem {
+        Ok(vec![LegacyDeliveryProblem {
             address: "baz@example.com".parse().unwrap(),
             problem_type: ProblemType::Complaint,
             problem_subtype: ProblemSubtype::Undetermined,
@@ -274,7 +274,7 @@ fn check_db_error() {
 pub struct DbMockError;
 
 impl Db for DbMockError {
-    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<DeliveryProblem>> {
+    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<LegacyDeliveryProblem>> {
         Err(AppErrorKind::AuthDbError(String::from("wibble blee")).into())
     }
 }
@@ -307,58 +307,58 @@ fn check_no_bounces_with_nonzero_limits() {
 pub struct DbMockNoBounceWithNonZeroLimits;
 
 impl Db for DbMockNoBounceWithNonZeroLimits {
-    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<DeliveryProblem>> {
+    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<LegacyDeliveryProblem>> {
         let now = now_as_milliseconds();
         Ok(vec![
-            DeliveryProblem {
+            LegacyDeliveryProblem {
                 address: "foo@example.com".parse().unwrap(),
                 problem_type: ProblemType::SoftBounce,
                 problem_subtype: ProblemSubtype::Undetermined,
                 created_at: now - DAY + MINUTE,
             },
-            DeliveryProblem {
+            LegacyDeliveryProblem {
                 address: "foo@example.com".parse().unwrap(),
                 problem_type: ProblemType::HardBounce,
                 problem_subtype: ProblemSubtype::Undetermined,
                 created_at: now - WEEK + MINUTE,
             },
-            DeliveryProblem {
+            LegacyDeliveryProblem {
                 address: "foo@example.com".parse().unwrap(),
                 problem_type: ProblemType::Complaint,
                 problem_subtype: ProblemSubtype::Undetermined,
                 created_at: now - MONTH + MINUTE,
             },
-            DeliveryProblem {
+            LegacyDeliveryProblem {
                 address: "foo@example.com".parse().unwrap(),
                 problem_type: ProblemType::SoftBounce,
                 problem_subtype: ProblemSubtype::Undetermined,
                 created_at: now - DAY + SECOND * 2,
             },
-            DeliveryProblem {
+            LegacyDeliveryProblem {
                 address: "foo@example.com".parse().unwrap(),
                 problem_type: ProblemType::HardBounce,
                 problem_subtype: ProblemSubtype::Undetermined,
                 created_at: now - WEEK + SECOND * 2,
             },
-            DeliveryProblem {
+            LegacyDeliveryProblem {
                 address: "foo@example.com".parse().unwrap(),
                 problem_type: ProblemType::Complaint,
                 problem_subtype: ProblemSubtype::Undetermined,
                 created_at: now - MONTH + SECOND * 2,
             },
-            DeliveryProblem {
+            LegacyDeliveryProblem {
                 address: "foo@example.com".parse().unwrap(),
                 problem_type: ProblemType::SoftBounce,
                 problem_subtype: ProblemSubtype::Undetermined,
                 created_at: now - DAY - 1000,
             },
-            DeliveryProblem {
+            LegacyDeliveryProblem {
                 address: "foo@example.com".parse().unwrap(),
                 problem_type: ProblemType::HardBounce,
                 problem_subtype: ProblemSubtype::Undetermined,
                 created_at: now - WEEK - 1000,
             },
-            DeliveryProblem {
+            LegacyDeliveryProblem {
                 address: "foo@example.com".parse().unwrap(),
                 problem_type: ProblemType::Complaint,
                 problem_subtype: ProblemSubtype::Undetermined,
@@ -399,8 +399,8 @@ fn check_bounce_with_multiple_limits() {
             let problem = err_data.get("problem");
             assert!(problem.is_some());
             let record: Json = serde_json::from_str(problem.unwrap().as_str().unwrap()).unwrap();
-            assert_eq!(record["bounceType"], 2);
-            assert_eq!(&record["createdAt"], err_data.get("time").unwrap());
+            assert_eq!(record["problem_type"], 2);
+            assert_eq!(&record["created_at"], err_data.get("time").unwrap());
         }
     }
 }
@@ -409,28 +409,28 @@ fn check_bounce_with_multiple_limits() {
 pub struct DbMockBounceWithMultipleLimits;
 
 impl Db for DbMockBounceWithMultipleLimits {
-    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<DeliveryProblem>> {
+    fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<LegacyDeliveryProblem>> {
         let now = now_as_milliseconds();
         Ok(vec![
-            DeliveryProblem {
+            LegacyDeliveryProblem {
                 address: "foo@example.com".parse().unwrap(),
                 problem_type: ProblemType::SoftBounce,
                 problem_subtype: ProblemSubtype::Undetermined,
                 created_at: now - SECOND * 4,
             },
-            DeliveryProblem {
+            LegacyDeliveryProblem {
                 address: "foo@example.com".parse().unwrap(),
                 problem_type: ProblemType::SoftBounce,
                 problem_subtype: ProblemSubtype::Undetermined,
                 created_at: now - MINUTE * 2 + SECOND * 4,
             },
-            DeliveryProblem {
+            LegacyDeliveryProblem {
                 address: "foo@example.com".parse().unwrap(),
                 problem_type: ProblemType::SoftBounce,
                 problem_subtype: ProblemSubtype::Undetermined,
                 created_at: now - MINUTE * 2 + SECOND * 3,
             },
-            DeliveryProblem {
+            LegacyDeliveryProblem {
                 address: "foo@example.com".parse().unwrap(),
                 problem_type: ProblemType::SoftBounce,
                 problem_subtype: ProblemSubtype::Undetermined,
@@ -537,16 +537,13 @@ fn record_complaint() {
 
 #[derive(Debug, Deserialize, Eq, PartialEq)]
 struct AssertFriendlyDeliveryProblem {
-    #[serde(rename = "email")]
     pub address: EmailAddress,
-    #[serde(rename = "bounceType")]
     pub problem_type: ProblemType,
-    #[serde(rename = "bounceSubType")]
     pub problem_subtype: ProblemSubtype,
 }
 
-impl From<DeliveryProblem> for AssertFriendlyDeliveryProblem {
-    fn from(source: DeliveryProblem) -> Self {
+impl From<LegacyDeliveryProblem> for AssertFriendlyDeliveryProblem {
+    fn from(source: LegacyDeliveryProblem) -> Self {
         Self {
             address: source.address,
             problem_type: source.problem_type,
