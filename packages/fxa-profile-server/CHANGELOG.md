@@ -1,3 +1,14 @@
+<a name="1.123.0"></a>
+# [1.123.0](https://github.com/mozilla/fxa-profile-server/compare/v1.122.0...v1.123.0) (2018-10-16)
+
+
+### Features
+
+* **profile:** invalidate cache when profileChangedAt is older than id token value ([556a682](https://github.com/mozilla/fxa-profile-server/commit/556a682))
+* **profile:** invalidate cache when profileChangedAt is older than id token value (#343), r=@r ([a26db23](https://github.com/mozilla/fxa-profile-server/commit/a26db23))
+
+
+
 <a name="1.122.0"></a>
 # [1.122.0](https://github.com/mozilla/fxa-profile-server/compare/v1.121.0...v1.122.0) (2018-10-02)
 
