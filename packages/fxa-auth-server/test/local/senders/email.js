@@ -844,6 +844,7 @@ describe(
             assert.equal(emailEventLog.args[0].flow_id, 'wibble', 'logs flow id')
             assert.equal(emailEventLog.args[0].template, 'verifyLoginEmail', 'logs correct template')
             assert.equal(emailEventLog.args[0].type, 'sent', 'logs correct type')
+            assert.equal(emailEventLog.args[0].locale, 'en')
             const mailerSend1 = mockLog.info.getCalls()[1]
             assert.equal(mailerSend1.args[0].op, 'mailer.send.1', 'logs mailer.send.1')
             assert.equal(mailerSend1.args[0].to, message.email, 'logs sender to email address')
