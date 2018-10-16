@@ -38,6 +38,7 @@
     "backbone": "1.1.1",
     "backbone.cocktail": "git://github.com/onsi/cocktail.git#87971c88e2e4f904a0984b5f236ee5dbb21ddb4a",
     "base32-decode": "1.0.0",
+    "base64url": "3.0.0",
     "blueimp-canvas-to-blob": "2.1.0",
     "body-parser": "1.18.2",
     "celebrate": "7.0.3",
