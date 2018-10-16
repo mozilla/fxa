@@ -50,16 +50,29 @@ fn create_bounce() {
             &email_addresses[1],
             ProblemType::SoftBounce,
             ProblemSubtype::MailboxFull,
-        ).and_then(|_| db.get_bounces(&email_addresses[1]))
+        ).and_then(|_| {
+            db.create_bounce(
+                &email_addresses[1],
+                ProblemType::Complaint,
+                ProblemSubtype::Virus,
+            )
+        }).and_then(|_| db.get_bounces(&email_addresses[1]))
         .expect("db error");
     let now = now_as_milliseconds();
 
-    let second_bounce = &bounces_after[0];
+    let second_bounce = &bounces_after[1];
     assert_eq!(second_bounce.address, email_addresses[1]);
     assert_eq!(second_bounce.problem_type, ProblemType::SoftBounce);
     assert_eq!(second_bounce.problem_subtype, ProblemSubtype::MailboxFull);
     assert!(second_bounce.created_at > now - 1000);
     assert!(second_bounce.created_at > bounce.created_at);
+
+    let third_bounce = &bounces_after[0];
+    assert_eq!(third_bounce.address, email_addresses[1]);
+    assert_eq!(third_bounce.problem_type, ProblemType::Complaint);
+    assert_eq!(third_bounce.problem_subtype, ProblemSubtype::Virus);
+    assert!(third_bounce.created_at > now - 1000);
+    assert!(third_bounce.created_at > second_bounce.created_at);
 }
 
 fn generate_email_address(variant: &str) -> EmailAddress {
