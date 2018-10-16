@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
+use std::{thread::sleep, time::Duration};
+
 use rocket::http::Status;
 use serde_json::{self, Value as Json};
 
@@ -441,24 +443,39 @@ fn record_bounce() {
     let db = DbClient::new(&settings);
     let problems = DeliveryProblems::new(&settings, db);
     let address = create_address("record_bounce");
+
     problems
         .record_bounce(
             &address,
             BounceType::Transient,
             BounceSubtype::AttachmentRejected,
         ).unwrap();
+
+    // Ensure there is an observable difference between timestamps
+    sleep(Duration::from_millis(2));
+
+    problems
+        .record_bounce(&address, BounceType::Permanent, BounceSubtype::General)
+        .unwrap();
+
     let db = DbClient::new(&settings);
     let bounce_records = db.get_bounces(&address).unwrap();
     let now = now_as_milliseconds();
-    assert_eq!(bounce_records.len(), 1);
+    assert_eq!(bounce_records.len(), 2);
     assert_eq!(bounce_records[0].address, address);
-    assert_eq!(bounce_records[0].problem_type, ProblemType::SoftBounce);
-    assert_eq!(
-        bounce_records[0].problem_subtype,
-        ProblemSubtype::AttachmentRejected
-    );
+    assert_eq!(bounce_records[0].problem_type, ProblemType::HardBounce);
+    assert_eq!(bounce_records[0].problem_subtype, ProblemSubtype::General);
     assert!(bounce_records[0].created_at < now);
     assert!(bounce_records[0].created_at > now - 1000);
+
+    assert_eq!(bounce_records[1].address, address);
+    assert_eq!(bounce_records[1].problem_type, ProblemType::SoftBounce);
+    assert_eq!(
+        bounce_records[1].problem_subtype,
+        ProblemSubtype::AttachmentRejected
+    );
+    assert!(bounce_records[1].created_at < now);
+    assert!(bounce_records[1].created_at < bounce_records[0].created_at);
 }
 
 fn create_address(test: &str) -> EmailAddress {
