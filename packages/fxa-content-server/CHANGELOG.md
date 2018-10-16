@@ -1,3 +1,22 @@
+<a name="1.123.0"></a>
+# [1.123.0](https://github.com/mozilla/fxa-content-server/compare/v1.122.4...v1.123.0) (2018-10-16)
+
+
+### Bug Fixes
+
+* **checkbox:** adds some margin to checkboxes ([7a52a69](https://github.com/mozilla/fxa-content-server/commit/7a52a69))
+* **force_auth:** mention service name in force_auth ([cabfc06](https://github.com/mozilla/fxa-content-server/commit/cabfc06)), closes [#4928](https://github.com/mozilla/fxa-content-server/issues/4928)
+* **metrics:** stop sending metrics context to deprecated endpoints ([f5e30d0](https://github.com/mozilla/fxa-content-server/commit/f5e30d0))
+* **test:** Upgrade intern to 4.3.1 so tests run in fx 63 ([b555105](https://github.com/mozilla/fxa-content-server/commit/b555105)), closes [#6542](https://github.com/mozilla/fxa-content-server/issues/6542)
+* **totp:** call proto `afterCompleteSignInWithCode` after entering valid totp code ([f8c5a32](https://github.com/mozilla/fxa-content-server/commit/f8c5a32))
+
+### Features
+
+* **routes:** add support for .well-known/change-password ([6d5662d](https://github.com/mozilla/fxa-content-server/commit/6d5662d)), closes [#6561](https://github.com/mozilla/fxa-content-server/issues/6561)
+* **sms:** add padlock to sms submit form ([1c7f105](https://github.com/mozilla/fxa-content-server/commit/1c7f105)), closes [#5856](https://github.com/mozilla/fxa-content-server/issues/5856)
+
+
+
 <a name="1.122.4"></a>
 ## [1.122.4](https://github.com/mozilla/fxa-content-server/compare/v1.122.3...v1.122.4) (2018-10-12)
 
