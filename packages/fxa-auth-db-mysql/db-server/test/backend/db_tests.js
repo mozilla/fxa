@@ -1523,20 +1523,26 @@ module.exports = function (config, DB) {
     it(
       'emailBounces',
       () => {
-        const data = {
-          email: ('' + Math.random()).substr(2) + '@email.bounces',
+        const email = `${`${Math.random()}`.substr(2)}@example.com`
+        return db.createEmailBounce({
+          email,
           bounceType: 'Permanent',
           bounceSubType: 'NoEmail'
-        }
-        return db.createEmailBounce(data)
-          .then(() => {
-            return db.fetchEmailBounces(data.email)
-          })
+        })
+          .then(() => db.createEmailBounce({
+            email,
+            bounceType: 'Transient',
+            bounceSubType: 'General'
+          }))
+          .then(() => db.fetchEmailBounces(email))
           .then(bounces => {
-            assert.equal(bounces.length, 1)
-            assert.equal(bounces[0].email, data.email)
-            assert.equal(bounces[0].bounceType, 1)
-            assert.equal(bounces[0].bounceSubType, 3)
+            assert.equal(bounces.length, 2)
+            assert.equal(bounces[0].email, email)
+            assert.equal(bounces[0].bounceType, 2)
+            assert.equal(bounces[0].bounceSubType, 2)
+            assert.equal(bounces[1].email, email)
+            assert.equal(bounces[1].bounceType, 1)
+            assert.equal(bounces[1].bounceSubType, 3)
           })
       }
     )
