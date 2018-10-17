@@ -37,7 +37,7 @@ module.exports = {
       trusted: Joi.boolean().required()
     }
   },
-  handler: function registerEndpoint(req, reply) {
+  handler: async function registerEndpoint(req, h) {
     var payload = req.payload;
     var secret = unique.secret();
     var client = {
@@ -68,7 +68,7 @@ module.exports = {
         return db.registerClientDeveloper(developerId, hex(client.id));
       })
       .then(function() {
-        reply({
+        return h.response({
           id: hex(client.id),
           secret: hex(secret),
           name: client.name,
@@ -77,6 +77,6 @@ module.exports = {
           can_grant: client.canGrant,
           trusted: client.trusted
         }).code(201);
-      }, reply);
+      });
   }
 };

@@ -136,7 +136,7 @@ function deleteByClientId(object, clientId) {
 
 MemoryStore.prototype = {
   ping: function ping() {
-    return P.resolve();
+    return P.resolve({});
   },
   registerClient: function registerClient(client) {
     if (client.id) {

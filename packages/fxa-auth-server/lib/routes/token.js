@@ -171,10 +171,10 @@ module.exports = {
       keys_jwe: validators.jwe.optional()
     })
   },
-  handler: function tokenEndpoint(req, reply) {
+  handler: async function tokenEndpoint(req) {
     var params = req.payload;
     params.scope = ScopeSet.fromString(params.scope || '');
-    P.try(function() {
+    return P.try(function() {
 
       // Clients are allowed to provide credentials in either
       // the Authorization header or request body.  Normalize.
@@ -237,8 +237,7 @@ module.exports = {
       }
       return vals;
     })
-    .then(generateTokens)
-    .done(reply, reply);
+    .then(generateTokens);
   }
 };
 

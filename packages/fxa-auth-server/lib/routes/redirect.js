@@ -27,15 +27,15 @@ function actionToPathname(action) {
 }
 
 module.exports = {
-  handler: function redirectAuthorization(req, reply) {
+  handler: async function redirectAuthorization(req, h) {
     var redirect = url.parse(config.get('contentUrl'), true);
     var err = false;
 
     try {
-      redirect.pathname += actionToPathname(req.query.action, reply);
+      redirect.pathname += actionToPathname(req.query.action);
     } catch (e) {
       err = true;
-      reply(AppError.invalidRequestParameter('action'));
+      throw AppError.invalidRequestParameter('action');
     }
 
     if (! err) {
@@ -56,7 +56,7 @@ module.exports = {
 
       delete redirect.search;
       delete redirect.path;
-      reply().redirect(url.format(redirect));
+      return h.redirect(url.format(redirect));
     }
   }
 };

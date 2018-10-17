@@ -39,13 +39,13 @@ module.exports = {
       )
     }
   },
-  handler: function listEndpoint(req, reply) {
-    var developerEmail = req.auth.credentials.email;
+  handler: async function listEndpoint(req) {
+    const developerEmail = req.auth.credentials.email;
 
-    db.getClients(developerEmail).done(function(clients) {
-      reply({
+    return db.getClients(developerEmail).then(function(clients) {
+      return {
         clients: clients.map(serialize)
-      });
-    }, reply);
+      };
+    });
   }
 };

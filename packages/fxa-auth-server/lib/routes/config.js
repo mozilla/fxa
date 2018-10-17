@@ -13,7 +13,7 @@ const CONFIG = {
 };
 
 module.exports = {
-  handler: function configRoute(req, reply) {
-    reply(CONFIG);
+  handler: async function configRoute() {
+    return CONFIG;
   }
 };

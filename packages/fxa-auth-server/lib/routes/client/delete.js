@@ -17,19 +17,19 @@ module.exports = {
       client_id: validators.clientId
     }
   },
-  handler: function clientDeleteEndpoint(req, reply) {
+  handler: async function clientDeleteEndpoint(req, h) {
     var email = req.auth.credentials.email;
     var clientId = req.params.client_id;
 
     return db.developerOwnsClient(email, clientId)
       .then(
         function () {
-          return db.removeClient(clientId).done(function() {
-            reply().code(204);
-          }, reply);
+          return db.removeClient(clientId).then(function() {
+            return h.response({}).code(204);
+          });
         },
         function () {
-          return reply(AppError.unauthorized('Illegal Developer'));
+          throw new AppError.unauthorized('Illegal Developer');
         }
       );
   }

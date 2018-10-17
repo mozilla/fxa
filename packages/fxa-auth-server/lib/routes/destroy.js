@@ -19,7 +19,7 @@ module.exports = {
       refresh_token: validators.token
     }).rename('token', 'access_token').xor('access_token', 'refresh_token')
   },
-  handler: function destroyToken(req, reply) {
+  handler: async function destroyToken(req) {
     var token;
     var getToken;
     var removeToken;
@@ -33,13 +33,13 @@ module.exports = {
       token = encrypt.hash(req.payload.refresh_token);
     }
 
-    db[getToken](token).then(function(tok) {
+    return db[getToken](token).then(function(tok) {
       if (! tok) {
         throw AppError.invalidToken();
       }
       return db[removeToken](token);
-    }).done(function() {
-      reply({});
-    }, reply);
+    }).then(function() {
+      return {};
+    });
   }
 };

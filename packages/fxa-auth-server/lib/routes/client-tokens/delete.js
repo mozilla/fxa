@@ -10,11 +10,11 @@ module.exports = {
     strategy: 'authBearer',
     scope: SCOPE_CLIENT_WRITE.getImplicantValues()
   },
-  handler: function activeServices(req, reply) {
+  handler: async function activeServices(req) {
     var clientId = req.params.client_id;
     return db.deleteClientAuthorization(clientId, req.auth.credentials.user)
-      .done(function() {
-        reply({});
-      }, reply);
+      .then(function() {
+        return {};
+      });
   }
 };

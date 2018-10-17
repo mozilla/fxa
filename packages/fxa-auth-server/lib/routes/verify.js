@@ -24,8 +24,8 @@ module.exports = {
       profile_changed_at: Joi.number().min(0)
     }
   },
-  handler: function verify(req, reply) {
-    token.verify(req.payload.token).then(function(info) {
+  handler: async function verify(req) {
+    return token.verify(req.payload.token).then(function(info) {
       info.scope = info.scope.getScopeValues();
       if (req.payload.email !== undefined) {
         logger.warn('email.requested', {
@@ -40,6 +40,6 @@ module.exports = {
         scope: info.scope
       });
       return info;
-    }).done(reply, reply);
+    });
   }
 };

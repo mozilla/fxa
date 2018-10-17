@@ -214,14 +214,14 @@ module.exports = {
       'access_token'
     ])
   },
-  handler: function authorizationEndpoint(req, reply) {
+  handler: async function authorizationEndpoint(req) {
     /*eslint complexity: [2, 13] */
     logger.debug('response_type', req.payload.response_type);
     var start = Date.now();
     var wantsGrant = req.payload.response_type === TOKEN;
     var exitEarly = false;
     var scope = ScopeSet.fromString(req.payload.scope || '');
-    P.all([
+    return P.all([
       verify(req.payload.assertion).then(function(claims) {
         logger.info('time.browserid_verify', { ms: Date.now() - start });
         if (! claims) {
@@ -303,7 +303,6 @@ module.exports = {
       scope,
       req
     ])
-    .spread(wantsGrant ? generateGrant : generateCode)
-    .done(reply, reply);
+    .spread(wantsGrant ? generateGrant : generateCode);
   }
 };

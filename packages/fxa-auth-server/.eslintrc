@@ -5,3 +5,6 @@ extends: plugin:fxa/server
 rules:
   handle-callback-err: 0
   semi: [2, "always"]
+
+parserOptions:
+  ecmaVersion: 2017
