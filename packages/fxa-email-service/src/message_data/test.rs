@@ -4,82 +4,40 @@
 
 use std::time::SystemTime;
 
-use hmac::{Hmac, Mac};
-use redis::{Client as RedisClient, Commands};
-use sha2::Sha256;
-
 use super::*;
-use settings::Settings;
-
-#[derive(Debug)]
-struct TestFixture {
-    pub unhashed_key: String,
-    pub internal_key: String,
-    pub message_data: MessageData,
-    pub redis_client: RedisClient,
-}
+use db::test::TestFixture;
 
 #[test]
 fn set() {
-    let test = TestFixture::setup("set");
-    if let Err(error) = test.message_data.set(test.unhashed_key.as_str(), "wibble") {
-        assert!(false, format!("{}", error));
+    let settings = Settings::new().unwrap();
+    let message_data = MessageData::new(&settings);
+    let key = create_key("set");
+    let test = TestFixture::setup(&settings, &key, DataType::MessageData);
+
+    if let Err(error) = message_data.set(&key, "wibble") {
+        assert!(false, format!("{:?}", error));
     } else {
-        let key_exists: bool = test
-            .redis_client
-            .exists(test.unhashed_key.as_str())
-            .unwrap();
-        assert!(!key_exists, "unhashed key should not exist in redis");
-        let value: String = test.redis_client.get(test.internal_key.as_str()).unwrap();
-        assert_eq!(value, "\"wibble\"");
+        test.assert_data(String::from("wibble"));
     }
 }
 
 #[test]
 fn consume() {
-    let test = TestFixture::setup("consume");
-    test.message_data
-        .set(test.unhashed_key.as_str(), "blee")
-        .unwrap();
-    assert_eq!(
-        test.message_data
-            .consume(&test.unhashed_key)
-            .unwrap()
-            .unwrap(),
-        "blee"
-    );
-    let key_exists: bool = test
-        .redis_client
-        .exists(test.internal_key.as_str())
-        .unwrap();
-    assert!(
-        !key_exists,
-        "internal key should not exist in redis after being consumed"
-    );
-    assert!(
-        test.message_data
-            .consume(&test.unhashed_key)
-            .unwrap()
-            .is_none()
-    );
+    let settings = Settings::new().unwrap();
+    let message_data = MessageData::new(&settings);
+    let key = create_key("consume");
+    let test = TestFixture::setup(&settings, &key, DataType::MessageData);
+
+    message_data.set(&key, "blee").unwrap();
+
+    assert_eq!(message_data.consume(&key).unwrap().unwrap(), "blee");
+    test.assert_not_set();
+
+    assert!(message_data.consume(&key).unwrap().is_none());
 }
 
-impl TestFixture {
-    pub fn setup(test: &str) -> TestFixture {
-        let settings = Settings::new().expect("config error");
-        let unhashed_key = format!("fxa-email-service.test.message-data.{}.{}", test, now());
-        let mut hmac = Hmac::<Sha256>::new_varkey(settings.hmackey.as_bytes()).unwrap();
-        hmac.input(unhashed_key.as_bytes());
-        let internal_key = format!("msg:{:x}", hmac.result().code());
-        TestFixture {
-            unhashed_key,
-            internal_key,
-            message_data: MessageData::new(&settings),
-            redis_client: RedisClient::open(
-                format!("redis://{}:{}/", settings.redis.host, settings.redis.port).as_str(),
-            ).unwrap(),
-        }
-    }
+fn create_key(test: &str) -> String {
+    format!("fxa-email-service.test.msg.{}.{}", test, now())
 }
 
 fn now() -> u64 {
