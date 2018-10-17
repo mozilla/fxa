@@ -36,7 +36,7 @@ describe('db/mysql:', function() {
   beforeEach(function() {
     sandbox = sinon.sandbox.create();
 
-    sandbox.stub(dependencies['../../config'], 'get', function() {
+    sandbox.stub(dependencies['../../config'], 'get').callsFake(function() {
       return 'mock config.get result';
     });
     instances.logger = {
@@ -70,15 +70,15 @@ describe('db/mysql:', function() {
         end: nop,
         currentPatchLevel: dependencies['./patch'].level
       };
-      sandbox.stub(instances.patcher, 'connect', callback);
-      sandbox.stub(instances.patcher, 'patch', nop);
-      sandbox.stub(instances.patcher, 'end', callback);
-      sandbox.stub(process, 'exit', nop);
+      sandbox.stub(instances.patcher, 'connect').callsFake(callback);
+      sandbox.stub(instances.patcher, 'patch').callsFake(nop);
+      sandbox.stub(instances.patcher, 'end').callsFake(callback);
+      sandbox.stub(process, 'exit').callsFake(nop);
     });
 
     describe('readDbPatchLevel succeeds:', function() {
       beforeEach(function() {
-        sandbox.stub(instances.patcher, 'readDbPatchLevel', function(callback) {
+        sandbox.stub(instances.patcher, 'readDbPatchLevel').callsFake(function(callback) {
           callback();
         });
       });
@@ -167,7 +167,7 @@ describe('db/mysql:', function() {
       var result;
 
       beforeEach(function() {
-        sandbox.stub(instances.patcher, 'readDbPatchLevel', function(callback) {
+        sandbox.stub(instances.patcher, 'readDbPatchLevel').callsFake(function(callback) {
           callback(new Error('foo'));
         });
         return mysql.connect({ logger: instances.logger }).catch(function(err) {
@@ -213,7 +213,7 @@ describe('db/mysql:', function() {
       };
 
       store = new MysqlStore({});
-      sinon.stub(store._pool, 'getConnection', function(cb) {
+      sinon.stub(store._pool, 'getConnection').callsFake(function(cb) {
         cb(null, mockConnection);
       });
     });

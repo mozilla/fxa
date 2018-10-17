@@ -29,7 +29,7 @@ describe('authBearer', function() {
   beforeEach(function() {
     sandbox = sinon.sandbox.create();
 
-    sandbox.stub(dependencies['../../../lib/token'], 'verify', function() {
+    sandbox.stub(dependencies['../../../lib/token'], 'verify').callsFake(function() {
       return P.resolve({
         scope: ScopeSet.fromArray(['bar:foo', 'clients:write']),
         user: 'bar'
@@ -79,7 +79,7 @@ describe('authBearer', function() {
       sandbox.restore();
       sandbox = sinon.sandbox.create();
 
-      sandbox.stub(dependencies['../../../lib/token'], 'verify', function() {
+      sandbox.stub(dependencies['../../../lib/token'], 'verify').callsFake(function() {
         return P.reject(AppError.invalidToken());
       });
 

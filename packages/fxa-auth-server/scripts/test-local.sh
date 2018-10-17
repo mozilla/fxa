@@ -11,7 +11,7 @@ if [ -z "$GLOB" ]; then
   GLOB="test/*.js test/routes/*.js test/db/*.js"
 fi
 
-DEFAULT_ARGS="-R spec --timeout 20000 --recursive"
+DEFAULT_ARGS="-R spec --timeout 20000 --recursive --exit"
 
 ./scripts/mocha-coverage.js $DEFAULT_ARGS $GLOB
 grunt lint copyright
