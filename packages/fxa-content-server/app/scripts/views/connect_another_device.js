@@ -223,7 +223,8 @@ define(function (require, exports, module) {
      * @private
      */
     _showSuccessMessage () {
-      return !! this.model.get('showSuccessMessage');
+      return !! this.model.get('showSuccessMessage') ||
+             !! this.getSearchParam('showSuccessMessage');
     }
 
     /**

@@ -360,6 +360,24 @@ define(function (require, exports, module) {
         });
       });
 
+      describe('with showSuccessMessage in the search params', () => {
+        beforeEach(() => {
+          sinon.stub(view, '_isSignedIn').callsFake(() => true);
+
+          windowMock.navigator.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
+          windowMock.location.search = 'showSuccessMessage=true';
+
+          return view.render()
+            .then(() => {
+              view.afterVisible();
+            });
+        });
+
+        it('shows the success message', () => {
+          assert.lengthOf(view.$('.success'), 1);
+        });
+      });
+
       describe('with showSuccessMessage set to false for a user that can send an SMS', () => {
         beforeEach(() => {
           model.set('showSuccessMessage', false);
