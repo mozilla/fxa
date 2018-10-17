@@ -108,7 +108,7 @@ MysqlStore.connect = function mysqlConnect(options) {
   options.mysql = mysql;
   var patcher = new MysqlPatcher(options);
 
-  return P.promisify(patcher.connect, patcher)().then(function() {
+  return P.promisify(patcher.connect, {context: patcher})().then(function() {
     if (options.createSchema) {
       return updateDbSchema(patcher);
     }
@@ -118,7 +118,7 @@ MysqlStore.connect = function mysqlConnect(options) {
     logger.error('checkDbPatchLevel', error);
     throw error;
   }).finally(function () {
-    return P.promisify(patcher.end, patcher)();
+    return P.promisify(patcher.end, {context: patcher})();
   }).then(function() {
     return new MysqlStore(options);
   });
