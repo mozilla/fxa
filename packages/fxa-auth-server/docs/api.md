@@ -363,7 +363,7 @@ those common validations are defined here.
 * `URL_SAFE_BASE_64`: `/^[A-Za-z0-9_-]+$/`
 * `DISPLAY_SAFE_UNICODE`: `/^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFF])*$/`
 * `DISPLAY_SAFE_UNICODE_WITH_NON_BMP`: `/^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uE000-\uF8FF\uFFF9-\uFFFF])*$/`
-* `service`: `string, max(16), regex(/^[a-zA-Z0-9\-]*$/g)`
+* `service`: `string, max(16), regex(/^[a-zA-Z0-9\-]*$/)`
 * `verificationMethod`: `string, valid()`
 * `authPW`: `string, length(64), regex(HEX_STRING), required`
 * `wrapKb`: `string, length(64), regex(/^(?:[a-fA-F0-9]{2})+$/)`
