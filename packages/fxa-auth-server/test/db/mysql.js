@@ -34,7 +34,7 @@ describe('db/mysql:', function() {
   var sandbox, mysql;
 
   beforeEach(function() {
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
 
     sandbox.stub(dependencies['../../config'], 'get').callsFake(function() {
       return 'mock config.get result';

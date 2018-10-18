@@ -21,19 +21,19 @@ exports.SCOPE_CLIENT_MANAGEMENT = ScopeSet.fromArray(['oauth']);
 
 exports.strategy = function() {
   return {
-    authenticate: function dogfoodStrategy(req, reply) {
+    authenticate: async function dogfoodStrategy(req, h) {
       var auth = req.headers.authorization;
       logger.debug('check.auth', { header: auth });
       if (! auth || auth.indexOf('Bearer ') !== 0) {
-        return reply(AppError.unauthorized('Bearer token not provided'));
+        throw AppError.unauthorized('Bearer token not provided');
       }
       var tok = auth.split(' ')[1];
 
       if (! validators.HEX_STRING.test(tok)) {
-        return reply(AppError.unauthorized('Illegal Bearer token'));
+        throw AppError.unauthorized('Illegal Bearer token');
       }
 
-      token.verify(tok).done(function tokenFound(details) {
+      return token.verify(tok).then(function tokenFound(details) {
         if (details.scope.contains(exports.SCOPE_CLIENT_MANAGEMENT)) {
           logger.debug('check.whitelist');
           var blocked = ! WHITELIST.some(function(re) {
@@ -44,18 +44,16 @@ exports.strategy = function() {
               email: details.email,
               token: tok
             });
-            return reply(AppError.forbidden());
+            throw AppError.forbidden();
           }
         }
 
         logger.info('success', details);
         details.scope = details.scope.getScopeValues();
-        reply.continue({
-          credentials: details
-        });
+        return h.authenticated({credentials: details});
       }, function noToken(err) {
         logger.debug('error', err);
-        reply(AppError.unauthorized('Bearer token invalid'));
+        throw AppError.unauthorized('Bearer token invalid');
       });
     }
   };

@@ -25,22 +25,34 @@ module.exports = {
       redirect_uri: Joi.string().required().allow('')
     }
   },
-  handler: function requestInfoEndpoint(req, reply) {
+  handler: async function requestInfoEndpoint(req) {
     var params = req.params;
-    db.getClient(Buffer.from(params.client_id, 'hex')).then(function(client) {
-      if (! client) {
-        logger.debug('notFound', { id: params.client_id });
-        throw AppError.unknownClient(params.client_id);
-      }
-      return client;
-    }).done(function(client) {
-      reply({
-        id: hex(client.id),
-        name: client.name,
-        trusted: client.trusted,
-        image_uri: client.imageUri,
-        redirect_uri: client.redirectUri
+
+    function makeReq() {
+      return new Promise((resolve) => {
+        return db.getClient(Buffer.from(params.client_id, 'hex')).then(function (client) {
+          if (! client) {
+            logger.debug('notFound', {id: params.client_id});
+            throw AppError.unknownClient(params.client_id);
+          }
+          return client;
+        }).done(function (client) {
+          resolve({
+            id: hex(client.id),
+            name: client.name,
+            trusted: client.trusted,
+            image_uri: client.imageUri,
+            redirect_uri: client.redirectUri
+          });
+        });
       });
-    }, reply);
+    }
+
+    return makeReq().then((resp) => {
+      return resp;
+    })
+      .catch((err) => {
+        throw err;
+      });
   }
 };

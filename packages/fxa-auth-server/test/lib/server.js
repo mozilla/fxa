@@ -7,12 +7,14 @@ const Server = require('../../lib/server');
 const Internal = require('../../lib/server/internal');
 const version = require('../../lib/config').get('api.version');
 
-function wrapServer(server) {
+function wrapServer(serverPromise) {
   var wrap = {};
   function request(options) {
-    var deferred = P.defer();
-    server.inject(options, deferred.resolve.bind(deferred));
-    return deferred.promise;
+    return new P(resolve => {
+      return serverPromise.then((s) => {
+        return s.inject(options);
+      }).then(resolve);
+    });
   }
 
   function opts(options) {

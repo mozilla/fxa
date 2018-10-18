@@ -29,12 +29,12 @@ module.exports = {
     strategy: 'authBearer',
     scope: SCOPE_CLIENT_WRITE.getImplicantValues()
   },
-  handler: function activeServices(req, reply) {
+  handler: async function activeServices(req) {
     return db.getActiveClientsByUid(req.auth.credentials.user)
-      .done(function(clients) {
-        reply(clients.map(function(client) {
+      .then(function(clients) {
+        return clients.map(function(client) {
           return serialize(client, req.headers['accept-language']);
-        }));
-      }, reply);
+        });
+      });
   }
 };

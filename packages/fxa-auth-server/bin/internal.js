@@ -5,11 +5,16 @@
 const config = require('../lib/config').getProperties();
 const db = require('../lib/db');
 const logger = require('../lib/logging')('bin.internal');
-const server = require('../lib/server/internal').create();
+const serverPromise = require('../lib/server/internal').create();
 
 logger.debug('config', config);
 db.ping().done(function() {
-  server.start(function() {
+  let server;
+
+  serverPromise.then((s) => {
+    server = s;
+    return server.start();
+  }).then(() => {
     logger.info('listening', server.info.uri);
   });
 }, function(err) {

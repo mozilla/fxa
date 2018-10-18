@@ -26,10 +26,10 @@ module.exports = {
       can_grant: Joi.boolean()
     }
   },
-  handler: function updateClientEndpoint(req, reply) {
-    var clientId = req.params.client_id;
-    var payload = req.payload;
-    var email = req.auth.credentials.email;
+  handler: async function updateClientEndpoint(req, reply) {
+    const clientId = req.params.client_id;
+    const payload = req.payload;
+    const email = req.auth.credentials.email;
 
     return db.developerOwnsClient(email, clientId)
       .then(
@@ -40,12 +40,12 @@ module.exports = {
             redirectUri: payload.redirect_uri,
             imageUri: payload.image_uri,
             canGrant: payload.can_grant
-          }).done(function() {
-            reply({});
-          }, reply);
+          }).then(function() {
+            return {};
+          });
         },
         function () {
-          return reply(AppError.unauthorized('Illegal Developer'));
+          throw AppError.unauthorized('Illegal Developer');
         }
       );
   }

@@ -19,28 +19,28 @@ exports.SCOPE_CLIENT_WRITE = authOAuthScope;
 
 exports.strategy = function() {
   return {
-    authenticate: function authBearerStrategy(req, reply) {
+    authenticate: async function authBearerStrategy(req, h) {
       var auth = req.headers.authorization;
 
       logger.debug(authName + '.check', { header: auth });
       if (! auth || auth.indexOf('Bearer ') !== 0) {
-        return reply(AppError.unauthorized('Bearer token not provided'));
+        throw AppError.unauthorized('Bearer token not provided');
       }
       var tok = auth.split(' ')[1];
 
       if (! validators.HEX_STRING.test(tok)) {
-        return reply(AppError.unauthorized('Illegal Bearer token'));
+        throw AppError.unauthorized('Illegal Bearer token');
       }
 
-      token.verify(tok).done(function tokenFound(details) {
+      return token.verify(tok).then(function tokenFound(details) {
         logger.info(authName + '.success', details);
         details.scope = details.scope.getScopeValues();
-        reply.continue({
+        return h.authenticated({
           credentials: details
         });
       }, function noToken(err) {
         logger.debug(authName + '.error', err);
-        reply(AppError.unauthorized('Bearer token invalid'));
+        throw AppError.unauthorized('Bearer token invalid');
       });
     }
   };

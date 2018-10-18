@@ -38,7 +38,7 @@ module.exports = {
       })
     ])
   },
-  handler: function keyDataRoute(req, reply) {
+  handler: async function keyDataRoute(req) {
     logger.debug('keyDataRoute.start', {
       params: req.params,
       payload: req.payload
@@ -47,7 +47,7 @@ module.exports = {
     const requestedScopes = ScopeSet.fromString(req.payload.scope);
     const requestedClientId = req.payload.client_id;
 
-    P.all([
+    return P.all([
       verify(req.payload.assertion),
       db.getClient(Buffer.from(requestedClientId, 'hex')).then((client) => {
         if (client) {
@@ -81,7 +81,7 @@ module.exports = {
       });
 
       return response;
-    })).done(reply, reply);
+    }));
 
   }
 };

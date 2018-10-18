@@ -249,7 +249,7 @@ MysqlStore.prototype = {
             logger.error('ping:', err);
             reject(err);
           } else {
-            resolve();
+            resolve({});
           }
         });
       });

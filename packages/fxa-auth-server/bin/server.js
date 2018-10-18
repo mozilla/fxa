@@ -5,15 +5,21 @@
 const config = require('../lib/config').getProperties();
 const db = require('../lib/db');
 const logger = require('../lib/logging')('bin.server');
-const server = require('../lib/server').create();
+const serverPromise = require('../lib/server').create();
 const events = require('../lib/events');
 
 logger.debug('config', config);
 db.ping().done(function() {
-  server.start(function() {
+  let server;
+
+  serverPromise.then((s) => {
+    server = s;
+    return server.start();
+  }).then(() => {
     logger.info('listening', server.info.uri);
+    events.start();
   });
-  events.start();
+
 }, function(err) {
   logger.critical('db.ping', err);
   process.exit(1);

@@ -18,7 +18,6 @@ describe('HPKP', function () {
   // the timeout needs to be upped
   this.timeout(5000);
 
-  var Server;
   var requestOptions = {
     method: 'GET',
     url: '/'
@@ -35,8 +34,9 @@ describe('HPKP', function () {
 
     it('should set report header', function (done) {
       process.env.HPKP_REPORT_ONLY = false;
-      Server = require('../lib/server').create();
-      Server.inject(requestOptions).then(function (res) {
+      require('../lib/server').create().then((Server) => {
+        return Server.inject(requestOptions);
+      }).then(function (res) {
         assert.equal(res.statusCode, 200);
         assert.equal(res.headers['public-key-pins'], 'pin-sha256="orlando="; pin-sha256="magic="; max-age=1; includeSubdomains');
         done();
@@ -45,8 +45,9 @@ describe('HPKP', function () {
 
     it('should set report-only header', function (done) {
       process.env.HPKP_REPORT_ONLY = true;
-      Server = require('../lib/server').create();
-      Server.inject(requestOptions).then(function (res) {
+      require('../lib/server').create().then((Server) => {
+        return Server.inject(requestOptions);
+      }).then(function (res) {
         assert.equal(res.statusCode, 200);
         assert.equal(res.headers['public-key-pins-report-only'], 'pin-sha256="orlando="; pin-sha256="magic="; max-age=1; includeSubdomains');
         done();
@@ -59,8 +60,9 @@ describe('HPKP', function () {
       process.env.HPKP_ENABLE = false;
 
       clearRequireCache();
-      Server = require('../lib/server').create();
-      Server.inject(requestOptions).then(function (res) {
+      require('../lib/server').create().then((Server) => {
+        return Server.inject(requestOptions);
+      }).then(function (res) {
         assert.equal(res.statusCode, 200);
         assert.equal(res.headers['public-key-pins'], undefined);
         assert.equal(res.headers['public-key-pins-report-only'], undefined);

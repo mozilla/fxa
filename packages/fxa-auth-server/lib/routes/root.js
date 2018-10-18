@@ -18,9 +18,9 @@ try {
 }
 
 module.exports = {
-  handler: function index(req, reply) {
+  handler: async function index(req, h) {
     function sendReply() {
-      reply({
+      return h.response({
         version: version,
         commit: commitHash,
         source: source
@@ -31,16 +31,24 @@ module.exports = {
       return sendReply();
     }
 
-    // figure it out from .git
-    var gitDir = path.resolve(__dirname, '..', '..', '.git');
-    exec('git rev-parse HEAD', { cwd: gitDir }, function(err, stdout) {
-      commitHash = stdout.replace(/\s+/, '');
-      var configPath = path.join(gitDir, 'config');
-      var cmd = 'git config --get remote.origin.url';
-      exec(cmd, { env: { GIT_CONFIG: configPath, PATH: process.env.PATH }}, function(err, stdout) {
-        source = stdout.replace(/\s+/, '');
-        return sendReply();
+    function runGitCmd() {
+      return new Promise((resolve) => {
+        // figure it out from .git
+        var gitDir = path.resolve(__dirname, '..', '..', '.git');
+        exec('git rev-parse HEAD', { cwd: gitDir }, function(err, stdout) {
+          commitHash = stdout.replace(/\s+/, '');
+          var configPath = path.join(gitDir, 'config');
+          var cmd = 'git config --get remote.origin.url';
+          exec(cmd, { env: { GIT_CONFIG: configPath, PATH: process.env.PATH }}, function(err, stdout) {
+            source = stdout.replace(/\s+/, '');
+            return resolve();
+          });
+        });
       });
+    }
+
+    return runGitCmd().then((resp) => {
+      return sendReply();
     });
   }
 };

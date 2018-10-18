@@ -13,7 +13,7 @@ const logger = require('../logging')('server');
 const hapiLogger = require('../logging')('server.hapi');
 const summary = require('../logging/summary');
 
-exports.create = function createServer() {
+exports.create = async function createServer() {
 
   if (config.localRedirects && config.env !== 'dev') {
     // nightly, latest, etc will probably set this to true, but it's
@@ -25,11 +25,6 @@ exports.create = function createServer() {
   var server = new Hapi.Server(
     require('./config')
   );
-
-  server.connection({
-    host: config.server.host,
-    port: config.server.port
-  });
 
   server.auth.scheme(authBearer.AUTH_SCHEME, authBearer.strategy);
   server.auth.strategy(authBearer.AUTH_STRATEGY, authBearer.AUTH_SCHEME);
@@ -49,13 +44,9 @@ exports.create = function createServer() {
       hpkpOptions.reportOnly = config.hpkpConfig.reportOnly;
     }
 
-    server.register({
-      register: require('hapi-hpkp'),
+    await server.register({
+      plugin: require('hapi-hpkp'),
       options: hpkpOptions
-    }, function (err) {
-      if (err) {
-        throw err;
-      }
     });
   }
 
@@ -87,13 +78,13 @@ exports.create = function createServer() {
   server.route(routes);
 
   // hapi internal logging: server and request
-  server.on('log', function onServerLog(ev, tags) {
+  server.events.on('log', function onServerLog(ev, tags) {
     if (tags.error && tags.implementation) {
       hapiLogger.critical('error.uncaught.server', ev.data);
     }
   });
 
-  server.on('request', function onRequestLog(req, ev, tags) {
+  server.events.on('request', function onRequestLog(req, ev, tags) {
     if (tags.error && tags.implementation) {
       if (ev.data.stack.indexOf('hapi/lib/validation.js') !== -1) {
         hapiLogger.error('error.payload.validation', ev.data);
@@ -107,7 +98,8 @@ exports.create = function createServer() {
   const sentryDsn = config.sentryDsn;
   if (sentryDsn) {
     Raven.config(sentryDsn, {});
-    server.on('request-error', function (request, err) {
+    server.events.on({ name: 'request', channel: 'error' }, function (req, ev) {
+      const err = ev && ev.error || null;
       let exception = '';
       if (err && err.stack) {
         try {
@@ -125,17 +117,17 @@ exports.create = function createServer() {
     });
   }
 
-  server.ext('onPreResponse', function onPreResponse(request, next) {
+  server.ext('onPreResponse', function onPreResponse(request, h) {
     var response = request.response;
     if (response.isBoom) {
       response = AppError.translate(response);
     }
     summary(request, response);
 
-    next(response);
+    return response;
   });
 
-  server.ext('onPreAuth', function (request, reply) {
+  server.ext('onPreAuth', function (request, h) {
     // Construct source-ip-address chain for logging.
     var xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/);
     xff.push(request.info.remoteAddress);
@@ -151,7 +143,7 @@ exports.create = function createServer() {
 
     request.app.remoteAddressChain = xff;
     request.app.clientAddress = xff[clientAddressIndex];
-    reply.continue();
+    return h.continue;
   });
 
   return server;

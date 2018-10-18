@@ -19,8 +19,8 @@ module.exports = {
     strategy: auth.AUTH_STRATEGY,
     scope: auth.SCOPE_CLIENT_MANAGEMENT.getImplicantValues()
   },
-  handler: function activateRegistration(req, reply) {
-    var email = req.auth.credentials.email;
+  handler: async function activateRegistration(req) {
+    const email = req.auth.credentials.email;
 
     return db.getDeveloper(email)
         .then(function(developer) {
@@ -30,7 +30,6 @@ module.exports = {
             return db.activateDeveloper(email);
           }
         })
-        .then(developerResponse)
-        .done(reply, reply);
+      .then(developerResponse);
   }
 };

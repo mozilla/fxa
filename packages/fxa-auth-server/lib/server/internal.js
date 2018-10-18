@@ -12,17 +12,14 @@ const logger = require('../logging')('server.clients');
 const hapiLogger = require('../logging')('server.hapi');
 const summary = require('../logging/summary');
 
-exports.create = function createServer() {
+exports.create = async function createServer() {
   var isProd = env.isProdLike();
 
-  var server = new Hapi.Server(
-    require('./config')
-  );
+  const serverConfig = require('./config');
+  serverConfig.host = config.serverInternal.host;
+  serverConfig.port = config.serverInternal.port;
 
-  server.connection({
-    host: config.serverInternal.host,
-    port: config.serverInternal.port
-  });
+  var server = new Hapi.Server(serverConfig);
 
   server.auth.scheme(auth.AUTH_SCHEME, auth.strategy);
   server.auth.strategy(auth.AUTH_STRATEGY, auth.AUTH_SCHEME);
@@ -42,13 +39,9 @@ exports.create = function createServer() {
       hpkpOptions.reportOnly = config.hpkpConfig.reportOnly;
     }
 
-    server.register({
-      register: require('hapi-hpkp'),
+    await server.register({
+      plugin: require('hapi-hpkp'),
       options: hpkpOptions
-    }, function (err) {
-      if (err) {
-        throw err;
-      }
     });
   }
 
@@ -80,25 +73,25 @@ exports.create = function createServer() {
   server.route(routes);
 
   // hapi internal logging: server and request
-  server.on('log', function onServerLog(ev, tags) {
+  server.events.on('log', function onServerLog(ev, tags) {
     if (tags.error && tags.implementation) {
       hapiLogger.critical('error.uncaught', { tags: ev.tags, error: ev.data });
     }
   });
 
-  server.on('request', function onRequestLog(req, ev, tags) {
+  server.events.on('request', function onRequestLog(req, ev, tags) {
     if (tags.error && tags.implementation) {
       hapiLogger.critical('error.uncaught', { tags: ev.tags, error: ev.data });
     }
   });
 
-  server.ext('onPreResponse', function onPreResponse(request, next) {
+  server.ext('onPreResponse', function onPreResponse(request, h) {
     var response = request.response;
     if (response.isBoom) {
       response = AppError.translate(response);
     }
     summary(request, response);
-    next(response);
+    return response;
   });
 
   return server;
