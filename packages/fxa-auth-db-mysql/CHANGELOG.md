@@ -1,3 +1,13 @@
+<a name="1.121.1"></a>
+## [1.121.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.121.0...v1.121.1) (2018-10-18)
+
+
+### Bug Fixes
+
+* **account:** update stored procedures to be more replication friendly ([3c1dd5a](https://github.com/mozilla/fxa-auth-db-mysql/commit/3c1dd5a))
+
+
+
 <a name="1.121.0"></a>
 # [1.121.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.120.0...v1.121.0) (2018-09-18)
 
