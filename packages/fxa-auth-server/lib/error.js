@@ -276,4 +276,13 @@ AppError.staleAuthAt = function staleAuthAt(authAt) {
   });
 };
 
+AppError.mismatchAcr = function mismatchAcr(foundValue) {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: 120,
+    message: 'Mismatch acr value'
+  }, {foundValue});
+};
+
 module.exports = AppError;

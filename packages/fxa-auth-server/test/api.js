@@ -119,7 +119,8 @@ function authParams(params, options) {
     assertion: AN_ASSERTION,
     client_id: options.clientId || clientId,
     state: '1',
-    scope: 'a'
+    scope: 'a',
+    acr_values: options.acr_values || undefined
   };
 
   params = params || {};
@@ -1001,7 +1002,6 @@ describe('/v1', function() {
       });
     });
 
-
     describe('response', function() {
       describe('with a trusted client', function() {
         it('should redirect to the redirect_uri', function() {
@@ -1025,6 +1025,38 @@ describe('/v1', function() {
       });
     });
 
+    describe('check acr payload', () => {
+      it('should throw error if mismatch with claims', () => {
+        const options = {aal: 1};
+        const payload = {acr_values: 'AAL2'};
+        mockAssertion().reply(200, mockVerifierResult(options));
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams(payload)
+        }).then(function (res) {
+          assert.equal(res.statusCode, 400);
+          assertSecurityHeaders(res);
+          assert.equal(res.result.message, 'Mismatch acr value');
+          assert.equal(res.result.errno, 120, 'correct errno');
+        });
+      });
+
+      it('process request when correct acr_values in claims', () => {
+        const options = {aal: 2};
+        const payload = {acr_values: 'AAL2'};
+        mockAssertion().reply(200, mockVerifierResult(options));
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams(payload)
+        }).then(function (res) {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+          assert.ok(res.result.code, 'code set');
+          assert.ok(res.result.redirect, 'redirect set');
+          assert.equal(res.result.state, 1, 'correct state');
+        });
+      });
+    });
   });
 
   describe('/token', function() {
