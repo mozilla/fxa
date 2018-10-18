@@ -127,21 +127,10 @@ describe('views/mixins/cached-credentials-mixin', () => {
 
   describe('allowSuggestedAccount', () => {
     it('returns false for the default account', () => {
-      sinon.stub(relier, 'allowCachedCredentials').callsFake(() => true);
-
       assert.isFalse(view.allowSuggestedAccount(user.initAccount()));
     });
 
-    it('returns false if the relier disallows cached credentials', () => {
-      sinon.stub(relier, 'allowCachedCredentials').callsFake(() => false);
-
-      assert.isFalse(view.allowSuggestedAccount(user.initAccount({
-        email: 'testuser@testuser.com'
-      })));
-    });
-
-    it('returns true if the relier allows cached credentials and no prefill email', () => {
-      sinon.stub(relier, 'allowCachedCredentials').callsFake(() => true);
+    it('returns true if no prefill email', () => {
       sinon.stub(view, 'getPrefillEmail').callsFake(() => '');
 
       assert.isTrue(view.allowSuggestedAccount(user.initAccount({
@@ -149,8 +138,7 @@ describe('views/mixins/cached-credentials-mixin', () => {
       })));
     });
 
-    it('returns false if the relier allows cached credentials and prefill email is different', () => {
-      sinon.stub(relier, 'allowCachedCredentials').callsFake(() => true);
+    it('returns false if prefill email is different', () => {
       sinon.stub(view, 'getPrefillEmail').callsFake(() => 'prefill@testuser.com');
 
       assert.isFalse(view.allowSuggestedAccount(user.initAccount({
@@ -158,8 +146,7 @@ describe('views/mixins/cached-credentials-mixin', () => {
       })));
     });
 
-    it('returns true if the relier allows cached credentials and prefill email is the same', () => {
-      sinon.stub(relier, 'allowCachedCredentials').callsFake(() => true);
+    it('returns true if prefill email is the same', () => {
       sinon.stub(view, 'getPrefillEmail').callsFake(() => 'testuser@testuser.com');
 
       assert.isTrue(view.allowSuggestedAccount(user.initAccount({

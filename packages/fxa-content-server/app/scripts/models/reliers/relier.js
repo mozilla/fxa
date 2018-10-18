@@ -53,7 +53,7 @@ const EMAIL_FIRST_EMAIL_SCHEMA = {
 };
 
 const SIGNIN_SIGNUP_EMAIL_SCHEMA = {
-  email: Vat.email().allow(Constants.DISALLOW_CACHED_CREDENTIALS)
+  email: Vat.email()
 };
 
 var VERIFICATION_QUERY_PARAMETER_SCHEMA = _.extend({}, QUERY_PARAMETER_SCHEMA, {
@@ -62,7 +62,7 @@ var VERIFICATION_QUERY_PARAMETER_SCHEMA = _.extend({}, QUERY_PARAMETER_SCHEMA, {
   // and then further validated by the views that use them. If
   // the fields are invalid, context specific help text is displayed
   // that helps the user remedy the problem.
-  email: Vat.string().allow(Constants.DISALLOW_CACHED_CREDENTIALS),
+  email: Vat.string(),
   redirectTo: Vat.url(),
   uid: Vat.string()
 });
@@ -71,7 +71,6 @@ var VERIFICATION_QUERY_PARAMETER_SCHEMA = _.extend({}, QUERY_PARAMETER_SCHEMA, {
 
 var Relier = BaseRelier.extend({
   defaults: {
-    allowCachedCredentials: true,
     // This ensures for non-oauth reliers, SOME context is sent to the auth
     // server to let the auth server know requests come from the content
     // server and not some other service.
@@ -141,11 +140,6 @@ var Relier = BaseRelier.extend({
         this.set('entrypoint', this.get('entryPoint'));
       }
 
-      if (this.get('email') === Constants.DISALLOW_CACHED_CREDENTIALS) {
-        this.unset('email');
-        this.set('allowCachedCredentials', false);
-      }
-
       if (this.has('migration')) {
         // Support for the sync1.1 migration message was
         // removed in #6130, support for AMO in #6131.
@@ -154,16 +148,6 @@ var Relier = BaseRelier.extend({
         this.unset('migration');
       }
     });
-  },
-
-  /**
-   * Check if the relier allows cached credentials. A relier
-   * can set email=blank to indicate they do not.
-   *
-   * @returns {Boolean}
-   */
-  allowCachedCredentials () {
-    return this.get('allowCachedCredentials');
   },
 
   resumeTokenFields: RELIER_FIELDS_IN_RESUME_TOKEN

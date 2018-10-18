@@ -46,7 +46,6 @@ describe('models/reliers/relier', function () {
 
   it('fetch populates expected fields from the search parameters, unexpected search parameters are ignored', function () {
     windowMock.location.search = TestHelpers.toSearchString({
-      allowCachedCredentials: false,
       email: EMAIL,
       entrypoint: ENTRYPOINT,
       ignored: 'ignored',
@@ -62,7 +61,6 @@ describe('models/reliers/relier', function () {
     return relier.fetch()
       .then(function () {
         // Next two are not imported from the search parameters, but is set manually.
-        assert.isTrue(relier.get('allowCachedCredentials'));
         assert.equal(relier.get('context'), Constants.CONTENT_SERVER_CONTEXT);
 
         // The rest are imported from search parameters
@@ -183,8 +181,6 @@ describe('models/reliers/relier', function () {
     });
   });
 
-  testValidQueryParam('email', Constants.DISALLOW_CACHED_CREDENTIALS, 'allowCachedCredentials', false);
-
   describe('uid non-verification flow', function () {
     beforeEach(function () {
       relier.set('isVerification', false);
@@ -219,8 +215,6 @@ describe('models/reliers/relier', function () {
     });
   });
 
-  testValidQueryParam('email', Constants.DISALLOW_CACHED_CREDENTIALS, 'allowCachedCredentials', false);
-
   it('isOAuth returns `false`', function () {
     assert.isFalse(relier.isOAuth());
   });
@@ -229,39 +223,6 @@ describe('models/reliers/relier', function () {
     return relier.fetch()
       .then(function () {
         assert.isFalse(relier.isSync());
-      });
-  });
-
-  it('allowCachedCredentials returns `true` if `email` not set', function () {
-    return relier.fetch()
-      .then(function () {
-        assert.isTrue(relier.allowCachedCredentials());
-      });
-  });
-
-  it('allowCachedCredentials returns `true` if `email` is set to an email address', function () {
-    windowMock.location.search = TestHelpers.toSearchString({
-      email: 'testuser@testuser.com'
-    });
-
-    return relier.fetch()
-      .then(function () {
-        assert.isTrue(relier.allowCachedCredentials());
-      });
-  });
-
-  it('allowCachedCredentials returns `false` if `email` is set to `blank`', function () {
-    windowMock.location.search = TestHelpers.toSearchString({
-      email: Constants.DISALLOW_CACHED_CREDENTIALS
-    });
-
-    return relier.fetch()
-      .then(function () {
-        assert.isFalse(relier.allowCachedCredentials());
-
-        // the email should not be set on the relier model
-        // if the specified email === blank
-        assert.isFalse(relier.has('email'));
       });
   });
 

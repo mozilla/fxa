@@ -584,40 +584,5 @@ describe('views/sign_in', () => {
           assert.isTrue(view.render.calledOnce);
         });
     });
-    /*
-    describe('with the suggested account', () => {
-      it('can switch to signin with the useDifferentAccount button', () => {
-        sinon.stub(view, 'getAccount').callsFake(() => suggestedAccount);
-        sinon.stub(view, 'suggestedAccount').callsFake(() => suggestedAccount);
-
-        sinon.spy(user, 'removeAllAccounts');
-        sinon.stub(view, 'render').callsFake(() => Promise.resolve());
-
-        return view.useDifferentAccount()
-          .then(() => {
-            assert.isTrue(user.removeAllAccounts.calledOnce);
-
-            assert.isTrue(view.render.calledOnce);
-          });
-      });
-    });
-
-    describe('without a suggested account', () => {
-      it('navigates to `/`, disallows cached credentials', () => {
-        sinon.stub(view, 'getAccount').callsFake(() => suggestedAccount);
-        sinon.stub(view, 'suggestedAccount').callsFake(() => user.initAccount({}));
-        sinon.stub(view, 'navigate').callsFake(() => {});
-        relier.set('email', 'a@a.com');
-
-        return view.useDifferentAccount()
-          .then(() => {
-            assert.equal(formPrefill.get('email'), 'a@a.com');
-            assert.isFalse(relier.has('email'));
-            assert.isFalse(relier.get('allowCachedCredentials'));
-            assert.isTrue(view.navigate.calledOnceWith('/'));
-          });
-      });
-    });
-    */
   });
 });
