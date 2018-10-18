@@ -1,3 +1,9 @@
+<a name="1.123.0"></a>
+# [1.123.0](https://github.com/mozilla/fxa-customs-server/compare/v1.122.0...v1.123.0) (2018-10-16)
+
+
+
+
 <a name="1.122.0"></a>
 # [1.122.0](https://github.com/mozilla/fxa-customs-server/compare/v1.121.0...v1.122.0) (2018-10-02)
 
