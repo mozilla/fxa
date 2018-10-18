@@ -638,12 +638,12 @@ module.exports = function (log, error) {
 
   // Delete : unverifiedTokens
   // Where  : tokenVerificationCode = $1, uid = $2
-  const VERIFY_TOKEN_CODE = 'CALL verifyTokenCode_1(?, ?)'
+  const VERIFY_TOKEN_CODE = 'CALL verifyTokenCode_2(?, ?)'
 
   MySql.prototype.verifyTokenCode = function (tokenData, accountData) {
-    return this.readFirstResult(VERIFY_TOKEN_CODE, [dbUtil.createHash(tokenData.code), accountData.uid])
+    return this.read(VERIFY_TOKEN_CODE, [dbUtil.createHash(tokenData.code), accountData.uid])
       .then((result) => {
-        if (result['@updateCount'] === 0) {
+        if (result.affectedRows === 0) {
           throw error.notFound()
         }
       })
@@ -1426,7 +1426,7 @@ module.exports = function (log, error) {
     })
   }
 
-  const VERIFY_SESSION_WITH_METHOD = 'CALL verifyTokensWithMethod_2(?, ?, ?)'
+  const VERIFY_SESSION_WITH_METHOD = 'CALL verifyTokensWithMethod_3(?, ?, ?)'
   MySql.prototype.verifyTokensWithMethod = function (tokenId, data) {
     return P.resolve()
       .then(() => {
@@ -1436,18 +1436,31 @@ module.exports = function (log, error) {
           throw error.invalidVerificationMethod()
         }
 
-        return this.readFirstResult(VERIFY_SESSION_WITH_METHOD, [
+        return this.read(VERIFY_SESSION_WITH_METHOD, [
           tokenId,
           verificationMethod,
           Date.now()
         ])
-          .then((result) => {
-            if (result['@updateCount'] === 0) {
+          .then((results) => {
+            if (results.affectedRows === 0) {
               throw error.notFound()
             }
 
-            return P.resolve({})
+            // Verify session in the `unverifiedTokens` table
+            return this.sessionToken(tokenId)
+              .then((session) => {
+                return this.verifyTokens(session.tokenVerificationId, {uid: session.uid})
+                  .catch((err) => {
+                    // Don't error if there wasn't a token found to verify. This token could have
+                    // already been verified with another method.
+                    if (err.errno === error.notFound().errno) {
+                      return
+                    }
+                    throw err
+                  })
+              })
           })
+          .then(() => P.resolve({}))
       })
   }
 
