@@ -18,7 +18,6 @@ var config = intern._config;
 // that require a functioning desktop channel
 var PAGE_SIGNIN = config.fxaContentRoot + 'signin';
 var PAGE_SIGNIN_DESKTOP = PAGE_SIGNIN + '?context=' + FX_DESKTOP_V2_CONTEXT + '&service=sync&forceAboutAccounts=true';
-var PAGE_SIGNIN_NO_CACHED_CREDS = PAGE_SIGNIN + '?email=blank';
 var PAGE_SIGNUP = config.fxaContentRoot + 'signup';
 var PAGE_SIGNUP_DESKTOP = config.fxaContentRoot + 'signup?context=' + FX_DESKTOP_V2_CONTEXT + '&service=sync';
 
@@ -330,21 +329,6 @@ registerSuite('sign_in cached', {
           assert.equal(accountData1.uid, accountData2.uid);
           assert.notEqual(accountData1.sessionToken, accountData2.sessionToken);
         });
-    },
-
-    'overrule cached credentials': function () {
-      return this.remote
-        .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
-        .then(fillOutSignIn(email, PASSWORD))
-
-        .then(testElementExists('#fxa-settings-header'))
-        // reset prefill and context
-        .then(clearSessionStorage())
-
-        .then(openPage(PAGE_SIGNIN_NO_CACHED_CREDS, '#fxa-signin-header'))
-        .then(fillOutSignIn(email, PASSWORD))
-
-        .then(testElementExists('#fxa-settings-header'));
     }
   }
 });

@@ -68,15 +68,6 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Indicates whether the relier allows cached credentials
-     *
-     * @returns {Boolean}
-     */
-    allowCachedCredentials () {
-      return true;
-    },
-
-    /**
      * Indicates whether the relier is trusted
      *
      * @returns {Boolean}

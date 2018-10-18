@@ -111,11 +111,6 @@ export default {
       return false;
     }
 
-    // the relier can overrule cached creds.
-    if (! this.relier.allowCachedCredentials()) {
-      return false;
-    }
-
     const prefillEmail = this.getPrefillEmail();
     if (! prefillEmail) {
       return true;

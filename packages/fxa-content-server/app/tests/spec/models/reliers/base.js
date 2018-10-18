@@ -54,12 +54,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('allowCachedCredentials', function () {
-      it('returns `true`', function () {
-        assert.isTrue(relier.allowCachedCredentials());
-      });
-    });
-
     describe('isTrusted', function () {
       it('returns `true`', function () {
         assert.isTrue(relier.isTrusted());

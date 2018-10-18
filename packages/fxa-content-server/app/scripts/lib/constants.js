@@ -84,10 +84,6 @@ module.exports = {
   PROFILE_IMAGE_MIN_WIDTH: 100,
   DEFAULT_PROFILE_IMAGE_MIME_TYPE: 'image/jpeg',
 
-  // A relier can indicate they do not want to allow
-  // cached credentials if they set email === 'blank'
-  DISALLOW_CACHED_CREDENTIALS: 'blank',
-
   ONERROR_MESSAGE_LIMIT: 100,
 
   ACCOUNT_UPDATES_WEBCHANNEL_ID: 'account_updates',
