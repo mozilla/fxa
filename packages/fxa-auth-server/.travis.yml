@@ -38,8 +38,6 @@ before_install:
 
 install:
   - npm ci
-  # Temporary workaround due to "Error: incorrect header check" when installing on Travis.
-  - cd node_modules/fxa-geodb/db/ && wget https://s3-us-west-2.amazonaws.com/fxa-dev-bucket/notes/geodb/sept27/cities-db.mmdb && cd ../../.. 
 
 script:
   - if [ $DB == "mysql" ]; then ./scripts/start-travis-auth-db-mysql.sh; fi
