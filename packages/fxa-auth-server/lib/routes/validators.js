@@ -74,7 +74,7 @@ module.exports.email = function() {
   return email
 }
 
-module.exports.service = isA.string().max(16).regex(/^[a-zA-Z0-9\-]*$/g)
+module.exports.service = isA.string().max(16).regex(/^[a-zA-Z0-9\-]*$/)
 
 
 // Function to validate an email address.
