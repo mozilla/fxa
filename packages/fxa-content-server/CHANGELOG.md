@@ -1,3 +1,13 @@
+<a name="1.123.1"></a>
+## [1.123.1](https://github.com/mozilla/fxa-content-server/compare/v1.123.0...v1.123.1) (2018-10-19)
+
+
+### Features
+
+* **Lockbox:** Add Lockbox for Android scopes to configuration ([4aa3510](https://github.com/mozilla/fxa-content-server/commit/4aa3510)), closes [#6643](https://github.com/mozilla/fxa-content-server/issues/6643)
+
+
+
 <a name="1.123.0"></a>
 # [1.123.0](https://github.com/mozilla/fxa-content-server/compare/v1.122.4...v1.123.0) (2018-10-16)
 
