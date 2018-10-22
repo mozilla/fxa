@@ -15,6 +15,7 @@ require('./spec/head/startup-styles');
 require('./spec/lib/app-start');
 require('./spec/lib/assertion');
 require('./spec/lib/auth-errors');
+require('./spec/lib/channel-server-client');
 require('./spec/lib/channels/duplex');
 require('./spec/lib/channels/fx-desktop-v1');
 require('./spec/lib/channels/iframe');

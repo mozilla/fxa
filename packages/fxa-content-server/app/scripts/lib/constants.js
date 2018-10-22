@@ -131,6 +131,8 @@ module.exports = {
 
   // Recovery keys are base32 encoded, length 28 gives 135 bits of entropy
   // Ex. (28 char - 1 version char) * 5 bits = 135 bits
-  RECOVERY_KEY_LENGTH: 28
+  RECOVERY_KEY_LENGTH: 28,
+
+  DEVICE_PAIRING_CHANNEL_KEY_BYTES: 32,
 };
 /*eslint-enable sorting/sort-object-props*/
