@@ -29,6 +29,7 @@ const {
   openVerificationLinkInNewTab,
   switchToWindow,
   testElementExists,
+  testElementTextInclude,
   testElementValueEquals,
   testErrorTextInclude,
   thenify,
@@ -38,7 +39,7 @@ const {
 const testAtOAuthApp = thenify(function () {
   return this.parent
     .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
-
+    .then(testElementTextInclude(selectors['123DONE'].AUTHENTICATED_TOTP, '🔒'))
     .getCurrentUrl()
     .then(function (url) {
       // redirected back to the App
@@ -136,6 +137,31 @@ registerSuite('oauth require totp', {
             .then(testAtOAuthApp());
         })
         .end();
-    }
+    },
+
+    'succeed for cached account with TOTP': function () {
+      return this.remote
+        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+        .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
+
+        .then(click(selectors.TOTP.MENU_BUTTON))
+
+        .then(click(selectors.TOTP.SHOW_CODE_LINK))
+        .then(testElementExists(selectors.TOTP.MANUAL_CODE))
+
+        // Store the secret key to recalculate the code later
+        .findByCssSelector(selectors.TOTP.MANUAL_CODE)
+        .getVisibleText()
+        .then((secretKey) => {
+          secret = secretKey;
+          return this.remote
+            .then(confirmTotpCode(secret))
+            // Because the cached account was verified with TOTP, it won't be prompted for password
+            .then(openFxaFromRp('two-step-authentication', {header: selectors['123DONE'].AUTHENTICATED}))
+            .then(testAtOAuthApp());
+        })
+        .end();
+    },
   }
 });

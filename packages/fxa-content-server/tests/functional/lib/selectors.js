@@ -4,6 +4,7 @@
 module.exports = {
   '123DONE': {
     AUTHENTICATED: '#loggedin',
+    AUTHENTICATED_TOTP: '#loggedin span:first-child',
     BUTTON_SIGNIN: '.sign-in-button.signin',
     BUTTON_SIGNUP: '.sign-in-button.signup',
     LINK_LOGOUT: '#logout'

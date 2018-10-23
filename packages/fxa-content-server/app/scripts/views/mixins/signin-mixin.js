@@ -9,6 +9,7 @@ define(function (require, exports, module) {
 
   const {t} = require('../base');
   const AuthErrors = require('../../lib/auth-errors');
+  const OAuthErrors = require('../../lib/oauth-errors');
   const NavigateBehavior = require('../behaviors/navigate');
   const ResumeTokenMixin = require('./resume-token-mixin');
   const VerificationMethods = require('../../lib/verification-methods');
@@ -114,7 +115,7 @@ define(function (require, exports, module) {
             return this.navigate('signin_bounced', { email: account.get('email') });
           }
 
-          if (AuthErrors.is(err, 'TOTP_REQUIRED')) {
+          if (AuthErrors.is(err, 'TOTP_REQUIRED') || OAuthErrors.is(err, 'MISMATCH_ACR_VALUES')) {
             err.forceMessage = t('This request requires two step authentication enabled on your account. ' +
               '<a target="_blank" href=\'' + TOTP_SUPPORT_URL + '\'>More Information</a>');
             return this.unsafeDisplayError(err);
