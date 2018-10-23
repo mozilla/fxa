@@ -207,7 +207,7 @@ describe('/account/reset', function () {
       args = mockMetricsContext.setFlowCompleteSignal.args[0]
       assert.equal(args.length, 1, 'metricsContext.setFlowCompleteSignal was passed one argument')
       assert.equal(args[0], 'account.signed', 'argument was event name')
-      assert.equal(mockMetricsContext.stash.callCount, 2, 'metricsContext.stash was called twice')
+      assert.equal(mockMetricsContext.propagate.callCount, 2)
     })
 
     it('should have created session', () => {
@@ -258,19 +258,19 @@ describe('/account/reset', function () {
       assert.equal(args.length, 1, 'metricsContext.setFlowCompleteSignal was passed one argument')
       assert.equal(args[0], 'account.signed', 'argument was event name')
 
-      assert.equal(mockMetricsContext.stash.callCount, 2, 'metricsContext.stash was called twice')
+      assert.equal(mockMetricsContext.propagate.callCount, 2)
 
-      args = mockMetricsContext.stash.args[0]
-      assert.equal(args.length, 1, 'metricsContext.stash was passed one argument first time')
-      assert.deepEqual(args[0].id, sessionTokenId, 'argument was session token')
-      assert.deepEqual(args[0].uid, uid, 'sessionToken.uid was correct')
-      assert.equal(mockMetricsContext.stash.thisValues[0], mockRequest, 'this was request')
+      args = mockMetricsContext.propagate.args[0]
+      assert.lengthOf(args, 2)
+      assert.equal(args[0].uid, uid)
+      assert.equal(args[1].uid, uid)
+      assert.equal(args[1].id, sessionTokenId)
 
-      args = mockMetricsContext.stash.args[1]
-      assert.equal(args.length, 1, 'metricsContext.stash was passed one argument second time')
-      assert.deepEqual(args[0].id, keyFetchTokenId, 'argument was key fetch token')
-      assert.deepEqual(args[0].uid, uid, 'keyFetchToken.uid was correct')
-      assert.equal(mockMetricsContext.stash.thisValues[1], mockRequest, 'this was request')
+      args = mockMetricsContext.propagate.args[1]
+      assert.lengthOf(args, 2)
+      assert.equal(args[0].uid, uid)
+      assert.equal(args[1].uid, uid)
+      assert.equal(args[1].id, keyFetchTokenId)
 
       assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called once')
       args = mockDB.createSessionToken.args[0]
