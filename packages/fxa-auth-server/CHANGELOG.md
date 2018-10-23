@@ -1,3 +1,13 @@
+<a name="1.123.1"></a>
+## [1.123.1](https://github.com/mozilla/fxa-auth-server/compare/v1.123.0...v1.123.1) (2018-10-23)
+
+
+### Bug Fixes
+
+* **metrics:** ensure email events use stashed flow data where applicable ([2168ea7](https://github.com/mozilla/fxa-auth-server/commit/2168ea7))
+
+
+
 <a name="1.123.0"></a>
 # [1.123.0](https://github.com/mozilla/fxa-auth-server/compare/v1.122.2...v1.123.0) (2018-10-16)
 
