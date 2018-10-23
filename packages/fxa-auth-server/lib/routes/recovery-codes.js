@@ -7,7 +7,6 @@
 const errors = require('../error')
 const isA = require('joi')
 const BASE_36 = require('./validators').BASE_36
-const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
 const RECOVERY_CODE_SANE_MAX_LENGTH = 20
 
 module.exports = (log, db, config, customs, mailer) => {
@@ -95,8 +94,7 @@ module.exports = (log, db, config, customs, mailer) => {
         },
         validate: {
           payload: {
-            code: isA.string().max(RECOVERY_CODE_SANE_MAX_LENGTH).regex(BASE_36).required(),
-            metricsContext: METRICS_CONTEXT_SCHEMA
+            code: isA.string().max(RECOVERY_CODE_SANE_MAX_LENGTH).regex(BASE_36).required()
           }
         },
         response: {

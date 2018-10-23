@@ -234,7 +234,6 @@ module.exports = (log, db, mailer, customs, config) => {
         validate: {
           payload: {
             code: isA.string().max(32).regex(validators.DIGITS).required(),
-            metricsContext: METRICS_CONTEXT_SCHEMA,
             service: validators.service
           }
         },

@@ -500,7 +500,6 @@ module.exports = config => {
             token,
             {
               code: code,
-              metricsContext: options.metricsContext || undefined,
               accountResetWithRecoveryKey: options.accountResetWithRecoveryKey || undefined
             },
             headers
@@ -829,7 +828,6 @@ module.exports = config => {
           token,
           {
             code: code,
-            metricsContext: options.metricsContext,
             service: options.service
           }
         )
@@ -855,8 +853,7 @@ module.exports = config => {
           this.baseURL + '/session/verify/recoveryCode',
           token,
           {
-            code: code,
-            metricsContext: options.metricsContext || undefined
+            code: code
           }
         )
       })

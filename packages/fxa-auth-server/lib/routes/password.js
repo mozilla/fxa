@@ -520,8 +520,7 @@ module.exports = function (
             email: validators.email().required(),
             service: validators.service,
             redirectTo: validators.redirectTo(redirectDomain).optional(),
-            resume: isA.string().max(2048).optional(),
-            metricsContext: METRICS_CONTEXT_SCHEMA
+            resume: isA.string().max(2048).optional()
           }
         },
         response: {
@@ -538,8 +537,6 @@ module.exports = function (
         var passwordForgotToken = request.auth.credentials
         var service = request.payload.service || request.query.service
         const ip = request.app.clientAddress
-
-        request.validateMetricsContext()
 
         const { flowId, flowBeginTime } = await request.app.metricsContext
 
@@ -609,7 +606,6 @@ module.exports = function (
         validate: {
           payload: {
             code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
-            metricsContext: METRICS_CONTEXT_SCHEMA,
             accountResetWithRecoveryKey: isA.boolean().optional()
           }
         },
@@ -624,8 +620,6 @@ module.exports = function (
         var passwordForgotToken = request.auth.credentials
         var code = request.payload.code
         const accountResetWithRecoveryKey = request.payload.accountResetWithRecoveryKey
-
-        request.validateMetricsContext()
 
         const { flowId, flowBeginTime } = await request.app.metricsContext
 

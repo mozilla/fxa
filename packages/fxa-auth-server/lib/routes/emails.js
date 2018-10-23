@@ -7,7 +7,6 @@
 const butil = require('../crypto/butil')
 const error = require('../error')
 const isA = require('joi')
-const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
 const P = require('../promise')
 const random = require('../crypto/random')
 const validators = require('./validators')
@@ -129,7 +128,6 @@ module.exports = (log, db, mailer, config, customs, push) => {
             service: validators.service,
             redirectTo: validators.redirectTo(config.smtp.redirectDomain).optional(),
             resume: isA.string().max(2048).optional(),
-            metricsContext: METRICS_CONTEXT_SCHEMA,
             type: isA.string().max(32).alphanum().allow(['upgradeSession']).optional()
           }
         }
