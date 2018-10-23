@@ -44,37 +44,36 @@ describe('metricsContext', () => {
     metricsContext = proxyquire(modulePath, { '../cache': cacheFactory })(log, config)
   })
 
-  it(
-    'metricsContext interface is correct',
-    () => {
-      assert.equal(typeof metricsContextModule, 'function', 'function is exported')
-      assert.equal(typeof metricsContextModule.schema, 'object', 'metricsContext.schema is object')
-      assert.notEqual(metricsContextModule.schema, null, 'metricsContext.schema is not null')
+  it('metricsContext interface is correct', () => {
+    assert.isFunction(metricsContextModule)
+    assert.isObject(metricsContextModule.schema)
+    assert.isNotNull(metricsContextModule.schema)
 
-      assert.equal(typeof metricsContext, 'object', 'metricsContext is object')
-      assert.notEqual(metricsContext, null, 'metricsContext is not null')
-      assert.lengthOf(Object.keys(metricsContext), 6)
+    assert.isObject(metricsContext)
+    assert.isNotNull(metricsContext)
+    assert.lengthOf(Object.keys(metricsContext), 7)
 
-      assert.equal(typeof metricsContext.stash, 'function', 'metricsContext.stash is function')
-      assert.equal(metricsContext.stash.length, 1, 'metricsContext.stash expects 1 argument')
+    assert.isFunction(metricsContext.stash)
+    assert.lengthOf(metricsContext.stash, 1)
 
-      assert.equal(typeof metricsContext.gather, 'function', 'metricsContext.gather is function')
-      assert.equal(metricsContext.gather.length, 1, 'metricsContext.gather expects 1 argument')
+    assert.isFunction(metricsContext.get)
+    assert.lengthOf(metricsContext.get, 1)
 
-      assert.isFunction(metricsContext.propagate)
-      assert.lengthOf(metricsContext.propagate, 2)
+    assert.isFunction(metricsContext.gather)
+    assert.lengthOf(metricsContext.gather, 1)
 
-      assert.equal(typeof metricsContext.clear, 'function', 'metricsContext.clear is function')
-      assert.equal(metricsContext.clear.length, 0, 'metricsContext.gather expects no arguments')
+    assert.isFunction(metricsContext.propagate)
+    assert.lengthOf(metricsContext.propagate, 2)
 
-      assert.equal(typeof metricsContext.validate, 'function', 'metricsContext.validate is function')
-      assert.equal(metricsContext.validate.length, 0, 'metricsContext.validate expects no arguments')
+    assert.isFunction(metricsContext.clear)
+    assert.lengthOf(metricsContext.clear, 0)
 
-      assert.equal(typeof metricsContext.setFlowCompleteSignal, 'function', 'metricsContext.setFlowCompleteSignal is function')
-      assert.equal(metricsContext.setFlowCompleteSignal.length, 2, 'metricsContext.setFlowCompleteSignal expects 2 arguments')
+    assert.isFunction(metricsContext.validate)
+    assert.lengthOf(metricsContext.validate, 0)
 
-    }
-  )
+    assert.isFunction(metricsContext.setFlowCompleteSignal)
+    assert.lengthOf(metricsContext.setFlowCompleteSignal, 2)
+  })
 
   it('instantiated cache correctly', () => {
     assert.equal(cacheFactory.callCount, 1)
@@ -216,6 +215,198 @@ describe('metricsContext', () => {
     }
   )
 
+  it('metricsContext.get with payload', async () => {
+    results.get = P.resolve({
+      flowId: 'not this flow id',
+      flowBeginTime: 0
+    })
+
+    const result = await metricsContext.get({
+      payload: {
+        metricsContext: {
+          flowId: 'mock flow id',
+          flowBeginTime: 42
+        }
+      }
+    })
+
+    assert.deepEqual(result, {
+      flowId: 'mock flow id',
+      flowBeginTime: 42
+    })
+
+    assert.equal(cache.get.callCount, 0)
+    assert.equal(log.error.callCount, 0)
+  })
+
+  it('metricsContext.get with payload', async () => {
+    results.get = P.resolve({
+      flowId: 'not this flow id',
+      flowBeginTime: 0
+    })
+    const result = await metricsContext.get({
+      payload: {
+        metricsContext: {
+          flowId: 'mock flow id',
+          flowBeginTime: 42
+        }
+      }
+    })
+
+    assert.isObject(result)
+    assert.deepEqual(result, {
+      flowId: 'mock flow id',
+      flowBeginTime: 42
+    })
+
+    assert.equal(cache.get.callCount, 0)
+    assert.equal(log.error.callCount, 0)
+  })
+
+  it('metricsContext.get with token', async () => {
+    results.get = P.resolve({
+      flowId: 'flowId',
+      flowBeginTime: 1977
+    })
+
+    const token = {
+      uid: Array(64).fill('7').join(''),
+      id: 'wibble'
+    }
+
+    const result = await metricsContext.get({
+      auth: {
+        credentials: token
+      }
+    })
+
+    assert.deepEqual(result, {
+      flowId: 'flowId',
+      flowBeginTime: 1977
+    })
+
+    assert.equal(cache.get.callCount, 1)
+    assert.lengthOf(cache.get.args[0], 1)
+    assert.equal(cache.get.args[0][0], hashToken(token))
+
+    assert.equal(log.error.callCount, 0)
+  })
+
+  it('metricsContext.get with fake token', async () => {
+    results.get = P.resolve({
+      flowId: 'flowId',
+      flowBeginTime: 1977
+    })
+
+    const uid = Array(64).fill('7').join('')
+    const id = 'wibble'
+
+    const token = { uid, id }
+
+    const result = await metricsContext.get({
+      payload: {
+        uid,
+        code: id
+      }
+    })
+
+    assert.deepEqual(result, {
+      flowId: 'flowId',
+      flowBeginTime: 1977
+    })
+
+    assert.equal(cache.get.callCount, 1)
+    assert.lengthOf(cache.get.args[0], 1)
+    assert.equal(cache.get.args[0][0], hashToken(token))
+    assert.deepEqual(cache.get.args[0][0], hashToken({ uid, id }))
+
+    assert.equal(log.error.callCount, 0)
+  })
+
+  it('metricsContext.get with bad token', async () => {
+    const result = await metricsContext.get({
+      auth: {
+        credentials: {
+          uid: Array(64).fill('c').join('')
+        }
+      }
+    })
+
+    assert.deepEqual(result, {})
+
+    assert.equal(log.error.callCount, 1)
+    assert.lengthOf(log.error.args[0], 1)
+    assert.equal(log.error.args[0][0].op, 'metricsContext.get')
+    assert.equal(log.error.args[0][0].err.message, 'Invalid token')
+    assert.strictEqual(log.error.args[0][0].hasToken, true)
+    assert.strictEqual(log.error.args[0][0].hasId, false)
+    assert.strictEqual(log.error.args[0][0].hasUid, true)
+  })
+
+  it('metricsContext.get with no token and no payload', async () => {
+    const result = await metricsContext.get({
+      auth: {}
+    })
+
+    assert.deepEqual(result, {})
+
+    assert.equal(log.error.callCount, 0)
+  })
+
+  it('metricsContext.get with token and payload', async () => {
+    results.get = P.resolve({
+      flowId: 'foo',
+      flowBeginTime: 1977
+    })
+
+    const result = await metricsContext.get({
+      auth: {
+        credentials: {
+          uid: Array(16).fill('f').join(''),
+          id: 'bar'
+        }
+      },
+      payload: {
+        metricsContext: {
+          flowId: 'baz',
+          flowBeginTime: 42
+        }
+      }
+    })
+
+    assert.deepEqual(result, {
+      flowId: 'baz',
+      flowBeginTime: 42
+    })
+
+    assert.equal(cache.get.callCount, 0)
+    assert.equal(log.error.callCount, 0)
+  })
+
+  it('metricsContext.get with cache.get error', async () => {
+    results.get = P.reject('foo')
+    const result = await metricsContext.get({
+      auth: {
+        credentials: {
+          uid: Array(16).fill('f').join(''),
+          id: 'bar'
+        }
+      }
+    })
+
+    assert.deepEqual(result, {})
+
+    assert.equal(cache.get.callCount, 1)
+
+    assert.equal(log.error.callCount, 1)
+    assert.lengthOf(log.error.args[0], 1)
+    assert.equal(log.error.args[0][0].op, 'metricsContext.get')
+    assert.equal(log.error.args[0][0].err, 'foo')
+    assert.strictEqual(log.error.args[0][0].hasToken, true)
+    assert.strictEqual(log.error.args[0][0].hasId, true)
+    assert.strictEqual(log.error.args[0][0].hasUid, true)
+  })
+
   it(
     'metricsContext.gather with metadata',
     () => {
@@ -225,8 +416,8 @@ describe('metricsContext', () => {
       })
       const time = Date.now() - 1
       return metricsContext.gather.call({
-        payload: {
-          metricsContext: {
+        app: {
+          metricsContext: P.resolve({
             deviceId: 'mock device id',
             flowId: 'mock flow id',
             flowBeginTime: time,
@@ -242,7 +433,7 @@ describe('metricsContext', () => {
             utmSource: 'mock utm_source',
             utmTerm: 'mock utm_term',
             ignore: 'mock ignorable property'
-          }
+          })
         }
       }, {}).then(function (result) {
         assert.equal(typeof result, 'object', 'result is object')
@@ -276,8 +467,8 @@ describe('metricsContext', () => {
         headers: {
           dnt: '1'
         },
-        payload: {
-          metricsContext: {
+        app: {
+          metricsContext: P.resolve({
             deviceId: 'mock device id',
             flowId: 'mock flow id',
             flowBeginTime: Date.now(),
@@ -293,7 +484,7 @@ describe('metricsContext', () => {
             utmSource: 'mock utm_source',
             utmTerm: 'mock utm_term',
             ignore: 'mock ignorable property'
-          }
+          })
         }
       }, {}).then(function (result) {
         assert.equal(Object.keys(result).length, 8, 'result has 8 properties')
@@ -312,10 +503,10 @@ describe('metricsContext', () => {
     'metricsContext.gather with bad flowBeginTime',
     () => {
       return metricsContext.gather.call({
-        payload: {
-          metricsContext: {
+        app: {
+          metricsContext: P.resolve({
             flowBeginTime: Date.now() + 10000
-          }
+          })
         }
       }, {}).then(function (result) {
         assert.equal(typeof result, 'object', 'result is object')
@@ -324,193 +515,6 @@ describe('metricsContext', () => {
 
         assert.equal(log.error.callCount, 0, 'log.error was not called')
 
-      })
-    }
-  )
-
-  it(
-    'metricsContext.gather with token',
-    () => {
-      const time = Date.now() - 1
-      const token = {
-        uid: Array(64).fill('7').join(''),
-        id: 'wibble'
-      }
-      results.get = P.resolve({
-        deviceId: 'deviceId',
-        flowId: 'flowId',
-        flowBeginTime: time,
-        flowCompleteSignal: 'flowCompleteSignal',
-        flowType: 'flowType',
-        service: null,
-        utmCampaign: 'utmCampaign',
-        utmContent: 'utmContent',
-        utmMedium: 'utmMedium',
-        utmSource: 'utmSource',
-        utmTerm: 'utmTerm'
-      })
-      return metricsContext.gather.call({
-        auth: {
-          credentials: token
-        }
-      }, { service: 'do not clobber me' }).then(function (result) {
-        assert.equal(cache.get.callCount, 1, 'cache.get was called once')
-        assert.equal(cache.get.args[0].length, 1, 'cache.get was passed one argument')
-        assert.equal(cache.get.args[0][0], hashToken(token), 'cache.get argument was correct')
-
-        assert.equal(typeof result, 'object', 'result is object')
-        assert.notEqual(result, null, 'result is not null')
-        assert.equal(Object.keys(result).length, 13, 'result has 13 properties')
-        assert.ok(result.time > time, 'result.time seems correct')
-        assert.equal(result.device_id, 'deviceId', 'result.device_id is correct')
-        assert.equal(result.flow_id, 'flowId', 'result.flow_id is correct')
-        assert.ok(result.flow_time > 0, 'result.flow_time is greater than zero')
-        assert.ok(result.flow_time < time, 'result.flow_time is less than the current time')
-        assert.equal(result.flowBeginTime, time, 'result.flowBeginTime is correct')
-        assert.equal(result.flowCompleteSignal, 'flowCompleteSignal', 'result.flowCompleteSignal is correct')
-        assert.equal(result.flowType, 'flowType', 'result.flowType is correct')
-        assert.equal(result.service, 'do not clobber me', 'result.service is correct')
-        assert.equal(result.utm_campaign, 'utmCampaign', 'result.utm_campaign is correct')
-        assert.equal(result.utm_content, 'utmContent', 'result.utm_content is correct')
-        assert.equal(result.utm_medium, 'utmMedium', 'result.utm_medium is correct')
-        assert.equal(result.utm_source, 'utmSource', 'result.utm_source is correct')
-        assert.equal(result.utm_term, 'utmTerm', 'result.utm_term is correct')
-
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
-      })
-    }
-  )
-
-  it(
-    'metricsContext.gather with fake token',
-    () => {
-      const time = Date.now() - 1
-      const uid = Array(64).fill('7').join('')
-      const id = 'wibble'
-      results.get = P.resolve({
-        flowId: 'flowId',
-        flowBeginTime: time
-      })
-      return metricsContext.gather.call({
-        payload: {
-          uid: uid,
-          code: id
-        }
-      }, {}).then(function (result) {
-        assert.equal(cache.get.callCount, 1, 'cache.get was called once')
-        assert.equal(cache.get.args[0].length, 1, 'cache.get was passed one argument')
-        assert.deepEqual(cache.get.args[0][0], hashToken({ uid, id }), 'cache.get argument was correct')
-
-        assert.equal(typeof result, 'object', 'result is object')
-        assert.notEqual(result, null, 'result is not null')
-        assert.equal(Object.keys(result).length, 12, 'result has 12 properties')
-        assert.ok(result.time > time, 'result.time seems correct')
-        assert.equal(result.flow_id, 'flowId', 'result.flow_id is correct')
-        assert.ok(result.flow_time > 0, 'result.flow_time is greater than zero')
-        assert.ok(result.flow_time < time, 'result.flow_time is less than the current time')
-
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
-      })
-    }
-  )
-
-  it(
-    'metricsContext.gather with bad token',
-    () => {
-      return metricsContext.gather.call({
-        auth: {
-          credentials: {
-            uid: Array(64).fill('c').join('')
-          }
-        }
-      }, {}).then(function (result) {
-        assert.equal(typeof result, 'object', 'result is object')
-        assert.notEqual(result, null, 'result is not null')
-        assert.equal(Object.keys(result).length, 0, 'result is empty')
-
-        assert.equal(log.error.callCount, 1, 'log.error was called once')
-        assert.equal(log.error.args[0].length, 1, 'log.error was passed one argument')
-        assert.equal(log.error.args[0][0].op, 'metricsContext.gather', 'op property was correct')
-        assert.equal(log.error.args[0][0].err.message, 'Invalid token', 'err.message property was correct')
-        assert.strictEqual(log.error.args[0][0].hasToken, true, 'hasToken property was correct')
-        assert.strictEqual(log.error.args[0][0].hasId, false, 'hasId property was correct')
-        assert.strictEqual(log.error.args[0][0].hasUid, true, 'hasUid property was correct')
-      })
-    }
-  )
-
-  it(
-    'metricsContext.gather with no token',
-    () => {
-      results.get = P.resolve({
-        flowId: 'flowId',
-        flowBeginTime: Date.now()
-      })
-      return metricsContext.gather.call({
-        auth: {}
-      }, {}).then(function (result) {
-        assert.equal(typeof result, 'object', 'result is object')
-        assert.notEqual(result, null, 'result is not null')
-        assert.equal(Object.keys(result).length, 0, 'result is empty')
-
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
-      })
-    }
-  )
-
-  it(
-    'metricsContext.gather with metadata and token',
-    () => {
-      const time = Date.now() - 1
-      results.get = P.resolve({
-        deviceId: 'foo',
-        flowId: 'bar',
-        flowBeginTime: time - 1
-      })
-      return metricsContext.gather.call({
-        auth: {
-          credentials: {
-            uid: Array(16).fill('f').join(''),
-            id: 'baz'
-          }
-        },
-        payload: {
-          metricsContext: {
-            deviceId: 'qux',
-            flowId: 'wibble',
-            flowBeginTime: time
-          }
-        }
-      }, {}).then(function (result) {
-        assert.equal(typeof result, 'object', 'result is object')
-        assert.notEqual(result, null, 'result is not null')
-        assert.equal(result.device_id, 'qux', 'result.device_id is correct')
-        assert.equal(result.flow_id, 'wibble', 'result.flow_id is correct')
-
-        assert.equal(cache.get.callCount, 0, 'cache.get was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
-      })
-    }
-  )
-
-  it(
-    'metricsContext.gather with get error',
-    () => {
-      results.get = P.reject('foo')
-      return metricsContext.gather.call({
-        auth: {
-          credentials: {
-            uid: Array(16).fill('f').join(''),
-            id: 'bar'
-          }
-        }
-      }, {}).then(function () {
-        assert.equal(log.error.callCount, 1, 'log.error was called once')
-        assert.equal(log.error.args[0].length, 1, 'log.error was passed one argument')
-        assert.equal(log.error.args[0][0].op, 'metricsContext.gather', 'argument op property was correct')
-        assert.equal(log.error.args[0][0].err, 'foo', 'argument err property was correct')
-
-        assert.equal(cache.get.callCount, 1, 'cache.get was called once')
       })
     }
   )

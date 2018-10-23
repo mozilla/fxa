@@ -75,6 +75,8 @@ function configureSentry(server, config) {
 
 async function create (log, error, config, routes, db, translator) {
   const getGeoData = require('./geodb')(log)
+  const metricsContext = require('./metrics/context')(log, config)
+  const metricsEvents = require('./metrics/events')(log, config)
 
   // Hawk needs to calculate request signatures based on public URL,
   // not the local URL to which it is bound.
@@ -209,6 +211,7 @@ async function create (log, error, config, routes, db, translator) {
 
     defineLazyGetter(request.app, 'ua', () => userAgent(request.headers['user-agent']))
     defineLazyGetter(request.app, 'geo', () => getGeoData(request.app.clientAddress))
+    defineLazyGetter(request.app, 'metricsContext', () => metricsContext.get(request))
 
     defineLazyGetter(request.app, 'devices', () => {
       let uid
@@ -260,7 +263,6 @@ async function create (log, error, config, routes, db, translator) {
   // configure Sentry
   configureSentry(server, config)
 
-  const metricsContext = require('./metrics/context')(log, config)
   server.decorate('request', 'stashMetricsContext', metricsContext.stash)
   server.decorate('request', 'gatherMetricsContext', metricsContext.gather)
   server.decorate('request', 'propagateMetricsContext', metricsContext.propagate)
@@ -268,7 +270,6 @@ async function create (log, error, config, routes, db, translator) {
   server.decorate('request', 'validateMetricsContext', metricsContext.validate)
   server.decorate('request', 'setMetricsFlowCompleteSignal', metricsContext.setFlowCompleteSignal)
 
-  const metricsEvents = require('./metrics/events')(log, config)
   server.decorate('request', 'emitMetricsEvent', metricsEvents.emit)
   server.decorate('request', 'emitRouteFlowEvent', metricsEvents.emitRouteFlowEvent)
 

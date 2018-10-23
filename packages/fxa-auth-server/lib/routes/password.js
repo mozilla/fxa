@@ -441,12 +441,7 @@ module.exports = function (
         }
         request.setMetricsFlowCompleteSignal(flowCompleteSignal)
 
-        // Store flowId and flowBeginTime to send in email
-        let flowId, flowBeginTime
-        if (request.payload.metricsContext) {
-          flowId = request.payload.metricsContext.flowId
-          flowBeginTime = request.payload.metricsContext.flowBeginTime
-        }
+        const { flowId, flowBeginTime } = await request.app.metricsContext
 
         let passwordForgotToken
 
@@ -488,9 +483,9 @@ module.exports = function (
               redirectTo: request.payload.redirectTo,
               resume: request.payload.resume,
               acceptLanguage: request.app.acceptLanguage,
-              flowId: flowId,
-              flowBeginTime: flowBeginTime,
-              ip: ip,
+              flowId,
+              flowBeginTime,
+              ip,
               location: geoData.location,
               timeZone: geoData.timeZone,
               uaBrowser,
@@ -546,12 +541,7 @@ module.exports = function (
 
         request.validateMetricsContext()
 
-        // Store flowId and flowBeginTime to send in email
-        let flowId, flowBeginTime
-        if (request.payload.metricsContext) {
-          flowId = request.payload.metricsContext.flowId
-          flowBeginTime = request.payload.metricsContext.flowBeginTime
-        }
+        const { flowId, flowBeginTime } = await request.app.metricsContext
 
         return P.all([
           request.emitMetricsEvent('password.forgot.resend_code.start'),
@@ -637,12 +627,7 @@ module.exports = function (
 
         request.validateMetricsContext()
 
-        // Store flowId and flowBeginTime to send in email
-        let flowId, flowBeginTime
-        if (request.payload.metricsContext) {
-          flowId = request.payload.metricsContext.flowId
-          flowBeginTime = request.payload.metricsContext.flowBeginTime
-        }
+        const { flowId, flowBeginTime } = await request.app.metricsContext
 
         let accountResetToken
 
