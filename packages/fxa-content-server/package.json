@@ -117,7 +117,6 @@
     "ua-parser-js": "git://github.com/vladikoff/ua-parser-js.git#fxa-version",
     "uglifyjs-webpack-plugin": "1.2.7",
     "underscore": "1.8.3",
-    "universal-analytics": "0.4.15",
     "webpack": "4.16.1",
     "webpack-cli": "3.1.0",
     "webrtc-adapter-test": "0.2.5"

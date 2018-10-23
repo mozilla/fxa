@@ -19,7 +19,6 @@ module.exports = [
   'tests/server/metrics.js',
   'tests/server/metrics-collector-stderr.js',
   'tests/server/metrics-errors.js',
-  'tests/server/metrics-ga.js',
   'tests/server/metrics-unit.js',
   'tests/server/noindex.js',
   'tests/server/configuration.js',

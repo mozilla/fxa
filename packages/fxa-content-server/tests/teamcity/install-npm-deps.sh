@@ -34,6 +34,5 @@ node ./tests/teamcity/install-npm-deps.js \
   sinon                           \
   sync-exec                       \
   underscore                      \
-  universal-analytics             \
   xmlhttprequest                  \
   yargs

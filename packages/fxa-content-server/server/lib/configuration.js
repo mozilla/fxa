@@ -178,12 +178,6 @@ const conf = module.exports = convict({
       format: Boolean
     }
   },
-  google_analytics_id: {
-    default: undefined,
-    doc: 'Google Analytics id',
-    env: 'GOOGLE_ANALYTICS_ID',
-    format: String
-  },
   hpkp: {
     enabled: {
       default: false,

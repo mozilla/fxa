@@ -7,7 +7,6 @@
 const _ = require('lodash');
 const config = require('../configuration');
 const flowMetricsRequest = require('../flow-event').metricsRequest;
-const GACollector = require('../ga-collector');
 const joi = require('joi');
 const logger = require('../logging/log')('server.post-metrics');
 const MetricsCollector = require('../metrics-collector-stderr');
@@ -122,7 +121,6 @@ const BODY_SCHEMA = {
 
 module.exports = function () {
   const metricsCollector = new MetricsCollector();
-  const ga = new GACollector();
 
   return {
     method: 'post',
@@ -167,7 +165,6 @@ module.exports = function () {
             metricsCollector.write(metrics);
           }
         }
-        ga.write(metrics);
 
         flowMetricsRequest(req, metrics, requestReceivedTime);
       });

@@ -35,9 +35,6 @@ registerSuite('routes/post-metrics', {
       flowEvent: {
         metricsRequest: sandbox.spy()
       },
-      gaCollector: {
-        write: sandbox.spy()
-      },
       metricsCollector: {
         write: sandbox.spy()
       },
@@ -49,9 +46,6 @@ registerSuite('routes/post-metrics', {
       path.join(process.cwd(), 'server/lib/routes/post-metrics'), {
         '../flow-event': mocks.flowEvent,
         '../configuration': mocks.config,
-        '../ga-collector': function () {
-          return mocks.gaCollector;
-        },
         '../metrics-collector-stderr': function () {
           return mocks.metricsCollector;
         },
@@ -201,13 +195,6 @@ registerSuite('routes/post-metrics', {
                   });
                 },
 
-                'gaCollector.write was called correctly': function () {
-                  assert.strictEqual(mocks.gaCollector.write.callCount, 1);
-                  var args = mocks.gaCollector.write.args[0];
-                  assert.lengthOf(args, 1);
-                  assert.equal(args[0], mocks.request.body);
-                },
-
                 'flowEvent.metricsRequest was called correctly': function () {
                   assert.strictEqual(mocks.flowEvent.metricsRequest.callCount, 1);
                   var args = mocks.flowEvent.metricsRequest.args[0];
@@ -267,10 +254,6 @@ registerSuite('routes/post-metrics', {
 
                 'metricsCollector.write was not called': function () {
                   assert.strictEqual(mocks.metricsCollector.write.callCount, 0);
-                },
-
-                'gaCollector.write was called': function () {
-                  assert.strictEqual(mocks.gaCollector.write.callCount, 1);
                 },
 
                 'flowEvent was called': function () {
