@@ -74,12 +74,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
 
         request.validateMetricsContext()
 
-        // Store flowId and flowBeginTime to send in email
-        let flowId, flowBeginTime
-        if (request.payload.metricsContext) {
-          flowId = request.payload.metricsContext.flowId
-          flowBeginTime = request.payload.metricsContext.flowBeginTime
-        }
+        const { flowId, flowBeginTime } = await request.app.metricsContext
 
         return customs.check(request, email, 'accountCreate')
           .then(deleteAccountIfUnverified)
@@ -654,54 +649,51 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           return false
         }
 
-        function sendSigninNotifications() {
-          return signinUtils.sendSigninNotifications(request, accountRecord, sessionToken, verificationMethod)
-            .then(() => {
-              // For new sync logins that don't send some other sort of email,
-              // send an after-the-fact notification email so that the user
-              // is aware that something happened on their account.
-              if (accountRecord.primaryEmail.isVerified) {
-                if (sessionToken.tokenVerified || ! sessionToken.mustVerify) {
-                  if (requestHelper.wantsKeys(request)) {
-                    const geoData = request.app.geo
-                    const service = request.payload.service || request.query.service
-                    const ip = request.app.clientAddress
-                    let flowId, flowBeginTime
-                    if (request.payload.metricsContext) {
-                      flowId = request.payload.metricsContext.flowId
-                      flowBeginTime = request.payload.metricsContext.flowBeginTime
+        async function sendSigninNotifications() {
+          await signinUtils.sendSigninNotifications(request, accountRecord, sessionToken, verificationMethod)
+
+          // For new sync logins that don't send some other sort of email,
+          // send an after-the-fact notification email so that the user
+          // is aware that something happened on their account.
+          if (accountRecord.primaryEmail.isVerified) {
+            if (sessionToken.tokenVerified || ! sessionToken.mustVerify) {
+              if (requestHelper.wantsKeys(request)) {
+                const geoData = request.app.geo
+                const service = request.payload.service || request.query.service
+                const ip = request.app.clientAddress
+                const { flowId, flowBeginTime } = await request.app.metricsContext
+
+                try {
+                  await mailer.sendNewDeviceLoginNotification(
+                    accountRecord.emails,
+                    accountRecord,
+                    {
+                      acceptLanguage: request.app.acceptLanguage,
+                      flowId,
+                      flowBeginTime,
+                      ip,
+                      location: geoData.location,
+                      service,
+                      timeZone: geoData.timeZone,
+                      uaBrowser: request.app.ua.browser,
+                      uaBrowserVersion: request.app.ua.browserVersion,
+                      uaOS: request.app.ua.os,
+                      uaOSVersion: request.app.ua.osVersion,
+                      uaDeviceType: request.app.ua.deviceType,
+                      uid: sessionToken.uid
                     }
-                    mailer.sendNewDeviceLoginNotification(
-                      accountRecord.emails,
-                      accountRecord,
-                      {
-                        acceptLanguage: request.app.acceptLanguage,
-                        flowId: flowId,
-                        flowBeginTime: flowBeginTime,
-                        ip: ip,
-                        location: geoData.location,
-                        service,
-                        timeZone: geoData.timeZone,
-                        uaBrowser: request.app.ua.browser,
-                        uaBrowserVersion: request.app.ua.browserVersion,
-                        uaOS: request.app.ua.os,
-                        uaOSVersion: request.app.ua.osVersion,
-                        uaDeviceType: request.app.ua.deviceType,
-                        uid: sessionToken.uid
-                      }
-                    )
-                      .catch(e => {
-                        // If we couldn't email them, no big deal. Log
-                        // and pretend everything worked.
-                        log.trace({
-                          op: 'Account.login.sendNewDeviceLoginNotification.error',
-                          error: e
-                        })
-                      })
-                  }
+                  )
+                } catch (err) {
+                  // If we couldn't email them, no big deal. Log
+                  // and pretend everything worked.
+                  log.trace({
+                    op: 'Account.login.sendNewDeviceLoginNotification.error',
+                    error: err
+                  })
                 }
               }
-            })
+            }
+          }
         }
 
         function createKeyFetchToken() {

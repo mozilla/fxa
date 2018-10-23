@@ -34,6 +34,7 @@ module.exports = function (log, config) {
 
   return {
     stash,
+    get,
     gather,
     propagate,
     clear,
@@ -77,6 +78,45 @@ module.exports = function (log, config) {
   }
 
   /**
+   * Returns a promise that resolves to the current metrics context data,
+   * which may come from the request payload or have been stashed previously.
+   * If no there is no metrics context data, the promise resolves to an empty
+   * object.
+   *
+   * Unlike the rest of the methods here, this is not exposed on the request
+   * object and should not be called directly. Its result is instead exposed
+   * using a lazy getter, which can be accessed via request.app.metricsContext.
+   *
+   * @param request
+   */
+  async function get (request) {
+    let token
+
+    try {
+      const metadata = request.payload && request.payload.metricsContext
+
+      if (metadata) {
+        return metadata
+      }
+
+      token = getToken(request)
+      if (token) {
+        return await cache.get(getKey(token)) || {}
+      }
+    } catch (err) {
+      log.error({
+        op: 'metricsContext.get',
+        err,
+        hasToken: !! token,
+        hasId: !! (token && token.id),
+        hasUid: !! (token && token.uid)
+      })
+    }
+
+    return {}
+  }
+
+  /**
    * Gathers metrics context metadata onto data, using either metadata
    * passed in with a request or previously-stashed metadata for a
    * token. Asynchronous, returns a promise that resolves to data, with
@@ -86,54 +126,33 @@ module.exports = function (log, config) {
    * @this request
    * @param data target object
    */
-  function gather (data) {
-    let token
+  async function gather (data) {
+    const metadata = await this.app.metricsContext
 
-    return P.resolve()
-      .then(() => {
-        const metadata = this.payload && this.payload.metricsContext
+    if (metadata) {
+      data.time = Date.now()
+      data.device_id = metadata.deviceId
+      data.flow_id = metadata.flowId
+      data.flow_time = calculateFlowTime(data.time, metadata.flowBeginTime)
+      data.flowBeginTime = metadata.flowBeginTime
+      data.flowCompleteSignal = metadata.flowCompleteSignal
+      data.flowType = metadata.flowType
 
-        if (metadata) {
-          return metadata
-        }
+      if (metadata.service) {
+        data.service = metadata.service
+      }
 
-        token = getToken(this)
-        if (token) {
-          return cache.get(getKey(token))
-        }
-      })
-      .then(metadata => {
-        if (metadata) {
-          data.time = Date.now()
-          data.device_id = metadata.deviceId
-          data.flow_id = metadata.flowId
-          data.flow_time = calculateFlowTime(data.time, metadata.flowBeginTime)
-          data.flowBeginTime = metadata.flowBeginTime
-          data.flowCompleteSignal = metadata.flowCompleteSignal
-          data.flowType = metadata.flowType
+      const doNotTrack = this.headers && this.headers.dnt === '1'
+      if (! doNotTrack) {
+        data.utm_campaign = metadata.utmCampaign
+        data.utm_content = metadata.utmContent
+        data.utm_medium = metadata.utmMedium
+        data.utm_source = metadata.utmSource
+        data.utm_term = metadata.utmTerm
+      }
+    }
 
-          if (metadata.service) {
-            data.service = metadata.service
-          }
-
-          const doNotTrack = this.headers && this.headers.dnt === '1'
-          if (! doNotTrack) {
-            data.utm_campaign = metadata.utmCampaign
-            data.utm_content = metadata.utmContent
-            data.utm_medium = metadata.utmMedium
-            data.utm_source = metadata.utmSource
-            data.utm_term = metadata.utmTerm
-          }
-        }
-      })
-      .catch(err => log.error({
-        op: 'metricsContext.gather',
-        err: err,
-        hasToken: !! token,
-        hasId: !! (token && token.id),
-        hasUid: !! (token && token.uid)
-      }))
-      .then(() => data)
+    return data
   }
 
   function getToken (request) {

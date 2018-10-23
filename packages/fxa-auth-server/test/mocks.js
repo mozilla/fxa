@@ -537,6 +537,11 @@ function mockRequest (data, errors) {
     devices = P.resolve(data.devices || [])
   }
 
+  let metricsContextData = data.payload && data.payload.metricsContext
+  if (! metricsContextData) {
+    metricsContextData = {}
+  }
+
   return {
     app: {
       acceptLanguage: data.acceptLanguage || 'en-US',
@@ -545,6 +550,7 @@ function mockRequest (data, errors) {
       features: new Set(data.features),
       geo,
       locale: data.locale || 'en-US',
+      metricsContext: P.resolve(metricsContextData),
       ua: {
         browser: data.uaBrowser || 'Firefox',
         browserVersion: data.uaBrowserVersion || '57.0',

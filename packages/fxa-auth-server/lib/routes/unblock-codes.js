@@ -33,12 +33,7 @@ module.exports = (log, db, mailer, config, customs) => {
 
         request.validateMetricsContext()
 
-        // Store flowId and flowBeginTime to send in email
-        let flowId, flowBeginTime
-        if (request.payload.metricsContext) {
-          flowId = request.payload.metricsContext.flowId
-          flowBeginTime = request.payload.metricsContext.flowBeginTime
-        }
+        const { flowId, flowBeginTime } = await request.app.metricsContext
 
         return customs.check(request, email, 'sendUnblockCode')
           .then(lookupAccount)
@@ -74,8 +69,8 @@ module.exports = (log, db, mailer, config, customs) => {
               return mailer.sendUnblockCode(emails, emailRecord, {
                 acceptLanguage: request.app.acceptLanguage,
                 unblockCode: code,
-                flowId: flowId,
-                flowBeginTime: flowBeginTime,
+                flowId,
+                flowBeginTime,
                 ip: request.app.clientAddress,
                 location: geoData.location,
                 timeZone: geoData.timeZone,
