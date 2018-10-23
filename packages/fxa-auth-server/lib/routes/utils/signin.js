@@ -172,7 +172,7 @@ module.exports = (log, config, customs, db, mailer)  => {
      * This includes emailing the user, logging metrics events, and
      * notifying attached services.
      */
-    sendSigninNotifications(request, accountRecord, sessionToken, verificationMethod) {
+    async sendSigninNotifications (request, accountRecord, sessionToken, verificationMethod) {
       const service = request.payload.service || request.query.service
       const redirectTo = request.payload.redirectTo
       const resume = request.payload.resume
@@ -180,12 +180,7 @@ module.exports = (log, config, customs, db, mailer)  => {
 
       let sessions
 
-      // Store flowId and flowBeginTime to send in email
-      let flowId, flowBeginTime
-      if (request.payload.metricsContext) {
-        flowId = request.payload.metricsContext.flowId
-        flowBeginTime = request.payload.metricsContext.flowBeginTime
-      }
+      const { flowId, flowBeginTime } = await request.app.metricsContext
 
       const mustVerifySession = sessionToken.mustVerify && ! sessionToken.tokenVerified
 
@@ -333,9 +328,9 @@ module.exports = (log, config, customs, db, mailer)  => {
           {
             acceptLanguage: request.app.acceptLanguage,
             code: sessionToken.tokenVerificationId,
-            flowId: flowId,
-            flowBeginTime: flowBeginTime,
-            ip: ip,
+            flowId,
+            flowBeginTime,
+            ip,
             location: geoData.location,
             redirectTo: redirectTo,
             resume: resume,
@@ -370,9 +365,9 @@ module.exports = (log, config, customs, db, mailer)  => {
           {
             acceptLanguage: request.app.acceptLanguage,
             code: sessionToken.tokenVerificationCode,
-            flowId: flowId,
-            flowBeginTime: flowBeginTime,
-            ip: ip,
+            flowId,
+            flowBeginTime,
+            ip,
             location: geoData.location,
             redirectTo: redirectTo,
             resume: resume,

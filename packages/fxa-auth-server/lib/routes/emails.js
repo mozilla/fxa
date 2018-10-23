@@ -150,8 +150,6 @@ module.exports = (log, db, mailer, config, customs, push) => {
         let verifyFunction
         let event
         let emails = []
-        let flowId
-        let flowBeginTime
         let sendEmail = true
 
         // Return immediately if this session or token is already verified. Only exception
@@ -161,10 +159,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
           return {}
         }
 
-        if (request.payload.metricsContext) {
-          flowId = request.payload.metricsContext.flowId
-          flowBeginTime = request.payload.metricsContext.flowBeginTime
-        }
+        const { flowId, flowBeginTime } = await request.app.metricsContext
 
         return customs.check(request, sessionToken.email, 'recoveryEmailResendCode')
           .then(setVerifyCode)
