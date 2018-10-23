@@ -449,6 +449,26 @@ registerSuite('amplitude', {
       assert.equal(process.stderr.write.callCount, 0);
     },
 
+    'flow.signin-totp-code.engage': () => {
+      amplitude({
+        time: 'a',
+        type: 'flow.signin-totp-code.engage'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_login - totp_code_engage');
+    },
+
     'flow.install_from.foo': () => {
       amplitude({
         time: 'a',
@@ -657,6 +677,26 @@ registerSuite('amplitude', {
       assert.equal(arg.event_properties.connect_device_os, undefined);
     },
 
+    'flow.signin-totp-code.submit': () => {
+      amplitude({
+        time: 'a',
+        type: 'flow.signin-totp-code.submit'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_login - totp_code_submit');
+    },
+
     'flow.wibble.submit': () => {
       amplitude({
         time: 'a',
@@ -848,6 +888,44 @@ registerSuite('amplitude', {
       assert.equal(process.stderr.write.callCount, 0);
     },
 
+    'screen.signin-totp-code': () => {
+      amplitude({
+        time: 'a',
+        type: 'screen.signin-totp-code'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_login - totp_code_view');
+    },
+
+    'screen.settings.two-step-authentication': () => {
+      amplitude({
+        time: 'a',
+        type: 'screen.settings.two-step-authentication'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_pref - two_step_authentication_view');
+    },
+
     'settings.communication-preferences.optIn.success': () => {
       amplitude({
         time: 'a',
@@ -888,6 +966,26 @@ registerSuite('amplitude', {
       const arg = JSON.parse(process.stderr.write.args[0]);
       assert.equal(arg.event_type, 'fxa_pref - newsletter');
       assert.equal(arg.user_properties.newsletter_state, 'unsubscribed');
+    },
+
+    'flow.signin-totp-code.success': () => {
+      amplitude({
+        time: 'a',
+        type: 'flow.signin-totp-code.success'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_login - totp_code_success');
     },
 
     'settings.communication-preferences.wibble.success': () => {

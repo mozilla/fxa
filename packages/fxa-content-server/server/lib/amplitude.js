@@ -58,6 +58,22 @@ const FUZZY_EVENTS = new Map([
     group: GROUPS.registration,
     event: (eventCategory, eventTarget) => `password_${eventCategory}`
   } ],
+  [ /^flow\.signin-totp-code\.submit$/, {
+    group: GROUPS.login,
+    event: 'totp_code_submit'
+  } ],
+  [ /^screen\.signin-totp-code$/, {
+    group: GROUPS.login,
+    event: 'totp_code_view'
+  } ],
+  [ /^flow\.signin-totp-code\.engage$/, {
+    group: GROUPS.login,
+    event: 'totp_code_engage'
+  } ],
+  [ /^screen\.settings\.two-step-authentication$/, {
+    group: GROUPS.settings,
+    event: 'two_step_authentication_view'
+  } ],
   [ /^flow\.([\w-]+)\.engage$/, {
     group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
     event: 'engage'
@@ -97,6 +113,10 @@ const FUZZY_EVENTS = new Map([
   [ /^([\w-]+).verification.clicked$/, {
     group: eventCategory => eventCategory in EMAIL_TYPES ? GROUPS.email : null,
     event: 'click'
+  } ],
+  [ /^flow\.signin-totp-code\.success$/, {
+    group: GROUPS.login,
+    event: 'totp_code_success'
   } ]
 ]);
 
