@@ -1,3 +1,8 @@
+<a name="1.123.1"></a>
+## [1.123.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.122.1...v1.123.1) (2018-10-22)
+
+
+
 <a name="1.123.0"></a>
 # [1.123.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.121.0...v1.123.0) (2018-10-16)
 
@@ -12,9 +17,9 @@
 
 * **deps:** Update deps to fix security warnings, remove nsp ([5581297](https://github.com/mozilla/fxa-auth-db-mysql/commit/5581297))
 
-### Features
 
-* **account:** add `profileChangedAt` property to account table ([24917b7](https://github.com/mozilla/fxa-auth-db-mysql/commit/24917b7))
+<a name="1.122.1"></a>
+## [1.122.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.121.1...v1.122.1) (2018-10-22)
 
 
 
@@ -25,6 +30,16 @@
 ### Features
 
 * **account:** add `profileChangedAt` property to account table ([24917b7](https://github.com/mozilla/fxa-auth-db-mysql/commit/24917b7))
+
+
+
+<a name="1.121.1"></a>
+## [1.121.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.121.0...v1.121.1) (2018-10-18)
+
+
+### Bug Fixes
+
+* **account:** update stored procedures to be more replication friendly ([3c1dd5a](https://github.com/mozilla/fxa-auth-db-mysql/commit/3c1dd5a))
 
 
 
