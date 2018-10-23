@@ -192,7 +192,7 @@ module.exports = {
           then: Joi.optional(),
           otherwise: Joi.forbidden()
         }),
-      acr_values: Joi.string().max(256).optional()
+      acr_values: Joi.string().max(256).optional().allow(null)
     }
   },
   response: {
