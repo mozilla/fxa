@@ -210,6 +210,10 @@ define(function (require, exports, module) {
       errno: 159,
       message: t('Invalid recovery key')
     },
+    TOTP_REQUIRED: {
+      errno: 160,
+      message: t('This request requires two step authentication enabled on your account.')
+    },
     // Secondary Email errors end
     SERVER_BUSY: {
       errno: 201,

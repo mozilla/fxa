@@ -43,6 +43,7 @@ describe('models/reliers/oauth', () => {
   var STATE = 'fakestatetoken';
   var CODE_CHALLENGE = 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM';
   var CODE_CHALLENGE_METHOD = 'S256';
+  const ACR_VALUES = 'AAL1';
 
   var RESUME_INFO = {
     access_type: ACCESS_TYPE,
@@ -75,6 +76,7 @@ describe('models/reliers/oauth', () => {
       it('populates expected fields from the search parameters', () => {
         windowMock.location.search = TestHelpers.toSearchString({
           access_type: ACCESS_TYPE,
+          acr_values: ACR_VALUES,
           action: ACTION,
           client_id: CLIENT_ID,
           code_challenge: CODE_CHALLENGE,
@@ -109,6 +111,8 @@ describe('models/reliers/oauth', () => {
             // PKCE parameters
             assert.equal(relier.get('codeChallenge'), CODE_CHALLENGE);
             assert.equal(relier.get('codeChallengeMethod'), CODE_CHALLENGE_METHOD);
+
+            assert.equal(relier.get('acrValues'), ACR_VALUES);
           });
       });
 
@@ -675,6 +679,28 @@ describe('models/reliers/oauth', () => {
       it('returns false', () => {
         assert.isFalse(relier.wantsConsent());
       });
+    });
+  });
+
+  describe('wantsTwoStepAuthentication', () => {
+    it('return true for acrValues=AAL2', () => {
+      relier.set('acrValues', 'AAL2');
+      assert.isTrue(relier.wantsTwoStepAuthentication());
+    });
+
+    it('return true for space delimited acrValues=AAL2 AAL1', () => {
+      relier.set('acrValues', 'AAL2 AA1');
+      assert.isTrue(relier.wantsTwoStepAuthentication());
+    });
+
+    it('return false for acrValues=undefined', () => {
+      relier.unset('acrValues');
+      assert.isFalse(relier.wantsTwoStepAuthentication());
+    });
+
+    it('return false otherwise', () => {
+      relier.set('acrValues', 'AAL1');
+      assert.isFalse(relier.wantsTwoStepAuthentication());
     });
   });
 

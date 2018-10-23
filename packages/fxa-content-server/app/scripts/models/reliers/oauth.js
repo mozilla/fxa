@@ -24,6 +24,7 @@ var CLIENT_INFO_SCHEMA = {
 
 var SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA = {
   access_type: Vat.accessType().renameTo('accessType'),
+  acr_values: Vat.string().renameTo('acrValues'),
   action: Vat.action(),
   client_id: Vat.clientId().required().renameTo('clientId'),
   code_challenge: Vat.codeChallenge().renameTo('codeChallenge'),
@@ -39,6 +40,7 @@ var SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA = {
 
 var VERIFICATION_INFO_SCHEMA = {
   access_type: Vat.accessType().renameTo('accessType'),
+  acr_values: Vat.string().renameTo('acrValues'),
   action: Vat.string().min(1),
   client_id: Vat.clientId().required().renameTo('clientId'),
   prompt: Vat.prompt(),
@@ -55,6 +57,7 @@ var VERIFICATION_INFO_SCHEMA = {
 var OAuthRelier = Relier.extend({
   defaults: _.extend({}, Relier.prototype.defaults, {
     accessType: null,
+    acrValues: null,
     clientId: null,
     context: Constants.OAUTH_CONTEXT,
     keysJwk: null,
@@ -223,6 +226,21 @@ var OAuthRelier = Relier.extend({
      */
   wantsConsent () {
     return this.get('prompt') === Constants.OAUTH_PROMPT_CONSENT;
+  },
+
+  /**
+   * Return `true` if the relier specified two step authentication
+   * in its acrValues.
+   *
+   * @returns {Boolean} `true` if relier asks for two step authentication, false otw.
+   */
+  wantsTwoStepAuthentication () {
+    const acrValues = this.get('acrValues');
+    if (! acrValues) {
+      return false;
+    }
+    const tokens = acrValues.split(' ');
+    return tokens.includes(Constants.TWO_STEP_AUTHENTICATION_ACR);
   },
 
   /**
