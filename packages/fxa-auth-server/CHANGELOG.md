@@ -1,3 +1,13 @@
+<a name="1.123.2"></a>
+## [1.123.2](https://github.com/mozilla/fxa-auth-server/compare/v1.123.1...v1.123.2) (2018-10-24)
+
+
+### Bug Fixes
+
+* **metrics:** ensure metrics context is propagated from /account/reset ([48ed7be](https://github.com/mozilla/fxa-auth-server/commit/48ed7be))
+
+
+
 <a name="1.123.1"></a>
 ## [1.123.1](https://github.com/mozilla/fxa-auth-server/compare/v1.123.0...v1.123.1) (2018-10-23)
 
