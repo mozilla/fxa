@@ -1,0 +1,50 @@
+language: node_js
+
+node_js:
+ - "8"
+
+dist: trusty
+
+services:
+  - redis-server
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - mysql-server-5.6
+    - mysql-client-core-5.6
+    - mysql-client-5.6
+
+env:
+  matrix:
+    - DB=memory
+    - DB=mysql
+
+notifications:
+  email:
+    - rfkelly@mozilla.com
+    - jrgm@mozilla.com
+  irc:
+    channels:
+      - "irc.mozilla.org#fxa-bots"
+    use_notice: false
+    skip_join: false
+
+before_install:
+  - npm i -g npm@6
+  - npm config set spin false
+
+install:
+  - npm ci
+
+script:
+  - if [ $DB == "mysql" ]; then ./scripts/start-travis-auth-db-mysql.sh; fi
+  - npm run test-ci
+  - npm run test-e2e
+  - npm run test-scripts
+  # Test fxa-auth-mailer
+  - grunt templates && git status -s | (! grep 'M lib/senders/templates/')
+  - grunt l10n-extract
+  - npm run lint:deps

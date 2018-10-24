@@ -1,0 +1,9 @@
+{{t "Welcome!"}}
+
+{{{t "Please activate your account by confirming this email address." }}}
+{{t "Activate now:"}} {{{link}}}
+
+{{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit %(supportUrl)s"}}}
+
+Mozilla. 331 E Evelyn Ave, Mountain View, CA 94041
+{{t "Mozilla Privacy Policy" }} {{{privacyUrl}}}
