@@ -1105,7 +1105,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
               .then(
                 function (result) {
                   sessionToken = result
-                  return request.stashMetricsContext(sessionToken)
+                  return request.propagateMetricsContext(accountResetToken, sessionToken)
                 }
               )
           }
@@ -1127,7 +1127,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
               .then(
                 function (result) {
                   keyFetchToken = result
-                  return request.stashMetricsContext(keyFetchToken)
+                  return request.propagateMetricsContext(accountResetToken, keyFetchToken)
                 }
               )
           }
