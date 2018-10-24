@@ -4,6 +4,7 @@ node_js:
  - "8"
 
 dist: trusty
+sudo: true
 
 services:
   - redis-server
@@ -13,14 +14,10 @@ addons:
     sources:
     - ubuntu-toolchain-r-test
     packages:
+    - g++-4.8
     - mysql-server-5.6
     - mysql-client-core-5.6
     - mysql-client-5.6
-
-env:
-  matrix:
-    - DB=memory
-    - DB=mysql
 
 notifications:
   email:
@@ -32,19 +29,56 @@ notifications:
     use_notice: false
     skip_join: false
 
-before_install:
-  - npm i -g npm@6
-  - npm config set spin false
+_aliases:
+  - &test
+    before_install:
+    - npm i -g npm@6
+    - npm config set spin false
+  - &fxa-auth-memory-test
+    env: DB=memory
+    <<: *test
+  - &fxa-auth-mysql-test
+    env: DB=mysql
+    <<: *test
+  - &fxa-oauth-memory-test
+    env: CXX=g++-4.8 NODE_ENV=test DB=memory
+    <<: *test
+  - &fxa-oauth-mysql-test
+    env: CXX=g++-4.8 NODE_ENV=test DB=mysql
+    <<: *test
 
-install:
-  - npm ci
-
-script:
-  - if [ $DB == "mysql" ]; then ./scripts/start-travis-auth-db-mysql.sh; fi
-  - npm run test-ci
-  - npm run test-e2e
-  - npm run test-scripts
-  # Test fxa-auth-mailer
-  - grunt templates && git status -s | (! grep 'M lib/senders/templates/')
-  - grunt l10n-extract
-  - npm run lint:deps
+jobs:
+  include:
+  - stage:
+    node_js: 8
+    <<: *fxa-auth-memory-test
+    install:
+      - npm ci
+    script:
+      - npm run test-ci
+      - npm run test-e2e
+      - npm run test-scripts
+      - grunt templates && git status -s | (! grep 'M lib/senders/templates/')
+      - grunt l10n-extract
+      - npm run lint:deps
+  - stage:
+    node_js: 8
+    <<: *fxa-auth-mysql-test
+    install:
+      - npm ci
+    script:
+      - ./scripts/start-travis-auth-db-mysql.sh
+      - npm run test-ci
+      - npm run test-e2e
+  - stage:
+    node_js: 8
+    <<: *fxa-oauth-memory-test
+    install:
+      - cd fxa-oauth-server && npm ci && cd ..
+    script: cd fxa-oauth-server && npm test
+  - stage:
+    node_js: 8
+    <<: *fxa-oauth-memory-test
+    install:
+      - cd fxa-oauth-server && npm ci && cd ..
+    script: cd fxa-oauth-server && npm test
