@@ -32,6 +32,10 @@ jobs:
           command: docker build -f Dockerfile-build -t fxa-auth-server:build .
 
       - run:
+          name: Start memcached
+          command: docker pull memcached && docker run -d --name memcached -p 11211:11211 memcached
+
+      - run:
           name: Start redis
           command: docker pull redis && docker run -d --name redis-server -p 6379:6379 redis
 

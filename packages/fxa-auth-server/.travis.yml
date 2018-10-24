@@ -7,6 +7,7 @@ dist: trusty
 sudo: true
 
 services:
+  - memcached
   - redis-server
 
 addons:
