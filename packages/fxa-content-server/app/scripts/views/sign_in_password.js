@@ -42,17 +42,6 @@ const SignInPasswordView = FormView.extend({
     }
   },
 
-  afterRender() {
-    // To help with the user experience, ref https://github.com/mozilla/addons/issues/732
-    // If the relier is requesting 2FA, lets attempt to log them in. If there is a cached
-    // session that has been 2FA verified, the login will proceed and they would
-    // not be prompted for the password again. All other scenarios, will display an error
-    // for the user to enable 2FA.
-    if (this.relier.wantsTwoStepAuthentication()) {
-      this.submit();
-    }
-  },
-
   setInitialContext (context) {
     const account = this.getAccount();
 

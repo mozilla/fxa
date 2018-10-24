@@ -138,30 +138,5 @@ registerSuite('oauth require totp', {
         })
         .end();
     },
-
-    'succeed for cached account with TOTP': function () {
-      return this.remote
-        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-
-        .then(click(selectors.TOTP.MENU_BUTTON))
-
-        .then(click(selectors.TOTP.SHOW_CODE_LINK))
-        .then(testElementExists(selectors.TOTP.MANUAL_CODE))
-
-        // Store the secret key to recalculate the code later
-        .findByCssSelector(selectors.TOTP.MANUAL_CODE)
-        .getVisibleText()
-        .then((secretKey) => {
-          secret = secretKey;
-          return this.remote
-            .then(confirmTotpCode(secret))
-            // Because the cached account was verified with TOTP, it won't be prompted for password
-            .then(openFxaFromRp('two-step-authentication', {header: selectors['123DONE'].AUTHENTICATED}))
-            .then(testAtOAuthApp());
-        })
-        .end();
-    },
   }
 });
