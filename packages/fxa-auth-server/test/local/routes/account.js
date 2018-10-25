@@ -192,7 +192,7 @@ describe('/account/reset', function () {
 
     it('should have emitted metrics', () => {
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
-      let args = mockLog.activityEvent.args[0]
+      const args = mockLog.activityEvent.args[0]
       assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
       assert.deepEqual(args[0], {
         event: 'account.reset',
@@ -201,12 +201,8 @@ describe('/account/reset', function () {
         uid: uid
       }, 'event data was correct')
 
-      assert.equal(mockMetricsContext.validate.callCount, 1, 'metricsContext.validate was called')
-      assert.equal(mockMetricsContext.validate.args[0].length, 0, 'validate was called without arguments')
-      assert.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 1, 'metricsContext.setFlowCompleteSignal was called once')
-      args = mockMetricsContext.setFlowCompleteSignal.args[0]
-      assert.equal(args.length, 1, 'metricsContext.setFlowCompleteSignal was passed one argument')
-      assert.equal(args[0], 'account.signed', 'argument was event name')
+      assert.equal(mockMetricsContext.validate.callCount, 0)
+      assert.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 0)
       assert.equal(mockMetricsContext.propagate.callCount, 2)
     })
 
@@ -250,13 +246,8 @@ describe('/account/reset', function () {
       assert.equal(securityEvent.ipAddr, clientAddress)
       assert.equal(securityEvent.name, 'account.reset')
 
-      assert.equal(mockMetricsContext.validate.callCount, 1, 'metricsContext.validate was called')
-      assert.equal(mockMetricsContext.validate.args[0].length, 0, 'validate was called without arguments')
-
-      assert.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 1, 'metricsContext.setFlowCompleteSignal was called once')
-      args = mockMetricsContext.setFlowCompleteSignal.args[0]
-      assert.equal(args.length, 1, 'metricsContext.setFlowCompleteSignal was passed one argument')
-      assert.equal(args[0], 'account.signed', 'argument was event name')
+      assert.equal(mockMetricsContext.validate.callCount, 0)
+      assert.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 0)
 
       assert.equal(mockMetricsContext.propagate.callCount, 2)
 

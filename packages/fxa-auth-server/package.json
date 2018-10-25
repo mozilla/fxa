@@ -17,7 +17,7 @@
     "shrink": "npmshrink && npm run postinstall && scripts/tls-shrink.sh",
     "start": "NODE_ENV=dev scripts/start-local.sh 2>&1",
     "start-mysql": "NODE_ENV=dev scripts/start-local-mysql.sh 2>&1",
-    "test": "VERIFIER_VERSION=0 MEMCACHE_METRICS_CONTEXT_ADDRESS=none NO_COVERAGE=1 scripts/test-local.sh",
+    "test": "VERIFIER_VERSION=0 NO_COVERAGE=1 scripts/test-local.sh",
     "test-ci": "scripts/test-local.sh",
     "test-e2e": "NODE_ENV=dev mocha test/e2e",
     "test-scripts": "mocha test/scripts --exit",
