@@ -28,7 +28,7 @@ describe('mysql db backend', function() {
       })
     };
     store = new MysqlStore({});
-    sinon.stub(store._pool, 'getConnection', function(cb) {
+    sinon.stub(store._pool, 'getConnection').callsFake(function (cb) {
       cb(null, mockConnection);
     });
   });

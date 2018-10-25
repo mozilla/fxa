@@ -4,6 +4,7 @@
 
 const Joi = require('joi');
 const checksum = require('checksum');
+const P = require('../promise');
 
 const logger = require('../logging')('routes.profile');
 
@@ -37,10 +38,16 @@ module.exports = {
     const server = req.server;
     const creds = req.auth.credentials;
 
-    server.methods.profileCache.get(req, (err, result, cached, report) => {
+    function createResponse (err, result, cached, report) {
       if (err) {
         return reply(err);
       }
+
+      // `profileChangedAt` is an internal implementation detail that we don't
+      // return to reliers. As of now, we don't expect them to have any
+      // use for this.
+      delete result.profileChangedAt;
+
       if (creds.scope.indexOf('openid') !== -1) {
         result.sub = creds.user;
       }
@@ -60,7 +67,27 @@ module.exports = {
       } else {
         logger.info('batch.db');
       }
+
       return rep.header('last-modified', lastModified.toUTCString());
+    }
+
+    server.methods.profileCache.get(req, (err, result, cached, report) => {
+      if (err) {
+        return reply(err);
+      }
+
+      // Check to see if the oauth-server is reporting a newer `profileChangedAt`
+      // timestamp from validating the token, if so, lets invalidate the cache
+      // and set new value.
+      if (result.profileChangedAt < creds.profileChangedAt) {
+        return P.fromCallback(cb => server.methods.profileCache.drop(creds.user, cb))
+          .then(() => {
+            logger.info('profileChangedAt:cacheCleared', {uid: creds.user});
+            server.methods.profileCache.get(req, createResponse);
+          });
+      }
+
+      return createResponse(err, result, cached, report);
     });
   }
 };
