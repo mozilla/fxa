@@ -5,5 +5,5 @@ check_mysql
 mysqlStarted=$?
 
 if [ "$mysqlStarted" ]; then
-  node ../fxa-oauth-server/bin/server.js 
+  node ../fxa-auth-server/fxa-oauth-server/bin/server.js 
 fi

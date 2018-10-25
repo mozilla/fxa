@@ -19,7 +19,7 @@
     {
       "name": "oauth-server-internal PORT 9011",
       "script": "bin/internal.js",
-      "cwd": "fxa-oauth-server",
+      "cwd": "fxa-auth-server/fxa-oauth-server",
       "env": {
         "NODE_ENV": "dev",
         "HOST_INTERNAL": "0.0.0.0"
@@ -81,7 +81,7 @@
     {
       "name": "oauth-server PORT 9010",
       "script": "_scripts/oauth_mysql.sh",
-      "cwd": "fxa-oauth-server",
+      "cwd": "fxa-auth-server/fxa-oauth-server",
       "env": {
         "NODE_ENV": "dev",
         "HOST": "0.0.0.0",
