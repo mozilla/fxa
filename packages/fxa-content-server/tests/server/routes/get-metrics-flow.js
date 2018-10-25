@@ -119,7 +119,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(args.length, 3);
       assert.ok(args[0].flowTime);
       assert.ok(args[0].time);
-      assert.equal(args[0].type, 'screen.enter-email.view');
+      assert.equal(args[0].type, 'screen.enter-email');
       assert.equal(args[2].entrypoint, 'bar');
       assert.ok(args[2].flowId);
 
