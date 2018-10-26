@@ -100,6 +100,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
                 }
                 request.app.accountRecreated = true
                 return db.deleteAccount(secondaryEmailRecord)
+                  .then(() => log.info({ op: 'accountDeleted.unverifiedSecondaryEmail', ...secondaryEmailRecord }))
               } else {
                 if (secondaryEmailRecord.isVerified) {
                   throw error.verifiedSecondaryEmailAlreadyExists()
@@ -1215,6 +1216,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
               .then((devices) => {
                 devicesToNotify = devices
                 return db.deleteAccount(emailRecord)
+                  .then(() => log.info({ op: 'accountDeleted.byRequest', ...emailRecord }))
               })
               .then(() => {
                 push.notifyAccountDestroyed(uid, devicesToNotify)

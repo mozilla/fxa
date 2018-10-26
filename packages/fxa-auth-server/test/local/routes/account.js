@@ -1432,6 +1432,13 @@ describe('/account/destroy', function () {
       assert.equal(args[0].email, email, 'db.deleteAccount was passed email record')
       assert.deepEqual(args[0].uid, uid, 'email record had correct uid')
 
+      assert.equal(mockLog.info.callCount, 1)
+      args = mockLog.info.args[0]
+      assert.lengthOf(args, 1)
+      assert.equal(args[0].op, 'accountDeleted.byRequest')
+      assert.equal(args[0].email, email)
+      assert.equal(args[0].uid, uid)
+
       assert.equal(mockPush.notifyAccountDestroyed.callCount, 1)
       assert.equal(mockPush.notifyAccountDestroyed.firstCall.args[0], uid)
 
