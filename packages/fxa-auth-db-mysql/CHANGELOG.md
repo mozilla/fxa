@@ -1,22 +1,15 @@
-<a name="1.123.1"></a>
-## [1.123.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.122.1...v1.123.1) (2018-10-22)
-
-
-
-
-<a name="1.123.0"></a>
-# [1.123.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.121.0...v1.123.0) (2018-10-16)
+<a name="1.123.2"></a>
+## [1.123.2](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.123.1...v1.123.2) (2018-10-26)
 
 
 ### Bug Fixes
 
-* **account:** delete recovery codes, recovery keys, security events on account delete ([a8d0467](https://github.com/mozilla/fxa-auth-db-mysql/commit/a8d0467))
-* **mem:** ensure emailBounces are stored most-recent first ([ccf6c3c](https://github.com/mozilla/fxa-auth-db-mysql/commit/ccf6c3c))
-* **performance:** Add index for scanning signinCodes by uid. ([905e716](https://github.com/mozilla/fxa-auth-db-mysql/commit/905e716))
+* **account:** rollback `profileChangedAt` migration ([4b4f7d4](https://github.com/mozilla/fxa-auth-db-mysql/commit/4b4f7d4))
 
-### chore
 
-* **deps:** Update deps to fix security warnings, remove nsp ([5581297](https://github.com/mozilla/fxa-auth-db-mysql/commit/5581297))
+
+<a name="1.123.1"></a>
+## [1.123.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.122.1...v1.123.1) (2018-10-22)
 
 
 
@@ -37,11 +30,6 @@
 
 <a name="1.122.1"></a>
 ## [1.122.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.121.1...v1.122.1) (2018-10-22)
-
-
-### Features
-
-* **account:** add `profileChangedAt` property to account table ([24917b7](https://github.com/mozilla/fxa-auth-db-mysql/commit/24917b7))
 
 
 
