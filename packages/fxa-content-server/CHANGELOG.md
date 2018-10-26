@@ -1,3 +1,14 @@
+<a name="1.123.2"></a>
+## [1.123.2](https://github.com/mozilla/fxa-content-server/compare/v1.123.1...v1.123.2) (2018-10-26)
+
+
+### Bug Fixes
+
+* **ci:** update travis to use oauth server in auth server repo ([5f9d879](https://github.com/mozilla/fxa-content-server/commit/5f9d879))
+* **metrics:** fix get-metrics-flow to use correct view event ([610a85e](https://github.com/mozilla/fxa-content-server/commit/610a85e))
+
+
+
 <a name="1.123.1"></a>
 ## [1.123.1](https://github.com/mozilla/fxa-content-server/compare/v1.123.0...v1.123.1) (2018-10-19)
 
