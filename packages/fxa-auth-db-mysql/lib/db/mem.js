@@ -72,7 +72,7 @@ module.exports = function (log, error) {
     var item = extend({}, account)
     delete item.verifyHash
 
-    item.profileChangedAt = item.profileChangedAt || item.verifierSetAt || item.createdAt
+    item.profileChangedAt = item.verifierSetAt || item.createdAt
 
     return P.resolve(item)
   }
@@ -569,7 +569,7 @@ module.exports = function (log, error) {
     var account = accounts[accountId]
 
     item.verifierSetAt = account.verifierSetAt
-    item.profileChangedAt = account.profileChangedAt || account.verifierSetAt || account.createdAt
+    item.profileChangedAt =  account.verifierSetAt || account.createdAt
     item.locale = account.locale
     item.accountCreatedAt = account.createdAt
 
@@ -832,7 +832,6 @@ module.exports = function (log, error) {
             // Verify email record if it matches emailCode
             if (emailRecord.emailCode.toString('hex') === emailCode.toString('hex')) {
               emailRecord.isVerified = 1
-              account.profileChangedAt = Date.now()
               return true
             }
 
@@ -888,7 +887,6 @@ module.exports = function (log, error) {
           account.wrapWrapKb = data.wrapWrapKb
           account.verifierSetAt = data.verifierSetAt
           account.verifierVersion = data.verifierVersion
-          account.profileChangedAt = data.verifierSetAt
           account.devices = {}
           return []
         }
@@ -1130,6 +1128,8 @@ module.exports = function (log, error) {
           }
         })
 
+        account.profileChangedAt = account.verifierSetAt || account.createdAt
+
         return account
       })
   }
@@ -1168,7 +1168,6 @@ module.exports = function (log, error) {
 
     return getAccountByUid(uid)
       .then((account) => {
-        account.profileChangedAt = Date.now()
         return P.resolve({})
       })
   }
@@ -1200,7 +1199,6 @@ module.exports = function (log, error) {
 
     return getAccountByUid(uid)
       .then((account) => {
-        account.profileChangedAt = Date.now()
         return P.resolve({})
       })
   }
@@ -1275,7 +1273,6 @@ module.exports = function (log, error) {
 
     return getAccountByUid(uid)
       .then((account) => {
-        account.profileChangedAt = Date.now()
         return Promise.resolve({})
       })
   }
@@ -1299,7 +1296,6 @@ module.exports = function (log, error) {
 
     return getAccountByUid(uid)
       .then((account) => {
-        account.profileChangedAt = Date.now()
         return Promise.resolve({})
       })
   }
