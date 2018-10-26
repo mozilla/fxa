@@ -62,6 +62,7 @@ JWT_PUB_KEY.alg = 'RS';
 
 const SCOPED_CLIENT_ID = 'aaa6b9b3a65a1871';
 const NO_KEY_SCOPES_CLIENT_ID = '38a6b9b3a65a1871';
+const NO_ALLOWED_SCOPES_CLIENT_ID = '38a6b9b3a65a1872';
 const BAD_CLIENT_ID = '0006b9b3a65a1871';
 const SCOPE_CAN_SCOPE_KEY = 'https://identity.mozilla.com/apps/sample-scope-can-scope-key';
 
@@ -2736,8 +2737,20 @@ describe('/v1', function() {
           });
       });
 
-      it('fails for clients that do not have the scope', () => {
+      it('succeeds for clients that do not have the scope, returning an empty object', () => {
         genericRequest.payload.client_id = NO_KEY_SCOPES_CLIENT_ID;
+
+        mockAssertion().reply(200, VERIFY_GOOD);
+        return Server.api.post(genericRequest)
+          .then((res) => {
+            assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
+            assert.equal(Object.keys(res.result).length, 0, 'no scoped keys');
+          });
+      });
+
+      it('succeeds for clients that have no allowedScopes, returning an empty object', () => {
+        genericRequest.payload.client_id = NO_ALLOWED_SCOPES_CLIENT_ID;
 
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api.post(genericRequest)

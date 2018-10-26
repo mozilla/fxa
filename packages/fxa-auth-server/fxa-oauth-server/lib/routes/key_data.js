@@ -52,7 +52,7 @@ module.exports = {
       db.getClient(Buffer.from(requestedClientId, 'hex')).then((client) => {
         if (client) {
           // find all requested scopes that are allowed for this client.
-          const allowedScopes = ScopeSet.fromString(client.allowedScopes);
+          const allowedScopes = ScopeSet.fromString(client.allowedScopes || '');
           const scopeLookups = requestedScopes.filtered(allowedScopes).getScopeValues().map(s => db.getScope(s));
           return P.all(scopeLookups).then((result) => {
             return result.filter((s) => !! (s && s.hasScopedKeys));
