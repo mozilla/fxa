@@ -20,7 +20,6 @@ git clone https://github.com/mozilla/fxa-customs-server.git &
 
 git clone https://github.com/mozilla/browserid-verifier.git &
 
-git clone https://github.com/mozilla/fxa-oauth-server.git &
 git clone https://github.com/mozilla/fxa-oauth-console.git &
 
 git clone https://github.com/mozilla/fxa-profile-server.git &
@@ -45,7 +44,7 @@ cd fxa-email-service; rustup override set nightly-2018-08-06; cargo build --bin 
 
 cd browserid-verifier; npm i; cd ..
 
-cd fxa-oauth-server; npm i; cd ..
+cd fxa-auth-server/fxa-oauth-server; npm i; cd ../..
 
 cd fxa-profile-server; npm i; mkdir -p var/public/; cd ..
 

@@ -24,7 +24,7 @@ const authserverMysql = {
 const oauthserverInternal = {
  "name": "oauth-server-internal PORT 9011",
  "script": "bin/internal.js",
- "cwd": "fxa-oauth-server",
+ "cwd": "fxa-auth-server/fxa-oauth-server",
  "env": {
    "NODE_ENV": "dev",
    "HOST_INTERNAL" : "0.0.0.0"
@@ -42,7 +42,7 @@ servers.apps.forEach((app) => {
     return;
   }
 
-  if(app.cwd === 'fxa-oauth-server') {
+  if(app.cwd === 'fxa-auth-server/fxa-oauth-server') {
     app.env.DB = 'mysql';
     app.script = '_scripts/oauth_mysql.sh';
   }
