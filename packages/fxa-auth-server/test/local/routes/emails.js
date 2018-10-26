@@ -72,11 +72,11 @@ describe('/recovery_email/status', function () {
   var mockDB = mocks.mockDB()
   var pushCalled
   var mockLog = mocks.mockLog({
-    info: function (data) {
+    info: sinon.spy(data => {
       if (data.name === 'recovery_email_reason.push') {
         pushCalled = true
       }
-    }
+    })
   })
   var accountRoutes = makeRoutes({
     config: config,
@@ -110,6 +110,15 @@ describe('/recovery_email/status', function () {
         assert.equal(mockDB.deleteAccount.callCount, 1)
         assert.equal(mockDB.deleteAccount.firstCall.args[0].email, TEST_EMAIL_INVALID)
         assert.equal(response.errno, error.ERRNO.INVALID_TOKEN)
+
+        assert.equal(mockLog.info.callCount, 2)
+        const args = mockLog.info.args[1]
+        assert.lengthOf(args, 1)
+        assert.deepEqual(args[0], {
+          op: 'accountDeleted.invalidEmailAddress',
+          email: TEST_EMAIL_INVALID,
+          emailVerified: false
+        })
       })
         .then(function () {
           mockDB.deleteAccount.reset()
@@ -780,9 +789,15 @@ describe('/recovery_email', () => {
         assert.ok(response)
         assert.equal(mockDB.deleteAccount.callCount, 1, 'call db.deleteAccount')
         assert.equal(mockDB.createEmail.callCount, 1, 'call db.createEmail')
-        const args = mockDB.createEmail.getCall(0).args
+        let args = mockDB.createEmail.getCall(0).args
         assert.equal(args[1].email, TEST_EMAIL_ADDITIONAL, 'call db.createEmail with correct email')
         assert.equal(mockMailer.sendVerifySecondaryEmail.callCount, 1, 'call mailer.sendVerifySecondaryEmail')
+
+        assert.equal(mockLog.info.callCount, 1)
+        args = mockLog.info.args[0]
+        assert.lengthOf(args, 1)
+        assert.equal(args[0].op, 'accountDeleted.unverifiedSecondaryEmail')
+        assert.equal(args[0].normalizedEmail, TEST_EMAIL)
       })
         .then(function () {
           mockDB.deleteAccount.reset()

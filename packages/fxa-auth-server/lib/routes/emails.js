@@ -76,6 +76,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
             if (! validators.isValidEmailAddress(sessionToken.email)) {
               return db.deleteAccount(sessionToken)
                 .then(() => {
+                  log.info({ op: 'accountDeleted.invalidEmailAddress', ...sessionToken })
                   // Act as though we deleted the account asynchronously
                   // and caused the sessionToken to become invalid.
                   throw error.invalidToken('This account was invalid and has been deleted')
@@ -590,6 +591,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
                 const minUnverifiedAccountTime = config.secondaryEmail.minUnverifiedAccountTime
                 if (msSinceCreated >= minUnverifiedAccountTime) {
                   return db.deleteAccount(secondaryEmailRecord)
+                    .then(() => log.info({ op: 'accountDeleted.unverifiedSecondaryEmail', ...secondaryEmailRecord }))
                 } else {
                   throw error.unverifiedPrimaryEmailNewlyCreated()
                 }
