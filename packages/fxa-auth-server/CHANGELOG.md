@@ -1,3 +1,13 @@
+<a name="1.123.1"></a>
+## [1.123.1](https://github.com/mozilla/fxa-oauth-server/compare/v1.123.0...v1.123.1) (2018-10-26)
+
+
+### Bug Fixes
+
+* **profile:** remove the `profileChangedAt` column on tokens table ([5e87bce](https://github.com/mozilla/fxa-oauth-server/commit/5e87bce))
+
+
+
 <a name="1.123.0"></a>
 # [1.123.0](https://github.com/mozilla/fxa-oauth-server/compare/v1.122.0...v1.123.0) (2018-10-16)
 
