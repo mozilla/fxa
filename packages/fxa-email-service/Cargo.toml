@@ -30,14 +30,14 @@ redis = ">=0.8.0"
 regex = ">=1.0"
 reqwest = ">=0.8.5"
 # Remove once a new version of rocket containing this commit is released.
-rocket = { git = "https://github.com/SergioBenitez/Rocket", rev="d7f6d82fe4d35ee79c424dd4164733b22f17f80a" }
-rocket_codegen = { git = "https://github.com/SergioBenitez/Rocket", rev="d7f6d82fe4d35ee79c424dd4164733b22f17f80a" }
-rocket_contrib = { git = "https://github.com/SergioBenitez/Rocket", rev="d7f6d82fe4d35ee79c424dd4164733b22f17f80a" }
-rusoto_core = { git = "https://github.com/brizental/rusoto", branch="request-body-params" }
-rusoto_credential = { git = "https://github.com/brizental/rusoto", branch="request-body-params" }
-rusoto_mock = { git = "https://github.com/brizental/rusoto", branch="request-body-params" }
-rusoto_ses = { git = "https://github.com/brizental/rusoto", branch="request-body-params" }
-rusoto_sqs = { git = "https://github.com/brizental/rusoto", branch="request-body-params" }
+rocket = ">=0.3.17"
+rocket_codegen = ">=0.3.17"
+rocket_contrib = ">=0.3.17"
+rusoto_core = ">=0.34.0"
+rusoto_credential = ">=0.13.0"
+rusoto_mock = ">=0.28.0"
+rusoto_ses = ">=0.34.0"
+rusoto_sqs = ">=0.34.0"
 sendgrid = ">=0.7.1"
 sentry = ">=0.7.0"
 serde = ">=1.0"
