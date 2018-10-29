@@ -89,7 +89,7 @@ describe('lib/channel-server-client', () => {
       let firstJwk;
 
       const channelKeyBase64Url = 'YKR1mHPnuPgKHKjV6k46VtLFTUVU5LLWwSPuqaULNtc';
-      // It's a hex string, but considered UTF8 by the browser
+      // It's a hex string, but considered base64url until the channelserver updates.
       const channelIdUtf8 = '75be751212c4429d9d6f27abcc534d11';
 
       client.set('channelKey', channelKeyBase64Url);
@@ -99,7 +99,7 @@ describe('lib/channel-server-client', () => {
         assert.ok(channelJwk);
 
         const expectedChannelKeyHex = base64url.toBuffer(channelKeyBase64Url).toString('hex');
-        const expectedChannelIdHex = Buffer.from(channelIdUtf8, 'utf8').toString('hex');
+        const expectedChannelIdHex = base64url.toBuffer(channelIdUtf8).toString('hex');
 
         assert.isTrue(client._deriveChannelJwk.calledOnce);
         assert.equal(client._deriveChannelJwk.args[0][0].toString('hex'), expectedChannelKeyHex);
