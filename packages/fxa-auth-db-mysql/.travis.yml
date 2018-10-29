@@ -38,4 +38,4 @@ before_script:
 
 script:
   - npm run test-travis
-  - npm run explain
+  - npm run procedure-lint
