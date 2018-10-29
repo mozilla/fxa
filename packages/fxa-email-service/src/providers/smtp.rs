@@ -74,7 +74,8 @@ impl Provider for SmtpProvider {
             Err(AppErrorKind::ProviderError {
                 name: String::from("Smtp"),
                 description: format!("{:?}", result),
-            }.into())
+            }
+            .into())
         }
     }
 }
@@ -84,7 +85,8 @@ impl From<SmtpError> for AppError {
         AppErrorKind::ProviderError {
             name: String::from("Smtp"),
             description: format!("{:?}", error),
-        }.into()
+        }
+        .into()
     }
 }
 
@@ -93,6 +95,7 @@ impl From<EmailError> for AppError {
         AppErrorKind::ProviderError {
             name: String::from("Smtp"),
             description: format!("{:?}", error),
-        }.into()
+        }
+        .into()
     }
 }

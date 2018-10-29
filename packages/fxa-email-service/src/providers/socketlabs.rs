@@ -59,7 +59,8 @@ impl Provider for SocketLabsProvider {
             self.settings.serverid,
             self.settings.key.clone(),
             vec![message],
-        )?.send()
+        )?
+        .send()
         .map_err(From::from)
         .and_then(|response| {
             if response.error_code == PostMessageErrorCode::Success {
@@ -68,7 +69,8 @@ impl Provider for SocketLabsProvider {
                 Err(AppErrorKind::ProviderError {
                     name: String::from("SocketLabs"),
                     description: format!("{:?}: {}", response.error_code, response.error_code),
-                }.into())
+                }
+                .into())
             }
         })
     }
@@ -79,6 +81,7 @@ impl From<SocketLabsError> for AppError {
         AppErrorKind::ProviderError {
             name: String::from("SocketLabs"),
             description: format!("{}", error),
-        }.into()
+        }
+        .into()
     }
 }

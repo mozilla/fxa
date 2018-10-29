@@ -85,7 +85,8 @@ fn successful_version() {
         "commit": "TBD",
         "source": "https://github.com/mozilla/fxa-email-service",
         "version": "TBD"
-    }).to_string()
+    })
+        .to_string()
     );
     assert_eq!(response.status(), Status::Ok);
 }

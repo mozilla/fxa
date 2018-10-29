@@ -90,6 +90,7 @@ impl From<SendRawEmailError> for AppError {
         AppErrorKind::ProviderError {
             name: String::from("SES"),
             description: format!("{:?}", error),
-        }.into()
+        }
+        .into()
     }
 }

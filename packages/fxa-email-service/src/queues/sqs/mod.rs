@@ -46,7 +46,8 @@ impl Queue {
             return Err(AppErrorKind::MissingSqsMessageFields {
                 field: "body".to_string(),
                 queue: self.url.clone(),
-            }.into());
+            }
+            .into());
         }
 
         if let Some(hash) = message.md5_of_body {
@@ -55,7 +56,8 @@ impl Queue {
                     queue: self.url.clone(),
                     hash,
                     body,
-                }.into());
+                }
+                .into());
             }
         }
 
@@ -64,7 +66,8 @@ impl Queue {
             return Err(AppErrorKind::MissingSqsMessageFields {
                 field: "receipt_handle".to_string(),
                 queue: self.url.clone(),
-            }.into());
+            }
+            .into());
         }
 
         if let Some(ref message) = serde_json::from_str::<JsonValue>(&body)?["Message"].as_str() {
@@ -80,19 +83,22 @@ impl Queue {
                         notification: From::from(notification),
                         id: receipt_handle,
                     }
-                }).map_err(|error| {
+                })
+                .map_err(|error| {
                     AppErrorKind::SqsMessageParsingError {
                         message: format!("{:?}", error),
                         queue: self.url.clone(),
                         body: format!("{}", body),
-                    }.into()
+                    }
+                    .into()
                 })
         } else {
             Err(AppErrorKind::SqsMessageParsingError {
                 message: format!("{}", "Unexpected SQS message structure"),
                 queue: self.url.clone(),
                 body: format!("{}", body),
-            }.into())
+            }
+            .into())
         }
     }
 }

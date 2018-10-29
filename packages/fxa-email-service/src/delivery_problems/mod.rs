@@ -78,23 +78,27 @@ where
                                 address: address.clone(),
                                 time: problem.created_at,
                                 problem: From::from(problem.clone()),
-                            }.into()),
+                            }
+                            .into()),
                             ProblemType::SoftBounce => Err(AppErrorKind::BounceSoftError {
                                 address: address.clone(),
                                 time: problem.created_at,
                                 problem: From::from(problem.clone()),
-                            }.into()),
+                            }
+                            .into()),
                             ProblemType::Complaint => Err(AppErrorKind::ComplaintError {
                                 address: address.clone(),
                                 time: problem.created_at,
                                 problem: From::from(problem.clone()),
-                            }.into()),
+                            }
+                            .into()),
                         };
                     }
                 }
 
                 Ok(counts)
-            }).map(|_| ())
+            })
+            .map(|_| ())
     }
 
     /// Record a hard or soft bounce

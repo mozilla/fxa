@@ -83,7 +83,8 @@ impl Db for DbClient {
                 problem_type,
                 problem_subtype,
                 created_at: 0,
-            }).send()?;
+            })
+            .send()?;
         match response.status() {
             StatusCode::Ok => Ok(()),
             status => Err(AppErrorKind::AuthDbError(format!("{}", status)).into()),

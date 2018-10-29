@@ -85,7 +85,8 @@ fn main() {
                     );
                 }
                 Ok(Loop::Continue(total_count))
-            }).or_else(move |error: AppError| {
+            })
+            .or_else(move |error: AppError| {
                 let logger = MozlogLogger(slog_scope::logger());
                 let log = MozlogLogger::with_app_error(&logger, &error)
                     .expect("MozlogLogger::with_app_error error");

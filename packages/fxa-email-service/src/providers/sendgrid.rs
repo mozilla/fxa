@@ -89,14 +89,17 @@ impl Provider for SendgridProvider {
                                 description: String::from(
                                     "Missing or duplicate X-Message-Id header in Sendgrid response",
                                 ),
-                            }.into(),
-                        ).and_then(|message_id| from_utf8(message_id).map_err(From::from))
+                            }
+                            .into(),
+                        )
+                        .and_then(|message_id| from_utf8(message_id).map_err(From::from))
                         .map(|message_id| message_id.to_string())
                 } else {
                     Err(AppErrorKind::ProviderError {
                         name: String::from("Sendgrid"),
                         description: format!("Unsuccesful response status: {}", status),
-                    }.into())
+                    }
+                    .into())
                 }
             })
     }
@@ -107,7 +110,8 @@ impl From<SendgridError> for AppError {
         AppErrorKind::ProviderError {
             name: String::from("Sendgrid"),
             description: format!("{:?}", error),
-        }.into()
+        }
+        .into()
     }
 }
 
@@ -116,6 +120,7 @@ impl From<Utf8Error> for AppError {
         AppErrorKind::ProviderError {
             name: String::from("Sendgrid"),
             description: format!("Failed to decode string as UTF-8: {:?}", error),
-        }.into()
+        }
+        .into()
     }
 }

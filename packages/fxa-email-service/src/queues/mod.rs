@@ -97,7 +97,8 @@ impl Queues {
             .join3(
                 self.process_queue(&self.complaint_queue),
                 self.process_queue(&self.delivery_queue),
-            ).map(|results| results.0 + results.1 + results.2);
+            )
+            .map(|results| results.0 + results.1 + results.2);
 
         Box::new(joined_futures)
     }
@@ -116,7 +117,8 @@ impl Queues {
                     }
                 }
                 future::join_all(futures.into_iter())
-            }).map(|results| results.len());
+            })
+            .map(|results| results.len());
         Box::new(future)
     }
 
@@ -143,7 +145,8 @@ impl Queues {
                     .map(|id| {
                         info!("{}", "Sent message to notification queue"; "id" => id);
                         ()
-                    }).or_else(|error| {
+                    })
+                    .or_else(|error| {
                         // Errors sending to this queue are non-fatal because it's only used
                         // for logging. We still want to delete the message from the queue.
                         let logger = MozlogLogger(slog_scope::logger());

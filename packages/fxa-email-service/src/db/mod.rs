@@ -44,7 +44,8 @@ impl Client {
         Self {
             client: RedisClient::open(
                 format!("redis://{}:{}/", settings.redis.host, settings.redis.port).as_str(),
-            ).expect("redis connection error"),
+            )
+            .expect("redis connection error"),
             hmac_key: settings.hmackey.clone(),
         }
     }

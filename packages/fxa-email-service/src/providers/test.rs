@@ -33,7 +33,8 @@ fn build_mime_with_cc_headers() {
         "subject",
         "body",
         None,
-    ).unwrap();
+    )
+    .unwrap();
     let message: Vec<String> = format!("{}", message)
         .split("\r\n")
         .map(|s| s.to_owned())
@@ -60,7 +61,8 @@ fn build_mime_with_custom_headers() {
         "subject",
         "body",
         None,
-    ).unwrap();
+    )
+    .unwrap();
     let message: Vec<String> = format!("{}", message)
         .split("\r\n")
         .map(|s| s.to_owned())
@@ -85,7 +87,8 @@ fn build_mime_with_body_html() {
         "subject",
         "body",
         Some("<p>body</p>"),
-    ).unwrap();
+    )
+    .unwrap();
     let message: Vec<String> = format!("{}", message)
         .split("\r\n")
         .map(|s| s.to_owned())
