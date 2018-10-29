@@ -1,3 +1,13 @@
+<a name="1.123.2"></a>
+## [1.123.2](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.123.1...v1.123.2) (2018-10-26)
+
+
+### Bug Fixes
+
+* **account:** rollback `profileChangedAt` migration ([4b4f7d4](https://github.com/mozilla/fxa-auth-db-mysql/commit/4b4f7d4))
+
+
+
 <a name="1.123.1"></a>
 ## [1.123.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.122.1...v1.123.1) (2018-10-22)
 
