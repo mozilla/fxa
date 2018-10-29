@@ -6,9 +6,10 @@
 
 use std::convert::{From, TryFrom};
 
-use app_errors::{AppError, AppErrorKind};
 use regex::Regex;
 use serde::de::{Deserialize, Deserializer, Error as SerdeError, Unexpected};
+
+use types::error::{AppError, AppErrorKind};
 
 #[cfg(test)]
 mod test;

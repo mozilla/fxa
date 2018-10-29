@@ -9,8 +9,8 @@ use socketlabs::{
 use uuid::Uuid;
 
 use super::{Headers, Provider};
-use app_errors::{AppError, AppErrorKind, AppResult};
 use settings::{Sender, Settings, SocketLabs as SocketLabsSettings};
+use types::error::{AppError, AppErrorKind, AppResult};
 
 pub struct SocketLabsProvider {
     settings: SocketLabsSettings,

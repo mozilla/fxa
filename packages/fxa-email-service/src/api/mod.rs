@@ -4,9 +4,7 @@
 
 //! Parent scope
 //! for modules pertaining to
-//! the database layer.
+//! the API layer.
 
-pub mod auth_db;
-mod core;
-pub mod delivery_problems;
-pub mod message_data;
+pub mod healthcheck;
+pub mod send;

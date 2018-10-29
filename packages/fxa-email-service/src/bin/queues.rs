@@ -32,10 +32,10 @@ use futures::future::{self, Future, Loop};
 use sentry::integrations::panic::register_panic_handler;
 
 use fxa_email_service::{
-    app_errors::AppError,
     logging::MozlogLogger,
     queues::{QueueIds, Queues, Sqs},
     settings::Settings,
+    types::error::AppError,
 };
 
 lazy_static! {

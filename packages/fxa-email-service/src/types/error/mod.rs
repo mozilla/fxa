@@ -16,8 +16,8 @@ use rocket::{
 use rocket_contrib::Json;
 use serde_json::{map::Map, ser::to_string, Value};
 
-use delivery_problems::DeliveryProblem;
-use email_address::EmailAddress;
+use super::email_address::EmailAddress;
+use db::delivery_problems::DeliveryProblem;
 use logging::MozlogLogger;
 
 #[cfg(test)]

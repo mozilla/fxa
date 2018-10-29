@@ -4,9 +4,9 @@
 
 //! Storage for message metadata.
 
-use app_errors::AppResult;
-use db::{Client as DbClient, DataType};
+use super::core::{Client as DbClient, DataType};
 use settings::Settings;
+use types::error::AppResult;
 
 #[cfg(test)]
 mod test;

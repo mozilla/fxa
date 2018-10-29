@@ -4,6 +4,10 @@
 
 //! Application settings.
 
+mod serialize;
+#[cfg(test)]
+mod test;
+
 use std::{
     env,
     fmt::{self, Display},
@@ -16,14 +20,8 @@ use rocket::config::{
 };
 use serde::de::{Deserialize, Deserializer, Error, Unexpected};
 
-use duration::Duration;
-use email_address::EmailAddress;
 use logging::MozlogLogger;
-use serialize;
-use validate;
-
-#[cfg(test)]
-mod test;
+use types::{duration::Duration, email_address::EmailAddress, validate};
 
 macro_rules! deserialize_and_validate {
     ($(#[$docs:meta] ($type:ident, $validator:ident, $expected:expr)),+) => ($(

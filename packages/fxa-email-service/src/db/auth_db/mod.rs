@@ -21,10 +21,14 @@ use std::fmt::Debug;
 use hex;
 use reqwest::{Client as RequestClient, Error as RequestError, StatusCode, Url, UrlError};
 
-use app_errors::{AppError, AppErrorKind, AppResult};
-use delivery_problems::{LegacyDeliveryProblem as DeliveryProblem, ProblemSubtype, ProblemType};
-use email_address::EmailAddress;
+use super::delivery_problems::{
+    LegacyDeliveryProblem as DeliveryProblem, ProblemSubtype, ProblemType,
+};
 use settings::Settings;
+use types::{
+    email_address::EmailAddress,
+    error::{AppError, AppErrorKind, AppResult},
+};
 
 #[cfg(test)]
 mod test;

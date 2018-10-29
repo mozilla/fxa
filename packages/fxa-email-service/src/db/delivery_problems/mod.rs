@@ -14,12 +14,16 @@ use serde::{
     ser::{Serialize, Serializer},
 };
 
-use app_errors::{AppErrorKind, AppResult};
-use auth_db::Db as AuthDb;
-use db::{Client as DbClient, DataType};
-use email_address::EmailAddress;
+use super::{
+    auth_db::Db as AuthDb,
+    core::{Client as DbClient, DataType},
+};
 use queues::notification::{BounceSubtype, BounceType, ComplaintFeedbackType};
 use settings::{BounceLimit, BounceLimits, Settings};
+use types::{
+    email_address::EmailAddress,
+    error::{AppErrorKind, AppResult},
+};
 
 /// Bounce/complaint registry.
 ///

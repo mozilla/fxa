@@ -3,11 +3,12 @@
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
 use serde_test::{assert_ser_tokens, Token};
-use serialize;
+
+use super::*;
 
 #[derive(Serialize)]
 struct TestStruct {
-    #[serde(serialize_with = "serialize::hidden_or_not_set")]
+    #[serde(serialize_with = "hidden_or_not_set")]
     a: Option<String>,
 }
 

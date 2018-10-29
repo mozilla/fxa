@@ -7,10 +7,8 @@ use std::env;
 use rocket::{self, http::Status, local::Client};
 use serde_json::{self, Value};
 
-use auth_db::DbClient;
-use delivery_problems::DeliveryProblems;
+use db::{auth_db::DbClient, delivery_problems::DeliveryProblems, message_data::MessageData};
 use logging::MozlogLogger;
-use message_data::MessageData;
 use providers::Providers;
 use settings::Settings;
 

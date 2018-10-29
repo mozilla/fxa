@@ -26,9 +26,9 @@ use super::{
     notification::Notification, DeleteFuture, Factory, Incoming, Message, Outgoing, ReceiveFuture,
     SendFuture,
 };
-use app_errors::{AppError, AppErrorKind, AppResult};
 use logging::MozlogLogger;
 use settings::Settings;
+use types::error::{AppError, AppErrorKind, AppResult};
 
 pub mod notification;
 

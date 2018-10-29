@@ -5,7 +5,7 @@
 use std::time::SystemTime;
 
 use super::*;
-use db::test::TestFixture;
+use db::core::test::TestFixture;
 
 #[test]
 fn set() {

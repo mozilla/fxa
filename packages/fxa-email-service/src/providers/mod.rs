@@ -12,8 +12,8 @@ use self::{
     mock::MockProvider as Mock, sendgrid::SendgridProvider as Sendgrid, ses::SesProvider as Ses,
     smtp::SmtpProvider as Smtp, socketlabs::SocketLabsProvider as SocketLabs,
 };
-use app_errors::{AppErrorKind, AppResult};
 use settings::{DefaultProvider, Settings};
+use types::error::{AppErrorKind, AppResult};
 
 mod mock;
 mod sendgrid;

@@ -13,8 +13,8 @@ use sendgrid::{
 };
 
 use super::{Headers, Provider};
-use app_errors::{AppError, AppErrorKind, AppResult};
 use settings::{Sender, Sendgrid as SendgridSettings, Settings};
+use types::error::{AppError, AppErrorKind, AppResult};
 
 pub struct SendgridProvider {
     client: Client,
