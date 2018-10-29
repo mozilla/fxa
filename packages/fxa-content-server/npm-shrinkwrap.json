@@ -12954,12 +12954,6 @@
       "resolved": "https://registry.npmjs.org/symbol/-/symbol-0.3.1.tgz",
       "integrity": "sha1-tvmpANSWpX8CQI8iGYwQndoGMEE="
     },
-    "sync-exec": {
-      "version": "0.6.2",
-      "resolved": "https://registry.npmjs.org/sync-exec/-/sync-exec-0.6.2.tgz",
-      "integrity": "sha1-cX0izFPwzh3vVZQ2LzqJouu5EQU=",
-      "dev": true
-    },
     "table": {
       "version": "4.0.3",
       "resolved": "https://registry.npmjs.org/table/-/table-4.0.3.tgz",
