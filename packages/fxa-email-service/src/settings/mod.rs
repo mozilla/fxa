@@ -418,7 +418,6 @@ impl Settings {
         let log_level = match self.log.level.0.as_str() {
             "debug" => RocketLoggingLevel::Debug,
             "critical" => RocketLoggingLevel::Critical,
-            "off" => RocketLoggingLevel::Off,
             _ => RocketLoggingLevel::Normal,
         };
         let rocket_config = match self.env.0.as_str() {

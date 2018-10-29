@@ -29,7 +29,8 @@ impl TestFixture {
             internal_key,
             redis_client: RedisClient::open(
                 format!("redis://{}:{}/", settings.redis.host, settings.redis.port).as_str(),
-            ).unwrap(),
+            )
+            .unwrap(),
         }
     }
 

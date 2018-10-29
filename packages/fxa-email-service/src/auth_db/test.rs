@@ -27,7 +27,8 @@ fn create_bounce() {
             &email_addresses[0],
             ProblemType::HardBounce,
             ProblemSubtype::General,
-        ).and_then(|_| db.get_bounces(&email_addresses[0]))
+        )
+        .and_then(|_| db.get_bounces(&email_addresses[0]))
         .expect("db error");
     let now = now_as_milliseconds();
 
@@ -50,13 +51,15 @@ fn create_bounce() {
             &email_addresses[1],
             ProblemType::SoftBounce,
             ProblemSubtype::MailboxFull,
-        ).and_then(|_| {
+        )
+        .and_then(|_| {
             db.create_bounce(
                 &email_addresses[1],
                 ProblemType::Complaint,
                 ProblemSubtype::Virus,
             )
-        }).and_then(|_| db.get_bounces(&email_addresses[1]))
+        })
+        .and_then(|_| db.get_bounces(&email_addresses[1]))
         .expect("db error");
     let now = now_as_milliseconds();
 
@@ -80,7 +83,8 @@ fn generate_email_address(variant: &str) -> EmailAddress {
         "fxa-email-service.test.auth-db.{}.{}@example.com",
         variant,
         now_as_milliseconds()
-    ).parse()
+    )
+    .parse()
     .unwrap()
 }
 

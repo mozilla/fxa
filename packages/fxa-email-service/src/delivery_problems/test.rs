@@ -36,7 +36,8 @@ fn check_no_bounces() {
         { "period": "month", "limit": 0 }
         ]
         }"#,
-    ).expect("Unexpected json parsing error");
+    )
+    .expect("Unexpected json parsing error");
     let settings = create_settings(bounce_settings);
     let db = DbMockNoBounce;
     let problems = DeliveryProblems::new(&settings, db);
@@ -100,7 +101,8 @@ fn check_soft_bounce() {
         "hard": [],
         "complaint": []
         }"#,
-    ).expect("Unexpected json parsing error");
+    )
+    .expect("Unexpected json parsing error");
     let settings = create_settings(bounce_settings);
     let db = DbMockBounceSoft;
     let problems = DeliveryProblems::new(&settings, db);
@@ -151,7 +153,8 @@ fn check_hard_bounce() {
         ],
         "complaint": []
         }"#,
-    ).expect("Unexpected json parsing error");
+    )
+    .expect("Unexpected json parsing error");
     let settings = create_settings(bounce_settings);
     let db = DbMockBounceHard;
     let problems = DeliveryProblems::new(&settings, db);
@@ -202,7 +205,8 @@ fn check_complaint() {
         { "period": "month", "limit": 0 }
         ]
         }"#,
-    ).expect("Unexpected json parsing error");
+    )
+    .expect("Unexpected json parsing error");
     let settings = create_settings(bounce_settings);
     let db = DbMockComplaint;
     let problems = DeliveryProblems::new(&settings, db);
@@ -257,7 +261,8 @@ fn check_db_error() {
         { "period": "month", "limit": 0 }
         ]
         }"#,
-    ).expect("Unexpected json parsing error");
+    )
+    .expect("Unexpected json parsing error");
     let settings = create_settings(bounce_settings);
     let db = DbMockError;
     let problems = DeliveryProblems::new(&settings, db);
@@ -294,7 +299,8 @@ fn check_no_bounces_with_nonzero_limits() {
         { "period": "month", "limit": 2 }
         ]
         }"#,
-    ).expect("Unexpected json parsing error");
+    )
+    .expect("Unexpected json parsing error");
     let settings = create_settings(bounce_settings);
     let db = DbMockNoBounceWithNonZeroLimits;
     let problems = DeliveryProblems::new(&settings, db);
@@ -381,7 +387,8 @@ fn check_bounce_with_multiple_limits() {
         "hard": [],
         "complaint": []
         }"#,
-    ).expect("Unexpected json parsing error");
+    )
+    .expect("Unexpected json parsing error");
     let settings = create_settings(bounce_settings);
     let db = DbMockBounceWithMultipleLimits;
     let problems = DeliveryProblems::new(&settings, db);
@@ -453,7 +460,8 @@ fn record_bounce() {
             &address,
             BounceType::Transient,
             BounceSubtype::AttachmentRejected,
-        ).unwrap();
+        )
+        .unwrap();
 
     test.assert_set();
 
@@ -498,7 +506,8 @@ fn create_address(test: &str) -> EmailAddress {
         "fxa-email-service.bounces.test.{}.{}@example.com",
         test,
         now_as_milliseconds()
-    ).parse()
+    )
+    .parse()
     .unwrap()
 }
 

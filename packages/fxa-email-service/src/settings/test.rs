@@ -136,7 +136,8 @@ fn env_vars_take_precedence() {
                         "sendgrid"
                     } else {
                         "ses"
-                    }.to_string(),
+                    }
+                    .to_string(),
                 ),
                 forcedefault: !settings.provider.forcedefault,
             };
