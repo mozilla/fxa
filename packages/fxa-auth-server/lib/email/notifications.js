@@ -22,10 +22,10 @@ module.exports = (log, error) => {
 
         let addresses = [], eventType = 'bounced', isDeletionCandidate = false
         if (message.bounce) {
-          addresses = mapBounceComplaintRecipients(message.bounce.bouncedRecipients)
+          addresses = message.bounce.bouncedRecipients
           isDeletionCandidate = true
         } else if (message.complaint) {
-          addresses = mapBounceComplaintRecipients(message.complaint.complainedRecipients)
+          addresses = message.complaint.complainedRecipients
           isDeletionCandidate = true
         } else if (message.delivery) {
           addresses = message.delivery.recipients
@@ -56,8 +56,4 @@ module.exports = (log, error) => {
       message.del()
     })
   }
-}
-
-function mapBounceComplaintRecipients (recipients) {
-  return recipients.map(recipient => recipient.emailAddress)
 }

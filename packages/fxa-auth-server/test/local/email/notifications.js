@@ -71,7 +71,7 @@ describe('lib/email/notifications:', () => {
           }
         },
         bounce: {
-          bouncedRecipients: [ { emailAddress: 'wibble@example.com' } ]
+          bouncedRecipients: [ 'wibble@example.com' ]
         }
       })
     })
@@ -136,10 +136,7 @@ describe('lib/email/notifications:', () => {
           }
         },
         complaint: {
-          complainedRecipients: [
-            { emailAddress: 'foo@example.com' },
-            { emailAddress: 'pmbooth@gmail.com' }
-          ]
+          complainedRecipients: [ 'foo@example.com', 'pmbooth@gmail.com' ]
         }
       })
     })
@@ -234,10 +231,7 @@ describe('lib/email/notifications:', () => {
           }
         },
         bounce: {
-          bouncedRecipients: [
-            { emailAddress: 'wibble@example.com' },
-            { emailAddress: 'blee@example.com' }
-          ]
+          bouncedRecipients: [ 'wibble@example.com', 'blee@example.com' ]
         }
       })
     })
@@ -309,9 +303,7 @@ describe('lib/email/notifications:', () => {
           }
         },
         complaint: {
-          complainedRecipients: [
-            { emailAddress: 'foo@example.com' }
-          ]
+          complainedRecipients: [ 'foo@example.com' ]
         }
       })
     })
@@ -351,9 +343,7 @@ describe('lib/email/notifications:', () => {
           }
         },
         bounce: {
-          bouncedRecipients: [
-            { emailAddress: 'wibble@example.com' }
-          ]
+          bouncedRecipients: [ 'wibble@example.com' ]
         }
       })
     })
@@ -444,7 +434,7 @@ describe('lib/email/notifications:', () => {
         del,
         mail: {},
         bounce: {
-          bouncedRecipients: [ { emailAddress: 'wibble@example.com' } ]
+          bouncedRecipients: [ 'wibble@example.com' ]
         }
       })
     })
