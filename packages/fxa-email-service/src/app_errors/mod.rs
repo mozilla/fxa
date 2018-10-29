@@ -13,7 +13,7 @@ use rocket::{
     response::{self, Responder, Response},
     Outcome, Request, State,
 };
-use rocket_contrib::{Json, JsonValue};
+use rocket_contrib::Json;
 use serde_json::{map::Map, ser::to_string, Value};
 
 use delivery_problems::DeliveryProblem;
@@ -39,7 +39,7 @@ pub struct AppError {
 }
 
 impl AppError {
-    pub fn json(&self) -> JsonValue {
+    pub fn json(&self) -> Value {
         let kind = self.kind();
         let status = kind.http_status();
 
