@@ -89,7 +89,7 @@
     "jquery-ui": "1.12.1",
     "jquery-ui-touch-punch-amd": "1.0.0",
     "js-md5": "0.6.0",
-    "jsxgettext-recursive": "git://github.com/vladikoff/jsxgettext-recursive#msgctxt-support",
+    "jsxgettext-recursive-next": "1.1.0",
     "legal-docs": "git://github.com/mozilla/legal-docs.git#master",
     "load-grunt-tasks": "3.5.2",
     "lodash": "4.17.5",

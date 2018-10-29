@@ -7,7 +7,7 @@
 var fs = require('fs');
 var path = require('path');
 var mkdirp = require('mkdirp');
-var extract = require('jsxgettext-recursive');
+var extract = require('jsxgettext-recursive-next');
 var execSync = require('child_process').execSync;
 
 // where to place the pot files.
