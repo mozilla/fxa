@@ -9,6 +9,12 @@ module.exports = function (grunt) {
         banList: ['unsafeExplicitIV']
       },
       src: ['app/scripts/**/*.js', '!app/scripts/lib/crypto/a256gcm.js', '!app/scripts/lib/crypto/recovery-keys.js']
+    },
+    'en-US': {
+      options: {
+        banList: ['en-us', 'en-US', 'en_us', 'en_US']
+      },
+      src: ['app/scripts/**/*.js']
     }
   });
 };
