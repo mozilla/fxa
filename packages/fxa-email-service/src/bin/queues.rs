@@ -47,10 +47,10 @@ lazy_static! {
         };
         Queues::new::<Sqs>(
             QueueIds {
-                bounce: sqs_urls.bounce.0.clone(),
-                complaint: sqs_urls.complaint.0.clone(),
-                delivery: sqs_urls.delivery.0.clone(),
-                notification: sqs_urls.notification.0.clone(),
+                bounce: sqs_urls.bounce.to_string(),
+                complaint: sqs_urls.complaint.to_string(),
+                delivery: sqs_urls.delivery.to_string(),
+                notification: sqs_urls.notification.to_string(),
             },
             &SETTINGS,
         )

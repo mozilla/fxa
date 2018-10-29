@@ -51,7 +51,7 @@ fn main() {
     let config = settings
         .build_rocket_config()
         .expect("Error creating rocket config");
-    rocket::custom(config)
+    rocket::custom(config, settings.log.level.as_ref() != "off")
         .manage(settings)
         .manage(delivery_problems)
         .manage(logger)
