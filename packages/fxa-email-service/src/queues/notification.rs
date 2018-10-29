@@ -67,6 +67,7 @@ pub struct Bounce {
     pub bounce_type: BounceType,
     #[serde(rename = "bounceSubType")]
     pub bounce_subtype: BounceSubtype,
+    #[serde(rename = "bouncedRecipients")]
     pub bounced_recipients: Vec<EmailAddress>,
     pub timestamp: DateTime<Utc>,
 }

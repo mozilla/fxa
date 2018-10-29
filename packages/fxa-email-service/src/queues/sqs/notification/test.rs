@@ -4,7 +4,7 @@
 
 use std::error::Error;
 
-use serde_json;
+use serde_json::{self, Value as JsonValue};
 
 use super::*;
 
@@ -329,4 +329,61 @@ fn deserialize_notification() {
         _ => panic!("Delivery record should exist."),
     };
     assert_eq!(delivery.recipients[0].as_ref(), "xyzzy@example.com");
+}
+
+#[test]
+fn serialize_outgoing_notification() {
+    let json = include_str!("test_notifications.json");
+    let notifications: Vec<Notification> = serde_json::from_str(json).unwrap();
+    let notifications: Vec<GenericNotification> =
+        notifications.into_iter().map(From::from).collect();
+    let json = serde_json::to_string(&notifications).unwrap();
+    let notifications: JsonValue = serde_json::from_str(&json).unwrap();
+
+    assert_eq!(notifications[0]["notificationType"], "Bounce");
+    assert_eq!(notifications[0]["mail"]["source"], "foo@example.com");
+    assert_eq!(
+        notifications[0]["mail"]["destination"][0],
+        "bar@example.com"
+    );
+    assert_eq!(
+        notifications[0]["bounce"]["bouncedRecipients"][0],
+        "bar@example.com"
+    );
+    assert_eq!(
+        notifications[0]["bounce"]["bouncedRecipients"][1],
+        "baz@example.com"
+    );
+    assert_eq!(
+        notifications[0]["bounce"]["bouncedRecipients"][2],
+        "qux@example.com"
+    );
+    assert_eq!(notifications[0]["bounce"]["bounceType"], "Permanent");
+    assert_eq!(notifications[0]["bounce"]["bounceSubType"], "General");
+
+    assert_eq!(notifications[1]["notificationType"], "Complaint");
+    assert_eq!(notifications[1]["mail"]["source"], "qux@example.com");
+    assert_eq!(
+        notifications[1]["mail"]["destination"][0],
+        "baz@example.com"
+    );
+    assert_eq!(
+        notifications[1]["complaint"]["complainedRecipients"][0],
+        "baz@example.com"
+    );
+    assert_eq!(
+        notifications[1]["complaint"]["complaintFeedbackType"],
+        "abuse"
+    );
+
+    assert_eq!(notifications[2]["notificationType"], "Delivery");
+    assert_eq!(notifications[2]["mail"]["source"], "quuz@example.com");
+    assert_eq!(
+        notifications[2]["mail"]["destination"][0],
+        "xyzzy@example.com"
+    );
+    assert_eq!(
+        notifications[2]["delivery"]["recipients"][0],
+        "xyzzy@example.com"
+    );
 }
