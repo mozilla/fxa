@@ -24,7 +24,7 @@ pub struct SendgridProvider {
 impl SendgridProvider {
     pub fn new(sendgrid_settings: &SendgridSettings, settings: &Settings) -> SendgridProvider {
         SendgridProvider {
-            client: Client::new(sendgrid_settings.key.0.clone()),
+            client: Client::new(sendgrid_settings.key.to_string()),
             sender: settings.sender.clone(),
         }
     }
@@ -43,7 +43,7 @@ impl Provider for SendgridProvider {
         let mut message = Message::new();
         let mut from_address = EmailAddress::new();
         from_address.set_email(&self.sender.address.as_ref());
-        from_address.set_name(&self.sender.name.0);
+        from_address.set_name(self.sender.name.as_ref());
         message.set_from(from_address);
         message.set_subject(subject);
 

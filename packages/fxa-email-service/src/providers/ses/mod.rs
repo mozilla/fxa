@@ -26,13 +26,13 @@ impl SesProvider {
         let region = settings
             .aws
             .region
-            .0
+            .as_ref()
             .parse::<Region>()
             .expect("invalid region");
 
         let client: Box<Ses> = if let Some(ref keys) = settings.aws.keys {
             let creds =
-                StaticProvider::new(keys.access.0.clone(), keys.secret.0.clone(), None, None);
+                StaticProvider::new(keys.access.to_string(), keys.secret.to_string(), None, None);
             Box::new(SesClient::new_with(
                 HttpClient::new().expect("Couldn't start HTTP Client."),
                 creds,

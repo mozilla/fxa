@@ -69,20 +69,20 @@ pub enum NotificationType {
     Null,
 }
 
-impl From<NotificationType> for String {
-    fn from(notification_type: NotificationType) -> String {
-        String::from(match notification_type {
+impl AsRef<str> for NotificationType {
+    fn as_ref(&self) -> &str {
+        match *self {
             NotificationType::Bounce => "Bounce",
             NotificationType::Complaint => "Complaint",
             NotificationType::Delivery => "Delivery",
             NotificationType::Null => "",
-        })
+        }
     }
 }
 
 impl Display for NotificationType {
     fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
-        write!(formatter, "{}", From::from(*self): String)
+        write!(formatter, "{}", self.as_ref())
     }
 }
 
@@ -115,11 +115,11 @@ impl Serialize for NotificationType {
     where
         S: Serializer,
     {
-        let string: String = From::from(*self);
+        let string = self.as_ref();
         if string == "" {
             Err(S::Error::custom("notification type not set"))
         } else {
-            serializer.serialize_str(&string)
+            serializer.serialize_str(string)
         }
     }
 }

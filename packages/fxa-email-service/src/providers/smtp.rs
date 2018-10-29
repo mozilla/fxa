@@ -20,12 +20,12 @@ pub struct SmtpProvider {
 impl SmtpProvider {
     pub fn new(settings: &Settings) -> SmtpProvider {
         SmtpProvider {
-            host: settings.smtp.host.0.clone(),
+            host: settings.smtp.host.to_string(),
             port: settings.smtp.port,
             _credentials: settings.smtp.credentials.clone(),
             sender: (
                 settings.sender.address.to_string(),
-                settings.sender.name.0.clone(),
+                settings.sender.name.to_string(),
             ),
         }
     }

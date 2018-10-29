@@ -31,6 +31,12 @@ macro_rules! deserialize_and_validate {
         #[derive(Clone, Debug, Default, Serialize, PartialEq)]
         pub struct $type(pub String);
 
+        impl AsRef<str> for $type {
+            fn as_ref(&self) -> &str {
+                self.0.as_str()
+            }
+        }
+
         impl Display for $type {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
                 f.write_str(&self.0)
