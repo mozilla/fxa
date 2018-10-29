@@ -22,7 +22,7 @@ jobs:
                   npm i --production
 
                   CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt build
-                  npm install intern xmlhttprequest firefox-profile request sync-exec convict yargs leadfoot otplib retry-cli
+                  npm install intern xmlhttprequest firefox-profile request convict yargs leadfoot otplib retry-cli
                   ln -s node_modules/.bin/retry retry
 
         - persist_to_workspace:
