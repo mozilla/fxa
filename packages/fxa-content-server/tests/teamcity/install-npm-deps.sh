@@ -32,7 +32,6 @@ node ./tests/teamcity/install-npm-deps.js \
   request                         \
   request-promise                 \
   sinon                           \
-  sync-exec                       \
   underscore                      \
   xmlhttprequest                  \
   yargs
