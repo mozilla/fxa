@@ -38,7 +38,7 @@ impl Provider for SocketLabsProvider {
     ) -> AppResult<String> {
         let mut message = Message::new(
             self.sender.address.to_string(),
-            Some(self.sender.name.0.clone()),
+            Some(self.sender.name.to_string()),
         );
         message.add_to(to, None);
         for address in cc.iter() {

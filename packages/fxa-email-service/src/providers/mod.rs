@@ -125,7 +125,7 @@ impl Providers {
         }
 
         Providers {
-            default_provider: settings.provider.default.0.clone(),
+            default_provider: settings.provider.default.to_string(),
             force_default_provider: settings.provider.forcedefault,
             providers,
         }
