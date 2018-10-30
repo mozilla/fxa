@@ -13,7 +13,7 @@
   "bugs": "https://github.com/mozilla/fxa-customs-server/issues/",
   "scripts": {
     "outdated": "npm outdated --depth 0 || exit 0",
-    "shrink": "npmshrink",
+    "shrink": "npmshrink && scripts/tls-shrink.sh",
     "start": "node bin/customs_server.js",
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "test": "scripts/test-local.sh"
@@ -37,7 +37,7 @@
     "restify-safe-json-formatter": "0.3.0"
   },
   "devDependencies": {
-    "audit-filter": "^0.3.0",
+    "audit-filter": "0.3.0",
     "eslint-config-fxa": "2.1.0",
     "fxa-conventional-changelog": "1.1.0",
     "grunt": "1.0.3",
