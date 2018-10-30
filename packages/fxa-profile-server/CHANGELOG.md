@@ -1,3 +1,15 @@
+<a name="1.124.0"></a>
+# [1.124.0](https://github.com/mozilla/fxa-profile-server/compare/v1.123.0...v1.124.0) (2018-10-30)
+
+
+### Bug Fixes
+
+* **deps:** add filtered npm audit ([2492dd6](https://github.com/mozilla/fxa-profile-server/commit/2492dd6))
+* **deps:** Update dependencies to resolve `npm audit` warnings. ([c6d84ee](https://github.com/mozilla/fxa-profile-server/commit/c6d84ee))
+* **deps:** update to latest Sinon ([b6cf5d1](https://github.com/mozilla/fxa-profile-server/commit/b6cf5d1)), closes [#316](https://github.com/mozilla/fxa-profile-server/issues/316)
+
+
+
 <a name="1.123.0"></a>
 # [1.123.0](https://github.com/mozilla/fxa-profile-server/compare/v1.122.0...v1.123.0) (2018-10-16)
 
