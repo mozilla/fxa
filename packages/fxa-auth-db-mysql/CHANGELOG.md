@@ -1,3 +1,14 @@
+<a name="1.123.3"></a>
+## [1.123.3](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.123.2...v1.123.3) (2018-10-30)
+
+
+### Bug Fixes
+
+* **accountRecord:** Rollback `accountRecord_4` due to unexplained performance issues. ([034b3b0](https://github.com/mozilla/fxa-auth-db-mysql/commit/034b3b0))
+* **migration:** Fix typo in SP name in reverse migration for 91. ([5b08dba](https://github.com/mozilla/fxa-auth-db-mysql/commit/5b08dba))
+
+
+
 <a name="1.123.2"></a>
 ## [1.123.2](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.123.1...v1.123.2) (2018-10-26)
 
