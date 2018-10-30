@@ -898,10 +898,11 @@ module.exports = function (log, error) {
   // Where  : emails.normalizedEmail = LOWER($1)
   //
   // There's a newer version of this query named `accountRecord_4`
-  // which pulls the `profileChangedAt` column from the database.
-  // We're experiencing unexpectedly bad query performance for
-  // reasons that we don't yet understand, so we've reverted to
-  // using an older version of the query while we're figuring that out.
+  // which coalesces the `profileChangedAt` column from values in the db.
+  // We're experiencing unexpectedly bad query performance for reasons
+  // that we don't yet understand, so we've reverted to using an older
+  // version of the query while we're figuring that out, and doing the
+  // coalesce here in code.
   // Ref: https://github.com/mozilla/fxa-content-server/issues/6655
   var GET_ACCOUNT_RECORD = 'CALL accountRecord_2(?)'
   MySql.prototype.accountRecord = function (email) {
