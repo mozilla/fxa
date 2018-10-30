@@ -9,7 +9,7 @@ use chrono::{DateTime, Utc};
 pub use super::sqs::notification::{
     BounceSubtype, BounceType, ComplaintFeedbackType, Header, HeaderValue, NotificationType,
 };
-use email_address::EmailAddress;
+use types::email_address::EmailAddress;
 
 /// The root notification type.
 ///

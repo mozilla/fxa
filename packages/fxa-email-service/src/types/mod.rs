@@ -3,10 +3,10 @@
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
 //! Parent scope
-//! for modules pertaining to
-//! the database layer.
+//! for modules that implement
+//! miscellaneous generally-used types.
 
-pub mod auth_db;
-mod core;
-pub mod delivery_problems;
-pub mod message_data;
+pub mod duration;
+pub mod email_address;
+pub mod error;
+pub mod validate;

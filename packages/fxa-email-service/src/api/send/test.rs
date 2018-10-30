@@ -8,13 +8,11 @@ use rocket::{
     local::Client,
 };
 
-use app_errors::{self, AppError, AppErrorKind};
-use auth_db::DbClient;
-use delivery_problems::DeliveryProblems;
+use db::{auth_db::DbClient, delivery_problems::DeliveryProblems, message_data::MessageData};
 use logging::MozlogLogger;
-use message_data::MessageData;
 use providers::Providers;
 use settings::Settings;
+use types::error::{self, AppError, AppErrorKind};
 
 fn setup() -> Client {
     let mut settings = Settings::new().unwrap();
@@ -32,12 +30,12 @@ fn setup() -> Client {
         .manage(providers)
         .mount("/", routes![super::handler])
         .catch(catchers![
-            app_errors::bad_request,
-            app_errors::not_found,
-            app_errors::method_not_allowed,
-            app_errors::unprocessable_entity,
-            app_errors::too_many_requests,
-            app_errors::internal_server_error
+            error::bad_request,
+            error::not_found,
+            error::method_not_allowed,
+            error::unprocessable_entity,
+            error::too_many_requests,
+            error::internal_server_error
         ]);
 
     Client::new(server).unwrap()

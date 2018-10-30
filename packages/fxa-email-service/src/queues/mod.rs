@@ -11,12 +11,10 @@ use slog_scope;
 
 use self::notification::{Notification, NotificationType};
 pub use self::sqs::Queue as Sqs;
-use app_errors::{AppError, AppErrorKind, AppResult};
-use auth_db::DbClient;
-use delivery_problems::DeliveryProblems;
+use db::{auth_db::DbClient, delivery_problems::DeliveryProblems, message_data::MessageData};
 use logging::MozlogLogger;
-use message_data::MessageData;
 use settings::Settings;
+use types::error::{AppError, AppErrorKind, AppResult};
 
 mod mock;
 pub mod notification;

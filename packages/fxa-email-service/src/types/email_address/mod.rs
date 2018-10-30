@@ -11,7 +11,7 @@ use std::{
 
 use serde::de::{value::Error as DeserializeError, Deserialize, Deserializer, Error, Unexpected};
 
-use validate;
+use super::validate;
 
 #[cfg(test)]
 mod test;

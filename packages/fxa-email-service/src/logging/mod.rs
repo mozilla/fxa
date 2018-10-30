@@ -15,8 +15,8 @@ use slog_async;
 use slog_mozlog_json::MozLogJson;
 use slog_term;
 
-use app_errors::AppError;
 use settings::Settings;
+use types::error::AppError;
 
 lazy_static! {
     static ref LOGGER_NAME: String =

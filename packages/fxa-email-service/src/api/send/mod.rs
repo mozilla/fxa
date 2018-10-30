@@ -12,13 +12,13 @@ use rocket::{
 };
 use rocket_contrib::Json;
 
-use app_errors::{AppError, AppErrorKind, AppResult};
-use auth_db::DbClient;
-use delivery_problems::DeliveryProblems;
-use email_address::EmailAddress;
+use db::{auth_db::DbClient, delivery_problems::DeliveryProblems, message_data::MessageData};
 use logging::MozlogLogger;
-use message_data::MessageData;
 use providers::{Headers, Providers};
+use types::{
+    email_address::EmailAddress,
+    error::{AppError, AppErrorKind, AppResult},
+};
 
 #[cfg(test)]
 mod test;

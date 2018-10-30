@@ -8,11 +8,13 @@ use rocket::http::Status;
 use serde_json::{self, Value as Json};
 
 use super::*;
-use app_errors::{AppErrorKind, AppResult};
-use auth_db::{Db, DbClient};
-use db::test::TestFixture;
+use db::{
+    auth_db::{Db, DbClient},
+    core::test::TestFixture,
+};
 use queues::notification::{BounceSubtype, BounceType, ComplaintFeedbackType};
 use settings::{Host, Settings};
+use types::error::{AppErrorKind, AppResult};
 
 const SECOND: u64 = 1000;
 const MINUTE: u64 = SECOND * 60;

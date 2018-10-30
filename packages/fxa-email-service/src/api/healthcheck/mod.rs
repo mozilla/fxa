@@ -13,15 +13,15 @@ use rocket::State;
 use rocket_contrib::Json;
 use serde_json;
 
-use app_errors::{AppErrorKind, AppResult};
 use settings::Settings;
+use types::error::{AppErrorKind, AppResult};
 
 #[cfg(test)]
 mod test;
 
 #[get("/__version__")]
 fn version() -> Json {
-    Json(serde_json::from_str(include_str!("../../version.json")).unwrap())
+    Json(serde_json::from_str(include_str!("../../../version.json")).unwrap())
 }
 
 #[get("/__lbheartbeat__")]

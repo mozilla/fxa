@@ -3,7 +3,8 @@
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
-use validate;
+
+use types::validate;
 
 fn random_alphanum_string(len: usize) -> String {
     thread_rng().sample_iter(&Alphanumeric).take(len).collect()

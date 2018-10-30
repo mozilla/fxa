@@ -24,9 +24,12 @@ extern crate sentry;
 use sentry::integrations::panic::register_panic_handler;
 
 use fxa_email_service::{
-    app_errors, auth_db::DbClient, delivery_problems::DeliveryProblems, healthcheck,
-    logging::MozlogLogger, message_data::MessageData, providers::Providers, send,
+    api::{healthcheck, send},
+    db::{auth_db::DbClient, delivery_problems::DeliveryProblems, message_data::MessageData},
+    logging::MozlogLogger,
+    providers::Providers,
     settings::Settings,
+    types::error,
 };
 
 fn main() {
@@ -67,12 +70,12 @@ fn main() {
             ],
         )
         .catch(catchers![
-            app_errors::bad_request,
-            app_errors::not_found,
-            app_errors::method_not_allowed,
-            app_errors::unprocessable_entity,
-            app_errors::too_many_requests,
-            app_errors::internal_server_error
+            error::bad_request,
+            error::not_found,
+            error::method_not_allowed,
+            error::unprocessable_entity,
+            error::too_many_requests,
+            error::internal_server_error
         ])
         .attach(rocket::fairing::AdHoc::on_request(|request, _| {
             let log =
