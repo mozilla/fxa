@@ -206,9 +206,9 @@
       "dev": true
     },
     "accept": {
-      "version": "3.0.2",
-      "resolved": "https://registry.npmjs.org/accept/-/accept-3.0.2.tgz",
-      "integrity": "sha512-bghLXFkCOsC1Y2TZ51etWfKDs6q249SAoHTZVfzWWdlZxoij+mgkj9AmUJWQpDY48TfnrTDIe43Xem4zdMe7mQ==",
+      "version": "3.1.1",
+      "resolved": "https://registry.npmjs.org/accept/-/accept-3.1.1.tgz",
+      "integrity": "sha512-VzaFMgvI59MabzXVL1gzHjbf70y+IXsmMWWwNnhXarSvDueN3dtd7t7Lcvp22L/ZqYjuKDlPSckbDR1c3lcq6Q==",
       "requires": {
         "boom": "7.x.x",
         "hoek": "5.x.x"
@@ -3029,7 +3029,7 @@
       "integrity": "sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A=="
     },
     "fxa-auth-db-mysql": {
-      "version": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#a1a44fe41b0ddeb83cb53639dbae51c9afe8efbb",
+      "version": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#129f366bc0bdf4123b45857edd1436ae49c34e9f",
       "from": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
       "dev": true,
       "requires": {
@@ -10201,9 +10201,9 @@
       "integrity": "sha1-u5NdSFgsuhaMBoNJV6VKPgcSTxE="
     },
     "isemail": {
-      "version": "3.1.4",
-      "resolved": "https://registry.npmjs.org/isemail/-/isemail-3.1.4.tgz",
-      "integrity": "sha512-yE/W5osEWuAGSLVixV9pAexhkbZzglmuhO2CxdHu7IBh7uzuZogQ4bk0lE26HoZ6HD4ZYfKRKilkNuCnuJIBJw==",
+      "version": "3.2.0",
+      "resolved": "https://registry.npmjs.org/isemail/-/isemail-3.2.0.tgz",
+      "integrity": "sha512-zKqkK+O+dGqevc93KNsbZ/TqTUFd46MwWjYOoMrjIMZ51eU7DtQG3Wmd9SQQT7i7RVnuTPEiYEWHU3MSbxC1Tg==",
       "requires": {
         "punycode": "2.x.x"
       },
@@ -10908,9 +10908,9 @@
       }
     },
     "merge": {
-      "version": "1.2.0",
-      "resolved": "https://registry.npmjs.org/merge/-/merge-1.2.0.tgz",
-      "integrity": "sha1-dTHjnUlJwoGma4xabgJl6LBYlNo="
+      "version": "1.2.1",
+      "resolved": "https://registry.npmjs.org/merge/-/merge-1.2.1.tgz",
+      "integrity": "sha512-VjFo4P5Whtj4vsLzsYBu5ayHhoHJ0UqNm7ibvShmbmoz7tGi0vXaoJbGdB+GmDMLUdg8DpQXEIeVDAe8MaABvQ=="
     },
     "merge-descriptors": {
       "version": "1.0.1",
@@ -10950,16 +10950,16 @@
       "dev": true
     },
     "mime-db": {
-      "version": "1.36.0",
-      "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.36.0.tgz",
-      "integrity": "sha512-L+xvyD9MkoYMXb1jAmzI/lWYAxAMCPvIBSWur0PZ5nOf5euahRLVqH//FKW9mWp2lkqUgYiXPgkzfMUFi4zVDw=="
+      "version": "1.37.0",
+      "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.37.0.tgz",
+      "integrity": "sha512-R3C4db6bgQhlIhPU48fUtdVmKnflq+hRdad7IyKhtFj06VPNVdk2RhiYL3UjQIlso8L+YxAtFkobT0VK+S/ybg=="
     },
     "mime-types": {
-      "version": "2.1.20",
-      "resolved": "https://registry.npmjs.org/mime-types/-/mime-types-2.1.20.tgz",
-      "integrity": "sha512-HrkrPaP9vGuWbLK1B1FfgAkbqNjIuy4eHlIYnFi7kamZyLLrGlo2mpcx0bBmNpKqBtYtAfGbodDddIgddSJC2A==",
+      "version": "2.1.21",
+      "resolved": "https://registry.npmjs.org/mime-types/-/mime-types-2.1.21.tgz",
+      "integrity": "sha512-3iL6DbwpyLzjR3xHSFNFeb9Nz/M8WDkX33t1GFQnFOllWk8pOrh/LSrB5OXlnlW5P9LH73X6loW/eogc+F5lJg==",
       "requires": {
-        "mime-db": "~1.36.0"
+        "mime-db": "~1.37.0"
       }
     },
     "mimelib": {
@@ -11332,7 +11332,7 @@
       "from": "git+https://github.com/vladikoff/node-uap.git#9cdd16247",
       "requires": {
         "array.prototype.find": "2.0.0",
-        "uap-core": "git://github.com/ua-parser/uap-core.git#23bfabe34b86f29f4840c9dd1ef6129e685581e3",
+        "uap-core": "git://github.com/ua-parser/uap-core.git#f330b0337297ec979196a762cbb351ee29fce403",
         "uap-ref-impl": "0.2.0",
         "yamlparser": "0.0.2"
       }
@@ -13209,9 +13209,9 @@
       "dev": true
     },
     "randomatic": {
-      "version": "3.1.0",
-      "resolved": "https://registry.npmjs.org/randomatic/-/randomatic-3.1.0.tgz",
-      "integrity": "sha512-KnGPVE0lo2WoXxIZ7cPR8YBpiol4gsSuOwDSg410oHh80ZMp5EiypNqL2K4Z77vJn6lB5rap7IkAmcUlalcnBQ==",
+      "version": "3.1.1",
+      "resolved": "https://registry.npmjs.org/randomatic/-/randomatic-3.1.1.tgz",
+      "integrity": "sha512-TuDE5KxZ0J461RVjrJZCJc+J+zCkTb1MbH9AQUq68sMhOMcy9jLcb3BrZKgp9q9Ncltdg4QVqWrH02W2EFFVYw==",
       "requires": {
         "is-number": "^4.0.0",
         "kind-of": "^6.0.0",
@@ -14221,9 +14221,9 @@
       "dev": true
     },
     "sshpk": {
-      "version": "1.15.1",
-      "resolved": "https://registry.npmjs.org/sshpk/-/sshpk-1.15.1.tgz",
-      "integrity": "sha512-mSdgNUaidk+dRU5MhYtN9zebdzF2iG0cNPWy8HG+W8y+fT1JnSkh0fzzpjOa0L7P8i1Rscz38t0h4gPcKz43xA==",
+      "version": "1.15.2",
+      "resolved": "https://registry.npmjs.org/sshpk/-/sshpk-1.15.2.tgz",
+      "integrity": "sha512-Ra/OXQtuh0/enyl4ETZAfTaeksa6BXks5ZcjpSUNrjBr0DvrJKX+1fsKDPpT9TBXgHAFsa4510aNVgI8g/+SzA==",
       "requires": {
         "asn1": "~0.2.3",
         "assert-plus": "^1.0.0",
@@ -14639,7 +14639,7 @@
       "integrity": "sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c="
     },
     "uap-core": {
-      "version": "git://github.com/ua-parser/uap-core.git#23bfabe34b86f29f4840c9dd1ef6129e685581e3",
+      "version": "git://github.com/ua-parser/uap-core.git#f330b0337297ec979196a762cbb351ee29fce403",
       "from": "git://github.com/ua-parser/uap-core.git"
     },
     "uap-ref-impl": {
