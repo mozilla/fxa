@@ -773,7 +773,6 @@ describe('remote db', function() {
         })
         .then(function(account) {
           assert.ok(account.emailVerified, 'account should now be emailVerified')
-          assert.equal(account.profileChangedAt > account.createdAt, true, 'profileChangedAt updated since account created')
         })
     }
   )
@@ -832,10 +831,6 @@ describe('remote db', function() {
         })
         .then(function(exists) {
           assert.equal(exists, true, 'account should still exist')
-          return db.accountRecord(account.email)
-        })
-        .then((account) => {
-          assert.equal(account.profileChangedAt > account.createdAt, true, 'profileChangedAt updated since account created')
         })
     }
   )
@@ -1051,7 +1046,6 @@ describe('remote db', function() {
         })
         .then(function (account) {
           assert.equal(account.primaryEmail.email, secondEmail, 'primary email set')
-          assert.equal(account.profileChangedAt > account.createdAt, true, 'profileChangedAt updated since account created')
         })
     })
   })
