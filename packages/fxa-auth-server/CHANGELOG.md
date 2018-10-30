@@ -1,3 +1,13 @@
+<a name="1.123.2"></a>
+## [1.123.2](https://github.com/mozilla/fxa-oauth-server/compare/v1.123.1...v1.123.2) (2018-10-30)
+
+
+### Bug Fixes
+
+* **db:** Restore foreign key constraints on core tables. ([2bd0845](https://github.com/mozilla/fxa-oauth-server/commit/2bd0845))
+
+
+
 <a name="1.123.1"></a>
 ## [1.123.1](https://github.com/mozilla/fxa-oauth-server/compare/v1.123.0...v1.123.1) (2018-10-26)
 
