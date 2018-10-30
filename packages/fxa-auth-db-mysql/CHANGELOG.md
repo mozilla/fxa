@@ -1,3 +1,9 @@
+<a name="1.124.0"></a>
+# [1.124.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.123.3...v1.124.0) (2018-10-30)
+
+
+
+
 <a name="1.123.3"></a>
 ## [1.123.3](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.123.2...v1.123.3) (2018-10-30)
 
