@@ -1,3 +1,17 @@
+<a name="1.124.0"></a>
+# [1.124.0](https://github.com/mozilla/fxa-customs-server/compare/v1.123.0...v1.124.0) (2018-10-30)
+
+
+### Bug Fixes
+
+* **deps:** add filtered npm audit support ([fbc7d3b](https://github.com/mozilla/fxa-customs-server/commit/fbc7d3b)), closes [#270](https://github.com/mozilla/fxa-customs-server/issues/270) [#271](https://github.com/mozilla/fxa-customs-server/issues/271)
+
+### Features
+
+* **deps:** Add tls-shrink, remove "^" prefix on audit-filter version ([fd69125](https://github.com/mozilla/fxa-customs-server/commit/fd69125)), closes [#280](https://github.com/mozilla/fxa-customs-server/issues/280)
+
+
+
 <a name="1.123.0"></a>
 # [1.123.0](https://github.com/mozilla/fxa-customs-server/compare/v1.122.0...v1.123.0) (2018-10-16)
 
