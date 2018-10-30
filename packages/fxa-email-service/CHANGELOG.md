@@ -1,3 +1,28 @@
+<a name="v1.124.0"></a>
+## v1.124.0 (2018-10-30)
+
+
+#### Features
+
+* **db:**
+  *  write bounce and complaint records to our own db ([ed83e5b1](ed83e5b1))
+  *  serialize to JSON on write and deserialize from JSON on read ([31da83bb](31da83bb))
+* **docs:**
+  *  mention command-line shortcuts for running binaries ([6d04dcc9](6d04dcc9))
+  *  promote fxa-local-dev as a first class way to run locally ([80bb9864](80bb9864))
+
+#### Bug Fixes
+
+* **ci:**  only build deployment artifacts for tags ([95e20e07](95e20e07))
+* **code:**
+  *  remove references to old rocket_contrib::JsonValue struct ([c152bc87](c152bc87))
+  *  implement AsRef<str> for cheaper/cleaner &str access ([48cff692](48cff692), closes [#211](211))
+* **queues:**  fix the serialized format of outgoing notifications ([e3e361c6](e3e361c6))
+* **redis:**  don't pollute our data store with old bounce nomenclature ([68a1def7](68a1def7))
+* **settings:**  remove references to RocketLoggingLevel::Off enum variant ([5530fddb](5530fddb))
+
+
+
 <a name="v1.122.0"></a>
 ## v1.122.0 (2018-10-02)
 
