@@ -177,7 +177,7 @@ const QUERY_CODE_INSERT =
   'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 const QUERY_ACCESS_TOKEN_INSERT =
   'INSERT INTO tokens (clientId, userId, email, scope, type, expiresAt, ' +
-  'token, profileChangedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+  'token) VALUES (?, ?, ?, ?, ?, ?, ?)';
 const QUERY_REFRESH_TOKEN_INSERT =
   'INSERT INTO refreshTokens (clientId, userId, email, scope, token, profileChangedAt) VALUES ' +
   '(?, ?, ?, ?, ?, ?)';
