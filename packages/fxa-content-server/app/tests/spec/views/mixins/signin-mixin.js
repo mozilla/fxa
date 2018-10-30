@@ -476,7 +476,7 @@ define(function (require, exports, module) {
         it('failed', () => {
           assert.isTrue(AuthErrors.is(err, 'TOTP_REQUIRED'));
           assert.isTrue(view.unsafeDisplayError.calledWith(err));
-          const link = 'https://support.mozilla.org/en-US/kb/secure-firefox-account-two-step-authentication';
+          const link = 'https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication';
           assert.isTrue(err.forceMessage.indexOf(link) > 0, 'contains setup link');
 
           const args = user.signInAccount.args[0];
@@ -505,7 +505,7 @@ define(function (require, exports, module) {
         it('failed', () => {
           assert.isTrue(OAuthErrors.is(err, 'MISMATCH_ACR_VALUES'));
           assert.isTrue(view.unsafeDisplayError.calledWith(err));
-          const link = 'https://support.mozilla.org/en-US/kb/secure-firefox-account-two-step-authentication';
+          const link = 'https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication';
           assert.isTrue(err.forceMessage.indexOf(link) > 0, 'contains setup link');
 
           const args = user.signInAccount.args[0];

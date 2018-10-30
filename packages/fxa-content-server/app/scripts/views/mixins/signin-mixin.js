@@ -16,7 +16,7 @@ define(function (require, exports, module) {
   const VerificationReasons = require('../../lib/verification-reasons');
   const TokenCodeExperimentMixin = require('../mixins/token-code-experiment-mixin');
 
-  const TOTP_SUPPORT_URL = 'https://support.mozilla.org/en-US/kb/secure-firefox-account-two-step-authentication';
+  const TOTP_SUPPORT_URL = 'https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication';
 
   module.exports = {
     dependsOn: [
