@@ -10,7 +10,7 @@
 -- DROP PROCEDURE updateTotpToken_3;
 -- DROP PROCEDURE resetAccount_10;
 -- DROP PROCEDURE sessionWithDevice_17;
--- DROP PROCEDURE accountRecord_5;
+-- DROP PROCEDURE accountRecord_4;
 -- DROP PROCEDURE account_5;
 
 -- UPDATE dbMetadata SET value = '90' WHERE name = 'schema-patch-level';
