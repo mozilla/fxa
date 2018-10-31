@@ -2429,9 +2429,9 @@
       "integrity": "sha1-FkpUg+Yw+kMh5a8HAg5TGDGyYJs="
     },
     "caniuse-lite": {
-      "version": "1.0.30000902",
-      "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30000902.tgz",
-      "integrity": "sha512-EZG6qrRHkW715hOFjOrshH2JygbLfhaC8NjjkE5EdGJZhCYbtnJMaRdicB+2AP8xKX3QzW9g3mkDUTHUoBG5rQ=="
+      "version": "1.0.30000903",
+      "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30000903.tgz",
+      "integrity": "sha512-T1XVJEpGCoaq7MDw7/6hCdYUukmSaS+1l/OQJkLtw7Cr2+/+d67tNGKEbyiqf7Ck8x6EhNFUxjYFXXka0N/w5g=="
     },
     "capture-stack-trace": {
       "version": "1.0.1",
@@ -3676,9 +3676,9 @@
       }
     },
     "css-selector-tokenizer": {
-      "version": "0.7.0",
-      "resolved": "https://registry.npmjs.org/css-selector-tokenizer/-/css-selector-tokenizer-0.7.0.tgz",
-      "integrity": "sha1-5piEdK6MlTR3v15+/s/OzNnPTIY=",
+      "version": "0.7.1",
+      "resolved": "https://registry.npmjs.org/css-selector-tokenizer/-/css-selector-tokenizer-0.7.1.tgz",
+      "integrity": "sha512-xYL0AMZJ4gFzJQsHUKa5jiWWi2vH77WVNg7JYRyewwj6oPh4yb/y6Y9ZCw9dsj/9UauMhtuxR+ogQd//EdEVNA==",
       "requires": {
         "cssesc": "^0.1.0",
         "fastparse": "^1.1.1",
@@ -5090,9 +5090,9 @@
       "dev": true
     },
     "fastparse": {
-      "version": "1.1.1",
-      "resolved": "https://registry.npmjs.org/fastparse/-/fastparse-1.1.1.tgz",
-      "integrity": "sha1-0eJkOzipTXWDtHkGDmxK/8lAcfg="
+      "version": "1.1.2",
+      "resolved": "https://registry.npmjs.org/fastparse/-/fastparse-1.1.2.tgz",
+      "integrity": "sha512-483XLLxTVIwWK3QTrMGRqUfUpoOs/0hbQrl2oz4J0pAcm3A3bu84wxTFqGqkJzewCLdME38xJLJAxBABfQT8sQ=="
     },
     "fastseries": {
       "version": "1.7.2",
@@ -10069,9 +10069,9 @@
       }
     },
     "node-releases": {
-      "version": "1.0.1",
-      "resolved": "https://registry.npmjs.org/node-releases/-/node-releases-1.0.1.tgz",
-      "integrity": "sha512-/kOv7jA26OBwkBPx6B9xR/FzJzs2OkMtcWjS8uPQRMHE7IELdSfN0QKZvmiWnf5P1QJ8oYq/e9qe0aCZISB1pQ==",
+      "version": "1.0.2",
+      "resolved": "https://registry.npmjs.org/node-releases/-/node-releases-1.0.2.tgz",
+      "integrity": "sha512-zP8Asfg13lG9KDAW85rylSxXBYvaSdtjMIYKHUk8c1fM8drmFwRqbSYKYD+UlNVPUvrceSvgLUKHMOWR5jPWQg==",
       "requires": {
         "semver": "^5.3.0"
       }
@@ -12748,8 +12748,9 @@
       "integrity": "sha512-TfOfPcYGBB5sDuPn3deByxPhmfegAhpDYKSOXZQN81Oyrrif8ZCodOLzK3AesELnCx03kikhyDwh0pfvvQvF8w=="
     },
     "speed-trap": {
-      "version": "git://github.com/rum-diary/speed-trap.git#65ae3083b8c926ef509a636fbe775fcab9879030",
-      "from": "git://github.com/rum-diary/speed-trap.git#0.0.8"
+      "version": "0.0.8",
+      "resolved": "https://registry.npmjs.org/speed-trap/-/speed-trap-0.0.8.tgz",
+      "integrity": "sha512-ecDBY13wab2CTYHZ1YvHlc3jmM9LO74LEcPrccJ/wRx9eMDgOyAvcP37QECiezfUfvqIiO84/O1KcpBXGSCNLA=="
     },
     "split": {
       "version": "1.0.1",
