@@ -11,7 +11,7 @@ import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
 import PasswordMixin from './mixins/password-mixin';
-import PasswordStrengthExperimentMixin from './mixins/password-strength-experiment-mixin';
+import PasswordStrengthMixin from './mixins/password-strength-mixin';
 import { preventDefaultThen } from './base';
 import ServiceMixin from './mixins/service-mixin';
 import SignUpMixin from './mixins/signup-mixin';
@@ -95,7 +95,7 @@ Cocktail.mixin(
   FlowEventsMixin,
   FormPrefillMixin,
   PasswordMixin,
-  PasswordStrengthExperimentMixin({
+  PasswordStrengthMixin({
     balloonEl: '.helper-balloon',
     passwordEl: '#password'
   }),

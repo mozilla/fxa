@@ -13,8 +13,8 @@ const config = intern._config;
 const PAGE_URL = `${config.fxaContentRoot}?context=fx_firstrun_v2&service=sync&automatedBrowser=true&action=email`;
 
 let email;
-const PASSWORD = '12345678';
-const PASSWORD_WITH_TYPO = '123456789';
+const PASSWORD = 'PASSWORD123123';
+const PASSWORD_WITH_TYPO = 'PASSWORD1234';
 
 const {
   clearBrowserState,

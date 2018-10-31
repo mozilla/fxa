@@ -14,7 +14,7 @@ const selectors = require('./lib/selectors');
 
 const SYNC_SIGNIN_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync&action=email`;
 
-const PASSWORD = 'password';
+const PASSWORD = 'password123';
 let email;
 
 const {

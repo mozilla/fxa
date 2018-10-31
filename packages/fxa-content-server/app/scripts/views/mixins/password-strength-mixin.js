@@ -2,14 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import $ from 'jquery';
 import { debounce } from 'underscore';
-import ExperimentMixin from './experiment-mixin';
 import PasswordStrengthBalloonModel from '../../models/password_strength/password_strength_balloon';
 import PasswordWithStrengthBalloonView from '../password_strength/password_with_strength_balloon';
-import { EXPERIMENT_NAME } from '../../lib/experiments/grouping-rules/password-strength';
-
-const DESIGN_F_GROUP = 'designF';
 
 const DELAY_BEFORE_LOG_REASON_MS = 1500;
 
@@ -29,22 +24,7 @@ export default function (config = {}) {
   const { balloonEl, passwordEl } = config;
 
   return {
-    dependsOn: [
-      ExperimentMixin
-    ],
-
     afterRender () {
-      const experimentGroup = this._getPasswordStrengthExperimentGroup();
-      if (experimentGroup) {
-        this.createExperiment(EXPERIMENT_NAME, experimentGroup);
-
-        if (experimentGroup === DESIGN_F_GROUP) {
-          return this._setupDesignF();
-        }
-      }
-    },
-
-    _setupDesignF () {
       const passwordModel = this.passwordModel = this._createPasswordStrengthBalloonModel();
       // wait a short time after the last change to log the invalid reason.
       // The additional delay over when the UI updates is to minimize the
@@ -77,15 +57,8 @@ export default function (config = {}) {
       });
     },
 
-    setInitialContext (context) {
-      context.set({
-        showCustomHelperBalloon: this._getPasswordStrengthExperimentGroup() === DESIGN_F_GROUP
-      });
-    },
-
     isValidStart () {
-      const experimentGroup = this._getPasswordStrengthExperimentGroup();
-      if (experimentGroup === DESIGN_F_GROUP && this.passwordModel.validate()) {
+      if (this.passwordModel.validate()) {
         // does not allow the form to be submit if the model says there are any problems.
         return false;
       }
@@ -93,30 +66,13 @@ export default function (config = {}) {
     },
 
     showValidationErrorsStart () {
-      const experimentGroup = this._getPasswordStrengthExperimentGroup();
-      if (experimentGroup === DESIGN_F_GROUP && this.passwordModel.validate()) {
+      if (this.passwordModel.validate()) {
         this.focus(passwordEl);
         // do not show any additional tooltips if the model says there are any errors
         // under the assumption our PasswordStrengthBalloonView will display errors.
         return true;
       }
       // If fall through occurs, the mixin target's showValidationErrorsStart will be called.
-    },
-
-    _getPasswordStrengthExperimentSubject () {
-      return {
-        account: this.getAccount(),
-        lang: this.lang,
-        langDirection: this._getLangDirection(),
-      };
-    },
-
-    _getLangDirection () {
-      return ($('html').attr('dir') || 'ltr').toLowerCase();
-    },
-
-    _getPasswordStrengthExperimentGroup () {
-      return this.getExperimentGroup(EXPERIMENT_NAME, this._getPasswordStrengthExperimentSubject());
     },
 
     logError (error) {

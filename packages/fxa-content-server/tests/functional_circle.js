@@ -32,7 +32,6 @@ function selectCircleTests (allTests) {
 module.exports = selectCircleTests([
   'tests/functional/email_service.js',
   'tests/functional/sign_in_totp.js',
-  'tests/functional/password_strength_experiment.js',
   'tests/functional/recovery_key.js',
   // flaky tests go above here.
   'tests/functional/sync_v3_email_first.js',
@@ -58,6 +57,7 @@ module.exports = selectCircleTests([
   'tests/functional/fx_ios_v1_sign_up.js',
   'tests/functional/mob_android_v1.js',
   'tests/functional/mob_ios_v1.js',
+  'tests/functional/password_strength.js',
   'tests/functional/refreshes_metrics.js',
   'tests/functional/reset_password.js',
   'tests/functional/robots_txt.js',

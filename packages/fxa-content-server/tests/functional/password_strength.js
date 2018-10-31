@@ -10,7 +10,7 @@ const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
 const config = intern._config;
-const PAGE_URL = `${config.fxaContentRoot}?context=fx_firstrun_v2&service=sync&action=email&forceExperiment=passwordStrength&forceExperimentGroup=designF`; //eslint-disable-line max-len
+const PAGE_URL = `${config.fxaContentRoot}?context=fx_firstrun_v2&service=sync&action=email`; //eslint-disable-line max-len
 
 let email;
 
@@ -22,7 +22,7 @@ const {
   type,
 } = FunctionalHelpers;
 
-registerSuite('password strength experiment', {
+registerSuite('password strength balloon', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
 

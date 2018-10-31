@@ -17,8 +17,8 @@ const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup${QUERY_PARAMS}`;
 const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin${QUERY_PARAMS}`;
 
 let email;
-const PASSWORD = '12345678';
-const PASSWORD_WITH_TYPO = '123456789';
+const PASSWORD = 'PASSWORD123123';
+const PASSWORD_WITH_TYPO = 'PASSWORD1234';
 
 const {
   clearBrowserState,
