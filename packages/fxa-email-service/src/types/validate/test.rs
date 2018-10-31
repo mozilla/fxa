@@ -171,23 +171,6 @@ fn invalid_host() {
 }
 
 #[test]
-fn provider() {
-    assert!(validate::provider("mock"));
-    assert!(validate::provider("smtp"));
-    assert!(validate::provider("ses"));
-    assert!(validate::provider("sendgrid"));
-    assert!(validate::provider("socketlabs"));
-}
-
-#[test]
-fn invalid_provider() {
-    assert_eq!(validate::provider("sses"), false);
-    assert_eq!(validate::provider("sendgrids"), false);
-    assert_eq!(validate::provider("ses "), false);
-    assert_eq!(validate::provider(" sendgrid"), false);
-}
-
-#[test]
 fn sender_name() {
     assert!(validate::sender_name("foo"));
     assert!(validate::sender_name("Firefox Accounts"));

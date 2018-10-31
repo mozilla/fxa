@@ -21,7 +21,9 @@ use rocket::config::{
 use serde::de::{Deserialize, Deserializer, Error, Unexpected};
 
 use logging::MozlogLogger;
-use types::{duration::Duration, email_address::EmailAddress, validate};
+use types::{
+    duration::Duration, email_address::EmailAddress, provider::Provider as ProviderType, validate,
+};
 
 macro_rules! deserialize_and_validate {
     ($(#[$docs:meta] ($type:ident, $validator:ident, $expected:expr)),+) => ($(
@@ -67,8 +69,6 @@ deserialize_and_validate! {
     (AwsSecret, aws_secret, "AWS secret key"),
     /// Base URI type.
     (BaseUri, base_uri, "base URI"),
-    /// Default email provider.
-    (DefaultProvider, provider, "'ses', 'sendgrid', 'socketlabs' or 'smtp'"),
     /// Env type.
     (Env, env, "'dev', 'staging', 'production' or 'test'"),
     /// Host name or IP address type.
@@ -172,7 +172,7 @@ pub struct Provider {
     /// Note that this setting can be overridden
     /// on a per-request basis
     /// unless `forcedefault` is `true`.
-    pub default: DefaultProvider,
+    pub default: ProviderType,
 
     /// Flag indicating whether the default provider should be enforced
     /// in preference to the per-request `provider` param.

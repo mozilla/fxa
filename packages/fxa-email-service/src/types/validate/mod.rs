@@ -32,7 +32,6 @@ lazy_static! {
     static ref HOST_FORMAT: Regex = Regex::new(r"^[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*$").unwrap();
     static ref LOGGING_LEVEL: Regex = Regex::new(r"^(?:normal|debug|critical|off)$").unwrap();
     static ref LOGGING_FORMAT: Regex = Regex::new(r"^(?:mozlog|pretty|null)$").unwrap();
-    static ref PROVIDER_FORMAT: Regex = Regex::new(r"^(?:mock|sendgrid|ses|smtp|socketlabs)$").unwrap();
     static ref SENDER_NAME_FORMAT: Regex =
         Regex::new(r"^[A-Za-z0-9-]+(?: [A-Za-z0-9-]+)*$").unwrap();
     static ref SENDGRID_API_KEY_FORMAT: Regex = Regex::new("^[A-Za-z0-9._-]+$").unwrap();
@@ -85,11 +84,6 @@ pub fn logging_level(value: &str) -> bool {
 /// Validate logging format.
 pub fn logging_format(value: &str) -> bool {
     LOGGING_FORMAT.is_match(value)
-}
-
-/// Validate an email provider.
-pub fn provider(value: &str) -> bool {
-    PROVIDER_FORMAT.is_match(value)
 }
 
 /// Validate a sender name.
