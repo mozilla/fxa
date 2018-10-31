@@ -1,3 +1,34 @@
+<a name="1.124.0"></a>
+# [1.124.0](https://github.com/mozilla/fxa-content-server/compare/v1.123.2...v1.124.0) (2018-10-30)
+
+
+### Bug Fixes
+
+* **ci:** Remove sync-exec from CI dep installation ([edbadeb](https://github.com/mozilla/fxa-content-server/commit/edbadeb)), closes [#6672](https://github.com/mozilla/fxa-content-server/issues/6672)
+* **ci:** update travis to use oauth server in auth server repo ([cc158a2](https://github.com/mozilla/fxa-content-server/commit/cc158a2))
+* **codes:** Dont allow `wantsTwoStepAuthentication` to bypass the password prompt. ([60ef335](https://github.com/mozilla/fxa-content-server/commit/60ef335))
+* **codes:** support requesting totp verification on sign-in ([5d64f6d](https://github.com/mozilla/fxa-content-server/commit/5d64f6d))
+* **deps:** add filtered npm audit ([81c86ca](https://github.com/mozilla/fxa-content-server/commit/81c86ca)), closes [mozilla/fxa#303](https://github.com/mozilla/fxa/issues/303)
+* **deps:** Fix the npm audit warning for sync-exec ([eb8afc1](https://github.com/mozilla/fxa-content-server/commit/eb8afc1)), closes [#6595](https://github.com/mozilla/fxa-content-server/issues/6595)
+* **deps:** Fix the npm audit warnings in jsxgettext-recursive ([6d6e3ae](https://github.com/mozilla/fxa-content-server/commit/6d6e3ae)), closes [#6595](https://github.com/mozilla/fxa-content-server/issues/6595)
+* **deps:** rewrap deps, add exceptions for convict, grunt-z-schema, grunt-usemin ([b5f50d5](https://github.com/mozilla/fxa-content-server/commit/b5f50d5))
+* **pairing:** Expect the channelId to be a base64url string. ([c292281](https://github.com/mozilla/fxa-content-server/commit/c292281)), closes [#6667](https://github.com/mozilla/fxa-content-server/issues/6667)
+* **totp:** pr updates ([2e45a26](https://github.com/mozilla/fxa-content-server/commit/2e45a26))
+* **totp:** Remove en-US from the TOTP SUMO link. ([d771fd2](https://github.com/mozilla/fxa-content-server/commit/d771fd2)), closes [#6666](https://github.com/mozilla/fxa-content-server/issues/6666)
+
+### Features
+
+* **connect-device:** allow showSuccessMessage search param ([30406e9](https://github.com/mozilla/fxa-content-server/commit/30406e9))
+* **metrics:** map totp flow events to amplitude events ([99ecef1](https://github.com/mozilla/fxa-content-server/commit/99ecef1))
+* **metrics:** No longer send events to Google Analytics ([e27f79e](https://github.com/mozilla/fxa-content-server/commit/e27f79e)), closes [#6650](https://github.com/mozilla/fxa-content-server/issues/6650)
+* **pairing:** The channel server for the pairing flow. ([d1264af](https://github.com/mozilla/fxa-content-server/commit/d1264af)), closes [#6613](https://github.com/mozilla/fxa-content-server/issues/6613)
+
+### Refactor
+
+* **creds:** remove support for `email=blank`, disabling of cached creds ([318f879](https://github.com/mozilla/fxa-content-server/commit/318f879)), closes [#6053](https://github.com/mozilla/fxa-content-server/issues/6053)
+
+
+
 <a name="1.123.2"></a>
 ## [1.123.2](https://github.com/mozilla/fxa-content-server/compare/v1.123.1...v1.123.2) (2018-10-26)
 
