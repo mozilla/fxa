@@ -177,6 +177,7 @@ module.exports = (log, config, customs, db, mailer)  => {
       const redirectTo = request.payload.redirectTo
       const resume = request.payload.resume
       const ip = request.app.clientAddress
+      const isUnverifiedAccount = ! accountRecord.primaryEmail.isVerified
 
       let sessions
 
@@ -255,7 +256,7 @@ module.exports = (log, config, customs, db, mailer)  => {
 
       function sendEmail() {
         // For unverified accounts, we always re-send the account verification email.
-        if (! accountRecord.primaryEmail.isVerified) {
+        if (isUnverifiedAccount) {
           return sendVerifyAccountEmail()
         }
         // If the session needs to be verified, send the sign-in confirmation email.
@@ -348,7 +349,7 @@ module.exports = (log, config, customs, db, mailer)  => {
         .catch(function (err) {
           log.error({op: 'mailer.confirmation.error', err: err})
 
-          throw error.cannotSendEmail()
+          throw error.cannotSendEmail(isUnverifiedAccount)
         })
       }
 

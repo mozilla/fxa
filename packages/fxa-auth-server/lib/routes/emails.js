@@ -642,7 +642,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
               log.error({op: 'mailer.sendVerifySecondaryEmail', err: err})
               return db.deleteEmail(emailData.uid, emailData.normalizedEmail)
                 .then(() => {
-                  throw error.cannotSendEmail()
+                  throw error.cannotSendEmail(true)
                 })
             })
         }

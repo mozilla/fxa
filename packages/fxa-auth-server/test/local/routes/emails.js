@@ -820,6 +820,7 @@ describe('/recovery_email', () => {
       })
         .catch((err) => {
           assert.equal(err.errno, 151, 'failed to send email error')
+          assert.equal(err.output.payload.code, 422)
           assert.equal(mockDB.createEmail.callCount, 1, 'call db.createEmail')
           assert.equal(mockDB.deleteEmail.callCount, 1, 'call db.deleteEmail')
           assert.equal(mockDB.deleteEmail.args[0][0], mockRequest.auth.credentials.uid, 'correct uid passed')
