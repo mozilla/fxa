@@ -32,6 +32,23 @@ Cocktail.mixin(
   PasswordStrengthMixin(mixinConfig)
 );
 
+class NoPasswordContainingView extends FormView {
+  template () {
+    return `
+      <div id="balloon" />
+    `;
+  }
+
+  getAccount () {
+    return this.model.get('account');
+  }
+}
+
+Cocktail.mixin(
+  NoPasswordContainingView,
+  PasswordStrengthMixin(mixinConfig)
+);
+
 
 describe('views/mixins/password-strength-mixin', () => {
   let account;
@@ -50,7 +67,29 @@ describe('views/mixins/password-strength-mixin', () => {
     });
   });
 
-  it('afterRender sets up the password model and view', () => {
+  it('render does nothing if the view has no password field', () => {
+    const noPasswordView = new NoPasswordContainingView({
+      lang: 'ar', model: new Model({
+        account
+      }),
+    });
+
+    const passwordModel = {};
+    const passwordView = {
+      afterRender: sinon.spy(() => Promise.resolve('heyo'))
+    };
+
+    sinon.stub(noPasswordView, '_createPasswordStrengthBalloonModel').callsFake(() => passwordModel);
+    sinon.stub(noPasswordView, '_createPasswordWithStrengthBalloonView').callsFake(() => passwordView);
+
+    return noPasswordView.render()
+      .then(() => {
+        assert.isFalse(noPasswordView._createPasswordStrengthBalloonModel.called);
+        assert.isFalse(noPasswordView._createPasswordWithStrengthBalloonView.called);
+      });
+  });
+
+  it('render sets up the password model and view', () => {
     const passwordModel = {};
     const passwordView = {
       afterRender: sinon.spy(() => Promise.resolve('heyo'))
@@ -62,10 +101,8 @@ describe('views/mixins/password-strength-mixin', () => {
     sinon.stub(view, 'listenTo');
     sinon.stub(view, 'on');
 
-    return view.afterRender()
-      .then((result) => {
-        assert.equal(result, 'heyo');
-
+    return view.render()
+      .then(() => {
         assert.isTrue(view._createPasswordStrengthBalloonModel.calledOnce);
         assert.isTrue(view.listenTo.calledOnceWith(passwordModel, 'change'));
         assert.isTrue(view.on.calledTwice);

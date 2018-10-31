@@ -11,7 +11,7 @@ const FxDesktopHelpers = require('./lib/fx-desktop');
 var config = intern._config;
 
 var PAGE_URL = config.fxaContentRoot + 'reset_password?context=fx_desktop_v1&service=sync';
-var PASSWORD = 'password';
+var PASSWORD = 'passwordzxcv';
 
 var email;
 

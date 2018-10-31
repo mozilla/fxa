@@ -17,8 +17,6 @@ import User from 'models/user';
 import View from 'views/complete_reset_password';
 import WindowMock from '../../mocks/window';
 
-const wrapAssertion = TestHelpers.wrapAssertion;
-
 describe('views/complete_reset_password', () => {
   const CODE = 'dea0fae1abc2fab3bed4dec5eec6ace7';
   const EMAIL = 'testuser@testuser.com';
@@ -55,6 +53,11 @@ describe('views/complete_reset_password', () => {
       viewName: 'complete_reset_password',
       window: windowMock
     });
+
+    sinon.stub(view, '_createPasswordWithStrengthBalloonView').callsFake(() => ({
+      afterRender() {},
+      on() {}
+    }));
   }
 
   beforeEach(() => {
@@ -240,68 +243,61 @@ describe('views/complete_reset_password', () => {
     });
 
     it('called notifier.trigger correctly', () => {
-      assert.equal(notifier.trigger.callCount, 1);
+      assert.equal(notifier.trigger.callCount, 2);
       assert.equal(notifier.trigger.args[0][0], 'flow.initialize');
     });
   });
 
-  describe('isValid', () => {
+  describe('isValidEnd', () => {
     it('returns true if password & vpassword valid and the same', () => {
       view.$('#password').val(PASSWORD);
       view.$('#vpassword').val(PASSWORD);
-      assert.isTrue(view.isValid());
+      assert.isTrue(view.isValidEnd());
     });
 
     it('returns false if password & vpassword are different', () => {
       view.$('#password').val('password');
       view.$('#vpassword').val('other_password');
-      assert.isFalse(view.isValid());
+      assert.isFalse(view.isValidEnd());
     });
 
     it('returns false if password invalid', () => {
       view.$('#password').val('passwor');
       view.$('#vpassword').val('password');
-      assert.isFalse(view.isValid());
+      assert.isFalse(view.isValidEnd());
     });
 
     it('returns false if vpassword invalid', () => {
       view.$('#password').val('password');
       view.$('#vpassword').val('passwor');
-      assert.isFalse(view.isValid());
+      assert.isFalse(view.isValidEnd());
     });
   });
 
-  describe('showValidationErrors', () => {
-    it('shows an error if the password is invalid', function (done) {
+  describe('showValidationErrorsEnd', () => {
+    beforeEach(() => {
+      sinon.stub(view, 'displayError');
+    });
+
+    it('shows an error if the password is invalid', () => {
       view.$('#password').val('passwor');
       view.$('#vpassword').val('password');
 
-      view.on('validation_error', function (which, msg) {
-        wrapAssertion(() => {
-          assert.ok(msg);
-        }, done);
-      });
+      view.showValidationErrorsEnd();
 
-      view.showValidationErrors();
-    });
-
-    it('shows an error if the vpassword is invalid', function (done) {
-      view.$('#password').val('password');
-      view.$('#vpassword').val('passwor');
-
-      view.on('validation_error', function (which, msg) {
-        wrapAssertion(() => {
-          assert.ok(msg);
-        }, done);
-      });
-
-      view.showValidationErrors();
+      assert.isTrue(view.displayError.calledOnce);
+      assert.isTrue(AuthErrors.is(view.displayError.args[0][0], 'PASSWORDS_DO_NOT_MATCH'));
     });
   });
 
   describe('validateAndSubmit', () => {
+    beforeEach(() => {
+      sinon.stub(view, 'isValidStart').callsFake(() => true);
+      sinon.stub(view, 'showValidationErrorsStart').callsFake(() => false);
+    });
+
     it('shows an error if passwords are different', () => {
-      view.$('#password').val('password1');
+      view.$('#password').val('password123123');
       view.$('#vpassword').val('password2');
 
       return view.validateAndSubmit()
@@ -403,7 +399,6 @@ describe('views/complete_reset_password', () => {
 
     it('shows error message if server returns an error', () => {
       view.$('[type=password]').val('password');
-
 
       sinon.stub(fxaClient, 'completePasswordReset').callsFake(() => {
         return Promise.reject(new Error('uh oh'));

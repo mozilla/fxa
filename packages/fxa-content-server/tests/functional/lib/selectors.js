@@ -1,5 +1,18 @@
 'use strict';
 
+const  PASSWORD_BALLOON = {
+  BALLOON: '.password-strength-balloon',
+  MIN_LENGTH_FAIL: '.min-length.fail',
+  MIN_LENGTH_MET: '.min-length.met',
+  MIN_LENGTH_UNMET: '.min-length.unmet',
+  NOT_COMMON_FAIL: '.not-common.fail',
+  NOT_COMMON_MET: '.not-common.met',
+  NOT_COMMON_UNMET: '.not-common.unmet',
+  NOT_EMAIL_FAIL: '.not-email.fail',
+  NOT_EMAIL_MET: '.not-email.met',
+  NOT_EMAIL_UNMET: '.not-email.unmet',
+};
+
 /*eslint-disable max-len*/
 module.exports = {
   '123DONE': {
@@ -35,6 +48,10 @@ module.exports = {
     DAMAGED_LINK_HEADER: '#fxa-reset-link-damaged-header',
     EXPIRED_LINK_HEADER: '#fxa-reset-link-expired-header',
     HEADER: '#fxa-complete-reset-password-header',
+    PASSWORD: '#password',
+    PASSWORD_BALLOON,
+    SUBMIT: 'button[type="submit"]',
+    VPASSWORD: '#vpassword',
   },
   COMPLETE_RESET_PASSWORD_RECOVERY_KEY: {
     HEADER: '#fxa-recovery-key-confirm',
@@ -265,18 +282,7 @@ module.exports = {
     HEADER: '#fxa-signup-password-header',
     LINK_MISTYPED_EMAIL: '.use-different',
     PASSWORD: '#password',
-    PASSWORD_BALLOON: {
-      BALLOON: '.password-strength-balloon',
-      MIN_LENGTH_FAIL: '.min-length.fail',
-      MIN_LENGTH_MET: '.min-length.met',
-      MIN_LENGTH_UNMET: '.min-length.unmet',
-      NOT_COMMON_FAIL: '.not-common.fail',
-      NOT_COMMON_MET: '.not-common.met',
-      NOT_COMMON_UNMET: '.not-common.unmet',
-      NOT_EMAIL_FAIL: '.not-email.fail',
-      NOT_EMAIL_MET: '.not-email.met',
-      NOT_EMAIL_UNMET: '.not-email.unmet',
-    },
+    PASSWORD_BALLOON,
     SHOW_PASSWORD: '#password ~ .show-password-label',
     SHOW_VPASSWORD: '#vpassword ~ .show-password-label',
     SUBMIT: 'button[type="submit"]',
