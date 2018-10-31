@@ -4,7 +4,6 @@
 
 import _ from 'underscore';
 import BaseExperiment from './experiments/base';
-import PasswordStrengthExperiment from './experiments/password-strength';
 import Url from './url';
 
 const FORCE_EXPERIMENT_PARAM = 'forceExperiment';
@@ -23,7 +22,6 @@ const STARTUP_EXPERIMENTS = {
  */
 const MANUAL_EXPERIMENTS = {
   'emailFirst': BaseExperiment,
-  'passwordStrength': PasswordStrengthExperiment,
   // For now, the send SMS experiment only needs to log "enrolled", so
   // no special experiment is created.
   'sendSms': BaseExperiment,

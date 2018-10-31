@@ -105,6 +105,8 @@ define(function (require, exports, module) {
 
     describe('validateAndSubmit', () => {
       beforeEach(() => {
+        sinon.stub(view, 'isValidStart').callsFake(() => true);
+        sinon.stub(view, 'showValidationErrorsStart').callsFake(() => false);
         sinon.stub(view, 'signUp').callsFake(() => Promise.resolve());
         sinon.stub(view, 'tooYoung');
         sinon.spy(view, 'displayError');
@@ -112,7 +114,7 @@ define(function (require, exports, module) {
 
       describe('password and vpassword do not match', () => {
         it('displays an error', () => {
-          view.$('#password').val('password');
+          view.$('#password').val('password123123');
           view.$('#vpassword').val('different_password');
           view.$('#age').val('21');
 

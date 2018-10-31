@@ -14,7 +14,6 @@ const experimentGroupingRules = [
   require('./communication-prefs'),
   require('./email-first'),
   require('./is-sampled-user'),
-  require('./password-strength'),
   require('./q3-form-changes'),
   require('./send-sms-install-link'),
   require('./sentry'),
