@@ -4,7 +4,10 @@
 
 //! Error definitions.
 
-use std::{fmt, result};
+use std::{
+    fmt::{self, Display, Formatter},
+    result,
+};
 
 use failure::{Backtrace, Context, Fail};
 use rocket::{
@@ -14,6 +17,7 @@ use rocket::{
     Outcome, Request, State,
 };
 use rocket_contrib::Json;
+use serde::ser::{Serialize, SerializeMap, Serializer};
 use serde_json::{map::Map, ser::to_string, Value};
 
 use super::email_address::EmailAddress;
@@ -39,37 +43,26 @@ pub struct AppError {
 }
 
 impl AppError {
-    pub fn json(&self) -> Value {
-        let kind = self.kind();
-        let status = kind.http_status();
-
-        let mut fields = Map::new();
-        fields.insert(
-            String::from("code"),
-            Value::Number(status.code.to_owned().into()),
-        );
-        fields.insert(
-            String::from("error"),
-            Value::String(format!("{}", status.reason)),
-        );
-        let errno = kind.errno();
-        if let Some(ref errno) = errno {
-            fields.insert(
-                String::from("errno"),
-                Value::Number(errno.to_owned().into()),
-            );
-            fields.insert(String::from("message"), Value::String(format!("{}", self)));
-        };
-        let additional_fields = kind.additional_fields();
-        for (field, value) in additional_fields.iter() {
-            fields.insert(field.clone(), value.clone());
-        }
-
-        json!(fields)
+    pub fn code(&self) -> u16 {
+        self.inner.get_context().http_status().code
     }
 
-    pub fn kind(&self) -> &AppErrorKind {
-        self.inner.get_context()
+    pub fn error(&self) -> &'static str {
+        self.inner.get_context().http_status().reason
+    }
+
+    pub fn errno(&self) -> Option<u16> {
+        self.inner.get_context().errno()
+    }
+
+    pub fn additional_fields(&self) -> Map<String, Value> {
+        self.inner.get_context().additional_fields()
+    }
+}
+
+impl Display for AppError {
+    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+        Display::fmt(&self.inner, formatter)
     }
 }
 
@@ -83,9 +76,61 @@ impl Fail for AppError {
     }
 }
 
-impl fmt::Display for AppError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.inner.fmt(f)
+impl From<AppErrorKind> for AppError {
+    fn from(kind: AppErrorKind) -> AppError {
+        Context::new(kind).into()
+    }
+}
+
+impl From<Context<AppErrorKind>> for AppError {
+    fn from(inner: Context<AppErrorKind>) -> AppError {
+        AppError { inner }
+    }
+}
+
+impl Serialize for AppError {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let kind = self.inner.get_context();
+
+        let mut map = serializer.serialize_map(None)?;
+
+        let status = kind.http_status();
+        map.serialize_entry("code", &status.code)?;
+        map.serialize_entry("error", status.reason)?;
+
+        if let Some(ref errno) = kind.errno() {
+            map.serialize_entry("errno", errno)?;
+        }
+
+        map.serialize_entry("message", &self.to_string())?;
+
+        for (field, value) in kind.additional_fields().iter() {
+            map.serialize_entry(field, value)?;
+        }
+
+        map.end()
+    }
+}
+
+/// Generate HTTP error responses for AppErrors
+impl<'r> Responder<'r> for AppError {
+    fn respond_to(self, request: &Request) -> response::Result<'r> {
+        match request.guard::<State<MozlogLogger>>() {
+            Outcome::Success(logger) => {
+                let log = MozlogLogger::with_app_error(&logger, &self)
+                    .map_err(|_| Status::InternalServerError)?;
+                slog_error!(log, "{}", "Request errored");
+            }
+            _ => panic!("Internal error: No managed MozlogLogger"),
+        }
+
+        let status = self.inner.get_context().http_status();
+        let json = Json(self);
+        let mut builder = Response::build_from(json.respond_to(request)?);
+        builder.status(status).ok()
     }
 }
 
@@ -220,7 +265,7 @@ impl AppErrorKind {
             | AppErrorKind::BounceHardError { .. } => Status::TooManyRequests,
             AppErrorKind::BadRequest | AppErrorKind::InvalidEmailParams => Status::BadRequest,
             AppErrorKind::MissingEmailParams(_) => Status::BadRequest,
-            AppErrorKind::InternalServerError | _ => Status::InternalServerError,
+            _ => Status::InternalServerError,
         }
     }
 
@@ -328,37 +373,6 @@ impl AppErrorKind {
             _ => (),
         }
         fields
-    }
-}
-
-impl From<AppErrorKind> for AppError {
-    fn from(kind: AppErrorKind) -> AppError {
-        Context::new(kind).into()
-    }
-}
-
-impl From<Context<AppErrorKind>> for AppError {
-    fn from(inner: Context<AppErrorKind>) -> AppError {
-        AppError { inner }
-    }
-}
-
-/// Generate HTTP error responses for AppErrors
-impl<'r> Responder<'r> for AppError {
-    fn respond_to(self, request: &Request) -> response::Result<'r> {
-        match request.guard::<State<MozlogLogger>>() {
-            Outcome::Success(logger) => {
-                let log = MozlogLogger::with_app_error(&logger, &self)
-                    .map_err(|_| Status::InternalServerError)?;
-                slog_error!(log, "{}", "Request errored");
-            }
-            _ => panic!("Internal error: No managed MozlogLogger"),
-        }
-
-        let status = self.kind().http_status();
-        let json = Json(self.json());
-        let mut builder = Response::build_from(json.respond_to(request)?);
-        builder.status(status).ok()
     }
 }
 

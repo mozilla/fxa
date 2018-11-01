@@ -108,25 +108,22 @@ fn check_soft_bounce() {
     let settings = create_settings(bounce_settings);
     let db = DbMockBounceSoft;
     let problems = DeliveryProblems::new(&settings, db);
-    match problems.check(&"foo@example.com".parse().unwrap()) {
-        Ok(_) => assert!(false, "DeliveryProblems::check should have failed"),
-        Err(error) => {
-            assert_eq!(format!("{}", error), "Email account soft bounced");
-            let err_data = error.kind().additional_fields();
-            let address = err_data.get("address");
-            if let Some(ref address) = address {
-                assert_eq!("foo@example.com", address.as_str().unwrap());
-            } else {
-                assert!(false, "Error::address should be set");
-            }
-            let problem = err_data.get("problem");
-            assert!(problem.is_some());
-            let record: Json = serde_json::from_str(problem.unwrap().as_str().unwrap()).unwrap();
-            assert_eq!(record["problem_type"], 2);
-            assert_eq!(&record["created_at"], err_data.get("time").unwrap());
-            assert_eq!(error.kind().http_status(), Status::TooManyRequests);
-        }
-    }
+    let result = problems.check(&"foo@example.com".parse().unwrap());
+    assert!(result.is_err());
+    let error = result.unwrap_err();
+    assert_eq!(error.code(), 429);
+    assert_eq!(error.errno().unwrap(), 107);
+    assert_eq!(error.error(), "Too Many Requests");
+    assert_eq!(error.to_string(), "Email account soft bounced");
+    let additional_fields = error.additional_fields();
+    assert_eq!(additional_fields.get("address").unwrap(), "foo@example.com");
+    let record: DeliveryProblem =
+        serde_json::from_str(additional_fields.get("problem").unwrap().as_str().unwrap()).unwrap();
+    assert_eq!(record.problem_type, ProblemType::SoftBounce);
+    assert_eq!(
+        record.created_at,
+        additional_fields.get("time").unwrap().as_u64().unwrap()
+    );
 }
 
 #[derive(Debug)]
@@ -160,25 +157,22 @@ fn check_hard_bounce() {
     let settings = create_settings(bounce_settings);
     let db = DbMockBounceHard;
     let problems = DeliveryProblems::new(&settings, db);
-    match problems.check(&"bar@example.com".parse().unwrap()) {
-        Ok(_) => assert!(false, "DeliveryProblems::check should have failed"),
-        Err(error) => {
-            assert_eq!(format!("{}", error), "Email account hard bounced");
-            let err_data = error.kind().additional_fields();
-            let address = err_data.get("address");
-            if let Some(ref address) = address {
-                assert_eq!("bar@example.com", address.as_str().unwrap());
-            } else {
-                assert!(false, "Error::address should be set");
-            }
-            let problem = err_data.get("problem");
-            assert!(problem.is_some());
-            let record: Json = serde_json::from_str(problem.unwrap().as_str().unwrap()).unwrap();
-            assert_eq!(record["problem_type"], 1);
-            assert_eq!(&record["created_at"], err_data.get("time").unwrap());
-            assert_eq!(error.kind().http_status(), Status::TooManyRequests);
-        }
-    }
+    let result = problems.check(&"bar@example.com".parse().unwrap());
+    assert!(result.is_err());
+    let error = result.unwrap_err();
+    assert_eq!(error.code(), 429);
+    assert_eq!(error.errno().unwrap(), 108);
+    assert_eq!(error.error(), "Too Many Requests");
+    assert_eq!(error.to_string(), "Email account hard bounced");
+    let additional_fields = error.additional_fields();
+    assert_eq!(additional_fields.get("address").unwrap(), "bar@example.com");
+    let record: DeliveryProblem =
+        serde_json::from_str(additional_fields.get("problem").unwrap().as_str().unwrap()).unwrap();
+    assert_eq!(record.problem_type, ProblemType::HardBounce);
+    assert_eq!(
+        record.created_at,
+        additional_fields.get("time").unwrap().as_u64().unwrap()
+    );
 }
 
 #[derive(Debug)]
@@ -212,25 +206,22 @@ fn check_complaint() {
     let settings = create_settings(bounce_settings);
     let db = DbMockComplaint;
     let problems = DeliveryProblems::new(&settings, db);
-    match problems.check(&"baz@example.com".parse().unwrap()) {
-        Ok(_) => assert!(false, "DeliveryProblems::check should have failed"),
-        Err(error) => {
-            assert_eq!(format!("{}", error), "Email account sent complaint");
-            let err_data = error.kind().additional_fields();
-            let address = err_data.get("address");
-            if let Some(ref address) = address {
-                assert_eq!("baz@example.com", address.as_str().unwrap());
-            } else {
-                assert!(false, "Error::address should be set");
-            }
-            let problem = err_data.get("problem");
-            assert!(problem.is_some());
-            let record: Json = serde_json::from_str(problem.unwrap().as_str().unwrap()).unwrap();
-            assert_eq!(record["problem_type"], 3);
-            assert_eq!(&record["created_at"], err_data.get("time").unwrap());
-            assert_eq!(error.kind().http_status(), Status::TooManyRequests);
-        }
-    }
+    let result = problems.check(&"baz@example.com".parse().unwrap());
+    assert!(result.is_err());
+    let error = result.unwrap_err();
+    assert_eq!(error.code(), 429);
+    assert_eq!(error.errno().unwrap(), 106);
+    assert_eq!(error.error(), "Too Many Requests");
+    assert_eq!(error.to_string(), "Email account sent complaint");
+    let additional_fields = error.additional_fields();
+    assert_eq!(additional_fields.get("address").unwrap(), "baz@example.com");
+    let record: DeliveryProblem =
+        serde_json::from_str(additional_fields.get("problem").unwrap().as_str().unwrap()).unwrap();
+    assert_eq!(record.problem_type, ProblemType::Complaint);
+    assert_eq!(
+        record.created_at,
+        additional_fields.get("time").unwrap().as_u64().unwrap()
+    );
 }
 
 #[derive(Debug)]
@@ -268,13 +259,14 @@ fn check_db_error() {
     let settings = create_settings(bounce_settings);
     let db = DbMockError;
     let problems = DeliveryProblems::new(&settings, db);
-    match problems.check(&"foo@example.com".parse().unwrap()) {
-        Ok(_) => assert!(false, "DeliveryProblems::check should have failed"),
-        Err(error) => {
-            assert_eq!(format!("{}", error), "wibble blee");
-            assert_eq!(error.kind().http_status(), Status::InternalServerError);
-        }
-    }
+    let result = problems.check(&"foo@example.com".parse().unwrap());
+    assert!(result.is_err());
+    let error = result.unwrap_err();
+    assert_eq!(error.code(), 500);
+    assert_eq!(error.errno().unwrap(), 109);
+    assert_eq!(error.error(), "Internal Server Error");
+    assert_eq!(error.to_string(), "wibble blee");
+    assert_eq!(error.additional_fields().len(), 0);
 }
 
 #[derive(Debug)]
@@ -394,24 +386,18 @@ fn check_bounce_with_multiple_limits() {
     let settings = create_settings(bounce_settings);
     let db = DbMockBounceWithMultipleLimits;
     let problems = DeliveryProblems::new(&settings, db);
-    match problems.check(&"foo@example.com".parse().unwrap()) {
-        Ok(_) => assert!(false, "DeliveryProblems::check should have failed"),
-        Err(error) => {
-            assert_eq!(format!("{}", error), "Email account soft bounced");
-            let err_data = error.kind().additional_fields();
-            let address = err_data.get("address");
-            if let Some(ref address) = address {
-                assert_eq!("foo@example.com", address.as_str().unwrap());
-            } else {
-                assert!(false, "Error::address should be set");
-            }
-            let problem = err_data.get("problem");
-            assert!(problem.is_some());
-            let record: Json = serde_json::from_str(problem.unwrap().as_str().unwrap()).unwrap();
-            assert_eq!(record["problem_type"], 2);
-            assert_eq!(&record["created_at"], err_data.get("time").unwrap());
-        }
-    }
+    let result = problems.check(&"foo@example.com".parse().unwrap());
+    assert!(result.is_err());
+    let error = result.unwrap_err();
+    assert_eq!(error.code(), 429);
+    assert_eq!(error.errno().unwrap(), 107);
+    assert_eq!(error.error(), "Too Many Requests");
+    assert_eq!(error.to_string(), "Email account soft bounced");
+    let additional_fields = error.additional_fields();
+    assert_eq!(additional_fields.get("address").unwrap(), "foo@example.com");
+    let record: DeliveryProblem =
+        serde_json::from_str(additional_fields.get("problem").unwrap().as_str().unwrap()).unwrap();
+    assert_eq!(record.problem_type, ProblemType::SoftBounce);
 }
 
 #[derive(Debug)]

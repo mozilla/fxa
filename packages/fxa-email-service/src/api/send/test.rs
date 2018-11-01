@@ -218,7 +218,8 @@ fn missing_to_field() {
 
     let body = response.body().unwrap().into_string().unwrap();
     let error: AppError = AppErrorKind::MissingEmailParams(String::from("")).into();
-    assert_eq!(body, error.json().to_string());
+    let expected = serde_json::to_string(&error).unwrap();
+    assert_eq!(body, expected);
 }
 
 #[test]
@@ -243,7 +244,8 @@ fn missing_subject_field() {
 
     let body = response.body().unwrap().into_string().unwrap();
     let error: AppError = AppErrorKind::MissingEmailParams(String::from("")).into();
-    assert_eq!(body, error.json().to_string());
+    let expected = serde_json::to_string(&error).unwrap();
+    assert_eq!(body, expected);
 }
 
 #[test]
@@ -269,7 +271,8 @@ fn missing_body_text_field() {
 
     let body = response.body().unwrap().into_string().unwrap();
     let error: AppError = AppErrorKind::MissingEmailParams(String::from("")).into();
-    assert_eq!(body, error.json().to_string());
+    let expected = serde_json::to_string(&error).unwrap();
+    assert_eq!(body, expected);
 }
 
 #[test]
@@ -295,7 +298,8 @@ fn invalid_to_field() {
 
     let body = response.body().unwrap().into_string().unwrap();
     let error: AppError = AppErrorKind::MissingEmailParams(String::from("")).into();
-    assert_eq!(body, error.json().to_string());
+    let expected = serde_json::to_string(&error).unwrap();
+    assert_eq!(body, expected);
 }
 
 #[test]
@@ -322,5 +326,6 @@ fn invalid_cc_field() {
 
     let body = response.body().unwrap().into_string().unwrap();
     let error: AppError = AppErrorKind::MissingEmailParams(String::from("")).into();
-    assert_eq!(body, error.json().to_string());
+    let expected = serde_json::to_string(&error).unwrap();
+    assert_eq!(body, expected);
 }
