@@ -343,6 +343,20 @@
 * [object Object]
 
 
+<a name="1.123.3"></a>
+## [1.123.3](https://github.com/mozilla/fxa-auth-server/compare/v1.123.2...v1.123.3) (2018-11-01)
+
+
+### Bug Fixes
+
+* **tests:** fix the geodb location assertions again ([90449d4](https://github.com/mozilla/fxa-auth-server/commit/90449d4))
+* **tests:** remove assertions of profileChangedAt property ([565d2c8](https://github.com/mozilla/fxa-auth-server/commit/565d2c8))
+
+### chore
+
+* **errors:** make email-sending errors a 422 for new addresses ([17e787b](https://github.com/mozilla/fxa-auth-server/commit/17e787b))
+
+
 
 <a name="1.123.2"></a>
 ## [1.123.2](https://github.com/mozilla/fxa-auth-server/compare/v1.123.1...v1.123.2) (2018-10-24)
