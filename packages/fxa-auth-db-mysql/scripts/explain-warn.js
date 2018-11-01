@@ -301,11 +301,15 @@ function getProcedureNames () {
 }
 
 function getPath (procedure) {
-  return cp.execSync(
-    `git grep "${procedure}" | grep 'CREATE PROCEDURE' | cut -d ':' -f 1 | sed '/^$/d'`,
+  const path = cp.execSync(
+    `git grep "${procedure}" | grep 'CREATE PROCEDURE' | sed '/^$/d'`,
     RETURN_STRING
   )
-    .trim()
+    .match(/(lib\/db\/schema\/patch-[0-9]+-[0-9]+\.sql)/)
+
+  if (path) {
+    return path[1]
+  }
 }
 
 function extractSelects (path, procedure) {
