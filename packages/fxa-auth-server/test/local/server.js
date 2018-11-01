@@ -192,7 +192,7 @@ describe('lib/server', () => {
           it('parsed location correctly', () => {
             const geo = request.app.geo
             assert.ok(geo)
-            assert.equal(geo.location.city, 'Oakland')
+            assert.equal(geo.location.city, 'San Francisco')
             assert.equal(geo.location.country, 'United States')
             assert.equal(geo.location.countryCode, 'US')
             assert.equal(geo.location.state, 'California')
@@ -269,7 +269,7 @@ describe('lib/server', () => {
             it('second request has its own location info', () => {
               const geo = secondRequest.app.geo
               assert.notEqual(request.app.geo, secondRequest.app.geo)
-              assert.equal(geo.location.city, 'Oakland')
+              assert.equal(geo.location.city, 'San Francisco')
               assert.equal(geo.location.country, 'United States')
               assert.equal(geo.location.countryCode, 'US')
               assert.equal(geo.location.state, 'California')
