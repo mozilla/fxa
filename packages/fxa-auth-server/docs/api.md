@@ -273,7 +273,7 @@ for `code` and `errno` are:
   This email can not currently be used to login
 * `code: 400, errno: 150`:
   Can not resend email code to an email that does not belong to this account
-* `code: 500, errno: 151`:
+* `code: 422, errno: 151`:
   Failed to send email
 * `code: 400, errno: 152`:
   Invalid token verification code
@@ -538,7 +538,7 @@ by the following errors
 * `code: 400, errno: 144`:
   Email already exists
 
-* `code: 500, errno: 151`:
+* `code: 422, errno: 151`:
   Failed to send email
 
 
@@ -1888,7 +1888,7 @@ by the following errors
 * `code: 400, errno: 141`:
   Email already exists
 
-* `code: 500, errno: 151`:
+* `code: 422, errno: 151`:
   Failed to send email
 
 

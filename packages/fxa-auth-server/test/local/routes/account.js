@@ -533,9 +533,9 @@ describe('/account/create', () => {
 
     return runTest(route, mockRequest).then(assert.fail, (err) => {
       assert.equal(err.message, 'Failed to send email')
-      assert.equal(err.output.payload.code, 500)
+      assert.equal(err.output.payload.code, 422)
       assert.equal(err.output.payload.errno, 151)
-      assert.equal(err.output.payload.error, 'Internal Server Error')
+      assert.equal(err.output.payload.error, 'Unprocessable Entity')
     })
   })
 })
