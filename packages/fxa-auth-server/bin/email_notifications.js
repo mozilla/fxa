@@ -9,33 +9,38 @@
 // If required, modules will be instrumented.
 require('../lib/newrelic')()
 
-var config = require('../config').getProperties()
-var log = require('../lib/log')(config.log.level, 'fxa-email-bouncer')
-var error = require('../lib/error')
-var Token = require('../lib/tokens')(log, config)
-var SQSReceiver = require('../lib/sqs')(log)
-var bounces = require('../lib/email/bounces')(log, error)
-var delivery = require('../lib/email/delivery')(log)
+const config = require('../config').getProperties()
+const log = require('../lib/log')(config.log.level, 'fxa-email-bouncer')
+const error = require('../lib/error')
+const Token = require('../lib/tokens')(log, config)
+const SQSReceiver = require('../lib/sqs')(log)
+const bounces = require('../lib/email/bounces')(log, error)
+const delivery = require('../lib/email/delivery')(log)
+const notifications = require('../lib/email/notifications')(log, error)
 
-var DB = require('../lib/db')(
+const DB = require('../lib/db')(
   config,
   log,
   Token
 )
 
-var bounceQueue = new SQSReceiver(config.emailNotifications.region, [
-  config.emailNotifications.bounceQueueUrl,
-  config.emailNotifications.complaintQueueUrl
-])
+const {
+  bounceQueueUrl,
+  complaintQueueUrl,
+  deliveryQueueUrl,
+  notificationQueueUrl,
+  region
+} = config.emailNotifications
 
-var deliveryQueue = new SQSReceiver(config.emailNotifications.region, [
-  config.emailNotifications.deliveryQueueUrl
-])
+const bounceQueue = new SQSReceiver(region, [ bounceQueueUrl, complaintQueueUrl ])
+const deliveryQueue = new SQSReceiver(region, [ deliveryQueueUrl ])
+const notificationQueue = new SQSReceiver(region, [ notificationQueueUrl ])
 
 DB.connect(config[config.db.backend])
-  .then(
-    function (db) {
-      bounces(bounceQueue, db)
-      delivery(deliveryQueue)
-    }
-  )
+  .then(db => {
+    // bounces and delivery are now deprecated, we'll delete them
+    // as soon as we're 100% confident in fxa-email-service
+    bounces(bounceQueue, db)
+    delivery(deliveryQueue)
+    notifications(notificationQueue, db)
+  })

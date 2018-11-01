@@ -100,6 +100,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
                 }
                 request.app.accountRecreated = true
                 return db.deleteAccount(secondaryEmailRecord)
+                  .then(() => log.info({ op: 'accountDeleted.unverifiedSecondaryEmail', ...secondaryEmailRecord }))
               } else {
                 if (secondaryEmailRecord.isVerified) {
                   throw error.verifiedSecondaryEmailAlreadyExists()
@@ -942,8 +943,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
             authPW: validators.authPW,
             wrapKb: validators.wrapKb.optional(),
             recoveryKeyId: validators.recoveryKeyId.optional(),
-            sessionToken: isA.boolean().optional(),
-            metricsContext: METRICS_CONTEXT_SCHEMA
+            sessionToken: isA.boolean().optional()
           }).and('wrapKb', 'recoveryKeyId')
         }
       },
@@ -955,16 +955,6 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
         let wrapKb = request.payload.wrapKb
         const recoveryKeyId = request.payload.recoveryKeyId
         let account, sessionToken, keyFetchToken, verifyHash, wrapWrapKb, password
-
-        request.validateMetricsContext()
-
-        let flowCompleteSignal
-        if (requestHelper.wantsKeys(request)) {
-          flowCompleteSignal = 'account.signed'
-        } else {
-          flowCompleteSignal = 'account.reset'
-        }
-        request.setMetricsFlowCompleteSignal(flowCompleteSignal)
 
         return checkRecoveryKey()
           .then(resetAccountData)
@@ -1226,6 +1216,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
               .then((devices) => {
                 devicesToNotify = devices
                 return db.deleteAccount(emailRecord)
+                  .then(() => log.info({ op: 'accountDeleted.byRequest', ...emailRecord }))
               })
               .then(() => {
                 push.notifyAccountDestroyed(uid, devicesToNotify)

@@ -192,7 +192,7 @@ describe('/account/reset', function () {
 
     it('should have emitted metrics', () => {
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
-      let args = mockLog.activityEvent.args[0]
+      const args = mockLog.activityEvent.args[0]
       assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
       assert.deepEqual(args[0], {
         event: 'account.reset',
@@ -201,12 +201,8 @@ describe('/account/reset', function () {
         uid: uid
       }, 'event data was correct')
 
-      assert.equal(mockMetricsContext.validate.callCount, 1, 'metricsContext.validate was called')
-      assert.equal(mockMetricsContext.validate.args[0].length, 0, 'validate was called without arguments')
-      assert.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 1, 'metricsContext.setFlowCompleteSignal was called once')
-      args = mockMetricsContext.setFlowCompleteSignal.args[0]
-      assert.equal(args.length, 1, 'metricsContext.setFlowCompleteSignal was passed one argument')
-      assert.equal(args[0], 'account.signed', 'argument was event name')
+      assert.equal(mockMetricsContext.validate.callCount, 0)
+      assert.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 0)
       assert.equal(mockMetricsContext.propagate.callCount, 2)
     })
 
@@ -250,13 +246,8 @@ describe('/account/reset', function () {
       assert.equal(securityEvent.ipAddr, clientAddress)
       assert.equal(securityEvent.name, 'account.reset')
 
-      assert.equal(mockMetricsContext.validate.callCount, 1, 'metricsContext.validate was called')
-      assert.equal(mockMetricsContext.validate.args[0].length, 0, 'validate was called without arguments')
-
-      assert.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 1, 'metricsContext.setFlowCompleteSignal was called once')
-      args = mockMetricsContext.setFlowCompleteSignal.args[0]
-      assert.equal(args.length, 1, 'metricsContext.setFlowCompleteSignal was passed one argument')
-      assert.equal(args[0], 'account.signed', 'argument was event name')
+      assert.equal(mockMetricsContext.validate.callCount, 0)
+      assert.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 0)
 
       assert.equal(mockMetricsContext.propagate.callCount, 2)
 
@@ -1440,6 +1431,13 @@ describe('/account/destroy', function () {
       assert.equal(args.length, 1, 'db.deleteAccount was passed one argument')
       assert.equal(args[0].email, email, 'db.deleteAccount was passed email record')
       assert.deepEqual(args[0].uid, uid, 'email record had correct uid')
+
+      assert.equal(mockLog.info.callCount, 1)
+      args = mockLog.info.args[0]
+      assert.lengthOf(args, 1)
+      assert.equal(args[0].op, 'accountDeleted.byRequest')
+      assert.equal(args[0].email, email)
+      assert.equal(args[0].uid, uid)
 
       assert.equal(mockPush.notifyAccountDestroyed.callCount, 1)
       assert.equal(mockPush.notifyAccountDestroyed.firstCall.args[0], uid)

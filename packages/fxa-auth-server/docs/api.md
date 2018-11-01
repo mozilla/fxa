@@ -363,7 +363,7 @@ those common validations are defined here.
 * `URL_SAFE_BASE_64`: `/^[A-Za-z0-9_-]+$/`
 * `DISPLAY_SAFE_UNICODE`: `/^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFF])*$/`
 * `DISPLAY_SAFE_UNICODE_WITH_NON_BMP`: `/^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uE000-\uF8FF\uFFF9-\uFFFF])*$/`
-* `service`: `string, max(16), regex(/^[a-zA-Z0-9\-]*$/g)`
+* `service`: `string, max(16), regex(/^[a-zA-Z0-9\-]*$/)`
 * `verificationMethod`: `string, valid()`
 * `authPW`: `string, length(64), regex(HEX_STRING), required`
 * `wrapKb`: `string, length(64), regex(/^(?:[a-fA-F0-9]{2})+$/)`
@@ -942,12 +942,6 @@ a new `sessionToken` and `keyFetchToken`.
   <!--begin-request-body-post-accountreset-sessionToken-->
   Indicates whether a new `sessionToken` is required, default to `false`.
   <!--end-request-body-post-accountreset-sessionToken-->
-
-* `metricsContext`: *metricsContext.schema*
-
-  <!--begin-request-body-post-accountreset-metricsContext-->
-  
-  <!--end-request-body-post-accountreset-metricsContext-->
 
 ##### Error responses
 
@@ -1706,12 +1700,6 @@ as a query parameter.
   Opaque URL-encoded string to be included in the verification link as a query parameter.
   <!--end-request-body-post-recovery_emailresend_code-resume-->
 
-* `metricsContext`: *metricsContext.schema*
-
-  <!--begin-request-body-post-recovery_emailresend_code-metricsContext-->
-  
-  <!--end-request-body-post-recovery_emailresend_code-metricsContext-->
-
 * `type`: *string, max(32), alphanum, allow(), optional*
 
   <!--begin-request-body-post-recovery_emailresend_code-type-->
@@ -2214,12 +2202,6 @@ has been called.
   Opaque URL-encoded string to be included in the verification link as a query parameter.
   <!--end-request-body-post-passwordforgotresend_code-resume-->
 
-* `metricsContext`: *metricsContext.schema*
-
-  <!--begin-request-body-post-passwordforgotresend_code-metricsContext-->
-  
-  <!--end-request-body-post-passwordforgotresend_code-metricsContext-->
-
 ##### Response body
 
 * `passwordForgotToken`: *string*
@@ -2267,12 +2249,6 @@ to reset the account password and `wrapKb`.
   <!--begin-request-body-post-passwordforgotverify_code-code-->
   The code sent to the user's recovery email.
   <!--end-request-body-post-passwordforgotverify_code-code-->
-
-* `metricsContext`: *metricsContext.schema*
-
-  <!--begin-request-body-post-passwordforgotverify_code-metricsContext-->
-  
-  <!--end-request-body-post-passwordforgotverify_code-metricsContext-->
 
 * `accountResetWithRecoveryKey`: *boolean, optional*
 
@@ -2358,12 +2334,6 @@ Verify a session using a recovery code.
   <!--begin-request-body-post-sessionverifyrecoverycode-code-->
   
   <!--end-request-body-post-sessionverifyrecoverycode-code-->
-
-* `metricsContext`: *metricsContext.schema*
-
-  <!--begin-request-body-post-sessionverifyrecoverycode-metricsContext-->
-  
-  <!--end-request-body-post-sessionverifyrecoverycode-metricsContext-->
 
 ##### Response body
 
@@ -2948,12 +2918,6 @@ Verifies the current session if the passed TOTP code is valid.
   <!--begin-request-body-post-sessionverifytotp-code-->
   The TOTP code to check
   <!--end-request-body-post-sessionverifytotp-code-->
-
-* `metricsContext`: *metricsContext.schema*
-
-  <!--begin-request-body-post-sessionverifytotp-metricsContext-->
-  
-  <!--end-request-body-post-sessionverifytotp-metricsContext-->
 
 * `service`: *validators.service*
 

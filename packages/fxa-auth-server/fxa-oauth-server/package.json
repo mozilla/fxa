@@ -1,0 +1,66 @@
+{
+  "name": "fxa-oauth-server",
+  "version": "1.124.0",
+  "private": true,
+  "description": "Firefox Accounts OAuth2 server.",
+  "scripts": {
+    "start": "grunt server --node-env=dev",
+    "test": "scripts/test-local.sh",
+    "outdated": "npm outdated --depth 0 || exit 0",
+    "postinstall": "node scripts/gen_keys",
+    "shrink": "npmshrink"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mozilla/fxa-oauth-server"
+  },
+  "author": "Mozilla (https://mozilla.org)",
+  "homepage": "https://github.com/mozilla/fxa-oauth-server",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/mozilla/fxa-oauth-server/issues"
+  },
+  "engines": {
+    "node": ">=8"
+  },
+  "dependencies": {
+    "bluebird": "3.5.2",
+    "buf": "0.1.0",
+    "commander": "2.15.1",
+    "convict": "4.0.2",
+    "fxa-jwtool": "0.7.2",
+    "fxa-notifier-aws": "1.0.0",
+    "fxa-shared": "1.0.13",
+    "hapi": "17.6.0",
+    "hapi-hpkp": "2.0.0",
+    "joi": "14.0.0",
+    "keypair": "1.0.1",
+    "mozlog": "2.2.0",
+    "mysql": "2.15.0",
+    "mysql-patcher": "0.7.0",
+    "newrelic": "2.2.2",
+    "raven": "2.2.1",
+    "request": "2.85.0",
+    "urijs": "1.19.1"
+  },
+  "devDependencies": {
+    "eslint-plugin-fxa": "git://github.com/mozilla/eslint-plugin-fxa.git#41504c9dd30e8b52900c15b524946aa0428aef95",
+    "fxa-conventional-changelog": "1.1.0",
+    "grunt": "1.0.3",
+    "grunt-bump": "0.8.0",
+    "grunt-conventional-changelog": "6.1.0",
+    "grunt-copyright": "0.3.0",
+    "grunt-eslint": "18.0.0",
+    "grunt-nodemon": "0.4.2",
+    "insist": "1.x",
+    "load-grunt-tasks": "3.5.2",
+    "mocha": "5.2.0",
+    "nock": "8.2.2",
+    "npmshrink": "1.0.1",
+    "nyc": "13.1.0",
+    "proxyquire": "1.8.0",
+    "read": "1.0.7",
+    "sinon": "7.0.0",
+    "time-grunt": "1.4.0"
+  }
+}

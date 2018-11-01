@@ -200,6 +200,14 @@ describe(
 
     afterEach(() => mailer.stop())
 
+    it('mailer and emailService are not mocked', () => {
+      assert.isObject(mailer.mailer)
+      assert.isFunction(mailer.mailer.sendMail)
+      assert.isObject(mailer.emailService)
+      assert.isFunction(mailer.emailService.sendMail)
+      assert.notEqual(mailer.mailer, mailer.emailService)
+    })
+
     messageTypes.forEach(
       function (type) {
         var message = {
@@ -1793,11 +1801,14 @@ describe('mailer constructor:', () => {
       require(`${ROOT_DIR}/lib/senders/templates`).init()
     ]).spread((translator, templates) => {
       const Mailer = require(`${ROOT_DIR}/lib/senders/email`)(mockLog, config.getProperties())
-      mailer = new Mailer(translator, templates, mailerConfig)
+      mailer = new Mailer(translator, templates, mailerConfig, 'wibble')
     })
   })
 
-  afterEach(() => mailer.stop())
+  it('mailer and emailService are both mocked', () => {
+    assert.equal(mailer.mailer, 'wibble')
+    assert.equal(mailer.emailService, 'wibble')
+  })
 
   it('set properties on self from config correctly', () => {
     Object.entries(mailerConfig).forEach(([key, expected]) => {

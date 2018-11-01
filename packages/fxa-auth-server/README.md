@@ -25,6 +25,8 @@ Services ecosystem.
 * npm 2
 * Grunt
 * postfix
+* memcached
+* redis
 
 ## Install
 
