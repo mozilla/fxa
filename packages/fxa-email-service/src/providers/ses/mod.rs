@@ -4,7 +4,7 @@
 
 use std::boxed::Box;
 
-use base64::encode;
+use base64;
 use rusoto_core::{request::HttpClient, Region};
 use rusoto_credential::StaticProvider;
 use rusoto_ses::{RawMessage, SendRawEmailError, SendRawEmailRequest, Ses, SesClient};
@@ -65,10 +65,10 @@ impl Provider for SesProvider {
     ) -> AppResult<String> {
         let message =
             build_multipart_mime(&self.sender, to, cc, headers, subject, body_text, body_html)?;
-        let encoded_message = encode(&format!("{}", message));
+        let encoded_message = base64::encode(&message.to_string());
         let mut request = SendRawEmailRequest::default();
         request.raw_message = RawMessage {
-            data: format!("{}", encoded_message).as_bytes().to_vec(),
+            data: encoded_message.as_bytes().to_vec(),
         };
 
         self.client
