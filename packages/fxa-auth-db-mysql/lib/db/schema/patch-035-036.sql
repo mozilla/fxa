@@ -95,9 +95,9 @@ END;
 -- Any queries that were using it will just start using the
 -- new one instead.
 
-DROP INDEX securityEvents_uid_ipAddrHmac
-ON securityEvents
-ALGORITHM = INPLACE LOCK = NONE;
+ALTER TABLE securityEvents
+DROP INDEX securityEvents_uid_ipAddrHmac,
+ALGORITHM = INPLACE, LOCK = NONE;
 
 -- But it's *not* safe to do the following in the same deployment,
 -- because of the potential for `verifyToken_2` to be called:
