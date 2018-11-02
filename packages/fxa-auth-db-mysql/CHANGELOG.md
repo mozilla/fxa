@@ -1,3 +1,13 @@
+<a name="1.124.1"></a>
+## [1.124.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.124.0...v1.124.1) (2018-11-02)
+
+
+### Bug Fixes
+
+* **package:** update deps ([d44e10f](https://github.com/mozilla/fxa-auth-db-mysql/commit/d44e10f))
+
+
+
 <a name="1.124.0"></a>
 # [1.124.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.123.3...v1.124.0) (2018-10-30)
 
