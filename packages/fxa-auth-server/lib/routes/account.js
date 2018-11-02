@@ -4,12 +4,13 @@
 
 'use strict'
 
+const emailUtils = require('./utils/email')
 const error = require('../error')
 const isA = require('joi')
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
 const P = require('../promise')
 const random = require('../crypto/random')
-const requestHelper = require('../routes/utils/request_helper')
+const requestHelper = require('./utils/request_helper')
 const uuid = require('uuid')
 const validators = require('./validators')
 const authMethods = require('../authMethods')
@@ -26,8 +27,8 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
   const tokenCodeConfig = config.signinConfirmation.tokenVerificationCode
   const tokenCodeLifetime = tokenCodeConfig && tokenCodeConfig.codeLifetime || MS_ONE_HOUR
   const tokenCodeLength = tokenCodeConfig && tokenCodeConfig.codeLength || 8
-  const TokenCode = require('../../lib/crypto/random').base10(tokenCodeLength)
-  const totpUtils = require('../../lib/routes/utils/totp')(log, config, db)
+  const TokenCode = random.base10(tokenCodeLength)
+  const totpUtils = require('./utils/totp')(log, config, db)
 
   const routes = [
     {
@@ -306,7 +307,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
 
                 // show an error to the user, the account is already created.
                 // the user can come back later and try again.
-                throw error.cannotSendEmail(true)
+                throw emailUtils.sendError(err, true)
               })
           }
         }

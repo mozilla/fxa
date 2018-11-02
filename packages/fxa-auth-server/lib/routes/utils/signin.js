@@ -4,6 +4,7 @@
 
 'use strict'
 
+const emailUtils = require('./email')
 const isA = require('joi')
 const validators = require('../validators')
 const P = require('../../promise')
@@ -346,10 +347,10 @@ module.exports = (log, config, customs, db, mailer)  => {
           }
         )
         .then(() => request.emitMetricsEvent('email.confirmation.sent'))
-        .catch(function (err) {
-          log.error({op: 'mailer.confirmation.error', err: err})
+        .catch(err => {
+          log.error({ op: 'mailer.confirmation.error', err })
 
-          throw error.cannotSendEmail(isUnverifiedAccount)
+          throw emailUtils.sendError(err, isUnverifiedAccount)
         })
       }
 
