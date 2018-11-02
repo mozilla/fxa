@@ -524,9 +524,25 @@ describe('/account/create', () => {
 
     return runTest(route, mockRequest).then(assert.fail, (err) => {
       assert.equal(err.message, 'Failed to send email')
-      assert.equal(err.output.payload.code, 500)
+      assert.equal(err.output.payload.code, 422)
       assert.equal(err.output.payload.errno, 151)
-      assert.equal(err.output.payload.error, 'Internal Server Error')
+      assert.equal(err.output.payload.error, 'Unprocessable Entity')
+    })
+  })
+
+  it('should return a bounce error if send fails with one', () => {
+    const mocked = setup()
+    const mockMailer = mocked.mockMailer
+    const mockRequest = mocked.mockRequest
+    const route = mocked.route
+
+    mockMailer.sendVerifyCode = sinon.spy(() => P.reject(error.emailBouncedHard(42)))
+
+    return runTest(route, mockRequest).then(assert.fail, (err) => {
+      assert.equal(err.message, 'Email account hard bounced')
+      assert.equal(err.output.payload.code, 400)
+      assert.equal(err.output.payload.errno, 134)
+      assert.equal(err.output.payload.error, 'Bad Request')
     })
   })
 })

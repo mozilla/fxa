@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.124.0",
+  "version": "1.124.2",
   "description": "Firefox Accounts, an identity provider for Mozilla cloud services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
@@ -46,7 +46,7 @@
     "cldr-localenames-full": "31.0.1",
     "convict": "4.3.1",
     "email-addresses": "2.0.2",
-    "fxa-geodb": "1.0.3",
+    "fxa-geodb": "1.0.4",
     "fxa-jwtool": "0.7.2",
     "fxa-shared": "1.0.14",
     "generic-pool": "3.2.0",

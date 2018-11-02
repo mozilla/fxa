@@ -734,10 +734,20 @@ AppError.cannotResendEmailCodeToUnownedEmail = function () {
   })
 }
 
-AppError.cannotSendEmail = function () {
+AppError.cannotSendEmail = function (isNewAddress) {
+  let code, error
+
+  if (isNewAddress) {
+    code = 422
+    error = 'Unprocessable Entity'
+  } else {
+    code = 500
+    error = 'Internal Server Error'
+  }
+
   return new AppError({
-    code: 500,
-    error: 'Internal Server Error',
+    code,
+    error,
     errno: ERRNO.FAILED_TO_SEND_EMAIL,
     message: 'Failed to send email'
   })
