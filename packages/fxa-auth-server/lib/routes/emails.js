@@ -5,6 +5,7 @@
 'use strict'
 
 const butil = require('../crypto/butil')
+const emailUtils = require('./utils/email')
 const error = require('../error')
 const isA = require('joi')
 const P = require('../promise')
@@ -642,7 +643,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
               log.error({op: 'mailer.sendVerifySecondaryEmail', err: err})
               return db.deleteEmail(emailData.uid, emailData.normalizedEmail)
                 .then(() => {
-                  throw error.cannotSendEmail(true)
+                  throw emailUtils.sendError(err, true)
                 })
             })
         }
