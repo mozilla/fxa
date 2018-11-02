@@ -1,3 +1,17 @@
+<a name="1.124.2"></a>
+## [1.124.2](https://github.com/mozilla/fxa-auth-server/compare/v1.124.1...v1.124.2) (2018-11-02)
+
+
+### Bug Fixes
+
+* **errors:** reinstate bounce error failures/messaging ([42d165e](https://github.com/mozilla/fxa-auth-server/commit/42d165e))
+
+### chore
+
+* **package:** update deps ([aa6c3be](https://github.com/mozilla/fxa-auth-server/commit/aa6c3be))
+
+
+
 <a name="1.124.1"></a>
 ## [1.124.1](https://github.com/mozilla/fxa-auth-server/compare/v1.123.3...v1.124.1) (2018-11-01)
 
