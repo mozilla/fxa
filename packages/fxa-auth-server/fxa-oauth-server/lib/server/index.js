@@ -98,7 +98,7 @@ exports.create = async function createServer() {
   const sentryDsn = config.sentryDsn;
   if (sentryDsn) {
     Raven.config(sentryDsn, {});
-    server.events.on({ name: 'request', channel: 'error' }, function (req, ev) {
+    server.events.on({ name: 'request', channels: 'error' }, function (req, ev) {
       const err = ev && ev.error || null;
       let exception = '';
       if (err && err.stack) {
