@@ -43,8 +43,6 @@ module.exports = [
   'tests/functional/fx_fennec_v1_force_auth.js',
   'tests/functional/fx_fennec_v1_sign_up.js',
   'tests/functional/fx_fennec_v1_settings.js',
-  'tests/functional/mob_android_v1.js',
-  'tests/functional/mob_ios_v1.js',
   'tests/functional/bounced_email.js',
   'tests/functional/legal.js',
   'tests/functional/tos.js',

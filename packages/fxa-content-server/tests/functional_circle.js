@@ -55,8 +55,6 @@ module.exports = selectCircleTests([
   'tests/functional/fx_firstrun_v2_sign_up.js',
   'tests/functional/fx_ios_v1_sign_in.js',
   'tests/functional/fx_ios_v1_sign_up.js',
-  'tests/functional/mob_android_v1.js',
-  'tests/functional/mob_ios_v1.js',
   'tests/functional/password_strength.js',
   'tests/functional/refreshes_metrics.js',
   'tests/functional/reset_password.js',

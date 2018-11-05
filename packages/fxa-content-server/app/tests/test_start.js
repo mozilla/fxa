@@ -94,8 +94,6 @@ require('./spec/models/auth_brokers/fx-ios-v1');
 require('./spec/models/auth_brokers/fx-sync');
 require('./spec/models/auth_brokers/fx-sync-channel');
 require('./spec/models/auth_brokers/index');
-require('./spec/models/auth_brokers/mob-android-v1');
-require('./spec/models/auth_brokers/mob-ios-v1');
 require('./spec/models/auth_brokers/oauth');
 require('./spec/models/auth_brokers/oauth-redirect');
 require('./spec/models/auth_brokers/oauth-redirect-chrome-android');
