@@ -6,14 +6,17 @@
 
 use std::{boxed::Box, collections::HashMap};
 
-use emailmessage::{header, Mailbox, Message, MultiPart, SinglePart};
+use emailmessage::{header::ContentType, Message, MessageBuilder, MultiPart, SinglePart};
 
 use self::{
     mock::MockProvider as Mock, sendgrid::SendgridProvider as Sendgrid, ses::SesProvider as Ses,
     smtp::SmtpProvider as Smtp, socketlabs::SocketLabsProvider as SocketLabs,
 };
 use settings::{DefaultProvider, Settings};
-use types::error::{AppErrorKind, AppResult};
+use types::{
+    error::{AppErrorKind, AppResult},
+    headers::*,
+};
 
 mod mock;
 mod sendgrid;
@@ -27,57 +30,73 @@ mod test;
 pub type Headers = HashMap<String, String>;
 
 /// Build email MIME message.
-fn build_multipart_mime(
+fn build_multipart_mime<'a>(
     sender: &str,
     to: &str,
     cc: &[&str],
     headers: Option<&Headers>,
     subject: &str,
-    body_text: &str,
-    body_html: Option<&str>,
-) -> AppResult<Message<MultiPart<String>>> {
-    let mut all_headers = header::Headers::new();
-    all_headers.set(header::From(vec![sender.parse::<Mailbox>()?]));
-    all_headers.set(header::To(vec![to.parse::<Mailbox>()?]));
-    all_headers.set(header::Subject(subject.into()));
-    all_headers.set(header::MIME_VERSION_1_0);
+    body_text: &'a str,
+    body_html: Option<&'a str>,
+) -> AppResult<Message<MultiPart<&'a str>>> {
+    let mut message = Message::builder()
+        .from(sender.parse()?)
+        .to(to.parse()?)
+        .subject(subject)
+        .mime_1_0();
 
     if cc.len() > 0 {
-        let mut parsed_cc: Vec<Mailbox> = Vec::new();
         for address in cc.iter() {
-            parsed_cc.push(address.parse::<Mailbox>()?)
+            message = message.cc(address.parse()?);
         }
-        all_headers.set(header::Cc(parsed_cc))
     }
 
     if let Some(headers) = headers {
         for (name, value) in headers {
-            all_headers.append_raw(name.to_owned(), value.to_owned())
+            message = set_custom_header(message, name, value);
         }
     }
 
-    let message: Message<MultiPart<String>> = Message::new().with_headers(all_headers);
-
-    let mut body: MultiPart<String> = MultiPart::alternative().with_singlepart(
+    let mut body = MultiPart::alternative().singlepart(
         SinglePart::quoted_printable()
-            .with_header(header::ContentType(
-                "text/plain; charset=utf8".parse().unwrap(),
-            ))
-            .with_body(body_text.to_owned()),
+            .header(ContentType::text_utf8())
+            .body(body_text),
     );
     if let Some(body_html) = body_html {
-        body = body.with_multipart(
-            MultiPart::related().with_singlepart(
+        body = body.multipart(
+            MultiPart::related().singlepart(
                 SinglePart::eight_bit()
-                    .with_header(header::ContentType(
-                        "text/html; charset=utf8".parse().unwrap(),
-                    ))
-                    .with_body(body_html.to_owned()),
+                    .header(ContentType::html())
+                    .body(body_html),
             ),
-        )
+        );
     }
 
-    Ok(message.with_body(MultiPart::mixed().with_multipart(body)))
+    Ok(message.mime_body(MultiPart::mixed().multipart(body)))
+}
+
+fn set_custom_header(message: MessageBuilder, name: &str, value: &str) -> MessageBuilder {
+    let lowercase_name = name.to_lowercase();
+    match lowercase_name.as_str() {
+        "x-device-id" => message.header(DeviceId::new(value.to_owned())),
+        "x-email-sender" => message.header(EmailSender::new(value.to_owned())),
+        "x-email-service" => message.header(EmailService::new(value.to_owned())),
+        "x-flow-begin-time" => message.header(FlowBeginTime::new(value.to_owned())),
+        "x-flow-id" => message.header(FlowId::new(value.to_owned())),
+        "x-link" => message.header(Link::new(value.to_owned())),
+        "x-recovery-code" => message.header(RecoveryCode::new(value.to_owned())),
+        "x-report-signin-link" => message.header(ReportSigninLink::new(value.to_owned())),
+        "x-service-id" => message.header(ServiceId::new(value.to_owned())),
+        "x-ses-configuration-set" => message.header(SesConfigurationSet::new(value.to_owned())),
+        "x-ses-message-tags" => message.header(SesMessageTags::new(value.to_owned())),
+        "x-signin-verify-code" => message.header(SigninVerifyCode::new(value.to_owned())),
+        "x-template-name" => message.header(TemplateName::new(value.to_owned())),
+        "x-template-version" => message.header(TemplateVersion::new(value.to_owned())),
+        "x-uid" => message.header(Uid::new(value.to_owned())),
+        "x-unblock-code" => message.header(UnblockCode::new(value.to_owned())),
+        "x-verify-code" => message.header(VerifyCode::new(value.to_owned())),
+        _ => message,
+    }
 }
 
 trait Provider {
