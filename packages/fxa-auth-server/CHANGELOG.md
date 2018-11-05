@@ -1,3 +1,13 @@
+<a name="1.124.3"></a>
+## [1.124.3](https://github.com/mozilla/fxa-auth-server/compare/v1.124.2...v1.124.3) (2018-11-05)
+
+
+### Bug Fixes
+
+* **oauth-sentry:** arg to server.events.on is "channels" (plural) ([51833e2](https://github.com/mozilla/fxa-auth-server/commit/51833e2))
+
+
+
 <a name="1.124.2"></a>
 ## [1.124.2](https://github.com/mozilla/fxa-auth-server/compare/v1.124.1...v1.124.2) (2018-11-02)
 
