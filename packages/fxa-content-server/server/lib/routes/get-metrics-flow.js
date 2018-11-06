@@ -8,6 +8,7 @@ const amplitude = require('../amplitude');
 const flowMetrics = require('../flow-metrics');
 const logFlowEvent = require('../flow-event').logFlowEvent;
 const logger = require('../logging/log')('server.get-metrics-flow');
+const uuid = require('node-uuid');
 
 module.exports = function (config) {
   const FLOW_ID_KEY = config.get('flow_id_key');
@@ -46,6 +47,10 @@ module.exports = function (config) {
     };
 
     metricsData.flowId = flowId;
+    // Amplitude-specific device id, like the client-side equivalent
+    // created in app/scripts/lib/app-start.js. Transient for now,
+    // but will become persistent in due course.
+    metricsData.deviceId = uuid.v4().replace(/-/g, '');
 
     amplitude(beginEvent, req, metricsData);
     logFlowEvent(beginEvent, metricsData, req);
