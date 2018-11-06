@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Hapi = require('hapi');
-const Raven = require('raven');
 
 const AppError = require('../error');
 const authBearer = require('../auth_bearer');
 const config = require('../config').getProperties();
+const configureSentry = require('./configureSentry');
 const env = require('../env');
 const logger = require('../logging')('server');
 const hapiLogger = require('../logging')('server.hapi');
@@ -95,27 +95,7 @@ exports.create = async function createServer() {
   });
 
   // configure Sentry
-  const sentryDsn = config.sentryDsn;
-  if (sentryDsn) {
-    Raven.config(sentryDsn, {});
-    server.events.on({ name: 'request', channels: 'error' }, function (req, ev) {
-      const err = ev && ev.error || null;
-      let exception = '';
-      if (err && err.stack) {
-        try {
-          exception = err.stack.split('\n')[0];
-        } catch (e) {
-          // ignore bad stack frames
-        }
-      }
-
-      Raven.captureException(err, {
-        extra: {
-          exception: exception
-        }
-      });
-    });
-  }
+  configureSentry(server, config);
 
   server.ext('onPreResponse', function onPreResponse(request, h) {
     var response = request.response;
