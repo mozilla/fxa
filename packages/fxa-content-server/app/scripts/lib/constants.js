@@ -37,8 +37,6 @@ module.exports = {
   FX_FIRSTRUN_V1_CONTEXT: 'fx_firstrun_v1',
   FX_FIRSTRUN_V2_CONTEXT: 'fx_firstrun_v2',
   FX_IOS_V1_CONTEXT: 'fx_ios_v1',
-  MOBILE_ANDROID_V1_CONTEXT: 'mob_android_v1',
-  MOBILE_IOS_V1_CONTEXT: 'mob_ios_v1',
   IFRAME_CONTEXT: 'iframe',
   OAUTH_CONTEXT: 'oauth',
   OAUTH_CHROME_ANDROID_CONTEXT: 'oauth_chrome_android',

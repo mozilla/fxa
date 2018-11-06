@@ -171,8 +171,7 @@ Specify which non-OAuth service a user is signing in to.
 * `sync`
 
 #### When to specify
-Only available if `context` equals `fx_desktop_v1`, `fx_desktop_v2`, `fx_desktop_v3`, `fx_fennec_v1`, `fx_firstrun_v2`, `fx_ios_v1`, `iframe`, `mob_android_v1`,
-`mob_ios_v1`.
+Only available if `context` equals `fx_desktop_v1`, `fx_desktop_v2`, `fx_desktop_v3`, `fx_fennec_v1`, `fx_firstrun_v2`, `fx_ios_v1`, `iframe`
 
 * /signin
 * /signup
@@ -211,10 +210,6 @@ Specify an alternate context in which Firefox Accounts is being run, if not as a
    for iOS using CustomEvents.
 * `iframe` - Firefox Accounts is being used to sign in to Sync on Firefox
     Desktop firstrun page. Misnamed and should be called `fx_firstrun_v1`.
-* `mob_android_v1` - Firefox Accounts is being used to sign in to Sync
-    using the standalone Android library.
-* `mob_ios_v1` - Firefox Accounts is being used to sign in to Sync
-    using the standalone iOS library.
 
 ### `email`
 When used on /signin, /oauth/signin, /signup, or /oauth/signup, suggest a user to sign in. If set to the string `blank`, an empty sign in form will be displayed and no suggested accounts will appear.
