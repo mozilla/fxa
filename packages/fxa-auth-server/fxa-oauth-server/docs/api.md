@@ -48,6 +48,11 @@ The currently-defined error responses are:
 | 415 | 113 | invalid content type |
 | 400 | 114 | invalid scopes |
 | 400 | 115 | expired token |
+| 400 | 116 | not a public client |
+| 400 | 117 | incorrect code_challenge |
+| 400 | 118 | pkce parameters missing |
+| 400 | 119 | stale authentication timestamp |
+| 400 | 120 | mismatch acr value |
 | 500 | 999 | internal server error |
 
 ## API Endpoints
@@ -331,6 +336,7 @@ back to the client. This code will be traded for a token at the
 - `code_challenge_method`: Required if using [PKCE](pkce.md). Must be `S256`, no other value is accepted.
 - `code_challenge`: Required if using [PKCE](pkce.md). A minimum length of 43 characters and a maximum length of 128 characters string, encoded as `BASE64URL`.
 - `keys_jwe`: Optional. A JWE bundle to be returned to the client when it redeems the authorization code.
+- `acr_values`: Optional. A string-separated list of acr values that the token should have a claim for. Specifying `AAL2` will require the token to have an authentication assurance level >= 2 which corresponds to requiring 2FA.
 
 
 **Example:**
