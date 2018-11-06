@@ -9,11 +9,23 @@
 module.exports = function (grunt) {
   grunt.config('bump', {
     options: {
-      files: ['package.json', 'npm-shrinkwrap.json'],
+      files: [
+        'package.json',
+        'fxa-oauth-server/package.json',
+        'npm-shrinkwrap.json',
+        'fxa-oauth-server/npm-shrinkwrap.json'
+      ],
       bumpVersion: true,
       commit: true,
       commitMessage: 'Release v%VERSION%',
-      commitFiles: ['package.json', 'npm-shrinkwrap.json', 'CHANGELOG.md', 'AUTHORS'],
+      commitFiles: [
+        'package.json',
+        'fxa-oauth-server/package.json',
+        'npm-shrinkwrap.json',
+        'fxa-oauth-server/npm-shrinkwrap.json',
+        'CHANGELOG.md',
+        'AUTHORS'
+      ],
       createTag: true,
       tagName: 'v%VERSION%',
       tagMessage: 'Version %VERSION%',
