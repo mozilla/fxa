@@ -65,7 +65,7 @@ fn build_multipart_mime<'a>(
     if let Some(body_html) = body_html {
         body = body.multipart(
             MultiPart::related().singlepart(
-                SinglePart::eight_bit()
+                SinglePart::base64()
                     .header(ContentType::html())
                     .body(body_html),
             ),

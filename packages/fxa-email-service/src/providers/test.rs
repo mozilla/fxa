@@ -101,9 +101,9 @@ fn build_mime_with_body_html() {
     assert_eq!("Content-Transfer-Encoding: quoted-printable", &message[10]);
     assert_eq!("Content-Type: text/plain; charset=utf-8", &message[11]);
     assert_eq!("body", &message[13]);
-    assert_eq!("Content-Transfer-Encoding: 8bit", &message[18]);
+    assert_eq!("Content-Transfer-Encoding: base64", &message[18]);
     assert_eq!("Content-Type: text/html", &message[19]);
-    assert_eq!("<p>body</p>", &message[21]);
+    assert_eq!("PHA+Ym9keTwvcD4=", &message[21]);
 }
 
 #[test]
