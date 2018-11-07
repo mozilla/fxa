@@ -92,6 +92,8 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(args[0].type, 'flow.begin');
       assert.equal(args[2].entrypoint, 'zoo');
       assert.ok(args[2].flowId);
+      assert.ok(args[2].deviceId);
+      assert.notEqual(args[2].deviceId, args[2].flowId);
 
       assert.equal(mocks.flowEvent.logFlowEvent.callCount, 1);
       args = mocks.flowEvent.logFlowEvent.args[0];
@@ -102,6 +104,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(eventData.type, 'flow.begin');
       assert.equal(metricsData.entrypoint, 'zoo');
       assert.ok(metricsData.flowId);
+      assert.ok(metricsData.deviceId);
     },
 
     'logs enter-email.view amplitude and flow events if form_type email is set': function () {
