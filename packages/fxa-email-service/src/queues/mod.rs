@@ -166,6 +166,7 @@ impl Queues {
                     &recipient,
                     bounce.bounce_type,
                     bounce.bounce_subtype,
+                    bounce.timestamp,
                 )?;
             }
             Ok(())
@@ -177,8 +178,11 @@ impl Queues {
     fn record_complaint(&'static self, notification: &Notification) -> AppResult<()> {
         if let Some(ref complaint) = notification.complaint {
             for recipient in &complaint.complained_recipients {
-                self.delivery_problems
-                    .record_complaint(&recipient, complaint.complaint_feedback_type)?;
+                self.delivery_problems.record_complaint(
+                    &recipient,
+                    complaint.complaint_feedback_type,
+                    complaint.timestamp,
+                )?;
             }
             Ok(())
         } else {
