@@ -134,6 +134,16 @@
       "redirectUri": "urn:ietf:wg:oauth:2.0:oob",
       "trusted": true,
       "canGrant": true
+    },
+    {
+      "id": "3c49430b43dfba77",
+      "name": "Android Components Reference Browser",
+      "hashedSecret": "a7ee3482fab1782f5d3945cde06bb911605a8dfc1a45e4b77bc76615d5671e51",
+      "redirectUri": "https://accounts.firefox.com/oauth/success/3c49430b43dfba77",
+      "canGrant": false,
+      "trusted": true,
+      "allowedScopes": "https://identity.mozilla.com/apps/oldsync",
+      "publicClient": true
     }
   ],
   "localRedirects": true,
