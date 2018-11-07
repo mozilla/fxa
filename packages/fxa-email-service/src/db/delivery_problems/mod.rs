@@ -9,6 +9,7 @@ mod test;
 
 use std::{collections::HashMap, time::SystemTime};
 
+use chrono::{DateTime, TimeZone, Utc};
 use serde::{
     de::{Deserialize, Deserializer, Error as DeserializeError, Unexpected},
     ser::{Serialize, Serializer},
@@ -64,6 +65,7 @@ where
     /// [limits]: ../settings/struct.BounceLimits.html
     pub fn check(&self, address: &EmailAddress) -> AppResult<()> {
         let problems = self.auth_db.get_bounces(address)?;
+        // TODO: When we start reading from the new datastore, use Utc::now() here instead
         let timestamp = now();
         problems
             .iter()
@@ -112,12 +114,13 @@ where
         address: &EmailAddress,
         bounce_type: BounceType,
         bounce_subtype: BounceSubtype,
+        timestamp: DateTime<Utc>,
     ) -> AppResult<()> {
         let problem_type: ProblemType = From::from(bounce_type);
         let problem_subtype: ProblemSubtype = From::from(bounce_subtype);
         self.auth_db
             .create_bounce(address, problem_type, problem_subtype)?;
-        self.record_delivery_problem(address, problem_type, problem_subtype)?;
+        self.record_delivery_problem(address, problem_type, problem_subtype, timestamp)?;
         Ok(())
     }
 
@@ -126,6 +129,7 @@ where
         address: &EmailAddress,
         problem_type: ProblemType,
         problem_subtype: ProblemSubtype,
+        timestamp: DateTime<Utc>,
     ) -> AppResult<()> {
         let mut problems: Vec<DeliveryProblem> = self
             .db
@@ -143,7 +147,7 @@ where
             address: address.clone(),
             problem_type,
             problem_subtype,
-            created_at: now(),
+            created_at: timestamp,
         });
 
         self.db
@@ -158,11 +162,12 @@ where
         &self,
         address: &EmailAddress,
         complaint_type: Option<ComplaintFeedbackType>,
+        timestamp: DateTime<Utc>,
     ) -> AppResult<()> {
         let problem_subtype = complaint_type.map_or(ProblemSubtype::Unmapped, |ct| From::from(ct));
         self.auth_db
             .create_bounce(address, ProblemType::Complaint, problem_subtype)?;
-        self.record_delivery_problem(address, ProblemType::Complaint, problem_subtype)?;
+        self.record_delivery_problem(address, ProblemType::Complaint, problem_subtype, timestamp)?;
         Ok(())
     }
 }
@@ -193,7 +198,7 @@ pub struct DeliveryProblem {
     pub address: EmailAddress,
     pub problem_type: ProblemType,
     pub problem_subtype: ProblemSubtype,
-    pub created_at: u64,
+    pub created_at: DateTime<Utc>,
 }
 
 impl From<LegacyDeliveryProblem> for DeliveryProblem {
@@ -202,7 +207,10 @@ impl From<LegacyDeliveryProblem> for DeliveryProblem {
             address: source.address,
             problem_type: source.problem_type,
             problem_subtype: source.problem_subtype,
-            created_at: source.created_at,
+            created_at: Utc.timestamp(
+                source.created_at as i64 / 1000,
+                (source.created_at % 1000) as u32 * 1000000,
+            ),
         }
     }
 }
@@ -232,7 +240,7 @@ impl From<DeliveryProblem> for LegacyDeliveryProblem {
             address: source.address,
             problem_type: source.problem_type,
             problem_subtype: source.problem_subtype,
-            created_at: source.created_at,
+            created_at: source.created_at.timestamp_millis() as u64,
         }
     }
 }

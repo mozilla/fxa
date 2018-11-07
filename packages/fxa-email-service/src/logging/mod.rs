@@ -8,7 +8,6 @@ use std::{io, ops::Deref};
 
 use failure::{err_msg, Error};
 use rocket::{Request, State};
-use sentry::integrations::failure::capture_fail;
 use serde_json::{self, Map, Value as JsonValue};
 use slog::{self, Discard, Drain, Record, Serializer, Value, KV};
 use slog_async;
@@ -64,7 +63,7 @@ impl KV for RequestMozlogFields {
 #[derive(Clone)]
 struct AppErrorFields {
     code: u16,
-    error: String,
+    error: &'static str,
     errno: Option<u16>,
     message: String,
     additional_fields: Map<String, JsonValue>,
@@ -72,15 +71,12 @@ struct AppErrorFields {
 
 impl AppErrorFields {
     pub fn from_app_error(error: &AppError) -> AppErrorFields {
-        let kind = error.kind();
-        let status = kind.http_status();
-
         AppErrorFields {
-            code: status.code,
-            error: status.reason.to_string(),
-            errno: kind.errno(),
-            message: format!("{}", error),
-            additional_fields: kind.additional_fields(),
+            code: error.code(),
+            error: error.error(),
+            errno: error.errno(),
+            message: error.to_string(),
+            additional_fields: error.additional_fields(),
         }
     }
 }
@@ -150,7 +146,6 @@ impl MozlogLogger {
 
     /// Log an application error.
     pub fn with_app_error(logger: &MozlogLogger, error: &AppError) -> Result<MozlogLogger, Error> {
-        capture_fail(error);
         Ok(MozlogLogger(
             logger.new(slog_o!(AppErrorFields::from_app_error(error))),
         ))

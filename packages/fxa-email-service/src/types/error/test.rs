@@ -2,52 +2,58 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
-use super::AppErrorKind;
+use super::*;
 
 #[test]
 fn bad_request() {
-    assert_eq!(
-        format!("{}", super::bad_request().unwrap_err().kind()),
-        format!("{}", AppErrorKind::BadRequest)
-    );
+    let error: AppError = AppErrorKind::BadRequest.into();
+    assert_eq!(error.code(), 400);
+    assert_eq!(error.error(), "Bad Request");
+    assert!(error.errno().is_none());
+    assert_eq!(error.additional_fields().len(), 0);
 }
 
 #[test]
 fn not_found() {
-    assert_eq!(
-        format!("{}", super::not_found().unwrap_err().kind()),
-        format!("{}", AppErrorKind::NotFound)
-    );
+    let error: AppError = AppErrorKind::NotFound.into();
+    assert_eq!(error.code(), 404);
+    assert_eq!(error.error(), "Not Found");
+    assert!(error.errno().is_none());
+    assert_eq!(error.additional_fields().len(), 0);
 }
 
 #[test]
 fn method_not_allowed() {
-    assert_eq!(
-        format!("{}", super::method_not_allowed().unwrap_err().kind()),
-        format!("{}", AppErrorKind::MethodNotAllowed)
-    );
+    let error: AppError = AppErrorKind::MethodNotAllowed.into();
+    assert_eq!(error.code(), 405);
+    assert_eq!(error.error(), "Method Not Allowed");
+    assert!(error.errno().is_none());
+    assert_eq!(error.additional_fields().len(), 0);
 }
 
 #[test]
 fn unprocessable_entity() {
-    assert_eq!(
-        format!("{}", super::unprocessable_entity().unwrap_err().kind()),
-        format!("{}", AppErrorKind::UnprocessableEntity)
-    );
+    let error: AppError = AppErrorKind::UnprocessableEntity.into();
+    assert_eq!(error.code(), 422);
+    assert_eq!(error.error(), "Unprocessable Entity");
+    assert!(error.errno().is_none());
+    assert_eq!(error.additional_fields().len(), 0);
 }
 
 #[test]
 fn too_many_requests() {
-    assert_eq!(
-        format!("{}", super::too_many_requests().unwrap_err().kind()),
-        format!("{}", AppErrorKind::TooManyRequests)
-    );
+    let error: AppError = AppErrorKind::TooManyRequests.into();
+    assert_eq!(error.code(), 429);
+    assert_eq!(error.error(), "Too Many Requests");
+    assert!(error.errno().is_none());
+    assert_eq!(error.additional_fields().len(), 0);
 }
 
 #[test]
 fn internal_server_error() {
-    assert_eq!(
-        format!("{}", super::internal_server_error().unwrap_err().kind()),
-        format!("{}", AppErrorKind::InternalServerError)
-    );
+    let error: AppError = AppErrorKind::InternalServerError.into();
+    assert_eq!(error.code(), 500);
+    assert_eq!(error.error(), "Internal Server Error");
+    assert!(error.errno().is_none());
+    assert_eq!(error.additional_fields().len(), 0);
 }
