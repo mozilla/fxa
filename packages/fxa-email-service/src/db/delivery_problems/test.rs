@@ -4,7 +4,6 @@
 
 use std::{thread::sleep, time::Duration};
 
-use rocket::http::Status;
 use serde_json::{self, Value as Json};
 
 use super::*;
@@ -121,8 +120,8 @@ fn check_soft_bounce() {
         serde_json::from_str(additional_fields.get("problem").unwrap().as_str().unwrap()).unwrap();
     assert_eq!(record.problem_type, ProblemType::SoftBounce);
     assert_eq!(
-        record.created_at,
-        additional_fields.get("time").unwrap().as_u64().unwrap()
+        record.created_at.timestamp_millis(),
+        additional_fields.get("time").unwrap().as_i64().unwrap()
     );
 }
 
@@ -170,8 +169,8 @@ fn check_hard_bounce() {
         serde_json::from_str(additional_fields.get("problem").unwrap().as_str().unwrap()).unwrap();
     assert_eq!(record.problem_type, ProblemType::HardBounce);
     assert_eq!(
-        record.created_at,
-        additional_fields.get("time").unwrap().as_u64().unwrap()
+        record.created_at.timestamp_millis(),
+        additional_fields.get("time").unwrap().as_i64().unwrap()
     );
 }
 
@@ -219,8 +218,8 @@ fn check_complaint() {
         serde_json::from_str(additional_fields.get("problem").unwrap().as_str().unwrap()).unwrap();
     assert_eq!(record.problem_type, ProblemType::Complaint);
     assert_eq!(
-        record.created_at,
-        additional_fields.get("time").unwrap().as_u64().unwrap()
+        record.created_at.timestamp_millis(),
+        additional_fields.get("time").unwrap().as_i64().unwrap()
     );
 }
 
@@ -448,6 +447,7 @@ fn record_bounce() {
             &address,
             BounceType::Transient,
             BounceSubtype::AttachmentRejected,
+            Utc::now(),
         )
         .unwrap();
 
@@ -457,7 +457,12 @@ fn record_bounce() {
     sleep(Duration::from_millis(2));
 
     problems
-        .record_bounce(&address, BounceType::Permanent, BounceSubtype::General)
+        .record_bounce(
+            &address,
+            BounceType::Permanent,
+            BounceSubtype::General,
+            Utc::now(),
+        )
         .unwrap();
 
     let db = DbClient::new(&settings);
@@ -476,7 +481,6 @@ fn record_bounce() {
         bounce_records[1].problem_subtype,
         ProblemSubtype::AttachmentRejected
     );
-    assert!(bounce_records[1].created_at < now);
     assert!(bounce_records[1].created_at < bounce_records[0].created_at);
 
     test.assert_data(
@@ -508,7 +512,7 @@ fn record_complaint() {
     let test = TestFixture::setup(&settings, address.as_ref(), DataType::DeliveryProblem);
 
     problems
-        .record_complaint(&address, Some(ComplaintFeedbackType::Virus))
+        .record_complaint(&address, Some(ComplaintFeedbackType::Virus), Utc::now())
         .unwrap();
 
     test.assert_set();
