@@ -60,14 +60,18 @@ lazy_static! {
 type LoopResult = Box<Future<Item = Loop<usize, usize>, Error = AppError>>;
 
 fn main() {
-    if let Some(ref sentry) = SETTINGS.sentry {
-        sentry::init((
-            sentry.dsn.0.clone(),
-            sentry::ClientOptions {
-                release: sentry_crate_release!(),
-                ..Default::default()
-            },
-        ));
+    let sentry_dsn = if let Some(ref sentry) = SETTINGS.sentry {
+        &sentry.dsn.0
+    } else {
+        ""
+    };
+    let sentry = sentry::init(sentry::ClientOptions {
+        dsn: Some(sentry_dsn.parse().expect("settings.sentry.dsn error")),
+        release: sentry_crate_release!(),
+        ..Default::default()
+    });
+
+    if sentry.is_enabled() {
         register_panic_handler();
     }
 

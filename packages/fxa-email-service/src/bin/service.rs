@@ -34,22 +34,27 @@ use fxa_email_service::{
 
 fn main() {
     let settings = Settings::new().expect("Settings::new error");
+
+    let sentry_dsn = if let Some(ref sentry) = settings.sentry {
+        sentry.dsn.0.clone()
+    } else {
+        "".to_owned()
+    };
+    let sentry = sentry::init(sentry::ClientOptions {
+        dsn: Some(sentry_dsn.parse().expect("settings.sentry.dsn error")),
+        release: sentry_crate_release!(),
+        ..Default::default()
+    });
+
+    if sentry.is_enabled() {
+        register_panic_handler();
+    }
+
     let db = DbClient::new(&settings);
     let delivery_problems = DeliveryProblems::new(&settings, db);
     let logger = MozlogLogger::new(&settings).expect("MozlogLogger::init error");
     let message_data = MessageData::new(&settings);
     let providers = Providers::new(&settings);
-
-    if let Some(ref sentry) = settings.sentry {
-        sentry::init((
-            sentry.dsn.0.clone(),
-            sentry::ClientOptions {
-                release: sentry_crate_release!(),
-                ..Default::default()
-            },
-        ));
-        register_panic_handler();
-    }
 
     let config = settings
         .build_rocket_config()
