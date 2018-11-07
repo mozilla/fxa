@@ -19,7 +19,7 @@ fn build_mime_without_optional_data() {
     assert_eq!("Subject: subject", &message[2]);
     assert_eq!("MIME-Version: 1.0", &message[3]);
     assert_eq!("Content-Transfer-Encoding: quoted-printable", &message[10]);
-    assert_eq!("Content-Type: text/plain; charset=utf8", &message[11]);
+    assert_eq!("Content-Type: text/plain; charset=utf-8", &message[11]);
     assert_eq!("body", &message[13]);
 }
 
@@ -45,7 +45,7 @@ fn build_mime_with_cc_headers() {
     assert_eq!("MIME-Version: 1.0", &message[3]);
     assert_eq!("Cc: c@c.com, d@d.com", &message[4]);
     assert_eq!("Content-Transfer-Encoding: quoted-printable", &message[11]);
-    assert_eq!("Content-Type: text/plain; charset=utf8", &message[12]);
+    assert_eq!("Content-Type: text/plain; charset=utf-8", &message[12]);
     assert_eq!("body", &message[14]);
 }
 
@@ -53,6 +53,7 @@ fn build_mime_with_cc_headers() {
 fn build_mime_with_custom_headers() {
     let mut custom_headers = HashMap::new();
     custom_headers.insert("x-foo".to_string(), "bar".to_string());
+    custom_headers.insert("x-device-id".to_string(), "baz".to_string());
     let message = build_multipart_mime(
         "a@a.com",
         "b@b.com",
@@ -71,9 +72,9 @@ fn build_mime_with_custom_headers() {
     assert_eq!("To: b@b.com", &message[1]);
     assert_eq!("Subject: subject", &message[2]);
     assert_eq!("MIME-Version: 1.0", &message[3]);
-    assert_eq!("x-foo: bar", &message[4]);
+    assert_eq!("X-Device-Id: baz", &message[4]);
     assert_eq!("Content-Transfer-Encoding: quoted-printable", &message[11]);
-    assert_eq!("Content-Type: text/plain; charset=utf8", &message[12]);
+    assert_eq!("Content-Type: text/plain; charset=utf-8", &message[12]);
     assert_eq!("body", &message[14]);
 }
 
@@ -98,11 +99,11 @@ fn build_mime_with_body_html() {
     assert_eq!("Subject: subject", &message[2]);
     assert_eq!("MIME-Version: 1.0", &message[3]);
     assert_eq!("Content-Transfer-Encoding: quoted-printable", &message[10]);
-    assert_eq!("Content-Type: text/plain; charset=utf8", &message[11]);
+    assert_eq!("Content-Type: text/plain; charset=utf-8", &message[11]);
     assert_eq!("body", &message[13]);
-    assert_eq!("Content-Transfer-Encoding: 8bit", &message[18]);
-    assert_eq!("Content-Type: text/html; charset=utf8", &message[19]);
-    assert_eq!("<p>body</p>", &message[21]);
+    assert_eq!("Content-Transfer-Encoding: base64", &message[18]);
+    assert_eq!("Content-Type: text/html", &message[19]);
+    assert_eq!("PHA+Ym9keTwvcD4=", &message[21]);
 }
 
 #[test]
