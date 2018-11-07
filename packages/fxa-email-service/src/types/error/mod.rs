@@ -84,7 +84,9 @@ impl From<AppErrorKind> for AppError {
 
 impl From<Context<AppErrorKind>> for AppError {
     fn from(inner: Context<AppErrorKind>) -> AppError {
-        AppError { inner }
+        let error = AppError { inner };
+        sentry::integrations::failure::capture_fail(&error);
+        error
     }
 }
 

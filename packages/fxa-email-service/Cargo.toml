@@ -11,6 +11,10 @@ path = "src/bin/service.rs"
 name = "fxa_email_queues"
 path = "src/bin/queues.rs"
 
+[profile.release]
+# Include debug symbols to make Sentry errors richer
+debug = true
+
 [dependencies]
 base64 = ">=0.6.0"
 chrono = { version = ">=0.4.2", features = [ "serde" ] }
@@ -39,7 +43,7 @@ rusoto_mock = ">=0.28.0"
 rusoto_ses = ">=0.34.0"
 rusoto_sqs = ">=0.34.0"
 sendgrid = ">=0.7.1"
-sentry = ">=0.7.0"
+sentry = ">=0.12.0"
 serde = ">=1.0"
 serde_derive = ">=1.0"
 serde_json = ">=1.0"
