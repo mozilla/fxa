@@ -48,11 +48,25 @@ impl FromStr for EmailAddress {
     type Err = DeserializeError;
 
     fn from_str(value: &str) -> Result<Self, Self::Err> {
-        if validate::email_address(&value) {
+        let mut value = value;
+
+        if let Some(opening_index) = value.find('<') {
+            if let Some(closing_index) = value.rfind('>') {
+                if opening_index < closing_index {
+                    if let Some(unwrapped_value) = value.get(opening_index + 1..closing_index) {
+                        value = unwrapped_value;
+                    }
+                }
+            }
+        }
+
+        value = value.trim();
+
+        if validate::email_address(value) {
             Ok(EmailAddress(value.to_lowercase()))
         } else {
             Err(DeserializeError::invalid_value(
-                Unexpected::Str(&value),
+                Unexpected::Str(value),
                 &"email address",
             ))
         }
