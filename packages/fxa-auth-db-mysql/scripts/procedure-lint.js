@@ -5,10 +5,10 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 // Check for bad smells in stored procedures, by running an EXPLAIN for
-// the contained queries.
+// the contained queries and grepping for ROW_COUNT() calls.
 //
-// Currently it only works on SELECT queries. If we find it adds value
-// for those, it should be pretty straightforward to write some logic
+// Currently the EXPLAIN only works on SELECT queries. If we find it adds
+// value for those, it should be pretty straightforward to write some logic
 // that transforms an INSERT, UPDATE or DELETE into a similar SELECT and
 // constructs the EXPLAIN for that instead.
 //
@@ -52,6 +52,7 @@ const TYPE_FULL_TABLE_SCAN = /^all$/i
 const TYPE_FULL_INDEX_SCAN = /^index$/i
 const EXTRA_FILESORT = /filesort/i
 const EXTRA_TEMPORARY_TABLE = /temporary/i
+const ROW_COUNT = /\bROW_COUNT\(\)/i
 
 const KNOWN_ARGS = new Map([
   [ 'commandname', 'foo' ],
@@ -75,31 +76,16 @@ Mysql(log, require('../db-server').errors)
     return populateDatabase(db, 0)
       .then(() => {
         const ignore = parseIgnoreFile()
-        return getProcedureNames()
+        const procedures = getProcedureNames()
           .filter(procedure => ! ignore.has(procedure))
           .map(procedure => ({
             procedure,
             path: getPath(procedure)
           }))
           .filter(({ path }) => !! path)
-          .reduce((selects, { path, procedure }) => selects.concat(
-            extractSelects(path, procedure)
-              .map(select => ({ path, procedure, select }))
-          ), [])
-          .reduce((promise, query) => {
-            return promise.then(({ errors, warnings }) => {
-              const select = replaceArgs(query.select)
-              return explain(db, select)
-                .then(explainResult => warnings.push(
-                  ...warn(explainResult)
-                    .map(warning => `Warning: ${warning} in ${query.procedure}!\nEXPLAIN ${select}\n`)
-                ))
-                .catch(error => errors.push(
-                  `${error.stack.split('\n')[0]} in ${query.procedure}!\n${select}\n`
-                ))
-                .then(() => ({ errors, warnings }))
-            })
-          }, Promise.resolve({ errors: [], warnings: [] }))
+
+        return getExplainSmells(db, procedures)
+          .then(errorsAndWarnings => getRowCountSmells(procedures, errorsAndWarnings))
       })
   })
   .then(({ errors, warnings }) => {
@@ -282,7 +268,7 @@ function createAccountResetToken (db, uid, tokenId) {
 
 function parseIgnoreFile () {
   return new Set(
-    fs.readFileSync('.explain-ignore', RETURN_STRING)
+    fs.readFileSync('.procedure-lint-ignore', RETURN_STRING)
       .split('\n')
       .map(procedure => procedure.trim())
       .filter(procedure => !! procedure)
@@ -310,6 +296,34 @@ function getPath (procedure) {
   if (path) {
     return path[1]
   }
+}
+
+async function getExplainSmells (db, procedures) {
+  const selects = procedures.reduce((selects, { path, procedure }) => {
+    return selects.concat(
+      extractSelects(path, procedure)
+        .map(select => ({ path, procedure, select }))
+    )
+  }, [])
+
+  return await selects.reduce(async (promise, query) => {
+    const { errors, warnings } = await promise
+    const select = replaceArgs(query.select)
+
+    try {
+      const explainResult = await explain(db, select)
+      warnings.push(
+        ...warn(explainResult)
+          .map(warning => `Warning: ${warning} in ${query.procedure}!\nEXPLAIN ${select}\n`)
+      )
+    } catch (error) {
+      errors.push(
+        `${error.stack.split('\n')[0]} in ${query.procedure}!\n${select}\n`
+      )
+    }
+
+    return { errors, warnings }
+  }, Promise.resolve({ errors: [], warnings: [] }))
 }
 
 function extractSelects (path, procedure) {
@@ -409,4 +423,38 @@ function warn (explainRows) {
 
     return warnings
   }, [])
+}
+
+// ROW_COUNT() is not safe for replication, see https://bugzilla.mozilla.org/show_bug.cgi?id=1499819
+function getRowCountSmells (procedures, { errors, warnings }) {
+  procedures.forEach(({ path, procedure }) => {
+    const src = fs.readFileSync(path, RETURN_STRING)
+    const lines = src.split('\n')
+
+    let isProcedure = false
+
+    lines.some(line => {
+      line = line.replace(COMMENT, '')
+      if (isProcedure) {
+        if (END_PROCEDURE.test(line)) {
+          return true
+        }
+
+        if (ROW_COUNT.test(line)) {
+          warnings.push(`Warning: ROW_COUNT() in ${procedure}`)
+        }
+      } else if (procedure) {
+        const match = CREATE_PROCEDURE.exec(line)
+        if (match && match.length === 2 && match[1] === procedure) {
+          isProcedure = true
+        }
+      } else {
+        isProcedure = CREATE_PROCEDURE.test(line)
+      }
+
+      return false
+    })
+  })
+
+  return { errors, warnings }
 }
