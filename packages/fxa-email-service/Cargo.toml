@@ -11,6 +11,10 @@ path = "src/bin/service.rs"
 name = "fxa_email_queues"
 path = "src/bin/queues.rs"
 
+[profile.release]
+# Include debug symbols to make Sentry errors richer
+debug = true
+
 [dependencies]
 base64 = ">=0.6.0"
 chrono = { version = ">=0.4.2", features = [ "serde" ] }
