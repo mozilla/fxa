@@ -1,3 +1,13 @@
+<a name="v1.124.1"></a>
+## v1.124.1 (2018-11-07)
+
+
+#### Bug Fixes
+
+* **mime:**  use base64 encoding instead of 8bit ([5d03a48d](5d03a48d))
+
+
+
 <a name="v1.124.0"></a>
 ## v1.124.0 (2018-10-30)
 
