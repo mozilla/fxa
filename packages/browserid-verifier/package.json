@@ -28,11 +28,11 @@
     "underscore": "1.9.1"
   },
   "devDependencies": {
-    "jshint": "2.9.6",
+    "jshint": "2.9.7",
     "mocha": "5.2.0",
     "request": "2.88.0",
     "should": "13.2.3",
-    "temp": "0.8.3",
+    "temp": "0.9.0",
     "walk": "2.3.14"
   },
   "scripts": {
