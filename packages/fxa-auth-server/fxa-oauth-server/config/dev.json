@@ -4,6 +4,9 @@
     "verificationUrl": "http://127.0.0.1:5050/v2"
   },
   "contentUrl": "http://127.0.0.1:3030/oauth/",
+  "clientManagement": {
+    "enabled": true
+  },
   "clients": [
     {
       "id": "dcdb5ae7add825d2",

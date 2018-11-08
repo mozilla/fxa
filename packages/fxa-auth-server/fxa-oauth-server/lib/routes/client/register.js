@@ -4,7 +4,7 @@
 
 const Joi = require('joi');
 
-const auth = require('../../auth');
+const auth = require('../../auth_client_management');
 const db = require('../../db');
 const encrypt = require('../../encrypt');
 const hex = require('buf').to.hex;

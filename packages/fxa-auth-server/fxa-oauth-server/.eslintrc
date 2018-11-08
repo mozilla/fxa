@@ -7,4 +7,4 @@ rules:
   semi: [2, "always"]
 
 parserOptions:
-  ecmaVersion: 2017
+  ecmaVersion: 2018

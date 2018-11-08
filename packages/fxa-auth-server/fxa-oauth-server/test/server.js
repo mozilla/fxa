@@ -5,7 +5,7 @@
 const assert = require('insist');
 const util = require('util');
 
-const Server = require('./lib/server');
+const Server = require('./lib/server')();
 
 const assertSecurityHeaders = require('./lib/util').assertSecurityHeaders;
 

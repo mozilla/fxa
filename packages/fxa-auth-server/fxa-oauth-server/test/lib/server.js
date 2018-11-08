@@ -4,7 +4,6 @@
 
 const P = require('../../lib/promise');
 const Server = require('../../lib/server');
-const Internal = require('../../lib/server/internal');
 const version = require('../../lib/config').get('api.version');
 
 function wrapServer(serverPromise) {
@@ -55,5 +54,8 @@ function wrapServer(serverPromise) {
   return wrap;
 }
 
-module.exports = wrapServer(Server.create());
-module.exports.internal = wrapServer(Internal.create());
+function createServer(extraServerConfig, createOptions) {
+  return wrapServer(Server.create(extraServerConfig, createOptions));
+}
+
+module.exports = createServer;
