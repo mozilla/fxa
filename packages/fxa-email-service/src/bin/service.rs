@@ -36,12 +36,12 @@ fn main() {
     let settings = Settings::new().expect("Settings::new error");
 
     let sentry_dsn = if let Some(ref sentry) = settings.sentry {
-        sentry.dsn.0.clone()
+        Some(sentry.dsn.0.parse().expect("settings.sentry.dsn error"))
     } else {
-        "".to_owned()
+        None
     };
     let sentry = sentry::init(sentry::ClientOptions {
-        dsn: Some(sentry_dsn.parse().expect("settings.sentry.dsn error")),
+        dsn: sentry_dsn,
         release: sentry_crate_release!(),
         ..Default::default()
     });

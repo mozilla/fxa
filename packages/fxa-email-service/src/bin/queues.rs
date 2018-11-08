@@ -61,12 +61,12 @@ type LoopResult = Box<Future<Item = Loop<usize, usize>, Error = AppError>>;
 
 fn main() {
     let sentry_dsn = if let Some(ref sentry) = SETTINGS.sentry {
-        &sentry.dsn.0
+        Some(sentry.dsn.0.parse().expect("settings.sentry.dsn error"))
     } else {
-        ""
+        None
     };
     let sentry = sentry::init(sentry::ClientOptions {
-        dsn: Some(sentry_dsn.parse().expect("settings.sentry.dsn error")),
+        dsn: sentry_dsn,
         release: sentry_crate_release!(),
         ..Default::default()
     });
