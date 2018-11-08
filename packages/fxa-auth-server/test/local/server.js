@@ -10,6 +10,7 @@ const { assert } = require('chai')
 const EndpointError = require('poolee/lib/error')(require('util').inherits)
 const error = require(`${ROOT_DIR}/lib/error`)
 const hawk = require('hawk')
+const knownIpLocation = require('../known-ip-location')
 const mocks = require('../mocks')
 const server = require(`${ROOT_DIR}/lib/server`)
 const sinon = require('sinon')
@@ -114,14 +115,14 @@ describe('lib/server', () => {
               headers: {
                 'accept-language': 'fr-CH, fr;q=0.9, en-GB, en;q=0.5',
                 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:57.0) Gecko/20100101 Firefox/57.0',
-                'x-forwarded-for': '63.245.221.32 , moo , 1.2.3.4'
+                'x-forwarded-for': `${knownIpLocation.ip} , moo , 1.2.3.4`
               },
               method: 'POST',
               url: '/account/create',
               payload: {
                 features: [ 'signinCodes' ]
               },
-              remoteAddress: '63.245.221.32'
+              remoteAddress: knownIpLocation.ip
             }).then(response => request = response.request)
           })
 
@@ -160,13 +161,13 @@ describe('lib/server', () => {
           it('parsed remote address chain correctly', () => {
             assert.ok(Array.isArray(request.app.remoteAddressChain))
             assert.equal(request.app.remoteAddressChain.length, 3)
-            assert.equal(request.app.remoteAddressChain[0], '63.245.221.32')
+            assert.equal(request.app.remoteAddressChain[0], knownIpLocation.ip)
             assert.equal(request.app.remoteAddressChain[1], '1.2.3.4')
             assert.equal(request.app.remoteAddressChain[2], request.app.remoteAddressChain[0])
           })
 
           it('parsed client address correctly', () => {
-            assert.equal(request.app.clientAddress, '63.245.221.32')
+            assert.equal(request.app.clientAddress, knownIpLocation.ip)
           })
 
           it('parsed accept-language correctly', () => {
@@ -192,12 +193,12 @@ describe('lib/server', () => {
           it('parsed location correctly', () => {
             const geo = request.app.geo
             assert.ok(geo)
-            assert.equal(geo.location.city, 'San Francisco')
-            assert.equal(geo.location.country, 'United States')
-            assert.equal(geo.location.countryCode, 'US')
-            assert.equal(geo.location.state, 'California')
-            assert.equal(geo.location.stateCode, 'CA')
-            assert.equal(geo.timeZone, 'America/Los_Angeles')
+            assert.ok(knownIpLocation.location.city.has(geo.location.city))
+            assert.equal(geo.location.country, knownIpLocation.location.country)
+            assert.equal(geo.location.countryCode, knownIpLocation.location.countryCode)
+            assert.equal(geo.location.state, knownIpLocation.location.state)
+            assert.equal(geo.location.stateCode, knownIpLocation.location.stateCode)
+            assert.equal(geo.timeZone, knownIpLocation.location.tz)
           })
 
           it('fetched devices correctly', () => {
@@ -229,7 +230,7 @@ describe('lib/server', () => {
                   features: [ 'signinCodes' ],
                   uid: 'another fake uid'
                 },
-                remoteAddress: '63.245.221.32'
+                remoteAddress: knownIpLocation.ip
               }).then(response => secondRequest = response.request)
             })
 
@@ -239,11 +240,11 @@ describe('lib/server', () => {
               assert.equal(secondRequest.app.remoteAddressChain.length, 3)
               assert.equal(secondRequest.app.remoteAddressChain[0], '194.12.187.0')
               assert.equal(secondRequest.app.remoteAddressChain[1], '194.12.187.1')
-              assert.equal(secondRequest.app.remoteAddressChain[2], '63.245.221.32')
+              assert.equal(secondRequest.app.remoteAddressChain[2], knownIpLocation.ip)
             })
 
-            it('second request has its own client address', () => {
-              assert.equal(secondRequest.app.clientAddress, '63.245.221.32')
+            it('second request has correct client address', () => {
+              assert.equal(secondRequest.app.clientAddress, knownIpLocation.ip)
             })
 
             it('second request has its own accept-language', () => {
@@ -269,12 +270,12 @@ describe('lib/server', () => {
             it('second request has its own location info', () => {
               const geo = secondRequest.app.geo
               assert.notEqual(request.app.geo, secondRequest.app.geo)
-              assert.equal(geo.location.city, 'San Francisco')
-              assert.equal(geo.location.country, 'United States')
-              assert.equal(geo.location.countryCode, 'US')
-              assert.equal(geo.location.state, 'California')
-              assert.equal(geo.location.stateCode, 'CA')
-              assert.equal(geo.timeZone, 'America/Los_Angeles')
+              assert.ok(knownIpLocation.location.city.has(geo.location.city))
+              assert.equal(geo.location.country, knownIpLocation.location.country)
+              assert.equal(geo.location.countryCode, knownIpLocation.location.countryCode)
+              assert.equal(geo.location.state, knownIpLocation.location.state)
+              assert.equal(geo.location.stateCode, knownIpLocation.location.stateCode)
+              assert.equal(geo.timeZone, knownIpLocation.location.tz)
             })
 
             it('second request fetched devices correctly', () => {
