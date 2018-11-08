@@ -2,19 +2,16 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::str::{from_utf8, Utf8Error};
+use std::str::from_utf8;
 
 use reqwest::StatusCode;
-use sendgrid::{
-    errors::SendgridError,
-    v3::{
-        Content, Email as EmailAddress, Personalization, SGMailV3 as Message, V3Sender as Client,
-    },
+use sendgrid::v3::{
+    Content, Email as EmailAddress, Personalization, SGMailV3 as Message, V3Sender as Client,
 };
 
 use super::{Headers, Provider};
 use settings::{Sender, Sendgrid as SendgridSettings, Settings};
-use types::error::{AppError, AppErrorKind, AppResult};
+use types::error::{AppErrorKind, AppResult};
 
 pub struct SendgridProvider {
     client: Client,
@@ -76,7 +73,7 @@ impl Provider for SendgridProvider {
         self.client
             .send(&message)
             .map_err(From::from)
-            .and_then(|response| {
+            .and_then(|mut response| {
                 let status = response.status();
                 if status == StatusCode::Ok || status == StatusCode::Accepted {
                     response
@@ -84,43 +81,21 @@ impl Provider for SendgridProvider {
                         .get_raw("X-Message-Id")
                         .and_then(|raw_header| raw_header.one())
                         .ok_or(
-                            AppErrorKind::ProviderError {
-                                name: String::from("Sendgrid"),
-                                description: String::from(
-                                    "Missing or duplicate X-Message-Id header in Sendgrid response",
-                                ),
-                            }
+                            AppErrorKind::Internal(
+                                "Missing or duplicate X-Message-Id header in Sendgrid response"
+                                    .to_owned(),
+                            )
                             .into(),
                         )
                         .and_then(|message_id| from_utf8(message_id).map_err(From::from))
                         .map(|message_id| message_id.to_string())
                 } else {
-                    Err(AppErrorKind::ProviderError {
-                        name: String::from("Sendgrid"),
-                        description: format!("Unsuccesful response status: {}", status),
-                    }
-                    .into())
+                    Err(AppErrorKind::Internal(format!(
+                        "Sendgrid response: {}, \"{}\"",
+                        status,
+                        response.text().unwrap_or("[no body]".to_owned())
+                    )))?
                 }
             })
-    }
-}
-
-impl From<SendgridError> for AppError {
-    fn from(error: SendgridError) -> AppError {
-        AppErrorKind::ProviderError {
-            name: String::from("Sendgrid"),
-            description: format!("{:?}", error),
-        }
-        .into()
-    }
-}
-
-impl From<Utf8Error> for AppError {
-    fn from(error: Utf8Error) -> AppError {
-        AppErrorKind::ProviderError {
-            name: String::from("Sendgrid"),
-            description: format!("Failed to decode string as UTF-8: {:?}", error),
-        }
-        .into()
     }
 }

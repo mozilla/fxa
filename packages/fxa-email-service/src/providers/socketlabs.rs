@@ -2,15 +2,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
-use socketlabs::{
-    error::Error as SocketLabsError, message::Message, request::Request,
-    response::PostMessageErrorCode,
-};
+use socketlabs::{message::Message, request::Request, response::PostMessageErrorCode};
 use uuid::Uuid;
 
 use super::{Headers, Provider};
 use settings::{Sender, Settings, SocketLabs as SocketLabsSettings};
-use types::error::{AppError, AppErrorKind, AppResult};
+use types::error::{AppErrorKind, AppResult};
 
 pub struct SocketLabsProvider {
     settings: SocketLabsSettings,
@@ -66,22 +63,11 @@ impl Provider for SocketLabsProvider {
             if response.error_code == PostMessageErrorCode::Success {
                 Ok(message_id)
             } else {
-                Err(AppErrorKind::ProviderError {
-                    name: String::from("SocketLabs"),
-                    description: format!("{:?}: {}", response.error_code, response.error_code),
-                }
-                .into())
+                Err(AppErrorKind::Internal(format!(
+                    "SocketLabs error: {}",
+                    response.error_code
+                )))?
             }
         })
-    }
-}
-
-impl From<SocketLabsError> for AppError {
-    fn from(error: SocketLabsError) -> AppError {
-        AppErrorKind::ProviderError {
-            name: String::from("SocketLabs"),
-            description: format!("{}", error),
-        }
-        .into()
     }
 }

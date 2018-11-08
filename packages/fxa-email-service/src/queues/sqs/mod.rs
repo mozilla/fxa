@@ -18,7 +18,7 @@ use rusoto_sqs::{
     DeleteMessageError, DeleteMessageRequest, Message as SqsMessage, ReceiveMessageError,
     ReceiveMessageRequest, SendMessageError, SendMessageRequest, Sqs, SqsClient,
 };
-use serde_json::{self, Error as JsonError, Value as JsonValue};
+use serde_json::{self, Value as JsonValue};
 use slog_scope;
 
 use self::notification::Notification as SqsNotification;
@@ -43,34 +43,34 @@ impl Queue {
     fn parse_message(&self, message: SqsMessage) -> AppResult<Message> {
         let body = message.body.unwrap_or_else(|| String::from(""));
         if body == "" {
-            return Err(AppErrorKind::MissingSqsMessageFields {
-                field: "body".to_string(),
-                queue: self.url.clone(),
-            }
-            .into());
+            Err(AppErrorKind::InvalidNotification(format!(
+                "missing body from {}",
+                self.url
+            )))?;
         }
 
         if let Some(hash) = message.md5_of_body {
             if hash != format!("{:x}", md5::compute(&body)) {
-                return Err(AppErrorKind::SqsMessageHashMismatch {
-                    queue: self.url.clone(),
-                    hash,
-                    body,
-                }
-                .into());
+                Err(AppErrorKind::InvalidNotification(format!(
+                    "MD5 hash mismatch from {}",
+                    self.url
+                )))?;
             }
         }
 
         let receipt_handle = message.receipt_handle.unwrap_or_else(String::new);
         if receipt_handle == "" {
-            return Err(AppErrorKind::MissingSqsMessageFields {
-                field: "receipt_handle".to_string(),
-                queue: self.url.clone(),
-            }
-            .into());
+            Err(AppErrorKind::InvalidNotification(format!(
+                "missing receipt_handle from {}",
+                self.url
+            )))?;
         }
 
-        if let Some(ref message) = serde_json::from_str::<JsonValue>(&body)?["Message"].as_str() {
+        if let Some(ref message) = serde_json::from_str::<JsonValue>(&body).map_err(|error| {
+            AppErrorKind::InvalidNotification(format!("{:?}", error)).into(): AppError
+        })?["Message"]
+            .as_str()
+        {
             serde_json::from_str(message)
                 .map(|notification: SqsNotification| {
                     info!(
@@ -84,21 +84,12 @@ impl Queue {
                         id: receipt_handle,
                     }
                 })
-                .map_err(|error| {
-                    AppErrorKind::SqsMessageParsingError {
-                        message: format!("{:?}", error),
-                        queue: self.url.clone(),
-                        body: format!("{}", body),
-                    }
-                    .into()
-                })
+                .map_err(|error| AppErrorKind::InvalidNotification(format!("{:?}", error)).into())
         } else {
-            Err(AppErrorKind::SqsMessageParsingError {
-                message: format!("{}", "Unexpected SQS message structure"),
-                queue: self.url.clone(),
-                body: format!("{}", body),
-            }
-            .into())
+            Err(AppErrorKind::InvalidNotification(format!(
+                "unparseable message from {}",
+                self.url
+            )))?
         }
     }
 }
@@ -186,7 +177,11 @@ impl Outgoing for Queue {
         let mut request = SendMessageRequest::default();
         request.message_body = match serde_json::to_string(notification) {
             Ok(body) => body,
-            Err(error) => return Box::new(future::err(From::from(error))),
+            Err(error) => {
+                return Box::new(future::err(
+                    AppErrorKind::InvalidNotification(format!("{:?}", error)).into(),
+                ))
+            }
         };
         request.queue_url = self.url.to_string();
 
@@ -223,11 +218,5 @@ impl From<SendMessageError> for AppError {
 impl From<DeleteMessageError> for AppError {
     fn from(error: DeleteMessageError) -> AppError {
         AppErrorKind::QueueError(format!("SQS DeleteMessage error: {:?}", error)).into()
-    }
-}
-
-impl From<JsonError> for AppError {
-    fn from(error: JsonError) -> AppError {
-        AppErrorKind::JsonError(format!("JSON error: {:?}", error)).into()
     }
 }

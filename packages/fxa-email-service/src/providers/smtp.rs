@@ -2,12 +2,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
-use lettre::{smtp::error::Error as SmtpError, ClientSecurity, EmailTransport, SmtpTransport};
-use lettre_email::{error::Error as EmailError, EmailBuilder, Header as LettreHeader};
+use lettre::{ClientSecurity, EmailTransport, SmtpTransport};
+use lettre_email::{EmailBuilder, Header as LettreHeader};
 
 use super::{Headers, Provider};
 use settings::{Settings, SmtpCredentials};
-use types::error::{AppError, AppErrorKind, AppResult};
+use types::error::{AppErrorKind, AppResult};
 
 pub struct SmtpProvider {
     host: String,
@@ -71,31 +71,7 @@ impl Provider for SmtpProvider {
             let result = result?;
             Ok(format!("{}", &result.code))
         } else {
-            Err(AppErrorKind::ProviderError {
-                name: String::from("Smtp"),
-                description: format!("{:?}", result),
-            }
-            .into())
+            Err(AppErrorKind::Internal(format!("{:?}", result.unwrap_err())))?
         }
-    }
-}
-
-impl From<SmtpError> for AppError {
-    fn from(error: SmtpError) -> AppError {
-        AppErrorKind::ProviderError {
-            name: String::from("Smtp"),
-            description: format!("{:?}", error),
-        }
-        .into()
-    }
-}
-
-impl From<EmailError> for AppError {
-    fn from(error: EmailError) -> AppError {
-        AppErrorKind::ProviderError {
-            name: String::from("Smtp"),
-            description: format!("{:?}", error),
-        }
-        .into()
     }
 }

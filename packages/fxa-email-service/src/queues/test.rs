@@ -54,7 +54,7 @@ fn process_error() {
         Ok(_) => assert!(false, "Queues::process should have failed"),
         Err(error) => assert_eq!(
             &format!("{}", error),
-            "Missing payload in bounce notification",
+            "Invalid notification: missing bounce payload",
         ),
     }
 }

@@ -128,7 +128,9 @@ impl Queues {
             NotificationType::Bounce => self.record_bounce(notification),
             NotificationType::Complaint => self.record_complaint(notification),
             NotificationType::Delivery => Ok(()),
-            NotificationType::Null => Err(AppErrorKind::InvalidNotificationType.into()),
+            NotificationType::Null => {
+                Err(AppErrorKind::InvalidNotification("null type".to_owned()).into())
+            }
         };
         match result {
             Ok(_) => {
@@ -171,7 +173,9 @@ impl Queues {
             }
             Ok(())
         } else {
-            Err(AppErrorKind::MissingNotificationPayload("bounce".to_string()).into())
+            Err(AppErrorKind::InvalidNotification(
+                "missing bounce payload".to_owned(),
+            ))?
         }
     }
 
@@ -186,7 +190,9 @@ impl Queues {
             }
             Ok(())
         } else {
-            Err(AppErrorKind::MissingNotificationPayload("complaint".to_string()).into())
+            Err(AppErrorKind::InvalidNotification(
+                "missing complaint payload".to_owned(),
+            ))?
         }
     }
 }

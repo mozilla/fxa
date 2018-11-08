@@ -3,7 +3,6 @@
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
 use rocket::{
-    self,
     http::{ContentType, Status},
     local::Client,
 };
@@ -12,7 +11,7 @@ use db::{auth_db::DbClient, delivery_problems::DeliveryProblems, message_data::M
 use logging::MozlogLogger;
 use providers::Providers;
 use settings::Settings;
-use types::error::{self, AppError, AppErrorKind};
+use types::error::{AppError, AppErrorKind};
 
 fn setup() -> Client {
     let mut settings = Settings::new().unwrap();
@@ -28,15 +27,7 @@ fn setup() -> Client {
         .manage(logger)
         .manage(message_data)
         .manage(providers)
-        .mount("/", routes![super::handler])
-        .catch(catchers![
-            error::bad_request,
-            error::not_found,
-            error::method_not_allowed,
-            error::unprocessable_entity,
-            error::too_many_requests,
-            error::internal_server_error
-        ]);
+        .mount("/", routes![super::handler]);
 
     Client::new(server).unwrap()
 }
@@ -217,7 +208,8 @@ fn missing_to_field() {
     assert_eq!(response.status(), Status::BadRequest);
 
     let body = response.body().unwrap().into_string().unwrap();
-    let error: AppError = AppErrorKind::MissingEmailParams(String::from("")).into();
+    let error: AppError =
+        AppErrorKind::InvalidPayload(String::from("missing field `to` at line 7 column 5")).into();
     let expected = serde_json::to_string(&error).unwrap();
     assert_eq!(body, expected);
 }
@@ -231,7 +223,7 @@ fn missing_subject_field() {
         .header(ContentType::JSON)
         .body(
             r#"{
-      "to": [ "foo@example.com" ],
+      "to": "foo@example.com",
       "body": {
         "text": "baz"
       },
@@ -243,7 +235,9 @@ fn missing_subject_field() {
     assert_eq!(response.status(), Status::BadRequest);
 
     let body = response.body().unwrap().into_string().unwrap();
-    let error: AppError = AppErrorKind::MissingEmailParams(String::from("")).into();
+    let error: AppError =
+        AppErrorKind::InvalidPayload(String::from("missing field `subject` at line 7 column 5"))
+            .into();
     let expected = serde_json::to_string(&error).unwrap();
     assert_eq!(body, expected);
 }
@@ -257,7 +251,7 @@ fn missing_body_text_field() {
         .header(ContentType::JSON)
         .body(
             r#"{
-      "to": [ "foo@example.com" ],
+      "to": "foo@example.com",
       "subject": "bar",
       "body": {
         "html": "<a>qux</a>"
@@ -270,7 +264,9 @@ fn missing_body_text_field() {
     assert_eq!(response.status(), Status::BadRequest);
 
     let body = response.body().unwrap().into_string().unwrap();
-    let error: AppError = AppErrorKind::MissingEmailParams(String::from("")).into();
+    let error: AppError =
+        AppErrorKind::InvalidPayload(String::from("missing field `text` at line 6 column 7"))
+            .into();
     let expected = serde_json::to_string(&error).unwrap();
     assert_eq!(body, expected);
 }
@@ -297,7 +293,10 @@ fn invalid_to_field() {
     assert_eq!(response.status(), Status::BadRequest);
 
     let body = response.body().unwrap().into_string().unwrap();
-    let error: AppError = AppErrorKind::MissingEmailParams(String::from("")).into();
+    let error: AppError = AppErrorKind::InvalidPayload(String::from(
+        "invalid type: sequence, expected a string at line 2 column 12",
+    ))
+    .into();
     let expected = serde_json::to_string(&error).unwrap();
     assert_eq!(body, expected);
 }
@@ -311,7 +310,7 @@ fn invalid_cc_field() {
         .header(ContentType::JSON)
         .body(
             r#"{
-      "to": [ "foo@example.com" ],
+      "to": "foo@example.com",
       "cc": [ "bar" ],
       "subject": "baz",
       "body": {
@@ -325,7 +324,10 @@ fn invalid_cc_field() {
     assert_eq!(response.status(), Status::BadRequest);
 
     let body = response.body().unwrap().into_string().unwrap();
-    let error: AppError = AppErrorKind::MissingEmailParams(String::from("")).into();
+    let error: AppError = AppErrorKind::InvalidPayload(String::from(
+        "invalid value: string \"bar\", expected email address at line 3 column 21",
+    ))
+    .into();
     let expected = serde_json::to_string(&error).unwrap();
     assert_eq!(body, expected);
 }

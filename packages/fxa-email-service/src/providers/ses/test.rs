@@ -87,8 +87,7 @@ fn ses_send_handles_error_response() {
     assert!(result.is_err());
     let error = result.unwrap_err();
     assert_eq!(error.code(), 500);
-    assert_eq!(error.errno().unwrap(), 104);
+    assert_eq!(error.errno().unwrap(), 100);
     assert_eq!(error.error(), "Internal Server Error");
     assert_eq!(error.to_string(), "Unknown(\"FREAKOUT\")");
-    assert_eq!(error.additional_fields().get("name").unwrap(), "SES");
 }

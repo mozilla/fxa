@@ -8,7 +8,7 @@
 use rocket::{
     data::{self, FromData},
     http::Status,
-    Data, Outcome, Request, State,
+    Data, Request, State,
 };
 use rocket_contrib::Json;
 
@@ -44,15 +44,14 @@ impl FromData for Email {
     type Error = AppError;
 
     fn from_data(request: &Request, data: Data) -> data::Outcome<Self, Self::Error> {
-        let result = Json::<Email>::from_data(request, data);
-        match result {
-            Outcome::Success(json) => Outcome::Success(json.into_inner()),
-            Outcome::Failure((_status, error)) => Outcome::Failure((
-                Status::BadRequest,
-                AppErrorKind::MissingEmailParams(error.to_string()).into(),
-            )),
-            Outcome::Forward(forward) => Outcome::Forward(forward),
-        }
+        Json::<Email>::from_data(request, data)
+            .map_failure(|(_status, error)| {
+                (
+                    Status::BadRequest,
+                    AppErrorKind::InvalidPayload(error.to_string()).into(),
+                )
+            })
+            .map(|json| json.into_inner())
     }
 }
 

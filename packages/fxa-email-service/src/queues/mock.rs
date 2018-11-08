@@ -84,7 +84,11 @@ impl Incoming for Queue {
                 invalid_message
             }
 
-            _ => return Box::new(future::err(AppErrorKind::NotImplemented.into())),
+            _ => {
+                return Box::new(future::err(
+                    AppErrorKind::NotImplemented("queues::mock::Incoming".to_owned()).into(),
+                ))
+            }
         };
 
         Box::new(future::ok(vec![message]))
@@ -92,7 +96,9 @@ impl Incoming for Queue {
 
     fn delete(&'static self, _message: Message) -> DeleteFuture {
         if self.id == "outgoing" {
-            Box::new(future::err(AppErrorKind::NotImplemented.into()))
+            Box::new(future::err(
+                AppErrorKind::NotImplemented("queues::mock::Incoming".to_owned()).into(),
+            ))
         } else {
             Box::new(future::ok(()))
         }
@@ -104,7 +110,9 @@ impl Outgoing for Queue {
         if self.id == "outgoing" {
             Box::new(future::ok(String::from("deadbeef")))
         } else {
-            Box::new(future::err(AppErrorKind::NotImplemented.into()))
+            Box::new(future::err(
+                AppErrorKind::NotImplemented("queues::mock::Outgoing".to_owned()).into(),
+            ))
         }
     }
 }

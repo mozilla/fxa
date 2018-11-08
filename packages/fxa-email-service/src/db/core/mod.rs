@@ -17,14 +17,14 @@ pub mod test;
 
 use std::fmt::{self, Display, Formatter};
 
-use hmac::{crypto_mac::InvalidKeyLength, Hmac, Mac};
-use redis::{Client as RedisClient, Commands, RedisError};
+use hmac::{Hmac, Mac};
+use redis::{Client as RedisClient, Commands};
 use serde::{de::DeserializeOwned, ser::Serialize};
 use serde_json;
 use sha2::Sha256;
 
 use settings::Settings;
-use types::error::{AppError, AppErrorKind, AppResult};
+use types::error::AppResult;
 
 /// Database client.
 ///
@@ -126,17 +126,5 @@ impl AsRef<str> for DataType {
 impl Display for DataType {
     fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
         write!(formatter, "{}", self.as_ref())
-    }
-}
-
-impl From<RedisError> for AppError {
-    fn from(error: RedisError) -> AppError {
-        AppErrorKind::DbError(format!("{:?}", error)).into()
-    }
-}
-
-impl From<InvalidKeyLength> for AppError {
-    fn from(_error: InvalidKeyLength) -> AppError {
-        AppErrorKind::HmacError("invalid key length".to_string()).into()
     }
 }

@@ -80,24 +80,21 @@ where
                     };
                     if is_limit_violation(*count, problem.created_at, timestamp, limits) {
                         return match problem.problem_type {
-                            ProblemType::HardBounce => Err(AppErrorKind::BounceHardError {
+                            ProblemType::HardBounce => Err(AppErrorKind::HardBounce {
                                 address: address.clone(),
                                 time: problem.created_at,
                                 problem: From::from(problem.clone()),
-                            }
-                            .into()),
-                            ProblemType::SoftBounce => Err(AppErrorKind::BounceSoftError {
+                            })?,
+                            ProblemType::SoftBounce => Err(AppErrorKind::SoftBounce {
                                 address: address.clone(),
                                 time: problem.created_at,
                                 problem: From::from(problem.clone()),
-                            }
-                            .into()),
-                            ProblemType::Complaint => Err(AppErrorKind::ComplaintError {
+                            })?,
+                            ProblemType::Complaint => Err(AppErrorKind::Complaint {
                                 address: address.clone(),
                                 time: problem.created_at,
                                 problem: From::from(problem.clone()),
-                            }
-                            .into()),
+                            })?,
                         };
                     }
                 }
