@@ -428,7 +428,8 @@ const conf = module.exports = convict({
         'https://identity.mozilla.com/apps/oldsync': {
           redirectUris: [
             'https://lockbox.firefox.com/fxa/ios-redirect.html',
-            'https://lockbox.firefox.com/fxa/android-redirect.html'
+            'https://lockbox.firefox.com/fxa/android-redirect.html',
+            'https://accounts.firefox.com/oauth/success/3c49430b43dfba77'
           ]
         },
         'https://identity.mozilla.com/apps/send': {
