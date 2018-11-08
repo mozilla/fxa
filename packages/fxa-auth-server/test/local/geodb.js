@@ -27,8 +27,8 @@ describe('geodb', () => {
       const thisMockLog = mockLog({})
 
       const getGeoData = proxyquire(modulePath, moduleMocks)(thisMockLog)
-      const geoData = getGeoData('63.245.221.32') // San Francisco
-      assert.equal(geoData.location.city, 'San Francisco')
+      const geoData = getGeoData('63.245.221.32') // San Jose
+      assert.equal(geoData.location.city, 'San Jose')
       assert.equal(geoData.location.country, 'United States')
       assert.equal(geoData.location.countryCode, 'US')
       assert.equal(geoData.timeZone, 'America/Los_Angeles')
