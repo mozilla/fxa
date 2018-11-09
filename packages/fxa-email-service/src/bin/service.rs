@@ -29,7 +29,6 @@ use fxa_email_service::{
     logging::MozlogLogger,
     providers::Providers,
     settings::Settings,
-    types::error,
 };
 
 fn main() {
@@ -74,14 +73,6 @@ fn main() {
                 healthcheck::version
             ],
         )
-        .catch(catchers![
-            error::bad_request,
-            error::not_found,
-            error::method_not_allowed,
-            error::unprocessable_entity,
-            error::too_many_requests,
-            error::internal_server_error
-        ])
         .attach(rocket::fairing::AdHoc::on_request(|request, _| {
             let log =
                 MozlogLogger::with_request(request).expect("MozlogLogger::with_request error");

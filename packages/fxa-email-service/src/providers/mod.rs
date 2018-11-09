@@ -39,15 +39,22 @@ fn build_multipart_mime<'a>(
     body_text: &'a str,
     body_html: Option<&'a str>,
 ) -> AppResult<Message<MultiPart<&'a str>>> {
-    let mut message = Message::builder()
-        .from(sender.parse()?)
-        .to(to.parse()?)
-        .subject(subject)
-        .mime_1_0();
+    let mut message =
+        Message::builder()
+            .from(sender.parse().map_err(|_| {
+                AppErrorKind::InvalidPayload(format!("`from` address \"{}\"", sender))
+            })?)
+            .to(to
+                .parse()
+                .map_err(|_| AppErrorKind::InvalidPayload(format!("`to` address \"{}\"", to)))?)
+            .subject(subject)
+            .mime_1_0();
 
     if cc.len() > 0 {
         for address in cc.iter() {
-            message = message.cc(address.parse()?);
+            message = message.cc(address.parse().map_err(|_| {
+                AppErrorKind::InvalidPayload(format!("`cc` address \"{}\"", address))
+            })?);
         }
     }
 
@@ -171,7 +178,13 @@ impl Providers {
 
         self.providers
             .get(resolved_provider_id)
-            .ok_or_else(|| AppErrorKind::InvalidProvider(String::from(resolved_provider_id)).into())
+            .ok_or_else(|| {
+                AppErrorKind::InvalidPayload(format!(
+                    "provider `{}` is not enabled",
+                    resolved_provider_id
+                ))
+                .into()
+            })
             .and_then(|provider| provider.send(to, cc, headers, subject, body_text, body_html))
             .map(|message_id| format!("{}:{}", resolved_provider_id, message_id))
     }

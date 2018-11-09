@@ -7,18 +7,26 @@
 use std::{
     fmt::{self, Display, Formatter},
     result,
+    str::Utf8Error,
 };
 
 use failure::{Backtrace, Context, Fail};
+use hmac::crypto_mac::InvalidKeyLength;
+use lettre::smtp::error::Error as SmtpError;
+use lettre_email::error::Error as EmailError;
+use redis::RedisError;
+use reqwest::{Error as RequestError, UrlError};
 use rocket::{
-    self,
     http::Status,
     response::{self, Responder, Response},
     Outcome, Request, State,
 };
 use rocket_contrib::Json;
+use rusoto_ses::SendRawEmailError;
+use sendgrid::errors::SendgridError;
 use serde::ser::{Serialize, SerializeMap, Serializer};
-use serde_json::{map::Map, ser::to_string, Value};
+use serde_json::{map::Map, ser::to_string, Error as JsonError, Value};
+use socketlabs::error::Error as SocketLabsError;
 
 use super::email_address::EmailAddress;
 use db::delivery_problems::DeliveryProblem;
@@ -78,13 +86,9 @@ impl Fail for AppError {
 
 impl From<AppErrorKind> for AppError {
     fn from(kind: AppErrorKind) -> AppError {
-        Context::new(kind).into()
-    }
-}
-
-impl From<Context<AppErrorKind>> for AppError {
-    fn from(inner: Context<AppErrorKind>) -> AppError {
-        let error = AppError { inner };
+        let error = AppError {
+            inner: Context::new(kind).into(),
+        };
         sentry::integrations::failure::capture_fail(&error);
         error
     }
@@ -139,199 +143,86 @@ impl<'r> Responder<'r> for AppError {
 /// The specific kind of error that can occur.
 #[derive(Clone, Debug, Eq, Fail, PartialEq)]
 pub enum AppErrorKind {
-    /// 400 Bad Request
-    #[fail(display = "Bad Request")]
-    BadRequest,
-    /// 404 Not Found
-    #[fail(display = "Not Found")]
-    NotFound,
-    /// 405 Method Not Allowed
-    #[fail(display = "Method Not Allowed")]
-    MethodNotAllowed,
-    /// 422 Unprocessable Entity
-    #[fail(display = "Unprocessable Entity")]
-    UnprocessableEntity,
-    /// 429 Too Many Requests,
-    #[fail(display = "Too Many Requests")]
-    TooManyRequests,
-    /// 500 Internal Server Error
-    #[fail(display = "Internal Server Error")]
-    InternalServerError,
-    // Unexpected rocket error
-    #[fail(display = "{:?}", _0)]
-    RocketError(rocket::Error),
-
-    /// An error for invalid email params in the /send handler.
-    #[fail(display = "Error validating email params")]
-    InvalidEmailParams,
-    /// An error for missing email params in the /send handler.
-    #[fail(display = "Missing email params")]
-    MissingEmailParams(String),
-
-    /// An error for invalid provider names.
-    #[fail(display = "Invalid provider name: {}", _0)]
-    InvalidProvider(String),
-    /// An error for when we get an error from a provider.
-    #[fail(display = "{}", description)]
-    ProviderError { name: String, description: String },
-    /// An error for when we have trouble parsing the email message.
-    #[fail(display = "{:?}", _0)]
-    EmailParsingError(String),
-
-    /// An error for when a bounce violation happens.
-    #[fail(display = "Email account sent complaint")]
-    ComplaintError {
-        address: EmailAddress,
-        time: u64,
-        problem: DeliveryProblem,
-    },
-    #[fail(display = "Email account soft bounced")]
-    BounceSoftError {
-        address: EmailAddress,
-        time: u64,
-        problem: DeliveryProblem,
-    },
-    #[fail(display = "Email account hard bounced")]
-    BounceHardError {
-        address: EmailAddress,
-        time: u64,
-        problem: DeliveryProblem,
-    },
-
-    /// An error occurred inside an auth db method.
     #[fail(display = "{}", _0)]
-    AuthDbError(String),
+    Internal(String),
 
-    /// An error for when an error happens on the queues process.
+    #[fail(display = "Not implemented: {}", _0)]
+    NotImplemented(String),
+
+    #[fail(display = "Invalid payload: {}", 0)]
+    InvalidPayload(String),
+
+    #[fail(display = "Invalid notification: {}", _0)]
+    InvalidNotification(String),
+
     #[fail(display = "{}", _0)]
     QueueError(String),
-    /// An error for when we get an invalid notification type in the queues
-    /// process.
-    #[fail(display = "Invalid notification type")]
-    InvalidNotificationType,
-    /// An error for when we get notification without a payload in the queues
-    /// process.
-    #[fail(display = "Missing payload in {} notification", _0)]
-    MissingNotificationPayload(String),
 
-    /// An error for when we get SQS messages with missing fields.
-    #[fail(display = "Missing SQS message {} field", field)]
-    MissingSqsMessageFields { queue: String, field: String },
-    /// An error for when the SQS message body does not match MD5 hash.
-    #[fail(display = "Message body does not match MD5 hash")]
-    SqsMessageHashMismatch {
-        queue: String,
-        hash: String,
-        body: String,
-    },
-    /// An error for when we can't parse the SQS message.
-    #[fail(display = "SQS message parsing error")]
-    SqsMessageParsingError {
-        queue: String,
-        message: String,
-        body: String,
+    #[fail(display = "Invalid duration: {}", _0)]
+    InvalidDuration(String),
+
+    #[fail(display = "Soft-bounce limit violated")]
+    SoftBounce {
+        address: EmailAddress,
+        time: u64,
+        problem: DeliveryProblem,
     },
 
-    /// An error for when we get and invalid duration string.
-    #[fail(display = "invalid duration: {}", _0)]
-    DurationError(String),
+    #[fail(display = "Hard-bounce limit violated")]
+    HardBounce {
+        address: EmailAddress,
+        time: u64,
+        problem: DeliveryProblem,
+    },
 
-    /// An error occured inside a db method.
-    #[fail(display = "Redis error: {}", _0)]
-    DbError(String),
-
-    /// An error for when we try to access functionality that is not
-    /// implemented.
-    #[fail(display = "Feature not implemented")]
-    NotImplemented,
-
-    /// An error occured while hashing a value.
-    #[fail(display = "HMAC error: {}", _0)]
-    HmacError(String),
-
-    /// An error occured while serializing or deserializing JSON.
-    #[fail(display = "JSON error: {}", _0)]
-    JsonError(String),
+    #[fail(display = "Complaint limit violated")]
+    Complaint {
+        address: EmailAddress,
+        time: u64,
+        problem: DeliveryProblem,
+    },
 }
 
 impl AppErrorKind {
     /// Return a rocket response Status to be rendered for an error
     pub fn http_status(&self) -> Status {
         match self {
-            AppErrorKind::NotFound => Status::NotFound,
-            AppErrorKind::MethodNotAllowed => Status::MethodNotAllowed,
-            AppErrorKind::UnprocessableEntity => Status::UnprocessableEntity,
-            AppErrorKind::TooManyRequests => Status::TooManyRequests,
-            AppErrorKind::ComplaintError { .. }
-            | AppErrorKind::BounceSoftError { .. }
-            | AppErrorKind::BounceHardError { .. } => Status::TooManyRequests,
-            AppErrorKind::BadRequest | AppErrorKind::InvalidEmailParams => Status::BadRequest,
-            AppErrorKind::MissingEmailParams(_) => Status::BadRequest,
+            AppErrorKind::InvalidPayload(_) => Status::BadRequest,
+            AppErrorKind::Complaint { .. } => Status::TooManyRequests,
+            AppErrorKind::SoftBounce { .. } => Status::TooManyRequests,
+            AppErrorKind::HardBounce { .. } => Status::TooManyRequests,
             _ => Status::InternalServerError,
         }
     }
 
     pub fn errno(&self) -> Option<u16> {
         match self {
-            AppErrorKind::RocketError(_) => Some(100),
-
-            AppErrorKind::MissingEmailParams(_) => Some(101),
-            AppErrorKind::InvalidEmailParams => Some(102),
-
-            AppErrorKind::InvalidProvider(_) => Some(103),
-            AppErrorKind::ProviderError { .. } => Some(104),
-            AppErrorKind::EmailParsingError(_) => Some(105),
-
-            AppErrorKind::ComplaintError { .. } => Some(106),
-            AppErrorKind::BounceSoftError { .. } => Some(107),
-            AppErrorKind::BounceHardError { .. } => Some(108),
-
-            AppErrorKind::AuthDbError(_) => Some(109),
-
-            AppErrorKind::QueueError(_) => Some(110),
-            AppErrorKind::InvalidNotificationType => Some(111),
-            AppErrorKind::MissingNotificationPayload(_) => Some(112),
-
-            AppErrorKind::MissingSqsMessageFields { .. } => Some(113),
-            AppErrorKind::SqsMessageHashMismatch { .. } => Some(114),
-            AppErrorKind::SqsMessageParsingError { .. } => Some(115),
-
-            AppErrorKind::DurationError(_) => Some(116),
-            AppErrorKind::DbError(_) => Some(117),
-
-            AppErrorKind::NotImplemented => Some(118),
-
-            AppErrorKind::HmacError(_) => Some(119),
-
-            AppErrorKind::JsonError(_) => Some(120),
-
-            AppErrorKind::BadRequest
-            | AppErrorKind::NotFound
-            | AppErrorKind::MethodNotAllowed
-            | AppErrorKind::UnprocessableEntity
-            | AppErrorKind::TooManyRequests
-            | AppErrorKind::InternalServerError => None,
+            AppErrorKind::Internal(_) => Some(100),
+            AppErrorKind::NotImplemented(_) => Some(101),
+            AppErrorKind::InvalidPayload(_) => Some(102),
+            AppErrorKind::InvalidNotification(_) => Some(103),
+            AppErrorKind::QueueError(_) => Some(104),
+            AppErrorKind::InvalidDuration(_) => Some(105),
+            AppErrorKind::Complaint { .. } => Some(106),
+            AppErrorKind::SoftBounce { .. } => Some(107),
+            AppErrorKind::HardBounce { .. } => Some(108),
         }
     }
 
     pub fn additional_fields(&self) -> Map<String, Value> {
         let mut fields = Map::new();
         match self {
-            AppErrorKind::ProviderError { ref name, .. } => {
-                fields.insert(String::from("name"), Value::String(format!("{}", name)));
-            }
-
-            AppErrorKind::ComplaintError {
+            AppErrorKind::Complaint {
                 ref address,
                 ref time,
                 ref problem,
             }
-            | AppErrorKind::BounceSoftError {
+            | AppErrorKind::SoftBounce {
                 ref address,
                 ref time,
                 ref problem,
             }
-            | AppErrorKind::BounceHardError {
+            | AppErrorKind::HardBounce {
                 ref address,
                 ref time,
                 ref problem,
@@ -344,66 +235,30 @@ impl AppErrorKind {
                 );
             }
 
-            AppErrorKind::MissingSqsMessageFields {
-                ref queue,
-                ref field,
-            } => {
-                fields.insert(String::from("queue"), Value::String(queue.to_owned()));
-                fields.insert(String::from("field"), Value::String(field.to_owned()));
-            }
-
-            AppErrorKind::SqsMessageHashMismatch {
-                ref queue,
-                ref hash,
-                ref body,
-            } => {
-                fields.insert(String::from("queue"), Value::String(queue.to_owned()));
-                fields.insert(String::from("hash"), Value::String(hash.to_owned()));
-                fields.insert(String::from("body"), Value::String(body.to_owned()));
-            }
-
-            AppErrorKind::SqsMessageParsingError {
-                ref queue,
-                ref message,
-                ref body,
-            } => {
-                fields.insert(String::from("queue"), Value::String(queue.to_owned()));
-                fields.insert(String::from("message"), Value::String(message.to_owned()));
-                fields.insert(String::from("body"), Value::String(body.to_owned()));
-            }
-
             _ => (),
         }
         fields
     }
 }
 
-#[catch(400)]
-pub fn bad_request() -> AppResult<()> {
-    Err(AppErrorKind::BadRequest)?
+macro_rules! to_internal_error {
+    ($from:ty) => {
+        impl From<$from> for AppError {
+            fn from(error: $from) -> AppError {
+                AppErrorKind::Internal(format!("{:?}", error)).into()
+            }
+        }
+    };
 }
 
-#[catch(404)]
-pub fn not_found() -> AppResult<()> {
-    Err(AppErrorKind::NotFound)?
-}
-
-#[catch(405)]
-pub fn method_not_allowed() -> AppResult<()> {
-    Err(AppErrorKind::MethodNotAllowed)?
-}
-
-#[catch(422)]
-pub fn unprocessable_entity() -> AppResult<()> {
-    Err(AppErrorKind::UnprocessableEntity)?
-}
-
-#[catch(429)]
-pub fn too_many_requests() -> AppResult<()> {
-    Err(AppErrorKind::TooManyRequests)?
-}
-
-#[catch(500)]
-pub fn internal_server_error() -> AppResult<()> {
-    Err(AppErrorKind::InternalServerError)?
-}
+to_internal_error!(EmailError);
+to_internal_error!(InvalidKeyLength);
+to_internal_error!(JsonError);
+to_internal_error!(RedisError);
+to_internal_error!(RequestError);
+to_internal_error!(SendgridError);
+to_internal_error!(SendRawEmailError);
+to_internal_error!(SmtpError);
+to_internal_error!(SocketLabsError);
+to_internal_error!(UrlError);
+to_internal_error!(Utf8Error);

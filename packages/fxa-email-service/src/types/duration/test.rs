@@ -105,42 +105,42 @@ fn invalid_patterns() {
     match Duration::try_from("seconx") {
         Ok(_) => assert!(false, "Duration::try_from should have failed"),
         Err(error) => {
-            assert_eq!(format!("{}", error), "invalid duration: seconx");
+            assert_eq!(format!("{}", error), "Invalid duration: seconx");
         }
     }
 
     match Duration::try_from("secondx") {
         Ok(_) => assert!(false, "Duration::try_from should have failed"),
         Err(error) => {
-            assert_eq!(format!("{}", error), "invalid duration: secondx");
+            assert_eq!(format!("{}", error), "Invalid duration: secondx");
         }
     }
 
     match Duration::try_from("secondsx") {
         Ok(_) => assert!(false, "Duration::try_from should have failed"),
         Err(error) => {
-            assert_eq!(format!("{}", error), "invalid duration: secondsx");
+            assert_eq!(format!("{}", error), "Invalid duration: secondsx");
         }
     }
 
     match Duration::try_from(" second") {
         Ok(_) => assert!(false, "Duration::try_from should have failed"),
         Err(error) => {
-            assert_eq!(format!("{}", error), "invalid duration:  second");
+            assert_eq!(format!("{}", error), "Invalid duration:  second");
         }
     }
 
     match Duration::try_from("second ") {
         Ok(_) => assert!(false, "Duration::try_from should have failed"),
         Err(error) => {
-            assert_eq!(format!("{}", error), "invalid duration: second ");
+            assert_eq!(format!("{}", error), "Invalid duration: second ");
         }
     }
 
     match Duration::try_from("2x seconds") {
         Ok(_) => assert!(false, "Duration::try_from should have failed"),
         Err(error) => {
-            assert_eq!(format!("{}", error), "invalid duration: 2x seconds");
+            assert_eq!(format!("{}", error), "Invalid duration: 2x seconds");
         }
     }
 }

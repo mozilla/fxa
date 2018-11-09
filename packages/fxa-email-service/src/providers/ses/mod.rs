@@ -7,11 +7,11 @@ use std::boxed::Box;
 use base64;
 use rusoto_core::{request::HttpClient, Region};
 use rusoto_credential::StaticProvider;
-use rusoto_ses::{RawMessage, SendRawEmailError, SendRawEmailRequest, Ses, SesClient};
+use rusoto_ses::{RawMessage, SendRawEmailRequest, Ses, SesClient};
 
 use super::{build_multipart_mime, Headers, Provider};
 use settings::Settings;
-use types::error::{AppError, AppErrorKind, AppResult};
+use types::error::AppResult;
 
 #[cfg(test)]
 mod test;
@@ -76,21 +76,5 @@ impl Provider for SesProvider {
             .sync()
             .map(|response| response.message_id)
             .map_err(From::from)
-    }
-}
-
-impl From<String> for AppError {
-    fn from(error: String) -> Self {
-        AppErrorKind::EmailParsingError(format!("{:?}", error)).into()
-    }
-}
-
-impl From<SendRawEmailError> for AppError {
-    fn from(error: SendRawEmailError) -> AppError {
-        AppErrorKind::ProviderError {
-            name: String::from("SES"),
-            description: format!("{:?}", error),
-        }
-        .into()
     }
 }

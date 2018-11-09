@@ -113,15 +113,15 @@ fn check_soft_bounce() {
     assert_eq!(error.code(), 429);
     assert_eq!(error.errno().unwrap(), 107);
     assert_eq!(error.error(), "Too Many Requests");
-    assert_eq!(error.to_string(), "Email account soft bounced");
+    assert_eq!(error.to_string(), "Soft-bounce limit violated");
     let additional_fields = error.additional_fields();
-    assert_eq!(additional_fields.get("address").unwrap(), "foo@example.com");
+    assert_eq!(additional_fields["address"], "foo@example.com");
     let record: DeliveryProblem =
-        serde_json::from_str(additional_fields.get("problem").unwrap().as_str().unwrap()).unwrap();
+        serde_json::from_str(additional_fields["problem"].as_str().unwrap()).unwrap();
     assert_eq!(record.problem_type, ProblemType::SoftBounce);
     assert_eq!(
         record.created_at.timestamp_millis(),
-        additional_fields.get("time").unwrap().as_i64().unwrap()
+        additional_fields["time"].as_i64().unwrap()
     );
 }
 
@@ -162,15 +162,15 @@ fn check_hard_bounce() {
     assert_eq!(error.code(), 429);
     assert_eq!(error.errno().unwrap(), 108);
     assert_eq!(error.error(), "Too Many Requests");
-    assert_eq!(error.to_string(), "Email account hard bounced");
+    assert_eq!(error.to_string(), "Hard-bounce limit violated");
     let additional_fields = error.additional_fields();
-    assert_eq!(additional_fields.get("address").unwrap(), "bar@example.com");
+    assert_eq!(additional_fields["address"], "bar@example.com");
     let record: DeliveryProblem =
-        serde_json::from_str(additional_fields.get("problem").unwrap().as_str().unwrap()).unwrap();
+        serde_json::from_str(additional_fields["problem"].as_str().unwrap()).unwrap();
     assert_eq!(record.problem_type, ProblemType::HardBounce);
     assert_eq!(
         record.created_at.timestamp_millis(),
-        additional_fields.get("time").unwrap().as_i64().unwrap()
+        additional_fields["time"].as_i64().unwrap()
     );
 }
 
@@ -211,15 +211,15 @@ fn check_complaint() {
     assert_eq!(error.code(), 429);
     assert_eq!(error.errno().unwrap(), 106);
     assert_eq!(error.error(), "Too Many Requests");
-    assert_eq!(error.to_string(), "Email account sent complaint");
+    assert_eq!(error.to_string(), "Complaint limit violated");
     let additional_fields = error.additional_fields();
-    assert_eq!(additional_fields.get("address").unwrap(), "baz@example.com");
+    assert_eq!(additional_fields["address"], "baz@example.com");
     let record: DeliveryProblem =
-        serde_json::from_str(additional_fields.get("problem").unwrap().as_str().unwrap()).unwrap();
+        serde_json::from_str(additional_fields["problem"].as_str().unwrap()).unwrap();
     assert_eq!(record.problem_type, ProblemType::Complaint);
     assert_eq!(
         record.created_at.timestamp_millis(),
-        additional_fields.get("time").unwrap().as_i64().unwrap()
+        additional_fields["time"].as_i64().unwrap()
     );
 }
 
@@ -262,7 +262,7 @@ fn check_db_error() {
     assert!(result.is_err());
     let error = result.unwrap_err();
     assert_eq!(error.code(), 500);
-    assert_eq!(error.errno().unwrap(), 109);
+    assert_eq!(error.errno().unwrap(), 100);
     assert_eq!(error.error(), "Internal Server Error");
     assert_eq!(error.to_string(), "wibble blee");
     assert_eq!(error.additional_fields().len(), 0);
@@ -273,7 +273,7 @@ pub struct DbMockError;
 
 impl Db for DbMockError {
     fn get_bounces(&self, _address: &EmailAddress) -> AppResult<Vec<LegacyDeliveryProblem>> {
-        Err(AppErrorKind::AuthDbError(String::from("wibble blee")).into())
+        Err(AppErrorKind::Internal(String::from("wibble blee")).into())
     }
 }
 
@@ -391,11 +391,11 @@ fn check_bounce_with_multiple_limits() {
     assert_eq!(error.code(), 429);
     assert_eq!(error.errno().unwrap(), 107);
     assert_eq!(error.error(), "Too Many Requests");
-    assert_eq!(error.to_string(), "Email account soft bounced");
+    assert_eq!(error.to_string(), "Soft-bounce limit violated");
     let additional_fields = error.additional_fields();
-    assert_eq!(additional_fields.get("address").unwrap(), "foo@example.com");
+    assert_eq!(additional_fields["address"], "foo@example.com");
     let record: DeliveryProblem =
-        serde_json::from_str(additional_fields.get("problem").unwrap().as_str().unwrap()).unwrap();
+        serde_json::from_str(additional_fields["problem"].as_str().unwrap()).unwrap();
     assert_eq!(record.problem_type, ProblemType::SoftBounce);
 }
 

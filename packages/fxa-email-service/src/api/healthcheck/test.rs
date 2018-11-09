@@ -66,7 +66,7 @@ fn unsuccessful_heartbeat() {
     let body: Value =
         serde_json::from_str(&response.body().unwrap().into_string().unwrap()).unwrap();
     assert_eq!(body["code"], 500);
-    assert_eq!(body["errno"], 109);
+    assert_eq!(body["errno"], 100);
     assert_eq!(body["error"], "Internal Server Error");
     assert_eq!(response.status(), Status::InternalServerError);
 }

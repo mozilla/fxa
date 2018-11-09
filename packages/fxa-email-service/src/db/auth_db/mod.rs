@@ -19,7 +19,7 @@
 use std::fmt::Debug;
 
 use hex;
-use reqwest::{Client as RequestClient, Error as RequestError, StatusCode, Url, UrlError};
+use reqwest::{Client as RequestClient, StatusCode, Url, UrlError};
 
 use super::delivery_problems::{
     LegacyDeliveryProblem as DeliveryProblem, ProblemSubtype, ProblemType,
@@ -27,7 +27,7 @@ use super::delivery_problems::{
 use settings::Settings;
 use types::{
     email_address::EmailAddress,
-    error::{AppError, AppErrorKind, AppResult},
+    error::{AppErrorKind, AppResult},
 };
 
 #[cfg(test)]
@@ -42,7 +42,9 @@ pub trait Db: Debug + Sync {
         _problem_type: ProblemType,
         _problem_subtype: ProblemSubtype,
     ) -> AppResult<()> {
-        Err(AppErrorKind::NotImplemented.into())
+        Err(AppErrorKind::NotImplemented(
+            "db::auth_db::Db::create_bounce".to_owned(),
+        ))?
     }
 }
 
@@ -69,7 +71,10 @@ impl Db for DbClient {
             .send()?;
         match response.status() {
             StatusCode::Ok => response.json::<Vec<DeliveryProblem>>().map_err(From::from),
-            status => Err(AppErrorKind::AuthDbError(format!("{}", status)).into()),
+            status => Err(AppErrorKind::Internal(format!(
+                "Auth db get_bounces response: {}",
+                status
+            )))?,
         }
     }
 
@@ -91,7 +96,10 @@ impl Db for DbClient {
             .send()?;
         match response.status() {
             StatusCode::Ok => Ok(()),
-            status => Err(AppErrorKind::AuthDbError(format!("{}", status)).into()),
+            status => Err(AppErrorKind::Internal(format!(
+                "Auth db create_bounce response: {}",
+                status
+            )))?,
         }
     }
 }
@@ -122,17 +130,5 @@ impl DbUrls {
 
     pub fn create_bounce(&self) -> Url {
         self.create_bounce.clone()
-    }
-}
-
-impl From<UrlError> for AppError {
-    fn from(error: UrlError) -> AppError {
-        AppErrorKind::AuthDbError(format!("{}", error)).into()
-    }
-}
-
-impl From<RequestError> for AppError {
-    fn from(error: RequestError) -> AppError {
-        AppErrorKind::AuthDbError(format!("{}", error)).into()
     }
 }

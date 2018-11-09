@@ -9,7 +9,7 @@ use std::convert::{From, TryFrom};
 use regex::Regex;
 use serde::de::{Deserialize, Deserializer, Error as SerdeError, Unexpected};
 
-use types::error::{AppError, AppErrorKind};
+use types::error::{AppError, AppErrorKind, AppResult};
 
 #[cfg(test)]
 mod test;
@@ -65,9 +65,9 @@ impl From<Duration> for u64 {
 impl<'v> TryFrom<&'v str> for Duration {
     type Error = AppError;
 
-    fn try_from(value: &str) -> Result<Duration, AppError> {
-        fn fail(value: &str) -> Result<Duration, AppError> {
-            Err(AppErrorKind::DurationError(value.to_string()).into())
+    fn try_from(value: &str) -> AppResult<Duration> {
+        fn fail(value: &str) -> AppResult<Duration> {
+            Err(AppErrorKind::InvalidDuration(value.to_string()))?
         }
 
         if let Some(matches) = DURATION_FORMAT.captures(value) {
