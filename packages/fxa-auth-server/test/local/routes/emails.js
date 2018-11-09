@@ -4,21 +4,21 @@
 
 'use strict'
 
-var sinon = require('sinon')
+const sinon = require('sinon')
 
 const { assert } = require('chai')
-var mocks = require('../../mocks')
-var getRoute = require('../../routes_helpers').getRoute
-var proxyquire = require('proxyquire')
+const crypto = require('crypto')
+const error = require('../../../lib/error')
+const getRoute = require('../../routes_helpers').getRoute
+const knownIpLocation = require('../../known-ip-location')
+const mocks = require('../../mocks')
+const P = require('../../../lib/promise')
+const proxyquire = require('proxyquire')
+const uuid = require('uuid')
 
-var P = require('../../../lib/promise')
-var uuid = require('uuid')
-var crypto = require('crypto')
-var error = require('../../../lib/error')
-
-var TEST_EMAIL = 'foo@gmail.com'
-var TEST_EMAIL_ADDITIONAL = 'foo2@gmail.com'
-var TEST_EMAIL_INVALID = 'example@dotless-domain'
+const TEST_EMAIL = 'foo@gmail.com'
+const TEST_EMAIL_ADDITIONAL = 'foo2@gmail.com'
+const TEST_EMAIL_INVALID = 'example@dotless-domain'
 const MS_IN_DAY = 1000 * 60 * 60 * 24
 // This is slightly less than 2 months ago, regardless of which
 // months are in question (I'm looking at you, February...)
@@ -308,10 +308,10 @@ describe('/recovery_email/resend_code', () => {
       assert.equal(args[2].uaBrowserVersion, '52')
       assert.equal(args[2].uaOS, 'Mac OS X')
       assert.equal(args[2].uaOSVersion, '10.10')
-      assert.equal(args[2].location.city, 'Mountain View')
-      assert.equal(args[2].location.country, 'United States')
-      assert.equal(args[2].ip, '63.245.221.32')
-      assert.equal(args[2].timeZone, 'America/Los_Angeles')
+      assert.ok(knownIpLocation.location.city.has(args[2].location.city))
+      assert.equal(args[2].location.country, knownIpLocation.location.country)
+      assert.equal(args[2].ip, knownIpLocation.ip)
+      assert.equal(args[2].timeZone, knownIpLocation.location.tz)
       assert.strictEqual(args[2].uaDeviceType, undefined)
       assert.equal(args[2].deviceId, mockRequest.auth.credentials.deviceId)
       assert.equal(args[2].flowId, mockRequest.payload.metricsContext.flowId)

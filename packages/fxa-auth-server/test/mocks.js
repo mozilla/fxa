@@ -9,11 +9,12 @@
 'use strict'
 
 const assert = require('assert')
-const sinon = require('sinon')
-const P = require('../lib/promise')
-const crypto = require('crypto')
 const config = require('../config').getProperties()
+const crypto = require('crypto')
 const error = require('../lib/error')
+const knownIpLocation = require('./known-ip-location')
+const P = require('../lib/promise')
+const sinon = require('sinon')
 
 const CUSTOMS_METHOD_NAMES = [
   'check',
@@ -520,13 +521,13 @@ function mockRequest (data, errors) {
   const metricsContext = data.metricsContext || module.exports.mockMetricsContext()
 
   const geo = data.geo || {
-    timeZone: 'America/Los_Angeles',
+    timeZone: knownIpLocation.location.tz,
     location: {
-      city: 'Mountain View',
-      country: 'United States',
-      countryCode: 'US',
-      state: 'California',
-      stateCode: 'CA'
+      city: knownIpLocation.location.city.values().next().value,
+      country: knownIpLocation.location.country,
+      countryCode: knownIpLocation.location.countryCode,
+      state: knownIpLocation.location.state,
+      stateCode: knownIpLocation.location.stateCode
     }
   }
 
@@ -545,7 +546,7 @@ function mockRequest (data, errors) {
   return {
     app: {
       acceptLanguage: data.acceptLanguage || 'en-US',
-      clientAddress: data.clientAddress || '63.245.221.32',
+      clientAddress: data.clientAddress || knownIpLocation.ip,
       devices,
       features: new Set(data.features),
       geo,
