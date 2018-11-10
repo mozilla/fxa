@@ -125,7 +125,7 @@ fn constructor() {
 fn send() {
     let mut settings = Settings::new().expect("config error");
     settings.provider.forcedefault = true;
-    settings.provider.default = DefaultProvider(String::from("mock"));
+    settings.provider.default = ProviderType::Mock;
     let providers = Providers::new(&settings);
     let result = providers.send("foo", &vec![], None, "bar", "baz", None, Some("ses"));
     assert!(result.is_ok(), "Providers::send should not have failed");
@@ -134,7 +134,7 @@ fn send() {
     }
 
     settings.provider.forcedefault = false;
-    settings.provider.default = DefaultProvider(String::from("ses"));
+    settings.provider.default = ProviderType::Ses;
     let providers = Providers::new(&settings);
     let result = providers.send("foo", &vec![], None, "bar", "baz", None, Some("mock"));
     assert!(result.is_ok(), "Providers::send should not have failed");

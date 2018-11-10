@@ -131,14 +131,11 @@ fn env_vars_take_precedence() {
             let current_env = Env(String::from("test"));
             let hmac_key = String::from("something else");
             let provider = Provider {
-                default: DefaultProvider(
-                    if settings.provider.default == DefaultProvider("ses".to_string()) {
-                        "sendgrid"
-                    } else {
-                        "ses"
-                    }
-                    .to_string(),
-                ),
+                default: if settings.provider.default == ProviderType::Ses {
+                    ProviderType::Sendgrid
+                } else {
+                    ProviderType::Ses
+                },
                 forcedefault: !settings.provider.forcedefault,
             };
             let redis_host = format!("{}1", &settings.redis.host);
@@ -216,7 +213,7 @@ fn env_vars_take_precedence() {
             env::set_var("FXA_EMAIL_ENV", &current_env.0);
             env::set_var("FXA_EMAIL_LOG_LEVEL", &log.level.0);
             env::set_var("FXA_EMAIL_LOG_FORMAT", &log.format.0);
-            env::set_var("FXA_EMAIL_PROVIDER_DEFAULT", &provider.default.0);
+            env::set_var("FXA_EMAIL_PROVIDER_DEFAULT", provider.default.as_ref());
             env::set_var(
                 "FXA_EMAIL_PROVIDER_FORCEDEFAULT",
                 provider.forcedefault.to_string(),

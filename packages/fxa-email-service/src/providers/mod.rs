@@ -4,7 +4,7 @@
 
 //! Generic abstraction of specific email providers.
 
-use std::{boxed::Box, collections::HashMap};
+use std::{boxed::Box, collections::HashMap, convert::TryFrom};
 
 use emailmessage::{header::ContentType, Message, MessageBuilder, MultiPart, SinglePart};
 
@@ -12,10 +12,11 @@ use self::{
     mock::MockProvider as Mock, sendgrid::SendgridProvider as Sendgrid, ses::SesProvider as Ses,
     smtp::SmtpProvider as Smtp, socketlabs::SocketLabsProvider as SocketLabs,
 };
-use settings::{DefaultProvider, Settings};
+use settings::Settings;
 use types::{
     error::{AppErrorKind, AppResult},
     headers::*,
+    provider::Provider as ProviderType,
 };
 
 mod mock;
@@ -120,40 +121,38 @@ trait Provider {
 
 /// Generic provider wrapper.
 pub struct Providers {
-    default_provider: String,
+    default_provider: ProviderType,
     force_default_provider: bool,
-    providers: HashMap<String, Box<Provider>>,
+    providers: HashMap<ProviderType, Box<Provider>>,
 }
 
 impl Providers {
     /// Instantiate the provider clients.
     pub fn new(settings: &Settings) -> Providers {
-        let mut providers: HashMap<String, Box<Provider>> = HashMap::new();
+        let mut providers: HashMap<ProviderType, Box<Provider>> = HashMap::new();
 
         macro_rules! set_provider {
-            ($id:expr, $constructor:expr) => {
-                if !settings.provider.forcedefault
-                    || settings.provider.default == DefaultProvider(String::from($id))
-                {
-                    providers.insert(String::from($id), Box::new($constructor));
+            ($type:expr, $constructor:expr) => {
+                if !settings.provider.forcedefault || settings.provider.default == $type {
+                    providers.insert($type, Box::new($constructor));
                 }
             };
         }
 
-        set_provider!("mock", Mock);
-        set_provider!("ses", Ses::new(settings));
-        set_provider!("smtp", Smtp::new(settings));
+        set_provider!(ProviderType::Mock, Mock);
+        set_provider!(ProviderType::Ses, Ses::new(settings));
+        set_provider!(ProviderType::Smtp, Smtp::new(settings));
 
         if let Some(ref sendgrid) = settings.sendgrid {
-            set_provider!("sendgrid", Sendgrid::new(sendgrid, settings));
+            set_provider!(ProviderType::Sendgrid, Sendgrid::new(sendgrid, settings));
         }
 
         if settings.socketlabs.is_some() {
-            set_provider!("socketlabs", SocketLabs::new(settings));
+            set_provider!(ProviderType::SocketLabs, SocketLabs::new(settings));
         }
 
         Providers {
-            default_provider: settings.provider.default.to_string(),
+            default_provider: settings.provider.default,
             force_default_provider: settings.provider.forcedefault,
             providers,
         }
@@ -171,13 +170,17 @@ impl Providers {
         provider_id: Option<&str>,
     ) -> AppResult<String> {
         let resolved_provider_id = if self.force_default_provider {
-            &self.default_provider
+            self.default_provider
         } else {
-            provider_id.unwrap_or(&self.default_provider)
+            if let Some(provider_id) = provider_id {
+                ProviderType::try_from(provider_id)?
+            } else {
+                self.default_provider
+            }
         };
 
         self.providers
-            .get(resolved_provider_id)
+            .get(&resolved_provider_id)
             .ok_or_else(|| {
                 AppErrorKind::InvalidPayload(format!(
                     "provider `{}` is not enabled",

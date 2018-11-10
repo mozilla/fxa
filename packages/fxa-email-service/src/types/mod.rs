@@ -10,4 +10,5 @@ pub mod duration;
 pub mod email_address;
 pub mod error;
 pub mod headers;
+pub mod provider;
 pub mod validate;
