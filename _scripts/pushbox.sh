@@ -30,7 +30,7 @@ if [ "$mysqlStarted" ]; then
     -e ROCKET_PORT=8002 \
     -e ROCKET_SERVER_TOKEN=Correct_Horse_Battery_Staple_1 \
     -e ROCKET_DATABASE_URL=mysql://$MYSQL_URI/pushbox \
-    pushbox &
+    mozilla/pushbox &
 
   while :; do read; done
 fi
