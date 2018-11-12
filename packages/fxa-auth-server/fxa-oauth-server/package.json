@@ -38,7 +38,7 @@
     "mozlog": "2.2.0",
     "mysql": "2.15.0",
     "mysql-patcher": "0.7.0",
-    "newrelic": "2.2.2",
+    "newrelic": "4.10.0",
     "raven": "2.2.1",
     "request": "2.85.0",
     "urijs": "1.19.1"
@@ -55,7 +55,7 @@
     "insist": "1.x",
     "load-grunt-tasks": "3.5.2",
     "mocha": "5.2.0",
-    "nock": "8.2.2",
+    "nock": "10.0.2",
     "npmshrink": "1.0.1",
     "nyc": "13.1.0",
     "proxyquire": "1.8.0",
