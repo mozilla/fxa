@@ -185,6 +185,7 @@ require('./spec/views/mixins/password-strength-mixin');
 require('./spec/views/mixins/pulse-graphic-mixin');
 require('./spec/views/mixins/resend-mixin');
 require('./spec/views/mixins/resume-token-mixin');
+require('./spec/views/mixins/save-options-mixin');
 require('./spec/views/mixins/service-mixin');
 require('./spec/views/mixins/session-verification-poll-mixin');
 require('./spec/views/mixins/session-verified-notification-mixin');

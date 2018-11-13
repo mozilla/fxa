@@ -2,16 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const $ = require('jquery');
 const Cocktail = require('cocktail');
 const FormView = require('../form');
 const ModalSettingsPanelMixin = require('../mixins/modal-settings-panel-mixin');
 const Template = require('templates/settings/recovery_codes.mustache');
 const RecoveryCodePrintTemplate = require('templates/settings/recovery_codes_print.mustache');
 const RecoveryCode = require('../../models/recovery-code');
+const SaveOptionsMixin = require('../mixins/save-options-mixin');
 const UserAgentMixin = require('../../lib/user-agent-mixin');
 
 const {preventDefaultThen, t} = FormView;
+const RECOVERY_CODE_ELEMENT = '#recovery-codes';
 
 const View = FormView.extend({
   template: Template,
@@ -19,9 +20,9 @@ const View = FormView.extend({
   viewName: 'settings.two-step-authentication.recovery-codes',
 
   events: {
-    'click .copy-codes': preventDefaultThen('_copyCodes'),
-    'click .download-codes': '_downloadCodes',
-    'click .print-codes': preventDefaultThen('_printCodes'),
+    'click .copy-option': preventDefaultThen('_copyCodes'),
+    'click .download-option': '_downloadCodes',
+    'click .print-option': preventDefaultThen('_printCodes'),
     'click .replace-codes-link': preventDefaultThen('_replaceRecoveryCodes'),
     'click .two-step-authentication-done': preventDefaultThen('_returnToTwoStepAuthentication')
   },
@@ -47,77 +48,21 @@ const View = FormView.extend({
   },
 
   _copyCodes() {
-    // This copies the recovery codes to clipboard by creating a tiny transparent
-    // textArea with recovery code contents. Then it executes the
-    // browser `copy` command and removes textArea.
-    $('<textArea id=\"recovery-code-copy\" class=\"recovery-code-text-area\"></textArea>').appendTo('#recovery-codes');
-    this.$('textArea.recovery-code-text-area').html(this.recoveryCodesText);
-
-    if (this.getUserAgent().isIos()) {
-      // iOS does not allow you to directly use the `document.execCommand('copy')` function.
-      // The text area must have contentEditable=true and have a range selected before you can copy.
-      // https://stackoverflow.com/questions/34045777/copy-to-clipboard-using-javascript-in-ios
-      const el = this.window.document.getElementById('recovery-code-copy');
-      el.contentEditable = true;
-      // convert to readonly to stop iOS keyboard opening
-      el.readOnly = true;
-      const range = document.createRange();
-      range.selectNodeContents(el);
-      const selection = this.window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(range);
-      el.setSelectionRange(0, 999999);
-    } else {
-      this.$('textArea.recovery-code-text-area').select().focus();
-    }
-
-    try {
-      this.window.document.execCommand('copy');
-      this._displaySuccess(t('Codes copied'));
-    } catch (err) {
-      this._displayError(t('Failed to copy codes. Please manually copy them.'));
-    }
-    this.$('textArea.recovery-code-text-area').remove();
+    this.logFlowEvent('copy-option', this.viewName);
+    return this.copy(this.recoveryCodesText, RECOVERY_CODE_ELEMENT);
   },
 
   _downloadCodes() {
-    // This dynamically creates a link with a blob data of the recovery
-    // codes, clicks it to initiate download and then removes element.
-    const codeBlob = new Blob([this.recoveryCodesText], {type: 'text/plain'});
-    const href = URL.createObjectURL(codeBlob);
-    const template = `
-      <a id="recovery-code-download-link" href="${href}" download="${this._getFormatedRecoveryCodeFilename()}"></a>
-    `;
-    $(template).appendTo('#recovery-codes');
-    this.window.document.getElementById('recovery-code-download-link').click();
-    this.$('#recovery-code-download-link').remove();
+    this.logFlowEvent('download-option', this.viewName);
+    this.download(this.recoveryCodesText, this._getFormatedRecoveryCodeFilename(), RECOVERY_CODE_ELEMENT);
   },
 
   _printCodes() {
-    // We dynamically create a new window with recovery codes and attempt to
-    // print it.
-    const printWindow = this.window.open('', 'Print', 'height=600,width=800');
+    this.logFlowEvent('print-option', this.viewName);
     const recoveryCodes = this.recoveryCodes.map((code) => {
       return new RecoveryCode({code}).toJSON();
     });
-    const template = RecoveryCodePrintTemplate({recoveryCodes});
-    printWindow.document.write(template);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
-  },
-
-  _displaySuccess(msg) {
-    this.$('.error').addClass('hidden');
-    this.$('.modal-success').removeClass('hidden');
-    this.$('.modal-success').html(msg);
-  },
-
-  _displayError(msg) {
-    this.$('.error').removeClass('hidden');
-    this.$('.modal-success').addClass('hidden');
-    this.$('.error').html(msg);
+    this.print(RecoveryCodePrintTemplate({recoveryCodes}));
   },
 
   _replaceRecoveryCodes() {
@@ -177,6 +122,7 @@ const View = FormView.extend({
 Cocktail.mixin(
   View,
   ModalSettingsPanelMixin,
+  SaveOptionsMixin,
   UserAgentMixin
 );
 

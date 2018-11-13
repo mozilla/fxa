@@ -98,7 +98,7 @@ describe('views/settings/account_recovery/recovery_key', () => {
           sinon.stub(view.window, 'open').callsFake(() => {
             return printDocument;
           });
-          view.$('.print-key').click();
+          view.$('.print-option').click();
         });
     });
 
@@ -118,7 +118,7 @@ describe('views/settings/account_recovery/recovery_key', () => {
               click: () => {}
             };
           });
-          return view.$('.download-key').click();
+          return view.$('.download-option').click();
         });
     });
 
@@ -155,6 +155,25 @@ describe('views/settings/account_recovery/recovery_key', () => {
         assert.equal(account.checkRecoveryKeyExists.callCount, 1, 'check key status' );
         assert.equal(view.navigate.args[0][0], '/settings/account_recovery', 'navigated to account recovery');
       });
+    });
+  });
+
+  describe('iOS copy workaround', () => {
+    beforeEach(() => {
+      return initView()
+        .then(() => {
+          windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone ' +
+            'OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) ' +
+            'Version/5.1 Mobile/9A334 Safari/7534.48.3';
+          return view.render();
+        })
+        .then(() => $('#container').html(view.$el));
+    });
+
+    it('should only show `copy recovery key`', () => {
+      assert.equal(view.$('.graphic-copy-option').length, 1);
+      assert.equal(view.$('.graphic-print-option').length, 0);
+      assert.equal(view.$('.graphic-download-option').length, 0);
     });
   });
 });

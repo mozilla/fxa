@@ -1,5 +1,6 @@
 <div id="account-recovery-key">
     <section class="modal-panel">
+        <p class="modal-success"></p>
         <div class="error"></div>
 
         <h2>{{#t}}Step 2 of 2: Save Recovery key{{/t}}</h2>
@@ -10,12 +11,31 @@
             <div class="recovery-key">{{recoveryKey}}</div>
         </div>
 
-        <div class="options">
-            <div class="buttons">
-                <button class="print-key"><img alt="{{#t}}Print button image{{/t}}" class="recovery-icon-option print-image" src="">{{#t}}Print{{/t}}</button>
-                <button class="download-key"><img alt="{{#t}}Download button image{{/t}}" class="recovery-icon-option download-image" src="">{{#t}}Download{{/t}}</button>
+        {{^isIos}}
+            <div class="button-row save-options">
+                <a href="#" class="save-option download-option">
+                    <div class="graphic graphic-download-option"></div>
+                    <p class="name">{{#t}}Download{{/t}}</p>
+                </a>
+                <a href="#" class="save-option copy-option">
+                    <div class="graphic graphic-copy-option"></div>
+                    <p class="name">{{#t}}Copy{{/t}}</p>
+                </a>
+                <a href="#" class="save-option print-option">
+                    <div class="graphic graphic-print-option"></div>
+                    <p class="name">{{#t}}Print{{/t}}</p>
+                </a>
             </div>
-        </div>
+        {{/isIos}}
+
+        {{#isIos}}
+            <div class="button-row">
+                <a href="#" class="save-option copy-option">
+                    <div class="graphic graphic-copy-option"></div>
+                    <p class="name">{{#t}}Copy{{/t}}</p>
+                </a>
+            </div>
+        {{/isIos}}
 
         <div class="button-row">
             <button class="primary-button done-link">{{#t}}Done, Recovery key saved{{/t}}</button>

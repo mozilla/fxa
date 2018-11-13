@@ -86,6 +86,8 @@ input[type='checkbox'] {
   cursor: pointer;
   display: inline-block;
   height: 18px;
+  padding: 0 !important;
+  width: 18px;
 
   html[dir='ltr'] & {
     margin-right: 4px;
@@ -94,9 +96,6 @@ input[type='checkbox'] {
   html[dir='rtl'] & {
     margin-left: 4px;
   }
-
-  padding: 0 !important;
-  width: 18px;
 
   &:not(:checked) {
     background-color: rgba($grey-90, 0.1);
