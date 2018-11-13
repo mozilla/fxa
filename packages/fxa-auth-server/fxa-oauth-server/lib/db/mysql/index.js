@@ -124,6 +124,7 @@ MysqlStore.connect = function mysqlConnect(options) {
   });
 };
 
+const QUERY_GET_LOCK = 'SELECT GET_LOCK(?, ?) AS acquired';
 const QUERY_CLIENT_REGISTER =
   'INSERT INTO clients ' +
   '(id, name, imageUri, hashedSecret, hashedSecretPrevious, redirectUri,' +
@@ -254,6 +255,12 @@ MysqlStore.prototype = {
         });
       });
     });
+  },
+
+  getLock: function getLock(lockName, timeout = 3) {
+    // returns `acquired: 1` on success
+    logger.debug('getLock');
+    return this._readOne(QUERY_GET_LOCK, [ lockName, timeout ]);
   },
 
   // createdAt is DEFAULT NOW() in the schema.sql

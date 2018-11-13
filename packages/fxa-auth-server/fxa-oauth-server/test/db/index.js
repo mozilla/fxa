@@ -594,4 +594,15 @@ describe('db', function() {
 
   });
 
+  describe('getLock', function () {
+    it('should return an acquired status', function() {
+      const lockName = randomString(10);
+      return db.getLock(lockName, 3)
+        .then(function(result) {
+          assert.ok(result);
+          assert.ok('acquired' in result);
+          assert.ok(result.acquired === 1);
+        });
+    });
+  });
 });

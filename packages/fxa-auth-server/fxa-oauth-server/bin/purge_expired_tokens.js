@@ -23,6 +23,9 @@ const config = require('../lib/config');
 const package = require('../package.json');
 const program = require('commander');
 
+const DB_GET_LOCK_STRING = 'purge_expired_tokens.lock';
+const DB_GET_LOCK_TIMEOUT = 3;
+
 // Don't bother updating the clients table.
 config.set('db.autoUpdateClients', false);
 
@@ -56,38 +59,53 @@ const deleteBatchSize = Number(program.deleteBatchSize) || 200; // Default 200
 // There may be more than one pocketId, so treat this as a comma-separated list.
 const ignorePocketClientId = program.pocketId.toLowerCase().split(/\s*,\s*/g);
 
-db.ping().done(() => {
+db.ping().then(() => {
   // Only mysql impl supports token deletion at the moment
-  if (! db.purgeExpiredTokens) {
+  if (! (db.purgeExpiredTokens && db.purgeExpiredTokensById)) {
     const message = ('Unable to purge expired tokens, only available ' +
                      'when using config with mysql database.');
     logger.info('skipping', { message: message });
     return;
   }
 
-  logger.info('deleting', {
-    numberOfTokens: numberOfTokens,
-    delaySeconds: delaySeconds,
-    deleteBatchSize: deleteBatchSize,
-    ignorePocketClientId: ignorePocketClientId
-  });
-
-  // To reduce the risk of deleting pocket tokens, ensure that the pocket-id
-  // passed in belongs to a client.
+  // To reduce the risk of deleting pocket tokens, purgeExpiredTokens(ById?)
+  // will ensure that the pocket-id passed in belongs to a client.
   const purgeMethod = program.byId ? db.purgeExpiredTokensById : db.purgeExpiredTokens;
-  return purgeMethod(numberOfTokens,
-                     delaySeconds,
-                     ignorePocketClientId,
-                     deleteBatchSize)
-    .then(() => {
-      logger.info('completed');
-      process.exit(0);
+
+  return db.getLock(DB_GET_LOCK_STRING, DB_GET_LOCK_TIMEOUT)
+    .then((result) => {
+      logger.info('getLock', { result: result });
+
+      if (result.acquired !== 1) {
+        logger.error('getLock', { error: `Could not acquire cooperative lock '${DB_GET_LOCK_STRING}'` });
+        process.exit(1);
+      }
+
+      logger.info('deleting', {
+        numberOfTokens: numberOfTokens,
+        delaySeconds: delaySeconds,
+        deleteBatchSize: deleteBatchSize,
+        ignorePocketClientId: ignorePocketClientId
+      });
+
+      return purgeMethod(numberOfTokens,
+                         delaySeconds,
+                         ignorePocketClientId,
+                         deleteBatchSize)
+        .then(() => {
+          logger.info('completed');
+          process.exit(0);
+        })
+        .catch((err) => {
+          logger.error('error', err);
+          process.exit(1);
+        });
     })
     .catch((err) => {
-      logger.error('error', err);
+      logger.critical('db.getLock', err);
       process.exit(1);
     });
-}, (err) => {
+}).catch((err) => {
   logger.critical('db.ping', err);
   process.exit(1);
 });

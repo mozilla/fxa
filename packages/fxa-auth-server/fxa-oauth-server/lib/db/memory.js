@@ -138,6 +138,9 @@ MemoryStore.prototype = {
   ping: function ping() {
     return P.resolve({});
   },
+  getLock: function getLock(/* lockName, timeout */) {
+    return P.resolve({ acquired: 1 });
+  },
   registerClient: function registerClient(client) {
     if (client.id) {
       client.id = buf(client.id);
