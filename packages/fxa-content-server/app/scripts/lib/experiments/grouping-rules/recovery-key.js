@@ -5,7 +5,7 @@
 
 const BaseGroupingRule = require('./base');
 
-const GROUPS = ['control', 'treatment'];
+const GROUPS = ['treatment'];
 
 module.exports = class RecoveryKeyGroupingRule extends BaseGroupingRule {
   constructor() {
