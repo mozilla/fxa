@@ -41,7 +41,7 @@ describe('lib/experiments/grouping-rules/recovery-key', () => {
       sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
       experiment.choose(subject);
       assert.isTrue(experiment.uniformChoice.calledOnce);
-      assert.isTrue(experiment.uniformChoice.calledWith(['control', 'treatment'], 'user-id'));
+      assert.isTrue(experiment.uniformChoice.calledWith(['treatment'], 'user-id'));
     });
 
     it('returns false if not in rollout', () => {
