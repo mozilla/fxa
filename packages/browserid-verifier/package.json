@@ -15,27 +15,27 @@
     "node": ">=8"
   },
   "dependencies": {
-    "async": "2.0.1",
-    "body-parser": "1.18.2",
+    "async": "2.6.1",
+    "body-parser": "1.18.3",
     "browserid-local-verify": "0.5.2",
     "compute-cluster": "0.0.9",
     "convict": "1.5.0",
-    "express": "4.15.5",
-    "intel": "1.1.1",
-    "morgan": "1.7.0",
+    "express": "4.16.4",
+    "intel": "1.2.0",
+    "morgan": "1.9.1",
     "optimist": "0.6.1",
     "toobusy-js": "0.5.1",
-    "underscore": "1.8.3"
+    "underscore": "1.9.1"
   },
   "devDependencies": {
-    "jshint": "2.9.3",
-    "mocha": "3.1.0",
-    "request": "2.82.0",
-    "should": "11.1.0",
+    "jshint": "2.9.6",
+    "mocha": "5.2.0",
+    "request": "2.88.0",
+    "should": "13.2.3",
     "temp": "0.8.3",
-    "walk": "2.3.9"
+    "walk": "2.3.14"
   },
   "scripts": {
-    "test": "mocha -t 5000 -R spec tests/*.js"
+    "test": "mocha --exit -t 5000 -R spec tests/*.js"
   }
 }
