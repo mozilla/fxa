@@ -654,6 +654,12 @@ var conf = convict({
       default: /.+@mozilla\.com$/,
       env: 'SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX'
     },
+    skipForEmailAddresses: {
+      doc: 'Comma separated list of email addresses that will always skip any non TOTP sign-in confirmation',
+      format: Array,
+      default: [],
+      env: 'SIGNIN_CONFIRMATION_SKIP_FOR_EMAIL_ADDRESS'
+    },
     skipForNewAccounts: {
       enabled: {
         doc: 'Skip sign-in confirmation for newly-created accounts.',

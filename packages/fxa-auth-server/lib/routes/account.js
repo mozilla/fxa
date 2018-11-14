@@ -29,6 +29,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
   const tokenCodeLength = tokenCodeConfig && tokenCodeConfig.codeLength || 8
   const TokenCode = random.base10(tokenCodeLength)
   const totpUtils = require('./utils/totp')(log, config, db)
+  const skipConfirmationForEmailAddresses = config.signinConfirmation.skipForEmailAddresses
 
   const routes = [
     {
@@ -646,6 +647,19 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
               })
               return true
             }
+          }
+
+          // Certain accounts have the ability to *always* skip sign-in confirmation
+          // regardless of account age or device. This is for internal use where we need
+          // to guarantee the login experience.
+          const lowerCaseEmail = account.primaryEmail.normalizedEmail.toLowerCase()
+          const alwaysSkip = skipConfirmationForEmailAddresses && skipConfirmationForEmailAddresses.includes(lowerCaseEmail)
+          if (alwaysSkip) {
+            log.info({
+              op: 'account.signin.confirm.bypass.always',
+              uid: account.uid
+            })
+            return true
           }
 
           return false
