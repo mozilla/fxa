@@ -7,6 +7,7 @@
 const { assert } = require('chai')
 const crypto = require('crypto')
 const getRoute = require('../../routes_helpers').getRoute
+const knownIpLocation = require('../../known-ip-location')
 const mocks = require('../../mocks')
 const P = require('../../../lib/promise')
 const error = require('../../../lib/error')
@@ -151,7 +152,7 @@ describe('/session/reauth', () => {
       assert.equal(args.length, 3, 'checkPassword was called with correct number of arguments')
       assert.equal(args[0].uid, TEST_UID, 'checkPassword was called with account record as first argument')
       assert.equal(args[1].authPW.toString('hex'), TEST_AUTHPW, 'checkPassword was called with Password object as second argument')
-      assert.equal(args[2], '63.245.221.32', 'checkPassword was called with mock ip address as third argument')
+      assert.equal(args[2], knownIpLocation.ip, 'checkPassword was called with mock ip address as third argument')
 
       assert.equal(db.updateSessionToken.callCount, 1, 'db.updateSessionToken was called')
       args = db.updateSessionToken.args[0]

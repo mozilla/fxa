@@ -2158,15 +2158,26 @@ describe('/v1', function() {
       describe('response', function() {
         it('should return the correct response', function() {
           return Server.api.get('/client/' + clientId)
-          .then(function(res) {
-            assert.equal(res.statusCode, 200);
-            assertSecurityHeaders(res);
-            var body = res.result;
-            assert.equal(body.name, client.name);
-            assert(body.image_uri);
-            assert(body.redirect_uri);
-            assert(body.trusted);
-          });
+            .then(function(res) {
+              assert.equal(res.statusCode, 200);
+              assertSecurityHeaders(res);
+              var body = res.result;
+              assert.equal(body.name, client.name);
+              assert(body.image_uri);
+              assert(body.redirect_uri);
+              assert(body.trusted);
+            });
+        });
+
+        it('should error for unknown clients', () => {
+          return Server.api.get('/client/100200300')
+            .then((res) => {
+              assert.equal(res.statusCode, 400);
+              assertSecurityHeaders(res);
+              const body = res.result;
+              assert.equal(body.errno, 109);
+              assert.equal(body.message, 'Invalid request parameter');
+            });
         });
       });
 
