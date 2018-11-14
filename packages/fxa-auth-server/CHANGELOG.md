@@ -1,3 +1,17 @@
+<a name="1.125.0"></a>
+# [1.125.0](https://github.com/mozilla/fxa-auth-server/compare/v1.124.4...v1.125.0) (2018-11-14)
+
+
+### Bug Fixes
+
+* **oauth:** clean up client get route. ([7031e73](https://github.com/mozilla/fxa-auth-server/commit/7031e73))
+
+### chore
+
+* **tests:** make geolocation assertions more robust ([198c628](https://github.com/mozilla/fxa-auth-server/commit/198c628))
+
+
+
 <a name="1.124.4"></a>
 ## [1.124.4](https://github.com/mozilla/fxa-auth-server/compare/v1.124.3...v1.124.4) (2018-11-09)
 
