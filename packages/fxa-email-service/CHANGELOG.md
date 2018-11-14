@@ -1,3 +1,21 @@
+<a name="v1.125.0"></a>
+## v1.125.0 (2018-11-14)
+
+
+#### Bug Fixes
+
+* **cargo:**  remove old rocket comment ([c706d760](c706d760))
+* **sentry:**  capture errors at point of creation rather than when logged ([02408f59](02408f59))
+* **settings:**  fix panic when sentry is disabled ([4f47e93b](4f47e93b))
+
+#### Features
+
+* **bounces:**  use timestamps from ses instead of the current time ([906f3911](906f3911), closes [#205](205))
+* **settings:**  extract provider type to a fully-fledged enum ([0bd766d4](0bd766d4))
+* **types:**  ignore display name part when parsing email addresses ([5d5ae603](5d5ae603), closes [#201](201))
+
+
+
 <a name="v1.124.1"></a>
 ## v1.124.1 (2018-11-07)
 
