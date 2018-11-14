@@ -1,3 +1,22 @@
+<a name="1.125.0"></a>
+# [1.125.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.124.1...v1.125.0) (2018-11-14)
+
+
+### Bug Fixes
+
+* **scripts:** stop the explain script tripping over git grep colours ([ff0ac5c](https://github.com/mozilla/fxa-auth-db-mysql/commit/ff0ac5c))
+
+### chore
+
+* **db:** use mariadb-friendly drop index syntax ([f01b520](https://github.com/mozilla/fxa-auth-db-mysql/commit/f01b520))
+* **scripts:** lint-ignore consumeRecoveryCode_2 and setPrimaryEmail_3 ([5ddf863](https://github.com/mozilla/fxa-auth-db-mysql/commit/5ddf863))
+
+### Features
+
+* **scripts:** add ROW_COUNT() checks to the procedure-linting script ([0eb0142](https://github.com/mozilla/fxa-auth-db-mysql/commit/0eb0142))
+
+
+
 <a name="1.124.1"></a>
 ## [1.124.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.124.0...v1.124.1) (2018-11-02)
 
