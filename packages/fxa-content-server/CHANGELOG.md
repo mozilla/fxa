@@ -1,3 +1,28 @@
+<a name="1.125.0"></a>
+# [1.125.0](https://github.com/mozilla/fxa-content-server/compare/v1.124.0...v1.125.0) (2018-11-14)
+
+
+### Bug Fixes
+
+* **deps:** Update fxa-geodb to get rid of the audit warning ([7dec3ec](https://github.com/mozilla/fxa-content-server/commit/7dec3ec))
+* **metrics:** generate an amplitude deviceId in GET /metrics-flow ([2ddfd63](https://github.com/mozilla/fxa-content-server/commit/2ddfd63))
+* **recovery:** remove recovery key control group ([e993f88](https://github.com/mozilla/fxa-content-server/commit/e993f88))
+* **tests:** reinstate accidentally-disabled server tests ([0eb6ae3](https://github.com/mozilla/fxa-content-server/commit/0eb6ae3))
+
+### chore
+
+* **config:** Add reference-browser to allowlist for oldsync scope. ([3e28be9](https://github.com/mozilla/fxa-content-server/commit/3e28be9))
+* **deps:** update deps ([79d7a69](https://github.com/mozilla/fxa-content-server/commit/79d7a69))
+* **deps:** update mailcheck ([bd94a19](https://github.com/mozilla/fxa-content-server/commit/bd94a19))
+* **deps:** Use speed-trap from npm ([d848d04](https://github.com/mozilla/fxa-content-server/commit/d848d04))
+
+### Refactor
+
+* **mobile:** Remove support for mob_ios_v1 and mob_android_v1 ([41ef7a7](https://github.com/mozilla/fxa-content-server/commit/41ef7a7)), closes [#6685](https://github.com/mozilla/fxa-content-server/issues/6685)
+* **pw-strength:** Remove designF's "experiment" status. ([a85b10b](https://github.com/mozilla/fxa-content-server/commit/a85b10b)), closes [#6572](https://github.com/mozilla/fxa-content-server/issues/6572) [#6573](https://github.com/mozilla/fxa-content-server/issues/6573) [#6564](https://github.com/mozilla/fxa-content-server/issues/6564) [#6400](https://github.com/mozilla/fxa-content-server/issues/6400)
+
+
+
 <a name="1.124.0"></a>
 # [1.124.0](https://github.com/mozilla/fxa-content-server/compare/v1.123.2...v1.124.0) (2018-10-30)
 
