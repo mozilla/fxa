@@ -1,3 +1,17 @@
+<a name="v1.125.1"></a>
+## v1.125.1 (2018-11-15)
+
+
+#### Bug Fixes
+
+* **ci:**  enable branch builds in travis ([14491612](14491612))
+* **headers:**  propagate the Content-Language header ([67ebf3fe](67ebf3fe))
+* **ses:**
+  *  add Sender header ([3e278667](3e278667))
+  *  ensure html part gets charset=utf-8 content type ([67320d28](67320d28))
+
+
+
 <a name="v1.125.0"></a>
 ## v1.125.0 (2018-11-14)
 
