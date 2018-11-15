@@ -6,7 +6,7 @@
 
 use std::{boxed::Box, collections::HashMap, convert::TryFrom};
 
-use emailmessage::{header::ContentType, Message, MessageBuilder, MultiPart, SinglePart};
+use emailmessage::{header::ContentType, Mailbox, Message, MessageBuilder, MultiPart, SinglePart};
 
 use self::{
     mock::MockProvider as Mock, sendgrid::SendgridProvider as Sendgrid, ses::SesProvider as Ses,
@@ -40,16 +40,17 @@ fn build_multipart_mime<'a>(
     body_text: &'a str,
     body_html: Option<&'a str>,
 ) -> AppResult<Message<MultiPart<&'a str>>> {
-    let mut message =
-        Message::builder()
-            .from(sender.parse().map_err(|_| {
-                AppErrorKind::InvalidPayload(format!("`from` address \"{}\"", sender))
-            })?)
-            .to(to
-                .parse()
-                .map_err(|_| AppErrorKind::InvalidPayload(format!("`to` address \"{}\"", to)))?)
-            .subject(subject)
-            .mime_1_0();
+    let sender: Mailbox = sender
+        .parse()
+        .map_err(|_| AppErrorKind::InvalidPayload(format!("`from` address \"{}\"", sender)))?;
+    let mut message = Message::builder()
+        .sender(sender.clone())
+        .from(sender)
+        .to(to
+            .parse()
+            .map_err(|_| AppErrorKind::InvalidPayload(format!("`to` address \"{}\"", to)))?)
+        .subject(subject)
+        .mime_1_0();
 
     if cc.len() > 0 {
         for address in cc.iter() {
