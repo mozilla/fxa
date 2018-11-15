@@ -5,6 +5,13 @@
 use super::*;
 
 #[test]
+fn content_language() {
+    let header = ContentLanguage::new("en-gb".to_owned());
+    assert_eq!(header.to_string(), "en-gb");
+    assert_eq!(ContentLanguage::header_name(), "Content-Language");
+}
+
+#[test]
 fn device_id() {
     let header = DeviceId::new("wibble".to_owned());
     assert_eq!(header.to_string(), "wibble");

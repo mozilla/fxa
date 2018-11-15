@@ -8,27 +8,10 @@ use super::*;
 
 #[test]
 fn build_mime_without_optional_data() {
-    let message =
-        build_multipart_mime("a@a.com", "b@b.com", &[], None, "subject", "body", None).unwrap();
-    let message: Vec<String> = format!("{}", message)
-        .split("\r\n")
-        .map(|s| s.to_owned())
-        .collect();
-    assert_eq!("From: a@a.com", &message[0]);
-    assert_eq!("To: b@b.com", &message[1]);
-    assert_eq!("Subject: subject", &message[2]);
-    assert_eq!("MIME-Version: 1.0", &message[3]);
-    assert_eq!("Content-Transfer-Encoding: quoted-printable", &message[10]);
-    assert_eq!("Content-Type: text/plain; charset=utf-8", &message[11]);
-    assert_eq!("body", &message[13]);
-}
-
-#[test]
-fn build_mime_with_cc_headers() {
     let message = build_multipart_mime(
-        "a@a.com",
+        "Wibble Blee <a@a.com>",
         "b@b.com",
-        &["c@c.com", "d@d.com"],
+        &[],
         None,
         "subject",
         "body",
@@ -39,14 +22,50 @@ fn build_mime_with_cc_headers() {
         .split("\r\n")
         .map(|s| s.to_owned())
         .collect();
-    assert_eq!("From: a@a.com", &message[0]);
-    assert_eq!("To: b@b.com", &message[1]);
-    assert_eq!("Subject: subject", &message[2]);
-    assert_eq!("MIME-Version: 1.0", &message[3]);
-    assert_eq!("Cc: c@c.com, d@d.com", &message[4]);
+    assert_eq!("Sender: Wibble Blee <a@a.com>", &message[0]);
+    assert_eq!("From: Wibble Blee <a@a.com>", &message[1]);
+    assert_eq!("To: b@b.com", &message[2]);
+    assert_eq!("Subject: subject", &message[3]);
+    assert_eq!("MIME-Version: 1.0", &message[4]);
     assert_eq!("Content-Transfer-Encoding: quoted-printable", &message[11]);
     assert_eq!("Content-Type: text/plain; charset=utf-8", &message[12]);
     assert_eq!("body", &message[14]);
+}
+
+#[test]
+fn build_mime_with_cc_headers() {
+    let mut headers = HashMap::new();
+    headers.insert("Content-Language".to_owned(), "en-gb".to_owned());
+    headers.insert("x-verify-code".to_owned(), "wibble".to_owned());
+    let message = build_multipart_mime(
+        "a@a.com",
+        "b@b.com",
+        &["c@c.com", "d@d.com"],
+        Some(&headers),
+        "subject",
+        "body",
+        None,
+    )
+    .unwrap();
+    let message: Vec<String> = format!("{}", message)
+        .split("\r\n")
+        .map(|s| s.to_owned())
+        .collect();
+    assert_eq!("Sender: a@a.com", &message[0]);
+    assert_eq!("From: a@a.com", &message[1]);
+    assert_eq!("To: b@b.com", &message[2]);
+    assert_eq!("Subject: subject", &message[3]);
+    assert_eq!("MIME-Version: 1.0", &message[4]);
+    assert_eq!("Cc: c@c.com, d@d.com", &message[5]);
+    if message[6] == "Content-Language: en-gb" {
+        assert_eq!("X-Verify-Code: wibble", &message[7]);
+    } else {
+        assert_eq!("X-Verify-Code: wibble", &message[6]);
+        assert_eq!("Content-Language: en-gb", &message[7]);
+    }
+    assert_eq!("Content-Transfer-Encoding: quoted-printable", &message[14]);
+    assert_eq!("Content-Type: text/plain; charset=utf-8", &message[15]);
+    assert_eq!("body", &message[17]);
 }
 
 #[test]
@@ -68,14 +87,15 @@ fn build_mime_with_custom_headers() {
         .split("\r\n")
         .map(|s| s.to_owned())
         .collect();
-    assert_eq!("From: a@a.com", &message[0]);
-    assert_eq!("To: b@b.com", &message[1]);
-    assert_eq!("Subject: subject", &message[2]);
-    assert_eq!("MIME-Version: 1.0", &message[3]);
-    assert_eq!("X-Device-Id: baz", &message[4]);
-    assert_eq!("Content-Transfer-Encoding: quoted-printable", &message[11]);
-    assert_eq!("Content-Type: text/plain; charset=utf-8", &message[12]);
-    assert_eq!("body", &message[14]);
+    assert_eq!("Sender: a@a.com", &message[0]);
+    assert_eq!("From: a@a.com", &message[1]);
+    assert_eq!("To: b@b.com", &message[2]);
+    assert_eq!("Subject: subject", &message[3]);
+    assert_eq!("MIME-Version: 1.0", &message[4]);
+    assert_eq!("X-Device-Id: baz", &message[5]);
+    assert_eq!("Content-Transfer-Encoding: quoted-printable", &message[12]);
+    assert_eq!("Content-Type: text/plain; charset=utf-8", &message[13]);
+    assert_eq!("body", &message[15]);
 }
 
 #[test]
@@ -94,16 +114,17 @@ fn build_mime_with_body_html() {
         .split("\r\n")
         .map(|s| s.to_owned())
         .collect();
-    assert_eq!("From: a@a.com", &message[0]);
-    assert_eq!("To: b@b.com", &message[1]);
-    assert_eq!("Subject: subject", &message[2]);
-    assert_eq!("MIME-Version: 1.0", &message[3]);
-    assert_eq!("Content-Transfer-Encoding: quoted-printable", &message[10]);
-    assert_eq!("Content-Type: text/plain; charset=utf-8", &message[11]);
-    assert_eq!("body", &message[13]);
-    assert_eq!("Content-Transfer-Encoding: base64", &message[18]);
-    assert_eq!("Content-Type: text/html", &message[19]);
-    assert_eq!("PHA+Ym9keTwvcD4=", &message[21]);
+    assert_eq!("Sender: a@a.com", &message[0]);
+    assert_eq!("From: a@a.com", &message[1]);
+    assert_eq!("To: b@b.com", &message[2]);
+    assert_eq!("Subject: subject", &message[3]);
+    assert_eq!("MIME-Version: 1.0", &message[4]);
+    assert_eq!("Content-Transfer-Encoding: quoted-printable", &message[11]);
+    assert_eq!("Content-Type: text/plain; charset=utf-8", &message[12]);
+    assert_eq!("body", &message[14]);
+    assert_eq!("Content-Transfer-Encoding: base64", &message[19]);
+    assert_eq!("Content-Type: text/html; charset=utf-8", &message[20]);
+    assert_eq!("PHA+Ym9keTwvcD4=", &message[22]);
 }
 
 #[test]
