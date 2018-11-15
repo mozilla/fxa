@@ -74,7 +74,7 @@ fn build_multipart_mime<'a>(
         body = body.multipart(
             MultiPart::related().singlepart(
                 SinglePart::base64()
-                    .header(ContentType::html())
+                    .header(ContentType("text/html; charset=utf-8".parse()?))
                     .body(body_html),
             ),
         );
