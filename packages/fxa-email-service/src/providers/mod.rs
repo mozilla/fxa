@@ -87,6 +87,7 @@ fn build_multipart_mime<'a>(
 fn set_custom_header(message: MessageBuilder, name: &str, value: &str) -> MessageBuilder {
     let lowercase_name = name.to_lowercase();
     match lowercase_name.as_str() {
+        "content-language" => message.header(ContentLanguage::new(value.to_owned())),
         "x-device-id" => message.header(DeviceId::new(value.to_owned())),
         "x-email-sender" => message.header(EmailSender::new(value.to_owned())),
         "x-email-service" => message.header(EmailService::new(value.to_owned())),

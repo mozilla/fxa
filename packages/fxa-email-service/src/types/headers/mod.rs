@@ -73,6 +73,7 @@ macro_rules! custom_header {
     };
 }
 
+custom_header!(ContentLanguage, "Content-Language");
 custom_header!(DeviceId, "X-Device-Id");
 custom_header!(EmailSender, "X-Email-Sender");
 custom_header!(EmailService, "X-Email-Service");

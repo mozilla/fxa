@@ -34,11 +34,14 @@ fn build_mime_without_optional_data() {
 
 #[test]
 fn build_mime_with_cc_headers() {
+    let mut headers = HashMap::new();
+    headers.insert("Content-Language".to_owned(), "en-gb".to_owned());
+    headers.insert("x-verify-code".to_owned(), "wibble".to_owned());
     let message = build_multipart_mime(
         "a@a.com",
         "b@b.com",
         &["c@c.com", "d@d.com"],
-        None,
+        Some(&headers),
         "subject",
         "body",
         None,
@@ -54,9 +57,15 @@ fn build_mime_with_cc_headers() {
     assert_eq!("Subject: subject", &message[3]);
     assert_eq!("MIME-Version: 1.0", &message[4]);
     assert_eq!("Cc: c@c.com, d@d.com", &message[5]);
-    assert_eq!("Content-Transfer-Encoding: quoted-printable", &message[12]);
-    assert_eq!("Content-Type: text/plain; charset=utf-8", &message[13]);
-    assert_eq!("body", &message[15]);
+    if message[6] == "Content-Language: en-gb" {
+        assert_eq!("X-Verify-Code: wibble", &message[7]);
+    } else {
+        assert_eq!("X-Verify-Code: wibble", &message[6]);
+        assert_eq!("Content-Language: en-gb", &message[7]);
+    }
+    assert_eq!("Content-Transfer-Encoding: quoted-printable", &message[14]);
+    assert_eq!("Content-Type: text/plain; charset=utf-8", &message[15]);
+    assert_eq!("body", &message[17]);
 }
 
 #[test]
