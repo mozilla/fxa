@@ -2,9 +2,6 @@ language: rust
 services:
   - redis-server
 cache: cargo
-branches:
-  only:
-    - master
 before_script:
   - rustup component add rustfmt-preview
 script:
