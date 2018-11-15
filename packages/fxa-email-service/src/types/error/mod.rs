@@ -12,6 +12,7 @@ use std::{
 
 use failure::{Backtrace, Context, Fail};
 use hmac::crypto_mac::InvalidKeyLength;
+use hyperx::mime::FromStrError;
 use lettre::smtp::error::Error as SmtpError;
 use lettre_email::error::Error as EmailError;
 use redis::RedisError;
@@ -252,6 +253,7 @@ macro_rules! to_internal_error {
 }
 
 to_internal_error!(EmailError);
+to_internal_error!(FromStrError);
 to_internal_error!(InvalidKeyLength);
 to_internal_error!(JsonError);
 to_internal_error!(RedisError);
