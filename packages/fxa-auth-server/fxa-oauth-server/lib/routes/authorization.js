@@ -14,7 +14,7 @@ const logger = require('../logging')('routes.authorization');
 const P = require('../promise');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const validators = require('../validators');
-const verify = require('../browserid');
+const verifyAssertion = require('../assertion');
 
 const CODE = 'code';
 const TOKEN = 'token';
@@ -225,8 +225,8 @@ module.exports = {
     var exitEarly = false;
     var scope = ScopeSet.fromString(req.payload.scope || '');
     return P.all([
-      verify(req.payload.assertion).then(function(claims) {
-        logger.info('time.browserid_verify', { ms: Date.now() - start });
+      verifyAssertion(req.payload.assertion).then(function(claims) {
+        logger.info('time.verify_assertion', { ms: Date.now() - start });
         if (! claims) {
           exitEarly = true;
           throw AppError.invalidAssertion();

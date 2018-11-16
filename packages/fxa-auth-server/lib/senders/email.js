@@ -32,8 +32,8 @@ const SERVICES = {
   }
 }
 
-module.exports = function (log, config) {
-  const oauthClientInfo = require('./oauth_client_info')(log, config)
+module.exports = function (log, config, oauthdb) {
+  const oauthClientInfo = require('./oauth_client_info')(log, config, oauthdb)
   const redis = require('../redis')(Object.assign({}, config.redis, config.redis.email), log) || {
     // Fallback to a stub implementation if redis is disabled
     get: () => P.resolve()

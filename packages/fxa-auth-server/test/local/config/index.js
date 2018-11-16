@@ -2,13 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 'use strict'
+
 const { assert } = require('chai')
 const proxyquire = require('proxyquire')
+
 const ROOT_DIR = '../../..'
+
 describe('Config', () => {
   describe('NODE_ENV=prod', () => {
-
     let originalEnv;
+
     function mockEnv(key, value) {
       originalEnv[key] = process.env[key]
       process.env[key] = value

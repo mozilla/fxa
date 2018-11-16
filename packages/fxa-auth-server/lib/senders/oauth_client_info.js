@@ -4,16 +4,10 @@
 
 'use strict'
 
-const request = require('request')
 const Keyv = require('keyv')
-const Joi = require('joi')
 
-const P = require('../promise')
-const { DISPLAY_SAFE_UNICODE } = require('../routes/validators')
+module.exports = (log, config, oauthdb) => {
 
-module.exports = (log, config) => {
-
-  const OAUTH_SERVER = config.oauth.url
   const OAUTH_CLIENT_INFO_CACHE_TTL = config.oauth.clientInfoCacheTTL
   const OAUTH_CLIENT_INFO_CACHE_NAMESPACE = 'oauthClientInfo'
   const FIREFOX_CLIENT = {
@@ -31,58 +25,39 @@ module.exports = (log, config) => {
    * @param clientId
    * @returns {Promise<any>}
    */
-  function fetch(clientId) {
+  async function fetch(clientId) {
     log.trace({ op: 'fetch.start' })
 
-    const options = {
-      url: `${OAUTH_SERVER}/v1/client/${clientId}`,
-      method: 'GET',
-      json: true
+    if (! clientId || clientId === 'sync') {
+      log.trace({ op: 'fetch.sync' })
+      return FIREFOX_CLIENT
     }
 
-    return new P((resolve) => {
-      if (! clientId || clientId === 'sync') {
-        log.trace({ op: 'fetch.sync' })
-        return resolve(FIREFOX_CLIENT)
+    const cachedRecord = await clientCache.get(clientId)
+    if (cachedRecord) {
+      // used the cachedRecord if it exists
+      log.trace({ op: 'fetch.usedCache' })
+      return cachedRecord
+    }
+
+    let clientInfo
+    try {
+      clientInfo = await oauthdb.getClientInfo(clientId)
+    } catch (err) {
+      // fallback to the Firefox client if request fails
+      if (! err.statusCode) {
+        log.critical({ op: 'fetch.failed', err: err })
+      } else {
+        log.warn({ op: 'fetch.failedForClient', clientId })
       }
+      return FIREFOX_CLIENT
+    }
 
-      clientCache.get(clientId)
-        .then((cachedRecord) => {
-          if (cachedRecord) {
-            // used the cachedRecord
-            log.trace({ op: 'fetch.usedCache' })
-            return resolve(cachedRecord)
-          }
-
-          // request info from the OAuth server
-          request(options, function (err, res, body) {
-            if (err || res.statusCode !== 200 || ! body.name) {
-              if (err) {
-                log.critical({ op: 'fetch.failed', err: err })
-              } else {
-                log.warn({ op: 'fetch.failedForClient', clientId: clientId, name: !! body.name })
-              }
-              // fallback to the Firefox client if request fails
-              return resolve(FIREFOX_CLIENT)
-            }
-
-            const validation = Joi.validate(body.name, Joi.string().max(256).regex(DISPLAY_SAFE_UNICODE).required())
-            if (validation.error) {
-              // fallback to the Firefox client if invalid name
-              return resolve(FIREFOX_CLIENT)
-            }
-
-            log.trace({ op: 'fetch.usedServer', body: body })
-            const clientInfo = {
-              // only providing `name` for now
-              name: body.name
-            }
-            resolve(clientInfo)
-            clientCache.set(clientId, clientInfo)
-          })
-
-        })
-    })
+    log.trace({ op: 'fetch.usedServer', body: clientInfo })
+    // We deliberately don't wait for this to resolve, since the
+    // client doesn't need to wait for us to write to the cache.
+    clientCache.set(clientId, clientInfo)
+    return clientInfo
   }
 
   return {

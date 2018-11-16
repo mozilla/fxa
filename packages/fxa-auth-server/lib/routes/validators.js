@@ -75,7 +75,15 @@ module.exports.email = function() {
 }
 
 module.exports.service = isA.string().max(16).regex(/^[a-zA-Z0-9\-]*$/)
-
+module.exports.hexString = isA.string().regex(HEX_STRING)
+module.exports.clientId = module.exports.hexString.length(16)
+module.exports.accessToken = module.exports.hexString.length(32)
+module.exports.refreshToken = module.exports.hexString.length(32)
+module.exports.scope = isA.string().max(256).regex(/^[a-zA-Z0-9 _\/.:-]+$/)
+module.exports.assertion = isA.string().min(50).max(10240).regex(/^[a-zA-Z0-9_\-\.~=]+$/);
+module.exports.jwe = isA.string().max(1024)
+  // JWE token format: 'protectedheader.encryptedkey.iv.cyphertext.authenticationtag'
+  .regex(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/);
 
 // Function to validate an email address.
 //

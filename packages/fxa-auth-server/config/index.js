@@ -619,6 +619,26 @@ var conf = convict({
       format: 'duration',
       default: '3 days',
       env: 'OAUTH_CLIENT_INFO_CACHE_TTL'
+    },
+    secretKey: {
+      doc: 'Shared secret for signing server-to-server JWT assertions',
+      env: 'OAUTH_SERVER_SECRET_KEY',
+      format: String,
+      default: 'megaz0rd'
+    },
+    poolee: {
+      timeout: {
+        default: '30 seconds',
+        format: 'duration',
+        env: 'OAUTH_POOLEE_TIMEOUT',
+        doc: 'Time in milliseconds to wait for oauth query completion'
+      },
+      maxPending: {
+        default: 1000,
+        format: 'int',
+        env: 'OAUTH_POOLEE_MAX_PENDING',
+        doc: 'Number of pending requests to fxa-oauth-server to allow'
+      }
     }
   },
   metrics: {
@@ -933,6 +953,7 @@ if (conf.get('isProduction')) {
   const SECRET_SETTINGS = [
     'pushbox.key',
     'metrics.flow_id_key',
+    'oauth.secretKey',
   ]
   for (const key of SECRET_SETTINGS) {
     if (conf.get(key) === conf.default(key)) {

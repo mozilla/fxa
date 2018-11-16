@@ -86,6 +86,11 @@ const DB_METHOD_NAMES = [
   'verifyTokensWithMethod'
 ]
 
+const OAUTHDB_METHOD_NAMES = [
+  'getClientInfo',
+  'getScopedKeyData',
+]
+
 const LOG_METHOD_NAMES = [
   'activityEvent',
   'amplitudeEvent',
@@ -152,6 +157,7 @@ module.exports = {
   mockBounces: mockObject(['check']),
   mockCustoms,
   mockDB,
+  mockOAuthDB: mockObject(OAUTHDB_METHOD_NAMES),
   mockDevices,
   mockLog: mockObject(LOG_METHOD_NAMES),
   mockMailer: mockObject(MAILER_METHOD_NAMES),

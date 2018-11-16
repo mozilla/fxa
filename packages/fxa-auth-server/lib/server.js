@@ -73,7 +73,7 @@ function configureSentry(server, config) {
 }
 
 
-async function create (log, error, config, routes, db, translator) {
+async function create (log, error, config, routes, db, oauthdb, translator) {
   const getGeoData = require('./geodb')(log)
   const metricsContext = require('./metrics/context')(log, config)
   const metricsEvents = require('./metrics/events')(log, config)

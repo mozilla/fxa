@@ -48,6 +48,9 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [POST /recovery_email (:lock: sessionToken)](#post-recovery_email)
     * [POST /recovery_email/destroy (:lock: sessionToken)](#post-recovery_emaildestroy)
     * [POST /recovery_email/set_primary (:lock: sessionToken)](#post-recovery_emailset_primary)
+  * [Oauth](#oauth)
+    * [GET /oauth/client/{client_id}](#get-oauthclientclient_id)
+    * [POST /account/scoped-key-data (:lock: sessionToken)](#post-accountscoped-key-data)
   * [Password](#password)
     * [POST /password/change/start](#post-passwordchangestart)
     * [POST /password/change/finish (:lock: passwordChangeToken)](#post-passwordchangefinish)
@@ -297,6 +300,10 @@ for `code` and `errno` are:
   This request requires two step authentication enabled on your account.
 * `code: 400, errno: 161`:
   Recovery key already exists.
+* `code: 400, errno: 162`:
+  Unknown client_id
+* `code: 400, errno: 164`:
+  Stale auth timestamp
 * `code: 503, errno: 201`:
   Service unavailable
 * `code: 503, errno: 202`:
@@ -331,6 +338,8 @@ include additional response properties:
 * `errno: 135`: bouncedAt
 * `errno: 152`
 * `errno: 153`
+* `errno: 162`: clientId
+* `errno: 164`: authAt
 * `errno: 201`: retryAfter
 * `errno: 202`: retryAfter
 * `errno: 203`: service, operation
@@ -368,6 +377,13 @@ those common validations are defined here.
 * `DISPLAY_SAFE_UNICODE`: `/^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFF])*$/`
 * `DISPLAY_SAFE_UNICODE_WITH_NON_BMP`: `/^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uE000-\uF8FF\uFFF9-\uFFFF])*$/`
 * `service`: `string, max(16), regex(/^[a-zA-Z0-9\-]*$/)`
+* `hexString`: `string, regex(/^(?:[a-fA-F0-9]{2})+$/)`
+* `clientId`: `module.exports.hexString.length(16)`
+* `accessToken`: `module.exports.hexString.length(32)`
+* `refreshToken`: `module.exports.hexString.length(32)`
+* `scope`: `string, max(256), regex(/^[a-zA-Z0-9 _\/.:-]+$/)`
+* `assertion`: `string, min(50), max(10240), regex(/^[a-zA-Z0-9_\-\.~=]+$/)`
+* `jwe`: `string, max(1024), regex(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/)`
 * `verificationMethod`: `string, valid()`
 * `authPW`: `string, length(64), regex(HEX_STRING), required`
 * `wrapKb`: `string, length(64), regex(/^(?:[a-fA-F0-9]{2})+$/)`
@@ -1937,6 +1953,71 @@ by the following errors
 
 * `code: 400, errno: 148`:
   Can not change primary email to an email that does not belong to this account
+
+
+### Oauth
+
+#### GET /oauth/client/{client_id}
+<!--begin-route-get-oauthclientclient_id-->
+Retrieve metadata about the specified OAuth client,
+such as its display-name and redirect URI.
+<!--end-route-get-oauthclientclient_id-->
+
+##### Response body
+
+* `id`: *validators.clientId.required*
+
+  <!--begin-response-body-get-oauthclientclient_id-id-->
+  
+  <!--end-response-body-get-oauthclientclient_id-id-->
+
+* `name`: *Joi.string.max(25).regex(validators.DISPLAY_SAFE_UNICODE).required*
+
+  <!--begin-response-body-get-oauthclientclient_id-name-->
+  
+  <!--end-response-body-get-oauthclientclient_id-name-->
+
+* `trusted`: *Joi.boolean.required*
+
+  <!--begin-response-body-get-oauthclientclient_id-trusted-->
+  
+  <!--end-response-body-get-oauthclientclient_id-trusted-->
+
+* `image_uri`: *Joi.string.optional.allow('')*
+
+  <!--begin-response-body-get-oauthclientclient_id-image_uri-->
+  
+  <!--end-response-body-get-oauthclientclient_id-image_uri-->
+
+* `redirect_uri`: *Joi.string.required.allow('')*
+
+  <!--begin-response-body-get-oauthclientclient_id-redirect_uri-->
+  
+  <!--end-response-body-get-oauthclientclient_id-redirect_uri-->
+
+
+#### POST /account/scoped-key-data
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-accountscoped-key-data-->
+Query for the information required
+to derive scoped encryption keys
+requested by the specified OAuth client.
+<!--end-route-post-accountscoped-key-data-->
+
+##### Request body
+
+* `client_id`: *validators.clientId.required*
+
+  <!--begin-request-body-post-accountscoped-key-data-client_id-->
+  
+  <!--end-request-body-post-accountscoped-key-data-client_id-->
+
+* `scope`: *validators.scope.required*
+
+  <!--begin-request-body-post-accountscoped-key-data-scope-->
+  
+  <!--end-request-body-post-accountscoped-key-data-scope-->
 
 
 ### Password
