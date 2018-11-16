@@ -25,6 +25,7 @@ node ./tests/teamcity/install-npm-deps.js \
   morgan                          \
   mozlog                          \
   node-uap                        \
+  node-uuid                       \
   on-headers                      \
   otplib                          \
   proxyquire                      \
