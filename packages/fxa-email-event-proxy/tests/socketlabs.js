@@ -12,6 +12,8 @@ chai.use(require('chai-as-promised'))
 
 const { assert } = chai
 
+const TEST_VALIDATION_KEY = 'validation'
+
 /* eslint-env mocha */
 
 suite('socketlabs:', () => {
@@ -21,7 +23,7 @@ suite('socketlabs:', () => {
     process.env.AUTH = 'authentication string'
     process.env.PROVIDER = 'socketlabs'
     process.env.SQS_SUFFIX = 'wibble'
-    process.env.SOCKETLABS_VALIDATION_KEY = 'validation'
+    process.env.SOCKETLABS_VALIDATION_KEY = TEST_VALIDATION_KEY
     process.env.SOCKETLABS_SECRET_KEY = 'secret'
     sqs = {
       push: sinon.spy()
@@ -90,7 +92,7 @@ suite('socketlabs:', () => {
       test('result is correct', () => {
         return promise.then(result => assert.deepEqual(result, {
           statusCode: 200,
-          body: '{"result":"Processed 1 events"}',
+          body: '{"result":"Processed 1 events","ValidationKey":"validation"}',
           isBase64Encoded: false
         }))
       })
@@ -159,7 +161,7 @@ suite('socketlabs:', () => {
       test('result is correct', () => {
         return promise.then(result => assert.deepEqual(result, {
           statusCode: 200,
-          body: '{"result":"Processed 1 events"}',
+          body: '{"result":"Processed 1 events","ValidationKey":"validation"}',
           isBase64Encoded: false
         }))
       })
@@ -226,7 +228,7 @@ suite('socketlabs:', () => {
       test('result is correct', () => {
         return promise.then(result => assert.deepEqual(result, {
           statusCode: 200,
-          body: '{"result":"Processed 1 events"}',
+          body: '{"result":"Processed 1 events","ValidationKey":"validation"}',
           isBase64Encoded: false
         }))
       })
@@ -272,7 +274,7 @@ suite('socketlabs:', () => {
     test('result is correct', () => {
       return promise.then(result => assert.deepEqual(result, {
         statusCode: 200,
-        body: 'validation',
+        body: '{"ValidationKey":"validation"}',
         isBase64Encoded: false
       }))
     })
@@ -338,7 +340,7 @@ suite('socketlabs:', () => {
     test('result is correct', () => {
       return promise.then(result => assert.deepEqual(result, {
         statusCode: 200,
-        body: '{"result":"Processed 0 events"}',
+        body: '{"result":"Processed 0 events","ValidationKey":"validation"}',
         isBase64Encoded: false
       }))
     })
@@ -371,7 +373,7 @@ suite('socketlabs:', () => {
     test('result is correct', () => {
       return promise.then(result => assert.deepEqual(result, {
         statusCode: 200,
-        body: '{"result":"Processed 0 events"}',
+        body: '{"result":"Processed 0 events","ValidationKey":"validation"}',
         isBase64Encoded: false
       }))
     })

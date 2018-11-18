@@ -78,6 +78,9 @@ async function main (data) {
     let response = { 
       result: `Processed ${results.length} events` 
     }
+    
+    response = provider.annotate(response)
+
     return {
       statusCode: 200,
       body: JSON.stringify(response),
