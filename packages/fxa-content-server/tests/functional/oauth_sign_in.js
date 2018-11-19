@@ -20,7 +20,7 @@ otplib.authenticator.options = {encoding: 'hex'};
 const SIGNUP_URL = `${config.fxaContentRoot}signup`;
 const SETTINGS_URL = `${config.fxaContentRoot}settings`;
 
-const PASSWORD = 'password';
+const PASSWORD = 'passwordzxcv';
 let authenticator, email, secret, code;
 
 const thenify = FunctionalHelpers.thenify;

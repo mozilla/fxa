@@ -15,7 +15,7 @@ const SIGNUP_URL = `${config.fxaContentRoot}signup`;
 const SIGNIN_URL = `${config.fxaContentRoot}signin`;
 const SETTINGS_URL = `${config.fxaContentRoot}settings`;
 const RESET_PASSWORD_URL = config.fxaContentRoot + 'reset_password?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true';
-const PASSWORD = 'password';
+const PASSWORD = 'passwordzxcv';
 const NEW_PASSWORD = '()()():|';
 let email, recoveryKey;
 

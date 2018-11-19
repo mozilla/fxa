@@ -28,7 +28,7 @@ const SEND_SMS_NO_QUERY_URL = `${config.fxaContentRoot}sms`;
 
 
 let email;
-const PASSWORD = 'password';
+const PASSWORD = 'passwordzxcv';
 
 let testPhoneNumber;
 let formattedPhoneNumber;

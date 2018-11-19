@@ -12,7 +12,7 @@ const uaStrings = require('./lib/ua-strings');
 
 const config = intern._config;
 
-const PASSWORD = 'password';
+const PASSWORD = 'passwordzxcv';
 const RESET_PASSWORD_URL = `${config.fxaContentRoot}reset_password?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true`;
 
 let email;

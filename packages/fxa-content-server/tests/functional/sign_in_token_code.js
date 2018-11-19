@@ -9,7 +9,7 @@ const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
-const PASSWORD = 'password';
+const PASSWORD = 'passwordzxcv';
 let email;
 
 const click = FunctionalHelpers.click;

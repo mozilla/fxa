@@ -14,7 +14,7 @@ const config = intern._config;
 const SIGNUP_URL = config.fxaContentRoot + 'signup';
 const SIGNIN_URL = config.fxaContentRoot + 'signin';
 const SETTINGS_URL = config.fxaContentRoot + 'settings';
-const PASSWORD = 'password';
+const PASSWORD = 'passwordzxcv';
 const NEW_PASSWORD = 'password1';
 
 let email;

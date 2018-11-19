@@ -13,7 +13,7 @@ const selectors = require('./lib/selectors');
 const config = intern._config;
 const SIGNUP_URL = config.fxaContentRoot + 'signup';
 const SIGNIN_URL = config.fxaContentRoot + 'signin';
-const PASSWORD = 'password';
+const PASSWORD = 'passwordzxcv';
 
 let client;
 let email;

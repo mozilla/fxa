@@ -18,7 +18,7 @@ const RESET_PAGE_URL = config.fxaContentRoot + 'reset_password';
 const CONFIRM_PAGE_URL = config.fxaContentRoot + 'confirm_reset_password';
 const COMPLETE_PAGE_URL_ROOT = config.fxaContentRoot + 'complete_reset_password';
 
-const PASSWORD = 'password';
+const PASSWORD = 'passwordzxcv';
 const TIMEOUT = 90 * 1000;
 
 let client;

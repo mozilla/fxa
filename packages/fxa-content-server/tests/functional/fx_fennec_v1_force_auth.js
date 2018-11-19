@@ -25,7 +25,7 @@ const {
   thenify,
 } = FunctionalHelpers;
 
-const PASSWORD = 'password';
+const PASSWORD = 'passwordzxcv';
 let email;
 
 const setupTest = thenify(function (options) {
