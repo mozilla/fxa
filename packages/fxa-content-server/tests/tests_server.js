@@ -12,7 +12,6 @@ module.exports = [
   'tests/server/flow-metrics.js',
   'tests/server/frame-guard.js',
   'tests/server/geo-locate.js',
-  'tests/server/hpkp.js',
   'tests/server/html-middleware.js',
   'tests/server/l10n.js',
   'tests/server/lang.js',
