@@ -59,7 +59,6 @@ const fourOhFour = require('../lib/404');
 const serverErrorHandler = require('../lib/500');
 const localizedRender = require('../lib/localized-render');
 const csp = require('../lib/csp');
-const hpkp = require('../lib/hpkp');
 const cspRulesBlocking = require('../lib/csp/blocking')(config);
 const cspRulesReportOnly = require('../lib/csp/report-only')(config);
 const frameGuard = require('../lib/frame-guard')(config);
@@ -120,9 +119,6 @@ function makeApp() {
     if (Object.keys(cspRulesReportOnly.directives).length > 1) {
       app.use(csp({ rules: cspRulesReportOnly }));
     }
-  }
-  if (config.get('hpkp.enabled')) {
-    app.use(hpkp(config));
   }
 
   app.disable('x-powered-by');
