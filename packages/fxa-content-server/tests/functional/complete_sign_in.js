@@ -13,7 +13,7 @@ const selectors = require('./lib/selectors');
 const config = intern._config;
 const PAGE_COMPLETE_SIGNIN_URL = config.fxaContentRoot + 'complete_signin';
 const PAGE_SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
-const PASSWORD = 'password';
+const PASSWORD = 'passwordzxcv';
 
 
 let code;

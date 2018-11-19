@@ -10,7 +10,7 @@ const FunctionalHelpers = require('./lib/helpers');
 const config = intern._config;
 const CONTENT_SERVER_ROOT = config.fxaContentRoot;
 const TRUSTED_REDIRECT_URI = `${config.fxaOAuthApp}api/oauth`;
-const PASSWORD = 'password';
+const PASSWORD = 'passwordzxcv';
 
 const clearBrowserState = FunctionalHelpers.clearBrowserState;
 const getQueryParamValue = FunctionalHelpers.getQueryParamValue;

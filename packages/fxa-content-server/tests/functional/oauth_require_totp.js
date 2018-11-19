@@ -14,7 +14,7 @@ const selectors = require('./lib/selectors');
 
 const SIGNIN_URL = `${config.fxaContentRoot}signin`;
 
-const PASSWORD = 'password';
+const PASSWORD = 'passwordzxcv';
 let email, secret;
 
 const {

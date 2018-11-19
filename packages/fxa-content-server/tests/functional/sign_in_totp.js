@@ -13,7 +13,7 @@ const config = intern._config;
 
 const SIGNUP_URL = `${config.fxaContentRoot}signup`;
 const SETTINGS_URL = `${config.fxaContentRoot}settings`;
-const PASSWORD = 'password';
+const PASSWORD = 'passwordzxcv';
 const SYNC_SIGNIN_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync`;
 const SIGNIN_URL = `${config.fxaContentRoot}signin`;
 const RECOVERY_CODES_URL = `${config.fxaContentRoot}settings/two_step_authentication/recovery_codes`;
