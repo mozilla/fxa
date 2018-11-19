@@ -32,11 +32,23 @@ function shouldValidate (event) {
 }
 
 function validationResponse () {
-  return {
+  const response = {
     statusCode: 200,
-    body: VALIDATION_KEY,
+    body: JSON.stringify({ ValidationKey: VALIDATION_KEY }),
     isBase64Encoded: false
   }
+
+  return response
+}
+
+// Socketlabs API wants the response to always include the ValidationKey.
+// https://notify.docs.socketlabs.com/v1/example-post-events/failure-notification-example
+function annotate (response) {
+  if (! response.ValidationKey) {
+    response.ValidationKey = VALIDATION_KEY
+  }
+
+  return response
 }
 
 function marshallEvent (event) {
@@ -134,6 +146,7 @@ function marshallComplaintEvent (event, timestamp) {
 }
 
 exports = module.exports = {
+  annotate,
   shouldValidate,
   validationResponse,
   marshallEvent

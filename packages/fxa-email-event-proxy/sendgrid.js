@@ -131,6 +131,12 @@ function marshallComplaintEvent (event, timestamp) {
   }
 }
 
+function annotate (response) {
+  // No-op
+  return response
+}
+
 exports = module.exports = {
+  annotate,
   marshallEvent
 }
