@@ -155,7 +155,6 @@ const QUERY_CLIENT_LIST = 'SELECT id, name, redirectUri, imageUri, ' +
   'WHERE clients.id = clientDevelopers.clientId AND ' +
   'developers.developerId = clientDevelopers.developerId AND ' +
   'developers.email =?;';
-const QUERY_PUBLIC_CLIENTS_LIST = 'SELECT * FROM clients WHERE publicClient = 1 OR canGrant = 1;';
 const QUERY_CLIENT_UPDATE = 'UPDATE clients SET ' +
   'name=COALESCE(?, name), imageUri=COALESCE(?, imageUri), ' +
   'hashedSecret=COALESCE(?, hashedSecret), ' +
@@ -164,7 +163,7 @@ const QUERY_CLIENT_UPDATE = 'UPDATE clients SET ' +
   'trusted=COALESCE(?, trusted), allowedScopes=COALESCE(?, allowedScopes), ' +
   'canGrant=COALESCE(?, canGrant) ' +
   'WHERE id=?';
-// This query deletes everythin related to the client, and is thus quite expensive!
+// This query deletes everything related to the client, and is thus quite expensive!
 // Don't worry, it's not exposed to any production-facing routes.
 const QUERY_CLIENT_DELETE = 'DELETE clients, codes, tokens, refreshTokens, clientDevelopers ' +
   'FROM clients ' +
@@ -190,9 +189,17 @@ const QUERY_CODE_DELETE = 'DELETE FROM codes WHERE code=?';
 const QUERY_ACCESS_TOKEN_DELETE = 'DELETE FROM tokens WHERE token=?';
 const QUERY_REFRESH_TOKEN_DELETE = 'DELETE FROM refreshTokens WHERE token=?';
 const QUERY_ACCESS_TOKEN_DELETE_USER = 'DELETE FROM tokens WHERE userId=?';
-
-const QUERY_DELETE_ACCESS_TOKEN_FOR_PUBLIC_CLIENTS = 'DELETE FROM tokens WHERE userId=? AND clientId IN (?);';
-const QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS = 'DELETE FROM refreshTokens WHERE userId=? AND clientId IN (?);';
+// These next two queries can be very expensive if MySQL
+// tries to filter by clientId before userId, so we add
+// an explicit index hint to help ensure this doesn't happen.
+const QUERY_DELETE_ACCESS_TOKEN_FOR_PUBLIC_CLIENTS = 'DELETE tokens ' +
+   'FROM tokens FORCE INDEX (tokens_user_id)' +
+   'INNER JOIN clients ON tokens.clientId = clients.id ' +
+   'WHERE tokens.userId=? AND (clients.publicClient = 1 OR clients.canGrant = 1)';
+const QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS = 'DELETE refreshTokens ' +
+   'FROM refreshTokens FORCE INDEX (tokens_user_id)' +
+   'INNER JOIN clients ON refreshTokens.clientId = clients.id ' +
+   'WHERE refreshTokens.userId=? AND (clients.publicClient = 1 OR clients.canGrant = 1)';
 const QUERY_REFRESH_TOKEN_DELETE_USER =
   'DELETE FROM refreshTokens WHERE userId=?';
 const QUERY_CODE_DELETE_USER = 'DELETE FROM codes WHERE userId=?';
@@ -813,12 +820,8 @@ MysqlStore.prototype = {
   removePublicAndCanGrantTokens: function removePublicAndCanGrantTokens(userId) {
     const uid = buf(userId);
 
-    return this._read(QUERY_PUBLIC_CLIENTS_LIST).then((_clients) => {
-      const clientIds = _clients.map((client) => client.id);
-
-      return this._write(QUERY_DELETE_ACCESS_TOKEN_FOR_PUBLIC_CLIENTS, [uid, clientIds])
-        .then(() => this._write(QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS, [uid, clientIds]));
-    });
+    return this._write(QUERY_DELETE_ACCESS_TOKEN_FOR_PUBLIC_CLIENTS, [uid])
+      .then(() => this._write(QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS, [uid]));
   },
 
   getScope: function getScope (scope) {
