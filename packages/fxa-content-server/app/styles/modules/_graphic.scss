@@ -79,18 +79,21 @@
   }
 }
 
+.graphic-download-option,
 .graphic-recovery-codes-download {
   background-image: url('/images/recovery_code_download.svg');
   height: 32px;
   width: 33%;
 }
 
+.graphic-copy-option,
 .graphic-recovery-codes-copy {
   background-image: url('/images/recovery_code_copy.svg');
   height: 32px;
   width: 33%;
 }
 
+.graphic-print-option,
 .graphic-recovery-codes-print {
   background-image: url('/images/recovery_code_print.svg');
   height: 32px;

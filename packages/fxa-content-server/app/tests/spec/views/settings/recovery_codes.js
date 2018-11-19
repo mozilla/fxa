@@ -114,7 +114,7 @@ describe('views/settings/recovery_codes', () => {
       sinon.stub(view.window, 'open').callsFake(() => {
         return printDocument;
       });
-      return view.$('.print-codes').click();
+      return view.$('.print-option').click();
     });
 
     it('print codes', () => {
@@ -129,7 +129,7 @@ describe('views/settings/recovery_codes', () => {
     beforeEach(() => {
       sinon.stub(view.window.document, 'execCommand').callsFake(() => {});
       sinon.spy(view, '_displaySuccess');
-      return view.$('.copy-codes').click();
+      return view.$('.copy-option').click();
     });
 
     it('copy codes', () => {
@@ -145,7 +145,7 @@ describe('views/settings/recovery_codes', () => {
           click: () => {}
         };
       });
-      return view.$('.download-codes').click();
+      return view.$('.download-option').click();
     });
 
     it('download codes', () => {
@@ -208,9 +208,9 @@ describe('views/settings/recovery_codes', () => {
     });
 
     it('should only show `copy recovery codes`', () => {
-      assert.equal(view.$('.graphic-recovery-codes-copy').length, 1);
-      assert.equal(view.$('.graphic-recovery-codes-print').length, 0);
-      assert.equal(view.$('.graphic-recovery-codes-download').length, 0);
+      assert.equal(view.$('.graphic-copy-option').length, 1);
+      assert.equal(view.$('.graphic-print-option').length, 0);
+      assert.equal(view.$('.graphic-download-option').length, 0);
     });
   });
 
