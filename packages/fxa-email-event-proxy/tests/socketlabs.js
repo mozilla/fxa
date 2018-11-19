@@ -7,6 +7,7 @@
 const chai = require('chai')
 const proxyquire = require('proxyquire')
 const sinon = require('sinon')
+const P = require('bluebird')
 
 chai.use(require('chai-as-promised'))
 
@@ -17,21 +18,34 @@ const TEST_VALIDATION_KEY = 'validation'
 /* eslint-env mocha */
 
 suite('socketlabs:', () => {
-  let sqs, proxy
+  let sqs, proxy, deliveryQueueUrl, bounceQueueUrl, complaintQueueUrl
 
   setup(() => {
     process.env.AUTH = 'authentication string'
     process.env.PROVIDER = 'socketlabs'
-    process.env.SQS_SUFFIX = 'wibble'
     process.env.SOCKETLABS_VALIDATION_KEY = TEST_VALIDATION_KEY
     process.env.SOCKETLABS_SECRET_KEY = 'secret'
-    sqs = {
-      push: sinon.spy()
-    }
+    process.env.DELIVERY_QUEUE_URL = deliveryQueueUrl = 'fxa-email-delivery'
+    process.env.BOUNCE_QUEUE_URL = bounceQueueUrl = 'fxa-email-bounce'
+    process.env.COMPLAINT_QUEUE_URL = complaintQueueUrl = 'fxa-email-complaint'
     sinon.spy(console, 'log')
     sinon.spy(console, 'error')
+
+    function SQS() {}
+
+    SQS.prototype = sqs = { sendMessage: () => {} }
+    sinon.stub(sqs, 'sendMessage').callsFake(() => {
+      return {
+        promise: () => {
+          return P.resolve()
+        }
+      }
+    })
+
     proxy = proxyquire('../', {
-      sqs: () => sqs
+      'aws-sdk': {
+        SQS
+      }
     })
   })
 
@@ -62,13 +76,16 @@ suite('socketlabs:', () => {
       setImmediate(done)
     })
 
-    test('sqs.push was called once', () => {
-      assert.equal(sqs.push.callCount, 1)
+    test('sqs.sendMessage was called once', () => {
+      assert.equal(sqs.sendMessage.callCount, 1)
     })
 
-    test('sqs.push was called correctly', () => {
-      const args = sqs.push.args[0]
-      assert.deepEqual(JSON.parse(args[1].Message), {
+    test('sqs.sendMessage was called correctly', () => {
+      const args = sqs.sendMessage.args[0][0]
+      assert.equal(args.QueueUrl, deliveryQueueUrl)
+      const messageBody = JSON.parse(args.MessageBody)
+      const message = JSON.parse(messageBody.Message)
+      assert.deepEqual(message, {
         notificationType: 'Delivery',
         mail: {
           timestamp: '2018-08-14T16:35:37.000Z',
@@ -83,8 +100,6 @@ suite('socketlabs:', () => {
     })
 
     suite('call all callbacks without errors:', () => {
-      setup(() => sqs.push.args.forEach(args => args[2]()))
-
       test('promise is resolved', () => {
         assert.isFulfilled(promise)
       })
@@ -127,13 +142,16 @@ suite('socketlabs:', () => {
       setImmediate(done)
     })
 
-    test('sqs.push was called once', () => {
-      assert.equal(sqs.push.callCount, 1)
+    test('sqs.sendMessage was called once', () => {
+      assert.equal(sqs.sendMessage.callCount, 1)
     })
 
-    test('sqs.push was called correctly', () => {
-      const args = sqs.push.args[0]
-      assert.deepEqual(JSON.parse(args[1].Message), {
+    test('sqs.sendMessage was called correctly', () => {
+      const args = sqs.sendMessage.args[0][0]
+      assert.equal(args.QueueUrl, bounceQueueUrl)
+      const messageBody = JSON.parse(args.MessageBody)
+      const message = JSON.parse(messageBody.Message)
+      assert.deepEqual(message, {
         notificationType: 'Bounce',
         mail: {
           timestamp: '2018-08-13T20:29:59.000Z',
@@ -152,8 +170,6 @@ suite('socketlabs:', () => {
     })
 
     suite('call all callbacks without errors:', () => {
-      setup(() => sqs.push.args.forEach(args => args[2]()))
-
       test('promise is resolved', () => {
         assert.isFulfilled(promise)
       })
@@ -196,13 +212,16 @@ suite('socketlabs:', () => {
       setImmediate(done)
     })
 
-    test('sqs.push was called once', () => {
-      assert.equal(sqs.push.callCount, 1)
+    test('sqs.sendMessage was called once', () => {
+      assert.equal(sqs.sendMessage.callCount, 1)
     })
 
-    test('sqs.push was called correctly', () => {
-      const args = sqs.push.args[0]
-      assert.deepEqual(JSON.parse(args[1].Message), {
+    test('sqs.sendMessage was called correctly', () => {
+      const args = sqs.sendMessage.args[0][0]
+      assert.equal(args.QueueUrl, complaintQueueUrl)
+      const messageBody = JSON.parse(args.MessageBody)
+      const message = JSON.parse(messageBody.Message)
+      assert.deepEqual(message, {
         notificationType: 'Complaint',
         mail: {
           timestamp: '2012-10-01T14:07:26.000Z',
@@ -219,8 +238,6 @@ suite('socketlabs:', () => {
     })
 
     suite('call all callbacks without errors:', () => {
-      setup(() => sqs.push.args.forEach(args => args[2]()))
-
       test('promise is resolved', () => {
         assert.isFulfilled(promise)
       })
@@ -263,8 +280,8 @@ suite('socketlabs:', () => {
       return promise
     })
 
-    test('sqs.push was not called', () => {
-      assert.equal(sqs.push.callCount, 0)
+    test('sqs.sendMessage was not called', () => {
+      assert.equal(sqs.sendMessage.callCount, 0)
     })
 
     test('promise is resolved', () => {
@@ -296,8 +313,8 @@ suite('socketlabs:', () => {
       return promise
     })
 
-    test('sqs.push was not called', () => {
-      assert.equal(sqs.push.callCount, 0)
+    test('sqs.sendMessage was not called', () => {
+      assert.equal(sqs.sendMessage.callCount, 0)
     })
 
     test('promise is resolved', () => {
@@ -329,8 +346,8 @@ suite('socketlabs:', () => {
       return promise
     })
 
-    test('sqs.push was not called', () => {
-      assert.equal(sqs.push.callCount, 0)
+    test('sqs.sendMessage was not called', () => {
+      assert.equal(sqs.sendMessage.callCount, 0)
     })
 
     test('promise is resolved', () => {
@@ -362,8 +379,8 @@ suite('socketlabs:', () => {
       return promise
     })
 
-    test('sqs.push was not called', () => {
-      assert.equal(sqs.push.callCount, 0)
+    test('sqs.sendMessage was not called', () => {
+      assert.equal(sqs.sendMessage.callCount, 0)
     })
 
     test('promise is resolved', () => {

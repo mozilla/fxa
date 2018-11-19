@@ -7,6 +7,7 @@
 const chai = require('chai')
 const proxyquire = require('proxyquire')
 const sinon = require('sinon')
+const P = require('bluebird')
 
 chai.use(require('chai-as-promised'))
 
@@ -15,19 +16,36 @@ const { assert } = chai
 /* eslint-env mocha */
 
 suite('sendgrid:', () => {
-  let sqs, proxy
+  let sqs, proxy, deliveryQueueUrl, bounceQueueUrl, complaintQueueUrl, error
 
   setup(() => {
     process.env.AUTH = 'authentication string'
     process.env.PROVIDER = 'sendgrid'
     process.env.SQS_SUFFIX = 'wibble'
-    sqs = {
-      push: sinon.spy()
-    }
+    process.env.DELIVERY_QUEUE_URL = deliveryQueueUrl = 'fxa-email-delivery'
+    process.env.BOUNCE_QUEUE_URL = bounceQueueUrl = 'fxa-email-bounce'
+    process.env.COMPLAINT_QUEUE_URL = complaintQueueUrl = 'fxa-email-complaint'
     sinon.spy(console, 'log')
     sinon.spy(console, 'error')
+
+    function SQS () {}
+
+    SQS.prototype = sqs = { sendMessage: () => {} }
+    sinon.stub(sqs, 'sendMessage').callsFake(() => {
+      return {
+        promise: () => {
+          if (error) {
+            return P.reject(error)
+          }
+          return P.resolve()
+        }
+      }
+    })
+
     proxy = proxyquire('../', {
-      sqs: () => sqs
+      'aws-sdk': {
+        SQS
+      }
     })
   })
 
@@ -43,10 +61,8 @@ suite('sendgrid:', () => {
   })
 
   suite('call with an event array:', () => {
-    let promise
-
     setup(done => {
-      promise = proxy.main([
+      proxy.main([
         {
           email: 'foo@example.com',
           timestamp: 1529507950,
@@ -196,15 +212,16 @@ suite('sendgrid:', () => {
       setImmediate(done)
     })
 
-    test('sqs.push was called nine times', () => {
-      assert.equal(sqs.push.callCount, 9)
+    test('sqs.sendMessage was called nine times', () => {
+      assert.equal(sqs.sendMessage.callCount, 9)
     })
 
-    test('sqs.push was called correctly first time', () => {
-      const args = sqs.push.args[0]
-      assert.lengthOf(args, 3)
-      assert.equal(args[0], 'fxa-email-delivery-wibble')
-      assert.deepEqual(JSON.parse(args[1].Message), {
+    test('sqs.sendMessage was called correctly first time', () => {
+      const args = sqs.sendMessage.args[0][0]
+      assert.equal(args.QueueUrl, deliveryQueueUrl)
+      const messageBody = JSON.parse(args.MessageBody)
+      const message = JSON.parse(messageBody.Message)
+      assert.deepEqual(message, {
         notificationType: 'Delivery',
         mail: {
           timestamp: '2018-06-20T15:19:11.000Z',
@@ -216,15 +233,14 @@ suite('sendgrid:', () => {
           smtpResponse: '250 OK'
         }
       })
-      assert.isFunction(args[2])
-      assert.lengthOf(args[2], 2)
     })
 
-    test('sqs.push was called correctly second time', () => {
-      const args = sqs.push.args[1]
-      assert.lengthOf(args, 3)
-      assert.equal(args[0], 'fxa-email-bounce-wibble')
-      assert.deepEqual(JSON.parse(args[1].Message), {
+    test('sqs.sendMessage was called correctly second time', () => {
+      const args = sqs.sendMessage.args[1][0]
+      assert.equal(args.QueueUrl, bounceQueueUrl)
+      const messageBody = JSON.parse(args.MessageBody)
+      const message = JSON.parse(messageBody.Message)
+      assert.deepEqual(message, {
         notificationType: 'Bounce',
         mail: {
           timestamp: '2018-06-20T15:19:12.000Z',
@@ -238,14 +254,14 @@ suite('sendgrid:', () => {
           timestamp: '2018-06-20T15:19:12.000Z'
         }
       })
-      assert.isFunction(args[2])
-      assert.lengthOf(args[2], 2)
-      assert.notEqual(args[2], sqs.push.args[0][2])
     })
 
-    test('sqs.push was called correctly third time', () => {
-      const args = sqs.push.args[2]
-      assert.deepEqual(JSON.parse(args[1].Message), {
+    test('sqs.sendMessage was called correctly third time', () => {
+      const args = sqs.sendMessage.args[2][0]
+      assert.equal(args.QueueUrl, bounceQueueUrl)
+      const messageBody = JSON.parse(args.MessageBody)
+      const message = JSON.parse(messageBody.Message)
+      assert.deepEqual(message, {
         notificationType: 'Bounce',
         mail: {
           timestamp: '2018-06-20T15:19:13.000Z',
@@ -261,9 +277,12 @@ suite('sendgrid:', () => {
       })
     })
 
-    test('sqs.push was called correctly fourth time', () => {
-      const args = sqs.push.args[3]
-      assert.deepEqual(JSON.parse(args[1].Message), {
+    test('sqs.sendMessage was called correctly fourth time', () => {
+      const args = sqs.sendMessage.args[3][0]
+      assert.equal(args.QueueUrl, bounceQueueUrl)
+      const messageBody = JSON.parse(args.MessageBody)
+      const message = JSON.parse(messageBody.Message)
+      assert.deepEqual(message, {
         notificationType: 'Bounce',
         mail: {
           timestamp: '2018-06-20T15:19:14.000Z',
@@ -279,9 +298,12 @@ suite('sendgrid:', () => {
       })
     })
 
-    test('sqs.push was called correctly fifth time', () => {
-      const args = sqs.push.args[4]
-      assert.deepEqual(JSON.parse(args[1].Message), {
+    test('sqs.sendMessage was called correctly fifth time', () => {
+      const args = sqs.sendMessage.args[4][0]
+      assert.equal(args.QueueUrl, bounceQueueUrl)
+      const messageBody = JSON.parse(args.MessageBody)
+      const message = JSON.parse(messageBody.Message)
+      assert.deepEqual(message, {
         notificationType: 'Bounce',
         mail: {
           timestamp: '2018-06-20T15:19:15.000Z',
@@ -297,9 +319,12 @@ suite('sendgrid:', () => {
       })
     })
 
-    test('sqs.push was called correctly sixth time', () => {
-      const args = sqs.push.args[5]
-      assert.deepEqual(JSON.parse(args[1].Message), {
+    test('sqs.sendMessage was called correctly sixth time', () => {
+      const args = sqs.sendMessage.args[5][0]
+      assert.equal(args.QueueUrl, bounceQueueUrl)
+      const messageBody = JSON.parse(args.MessageBody)
+      const message = JSON.parse(messageBody.Message)
+      assert.deepEqual(message, {
         notificationType: 'Bounce',
         mail: {
           timestamp: '2018-06-20T15:19:16.000Z',
@@ -315,9 +340,12 @@ suite('sendgrid:', () => {
       })
     })
 
-    test('sqs.push was called correctly seventh time', () => {
-      const args = sqs.push.args[6]
-      assert.deepEqual(JSON.parse(args[1].Message), {
+    test('sqs.sendMessage was called correctly seventh time', () => {
+      const args = sqs.sendMessage.args[6][0]
+      assert.equal(args.QueueUrl, bounceQueueUrl)
+      const messageBody = JSON.parse(args.MessageBody)
+      const message = JSON.parse(messageBody.Message)
+      assert.deepEqual(message, {
         notificationType: 'Bounce',
         mail: {
           timestamp: '2018-06-20T15:19:17.000Z',
@@ -333,9 +361,12 @@ suite('sendgrid:', () => {
       })
     })
 
-    test('sqs.push was called correctly eighth time', () => {
-      const args = sqs.push.args[7]
-      assert.deepEqual(JSON.parse(args[1].Message), {
+    test('sqs.sendMessage was called correctly eighth time', () => {
+      const args = sqs.sendMessage.args[7][0]
+      assert.equal(args.QueueUrl, bounceQueueUrl)
+      const messageBody = JSON.parse(args.MessageBody)
+      const message = JSON.parse(messageBody.Message)
+      assert.deepEqual(message, {
         notificationType: 'Bounce',
         mail: {
           timestamp: '2018-06-20T15:19:18.000Z',
@@ -351,9 +382,13 @@ suite('sendgrid:', () => {
       })
     })
 
-    test('sqs.push was called correctly ninth time', () => {
-      const args = sqs.push.args[8]
-      assert.deepEqual(JSON.parse(args[1].Message), {
+    test('sqs.sendMessage was called correctly ninth time', () => {
+      const args = sqs.sendMessage.args[8][0]
+      assert.equal(args.QueueUrl, complaintQueueUrl)
+      const messageBody = JSON.parse(args.MessageBody)
+      const message = JSON.parse(messageBody.Message)
+      assert.equal(args.QueueUrl, complaintQueueUrl)
+      assert.deepEqual(message, {
         notificationType: 'Complaint',
         mail: {
           timestamp: '2018-06-20T15:19:19.000Z',
@@ -366,129 +401,163 @@ suite('sendgrid:', () => {
         }
       })
     })
+  })
 
-    suite('call first callback without error:', () => {
-      setup(() => sqs.push.args[0][2]())
+  suite('call delivery without error:', () => {
+    let promise
 
-      test('console.log was called correctly', () => {
-        assert.equal(console.log.callCount, 1)
-        const args = console.log.args[0]
-        assert.lengthOf(args, 2)
-        assert.equal(args[0], 'Sent:')
-        assert.equal(args[1], 'Delivery')
-      })
+    setup(done => {
+      promise = proxy.main([{
+        email: 'bar@example.com',
+        timestamp: 1529507951,
+        event: 'delivered',
+        sg_event_id: 'XrVChmcNybFOoRSukqXL-Q==',
+        sg_message_id: 'deadbeef.baadf00d.filter0001.16648.5515E0B88.0',
+        response: '250 OK'
+      }])
+      setImmediate(done)
+    })
 
-      test('console.error was not called', () => {
-        assert.equal(console.error.callCount, 0)
+    test('console.log was called correctly', () => {
+      assert.equal(console.log.callCount, 1)
+      const args = console.log.args[0]
+      assert.lengthOf(args, 2)
+      assert.equal(args[0], 'Sent:')
+      assert.equal(args[1], 'Delivery')
+    })
+
+    test('console.error was not called', () => {
+      assert.equal(console.error.callCount, 0)
+    })
+
+    test('promise is resolved', () => {
+      assert.isFulfilled(promise)
+    })
+
+    test('result is correct', () => {
+      return promise.then(result => assert.deepEqual(result, {
+        statusCode: 200,
+        body: '{"result":"Processed 1 events"}',
+        isBase64Encoded: false
+      }))
+    })
+  })
+
+  suite('call delivery with error:', () => {
+    let promise
+
+    setup(done => {
+      error = new Error('foo')
+      promise = proxy.main([{
+        email: 'bar@example.com',
+        timestamp: 1529507951,
+        event: 'delivered',
+        sg_event_id: 'XrVChmcNybFOoRSukqXL-Q==',
+        sg_message_id: 'deadbeef.baadf00d.filter0001.16648.5515E0B88.0',
+        response: '250 OK'
+      }])
+      setImmediate(done)
+    })
+
+    teardown(() => {
+      error = undefined
+    })
+
+    test('console.log was not called', () => {
+      assert.equal(console.log.callCount, 0)
+    })
+
+    test('console.error was called twice', () => {
+      assert.equal(console.error.callCount, 2)
+    })
+
+    test('console.error was called correctly first time', () => {
+      const args = console.error.args[0]
+      assert.lengthOf(args, 2)
+      assert.equal(args[0], 'Failed to send event:')
+      assert.deepEqual(args[1], {
+        notificationType: 'Delivery',
+        mail: {
+          timestamp: '2018-06-20T15:19:11.000Z',
+          messageId: 'deadbeef.baadf00d'
+        },
+        delivery: {
+          timestamp: '2018-06-20T15:19:11.000Z',
+          recipients: [ 'bar@example.com' ],
+          smtpResponse: '250 OK'
+        }
       })
     })
 
-    suite('call first callback with error:', () => {
-      let error
+    test('console.error was called correctly second time', () => {
+      const args = console.error.args[1]
+      assert.lengthOf(args, 1)
+      assert.equal(args[0], error.stack)
+    })
 
-      setup(done => {
-        error = new Error('foo')
-        sqs.push.args[0][2](error)
-        setImmediate(done)
-      })
+    test('promise is resolved', () => {
+      assert.isFulfilled(promise)
+    })
 
-      teardown(() => promise.catch(() => {}))
-
-      test('console.log was not called', () => {
-        assert.equal(console.log.callCount, 0)
-      })
-
-      test('console.error was called twice', () => {
-        assert.equal(console.error.callCount, 2)
-      })
-
-      test('console.error was called correctly first time', () => {
-        const args = console.error.args[0]
-        assert.lengthOf(args, 2)
-        assert.equal(args[0], 'Failed to send event:')
-        assert.deepEqual(args[1], {
-          notificationType: 'Delivery',
-          mail: {
-            timestamp: '2018-06-20T15:19:11.000Z',
-            messageId: 'deadbeef.baadf00d'
-          },
-          delivery: {
-            timestamp: '2018-06-20T15:19:11.000Z',
-            recipients: [ 'bar@example.com' ],
-            smtpResponse: '250 OK'
-          }
+    test('result is correct', () => {
+      return promise.then(result => {
+        assert.deepEqual(result, {
+          statusCode: 500,
+          body: '{"error":"Internal Server Error","errno":999,"code":500,"message":"foo"}',
+          isBase64Encoded: false
         })
       })
+    })
+  })
 
-      test('console.error was called correctly second time', () => {
-        const args = console.error.args[1]
-        assert.lengthOf(args, 1)
-        assert.equal(args[0], error.stack)
-      })
+  suite('call bounce without error:', () => {
+    setup(done => {
+      proxy.main([{
+        email: 'blee@example.com',
+        timestamp: 1529507955,
+        event: 'bounce',
+        sg_event_id: 'CFhGF8ap7qNCE8sEnJr2nQ==',
+        sg_message_id: '2.filter0001.16648.5515E0B88.0',
+        status: '4.2.2'
+      }])
+      setImmediate(done)
     })
 
-    suite('call second callback without error:', () => {
-      setup(() => sqs.push.args[1][2]())
-
-      test('console.log was called correctly', () => {
-        assert.equal(console.log.callCount, 1)
-        const args = console.log.args[0]
-        assert.lengthOf(args, 2)
-        assert.equal(args[0], 'Sent:')
-        assert.equal(args[1], 'Bounce')
-      })
-
-      test('console.error was not called', () => {
-        assert.equal(console.error.callCount, 0)
-      })
+    test('console.log was called correctly', () => {
+      assert.equal(console.log.callCount, 1)
+      const args = console.log.args[0]
+      assert.lengthOf(args, 2)
+      assert.equal(args[0], 'Sent:')
+      assert.equal(args[1], 'Bounce')
     })
 
-    suite('call ninth callback without error:', () => {
-      setup(() => sqs.push.args[8][2]())
+    test('console.error was not called', () => {
+      assert.equal(console.error.callCount, 0)
+    })
+  })
 
-      test('console.log was called correctly', () => {
-        assert.equal(console.log.callCount, 1)
-        const args = console.log.args[0]
-        assert.lengthOf(args, 2)
-        assert.equal(args[0], 'Sent:')
-        assert.equal(args[1], 'Complaint')
-      })
-
-      test('console.error was not called', () => {
-        assert.equal(console.error.callCount, 0)
-      })
+  suite('call complaint without error:', () => {
+    setup(done => {
+      proxy.main([{
+        email: 'gom@example.com',
+        timestamp: 1529507959,
+        event: 'spamreport',
+        sg_event_id: '9E0fndeHZ8KvAVm6TGOQ2A==',
+        sg_message_id: '6.filter0001.16648.5515E0B88.0'
+      }])
+      setImmediate(done)
     })
 
-    suite('call all callbacks without errors:', () => {
-      setup(() => sqs.push.args.forEach(args => args[2]()))
-
-      test('promise is resolved', () => {
-        assert.isFulfilled(promise)
-      })
-
-      test('result is correct', () => {
-        return promise.then(result => assert.deepEqual(result, {
-          statusCode: 200,
-          body: '{"result":"Processed 9 events"}',
-          isBase64Encoded: false
-        }))
-      })
+    test('console.log was called correctly', () => {
+      assert.equal(console.log.callCount, 1)
+      const args = console.log.args[0]
+      assert.lengthOf(args, 2)
+      assert.equal(args[0], 'Sent:')
+      assert.equal(args[1], 'Complaint')
     })
 
-    suite('call all callbacks with one error:', () => {
-      setup(() => sqs.push.args.forEach((args, index) => args[2](index === 8 ? new Error() : null)))
-
-      test('promise is resolved', () => {
-        assert.isFulfilled(promise)
-      })
-
-      test('result is correct', () => {
-        return promise.then(result => assert.deepEqual(result, {
-          statusCode: 500,
-          body: '{"error":"Internal Server Error","errno":999,"code":500,"message":"Unspecified error"}',
-          isBase64Encoded: false
-        }))
-      })
+    test('console.error was not called', () => {
+      assert.equal(console.error.callCount, 0)
     })
   })
 
@@ -510,15 +579,16 @@ suite('sendgrid:', () => {
       setImmediate(done)
     })
 
-    test('sqs.push was called once', () => {
-      assert.equal(sqs.push.callCount, 1)
+    test('sqs.sendMessage was called once', () => {
+      assert.equal(sqs.sendMessage.callCount, 1)
     })
 
-    test('sqs.push was called correctly', () => {
-      const args = sqs.push.args[0]
-      assert.lengthOf(args, 3)
-      assert.equal(args[0], 'fxa-email-delivery-wibble')
-      assert.deepEqual(JSON.parse(args[1].Message), {
+    test('sqs.sendMessage was called correctly', () => {
+      const args = sqs.sendMessage.args[0][0]
+      assert.equal(args.QueueUrl, deliveryQueueUrl)
+      const messageBody = JSON.parse(args.MessageBody)
+      const message = JSON.parse(messageBody.Message)
+      assert.deepEqual(message, {
         notificationType: 'Delivery',
         mail: {
           timestamp: '2018-06-20T15:19:10.000Z',
@@ -530,8 +600,6 @@ suite('sendgrid:', () => {
           smtpResponse: '200 OK'
         }
       })
-      assert.isFunction(args[2])
-      assert.lengthOf(args[2], 2)
     })
   })
 
@@ -555,8 +623,8 @@ suite('sendgrid:', () => {
       return promise
     })
 
-    test('sqs.push was not called', () => {
-      assert.equal(sqs.push.callCount, 0)
+    test('sqs.sendMessage was not called', () => {
+      assert.equal(sqs.sendMessage.callCount, 0)
     })
 
     test('promise is resolved', () => {
@@ -589,8 +657,8 @@ suite('sendgrid:', () => {
       return promise
     })
 
-    test('sqs.push was not called', () => {
-      assert.equal(sqs.push.callCount, 0)
+    test('sqs.sendMessage was not called', () => {
+      assert.equal(sqs.sendMessage.callCount, 0)
     })
 
     test('promise is resolved', () => {

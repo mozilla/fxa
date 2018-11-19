@@ -90,14 +90,14 @@ This will kick off a build [in CircleCI](https://circleci.com/gh/mozilla/fxa-ema
      this instance will handle requests from.
      Valid values are `sendgrid` and `socketlabs`.
 
-   * `SQS_SUFFIX`:
-     The suffix for queue names,
-     e.g. `dev` or `stage`.
-     This setting assumes that our queues
-     are always named like
-     `fxa-email-bounce-${SQS_SUFFIX}`.
-     If that's not the case,
-     we'll need to change the code.
+   * `BOUNCE_QUEUE_URL`:
+     URL of the bounce SQS queue
+
+   * `COMPLAINT_QUEUE_URL`:
+     URL of the complaint SQS queue
+
+   * `DELIVERY_QUEUE_URL`:
+     URL of the delivery SQS queue
 
    You can also set explicit values
    for `SQS_ACCESS_KEY`, `SQS_SECRET_KEY` and `SQS_REGION`
