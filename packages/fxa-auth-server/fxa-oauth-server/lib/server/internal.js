@@ -24,27 +24,6 @@ exports.create = async function createServer() {
   server.auth.scheme(auth.AUTH_SCHEME, auth.strategy);
   server.auth.strategy(auth.AUTH_STRATEGY, auth.AUTH_SCHEME);
 
-  if (config.hpkpConfig && config.hpkpConfig.enabled) {
-    var hpkpOptions = {
-      maxAge: config.hpkpConfig.maxAge,
-      sha256s: config.hpkpConfig.sha256s,
-      includeSubdomains: config.hpkpConfig.includeSubDomains
-    };
-
-    if (config.hpkpConfig.reportUri){
-      hpkpOptions.reportUri = config.hpkpConfig.reportUri;
-    }
-
-    if (config.hpkpConfig.reportOnly){
-      hpkpOptions.reportOnly = config.hpkpConfig.reportOnly;
-    }
-
-    await server.register({
-      plugin: require('hapi-hpkp'),
-      options: hpkpOptions
-    });
-  }
-
   var routes = require('../routing').clients;
   if (isProd) {
     logger.info('prod', 'Disabling response schema validation');

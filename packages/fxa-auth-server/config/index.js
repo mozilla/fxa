@@ -736,44 +736,6 @@ var conf = convict({
       env: 'SIGNIN_UNBLOCK_FORCED_EMAILS'
     }
   },
-  hpkpConfig: {
-    enabled: {
-      default: false,
-      doc: 'Feature flag for appending HPKP headers',
-      format: Boolean,
-      env: 'HPKP_ENABLE'
-    },
-    reportOnly: {
-      default: true,
-      doc: 'Enable report only mode',
-      format: Boolean,
-      env: 'HPKP_REPORT_ONLY'
-    },
-    reportUri: {
-      default: '',
-      doc: 'Enable report only mode',
-      format: String,
-      env: 'HPKP_REPORT_URI'
-    },
-    includeSubDomains: {
-      default: true,
-      doc: 'Include Sub-Domains',
-      format: Boolean,
-      env: 'HPKP_INCLUDE_SUBDOMAINS'
-    },
-    maxAge: {
-      default: 1,
-      doc: 'Max age for HPKP headers (seconds)',
-      format: Number,
-      env: 'HPKP_MAX_AGE'
-    },
-    sha256s: {
-      default: [],
-      doc: 'Supported pin-sha256s',
-      format: Array,
-      env: 'HPKP_PIN_SHA256'
-    }
-  },
   push: {
     allowedServerRegex: {
       doc: 'RegExp that validates the URI format of the Push Server',

@@ -519,9 +519,6 @@ function getConfig () {
       port: 9000
     },
     useHttps: false,
-    hpkpConfig: {
-      enabled: false
-    },
     oauth: {
       clientIds: {},
       url: 'http://localhost:9010',
