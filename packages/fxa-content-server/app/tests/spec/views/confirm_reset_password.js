@@ -30,6 +30,7 @@ describe('views/confirm_reset_password', function () {
   let metrics;
   let model;
   let notifier;
+  let recoveryKeyExists = false;
   let relier;
   let user;
   let view;
@@ -61,6 +62,8 @@ describe('views/confirm_reset_password', function () {
     sinon.stub(fxaClient, 'isPasswordResetComplete').callsFake(function () {
       return Promise.resolve(true);
     });
+
+    sinon.stub(fxaClient, 'recoveryKeyExists').callsFake(() => Promise.resolve({exists: recoveryKeyExists}));
 
     model.set({
       email: EMAIL,
@@ -380,14 +383,28 @@ describe('views/confirm_reset_password', function () {
     });
   });
 
-
   describe('_finishPasswordResetDifferentBrowser', function () {
     it('redirects to page specified by broker if user verifies in a second browser', function () {
       sinon.spy(view, 'navigate');
 
       view._finishPasswordResetDifferentBrowser();
 
-      assert(view.navigate.calledOnceWith('signin'));
+      assert(view.navigate.calledOnceWith('signin', {success: 'Password reset successfully. Sign in to continue.'}));
+    });
+  });
+
+  describe('_finishPasswordResetDifferentBrowser with recovery key', () => {
+    beforeEach(() => {
+      recoveryKeyExists = true;
+      return view.render();
+    });
+
+    it('redirects to page specified by broker if user verifies in a second browser', () => {
+      sinon.spy(view, 'navigate');
+
+      view._finishPasswordResetDifferentBrowser();
+
+      assert(view.navigate.calledOnceWith('signin', {success: 'Sign in to continue.'}));
     });
   });
 

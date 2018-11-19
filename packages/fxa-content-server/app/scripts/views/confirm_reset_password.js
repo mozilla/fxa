@@ -44,6 +44,14 @@ const View = BaseView.extend({
     if (! this.model.has('passwordForgotToken')) {
       this.navigate('reset_password');
     }
+
+    // Check to see if account has a recovery key and store in model.
+    // The password reset success messaging will change depending on if it does
+    const account = this.user.initAccount({email: this.model.get('email')});
+    return account.checkRecoveryKeyExistsByEmail()
+      .then((result) => {
+        this.model.set('hasRecoveryKey', result.exists);
+      });
   },
 
   afterVisible () {
@@ -171,8 +179,14 @@ const View = BaseView.extend({
     // users will be redirected back to the RP, Sync users will be
     // taken to the Sync controlled completion page.
     Session.clear();
+
+    let success = t('Password reset successfully. Sign in to continue.');
+    if (this.model.get('hasRecoveryKey')) {
+      success = t('Sign in to continue.');
+    }
+
     this.navigate('signin', {
-      success: t('Password reset successfully. Sign in to continue.')
+      success
     });
   },
 
