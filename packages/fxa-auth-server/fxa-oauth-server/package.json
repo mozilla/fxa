@@ -32,7 +32,6 @@
     "fxa-notifier-aws": "1.0.0",
     "fxa-shared": "1.0.13",
     "hapi": "17.6.0",
-    "hapi-hpkp": "2.0.0",
     "joi": "14.0.0",
     "keypair": "1.0.1",
     "mozlog": "2.2.0",
