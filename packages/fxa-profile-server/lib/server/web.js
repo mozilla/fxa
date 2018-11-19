@@ -68,31 +68,6 @@ exports.create = function createServer() {
     port: config.server.port
   });
 
-  if (config.hpkpConfig && config.hpkpConfig.enabled) {
-    var hpkpOptions = {
-      maxAge: config.hpkpConfig.maxAge,
-      sha256s: config.hpkpConfig.sha256s,
-      includeSubdomains: config.hpkpConfig.includeSubDomains
-    };
-
-    if (config.hpkpConfig.reportUri){
-      hpkpOptions.reportUri = config.hpkpConfig.reportUri;
-    }
-
-    if (config.hpkpConfig.reportOnly){
-      hpkpOptions.reportOnly = config.hpkpConfig.reportOnly;
-    }
-
-    server.register({
-      register: require('hapi-hpkp'),
-      options: hpkpOptions
-    }, function (err) {
-      if (err) {
-        throw err;
-      }
-    });
-  }
-
   // configure Sentry
   const sentryDsn = config.sentryDsn;
   if (sentryDsn) {
