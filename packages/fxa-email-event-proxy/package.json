@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint .",
     "test": "mocha --ui tdd --recursive tests/",
-    "build": "zip --recurse-paths fxa-email-event-proxy *.js *.json node_modules"
+    "build": "zip --recurse-paths -y fxa-email-event-proxy *.js *.json node_modules"
   },
   "repository": {
     "type": "git",
