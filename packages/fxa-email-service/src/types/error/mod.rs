@@ -87,10 +87,16 @@ impl Fail for AppError {
 
 impl From<AppErrorKind> for AppError {
     fn from(kind: AppErrorKind) -> AppError {
+        let capture_in_sentry = kind.http_status() == Status::InternalServerError;
+
         let error = AppError {
             inner: Context::new(kind).into(),
         };
-        sentry::integrations::failure::capture_fail(&error);
+
+        if capture_in_sentry {
+            sentry::integrations::failure::capture_fail(&error);
+        }
+
         error
     }
 }
