@@ -1,3 +1,13 @@
+<a name="v1.125.2"></a>
+## v1.125.2 (2018-11-20)
+
+
+#### Bug Fixes
+
+* **sentry:** stop passing 4xx errors to Sentry ([3fed1052](3fed1052))
+
+
+
 <a name="v1.125.1"></a>
 ## v1.125.1 (2018-11-15)
 
