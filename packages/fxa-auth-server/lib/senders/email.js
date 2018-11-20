@@ -72,7 +72,7 @@ module.exports = function (log, config) {
   // in template.
   const templateNameToContentMap = {
     'lowRecoveryCodesEmail': 'recovery-codes',
-    'newDeviceLoginEmail': 'password-change',
+    'newDeviceLoginEmail': 'manage-account',
     'passwordChangedEmail': 'password-change',
     'passwordResetEmail': 'password-reset',
     'passwordResetAccountRecoveryEmail': 'create-recovery-key',
@@ -911,7 +911,7 @@ module.exports = function (log, config) {
   Mailer.prototype.newDeviceLoginEmail = function (message) {
     log.trace({ op: 'mailer.newDeviceLoginEmail', email: message.email, uid: message.uid })
     var templateName = 'newDeviceLoginEmail'
-    var links = this._generateLinks(this.initiatePasswordChangeUrl, message.email, {}, templateName)
+    var links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
     var translator = this.translator(message.acceptLanguage)
 
     var headers = {
@@ -935,6 +935,7 @@ module.exports = function (log, config) {
           location: this._constructLocationString(message),
           passwordChangeLink: links.passwordChangeLink,
           passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+          link: links.link,
           privacyUrl: links.privacyUrl,
           supportLinkAttributes: links.supportLinkAttributes,
           supportUrl: links.supportUrl,
