@@ -4,7 +4,7 @@
 
 'use strict';
 
-const assert = require('insist');
+const { assert } = require('chai');
 const Joi = require('joi');
 const route = require('../../lib/routes/authorization');
 const validation = route.validate.payload;
