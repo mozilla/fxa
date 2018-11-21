@@ -6,14 +6,16 @@ const Hapi = require('hapi');
 
 const AppError = require('../error');
 const authBearer = require('../auth_bearer');
-const config = require('../config').getProperties();
+const authClientManagement = require('../auth_client_management');
+let config = require('../config').getProperties();
 const configureSentry = require('./configureSentry');
 const env = require('../env');
 const logger = require('../logging')('server');
 const hapiLogger = require('../logging')('server.hapi');
 const summary = require('../logging/summary');
 
-exports.create = async function createServer() {
+exports.create = async function createServer(extraServerConfig = {}, createOptions = {}) {
+  config = {...config, ...extraServerConfig};
 
   if (config.localRedirects && config.env !== 'dev') {
     // nightly, latest, etc will probably set this to true, but it's
@@ -21,7 +23,7 @@ exports.create = async function createServer() {
     logger.warn('localRedirect',
       '*** localRedirects is set to TRUE. Should only be used for developers.');
   }
-  var isProd = env.isProdLike();
+  var isProd = createOptions.isProdLike || env.isProdLike();
   var server = new Hapi.Server(
     require('./config')
   );
@@ -29,7 +31,14 @@ exports.create = async function createServer() {
   server.auth.scheme(authBearer.AUTH_SCHEME, authBearer.strategy);
   server.auth.strategy(authBearer.AUTH_STRATEGY, authBearer.AUTH_SCHEME);
 
-  var routes = require('../routing').routes;
+  let routes = require('../routing').routes;
+
+  if (config.clientManagement.enabled && ! isProd) {
+    server.auth.scheme(authClientManagement.AUTH_SCHEME, authClientManagement.strategy);
+    server.auth.strategy(authClientManagement.AUTH_STRATEGY, authClientManagement.AUTH_SCHEME);
+    routes = routes.concat(require('../routing').clients);
+  }
+
   if (isProd) {
     logger.info('prod', 'Disabling response schema validation');
     routes.forEach(function(route) {

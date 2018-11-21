@@ -52,6 +52,14 @@ const conf = convict({
     env: 'OAUTH_CLIENTS',
     default: []
   },
+  clientManagement: {
+    enabled: {
+      doc: 'Enable client management in OAuth server routes',
+      default: false,
+      format: Boolean,
+      env: 'CLIENT_MANAGEMENT_ENABLED'
+    }
+  },
   scopes: {
     doc: 'Some pre-defined list of scopes that will be inserted into the DB',
     env: 'OAUTH_SCOPES',

@@ -9,7 +9,7 @@ const buf = require('buf').hex;
 
 const db = require('../../lib/db');
 const config = require('../../lib/config');
-const auth = require('../../lib/auth');
+const auth = require('../../lib/auth_client_management');
 const Promise = require('bluebird');
 
 /*global describe,it,before*/

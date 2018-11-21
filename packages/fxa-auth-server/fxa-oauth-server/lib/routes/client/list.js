@@ -5,7 +5,7 @@
 const Joi = require('joi');
 const hex = require('buf').to.hex;
 
-const auth = require('../../auth');
+const auth = require('../../auth_client_management');
 const db = require('../../db');
 const validators = require('../../validators');
 

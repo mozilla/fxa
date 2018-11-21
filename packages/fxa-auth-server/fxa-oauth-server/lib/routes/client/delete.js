@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const auth = require('../../auth');
+const auth = require('../../auth_client_management');
 const db = require('../../db');
 const validators = require('../../validators');
 const AppError = require('../../error');
