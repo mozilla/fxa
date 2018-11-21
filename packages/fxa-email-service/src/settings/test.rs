@@ -128,7 +128,11 @@ fn env_vars_take_precedence() {
                 }
             };
             let bounce_limits_enabled = !settings.bouncelimits.enabled;
-            let current_env = Env(String::from("test"));
+            let current_env = if settings.env == Env::Dev {
+                Env::Prod
+            } else {
+                Env::Dev
+            };
             let hmac_key = String::from("something else");
             let provider = Provider {
                 default: if settings.provider.default == ProviderType::Ses {
@@ -210,7 +214,7 @@ fn env_vars_take_precedence() {
                 &bounce_limits_enabled.to_string(),
             );
             env::set_var("FXA_EMAIL_HMACKEY", &hmac_key.to_string());
-            env::set_var("FXA_EMAIL_ENV", &current_env.0);
+            env::set_var("FXA_EMAIL_ENV", current_env.as_ref());
             env::set_var("FXA_EMAIL_LOG_LEVEL", &log.level.0);
             env::set_var("FXA_EMAIL_LOG_FORMAT", &log.format.0);
             env::set_var("FXA_EMAIL_PROVIDER_DEFAULT", provider.default.as_ref());
@@ -317,7 +321,7 @@ fn default_env() {
     let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_ENV"]);
 
     match Settings::new() {
-        Ok(settings) => assert_eq!(settings.env, Env("dev".to_string())),
+        Ok(settings) => assert_eq!(settings.env, Env::Dev),
         Err(_error) => assert!(false, "Settings::new shouldn't have failed"),
     }
 }
