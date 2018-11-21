@@ -75,6 +75,14 @@ describe('lib/validate', function () {
         assert.isFalse(Validate.isEmailValid(email), email + ' should not be valid');
       });
     });
+
+    it('returns true if email address contains an apostrophe', function () {
+      assert.isTrue(Validate.isEmailValid('a\'b@example.com'));
+    });
+
+    it('returns false if email address contains a single quote', function () {
+      assert.isFalse(Validate.isEmailValid('a’b@example.com'));
+    });
   });
 
   describe('isTokenValid', function () {
