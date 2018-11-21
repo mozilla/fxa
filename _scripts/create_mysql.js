@@ -21,21 +21,8 @@ const authserverMysql = {
   "min_uptime": "2m"
 };
 
-const oauthserverInternal = {
- "name": "oauth-server-internal PORT 9011",
- "script": "bin/internal.js",
- "cwd": "fxa-auth-server/fxa-oauth-server",
- "env": {
-   "NODE_ENV": "dev",
-   "HOST_INTERNAL" : "0.0.0.0"
- },
- "max_restarts": "1",
- "min_uptime": "2m"
-};
-
 newServers.push(mysqlServer);
 newServers.push(authserverMysql);
-newServers.push(oauthserverInternal);
 
 servers.apps.forEach((app) => {
   if(app.script.indexOf('mem.js') !== -1) {

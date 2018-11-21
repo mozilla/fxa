@@ -17,17 +17,6 @@
       "min_uptime": "2m"
     },
     {
-      "name": "oauth-server-internal PORT 9011",
-      "script": "bin/internal.js",
-      "cwd": "fxa-auth-server/fxa-oauth-server",
-      "env": {
-        "NODE_ENV": "dev",
-        "HOST_INTERNAL": "0.0.0.0"
-      },
-      "max_restarts": "1",
-      "min_uptime": "2m"
-    },
-    {
       "name": "auth-server local mail helper",
       "script": "test/mail_helper.js",
       "cwd": "fxa-auth-server",

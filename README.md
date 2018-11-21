@@ -215,17 +215,6 @@ After the script you need to rebuild *firefox-ios*.
 *******
 
 
-### OAuth Console Developer Accounts
-
-> Skip this if you are not working on managing OAuth clients or working on the OAuth console.
-
-To use the [fxa-oauth-console](https://github.com/mozilla/fxa-oauth-console) to manage OAuth clients you need to run the fxa-oauth-server in MySQL mode
-```
-./pm2 start mysql_servers.json
-```
-
-*******
-
 ### Running with MailDev
 
 If you want to inspect emails, you can run fxa-local-dev with [MailDev](https://www.npmjs.com/package/maildev).
