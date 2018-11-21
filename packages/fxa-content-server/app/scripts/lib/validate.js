@@ -41,7 +41,7 @@ const unblockCodeRegExp = new RegExp(unblockCodeRegExpStr, 'i');
 //   * http://tools.ietf.org/html/rfc5321#section-4.5.3.1.1
 // '/' in the character class is (redundantly) backslash-escaped to produce
 // the same minimized form in node 4.x and node 0.10.
-const emailRegex = /^[\w.!#$%&’*+\/=?^`{|}~-]{1,64}@[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?)+$/i;
+const emailRegex = /^[\w.!#$%&'*+\/=?^`{|}~-]{1,64}@[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?)+$/i;
 
 
 // TOTP codes are 6 digits
