@@ -8,7 +8,7 @@ const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
-var PASSWORD = 'password';
+var PASSWORD = 'passwordzxcv';
 var TIMEOUT = 90 * 1000;
 var email;
 

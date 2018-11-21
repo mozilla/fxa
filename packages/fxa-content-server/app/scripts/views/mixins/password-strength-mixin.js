@@ -25,22 +25,30 @@ export default function (config = {}) {
 
   return {
     afterRender () {
-      const passwordModel = this.passwordModel = this._createPasswordStrengthBalloonModel();
-      // wait a short time after the last change to log the invalid reason.
-      // The additional delay over when the UI updates is to minimize the
-      // chances of spurious warnings being logged as us helping the user.
-      this.listenTo(passwordModel, 'change', debounce(() => this._logErrorIfInvalid(), delayBeforeLogReasonMS));
+      return Promise.resolve().then(() => {
+        if (! this.$(passwordEl).length) {
+          // Only attach the balloon iff there is a password element. This avoids
+          // problems in the reset-password screen when using the recovery key
+          return;
+        }
 
-      this.on('submitStart', () => passwordModel.set('isSubmitting', true));
-      this.on('submitEnd', () => passwordModel.set('isSubmitting', false));
+        const passwordModel = this.passwordModel = this._createPasswordStrengthBalloonModel();
+        // wait a short time after the last change to log the invalid reason.
+        // The additional delay over when the UI updates is to minimize the
+        // chances of spurious warnings being logged as us helping the user.
+        this.listenTo(passwordModel, 'change', debounce(() => this._logErrorIfInvalid(), delayBeforeLogReasonMS));
 
-      const passwordView = this._createPasswordWithStrengthBalloonView(passwordModel);
-      this.trackChildView(passwordView);
+        this.on('submitStart', () => passwordModel.set('isSubmitting', true));
+        this.on('submitEnd', () => passwordModel.set('isSubmitting', false));
 
-      // the password element is already rendered,
-      // call it's afterRender function to
-      // create the balloon.
-      return passwordView.afterRender();
+        const passwordView = this._createPasswordWithStrengthBalloonView(passwordModel);
+        this.trackChildView(passwordView);
+
+        // the password element is already rendered,
+        // call it's afterRender function to
+        // create the balloon.
+        return passwordView.afterRender();
+      });
     },
 
     _createPasswordStrengthBalloonModel () {

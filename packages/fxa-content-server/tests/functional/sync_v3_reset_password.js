@@ -32,6 +32,7 @@ const {
   testIsBrowserNotified,
   testSuccessWasShown,
   thenify,
+  type,
 } = FunctionalHelpers;
 
 const setupTest = thenify(function (query) {
@@ -103,6 +104,33 @@ registerSuite('Firefox Desktop Sync v3 reset password', {
         // Only expect the login message in the verification tab to avoid
         // a race condition within the browser when it receives two login messages.
         .then(noSuchBrowserNotification('fxaccounts:login'));
+    },
+
+    'reset password, verify same browser, password validation': function () {
+      const query = {
+        forceExperiment: 'passwordStrength',
+        forceExperimentGroup: 'designF'
+      };
+
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
+        .then(fillOutResetPassword(email))
+
+        .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
+        .then(openVerificationLinkInNewTab(email, 0, { query }))
+        .then(switchToWindow(1))
+
+        .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.HEADER))
+
+        .then(type(selectors.COMPLETE_RESET_PASSWORD.PASSWORD, 'pass'))
+        .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL))
+
+        .then(type(selectors.COMPLETE_RESET_PASSWORD.PASSWORD, 'password'))
+        .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_FAIL))
+
+        .then(type(selectors.COMPLETE_RESET_PASSWORD.PASSWORD, email))
+        .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_FAIL));
     }
   }
 });

@@ -15,7 +15,7 @@ const SIGNUP_URL = config.fxaContentRoot + 'signup';
 const SIGNIN_URL = config.fxaContentRoot + 'signin';
 const SETTINGS_URL = config.fxaContentRoot + 'settings';
 const PASSWORD = 'passwordzxcv';
-const NEW_PASSWORD = 'password1';
+const NEW_PASSWORD = 'passwordzxcv1';
 
 let email;
 let secondaryEmail;

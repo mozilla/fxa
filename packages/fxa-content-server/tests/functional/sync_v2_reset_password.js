@@ -9,7 +9,7 @@ const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 var config = intern._config;
 
-var PASSWORD = 'password';
+var PASSWORD = 'passwordzxcv';
 var RESET_PASSWORD_URL = config.fxaContentRoot + 'reset_password?context=fx_desktop_v2&service=sync&forceAboutAccounts=true&automatedBrowser=true';
 
 var email;

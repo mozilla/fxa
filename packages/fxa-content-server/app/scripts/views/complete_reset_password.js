@@ -10,6 +10,7 @@ import FlowEventsMixin from './mixins/flow-events-mixin';
 import Notifier from '../lib/channels/notifier';
 import PasswordMixin from './mixins/password-mixin';
 import PasswordResetMixin from './mixins/password-reset-mixin';
+import PasswordStrengthMixin from './mixins/password-strength-mixin';
 import ResendMixin from './mixins/resend-mixin';
 import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/complete_reset_password.mustache';
@@ -33,7 +34,7 @@ const View = FormView.extend({
   initialize (options) {
     options = options || {};
 
-    var searchParams = Url.searchParams(this.window.location.search);
+    const searchParams = Url.searchParams(this.window.location.search);
     this._verificationInfo = new VerificationInfo(searchParams);
 
     const model = options.model;
@@ -64,7 +65,7 @@ const View = FormView.extend({
   beforeRender () {
     this.logViewEvent('verification.clicked');
 
-    var verificationInfo = this._verificationInfo;
+    const verificationInfo = this._verificationInfo;
     if (! verificationInfo.isValid()) {
       // One or more parameters fails validation. Abort and show an
       // error message before doing any more checks.
@@ -108,10 +109,10 @@ const View = FormView.extend({
   },
 
   setInitialContext (context) {
-    var verificationInfo = this._verificationInfo;
-    var doesLinkValidate = verificationInfo.isValid();
-    var isLinkExpired = verificationInfo.isExpired();
-    var showSyncWarning = this.relier.get('resetPasswordConfirm');
+    const verificationInfo = this._verificationInfo;
+    const doesLinkValidate = verificationInfo.isValid();
+    const isLinkExpired = verificationInfo.isExpired();
+    let showSyncWarning = this.relier.get('resetPasswordConfirm');
     const showAccountRecoveryInfo = !! this._accountRecoveryVerficationInfo;
 
     if (showAccountRecoveryInfo) {
@@ -137,16 +138,16 @@ const View = FormView.extend({
 
   showValidationErrorsEnd () {
     if (this._getPassword() !== this._getVPassword()) {
-      var err = AuthErrors.toError('PASSWORDS_DO_NOT_MATCH');
+      const err = AuthErrors.toError('PASSWORDS_DO_NOT_MATCH');
       this.displayError(err);
     }
   },
 
   submit () {
-    var verificationInfo = this._verificationInfo;
-    var password = this._getPassword();
-    var token = verificationInfo.get('token');
-    var code = verificationInfo.get('code');
+    const verificationInfo = this._verificationInfo;
+    const password = this._getPassword();
+    const token = verificationInfo.get('token');
+    const code = verificationInfo.get('code');
     const emailToHashWith = verificationInfo.get('emailToHashWith');
 
     // If the user verifies in the same browser and the original tab
@@ -156,7 +157,7 @@ const View = FormView.extend({
     // will store the sessionToken in localStorage, when the
     // reset password complete poll completes in the original tab,
     // it will fetch the sessionToken from localStorage and go to town.
-    var account = this.getAccount();
+    const account = this.getAccount();
 
     return Promise.resolve()
       .then(() => {
@@ -232,6 +233,10 @@ Cocktail.mixin(
   FlowEventsMixin,
   PasswordMixin,
   PasswordResetMixin,
+  PasswordStrengthMixin({
+    balloonEl: '.helper-balloon',
+    passwordEl: '#password'
+  }),
   ResendMixin(),
   ServiceMixin
 );
