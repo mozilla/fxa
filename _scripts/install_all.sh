@@ -40,7 +40,7 @@ cd fxa-auth-db-mysql; npm i; cd ..
 
 cd fxa-auth-server; npm link ../fxa-auth-db-mysql; cd ..
 
-cd fxa-email-service; rustup override set nightly-2018-08-06; cargo build --bin fxa_email_send; cd ..
+cd fxa-email-service; cargo build --bin fxa_email_send; cd ..
 
 cd browserid-verifier; npm i; cd ..
 
