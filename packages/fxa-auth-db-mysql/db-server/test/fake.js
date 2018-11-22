@@ -143,7 +143,7 @@ module.exports.newUserDataBuffer = function() {
   // account
   data.accountId = buf16()
   data.account = {
-    email: buf16() + '@example.com',
+    email: hex16() + '@example.com',
     emailCode: buf16(),
     emailVerified: false,
     verifierVersion: 1,
