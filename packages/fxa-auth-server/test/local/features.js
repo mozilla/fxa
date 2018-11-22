@@ -60,9 +60,9 @@ describe('features', () => {
       assert.equal(args.length, 1, 'hash.digest should have been passed one argument')
       assert.equal(args[0], 'hex', 'hash.digest ecnoding should have been hex')
 
-      crypto.createHash.reset()
-      hash.update.reset()
-      hash.digest.reset()
+      crypto.createHash.resetHistory()
+      hash.update.resetHistory()
+      hash.digest.resetHistory()
     }
   )
 
@@ -112,9 +112,9 @@ describe('features', () => {
       assert.equal(args.length, 1, 'hash.digest should have been passed one argument')
       assert.equal(args[0], 'hex', 'hash.digest ecnoding should have been hex')
 
-      crypto.createHash.reset()
-      hash.update.reset()
-      hash.digest.reset()
+      crypto.createHash.resetHistory()
+      hash.update.resetHistory()
+      hash.digest.resetHistory()
 
       sampleRate = 0.04
 
@@ -126,17 +126,17 @@ describe('features', () => {
       assert.equal(hash.update.args[1][0], 'bar', 'hash.update data should have been key second time')
       assert.equal(hash.digest.callCount, 1, 'hash.digest should have been called once')
 
-      crypto.createHash.reset()
-      hash.update.reset()
-      hash.digest.reset()
+      crypto.createHash.resetHistory()
+      hash.update.resetHistory()
+      hash.digest.resetHistory()
 
       sampleRate = 0.03
 
       assert.equal(features.isSampledUser(sampleRate, uid, 'foo'), false, 'should return false if sample rate is less than the extracted cohort value')
 
-      crypto.createHash.reset()
-      hash.update.reset()
-      hash.digest.reset()
+      crypto.createHash.resetHistory()
+      hash.update.resetHistory()
+      hash.digest.resetHistory()
 
       uid = Array(64).fill('7').join('')
       sampleRate = 0.03
@@ -149,9 +149,9 @@ describe('features', () => {
       assert.equal(hash.update.args[0][0], uid, 'hash.update data should have been stringified uid first time')
       assert.equal(hash.update.args[1][0], 'wibble', 'hash.update data should have been key second time')
 
-      crypto.createHash.reset()
-      hash.update.reset()
-      hash.digest.reset()
+      crypto.createHash.resetHistory()
+      hash.update.resetHistory()
+      hash.digest.resetHistory()
     }
   )
 

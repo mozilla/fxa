@@ -19,7 +19,7 @@ describe('cache:', () => {
   let sandbox, log, cache, token, digest
 
   beforeEach(() => {
-    sandbox = sinon.sandbox.create()
+    sandbox = sinon.createSandbox()
     log = mocks.mockLog()
     cache = require(modulePath)(log, {
       memcached: {
@@ -54,9 +54,9 @@ describe('cache:', () => {
 
   describe('memcached resolves:', () => {
     beforeEach(() => {
-      sandbox.stub(Memcached.prototype, 'addAsync', () => P.resolve())
-      sandbox.stub(Memcached.prototype, 'delAsync', () => P.resolve())
-      sandbox.stub(Memcached.prototype, 'getAsync', () => P.resolve('mock get result'))
+      sandbox.stub(Memcached.prototype, 'addAsync').callsFake(() => P.resolve())
+      sandbox.stub(Memcached.prototype, 'delAsync').callsFake(() => P.resolve())
+      sandbox.stub(Memcached.prototype, 'getAsync').callsFake(() => P.resolve('mock get result'))
     })
 
     describe('add:', () => {
@@ -122,9 +122,9 @@ describe('cache:', () => {
 
   describe('memcached rejects:', () => {
     beforeEach(() => {
-      sandbox.stub(Memcached.prototype, 'addAsync', () => P.reject('foo'))
-      sandbox.stub(Memcached.prototype, 'delAsync', () => P.reject('bar'))
-      sandbox.stub(Memcached.prototype, 'getAsync', () => P.reject('baz'))
+      sandbox.stub(Memcached.prototype, 'addAsync').callsFake(() => P.reject('foo'))
+      sandbox.stub(Memcached.prototype, 'delAsync').callsFake(() => P.reject('bar'))
+      sandbox.stub(Memcached.prototype, 'getAsync').callsFake(() => P.reject('baz'))
     })
 
     describe('add:', () => {
@@ -172,7 +172,7 @@ describe('null cache:', () => {
   let sandbox, log, cache, token
 
   beforeEach(() => {
-    sandbox = sinon.sandbox.create()
+    sandbox = sinon.createSandbox()
     log = mocks.mockLog()
     cache = require(modulePath)(log, {
       memcached: {
@@ -185,9 +185,9 @@ describe('null cache:', () => {
       uid: Buffer.alloc(32, 'cd'),
       id: 'deadbeef'
     }
-    sandbox.stub(Memcached.prototype, 'addAsync', () => P.resolve())
-    sandbox.stub(Memcached.prototype, 'delAsync', () => P.resolve())
-    sandbox.stub(Memcached.prototype, 'getAsync', () => P.resolve())
+    sandbox.stub(Memcached.prototype, 'addAsync').callsFake(() => P.resolve())
+    sandbox.stub(Memcached.prototype, 'delAsync').callsFake(() => P.resolve())
+    sandbox.stub(Memcached.prototype, 'getAsync').callsFake(() => P.resolve())
   })
 
   afterEach(() => sandbox.restore())

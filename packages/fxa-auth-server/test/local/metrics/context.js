@@ -664,7 +664,7 @@ describe('metricsContext', () => {
     () => {
       const flowBeginTime = 1451566800000
       const flowId = '1234567890abcdef1234567890abcdef06146f1d05e7ae215885a4e45b66ff1f'
-      sinon.stub(Date, 'now', function() {
+      sinon.stub(Date, 'now').callsFake(function() {
         return flowBeginTime + 59999
       })
       const mockLog = mocks.mockLog()
@@ -945,7 +945,7 @@ describe('metricsContext', () => {
           }
         }
       }
-      sinon.stub(Date, 'now', function() {
+      sinon.stub(Date, 'now').callsFake(function() {
         return expectedTime + 20000
       })
 
@@ -993,7 +993,7 @@ describe('metricsContext', () => {
           }
         }
       }
-      sinon.stub(Date, 'now', function() {
+      sinon.stub(Date, 'now').callsFake(function() {
         return expectedTime + 20000
       })
 
@@ -1044,7 +1044,7 @@ describe('metricsContext', () => {
           }
         }
       }
-      sinon.stub(Date, 'now', function() {
+      sinon.stub(Date, 'now').callsFake(function() {
         return expectedTime + 20000
       })
 
@@ -1070,7 +1070,7 @@ describe('metricsContext', () => {
   it('metricsContext.validate with flow signature compared without user agent', () => {
     const flowBeginTime = 1451566800000
     const flowId = '1234567890abcdef1234567890abcdef06146f1d05e7ae215885a4e45b66ff1f'
-    sinon.stub(Date, 'now', () => flowBeginTime + 59999)
+    sinon.stub(Date, 'now').callsFake(() => flowBeginTime + 59999)
     const mockLog = mocks.mockLog()
     const mockConfig = {
       memcached: {},

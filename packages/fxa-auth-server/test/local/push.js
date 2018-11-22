@@ -775,7 +775,7 @@ describe('push', () => {
         }
       }
       const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
-      sinon.stub(push, 'sendPush', () => P.resolve())
+      sinon.stub(push, 'sendPush').callsFake(() => P.resolve())
 
       return push.notifyAccountUpdated(mockUid, mockDevices, 'deviceConnected').catch(function (err) {
         assert.fail('must not throw')

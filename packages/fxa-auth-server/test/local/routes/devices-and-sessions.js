@@ -106,8 +106,8 @@ describe('/account/device', function () {
       assert.deepEqual(response, mockRequest.payload)
     })
       .then(function () {
-        mockDevices.isSpuriousUpdate.reset()
-        mockDevices.upsert.reset()
+        mockDevices.isSpuriousUpdate.resetHistory()
+        mockDevices.upsert.resetHistory()
       })
   })
 
@@ -131,8 +131,8 @@ describe('/account/device', function () {
       assert.deepEqual(args[2], mockRequest.payload, 'third argument was payload')
     })
       .then(function () {
-        mockDevices.isSpuriousUpdate.reset()
-        mockDevices.upsert.reset()
+        mockDevices.isSpuriousUpdate.resetHistory()
+        mockDevices.upsert.resetHistory()
       })
   })
 
@@ -146,8 +146,8 @@ describe('/account/device', function () {
       assert.equal(args[2].id, mockRequest.auth.credentials.deviceId.toString('hex'), 'payload.id defaulted to credentials.deviceId')
     })
       .then(function () {
-        mockDevices.isSpuriousUpdate.reset()
-        mockDevices.upsert.reset()
+        mockDevices.isSpuriousUpdate.resetHistory()
+        mockDevices.upsert.resetHistory()
       })
   })
 
@@ -176,8 +176,8 @@ describe('/account/device', function () {
       assert.deepEqual(args[2].availableCommands, {}, 'availableCommands are ignored when pushbox is disabled')
     })
       .then(function () {
-        mockDevices.isSpuriousUpdate.reset()
-        mockDevices.upsert.reset()
+        mockDevices.isSpuriousUpdate.resetHistory()
+        mockDevices.upsert.resetHistory()
         delete config.pushbox
       })
   })
@@ -349,9 +349,9 @@ describe('/account/devices/notify', function () {
   })
 
   it('specific devices', function () {
-    mockCustoms.checkAuthenticated.reset()
-    mockLog.activityEvent.reset()
-    mockLog.error.reset()
+    mockCustoms.checkAuthenticated.resetHistory()
+    mockLog.activityEvent.resetHistory()
+    mockLog.error.resetHistory()
     mockRequest.payload = {
       to: ['bogusid1', 'bogusid2'],
       TTL: 60,
@@ -393,9 +393,9 @@ describe('/account/devices/notify', function () {
   })
 
   it('does not log activity event for non-send-tab-related notifications', function () {
-    mockPush.sendPush.reset()
-    mockLog.activityEvent.reset()
-    mockLog.error.reset()
+    mockPush.sendPush.resetHistory()
+    mockLog.activityEvent.resetHistory()
+    mockLog.error.resetHistory()
     mockRequest.payload = {
       to: ['bogusid1', 'bogusid2'],
       TTL: 60,

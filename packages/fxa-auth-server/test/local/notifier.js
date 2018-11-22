@@ -17,8 +17,8 @@ describe('notifier', () => {
   }
 
   beforeEach(() => {
-    log.error.reset()
-    log.trace.reset()
+    log.error.resetHistory()
+    log.trace.resetHistory()
   })
 
   describe('with sns configuration', () => {

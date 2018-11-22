@@ -18,7 +18,7 @@ const emailHelpers = proxyquire(`${ROOT_DIR}/lib/email/utils/helpers`, {
 })
 
 describe('email utils helpers', () => {
-  afterEach(() => amplitude.reset())
+  afterEach(() => amplitude.resetHistory())
 
   describe('getHeaderValue', () => {
 

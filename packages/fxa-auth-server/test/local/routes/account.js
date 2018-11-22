@@ -394,7 +394,7 @@ describe('/account/create', () => {
     const uid = mocked.uid
 
     const now = Date.now()
-    sinon.stub(Date, 'now', () => now)
+    sinon.stub(Date, 'now').callsFake(() => now)
 
     return runTest(route, mockRequest, () => {
       assert.equal(mockDB.createAccount.callCount, 1, 'createAccount was called')
@@ -670,29 +670,29 @@ describe('/account/login', function () {
   const defaultEmailAccountRecord = mockDB.accountRecord
 
   afterEach(() => {
-    mockLog.activityEvent.reset()
-    mockLog.flowEvent.reset()
+    mockLog.activityEvent.resetHistory()
+    mockLog.flowEvent.resetHistory()
     mockMailer.sendNewDeviceLoginNotification = sinon.spy(() => P.resolve([]))
     mockMailer.sendVerifyLoginEmail = sinon.spy(() => P.resolve())
-    mockMailer.sendVerifyCode.reset()
-    mockDB.createSessionToken.reset()
-    mockDB.sessions.reset()
-    mockMetricsContext.stash.reset()
-    mockMetricsContext.validate.reset()
-    mockMetricsContext.setFlowCompleteSignal.reset()
+    mockMailer.sendVerifyCode.resetHistory()
+    mockDB.createSessionToken.resetHistory()
+    mockDB.sessions.resetHistory()
+    mockMetricsContext.stash.resetHistory()
+    mockMetricsContext.validate.resetHistory()
+    mockMetricsContext.setFlowCompleteSignal.resetHistory()
     mockDB.emailRecord = defaultEmailRecord
-    mockDB.emailRecord.reset()
+    mockDB.emailRecord.resetHistory()
     mockDB.accountRecord = defaultEmailAccountRecord
-    mockDB.accountRecord.reset()
+    mockDB.accountRecord.resetHistory()
     mockDB.getSecondaryEmail = sinon.spy(() => P.reject(error.unknownSecondaryEmail()))
-    mockDB.getSecondaryEmail.reset()
+    mockDB.getSecondaryEmail.resetHistory()
     mockRequest.payload.email = TEST_EMAIL
     mockRequest.payload.verificationMethod = undefined
   })
 
   it('emits the correct series of calls and events', function () {
     const now = Date.now()
-    sinon.stub(Date, 'now', () => now)
+    sinon.stub(Date, 'now').callsFake(() => now)
 
     return runTest(route, mockRequest, function (response) {
       assert.equal(mockDB.accountRecord.callCount, 1, 'db.accountRecord was called')
@@ -1157,7 +1157,7 @@ describe('/account/login', function () {
       mockDB.sessions = sinon.spy(function () {
         return P.resolve(new Array(201))
       })
-      mockLog.error.reset()
+      mockLog.error.resetHistory()
       return runTest(route, mockRequest, function () {
         assert.equal(mockLog.error.callCount, 1, 'log.error was called')
         assert.equal(mockLog.error.firstCall.args[0].op, 'Account.login')
@@ -1272,8 +1272,8 @@ describe('/account/login', function () {
       })
 
       beforeEach(() => {
-        mockLog.activityEvent.reset()
-        mockLog.flowEvent.reset()
+        mockLog.activityEvent.resetHistory()
+        mockLog.flowEvent.resetHistory()
       })
 
       after(() => {
@@ -1282,7 +1282,7 @@ describe('/account/login', function () {
 
       describe('signin unblock enabled', () => {
         before(() => {
-          mockLog.flowEvent.reset()
+          mockLog.flowEvent.resetHistory()
         })
 
         it('without unblock code', () => {
@@ -1293,7 +1293,7 @@ describe('/account/login', function () {
             assert.equal(err.output.payload.verificationReason, 'login')
             assert.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent called once')
             assert.equal(mockLog.flowEvent.args[0][0].event, 'account.login.blocked', 'first event is blocked')
-            mockLog.flowEvent.reset()
+            mockLog.flowEvent.resetHistory()
           })
         })
 
@@ -1307,7 +1307,7 @@ describe('/account/login', function () {
               assert.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent called twice')
               assert.equal(mockLog.flowEvent.args[1][0].event, 'account.login.invalidUnblockCode', 'second event is invalid')
 
-              mockLog.flowEvent.reset()
+              mockLog.flowEvent.resetHistory()
             })
           })
 
@@ -1321,8 +1321,8 @@ describe('/account/login', function () {
               assert.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent called twice')
               assert.equal(mockLog.flowEvent.args[1][0].event, 'account.login.invalidUnblockCode', 'second event is invalid')
 
-              mockLog.activityEvent.reset()
-              mockLog.flowEvent.reset()
+              mockLog.activityEvent.resetHistory()
+              mockLog.flowEvent.resetHistory()
             })
           })
 
@@ -1449,8 +1449,8 @@ describe('/account/keys', function () {
       }, 'event data was correct')
     })
       .then(function () {
-        mockLog.activityEvent.reset()
-        mockDB.deleteKeyFetchToken.reset()
+        mockLog.activityEvent.resetHistory()
+        mockDB.deleteKeyFetchToken.resetHistory()
       })
   })
 
@@ -1462,7 +1462,7 @@ describe('/account/keys', function () {
       assert.equal(response.message, 'Unverified account', 'correct error message')
     })
       .then(function () {
-        mockLog.activityEvent.reset()
+        mockLog.activityEvent.resetHistory()
       })
   })
 })

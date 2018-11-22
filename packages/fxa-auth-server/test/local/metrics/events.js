@@ -22,10 +22,10 @@ const P = require('../../../lib/promise')
 
 describe('metrics/events', () => {
   afterEach(() => {
-    log.activityEvent.reset()
-    log.amplitudeEvent.reset()
-    log.error.reset()
-    log.flowEvent.reset()
+    log.activityEvent.resetHistory()
+    log.amplitudeEvent.resetHistory()
+    log.error.resetHistory()
+    log.flowEvent.resetHistory()
   })
 
   it('interface is correct', () => {
@@ -155,7 +155,7 @@ describe('metrics/events', () => {
 
   it('.emit with flow event', () => {
     const time = Date.now()
-    sinon.stub(Date, 'now', () => time)
+    sinon.stub(Date, 'now').callsFake(() => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
       credentials: {
@@ -217,7 +217,7 @@ describe('metrics/events', () => {
 
   it('.emit with flow event and no session token', () => {
     const time = Date.now()
-    sinon.stub(Date, 'now', () => time)
+    sinon.stub(Date, 'now').callsFake(() => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = {
       app: {
@@ -271,7 +271,7 @@ describe('metrics/events', () => {
 
   it('.emit with flow event and string uid', () => {
     const time = Date.now()
-    sinon.stub(Date, 'now', () => time)
+    sinon.stub(Date, 'now').callsFake(() => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
       headers: {
@@ -318,7 +318,7 @@ describe('metrics/events', () => {
 
   it('.emit with flow event and buffer uid', () => {
     const time = Date.now()
-    sinon.stub(Date, 'now', () => time)
+    sinon.stub(Date, 'now').callsFake(() => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
       headers: {
@@ -365,7 +365,7 @@ describe('metrics/events', () => {
 
   it('.emit with flow event and null uid', () => {
     const time = Date.now()
-    sinon.stub(Date, 'now', () => time)
+    sinon.stub(Date, 'now').callsFake(() => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
       headers: {
@@ -411,7 +411,7 @@ describe('metrics/events', () => {
 
   it('.emit with flow event that matches complete signal', () => {
     const time = Date.now()
-    sinon.stub(Date, 'now', () => time)
+    sinon.stub(Date, 'now').callsFake(() => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
       headers: {
@@ -540,7 +540,7 @@ describe('metrics/events', () => {
 
   it('.emit with hybrid activity/flow event', () => {
     const time = Date.now()
-    sinon.stub(Date, 'now', () => time)
+    sinon.stub(Date, 'now').callsFake(() => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
       headers: {
@@ -695,7 +695,7 @@ describe('metrics/events', () => {
 
   it('.emitRouteFlowEvent with matching route and response.statusCode', () => {
     const time = Date.now()
-    sinon.stub(Date, 'now', () => time)
+    sinon.stub(Date, 'now').callsFake(() => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
       headers: {
@@ -756,7 +756,7 @@ describe('metrics/events', () => {
 
   it('.emitRouteFlowEvent with matching route and response.output.statusCode', () => {
     const time = Date.now()
-    sinon.stub(Date, 'now', () => time)
+    sinon.stub(Date, 'now').callsFake(() => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
       headers: {
@@ -799,7 +799,7 @@ describe('metrics/events', () => {
 
   it('.emitRouteFlowEvent with matching route and 400 statusCode', () => {
     const time = Date.now()
-    sinon.stub(Date, 'now', () => time)
+    sinon.stub(Date, 'now').callsFake(() => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
       headers: {
@@ -842,7 +842,7 @@ describe('metrics/events', () => {
 
   it('.emitRouteFlowEvent with matching route and 404 statusCode', () => {
     const time = Date.now()
-    sinon.stub(Date, 'now', () => time)
+    sinon.stub(Date, 'now').callsFake(() => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
       headers: {
@@ -872,7 +872,7 @@ describe('metrics/events', () => {
 
   it('.emitRouteFlowEvent with matching route and 400 statusCode with errno', () => {
     const time = Date.now()
-    sinon.stub(Date, 'now', () => time)
+    sinon.stub(Date, 'now').callsFake(() => time)
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
       headers: {

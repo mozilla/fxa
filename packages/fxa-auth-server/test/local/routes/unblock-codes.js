@@ -61,9 +61,9 @@ describe('/account/login/send_unblock_code', function () {
   var route = getRoute(accountRoutes, '/account/login/send_unblock_code')
 
   afterEach(function () {
-    mockDb.accountRecord.reset()
-    mockDb.createUnblockCode.reset()
-    mockMailer.sendUnblockCode.reset()
+    mockDb.accountRecord.resetHistory()
+    mockDb.createUnblockCode.resetHistory()
+    mockMailer.sendUnblockCode.resetHistory()
   })
 
   it('signin unblock enabled', function () {
@@ -85,7 +85,7 @@ describe('/account/login/send_unblock_code', function () {
 
       assert.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent was called once')
       assert.equal(mockLog.flowEvent.args[0][0].event, 'account.login.sentUnblockCode', 'event was account.login.sentUnblockCode')
-      mockLog.flowEvent.reset()
+      mockLog.flowEvent.resetHistory()
     })
   })
 
