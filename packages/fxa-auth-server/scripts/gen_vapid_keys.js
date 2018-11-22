@@ -22,9 +22,13 @@
 'use strict'
 
 const fs = require('fs')
-const config = require('../config')
 const webpush = require('web-push')
 
+if (! process.env.NODE_ENV) {
+  process.env.NODE_ENV = 'dev'
+}
+
+const config = require('../config')
 const vapidKeysFile = config.get('vapidKeysFile')
 
 var fileExists = fs.existsSync(vapidKeysFile)

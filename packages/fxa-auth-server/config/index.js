@@ -928,4 +928,17 @@ if (conf.get('env') === 'dev'){
   }
 }
 
+// Ensure secrets are not set to their default values in production.
+if (conf.get('isProduction')) {
+  const SECRET_SETTINGS = [
+    'pushbox.key',
+    'metrics.flow_id_key',
+  ]
+  for (const key of SECRET_SETTINGS) {
+    if (conf.get(key) === conf.default(key)) {
+      throw new Error(`Config '${key}' must be set in production`)
+    }
+  }
+}
+
 module.exports = conf
