@@ -52,7 +52,7 @@ const {
 
 const testAtOAuthApp = thenify(function () {
   return this.parent
-    .then(testElementExists('#loggedin'))
+    .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
 
     .getCurrentUrl()
     .then(function (url) {
@@ -82,17 +82,17 @@ registerSuite('oauth signin', {
   tests: {
     'with missing client_id': function () {
       return this.remote
-        .then(openPage(SIGNIN_ROOT + '?scope=profile', '#fxa-400-header'));
+        .then(openPage(SIGNIN_ROOT + '?scope=profile', selectors['400'].HEADER));
     },
 
     'with missing scope': function () {
       return this.remote
-        .then(openPage(SIGNIN_ROOT + '?client_id=client_id', '#fxa-400-header'));
+        .then(openPage(SIGNIN_ROOT + '?client_id=client_id', selectors['400'].HEADER));
     },
 
     'with invalid client_id': function () {
       return this.remote
-        .then(openPage(SIGNIN_ROOT + '?client_id=invalid_client_id&scope=profile', '#fxa-400-header'));
+        .then(openPage(SIGNIN_ROOT + '?client_id=invalid_client_id&scope=profile', selectors['400'].HEADER));
     },
 
     'with service=sync specified': function () {
@@ -100,7 +100,7 @@ registerSuite('oauth signin', {
         .then(openFxaFromRp('signin'))
         .then(reOpenWithAdditionalQueryParams({
           service: 'sync'
-        }, '#fxa-400-header'));
+        }, selectors['400'].HEADER));
     },
 
     'verified': function () {
@@ -123,15 +123,15 @@ registerSuite('oauth signin', {
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testAtOAuthApp())
-        .then(click('#logout'))
+        .then(click(selectors['123DONE'].LINK_LOGOUT))
 
-        .then(visibleByQSA('.ready #splash .signin'))
+        .then(visibleByQSA(selectors['123DONE'].BUTTON_SIGNIN))
         // round 2 - with the cached credentials
-        .then(click('.ready #splash .signin'))
+        .then(click(selectors['123DONE'].BUTTON_SIGNIN))
 
-        .then(testElementExists('#fxa-signin-header'))
-        .then(type('input[type=password]', PASSWORD))
-        .then(click('button[type="submit"]'))
+        .then(testElementExists(selectors.SIGNIN.HEADER))
+        .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN.SUBMIT))
 
         .then(testAtOAuthApp());
     },
@@ -143,37 +143,37 @@ registerSuite('oauth signin', {
 
         .then(fillOutSignIn(email, PASSWORD))
 
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 
         // get the second email, the first was sent on client.signUp w/
         // preVerified: false above. The second email has the `service` and
         // `resume` parameters.
         .then(openVerificationLinkInSameTab(email, 1))
         // user verifies in the same tab, so they are logged in to the RP.
-        .then(testElementExists('#loggedin'));
+        .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
 
     },
 
     'unverified with a cached login': function () {
       return this.remote
         .then(openFxaFromRp('signup'))
-        .then(testElementExists('#fxa-signup-header'))
+        .then(testElementExists(selectors.SIGNUP.HEADER))
 
         // first, sign the user up to cache the login
         .then(fillOutSignUp(email, PASSWORD))
 
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 
         // round 2 - try to sign in with the unverified user.
         .then(openFxaFromRp('signin'))
 
-        .then(testElementExists('#fxa-signin-header .service'))
-        .then(type('input[type=password]', PASSWORD))
-        .then(click('button[type="submit"]'))
+        .then(testElementExists(selectors.SIGNIN.SUB_HEADER))
+        .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN.SUBMIT))
 
         // success is using a cached login and being redirected
         // to a confirmation screen
-        .then(testElementExists('#fxa-confirm-header'));
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER));
     },
 
     'oauth endpoint chooses the right auth flows': function () {
@@ -181,20 +181,20 @@ registerSuite('oauth signin', {
         .then(openPage(OAUTH_APP, '.ready #splash'))
 
         // use the 'Choose my sign-in flow for me' button
-        .then(click('.ready #splash .sign-choose'))
+        .then(click(selectors['123DONE'].BUTTON_SIGNIN_CHOOSE_FLOW_FOR_ME))
 
-        .then(testElementExists('#fxa-signup-header'))
+        .then(testElementExists(selectors.SIGNUP.HEADER))
         .then(fillOutSignUp(email, PASSWORD))
 
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 
         // go back to the OAuth app, the /oauth flow should
         // now suggest a cached login
         .get(OAUTH_APP)
         // again, use the 'Choose my sign-in flow for me' button
-        .then(click('.ready #splash .sign-choose'))
+        .then(click(selectors['123DONE'].BUTTON_SIGNIN_CHOOSE_FLOW_FOR_ME))
 
-        .then(testElementExists('#fxa-signin-header'));
+        .then(testElementExists(selectors.SIGNIN.HEADER));
     },
 
     'verified, blocked': function () {
@@ -206,7 +206,7 @@ registerSuite('oauth signin', {
 
         .then(fillOutSignIn(email, PASSWORD))
 
-        .then(testElementExists('#fxa-signin-unblock-header'))
+        .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
         .then(fillOutSignInUnblock(email, 0))
 
         .then(testAtOAuthApp());
@@ -221,18 +221,18 @@ registerSuite('oauth signin', {
 
         .then(fillOutSignIn(email, 'bad' + PASSWORD))
 
-        .then(testElementExists('#fxa-signin-unblock-header'))
+        .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
         .then(fillOutSignInUnblock(email, 0))
 
         // wait until at the signin page to check the URL to
         // avoid latency problems with submitting the unblock code.
         // w/o the wait, the URL can be checked before
         // the submit completes.
-        .then(testElementExists('#fxa-signin-header'))
+        .then(testElementExists(selectors.SIGNIN.HEADER))
         .then(testUrlPathnameEquals('/oauth/signin'))
         .then(fillOutSignIn(email, PASSWORD))
 
-        .then(testElementExists('#fxa-signin-unblock-header'))
+        .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
         .then(fillOutSignInUnblock(email, 1))
 
         .then(testAtOAuthApp());
