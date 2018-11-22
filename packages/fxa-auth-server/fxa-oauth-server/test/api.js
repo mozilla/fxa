@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const url = require('url');
-const assert = require('insist');
+const { assert } = require('chai');
 const nock = require('nock');
 const buf = require('buf').hex;
 const generateRSAKeypair = require('keypair');

@@ -4,7 +4,7 @@
 
 const crypto = require('crypto');
 
-const assert = require('insist');
+const { assert } = require('chai');
 const buf = require('buf').hex;
 const hex = require('buf').to.hex;
 const ScopeSet = require('fxa-shared').oauth.scopes;

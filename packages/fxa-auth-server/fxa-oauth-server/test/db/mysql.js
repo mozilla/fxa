@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const assert = require('insist');
+const { assert } = require('chai');
 const sinon = require('sinon');
 const proxyquire = require('proxyquire');
 const mocks = require('../lib/mocks');
@@ -16,7 +16,6 @@ var dependencies = mocks.require([
   { path: 'mysql-patcher', ctor: function() { return instances.patcher; } },
   { path: '../../config' },
   { path: '../../encrypt' },
-  { path: '../../scope', ctor: function() { return instances.scope; } },
   { path: '../../unique' },
   { path: './patch' }
 ], modulePath, __dirname);

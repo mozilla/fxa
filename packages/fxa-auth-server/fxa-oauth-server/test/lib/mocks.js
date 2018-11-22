@@ -44,13 +44,26 @@ function requireDependency(dependency, modulePath, basePath) {
   var localPath = dependency.path;
 
   if (localPath[0] === '.') {
+    // attempt to find something like ./patch.js from mysql/index.js
     localPath = path.relative(
       basePath,
       path.resolve(basePath, modulePath, localPath)
     );
   }
 
-  return require(localPath);
+  try {
+    return require(localPath);
+  } catch (e) {
+    // if above require fails, attempt to find the module as a sibling of `modulePath`
+    // this takes care of cases like: ./token.js being a sibling of the given module
+    localPath = path.relative(
+      basePath,
+      path.resolve(basePath, '..', modulePath, '..', dependency.path)
+    );
+
+    return require(localPath);
+  }
+
 }
 
 function mockLog(logger, cb) {

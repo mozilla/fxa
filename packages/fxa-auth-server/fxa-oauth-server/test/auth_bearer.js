@@ -4,7 +4,7 @@
 
 /*global describe,it*/
 
-const assert = require('insist');
+const { assert } = require('chai');
 const mocks = require('./lib/mocks');
 const proxyquire = require('proxyquire');
 const AppError = require('../lib/error');
@@ -20,16 +20,16 @@ const mockRequest = {
 };
 
 var dependencies = mocks.require([
-  { path: '../../../lib/token' }
+  { path: './token' }
 ], modulePath, __dirname);
 
 describe('authBearer', function() {
   var sandbox, authBearer;
 
   beforeEach(function() {
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
 
-    sandbox.stub(dependencies['../../../lib/token'], 'verify').callsFake(function() {
+    sandbox.stub(dependencies['./token'], 'verify').callsFake(function() {
       return P.resolve({
         scope: ScopeSet.fromArray(['bar:foo', 'clients:write']),
         user: 'bar'
@@ -75,9 +75,9 @@ describe('authBearer', function() {
 
     it('errors if invalid token', function() {
       sandbox.restore();
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
 
-      sandbox.stub(dependencies['../../../lib/token'], 'verify').callsFake(function() {
+      sandbox.stub(dependencies['./token'], 'verify').callsFake(function() {
         return P.reject(AppError.invalidToken());
       });
 
