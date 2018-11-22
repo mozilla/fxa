@@ -13,7 +13,7 @@ path = "src/bin/queues.rs"
 
 [profile.release]
 # Include debug symbols to make Sentry errors richer
-debug = true
+debug = 1
 
 [dependencies]
 base64 = ">=0.6.0"
