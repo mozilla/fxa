@@ -2132,6 +2132,25 @@ const confirmTotpCode = thenify(function (secret) {
     .then(testElementExists(selectors.TOTP.STATUS_ENABLED));
 });
 
+/**
+ * Destroy the session for the given `email`. Only destroys
+ * the first session for the given email address.
+ *
+ * @param {string} email - email of the session to destroy.
+ * @returns {promise} resolves when complete
+ */
+const destroySessionForEmail = thenify(function (email) {
+  return this.parent
+    .then(getStoredAccountByEmail(email))
+    .then((account) => {
+      if (! account) {
+        return false;
+      }
+      const client = getFxaClient();
+      return client.sessionDestroy(account.sessionToken);
+    });
+});
+
 module.exports = {
   cleanMemory,
   clearBrowserNotifications: clearBrowserNotifications,
@@ -2144,6 +2163,7 @@ module.exports = {
   deleteAllEmails,
   deleteAllSms,
   denormalizeStoredEmail: denormalizeStoredEmail,
+  destroySessionForEmail,
   disableInProd,
   fetchAllMetrics: fetchAllMetrics,
   fillOutChangePassword: fillOutChangePassword,

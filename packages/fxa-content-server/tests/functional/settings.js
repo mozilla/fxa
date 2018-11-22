@@ -20,9 +20,9 @@ const {
   closeCurrentWindow,
   createUser,
   denormalizeStoredEmail,
+  destroySessionForEmail,
   fillOutSignIn,
   focus,
-  getFxaClient,
   noSuchStoredAccountByEmail,
   openPage,
   openSettingsInNewTab,
@@ -227,16 +227,7 @@ registerSuite('settings with expired session', {
       .then(fillOutSignIn(email, FIRST_PASSWORD))
 
       .then(testElementExists('#fxa-settings-header'))
-      .execute(function () {
-        // get the first (and only) stored account data, we want to destroy
-        // the session.
-        var accounts = JSON.parse(localStorage.getItem('__fxa_storage.accounts')) || {};
-        var firstKey = Object.keys(accounts)[0];
-        return accounts[firstKey];
-      })
-      .then(function (accountData) {
-        return getFxaClient().sessionDestroy(accountData.sessionToken);
-      });
+      .then(destroySessionForEmail(email));
   },
 
   afterEach: function () {

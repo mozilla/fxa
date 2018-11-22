@@ -18,10 +18,15 @@ const selectors = require('./lib/selectors');
 otplib.authenticator.options = {encoding: 'hex'};
 
 const SIGNUP_URL = `${config.fxaContentRoot}signup`;
+const EMAIL_FIRST_SYNC_DESKTOP_URL = `${SIGNUP_URL}?context=fx_desktop_v3&service=sync&action=email`;
 const SETTINGS_URL = `${config.fxaContentRoot}settings`;
 
 const PASSWORD = 'passwordzxcv';
-let authenticator, email, secret, code;
+
+let authenticator;
+let code;
+let email;
+let secret;
 
 const thenify = FunctionalHelpers.thenify;
 
@@ -31,18 +36,21 @@ const {
   closeCurrentWindow,
   confirmTotpCode,
   createUser,
+  destroySessionForEmail,
   fillOutSignIn,
   fillOutSignInUnblock,
   fillOutSignUp,
   noSuchElement,
   openFxaFromRp,
   openPage,
+  openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
   reOpenWithAdditionalQueryParams,
   switchToWindow,
   testElementExists,
   testElementTextInclude,
+  testElementValueEquals,
   testSuccessWasShown,
   testUrlInclude,
   testUrlPathnameEquals,
@@ -76,7 +84,8 @@ registerSuite('oauth signin', {
     return this.remote
       .then(FunctionalHelpers.clearBrowserState({
         '123done': true,
-        contentServer: true
+        contentServer: true,
+        force: true
       }));
   },
   tests: {
@@ -113,7 +122,7 @@ registerSuite('oauth signin', {
         .then(testAtOAuthApp());
     },
 
-    'verified using a cached login': function () {
+    'verified using a cached OAuth login': function () {
       // verify account
       return this.remote
         .then(openFxaFromRp('signin'))
@@ -130,6 +139,76 @@ registerSuite('oauth signin', {
         .then(click(selectors['123DONE'].BUTTON_SIGNIN))
 
         .then(testElementExists(selectors.SIGNIN.HEADER))
+        .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN.SUBMIT))
+
+        .then(testAtOAuthApp());
+    },
+
+    'verified using a cached Sync login': function () {
+      return this.remote
+        .then(openPage(EMAIL_FIRST_SYNC_DESKTOP_URL, selectors.ENTER_EMAIL.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true}
+          }
+        }))
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT))
+
+        .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
+        .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
+        .then(type(selectors.SIGNUP_PASSWORD.AGE, 21))
+        .then(click(selectors.SIGNUP_PASSWORD.SUBMIT))
+
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
+
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+        .then(openVerificationLinkInDifferentBrowser(email, 0))
+
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+
+        .then(openFxaFromRp('signin'))
+        .then(testElementTextInclude(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email))
+        .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
+
+        .then(testAtOAuthApp());
+    },
+
+    'verified using a cached expired Sync login': function () {
+      return this.remote
+        .then(openPage(EMAIL_FIRST_SYNC_DESKTOP_URL, selectors.ENTER_EMAIL.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true}
+          }
+        }))
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT))
+
+        .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
+        .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
+        .then(type(selectors.SIGNUP_PASSWORD.AGE, 21))
+        .then(click(selectors.SIGNUP_PASSWORD.SUBMIT))
+
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
+
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+        .then(openVerificationLinkInDifferentBrowser(email, 0))
+
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(destroySessionForEmail(email))
+
+        // we only know the sessionToken is expired once the
+        // user submits the form.
+        .then(openFxaFromRp('signin'))
+        .then(testElementTextInclude(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email))
+        .then(click(selectors.SIGNIN.SUBMIT))
+
+        // we now know the sessionToken is expired. Allow the user to sign in
+        // with their password.
+        .then(testElementExists(selectors.SIGNIN.HEADER))
+        .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
         .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
         .then(click(selectors.SIGNIN.SUBMIT))
 
