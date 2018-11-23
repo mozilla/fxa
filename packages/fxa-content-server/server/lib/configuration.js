@@ -396,6 +396,8 @@ const conf = module.exports = convict({
         },
         'https://identity.mozilla.com/apps/send': {
           redirectUris: [
+            'https://send.firefox.com/oauth',
+            'https://send.firefox.com/fxa/android-redirect.html',
             'https://send2.dev.lcip.org/oauth'
           ]
         }
