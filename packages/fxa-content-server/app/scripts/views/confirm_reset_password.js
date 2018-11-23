@@ -16,7 +16,7 @@ import Session from '../lib/session';
 import Template from 'templates/confirm_reset_password.mustache';
 import { VERIFICATION_POLL_IN_MS } from '../lib/constants';
 
-const t = BaseView.t;
+const t = msg => msg;
 
 const View = BaseView.extend({
   template: Template,

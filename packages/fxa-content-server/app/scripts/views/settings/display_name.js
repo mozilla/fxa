@@ -12,7 +12,7 @@ define(function (require, exports, module) {
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
   const Template = require('templates/settings/display_name.mustache');
 
-  const t = (msg) => msg;
+  const t = msg => msg;
 
   const View = FormView.extend({
     template: Template,

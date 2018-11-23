@@ -12,10 +12,7 @@ define(function (require, exports, module) {
   const Logger = require('./logger');
   var logger = new Logger();
   const Strings = require('./strings');
-
-  var t = function (msg) {
-    return msg;
-  };
+  const t = msg => msg;
 
   var UNEXPECTED_ERROR = t('Unexpected error');
 

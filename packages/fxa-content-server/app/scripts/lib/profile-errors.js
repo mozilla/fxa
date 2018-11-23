@@ -7,10 +7,7 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Errors = require('./errors');
-
-  var t = function (msg) {
-    return msg;
-  };
+  const t = msg => msg;
 
   const THROTTLED_ERROR_MESSAGE = t('You\'ve tried too many times. Try again later.');
 

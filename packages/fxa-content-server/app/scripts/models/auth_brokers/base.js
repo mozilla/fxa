@@ -20,8 +20,9 @@ define(function (require, exports, module) {
   const SameBrowserVerificationModel = require('../verification/same-browser');
   const UrlMixin = require('../mixins/url');
   const SettingsIfSignedInBehavior = require('../../views/behaviors/settings');
-  const t = (msg) => msg;
   const Vat = require('../../lib/vat');
+
+  const t = msg => msg;
 
   const QUERY_PARAMETER_SCHEMA = {
     automatedBrowser: Vat.boolean()

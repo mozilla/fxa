@@ -5,7 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const t = (msg) => msg;
+  const t = msg => msg;
 
   const HTML_CHAR_CODE = /&(\D+|#\d+);/i;
   const HTML_TAG = /<.*>/;

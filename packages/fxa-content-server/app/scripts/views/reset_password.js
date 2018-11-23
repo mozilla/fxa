@@ -16,7 +16,7 @@ define(function (require, exports, module) {
   const Session = require('../lib/session');
   const Template = require('templates/reset_password.mustache');
 
-  const t = (msg) => msg;
+  const t = msg => msg;
 
   const ResetPasswordView = FormView.extend({
     events: {

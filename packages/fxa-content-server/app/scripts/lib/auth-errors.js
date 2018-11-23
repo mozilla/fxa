@@ -12,9 +12,7 @@ define(function (require, exports, module) {
   const Logger = require('./logger');
   var logger = new Logger();
 
-  var t = function (msg) {
-    return msg;
-  };
+  const t = msg => msg;
 
   var UNEXPECTED_ERROR_MESSAGE = t('Unexpected error');
   var EXPIRED_VERIFICATION_ERROR_MESSAGE = t('The link you clicked to verify your email is expired.');

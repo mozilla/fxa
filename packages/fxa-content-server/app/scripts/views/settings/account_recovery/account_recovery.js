@@ -8,14 +8,15 @@ import SettingsPanelMixin from '../../mixins/settings-panel-mixin';
 import Template from 'templates/settings/account_recovery/account_recovery.mustache';
 import showProgressIndicator from '../../decorators/progress_indicator';
 import LastCheckedTimeMixin from '../../mixins/last-checked-time-mixin';
-import UpgradeSessionMixin from '../../mixins/upgrade-session-mixin';
 import RecoveryKeyExperimentMixin from '../../mixins/recovery-key-experiment-mixin';
+import UpgradeSessionMixin from '../../mixins/upgrade-session-mixin';
+
+const t = msg => msg;
 
 const CODE_REFRESH_SELECTOR = 'button.settings-button.refresh-status';
 const CODE_REFRESH_DELAY_MS = 350;
 const ACCOUNT_RECOVERY_SUPPORT_URL = 'https://support.mozilla.org/kb/reset-your-firefox-account-password-recovery-keys';
 
-var t = BaseView.t;
 
 const View = BaseView.extend({
   template: Template,

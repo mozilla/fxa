@@ -13,8 +13,7 @@ define(function (require, exports, module) {
 
   const AuthErrors = require('../../lib/auth-errors');
   const BaseView = require('../base');
-
-  var t = BaseView.t;
+  const t = msg => msg;
 
   var AccountResetMixin = {
     initialize (options) {

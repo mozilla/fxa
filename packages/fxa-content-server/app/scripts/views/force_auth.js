@@ -4,7 +4,7 @@
 
 import _ from 'underscore';
 import AuthErrors from '../lib/auth-errors';
-import { cancelEventThen, t } from './base';
+import { cancelEventThen } from './base';
 import Cocktail from 'cocktail';
 import FormView from './form';
 import NullBehavior from './behaviors/null';
@@ -14,6 +14,8 @@ import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/force_auth.mustache';
 import Transform from '../lib/transform';
 import Vat from '../lib/vat';
+
+const t = msg => msg;
 
 var RELIER_DATA_SCHEMA = {
   email: Vat.email().required(),
