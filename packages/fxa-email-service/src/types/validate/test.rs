@@ -128,15 +128,6 @@ fn invalid_email_address() {
 }
 
 #[test]
-fn env() {
-    assert!(validate::env("test"));
-    assert!(validate::env("dev"));
-    assert!(validate::env("staging"));
-    assert!(validate::env("production"));
-    assert_eq!(false, validate::env("something else"));
-}
-
-#[test]
 fn host() {
     assert!(validate::host("foo"));
     assert!(validate::host("foo.bar"));

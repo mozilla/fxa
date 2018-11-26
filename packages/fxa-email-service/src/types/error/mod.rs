@@ -188,6 +188,9 @@ pub enum AppErrorKind {
         time: u64,
         problem: DeliveryProblem,
     },
+
+    #[fail(display = "Invalid environment: {}", _0)]
+    InvalidEnv(String),
 }
 
 impl AppErrorKind {
@@ -213,6 +216,7 @@ impl AppErrorKind {
             AppErrorKind::Complaint { .. } => Some(106),
             AppErrorKind::SoftBounce { .. } => Some(107),
             AppErrorKind::HardBounce { .. } => Some(108),
+            AppErrorKind::InvalidEnv { .. } => Some(109),
         }
     }
 

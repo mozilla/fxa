@@ -9,6 +9,7 @@ mod serialize;
 mod test;
 
 use std::{
+    convert::TryFrom,
     env,
     fmt::{self, Display},
 };
@@ -22,7 +23,8 @@ use serde::de::{Deserialize, Deserializer, Error, Unexpected};
 
 use logging::MozlogLogger;
 use types::{
-    duration::Duration, email_address::EmailAddress, provider::Provider as ProviderType, validate,
+    duration::Duration, email_address::EmailAddress, env::Env, provider::Provider as ProviderType,
+    validate,
 };
 
 macro_rules! deserialize_and_validate {
@@ -69,8 +71,6 @@ deserialize_and_validate! {
     (AwsSecret, aws_secret, "AWS secret key"),
     /// Base URI type.
     (BaseUri, base_uri, "base URI"),
-    /// Env type.
-    (Env, env, "'dev', 'staging', 'production' or 'test'"),
     /// Host name or IP address type.
     (Host, host, "host name or IP address"),
     /// Logging level type.
@@ -379,12 +379,13 @@ impl Settings {
 
         config.merge(File::with_name("config/default"))?;
 
-        let current_env = match env::var("FXA_EMAIL_ENV") {
-            Ok(env) => env,
-            _ => String::from("dev"),
+        let current_env: Env = match env::var("FXA_EMAIL_ENV") {
+            Ok(env) => TryFrom::try_from(env.as_str()).unwrap(),
+            _ => Env::default(),
         };
-        config.merge(File::with_name(&format!("config/{}", current_env)).required(false))?;
-        config.set_default("env", "dev")?;
+        config
+            .merge(File::with_name(&format!("config/{}", current_env.as_ref())).required(false))?;
+        config.set_default("env", Env::default().as_ref())?;
 
         config.merge(File::with_name("config/local").required(false))?;
         let env = Environment::with_prefix("fxa_email").ignore_empty(true);
@@ -392,7 +393,7 @@ impl Settings {
 
         match config.try_into::<Settings>() {
             Ok(settings) => {
-                if current_env == "production" {
+                if current_env == Env::Prod {
                     if &settings.hmackey == "YOU MUST CHANGE ME" {
                         panic!("Please set a valid HMAC key")
                     }
@@ -418,9 +419,8 @@ impl Settings {
             "critical" => RocketLoggingLevel::Critical,
             _ => RocketLoggingLevel::Normal,
         };
-        let rocket_config = match self.env.0.as_str() {
-            "production" => RocketEnvironment::Production,
-            "staging" => RocketEnvironment::Staging,
+        let rocket_config = match self.env {
+            Env::Prod => RocketEnvironment::Production,
             _ => RocketEnvironment::Development,
         };
         RocketConfig::build(rocket_config)
