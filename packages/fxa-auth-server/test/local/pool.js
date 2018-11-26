@@ -221,7 +221,7 @@ describe('Pool', () => {
     'pool.get',
     () => {
       var pool = new Pool('http://example.com/')
-      sinon.stub(pool, 'request', function () {})
+      sinon.stub(pool, 'request').callsFake(function () {})
       pool.get('foo', 'bar')
 
       assert.equal(pool.request.callCount, 1, 'pool.request was called once')
@@ -241,7 +241,7 @@ describe('Pool', () => {
     'pool.put',
     () => {
       var pool = new Pool('http://example.com/')
-      sinon.stub(pool, 'request', function () {})
+      sinon.stub(pool, 'request').callsFake(function () {})
       pool.put('baz', 'qux', 'wibble')
 
       assert.equal(pool.request.callCount, 1, 'pool.request was called once')
@@ -261,7 +261,7 @@ describe('Pool', () => {
     'pool.post',
     () => {
       var pool = new Pool('http://example.com/')
-      sinon.stub(pool, 'request', function () {})
+      sinon.stub(pool, 'request').callsFake(function () {})
       pool.post('foo', 'bar', 'baz')
 
       assert.equal(pool.request.callCount, 1, 'pool.request was called once')
@@ -281,7 +281,7 @@ describe('Pool', () => {
     'pool.post with query params and extra headers',
     () => {
       var pool = new Pool('http://example.com/')
-      sinon.stub(pool, 'request', function () {})
+      sinon.stub(pool, 'request').callsFake(function () {})
       pool.post('foo', 'bar', 'baz', {query: {bar: 'foo'}, headers: { foo: 'bar' }})
 
       assert.equal(pool.request.callCount, 1, 'pool.request was called once')
@@ -301,7 +301,7 @@ describe('Pool', () => {
     'pool.del',
     () => {
       var pool = new Pool('http://example.com/')
-      sinon.stub(pool, 'request', function () {})
+      sinon.stub(pool, 'request').callsFake(function () {})
       pool.del('foo', 'bar', 'baz')
 
       assert.equal(pool.request.callCount, 1, 'pool.request was called once')

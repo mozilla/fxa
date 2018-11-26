@@ -815,7 +815,7 @@ describe(
 
     describe('mock sendMail method:', () => {
       beforeEach(() => {
-        sinon.stub(mailer.mailer, 'sendMail', function (config, cb) {
+        sinon.stub(mailer.mailer, 'sendMail').callsFake(function (config, cb) {
           cb(null, { resp: 'ok' })
         })
       })
@@ -862,7 +862,7 @@ describe(
 
     describe('mock failing sendMail method:', () => {
       beforeEach(() => {
-        sinon.stub(mailer.mailer, 'sendMail', (config, cb) => cb(new Error('Fail')))
+        sinon.stub(mailer.mailer, 'sendMail').callsFake((config, cb) => cb(new Error('Fail')))
       })
 
       it('rejects sendMail status', () => {
@@ -914,18 +914,18 @@ describe(
         beforeEach(() => {
           sinon.stub(
             mailer.mailer,
-            'sendMail',
-            function (config, cb) {
-              cb(null, { resp: 'whatevs' })
-            }
-          )
+            'sendMail').callsFake(
+              function (config, cb) {
+                cb(null, { resp: 'whatevs' })
+              }
+            )
           sinon.stub(
             mailer.emailService,
-            'sendMail',
-            function (config, cb) {
-              cb(null, { resp: 'whatevs' })
-            }
-          )
+            'sendMail').callsFake(
+              function (config, cb) {
+                cb(null, { resp: 'whatevs' })
+              }
+            )
         })
 
         it(
@@ -1145,7 +1145,7 @@ describe(
       describe('redis.get returns sendgrid percentage-only match:', () => {
         beforeEach(() => {
           redis.get = sinon.spy(() => P.resolve(JSON.stringify({ sendgrid: { percentage: 11 } })))
-          sinon.stub(Math, 'random', () => 0.109)
+          sinon.stub(Math, 'random').callsFake(() => 0.109)
         })
 
         afterEach(() => Math.random.restore())
@@ -1166,7 +1166,7 @@ describe(
       describe('redis.get returns sendgrid percentage-only mismatch:', () => {
         beforeEach(() => {
           redis.get = sinon.spy(() => P.resolve(JSON.stringify({ sendgrid: { percentage: 11 } })))
-          sinon.stub(Math, 'random', () => 0.11)
+          sinon.stub(Math, 'random').callsFake(() => 0.11)
         })
 
         afterEach(() => Math.random.restore())
@@ -1228,7 +1228,7 @@ describe(
               regex: '^foo@example\.com$'
             }
           })))
-          sinon.stub(Math, 'random', () => 0.009)
+          sinon.stub(Math, 'random').callsFake(() => 0.009)
         })
 
         afterEach(() => Math.random.restore())
@@ -1254,7 +1254,7 @@ describe(
               regex: '^foo@example\.com$'
             }
           })))
-          sinon.stub(Math, 'random', () => 0.01)
+          sinon.stub(Math, 'random').callsFake(() => 0.01)
         })
 
         afterEach(() => Math.random.restore())
@@ -1280,7 +1280,7 @@ describe(
               regex: '^ffoo@example\.com$'
             }
           })))
-          sinon.stub(Math, 'random', () => 0)
+          sinon.stub(Math, 'random').callsFake(() => 0)
         })
 
         afterEach(() => Math.random.restore())
@@ -1301,7 +1301,7 @@ describe(
       describe('redis.get returns socketlabs percentage-only match:', () => {
         beforeEach(() => {
           redis.get = sinon.spy(() => P.resolve(JSON.stringify({ socketlabs: { percentage: 42 } })))
-          sinon.stub(Math, 'random', () => 0.419)
+          sinon.stub(Math, 'random').callsFake(() => 0.419)
         })
 
         afterEach(() => Math.random.restore())
@@ -1322,7 +1322,7 @@ describe(
       describe('redis.get returns socketlabs percentage-only mismatch:', () => {
         beforeEach(() => {
           redis.get = sinon.spy(() => P.resolve(JSON.stringify({ socketlabs: { percentage: 42 } })))
-          sinon.stub(Math, 'random', () => 0.42)
+          sinon.stub(Math, 'random').callsFake(() => 0.42)
         })
 
         afterEach(() => Math.random.restore())
@@ -1361,7 +1361,7 @@ describe(
       describe('redis.get returns ses percentage-only match:', () => {
         beforeEach(() => {
           redis.get = sinon.spy(() => P.resolve(JSON.stringify({ ses: { percentage: 100 } })))
-          sinon.stub(Math, 'random', () => 0.999)
+          sinon.stub(Math, 'random').callsFake(() => 0.999)
         })
 
         afterEach(() => Math.random.restore())
@@ -1382,7 +1382,7 @@ describe(
       describe('redis.get returns ses percentage-only mismatch:', () => {
         beforeEach(() => {
           redis.get = sinon.spy(() => P.resolve(JSON.stringify({ ses: { percentage: 99 } })))
-          sinon.stub(Math, 'random', () => 0.999)
+          sinon.stub(Math, 'random').callsFake(() => 0.999)
         })
 
         afterEach(() => Math.random.restore())
@@ -1424,7 +1424,7 @@ describe(
             sendgrid: { percentage: 10 },
             ses: { regex: '^foo@example\.com$' }
           })))
-          sinon.stub(Math, 'random', () => 0.09)
+          sinon.stub(Math, 'random').callsFake(() => 0.09)
         })
 
         afterEach(() => Math.random.restore())
@@ -1448,7 +1448,7 @@ describe(
             sendgrid: { percentage: 10 },
             ses: { regex: '^ffoo@example\.com$' }
           })))
-          sinon.stub(Math, 'random', () => 0.09)
+          sinon.stub(Math, 'random').callsFake(() => 0.09)
         })
 
         afterEach(() => Math.random.restore())
@@ -1472,7 +1472,7 @@ describe(
             sendgrid: { percentage: 10 },
             ses: { regex: '^foo@example\.com$' }
           })))
-          sinon.stub(Math, 'random', () => 0.1)
+          sinon.stub(Math, 'random').callsFake(() => 0.1)
         })
 
         afterEach(() => Math.random.restore())
@@ -1496,7 +1496,7 @@ describe(
             sendgrid: { percentage: 10 },
             ses: { regex: '^ffoo@example\.com$' }
           })))
-          sinon.stub(Math, 'random', () => 0.1)
+          sinon.stub(Math, 'random').callsFake(() => 0.1)
         })
 
         afterEach(() => Math.random.restore())

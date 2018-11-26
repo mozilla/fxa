@@ -29,7 +29,7 @@ describe('mock-sns', () => {
   })
 
   afterEach(() => {
-    mailer.sendMail.reset()
+    mailer.sendMail.resetHistory()
   })
 
   it('constructor creates an instance', () => {

@@ -940,7 +940,7 @@ describe('remote db', function() {
         previousCode = code
 
         // Stub crypto.randomBytes to return a duplicate code
-        sinon.stub(crypto, 'randomBytes', (size, callback) => {
+        sinon.stub(crypto, 'randomBytes').callsFake((size, callback) => {
           // Reinstate the real crypto.randomBytes after we've returned a duplicate
           crypto.randomBytes.restore()
 

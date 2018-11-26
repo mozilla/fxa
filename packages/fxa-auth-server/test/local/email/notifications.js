@@ -20,7 +20,7 @@ describe('lib/email/notifications:', () => {
 
   beforeEach(() => {
     now = Date.now()
-    sinon.stub(Date, 'now', () => now)
+    sinon.stub(Date, 'now').callsFake(() => now)
     del = sinon.spy()
     log = mockLog()
     queue = {

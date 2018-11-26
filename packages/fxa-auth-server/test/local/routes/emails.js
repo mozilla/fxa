@@ -121,7 +121,7 @@ describe('/recovery_email/status', function () {
         })
       })
         .then(function () {
-          mockDB.deleteAccount.reset()
+          mockDB.deleteAccount.resetHistory()
         })
     })
 
@@ -162,7 +162,7 @@ describe('/recovery_email/status', function () {
         assert.equal(args.browser, 'Firefox 57')
       })
         .then(function () {
-          mockDB.deleteAccount.reset()
+          mockDB.deleteAccount.resetHistory()
         })
     })
 
@@ -320,8 +320,8 @@ describe('/recovery_email/resend_code', () => {
       assert.equal(args[2].uid, mockRequest.auth.credentials.uid)
     })
       .then(() => {
-        mockMailer.sendVerifyCode.reset()
-        mockLog.flowEvent.reset()
+        mockMailer.sendVerifyCode.resetHistory()
+        mockLog.flowEvent.resetHistory()
       })
   })
 
@@ -363,8 +363,8 @@ describe('/recovery_email/resend_code', () => {
       assert.equal(args[2].code, secondEmailCode, 'email code set')
     })
       .then(() => {
-        mockMailer.sendVerifySecondaryEmail.reset()
-        mockLog.flowEvent.reset()
+        mockMailer.sendVerifySecondaryEmail.resetHistory()
+        mockLog.flowEvent.resetHistory()
       })
   })
 
@@ -393,7 +393,7 @@ describe('/recovery_email/resend_code', () => {
         }
       }
     })
-    mockLog.flowEvent.reset()
+    mockLog.flowEvent.resetHistory()
 
     return runTest(route, mockRequest, response => {
       assert.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent called once')
@@ -513,13 +513,13 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(JSON.stringify(response), '{}')
       })
         .then(function () {
-          mockDB.verifyTokens.reset()
-          mockDB.verifyEmail.reset()
-          mockLog.activityEvent.reset()
-          mockLog.flowEvent.reset()
-          mockLog.notifyAttachedServices.reset()
-          mockMailer.sendPostVerifyEmail.reset()
-          mockPush.notifyAccountUpdated.reset()
+          mockDB.verifyTokens.resetHistory()
+          mockDB.verifyEmail.resetHistory()
+          mockLog.activityEvent.resetHistory()
+          mockLog.flowEvent.resetHistory()
+          mockLog.notifyAttachedServices.resetHistory()
+          mockMailer.sendPostVerifyEmail.resetHistory()
+          mockPush.notifyAccountUpdated.resetHistory()
         })
     })
 
@@ -541,13 +541,13 @@ describe('/recovery_email/verify_code', function () {
       })
         .then(function () {
           delete mockRequest.payload.marketingOptIn
-          mockDB.verifyTokens.reset()
-          mockDB.verifyEmail.reset()
-          mockLog.activityEvent.reset()
-          mockLog.flowEvent.reset()
-          mockLog.notifyAttachedServices.reset()
-          mockMailer.sendPostVerifyEmail.reset()
-          mockPush.notifyAccountUpdated.reset()
+          mockDB.verifyTokens.resetHistory()
+          mockDB.verifyEmail.resetHistory()
+          mockLog.activityEvent.resetHistory()
+          mockLog.flowEvent.resetHistory()
+          mockLog.notifyAttachedServices.resetHistory()
+          mockMailer.sendPostVerifyEmail.resetHistory()
+          mockPush.notifyAccountUpdated.resetHistory()
         })
     })
 
@@ -567,13 +567,13 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(JSON.stringify(response), '{}')
       })
         .then(function () {
-          mockDB.verifyTokens.reset()
-          mockDB.verifyEmail.reset()
-          mockLog.activityEvent.reset()
-          mockLog.flowEvent.reset()
-          mockLog.notifyAttachedServices.reset()
-          mockMailer.sendPostVerifyEmail.reset()
-          mockPush.notifyAccountUpdated.reset()
+          mockDB.verifyTokens.resetHistory()
+          mockDB.verifyEmail.resetHistory()
+          mockLog.activityEvent.resetHistory()
+          mockLog.flowEvent.resetHistory()
+          mockLog.notifyAttachedServices.resetHistory()
+          mockMailer.sendPostVerifyEmail.resetHistory()
+          mockPush.notifyAccountUpdated.resetHistory()
         })
     })
   })
@@ -595,7 +595,7 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(mockPush.notifyDeviceConnected.callCount, 0, 'mockPush.notifyDeviceConnected should not have been called (no devices)')
       })
         .then(function () {
-          mockDB.verifyTokens.reset()
+          mockDB.verifyTokens.resetHistory()
         })
     })
 
@@ -616,7 +616,7 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(mockPush.notifyDeviceConnected.callCount, 1, 'mockPush.notifyDeviceConnected should have been called')
       })
         .then(function () {
-          mockDB.verifyTokens.reset()
+          mockDB.verifyTokens.resetHistory()
         })
     })
 
@@ -646,9 +646,9 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(args[2], 'accountConfirm', 'third argument should have been reason')
       })
         .then(function () {
-          mockDB.verifyTokens.reset()
-          mockLog.activityEvent.reset()
-          mockPush.notifyAccountUpdated.reset()
+          mockDB.verifyTokens.resetHistory()
+          mockLog.activityEvent.resetHistory()
+          mockPush.notifyAccountUpdated.resetHistory()
         })
     })
 
@@ -674,10 +674,10 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(args[2].uid, uid)
       })
         .then(function () {
-          mockDB.verifyEmail.reset()
-          mockLog.activityEvent.reset()
-          mockMailer.sendPostVerifySecondaryEmail.reset()
-          mockPush.notifyAccountUpdated.reset()
+          mockDB.verifyEmail.resetHistory()
+          mockLog.activityEvent.resetHistory()
+          mockMailer.sendPostVerifySecondaryEmail.resetHistory()
+          mockPush.notifyAccountUpdated.resetHistory()
         })
     })
   })
@@ -745,8 +745,8 @@ describe('/recovery_email', () => {
         assert.equal(mockMailer.sendVerifySecondaryEmail.args[0][2].uid, mockRequest.auth.credentials.uid)
       })
         .then(function () {
-          mockDB.createEmail.reset()
-          mockMailer.sendVerifySecondaryEmail.reset()
+          mockDB.createEmail.resetHistory()
+          mockMailer.sendVerifySecondaryEmail.resetHistory()
         })
     })
 
@@ -757,7 +757,7 @@ describe('/recovery_email', () => {
         () => assert.fail('Should have failed adding secondary email with unverified primary email'),
         err => assert.equal(err.errno, 104, 'unverified account'))
         .then(function () {
-          mockDB.createEmail.reset()
+          mockDB.createEmail.resetHistory()
         })
     })
 
@@ -769,7 +769,7 @@ describe('/recovery_email', () => {
         () => assert.fail('Should have failed when adding secondary email that is same as primary'),
         err => assert.equal(err.errno, 139, 'cannot add secondary email, same as primary'))
         .then(function () {
-          mockDB.createEmail.reset()
+          mockDB.createEmail.resetHistory()
         })
     })
 
@@ -800,9 +800,9 @@ describe('/recovery_email', () => {
         assert.equal(args[0].normalizedEmail, TEST_EMAIL)
       })
         .then(function () {
-          mockDB.deleteAccount.reset()
-          mockDB.createEmail.reset()
-          mockMailer.sendVerifySecondaryEmail.reset()
+          mockDB.deleteAccount.resetHistory()
+          mockDB.createEmail.resetHistory()
+          mockMailer.sendVerifySecondaryEmail.resetHistory()
         })
     })
 
@@ -845,9 +845,9 @@ describe('/recovery_email', () => {
           assert.equal(mockMailer.sendVerifySecondaryEmail.args[0][2].uid, mockRequest.auth.credentials.uid)
         })
         .then(() => {
-          mockDB.createEmail.reset()
-          mockDB.deleteEmail.reset()
-          mockMailer.sendVerifySecondaryEmail.reset()
+          mockDB.createEmail.resetHistory()
+          mockDB.deleteEmail.resetHistory()
+          mockMailer.sendVerifySecondaryEmail.resetHistory()
         })
     })
   })
@@ -861,7 +861,7 @@ describe('/recovery_email', () => {
         assert.equal(mockDB.account.callCount, 1, 'call db.account')
       })
         .then(function () {
-          mockDB.accountEmails.reset()
+          mockDB.accountEmails.resetHistory()
         })
     })
   })
@@ -928,8 +928,8 @@ describe('/recovery_email', () => {
     })
 
     afterEach(() => {
-      mockDB.deleteEmail.reset()
-      mockMailer.sendPostRemoveSecondaryEmail.reset()
+      mockDB.deleteEmail.resetHistory()
+      mockMailer.sendPostRemoveSecondaryEmail.resetHistory()
     })
   })
 
@@ -960,9 +960,9 @@ describe('/recovery_email', () => {
         assert.equal(args[2].email, TEST_EMAIL_ADDITIONAL, 'third argument was event data with new email')
       })
         .then(function () {
-          mockDB.setPrimaryEmail.reset()
-          mockPush.notifyProfileUpdated.reset()
-          mockMailer.sendPostChangePrimaryEmail.reset()
+          mockDB.setPrimaryEmail.resetHistory()
+          mockPush.notifyProfileUpdated.resetHistory()
+          mockMailer.sendPostChangePrimaryEmail.resetHistory()
         })
     })
 

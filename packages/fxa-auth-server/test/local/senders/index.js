@@ -60,7 +60,7 @@ describe('lib/senders/index', () => {
     }
 
     beforeEach(() => {
-      bounces.check.reset()
+      bounces.check.resetHistory()
     })
 
     describe('.sendVerifyCode()', () => {

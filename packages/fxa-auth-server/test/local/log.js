@@ -501,7 +501,7 @@ describe('log', () => {
         }
       }
     })
-    sinon.stub(Date, 'now', () => now)
+    sinon.stub(Date, 'now').callsFake(() => now)
     return log.notifyAttachedServices('login', request, { ts: now }).then(() => {
       assert.equal(metricsContext.gather.callCount, 1)
       assert.equal(log.notifier.send.callCount, 1)
