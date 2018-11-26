@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/mozilla/fxa-email-event-proxy#readme",
   "dependencies": {
+    "aws-sdk": "2.358.0",
     "bluebird": "^3.5.1",
     "qs": "^6.5.2",
     "sqs": "^2.0.2"

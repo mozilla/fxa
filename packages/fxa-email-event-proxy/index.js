@@ -7,11 +7,19 @@
 const crypto = require('crypto')
 const qs = require('qs')
 const Promise = require('bluebird')
-const sqs = require('sqs')
+const AWS = require('aws-sdk')
+const P = require('bluebird')
 
-const { AUTH, SQS_SUFFIX, PROVIDER } = process.env
+AWS.config.setPromisesDependency(P)
 
-if (! AUTH || ! SQS_SUFFIX || ! PROVIDER) {
+const {
+  AUTH, PROVIDER, SQS_REGION,
+  BOUNCE_QUEUE_URL, COMPLAINT_QUEUE_URL, DELIVERY_QUEUE_URL
+} = process.env
+
+const region = SQS_REGION || 'us-east-1'
+
+if (! AUTH || ! PROVIDER || ! BOUNCE_QUEUE_URL || ! COMPLAINT_QUEUE_URL || ! DELIVERY_QUEUE_URL) {
   throw new Error('Missing config')
 }
 
@@ -20,7 +28,7 @@ const ACCEPTED_PROVIDERS = [
   'socketlabs'
 ]
 
-if (! ACCEPTED_PROVIDERS.includes(PROVIDER)) { 
+if (! ACCEPTED_PROVIDERS.includes(PROVIDER)) {
   throw new Error(`Only the following providers are supported: ${ACCEPTED_PROVIDERS.join(', ')}`)
 }
 
@@ -29,14 +37,12 @@ const provider = require(`./${PROVIDER}`)
 const AUTH_HASH = createHash(AUTH).split('')
 
 const QUEUES = {
-  Bounce: `fxa-email-bounce-${SQS_SUFFIX}`,
-  Complaint: `fxa-email-complaint-${SQS_SUFFIX}`,
-  Delivery: `fxa-email-delivery-${SQS_SUFFIX}`
+  Bounce: BOUNCE_QUEUE_URL,
+  Complaint: COMPLAINT_QUEUE_URL,
+  Delivery: DELIVERY_QUEUE_URL
 }
 
-// env vars: SQS_ACCESS_KEY, SQS_SECRET_KEY, SQS_REGION
-const SQS_CLIENT = sqs()
-SQS_CLIENT.pushAsync = Promise.promisify(SQS_CLIENT.push)
+const SQS = new AWS.SQS({ region })
 
 module.exports = { main }
 
@@ -46,8 +52,8 @@ async function main (data) {
     if (data.body) {
       // Requests from the API gateway must be authenticated
       if (! data.queryStringParameters || ! authenticate(data.queryStringParameters.auth)) {
-        const errorResponse = { 
-          error: 'Unauthorized', 
+        const errorResponse = {
+          error: 'Unauthorized',
           errno: 999,
           code: 401,
           message: 'Request must provide a valid auth query param.'
@@ -69,16 +75,16 @@ async function main (data) {
     if (! Array.isArray(data)) {
       data = [ data ]
     }
-    
+
     if (PROVIDER === 'socketlabs' && provider.shouldValidate(data[0])) {
       return provider.validationResponse()
     }
 
     let results = await processEvents(data)
-    let response = { 
-      result: `Processed ${results.length} events` 
+    let response = {
+      result: `Processed ${results.length} events`
     }
-    
+
     response = provider.annotate(response)
 
     return {
@@ -87,8 +93,8 @@ async function main (data) {
       isBase64Encoded: false
     }
   } catch(error) {
-    const errorResponse = { 
-      error: 'Internal Server Error', 
+    const errorResponse = {
+      error: 'Internal Server Error',
       errno: 999,
       code: 500,
       message: error && error.message ? error.message : 'Unspecified error'
@@ -125,18 +131,22 @@ function sendEvent (event) {
   // The message we send to SQS has to have this structure to
   // mimic exactly the message SNS sends to it in the SES -> SNS -> SQS flow.
   // See documentation: https://docs.aws.amazon.com/sns/latest/dg/SendMessageToSQS.html
-  return SQS_CLIENT.pushAsync(
-    QUEUES[event.notificationType],
-    {
-      Message: JSON.stringify(event),
-      Type: 'Notification',
-      Timestamp: event.mail && event.mail.timestamp ? event.mail.timestamp : new Date().toISOString()
-    }
-  )
+  const message = {
+    Message: JSON.stringify(event),
+    Type: 'Notification',
+    Timestamp: event.mail && event.mail.timestamp ? event.mail.timestamp : new Date().toISOString()
+  }
+  const queueUrl = QUEUES[event.notificationType]
+  const params = {
+    QueueUrl: queueUrl,
+    MessageBody: JSON.stringify(message)
+  }
+
+  return SQS.sendMessage(params).promise()
     .then(() => console.log('Sent:', event.notificationType))
     .catch(error => {
       console.error('Failed to send event:', event)
-      console.error(error.stack)
+      console.error(error && error.stack)
       throw error
     })
 }
