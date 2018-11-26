@@ -11,8 +11,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const NavigateBehavior = require('../behaviors/navigate');
-
-  const t = (msg) => msg;
+  const t = msg => msg;
 
   /**
    * Creates navigation behavior that displays a success message

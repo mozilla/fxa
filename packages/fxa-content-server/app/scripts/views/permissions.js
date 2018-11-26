@@ -11,9 +11,10 @@ import OAuthErrors from '../lib/oauth-errors';
 import PermissionTemplate from 'templates/partial/permission.mustache';
 import ServiceMixin from './mixins/service-mixin';
 import Strings from '../lib/strings';
-import { t } from './base';
 import Template from 'templates/permissions.mustache';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
+
+const t = msg => msg;
 
 // Reduce the number of strings to translate by interpolating
 // to create the required variant of a label.
@@ -183,6 +184,9 @@ var View = FormView.extend({
     // convert the permission names to HTML
     return sortedPermissionNames.map((permissionName) => {
       var permission = this._getPermissionConfig(permissionName);
+
+      permission.label = this.translate(permission.label);
+
       if (permission.required !== true) {
         permission.required = false;
       }
@@ -190,7 +194,7 @@ var View = FormView.extend({
       // convert label to the required label
       if (permission.required) {
         permission.label = Strings.interpolate(this.translate(requiredPermissionLabel), {
-          permissionName: this.translate(permission.label)
+          permissionName: permission.label
         });
       }
 

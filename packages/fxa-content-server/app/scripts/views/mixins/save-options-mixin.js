@@ -10,10 +10,9 @@
 'use strict';
 
 import $ from 'jquery';
-import BaseView from '../base';
-import UserAgentMixin from 'lib/user-agent-mixin';
+import UserAgentMixin from '../../lib/user-agent-mixin';
 
-const {t} = BaseView;
+const t = msg => msg;
 
 const Mixin = {
 

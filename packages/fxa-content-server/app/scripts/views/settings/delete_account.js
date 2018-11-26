@@ -6,7 +6,6 @@ define(function (require, exports, module) {
   'use strict';
 
   const AuthErrors = require('../../lib/auth-errors');
-  const BaseView = require('../base');
   const Cocktail = require('cocktail');
   const FormView = require('../form');
   const PasswordMixin = require('../mixins/password-mixin');
@@ -15,7 +14,7 @@ define(function (require, exports, module) {
   const SettingsPanelMixin = require('../mixins/service-mixin');
   const Template = require('templates/settings/delete_account.mustache');
 
-  var t = BaseView.t;
+  const t = msg => msg;
 
   var View = FormView.extend({
     template: Template,

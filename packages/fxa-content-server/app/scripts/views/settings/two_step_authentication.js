@@ -7,17 +7,16 @@
 const _ = require('underscore');
 const AvatarMixin = require('../mixins/avatar-mixin');
 const AuthErrors = require('lib/auth-errors');
-const BaseView = require('../base');
 const Cocktail = require('cocktail');
 const FormView = require('../form');
 const LastCheckedTimeMixin = require('../mixins/last-checked-time-mixin');
 const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
 const UpgradeSessionMixin = require('../mixins/upgrade-session-mixin');
 const Template = require('templates/settings/two_step_authentication.mustache');
-const preventDefaultThen = require('../base').preventDefaultThen;
+const { preventDefaultThen } = require('../base');
 const showProgressIndicator = require('../decorators/progress_indicator');
 
-var t = BaseView.t;
+const t = msg => msg;
 
 const CODE_INPUT_SELECTOR = 'input.totp-code';
 const CODE_REFRESH_SELECTOR = 'button.settings-button.totp-refresh';

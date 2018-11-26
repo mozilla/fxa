@@ -16,8 +16,8 @@ define(function (require, exports, module) {
   const Template = require('templates/settings/communication_preferences.mustache');
   const Xss = require('../../lib/xss');
 
+  const t = msg => msg;
   const NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
-  const t = (msg) => msg;
 
   const View = FormView.extend({
     template: Template,

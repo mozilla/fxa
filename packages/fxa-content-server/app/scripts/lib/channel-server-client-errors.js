@@ -1,6 +1,5 @@
 import { assign } from 'underscore';
 import Errors from './errors';
-
 const t = msg => msg;
 
 const UNEXPECTED_ERROR_MESSAGE = t('Unexpected error');

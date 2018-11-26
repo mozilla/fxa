@@ -14,8 +14,7 @@ define(function (require, exports, module) {
   const { CONTENT_SERVER_CONTEXT } = require('../../lib/constants');
   const NavigateBehavior = require('../../views/behaviors/navigate');
   const SettingsIfSignedInBehavior = require('../../views/behaviors/settings');
-
-  const t = (msg) => msg;
+  const t = msg => msg;
 
   const proto = BaseBroker.prototype;
 

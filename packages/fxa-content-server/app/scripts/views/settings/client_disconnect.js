@@ -9,8 +9,9 @@ define(function (require, exports, module) {
   const FormView = require('../form');
   const ModalSettingsPanelMixin = require('../mixins/modal-settings-panel-mixin');
   const SignedOutNotificationMixin = require('../mixins/signed-out-notification-mixin');
-  const t = require('../base').t;
   const Template = require('templates/settings/client_disconnect.mustache');
+
+  const t = msg => msg;
 
   const REASON_HELP = {
     'lost': t('We\'re sorry to hear about this. You should change your Firefox Account password, and look for ' +

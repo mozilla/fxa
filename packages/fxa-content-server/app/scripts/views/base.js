@@ -1081,21 +1081,6 @@ define(function (require, exports, module) {
     };
   };
 
-  /**
-   * t is a wrapper that is used for string extraction. The extraction
-   * script looks for t(...), and the translator will eventually
-   * translate it. t is put onto BaseView instead of
-   * Translator to reduce the number of dependencies in the views.
-   *
-   * @param {String} str
-   * @returns {String}
-   */
-  function t(str) {
-    return str;
-  }
-
-  BaseView.t = t;
-
   Cocktail.mixin(
     BaseView,
     // Attach the external links mixin in case the

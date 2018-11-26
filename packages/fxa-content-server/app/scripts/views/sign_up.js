@@ -7,7 +7,6 @@ define(function (require, exports, module) {
 
   const AccountResetMixin = require('./mixins/account-reset-mixin');
   const AuthErrors = require('../lib/auth-errors');
-  const BaseView = require('./base');
   const Cocktail = require('cocktail');
   const CoppaMixin = require('./mixins/coppa-mixin');
   const EmailFirstExperimentMixin = require('./mixins/email-first-experiment-mixin');
@@ -25,7 +24,7 @@ define(function (require, exports, module) {
   const SyncSuggestionMixin = require('./mixins/sync-suggestion-mixin');
   const Template = require('templates/sign_up.mustache');
 
-  var t = BaseView.t;
+  const t = msg => msg;
 
   function selectAutoFocusEl(bouncedEmail, email, password) {
     if (bouncedEmail) {

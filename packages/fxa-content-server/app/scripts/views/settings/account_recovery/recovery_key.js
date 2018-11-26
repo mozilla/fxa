@@ -5,12 +5,12 @@
 import Cocktail from 'cocktail';
 import BaseView from '../../base';
 import ModalSettingsPanelMixin from '../../mixins/modal-settings-panel-mixin';
+import PrintTemplate from 'templates/settings/account_recovery/recovery_key_print_template.mustache';
 import SaveOptionsMixin from '../../mixins/save-options-mixin';
 import Template from 'templates/settings/account_recovery/recovery_key.mustache';
 import UserAgentMixin from '../../../lib/user-agent-mixin';
-import PrintTemplate from 'templates/settings/account_recovery/recovery_key_print_template.mustache';
 
-const {t} = BaseView;
+const t = msg => msg;
 const ACCOUNT_RECOVERY_ELEMENT = '#account-recovery-key';
 
 const View = BaseView.extend({

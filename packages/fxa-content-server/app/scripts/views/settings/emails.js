@@ -7,7 +7,6 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const AvatarMixin = require('../mixins/avatar-mixin');
-  const BaseView = require('../base');
   const Cocktail = require('cocktail');
   const Email = require('../../models/email');
   const FormView = require('../form');
@@ -19,7 +18,7 @@ define(function (require, exports, module) {
   const showProgressIndicator = require('../decorators/progress_indicator');
   const Template = require('templates/settings/emails.mustache');
 
-  var t = BaseView.t;
+  const t = msg => msg;
 
   const EMAIL_INPUT_SELECTOR = 'input.new-email';
   const EMAIL_REFRESH_SELECTOR = 'button.settings-button.email-refresh';

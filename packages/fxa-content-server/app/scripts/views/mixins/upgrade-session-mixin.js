@@ -26,8 +26,8 @@ define(function (require, exports, module) {
   const SessionVerifiedNotificationMixin = require('./session-verified-notification-mixin');
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
   const UpgradeSessionTemplate = require('templates/settings/upgrade_session.mustache');
-  const t = BaseView.t;
 
+  const t = msg => msg;
   const showProgressIndicator = require('../decorators/progress_indicator');
   const EMAIL_REFRESH_SELECTOR = 'button.settings-button.refresh-verification-state';
   const EMAIL_REFRESH_DELAYMS = 350;

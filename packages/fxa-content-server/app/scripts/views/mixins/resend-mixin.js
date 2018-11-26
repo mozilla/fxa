@@ -22,7 +22,8 @@ define(function (require, exports, module) {
   const _ = require('underscore');
   const Duration = require('duration');
   const EmailResend = require('../../models/email-resend');
-  const { preventDefaultThen, t } = require('../base');
+  const { preventDefaultThen } = require('../base');
+  const t = msg => msg;
 
   const SHOW_RESEND_IN_MS = new Duration('5m').milliseconds();
 

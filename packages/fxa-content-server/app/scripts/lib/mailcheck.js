@@ -12,7 +12,7 @@ define(function (require, exports, module) {
   const KeyCodes = require('./key-codes');
   require('mailcheck');
   const Tooltip = require('../views/tooltip');
-  const t = (msg) => msg;
+  const t = msg => msg;
 
   const DOMAINS = [];
   const SECOND_LEVEL_DOMAINS = [ // domains that get suggested, i.e gnail => gmail

@@ -7,7 +7,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const {t} = require('../base');
   const AuthErrors = require('../../lib/auth-errors');
   const OAuthErrors = require('../../lib/oauth-errors');
   const NavigateBehavior = require('../behaviors/navigate');
@@ -16,6 +15,7 @@ define(function (require, exports, module) {
   const VerificationReasons = require('../../lib/verification-reasons');
   const TokenCodeExperimentMixin = require('../mixins/token-code-experiment-mixin');
 
+  const t = msg => msg;
   const TOTP_SUPPORT_URL = 'https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication';
 
   module.exports = {

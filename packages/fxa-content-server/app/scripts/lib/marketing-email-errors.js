@@ -9,10 +9,7 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Errors = require('./errors');
-
-  var t = function (msg) {
-    return msg;
-  };
+  const t = msg => msg;
 
   var UNEXPECTED_ERROR = t('Unexpected error');
 

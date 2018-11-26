@@ -11,8 +11,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require ('underscore');
-  const BaseView = require('../base');
-  const t = BaseView.t;
+  const t = msg => msg;
 
   const WEBMAIL_SERVICES = [
     {

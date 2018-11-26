@@ -19,7 +19,8 @@ import Session from '../lib/session';
 import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import SignInMixin from './mixins/signin-mixin';
 import SignInTemplate from 'templates/sign_in.mustache';
-import { t } from './base';
+
+const t = msg => msg;
 
 const EMAIL_SELECTOR = 'input[type=email]';
 const PASSWORD_SELECTOR = 'input[type=password]';

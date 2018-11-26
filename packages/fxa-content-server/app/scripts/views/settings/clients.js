@@ -15,9 +15,10 @@ define(function (require, exports, module) {
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
   const SignedOutNotificationMixin = require('../mixins/signed-out-notification-mixin');
   const Strings = require('../../lib/strings');
-  const { t } = require('../base');
   const Template = require('templates/settings/clients.mustache');
   const UserAgentMixin = require('../../lib/user-agent-mixin');
+
+  const t = msg => msg;
 
   const DEVICE_REMOVED_ANIMATION_MS = 150;
   const LOADING_INDICATOR_BUTTON = '.settings-button.settings-unit-loading';

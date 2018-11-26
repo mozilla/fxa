@@ -11,7 +11,10 @@ const RecoveryCode = require('../../models/recovery-code');
 const SaveOptionsMixin = require('../mixins/save-options-mixin');
 const UserAgentMixin = require('../../lib/user-agent-mixin');
 
-const {preventDefaultThen, t} = FormView;
+const t = msg => msg;
+
+const { preventDefaultThen } = FormView;
+
 const RECOVERY_CODE_ELEMENT = '#recovery-codes';
 
 const View = FormView.extend({
