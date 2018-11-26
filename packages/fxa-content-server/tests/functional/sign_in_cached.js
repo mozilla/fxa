@@ -30,6 +30,7 @@ const {
   click,
   createUser,
   denormalizeStoredEmail,
+  destroySessionForEmail,
   fillOutSignIn,
   fillOutSignUp,
   getStoredAccountByEmail,
@@ -152,13 +153,7 @@ registerSuite('cached signin', {
         .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'))
 
-        .execute(function () {
-          const accounts = JSON.parse(localStorage.getItem('__fxa_storage.accounts'));
-          const uid = Object.keys(accounts)[0];
-          accounts[uid].sessionToken = 'eeead2b45791360e00b162ed37f118abbdae6ee8d3997f4eb48ee31dbdf53802';
-          localStorage.setItem('__fxa_storage.accounts', JSON.stringify(accounts));
-          return true;
-        })
+        .then(destroySessionForEmail(email))
 
         .then(openPage(PAGE_SIGNIN, selectors.SIGNIN.HEADER))
         .then(click(selectors.SIGNIN.SUBMIT_USE_SIGNED_IN))
