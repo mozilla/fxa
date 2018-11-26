@@ -364,7 +364,7 @@ module.exports = (log, db, mailer, customs, config) => {
               // we can not check `session.mustVerify=true` to determine sending the new device
               // login email. Instead, lets perform a basic check that the service is `sync`, otherwise
               // don't send.
-              if (service === 'sync') {
+              if (isValidCode && service === 'sync') {
                 return mailer.sendNewDeviceLoginNotification(account.emails, account, emailOptions)
               }
             })

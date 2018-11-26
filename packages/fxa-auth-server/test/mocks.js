@@ -83,6 +83,7 @@ const DB_METHOD_NAMES = [
   'verifyEmail',
   'verifyTokens',
   'verifyTokenCode',
+  'verifyTokensWithMethod'
 ]
 
 const LOG_METHOD_NAMES = [
