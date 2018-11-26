@@ -3,7 +3,7 @@
   "version": "1.115.0",
   "description": "Firefox Accounts Basket Proxy Server",
   "scripts": {
-    "start": "grunt server --node-env=dev",
+    "start": "NODE_ENV=development node bin/basket-proxy-server.js",
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "test": "NODE_ENV=test ./scripts/test-local.sh"
   },
@@ -26,7 +26,7 @@
     "grunt-cli": "1.2.0",
     "grunt-rev": "0.1.0",
     "load-grunt-tasks": "3.5.2",
-    "mozlog": "2.0.6",
+    "mozlog": "2.2.0",
     "on-finished": "2.3.0",
     "request": "2.88.0",
     "time-grunt": "1.4.0"
@@ -39,7 +39,6 @@
     "grunt-conventional-changelog": "6.1.0",
     "grunt-copyright": "0.3.0",
     "grunt-eslint": "18.0.0",
-    "grunt-nodemon": "0.4.2",
     "grunt-todo": "0.5.0",
     "mocha": "5.2.0",
     "moment": "2.22.2",
