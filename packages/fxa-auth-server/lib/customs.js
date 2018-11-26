@@ -4,17 +4,100 @@
 
 'use strict'
 
-var P = require('./promise')
-var Pool = require('./pool')
-var config = require('../config')
-var localizeTimestamp = require('fxa-shared').l10n.localizeTimestamp({
+const Joi = require('joi')
+const createBackendServiceAPI = require('./backendService')
+const config = require('../config')
+const localizeTimestamp = require('fxa-shared').l10n.localizeTimestamp({
   supportedLanguages: config.get('i18n').supportedLanguages,
   defaultLanguage: config.get('i18n').defaultLanguage
 })
 
 module.exports = function (log, error) {
-  const SafeUrl = require('./safe-url')(log)
-  const SAFE_URLS = {}
+
+  const CustomsAPI = createBackendServiceAPI(log, config, 'customs', {
+
+    check: {
+      path: '/check',
+      method: 'POST',
+      validate: {
+        payload: {
+          email: Joi.string().required(),
+          ip: Joi.string().required(),
+          action: Joi.string().required(),
+          headers: Joi.object().optional(),
+          query: Joi.object().optional(),
+          payload: Joi.object().optional()
+        },
+        response: {
+          block: Joi.boolean().required(),
+          blockReason: Joi.string().optional(),
+          suspect: Joi.boolean().optional(),
+          unblock: Joi.boolean().optional(),
+          retryAfter: Joi.number().optional()
+        }
+      }
+    },
+
+    checkAuthenticated: {
+      path: '/checkAuthenticated',
+      method: 'POST',
+      validate: {
+        payload: {
+          ip: Joi.string().required(),
+          action: Joi.string().required(),
+          uid: Joi.string().required(),
+        },
+        response: {
+          block: Joi.boolean().required(),
+          blockReason: Joi.string().optional(),
+          retryAfter: Joi.number().optional()
+        }
+      }
+    },
+
+    checkIpOnly: {
+      path: '/checkIpOnly',
+      method: 'POST',
+      validate: {
+        payload: {
+          ip: Joi.string().required(),
+          action: Joi.string().required(),
+        },
+        response: {
+          block: Joi.boolean().required(),
+          blockReason: Joi.string().optional(),
+          suspect: Joi.boolean().optional(),
+          unblock: Joi.boolean().optional(),
+          retryAfter: Joi.number().optional()
+        }
+      }
+    },
+
+    failedLoginAttempt: {
+      path: '/failedLoginAttempt',
+      method: 'POST',
+      validate: {
+        payload: {
+          email: Joi.string().required(),
+          ip: Joi.string().required(),
+          errno: Joi.number().required()
+        },
+        response: {}
+      }
+    },
+
+    passwordReset: {
+      path: '/passwordReset',
+      method: 'POST',
+      validate: {
+        payload: {
+          email: Joi.string().required(),
+        },
+        response: {}
+      }
+    },
+
+  })
 
   // Perform a deep clone of payload and remove user password.
   function sanitizePayload(payload) {
@@ -36,49 +119,43 @@ module.exports = function (log, error) {
 
   function Customs(url) {
     if (url === 'none') {
-      this.pool = {
-        post: function () { return P.resolve({ block: false })},
-        close: function () {}
+      const noblock = async function () { return { block: false }}
+      const noop = async function () {}
+      this.api = {
+        check: noblock,
+        checkAuthenticated: noblock,
+        checkIpOnly: noblock,
+        failedLoginAttempt: noop,
+        passwordReset: noop,
+        close: noop
       }
-    }
-    else {
-      this.pool = new Pool(url, { timeout: 3000 })
+    } else {
+      this.api = new CustomsAPI(url, { timeout: 3000 })
     }
   }
 
-  SAFE_URLS.check = new SafeUrl('/check')
-  Customs.prototype.check = function (request, email, action) {
-    log.trace({ op: 'customs.check', email: email, action: action })
-    return this.pool.post(
-      SAFE_URLS.check,
-      undefined,
-      {
-        ip: request.app.clientAddress,
-        email: email,
-        action: action,
-        headers: request.headers,
-        query: request.query,
-        payload: sanitizePayload(request.payload)
-      }
-    )
-    .then(
-      handleCustomsResult.bind(request),
-      err => {
-        log.error({ op: 'customs.check.1', email: email, action: action, err: err })
-        throw error.backendServiceFailure('customs', 'check')
-      }
-    )
+  Customs.prototype.check = async function (request, email, action) {
+    const result = await this.api.check({
+      ip: request.app.clientAddress,
+      email: email,
+      action: action,
+      headers: request.headers,
+      query: request.query,
+      payload: sanitizePayload(request.payload)
+    })
+    return handleCustomsResult(request, result)
   }
 
-  function handleCustomsResult (result) {
-    const request = this
+  // Annotate the request and/or throw an error
+  // based on the check result returned by customs-server.
+  function handleCustomsResult (request, result) {
 
     if (result.suspect) {
       request.app.isSuspiciousRequest = true
     }
 
     if (result.block) {
-      // Log a flow event that user got blocked.
+      // Log a flow event that the user got blocked.
       request.emitMetricsEvent('customs.blocked')
 
       const unblock = !! result.unblock
@@ -98,97 +175,43 @@ module.exports = function (log, error) {
     }
   }
 
-  SAFE_URLS.checkAuthenticated = new SafeUrl('/checkAuthenticated')
-  Customs.prototype.checkAuthenticated = function (action, ip, uid) {
-    log.trace({ op: 'customs.checkAuthenticated', action: action,  uid: uid })
-
-    return this.pool.post(
-      SAFE_URLS.checkAuthenticated,
-      undefined,
-      {
-        action: action,
-        ip: ip,
-        uid: uid
-      }
-    )
-    .then(
-      function (result) {
-        if (result.block) {
-          if (result.retryAfter) {
-            throw error.tooManyRequests(result.retryAfter)
-          }
-          throw error.requestBlocked()
-        }
-      },
-      function (err) {
-        log.error({ op: 'customs.checkAuthenticated', uid: uid, action: action, err: err })
-        throw error.backendServiceFailure('customs', 'checkAuthenticated')
-      }
-    )
+  Customs.prototype.checkAuthenticated = async function (request, uid, action) {
+    const result = await this.api.checkAuthenticated({
+      action: action,
+      ip: request.app.clientAddress,
+      uid: uid
+    })
+    return handleCustomsResult(request, result)
   }
 
-  SAFE_URLS.checkIpOnly = new SafeUrl('/checkIpOnly')
-  Customs.prototype.checkIpOnly = function (request, action) {
-    log.trace({ op: 'customs.checkIpOnly', action: action })
-    return this.pool.post(SAFE_URLS.checkIpOnly, undefined, {
+  Customs.prototype.checkIpOnly = async function (request, action) {
+    const result = await this.api.checkIpOnly({
       ip: request.app.clientAddress,
       action: action
     })
-    .then(
-      handleCustomsResult.bind(request),
-      err => {
-        log.error({ op: 'customs.checkIpOnly.1', action: action, err: err })
-        throw error.backendServiceFailure('customs', 'checkIpOnly')
-      }
-    )
+    return handleCustomsResult(request, result)
   }
 
-  SAFE_URLS.failedLoginAttempt = new SafeUrl('/failedLoginAttempt')
-  Customs.prototype.flag = function (ip, info) {
+  Customs.prototype.flag = async function (ip, info) {
     var email = info.email
     var errno = info.errno || error.ERRNO.UNEXPECTED_ERROR
-    log.trace({ op: 'customs.flag', ip: ip, email: email, errno: errno })
-    return this.pool.post(
-      SAFE_URLS.failedLoginAttempt,
-      undefined,
-      {
-        ip: ip,
-        email: email,
-        errno: errno
-      }
-    )
-    .then(
-      // There's no useful information in the HTTP response, discard it.
-      function () {},
-      function (err) {
-        log.error({ op: 'customs.flag.1', email: email, err: err })
-        throw error.backendServiceFailure('customs', 'flag')
-      }
-    )
+    // There's no useful information in the HTTP response, ignore it.
+    await this.api.failedLoginAttempt({
+      ip: ip,
+      email: email,
+      errno: errno
+    })
   }
 
-  SAFE_URLS.passwordReset = new SafeUrl('/passwordReset')
-  Customs.prototype.reset = function (email) {
-    log.trace({ op: 'customs.reset', email: email })
-    return this.pool.post(
-      SAFE_URLS.passwordReset,
-      undefined,
-      {
-        email: email
-      }
-    )
-    .then(
-      // There's no useful information in the HTTP response, discard it.
-      function () {},
-      function (err) {
-        log.error({ op: 'customs.reset.1', email: email, err: err })
-        throw error.backendServiceFailure('customs', 'reset')
-      }
-    )
+  Customs.prototype.reset = async function (email) {
+    // There's no useful information in the HTTP response, ignore it.
+    await this.api.passwordReset({
+      email: email
+    })
   }
 
   Customs.prototype.close = function () {
-    return this.pool.close()
+    return this.api.close()
   }
 
   return Customs

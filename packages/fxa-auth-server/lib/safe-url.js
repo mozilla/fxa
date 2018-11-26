@@ -46,6 +46,10 @@ module.exports = log => class SafeUrl {
     this._caller = caller
   }
 
+  params () {
+    return this._expectedKeys.array.slice(0)
+  }
+
   render (params = {}, query = {}) {
     const paramsKeys = Object.keys(params)
     const { array: expected, set: expectedSet } = this._expectedKeys
@@ -83,6 +87,6 @@ module.exports = log => class SafeUrl {
 
   _fail (op, data) {
     log.error(Object.assign({ op, caller: this._caller }, data))
-    throw error.unexpectedError()
+    throw error.internalValidationError()
   }
 }
