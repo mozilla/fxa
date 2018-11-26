@@ -307,9 +307,8 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
         const sessionToken = request.auth.credentials
         const uid = sessionToken.uid
         const sender = sessionToken.deviceId
-        const ip = request.app.clientAddress
 
-        return customs.checkAuthenticated('invokeDeviceCommand', ip, uid)
+        return customs.checkAuthenticated(request, uid, 'invokeDeviceCommand')
           .then(() => db.device(uid, target))
           .then(device => {
             if (! device.availableCommands.hasOwnProperty(command)) {
@@ -375,7 +374,6 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
         const body = request.payload
         const sessionToken = request.auth.credentials
         const uid = sessionToken.uid
-        const ip = request.app.clientAddress
         const payload = body.payload
         const endpointAction = body._endpointAction || 'devicesNotify'
 
@@ -392,7 +390,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
           pushOptions.TTL = body.TTL
         }
 
-        return customs.checkAuthenticated(endpointAction, ip, uid)
+        return customs.checkAuthenticated(request, uid, endpointAction)
           .then(() => request.app.devices)
           .then(devices => {
             if (body.to !== 'all') {

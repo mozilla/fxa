@@ -58,7 +58,7 @@ jobs:
     script:
       - npm run test-ci
       - npm run test-e2e
-      - npm run test-scripts
+      - NODE_ENV=test npm run test-scripts
       - grunt templates && git status -s | (! grep 'M lib/senders/templates/')
       - grunt l10n-extract
       - npm run lint:deps

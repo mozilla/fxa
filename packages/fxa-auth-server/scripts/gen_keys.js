@@ -26,8 +26,12 @@ const fs = require('fs')
 const cp = require('child_process')
 const assert = require('assert')
 const crypto = require('crypto')
-const config = require('../config')
 
+if (! process.env.NODE_ENV) {
+  process.env.NODE_ENV = 'dev'
+}
+
+const config = require('../config')
 const pubKeyFile = config.get('publicKeyFile')
 const secretKeyFile = config.get('secretKeyFile')
 

@@ -78,6 +78,8 @@ var ERRNO = {
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
   BACKEND_SERVICE_FAILURE: 203,
+
+  INTERNAL_VALIDATION_ERROR: 998,
   UNEXPECTED_ERROR: 999
 }
 
@@ -858,6 +860,15 @@ AppError.backendServiceFailure = (service, operation) => {
   }, {
     service,
     operation
+  })
+}
+
+AppError.internalValidationError = () => {
+  return new AppError({
+    code: 500,
+    error: 'Internal Server Error',
+    errno: ERRNO.INTERNAL_VALIDATION_ERROR,
+    message: 'An internal validation check failed.'
   })
 }
 

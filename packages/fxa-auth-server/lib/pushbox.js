@@ -18,14 +18,10 @@
 
 const isA = require('joi')
 const error = require('./error')
-const Pool = require('./pool')
-const P = require('./promise')
+const createBackendServiceAPI = require('./backendService')
 const validators = require('./routes/validators')
 
 const base64url = require('base64url')
-
-const LOG_OP_RETRIEVE = 'pushbox.retrieve'
-const LOG_OP_STORE = 'pushbox.store'
 
 const PUSHBOX_RETRIEVE_SCHEMA = isA.object({
   last: isA.boolean().optional(),
@@ -43,15 +39,6 @@ const PUSHBOX_STORE_SCHEMA = isA.object({
   error: isA.string().optional(),
   status: isA.number().required()
 }).or('index', 'error')
-
-const validateRetrieveResponse = P.promisify(PUSHBOX_RETRIEVE_SCHEMA.validate, {
-  context: PUSHBOX_RETRIEVE_SCHEMA
-})
-
-const validateStoreResponse = P.promisify(PUSHBOX_STORE_SCHEMA.validate, {
-  context: PUSHBOX_STORE_SCHEMA
-})
-
 
 // Pushbox stores strings, so these are a little pair
 // of helper functions to allow us to store arbitrary
@@ -78,13 +65,49 @@ module.exports = function (log, config) {
     }
   }
 
-  const pool = new Pool(config.pushbox.url, { timeout: 15000 })
+  const PushboxAPI = createBackendServiceAPI(log, config, 'pushbox', {
+
+    retrieve: {
+      path: '/v1/store/:uid/:deviceId',
+      method: 'GET',
+      validate: {
+        params: {
+          uid: isA.string().regex(validators.HEX_STRING).required(),
+          deviceId: isA.string().regex(validators.HEX_STRING).required()
+        },
+        query: {
+          limit: isA.string().regex(validators.DIGITS).required(),
+          index: isA.string().regex(validators.DIGITS).optional()
+        },
+        response: PUSHBOX_RETRIEVE_SCHEMA
+      }
+    },
+
+    store: {
+      path: '/v1/store/:uid/:deviceId',
+      method: 'POST',
+      validate: {
+        params: {
+          uid: isA.string().regex(validators.HEX_STRING).required(),
+          deviceId: isA.string().regex(validators.HEX_STRING).required()
+        },
+        payload: {
+          data: isA.string().required(),
+          ttl: isA.number().required()
+        },
+        response: PUSHBOX_STORE_SCHEMA
+      }
+    },
+
+  })
+
+  const api = new PushboxAPI(config.pushbox.url, {
+    headers: {Authorization: `FxA-Server-Key ${config.pushbox.key}`},
+    timeout: 15000
+  })
+
   // pushbox expects this in seconds, not millis.
   const maxTTL = Math.round(config.pushbox.maxTTL / 1000)
-
-  const SafeUrl = require('./safe-url')(log)
-  const path = new SafeUrl('/v1/store/:uid/:deviceId')
-  const headers = {Authorization: `FxA-Server-Key ${config.pushbox.key}`}
 
   return {
     /**
@@ -99,45 +122,29 @@ module.exports = function (log, config) {
      * @param {String} [index]
      * @returns {Promise}
      */
-    retrieve (uid, deviceId, limit, index) {
-      log.trace({
-        op: LOG_OP_RETRIEVE,
-        uid,
-        deviceId,
-        index,
-        limit
-      })
+    async retrieve (uid, deviceId, limit, index) {
       const query = {
         limit: limit.toString()
       }
       if (index) {
         query.index = index.toString()
       }
-      const params = {uid, deviceId}
-      return pool.get(path, params, {query, headers})
-      .then(body => {
-        log.info({ op: 'pushbox.retrieve.response', body: body })
-        return validateRetrieveResponse(body).catch(e => {
-          log.error({ op: 'pushbox.retrieve', error: 'response schema validation failed', body: body })
-          throw error.unexpectedError()
+      const body = await api.retrieve(uid, deviceId, query)
+      log.info({ op: 'pushbox.retrieve.response', body: body })
+      if (body.error) {
+        log.error({ op: 'pushbox.retrieve', status: body.status, error: body.error })
+        throw error.backendServiceFailure()
+      }
+      return {
+        last: body.last,
+        index: body.index,
+        messages: (! body.messages) ? undefined : body.messages.map(msg => {
+          return {
+            index: msg.index,
+            data: decodeFromStorage(msg.data)
+          }
         })
-      })
-      .then(body => {
-        if (body.error) {
-          log.error({ op: 'pushbox.retrieve', status: body.status, error: body.error })
-          throw error.unexpectedError()
-        }
-        return {
-          last: body.last,
-          index: body.index,
-          messages: (! body.messages) ? undefined : body.messages.map(msg => {
-            return {
-              index: msg.index,
-              data: decodeFromStorage(msg.data)
-            }
-          })
-        }
-      })
+      }
     },
 
     /**
@@ -151,32 +158,17 @@ module.exports = function (log, config) {
      * @param {Object} data - data object to serialize into storage
      * @returns {Promise} direct url to the stored message
      */
-    store (uid, deviceId, data, ttl) {
+    async store (uid, deviceId, data, ttl) {
       if (typeof ttl === 'undefined' || ttl > maxTTL) {
         ttl = maxTTL
       }
-      log.trace({
-        op: LOG_OP_STORE,
-        uid,
-        deviceId,
-      })
-      const body = {data: encodeForStorage(data), ttl}
-      const params = {uid, deviceId}
-      return pool.post(path, params, body, {headers})
-      .then(body => {
-        log.info({ op: 'pushbox.store.response', body: body })
-        return validateStoreResponse(body).catch(e => {
-          log.error({ op: 'pushbox.store', error: 'response schema validation failed', body: body })
-          throw error.unexpectedError()
-        })
-      })
-      .then(body => {
-        if (body.error) {
-          log.error({ op: 'pushbox.store', status: body.status, error: body.error })
-          throw error.unexpectedError()
-        }
-        return body
-      })
+      const body = await api.store(uid, deviceId, {data: encodeForStorage(data), ttl})
+      log.info({ op: 'pushbox.store.response', body: body })
+      if (body.error) {
+        log.error({ op: 'pushbox.store', status: body.status, error: body.error })
+        throw error.backendServiceFailure()
+      }
+      return body
     }
   }
 }

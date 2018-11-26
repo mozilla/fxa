@@ -95,11 +95,10 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
         log.begin('getRecoveryKey', request)
 
         const uid = request.auth.credentials.uid
-        const ip = request.app.clientAddress
         const recoveryKeyId = request.params.recoveryKeyId
         let recoveryData
 
-        return customs.checkAuthenticated('getRecoveryKey', ip, uid)
+        return customs.checkAuthenticated(request, uid, 'getRecoveryKey')
           .then(getRecoveryKey)
           .then(() => {
             return {recoveryData}

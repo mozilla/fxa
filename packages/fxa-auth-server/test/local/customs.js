@@ -350,26 +350,26 @@ describe('Customs', () => {
         .post('/checkAuthenticated', checkRequestBody).reply(200, '{"block":false,"retryAfter":0}')
         .post('/checkAuthenticated', checkRequestBody).reply(200, '{"block":true,"retryAfter":10001}')
 
-      return customsWithUrl.checkAuthenticated(action, ip, uid)
+      return customsWithUrl.checkAuthenticated(request, uid, action)
         .then(function(result) {
           assert.equal(result, undefined, 'Nothing is returned when /checkAuthenticated succeeds - 1')
-          return customsWithUrl.checkAuthenticated(action, ip, uid)
+          return customsWithUrl.checkAuthenticated(request, uid, action)
         })
         .then(function(result) {
           assert.equal(result, undefined, 'Nothing is returned when /checkAuthenticated succeeds - 2')
-          return customsWithUrl.checkAuthenticated(action, ip, uid)
+          return customsWithUrl.checkAuthenticated(request, uid, action)
         })
         .then(function(result) {
           assert.equal(result, undefined, 'Nothing is returned when /checkAuthenticated succeeds - 3')
-          return customsWithUrl.checkAuthenticated(action, ip, uid)
+          return customsWithUrl.checkAuthenticated(request, uid, action)
         })
         .then(function(result) {
           assert.equal(result, undefined, 'Nothing is returned when /checkAuthenticated succeeds - 4')
-          return customsWithUrl.checkAuthenticated(action, ip, uid)
+          return customsWithUrl.checkAuthenticated(request, uid, action)
         })
         .then(function() {
           // request is blocked
-          return customsWithUrl.checkAuthenticated(action, ip, uid)
+          return customsWithUrl.checkAuthenticated(request, uid, action)
         })
         .then(function() {
           assert(false, 'This should have failed the check since it should be blocked')
