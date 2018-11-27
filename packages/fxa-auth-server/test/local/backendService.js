@@ -141,7 +141,7 @@ describe('createBackendServiceAPI', () => {
       assert.equal(log.error.getCall(0).args[0].error, 'params schema validation failed')
       assert.ok(/fails to match the required pattern/.test(log.error.getCall(0).args[0].message))
     }
-    log.error.reset()
+    log.error.resetHistory()
     try {
       await api.testGetWithValidation('abc', 123, {})
       assert.fail('should have thrown')
