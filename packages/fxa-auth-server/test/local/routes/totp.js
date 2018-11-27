@@ -14,6 +14,7 @@ const sinon = require('sinon')
 let log, db, customs, routes, route, request, requestOptions, mailer
 const TEST_EMAIL = 'test@email.com'
 const secret = 'KE3TGQTRNIYFO2KOPE4G6ULBOV2FQQTN'
+const sessionId = 'id'
 
 describe('totp', () => {
   beforeEach(() => {
@@ -21,7 +22,9 @@ describe('totp', () => {
       metricsContext: mocks.mockMetricsContext(),
       credentials: {
         uid: 'uid',
-        email: TEST_EMAIL
+        email: TEST_EMAIL,
+        authenticatorAssuranceLevel: 1,
+        id: sessionId
       },
       log: log,
       payload: {
@@ -60,6 +63,7 @@ describe('totp', () => {
 
   describe('/totp/destroy', () => {
     it('should delete TOTP token', () => {
+      requestOptions.credentials.authenticatorAssuranceLevel = 2
       return setup({db: {email: TEST_EMAIL}}, {}, '/totp/destroy', requestOptions)
         .then((response) => {
           assert.ok(response)
@@ -112,52 +116,106 @@ describe('totp', () => {
   })
 
   describe('/session/verify/totp', () => {
-    it('should return true for valid TOTP code', () => {
+    it('should enable and verify TOTP token', () => {
       const authenticator = new otplib.authenticator.Authenticator()
       authenticator.options = Object.assign({}, otplib.authenticator.options, {secret})
       requestOptions.payload = {
         code: authenticator.generate(secret)
       }
-      return setup({db: {email: TEST_EMAIL}}, {}, '/session/verify/totp', requestOptions)
+      return setup({db: {email: TEST_EMAIL}, totpTokenVerified: false, totpTokenEnabled: false}, {}, '/session/verify/totp', requestOptions)
         .then((response) => {
           assert.equal(response.success, true, 'should be valid code')
           assert.equal(db.totpToken.callCount, 1, 'called get TOTP token')
-          assert.equal(db.updateTotpToken.callCount, 0, 'did not update TOTP token')
+          assert.equal(db.updateTotpToken.callCount, 1, 'update TOTP token')
 
-          assert.equal(log.notifyAttachedServices.callCount, 0, 'did not call notifyAttachedServices')
-
-          // emits correct metrics
-          assert.equal(request.emitMetricsEvent.callCount, 1, 'called emitMetricsEvent')
-          const args = request.emitMetricsEvent.args[0]
-          assert.equal(args[0], 'totpToken.verified', 'called emitMetricsEvent with correct event')
-          assert.equal(args[1]['uid'], 'uid', 'called emitMetricsEvent with correct event')
-        })
-    })
-
-    it('should enable TOTP token if not already enabled', () => {
-      const authenticator = new otplib.authenticator.Authenticator()
-      authenticator.options = Object.assign({}, otplib.authenticator.options, {secret})
-      requestOptions.payload = {
-        code: authenticator.generate(secret)
-      }
-      return setup({db: {email: TEST_EMAIL}, totpTokenVerified: false}, {}, '/session/verify/totp', requestOptions)
-        .then((response) => {
-          assert.equal(response.success, true, 'should be valid code')
-          assert.equal(db.totpToken.callCount, 1, 'called get TOTP token')
-          assert.equal(db.updateTotpToken.callCount, 1, 'called update TOTP token')
-
-          assert.equal(log.notifyAttachedServices.callCount, 1, 'called notifyAttachedServices')
+          assert.equal(log.notifyAttachedServices.callCount, 1, 'call notifyAttachedServices')
           let args = log.notifyAttachedServices.args[0]
           assert.equal(args.length, 3, 'log.notifyAttachedServices was passed three arguments')
           assert.equal(args[0], 'profileDataChanged', 'first argument was event name')
           assert.equal(args[1], request, 'second argument was request object')
           assert.equal(args[2].uid, 'uid', 'third argument was event data with a uid')
 
+          // verifies session
+          assert.equal(db.verifyTokensWithMethod.callCount, 1, 'call verify session')
+          args = db.verifyTokensWithMethod.args[0]
+          assert.equal(sessionId, args[0], 'called with correct session id')
+          assert.equal('totp-2fa', args[1], 'called with correct method')
+
           // emits correct metrics
           assert.equal(request.emitMetricsEvent.callCount, 1, 'called emitMetricsEvent')
           args = request.emitMetricsEvent.args[0]
           assert.equal(args[0], 'totpToken.verified', 'called emitMetricsEvent with correct event')
           assert.equal(args[1]['uid'], 'uid', 'called emitMetricsEvent with correct event')
+
+          // correct emails sent
+          assert.equal(mailer.sendNewDeviceLoginNotification.callCount, 0)
+          assert.equal(mailer.sendPostAddTwoStepAuthNotification.callCount, 1)
+        })
+    })
+
+    it('should verify session with TOTP token - sync', () => {
+      const authenticator = new otplib.authenticator.Authenticator()
+      authenticator.options = Object.assign({}, otplib.authenticator.options, {secret})
+      requestOptions.payload = {
+        code: authenticator.generate(secret),
+        service: 'sync'
+      }
+      return setup({db: {email: TEST_EMAIL}, totpTokenVerified: true, totpTokenEnabled: true}, {}, '/session/verify/totp', requestOptions)
+        .then((response) => {
+          assert.equal(response.success, true, 'should be valid code')
+          assert.equal(db.totpToken.callCount, 1, 'called get TOTP token')
+          assert.equal(db.updateTotpToken.callCount, 0, 'did not call update TOTP token')
+
+          assert.equal(log.notifyAttachedServices.callCount, 0, 'did not call notifyAttachedServices')
+
+          // verifies session
+          assert.equal(db.verifyTokensWithMethod.callCount, 1, 'call verify session')
+          let args = db.verifyTokensWithMethod.args[0]
+          assert.equal(sessionId, args[0], 'called with correct session id')
+          assert.equal('totp-2fa', args[1], 'called with correct method')
+
+          // emits correct metrics
+          assert.equal(request.emitMetricsEvent.callCount, 1, 'called emitMetricsEvent')
+          args = request.emitMetricsEvent.args[0]
+          assert.equal(args[0], 'totpToken.verified', 'called emitMetricsEvent with correct event')
+          assert.equal(args[1]['uid'], 'uid', 'called emitMetricsEvent with correct event')
+
+          // correct emails sent
+          assert.equal(mailer.sendNewDeviceLoginNotification.callCount, 1)
+          assert.equal(mailer.sendPostAddTwoStepAuthNotification.callCount, 0)
+        })
+    })
+
+    it('should verify session with TOTP token - non sync', () => {
+      const authenticator = new otplib.authenticator.Authenticator()
+      authenticator.options = Object.assign({}, otplib.authenticator.options, {secret})
+      requestOptions.payload = {
+        code: authenticator.generate(secret),
+        service: 'not sync'
+      }
+      return setup({db: {email: TEST_EMAIL}, totpTokenVerified: true, totpTokenEnabled: true}, {}, '/session/verify/totp', requestOptions)
+        .then((response) => {
+          assert.equal(response.success, true, 'should be valid code')
+          assert.equal(db.totpToken.callCount, 1, 'called get TOTP token')
+          assert.equal(db.updateTotpToken.callCount, 0, 'did not call update TOTP token')
+
+          assert.equal(log.notifyAttachedServices.callCount, 0, 'did not call notifyAttachedServices')
+
+          // verifies session
+          assert.equal(db.verifyTokensWithMethod.callCount, 1, 'call verify session')
+          let args = db.verifyTokensWithMethod.args[0]
+          assert.equal(sessionId, args[0], 'called with correct session id')
+          assert.equal('totp-2fa', args[1], 'called with correct method')
+
+          // emits correct metrics
+          assert.equal(request.emitMetricsEvent.callCount, 1, 'called emitMetricsEvent')
+          args = request.emitMetricsEvent.args[0]
+          assert.equal(args[0], 'totpToken.verified', 'called emitMetricsEvent with correct event')
+          assert.equal(args[1]['uid'], 'uid', 'called emitMetricsEvent with correct event')
+
+          // correct emails sent
+          assert.equal(mailer.sendNewDeviceLoginNotification.callCount, 0)
+          assert.equal(mailer.sendPostAddTwoStepAuthNotification.callCount, 0)
         })
     })
 
@@ -175,6 +233,10 @@ describe('totp', () => {
           const args = request.emitMetricsEvent.args[0]
           assert.equal(args[0], 'totpToken.unverified', 'called emitMetricsEvent with correct event')
           assert.equal(args[1]['uid'], 'uid', 'called emitMetricsEvent with correct event')
+
+          // correct emails sent
+          assert.equal(mailer.sendNewDeviceLoginNotification.callCount, 0)
+          assert.equal(mailer.sendPostAddTwoStepAuthNotification.callCount, 0)
         })
     })
   })
@@ -196,7 +258,7 @@ function setup(results, errors, routePath, requestOptions) {
   db.totpToken = sinon.spy(() => {
     return P.resolve({
       verified: typeof results.totpTokenVerified === 'undefined' ? true : results.totpTokenVerified,
-      enabled: typeof results.totpTokenEnabled === 'undefined' ? true : results.totpTokeneEnabled,
+      enabled: typeof results.totpTokenEnabled === 'undefined' ? true : results.totpTokenEnabled,
       sharedSecret: secret
     })
   })
