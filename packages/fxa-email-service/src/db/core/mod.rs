@@ -108,7 +108,6 @@ impl Client {
 /// Date types included in this store.
 #[derive(Clone, Copy, Debug)]
 pub enum DataType {
-    Configuration,
     DeliveryProblem,
     MessageData,
 }
@@ -116,7 +115,6 @@ pub enum DataType {
 impl AsRef<str> for DataType {
     fn as_ref(&self) -> &str {
         match *self {
-            DataType::Configuration => "cfg",
             DataType::DeliveryProblem => "del",
             DataType::MessageData => "msg",
         }
