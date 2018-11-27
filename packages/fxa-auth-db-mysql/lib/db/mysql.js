@@ -897,20 +897,9 @@ module.exports = function (log, error) {
   //          verifierSetAt, createdAt, lockedAt, primaryEmail, profileChangedAt
   // Where  : emails.normalizedEmail = LOWER($1)
   //
-  // There's a newer version of this query named `accountRecord_4`
-  // which coalesces the `profileChangedAt` column from values in the db.
-  // We're experiencing unexpectedly bad query performance for reasons
-  // that we don't yet understand, so we've reverted to using an older
-  // version of the query while we're figuring that out, and doing the
-  // coalesce here in code.
-  // Ref: https://github.com/mozilla/fxa-content-server/issues/6655
-  var GET_ACCOUNT_RECORD = 'CALL accountRecord_2(?)'
+  var GET_ACCOUNT_RECORD = 'CALL accountRecord_5(?)'
   MySql.prototype.accountRecord = function (email) {
     return this.readFirstResult(GET_ACCOUNT_RECORD, [email])
-      .then(record => {
-        record.profileChangedAt = record.verifierSetAt || record.createdAt
-        return record
-      })
   }
 
   // Select : emails
