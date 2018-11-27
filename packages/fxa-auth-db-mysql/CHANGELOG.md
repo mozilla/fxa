@@ -1,3 +1,15 @@
+<a name="1.126.0"></a>
+# [1.126.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.125.0...v1.126.0) (2018-11-27)
+
+
+### Bug Fixes
+
+* **account:** don't use `LOWER(uid)` in account query ([d2cfe49](https://github.com/mozilla/fxa-auth-db-mysql/commit/d2cfe49))
+* **account:** update accountRecord to specify charset for inEmail ([a45c8a0](https://github.com/mozilla/fxa-auth-db-mysql/commit/a45c8a0))
+* **tests:** Don't put binary data into fake email addresses. ([5c83dec](https://github.com/mozilla/fxa-auth-db-mysql/commit/5c83dec))
+
+
+
 <a name="1.125.0"></a>
 # [1.125.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.124.1...v1.125.0) (2018-11-14)
 
