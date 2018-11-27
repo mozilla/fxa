@@ -1,3 +1,15 @@
+## 1.126.0
+
+### Refactorings
+
+* settings: rename `BounceLimit(s)` to `DeliveryProblemLimit(s)` (1d5e817)
+* settings: promote Env to an enum from a wrapped string (dba93f0)
+
+### Other changes
+
+* build: lower the debug level to decrease binary size (91a5173)
+* package: create an automated release script (05acce1)
+
 ## 1.125.2 (2018-11-20)
 
 
