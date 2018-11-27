@@ -64,7 +64,7 @@ fn env_vars_take_precedence() {
         "FXA_EMAIL_AWS_SQSURLS_COMPLAINT",
         "FXA_EMAIL_AWS_SQSURLS_DELIVERY",
         "FXA_EMAIL_AWS_SQSURLS_NOTIFICATION",
-        "FXA_EMAIL_BOUNCELIMITS_ENABLED",
+        "FXA_EMAIL_DELIVERYPROBLEMLIMITS_ENABLED",
         "FXA_EMAIL_ENV",
         "FXA_EMAIL_LOG_LEVEL",
         "FXA_EMAIL_LOG_FORMAT",
@@ -127,7 +127,7 @@ fn env_vars_take_precedence() {
                     )),
                 }
             };
-            let bounce_limits_enabled = !settings.bouncelimits.enabled;
+            let delivery_problem_limits_enabled = !settings.deliveryproblemlimits.enabled;
             let current_env = if settings.env == Env::Dev {
                 Env::Prod
             } else {
@@ -210,8 +210,8 @@ fn env_vars_take_precedence() {
                 &aws_sqs_urls.notification.0,
             );
             env::set_var(
-                "FXA_EMAIL_BOUNCELIMITS_ENABLED",
-                &bounce_limits_enabled.to_string(),
+                "FXA_EMAIL_DELIVERYPROBLEMLIMITS_ENABLED",
+                &delivery_problem_limits_enabled.to_string(),
             );
             env::set_var("FXA_EMAIL_HMACKEY", &hmac_key.to_string());
             env::set_var("FXA_EMAIL_ENV", current_env.as_ref());
@@ -246,7 +246,10 @@ fn env_vars_take_precedence() {
                 Ok(env_settings) => {
                     assert_eq!(env_settings.authdb.baseuri, BaseUri(auth_db_base_uri));
                     assert_eq!(env_settings.aws.region, AwsRegion(aws_region.to_string()));
-                    assert_eq!(env_settings.bouncelimits.enabled, bounce_limits_enabled);
+                    assert_eq!(
+                        env_settings.deliveryproblemlimits.enabled,
+                        delivery_problem_limits_enabled
+                    );
                     assert_eq!(env_settings.env, current_env);
                     assert_eq!(env_settings.hmackey, hmac_key);
                     assert_eq!(env_settings.log.level, log.level);
@@ -475,9 +478,9 @@ fn invalid_aws_notification_queue_url() {
 }
 
 #[test]
-fn invalid_bouncelimits_enabled() {
-    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_BOUNCELIMITS_ENABLED"]);
-    env::set_var("FXA_EMAIL_BOUNCELIMITS_ENABLED", "falsey");
+fn invalid_deliveryproblemslimits_enabled() {
+    let _clean_env = CleanEnvironment::new(vec!["FXA_EMAIL_DELIVERYPROBLEMLIMITS_ENABLED"]);
+    env::set_var("FXA_EMAIL_DELIVERYPROBLEMLIMITS_ENABLED", "falsey");
 
     match Settings::new() {
         Ok(_settings) => assert!(false, "Settings::new should have failed"),

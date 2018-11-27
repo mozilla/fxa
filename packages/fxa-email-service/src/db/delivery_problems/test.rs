@@ -47,9 +47,10 @@ fn check_no_bounces() {
     }
 }
 
-fn create_settings(bounce_limits: Json) -> Settings {
+fn create_settings(delivery_problem_limits: Json) -> Settings {
     let mut settings = Settings::default();
-    settings.bouncelimits = serde_json::from_value(bounce_limits).expect("JSON error");
+    settings.deliveryproblemlimits =
+        serde_json::from_value(delivery_problem_limits).expect("JSON error");
     settings.redis.host = Host(String::from("127.0.0.1"));
     settings.redis.port = 6379;
     settings
