@@ -124,7 +124,7 @@ pub struct AwsKeys {
 
 /// A definition object for a bounce/complaint limit.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
-pub struct BounceLimit {
+pub struct DeliveryProblemLimit {
     /// The time period
     /// within which to limit bounces/complaints.
     pub period: Duration,
@@ -137,21 +137,21 @@ pub struct BounceLimit {
 /// Controls the thresholds and behaviour
 /// for bounce and complaint reports.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
-pub struct BounceLimits {
-    /// Controls whether to enable bounce limits.
+pub struct DeliveryProblemLimits {
+    /// Controls whether to enable delivery problem limits.
     /// If set to `false`,
     /// bounce and complaint records in the database
     /// are ignored.
     pub enabled: bool,
 
     /// Limits for complaints/spam reports.
-    pub complaint: Vec<BounceLimit>,
+    pub complaint: Vec<DeliveryProblemLimit>,
 
     /// Limits for hard (permanent) bounces.
-    pub hard: Vec<BounceLimit>,
+    pub hard: Vec<DeliveryProblemLimit>,
 
     /// Limits for soft (transient) bounces.
-    pub soft: Vec<BounceLimit>,
+    pub soft: Vec<DeliveryProblemLimit>,
 }
 
 /// Settings for logging.
@@ -303,10 +303,10 @@ pub struct Settings {
 
     /// Controls the thresholds and behaviour
     /// for bounce and complaint reports.
-    /// If bounce limits are enabled,
+    /// If delivery problem limits are enabled,
     /// emails sent to offending addresses
     /// will fail with a `429` error.
-    pub bouncelimits: BounceLimits,
+    pub deliveryproblemlimits: DeliveryProblemLimits,
 
     /// The env sets which environment we are in.
     /// It defaults to `dev` if not set.

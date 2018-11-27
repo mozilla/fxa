@@ -20,7 +20,7 @@ use super::{
     core::{Client as DbClient, DataType},
 };
 use queues::notification::{BounceSubtype, BounceType, ComplaintFeedbackType};
-use settings::{BounceLimit, BounceLimits, Settings};
+use settings::{DeliveryProblemLimit, DeliveryProblemLimits, Settings};
 use types::{
     email_address::EmailAddress,
     error::{AppErrorKind, AppResult},
@@ -38,7 +38,7 @@ use types::{
 pub struct DeliveryProblems<D: AuthDb> {
     auth_db: D,
     db: DbClient,
-    limits: BounceLimits,
+    limits: DeliveryProblemLimits,
 }
 
 impl<D> DeliveryProblems<D>
@@ -50,7 +50,7 @@ where
         DeliveryProblems {
             auth_db,
             db: DbClient::new(settings),
-            limits: settings.bouncelimits.clone(),
+            limits: settings.deliveryproblemlimits.clone(),
         }
     }
 
@@ -60,9 +60,9 @@ where
     ///
     /// If matching records are found,
     /// they are checked against thresholds
-    /// defined in the [`BounceLimits` setting][limits].
+    /// defined in the [`DeliveryProblemLimits` setting][limits].
     ///
-    /// [limits]: ../settings/struct.BounceLimits.html
+    /// [limits]: ../settings/struct.DeliveryProblemLimits.html
     pub fn check(&self, address: &EmailAddress) -> AppResult<()> {
         let problems = self.auth_db.get_bounces(address)?;
         // TODO: When we start reading from the new datastore, use Utc::now() here instead
@@ -171,7 +171,12 @@ where
 
 unsafe impl<D> Sync for DeliveryProblems<D> where D: AuthDb {}
 
-fn is_limit_violation(count: u8, created_at: u64, timestamp: u64, limits: &[BounceLimit]) -> bool {
+fn is_limit_violation(
+    count: u8,
+    created_at: u64,
+    timestamp: u64,
+    limits: &[DeliveryProblemLimit],
+) -> bool {
     for limit in limits.iter() {
         if count > limit.limit && created_at >= timestamp - limit.period.0 {
             return true;

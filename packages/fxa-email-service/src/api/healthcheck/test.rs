@@ -79,11 +79,11 @@ fn successful_version() {
     assert_eq!(
         body,
         json!({
-        "build": "TBD",
-        "commit": "TBD",
-        "source": "https://github.com/mozilla/fxa-email-service",
-        "version": "TBD"
-    })
+            "build": "TBD",
+            "commit": "TBD",
+            "source": "https://github.com/mozilla/fxa-email-service",
+            "version": "TBD"
+        })
         .to_string()
     );
     assert_eq!(response.status(), Status::Ok);
