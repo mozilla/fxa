@@ -1,3 +1,17 @@
+<a name="1.126.0"></a>
+# [1.126.0](https://github.com/mozilla/fxa-profile-server/compare/v1.124.0...v1.126.0) (2018-11-27)
+
+
+### Bug Fixes
+
+* **audit:** rewrap deps to fix security warnings ([490bd56](https://github.com/mozilla/fxa-profile-server/commit/490bd56)), closes [#354](https://github.com/mozilla/fxa-profile-server/issues/354) [#355](https://github.com/mozilla/fxa-profile-server/issues/355)
+
+### Refactor
+
+* **headers:** remove HPKP headers ([69dfe39](https://github.com/mozilla/fxa-profile-server/commit/69dfe39)), closes [#352](https://github.com/mozilla/fxa-profile-server/issues/352)
+
+
+
 <a name="1.124.0"></a>
 # [1.124.0](https://github.com/mozilla/fxa-profile-server/compare/v1.123.0...v1.124.0) (2018-10-30)
 
