@@ -554,8 +554,8 @@ module.exports = function (log, error) {
   // Select : accounts
   // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt,
   //          verifierSetAt, createdAt, locale, lockedAt, profileChangedAt
-  // Where  : accounts.uid = LOWER($1)
-  var ACCOUNT = 'CALL account_5(?)'
+  // Where  : accounts.uid = $1
+  var ACCOUNT = 'CALL account_6(?)'
 
   MySql.prototype.account = function (uid) {
     return this.readFirstResult(ACCOUNT, [uid])
