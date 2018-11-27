@@ -1,6 +1,6 @@
 {
   "name": "fxa-basket-proxy",
-  "version": "1.115.0",
+  "version": "1.126.0",
   "description": "Firefox Accounts Basket Proxy Server",
   "scripts": {
     "start": "NODE_ENV=development node bin/basket-proxy-server.js",
