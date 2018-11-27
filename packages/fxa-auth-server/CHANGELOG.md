@@ -1,3 +1,30 @@
+<a name="1.126.0"></a>
+# [1.126.0](https://github.com/mozilla/fxa-auth-server/compare/v1.125.0...v1.126.0) (2018-11-27)
+
+
+### Bug Fixes
+
+* **db:** Improve query performance when deleting tokens for public clients. ([d6a673c](https://github.com/mozilla/fxa-auth-server/commit/d6a673c))
+* **deps:** drop nodemon ([aa1919f](https://github.com/mozilla/fxa-auth-server/commit/aa1919f))
+* **tests:** add Santa Clara to known locations ([689f020](https://github.com/mozilla/fxa-auth-server/commit/689f020))
+* **tests:** fix sinon compatbility in backendService ([aca8277](https://github.com/mozilla/fxa-auth-server/commit/aca8277))
+* **totp:** don't send totp emails with invalid code ([2ea84c1](https://github.com/mozilla/fxa-auth-server/commit/2ea84c1))
+
+### Features
+
+* **config:** Error out if secret key config items are not overwritten in production. ([df34343](https://github.com/mozilla/fxa-auth-server/commit/df34343))
+* **deps:** update dev deps to match with auth-server ([567b0cb](https://github.com/mozilla/fxa-auth-server/commit/567b0cb))
+* **deps:** update mozlog, newrelic and raven ([7f0834d](https://github.com/mozilla/fxa-auth-server/commit/7f0834d))
+* **deps:** update sinon to latest ([516ffd5](https://github.com/mozilla/fxa-auth-server/commit/516ffd5))
+* **oauth:** remove internal server ([0f9793f](https://github.com/mozilla/fxa-auth-server/commit/0f9793f))
+* **service:** Create a nice abstraction for calling backend service APIs ([193dc71](https://github.com/mozilla/fxa-auth-server/commit/193dc71))
+
+### Refactor
+
+* **headers:** remove HPKP headers ([d98b10c](https://github.com/mozilla/fxa-auth-server/commit/d98b10c)), closes [#2744](https://github.com/mozilla/fxa-auth-server/issues/2744)
+
+
+
 <a name="1.125.0"></a>
 # [1.125.0](https://github.com/mozilla/fxa-auth-server/compare/v1.124.4...v1.125.0) (2018-11-14)
 
