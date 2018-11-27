@@ -52,7 +52,7 @@ define(function (require, exports, module) {
       });
 
       it('is not called on startup if translations are already set', () => {
-        xhr.getJSON.reset();
+        xhr.getJSON.resetHistory();
         translator = new Translator({ xhr });
         translator.set(TRANSLATIONS);
         return translator.fetch()

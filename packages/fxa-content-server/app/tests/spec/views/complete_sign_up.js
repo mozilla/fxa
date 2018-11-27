@@ -567,7 +567,7 @@ define(function (require, exports, module) {
 
     describe('_notifyBrokerAndComplete', () => {
       beforeEach(() => {
-        notifier.trigger.reset();
+        notifier.trigger.resetHistory();
       });
 
       it('logs and notifies the broker', () => {
