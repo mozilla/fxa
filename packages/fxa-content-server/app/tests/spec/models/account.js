@@ -285,7 +285,7 @@ describe('models/account', function () {
 
   describe('signIn', () => {
     beforeEach(() => {
-      notifier.trigger.reset();
+      notifier.trigger.resetHistory();
     });
 
     describe('with a password and no sessionToken', () => {
@@ -1006,7 +1006,7 @@ describe('models/account', function () {
 
   describe('verifySignUp', function () {
     beforeEach(() => {
-      notifier.trigger.reset();
+      notifier.trigger.resetHistory();
     });
 
     describe('with custom server verification value', function () {
@@ -1127,7 +1127,7 @@ describe('models/account', function () {
 
   describe('signOut', () => {
     beforeEach(() => {
-      notifier.trigger.reset();
+      notifier.trigger.resetHistory();
       sinon.stub(fxaClient, 'sessionDestroy').callsFake(() => Promise.resolve());
 
       account.set('sessionToken', SESSION_TOKEN);
@@ -1150,7 +1150,7 @@ describe('models/account', function () {
 
   describe('destroy', function () {
     beforeEach(function () {
-      notifier.trigger.reset();
+      notifier.trigger.resetHistory();
       sinon.stub(fxaClient, 'deleteAccount').callsFake(function () {
         return Promise.resolve();
       });

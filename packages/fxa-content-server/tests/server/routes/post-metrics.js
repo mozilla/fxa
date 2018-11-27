@@ -105,7 +105,7 @@ registerSuite('routes/post-metrics', {
 
             after() {
               Date.now.restore();
-              sandbox.reset();
+              sandbox.resetHistory();
             },
             tests: {
               'request.body was converted to an object': function () {
@@ -147,7 +147,7 @@ registerSuite('routes/post-metrics', {
 
           after: function () {
             Date.now.restore();
-            sandbox.reset();
+            sandbox.resetHistory();
           },
 
           tests: {
@@ -232,7 +232,7 @@ registerSuite('routes/post-metrics', {
 
           after() {
             Date.now.restore();
-            sandbox.reset();
+            sandbox.resetHistory();
           },
           tests: {
             'response.json was called': function () {

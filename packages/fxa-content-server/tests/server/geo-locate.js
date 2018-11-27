@@ -47,8 +47,8 @@ registerSuite('geo-locate, geodb succeeds', {
   },
 
   afterEach () {
-    logger.error.reset();
-    remoteAddress.reset();
+    logger.error.resetHistory();
+    remoteAddress.resetHistory();
   },
 
   tests: {

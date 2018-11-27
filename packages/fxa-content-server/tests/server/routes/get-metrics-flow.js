@@ -41,7 +41,7 @@ registerSuite('routes/get-metrics-flow', {
   },
 
   afterEach: function () {
-    sandbox.reset();
+    sandbox.resetHistory();
   },
 
   tests: {
