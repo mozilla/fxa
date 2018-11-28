@@ -4,8 +4,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-// Check for bad smells in stored procedures, by running an EXPLAIN for
-// the contained queries and grepping for ROW_COUNT() calls.
+// Check for bad smells in active migrations, by:
+//
+//   * Looking for encoding mismatches in stored procedure arguments.
+//
+//   * Looking for FOREIGN KEY constraints in CREATE TABLE statements.
+//
+//   * Looking for calls to ROW_COUNT() inside stored procedures.
+//
+//   * Running an EXPLAIN for queries in stored procedures.
 //
 // Currently the EXPLAIN only works on SELECT queries. If we find it adds
 // value for those, it should be pretty straightforward to write some logic
@@ -44,7 +51,11 @@ const log = {
 const PRODUCTION = /^prod/i
 const RECORD_COUNT = 100
 const RETURN_STRING = { encoding: 'utf8' }
+const CREATE_TABLE = /^CREATE TABLE (?:IF NOT EXISTS )?`?([A-Z]+)/i
+const END_STATEMENT = /;/
+const FOREIGN_KEY = /^\s*FOREIGN KEY \([A-Z, ]+\) REFERENCES ([A-Z]+)/i
 const CREATE_PROCEDURE = /^CREATE PROCEDURE `?([A-Z]+_[0-9]+)/i
+const UNENCODED_EMAIL_ARG = /^\s*IN `?((?:in)?(?:Normalized)?Email(?:Arg)?)`? VARCHAR\([0-9]+\)\s*,?\s*$/i
 const END_PROCEDURE = /^END;$/i
 const SELECT = /^\s*SELECT/i
 const COMMENT = /--.+$/
@@ -77,15 +88,13 @@ Mysql(log, require('../db-server').errors)
       .then(() => {
         const ignore = parseIgnoreFile()
         const procedures = getProcedureNames()
-          .filter(procedure => ! ignore.has(procedure))
           .map(procedure => ({
             procedure,
             path: getPath(procedure)
           }))
           .filter(({ path }) => !! path)
 
-        return getExplainSmells(db, procedures)
-          .then(errorsAndWarnings => getRowCountSmells(procedures, errorsAndWarnings))
+        return getSmells(db, procedures, ignore)
       })
   })
   .then(({ errors, warnings }) => {
@@ -267,12 +276,10 @@ function createAccountResetToken (db, uid, tokenId) {
 }
 
 function parseIgnoreFile () {
-  return new Set(
-    fs.readFileSync('.procedure-lint-ignore', RETURN_STRING)
-      .split('\n')
-      .map(procedure => procedure.trim())
-      .filter(procedure => !! procedure)
-  )
+  const ignore = require('../.migration-lint-ignore')
+  ignore.procedures = new Set(ignore.procedures)
+  ignore.tables = new Set(ignore.tables)
+  return ignore
 }
 
 function getProcedureNames () {
@@ -298,13 +305,29 @@ function getPath (procedure) {
   }
 }
 
-async function getExplainSmells (db, procedures) {
-  const selects = procedures.reduce((selects, { path, procedure }) => {
-    return selects.concat(
-      extractSelects(path, procedure)
-        .map(select => ({ path, procedure, select }))
-    )
-  }, [])
+async function getSmells (db, procedures, ignore) {
+  const {
+    encodingMismatches,
+    foreignKeys,
+    rowCounts,
+    selects
+  } = procedures.reduce(({ encodingMismatches, foreignKeys, rowCounts, selects }, { path, procedure }) => {
+    const src = fs.readFileSync(path, RETURN_STRING)
+    const lines = src.split('\n')
+    return {
+      encodingMismatches: encodingMismatches.concat(extractEncodingMismatches(lines, procedure, ignore)),
+      foreignKeys: foreignKeys.concat(extractForeignKeys(lines, ignore)),
+      rowCounts: rowCounts.concat(extractRowCounts(lines, procedure, ignore)),
+      selects: selects.concat(
+        extractSelects(lines, procedure, ignore)
+          .map(select => ({ path, procedure, select }))
+      )
+    }
+  }, { encodingMismatches: [], foreignKeys: [], rowCounts: [], selects: [] })
+
+  const warnings = encodingMismatches.map(em => `Warning: expected "${em.expected}" for ${em.arg} in ${em.procedure}!\n${em.line}\n`)
+  warnings.push(...foreignKeys.map(fk => `Warning: foreign key in ${fk.from}!\n${fk.line}\n`))
+  warnings.push(...rowCounts.map(rc => `Warning: ROW_COUNT() in ${rc.procedure}!\n${rc.line}\n`))
 
   return await selects.reduce(async (promise, query) => {
     const { errors, warnings } = await promise
@@ -323,13 +346,112 @@ async function getExplainSmells (db, procedures) {
     }
 
     return { errors, warnings }
-  }, Promise.resolve({ errors: [], warnings: [] }))
+  }, Promise.resolve({ errors: [], warnings }))
 }
 
-function extractSelects (path, procedure) {
+// Character encoding mismatches can confuse the query planner, see https://github.com/mozilla/fxa-auth-db-mysql/issues/440
+function extractEncodingMismatches (lines, procedureName, ignore) {
+  if (ignore.procedures.has(procedureName)) {
+    return []
+  }
+
+  let isProcedure = false
+  return lines
+    .reduce((mismatches, line) => {
+      line = line.replace(COMMENT, '')
+      if (isProcedure) {
+        if (END_PROCEDURE.test(line)) {
+          isProcedure = false
+        } else {
+          const matches = UNENCODED_EMAIL_ARG.exec(line)
+          if (matches && matches.length === 2) {
+            mismatches.push({
+              arg: matches[1],
+              expected: 'utf8 COLLATE utf8_bin',
+              line: line.trim(),
+              procedure: procedureName
+            })
+          }
+        }
+      } else {
+        const match = CREATE_PROCEDURE.exec(line)
+        if (match && match.length === 2 && match[1] === procedureName) {
+          isProcedure = true
+        }
+      }
+
+      return mismatches
+    }, [])
+}
+
+// FOREIGN KEY constraints can bork migrations, see https://github.com/mozilla/fxa-auth-server/issues/2695
+function extractForeignKeys (lines, ignore) {
+  let isCreateTable = false, table
+  return lines
+    .reduce((foreignKeys, line) => {
+      line = line.replace(COMMENT, '')
+      if (isCreateTable) {
+        if (END_STATEMENT.test(line)) {
+          isCreateTable = false
+        } else {
+          const matches = FOREIGN_KEY.exec(line)
+          if (matches && matches.length === 2) {
+            foreignKeys.push({
+              from: table,
+              to: matches[1],
+              line: line.trim()
+            })
+          }
+        }
+      } else {
+        const matches = CREATE_TABLE.exec(line)
+        if (matches && matches.length === 2 && ! ignore.tables.has(matches[1])) {
+          isCreateTable = true
+          table = matches[1]
+        }
+      }
+
+      return foreignKeys
+    }, [])
+}
+
+// ROW_COUNT() is not safe for replication, see https://bugzilla.mozilla.org/show_bug.cgi?id=1499819
+function extractRowCounts (lines, procedureName, ignore) {
+  if (ignore.procedures.has(procedureName)) {
+    return []
+  }
+
+  let isProcedure = false
+  return lines.reduce((rowCounts, line) => {
+    line = line.replace(COMMENT, '')
+    if (isProcedure) {
+      if (END_PROCEDURE.test(line)) {
+        isProcedure = false
+      }
+
+      if (ROW_COUNT.test(line)) {
+        rowCounts.push({
+          procedure: procedureName,
+          line: line.trim()
+        })
+      }
+    } else {
+      const match = CREATE_PROCEDURE.exec(line)
+      if (match && match.length === 2 && match[1] === procedureName) {
+        isProcedure = true
+      }
+    }
+
+    return rowCounts
+  }, [])
+}
+
+function extractSelects (lines, procedureName, ignore) {
+  if (ignore.procedures.has(procedureName)) {
+    return []
+  }
+
   let isProcedure = false, isSelect = false
-  const src = fs.readFileSync(path, RETURN_STRING)
-  const lines = src.split('\n')
   return lines
     .reduce((selects, line) => {
       line = line.replace(COMMENT, '')
@@ -344,17 +466,15 @@ function extractSelects (path, procedure) {
             isSelect = true
           }
 
-          if (line.indexOf(';') !== -1) {
+          if (END_STATEMENT.test(line)) {
             isSelect = false
           }
         }
-      } else if (procedure) {
+      } else {
         const match = CREATE_PROCEDURE.exec(line)
-        if (match && match.length === 2 && match[1] === procedure) {
+        if (match && match.length === 2 && match[1] === procedureName) {
           isProcedure = true
         }
-      } else {
-        isProcedure = CREATE_PROCEDURE.test(line)
       }
 
       return selects
@@ -423,38 +543,4 @@ function warn (explainRows) {
 
     return warnings
   }, [])
-}
-
-// ROW_COUNT() is not safe for replication, see https://bugzilla.mozilla.org/show_bug.cgi?id=1499819
-function getRowCountSmells (procedures, { errors, warnings }) {
-  procedures.forEach(({ path, procedure }) => {
-    const src = fs.readFileSync(path, RETURN_STRING)
-    const lines = src.split('\n')
-
-    let isProcedure = false
-
-    lines.some(line => {
-      line = line.replace(COMMENT, '')
-      if (isProcedure) {
-        if (END_PROCEDURE.test(line)) {
-          return true
-        }
-
-        if (ROW_COUNT.test(line)) {
-          warnings.push(`Warning: ROW_COUNT() in ${procedure}`)
-        }
-      } else if (procedure) {
-        const match = CREATE_PROCEDURE.exec(line)
-        if (match && match.length === 2 && match[1] === procedure) {
-          isProcedure = true
-        }
-      } else {
-        isProcedure = CREATE_PROCEDURE.test(line)
-      }
-
-      return false
-    })
-  })
-
-  return { errors, warnings }
 }
