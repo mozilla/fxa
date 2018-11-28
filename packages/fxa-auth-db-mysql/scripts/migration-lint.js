@@ -88,14 +88,13 @@ Mysql(log, require('../db-server').errors)
       .then(() => {
         const ignore = parseIgnoreFile()
         const procedures = getProcedureNames()
-          .filter(procedure => ! ignore.has(procedure))
           .map(procedure => ({
             procedure,
             path: getPath(procedure)
           }))
           .filter(({ path }) => !! path)
 
-        return getSmells(db, procedures)
+        return getSmells(db, procedures, ignore)
       })
   })
   .then(({ errors, warnings }) => {
@@ -277,12 +276,10 @@ function createAccountResetToken (db, uid, tokenId) {
 }
 
 function parseIgnoreFile () {
-  return new Set(
-    fs.readFileSync('.migration-lint-ignore', RETURN_STRING)
-      .split('\n')
-      .map(procedure => procedure.trim())
-      .filter(procedure => !! procedure)
-  )
+  const ignore = require('../.migration-lint-ignore')
+  ignore.procedures = new Set(ignore.procedures)
+  ignore.tables = new Set(ignore.tables)
+  return ignore
 }
 
 function getProcedureNames () {
@@ -308,7 +305,7 @@ function getPath (procedure) {
   }
 }
 
-async function getSmells (db, procedures) {
+async function getSmells (db, procedures, ignore) {
   const {
     encodingMismatches,
     foreignKeys,
@@ -318,11 +315,11 @@ async function getSmells (db, procedures) {
     const src = fs.readFileSync(path, RETURN_STRING)
     const lines = src.split('\n')
     return {
-      encodingMismatches: encodingMismatches.concat(extractEncodingMismatches(lines, procedure)),
-      foreignKeys: foreignKeys.concat(extractForeignKeys(lines)),
-      rowCounts: rowCounts.concat(extractRowCounts(lines, procedure)),
+      encodingMismatches: encodingMismatches.concat(extractEncodingMismatches(lines, procedure, ignore)),
+      foreignKeys: foreignKeys.concat(extractForeignKeys(lines, ignore)),
+      rowCounts: rowCounts.concat(extractRowCounts(lines, procedure, ignore)),
       selects: selects.concat(
-        extractSelects(lines, procedure)
+        extractSelects(lines, procedure, ignore)
           .map(select => ({ path, procedure, select }))
       )
     }
@@ -353,7 +350,11 @@ async function getSmells (db, procedures) {
 }
 
 // Character encoding mismatches can confuse the query planner, see https://github.com/mozilla/fxa-auth-db-mysql/issues/440
-function extractEncodingMismatches (lines, procedureName) {
+function extractEncodingMismatches (lines, procedureName, ignore) {
+  if (ignore.procedures.has(procedureName)) {
+    return []
+  }
+
   let isProcedure = false
   return lines
     .reduce((mismatches, line) => {
@@ -372,13 +373,11 @@ function extractEncodingMismatches (lines, procedureName) {
             })
           }
         }
-      } else if (procedureName) {
+      } else {
         const match = CREATE_PROCEDURE.exec(line)
         if (match && match.length === 2 && match[1] === procedureName) {
           isProcedure = true
         }
-      } else {
-        isProcedure = CREATE_PROCEDURE.test(line)
       }
 
       return mismatches
@@ -386,7 +385,7 @@ function extractEncodingMismatches (lines, procedureName) {
 }
 
 // FOREIGN KEY constraints can bork migrations, see https://github.com/mozilla/fxa-auth-server/issues/2695
-function extractForeignKeys (lines) {
+function extractForeignKeys (lines, ignore) {
   let isCreateTable = false, table
   return lines
     .reduce((foreignKeys, line) => {
@@ -406,7 +405,7 @@ function extractForeignKeys (lines) {
         }
       } else {
         const matches = CREATE_TABLE.exec(line)
-        if (matches && matches.length === 2) {
+        if (matches && matches.length === 2 && ! ignore.tables.has(matches[1])) {
           isCreateTable = true
           table = matches[1]
         }
@@ -417,7 +416,11 @@ function extractForeignKeys (lines) {
 }
 
 // ROW_COUNT() is not safe for replication, see https://bugzilla.mozilla.org/show_bug.cgi?id=1499819
-function extractRowCounts (lines, procedureName) {
+function extractRowCounts (lines, procedureName, ignore) {
+  if (ignore.procedures.has(procedureName)) {
+    return []
+  }
+
   let isProcedure = false
   return lines.reduce((rowCounts, line) => {
     line = line.replace(COMMENT, '')
@@ -432,20 +435,22 @@ function extractRowCounts (lines, procedureName) {
           line: line.trim()
         })
       }
-    } else if (procedureName) {
+    } else {
       const match = CREATE_PROCEDURE.exec(line)
       if (match && match.length === 2 && match[1] === procedureName) {
         isProcedure = true
       }
-    } else {
-      isProcedure = CREATE_PROCEDURE.test(line)
     }
 
     return rowCounts
   }, [])
 }
 
-function extractSelects (lines, procedureName) {
+function extractSelects (lines, procedureName, ignore) {
+  if (ignore.procedures.has(procedureName)) {
+    return []
+  }
+
   let isProcedure = false, isSelect = false
   return lines
     .reduce((selects, line) => {
@@ -465,13 +470,11 @@ function extractSelects (lines, procedureName) {
             isSelect = false
           }
         }
-      } else if (procedureName) {
+      } else {
         const match = CREATE_PROCEDURE.exec(line)
         if (match && match.length === 2 && match[1] === procedureName) {
           isProcedure = true
         }
-      } else {
-        isProcedure = CREATE_PROCEDURE.test(line)
       }
 
       return selects
