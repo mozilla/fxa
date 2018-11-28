@@ -1,3 +1,38 @@
+<a name="1.126.0"></a>
+# [1.126.0](https://github.com/mozilla/fxa-content-server/compare/v1.125.0...v1.126.0) (2018-11-28)
+
+
+### Bug Fixes
+
+* **l10n:** Use an inline `t` function to ensure l10n works as expected. ([881efbc](https://github.com/mozilla/fxa-content-server/commit/881efbc)), closes [#6725](https://github.com/mozilla/fxa-content-server/issues/6725)
+* **recovery:** update recovery save options ([2c042a2](https://github.com/mozilla/fxa-content-server/commit/2c042a2))
+* **reset:** remove confusing password reset messaging ([fe18437](https://github.com/mozilla/fxa-content-server/commit/fe18437))
+* **styles:** adjust icon style ([2747d0d](https://github.com/mozilla/fxa-content-server/commit/2747d0d))
+* **styles:** fix icon for Firefox Add-ons ([11938ff](https://github.com/mozilla/fxa-content-server/commit/11938ff))
+* **test:** Fix the OAuth email-first functional test that used a common password. ([2dd05c2](https://github.com/mozilla/fxa-content-server/commit/2dd05c2)), closes [#6723](https://github.com/mozilla/fxa-content-server/issues/6723)
+* **tests:** install node-uuid when running tests/teamcity/run-server.sh ([a59a9de](https://github.com/mozilla/fxa-content-server/commit/a59a9de))
+* **tests:** update from sinon reset to resetHistory ([34377d4](https://github.com/mozilla/fxa-content-server/commit/34377d4)), closes [#6331](https://github.com/mozilla/fxa-content-server/issues/6331)
+* **tests:** use stronger password in functional tests ([289b745](https://github.com/mozilla/fxa-content-server/commit/289b745))
+* **validation:** accept emails containing an apostrophe on the front-end ([0737107](https://github.com/mozilla/fxa-content-server/commit/0737107))
+
+### chore
+
+* **config:** Add the new Send redirect_uris to the Send scopedKeys list. ([4ff4dff](https://github.com/mozilla/fxa-content-server/commit/4ff4dff))
+* **modules:** Convert the complete_reset_password code to ES6 modules ([b313ac9](https://github.com/mozilla/fxa-content-server/commit/b313ac9)), closes [#6706](https://github.com/mozilla/fxa-content-server/issues/6706)
+* **oauth:** Add tests for signing in w/ an expired Sync sessionToken. ([d8b94f9](https://github.com/mozilla/fxa-content-server/commit/d8b94f9))
+* **test:** Use selectors module in the cached signin tests. ([ddfc810](https://github.com/mozilla/fxa-content-server/commit/ddfc810))
+
+### Features
+
+* **pw-strength:** Add pw-strength meter to password reset ([509ea89](https://github.com/mozilla/fxa-content-server/commit/509ea89)), closes [#6572](https://github.com/mozilla/fxa-content-server/issues/6572)
+* **signin:** Add Use different account option in security/recovery code page ([6bd2f17](https://github.com/mozilla/fxa-content-server/commit/6bd2f17))
+
+### Refactor
+
+* **headers:** remove HPKP ([223ccb0](https://github.com/mozilla/fxa-content-server/commit/223ccb0)), closes [#6714](https://github.com/mozilla/fxa-content-server/issues/6714)
+
+
+
 <a name="1.125.0"></a>
 # [1.125.0](https://github.com/mozilla/fxa-content-server/compare/v1.124.0...v1.125.0) (2018-11-14)
 
