@@ -4,8 +4,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-// Check for bad smells in stored procedures, by running an EXPLAIN for
-// the contained queries and grepping for ROW_COUNT() calls.
+// Check for bad smells in active migrations, by:
+//
+//   * Looking for FOREIGN KEY constraints in CREATE TABLE statements.
+//
+//   * Running an EXPLAIN for queries in stored procedures.
+//
+//   * Grepping for calls to ROW_COUNT() inside stored procedures.
 //
 // Currently the EXPLAIN only works on SELECT queries. If we find it adds
 // value for those, it should be pretty straightforward to write some logic
@@ -44,6 +49,9 @@ const log = {
 const PRODUCTION = /^prod/i
 const RECORD_COUNT = 100
 const RETURN_STRING = { encoding: 'utf8' }
+const CREATE_TABLE = /^CREATE TABLE (?:IF NOT EXISTS )?`?([A-Z]+)/i
+const END_STATEMENT = /;/
+const FOREIGN_KEY = /^\s*FOREIGN KEY \([A-Z, ]+\) REFERENCES ([A-Z]+)/i
 const CREATE_PROCEDURE = /^CREATE PROCEDURE `?([A-Z]+_[0-9]+)/i
 const END_PROCEDURE = /^END;$/i
 const SELECT = /^\s*SELECT/i
@@ -84,7 +92,7 @@ Mysql(log, require('../db-server').errors)
           }))
           .filter(({ path }) => !! path)
 
-        return getExplainSmells(db, procedures)
+        return getSmells(db, procedures)
           .then(errorsAndWarnings => getRowCountSmells(procedures, errorsAndWarnings))
       })
   })
@@ -268,7 +276,7 @@ function createAccountResetToken (db, uid, tokenId) {
 
 function parseIgnoreFile () {
   return new Set(
-    fs.readFileSync('.procedure-lint-ignore', RETURN_STRING)
+    fs.readFileSync('.migration-lint-ignore', RETURN_STRING)
       .split('\n')
       .map(procedure => procedure.trim())
       .filter(procedure => !! procedure)
@@ -298,13 +306,20 @@ function getPath (procedure) {
   }
 }
 
-async function getExplainSmells (db, procedures) {
-  const selects = procedures.reduce((selects, { path, procedure }) => {
-    return selects.concat(
-      extractSelects(path, procedure)
-        .map(select => ({ path, procedure, select }))
-    )
-  }, [])
+async function getSmells (db, procedures) {
+  const { foreignKeys, selects } = procedures.reduce(({ foreignKeys, selects }, { path, procedure }) => {
+    const src = fs.readFileSync(path, RETURN_STRING)
+    const lines = src.split('\n')
+    return {
+      foreignKeys: foreignKeys.concat(extractForeignKeys(lines)),
+      selects: selects.concat(
+        extractSelects(lines, procedure)
+          .map(select => ({ path, procedure, select }))
+      )
+    }
+  }, { foreignKeys: [], selects: [] })
+
+  const warnings = foreignKeys.map(fk => `Warning: foreign key in ${fk.from}!\n${fk.line}\n`)
 
   return await selects.reduce(async (promise, query) => {
     const { errors, warnings } = await promise
@@ -323,13 +338,42 @@ async function getExplainSmells (db, procedures) {
     }
 
     return { errors, warnings }
-  }, Promise.resolve({ errors: [], warnings: [] }))
+  }, Promise.resolve({ errors: [], warnings }))
 }
 
-function extractSelects (path, procedure) {
+// FOREIGN KEY constraints can bork migrations, see https://github.com/mozilla/fxa-auth-server/issues/2695
+function extractForeignKeys (lines) {
+  let isCreateTable = false, table
+  return lines
+    .reduce((foreignKeys, line) => {
+      line = line.replace(COMMENT, '')
+      if (isCreateTable) {
+        if (END_STATEMENT.test(line)) {
+          isCreateTable = false
+        } else {
+          const matches = FOREIGN_KEY.exec(line)
+          if (matches && matches.length === 2) {
+            foreignKeys.push({
+              from: table,
+              to: matches[1],
+              line: line.trim()
+            })
+          }
+        }
+      } else {
+        const matches = CREATE_TABLE.exec(line)
+        if (matches && matches.length === 2) {
+          isCreateTable = true
+          table = matches[1]
+        }
+      }
+
+      return foreignKeys
+    }, [])
+}
+
+function extractSelects (lines, procedureName) {
   let isProcedure = false, isSelect = false
-  const src = fs.readFileSync(path, RETURN_STRING)
-  const lines = src.split('\n')
   return lines
     .reduce((selects, line) => {
       line = line.replace(COMMENT, '')
@@ -344,13 +388,13 @@ function extractSelects (path, procedure) {
             isSelect = true
           }
 
-          if (line.indexOf(';') !== -1) {
+          if (END_STATEMENT.test(line)) {
             isSelect = false
           }
         }
-      } else if (procedure) {
+      } else if (procedureName) {
         const match = CREATE_PROCEDURE.exec(line)
-        if (match && match.length === 2 && match[1] === procedure) {
+        if (match && match.length === 2 && match[1] === procedureName) {
           isProcedure = true
         }
       } else {
