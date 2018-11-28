@@ -186,15 +186,15 @@ fn env_vars_take_precedence() {
             };
 
             let log = Log {
-                level: if settings.log.level == LoggingLevel("debug".to_string()) {
-                    LoggingLevel("off".to_string())
+                level: if settings.log.level == LogLevel::Debug {
+                    LogLevel::Off
                 } else {
-                    LoggingLevel("debug".to_string())
+                    LogLevel::Debug
                 },
-                format: if settings.log.format == LoggingFormat("null".to_string()) {
-                    LoggingFormat("pretty".to_string())
+                format: if settings.log.format == LogFormat::Mozlog {
+                    LogFormat::Pretty
                 } else {
-                    LoggingFormat("null".to_string())
+                    LogFormat::Mozlog
                 },
             };
 
@@ -215,8 +215,8 @@ fn env_vars_take_precedence() {
             );
             env::set_var("FXA_EMAIL_HMACKEY", &hmac_key.to_string());
             env::set_var("FXA_EMAIL_ENV", current_env.as_ref());
-            env::set_var("FXA_EMAIL_LOG_LEVEL", &log.level.0);
-            env::set_var("FXA_EMAIL_LOG_FORMAT", &log.format.0);
+            env::set_var("FXA_EMAIL_LOG_LEVEL", log.level.as_ref());
+            env::set_var("FXA_EMAIL_LOG_FORMAT", log.format.as_ref());
             env::set_var("FXA_EMAIL_PROVIDER_DEFAULT", provider.default.as_ref());
             env::set_var(
                 "FXA_EMAIL_PROVIDER_FORCEDEFAULT",

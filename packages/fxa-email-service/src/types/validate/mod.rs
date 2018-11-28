@@ -29,8 +29,6 @@ lazy_static! {
         r"^[a-zA-Z0-9.\pL\pN!#$%&’*+/=?^_`{|}~-]{1,64}@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)+$"
     ).unwrap();
     static ref HOST_FORMAT: Regex = Regex::new(r"^[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*$").unwrap();
-    static ref LOGGING_LEVEL: Regex = Regex::new(r"^(?:normal|debug|critical|off)$").unwrap();
-    static ref LOGGING_FORMAT: Regex = Regex::new(r"^(?:mozlog|pretty|null)$").unwrap();
     static ref SENDER_NAME_FORMAT: Regex =
         Regex::new(r"^[A-Za-z0-9-]+(?: [A-Za-z0-9-]+)*$").unwrap();
     static ref SENDGRID_API_KEY_FORMAT: Regex = Regex::new("^[A-Za-z0-9._-]+$").unwrap();
@@ -68,16 +66,6 @@ pub fn email_address(value: &str) -> bool {
 /// Validate a host name or IP address.
 pub fn host(value: &str) -> bool {
     HOST_FORMAT.is_match(value)
-}
-
-/// Validate logging level.
-pub fn logging_level(value: &str) -> bool {
-    LOGGING_LEVEL.is_match(value)
-}
-
-/// Validate logging format.
-pub fn logging_format(value: &str) -> bool {
-    LOGGING_FORMAT.is_match(value)
 }
 
 /// Validate a sender name.

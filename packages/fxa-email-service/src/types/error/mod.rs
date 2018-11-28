@@ -191,6 +191,12 @@ pub enum AppErrorKind {
 
     #[fail(display = "Invalid environment: {}", _0)]
     InvalidEnv(String),
+
+    #[fail(display = "Invalid log level: {}", _0)]
+    InvalidLogLevel(String),
+
+    #[fail(display = "Invalid log format: {}", _0)]
+    InvalidLogFormat(String),
 }
 
 impl AppErrorKind {
@@ -217,6 +223,8 @@ impl AppErrorKind {
             AppErrorKind::SoftBounce { .. } => Some(107),
             AppErrorKind::HardBounce { .. } => Some(108),
             AppErrorKind::InvalidEnv { .. } => Some(109),
+            AppErrorKind::InvalidLogLevel { .. } => Some(110),
+            AppErrorKind::InvalidLogFormat { .. } => Some(111),
         }
     }
 

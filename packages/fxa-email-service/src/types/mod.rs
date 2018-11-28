@@ -70,5 +70,6 @@ pub mod email_address;
 pub mod env;
 pub mod error;
 pub mod headers;
+pub mod logging;
 pub mod provider;
 pub mod validate;

@@ -29,6 +29,7 @@ use fxa_email_service::{
     logging::MozlogLogger,
     providers::Providers,
     settings::Settings,
+    types::logging::LogLevel,
 };
 
 fn main() {
@@ -51,14 +52,14 @@ fn main() {
 
     let db = DbClient::new(&settings);
     let delivery_problems = DeliveryProblems::new(&settings, db);
-    let logger = MozlogLogger::new(&settings).expect("MozlogLogger::init error");
+    let logger = MozlogLogger::new(&settings);
     let message_data = MessageData::new(&settings);
     let providers = Providers::new(&settings);
 
     let config = settings
         .build_rocket_config()
         .expect("Error creating rocket config");
-    rocket::custom(config, settings.log.level.as_ref() != "off")
+    rocket::custom(config, settings.log.level != LogLevel::Off)
         .manage(settings)
         .manage(delivery_problems)
         .manage(logger)

@@ -23,7 +23,11 @@ use serde::de::{Deserialize, Deserializer, Error, Unexpected};
 
 use logging::MozlogLogger;
 use types::{
-    duration::Duration, email_address::EmailAddress, env::Env, provider::Provider as ProviderType,
+    duration::Duration,
+    email_address::EmailAddress,
+    env::Env,
+    logging::{LogFormat, LogLevel},
+    provider::Provider as ProviderType,
     validate,
 };
 
@@ -73,10 +77,6 @@ deserialize_and_validate! {
     (BaseUri, base_uri, "base URI"),
     /// Host name or IP address type.
     (Host, host, "host name or IP address"),
-    /// Logging level type.
-    (LoggingLevel, logging_level, "'normal', 'debug', 'critical' or 'off'"),
-    /// Logging format type.
-    (LoggingFormat, logging_format, "'mozlog', 'pretty' or 'null'"),
     /// Sender name type.
     (SenderName, sender_name, "sender name"),
     /// Sendgrid API key type.
@@ -158,10 +158,10 @@ pub struct DeliveryProblemLimits {
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Log {
     /// The logging level.
-    pub level: LoggingLevel,
+    pub level: LogLevel,
 
     /// The logging format.
-    pub format: LoggingFormat,
+    pub format: LogFormat,
 }
 
 /// Email provider settings.
@@ -402,8 +402,7 @@ impl Settings {
                     }
                 }
 
-                let logger =
-                    MozlogLogger::new(&settings).expect("Unable to create MozlogLogger instance");
+                let logger = MozlogLogger::new(&settings);
                 slog_info!(logger, "Settings::new"; "settings" => &settings);
                 Ok(settings)
             }
@@ -414,9 +413,9 @@ impl Settings {
     /// Create rocket configuration based on the environment
     /// variable. Defaults to `dev` mode if `FXA_EMAIL_ENV` is not set.
     pub fn build_rocket_config(&self) -> Result<RocketConfig, RocketConfigError> {
-        let log_level = match self.log.level.0.as_str() {
-            "debug" => RocketLoggingLevel::Debug,
-            "critical" => RocketLoggingLevel::Critical,
+        let log_level = match self.log.level {
+            LogLevel::Debug => RocketLoggingLevel::Debug,
+            LogLevel::Critical => RocketLoggingLevel::Critical,
             _ => RocketLoggingLevel::Normal,
         };
         let rocket_config = match self.env {
