@@ -97,6 +97,9 @@ const FUZZY_EVENTS = new Map([
   } ]
 ])
 
+const ACCOUNT_RESET_COMPLETE = `${GROUPS.login} - forgot_complete`
+const LOGIN_COMPLETE = `${GROUPS.login} - complete`
+
 module.exports = (log, config) => {
   if (! log || ! config.oauth.clientIds) {
     throw new TypeError('Missing argument')
@@ -142,6 +145,15 @@ module.exports = (log, config) => {
 
         if (amplitudeEvent) {
           log.amplitudeEvent(amplitudeEvent)
+
+          // HACK: Account reset returns a session token so emit login complete too
+          if (amplitudeEvent.event_type === ACCOUNT_RESET_COMPLETE) {
+            log.amplitudeEvent({
+              ...amplitudeEvent,
+              event_type: LOGIN_COMPLETE,
+              time: amplitudeEvent.time + 1
+            })
+          }
         }
       })
   }
