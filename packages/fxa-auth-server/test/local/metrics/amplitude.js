@@ -308,9 +308,12 @@ describe('metrics/amplitude', () => {
       })
 
       it('called log.amplitudeEvent correctly', () => {
-        assert.equal(log.amplitudeEvent.callCount, 1)
-        const args = log.amplitudeEvent.args[0]
+        assert.equal(log.amplitudeEvent.callCount, 2)
+        let args = log.amplitudeEvent.args[0]
         assert.equal(args[0].event_type, 'fxa_login - forgot_complete')
+        args = log.amplitudeEvent.args[1]
+        assert.equal(args[0].event_type, 'fxa_login - complete')
+        assert.isAbove(args[0].time, log.amplitudeEvent.args[0][0].time)
       })
     })
 
