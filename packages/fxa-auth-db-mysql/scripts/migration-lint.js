@@ -6,6 +6,8 @@
 
 // Check for bad smells in active migrations, by:
 //
+//   * Looking for encoding mismatches in stored procedure arguments.
+//
 //   * Looking for FOREIGN KEY constraints in CREATE TABLE statements.
 //
 //   * Running an EXPLAIN for queries in stored procedures.
@@ -53,6 +55,7 @@ const CREATE_TABLE = /^CREATE TABLE (?:IF NOT EXISTS )?`?([A-Z]+)/i
 const END_STATEMENT = /;/
 const FOREIGN_KEY = /^\s*FOREIGN KEY \([A-Z, ]+\) REFERENCES ([A-Z]+)/i
 const CREATE_PROCEDURE = /^CREATE PROCEDURE `?([A-Z]+_[0-9]+)/i
+const UNENCODED_EMAIL_ARG = /^\s*IN `?((?:in)?(?:Normalized)?Email(?:Arg)?)`? VARCHAR\([0-9]+\)\s*,?\s*$/i
 const END_PROCEDURE = /^END;$/i
 const SELECT = /^\s*SELECT/i
 const COMMENT = /--.+$/
@@ -307,19 +310,25 @@ function getPath (procedure) {
 }
 
 async function getSmells (db, procedures) {
-  const { foreignKeys, selects } = procedures.reduce(({ foreignKeys, selects }, { path, procedure }) => {
+  const {
+    encodingMismatches,
+    foreignKeys,
+    selects
+  } = procedures.reduce(({ encodingMismatches, foreignKeys, selects }, { path, procedure }) => {
     const src = fs.readFileSync(path, RETURN_STRING)
     const lines = src.split('\n')
     return {
+      encodingMismatches: encodingMismatches.concat(extractEncodingMismatches(lines, procedure)),
       foreignKeys: foreignKeys.concat(extractForeignKeys(lines)),
       selects: selects.concat(
         extractSelects(lines, procedure)
           .map(select => ({ path, procedure, select }))
       )
     }
-  }, { foreignKeys: [], selects: [] })
+  }, { encodingMismatches: [], foreignKeys: [], selects: [] })
 
-  const warnings = foreignKeys.map(fk => `Warning: foreign key in ${fk.from}!\n${fk.line}\n`)
+  const warnings = encodingMismatches.map(em => `Warning: expected "${em.expected}" for ${em.arg} in ${em.procedure}!\n${em.line}\n`)
+  warnings.push(...foreignKeys.map(fk => `Warning: foreign key in ${fk.from}!\n${fk.line}\n`))
 
   return await selects.reduce(async (promise, query) => {
     const { errors, warnings } = await promise
@@ -339,6 +348,39 @@ async function getSmells (db, procedures) {
 
     return { errors, warnings }
   }, Promise.resolve({ errors: [], warnings }))
+}
+
+// Character encoding mismatches can confuse the query planner, see https://github.com/mozilla/fxa-auth-db-mysql/issues/440
+function extractEncodingMismatches (lines, procedureName) {
+  let isProcedure = false
+  return lines
+    .reduce((mismatches, line) => {
+      line = line.replace(COMMENT, '')
+      if (isProcedure) {
+        if (END_PROCEDURE.test(line)) {
+          isProcedure = false
+        } else {
+          const matches = UNENCODED_EMAIL_ARG.exec(line)
+          if (matches && matches.length === 2) {
+            mismatches.push({
+              arg: matches[1],
+              expected: 'utf8 COLLATE utf8_bin',
+              line: line.trim(),
+              procedure: procedureName
+            })
+          }
+        }
+      } else if (procedureName) {
+        const match = CREATE_PROCEDURE.exec(line)
+        if (match && match.length === 2 && match[1] === procedureName) {
+          isProcedure = true
+        }
+      } else {
+        isProcedure = CREATE_PROCEDURE.test(line)
+      }
+
+      return mismatches
+    }, [])
 }
 
 // FOREIGN KEY constraints can bork migrations, see https://github.com/mozilla/fxa-auth-server/issues/2695
