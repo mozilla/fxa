@@ -10,9 +10,9 @@
 //
 //   * Looking for FOREIGN KEY constraints in CREATE TABLE statements.
 //
-//   * Running an EXPLAIN for queries in stored procedures.
+//   * Looking for calls to ROW_COUNT() inside stored procedures.
 //
-//   * Grepping for calls to ROW_COUNT() inside stored procedures.
+//   * Running an EXPLAIN for queries in stored procedures.
 //
 // Currently the EXPLAIN only works on SELECT queries. If we find it adds
 // value for those, it should be pretty straightforward to write some logic
@@ -96,7 +96,6 @@ Mysql(log, require('../db-server').errors)
           .filter(({ path }) => !! path)
 
         return getSmells(db, procedures)
-          .then(errorsAndWarnings => getRowCountSmells(procedures, errorsAndWarnings))
       })
   })
   .then(({ errors, warnings }) => {
@@ -313,22 +312,25 @@ async function getSmells (db, procedures) {
   const {
     encodingMismatches,
     foreignKeys,
+    rowCounts,
     selects
-  } = procedures.reduce(({ encodingMismatches, foreignKeys, selects }, { path, procedure }) => {
+  } = procedures.reduce(({ encodingMismatches, foreignKeys, rowCounts, selects }, { path, procedure }) => {
     const src = fs.readFileSync(path, RETURN_STRING)
     const lines = src.split('\n')
     return {
       encodingMismatches: encodingMismatches.concat(extractEncodingMismatches(lines, procedure)),
       foreignKeys: foreignKeys.concat(extractForeignKeys(lines)),
+      rowCounts: rowCounts.concat(extractRowCounts(lines, procedure)),
       selects: selects.concat(
         extractSelects(lines, procedure)
           .map(select => ({ path, procedure, select }))
       )
     }
-  }, { encodingMismatches: [], foreignKeys: [], selects: [] })
+  }, { encodingMismatches: [], foreignKeys: [], rowCounts: [], selects: [] })
 
   const warnings = encodingMismatches.map(em => `Warning: expected "${em.expected}" for ${em.arg} in ${em.procedure}!\n${em.line}\n`)
   warnings.push(...foreignKeys.map(fk => `Warning: foreign key in ${fk.from}!\n${fk.line}\n`))
+  warnings.push(...rowCounts.map(rc => `Warning: ROW_COUNT() in ${rc.procedure}!\n${rc.line}\n`))
 
   return await selects.reduce(async (promise, query) => {
     const { errors, warnings } = await promise
@@ -412,6 +414,35 @@ function extractForeignKeys (lines) {
 
       return foreignKeys
     }, [])
+}
+
+// ROW_COUNT() is not safe for replication, see https://bugzilla.mozilla.org/show_bug.cgi?id=1499819
+function extractRowCounts (lines, procedureName) {
+  let isProcedure = false
+  return lines.reduce((rowCounts, line) => {
+    line = line.replace(COMMENT, '')
+    if (isProcedure) {
+      if (END_PROCEDURE.test(line)) {
+        isProcedure = false
+      }
+
+      if (ROW_COUNT.test(line)) {
+        rowCounts.push({
+          procedure: procedureName,
+          line: line.trim()
+        })
+      }
+    } else if (procedureName) {
+      const match = CREATE_PROCEDURE.exec(line)
+      if (match && match.length === 2 && match[1] === procedureName) {
+        isProcedure = true
+      }
+    } else {
+      isProcedure = CREATE_PROCEDURE.test(line)
+    }
+
+    return rowCounts
+  }, [])
 }
 
 function extractSelects (lines, procedureName) {
@@ -509,38 +540,4 @@ function warn (explainRows) {
 
     return warnings
   }, [])
-}
-
-// ROW_COUNT() is not safe for replication, see https://bugzilla.mozilla.org/show_bug.cgi?id=1499819
-function getRowCountSmells (procedures, { errors, warnings }) {
-  procedures.forEach(({ path, procedure }) => {
-    const src = fs.readFileSync(path, RETURN_STRING)
-    const lines = src.split('\n')
-
-    let isProcedure = false
-
-    lines.some(line => {
-      line = line.replace(COMMENT, '')
-      if (isProcedure) {
-        if (END_PROCEDURE.test(line)) {
-          return true
-        }
-
-        if (ROW_COUNT.test(line)) {
-          warnings.push(`Warning: ROW_COUNT() in ${procedure}`)
-        }
-      } else if (procedure) {
-        const match = CREATE_PROCEDURE.exec(line)
-        if (match && match.length === 2 && match[1] === procedure) {
-          isProcedure = true
-        }
-      } else {
-        isProcedure = CREATE_PROCEDURE.test(line)
-      }
-
-      return false
-    })
-  })
-
-  return { errors, warnings }
 }
