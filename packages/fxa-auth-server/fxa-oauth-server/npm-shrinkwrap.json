@@ -1,6 +1,6 @@
 {
   "name": "fxa-oauth-server",
-  "version": "1.126.0",
+  "version": "1.126.1",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
