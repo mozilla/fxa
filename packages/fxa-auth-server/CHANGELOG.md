@@ -1,3 +1,17 @@
+<a name="1.126.1"></a>
+## [1.126.1](https://github.com/mozilla/fxa-auth-server/compare/v1.126.0...v1.126.1) (2018-11-28)
+
+
+### Bug Fixes
+
+* **metrics:** emit login complete amplitude event after reset complete ([becd410](https://github.com/mozilla/fxa-auth-server/commit/becd410))
+
+### chore
+
+* **package:** npm shrinkwrap ([1085780](https://github.com/mozilla/fxa-auth-server/commit/1085780))
+
+
+
 <a name="1.126.0"></a>
 # [1.126.0](https://github.com/mozilla/fxa-auth-server/compare/v1.125.0...v1.126.0) (2018-11-27)
 
