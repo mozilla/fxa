@@ -76,7 +76,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
 
         request.validateMetricsContext()
 
-        const { flowId, flowBeginTime } = await request.app.metricsContext
+        const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext
 
         return customs.check(request, email, 'accountCreate')
           .then(deleteAccountIfUnverified)
@@ -272,6 +272,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
               redirectTo: form.redirectTo,
               resume: form.resume,
               acceptLanguage: request.app.acceptLanguage,
+              deviceId,
               flowId,
               flowBeginTime,
               ip,
@@ -677,7 +678,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
                 const geoData = request.app.geo
                 const service = request.payload.service || request.query.service
                 const ip = request.app.clientAddress
-                const { flowId, flowBeginTime } = await request.app.metricsContext
+                const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext
 
                 try {
                   await mailer.sendNewDeviceLoginNotification(
@@ -685,6 +686,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
                     accountRecord,
                     {
                       acceptLanguage: request.app.acceptLanguage,
+                      deviceId,
                       flowId,
                       flowBeginTime,
                       ip,
