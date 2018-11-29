@@ -75,7 +75,7 @@ fn main() {
         register_panic_handler();
     }
 
-    let logger = MozlogLogger::new(&SETTINGS).expect("MozlogLogger::init error");
+    let logger = MozlogLogger::new(&SETTINGS);
     let _guard = slog_scope::set_global_logger(logger.0);
     let process_queues: &Fn(usize) -> LoopResult = &|previous_count: usize| {
         let future = QUEUES

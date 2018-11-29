@@ -15,7 +15,10 @@ use slog_mozlog_json::MozLogJson;
 use slog_term;
 
 use settings::Settings;
-use types::error::AppError;
+use types::{
+    error::AppError,
+    logging::{LogFormat, LogLevel},
+};
 
 lazy_static! {
     static ref LOGGER_NAME: String =
@@ -110,28 +113,31 @@ pub struct MozlogLogger(pub slog::Logger);
 
 impl MozlogLogger {
     /// Construct a logger.
-    pub fn new(settings: &Settings) -> Result<MozlogLogger, Error> {
-        let logger = match settings.log.format.as_ref() {
-            "mozlog" => {
-                let drain = MozLogJson::new(io::stdout())
-                    .logger_name(LOGGER_NAME.to_owned())
-                    .msg_type(MSG_TYPE.to_owned())
-                    .build()
-                    .fuse();
-                let drain = slog_async::Async::new(drain).build().fuse();
-                Ok(slog::Logger::root(drain, slog_o!()))
+    pub fn new(settings: &Settings) -> Self {
+        let logger = if settings.log.level == LogLevel::Off {
+            slog::Logger::root(Discard, slog_o!())
+        } else {
+            match settings.log.format {
+                LogFormat::Mozlog => {
+                    let drain = MozLogJson::new(io::stdout())
+                        .logger_name(LOGGER_NAME.to_owned())
+                        .msg_type(MSG_TYPE.to_owned())
+                        .build()
+                        .fuse();
+                    let drain = slog_async::Async::new(drain).build().fuse();
+                    slog::Logger::root(drain, slog_o!())
+                }
+
+                LogFormat::Pretty => {
+                    let decorator = slog_term::TermDecorator::new().build();
+                    let drain = slog_term::FullFormat::new(decorator).build().fuse();
+                    let drain = slog_async::Async::new(drain).build().fuse();
+                    slog::Logger::root(drain, slog_o!())
+                }
             }
-            "pretty" => {
-                let decorator = slog_term::TermDecorator::new().build();
-                let drain = slog_term::FullFormat::new(decorator).build().fuse();
-                let drain = slog_async::Async::new(drain).build().fuse();
-                Ok(slog::Logger::root(drain, slog_o!()))
-            }
-            "null" => Ok(slog::Logger::root(Discard, slog_o!())),
-            _0 => Err(err_msg(format!("Unknown logger format: {}", _0))),
         };
 
-        Ok(MozlogLogger(logger?))
+        MozlogLogger(logger)
     }
 
     /// Log a rocket request.

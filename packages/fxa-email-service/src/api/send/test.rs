@@ -18,7 +18,7 @@ fn setup() -> Client {
     settings.provider.forcedefault = false;
     let db = DbClient::new(&settings);
     let delivery_problems = DeliveryProblems::new(&settings, db);
-    let logger = MozlogLogger::new(&settings).expect("MozlogLogger::init error");
+    let logger = MozlogLogger::new(&settings);
     let message_data = MessageData::new(&settings);
     let providers = Providers::new(&settings);
     let server = rocket::ignite()

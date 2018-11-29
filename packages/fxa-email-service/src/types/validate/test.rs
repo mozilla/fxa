@@ -135,23 +135,6 @@ fn host() {
 }
 
 #[test]
-fn logging_level() {
-    assert!(validate::logging_level("normal"));
-    assert!(validate::logging_level("debug"));
-    assert!(validate::logging_level("critical"));
-    assert!(validate::logging_level("off"));
-    assert_eq!(false, validate::logging_level("something else"));
-}
-
-#[test]
-fn logging_format() {
-    assert!(validate::logging_format("mozlog"));
-    assert!(validate::logging_format("pretty"));
-    assert!(validate::logging_format("null"));
-    assert_eq!(false, validate::logging_format("something else"));
-}
-
-#[test]
 fn invalid_host() {
     assert_eq!(validate::host("foo/bar"), false);
     assert_eq!(validate::host("foo:bar"), false);
