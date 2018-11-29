@@ -11,14 +11,8 @@ use serde::de::Error;
 
 use types::error::{AppError, AppErrorKind};
 
-enum_boilerplate!(Env ("env", InvalidEnv) {
+enum_boilerplate!(Env ("env", Dev, InvalidEnv) {
     Dev => "dev",
     Prod => "production",
     Test => "test",
 });
-
-impl Default for Env {
-    fn default() -> Self {
-        Env::Dev
-    }
-}

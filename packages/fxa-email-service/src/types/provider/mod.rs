@@ -11,16 +11,10 @@ use serde::de::Error;
 
 use types::error::{AppError, AppErrorKind};
 
-enum_boilerplate!(Provider ("env", InvalidPayload) {
+enum_boilerplate!(Provider ("env", Ses, InvalidPayload) {
     Mock => "mock",
     Sendgrid => "sendgrid",
     Ses => "ses",
     Smtp => "smtp",
     SocketLabs => "socketlabs",
 });
-
-impl Default for Provider {
-    fn default() -> Self {
-        Provider::Ses
-    }
-}
