@@ -298,10 +298,10 @@ suite('socketlabs:', () => {
   })
 
   suite('call with an incorrect validation event:', () => {
-    let promise
+    let error
 
     setup(() => {
-      promise = proxy.main({
+      return proxy.main({
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
@@ -310,23 +310,16 @@ suite('socketlabs:', () => {
           auth: 'authentication string'
         }
       })
-      return promise
+        .catch(e => error = e)
     })
 
     test('sqs.sendMessage was not called', () => {
       assert.equal(sqs.sendMessage.callCount, 0)
     })
 
-    test('promise is resolved', () => {
-      assert.isFulfilled(promise)
-    })
-
-    test('result is correct', () => {
-      return promise.then(result => assert.deepEqual(result, {
-        statusCode: 500,
-        body: '{"error":"Internal Server Error","errno":999,"code":500,"message":"Invalid Secret Key"}',
-        isBase64Encoded: false
-      }))
+    test('call failed', () => {
+      assert.instanceOf(error, Error)
+      assert.equal(error.message, 'Invalid Secret Key')
     })
   })
 
