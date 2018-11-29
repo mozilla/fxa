@@ -116,7 +116,6 @@ describe('email utils helpers', () => {
       payload: {}
     })
     assert.deepEqual(args[2], {
-      device_id: 'bbb',
       email_domain: 'other',
       email_service: 'fxa-email-service',
       email_sender: 'ses',
@@ -124,6 +123,7 @@ describe('email utils helpers', () => {
       templateVersion: 'eee',
       uid: 'fff'
     })
+    assert.equal(args[3].device_id, 'bbb')
     assert.equal(args[3].flow_id, 'ccc')
     assert.equal(args[3].flowBeginTime, 42)
     assert.ok(args[3].time > Date.now() - 1000)
@@ -164,7 +164,6 @@ describe('email utils helpers', () => {
       payload: {}
     })
     assert.deepEqual(args[2], {
-      device_id: 'b',
       email_domain: 'gmail',
       email_sender: 'wibble',
       email_service: 'fxa-auth-server',
@@ -172,6 +171,7 @@ describe('email utils helpers', () => {
       templateVersion: 42,
       uid: 'e'
     })
+    assert.equal(args[3].device_id, 'b')
     assert.equal(args[3].flow_id, 'c')
     assert.equal(args[3].flowBeginTime, 1)
   })

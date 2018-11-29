@@ -182,7 +182,7 @@ module.exports = (log, config, customs, db, mailer)  => {
 
       let sessions
 
-      const { flowId, flowBeginTime } = await request.app.metricsContext
+      const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext
 
       const mustVerifySession = sessionToken.mustVerify && ! sessionToken.tokenVerified
 
@@ -278,6 +278,7 @@ module.exports = (log, config, customs, db, mailer)  => {
           redirectTo,
           resume,
           acceptLanguage: request.app.acceptLanguage,
+          deviceId,
           flowId,
           flowBeginTime,
           ip,
@@ -330,6 +331,7 @@ module.exports = (log, config, customs, db, mailer)  => {
           {
             acceptLanguage: request.app.acceptLanguage,
             code: sessionToken.tokenVerificationId,
+            deviceId,
             flowId,
             flowBeginTime,
             ip,
@@ -367,6 +369,7 @@ module.exports = (log, config, customs, db, mailer)  => {
           {
             acceptLanguage: request.app.acceptLanguage,
             code: sessionToken.tokenVerificationCode,
+            deviceId,
             flowId,
             flowBeginTime,
             ip,

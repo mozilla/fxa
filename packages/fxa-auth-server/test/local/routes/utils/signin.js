@@ -451,6 +451,7 @@ describe('sendSigninNotifications', () => {
       payload: {
         service: 'testservice',
         metricsContext: {
+          deviceId: 'wibble',
           flowBeginTime: Date.now(),
           flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
           utmCampaign: 'utm campaign',
@@ -543,6 +544,7 @@ describe('sendSigninNotifications', () => {
         assert.calledWithExactly(mailer.sendVerifyCode, [], accountRecord, {
           acceptLanguage: 'en-US',
           code: 'emailVerifyCode',
+          deviceId: request.payload.metricsContext.deviceId,
           flowBeginTime: request.payload.metricsContext.flowBeginTime,
           flowId: request.payload.metricsContext.flowId,
           ip: CLIENT_ADDRESS,
@@ -590,6 +592,7 @@ describe('sendSigninNotifications', () => {
         assert.calledWithExactly(mailer.sendVerifyCode, [], accountRecord, {
           acceptLanguage: 'en-US',
           code: 'tokenVerifyCode',  // the token verification code is used if available
+          deviceId: request.payload.metricsContext.deviceId,
           flowBeginTime: request.payload.metricsContext.flowBeginTime,
           flowId: request.payload.metricsContext.flowId,
           ip: CLIENT_ADDRESS,
@@ -673,6 +676,7 @@ describe('sendSigninNotifications', () => {
         assert.calledWithExactly(mailer.sendVerifyLoginEmail, accountRecord.emails, accountRecord, {
           acceptLanguage: 'en-US',
           code: 'tokenVerifyCode',
+          deviceId: request.payload.metricsContext.deviceId,
           flowBeginTime: request.payload.metricsContext.flowBeginTime,
           flowId: request.payload.metricsContext.flowId,
           ip: CLIENT_ADDRESS,
@@ -721,6 +725,7 @@ describe('sendSigninNotifications', () => {
         assert.calledWithExactly(mailer.sendVerifyLoginCodeEmail, accountRecord.emails, accountRecord, {
           acceptLanguage: 'en-US',
           code: 'tokenVerifyShortCode',
+          deviceId: request.payload.metricsContext.deviceId,
           flowBeginTime: request.payload.metricsContext.flowBeginTime,
           flowId: request.payload.metricsContext.flowId,
           ip: CLIENT_ADDRESS,

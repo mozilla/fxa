@@ -299,6 +299,7 @@ describe('/account/create', () => {
         authPW: hexString(32),
         service: 'sync',
         metricsContext: {
+          deviceId: 'wibble',
           flowBeginTime: Date.now(),
           flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
           utmCampaign: 'utm campaign',
@@ -505,6 +506,7 @@ describe('/account/create', () => {
       assert.equal(args[2].uaOS, 'iOS')
       assert.equal(args[2].uaOSVersion, '11')
       assert.strictEqual(args[2].uaDeviceType, 'tablet')
+      assert.equal(args[2].deviceId, mockRequest.payload.metricsContext.deviceId)
       assert.equal(args[2].flowId, mockRequest.payload.metricsContext.flowId)
       assert.equal(args[2].flowBeginTime, mockRequest.payload.metricsContext.flowBeginTime)
       assert.equal(args[2].service, 'sync')
@@ -584,6 +586,7 @@ describe('/account/login', function () {
       service: 'sync',
       reason: 'signin',
       metricsContext: {
+        deviceId: 'blee',
         flowBeginTime: Date.now(),
         flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
         utmCampaign: 'utm campaign',
@@ -611,6 +614,7 @@ describe('/account/login', function () {
       service: 'dcdb5ae7add825d2',
       reason: 'signin',
       metricsContext: {
+        deviceId: 'blee',
         flowBeginTime: Date.now(),
         flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
         service: 'dcdb5ae7add825d2'
@@ -627,6 +631,7 @@ describe('/account/login', function () {
       service: 'dcdb5ae7add825d2',
       reason: 'signin',
       metricsContext: {
+        deviceId: 'blee',
         flowBeginTime: Date.now(),
         flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103'
       }
@@ -800,6 +805,7 @@ describe('/account/login', function () {
       assert.equal(args[2].uaOS, 'Android')
       assert.equal(args[2].uaOSVersion, '6')
       assert.equal(args[2].uaDeviceType, 'mobile')
+      assert.equal(args[2].deviceId, mockRequest.payload.metricsContext.deviceId)
       assert.equal(args[2].flowId, mockRequest.payload.metricsContext.flowId)
       assert.equal(args[2].flowBeginTime, mockRequest.payload.metricsContext.flowBeginTime)
       assert.equal(args[2].service, 'sync')
@@ -1058,6 +1064,7 @@ describe('/account/login', function () {
           assert.equal(tokenData.tokenVerificationId, null, 'sessionToken was created verified')
           assert.equal(mockMailer.sendVerifyCode.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
           assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called')
+          assert.equal(mockMailer.sendNewDeviceLoginNotification.args[0][2].deviceId, mockRequest.payload.metricsContext.deviceId)
           assert.equal(mockMailer.sendNewDeviceLoginNotification.args[0][2].flowId, mockRequest.payload.metricsContext.flowId)
           assert.equal(mockMailer.sendNewDeviceLoginNotification.args[0][2].flowBeginTime, mockRequest.payload.metricsContext.flowBeginTime)
           assert.equal(mockMailer.sendNewDeviceLoginNotification.args[0][2].service, 'sync')

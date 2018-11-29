@@ -441,7 +441,7 @@ module.exports = function (
         }
         request.setMetricsFlowCompleteSignal(flowCompleteSignal)
 
-        const { flowId, flowBeginTime } = await request.app.metricsContext
+        const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext
 
         let passwordForgotToken
 
@@ -483,6 +483,7 @@ module.exports = function (
               redirectTo: request.payload.redirectTo,
               resume: request.payload.resume,
               acceptLanguage: request.app.acceptLanguage,
+              deviceId,
               flowId,
               flowBeginTime,
               ip,
@@ -538,7 +539,7 @@ module.exports = function (
         var service = request.payload.service || request.query.service
         const ip = request.app.clientAddress
 
-        const { flowId, flowBeginTime } = await request.app.metricsContext
+        const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext
 
         return P.all([
           request.emitMetricsEvent('password.forgot.resend_code.start'),
@@ -564,6 +565,7 @@ module.exports = function (
                     redirectTo: request.payload.redirectTo,
                     resume: request.payload.resume,
                     acceptLanguage: request.app.acceptLanguage,
+                    deviceId,
                     flowId,
                     flowBeginTime,
                     ip,
@@ -621,7 +623,7 @@ module.exports = function (
         var code = request.payload.code
         const accountResetWithRecoveryKey = request.payload.accountResetWithRecoveryKey
 
-        const { flowId, flowBeginTime } = await request.app.metricsContext
+        const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext
 
         let accountResetToken
 
@@ -663,6 +665,7 @@ module.exports = function (
               {
                 code,
                 acceptLanguage: request.app.acceptLanguage,
+                deviceId,
                 flowId,
                 flowBeginTime,
                 uid: passwordForgotToken.uid

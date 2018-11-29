@@ -87,6 +87,7 @@ describe('/password', () => {
       payload: {
         email: TEST_EMAIL,
         metricsContext: {
+          deviceId: 'wibble',
           flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
           flowBeginTime: Date.now() - 1
         }
@@ -127,6 +128,7 @@ describe('/password', () => {
         assert.equal(args[2].location.country, 'United States')
         assert.equal(args[2].timeZone, 'America/Los_Angeles')
         assert.equal(args[2].uid, uid)
+        assert.equal(args[2].deviceId, 'wibble')
       })
   })
 
@@ -172,6 +174,7 @@ describe('/password', () => {
         payload: {
           email: TEST_EMAIL,
           metricsContext: {
+            deviceId: 'wibble',
             flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
             flowBeginTime: Date.now() - 1
           }
@@ -182,6 +185,7 @@ describe('/password', () => {
         .then(function(response) {
           assert.equal(mockMailer.sendRecoveryCode.callCount, 1, 'mailer.sendRecoveryCode was called once')
           assert.equal(mockMailer.sendRecoveryCode.args[0][2].uid, uid)
+          assert.equal(mockMailer.sendRecoveryCode.args[0][2].deviceId, 'wibble')
 
           assert.equal(mockRequest.validateMetricsContext.callCount, 0)
           assert.equal(mockLog.flowEvent.callCount, 2, 'log.flowEvent was called twice')
@@ -242,6 +246,7 @@ describe('/password', () => {
       payload: {
         code: 'abcdef',
         metricsContext: {
+          deviceId: 'wibble',
           flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
           flowBeginTime: Date.now() - 1
         }
@@ -275,6 +280,7 @@ describe('/password', () => {
 
         assert.equal(mockMailer.sendPasswordResetNotification.callCount, 1, 'mailer.sendPasswordResetNotification was called once')
         assert.equal(mockMailer.sendPasswordResetNotification.args[0][2].uid, uid, 'mailer.sendPasswordResetNotification was passed uid')
+        assert.equal(mockMailer.sendPasswordResetNotification.args[0][2].deviceId, 'wibble')
       })
     }
   )

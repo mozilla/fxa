@@ -124,7 +124,6 @@ function logAmplitudeEvent (log, message, eventInfo) {
     query: {},
     payload: {}
   }, {
-    device_id: message.deviceId || getHeaderValue('X-Device-Id', message),
     email_domain: eventInfo.domain,
     email_sender: message.emailSender || getHeaderValue('X-Email-Sender', message),
     email_service: message.emailService || getHeaderValue('X-Email-Service', message),
@@ -132,6 +131,7 @@ function logAmplitudeEvent (log, message, eventInfo) {
     templateVersion: eventInfo.templateVersion,
     uid: message.uid || getHeaderValue('X-Uid', message)
   }, {
+    device_id: message.deviceId || getHeaderValue('X-Device-Id', message),
     flowBeginTime: message.flowBeginTime || getHeaderValue('X-Flow-Begin-Time', message),
     flow_id: eventInfo.flow_id,
     time: Date.now()
