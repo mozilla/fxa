@@ -25,17 +25,16 @@
   },
   "homepage": "https://github.com/mozilla/fxa-email-event-proxy#readme",
   "dependencies": {
-    "aws-sdk": "2.358.0",
-    "bluebird": "^3.5.1",
-    "qs": "^6.5.2",
-    "sqs": "^2.0.2"
+    "aws-sdk": "^2.366.0",
+    "bluebird": "^3.5.3",
+    "qs": "^6.6.0"
   },
   "devDependencies": {
-    "chai": "^4.1.2",
+    "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "eslint": "^4.19.1",
+    "eslint": "^5.9.0",
     "mocha": "^5.2.0",
-    "proxyquire": "^2.0.1",
-    "sinon": "^6.0.0"
+    "proxyquire": "^2.1.0",
+    "sinon": "^7.1.1"
   }
 }
