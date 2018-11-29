@@ -47,63 +47,49 @@ const SQS = new AWS.SQS({ region })
 module.exports = { main }
 
 async function main (data) {
-  try {
-    // If there's a body, it's a request from the API gateway
-    if (data.body) {
-      // Requests from the API gateway must be authenticated
-      if (! data.queryStringParameters || ! authenticate(data.queryStringParameters.auth)) {
-        const errorResponse = {
-          error: 'Unauthorized',
-          errno: 999,
-          code: 401,
-          message: 'Request must provide a valid auth query param.'
-        }
-        return {
-          statusCode: 401,
-          body: JSON.stringify(errorResponse),
-          isBase64Encoded: false
-        }
+  // If there's a body, it's a request from the API gateway
+  if (data.body) {
+    // Requests from the API gateway must be authenticated
+    if (! data.queryStringParameters || ! authenticate(data.queryStringParameters.auth)) {
+      const errorResponse = {
+        error: 'Unauthorized',
+        errno: 999,
+        code: 401,
+        message: 'Request must provide a valid auth query param.'
       }
-
-      if (data.headers && data.headers['Content-Type'] === 'application/x-www-form-urlencoded') {
-        data = qs.parse(data.body)
-      } else {
-        data = JSON.parse(data.body)
+      return {
+        statusCode: 401,
+        body: JSON.stringify(errorResponse),
+        isBase64Encoded: false
       }
     }
 
-    if (! Array.isArray(data)) {
-      data = [ data ]
+    if (data.headers && data.headers['Content-Type'] === 'application/x-www-form-urlencoded') {
+      data = qs.parse(data.body)
+    } else {
+      data = JSON.parse(data.body)
     }
+  }
 
-    if (PROVIDER === 'socketlabs' && provider.shouldValidate(data[0])) {
-      return provider.validationResponse()
-    }
+  if (! Array.isArray(data)) {
+    data = [ data ]
+  }
 
-    let results = await processEvents(data)
-    let response = {
-      result: `Processed ${results.length} events`
-    }
+  if (PROVIDER === 'socketlabs' && provider.shouldValidate(data[0])) {
+    return provider.validationResponse()
+  }
 
-    response = provider.annotate(response)
+  const results = await processEvents(data)
+  let response = {
+    result: `Processed ${results.length} events`
+  }
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify(response),
-      isBase64Encoded: false
-    }
-  } catch(error) {
-    const errorResponse = {
-      error: 'Internal Server Error',
-      errno: 999,
-      code: 500,
-      message: error && error.message ? error.message : 'Unspecified error'
-    }
-    return {
-      statusCode: 500,
-      body: JSON.stringify(errorResponse),
-      isBase64Encoded: false
-    }
+  response = provider.annotate(response)
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify(response),
+    isBase64Encoded: false
   }
 }
 

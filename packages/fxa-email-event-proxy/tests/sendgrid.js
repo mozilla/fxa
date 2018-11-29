@@ -444,11 +444,11 @@ suite('sendgrid:', () => {
   })
 
   suite('call delivery with error:', () => {
-    let promise
+    let thrownError
 
-    setup(done => {
+    setup(() => {
       error = new Error('foo')
-      promise = proxy.main([{
+      return proxy.main([{
         email: 'bar@example.com',
         timestamp: 1529507951,
         event: 'delivered',
@@ -456,7 +456,7 @@ suite('sendgrid:', () => {
         sg_message_id: 'deadbeef.baadf00d.filter0001.16648.5515E0B88.0',
         response: '250 OK'
       }])
-      setImmediate(done)
+        .catch(e => thrownError = e)
     })
 
     teardown(() => {
@@ -495,18 +495,9 @@ suite('sendgrid:', () => {
       assert.equal(args[0], error.stack)
     })
 
-    test('promise is resolved', () => {
-      assert.isFulfilled(promise)
-    })
-
-    test('result is correct', () => {
-      return promise.then(result => {
-        assert.deepEqual(result, {
-          statusCode: 500,
-          body: '{"error":"Internal Server Error","errno":999,"code":500,"message":"foo"}',
-          isBase64Encoded: false
-        })
-      })
+    test('call failed', () => {
+      assert.instanceOf(thrownError, Error)
+      assert.equal(error.message, 'foo')
     })
   })
 
