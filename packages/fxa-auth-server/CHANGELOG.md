@@ -1,3 +1,13 @@
+<a name="1.126.2"></a>
+## [1.126.2](https://github.com/mozilla/fxa-auth-server/compare/v1.126.1...v1.126.2) (2018-11-29)
+
+
+### Bug Fixes
+
+* **metrics:** ensure email sent amplitude events include device id ([03a2f2e](https://github.com/mozilla/fxa-auth-server/commit/03a2f2e))
+
+
+
 <a name="1.126.1"></a>
 ## [1.126.1](https://github.com/mozilla/fxa-auth-server/compare/v1.126.0...v1.126.1) (2018-11-28)
 
