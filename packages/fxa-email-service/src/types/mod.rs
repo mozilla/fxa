@@ -7,7 +7,7 @@
 //! miscellaneous generally-used types.
 
 macro_rules! enum_boilerplate {
-    ($name:ident ($description:expr, $error:ident) {
+    ($name:ident ($description:expr, $default:ident, $error:ident) {
         $($variant:ident => $serialization:expr,)+
     }) => {
         #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -22,6 +22,12 @@ macro_rules! enum_boilerplate {
                     $($name::$variant => $serialization,
                     )+
                 }
+            }
+        }
+
+        impl std::default::Default for $name {
+            fn default() -> Self {
+                $name::$default
             }
         }
 

@@ -11,26 +11,14 @@ use serde::de::Error;
 
 use types::error::{AppError, AppErrorKind};
 
-enum_boilerplate!(LogLevel ("log level", InvalidLogLevel) {
+enum_boilerplate!(LogLevel ("log level", Normal, InvalidLogLevel) {
     Normal => "normal",
     Debug => "debug",
     Critical => "critical",
     Off => "off",
 });
 
-impl Default for LogLevel {
-    fn default() -> Self {
-        LogLevel::Normal
-    }
-}
-
-enum_boilerplate!(LogFormat ("log format", InvalidLogFormat) {
+enum_boilerplate!(LogFormat ("log format", Mozlog, InvalidLogFormat) {
     Mozlog => "mozlog",
     Pretty => "pretty",
 });
-
-impl Default for LogFormat {
-    fn default() -> Self {
-        LogFormat::Mozlog
-    }
-}
