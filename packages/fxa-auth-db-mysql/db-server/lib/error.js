@@ -92,6 +92,28 @@ AppError.recoveryKeyInvalid = () => {
   })
 }
 
+AppError.cannotSetUnverifiedPrimaryEmail = function () {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad request',
+      errno: 147,
+      message: 'Can not set unverified primary email'
+    }
+  )
+}
+
+AppError.cannotSetUnownedPrimaryEmail = function () {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad request',
+      errno: 148,
+      message: 'Can not set primary email to email that is not owned by account'
+    }
+  )
+}
+
 AppError.wrap = function (err) {
   // Don't re-wrap!
   if (err instanceof AppError) {

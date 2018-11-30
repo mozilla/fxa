@@ -916,15 +916,23 @@ module.exports = function (log, error) {
 
   // Update : emails
   // Values : uid = $1, email = $2
-  var SET_PRIMARY_EMAIL = 'CALL setPrimaryEmail_3(?, ?)'
+  var SET_PRIMARY_EMAIL = 'CALL setPrimaryEmail_4(?, ?)'
   MySql.prototype.setPrimaryEmail = function (uid, email) {
-    return this.write(
-      SET_PRIMARY_EMAIL,
-      [
-        uid,
-        email
-      ]
-    )
+    return this.write(SET_PRIMARY_EMAIL, [uid, email])
+      .then(() => {
+        return {}
+      })
+      .catch(err => {
+        if (err.errno === error.duplicate().errno) {
+          throw error.cannotSetUnownedPrimaryEmail()
+        }
+
+        if ( err.errno === ER_SIGNAL_NOT_FOUND ) {
+          throw error.cannotSetUnverifiedPrimaryEmail()
+        }
+
+        throw err
+      })
   }
 
   // Delete : emails
@@ -1503,7 +1511,7 @@ module.exports = function (log, error) {
       })
   }
 
-  const CONSUME_RECOVERY_CODE = 'CALL consumeRecoveryCode_2(?, ?)'
+  const CONSUME_RECOVERY_CODE = 'CALL consumeRecoveryCode_3(?, ?)'
   const RECOVERY_CODES = 'CALL recoveryCodes_1(?)'
   MySql.prototype.consumeRecoveryCode = function (uid, submittedCode) {
     // Consuming a recovery code is done in a two step process because
