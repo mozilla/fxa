@@ -53,7 +53,6 @@ import UniqueUserId from '../models/unique-user-id';
 import Url from './url';
 import User from '../models/user';
 import UserAgentMixin from './user-agent-mixin';
-import uuid from 'uuid';
 import WebChannel from './channels/web';
 
 const AUTOMATED_BROWSER_STARTUP_DELAY = 750;
@@ -182,7 +181,6 @@ Start.prototype = {
       clientHeight: screenInfo.clientHeight,
       clientWidth: screenInfo.clientWidth,
       context: relier.get('context'),
-      deviceId: this._getMetricsDeviceId(),
       devicePixelRatio: screenInfo.devicePixelRatio,
       entrypoint: relier.get('entrypoint'),
       isSampledUser: isSampledUser,
@@ -425,17 +423,6 @@ Start.prototype = {
         window: this._window
       });
     }
-  },
-
-  _metricsDeviceId: null,
-  _getMetricsDeviceId () {
-    if (! this._metricsDeviceId) {
-      // Amplitude-specific device id. Transient for now,
-      // but will probably be persistent in the future.
-      this._metricsDeviceId = uuid.v4().replace(/-/g, '');
-    }
-
-    return this._metricsDeviceId;
   },
 
   _uniqueUserId: null,

@@ -127,7 +127,6 @@ define(function (require, exports, module) {
     // by default, send the metrics to the content server.
     this._collector = options.collector || '';
     this._context = options.context || Constants.CONTENT_SERVER_CONTEXT;
-    this._deviceId = options.deviceId || NOT_REPORTED_VALUE;
     this._devicePixelRatio = options.devicePixelRatio || NOT_REPORTED_VALUE;
     this._emailDomain = NOT_REPORTED_VALUE;
     this._entrypoint = options.entrypoint || NOT_REPORTED_VALUE;
@@ -351,7 +350,7 @@ define(function (require, exports, module) {
       const allData = _.extend({}, loadData, unloadData, {
         broker: this._brokerType,
         context: this._context,
-        deviceId: this._deviceId,
+        deviceId: flowData.deviceId,
         emailDomain: this._emailDomain,
         entrypoint: this._entrypoint,
         experiments: flattenHashIntoArrayOfObjects(this._activeExperiments),
@@ -657,7 +656,7 @@ define(function (require, exports, module) {
     getFlowEventMetadata () {
       const metadata = (this._flowModel && this._flowModel.attributes) || {};
       return {
-        deviceId: this._deviceId,
+        deviceId: metadata.deviceId,
         flowBeginTime: metadata.flowBegin,
         flowId: metadata.flowId,
         utmCampaign: marshallUtmParam(this._utmCampaign),
