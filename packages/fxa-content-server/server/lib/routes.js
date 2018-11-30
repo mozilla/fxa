@@ -32,8 +32,6 @@ module.exports = function (config, i18n) {
     redirectVersionedToUnversioned('complete_reset_password'),
     redirectVersionedToUnversioned('reset_password'),
     redirectVersionedToUnversioned('verify_email'),
-    // Disable server verification for now due to issues with customs
-    //require('./routes/get-verify-email')(),
     require('./routes/get-apple-app-site-association')(),
     require('./routes/get-frontend')(),
     require('./routes/get-terms-privacy')(i18n),

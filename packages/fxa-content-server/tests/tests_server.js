@@ -29,7 +29,6 @@ module.exports = [
   'tests/server/routes/get-lbheartbeat.js',
   'tests/server/routes/get-metrics-flow.js',
   'tests/server/routes/get-openid-configuration.js',
-  'tests/server/routes/get-verify-email.js',
   'tests/server/routes/get-index.js',
   'tests/server/routes/get-well-known-change-password.js',
   'tests/server/routes/post-csp.js',

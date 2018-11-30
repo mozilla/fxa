@@ -583,32 +583,17 @@ const Account = Backbone.Model.extend({
      * @param {String} code - the verification code
      * @param {Object} [options]
      * @param {Object} [options.service] - the service issuing signup request
-     * @param {String} [options.serverVerificationStatus] - the status of server verification
      * @returns {Promise} - resolves when complete
      */
-  verifySignUp (code, options = {}) {
+  verifySignUp(code, options = {}) {
     const marketingOptIn = this.get('needsOptedInToMarketingEmail');
-    return Promise.resolve()
+    if (marketingOptIn) {
+      this.unset('needsOptedInToMarketingEmail');
+      options.marketingOptIn = true;
+    }
+
+    return this._fxaClient.verifyCode(this.get('uid'), code, options)
       .then(() => {
-        if (options.serverVerificationStatus !== 'verified') {
-          // if server verification was not present or not successful
-          // then attempt client verification
-
-          if (marketingOptIn) {
-            this.unset('needsOptedInToMarketingEmail');
-            options.marketingOptIn = true;
-          }
-
-          return this._fxaClient.verifyCode(
-            this.get('uid'),
-            code,
-            options
-          );
-        }
-      })
-      .then(() => {
-        this.set('verified', true);
-
         if (marketingOptIn) {
           this._notifier.trigger('flow.initialize');
           this._notifier.trigger('flow.event', {

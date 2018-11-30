@@ -527,7 +527,6 @@ define(function (require, exports, module) {
      * @param {String} code - verification code
      * @param {Object} [options]
      * @param {Object} [options.service] - the service issuing signup request
-     * @param {String} [options.serverVerificationStatus] - the status of server verification
      * @returns {Promise} - resolves with the account when complete
      */
     completeAccountSignUp (account, code, options) {
