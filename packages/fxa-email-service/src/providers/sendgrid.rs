@@ -2,9 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::str::from_utf8;
-
-use reqwest::StatusCode;
+use http::StatusCode;
 use sendgrid::v3::{
     Content, Email as EmailAddress, Personalization, SGMailV3 as Message, V3Sender as Client,
 };
@@ -75,11 +73,10 @@ impl Provider for SendgridProvider {
             .map_err(From::from)
             .and_then(|mut response| {
                 let status = response.status();
-                if status == StatusCode::Ok || status == StatusCode::Accepted {
+                if status == StatusCode::OK || status == StatusCode::ACCEPTED {
                     response
                         .headers()
-                        .get_raw("X-Message-Id")
-                        .and_then(|raw_header| raw_header.one())
+                        .get("X-Message-Id")
                         .ok_or(
                             AppErrorKind::Internal(
                                 "Missing or duplicate X-Message-Id header in Sendgrid response"
@@ -87,7 +84,7 @@ impl Provider for SendgridProvider {
                             )
                             .into(),
                         )
-                        .and_then(|message_id| from_utf8(message_id).map_err(From::from))
+                        .and_then(|message_id| message_id.to_str().map_err(From::from))
                         .map(|message_id| message_id.to_string())
                 } else {
                     Err(AppErrorKind::Internal(format!(

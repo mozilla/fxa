@@ -19,7 +19,8 @@
 use std::fmt::Debug;
 
 use hex;
-use reqwest::{Client as RequestClient, StatusCode, Url, UrlError};
+use http::StatusCode;
+use reqwest::{Client as RequestClient, Url, UrlError};
 
 use super::delivery_problems::{
     LegacyDeliveryProblem as DeliveryProblem, ProblemSubtype, ProblemType,
@@ -70,7 +71,7 @@ impl Db for DbClient {
             .get(self.urls.get_bounces(address)?)
             .send()?;
         match response.status() {
-            StatusCode::Ok => response.json::<Vec<DeliveryProblem>>().map_err(From::from),
+            StatusCode::OK => response.json::<Vec<DeliveryProblem>>().map_err(From::from),
             status => Err(AppErrorKind::Internal(format!(
                 "Auth db get_bounces response: {}",
                 status
@@ -95,7 +96,7 @@ impl Db for DbClient {
             })
             .send()?;
         match response.status() {
-            StatusCode::Ok => Ok(()),
+            StatusCode::OK => Ok(()),
             status => Err(AppErrorKind::Internal(format!(
                 "Auth db create_bounce response: {}",
                 status

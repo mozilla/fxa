@@ -12,6 +12,7 @@ use std::{
 
 use failure::{Backtrace, Context, Fail};
 use hmac::crypto_mac::InvalidKeyLength;
+use http::header::ToStrError;
 use hyperx::mime::FromStrError;
 use lettre::smtp::error::Error as SmtpError;
 use lettre_email::error::Error as EmailError;
@@ -280,5 +281,6 @@ to_internal_error!(SendgridError);
 to_internal_error!(SendRawEmailError);
 to_internal_error!(SmtpError);
 to_internal_error!(SocketLabsError);
+to_internal_error!(ToStrError);
 to_internal_error!(UrlError);
 to_internal_error!(Utf8Error);
