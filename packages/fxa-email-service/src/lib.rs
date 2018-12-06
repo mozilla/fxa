@@ -39,6 +39,7 @@ extern crate failure;
 extern crate futures;
 extern crate hex;
 extern crate hmac;
+extern crate http;
 extern crate hyperx;
 #[macro_use]
 extern crate lazy_static;
