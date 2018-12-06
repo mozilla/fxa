@@ -78,4 +78,5 @@ pub mod error;
 pub mod headers;
 pub mod logging;
 pub mod provider;
+pub mod regex;
 pub mod validate;
