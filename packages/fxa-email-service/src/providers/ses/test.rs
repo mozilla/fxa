@@ -91,3 +91,36 @@ fn ses_send_handles_error_response() {
     assert_eq!(error.error(), "Internal Server Error");
     assert_eq!(error.to_string(), "Unknown(\"FREAKOUT\")");
 }
+
+#[test]
+fn ses_send_handles_invalid_domain_response() {
+    let body = r#"
+        <ErrorResponse xmlns="http://ses.amazonaws.com/doc/2010-12-01/">
+          <Error>
+            <Type>Sender</Type>
+            <Code>InvalidParameterValue</Code>
+            <Message>Invalid domain name: gmail.com.com</Message>
+          </Error>
+          <RequestId>f972bc68-f90c-11e8-90d8-9f9fb80f3486</RequestId>
+        </ErrorResponse>
+    "#;
+    let mock_dispatcher = MockRequestDispatcher::with_status(500).with_body(&body);
+    let mock_ses = SesProvider {
+        client: Box::new(SesClient::new_with(
+            mock_dispatcher,
+            MockCredentialsProvider,
+            Region::SaEast1,
+        )),
+        sender: "Wibble <blee@example.com>".to_string(),
+    };
+    let result = mock_ses.send("blee@gmail.com.com", &[], None, "subject", "body", None);
+    assert!(result.is_err());
+    let error = result.unwrap_err();
+    assert_eq!(error.code(), 400);
+    assert_eq!(error.errno().unwrap(), 102);
+    assert_eq!(error.error(), "Bad Request");
+    assert_eq!(
+        error.to_string(),
+        "Invalid payload: Invalid domain name: gmail.com.com"
+    );
+}

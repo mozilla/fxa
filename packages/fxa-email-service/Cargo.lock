@@ -622,6 +622,7 @@ dependencies = [
  "rocket 0.3.17 (registry+https://github.com/rust-lang/crates.io-index)",
  "rocket_codegen 0.3.17 (registry+https://github.com/rust-lang/crates.io-index)",
  "rocket_contrib 0.3.17 (registry+https://github.com/rust-lang/crates.io-index)",
+ "roxmltree 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rusoto_core 0.34.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rusoto_credential 0.13.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rusoto_mock 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1598,6 +1599,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "roxmltree"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "xmlparser 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "rusoto_core"
 version = "0.34.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2527,6 +2536,11 @@ dependencies = [
 ]
 
 [[package]]
+name = "xmlparser"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
 name = "yaml-rust"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2712,6 +2726,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum rocket 0.3.17 (registry+https://github.com/rust-lang/crates.io-index)" = "a61d746c68f1d357f6e011985570474c4af368aa81900320074098d34ed0c64e"
 "checksum rocket_codegen 0.3.17 (registry+https://github.com/rust-lang/crates.io-index)" = "7873d65adfa3e440ac373a28240341853da170913aad7e4207c0198389e5d0e9"
 "checksum rocket_contrib 0.3.17 (registry+https://github.com/rust-lang/crates.io-index)" = "4b2348e3b2458e173203f1e51f3b2e00495a092b70bd9506d2ce2ac64e129d14"
+"checksum roxmltree 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ad070c83663f89f74524e296935fc4b2479a111c0ac57098effcba59c6a76b69"
 "checksum rusoto_core 0.34.0 (registry+https://github.com/rust-lang/crates.io-index)" = "dac3a75644426c7d4116e85dd314d5be26400f06d40d5673511d69a1168101f6"
 "checksum rusoto_credential 0.13.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a6b31eb8789afa4e601fa4677cab6886cbf8830b765f4da5cff2ba24ab485bfe"
 "checksum rusoto_mock 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ab5c74050e9b4d7deb4ebebba181d76bd04c74d7fb52a47da72758b8e688679b"
@@ -2817,5 +2832,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum winutil 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "7daf138b6b14196e3830a588acf1e86966c694d3e8fb026fb105b8b5dca07e6e"
 "checksum ws2_32-sys 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "d59cefebd0c892fa2dd6de581e937301d8552cb44489cdff035c6187cb63fa5e"
 "checksum xml-rs 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "3c1cb601d29fe2c2ac60a2b2e5e293994d87a1f6fa9687a31a15270f909be9c2"
+"checksum xmlparser 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "41e9a53f10a83f2d007556b671737aee4d4820d64f3f1b98e1ca27f31a81ddb4"
 "checksum yaml-rust 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "57ab38ee1a4a266ed033496cf9af1828d8d6e6c1cfa5f643a2809effcae4d628"
 "checksum yansi 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "d60c3b48c9cdec42fb06b3b84b5b087405e1fa1c644a1af3930e4dfafe93de48"
