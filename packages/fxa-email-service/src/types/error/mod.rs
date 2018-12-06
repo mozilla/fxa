@@ -31,8 +31,7 @@ use serde_json::{map::Map, ser::to_string, Error as JsonError, Value};
 use socketlabs::error::Error as SocketLabsError;
 
 use super::email_address::EmailAddress;
-use db::delivery_problems::DeliveryProblem;
-use logging::MozlogLogger;
+use crate::{db::delivery_problems::DeliveryProblem, logging::MozlogLogger};
 
 #[cfg(test)]
 mod test;

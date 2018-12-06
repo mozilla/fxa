@@ -9,7 +9,7 @@ use std::convert::{From, TryFrom};
 use regex::Regex;
 use serde::de::{Deserialize, Deserializer, Error as SerdeError, Unexpected};
 
-use types::error::{AppError, AppErrorKind, AppResult};
+use crate::types::error::{AppError, AppErrorKind, AppResult};
 
 #[cfg(test)]
 mod test;

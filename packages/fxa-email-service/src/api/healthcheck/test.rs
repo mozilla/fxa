@@ -7,10 +7,12 @@ use std::env;
 use rocket::{self, http::Status, local::Client};
 use serde_json::{self, Value};
 
-use db::{auth_db::DbClient, delivery_problems::DeliveryProblems, message_data::MessageData};
-use logging::MozlogLogger;
-use providers::Providers;
-use settings::Settings;
+use crate::{
+    db::{auth_db::DbClient, delivery_problems::DeliveryProblems, message_data::MessageData},
+    logging::MozlogLogger,
+    providers::Providers,
+    settings::Settings,
+};
 
 fn setup() -> Client {
     let settings = Settings::new().unwrap();

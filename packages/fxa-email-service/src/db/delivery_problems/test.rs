@@ -7,13 +7,15 @@ use std::{thread::sleep, time::Duration};
 use serde_json::{self, Value as Json};
 
 use super::*;
-use db::{
-    auth_db::{Db, DbClient},
-    core::test::TestFixture,
+use crate::{
+    db::{
+        auth_db::{Db, DbClient},
+        core::test::TestFixture,
+    },
+    queues::notification::{BounceSubtype, BounceType, ComplaintFeedbackType},
+    settings::{Host, Settings},
+    types::error::{AppErrorKind, AppResult},
 };
-use queues::notification::{BounceSubtype, BounceType, ComplaintFeedbackType};
-use settings::{Host, Settings};
-use types::error::{AppErrorKind, AppResult};
 
 const SECOND: u64 = 1000;
 const MINUTE: u64 = SECOND * 60;

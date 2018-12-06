@@ -12,11 +12,13 @@ use self::{
     mock::MockProvider as Mock, sendgrid::SendgridProvider as Sendgrid, ses::SesProvider as Ses,
     smtp::SmtpProvider as Smtp, socketlabs::SocketLabsProvider as SocketLabs,
 };
-use settings::Settings;
-use types::{
-    error::{AppErrorKind, AppResult},
-    headers::*,
-    provider::Provider as ProviderType,
+use crate::{
+    settings::Settings,
+    types::{
+        error::{AppErrorKind, AppResult},
+        headers::*,
+        provider::Provider as ProviderType,
+    },
 };
 
 mod mock;

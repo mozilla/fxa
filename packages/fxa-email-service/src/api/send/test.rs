@@ -7,11 +7,13 @@ use rocket::{
     local::Client,
 };
 
-use db::{auth_db::DbClient, delivery_problems::DeliveryProblems, message_data::MessageData};
-use logging::MozlogLogger;
-use providers::Providers;
-use settings::Settings;
-use types::error::{AppError, AppErrorKind};
+use crate::{
+    db::{auth_db::DbClient, delivery_problems::DeliveryProblems, message_data::MessageData},
+    logging::MozlogLogger,
+    providers::Providers,
+    settings::Settings,
+    types::error::{AppError, AppErrorKind},
+};
 
 fn setup() -> Client {
     let mut settings = Settings::new().unwrap();

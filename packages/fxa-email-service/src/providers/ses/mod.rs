@@ -10,8 +10,7 @@ use rusoto_credential::StaticProvider;
 use rusoto_ses::{RawMessage, SendRawEmailRequest, Ses, SesClient};
 
 use super::{build_multipart_mime, Headers, Provider};
-use settings::Settings;
-use types::error::AppResult;
+use crate::{settings::Settings, types::error::AppResult};
 
 #[cfg(test)]
 mod test;

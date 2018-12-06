@@ -6,8 +6,10 @@ use lettre::{ClientSecurity, EmailTransport, SmtpTransport};
 use lettre_email::{EmailBuilder, Header as LettreHeader};
 
 use super::{Headers, Provider};
-use settings::{Settings, SmtpCredentials};
-use types::error::{AppErrorKind, AppResult};
+use crate::{
+    settings::{Settings, SmtpCredentials},
+    types::error::{AppErrorKind, AppResult},
+};
 
 pub struct SmtpProvider {
     host: String,

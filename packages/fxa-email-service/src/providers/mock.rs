@@ -3,7 +3,7 @@
 // file, you can obtain one at https://mozilla.org/MPL/2.0/.
 
 use super::{Headers, Provider};
-use types::error::AppResult;
+use crate::types::error::AppResult;
 
 pub struct MockProvider;
 

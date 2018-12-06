@@ -19,11 +19,13 @@ use super::{
     auth_db::Db as AuthDb,
     core::{Client as DbClient, DataType},
 };
-use queues::notification::{BounceSubtype, BounceType, ComplaintFeedbackType};
-use settings::{DeliveryProblemLimit, DeliveryProblemLimits, Settings};
-use types::{
-    email_address::EmailAddress,
-    error::{AppErrorKind, AppResult},
+use crate::{
+    queues::notification::{BounceSubtype, BounceType, ComplaintFeedbackType},
+    settings::{DeliveryProblemLimit, DeliveryProblemLimits, Settings},
+    types::{
+        email_address::EmailAddress,
+        error::{AppErrorKind, AppResult},
+    },
 };
 
 /// Bounce/complaint registry.

@@ -16,8 +16,10 @@ use super::super::notification::{
     Bounce as GenericBounce, Complaint as GenericComplaint, Delivery as GenericDelivery,
     Mail as GenericMail, Notification as GenericNotification,
 };
-use db::delivery_problems::{ProblemSubtype, ProblemType};
-use types::email_address::EmailAddress;
+use crate::{
+    db::delivery_problems::{ProblemSubtype, ProblemType},
+    types::email_address::EmailAddress,
+};
 
 #[cfg(test)]
 mod test;

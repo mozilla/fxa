@@ -11,10 +11,12 @@ use slog_scope;
 
 use self::notification::{Notification, NotificationType};
 pub use self::sqs::Queue as Sqs;
-use db::{auth_db::DbClient, delivery_problems::DeliveryProblems, message_data::MessageData};
-use logging::MozlogLogger;
-use settings::Settings;
-use types::error::{AppError, AppErrorKind, AppResult};
+use crate::{
+    db::{auth_db::DbClient, delivery_problems::DeliveryProblems, message_data::MessageData},
+    logging::MozlogLogger,
+    settings::Settings,
+    types::error::{AppError, AppErrorKind, AppResult},
+};
 
 mod mock;
 pub mod notification;

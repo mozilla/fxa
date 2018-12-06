@@ -5,7 +5,7 @@
 use chrono::Utc;
 
 use super::*;
-use db::delivery_problems::{ProblemSubtype, ProblemType};
+use crate::db::delivery_problems::{ProblemSubtype, ProblemType};
 
 #[test]
 fn internal() {

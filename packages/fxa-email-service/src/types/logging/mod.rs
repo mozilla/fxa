@@ -9,7 +9,7 @@ mod test;
 
 use serde::de::Error;
 
-use types::error::{AppError, AppErrorKind};
+use crate::types::error::{AppError, AppErrorKind};
 
 enum_boilerplate!(LogLevel ("log level", Normal, InvalidLogLevel) {
     Normal => "normal",
