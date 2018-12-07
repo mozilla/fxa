@@ -19,8 +19,6 @@ The FxA team had an OKR for Q2 2018
 about decoupling the auth server from SES
 and making it possible to send email
 via different providers.
-You can read more about that OKR
-in the [feature doc](https://docs.google.com/document/d/1SZ_uGpqofUJeOjGAu2oRKqp-qEMLbvWt8UlxK4UbFwI).
 Subsequently,
 some other teams expressed an interest in
 depending on a standalone email service too.
@@ -28,7 +26,7 @@ depending on a standalone email service too.
 This repo started as our experiment
 to see what a decoupled email-sending service would look like,
 written in Rust.
-It is now handling some FxA email traffic in production,
+It is now handling all FxA email traffic in production,
 and we are gradually separating it from the FxA stack
 to run as a standalone service
 in its own right.
