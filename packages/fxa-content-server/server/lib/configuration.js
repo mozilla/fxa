@@ -92,6 +92,14 @@ const conf = module.exports = convict({
     },
     secret: 'YOU MUST CHANGE ME'
   },
+  coppa: {
+    enabled: {
+      default: true,
+      doc: 'Is the COPPA age check enabled?',
+      env: 'COPPA_ENABLED',
+      format: Boolean
+    }
+  },
   csp: {
     enabled: {
       default: false,

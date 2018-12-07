@@ -474,6 +474,7 @@ Start.prototype = {
       experimentGroupingRules: this._experimentGroupingRules,
       formPrefill: this._formPrefill,
       interTabChannel: this._interTabChannel,
+      isCoppaEnabled: this._config.isCoppaEnabled,
       lang: this._config.lang,
       metrics: this._metrics,
       notifier: this._notifier,

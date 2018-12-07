@@ -32,6 +32,8 @@ const RELIER_FIELDS_IN_RESUME_TOKEN = [
   /*eslint-disable camelcase*/
 const QUERY_PARAMETER_SCHEMA = {
   action: Vat.action(),
+  // Should only be used for testing. If set to false, COPPA is disabled
+  coppa: Vat.boolean().renameTo('isCoppaEnabled'),
   // email is validated within fetch because it's handling depends on the action.
   // FxDesktop declares both `entryPoint` (capital P) and
   // `entrypoint` (lowcase p). Normalize to `entrypoint`.

@@ -26,6 +26,7 @@ const {
   closeCurrentWindow,
   createUser,
   noPageTransition,
+  noSuchElement,
   openPage,
   openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
@@ -145,6 +146,26 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         // will take a few seconds to complete if it erroneously occurs.
         // Add an affordance just in case the poll happens unexpectedly.
         .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER));
+    },
+
+    'COPPA disabled': function () {
+      return this.remote
+        .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+          query: {
+            coppa: 'false'
+          },
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true}
+          }
+        }))
+        .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
+
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER))
+        .then(noSuchElement(selectors.SIGNUP_PASSWORD.AGE))
+        .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
+        .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
+        .then(click(selectors.SIGNUP_PASSWORD.SUBMIT, selectors.CHOOSE_WHAT_TO_SYNC.HEADER));
     },
 
     'signin - merge cancelled': function () {
