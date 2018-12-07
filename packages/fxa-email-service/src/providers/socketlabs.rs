@@ -6,8 +6,10 @@ use socketlabs::{message::Message, request::Request, response::PostMessageErrorC
 use uuid::Uuid;
 
 use super::{Headers, Provider};
-use settings::{Sender, Settings, SocketLabs as SocketLabsSettings};
-use types::error::{AppErrorKind, AppResult};
+use crate::{
+    settings::{Sender, Settings, SocketLabs as SocketLabsSettings},
+    types::error::{AppErrorKind, AppResult},
+};
 
 pub struct SocketLabsProvider {
     settings: SocketLabsSettings,

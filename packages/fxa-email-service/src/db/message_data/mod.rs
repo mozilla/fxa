@@ -5,8 +5,7 @@
 //! Storage for message metadata.
 
 use super::core::{Client as DbClient, DataType};
-use settings::Settings;
-use types::error::AppResult;
+use crate::{settings::Settings, types::error::AppResult};
 
 #[cfg(test)]
 mod test;

@@ -23,8 +23,7 @@ use serde::{de::DeserializeOwned, ser::Serialize};
 use serde_json;
 use sha2::Sha256;
 
-use settings::Settings;
-use types::error::AppResult;
+use crate::{settings::Settings, types::error::AppResult};
 
 /// Database client.
 ///

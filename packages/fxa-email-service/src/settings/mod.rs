@@ -21,14 +21,16 @@ use rocket::config::{
 };
 use serde::de::{Deserialize, Deserializer, Error, Unexpected};
 
-use logging::MozlogLogger;
-use types::{
-    duration::Duration,
-    email_address::EmailAddress,
-    env::Env,
-    logging::{LogFormat, LogLevel},
-    provider::Provider as ProviderType,
-    validate,
+use crate::{
+    logging::MozlogLogger,
+    types::{
+        duration::Duration,
+        email_address::EmailAddress,
+        env::Env,
+        logging::{LogFormat, LogLevel},
+        provider::Provider as ProviderType,
+        validate,
+    },
 };
 
 macro_rules! deserialize_and_validate {

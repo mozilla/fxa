@@ -13,8 +13,7 @@ use rocket::State;
 use rocket_contrib::Json;
 use serde_json;
 
-use settings::Settings;
-use types::error::AppResult;
+use crate::{settings::Settings, types::error::AppResult};
 
 #[cfg(test)]
 mod test;

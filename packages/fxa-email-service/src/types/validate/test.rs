@@ -4,7 +4,7 @@
 
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
 
-use types::validate;
+use crate::types::validate;
 
 fn random_alphanum_string(len: usize) -> String {
     thread_rng().sample_iter(&Alphanumeric).take(len).collect()

@@ -12,12 +12,14 @@ use rocket::{
 };
 use rocket_contrib::Json;
 
-use db::{auth_db::DbClient, delivery_problems::DeliveryProblems, message_data::MessageData};
-use logging::MozlogLogger;
-use providers::{Headers, Providers};
-use types::{
-    email_address::EmailAddress,
-    error::{AppError, AppErrorKind, AppResult},
+use crate::{
+    db::{auth_db::DbClient, delivery_problems::DeliveryProblems, message_data::MessageData},
+    logging::MozlogLogger,
+    providers::{Headers, Providers},
+    types::{
+        email_address::EmailAddress,
+        error::{AppError, AppErrorKind, AppResult},
+    },
 };
 
 #[cfg(test)]

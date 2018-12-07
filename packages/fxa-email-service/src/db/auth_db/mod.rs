@@ -25,10 +25,12 @@ use reqwest::{Client as RequestClient, Url, UrlError};
 use super::delivery_problems::{
     LegacyDeliveryProblem as DeliveryProblem, ProblemSubtype, ProblemType,
 };
-use settings::Settings;
-use types::{
-    email_address::EmailAddress,
-    error::{AppErrorKind, AppResult},
+use crate::{
+    settings::Settings,
+    types::{
+        email_address::EmailAddress,
+        error::{AppErrorKind, AppResult},
+    },
 };
 
 #[cfg(test)]

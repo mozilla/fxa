@@ -14,10 +14,12 @@ use slog_async;
 use slog_mozlog_json::MozLogJson;
 use slog_term;
 
-use settings::Settings;
-use types::{
-    error::AppError,
-    logging::{LogFormat, LogLevel},
+use crate::{
+    settings::Settings,
+    types::{
+        error::AppError,
+        logging::{LogFormat, LogLevel},
+    },
 };
 
 lazy_static! {

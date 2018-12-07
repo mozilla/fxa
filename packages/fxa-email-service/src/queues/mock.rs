@@ -11,8 +11,7 @@ use super::{
     },
     DeleteFuture, Factory, Incoming, Message, Outgoing, ReceiveFuture, SendFuture,
 };
-use settings::Settings;
-use types::error::AppErrorKind;
+use crate::{settings::Settings, types::error::AppErrorKind};
 
 #[derive(Debug)]
 pub struct Queue {
