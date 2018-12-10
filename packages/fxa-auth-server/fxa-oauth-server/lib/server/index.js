@@ -33,7 +33,7 @@ exports.create = async function createServer(extraServerConfig = {}, createOptio
 
   let routes = require('../routing').routes;
 
-  if (config.clientManagement.enabled && ! isProd) {
+  if (config.clientManagement.enabled) {
     server.auth.scheme(authClientManagement.AUTH_SCHEME, authClientManagement.strategy);
     server.auth.strategy(authClientManagement.AUTH_STRATEGY, authClientManagement.AUTH_SCHEME);
     routes = routes.concat(require('../routing').clients);

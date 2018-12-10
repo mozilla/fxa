@@ -2219,8 +2219,6 @@ describe('/v1', function() {
           clientManagement: {
             enabled: true
           }
-        }, {
-          isProdLike: false
         });
 
         return P.all([
