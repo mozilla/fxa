@@ -226,7 +226,6 @@ define(function (require, exports, module) {
             primaryEmailVerified: null,
             reminder: null,
             secondaryEmailVerified: null,
-            serverVerificationStatus: null,
             service: validService,
             type: null
           });
@@ -253,7 +252,6 @@ define(function (require, exports, module) {
             primaryEmailVerified: null,
             reminder: validReminder,
             secondaryEmailVerified: null,
-            serverVerificationStatus: null,
             service: null,
             type: null
           });
@@ -281,36 +279,7 @@ define(function (require, exports, module) {
             primaryEmailVerified: null,
             reminder: validReminder,
             secondaryEmailVerified: null,
-            serverVerificationStatus: null,
             service: validService,
-            type: null
-          });
-        });
-      });
-
-      describe('if server_verification is in the url', function () {
-        beforeEach(function () {
-          windowMock.location.search = '?code=' + validCode + '&uid=' + validUid +
-            '&server_verification=verified';
-          relier = new Relier({}, {
-            window: windowMock
-          });
-          relier.fetch();
-          initView(account);
-          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => Promise.resolve());
-          return view.render();
-        });
-
-        it('attempt to pass server_verification to verifySignUp', function () {
-          var args = account.verifySignUp.getCall(0).args;
-          assert.isTrue(account.verifySignUp.called);
-          assert.ok(args[0]);
-          assert.deepEqual(args[1], {
-            primaryEmailVerified: null,
-            reminder: null,
-            secondaryEmailVerified: null,
-            serverVerificationStatus: 'verified',
-            service: null,
             type: null
           });
         });
@@ -337,7 +306,6 @@ define(function (require, exports, module) {
             primaryEmailVerified: null,
             reminder: null,
             secondaryEmailVerified: null,
-            serverVerificationStatus: null,
             service: null,
             type: 'secondary'
           });
@@ -366,7 +334,6 @@ define(function (require, exports, module) {
             primaryEmailVerified: null,
             reminder: null,
             secondaryEmailVerified: 'some@email.com',
-            serverVerificationStatus: null,
             service: null,
             type: null
           });
@@ -394,7 +361,6 @@ define(function (require, exports, module) {
             primaryEmailVerified: 'some@email.com',
             reminder: null,
             secondaryEmailVerified: null,
-            serverVerificationStatus: null,
             service: null,
             type: null
           });

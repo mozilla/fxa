@@ -78,7 +78,6 @@ define(function (require, exports, module) {
         primaryEmailVerified: this.getSearchParam('primary_email_verified') || null,
         reminder: verificationInfo.get('reminder'),
         secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null,
-        serverVerificationStatus: this.getSearchParam('server_verification') || null,
         service: this.relier.get('service') || null,
         type: verificationInfo.get('type')
       };
