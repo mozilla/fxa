@@ -10,6 +10,7 @@ const logger = require('../logging/log')('routes.index');
 module.exports = function (config) {
   const AUTH_SERVER_URL = config.get('fxaccount_url');
   const CLIENT_ID = config.get('oauth_client_id');
+  const COPPA_ENABLED = config.get('coppa.enabled');
   const ENV = config.get('env');
   const FLOW_ID_KEY = config.get('flow_id_key');
   const MARKETING_EMAIL_API_URL = config.get('marketing_email.api_url');
@@ -26,6 +27,7 @@ module.exports = function (config) {
   const serializedConfig = encodeURIComponent(JSON.stringify({
     authServerUrl: AUTH_SERVER_URL,
     env: ENV,
+    isCoppaEnabled: COPPA_ENABLED,
     marketingEmailPreferencesUrl: MARKETING_EMAIL_PREFERENCES_URL,
     marketingEmailServerUrl: MARKETING_EMAIL_API_URL,
     oAuthClientId: CLIENT_ID,

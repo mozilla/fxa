@@ -86,6 +86,17 @@ registerSuite('signup', {
         .then(testErrorTextInclude('email'));
     },
 
+    'COPPA disabled': function () {
+      return this.remote
+        .then(openPage(PAGE_URL + '?coppa=false', selectors.SIGNUP.HEADER))
+        .then(noSuchElement(selectors.SIGNUP.AGE))
+        .then(type(selectors.SIGNUP.EMAIL, email))
+        .then(type(selectors.SIGNUP.PASSWORD, PASSWORD))
+        .then(type(selectors.SIGNUP.VPASSWORD, PASSWORD))
+        .then(click(selectors.SIGNUP.SUBMIT))
+        .then(testAtConfirmScreen(email));
+    },
+
     'signup, verify same browser': function () {
       return this.remote
         .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER))

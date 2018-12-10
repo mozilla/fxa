@@ -46,6 +46,7 @@ describe('models/reliers/relier', function () {
 
   it('fetch populates expected fields from the search parameters, unexpected search parameters are ignored', function () {
     windowMock.location.search = TestHelpers.toSearchString({
+      coppa: 'false',
       email: EMAIL,
       entrypoint: ENTRYPOINT,
       ignored: 'ignored',
@@ -63,6 +64,7 @@ describe('models/reliers/relier', function () {
         // Next two are not imported from the search parameters, but is set manually.
         assert.equal(relier.get('context'), Constants.CONTENT_SERVER_CONTEXT);
 
+        assert.isFalse(relier.get('isCoppaEnabled'));
         // The rest are imported from search parameters
         assert.equal(relier.get('email'), EMAIL);
 

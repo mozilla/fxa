@@ -129,7 +129,7 @@ module.exports = {
     HEADER: '#fxa-force-auth-header'
   },
   MOZILLA_ORG_SYNC: {
-    HEADER: '.header-content'
+    HEADER: '.mzp-c-navigation'
   },
   OAUTH_PERMISSIONS: {
     CHECKBOX_DISPLAY_NAME: 'input[name="profile:display_name"]',
