@@ -65,7 +65,7 @@ describe('lib/experiments/grouping-rules/token-code', () => {
         sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
         experiment.choose(subject);
         assert.isTrue(experiment.uniformChoice.calledOnce);
-        assert.isTrue(experiment.uniformChoice.calledWith(['control', 'treatment-code', 'treatment-link'], 'user-id'));
+        assert.isTrue(experiment.uniformChoice.calledWith(['treatment-code'], 'user-id'));
       });
 
       it('delegates to uniformChoice when `enableTestEmails` is true and using test email', () => {
@@ -74,7 +74,7 @@ describe('lib/experiments/grouping-rules/token-code', () => {
         sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
         experiment.choose(subject);
         assert.isTrue(experiment.uniformChoice.calledOnce);
-        assert.isTrue(experiment.uniformChoice.calledWith(['control', 'treatment-code', 'treatment-link'], 'user-id'));
+        assert.isTrue(experiment.uniformChoice.calledWith(['treatment-code'], 'user-id'));
       });
     });
 
@@ -97,7 +97,7 @@ describe('lib/experiments/grouping-rules/token-code', () => {
         sinon.stub(experiment, 'uniformChoice').callsFake(() => 'control');
         experiment.choose(subject);
         assert.isTrue(experiment.uniformChoice.calledOnce, 'called once');
-        assert.isTrue(experiment.uniformChoice.calledWith(['control', 'treatment-code', 'treatment-link'], 'user-id'));
+        assert.isTrue(experiment.uniformChoice.calledWith(['treatment-code'], 'user-id'));
       });
     });
   });

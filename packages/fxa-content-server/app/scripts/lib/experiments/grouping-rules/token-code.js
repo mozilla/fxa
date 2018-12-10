@@ -6,7 +6,7 @@
 
 const BaseGroupingRule = require('./base');
 const Constants = require('../../../lib/constants');
-const GROUPS_DEFAULT = ['control', 'treatment-code', 'treatment-link'];
+const GROUPS_DEFAULT = ['treatment-code'];
 
 const ROLLOUT_CLIENTS = {
   '37fdfa37698f251a': {
@@ -19,7 +19,7 @@ const ROLLOUT_CLIENTS = {
     enableTestEmails: true,
     groups: ['treatment-code'],
     name: 'Lockbox Extension iOS',
-    rolloutRate: 0.0,
+    rolloutRate: 0.25,
   },
   'ecdb5ae7add825d4': {
     enableTestEmails: false,
