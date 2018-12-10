@@ -24,7 +24,6 @@ use rocket::{
     Outcome, Request, State,
 };
 use rocket_contrib::Json;
-use rusoto_ses::SendRawEmailError;
 use sendgrid::errors::SendgridError;
 use serde::ser::{Serialize, SerializeMap, Serializer};
 use serde_json::{map::Map, ser::to_string, Error as JsonError, Value};
@@ -277,7 +276,6 @@ to_internal_error!(JsonError);
 to_internal_error!(RedisError);
 to_internal_error!(RequestError);
 to_internal_error!(SendgridError);
-to_internal_error!(SendRawEmailError);
 to_internal_error!(SmtpError);
 to_internal_error!(SocketLabsError);
 to_internal_error!(ToStrError);
