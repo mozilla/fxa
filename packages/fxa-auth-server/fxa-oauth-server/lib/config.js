@@ -54,7 +54,7 @@ const conf = convict({
   },
   clientManagement: {
     enabled: {
-      doc: 'Enable client management in OAuth server routes',
+      doc: 'Enable client management in OAuth server routes. Do NOT set this to true in production.',
       default: false,
       format: Boolean,
       env: 'CLIENT_MANAGEMENT_ENABLED'
