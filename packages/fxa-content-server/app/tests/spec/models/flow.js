@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   const Url = require('lib/url');
   const WindowMock = require('../../mocks/window');
 
+  var DEVICE_ID = '0123456789abcdef0123456789abcdef';
   var BODY_FLOW_ID = 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
   var RESUME_FLOW_ID = '71031D71031D71031D71031D71031D71031D71031D71031D71031D71031D7103';
 
@@ -49,11 +50,16 @@ define(function (require, exports, module) {
 
     it('fetches from the `resume` search parameter, if available', function () {
       windowMock.location.search = Url.objToSearchString({
-        resume: ResumeToken.stringify({ flowBegin: 42, flowId: RESUME_FLOW_ID })
+        resume: ResumeToken.stringify({
+          deviceId: DEVICE_ID,
+          flowBegin: 42,
+          flowId: RESUME_FLOW_ID
+        })
       });
 
       createFlow();
 
+      assert.equal(flow.get('deviceId'), DEVICE_ID);
       assert.equal(flow.get('flowId'), RESUME_FLOW_ID);
       assert.equal(flow.get('flowBegin'), 42);
     });
@@ -64,19 +70,24 @@ define(function (require, exports, module) {
 
       createFlow();
 
+      assert.match(flow.get('deviceId'), /^[0-9a-f]{32}$/);
       assert.equal(flow.get('flowId'), BODY_FLOW_ID);
       assert.equal(flow.get('flowBegin'), 42);
     });
 
     it('gives preference to values from the `resume` search parameter', function () {
       windowMock.location.search = Url.objToSearchString({
-        resume: ResumeToken.stringify({ flowBegin: 42, flowId: RESUME_FLOW_ID })
+        resume: ResumeToken.stringify({
+          flowBegin: 42,
+          flowId: RESUME_FLOW_ID
+        })
       });
       $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
       $(windowMock.document.body).attr('data-flow-begin', '24');
 
       createFlow();
 
+      assert.match(flow.get('deviceId'), /^[0-9a-f]{32}$/);
       assert.equal(flow.get('flowId'), RESUME_FLOW_ID);
       assert.equal(flow.get('flowBegin'), 42);
     });
@@ -97,6 +108,7 @@ define(function (require, exports, module) {
 
       createFlow();
 
+      assert.match(flow.get('deviceId'), /^[0-9a-f]{32}$/);
       assert.equal(flow.get('flowId'), QUERY_FLOW_ID);
       assert.equal(flow.get('flowBegin'), QUERY_FLOW_BEGIN);
       assert.ok(metricsMock.markEventLogged.calledOnce);
@@ -104,13 +116,14 @@ define(function (require, exports, module) {
 
     it('logs an error when the resume token contains `flowId` but not `flowBegin`', function () {
       windowMock.location.search = Url.objToSearchString({
-        resume: ResumeToken.stringify({ flowId: RESUME_FLOW_ID })
+        resume: ResumeToken.stringify({ deviceId: DEVICE_ID, flowId: RESUME_FLOW_ID })
       });
       $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
       $(windowMock.document.body).attr('data-flow-begin', '24');
 
       createFlow();
 
+      assert.equal(flow.get('deviceId'), DEVICE_ID);
       assert.equal(flow.get('flowId'), RESUME_FLOW_ID);
       assert.notOk(flow.has('flowBegin'));
 
@@ -123,13 +136,14 @@ define(function (require, exports, module) {
 
     it('logs an error when the resume token contains `flowBegin` but not `flowId`', function () {
       windowMock.location.search = Url.objToSearchString({
-        resume: ResumeToken.stringify({ flowBegin: 42 })
+        resume: ResumeToken.stringify({ deviceId: DEVICE_ID, flowBegin: 42 })
       });
       $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
       $(windowMock.document.body).attr('data-flow-begin', '24');
 
       createFlow();
 
+      assert.equal(flow.get('deviceId'), DEVICE_ID);
       assert.notOk(flow.has('flowId'));
       assert.equal(flow.get('flowBegin'), 42);
 
@@ -173,6 +187,7 @@ define(function (require, exports, module) {
     it('logs two errors when there is no flow data available', function () {
       createFlow();
 
+      assert.match(flow.get('deviceId'), /^[0-9a-f]{32}$/);
       assert.notOk(flow.has('flowId'));
       assert.notOk(flow.has('flowBegin'));
 

@@ -21,6 +21,7 @@ const ResumeTokenMixin = require('./mixins/resume-token');
 const UrlMixin = require('./mixins/url');
 const vat = require('../lib/vat');
 const Url = require('../lib/url');
+import uuid from 'uuid';
 
 var Model = Backbone.Model.extend({
   initialize (options) {
@@ -49,9 +50,14 @@ var Model = Backbone.Model.extend({
       this.populateFromDataAttribute('flowId');
       this.populateFromDataAttribute('flowBegin');
     }
+
+    if (! this.has('deviceId')) {
+      this.set('deviceId', uuid.v4().replace(/-/g, ''));
+    }
   },
 
   defaults: {
+    deviceId: null,
     flowBegin: null,
     flowId: null
   },
@@ -74,9 +80,10 @@ var Model = Backbone.Model.extend({
     return ErrorUtils.captureError(error, this.sentryMetrics);
   },
 
-  resumeTokenFields: ['flowId', 'flowBegin'],
+  resumeTokenFields: ['deviceId', 'flowId', 'flowBegin'],
 
   resumeTokenSchema: {
+    deviceId: vat.hex().len(32),
     flowBegin: vat.number().test(function (value) {
       // Integers only
       return value === Math.round(value);

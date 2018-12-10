@@ -40,7 +40,6 @@ define(function (require, exports, module) {
         clientHeight: 966,
         clientWidth: 1033,
         context: 'fx_desktop_v1',
-        deviceId: 'wibble',
         devicePixelRatio: 2,
         entrypoint: 'menupanel',
         isSampledUser: true,
@@ -88,7 +87,7 @@ define(function (require, exports, module) {
     it('observable flow state is correct', () => {
       assert.isUndefined(metrics.getFlowModel());
       assert.deepEqual(metrics.getFlowEventMetadata(), {
-        deviceId: 'wibble',
+        deviceId: undefined,
         flowBeginTime: undefined,
         flowId: undefined,
         utmCampaign: 'utm_campaign',
@@ -107,16 +106,15 @@ define(function (require, exports, module) {
       it('observable flow state is correct', () => {
         assert.equal(metrics.getFlowModel().get('flowId'), FLOW_ID);
         assert.equal(metrics.getFlowModel().get('flowBegin'), FLOW_BEGIN_TIME);
-        assert.deepEqual(metrics.getFlowEventMetadata(), {
-          deviceId: 'wibble',
-          flowBeginTime: FLOW_BEGIN_TIME,
-          flowId: FLOW_ID,
-          utmCampaign: 'utm_campaign',
-          utmContent: 'utm_content',
-          utmMedium: 'utm_medium',
-          utmSource: undefined,
-          utmTerm: undefined
-        });
+        const metadata = metrics.getFlowEventMetadata();
+        assert.match(metadata.deviceId, /^[0-9a-f]{32}$/);
+        assert.equal(metadata.flowBeginTime, FLOW_BEGIN_TIME);
+        assert.equal(metadata.flowId, FLOW_ID);
+        assert.equal(metadata.utmCampaign, 'utm_campaign');
+        assert.equal(metadata.utmContent, 'utm_content');
+        assert.equal(metadata.utmMedium, 'utm_medium');
+        assert.equal(metadata.utmSource, undefined);
+        assert.equal(metadata.utmTerm, undefined);
       });
 
       it('flow events are triggered correctly', () => {
@@ -154,16 +152,15 @@ define(function (require, exports, module) {
         it('observable flow state is correct', () => {
           assert.equal(metrics.getFlowModel().get('flowId'), FLOW_ID);
           assert.equal(metrics.getFlowModel().get('flowBegin'), FLOW_BEGIN_TIME);
-          assert.deepEqual(metrics.getFlowEventMetadata(), {
-            deviceId: 'wibble',
-            flowBeginTime: FLOW_BEGIN_TIME,
-            flowId: FLOW_ID,
-            utmCampaign: 'utm_campaign',
-            utmContent: 'utm_content',
-            utmMedium: 'utm_medium',
-            utmSource: undefined,
-            utmTerm: undefined
-          });
+          const metadata = metrics.getFlowEventMetadata();
+          assert.match(metadata.deviceId, /^[0-9a-f]{32}$/);
+          assert.equal(metadata.flowBeginTime, FLOW_BEGIN_TIME);
+          assert.equal(metadata.flowId, FLOW_ID);
+          assert.equal(metadata.utmCampaign, 'utm_campaign');
+          assert.equal(metadata.utmContent, 'utm_content');
+          assert.equal(metadata.utmMedium, 'utm_medium');
+          assert.equal(metadata.utmSource, undefined);
+          assert.equal(metadata.utmTerm, undefined);
         });
       });
     });
@@ -277,7 +274,6 @@ define(function (require, exports, module) {
         xhr = { ajax () {} };
         environment = new Environment(windowMock);
         metrics = new Metrics({
-          deviceId: 'mock device id',
           environment: environment,
           inactivityFlushMs: 100,
           notifier,
@@ -335,7 +331,7 @@ define(function (require, exports, module) {
               assert.lengthOf(Object.keys(data), 30);
               assert.equal(data.broker, 'none');
               assert.equal(data.context, Constants.CONTENT_SERVER_CONTEXT);
-              assert.equal(data.deviceId, 'mock device id');
+              assert.match(data.deviceId, /^[0-9a-f]{32}$/);
               assert.isNumber(data.duration);
               assert.equal(data.emailDomain, 'none');
               assert.equal(data.entrypoint, 'none');
@@ -506,7 +502,7 @@ define(function (require, exports, module) {
 
               var data = JSON.parse(settings.data);
               assert.lengthOf(Object.keys(data), 29);
-              assert.equal(data.deviceId, 'mock device id');
+              assert.match(data.deviceId, /^[0-9a-f]{32}$/);
               assert.isArray(data.events);
               assert.lengthOf(data.events, 5);
               assert.equal(data.events[0].type, 'foo');
