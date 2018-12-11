@@ -180,14 +180,13 @@ const View = BaseView.extend({
     // taken to the Sync controlled completion page.
     Session.clear();
 
-    let success = t('Password reset successfully. Sign in to continue.');
-    if (this.model.get('hasRecoveryKey')) {
-      success = t('Sign in to continue.');
+    const options = {};
+
+    if (! this.model.get('hasRecoveryKey')) {
+      options.success = t('Password reset successfully. Sign in to continue.');
     }
 
-    this.navigate('signin', {
-      success
-    });
+    this.navigate('signin', options);
   },
 
   _isWaitingForServerConfirmation: false,
