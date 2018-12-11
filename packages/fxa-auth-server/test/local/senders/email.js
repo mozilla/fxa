@@ -1957,6 +1957,63 @@ describe('call selectEmailServices with mocked safe-regex, regex-only match and 
   })
 })
 
+
+describe('email translations', () => {
+  let mockLog, redis, mailer
+  const message = {
+    email: 'a@b.com'
+  };
+
+  function setupMailerWithTranslations(locale) {
+    return P.all([
+      require(`${ROOT_DIR}/lib/senders/translator`)([locale], locale),
+      require(`${ROOT_DIR}/lib/senders/templates`).init()
+    ]).spread((translator, templates) => {
+      mockLog = mocks.mockLog()
+      redis = {
+        get: sinon.spy(() => P.resolve())
+      }
+      const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, {
+        '../redis': () => redis
+      })(mockLog, config.getProperties())
+      mailer = new Mailer(translator, templates, config.get('smtp'))
+    })
+  }
+
+  afterEach(() => mailer.stop())
+
+  it('arabic emails are translated', () => {
+    return setupMailerWithTranslations('ar').then(() => {
+      return new Promise((resolve) => {
+        mailer.mailer.sendMail = (emailConfig) => {
+          assert.equal(emailConfig.headers['Content-Language'], 'ar', 'language header is correct')
+          // NOTE: translation might change, but we use the subject, we don't change that often.
+          assert.equal(emailConfig.subject, 'أكّد حساب فَيَرفُكس الخاص بك', 'translation is correct')
+          resolve()
+        }
+
+        mailer['verifyEmail'](message)
+      })
+
+    })
+  })
+
+  it('russian emails are translated', () => {
+    return setupMailerWithTranslations('ru').then(() => {
+      return new Promise((resolve) => {
+        mailer.mailer.sendMail = (emailConfig) => {
+          assert.equal(emailConfig.headers['Content-Language'], 'ru', 'language header is correct')
+          // NOTE: translation might change, but we use the subject, we don't change that often.
+          assert.equal(emailConfig.subject, 'Подтвердите ваш Аккаунт Firefox', 'translation is correct')
+          resolve()
+        }
+
+        mailer['verifyEmail'](message)
+      })
+    })
+  })
+})
+
 if (config.get('redis.email.enabled')) {
   const emailAddress = 'foo@example.com';
 
