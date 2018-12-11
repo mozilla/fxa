@@ -1,3 +1,24 @@
+<a name="1.127.0"></a>
+# [1.127.0](https://github.com/mozilla/fxa-content-server/compare/v1.126.0...v1.127.0) (2018-12-11)
+
+
+### Bug Fixes
+
+* **reset:** remove confusing account recovery password reset messaging ([2b17fe4](https://github.com/mozilla/fxa-content-server/commit/2b17fe4))
+
+### chore
+
+* **code:** enable token code for 25% of all lockbox ios users ([d8522f3](https://github.com/mozilla/fxa-content-server/commit/d8522f3))
+* **verify:** remove server side verification ([5485d45](https://github.com/mozilla/fxa-content-server/commit/5485d45))
+
+### Features
+
+* **coppa:** Put COPPA behind a feature flag. ([fe877db](https://github.com/mozilla/fxa-content-server/commit/fe877db)), closes [#6736](https://github.com/mozilla/fxa-content-server/issues/6736)
+* **metrics:** add deviceId to the resume token ([c10d699](https://github.com/mozilla/fxa-content-server/commit/c10d699))
+* **sms:** remove SMS padlock ([3f249be](https://github.com/mozilla/fxa-content-server/commit/3f249be)), closes [#6653](https://github.com/mozilla/fxa-content-server/issues/6653)
+
+
+
 <a name="1.126.0"></a>
 # [1.126.0](https://github.com/mozilla/fxa-content-server/compare/v1.125.0...v1.126.0) (2018-11-28)
 
