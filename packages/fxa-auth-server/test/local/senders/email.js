@@ -139,6 +139,7 @@ const typesContainPasswordManagerInfoLinks = [
 ]
 
 const typesContainManageSettingsLinks = [
+  'newDeviceLoginEmail',
   'postVerifySecondaryEmail',
   'postChangePrimaryEmail',
   'postRemoveSecondaryEmail',
