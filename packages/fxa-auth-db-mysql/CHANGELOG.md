@@ -1,3 +1,23 @@
+<a name="1.127.0"></a>
+# [1.127.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.126.0...v1.127.0) (2018-12-11)
+
+
+### chore
+
+* **scripts:** ignore newly failing stored procedures ([edf0bb4](https://github.com/mozilla/fxa-auth-db-mysql/commit/edf0bb4))
+
+### Features
+
+* **scripts:** check for FOREIGN KEY in migration lint script ([82170eb](https://github.com/mozilla/fxa-auth-db-mysql/commit/82170eb))
+* **scripts:** check for missing expected encodings on procedure args ([daf2677](https://github.com/mozilla/fxa-auth-db-mysql/commit/daf2677))
+* **scripts:** lint-ignore tables that already have foreign keys ([3aeca8e](https://github.com/mozilla/fxa-auth-db-mysql/commit/3aeca8e))
+
+### Refactor
+
+* **scripts:** harmonise row count stuff with rest of lint script ([6065fe8](https://github.com/mozilla/fxa-auth-db-mysql/commit/6065fe8))
+
+
+
 <a name="1.126.0"></a>
 # [1.126.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.125.0...v1.126.0) (2018-11-27)
 
