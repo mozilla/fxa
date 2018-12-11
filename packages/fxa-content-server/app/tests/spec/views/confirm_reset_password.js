@@ -404,7 +404,7 @@ describe('views/confirm_reset_password', function () {
 
       view._finishPasswordResetDifferentBrowser();
 
-      assert(view.navigate.calledOnceWith('signin', {success: 'Sign in to continue.'}));
+      assert(view.navigate.calledOnceWith('signin', {}));
     });
   });
 
