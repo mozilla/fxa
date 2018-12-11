@@ -47,7 +47,15 @@ module.exports = function (locales, defaultLanguage) {
       var supportedLanguages = []
       for (var i = 0; i < translations.length; i++) {
         var t = translations[i]
-        var language = i18n.normalizeLanguage(i18n.languageFrom(t.locale_data.messages[''].lang))
+        const localeMessageData = t.locale_data.messages['']
+
+        if (localeMessageData.lang === 'ar') {
+          // NOTE: there seems to be some incompatibility with Jed and Arabic plural forms from Pontoon
+          // We disable plural forms manually below, we don't use them anyway. Issue #2714
+          localeMessageData.plural_forms = null
+        }
+
+        var language = i18n.normalizeLanguage(i18n.languageFrom(localeMessageData.lang))
         supportedLanguages.push(language)
         var translator = new Jed(t)
         translator.language = language
