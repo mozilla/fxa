@@ -1,3 +1,15 @@
+<a name="1.127.0"></a>
+# [1.127.0](https://github.com/mozilla/fxa-auth-server/compare/v1.126.2...v1.127.0) (2018-12-11)
+
+
+### Bug Fixes
+
+* **email:** add manage devices button in new device login email template ([7d4649b](https://github.com/mozilla/fxa-auth-server/commit/7d4649b))
+* **emails:** fix arabic emails, add translator tests ([cde4ce2](https://github.com/mozilla/fxa-auth-server/commit/cde4ce2)), closes [#2714](https://github.com/mozilla/fxa-auth-server/issues/2714)
+* **oauth:** remove prod requirement flag ([0f130b3](https://github.com/mozilla/fxa-auth-server/commit/0f130b3))
+
+
+
 <a name="1.126.2"></a>
 ## [1.126.2](https://github.com/mozilla/fxa-auth-server/compare/v1.126.1...v1.126.2) (2018-11-29)
 
