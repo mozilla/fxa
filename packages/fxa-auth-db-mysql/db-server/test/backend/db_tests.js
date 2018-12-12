@@ -1941,6 +1941,39 @@ module.exports = function (config, DB) {
             assert.equal(res[0].profileChangedAt >= res[0].createdAt, true, 'profileChangedAt updated')
           })
       })
+
+      it('shouldn\'t set primary email to email that is not owned by account', () => {
+        const anotherAccount = createAccount()
+        anotherAccount.emailVerified = true
+        const anotherEmail = createEmail({
+          uid: anotherAccount.uid,
+          isVerified: true
+        })
+        return db.createAccount(anotherAccount.uid, anotherAccount)
+          .then(() => {
+            return db.createEmail(anotherAccount.uid, anotherEmail)
+          })
+          .then(() => {
+            return db.setPrimaryEmail(account.uid, anotherEmail.email)
+          })
+          .catch((err) => {
+            assert.equal(err.errno, 148, 'correct errno set')
+          })
+      })
+
+      it('shouldn\'t set primary email to unverified email', () => {
+        const anotherEmail = createEmail({
+          uid: account.uid,
+          isVerified: false
+        })
+        return db.createEmail(account.uid, anotherEmail)
+          .then(() => {
+            return db.setPrimaryEmail(account.uid, anotherEmail.email)
+          })
+          .catch((err) => {
+            assert.equal(err.errno, 147, 'correct errno set')
+          })
+      })
     })
 
     describe('db.verifyTokenCode', () => {
