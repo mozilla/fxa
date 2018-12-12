@@ -19,7 +19,10 @@ module.exports = (config) => {
     // Email service requires that all headers are strings.
     const headers = {}
     for (const header in emailConfig.headers) {
-      headers[header] = emailConfig.headers[header].toString()
+      // Check to make sure header is not null. Issue #2771
+      if (emailConfig.headers[header]) {
+        headers[header] = emailConfig.headers[header].toString()
+      }
     }
     const options = {
       url: `http://${config.emailService.host}:${config.emailService.port}/send`,
