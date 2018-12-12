@@ -43,22 +43,13 @@
     "urijs": "1.19.1"
   },
   "devDependencies": {
-    "eslint-plugin-fxa": "git://github.com/mozilla/eslint-plugin-fxa.git#41504c9dd30e8b52900c15b524946aa0428aef95",
-    "fxa-conventional-changelog": "1.1.0",
-    "grunt": "1.0.3",
-    "grunt-bump": "0.8.0",
-    "grunt-conventional-changelog": "6.1.0",
-    "grunt-copyright": "0.3.0",
-    "grunt-eslint": "18.0.0",
     "chai": "4.1.2",
-    "load-grunt-tasks": "3.5.2",
     "mocha": "5.2.0",
     "nock": "10.0.2",
     "npmshrink": "1.0.1",
     "nyc": "13.1.0",
     "proxyquire": "2.0.0",
     "read": "1.0.7",
-    "sinon": "7.0.0",
-    "time-grunt": "1.4.0"
+    "sinon": "7.0.0"
   }
 }
