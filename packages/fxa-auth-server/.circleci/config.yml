@@ -94,15 +94,11 @@ jobs:
 
       - run:
           name: Build deployment container image
-          command: cd fxa-oauth-server && docker build -f Dockerfile-build -t fxa-oauth-server:build .
-
-      - run:
-          name: Check npm install
-          command: cd fxa-oauth-server && docker run --rm -it fxa-oauth-server:build npm ls --production
+          command: docker build -f Dockerfile-oauth-build -t fxa-oauth-server:build .
 
       - run:
           name: Build test container image
-          command: cd fxa-oauth-server && docker build -f Dockerfile-test -t fxa-oauth-server:test .
+          command: docker build -f Dockerfile-oauth-test -t fxa-oauth-server:test .
 
       - run:
           name: Run MySQL
@@ -111,11 +107,11 @@ jobs:
 
       - run:
           name: Run Memory DB Tests
-          command: cd fxa-oauth-server && docker run fxa-oauth-server:test npm test
+          command: docker run fxa-oauth-server:test npm run test-oauth
 
       - run:
           name: Run MySQL DB Tests
-          command: cd fxa-oauth-server && docker run --net=host -p 3306:3306 -e DB="mysql" fxa-oauth-server:test npm test
+          command: docker run --net=host -p 3306:3306 -e DB="mysql" fxa-oauth-server:test npm run test-oauth
 
       - run:
           name: Push to Dockerhub
