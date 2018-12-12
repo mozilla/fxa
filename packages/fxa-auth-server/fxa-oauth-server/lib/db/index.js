@@ -64,7 +64,7 @@ function preClients() {
       // ensure the required keys are present.
       var err = null;
       var REQUIRED_CLIENTS_KEYS = [ 'id', 'hashedSecret', 'name', 'imageUri',
-                                    'redirectUri', 'trusted', 'canGrant' ];
+        'redirectUri', 'trusted', 'canGrant' ];
       REQUIRED_CLIENTS_KEYS.forEach(function(key) {
         if (! (key in c)) {
           var data = { key: key, name: c.name || 'unknown' };
