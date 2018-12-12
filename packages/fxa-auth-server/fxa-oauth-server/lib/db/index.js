@@ -11,7 +11,6 @@ const encrypt = require('../encrypt');
 const logger = require('../logging')('db');
 const klass = config.get('db.driver') === 'mysql' ?
   require('./mysql') : require('./memory');
-const unique = require('../unique');
 
 function clientEquals(configClient, dbClient) {
   var props = Object.keys(configClient);
@@ -111,32 +110,6 @@ function preClients() {
   }
 }
 
-function serviceClients() {
-  var clients = config.get('serviceClients');
-  if (clients && clients.length) {
-    logger.debug('serviceClients.loading', clients);
-
-    return P.all(clients.map(function(client) {
-      return exports.getClient(client.id).then(function(existing) {
-        if (existing) {
-          logger.verbose('seviceClients.existing', client);
-          return;
-        }
-
-        return exports.registerClient({
-          id: client.id,
-          name: client.name,
-          hashedSecret: encrypt.hash(unique.secret()),
-          imageUri: '',
-          redirectUri: '',
-          trusted: true,
-          canGrant: false
-        });
-      });
-    }));
-  }
-}
-
 /**
  * Insert pre-defined list of scopes into the DB
  */
@@ -210,5 +183,5 @@ exports.disconnect = function disconnect() {
 };
 
 exports._initialClients = function() {
-  return preClients().then(serviceClients).then(scopes);
+  return preClients().then(scopes);
 };

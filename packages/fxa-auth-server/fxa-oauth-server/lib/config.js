@@ -273,10 +273,6 @@ const conf = convict({
       default: 9011
     }
   },
-  serviceClients: {
-    doc: 'Clients that can make oauth requests for any user',
-    default: []
-  },
   i18n: {
     defaultLanguage: {
       format: String,
@@ -334,17 +330,6 @@ var options = {
 };
 
 conf.validate(options);
-
-// custom validation, since we cant yet specify rules for inside arrays
-conf.get('serviceClients').forEach(function(client) {
-  assert(client.id, 'client id required');
-  assert.equal(client.id.length, 16, 'client id must be 16 hex digits');
-  assert.equal(Buffer.from(client.id, 'hex').toString('hex'), client.id,
-    'client id must be 16 hex digits');
-  assert.equal(typeof client.name, 'string', 'client name required');
-  assert.equal(typeof client.scope, 'string', 'client scope required');
-  assert.equal(typeof client.jku, 'string', 'client jku required');
-});
 
 // Replace openid key if file specified
 if (conf.get('openid.keyFile')){

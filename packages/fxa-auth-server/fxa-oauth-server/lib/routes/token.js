@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Hello, dear traveller! Please, turn back now. It's dangerous in here!
-
 /*jshint camelcase: false*/
 const crypto = require('crypto');
 const AppError = require('../error');
@@ -21,20 +19,9 @@ const P = require('../promise');
 const util = require('../util');
 const validators = require('../validators');
 
-const HEX_STRING = validators.HEX_STRING;
-
 const MAX_TTL_S = config.get('expiration.accessToken') / 1000;
 const GRANT_AUTHORIZATION_CODE = 'authorization_code';
 const GRANT_REFRESH_TOKEN = 'refresh_token';
-const GRANT_JWT = 'urn:ietf:params:oauth:grant-type:jwt-bearer';
-
-const JWT_AUD = config.get('publicUrl') + '/v1/token';
-
-const SERVICE_CLIENTS = {};
-const SERVICE_JWTOOL = new JwTool(config.get('serviceClients').map(function(client) {
-  SERVICE_CLIENTS[client.jku] = client;
-  return client.jku;
-}));
 
 const SCOPE_OPENID = ScopeSet.fromArray(['openid']);
 
@@ -51,20 +38,12 @@ const BASIC_AUTH_REGEX = /^Basic\s+([a-z0-9+\/]+)$/i;
 const PAYLOAD_SCHEMA = Joi.object({
 
   client_id: validators.clientId
-    .when('grant_type', {
-      is: GRANT_JWT,
-      then: Joi.forbidden()
-    })
     .when('$headers.authorization', {
       is: Joi.string().required(),
       then: Joi.forbidden()
     }),
 
   client_secret: validators.clientSecret
-    .when('grant_type', {
-      is: GRANT_JWT,
-      then: Joi.forbidden()
-    })
     .when('code_verifier', {
       is: Joi.string().required(), // if (typeof code_verifier === 'string') {
       then: Joi.forbidden()
@@ -78,16 +57,12 @@ const PAYLOAD_SCHEMA = Joi.object({
       then: Joi.forbidden()
     }),
 
-  code_verifier: validators.codeVerifier
-    .when('grant_type', {
-      is: GRANT_JWT,
-      then: Joi.forbidden()
-    }),
+  code_verifier: validators.codeVerifier,
 
   redirect_uri: validators.redirectUri.optional(),
 
   grant_type: Joi.string()
-    .valid(GRANT_AUTHORIZATION_CODE, GRANT_REFRESH_TOKEN, GRANT_JWT)
+    .valid(GRANT_AUTHORIZATION_CODE, GRANT_REFRESH_TOKEN)
     .default(GRANT_AUTHORIZATION_CODE)
     .optional(),
 
@@ -117,13 +92,6 @@ const PAYLOAD_SCHEMA = Joi.object({
     .when('grant_type', {
       is: GRANT_REFRESH_TOKEN,
       otherwise: Joi.forbidden()
-    }),
-
-  assertion: validators.assertion
-    .required()
-    .when('grant_type', {
-      is: GRANT_JWT,
-      otherwise: Joi.forbidden()
     })
 
 });
@@ -140,8 +108,6 @@ const PAYLOAD_SCHEMA = Joi.object({
 //      confirm the client credentials in `confirmClientSecret()`.
 //      - If grant type is authorization code, proceed to `confirmCode()`.
 //      - If grant type is refresh token, proceed to `confirmRefreshToken()`.
-//    - If grant type is a JWT, all information is in the JWT. So jump
-//      straight to `confirmJwt()`.
 // 2. Generate tokens.
 //   - An options object is passed to `generateTokens()`.
 //     - An access_token is generated.
@@ -222,8 +188,6 @@ module.exports = {
               return confirmRefreshToken(params);
             });
         });
-      } else if (params.grant_type === GRANT_JWT) {
-        return confirmJwt(params);
       } else {
         // else our Joi validation failed us?
         logger.critical('joi.grant_type', params.grant_type);
@@ -377,74 +341,6 @@ function confirmRefreshToken(params) {
     }
     return tokObj;
   });
-}
-
-function confirmJwt(params) {
-  var assertion = params.assertion;
-  logger.debug('jwt.confirm', assertion);
-
-  return SERVICE_JWTOOL.verify(assertion).catch(function(err) {
-    logger.info('jwt.invalid.verify', err.message);
-    throw AppError.invalidAssertion();
-  }).then(function(payload) {
-    logger.verbose('jwt.payload', payload);
-
-    // this cannot fail! huh, why?
-    // if the assertion couldn't decode, or the jku was not in our
-    // trusted list, the assertion would not have verified.
-    var client = SERVICE_CLIENTS[JwTool.unverify(assertion).header.jku];
-
-    // ohai eslint complexity
-    var uid = _validateJwtSub(payload.sub);
-
-    if (payload.aud !== JWT_AUD) {
-      logger.debug('jwt.invalid.aud', payload.aud);
-      throw AppError.invalidAssertion();
-    }
-
-    const requestedScope = ScopeSet.fromString(payload.scope);
-    if (! ScopeSet.fromString(client.scope).contains(requestedScope)) {
-      logger.debug('jwt.invalid.scopes', {
-        allowed: client.scope,
-        requested: payload.scope
-      });
-      throw AppError.invalidScopes(payload.scope);
-    }
-
-    var now = Date.now() / 1000;
-    if ((payload.iat || Infinity) > now) {
-      logger.debug('jwt.invalid.iat', { now: now, iat: payload.iat });
-      throw AppError.invalidAssertion();
-    }
-    if ((payload.exp || -Infinity) < now) {
-      logger.debug('jwt.invalid.exp', { now: now, exp: payload.exp });
-      throw AppError.invalidAssertion();
-    }
-
-    // We can't know the email based on a service token,
-    // so we can't cache it locally.  Insert an empty string
-    // for now, while we complete the process of entirely
-    // removing the 'email' column from our database.
-    return {
-      clientId: client.id,
-      userId: uid,
-      scope: requestedScope,
-      email: ''
-    };
-  });
-}
-
-function _validateJwtSub(sub) {
-  if (! sub) {
-    logger.debug('jwt.invalid.sub.missing');
-    throw AppError.invalidAssertion();
-  }
-  if (sub.length !== 32 || ! HEX_STRING.test(sub)) {
-    logger.debug('jwt.invalid.sub', sub);
-    throw AppError.invalidAssertion();
-  }
-
-  return sub;
 }
 
 function generateIdToken(options, access) {
