@@ -38,6 +38,9 @@ while read -r COMMIT; do
   fi
 
   case "$TYPE" in
+    "Merge")
+      # Ignore merge commits
+      ;;
     "feat")
       if [ "$FEAT_SUMMARY" = "" ]; then
         FEAT_SUMMARY="### New features\n"
