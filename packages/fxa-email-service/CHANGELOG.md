@@ -1,3 +1,26 @@
+## 1.127.0
+
+### New features
+
+* types: implement a serializable regex type (83d46ae)
+* code: update to rust 2018 (e77ea7a)
+
+### Bug fixes
+
+* scripts: ignore merge commits when generating changelog (489306b)
+* errors: convert ses invalid domain error into a 400 (5926a06)
+* db: remove unused DataType (d807e21)
+
+### Refactorings
+
+* settings: implement Default in enum_boilerplate! (a9c9a1b)
+* settings: promote LogFormat and LogLevel to enums (1ec10e9)
+
+### Other changes
+
+* docs: minor readme editorialisation (8c8e29a)
+* deps: update sendgrid (bf5486f)
+
 ## 1.126.0
 
 ### Refactorings
