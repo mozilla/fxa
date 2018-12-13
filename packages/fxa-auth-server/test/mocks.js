@@ -105,6 +105,7 @@ const MAILER_METHOD_NAMES = [
   'sendPasswordResetNotification',
   'sendPostAddTwoStepAuthNotification',
   'sendPostChangePrimaryEmail',
+  'sendPostNewRecoveryCodesNotification',
   'sendPostRemoveSecondaryEmail',
   'sendPostVerifyEmail',
   'sendPostRemoveTwoStepAuthNotification',
@@ -403,6 +404,9 @@ function mockDB (data, errors) {
         return P.reject(errors.verifyTokenCode)
       }
       return P.resolve({})
+    }),
+    replaceRecoveryCodes: sinon.spy(() => {
+      return P.resolve(['12312312', '12312312'])
     })
   })
 }

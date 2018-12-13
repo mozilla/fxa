@@ -971,9 +971,10 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
         const hasSessionToken = request.payload.sessionToken
         let wrapKb = request.payload.wrapKb
         const recoveryKeyId = request.payload.recoveryKeyId
-        let account, sessionToken, keyFetchToken, verifyHash, wrapWrapKb, password
+        let account, sessionToken, keyFetchToken, verifyHash, wrapWrapKb, password, hasTotpToken = false, tokenVerificationId
 
         return checkRecoveryKey()
+          .then(checkTotpToken)
           .then(resetAccountData)
           .then(recoveryKeyDeleteAndEmailNotification)
           .then(createSessionToken)
@@ -987,6 +988,13 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           }
 
           return P.resolve()
+        }
+
+        function checkTotpToken() {
+          return totpUtils.hasTotpToken({uid: accountResetToken.uid})
+            .then((result) => {
+              hasTotpToken = result
+            })
         }
 
         function resetAccountData () {
@@ -1092,29 +1100,40 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
               formFactor: uaFormFactor
             } = request.app.ua
 
-            // Since the only way to reach this point is clicking a
-            // link from the user's email, we create a verified sessionToken
-            const sessionTokenOptions = {
-              uid: account.uid,
-              email: account.primaryEmail.email,
-              emailCode: account.primaryEmail.emailCode,
-              emailVerified: account.primaryEmail.isVerified,
-              verifierSetAt: account.verifierSetAt,
-              uaBrowser,
-              uaBrowserVersion,
-              uaOS,
-              uaOSVersion,
-              uaDeviceType,
-              uaFormFactor
-            }
-
-            return db.createSessionToken(sessionTokenOptions)
-              .then(
-                function (result) {
-                  sessionToken = result
-                  return request.propagateMetricsContext(accountResetToken, sessionToken)
+            return Promise.resolve()
+              .then(() => {
+                // Since the only way to reach this point is clicking a
+                // link from the user's email, we create a verified sessionToken
+                // **unless** the user has a TOTP token.
+                if (! hasTotpToken) {
+                  return
                 }
-              )
+                return random.hex(16)
+              })
+              .then((randomHex) => {
+                tokenVerificationId = randomHex
+                const sessionTokenOptions = {
+                  uid: account.uid,
+                  email: account.primaryEmail.email,
+                  emailCode: account.primaryEmail.emailCode,
+                  emailVerified: account.primaryEmail.isVerified,
+                  verifierSetAt: account.verifierSetAt,
+                  mustVerify: !! tokenVerificationId,
+                  tokenVerificationId,
+                  uaBrowser,
+                  uaBrowserVersion,
+                  uaOS,
+                  uaOSVersion,
+                  uaDeviceType,
+                  uaFormFactor
+                }
+
+                return db.createSessionToken(sessionTokenOptions)
+                  .then(function (result) {
+                    sessionToken = result
+                    return request.propagateMetricsContext(accountResetToken, sessionToken)
+                  })
+              })
           }
         }
 
@@ -1129,7 +1148,8 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
               uid: account.uid,
               kA: account.kA,
               wrapKb: wrapKb,
-              emailVerified: account.primaryEmail.isVerified
+              emailVerified: account.primaryEmail.isVerified,
+              tokenVerificationId
             })
               .then(
                 function (result) {
@@ -1167,6 +1187,9 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           if (requestHelper.wantsKeys(request)) {
             response.keyFetchToken = keyFetchToken.data
           }
+
+          const verificationMethod = hasTotpToken ? 'totp-2fa' : undefined
+          Object.assign(response, signinUtils.getSessionVerificationStatus(sessionToken, verificationMethod))
 
           return response
         }
