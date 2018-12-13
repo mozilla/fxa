@@ -44,4 +44,6 @@ ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 
 USER app
 
+RUN node fxa-oauth-server/scripts/gen_keys.js
+
 COPY --from=builder --chown=app /app/ /app/
