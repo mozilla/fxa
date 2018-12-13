@@ -75,11 +75,11 @@ jobs:
     node_js: 8
     <<: *fxa-oauth-memory-test
     install:
-      - cd fxa-oauth-server && npm ci && cd ..
-    script: cd fxa-oauth-server && npm test
+      - npm ci
+    script: npm run test-oauth
   - stage:
     node_js: 8
     <<: *fxa-oauth-memory-test
     install:
-      - cd fxa-oauth-server && npm ci && cd ..
-    script: cd fxa-oauth-server && npm test
+      - npm ci
+    script: npm run test-oauth

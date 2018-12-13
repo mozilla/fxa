@@ -5,7 +5,7 @@
 const exec = require('child_process').exec;
 const path = require('path');
 
-const version = require('../../package.json').version;
+const version = require('../../../package.json').version;
 var commitHash, source;
 
 // See if config/version.json exists (part of rpm builds)

@@ -15,7 +15,7 @@ function checkVersionAndHeaders(path) {
   return function(done) {
     Server.get(path).then(function(res) {
       assert.equal(res.statusCode, 200);
-      assert.equal(res.result.version, require('../package.json').version);
+      assert.equal(res.result.version, require('../../package.json').version);
       assert.deepEqual(Object.keys(res.result), ['version', 'commit', 'source' ]);
       assert(res.result.source);
       assert(res.result.commit);

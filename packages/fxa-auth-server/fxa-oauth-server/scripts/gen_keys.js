@@ -25,8 +25,8 @@ const crypto = require('crypto');
 const generateRSAKeypair = require('keypair');
 const JwTool = require('fxa-jwtool');
 
-const keyPath = './config/key.json';
-const oldKeyPath = './config/oldKey.json';
+const keyPath = './fxa-oauth-server/config/key.json';
+const oldKeyPath = './fxa-oauth-server/config/oldKey.json';
 
 try {
   var keysExist = fs.existsSync(keyPath) && fs.existsSync(oldKeyPath);
@@ -57,7 +57,7 @@ function main(cb) {
   var kp = generateRSAKeypair();
   var privKey = JwTool.JWK.fromPEM(kp.private, makeKeyProperties(kp));
   try {
-    fs.mkdirSync('./config');
+    fs.mkdirSync('./fxa-oauth-server/config');
   } catch (accessEx) {
 
   }

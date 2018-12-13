@@ -2,7 +2,7 @@ FROM node:8-alpine AS builder
 
 RUN npm install -g npm@6 && rm -rf ~app/.npm /tmp/*
 
-RUN apk add --no-cache git && \
+RUN apk add --no-cache git linux-headers openssl && \
     apk add --repository http://dl-cdn.alpinelinux.org/alpine/v3.5/community/ --no-cache --virtual .build-deps git python make g++
 
 RUN addgroup -g 10001 app && \
@@ -18,7 +18,8 @@ USER app
 
 COPY npm-shrinkwrap.json npm-shrinkwrap.json
 COPY package.json package.json
-COPY scripts/gen_keys.js scripts/gen_keys.js
+COPY scripts/download_l10n.sh scripts/download_l10n.sh
+COPY fxa-oauth-server/scripts/gen_keys.js fxa-oauth-server/scripts/gen_keys.js
 
 RUN npm install --production && rm -rf ~app/.npm /tmp/*
 
@@ -30,7 +31,7 @@ FROM node:8-alpine
 
 RUN npm install -g npm@6 && rm -rf ~app/.npm /tmp/*
 
-RUN apk add --no-cache git
+RUN apk add --no-cache git make gcc g++ linux-headers openssl python
 
 RUN addgroup -g 10001 app && \
     adduser -D -G app -h /app -u 10001 app
