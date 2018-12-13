@@ -196,6 +196,29 @@ describe('remote totp', function () {
       })
   })
 
+  it('should not create verified session after account reset with totp', () => {
+    const newPassword = 'anotherPassword'
+    return Client.login(config.publicUrl, email, password)
+      .then((response) => {
+        client = response
+        assert.equal(response.verificationMethod, 'totp-2fa', 'verification method set')
+        assert.equal(response.verificationReason, 'login', 'verification reason set')
+
+        return client.forgotPassword()
+      })
+      .then(() => server.mailbox.waitForCode(email))
+      .then((code) => client.verifyPasswordResetCode(code))
+      .then(() => client.resetPassword(newPassword, {}, {keys: true}))
+      .then((res) => {
+        assert.equal(res.verificationMethod, 'totp-2fa', 'verificationMethod set')
+        assert.equal(res.verificationReason, 'login', 'verificationMethod set')
+        assert.equal(res.verified, false)
+        assert.ok(res.keyFetchToken)
+        assert.ok(res.sessionToken)
+        assert.ok(res.authAt)
+      })
+  })
+
   describe('totp code verification', () => {
     beforeEach(() => {
       // Create a new unverified session to test totp codes
