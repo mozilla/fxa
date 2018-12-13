@@ -18,7 +18,8 @@ const emailConfig = {
   html: '<p>html</p>',
   headers: {
     'x-header': 'yeah',
-    'x-numbers': 9999
+    'x-numbers': 9999,
+    'x-null-header': null
   }
 }
 
