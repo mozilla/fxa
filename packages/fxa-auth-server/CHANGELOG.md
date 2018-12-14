@@ -1,3 +1,13 @@
+<a name="1.126.3"></a>
+## [1.126.3](https://github.com/mozilla/fxa-auth-server/compare/v1.126.2...v1.126.3) (2018-12-14)
+
+
+### Bug Fixes
+
+* **totp:** fix account reset and totp ([3f73c68](https://github.com/mozilla/fxa-auth-server/commit/3f73c68))
+
+
+
 <a name="1.126.2"></a>
 ## [1.126.2](https://github.com/mozilla/fxa-auth-server/compare/v1.126.1...v1.126.2) (2018-11-29)
 
