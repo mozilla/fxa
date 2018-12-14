@@ -109,6 +109,7 @@ describe('/account/reset', function () {
     mockDB = mocks.mockDB({
       uid: uid,
       email: TEST_EMAIL,
+      emailVerified: true,
       keyFetchTokenId: keyFetchTokenId,
       sessionTokenId: sessionTokenId,
       wrapWrapKb: hexString(32)
@@ -219,6 +220,41 @@ describe('/account/reset', function () {
     })
   })
 
+  describe('reset account with totp', () => {
+    let res
+    beforeEach(() => {
+      mockDB.totpToken = sinon.spy(() => {
+        return P.resolve({
+          verified: true,
+          enabled: true
+        })
+      })
+      return runTest(route, mockRequest, (result) => res = result)
+    })
+
+    it('should return response', () => {
+      assert.ok(res.sessionToken, 'return sessionToken')
+      assert.ok(res.keyFetchToken, 'return keyFetchToken')
+      assert.equal(res.verified, false, 'return verified false')
+      assert.equal(res.verificationMethod, 'totp-2fa', 'verification method set')
+    })
+
+    it('should have created unverified sessionToken', () => {
+      assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called once')
+      const args = mockDB.createSessionToken.args[0]
+      assert.equal(args.length, 1, 'db.createSessionToken was passed one argument')
+      assert.ok(args[0].tokenVerificationId, 'tokenVerificationId is set')
+    })
+
+    it('should have created unverified keyFetchToken', () => {
+      assert.equal(mockDB.createKeyFetchToken.callCount, 1, 'db.createKeyFetchToken was called once')
+      const args = mockDB.createKeyFetchToken.args[0]
+      assert.equal(args.length, 1, 'db.createKeyFetchToken was passed one argument')
+      assert.ok(args[0].tokenVerificationId, 'tokenVerificationId is set')
+    })
+  })
+
+
   it('should reset account', () => {
     return runTest(route, mockRequest, function (res) {
       assert.equal(mockDB.resetAccount.callCount, 1)
@@ -266,6 +302,7 @@ describe('/account/reset', function () {
       assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called once')
       args = mockDB.createSessionToken.args[0]
       assert.equal(args.length, 1, 'db.createSessionToken was passed one argument')
+      assert.equal(args[0].tokenVerificationId, null, 'tokenVerificationId is not set')
       assert.equal(args[0].uaBrowser, 'Firefox', 'db.createSessionToken was passed correct browser')
       assert.equal(args[0].uaBrowserVersion, '57', 'db.createSessionToken was passed correct browser version')
       assert.equal(args[0].uaOS, 'Mac OS X', 'db.createSessionToken was passed correct os')
