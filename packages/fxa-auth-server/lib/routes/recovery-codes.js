@@ -46,7 +46,9 @@ module.exports = (log, db, config, customs, mailer) => {
           })
 
         function replaceRecoveryCodes() {
-          if (sessionToken.tokenVerificationId) {
+          // Since TOTP and recovery codes go hand in hand, you should only be
+          // able to replace recovery codes in a TOTP verified session.
+          if (! sessionToken.authenticatorAssuranceLevel || sessionToken.authenticatorAssuranceLevel <= 1) {
             throw errors.unverifiedSession()
           }
 
