@@ -20,7 +20,7 @@
  * */
 
 const config = require('../lib/config');
-const package = require('../package.json');
+const package = require('../../package.json');
 const program = require('commander');
 
 const DB_GET_LOCK_STRING = 'purge_expired_tokens.lock';
