@@ -13,6 +13,7 @@ const P = require('../../../lib/promise')
 
 let log, db, customs, routes, route, request, requestOptions, mailer
 const TEST_EMAIL = 'test@email.com'
+const UID = 'uid'
 
 function runTest(routePath, requestOptions) {
   const config = { recoveryCodes: {} }
@@ -30,7 +31,10 @@ describe('recovery codes', () => {
     log = mocks.mockLog()
     customs = mocks.mockCustoms()
     mailer = mocks.mockMailer()
-    db = mocks.mockDB()
+    db = mocks.mockDB({
+      uid: UID,
+      email: TEST_EMAIL
+    })
     requestOptions = {
       metricsContext: mocks.mockMetricsContext(),
       credentials: {
@@ -45,6 +49,34 @@ describe('recovery codes', () => {
         }
       }
     }
+  })
+
+  describe('/recoveryCodes', () => {
+    it('should replace recovery codes in TOTP session', () => {
+      requestOptions.credentials.authenticatorAssuranceLevel = 2
+      return runTest('/recoveryCodes', requestOptions)
+        .then((res) => {
+          assert.equal(res.recoveryCodes.length, 2, 'correct default code count')
+
+          assert.equal(db.replaceRecoveryCodes.callCount, 1)
+          let args = db.replaceRecoveryCodes.args[0]
+          assert.equal(args[0], UID, 'called with uid')
+          assert.equal(args[1], 8, 'called with recovery code count')
+
+          assert.equal(log.info.callCount, 1)
+          args = log.info.args[0][0]
+          assert.equal(args.op, 'account.recoveryCode.replaced')
+          assert.equal(args.uid, UID)
+        })
+    })
+
+    it('should\'t replace codes in non-TOTP verified session', () => {
+      requestOptions.credentials.authenticatorAssuranceLevel = 1
+      return runTest('/recoveryCodes', requestOptions)
+        .then(assert.fail, (err) => {
+          assert.equal(err.errno, error.ERRNO.SESSION_UNVERIFIED)
+        })
+    })
   })
 
   describe('/session/verify/recoveryCode', () => {
