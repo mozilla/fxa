@@ -1,3 +1,11 @@
+<a name="1.127.1"></a>
+## [1.127.1](https://github.com/mozilla/fxa-auth-server/compare/v1.126.3...v1.127.1) (2018-12-14)
+
+
+Merge v1.126.3 into train-127
+
+
+
 <a name="1.127.0"></a>
 # [1.127.0](https://github.com/mozilla/fxa-auth-server/compare/v1.126.2...v1.127.0) (2018-12-11)
 
