@@ -273,6 +273,8 @@ for `code` and `errno` are:
   This email can not currently be used to login
 * `code: 400, errno: 150`:
   Can not resend email code to an email that does not belong to this account
+* `code: 500, errno: 151`:
+  Failed to send email
 * `code: 422, errno: 151`:
   Failed to send email
 * `code: 400, errno: 152`:
@@ -301,6 +303,8 @@ for `code` and `errno` are:
   Feature not enabled
 * `code: 500, errno: 203`:
   A backend service request failed.
+* `code: 500, errno: 998`:
+  An internal validation check failed.
 * `code: 500, errno: 999`:
   Unspecified error
 
@@ -538,9 +542,6 @@ by the following errors
 * `code: 400, errno: 144`:
   Email already exists
 
-* `code: 422, errno: 151`:
-  Failed to send email
-
 
 #### POST /account/login
 <!--begin-route-post-accountlogin-->
@@ -717,6 +718,9 @@ by the following errors
 
 * `code: 400, errno: 160`:
   This request requires two step authentication enabled on your account.
+
+* `code: 422, errno: 151`:
+  Failed to send email
 
 
 #### GET /account/status
@@ -1875,9 +1879,6 @@ by the following errors
 
 * `code: 400, errno: 141`:
   Email already exists
-
-* `code: 422, errno: 151`:
-  Failed to send email
 
 
 #### POST /recovery_email/destroy
