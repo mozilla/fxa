@@ -75,6 +75,9 @@ var ERRNO = {
   TOTP_REQUIRED: 160,
   RECOVERY_KEY_EXISTS: 161,
 
+  UNKNOWN_CLIENT_ID: 162,
+  STALE_AUTH_AT: 164,
+
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
   BACKEND_SERVICE_FAILURE: 203,
@@ -737,19 +740,17 @@ AppError.cannotResendEmailCodeToUnownedEmail = function () {
 }
 
 AppError.cannotSendEmail = function (isNewAddress) {
-  let code, error
-
-  if (isNewAddress) {
-    code = 422
-    error = 'Unprocessable Entity'
-  } else {
-    code = 500
-    error = 'Internal Server Error'
+  if (! isNewAddress) {
+    return new AppError({
+      code: 500,
+      error: 'Internal Server Error',
+      errno: ERRNO.FAILED_TO_SEND_EMAIL,
+      message: 'Failed to send email'
+    })
   }
-
   return new AppError({
-    code,
-    error,
+    code: 422,
+    error: 'Unprocessable Entity',
     errno: ERRNO.FAILED_TO_SEND_EMAIL,
     message: 'Failed to send email'
   })
@@ -848,6 +849,28 @@ AppError.recoveryKeyExists = () => {
     error: 'Bad Request',
     errno: ERRNO.RECOVERY_KEY_EXISTS,
     message: 'Recovery key already exists.'
+  })
+}
+
+AppError.unknownClientId = (clientId) => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.UNKNOWN_CLIENT_ID,
+    message: 'Unknown client_id'
+  }, {
+    clientId
+  })
+}
+
+AppError.staleAuthAt = (authAt) => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.STALE_AUTH_AT,
+    message: 'Stale auth timestamp'
+  }, {
+    authAt
   })
 }
 

@@ -371,7 +371,8 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           error.incorrectPassword,
           error.cannotLoginWithSecondaryEmail,
           error.invalidUnblockCode,
-          error.cannotLoginWithEmail
+          error.cannotLoginWithEmail,
+          error.cannotSendEmail
         ]
       },
       options: {

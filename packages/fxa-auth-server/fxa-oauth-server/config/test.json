@@ -102,6 +102,7 @@
     }
   ],
   "allowHttpRedirects": true,
+  "authServerSecrets": ["meg@z0rd", "v0ltr0n"],
   "scopes": [
     {
       "scope": "https://identity.mozilla.com/apps/sample-scope",

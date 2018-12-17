@@ -20,6 +20,10 @@ const bouncesMock = {
   check: () => P.resolve()
 }
 
+const oauthdbMock = {
+  getClientInfo: () => P.reject('should not get called')
+}
+
 /**
  * Send an email to users listed in the file `userRecordFilename` using `mailerMethodName`
  * in batches of `batchSize` with `batchDelayMS` between batches.
@@ -98,7 +102,7 @@ function createSendDelegate (mailer, mailerMethodName) {
 async function createMailer (log, config, translator, shouldSend, emailOutputDirname) {
   const sender = shouldSend ? null : createSenderMock(emailOutputDirname)
 
-  return (await Senders(log, config, error, bouncesMock, translator, sender)).email
+  return (await Senders(log, config, error, bouncesMock, translator, oauthdbMock, sender)).email
 }
 
 function createSenderMock(emailOutputDirname) {

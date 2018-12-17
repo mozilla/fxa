@@ -11,16 +11,21 @@ module.exports = function (
   serverPublicKeys,
   signer,
   db,
+  oauthdb,
   mailer,
   smsImpl,
   Password,
   config,
   customs
   ) {
+  // Various extra helpers.
+  const push = require('../push')(log, db, config)
+  const pushbox = require('../pushbox')(log, config)
+  const devicesImpl = require('../devices')(log, db, push)
+  const signinUtils = require('./utils/signin')(log, config, customs, db, mailer)
+  // The routing modules themselves.
   const defaults = require('./defaults')(log, db)
   const idp = require('./idp')(log, serverPublicKeys)
-  const signinUtils = require('./utils/signin')(log, config, customs, db, mailer)
-  const push = require('../push')(log, db, config)
   const account = require('./account')(
     log,
     db,
@@ -31,8 +36,7 @@ module.exports = function (
     signinUtils,
     push
   )
-  const pushbox = require('../pushbox')(log, config)
-  const devicesImpl = require('../devices')(log, db, push)
+  const oauth = require('./oauth')(log, config)
   const devicesSessions = require('./devices-and-sessions')(log, db, config, customs, push, pushbox, devicesImpl)
   const emails = require('./emails')(log, db, mailer, config, customs, push)
   const password = require('./password')(
@@ -67,6 +71,7 @@ module.exports = function (
 
   const v1Routes = [].concat(
     account,
+    oauth,
     devicesSessions,
     emails,
     password,

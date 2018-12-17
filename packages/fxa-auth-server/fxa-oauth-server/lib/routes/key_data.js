@@ -9,17 +9,19 @@ const db = require('../db');
 const logger = require('../logging')('routes.key_data');
 const P = require('../promise');
 const validators = require('../validators');
-const verify = require('../browserid');
+const verifyAssertion = require('../assertion');
 const ScopeSet = require('fxa-shared').oauth.scopes;
-const config = require('../config');
-
-const AUTH_EXPIRES_AFTER_MS = config.get('expiration.keyDataAuth');
 
 /**
- * We're using a static value for key material on purpose, in future this value can read from the DB.
+ * We don't yet support rotating individual scoped keys,
+ * so for now we use a fixed buffer of zeros as the rotation secret.
+ * When we come to add fine-grained key rotation these values will
+ * need to be looked up dynamically from the db or config,
  * @type {String}
  */
-const KEY_ROTATION_SECRET = Buffer.alloc(32).toString('hex');
+
+const DEFAULT_KEY_ROTATION_SECRET = Buffer.alloc(32).toString('hex');
+const DEFAULT_KEY_ROTATION_TIMESTAMP = 0;
 
 module.exports = {
   validate: {
@@ -47,41 +49,47 @@ module.exports = {
     const requestedScopes = ScopeSet.fromString(req.payload.scope);
     const requestedClientId = req.payload.client_id;
 
-    return P.all([
-      verify(req.payload.assertion),
+    const [claims, scopes] = await P.all([
+      verifyAssertion(req.payload.assertion),
       db.getClient(Buffer.from(requestedClientId, 'hex')).then((client) => {
         if (client) {
           // find all requested scopes that are allowed for this client.
           const allowedScopes = ScopeSet.fromString(client.allowedScopes || '');
-          const scopeLookups = requestedScopes.filtered(allowedScopes).getScopeValues().map(s => db.getScope(s));
-          return P.all(scopeLookups).then((result) => {
-            return result.filter((s) => !! (s && s.hasScopedKeys));
+          const scopeLookups = requestedScopes.filtered(allowedScopes).getScopeValues().map(scope => db.getScope(scope));
+          return P.all(scopeLookups).then(scopeRecords => {
+            return scopeRecords.filter(scope => !! (scope && scope.hasScopedKeys))
+              .map(scope => {
+                // When we implement key rotation these values will come from the db.
+                // For now all scoped keys have the default values.
+                scope.keyRotationSecret = DEFAULT_KEY_ROTATION_SECRET;
+                scope.keyRotationTimestamp = DEFAULT_KEY_ROTATION_TIMESTAMP;
+                return scope;
+              });
           });
         } else {
           logger.debug('keyDataRoute.clientNotFound', { id: req.payload.client_id });
           throw AppError.unknownClient(requestedClientId);
         }
       })
-    ]).then((results => {
-      logger.debug('keyDataRoute.results', JSON.stringify(results));
-      const assertionData = results[0];
-      const scopeResults = results[1];
-      const response = {};
+    ]);
 
-      if (assertionData['fxa-lastAuthAt'] < (Date.now() - AUTH_EXPIRES_AFTER_MS) / 1000) {
-        throw AppError.staleAuthAt(assertionData['fxa-lastAuthAt']);
+    const iat = claims.iat || claims['fxa-lastAuthAt'];
+    const response = {};
+    scopes.forEach((keyScope) => {
+      const keyRotationTimestamp = Math.max(claims['fxa-generation'], keyScope.keyRotationTimestamp);
+      // If the assertion certificate was issued prior to a key-rotation event,
+      // we don't want to revel the new secrets to such stale assertions,
+      // even if they are technically still valid.
+      if (iat < (keyRotationTimestamp / 1000)) {
+        throw AppError.staleAuthAt(iat);
       }
+      response[keyScope.scope] = {
+        identifier: keyScope.scope,
+        keyRotationSecret: keyScope.keyRotationSecret,
+        keyRotationTimestamp
+      };
+    });
 
-      scopeResults.forEach((keyScope) => {
-        response[keyScope.scope] = {
-          identifier: keyScope.scope,
-          keyRotationSecret: KEY_ROTATION_SECRET,
-          keyRotationTimestamp: assertionData['fxa-generation']
-        };
-      });
-
-      return response;
-    }));
-
+    return response;
   }
 };

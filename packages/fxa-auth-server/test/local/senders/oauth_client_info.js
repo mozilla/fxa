@@ -7,8 +7,8 @@
 const ROOT_DIR = '../../..'
 
 const { assert } = require('chai')
-const proxyquire = require('proxyquire')
 const sinon = require('sinon')
+const P = require('../../../lib/promise')
 
 const FIREFOX_CLIENT = {
   name: 'Firefox'
@@ -23,6 +23,7 @@ describe('lib/senders/oauth_client_info:', () => {
     let clientInfo
     let fetch
     let mockLog
+    let mockOAuthDB
     const mockConfig = {
       oauth: {
         url: 'http://localhost:9010',
@@ -37,7 +38,8 @@ describe('lib/senders/oauth_client_info:', () => {
         critical: sinon.spy(),
         warn: sinon.spy()
       }
-      clientInfo = require(`${ROOT_DIR}/lib/senders/oauth_client_info`)(mockLog, mockConfig)
+      mockOAuthDB = {}
+      clientInfo = require(`${ROOT_DIR}/lib/senders/oauth_client_info`)(mockLog, mockConfig, mockOAuthDB)
       fetch = clientInfo.fetch
     })
 
@@ -58,14 +60,9 @@ describe('lib/senders/oauth_client_info:', () => {
     })
 
     it('falls back to Firefox if error', () => {
-      const mocks = {
-        'request': function (options, cb) {
-          cb(new Error('Request failed'))
-        }
-      }
-
-      fetch = proxyquire(`${ROOT_DIR}/lib/senders/oauth_client_info`, mocks)(mockLog, mockConfig).fetch
-
+      mockOAuthDB.getClientInfo = sinon.spy(async () => {
+        throw new Error('Request failed')
+      })
       return fetch('24bdbfa45cd300c5').then((res) => {
         assert.deepEqual(res, FIREFOX_CLIENT)
         assert.ok(mockLog.critical.calledOnce, 'called critical log')
@@ -73,19 +70,13 @@ describe('lib/senders/oauth_client_info:', () => {
     })
 
     it('falls back to Firefox if non-200 response', () => {
-      const mocks = {
-        'request': function (options, cb) {
-          cb(null, {
-            statusCode: 400
-          }, {
-            code: 400,
-            errno: 109
-          })
-        }
-      }
-
-      fetch = proxyquire(`${ROOT_DIR}/lib/senders/oauth_client_info`, mocks)(mockLog, mockConfig).fetch
-
+      mockOAuthDB.getClientInfo = sinon.spy(async () => {
+        throw Object.assign(new Error(), {
+          statusCode: 400,
+          code: 400,
+          errno: 109
+        })
+      })
       return fetch('f00bdbfa45cd300c5').then((res) => {
         assert.deepEqual(res, FIREFOX_CLIENT)
         assert.ok(mockLog.warn.calledOnce, 'called warn log')
@@ -93,33 +84,23 @@ describe('lib/senders/oauth_client_info:', () => {
     })
 
     it('fetches and memory caches client information', () => {
-      const requestMock = sinon.spy(function (options, cb) {
-        assert.equal(options.url, 'http://localhost:9010/v1/client/24bdbfa45cd300c5')
-        assert.equal(options.method, 'GET')
-        assert.equal(options.json, true)
-        cb(null, {
-          statusCode: 200
-        }, OAUTH_CLIENT)
+      mockOAuthDB.getClientInfo = sinon.spy(async (clientId) => {
+        assert.equal(clientId, '24bdbfa45cd300c5')
+        return OAUTH_CLIENT
       })
-      const mocks = {
-        'request': requestMock
-      }
-
-      fetch = proxyquire(`${ROOT_DIR}/lib/senders/oauth_client_info`, mocks)(mockLog, mockConfig).fetch
-
       return fetch('24bdbfa45cd300c5').then((res) => {
         assert.deepEqual(res, OAUTH_CLIENT)
         assert.equal(mockLog.trace.getCall(0).args[0].op, 'fetch.start')
         assert.equal(mockLog.trace.getCall(1).args[0].op, 'fetch.usedServer')
         assert.equal(mockLog.trace.getCall(2), null)
-        assert.ok(requestMock.calledOnce)
+        assert.ok(mockOAuthDB.getClientInfo.calledOnce)
 
         // second call is cached
         return fetch('24bdbfa45cd300c5')
       }).then((res) => {
         assert.equal(mockLog.trace.getCall(2).args[0].op, 'fetch.start')
         assert.equal(mockLog.trace.getCall(3).args[0].op, 'fetch.usedCache')
-        assert.ok(requestMock.calledOnce)
+        assert.ok(mockOAuthDB.getClientInfo.calledOnce)
         assert.deepEqual(res, OAUTH_CLIENT)
       })
 
@@ -127,50 +108,21 @@ describe('lib/senders/oauth_client_info:', () => {
 
 
     it('memory cache expires', () => {
-      const requestMock = sinon.spy(function (options, cb) {
-        cb(null, {
-          statusCode: 200
-        }, OAUTH_CLIENT)
+      mockOAuthDB.getClientInfo = sinon.spy(async (clientId) => {
+        return OAUTH_CLIENT
       })
-      const mocks = {
-        'request': requestMock
-      }
-
-      fetch = proxyquire(`${ROOT_DIR}/lib/senders/oauth_client_info`, mocks)(mockLog, mockConfig).fetch
-
-      return fetch('24bdbfa45cd300c5').delay(15).then((res) => {
+      return P.delay(15, fetch('24bdbfa45cd300c5')).then((res) => {
         assert.deepEqual(res, OAUTH_CLIENT)
         assert.equal(mockLog.trace.getCall(1).args[0].op, 'fetch.usedServer')
-        assert.ok(requestMock.calledOnce)
+        assert.ok(mockOAuthDB.getClientInfo.calledOnce)
 
         // second call uses server, cache expired
         return fetch('24bdbfa45cd300c5')
       }).then((res) => {
         assert.equal(mockLog.trace.getCall(3).args[0].op, 'fetch.usedServer')
-        assert.ok(requestMock.calledTwice)
+        assert.ok(mockOAuthDB.getClientInfo.calledTwice)
         assert.deepEqual(res, OAUTH_CLIENT)
       })
-    })
-
-    it('rejects invalid client names', () => {
-      const requestMock = sinon.spy(function (options, cb) {
-        cb(null, {
-          statusCode: 200
-        }, {
-          name: Array(512).fill('a').join('')
-        })
-      })
-      const mocks = {
-        'request': requestMock
-      }
-
-      fetch = proxyquire(`${ROOT_DIR}/lib/senders/oauth_client_info`, mocks)(mockLog, mockConfig).fetch
-
-      return fetch('24bdbfa45cd300c5').then((res) => {
-        assert.deepEqual(res, FIREFOX_CLIENT)
-        assert.ok(requestMock.calledOnce)
-      })
-
     })
   })
 })

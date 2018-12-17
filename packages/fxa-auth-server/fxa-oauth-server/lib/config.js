@@ -29,6 +29,12 @@ const conf = convict({
     format: Boolean,
     default: false
   },
+  authServerSecrets: {
+    doc: 'Comma-separated list of secret keys for verifying server-to-server JWTs',
+    env: 'AUTH_SERVER_SECRETS',
+    format: Array,
+    default: []
+  },
   browserid: {
     issuer: {
       doc: 'We only accept assertions from this issuer',
@@ -135,12 +141,6 @@ const conf = convict({
       format: 'duration',
       default: '15 minutes',
       env: 'FXA_EXPIRATION_CODE'
-    },
-    keyDataAuth: {
-      doc: 'Key data can only be fetched if lastAuthAt is within this duration',
-      format: 'duration',
-      default: '1 hour',
-      env: 'FXA_EXPIRATION_KEY_DATA_AUTH'
     }
   },
   refreshToken: {

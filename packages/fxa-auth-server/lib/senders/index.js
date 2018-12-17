@@ -8,11 +8,11 @@ const createMailer = require('./email')
 const createSms = require('./sms')
 const P = require('../promise')
 
-module.exports = (log, config, error, bounces, translator, sender) => {
+module.exports = (log, config, error, bounces, translator, oauthdb, sender) => {
   const defaultLanguage = config.i18n.defaultLanguage
 
   function createSenders() {
-    const Mailer = createMailer(log, config)
+    const Mailer = createMailer(log, config, oauthdb)
     return require('./templates').init()
       .then(function (templates) {
         return {
