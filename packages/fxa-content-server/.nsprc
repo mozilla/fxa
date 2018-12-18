@@ -1,8 +1,10 @@
 {
   "comment_532": "532 is RegExp denial of service caused by convict. See https://github.com/mozilla/fxa-content-server/issues/6445 about updating convict",
   "comment_577": "577 is prototype pollution by lodash, caused by convict, grunt-usemin, grunt-z-schema.",
+  "comment_745": "745 is RegExp denial by grunt-remarkable.",
   "exceptions": [
     "https://npmjs.com/advisories/532",
-    "https://npmjs.com/advisories/577"
+    "https://npmjs.com/advisories/577",
+    "https://npmjs.com/advisories/745"
    ]
 }
