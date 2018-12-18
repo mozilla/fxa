@@ -387,7 +387,7 @@ particular user.
 - `ttl`: (optional) Seconds that this access_token should be valid.
 
   The default and maximum value is 2 weeks.
-- `grant_type`: Either `authorization_code`, `refresh_token`, or `urn:ietf:params:oauth:grant-type:jwt-bearer`.
+- `grant_type`: Either `authorization_code`, `refresh_token`.
   - If `authorization_code`:
     - `client_id`: The id returned from client registration.
     - `client_secret`: The secret returned from client registration.
@@ -401,9 +401,6 @@ particular user.
     - `scope`: (optional) A subset of scopes provided to this
       refresh_token originally, to receive an access_token with less
       permissions.
-  - If `urn:ietf:params:oauth:grant-type:jwt-bearer`:
-    - `assertion`: A signed JWT assertion. See [Service
-      Clients][] for more.
   - if client is type `publicClient:true` and `authorization_code`:
     - `code_verifier`: Required if using [PKCE](pkce.md).
 
@@ -671,5 +668,3 @@ A valid 200 response will return an empty JSON object.
 [key-data]: #post-v1post-keydata
 [client-tokens]: #get-v1client-tokens
 [client-tokens-delete]: #delete-v1client-tokensid
-
-[Service Clients]: ./service-clients.md

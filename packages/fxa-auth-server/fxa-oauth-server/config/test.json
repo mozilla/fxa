@@ -93,14 +93,6 @@
     "key": {},
     "oldKey": {}
   },
-  "serviceClients": [
-    {
-      "id": "d23dbf62b82eb04e",
-      "name": "Test Service Client",
-      "scope": "profile",
-      "jku": "http://127.0.0.1:9019/.well-known/public-keys"
-    }
-  ],
   "allowHttpRedirects": true,
   "authServerSecrets": ["meg@z0rd", "v0ltr0n"],
   "scopes": [

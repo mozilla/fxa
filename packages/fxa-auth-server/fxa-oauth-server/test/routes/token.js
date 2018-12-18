@@ -10,7 +10,6 @@ const CLIENT_SECRET = 'b93ef8a8f3e553a430d7e5b904c6132b2722633af9f03128029201d24
 const CLIENT_ID = '98e6508e88680e1b';
 const CODE = 'df6dcfe7bf6b54a65db5742cbcdce5c0a84a5da81a0bb6bdf5fc793eef041fc6';
 const PKCE_CODE_VERIFIER = 'au3dqDz2dOB0_vSikXCUf4S8Gc-37dL-F7sGxtxpR3R';
-const GRANT_JWT = 'urn:ietf:params:oauth:grant-type:jwt-bearer';
 
 function joiRequired(err, param) {
   assert.ok(err.isJoi);
@@ -144,52 +143,6 @@ describe('/token POST', function () {
         done();
       });
     });
-  });
-
-  describe('grant_type JWT', () => {
-    it('forbids client_id', (done) => {
-      v({
-        client_id: CLIENT_ID,
-        client_secret: CLIENT_SECRET,
-        code: CODE,
-        grant_type: GRANT_JWT,
-      }, (err) => {
-        joiNotAllowed(err, 'client_id');
-        done();
-      });
-    });
-
-    it('forbids client_secret', (done) => {
-      v({
-        client_secret: CLIENT_SECRET,
-        code: CODE,
-        grant_type: GRANT_JWT,
-      }, (err) => {
-        joiNotAllowed(err, 'client_secret');
-        done();
-      });
-    });
-
-    it('forbids code_verifier', (done) => {
-      v({
-        code_verifier: PKCE_CODE_VERIFIER,
-        grant_type: GRANT_JWT,
-      }, (err) => {
-        joiNotAllowed(err, 'code_verifier');
-        done();
-      });
-    });
-
-    it('forbids code', (done) => {
-      v({
-        code: CODE,
-        grant_type: GRANT_JWT,
-      }, (err) => {
-        joiNotAllowed(err, 'code');
-        done();
-      });
-    });
-
   });
 
 });
