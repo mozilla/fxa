@@ -98,7 +98,7 @@ const FUZZY_EVENTS = new Map([
     group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
     event: 'submit'
   } ],
-  [ /^screen\.([\w-]+)$/, {
+  [ /^screen\.(?:oauth\.)?([\w-]+)$/, {
     group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
     event: 'view'
   } ],
