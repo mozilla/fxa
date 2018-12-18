@@ -794,6 +794,46 @@ registerSuite('amplitude', {
       assert.equal(arg.event_type, 'fxa_reg - view');
     },
 
+    'screen.oauth.signin': () => {
+      amplitude({
+        time: 'a',
+        type: 'screen.oauth.signin'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd',
+        service: 'g',
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_login - view');
+      assert.equal(arg.event_properties.oauth_client_id, 'g');
+    },
+
+    'screen.signin.other_events': () => {
+      amplitude({
+        time: 'a',
+        type: 'screen.signin.other_events'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+
+      assert.equal(process.stderr.write.callCount, 0);
+    },
+
     'screen.settings': () => {
       amplitude({
         time: 'a',
