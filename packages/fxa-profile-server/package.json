@@ -53,7 +53,7 @@
     "mocha": "4.0.1",
     "mocha-text-cov": "0.1.1",
     "nock": "8.0.0",
-    "npmshrink": "1.0.1",
+    "npmshrink": "2.0.0",
     "nyc": "13.1.0",
     "pngparse": "2.0.1",
     "rimraf": "2.5.3",
