@@ -197,7 +197,6 @@ describe('views/ready', function () {
     it('shows `Create recovery key` if in recoveryKey `treatment`', () => {
       createView(VerificationReasons.PASSWORD_RESET);
       sinon.stub(view, 'isPasswordReset').callsFake(() => true);
-      sinon.stub(view, 'getRecoveryKeyExperimentGroup').callsFake(() => 'treatment');
 
       return view.render()
         .then(() => {

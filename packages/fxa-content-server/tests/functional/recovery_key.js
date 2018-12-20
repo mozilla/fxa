@@ -29,7 +29,6 @@ const {
   fillOutResetPassword,
   fillOutSignIn,
   fillOutSignUp,
-  noSuchElement,
   openPage,
   openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
@@ -45,16 +44,15 @@ registerSuite('Recovery key', {
 
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
-    const queryOptions = {query: {showAccountRecovery: true}};
     const remote = this.remote;
 
     return this.remote
-      .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER, queryOptions))
+      .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
       .then(fillOutSignUp(email, PASSWORD))
       .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
       .then(openVerificationLinkInSameTab(email, 0))
       .then(testElementExists(selectors.SETTINGS.HEADER))
-      .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER, queryOptions))
+      .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
 
       .then(click(selectors.RECOVERY_KEY.MENU_BUTTON))
       .then(testElementExists(selectors.RECOVERY_KEY.STATUS_DISABLED))
@@ -98,10 +96,8 @@ registerSuite('Recovery key', {
     },
 
     'can reset password with recovery key': function () {
-      const query = {showAccountRecovery: true};
       return this.remote
         .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER, {
-          query,
           webChannelResponses: {
             'fxaccounts:fxa_status': {capabilities: null, signedInUser: null}
           }
@@ -132,10 +128,8 @@ registerSuite('Recovery key', {
     },
 
     'can reset password when forgot recovery key': function () {
-      const query = {showAccountRecovery: true};
       return this.remote
         .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER, {
-          query,
           webChannelResponses: {
             'fxaccounts:fxa_status': {capabilities: null, signedInUser: null}
           }
@@ -163,10 +157,8 @@ registerSuite('Recovery key', {
     },
 
     'can not re-use recovery key': function () {
-      const query = {showAccountRecovery: true};
       return this.remote
         .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER, {
-          query,
           webChannelResponses: {
             'fxaccounts:fxa_status': {capabilities: null, signedInUser: null}
           }
@@ -193,51 +185,14 @@ registerSuite('Recovery key', {
   }
 });
 
-registerSuite('Recovery key - experiment', {
-  afterEach: function () {
-    return this.remote.then(clearBrowserState());
-  },
-
-  tests: {
-    'verified - control': function () {
-      email = TestHelpers.createEmail('sync{id}');
-      const queryOptions = {query: {forceExperiment: 'recoveryKey', forceExperimentGroup: 'control'}};
-
-      return this.remote
-        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER, queryOptions))
-        .then(fillOutSignUp(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-        .then(openVerificationLinkInSameTab(email, 0))
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-
-        .then(noSuchElement(selectors.RECOVERY_KEY.MENU_BUTTON));
-    },
-
-    'verified - treatment': function () {
-      email = TestHelpers.createEmail('sync{id}');
-      const queryOptions = {query: {forceExperiment: 'recoveryKey', forceExperimentGroup: 'treatment'}};
-
-      return this.remote
-        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER, queryOptions))
-        .then(fillOutSignUp(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-        .then(openVerificationLinkInSameTab(email, 0))
-        .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER, queryOptions))
-
-        .then(testElementExists(selectors.RECOVERY_KEY.MENU_BUTTON));
-    }
-  }
-});
-
 registerSuite('Recovery key - unverified session', {
   beforeEach: function () {
-    const queryOptions = {query: {showAccountRecovery: true}};
     email = TestHelpers.createEmail('sync{id}');
 
     return this.remote.then(createUser(email, PASSWORD, {preVerified: true}))
       // when an account is created, the original session is verified
       // re-login to destroy original session and created an unverified one
-      .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER, queryOptions))
+      .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
       .then(fillOutSignIn(email, PASSWORD))
 
       // unlock panel

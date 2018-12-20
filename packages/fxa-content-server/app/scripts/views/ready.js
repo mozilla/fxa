@@ -18,7 +18,6 @@ import PulseGraphicMixin from './mixins/pulse-graphic-mixin';
 import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/ready.mustache';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
-import RecoverykeyExperiment from './mixins/recovery-key-experiment-mixin';
 
 const t = msg => msg;
 
@@ -162,7 +161,6 @@ Cocktail.mixin(
   FlowEventsMixin,
   MarketingMixin({ marketingId: Constants.MARKETING_ID_SPRING_2015 }),
   PulseGraphicMixin,
-  RecoverykeyExperiment,
   ServiceMixin,
   VerificationReasonMixin
 );

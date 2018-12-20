@@ -12,7 +12,7 @@ define(function (require, exports, module) {
 
   describe('lib/experiments/grouping-rules/index', () => {
     it('EXPERIMENT_NAMES is exported', () => {
-      assert.lengthOf(ExperimentGroupingRules.EXPERIMENT_NAMES, 8);
+      assert.lengthOf(ExperimentGroupingRules.EXPERIMENT_NAMES, 7);
     });
 
     describe('choose', () => {
