@@ -69,7 +69,6 @@ registerSuite('settings change email', {
       .then(testElementTextEquals(selectors.EMAIL.ADDRESS_LABEL, secondaryEmail))
       .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
       .then(click(selectors.EMAIL.SET_PRIMARY_EMAIL_BUTTON))
-      .then(click(selectors.EMAIL.SET_PRIMARY_EMAIL_BUTTON))
       .then(visibleByQSA(selectors.EMAIL.SUCCESS));
   },
 
