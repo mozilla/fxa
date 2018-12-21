@@ -66,9 +66,9 @@ registerSuite('settings change email', {
       // set new primary email
       .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
       .then(click(selectors.EMAIL.MENU_BUTTON))
-      .sleep(5000)
       .then(testElementTextEquals(selectors.EMAIL.ADDRESS_LABEL, secondaryEmail))
       .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
+      .then(click(selectors.EMAIL.SET_PRIMARY_EMAIL_BUTTON))
       .then(click(selectors.EMAIL.SET_PRIMARY_EMAIL_BUTTON))
       .then(visibleByQSA(selectors.EMAIL.SUCCESS));
   },
