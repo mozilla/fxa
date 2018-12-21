@@ -916,7 +916,7 @@ module.exports = function (log, error) {
 
   // Update : emails
   // Values : uid = $1, email = $2
-  var SET_PRIMARY_EMAIL = 'CALL setPrimaryEmail_4(?, ?)'
+  var SET_PRIMARY_EMAIL = 'CALL setPrimaryEmail_5(?, ?)'
   MySql.prototype.setPrimaryEmail = function (uid, email) {
     return this.write(SET_PRIMARY_EMAIL, [uid, email])
       .then(() => {
@@ -925,10 +925,6 @@ module.exports = function (log, error) {
       .catch(err => {
         if (err.errno === error.duplicate().errno) {
           throw error.cannotSetUnownedPrimaryEmail()
-        }
-
-        if ( err.errno === ER_SIGNAL_NOT_FOUND ) {
-          throw error.cannotSetUnverifiedPrimaryEmail()
         }
 
         throw err
