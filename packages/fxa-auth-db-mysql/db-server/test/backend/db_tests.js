@@ -1960,20 +1960,6 @@ module.exports = function (config, DB) {
             assert.equal(err.errno, 148, 'correct errno set')
           })
       })
-
-      it('shouldn\'t set primary email to unverified email', () => {
-        const anotherEmail = createEmail({
-          uid: account.uid,
-          isVerified: false
-        })
-        return db.createEmail(account.uid, anotherEmail)
-          .then(() => {
-            return db.setPrimaryEmail(account.uid, anotherEmail.email)
-          })
-          .catch((err) => {
-            assert.equal(err.errno, 147, 'correct errno set')
-          })
-      })
     })
 
     describe('db.verifyTokenCode', () => {
