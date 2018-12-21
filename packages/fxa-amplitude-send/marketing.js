@@ -1,13 +1,13 @@
 'use strict'
 
+const async = require('async')
 const AutoDetectDecoderStream = require('autodetect-decoder-stream')
 const crypto = require('crypto')
 const csv = require('csv-parser')
+const { lookup } = require('lookup-dns-cache')
+const moment = require('moment-timezone')
 const Promise = require('bluebird')
 const request = require('request-promise')
-const moment = require('moment-timezone')
-const { lookup } = require('lookup-dns-cache')
-const async = require('async');
 
 const EVENT = /^mktg-([a-z]+-[a-z]+)$/
 
@@ -22,15 +22,15 @@ if (! HMAC_KEY || ! API_KEY) {
 }
 
 module.exports.processStream = function processStream (stream) {
-  let eventCount = 0, batch = [], error
+  let eventCount = 0
 
-  let cargo = async.cargo(async (tasks, callback) => {
+  const cargo = async.cargo(async (tasks, callback) => {
     await send(tasks)
     callback()
   }, MAX_EVENTS_PER_BATCH)
   cargo.concurrency = WORKERS
 
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     cargo.drain = () => {
       resolve(eventCount)
     }
@@ -51,7 +51,7 @@ module.exports.processStream = function processStream (stream) {
   async function send (localBatch) {
     const body = await sendBatch(localBatch)
 
-    if (body == "success") {
+    if (body === 'success') {
       eventCount += localBatch.length
     } else {
       console.log(body)
