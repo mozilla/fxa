@@ -8,7 +8,6 @@ import SettingsPanelMixin from '../../mixins/settings-panel-mixin';
 import Template from 'templates/settings/account_recovery/account_recovery.mustache';
 import showProgressIndicator from '../../decorators/progress_indicator';
 import LastCheckedTimeMixin from '../../mixins/last-checked-time-mixin';
-import RecoveryKeyExperimentMixin from '../../mixins/recovery-key-experiment-mixin';
 import UpgradeSessionMixin from '../../mixins/upgrade-session-mixin';
 
 const t = msg => msg;
@@ -42,28 +41,12 @@ const View = BaseView.extend({
     this.navigate('settings/account_recovery/confirm_revoke');
   },
 
-  _isPanelEnabled() {
-    if (this.broker.hasCapability('showAccountRecovery')) {
-      return true;
-    }
-
-    if (this.getRecoveryKeyExperimentGroup() === 'treatment') {
-      return true;
-    }
-
-    return false;
-  },
-
   initialize() {
     this.listenTo(this.model, 'change:hasRecoveryKey', this.render);
   },
 
   beforeRender() {
     const account = this.getSignedInAccount();
-    if (! this._isPanelEnabled()) {
-      return this.remove();
-    }
-
     return this.setupSessionGateIfRequired()
       .then(() => {
         return account.checkRecoveryKeyExists()
@@ -97,7 +80,6 @@ Cocktail.mixin(
   }),
   SettingsPanelMixin,
   LastCheckedTimeMixin,
-  RecoveryKeyExperimentMixin
 );
 
 module.exports = View;

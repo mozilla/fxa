@@ -121,8 +121,6 @@ define(function (require, exports, module) {
         this._isForceAuth = this._isForceAuthUrl();
         this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
 
-        this.setCapability('showAccountRecovery', !! this.getSearchParam('showAccountRecovery'));
-
         if (this.hasCapability('fxaStatus')) {
           return this._fetchFxaStatus();
         }
@@ -487,10 +485,6 @@ define(function (require, exports, module) {
        * on subsequent signin attempts rather than generating a new token each time?
        */
       reuseExistingSession: false,
-      /**
-       * Should account recovery be enabled.
-       */
-      showAccountRecovery: false,
       /**
        * Is signup supported? the fx_ios_v1 broker can disable it.
        */
