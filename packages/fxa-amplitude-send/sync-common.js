@@ -15,41 +15,33 @@ const s3 = require('s3')
 
 fs.unlinkAsync = Promise.promisify(fs.unlink)
 
-const DATE = /^(20[1-9][0-9])-([01][0-9])-([0-3][0-9])$/
-const PARQUET_FILE = /\.parquet$/i
 const PARQUET_BATCH_SIZE = 16384
 const AWS_ACCESS_KEY = process.env.FXA_AWS_ACCESS_KEY
 const AWS_SECRET_KEY = process.env.FXA_AWS_SECRET_KEY
-const AWS_S3_BUCKET = 'telemetry-parquet'
 const MAX_EVENTS_PER_BATCH = 10
 const API_KEY = process.env.FXA_AMPLITUDE_API_KEY
+const S3_PATH = /^s3:\/\/([\w.-]+)\/(.+)$/
 
 module.exports = { run, hash, getOs }
 
-function run (markerPath, s3Prefix, impl) {
+function run (dataPath, impl) {
   const { createEventCounts, createEvent } = impl
 
   assertFunction(createEventCounts)
   assertFunction(createEvent)
 
-  const { dateParts, localPath, reportOnly } = parseCommandLine(process.argv, markerPath)
-
   return Promise.resolve()
     .then(() => {
-      if (localPath) {
-        // HACK: Use a made-up submissionDate for local testing
-        const submissionDate = new Date()
-          .toJSON()
-          .split('T')[0]
-        return processData(readLocalData(localPath), submissionDate)
+      const parts = S3_PATH.exec(dataPath)
+      if (parts && parts.length === 3) {
+        return processDataFromS3(parts[1], parts[2])
       }
 
-      return processDataFromS3(`${dateParts[1]}${dateParts[2]}${dateParts[3]}`)
-        .then(({ dates, eventCounts }) => {
-          console.log('days:', dates.length, dates)
-          fs.writeFileSync(markerPath, dates[0])
-          return eventCounts
-        })
+      // HACK: Use a made-up submissionDate for local testing
+      const submissionDate = new Date()
+        .toJSON()
+        .split('T')[0]
+      return processData(readLocalData(dataPath), submissionDate)
     })
     .then(eventCounts => {
       let sum = 0
@@ -147,84 +139,37 @@ function run (markerPath, s3Prefix, impl) {
   }
 
   function sendBatch (batch) {
-    if (! reportOnly) {
-      return request('https://api.amplitude.com/httpapi', {
-        method: 'POST',
-        formData: {
-          api_key: API_KEY,
-          event: JSON.stringify(batch)
-        }
-      })
-    }
-  }
-
-  function processDataFromS3 (fromDate) {
-    const client = s3.createClient({
-      s3Options: {
-        accessKeyId: AWS_ACCESS_KEY,
-        secretKey: AWS_SECRET_KEY,
+    return request('https://api.amplitude.com/httpapi', {
+      method: 'POST',
+      formData: {
+        api_key: API_KEY,
+        event: JSON.stringify(batch)
       }
     })
-
-    return getKeysFromS3(client, fromDate)
-      .then(keys => processKeyFromS3(client, keys, 0))
   }
 
-  function getKeysFromS3 (client, fromDate) {
+  async function processDataFromS3 (bucket, key) {
+    const submissionDate = formatDate(key.split('=')[1].substr(0, 8))
+    const fileName = await downloadFileFromS3(bucket, key)
+    const data = readLocalData(fileName)
+    const [ eventCounts ] = await Promise.all([ processData(data, submissionDate), fs.unlinkAsync(fileName) ])
+    return eventCounts
+  }
+
+  function downloadFileFromS3 (bucket, key) {
     return new Promise((resolve, reject) => {
-      const keys = []
-      const emitter = client.listObjects({
-        s3Params: {
-          Bucket: AWS_S3_BUCKET,
-          Marker: `${s3Prefix}submission_date_s3=${fromDate}`,
-          Prefix: s3Prefix
-        }
-      })
-      emitter.on('error', error => reject(error))
-      emitter.on('data', data => data.Contents.forEach(datum => {
-        const key = datum.Key
-        if (PARQUET_FILE.test(key)) {
-          keys.push(key)
-        }
-      }))
-      emitter.on('end', () => resolve(keys))
-    })
-  }
-
-  function processKeyFromS3 (client, keys, index) {
-    if (index === keys.length) {
-      return Promise.resolve({ eventCounts: createEventCounts(), dates: [] })
-    }
-
-    const submissionDate = formatDate(keys[index].split('=')[1].substr(0, 8))
-
-    return downloadFileFromS3(client, keys, index)
-      .then(fileName => {
-        const data = readLocalData(fileName)
-        return Promise.all([ processData(data, submissionDate), fs.unlinkAsync(fileName) ])
-      })
-      .spread(eventCounts =>
-        processKeyFromS3(client, keys, index + 1)
-          .then(result => ({
-            eventCounts: Object.entries(eventCounts).reduce((sums, entry) => {
-              const [ key, eventCount ] = entry
-              sums[key] = eventCount + result.eventCounts[key]
-              return sums
-            }, createEventCounts()),
-            dates: result.dates.concat(submissionDate)
-          }))
-      )
-  }
-
-  function downloadFileFromS3 (client, keys, index) {
-    return new Promise((resolve, reject) => {
-      const key = keys[index]
       const fileName = path.resolve(`${key.split('=')[1].replace('/', '-')}`)
+      const client = s3.createClient({
+        s3Options: {
+          accessKeyId: AWS_ACCESS_KEY,
+          secretKey: AWS_SECRET_KEY,
+        }
+      })
       const emitter = client.downloadFile({
         localFile: fileName,
         s3Params: {
-          Bucket: AWS_S3_BUCKET,
-          Key: keys[index]
+          Bucket: bucket,
+          Key: key,
         }
       })
       emitter.on('error', error => reject(error))
@@ -235,44 +180,6 @@ function run (markerPath, s3Prefix, impl) {
 
 function assertFunction (argument) {
   assert.equal(typeof argument, 'function', 'Invalid argument `createEvent`')
-}
-
-function parseCommandLine (argv, markerPath) {
-  const argc = argv.length
-  if (! (argc >= 2 && argc <= 4)) {
-    console.error(`Usage: ${argv[1]} [YYYY-MM-DD | LOCAL PATH] [--report-only]`)
-    console.error('If specifying YYYY-MM-DD as the arg, note that the script will try to send events')
-    console.error('for all dates from YYYY-MM-DD to the most recent available in S3. If any dates in')
-    console.error('that range are missing, they will be skipped without failing the process.')
-    process.exit(1)
-  }
-
-  const reportOnly = argv[argc - 1] === '--report-only'
-  if (! reportOnly && ! API_KEY) {
-    console.error('Error: You must set the FXA_AMPLITUDE_API_KEY environment variable')
-    process.exit(1)
-  }
-
-  let localPath
-  const dateParts = getDateParts(argc, argv, reportOnly, markerPath)
-  if (dateParts && dateParts.length === 4) {
-    if (! AWS_ACCESS_KEY || ! AWS_SECRET_KEY) {
-      console.error('Error: You must set AWS_ACCESS_KEY and AWS_SECRET_KEY environment variables')
-      process.exit(1)
-    }
-  } else {
-    localPath = argv[2]
-  }
-
-  return { dateParts, localPath, reportOnly }
-}
-
-function getDateParts (argc, argv, reportOnly, markerPath) {
-  if (argc === 2 || (argc === 3 && reportOnly)) {
-    return DATE.exec(fs.readFileSync(markerPath, 'utf8').trim())
-  }
-
-  return DATE.exec(argv[2])
 }
 
 function formatDate (date) {

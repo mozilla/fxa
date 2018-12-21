@@ -5,18 +5,10 @@
 'use strict'
 
 const common = require('./sync-common')
-const path = require('path')
 
-const MARKER_PATH = path.resolve('.sync-summary-marker')
-const AWS_S3_PREFIX = 'sync_summary/v2/'
 const HMAC_KEY = process.env.SYNC_INSERTID_HMAC_KEY
 
-if (! HMAC_KEY) {
-  console.error('Error: You must set the SYNC_INSERTID_HMAC_KEY environment variable')
-  process.exit(1)
-}
-
-common.run(MARKER_PATH, AWS_S3_PREFIX, { createEventCounts, createEvent })
+module.exports.run = path => common.run(path, { createEventCounts, createEvent })
 
 function createEventCounts () {
   return {
