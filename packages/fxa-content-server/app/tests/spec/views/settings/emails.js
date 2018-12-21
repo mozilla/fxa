@@ -183,7 +183,7 @@ define(function (require, exports, module) {
           assert.equal(view.$('.email-address').length, 1);
           assert.lengthOf(view.$('.email-address .address'), 1);
           assert.equal(view.$('.email-address .address').html(), 'another@one.com');
-          assert.equal(view.$('.email-address .details .not-verified').length, 1);
+          assert.equal(view.$('.email-address .details.not-verified').length, 1);
           assert.equal(view.$('.email-address .settings-button.warning-button.email-disconnect').length, 1);
           assert.equal(view.$('.email-address .settings-button.warning-button.email-disconnect').attr('data-id'), 'another@one.com');
           assert.equal(view.$('.email-address .settings-button.secondary-button.set-primary').length, 0);
@@ -256,7 +256,7 @@ define(function (require, exports, module) {
           assert.equal(view.$('.email-address').length, 1);
           assert.lengthOf(view.$('.email-address .address'), 1);
           assert.equal(view.$('.email-address .address').html(), 'another@one.com');
-          assert.equal(view.$('.email-address .details .verified').length, 1);
+          assert.equal(view.$('.email-address .details.verified').length, 1);
           assert.equal(view.$('.email-address .settings-button.warning-button.email-disconnect').length, 1);
           assert.equal(view.$('.email-address .settings-button.warning-button.email-disconnect').attr('data-id'), 'another@one.com');
         });
@@ -303,7 +303,7 @@ define(function (require, exports, module) {
           assert.equal(view.$('.email-address').length, 1);
           assert.lengthOf(view.$('.email-address .address'), 1);
           assert.equal(view.$('.email-address .address').html(), 'secondary@email.com');
-          assert.equal(view.$('.email-address .details .verified').length, 1);
+          assert.equal(view.$('.email-address .details.verified').length, 1);
           assert.equal(view.$('.email-address .settings-button.warning-button.email-disconnect').length, 1);
           assert.equal(view.$('.email-address .settings-button.warning-button.email-disconnect').attr('data-id'), 'secondary@email.com');
           assert.equal(view.$('.email-address .settings-button.secondary-button.set-primary').length, 1);

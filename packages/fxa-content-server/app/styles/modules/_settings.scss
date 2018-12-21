@@ -604,6 +604,16 @@ section.modal-panel {
       @media screen and (max-width: 400px) {
         width: 100%;
       }
+
+      &.verified {
+        @media screen and (min-width: 400px) {
+          // There are two buttons when the email
+          // is verified, the extra button width
+          // needs to be taken into account.
+          // See #6751
+          width: calc(95% - 195px);
+        }
+      }
     }
 
     .settings-button-group {
@@ -688,19 +698,24 @@ section.modal-panel {
   white-space: nowrap;
   width: calc(95% - 95px);
 
-  & .not-verified {
+  &.not-verified {
     color: $color-red;
   }
 
-  & .verified {
+  &.verified {
     color: $color-green;
+    // There are two buttons when the email
+    // is verified, the extra button width
+    // needs to be taken into account.
+    // See #6751
+    width: calc(95% - 195px);
   }
 
-  & .disabled {
+  > .disabled {
     color: $color-red;
   }
 
-  & .enabled {
+  > .enabled {
     color: $color-green;
   }
 }
