@@ -15,7 +15,6 @@
 'use strict';
 
 const { GROUPS, initialize } = require('fxa-shared/metrics/amplitude');
-const geolocate = require('./geo-locate');
 const ua = require('./user-agent');
 
 const SERVICES = require('./configuration').get('oauth_client_id_map');
@@ -129,7 +128,6 @@ function receiveEvent (event, request, data) {
     return;
   }
 
-  const location = geolocate(request);
   const userAgent = ua.parse(request.headers['user-agent']);
 
   const amplitudeEvent = transform(
@@ -140,7 +138,7 @@ function receiveEvent (event, request, data) {
       mapBrowser(userAgent),
       mapOs(userAgent),
       mapFormFactor(userAgent),
-      mapLocation(location)
+      mapLocation(data.location)
     )
   );
 
