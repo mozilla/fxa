@@ -100,7 +100,7 @@
   position: relative;
 
   .sms-send {
-    border-radius: 0 $small-border-radius $small-border-radius 0;
+    border-radius: 0 $inner-button-border-radius $inner-button-border-radius 0;
     height: $input-height - 2px;
     min-width: 55px;
     padding: 0 7px;
@@ -115,13 +115,13 @@
     }
 
     html[dir='rtl'] & {
-      border-radius: $small-border-radius 0 0 $small-border-radius;
+      border-radius: $inner-button-border-radius 0 0 $inner-button-border-radius;
       border-right: 1px solid $input-border-color-default;
       left: 1px;
     }
 
     @include respond-to('small') {
-      border-radius: 0;
+      border-radius: 0 $inner-button-border-radius $inner-button-border-radius 0;
       height: 38px;
       line-height: 38px;
     }
