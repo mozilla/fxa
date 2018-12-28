@@ -500,7 +500,9 @@ describe('sendSigninNotifications', () => {
 
       assert.calledOnce(log.activityEvent)
       assert.calledWithExactly(log.activityEvent, {
+        country: 'United States',
         event: 'account.login',
+        region: 'California',
         service: 'testservice',
         userAgent: 'test user-agent',
         uid: TEST_UID

@@ -156,8 +156,11 @@ module.exports = (log, config) => {
   }
 
   function emitActivityEvent (event, request, data) {
+    const { location } = request.app.geo
     data = Object.assign({
+      country: location && location.country,
       event,
+      region: location && location.state,
       userAgent: request.headers['user-agent']
     }, data)
 
@@ -172,9 +175,12 @@ module.exports = (log, config) => {
       return P.resolve()
     }
 
+    const { location } = request.app.geo
     return request.gatherMetricsContext({
+      country: location && location.country,
       event: event,
       locale: request.app && request.app.locale,
+      region: location && location.state,
       userAgent: request.headers['user-agent']
     }).then(data => {
       if (data.flow_id) {

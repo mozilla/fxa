@@ -487,8 +487,10 @@ describe('/recovery_email/verify_code', function () {
         args = mockLog.activityEvent.args[0]
         assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
         assert.deepEqual(args[0], {
+          country: 'United States',
           event: 'account.verified',
           marketingOptIn: false,
+          region: 'California',
           service: 'sync',
           uid: uid.toString('hex'),
           userAgent: 'test user-agent'
@@ -632,7 +634,9 @@ describe('/recovery_email/verify_code', function () {
         var args = mockLog.activityEvent.args[0]
         assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
         assert.deepEqual(args[0], {
+          country: 'United States',
           event: 'account.confirmed',
+          region: 'California',
           service: 'sync',
           userAgent: 'test user-agent',
           uid: uid.toString('hex')

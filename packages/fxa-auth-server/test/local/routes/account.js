@@ -196,7 +196,9 @@ describe('/account/reset', function () {
       const args = mockLog.activityEvent.args[0]
       assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
       assert.deepEqual(args[0], {
+        country: 'United States',
         event: 'account.reset',
+        region: 'California',
         service: undefined,
         userAgent: 'test user-agent',
         uid: uid
@@ -270,7 +272,9 @@ describe('/account/reset', function () {
       var args = mockLog.activityEvent.args[0]
       assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
       assert.deepEqual(args[0], {
+        country: 'United States',
         event: 'account.reset',
+        region: 'California',
         service: undefined,
         userAgent: 'test user-agent',
         uid: uid
@@ -471,7 +475,9 @@ describe('/account/create', () => {
       args = mockLog.activityEvent.args[0]
       assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
       assert.deepEqual(args[0], {
+        country: 'United States',
         event: 'account.created',
+        region: 'California',
         service: 'sync',
         userAgent: 'test user-agent',
         uid: uid
@@ -481,6 +487,7 @@ describe('/account/create', () => {
       args = mockLog.flowEvent.args[0]
       assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
       assert.deepEqual(args[0], {
+        country: 'United States',
         event: 'account.created',
         flowBeginTime: mockRequest.payload.metricsContext.flowBeginTime,
         flowCompleteSignal: 'account.signed',
@@ -488,6 +495,7 @@ describe('/account/create', () => {
         flow_time: now - mockRequest.payload.metricsContext.flowBeginTime,
         flow_id: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
         locale: 'en-GB',
+        region: 'California',
         time: now,
         uid: uid,
         userAgent: 'test user-agent',
@@ -768,7 +776,9 @@ describe('/account/login', function () {
       args = mockLog.activityEvent.args[0]
       assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
       assert.deepEqual(args[0], {
+        country: 'United States',
         event: 'account.login',
+        region: 'California',
         service: 'sync',
         userAgent: 'test user-agent',
         uid: uid
@@ -778,6 +788,7 @@ describe('/account/login', function () {
       args = mockLog.flowEvent.args[0]
       assert.equal(args.length, 1, 'log.flowEvent was passed one argument first time')
       assert.deepEqual(args[0], {
+        country: 'United States',
         event: 'account.login',
         flow_time: now - mockRequest.payload.metricsContext.flowBeginTime,
         flow_id: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
@@ -785,6 +796,7 @@ describe('/account/login', function () {
         flowCompleteSignal: 'account.signed',
         flowType: undefined,
         locale: 'en-US',
+        region: 'California',
         time: now,
         uid: uid,
         userAgent: 'test user-agent'
@@ -792,6 +804,7 @@ describe('/account/login', function () {
       args = mockLog.flowEvent.args[1]
       assert.equal(args.length, 1, 'log.flowEvent was passed one argument second time')
       assert.deepEqual(args[0], {
+        country: 'United States',
         event: 'email.confirmation.sent',
         flow_time: now - mockRequest.payload.metricsContext.flowBeginTime,
         flow_id: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
@@ -799,6 +812,7 @@ describe('/account/login', function () {
         flowCompleteSignal: 'account.signed',
         flowType: undefined,
         locale: 'en-US',
+        region: 'California',
         time: now,
         userAgent: 'test user-agent'
       }, 'second flow event was correct')
@@ -1486,7 +1500,9 @@ describe('/account/keys', function () {
       args = mockLog.activityEvent.args[0]
       assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
       assert.deepEqual(args[0], {
+        country: 'United States',
         event: 'account.keyfetch',
+        region: 'California',
         service: undefined,
         userAgent: 'test user-agent',
         uid: uid
@@ -1576,7 +1592,9 @@ describe('/account/destroy', function () {
       args = mockLog.activityEvent.args[0]
       assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
       assert.deepEqual(args[0], {
+        country: 'United States',
         event: 'account.deleted',
+        region: 'California',
         service: undefined,
         userAgent: 'test user-agent',
         uid: uid
