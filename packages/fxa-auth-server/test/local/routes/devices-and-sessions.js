@@ -381,7 +381,9 @@ describe('/account/devices/notify', function () {
         args = mockLog.activityEvent.args[0]
         assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
         assert.deepEqual(args[0], {
+          country: 'United States',
           event: 'sync.sentTabToDevice',
+          region: 'California',
           service: 'sync',
           userAgent: 'test user-agent',
           uid: uid.toString('hex'),
@@ -870,7 +872,9 @@ describe('/account/device/destroy', function () {
       var args = mockLog.activityEvent.args[0]
       assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
       assert.deepEqual(args[0], {
+        country: 'United States',
         event: 'device.deleted',
+        region: 'California',
         service: undefined,
         userAgent: 'test user-agent',
         uid: uid.toString('hex'),

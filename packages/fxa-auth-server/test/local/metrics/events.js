@@ -84,7 +84,9 @@ describe('metrics/events', () => {
         let args = log.activityEvent.args[0]
         assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
         assert.deepEqual(args[0], {
+          country: 'United States',
           event: 'device.created',
+          region: 'California',
           userAgent: 'foo',
           service: 'bar',
           uid: 'baz'
@@ -116,7 +118,9 @@ describe('metrics/events', () => {
         const args = log.activityEvent.args[0]
         assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
         assert.deepEqual(args[0], {
+          country: 'United States',
           event: 'device.created',
+          region: 'California',
           userAgent: 'test user-agent',
           service: 'bar'
         }, 'argument was event data')
@@ -139,7 +143,9 @@ describe('metrics/events', () => {
         const args = log.activityEvent.args[0]
         assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
         assert.deepEqual(args[0], {
+          country: 'United States',
           event: 'device.created',
+          region: 'California',
           service: undefined,
           userAgent: 'test user-agent'
         }, 'argument was event data')
@@ -189,6 +195,7 @@ describe('metrics/events', () => {
         args = log.flowEvent.args[0]
         assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
         assert.deepEqual(args[0], {
+          country: 'United States',
           event: 'email.verification.sent',
           flow_id: 'bar',
           flow_time: 1000,
@@ -196,6 +203,7 @@ describe('metrics/events', () => {
           flowCompleteSignal: 'account.signed',
           flowType: undefined,
           locale: 'en-US',
+          region: 'California',
           time,
           uid: 'deadbeef',
           userAgent: 'test user-agent',
@@ -222,7 +230,12 @@ describe('metrics/events', () => {
     const request = {
       app: {
         devices: P.resolve(),
-        geo: {},
+        geo: {
+          location: {
+            country: 'United Kingdom',
+            state: 'Dorset'
+          }
+        },
         locale: 'en',
         ua: {}
       },
@@ -249,6 +262,7 @@ describe('metrics/events', () => {
         const args = log.flowEvent.args[0]
         assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
         assert.deepEqual(args[0], {
+          country: 'United Kingdom',
           event: 'email.verification.sent',
           flow_id: 'bar',
           flow_time: 1000,
@@ -256,6 +270,7 @@ describe('metrics/events', () => {
           flowCompleteSignal: 'account.signed',
           flowType: undefined,
           locale: 'en',
+          region: 'Dorset',
           time,
           userAgent: 'foo'
         }, 'argument was event data')
@@ -295,6 +310,7 @@ describe('metrics/events', () => {
         const args = log.flowEvent.args[0]
         assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
         assert.deepEqual(args[0], {
+          country: 'United States',
           event: 'email.verification.sent',
           flow_id: 'bar',
           flow_time: 1000,
@@ -302,6 +318,7 @@ describe('metrics/events', () => {
           flowCompleteSignal: 'account.signed',
           flowType: undefined,
           locale: 'en-US',
+          region: 'California',
           time,
           uid: 'deadbeef',
           userAgent: 'test user-agent'
@@ -342,6 +359,7 @@ describe('metrics/events', () => {
         const args = log.flowEvent.args[0]
         assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
         assert.deepEqual(args[0], {
+          country: 'United States',
           event: 'email.verification.sent',
           flow_id: 'bar',
           flow_time: 1000,
@@ -349,6 +367,7 @@ describe('metrics/events', () => {
           flowCompleteSignal: 'account.signed',
           flowType: undefined,
           locale: 'en-US',
+          region: 'California',
           time,
           uid: 'deadbeef',
           userAgent: 'test user-agent'
@@ -389,6 +408,7 @@ describe('metrics/events', () => {
         const args = log.flowEvent.args[0]
         assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
         assert.deepEqual(args[0], {
+          country: 'United States',
           event: 'email.verification.sent',
           flow_id: 'bar',
           flow_time: 1000,
@@ -396,6 +416,7 @@ describe('metrics/events', () => {
           flowCompleteSignal: 'account.signed',
           flowType: undefined,
           locale: 'en-US',
+          region: 'California',
           time,
           userAgent: 'test user-agent'
         }, 'argument was event data')
@@ -435,6 +456,7 @@ describe('metrics/events', () => {
 
         assert.equal(log.flowEvent.callCount, 2, 'log.flowEvent was called twice')
         assert.deepEqual(log.flowEvent.args[0][0], {
+          country: 'United States',
           event: 'email.verification.sent',
           flow_id: 'bar',
           flow_time: 2000,
@@ -442,11 +464,13 @@ describe('metrics/events', () => {
           flowCompleteSignal: 'email.verification.sent',
           flowType: 'registration',
           locale: 'fr',
+          region: 'California',
           time,
           uid: 'qux',
           userAgent: 'test user-agent'
         }, 'argument was event data first time')
         assert.deepEqual(log.flowEvent.args[1][0], {
+          country: 'United States',
           event: 'flow.complete',
           flow_id: 'bar',
           flow_time: 2000,
@@ -454,6 +478,7 @@ describe('metrics/events', () => {
           flowCompleteSignal: 'email.verification.sent',
           flowType: 'registration',
           locale: 'fr',
+          region: 'California',
           time,
           uid: 'qux',
           userAgent: 'test user-agent'
@@ -562,7 +587,9 @@ describe('metrics/events', () => {
       .then(() => {
         assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once')
         assert.deepEqual(log.activityEvent.args[0][0], {
+          country: 'United States',
           event: 'account.keyfetch',
+          region: 'California',
           userAgent: 'test user-agent',
           service: undefined,
           uid: 'baz'
@@ -572,6 +599,7 @@ describe('metrics/events', () => {
 
         assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once')
         assert.deepEqual(log.flowEvent.args[0][0], {
+          country: 'United States',
           time,
           event: 'account.keyfetch',
           flow_id: 'bar',
@@ -580,6 +608,7 @@ describe('metrics/events', () => {
           flowCompleteSignal: undefined,
           flowType: undefined,
           locale: 'en-US',
+          region: 'California',
           uid: 'baz',
           userAgent: 'test user-agent'
         }, 'flow event data was correct')
@@ -721,6 +750,7 @@ describe('metrics/events', () => {
         let args = log.flowEvent.args[0]
         assert.equal(args.length, 1, 'log.flowEvent was passed one argument first time')
         assert.deepEqual(args[0], {
+          country: 'United States',
           event: 'route./account/create.200',
           flow_id: 'bar',
           flow_time: 1000,
@@ -728,6 +758,7 @@ describe('metrics/events', () => {
           flowCompleteSignal: undefined,
           flowType: undefined,
           locale: 'en-US',
+          region: 'California',
           time,
           userAgent: 'test user-agent'
         }, 'argument was route summary event data')
@@ -735,6 +766,7 @@ describe('metrics/events', () => {
         args = log.flowEvent.args[1]
         assert.equal(args.length, 1, 'log.flowEvent was passed one argument second time')
         assert.deepEqual(args[0], {
+          country: 'United States',
           event: 'route.performance./account/create',
           flow_id: 'bar',
           flow_time: 42,
@@ -742,6 +774,7 @@ describe('metrics/events', () => {
           flowCompleteSignal: undefined,
           flowType: undefined,
           locale: 'en-US',
+          region: 'California',
           time,
           userAgent: 'test user-agent'
         }, 'argument was performance event data')
@@ -778,6 +811,7 @@ describe('metrics/events', () => {
 
         assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once')
         assert.deepEqual(log.flowEvent.args[0][0], {
+          country: 'United States',
           event: 'route./account/login.399',
           flow_id: 'bar',
           flow_time: 1000,
@@ -785,6 +819,7 @@ describe('metrics/events', () => {
           flowCompleteSignal: undefined,
           flowType: undefined,
           locale: 'en-US',
+          region: 'California',
           time,
           userAgent: 'test user-agent'
         }, 'argument was event data')
@@ -821,6 +856,7 @@ describe('metrics/events', () => {
 
         assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once')
         assert.deepEqual(log.flowEvent.args[0][0], {
+          country: 'United States',
           event: 'route./recovery_email/resend_code.400.999',
           flow_id: 'bar',
           flow_time: 1000,
@@ -828,6 +864,7 @@ describe('metrics/events', () => {
           flowCompleteSignal: undefined,
           flowType: undefined,
           locale: 'en-US',
+          region: 'California',
           time,
           userAgent: 'test user-agent'
         }, 'argument was event data')
@@ -894,6 +931,7 @@ describe('metrics/events', () => {
 
         assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once')
         assert.deepEqual(log.flowEvent.args[0][0], {
+          country: 'United States',
           event: 'route./account/destroy.400.42',
           flow_id: 'bar',
           flow_time: 1000,
@@ -901,6 +939,7 @@ describe('metrics/events', () => {
           flowCompleteSignal: undefined,
           flowType: undefined,
           locale: 'en-US',
+          region: 'California',
           time,
           userAgent: 'test user-agent'
         }, 'argument was event data')

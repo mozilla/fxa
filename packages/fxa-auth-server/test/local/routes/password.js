@@ -349,7 +349,9 @@ describe('/password', () => {
           var args = mockLog.activityEvent.args[0]
           assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
           assert.deepEqual(args[0], {
+            country: 'United States',
             event: 'account.changedPassword',
+            region: 'California',
             service: undefined,
             uid: uid.toString('hex'),
             userAgent: 'test user-agent'
@@ -430,7 +432,9 @@ describe('/password', () => {
           var args = mockLog.activityEvent.args[0]
           assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
           assert.deepEqual(args[0], {
+            country: 'United States',
             event: 'account.changedPassword',
+            region: 'California',
             service: undefined,
             uid: uid.toString('hex'),
             userAgent: 'test user-agent'

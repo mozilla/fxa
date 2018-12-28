@@ -261,7 +261,9 @@ describe('lib/devices:', () => {
             args = log.activityEvent.args[0]
             assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
             assert.deepEqual(args[0], {
+              country: 'United States',
               event: 'device.created',
+              region: 'California',
               service: undefined,
               userAgent: 'test user-agent',
               uid: sessionToken.uid,
@@ -358,7 +360,9 @@ describe('lib/devices:', () => {
             args = log.activityEvent.args[0]
             assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
             assert.deepEqual(args[0], {
+              country: 'United States',
               event: 'device.updated',
+              region: 'California',
               service: undefined,
               userAgent: 'test user-agent',
               uid: sessionToken.uid,

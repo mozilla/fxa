@@ -105,8 +105,10 @@ describe('/certificate/sign', () => {
       args = mockLog.activityEvent.args[0]
       assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
       assert.deepEqual(args[0], {
+        country: 'United States',
         device_id: deviceId.toString('hex'),
         event: 'account.signed',
+        region: 'California',
         service: undefined,
         uid: mockRequest.auth.credentials.uid.toString('hex'),
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:55.0) Gecko/20100101 Firefox/55.0'
