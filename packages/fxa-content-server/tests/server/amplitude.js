@@ -69,6 +69,10 @@ registerSuite('amplitude', {
         flowBeginTime: 'qux',
         flowId: 'wibble',
         lang: 'blee',
+        location: {
+          country: 'United States',
+          state: 'California'
+        },
         service: '1',
         uid: 'soop',
         utm_campaign: 'melm',
@@ -140,6 +144,10 @@ registerSuite('amplitude', {
         flowBeginTime: 'd',
         flowId: 'e',
         lang: 'f',
+        location: {
+          country: 'United Kingdom',
+          state: 'Dorset'
+        },
         service: 'g',
         uid: 'h',
         utm_campaign: 'i',
@@ -153,7 +161,7 @@ registerSuite('amplitude', {
       const arg = JSON.parse(process.stderr.write.args[0]);
       assert.deepEqual(arg, {
         app_version: APP_VERSION,
-        country: 'United States',
+        country: 'United Kingdom',
         device_id: 'b',
         device_model: 'iPad',
         event_properties: {
@@ -165,7 +173,7 @@ registerSuite('amplitude', {
         op: 'amplitudeEvent',
         os_name: 'iOS',
         os_version: '6.0',
-        region: 'California',
+        region: 'Dorset',
         session_id: 'd',
         time: 'a',
         user_id: 'h',
@@ -368,6 +376,10 @@ registerSuite('amplitude', {
         flowBeginTime: 'd',
         flowId: 'e',
         lang: 'f',
+        location: {
+          country: 'United States',
+          state: 'California'
+        },
         service: '2',
         uid: 'h',
         utm_campaign: 'i',
@@ -869,6 +881,10 @@ registerSuite('amplitude', {
         flowBeginTime: 'd',
         flowId: 'e',
         lang: 'f',
+        location: {
+          country: 'United States',
+          state: 'California'
+        },
         service: 'g',
         uid: 'h',
         utm_campaign: 'i',
@@ -1061,6 +1077,10 @@ registerSuite('amplitude', {
         flowBeginTime: 'd',
         flowId: 'e',
         lang: 'f',
+        location: {
+          country: 'United States',
+          state: 'California'
+        },
         service: 'sync',
         uid: 'h',
         utm_campaign: 'i',

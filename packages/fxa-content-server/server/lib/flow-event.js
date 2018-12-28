@@ -7,6 +7,7 @@ const _ = require('lodash');
 const amplitude = require('./amplitude');
 const config = require('./configuration');
 const flowMetrics = require('./flow-metrics');
+const geolocate = require('./geo-locate');
 const os = require('os');
 
 const DNT_ALLOWED_DATA = [
@@ -86,6 +87,8 @@ const metricsRequest = (req, metrics, requestReceivedTime) => {
   if (IS_DISABLED || ! isValidFlowData(metrics, requestReceivedTime)) {
     return;
   }
+
+  metrics.location = geolocate(req);
 
   let emitPerformanceEvents = false;
   const events = metrics.events || [];
@@ -204,7 +207,9 @@ function estimateTime (times) {
 }
 
 function logFlowEvent (event, data, request) {
+  const { location } = data;
   const eventData = _.assign({
+    country: location && location.country,
     event: event.type,
     flow_id: data.flowId, //eslint-disable-line camelcase
     flow_time: Math.floor(event.flowTime), //eslint-disable-line camelcase
@@ -212,6 +217,7 @@ function logFlowEvent (event, data, request) {
     locale: request.locale,
     op: 'flowEvent',
     pid: process.pid,
+    region: location && location.state,
     time: new Date(event.time).toISOString(),
     userAgent: request.headers['user-agent'],
     v: VERSION
