@@ -223,7 +223,7 @@ module.exports = {
     var start = Date.now();
     var wantsGrant = req.payload.response_type === TOKEN;
     var exitEarly = false;
-    var scope = ScopeSet.fromString(req.payload.scope || '');
+    var scope = req.payload.scope;
     return P.all([
       verifyAssertion(req.payload.assertion).then(function(claims) {
         logger.info('time.verify_assertion', { ms: Date.now() - start });

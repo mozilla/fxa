@@ -1456,6 +1456,34 @@ describe('/v1', function() {
             assertSecurityHeaders(res);
           });
         });
+
+        it('does not accept a `scope` parameter', function() {
+          mockAssertion().reply(200, VERIFY_GOOD);
+          return Server.api.post({
+            url: '/authorization',
+            payload: authParams()
+          }).then(function(res) {
+            return res.result.code;
+          }).then(function(code) {
+            return Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: clientId,
+                client_secret: secret,
+                code: code,
+                scope: 'a'
+              }
+            });
+          }).then(function(res) {
+            assert.equal(res.result.code, 400);
+            assert.equal(res.result.errno, 109);
+            assert.deepEqual(res.result.validation, {
+              source: 'payload',
+              keys: ['scope']
+            });
+            assertSecurityHeaders(res);
+          });
+        });
       });
 
       describe('response', function() {

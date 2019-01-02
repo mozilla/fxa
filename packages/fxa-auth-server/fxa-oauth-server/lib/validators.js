@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Joi = require('joi');
+const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const config = require('./config');
 
@@ -28,9 +29,26 @@ exports.token = Joi.string()
   .length(config.get('unique.token') * 2)
   .regex(exports.HEX_STRING);
 
-exports.scope = Joi.string()
-  .max(256)
-  .regex(/^[a-zA-Z0-9 _\/.:-]+$/);
+const scopeString = Joi.string().max(256);
+
+exports.scope = Joi.extend({
+  name: 'scope',
+  base: Joi.any(), // We're not returning a string, so don't base this on Joi.string().
+  language: {
+    'base': 'needs to be a valid scope string'
+  },
+  pre(value, state, options) {
+    const err = scopeString.validate(value).err;
+    if (err) {
+      return err;
+    }
+    try {
+      return ScopeSet.fromString(value || '');
+    } catch (err) {
+      return this.createError('scope.base', { v: value }, state, options);
+    }
+  }
+}).scope().default(ScopeSet.fromArray([]));
 
 exports.redirectUri = Joi.string()
   .max(256)
