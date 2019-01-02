@@ -548,6 +548,10 @@ section.modal-panel {
   &[data-name='Lockbox iOS'] {
     background-image: url('/images/icon-service-lockbox.svg');
   }
+
+  &[data-name='Screenshots'] {
+    background-image: url('/images/icon-service-screenshots.svg');
+  }
 }
 
 .client-webSession {
