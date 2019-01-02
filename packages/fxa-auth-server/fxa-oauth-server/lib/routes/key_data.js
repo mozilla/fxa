@@ -46,7 +46,7 @@ module.exports = {
       payload: req.payload
     });
 
-    const requestedScopes = ScopeSet.fromString(req.payload.scope);
+    const requestedScopes = req.payload.scope;
     const requestedClientId = req.payload.client_id;
 
     const [claims, scopes] = await P.all([

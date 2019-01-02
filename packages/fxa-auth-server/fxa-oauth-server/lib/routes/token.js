@@ -72,11 +72,11 @@ const PAYLOAD_SCHEMA = Joi.object({
     .default(MAX_TTL_S)
     .optional(),
 
-  scope: Joi.alternatives().when('grant_type', {
-    is: GRANT_REFRESH_TOKEN,
-    then: validators.scope,
-    otherwise: Joi.optional()
-  }),
+  scope: validators.scope
+    .when('grant_type', {
+      is: GRANT_REFRESH_TOKEN,
+      otherwise: Joi.forbidden()
+    }),
 
   code: Joi.string()
     .length(config.get('unique.code') * 2)
@@ -130,7 +130,7 @@ module.exports = {
       access_token: validators.token.required(),
       refresh_token: validators.token,
       id_token: validators.assertion,
-      scope: validators.scope.required().allow(''),
+      scope: validators.scope.required(),
       token_type: Joi.string().valid('bearer').required(),
       expires_in: Joi.number().max(MAX_TTL_S).required(),
       auth_at: Joi.number(),
@@ -139,7 +139,6 @@ module.exports = {
   },
   handler: async function tokenEndpoint(req) {
     var params = req.payload;
-    params.scope = ScopeSet.fromString(params.scope || '');
     return P.try(function() {
 
       // Clients are allowed to provide credentials in either
