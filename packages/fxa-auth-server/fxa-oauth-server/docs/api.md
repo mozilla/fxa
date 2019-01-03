@@ -297,8 +297,8 @@ content-server page.
 - `action`: Optional. If provided, should be `email`, `signup`, `signin`, or `force_auth`. Send to improve the user experience.
   - If unspecified then Firefox Accounts will try choose intelligently between `signin` and `signup` based on the user's browser state.
   - `email` triggers the email-first flow, which uses the email address to determine whether to display signup or signin. This is becoming the **preferred** action and is slowly replacing `signin` and `signup`.
-  - `signin` triggers the signin flow. (will become depricated and replaced by `email`)
-  - `signup` triggers the signup flow. (will become depricated and replaced by `email`)
+  - `signin` triggers the signin flow. (will become deprecated and replaced by `email`)
+  - `signup` triggers the signup flow. (will become deprecated and replaced by `email`)
   - `force_auth` requires the user to sign in using the address specified in `email`.
 - `email`: Optional if `action` is `email`, `signup` or `signin`. Required if `action`
   is `force_auth`.
