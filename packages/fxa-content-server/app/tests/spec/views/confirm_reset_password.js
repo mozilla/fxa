@@ -115,12 +115,17 @@ describe('views/confirm_reset_password', function () {
 
     it('redirects to /reset_password if no passwordForgotToken', function () {
       model.unset('passwordForgotToken');
+      const account = {
+        checkRecoveryKeyExistsByEmail: sinon.spy(() => Promise.resolve({}))
+      };
 
       sinon.spy(view, 'navigate');
+      sinon.stub(user, 'initAccount').callsFake(() => account);
 
       return view.render()
         .then(function () {
           assert.isTrue(view.navigate.calledWith('reset_password'));
+          assert.isFalse(account.checkRecoveryKeyExistsByEmail.called);
         });
     });
 
