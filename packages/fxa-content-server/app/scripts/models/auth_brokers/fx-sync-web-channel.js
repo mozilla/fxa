@@ -42,6 +42,19 @@ define(function (require, exports, module) {
       return channel;
     },
 
+    afterCompleteResetPassword (account) {
+    // This method is not in the fx-sync-channel because only the initiating
+    // tab can send a login message for fx-desktop-v1 and it's descendents.
+    // Messages from other tabs are ignored.
+      return Promise.resolve().then(() => {
+        if (account.get('verified') && ! account.get('verificationReason') && ! account.get('verificationMethod')) {
+          // only notify the browser of the login if the user does not have
+          // to verify their account/session
+          return this._notifyRelierOfLogin(account);
+        }
+      }).then(() => proto.afterCompleteResetPassword.call(this, account));
+    },
+
     afterCompleteSignInWithCode (account) {
       return this._notifyRelierOfLogin(account)
         .then(() => proto.afterSignInConfirmationPoll.call(this, account));
@@ -50,4 +63,3 @@ define(function (require, exports, module) {
 
   module.exports = FxSyncWebChannelAuthenticationBroker;
 });
-

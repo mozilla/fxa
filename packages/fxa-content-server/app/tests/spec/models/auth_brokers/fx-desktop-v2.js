@@ -143,24 +143,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('afterCompleteResetPassword', () => {
-      let result;
-      beforeEach(() => {
-        return broker.afterCompleteResetPassword(account)
-          .then(function (_result) {
-            result = _result;
-          });
-      });
-
-      it('notifies the channel with `fxaccounts:login`', () => {
-        assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
-      });
-
-      it('does not halt', () => {
-        assert.isFalse(!! result.halt);
-      });
-    });
-
     describe('afterChangePassword', () => {
       it('does not notify channel with `fxaccounts:change_password`', () => {
         // The message is sent over the WebChannel by the global WebChannel, no
