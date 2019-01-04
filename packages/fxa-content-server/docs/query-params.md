@@ -90,12 +90,20 @@ When authenticating a user with OAuth and an alternate style is needed.
 ## Firefox/Sync parameters
 
 ### `action`
-Specify which page unauthenticated users at `/` should be redirected to.
+
+Specifies the behavior of users sent to `/`. As of January 2019, the preferred `action`
+for all new integrations is `email`. By the end of Q1 2019, `signin` and `signup` will
+be treated the same as `email`.
+
+Specifying `action=email` causes the "email-first" flow where unauthenticated users are
+first asked to enter their email address w/o a password. If an account exists for the
+address, the user is asked to login, if no account exists, the user is asked to create
+an account.
 
 #### Options
 * `email`
-* `signin`
-* `signup`
+* `signin` (DEPRECATED, use `email`)
+* `signup` (DEPRECATED, use `email`)
 
 #### When to specify
 
