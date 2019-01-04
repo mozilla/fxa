@@ -122,7 +122,11 @@ registerSuite('reset_password', {
       // sessionToken.
       // Success is showing the screen
       return this.remote
-        .then(openPage(CONFIRM_PAGE_URL, selectors.RESET_PASSWORD.HEADER));
+        .then(openPage(CONFIRM_PAGE_URL, selectors.RESET_PASSWORD.HEADER))
+        // There was an error were users who browsed directly to /confirm_reset_password were
+        // displayed the 400 page. The user should not see the error but should be allowed
+        // to fill out their email address. See #6724
+        .then(noSuchElement(selectors['400'].HEADER, 5000));
     },
 
     'open /reset_password page from /signin': function () {

@@ -549,11 +549,12 @@ const pollUntilHiddenByQSA = thenify(function (selector, timeout = config.pageLo
  * Ensure no such element exists.
  *
  * @param   {string} selector of element to ensure does not exist.
+ * @param   {number} [timeoutMS] number of ms to wait for the element. Defaults to 0.
  * @returns {promise} resolves when complete, fails if element exists.
  */
-const noSuchElement = thenify(function (selector) {
+const noSuchElement = thenify(function (selector, timeoutMS = 0) {
   return this.parent
-    .setFindTimeout(0)
+    .setFindTimeout(timeoutMS)
 
     .findByCssSelector(selector)
     .then(function () {
