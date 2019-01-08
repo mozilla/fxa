@@ -1,3 +1,18 @@
+<a name="1.128.0"></a>
+# [1.128.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.127.0...v1.128.0) (2019-01-08)
+
+
+### Bug Fixes
+
+* **query:** remove `ROW_COUNT()` from remaining procedures ([4e8b058](https://github.com/mozilla/fxa-auth-db-mysql/commit/4e8b058))
+* **query:** update set primary email query to not check if email is verified ([b9bc3c7](https://github.com/mozilla/fxa-auth-db-mysql/commit/b9bc3c7))
+
+### Features
+
+* **npm:** update shrink script ([96b3ce5](https://github.com/mozilla/fxa-auth-db-mysql/commit/96b3ce5))
+
+
+
 <a name="1.127.0"></a>
 # [1.127.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.126.0...v1.127.0) (2018-12-11)
 
