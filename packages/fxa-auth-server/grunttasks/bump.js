@@ -11,18 +11,14 @@ module.exports = function (grunt) {
     options: {
       files: [
         'package.json',
-        'fxa-oauth-server/package.json',
         'npm-shrinkwrap.json',
-        'fxa-oauth-server/npm-shrinkwrap.json'
       ],
       bumpVersion: true,
       commit: true,
       commitMessage: 'Release v%VERSION%',
       commitFiles: [
         'package.json',
-        'fxa-oauth-server/package.json',
         'npm-shrinkwrap.json',
-        'fxa-oauth-server/npm-shrinkwrap.json',
         'CHANGELOG.md',
         'AUTHORS'
       ],
