@@ -1,3 +1,13 @@
+<a name="1.128.1"></a>
+## [1.128.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.128.0...v1.128.1) (2019-01-09)
+
+
+### chore
+
+* **deps:** reshrink to get ramda deps ([260063b](https://github.com/mozilla/fxa-auth-db-mysql/commit/260063b))
+
+
+
 <a name="1.128.0"></a>
 # [1.128.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.127.0...v1.128.0) (2019-01-08)
 
