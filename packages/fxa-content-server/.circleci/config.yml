@@ -19,10 +19,9 @@ jobs:
                   sudo npm install -g npm@6
 
                   cp server/config/local.json-dist server/config/local.json
-                  npm i --production
+                  npm ci
 
                   CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt build
-                  npm install intern xmlhttprequest firefox-profile request convict yargs leadfoot otplib retry-cli
                   ln -s node_modules/.bin/retry retry
 
         - persist_to_workspace:
