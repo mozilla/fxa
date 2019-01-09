@@ -1,3 +1,18 @@
+<a name="1.128.0"></a>
+# [1.128.0](https://github.com/mozilla/fxa-profile-server/compare/v1.126.0...v1.128.0) (2019-01-09)
+
+
+### Bug Fixes
+
+* **npm:** update to latest npmshrink ([8c4096d](https://github.com/mozilla/fxa-profile-server/commit/8c4096d))
+* **test:** Avoid cross test pollution caused by mutating route objects. ([769d17d](https://github.com/mozilla/fxa-profile-server/commit/769d17d))
+
+### Features
+
+* **node:** switch to node 10 ([270914c](https://github.com/mozilla/fxa-profile-server/commit/270914c))
+
+
+
 <a name="1.126.0"></a>
 # [1.126.0](https://github.com/mozilla/fxa-profile-server/compare/v1.124.0...v1.126.0) (2018-11-27)
 
