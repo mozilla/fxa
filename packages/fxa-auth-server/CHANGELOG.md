@@ -1,3 +1,47 @@
+<a name="1.128.0"></a>
+# [1.128.0](https://github.com/mozilla/fxa-auth-server/compare/v1.126.3...v1.128.0) (2019-01-08)
+
+
+### Bug Fixes
+
+* **docker:** gen_keys in the OAuth docker container ([1fa4a29](https://github.com/mozilla/fxa-auth-server/commit/1fa4a29)), closes [#412](https://github.com/mozilla/fxa-auth-server/issues/412)
+* **docker:** run gen_keys.js after the COPY has been done ([28b0e73](https://github.com/mozilla/fxa-auth-server/commit/28b0e73))
+* **docs:** Get write-api-docs script back up and running. ([fdf0b1d](https://github.com/mozilla/fxa-auth-server/commit/fdf0b1d))
+* **email:** check for null header values in the email service file ([7e8c9dd](https://github.com/mozilla/fxa-auth-server/commit/7e8c9dd)), closes [#2771](https://github.com/mozilla/fxa-auth-server/issues/2771)
+* **purge:** adjust path to package.json ([c64dd9e](https://github.com/mozilla/fxa-auth-server/commit/c64dd9e))
+
+### chore
+
+* **docs:** Fix typo "depricated" -> "deprecated" ([5230d59](https://github.com/mozilla/fxa-auth-server/commit/5230d59))
+* **grunt:** remove grunt bump for oauth-server ([8bf2ae4](https://github.com/mozilla/fxa-auth-server/commit/8bf2ae4))
+
+### Features
+
+* **metrics:** add country and region to activity and flow events ([c0c9739](https://github.com/mozilla/fxa-auth-server/commit/c0c9739))
+* **npm:** update to latest npmshrink ([ec5236e](https://github.com/mozilla/fxa-auth-server/commit/ec5236e))
+* **oauth:** Expose /account/scoped-key-data endpoint, by making backend calls to oauth-serve ([7f13766](https://github.com/mozilla/fxa-auth-server/commit/7f13766))
+* **validation:** Have `validators.scope` automatically parse the value to a `ScopeSet`. ([00975dd](https://github.com/mozilla/fxa-auth-server/commit/00975dd))
+
+### Refactor
+
+* **oauth:** combine oauth deps and package.json with auth ([db8ed63](https://github.com/mozilla/fxa-auth-server/commit/db8ed63)), closes [#2748](https://github.com/mozilla/fxa-auth-server/issues/2748)
+* **oauth:** remove service clients ([63acef3](https://github.com/mozilla/fxa-auth-server/commit/63acef3)), closes [#2761](https://github.com/mozilla/fxa-auth-server/issues/2761)
+* **oauth:** remove unused grunt tasks from oauth-server ([32ead29](https://github.com/mozilla/fxa-auth-server/commit/32ead29))
+
+
+
+<a name="1.127.0"></a>
+# [1.127.0](https://github.com/mozilla/fxa-auth-server/compare/v1.126.2...v1.127.0) (2018-12-11)
+
+
+### Bug Fixes
+
+* **email:** add manage devices button in new device login email template ([7d4649b](https://github.com/mozilla/fxa-auth-server/commit/7d4649b))
+* **emails:** fix arabic emails, add translator tests ([cde4ce2](https://github.com/mozilla/fxa-auth-server/commit/cde4ce2)), closes [#2714](https://github.com/mozilla/fxa-auth-server/issues/2714)
+* **oauth:** remove prod requirement flag ([0f130b3](https://github.com/mozilla/fxa-auth-server/commit/0f130b3))
+
+
+
 <a name="1.127.1"></a>
 ## [1.127.1](https://github.com/mozilla/fxa-auth-server/compare/v1.126.3...v1.127.1) (2018-12-14)
 
