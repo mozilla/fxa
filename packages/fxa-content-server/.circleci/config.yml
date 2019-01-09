@@ -22,6 +22,7 @@ jobs:
                   npm ci
 
                   CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt build
+                  npm i retry-cli
                   ln -s node_modules/.bin/retry retry
 
         - persist_to_workspace:
