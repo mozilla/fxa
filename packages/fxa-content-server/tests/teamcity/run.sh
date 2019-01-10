@@ -79,18 +79,10 @@ export npm_config_tmp=~/fxatemp
 
 set -o xtrace # echo the following commands
 
-node ./tests/teamcity/install-npm-deps.js \
-  convict                         \
-  firefox-profile                 \
-  fxa-js-client                   \
-  fxa-shared                      \
-  got                             \
-  intern                          \
-  leadfoot                        \
-  otplib                          \
-  xmlhttprequest                  \
-  yargs
+# install y'all
+npm ci
 
+# output the Firefox version number
 $FXA_FIREFOX_BINARY --version 2>/dev/null # squelch annoying 'GLib-CRITICAL **' message
 
 # Tell the test where the X Server is located
