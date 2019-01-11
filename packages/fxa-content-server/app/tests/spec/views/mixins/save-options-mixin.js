@@ -4,13 +4,18 @@
 
 'use strict';
 
-const {assert} = require('chai');
-const BaseView = require('views/base');
-const Cocktail = require('cocktail');
-const SaveOptionsMixin = require('views/mixins/save-options-mixin');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import BaseView from 'views/base';
+import Cocktail from 'cocktail';
+import SaveOptionsMixin from 'views/mixins/save-options-mixin';
+import sinon from 'sinon';
 
-const View = BaseView.extend({});
+const View = BaseView.extend({
+  template: () => `
+    <div class="modal-success"></div>
+    <div class="error"></div>
+  `
+});
 
 Cocktail.mixin(
   View,
@@ -25,7 +30,10 @@ describe('views/mixins/save-options-mixin', () => {
 
   beforeEach(() => {
     view = new View({});
+    sinon.stub(view, 'translate').callsFake(msg => `translated ${msg}`);
     sandbox = sinon.sandbox.create();
+
+    return view.render();
   });
 
   afterEach(function () {
@@ -100,4 +108,15 @@ describe('views/mixins/save-options-mixin', () => {
       assert.equal(view._displaySuccess.called, true, 'display success called');
     });
   });
+
+  it('_displaySuccess should translate the text', () => {
+    view._displaySuccess('success message');
+    assert.equal(view.$('.modal-success').text(), 'translated success message');
+  });
+
+  it('_displayError should translate the text', () => {
+    view._displayError('error message');
+    assert.equal(view.$('.error').text(), 'translated error message');
+  });
+
 });
