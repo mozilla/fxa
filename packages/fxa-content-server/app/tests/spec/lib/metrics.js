@@ -98,6 +98,10 @@ define(function (require, exports, module) {
       });
     });
 
+    it('deviceId defaults to NOT_REPORTED_VALUE', () => {
+      assert.equal(metrics.getAllData().deviceId, 'none');
+    });
+
     describe('trigger flow.initialize event', () => {
       beforeEach(() => {
         notifier.trigger('flow.initialize');
