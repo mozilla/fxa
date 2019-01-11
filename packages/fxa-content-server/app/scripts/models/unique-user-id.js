@@ -52,13 +52,7 @@ define(function (require, exports, module) {
 
       var uniqueUserId = this.get('uniqueUserId');
       if (! uniqueUserId) {
-        if (storage.get('uuid')) {
-          // stomlinson on 2015-07-08:
-          // `uuid` is the old name, this is transition code
-          // and can hopefully be removed after a time.
-          uniqueUserId = storage.get('uuid');
-          storage.remove('uuid');
-        } else if (storage.get('uniqueUserId')) {
+        if (storage.get('uniqueUserId')) {
           // uniqueUserId is the new name.
           uniqueUserId = storage.get('uniqueUserId');
         } else {
