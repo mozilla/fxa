@@ -350,7 +350,7 @@ define(function (require, exports, module) {
       const allData = _.extend({}, loadData, unloadData, {
         broker: this._brokerType,
         context: this._context,
-        deviceId: flowData.deviceId,
+        deviceId: flowData.deviceId || NOT_REPORTED_VALUE,
         emailDomain: this._emailDomain,
         entrypoint: this._entrypoint,
         experiments: flattenHashIntoArrayOfObjects(this._activeExperiments),
