@@ -1,3 +1,14 @@
+<a name="1.128.1"></a>
+## [1.128.1](https://github.com/mozilla/fxa-content-server/compare/v1.128.0...v1.128.1) (2019-01-11)
+
+
+### Bug Fixes
+
+* **metrics:** ensure deviceId falls back to `none` if not set ([73485ab](https://github.com/mozilla/fxa-content-server/commit/73485ab))
+* **npm:** use npm ci ([842d991](https://github.com/mozilla/fxa-content-server/commit/842d991))
+
+
+
 <a name="1.128.0"></a>
 # [1.128.0](https://github.com/mozilla/fxa-content-server/compare/v1.127.0...v1.128.0) (2019-01-08)
 
