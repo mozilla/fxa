@@ -336,11 +336,15 @@ describe('views/form', function () {
   });
 
   describe('showValidationError', function () {
-    it('creates a tooltip', function () {
-      view.on('validation_error', function (done) {
-        assert.ok(view.$('.tooltip').length);
-        done();
+    it('creates a tooltip, translates the text', function (done) {
+      view.on('validation_error', () => {
+        TestHelpers.wrapAssertion(() => {
+          assert.lengthOf(view.$('.tooltip'), 1);
+          assert.equal(view.$('.tooltip').text(), 'translated this is an error');
+        }, done);
       });
+
+      sinon.stub(view.translator, 'get').callsFake(msg => `translated ${msg}`);
       view.showValidationError('#focusMe', 'this is an error');
     });
 

@@ -375,7 +375,8 @@ var FormView = BaseView.extend({
     var tooltip = new Tooltip({
       id: tooltipId,
       invalidEl: $invalidEl,
-      message
+      message,
+      translator: this.translator
     });
 
     tooltip.on('destroyed', () => {
