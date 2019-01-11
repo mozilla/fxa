@@ -26,7 +26,7 @@ const Mixin = {
     // This copies the text to clipboard by creating a tiny transparent
     // textArea with the content. Then it executes the browser `copy` command and removes textArea.
     $('<textArea id=\"temporary-copy-area\" class=\"temporary-copy-text-area\"></textArea>').appendTo(appendToElement);
-    this.$('textArea.temporary-copy-text-area').html(text);
+    this.$('textArea.temporary-copy-text-area').text(text);
 
     if (this.getUserAgent().isIos()) {
       // iOS does not allow you to directly use the `document.execCommand('copy')` function.
@@ -85,14 +85,14 @@ const Mixin = {
     this.$('.error').addClass('hidden');
     this.$('.modal-success').removeClass('hidden');
     this.$('.modal-success').addClass('success');
-    this.$('.modal-success').html(msg);
+    this.$('.modal-success').text(this.translate(msg));
   },
 
   _displayError(msg) {
     this.$('.error').removeClass('hidden');
     this.$('.modal-success').addClass('hidden');
     this.$('.modal-success').removeClass('success');
-    this.$('.error').html(msg);
+    this.$('.error').text(this.translate(msg));
   },
 };
 

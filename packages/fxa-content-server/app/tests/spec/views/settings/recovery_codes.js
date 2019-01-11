@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const $ = require('jquery');
-const assert = require('chai').assert;
-const Broker = require('models/auth_brokers/base');
-const Metrics = require('lib/metrics');
-const { Model } = require('backbone');
-const Notifier = require('lib/channels/notifier');
-const sinon = require('sinon');
-const TestHelpers = require('../../../lib/helpers');
-const User = require('models/user');
-const View = require('views/settings/recovery_codes');
-const WindowMock = require('../../../mocks/window');
+import $ from 'jquery';
+import { assert } from 'chai';
+import Broker from 'models/auth_brokers/base';
+import Metrics from 'lib/metrics';
+import { Model } from 'backbone';
+import Notifier from 'lib/channels/notifier';
+import sinon from 'sinon';
+import TestHelpers from '../../../lib/helpers';
+import User from 'models/user';
+import View from 'views/settings/recovery_codes';
+import WindowMock from '../../../mocks/window';
 
 describe('views/settings/recovery_codes', () => {
   let account;
@@ -42,6 +42,8 @@ describe('views/settings/recovery_codes', () => {
       user: user,
       window: windowMock
     });
+
+    sinon.stub(view, 'translate').callsFake(msg => `translated ${msg}`);
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
 
@@ -89,12 +91,10 @@ describe('views/settings/recovery_codes', () => {
     view = null;
   });
 
-  describe('should show recovery codes', () => {
-    it('show codes', () => {
-      assert.equal(view.$('.recovery-code').length, 8);
-      assert.equal(view.$('.recovery-code:first').text(), '00001111', 'correct recovery code');
-      assert.include(view.$('.modal-success').text(), 'authentication enabled');
-    });
+  it('should show recovery codes, translated success message', () => {
+    assert.equal(view.$('.recovery-code').length, 8);
+    assert.equal(view.$('.recovery-code:first').text(), '00001111', 'correct recovery code');
+    assert.include(view.$('.modal-success').text(), 'translated Two-step authentication enabled');
   });
 
   describe('should print codes', () => {

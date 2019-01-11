@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Cocktail = require('cocktail');
-const FormView = require('../form');
-const ModalSettingsPanelMixin = require('../mixins/modal-settings-panel-mixin');
-const Template = require('templates/settings/recovery_codes.mustache');
-const RecoveryCodePrintTemplate = require('templates/settings/recovery_codes_print.mustache');
-const RecoveryCode = require('../../models/recovery-code');
-const SaveOptionsMixin = require('../mixins/save-options-mixin');
-const UserAgentMixin = require('../../lib/user-agent-mixin');
+import Cocktail from 'cocktail';
+import FormView from '../form';
+import ModalSettingsPanelMixin from '../mixins/modal-settings-panel-mixin';
+import Template from 'templates/settings/recovery_codes.mustache';
+import RecoveryCodePrintTemplate from 'templates/settings/recovery_codes_print.mustache';
+import RecoveryCode from '../../models/recovery-code';
+import SaveOptionsMixin from '../mixins/save-options-mixin';
+import UserAgentMixin from '../../lib/user-agent-mixin';
 
 const t = msg => msg;
 
@@ -115,7 +115,9 @@ const View = FormView.extend({
 
     context.set({
       isIos: this.getUserAgent().isIos(),
-      modalSuccessMsg,
+      // There can be several modalSuccessMsg's, make sure they are translated
+      // before displaying to the user user. See #6728
+      modalSuccessMsg: modalSuccessMsg && this.translate(modalSuccessMsg),
       recoveryCodes,
       showRecoveryCodes: recoveryCodes.length > 0
     });
