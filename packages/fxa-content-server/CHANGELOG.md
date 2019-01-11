@@ -1,3 +1,44 @@
+<a name="1.128.1"></a>
+## [1.128.1](https://github.com/mozilla/fxa-content-server/compare/v1.128.0...v1.128.1) (2019-01-11)
+
+
+### Bug Fixes
+
+* **metrics:** ensure deviceId falls back to `none` if not set ([73485ab](https://github.com/mozilla/fxa-content-server/commit/73485ab))
+* **npm:** use npm ci ([842d991](https://github.com/mozilla/fxa-content-server/commit/842d991))
+
+
+
+<a name="1.128.0"></a>
+# [1.128.0](https://github.com/mozilla/fxa-content-server/compare/v1.127.0...v1.128.0) (2019-01-08)
+
+
+### Bug Fixes
+
+* **icons:** add screenshots svg ([78e3360](https://github.com/mozilla/fxa-content-server/commit/78e3360))
+* **metrics:** make sure to track oauth screen views in amplitude ([4934527](https://github.com/mozilla/fxa-content-server/commit/4934527)), closes [#6742](https://github.com/mozilla/fxa-content-server/issues/6742)
+* **nsp:** add advistory 745 ([ec376ce](https://github.com/mozilla/fxa-content-server/commit/ec376ce))
+* **recovery:** use recovery key length of 32 ([5025c28](https://github.com/mozilla/fxa-content-server/commit/5025c28))
+* **reset-password:** No more error on /confirm_reset_password w/o initiating flow. ([5985b77](https://github.com/mozilla/fxa-content-server/commit/5985b77)), closes [#6724](https://github.com/mozilla/fxa-content-server/issues/6724)
+* **secondary-emails:** Handle long emails in the secondary email panel ([1744530](https://github.com/mozilla/fxa-content-server/commit/1744530)), closes [#6751](https://github.com/mozilla/fxa-content-server/issues/6751)
+* **styles:** address the radius mismatch on the send button ([344be8e](https://github.com/mozilla/fxa-content-server/commit/344be8e)), closes [#6566](https://github.com/mozilla/fxa-content-server/issues/6566)
+* **tests:** remove extra click in email test ([79b4530](https://github.com/mozilla/fxa-content-server/commit/79b4530))
+
+### chore
+
+* **docs:** Clarify the `action` query param documentation. ([9ff4474](https://github.com/mozilla/fxa-content-server/commit/9ff4474))
+* **emails:** ignore this too. ([17b8903](https://github.com/mozilla/fxa-content-server/commit/17b8903))
+* **emails:** Look away now! ([1581c89](https://github.com/mozilla/fxa-content-server/commit/1581c89))
+* **modules:** Convert several password related modules to es6 module format. ([02da0e5](https://github.com/mozilla/fxa-content-server/commit/02da0e5)), closes [#6859](https://github.com/mozilla/fxa-content-server/issues/6859)
+* **recovery-key:** Remove all recovery key experiment code. ([6d64c59](https://github.com/mozilla/fxa-content-server/commit/6d64c59))
+
+### Features
+
+* **metrics:** add country and region to flow events ([ec3b88b](https://github.com/mozilla/fxa-content-server/commit/ec3b88b))
+* **npm:** update to latest npmshrink ([6e9da39](https://github.com/mozilla/fxa-content-server/commit/6e9da39))
+
+
+
 <a name="1.127.0"></a>
 # [1.127.0](https://github.com/mozilla/fxa-content-server/compare/v1.126.0...v1.127.0) (2018-12-11)
 
