@@ -14,7 +14,7 @@ module.exports = function (grunt) {
       '{grunttasks,bin,lib,lib/db,scripts,test}/*.js',
       'db-server/index.js',
       'db-server/{lib,test,test/backend,test/local}/*.js',
-      'test/{backend,local,mem}/*.js'
+      'test/{backend,local,mem,scripts}/*.js'
     ]
   })
 
