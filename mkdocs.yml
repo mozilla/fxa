@@ -1,12 +1,4 @@
 site_name: Firefox Accounts Documentation
 pages:
 - Home: 'index.md'
-- Frequently Asked Questions: 'faq.md'
-- Development Process: 'dev-process.md'
-- Metrics:
-    - 'Intro': 'metrics/index.md'
-    - 'DataDog Documentation': 'metrics/datadog.md'
-- 'Local Development':
-    - 'Getting Started': 'local-development/getting-started.md'
-    - 'fxa-dev AWS deployment': 'local-development/fxa-dev.md'
 theme: readthedocs
