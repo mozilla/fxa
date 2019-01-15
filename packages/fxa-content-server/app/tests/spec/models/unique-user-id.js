@@ -75,15 +75,16 @@ define(function (require, exports, module) {
       assert.equal(uniqueUserId.get('uniqueUserId'), 'stored in uniqueUserId');
     });
 
-    it('migrates data stored in `localStorage.uuid` to `localStorage.uniqueUserId`', function () {
+    it('does not migrates data stored in `localStorage.uuid` to `localStorage.uniqueUserId`', function () {
       var storage = Storage.factory('localStorage', windowMock);
       var uniqueUserId = 'originally stored in uuid';
       storage.set('uuid', uniqueUserId);
 
       createUniqueUserId();
 
-      assert.equal(storage.get('uniqueUserId'), uniqueUserId);
-      assert.isUndefined(storage.get('uuid'));
+      assert.equal(storage.get('uuid'), uniqueUserId);
+      assert.notEqual(storage.get('uuid'), storage.get('uniqueUserId'));
+      assert.ok(storage.get('uniqueUserId'));
     });
   });
 });
