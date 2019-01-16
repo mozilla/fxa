@@ -1,3 +1,13 @@
+<a name="1.128.1"></a>
+## [1.128.1](https://github.com/mozilla/fxa-auth-server/compare/v1.128.0...v1.128.1) (2019-01-14)
+
+
+### Bug Fixes
+
+* **circle:** can never have enough version.json ([adb59b9](https://github.com/mozilla/fxa-auth-server/commit/adb59b9))
+
+
+
 <a name="1.128.0"></a>
 # [1.128.0](https://github.com/mozilla/fxa-auth-server/compare/v1.126.3...v1.128.0) (2019-01-08)
 
