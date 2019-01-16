@@ -71,7 +71,7 @@ Lug.prototype.stat = function (stats) {
 }
 
 // Log a request summary line.
-// This gets called once for each compelted request.
+// This gets called once for each completed request.
 // See https://mana.mozilla.org/wiki/display/CLOUDSERVICES/Logging+Standard
 // for a discussion of this format and why it's used.
 
@@ -82,9 +82,12 @@ Lug.prototype.summary = function (request, response) {
 
   request.emitRouteFlowEvent(response)
 
-  var payload = request.payload || {}
-  var query = request.query || {}
-  var line = {
+  const payload = request.payload || {}
+  const query = request.query || {}
+  const credentials = (request.auth && request.auth.credentials) || {}
+  const responseBody = (response && response.source) || {}
+
+  const line = {
     op: 'request.summary',
     status: (response.isBoom) ? response.output.statusCode : response.statusCode,
     errno: response.errno || 0,
@@ -94,17 +97,21 @@ Lug.prototype.summary = function (request, response) {
     agent: request.headers['user-agent'],
     remoteAddressChain: request.app.remoteAddressChain,
     accountRecreated: request.app.accountRecreated,
-    t: Date.now() - request.info.received
+    t: Date.now() - request.info.received,
+    uid: credentials.uid || payload.uid || query.uid || response.uid || responseBody.uid || '00',
+    service: payload.service || query.service,
+    reason: payload.reason || query.reason,
+    redirectTo: payload.redirectTo || query.redirectTo,
+    keys: query.keys,
+
+    // Additional data used by the DataFlow fraud detection pipeline.
+    // Logging PII for the fraud detection pipeline has been given
+    // the green light so that the fraud detection logic can
+    // handle much of the logic the customs server currently does.
+    method: request.method,
+    email: credentials.email || payload.email || query.email,
+    phoneNumber: responseBody.formattedPhoneNumber,
   }
-  line.uid = (request.auth && request.auth.credentials) ?
-    request.auth.credentials.uid :
-    payload.uid || query.uid || response.uid ||
-    (response.source && response.source.uid) || '00'
-  line.service = payload.service || query.service
-  line.reason = payload.reason || query.reason
-  line.redirectTo = payload.redirectTo || query.redirectTo
-  line.keys = query.keys
-  line.email = payload.email || query.email
 
   if (line.status >= 500) {
     line.trace = request.app.traced
