@@ -30,8 +30,7 @@ define([
     { browserName: 'firefox', version: [ '45' ], platform: [ 'Windows 7', 'Linux' ] },
     { browserName: 'firefox', version: [ '56' ], platform: [ 'Windows 7' ] }, // Sauce only supports Fx 56 on Windows/Mac
     { browserName: 'internet explorer', version: [ '10', '11' ], platform: [ 'Windows 7' ] },
-    { browserName: 'chrome' },
-    { browserName: 'safari' }
+    { browserName: 'chrome' }
   ];
 
   console.log('SAUCE', intern.proxyUrl);
