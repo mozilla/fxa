@@ -224,7 +224,7 @@ describe('/v1', function() {
   describe('/authorization', function() {
 
     describe('GET', function() {
-      it('redirects with all query params', function() {
+      it('redirects with all query params to /authorization', function() {
         return Server.api
         .get('/authorization?client_id=123&state=321&scope=1&action=signup&a=b')
         .then(function(res) {
@@ -232,103 +232,26 @@ describe('/v1', function() {
           assertSecurityHeaders(res);
           var redirect = url.parse(res.headers.location, true);
 
+          assert.equal(redirect.query.action, 'signup');
           assert.equal(redirect.query.client_id, '123');
           assert.equal(redirect.query.state, '321');
           assert.equal(redirect.query.scope, '1');
           // unknown query params are forwarded
           assert.equal(redirect.query.a, 'b');
           var target = url.parse(config.get('contentUrl'), true);
-          assert.equal(redirect.pathname, target.pathname + 'signup');
+          assert.equal(redirect.pathname, '/authorization');
           assert.equal(redirect.host, target.host);
         });
       });
 
-      it('redirects `action=signin` to signin', function() {
+      it('should fail if keys_jwk specified', () => {
         return Server.api
-        .get('/authorization?client_id=123&state=321&scope=1&action=signin&a=b')
-        .then(function(res) {
-          assert.equal(res.statusCode, 302);
-          assertSecurityHeaders(res);
-          var redirect = url.parse(res.headers.location, true);
-
-          assert.equal(redirect.query.client_id, '123');
-          assert.equal(redirect.query.state, '321');
-          assert.equal(redirect.query.scope, '1');
-          // unknown query params are forwarded
-          assert.equal(redirect.query.a, 'b');
-          var target = url.parse(config.get('contentUrl'), true);
-          assert.equal(redirect.pathname, target.pathname + 'signin');
-          assert.equal(redirect.host, target.host);
-        });
-      });
-
-      it('redirects no action to contentUrl root', function() {
-        return Server.api.get('/authorization?client_id=123&state=321&scope=1')
-        .then(function(res) {
-          assert.equal(res.statusCode, 302);
-          assertSecurityHeaders(res);
-          var redirect = url.parse(res.headers.location, true);
-
-          var target = url.parse(config.get('contentUrl'), true);
-          assert.equal(redirect.pathname, target.pathname);
-          assert.equal(redirect.host, target.host);
-        });
-      });
-
-      it('redirects `action=force_auth` to force_auth', function() {
-        var endpoint = '/authorization?action=force_auth&email=' +
-          encodeURIComponent(VEMAIL);
-        return Server.api.get(endpoint)
-        .then(function(res) {
-          assert.equal(res.statusCode, 302);
-          assertSecurityHeaders(res);
-          var redirect = url.parse(res.headers.location, true);
-
-          var target = url.parse(config.get('contentUrl'), true);
-          assert.equal(redirect.pathname, target.pathname + 'force_auth');
-          assert.equal(redirect.host, target.host);
-          assert.equal(redirect.query.email, VEMAIL);
-        });
-      });
-
-      it('redirects `action=email` to `/`', function() {
-        return Server.api.get('/authorization?action=email')
-        .then(function(res) {
-          assert.equal(res.statusCode, 302);
-          assertSecurityHeaders(res);
-          var redirect = url.parse(res.headers.location, true);
-
-          var target = url.parse(config.get('contentUrl'), true);
-          assert.equal(redirect.pathname, target.pathname);
-          assert.equal(redirect.host, target.host);
-          assert.equal(redirect.query.action, 'email');
-        });
-      });
-
-      it('rewrites `login_hint=foo` to `email=foo`', function() {
-        var endpoint = '/authorization?action=signin&login_hint=' +
-          encodeURIComponent(VEMAIL);
-        return Server.api.get(endpoint)
-        .then(function(res) {
-          assert.equal(res.statusCode, 302);
-          assertSecurityHeaders(res);
-          var redirect = url.parse(res.headers.location, true);
-
-          var target = url.parse(config.get('contentUrl'), true);
-          assert.equal(redirect.pathname, target.pathname + 'signin');
-          assert.equal(redirect.host, target.host);
-          assert.equal(redirect.query.email, VEMAIL);
-        });
-      });
-
-      it('should fail for invalid action', function() {
-        return Server.api
-        .get('/authorization?client_id=123&state=321&scope=1&action=something_invalid&a=b')
+        .get('/authorization?keys_jwk=xyz&client_id=123&state=321&scope=1')
         .then(function(res) {
           assert.equal(res.statusCode, 400);
-          assertSecurityHeaders(res);
           assert.equal(res.result.errno, 109);
-          assert.equal(res.result.validation, 'action');
+          assert.equal(res.result.validation, 'keys_jwk');
+          assertSecurityHeaders(res);
         });
       });
     });
@@ -3539,6 +3462,5 @@ describe('/v1', function() {
       });
 
     });
-
   });
 });
