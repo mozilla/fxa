@@ -1,3 +1,13 @@
+<a name="1.128.2"></a>
+## [1.128.2](https://github.com/mozilla/fxa-auth-server/compare/v1.128.1...v1.128.2) (2019-01-16)
+
+
+### Bug Fixes
+
+* **oauth:** Redirect GET /authorization directly to content server ([69f8f3a](https://github.com/mozilla/fxa-auth-server/commit/69f8f3a)), closes [mozilla/fxa-auth-server#2862](https://github.com/mozilla/fxa-auth-server/issues/2862)
+
+
+
 <a name="1.128.1"></a>
 ## [1.128.1](https://github.com/mozilla/fxa-auth-server/compare/v1.128.0...v1.128.1) (2019-01-14)
 
