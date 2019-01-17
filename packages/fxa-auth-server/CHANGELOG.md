@@ -1,4 +1,4 @@
-<a name="1.128.3"></a>
+<a name="1.128.4"></a>
 ## [1.128.4](https://github.com/mozilla/fxa-auth-server/compare/v1.128.3...v1.128.4) (2019-01-17)
 
 
