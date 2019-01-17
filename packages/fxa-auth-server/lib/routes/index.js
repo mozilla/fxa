@@ -36,7 +36,7 @@ module.exports = function (
     signinUtils,
     push
   )
-  const oauth = require('./oauth')(log, config)
+  const oauth = require('./oauth')(log, config, oauthdb)
   const devicesSessions = require('./devices-and-sessions')(log, db, config, customs, push, pushbox, devicesImpl)
   const emails = require('./emails')(log, db, mailer, config, customs, push)
   const password = require('./password')(
