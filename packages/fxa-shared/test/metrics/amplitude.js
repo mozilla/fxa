@@ -294,7 +294,7 @@ describe('metrics/amplitude:', () => {
       });
     });
 
-    describe('transform an event with undefined service:', () => {
+    describe('transform an event with service=unknown client_id:', () => {
       let result;
 
       before(() => {
@@ -306,7 +306,29 @@ describe('metrics/amplitude:', () => {
           oauth_client_id: 'gribble',
           service: 'undefined_oauth'
         });
-        assert.deepEqual(result.user_properties, { '$append': { fxa_services_used: 'undefined_oauth' } });
+        assert.deepEqual(result.user_properties, {
+          '$append': { fxa_services_used: 'undefined_oauth' },
+          entrypoint: 'gribble'
+        });
+      });
+    });
+
+    describe('transform an event with service=known client_id:', () => {
+      let result;
+
+      before(() => {
+        result = transform({ type: 'wibble.blee' }, { service: 'foo' });
+      });
+
+      it('returned the correct event data', () => {
+        assert.deepEqual(result.event_properties, {
+          oauth_client_id: 'foo',
+          service: 'bar'
+        });
+        assert.deepEqual(result.user_properties, {
+          '$append': { fxa_services_used: 'bar' },
+          entrypoint: 'bar'
+        });
       });
     });
 
@@ -319,7 +341,10 @@ describe('metrics/amplitude:', () => {
 
       it('returned the correct event data', () => {
         assert.deepEqual(result.event_properties, { service: 'sync' });
-        assert.deepEqual(result.user_properties, { '$append': { fxa_services_used: 'sync' } });
+        assert.deepEqual(result.user_properties, {
+          '$append': { fxa_services_used: 'sync' },
+          entrypoint: 'sync'
+        });
       });
     });
 
