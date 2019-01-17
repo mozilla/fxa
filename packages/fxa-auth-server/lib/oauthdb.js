@@ -63,7 +63,7 @@ module.exports = (log, config) => {
         },
         response: {
           id: validators.clientId.required(),
-          name: Joi.string().max(25).regex(validators.DISPLAY_SAFE_UNICODE).required(),
+          name: Joi.string().max(255).regex(validators.DISPLAY_SAFE_UNICODE).required(),
           trusted: Joi.boolean().required(),
           image_uri: Joi.string().optional().allow(''),
           redirect_uri: Joi.string().required().allow('')
