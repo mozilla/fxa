@@ -31,6 +31,14 @@ const MOCK_CLIENT_INFO = {
   redirect_uri: 'http://mock.client.com/redirect'
 }
 
+const LOCKBOX_CLIENT_INFO = {
+  id: 'e7ce535d93522896',
+  name: 'Firefox Lockbox for Android',
+  trusted: true,
+  image_uri: '',
+  redirect_uri: 'https://lockbox.firefox.com/fxa/android-redirect.html'
+}
+
 const mockOAuthServer = nock(mockConfig.oauth.url).defaultReplyHeaders({
   'Content-Type': 'application/json'
 })
@@ -66,6 +74,14 @@ describe('oauthdb', () => {
       oauthdb = oauthdbModule(mockLog(), mockConfig)
       const info = await oauthdb.getClientInfo(MOCK_CLIENT_ID)
       assert.deepEqual(info, MOCK_CLIENT_INFO)
+    })
+
+    it('gets client info for a real client that previous triggered validation errors', async () => {
+      mockOAuthServer.get(`/v1/client/${LOCKBOX_CLIENT_INFO.id}`)
+        .reply(200, LOCKBOX_CLIENT_INFO)
+      oauthdb = oauthdbModule(mockLog(), mockConfig)
+      const info = await oauthdb.getClientInfo(LOCKBOX_CLIENT_INFO.id)
+      assert.deepEqual(info, LOCKBOX_CLIENT_INFO)
     })
 
     it('returns correct error for unknown client_id', async () => {

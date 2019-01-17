@@ -46,7 +46,7 @@ module.exports = (log, config, oauthdb) => {
     } catch (err) {
       // fallback to the Firefox client if request fails
       if (! err.statusCode) {
-        log.critical({ op: 'fetch.failed', err: err })
+        log.fatal({ op: 'fetch.failed', err: err })
       } else {
         log.warn({ op: 'fetch.failedForClient', clientId })
       }
