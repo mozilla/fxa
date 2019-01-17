@@ -1,3 +1,13 @@
+<a name="1.128.3"></a>
+## [1.128.3](https://github.com/mozilla/fxa-auth-server/compare/v1.128.2...v1.128.3) (2019-01-17)
+
+
+### Bug Fixes
+
+* **oauth:** Use correct max length for oauth client name validation. ([9b0fac9](https://github.com/mozilla/fxa-auth-server/commit/9b0fac9))
+
+
+
 <a name="1.128.2"></a>
 ## [1.128.2](https://github.com/mozilla/fxa-auth-server/compare/v1.128.1...v1.128.2) (2019-01-16)
 
