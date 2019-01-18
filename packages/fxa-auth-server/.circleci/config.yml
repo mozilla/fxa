@@ -86,7 +86,7 @@ jobs:
             "$CIRCLE_SHA1"
             "$CIRCLE_TAG"
             "$CIRCLE_PROJECT_USERNAME"
-            "fxa-oauth-server"
+            "$CIRCLE_PROJECT_REPONAME"
             "$CIRCLE_BUILD_URL"
             | tee version.json fxa-oauth-server/version.json fxa-oauth-server/config/version.json
       - store_artifacts:
