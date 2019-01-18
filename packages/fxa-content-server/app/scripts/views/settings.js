@@ -71,6 +71,7 @@ define(function (require, exports, module) {
       this._childView = options.childView;
       this._createView = options.createView;
       this._experimentGroupingRules = options.experimentGroupingRules;
+      this._marketingEmailEnabled = options.marketingEmailEnabled !== false;
 
       const uid = this.relier.get('uid');
       this.notifier.trigger('set-uid', uid);
@@ -232,6 +233,10 @@ define(function (require, exports, module) {
      * @private
      */
     _areCommunicationPrefsVisible () {
+      if (! this._marketingEmailEnabled) {
+        return false;
+      }
+
       if (! this._experimentGroupingRules.choose('communicationPrefsVisible', {
         lang: this.navigator.language
       })) {

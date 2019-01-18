@@ -43,6 +43,7 @@ define(function (require, exports, module) {
     var experimentGroupingRules;
     var formPrefill;
     var initialChildView;
+    var marketingEmailEnabled;
     var metrics;
     var notifier;
     var profileClient;
@@ -65,6 +66,7 @@ define(function (require, exports, module) {
         createView,
         experimentGroupingRules,
         formPrefill,
+        marketingEmailEnabled,
         metrics,
         notifier,
         relier,
@@ -85,6 +87,7 @@ define(function (require, exports, module) {
       experimentGroupingRules = new ExperimentGroupingRules();
       formPrefill = new FormPrefill();
       notifier = new Notifier();
+      marketingEmailEnabled = true;
       metrics = new Metrics({ notifier });
       profileClient = new ProfileClient();
       relier = new Relier();

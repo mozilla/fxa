@@ -463,6 +463,7 @@ Start.prototype = {
       interTabChannel: this._interTabChannel,
       isCoppaEnabled: this._config.isCoppaEnabled,
       lang: this._config.lang,
+      marketingEmailEnabled: this._config.marketingEmailEnabled,
       metrics: this._metrics,
       notifier: this._notifier,
       relier: this._relier,

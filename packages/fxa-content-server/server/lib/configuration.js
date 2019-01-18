@@ -279,6 +279,12 @@ const conf = module.exports = convict({
       env: 'FXA_MARKETING_EMAIL_API_URL',
       format: 'url'
     },
+    enabled: {
+      default: true,
+      doc: 'Feature flag for communication preferences in settings',
+      env: 'FXA_MARKETING_EMAIL_ENABLED',
+      format: Boolean
+    },
     preferences_url: {
       default: 'https://www-dev.allizom.org/newsletter/existing/',
       doc: 'User facing URL where a user can manage their email preferences',

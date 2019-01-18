@@ -24,15 +24,18 @@ define(function (require, exports, module) {
 
   describe('views/mixins/email-opt-in-mixin', function () {
     let experimentGroupingRules;
+    let marketingEmailEnabled;
     let view;
 
     beforeEach(() => {
       experimentGroupingRules = {
         choose: () => {}
       };
+      marketingEmailEnabled = true;
 
       view = new View({
-        experimentGroupingRules
+        experimentGroupingRules,
+        marketingEmailEnabled
       });
     });
 
