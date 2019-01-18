@@ -150,6 +150,7 @@ describe('metrics/amplitude', () => {
           oauth_client_id: '0'
         })
         assert.deepEqual(args[0].user_properties, {
+          entrypoint: 'amo',
           flow_id: 'udge',
           sync_active_devices_day: 1,
           sync_active_devices_week: 2,
@@ -213,6 +214,7 @@ describe('metrics/amplitude', () => {
           oauth_client_id: '1'
         })
         assert.deepEqual(args[0].user_properties, {
+          entrypoint: 'pocket',
           sync_active_devices_day: 0,
           sync_active_devices_week: 0,
           sync_active_devices_month: 0,
