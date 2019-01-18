@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "1.127.0",
+  "version": "1.128.1",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
@@ -5979,9 +5979,9 @@
       }
     },
     "fxa-shared": {
-      "version": "1.0.14",
-      "resolved": "https://registry.npmjs.org/fxa-shared/-/fxa-shared-1.0.14.tgz",
-      "integrity": "sha512-wET8N1xKtxaKOPm1dpLr/KjmJTlRBjPnG/oBCvDcnXR3TFRSOF6YOtyIyW6GUjboT1VsIw+MVPZg/yoGQIgbEA==",
+      "version": "1.0.15",
+      "resolved": "https://registry.npmjs.org/fxa-shared/-/fxa-shared-1.0.15.tgz",
+      "integrity": "sha512-9J7ASrgrxZc/xjhqwk6bp/EmqKMVP0igfzHrJ5en/G3xbAqbzm1EzI+5PKz3s5FkiLorb8+p/fpogxcFv/hfLQ==",
       "requires": {
         "accept-language": "2.0.17",
         "moment": "2.20.1"
@@ -10095,7 +10095,7 @@
       "from": "git://github.com/vladikoff/node-uap.git#9cdd16247",
       "requires": {
         "array.prototype.find": "2.0.0",
-        "uap-core": "git://github.com/ua-parser/uap-core.git#010ccdc7303546cd22b9da687c29f4a996990014",
+        "uap-core": "git://github.com/ua-parser/uap-core.git#6cfb915779a6b707b4f622cc1ebb70c15000bfb2",
         "uap-ref-impl": "0.2.0",
         "yamlparser": "0.0.2"
       }
@@ -13190,7 +13190,7 @@
       "from": "git://github.com/vladikoff/ua-parser-js.git#fxa-version"
     },
     "uap-core": {
-      "version": "git://github.com/ua-parser/uap-core.git#010ccdc7303546cd22b9da687c29f4a996990014",
+      "version": "git://github.com/ua-parser/uap-core.git#6cfb915779a6b707b4f622cc1ebb70c15000bfb2",
       "from": "git://github.com/ua-parser/uap-core.git"
     },
     "uap-ref-impl": {
