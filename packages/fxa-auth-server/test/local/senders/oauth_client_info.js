@@ -35,7 +35,6 @@ describe('lib/senders/oauth_client_info:', () => {
       mockLog = {
         fatal: sinon.spy(),
         trace: sinon.spy(),
-        critical: sinon.spy(),
         warn: sinon.spy()
       }
       mockOAuthDB = {}
@@ -65,7 +64,7 @@ describe('lib/senders/oauth_client_info:', () => {
       })
       return fetch('24bdbfa45cd300c5').then((res) => {
         assert.deepEqual(res, FIREFOX_CLIENT)
-        assert.ok(mockLog.critical.calledOnce, 'called critical log')
+        assert.ok(mockLog.fatal.calledOnce, 'called fatal log')
       })
     })
 
