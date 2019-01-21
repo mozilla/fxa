@@ -223,12 +223,13 @@ describe('views/mixins/password-mixin', function () {
       });
 
       it('getAffectedPasswordInputs - gets all affected inputs', function () {
+        $('#container').html(view.$el);
         let targets = view.getAffectedPasswordInputs('#show-password');
-        assert.equal(targets.length, 1);
+        assert.lengthOf(targets, 1);
 
-        view.$('#show-password').data('synchronize-show', 'true');
+        view.$('#vpassword').attr('data-synchronize-show', 'true');
         targets = view.getAffectedPasswordInputs('#show-password');
-        assert.equal(targets.length, 2);
+        assert.lengthOf(targets, 2);
       });
     });
   });

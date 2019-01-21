@@ -1510,6 +1510,8 @@ const fillOutCompleteResetPassword = thenify(function (password, vpassword) {
  * @param   {object} [options]
  *   @param {boolean} [options.expectSuccess=true] if set to `true`, tests whether
  *     the password change succeeds.
+ *   @param {string} [options.vpassword=newPassword] If set, used as the verification password. If
+ *     not specified, `newPassword` is used.
  * @returns {promise} resolves when complete
  */
 const fillOutChangePassword = thenify(function (oldPassword, newPassword, options = {}) {
@@ -1518,6 +1520,7 @@ const fillOutChangePassword = thenify(function (oldPassword, newPassword, option
 
     .then(type('#old_password', oldPassword))
     .then(type('#new_password', newPassword))
+    .then(type('#new_vpassword', 'vpassword' in options ? options.vpassword : newPassword))
     .then(click('#change-password button[type="submit"]'))
     .then(function () {
       if (options.expectSuccess !== false) {

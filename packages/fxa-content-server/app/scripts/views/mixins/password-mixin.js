@@ -51,8 +51,7 @@ module.exports = {
   },
 
   /**
-   * If the user is part of the show password control group,
-   * add a `show password` label to each of the passed in
+   * Add a `show password` label to each of the passed in
    * elements.
    *
    * @param {String|Element} passwordEls
@@ -77,7 +76,7 @@ module.exports = {
     // only add the label if a password has been entered and one
     // has not already been added.
     return $passwordEl.val().length &&
-             ! this.$(`#show-${$passwordEl.attr('id')}`).length;
+          ! this.$(`#show-${$passwordEl.attr('id')}`).length;
   },
 
   /**
@@ -122,7 +121,7 @@ module.exports = {
   getAffectedPasswordInputs (button) {
     var $passwordEl = this.$(button).siblings('.password');
     if (this.$(button).data('synchronizeShow')) {
-      $passwordEl = this.$('.password');
+      $passwordEl = this.$('.password[data-synchronize-show]');
     }
     return $passwordEl;
   },
