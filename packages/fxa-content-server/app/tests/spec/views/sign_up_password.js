@@ -54,6 +54,10 @@ define(function (require, exports, module) {
         window: windowMock
       });
 
+      // Stub in he password strength balloon to avoid unexpected validation
+      // errors during tests.
+      sinon.stub(view, '_createPasswordWithStrengthBalloonView').callsFake(() => ({ on: sinon.spy() }));
+
       return view.render();
     });
 
@@ -105,8 +109,6 @@ define(function (require, exports, module) {
 
     describe('validateAndSubmit', () => {
       beforeEach(() => {
-        sinon.stub(view, 'isValidStart').callsFake(() => true);
-        sinon.stub(view, 'showValidationErrorsStart').callsFake(() => false);
         sinon.stub(view, 'signUp').callsFake(() => Promise.resolve());
         sinon.stub(view, 'tooYoung');
         sinon.spy(view, 'displayError');
@@ -130,8 +132,8 @@ define(function (require, exports, module) {
 
       describe('user is too young', () => {
         it('delegates to `tooYoung`', () => {
-          view.$('#password').val('password');
-          view.$('#vpassword').val('password');
+          view.$('#password').val('password123123');
+          view.$('#vpassword').val('password123123');
           view.$('#age').val('11');
 
           return Promise.resolve(view.validateAndSubmit())
@@ -145,16 +147,15 @@ define(function (require, exports, module) {
 
       describe('user is old enough', () => {
         it('signs up the user', () => {
-          view.$('#password').val('password');
-          view.$('#vpassword').val('password');
+          view.$('#password').val('password123123');
+          view.$('#vpassword').val('password123123');
           view.$('#age').val('21');
 
           sinon.stub(view, 'hasOptedInToMarketingEmail').callsFake(() => true);
 
           return Promise.resolve(view.validateAndSubmit())
             .then(() => {
-              assert.isTrue(view.signUp.calledOnce);
-              assert.isTrue(view.signUp.calledWith(account, 'password'));
+              assert.isTrue(view.signUp.calledOnceWith(account, 'password123123'));
               assert.isTrue(account.get('needsOptedInToMarketingEmail', true));
 
               assert.isFalse(view.displayError.called);

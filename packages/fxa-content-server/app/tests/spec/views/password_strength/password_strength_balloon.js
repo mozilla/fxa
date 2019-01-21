@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { assert } from 'chai';
-import PasswordStrengthBalloonModel from 'models/password_strength/password_strength_balloon';
+import AuthErrors from 'lib/auth-errors';
+import { Model } from 'backbone';
 import PasswordStrengthBalloonView from 'views/password_strength/password_strength_balloon';
 import sinon from 'sinon';
 
@@ -12,11 +13,10 @@ let view;
 
 describe('views/password_strength/password_strength_balloon', () => {
   beforeEach(() => {
-    model = new PasswordStrengthBalloonModel({});
+    model = new Model({});
 
     view = new PasswordStrengthBalloonView({
       delayBeforeHideMS: 5,
-      delayBeforeUpdateMS: 5,
       model
     });
   });
@@ -38,9 +38,24 @@ describe('views/password_strength/password_strength_balloon', () => {
 
     it('too short', () => {
       model.set({
-        hasEnteredPassword: true,
-        isTooShort: true
+        hasUserTakenAction: true,
       });
+      model.validationError = AuthErrors.toError('PASSWORD_TOO_SHORT');
+
+      return view.render()
+        .then(() => {
+          assert.lengthOf(view.$('.min-length.fail'), 1);
+          assert.lengthOf(view.$('.not-email.unmet'), 1);
+          assert.lengthOf(view.$('.not-common.unmet'), 1);
+        });
+    });
+
+    it('missing', () => {
+      model.set({
+        hasUserTakenAction: true,
+      });
+      model.validationError = AuthErrors.toError('PASSWORD_REQUIRED');
+
       return view.render()
         .then(() => {
           assert.lengthOf(view.$('.min-length.fail'), 1);
@@ -51,10 +66,10 @@ describe('views/password_strength/password_strength_balloon', () => {
 
     it('same as email', () => {
       model.set({
-        hasEnteredPassword: true,
-        isSameAsEmail: true,
-        isTooShort: false,
+        hasUserTakenAction: true,
       });
+      model.validationError = AuthErrors.toError('PASSWORD_SAME_AS_EMAIL');
+
       return view.render()
         .then(() => {
           assert.lengthOf(view.$('.min-length.met'), 1);
@@ -65,10 +80,10 @@ describe('views/password_strength/password_strength_balloon', () => {
 
     it('too common', () => {
       model.set({
-        hasEnteredPassword: true,
-        isCommon: true,
-        isTooShort: false,
+        hasUserTakenAction: true,
       });
+      model.validationError = AuthErrors.toError('PASSWORD_TOO_COMMON');
+
       return view.render()
         .then(() => {
           assert.lengthOf(view.$('.min-length.met'), 1);
@@ -79,7 +94,7 @@ describe('views/password_strength/password_strength_balloon', () => {
 
     it('all criteria met', () => {
       model.set({
-        hasEnteredPassword: true,
+        hasUserTakenAction: true,
         isTooShort: false,
       });
       return view.render()
@@ -91,43 +106,39 @@ describe('views/password_strength/password_strength_balloon', () => {
     });
   });
 
+  describe('update', () => {
+    beforeEach(() => {
+      sinon.spy(view, 'render');
+      sinon.spy(view, 'hideAfterDelay');
+    });
 
-  it('hides if the model is valid', () => {
-    sinon.spy(view, 'hideAfterDelay');
-    model.set('isValid', true);
+    it('renders, does not hide if error', () => {
+      model.validationError = AuthErrors.toError('PASSWORD_SAME_AS_EMAIL');
 
-    assert.isTrue(view.hideAfterDelay.calledOnce);
-  });
+      return view.update()
+        .then(() => {
+          assert.isTrue(view.render.calledOnce);
+          assert.isFalse(view.hideAfterDelay.called);
+        });
+    });
 
-  [
-    'hasEnteredPassword',
-    'isCommon',
-    'isSameAsEmail',
-    'isTooShort'
-  ].forEach(attributeName => {
-    it(`updates when ${attributeName} changes`, () => {
-      model.set(attributeName, false, { silent: true });
+    it('hides if the model is valid', () => {
+      model.validationError = null;
 
-      sinon.stub(view, 'update');
-      model.set(attributeName, true);
-
-      assert.isTrue(view.update.calledOnce);
+      return view.update()
+        .then(() => {
+          assert.isTrue(view.render.calledOnce);
+          assert.isTrue(view.hideAfterDelay.calledOnce);
+        });
     });
   });
 
-  it('hideAfterDelay re-renders and then hides if the view is supposed to be visible', () => {
+  it('hideAfterDelay hides after a delay', () => {
     sinon.stub(view, 'setTimeout').callsFake((callback) => callback.call(view));
-    sinon.stub(view, 'renderAfterDelay');
     sinon.stub(view, 'hide');
 
-    model.set('isVisible', false);
-    view.hideAfterDelay();
-    assert.isFalse(view.renderAfterDelay.called);
-
-    model.set('isVisible', true);
     view.hideAfterDelay();
 
-    assert.isTrue(view.renderAfterDelay.calledOnce);
     assert.isTrue(view.setTimeout.calledOnce);
     assert.isTrue(view.hide.calledOnce);
   });

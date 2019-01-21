@@ -33,8 +33,12 @@ module.exports = {
     ERROR: '#change-password .error',
     LINK_RESET_PASSWORD: '.reset-password',
     MENU_BUTTON: '#change-password .settings-unit-toggle',
+    NEW_PASSWORD: '#new_password',
+    NEW_VPASSWORD: '#new_vpassword',
     OLD_PASSWORD: '#old_password',
     OLD_PASSWORD_SHOW: '[for=show-old_password]',
+    PASSWORD_BALLOON,
+    SUBMIT: '#change-password button[type="submit"]',
     TOOLTIP: '.tooltip',
   },
   CHOOSE_WHAT_TO_SYNC: {

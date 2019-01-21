@@ -5,6 +5,7 @@
 import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
 import PasswordModel from 'models/password_strength/password_strength_balloon';
+import sinon from 'sinon';
 
 let model;
 
@@ -13,40 +14,44 @@ describe('models/password_strength/password_strength_balloon', () => {
     model = new PasswordModel({
       email: 'testuser@testuser.com'
     });
+
+    sinon.spy(model, '_getCommonPasswordList');
+    sinon.spy(model, 'isValid');
+
+    return model.fetch();
+  });
+
+  it('`fetch` fetches the password list', () => {
+    assert.isTrue(model._getCommonPasswordList.calledOnce);
   });
 
   it('has the expected defaults', () => {
     assert.deepEqual(model.toJSON(), {
       email: 'testuser@testuser.com',
-      hasCheckedPassword: false,
-      hasEnteredPassword: false,
-      hasSubmit: false,
-      isCommon: false,
-      isSameAsEmail: false,
-      isSubmitting: false,
-      isTooShort: false,
-      isValid: false,
-      password: ''
+      hasUserTakenAction: false,
+      isVisible: false,
+      password: null
     });
   });
 
-  describe('updateForPassword', () => {
+  describe('validate', () => {
+    function testPasswordCausesValidationError(password, expectedError) {
+      const err = model.validate({ password });
+      assert.isTrue(AuthErrors.is(err, expectedError));
+    }
+
+    it('no error if no password entered and user has taken no action', () => {
+      const err = model.validate({ password: '' });
+      assert.isUndefined(err);
+    });
+
+    it('catches if no password entered but user has taken some action', () => {
+      const err = model.validate({ hasUserTakenAction: true, password: '' });
+      assert.isTrue(AuthErrors.is(err, 'PASSWORD_REQUIRED'));
+    });
+
     it('catches if password is too short', () => {
-      model.set('password', 'passwor', { silent: true });
-      return model.updateForPassword().then(() => {
-        assert.deepEqual(model.toJSON(), {
-          email: 'testuser@testuser.com',
-          hasCheckedPassword: true,
-          hasEnteredPassword: true,
-          hasSubmit: false,
-          isCommon: false,
-          isSameAsEmail: false,
-          isSubmitting: false,
-          isTooShort: true,
-          isValid: false,
-          password: 'passwor',
-        });
-      });
+      testPasswordCausesValidationError('passwor', 'PASSWORD_TOO_SHORT');
     });
 
     [
@@ -58,22 +63,7 @@ describe('models/password_strength/password_strength_balloon', () => {
       '12345678TESTUSER',              // local part is 50% of password
     ].forEach((password) => {
       it(`catches ${password} as too similar to email`, () => {
-        model.set('password', password, { silent: true });
-        return model.updateForPassword()
-          .then(() => {
-            assert.deepEqual(model.toJSON(), {
-              email: 'testuser@testuser.com',
-              hasCheckedPassword: true,
-              hasEnteredPassword: true,
-              hasSubmit: false,
-              isCommon: false,
-              isSameAsEmail: true,
-              isSubmitting: false,
-              isTooShort: false,
-              isValid: false,
-              password,
-            });
-          });
+        testPasswordCausesValidationError(password, 'PASSWORD_SAME_AS_EMAIL');
       });
     });
 
@@ -81,23 +71,8 @@ describe('models/password_strength/password_strength_balloon', () => {
       'tes12345',             // local part < 50%, at the beginning
       '123456789TESTUSER',    // local part < 50%, not at the beginning
     ].forEach((password) => {
-      it(`catches ${password} as too similar to email`, () => {
-        model.set('password', password, { silent: true });
-        return model.updateForPassword()
-          .then(() => {
-            assert.deepEqual(model.toJSON(), {
-              email: 'testuser@testuser.com',
-              hasCheckedPassword: true,
-              hasEnteredPassword: true,
-              hasSubmit: false,
-              isCommon: false,
-              isSameAsEmail: false,
-              isSubmitting: false,
-              isTooShort: false,
-              isValid: true,
-              password,
-            });
-          });
+      it(`allows ${password}, not similar enough to email`, () => {
+        assert.isUndefined(model.validate({ password }));
       });
     });
 
@@ -120,121 +95,24 @@ describe('models/password_strength/password_strength_balloon', () => {
       'SUMOFirefox'
     ].forEach((password) => {
       it(`considers '${password}' common`, () => {
-        model.set('password', password, { silent: true });
-        return model.updateForPassword()
-          .then(() => {
-            assert.deepEqual(model.toJSON(), {
-              email: 'testuser@testuser.com',
-              hasCheckedPassword: true,
-              hasEnteredPassword: true,
-              hasSubmit: false,
-              isCommon: true,
-              isSameAsEmail: false,
-              isSubmitting: false,
-              isTooShort: false,
-              isValid: false,
-              password,
-            });
-          });
+        testPasswordCausesValidationError(password, 'PASSWORD_TOO_COMMON');
       });
     });
 
-    it('`hasEnteredPassword` remains true after entering then deleting password', () => {
-      model.set({
-        hasEnteredPassword: true,
-        password: ''
-      }, { silent: false });
-      return model.updateForPassword()
-        .then(() => {
-          assert.deepEqual(model.toJSON(), {
-            email: 'testuser@testuser.com',
-            hasCheckedPassword: true,
-            hasEnteredPassword: true,
-            hasSubmit: false,
-            isCommon: false,
-            isSameAsEmail: false,
-            isSubmitting: false,
-            isTooShort: true,
-            isValid: false,
-            password: '',
-          });
-        });
+    it('sets `hasUserTakenAction` to true when `password` set to ``', () => {
+      model.set('password', '');
+      assert.isTrue(model.get('hasUserTakenAction'));
     });
 
-    it('sets `isValid: true` if all criteria are met', () => {
-      const password = '15asdgljk325sadglkasdgklasdjlg';
-      model.set('password', password, { silent: true });
-      return model.updateForPassword()
-        .then(() => {
-          assert.deepEqual(model.toJSON(), {
-            email: 'testuser@testuser.com',
-            hasCheckedPassword: true,
-            hasEnteredPassword: true,
-            hasSubmit: false,
-            isCommon: false,
-            isSameAsEmail: false,
-            isSubmitting: false,
-            isTooShort: false,
-            isValid: true,
-            password
-          });
-        });
-    });
-  });
-
-  describe('validate', () => {
-    it('returns PASSWORD_REQUIRED if no password entered', () => {
-      model.set('hasEnteredPassword', false);
-      assert.isTrue(AuthErrors.is(model.validate(), 'PASSWORD_REQUIRED'));
+    it('sets `hasUserTakenAction` to true when `password` changes', () => {
+      model.set('password', 'p');
+      assert.isTrue(model.get('hasUserTakenAction'));
     });
 
-    it('returns PASSWORD_TOO_SHORT for isTooShort', () => {
-      model.set({
-        hasEnteredPassword: true,
-        isCommon: false,
-        isSameAsEmail: false,
-        isTooShort: true,
-        password: 'pass',
-      });
-      assert.isTrue(AuthErrors.is(model.validate(), 'PASSWORD_TOO_SHORT'));
+    it('calls `isValid` whenever the password changes', () => {
+      assert.isFalse(model.isValid.called);
+      model.set('password', 'p');
+      assert.isTrue(model.isValid.calledOnce);
     });
-
-    it('returns PASSWORD_SAME_AS_EMAIL for isSameAsEmail', () => {
-      model.set({
-        hasEnteredPassword: true,
-        isCommon: false,
-        isSameAsEmail: true,
-        isTooShort: false,
-        password: 'testuser',
-      });
-      assert.isTrue(AuthErrors.is(model.validate(), 'PASSWORD_SAME_AS_EMAIL'));
-    });
-
-    it('returns PASSWORD_TOO_COMMON for isCommon', () => {
-      model.set({
-        hasEnteredPassword: true,
-        isCommon: true,
-        isSameAsEmail: false,
-        isTooShort: false,
-        password: 'password',
-      });
-      assert.isTrue(AuthErrors.is(model.validate(), 'PASSWORD_TOO_COMMON'));
-    });
-
-    it('returns undefined if no problem', () => {
-      model.set({
-        hasEnteredPassword: true,
-        isCommon: false,
-        isSameAsEmail: false,
-        isTooShort: false,
-        password: 'password123123',
-      });
-      assert.isUndefined(model.validate());
-    });
-  });
-
-  it('updating isSubmitting changes `hasSubmit` to true', () => {
-    model.set('isSubmitting', true);
-    assert.isTrue(model.get('hasSubmit'));
   });
 });

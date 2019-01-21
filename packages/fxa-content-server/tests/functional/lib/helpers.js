@@ -1518,10 +1518,10 @@ const fillOutChangePassword = thenify(function (oldPassword, newPassword, option
   return this.parent
     .setFindTimeout(intern._config.pageLoadTimeout)
 
-    .then(type('#old_password', oldPassword))
-    .then(type('#new_password', newPassword))
-    .then(type('#new_vpassword', 'vpassword' in options ? options.vpassword : newPassword))
-    .then(click('#change-password button[type="submit"]'))
+    .then(type(selectors.CHANGE_PASSWORD.OLD_PASSWORD, oldPassword))
+    .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, newPassword))
+    .then(type(selectors.CHANGE_PASSWORD.NEW_VPASSWORD, 'vpassword' in options ? options.vpassword : newPassword))
+    .then(click(selectors.CHANGE_PASSWORD.SUBMIT))
     .then(function () {
       if (options.expectSuccess !== false) {
         return this.parent

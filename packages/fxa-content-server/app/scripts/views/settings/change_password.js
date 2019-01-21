@@ -8,6 +8,7 @@ import Cocktail from 'cocktail';
 import FormView from '../form';
 import ExperimentMixin from '../mixins/experiment-mixin';
 import PasswordMixin from '../mixins/password-mixin';
+import PasswordStrengthMixin from '../mixins/password-strength-mixin';
 import ServiceMixin from '../mixins/service-mixin';
 import SettingsPanelMixin from '../mixins/settings-panel-mixin';
 import Template from 'templates/settings/change_password.mustache';
@@ -86,6 +87,10 @@ Cocktail.mixin(
   View,
   ExperimentMixin,
   PasswordMixin,
+  PasswordStrengthMixin({
+    balloonEl: '.helper-balloon',
+    passwordEl: '#new_password'
+  }),
   SettingsPanelMixin,
   ServiceMixin,
   BackMixin

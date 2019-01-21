@@ -47,7 +47,14 @@ define(function (require, exports, module) {
   }
 
   $.fn.validate = function () {
-    return getHelper(this).validate.call(this);
+    if (this.data('validate')) {
+      // the element has a custom validator attached to it,
+      // probably from a view. Depend on the validator instead
+      // of the standard validation functions.
+      return this.data('validate')();
+    } else {
+      return getHelper(this).validate.call(this);
+    }
   };
 
   $.fn.__val = $.fn.val;
