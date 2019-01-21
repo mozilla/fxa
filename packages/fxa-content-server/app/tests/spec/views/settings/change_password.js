@@ -3,20 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import $ from 'jquery';
+import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
 import Broker from 'models/auth_brokers/base';
-import chai from 'chai';
+import { isEventLogged } from '../../../lib/helpers';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
-import TestHelpers from '../../../lib/helpers';
 import User from 'models/user';
 import View from 'views/settings/change_password';
-
-var assert = chai.assert;
-var wrapAssertion = TestHelpers.wrapAssertion;
 
 const EMAIL = 'a@a.com';
 
@@ -90,61 +87,64 @@ describe('views/settings/change_password', function () {
       });
     });
 
-    describe('isValid', function () {
+    describe('isValidEnd', function () {
       it('returns true if both old and new passwords are valid and different', function () {
         $('#old_password').val('password');
-        $('#new_password').val('password2');
+        $('#new_password').val('password123123');
+        $('#new_vpassword').val('password123123');
 
-        assert.equal(view.isValid(), true);
+        assert.isTrue(view.isValidEnd());
       });
 
       it('returns true if both old and new passwords are valid and the same', function () {
-        $('#old_password').val('password');
-        $('#new_password').val('password');
+        $('#old_password').val('password123123');
+        $('#new_password').val('password123123');
+        $('#new_vpassword').val('password123123');
 
-        assert.equal(view.isValid(), true);
+        assert.isTrue(view.isValidEnd());
       });
 
-      it('returns false if old password is too short', function () {
-        $('#old_password').val('passwor');
-        $('#new_password').val('password');
+      it('returns false if new passwords are valid and different', function () {
+        $('#old_password').val('password123123');
+        $('#new_password').val('password12312345');
+        $('#new_vpassword').val('password123123');
 
-        assert.equal(view.isValid(), false);
-      });
-
-      it('returns false if new password is too short', function () {
-        $('#old_password').val('password');
-        $('#new_password').val('passwor');
-
-        assert.equal(view.isValid(), false);
+        assert.isFalse(view.isValidEnd());
       });
     });
 
     describe('showValidationErrors', function () {
-      it('shows an error if the password is invalid', function (done) {
+      it('shows an error if old_password is invalid', function () {
         view.$('#old_password').val('passwor');
-        view.$('#new_password').val('password');
+        view.$('#new_password').val('password123123');
+        view.$('#new_vpassword').val('password123123');
 
-        view.on('validation_error', function (which, msg) {
-          wrapAssertion(function () {
-            assert.ok(msg);
-          }, done);
-        });
-
+        sinon.spy(view, 'showValidationError');
         view.showValidationErrors();
+
+        assert.isTrue(view.showValidationError.calledOnce);
       });
 
-      it('shows an error if the new_password is invalid', function (done) {
+      it('shows an error if new_password is invalid', function () {
         view.$('#old_password').val('password');
         view.$('#new_password').val('passwor');
+        view.$('#new_vpassword').val('password123123');
 
-        view.on('validation_error', function (which, msg) {
-          wrapAssertion(function () {
-            assert.ok(msg);
-          }, done);
-        });
-
+        sinon.spy(view, 'showValidationError');
         view.showValidationErrors();
+
+        assert.isTrue(view.showValidationError.calledOnce);
+      });
+
+      it('shows an error if new_password and new_vpassword are different', function () {
+        view.$('#old_password').val('password');
+        view.$('#new_password').val('passwor');
+        view.$('#new_vpassword').val('password123123');
+
+        sinon.spy(view, 'showValidationError');
+        view.showValidationErrors();
+
+        assert.isTrue(view.showValidationError.calledOnce);
       });
 
     });
@@ -152,11 +152,12 @@ describe('views/settings/change_password', function () {
     describe('submit', function () {
       describe('success', function () {
         var oldPassword = 'password';
-        var newPassword = 'new_password';
+        var newPassword = 'password123123';
 
         beforeEach(function () {
           $('#old_password').val(oldPassword);
           $('#new_password').val(newPassword);
+          $('#new_vpassword').val(newPassword);
 
           sinon.stub(user, 'changeAccountPassword').callsFake(function () {
             return Promise.resolve({});
@@ -185,7 +186,7 @@ describe('views/settings/change_password', function () {
 
         it('displays a success message', function () {
           assert.isTrue(view.displaySuccess.called);
-          assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.change-password.success'));
+          assert.isTrue(isEventLogged(metrics, 'settings.change-password.success'));
         });
       });
 
@@ -194,6 +195,7 @@ describe('views/settings/change_password', function () {
         beforeEach(function () {
           $('#old_password').val('bad_password');
           $('#new_password').val('bad_password');
+          $('#new_vpassword').val('bad_password');
 
           sinon.stub(user, 'changeAccountPassword').callsFake(function () {
             return Promise.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
@@ -212,7 +214,8 @@ describe('views/settings/change_password', function () {
 
         beforeEach(function () {
           $('#old_password').val('password');
-          $('#new_password').val('password');
+          $('#new_password').val('password123123');
+          $('#new_vpassword').val('password123123');
 
           sinon.stub(user, 'changeAccountPassword').callsFake(function () {
             return Promise.reject(AuthErrors.toError('PASSWORDS_MUST_BE_DIFFERENT'));

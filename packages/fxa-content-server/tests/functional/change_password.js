@@ -58,7 +58,7 @@ registerSuite('change_password', {
     return this.remote.then(clearBrowserState());
   },
   tests: {
-    'sign in, try to change password with an incorrect old password': function () {
+    'try to change password with an incorrect old password': function () {
       return this.remote
         .then(setupTest())
 
@@ -83,7 +83,7 @@ registerSuite('change_password', {
         .then(noSuchElementDisplayed(selectors.CHANGE_PASSWORD.ERROR));
     },
 
-    'sign in, try to change password with short password, tooltip shows, cancel, try to change password again, tooltip is not shown': function () {
+    'try to change password with short password, tooltip shows, cancel, try to change password again, tooltip is not shown': function () {
       return this.remote
         .then(setupTest())
 
@@ -101,7 +101,21 @@ registerSuite('change_password', {
         .then(noSuchElement(selectors.CHANGE_PASSWORD.TOOLTIP));
     },
 
-    'sign in, change password, sign in with new password': function () {
+    'vpassword validation, tooltip shows': function () {
+      return this.remote
+        .then(setupTest())
+
+        // Go to change password screen
+        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
+        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD, { expectSuccess: false, vpassword: '' }))
+        // the validation tooltip should be visible
+        .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
+        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD, { expectSuccess: false, vpassword: 'different' }))
+        // the validation tooltip should be visible
+        .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP));
+    },
+
+    'change password, sign in with new password': function () {
       return this.remote
         .then(setupTest())
 
@@ -155,7 +169,7 @@ registerSuite('change_password', {
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-    'sign in, reset password via settings works': function () {
+    'reset password via settings works': function () {
       return this.remote
         .then(setupTest())
 

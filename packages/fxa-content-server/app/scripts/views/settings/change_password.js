@@ -14,20 +14,35 @@ import Template from 'templates/settings/change_password.mustache';
 
 const t = msg => msg;
 
-var View = FormView.extend({
+const View = FormView.extend({
   template: Template,
   className: 'change-password',
   viewName: 'settings.change-password',
 
+  getAccount () {
+    return this.getSignedInAccount();
+  },
+
   setInitialContext (context) {
-    const account = this.getSignedInAccount();
+    const account = this.getAccount();
     context.set('email', account.get('email'));
   },
 
+  isValidEnd () {
+    return this._getNewPassword() === this._getNewVPassword();
+  },
+
+  showValidationErrorsEnd () {
+    if (this._getNewPassword() !== this._getNewVPassword()) {
+      const err = AuthErrors.toError('PASSWORDS_DO_NOT_MATCH');
+      this.showValidationError(this.$('#new_vpassword'), err);
+    }
+  },
+
   submit () {
-    var account = this.getSignedInAccount();
-    var oldPassword = this.$('#old_password').val();
-    var newPassword = this.$('#new_password').val();
+    var account = this.getAccount();
+    var oldPassword = this._getOldPassword();
+    var newPassword = this._getNewPassword();
 
     this.hideError();
 
@@ -36,27 +51,35 @@ var View = FormView.extend({
       oldPassword,
       newPassword,
       this.relier
-    )
-      .then(() => {
-        this.logViewEvent('success');
-        return this.invokeBrokerMethod('afterChangePassword', account);
-      })
-      .then(() => {
-        this.displaySuccess(t('Password changed successfully'));
-        this.navigate('settings');
+    ).then(() => {
+      this.logViewEvent('success');
+      return this.invokeBrokerMethod('afterChangePassword', account);
+    }).then(() => {
+      this.displaySuccess(t('Password changed successfully'));
+      this.navigate('settings');
 
-        return this.render();
-      })
-      .catch((err) => {
-        if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
-          return this.showValidationError(this.$('#old_password'), err);
-        } else if (AuthErrors.is(err, 'PASSWORDS_MUST_BE_DIFFERENT')) {
-          return this.showValidationError(this.$('#new_password'), err);
-        }
-        throw err;
-      });
-  }
+      return this.render();
+    }).catch((err) => {
+      if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
+        return this.showValidationError(this.$('#old_password'), err);
+      } else if (AuthErrors.is(err, 'PASSWORDS_MUST_BE_DIFFERENT')) {
+        return this.showValidationError(this.$('#new_password'), err);
+      }
+      throw err;
+    });
+  },
 
+  _getOldPassword () {
+    return this.$('#old_password').val();
+  },
+
+  _getNewPassword () {
+    return this.$('#new_password').val();
+  },
+
+  _getNewVPassword () {
+    return this.$('#new_vpassword').val();
+  },
 });
 
 Cocktail.mixin(
