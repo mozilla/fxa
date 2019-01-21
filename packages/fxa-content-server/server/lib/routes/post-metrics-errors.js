@@ -53,7 +53,7 @@ const BODY_SCHEMA = {
   level: STRING_TYPE.optional(),
   logger: STRING_TYPE.optional(),
   message: STRING_TYPE.optional(),
-  platform: STRING_TYPE.required(),
+  platform: STRING_TYPE.optional(),
   project: STRING_TYPE.required(),
   release: STRING_TYPE.optional(),
   request: joi.object().keys({

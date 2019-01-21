@@ -27,6 +27,7 @@ suite.tests['#post /metrics-errors - returns 200'] = {
   'level (undefined)': testValidMetricsErrorField('level', undefined),
   'message (undefined)': testValidMetricsErrorField('message', undefined),
   'no query params': testValidMetricsError(VALID_METRICS_ERROR),
+  'platform (undefined)': testValidMetricsErrorField('platform', undefined),
   'query': testValidMetricsError(VALID_METRICS_ERROR, '?sentry_version=4'),
   'release (undefined)': testValidMetricsErrorField('release', undefined),
   'stacktrace frame w/ colno (null)': testValidStacktraceFrame('colno', null),
