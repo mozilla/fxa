@@ -130,7 +130,7 @@
     "chai": "1.8.1",
     "css": "2.2.3",
     "eslint": "4.16.0",
-    "eslint-plugin-fxa": "git://github.com/mozilla/eslint-plugin-fxa.git#41504c9dd30e8b52900c15b524946aa0428aef95",
+    "eslint-plugin-fxa": "git://github.com/mozilla/eslint-plugin-fxa.git#1153ff4bbf7e2c074363253c555fb7f71bac09a1",
     "eslint-plugin-sorting": "git://github.com/shane-tomlinson/eslint-plugin-sorting.git#bcacb99d",
     "firefox-profile": "1.2.0",
     "fxa-conventional-changelog": "1.1.0",
