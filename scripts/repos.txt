@@ -16,7 +16,6 @@ fxa-jwtool
 fxa-local-dev
 fxa-oauth-console
 fxa-oauth-client
-fxa-oauth-server
 fxa-profile-server
 fxa-python-client
 fxa-relier-client
