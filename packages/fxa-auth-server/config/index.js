@@ -244,32 +244,6 @@ var conf = convict({
         env: 'PREPEND_VERIFICATION_SUBDOMAIN_SUBDOMAIN'
       },
     },
-    verificationUrl: {
-      doc: 'Deprecated. uses contentServer.url',
-      format: String,
-      default: undefined,
-      env: 'VERIFY_URL',
-      arg: 'verify-url'
-    },
-    verifyLoginUrl: {
-      doc: 'Deprecated. uses contentServer.url',
-      format: String,
-      default: undefined,
-      env: 'VERIFY_LOGIN_URL',
-      arg: 'verify-login-url'
-    },
-    passwordResetUrl: {
-      doc: 'Deprecated. uses contentServer.url',
-      format: String,
-      default: undefined,
-      env: 'RESET_URL',
-      arg: 'reset-url'
-    },
-    initiatePasswordResetUrl: {
-      doc: 'Deprecated. uses contentServer.url',
-      format: String,
-      default: undefined
-    },
     syncUrl: {
       doc: 'url to Sync product page',
       format: String,
