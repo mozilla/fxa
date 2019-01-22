@@ -14,6 +14,7 @@ module.exports = function (config) {
   const ENV = config.get('env');
   const FLOW_ID_KEY = config.get('flow_id_key');
   const MARKETING_EMAIL_API_URL = config.get('marketing_email.api_url');
+  const MARKETING_EMAIL_ENABLED = config.get('marketing_email.enabled');
   const MARKETING_EMAIL_PREFERENCES_URL = config.get('marketing_email.preferences_url');
   const OAUTH_SERVER_URL = config.get('oauth_url');
   const PROFILE_SERVER_URL = config.get('profile_url');
@@ -28,6 +29,7 @@ module.exports = function (config) {
     authServerUrl: AUTH_SERVER_URL,
     env: ENV,
     isCoppaEnabled: COPPA_ENABLED,
+    marketingEmailEnabled: MARKETING_EMAIL_ENABLED,
     marketingEmailPreferencesUrl: MARKETING_EMAIL_PREFERENCES_URL,
     marketingEmailServerUrl: MARKETING_EMAIL_API_URL,
     oAuthClientId: CLIENT_ID,

@@ -15,6 +15,7 @@ define(function (require, exports, module) {
   module.exports = {
     initialize (options = {}) {
       this._experimentGroupingRules = options.experimentGroupingRules;
+      this._marketingEmailEnabled = options.marketingEmailEnabled !== false;
     },
 
     setInitialContext (context) {
@@ -26,6 +27,10 @@ define(function (require, exports, module) {
     },
 
     _isEmailOptInEnabled () {
+      if (! this._marketingEmailEnabled) {
+        return false;
+      }
+
       return !! this._experimentGroupingRules.choose('communicationPrefsVisible', {
         lang: this.navigator.language
       });
