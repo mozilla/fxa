@@ -106,7 +106,7 @@ module.exports = (log, config) => {
       issuer: config.domain
     }
     const claims = {
-      uid: credentials.uid,
+      'sub': credentials.uid,
       'fxa-generation': credentials.verifierSetAt,
       'fxa-verifiedEmail': credentials.email,
       'fxa-lastAuthAt': credentials.lastAuthAt(),

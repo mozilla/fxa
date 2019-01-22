@@ -599,7 +599,7 @@ var conf = convict({
     url: {
       format: 'url',
       doc: 'URL at which to verify OAuth tokens',
-      default: 'http://localhost:9010',
+      default: 'http://127.0.0.1:9010',
       env: 'OAUTH_URL'
     },
     keepAlive: {

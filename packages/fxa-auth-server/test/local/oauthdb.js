@@ -180,7 +180,7 @@ describe('oauthdb', () => {
         'fxa-tokenVerified': true,
         'fxa-verifiedEmail': MOCK_CREDENTIALS.email,
         iss: 'accounts.example.com',
-        uid: MOCK_UID
+        sub: MOCK_UID
       })
       assert.deepEqual(keyData, {
         'mock-scope': {
