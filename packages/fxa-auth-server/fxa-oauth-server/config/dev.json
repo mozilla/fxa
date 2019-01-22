@@ -161,6 +161,7 @@
     "key": {}
   },
   "allowHttpRedirects": true,
+  "authServerSecrets": ["megaz0rd"],
   "scopes": [
     {
       "scope": "https://identity.mozilla.com/apps/notes",
