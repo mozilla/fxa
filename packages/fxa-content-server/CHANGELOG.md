@@ -1,3 +1,33 @@
+<a name="1.129.0"></a>
+# [1.129.0](https://github.com/mozilla/fxa-content-server/compare/v1.128.1...v1.129.0) (2019-01-22)
+
+
+### Bug Fixes
+
+* **l10n:** Ensure tooltips are translated in local dev ([a7d44c6](https://github.com/mozilla/fxa-content-server/commit/a7d44c6)), closes [#6871](https://github.com/mozilla/fxa-content-server/issues/6871)
+* **metrics:** allow optional platform in /metrics-errors ([e27e6a6](https://github.com/mozilla/fxa-content-server/commit/e27e6a6)), closes [#6873](https://github.com/mozilla/fxa-content-server/issues/6873)
+* **pw-strength:** Use 15px font size in pw-strength meter for Arabic. ([89fd8e3](https://github.com/mozilla/fxa-content-server/commit/89fd8e3)), closes [#6556](https://github.com/mozilla/fxa-content-server/issues/6556)
+* **sign_in_code:** fix code numeric input ([329640a](https://github.com/mozilla/fxa-content-server/commit/329640a)), closes [#6765](https://github.com/mozilla/fxa-content-server/issues/6765)
+* **teamcity:** install with `npm ci` ([0f42477](https://github.com/mozilla/fxa-content-server/commit/0f42477))
+* **TOTP:** Translate success status messages on /settings/recovery_codes ([6984fa8](https://github.com/mozilla/fxa-content-server/commit/6984fa8)), closes [#6728](https://github.com/mozilla/fxa-content-server/issues/6728)
+
+### chore
+
+* **deps:** Update to fxa-shared@1.0.15 ([fba684c](https://github.com/mozilla/fxa-content-server/commit/fba684c))
+
+### Features
+
+* **change-password:** Add a "verification password" on password change. ([1ba97d3](https://github.com/mozilla/fxa-content-server/commit/1ba97d3)), closes [#6859](https://github.com/mozilla/fxa-content-server/issues/6859) [#6573](https://github.com/mozilla/fxa-content-server/issues/6573)
+* **npm:** rewrap npm deps to pick up latest eslint-plugin-fxa rules ([3bb1d64](https://github.com/mozilla/fxa-content-server/commit/3bb1d64)), closes [#6554](https://github.com/mozilla/fxa-content-server/issues/6554)
+* **settings:** put communication prefs behind a feature flag ([f3dcbe0](https://github.com/mozilla/fxa-content-server/commit/f3dcbe0))
+
+### Refactor
+
+* **scripts:** Remove code for uuid(old storage name) ([e5bea37](https://github.com/mozilla/fxa-content-server/commit/e5bea37))
+* **scripts:** Removed tests involving fetching of uuid ([fbded65](https://github.com/mozilla/fxa-content-server/commit/fbded65))
+
+
+
 <a name="1.128.1"></a>
 ## [1.128.1](https://github.com/mozilla/fxa-content-server/compare/v1.128.0...v1.128.1) (2019-01-11)
 
