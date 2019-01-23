@@ -952,11 +952,19 @@ describe('metrics/events', () => {
       })
   })
 
-  it('.emitRouteFlowEvent with non-matching route', () => {
+  ;[
+    '/account/devices',
+    '/account/profile',
+    '/account/sessions',
+    '/certificate/sign',
+    '/password/forgot/status',
+    '/recovery_email/status',
+    '/recoveryKey/0123456789abcdef0123456789ABCDEF'
+  ].forEach(route => it(`.emitRouteFlowEvent with ${route}`, () => {
     const metricsContext = mocks.mockMetricsContext()
     const request = mocks.mockRequest({
       metricsContext,
-      path: '/v1/account/devices',
+      path: `/v1${route}`,
       payload: {
         metricsContext: {
           flowId: 'bar',
@@ -972,7 +980,7 @@ describe('metrics/events', () => {
         assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
         assert.equal(log.error.callCount, 0, 'log.error was not called')
       })
-  })
+  }))
 
   it('.emitRouteFlowEvent with matching route and invalid metrics context', () => {
     const metricsContext = mocks.mockMetricsContext({ validate: sinon.spy(() => false) })
