@@ -15,6 +15,12 @@ const ROLLOUT_CLIENTS = {
     name: 'Lockbox Extension',
     rolloutRate: 0.0
   },
+  '3c49430b43dfba77': {
+    enableTestEmails: false,
+    groups: GROUPS_DEFAULT,
+    name: 'Android Components Reference Browser',
+    rolloutRate: 1.0
+  },
   '98adfa37698f255b': {
     enableTestEmails: true,
     groups: ['treatment-code'],
