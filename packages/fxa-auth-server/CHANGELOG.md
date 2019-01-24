@@ -1,3 +1,22 @@
+<a name="1.129.0"></a>
+# [1.129.0](https://github.com/mozilla/fxa-auth-server/compare/v1.128.3...v1.129.0) (2019-01-24)
+
+
+### Bug Fixes
+
+* **circle:** version.json "source" should be code repository ([3966cbb](https://github.com/mozilla/fxa-auth-server/commit/3966cbb))
+* **config:** remove deprecated urls ([871fdda](https://github.com/mozilla/fxa-auth-server/commit/871fdda)), closes [#2646](https://github.com/mozilla/fxa-auth-server/issues/2646)
+* **config:** use local redirect for the reference browser ([33cac8e](https://github.com/mozilla/fxa-auth-server/commit/33cac8e))
+* **oauth:** Redirect GET /authorization directly to content server ([69f8f3a](https://github.com/mozilla/fxa-auth-server/commit/69f8f3a)), closes [mozilla/fxa-auth-server#2862](https://github.com/mozilla/fxa-auth-server/issues/2862)
+
+### chore
+
+* **deps:** Update to fxa-shared@1.0.15 ([b8f5b22](https://github.com/mozilla/fxa-auth-server/commit/b8f5b22))
+* **package:** disable security advisory 766 for sandbox dependency ([0a5e7f6](https://github.com/mozilla/fxa-auth-server/commit/0a5e7f6))
+* **package:** disable security advisory 766 for sandbox dependency ([737be65](https://github.com/mozilla/fxa-auth-server/commit/737be65))
+
+
+
 <a name="1.128.4"></a>
 ## [1.128.4](https://github.com/mozilla/fxa-auth-server/compare/v1.128.3...v1.128.4) (2019-01-17)
 
