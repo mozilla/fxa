@@ -1,0 +1,24 @@
+<div id="main-content" class="card pair-auth">
+  <header>
+    <h1 id="fxa-pair-auth-allow-header">
+      {{#unsafeTranslate}}Approve connections <small>to begin syncing</small>{{/unsafeTranslate}}
+    </h1>
+  </header>
+
+  <section>
+    <div class="error"></div>
+    <div class="success"></div>
+
+    <form novalidate>
+      {{{ unsafeDeviceBeingPairedHTML }}}
+
+      <div class="button-row">
+        <button type="submit" id="auth-approve-btn">{{#t}}Approve connection{{/t}}</button>
+      </div>
+
+      <div class="links">
+        <a href="#" id="cancel">{{#t}}Cancel{{/t}}</a>
+      </div>
+    </form>
+  </section>
+  </div>

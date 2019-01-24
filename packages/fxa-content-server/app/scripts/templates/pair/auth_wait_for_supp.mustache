@@ -1,0 +1,14 @@
+<div id="main-content" class="card pair-auth">
+  <header>
+    <h1 id="fxa-pair-auth-wait-for-supp-header">
+      {{#unsafeTranslate}}Approve this connection <small>from this device</small>{{/unsafeTranslate}}
+    </h1>
+  </header>
+
+  <section>
+    <div class="error"></div>
+    <div class="success"></div>
+
+    {{{ unsafeDeviceBeingPairedHTML }}}
+  </section>
+</div>
