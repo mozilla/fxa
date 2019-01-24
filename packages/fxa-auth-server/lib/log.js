@@ -86,7 +86,7 @@ Lug.prototype.summary = function (request, response) {
   var query = request.query || {}
   var line = {
     op: 'request.summary',
-    code: (response.isBoom) ? response.output.statusCode : response.statusCode,
+    status: (response.isBoom) ? response.output.statusCode : response.statusCode,
     errno: response.errno || 0,
     rid: request.id,
     path: request.path,
@@ -106,7 +106,7 @@ Lug.prototype.summary = function (request, response) {
   line.keys = query.keys
   line.email = payload.email || query.email
 
-  if (line.code >= 500) {
+  if (line.status >= 500) {
     line.trace = request.app.traced
     line.stack = response.stack
     this.error(line, response.message)
