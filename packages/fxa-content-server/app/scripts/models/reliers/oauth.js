@@ -112,7 +112,7 @@ var OAuthRelier = Relier.extend({
   },
 
   _normalizeScopesAndPermissions () {
-    var permissions = scopeStrToArray(this.get('scope'));
+    var permissions = this.scopeStrToArray(this.get('scope'));
     if (this.isTrusted()) {
       // We have to normalize `profile` into is expanded sub-scopes
       // in order to show the consent screen.
@@ -280,7 +280,7 @@ var OAuthRelier = Relier.extend({
       throw new Error('Invalid scope parameter');
     }
 
-    scopeStrToArray(this.get('scope')).forEach((scope) => {
+    this.scopeStrToArray(this.get('scope')).forEach((scope) => {
       if (validation.hasOwnProperty(scope)) {
         if (validation[scope].redirectUris.includes(this.get('redirectUri'))) {
           foundRedirectScopeMatch = true;
@@ -318,6 +318,24 @@ var OAuthRelier = Relier.extend({
 
     return ! account.hasSeenPermissions(
       this.get('clientId'), applicableProfilePermissions);
+  },
+  /**
+   * Converts a whitespace OR a + separated list of scopes into an Array
+   * @param {String} scopes
+   * @returns {Array}
+   */
+  scopeStrToArray: function scopeStrToArray(scopes) {
+    if (! _.isString(scopes)) {
+      return [];
+    }
+
+    const trimmedScopes = scopes.trim();
+    if (trimmedScopes.length) {
+      // matches any whitespace character OR matches the character '+' literally
+      return _.uniq(scopes.split(/\s+|\++/g));
+    } else {
+      return [];
+    }
   }
 });
 
@@ -327,20 +345,6 @@ function replaceItemInArray(array, itemToReplace, replaceWith) {
     return _.union(without, replaceWith);
   }
   return array;
-}
-
-function scopeStrToArray(scopes) {
-  if (! _.isString) {
-    return [];
-  }
-
-  var trimmedScopes = scopes.trim();
-  if (trimmedScopes.length) {
-    // matches any whitespace character OR matches the character '+' literally
-    return _.uniq(scopes.split(/\s+|\++/g));
-  } else {
-    return [];
-  }
 }
 
 function sanitizeUntrustedPermissions(permissions) {

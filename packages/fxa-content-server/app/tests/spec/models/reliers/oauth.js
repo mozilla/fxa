@@ -803,6 +803,20 @@ describe('models/reliers/oauth', () => {
     });
   });
 
+  describe('scopeStrToArray', () => {
+    it('handles empty scopes', function () {
+      assert.deepEqual(relier.scopeStrToArray(), []);
+    });
+
+    it('handles scopes with +', function () {
+      assert.deepEqual(relier.scopeStrToArray('profile+openid'), ['profile', 'openid']);
+    });
+
+    it('handles scopes with %20', function () {
+      assert.deepEqual(relier.scopeStrToArray('profile openid'), ['profile', 'openid']);
+    });
+  });
+
   function mockGetClientInfo(paramName, paramValue) {
     if (oAuthClient.getClientInfo.restore) {
       oAuthClient.getClientInfo.restore();
