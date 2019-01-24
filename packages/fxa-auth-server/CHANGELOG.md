@@ -1,3 +1,17 @@
+<a name="1.129.1"></a>
+## [1.129.1](https://github.com/mozilla/fxa-auth-server/compare/v1.129.0...v1.129.1) (2019-01-24)
+
+
+### Bug Fixes
+
+* **metrics:** stop emitting route flow events for status endpoints ([39c6d31](https://github.com/mozilla/fxa-auth-server/commit/39c6d31))
+
+### chore
+
+* **package:** update shrinkwrap ([4db4081](https://github.com/mozilla/fxa-auth-server/commit/4db4081))
+
+
+
 <a name="1.129.0"></a>
 # [1.129.0](https://github.com/mozilla/fxa-auth-server/compare/v1.128.3...v1.129.0) (2019-01-24)
 
