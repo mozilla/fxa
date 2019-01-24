@@ -571,7 +571,11 @@ Start.prototype = {
     // pushState must be specified or else no screen transitions occur.
     this._history.start({ pushState: this._canUseHistoryAPI(), silent: isSilent });
     if (startPage) {
-      this._router.navigate(startPage);
+      this._router.navigate(startPage, {}, {
+        // do not add a history item for the page that was there BEFORE the selected start page.
+        replace: true,
+        trigger: true
+      });
     }
   },
 

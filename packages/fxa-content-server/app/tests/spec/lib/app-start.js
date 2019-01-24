@@ -162,10 +162,10 @@ define(function (require, exports, module) {
           sandbox.restore();
         });
 
-        it('redirects to /cookies_disabled', () => {
+        it('redirects to /cookies_disabled without history replace or trigger', () => {
           return appStart.startApp()
             .then(() => {
-              assert.isTrue(routerMock.navigate.calledWith('cookies_disabled'));
+              assert.isTrue(routerMock.navigate.calledWith('cookies_disabled', {}, {replace: true, trigger: true}));
             });
         });
 
