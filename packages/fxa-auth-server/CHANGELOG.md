@@ -1,3 +1,14 @@
+<a name="1.129.2"></a>
+## [1.129.2](https://github.com/mozilla/fxa-auth-server/compare/v1.129.1...v1.129.2) (2019-01-24)
+
+
+### Bug Fixes
+
+* **email:** add missing query params to link in new device email ([f13de2f](https://github.com/mozilla/fxa-auth-server/commit/f13de2f))
+* **tests:** ensure assertions cause test failures in local email tests ([3b2e946](https://github.com/mozilla/fxa-auth-server/commit/3b2e946))
+
+
+
 <a name="1.129.1"></a>
 ## [1.129.1](https://github.com/mozilla/fxa-auth-server/compare/v1.129.0...v1.129.1) (2019-01-24)
 
