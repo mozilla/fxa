@@ -222,22 +222,6 @@ describe('lib/channel-server-client', () => {
   });
 
   describe('_decryptAndParseMessageEvent', () => {
-    it('rejects if event.data is not valid JSON', () => {
-      return client._decryptAndParseMessageEvent({ data: '{not valid json' })
-        .then(assert.fail, err => {
-          assert.isTrue(ChannelServerClientErrors.is(err, 'INVALID_MESSAGE'));
-        });
-    });
-
-    it('rejects if cannot decrypt', () => {
-      sinon.stub(client, '_decrypt').callsFake(() => Promise.reject(ChannelServerClientErrors.toError('COULD_NOT_DECRYPT')));
-
-      return client._decryptAndParseMessageEvent({ data: JSON.stringify({}) })
-        .then(assert.fail, err => {
-          assert.isTrue(ChannelServerClientErrors.is(err, 'COULD_NOT_DECRYPT'));
-        });
-    });
-
     it('rejects if decrypted bundle `message` is empty', () => {
       sandbox.stub(client, '_decrypt').callsFake(() => {
         return Promise.resolve({
@@ -353,13 +337,6 @@ describe('lib/channel-server-client', () => {
   });
 
   describe('_checkFirstMessageDataValidity', () => {
-    it('rejects if could not parse the data', () => {
-      return client._checkFirstMessageDataValidity('{', 'c05d62ed4e1445089e9e2a33d148f906')
-        .then(assert.fail, err => {
-          assert.isTrue(ChannelServerClientErrors.is(err, 'INVALID_MESSAGE'));
-        });
-    });
-
     it('rejects if parsed data does not contain a link', () => {
       return client._checkFirstMessageDataValidity('{}', 'c05d62ed4e1445089e9e2a33d148f906')
         .then(assert.fail, err => {
