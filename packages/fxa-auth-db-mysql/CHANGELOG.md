@@ -1,3 +1,13 @@
+<a name="1.129.0"></a>
+# [1.129.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.128.1...v1.129.0) (2019-01-24)
+
+
+### Bug Fixes
+
+* **test:** add a test script to add account rows ([3aa09cd](https://github.com/mozilla/fxa-auth-db-mysql/commit/3aa09cd))
+
+
+
 <a name="1.128.1"></a>
 ## [1.128.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.128.0...v1.128.1) (2019-01-09)
 
