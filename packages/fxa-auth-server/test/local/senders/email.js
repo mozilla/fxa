@@ -178,6 +178,17 @@ function sesMessageTagsHeaderValue(templateName, serviceName) {
   return `messageType=fxa-${templateName}, app=fxa, service=${serviceName}`
 }
 
+function stubSendMail (stub, status) {
+  return (emailConfig, callback) => {
+    try {
+      stub(emailConfig)
+      return callback(null, status)
+    } catch (err) {
+      return callback(err, status)
+    }
+  }
+}
+
 describe(
   'lib/senders/email:',
   () => {
@@ -228,7 +239,7 @@ describe(
         it(
           'Contains template header for ' + type,
           function () {
-            mailer.mailer.sendMail = function (emailConfig) {
+            mailer.mailer.sendMail = stubSendMail(emailConfig => {
               assert.equal(emailConfig.from, config.get('smtp.sender'), 'from header is correct')
               assert.equal(emailConfig.sender, config.get('smtp.sender'), 'sender header is correct')
               const templateName = emailConfig.headers['X-Template-Name']
@@ -242,13 +253,13 @@ describe(
               }
 
               assert.equal(templateVersion, TEMPLATE_VERSIONS[templateName], 'template version is correct')
-            }
-            mailer[type](message)
+            })
+            return mailer[type](message)
           }
         )
 
         it(`Contains metrics headers for ${type}`, () => {
-          mailer.mailer.sendMail = emailConfig => {
+          mailer.mailer.sendMail = stubSendMail(emailConfig => {
             const headers = emailConfig.headers
             assert.equal(headers['X-Device-Id'], message.deviceId, 'device id header is correct')
             assert.equal(headers['X-Flow-Id'], message.flowId, 'flow id header is correct')
@@ -256,8 +267,8 @@ describe(
             assert.equal(headers['X-Service-Id'], message.service, 'service id header is correct')
             assert.equal(headers['X-Uid'], message.uid, 'uid header is correct')
             assert.equal(headers['X-Email-Service'], 'fxa-auth-server')
-          }
-          mailer[type](message)
+          })
+          return mailer[type](message)
         })
 
         it(
@@ -265,11 +276,11 @@ describe(
           function () {
             var privacyLink = mailer.createPrivacyLink(type)
 
-            mailer.mailer.sendMail = function (emailConfig) {
+            mailer.mailer.sendMail = stubSendMail(emailConfig => {
               assert.ok(includes(emailConfig.html, privacyLink))
               assert.ok(includes(emailConfig.text, privacyLink))
-            }
-            mailer[type](message)
+            })
+            return mailer[type](message)
           }
         )
 
@@ -277,15 +288,15 @@ describe(
           it(
             'contains correct type ' + type,
             function () {
-              mailer.mailer.sendMail = function (emailConfig) {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.headers['X-Link'], 'type=secondary'))
                 assert.ok(includes(emailConfig.html, 'type=secondary'))
                 assert.ok(includes(emailConfig.text, 'type=secondary'))
                 assert.ok(! includes(emailConfig.headers['X-Link'], 'utm_source=email'))
                 assert.ok(! includes(emailConfig.html, 'utm_source=email'))
                 assert.ok(! includes(emailConfig.text, 'utm_source=email'))
-              }
-              mailer[type](message)
+              })
+              return mailer[type](message)
             }
           )
         }
@@ -294,14 +305,14 @@ describe(
           'If sesConfigurationSet is not defined, then outgoing email does not contain X-SES* headers, for type ' + type,
           function () {
             assert.ok('sesConfigurationSet' in mailer, 'configuration key exists')
-            mailer.mailer.sendMail = function (emailConfig) {
+            mailer.mailer.sendMail = stubSendMail(emailConfig => {
               var sesConfigurationSetHeader = emailConfig.headers['X-SES-CONFIGURATION-SET']
               assert.ok(! sesConfigurationSetHeader)
               var sesMessageTags = emailConfig.headers['X-SES-MESSAGE-TAGS']
               assert.ok(! sesMessageTags)
-            }
+            })
 
-            mailer[type](message) // invoke
+            return mailer[type](message)
           }
         )
 
@@ -312,7 +323,7 @@ describe(
             var savedSesConfigurationSet = mailer.sesConfigurationSet
             mailer.sesConfigurationSet = 'some-defined-value'
 
-            mailer.mailer.sendMail = function (emailConfig) {
+            mailer.mailer.sendMail = stubSendMail(emailConfig => {
               var sesConfigurationSetHeader = emailConfig.headers['X-SES-CONFIGURATION-SET']
               assert.equal(sesConfigurationSetHeader, 'some-defined-value')
 
@@ -321,9 +332,9 @@ describe(
               assert.equal(sesMessageTags, expectedSesMessageTags)
 
               mailer.sesConfigurationSet = savedSesConfigurationSet
-            }
+            })
 
-            mailer[type](message) // invoke
+            return mailer[type](message)
           }
         )
 
@@ -333,11 +344,11 @@ describe(
             function () {
               var supportTextLink = mailer.createSupportLink(type)
 
-              mailer.mailer.sendMail = function (emailConfig) {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.html, supportTextLink))
                 assert.ok(includes(emailConfig.text, supportTextLink))
-              }
-              mailer[type](message)
+              })
+              return mailer[type](message)
             }
           )
         }
@@ -348,13 +359,13 @@ describe(
             function () {
               var resetPasswordLink = mailer.createPasswordResetLink(message.email, type)
 
-              mailer.mailer.sendMail = function (emailConfig) {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.html, resetPasswordLink))
                 assert.ok(includes(emailConfig.text, resetPasswordLink))
                 assert.ok(! includes(emailConfig.html, 'utm_source=email'))
                 assert.ok(! includes(emailConfig.text, 'utm_source=email'))
-              }
-              mailer[type](message)
+              })
+              return mailer[type](message)
             }
           )
         }
@@ -365,13 +376,13 @@ describe(
             function () {
               var passwordChangeLink = mailer.createPasswordChangeLink(message.email, type)
 
-              mailer.mailer.sendMail = function (emailConfig) {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.html, passwordChangeLink))
                 assert.ok(includes(emailConfig.text, passwordChangeLink))
                 assert.ok(! includes(emailConfig.html, 'utm_source=email'))
                 assert.ok(! includes(emailConfig.text, 'utm_source=email'))
-              }
-              mailer[type](message)
+              })
+              return mailer[type](message)
             }
           )
         }
@@ -380,11 +391,11 @@ describe(
           it(
             'unblock code is in email template output for ' + type,
             function () {
-              mailer.mailer.sendMail = function (emailConfig) {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.html, message.unblockCode))
                 assert.ok(includes(emailConfig.text, message.unblockCode))
-              }
-              mailer[type](message)
+              })
+              return mailer[type](message)
             }
           )
         }
@@ -393,11 +404,11 @@ describe(
           it(`can prepend verification subdomain for ${type}`, () => {
             mailer.prependVerificationSubdomain.enabled = true
             const subdomain = mailer.prependVerificationSubdomain.subdomain
-            mailer.mailer.sendMail = (emailConfig) => {
+            mailer.mailer.sendMail = stubSendMail(emailConfig => {
               const link = emailConfig.headers['X-Link'];
               assert.equal(link.indexOf(`http://${subdomain}.`), 0, 'link prepend with domain')
-            }
-            mailer[type](message)
+            })
+            return mailer[type](message)
           })
         }
 
@@ -405,11 +416,11 @@ describe(
           it(
             'login code is in email template output for ' + type,
             function () {
-              mailer.mailer.sendMail = function (emailConfig) {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.html, message.tokenCode))
                 assert.ok(includes(emailConfig.text, message.tokenCode))
-              }
-              mailer[type](message)
+              })
+              return mailer[type](message)
             }
           )
         }
@@ -418,42 +429,42 @@ describe(
           it(
             'report sign-in link is in email template output for ' + type,
             function () {
-              mailer.mailer.sendMail = function (emailConfig) {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 var reportSignInLink =
                   mailer.createReportSignInLink(type, message)
                 assert.ok(includes(emailConfig.html, reportSignInLink))
                 assert.ok(includes(emailConfig.text, reportSignInLink))
                 assert.ok(! includes(emailConfig.html, 'utm_source=email'))
                 assert.ok(! includes(emailConfig.text, 'utm_source=email'))
-              }
-              mailer[type](message)
+              })
+              return mailer[type](message)
             }
           )
         }
 
         if (includes(typesContainRevokeAccountRecoveryLinks, type)) {
           it('revoke account recovery link is in email template output for ' + type, () => {
-            mailer.mailer.sendMail = function (emailConfig) {
+            mailer.mailer.sendMail = stubSendMail(emailConfig => {
               const link = mailer.createRevokeAccountRecoveryLink(type, message)
               assert.ok(includes(emailConfig.html, link))
               assert.ok(includes(emailConfig.text, link))
               assert.ok(! includes(emailConfig.html, 'utm_source=email'))
               assert.ok(! includes(emailConfig.text, 'utm_source=email'))
-            }
-            mailer[type](message)
+            })
+            return mailer[type](message)
           })
         }
 
         if (includes(typesContainCreateAccountRecoveryLinks, type)) {
           it('create account recovery link is in email template output for ' + type, () => {
-            mailer.mailer.sendMail = function (emailConfig) {
+            mailer.mailer.sendMail = stubSendMail(emailConfig => {
               const link = mailer._generateCreateAccountRecoveryLinks(message, type).link
               assert.ok(includes(emailConfig.html, link))
               assert.ok(includes(emailConfig.text, link))
               assert.ok(! includes(emailConfig.html, 'utm_source=email'))
               assert.ok(! includes(emailConfig.text, 'utm_source=email'))
-            }
-            mailer[type](message)
+            })
+            return mailer[type](message)
           })
         }
 
@@ -463,12 +474,12 @@ describe(
             function () {
               var androidStoreLink = mailer.androidUrl
 
-              mailer.mailer.sendMail = function (emailConfig) {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.html, androidStoreLink))
                 assert.ok(includes(emailConfig.html, 'utm_source=email'))
                 // only the html email contains links to the store
-              }
-              mailer[type](message)
+              })
+              return mailer[type](message)
             }
           )
         }
@@ -479,12 +490,12 @@ describe(
             function () {
               var iosStoreLink = mailer.iosUrl
 
-              mailer.mailer.sendMail = function (emailConfig) {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.html, iosStoreLink))
                 assert.ok(includes(emailConfig.html, 'utm_source=email'))
                 // only the html email contains links to the store
-              }
-              mailer[type](message)
+              })
+              return mailer[type](message)
             }
           )
         }
@@ -495,13 +506,13 @@ describe(
             function () {
               var passwordManagerInfoUrl = mailer._generateLinks(config.get('smtp').passwordManagerInfoUrl, message.email, {}, type).passwordManagerInfoUrl
 
-              mailer.mailer.sendMail = function (emailConfig) {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.html, passwordManagerInfoUrl))
                 assert.ok(includes(emailConfig.text, passwordManagerInfoUrl))
                 assert.ok(! includes(emailConfig.html, 'utm_source=email'))
                 assert.ok(! includes(emailConfig.text, 'utm_source=email'))
-              }
-              mailer[type](message)
+              })
+              return mailer[type](message)
             }
           )
         }
@@ -510,13 +521,13 @@ describe(
           it('account settings info link is in email template output for ' + type, () => {
             const accountSettingsUrl = mailer._generateSettingLinks(message, type).link
 
-            mailer.mailer.sendMail = function (emailConfig) {
+            mailer.mailer.sendMail = stubSendMail(emailConfig => {
               assert.ok(includes(emailConfig.html, accountSettingsUrl))
               assert.ok(includes(emailConfig.text, accountSettingsUrl))
               assert.ok(! includes(emailConfig.html, 'utm_source=email'))
               assert.ok(! includes(emailConfig.text, 'utm_source=email'))
-            }
-            mailer[type](message)
+            })
+            return mailer[type](message)
           })
         }
 
@@ -524,13 +535,13 @@ describe(
           it('recovery code settings info link is in email template output for ' + type, () => {
             const url = mailer._generateLowRecoveryCodesLinks(message, type).link
 
-            mailer.mailer.sendMail = function (emailConfig) {
+            mailer.mailer.sendMail = stubSendMail(emailConfig => {
               assert.ok(includes(emailConfig.html, url))
               assert.ok(includes(emailConfig.text, url))
               assert.ok(! includes(emailConfig.html, 'utm_source=email'))
               assert.ok(! includes(emailConfig.text, 'utm_source=email'))
-            }
-            mailer[type](message)
+            })
+            return mailer[type](message)
           })
         }
 
@@ -548,13 +559,13 @@ describe(
               function () {
                 var message = getLocationMessage(defaultLocation)
                 message.primaryEmail = 'user@email.com'
-                mailer.mailer.sendMail = function (emailConfig) {
+                mailer.mailer.sendMail = stubSendMail(emailConfig => {
                   assert.ok(includes(emailConfig.html, message.primaryEmail))
                   assert.ok(includes(emailConfig.html, message.email))
                   assert.ok(includes(emailConfig.text, message.primaryEmail))
                   assert.ok(includes(emailConfig.text, message.email))
-                }
-                mailer[type](message)
+                })
+                return mailer[type](message)
               }
             )
           }
@@ -564,12 +575,12 @@ describe(
             function () {
               var message = getLocationMessage(defaultLocation)
 
-              mailer.mailer.sendMail = function (emailConfig) {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.html, message.ip))
 
                 assert.ok(includes(emailConfig.text, message.ip))
-              }
-              mailer[type](message)
+              })
+              return mailer[type](message)
             }
           )
 
@@ -579,11 +590,11 @@ describe(
               var location = defaultLocation
               var message = getLocationMessage(defaultLocation)
 
-              mailer.mailer.sendMail = function (emailConfig) {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.html, location.city + ', ' + location.stateCode + ', ' + location.country))
                 assert.ok(includes(emailConfig.text, location.city + ', ' + location.stateCode + ', ' + location.country))
-              }
-              mailer[type](message)
+              })
+              return mailer[type](message)
             }
           )
 
@@ -595,11 +606,11 @@ describe(
               var message = getLocationMessage(location)
 
 
-              mailer.mailer.sendMail = function (emailConfig) {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.html, location.city + ', ' + location.country))
                 assert.ok(includes(emailConfig.text, location.city + ', ' + location.country))
-              }
-              mailer[type](message)
+              })
+              return mailer[type](message)
             }
           )
 
@@ -610,11 +621,11 @@ describe(
               delete location.city
               var message = getLocationMessage(location)
 
-              mailer.mailer.sendMail = function (emailConfig) {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.html, location.stateCode + ', ' + location.country))
                 assert.ok(includes(emailConfig.text, location.stateCode + ', ' + location.country))
-              }
-              mailer[type](message)
+              })
+              return mailer[type](message)
             }
           )
 
@@ -627,11 +638,11 @@ describe(
               var message = getLocationMessage(location)
 
 
-              mailer.mailer.sendMail = function (emailConfig) {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.html, location.country))
                 assert.ok(includes(emailConfig.text, location.country))
-              }
-              mailer[type](message)
+              })
+              return mailer[type](message)
             }
           )
 
@@ -643,11 +654,11 @@ describe(
               message.uaOS = 'BeOS'
               message.uaOSVersion = '1.0'
 
-              mailer.mailer.sendMail = function (emailConfig) {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.html, 'Firefox on BeOS 1.0'))
                 assert.ok(includes(emailConfig.text, 'Firefox on BeOS 1.0'))
-              }
-              mailer[type](message)
+              })
+              return mailer[type](message)
             }
           )
 
@@ -656,13 +667,13 @@ describe(
             message.uaBrowser = '<a>Firefox</a>'
             message.uaOS = 'Android'
 
-            mailer.mailer.sendMail = emailConfig => {
+            mailer.mailer.sendMail = stubSendMail(emailConfig => {
               assert.ok(! includes(emailConfig.html, '<a>Firefox</a> on Android'))
               assert.ok(includes(emailConfig.html, 'Android'))
               assert.ok(! includes(emailConfig.text, '<a>Firefox</a> on Android'))
               assert.ok(includes(emailConfig.text, 'Android'))
-            }
-            mailer[type](message)
+            })
+            return mailer[type](message)
           })
 
           it(`drops dodgy-looking uaOS property for ${type}`, () => {
@@ -670,11 +681,11 @@ describe(
             message.uaBrowser = 'Firefox'
             message.uaOS = 'http://example.com'
 
-            mailer.mailer.sendMail = emailConfig => {
+            mailer.mailer.sendMail = stubSendMail(emailConfig => {
               assert.ok(! includes(emailConfig.html, 'http://example.com'))
               assert.ok(! includes(emailConfig.text, 'http://example.com'))
-            }
-            mailer[type](message)
+            })
+            return mailer[type](message)
           })
 
           it(`drops dodgy-looking uaOSVersion property for ${type}`, () => {
@@ -683,11 +694,11 @@ describe(
             message.uaOS = 'Android'
             message.uaOSVersion = 'dodgy-looking'
 
-            mailer.mailer.sendMail = emailConfig => {
+            mailer.mailer.sendMail = stubSendMail(emailConfig => {
               assert.ok(! includes(emailConfig.html, 'dodgy-looking'))
               assert.ok(! includes(emailConfig.text, 'dodgy-looking'))
-            }
-            mailer[type](message)
+            })
+            return mailer[type](message)
           })
         }
 
@@ -695,23 +706,23 @@ describe(
           it(
             'test verify token email',
             function () {
-              mailer.mailer.sendMail = function (emailConfig) {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 var verifyLoginUrl = config.get('smtp').verifyLoginUrl
                 assert.equal(emailConfig.subject, 'Confirm new sign-in to Firefox')
                 assert.ok(emailConfig.html.indexOf(verifyLoginUrl) > 0)
                 assert.ok(emailConfig.text.indexOf(verifyLoginUrl) > 0)
-              }
-              mailer[type](message)
+              })
+              return mailer[type](message)
             }
           )
         } else if (type === 'newDeviceLoginEmail') {
           it(
             'test new device login email',
             function () {
-              mailer.mailer.sendMail = function (emailConfig) {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.equal(emailConfig.subject, 'New sign-in to Firefox')
-              }
-              mailer[type](message)
+              })
+              return mailer[type](message)
             }
           )
         } else if (type === 'postVerifyEmail') {
@@ -722,25 +733,25 @@ describe(
               var androidLink = mailer._generateUTMLink(config.get('smtp').androidUrl, {}, type, 'connect-android')
               var iosLink = mailer._generateUTMLink(config.get('smtp').iosUrl, {}, type, 'connect-ios')
 
-              mailer.mailer.sendMail = function (emailConfig) {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.html, syncLink))
                 assert.ok(includes(emailConfig.html, androidLink))
                 assert.ok(includes(emailConfig.html, iosLink))
                 assert.ok(includes(emailConfig.html, 'utm_source=email'))
-              }
-              mailer[type](message)
+              })
+              return mailer[type](message)
             }
           )
         } else if (type === 'verifyPrimaryEmail') {
           it('test verify token email', () => {
-            mailer.mailer.sendMail = (emailConfig) => {
+            mailer.mailer.sendMail = stubSendMail(emailConfig => {
               const verifyPrimaryEmailUrl = config.get('smtp').verifyPrimaryEmailUrl
               assert.ok(emailConfig.html.indexOf(verifyPrimaryEmailUrl) > 0)
               assert.ok(emailConfig.text.indexOf(verifyPrimaryEmailUrl) > 0)
               assert.ok(! includes(emailConfig.html, 'utm_source=email'))
               assert.ok(! includes(emailConfig.text, 'utm_source=email'))
-            }
-            mailer[type](message)
+            })
+            return mailer[type](message)
           })
         }
       }
@@ -901,10 +912,10 @@ describe(
         }
 
         it(`uses default template version for ${type}`, () => {
-          mailer.mailer.sendMail = emailConfig => {
+          mailer.mailer.sendMail = stubSendMail(emailConfig => {
             assert.equal(emailConfig.headers['X-Template-Version'], 1, 'template version defaults to 1')
-          }
-          mailer[type](message)
+          })
+          return mailer[type](message)
         })
       })
     })
@@ -1984,32 +1995,25 @@ describe('email translations', () => {
 
   it('arabic emails are translated', () => {
     return setupMailerWithTranslations('ar').then(() => {
-      return new Promise((resolve) => {
-        mailer.mailer.sendMail = (emailConfig) => {
-          assert.equal(emailConfig.headers['Content-Language'], 'ar', 'language header is correct')
-          // NOTE: translation might change, but we use the subject, we don't change that often.
-          assert.equal(emailConfig.subject, 'أكّد حساب فَيَرفُكس الخاص بك', 'translation is correct')
-          resolve()
-        }
-
-        mailer['verifyEmail'](message)
+      mailer.mailer.sendMail = stubSendMail(emailConfig => {
+        assert.equal(emailConfig.headers['Content-Language'], 'ar', 'language header is correct')
+        // NOTE: translation might change, but we use the subject, we don't change that often.
+        assert.equal(emailConfig.subject, 'أكّد حساب فَيَرفُكس الخاص بك', 'translation is correct')
       })
 
+      return mailer['verifyEmail'](message)
     })
   })
 
   it('russian emails are translated', () => {
     return setupMailerWithTranslations('ru').then(() => {
-      return new Promise((resolve) => {
-        mailer.mailer.sendMail = (emailConfig) => {
-          assert.equal(emailConfig.headers['Content-Language'], 'ru', 'language header is correct')
-          // NOTE: translation might change, but we use the subject, we don't change that often.
-          assert.equal(emailConfig.subject, 'Подтвердите ваш Аккаунт Firefox', 'translation is correct')
-          resolve()
-        }
-
-        mailer['verifyEmail'](message)
+      mailer.mailer.sendMail = stubSendMail(emailConfig => {
+        assert.equal(emailConfig.headers['Content-Language'], 'ru', 'language header is correct')
+        // NOTE: translation might change, but we use the subject, we don't change that often.
+        assert.equal(emailConfig.subject, 'Подтвердите ваш Аккаунт Firefox', 'translation is correct')
       })
+
+      return mailer['verifyEmail'](message)
     })
   })
 })

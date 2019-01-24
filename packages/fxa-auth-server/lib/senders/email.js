@@ -911,7 +911,7 @@ module.exports = function (log, config, oauthdb) {
   Mailer.prototype.newDeviceLoginEmail = function (message) {
     log.trace({ op: 'mailer.newDeviceLoginEmail', email: message.email, uid: message.uid })
     var templateName = 'newDeviceLoginEmail'
-    var links = this._generateLinks(this.accountSettingsUrl, message.email, {}, templateName)
+    var links = this._generateSettingLinks(message, templateName)
     var translator = this.translator(message.acceptLanguage)
 
     var headers = {
