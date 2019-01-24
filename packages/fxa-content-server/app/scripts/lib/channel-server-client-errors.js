@@ -28,22 +28,18 @@ export default assign({}, Errors, {
       // error not expected to be displayed to the user
       message: 'Not connected to channel server'
     },
-    COULD_NOT_CONNECT: {
-      errno: 1003,
-      message: t('Error connecting to remote device')
-    },
     INVALID_MESSAGE: {
-      errno: 1004,
+      errno: 1003,
       message: t('Invalid message from the remote device')
     },
     CHANNEL_ID_MISMATCH: {
-      errno: 1005,
-      message: t('Error connecting to remote device')
+      errno: 1004,
+      message: t('Error pairing to remote device')
     },
-    COULD_NOT_DECRYPT: {
-      errno: 1006,
-      message: t('Could not decrypt message from the remote device')
-    }
+    CONNECTION_CLOSED: {
+      errno: 1005,
+      message: t('Connection to remote device closed, please try again')
+    },
 
   }
 });
