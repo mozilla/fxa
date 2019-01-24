@@ -564,7 +564,7 @@ describe('userAgent, real dependency', () => {
     assert.deepEqual(userAgent('<a>foo</a>-iPhone/2 CFNetwork'), {
       browser: null,
       browserVersion: '2',
-      os: undefined,
+      os: 'iOS',
       osVersion: null,
       deviceType: 'mobile',
       formFactor: 'iPhone'
