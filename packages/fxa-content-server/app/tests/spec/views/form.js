@@ -108,6 +108,7 @@ describe('views/form', function () {
       notifier
     });
 
+    sinon.spy(view, '_attachEvents');
     return view.render();
   });
 
@@ -125,7 +126,7 @@ describe('views/form', function () {
         templateWrittenError: 'template written error',
         templateWrittenSuccess: 'template written success'
       });
-
+      assert.isTrue(view._attachEvents.calledOnce, 'events attached for base view');
       return view.render();
     });
 
@@ -134,6 +135,7 @@ describe('views/form', function () {
       assert.isTrue(view.isErrorVisible());
       assert.lengthOf(view.$('.success.visible'), 1);
       assert.isTrue(view.isSuccessVisible());
+      assert.isTrue(view._attachEvents.calledTwice, 'events attached for child views');
     });
   });
 
