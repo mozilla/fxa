@@ -58,7 +58,12 @@ module.exports = (config, Settings, log) => {
           settings[key] = current
         }
         else if (!deepEqual(current, future)) {
-          log.info({ op: 'limits.validate.changed', key: key, current: current, future: future })
+          log.info({
+            op: 'limits.validate.changed',
+            key,
+            [`current${initialCapital(key)}`]: current,
+            [`future${initialCapital(key)}`]: future
+          })
         }
       }
       return settings
@@ -68,4 +73,8 @@ module.exports = (config, Settings, log) => {
 
 
   return new Limits(config.limits)
+}
+
+function initialCapital (string) {
+  return `${string[0].toUpperCase()}${string.substr(1)}`
 }

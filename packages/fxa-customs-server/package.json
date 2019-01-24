@@ -50,6 +50,7 @@
     "npmshrink": "1.0.1",
     "request": "2.85.0",
     "restify-clients": "2.5.0",
+    "sinon": "7.2.3",
     "tap": "12.0.1",
     "walk": "2.3.x"
   },
