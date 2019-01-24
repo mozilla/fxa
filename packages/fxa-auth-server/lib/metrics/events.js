@@ -53,8 +53,12 @@ const IGNORE_ROUTE_FLOW_EVENTS_FOR_PATHS = new Set([
   '/account/devices',
   '/account/profile',
   '/account/sessions',
-  '/certificate/sign'
+  '/certificate/sign',
+  '/password/forgot/status',
+  '/recovery_email/status'
 ])
+
+const IGNORE_ROUTE_FLOW_EVENTS_REGEX = /^\/recoveryKey\/[0-9A-Fa-f]+$/
 
 const PATH_PREFIX = /^\/v1/
 
@@ -130,7 +134,7 @@ module.exports = (log, config) => {
       const path = request.path.replace(PATH_PREFIX, '')
       let status = response.statusCode || response.output.statusCode
 
-      if (status === 404 || IGNORE_ROUTE_FLOW_EVENTS_FOR_PATHS.has(path)) {
+      if (status === 404 || IGNORE_ROUTE_FLOW_EVENTS_FOR_PATHS.has(path) || IGNORE_ROUTE_FLOW_EVENTS_REGEX.test(path)) {
         return P.resolve()
       }
 
