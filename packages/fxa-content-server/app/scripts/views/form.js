@@ -56,8 +56,7 @@ var FormView = BaseView.extend({
   constructor: function (options) {
     BaseView.call(this, options);
 
-    // attach events of the descendent view and this view.
-    this.delegateEvents(_.extend({}, FormView.prototype.events, this.events));
+    this._attachEvents();
   },
 
   events: {
@@ -87,6 +86,7 @@ var FormView = BaseView.extend({
   },
 
   afterRender () {
+    this._attachEvents();
     // Firefox has a strange issue where if the previous
     // screen was submit using the keyboard, the `enter` key's
     // `keyup` event fires here on the element that receives
@@ -236,6 +236,15 @@ var FormView = BaseView.extend({
         throw err;
       });
   })),
+
+  /**
+   * Attaches events of the descendent view and the newly created view.
+   * It's called on view creation and afterRender for nested views to handle both sources of events.
+   * @private
+   */
+  _attachEvents () {
+    this.delegateEvents(_.extend({}, FormView.prototype.events, this.events));
+  },
 
   /**
      * Checks whether the form is valid. Checks the validitity of each
