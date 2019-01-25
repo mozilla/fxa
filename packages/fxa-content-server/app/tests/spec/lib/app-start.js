@@ -457,7 +457,7 @@ define(function (require, exports, module) {
           window: windowMock
         });
 
-        sinon.stub(appStart, 'upgradeStorageFormats').callsFake(() => Promise.resolve());
+        sandbox.stub(User.prototype, 'removeAccountsWithInvalidUid').callsFake(() => Promise.resolve());
         sandbox.stub(appStart, '_getUserStorageInstance').callsFake(() => new NullStorage());
       });
 
@@ -479,7 +479,7 @@ define(function (require, exports, module) {
             assert.isTrue(appStart._user.setSignedInAccountFromBrowserAccountData.calledOnce);
             assert.isTrue(appStart._user.setSignedInAccountFromBrowserAccountData.calledWith(browserAccountData));
 
-            assert.isTrue(appStart.upgradeStorageFormats.calledOnce);
+            assert.isTrue(appStart._user.removeAccountsWithInvalidUid.calledOnce);
 
             assert.isTrue(appStart._user.setSigninCodeAccount.calledOnce);
             assert.isTrue(appStart._user.setSigninCodeAccount.calledWith(signinCodeAccountData));
@@ -873,27 +873,6 @@ define(function (require, exports, module) {
           appStart._getSameBrowserVerificationModel('context'),
           SameBrowserVerificationModel
         );
-      });
-    });
-
-    describe('upgradeStorageFormats', () => {
-      beforeEach(() => {
-        appStart = new AppStart({
-          user: userMock,
-          window: windowMock
-        });
-
-        sinon.spy(userMock, 'upgradeFromUnfilteredAccountData');
-        sinon.spy(userMock, 'upgradeFromSession');
-        sinon.spy(userMock, 'removeAccountsWithInvalidUid');
-
-        return appStart.upgradeStorageFormats();
-      });
-
-      it('upgrades and fixes account data', () => {
-        assert.isTrue(userMock.upgradeFromUnfilteredAccountData.calledOnce);
-        assert.isTrue(userMock.upgradeFromSession.calledOnce);
-        assert.isTrue(userMock.removeAccountsWithInvalidUid.calledOnce);
       });
     });
 

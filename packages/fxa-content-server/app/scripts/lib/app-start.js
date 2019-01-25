@@ -380,7 +380,7 @@ Start.prototype = {
       // or else an attempt can be made to populate an Account
       // with data in the old format, causing an exception to
       // be thrown.
-      return this.upgradeStorageFormats()
+      return user.removeAccountsWithInvalidUid()
         .then(() => {
           const signinCodeAccount = this._authenticationBroker.get('signinCodeAccount');
           if (signinCodeAccount) {
@@ -440,18 +440,6 @@ Start.prototype = {
     }
 
     return this._uniqueUserId;
-  },
-
-  upgradeStorageFormats () {
-    const user = this._user;
-
-    // upgradeFromUnfilteredAccountData comes first
-    // otherwise upgradeFromSession fails because it tries
-    // to read and create Accounts for unfiltered data.
-    // upgradeFromSession writes the new format, so this is safe.
-    return user.upgradeFromUnfilteredAccountData()
-      .then(() => user.upgradeFromSession(Session, this._fxaClient))
-      .then(() => user.removeAccountsWithInvalidUid());
   },
 
   createView (Constructor, options = {}) {

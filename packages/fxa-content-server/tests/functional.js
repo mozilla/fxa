@@ -73,5 +73,4 @@ module.exports = [
   'tests/functional/alternative_styles.js',
   'tests/functional/email_opt_in.js',
   'tests/functional/refreshes_metrics.js',
-  'tests/functional/upgrade_storage_formats.js',
 ];
