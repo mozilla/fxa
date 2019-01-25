@@ -1,0 +1,20 @@
+<div id="main-content" class="card pair-auth pair-auth-complete">
+  <header>
+    <h1 id="pair-auth-complete-header">{{#t}}Device connected{{/t}}</h1>
+  </header>
+
+  <section>
+    <div class="error"></div>
+
+    <div class="graphic {{ graphicId }}">{{#t}}Success{{/t}}</div>
+
+    <h2>{{#t}}You are now syncing with:{{/t}}</h2>
+
+    {{{ unsafeDeviceBeingPairedHTML }}}
+
+    <div class="button-row">
+      <a href="/settings/clients/" class="button primary-button">{{#t}}Manage devices{{/t}}</a>
+    </div>
+  </section>
+</div>
+

@@ -1,0 +1,16 @@
+<div id="main-content" class="card">
+  <header>
+    <h1 id="fxa-pair-auth-header">
+      {{#t}}Attempting to pair{{/t}}
+    </h1>
+  </header>
+
+  <section>
+    <div class="error {{#error}}visible{{/error}}">{{ error }}</div>
+    <div class="success"></div>
+
+    {{^error}}
+    <div class="spinner"></div>
+    {{/error}}
+  </section>
+</div>
