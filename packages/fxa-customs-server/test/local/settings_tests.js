@@ -4,12 +4,21 @@
 'use strict'
 
 const P = require('bluebird')
+const sinon = require('sinon')
 const test = require('tap').test
 
-const config = {}
+const config = {
+  limits: {
+    maxEmails: 5,
+    smsRateLimit: {
+      limitIntervalSeconds: 1800,
+      maxSms: 5
+    }
+  }
+}
 const mc = {}
 const log = {
-  info() {},
+  info: sinon.spy(),
   error() {}
 }
 const Settings = require('../../lib/settings/settings')(config, mc, log)
@@ -91,3 +100,39 @@ test(
       )
   }
 )
+
+test('limits.validate logs changes', t => {
+  const current = require('../../lib/settings/limits')(config, Settings, log)
+  const future = require('../../lib/settings/limits')(config, Settings, log)
+
+  log.info.resetHistory()
+  future.maxEmails += 1
+  future.smsRateLimit = { ...current.smsRateLimit }
+  future.smsRateLimit.limitIntervalSeconds *= 2
+
+  current.validate(future)
+
+  t.equal(log.info.callCount, 2)
+
+  let args = log.info.args[0]
+  t.equal(args.length, 1)
+  t.equal(args[0].op, 'limits.validate.changed')
+  t.equal(args[0].key, 'maxEmails')
+  t.equal(args[0].maxEmails, undefined)
+  t.equal(typeof args[0].currentMaxEmails, 'number')
+  t.equal(typeof args[0].futureMaxEmails, 'number')
+  t.equal(args[0].currentMaxEmails, config.limits.maxEmails)
+  t.equal(args[0].futureMaxEmails, config.limits.maxEmails + 1)
+
+  args = log.info.args[1]
+  t.equal(args.length, 1)
+  t.equal(args[0].op, 'limits.validate.changed')
+  t.equal(args[0].key, 'smsRateLimit')
+  t.equal(args[0].smsRateLimit, undefined)
+  t.equal(typeof args[0].currentSmsRateLimit, 'object')
+  t.equal(typeof args[0].futureSmsRateLimit, 'object')
+  t.equal(args[0].currentSmsRateLimit.limitIntervalSeconds, config.limits.smsRateLimit.limitIntervalSeconds)
+  t.equal(args[0].futureSmsRateLimit.limitIntervalSeconds, config.limits.smsRateLimit.limitIntervalSeconds * 2)
+
+  t.end()
+})
