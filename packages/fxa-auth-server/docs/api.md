@@ -285,9 +285,9 @@ for `code` and `errno` are:
 * `code: 400, errno: 153`:
   Expired token verification code
 * `code: 400, errno: 154`:
-  A TOTP token already exists for this account.
+  TOTP token already exists for this account.
 * `code: 400, errno: 155`:
-  A TOTP token not found.
+  TOTP token not found.
 * `code: 400, errno: 156`:
   Recovery code not found.
 * `code: 400, errno: 157`:

@@ -785,7 +785,7 @@ AppError.totpTokenAlreadyExists = () => {
     code: 400,
     error: 'Bad Request',
     errno: ERRNO.TOTP_TOKEN_EXISTS,
-    message: 'A TOTP token already exists for this account.'
+    message: 'TOTP token already exists for this account.'
   })
 }
 
@@ -794,7 +794,7 @@ AppError.totpTokenNotFound = () => {
     code: 400,
     error: 'Bad Request',
     errno: ERRNO.TOTP_TOKEN_NOT_FOUND,
-    message: 'A TOTP token not found.'
+    message: 'TOTP token not found.'
   })
 }
 
