@@ -1,3 +1,13 @@
+<a name="1.129.3"></a>
+## [1.129.3](https://github.com/mozilla/fxa-auth-server/compare/v1.129.2...v1.129.3) (2019-01-25)
+
+
+### Bug Fixes
+
+* **logs:** rename `code` to `status` on request.summary log lines ([42c4c37](https://github.com/mozilla/fxa-auth-server/commit/42c4c37))
+
+
+
 <a name="1.129.2"></a>
 ## [1.129.2](https://github.com/mozilla/fxa-auth-server/compare/v1.129.1...v1.129.2) (2019-01-24)
 
