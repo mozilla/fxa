@@ -1,3 +1,13 @@
+<a name="1.129.0"></a>
+# [1.129.0](https://github.com/mozilla/fxa-customs-server/compare/v1.124.0...v1.129.0) (2019-01-25)
+
+
+### Bug Fixes
+
+* **logs:** preserve homogeneity of log properties ([469ca49](https://github.com/mozilla/fxa-customs-server/commit/469ca49))
+
+
+
 <a name="1.124.0"></a>
 # [1.124.0](https://github.com/mozilla/fxa-customs-server/compare/v1.123.0...v1.124.0) (2018-10-30)
 
