@@ -471,14 +471,17 @@ describe('log', () => {
       path: '/v1/frobnicate',
       payload: {}
     }, {
-      code: 200
+      code: 200,
+      statusCode: 201
     })
 
     assert.equal(logger.info.callCount, 1)
     assert.equal(logger.info.args[0][1].op, 'request.summary')
+    assert.equal(logger.info.args[0][1].status, 201)
+    assert.equal(logger.info.args[0][1].code, undefined)
     assert.equal(emitRouteFlowEvent.callCount, 1)
     assert.equal(emitRouteFlowEvent.args[0].length, 1)
-    assert.deepEqual(emitRouteFlowEvent.args[0][0], { code: 200 })
+    assert.deepEqual(emitRouteFlowEvent.args[0][0], { code: 200, statusCode: 201 })
     assert.equal(logger.error.callCount, 0)
   })
 
