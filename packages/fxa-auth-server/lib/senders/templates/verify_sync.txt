@@ -6,7 +6,7 @@
 {{#if location}}{{ location }}{{/if}}
 {{#if ip}}{{t "IP address: %(ip)s" }}{{/if}}
 
-{{t "Verify email "}} &rarr; {{{link}}}
+{{t "Verify email "}} {{{link}}}
 
 {{t "Once confirmed, we will help you install and connect Firefox on at least one other device."}}
 
