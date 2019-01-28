@@ -1,3 +1,29 @@
+<a name="1.129.4"></a>
+## [1.129.4](https://github.com/mozilla/fxa-auth-server/compare/v1.129.3...v1.129.4) (2019-01-28)
+
+
+### Bug Fixes
+
+* **error:** remove `A` from totpTokenNotFound and totpTokenAlreadyExists errors ([d82232c](https://github.com/mozilla/fxa-auth-server/commit/d82232c))
+* **npm:** rewrap ([cdc817d](https://github.com/mozilla/fxa-auth-server/commit/cdc817d))
+* **validation:** fix missing validation for client name ([72b2a52](https://github.com/mozilla/fxa-auth-server/commit/72b2a52))
+
+### style
+
+* **lib/senders:** removed right arrows ([d04300c](https://github.com/mozilla/fxa-auth-server/commit/d04300c))
+
+
+
+<a name="1.128.5"></a>
+## [1.128.5](https://github.com/mozilla/fxa-auth-server/compare/v1.128.4-private...v1.128.5) (2019-01-18)
+
+
+### Bug Fixes
+
+* **oauth:** Allow keys_jwk through GET /authorization ([d2f82dd](https://github.com/mozilla/fxa-auth-server/commit/d2f82dd)), closes [mozilla/notes#1440](https://github.com/mozilla/notes/issues/1440)
+
+
+
 <a name="1.129.3"></a>
 ## [1.129.3](https://github.com/mozilla/fxa-auth-server/compare/v1.129.2...v1.129.3) (2019-01-25)
 
@@ -49,6 +75,20 @@
 * **deps:** Update to fxa-shared@1.0.15 ([b8f5b22](https://github.com/mozilla/fxa-auth-server/commit/b8f5b22))
 * **package:** disable security advisory 766 for sandbox dependency ([0a5e7f6](https://github.com/mozilla/fxa-auth-server/commit/0a5e7f6))
 * **package:** disable security advisory 766 for sandbox dependency ([737be65](https://github.com/mozilla/fxa-auth-server/commit/737be65))
+
+
+
+<a name="1.128.5"></a>
+## [1.128.5](https://github.com/mozilla/fxa-auth-server/compare/v1.128.3...v1.128.5) (2019-01-18)
+
+
+### Bug Fixes
+
+* **oauth:** Allow keys_jwk through GET /authorization ([d2f82dd](https://github.com/mozilla/fxa-auth-server/commit/d2f82dd)), closes [mozilla/notes#1440](https://github.com/mozilla/notes/issues/1440)
+
+### chore
+
+* **package:** disable security advisory 766 for sandbox dependency ([0a5e7f6](https://github.com/mozilla/fxa-auth-server/commit/0a5e7f6))
 
 
 

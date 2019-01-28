@@ -243,17 +243,6 @@ describe('/v1', function() {
           assert.equal(redirect.host, target.host);
         });
       });
-
-      it('should fail if keys_jwk specified', () => {
-        return Server.api
-        .get('/authorization?keys_jwk=xyz&client_id=123&state=321&scope=1')
-        .then(function(res) {
-          assert.equal(res.statusCode, 400);
-          assert.equal(res.result.errno, 109);
-          assert.equal(res.result.validation, 'keys_jwk');
-          assertSecurityHeaders(res);
-        });
-      });
     });
 
     describe('content-type', function() {
