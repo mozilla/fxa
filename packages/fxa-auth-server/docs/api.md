@@ -1971,7 +1971,7 @@ such as its display-name and redirect URI.
   
   <!--end-response-body-get-oauthclientclient_id-id-->
 
-* `name`: *Joi.string.max(25).regex(validators.DISPLAY_SAFE_UNICODE).required*
+* `name`: *Joi.string.max(255).regex(validators.DISPLAY_SAFE_UNICODE).required*
 
   <!--begin-response-body-get-oauthclientclient_id-name-->
   
