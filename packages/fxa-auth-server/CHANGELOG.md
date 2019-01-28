@@ -52,6 +52,20 @@
 
 
 
+<a name="1.128.5"></a>
+## [1.128.5](https://github.com/mozilla/fxa-auth-server/compare/v1.128.3...v1.128.5) (2019-01-18)
+
+
+### Bug Fixes
+
+* **oauth:** Allow keys_jwk through GET /authorization ([d2f82dd](https://github.com/mozilla/fxa-auth-server/commit/d2f82dd)), closes [mozilla/notes#1440](https://github.com/mozilla/notes/issues/1440)
+
+### chore
+
+* **package:** disable security advisory 766 for sandbox dependency ([0a5e7f6](https://github.com/mozilla/fxa-auth-server/commit/0a5e7f6))
+
+
+
 <a name="1.128.4"></a>
 ## [1.128.4](https://github.com/mozilla/fxa-auth-server/compare/v1.128.3...v1.128.4) (2019-01-17)
 
