@@ -44,9 +44,53 @@ module.exports = config => {
       headers = {}
     }
     // We do a shallow clone to avoid tainting the caller's copy of `headers`.
-    headers = JSON.parse(JSON.stringify(headers))
+    headers = Object.assign({}, headers)
     if (token && ! headers.Authorization) {
       headers.Authorization = hawkHeader(token, method, url, payload, this.timeOffset)
+    }
+    var options = {
+      url: url,
+      method: method,
+      headers: headers,
+      json: payload || true
+    }
+    if (headers['accept-language'] === undefined) { delete headers['accept-language']}
+    this.emit('startRequest', options)
+    request(options, function (err, res, body) {
+      if (res && res.headers.timestamp) {
+        // Record time skew
+        this.timeOffset = Date.now() - parseInt(res.headers.timestamp, 10) * 1000
+      }
+
+      this.emit('endRequest', options, err, res)
+      if (err || body.error || res.statusCode !== 200) {
+        return d.reject(err || body)
+      }
+
+      var allowedOrigin = res.headers['access-control-allow-origin']
+      if (allowedOrigin) {
+        // Requiring config outside this condition causes the local tests to fail
+        // because tokenLifetimes.passwordChangeToken is -1
+        var config = require('../../config')
+        if (config.get('corsOrigin').indexOf(allowedOrigin) < 0) {
+          return d.reject(new Error('Unexpected allowed origin: ' + allowedOrigin))
+        }
+      }
+
+      d.resolve(body)
+    }.bind(this))
+    return d.promise
+  }
+
+  ClientApi.prototype.doRequestWithBearerToken = function (method, url, token, payload, headers) {
+    var d = P.defer()
+    if (typeof headers === 'undefined') {
+      headers = {}
+    }
+    // We do a shallow clone to avoid tainting the caller's copy of `headers`.
+    headers = Object.assign({}, headers)
+    if (token && ! headers.Authorization) {
+      headers.Authorization = `Bearer ${token}`
     }
     var options = {
       url: url,
@@ -176,6 +220,14 @@ module.exports = config => {
       )
   }
 
+  ClientApi.prototype.accountDevicesWithRefreshToken = function (refreshTokenHex) {
+    return this.doRequestWithBearerToken(
+      'GET',
+      this.baseURL + '/account/devices',
+      refreshTokenHex
+    )
+  }
+
   ClientApi.prototype.accountDevice = function (sessionTokenHex, info) {
     return tokens.SessionToken.fromHex(sessionTokenHex)
       .then(
@@ -188,6 +240,15 @@ module.exports = config => {
           )
         }.bind(this)
       )
+  }
+
+  ClientApi.prototype.accountDeviceWithRefreshToken = function (refreshTokenHex, info) {
+    return this.doRequestWithBearerToken(
+      'POST',
+      this.baseURL + '/account/device',
+      refreshTokenHex,
+      info
+    )
   }
 
   ClientApi.prototype.deviceDestroy = function (sessionTokenHex, id) {
@@ -206,6 +267,16 @@ module.exports = config => {
       )
   }
 
+  ClientApi.prototype.deviceDestroyWithRefreshToken = function (refreshTokenHex, id) {
+    return this.doRequestWithBearerToken(
+      'POST',
+      this.baseURL + '/account/device/destroy',
+      refreshTokenHex,
+      {
+        id: id
+      }
+    )
+  }
 
   ClientApi.prototype.accountStatusByEmail = function (email) {
     if (email) {

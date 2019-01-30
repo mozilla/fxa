@@ -478,8 +478,8 @@ describe('push', () => {
             // web-push failed
             assert.equal(mockDb.updateDevice.callCount, 1, 'db.updateDevice was called once')
             var args = mockDb.updateDevice.args[0]
-            assert.equal(args.length, 3, 'db.updateDevice was passed three arguments')
-            assert.equal(args[1], null, 'sessionTokenId argument was null')
+            assert.equal(args.length, 2, 'db.updateDevice was passed two arguments')
+            assert.equal(args[1].sessionTokenId, null, 'sessionTokenId was null')
             count++
           }
         }
@@ -515,8 +515,8 @@ describe('push', () => {
             // web-push failed
             assert.equal(mockDb.updateDevice.callCount, 1, 'db.updateDevice was called once')
             var args = mockDb.updateDevice.args[0]
-            assert.equal(args.length, 3, 'db.updateDevice was passed three arguments')
-            assert.equal(args[1], null, 'sessionTokenId argument was null')
+            assert.equal(args.length, 2, 'db.updateDevice was passed two arguments')
+            assert.equal(args[1].sessionTokenId, null, 'sessionTokenId argument was null')
             count++
           }
         }

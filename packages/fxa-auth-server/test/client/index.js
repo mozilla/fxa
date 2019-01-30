@@ -405,6 +405,10 @@ module.exports = config => {
     )
   }
 
+  Client.prototype.devicesWithRefreshToken = function (refreshToken) {
+    return this.api.accountDevicesWithRefreshToken(refreshToken)
+  }
+
   Client.prototype.updateDevice = function (info) {
     var o = this.sessionToken ? P.resolve(null) : this.login()
     return o.then(
@@ -422,6 +426,18 @@ module.exports = config => {
     )
   }
 
+  Client.prototype.updateDeviceWithRefreshToken = function (refreshTokenId, info) {
+    return this.api.accountDeviceWithRefreshToken(refreshTokenId, info)
+      .then(
+        function (device) {
+          if (! this.device || this.device.id === device.id) {
+            this.device = device
+          }
+          return device
+        }.bind(this)
+      )
+  }
+
   Client.prototype.destroyDevice = function (id) {
     var o = this.sessionToken ? P.resolve(null) : this.login()
     return o.then(
@@ -434,6 +450,10 @@ module.exports = config => {
         delete this.sessionToken
       }.bind(this)
     )
+  }
+
+  Client.prototype.destroyDeviceWithRefreshToken = function (refreshTokenId, id) {
+    return this.api.deviceDestroyWithRefreshToken(refreshTokenId, id)
   }
 
   Client.prototype.sessionStatus = function () {

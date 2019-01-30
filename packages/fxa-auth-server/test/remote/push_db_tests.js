@@ -109,7 +109,8 @@ describe('remote push db', function() {
 
           .then(function (sessionToken) {
             sessionTokenId = sessionToken.id
-            return db.createDevice(ACCOUNT.uid, sessionTokenId, deviceInfo)
+            deviceInfo.sessionTokenId = sessionTokenId
+            return db.createDevice(ACCOUNT.uid, deviceInfo)
           })
           .then(function (device) {
             assert.equal(device.name, deviceInfo.name)

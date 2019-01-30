@@ -24,7 +24,7 @@ const SCHEMA = {
   name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE_WITH_NON_BMP),
   // We previously allowed devices to register with arbitrary unicode names,
   // so we can't assert DISPLAY_SAFE_UNICODE_WITH_NON_BMP in the response schema.
-  nameResponse: isA.string().max(255),
+  nameResponse: isA.string().max(255).allow(''),
   type: isA.string().max(16),
   pushCallback: validators.pushCallbackUrl({ scheme: 'https' }).regex(PUSH_SERVER_REGEX).max(255).allow(''),
   pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).allow(''),
@@ -78,7 +78,7 @@ module.exports = (log, db, push) => {
     return true
   }
 
-  function upsert (request, sessionToken, deviceInfo) {
+  function upsert (request, credentials, deviceInfo) {
     let operation, event, result
     if (deviceInfo.id) {
       operation = 'updateDevice'
@@ -86,14 +86,21 @@ module.exports = (log, db, push) => {
     } else {
       operation = 'createDevice'
       event = 'device.created'
+      if (! deviceInfo.name) {
+        deviceInfo.name = credentials.client && credentials.client.name || ''
+      }
     }
+
+    deviceInfo.sessionTokenId = credentials.id
+    deviceInfo.refreshTokenId = credentials.refreshTokenId
+
     const isPlaceholderDevice = ! deviceInfo.id && ! deviceInfo.name && ! deviceInfo.type
 
-    return db[operation](sessionToken.uid, sessionToken.id, deviceInfo)
+    return db[operation](credentials.uid, deviceInfo)
       .then(device => {
         result = device
         return request.emitMetricsEvent(event, {
-          uid: sessionToken.uid,
+          uid: credentials.uid,
           device_id: result.id,
           is_placeholder: isPlaceholderDevice
         })
@@ -106,20 +113,20 @@ module.exports = (log, db, push) => {
           if (! deviceName) {
             deviceName = synthesizeName(deviceInfo)
           }
-          if (sessionToken.tokenVerified) {
+          if (credentials.tokenVerified) {
             request.app.devices.then(devices => {
               const otherDevices = devices.filter(device => device.id !== result.id)
-              return push.notifyDeviceConnected(sessionToken.uid, otherDevices, deviceName)
+              return push.notifyDeviceConnected(credentials.uid, otherDevices, deviceName)
             })
           }
           if (isPlaceholderDevice) {
             log.info('device:createPlaceholder', {
-              uid: sessionToken.uid,
+              uid: credentials.uid,
               id: result.id
             })
           }
           return log.notifyAttachedServices('device:create', request, {
-            uid: sessionToken.uid,
+            uid: credentials.uid,
             id: result.id,
             type: result.type,
             timestamp: result.createdAt,
@@ -128,6 +135,8 @@ module.exports = (log, db, push) => {
         }
       })
       .then(function () {
+        delete result.sessionTokenId
+        delete result.refreshTokenId
         return result
       })
   }

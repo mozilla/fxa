@@ -24,7 +24,7 @@ const DEFAULT_COMMAND_TTL = new Map([
   ['https://identity.mozilla.com/cmd/open-uri', 30 * 24 * 3600], // 30 days
 ])
 
-module.exports = (log, db, config, customs, push, pushbox, devices) => {
+module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => {
   // Loads and compiles a json validator for the payloads received
   // in /account/devices/notify
   const validatePushSchema = JSON.parse(fs.readFileSync(PUSH_PAYLOADS_SCHEMA_PATH))
@@ -111,23 +111,23 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
     return {}
   }
 
-  // Creates a "full" device response, provided a sessionToken and an optional
+  // Creates a "full" device response, provided a credentials object and an optional
   // updated DB device record.
-  function buildDeviceResponse(sessionToken, device = null) {
+  function buildDeviceResponse(credentials, device = null) {
     // We must respond with the full device record,
     // including any default values for missing fields.
     return {
       // These properties can be picked from sessionToken or device as appropriate.
-      pushCallback: sessionToken.deviceCallbackURL,
-      pushPublicKey: sessionToken.deviceCallbackPublicKey,
-      pushAuthKey: sessionToken.deviceCallbackAuthKey,
-      pushEndpointExpired: sessionToken.deviceCallbackIsExpired,
-      availableCommands: sessionToken.deviceAvailableCommands,
+      pushCallback: credentials.deviceCallbackURL,
+      pushPublicKey: credentials.deviceCallbackPublicKey,
+      pushAuthKey: credentials.deviceCallbackAuthKey,
+      pushEndpointExpired: !! credentials.deviceCallbackIsExpired,
       ...device,
       // But these need to be non-falsey, using default fallbacks if necessary
-      id: (device && device.id) || sessionToken.deviceId,
-      name: (device && device.name) || sessionToken.deviceName || devices.synthesizeName(sessionToken),
-      type: (device && device.type) || sessionToken.deviceType || 'desktop',
+      id: (device && device.id) || credentials.deviceId,
+      name: (device && device.name) || credentials.deviceName || devices.synthesizeName(credentials),
+      type: (device && device.type) || credentials.deviceType || 'desktop',
+      availableCommands: (device && device.availableCommands) || credentials.deviceAvailableCommands || {},
     }
   }
 
@@ -137,39 +137,26 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
       path: '/account/device',
       options: {
         auth: {
-          strategy: 'sessionToken'
+          strategies: [
+            'sessionToken',
+            'refreshToken'
+          ]
         },
         validate: {
-          payload: isA.alternatives().try(
-            isA.object({
-              id: DEVICES_SCHEMA.id.required(),
-              name: DEVICES_SCHEMA.name.optional(),
-              type: DEVICES_SCHEMA.type.optional(),
-              pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
-              pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
-              pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional(),
-              availableCommands: DEVICES_SCHEMA.availableCommands.optional(),
-              // Some versions of desktop firefox send a zero-length
-              // "capabilities" array, for historical reasons.
-              // We accept but ignore it.
-              capabilities: isA.array().length(0).optional()
-            })
-            .or('name', 'type', 'pushCallback', 'pushPublicKey', 'pushAuthKey', 'availableCommands')
-            .and('pushPublicKey', 'pushAuthKey'),
-            isA.object({
-              name: DEVICES_SCHEMA.name.required(),
-              type: DEVICES_SCHEMA.type.required(),
-              pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
-              pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
-              pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional(),
-              availableCommands: DEVICES_SCHEMA.availableCommands.optional(),
-              // Some versions of desktop firefox send a zero-length
-              // "capabilities" array, for historical reasons.
-              // We accept but ignore it.
-              capabilities: isA.array().length(0).optional()
-            })
-            .and('pushPublicKey', 'pushAuthKey')
-          )
+          payload: isA.object({
+            id: DEVICES_SCHEMA.id.optional(),
+            name: DEVICES_SCHEMA.name.optional(),
+            type: DEVICES_SCHEMA.type.optional(),
+            pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
+            pushPublicKey: DEVICES_SCHEMA.pushPublicKey.optional(),
+            pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional(),
+            availableCommands: DEVICES_SCHEMA.availableCommands.optional(),
+            // Some versions of desktop firefox send a zero-length
+            // "capabilities" array, for historical reasons.
+            // We accept but ignore it.
+            capabilities: isA.array().length(0).optional()
+          })
+          .and('pushCallback', 'pushPublicKey', 'pushAuthKey')
         },
         response: {
           schema: isA.object({
@@ -182,14 +169,14 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
             pushAuthKey: DEVICES_SCHEMA.pushAuthKey.optional(),
             pushEndpointExpired: DEVICES_SCHEMA.pushEndpointExpired.optional(),
             availableCommands: DEVICES_SCHEMA.availableCommands.optional(),
-          }).and('pushPublicKey', 'pushAuthKey')
+          }).and('pushCallback', 'pushPublicKey', 'pushAuthKey')
         }
       },
       handler: async function (request) {
         log.begin('Account.device', request)
 
         const payload = request.payload
-        const sessionToken = request.auth.credentials
+        const credentials = request.auth.credentials
 
         // Remove obsolete field, so we don't try to echo it back to the client.
         delete payload.capabilities
@@ -201,8 +188,8 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
 
         if (payload.id) {
           // Don't write out the update if nothing has actually changed.
-          if (devices.isSpuriousUpdate(payload, sessionToken)) {
-            return buildDeviceResponse(sessionToken)
+          if (devices.isSpuriousUpdate(payload, credentials)) {
+            return buildDeviceResponse(credentials)
           }
 
           // We also reserve the right to disable updates until
@@ -210,22 +197,16 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
           if (config.deviceUpdatesEnabled === false) {
             throw error.featureNotEnabled()
           }
-        } else if (sessionToken.deviceId) {
+        } else if (credentials.deviceId) {
           // Keep the old id, which is probably from a synthesized device record
-          payload.id = sessionToken.deviceId
+          payload.id = credentials.deviceId
         }
 
         const pushEndpointOk = ! payload.id || // New device.
                                (payload.id && payload.pushCallback &&
-                                payload.pushCallback !== sessionToken.deviceCallbackURL) // Updating the pushCallback
+                                payload.pushCallback !== credentials.deviceCallbackURL) // Updating the pushCallback
         if (pushEndpointOk) {
           payload.pushEndpointExpired = false
-        }
-        if (payload.pushCallback) {
-          if (! payload.pushPublicKey || ! payload.pushAuthKey) {
-            payload.pushPublicKey = ''
-            payload.pushAuthKey = ''
-          }
         }
 
         // We're doing a gradual rollout of the 'device commands' feature
@@ -235,8 +216,8 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
             payload.availableCommands = {}
         }
 
-        const device = await devices.upsert(request, sessionToken, payload)
-        return buildDeviceResponse(sessionToken, device)
+        const device = await devices.upsert(request, credentials, payload)
+        return buildDeviceResponse(credentials, device)
       }
     },
     {
@@ -250,7 +231,10 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
           }
         },
         auth: {
-          strategy: 'sessionToken'
+          strategies: [
+            'sessionToken',
+            'refreshToken'
+          ]
         },
         response: {
           schema: isA.object({
@@ -288,7 +272,10 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
       path: '/account/devices/invoke_command',
       options: {
         auth: {
-          strategy: 'sessionToken'
+          strategies: [
+            'sessionToken',
+            'refreshToken'
+          ]
         },
         validate: {
           payload: {
@@ -342,7 +329,10 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
       path: '/account/devices/notify',
       options: {
         auth: {
-          strategy: 'sessionToken'
+          strategies: [
+            'sessionToken',
+            'refreshToken'
+          ]
         },
         validate: {
           payload: isA.alternatives().try(
@@ -456,7 +446,10 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
       path: '/account/devices',
       options: {
         auth: {
-          strategy: 'sessionToken'
+          strategies: [
+            'sessionToken',
+            'refreshToken'
+          ]
         },
         response: {
           schema: isA.array().items(isA.object({
@@ -507,7 +500,11 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
       path: '/account/sessions',
       options: {
         auth: {
-          strategy: 'sessionToken'
+          strategies: [
+            'sessionToken',
+            // this endpoint is only used by the content server
+            // no refreshToken access here
+          ]
         },
         response: {
           schema: isA.array().items(isA.object({
@@ -592,7 +589,10 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
       path: '/account/device/destroy',
       options: {
         auth: {
-          strategy: 'sessionToken'
+          strategies: [
+            'sessionToken',
+            'refreshToken'
+          ]
         },
         validate: {
           payload: {
@@ -606,19 +606,28 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
       handler: async function (request) {
         log.begin('Account.deviceDestroy', request)
 
-        const sessionToken = request.auth.credentials
-        const uid = sessionToken.uid
+        const credentials = request.auth.credentials
+        const uid = credentials.uid
         const id = request.payload.id
         let devices
 
-        // We want to inculde the disconnected device in the list
+        // We want to include the disconnected device in the list
         // of devices to notify, so list them before disconnecting.
         return request.app.devices
           .then(res => {
             devices = res
             return db.deleteDevice(uid, id)
           })
-          .then(res => {
+          .then(() => {
+            const deviceToDelete = devices.find(d => d.id === id)
+            if (deviceToDelete && deviceToDelete.refreshTokenId) {
+              // attempt to clean up the refreshToken in the OAuth DB
+              return oauthdb.revokeRefreshTokenById(deviceToDelete.refreshTokenId).catch((err) => {
+                log.error('deviceDestroy.revokeRefreshTokenById.error', {err: err.message})
+              })
+            }
+          })
+          .then(() => {
             push.notifyDeviceDisconnected(uid, devices, id)
               .catch(() => {})
             return P.all([

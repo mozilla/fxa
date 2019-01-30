@@ -10,7 +10,6 @@ const token = require('./token');
 const validators = require('./validators');
 
 const WHITELIST = require('./config').get('admin.whitelist').map(function(re) {
-  logger.verbose('compiling.whitelist', re);
   return new RegExp(re);
 });
 
@@ -20,6 +19,8 @@ exports.AUTH_SCHEME = 'bearer';
 exports.SCOPE_CLIENT_MANAGEMENT = ScopeSet.fromArray(['oauth']);
 
 exports.strategy = function() {
+  logger.verbose('auth_client.whitelist', WHITELIST);
+
   return {
     authenticate: async function dogfoodStrategy(req, h) {
       var auth = req.headers.authorization;

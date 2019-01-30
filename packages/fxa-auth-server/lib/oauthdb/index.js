@@ -24,8 +24,10 @@ const { mapOAuthError, makeAssertionJWT } = require('./utils')
 module.exports = (log, config) => {
 
   const OAuthAPI = createBackendServiceAPI(log, config, 'oauth', {
+    checkRefreshToken: require('./check-refresh-token')(config),
+    revokeRefreshTokenById: require('./revoke-refresh-token-by-id')(config),
     getClientInfo: require('./client-info')(config),
-    getScopedKeyData: require('./scoped-key-data')(config)
+    getScopedKeyData: require('./scoped-key-data')(config),
   })
 
   const api = new OAuthAPI(config.oauth.url, config.oauth.poolee)
@@ -36,6 +38,26 @@ module.exports = (log, config) => {
 
     close() {
       api.close()
+    },
+
+    async checkRefreshToken(token) {
+      try {
+        return await api.checkRefreshToken({
+          token: token,
+        })
+      } catch (err) {
+        throw mapOAuthError(log, err)
+      }
+    },
+
+    async revokeRefreshTokenById(refreshTokenId) {
+      try {
+        return await api.revokeRefreshTokenById({
+          refresh_token_id: refreshTokenId,
+        })
+      } catch (err) {
+        throw mapOAuthError(log, err)
+      }
     },
 
     async getClientInfo(clientId) {
@@ -72,12 +94,6 @@ module.exports = (log, config) => {
     }
 
     async revokeAccessToken(token) {
-    }
-
-    async checkRefreshToken(token) {
-    }
-
-    async revokeRefreshToken(token) {
     }
 
      * But in the interests of landing small manageable changes,
