@@ -106,7 +106,7 @@ function verify(verifier, req, res) {
   } catch(err) {
     var reason = err.reason ? err.reason : err.toString();
 
-    res._summary.err = err;
+    res._summary.err = reason;
     log.info('verify', {
       result: 'failure',
       reason: reason,
