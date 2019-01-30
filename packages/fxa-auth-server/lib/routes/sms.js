@@ -61,8 +61,12 @@ module.exports = (log, db, config, customs, sms) => {
           .then(createResponse)
 
         function parsePhoneNumber () {
-          phoneNumberUtil = PhoneNumberUtil.getInstance()
-          parsedPhoneNumber = phoneNumberUtil.parse(phoneNumber)
+          try {
+            phoneNumberUtil = PhoneNumberUtil.getInstance()
+            parsedPhoneNumber = phoneNumberUtil.parse(phoneNumber)
+          } catch (err) {
+            throw error.invalidPhoneNumber()
+          }
         }
 
         function validatePhoneNumber () {
