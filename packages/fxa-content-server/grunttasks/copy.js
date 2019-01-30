@@ -31,7 +31,30 @@ module.exports = function (grunt) {
         expand: true,
         flatten: true,
         src: 'en/{500,502,503}.html'
+      }, {
+        cwd: '<%= yeoman.page_template_dist %>',
+        dest: '<%= yeoman.dist %>',
+        dot: true,
+        expand: true,
+        flatten: true,
+        rename: (dest, src) => `${dest}/${src.replace('.html', '.mozillaonline.html')}`,
+        src: 'zh_CN_x_mococn/{500,502,503}.html'
       }]
+    },
+    mozillaonline: {
+      files: [{
+        cwd: '<%= yeoman.page_template_dist %>',
+        dest: '<%= yeoman.page_template_dist %>',
+        expand: true,
+        rename: (dest, src) => `${dest}/${src.replace('/', '_x_mococn/')}`,
+        src: ['{en,zh_CN}/*']
+      }],
+      options: {
+        process: content => {
+          return content.replace('https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral',
+            'https://www.firefox.com.cn/?utm_source=firefox-accounts&amp;utm_medium=Referral');
+        }
+      }
     },
     strings: {
       files: [
