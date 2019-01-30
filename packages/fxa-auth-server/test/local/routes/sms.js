@@ -313,6 +313,44 @@ describe('/sms with the signinCodes feature included in the payload', () => {
         assert.equal(err.output.payload.region, 'TW')
       })
     })
+
+    describe('too-short phone number', () => {
+      let err
+
+      beforeEach(() => {
+        request.payload.phoneNumber = '+18'
+        return runTest(route, request)
+          .catch(e => {
+            err = e
+          })
+      })
+
+      it('called log.begin once', () => {
+        assert.equal(log.begin.callCount, 1)
+      })
+
+      it('called request.validateMetricsContext once', () => {
+        assert.equal(request.validateMetricsContext.callCount, 1)
+      })
+
+      it('did not call db.createSigninCode', () => {
+        assert.equal(db.createSigninCode.callCount, 0)
+      })
+
+      it('did not call sms.send', () => {
+        assert.equal(sms.send.callCount, 0)
+      })
+
+      it('did not call log.flowEvent', () => {
+        assert.equal(log.flowEvent.callCount, 0)
+      })
+
+      it('threw the correct error data', () => {
+        assert.instanceOf(err, AppError)
+        assert.equal(err.errno, AppError.ERRNO.INVALID_PHONE_NUMBER)
+        assert.equal(err.message, 'Invalid phone number')
+      })
+    })
   })
 
   describe('sms.send fails', () => {
