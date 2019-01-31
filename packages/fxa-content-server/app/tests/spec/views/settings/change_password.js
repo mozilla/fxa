@@ -78,10 +78,11 @@ describe('views/settings/change_password', function () {
 
     describe('render', function () {
       it('renders properly', function () {
-        assert.ok($('#old_password').length);
-        assert.ok($('.reset-password').length);
-        assert.ok($('#new_password').length);
-        assert.isTrue($('.input-help').length === 2);
+        assert.lengthOf($('#old_password'), 1);
+        assert.lengthOf($('.reset-password'), 1);
+        assert.lengthOf($('#new_password'), 1);
+        assert.lengthOf($('#new_vpassword'), 1);
+        assert.lengthOf($('.input-help'), 1);
         assert.isTrue($('.input-help-forgot-pw').length === 1);
         assert.equal(view.$('input[type=email]').val(), EMAIL);
       });

@@ -377,33 +377,39 @@ var FormView = BaseView.extend({
     const $invalidEl = this.$(el);
     const message = AuthErrors.toMessage(err);
 
-    // tooltipId is used to bind the invalid element
-    // with the tooltip using `aria-described-by`
-    const tooltipId = `error-tooltip-${err.errno}`;
-
-    var tooltip = new Tooltip({
-      id: tooltipId,
-      invalidEl: $invalidEl,
-      message,
-      translator: this.translator
-    });
-
-    tooltip.on('destroyed', () => {
-      this.markElementValid($invalidEl);
-      this.trigger('validation_error_removed', el);
-    }).render().then(() => {
-      this.markElementInvalid($invalidEl, tooltipId);
+    const markElementInvalidAndFocus = (describedById) => {
+      this.markElementInvalid($invalidEl, describedById);
       try {
         $invalidEl.get(0).focus();
       } catch (e) {
-        // IE can blow up if the element is not visible.
+      // IE can blow up if the element is not visible.
       }
 
       // used for testing
       this.trigger('validation_error', el, message);
-    });
+    };
 
-    this.trackChildView(tooltip);
+    if (err.describedById) {
+      markElementInvalidAndFocus(err.describedById);
+    } else {
+      // tooltipId is used to bind the invalid element
+      // with the tooltip using `aria-described-by`
+      const tooltipId = `error-tooltip-${err.errno}`;
+
+      var tooltip = new Tooltip({
+        id: tooltipId,
+        invalidEl: $invalidEl,
+        message,
+        translator: this.translator
+      });
+
+      tooltip.on('destroyed', () => {
+        this.markElementValid($invalidEl);
+        this.trigger('validation_error_removed', el);
+      }).render().then(() => markElementInvalidAndFocus(tooltipId));
+
+      this.trackChildView(tooltip);
+    }
 
     return message;
   },

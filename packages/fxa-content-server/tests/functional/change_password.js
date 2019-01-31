@@ -101,7 +101,32 @@ registerSuite('change_password', {
         .then(noSuchElement(selectors.CHANGE_PASSWORD.TOOLTIP));
     },
 
-    'vpassword validation, tooltip shows': function () {
+    'new_password validation, balloon': function () {
+      return this.remote
+        .then(setupTest())
+
+        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
+        // new_password empty
+        .then(fillOutChangePassword(FIRST_PASSWORD, '', { expectSuccess: false, vpassword: SECOND_PASSWORD }))
+        .then(testElementExists(selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL))
+
+        // new_password too short
+        .then(fillOutChangePassword(FIRST_PASSWORD, 'pass', { expectSuccess: false, vpassword: SECOND_PASSWORD }))
+        .then(testElementExists(selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL))
+
+        // new_password too close to the email address
+        .then(fillOutChangePassword(FIRST_PASSWORD, email, { expectSuccess: false, vpassword: SECOND_PASSWORD }))
+        .then(testElementExists(selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_FAIL))
+
+        // new_password too common
+        .then(fillOutChangePassword(FIRST_PASSWORD, 'password', { expectSuccess: false, vpassword: SECOND_PASSWORD }))
+        .then(testElementExists(selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_FAIL))
+
+        // all good
+        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD));
+    },
+
+    'new_vpassword validation, tooltip shows': function () {
       return this.remote
         .then(setupTest())
 

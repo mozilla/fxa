@@ -37,60 +37,28 @@ const BANNED_URL_REGEXP = /^(?:firefox|mozilla)\.(?:com|org)$/;
 export default class PasswordStrengthBalloonModel extends Model {
   constructor (attrs = {}, config = {}) {
     const attrsWithDefaults = assign({
-      hasCheckedPassword: false,
-      hasEnteredPassword: false,
-      hasSubmit: false,
-      isCommon: false,
-      isSameAsEmail: false,
-      isSubmitting: false,
-      isTooShort: false,
-      isValid: false,
-      password: ''
+      email: '',
+      hasUserTakenAction: false,
+      isVisible: false,
+      // The null default is so a `change:password` event fires if
+      // the user submits the form with an empty password.
+      password: null,
     }, attrs);
     super(attrsWithDefaults, config);
 
-    // Asynchronously load the common password list as soon as the model is created.
-    this._getCommonPasswordList();
-
-    this.on('change:isSubmitting', () => this.set('hasSubmit', true));
-    this.on('change:hasSubmit', () => this.updateForPassword());
-    this.on('change:password', () => this.updateForPassword());
+    this.on('change:password', () => this.set('hasUserTakenAction', true));
+    // Force a validity check every time the password is updated.
+    this.on('change:password', () => this.isValid());
   }
 
   _getCommonPasswordList () {
     return import(/* webpackChunkName: "fxa-common-password-list" */ 'fxa-common-password-list');
   }
 
-  /**
-   * Calculate model values for the updated password
-   *
-   * @returns {Promise} resolves when complete
-   */
-  updateForPassword () {
-    return this._getCommonPasswordList().then((commonPasswordList => {
-      // The password list only stores lowercase words,
-      // use the lowercase password for comparison everywhere.
-      const lowercasePassword = this.get('password').toLowerCase();
-
-      // each criterion can only be true if the previous criterion is `false`,
-      // except hasEnteredPassword must be `true`.
-      // hasSubmit means the user has submit the form, that's equivalent to hasEnteredPassword
-      // except that it causes the PW strength bubble to update immediately.
-      const hasEnteredPassword = !! (this.get('hasEnteredPassword') || lowercasePassword.length) || this.get('hasSubmit');
-      const isTooShort = hasEnteredPassword && lowercasePassword.length < PASSWORD_MIN_LENGTH;
-      const isSameAsEmail = hasEnteredPassword && ! isTooShort && this.isSameAsEmail(lowercasePassword);
-      const isCommon = hasEnteredPassword && ! isSameAsEmail && this.isCommon(commonPasswordList, lowercasePassword);
-      const isValid = hasEnteredPassword && ! isTooShort && ! isSameAsEmail && ! isCommon;
-
-      this.set({
-        hasCheckedPassword: true,
-        hasEnteredPassword,
-        isCommon,
-        isSameAsEmail,
-        isTooShort,
-        isValid
-      });
-    }));
+  fetch () {
+    return this._getCommonPasswordList().then(commonPasswordList => {
+      this.commonPasswordList = commonPasswordList;
+    });
   }
 
   isSameAsEmail (lowercasePassword) {
@@ -136,14 +104,24 @@ export default class PasswordStrengthBalloonModel extends Model {
            BANNED_URL_REGEXP.test(lowercasePassword);
   }
 
-  validate () {
-    if (! this.get('password')) {
+  validate (attrs = {}) {
+    // If the user has taken no action and there is no password,
+    // the data is not considered invalid.
+    if (! attrs.hasUserTakenAction && ! attrs.password) {
+      return;
+    }
+
+    // The password list only stores lowercase words,
+    // use the lowercase password for comparison everywhere.
+    const lowercasePassword = (attrs.password || '').toLowerCase();
+
+    if (! lowercasePassword) {
       return AuthErrors.toError('PASSWORD_REQUIRED');
-    } else if (this.get('isTooShort')) {
+    } else if (lowercasePassword.length < PASSWORD_MIN_LENGTH) {
       return AuthErrors.toError('PASSWORD_TOO_SHORT');
-    } else if (this.get('isSameAsEmail')) {
+    } else if (this.isSameAsEmail(lowercasePassword)) {
       return AuthErrors.toError('PASSWORD_SAME_AS_EMAIL');
-    } else if (this.get('isCommon')) {
+    } else if (this.isCommon(this.commonPasswordList, lowercasePassword)) {
       return AuthErrors.toError('PASSWORD_TOO_COMMON');
     }
   }
