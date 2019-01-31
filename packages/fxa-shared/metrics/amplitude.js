@@ -180,7 +180,7 @@ module.exports = {
           }
         }
 
-        const properties = pruneUnsetValues({
+        return pruneUnsetValues({
           op: 'amplitudeEvent',
           event_type: `${eventGroup} - ${eventType}`,
           time: event.time,
@@ -197,21 +197,6 @@ module.exports = {
           event_properties: mapEventProperties(eventType, eventGroup, eventCategory, eventTarget, data),
           user_properties: mapUserProperties(eventGroup, eventCategory, data)
         });
-
-        if (! properties.user_properties.entrypoint) {
-          // If no entrypoint is specified, use the service name or client_id
-          // as the entrypoint to minimize occurrences of "entrypoint=none"
-          // results in Amplitude. service name is preferred because
-          // it's human readable.
-          // See https://github.com/mozilla/fxa-content-server/issues/6757
-          if (properties.event_properties.service && properties.event_properties.service !== 'undefined_oauth') {
-            properties.user_properties.entrypoint = properties.event_properties.service;
-          } else if (properties.event_properties.oauth_client_id) {
-            properties.user_properties.entrypoint = properties.event_properties.oauth_client_id;
-          }
-        }
-
-        return properties;
       }
     };
 
