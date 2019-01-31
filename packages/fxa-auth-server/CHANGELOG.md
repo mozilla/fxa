@@ -1,3 +1,17 @@
+<a name="1.129.5"></a>
+## [1.129.5](https://github.com/mozilla/fxa-auth-server/compare/v1.129.4...v1.129.5) (2019-01-31)
+
+
+### Bug Fixes
+
+* **metrics:** Fix entrypoint being overwritten for every event. ([5036912](https://github.com/mozilla/fxa-auth-server/commit/5036912)), closes [mozilla/fxa-shared#46](https://github.com/mozilla/fxa-shared/issues/46)
+
+### chore
+
+* **deps:** update deps ([6294593](https://github.com/mozilla/fxa-auth-server/commit/6294593))
+
+
+
 <a name="1.129.4"></a>
 ## [1.129.4](https://github.com/mozilla/fxa-auth-server/compare/v1.129.3...v1.129.4) (2019-01-28)
 
