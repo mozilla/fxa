@@ -8507,9 +8507,9 @@
       }
     },
     "fxa-shared": {
-      "version": "1.0.15",
-      "resolved": "https://registry.npmjs.org/fxa-shared/-/fxa-shared-1.0.15.tgz",
-      "integrity": "sha512-9J7ASrgrxZc/xjhqwk6bp/EmqKMVP0igfzHrJ5en/G3xbAqbzm1EzI+5PKz3s5FkiLorb8+p/fpogxcFv/hfLQ==",
+      "version": "1.0.16",
+      "resolved": "https://registry.npmjs.org/fxa-shared/-/fxa-shared-1.0.16.tgz",
+      "integrity": "sha512-scL68kVRYA5ftx14g0Z+vpvhdbuwRhKvPpqTecqAONCYgvrE0o1VweMJyknrUhGwkvdI3PEnz2WEkUjVpWq25g==",
       "requires": {
         "accept-language": "2.0.17",
         "moment": "2.20.1"
