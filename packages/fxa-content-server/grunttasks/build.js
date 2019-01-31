@@ -70,6 +70,9 @@ module.exports = function (grunt) {
     // Remove whitespace from the HTML
     'htmlmin',
 
+    // make a copy with necessary tweaks for Mozilla Online's deployment
+    'copy:mozillaonline',
+
     // use error pages from en as the static error pages. Comes last
     // to ensure static resources are loaded using cache busting URLs
     'copy:error_pages'

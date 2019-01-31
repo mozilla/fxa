@@ -230,6 +230,15 @@ const conf = module.exports = convict({
         format: Array
       }
     },
+    localeSubdirSuffix: {
+      default: '',
+      doc: 'Enable alternative localized resources for Mozilla Online with private use subtag',
+      env: 'I18N_LOCALE_SUBDIR_SUFFIX',
+      format: [
+        '',
+        '_x_mococn'
+      ]
+    },
     supportedLanguages: {
       default: DEFAULT_SUPPORTED_LANGUAGES,
       doc: 'List of languages this deployment should detect and display localized strings.',
