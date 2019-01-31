@@ -43,7 +43,7 @@ registerSuite('password visibility', {
         .then(mouseup('.show-password-label'))
 
         .then(testAttributeEquals('#password', 'type', 'password'))
-        .then(testAttributeEquals('#password', 'autocomplete', null))
+        .then(testAttributeEquals('#password', 'autocomplete', ''))
 
         // \u0008 is unicode for backspace char. By default `type` clears the
         // element value before typing, we want the character to do so.
