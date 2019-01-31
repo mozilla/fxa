@@ -204,6 +204,26 @@ define(function (require, exports, module) {
       errno: 153,
       message: t('This verification code has expired')
     },
+    TOTP_TOKEN_EXISTS: {
+      errno: 154,
+      message: t('A TOTP token already exists for this account')
+    },
+    TOTP_TOKEN_NOT_FOUND: {
+      errno: 155,
+      message: t('TOTP token not found')
+    },
+    RECOVERY_CODE_NOT_FOUND: {
+      errno: 156,
+      message: t('Recovery code not found')
+    },
+    DEVICE_COMMAND_UNAVAILABLE: {
+      errno: 157,
+      message: t('Unavailable device command')
+    },
+    RECOVERY_KEY_NOT_FOUND: {
+      errno: 158,
+      message: t('Recovery key not found')
+    },
     INVALID_RECOVERY_KEY: {
       errno: 159,
       message: t('Invalid recovery key')
