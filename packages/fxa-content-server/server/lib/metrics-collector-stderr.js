@@ -75,11 +75,11 @@ function addScreenSize(loggableEvent, event) {
     return;
   }
 
-  if (event.screen.width) {
+  if (event.screen.width && typeof event.screen.width === 'number') {
     loggableEvent['screen.width'] = event.screen.width;
   }
 
-  if (event.screen.height) {
+  if (event.screen.height && typeof event.screen.height === 'number') {
     loggableEvent['screen.height'] = event.screen.height;
   }
 }
