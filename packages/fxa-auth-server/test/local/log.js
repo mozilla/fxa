@@ -462,28 +462,135 @@ describe('log', () => {
   it('.summary should log an info message and call request.emitRouteFlowEvent', () => {
     const emitRouteFlowEvent = sinon.spy()
     log.summary({
-      app: {},
+      app: {
+        accountRecreated: false,
+        acceptLanguage: 'en',
+        remoteAddressChain: ['95.85.19.180', '78.144.14.50']
+      },
+      auth: {
+        credentials: {
+          email: 'quix',
+          uid: 'quid',
+        }
+      },
       emitRouteFlowEvent: emitRouteFlowEvent,
+      headers: {
+        'user-agent': 'Firefox Fenix'
+      },
+      id: 'quuz',
+      info: {
+        received: Date.now()
+      },
+      method: 'get',
+      path: '/v1/frobnicate',
+      payload: {
+        reason: 'grault',
+        redirectTo: 'garply',
+        service: 'corge',
+      },
+      query: {
+        keys: true
+      }
+    }, {
+      code: 200,
+      errno: 109,
+      statusCode: 201,
+      source: {
+        formattedPhoneNumber: 'garply'
+      }
+    })
+
+    assert.equal(logger.info.callCount, 1)
+
+    const line = logger.info.args[0][1]
+
+    // Because t is generated using Date.now and subtracting info.received,
+    // it should be >= 0, but we don't know the exact value.
+    assert.isNumber(line.t)
+    assert.isTrue(line.t >= 0)
+
+    // Compare only known values.
+    delete line.t;
+
+    assert.deepEqual(line, {
+      op: 'request.summary',
+      status: 201,
+      errno: 109,
+      rid: 'quuz',
+      path: '/v1/frobnicate',
+      lang: 'en',
+      agent: 'Firefox Fenix',
+      remoteAddressChain: ['95.85.19.180', '78.144.14.50'],
+      accountRecreated: false,
+      uid: 'quid',
+      service: 'corge',
+      reason: 'grault',
+      redirectTo: 'garply',
+      keys: true,
+      method: 'get',
+      email: 'quix',
+      phoneNumber: 'garply',
+    })
+
+    assert.equal(emitRouteFlowEvent.callCount, 1)
+    assert.equal(emitRouteFlowEvent.args[0].length, 1)
+    assert.deepEqual(emitRouteFlowEvent.args[0][0], { code: 200, errno: 109, statusCode: 201, source: {
+      formattedPhoneNumber: 'garply'
+    }})
+    assert.equal(logger.error.callCount, 0)
+  })
+
+  it('.summary with email in payload', () => {
+    log.summary({
+      app: {},
+      auth: {
+        credentials: {
+          uid: 'quid',
+        }
+      },
+      emitRouteFlowEvent: () => {},
       headers: {},
       info: {
         received: Date.now()
       },
+      method: 'get',
       path: '/v1/frobnicate',
-      payload: {}
+      payload: {
+        email: 'quix'
+      }
     }, {
       code: 200,
       statusCode: 201
     })
 
-    assert.equal(logger.info.callCount, 1)
-    assert.equal(logger.info.args[0][1].op, 'request.summary')
-    assert.equal(logger.info.args[0][1].status, 201)
-    assert.equal(logger.info.args[0][1].code, undefined)
-    assert.equal(emitRouteFlowEvent.callCount, 1)
-    assert.equal(emitRouteFlowEvent.args[0].length, 1)
-    assert.deepEqual(emitRouteFlowEvent.args[0][0], { code: 200, statusCode: 201 })
-    assert.equal(logger.error.callCount, 0)
-  })
+    assert.equal(logger.info.args[0][1].email, 'quix')
+  });
+
+  it('.summary with email in query', () => {
+    log.summary({
+      app: {},
+      auth: {
+        credentials: {
+          uid: 'quid',
+        }
+      },
+      emitRouteFlowEvent: () => {},
+      headers: {},
+      info: {
+        received: Date.now()
+      },
+      method: 'get',
+      path: '/v1/frobnicate',
+      query: {
+        email: 'quix'
+      }
+    }, {
+      code: 200,
+      statusCode: 201
+    })
+
+    assert.equal(logger.info.args[0][1].email, 'quix')
+  });
 
   it('.notifyAttachedServices should send a notification', () => {
     const now = Date.now()
