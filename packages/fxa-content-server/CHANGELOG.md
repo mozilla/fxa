@@ -1,3 +1,17 @@
+<a name="1.129.1"></a>
+## [1.129.1](https://github.com/mozilla/fxa-content-server/compare/v1.129.0...v1.129.1) (2019-01-31)
+
+
+### Bug Fixes
+
+* **logging:** Ensure screen.width and screen.height are numbers ([bc6992f](https://github.com/mozilla/fxa-content-server/commit/bc6992f)), closes [#6908](https://github.com/mozilla/fxa-content-server/issues/6908)
+
+### chore
+
+* **tests:** add test for screen dimension logging checks ([e208957](https://github.com/mozilla/fxa-content-server/commit/e208957))
+
+
+
 <a name="1.129.0"></a>
 # [1.129.0](https://github.com/mozilla/fxa-content-server/compare/v1.128.1...v1.129.0) (2019-01-22)
 
