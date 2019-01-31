@@ -114,7 +114,9 @@ function run (dataPath, impl) {
     const rows = reader.rows(PARQUET_BATCH_SIZE)
     let batch = []
 
-    return Promise.all(rows.map(row => {
+    return rows.reduce(async (promise, row) => {
+      await promise
+
       const event = createEvent(schema, row, submissionDate)
       if (! event) {
         eventCounts.skipped += 1
@@ -131,7 +133,7 @@ function run (dataPath, impl) {
       const localBatch = batch.slice()
       batch = []
       return sendBatch(localBatch)
-    }))
+    }, Promise.resolve())
       .then(() => {
         if (batch.length > 0) {
           return sendBatch(batch)
