@@ -189,4 +189,37 @@ suite.tests['it can be disabled with config options'] = function () {
   return dfd.promise;
 };
 
+suite.tests['silenty drops missing screen dimensions'] = function () {
+  var dfd = this.async(1000);
+
+  var _origWrite = process.stderr.write;
+  process.stderr.write = function (chunk) {
+    var loggedMetrics = JSON.parse(String(chunk));
+
+    if (loggedMetrics.op === 'client.metrics') {
+      assert.isUndefined(loggedMetrics['screen.width']);
+      assert.isUndefined(loggedMetrics['screen.height']);
+
+      process.stderr.write = _origWrite;
+      dfd.resolve();
+    }
+  };
+
+  metricsCollector.write({
+    duration: 1234,
+    events: [
+      {
+        offset: 1235,
+        type: 'wibble'
+      }
+    ],
+    navigationTiming: {},
+    screen: {
+      height: 'none',
+      width: 'none'
+    },
+    'user-agent': 'Firefox 67.0a1'
+  });
+};
+
 registerSuite('metrics-collector-stderr', suite);
