@@ -158,7 +158,7 @@ registerSuite('Firefox Desktop Sync sign_up', {
       return this.remote
         .then(openPage(url, selectors.SIGNUP.HEADER))
 
-        .then(testAttributeEquals(selectors.SIGNUP.CUSTOMIZE_SYNC_CHECKBOX, 'checked', 'checked'));
+        .then(testAttributeEquals(selectors.SIGNUP.CUSTOMIZE_SYNC_CHECKBOX, 'checked', 'true'));
     }
   }
 });
