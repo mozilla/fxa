@@ -1,3 +1,13 @@
+<a name="1.129.2"></a>
+## [1.129.2](https://github.com/mozilla/fxa-content-server/compare/v1.129.1...v1.129.2) (2019-01-31)
+
+
+### Bug Fixes
+
+* **metrics:** Fix entrypoint being overwritten for every event. ([cdd5e73](https://github.com/mozilla/fxa-content-server/commit/cdd5e73)), closes [mozilla/fxa-shared#46](https://github.com/mozilla/fxa-shared/issues/46)
+
+
+
 <a name="1.129.1"></a>
 ## [1.129.1](https://github.com/mozilla/fxa-content-server/compare/v1.129.0...v1.129.1) (2019-01-31)
 
