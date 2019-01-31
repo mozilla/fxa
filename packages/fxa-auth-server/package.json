@@ -58,7 +58,7 @@
     "google-libphonenumber": "2.0.10",
     "grunt-nunjucks-2-html": "vitkarpov/grunt-nunjucks-2-html#1900f91a756b2eaf900b20",
     "handlebars": "4.0.6",
-    "hapi": "17.6.0",
+    "hapi": "17.8.3",
     "hapi-auth-hawk": "4.0.0",
     "hapi-error": "1.8.0",
     "hapi-fxa-oauth": "3.0.0",
