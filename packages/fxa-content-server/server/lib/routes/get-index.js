@@ -8,6 +8,14 @@ const flowMetrics = require('../flow-metrics');
 const logger = require('../logging/log')('routes.index');
 
 module.exports = function (config) {
+  let featureFlags;
+  const featureFlagConfig = config.get('featureFlags');
+  if (featureFlagConfig.enabled) {
+    featureFlags = require('fxa-shared/feature-flags')(featureFlagConfig, logger);
+  } else {
+    featureFlags = { get: () => ({}) };
+  }
+
   const AUTH_SERVER_URL = config.get('fxaccount_url');
   const CLIENT_ID = config.get('oauth_client_id');
   const COPPA_ENABLED = config.get('coppa.enabled');
@@ -54,17 +62,25 @@ module.exports = function (config) {
   return {
     method: 'get',
     path: '/',
-    process: function (req, res) {
+    process: async function (req, res) {
       const flowEventData = flowMetrics.create(FLOW_ID_KEY, req.headers['user-agent']);
 
       if (NO_LONGER_SUPPORTED_CONTEXTS.has(req.query.context)) {
         return res.redirect(`/update_firefox?${req.originalUrl.split('?')[1]}`);
       }
 
+      let flags;
+      try {
+        flags = await featureFlags.get();
+      } catch (err) {
+        logger.error('featureFlags.error', err);
+        flags = {};
+      }
       res.render('index', {
         // Note that bundlePath is added to templates as a build step
         bundlePath: '/bundle',
         config: serializedConfig,
+        featureFlags: encodeURIComponent(JSON.stringify(flags)),
         flowBeginTime: flowEventData.flowBeginTime,
         flowId: flowEventData.flowId,
         // Note that staticResourceUrl is added to templates as a build step
@@ -74,6 +90,7 @@ module.exports = function (config) {
       if (req.headers.dnt === '1') {
         logger.info('request.headers.dnt');
       }
-    }
+    },
+    terminate: featureFlags.terminate
   };
 };

@@ -16,7 +16,7 @@ module.exports = class SentryGroupingRule extends BaseGroupingRule {
   }
 
   choose (subject = {}) {
-    const sampleRate = SentryGroupingRule.sampleRate(subject.env);
+    const sampleRate = SentryGroupingRule.sampleRate(subject);
 
     return !! (subject.env && subject.uniqueUserId && this.bernoulliTrial(sampleRate, subject.uniqueUserId));
   }
@@ -28,7 +28,11 @@ module.exports = class SentryGroupingRule extends BaseGroupingRule {
    * @param {String} env
    * @returns {Number}
    */
-  static sampleRate (env) {
+  static sampleRate ({ env, featureFlags }) {
+    if (featureFlags && featureFlags.sentrySampleRate >= 0) {
+      return featureFlags.sentrySampleRate;
+    }
+
     return env === 'development' ? 1.0 : 0.3;
   }
 };
