@@ -4,8 +4,21 @@
 
 'use strict'
 
-var P = require('../promise')
-var scrypt_hash = require('scrypt-hash')
+const crypto = require('crypto')
+const P = require('../promise')
+
+// Magic numbers from the node crypto docs:
+// https://nodejs.org/api/crypto.html#crypto_crypto_scrypt_password_salt_keylen_options_callback
+const DEFAULT_N = 16384
+const DEFAULT_R = 8
+const MAXMEM_MULTIPLIER = 256
+const DEFAULT_MAXMEM = MAXMEM_MULTIPLIER * DEFAULT_N * DEFAULT_R
+
+let scryptHash
+try {
+  scryptHash = require('scrypt-hash')
+} catch (err) {
+}
 
 // The maximum numer of hash operations allowed concurrently.
 // This can be customized by setting the `maxPending` attribute on the
@@ -43,12 +56,26 @@ module.exports = function(log, config) {
       if (scrypt.numPending > scrypt.numPendingHWM) {
         scrypt.numPendingHWM = scrypt.numPending
       }
-      scrypt_hash(input, salt, N, r, p, len,
-        function (err, hash) {
+      if (scryptHash) {
+        scryptHash(input, salt, N, r, p, len, (err, hash) => {
           scrypt.numPending -= 1
           return err ? d.reject(err) : d.resolve(hash.toString('hex'))
+        })
+      } else if (crypto.scrypt) {
+        let maxmem = DEFAULT_MAXMEM
+        if (N > DEFAULT_N || r > DEFAULT_R) {
+          // Conservatively prevent `memory limit exceeded` errors. See the docs for more info:
+          // https://nodejs.org/api/crypto.html#crypto_crypto_scrypt_password_salt_keylen_options_callback
+          maxmem = MAXMEM_MULTIPLIER * (N || DEFAULT_N) * (r || DEFAULT_R)
         }
-      )
+        crypto.scrypt(input, salt, len, { N, r, p, maxmem }, (err, hash) => {
+          scrypt.numPending -= 1
+          return err ? d.reject(err) : d.resolve(hash.toString('hex'))
+        })
+      } else {
+        scrypt.numPending -= 1
+        d.reject(new Error('missing scrypt implementation'))
+      }
     }
     return d.promise
   }
