@@ -1,3 +1,13 @@
+<a name="1.129.0"></a>
+# [1.129.0](https://github.com/mozilla/fxa-profile-server/compare/v1.128.0...v1.129.0) (2019-02-01)
+
+
+### chore
+
+* **deps:** Update Hapi ([74524d6](https://github.com/mozilla/fxa-profile-server/commit/74524d6))
+
+
+
 <a name="1.128.0"></a>
 # [1.128.0](https://github.com/mozilla/fxa-profile-server/compare/v1.126.0...v1.128.0) (2019-01-09)
 
