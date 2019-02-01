@@ -53,6 +53,11 @@ ConfigLoader.prototype = {
     try {
       const serializedJSONConfig = decodeURIComponent(configFromHTML);
       config = JSON.parse(serializedJSONConfig);
+
+      const serializedFeatureFlags = decodeURIComponent(
+        $('meta[name="fxa-feature-flags"]').attr('content')
+      );
+      config.featureFlags = JSON.parse(serializedFeatureFlags);
     } catch (e) {
       return Promise.reject(ConfigLoader.Errors.toError('INVALID_CONFIG'));
     }

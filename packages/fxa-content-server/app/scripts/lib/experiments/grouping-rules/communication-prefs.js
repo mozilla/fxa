@@ -25,30 +25,39 @@ const AVAILABLE_LANGUAGES = [
   'zh-tw'
 ];
 
-const availableLocalesRegExpStr = `^(${AVAILABLE_LANGUAGES.join('|')})$`;
-const availableLocalesRegExp = new RegExp(availableLocalesRegExpStr);
+const AVAILABLE_LANGUAGES_REGEX = arrayToRegex(AVAILABLE_LANGUAGES);
 
 function normalizeLanguage(lang) {
   return lang.toLowerCase().replace(/_/g, '-');
 }
 
-function areCommunicationPrefsAvailable(lang) {
+function areCommunicationPrefsAvailable(lang, availableLanguages) {
   const normalizedLanguage = normalizeLanguage(lang);
-  return availableLocalesRegExp.test(normalizedLanguage);
+  return availableLanguages.test(normalizedLanguage);
+}
+
+function arrayToRegex (array) {
+  return new RegExp(`^(?:${array.join('|')})$`);
 }
 
 module.exports = class CommunicationPrefsGroupingRule extends BaseGroupingRule {
   constructor () {
     super();
     this.name = 'communicationPrefsVisible';
-    this.availableLanguages = AVAILABLE_LANGUAGES;
   }
 
   choose (subject = {}) {
-    if (! subject.lang) {
+    const { featureFlags, lang } = subject;
+    let availableLanguages = AVAILABLE_LANGUAGES_REGEX;
+
+    if (featureFlags && Array.isArray(featureFlags.communicationPrefLanguages)) {
+      availableLanguages = arrayToRegex(featureFlags.communicationPrefLanguages);
+    }
+
+    if (! lang) {
       return false;
     }
 
-    return areCommunicationPrefsAvailable(subject.lang);
+    return areCommunicationPrefsAvailable(lang, availableLanguages);
   }
 };
