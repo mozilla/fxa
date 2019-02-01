@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.129.4",
+  "version": "1.129.5",
   "description": "Firefox Accounts, an identity provider for Mozilla cloud services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
@@ -53,12 +53,12 @@
     "fxa-geodb": "1.0.4",
     "fxa-jwtool": "0.7.2",
     "fxa-notifier-aws": "1.0.0",
-    "fxa-shared": "1.0.15",
+    "fxa-shared": "1.0.16",
     "generic-pool": "3.2.0",
     "google-libphonenumber": "2.0.10",
     "grunt-nunjucks-2-html": "vitkarpov/grunt-nunjucks-2-html#1900f91a756b2eaf900b20",
     "handlebars": "4.0.6",
-    "hapi": "17.6.0",
+    "hapi": "17.8.3",
     "hapi-auth-hawk": "4.0.0",
     "hapi-error": "1.8.0",
     "hapi-fxa-oauth": "3.0.0",
