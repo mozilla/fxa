@@ -24,7 +24,7 @@
     "fxa-notifier-aws": "1.0.0",
     "fxa-shared": "1.0.13",
     "gm-reloaded": "1.24.0",
-    "hapi": "16.6.3",
+    "hapi": "16.7.0",
     "inert": "4.0.2",
     "joi": "9.0.4",
     "lodash.clonedeep": "4.5.0",
