@@ -7,8 +7,34 @@
 const crypto = require('crypto')
 const P = require('../promise')
 const randomBytes = P.promisify(require('crypto').randomBytes)
-const scryptHash = P.promisify(require('scrypt-hash'))
 const base32 = require('./random')
+
+// Magic numbers from the node crypto docs:
+// https://nodejs.org/api/crypto.html#crypto_crypto_scrypt_password_salt_keylen_options_callback
+const DEFAULT_N = 16384
+const DEFAULT_R = 8
+const MAXMEM_MULTIPLIER = 256
+const DEFAULT_MAXMEM = MAXMEM_MULTIPLIER * DEFAULT_N * DEFAULT_R
+
+let scryptHash
+try {
+  scryptHash = P.promisify(require('scrypt-hash'))
+} catch (err) {
+  if (! crypto.scrypt) {
+    throw new Error('Missing scrypt implementation')
+  }
+
+  const scryptP = P.promisify(crypto.scrypt)
+  scryptHash = (input, salt, N, r, p, len) => {
+    let maxmem = DEFAULT_MAXMEM
+    if (N > DEFAULT_N || r > DEFAULT_R) {
+      // Conservatively prevent `memory limit exceeded` errors. See the docs for more info:
+      // https://nodejs.org/api/crypto.html#crypto_crypto_scrypt_password_salt_keylen_options_callback
+      maxmem = MAXMEM_MULTIPLIER * (N || DEFAULT_N) * (r || DEFAULT_R)
+    }
+    return scryptP(input, salt, len, { N, r, p, maxmem })
+  }
+}
 
 const BOUNCE_TYPES = new Map([
   ['__fxa__unmapped', 0], // a bounce type we don't yet recognize

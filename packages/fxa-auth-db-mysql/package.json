@@ -40,7 +40,9 @@
     "newrelic": "4.10.0",
     "raven": "2.6.4",
     "request": "2.88.0",
-    "restify": "7.2.2",
+    "restify": "7.2.2"
+  },
+  "optionalDependencies": {
     "scrypt-hash": "1.1.14"
   },
   "devDependencies": {
