@@ -28,6 +28,7 @@ const {
   noSuchElementDisplayed,
   noSuchElement,
   openPage,
+  pollUntilHiddenByQSA,
   testElementExists,
   testElementTextEquals,
   thenify,
@@ -106,24 +107,30 @@ registerSuite('change_password', {
         .then(setupTest())
 
         .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
+
         // new_password empty
-        .then(fillOutChangePassword(FIRST_PASSWORD, '', { expectSuccess: false, vpassword: SECOND_PASSWORD }))
+        .then(type(selectors.CHANGE_PASSWORD.OLD_PASSWORD, FIRST_PASSWORD))
+        .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, ''))
+        .then(click(selectors.CHANGE_PASSWORD.SUBMIT))
         .then(testElementExists(selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL))
 
         // new_password too short
-        .then(fillOutChangePassword(FIRST_PASSWORD, 'pass', { expectSuccess: false, vpassword: SECOND_PASSWORD }))
+        .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, 'pass'))
         .then(testElementExists(selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL))
 
         // new_password too close to the email address
-        .then(fillOutChangePassword(FIRST_PASSWORD, email, { expectSuccess: false, vpassword: SECOND_PASSWORD }))
+        .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, email))
         .then(testElementExists(selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_FAIL))
 
         // new_password too common
-        .then(fillOutChangePassword(FIRST_PASSWORD, 'password', { expectSuccess: false, vpassword: SECOND_PASSWORD }))
+        .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, 'password'))
         .then(testElementExists(selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_FAIL))
 
         // all good
-        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD));
+        .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, SECOND_PASSWORD))
+        .then(type(selectors.CHANGE_PASSWORD.NEW_VPASSWORD, SECOND_PASSWORD))
+        .then(click(selectors.CHANGE_PASSWORD.SUBMIT))
+        .then(pollUntilHiddenByQSA(selectors.CHANGE_PASSWORD.DETAILS));
     },
 
     'new_vpassword validation, tooltip shows': function () {
