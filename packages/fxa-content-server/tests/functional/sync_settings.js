@@ -42,7 +42,7 @@ var email;
 var setupTest = thenify(function (shouldVerifySignin) {
   return this.parent
     .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
-    .then(clearBrowserState())
+    .then(clearBrowserState({ force: true }))
     .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
     .execute(listenForFxaCommands)
     .then(fillOutSignIn(email, FIRST_PASSWORD))
