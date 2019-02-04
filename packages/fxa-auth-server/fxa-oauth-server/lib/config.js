@@ -110,6 +110,12 @@ const conf = convict({
     default: 'prod'
   },
   events: {
+    enabled: {
+      doc: 'Whether or not config.events has to be properly set in production',
+      format: Boolean,
+      default: true,
+      env: 'EVENTS_ENABLED'
+    },
     region: {
       doc: 'AWS Region of fxa account events',
       format: String,

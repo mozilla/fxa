@@ -15,7 +15,7 @@ let fxaEvents;
 if (! config.events.region || ! config.events.queueUrl) {
   fxaEvents = {
     start: function start() {
-      if (env.isProdLike()) {
+      if (env.isProdLike() && config.events.enabled) {
         throw new Error('config.events must be included in prod');
       } else {
         logger.warn('accountEvent.unconfigured');
