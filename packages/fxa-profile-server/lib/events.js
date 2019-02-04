@@ -94,7 +94,7 @@ module.exports = function (server) {
 
   function start() {
     if (! config.events.region || ! config.events.queueUrl) {
-      if (env.isProdLike()) {
+      if (env.isProdLike() && config.events.enabled) {
         throw new Error('config.events must be included in prod');
       } else {
         logger.warn('accountEvent.unconfigured');
