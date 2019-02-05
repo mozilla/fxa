@@ -1,3 +1,17 @@
+<a name="1.130.0"></a>
+# [1.130.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.129.0...v1.130.0) (2019-02-05)
+
+
+### chore
+
+* **ci:** run tests on node 10 ([5467e2f](https://github.com/mozilla/fxa-auth-db-mysql/commit/5467e2f))
+
+### Refactor
+
+* **crypto:** fall back to node's scrypt implementation ([932f2dd](https://github.com/mozilla/fxa-auth-db-mysql/commit/932f2dd))
+
+
+
 <a name="1.129.0"></a>
 # [1.129.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.128.1...v1.129.0) (2019-01-24)
 
