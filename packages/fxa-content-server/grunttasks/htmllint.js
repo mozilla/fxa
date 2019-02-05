@@ -9,13 +9,17 @@ module.exports = function (grunt) {
         'attr-name-style': 'dash',
         'attr-no-dup': true,
         'attr-no-unsafe-char': true,
-        'attr-quote-style': 'quoted',
+        'attr-quote-style': false,
         'doctype-html5': true,
         'html-req-lang': true,
         'id-class-style': 'dash',
+        'img-req-alt': false,
         'indent-style': 'spaces',
         'indent-width': 0,
         'lang-style': false, //htmllint only accepts lang attributes of xx-YY, xx-YYY is not considered valid
+        'line-end-style': false,
+        'line-no-trailing-whitespace': false,
+        'link-req-noopener': false,
         'tag-name-lowercase': true,
         'tag-name-match': true
       },
