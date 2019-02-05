@@ -24,6 +24,7 @@ describe('metrics/amplitude:', () => {
     assert.isString(amplitude.GROUPS.email);
     assert.isString(amplitude.GROUPS.emailFirst);
     assert.isString(amplitude.GROUPS.login);
+    assert.isString(amplitude.GROUPS.notify);
     assert.isString(amplitude.GROUPS.registration);
     assert.isString(amplitude.GROUPS.settings);
     assert.isString(amplitude.GROUPS.sms);

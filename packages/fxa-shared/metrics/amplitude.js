@@ -20,6 +20,7 @@ const GROUPS = {
   email: 'fxa_email',
   emailFirst: 'fxa_email_first',
   login: 'fxa_login',
+  notify: 'fxa_notify',
   registration: 'fxa_reg',
   settings: 'fxa_pref',
   sms: 'fxa_sms'
