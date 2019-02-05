@@ -1,3 +1,37 @@
+<a name="1.130.0"></a>
+# [1.130.0](https://github.com/mozilla/fxa-content-server/compare/v1.129.2...v1.130.0) (2019-02-05)
+
+
+### Bug Fixes
+
+* **channel-client:** remove unused errors ([6963d45](https://github.com/mozilla/fxa-content-server/commit/6963d45))
+* **forms:** attach events for base view and child views ([dff4f73](https://github.com/mozilla/fxa-content-server/commit/dff4f73))
+* **oauth:** fix scope validation on empty scopes ([67ec392](https://github.com/mozilla/fxa-content-server/commit/67ec392))
+* **scripts:** Added entries for errors ([7b65b75](https://github.com/mozilla/fxa-content-server/commit/7b65b75))
+* **start:** do not add extra history item when choosing start page ([25312a4](https://github.com/mozilla/fxa-content-server/commit/25312a4))
+* **test:** Fix the change password tests. ([ce5b867](https://github.com/mozilla/fxa-content-server/commit/ce5b867)), closes [#6924](https://github.com/mozilla/fxa-content-server/issues/6924)
+* **test:** Fix the validation test failure. ([1b91780](https://github.com/mozilla/fxa-content-server/commit/1b91780)), closes [#6934](https://github.com/mozilla/fxa-content-server/issues/6934)
+* **tests:** fix tests for latest geckodriver compat ([e70b65d](https://github.com/mozilla/fxa-content-server/commit/e70b65d)), closes [#6900](https://github.com/mozilla/fxa-content-server/issues/6900)
+* **totp:** fix account reset and totp ([b9f6f7c](https://github.com/mozilla/fxa-content-server/commit/b9f6f7c))
+
+### chore
+
+* **server:** build extra templates for Mozilla China ([672a7a4](https://github.com/mozilla/fxa-content-server/commit/672a7a4))
+* **token-codes:** Enroll Reference Browser in the token codes experiment. ([e8126f2](https://github.com/mozilla/fxa-content-server/commit/e8126f2))
+
+### Features
+
+* **l10n:** Enable Catalan (ca) ([4fedb30](https://github.com/mozilla/fxa-content-server/commit/4fedb30)), closes [mozilla/fxa-content-server-l10n#322](https://github.com/mozilla/fxa-content-server-l10n/issues/322)
+* **pair:** add pair templates and graphics ([4aa00a8](https://github.com/mozilla/fxa-content-server/commit/4aa00a8))
+* **pair:** latest templates with strings ([f6fd7ba](https://github.com/mozilla/fxa-content-server/commit/f6fd7ba))
+* **pw-strength:** Add the pw-strength balloon to change-password ([80e7611](https://github.com/mozilla/fxa-content-server/commit/80e7611)), closes [#6573](https://github.com/mozilla/fxa-content-server/issues/6573)
+
+### Refactor
+
+* **scripts:** remove legacy account storage ([a61467b](https://github.com/mozilla/fxa-content-server/commit/a61467b))
+
+
+
 <a name="1.129.2"></a>
 ## [1.129.2](https://github.com/mozilla/fxa-content-server/compare/v1.129.1...v1.129.2) (2019-01-31)
 
