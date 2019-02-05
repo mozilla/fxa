@@ -8,9 +8,13 @@ define(function (require, exports, module) {
   'use strict';
 
   const HaltBehavior = require('../../views/behaviors/halt');
+  const NullBehavior = require('../../views/behaviors/null');
   const OAuthAuthenticationBroker = require('../auth_brokers/oauth');
   const p = require('../../lib/promise');
+  const NavigateBehavior = require('../../views/behaviors/navigate');
   const Url = require('../../lib/url');
+  const VerificationMethods = require('../../lib/verification-methods');
+  const VerificationReasons = require('../../lib/verification-reasons');
 
   const proto = OAuthAuthenticationBroker.prototype;
 
@@ -109,7 +113,31 @@ define(function (require, exports, module) {
       });
     },
 
-    afterCompleteResetPassword: finishOAuthFlowIfOriginalTab('afterCompleteResetPassword', 'finishOAuthSignInFlow'),
+    afterCompleteResetPassword (account) {
+      return proto.afterCompleteResetPassword.call(this, account)
+        .then(behavior => {
+          // a user can only redirect back to the relier from the original tab, this avoids
+          // two tabs redirecting.
+          if (account.get('verified')
+            && ! account.get('verificationReason')
+            && ! account.get('verificationMethod')
+            && this.isOriginalTab()) {
+            return this.finishOAuthSignInFlow(account);
+          } else if (! this.isOriginalTab()) {
+            // allows a navigation to a "complete" screen or TOTP screen if it is setup
+            if (account.get('verificationMethod') === VerificationMethods.TOTP_2FA &&
+              account.get('verificationReason') === VerificationReasons.SIGN_IN &&
+              this.relier.has('state')) {
+              return new NavigateBehavior('signin_totp_code', { account });
+            }
+
+            return new NullBehavior();
+          }
+
+          return behavior;
+        });
+    },
+
     afterCompleteSignUp: finishOAuthFlowIfOriginalTab('afterCompleteSignUp', 'finishOAuthSignUpFlow'),
   });
 });

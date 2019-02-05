@@ -14,6 +14,8 @@ import Relier from 'models/reliers/relier';
 import Session from 'lib/session';
 import sinon from 'sinon';
 import User from 'models/user';
+import VerificationMethods from 'lib/verification-methods';
+import VerificationReasons from 'lib/verification-reasons';
 
 var HEX_CHARSET = '0123456789abcdef';
 function generateOAuthCode() {
@@ -215,23 +217,56 @@ describe('models/auth_brokers/oauth', function () {
   });
 
   describe('afterResetPasswordConfirmationPoll', function () {
-    it('calls sendOAuthResultToRelier with the expected options', function () {
-      sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(function () {
-        return Promise.resolve();
+    describe('with a verified account', () => {
+      it('calls sendOAuthResultToRelier with the expected options', function () {
+        account.set('verified', true);
+        sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(() => Promise.resolve());
+
+        return broker.afterResetPasswordConfirmationPoll(account)
+          .then(() => {
+            assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
+              action: Constants.OAUTH_ACTION_SIGNIN
+            }));
+            assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
+              action: Constants.OAUTH_ACTION_SIGNIN,
+              code: VALID_OAUTH_CODE,
+              redirect: VALID_OAUTH_CODE_REDIRECT_URL,
+              state: 'state'
+            }));
+          });
+      });
+    });
+
+    describe('with an unverified session that requires TOTP', () => {
+      it('asks the user to enter a TOTP code', () => {
+        account.set({
+          verificationMethod: VerificationMethods.TOTP_2FA,
+          verificationReason: VerificationReasons.SIGN_IN,
+          verified: false
+        });
+
+        return broker.afterResetPasswordConfirmationPoll(account)
+          .then((behavior) => {
+            assert.isFalse(broker.finishOAuthFlow.called);
+            assert.equal(behavior.type, 'navigate');
+            assert.equal(behavior.endpoint, 'signin_totp_code');
+          });
       });
 
-      return broker.afterResetPasswordConfirmationPoll(account)
-        .then(function () {
-          assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
-            action: Constants.OAUTH_ACTION_SIGNIN
-          }));
-          assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
-            action: Constants.OAUTH_ACTION_SIGNIN,
-            code: VALID_OAUTH_CODE,
-            redirect: VALID_OAUTH_CODE_REDIRECT_URL,
-            state: 'state'
-          }));
+      it('ignores account `verified` if verification method and reason set', function () {
+        account.set({
+          verificationMethod: VerificationMethods.TOTP_2FA,
+          verificationReason: VerificationReasons.SIGN_IN,
+          verified: true
         });
+
+        return broker.afterResetPasswordConfirmationPoll(account)
+          .then((behavior) => {
+            assert.isFalse(broker.finishOAuthFlow.called);
+            assert.equal(behavior.type, 'navigate');
+            assert.equal(behavior.endpoint, 'signin_totp_code');
+          });
+      });
     });
   });
 

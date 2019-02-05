@@ -221,7 +221,13 @@ var OAuthAuthenticationBroker = BaseAuthenticationBroker.extend({
   },
 
   afterResetPasswordConfirmationPoll (account) {
-    return this.finishOAuthSignInFlow(account);
+    return Promise.resolve().then(() => {
+      if (account.get('verified') && ! account.get('verificationReason') && ! account.get('verificationMethod')) {
+        return this.finishOAuthSignInFlow(account);
+      } else {
+        return proto.afterResetPasswordConfirmationPoll.call(this, account);
+      }
+    });
   },
 
   transformLink (link) {

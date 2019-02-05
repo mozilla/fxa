@@ -92,6 +92,7 @@ require('./spec/models/auth_brokers/fx-firstrun-v2');
 require('./spec/models/auth_brokers/fx-ios-v1');
 require('./spec/models/auth_brokers/fx-sync');
 require('./spec/models/auth_brokers/fx-sync-channel');
+require('./spec/models/auth_brokers/fx-sync-web-channel');
 require('./spec/models/auth_brokers/index');
 require('./spec/models/auth_brokers/oauth');
 require('./spec/models/auth_brokers/oauth-redirect');

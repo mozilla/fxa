@@ -15,7 +15,9 @@ const selectors = require('./lib/selectors');
 const SIGNIN_URL = `${config.fxaContentRoot}signin`;
 
 const PASSWORD = 'passwordzxcv';
-let email, secret;
+
+let email;
+let secret;
 
 const {
   clearBrowserState,
@@ -73,7 +75,7 @@ registerSuite('oauth require totp', {
 
       .then(openVerificationLinkInNewTab(email, 0))
       .then(switchToWindow(1))
-      .then(testElementExists('#fxa-sign-up-complete-header'))
+      .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
       .then(closeCurrentWindow())
 
       .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))

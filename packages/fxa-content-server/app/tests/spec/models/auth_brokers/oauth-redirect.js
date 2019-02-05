@@ -12,6 +12,8 @@ define(function (require, exports, module) {
   const Session = require('lib/session');
   const sinon = require('sinon');
   const User = require('models/user');
+  const VerificationMethods = require('lib/verification-methods');
+  const VerificationReasons = require('lib/verification-reasons');
   const WindowMock = require('../../../mocks/window');
 
   var REDIRECT_TO = 'https://redirect.here';
@@ -173,15 +175,62 @@ define(function (require, exports, module) {
     });
 
     describe('afterCompleteResetPassword', () => {
-      it('finishes the oauth flow if the user verifies in the original tab', () => {
+      it('verified sessions finishes the oauth flow if the user verifies in the original tab', () => {
+        account.set('verified', true);
         return broker.persistVerificationData(account)
           .then(() => {
             return broker.afterCompleteResetPassword(account);
           })
           .then(() => {
-            assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
+            assert.isTrue(broker.finishOAuthFlow.calledOnceWith(account, {
               action: Constants.OAUTH_ACTION_SIGNIN
             }));
+          });
+      });
+
+      it('unverified sessions ask the user to enter a TOTP code if the user verifies in the original tab', () => {
+        account.set({
+          verificationMethod: VerificationMethods.TOTP_2FA,
+          verificationReason: VerificationReasons.SIGN_IN,
+          verified: false
+        });
+
+        return broker.persistVerificationData(account)
+          .then(() => {
+            return broker.afterCompleteResetPassword(account);
+          })
+          .then((behavior) => {
+            assert.isFalse(broker.finishOAuthFlow.called);
+            assert.equal(behavior.type, 'navigate');
+            assert.equal(behavior.endpoint, 'signin_totp_code');
+          });
+      });
+
+      it('unverified sessions ask the user to enter a TOTP code if the user verifies in different tab', () => {
+        account.set({
+          verificationMethod: VerificationMethods.TOTP_2FA,
+          verificationReason: VerificationReasons.SIGN_IN,
+          verified: false
+        });
+
+        return broker.afterCompleteResetPassword(account)
+          .then((behavior) => {
+            assert.isFalse(broker.finishOAuthFlow.called);
+            assert.equal(behavior.type, 'null');
+          });
+      });
+
+      it('ignores account `verified` if verification method and reason set', () => {
+        account.set({
+          verificationMethod: VerificationMethods.TOTP_2FA,
+          verificationReason: VerificationReasons.SIGN_IN,
+          verified: true
+        });
+
+        return broker.afterCompleteResetPassword(account)
+          .then((behavior) => {
+            assert.isFalse(broker.finishOAuthFlow.called);
+            assert.equal(behavior.type, 'null');
           });
       });
 
@@ -194,5 +243,3 @@ define(function (require, exports, module) {
     });
   });
 });
-
-

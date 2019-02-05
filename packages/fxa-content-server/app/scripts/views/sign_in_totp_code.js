@@ -16,16 +16,20 @@ const View = FormView.extend({
   className: 'sign-in-totp-code',
   template: Template,
 
+  getAccount () {
+    return this.model.get('account') || this.getSignedInAccount();
+  },
+
   beforeRender () {
     // user cannot confirm if they have not initiated a sign in.
-    const account = this.getSignedInAccount();
+    const account = this.getAccount();
     if (! account || ! account.get('sessionToken')) {
       this.navigate(this._getAuthPage());
     }
   },
 
   submit () {
-    const account = this.getSignedInAccount();
+    const account = this.getAccount();
     const code = this.getElementValue('input.totp-code');
     return account.verifyTotpCode(code, this.relier.get('service'))
       .then((result) => {

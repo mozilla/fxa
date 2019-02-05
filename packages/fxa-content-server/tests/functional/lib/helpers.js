@@ -30,6 +30,7 @@ const RESET_PASSWORD_URL = config.fxaContentRoot + 'reset_password';
 const SETTINGS_URL = config.fxaContentRoot + 'settings';
 const SIGNIN_URL = config.fxaContentRoot + 'signin';
 const SIGNUP_URL = config.fxaContentRoot + 'signup';
+const ENABLE_TOTP_URL = `${SETTINGS_URL}/two_step_authentication`;
 const UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
 
 /**
@@ -1129,13 +1130,13 @@ const openVerificationLinkInDifferentBrowser = thenify(function (email, emailNum
  * @param {string} password - new password
  * @returns {promise} - resolves when complete
  */
-const openPasswordResetLinkInDifferentBrowser = thenify(function (email, password) {
+const openPasswordResetLinkInDifferentBrowser = thenify(function (email, password, emailNumber = 0) {
   var client = getFxaClient();
 
   var user = TestHelpers.emailToUser(email);
 
   return this.parent
-    .then(getEmailHeaders(user, 0))
+    .then(getEmailHeaders(user, emailNumber))
     .then(function (headers) {
       var code = headers['x-recovery-code'];
       // there is no x-recovery-token header, so we have to parse it
@@ -2136,6 +2137,27 @@ const confirmTotpCode = thenify(function (secret) {
     .then(testElementExists(selectors.TOTP.STATUS_ENABLED));
 });
 
+const enableTotp = thenify(function () {
+  let secret;
+
+  return this.parent
+    .then(openPage(ENABLE_TOTP_URL, selectors.TOTP.ENABLE_BUTTON))
+    .then(click(selectors.TOTP.ENABLE_BUTTON, selectors.TOTP.QR_CODE))
+    .then(click(selectors.TOTP.SHOW_CODE_LINK))
+    .then(testElementExists(selectors.TOTP.MANUAL_CODE))
+
+    // Store the secret key to recalculate the code later
+    .findByCssSelector(selectors.TOTP.MANUAL_CODE)
+    .getVisibleText()
+    .then((secretKey) => {
+      secret = secretKey;
+    })
+    .end()
+    .then(() => {
+      return this.parent.then(confirmTotpCode(secret));
+    })
+    .then(() => secret);
+});
 /**
  * Destroy the session for the given `email`. Only destroys
  * the first session for the given email address.
@@ -2169,6 +2191,7 @@ module.exports = {
   denormalizeStoredEmail: denormalizeStoredEmail,
   destroySessionForEmail,
   disableInProd,
+  enableTotp,
   fetchAllMetrics: fetchAllMetrics,
   fillOutChangePassword: fillOutChangePassword,
   fillOutCompleteResetPassword: fillOutCompleteResetPassword,

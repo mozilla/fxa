@@ -21,6 +21,8 @@ define(function (require, exports, module) {
   const UrlMixin = require('../mixins/url');
   const SettingsIfSignedInBehavior = require('../../views/behaviors/settings');
   const Vat = require('../../lib/vat');
+  const VerificationMethods = require('../../lib/verification-methods');
+  const VerificationReasons = require('../../lib/verification-reasons');
 
   const t = msg => msg;
 
@@ -369,8 +371,15 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    afterResetPasswordConfirmationPoll (/* account */) {
-      return Promise.resolve(this.getBehavior('afterResetPasswordConfirmationPoll'));
+    afterResetPasswordConfirmationPoll (account) {
+      return Promise.resolve().then(() => {
+        if (account.get('verificationMethod') === VerificationMethods.TOTP_2FA &&
+          account.get('verificationReason') === VerificationReasons.SIGN_IN) {
+          return new NavigateBehavior('signin_totp_code', { account });
+        }
+
+        return this.getBehavior('afterResetPasswordConfirmationPoll');
+      });
     },
 
     /**
@@ -381,7 +390,15 @@ define(function (require, exports, module) {
      */
     afterCompleteResetPassword (account) {
       return this.unpersistVerificationData(account)
-        .then(() => this.getBehavior('afterCompleteResetPassword'));
+        .then(() => {
+          // Users with TOTP enabled need to enter a TOTP code to complete password reset.
+          if (account.get('verificationMethod') === VerificationMethods.TOTP_2FA &&
+            account.get('verificationReason') === VerificationReasons.SIGN_IN) {
+            return new NavigateBehavior('signin_totp_code', { account });
+          }
+
+          return this.getBehavior('afterCompleteResetPassword');
+        });
     },
 
     /**

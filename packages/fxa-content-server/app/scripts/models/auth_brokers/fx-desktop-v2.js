@@ -37,12 +37,6 @@ define(function (require, exports, module) {
 
     type: 'fx-desktop-v2',
 
-    afterCompleteResetPassword (account) {
-      // See the note in afterResetPasswordConfirmationPoll
-      return this._notifyRelierOfLogin(account)
-        .then(() => proto.afterCompleteResetPassword.call(this, account));
-    },
-
     fetch () {
       return proto.fetch.call(this).then(() => {
         if (! this.environment.isAboutAccounts()) {
@@ -54,4 +48,3 @@ define(function (require, exports, module) {
 
   module.exports = FxDesktopV2AuthenticationBroker;
 });
-

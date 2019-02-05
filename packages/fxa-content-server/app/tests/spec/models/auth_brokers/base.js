@@ -15,6 +15,8 @@ define(function (require, exports, module) {
   const Relier = require('models/reliers/relier');
   const SameBrowserVerificationModel = require('models/verification/same-browser');
   const sinon = require('sinon');
+  const VerificationMethods = require('lib/verification-methods');
+  const VerificationReasons = require('lib/verification-reasons');
   const WebChannel = require('lib/channels/web');
   const WindowMock = require('../../../mocks/window');
 
@@ -215,11 +217,31 @@ define(function (require, exports, module) {
     describe('afterCompleteResetPassword', function () {
       beforeEach(function () {
         sinon.spy(broker, 'unpersistVerificationData');
-        return broker.afterCompleteResetPassword(account);
       });
 
-      it('unpersistVerificationDatas data', function () {
-        assert.isTrue(broker.unpersistVerificationData.calledWith(account));
+      describe('with TOTP enabled', () => {
+        it('navigates to signin_totp_code', () => {
+          account.set({
+            verificationMethod: VerificationMethods.TOTP_2FA,
+            verificationReason: VerificationReasons.SIGN_IN,
+          });
+          return broker.afterCompleteResetPassword(account)
+            .then((behavior) => {
+              assert.isTrue(broker.unpersistVerificationData.calledWith(account));
+              assert.equal(behavior.type, 'navigate');
+              assert.equal(behavior.endpoint, 'signin_totp_code');
+            });
+        });
+      });
+
+      describe('without TOTP enabled', () => {
+        it('returns a NullBehavior', () => {
+          return broker.afterCompleteResetPassword(account)
+            .then((behavior) => {
+              assert.isTrue(broker.unpersistVerificationData.calledWith(account));
+              assert.equal(behavior.type, 'null');
+            });
+        });
       });
     });
 
@@ -464,7 +486,7 @@ define(function (require, exports, module) {
       });
 
       it('delegates to the user, clears signinCode when complete', () => {
-        sinon.stub(fxaClient, 'consumeSigninCode').callsFake(function () {
+        sinon.stub(fxaClient, 'consumeSigninCode').callsFake(() => {
           return Promise.resolve({ email: 'signed-in-email@testuser.com' });
         });
 
@@ -481,7 +503,7 @@ define(function (require, exports, module) {
 
       it('logs and ignores errors, clears signinCode when complete', () => {
         const err = AuthErrors.toError('INVALID_SIGNIN_CODE');
-        sinon.stub(fxaClient, 'consumeSigninCode').callsFake(function () {
+        sinon.stub(fxaClient, 'consumeSigninCode').callsFake(() => {
           return Promise.reject(err);
         });
         sinon.spy(metrics, 'logError');
