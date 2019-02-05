@@ -728,12 +728,7 @@ function marshallAuthentication (authentication) {
       }
       return 0
     }).reduce((summary, token, index) => {
-      if (token === 'oauthToken') {
-        summary += 'authenticated with OAuth bearer token'
-      } else {
-        summary += `${index === 0 ? '' : ', or '}HAWK-authenticated with ${uncamel(token)}`
-      }
-      return summary
+      return `${summary}${index === 0 ? '' : ' or '}${authenticatedWith(token)}`
     }, authentication.optional ? 'Optionally ' : '')
   }
 }
@@ -749,6 +744,17 @@ function marshallToken (token) {
 
   // HACK: Assumes other tokens don't have extra authentication strategies
   return token
+}
+
+function authenticatedWith (token) {
+  switch (token) {
+    case 'oauthToken':
+      return 'authenticated with OAuth bearer token'
+    case 'refreshToken':
+      return 'authenticated with OAuth refresh token'
+    default:
+      return `HAWK-authenticated with ${uncamel(token)}`
+  }
 }
 
 function uncamel (string) {

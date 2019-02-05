@@ -792,7 +792,7 @@ by [fxa-customs-server](https://github.com/mozilla/fxa-customs-server).
 
 #### GET /account/profile
 
-:lock: authenticated with OAuth bearer token, or HAWK-authenticated with session token
+:lock: authenticated with OAuth bearer token or HAWK-authenticated with session token
 <!--begin-route-get-accountprofile-->
 Get the email and locale of a user.
 
