@@ -5,6 +5,7 @@
 'use strict'
 
 const deepEqual = require('deep-equal')
+const { initialCapital } = require('../utils')
 
 module.exports = (config, Settings, log) => {
 
@@ -40,7 +41,12 @@ module.exports = (config, Settings, log) => {
           settings[key] = current
         }
         else if (!deepEqual(current, future)) {
-          log.info({ op: 'requestChecks.validate.changed', key: key, current: current, future: future })
+          log.info({
+            op: 'requestChecks.validate.changed',
+            key,
+            [`current${initialCapital(key)}`]: current,
+            [`future${initialCapital(key)}`]: future
+          })
         }
       }
       return settings

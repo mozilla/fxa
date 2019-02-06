@@ -4,7 +4,8 @@
 
 'use strict'
 
-var deepEqual = require('deep-equal')
+const deepEqual = require('deep-equal')
+const { initialCapital } = require('../utils')
 
 module.exports = (config, Settings, log) => {
 
@@ -73,8 +74,4 @@ module.exports = (config, Settings, log) => {
 
 
   return new Limits(config.limits)
-}
-
-function initialCapital (string) {
-  return `${string[0].toUpperCase()}${string.substr(1)}`
 }

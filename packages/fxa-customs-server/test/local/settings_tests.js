@@ -14,6 +14,9 @@ const config = {
       limitIntervalSeconds: 1800,
       maxSms: 5
     }
+  },
+  requestChecks: {
+    treatEveryoneWithSuspicion: true
   }
 }
 const mc = {}
@@ -133,6 +136,30 @@ test('limits.validate logs changes', t => {
   t.equal(typeof args[0].futureSmsRateLimit, 'object')
   t.equal(args[0].currentSmsRateLimit.limitIntervalSeconds, config.limits.smsRateLimit.limitIntervalSeconds)
   t.equal(args[0].futureSmsRateLimit.limitIntervalSeconds, config.limits.smsRateLimit.limitIntervalSeconds * 2)
+
+  t.end()
+})
+
+test('requestChecks.validate logs changes', t => {
+  const current = require('../../lib/settings/requestChecks')(config, Settings, log)
+  const future = require('../../lib/settings/requestChecks')(config, Settings, log)
+
+  log.info.resetHistory()
+  future.treatEveryoneWithSuspicion = false
+
+  current.validate(future)
+
+  t.equal(log.info.callCount, 1)
+
+  const args = log.info.args[0]
+  t.equal(args.length, 1)
+  t.equal(args[0].op, 'requestChecks.validate.changed')
+  t.equal(args[0].key, 'treatEveryoneWithSuspicion')
+  t.equal(args[0].treatEveryoneWithSuspicion, undefined)
+  t.equal(typeof args[0].currentTreatEveryoneWithSuspicion, 'boolean')
+  t.equal(typeof args[0].futureTreatEveryoneWithSuspicion, 'boolean')
+  t.equal(args[0].currentTreatEveryoneWithSuspicion, true)
+  t.equal(args[0].futureTreatEveryoneWithSuspicion, false)
 
   t.end()
 })
