@@ -1,3 +1,17 @@
+<a name="1.130.0"></a>
+# [1.130.0](https://github.com/mozilla/fxa-customs-server/compare/v1.129.0...v1.130.0) (2019-02-06)
+
+
+### Bug Fixes
+
+* **logs:** preserve homogeneity of more log properties ([bb91ab5](https://github.com/mozilla/fxa-customs-server/commit/bb91ab5))
+
+### chore
+
+* **package:** update shrinkwrap ([28ad6d5](https://github.com/mozilla/fxa-customs-server/commit/28ad6d5))
+
+
+
 <a name="1.129.0"></a>
 # [1.129.0](https://github.com/mozilla/fxa-customs-server/compare/v1.124.0...v1.129.0) (2019-01-25)
 
