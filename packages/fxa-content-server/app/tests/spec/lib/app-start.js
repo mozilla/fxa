@@ -58,6 +58,17 @@ define(function (require, exports, module) {
 
       windowMock = new WindowMock();
       windowMock.parent = new WindowMock();
+
+      appStart = new AppStart({
+        broker: brokerMock,
+        history: backboneHistoryMock,
+        notifier,
+        router: routerMock,
+        storage: Storage,
+        translator,
+        user: userMock,
+        window: windowMock
+      });
     });
 
     afterEach(() => {
@@ -71,16 +82,6 @@ define(function (require, exports, module) {
 
       beforeEach(() => {
         sandbox = sinon.sandbox.create();
-
-        appStart = new AppStart({
-          broker: brokerMock,
-          history: backboneHistoryMock,
-          router: routerMock,
-          storage: Storage,
-          translator,
-          user: userMock,
-          window: windowMock
-        });
 
         sandbox.spy(appStart, 'enableSentryMetrics');
         sandbox.stub(ErrorUtils, 'fatalError').callsFake(() => {});
@@ -103,18 +104,6 @@ define(function (require, exports, module) {
     });
 
     describe('startApp', () => {
-      beforeEach(() => {
-        appStart = new AppStart({
-          broker: brokerMock,
-          history: backboneHistoryMock,
-          router: routerMock,
-          storage: Storage,
-          translator,
-          user: userMock,
-          window: windowMock
-        });
-      });
-
       it('starts the app, does not redirect', () => {
         return appStart.startApp()
           .then(() => {
@@ -214,9 +203,6 @@ define(function (require, exports, module) {
 
     describe('initializeL10n', () => {
       it('fetches translations', () => {
-        appStart = new AppStart({
-          translator
-        });
         return appStart.initializeL10n()
           .then(() => {
             assert.ok(appStart._translator.fetch.calledOnce);
@@ -477,15 +463,6 @@ define(function (require, exports, module) {
     });
 
     describe('initializeErrorMetrics', () => {
-      beforeEach(() => {
-        appStart = new AppStart({
-          broker: brokerMock,
-          history: backboneHistoryMock,
-          router: routerMock,
-          window: windowMock
-        });
-      });
-
       it('skips error metrics on empty config', () => {
         appStart.initializeExperimentGroupingRules();
         var ableChoose = sinon.stub(appStart._experimentGroupingRules, 'choose').callsFake(() => {
@@ -528,30 +505,12 @@ define(function (require, exports, module) {
     });
 
     describe('_getUniqueUserId', () => {
-      beforeEach(() => {
-        appStart = new AppStart({
-          broker: brokerMock,
-          history: backboneHistoryMock,
-          router: routerMock,
-          window: windowMock
-        });
-      });
-
       it('creates a user id', () => {
         assert.isDefined(appStart._getUniqueUserId());
       });
     });
 
     describe('initializeRouter', () => {
-      beforeEach(() => {
-        appStart = new AppStart({
-          broker: brokerMock,
-          history: backboneHistoryMock,
-          notifier: notifier,
-          window: windowMock
-        });
-      });
-
       it('creates a router', () => {
         appStart.initializeRouter();
         assert.isDefined(appStart._router);
@@ -583,16 +542,6 @@ define(function (require, exports, module) {
     });
 
     describe('initializeHeightObserver', () => {
-      beforeEach(() => {
-        appStart = new AppStart({
-          broker: brokerMock,
-          history: backboneHistoryMock,
-          router: routerMock,
-          user: userMock,
-          window: windowMock
-        });
-      });
-
       it('sets up the HeightObserver, triggers a `resize` notification on the iframe channel when the height changes', function (done) {
         sinon.stub(appStart, '_isInAnIframe').callsFake(() => {
           return true;
@@ -612,13 +561,6 @@ define(function (require, exports, module) {
     });
 
     describe('initializeRefreshObserver', () => {
-      beforeEach(() => {
-        appStart = new AppStart({
-          notifier: notifier,
-          window: windowMock
-        });
-      });
-
       it('creates a RefreshObserver instance', () => {
         appStart.initializeRefreshObserver();
         assert.instanceOf(appStart._refreshObserver, RefreshObserver);
@@ -734,11 +676,6 @@ define(function (require, exports, module) {
     describe('_getContext', () => {
       describe('in a verification flow', () => {
         beforeEach(() => {
-          appStart = new AppStart({
-            notifier: notifier,
-            window: windowMock
-          });
-
           sinon.stub(appStart, '_isVerification').callsFake(() => {
             return true;
           });
@@ -850,13 +787,6 @@ define(function (require, exports, module) {
     });
 
     describe('_getSameBrowserVerificationModel', () => {
-      beforeEach(() => {
-        appStart = new AppStart({
-          notifier: notifier,
-          window: windowMock
-        });
-      });
-
       it('gets a `SameBrowserVerificationModel` instance', () => {
         assert.instanceOf(
           appStart._getSameBrowserVerificationModel('context'),
@@ -866,13 +796,6 @@ define(function (require, exports, module) {
     });
 
     describe('isReportSignIn', () => {
-      beforeEach(() => {
-        appStart = new AppStart({
-          user: userMock,
-          window: windowMock
-        });
-      });
-
       it('returns true for pathname = `/report_signin`', () => {
         windowMock.location.pathname = '/report_signin';
         assert.isTrue(appStart._isReportSignIn());
