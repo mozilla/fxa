@@ -14,7 +14,7 @@ jobs:
           name: Save Docker image
           command: mkdir -p /cache; docker save -o /cache/docker.tar "ci:latest-node"
       - save_cache:
-          key: v1-{{ .Branch }}
+          key: v1-{{ .Branch }}-{{ .Revision }}
           paths:
             - /cache/docker.tar
   deploy:
@@ -24,7 +24,7 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - restore_cache:
-          key: v1-{{ .Branch }}
+          key: v1-{{ .Branch }}-{{ .Revision }}
       - run:
           name: Load Docker image
           command: docker load -i /cache/docker.tar
