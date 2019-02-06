@@ -14,5 +14,9 @@ module.exports = {
       hash.update(arg + '\0')
     })
     return hash.digest().toString('hex')
+  },
+
+  initialCapital (string) {
+    return `${string[0].toUpperCase()}${string.substr(1)}`
   }
 }
