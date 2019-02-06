@@ -30,6 +30,13 @@ describe('metrics/amplitude:', () => {
     assert.isString(amplitude.GROUPS.sms);
   });
 
+  it('has an EVENT_PROPERTIES entry for each group', () => {
+    for (const group of Object.keys(amplitude.GROUPS)) {
+      const groupName = amplitude.GROUPS[group];
+      assert.isFunction(amplitude.EVENT_PROPERTIES[groupName], group);
+    }
+  });
+
   it('exports an initialize method', () => {
     assert.isFunction(amplitude.initialize);
     assert.lengthOf(amplitude.initialize, 3);

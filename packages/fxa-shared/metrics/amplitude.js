@@ -44,6 +44,7 @@ const EVENT_PROPERTIES = {
   [GROUPS.email]: mapEmailType,
   [GROUPS.emailFirst]: NOP,
   [GROUPS.login]: NOP,
+  [GROUPS.notify]: NOP,
   [GROUPS.registration]: NOP,
   [GROUPS.settings]: mapDisconnectReason,
   [GROUPS.sms]: NOP
@@ -93,6 +94,7 @@ function mapDisconnectReason (eventType, eventCategory) {
 }
 
 module.exports = {
+  EVENT_PROPERTIES,
   GROUPS,
 
   /**
