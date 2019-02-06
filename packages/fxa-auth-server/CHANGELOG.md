@@ -1,3 +1,27 @@
+<a name="1.130.0"></a>
+# [1.130.0](https://github.com/mozilla/fxa-auth-server/compare/v1.129.5...v1.130.0) (2019-02-05)
+
+
+### Bug Fixes
+
+* **scripts:** sanely handle refreshTokens in the docs script ([59ab662](https://github.com/mozilla/fxa-auth-server/commit/59ab662))
+* **sms:** catch errors thrown from phoneNumberUtil.parse ([3900303](https://github.com/mozilla/fxa-auth-server/commit/3900303))
+
+### chore
+
+* **ci:** run tests on node 10 ([5bb853f](https://github.com/mozilla/fxa-auth-server/commit/5bb853f))
+
+### Features
+
+* **l10n:** Enable Catalan (ca) ([5b687de](https://github.com/mozilla/fxa-auth-server/commit/5b687de)), closes [mozilla/fxa-content-server-l10n#322](https://github.com/mozilla/fxa-content-server-l10n/issues/322)
+* **metrics:** Emit additional data for the DataFlow fraud detection pipeline. ([0a62639](https://github.com/mozilla/fxa-auth-server/commit/0a62639)), closes [#2858](https://github.com/mozilla/fxa-auth-server/issues/2858)
+
+### Refactor
+
+* **crypto:** fall back to node's scrypt implementation ([6d945c8](https://github.com/mozilla/fxa-auth-server/commit/6d945c8))
+
+
+
 <a name="1.129.5"></a>
 ## [1.129.5](https://github.com/mozilla/fxa-auth-server/compare/v1.129.4...v1.129.5) (2019-01-31)
 
