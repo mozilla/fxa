@@ -110,8 +110,9 @@ registerSuite('change_password', {
 
         // new_password empty
         .then(type(selectors.CHANGE_PASSWORD.OLD_PASSWORD, FIRST_PASSWORD))
-        .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, ''))
-        .then(click(selectors.CHANGE_PASSWORD.SUBMIT))
+        // submit the form using the "enter" key, the SUBMIT button
+        // is obscured on teamcity and cannot be clicked.
+        .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, '\n'))
         .then(testElementExists(selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL))
 
         // new_password too short

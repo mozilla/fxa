@@ -1,3 +1,13 @@
+<a name="1.130.1"></a>
+## [1.130.1](https://github.com/mozilla/fxa-content-server/compare/v1.130.0...v1.130.1) (2019-02-06)
+
+
+### Bug Fixes
+
+* **test:** Fix the "change_password" test on teamcity. ([83fbf7b](https://github.com/mozilla/fxa-content-server/commit/83fbf7b)), closes [#6938](https://github.com/mozilla/fxa-content-server/issues/6938)
+
+
+
 <a name="1.130.0"></a>
 # [1.130.0](https://github.com/mozilla/fxa-content-server/compare/v1.129.2...v1.130.0) (2019-02-05)
 
