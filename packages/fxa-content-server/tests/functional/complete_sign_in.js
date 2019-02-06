@@ -8,11 +8,10 @@ const { registerSuite } = intern.getInterface('object');
 const Constants = require('../../app/scripts/lib/constants');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
-const FxDesktopHelpers = require('./lib/fx-desktop');
 const selectors = require('./lib/selectors');
 const config = intern._config;
 const PAGE_COMPLETE_SIGNIN_URL = config.fxaContentRoot + 'complete_signin';
-const PAGE_SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
+const PAGE_SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v3&service=sync';
 const PASSWORD = 'passwordzxcv';
 
 
@@ -25,12 +24,10 @@ const clearBrowserState = FunctionalHelpers.clearBrowserState;
 const createUser = FunctionalHelpers.createUser;
 const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
 const getEmailHeaders = FunctionalHelpers.getEmailHeaders;
-const listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
 const noSuchElement = FunctionalHelpers.noSuchElement;
 const openPage = FunctionalHelpers.openPage;
 const testElementExists = FunctionalHelpers.testElementExists;
-const testIsBrowserNotified = FxDesktopHelpers.testIsBrowserNotifiedOfMessage;
-const testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
+const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
 const createRandomHexString = TestHelpers.createRandomHexString;
 
@@ -41,12 +38,14 @@ registerSuite('complete_sign_in', {
     return this.remote
       .then(clearBrowserState())
       .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(openPage(PAGE_SIGNIN_URL, selectors.SIGNIN.HEADER))
-      .execute(listenForFxaCommands)
+      .then(openPage(PAGE_SIGNIN_URL, selectors.SIGNIN.HEADER, { webChannelResponses: {
+        'fxaccounts:can_link_account': { ok: true },
+        'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
+      }}))
       .then(fillOutSignIn(email, PASSWORD))
       .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-      .then(testIsBrowserNotified('can_link_account'))
-      .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: false }))
+      .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+      .then(testIsBrowserNotified('fxaccounts:login'))
       .then(getEmailHeaders(user, 0))
       .then((headers) => {
         code = headers['x-verify-code'];

@@ -25,7 +25,7 @@ define(function (require, exports, module) {
         brokerType: 'fx-desktop',
         clientHeight: 966,
         clientWidth: 1033,
-        context: 'fx_desktop_v1',
+        context: 'fx_desktop_v3',
         devicePixelRatio: 2,
         entrypoint: 'menupanel',
         lang: 'db_LB',

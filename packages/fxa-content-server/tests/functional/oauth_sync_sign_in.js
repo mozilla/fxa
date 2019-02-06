@@ -7,10 +7,9 @@
 const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
-const FxDesktopHelpers = require('./lib/fx-desktop');
 const selectors = require('./lib/selectors');
 var config = intern._config;
-var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
+var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v3&service=sync';
 
 var email;
 var email2;
@@ -28,13 +27,9 @@ const {
   switchToWindow,
   testElementExists,
   testElementTextEquals,
+  testIsBrowserNotified,
   visibleByQSA,
 } = FunctionalHelpers;
-
-const {
-  listenForFxaCommands,
-  testIsBrowserNotifiedOfLogin,
-} = FxDesktopHelpers;
 
 registerSuite('signin with OAuth after Sync', {
   beforeEach: function () {
@@ -61,12 +56,14 @@ registerSuite('signin with OAuth after Sync', {
       this.timeout = 60 * 1000;
       return this.remote
         .then(createUser(email, PASSWORD, {preVerified: true}))
-        .then(openPage(PAGE_URL, '#fxa-signin-header'))
-        .execute(listenForFxaCommands)
+        .then(openPage(PAGE_URL, selectors.SIGNIN.HEADER, { webChannelResponses: {
+          'fxaccounts:can_link_account': { ok: true },
+          'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
+        }}))
 
         .then(fillOutSignIn(email, PASSWORD))
-        .then(testElementExists('#fxa-confirm-signin-header'))
-        .then(testIsBrowserNotifiedOfLogin(email))
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
         // Sync signins must be verified.
         .then(openVerificationLinkInNewTab(email, 0))
@@ -79,33 +76,33 @@ registerSuite('signin with OAuth after Sync', {
         .then(openFxaFromRp('signup'))
         .then(fillOutSignUp(email2, PASSWORD))
 
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(openVerificationLinkInNewTab(email2, 0))
         .then(switchToWindow(1))
 
         // wait for the verified window in the new tab
-        .then(testElementExists('#fxa-sign-up-complete-header'))
+        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
 
         // switch to the original window
         .then(closeCurrentWindow())
 
         // RP is logged in, logout then back in again.
-        .then(testElementExists('#loggedin'))
-        .then(click('#logout'))
+        .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
+        .then(click(selectors['123DONE'].LINK_LOGOUT))
 
-        .then(visibleByQSA('.ready #splash .signin'))
-        .then(click('.ready #splash .signin'))
+        .then(visibleByQSA(selectors['123DONE'].BUTTON_SIGNIN))
+        .then(click(selectors['123DONE'].BUTTON_SIGNIN))
 
-        .then(testElementExists('#fxa-signin-header'))
+        .then(testElementExists(selectors.SIGNIN.HEADER))
 
         // By default, we should see the email we signed up for Sync with
-        .then(testElementTextEquals('.prefillEmail', email))
+        .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email))
 
         // no need to enter the password!
-        .then(click('button[type="submit"]'))
+        .then(click(selectors.SIGNIN.SUBMIT))
 
         // We should see the email we signed up for Sync with
-        .then(testElementTextEquals('#loggedin', email));
+        .then(testElementTextEquals(selectors['123DONE'].AUTHENTICATED, email));
     }
   }
 });

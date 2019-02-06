@@ -17,10 +17,6 @@ const AUTH_BROKERS = [
     Constructor: require('../auth_brokers/fx-sync')
   },
   {
-    context: Constants.FX_DESKTOP_V1_CONTEXT,
-    Constructor: require('../auth_brokers/fx-desktop-v1')
-  },
-  {
     context: Constants.FX_DESKTOP_V2_CONTEXT,
     Constructor: require('../auth_brokers/fx-desktop-v2')
   },

@@ -30,6 +30,7 @@ module.exports = function (grunt) {
     'message'
   ];
   var PROPAGATED_UNSAFE_TEMPLATE_FIELDS = [
+    'downloadFirefoxUrl',
     'staticResourceUrl'
   ];
 

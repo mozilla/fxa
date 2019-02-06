@@ -281,6 +281,46 @@ registerSuite('amplitude', {
       assert.equal(arg.event_type, 'fxa_pref - logout');
     },
 
+    'flow.update-firefox.view': () => {
+      amplitude({
+        time: 'a',
+        type: 'flow.update-firefox.view'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_notify - update_firefox_view');
+    },
+
+    'flow.update-firefox.engage': () => {
+      amplitude({
+        time: 'a',
+        type: 'flow.update-firefox.engage'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_notify - update_firefox_engage');
+    },
+
     'experiment.designF.passwordStrength.blocked': () => {
       amplitude({
         time: 'a',
