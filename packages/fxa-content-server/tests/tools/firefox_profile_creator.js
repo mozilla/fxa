@@ -63,6 +63,12 @@ if (profile) {
   myProfile.setPreference('experiments.manifest.uri', '');
   myProfile.setPreference('network.allow-experiments', false);
 
+  // x-iso9600-image for OSX .dmg
+  // application/x-tar for Linux .tgz files
+  // application/octet-stream for Windows .exe files
+  // This prevents the "Save file" dialog for the "Update Firefox" screen.
+  myProfile.setPreference('browser.helperApps.neverAsk.saveToDisk', 'application/x-iso9660-image,application/x-tar,application/octet-stream');
+
 
   myProfile.updatePreferences();
 
