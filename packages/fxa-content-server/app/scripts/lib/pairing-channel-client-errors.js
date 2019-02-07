@@ -32,12 +32,16 @@ export default assign({}, Errors, {
       errno: 1003,
       message: t('Invalid message from the remote device')
     },
-    CHANNEL_ID_MISMATCH: {
+    INVALID_OUTBOUND_MESSAGE: {
       errno: 1004,
+      message: 'Sending a malformed message'
+    },
+    CHANNEL_ID_MISMATCH: {
+      errno: 1005,
       message: t('Error pairing to remote device')
     },
     CONNECTION_CLOSED: {
-      errno: 1005,
+      errno: 1006,
       message: t('Connection to remote device closed, please try again')
     },
 
