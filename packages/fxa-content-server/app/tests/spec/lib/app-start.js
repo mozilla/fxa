@@ -58,10 +58,131 @@ define(function (require, exports, module) {
 
       windowMock = new WindowMock();
       windowMock.parent = new WindowMock();
+
+      appStart = new AppStart({
+        broker: brokerMock,
+        history: backboneHistoryMock,
+        notifier,
+        router: routerMock,
+        storage: Storage,
+        translator,
+        user: userMock,
+        window: windowMock
+      });
     });
 
     afterEach(() => {
       Raven.uninstall();
+    });
+
+    it('startApp starts the app, does not redirect', () => {
+      return appStart.startApp()
+        .then(() => {
+          assert.isFalse(routerMock.navigate.called);
+        });
+    });
+
+    it('startApp delegates to `fatalError` if an error occurs', () => {
+      const err = new Error('boom');
+      sinon.stub(appStart, 'allResourcesReady').callsFake(() => {
+        return Promise.reject(err);
+      });
+
+      sinon.stub(appStart, 'fatalError').callsFake(() => {});
+
+      return appStart.startApp()
+        .then(() => {
+          assert.isTrue(appStart.fatalError.calledWith(err));
+        });
+    });
+
+    it('startApp uses storage metrics when an automated browser is detected', () => {
+      windowMock.location.search = Url.objToSearchString({
+        automatedBrowser: true
+      });
+
+      return appStart.startApp()
+        .then(() => {
+          assert.instanceOf(appStart._metrics, StorageMetrics);
+        });
+    });
+
+    it('initializeL10n fetches translations', () => {
+      return appStart.initializeL10n()
+        .then(() => {
+          assert.ok(appStart._translator.fetch.calledOnce);
+        });
+    });
+
+    it('initializeErrorMetrics skips error metrics on empty config', () => {
+      appStart.initializeExperimentGroupingRules();
+      const ableChoose = sinon.stub(appStart._experimentGroupingRules, 'choose').callsFake(() => {
+        return true;
+      });
+
+      appStart.initializeErrorMetrics();
+      assert.isUndefined(appStart._sentryMetrics);
+      ableChoose.restore();
+    });
+
+    it('initializeErrorMetrics skips error metrics if env is not defined', () => {
+      appStart.initializeExperimentGroupingRules();
+
+      appStart.initializeErrorMetrics();
+      assert.isUndefined(appStart._sentryMetrics);
+    });
+
+    it('initializeErrorMetrics creates error metrics', () => {
+      const appStart = new AppStart({
+        broker: brokerMock,
+        config: {
+          env: 'development'
+        },
+        history: backboneHistoryMock,
+        router: routerMock,
+        window: windowMock
+      });
+      appStart.initializeExperimentGroupingRules();
+
+      const ableChoose = sinon.stub(appStart._experimentGroupingRules, 'choose').callsFake(() => {
+        return true;
+      });
+
+      appStart.initializeErrorMetrics();
+      assert.isDefined(appStart._sentryMetrics);
+
+      ableChoose.restore();
+    });
+
+    it('_getUniqueUserId creates a user id', () => {
+      assert.isDefined(appStart._getUniqueUserId());
+    });
+
+    it('initializeRouter creates a router', () => {
+      appStart.initializeRouter();
+      assert.isDefined(appStart._router);
+    });
+
+    it('initializeHeightObserver sets up the HeightObserver, triggers a `resize` notification on the iframe channel when the height changes', function (done) {
+      sinon.stub(appStart, '_isInAnIframe').callsFake(() => {
+        return true;
+      });
+
+      appStart._iframeChannel = {
+        send (message, data) {
+          TestHelpers.wrapAssertion(() => {
+            assert.equal(message, 'resize');
+            assert.typeOf(data.height, 'number');
+          }, done);
+        }
+      };
+
+      appStart.initializeHeightObserver();
+    });
+
+    it('initializeRefreshObserver creates a RefreshObserver instance', () => {
+      appStart.initializeRefreshObserver();
+      assert.instanceOf(appStart._refreshObserver, RefreshObserver);
     });
 
     describe('fatalError', () => {
@@ -71,16 +192,6 @@ define(function (require, exports, module) {
 
       beforeEach(() => {
         sandbox = sinon.sandbox.create();
-
-        appStart = new AppStart({
-          broker: brokerMock,
-          history: backboneHistoryMock,
-          router: routerMock,
-          storage: Storage,
-          translator,
-          user: userMock,
-          window: windowMock
-        });
 
         sandbox.spy(appStart, 'enableSentryMetrics');
         sandbox.stub(ErrorUtils, 'fatalError').callsFake(() => {});
@@ -102,124 +213,65 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('startApp', () => {
+    describe('with localStorage disabled', () => {
+      var sandbox;
+
       beforeEach(() => {
-        appStart = new AppStart({
-          broker: brokerMock,
-          history: backboneHistoryMock,
-          router: routerMock,
-          storage: Storage,
-          translator,
-          user: userMock,
-          window: windowMock
+        sandbox = sinon.sandbox.create();
+        sandbox.stub(Storage, 'isLocalStorageEnabled').callsFake(() => {
+          return false;
         });
       });
 
-      it('starts the app, does not redirect', () => {
+      afterEach(() => {
+        sandbox.restore();
+      });
+
+      it('redirects to /cookies_disabled without history replace or trigger', () => {
+        return appStart.startApp()
+          .then(() => {
+            assert.isTrue(routerMock.navigate.calledWith('cookies_disabled', {}, {replace: true, trigger: true}));
+          });
+      });
+
+      it('does not redirect if path is already /cookies_disabled', () => {
+        windowMock.location.pathname = '/cookies_disabled';
         return appStart.startApp()
           .then(() => {
             assert.isFalse(routerMock.navigate.called);
           });
       });
 
-      it('delegates to `fatalError` if an error occurs', () => {
-        var err = new Error('boom');
-        sinon.stub(appStart, 'allResourcesReady').callsFake(() => {
-          return Promise.reject(err);
-        });
-
-        sinon.stub(appStart, 'fatalError').callsFake(() => {});
+      it('does not redirect if Mobile Safari and /complete_signin', () => {
+        windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) ' +
+          'AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0 Mobile/14B100 Safari/602.1';
+        windowMock.location.pathname = '/complete_signin';
 
         return appStart.startApp()
           .then(() => {
-            assert.isTrue(appStart.fatalError.calledWith(err));
+            assert.isFalse(routerMock.navigate.called);
           });
       });
 
-      it('uses storage metrics when an automated browser is detected', () => {
-        windowMock.location.search = Url.objToSearchString({
-          automatedBrowser: true
-        });
+      it('does not redirect if Mobile Safari and /verify_email', () => {
+        windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) ' +
+          'AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0 Mobile/14B100 Safari/602.1';
+        windowMock.location.pathname = '/verify_email';
 
         return appStart.startApp()
           .then(() => {
-            assert.instanceOf(appStart._metrics, StorageMetrics);
+            assert.isFalse(routerMock.navigate.called);
           });
       });
 
-      describe('with localStorage disabled', () => {
-        var sandbox;
+      it('redirects if Mobile Safari and root path', () => {
+        windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) ' +
+          'AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0 Mobile/14B100 Safari/602.1';
+        windowMock.location.pathname = '/';
 
-        beforeEach(() => {
-          sandbox = sinon.sandbox.create();
-          sandbox.stub(Storage, 'isLocalStorageEnabled').callsFake(() => {
-            return false;
-          });
-        });
-
-        afterEach(() => {
-          sandbox.restore();
-        });
-
-        it('redirects to /cookies_disabled without history replace or trigger', () => {
-          return appStart.startApp()
-            .then(() => {
-              assert.isTrue(routerMock.navigate.calledWith('cookies_disabled', {}, {replace: true, trigger: true}));
-            });
-        });
-
-        it('does not redirect if path is already /cookies_disabled', () => {
-          windowMock.location.pathname = '/cookies_disabled';
-          return appStart.startApp()
-            .then(() => {
-              assert.isFalse(routerMock.navigate.called);
-            });
-        });
-
-        it('does not redirect if Mobile Safari and /complete_signin', () => {
-          windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) ' +
-            'AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0 Mobile/14B100 Safari/602.1';
-          windowMock.location.pathname = '/complete_signin';
-
-          return appStart.startApp()
-            .then(() => {
-              assert.isFalse(routerMock.navigate.called);
-            });
-        });
-
-        it('does not redirect if Mobile Safari and /verify_email', () => {
-          windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) ' +
-            'AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0 Mobile/14B100 Safari/602.1';
-          windowMock.location.pathname = '/verify_email';
-
-          return appStart.startApp()
-            .then(() => {
-              assert.isFalse(routerMock.navigate.called);
-            });
-        });
-
-        it('redirects if Mobile Safari and root path', () => {
-          windowMock.navigator.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) ' +
-            'AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0 Mobile/14B100 Safari/602.1';
-          windowMock.location.pathname = '/';
-
-          return appStart.startApp()
-            .then(() => {
-              assert.isTrue(routerMock.navigate.called);
-            });
-        });
-
-      });
-    });
-
-    describe('initializeL10n', () => {
-      it('fetches translations', () => {
-        appStart = new AppStart({
-          translator
-        });
-        return appStart.initializeL10n()
+        return appStart.startApp()
           .then(() => {
-            assert.ok(appStart._translator.fetch.calledOnce);
+            assert.isTrue(routerMock.navigate.called);
           });
       });
     });
@@ -476,88 +528,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('initializeErrorMetrics', () => {
-      beforeEach(() => {
-        appStart = new AppStart({
-          broker: brokerMock,
-          history: backboneHistoryMock,
-          router: routerMock,
-          window: windowMock
-        });
-      });
-
-      it('skips error metrics on empty config', () => {
-        appStart.initializeExperimentGroupingRules();
-        var ableChoose = sinon.stub(appStart._experimentGroupingRules, 'choose').callsFake(() => {
-          return true;
-        });
-
-        appStart.initializeErrorMetrics();
-        assert.isUndefined(appStart._sentryMetrics);
-        ableChoose.restore();
-      });
-
-      it('skips error metrics if env is not defined', () => {
-        appStart.initializeExperimentGroupingRules();
-
-        appStart.initializeErrorMetrics();
-        assert.isUndefined(appStart._sentryMetrics);
-      });
-
-      it('creates error metrics', () => {
-        var appStart = new AppStart({
-          broker: brokerMock,
-          config: {
-            env: 'development'
-          },
-          history: backboneHistoryMock,
-          router: routerMock,
-          window: windowMock
-        });
-        appStart.initializeExperimentGroupingRules();
-
-        var ableChoose = sinon.stub(appStart._experimentGroupingRules, 'choose').callsFake(() => {
-          return true;
-        });
-
-        appStart.initializeErrorMetrics();
-        assert.isDefined(appStart._sentryMetrics);
-
-        ableChoose.restore();
-      });
-    });
-
-    describe('_getUniqueUserId', () => {
-      beforeEach(() => {
-        appStart = new AppStart({
-          broker: brokerMock,
-          history: backboneHistoryMock,
-          router: routerMock,
-          window: windowMock
-        });
-      });
-
-      it('creates a user id', () => {
-        assert.isDefined(appStart._getUniqueUserId());
-      });
-    });
-
-    describe('initializeRouter', () => {
-      beforeEach(() => {
-        appStart = new AppStart({
-          broker: brokerMock,
-          history: backboneHistoryMock,
-          notifier: notifier,
-          window: windowMock
-        });
-      });
-
-      it('creates a router', () => {
-        appStart.initializeRouter();
-        assert.isDefined(appStart._router);
-      });
-    });
-
     describe('initializeIframeChannel', () => {
       beforeEach(() => {
         windowMock.location.search = '?context=fx_ios_v1&service=sync&origin=' + encodeURIComponent('http://127.0.0.1:8111');
@@ -579,49 +549,6 @@ define(function (require, exports, module) {
       it('creates a null iframe channel if not in an iframe', () => {
         appStart.initializeIframeChannel();
         assert.instanceOf(appStart._iframeChannel, NullChannel);
-      });
-    });
-
-    describe('initializeHeightObserver', () => {
-      beforeEach(() => {
-        appStart = new AppStart({
-          broker: brokerMock,
-          history: backboneHistoryMock,
-          router: routerMock,
-          user: userMock,
-          window: windowMock
-        });
-      });
-
-      it('sets up the HeightObserver, triggers a `resize` notification on the iframe channel when the height changes', function (done) {
-        sinon.stub(appStart, '_isInAnIframe').callsFake(() => {
-          return true;
-        });
-
-        appStart._iframeChannel = {
-          send (message, data) {
-            TestHelpers.wrapAssertion(() => {
-              assert.equal(message, 'resize');
-              assert.typeOf(data.height, 'number');
-            }, done);
-          }
-        };
-
-        appStart.initializeHeightObserver();
-      });
-    });
-
-    describe('initializeRefreshObserver', () => {
-      beforeEach(() => {
-        appStart = new AppStart({
-          notifier: notifier,
-          window: windowMock
-        });
-      });
-
-      it('creates a RefreshObserver instance', () => {
-        appStart.initializeRefreshObserver();
-        assert.instanceOf(appStart._refreshObserver, RefreshObserver);
       });
     });
 
@@ -734,11 +661,6 @@ define(function (require, exports, module) {
     describe('_getContext', () => {
       describe('in a verification flow', () => {
         beforeEach(() => {
-          appStart = new AppStart({
-            notifier: notifier,
-            window: windowMock
-          });
-
           sinon.stub(appStart, '_isVerification').callsFake(() => {
             return true;
           });
@@ -850,13 +772,6 @@ define(function (require, exports, module) {
     });
 
     describe('_getSameBrowserVerificationModel', () => {
-      beforeEach(() => {
-        appStart = new AppStart({
-          notifier: notifier,
-          window: windowMock
-        });
-      });
-
       it('gets a `SameBrowserVerificationModel` instance', () => {
         assert.instanceOf(
           appStart._getSameBrowserVerificationModel('context'),
@@ -866,13 +781,6 @@ define(function (require, exports, module) {
     });
 
     describe('isReportSignIn', () => {
-      beforeEach(() => {
-        appStart = new AppStart({
-          user: userMock,
-          window: windowMock
-        });
-      });
-
       it('returns true for pathname = `/report_signin`', () => {
         windowMock.location.pathname = '/report_signin';
         assert.isTrue(appStart._isReportSignIn());
