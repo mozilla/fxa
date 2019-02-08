@@ -46,7 +46,18 @@ describe('require:', () => {
     })
 
     it('logs an error and throws when param is missing', () => {
-      assert.throws(() => safeUrl.render({}))
+      let threw = false
+      try {
+        safeUrl.render({})
+      } catch (err) {
+        threw = true
+        assert.equal(err.output.payload.op, 'safeUrl.params.mismatch')
+        assert.deepEqual(err.output.payload.data, {
+          expected: [ 'bar' ],
+          keys: []
+        })
+      }
+      assert.equal(threw, true)
       assert.equal(log.error.callCount, 1)
       assert.deepEqual(log.error.args[0][0], {
         op: 'safeUrl.params.mismatch',
@@ -68,7 +79,19 @@ describe('require:', () => {
     })
 
     it('logs an error and throws when param is empty string', () => {
-      assert.throws(() => safeUrl.render({ bar: '' }))
+      let threw = false
+      try {
+        safeUrl.render({ bar: '' })
+      } catch (err) {
+        threw = true
+        assert.equal(err.output.payload.op, 'safeUrl.bad')
+        assert.deepEqual(err.output.payload.data, {
+          location: 'paramVal',
+          key: 'bar',
+          value: ''
+        })
+      }
+      assert.equal(threw, true)
       assert.equal(log.error.callCount, 1)
       assert.deepEqual(log.error.args[0][0], {
         location: 'paramVal',
@@ -106,7 +129,19 @@ describe('require:', () => {
     })
 
     it('logs an error and throws for bad query keys', () => {
-      assert.throws(() => safeUrl.render({ bar: 'baz' }, {'💩': 'bar'}))
+      let threw = false
+      try {
+        safeUrl.render({ bar: 'baz' }, {'💩': 'bar'})
+      } catch (err) {
+        threw = true
+        assert.equal(err.output.payload.op, 'safeUrl.unsafe')
+        assert.deepEqual(err.output.payload.data, {
+          location: 'queryKey',
+          key: '💩',
+          value: '💩'
+        })
+      }
+      assert.equal(threw, true)
       assert.equal(log.error.callCount, 1)
       assert.deepEqual(log.error.args[0][0], {
         location: 'queryKey',

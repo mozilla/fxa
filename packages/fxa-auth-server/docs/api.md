@@ -343,6 +343,7 @@ include additional response properties:
 * `errno: 201`: retryAfter
 * `errno: 202`: retryAfter
 * `errno: 203`: service, operation
+* `errno: 998`: op, data
 
 #### Responses from intermediary servers
 <!--begin-responses-from-intermediary-servers-->

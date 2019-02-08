@@ -886,12 +886,15 @@ AppError.backendServiceFailure = (service, operation) => {
   })
 }
 
-AppError.internalValidationError = () => {
+AppError.internalValidationError = (op, data) => {
   return new AppError({
     code: 500,
     error: 'Internal Server Error',
     errno: ERRNO.INTERNAL_VALIDATION_ERROR,
     message: 'An internal validation check failed.'
+  }, {
+    op,
+    data
   })
 }
 
