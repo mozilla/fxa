@@ -4,8 +4,22 @@
 <!--Header Area-->
 <tr style="page-break-before: always">
   <td valign="top">
-    <h1 style="font-family: sans-serif; font-size: 21px; line-height: 29px; font-weight: normal; margin: 0 0 11px 0; text-align: center;"><% block verify_title %>{{t "Welcome!"}}<% endblock %></h1>
-    <p class="primary" style="font-family: sans-serif; font-size: 14px; line-height: 21px; font-weight: normal; margin: 0 0 21px 0; text-align: center;"><% block verify_content %>{{{t "Please activate your account by confirming this email address." }}}<% endblock %></p>
+    <h1 style="font-family: sans-serif; font-size: 21px; line-height: 29px; font-weight: normal; margin: 0 0 11px 0; text-align: center;"><% block verify_title %>
+      {{#if serviceName}}
+        {{{t "Welcome to %(serviceName)s!"}}}
+      {{/if}}
+      {{^if serviceName}}
+        {{t "Welcome!"}}
+      {{/if}}
+    <% endblock %></h1>
+    <p class="primary" style="font-family: sans-serif; font-size: 14px; line-height: 21px; font-weight: normal; margin: 0 0 21px 0; text-align: center;"><% block verify_content %>
+      {{#if serviceName}}
+        {{{t "Confirm this email address to activate your Firefox Account and continue to %(serviceName)s." }}}
+      {{/if}}
+      {{^if serviceName}}
+        {{t "Confirm this email address to activate your Firefox Account." }}
+      {{/if}}
+    <% endblock %></p>
   </td>
 </tr>
 

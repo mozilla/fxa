@@ -192,7 +192,7 @@ function stubSendMail (stub, status) {
 describe(
   'lib/senders/email:',
   () => {
-    let mockLog, redis, mailer
+    let mockLog, redis, mailer, oauthClientInfo
 
     beforeEach(() => {
       return P.all([
@@ -200,10 +200,24 @@ describe(
         require(`${ROOT_DIR}/lib/senders/templates`).init()
       ]).spread((translator, templates) => {
         mockLog = mocks.mockLog()
+        oauthClientInfo = {
+          fetch: sinon.spy(async (service) => {
+            if (service === 'sync') {
+              return {
+                name: 'Firefox'
+              }
+            } else if (service === 'foo') {
+              return {
+                name: 'biz baz relier name'
+              }
+            }
+          })
+        }
         redis = {
           get: sinon.spy(() => P.resolve())
         }
         const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, {
+          './oauth_client_info': () => oauthClientInfo,
           '../redis': () => redis
         })(mockLog, config.getProperties())
         mailer = new Mailer(translator, templates, config.get('smtp'))
@@ -702,7 +716,33 @@ describe(
           })
         }
 
-        if (type === 'verifyLoginEmail') {
+        if (type === 'verifyEmail') {
+          it(
+            'passes the OAuth relier name to the template',
+            () => {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
+                assert.equal(oauthClientInfo.fetch.callCount, 1)
+                assert.equal(oauthClientInfo.fetch.args[0][0], 'foo')
+                assert.ok(includes(emailConfig.html, 'biz baz relier name'))
+                assert.ok(includes(emailConfig.text, 'biz baz relier name'))
+              })
+              message.service = 'foo'
+              return mailer[type](message)
+            }
+          )
+          it(
+            'works without a service',
+            () => {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
+                assert.isFalse(oauthClientInfo.fetch.called)
+                assert.ok(! includes(emailConfig.html, 'and continue to'))
+                assert.ok(! includes(emailConfig.text, 'and continue to'))
+              })
+              delete message.service;
+              return mailer[type](message)
+            }
+          )
+        } else if (type === 'verifyLoginEmail') {
           it(
             'test verify token email',
             function () {

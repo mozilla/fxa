@@ -539,7 +539,7 @@ module.exports = function (log, config, oauthdb) {
     }
   }
 
-  Mailer.prototype.verifyEmail = function (message) {
+  Mailer.prototype.verifyEmail = async function (message) {
     log.trace({ op: 'mailer.verifyEmail', email: message.email, uid: message.uid })
 
     var templateName = 'verifyEmail'
@@ -561,9 +561,14 @@ module.exports = function (log, config, oauthdb) {
       'X-Verify-Code': message.code
     }
 
+    let serviceName
+
     if (message.service === 'sync') {
       subject = gettext('Confirm your email and start to sync!')
       templateName = 'verifySyncEmail'
+    } else if (message.service) {
+      const clientInfo = await oauthClientInfo.fetch(message.service)
+      serviceName = clientInfo.name
     }
 
     return this.send(Object.assign({}, message, {
@@ -578,7 +583,8 @@ module.exports = function (log, config, oauthdb) {
         location: this._constructLocationString(message),
         oneClickLink: links.oneClickLink,
         privacyUrl: links.privacyUrl,
-        sync: message.service,
+        serviceName: serviceName,
+        sync: message.service === 'sync',
         supportUrl: links.supportUrl,
         supportLinkAttributes: links.supportLinkAttributes
       },
