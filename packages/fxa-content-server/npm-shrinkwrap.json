@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "1.130.0",
+  "version": "1.130.1",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
@@ -782,7 +782,6 @@
       "version": "0.1.4",
       "resolved": "https://registry.npmjs.org/align-text/-/align-text-0.1.4.tgz",
       "integrity": "sha1-DNkKVhCT810KmSVsIrcGlDP60Rc=",
-      "optional": true,
       "requires": {
         "kind-of": "^3.0.2",
         "longest": "^1.0.1",
@@ -1270,15 +1269,13 @@
           "version": "1.0.0",
           "resolved": "https://registry.npmjs.org/is-extglob/-/is-extglob-1.0.0.tgz",
           "integrity": "sha1-rEaBd8SUNAWgkvyPKXYMb/xiBsA=",
-          "dev": true,
-          "optional": true
+          "dev": true
         },
         "is-glob": {
           "version": "2.0.1",
           "resolved": "https://registry.npmjs.org/is-glob/-/is-glob-2.0.1.tgz",
           "integrity": "sha1-0Jb5JqPe1WAPP9/ZEZjLCIjC2GM=",
           "dev": true,
-          "optional": true,
           "requires": {
             "is-extglob": "^1.0.0"
           }
@@ -5481,8 +5478,7 @@
         },
         "ansi-regex": {
           "version": "2.1.1",
-          "bundled": true,
-          "optional": true
+          "bundled": true
         },
         "aproba": {
           "version": "1.2.0",
@@ -5500,13 +5496,11 @@
         },
         "balanced-match": {
           "version": "1.0.0",
-          "bundled": true,
-          "optional": true
+          "bundled": true
         },
         "brace-expansion": {
           "version": "1.1.11",
           "bundled": true,
-          "optional": true,
           "requires": {
             "balanced-match": "^1.0.0",
             "concat-map": "0.0.1"
@@ -5519,18 +5513,15 @@
         },
         "code-point-at": {
           "version": "1.1.0",
-          "bundled": true,
-          "optional": true
+          "bundled": true
         },
         "concat-map": {
           "version": "0.0.1",
-          "bundled": true,
-          "optional": true
+          "bundled": true
         },
         "console-control-strings": {
           "version": "1.1.0",
-          "bundled": true,
-          "optional": true
+          "bundled": true
         },
         "core-util-is": {
           "version": "1.0.2",
@@ -5633,8 +5624,7 @@
         },
         "inherits": {
           "version": "2.0.3",
-          "bundled": true,
-          "optional": true
+          "bundled": true
         },
         "ini": {
           "version": "1.3.5",
@@ -5644,7 +5634,6 @@
         "is-fullwidth-code-point": {
           "version": "1.0.0",
           "bundled": true,
-          "optional": true,
           "requires": {
             "number-is-nan": "^1.0.0"
           }
@@ -5657,20 +5646,17 @@
         "minimatch": {
           "version": "3.0.4",
           "bundled": true,
-          "optional": true,
           "requires": {
             "brace-expansion": "^1.1.7"
           }
         },
         "minimist": {
           "version": "0.0.8",
-          "bundled": true,
-          "optional": true
+          "bundled": true
         },
         "minipass": {
           "version": "2.3.5",
           "bundled": true,
-          "optional": true,
           "requires": {
             "safe-buffer": "^5.1.2",
             "yallist": "^3.0.0"
@@ -5687,7 +5673,6 @@
         "mkdirp": {
           "version": "0.5.1",
           "bundled": true,
-          "optional": true,
           "requires": {
             "minimist": "0.0.8"
           }
@@ -5760,8 +5745,7 @@
         },
         "number-is-nan": {
           "version": "1.0.1",
-          "bundled": true,
-          "optional": true
+          "bundled": true
         },
         "object-assign": {
           "version": "4.1.1",
@@ -5771,7 +5755,6 @@
         "once": {
           "version": "1.4.0",
           "bundled": true,
-          "optional": true,
           "requires": {
             "wrappy": "1"
           }
@@ -5847,8 +5830,7 @@
         },
         "safe-buffer": {
           "version": "5.1.2",
-          "bundled": true,
-          "optional": true
+          "bundled": true
         },
         "safer-buffer": {
           "version": "2.1.2",
@@ -5878,7 +5860,6 @@
         "string-width": {
           "version": "1.0.2",
           "bundled": true,
-          "optional": true,
           "requires": {
             "code-point-at": "^1.0.0",
             "is-fullwidth-code-point": "^1.0.0",
@@ -5896,7 +5877,6 @@
         "strip-ansi": {
           "version": "3.0.1",
           "bundled": true,
-          "optional": true,
           "requires": {
             "ansi-regex": "^2.0.0"
           }
@@ -5935,13 +5915,11 @@
         },
         "wrappy": {
           "version": "1.0.2",
-          "bundled": true,
-          "optional": true
+          "bundled": true
         },
         "yallist": {
           "version": "3.0.3",
-          "bundled": true,
-          "optional": true
+          "bundled": true
         }
       }
     },
@@ -6030,7 +6008,7 @@
       "integrity": "sha512-Pr4FQ8ZXw5/7xWv6xLqK/9WN8xYidC49wVA+sNV0/pev4VOlk3LBIABYSIyNkrhFCLCiDs1DRvn+H0yF2lE03w==",
       "requires": {
         "es6-promise": "4.1.1",
-        "sjcl": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8e",
+        "sjcl": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8ef32329bc8d7bc28a438372b5acb46616b",
         "xhr2": "0.0.7"
       },
       "dependencies": {
@@ -6527,15 +6505,13 @@
           "version": "1.0.0",
           "resolved": "https://registry.npmjs.org/is-extglob/-/is-extglob-1.0.0.tgz",
           "integrity": "sha1-rEaBd8SUNAWgkvyPKXYMb/xiBsA=",
-          "dev": true,
-          "optional": true
+          "dev": true
         },
         "is-glob": {
           "version": "2.0.1",
           "resolved": "https://registry.npmjs.org/is-glob/-/is-glob-2.0.1.tgz",
           "integrity": "sha1-0Jb5JqPe1WAPP9/ZEZjLCIjC2GM=",
           "dev": true,
-          "optional": true,
           "requires": {
             "is-extglob": "^1.0.0"
           }
@@ -8985,7 +8961,7 @@
       }
     },
     "legal-docs": {
-      "version": "git://github.com/mozilla/legal-docs.git#ac7ff6f9bac09eee0a4ee161c50d4b9cddb9da97",
+      "version": "git://github.com/mozilla/legal-docs.git#7620b391f9473d41a70f2c9226469073025fc6fe",
       "from": "git://github.com/mozilla/legal-docs.git#master"
     },
     "levn": {
@@ -9077,9 +9053,9 @@
       }
     },
     "lodash": {
-      "version": "4.17.5",
-      "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.17.5.tgz",
-      "integrity": "sha512-svL3uiZf1RwhH+cWrfZn3A4+U58wbP0tGVTLQPbjplZxZ8ROD9VLuNgsRniTlLe7OlSqR79RUehXgpBW/s0IQw=="
+      "version": "4.17.11",
+      "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.17.11.tgz",
+      "integrity": "sha512-cQKh8igo5QUhZ7lg38DYWAxMvjSAKG0A8wGSVimP07SIUEK2UO+arSRKbRZWtelMtN5V0Hkwh5ryOto/SshYIg=="
     },
     "lodash._arraymap": {
       "version": "3.0.0",
@@ -9337,8 +9313,7 @@
     "longest": {
       "version": "1.0.1",
       "resolved": "https://registry.npmjs.org/longest/-/longest-1.0.1.tgz",
-      "integrity": "sha1-MKCy2jj3N3DoKUoNIuZiXtd9AJc=",
-      "optional": true
+      "integrity": "sha1-MKCy2jj3N3DoKUoNIuZiXtd9AJc="
     },
     "loose-envify": {
       "version": "1.4.0",
@@ -10224,7 +10199,7 @@
       "from": "git://github.com/vladikoff/node-uap.git#9cdd16247",
       "requires": {
         "array.prototype.find": "2.0.0",
-        "uap-core": "git://github.com/ua-parser/uap-core.git",
+        "uap-core": "git://github.com/ua-parser/uap-core.git#6cfb915779a6b707b4f622cc1ebb70c15000bfb2",
         "uap-ref-impl": "0.2.0",
         "yamlparser": "0.0.2"
       }
@@ -10640,8 +10615,7 @@
           "version": "1.0.0",
           "resolved": "https://registry.npmjs.org/is-extglob/-/is-extglob-1.0.0.tgz",
           "integrity": "sha1-rEaBd8SUNAWgkvyPKXYMb/xiBsA=",
-          "dev": true,
-          "optional": true
+          "dev": true
         },
         "is-glob": {
           "version": "2.0.1",
