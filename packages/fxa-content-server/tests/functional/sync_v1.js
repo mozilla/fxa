@@ -27,6 +27,16 @@ registerSuite('Firefox Desktop Sync v1', {
     return this.remote
       .then(clearBrowserState({ force: true }));
   },
+
+  afterEach: function () {
+    return this.remote
+      .execute(() => {
+        // Opening about:blank aborts the Firefox download
+        // and prevents the tests from stalling when run on CentOS
+        window.location.href = 'about:blank';
+      });
+  },
+
   tests: {
     'force_auth': function () {
       return this.remote
