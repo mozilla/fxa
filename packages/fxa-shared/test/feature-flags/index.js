@@ -94,7 +94,10 @@ describe('feature-flags/index:', () => {
     beforeEach(done => {
       featureFlags = initialise({
         implementation: 'foo',
-        interval: 300000
+        interval: 300000,
+        foo: {
+          bar: 'baz'
+        }
       });
       resolve({ bar: 'baz' });
       setImmediate(done);
@@ -113,8 +116,7 @@ describe('feature-flags/index:', () => {
       const args = implementationFactory.args[0];
       assert.lengthOf(args, 1);
       assert.deepEqual(args[0], {
-        implementation: 'foo',
-        interval: 300000
+        bar: 'baz'
       });
     });
 

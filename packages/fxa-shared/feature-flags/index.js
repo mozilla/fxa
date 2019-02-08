@@ -21,7 +21,7 @@ module.exports = initialise;
  * @returns {FeatureFlags}
  */
 function initialise (config, defaults) {
-  const implementation = require(`./${config.implementation}`)(config);
+  const implementation = require(`./${config.implementation}`)(config[config.implementation]);
   const { interval } = config;
 
   if (! (interval > 0 && interval !== Infinity)) {
