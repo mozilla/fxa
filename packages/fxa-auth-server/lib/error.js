@@ -86,7 +86,7 @@ var ERRNO = {
   UNEXPECTED_ERROR: 999
 }
 
-var DEFAULTS = {
+const DEFAULTS = {
   code: 500,
   error: 'Internal Server Error',
   errno: ERRNO.UNEXPECTED_ERROR,
@@ -94,9 +94,9 @@ var DEFAULTS = {
   info: 'https://github.com/mozilla/fxa-auth-server/blob/master/docs/api.md#response-format'
 }
 
-var TOO_LARGE = /^Payload (?:content length|size) greater than maximum allowed/
+const TOO_LARGE = /^Payload (?:content length|size) greater than maximum allowed/
 
-var BAD_SIGNATURE_ERRORS = [
+const BAD_SIGNATURE_ERRORS = [
   'Bad mac',
   'Unknown algorithm',
   'Missing required payload hash',
@@ -144,7 +144,7 @@ AppError.prototype.backtrace = function (traced) {
 /**
   Translates an error from Hapi format to our format
 */
-AppError.translate = function (response) {
+AppError.translate = function (request, response) {
   var error
   if (response instanceof AppError) {
     return response
@@ -152,7 +152,7 @@ AppError.translate = function (response) {
   var payload = response.output.payload
   var reason = response.reason
   if (! payload) {
-    error = new AppError({})
+    error = AppError.unexpectedError(request)
   } else if (payload.statusCode === 500 && /(socket hang up|ECONNREFUSED)/.test(reason)) {
     // A connection to a remote service either was not made or timed out.
     error = AppError.backendServiceFailure()
@@ -194,6 +194,9 @@ AppError.translate = function (response) {
       info: payload.info,
       stack: response.stack
     })
+    if (payload.statusCode >= 500) {
+      decorateErrorWithRequest(error, request)
+    }
   }
   return error
 }
@@ -898,9 +901,27 @@ AppError.internalValidationError = (op, data) => {
   })
 }
 
-AppError.unexpectedError = () => {
-  return new AppError({})
+AppError.unexpectedError = request => {
+  const error = new AppError({})
+  decorateErrorWithRequest(error, request)
+  return error
 }
 
 module.exports = AppError
 module.exports.ERRNO = ERRNO
+
+function decorateErrorWithRequest (error, request) {
+  if (request) {
+    error.output.payload.request = {
+      // request.app.devices and request.app.metricsContext are async, so can't be included here
+      acceptLanguage: request.app.acceptLanguage,
+      locale: request.app.locale,
+      userAgent: request.app.ua,
+      method: request.method,
+      path: request.path,
+      query: request.query,
+      payload: request.payload,
+      headers: request.headers
+    }
+  }
+}

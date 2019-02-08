@@ -312,8 +312,6 @@ for `code` and `errno` are:
   A backend service request failed.
 * `code: 500, errno: 998`:
   An internal validation check failed.
-* `code: 500, errno: 999`:
-  Unspecified error
 
 The following errors
 include additional response properties:
