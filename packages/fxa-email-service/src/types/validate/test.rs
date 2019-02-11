@@ -108,6 +108,7 @@ fn email_address() {
         "a@{}.b",
         random_alphanum_string(249)
     )));
+    assert!(validate::email_address("a'b@example.com"));
 }
 
 #[test]
@@ -125,6 +126,7 @@ fn invalid_email_address() {
         "a@{}.b",
         random_alphanum_string(250)
     )));
+    assert!(!validate::email_address("a’b@example.com"));
 }
 
 #[test]
