@@ -42,9 +42,9 @@ describe('models/auth_brokers/pairing/remote-metadata', function () {
       });
 
       assert.deepEqual(broker.get('remoteMetaData'), {
-        OS: 'macOS',
         deviceType: 'desktop',
         family: 'Firefox',
+        OS: 'macOS',
         ua: UA,
       });
     });

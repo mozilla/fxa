@@ -65,12 +65,6 @@ const conf = module.exports = convict({
     default: path.resolve(__dirname, '..', '..', 'cert.pem'),
     doc: 'The location of the SSL certificate in pem format'
   },
-  clientAddressDepth: {
-    default: 3,
-    doc: 'location of the client ip address in the remote address chain',
-    env: 'CLIENT_ADDRESS_DEPTH',
-    format: Number
-  },
   client_metrics: {
     max_event_offset: {
       default: '2 days',
@@ -91,6 +85,12 @@ const conf = module.exports = convict({
       format: 'duration'
     },
     secret: 'YOU MUST CHANGE ME'
+  },
+  clientAddressDepth: {
+    default: 3,
+    doc: 'location of the client ip address in the remote address chain',
+    env: 'CLIENT_ADDRESS_DEPTH',
+    format: Number
   },
   coppa: {
     enabled: {

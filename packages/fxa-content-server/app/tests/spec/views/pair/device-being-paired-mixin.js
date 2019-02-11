@@ -10,12 +10,12 @@ import DeviceBeingPairedMixin from 'views/pair/device-being-paired-mixin';
 import TestTemplate from 'templates/test_template.mustache';
 
 const REMOTE_METADATA = {
-  OS: 'Windows',
   city: 'Toronto',
   country: 'Canada',
   deviceType: 'desktop',
   family: 'Firefox',
   ipAddress: '1.1.1.1',
+  OS: 'Windows',
   region: 'Ontario',
   ua: 'Firefox 1.0',
 };
@@ -54,10 +54,10 @@ describe('views/pair/device-being-paired-mixin', () => {
     it('renders the template with location unknown', () => {
       const broker = new Broker();
       broker.set('remoteMetaData', {
-        OS: 'Windows',
         deviceType: 'desktop',
         family: 'Firefox',
         ipAddress: '1.1.1.1',
+        OS: 'Windows',
         ua: 'Firefox 1.0',
       });
       view = new PairingView({

@@ -108,8 +108,8 @@ module.exports = {
     HEADER: '#download-button-wrapper-desktop'
   },
   EMAIL: {
-    ADDRESS_LABEL: '#emails .address',
     ADD_BUTTON: '.email-add:not(.disabled)',
+    ADDRESS_LABEL: '#emails .address',
     INPUT: '.new-email',
     MENU_BUTTON: '#emails .settings-unit-stub button',
     NOT_VERIFIED_LABEL: '.not-verified',
@@ -127,8 +127,8 @@ module.exports = {
     ERROR: '.error',
     HEADER: '#fxa-enter-email-header',
     LINK_SUGGEST_SYNC: '#suggest-sync a',
-    SUBMIT: 'button[type="submit"]',
     SUB_HEADER: '#fxa-enter-email-header .service',
+    SUBMIT: 'button[type="submit"]',
     TOOLTIP: 'input[type=email] + .tooltip',
   },
   FORCE_AUTH: {
@@ -212,9 +212,9 @@ module.exports = {
     MIGRATION_NUDGE: '#suggest-sync',
     PASSWORD: 'input[type=password]',
     RESET_PASSWORD: 'a[href^="/reset_password"]',
+    SUB_HEADER: '#fxa-signin-header .service',
     SUBMIT: 'button[type=submit]',
     SUBMIT_USE_SIGNED_IN: '.use-logged-in',
-    SUB_HEADER: '#fxa-signin-header .service',
     TOOLTIP: '.tooltip',
   },
   SIGNIN_BOUNCED: {
@@ -272,8 +272,8 @@ module.exports = {
     MARKETING_EMAIL_OPTIN: 'input.marketing-email-optin',
     MIGRATING_USER: '#suggest-sync',
     PASSWORD: '#password',
-    SUBMIT: 'button[type="submit"]',
     SUB_HEADER: '#fxa-signup-header .service',
+    SUBMIT: 'button[type="submit"]',
     SUGGEST_EMAIL_DOMAIN_CORRECTION: '.tooltip-suggest',
     SUGGEST_SIGN_IN: '.error',
     SUGGEST_SYNC: '#suggest-sync',
