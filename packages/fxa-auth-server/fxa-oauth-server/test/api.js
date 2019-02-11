@@ -2614,6 +2614,19 @@ describe('/v1', function() {
             assert.equal(Object.keys(res.result).length, 0, 'no scoped keys');
           });
       });
+
+      it('correctly handles authAt timestamp for newly-created accounts', () => {
+        mockAssertion().reply(200, mockVerifierResult({
+          authAt: 1549910733,
+          generation: 1549910733629
+        }));
+        return Server.api.post(genericRequest)
+          .then((res) => {
+            assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
+            assert.equal(Object.keys(res.result).length, 1, 'scoped key returned');
+          });
+      });
     });
 
   });
