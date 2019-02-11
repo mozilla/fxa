@@ -1,3 +1,9 @@
+## 1.130.0
+
+### Bug fixes
+
+* api: use correct apostrophe character in email address regex (b16f52e)
+
 ## 1.127.0
 
 ### New features
