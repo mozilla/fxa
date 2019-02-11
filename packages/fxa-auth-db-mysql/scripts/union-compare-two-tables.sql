@@ -1,3 +1,7 @@
+-- In comparing two tables, where one of the tables has additional columns
+-- that do not exist in the other table, we only compare the columns that
+-- exist in both tables.
+
 SELECT
   HEX(uid) AS uid,
   normalizedEmail,
