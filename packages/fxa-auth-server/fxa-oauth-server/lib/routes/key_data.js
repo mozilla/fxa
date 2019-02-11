@@ -80,7 +80,7 @@ module.exports = {
       // If the assertion certificate was issued prior to a key-rotation event,
       // we don't want to revel the new secrets to such stale assertions,
       // even if they are technically still valid.
-      if (iat < (keyRotationTimestamp / 1000)) {
+      if (iat < Math.floor(keyRotationTimestamp / 1000)) {
         throw AppError.staleAuthAt(iat);
       }
       response[keyScope.scope] = {

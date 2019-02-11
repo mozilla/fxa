@@ -1,3 +1,13 @@
+<a name="1.130.1"></a>
+## [1.130.1](https://github.com/mozilla/fxa-auth-server/compare/v1.130.0...v1.130.1) (2019-02-11)
+
+
+### Bug Fixes
+
+* **key-data:** fix key-data endpoint for fresh accounts ([ab6ce00](https://github.com/mozilla/fxa-auth-server/commit/ab6ce00)), closes [#2908](https://github.com/mozilla/fxa-auth-server/issues/2908)
+
+
+
 <a name="1.130.0"></a>
 # [1.130.0](https://github.com/mozilla/fxa-auth-server/compare/v1.129.5...v1.130.0) (2019-02-05)
 
