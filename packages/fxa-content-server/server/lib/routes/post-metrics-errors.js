@@ -79,12 +79,12 @@ const QUERY_SCHEMA = {
   migration: STRING_TYPE.regex(MIGRATION_PATTERN).optional(),
   'redirect_uri': URL_TYPE.optional(),
   scope: STRING_TYPE.optional(),
+  'sentry_client': STRING_TYPE.optional(),
+  'sentry_key': STRING_TYPE.optional(),
+  'sentry_version': STRING_TYPE.optional(),
   service: STRING_TYPE.regex(SERVICE_PATTERN).optional(),
   setting: STRING_TYPE.optional(),
   style: STRING_TYPE.optional(),
-  'sentry_client': STRING_TYPE.optional(),
-  'sentry_key': STRING_TYPE.optional(),
-  'sentry_version': STRING_TYPE.optional()
 };
 
 /**

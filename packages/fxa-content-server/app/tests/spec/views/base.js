@@ -67,9 +67,9 @@ define(function (require, exports, module) {
       translator = new Translator('en-US', ['en-US']);
       translator.set({
         'another message': 'another translated message',
+        [HTML_MESSAGE]: UNESCAPED_HTML_TRANSLATION,
         'the error message': 'a translated error message',
         'the success message': 'a translated success message',
-        [HTML_MESSAGE]: UNESCAPED_HTML_TRANSLATION,
         [UNSAFE_INTERPOLATION_VARIABLE]: UNSAFE_INTERPOLATION_VARIABLE
       });
 

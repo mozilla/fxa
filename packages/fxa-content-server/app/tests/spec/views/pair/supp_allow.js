@@ -12,12 +12,12 @@ import SupplicantBroker from 'models/auth_brokers/pairing/supplicant';
 import View from 'views/pair/supp_allow';
 
 const REMOTE_METADATA = {
-  OS: 'Windows',
   city: 'Toronto',
   country: 'Canada',
   deviceType: 'desktop',
   family: 'Firefox',
   ipAddress: '1.1.1.1',
+  OS: 'Windows',
   region: 'Ontario',
   ua: 'Firefox 1.0',
 };

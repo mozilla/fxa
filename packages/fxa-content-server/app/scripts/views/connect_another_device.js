@@ -174,9 +174,9 @@ define(function (require, exports, module) {
         isOther,
         isOtherAndroid,
         isOtherIos,
+        isSignedIn,
         isSignIn,
         isSignUp,
-        isSignedIn,
         showSuccessMessage
       });
     }

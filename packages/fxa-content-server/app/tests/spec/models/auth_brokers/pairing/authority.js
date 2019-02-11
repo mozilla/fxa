@@ -75,12 +75,12 @@ describe('models/auth_brokers/pairing/authority', function () {
         assert.isTrue(broker.getSupplicantMetadata.calledOnce);
         assert.isTrue(broker.startHeartbeat.calledOnce);
         assert.deepEqual(broker.get('remoteMetaData'), {
-          OS: 'Unknown',
           city: 'Toronto',
           country: 'Canada',
           deviceType: 'desktop',
           family: undefined,
           ipAddress: '1.1.1.1',
+          OS: 'Unknown',
           region: 'Ontario',
           ua: 'Firefox 1.0',
         });

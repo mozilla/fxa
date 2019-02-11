@@ -13,12 +13,12 @@ import User from 'models/user';
 import View from 'views/pair/supp_wait_for_auth';
 
 const REMOTE_METADATA = {
-  OS: 'Windows',
   city: 'Toronto',
   country: 'Canada',
   deviceType: 'desktop',
   family: 'Firefox',
   ipAddress: '1.1.1.1',
+  OS: 'Windows',
   region: 'Ontario',
   ua: 'Firefox 1.0',
 };

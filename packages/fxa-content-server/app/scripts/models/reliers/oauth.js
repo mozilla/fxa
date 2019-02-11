@@ -32,8 +32,8 @@ var SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA = {
   keys_jwk: Vat.keysJwk().renameTo('keysJwk'),
   login_hint: Vat.email().renameTo('loginHint'),
   prompt: Vat.prompt(),
-  redirectTo: Vat.url(),
   redirect_uri: Vat.url().allow(Constants.DEVICE_PAIRING_AUTHORITY_REDIRECT_URI).renameTo('redirectUri'),
+  redirectTo: Vat.url(),
   scope: Vat.string().required().min(1),
   state: Vat.string()
 };
