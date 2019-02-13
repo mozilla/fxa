@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Converts base64url to an ArrayBuffer
+ * Converts base64url to a Uint8Array
  * @param {String} base64
- * @returns {ArrayBufferLike}
+ * @returns {Uint8Array}
  */
-function base64urlToArrayBuffer(base64 = '') {
+function base64urlToUint8Array(base64 = '') {
   base64 = base64.replace(/-/g, '+'); // 62nd char of encoding
   base64 = base64.replace(/_/g, '/'); // 63rd char of encoding
   const binaryString = atob(base64);
@@ -16,9 +16,9 @@ function base64urlToArrayBuffer(base64 = '') {
   for (let i = 0; i < len; i++){
     bytes[i] = binaryString.charCodeAt(i);
   }
-  return bytes.buffer;
+  return bytes;
 }
 
 module.exports = {
-  base64urlToArrayBuffer
+  base64urlToUint8Array
 };
