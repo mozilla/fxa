@@ -5,7 +5,7 @@
 import PairingChannelClientErrors from './pairing-channel-client-errors';
 import { Model } from 'backbone';
 import { pick } from 'underscore';
-import { base64urlToArrayBuffer } from './crypto/util';
+import { base64urlToUint8Array } from './crypto/util';
 import Raven from 'raven';
 import Vat from 'lib/vat';
 
@@ -61,7 +61,7 @@ export default class PairingChannelClient extends Model {
         throw PairingChannelClientErrors.toError('INVALID_CONFIGURATION');
       }
 
-      const psk = base64urlToArrayBuffer(channelKey);
+      const psk = base64urlToUint8Array(channelKey);
       return FxAccountsPairingChannel.PairingChannel.connect(channelServerUri, channelId, psk).then((channel) => {
 
         this.channel = channel;
