@@ -1,8 +1,8 @@
-# Welcome to Firefox Accounts [![Build Status](https://travis-ci.org/mozilla/fxa.svg?branch=master)](https://travis-ci.org/mozilla/fxa) [![Documentation Status](https://readthedocs.org/projects/fxa/badge/?version=latest)](https://readthedocs.org/projects/fxa/?badge=latest)
+# Welcome to Firefox Accounts
 
-Firefox Accounts is the authentication and authorization system for Cloud
-Services at Mozilla, providing access to services such as Firefox Sync, Pocket and
-Addons.Mozilla.org.
+Firefox Accounts is the authentication and authorization system for Mozilla
+Services, providing access to services such as Firefox Sync, Pocket and
+https://addons.mozilla.org.
 
 This repository contains documentation for getting started with Firefox
 Accounts development.  Most of the actual code for the service lives in
@@ -12,48 +12,24 @@ sub-repositories linked from the docs below.
 
 You can [create an account](https://accounts.firefox.com/signup) or
 [sign in](https://accounts.firefox.com/signin) directly on https://accounts.firefox.com, but you almost certainly want to start by using an account-attached
-service such as [Firefox Sync](https://www.mozilla.org/en-US/firefox/sync/).
+service such as [Firefox Sync](https://www.mozilla.org/firefox/sync/).
 
 
 ## Integrating with Firefox Accounts
 
-Developing a service that needs Firefox Accounts authentication?  Head on over to the [Firefox Accounts portal on MDN](https://developer.mozilla.org/docs/Mozilla/Tech/Firefox_Accounts) for a description of the system, how it works, and how to plug into it.
+Developing a service that needs Firefox Accounts authentication?  Head on over to the [Firefox Accounts Portal](https://mozilla.github.io/application-services/docs/accounts/welcome.html) for a description of the system, how it works, and how to plug into it.
 
 
-## Contributing to Firefox Accounts - [fxa.readthedocs.org](http://fxa.readthedocs.org)
+## Contributing to Firefox Accounts
 
 Interested in contributing to the development of Firefox Accounts?  Great!
-Head over to the [FxA developer documentation](http://fxa.readthedocs.org) on readthedocs.org (which is actually the same content as the local [docs](/docs/index.md) directory, but in a nice pre-rendered HTML view).
+Head over the [FxA Content Server quick start guide](https://github.com/mozilla/fxa-content-server/#quick-start) if you
+want to contribute to the front-end or to the [FxA local development guide](https://github.com/mozilla/fxa-local-dev/blob/master/README.md)
+to learn how to run the full stack.
 
-Please review and understand the [Mozilla Community Participation Guidelines](https://www.mozilla.org/en-US/about/governance/policies/participation/) before contributing to this project.
+Please review and understand the [Mozilla Community Participation Guidelines](https://www.mozilla.org/about/governance/policies/participation/) before contributing to this project.
 
 ##### Bugs List: [waffle.io/mozilla/fxa](https://waffle.io/mozilla/fxa)
-
-## Building this Documentation
-
-```
-pip install mkdocs
-```
-
-Build:
-
-```
-mkdocs build
-```
-
-Server + File Watching:
-
-```
-mkdocs serve --dev-addr localhost:9032
-```
-
-Publishing to http://fxa.readthedocs.org
-
-```
-# Documentation is built automatically from this repository.
-git commit
-git push origin/master
-```
 
 ## Admin Operations
 
