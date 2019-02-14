@@ -92,22 +92,179 @@ define(function (require, exports, module) {
       });
       broker.DELAY_BROKER_RESPONSE_MS = 0;
 
-      sinon.stub(broker, 'finishOAuthFlow').callsFake(() => {
-        return Promise.resolve();
-      });
-      // sinon.spy(broker, 'finishOAuthFlow');
+      sinon.spy(broker, 'finishOAuthFlow');
     });
 
     it('has the `signup` capability by default', () => {
       assert.isTrue(broker.hasCapability('signup'));
     });
 
-    it('have the `handleSignedInNotification` capability by default', () => {
-      assert.isTrue(broker.hasCapability('handleSignedInNotification'));
+    it('has the `reuseExistingSession` capability by default', () => {
+      assert.isTrue(broker.hasCapability('reuseExistingSession'));
+    });
+
+    it('does not have the `handleSignedInNotification` capability by default', () => {
+      assert.isFalse(broker.hasCapability('handleSignedInNotification'));
     });
 
     it('has the `emailVerificationMarketingSnippet` capability by default', () => {
       assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
+    });
+
+    describe('afterSignInConfirmationPoll', () => {
+      it('calls sendOAuthResultToRelier with the correct options', () => {
+        sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(() => {
+          return Promise.resolve();
+        });
+
+        return broker.afterSignInConfirmationPoll(account)
+          .then((behavior) => {
+            assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
+              action: Constants.OAUTH_ACTION_SIGNIN
+            }));
+            assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
+              action: Constants.OAUTH_ACTION_SIGNIN,
+              code: VALID_OAUTH_CODE,
+              redirect: VALID_OAUTH_CODE_REDIRECT_URL,
+              state: 'state'
+            }));
+            // The Hello window will close the screen, no need to transition
+            assert.isTrue(behavior.halt);
+          });
+      });
+
+      it('returns any errors returned by getOAuthResult', () => {
+        sinon.stub(broker, 'getOAuthResult').callsFake(() => {
+          return Promise.reject(new Error('uh oh'));
+        });
+
+        return broker.afterSignInConfirmationPoll(account)
+          .then(assert.fail, (err) => {
+            assert.equal(err.message, 'uh oh');
+          });
+      });
+    });
+
+    describe('afterSignIn', function () {
+      it('calls sendOAuthResultToRelier with the correct options', function () {
+        sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(function () {
+          return Promise.resolve();
+        });
+
+        return broker.afterSignIn(account)
+          .then(function () {
+            assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
+              action: Constants.OAUTH_ACTION_SIGNIN
+            }));
+            assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
+              action: Constants.OAUTH_ACTION_SIGNIN,
+              code: VALID_OAUTH_CODE,
+              redirect: VALID_OAUTH_CODE_REDIRECT_URL,
+              state: 'state'
+            }));
+          });
+      });
+
+      it('returns any errors returned by getOAuthResult', function () {
+        sinon.stub(broker, 'getOAuthResult').callsFake(function () {
+          return Promise.reject(new Error('uh oh'));
+        });
+
+        return broker.afterSignIn(account)
+          .then(assert.fail, function (err) {
+            assert.equal(err.message, 'uh oh');
+          });
+      });
+    });
+
+    describe('afterSignUpConfirmationPoll', function () {
+      describe('relier requires TOTP', () => {
+        beforeEach(() => {
+          sinon.stub(relier, 'wantsTwoStepAuthentication').callsFake(() => {
+            return true;
+          });
+          sinon.spy(broker, 'getBehavior');
+          return broker.afterSignUpConfirmationPoll(account);
+        });
+
+        it('calls afterSignUpRequireTOTP', () => {
+          assert.equal(broker.getBehavior.callCount, 1);
+          assert.equal(broker.getBehavior.args[0][0], 'afterSignUpRequireTOTP');
+        });
+      });
+
+      it('calls sendOAuthResultToRelier with the correct options', function () {
+        sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(function () {
+          return Promise.resolve();
+        });
+
+        return broker.afterSignUpConfirmationPoll(account)
+          .then(function () {
+            assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
+              action: Constants.OAUTH_ACTION_SIGNUP
+            }));
+            assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
+              action: Constants.OAUTH_ACTION_SIGNUP,
+              code: VALID_OAUTH_CODE,
+              redirect: VALID_OAUTH_CODE_REDIRECT_URL,
+              state: 'state'
+            }));
+          });
+      });
+    });
+
+    describe('afterResetPasswordConfirmationPoll', function () {
+      describe('with a verified account', () => {
+        it('calls sendOAuthResultToRelier with the expected options', function () {
+          account.set('verified', true);
+          sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(() => Promise.resolve());
+
+          return broker.afterResetPasswordConfirmationPoll(account)
+            .then(() => {
+              assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
+                action: Constants.OAUTH_ACTION_SIGNIN
+              }));
+              assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
+                action: Constants.OAUTH_ACTION_SIGNIN,
+                code: VALID_OAUTH_CODE,
+                redirect: VALID_OAUTH_CODE_REDIRECT_URL,
+                state: 'state'
+              }));
+            });
+        });
+      });
+
+      describe('with an unverified session that requires TOTP', () => {
+        it('asks the user to enter a TOTP code', () => {
+          account.set({
+            verificationMethod: VerificationMethods.TOTP_2FA,
+            verificationReason: VerificationReasons.SIGN_IN,
+            verified: false
+          });
+
+          return broker.afterResetPasswordConfirmationPoll(account)
+            .then((behavior) => {
+              assert.isFalse(broker.finishOAuthFlow.called);
+              assert.equal(behavior.type, 'navigate');
+              assert.equal(behavior.endpoint, 'signin_totp_code');
+            });
+        });
+
+        it('ignores account `verified` if verification method and reason set', function () {
+          account.set({
+            verificationMethod: VerificationMethods.TOTP_2FA,
+            verificationReason: VerificationReasons.SIGN_IN,
+            verified: true
+          });
+
+          return broker.afterResetPasswordConfirmationPoll(account)
+            .then((behavior) => {
+              assert.isFalse(broker.finishOAuthFlow.called);
+              assert.equal(behavior.type, 'navigate');
+              assert.equal(behavior.endpoint, 'signin_totp_code');
+            });
+        });
+      });
     });
 
     describe('sendOAuthResultToRelier', () => {
@@ -491,11 +648,13 @@ define(function (require, exports, module) {
           verificationReason: VerificationReasons.SIGN_IN,
           verified: false
         });
+        // whenever the user verifies in a different tab, the relier has no state but we have defined the state of relier.
+        relier.unset('state');
 
         return broker.afterCompleteResetPassword(account)
           .then((behavior) => {
             assert.isFalse(broker.finishOAuthFlow.called);
-            assert.equal(behavior.type, 'navigate');
+            assert.equal(behavior.type, 'null');
           });
       });
 
@@ -505,11 +664,12 @@ define(function (require, exports, module) {
           verificationReason: VerificationReasons.SIGN_IN,
           verified: true
         });
+        relier.unset('state');
 
         return broker.afterCompleteResetPassword(account)
           .then((behavior) => {
             assert.isFalse(broker.finishOAuthFlow.called);
-            assert.equal(behavior.type, 'navigate');
+            assert.equal(behavior.type, 'null');
           });
       });
 
