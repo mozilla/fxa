@@ -78,7 +78,7 @@
     "grunt-text-replace": "0.4.0",
     "grunt-usemin": "3.1.1",
     "grunt-z-schema": "0.1.0",
-    "handlebars": "4.0.11",
+    "handlebars": "4.1.0",
     "happypack": "5.0.0",
     "helmet": "3.8.2",
     "i18n-abide": "0.0.26",
