@@ -6,9 +6,23 @@
 
 const amplitude = require('../amplitude');
 const flowMetrics = require('../flow-metrics');
+const joi = require('joi');
 const logFlowEvent = require('../flow-event').logFlowEvent;
 const logger = require('../logging/log')('server.get-metrics-flow');
 const uuid = require('node-uuid');
+const validation = require('../validation');
+
+const {
+  ENTRYPOINT: ENTRYPOINT_PATTERN,
+  FORM_TYPE: FORM_TYPE_PATTERN,
+  SERVICE: SERVICE_PATTERN,
+} = validation.PATTERNS;
+
+const {
+  STRING: STRING_TYPE,
+  UTM: UTM_TYPE,
+  UTM_CAMPAIGN: UTM_CAMPAIGN_TYPE,
+} = validation.TYPES;
 
 module.exports = function (config) {
   const FLOW_ID_KEY = config.get('flow_id_key');
@@ -30,12 +44,43 @@ module.exports = function (config) {
     preflightContinue: false
   };
 
+  const QUERY_SCHEMA = joi.object({
+    // Not passed by the Firefox Concert Series, otherwise should be required.
+    // See https://github.com/mozilla/bedrock/issues/6839
+    entrypoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
+    // Not passed by the Firefox Concert Series, otherwise should be required.
+    // See https://github.com/mozilla/bedrock/issues/6839
+    'form_type': STRING_TYPE.regex(FORM_TYPE_PATTERN).optional(),
+    'service': STRING_TYPE.regex(SERVICE_PATTERN).optional(),
+    'utm_campaign': UTM_CAMPAIGN_TYPE.required(),
+    'utm_content': UTM_TYPE.optional(),
+    'utm_medium': UTM_TYPE.optional(),
+    'utm_source': UTM_TYPE.required(),
+    'utm_term': UTM_TYPE.optional()
+  });
+
   const route = {};
   route.method = 'get';
   route.path = '/metrics-flow';
   route.cors = CORS_OPTIONS;
 
   route.process = function (req, res) {
+    const result = QUERY_SCHEMA.validate(req.query);
+    if (result.error) {
+      // Note from 2019-02-18, parameter validation was added after several important
+      // pages were already calling this endpoint. To avoid causing any of those pages
+      // to error out, log and swallow any validation errors. If no errors are logged,
+      // then we can change to return an error.
+      const errorDetails = result.error.details && result.error.details[0];
+      const paramName =  errorDetails && errorDetails.path;
+      const paramValue =  errorDetails && errorDetails.context && errorDetails.context.value;
+      logger.info({
+        op: 'request.metrics-flow.invalid-param',
+        param: paramName || 'unknown',
+        value: paramValue || 'unknown'
+      });
+    }
+
     const flowEventData = flowMetrics.create(FLOW_ID_KEY, req.headers['user-agent']);
     const flowBeginTime = flowEventData.flowBeginTime;
     const flowId = flowEventData.flowId;

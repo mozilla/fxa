@@ -27,10 +27,14 @@ registerSuite('routes/get-metrics-flow', {
       flowEvent: {
         logFlowEvent: sandbox.spy()
       },
+      log: {
+        info: sandbox.spy()
+      }
     };
     route = proxyquire('../../../server/lib/routes/get-metrics-flow', {
       '../amplitude': mocks.amplitude,
       '../flow-event': mocks.flowEvent,
+      '../logging/log': () => mocks.log
     });
     instance = route(mocks.config);
 
@@ -79,10 +83,19 @@ registerSuite('routes/get-metrics-flow', {
       request = {
         headers: {},
         query: {
-          entrypoint: 'zoo'
+          entrypoint: 'zoo',
+          'form_type': 'other',
+          'service': 'sync',
+          'utm_campaign': 'foo',
+          'utm_content': 'bar',
+          'utm_medium': 'biz',
+          'utm_source': 'baz',
+          'utm_term': 'quix',
         }
       };
       instance.process(request, response);
+
+      assert.isFalse(mocks.log.info.called);
 
       assert.equal(mocks.amplitude.callCount, 1);
       let args = mocks.amplitude.args[0];
@@ -107,15 +120,179 @@ registerSuite('routes/get-metrics-flow', {
       assert.ok(metricsData.deviceId);
     },
 
+    'logs invalid entrypoint query parameter': function() {
+      request = {
+        headers: {},
+        query: {
+          entrypoint: 'foo bar',
+          'form_type': 'email',
+          'utm_campaign': 'biz',
+          'utm_source': 'baz',
+        }
+      };
+      instance.process(request, response);
+      assert.isTrue(mocks.log.info.calledOnceWith({
+        op: 'request.metrics-flow.invalid-param',
+        param: 'entrypoint',
+        value: 'foo bar',
+      }));
+      assert.isTrue(response.json.calledOnce);
+    },
+
+    'logs invalid form_type query parameter': function() {
+      request = {
+        headers: {},
+        query: {
+          entrypoint: 'bar',
+          'form_type': 'biz',
+          'utm_campaign': 'biz',
+          'utm_source': 'baz',
+        }
+      };
+      instance.process(request, response);
+      assert.isTrue(mocks.log.info.calledOnceWith({
+        op: 'request.metrics-flow.invalid-param',
+        param: 'form_type',
+        value: 'biz',
+      }));
+      assert.isTrue(response.json.calledOnce);
+    },
+
+    'logs invalid service query parameter': function() {
+      request = {
+        headers: {},
+        query: {
+          entrypoint: 'bar',
+          'form_type': 'email',
+          'service': 'zzzz',
+          'utm_campaign': 'biz',
+          'utm_source': 'baz',
+        }
+      };
+      instance.process(request, response);
+      assert.isTrue(mocks.log.info.calledOnceWith({
+        op: 'request.metrics-flow.invalid-param',
+        param: 'service',
+        value: 'zzzz',
+      }));
+      assert.isTrue(response.json.calledOnce);
+    },
+
+    'logs invalid utm_campaign query parameter': function() {
+      request = {
+        headers: {},
+        query: {
+          entrypoint: 'bar',
+          'form_type': 'email',
+          'utm_campaign': 1,
+          'utm_source': 'baz',
+        }
+      };
+      instance.process(request, response);
+      assert.isTrue(mocks.log.info.calledOnceWith({
+        op: 'request.metrics-flow.invalid-param',
+        param: 'utm_campaign',
+        value: 1,
+      }));
+      assert.isTrue(response.json.calledOnce);
+    },
+
+    'logs invalid utm_content query parameter': function() {
+      request = {
+        headers: {},
+        query: {
+          entrypoint: 'bar',
+          'form_type': 'email',
+          'utm_campaign': 'biz',
+          'utm_content': 'qux qux',
+          'utm_source': 'baz',
+        }
+      };
+      instance.process(request, response);
+      assert.isTrue(mocks.log.info.calledOnceWith({
+        op: 'request.metrics-flow.invalid-param',
+        param: 'utm_content',
+        value: 'qux qux',
+      }));
+      assert.isTrue(response.json.calledOnce);
+    },
+
+    'logs invalid utm_medium query parameter': function() {
+      request = {
+        headers: {},
+        query: {
+          entrypoint: 'bar',
+          'form_type': 'email',
+          'utm_campaign': 'biz',
+          'utm_medium': 'wimble!@$',
+          'utm_source': 'baz',
+        }
+      };
+      instance.process(request, response);
+      assert.isTrue(mocks.log.info.calledOnceWith({
+        op: 'request.metrics-flow.invalid-param',
+        param: 'utm_medium',
+        value: 'wimble!@$'
+      }));
+      assert.isTrue(response.json.calledOnce);
+    },
+
+    'logs invalid utm_source query parameter': function() {
+      request = {
+        headers: {},
+        query: {
+          entrypoint: 'bar',
+          'form_type': 'email',
+          'utm_campaign': 'biz',
+          'utm_source': '%!@%womble'
+        }
+      };
+      instance.process(request, response);
+      assert.isTrue(mocks.log.info.calledOnceWith({
+        op: 'request.metrics-flow.invalid-param',
+        param: 'utm_source',
+        value: '%!@%womble',
+      }));
+      assert.isTrue(response.json.calledOnce);
+    },
+
+    'logs invalid utm_term query parameter': function() {
+      request = {
+        headers: {},
+        query: {
+          entrypoint: 'bar',
+          'form_type': 'email',
+          'utm_campaign': 'biz',
+          'utm_source': 'baz',
+          'utm_term': 'jum!%^gle'
+        }
+      };
+      instance.process(request, response);
+      assert.isTrue(mocks.log.info.calledOnceWith({
+        op: 'request.metrics-flow.invalid-param',
+        param: 'utm_term',
+        value: 'jum!%^gle',
+      }));
+      assert.isTrue(response.json.calledOnce);
+    },
+
     'logs enter-email.view amplitude and flow events if form_type email is set': function () {
       request = {
         headers: {},
         query: {
           entrypoint: 'bar',
-          form_type: 'email' // eslint-disable-line camelcase
+          'form_type': 'email',
+          'service': 'sync',
+          'utm_campaign': 'foo',
+          'utm_content': 'bar',
+          'utm_medium': 'biz',
+          'utm_source': 'baz',
+          'utm_term': 'quix',
         }
       };
       instance.process(request, response);
+
+      assert.isFalse(mocks.log.info.called);
 
       assert.equal(mocks.amplitude.callCount, 2);
       let args = mocks.amplitude.args[1];
