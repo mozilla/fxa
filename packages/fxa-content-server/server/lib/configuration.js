@@ -414,7 +414,8 @@ const conf = module.exports = convict({
           redirectUris: [
             'https://lockbox.firefox.com/fxa/ios-redirect.html',
             'https://lockbox.firefox.com/fxa/android-redirect.html',
-            'https://accounts.firefox.com/oauth/success/3c49430b43dfba77'
+            'https://accounts.firefox.com/oauth/success/a2270f727f45f648', // Fenix
+            'https://accounts.firefox.com/oauth/success/3c49430b43dfba77'  // Reference browser
           ]
         },
         'https://identity.mozilla.com/apps/send': {
