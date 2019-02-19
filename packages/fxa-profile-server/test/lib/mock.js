@@ -174,7 +174,7 @@ module.exports = function mock(options) {
         .reply(200, body);
     },
 
-    workerFailure: function workerFailure(action, bytes) {
+    workerFailure: function workerFailure(action, bytes, response) {
       if (action !== 'post' && action !== 'delete') {
         throw new Error('failure must be post or delete');
       }
@@ -191,7 +191,7 @@ module.exports = function mock(options) {
       })
         .filteringPath(/^\/a\/[0-9a-f]{32}$/g, '/a/' + MOCK_ID)
         [action]('/a/' + MOCK_ID) // eslint-disable-line no-unexpected-multiline
-        .reply(500, 'unexpected server error');
+        .reply(500, response || 'unexpected server error');
 
     },
 

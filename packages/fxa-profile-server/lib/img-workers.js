@@ -41,7 +41,7 @@ exports.upload = function upload(id, payload, headers) {
       }
 
       if (res.statusCode >= 400 || (body && body.error) || nestedError) {
-        logger.error('upload.worker.error', body);
+        logger.error('upload.worker.error', nestedError || body);
         reject(AppError.processingError(body));
         return;
       }
