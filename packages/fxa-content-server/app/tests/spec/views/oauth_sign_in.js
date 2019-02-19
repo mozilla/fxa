@@ -11,7 +11,7 @@ define(function (require, exports, module) {
   const FxaClient = require('lib/fxa-client');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const OAuthBroker = require('models/auth_brokers/oauth');
+  const OAuthBroker = require('models/auth_brokers/oauth-redirect');
   const OAuthRelier = require('models/reliers/oauth');
   const SentryMetrics = require('lib/sentry');
   const Session = require('lib/session');

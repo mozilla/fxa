@@ -9,7 +9,7 @@ import Backbone from 'backbone';
 import VerificationReasons from 'lib/verification-reasons';
 import FxaClient from 'lib/fxa-client';
 import Notifier from 'lib/channels/notifier';
-import OAuthBroker from 'models/auth_brokers/oauth';
+import OAuthBroker from 'models/auth_brokers/oauth-redirect';
 import Session from 'lib/session';
 import sinon from 'sinon';
 import SyncRelier from 'models/reliers/sync';

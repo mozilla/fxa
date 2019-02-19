@@ -25,12 +25,6 @@ describe('models/auth_brokers/index', () => {
     assert.ok(VALID_TYPE.test(authBroker.prototype.type));
   });
 
-  it('get returns correct broker for desktop-v1 context', () => {
-    const authBroker = index.get(constants.FX_DESKTOP_V1_CONTEXT);
-    assert.equal(authBroker, require('models/auth_brokers/fx-desktop-v1'));
-    assert.ok(VALID_TYPE.test(authBroker.prototype.type));
-  });
-
   it('get returns correct broker for desktop-v2 context', () => {
     const authBroker = index.get(constants.FX_DESKTOP_V2_CONTEXT);
     assert.equal(authBroker, require('models/auth_brokers/fx-desktop-v2'));

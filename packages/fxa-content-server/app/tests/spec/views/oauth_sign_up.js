@@ -10,7 +10,7 @@ define(function (require, exports, module) {
   const FormPrefill = require('models/form-prefill');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const OAuthBroker = require('models/auth_brokers/oauth');
+  const OAuthBroker = require('models/auth_brokers/oauth-redirect');
   const OAuthClient = require('lib/oauth-client');
   const OAuthRelier = require('models/reliers/oauth');
   const Session = require('lib/session');

@@ -228,8 +228,8 @@ registerSuite('oauth query parameter validation', {
       return this.remote
         .then(openSignUpExpect200({
           client_id: TRUSTED_CLIENT_ID,
-          redirectTo: 'http://127.0.0.1',
           redirect_uri: TRUSTED_REDIRECT_URI,
+          redirectTo: 'http://127.0.0.1',
           scope: TRUSTED_SCOPE
         }));
     },

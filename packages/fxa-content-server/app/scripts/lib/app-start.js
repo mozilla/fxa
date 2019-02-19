@@ -18,8 +18,9 @@
 import _ from 'underscore';
 import ExperimentGroupingRules from './experiments/grouping-rules/index';
 import AppView from '../views/app';
-import authBrokers from '../models/auth_brokers/index';
 import Assertion from './assertion';
+import authBrokers from '../models/auth_brokers/index';
+import AuthorityRelier from '../models/reliers/pairing/authority';
 import Backbone from 'backbone';
 import Cocktail from './cocktail';
 import Constants from './constants';
@@ -47,6 +48,7 @@ import SentryMetrics from './sentry';
 import Session from './session';
 import Storage from './storage';
 import StorageMetrics from './storage-metrics';
+import SupplicantRelier from '../models/reliers/pairing/supplicant';
 import SyncRelier from '../models/reliers/sync';
 import Translator from './translator';
 import UniqueUserId from '../models/unique-user-id';
@@ -56,6 +58,8 @@ import UserAgentMixin from './user-agent-mixin';
 import WebChannel from './channels/web';
 
 const AUTOMATED_BROWSER_STARTUP_DELAY = 750;
+
+const DEVICE_PAIRING_SUPPLICANT_PATHNAME_REGEXP = /^\/pair\/supp/;
 
 function Start(options = {}) {
   this._authenticationBroker = options.broker;
@@ -257,7 +261,23 @@ Start.prototype = {
       // as the OAuth check - when users sign up for Sync
       // and verify in a 2nd browser, all we have to know the user
       // is completing a Sync flow is `service=sync`.
-      if (this._isOAuth()) {
+
+      if (this.isDevicePairingAsAuthority()) {
+        relier = new AuthorityRelier({}, {
+          config: this._config,
+          oAuthClient: this._oAuthClient,
+          oAuthClientId: this._config.oAuthClientId,
+          oAuthUrl: this._config.oAuthUrl
+        });
+      } else if (this.isDevicePairingAsSupplicant()) {
+        relier = new SupplicantRelier({}, {
+          config: this._config,
+          isSupplicant: true,
+          oAuthClient: this._oAuthClient,
+          oAuthClientId: this._config.oAuthClientId,
+          oAuthUrl: this._config.oAuthUrl
+        });
+      } else if (this._isOAuth()) {
         relier = new OAuthRelier({ context }, {
           config: this._config,
           isVerification: this._isVerification(),
@@ -303,11 +323,7 @@ Start.prototype = {
           context = Constants.FX_DESKTOP_V2_CONTEXT;
         }
       } else if (this._isOAuth()) {
-        if (this.getUserAgent().isChromeAndroid()) {
-          context = Constants.OAUTH_CHROME_ANDROID_CONTEXT;
-        } else {
-          context = Constants.OAUTH_CONTEXT;
-        }
+        context = this._chooseOAuthBrokerContext();
       } else {
         context = this._getContext();
       }
@@ -315,6 +331,7 @@ Start.prototype = {
       const Constructor = authBrokers.get(context);
       this._authenticationBroker = new Constructor({
         assertionLibrary: this._assertionLibrary,
+        config: this._config,
         fxaClient: this._fxaClient,
         iframeChannel: this._iframeChannel,
         isVerificationSameBrowser: this._isVerificationSameBrowser(),
@@ -332,6 +349,23 @@ Start.prototype = {
       this._metrics.setBrokerType(this._authenticationBroker.type);
 
       return this._authenticationBroker.fetch();
+    }
+  },
+
+  /**
+   * Chooses the right OAuth broker context
+   * @returns {string}
+   * @private
+   */
+  _chooseOAuthBrokerContext () {
+    if (this.isDevicePairingAsAuthority()) {
+      return Constants.DEVICE_PAIRING_AUTHORITY_CONTEXT;
+    } else if (this.isDevicePairingAsSupplicant()) {
+      return Constants.DEVICE_PAIRING_SUPPLICANT_CONTEXT;
+    } else if (this.getUserAgent().isChromeAndroid()) {
+      return Constants.OAUTH_CHROME_ANDROID_CONTEXT;
+    } else {
+      return Constants.OAUTH_CONTEXT;
     }
   },
 
@@ -445,6 +479,7 @@ Start.prototype = {
   createView (Constructor, options = {}) {
     const viewOptions = _.extend({
       broker: this._authenticationBroker,
+      config: this._config,
       createView: this.createView.bind(this),
       experimentGroupingRules: this._experimentGroupingRules,
       formPrefill: this._formPrefill,
@@ -596,6 +631,26 @@ Start.prototype = {
     return this._isService(Constants.SYNC_SERVICE);
   },
 
+  /**
+   * Is the user initiating a device pairing flow as
+   * the auth device?
+   *
+   * @returns {Boolean}
+   */
+  isDevicePairingAsAuthority () {
+    return this._searchParam('redirect_uri') === Constants.DEVICE_PAIRING_AUTHORITY_REDIRECT_URI;
+  },
+
+  /**
+   * Is the user initiating a device pairing flow as
+   * the supplicant device?
+   *
+   * @returns {Boolean}
+   */
+  isDevicePairingAsSupplicant () {
+    return DEVICE_PAIRING_SUPPLICANT_PATHNAME_REGEXP.test(this._window.location.pathname);
+  },
+
   _isServiceOAuth () {
     const service = this._searchParam('service');
     // any service that is not the sync service is automatically
@@ -744,6 +799,8 @@ Start.prototype = {
       ! this._isVerificationInMobileSafari()
     ) {
       return 'cookies_disabled';
+    } else if (this.isDevicePairingAsAuthority()) {
+      return 'pair/auth/allow';
     }
   },
 

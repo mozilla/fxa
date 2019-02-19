@@ -224,4 +224,4 @@ Good to have support for:
 * [Firefox Accounts Profile Server API](https://github.com/mozilla/fxa-profile-server/blob/master/docs/API.md)
 * [Firefox Accounts Profile Server Codebase](https://github.com/mozilla/fxa-profile-server/)
 * [OAuth 2.0 RFC 6749](http://tools.ietf.org/html/rfc6749)
-
+* [Firefox Accounts Pairing Flow](pairing-architecture.md)

@@ -23,9 +23,9 @@ if (profile) {
   // Configuration for local sync development
   myProfile.setPreference('services.sync.log.appender.file.logOnSuccess', true);
   myProfile.setPreference('identity.fxaccounts.auth.uri', profile.fxaAuthRoot);
-  myProfile.setPreference('identity.fxaccounts.remote.force_auth.uri', profile.fxaContentRoot + 'force_auth?service=sync&context=fx_desktop_v1');
-  myProfile.setPreference('identity.fxaccounts.remote.signin.uri', profile.fxaContentRoot + 'signin?service=sync&context=fx_desktop_v1');
-  myProfile.setPreference('identity.fxaccounts.remote.signup.uri', profile.fxaContentRoot + 'signup?service=sync&context=fx_desktop_v1');
+  myProfile.setPreference('identity.fxaccounts.remote.force_auth.uri', profile.fxaContentRoot + 'force_auth?service=sync&context=fx_desktop_3');
+  myProfile.setPreference('identity.fxaccounts.remote.signin.uri', profile.fxaContentRoot + 'signin?service=sync&context=fx_desktop_v3');
+  myProfile.setPreference('identity.fxaccounts.remote.signup.uri', profile.fxaContentRoot + 'signup?service=sync&context=fx_desktop_v3');
   myProfile.setPreference('identity.fxaccounts.settings.uri', profile.fxaContentRoot + 'settings');
   myProfile.setPreference('services.sync.tokenServerURI', profile.fxaToken);
   myProfile.setPreference('app.update.enabled', false);
@@ -62,6 +62,12 @@ if (profile) {
   myProfile.setPreference('experiments.supported', false);
   myProfile.setPreference('experiments.manifest.uri', '');
   myProfile.setPreference('network.allow-experiments', false);
+
+  // x-iso9600-image for OSX .dmg
+  // application/x-tar for Linux .tgz files
+  // application/octet-stream for Windows .exe files
+  // This prevents the "Save file" dialog for the "Update Firefox" screen.
+  myProfile.setPreference('browser.helperApps.neverAsk.saveToDisk', 'application/x-iso9660-image,application/x-tar,application/octet-stream');
 
 
   myProfile.updatePreferences();

@@ -86,16 +86,17 @@ define(function (require, exports, module) {
      * replaced.
      *
      * @param {Function} View - the View's constructor
-     * @param {Object} options - options to pass to the constructor
+     * @param {Object} [options] - options to pass to the constructor
+     * @param {boolean} [options.force] - specify if the view must be forced to render
      *
      * @returns {Promise}
      */
-    showView (View, options) {
+    showView (View, options = {}) {
       return Promise.resolve().then(() => {
         options.model = options.model || new Backbone.Model();
 
         var currentView = this._currentView;
-        if (currentView instanceof View) {
+        if (currentView instanceof View && options.force !== true) {
           // child view->parent view
           //
           // No need to re-render, only notify parties of the event.

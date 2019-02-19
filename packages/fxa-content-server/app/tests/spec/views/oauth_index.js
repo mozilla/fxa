@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { assert } from 'chai';
-import AuthBroker from 'models/auth_brokers/oauth';
+import AuthBroker from 'models/auth_brokers/oauth-redirect';
 import AuthErrors from 'lib/auth-errors';
 import FormPrefill from 'models/form-prefill';
 import OAuthIndexView from 'views/oauth_index';

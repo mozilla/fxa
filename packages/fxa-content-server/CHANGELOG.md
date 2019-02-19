@@ -1,3 +1,38 @@
+<a name="1.131.0"></a>
+# [1.131.0](https://github.com/mozilla/fxa-content-server/compare/v1.130.1...v1.131.0) (2019-02-19)
+
+
+### Bug Fixes
+
+* **css:** update recovery key icon to grey90 a60 ([30da082](https://github.com/mozilla/fxa-content-server/commit/30da082))
+* **deps:** Fix security advisories ([5e2ad71](https://github.com/mozilla/fxa-content-server/commit/5e2ad71))
+* **deps:** Fix the npm audit advisories ([c92c8ff](https://github.com/mozilla/fxa-content-server/commit/c92c8ff))
+* **pairing:** convert to Uint8Array for pairing channel compatibility ([8b36465](https://github.com/mozilla/fxa-content-server/commit/8b36465))
+* **sync:** Remove support for context=fx_desktop_v1 ([6634b46](https://github.com/mozilla/fxa-content-server/commit/6634b46)), closes [#5558](https://github.com/mozilla/fxa-content-server/issues/5558)
+* **test:** Fix the Sync v1 tests. ([5b652c6](https://github.com/mozilla/fxa-content-server/commit/5b652c6)), closes [#6946](https://github.com/mozilla/fxa-content-server/issues/6946)
+* **wrap:** rewrap deps, update to latest point release of htmllint ([8d1ee6d](https://github.com/mozilla/fxa-content-server/commit/8d1ee6d))
+
+### chore
+
+* **deps:** update eslint-plugin-sorting to 0.4.0 ([69167ee](https://github.com/mozilla/fxa-content-server/commit/69167ee))
+* **deps:** Update lodash, remove extend. ([a93f5f9](https://github.com/mozilla/fxa-content-server/commit/a93f5f9))
+* **templates:** Add an issue template ([cbab6f9](https://github.com/mozilla/fxa-content-server/commit/cbab6f9))
+
+### Features
+
+* **pairing:** add pairing docs ([b3c03af](https://github.com/mozilla/fxa-content-server/commit/b3c03af))
+* **pairing:** extract views and brokers ([7d88c0e](https://github.com/mozilla/fxa-content-server/commit/7d88c0e))
+
+### Performance Improvements
+
+* **auth_brokers:** Merged oauth and oauth-redirect brokers ([8a2d6d5](https://github.com/mozilla/fxa-content-server/commit/8a2d6d5))
+* **auth_brokers:** minor changes ([7d6a0a9](https://github.com/mozilla/fxa-content-server/commit/7d6a0a9))
+
+### Refactor
+
+* **tests:** eliminate duplicated setup code in app-start tests ([b80cc24](https://github.com/mozilla/fxa-content-server/commit/b80cc24))
+* **tests:** pull setup-less app-start tests up to the top level ([254a777](https://github.com/mozilla/fxa-content-server/commit/254a777))
+
 <a name="1.130.2"></a>
 ## [1.130.2](https://github.com/mozilla/fxa-content-server/compare/v1.130.1...v1.130.2) (2019-02-19)
 
@@ -5,7 +40,6 @@
 ### Bug Fixes
 
 * **metrics:** Validate query parameters to POST /metrics-flow ([aef18b3](https://github.com/mozilla/fxa-content-server/commit/aef18b3))
-
 
 
 <a name="1.130.1"></a>
