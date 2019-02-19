@@ -112,6 +112,26 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
     return {}
   }
 
+  // Creates a "full" device response, provided a sessionToken and an optional
+  // updated DB device record.
+  function buildDeviceResponse(sessionToken, device = null) {
+    // We must respond with the full device record,
+    // including any default values for missing fields.
+    return {
+      // These properties can be picked from sessionToken or device as appropriate.
+      pushCallback: sessionToken.deviceCallbackURL,
+      pushPublicKey: sessionToken.deviceCallbackPublicKey,
+      pushAuthKey: sessionToken.deviceCallbackAuthKey,
+      pushEndpointExpired: sessionToken.deviceCallbackIsExpired,
+      availableCommands: sessionToken.deviceAvailableCommands,
+      ...device,
+      // But these need to be non-falsey, using default fallbacks if necessary
+      id: (device && device.id) || sessionToken.deviceId,
+      name: (device && device.name) || sessionToken.deviceName || devices.synthesizeName(sessionToken),
+      type: (device && device.type) || sessionToken.deviceType || 'desktop',
+    }
+  }
+
   return [
     {
       method: 'POST',
@@ -183,7 +203,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
         if (payload.id) {
           // Don't write out the update if nothing has actually changed.
           if (devices.isSpuriousUpdate(payload, sessionToken)) {
-            return payload
+            return buildDeviceResponse(sessionToken)
           }
 
           // We also reserve the right to disable updates until
@@ -216,24 +236,8 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
             payload.availableCommands = {}
         }
 
-        return devices.upsert(request, sessionToken, payload)
-          .then(function (device) {
-            // We must respond with the full device record,
-            // including any default values for missing fields.
-            return Object.assign({
-              // These properties can be picked from sessionToken or device as appropriate.
-              pushCallback: sessionToken.deviceCallbackURL,
-              pushPublicKey: sessionToken.deviceCallbackPublicKey,
-              pushAuthKey: sessionToken.deviceCallbackAuthKey,
-              pushEndpointExpired: sessionToken.deviceCallbackIsExpired,
-              availableCommands: sessionToken.deviceAvailableCommands
-            }, device, {
-              // But these need to be non-falsey, using default fallbacks if necessary
-              id: device.id || sessionToken.deviceId,
-              name: device.name || sessionToken.deviceName || devices.synthesizeName(sessionToken),
-              type: device.type || sessionToken.deviceType || 'desktop',
-            })
-          })
+        const device = await devices.upsert(request, sessionToken, payload)
+        return buildDeviceResponse(sessionToken, device)
       }
     },
     {
