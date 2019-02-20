@@ -148,7 +148,13 @@ describe('AppErrors', () => {
         foo: 'bar'
       },
       payload: {
-        baz: 'qux'
+        baz: 'qux',
+        email: 'foo@example.com',
+        displayName: 'Foo Bar',
+        metricsContext: {
+          utmSource: 'thingy'
+        },
+        service: 'sync'
       },
       headers: {
         wibble: 'blee'
@@ -171,7 +177,10 @@ describe('AppErrors', () => {
         foo: 'bar'
       },
       payload: {
-        baz: 'qux'
+        metricsContext: {
+          utmSource: 'thingy'
+        },
+        service: 'sync'
       },
       headers: {
         wibble: 'blee'

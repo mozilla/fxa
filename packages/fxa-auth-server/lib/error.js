@@ -103,6 +103,39 @@ const BAD_SIGNATURE_ERRORS = [
   'Payload is invalid'
 ]
 
+// Payload properties that might help us debug unexpected errors
+// when they show up in production. Obviously we don't want to
+// accidentally send any sensitive data or PII to a 3rd-party,
+// so the set is opt-in rather than opt-out.
+const DEBUGGABLE_PAYLOAD_KEYS = new Set([
+  'availableCommands',
+  'capabilities',
+  'client_id',
+  'code',
+  'command',
+  'duration',
+  'excluded',
+  'features',
+  'marketingOptIn',
+  'messageId',
+  'metricsContext',
+  'name',
+  'preVerified',
+  'publicKey',
+  'reason',
+  'redirectTo',
+  'reminder',
+  'scope',
+  'service',
+  'target',
+  'to',
+  'TTL',
+  'ttl',
+  'type',
+  'unblockCode',
+  'verificationMethod',
+])
+
 function AppError(options, extra, headers) {
   this.message = options.message || DEFAULTS.message
   this.isBoom = true
@@ -920,8 +953,22 @@ function decorateErrorWithRequest (error, request) {
       method: request.method,
       path: request.path,
       query: request.query,
-      payload: request.payload,
+      payload: scrubPii(request.payload),
       headers: request.headers
     }
   }
+}
+
+function scrubPii (payload) {
+  if (! payload) {
+    return
+  }
+
+  return Object.entries(payload).reduce((scrubbed, [ key, value ]) => {
+    if (DEBUGGABLE_PAYLOAD_KEYS.has(key)) {
+      scrubbed[key] = value
+    }
+
+    return scrubbed
+  }, {})
 }
