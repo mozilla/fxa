@@ -9,7 +9,6 @@ export NPM_CONFIG_LOGLEVEL=warn
 node ./tests/teamcity/install-npm-deps.js \
   convict                         \
   css                             \
-  extend                          \
   firefox-profile                 \
   fxa-js-client                   \
   fxa-geodb                       \
