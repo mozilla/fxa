@@ -1,8 +1,6 @@
 language: node_js
 
-node_js:
- - "8"
- - "10"
+node_js: "10"
 
 dist: trusty
 sudo: true
@@ -52,9 +50,7 @@ _aliases:
 jobs:
   include:
   - stage:
-    node_js:
-    - "8"
-    - "10"
+    node_js: "10"
     <<: *fxa-auth-memory-test
     install:
       - npm ci
@@ -66,9 +62,7 @@ jobs:
       - grunt l10n-extract
       - npm run lint:deps
   - stage:
-    node_js:
-    - "8"
-    - "10"
+    node_js: "10"
     <<: *fxa-auth-mysql-test
     install:
       - npm ci
@@ -77,13 +71,13 @@ jobs:
       - npm run test-ci
       - npm run test-e2e
   - stage:
-    node_js: 8
+    node_js: "10"
     <<: *fxa-oauth-memory-test
     install:
       - npm ci
     script: npm run test-oauth
   - stage:
-    node_js: 8
+    node_js: "10"
     <<: *fxa-oauth-memory-test
     install:
       - npm ci
