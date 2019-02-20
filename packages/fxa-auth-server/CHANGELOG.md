@@ -1,3 +1,23 @@
+<a name="1.131.0"></a>
+# [1.131.0](https://github.com/mozilla/fxa-auth-server/compare/v1.130.1...v1.131.0) (2019-02-20)
+
+
+### Bug Fixes
+
+* **devices:** return full device response on spurious updates ([24add4d](https://github.com/mozilla/fxa-auth-server/commit/24add4d))
+
+### chore
+
+* **clients:** Add a dev client_id for Fenix ([f6b303a](https://github.com/mozilla/fxa-auth-server/commit/f6b303a))
+* **deps:** Update handlebars dependency. ([793bcb8](https://github.com/mozilla/fxa-auth-server/commit/793bcb8))
+* **deps:** update shrinkwrap ([f1914d9](https://github.com/mozilla/fxa-auth-server/commit/f1914d9))
+
+### Features
+
+* **email:** Update verification email for OAuth reliers. ([74b48af](https://github.com/mozilla/fxa-auth-server/commit/74b48af)), closes [#2859](https://github.com/mozilla/fxa-auth-server/issues/2859)
+
+
+
 <a name="1.130.1"></a>
 ## [1.130.1](https://github.com/mozilla/fxa-auth-server/compare/v1.130.0...v1.130.1) (2019-02-11)
 
