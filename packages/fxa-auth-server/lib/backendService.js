@@ -132,7 +132,7 @@ module.exports = function createBackendServiceAPI(log, config, serviceName, meth
             message: err.message,
             value
           })
-          reject(error.internalValidationError())
+          reject(error.internalValidationError(fullMethodName, { location, value }))
         })
       })
     }

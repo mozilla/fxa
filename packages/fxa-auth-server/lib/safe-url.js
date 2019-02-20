@@ -5,7 +5,7 @@
 // This module exports a safe URL-builder interface, ensuring that no
 // unsafe input can leak into generated URLs.
 //
-// It takes the approach of throwing error.unexpectedError() when unsafe
+// It takes the approach of throwing error.internalValidationError() when unsafe
 // input is encountered, for extra visibility. An alternative approach
 // would be to use encodeURIComponent instead to convert unsafe input on
 // the fly. However, we have no valid use case for encoding weird data
@@ -21,9 +21,9 @@
 //   url.render({ uid: 'foo' })               // returns '/account/foo/sessions'
 //   url.render({ uid: 'bar' })               // returns '/account/bar/sessions'
 //   url.render({ uid: 'bar' }, {foo: 'baz'}) // returns '/account/bar/sessions?foo=baz'
-//   url.render({ uid: 'foo\n' })             // throws error.unexpectedError()
-//   url.render({})                           // throws error.unexpectedError()
-//   url.render({ uid: 'foo', id: 'bar' })    // throws error.unexpectedError()
+//   url.render({ uid: 'foo\n' })             // throws error.internalValidationError()
+//   url.render({})                           // throws error.internalValidationError()
+//   url.render({ uid: 'foo', id: 'bar' })    // throws error.internalValidationError()
 
 'use strict'
 
@@ -87,6 +87,6 @@ module.exports = log => class SafeUrl {
 
   _fail (op, data) {
     log.error(Object.assign({ op, caller: this._caller }, data))
-    throw error.internalValidationError()
+    throw error.internalValidationError(op, data)
   }
 }

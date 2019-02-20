@@ -389,7 +389,7 @@ describe('lib/server', () => {
           })
 
           it('called log.error correctly', () => {
-            assert.equal(log.error.callCount, 1)
+            assert.isAtLeast(log.error.callCount, 1)
             const args = log.error.args[0]
             assert.equal(args.length, 1)
             assert.deepEqual(args[0], {

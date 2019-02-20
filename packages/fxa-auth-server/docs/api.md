@@ -312,8 +312,6 @@ for `code` and `errno` are:
   A backend service request failed.
 * `code: 500, errno: 998`:
   An internal validation check failed.
-* `code: 500, errno: 999`:
-  Unspecified error
 
 The following errors
 include additional response properties:
@@ -343,6 +341,7 @@ include additional response properties:
 * `errno: 201`: retryAfter
 * `errno: 202`: retryAfter
 * `errno: 203`: service, operation
+* `errno: 998`: op, data
 
 #### Responses from intermediary servers
 <!--begin-responses-from-intermediary-servers-->

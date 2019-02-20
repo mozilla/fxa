@@ -5,8 +5,9 @@
 'use strict'
 
 const { assert } = require('chai')
-var messages = require('joi/lib/language')
+const messages = require('joi/lib/language')
 const AppError = require('../../lib/error')
+const P = require('../../lib/promise')
 
 describe('AppErrors', () => {
 
@@ -24,7 +25,7 @@ describe('AppErrors', () => {
       assert.equal(typeof AppError, 'function')
       assert.equal(AppError.length, 3)
       assert.equal(typeof AppError.translate, 'function')
-      assert.equal(AppError.translate.length, 1)
+      assert.lengthOf(AppError.translate, 2)
       assert.equal(typeof AppError.invalidRequestParameter, 'function')
       assert.equal(AppError.invalidRequestParameter.length, 1)
       assert.equal(typeof AppError.missingRequestParameter, 'function')
@@ -35,7 +36,7 @@ describe('AppErrors', () => {
   it(
     'should translate with missing required parameters',
     () => {
-      var result = AppError.translate({
+      var result = AppError.translate(null, {
         output: {
           payload: {
             message: 'foo' + messages.errors.any.required,
@@ -59,7 +60,7 @@ describe('AppErrors', () => {
   it(
     'should translate with invalid parameter',
     () => {
-      var result = AppError.translate({
+      var result = AppError.translate(null, {
         output: {
           payload: {
             validation: 'foo'
@@ -80,7 +81,7 @@ describe('AppErrors', () => {
   it(
     'should translate with missing payload',
     () => {
-      var result = AppError.translate({
+      var result = AppError.translate(null, {
         output: {}
       })
       assert.ok(result instanceof AppError, 'instanceof AppError')
@@ -112,10 +113,85 @@ describe('AppErrors', () => {
     }
   )
 
+  it('unexpectedError without request data', () => {
+    const err = AppError.unexpectedError()
+    assert.instanceOf(err, AppError)
+    assert.instanceOf(err, Error)
+    assert.equal(err.errno, 999)
+    assert.equal(err.message, 'Unspecified error')
+    assert.equal(err.output.statusCode, 500)
+    assert.equal(err.output.payload.error, 'Internal Server Error')
+    assert.isUndefined(err.output.payload.request)
+  })
+
+  it('unexpectedError with request data', () => {
+    const err = AppError.unexpectedError({
+      app: {
+        acceptLanguage: 'en, fr',
+        locale: 'en',
+        geo: {
+          city: 'Mountain View',
+          state: 'California'
+        },
+        ua: {
+          os: 'Android',
+          osVersion: '9'
+        },
+        devices: P.resolve([ { id: 1 } ]),
+        metricsContext: P.resolve({
+          service: 'sync'
+        })
+      },
+      method: 'GET',
+      path: '/v1/wibble',
+      query: {
+        foo: 'bar'
+      },
+      payload: {
+        baz: 'qux',
+        email: 'foo@example.com',
+        displayName: 'Foo Bar',
+        metricsContext: {
+          utmSource: 'thingy'
+        },
+        service: 'sync'
+      },
+      headers: {
+        wibble: 'blee'
+      }
+    })
+    assert.equal(err.errno, 999)
+    assert.equal(err.message, 'Unspecified error')
+    assert.equal(err.output.statusCode, 500)
+    assert.equal(err.output.payload.error, 'Internal Server Error')
+    assert.deepEqual(err.output.payload.request, {
+      acceptLanguage: 'en, fr',
+      locale: 'en',
+      userAgent: {
+        os: 'Android',
+        osVersion: '9'
+      },
+      method: 'GET',
+      path: '/v1/wibble',
+      query: {
+        foo: 'bar'
+      },
+      payload: {
+        metricsContext: {
+          utmSource: 'thingy'
+        },
+        service: 'sync'
+      },
+      headers: {
+        wibble: 'blee'
+      }
+    })
+  })
+
   const reasons = ['socket hang up', 'ECONNREFUSED'];
   reasons.forEach((reason) => {
     it(`converts ${reason} errors to backend service error`, () => {
-      const result = AppError.translate({
+      const result = AppError.translate(null, {
         output: {
           payload: {
             errno: 999,

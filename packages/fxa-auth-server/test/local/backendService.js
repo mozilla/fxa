@@ -123,6 +123,13 @@ describe('createBackendServiceAPI', () => {
       assert.fail('should have thrown')
     } catch (err) {
       assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR)
+      assert.equal(err.output.payload.op, 'mock-service.testSimplePost')
+      assert.deepEqual(err.output.payload.data, {
+        location: 'request',
+        value: {
+          foo: 123
+        }
+      })
       assert.equal(log.error.callCount, 1, 'an error was logged')
       assert.equal(log.error.getCall(0).args[0].op, 'mock-service.testSimplePost')
       assert.equal(log.error.getCall(0).args[0].error, 'request schema validation failed')
@@ -136,6 +143,14 @@ describe('createBackendServiceAPI', () => {
       assert.fail('should have thrown')
     } catch (err) {
       assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR)
+      assert.equal(err.output.payload.op, 'mock-service.testGetWithValidation')
+      assert.deepEqual(err.output.payload.data, {
+        location: 'params',
+        value: {
+          first: 'ABC',
+          second: '123'
+        }
+      })
       assert.equal(log.error.callCount, 1, 'an error was logged')
       assert.equal(log.error.getCall(0).args[0].op, 'mock-service.testGetWithValidation')
       assert.equal(log.error.getCall(0).args[0].error, 'params schema validation failed')
@@ -172,6 +187,13 @@ describe('createBackendServiceAPI', () => {
       assert.fail('should have thrown')
     } catch (err) {
       assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR)
+      assert.equal(err.output.payload.op, 'mock-service.testGetWithValidation')
+      assert.deepEqual(err.output.payload.data, {
+        location: 'query',
+        value: {
+          foo: 123
+        }
+      })
       assert.equal(log.error.callCount, 1, 'an error was logged')
       assert.equal(log.error.getCall(0).args[0].op, 'mock-service.testGetWithValidation')
       assert.equal(log.error.getCall(0).args[0].error, 'query schema validation failed')

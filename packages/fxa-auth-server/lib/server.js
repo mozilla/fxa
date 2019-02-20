@@ -250,7 +250,7 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
     let response = request.response
     if (response.isBoom) {
       logEndpointErrors(response, log)
-      response = error.translate(response)
+      response = error.translate(request, response)
       if (config.env !== 'prod') {
         response.backtrace(request.app.traced)
       }
