@@ -148,6 +148,17 @@
       "trusted": true,
       "allowedScopes": "https://identity.mozilla.com/apps/oldsync",
       "publicClient": true
+    },
+    {
+      "id": "a2270f727f45f648",
+      "name": "Fenix",
+      "hashedSecret": "4a892c55feaceb4ef2dbfffaaaa3d8eea94b5c205c815dddfc90170741cd4c19",
+      "imageUri": "",
+      "redirectUri": "http://127.0.0.1:3030/oauth/success/a2270f727f45f648",
+      "canGrant": false,
+      "trusted": true,
+      "allowedScopes": "https://identity.mozilla.com/apps/oldsync",
+      "publicClient": true
     }
   ],
   "localRedirects": true,

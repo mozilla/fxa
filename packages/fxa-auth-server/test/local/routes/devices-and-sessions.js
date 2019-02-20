@@ -100,10 +100,22 @@ describe('/account/device', function () {
       const args = mockDevices.isSpuriousUpdate.args[0]
       assert.equal(args.length, 2)
       assert.equal(args[0], mockRequest.payload)
-      assert.equal(args[1], mockRequest.auth.credentials)
+      const creds = mockRequest.auth.credentials
+      assert.equal(args[1], creds)
 
       assert.equal(mockDevices.upsert.callCount, 0)
-      assert.deepEqual(response, mockRequest.payload)
+      // Make sure the shape of the response is the same as if
+      // the update wasn't spurious.
+      assert.deepEqual(response, {
+        availableCommands: creds.deviceAvailableCommands,
+        id: creds.deviceId,
+        name: creds.deviceName,
+        pushAuthKey: creds.deviceCallbackAuthKey,
+        pushCallback: creds.deviceCallbackURL,
+        pushEndpointExpired: creds.deviceCallbackIsExpired,
+        pushPublicKey: creds.deviceCallbackPublicKey,
+        type: creds.deviceType,
+      })
     })
       .then(function () {
         mockDevices.isSpuriousUpdate.resetHistory()

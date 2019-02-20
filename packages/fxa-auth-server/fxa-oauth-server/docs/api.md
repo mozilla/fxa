@@ -455,7 +455,7 @@ destroy the token afterwards. A client can use this route to do so.
 
 #### Request Parameters
 
-- `token` - The hex string token.
+- `token|access_token|refresh_token`: The hex string access token. By default, `token` is assumed to be the access token.
 
 **Example:**
 
