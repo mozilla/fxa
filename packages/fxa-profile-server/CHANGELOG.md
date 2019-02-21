@@ -1,3 +1,12 @@
+<a name="1.131.0"></a>
+# [1.131.0](https://github.com/mozilla/fxa-profile-server/compare/v1.129.0...v1.131.0) (2019-02-21)
+
+### Features
+
+* **config:** Added the option to disable the requirement of config.events to be properly set ([c58405d](https://github.com/mozilla/fxa-profile-server/commit/c58405d))
+
+
+
 <a name="1.129.0"></a>
 # [1.129.0](https://github.com/mozilla/fxa-profile-server/compare/v1.128.0...v1.129.0) (2019-02-01)
 
