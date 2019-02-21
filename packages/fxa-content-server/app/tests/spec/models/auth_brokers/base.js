@@ -104,6 +104,23 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('openPairPreferences', () => {
+      beforeEach(() => {
+        sinon.spy(notificationChannel, 'send');
+      });
+      it('calls to desktop to open pair preferences', () => {
+        broker.setCapability('supportsPairing', true);
+        broker.openPairPreferences();
+        assert.isTrue(notificationChannel.send.calledOnceWith('fxaccounts:pair_preferences'));
+      });
+
+      it('is disabled if no capability', () => {
+        broker.setCapability('supportsPairing', false);
+        broker.openPairPreferences();
+        assert.isFalse(notificationChannel.send.calledOnceWith('fxaccounts:pair_preferences'));
+      });
+    });
+
     describe('_fetchFxaStatus', () => {
       describe('success', () => {
         it('sets `browserSignedInAccount, triggers an `fxa_status` message with the response', () => {
@@ -121,6 +138,41 @@ define(function (require, exports, module) {
             .then(() => {
               assert.deepEqual(broker.get('browserSignedInAccount'), signedInUser);
               assert.isTrue(broker.trigger.calledWith('fxa_status', response));
+            });
+        });
+
+        it('status message sets pairing capability if available', () => {
+          notificationChannel = new WebChannel('web_channel');
+          sinon.stub(notificationChannel, 'isFxaStatusSupported').callsFake(() => true);
+
+          broker = new BaseAuthenticationBroker({
+            fxaClient,
+            metrics,
+            notificationChannel,
+            notifier,
+            relier,
+            window: windowMock
+          });
+
+          const signedInUser = {
+            email: 'testuser@testuser.com'
+          };
+          const response = {
+            capabilities: {
+              pairing: true
+            },
+            signedInUser,
+          };
+
+          sinon.stub(notificationChannel, 'request').callsFake(() => Promise.resolve(response));
+          sinon.spy(broker, 'trigger');
+
+          assert.isFalse(broker.getCapability('supportsPairing'));
+          return broker._fetchFxaStatus()
+            .then(() => {
+              assert.deepEqual(broker.get('browserSignedInAccount'), signedInUser);
+              assert.isTrue(broker.trigger.calledWith('fxa_status', response));
+              assert.isTrue(broker.getCapability('supportsPairing'));
             });
         });
       });

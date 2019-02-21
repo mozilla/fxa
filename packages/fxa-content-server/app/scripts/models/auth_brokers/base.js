@@ -50,8 +50,24 @@ define(function (require, exports, module) {
         // error if the browser is not configured to accept WebChannel messages
         // from this FxA server, which often happens when testing against
         // non-production servers. See #5114
-        this.setCapability('fxaStatus', this._notificationChannel.isFxaStatusSupported());
+        const isFxaStatusSupported = this._notificationChannel.isFxaStatusSupported();
+        this.setCapability('fxaStatus', isFxaStatusSupported);
+
+        if (isFxaStatusSupported) {
+          this.on('fxa_status', (response) => this.onFxaStatus(response));
+        }
+
       }
+    },
+
+    /**
+     * Handle a response to the `fxa_status` message.
+     *
+     * @param {any} [response={}]
+     * @private
+     */
+    onFxaStatus (response = {}) {
+      this.setCapability('supportsPairing', response.capabilities && response.capabilities.pairing);
     },
 
     notifications: {
@@ -135,6 +151,19 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Notify the browser that it should open pairing preferences
+     *
+     * @method openPairPreferences
+     * @returns {Promise} resolves when notification is sent.
+     */
+    openPairPreferences () {
+      if (this.hasCapability('supportsPairing')) {
+        const channel = this._notificationChannel;
+        return channel.send(channel.COMMANDS.PAIR_PREFERENCES);
+      }
+    },
+
+    /**
      * Request FXA_STATUS info from the UA.
      *
      * @returns {Promise} resolves when complete.
@@ -150,7 +179,6 @@ define(function (require, exports, module) {
           this.set('browserSignedInAccount', response.signedInUser);
           // In the future, additional data will be returned
           // in the response, handle it here.
-
           this.trigger('fxa_status', response);
         }, (err) => {
           // The browser is not configured to accept WebChannel messages from
@@ -506,6 +534,10 @@ define(function (require, exports, module) {
        * Is signup supported? the fx_ios_v1 broker can disable it.
        */
       signup: true,
+      /**
+       * Does this environment support pairing?
+       */
+      supportsPairing: false,
       /**
        * Are token codes flow supported?
        */

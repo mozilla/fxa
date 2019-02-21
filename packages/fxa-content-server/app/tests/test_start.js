@@ -217,6 +217,7 @@ require('./spec/views/pair/auth_complete');
 require('./spec/views/pair/auth_wait_for_supp');
 require('./spec/views/pair/device-being-paired-mixin');
 require('./spec/views/pair/failure');
+require('./spec/views/pair/unsupported');
 require('./spec/views/pair/index');
 require('./spec/views/pair/success');
 require('./spec/views/pair/supp');

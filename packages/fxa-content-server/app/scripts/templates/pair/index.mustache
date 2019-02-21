@@ -1,15 +1,23 @@
 <div id="main-content" class="card">
   <header>
-    <h1 id="pair-auth-complete-header">{{#t}}Pair using an app{{/t}}</h1>
+    <h1 id="pair-header">{{#t}}Connect another device{{/t}}</h1>
   </header>
 
   <section>
     <div class="error"></div>
 
-    <div class="graphic graphic-pair-failure">{{#t}}Pair using an app{{/t}}</div>
+    <div class="graphic {{ graphicId }}">Ready the code scanner on your Firefox app.</div>
+    <p>Ready the code scanner on your Firefox app.</p>
 
-    <p>{{#t}}Did you use the system camera? You must pair from within a Firefox app.{{/t}}</p>
+    <form novalidate>
+      <div class="button-row">
+        <button id="start-pairing" type="submit">Show code</button>
+      </div>
+    </form>
+
+    <div class="links">
+      <a href="{{downloadAppLink}}" rel="noopener noreferrer" target="_blank">Get App</a>
+    </div>
 
   </section>
 </div>
-

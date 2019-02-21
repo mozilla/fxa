@@ -34,6 +34,7 @@ const COMMANDS = {
   PAIR_COMPLETE: 'fxaccounts:pair_complete',
   PAIR_DECLINE: 'fxaccounts:pair_decline',
   PAIR_HEARTBEAT: 'fxaccounts:pair_heartbeat',
+  PAIR_PREFERENCES: 'fxaccounts:pair_preferences',
   PAIR_REQUEST_SUPPLICANT_METADATA: 'fxaccounts:pair_supplicant_metadata',
   PROFILE_CHANGE: 'profile:change',
   /*
