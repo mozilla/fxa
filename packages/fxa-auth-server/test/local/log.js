@@ -601,6 +601,7 @@ describe('log', () => {
       payload: {
         service: 'testservice',
         metricsContext: {
+          entrypoint: 'wibble',
           flowBeginTime: now - 23,
           flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
           utmCampaign: 'utm campaign',
@@ -622,6 +623,7 @@ describe('log', () => {
           ts: now,
           metricsContext: {
             time: now,
+            entrypoint: 'wibble',
             flow_id: request.payload.metricsContext.flowId,
             flow_time: now - request.payload.metricsContext.flowBeginTime,
             flowBeginTime: request.payload.metricsContext.flowBeginTime,

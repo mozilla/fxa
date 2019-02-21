@@ -12,19 +12,26 @@ const P = require('../promise')
 
 const FLOW_ID_LENGTH = 64
 
+// These match validation in the content server backend.
+// We should probably refactor them to fxa-shared.
+const ENTRYPOINT_SCHEMA = isA.string().max(128).regex(/^[\w.:-]+$/)
+const UTM_SCHEMA = isA.string().max(128).regex(/^[\w\/.%-]+$/)
+const UTM_CAMPAIGN_SCHEMA = UTM_SCHEMA.allow('page+referral+-+not+part+of+a+campaign')
+
 const SCHEMA = isA.object({
   // The metrics context device id is a client-generated property
   // that is entirely separate to the devices table in our db.
   // All clients can generate a metrics context device id, whereas
   // only Sync creates records in the devices table.
   deviceId: isA.string().length(32).regex(HEX_STRING).optional(),
+  entrypoint: ENTRYPOINT_SCHEMA.optional(),
   flowId: isA.string().length(64).regex(HEX_STRING).optional(),
   flowBeginTime: isA.number().integer().positive().optional(),
-  utmCampaign: isA.string().optional(),
-  utmContent: isA.string().optional(),
-  utmMedium: isA.string().optional(),
-  utmSource: isA.string().optional(),
-  utmTerm: isA.string().optional()
+  utmCampaign: UTM_CAMPAIGN_SCHEMA.optional(),
+  utmContent: UTM_SCHEMA.optional(),
+  utmMedium: UTM_SCHEMA.optional(),
+  utmSource: UTM_SCHEMA.optional(),
+  utmTerm: UTM_SCHEMA.optional()
 })
   .unknown(false)
   .and('flowId', 'flowBeginTime')
@@ -144,6 +151,7 @@ module.exports = function (log, config) {
 
       const doNotTrack = this.headers && this.headers.dnt === '1'
       if (! doNotTrack) {
+        data.entrypoint = metadata.entrypoint
         data.utm_campaign = metadata.utmCampaign
         data.utm_content = metadata.utmContent
         data.utm_medium = metadata.utmMedium

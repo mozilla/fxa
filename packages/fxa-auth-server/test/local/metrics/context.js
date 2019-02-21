@@ -438,9 +438,10 @@ describe('metricsContext', () => {
       }, {}).then(function (result) {
         assert.equal(typeof result, 'object', 'result is object')
         assert.notEqual(result, null, 'result is not null')
-        assert.equal(Object.keys(result).length, 13, 'result has 13 properties')
+        assert.equal(Object.keys(result).length, 14, 'result has 14 properties')
         assert.ok(result.time > time, 'result.time seems correct')
         assert.equal(result.device_id, 'mock device id', 'result.device_id is correct')
+        assert.equal(result.entrypoint, 'mock entry point')
         assert.equal(result.flow_id, 'mock flow id', 'result.flow_id is correct')
         assert.ok(result.flow_time > 0, 'result.flow_time is greater than zero')
         assert.ok(result.flow_time < time, 'result.flow_time is less than the current time')
@@ -488,6 +489,7 @@ describe('metricsContext', () => {
         }
       }, {}).then(function (result) {
         assert.equal(Object.keys(result).length, 8, 'result has 8 properties')
+        assert.isUndefined(result.entrypoint)
         assert.equal(result.utm_campaign, undefined, 'result.utm_campaign is undefined')
         assert.equal(result.utm_content, undefined, 'result.utm_content is undefined')
         assert.equal(result.utm_medium, undefined, 'result.utm_medium is undefined')
