@@ -1,6 +1,6 @@
 {
   "name": "fxa-profile-server",
-  "version": "1.129.0",
+  "version": "1.131.0",
   "private": true,
   "description": "Firefox Accounts Profile service.",
   "scripts": {
@@ -55,7 +55,7 @@
     "mocha-text-cov": "0.1.1",
     "nock": "8.0.0",
     "npmshrink": "2.0.0",
-    "nyc": "13.1.0",
+    "nyc": "13.3.0",
     "pngparse": "2.0.1",
     "rimraf": "2.5.3",
     "sinon": "7.0.0",
