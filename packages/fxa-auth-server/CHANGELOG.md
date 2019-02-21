@@ -1,3 +1,14 @@
+<a name="1.131.1"></a>
+## [1.131.1](https://github.com/mozilla/fxa-auth-server/compare/v1.131.0...v1.131.1) (2019-02-21)
+
+
+### Bug Fixes
+
+* **api:** add validation for utm params and entrypoint ([9732cf2](https://github.com/mozilla/fxa-auth-server/commit/9732cf2))
+* **metrics:** reinstate entrypoint to the metrics context schema ([551467e](https://github.com/mozilla/fxa-auth-server/commit/551467e))
+
+
+
 <a name="1.131.0"></a>
 # [1.131.0](https://github.com/mozilla/fxa-auth-server/compare/v1.130.1...v1.131.0) (2019-02-20)
 

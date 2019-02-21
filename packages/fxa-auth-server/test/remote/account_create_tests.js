@@ -374,6 +374,131 @@ describe('remote account create', function() {
     }
   )
 
+  it('valid metricsContext', () => {
+    const api = new Client.Api(config.publicUrl)
+    const email = server.uniqueEmail()
+    const authPW = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'
+    const options = {
+      metricsContext: {
+        entrypoint: 'foo',
+        utmCampaign: 'bar',
+        utmContent: 'baz',
+        utmMedium: 'qux',
+        utmSource: 'wibble',
+        utmTerm: 'blee',
+      }
+    }
+    return api.accountCreate(email, authPW, options)
+  })
+
+  it('invalid entrypoint', () => {
+    const api = new Client.Api(config.publicUrl)
+    const email = server.uniqueEmail()
+    const authPW = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'
+    const options = {
+      metricsContext: {
+        entrypoint: ';',
+        utmCampaign: 'foo',
+        utmContent: 'bar',
+        utmMedium: 'baz',
+        utmSource: 'qux',
+        utmTerm: 'wibble',
+      }
+    }
+    return api.accountCreate(email, authPW, options)
+      .then(assert.fail, err => assert.equal(err.errno, 107))
+  })
+
+  it('invalid utmCampaign', () => {
+    const api = new Client.Api(config.publicUrl)
+    const email = server.uniqueEmail()
+    const authPW = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'
+    const options = {
+      metricsContext: {
+        entrypoint: 'foo',
+        utmCampaign: ';',
+        utmContent: 'bar',
+        utmMedium: 'baz',
+        utmSource: 'qux',
+        utmTerm: 'wibble',
+      }
+    }
+    return api.accountCreate(email, authPW, options)
+      .then(assert.fail, err => assert.equal(err.errno, 107))
+  })
+
+  it('invalid utmContent', () => {
+    const api = new Client.Api(config.publicUrl)
+    const email = server.uniqueEmail()
+    const authPW = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'
+    const options = {
+      metricsContext: {
+        entrypoint: 'foo',
+        utmCampaign: 'bar',
+        utmContent: ';',
+        utmMedium: 'baz',
+        utmSource: 'qux',
+        utmTerm: 'wibble',
+      }
+    }
+    return api.accountCreate(email, authPW, options)
+      .then(assert.fail, err => assert.equal(err.errno, 107))
+  })
+
+  it('invalid utmMedium', () => {
+    const api = new Client.Api(config.publicUrl)
+    const email = server.uniqueEmail()
+    const authPW = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'
+    const options = {
+      metricsContext: {
+        entrypoint: 'foo',
+        utmCampaign: 'bar',
+        utmContent: 'baz',
+        utmMedium: ';',
+        utmSource: 'qux',
+        utmTerm: 'wibble',
+      }
+    }
+    return api.accountCreate(email, authPW, options)
+      .then(assert.fail, err => assert.equal(err.errno, 107))
+  })
+
+  it('invalid utmSource', () => {
+    const api = new Client.Api(config.publicUrl)
+    const email = server.uniqueEmail()
+    const authPW = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'
+    const options = {
+      metricsContext: {
+        entrypoint: 'foo',
+        utmCampaign: 'bar',
+        utmContent: 'baz',
+        utmMedium: 'qux',
+        utmSource: ';',
+        utmTerm: 'wibble',
+      }
+    }
+    return api.accountCreate(email, authPW, options)
+      .then(assert.fail, err => assert.equal(err.errno, 107))
+  })
+
+  it('invalid utmTerm', () => {
+    const api = new Client.Api(config.publicUrl)
+    const email = server.uniqueEmail()
+    const authPW = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'
+    const options = {
+      metricsContext: {
+        entrypoint: 'foo',
+        utmCampaign: 'bar',
+        utmContent: 'baz',
+        utmMedium: 'qux',
+        utmSource: 'wibble',
+        utmTerm: ';',
+      }
+    }
+    return api.accountCreate(email, authPW, options)
+      .then(assert.fail, err => assert.equal(err.errno, 107))
+  })
+
   it(
     'create account with service query parameter',
     () => {

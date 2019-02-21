@@ -341,6 +341,7 @@ describe('/account/create', () => {
         service: 'sync',
         metricsContext: {
           deviceId: 'wibble',
+          entrypoint: 'blee',
           flowBeginTime: Date.now(),
           flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
           utmCampaign: 'utm campaign',
@@ -458,6 +459,7 @@ describe('/account/create', () => {
       assert.equal(eventData.data.email, TEST_EMAIL, 'it was for the correct email')
       assert.ok(eventData.data.ts, 'timestamp of event set')
       assert.deepEqual(eventData.data.metricsContext, {
+        entrypoint: 'blee',
         flowBeginTime: mockRequest.payload.metricsContext.flowBeginTime,
         flowCompleteSignal: 'account.signed',
         flowType: undefined,
@@ -488,6 +490,7 @@ describe('/account/create', () => {
       assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
       assert.deepEqual(args[0], {
         country: 'United States',
+        entrypoint: 'blee',
         event: 'account.created',
         flowBeginTime: mockRequest.payload.metricsContext.flowBeginTime,
         flowCompleteSignal: 'account.signed',
@@ -632,6 +635,7 @@ describe('/account/login', function () {
       reason: 'signin',
       metricsContext: {
         deviceId: 'blee',
+        entrypoint: 'flub',
         flowBeginTime: Date.now(),
         flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
         utmCampaign: 'utm campaign',
