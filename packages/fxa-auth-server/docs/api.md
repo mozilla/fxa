@@ -398,6 +398,7 @@ those common validations are defined here.
 
 * `SCHEMA`: object({
     * `deviceId`: string, length(32), regex(HEX_STRING), optional
+    * `entrypoint`: string, optional
     * `flowId`: string, length(64), regex(HEX_STRING), optional
     * `flowBeginTime`: number, integer, positive, optional
     * `utmCampaign`: string, optional

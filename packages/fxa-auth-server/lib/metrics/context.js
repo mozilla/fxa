@@ -18,6 +18,7 @@ const SCHEMA = isA.object({
   // All clients can generate a metrics context device id, whereas
   // only Sync creates records in the devices table.
   deviceId: isA.string().length(32).regex(HEX_STRING).optional(),
+  entrypoint: isA.string().optional(),
   flowId: isA.string().length(64).regex(HEX_STRING).optional(),
   flowBeginTime: isA.number().integer().positive().optional(),
   utmCampaign: isA.string().optional(),
@@ -144,6 +145,7 @@ module.exports = function (log, config) {
 
       const doNotTrack = this.headers && this.headers.dnt === '1'
       if (! doNotTrack) {
+        data.entrypoint = metadata.entrypoint
         data.utm_campaign = metadata.utmCampaign
         data.utm_content = metadata.utmContent
         data.utm_medium = metadata.utmMedium

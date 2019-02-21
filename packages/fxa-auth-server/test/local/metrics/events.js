@@ -170,6 +170,7 @@ describe('metrics/events', () => {
       metricsContext,
       payload: {
         metricsContext: {
+          entrypoint: 'wibble',
           flowId: 'bar',
           flowBeginTime: time - 1000,
           flowCompleteSignal: 'account.signed',
@@ -197,6 +198,7 @@ describe('metrics/events', () => {
         assert.deepEqual(args[0], {
           country: 'United States',
           event: 'email.verification.sent',
+          entrypoint: 'wibble',
           flow_id: 'bar',
           flow_time: 1000,
           flowBeginTime: time - 1000,
