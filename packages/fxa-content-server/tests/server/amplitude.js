@@ -8,6 +8,9 @@ const path = require('path');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const pkg = require('../../package.json');
+const logger = {
+  info: sinon.spy()
+};
 const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
   './configuration': {
     get () {
@@ -16,7 +19,8 @@ const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
         '1': 'pocket'
       };
     }
-  }
+  },
+  './logging/log': () => logger
 });
 const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(pkg.version)[1];
 
@@ -27,6 +31,7 @@ registerSuite('amplitude', {
 
   afterEach: function() {
     process.stderr.write.restore();
+    logger.info.resetHistory();
   },
 
   tests: {
@@ -82,12 +87,12 @@ registerSuite('amplitude', {
         utm_term: 'plin'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const args = process.stderr.write.args[0];
-      assert.lengthOf(args, 1);
-      assert.typeOf(args[0], 'string');
-      assert.equal(args[0][args[0].length - 1], '\n');
-      assert.deepEqual(JSON.parse(args[0]), {
+      assert.equal(process.stderr.write.callCount, 0);
+      assert.equal(logger.info.callCount, 1);
+      const args = logger.info.args[0];
+      assert.lengthOf(args, 2);
+      assert.equal(args[0], 'amplitudeEvent');
+      assert.deepEqual(args[1], {
         app_version: APP_VERSION,
         country: 'United States',
         device_id: 'bar',
@@ -157,9 +162,8 @@ registerSuite('amplitude', {
         utm_term: 'm'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.deepEqual(arg, {
+      assert.equal(logger.info.callCount, 1);
+      assert.deepEqual(logger.info.args[0][1], {
         app_version: APP_VERSION,
         country: 'United Kingdom',
         device_id: 'b',
@@ -210,7 +214,7 @@ registerSuite('amplitude', {
         lang: 'e',
         uid: 'f'
       });
-      assert.equal(process.stderr.write.callCount, 0);
+      assert.equal(logger.info.callCount, 0);
     },
 
     'settings.clients.disconnect.submit.suspicious': () => {
@@ -230,8 +234,8 @@ registerSuite('amplitude', {
         uid: 'none'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
       assert.equal(arg.event_type, 'fxa_pref - disconnect_device');
       assert.equal(arg.event_properties.reason, 'suspicious');
       assert.isUndefined(arg.device_id);
@@ -255,8 +259,8 @@ registerSuite('amplitude', {
         uid: 'f'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
       assert.equal(arg.event_type, 'fxa_pref - disconnect_device');
       assert.equal(arg.event_properties.reason, 'duplicate');
     },
@@ -276,9 +280,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_pref - logout');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_pref - logout');
     },
 
     'flow.update-firefox.view': () => {
@@ -296,9 +299,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_notify - update_firefox_view');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_notify - update_firefox_view');
     },
 
     'flow.update-firefox.engage': () => {
@@ -316,9 +318,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_notify - update_firefox_engage');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_notify - update_firefox_engage');
     },
 
     'experiment.designF.passwordStrength.blocked': () => {
@@ -336,9 +337,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_reg - password_blocked');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_reg - password_blocked');
     },
 
     'flow.enter-email.engage': () => {
@@ -356,9 +356,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_email_first - engage');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_email_first - engage');
     },
 
     'flow.force-auth.engage': () => {
@@ -376,9 +375,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_login - engage');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_login - engage');
     },
 
     'flow.signin.engage': () => {
@@ -396,9 +394,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_login - engage');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_login - engage');
     },
 
     'flow.signup.engage': () => {
@@ -429,10 +426,8 @@ registerSuite('amplitude', {
         utm_term: 'm'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_reg - engage');
-      assert.deepEqual(arg, {
+      assert.equal(logger.info.callCount, 1);
+      assert.deepEqual(logger.info.args[0][1], {
         app_version: APP_VERSION,
         country: 'United States',
         device_id: 'b',
@@ -477,8 +472,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
       assert.equal(arg.event_type, 'fxa_connect_device - engage');
       assert.equal(arg.event_properties.connect_device_flow, 'sms');
       assert.equal(arg.event_properties.connect_device_os, undefined);
@@ -498,7 +493,7 @@ registerSuite('amplitude', {
         flowId: 'c',
         uid: 'd'
       });
-      assert.equal(process.stderr.write.callCount, 0);
+      assert.equal(logger.info.callCount, 0);
     },
 
     'flow.signin-totp-code.engage': () => {
@@ -516,9 +511,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_login - totp_code_engage');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_login - totp_code_engage');
     },
 
     'flow.install_from.foo': () => {
@@ -536,8 +530,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
       assert.equal(arg.event_type, 'fxa_connect_device - view');
       assert.equal(arg.event_properties.connect_device_flow, 'store_buttons');
       assert.equal(arg.event_properties.connect_device_os, undefined);
@@ -558,8 +552,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
       assert.equal(arg.event_type, 'fxa_connect_device - view');
       assert.equal(arg.event_properties.connect_device_flow, 'signin');
       assert.equal(arg.event_properties.connect_device_os, undefined);
@@ -580,8 +574,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
       assert.equal(arg.event_type, 'fxa_connect_device - engage');
       assert.equal(arg.event_properties.connect_device_flow, 'store_buttons');
       assert.equal(arg.event_properties.connect_device_os, 'foo');
@@ -602,9 +596,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_login - forgot_pwd');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_login - forgot_pwd');
     },
 
     'flow.signin.have-account': () => {
@@ -622,9 +615,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_reg - have_account');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_reg - have_account');
     },
 
     'flow.enter-email.submit': () => {
@@ -642,9 +634,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_email_first - submit');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_email_first - submit');
     },
 
     'flow.force-auth.submit': () => {
@@ -662,9 +653,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_login - submit');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_login - submit');
     },
 
     'flow.signin.submit': () => {
@@ -682,9 +672,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_login - submit');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_login - submit');
     },
 
     'flow.signup.submit': () => {
@@ -702,9 +691,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_reg - submit');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_reg - submit');
     },
 
     'flow.sms.submit': () => {
@@ -722,8 +710,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
       assert.equal(arg.event_type, 'fxa_connect_device - submit');
       assert.equal(arg.event_properties.connect_device_flow, 'sms');
       assert.equal(arg.event_properties.connect_device_os, undefined);
@@ -744,9 +732,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_login - totp_code_submit');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_login - totp_code_submit');
     },
 
     'flow.wibble.submit': () => {
@@ -763,7 +750,7 @@ registerSuite('amplitude', {
         flowId: 'c',
         uid: 'd'
       });
-      assert.equal(process.stderr.write.callCount, 0);
+      assert.equal(logger.info.callCount, 0);
     },
 
     'screen.enter-email': () => {
@@ -781,9 +768,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_email_first - view');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_email_first - view');
     },
 
     'screen.force-auth': () => {
@@ -801,9 +787,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_login - view');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_login - view');
     },
 
     'screen.signin': () => {
@@ -821,9 +806,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_login - view');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_login - view');
     },
 
     'screen.signup': () => {
@@ -841,9 +825,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_reg - view');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_reg - view');
     },
 
     'screen.oauth.signin': () => {
@@ -862,8 +845,8 @@ registerSuite('amplitude', {
         service: 'g',
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
       assert.equal(arg.event_type, 'fxa_login - view');
       assert.equal(arg.event_properties.oauth_client_id, 'g');
     },
@@ -883,7 +866,7 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 0);
+      assert.equal(logger.info.callCount, 0);
     },
 
     'screen.settings': () => {
@@ -901,9 +884,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_pref - view');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_pref - view');
     },
 
     'screen.sms': () => {
@@ -934,9 +916,8 @@ registerSuite('amplitude', {
         utm_term: 'm'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.deepEqual(arg, {
+      assert.equal(logger.info.callCount, 1);
+      assert.deepEqual(logger.info.args[0][1], {
         app_version: APP_VERSION,
         country: 'United States',
         device_id: 'b',
@@ -981,7 +962,7 @@ registerSuite('amplitude', {
         flowId: 'c',
         uid: 'd'
       });
-      assert.equal(process.stderr.write.callCount, 0);
+      assert.equal(logger.info.callCount, 0);
     },
 
     'screen.signin-totp-code': () => {
@@ -998,9 +979,8 @@ registerSuite('amplitude', {
         flowId: 'c',
         uid: 'd'
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_login - totp_code_view');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_login - totp_code_view');
     },
 
     'screen.settings.two-step-authentication': () => {
@@ -1017,9 +997,8 @@ registerSuite('amplitude', {
         flowId: 'c',
         uid: 'd'
       });
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_pref - two_step_authentication_view');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_pref - two_step_authentication_view');
     },
 
     'settings.communication-preferences.optIn.success': () => {
@@ -1037,8 +1016,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
       assert.equal(arg.event_type, 'fxa_pref - newsletter');
       assert.equal(arg.user_properties.newsletter_state, 'subscribed');
     },
@@ -1058,8 +1037,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
       assert.equal(arg.event_type, 'fxa_pref - newsletter');
       assert.equal(arg.user_properties.newsletter_state, 'unsubscribed');
     },
@@ -1079,9 +1058,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.equal(arg.event_type, 'fxa_login - totp_code_success');
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(logger.info.args[0][1].event_type, 'fxa_login - totp_code_success');
     },
 
     'settings.communication-preferences.wibble.success': () => {
@@ -1098,7 +1076,7 @@ registerSuite('amplitude', {
         flowId: 'c',
         uid: 'd'
       });
-      assert.equal(process.stderr.write.callCount, 0);
+      assert.equal(logger.info.callCount, 0);
     },
 
     'complete-reset-password.verification.clicked': () => {
@@ -1130,14 +1108,15 @@ registerSuite('amplitude', {
         utm_term: 'm'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
-      assert.deepEqual(arg, {
+      assert.equal(logger.info.callCount, 1);
+      assert.deepEqual(logger.info.args[0][1], {
         app_version: APP_VERSION,
         country: 'United States',
         device_id: 'b',
         event_properties: {
           email_provider: 'other',
+          email_sender: undefined,
+          email_service: undefined,
           email_type: 'reset_password',
           service: 'sync'
         },
@@ -1179,8 +1158,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
       assert.equal(arg.event_type, 'fxa_email - click');
       assert.equal(arg.event_properties.email_provider, undefined);
       assert.equal(arg.event_properties.email_type, 'login');
@@ -1201,8 +1180,8 @@ registerSuite('amplitude', {
         uid: 'd'
       });
 
-      assert.equal(process.stderr.write.callCount, 1);
-      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
       assert.equal(arg.event_type, 'fxa_email - click');
       assert.equal(arg.event_properties.email_provider, undefined);
       assert.equal(arg.event_properties.email_type, 'registration');
@@ -1222,7 +1201,7 @@ registerSuite('amplitude', {
         flowId: 'c',
         uid: 'd'
       });
-      assert.equal(process.stderr.write.callCount, 0);
+      assert.equal(logger.info.callCount, 0);
     }
   }
 });

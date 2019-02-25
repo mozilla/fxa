@@ -15,6 +15,7 @@
 'use strict';
 
 const { GROUPS, initialize } = require('fxa-shared/metrics/amplitude');
+const logger = require('./logging/log')();
 const ua = require('./user-agent');
 
 const SERVICES = require('./configuration').get('oauth_client_id_map');
@@ -151,7 +152,7 @@ function receiveEvent (event, request, data) {
   );
 
   if (amplitudeEvent) {
-    process.stderr.write(`${JSON.stringify(amplitudeEvent)}\n`);
+    logger.info('amplitudeEvent', amplitudeEvent);
   }
 }
 
