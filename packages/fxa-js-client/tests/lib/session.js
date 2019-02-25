@@ -292,8 +292,12 @@ define([
             var options = {
               keys: true,
               metricsContext: {
-                utmTerm: 'search term',
-                utmContent: 'exciting content for you!'
+                entrypoint: 'mock-entrypoint',
+                utmCampaign: 'mock-utm-campaign',
+                utmContent: 'mock-utm-content',
+                utmMedium: 'mock-utm-medium',
+                utmSource: 'mock-utm-source',
+                utmTerm: 'mock-utm-term'
               },
               originalLoginEmail: email.toUpperCase(),
               reason: 'password_change',
@@ -327,8 +331,7 @@ define([
                   assert.equal(payload.resume, options.resume);
                   assert.equal(payload.service, options.service);
                   assert.equal(payload.verificationMethod, options.verificationMethod);
-                },
-                assert.notOk
+                }
               );
           });
       });
