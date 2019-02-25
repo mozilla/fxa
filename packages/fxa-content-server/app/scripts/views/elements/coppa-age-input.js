@@ -9,6 +9,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const AuthErrors = require('../../lib/auth-errors');
+  const MAX_VALID_AGE = 130;
 
   module.exports = {
     match ($el) {
@@ -18,6 +19,10 @@ define(function (require, exports, module) {
     validate () {
       const isRequired = typeof this.attr('required') !== 'undefined';
       const value = this.val();
+
+      if (value > MAX_VALID_AGE) {
+        throw AuthErrors.toError('INVALID_AGE');
+      }
 
       if (isRequired && ! isValidAge(value)) {
         throw AuthErrors.toError('AGE_REQUIRED');

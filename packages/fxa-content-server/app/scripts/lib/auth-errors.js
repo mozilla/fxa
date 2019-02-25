@@ -389,6 +389,10 @@ define(function (require, exports, module) {
       errno: 1031,
       message: t('You must enter your age to sign up')
     },
+    INVALID_AGE: {
+      errno: 1032,
+      message: t('You must enter a valid age to sign up')
+    },
     /*
     Removed in #4927
     NO_GRAVATAR_FOUND: {
