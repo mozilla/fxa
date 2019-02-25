@@ -1,3 +1,13 @@
+<a name="1.131.3"></a>
+## [1.131.3](https://github.com/mozilla/fxa-content-server/compare/v1.131.2...v1.131.3) (2019-02-25)
+
+
+### Bug Fixes
+
+* **metrics:** Validate query parameters to POST /metrics-flow ([aef18b3](https://github.com/mozilla/fxa-content-server/commit/aef18b3))
+
+
+
 <a name="1.131.2"></a>
 ## [1.131.2](https://github.com/mozilla/fxa-content-server/compare/v1.131.1...v1.131.2) (2019-02-25)
 
