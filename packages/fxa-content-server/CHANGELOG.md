@@ -1,3 +1,13 @@
+<a name="1.131.2"></a>
+## [1.131.2](https://github.com/mozilla/fxa-content-server/compare/v1.131.1...v1.131.2) (2019-02-25)
+
+
+### Bug Fixes
+
+* **metrics:** update amplitude events to mozlog 2 format ([9867325](https://github.com/mozilla/fxa-content-server/commit/9867325))
+
+
+
 <a name="1.131.1"></a>
 ## [1.131.1](https://github.com/mozilla/fxa-content-server/compare/v1.131.0...v1.131.1) (2019-02-20)
 
