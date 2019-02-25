@@ -34,6 +34,7 @@ define([
 
       assert.deepEqual(metricsContext.marshall(input), {
         deviceId: input.deviceId,
+        entrypoint: 'menupanel',
         flowBeginTime: input.flowBeginTime,
         flowId: input.flowId,
         utmCampaign: 'foo',

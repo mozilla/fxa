@@ -32,7 +32,7 @@ define([
         RequestMocks = env.RequestMocks;
         metricsContext = {
           flowBeginTime: Date.now(),
-            flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
+          flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
         };
 
         return accountHelper.newVerifiedAccount()
