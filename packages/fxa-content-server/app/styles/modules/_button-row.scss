@@ -66,10 +66,6 @@ button {
     &:hover:active {
       background: darken($error-background-color, 10);
     }
-
-    &:focus {
-      box-shadow: 0 0 0 2px rgba(lighten($error-background-color, 15), .75);
-    }
   }
 
   &:disabled,
