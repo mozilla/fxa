@@ -72,9 +72,14 @@ const ERRNO = {
   TOTP_REQUIRED: 160,
   RECOVERY_KEY_EXISTS: 161,
   UNKNOWN_CLIENT_ID: 162,
+  INVALID_SCOPES: 163,
   STALE_AUTH_AT: 164,
   REDIS_CONFLICT: 165,
   NOT_PUBLIC_CLIENT: 166,
+  INCORRECT_REDIRECT_URI: 167,
+  INVALID_RESPONSE_TYPE: 168,
+  MISSING_PKCE_PARAMETERS: 169,
+  INSUFFICIENT_ACR_VALUES: 170,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -923,6 +928,57 @@ AppError.redisConflict = () => {
     error: 'Conflict',
     errno: ERRNO.REDIS_CONFLICT,
     message: 'Redis WATCH detected a conflicting update'
+  });
+};
+
+AppError.incorrectRedirectURI = (redirectUri) => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INCORRECT_REDIRECT_URI,
+    message: 'Incorrect redirect URI'
+  }, {
+      redirectUri
+  });
+};
+
+AppError.invalidResponseType = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INVALID_RESPONSE_TYPE,
+    message: 'Invalid response_type'
+  });
+};
+
+AppError.invalidScopes = (invalidScopes) => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INVALID_SCOPES,
+    message: 'Requested scopes are not allowed'
+  }, {
+      invalidScopes
+  });
+};
+
+AppError.missingPkceParameters = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.MISSING_PKCE_PARAMETERS,
+    message: 'Public clients require PKCE OAuth parameters'
+  });
+};
+
+AppError.insufficientACRValues = (foundValue) => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INSUFFICIENT_ACR_VALUES,
+    message: 'Required Authentication Context Reference values could not be satisfied'
+  }, {
+    foundValue
   });
 };
 

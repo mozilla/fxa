@@ -28,6 +28,7 @@ module.exports = (log, config) => {
     revokeRefreshTokenById: require('./revoke-refresh-token-by-id')(config),
     getClientInfo: require('./client-info')(config),
     getScopedKeyData: require('./scoped-key-data')(config),
+    createAuthorizationCode: require('./create-authorization-code')(config),
   });
 
   const api = new OAuthAPI(config.oauth.url, config.oauth.poolee);
@@ -77,18 +78,21 @@ module.exports = (log, config) => {
       }
     },
 
+    async createAuthorizationCode(sessionToken, oauthParams) {
+      oauthParams.assertion = await makeAssertionJWT(config, sessionToken);
+      try {
+        return await api.createAuthorizationCode(oauthParams);
+      } catch (err) {
+        throw mapOAuthError(log, err);
+      }
+    },
+
     /* As we work through the process of merging oauth-server
      * into auth-server, future methods we might want to include
      * here will be things like the following:
 
     async getClientInstances(account) {
     },
-
-    async createAuthorizationCode(account, params) {
-    }
-
-    async redeemAuthorizationCode(account, params) {
-    }
 
     async checkAccessToken(token) {
     }

@@ -27,6 +27,21 @@ describe('/oauth/ routes', () => {
     return response;
   }
 
+  async function mockSessionToken(props = {}) {
+    const Token = require(`${ROOT_DIR}/lib/tokens/token`)(mockLog);
+    const SessionToken = require(`${ROOT_DIR}/lib/tokens/session_token`)(mockLog, Token, {
+      tokenLifetimes: {
+        sessionTokenWithoutDevice: 2419200000
+      }
+    });
+    return await SessionToken.create({
+      uid: uuid.v4('binary').toString('hex'),
+      email: 'foo@example.com',
+      emailVerified: true,
+      ...props,
+    });
+  }
+
   beforeEach(() => {
     mockLog = mocks.mockLog();
   });
@@ -61,17 +76,7 @@ describe('/oauth/ routes', () => {
           return { key: 'data' };
         })
       });
-      const Token = require(`${ROOT_DIR}/lib/tokens/token`)(mockLog);
-      const SessionToken = require(`${ROOT_DIR}/lib/tokens/session_token`)(mockLog, Token, {
-        tokenLifetimes: {
-          sessionTokenWithoutDevice: 2419200000
-        }
-      });
-      sessionToken = await SessionToken.create({
-        uid: uuid.v4('binary').toString('hex'),
-        email: 'foo@example.com',
-        emailVerified: true,
-      });
+      sessionToken = await mockSessionToken();
       const mockRequest = mocks.mockRequest({
         credentials: sessionToken,
         payload: {
@@ -87,31 +92,42 @@ describe('/oauth/ routes', () => {
       });
       assert.deepEqual(resp, { key: 'data' });
     });
+  });
 
-    it('rejects an `assertion` parameter in the request payload', async () => {
-      const Token = require(`${ROOT_DIR}/lib/tokens/token`)(mockLog);
-      const SessionToken = require(`${ROOT_DIR}/lib/tokens/session_token`)(mockLog, Token, {
-        tokenLifetimes: {
-          sessionTokenWithoutDevice: 2419200000
-        }
+
+  describe('/oauth/authorization', () => {
+
+    it('calls oauthdb.createAuthorizationCode', async () => {
+      mockOAuthDB = mocks.mockOAuthDB({
+        createAuthorizationCode: sinon.spy(async () => {
+          return {
+            redirect: 'bogus',
+            code: 'aaabbbccc',
+            state: 'xyz'
+          };
+        })
       });
-      sessionToken = await SessionToken.create({
-        uid: uuid.v4('binary').toString('hex'),
-        email: 'foo@example.com',
-        emailVerified: true,
-      });
+      sessionToken = await mockSessionToken();
       const mockRequest = mocks.mockRequest({
         credentials: sessionToken,
         payload: {
-          assertion: 'a~b',
           client_id: MOCK_CLIENT_ID,
-          scope: MOCK_SCOPES
+          scope: MOCK_SCOPES,
+          state: 'xyz',
         }
       });
-      const resp = await loadAndCallRoute('/account/scoped-key-data', mockRequest);
-      assert.deepEqual(resp, { key: 'data' });
+      const resp = await loadAndCallRoute('/oauth/authorization', mockRequest);
+      assert.calledOnce(mockOAuthDB.createAuthorizationCode);
+      assert.calledWithExactly(mockOAuthDB.createAuthorizationCode, sessionToken, {
+        client_id: MOCK_CLIENT_ID,
+        scope: MOCK_SCOPES,
+        state: 'xyz',
+      });
+      assert.deepEqual(resp, {
+        redirect: 'bogus',
+        code: 'aaabbbccc',
+        state: 'xyz'
+      });
     });
-
   });
-
 });

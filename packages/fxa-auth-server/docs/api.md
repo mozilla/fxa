@@ -47,6 +47,7 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
   * [Oauth](#oauth)
     * [GET /oauth/client/{client_id}](#get-oauthclientclient_id)
     * [POST /account/scoped-key-data (:lock: sessionToken)](#post-accountscoped-key-data)
+    * [POST /oauth/authorization (:lock: sessionToken)](#post-oauthauthorization)
   * [Password](#password)
     * [POST /password/change/start](#post-passwordchangestart)
     * [POST /password/change/finish (:lock: passwordChangeToken)](#post-passwordchangefinish)
@@ -303,6 +304,16 @@ for `code` and `errno` are:
   Redis WATCH detected a conflicting update
 * `code: 400, errno: 166`:
   Not a public client
+* `code: 400, errno: 167`:
+  Incorrect redirect URI
+* `code: 400, errno: 168`:
+  Invalid response_type
+* `code: 400, errno: 169`:
+  Requested scopes are not allowed
+* `code: 400, errno: 170`:
+  Public clients require PKCE OAuth parameters
+* `code: 400, errno: 171`:
+  Required Authentication Context Reference values could not be satisfied
 * `code: 503, errno: 201`:
   Service unavailable
 * `code: 503, errno: 202`:
@@ -337,6 +348,9 @@ include additional response properties:
 * `errno: 153`
 * `errno: 162`: clientId
 * `errno: 164`: authAt
+* `errno: 167`: redirectUri
+* `errno: 169`: invalidScopes
+* `errno: 171`: foundValue
 * `errno: 201`: retryAfter
 * `errno: 202`: retryAfter
 * `errno: 203`: service, operation
@@ -380,8 +394,11 @@ those common validations are defined here.
 * `clientId`: `module.exports.hexString.length(16)`
 * `accessToken`: `module.exports.hexString.length(64)`
 * `refreshToken`: `module.exports.hexString.length(64)`
+* `authorizationCode`: `module.exports.hexString.length(64)`
 * `scope`: `string, max(256), regex(/^[a-zA-Z0-9 _\/.:-]+$/)`
 * `assertion`: `string, min(50), max(10240), regex(/^[a-zA-Z0-9_\-\.~=]+$/)`
+* `pkceCodeChallengeMethod`: `string, valid('S256')`
+* `pkceCodeChallenge`: `string, length(43), regex(module, exports.URL_SAFE_BASE_64)`
 * `jwe`: `string, max(1024), regex(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/)`
 * `verificationMethod`: `string, valid()`
 * `authPW`: `string, length(64), regex(HEX_STRING), required`
@@ -1942,6 +1959,54 @@ Query for the information required
 to derive scoped encryption keys
 requested by the specified OAuth client.
 <!--end-route-post-accountscoped-key-data-->
+
+
+#### POST /oauth/authorization
+
+:lock: HAWK-authenticated with session token
+<!--begin-route-post-oauthauthorization-->
+Authorize a new OAuth client connection to the user's account,
+returning a short-lived authentication code that the client can
+exchange for access tokens at the OAuth token endpoint.
+
+This route behaves like the (oauth-server /authorization endpoint)[../fxa-oauth-server/docs/api.md#post-v1authorization]
+except that it is authenticated directly with a sessionToken
+rather than with a BrowserID assertion.
+
+##### Request body
+
+* `client_id`:  *validators.email.required*
+  The OAuth client identifier provided by the connecting client application.
+* `state`: *string, max(256), required*
+  An opaque string provided by the connecting client application, which will be
+  returned unmodified alongside the authorization code.  This can be used by
+  the connecting client to guard against certain classes of attack in the
+  redirect-based OAuth flow.
+* `response_type`: *string, valid('code'), optional*
+  Determines the format of the response.  Since we only support the authorization-code grant flow,
+  the only permitted value is 'code'.
+* `redirect_uri`: *string, URI, optional*
+  The URI at which the connecting client expects to receive the authorization code.
+  If supplied this *must* match the value provided during OAuth client registration.
+* `scope`: *string, optional*
+   A space-separated list of scope values that the connecting client will be granted.
+   The requested scope will be provided by the connecting client as part of its authorization request,
+   but may be pruned by the user in a confirmation dialog before being sent to this endpoint.
+* `access_type`: *string, valid(online, offline), optional*
+   If specified, a value of `offline` will cause the connecting client to be granted a refresh token
+   alongside its access token. 
+* `code_challenge_method`: *string, valid(S256), optional*
+   Required for public OAuth clients, who must authenticate their authorization code use via [PKCE](../fxa-oauth-server/docs/pkce.md).
+   The only support method is 'S256'.
+* `code_challenge`: *string, length(43), regex(URL_SAFE_BASE_64), optional*
+   Required for public OAuth clients, who must authenticate their authorization code use via [PKCE](../fxa-oauth-server/docs/pkce.md).
+* `keys_jwe`: *string, validators.jwe, optional*
+   An encrypted bundle of key material, to be returned to the client when it redeems the authorization code.
+* `acr_values`: *string, optional*
+   A space-separated list of ACR values specifying acceptable levels of user authentication.
+   Specifying `AAL2` will ensure that the user has been authenticated with 2FA before authorizing
+   the requested grant.
+<!--end-route-post-oauthauthorization-->
 
 
 ### Password

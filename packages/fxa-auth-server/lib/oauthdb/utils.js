@@ -20,15 +20,34 @@ module.exports = {
     if (err instanceof error) {
       return err;
     }
+    if (! err.errno) {
+      // If there's no `errno`, it must be some sort of internal implementation error.
+      // Let it bubble up and be caught by the top-level unexpected-error-handling logic.
+      throw err;
+    }
     switch (err.errno) {
     case 101:
       return error.unknownClientId(err.clientId);
+    case 103:
+      return error.incorrectRedirectURI(err.redirectUri);
+    case 104:
+      return error.invalidToken();
     case 108:
       return error.invalidToken();
+    case 109:
+      return error.invalidRequestParameter(err.validation);
+    case 110:
+      return error.invalidResponseType();
+    case 114:
+      return error.invalidScopes(err.invalidScopes);
     case 116:
       return error.notPublicClient();
+    case 118:
+      return error.missingPkceParameters();
     case 119:
       return error.staleAuthAt(err.authAt);
+    case 120:
+      return error.insufficientACRValues(err.foundValue);
     default:
       log.warn('oauthdb.mapOAuthError', {
         err: err,

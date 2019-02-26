@@ -55,6 +55,27 @@ module.exports = (log, config, oauthdb) => {
         return oauthdb.getScopedKeyData(sessionToken, request.payload);
       }
     },
+    {
+      method: 'POST',
+      path: '/oauth/authorization',
+      options: {
+        auth: {
+          strategy: 'sessionToken'
+        },
+        validate: {
+          payload: oauthdb.api.createAuthorizationCode.opts.validate.payload.keys({
+            assertion: Joi.forbidden()
+          })
+        },
+        response: {
+          schema: oauthdb.api.createAuthorizationCode.opts.validate.response
+        }
+      },
+      handler: async function (request) {
+        const sessionToken = request.auth.credentials;
+        return oauthdb.createAuthorizationCode(sessionToken, request.payload);
+      }
+    },
   ];
   return routes;
 };
