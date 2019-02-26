@@ -217,7 +217,7 @@
 
 .avatar-change {
   nav {
-    margin: 0 -40px -40px -40px;
+    margin: 0 -40px -20px -40px;
     padding: 25px 20px 20px;
 
     a {
@@ -234,19 +234,20 @@
         height: 80px;
         margin: 5px;
         min-width: 80px;
+        padding-top: 52px;
       }
 
       @include respond-to('small') {
-        height: 52px;
+        height: 65px;
         margin: 0 0 10px 0;
         min-width: 75px;
-        padding-top: 37px;
+        padding-top: 42px;
       }
 
       &#camera,
       &#file,
       &.remove {
-        background-position: 50% 0%;
+        background-position: 50% 0.7vw;
 
         &:hover {
           filter: hue-rotate(3deg) saturate(1.1) brightness(.85);
