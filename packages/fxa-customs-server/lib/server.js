@@ -16,11 +16,13 @@ var P = require('bluebird')
 P.promisifyAll(Memcached.prototype)
 var Raven = require('raven')
 const utils = require('./utils')
+const dataflow = require('./dataflow')
 
 // Create and return a restify server instance
 // from the given config.
 
 module.exports = function createServer(config, log) {
+  dataflow(config, log)
 
   var startupDefers = []
 
