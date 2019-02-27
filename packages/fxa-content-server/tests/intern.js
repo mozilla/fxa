@@ -11,6 +11,7 @@ const testsMain = require('./functional');
 const testsOAuth = require('./functional_oauth');
 const testsCircleCi = require('./functional_circle');
 const testsTravisCi = require('./functional_travis');
+const testsPairing = require('./functional_pairing');
 const testsServer = require('./tests_server');
 const testsServerResources = require('./tests_server_resources');
 const testsAll = testsMain.concat(testsOAuth);
@@ -80,6 +81,10 @@ if (args.suites) {
   switch (args.suites) {
   case 'oauth':
     config.functionalSuites = testsOAuth;
+    break;
+  case 'pairing':
+    config.functionalSuites = testsPairing;
+    config.isTestingPairing = true;
     break;
   case 'all':
     config.functionalSuites = testsAll;

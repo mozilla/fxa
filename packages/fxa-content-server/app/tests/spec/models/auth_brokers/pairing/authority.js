@@ -14,6 +14,7 @@ const CHANNEL_ID = 'channelId';
 
 describe('models/auth_brokers/pairing/authority', function () {
   let broker;
+  let config;
   let relier;
   let notifier;
   let notificationChannel;
@@ -49,13 +50,18 @@ describe('models/auth_brokers/pairing/authority', function () {
       return Promise.resolve(response);
     });
 
+    config = {
+      pairingClients: ['3c49430b43dfba77'],
+    };
     relier = new Relier();
     relier.set({
-      channelId: CHANNEL_ID
+      channelId: CHANNEL_ID,
+      clientId: '3c49430b43dfba77',
     });
     notifier = new Notifier();
 
     broker = new AuthorityBroker({
+      config,
       notificationChannel,
       notifier,
       relier: relier,
@@ -67,6 +73,24 @@ describe('models/auth_brokers/pairing/authority', function () {
 
   it('creates the state machine', () => {
     assert.ok(broker.stateMachine);
+  });
+
+  describe('initialize', () => {
+    it('validates the client id', () => {
+      relier.set({
+        clientId: 'c6d74070a481bc10',
+      });
+
+      assert.throws(() => {
+        broker = new AuthorityBroker({
+          config,
+          notificationChannel,
+          notifier,
+          relier: relier,
+          window: windowMock,
+        });
+      }, 'Invalid pairing client');
+    });
   });
 
   describe('fetch', () => {

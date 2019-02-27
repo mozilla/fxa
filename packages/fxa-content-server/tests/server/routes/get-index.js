@@ -68,6 +68,7 @@ registerSuite('routes/get-index', {
                 config.get('marketing_email.api_url'));
               assert.equal(sentConfig.oAuthClientId, config.get('oauth_client_id'));
               assert.equal(sentConfig.oAuthUrl, config.get('oauth_url'));
+              assert.equal(sentConfig.pairingChannelServerUri, config.get('pairing.server_base_uri'));
               assert.equal(sentConfig.profileUrl, config.get('profile_url'));
               assert.equal(sentConfig.scopedKeysEnabled, config.get('scopedKeys.enabled'));
               assert.ok(sentConfig.scopedKeysValidation, 'config validation is present');

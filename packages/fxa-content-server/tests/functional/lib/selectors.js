@@ -143,6 +143,12 @@ module.exports = {
     HEADER: '#fxa-permissions-header',
     SUBMIT: '#accept'
   },
+  PAIRING: {
+    AUTH_SUBMIT: '#auth-approve-btn',
+    COMPLETE: '#fxa-404-header',
+    START_PAIRING: '#start-pairing',
+    SUPP_SUBMIT: '#supp-approve-btn',
+  },
   RECOVERY_KEY: {
     CANCEL_BUTTON: '.cancel',
     CONFIRM_PASSWORD_CONTINUE: '.generate-key-link',

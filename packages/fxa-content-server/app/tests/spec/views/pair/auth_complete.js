@@ -6,6 +6,7 @@ import {assert} from 'chai';
 import AuthorityBroker from 'models/auth_brokers/pairing/authority';
 import Session from 'lib/session';
 import Notifier from 'lib/channels/notifier';
+import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
 import User from 'models/user';
 import View from 'views/pair/auth_complete';
@@ -23,6 +24,7 @@ const REMOTE_METADATA = {
 
 describe('views/pair/auth_complete', () => {
   let broker;
+  let config;
   let relier;
   let user;
   let notifier;
@@ -30,9 +32,17 @@ describe('views/pair/auth_complete', () => {
   let windowMock;
 
   beforeEach(() => {
+    config = {
+      pairingClients: ['3c49430b43dfba77'],
+    };
+    relier = new Relier();
+    relier.set({
+      clientId: '3c49430b43dfba77',
+    });
     user = new User();
     notifier = new Notifier();
     broker = new AuthorityBroker({
+      config,
       notifier,
       relier,
       session: Session,

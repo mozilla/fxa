@@ -33,6 +33,7 @@ module.exports = function (config, i18n) {
     redirectVersionedToUnversioned('reset_password'),
     redirectVersionedToUnversioned('verify_email'),
     require('./routes/get-apple-app-site-association')(),
+    require('./routes/get-frontend-pairing')(),
     require('./routes/get-frontend')(),
     require('./routes/get-terms-privacy')(i18n),
     require('./routes/get-update-firefox')(config),

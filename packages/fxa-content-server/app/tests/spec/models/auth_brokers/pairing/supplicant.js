@@ -18,12 +18,14 @@ describe('models/auth_brokers/pairing/supplicant', function () {
 
   beforeEach(function () {
     config = {
-      pairingChannelServerUri: 'ws://test'
+      pairingChannelServerUri: 'ws://test',
+      pairingClients: ['3c49430b43dfba77'],
     };
     relier = new Relier();
     relier.set({
       channelId: '1',
       channelKey: 'dGVzdA==',
+      clientId: '3c49430b43dfba77',
       redirectUri: 'https://example.com?code=1&state=2'
     });
     notifier = new Notifier();
@@ -35,7 +37,6 @@ describe('models/auth_brokers/pairing/supplicant', function () {
       relier,
     });
   });
-
 
   describe('initialize', () => {
     it('creates a pairing channel and a state machine', () => {
@@ -56,6 +57,22 @@ describe('models/auth_brokers/pairing/supplicant', function () {
           relier,
         });
       }, 'Failed to initialize supplicant');
+    });
+
+
+    it('throws on bad clientId', () => {
+      relier.set({
+        clientId: 'c6d74070a481bc10',
+      });
+
+      assert.throws(() => {
+        broker = new SupplicantBroker({
+          config,
+          importPairingChannel: mockPairingChannel,
+          notifier,
+          relier,
+        });
+      }, 'Invalid pairing client');
     });
   });
 

@@ -130,7 +130,11 @@ define(function (require, exports, module) {
     MISSING_PARAMETER: {
       errno: 1005,
       message: t('Missing OAuth parameter: %(param)s')
-    }
+    },
+    INVALID_PAIRING_CLIENT: {
+      errno: 1006,
+      message: 'Invalid pairing client'
+    },
   };
   /*eslint-enable sorting/sort-object-props*/
 

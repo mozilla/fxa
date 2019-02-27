@@ -30,7 +30,8 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function () {
   let broker;
   let mockChannelClient;
   const config = {
-    pairingChannelServerUri: 'ws://test'
+    pairingChannelServerUri: 'ws://test',
+    pairingClients: ['3c49430b43dfba77'],
   };
 
   beforeEach(() => {
@@ -38,6 +39,7 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function () {
     relier.set({
       channelId: '1',
       channelKey: 'dGVzdA==',
+      clientId: '3c49430b43dfba77',
       redirectUri: 'https://example.com?code=1&state=2',
       state: 'state'
     });

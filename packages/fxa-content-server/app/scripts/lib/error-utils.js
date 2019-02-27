@@ -28,6 +28,7 @@ define(function (require, exports, module) {
           AuthErrors.is(error, 'MISSING_PARAMETER') ||
           OAuthErrors.is(error, 'INCORRECT_REDIRECT') ||
           OAuthErrors.is(error, 'INVALID_PARAMETER') ||
+          OAuthErrors.is(error, 'INVALID_PAIRING_CLIENT') ||
           OAuthErrors.is(error, 'MISSING_PARAMETER') ||
           OAuthErrors.is(error, 'UNKNOWN_CLIENT')) {
         return FourHundredTemplate;

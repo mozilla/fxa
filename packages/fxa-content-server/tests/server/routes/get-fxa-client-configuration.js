@@ -35,6 +35,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
     mocks.config.oauth_url = 'https://oauth.accounts.firefox.com';
     mocks.config.profile_url = 'https://profile.accounts.firefox.com';
     mocks.config.sync_tokenserver_url = 'https://token.services.mozilla.org';
+    mocks.config['pairing.server_base_uri'] = 'wss://channelserver.services.mozilla.com';
     /*eslint-enable camelcase*/
   },
   tests: {
@@ -45,7 +46,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
 
     'route interface is correct': function () {
       route = getFxAClientConfig(mocks.config);
-      assert.equal(mocks.config.get.callCount, 5);
+      assert.equal(mocks.config.get.callCount, 6);
       assert.isObject(route);
       assert.lengthOf(Object.keys(route), 3);
       assert.equal(route.method, 'get');
@@ -64,7 +65,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
       route = getFxAClientConfig(mocks.config);
       route.process(mocks.request, mocks.response);
 
-      assert.equal(mocks.config.get.callCount, 5);
+      assert.equal(mocks.config.get.callCount, 6);
       assert.equal(mocks.response.json.callCount, 1);
       var args = mocks.response.json.args[0];
       assert.lengthOf(args, 1);
@@ -80,7 +81,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
       route = getFxAClientConfig(mocks.config);
       route.process(mocks.request, mocks.response);
 
-      assert.equal(mocks.config.get.callCount, 5);
+      assert.equal(mocks.config.get.callCount, 6);
       assert.equal(mocks.response.json.callCount, 1);
       assert.equal(mocks.response.header.callCount, 1);
       var args = mocks.response.header.args[0];
@@ -95,7 +96,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
       route = getFxAClientConfig(mocks.config);
       route.process(mocks.request, mocks.response);
 
-      assert.equal(mocks.config.get.callCount, 5);
+      assert.equal(mocks.config.get.callCount, 6);
       assert.equal(mocks.response.json.callCount, 1);
       assert.equal(mocks.response.header.callCount, 1);
       var args = mocks.response.header.args[0];
@@ -110,7 +111,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
       route = getFxAClientConfig(mocks.config);
       route.process(mocks.request, mocks.response);
 
-      assert.equal(mocks.config.get.callCount, 5);
+      assert.equal(mocks.config.get.callCount, 6);
       assert.equal(mocks.response.json.callCount, 1);
       assert.equal(mocks.response.header.callCount, 0);
     }
@@ -129,7 +130,7 @@ suite.tests['#get /.well-known/fxa-client-configuration - returns a JSON doc wit
       assert.equal(res.headers['cache-control'], 'public, max-age=' + maxAge);
 
       var result = JSON.parse(res.body);
-      assert.equal(Object.keys(result).length, 4);
+      assert.equal(Object.keys(result).length, 5);
 
       var conf = intern._config;
       var expectAuthRoot = conf.fxaAuthRoot;
@@ -139,6 +140,7 @@ suite.tests['#get /.well-known/fxa-client-configuration - returns a JSON doc wit
       assert.equal(result.oauth_server_base_url, conf.fxaOAuthRoot);
       assert.equal(result.profile_server_base_url, conf.fxaProfileRoot);
       assert.equal(result.sync_tokenserver_base_url, conf.fxaTokenRoot);
+      assert.equal(result.pairing_server_base_uri, config.get('pairing.server_base_uri'));
     }).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 
   return dfd;

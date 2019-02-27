@@ -29,6 +29,8 @@ module.exports = function (config) {
   const PROFILE_SERVER = getOrigin(config.get('profile_url'));
   const PROFILE_IMAGES_SERVER = getOrigin(config.get('profile_images_url'));
   const PUBLIC_URL = config.get('public_url');
+  const PAIRING_SERVER_WEBSOCKET = getOrigin(config.get('pairing.server_base_uri'));
+  const PAIRING_SERVER_HTTP = PAIRING_SERVER_WEBSOCKET.replace(/^ws/,'http');
 
   //
   // Double quoted values
@@ -55,7 +57,9 @@ module.exports = function (config) {
         AUTH_SERVER,
         OAUTH_SERVER,
         PROFILE_SERVER,
-        MARKETING_EMAIL_SERVER
+        MARKETING_EMAIL_SERVER,
+        PAIRING_SERVER_WEBSOCKET,
+        PAIRING_SERVER_HTTP,
       ],
       defaultSrc: [
         SELF
@@ -95,6 +99,8 @@ module.exports = function (config) {
       MARKETING_EMAIL_SERVER,
       NONE,
       OAUTH_SERVER,
+      PAIRING_SERVER_HTTP,
+      PAIRING_SERVER_WEBSOCKET,
       PROFILE_IMAGES_SERVER,
       PROFILE_SERVER,
       PUBLIC_URL,

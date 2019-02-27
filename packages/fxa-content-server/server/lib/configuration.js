@@ -346,6 +346,22 @@ const conf = module.exports = convict({
       'dist'
     ]
   },
+  pairing: {
+    clients: {
+      default: [
+        '3c49430b43dfba77', // Reference browser
+        'a2270f727f45f648', // Fenix
+      ],
+      doc: 'OAuth Client IDs that are allowed to pair. Remove all clients from this list to disable pairing.',
+      env: 'PAIRING_CLIENTS',
+      format: Array,
+    },
+    server_base_uri: {
+      default: 'wss://channelserver.services.mozilla.com',
+      doc: 'The url of the Pairing channel server.',
+      env: 'PAIRING_SERVER_BASE_URI'
+    },
+  },
   port: {
     default: 3030,
     doc: 'HTTPS port for local dev',
@@ -415,7 +431,8 @@ const conf = module.exports = convict({
             'https://lockbox.firefox.com/fxa/ios-redirect.html',
             'https://lockbox.firefox.com/fxa/android-redirect.html',
             'https://accounts.firefox.com/oauth/success/a2270f727f45f648', // Fenix
-            'https://accounts.firefox.com/oauth/success/3c49430b43dfba77'  // Reference browser
+            'https://accounts.firefox.com/oauth/success/3c49430b43dfba77', // Reference browser
+            'urn:ietf:wg:oauth:2.0:oob:pair-auth-webchannel'
           ]
         },
         'https://identity.mozilla.com/apps/send': {

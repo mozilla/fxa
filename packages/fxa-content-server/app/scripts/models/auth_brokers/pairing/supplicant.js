@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import OAuthErrors from '../../../lib/oauth-errors';
 import OAuthRedirectBroker from '../oauth-redirect';
 import PairingChannelClient from '../../../lib/pairing-channel-client';
 import setRemoteMetaData from './remote-metadata';
@@ -15,6 +16,12 @@ export default class SupplicantBroker extends OAuthRedirectBroker {
     super.initialize(options);
 
     const { config, notifier, relier } = options;
+
+    if (! config.pairingClients.includes(relier.get('clientId'))) {
+      // only approved clients may pair
+      throw OAuthErrors.toError('INVALID_PAIRING_CLIENT');
+    }
+
     const channelServerUri = config.pairingChannelServerUri;
     const { channelId, channelKey } = relier.toJSON();
     if (channelId && channelKey && channelServerUri) {

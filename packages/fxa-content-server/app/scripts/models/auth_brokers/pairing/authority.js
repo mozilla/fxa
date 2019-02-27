@@ -7,6 +7,7 @@
 
 import AuthorityStateMachine from '../../pairing/authority-state-machine';
 import BaseAuthenticationBroker from '../base';
+import OAuthErrors from '../../../lib/oauth-errors';
 import setRemoteMetaData from './remote-metadata';
 
 const PAIR_HEARTBEAT_INTERVAL = 1000;
@@ -17,7 +18,12 @@ export default class AuthorityBroker extends BaseAuthenticationBroker {
   initialize (options) {
     super.initialize(options);
 
-    const { notifier } = options;
+    const { notifier, config } = options;
+
+    if (! config.pairingClients.includes(this.relier.get('clientId'))) {
+      // only approved clients may pair
+      throw OAuthErrors.toError('INVALID_PAIRING_CLIENT');
+    }
 
     // The AuthorityStateMachine is responsible for driving the next steps of the pairing process.
     // It transitions between various pairing views.

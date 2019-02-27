@@ -6,6 +6,7 @@ import PairingChannelClientErrors from './pairing-channel-client-errors';
 import { Model } from 'backbone';
 import { pick } from 'underscore';
 import { base64urlToUint8Array } from './crypto/util';
+import importFxaPairingChannel from './fxa-pairing-channel';
 import Raven from 'raven';
 import Vat from 'lib/vat';
 
@@ -35,7 +36,7 @@ export default class PairingChannelClient extends Model {
     super(attrs, options);
 
     this.sentryMetrics = options.sentryMetrics || Raven;
-    this._importPairingChannel = options.importPairingChannel;
+    this._importPairingChannel = options.importPairingChannel || importFxaPairingChannel;
   }
 
   /**
