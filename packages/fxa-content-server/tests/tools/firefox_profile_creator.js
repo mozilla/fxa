@@ -19,8 +19,13 @@ if (process.argv.length > 1) {
 if (profile) {
 
   if (profile.isTestingPairing) {
-    // pairing UA override, this can be removed once the main catches up
+    // pairing UA override, these preferences can be moved to the rest
+    // once the main tests catch up with the user agent version
     UA_OVERRIDE = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:67.0) Gecko/20100101 Firefox/67.0 FxATester/1.0';
+    myProfile.setPreference('identity.fxaccounts.pairing.enabled', true);
+    myProfile.setPreference('webchannel.allowObject.urlWhitelist', profile.fxaContentRoot.slice(0, -1));
+    myProfile.setPreference('identity.fxaccounts.remote.root', profile.fxaContentRoot.slice(0, -1));
+    myProfile.setPreference('identity.fxaccounts.autoconfig.uri', profile.fxaContentRoot.slice(0, -1));
   }
 
   // remove blocking of HTTP request on HTTPS domains
@@ -77,11 +82,6 @@ if (profile) {
 
   // allowHttp for local dev
   myProfile.setPreference('identity.fxaccounts.allowHttp', true);
-
-  myProfile.setPreference('identity.fxaccounts.pairing.enabled', true);
-  myProfile.setPreference('webchannel.allowObject.urlWhitelist', profile.fxaContentRoot.slice(0, -1));
-  myProfile.setPreference('identity.fxaccounts.remote.root', profile.fxaContentRoot.slice(0, -1));
-  myProfile.setPreference('identity.fxaccounts.autoconfig.uri', profile.fxaContentRoot.slice(0, -1));
 
   myProfile.updatePreferences();
 
