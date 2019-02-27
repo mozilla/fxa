@@ -534,7 +534,7 @@ module.exports = (
       })
   }
 
-  SAFE_URLS.sessionToken = new SafeUrl('/sessionToken/:id/device', 'db.sessionToken')
+  SAFE_URLS.sessionToken = new SafeUrl('/sessionToken/:id', 'db.sessionToken')
   DB.prototype.sessionToken = function (id) {
     log.trace({ op: 'DB.sessionToken', id })
     return this.pool.get(SAFE_URLS.sessionToken, { id })
