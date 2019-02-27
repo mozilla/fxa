@@ -580,8 +580,8 @@ module.exports = function(cfg, makeServer) {
     it(
       'device handling',
       () => {
-        var user = fake.newUserDataHex()
-        var zombieUser = fake.newUserDataHex()
+        const user = fake.newUserDataHex()
+        const zombieUser = fake.newUserDataHex()
         return client.getThen('/account/' + user.accountId + '/devices')
           .then(function(r) {
             respOk(r)
@@ -606,10 +606,11 @@ module.exports = function(cfg, makeServer) {
             respOk(r)
             var devices = r.obj
             assert.equal(devices.length, 1, 'devices contains one item')
-            assert.equal(Object.keys(devices[0]).length, 18, 'device has eighteen properties')
+            assert.equal(Object.keys(devices[0]).length, 19, 'device has nineteen properties')
             assert.equal(devices[0].uid, user.accountId, 'uid is correct')
             assert.equal(devices[0].id, user.deviceId, 'id is correct')
             assert.equal(devices[0].sessionTokenId, user.sessionTokenId, 'sessionTokenId is correct')
+            assert.equal(devices[0].refreshTokenId, null, 'refreshTokenId is correct')
             assert.equal(devices[0].createdAt, user.device.createdAt, 'createdAt is correct')
             assert.equal(devices[0].name, user.device.name, 'name is correct')
             assert.equal(devices[0].type, user.device.type, 'type is correct')
@@ -735,11 +736,75 @@ module.exports = function(cfg, makeServer) {
             assert.equal(devices.length, 1, 'devices contains one item again')
             assert.equal(devices[0].name, '4a6f686e', 'name was not automagically bufferized')
 
+            return client.putThen('/account/' + user.accountId + '/device/' + user.oauthDeviceId, user.oauthDevice)
+          })
+          .then(function (r) {
+            return client.getThen('/account/' + user.accountId + '/devices')
+          })
+          .then(function (r) {
+            respOk(r)
+            var devices = r.obj
+            assert.equal(devices.length, 2, 'devices now contains two items')
+            const sessionDevice = devices.find(d => d.sessionTokenId)
+            const oauthDevice = devices.find(d => d.refreshTokenId)
+
+            assert.equal(sessionDevice.uid, user.accountId, 'uid is correct')
+            assert.equal(sessionDevice.sessionTokenId, user.sessionTokenId, 'sessionTokenId is correct')
+            assert.equal(sessionDevice.refreshTokenId, null, 'refreshTokenId is correct')
+
+            assert.equal(Object.keys(oauthDevice).length, 19, 'device has nineteen properties')
+            assert.equal(oauthDevice.uid, user.accountId, 'uid is correct')
+            assert.equal(oauthDevice.id, user.oauthDeviceId, 'id is correct')
+            assert.equal(oauthDevice.sessionTokenId, null, 'sessionTokenId is correct')
+            assert.equal(oauthDevice.refreshTokenId, user.refreshTokenId, 'refreshTokenId is correct')
+            assert.equal(oauthDevice.createdAt, user.oauthDevice.createdAt, 'createdAt is correct')
+            assert.equal(oauthDevice.name, user.oauthDevice.name, 'name is correct')
+            assert.equal(oauthDevice.type, user.oauthDevice.type, 'type is correct')
+            assert.equal(oauthDevice.callbackURL, user.oauthDevice.callbackURL, 'callbackURL is correct')
+            assert.equal(oauthDevice.callbackPublicKey, user.oauthDevice.callbackPublicKey, 'callbackPublicKey is correct')
+            assert.equal(oauthDevice.callbackAuthKey, user.oauthDevice.callbackAuthKey, 'callbackAuthKey is correct')
+            assert.equal(oauthDevice.callbackIsExpired, user.oauthDevice.callbackIsExpired, 'callbackIsExpired is correct')
+            assert.deepEqual(oauthDevice.availableCommands, {}, 'availableCommands is correct')
+            assert.equal(oauthDevice.uaBrowser, null, 'uaBrowser is correct')
+            assert.equal(oauthDevice.uaBrowserVersion, null, 'uaBrowserVersion is correct')
+            assert.equal(oauthDevice.uaOS, null, 'uaOS is correct')
+            assert.equal(oauthDevice.uaOSVersion, null, 'uaOSVersion is correct')
+            assert.equal(oauthDevice.uaDeviceType, null, 'uaDeviceType is correct')
+            assert.equal(oauthDevice.uaFormFactor, null, 'uaFormFactor is correct')
+            assert.equal(oauthDevice.lastAccessTime, null, 'lastAccessTime is correct')
+
+            return client.postThen('/account/' + user.accountId + '/device/' + oauthDevice.id + '/update', {
+              name: 'a new device name'
+            })
+          })
+          .then(function (r) {
+            return client.getThen('/account/' + user.accountId + '/devices')
+          })
+          .then(function (r) {
+            respOk(r)
+            var devices = r.obj
+            assert.equal(devices.length, 2, 'devices still contains two items')
+            const sessionDevice = devices.find(d => d.sessionTokenId)
+            const oauthDevice = devices.find(d => d.refreshTokenId)
+
+            assert.equal(sessionDevice.sessionTokenId, user.sessionTokenId, 'sessionTokenId is correct')
+            assert.equal(sessionDevice.refreshTokenId, null, 'refreshTokenId is correct')
+
+            assert.equal(oauthDevice.sessionTokenId, null, 'sessionTokenId is correct')
+            assert.equal(oauthDevice.refreshTokenId, oauthDevice.refreshTokenId, 'refreshTokenId is correct')
+            assert.equal(oauthDevice.name, 'a new device name', 'name is correct')
+
+            return client.delThen('/account/' + user.accountId + '/device/' + user.oauthDeviceId)
+          })
+          .then(function (r) {
+            respOk(r)
+            assert.deepEqual(r.obj, { sessionTokenId: null, refreshTokenId: user.refreshTokenId })
+
             return client.delThen('/account/' + user.accountId + '/device/' + user.deviceId)
           })
           .then(function(r) {
             respOk(r)
-            assert.deepEqual(r.obj, { sessionTokenId: user.sessionTokenId })
+            assert.deepEqual(r.obj, { sessionTokenId: user.sessionTokenId, refreshTokenId: null })
             return client.getThen('/account/' + user.accountId + '/devices')
           })
           .then(function(r) {

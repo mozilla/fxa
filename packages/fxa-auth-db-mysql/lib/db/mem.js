@@ -28,9 +28,11 @@ var signinCodes = {}
 const totpTokens = {}
 const recoveryCodes = {}
 const recoveryKeys = {}
+const devicesByRefreshTokenId = {}
 
 var DEVICE_FIELDS = [
   'sessionTokenId',
+  'refreshTokenId',
   'name',
   'type',
   'createdAt',
@@ -231,14 +233,24 @@ module.exports = function (log, error) {
   }
 
   function updateDeviceRecord (device, deviceInfo, deviceKey) {
-    var session
-    var sessionKey = (deviceInfo.sessionTokenId || '').toString('hex')
-
+    // Prevent multiple device records from linking to the same sessionToken.
+    let session
+    const sessionKey = (deviceInfo.sessionTokenId || '').toString('hex')
     if (sessionKey) {
       session = sessionTokens[sessionKey]
       if (session && session.deviceKey && session.deviceKey !== deviceKey) {
         throw error.duplicate()
       }
+    }
+
+    // Prevent multiple device records from linking to the same refreshToken.
+    const refreshTokenId = (deviceInfo.refreshTokenId || '').toString('hex')
+    if (refreshTokenId) {
+      const existingDevice = devicesByRefreshTokenId[refreshTokenId]
+      if (existingDevice && existingDevice !== deviceKey) {
+        throw error.duplicate()
+      }
+      devicesByRefreshTokenId[refreshTokenId] = deviceKey
     }
 
     DEVICE_FIELDS.forEach(function (key) {
@@ -257,6 +269,10 @@ module.exports = function (log, error) {
         device[key] = session[key]
       })
       session.deviceKey = deviceKey
+    } else {
+      SESSION_DEVICE_FIELDS.forEach(function (key) {
+        device[key] = null
+      })
     }
 
     return device
@@ -271,6 +287,7 @@ module.exports = function (log, error) {
             throw error.notFound()
           }
           var device = account.devices[deviceKey]
+          // If changing sessionTokenId, the old token loses its device record.
           if (device.sessionTokenId) {
             if (deviceInfo.sessionTokenId) {
               var oldSessionKey = device.sessionTokenId.toString('hex')
@@ -282,6 +299,17 @@ module.exports = function (log, error) {
               }
             } else {
               deviceInfo.sessionTokenId = device.sessionTokenId
+            }
+          }
+          // If changing refreshTokenId, the old token loses its device record.
+          if (device.refreshTokenId) {
+            if (deviceInfo.refreshTokenId) {
+              const oldRefreshTokenId = device.refreshTokenId.toString('hex')
+              if (oldRefreshTokenId !== deviceInfo.refreshTokenId.toString('hex')) {
+                delete devicesByRefreshTokenId[oldRefreshTokenId]
+              }
+            } else {
+              deviceInfo.refreshTokenId = device.refreshTokenId
             }
           }
           account.devices[deviceKey] = updateDeviceRecord(device, deviceInfo, deviceKey)
@@ -418,7 +446,7 @@ module.exports = function (log, error) {
 
   Memory.prototype.deleteDevice = function (uid, deviceId) {
     const deviceKey = deviceId.toString('hex')
-    let sessionTokenId
+    let sessionTokenId, refreshTokenId
 
     return getAccountByUid(uid)
       .then(account => {
@@ -428,12 +456,15 @@ module.exports = function (log, error) {
 
         const device = account.devices[deviceKey]
         sessionTokenId = device.sessionTokenId
+        refreshTokenId = device.refreshTokenId
 
         delete account.devices[deviceKey]
 
-        return Memory.prototype.deleteSessionToken(sessionTokenId)
+        if (sessionTokenId) {
+          return Memory.prototype.deleteSessionToken(sessionTokenId)
+        }
       })
-      .then(() => ({ sessionTokenId }))
+      .then(() => ({ sessionTokenId, refreshTokenId }))
   }
 
   // READ
@@ -475,6 +506,10 @@ module.exports = function (log, error) {
                   SESSION_DEVICE_FIELDS.forEach(function (key) {
                     device[key] = session[key]
                   })
+                  return device
+                }
+                if (device.refreshTokenId) {
+                  device.sessionTokenId = null
                   return device
                 }
               }
@@ -521,7 +556,7 @@ module.exports = function (log, error) {
         function (devices) {
           var device = devices.filter(
             function (d) {
-              return d.sessionTokenId.toString('hex') === sessionTokenId
+              return d.sessionTokenId && d.sessionTokenId.toString('hex') === sessionTokenId
             }
           )[0]
           if (! device) {
@@ -604,7 +639,7 @@ module.exports = function (log, error) {
         })
 
         const device = devices.filter((d) => {
-          return d.sessionTokenId.toString('hex') === id.toString('hex')
+          return d.sessionTokenId && d.sessionTokenId.toString('hex') === id.toString('hex')
         })[0]
 
         if (device) {
@@ -667,7 +702,7 @@ module.exports = function (log, error) {
         var sessionToken = sessionTokens[key]
 
         var deviceInfo = devices.find(function (device) {
-          return device.sessionTokenId.toString('hex') === key
+          return device.sessionTokenId && device.sessionTokenId.toString('hex') === key
         })
 
         if (! deviceInfo) {
