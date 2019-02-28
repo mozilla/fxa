@@ -131,8 +131,7 @@ registerSuite('routes/get-metrics-flow', {
         }
       };
       instance.process(request, response);
-      assert.isTrue(mocks.log.info.calledOnceWith({
-        op: 'request.metrics-flow.invalid-param',
+      assert.isTrue(mocks.log.info.calledOnceWith('request.metrics-flow.invalid-param', {
         param: 'entrypoint',
         value: 'foo bar',
       }));
@@ -150,8 +149,7 @@ registerSuite('routes/get-metrics-flow', {
         }
       };
       instance.process(request, response);
-      assert.isTrue(mocks.log.info.calledOnceWith({
-        op: 'request.metrics-flow.invalid-param',
+      assert.isTrue(mocks.log.info.calledOnceWith('request.metrics-flow.invalid-param', {
         param: 'form_type',
         value: 'biz',
       }));
@@ -170,8 +168,7 @@ registerSuite('routes/get-metrics-flow', {
         }
       };
       instance.process(request, response);
-      assert.isTrue(mocks.log.info.calledOnceWith({
-        op: 'request.metrics-flow.invalid-param',
+      assert.isTrue(mocks.log.info.calledOnceWith('request.metrics-flow.invalid-param', {
         param: 'service',
         value: 'zzzz',
       }));
@@ -189,8 +186,7 @@ registerSuite('routes/get-metrics-flow', {
         }
       };
       instance.process(request, response);
-      assert.isTrue(mocks.log.info.calledOnceWith({
-        op: 'request.metrics-flow.invalid-param',
+      assert.isTrue(mocks.log.info.calledOnceWith('request.metrics-flow.invalid-param', {
         param: 'utm_campaign',
         value: 1,
       }));
@@ -209,8 +205,7 @@ registerSuite('routes/get-metrics-flow', {
         }
       };
       instance.process(request, response);
-      assert.isTrue(mocks.log.info.calledOnceWith({
-        op: 'request.metrics-flow.invalid-param',
+      assert.isTrue(mocks.log.info.calledOnceWith('request.metrics-flow.invalid-param', {
         param: 'utm_content',
         value: 'qux qux',
       }));
@@ -229,8 +224,7 @@ registerSuite('routes/get-metrics-flow', {
         }
       };
       instance.process(request, response);
-      assert.isTrue(mocks.log.info.calledOnceWith({
-        op: 'request.metrics-flow.invalid-param',
+      assert.isTrue(mocks.log.info.calledOnceWith('request.metrics-flow.invalid-param', {
         param: 'utm_medium',
         value: 'wimble!@$'
       }));
@@ -248,8 +242,7 @@ registerSuite('routes/get-metrics-flow', {
         }
       };
       instance.process(request, response);
-      assert.isTrue(mocks.log.info.calledOnceWith({
-        op: 'request.metrics-flow.invalid-param',
+      assert.isTrue(mocks.log.info.calledOnceWith('request.metrics-flow.invalid-param', {
         param: 'utm_source',
         value: '%!@%womble',
       }));
@@ -268,8 +261,7 @@ registerSuite('routes/get-metrics-flow', {
         }
       };
       instance.process(request, response);
-      assert.isTrue(mocks.log.info.calledOnceWith({
-        op: 'request.metrics-flow.invalid-param',
+      assert.isTrue(mocks.log.info.calledOnceWith('request.metrics-flow.invalid-param', {
         param: 'utm_term',
         value: 'jum!%^gle',
       }));

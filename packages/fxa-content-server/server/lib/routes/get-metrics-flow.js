@@ -74,8 +74,7 @@ module.exports = function (config) {
       const errorDetails = result.error.details && result.error.details[0];
       const paramName =  errorDetails && errorDetails.path;
       const paramValue =  errorDetails && errorDetails.context && errorDetails.context.value;
-      logger.info({
-        op: 'request.metrics-flow.invalid-param',
+      logger.info('request.metrics-flow.invalid-param', {
         param: paramName || 'unknown',
         value: paramValue || 'unknown'
       });
