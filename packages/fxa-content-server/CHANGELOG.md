@@ -1,3 +1,13 @@
+<a name="1.131.4"></a>
+## [1.131.4](https://github.com/mozilla/fxa-content-server/compare/v1.131.3...v1.131.4) (2019-02-28)
+
+
+### Bug Fixes
+
+* **logging:** Log metrics-flow validation events correctly. ([482677e](https://github.com/mozilla/fxa-content-server/commit/482677e))
+
+
+
 <a name="1.131.3"></a>
 ## [1.131.3](https://github.com/mozilla/fxa-content-server/compare/v1.131.2...v1.131.3) (2019-02-25)
 
