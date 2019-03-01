@@ -1239,16 +1239,13 @@ describe('/v1', function() {
             assert.equal(res.result.message, 'Incorrect code');
             assertSecurityHeaders(res);
           });
-
         });
 
-
-        it('consumes code via public client (PKCE)', function() {
+        describe('when used by a public client (PKCE)', function() {
           var code_verifier = 'WFX-9dPwcpPIXt8c5Pbx09_Z61zPm1Fjwv89lVrukOh';
           var code_verifier_bad = 'QnuuNM5gfnJmWwIjiOKk2SKn8A89tph3-8BjNUUtooJ';
           var code_challenge = 'xWVKKAQVD9XSXT4Z4Oh8dLJ5pqrr0gQes2QwZOVJyAk';
           var secret2 = unique.secret();
-          var oauth_code;
           var client2 = {
             name: 'client2Public',
             hashedSecret: encrypt.hash(secret2),
@@ -1257,7 +1254,12 @@ describe('/v1', function() {
             trusted: true,
             publicClient: true
           };
-          return db.registerClient(client2).then(function() {
+
+          before(function () {
+            return db.registerClient(client2);
+          });
+
+          it('consumes code when provided correct code_verifier', function () {
             mockAssertion().reply(200, VERIFY_GOOD);
             return Server.api.post({
               url: '/authorization',
@@ -1267,44 +1269,133 @@ describe('/v1', function() {
                 code_challenge_method: 'S256',
                 code_challenge: code_challenge
               })
-            }).then(function(res) {
+            }).then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               return res.result.code;
+            }).then(function (code) {
+              return Server.api.post({
+                url: '/token',
+                payload: {
+                  client_id: client2.id.toString('hex'),
+                  code: code,
+                  code_verifier: code_verifier
+                }
+              });
+            }).then(function (res) {
+              assert.equal(res.statusCode, 200);
+              assert.ok(res.result.access_token);
+              assert.ok(res.result.scope);
+              assert.equal(res.result.token_type, 'bearer');
+              assert.ok(res.result.access_token);
+              assert.equal(res.result.keys_jwe, undefined);
             });
-          }).then(function(code) {
-            oauth_code = code;
-
-            return Server.api.post({
-              url: '/token',
-              payload: {
-                client_id: client2.id.toString('hex'),
-                code: oauth_code,
-                code_verifier: code_verifier_bad
-              }
-            });
-          }).then(function(res) {
-            assert.equal(res.statusCode, 400);
-            assert.equal(res.result.errno, 117);
-            assert.equal(res.result.message, 'Incorrect code_challenge');
-          }).then(function(code) {
-            return Server.api.post({
-              url: '/token',
-              payload: {
-                client_id: client2.id.toString('hex'),
-                code: oauth_code,
-                code_verifier: code_verifier
-              }
-            });
-          }).then(function(res) {
-            assert.equal(res.statusCode, 200);
-            assert.ok(res.result.access_token);
-            assert.ok(res.result.scope);
-            assert.equal(res.result.token_type, 'bearer');
-            assert.ok(res.result.access_token);
-            assert.equal(res.result.keys_jwe, undefined);
           });
 
+          it('rejects invalid code_verifier', function () {
+            mockAssertion().reply(200, VERIFY_GOOD);
+            return Server.api.post({
+              url: '/authorization',
+              payload: authParams({
+                client_id: client2.id.toString('hex'),
+                response_type: 'code',
+                code_challenge_method: 'S256',
+                code_challenge: code_challenge
+              })
+            }).then(function (res) {
+              assert.equal(res.statusCode, 200);
+              assertSecurityHeaders(res);
+              return res.result.code;
+            }).then(function (code) {
+              return Server.api.post({
+                url: '/token',
+                payload: {
+                  client_id: client2.id.toString('hex'),
+                  code: code,
+                  code_verifier: code_verifier_bad
+                }
+              });
+            }).then(function (res) {
+              assert.equal(res.statusCode, 400);
+              assert.equal(res.result.errno, 117);
+              assert.equal(res.result.message, 'Incorrect code_challenge');
+            });
+          });
+
+          it('must not have expired', function () {
+            this.slow(200);
+            var exp = config.get('expiration.code');
+            config.set('expiration.code', 50);
+            mockAssertion().reply(200, VERIFY_GOOD);
+            return Server.api.post({
+              url: '/authorization',
+              payload: authParams({
+                client_id: client2.id.toString('hex'),
+                response_type: 'code',
+                code_challenge_method: 'S256',
+                code_challenge: code_challenge
+              })
+            }).then(function (res) {
+              assert.equal(res.statusCode, 200);
+              return res.result.code;
+            }).delay(60).then(function (code) {
+              return Server.api.post({
+                url: '/token',
+                payload: {
+                  client_id: client2.id.toString('hex'),
+                  code: code,
+                  code_verifier: code_verifier
+                }
+              });
+            }).then(function (res) {
+              assert.equal(res.result.code, 400);
+              assert.equal(res.result.message, 'Expired code');
+              assertSecurityHeaders(res);
+            }).finally(function () {
+              config.set('expiration.code', exp);
+            });
+          });
+
+          it('must be a code owned by this client', function () {
+            var client3 = {
+              name: 'client3Public',
+              hashedSecret: encrypt.hash(secret2),
+              redirectUri: 'https://example.domain',
+              imageUri: 'https://example.foo.domain/logo.png',
+              trusted: true,
+              publicClient: true
+            };
+            return db.registerClient(client3).then(function () {
+              mockAssertion().reply(200, VERIFY_GOOD);
+              return Server.api.post({
+                url: '/authorization',
+                payload: authParams({
+                  client_id: client3.id.toString('hex'),
+                  response_type: 'code',
+                  code_challenge_method: 'S256',
+                  code_challenge: code_challenge
+                })
+              }).then(function (res) {
+                assert.equal(res.statusCode, 200);
+                assertSecurityHeaders(res);
+                return res.result.code;
+              });
+            }).then(function (code) {
+              return Server.api.post({
+                url: '/token',
+                payload: {
+                  // client2 is trying to use client3's code
+                  client_id: client2.id.toString('hex'),
+                  code: code,
+                  code_verifier: code_verifier
+                }
+              });
+            }).then(function (res) {
+              assert.equal(res.result.code, 400);
+              assert.equal(res.result.message, 'Incorrect code');
+              assertSecurityHeaders(res);
+            });
+          });
         });
 
         it('must not have expired', function() {
