@@ -175,7 +175,9 @@ define(function (require, exports, module) {
             view.highlightSignupPasswordHelper({
               target: '#vpassword'
             });
-            assert.equal(view.$('.input-help-balloon').css('top'), 'auto');
+            /* The behaviour of firefox in new versions has changed,
+            so for versions <= 64 it is auto and for versions >= 65 it is '' (empty string) */
+            assert.include(['', 'auto'], view.$('.input-help-balloon').css('top'));
           });
       });
 
