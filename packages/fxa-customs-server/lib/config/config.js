@@ -339,6 +339,28 @@ module.exports = function (fs, path, url, convict) {
           }
         }
       }
+    },
+    dataflow: {
+      enabled: {
+        doc: 'Enable integration with the Dataflow fraud detection pipeline?',
+        format: Boolean,
+        default: false,
+        env: 'DATAFLOW_ENABLED'
+      },
+      gcpPubSub: {
+        projectId: {
+          doc: 'GCP PubSub project ID',
+          default: '',
+          format: String,
+          env: 'DATAFLOW_GCP_PUBSUB_PROJECT_ID'
+        },
+        subscriptionName: {
+          doc: 'GCP PubSub subscription name',
+          default: '',
+          format: String,
+          env: 'DATAFLOW_GCP_PUBSUB_SUBSCRIPTION_NAME'
+        }
+      }
     }
   })
 
