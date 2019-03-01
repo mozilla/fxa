@@ -532,21 +532,25 @@ section.modal-panel {
     background-image: url('/images/icon-service-addon.svg');
   }
 
-  &[data-name='Pocket'] {
-    background-image: url('/images/icon-service-pocket.svg');
+  &[data-name='Lockbox'],
+  &[data-name='Lockbox iOS'] {
+    background-image: url('/images/icon-service-lockbox.svg');
+  }
+
+  &[data-name^='Firefox Monitor'] {
+    background-image: url('/images/icon-service-monitor.svg');
   }
 
   &[data-name='Notes'] {
     background-image: url('/images/icon-service-firefox-notes.svg');
   }
 
-  &[data-name='Pontoon'] {
-    background-image: url('/images/icon-service-pontoon.svg');
+  &[data-name='Pocket'] {
+    background-image: url('/images/icon-service-pocket.svg');
   }
 
-  &[data-name='Lockbox'],
-  &[data-name='Lockbox iOS'] {
-    background-image: url('/images/icon-service-lockbox.svg');
+  &[data-name='Pontoon'] {
+    background-image: url('/images/icon-service-pontoon.svg');
   }
 
   &[data-name='Screenshots'] {
