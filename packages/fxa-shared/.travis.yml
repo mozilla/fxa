@@ -6,6 +6,9 @@ node_js:
 
 sudo: false
 
+services:
+  - redis-server
+
 notifications:
   irc:
     channels:

@@ -2,6 +2,9 @@ plugins:
   - fxa
 extends: plugin:fxa/server
 
+parserOptions:
+  ecmaVersion: 2018
+
 env:
     mocha: true
 
