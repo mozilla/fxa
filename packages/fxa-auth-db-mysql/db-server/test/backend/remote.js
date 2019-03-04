@@ -1657,7 +1657,7 @@ module.exports = function(cfg, makeServer) {
         return client.postThen('/tokens/' + user.sessionTokenId + '/verifyWithMethod', verifyOptions)
           .then((res) => {
             respOkEmpty(res)
-            return client.getThen('/sessionToken/' + user.sessionTokenId + '/device')
+            return client.getThen('/sessionToken/' + user.sessionTokenId)
           })
           .then((sessionToken) => {
             sessionToken = sessionToken.obj
@@ -1673,7 +1673,7 @@ module.exports = function(cfg, makeServer) {
         return client.postThen('/tokens/' + user.sessionTokenId + '/verifyWithMethod', verifyOptions)
           .then((res) => {
             respOkEmpty(res)
-            return client.getThen('/sessionToken/' + user.sessionTokenId + '/device')
+            return client.getThen('/sessionToken/' + user.sessionTokenId)
           })
           .then((sessionToken) => {
             sessionToken = sessionToken.obj
