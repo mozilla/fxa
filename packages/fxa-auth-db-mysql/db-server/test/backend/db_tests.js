@@ -748,9 +748,7 @@ module.exports = function (config, DB) {
         .then(function (account) {
           assert(account.emailVerified, 'account should now be emailVerified (truthy)')
           assert.equal(account.emailVerified, 1, 'account should now be emailVerified (1)')
-
-          // With migration 91, profileChangedAt will at a minimum be the createdAt timestamp
-          assert.equal(account.profileChangedAt >= account.createdAt, true, 'profileChangedAt updated')
+          assert.equal(account.profileChangedAt > account.createdAt, true, 'profileChangedAt updated')
         })
     })
 
@@ -1623,8 +1621,7 @@ module.exports = function (config, DB) {
 
             return db.account(accountData.uid)
               .then((account) => {
-                // With migration 91, profileChangedAt will at a minimum be the createdAt timestamp
-                assert.equal(account.profileChangedAt >= account.createdAt, true, 'profileChangedAt updated')
+                assert.equal(account.profileChangedAt > account.createdAt, true, 'profileChangedAt updated')
               })
           })
       })
@@ -1648,8 +1645,7 @@ module.exports = function (config, DB) {
 
             return db.account(accountData.uid)
               .then((account) => {
-                // With migration 91, profileChangedAt will at a minimum be the createdAt timestamp
-                assert.equal(account.profileChangedAt >= account.createdAt, true, 'profileChangedAt updated')
+                assert.equal(account.profileChangedAt > account.createdAt, true, 'profileChangedAt updated')
               })
           })
       })
@@ -2095,8 +2091,7 @@ module.exports = function (config, DB) {
                 return db.account(accountData.uid)
               })
               .then((account) => {
-                // With migration 91, profileChangedAt will at a minimum be the createdAt timestamp
-                assert.equal(account.profileChangedAt >= account.createdAt, true, 'profileChangedAt updated')
+                assert.equal(account.profileChangedAt > account.createdAt, true, 'profileChangedAt updated')
               })
           })
       })
@@ -2115,8 +2110,7 @@ module.exports = function (config, DB) {
                 return db.account(accountData.uid)
               })
               .then((account) => {
-                // With migration 91, profileChangedAt will at a minimum be the createdAt timestamp
-                assert.equal(account.profileChangedAt >= account.createdAt, true, 'profileChangedAt updated')
+                assert.equal(account.profileChangedAt > account.createdAt, true, 'profileChangedAt updated')
               })
           })
       })
