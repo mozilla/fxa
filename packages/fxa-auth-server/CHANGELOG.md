@@ -1,3 +1,13 @@
+<a name="1.131.2"></a>
+## [1.131.2](https://github.com/mozilla/fxa-auth-server/compare/v1.131.1...v1.131.2) (2019-03-04)
+
+
+### Bug Fixes
+
+* **pkce:** Check code expiry and ownership in the PKCE flow. ([ff36b14](https://github.com/mozilla/fxa-auth-server/commit/ff36b14))
+
+
+
 <a name="1.131.1"></a>
 ## [1.131.1](https://github.com/mozilla/fxa-auth-server/compare/v1.131.0...v1.131.1) (2019-02-21)
 
