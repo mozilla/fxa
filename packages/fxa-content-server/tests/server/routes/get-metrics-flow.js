@@ -83,6 +83,7 @@ registerSuite('routes/get-metrics-flow', {
       request = {
         headers: {},
         query: {
+          context: 'blee',
           entrypoint: 'zoo',
           'form_type': 'other',
           'service': 'sync',
@@ -120,14 +121,26 @@ registerSuite('routes/get-metrics-flow', {
       assert.ok(metricsData.deviceId);
     },
 
+    'logs invalid context query parameter': function() {
+      request = {
+        headers: {},
+        query: {
+          context: 'con text'
+        }
+      };
+      instance.process(request, response);
+      assert.isTrue(mocks.log.info.calledOnceWith('request.metrics-flow.invalid-param', {
+        param: 'context',
+        value: 'con text',
+      }));
+      assert.isTrue(response.json.calledOnce);
+    },
+
     'logs invalid entrypoint query parameter': function() {
       request = {
         headers: {},
         query: {
           entrypoint: 'foo bar',
-          'form_type': 'email',
-          'utm_campaign': 'biz',
-          'utm_source': 'baz',
         }
       };
       instance.process(request, response);
@@ -142,10 +155,7 @@ registerSuite('routes/get-metrics-flow', {
       request = {
         headers: {},
         query: {
-          entrypoint: 'bar',
           'form_type': 'biz',
-          'utm_campaign': 'biz',
-          'utm_source': 'baz',
         }
       };
       instance.process(request, response);
@@ -160,11 +170,7 @@ registerSuite('routes/get-metrics-flow', {
       request = {
         headers: {},
         query: {
-          entrypoint: 'bar',
-          'form_type': 'email',
           'service': 'zzzz',
-          'utm_campaign': 'biz',
-          'utm_source': 'baz',
         }
       };
       instance.process(request, response);
@@ -179,10 +185,7 @@ registerSuite('routes/get-metrics-flow', {
       request = {
         headers: {},
         query: {
-          entrypoint: 'bar',
-          'form_type': 'email',
           'utm_campaign': 1,
-          'utm_source': 'baz',
         }
       };
       instance.process(request, response);
@@ -197,11 +200,7 @@ registerSuite('routes/get-metrics-flow', {
       request = {
         headers: {},
         query: {
-          entrypoint: 'bar',
-          'form_type': 'email',
-          'utm_campaign': 'biz',
           'utm_content': 'qux qux',
-          'utm_source': 'baz',
         }
       };
       instance.process(request, response);
@@ -216,11 +215,7 @@ registerSuite('routes/get-metrics-flow', {
       request = {
         headers: {},
         query: {
-          entrypoint: 'bar',
-          'form_type': 'email',
-          'utm_campaign': 'biz',
           'utm_medium': 'wimble!@$',
-          'utm_source': 'baz',
         }
       };
       instance.process(request, response);
@@ -235,9 +230,6 @@ registerSuite('routes/get-metrics-flow', {
       request = {
         headers: {},
         query: {
-          entrypoint: 'bar',
-          'form_type': 'email',
-          'utm_campaign': 'biz',
           'utm_source': '%!@%womble'
         }
       };
@@ -253,10 +245,6 @@ registerSuite('routes/get-metrics-flow', {
       request = {
         headers: {},
         query: {
-          entrypoint: 'bar',
-          'form_type': 'email',
-          'utm_campaign': 'biz',
-          'utm_source': 'baz',
           'utm_term': 'jum!%^gle'
         }
       };

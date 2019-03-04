@@ -13,6 +13,7 @@ const uuid = require('node-uuid');
 const validation = require('../validation');
 
 const {
+  CONTEXT: CONTEXT_PATTERN,
   ENTRYPOINT: ENTRYPOINT_PATTERN,
   FORM_TYPE: FORM_TYPE_PATTERN,
   SERVICE: SERVICE_PATTERN,
@@ -44,18 +45,22 @@ module.exports = function (config) {
     preflightContinue: false
   };
 
+  // No query params are passed by Firefox 62's about:welcome page,
+  // so all are marked optional
   const QUERY_SCHEMA = joi.object({
-    // Not passed by the Firefox Concert Series, otherwise should be required.
+    // Passed by about:newinstall unnecessarily, allow it.
+    context: STRING_TYPE.regex(CONTEXT_PATTERN).optional(),
+    // Not passed by the Firefox Concert Series.
     // See https://github.com/mozilla/bedrock/issues/6839
     entrypoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
-    // Not passed by the Firefox Concert Series, otherwise should be required.
+    // Not passed by the Firefox Concert Series.
     // See https://github.com/mozilla/bedrock/issues/6839
     'form_type': STRING_TYPE.regex(FORM_TYPE_PATTERN).optional(),
     'service': STRING_TYPE.regex(SERVICE_PATTERN).optional(),
-    'utm_campaign': UTM_CAMPAIGN_TYPE.required(),
+    'utm_campaign': UTM_CAMPAIGN_TYPE.optional(),
     'utm_content': UTM_TYPE.optional(),
     'utm_medium': UTM_TYPE.optional(),
-    'utm_source': UTM_TYPE.required(),
+    'utm_source': UTM_TYPE.optional(),
     'utm_term': UTM_TYPE.optional()
   });
 
@@ -76,7 +81,7 @@ module.exports = function (config) {
       const paramValue =  errorDetails && errorDetails.context && errorDetails.context.value;
       logger.info('request.metrics-flow.invalid-param', {
         param: paramName || 'unknown',
-        value: paramValue || 'unknown'
+        value: paramValue || 'unknown',
       });
     }
 
