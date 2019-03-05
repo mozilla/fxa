@@ -1,3 +1,13 @@
+<a name="1.131.5"></a>
+## [1.131.5](https://github.com/mozilla/fxa-content-server/compare/v1.131.4-private...v1.131.5) (2019-03-05)
+
+
+### Bug Fixes
+
+* **metrics:** Loosen /metrics-flow validation ([658f38d](https://github.com/mozilla/fxa-content-server/commit/658f38d))
+
+
+
 <a name="1.131.4"></a>
 ## [1.131.4](https://github.com/mozilla/fxa-content-server/compare/v1.131.3...v1.131.4) (2019-02-28)
 
