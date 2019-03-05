@@ -526,7 +526,11 @@ define(function (require, exports, module) {
     TOKEN_VERIFICATION_CODE_REQUIRED: {
       errno: 1060,
       message: t('Please enter verification code')
-    }
+    },
+    TOTP_PAIRING_NOT_SUPPORTED: {
+      errno: 1061,
+      message: t('Accounts with two-step authentication do not support pairing at this time')
+    },
   };
   /*eslint-enable sorting/sort-object-props*/
 

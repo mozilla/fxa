@@ -146,6 +146,7 @@ module.exports = {
   PAIRING: {
     AUTH_SUBMIT: '#auth-approve-btn',
     COMPLETE: '#fxa-oauth-success-header',
+    PAIR_FAILURE: '#fxa-pair-failure-header',
     START_PAIRING: '#start-pairing',
     SUPP_SUBMIT: '#supp-approve-btn',
   },

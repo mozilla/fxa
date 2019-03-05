@@ -7,12 +7,15 @@ import sinon from 'sinon';
 import View from 'views/pair/index';
 import BaseBroker from 'models/auth_brokers/base';
 import Relier from 'models/reliers/relier';
+import User from 'models/user';
 import WindowMock from '../../../mocks/window';
 
 const UA_CHROME = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36';
 const UA_FIREFOX = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:67.0) Gecko/20100101 Firefox/67.0';
 
 describe('views/pair/index', () => {
+  let account;
+  let user;
   let view;
   let broker;
   let relier;
@@ -22,6 +25,11 @@ describe('views/pair/index', () => {
     windowMock = new WindowMock();
     relier = new Relier({}, {
       window: windowMock
+    });
+    user = new User();
+    account = user.initAccount();
+    sinon.stub(account, 'checkTotpTokenExists').callsFake(() => {
+      return Promise.resolve({exists: false});
     });
     broker = new BaseBroker({
       relier: relier,
@@ -34,6 +42,7 @@ describe('views/pair/index', () => {
     });
     sinon.stub(view, 'navigate');
     sinon.spy(view, 'replaceCurrentPage');
+    sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
   });
 
   afterEach(function () {
