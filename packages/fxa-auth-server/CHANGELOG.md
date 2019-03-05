@@ -1,3 +1,20 @@
+<a name="1.132.0"></a>
+# [1.132.0](https://github.com/mozilla/fxa-auth-server/compare/v1.131.1...v1.132.0) (2019-03-05)
+
+
+### Bug Fixes
+
+* **db:** Stop using deprecated 'sessionWithDevice' db route. ([8d36529](https://github.com/mozilla/fxa-auth-server/commit/8d36529))
+* **errors:** add extra data to internal validation errors ([8bb7856](https://github.com/mozilla/fxa-auth-server/commit/8bb7856))
+* **errors:** include request data on unexpected errors ([b0a6d00](https://github.com/mozilla/fxa-auth-server/commit/b0a6d00))
+* **errors:** strip pii and sensitive fields from logged payloads ([811e584](https://github.com/mozilla/fxa-auth-server/commit/811e584))
+
+### chore
+
+* **deploy:** upgrade to node 10 ([b7f9273](https://github.com/mozilla/fxa-auth-server/commit/b7f9273))
+
+
+
 <a name="1.131.1"></a>
 ## [1.131.1](https://github.com/mozilla/fxa-auth-server/compare/v1.131.0...v1.131.1) (2019-02-21)
 
