@@ -1,3 +1,13 @@
+<a name="1.132.0"></a>
+# [1.132.0](https://github.com/mozilla/fxa-customs-server/compare/v1.130.0...v1.132.0) (2019-03-05)
+
+
+### Features
+
+* **fraud-detection:** Listen for DataFlow fraud detection events ([ad16e74](https://github.com/mozilla/fxa-customs-server/commit/ad16e74)), closes [#311](https://github.com/mozilla/fxa-customs-server/issues/311)
+
+
+
 <a name="1.130.0"></a>
 # [1.130.0](https://github.com/mozilla/fxa-customs-server/compare/v1.129.0...v1.130.0) (2019-02-06)
 
