@@ -1,5 +1,5 @@
 <a name="1.132.0"></a>
-# [1.132.0](https://github.com/mozilla/fxa-auth-server/compare/v1.131.1...v1.132.0) (2019-03-05)
+# [1.132.0](https://github.com/mozilla/fxa-auth-server/compare/v1.131.2...v1.132.0) (2019-03-05)
 
 
 ### Bug Fixes
@@ -12,6 +12,16 @@
 ### chore
 
 * **deploy:** upgrade to node 10 ([b7f9273](https://github.com/mozilla/fxa-auth-server/commit/b7f9273))
+
+
+
+<a name="1.131.2"></a>
+## [1.131.2](https://github.com/mozilla/fxa-auth-server/compare/v1.131.1...v1.131.2) (2019-03-04)
+
+
+### Bug Fixes
+
+* **pkce:** Check code expiry and ownership in the PKCE flow. ([ff36b14](https://github.com/mozilla/fxa-auth-server/commit/ff36b14))
 
 
 
