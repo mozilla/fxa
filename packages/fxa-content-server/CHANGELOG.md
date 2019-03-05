@@ -1,3 +1,32 @@
+<a name="1.132.0"></a>
+# [1.132.0](https://github.com/mozilla/fxa-content-server/compare/v1.131.2...v1.132.0) (2019-03-05)
+
+
+### Bug Fixes
+
+* **metrics:** reinstate entrypoint to the metrics context schema ([94345bf](https://github.com/mozilla/fxa-content-server/commit/94345bf))
+* **teamcity:** module extends is no longer used ([9150c9a](https://github.com/mozilla/fxa-content-server/commit/9150c9a))
+* **tests:** move pairing preferences into their own block ([63df8af](https://github.com/mozilla/fxa-content-server/commit/63df8af))
+
+### chore
+
+* **test:** Test on node 10 ([239aaf3](https://github.com/mozilla/fxa-content-server/commit/239aaf3))
+
+### Features
+
+* **oauth:** Add a devices/apps icon for Firefox Monitor. ([94769cb](https://github.com/mozilla/fxa-content-server/commit/94769cb)), closes [#6971](https://github.com/mozilla/fxa-content-server/issues/6971)
+* **pairing:** enable pairing ([6625d04](https://github.com/mozilla/fxa-content-server/commit/6625d04))
+* **pairing:** updated UX with the pair preferences button ([99b23ea](https://github.com/mozilla/fxa-content-server/commit/99b23ea))
+
+### style
+
+* **avatar:** vertically centered avatar buttons ([d630bbd](https://github.com/mozilla/fxa-content-server/commit/d630bbd))
+* **red buttons:** change focus ring ([9cc1724](https://github.com/mozilla/fxa-content-server/commit/9cc1724))
+* **scripts:** Removed arrow from button ([5d34be1](https://github.com/mozilla/fxa-content-server/commit/5d34be1))
+* **success messages:** deintensify colour ([d83bd4b](https://github.com/mozilla/fxa-content-server/commit/d83bd4b))
+
+
+
 <a name="1.131.2"></a>
 ## [1.131.2](https://github.com/mozilla/fxa-content-server/compare/v1.131.1...v1.131.2) (2019-02-25)
 
