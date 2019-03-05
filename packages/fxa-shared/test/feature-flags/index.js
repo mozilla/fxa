@@ -11,7 +11,7 @@ const proxyquire = require('proxyquire').noCallThru();
 const sinon = require('sinon');
 
 describe('feature-flags/index:', () => {
-  let implementation, implementationFactory, initialise, origClearTimeout, origSetTimeout, resolve, reject;
+  let implementation, implementationFactory, initialise, log, origClearTimeout, origSetTimeout, resolve, reject;
 
   beforeEach(done => {
     origSetTimeout = setTimeout;
@@ -25,6 +25,7 @@ describe('feature-flags/index:', () => {
       }))
     };
     implementationFactory = sinon.spy(() => implementation);
+    log = {};
     initialise = proxyquire('../../feature-flags', {
       './foo': implementationFactory
     });
@@ -38,7 +39,7 @@ describe('feature-flags/index:', () => {
 
   it('returned the expected interface', () => {
     assert.isFunction(initialise);
-    assert.lengthOf(initialise, 2);
+    assert.lengthOf(initialise, 3);
   });
 
   it('did not initialise implementation', () => {
@@ -49,42 +50,49 @@ describe('feature-flags/index:', () => {
     assert.equal(setTimeout.callCount, 0);
   });
 
-  it('does not throw if config is valid', () => {
+  it('does not throw if args are valid', () => {
     assert.doesNotThrow(() => initialise({
       implementation: 'foo',
       interval: 300000
-    }));
+    }, log));
   });
 
   it('throws if implementation does not exist', () => {
     assert.throws(() => initialise({
       implementation: 'wibble',
       interval: 300000
-    }));
+    }, log));
   });
 
   it('throws if interval is zero', () => {
     assert.throws(() => initialise({
       implementation: 'foo',
       interval: 0
-    }));
+    }, log));
   });
 
   it('throws if interval is NaN', () => {
     assert.throws(() => initialise({
       implementation: 'foo',
       interval: NaN
-    }));
+    }, log));
   });
 
   it('throws if interval is Infinity', () => {
     assert.throws(() => initialise({
       implementation: 'foo',
       interval: Number.POSITIVE_INFINITY
-    }));
+    }, log));
     assert.throws(() => initialise({
       implementation: 'foo',
       interval: Number.NEGATIVE_INFINITY
+    }, log));
+  });
+
+  it('throws if log argument is missing', () => {
+    assert.throws(() => initialise({
+      implementation: 'foo',
+      interval: 300000
     }));
   });
 
@@ -98,7 +106,7 @@ describe('feature-flags/index:', () => {
         foo: {
           bar: 'baz'
         }
-      });
+      }, log);
       resolve({ bar: 'baz' });
       setImmediate(done);
     });
@@ -114,10 +122,11 @@ describe('feature-flags/index:', () => {
     it('initialised the implementation', () => {
       assert.equal(implementationFactory.callCount, 1);
       const args = implementationFactory.args[0];
-      assert.lengthOf(args, 1);
+      assert.lengthOf(args, 2);
       assert.deepEqual(args[0], {
         bar: 'baz'
       });
+      assert.equal(args[1], log);
     });
 
     it('called implementation.get', () => {
@@ -163,7 +172,7 @@ describe('feature-flags/index:', () => {
           featureFlags.terminate();
         });
 
-        it('did not call clearTimeout', () => {
+        it('did not call clearTimeout a second time', () => {
           assert.equal(clearTimeout.callCount, 1);
         });
       });
@@ -177,7 +186,7 @@ describe('feature-flags/index:', () => {
       featureFlags = initialise({
         implementation: 'foo',
         interval: 300000
-      });
+      }, log);
       reject(new Error('Not implemented'));
       setImmediate(done);
     });
@@ -224,7 +233,7 @@ describe('feature-flags/index:', () => {
       featureFlags = initialise({
         implementation: 'foo',
         interval: 300000
-      }, {
+      }, log, {
         foo: 'bar'
       });
       reject(new Error('Not implemented'));
@@ -281,7 +290,7 @@ describe('feature-flags/index:', () => {
       featureFlags = initialise({
         implementation: 'foo',
         interval: 300000
-      }, {
+      }, log, {
         foo: 'bar'
       });
       setImmediate(done);

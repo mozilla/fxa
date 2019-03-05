@@ -9,23 +9,29 @@ module.exports = initialise;
 /**
  * Initialise the feature-flag module.
  *
- * @param {Object} config
+ * @param {Object} config                Configuration object.
  *
  * @param {String} config.implementation Underlying implementation, loaded with `require`.
  *
  * @param {Number} config.interval       Refresh interval, in milliseconds.
+ *
+ * @param {Object} config                Log object.
  *
  * @param {Object} [defaults]            Default experiment state to return in the event of error.
  *                                       If not set, calls to FeatureFlags.get may fail.
  *
  * @returns {FeatureFlags}
  */
-function initialise (config, defaults) {
-  const implementation = require(`./${config.implementation}`)(config[config.implementation]);
+function initialise (config, log, defaults) {
+  const implementation = require(`./${config.implementation}`)(config[config.implementation], log);
   const { interval } = config;
 
-  if (! (interval > 0 && interval !== Infinity)) {
+  if (! (interval > 0 && interval < Infinity)) {
     throw new TypeError('Invalid interval');
+  }
+
+  if (! log) {
+    throw new TypeError('Missing log argument');
   }
 
   let cache, timeout;
