@@ -140,8 +140,9 @@ function newToken(payload, options) {
       url: '/token',
       payload: {
         client_id: options.clientId || clientId,
-        client_secret: options.secret || secret,
+        client_secret: options.codeVerifier ? undefined : (options.secret || secret),
         code: res.result.code,
+        code_verifier: options.codeVerifier,
         ttl: ttl
       }
     });
@@ -1004,6 +1005,21 @@ describe('/v1', function() {
           assertSecurityHeaders(res);
         });
       });
+
+      it('must match an existing client', function () {
+        return Server.api.post({
+          url: '/token',
+          payload: {
+            client_id: '0000000000000000',
+            client_secret: secret,
+            code: unique.code().toString('hex')
+          }
+        }).then(function (res) {
+          assert.equal(res.result.code, 400);
+          assert.equal(res.result.message, 'Unknown client');
+          assertSecurityHeaders(res);
+        });
+      });
     });
 
     describe('?client_secret', function() {
@@ -1611,16 +1627,17 @@ describe('/v1', function() {
         });
 
         it('can refresh a token as a Public (PKCE) Client', function() {
-          var clientId = '38a6b9b3a65a1871';
+          var clientId = NO_KEY_SCOPES_CLIENT_ID;
           var clientSecret = 'd914ea58d579ec907a1a40b19fb3f3a631461fe00e494521d41c0496f49d288f';
           var refresh;
           return newToken({
             access_type: 'offline',
             response_type: 'code',
             code_challenge_method: 'S256',
-            code_challenge: 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM'
+            code_challenge: 'SWac3rF5sKcyAtsXGMO9feaKqpzgCoA2zowbi20F_0c'
           }, {
             clientId: clientId,
+            codeVerifier: 'WLjNEANMbRNUSG0uQsUZMQGgIL5FUknGz2jRipY79ZC',
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
             refresh = res.result.refresh_token;

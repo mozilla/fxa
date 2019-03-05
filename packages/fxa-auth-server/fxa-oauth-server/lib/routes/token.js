@@ -2,6 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ // This file implements the OAuth "token endpoint", the core endpoint of the OAuth
+ // system at which clients can exchange their various types of authorization grant
+ // for some OAuth tokens.   There's significant complexity here because of the
+ // different types of grant:
+ //
+ //   * `grant_type=authorization_code` for vanilla exchange-a-code-for-a-token OAuth
+ //   * `grant_type=refresh_token` for refreshing a previously-granted token
+ //
+ // And because of the different types of token that can be requested:
+ //
+ //   * A short-lived `access_token`
+ //   * A long-lived `refresh_token`, via `access_type=offline`
+ //   * An OpenID Connect `id_token`, via `scope=openid`
+ //
+ // And because of the different client authentication methods:
+ //
+ //   * `client_secret`, provided in either header or request body
+ //   * PKCE parameters, if using `grant_type=authorization_code`
+ //
+ // So, we've tried to make it as readable as possible, but...be careful in there!
+
 /*jshint camelcase: false*/
 const crypto = require('crypto');
 const AppError = require('../error');
@@ -15,11 +36,11 @@ const config = require('../config');
 const db = require('../db');
 const encrypt = require('../encrypt');
 const logger = require('../logging')('routes.token');
-const P = require('../promise');
 const util = require('../util');
 const validators = require('../validators');
 
 const MAX_TTL_S = config.get('expiration.accessToken') / 1000;
+
 const GRANT_AUTHORIZATION_CODE = 'authorization_code';
 const GRANT_REFRESH_TOKEN = 'refresh_token';
 
@@ -37,15 +58,20 @@ const BASIC_AUTH_REGEX = /^Basic\s+([a-z0-9+\/]+)$/i;
 
 const PAYLOAD_SCHEMA = Joi.object({
 
+  // The client_id can be specified in Authorization header or request body,
+  // but not both.
   client_id: validators.clientId
     .when('$headers.authorization', {
       is: Joi.string().required(),
       then: Joi.forbidden()
     }),
 
+  // The client_secret can be specified in Authorization header or request body,
+  // but not both.  In the code flow it is exclusive with `code_verifier`, and
+  // in the refresh flow it's optional because of public clients.
   client_secret: validators.clientSecret
     .when('code_verifier', {
-      is: Joi.string().required(), // if (typeof code_verifier === 'string') {
+      is: Joi.string().required(),
       then: Joi.forbidden()
     })
     .when('grant_type', {
@@ -93,27 +119,8 @@ const PAYLOAD_SCHEMA = Joi.object({
       is: GRANT_REFRESH_TOKEN,
       otherwise: Joi.forbidden()
     })
-
 });
 
-// No? Still want to press on? Well, OK. But you were warned.
-//
-// This route takes takes an authorization grant, and returns an
-// access_token if everything matches up.
-//
-// Steps from start to finish:
-//
-// 1. Confirm grant credentials.
-//    - If grant type is authorization code or refresh token, first
-//      confirm the client credentials in `confirmClientSecret()`.
-//      - If grant type is authorization code, proceed to `confirmCode()`.
-//      - If grant type is refresh token, proceed to `confirmRefreshToken()`.
-// 2. Generate tokens.
-//   - An options object is passed to `generateTokens()`.
-//     - An access_token is generated.
-//     - If grant type is authorization code, and it was created with
-//       offline access, a refresh_token is also generated.
-// 3. The tokens are returned in the response payload.
 module.exports = {
   validate: {
     headers: Joi.object({
@@ -139,70 +146,193 @@ module.exports = {
   },
   handler: async function tokenEndpoint(req) {
     var params = req.payload;
-    return P.try(function() {
 
-      // Clients are allowed to provide credentials in either
-      // the Authorization header or request body.  Normalize.
-      const authzMatch = BASIC_AUTH_REGEX.exec(req.headers.authorization || '');
-      if (authzMatch) {
-        const creds = Buffer.from(authzMatch[1], 'base64').toString().split(':');
-        const err = new AppError.invalidRequestParameter('authorization');
-        if (creds.length !== 2) {
-          throw err;
-        }
-        params.client_id = Joi.attempt(creds[0], validators.clientId, err);
-        params.client_secret = Joi.attempt(creds[1], validators.clientSecret, err);
+    // Clients are allowed to provide credentials in either
+    // the Authorization header or request body.  Normalize.
+    const authzMatch = BASIC_AUTH_REGEX.exec(req.headers.authorization || '');
+    if (authzMatch) {
+      const creds = Buffer.from(authzMatch[1], 'base64').toString().split(':');
+      const err = new AppError.invalidRequestParameter('authorization');
+      if (creds.length !== 2) {
+        throw err;
       }
+      params.client_id = Joi.attempt(creds[0], validators.clientId, err);
+      params.client_secret = Joi.attempt(creds[1], validators.clientSecret, err);
+    }
 
-      var clientId = params.client_id;
-
-      if (params.grant_type === GRANT_AUTHORIZATION_CODE) {
-        return getClientById(clientId).then(function(client) {
-          if (params.code_verifier && validPublicClient(client)) {
-            return confirmPkceCode(params.client_id, params.code, params.code_verifier);
-          } else {
-            return confirmClientSecret(client, params.client_secret).then(function() {
-              return confirmCode(params.client_id, params.code);
-            });
-          }
-        });
-      } else if (params.grant_type === GRANT_REFRESH_TOKEN) {
-        // If the client has a client_secret, check that it's provided and valid in the refresh request.
-        // If the client does not have client_secret, check that one was not provided in the refresh request.
-        return getClientById(clientId).then(function(client) {
-          var confirmClientPromise;
-
-          if (client.publicClient) {
-            if (params.client_secret) {
-              throw new AppError.invalidRequestParameter('client_secret');
-            }
-
-            confirmClientPromise = P.resolve();
-          } else {
-            confirmClientPromise = confirmClientSecret(client, params.client_secret);
-          }
-
-          return confirmClientPromise
-            .then(function() {
-              return confirmRefreshToken(params);
-            });
-        });
-      } else {
-        // else our Joi validation failed us?
-        logger.critical('joi.grant_type', params.grant_type);
-        throw Error('unreachable');
-      }
-    })
-    .then(function(vals) {
-      vals.ttl = params.ttl;
-      if (vals.scope && vals.scope.contains(SCOPE_OPENID)) {
-        vals.idToken = true;
-      }
-      return vals;
-    })
-    .then(generateTokens);
+    const client = await authenticateClient(params);
+    const requestedGrant = await validateGrantParameters(client, params);
+    return await generateTokens(requestedGrant);
   }
 };
+
+
+async function authenticateClient(params) {
+  const client = await getClientById(params.client_id);
+  // Public clients can't be authenticated in any useful way,
+  // and should never submit a client_secret.
+  if (client.publicClient) {
+    if (params.client_secret) {
+      throw new AppError.invalidRequestParameter('client_secret');
+    }
+    return client;
+  }
+  // Check client_secret against both current and previous stored secrets,
+  // to allow for seamless rotation of the secret.
+  const submitted = encrypt.hash(buf(params.client_secret));
+  const stored = client.hashedSecret;
+  if (crypto.timingSafeEqual(submitted, stored)) {
+    return client;
+  }
+  const storedPrevious = client.hashedSecretPrevious;
+  if (storedPrevious) {
+    if (crypto.timingSafeEqual(submitted, storedPrevious)) {
+      logger.info('client.matchSecretPrevious', { client: client.id });
+      return client;
+    }
+  }
+  logger.info('client.mismatchSecret', { client: client.id });
+  logger.verbose('client.mismatchSecret.details', {
+    submitted: submitted,
+    db: stored,
+    dbPrevious: storedPrevious
+  });
+  throw AppError.incorrectSecret(client.id);
+}
+
+
+async function getClientById(clientId) {
+  const client = await db.getClient(buf(clientId));
+  if (! client) {
+    logger.debug('client.notFound', { id: clientId });
+    throw AppError.unknownClient(clientId);
+  }
+  return client;
+}
+
+
+async function validateGrantParameters(client, params) {
+  let requestedGrant;
+  switch (params.grant_type) {
+  case GRANT_AUTHORIZATION_CODE:
+    requestedGrant = await validateAuthorizationCodeGrant(client, params);
+    break;
+  case GRANT_REFRESH_TOKEN:
+    requestedGrant = await validateRefreshTokenGrant(client, params);
+    break;
+  default:
+    // Joi validation means this should never happen.
+    logger.critical('joi.grant_type', { grant_type: params.grant_type } );
+    throw Error('unreachable');
+  }
+  requestedGrant.ttl = params.ttl;
+  return requestedGrant;
+}
+
+
+async function validateAuthorizationCodeGrant(client, params) {
+  const code = params.code;
+  // PKCE should only be used by public clients, and we can check this
+  // before even looking up the code in the db.
+  let pkceHashValue;
+  if (params.code_verifier) {
+    if (! client.publicClient) {
+      logger.debug('client.notPublicClient', { id: client.id });
+      throw AppError.notPublicClient(client.id);
+    }
+    pkceHashValue = pkceHash(params.code_verifier);
+  }
+  // Does the code actually exist?
+  const codeObj = await db.getCode(buf(code));
+  if (! codeObj) {
+    logger.debug('code.notFound', { code: code });
+    throw AppError.unknownCode(code);
+  }
+  // Does it belong to this client?
+  if (! crypto.timingSafeEqual(codeObj.clientId, client.id)) {
+    logger.debug('code.mismatch', {
+      client: hex(client.id),
+      code: hex(codeObj.clientId)
+    });
+    throw AppError.mismatchCode(code, client.id);
+  }
+  // Has it expired?
+  // The + is because loldatemath; without it, it does string concat.
+  const expiresAt = +codeObj.createdAt + config.get('expiration.code');
+  if (Date.now() > expiresAt) {
+    logger.debug('code.expired', { code: code });
+    throw AppError.expiredCode(code, expiresAt);
+  }
+  // If it used PKCE...
+  if (codeObj.codeChallenge) {
+    // Was it using the one variant that we support?
+    // We should never have written such data, but double-checking in case we add
+    // other methods in future but forget to update the code here.
+    if (codeObj.codeChallengeMethod !== 'S256') {
+      throw AppError.mismatchCodeChallenge(pkceHashValue);
+    }
+    // Did they provide a challenge verifier at all?
+    if (! pkceHashValue) {
+      throw AppError.missingPkceParameters();
+    }
+    // Did they provide the *correct* challenge verifier?
+    if (! crypto.timingSafeEqual(Buffer.from(codeObj.codeChallenge), Buffer.from(pkceHashValue))) {
+      throw AppError.mismatchCodeChallenge(pkceHashValue);
+    }
+  }
+  // Is a very confused client is attempting to use PCKE to claim a code
+  // that wasn't actually created using PKCE?
+  if (params.code_verifier && ! codeObj.codeChallenge) {
+    throw AppError.mismatchCodeChallenge(pkceHashValue);
+  }
+  // Looks legit! Codes are one-time-use, so remove it from the db.
+  await db.removeCode(buf(code));
+  return codeObj;
+}
+
+
+async function validateRefreshTokenGrant(client, params) {
+  // Does the refresh token actually exist?
+  const tokObj = await db.getRefreshToken(encrypt.hash(params.refresh_token));
+  if (! tokObj) {
+    logger.debug('refresh_token.notFound', { refresh_token: params.refresh_token });
+    throw AppError.invalidToken();
+  }
+  // Does it belong to this client?
+  if (! crypto.timingSafeEqual(tokObj.clientId, client.id)) {
+    logger.debug('refresh_token.mismatch', {
+      client: params.client_id,
+      code: tokObj.clientId
+    });
+    throw AppError.invalidToken();
+  }
+  // Does it have all the requested scopes?
+  if (! tokObj.scope.contains(params.scope)) {
+    logger.debug('refresh_token.invalidScopes', {
+      allowed: tokObj.scope,
+      requested: params.scope
+    });
+    throw AppError.invalidScopes(params.scope.difference(tokObj.scope).getScopeValues());
+  }
+  // Limit the new grant to just the requested scopes.
+  tokObj.scope = params.scope;
+  // An additional sanity-check that we don't accidentally grant refresh tokens
+  // from other refresh tokens.  There should be no way to trigger this in practice.
+  if (tokObj.offline) {
+    throw AppError.invalidRequestParameter();
+  }
+  // Periodically update last-used-at timestamp in the db.
+  // We don't do this every time because of the write load.
+  var now = new Date();
+  var lastUsedAt = tokObj.lastUsedAt;
+  if ((now - lastUsedAt) > REFRESH_LAST_USED_AT_UPDATE_AFTER_MS) {
+    await db.usedRefreshToken(encrypt.hash(params.refresh_token));
+    logger.debug('usedRefreshToken.updated', { now });
+  } else {
+    logger.debug('usedRefreshToken.not_updated');
+  }
+  return tokObj;
+}
 
 /**
  * Generate a PKCE code_challenge
@@ -212,147 +342,6 @@ function pkceHash(input) {
   return util.base64URLEncode(crypto.createHash('sha256').update(input).digest());
 }
 
-function validPublicClient(client) {
-  if (! client.publicClient) {
-    logger.debug('client.notPublicClient', { id: client.id });
-    throw AppError.notPublicClient(client.id);
-  }
-
-  return true;
-}
-
-function getClientById(clientId) {
-  return db.getClient(buf(clientId)).then(function(client) {
-    if (! client) {
-      logger.debug('client.notFound', { id: clientId });
-      throw AppError.unknownClient(clientId);
-    }
-
-    return client;
-  });
-}
-
-function confirmPkceCode(id, code, pkceVerifier) {
-  return db.getCode(buf(code)).then(function(codeObj) {
-    if (! codeObj) {
-      logger.debug('code.notFound', { code: code });
-      throw AppError.unknownCode(code);
-    }
-    if (hex(codeObj.clientId) !== hex(id)) {
-      logger.debug('code.mismatch', {
-        client: hex(id),
-        code: hex(codeObj.clientId)
-      });
-      throw AppError.mismatchCode(code, id);
-    }
-    // + because loldatemath. without it, it does string concat
-    var expiresAt = +codeObj.createdAt + config.get('expiration.code');
-    if (Date.now() > expiresAt) {
-      logger.debug('code.expired', { code: code });
-      throw AppError.expiredCode(code, expiresAt);
-    }
-    const pkceHashValue = pkceHash(pkceVerifier);
-    if (codeObj.codeChallenge &&
-        codeObj.codeChallengeMethod === 'S256' &&
-        pkceHashValue === codeObj.codeChallenge) {
-      return db.removeCode(buf(code)).then(function() {
-        return codeObj;
-      });
-    } else {
-      throw AppError.mismatchCodeChallenge(pkceHashValue);
-    }
-  });
-}
-
-function confirmClientSecret(client, secret) {
-  return P.resolve().then(function() {
-    var id = client.id;
-    var submitted = hex(encrypt.hash(buf(secret)));
-    var stored = hex(client.hashedSecret);
-
-    if (submitted !== stored) {
-      var storedPrevious;
-      if (client.hashedSecretPrevious) {
-        // Check if secret used is the current previous secret
-        storedPrevious = hex(client.hashedSecretPrevious);
-        if (submitted === storedPrevious) {
-          logger.info('client.matchSecretPrevious', { client: id });
-          return client;
-        }
-      }
-
-      logger.info('client.mismatchSecret', { client: id });
-      logger.verbose('client.mismatchSecret.details', {
-        submitted: submitted,
-        db: stored,
-        dbPrevious: storedPrevious
-      });
-      throw AppError.incorrectSecret(id);
-    }
-
-    return client;
-  });
-}
-
-function confirmCode(id, code) {
-  return db.getCode(buf(code)).then(function(codeObj) {
-    if (! codeObj) {
-      logger.debug('code.notFound', { code: code });
-      throw AppError.unknownCode(code);
-    } else if (hex(codeObj.clientId) !== hex(id)) {
-      logger.debug('code.mismatch', {
-        client: hex(id),
-        code: hex(codeObj.clientId)
-      });
-      throw AppError.mismatchCode(code, id);
-    } else {
-      // + because loldatemath. without it, it does string concat
-      var expiresAt = +codeObj.createdAt + config.get('expiration.code');
-      if (Date.now() > expiresAt) {
-        logger.debug('code.expired', { code: code });
-        throw AppError.expiredCode(code, expiresAt);
-      }
-    }
-    return db.removeCode(buf(code)).then(function() {
-      return codeObj;
-    });
-  });
-}
-
-function confirmRefreshToken(params) {
-  return db.getRefreshToken(encrypt.hash(params.refresh_token))
-  .then(function(tokObj) {
-    if (! tokObj) {
-      logger.debug('refresh_token.notFound', params.refresh_token);
-      throw AppError.invalidToken();
-    } else if (hex(tokObj.clientId) !== hex(params.client_id)) {
-      logger.debug('refresh_token.mismatch', {
-        client: params.client_id,
-        code: tokObj.clientId
-      });
-      throw AppError.invalidToken();
-    } else if (! tokObj.scope.contains(params.scope)) {
-      logger.debug('refresh_token.invalidScopes', {
-        allowed: tokObj.scope,
-        requested: params.scope
-      });
-      throw AppError.invalidScopes();
-    }
-    tokObj.scope = params.scope;
-
-    var now = new Date();
-    var lastUsedAt = tokObj.lastUsedAt;
-
-    if ((now - lastUsedAt) > REFRESH_LAST_USED_AT_UPDATE_AFTER_MS){
-      db.usedRefreshToken(encrypt.hash(params.refresh_token)).then(function() {
-        logger.debug('usedRefreshToken.updated', now);
-      });
-    } else {
-      logger.debug('usedRefreshToken.not_updated');
-    }
-    return tokObj;
-  });
-}
 
 function generateIdToken(options, access) {
   var now = Math.floor(Date.now() / 1000);
@@ -375,43 +364,30 @@ function generateIdToken(options, access) {
   return ID_TOKEN_KEY.sign(claims);
 }
 
-function generateTokens (options) {
-  // we always are generating an access token here
-  // but depending on options, we may also be generating a refresh_token
-  return db.generateAccessToken(options)
-    .then((access) => {
-      const promises = {};
-      if (options.offline) {
-        promises.refresh = db.generateRefreshToken(options);
-      }
-      if (options.idToken) {
-        promises.idToken = generateIdToken(options, access);
-      }
-
-      return P.props(promises).then(function (result) {
-        const refresh = result.refresh;
-        const idToken = result.idToken;
-
-        const json = {
-          access_token: access.token.toString('hex'),
-          token_type: access.type,
-          scope: access.scope.toString()
-        };
-        if (options.authAt) {
-          json.auth_at = options.authAt;
-        }
-        json.expires_in = options.ttl;
-        if (refresh) {
-          json.refresh_token = refresh.token.toString('hex');
-        }
-        if (idToken) {
-          json.id_token = idToken;
-        }
-        if (options.keysJwe) {
-          json.keys_jwe = options.keysJwe;
-        }
-        return json;
-      });
-    });
+async function generateTokens(options) {
+  // We always generate an access_token.
+  const access = await db.generateAccessToken(options);
+  const result = {
+    access_token: access.token.toString('hex'),
+    token_type: access.type,
+    scope: access.scope.toString()
+  };
+  result.expires_in = options.ttl;
+  if (options.authAt) {
+    result.auth_at = options.authAt;
+  }
+  if (options.keysJwe) {
+    result.keys_jwe = options.keysJwe;
+  }
+  // Maybe also generate a refreshToken?
+  if (options.offline) {
+    const refresh = await db.generateRefreshToken(options);
+    result.refresh_token = refresh.token.toString('hex');
+  }
+  // Maybe also generate an idToken?
+  if (options.scope && options.scope.contains(SCOPE_OPENID)) {
+    result.id_token = await generateIdToken(options, access);
+  }
+  return result;
 }
 
