@@ -12,7 +12,6 @@ git pull https://github.com/mozilla/fxa-local-dev.git master
 (cd fxa-email-service && git checkout master && git pull origin master && npm ci && cd ..) || echo "fxa-email-service update failed"
 
 (cd browserid-verifier && git checkout master && git pull origin master && npm ci && cd ..)|| echo "browserid update failed"
-(cd fxa-oauth-server && git checkout master && git pull origin master && npm ci && cd ..) || echo "fxa-oauth-server update failed"
 
 (cd fxa-profile-server && git checkout master && git pull origin master && npm ci && cd ..) || echo "fxa-profile-server update failed"
 
