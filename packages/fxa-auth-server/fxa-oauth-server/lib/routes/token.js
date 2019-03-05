@@ -159,7 +159,7 @@ module.exports = {
       if (params.grant_type === GRANT_AUTHORIZATION_CODE) {
         return getClientById(clientId).then(function(client) {
           if (params.code_verifier && validPublicClient(client)) {
-            return confirmPkceCode(params.code, params.code_verifier);
+            return confirmPkceCode(params.client_id, params.code, params.code_verifier);
           } else {
             return confirmClientSecret(client, params.client_secret).then(function() {
               return confirmCode(params.client_id, params.code);
@@ -232,13 +232,25 @@ function getClientById(clientId) {
   });
 }
 
-function confirmPkceCode(code, pkceVerifier) {
+function confirmPkceCode(id, code, pkceVerifier) {
   return db.getCode(buf(code)).then(function(codeObj) {
     if (! codeObj) {
       logger.debug('code.notFound', { code: code });
       throw AppError.unknownCode(code);
     }
-
+    if (hex(codeObj.clientId) !== hex(id)) {
+      logger.debug('code.mismatch', {
+        client: hex(id),
+        code: hex(codeObj.clientId)
+      });
+      throw AppError.mismatchCode(code, id);
+    }
+    // + because loldatemath. without it, it does string concat
+    var expiresAt = +codeObj.createdAt + config.get('expiration.code');
+    if (Date.now() > expiresAt) {
+      logger.debug('code.expired', { code: code });
+      throw AppError.expiredCode(code, expiresAt);
+    }
     const pkceHashValue = pkceHash(pkceVerifier);
     if (codeObj.codeChallenge &&
         codeObj.codeChallengeMethod === 'S256' &&
