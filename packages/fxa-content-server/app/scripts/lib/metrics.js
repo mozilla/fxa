@@ -91,9 +91,9 @@ define(function (require, exports, module) {
     return `flow.${viewName.replace(/^oauth\./, '')}.${eventName}`;
   }
 
-  function marshallUtmParam (utmParam) {
-    if (utmParam && utmParam !== NOT_REPORTED_VALUE) {
-      return utmParam;
+  function marshallProperty (property) {
+    if (property && property !== NOT_REPORTED_VALUE) {
+      return property;
     }
   }
 
@@ -657,13 +657,14 @@ define(function (require, exports, module) {
       const metadata = (this._flowModel && this._flowModel.attributes) || {};
       return {
         deviceId: metadata.deviceId,
+        entrypoint: marshallProperty(this._entrypoint),
         flowBeginTime: metadata.flowBegin,
         flowId: metadata.flowId,
-        utmCampaign: marshallUtmParam(this._utmCampaign),
-        utmContent: marshallUtmParam(this._utmContent),
-        utmMedium: marshallUtmParam(this._utmMedium),
-        utmSource: marshallUtmParam(this._utmSource),
-        utmTerm: marshallUtmParam(this._utmTerm)
+        utmCampaign: marshallProperty(this._utmCampaign),
+        utmContent: marshallProperty(this._utmContent),
+        utmMedium: marshallProperty(this._utmMedium),
+        utmSource: marshallProperty(this._utmSource),
+        utmTerm: marshallProperty(this._utmTerm)
       };
     },
 

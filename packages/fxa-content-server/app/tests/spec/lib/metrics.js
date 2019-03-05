@@ -88,6 +88,7 @@ define(function (require, exports, module) {
       assert.isUndefined(metrics.getFlowModel());
       assert.deepEqual(metrics.getFlowEventMetadata(), {
         deviceId: undefined,
+        entrypoint: 'menupanel',
         flowBeginTime: undefined,
         flowId: undefined,
         utmCampaign: 'utm_campaign',
