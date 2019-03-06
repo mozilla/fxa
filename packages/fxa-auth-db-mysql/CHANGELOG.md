@@ -1,3 +1,24 @@
+<a name="1.132.0"></a>
+# [1.132.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.130.0...v1.132.0) (2019-03-05)
+
+
+### chore
+
+* **deploy:** upgrade to node 10 ([f3bc954](https://github.com/mozilla/fxa-auth-db-mysql/commit/f3bc954))
+* **deps:** update nyc ([db987c3](https://github.com/mozilla/fxa-auth-db-mysql/commit/db987c3))
+* **routes:** Remove last vestiges of `sessionWithDevice` route. ([0e5115b](https://github.com/mozilla/fxa-auth-db-mysql/commit/0e5115b))
+
+### Features
+
+* **account:** Add `profileChangedAt` and `keysChangedAt` to the `accounts` table. ([02e944c](https://github.com/mozilla/fxa-auth-db-mysql/commit/02e944c))
+
+### test
+
+* **demo:** add some comments to pt-osc demo ([c85cc7a](https://github.com/mozilla/fxa-auth-db-mysql/commit/c85cc7a))
+* **demo:** set up triggers like pt-osc and check ([ecb87b3](https://github.com/mozilla/fxa-auth-db-mysql/commit/ecb87b3))
+
+
+
 <a name="1.130.0"></a>
 # [1.130.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.129.0...v1.130.0) (2019-02-05)
 
