@@ -17,8 +17,6 @@
 
 const Joi = require('joi')
 
-const validators = require('./validators')
-
 module.exports = (log, config, oauthdb) => {
   const routes = [
     {
@@ -26,18 +24,10 @@ module.exports = (log, config, oauthdb) => {
       path: '/oauth/client/{client_id}',
       options: {
         validate: {
-          params: {
-            client_id: validators.clientId.required()
-          }
+          params: oauthdb.api.getClientInfo.opts.validate.params
         },
         response: {
-          schema: {
-            id: validators.clientId.required(),
-            name: Joi.string().max(255).regex(validators.DISPLAY_SAFE_UNICODE).required(),
-            trusted: Joi.boolean().required(),
-            image_uri: Joi.string().optional().allow(''),
-            redirect_uri: Joi.string().required().allow('')
-          }
+          schema: oauthdb.api.getClientInfo.opts.validate.response
         }
       },
       handler: async function (request) {
@@ -52,17 +42,12 @@ module.exports = (log, config, oauthdb) => {
           strategy: 'sessionToken'
         },
         validate: {
-          payload: {
-            client_id: validators.clientId.required(),
-            scope: validators.scope.required()
-          }
+          payload: Joi.object(oauthdb.api.getScopedKeyData.opts.validate.payload).keys({
+            assertion: Joi.forbidden()
+          })
         },
         response: {
-          schema: Joi.object().pattern(Joi.any(), Joi.object({
-            identifier: validators.scope.required(),
-            keyRotationSecret: validators.hexString.length(64).required(),
-            keyRotationTimestamp: Joi.number().required(),
-          }))
+          schema: oauthdb.api.getScopedKeyData.opts.validate.response
         }
       },
       handler: async function (request) {

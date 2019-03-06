@@ -1963,38 +1963,6 @@ Retrieve metadata about the specified OAuth client,
 such as its display-name and redirect URI.
 <!--end-route-get-oauthclientclient_id-->
 
-##### Response body
-
-* `id`: *validators.clientId.required*
-
-  <!--begin-response-body-get-oauthclientclient_id-id-->
-  
-  <!--end-response-body-get-oauthclientclient_id-id-->
-
-* `name`: *Joi.string.max(255).regex(validators.DISPLAY_SAFE_UNICODE).required*
-
-  <!--begin-response-body-get-oauthclientclient_id-name-->
-  
-  <!--end-response-body-get-oauthclientclient_id-name-->
-
-* `trusted`: *Joi.boolean.required*
-
-  <!--begin-response-body-get-oauthclientclient_id-trusted-->
-  
-  <!--end-response-body-get-oauthclientclient_id-trusted-->
-
-* `image_uri`: *Joi.string.optional.allow('')*
-
-  <!--begin-response-body-get-oauthclientclient_id-image_uri-->
-  
-  <!--end-response-body-get-oauthclientclient_id-image_uri-->
-
-* `redirect_uri`: *Joi.string.required.allow('')*
-
-  <!--begin-response-body-get-oauthclientclient_id-redirect_uri-->
-  
-  <!--end-response-body-get-oauthclientclient_id-redirect_uri-->
-
 
 #### POST /account/scoped-key-data
 
@@ -2004,20 +1972,6 @@ Query for the information required
 to derive scoped encryption keys
 requested by the specified OAuth client.
 <!--end-route-post-accountscoped-key-data-->
-
-##### Request body
-
-* `client_id`: *validators.clientId.required*
-
-  <!--begin-request-body-post-accountscoped-key-data-client_id-->
-  
-  <!--end-request-body-post-accountscoped-key-data-client_id-->
-
-* `scope`: *validators.scope.required*
-
-  <!--begin-request-body-post-accountscoped-key-data-scope-->
-  
-  <!--end-request-body-post-accountscoped-key-data-scope-->
 
 
 ### Password

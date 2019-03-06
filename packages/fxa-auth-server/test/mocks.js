@@ -158,7 +158,7 @@ module.exports = {
   mockBounces: mockObject(['check']),
   mockCustoms,
   mockDB,
-  mockOAuthDB: mockObject(OAUTHDB_METHOD_NAMES),
+  mockOAuthDB,
   mockDevices,
   mockLog: mockObject(LOG_METHOD_NAMES),
   mockMailer: mockObject(MAILER_METHOD_NAMES),
@@ -417,12 +417,21 @@ function mockDB (data, errors) {
   })
 }
 
-function mockObject (methodNames) {
+function mockOAuthDB(methods) {
+  // For OAuthDB, the mock object needs to expose a `.api` property
+  // with route validation info, so we load the module directly.
+  const log = methods.log || module.exports.mockLog()
+  const config = methods.config || { oauth: { url: 'http://mocked-oauth-url.net' } }
+  return mockObject(OAUTHDB_METHOD_NAMES, require('../lib/oauthdb')(log, config))(methods)
+}
+
+function mockObject (methodNames, baseObj) {
   return methods => {
+    methods = methods || {}
     return methodNames.reduce((object, name) => {
-      object[name] = methods && methods[name] || sinon.spy(() => P.resolve())
+      object[name] = methods[name] || sinon.spy(() => P.resolve())
       return object
-    }, {})
+    }, baseObj || {})
   }
 }
 
