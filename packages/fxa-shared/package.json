@@ -34,6 +34,7 @@
   "dependencies": {
     "accept-language": "2.0.17",
     "bluebird": "3.5.3",
+    "check-types": "8.0.1",
     "generic-pool": "3.6.1",
     "moment": "2.20.1",
     "redis": "2.8.0",
