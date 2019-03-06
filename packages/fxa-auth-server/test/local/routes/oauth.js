@@ -88,6 +88,30 @@ describe('/oauth/ routes', () => {
       assert.deepEqual(resp, { key: 'data' })
     })
 
+    it('rejects an `assertion` parameter in the request payload', async () => {
+      const Token = require(`${ROOT_DIR}/lib/tokens/token`)(mockLog)
+      const SessionToken = require(`${ROOT_DIR}/lib/tokens/session_token`)(mockLog, Token, {
+        tokenLifetimes: {
+          sessionTokenWithoutDevice: 2419200000
+        }
+      })
+      sessionToken = await SessionToken.create({
+        uid: uuid.v4('binary').toString('hex'),
+        email: 'foo@example.com',
+        emailVerified: true,
+      })
+      const mockRequest = mocks.mockRequest({
+        credentials: sessionToken,
+        payload: {
+          assertion: 'a~b',
+          client_id: MOCK_CLIENT_ID,
+          scope: MOCK_SCOPES
+        }
+      })
+      const resp = await loadAndCallRoute('/account/scoped-key-data', mockRequest)
+      assert.deepEqual(resp, { key: 'data' })
+    })
+
   })
 
 })
