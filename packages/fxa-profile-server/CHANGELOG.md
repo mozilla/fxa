@@ -1,3 +1,13 @@
+<a name="1.132.0"></a>
+# [1.132.0](https://github.com/mozilla/fxa-profile-server/compare/v1.131.0...v1.132.0) (2019-03-05)
+
+
+### chore
+
+* **deps:** update deps to fix nsp warnings ([e2f3ef5](https://github.com/mozilla/fxa-profile-server/commit/e2f3ef5))
+
+
+
 <a name="1.131.0"></a>
 # [1.131.0](https://github.com/mozilla/fxa-profile-server/compare/v1.129.0...v1.131.0) (2019-02-21)
 
