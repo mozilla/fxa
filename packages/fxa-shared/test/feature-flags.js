@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 /* eslint-disable no-global-assign */
 
@@ -11,23 +11,23 @@ const proxyquire = require('proxyquire').noCallThru();
 const sinon = require('sinon');
 
 describe('feature-flags/index:', () => {
-  let implementation, implementationFactory, initialise, log, origClearTimeout, origSetTimeout, resolve, reject;
+  let origSetTimeout, origClearTimeout, redis, redisFactory, log, resolve, reject, initialise;
 
   beforeEach(done => {
     origSetTimeout = setTimeout;
     origClearTimeout = clearTimeout;
     setTimeout = sinon.spy(() => 'wibble');
     clearTimeout = sinon.spy();
-    implementation = {
+    redis = {
       get: sinon.spy(() => new Promise((res, rej) => {
         resolve = res;
         reject = rej;
       }))
     };
-    implementationFactory = sinon.spy(() => implementation);
+    redisFactory = sinon.spy(() => redis);
     log = {};
-    initialise = proxyquire('../../feature-flags', {
-      './foo': implementationFactory
+    initialise = proxyquire('../feature-flags', {
+      './redis': redisFactory
     });
     setImmediate(done);
   });
@@ -42,8 +42,8 @@ describe('feature-flags/index:', () => {
     assert.lengthOf(initialise, 3);
   });
 
-  it('did not initialise implementation', () => {
-    assert.equal(implementationFactory.callCount, 0);
+  it('did not initialise redis', () => {
+    assert.equal(redisFactory.callCount, 0);
   });
 
   it('did not call setTimeout', () => {
@@ -51,49 +51,24 @@ describe('feature-flags/index:', () => {
   });
 
   it('does not throw if args are valid', () => {
-    assert.doesNotThrow(() => initialise({
-      implementation: 'foo',
-      interval: 300000
-    }, log));
-  });
-
-  it('throws if implementation does not exist', () => {
-    assert.throws(() => initialise({
-      implementation: 'wibble',
-      interval: 300000
-    }, log));
+    assert.doesNotThrow(() => initialise({ interval: 300000 }, log));
   });
 
   it('throws if interval is zero', () => {
-    assert.throws(() => initialise({
-      implementation: 'foo',
-      interval: 0
-    }, log));
+    assert.throws(() => initialise({ interval: 0 }, log));
   });
 
   it('throws if interval is NaN', () => {
-    assert.throws(() => initialise({
-      implementation: 'foo',
-      interval: NaN
-    }, log));
+    assert.throws(() => initialise({ interval: NaN }, log));
   });
 
   it('throws if interval is Infinity', () => {
-    assert.throws(() => initialise({
-      implementation: 'foo',
-      interval: Number.POSITIVE_INFINITY
-    }, log));
-    assert.throws(() => initialise({
-      implementation: 'foo',
-      interval: Number.NEGATIVE_INFINITY
-    }, log));
+    assert.throws(() => initialise({ interval: Number.POSITIVE_INFINITY }, log));
+    assert.throws(() => initialise({ interval: Number.NEGATIVE_INFINITY }, log));
   });
 
   it('throws if log argument is missing', () => {
-    assert.throws(() => initialise({
-      implementation: 'foo',
-      interval: 300000
-    }));
+    assert.throws(() => initialise({ interval: 300000 }));
   });
 
   describe('initialise, successful get:', () => {
@@ -101,13 +76,15 @@ describe('feature-flags/index:', () => {
 
     beforeEach(done => {
       featureFlags = initialise({
-        implementation: 'foo',
         interval: 300000,
-        foo: {
-          bar: 'baz'
+        redis: {
+          enabled: false,
+          host: '127.0.0.1',
+          port: 6379,
+          prefix: 'wibble:',
         }
       }, log);
-      resolve({ bar: 'baz' });
+      resolve(JSON.stringify({ foo: 'bar' }));
       setImmediate(done);
     });
 
@@ -119,19 +96,24 @@ describe('feature-flags/index:', () => {
       assert.lengthOf(featureFlags.terminate, 0);
     });
 
-    it('initialised the implementation', () => {
-      assert.equal(implementationFactory.callCount, 1);
-      const args = implementationFactory.args[0];
+    it('initialised redis', () => {
+      assert.equal(redisFactory.callCount, 1);
+      const args = redisFactory.args[0];
       assert.lengthOf(args, 2);
       assert.deepEqual(args[0], {
-        bar: 'baz'
+        enabled: true,
+        host: '127.0.0.1',
+        port: 6379,
+        prefix: 'featureFlags:',
       });
       assert.equal(args[1], log);
     });
 
-    it('called implementation.get', () => {
-      assert.equal(implementation.get.callCount, 1);
-      assert.lengthOf(implementation.get.args[0], 0);
+    it('called redis.get', () => {
+      assert.equal(redis.get.callCount, 1);
+      const args = redis.get.args[0];
+      assert.lengthOf(args, 1);
+      assert.equal(args[0], 'current');
     });
 
     it('called setTimeout', () => {
@@ -148,7 +130,7 @@ describe('feature-flags/index:', () => {
         result = await featureFlags.get();
       } catch (err) {
       }
-      assert.deepEqual(result, { bar: 'baz' });
+      assert.deepEqual(result, { foo: 'bar' });
     });
 
     it('did not call clearTimeout', () => {
@@ -183,10 +165,7 @@ describe('feature-flags/index:', () => {
     let featureFlags;
 
     beforeEach(done => {
-      featureFlags = initialise({
-        implementation: 'foo',
-        interval: 300000
-      }, log);
+      featureFlags = initialise({ interval: 300000 }, log);
       reject(new Error('Not implemented'));
       setImmediate(done);
     });
@@ -199,12 +178,12 @@ describe('feature-flags/index:', () => {
       assert.lengthOf(featureFlags.terminate, 0);
     });
 
-    it('initialised the implementation', () => {
-      assert.equal(implementationFactory.callCount, 1);
+    it('initialised redis', () => {
+      assert.equal(redisFactory.callCount, 1);
     });
 
-    it('called implementation.get', () => {
-      assert.equal(implementation.get.callCount, 1);
+    it('called redis.get', () => {
+      assert.equal(redis.get.callCount, 1);
     });
 
     it('called setTimeout', () => {
@@ -230,22 +209,17 @@ describe('feature-flags/index:', () => {
     let featureFlags;
 
     beforeEach(done => {
-      featureFlags = initialise({
-        implementation: 'foo',
-        interval: 300000
-      }, log, {
-        foo: 'bar'
-      });
+      featureFlags = initialise({ interval: 300000 }, log, { foo: 'bar' });
       reject(new Error('Not implemented'));
       setImmediate(done);
     });
 
-    it('initialised the implementation', () => {
-      assert.equal(implementationFactory.callCount, 1);
+    it('initialised redis', () => {
+      assert.equal(redisFactory.callCount, 1);
     });
 
-    it('called implementation.get', () => {
-      assert.equal(implementation.get.callCount, 1);
+    it('called redis.get', () => {
+      assert.equal(redis.get.callCount, 1);
     });
 
     it('called setTimeout', () => {
@@ -268,7 +242,7 @@ describe('feature-flags/index:', () => {
 
       describe('resolve refresh:', () => {
         beforeEach(done => {
-          resolve({ baz: 'qux' });
+          resolve(JSON.stringify({ baz: 'qux' }));
           setImmediate(done);
         });
 
@@ -287,21 +261,16 @@ describe('feature-flags/index:', () => {
     let featureFlags;
 
     beforeEach(done => {
-      featureFlags = initialise({
-        implementation: 'foo',
-        interval: 300000
-      }, log, {
-        foo: 'bar'
-      });
+      featureFlags = initialise({ interval: 300000 }, log, { foo: 'bar' });
       setImmediate(done);
     });
 
-    it('initialised the implementation', () => {
-      assert.equal(implementationFactory.callCount, 1);
+    it('initialised redis', () => {
+      assert.equal(redisFactory.callCount, 1);
     });
 
-    it('called implementation.get', () => {
-      assert.equal(implementation.get.callCount, 1);
+    it('called redis.get', () => {
+      assert.equal(redis.get.callCount, 1);
     });
 
     it('did not call setTimeout', () => {
