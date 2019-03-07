@@ -59,7 +59,7 @@ registerSuite('amplitude', {
       }, {
         connection: {},
         headers: {
-          'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:58.0) Gecko/20100101 Firefox/58.0',
+          'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:58.0) Gecko/20100101 Firefox/65.0',
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
@@ -113,7 +113,7 @@ registerSuite('amplitude', {
           entrypoint: 'baz',
           flow_id: 'wibble',
           ua_browser: 'Firefox',
-          ua_version: '58.0',
+          ua_version: '65.0',
           utm_campaign: 'melm',
           utm_content: 'florg',
           utm_medium: 'derp',
