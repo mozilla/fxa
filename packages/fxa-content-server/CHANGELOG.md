@@ -1,3 +1,13 @@
+<a name="1.131.6"></a>
+## [1.131.6](https://github.com/mozilla/fxa-content-server/compare/v1.131.5-private...v1.131.6) (2019-03-08)
+
+
+### Features
+
+* **metrics:** Reject invalid metrics-flow requests. ([43dc0b7](https://github.com/mozilla/fxa-content-server/commit/43dc0b7)), closes [#44](https://github.com/mozilla/fxa-content-server/issues/44)
+
+
+
 <a name="1.131.5"></a>
 ## [1.131.5](https://github.com/mozilla/fxa-content-server/compare/v1.131.4-private...v1.131.5) (2019-03-05)
 
