@@ -40,7 +40,8 @@
 
   .button-row &,
   .input-row & {
-    @include hidpi-background-image('spinnergrey', 33px 33px);
+    background-image: url('/images/spinnerwhite.svg');
+    background-size: 33px 33px;
     height: 33px;
     margin: 0 auto;
     position: relative;
