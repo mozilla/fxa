@@ -6,7 +6,6 @@
 
 const amplitude = require('../amplitude');
 const flowMetrics = require('../flow-metrics');
-const joi = require('joi');
 const logFlowEvent = require('../flow-event').logFlowEvent;
 const logger = require('../logging/log')('server.get-metrics-flow');
 const uuid = require('node-uuid');
@@ -45,9 +44,7 @@ module.exports = function (config) {
     preflightContinue: false
   };
 
-  // No query params are passed by Firefox 62's about:welcome page,
-  // so all are marked optional
-  const QUERY_SCHEMA = joi.object({
+  const QUERY_SCHEMA = {
     // Passed by about:newinstall unnecessarily, allow it.
     context: STRING_TYPE.regex(CONTEXT_PATTERN).optional(),
     // Not passed by the Firefox Concert Series.
@@ -62,29 +59,17 @@ module.exports = function (config) {
     'utm_medium': UTM_TYPE.optional(),
     'utm_source': UTM_TYPE.optional(),
     'utm_term': UTM_TYPE.optional()
-  });
+  };
 
   const route = {};
   route.method = 'get';
   route.path = '/metrics-flow';
   route.cors = CORS_OPTIONS;
+  route.validate = {
+    query: QUERY_SCHEMA
+  };
 
   route.process = function (req, res) {
-    const result = QUERY_SCHEMA.validate(req.query);
-    if (result.error) {
-      // Note from 2019-02-18, parameter validation was added after several important
-      // pages were already calling this endpoint. To avoid causing any of those pages
-      // to error out, log and swallow any validation errors. If no errors are logged,
-      // then we can change to return an error.
-      const errorDetails = result.error.details && result.error.details[0];
-      const paramName =  errorDetails && errorDetails.path;
-      const paramValue =  errorDetails && errorDetails.context && errorDetails.context.value;
-      logger.info('request.metrics-flow.invalid-param', {
-        param: paramName || 'unknown',
-        value: paramValue || 'unknown',
-      });
-    }
-
     const flowEventData = flowMetrics.create(FLOW_ID_KEY, req.headers['user-agent']);
     const flowBeginTime = flowEventData.flowBeginTime;
     const flowId = flowEventData.flowId;
