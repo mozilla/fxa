@@ -1,3 +1,19 @@
+<a name="1.132.1"></a>
+## [1.132.1](https://github.com/mozilla/fxa-content-server/compare/v1.132.0...v1.132.1) (2019-03-08)
+
+
+### Bug Fixes
+
+* **logging:** Log metrics-flow validation events correctly. ([482677e](https://github.com/mozilla/fxa-content-server/commit/482677e))
+* **metrics:** Loosen /metrics-flow validation ([658f38d](https://github.com/mozilla/fxa-content-server/commit/658f38d))
+* **metrics:** Validate query parameters to POST /metrics-flow ([aef18b3](https://github.com/mozilla/fxa-content-server/commit/aef18b3))
+
+### Features
+
+* **metrics:** Reject invalid metrics-flow requests. ([43dc0b7](https://github.com/mozilla/fxa-content-server/commit/43dc0b7)), closes [#44](https://github.com/mozilla/fxa-content-server/issues/44)
+
+
+
 <a name="1.132.0"></a>
 # [1.132.0](https://github.com/mozilla/fxa-content-server/compare/v1.131.2...v1.132.0) (2019-03-05)
 
