@@ -69,8 +69,7 @@ module.exports = (log, signer, db, domain, devices) => {
           // No need to wait for a response, update in the background.
           db.touchSessionToken(sessionToken, request.app.geo)
         } else {
-          log.warn({
-            op: 'signer.updateSessionToken', message: 'no user agent string, session token not updated'
+          log.warn('signer.updateSessionToken', { message: 'no user agent string, session token not updated'
           })
         }
 
@@ -139,8 +138,7 @@ module.exports = (log, signer, db, domain, devices) => {
               if (! sessionToken.locale) {
                 if (request.app.acceptLanguage) {
                   // Log details to sanity-check locale backfilling.
-                  log.info({
-                    op: 'signer.updateLocale',
+                  log.info('signer.updateLocale', {
                     locale: request.app.acceptLanguage
                   })
                   db.updateLocale(sessionToken.uid, request.app.acceptLanguage)
@@ -148,8 +146,7 @@ module.exports = (log, signer, db, domain, devices) => {
                 } else {
                   // We're seeing a surprising number of accounts that don't get
                   // a proper locale.  Log details to help debug this.
-                  log.info({
-                    op: 'signer.emptyLocale',
+                  log.info('signer.emptyLocale', {
                     email: sessionToken.email,
                     locale: request.app.acceptLanguage,
                     agent: request.headers['user-agent']

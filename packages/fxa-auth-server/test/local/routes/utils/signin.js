@@ -400,7 +400,7 @@ describe('checkCustomsAndLoadAccount', () => {
         assert.calledWithExactly(request.emitMetricsEvent.getCall(1), 'account.login.invalidUnblockCode')
 
         assert.calledOnce(log.info)
-        assert.calledWithMatch(log.info, { op: 'Account.login.unblockCode.expired'})
+        assert.calledWithMatch(log.info, 'Account.login.unblockCode.expired')
 
         assert.calledOnce(customs.flag)
         assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {

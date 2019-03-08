@@ -50,9 +50,9 @@ describe('metrics/events', () => {
       .then(() => {
         assert.equal(log.error.callCount, 1, 'log.error was called once')
         const args = log.error.args[0]
-        assert.equal(args.length, 1, 'log.error was passed one argument')
-        assert.deepEqual(args[0], {
-          op: 'metricsEvents.emit',
+        assert.lengthOf(args, 2)
+        assert.equal(args[0], 'metricsEvents.emit')
+        assert.deepEqual(args[1], {
           missingEvent: true
         }, 'argument was correct')
 
@@ -521,9 +521,9 @@ describe('metrics/events', () => {
       .then(() => {
         assert.equal(log.error.callCount, 1, 'log.error was called once')
         const args = log.error.args[0]
-        assert.equal(args.length, 1, 'log.error was passed one argument')
-        assert.deepEqual(args[0], {
-          op: 'metricsEvents.emitFlowEvent',
+        assert.lengthOf(args, 2)
+        assert.equal(args[0], 'metricsEvents.emitFlowEvent')
+        assert.deepEqual(args[1], {
           event: 'email.verification.sent',
           badRequest: true
         }, 'argument was correct')
@@ -552,8 +552,8 @@ describe('metrics/events', () => {
         assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
 
         assert.equal(log.error.callCount, 1, 'log.error was called once')
-        assert.deepEqual(log.error.args[0][0], {
-          op: 'metricsEvents.emitFlowEvent',
+        assert.equal(log.error.args[0][0], 'metricsEvents.emitFlowEvent')
+        assert.deepEqual(log.error.args[0][1], {
           event: 'email.verification.sent',
           missingFlowId: true
         }, 'argument was correct')

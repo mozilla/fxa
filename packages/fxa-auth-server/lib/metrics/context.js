@@ -73,10 +73,9 @@ module.exports = function (log, config) {
     return P.resolve()
       .then(() => {
         return cache.add(getKey(token), metadata)
-          .catch(err => log.warn({ op: 'metricsContext.stash.add', err }))
+          .catch(err => log.warn('metricsContext.stash.add', { err }))
       })
-      .catch(err => log.error({
-        op: 'metricsContext.stash',
+      .catch(err => log.error('metricsContext.stash', {
         err,
         hasToken: !! token,
         hasId: !! (token && token.id),
@@ -111,8 +110,7 @@ module.exports = function (log, config) {
         return await cache.get(getKey(token)) || {}
       }
     } catch (err) {
-      log.error({
-        op: 'metricsContext.get',
+      log.error('metricsContext.get', {
         err,
         hasToken: !! token,
         hasId: !! (token && token.id),
@@ -191,11 +189,10 @@ module.exports = function (log, config) {
       .then(metadata => {
         if (metadata) {
           return cache.add(getKey(newToken), metadata)
-            .catch(err => log.warn({ op: 'metricsContext.propagate.add', err }))
+            .catch(err => log.warn('metricsContext.propagate.add', { err }))
         }
       })
-      .catch(err => log.error({
-        op: 'metricsContext.propagate',
+      .catch(err => log.error('metricsContext.propagate', {
         err,
         hasOldToken: !! oldToken,
         hasOldTokenId: !! (oldToken && oldToken.id),
@@ -267,8 +264,7 @@ module.exports = function (log, config) {
       return logInvalidContext(this, 'invalid signature')
     }
 
-    log.info({
-      op: 'metrics.context.validate',
+    log.info('metrics.context.validate', {
       valid: true
     })
     return true
@@ -279,8 +275,7 @@ module.exports = function (log, config) {
       delete request.payload.metricsContext.flowId
       delete request.payload.metricsContext.flowBeginTime
     }
-    log.warn({
-      op: 'metrics.context.validate',
+    log.warn('metrics.context.validate', {
       valid: false,
       reason: reason
     })

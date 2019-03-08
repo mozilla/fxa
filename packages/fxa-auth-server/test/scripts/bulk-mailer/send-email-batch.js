@@ -29,11 +29,11 @@ describe('send-email-batch', () => {
 
   it('calls log as expected', () => {
     assert.equal(log.info.callCount, 2)
-    assert.equal(log.info.args[0][0].op, 'send.success')
-    assert.equal(log.info.args[1][0].op, 'send.success')
+    assert.equal(log.info.args[0][0], 'send.success')
+    assert.equal(log.info.args[1][0], 'send.success')
 
     assert.isTrue(log.error.calledOnce)
-    assert.equal(log.error.args[0][0].op, 'send.error')
+    assert.equal(log.error.args[0][0], 'send.error')
   })
 
   it('calls the sender as expected', () => {

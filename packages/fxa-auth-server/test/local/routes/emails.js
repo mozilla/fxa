@@ -72,7 +72,7 @@ describe('/recovery_email/status', function () {
   var mockDB = mocks.mockDB()
   var pushCalled
   var mockLog = mocks.mockLog({
-    info: sinon.spy(data => {
+    info: sinon.spy((op, data) => {
       if (data.name === 'recovery_email_reason.push') {
         pushCalled = true
       }
@@ -113,9 +113,9 @@ describe('/recovery_email/status', function () {
 
         assert.equal(mockLog.info.callCount, 2)
         const args = mockLog.info.args[1]
-        assert.lengthOf(args, 1)
-        assert.deepEqual(args[0], {
-          op: 'accountDeleted.invalidEmailAddress',
+        assert.equal(args.length, 2)
+        assert.equal(args[0], 'accountDeleted.invalidEmailAddress')
+        assert.deepEqual(args[1], {
           email: TEST_EMAIL_INVALID,
           emailVerified: false
         })
@@ -155,11 +155,11 @@ describe('/recovery_email/status', function () {
       mockRequest.auth.credentials.uaBrowserVersion = '57'
 
       return runTest(route, mockRequest).then(() => assert.ok(false), function (response) {
-        const args = log.info.firstCall.args[0]
-        assert.equal(args.op, 'recovery_email.status.stale')
-        assert.equal(args.email, TEST_EMAIL_INVALID)
-        assert.equal(args.createdAt, date.getTime())
-        assert.equal(args.browser, 'Firefox 57')
+        const args = log.info.firstCall.args
+        assert.equal(args[0], 'recovery_email.status.stale')
+        assert.equal(args[1].email, TEST_EMAIL_INVALID)
+        assert.equal(args[1].createdAt, date.getTime())
+        assert.equal(args[1].browser, 'Firefox 57')
       })
         .then(function () {
           mockDB.deleteAccount.resetHistory()
@@ -799,9 +799,9 @@ describe('/recovery_email', () => {
 
         assert.equal(mockLog.info.callCount, 1)
         args = mockLog.info.args[0]
-        assert.lengthOf(args, 1)
-        assert.equal(args[0].op, 'accountDeleted.unverifiedSecondaryEmail')
-        assert.equal(args[0].normalizedEmail, TEST_EMAIL)
+        assert.lengthOf(args, 2)
+        assert.equal(args[0], 'accountDeleted.unverifiedSecondaryEmail')
+        assert.equal(args[1].normalizedEmail, TEST_EMAIL)
       })
         .then(function () {
           mockDB.deleteAccount.resetHistory()

@@ -131,7 +131,7 @@ module.exports = (log, db, config, customs, sms) => {
 
           if (! country) {
             if (! IS_STATUS_GEO_ENABLED) {
-              log.warn({ op: 'sms.getGeoData', warning: 'skipping geolocation step' })
+              log.warn('sms.getGeoData', { warning: 'skipping geolocation step' })
               return true
             }
 
@@ -145,7 +145,7 @@ module.exports = (log, db, config, customs, sms) => {
             return REGIONS.has(country)
           }
 
-          log.error({ op: 'sms.getGeoData', err: 'missing location data' })
+          log.error('sms.getGeoData', { err: 'missing location data' })
           return false
         }
 

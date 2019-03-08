@@ -122,9 +122,9 @@ describe('lib/senders/sms:', () => {
       it('called log.info correctly', () => {
         assert.equal(log.info.callCount, 1)
         const args = log.info.args[0]
-        assert.equal(args.length, 1)
-        assert.deepEqual(args[0], {
-          op: 'sms.budget.ok',
+        assert.lengthOf(args, 2)
+        assert.equal(args[0], 'sms.budget.ok')
+        assert.deepEqual(args[1], {
           isBudgetOk: true,
           current: 0,
           limit: config.sms.minimumCreditThresholdUSD,
@@ -182,9 +182,9 @@ describe('lib/senders/sms:', () => {
         it('called log.error correctly', () => {
           assert.equal(log.error.callCount, 1)
           const args = log.error.args[0]
-          assert.equal(args.length, 1)
-          assert.deepEqual(args[0], {
-            op: 'sms.budget.error',
+          assert.lengthOf(args, 2)
+          assert.equal(args[0], 'sms.budget.error')
+          assert.deepEqual(args[1], {
             err: 'Invalid getMetricStatistics result "wibble"',
             result: undefined
           })
@@ -207,9 +207,9 @@ describe('lib/senders/sms:', () => {
         it('called log.error correctly', () => {
           assert.equal(log.error.callCount, 1)
           const args = log.error.args[0]
-          assert.equal(args.length, 1)
-          assert.deepEqual(args[0], {
-            op: 'sms.budget.error',
+          assert.lengthOf(args, 2)
+          assert.equal(args[0], 'sms.budget.error')
+          assert.deepEqual(args[1], {
             err: 'Cannot read property \'Maximum\' of undefined',
             result: JSON.stringify(results.getMetricStatistics)
           })
@@ -249,9 +249,9 @@ describe('lib/senders/sms:', () => {
       it('called log.trace correctly', () => {
         assert.equal(log.trace.callCount, 1)
         const args = log.trace.args[0]
-        assert.equal(args.length, 1)
-        assert.deepEqual(args[0], {
-          op: 'sms.send',
+        assert.lengthOf(args, 2)
+        assert.equal(args[0], 'sms.send')
+        assert.deepEqual(args[1], {
           templateName: 'installFirefox',
           acceptLanguage: 'en'
         })
@@ -260,9 +260,9 @@ describe('lib/senders/sms:', () => {
       it('called log.info correctly', () => {
         assert.equal(log.info.callCount, 2)
         const args = log.info.args[1]
-        assert.equal(args.length, 1)
-        assert.deepEqual(args[0], {
-          op: 'sms.send.success',
+        assert.lengthOf(args, 2)
+        assert.equal(args[0], 'sms.send.success')
+        assert.deepEqual(args[1], {
           templateName: 'installFirefox',
           acceptLanguage: 'en',
           messageId: 'foo'
@@ -309,9 +309,9 @@ describe('lib/senders/sms:', () => {
       it('called log.error correctly', () => {
         assert.equal(log.error.callCount, 1)
         const args = log.error.args[0]
-        assert.equal(args.length, 1)
-        assert.deepEqual(args[0], {
-          op: 'sms.getMessage.error',
+        assert.lengthOf(args, 2)
+        assert.equal(args[0], 'sms.getMessage.error')
+        assert.deepEqual(args[1], {
           templateName: 'wibble'
         })
       })

@@ -67,24 +67,22 @@ function logErrorIfHeadersAreWeirdOrMissing (log, message, origin) {
       const deviceId = getHeaderValue('X-Device-Id', message)
       const uid = getHeaderValue('X-Uid', message)
       if (! deviceId && ! uid) {
-        log.warn({
-          op: 'emailHeaders.keys',
+        log.warn('emailHeaders.keys', {
           keys: Object.keys(headers).join(','),
           template: getHeaderValue('X-Template-Name', message),
           origin
         })
       }
     } else {
-      log.error({ op: 'emailHeaders.weird', type, origin })
+      log.error('emailHeaders.weird', { type, origin })
     }
   } else {
-    log.error({ op: 'emailHeaders.missing', origin })
+    log.error('emailHeaders.missing', { origin })
   }
 }
 
 function logEmailEventSent(log, message) {
   const emailEventInfo = {
-    op: 'emailEvent',
     template: message.template,
     templateVersion: message.templateVersion,
     type: 'sent',
@@ -98,7 +96,7 @@ function logEmailEventSent(log, message) {
   addrs.forEach(addr => {
     const msg = Object.assign({}, emailEventInfo)
     msg.domain = getAnonymizedEmailDomain(addr)
-    log.info(msg)
+    log.info('emailEvent', msg)
   })
 
   logAmplitudeEvent(log, message, Object.assign({
@@ -147,7 +145,6 @@ function logEmailEventFromMessage(log, message, type, emailDomain) {
   const emailEventInfo = {
     domain: emailDomain,
     locale,
-    op: 'emailEvent',
     template: templateName,
     templateVersion,
     type
@@ -165,7 +162,7 @@ function logEmailEventFromMessage(log, message, type, emailDomain) {
     emailEventInfo.complaint = true
   }
 
-  log.info(emailEventInfo)
+  log.info('emailEvent', emailEventInfo)
 
   logAmplitudeEvent(log, message, emailEventInfo)
 }
@@ -193,7 +190,7 @@ function logFlowEventFromMessage(log, message, type) {
 
     log.flowEvent(flowEventInfo)
   } else {
-    log.error({ op: 'handleBounce.flowEvent', templateName, type, flowId, flowBeginTime, currentTime})
+    log.error('handleBounce.flowEvent', { templateName, type, flowId, flowBeginTime, currentTime})
   }
 }
 

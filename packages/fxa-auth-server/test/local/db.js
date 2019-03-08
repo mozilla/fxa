@@ -826,9 +826,9 @@ describe('redis enabled, token-pruning enabled:', () => {
           assert.equal(redis.del.callCount, 0)
 
           assert.equal(log.error.callCount, 1)
-          assert.equal(log.error.args[0].length, 1)
-          assert.deepEqual(log.error.args[0][0], {
-            op: 'redis.get.error',
+          assert.equal(log.error.args[0].length, 2)
+          assert.equal(log.error.args[0][0], 'redis.get.error')
+          assert.deepEqual(log.error.args[0][1], {
             key: 'wibble',
             err: 'mock redis.get error'
           })
@@ -842,9 +842,9 @@ describe('redis enabled, token-pruning enabled:', () => {
           assert.equal(redis.del.callCount, 0)
 
           assert.equal(log.error.callCount, 1)
-          assert.equal(log.error.args[0].length, 1)
-          assert.deepEqual(log.error.args[0][0], {
-            op: 'redis.get.error',
+          assert.equal(log.error.args[0].length, 2)
+          assert.equal(log.error.args[0][0], 'redis.get.error')
+          assert.deepEqual(log.error.args[0][1], {
             key: 'wibble',
             err: 'mock redis.get error'
           })
@@ -858,9 +858,9 @@ describe('redis enabled, token-pruning enabled:', () => {
           assert.equal(redis.del.callCount, 0)
 
           assert.equal(log.error.callCount, 1)
-          assert.equal(log.error.args[0].length, 1)
-          assert.deepEqual(log.error.args[0][0], {
-            op: 'redis.get.error',
+          assert.equal(log.error.args[0].length, 2)
+          assert.equal(log.error.args[0][0], 'redis.get.error')
+          assert.deepEqual(log.error.args[0][1], {
             key: 'wibble',
             err: 'mock redis.get error'
           })
@@ -885,9 +885,9 @@ describe('redis enabled, token-pruning enabled:', () => {
           assert.equal(redis.del.args[0][0], 'wibble')
 
           assert.equal(log.error.callCount, 1)
-          assert.equal(log.error.args[0].length, 1)
-          assert.deepEqual(log.error.args[0][0], {
-            op: 'db.unpackTokensFromRedis.error',
+          assert.equal(log.error.args[0].length, 2)
+          assert.equal(log.error.args[0][0], 'db.unpackTokensFromRedis.error')
+          assert.deepEqual(log.error.args[0][1], {
             err: 'Unexpected token o in JSON at position 11'
           })
         })
@@ -902,9 +902,9 @@ describe('redis enabled, token-pruning enabled:', () => {
           assert.equal(redis.del.callCount, 1)
 
           assert.equal(log.error.callCount, 1)
-          assert.equal(log.error.args[0].length, 1)
-          assert.deepEqual(log.error.args[0][0], {
-            op: 'db.unpackTokensFromRedis.error',
+          assert.equal(log.error.args[0].length, 2)
+          assert.equal(log.error.args[0][0], 'db.unpackTokensFromRedis.error')
+          assert.deepEqual(log.error.args[0][1], {
             err: 'Unexpected token o in JSON at position 11'
           })
         })
@@ -917,9 +917,9 @@ describe('redis enabled, token-pruning enabled:', () => {
           assert.equal(redis.del.callCount, 1)
 
           assert.equal(log.error.callCount, 1)
-          assert.equal(log.error.args[0].length, 1)
-          assert.deepEqual(log.error.args[0][0], {
-            op: 'db.unpackTokensFromRedis.error',
+          assert.equal(log.error.args[0].length, 2)
+          assert.equal(log.error.args[0][0], 'db.unpackTokensFromRedis.error')
+          assert.deepEqual(log.error.args[0][1], {
             err: 'Unexpected token o in JSON at position 11'
           })
         })

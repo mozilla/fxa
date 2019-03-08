@@ -50,7 +50,7 @@ module.exports = (config, log) => {
         })
 
         client.on('error', err => {
-          log.error({ op: 'redis.error', err: err.message })
+          log.error('redis.error', { err: err.message })
         })
       })
     },
@@ -80,7 +80,7 @@ module.exports = (config, log) => {
     testOnBorrow: true
   })
 
-  pool.on('factoryCreateError', err => log.error({ op: 'redisFactory.error', err: err.message }))
+  pool.on('factoryCreateError', err => log.error('redisFactory.error', { err: err.message }))
 
   return {
     /**

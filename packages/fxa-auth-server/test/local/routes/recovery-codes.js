@@ -64,9 +64,9 @@ describe('recovery codes', () => {
           assert.equal(args[1], 8, 'called with recovery code count')
 
           assert.equal(log.info.callCount, 1)
-          args = log.info.args[0][0]
-          assert.equal(args.op, 'account.recoveryCode.replaced')
-          assert.equal(args.uid, UID)
+          args = log.info.args[0]
+          assert.equal(args[0], 'account.recoveryCode.replaced')
+          assert.equal(args[1].uid, UID)
         })
     })
 

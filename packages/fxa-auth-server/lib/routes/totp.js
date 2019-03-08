@@ -93,8 +93,7 @@ module.exports = (log, db, mailer, customs, config) => {
         }
 
         function emitMetrics() {
-          log.info({
-            op: 'totpToken.created',
+          log.info('totpToken.created', {
             uid: uid
           })
           return request.emitMetricsEvent('totpToken.created', {uid: uid})
@@ -319,14 +318,12 @@ module.exports = (log, db, mailer, customs, config) => {
 
         function emitMetrics() {
           if (isValidCode) {
-            log.info({
-              op: 'totp.verified',
+            log.info('totp.verified', {
               uid: uid
             })
             request.emitMetricsEvent('totpToken.verified', {uid: uid})
           } else {
-            log.info({
-              op: 'totp.unverified',
+            log.info('totp.unverified', {
               uid: uid
             })
             request.emitMetricsEvent('totpToken.unverified', {uid: uid})

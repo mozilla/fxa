@@ -45,8 +45,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
         const sessionToken = request.auth.credentials
         if (request.query && request.query.reason === 'push') {
           // log to the push namespace that account was verified via push
-          log.info({
-            op: 'push.pushToDevices',
+          log.info('push.pushToDevices', {
             name: 'recovery_email_reason.push'
           })
         }
@@ -59,8 +58,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
           const staleTime = now - config.emailStatusPollingTimeout
 
           if (sessionToken.createdAt < staleTime) {
-            log.info({
-              op: 'recovery_email.status.stale',
+            log.info('recovery_email.status.stale', {
               email: sessionToken.email,
               createdAt: sessionToken.createdAt,
               lifeTime: sessionToken.lifetime,
@@ -77,7 +75,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
             if (! validators.isValidEmailAddress(sessionToken.email)) {
               return db.deleteAccount(sessionToken)
                 .then(() => {
-                  log.info({ op: 'accountDeleted.invalidEmailAddress', ...sessionToken })
+                  log.info('accountDeleted.invalidEmailAddress', { ...sessionToken })
                   // Act as though we deleted the account asynchronously
                   // and caused the sessionToken to become invalid.
                   throw error.invalidToken('This account was invalid and has been deleted')
@@ -329,8 +327,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
                   const isEmailVerification = emails.some((email) => {
                     if (email.emailCode && (code === email.emailCode)) {
                       matchedEmail = email
-                      log.info({
-                        op: 'account.verifyEmail.secondary.started',
+                      log.info('account.verifyEmail.secondary.started', {
                         uid: uid,
                         code: request.payload.code
                       })
@@ -346,8 +343,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
                   // User is attempting to verify a secondary email that has already been verified.
                   // Silently succeed and don't send post verification email.
                   if (matchedEmail.isVerified) {
-                    log.info({
-                      op: 'account.verifyEmail.secondary.already-verified',
+                    log.info('account.verifyEmail.secondary.already-verified', {
                       uid: uid,
                       code: request.payload.code
                     })
@@ -356,8 +352,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
 
                   return db.verifyEmail(account, code)
                     .then(() => {
-                      log.info({
-                        op: 'account.verifyEmail.secondary.confirmed',
+                      log.info('account.verifyEmail.secondary.confirmed', {
                         uid: uid,
                         code: request.payload.code
                       })
@@ -382,8 +377,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
                 },
                 err => {
                   if (err.errno !== error.ERRNO.DEVICE_UNKNOWN) {
-                    log.error({
-                      op: 'Account.RecoveryEmailVerify',
+                    log.error('Account.RecoveryEmailVerify', {
                       err: err,
                       uid: uid,
                       code: code
@@ -409,8 +403,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
                 if (! isAccountVerification) {
 
                   // Don't log sign-in confirmation success for the account verification case
-                  log.info({
-                    op: 'account.signin.confirm.success',
+                  log.info('account.signin.confirm.success', {
                     uid: uid,
                     code: request.payload.code
                   })
@@ -429,8 +422,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
                   return
                 }
 
-                log.error({
-                  op: 'account.signin.confirm.invalid',
+                log.error('account.signin.confirm.invalid', {
                   uid: uid,
                   code: request.payload.code,
                   error: err
@@ -592,7 +584,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
                 const minUnverifiedAccountTime = config.secondaryEmail.minUnverifiedAccountTime
                 if (msSinceCreated >= minUnverifiedAccountTime) {
                   return db.deleteAccount(secondaryEmailRecord)
-                    .then(() => log.info({ op: 'accountDeleted.unverifiedSecondaryEmail', ...secondaryEmailRecord }))
+                    .then(() => log.info('accountDeleted.unverifiedSecondaryEmail', { ...secondaryEmailRecord }))
                 } else {
                   throw error.unverifiedPrimaryEmailNewlyCreated()
                 }
@@ -640,7 +632,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
             uid
           })
             .catch((err) => {
-              log.error({op: 'mailer.sendVerifySecondaryEmail', err: err})
+              log.error('mailer.sendVerifySecondaryEmail', { err: err})
               return db.deleteEmail(emailData.uid, emailData.normalizedEmail)
                 .then(() => {
                   throw emailUtils.sendError(err, true)

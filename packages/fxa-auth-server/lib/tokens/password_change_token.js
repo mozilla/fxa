@@ -17,12 +17,12 @@ module.exports = function (log, Token, lifetime) {
   PasswordChangeToken.tokenTypeID = 'passwordChangeToken'
 
   PasswordChangeToken.create = function (details) {
-    log.trace({ op: 'PasswordChangeToken.create', uid: details && details.uid })
+    log.trace('PasswordChangeToken.create', { uid: details && details.uid })
     return Token.createNewToken(PasswordChangeToken, details || {})
   }
 
   PasswordChangeToken.fromHex = function (string, details) {
-    log.trace({ op: 'PasswordChangeToken.fromHex' })
+    log.trace('PasswordChangeToken.fromHex')
     return Token.createTokenFromHexData(PasswordChangeToken, string, details || {})
   }
 

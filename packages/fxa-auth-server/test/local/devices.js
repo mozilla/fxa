@@ -316,9 +316,9 @@ describe('lib/devices:', () => {
             assert.equal(log.activityEvent.args[0][0].is_placeholder, true, 'is_placeholder was correct')
 
             assert.equal(log.info.callCount, 1, 'log.info was called once')
-            assert.equal(log.info.args[0].length, 1, 'log.info was passed one argument')
-            assert.deepEqual(log.info.args[0][0], {
-              op: 'device:createPlaceholder',
+            assert.equal(log.info.args[0].length, 2)
+            assert.equal(log.info.args[0][0], 'device:createPlaceholder')
+            assert.deepEqual(log.info.args[0][1], {
               uid: sessionToken.uid,
               id: result.id
             }, 'argument was event data')

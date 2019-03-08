@@ -162,9 +162,9 @@ describe('redis/pool:', () => {
 
       it('should log the error', () => {
         assert.equal(log.error.callCount, 1)
-        assert.equal(log.error.args[0].length, 1)
-        assert.deepEqual(log.error.args[0][0], {
-          op: 'redis.error',
+        assert.equal(log.error.args[0].length, 2)
+        assert.equal(log.error.args[0][0], 'redis.error')
+        assert.deepEqual(log.error.args[0][1], {
           err: 'foo'
         })
       })
@@ -213,9 +213,9 @@ describe('redis/pool:', () => {
     it('called log.error correctly', () => {
       assert.equal(log.error.callCount, 1)
       const args = log.error.args[0]
-      assert.equal(args.length, 1)
-      assert.deepEqual(args[0], {
-        op: 'redisFactory.error',
+      assert.equal(args.length, 2)
+      assert.equal(args[0], 'redisFactory.error')
+      assert.deepEqual(args[1], {
         err: 'mock factory create error'
       })
     })

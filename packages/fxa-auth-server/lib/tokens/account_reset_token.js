@@ -17,12 +17,12 @@ module.exports = function (log, Token, lifetime) {
   AccountResetToken.tokenTypeID = 'accountResetToken'
 
   AccountResetToken.create = function (details) {
-    log.trace({ op: 'AccountResetToken.create', uid: details && details.uid })
+    log.trace('AccountResetToken.create', { uid: details && details.uid })
     return Token.createNewToken(AccountResetToken, details || {})
   }
 
   AccountResetToken.fromHex = function (string, details) {
-    log.trace({ op: 'AccountResetToken.fromHex' })
+    log.trace('AccountResetToken.fromHex')
     details = details || {}
     return Token.createTokenFromHexData(AccountResetToken, string, details)
   }

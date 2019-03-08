@@ -19,7 +19,7 @@ module.exports = function (log) {
 
   function checkDeleteError(err) {
     if (err) {
-      log.error({ op: 'deleteMessage', err: err })
+      log.error('deleteMessage', { err: err })
     }
   }
 
@@ -34,7 +34,7 @@ module.exports = function (log) {
       },
       function (err, data) {
         if (err) {
-          log.error({ op: 'fetch', url: url, err: err })
+          log.error('fetch', { url: url, err: err })
           if (! errTimer) {
             // unacceptable! this aws lib will call the callback
             // more than once with different errors. ಠ_ಠ
@@ -62,7 +62,7 @@ module.exports = function (log) {
             this.emit('data', message)
           }
           catch (e) {
-            log.error({ op: 'fetch', url: url, err: e })
+            log.error('fetch', { url: url, err: e })
             deleteFromQueue()
           }
         }

@@ -26,17 +26,17 @@ module.exports = (log, config, oauthdb) => {
    * @returns {Promise<any>}
    */
   async function fetch(clientId) {
-    log.trace({ op: 'fetch.start' })
+    log.trace('fetch.start')
 
     if (! clientId || clientId === 'sync') {
-      log.trace({ op: 'fetch.sync' })
+      log.trace('fetch.sync')
       return FIREFOX_CLIENT
     }
 
     const cachedRecord = await clientCache.get(clientId)
     if (cachedRecord) {
       // used the cachedRecord if it exists
-      log.trace({ op: 'fetch.usedCache' })
+      log.trace('fetch.usedCache')
       return cachedRecord
     }
 
@@ -46,14 +46,14 @@ module.exports = (log, config, oauthdb) => {
     } catch (err) {
       // fallback to the Firefox client if request fails
       if (! err.statusCode) {
-        log.fatal({ op: 'fetch.failed', err: err })
+        log.fatal('fetch.failed', { err: err })
       } else {
-        log.warn({ op: 'fetch.failedForClient', clientId })
+        log.warn('fetch.failedForClient', { clientId })
       }
       return FIREFOX_CLIENT
     }
 
-    log.trace({ op: 'fetch.usedServer', body: clientInfo })
+    log.trace('fetch.usedServer', { body: clientInfo })
     // We deliberately don't wait for this to resolve, since the
     // client doesn't need to wait for us to write to the cache.
     clientCache.set(clientId, clientInfo)

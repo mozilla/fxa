@@ -90,7 +90,7 @@ module.exports = (log, config) => {
   // Convenience method to bundle a payload using token bundleKey.
   //
   Token.prototype.bundle = function(keyInfo, payload) {
-    log.trace({ op: 'Token.bundle' })
+    log.trace('Token.bundle')
     return Bundle.bundle(this.bundleKey, keyInfo, payload)
   }
 
@@ -98,7 +98,7 @@ module.exports = (log, config) => {
   // Convenience method to unbundle a payload using token bundleKey.
   //
   Token.prototype.unbundle = function(keyInfo, payload) {
-    log.trace({ op: 'Token.unbundle' })
+    log.trace('Token.unbundle')
     return Bundle.unbundle(this.bundleKey, keyInfo, payload)
   }
 

@@ -307,8 +307,7 @@ module.exports = function (
                   .catch(e => {
                     // If we couldn't email them, no big deal. Log
                     // and pretend everything worked.
-                    log.trace({
-                      op: 'Password.changeFinish.sendPasswordChangedNotification.error',
+                    log.trace('Password.changeFinish.sendPasswordChangedNotification.error', {
                       error: e
                     })
                   })

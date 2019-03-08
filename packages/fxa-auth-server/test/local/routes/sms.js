@@ -613,9 +613,9 @@ describe('/sms/status', () => {
     it('called log.error correctly', () => {
       assert.equal(log.error.callCount, 1)
       const args = log.error.args[0]
-      assert.equal(args.length, 1)
-      assert.deepEqual(args[0], {
-        op: 'sms.getGeoData',
+      assert.equal(args.length, 2)
+      assert.equal(args[0], 'sms.getGeoData')
+      assert.deepEqual(args[1], {
         err: 'missing location data'
       })
     })
@@ -649,9 +649,9 @@ describe('/sms/status', () => {
     it('called log.error correctly', () => {
       assert.equal(log.error.callCount, 1)
       const args = log.error.args[0]
-      assert.equal(args.length, 1)
-      assert.deepEqual(args[0], {
-        op: 'sms.getGeoData',
+      assert.equal(args.length, 2)
+      assert.equal(args[0], 'sms.getGeoData')
+      assert.deepEqual(args[1], {
         err: 'missing location data'
       })
     })
@@ -698,9 +698,9 @@ describe('/sms/status with disabled geo-ip lookup', () => {
   it('called log.warn correctly', () => {
     assert.equal(log.warn.callCount, 1)
     const args = log.warn.args[0]
-    assert.equal(args.length, 1)
-    assert.deepEqual(args[0], {
-      op: 'sms.getGeoData',
+    assert.equal(args.length, 2)
+    assert.equal(args[0], 'sms.getGeoData')
+    assert.deepEqual(args[1], {
       warning: 'skipping geolocation step'
     })
   })

@@ -50,7 +50,7 @@ describe('scrypt', () => {
         function (err) {
           assert.equal(err.message, 'too many pending scrypt hashes')
           assert.equal(scrypt.numPendingHWM, 6, 'HWM should be maxPending+1')
-          assert.equal(log.buffer[0].op, 'scrypt.maxPendingExceeded')
+          assert.equal(log.buffer[0], 'scrypt.maxPendingExceeded')
         }
       )
     }

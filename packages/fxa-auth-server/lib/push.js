@@ -81,8 +81,7 @@ module.exports = function (log, db, config) {
    * @param {String} deviceId
    */
   function reportPushError(err, uid, deviceId) {
-    log.error({
-      op: LOG_OP_PUSH_TO_DEVICES,
+    log.error(LOG_OP_PUSH_TO_DEVICES, {
       uid: uid,
       deviceId: deviceId,
       err: err
@@ -96,8 +95,7 @@ module.exports = function (log, db, config) {
    */
   function incrementPushAction(name) {
     if (name) {
-      log.info({
-        op: LOG_OP_PUSH_TO_DEVICES,
+      log.info(LOG_OP_PUSH_TO_DEVICES, {
         name: name
       })
     }
@@ -142,8 +140,7 @@ module.exports = function (log, db, config) {
         const deviceVersion = device.uaBrowserVersion ? parseFloat(device.uaBrowserVersion) : 0
         const deviceBrowserName = device.uaBrowser
         if (! canSendToIOSVersion(deviceVersion, deviceBrowserName)) {
-          log.info({
-            op: 'push.filteredUnsupportedDevice',
+          log.info('push.filteredUnsupportedDevice', {
             command: command,
             uaOS: device.uaOS,
             uaBrowserVersion: device.uaBrowserVersion
@@ -179,8 +176,7 @@ module.exports = function (log, db, config) {
       dummyCurve.computeSecret(base64url.toBuffer(publicKey))
       return true
     } catch (err) {
-      log.info({
-        op: 'push.isValidPublicKey',
+      log.info('push.isValidPublicKey', {
         name: 'Bad public key detected'
       })
       // However!  The above call might have left some junk
@@ -377,8 +373,7 @@ module.exports = function (log, db, config) {
       return P.each(devices, function(device) {
         var deviceId = device.id
 
-        log.trace({
-          op: LOG_OP_PUSH_TO_DEVICES,
+        log.trace(LOG_OP_PUSH_TO_DEVICES, {
           uid: uid,
           deviceId: deviceId,
           pushCallback: device.pushCallback

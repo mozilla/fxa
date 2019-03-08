@@ -52,8 +52,8 @@ describe('POST /recoveryKey', () => {
     it('called log.info correctly', () => {
       assert.equal(log.info.callCount, 1)
       const args = log.info.args[0]
-      assert.equal(args.length, 1)
-      assert.equal(args[0]['op'], 'account.recoveryKey.created')
+      assert.equal(args.length, 2)
+      assert.equal(args[0], 'account.recoveryKey.created')
     })
 
     it('called request.emitMetricsEvent correctly', () => {

@@ -40,7 +40,7 @@ module.exports = (log, translator, templates, config) => {
     isBudgetOk: () => isBudgetOk,
 
     send (phoneNumber, templateName, acceptLanguage, signinCode) {
-      log.trace({ op: 'sms.send', templateName, acceptLanguage })
+      log.trace('sms.send', { templateName, acceptLanguage })
 
       return P.resolve()
         .then(() => {
@@ -69,8 +69,7 @@ module.exports = (log, translator, templates, config) => {
 
           return sns.publish(params).promise()
             .then(result => {
-              log.info({
-                op: 'sms.send.success',
+              log.info('sms.send.success', {
                 templateName,
                 acceptLanguage,
                 messageId: result.MessageId
@@ -78,7 +77,7 @@ module.exports = (log, translator, templates, config) => {
             })
             .catch(sendError => {
               const { message, code, statusCode } = sendError
-              log.error({ op: 'sms.send.error', message, code, statusCode })
+              log.error('sms.send.error', { message, code, statusCode })
 
               throw error.messageRejected(message, code)
             })
@@ -122,10 +121,10 @@ module.exports = (log, translator, templates, config) => {
         }
 
         isBudgetOk = current <= limit - CREDIT_THRESHOLD
-        log.info({ op: 'sms.budget.ok', isBudgetOk, current, limit, threshold: CREDIT_THRESHOLD })
+        log.info('sms.budget.ok', { isBudgetOk, current, limit, threshold: CREDIT_THRESHOLD })
       })
       .catch(err => {
-        log.error({ op: 'sms.budget.error', err: err.message, result: err.result })
+        log.error('sms.budget.error', { err: err.message, result: err.result })
 
         // If we failed to query the data, assume current spend is fine
         isBudgetOk = true
@@ -137,7 +136,7 @@ module.exports = (log, translator, templates, config) => {
     const template = templates[`sms.${templateName}`]
 
     if (! template) {
-      log.error({ op: 'sms.getMessage.error', templateName })
+      log.error('sms.getMessage.error', { templateName })
       throw error.invalidMessageId()
     }
 

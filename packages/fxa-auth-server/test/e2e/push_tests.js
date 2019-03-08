@@ -26,7 +26,7 @@ describe('e2e/push', () => {
       .then(subscription => {
         let count = 0
         const thisSpyLog = mockLog({
-          info (log) {
+          info (op, log) {
             if (log.name === 'push.account_verify.success') {
               count++
             }

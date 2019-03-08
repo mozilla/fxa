@@ -47,8 +47,8 @@ describe('notifier', () => {
         event: 'stuff'
       })
 
-      assert.deepEqual(log.trace.args[0][0], {
-        op: 'Notifier.publish',
+      assert.equal(log.trace.args[0][0], 'Notifier.publish')
+      assert.deepEqual(log.trace.args[0][1], {
         data: {
           TopicArn: 'arn:aws:sns:us-west-2:927034868275:foo',
           Message: '{\"event\":\"stuff\"}',
@@ -73,8 +73,8 @@ describe('notifier', () => {
         }
       })
 
-      assert.deepEqual(log.trace.args[0][0], {
-        op: 'Notifier.publish',
+      assert.equal(log.trace.args[0][0], 'Notifier.publish')
+      assert.deepEqual(log.trace.args[0][1], {
         data: {
           TopicArn: 'arn:aws:sns:us-west-2:927034868275:foo',
           Message: '{\"cool\":\"stuff\",\"more\":\"stuff\",\"event\":\"stuff-with-data\"}',
@@ -98,8 +98,8 @@ describe('notifier', () => {
         }
       })
 
-      assert.deepEqual(log.trace.args[0][0], {
-        op: 'Notifier.publish',
+      assert.equal(log.trace.args[0][0], 'Notifier.publish')
+      assert.deepEqual(log.trace.args[0][1], {
         data: {
           TopicArn: 'arn:aws:sns:us-west-2:927034868275:foo',
           Message: '{\"email\":\"testme@example.com\",\"event\":\"email-change\"}',
@@ -135,14 +135,14 @@ describe('notifier', () => {
     notifier.send({
       event: 'stuff'
     }, () => {
-      assert.deepEqual(log.trace.args[0][0], {
-        op: 'Notifier.publish',
+      assert.equal(log.trace.args[0][0], 'Notifier.publish')
+      assert.deepEqual(log.trace.args[0][1], {
         data: {
           disabled: true
         },
         success: true
       })
-      assert.equal(log.trace.args[0][0].data.disabled, true)
+      assert.equal(log.trace.args[0][1].data.disabled, true)
       assert.equal(log.error.called, false)
     })
 

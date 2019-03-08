@@ -897,17 +897,17 @@ describe(
 
         return mailer.send(message)
           .then(() => {
-            assert.equal(mockLog.info.callCount, 3, 'calls log emailEvent')
+            assert.equal(mockLog.info.callCount, 3)
             const emailEventLog = mockLog.info.getCalls()[2]
-            assert.equal(emailEventLog.args[0].op, 'emailEvent', 'logs emailEvent')
-            assert.equal(emailEventLog.args[0].domain, 'other', 'logs domain')
-            assert.equal(emailEventLog.args[0].flow_id, 'wibble', 'logs flow id')
-            assert.equal(emailEventLog.args[0].template, 'verifyLoginEmail', 'logs correct template')
-            assert.equal(emailEventLog.args[0].type, 'sent', 'logs correct type')
-            assert.equal(emailEventLog.args[0].locale, 'en')
+            assert.equal(emailEventLog.args[0], 'emailEvent')
+            assert.equal(emailEventLog.args[1].domain, 'other')
+            assert.equal(emailEventLog.args[1].flow_id, 'wibble')
+            assert.equal(emailEventLog.args[1].template, 'verifyLoginEmail')
+            assert.equal(emailEventLog.args[1].type, 'sent')
+            assert.equal(emailEventLog.args[1].locale, 'en')
             const mailerSend1 = mockLog.info.getCalls()[1]
-            assert.equal(mailerSend1.args[0].op, 'mailer.send.1', 'logs mailer.send.1')
-            assert.equal(mailerSend1.args[0].to, message.email, 'logs sender to email address')
+            assert.equal(mailerSend1.args[0], 'mailer.send.1')
+            assert.equal(mailerSend1.args[1].to, message.email)
           })
       })
     })
@@ -1653,8 +1653,10 @@ describe(
                 emailSender: 'ses'
               }])
               assert.equal(mockLog.error.callCount, 1)
-              assert.deepEqual(mockLog.error.args[0][0], {
-                op: 'emailConfig.read.error',
+              const args = mockLog.error.args[0]
+              assert.equal(args.length, 2)
+              assert.equal(args[0], 'emailConfig.read.error')
+              assert.deepEqual(args[1], {
                 err: 'wibble'
               })
             })
@@ -1676,7 +1678,7 @@ describe(
                 emailSender: 'ses'
               }])
               assert.equal(mockLog.error.callCount, 1)
-              assert.deepEqual(mockLog.error.args[0][0].op, 'emailConfig.parse.error')
+              assert.equal(mockLog.error.args[0][0], 'emailConfig.parse.error')
             })
         })
       })

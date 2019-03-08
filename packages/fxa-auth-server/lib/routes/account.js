@@ -102,7 +102,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
                 }
                 request.app.accountRecreated = true
                 return db.deleteAccount(secondaryEmailRecord)
-                  .then(() => log.info({ op: 'accountDeleted.unverifiedSecondaryEmail', ...secondaryEmailRecord }))
+                  .then(() => log.info('accountDeleted.unverifiedSecondaryEmail', { ...secondaryEmailRecord }))
               } else {
                 if (secondaryEmailRecord.isVerified) {
                   throw error.verifiedSecondaryEmailAlreadyExists()
@@ -154,8 +154,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           if (! locale) {
             // We're seeing a surprising number of accounts created
             // without a proper locale. Log details to help debug this.
-            log.info({
-              op: 'account.create.emptyLocale',
+            log.info('account.create.emptyLocale', {
               email: email,
               locale: locale,
               agent: userAgentString
@@ -287,20 +286,18 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
               .then(function () {
                 if (tokenVerificationId) {
                   // Log server-side metrics for confirming verification rates
-                  log.info({
-                    op: 'account.create.confirm.start',
+                  log.info('account.create.confirm.start', {
                     uid: account.uid,
                     tokenVerificationId: tokenVerificationId
                   })
                 }
               })
               .catch(function (err) {
-                log.error({op: 'mailer.sendVerifyCode.1', err: err})
+                log.error('mailer.sendVerifyCode.1', { err: err})
 
                 if (tokenVerificationId) {
                   // Log possible email bounce, used for confirming verification rates
-                  log.error({
-                    op: 'account.create.confirm.error',
+                  log.error('account.create.confirm.error', {
                     uid: account.uid,
                     err: err,
                     tokenVerificationId: tokenVerificationId
@@ -487,15 +484,13 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
                       coarseRecency = 'old'
                     }
 
-                    log.info({
-                      op: 'Account.history.verified',
+                    log.info('Account.history.verified', {
                       uid: accountRecord.uid,
                       events: events.length,
                       recency: coarseRecency
                     })
                   } else {
-                    log.info({
-                      op: 'Account.history.unverified',
+                    log.info('Account.history.unverified', {
                       uid: accountRecord.uid,
                       events: events.length
                     })
@@ -506,8 +501,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
                 // Security event history allows some convenience during login,
                 // but errors here shouldn't fail the entire request.
                 // so errors shouldn't stop the login attempt
-                log.error({
-                  op: 'Account.history.error',
+                log.error('Account.history.error', {
                   err: err,
                   uid: accountRecord.uid
                 })
@@ -629,8 +623,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           // verified as well without going through the loop again.
           const allowedRecency = config.securityHistory.ipProfiling.allowedRecency || 0
           if (securityEventVerified && securityEventRecency < allowedRecency) {
-            log.info({
-              op: 'Account.ipprofiling.seenAddress',
+            log.info('Account.ipprofiling.seenAddress', {
               uid: account.uid
             })
             return true
@@ -643,8 +636,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           if (skipForNewAccounts && skipForNewAccounts.enabled) {
             const accountAge = requestNow - account.createdAt
             if (accountAge <= skipForNewAccounts.maxAge) {
-              log.info({
-                op: 'account.signin.confirm.bypass.age',
+              log.info('account.signin.confirm.bypass.age', {
                 uid: account.uid
               })
               return true
@@ -657,8 +649,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           const lowerCaseEmail = account.primaryEmail.normalizedEmail.toLowerCase()
           const alwaysSkip = skipConfirmationForEmailAddresses && skipConfirmationForEmailAddresses.includes(lowerCaseEmail)
           if (alwaysSkip) {
-            log.info({
-              op: 'account.signin.confirm.bypass.always',
+            log.info('account.signin.confirm.bypass.always', {
               uid: account.uid
             })
             return true
@@ -705,8 +696,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
                 } catch (err) {
                   // If we couldn't email them, no big deal. Log
                   // and pretend everything worked.
-                  log.trace({
-                    op: 'Account.login.sendNewDeviceLoginNotification.error',
+                  log.trace('Account.login.sendNewDeviceLoginNotification.error', {
                     error: err
                   })
                 }
@@ -928,7 +918,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
         }
       },
       handler: async function (request) {
-        log.error({ op: 'Account.UnlockCodeResend', request: request })
+        log.error('Account.UnlockCodeResend', { request: request })
         throw error.gone()
       }
     },
@@ -941,7 +931,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
         }
       },
       handler: async function (request) {
-        log.error({ op: 'Account.UnlockCodeVerify', request: request })
+        log.error('Account.UnlockCodeVerify', { request: request })
         throw error.gone()
       }
     },
@@ -1257,7 +1247,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
               .then((devices) => {
                 devicesToNotify = devices
                 return db.deleteAccount(emailRecord)
-                  .then(() => log.info({ op: 'accountDeleted.byRequest', ...emailRecord }))
+                  .then(() => log.info('accountDeleted.byRequest', { ...emailRecord }))
               })
               .then(() => {
                 push.notifyAccountDestroyed(uid, devicesToNotify)
@@ -1301,7 +1291,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
         }
       },
       handler: async function (request) {
-        log.error({ op: 'Account.lock', request: request })
+        log.error('Account.lock', { request: request })
         throw error.gone()
       }
     })

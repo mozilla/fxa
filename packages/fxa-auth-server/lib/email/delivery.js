@@ -30,7 +30,6 @@ module.exports = function (log) {
         var email = recipient
         var emailDomain = utils.getAnonymizedEmailDomain(email)
         var logData = {
-          op: 'handleDelivery',
           email: email,
           domain: emailDomain,
           processingTimeMillis: message.delivery.processingTimeMillis
@@ -45,7 +44,7 @@ module.exports = function (log) {
         utils.logFlowEventFromMessage(log, message, 'delivered')
         utils.logEmailEventFromMessage(log, message, 'delivered', emailDomain)
 
-        log.info(logData)
+        log.info('handleDelivery', logData)
       }).then(
         function () {
           // We always delete the message, even if handling some addrs failed.

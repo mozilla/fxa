@@ -15,7 +15,7 @@ const ACCURACY_MIN_KM = 25
 * `location` data. On failure, returns an empty object
 **/
 module.exports = log => {
-  log.info({ op: 'geodb.start', enabled: config.enabled, dbPath: config.dbPath })
+  log.info('geodb.start', { enabled: config.enabled, dbPath: config.dbPath })
 
   return ip => {
     if (config.enabled === false) {
@@ -37,8 +37,8 @@ module.exports = log => {
         confidence += 'no_accuracy_data'
       }
 
-      log.info({ op: 'geodb.accuracy', accuracy })
-      log.info({ op: 'geodb.accuracy_confidence', accuracy_confidence: confidence })
+      log.info('geodb.accuracy', { accuracy })
+      log.info('geodb.accuracy_confidence', { accuracy_confidence: confidence })
 
       return {
         location: {
@@ -51,7 +51,7 @@ module.exports = log => {
         timeZone: location.timeZone
       }
     } catch (err) {
-      log.error({ op: 'geodb.1', err: err.message })
+      log.error('geodb.1', { err: err.message })
       return {}
     }
   }

@@ -325,9 +325,9 @@ describe('redis/connection:', () => {
 
       it('called log.error correctly', () => {
         assert.equal(log.error.callCount, 1)
-        assert.equal(log.error.args[0].length, 1)
-        assert.deepEqual(log.error.args[0][0], {
-          op: 'redis.update.error',
+        assert.equal(log.error.args[0].length, 2)
+        assert.equal(log.error.args[0][0], 'redis.update.error')
+        assert.deepEqual(log.error.args[0][1], {
           key: 'wibble',
           err: 'mock get error'
         })
@@ -433,9 +433,9 @@ describe('redis/connection:', () => {
 
       it('called log.error correctly', () => {
         assert.equal(log.error.callCount, 1)
-        assert.equal(log.error.args[0].length, 1)
-        assert.deepEqual(log.error.args[0][0], {
-          op: 'redis.update.error',
+        assert.equal(log.error.args[0].length, 2)
+        assert.equal(log.error.args[0][0], 'redis.update.error')
+        assert.deepEqual(log.error.args[0][1], {
           key: 'wibble',
           err: 'mock exec error'
         })
@@ -493,9 +493,9 @@ describe('redis/connection:', () => {
       it('called log.warn correctly', () => {
         assert.equal(log.error.callCount, 0)
         assert.equal(log.warn.callCount, 1)
-        assert.equal(log.warn.args[0].length, 1)
-        assert.deepEqual(log.warn.args[0][0], {
-          op: 'redis.watch.conflict',
+        assert.equal(log.warn.args[0].length, 2)
+        assert.equal(log.warn.args[0][0], 'redis.watch.conflict')
+        assert.deepEqual(log.warn.args[0][1], {
           key: 'wibble'
         })
       })

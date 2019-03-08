@@ -22,8 +22,7 @@ module.exports = (log, Token, lifetime) => {
 
   PasswordForgotToken.create = function (details) {
     details = details || {}
-    log.trace({
-      op: 'PasswordForgotToken.create',
+    log.trace('PasswordForgotToken.create', {
       uid: details.uid,
       email: details.email
     })
@@ -36,7 +35,7 @@ module.exports = (log, Token, lifetime) => {
   }
 
   PasswordForgotToken.fromHex = function (string, details) {
-    log.trace({ op: 'PasswordForgotToken.fromHex' })
+    log.trace('PasswordForgotToken.fromHex')
     details = details || {}
     return Token.createTokenFromHexData(PasswordForgotToken, string, details)
   }

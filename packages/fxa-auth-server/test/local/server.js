@@ -35,8 +35,8 @@ describe('lib/server', () => {
 
     it('logs an endpoint error', (done) => {
       const mockLog = {
-        error: (err) => {
-          assert.equal(err.op, 'server.EndpointError')
+        error: (op, err) => {
+          assert.equal(op, 'server.EndpointError')
           assert.equal(err.message, msg)
           assert.equal(err.reason, reason)
           done()
@@ -51,8 +51,8 @@ describe('lib/server', () => {
       }
 
       const mockLog = {
-        error: (err) => {
-          assert.equal(err.op, 'server.EndpointError')
+        error: (op, err) => {
+          assert.equal(op, 'server.EndpointError')
           assert.equal(err.message, msg)
           assert.equal(err.reason, reason)
           assert.equal(err.method, 'PUT')
@@ -391,9 +391,9 @@ describe('lib/server', () => {
           it('called log.error correctly', () => {
             assert.isAtLeast(log.error.callCount, 1)
             const args = log.error.args[0]
-            assert.equal(args.length, 1)
-            assert.deepEqual(args[0], {
-              op: 'server.EndpointError',
+            assert.equal(args.length, 2)
+            assert.equal(args[0], 'server.EndpointError')
+            assert.deepEqual(args[1], {
               message: 'request failed',
               reason: 'because i said so'
             })

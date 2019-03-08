@@ -87,7 +87,7 @@ module.exports = (log, config, namespace) => {
         return _cache
       })
       .catch(err => {
-        log.error({ op: 'cache.getCache', err: err })
+        log.error('cache.getCache', { err: err })
         return NULL_CACHE
       })
   }

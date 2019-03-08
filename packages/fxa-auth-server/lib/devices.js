@@ -113,8 +113,7 @@ module.exports = (log, db, push) => {
             })
           }
           if (isPlaceholderDevice) {
-            log.info({
-              op: 'device:createPlaceholder',
+            log.info('device:createPlaceholder', {
               uid: sessionToken.uid,
               id: result.id
             })

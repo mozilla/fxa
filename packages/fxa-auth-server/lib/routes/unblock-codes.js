@@ -104,7 +104,7 @@ module.exports = (log, db, mailer, config, customs) => {
 
         return db.consumeUnblockCode(uid, code)
           .then(() => {
-            log.info({ op: 'account.login.rejectedUnblockCode', uid, unblockCode: code })
+            log.info('account.login.rejectedUnblockCode', { uid, unblockCode: code })
             return {}
           })
       }
