@@ -1,6 +1,6 @@
 {
   "name": "fxa-shared",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "description": "Shared module for FxA repositories",
   "main": "index.js",
   "scripts": {
