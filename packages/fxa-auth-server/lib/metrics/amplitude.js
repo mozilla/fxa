@@ -111,7 +111,7 @@ module.exports = (log, config) => {
 
   function receiveEvent (event, request, data = {}, metricsContext = {}) {
     if (! event || ! request) {
-      log.error({ op: 'amplitude.badArgument', err: 'Bad argument', event, hasRequest: !! request })
+      log.error('amplitude.badArgument', { err: 'Bad argument', event, hasRequest: !! request })
       return P.resolve()
     }
 

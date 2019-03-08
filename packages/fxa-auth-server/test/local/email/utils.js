@@ -63,7 +63,7 @@ describe('email utils helpers', () => {
       }
       emailHelpers.logEmailEventSent(log, message)
       assert.equal(log.info.callCount, 1)
-      assert.equal(log.info.args[0][0].locale, 'ru')
+      assert.equal(log.info.args[0][1].locale, 'ru')
     })
 
     it('should log an event per CC email', () => {
@@ -75,9 +75,9 @@ describe('email utils helpers', () => {
       }
       emailHelpers.logEmailEventSent(log, message)
       assert.equal(log.info.callCount, 3)
-      assert.equal(log.info.args[0][0].domain, 'other')
-      assert.equal(log.info.args[1][0].domain, 'gmail.com')
-      assert.equal(log.info.args[2][0].domain, 'yahoo.com')
+      assert.equal(log.info.args[0][1].domain, 'other')
+      assert.equal(log.info.args[1][1].domain, 'gmail.com')
+      assert.equal(log.info.args[2][1].domain, 'yahoo.com')
     })
   })
 
@@ -186,21 +186,21 @@ describe('email utils helpers', () => {
     it('logs an error if message.mail is missing', () => {
       emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, {}, 'wibble')
       assert.equal(log.error.callCount, 1)
-      assert.equal(log.error.args[0].length, 1)
-      assert.deepEqual({
-        op: 'emailHeaders.missing',
+      assert.equal(log.error.args[0].length, 2)
+      assert.equal(log.error.args[0][0], 'emailHeaders.missing')
+      assert.deepEqual(log.error.args[0][1], {
         origin: 'wibble'
-      }, log.error.args[0][0])
+      })
       assert.equal(log.warn.callCount, 0)
     })
 
     it('logs an error if message.mail.headers is missing', () => {
       emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, { mail: {} }, 'blee')
       assert.equal(log.error.callCount, 1)
-      assert.deepEqual({
-        op: 'emailHeaders.missing',
+      assert.equal(log.error.args[0][0], 'emailHeaders.missing')
+      assert.deepEqual(log.error.args[0][1], {
         origin: 'blee'
-      }, log.error.args[0][0])
+      })
       assert.equal(log.warn.callCount, 0)
     })
 
@@ -265,9 +265,9 @@ describe('email utils helpers', () => {
       }, 'wibble')
       assert.equal(log.error.callCount, 0)
       assert.equal(log.warn.callCount, 1)
-      assert.equal(log.warn.args[0].length, 1)
-      assert.deepEqual(log.warn.args[0][0], {
-        op: 'emailHeaders.keys',
+      assert.equal(log.warn.args[0].length, 2)
+      assert.equal(log.warn.args[0][0], 'emailHeaders.keys')
+      assert.deepEqual(log.warn.args[0][1], {
         keys: 'X-Template-Name,X-Xxx,X-Yyy,X-Zzz',
         template: 'foo',
         origin: 'wibble'
@@ -282,8 +282,8 @@ describe('email utils helpers', () => {
       }, 'blee')
       assert.equal(log.error.callCount, 0)
       assert.equal(log.warn.callCount, 1)
-      assert.deepEqual(log.warn.args[0][0], {
-        op: 'emailHeaders.keys',
+      assert.equal(log.warn.args[0][0], 'emailHeaders.keys')
+      assert.deepEqual(log.warn.args[0][1], {
         keys: 'x-template-name',
         template: 'wibble',
         origin: 'blee'
@@ -293,22 +293,22 @@ describe('email utils helpers', () => {
     it('logs an error if message.mail.headers is non-object', () => {
       emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, { mail: { headers: 'foo' } }, 'wibble')
       assert.equal(log.error.callCount, 1)
-      assert.deepEqual({
-        op: 'emailHeaders.weird',
+      assert.equal(log.error.args[0][0], 'emailHeaders.weird')
+      assert.deepEqual(log.error.args[0][1], {
         type: 'string',
         origin: 'wibble'
-      }, log.error.args[0][0])
+      })
       assert.equal(log.warn.callCount, 0)
     })
 
     it('logs an error if message.headers is non-object', () => {
       emailHelpers.logErrorIfHeadersAreWeirdOrMissing(log, { mail: {}, headers: 42 }, 'wibble')
       assert.equal(log.error.callCount, 1)
-      assert.deepEqual({
-        op: 'emailHeaders.weird',
+      assert.equal(log.error.args[0][0], 'emailHeaders.weird')
+      assert.deepEqual(log.error.args[0][1], {
         type: 'number',
         origin: 'wibble'
-      }, log.error.args[0][0])
+      })
       assert.equal(log.warn.callCount, 0)
     })
   })

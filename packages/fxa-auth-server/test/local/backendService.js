@@ -131,9 +131,9 @@ describe('createBackendServiceAPI', () => {
         }
       })
       assert.equal(log.error.callCount, 1, 'an error was logged')
-      assert.equal(log.error.getCall(0).args[0].op, 'mock-service.testSimplePost')
-      assert.equal(log.error.getCall(0).args[0].error, 'request schema validation failed')
-      assert.ok(/"foo" must be a string/.test(log.error.getCall(0).args[0].message))
+      assert.equal(log.error.getCall(0).args[0], 'mock-service.testSimplePost')
+      assert.equal(log.error.getCall(0).args[1].error, 'request schema validation failed')
+      assert.ok(/"foo" must be a string/.test(log.error.getCall(0).args[1].message))
     }
   })
 
@@ -152,9 +152,9 @@ describe('createBackendServiceAPI', () => {
         }
       })
       assert.equal(log.error.callCount, 1, 'an error was logged')
-      assert.equal(log.error.getCall(0).args[0].op, 'mock-service.testGetWithValidation')
-      assert.equal(log.error.getCall(0).args[0].error, 'params schema validation failed')
-      assert.ok(/fails to match the required pattern/.test(log.error.getCall(0).args[0].message))
+      assert.equal(log.error.getCall(0).args[0], 'mock-service.testGetWithValidation')
+      assert.equal(log.error.getCall(0).args[1].error, 'params schema validation failed')
+      assert.ok(/fails to match the required pattern/.test(log.error.getCall(0).args[1].message))
     }
     log.error.resetHistory()
     try {
@@ -163,9 +163,9 @@ describe('createBackendServiceAPI', () => {
     } catch (err) {
       assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR)
       assert.equal(log.error.callCount, 1, 'an error was logged')
-      assert.equal(log.error.getCall(0).args[0].op, 'mock-service.testGetWithValidation')
-      assert.equal(log.error.getCall(0).args[0].error, 'params schema validation failed')
-      assert.ok(/"second" must be a string/.test(log.error.getCall(0).args[0].message))
+      assert.equal(log.error.getCall(0).args[0], 'mock-service.testGetWithValidation')
+      assert.equal(log.error.getCall(0).args[1].error, 'params schema validation failed')
+      assert.ok(/"second" must be a string/.test(log.error.getCall(0).args[1].message))
     }
   })
 
@@ -176,8 +176,8 @@ describe('createBackendServiceAPI', () => {
     } catch (err) {
       assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR)
       assert.equal(log.error.callCount, 1, 'an error was logged')
-      assert.equal(log.error.getCall(0).args[0].op, 'safeUrl.unsafe')
-      assert.equal(log.error.getCall(0).args[0].key, 'first')
+      assert.equal(log.error.getCall(0).args[0], 'safeUrl.unsafe')
+      assert.equal(log.error.getCall(0).args[1].key, 'first')
     }
   })
 
@@ -195,9 +195,9 @@ describe('createBackendServiceAPI', () => {
         }
       })
       assert.equal(log.error.callCount, 1, 'an error was logged')
-      assert.equal(log.error.getCall(0).args[0].op, 'mock-service.testGetWithValidation')
-      assert.equal(log.error.getCall(0).args[0].error, 'query schema validation failed')
-      assert.ok(/"foo" must be a string/.test(log.error.getCall(0).args[0].message))
+      assert.equal(log.error.getCall(0).args[0], 'mock-service.testGetWithValidation')
+      assert.equal(log.error.getCall(0).args[1].error, 'query schema validation failed')
+      assert.ok(/"foo" must be a string/.test(log.error.getCall(0).args[1].message))
     }
   })
 
@@ -208,8 +208,8 @@ describe('createBackendServiceAPI', () => {
     } catch (err) {
       assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR)
       assert.equal(log.error.callCount, 1, 'an error was logged')
-      assert.equal(log.error.getCall(0).args[0].op, 'safeUrl.unsafe')
-      assert.equal(log.error.getCall(0).args[0].key, 'foo')
+      assert.equal(log.error.getCall(0).args[0], 'safeUrl.unsafe')
+      assert.equal(log.error.getCall(0).args[1].key, 'foo')
     }
   })
 
@@ -254,9 +254,9 @@ describe('createBackendServiceAPI', () => {
     } catch (err) {
       assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR)
       assert.equal(log.error.callCount, 1, 'an error was logged')
-      assert.equal(log.error.getCall(0).args[0].op, 'mock-service.testPostWithValidation')
-      assert.equal(log.error.getCall(0).args[0].error, 'response schema validation failed')
-      assert.ok(/"status" must be a number/.test(log.error.getCall(0).args[0].message))
+      assert.equal(log.error.getCall(0).args[0], 'mock-service.testPostWithValidation')
+      assert.equal(log.error.getCall(0).args[1].error, 'response schema validation failed')
+      assert.ok(/"status" must be a number/.test(log.error.getCall(0).args[1].message))
     }
   })
 
@@ -307,11 +307,11 @@ describe('createBackendServiceAPI', () => {
     } catch (err) {
       assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE)
       assert.equal(log.error.callCount, 1, 'an error was logged')
-      assert.equal(log.error.getCall(0).args[0].op, 'mock-service.testPostWithValidation.1')
-      assert.deepEqual(log.error.getCall(0).args[0].params, { id: 'abc' })
-      assert.deepEqual(log.error.getCall(0).args[0].query, {})
-      assert.deepEqual(log.error.getCall(0).args[0].payload, { foo: 'bar' })
-      assert.deepEqual(log.error.getCall(0).args[0].err.message, 'invalid frobble')
+      assert.equal(log.error.getCall(0).args[0], 'mock-service.testPostWithValidation.1')
+      assert.deepEqual(log.error.getCall(0).args[1].params, { id: 'abc' })
+      assert.deepEqual(log.error.getCall(0).args[1].query, {})
+      assert.deepEqual(log.error.getCall(0).args[1].payload, { foo: 'bar' })
+      assert.deepEqual(log.error.getCall(0).args[1].err.message, 'invalid frobble')
     }
   })
 
@@ -324,11 +324,11 @@ describe('createBackendServiceAPI', () => {
     } catch (err) {
       assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE)
       assert.equal(log.error.callCount, 1, 'an error was logged')
-      assert.equal(log.error.getCall(0).args[0].op, 'mock-service.testPostWithValidation.1')
-      assert.deepEqual(log.error.getCall(0).args[0].params, { id: 'abc' })
-      assert.deepEqual(log.error.getCall(0).args[0].query, {})
-      assert.deepEqual(log.error.getCall(0).args[0].payload, { foo: 'bar' })
-      assert.ok(log.error.getCall(0).args[0].err.message.indexOf('ruh-roh!') >= 0)
+      assert.equal(log.error.getCall(0).args[0], 'mock-service.testPostWithValidation.1')
+      assert.deepEqual(log.error.getCall(0).args[1].params, { id: 'abc' })
+      assert.deepEqual(log.error.getCall(0).args[1].query, {})
+      assert.deepEqual(log.error.getCall(0).args[1].payload, { foo: 'bar' })
+      assert.ok(log.error.getCall(0).args[1].err.message.indexOf('ruh-roh!') >= 0)
     }
   })
 

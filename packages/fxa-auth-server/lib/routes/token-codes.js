@@ -55,8 +55,7 @@ module.exports = (log, db, config, customs) => {
           return db.verifyTokenCode(code, {uid: uid})
             .then(() => {}, (err) => {
               if (err.errno === errors.ERRNO.EXPIRED_TOKEN_VERIFICATION_CODE) {
-                log.error({
-                  op: 'account.token.code.expired',
+                log.error('account.token.code.expired', {
                   uid: uid,
                   err: err
                 })
@@ -66,8 +65,7 @@ module.exports = (log, db, config, customs) => {
         }
 
         function emitMetrics() {
-          log.info({
-            op: 'account.token.code.verified',
+          log.info('account.token.code.verified', {
             uid: uid
           })
 

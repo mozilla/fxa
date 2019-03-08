@@ -100,7 +100,7 @@ module.exports = (
   SAFE_URLS.createAccount = new SafeUrl('/account/:uid', 'db.createAccount')
   DB.prototype.createAccount = function (data) {
     const { uid, email } = data
-    log.trace({ op: 'DB.createAccount', uid, email })
+    log.trace('DB.createAccount', { uid, email })
     data.createdAt = data.verifierSetAt = Date.now()
     data.normalizedEmail = data.email.toLowerCase()
     return this.pool.put(SAFE_URLS.createAccount, { uid }, data)
@@ -119,7 +119,7 @@ module.exports = (
   DB.prototype.createSessionToken = function (authToken) {
     const { uid } = authToken
 
-    log.trace({ op: 'DB.createSessionToken', uid })
+    log.trace('DB.createSessionToken', { uid })
 
     return SessionToken.create(authToken)
       .then(sessionToken => {
@@ -140,7 +140,7 @@ module.exports = (
 
   SAFE_URLS.createKeyFetchToken = new SafeUrl('/keyFetchToken/:id', 'db.createKeyFetchToken')
   DB.prototype.createKeyFetchToken = function (authToken) {
-    log.trace({ op: 'DB.createKeyFetchToken', uid: authToken && authToken.uid })
+    log.trace('DB.createKeyFetchToken', { uid: authToken && authToken.uid })
     return KeyFetchToken.create(authToken)
       .then(
         function (keyFetchToken) {
@@ -171,7 +171,7 @@ module.exports = (
     'db.createPasswordForgotToken'
   )
   DB.prototype.createPasswordForgotToken = function (emailRecord) {
-    log.trace({ op: 'DB.createPasswordForgotToken', uid: emailRecord && emailRecord.uid })
+    log.trace('DB.createPasswordForgotToken', { uid: emailRecord && emailRecord.uid })
     return PasswordForgotToken.create(emailRecord)
       .then(
         function (passwordForgotToken) {
@@ -202,7 +202,7 @@ module.exports = (
     'db.createPasswordChangeToken'
   )
   DB.prototype.createPasswordChangeToken = function (data) {
-    log.trace({ op: 'DB.createPasswordChangeToken', uid: data.uid })
+    log.trace('DB.createPasswordChangeToken', { uid: data.uid })
     return PasswordChangeToken.create(data)
       .then(
         function (passwordChangeToken) {
@@ -230,7 +230,7 @@ module.exports = (
 
   SAFE_URLS.checkPassword = new SafeUrl('/account/:uid/checkPassword', 'db.checkPassword')
   DB.prototype.checkPassword = function (uid, verifyHash) {
-    log.trace({ op: 'DB.checkPassword', uid, verifyHash })
+    log.trace('DB.checkPassword', { uid, verifyHash })
     return this.pool.post(SAFE_URLS.checkPassword,
       { uid },
       {
@@ -250,7 +250,7 @@ module.exports = (
   }
 
   DB.prototype.accountExists = function (email) {
-    log.trace({ op: 'DB.accountExists', email: email })
+    log.trace('DB.accountExists', { email: email })
     return this.accountRecord(email)
       .then(
         function () {
@@ -267,7 +267,7 @@ module.exports = (
 
   SAFE_URLS.sessions = new SafeUrl('/account/:uid/sessions', 'db.sessions')
   DB.prototype.sessions = function (uid) {
-    log.trace({ op: 'DB.sessions', uid })
+    log.trace('DB.sessions', { uid })
     const promises = [
       this.pool.get(SAFE_URLS.sessions, { uid })
         .then(sessionTokens => {
@@ -334,8 +334,7 @@ module.exports = (
           }
           return mergedToken
         })
-        log.info({
-          op: 'db.sessions.count',
+        log.info('db.sessions.count', {
           mysql: mysqlSessionTokens.length,
           redis: redisSessionTokens.length
         })
@@ -345,7 +344,7 @@ module.exports = (
 
   SAFE_URLS.keyFetchToken = new SafeUrl('/keyFetchToken/:id', 'db.keyFetchToken')
   DB.prototype.keyFetchToken = function (id) {
-    log.trace({ op: 'DB.keyFetchToken', id })
+    log.trace('DB.keyFetchToken', { id })
     return this.pool.get(SAFE_URLS.keyFetchToken, { id })
       .then(
         function (data) {
@@ -363,7 +362,7 @@ module.exports = (
     'db.keyFetchTokenWithVerificationStatus'
   )
   DB.prototype.keyFetchTokenWithVerificationStatus = function (id) {
-    log.trace({ op: 'DB.keyFetchTokenWithVerificationStatus', id })
+    log.trace('DB.keyFetchTokenWithVerificationStatus', { id })
     return this.pool.get(SAFE_URLS.keyFetchTokenWithVerificationStatus, { id })
       .then(
         function (data) {
@@ -378,7 +377,7 @@ module.exports = (
 
   SAFE_URLS.accountResetToken = new SafeUrl('/accountResetToken/:id', 'db.accountResetToken')
   DB.prototype.accountResetToken = function (id) {
-    log.trace({ op: 'DB.accountResetToken', id })
+    log.trace('DB.accountResetToken', { id })
     return this.pool.get(SAFE_URLS.accountResetToken, { id })
       .then(
         function (data) {
@@ -393,7 +392,7 @@ module.exports = (
 
   SAFE_URLS.passwordForgotToken = new SafeUrl('/passwordForgotToken/:id', 'db.passwordForgotToken')
   DB.prototype.passwordForgotToken = function (id) {
-    log.trace({ op: 'DB.passwordForgotToken', id })
+    log.trace('DB.passwordForgotToken', { id })
     return this.pool.get(SAFE_URLS.passwordForgotToken, { id })
       .then(
         function (data) {
@@ -408,7 +407,7 @@ module.exports = (
 
   SAFE_URLS.passwordChangeToken = new SafeUrl('/passwordChangeToken/:id', 'db.passwordChangeToken')
   DB.prototype.passwordChangeToken = function (id) {
-    log.trace({ op: 'DB.passwordChangeToken', id })
+    log.trace('DB.passwordChangeToken', { id })
     return this.pool.get(SAFE_URLS.passwordChangeToken, { id })
       .then(
         function (data) {
@@ -427,7 +426,7 @@ module.exports = (
    */
   SAFE_URLS.emailRecord = new SafeUrl('/emailRecord/:email', 'db.emailRecord')
   DB.prototype.emailRecord = function (email) {
-    log.trace({ op: 'DB.emailRecord', email })
+    log.trace('DB.emailRecord', { email })
     return this.pool.get(SAFE_URLS.emailRecord, { email: hexEncode(email) })
       .then(
         (body) => {
@@ -444,7 +443,7 @@ module.exports = (
 
   SAFE_URLS.accountRecord = new SafeUrl('/email/:email/account', 'db.accountRecord')
   DB.prototype.accountRecord = function (email) {
-    log.trace({ op: 'DB.accountRecord', email })
+    log.trace('DB.accountRecord', { email })
     return this.pool.get(SAFE_URLS.accountRecord, { email: hexEncode(email) })
       .then(
         (body) => {
@@ -463,7 +462,7 @@ module.exports = (
 
   SAFE_URLS.setPrimaryEmail = new SafeUrl('/email/:email/account/:uid', 'db.setPrimaryEmail')
   DB.prototype.setPrimaryEmail = function (uid, email) {
-    log.trace({ op: 'DB.setPrimaryEmail', email })
+    log.trace('DB.setPrimaryEmail', { email })
     return this.pool.post(SAFE_URLS.setPrimaryEmail, { email: hexEncode(email), uid })
       .then(
         function (body) {
@@ -480,7 +479,7 @@ module.exports = (
 
   SAFE_URLS.account = new SafeUrl('/account/:uid', 'db.account')
   DB.prototype.account = function (uid) {
-    log.trace({ op: 'DB.account', uid })
+    log.trace('DB.account', { uid })
     return this.pool.get(SAFE_URLS.account, { uid })
       .then((body) => {
         body.emailVerified = !! body.emailVerified
@@ -496,7 +495,7 @@ module.exports = (
 
   SAFE_URLS.devices = new SafeUrl('/account/:uid/devices', 'db.devices')
   DB.prototype.devices = function (uid) {
-    log.trace({ op: 'DB.devices', uid })
+    log.trace('DB.devices', { uid })
 
     if (! uid) {
       return P.reject(error.unknownAccount())
@@ -536,7 +535,7 @@ module.exports = (
 
   SAFE_URLS.sessionToken = new SafeUrl('/sessionToken/:id', 'db.sessionToken')
   DB.prototype.sessionToken = function (id) {
-    log.trace({ op: 'DB.sessionToken', id })
+    log.trace('DB.sessionToken', { id })
     return this.pool.get(SAFE_URLS.sessionToken, { id })
     .then(
       function (data) {
@@ -556,7 +555,7 @@ module.exports = (
     'db.updatePasswordForgotToken'
   )
   DB.prototype.updatePasswordForgotToken = function (token) {
-    log.trace({ op: 'DB.udatePasswordForgotToken', uid: token && token.uid })
+    log.trace('DB.udatePasswordForgotToken', { uid: token && token.uid })
     const { id } = token
     return this.pool.post(
       SAFE_URLS.updatePasswordForgotToken,
@@ -579,7 +578,7 @@ module.exports = (
   DB.prototype.touchSessionToken = function (token, geo) {
     const { id, uid } = token
 
-    log.trace({ op: 'DB.touchSessionToken', id, uid })
+    log.trace('DB.touchSessionToken', { id, uid })
 
     if (! this.redis || ! features.isLastAccessTimeEnabledForUser(uid)) {
       return P.resolve()
@@ -627,7 +626,7 @@ module.exports = (
   DB.prototype.updateSessionToken = function (sessionToken, geo) {
     const { id, uid } = sessionToken
 
-    log.trace({ op: 'DB.updateSessionToken', id, uid })
+    log.trace('DB.updateSessionToken', { id, uid })
 
     return this.touchSessionToken(sessionToken, geo)
       .then(() => {
@@ -650,7 +649,7 @@ module.exports = (
   }
 
   DB.prototype.pruneSessionTokens = function (uid, sessionTokens) {
-    log.trace({ op: 'DB.pruneSessionTokens', uid, tokenCount: sessionTokens.length })
+    log.trace('DB.pruneSessionTokens', { uid, tokenCount: sessionTokens.length })
 
     if (! this.redis || ! TOKEN_PRUNING_ENABLED || ! features.isLastAccessTimeEnabledForUser(uid)) {
       return P.resolve()
@@ -681,7 +680,7 @@ module.exports = (
 
   SAFE_URLS.device = new SafeUrl('/account/:uid/device/:deviceId', 'db.device')
   DB.prototype.device = function (uid, deviceId) {
-    log.trace({ op: 'DB.device', uid: uid, id: deviceId })
+    log.trace('DB.device', { uid: uid, id: deviceId })
 
     const promises = [
       this.pool.get(SAFE_URLS.device, { uid, deviceId })
@@ -716,7 +715,7 @@ module.exports = (
 
   SAFE_URLS.createDevice = new SafeUrl('/account/:uid/device/:id', 'db.createDevice')
   DB.prototype.createDevice = function (uid, sessionTokenId, deviceInfo) {
-    log.trace({ op: 'DB.createDevice', uid: uid, id: deviceInfo.id })
+    log.trace('DB.createDevice', { uid: uid, id: deviceInfo.id })
 
     return random.hex(16)
       .then(id => {
@@ -780,7 +779,7 @@ module.exports = (
   SAFE_URLS.updateDevice = new SafeUrl('/account/:uid/device/:id/update', 'db.updateDevice')
   DB.prototype.updateDevice = function (uid, sessionTokenId, deviceInfo) {
     const { id } = deviceInfo
-    log.trace({ op: 'DB.updateDevice', uid, id })
+    log.trace('DB.updateDevice', { uid, id })
     return this.pool.post(
       SAFE_URLS.updateDevice,
       { uid, id },
@@ -827,7 +826,7 @@ module.exports = (
   DB.prototype.deleteAccount = function (authToken) {
     const { uid } = authToken
 
-    log.trace({ op: 'DB.deleteAccount', uid })
+    log.trace('DB.deleteAccount', { uid })
 
     return P.resolve()
       .then(() => {
@@ -842,7 +841,7 @@ module.exports = (
   DB.prototype.deleteSessionToken = function (sessionToken) {
     const { id, uid } = sessionToken
 
-    log.trace({ op: 'DB.deleteSessionToken', id, uid })
+    log.trace('DB.deleteSessionToken', { id, uid })
 
     return this.deleteSessionTokenFromRedis(uid, id)
       .then(() => this.pool.del(SAFE_URLS.deleteSessionToken, { id }))
@@ -851,7 +850,7 @@ module.exports = (
   SAFE_URLS.deleteKeyFetchToken = new SafeUrl('/keyFetchToken/:id', 'db.deleteKeyFetchToken')
   DB.prototype.deleteKeyFetchToken = function (keyFetchToken) {
     const { id, uid } = keyFetchToken
-    log.trace({ op: 'DB.deleteKeyFetchToken', id, uid })
+    log.trace('DB.deleteKeyFetchToken', { id, uid })
     return this.pool.del(SAFE_URLS.deleteKeyFetchToken, { id })
   }
 
@@ -861,7 +860,7 @@ module.exports = (
   )
   DB.prototype.deleteAccountResetToken = function (accountResetToken) {
     const { id, uid } = accountResetToken
-    log.trace({ op: 'DB.deleteAccountResetToken', id, uid })
+    log.trace('DB.deleteAccountResetToken', { id, uid })
     return this.pool.del(SAFE_URLS.deleteAccountResetToken, { id })
   }
 
@@ -871,7 +870,7 @@ module.exports = (
   )
   DB.prototype.deletePasswordForgotToken = function (passwordForgotToken) {
     const { id, uid } = passwordForgotToken
-    log.trace({ op: 'DB.deletePasswordForgotToken', id, uid })
+    log.trace('DB.deletePasswordForgotToken', { id, uid })
     return this.pool.del(SAFE_URLS.deletePasswordForgotToken, { id })
   }
 
@@ -881,13 +880,13 @@ module.exports = (
   )
   DB.prototype.deletePasswordChangeToken = function (passwordChangeToken) {
     const { id, uid } = passwordChangeToken
-    log.trace({ op: 'DB.deletePasswordChangeToken', id, uid })
+    log.trace('DB.deletePasswordChangeToken', { id, uid })
     return this.pool.del(SAFE_URLS.deletePasswordChangeToken, { id })
   }
 
   SAFE_URLS.deleteDevice = new SafeUrl('/account/:uid/device/:deviceId', 'db.deleteDevice')
   DB.prototype.deleteDevice = function (uid, deviceId) {
-    log.trace({ op: 'DB.deleteDevice', uid, id: deviceId })
+    log.trace('DB.deleteDevice', { uid, id: deviceId })
 
     return this.pool.del(SAFE_URLS.deleteDevice, { uid, deviceId })
       .then(result => this.deleteSessionTokenFromRedis(uid, result.sessionTokenId))
@@ -904,7 +903,7 @@ module.exports = (
     'db.deviceFromTokenVerificationId'
   )
   DB.prototype.deviceFromTokenVerificationId = function (uid, tokenVerificationId) {
-    log.trace({ op: 'DB.deviceFromTokenVerificationId', uid, tokenVerificationId })
+    log.trace('DB.deviceFromTokenVerificationId', { uid, tokenVerificationId })
     return this.pool.get(SAFE_URLS.deviceFromTokenVerificationId, { uid, tokenVerificationId })
       .catch(err => {
         if (isNotFoundError(err)) {
@@ -920,7 +919,7 @@ module.exports = (
   DB.prototype.resetAccount = function (accountResetToken, data) {
     const { uid } = accountResetToken
 
-    log.trace({ op: 'DB.resetAccount', uid })
+    log.trace('DB.resetAccount', { uid })
 
     return P.resolve()
       .then(() => {
@@ -937,13 +936,13 @@ module.exports = (
   SAFE_URLS.verifyEmail = new SafeUrl('/account/:uid/verifyEmail/:emailCode', 'db.verifyEmail')
   DB.prototype.verifyEmail = function (account, emailCode) {
     const { uid } = account
-    log.trace({ op: 'DB.verifyEmail', uid, emailCode })
+    log.trace('DB.verifyEmail', { uid, emailCode })
     return this.pool.post(SAFE_URLS.verifyEmail, { uid, emailCode })
   }
 
   SAFE_URLS.verifyTokens = new SafeUrl('/tokens/:tokenVerificationId/verify', 'db.verifyTokens')
   DB.prototype.verifyTokens = function (tokenVerificationId, accountData) {
-    log.trace({ op: 'DB.verifyTokens', tokenVerificationId })
+    log.trace('DB.verifyTokens', { tokenVerificationId })
     return this.pool.post(
       SAFE_URLS.verifyTokens,
       { tokenVerificationId },
@@ -967,7 +966,7 @@ module.exports = (
     'db.verifyTokensWithMethod'
   )
   DB.prototype.verifyTokensWithMethod = function (tokenId, verificationMethod) {
-    log.trace({op: 'DB.verifyTokensWithMethod', tokenId, verificationMethod})
+    log.trace('DB.verifyTokensWithMethod', { tokenId, verificationMethod})
     return this.pool.post(
       SAFE_URLS.verifyTokensWithMethod,
       { tokenId },
@@ -977,7 +976,7 @@ module.exports = (
 
   SAFE_URLS.verifyTokenCode = new SafeUrl('/tokens/:code/verifyCode', 'db.verifyTokenCode')
   DB.prototype.verifyTokenCode = function (code, accountData) {
-    log.trace({ op: 'DB.verifyTokenCode', code })
+    log.trace('DB.verifyTokenCode', { code })
     return this.pool.post(
       SAFE_URLS.verifyTokenCode,
       { code },
@@ -1004,7 +1003,7 @@ module.exports = (
   )
   DB.prototype.forgotPasswordVerified = function (passwordForgotToken) {
     const { id, uid } = passwordForgotToken
-    log.trace({ op: 'DB.forgotPasswordVerified', uid })
+    log.trace('DB.forgotPasswordVerified', { uid })
     return AccountResetToken.create({ uid })
       .then(
         function (accountResetToken) {
@@ -1029,7 +1028,7 @@ module.exports = (
 
   SAFE_URLS.updateLocale = new SafeUrl('/account/:uid/locale', 'db.updateLocale')
   DB.prototype.updateLocale = function (uid, locale) {
-    log.trace({ op: 'DB.updateLocale', uid, locale })
+    log.trace('DB.updateLocale', { uid, locale })
     return this.pool.post(
       SAFE_URLS.updateLocale,
       { uid },
@@ -1039,8 +1038,7 @@ module.exports = (
 
   SAFE_URLS.securityEvent = new SafeUrl('/securityEvents', 'db.securityEvent')
   DB.prototype.securityEvent = function (event) {
-    log.trace({
-      op: 'DB.securityEvent',
+    log.trace('DB.securityEvent', {
       securityEvent: event
     })
 
@@ -1049,8 +1047,7 @@ module.exports = (
 
   SAFE_URLS.securityEvents = new SafeUrl('/securityEvents/:uid/ip/:ipAddr', 'db.securityEvents')
   DB.prototype.securityEvents = function (params) {
-    log.trace({
-      op: 'DB.securityEvents',
+    log.trace('DB.securityEvents', {
       params: params
     })
     const { ipAddr, uid } = params
@@ -1059,7 +1056,7 @@ module.exports = (
 
   SAFE_URLS.createUnblockCode = new SafeUrl('/account/:uid/unblock/:unblock', 'db.createUnblockCode')
   DB.prototype.createUnblockCode = function (uid) {
-    log.trace({ op: 'DB.createUnblockCode', uid })
+    log.trace('DB.createUnblockCode', { uid })
     return UnblockCode()
       .then(
         (unblock) => {
@@ -1072,8 +1069,7 @@ module.exports = (
                 // duplicates should be super rare, but it's feasible that a
                 // uid already has an existing unblockCode. Just try again.
                 if (isRecordAlreadyExistsError(err)) {
-                  log.error({
-                    op: 'DB.createUnblockCode.duplicate',
+                  log.error('DB.createUnblockCode.duplicate', {
                     err: err,
                     uid: uid
                   })
@@ -1088,7 +1084,7 @@ module.exports = (
 
   SAFE_URLS.consumeUnblockCode = new SafeUrl('/account/:uid/unblock/:code', 'db.consumeUnblockCode')
   DB.prototype.consumeUnblockCode = function (uid, code) {
-    log.trace({ op: 'DB.consumeUnblockCode', uid })
+    log.trace('DB.consumeUnblockCode', { uid })
     return this.pool.del(SAFE_URLS.consumeUnblockCode, { uid, code })
       .catch(
         function (err) {
@@ -1102,8 +1098,7 @@ module.exports = (
 
   SAFE_URLS.createEmailBounce = new SafeUrl('/emailBounces', 'db.createEmailBounce')
   DB.prototype.createEmailBounce = function (bounceData) {
-    log.trace({
-      op: 'DB.createEmailBounce',
+    log.trace('DB.createEmailBounce', {
       bouceData: bounceData
     })
 
@@ -1112,21 +1107,21 @@ module.exports = (
 
   SAFE_URLS.emailBounces = new SafeUrl('/emailBounces/:email', 'db.emailBounces')
   DB.prototype.emailBounces = function (email) {
-    log.trace({ op: 'DB.emailBounces', email })
+    log.trace('DB.emailBounces', { email })
 
     return this.pool.get(SAFE_URLS.emailBounces, { email: hexEncode(email) })
   }
 
   SAFE_URLS.accountEmails = new SafeUrl('/account/:uid/emails', 'db.accountEmails')
   DB.prototype.accountEmails = function (uid) {
-    log.trace({ op: 'DB.accountEmails', uid })
+    log.trace('DB.accountEmails', { uid })
 
     return this.pool.get(SAFE_URLS.accountEmails, { uid })
   }
 
   SAFE_URLS.getSecondaryEmail = new SafeUrl('/email/:email', 'db.getSecondaryEmail')
   DB.prototype.getSecondaryEmail = function (email) {
-    log.trace({ op: 'DB.getSecondaryEmail', email })
+    log.trace('DB.getSecondaryEmail', { email })
 
     return this.pool.get(SAFE_URLS.getSecondaryEmail, { email: hexEncode(email) })
       .catch((err) => {
@@ -1139,9 +1134,8 @@ module.exports = (
 
   SAFE_URLS.createEmail = new SafeUrl('/account/:uid/emails', 'db.createEmail')
   DB.prototype.createEmail = function (uid, emailData) {
-    log.trace({
+    log.trace('DB.createEmail', {
       email: emailData.email,
-      op: 'DB.createEmail',
       uid
     })
 
@@ -1158,7 +1152,7 @@ module.exports = (
 
   SAFE_URLS.deleteEmail = new SafeUrl('/account/:uid/emails/:email', 'db.deleteEmail')
   DB.prototype.deleteEmail = function (uid, email) {
-    log.trace({ op: 'DB.deleteEmail', uid })
+    log.trace('DB.deleteEmail', { uid })
 
     return this.pool.del(SAFE_URLS.deleteEmail, { uid, email: hexEncode(email) })
       .catch(
@@ -1173,7 +1167,7 @@ module.exports = (
 
   SAFE_URLS.createSigninCode = new SafeUrl('/signinCodes/:code', 'db.createSigninCode')
   DB.prototype.createSigninCode = function (uid, flowId) {
-    log.trace({ op: 'DB.createSigninCode' })
+    log.trace('DB.createSigninCode')
 
     return random.hex(config.signinCodeSize)
       .then(code => {
@@ -1181,7 +1175,7 @@ module.exports = (
         return this.pool.put(SAFE_URLS.createSigninCode, { code }, data)
           .then(() => code, err => {
             if (isRecordAlreadyExistsError(err)) {
-              log.warn({ op: 'DB.createSigninCode.duplicate' })
+              log.warn('DB.createSigninCode.duplicate')
               return this.createSigninCode(uid)
             }
 
@@ -1192,7 +1186,7 @@ module.exports = (
 
   SAFE_URLS.consumeSigninCode = new SafeUrl('/signinCodes/:code/consume', 'db.consumeSigninCode')
   DB.prototype.consumeSigninCode = function (code) {
-    log.trace({ op: 'DB.consumeSigninCode', code })
+    log.trace('DB.consumeSigninCode', { code })
 
     return this.pool.post(SAFE_URLS.consumeSigninCode, { code })
       .catch(err => {
@@ -1206,14 +1200,14 @@ module.exports = (
 
   SAFE_URLS.resetAccountTokens = new SafeUrl('/account/:uid/resetTokens', 'db.resetAccountTokens')
   DB.prototype.resetAccountTokens = function (uid) {
-    log.trace({ op: 'DB.resetAccountTokens', uid })
+    log.trace('DB.resetAccountTokens', { uid })
 
     return this.pool.post(SAFE_URLS.resetAccountTokens, { uid })
   }
 
   SAFE_URLS.createTotpToken = new SafeUrl('/totp/:uid', 'db.createTotpToken')
   DB.prototype.createTotpToken = function (uid, sharedSecret, epoch) {
-    log.trace({op: 'DB.createTotpToken', uid})
+    log.trace('DB.createTotpToken', { uid})
 
     return this.pool.put(SAFE_URLS.createTotpToken, { uid }, {
       sharedSecret: sharedSecret,
@@ -1229,7 +1223,7 @@ module.exports = (
 
   SAFE_URLS.totpToken = new SafeUrl('/totp/:uid', 'db.totpToken')
   DB.prototype.totpToken = function (uid) {
-    log.trace({ op: 'DB.totpToken', uid})
+    log.trace('DB.totpToken', { uid})
 
     return this.pool.get(SAFE_URLS.totpToken, { uid })
       .catch(err => {
@@ -1242,7 +1236,7 @@ module.exports = (
 
   SAFE_URLS.deleteTotpToken = new SafeUrl('/totp/:uid', 'db.deleteTotpToken')
   DB.prototype.deleteTotpToken = function (uid) {
-    log.trace({ op: 'DB.deleteTotpToken', uid})
+    log.trace('DB.deleteTotpToken', { uid})
 
     return this.pool.del(SAFE_URLS.deleteTotpToken, { uid })
       .catch(err => {
@@ -1255,7 +1249,7 @@ module.exports = (
 
   SAFE_URLS.updateTotpToken = new SafeUrl('/totp/:uid/update', 'db.updateTotpToken')
   DB.prototype.updateTotpToken = function (uid, data) {
-    log.trace({ op: 'DB.updateTotpToken', uid, data})
+    log.trace('DB.updateTotpToken', { uid, data})
 
     return this.pool.post(SAFE_URLS.updateTotpToken, { uid }, {
       verified: data.verified,
@@ -1274,7 +1268,7 @@ module.exports = (
     'db.replaceRecoveryCodes'
   )
   DB.prototype.replaceRecoveryCodes = function (uid, count) {
-    log.trace({op: 'DB.replaceRecoveryCodes', uid})
+    log.trace('DB.replaceRecoveryCodes', { uid})
 
     return this.pool.post(SAFE_URLS.replaceRecoveryCodes, { uid }, { count })
   }
@@ -1284,7 +1278,7 @@ module.exports = (
     'db.consumeRecoveryCode'
   )
   DB.prototype.consumeRecoveryCode = function (uid, code) {
-    log.trace({op: 'DB.consumeRecoveryCode', uid})
+    log.trace('DB.consumeRecoveryCode', { uid})
 
     return this.pool.post(SAFE_URLS.consumeRecoveryCode, { uid, code })
       .catch((err) => {
@@ -1300,7 +1294,7 @@ module.exports = (
     'db.createRecoveryKey'
   )
   DB.prototype.createRecoveryKey = function (uid, recoveryKeyId, recoveryData) {
-    log.trace({op: 'DB.createRecoveryKey', uid})
+    log.trace('DB.createRecoveryKey', { uid})
 
     return this.pool.post(SAFE_URLS.createRecoveryKey, { uid }, { recoveryKeyId, recoveryData })
       .catch((err) => {
@@ -1317,7 +1311,7 @@ module.exports = (
     'db.getRecoveryKey'
   )
   DB.prototype.getRecoveryKey = function (uid, recoveryKeyId) {
-    log.trace({op: 'DB.getRecoveryKey', uid})
+    log.trace('DB.getRecoveryKey', { uid})
 
     return this.pool.get(SAFE_URLS.getRecoveryKey, {uid, recoveryKeyId})
       .catch(err => {
@@ -1338,7 +1332,7 @@ module.exports = (
     'db.recoveryKeyExists'
   )
   DB.prototype.recoveryKeyExists = function (uid) {
-    log.trace({op: 'DB.recoveryKeyExists', uid})
+    log.trace('DB.recoveryKeyExists', { uid})
 
     return this.pool.get(SAFE_URLS.recoveryKeyExists, {uid})
   }
@@ -1348,7 +1342,7 @@ module.exports = (
     'db.deleteRecoveryKey'
   )
   DB.prototype.deleteRecoveryKey = function (uid) {
-    log.trace({op: 'DB.deleteRecoveryKey', uid})
+    log.trace('DB.deleteRecoveryKey', { uid})
 
     return this.pool.del(SAFE_URLS.deleteRecoveryKey, { uid })
   }
@@ -1356,7 +1350,7 @@ module.exports = (
   DB.prototype.safeRedisGet = function (key) {
     return this.redis.get(key)
       .catch(err => {
-        log.error({ op: 'redis.get.error', key, err: err.message })
+        log.error('redis.get.error', { key, err: err.message })
         // Allow callers to distinguish between the null result and connection errors
         return false
       })
@@ -1373,7 +1367,7 @@ module.exports = (
     return P.resolve()
       .then(() => unpackTokensFromRedis(tokens))
       .catch(err => {
-        log.error({ op: 'db.unpackTokensFromRedis.error', err: err.message })
+        log.error('db.unpackTokensFromRedis.error', { err: err.message })
 
         if (err instanceof SyntaxError) {
           return this.redis.del(uid)

@@ -53,9 +53,9 @@ describe('metrics/amplitude', () => {
 
       it('called log.error correctly', () => {
         assert.equal(log.error.callCount, 1)
-        assert.equal(log.error.args[0].length, 1)
-        assert.deepEqual(log.error.args[0][0], {
-          op: 'amplitude.badArgument',
+        assert.equal(log.error.args[0].length, 2)
+        assert.equal(log.error.args[0][0], 'amplitude.badArgument')
+        assert.deepEqual(log.error.args[0][1], {
           err: 'Bad argument',
           event: '',
           hasRequest: true
@@ -74,9 +74,9 @@ describe('metrics/amplitude', () => {
 
       it('called log.error correctly', () => {
         assert.equal(log.error.callCount, 1)
-        assert.equal(log.error.args[0].length, 1)
-        assert.deepEqual(log.error.args[0][0], {
-          op: 'amplitude.badArgument',
+        assert.equal(log.error.args[0].length, 2)
+        assert.equal(log.error.args[0][0], 'amplitude.badArgument')
+        assert.deepEqual(log.error.args[0][1], {
           err: 'Bad argument',
           event: 'foo',
           hasRequest: false

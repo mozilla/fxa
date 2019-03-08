@@ -89,16 +89,16 @@ describe('lib/senders/oauth_client_info:', () => {
       })
       return fetch('24bdbfa45cd300c5').then((res) => {
         assert.deepEqual(res, OAUTH_CLIENT)
-        assert.equal(mockLog.trace.getCall(0).args[0].op, 'fetch.start')
-        assert.equal(mockLog.trace.getCall(1).args[0].op, 'fetch.usedServer')
+        assert.equal(mockLog.trace.getCall(0).args[0], 'fetch.start')
+        assert.equal(mockLog.trace.getCall(1).args[0], 'fetch.usedServer')
         assert.equal(mockLog.trace.getCall(2), null)
         assert.ok(mockOAuthDB.getClientInfo.calledOnce)
 
         // second call is cached
         return fetch('24bdbfa45cd300c5')
       }).then((res) => {
-        assert.equal(mockLog.trace.getCall(2).args[0].op, 'fetch.start')
-        assert.equal(mockLog.trace.getCall(3).args[0].op, 'fetch.usedCache')
+        assert.equal(mockLog.trace.getCall(2).args[0], 'fetch.start')
+        assert.equal(mockLog.trace.getCall(3).args[0], 'fetch.usedCache')
         assert.ok(mockOAuthDB.getClientInfo.calledOnce)
         assert.deepEqual(res, OAUTH_CLIENT)
       })
@@ -112,13 +112,13 @@ describe('lib/senders/oauth_client_info:', () => {
       })
       return P.delay(15, fetch('24bdbfa45cd300c5')).then((res) => {
         assert.deepEqual(res, OAUTH_CLIENT)
-        assert.equal(mockLog.trace.getCall(1).args[0].op, 'fetch.usedServer')
+        assert.equal(mockLog.trace.getCall(1).args[0], 'fetch.usedServer')
         assert.ok(mockOAuthDB.getClientInfo.calledOnce)
 
         // second call uses server, cache expired
         return fetch('24bdbfa45cd300c5')
       }).then((res) => {
-        assert.equal(mockLog.trace.getCall(3).args[0].op, 'fetch.usedServer')
+        assert.equal(mockLog.trace.getCall(3).args[0], 'fetch.usedServer')
         assert.ok(mockOAuthDB.getClientInfo.calledTwice)
         assert.deepEqual(res, OAUTH_CLIENT)
       })

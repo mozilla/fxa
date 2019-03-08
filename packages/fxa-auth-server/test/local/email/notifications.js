@@ -91,13 +91,13 @@ describe('lib/email/notifications:', () => {
     it('logged an email event', () => {
       assert.equal(log.info.callCount, 1)
       const args = log.info.args[0]
-      assert.lengthOf(args, 1)
-      assert.deepEqual(args[0], {
+      assert.lengthOf(args, 2)
+      assert.equal(args[0], 'emailEvent')
+      assert.deepEqual(args[1], {
         bounced: true,
         domain: 'other',
         flow_id: 'foo',
         locale: 'en-gb',
-        op: 'emailEvent',
         template: 'bar',
         templateVersion: 'baz',
         type: 'bounced'
@@ -167,26 +167,26 @@ describe('lib/email/notifications:', () => {
       assert.equal(log.info.callCount, 2)
 
       let args = log.info.args[0]
-      assert.lengthOf(args, 1)
-      assert.deepEqual(args[0], {
+      assert.lengthOf(args, 2)
+      assert.equal(args[0], 'emailEvent')
+      assert.deepEqual(args[1], {
         complaint: true,
         domain: 'other',
         flow_id: 'wibble',
         locale: 'fr',
-        op: 'emailEvent',
         template: 'blee',
         templateVersion: '',
         type: 'bounced'
       })
 
       args = log.info.args[1]
-      assert.lengthOf(args, 1)
-      assert.deepEqual(args[0], {
+      assert.lengthOf(args, 2)
+      assert.equal(args[0], 'emailEvent')
+      assert.deepEqual(args[1], {
         complaint: true,
         domain: 'gmail.com',
         flow_id: 'wibble',
         locale: 'fr',
-        op: 'emailEvent',
         template: 'blee',
         templateVersion: '',
         type: 'bounced'
@@ -242,17 +242,17 @@ describe('lib/email/notifications:', () => {
       assert.equal(log.info.callCount, 4)
 
       let args = log.info.args[2]
-      assert.lengthOf(args, 1)
-      assert.deepEqual(args[0], {
-        op: 'accountDeleted',
+      assert.lengthOf(args, 2)
+      assert.equal(args[0], 'accountDeleted')
+      assert.deepEqual(args[1], {
         emailVerified: false,
         createdAt: emailRecord.createdAt
       })
 
       args = log.info.args[3]
-      assert.lengthOf(args, 1)
-      assert.deepEqual(args[0], {
-        op: 'accountDeleted',
+      assert.lengthOf(args, 2)
+      assert.equal(args[0], 'accountDeleted')
+      assert.deepEqual(args[1], {
         emailVerified: false,
         createdAt: emailRecord.createdAt
       })
@@ -402,12 +402,12 @@ describe('lib/email/notifications:', () => {
     it('logged an email event', () => {
       assert.equal(log.info.callCount, 1)
       const args = log.info.args[0]
-      assert.lengthOf(args, 1)
-      assert.deepEqual(args[0], {
+      assert.lengthOf(args, 2)
+      assert.equal(args[0], 'emailEvent')
+      assert.deepEqual(args[1], {
         domain: 'other',
         flow_id: 'foo',
         locale: 'en-gb',
-        op: 'emailEvent',
         template: 'bar',
         templateVersion: 'baz',
         type: 'delivered'
@@ -443,9 +443,9 @@ describe('lib/email/notifications:', () => {
       assert.isAtLeast(log.error.callCount, 1)
 
       const args = log.error.args[0]
-      assert.lengthOf(args, 1)
-      assert.deepEqual(args[0], {
-        op: 'emailHeaders.missing',
+      assert.lengthOf(args, 2)
+      assert.equal(args[0], 'emailHeaders.missing')
+      assert.deepEqual(args[1], {
         origin: 'notification'
       })
     })
@@ -457,12 +457,12 @@ describe('lib/email/notifications:', () => {
     it('logged an email event', () => {
       assert.equal(log.info.callCount, 1)
       const args = log.info.args[0]
-      assert.lengthOf(args, 1)
-      assert.deepEqual(args[0], {
+      assert.lengthOf(args, 2)
+      assert.equal(args[0], 'emailEvent')
+      assert.deepEqual(args[1], {
         bounced: true,
         domain: 'other',
         locale: '',
-        op: 'emailEvent',
         template: '',
         templateVersion: '',
         type: 'bounced'

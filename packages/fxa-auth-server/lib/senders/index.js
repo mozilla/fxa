@@ -31,14 +31,13 @@ module.exports = (log, config, error, bounces, translator, oauthdb, sender) => {
         .return(ungatedMailer)
         .catch(function (e) {
           const info = {
-            op: 'mailer.blocked',
             errno: e.errno
           }
           const bouncedAt = e.output && e.output.payload && e.output.payload.bouncedAt
           if (bouncedAt) {
             info.bouncedAt = bouncedAt
           }
-          log.info(info)
+          log.info('mailer.blocked', info)
           throw e
         })
     }

@@ -15,11 +15,11 @@ module.exports = function (log, error) {
   return function start(bounceQueue, db) {
 
     function accountDeleted(uid, email) {
-      log.info({ op: 'accountDeleted', uid: uid, email: email })
+      log.info('accountDeleted', { uid: uid, email: email })
     }
 
     function gotError(email, err) {
-      log.error({ op: 'databaseError', email: email, err: err })
+      log.error('databaseError', { email: email, err: err })
     }
 
     function findEmailRecord(email) {
@@ -77,8 +77,7 @@ module.exports = function (log, error) {
             // We couldn't make the recipient address look like a valid email.
             // Log a warning but don't error out because we still want to
             // emit flow metrics etc.
-            log.warn({
-              op: 'handleBounce.addressParseFailure',
+            log.warn('handleBounce.addressParseFailure', {
               email: email,
               action: recipient.action,
               diagnosticCode: recipient.diagnosticCode
@@ -87,7 +86,6 @@ module.exports = function (log, error) {
         }
         const emailDomain = utils.getAnonymizedEmailDomain(email)
         const logData = {
-          op: 'handleBounce',
           action: recipient.action,
           email: email,
           domain: emailDomain,
@@ -134,7 +132,7 @@ module.exports = function (log, error) {
         // Log the bounced flowEvent and emailEvent metrics
         utils.logFlowEventFromMessage(log, message, 'bounced')
         utils.logEmailEventFromMessage(log, message, 'bounced', emailDomain)
-        log.info(logData)
+        log.info('handleBounce', logData)
 
         /**
          * Docs: https://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html#bounce-types

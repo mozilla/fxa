@@ -77,7 +77,7 @@ module.exports = (log, config) => {
      */
     emit (event, data) {
       if (! event) {
-        log.error({ op: 'metricsEvents.emit', missingEvent: true })
+        log.error('metricsEvents.emit', { missingEvent: true })
         return P.resolve()
       }
 
@@ -175,7 +175,7 @@ module.exports = (log, config) => {
 
   function emitFlowEvent (event, request, optionalData) {
     if (! request || ! request.headers) {
-      log.error({ op: 'metricsEvents.emitFlowEvent', event, badRequest: true })
+      log.error('metricsEvents.emitFlowEvent', { event, badRequest: true })
       return P.resolve()
     }
 
@@ -195,7 +195,7 @@ module.exports = (log, config) => {
 
         log.flowEvent(data)
       } else if (! OPTIONAL_FLOW_EVENTS[event]) {
-        log.error({ op: 'metricsEvents.emitFlowEvent', event, missingFlowId: true })
+        log.error('metricsEvents.emitFlowEvent', { event, missingFlowId: true })
       }
 
       return data

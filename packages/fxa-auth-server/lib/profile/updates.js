@@ -11,13 +11,13 @@ module.exports = function (log) {
     function handleProfileUpdated(message) {
       const uid = message && message.uid
 
-      log.info({ op: 'handleProfileUpdated', uid, action: 'notify' })
+      log.info('handleProfileUpdated', { uid, action: 'notify' })
 
       return db.devices(uid)
         .then(devices => push.notifyProfileUpdated(uid, devices))
-        .catch(err => log.error({ op: 'handleProfileUpdated', uid, action: 'error', err, stack: err && err.stack }))
+        .catch(err => log.error('handleProfileUpdated', { uid, action: 'error', err, stack: err && err.stack }))
         .then(() => {
-          log.info({ op: 'handleProfileUpdated', uid, action: 'delete' })
+          log.info('handleProfileUpdated', { uid, action: 'delete' })
           // We always delete the message, we are not really mission critical
           message.del()
         })

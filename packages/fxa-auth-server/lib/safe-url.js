@@ -86,7 +86,7 @@ module.exports = log => class SafeUrl {
   }
 
   _fail (op, data) {
-    log.error(Object.assign({ op, caller: this._caller }, data))
+    log.error(op, Object.assign({ caller: this._caller }, data))
     throw error.internalValidationError(op, data)
   }
 }

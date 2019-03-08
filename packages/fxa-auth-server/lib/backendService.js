@@ -126,8 +126,7 @@ module.exports = function createBackendServiceAPI(log, config, serviceName, meth
           if (! err) {
             return resolve(value)
           }
-          log.error({
-            op: fullMethodName,
+          log.error(fullMethodName, {
             error: `${location} schema validation failed`,
             message: err.message,
             value
@@ -141,7 +140,7 @@ module.exports = function createBackendServiceAPI(log, config, serviceName, meth
     // This assumes you've done all the hard work of formulating params, body, etc.
 
     async function sendRequest(pool, method, path, params, query, payload, headers) {
-      log.trace({ op: fullMethodName, params, query, payload })
+      log.trace(fullMethodName, { params, query, payload })
       try {
         return await pool.request(method, path, params, query, payload, headers)
       } catch (err) {
@@ -150,7 +149,7 @@ module.exports = function createBackendServiceAPI(log, config, serviceName, meth
         if (err.errno || (err.statusCode && err.statusCode < 500)) {
           throw err
         } else {
-          log.error({ op: `${fullMethodName}.1`, params, query, payload, err })
+          log.error(`${fullMethodName}.1`, { params, query, payload, err })
           throw error.backendServiceFailure(serviceName, methodName)
         }
       }

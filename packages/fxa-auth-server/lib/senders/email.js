@@ -266,13 +266,13 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.send = function (message) {
-    log.trace({ op: 'mailer.' + message.template, email: message.email, uid: message.uid })
+    log.trace(`mailer.${message.template}`, { email: message.email, uid: message.uid })
     const localized = this.localize(message)
 
     const template = message.template
     let templateVersion = TEMPLATE_VERSIONS[template]
     if (! templateVersion) {
-      log.error({ op: 'emailTemplateVersion.missing', template })
+      log.error('emailTemplateVersion.missing', { template })
       templateVersion = 1
     }
     message.templateVersion = templateVersion
@@ -308,9 +308,8 @@ module.exports = function (log, config, oauthdb) {
             headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(message.metricsTemplate || template, emailService)
           }
 
-          log.info({
+          log.info('mailer.send', {
             email: emailAddresses[0],
-            op: 'mailer.send',
             template,
             headers: Object.keys(headers).join(',')
           })
@@ -337,8 +336,7 @@ module.exports = function (log, config, oauthdb) {
           const d = P.defer()
           mailer.sendMail(emailConfig, (err, status) => {
             if (err) {
-              log.error({
-                op: 'mailer.send.error',
+              log.error('mailer.send.error', {
                 err: err.message,
                 code: err.code,
                 errno: err.errno,
@@ -351,8 +349,7 @@ module.exports = function (log, config, oauthdb) {
               return d.reject(err)
             }
 
-            log.info({
-              op: 'mailer.send.1',
+            log.info('mailer.send.1', {
               status: status && status.message,
               id: status && status.messageId,
               to: emailConfig && emailConfig.to,
@@ -431,13 +428,13 @@ module.exports = function (log, config, oauthdb) {
     }
 
     return redis.get('config')
-      .catch(err => log.error({ op: 'emailConfig.read.error', err: err.message }))
+      .catch(err => log.error('emailConfig.read.error', { err: err.message }))
       .then(liveConfig => {
         if (liveConfig) {
           try {
             liveConfig = JSON.parse(liveConfig)
           } catch (err) {
-            log.error({ op: 'emailConfig.parse.error', err: err.message })
+            log.error('emailConfig.parse.error', { err: err.message })
           }
         }
 
@@ -540,7 +537,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.verifyEmail = async function (message) {
-    log.trace({ op: 'mailer.verifyEmail', email: message.email, uid: message.uid })
+    log.trace('mailer.verifyEmail', { email: message.email, uid: message.uid })
 
     var templateName = 'verifyEmail'
     const metricsTemplateName = templateName
@@ -593,7 +590,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.unblockCodeEmail = function (message) {
-    log.trace({ op: 'mailer.unblockCodeEmail', email: message.email, uid: message.uid })
+    log.trace('mailer.unblockCodeEmail', { email: message.email, uid: message.uid })
 
     var templateName = 'unblockCodeEmail'
     var query = {
@@ -628,7 +625,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.verifyLoginEmail = function (message) {
-    log.trace({ op: 'mailer.verifyLoginEmail', email: message.email, uid: message.uid })
+    log.trace('mailer.verifyLoginEmail', { email: message.email, uid: message.uid })
 
     var templateName = 'verifyLoginEmail'
     var query = {
@@ -679,7 +676,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.verifyLoginCodeEmail = function (message) {
-    log.trace({ op: 'mailer.verifyLoginCodeEmail', email: message.email, uid: message.uid })
+    log.trace('mailer.verifyLoginCodeEmail', { email: message.email, uid: message.uid })
 
     var templateName = 'verifyLoginCodeEmail'
     var query = {
@@ -718,7 +715,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.verifyPrimaryEmail = function (message) {
-    log.trace({ op: 'mailer.verifyPrimaryEmail', email: message.email, uid: message.uid })
+    log.trace('mailer.verifyPrimaryEmail', { email: message.email, uid: message.uid })
 
     const templateName = 'verifyPrimaryEmail'
     const query = {
@@ -761,7 +758,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.verifySecondaryEmail = function (message) {
-    log.trace({ op: 'mailer.verifySecondaryEmail', email: message.email, uid: message.uid })
+    log.trace('mailer.verifySecondaryEmail', { email: message.email, uid: message.uid })
 
     var templateName = 'verifySecondaryEmail'
     var query = {
@@ -915,7 +912,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.newDeviceLoginEmail = function (message) {
-    log.trace({ op: 'mailer.newDeviceLoginEmail', email: message.email, uid: message.uid })
+    log.trace('mailer.newDeviceLoginEmail', { email: message.email, uid: message.uid })
     var templateName = 'newDeviceLoginEmail'
     var links = this._generateSettingLinks(message, templateName)
     var translator = this.translator(message.acceptLanguage)
@@ -953,7 +950,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.postVerifyEmail = function (message) {
-    log.trace({ op: 'mailer.postVerifyEmail', email: message.email, uid: message.uid })
+    log.trace('mailer.postVerifyEmail', { email: message.email, uid: message.uid })
 
     var templateName = 'postVerifyEmail'
     var links = this._generateLinks(this.syncUrl, message.email, {}, templateName)
@@ -980,7 +977,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.postVerifySecondaryEmail = function (message) {
-    log.trace({ op: 'mailer.postVerifySecondaryEmail', email: message.email, uid: message.uid })
+    log.trace('mailer.postVerifySecondaryEmail', { email: message.email, uid: message.uid })
 
     var templateName = 'postVerifySecondaryEmail'
     var links = this._generateSettingLinks(message, templateName)
@@ -1008,7 +1005,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.postChangePrimaryEmail = function (message) {
-    log.trace({ op: 'mailer.postChangePrimaryEmail', email: message.email, uid: message.uid })
+    log.trace('mailer.postChangePrimaryEmail', { email: message.email, uid: message.uid })
 
     const templateName = 'postChangePrimaryEmail'
     const links = this._generateSettingLinks(message, templateName)
@@ -1036,7 +1033,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.postRemoveSecondaryEmail = function (message) {
-    log.trace({ op: 'mailer.postRemoveSecondaryEmail', email: message.email, uid: message.uid })
+    log.trace('mailer.postRemoveSecondaryEmail', { email: message.email, uid: message.uid })
 
     const templateName = 'postRemoveSecondaryEmail'
     const links = this._generateSettingLinks(message, templateName)
@@ -1062,7 +1059,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.postAddTwoStepAuthenticationEmail = function (message) {
-    log.trace({ op: 'mailer.postAddTwoStepAuthenticationEmail', email: message.email, uid: message.uid })
+    log.trace('mailer.postAddTwoStepAuthenticationEmail', { email: message.email, uid: message.uid })
 
     const templateName = 'postAddTwoStepAuthenticationEmail'
     const links = this._generateSettingLinks(message, templateName)
@@ -1094,7 +1091,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.postRemoveTwoStepAuthenticationEmail = function (message) {
-    log.trace({op: 'mailer.postRemoveTwoStepAuthenticationEmail', email: message.email, uid: message.uid})
+    log.trace('mailer.postRemoveTwoStepAuthenticationEmail', { email: message.email, uid: message.uid})
 
     const templateName = 'postRemoveTwoStepAuthenticationEmail'
     const links = this._generateSettingLinks(message, templateName)
@@ -1126,7 +1123,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.postNewRecoveryCodesEmail = function (message) {
-    log.trace({ op: 'mailer.postNewRecoveryCodesEmail', email: message.email, uid: message.uid })
+    log.trace('mailer.postNewRecoveryCodesEmail', { email: message.email, uid: message.uid })
 
     const templateName = 'postNewRecoveryCodesEmail'
     const links = this._generateSettingLinks(message, templateName)
@@ -1158,7 +1155,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.postConsumeRecoveryCodeEmail = function (message) {
-    log.trace({ op: 'mailer.postConsumeRecoveryCodeEmail', email: message.email, uid: message.uid })
+    log.trace('mailer.postConsumeRecoveryCodeEmail', { email: message.email, uid: message.uid })
 
     const templateName = 'postConsumeRecoveryCodeEmail'
     const links = this._generateSettingLinks(message, templateName)
@@ -1190,7 +1187,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.lowRecoveryCodesEmail = function (message) {
-    log.trace({ op: 'mailer.lowRecoveryCodesEmail', email: message.email, uid: message.uid })
+    log.trace('mailer.lowRecoveryCodesEmail', { email: message.email, uid: message.uid })
 
     const templateName = 'lowRecoveryCodesEmail'
     const links = this._generateLowRecoveryCodesLinks(message, templateName)
@@ -1218,7 +1215,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.postAddAccountRecoveryEmail = function (message) {
-    log.trace({ op: 'mailer.postAddAccountRecoveryEmail', email: message.email, uid: message.uid })
+    log.trace('mailer.postAddAccountRecoveryEmail', { email: message.email, uid: message.uid })
 
     const templateName = 'postAddAccountRecoveryEmail'
     const links = this._generateSettingLinks(message, templateName)
@@ -1252,7 +1249,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.postRemoveAccountRecoveryEmail = function (message) {
-    log.trace({ op: 'mailer.postRemoveAccountRecoveryEmail', email: message.email, uid: message.uid })
+    log.trace('mailer.postRemoveAccountRecoveryEmail', { email: message.email, uid: message.uid })
 
     const templateName = 'postRemoveAccountRecoveryEmail'
     const links = this._generateSettingLinks(message, templateName)
@@ -1284,7 +1281,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   Mailer.prototype.passwordResetAccountRecoveryEmail = function (message) {
-    log.trace({ op: 'mailer.passwordResetAccountRecoveryEmail', email: message.email, uid: message.uid })
+    log.trace('mailer.passwordResetAccountRecoveryEmail', { email: message.email, uid: message.uid })
 
     const templateName = 'passwordResetAccountRecoveryEmail'
     const links = this._generateCreateAccountRecoveryLinks(message, templateName)

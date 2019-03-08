@@ -108,7 +108,6 @@ describe('log', () => {
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
       assert.equal(args[0], 'log.activityEvent', 'first argument was function name')
       assert.deepEqual(args[1], {
-        op: 'log.activityEvent',
         data: undefined
       }, 'argument was correct')
 
@@ -131,7 +130,6 @@ describe('log', () => {
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
       assert.equal(args[0], 'log.activityEvent', 'first argument was function name')
       assert.deepEqual(args[1], {
-        op: 'log.activityEvent',
         data: {
           event: 'wibble'
         }
@@ -156,7 +154,6 @@ describe('log', () => {
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
       assert.equal(args[0], 'log.activityEvent', 'first argument was function name')
       assert.deepEqual(args[1], {
-        op: 'log.activityEvent',
         data: {
           uid: 'wibble'
         }
@@ -207,7 +204,6 @@ describe('log', () => {
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
       assert.equal(args[0], 'flow.missingData', 'first argument was op')
       assert.deepEqual(args[1], {
-        op: 'flow.missingData',
         data: undefined
       }, 'argument was correct')
 
@@ -232,7 +228,6 @@ describe('log', () => {
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
       assert.equal(args[0], 'flow.missingData', 'first argument was op')
       assert.deepEqual(args[1], {
-        op: 'flow.missingData',
         data: {
           flow_id: 'wibble',
           flow_time: 1000,
@@ -261,7 +256,6 @@ describe('log', () => {
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
       assert.equal(args[0], 'flow.missingData', 'first argument was op')
       assert.deepEqual(args[1], {
-        op: 'flow.missingData',
         data: {
           event: 'wibble',
           flow_time: 1000,
@@ -290,7 +284,6 @@ describe('log', () => {
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
       assert.equal(args[0], 'flow.missingData', 'first argument was op')
       assert.deepEqual(args[1], {
-        op: 'flow.missingData',
         data: {
           event: 'wibble',
           flow_id: 'blee',
@@ -319,7 +312,6 @@ describe('log', () => {
       assert.equal(args.length, 2, 'logger.error was passed two arguments')
       assert.equal(args[0], 'flow.missingData', 'first argument was op')
       assert.deepEqual(args[1], {
-        op: 'flow.missingData',
         data: {
           event: 'wibble',
           flow_id: 'blee',
@@ -361,7 +353,6 @@ describe('log', () => {
     assert.equal(args.length, 2, 'logger.error was passed two arguments')
     assert.equal(args[0], 'amplitude.missingData', 'first argument was error op')
     assert.deepEqual(args[1], {
-      op: 'amplitude.missingData',
       data: undefined
     }, 'second argument was correct')
 
@@ -379,7 +370,6 @@ describe('log', () => {
     assert.equal(args.length, 2, 'logger.error was passed two arguments')
     assert.equal(args[0], 'amplitude.missingData', 'first argument was error op')
     assert.deepEqual(args[1], {
-      op: 'amplitude.missingData',
       data: { device_id: 'foo', user_id: 'bar' }
     }, 'second argument was correct')
 
@@ -397,7 +387,6 @@ describe('log', () => {
     assert.equal(args.length, 2, 'logger.error was passed two arguments')
     assert.equal(args[0], 'amplitude.missingData', 'first argument was error op')
     assert.deepEqual(args[1], {
-      op: 'amplitude.missingData',
       data: { event_type: 'foo' }
     }, 'second argument was correct')
 
@@ -448,12 +437,12 @@ describe('log', () => {
     () => {
       var err = new Error()
       err.email = 'test@example.com'
-      log.error({ op: 'unexpectedError', err: err })
+      log.error('unexpectedError', { err: err })
 
       assert.equal(logger.error.callCount, 1, 'logger.error was called once')
       var args = logger.error.args[0]
       assert.equal(args[0], 'unexpectedError', 'logger.error received "op" value')
-      assert.equal(Object.keys(args[1]).length, 3, 'log info has three fields')
+      assert.lengthOf(Object.keys(args[1]), 2)
       assert.equal(args[1].email, 'test@example.com', 'email is reported in top-level fields')
       assert(! args[1].err.email, 'email should not be reported in error object')
     }
@@ -501,7 +490,7 @@ describe('log', () => {
     })
 
     assert.equal(logger.info.callCount, 1)
-
+    assert.equal(logger.info.args[0][0], 'request.summary')
     const line = logger.info.args[0][1]
 
     // Because t is generated using Date.now and subtracting info.received,
@@ -513,7 +502,6 @@ describe('log', () => {
     delete line.t;
 
     assert.deepEqual(line, {
-      op: 'request.summary',
       status: 201,
       errno: 109,
       rid: 'quuz',

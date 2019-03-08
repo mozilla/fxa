@@ -39,7 +39,7 @@ module.exports = (log, client) => {
      */
     update (key, getUpdatedValue) {
       if (isUpdating) {
-        log.error({ op: 'redis.update.conflict', key })
+        log.error('redis.update.conflict', { key })
         return P.reject(error.unexpectedError())
       }
 
@@ -61,7 +61,7 @@ module.exports = (log, client) => {
         })
         .catch(err => {
           client.unwatch()
-          log.error({ op: 'redis.update.error', key, err: err.message })
+          log.error('redis.update.error', { key, err: err.message })
           isUpdating = false
           throw err
         })
@@ -70,7 +70,7 @@ module.exports = (log, client) => {
           if (! result) {
             // Really this isn't an error as such, it just indicates that
             // this function is operating sanely in concurrent conditions.
-            log.warn({ op: 'redis.watch.conflict', key })
+            log.warn('redis.watch.conflict', { key })
             throw error.unexpectedError()
           }
         })

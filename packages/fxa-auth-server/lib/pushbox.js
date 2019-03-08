@@ -130,9 +130,9 @@ module.exports = function (log, config) {
         query.index = index.toString()
       }
       const body = await api.retrieve(uid, deviceId, query)
-      log.info({ op: 'pushbox.retrieve.response', body: body })
+      log.info('pushbox.retrieve.response', { body: body })
       if (body.error) {
-        log.error({ op: 'pushbox.retrieve', status: body.status, error: body.error })
+        log.error('pushbox.retrieve', { status: body.status, error: body.error })
         throw error.backendServiceFailure()
       }
       return {
@@ -163,9 +163,9 @@ module.exports = function (log, config) {
         ttl = maxTTL
       }
       const body = await api.store(uid, deviceId, {data: encodeForStorage(data), ttl})
-      log.info({ op: 'pushbox.store.response', body: body })
+      log.info('pushbox.store.response', { body: body })
       if (body.error) {
-        log.error({ op: 'pushbox.store', status: body.status, error: body.error })
+        log.error('pushbox.store', { status: body.status, error: body.error })
         throw error.backendServiceFailure()
       }
       return body

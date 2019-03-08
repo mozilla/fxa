@@ -74,7 +74,7 @@ describe('push', () => {
     'sendPush does not reject on empty device array',
     () => {
       const thisMockLog = mockLog({
-        info: function (log) {
+        info: function (op, log) {
           if (log.name === 'push.account_verify.success') {
             assert.fail('must not call push.success')
           }
@@ -91,7 +91,7 @@ describe('push', () => {
     () => {
       var successCalled = 0
       var thisMockLog = mockLog({
-        info: function (log) {
+        info: function (op, log) {
           if (log.name === 'push.account_verify.success') {
             // notification sent
             successCalled++
@@ -121,7 +121,7 @@ describe('push', () => {
     () => {
       var successCalled = 0
       var thisMockLog = mockLog({
-        info: function (log) {
+        info: function (op, log) {
           if (log.name === 'push.account_verify.success') {
             // notification sent
             successCalled++
@@ -353,7 +353,7 @@ describe('push', () => {
     () => {
       let count = 0
       var thisMockLog = mockLog({
-        info: function (log) {
+        info: function (op, log) {
           if (log.name === 'push.account_verify.data_but_no_keys') {
             // data detected but device had no keys
             count++
@@ -383,7 +383,7 @@ describe('push', () => {
     () => {
       let count = 0
       var thisMockLog = mockLog({
-        info: function (log) {
+        info: function (op, log) {
           if (log.name === 'push.account_verify.no_push_callback') {
             // device had no push callback
             count++
@@ -409,7 +409,7 @@ describe('push', () => {
     () => {
       let count = 0
       var thisMockLog = mockLog({
-        info: function (log) {
+        info: function (op, log) {
           if (log.name === 'push.account_verify.failed') {
             // web-push failed
             count++
@@ -461,9 +461,9 @@ describe('push', () => {
         return push.sendPush(mockUid, devices, 'accountVerify')
       }).then(function () {
         assert.equal(thisMockLog.error.callCount, 1, 'log.error was called')
-        var arg = thisMockLog.error.getCall(0).args[0]
-        assert.equal(arg.op, 'push.sendPush')
-        assert.equal(arg.err.message, 'Too many devices connected to account')
+        var args = thisMockLog.error.getCall(0).args
+        assert.equal(args[0], 'push.sendPush')
+        assert.equal(args[1].err.message, 'Too many devices connected to account')
       })
     }
   )
@@ -473,7 +473,7 @@ describe('push', () => {
     () => {
       let count = 0
       var thisMockLog = mockLog({
-        info: function (log) {
+        info: function (op, log) {
           if (log.name === 'push.account_verify.reset_settings') {
             // web-push failed
             assert.equal(mockDb.updateDevice.callCount, 1, 'db.updateDevice was called once')
@@ -510,7 +510,7 @@ describe('push', () => {
     () => {
       let count = 0
       var thisMockLog = mockLog({
-        info: function (log) {
+        info: function (op, log) {
           if (log.name === 'push.account_verify.reset_settings') {
             // web-push failed
             assert.equal(mockDb.updateDevice.callCount, 1, 'db.updateDevice was called once')
@@ -547,7 +547,7 @@ describe('push', () => {
     () => {
       let count = 0
       var thisMockLog = mockLog({
-        info: function (log) {
+        info: function (op, log) {
           if (log.name === 'push.account_verify.failed') {
             // web-push failed
             assert.equal(mockDb.updateDevice.callCount, 0, 'db.updateDevice was not called')
@@ -834,7 +834,7 @@ describe('push', () => {
     () => {
       let count = 0
       var thisMockLog = mockLog({
-        info: function (log) {
+        info: function (op, log) {
           if (log.name === 'push.account_verify.success') {
             count++
           }

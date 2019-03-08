@@ -23,7 +23,7 @@ module.exports = function (log, Token) {
   KeyFetchToken.tokenTypeID = 'keyFetchToken'
 
   KeyFetchToken.create = function (details) {
-    log.trace({ op: 'KeyFetchToken.create', uid: details && details.uid })
+    log.trace('KeyFetchToken.create', { uid: details && details.uid })
     return Token.createNewToken(KeyFetchToken, details || {})
       .then(
         function (token) {
@@ -39,24 +39,24 @@ module.exports = function (log, Token) {
   }
 
   KeyFetchToken.fromId = function (id, details) {
-    log.trace({ op: 'KeyFetchToken.fromId' })
+    log.trace('KeyFetchToken.fromId')
     return P.resolve(new KeyFetchToken({ id, authKey: details.authKey }, details))
   }
 
   KeyFetchToken.fromHex = function (string, details) {
-    log.trace({ op: 'KeyFetchToken.fromHex' })
+    log.trace('KeyFetchToken.fromHex')
     return Token.createTokenFromHexData(KeyFetchToken, string, details || {})
   }
 
   KeyFetchToken.prototype.bundleKeys = function (kA, wrapKb) {
-    log.trace({ op: 'keyFetchToken.bundleKeys', id: this.id })
+    log.trace('keyFetchToken.bundleKeys', { id: this.id })
     kA = Buffer.from(kA, 'hex')
     wrapKb = Buffer.from(wrapKb, 'hex')
     return this.bundle('account/keys', Buffer.concat([kA, wrapKb]))
   }
 
   KeyFetchToken.prototype.unbundleKeys = function (bundle) {
-    log.trace({ op: 'keyFetchToken.unbundleKeys', id: this.id })
+    log.trace('keyFetchToken.unbundleKeys', { id: this.id })
     return this.unbundle('account/keys', bundle)
       .then(
         function (plaintext) {

@@ -52,11 +52,11 @@ const REDIS_COMMANDS = [ 'get', 'set', 'del', 'update' ]
 
 module.exports = (config, log) => {
   if (! config.enabled) {
-    log.info({ op: 'redis.disabled' })
+    log.info('redis.disabled')
     return
   }
 
-  log.info({ op: 'redis.enabled', config })
+  log.info('redis.enabled', { config })
 
   const pool = require('./pool')(config, log)
 

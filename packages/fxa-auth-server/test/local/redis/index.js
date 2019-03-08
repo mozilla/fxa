@@ -31,7 +31,7 @@ describe('redis disabled:', () => {
     assert.equal(log.info.callCount, 1)
     const args = log.info.args[0]
     assert.equal(args.length, 1)
-    assert.deepEqual(args[0], { op: 'redis.disabled' })
+    assert.equal(args[0], 'redis.disabled')
   })
 
   it('returned undefined', () => {
@@ -60,8 +60,9 @@ describe('redis enabled:', () => {
   it('called log.info correctly', () => {
     assert.equal(log.info.callCount, 1)
     const args = log.info.args[0]
-    assert.equal(args.length, 1)
-    assert.deepEqual(args[0], { op: 'redis.enabled', config })
+    assert.equal(args.length, 2)
+    assert.equal(args[0], 'redis.enabled')
+    assert.deepEqual(args[1], { config })
   })
 
   it('initialised pool correctly', () => {

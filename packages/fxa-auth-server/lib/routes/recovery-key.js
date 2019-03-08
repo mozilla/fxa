@@ -47,8 +47,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
         }
 
         function emitMetrics() {
-          log.info({
-            op: 'account.recoveryKey.created',
+          log.info('account.recoveryKey.created', {
             uid
           })
 

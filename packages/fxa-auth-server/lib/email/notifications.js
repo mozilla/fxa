@@ -45,12 +45,12 @@ module.exports = (log, error) => {
               // A bounce or complaint on a new unverified account is grounds for deletion
               await db.deleteAccount(emailRecord)
 
-              log.info({ op: 'accountDeleted', ...emailRecord })
+              log.info('accountDeleted', { ...emailRecord })
             }
           }
         }))
       } catch (err) {
-        log.error({ op: 'email.notification.error', err })
+        log.error('email.notification.error', { err })
       }
 
       message.del()

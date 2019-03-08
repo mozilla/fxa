@@ -88,7 +88,7 @@ module.exports = (log, db) => {
               return {}
             },
             function (err) {
-              log.error({ op: 'heartbeat', err: err })
+              log.error('heartbeat', { err: err })
               throw error.serviceUnavailable()
             }
           )

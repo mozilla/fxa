@@ -26,8 +26,7 @@ module.exports = {
     case 119:
       return error.staleAuthAt(err.authAt)
     default:
-      log.warn({
-        op: 'oauthdb.mapOAuthError',
+      log.warn('oauthdb.mapOAuthError', {
         err: err,
         errno: err.errno,
         warning: 'unmapped oauth-server errno'

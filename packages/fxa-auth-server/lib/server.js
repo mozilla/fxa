@@ -36,7 +36,6 @@ function logEndpointErrors(response, log) {
   // to better understand the DB timeouts.
   if (response.__proto__ && response.__proto__.name === 'EndpointError') {
     var endpointLog = {
-      op: 'server.EndpointError',
       message: response.message,
       reason: response.reason
     }
@@ -44,7 +43,7 @@ function logEndpointErrors(response, log) {
       // log the DB attempt to understand the action
       endpointLog.method = response.attempt.method
     }
-    log.error(endpointLog)
+    log.error('server.EndpointError', endpointLog)
   }
 }
 
@@ -99,14 +98,14 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
       // keeping a nonce cache.  Instead we use this as an opportunity
       // to report on the clock skew values seen in the wild.
       var skew = (Date.now() / 1000) - (+ts)
-      log.trace({ op: 'server.nonceFunc', skew: skew })
+      log.trace('server.nonceFunc', { skew: skew })
     }
   }
 
 
   function makeCredentialFn(dbGetFn) {
     return function (id) {
-      log.trace({ op: 'DB.getToken', id: id })
+      log.trace('DB.getToken', { id: id })
       if (! HEX_STRING.test(id)) {
         return null
       }
@@ -227,8 +226,7 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
 
     if (request.headers.authorization) {
       // Log some helpful details for debugging authentication problems.
-      log.trace({
-        op: 'server.onPreAuth',
+      log.trace('server.onPreAuth', {
         rid: request.id,
         path: request.path,
         auth: request.headers.authorization,

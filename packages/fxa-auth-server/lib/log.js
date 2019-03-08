@@ -33,11 +33,11 @@ Lug.prototype.close = function() {
 
 // Expose the standard error/warn/info/debug/etc log methods.
 
-Lug.prototype.trace = function (data) {
-  this.logger.debug(data.op, data)
+Lug.prototype.trace = function (op, data) {
+  this.logger.debug(op, data)
 }
 
-Lug.prototype.error = function (data) {
+Lug.prototype.error = function (op, data) {
   // If the error object contains an email address,
   // lift it into top-level fields so that our
   // PII-scrubbing tool is able to find it.
@@ -47,19 +47,19 @@ Lug.prototype.error = function (data) {
     }
     data.err.email = null
   }
-  this.logger.error(data.op, data)
+  this.logger.error(op, data)
 }
 
-Lug.prototype.fatal = function (data) {
-  this.logger.critical(data.op, data)
+Lug.prototype.fatal = function (op, data) {
+  this.logger.critical(op, data)
 }
 
-Lug.prototype.warn = function (data) {
-  this.logger.warn(data.op, data)
+Lug.prototype.warn = function (op, data) {
+  this.logger.warn(op, data)
 }
 
-Lug.prototype.info = function (data) {
-  this.logger.info(data.op, data)
+Lug.prototype.info = function (op, data) {
+  this.logger.info(op, data)
 }
 
 Lug.prototype.begin = function (op, request) {
@@ -88,7 +88,6 @@ Lug.prototype.summary = function (request, response) {
   const responseBody = (response && response.source) || {}
 
   const line = {
-    op: 'request.summary',
     status: (response.isBoom) ? response.output.statusCode : response.statusCode,
     errno: response.errno || 0,
     rid: request.id,
@@ -116,10 +115,10 @@ Lug.prototype.summary = function (request, response) {
   if (line.status >= 500) {
     line.trace = request.app.traced
     line.stack = response.stack
-    this.error(line, response.message)
+    this.error('request.summary', line, response.message)
   }
   else {
-    this.info(line)
+    this.info('request.summary', line)
   }
 }
 
@@ -149,7 +148,7 @@ Lug.prototype.notifyAttachedServices = function (name, request, data) {
 
 Lug.prototype.activityEvent = function (data) {
   if (! data || ! data.event || ! data.uid) {
-    this.error({ op: 'log.activityEvent', data: data })
+    this.error('log.activityEvent', { data })
     return
   }
 
@@ -161,7 +160,7 @@ Lug.prototype.activityEvent = function (data) {
 
 Lug.prototype.flowEvent = function (data) {
   if (! data || ! data.event || ! data.flow_id || ! data.flow_time || ! data.time) {
-    this.error({ op: 'flow.missingData', data })
+    this.error('flow.missingData', { data })
     return
   }
 
@@ -170,7 +169,7 @@ Lug.prototype.flowEvent = function (data) {
 
 Lug.prototype.amplitudeEvent = function (data) {
   if (! data || ! data.event_type || (! data.device_id && ! data.user_id)) {
-    this.error({ op: 'amplitude.missingData', data })
+    this.error('amplitude.missingData', { data })
     return
   }
 

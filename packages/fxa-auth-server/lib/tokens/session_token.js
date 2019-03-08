@@ -54,12 +54,12 @@ module.exports = (log, Token, config) => {
 
     static create(details) {
       details = details || {}
-      log.trace({ op: 'SessionToken.create', uid: details.uid })
+      log.trace('SessionToken.create', { uid: details.uid })
       return Token.createNewToken(SessionToken, details)
     }
 
     static fromHex(string, details) {
-      log.trace({ op: 'SessionToken.fromHex' })
+      log.trace('SessionToken.fromHex')
       return Token.createTokenFromHexData(SessionToken, string, details || {})
     }
 

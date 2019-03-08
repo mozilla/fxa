@@ -47,8 +47,8 @@ describe('/session/verify/token', () => {
     it('called log.info correctly', () => {
       assert.equal(log.info.callCount, 1)
       const args = log.info.args[0]
-      assert.equal(args.length, 1)
-      assert.equal(args[0]['op'], 'account.token.code.verified')
+      assert.equal(args.length, 2)
+      assert.equal(args[0], 'account.token.code.verified')
     })
   })
 
@@ -90,8 +90,8 @@ describe('/session/verify/token', () => {
     it('called log.error correctly', () => {
       assert.equal(log.error.callCount, 1)
       const args = log.error.args[0]
-      assert.equal(args.length, 1)
-      assert.equal(args[0]['op'], 'account.token.code.expired')
+      assert.equal(args.length, 2)
+      assert.equal(args[0], 'account.token.code.expired')
     })
   })
 })

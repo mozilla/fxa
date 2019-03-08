@@ -99,8 +99,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
         country: territories.main[language].localeDisplayNames.territories[location.countryCode]
       }
     } catch (err) {
-      log.warn({
-        op: 'devices.marshallLocation.warning',
+      log.warn('devices.marshallLocation.warning', {
         err: err.message,
         languages: request.app.acceptLanguage,
         language,
@@ -279,7 +278,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
 
         return pushbox.retrieve(uid, deviceId, limit, index)
           .then(resp => {
-            log.info({ op: 'commands.fetch', resp: resp })
+            log.info('commands.fetch', { resp: resp })
             return resp
           })
       }
@@ -402,8 +401,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
               devices = devices.filter(device => include.has(device.id))
 
               if (devices.length === 0) {
-                log.error({
-                  op: 'Account.devicesNotify',
+                log.error('Account.devicesNotify', {
                   uid: uid,
                   error: 'devices empty'
                 })
@@ -446,8 +444,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices) => {
         function catchPushError (err) {
           // push may fail due to not found devices or a bad push action
           // log the error but still respond with a 200.
-          log.error({
-            op: 'Account.devicesNotify',
+          log.error('Account.devicesNotify', {
             uid: uid,
             error: err
           })

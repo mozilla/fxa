@@ -55,9 +55,9 @@ module.exports = function notifierLog(log) {
         MessageAttributes: formatMessageAttributes(msg)
       }, (err, data) => {
         if (err) {
-          log.error({op: 'Notifier.publish', err: err})
+          log.error('Notifier.publish', { err: err})
         } else {
-          log.trace({op: 'Notifier.publish', success: true, data: data})
+          log.trace('Notifier.publish', { success: true, data: data})
         }
 
         if (callback) {

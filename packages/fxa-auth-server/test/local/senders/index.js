@@ -306,10 +306,10 @@ describe('lib/senders/index', () => {
             assert.equal(e.errno, error.ERRNO.BOUNCE_COMPLAINT)
 
             assert.ok(log.info.callCount >= 2)
-            const msg = log.info.args[1][0]
-            assert.equal(msg.op, 'mailer.blocked')
-            assert.equal(msg.errno, e.errno)
-            assert.equal(msg.bouncedAt, DATE)
+            const msg = log.info.args[1]
+            assert.equal(msg[0], 'mailer.blocked')
+            assert.equal(msg[1].errno, e.errno)
+            assert.equal(msg[1].bouncedAt, DATE)
           })
       })
 
@@ -365,10 +365,10 @@ describe('lib/senders/index', () => {
             assert.equal(e.errno, error.ERRNO.BOUNCE_COMPLAINT)
 
             assert.ok(log.info.callCount >= 2)
-            const msg = log.info.args[1][0]
-            assert.equal(msg.op, 'mailer.blocked')
-            assert.equal(msg.errno, e.errno)
-            assert.equal(msg.bouncedAt, DATE)
+            const msg = log.info.args[1]
+            assert.equal(msg[0], 'mailer.blocked')
+            assert.equal(msg[1].errno, e.errno)
+            assert.equal(msg[1].bouncedAt, DATE)
           })
           .finally(() => {
             EMAILS[1].isVerified = true

@@ -185,12 +185,12 @@ describe('metricsContext', () => {
         assert.equal(result, undefined, 'result is undefined')
 
         assert.equal(log.error.callCount, 1, 'log.error was called once')
-        assert.equal(log.error.args[0].length, 1, 'log.error was passed one argument')
-        assert.equal(log.error.args[0][0].op, 'metricsContext.stash', 'op property was correct')
-        assert.equal(log.error.args[0][0].err.message, 'Invalid token', 'err.message property was correct')
-        assert.strictEqual(log.error.args[0][0].hasToken, true, 'hasToken property was correct')
-        assert.strictEqual(log.error.args[0][0].hasId, true, 'hasId property was correct')
-        assert.strictEqual(log.error.args[0][0].hasUid, false, 'hasUid property was correct')
+        assert.equal(log.error.args[0].length, 2, 'log.error was passed one argument')
+        assert.equal(log.error.args[0][0], 'metricsContext.stash', 'op property was correct')
+        assert.equal(log.error.args[0][1].err.message, 'Invalid token', 'err.message property was correct')
+        assert.strictEqual(log.error.args[0][1].hasToken, true, 'hasToken property was correct')
+        assert.strictEqual(log.error.args[0][1].hasId, true, 'hasId property was correct')
+        assert.strictEqual(log.error.args[0][1].hasUid, false, 'hasUid property was correct')
 
         assert.equal(cache.add.callCount, 0, 'cache.add was not called')
       })
@@ -335,12 +335,12 @@ describe('metricsContext', () => {
     assert.deepEqual(result, {})
 
     assert.equal(log.error.callCount, 1)
-    assert.lengthOf(log.error.args[0], 1)
-    assert.equal(log.error.args[0][0].op, 'metricsContext.get')
-    assert.equal(log.error.args[0][0].err.message, 'Invalid token')
-    assert.strictEqual(log.error.args[0][0].hasToken, true)
-    assert.strictEqual(log.error.args[0][0].hasId, false)
-    assert.strictEqual(log.error.args[0][0].hasUid, true)
+    assert.lengthOf(log.error.args[0], 2)
+    assert.equal(log.error.args[0][0], 'metricsContext.get')
+    assert.equal(log.error.args[0][1].err.message, 'Invalid token')
+    assert.strictEqual(log.error.args[0][1].hasToken, true)
+    assert.strictEqual(log.error.args[0][1].hasId, false)
+    assert.strictEqual(log.error.args[0][1].hasUid, true)
   })
 
   it('metricsContext.get with no token and no payload', async () => {
@@ -399,12 +399,12 @@ describe('metricsContext', () => {
     assert.equal(cache.get.callCount, 1)
 
     assert.equal(log.error.callCount, 1)
-    assert.lengthOf(log.error.args[0], 1)
-    assert.equal(log.error.args[0][0].op, 'metricsContext.get')
-    assert.equal(log.error.args[0][0].err, 'foo')
-    assert.strictEqual(log.error.args[0][0].hasToken, true)
-    assert.strictEqual(log.error.args[0][0].hasId, true)
-    assert.strictEqual(log.error.args[0][0].hasUid, true)
+    assert.lengthOf(log.error.args[0], 2)
+    assert.equal(log.error.args[0][0], 'metricsContext.get')
+    assert.equal(log.error.args[0][1].err, 'foo')
+    assert.strictEqual(log.error.args[0][1].hasToken, true)
+    assert.strictEqual(log.error.args[0][1].hasId, true)
+    assert.strictEqual(log.error.args[0][1].hasUid, true)
   })
 
   it(
@@ -696,9 +696,9 @@ describe('metricsContext', () => {
       assert.equal(mockRequest.payload.metricsContext.flowId, '1234567890abcdef1234567890abcdef06146f1d05e7ae215885a4e45b66ff1f', 'valid flow data was not removed')
       assert.equal(mockLog.warn.callCount, 0, 'log.warn was not called')
       assert.equal(mockLog.info.callCount, 1, 'log.info was called once')
-      assert.equal(mockLog.info.args[0].length, 1, 'log.info was passed one argument')
-      assert.deepEqual(mockLog.info.args[0][0], {
-        op: 'metrics.context.validate',
+      assert.lengthOf(mockLog.info.args[0], 2)
+      assert.equal(mockLog.info.args[0][0], 'metrics.context.validate')
+      assert.deepEqual(mockLog.info.args[0][1], {
         valid: true
       }, 'log.info was passed correct argument')
 
@@ -729,8 +729,7 @@ describe('metricsContext', () => {
       assert(! valid, 'the data is treated as invalid')
       assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
       assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
-      assert.ok(mockLog.warn.calledWithExactly({
-        op: 'metrics.context.validate',
+      assert.ok(mockLog.warn.calledWithExactly('metrics.context.validate', {
         valid: false,
         reason: 'missing payload'
       }), 'log.warn was called with the expected log data')
@@ -764,8 +763,7 @@ describe('metricsContext', () => {
       assert(! valid, 'the data is treated as invalid')
       assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
       assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
-      assert.ok(mockLog.warn.calledWithExactly({
-        op: 'metrics.context.validate',
+      assert.ok(mockLog.warn.calledWithExactly('metrics.context.validate', {
         valid: false,
         reason: 'missing context'
       }), 'log.warn was called with the expected log data')
@@ -801,8 +799,7 @@ describe('metricsContext', () => {
       assert(! mockRequest.payload.metricsContext.flowBeginTime, 'the invalid flow data was removed')
       assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
       assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
-      assert.ok(mockLog.warn.calledWithExactly({
-        op: 'metrics.context.validate',
+      assert.ok(mockLog.warn.calledWithExactly('metrics.context.validate', {
         valid: false,
         reason: 'missing flowId'
       }), 'log.warn was called with the expected log data')
@@ -838,8 +835,7 @@ describe('metricsContext', () => {
       assert(! mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
       assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
       assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
-      assert.ok(mockLog.warn.calledWithExactly({
-        op: 'metrics.context.validate',
+      assert.ok(mockLog.warn.calledWithExactly('metrics.context.validate', {
         valid: false,
         reason: 'missing flowBeginTime'
       }), 'log.warn was called with the expected log data')
@@ -876,8 +872,7 @@ describe('metricsContext', () => {
       assert(! mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
       assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
       assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
-      assert.ok(mockLog.warn.calledWithExactly({
-        op: 'metrics.context.validate',
+      assert.ok(mockLog.warn.calledWithExactly('metrics.context.validate', {
         valid: false,
         reason: 'expired flowBeginTime'
       }), 'log.warn was called with the expected log data')
@@ -914,8 +909,7 @@ describe('metricsContext', () => {
       assert(! mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
       assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
       assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
-      assert.ok(mockLog.warn.calledWithExactly({
-        op: 'metrics.context.validate',
+      assert.ok(mockLog.warn.calledWithExactly('metrics.context.validate', {
         valid: false,
         reason: 'invalid signature'
       }), 'log.warn was called with the expected log data')
@@ -962,8 +956,7 @@ describe('metricsContext', () => {
       assert(! mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
       assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
       assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
-      assert.ok(mockLog.warn.calledWithExactly({
-        op: 'metrics.context.validate',
+      assert.ok(mockLog.warn.calledWithExactly('metrics.context.validate', {
         valid: false,
         reason: 'invalid signature'
       }), 'log.warn was called with the expected log data')
@@ -1010,8 +1003,7 @@ describe('metricsContext', () => {
       assert(! mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
       assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
       assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
-      assert.ok(mockLog.warn.calledWithExactly({
-        op: 'metrics.context.validate',
+      assert.ok(mockLog.warn.calledWithExactly('metrics.context.validate', {
         valid: false,
         reason: 'invalid signature'
       }), 'log.warn was called with the expected log data')
@@ -1061,8 +1053,7 @@ describe('metricsContext', () => {
       assert(! mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed')
       assert.equal(mockLog.info.callCount, 0, 'log.info was not called')
       assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once')
-      assert.ok(mockLog.warn.calledWithExactly({
-        op: 'metrics.context.validate',
+      assert.ok(mockLog.warn.calledWithExactly('metrics.context.validate', {
         valid: false,
         reason: 'invalid signature'
       }), 'log.warn was called with the expected log data')

@@ -121,8 +121,7 @@ module.exports = (log, config, customs, db, mailer)  => {
             accountRecord = result
             return db.consumeUnblockCode(accountRecord.uid, unblockCode).then(code => {
               if (Date.now() - code.createdAt > unblockCodeLifetime) {
-                log.info({
-                  op: 'Account.login.unblockCode.expired',
+                log.info('Account.login.unblockCode.expired', {
                   uid: accountRecord.uid
                 })
                 throw error.invalidUnblockCode()
@@ -229,8 +228,7 @@ module.exports = (log, config, customs, db, mailer)  => {
               // There's no spec-compliant way to error out
               // as a result of having too many active sessions.
               // For now, just log metrics about it.
-              log.error({
-                op: 'Account.login',
+              log.error('Account.login', {
                 uid: accountRecord.uid,
                 userAgent: request.headers['user-agent'],
                 numSessions: sessions.length
@@ -318,8 +316,7 @@ module.exports = (log, config, customs, db, mailer)  => {
       }
 
       function sendVerifyLoginEmail() {
-        log.info({
-          op: 'account.signin.confirm.start',
+        log.info('account.signin.confirm.start', {
           uid: accountRecord.uid,
           tokenVerificationId: sessionToken.tokenVerificationId
         })
@@ -350,15 +347,14 @@ module.exports = (log, config, customs, db, mailer)  => {
         )
         .then(() => request.emitMetricsEvent('email.confirmation.sent'))
         .catch(err => {
-          log.error({ op: 'mailer.confirmation.error', err })
+          log.error('mailer.confirmation.error', { err })
 
           throw emailUtils.sendError(err, isUnverifiedAccount)
         })
       }
 
       function sendVerifyLoginCodeEmail() {
-        log.info({
-          op: 'account.token.code.start',
+        log.info('account.token.code.start', {
           uid: accountRecord.uid
         })
 

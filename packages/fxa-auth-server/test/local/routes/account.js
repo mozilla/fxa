@@ -1222,8 +1222,8 @@ describe('/account/login', function () {
       mockLog.error.resetHistory()
       return runTest(route, mockRequest, function () {
         assert.equal(mockLog.error.callCount, 1, 'log.error was called')
-        assert.equal(mockLog.error.firstCall.args[0].op, 'Account.login')
-        assert.equal(mockLog.error.firstCall.args[0].numSessions, 201)
+        assert.equal(mockLog.error.firstCall.args[0], 'Account.login')
+        assert.equal(mockLog.error.firstCall.args[1].numSessions, 201)
         mockDB.sessions = oldSessions
       })
     })
@@ -1232,9 +1232,9 @@ describe('/account/login', function () {
   describe('checks security history', function () {
     var record
     var clientAddress = mockRequest.app.clientAddress
-    before(() => {
-      mockLog.info = sinon.spy(function (arg) {
-        if (arg.op.indexOf('Account.history') === 0) {
+    beforeEach(() => {
+      mockLog.info = sinon.spy(function (op, arg) {
+        if (op.indexOf('Account.history') === 0) {
           record = arg
         }
       })
@@ -1259,7 +1259,7 @@ describe('/account/login', function () {
         assert.equal(securityQuery.ipAddr, clientAddress)
 
         assert.equal(!! record, true, 'log.info was called for Account.history')
-        assert.equal(record.op, 'Account.history.verified')
+        assert.equal(mockLog.info.args[0][0], 'Account.history.verified')
         assert.equal(record.uid, uid)
         assert.equal(record.events, 1)
         assert.equal(record.recency, 'day')
@@ -1285,7 +1285,7 @@ describe('/account/login', function () {
         assert.equal(securityQuery.ipAddr, clientAddress)
 
         assert.equal(!! record, true, 'log.info was called for Account.history')
-        assert.equal(record.op, 'Account.history.unverified')
+        assert.equal(mockLog.info.args[0][0], 'Account.history.unverified')
         assert.equal(record.uid, uid)
         assert.equal(record.events, 1)
       })
@@ -1576,10 +1576,10 @@ describe('/account/destroy', function () {
 
       assert.equal(mockLog.info.callCount, 1)
       args = mockLog.info.args[0]
-      assert.lengthOf(args, 1)
-      assert.equal(args[0].op, 'accountDeleted.byRequest')
-      assert.equal(args[0].email, email)
-      assert.equal(args[0].uid, uid)
+      assert.lengthOf(args, 2)
+      assert.equal(args[0], 'accountDeleted.byRequest')
+      assert.equal(args[1].email, email)
+      assert.equal(args[1].uid, uid)
 
       assert.equal(mockPush.notifyAccountDestroyed.callCount, 1)
       assert.equal(mockPush.notifyAccountDestroyed.firstCall.args[0], uid)

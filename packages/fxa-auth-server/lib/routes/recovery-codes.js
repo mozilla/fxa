@@ -77,8 +77,7 @@ module.exports = (log, db, config, customs, mailer) => {
         }
 
         function emitMetrics() {
-          log.info({
-            op: 'account.recoveryCode.replaced',
+          log.info('account.recoveryCode.replaced', {
             uid: uid
           })
 
@@ -131,8 +130,7 @@ module.exports = (log, db, config, customs, mailer) => {
             .then((result) => {
               remainingRecoveryCodes = result.remaining
               if (remainingRecoveryCodes === 0) {
-                log.info({
-                  op: 'account.recoveryCode.consumedAllCodes',
+                log.info('account.recoveryCode.consumedAllCodes', {
                   uid
                 })
               }
@@ -165,8 +163,7 @@ module.exports = (log, db, config, customs, mailer) => {
               defers.push(sendConsumeEmail)
 
               if (remainingRecoveryCodes <= codeConfig.notifyLowCount) {
-                log.info({
-                  op: 'account.recoveryCode.notifyLowCount',
+                log.info('account.recoveryCode.notifyLowCount', {
                   uid,
                   remaining: remainingRecoveryCodes
                 })
@@ -182,8 +179,7 @@ module.exports = (log, db, config, customs, mailer) => {
         }
 
         function emitMetrics() {
-          log.info({
-            op: 'account.recoveryCode.verified',
+          log.info('account.recoveryCode.verified', {
             uid: uid
           })
 
