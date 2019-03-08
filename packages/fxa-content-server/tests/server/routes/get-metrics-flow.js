@@ -1,11 +1,18 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-const {registerSuite} = intern.getInterface('object');
-const assert = intern.getPlugin('chai').assert;
+const { registerSuite } = intern.getInterface('object');
+const { assert } = intern.getPlugin('chai');
+const got = require('got');
+const joi = require('joi');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
+
+const origin = require('../../../server/lib/configuration').get('allowed_metrics_flow_cors_origins')[0];
+const serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '/metrics-flow');
+
 let instance, request, response, route, mocks, sandbox;
+
 
 registerSuite('routes/get-metrics-flow', {
   before: function () {
@@ -56,7 +63,7 @@ registerSuite('routes/get-metrics-flow', {
 
     'instance interface is correct': function () {
       assert.isObject(instance);
-      assert.lengthOf(Object.keys(instance), 4);
+      assert.lengthOf(Object.keys(instance), 5);
       assert.equal(instance.method, 'get');
       assert.equal(instance.path, '/metrics-flow');
       assert.isObject(instance.cors);
@@ -64,6 +71,8 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(instance.cors.methods, 'GET');
       assert.isFunction(instance.process);
       assert.lengthOf(instance.process, 2);
+      assert.isObject(instance.validate);
+      assert.isObject(instance.validate.query);
     },
 
     'response.json was called correctly': function () {
@@ -121,139 +130,121 @@ registerSuite('routes/get-metrics-flow', {
       assert.ok(metricsData.deviceId);
     },
 
-    'logs invalid context query parameter': function() {
-      request = {
-        headers: {},
-        query: {
-          context: 'con text'
-        }
+    'invalid context query parameter': function() {
+      const query = {
+        context: 'con text'
       };
-      instance.process(request, response);
-      assert.isTrue(mocks.log.info.calledOnceWith('request.metrics-flow.invalid-param', {
-        param: 'context',
-        value: 'con text',
-      }));
-      assert.isTrue(response.json.calledOnce);
+
+      const validation = joi.object(instance.validate.query);
+      const result = validation.validate(query);
+      assert.ok(result.error);
+      const error = result.error.details[0];
+      assert.equal(error.path, 'context');
+      assert.equal(error.context.value, 'con text');
     },
 
-    'logs invalid entrypoint query parameter': function() {
-      request = {
-        headers: {},
-        query: {
-          entrypoint: 'foo bar',
-        }
+    'invalid entrypoint query parameter': function() {
+      const query = {
+        entrypoint: 'foo bar',
       };
-      instance.process(request, response);
-      assert.isTrue(mocks.log.info.calledOnceWith('request.metrics-flow.invalid-param', {
-        param: 'entrypoint',
-        value: 'foo bar',
-      }));
-      assert.isTrue(response.json.calledOnce);
+
+      const validation = joi.object(instance.validate.query);
+      const result = validation.validate(query);
+      assert.ok(result.error);
+      const error = result.error.details[0];
+      assert.equal(error.path, 'entrypoint');
+      assert.equal(error.context.value, 'foo bar');
     },
 
-    'logs invalid form_type query parameter': function() {
-      request = {
-        headers: {},
-        query: {
-          'form_type': 'biz',
-        }
+    'invalid form_type query parameter': function() {
+      const query = {
+        'form_type': 'biz',
       };
-      instance.process(request, response);
-      assert.isTrue(mocks.log.info.calledOnceWith('request.metrics-flow.invalid-param', {
-        param: 'form_type',
-        value: 'biz',
-      }));
-      assert.isTrue(response.json.calledOnce);
+
+      const validation = joi.object(instance.validate.query);
+      const result = validation.validate(query);
+      assert.ok(result.error);
+      const error = result.error.details[0];
+      assert.equal(error.path, 'form_type');
+      assert.equal(error.context.value, 'biz');
     },
 
-    'logs invalid service query parameter': function() {
-      request = {
-        headers: {},
-        query: {
-          'service': 'zzzz',
-        }
+    'invalid service query parameter': function() {
+      const query = {
+        'service': 'zzzz',
       };
-      instance.process(request, response);
-      assert.isTrue(mocks.log.info.calledOnceWith('request.metrics-flow.invalid-param', {
-        param: 'service',
-        value: 'zzzz',
-      }));
-      assert.isTrue(response.json.calledOnce);
+
+      const validation = joi.object(instance.validate.query);
+      const result = validation.validate(query);
+      assert.ok(result.error);
+      const error = result.error.details[0];
+      assert.equal(error.path, 'service');
+      assert.equal(error.context.value, 'zzzz');
     },
 
-    'logs invalid utm_campaign query parameter': function() {
-      request = {
-        headers: {},
-        query: {
-          'utm_campaign': 1,
-        }
+    'invalid utm_campaign query parameter': function() {
+      const query = {
+        'utm_campaign': 1,
       };
-      instance.process(request, response);
-      assert.isTrue(mocks.log.info.calledOnceWith('request.metrics-flow.invalid-param', {
-        param: 'utm_campaign',
-        value: 1,
-      }));
-      assert.isTrue(response.json.calledOnce);
+
+      const validation = joi.object(instance.validate.query);
+      const result = validation.validate(query);
+      assert.ok(result.error);
+      const error = result.error.details[0];
+      assert.equal(error.path, 'utm_campaign');
+      assert.equal(error.context.value, 1);
     },
 
-    'logs invalid utm_content query parameter': function() {
-      request = {
-        headers: {},
-        query: {
-          'utm_content': 'qux qux',
-        }
+    'invalid utm_content query parameter': function() {
+      const query = {
+        'utm_content': 'qux qux',
       };
-      instance.process(request, response);
-      assert.isTrue(mocks.log.info.calledOnceWith('request.metrics-flow.invalid-param', {
-        param: 'utm_content',
-        value: 'qux qux',
-      }));
-      assert.isTrue(response.json.calledOnce);
+
+      const validation = joi.object(instance.validate.query);
+      const result = validation.validate(query);
+      assert.ok(result.error);
+      const error = result.error.details[0];
+      assert.equal(error.path, 'utm_content');
+      assert.equal(error.context.value, 'qux qux');
     },
 
-    'logs invalid utm_medium query parameter': function() {
-      request = {
-        headers: {},
-        query: {
-          'utm_medium': 'wimble!@$',
-        }
+    'invalid utm_medium query parameter': function() {
+      const query = {
+        'utm_medium': 'wimble!@$',
       };
-      instance.process(request, response);
-      assert.isTrue(mocks.log.info.calledOnceWith('request.metrics-flow.invalid-param', {
-        param: 'utm_medium',
-        value: 'wimble!@$'
-      }));
-      assert.isTrue(response.json.calledOnce);
+
+      const validation = joi.object(instance.validate.query);
+      const result = validation.validate(query);
+      assert.ok(result.error);
+      const error = result.error.details[0];
+      assert.equal(error.path, 'utm_medium');
+      assert.equal(error.context.value, 'wimble!@$');
     },
 
-    'logs invalid utm_source query parameter': function() {
-      request = {
-        headers: {},
-        query: {
-          'utm_source': '%!@%womble'
-        }
+    'invalid utm_source query parameter': function() {
+      const query = {
+        'utm_source': '%!@%womble'
       };
-      instance.process(request, response);
-      assert.isTrue(mocks.log.info.calledOnceWith('request.metrics-flow.invalid-param', {
-        param: 'utm_source',
-        value: '%!@%womble',
-      }));
-      assert.isTrue(response.json.calledOnce);
+
+      const validation = joi.object(instance.validate.query);
+      const result = validation.validate(query);
+      assert.ok(result.error);
+      const error = result.error.details[0];
+      assert.equal(error.path, 'utm_source');
+      assert.equal(error.context.value, '%!@%womble');
     },
 
-    'logs invalid utm_term query parameter': function() {
-      request = {
-        headers: {},
-        query: {
-          'utm_term': 'jum!%^gle'
-        }
+    'invalid utm_term query parameter': function() {
+      const query = {
+        'utm_term': 'jum!%^gle'
       };
-      instance.process(request, response);
-      assert.isTrue(mocks.log.info.calledOnceWith('request.metrics-flow.invalid-param', {
-        param: 'utm_term',
-        value: 'jum!%^gle',
-      }));
-      assert.isTrue(response.json.calledOnce);
+
+      const validation = joi.object(instance.validate.query);
+      const result = validation.validate(query);
+      assert.ok(result.error);
+      const error = result.error.details[0];
+      assert.equal(error.path, 'utm_term');
+      assert.equal(error.context.value, 'jum!%^gle');
     },
 
     'logs enter-email.view amplitude and flow events if form_type email is set': function () {
@@ -312,3 +303,77 @@ registerSuite('routes/get-metrics-flow', {
     }
   }
 });
+
+registerSuite('routes/get-metrics-flow remote request', {
+  'valid query parameters': function () {
+    const headers = {
+      Origin: origin
+    };
+
+    const query = {
+      context: 'blee',
+      entrypoint: 'zoo',
+      'form_type': 'other',
+      'service': 'sync',
+      'utm_campaign': 'foo',
+      'utm_content': 'bar',
+      'utm_medium': 'biz',
+      'utm_source': 'baz',
+      'utm_term': 'quix',
+    };
+
+    return got(serverUrl, { headers, query });
+  },
+
+  'invalid context query parameter': function() {
+    return testInvalidFlowQueryParam('context', 'con text');
+  },
+
+  'invalid entrypoint query parameter': function() {
+    return testInvalidFlowQueryParam('entrypoint', 'foo bar');
+  },
+
+  'invalid form_type query parameter': function() {
+    return testInvalidFlowQueryParam('form_type', 'biz');
+  },
+
+  'invalid service query parameter': function() {
+    return testInvalidFlowQueryParam('service', 'zzzz');
+  },
+
+  'invalid utm_campaign query parameter': function() {
+    return testInvalidFlowQueryParam('utm_campaign', 'moo cow');
+  },
+
+  'invalid utm_content query parameter': function() {
+    return testInvalidFlowQueryParam('utm_content', 'quix quix');
+  },
+
+  'invalid utm_medium query parameter': function() {
+    return testInvalidFlowQueryParam('utm_medium', 'wimble!@$');
+  },
+
+  'invalid utm_source query parameter': function() {
+    return testInvalidFlowQueryParam('utm_source', '%!@%womble');
+  },
+
+  'invalid utm_term query parameter': function() {
+    return testInvalidFlowQueryParam('utm_term', 'jum!%^gle');
+  },
+});
+
+async function testInvalidFlowQueryParam(paramName, paramValue) {
+  const query = { [paramName]: paramValue };
+  const headers = {
+    Origin: origin
+  };
+
+  try {
+    await got(serverUrl, { headers, query });
+    assert.fail('request should have failed');
+  } catch (err) {
+    assert.equal(err.response.statusCode, 400);
+    assert.include(JSON.parse(err.response.body).validation.keys, paramName);
+  }
+}
+
