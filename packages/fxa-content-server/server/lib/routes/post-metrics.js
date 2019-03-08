@@ -39,7 +39,8 @@ const {
   STRING: STRING_TYPE,
   TIME: TIME_TYPE,
   URL: URL_TYPE,
-  UTM: UTM_TYPE
+  UTM: UTM_TYPE,
+  UTM_CAMPAIGN: UTM_CAMPAIGN_TYPE,
 } = validation.TYPES;
 
 // a user can disable navigationTiming, in which case all values are `null`
@@ -111,8 +112,7 @@ const BODY_SCHEMA = {
   timers: joi.object().optional(), // this is never consumed.
   uid: HEX32_TYPE.allow('none').required(),
   uniqueUserId: STRING_TYPE.regex(UNIQUE_USER_ID_PATTERN).allow('none').required(),
-  // the crazy long allow comes from the firstrun page.
-  'utm_campaign': UTM_TYPE.allow('page+referral+-+not+part+of+a+campaign').required(),
+  'utm_campaign': UTM_CAMPAIGN_TYPE.required(),
   'utm_content': UTM_TYPE.required(),
   'utm_medium': UTM_TYPE.required(),
   'utm_source': UTM_TYPE.required(),

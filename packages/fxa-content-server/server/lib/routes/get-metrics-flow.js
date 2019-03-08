@@ -9,6 +9,20 @@ const flowMetrics = require('../flow-metrics');
 const logFlowEvent = require('../flow-event').logFlowEvent;
 const logger = require('../logging/log')('server.get-metrics-flow');
 const uuid = require('node-uuid');
+const validation = require('../validation');
+
+const {
+  CONTEXT: CONTEXT_PATTERN,
+  ENTRYPOINT: ENTRYPOINT_PATTERN,
+  FORM_TYPE: FORM_TYPE_PATTERN,
+  SERVICE: SERVICE_PATTERN,
+} = validation.PATTERNS;
+
+const {
+  STRING: STRING_TYPE,
+  UTM: UTM_TYPE,
+  UTM_CAMPAIGN: UTM_CAMPAIGN_TYPE,
+} = validation.TYPES;
 
 module.exports = function (config) {
   const FLOW_ID_KEY = config.get('flow_id_key');
@@ -30,10 +44,30 @@ module.exports = function (config) {
     preflightContinue: false
   };
 
+  const QUERY_SCHEMA = {
+    // Passed by about:newinstall unnecessarily, allow it.
+    context: STRING_TYPE.regex(CONTEXT_PATTERN).optional(),
+    // Not passed by the Firefox Concert Series.
+    // See https://github.com/mozilla/bedrock/issues/6839
+    entrypoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
+    // Not passed by the Firefox Concert Series.
+    // See https://github.com/mozilla/bedrock/issues/6839
+    'form_type': STRING_TYPE.regex(FORM_TYPE_PATTERN).optional(),
+    'service': STRING_TYPE.regex(SERVICE_PATTERN).optional(),
+    'utm_campaign': UTM_CAMPAIGN_TYPE.optional(),
+    'utm_content': UTM_TYPE.optional(),
+    'utm_medium': UTM_TYPE.optional(),
+    'utm_source': UTM_TYPE.optional(),
+    'utm_term': UTM_TYPE.optional()
+  };
+
   const route = {};
   route.method = 'get';
   route.path = '/metrics-flow';
   route.cors = CORS_OPTIONS;
+  route.validate = {
+    query: QUERY_SCHEMA
+  };
 
   route.process = function (req, res) {
     const flowEventData = flowMetrics.create(FLOW_ID_KEY, req.headers['user-agent']);
