@@ -126,7 +126,7 @@ define(function (require, exports, module) {
 
       it('password reset, stores and loads verification keyed by email (pre-train-117)', function () {
         const persistModel = new SameBrowserVerificationModel({
-          context: 'fx_desktop_v2'
+          context: 'fx_desktop_v3'
         }, {
           email: 'testuser@testuser.com',
           namespace: 'context',
@@ -143,7 +143,7 @@ define(function (require, exports, module) {
         });
 
         loadModel.load();
-        assert.equal(loadModel.get('context'), 'fx_desktop_v2');
+        assert.equal(loadModel.get('context'), 'fx_desktop_v3');
       });
 
       it('password reset, stores and loads verification keyed by email, both uid and email specified in load (>= train-117)', function () {

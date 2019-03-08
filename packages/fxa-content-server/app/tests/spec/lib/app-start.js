@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   const BaseBroker = require('models/auth_brokers/base');
   const Constants = require('lib/constants');
   const ErrorUtils = require('lib/error-utils');
-  const FxDesktopV2Broker = require('models/auth_brokers/fx-desktop-v2');
   const FxFennecV1Broker = require('models/auth_brokers/fx-fennec-v1');
   const FxFirstrunV1Broker = require('models/auth_brokers/fx-firstrun-v1');
   const FxFirstrunV2Broker = require('models/auth_brokers/fx-firstrun-v2');
@@ -321,16 +320,6 @@ define(function (require, exports, module) {
           });
 
           return testExpectedBrokerCreated(FxFirstrunV2Broker);
-        });
-      });
-
-      describe('fx-desktop-v2', () => {
-        it('returns an FxDesktopV2 broker if `context=fx_desktop_v2`', () => {
-          windowMock.location.search = Url.objToSearchString({
-            context: Constants.FX_DESKTOP_V2_CONTEXT
-          });
-
-          return testExpectedBrokerCreated(FxDesktopV2Broker);
         });
       });
 

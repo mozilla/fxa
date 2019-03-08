@@ -316,12 +316,8 @@ Start.prototype = {
   initializeAuthenticationBroker () {
     if (! this._authenticationBroker) {
       let context;
-      if (this._isFxDesktopV2()) {
-        if (this._isIframeContext()) {
-          context = Constants.FX_FIRSTRUN_V1_CONTEXT;
-        } else {
-          context = Constants.FX_DESKTOP_V2_CONTEXT;
-        }
+      if (this._isIframeContext() && this._isServiceSync()) {
+        context = Constants.FX_FIRSTRUN_V1_CONTEXT;
       } else if (this._isOAuth()) {
         context = this._chooseOAuthBrokerContext();
       } else {
@@ -661,16 +657,6 @@ Start.prototype = {
   _isService (compareToService) {
     const service = this._searchParam('service');
     return !! (service && compareToService && service === compareToService);
-  },
-
-  _isFxDesktopV2 () {
-    // A user is signing into sync from within an iframe on a trusted
-    // web page. Automatically speak version 2 using WebChannels.
-    //
-    // A check for context=fx_desktop_v2 can be added when about:accounts
-    // is converted to use WebChannels.
-    return (this._isServiceSync() && this._isIframeContext()) ||
-           (this._isContext(Constants.FX_DESKTOP_V2_CONTEXT));
   },
 
   _isContext (contextName) {
