@@ -24,7 +24,7 @@ describe('lib/user-agent', () => {
           'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.35 ' +
           'Mobile Safari/537.36',
         // fx
-        'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/46.0',
+        'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/65.0',
         // opera
         'Opera/12.02 (Android 4.1; Linux; Opera Mobi/ADR-1111101157; U; ' +
           'en-US) Presto/2.9.201 Version/12.02'
@@ -42,7 +42,7 @@ describe('lib/user-agent', () => {
         'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 ' +
           '(KHTML, like Gecko) Chrome/55.0.2883.35 Safari/537.36',
         // fx desktop
-        'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0',
+        'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/65.0',
         // fx ios
         'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) ' +
           'AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4'
@@ -81,9 +81,9 @@ describe('lib/user-agent', () => {
         'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 ' +
           '(KHTML, like Gecko) Chrome/55.0.2883.35 Safari/537.36',
         // fx desktop
-        'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0',
+        'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/65.0',
         // fx android
-        'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/46.0',
+        'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/65.0',
         // edge
         'Mozilla/5.0 (Windows Phone 10.0; Android 4.2.1; Microsoft; Lumia ' +
           '640 XL LTE) AppleWebKit/537.36 (KHTML, like Gecko) ' +
@@ -101,16 +101,16 @@ describe('lib/user-agent', () => {
     it('returns `true` if in Firefox', () => {
       const firefoxUserAgentStrings = [
         // android
-        'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/46.0',
+        'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/65.0',
         // ios
         'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) ' +
           'AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4',
         // linux
-        'Mozilla/5.0 (X11; Linux x86_64; rv:46.0) Gecko/20100101 Firefox/46.0',
+        'Mozilla/5.0 (X11; Linux x86_64; rv:46.0) Gecko/20100101 Firefox/65.0',
         // mac
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:46.0) Gecko/20100101 Firefox/46.0',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:46.0) Gecko/20100101 Firefox/65.0',
         // windows
-        'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0'
+        'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/65.0'
       ];
 
       firefoxUserAgentStrings.forEach((userAgentString) => {
@@ -143,8 +143,8 @@ describe('lib/user-agent', () => {
   describe('isFirefoxAndroid', () => {
     it('returns `true` if it detects Fennec', () => {
       const fennecUserAgents = [
-        'Mozilla/5.0 (Android 4.4; Mobile; rv:46.0) Gecko/46.0 Firefox/46.0',
-        'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/46.0'
+        'Mozilla/5.0 (Android 4.4; Mobile; rv:46.0) Gecko/46.0 Firefox/65.0',
+        'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/65.0'
       ];
 
       fennecUserAgents.forEach((userAgentString) => {
@@ -156,7 +156,7 @@ describe('lib/user-agent', () => {
     it('returns `false` if not Fennec', () => {
       const notFennecUserAgents = [
         // fx desktop
-        'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0',
+        'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/65.0',
         // Chrome desktop
         'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 ' +
               '(KHTML, like Gecko) Chrome/55.0.2883.35 Safari/537.36',
@@ -192,7 +192,7 @@ describe('lib/user-agent', () => {
     it('returns `false` if not IE', () => {
       const notIE = [
         // fx desktop
-        'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0',
+        'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/65.0',
         // Chrome desktop
         'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 ' +
           '(KHTML, like Gecko) Chrome/55.0.2883.35 Safari/537.36',
@@ -226,7 +226,7 @@ describe('lib/user-agent', () => {
     it('returns `false` if not Edge', () => {
       const notEdge = [
         // fx desktop
-        'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0',
+        'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/65.0',
         // Chrome desktop
         'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 ' +
           '(KHTML, like Gecko) Chrome/55.0.2883.35 Safari/537.36',
@@ -258,10 +258,10 @@ describe('lib/user-agent', () => {
     it('returns `false` if not Fx on iOS', () => {
       const notFxIosUserAgents = [
         // fx desktop
-        'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0',
+        'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/65.0',
         // fennec
-        'Mozilla/5.0 (Android 4.4; Mobile; rv:46.0) Gecko/46.0 Firefox/46.0',
-        'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/46.0',
+        'Mozilla/5.0 (Android 4.4; Mobile; rv:46.0) Gecko/46.0 Firefox/65.0',
+        'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/65.0',
         // Chrome desktop
         'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 ' +
               '(KHTML, like Gecko) Chrome/55.0.2883.35 Safari/537.36',
@@ -287,7 +287,7 @@ describe('lib/user-agent', () => {
         // windows
         'Mozilla/5.0 (Windows NT x.y; rv:10.0) Gecko/20100101 Firefox/10.0',
         'Mozilla/5.0 (Windows NT x.y; Win64; x64; rv:10.0) Gecko/20100101 Firefox/10.0',
-        'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0',
+        'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/65.0',
         // mac
         'Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0',
         'Mozilla/5.0 (Macintosh; PPC Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0',
@@ -309,8 +309,8 @@ describe('lib/user-agent', () => {
         'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) ' +
               'AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4',
         // fennec
-        'Mozilla/5.0 (Android 4.4; Mobile; rv:46.0) Gecko/46.0 Firefox/46.0',
-        'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/46.0',
+        'Mozilla/5.0 (Android 4.4; Mobile; rv:46.0) Gecko/46.0 Firefox/65.0',
+        'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/65.0',
         // Chrome desktop
         'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 ' +
               '(KHTML, like Gecko) Chrome/55.0.2883.35 Safari/537.36',
@@ -516,10 +516,10 @@ describe('lib/user-agent', () => {
     it('returns `true` if supported browsers', () => {
       [
         // fx desktop
-        'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0',
+        'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/65.0',
         // fennec
-        'Mozilla/5.0 (Android 4.4; Mobile; rv:46.0) Gecko/46.0 Firefox/46.0',
-        'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/46.0',
+        'Mozilla/5.0 (Android 4.4; Mobile; rv:46.0) Gecko/46.0 Firefox/65.0',
+        'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/65.0',
         // Chrome desktop
         'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 ' +
           '(KHTML, like Gecko) Chrome/55.0.2883.35 Safari/537.36',

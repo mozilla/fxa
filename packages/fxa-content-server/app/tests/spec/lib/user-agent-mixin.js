@@ -15,7 +15,7 @@ define(function (require, exports, module) {
   const View = BaseView.extend({});
 
   const FORCED_USER_AGENT_STRING = 'forced user agent string';
-  const NAVIGATOR_USER_AGENT_STRING = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
+  const NAVIGATOR_USER_AGENT_STRING = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/65.0';
 
   Cocktail.mixin(
     View,

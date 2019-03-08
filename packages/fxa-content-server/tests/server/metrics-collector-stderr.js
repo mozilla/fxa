@@ -128,7 +128,7 @@ suite.tests['writes formatted data to stderr'] = function () {
       width: 1680
     },
     service: 'sync',
-    'user-agent': 'Firefox 32.0'
+    'user-agent': 'Firefox 65.0'
   });
 };
 

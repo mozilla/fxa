@@ -40,7 +40,7 @@ function testXFrameOptionsHeader(context, req, res, expectedValue) {
 
 function ReqMock () {
   this.headers = {
-    'user-agent': '"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:40.0) Gecko/20100101 Firefox/40.0'
+    'user-agent': '"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:65.0) Gecko/20100101 Firefox/65.0'
   };
   this.method = 'GET';
   this.path = '/';
@@ -84,7 +84,7 @@ suite.tests['Firefox Desktop < 40'] = function () {
 
 suite.tests['Fennec'] = function () {
   var req = new ReqMock();
-  req.headers['user-agent'] = 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0';
+  req.headers['user-agent'] = 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/65.0';
 
   var res = new ResMock();
 
@@ -102,7 +102,7 @@ suite.tests['Firefox for iOS'] = function () {
 
 suite.tests['Firefox OS'] = function () {
   var req = new ReqMock();
-  req.headers['user-agent'] = 'Mozilla/5.0 (Mobile; rv:26.0) Gecko/26.0 Firefox/26.0';
+  req.headers['user-agent'] = 'Mozilla/5.0 (Mobile; rv:26.0) Gecko/26.0 Firefox/65.0';
 
   var res = new ResMock();
 

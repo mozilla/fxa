@@ -62,10 +62,10 @@ registerSuite('userAgent', {
     },
 
     'parses a valid user-agent string': () => {
-      const result = userAgent.parse('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:61.0) Gecko/20100101 Firefox/61.0');
+      const result = userAgent.parse('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:61.0) Gecko/20100101 Firefox/65.0');
       assert.equal(result.ua.family, 'Firefox');
-      assert.equal(result.ua.toVersionString(), '61.0');
-      assert.equal(result.ua.major, '61');
+      assert.equal(result.ua.toVersionString(), '65.0');
+      assert.equal(result.ua.major, '65');
       assert.equal(result.ua.minor, '0');
       assert.isNull(result.ua.patch);
       assert.equal(result.os.family, 'Mac OS X');

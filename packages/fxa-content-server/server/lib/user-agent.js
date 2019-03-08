@@ -29,7 +29,7 @@ exports.parse = userAgentString => {
 
 exports.isToVersionStringSupported = (result) => {
   if (! result) {
-    result = exports.parse('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:59.0) Gecko/20100101 Firefox/59.0');
+    result = exports.parse('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:65.0) Gecko/20100101 Firefox/65.0');
   }
   if (! result || ! result.os || ! result.ua) {
     return false;
