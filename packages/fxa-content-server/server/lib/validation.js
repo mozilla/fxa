@@ -21,6 +21,7 @@ const PATTERNS = {
   ENTRYPOINT: /^[\w.:-]+$/,
   EVENT_TYPE: /^[\w\s.:-]+$/, // the space is to allow for error contexts that contain spaces, e.g., `error.unknown context.auth.108`
   EXPERIMENT: /^[\w.-]+$/,
+  FORM_TYPE: /^(email|other)$/,
   MIGRATION: /^(sync11|amo|none)$/,
   SERVICE: /^(sync|content-server|none|[0-9a-f]{16})$/,
   UNIQUE_USER_ID: /^[0-9a-z-]{36}$/
@@ -46,6 +47,7 @@ const TYPES = {
   UTM: joi.string().max(128).regex(/^[\w\/.%-]+$/) // values here can be 'firefox/sync'
 };
 
+// the crazy long allow comes from the firstrun page.
 TYPES.UTM_CAMPAIGN = TYPES.UTM.allow('page+referral+-+not+part+of+a+campaign');
 
 module.exports = {

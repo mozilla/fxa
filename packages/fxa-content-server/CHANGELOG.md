@@ -1,9 +1,24 @@
+<a name="1.132.1"></a>
+## [1.132.1](https://github.com/mozilla/fxa-content-server/compare/v1.132.0...v1.132.1) (2019-03-08)
+
+
+### Bug Fixes
+
+* **logging:** Log metrics-flow validation events correctly. ([482677e](https://github.com/mozilla/fxa-content-server/commit/482677e))
+* **metrics:** Loosen /metrics-flow validation ([658f38d](https://github.com/mozilla/fxa-content-server/commit/658f38d))
+* **metrics:** Validate query parameters to POST /metrics-flow ([aef18b3](https://github.com/mozilla/fxa-content-server/commit/aef18b3))
+
+### Features
+
+* **metrics:** Reject invalid metrics-flow requests. ([43dc0b7](https://github.com/mozilla/fxa-content-server/commit/43dc0b7)), closes [#44](https://github.com/mozilla/fxa-content-server/issues/44)
+
+
+
 <a name="1.132.0"></a>
 # [1.132.0](https://github.com/mozilla/fxa-content-server/compare/v1.131.2...v1.132.0) (2019-03-05)
 
 
 ### Bug Fixes
-
 * **metrics:** reinstate entrypoint to the metrics context schema ([94345bf](https://github.com/mozilla/fxa-content-server/commit/94345bf))
 * **teamcity:** module extends is no longer used ([9150c9a](https://github.com/mozilla/fxa-content-server/commit/9150c9a))
 * **tests:** move pairing preferences into their own block ([63df8af](https://github.com/mozilla/fxa-content-server/commit/63df8af))
@@ -24,6 +39,44 @@
 * **red buttons:** change focus ring ([9cc1724](https://github.com/mozilla/fxa-content-server/commit/9cc1724))
 * **scripts:** Removed arrow from button ([5d34be1](https://github.com/mozilla/fxa-content-server/commit/5d34be1))
 * **success messages:** deintensify colour ([d83bd4b](https://github.com/mozilla/fxa-content-server/commit/d83bd4b))
+
+<a name="1.131.6"></a>
+## [1.131.6](https://github.com/mozilla/fxa-content-server/compare/v1.131.5-private...v1.131.6) (2019-03-08)
+
+
+### Features
+
+* **metrics:** Reject invalid metrics-flow requests. ([43dc0b7](https://github.com/mozilla/fxa-content-server/commit/43dc0b7)), closes [#44](https://github.com/mozilla/fxa-content-server/issues/44)
+
+
+
+<a name="1.131.5"></a>
+## [1.131.5](https://github.com/mozilla/fxa-content-server/compare/v1.131.4-private...v1.131.5) (2019-03-05)
+
+
+### Bug Fixes
+
+* **metrics:** Loosen /metrics-flow validation ([658f38d](https://github.com/mozilla/fxa-content-server/commit/658f38d))
+
+
+
+<a name="1.131.4"></a>
+## [1.131.4](https://github.com/mozilla/fxa-content-server/compare/v1.131.3...v1.131.4) (2019-02-28)
+
+
+### Bug Fixes
+
+* **logging:** Log metrics-flow validation events correctly. ([482677e](https://github.com/mozilla/fxa-content-server/commit/482677e))
+
+
+
+<a name="1.131.3"></a>
+## [1.131.3](https://github.com/mozilla/fxa-content-server/compare/v1.131.2...v1.131.3) (2019-02-25)
+
+
+### Bug Fixes
+
+* **metrics:** Validate query parameters to POST /metrics-flow ([aef18b3](https://github.com/mozilla/fxa-content-server/commit/aef18b3))
 
 
 
@@ -82,6 +135,13 @@
 * **tests:** eliminate duplicated setup code in app-start tests ([b80cc24](https://github.com/mozilla/fxa-content-server/commit/b80cc24))
 * **tests:** pull setup-less app-start tests up to the top level ([254a777](https://github.com/mozilla/fxa-content-server/commit/254a777))
 
+<a name="1.130.2"></a>
+## [1.130.2](https://github.com/mozilla/fxa-content-server/compare/v1.130.1...v1.130.2) (2019-02-19)
+
+
+### Bug Fixes
+
+* **metrics:** Validate query parameters to POST /metrics-flow ([aef18b3](https://github.com/mozilla/fxa-content-server/commit/aef18b3))
 
 
 <a name="1.130.1"></a>
