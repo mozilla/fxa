@@ -7,6 +7,9 @@
     overflow: hidden;
     position: relative;
     width: $avatar-size + 180px;
+    @include respond-to('compressedLandscape') {
+      margin: 0 auto;
+    }
 
     img {
       position: absolute;
