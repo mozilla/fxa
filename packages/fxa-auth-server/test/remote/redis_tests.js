@@ -161,7 +161,7 @@ describe('reentrant updates of different keys:', () => {
   let error
 
   before(() => {
-    const redisPool = require(`${ROOT_DIR}/lib/redis/pool`)({
+    const redisPool = require('fxa-shared/redis/pool')({
       ...config.redis,
       ...config.redis.sessionTokens
     }, log)
@@ -182,9 +182,8 @@ describe('reentrant updates of different keys:', () => {
   })
 
   it('second update failed', () => {
-    assert.ok(error)
-    assert.equal(error.message, 'Unspecified error')
-    assert.equal(error.errno, 999)
+    assert.instanceOf(error, Error)
+    assert.equal(error.message, 'redis.update.conflict')
     return redis.get('baz')
       .then(result => assert.equal(result, 'qux'))
   })
@@ -230,4 +229,3 @@ describe('del concurrently with update:', () => {
       .then(result => assert.ok(result === null))
   })
 })
-

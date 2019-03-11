@@ -49,6 +49,7 @@ const redis = require('redis').createClient({
   prefix: config.redis.sessionTokens.prefix,
   enable_offline_queue: false
 })
+P.promisifyAll(redis)
 
 const zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex').toString('hex')
 const zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex')
