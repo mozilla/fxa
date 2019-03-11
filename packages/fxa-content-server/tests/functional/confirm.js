@@ -61,7 +61,7 @@ registerSuite('confirm', {
     },
 
     'sign up with a restmail address, get the open restmail button': function () {
-      var SIGNUP_URL = intern._config.fxaContentRoot + 'signup?context=fx_desktop_v2&service=sync';
+      var SIGNUP_URL = intern._config.fxaContentRoot + 'signup?context=fx_desktop_v3&service=sync';
       this.timeout = 90000;
 
       return this.remote

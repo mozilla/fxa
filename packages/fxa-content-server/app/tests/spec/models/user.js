@@ -862,7 +862,7 @@ define(function (require, exports, module) {
         email: 'testuser@testuser.com',
         keyFetchToken: 'old-key-fetch-token',
         sessionToken: 'old-session-token',
-        sessionTokenContext: 'fx_desktop_v2',
+        sessionTokenContext: 'fx_desktop_v3',
         uid,
         unwrapBKey: 'old-unwrap-b-key',
       });
