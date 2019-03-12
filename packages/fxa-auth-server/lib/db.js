@@ -32,7 +32,7 @@ module.exports = (
   config,
   log,
   Token,
-  UnblockCode
+  UnblockCode=null
   ) => {
 
   const features = require('./features')(config)
@@ -1056,6 +1056,9 @@ module.exports = (
 
   SAFE_URLS.createUnblockCode = new SafeUrl('/account/:uid/unblock/:unblock', 'db.createUnblockCode')
   DB.prototype.createUnblockCode = function (uid) {
+    if (! UnblockCode) {
+      return Promise.reject(new Error('Unblock has not been configured'));
+    }
     log.trace('DB.createUnblockCode', { uid })
     return UnblockCode()
       .then(

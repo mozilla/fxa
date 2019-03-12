@@ -21,7 +21,6 @@ var butil = require('../lib/crypto/butil')
 var commandLineOptions = require('commander')
 var config = require('../config').getProperties()
 var crypto = require('crypto')
-var error = require('../lib/error')
 var log = require('../lib/log')(config.log.level)
 var P = require('../lib/promise')
 var path = require('path')
@@ -41,12 +40,7 @@ requiredOptions.forEach(checkRequiredOption)
 var DB = require('../lib/db')(
   config,
   log,
-  error,
-  Token.SessionToken,
-  Token.KeyFetchToken,
-  Token.AccountResetToken,
-  Token.PasswordForgotToken,
-  Token.PasswordChangeToken
+  Token
 )
 
 DB.connect(config[config.db.backend])
