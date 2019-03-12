@@ -22,9 +22,6 @@ describe('redis/connection:', () => {
     };
     redisClient = {
       on: sinon.spy(),
-      getAsync: sinon.spy(() => Promise.resolve('mock get result')),
-      setAsync: sinon.spy(() => Promise.resolve()),
-      delAsync: sinon.spy(() => Promise.resolve()),
       watchAsync: sinon.spy(() => Promise.resolve()),
       multi: sinon.spy(() => redisMulti),
       unwatch: sinon.spy(),
@@ -35,62 +32,30 @@ describe('redis/connection:', () => {
       set: sinon.spy(),
       del: sinon.spy()
     };
-    connection = redisConnection(log, redisClient);
+    connection = redisConnection.create(log, redisClient);
     getValue = sinon.spy(() => 'mock value');
+  });
+
+  it('exported method names', () => {
+    assert.isArray(redisConnection.methods);
+    assert.include(redisConnection.methods, 'get');
+    assert.include(redisConnection.methods, 'set');
+    assert.include(redisConnection.methods, 'del');
+    assert.include(redisConnection.methods, 'update');
+    assert.include(redisConnection.methods, 'zadd');
+    assert.include(redisConnection.methods, 'zrange');
+    assert.include(redisConnection.methods, 'zrangebyscore');
+    assert.include(redisConnection.methods, 'zremrangebyscore');
   });
 
   it('redisConnection.isValid returns true', () => {
     assert.isTrue(connection.isValid());
   });
 
-  describe('redisConnection.get:', () => {
-    let result;
-
-    beforeEach(async () => {
-      result = await connection.get('wibble');
-    });
-
-    it('returned the get result', () => {
-      assert.equal(result, 'mock get result');
-    });
-
-    it('called redisClient.get correctly', () => {
-      assert.equal(redisClient.getAsync.callCount, 1);
-      const args = redisClient.getAsync.args[0];
-      assert.lengthOf(args, 1);
-      assert.equal(args[0], 'wibble');
-    });
-  });
-
-  describe('redisConnection.set:', () => {
-    beforeEach(() => {
-      return connection.set('wibble', 'blee');
-    });
-
-    it('called redisClient.set correctly', () => {
-      assert.equal(redisClient.setAsync.callCount, 1);
-      const args = redisClient.setAsync.args[0];
-      assert.lengthOf(args, 2);
-      assert.equal(args[0], 'wibble');
-      assert.equal(args[1], 'blee');
-    });
-  });
-
-  describe('redisConnection.del:', () => {
-    beforeEach(() => {
-      return connection.del('wibble');
-    });
-
-    it('called redisClient.del correctly', () => {
-      assert.equal(redisClient.delAsync.callCount, 1);
-      const args = redisClient.delAsync.args[0];
-      assert.lengthOf(args, 1);
-      assert.equal(args[0], 'wibble');
-    });
-  });
-
   describe('redisConnection.update:', () => {
     beforeEach(() => {
+      redisClient.getAsync = sinon.spy(() => Promise.resolve('mock get result'));
+      redisClient.setAsync = sinon.spy();
       return connection.update('wibble', getValue);
     });
 
@@ -152,6 +117,8 @@ describe('redis/connection:', () => {
 
   describe('redisConnection.update with falsey value:', () => {
     beforeEach(() => {
+      redisClient.getAsync = sinon.spy(() => Promise.resolve('mock get result'));
+      redisClient.setAsync = sinon.spy();
       return connection.update('wibble', () => {});
     });
 
@@ -192,6 +159,114 @@ describe('redis/connection:', () => {
 
     it('did not call log.error', () => {
       assert.equal(log.error.callCount, 0);
+    });
+  });
+
+  redisConnection.methods.forEach(method => {
+    if (method === 'update') {
+      return;
+    }
+
+    const clientMethod = `${method}Async`;
+
+    describe(`redisConnection.${method}:`, () => {
+      let result;
+
+      beforeEach(async () => {
+        redisClient[clientMethod] = sinon.spy(() => Promise.resolve(`mock ${method} result`));
+        result = await connection[method]('wibble', 'blee');
+      });
+
+      it(`returned the ${method} result`, () => {
+        assert.equal(result, `mock ${method} result`);
+      });
+
+      it(`called redisClient.${method} correctly`, () => {
+        assert.equal(redisClient[clientMethod].callCount, 1);
+        const args = redisClient[clientMethod].args[0];
+        assert.lengthOf(args, 2);
+        assert.equal(args[0], 'wibble');
+        assert.equal(args[1], 'blee');
+      });
+    });
+
+    describe(`redisClient.${method} error:`, () => {
+      beforeEach(() => {
+        redisClient[clientMethod] = sinon.spy(() => Promise.reject({ message: `mock ${method} error` }));
+      });
+
+      describe(`redisConnection.${method}:`, () => {
+        let error;
+
+        beforeEach(() => {
+          return connection[method]('wibble', 'blee')
+            .catch(e => error = e);
+        });
+
+        it('rejected', () => {
+          assert.deepEqual(error, { message: `mock ${method} error` });
+        });
+
+        it(`called redisClient.${method}`, () => {
+          assert.equal(redisClient[clientMethod].callCount, 1);
+        });
+      });
+
+      if (method === 'get') {
+        describe('redisConnection.update:', () => {
+          let error;
+
+          beforeEach(() => {
+            return connection.update('wibble', getValue)
+              .catch(e => error = e);
+          });
+
+          it('rejected', () => {
+            assert.deepEqual(error, { message: 'mock get error' });
+          });
+
+          it('called redisClient.watch', () => {
+            assert.equal(redisClient.watchAsync.callCount, 1);
+          });
+
+          it('called redisClient.get', () => {
+            assert.equal(redisClient.getAsync.callCount, 1);
+          });
+
+          it('did not call getValue', () => {
+            assert.equal(getValue.callCount, 0);
+          });
+
+          it('did not call redisClient.multi', () => {
+            assert.equal(redisClient.multi.callCount, 0);
+          });
+
+          it('did not call redisMulti.set', () => {
+            assert.equal(redisMulti.set.callCount, 0);
+          });
+
+          it('did not call redisMulti.del', () => {
+            assert.equal(redisMulti.del.callCount, 0);
+          });
+
+          it('did not call redisMulti.exec', () => {
+            assert.equal(redisMulti.execAsync.callCount, 0);
+          });
+
+          it('called log.error correctly', () => {
+            assert.equal(log.error.callCount, 1);
+            const args = log.error.args[0];
+            assert.lengthOf(args, 2);
+            assert.equal(args[0], 'redis.update.error');
+            assert.deepEqual(args[1], { key: 'wibble', error: 'mock get error' });
+          });
+
+          it('called redisClient.unwatch correctly', () => {
+            assert.equal(redisClient.unwatch.callCount, 1);
+            assert.lengthOf(redisClient.unwatch.args[0], 0);
+          });
+        });
+      }
     });
   });
 
@@ -263,131 +338,9 @@ describe('redis/connection:', () => {
     });
   });
 
-  describe('redisClient.get error:', () => {
-    beforeEach(() => {
-      redisClient.getAsync = sinon.spy(() => Promise.reject({ message: 'mock get error' }));
-    });
-
-    describe('redisConnection.get:', () => {
-      let error;
-
-      beforeEach(() => {
-        return connection.get('wibble')
-          .catch(e => error = e);
-      });
-
-      it('rejected', () => {
-        assert.deepEqual(error, { message: 'mock get error' });
-      });
-
-      it('called redisClient.get', () => {
-        assert.equal(redisClient.getAsync.callCount, 1);
-      });
-    });
-
-    describe('redisConnection.update:', () => {
-      let error;
-
-      beforeEach(() => {
-        return connection.update('wibble', getValue)
-          .catch(e => error = e);
-      });
-
-      it('rejected', () => {
-        assert.deepEqual(error, { message: 'mock get error' });
-      });
-
-      it('called redisClient.watch', () => {
-        assert.equal(redisClient.watchAsync.callCount, 1);
-      });
-
-      it('called redisClient.get', () => {
-        assert.equal(redisClient.getAsync.callCount, 1);
-      });
-
-      it('did not call getValue', () => {
-        assert.equal(getValue.callCount, 0);
-      });
-
-      it('did not call redisClient.multi', () => {
-        assert.equal(redisClient.multi.callCount, 0);
-      });
-
-      it('did not call redisMulti.set', () => {
-        assert.equal(redisMulti.set.callCount, 0);
-      });
-
-      it('did not call redisMulti.del', () => {
-        assert.equal(redisMulti.del.callCount, 0);
-      });
-
-      it('did not call redisMulti.exec', () => {
-        assert.equal(redisMulti.execAsync.callCount, 0);
-      });
-
-      it('called log.error correctly', () => {
-        assert.equal(log.error.callCount, 1);
-        const args = log.error.args[0];
-        assert.lengthOf(args, 2);
-        assert.equal(args[0], 'redis.update.error');
-        assert.deepEqual(args[1], { key: 'wibble', error: 'mock get error' });
-      });
-
-      it('called redisClient.unwatch correctly', () => {
-        assert.equal(redisClient.unwatch.callCount, 1);
-        assert.lengthOf(redisClient.unwatch.args[0], 0);
-      });
-    });
-  });
-
-  describe('redisClient.set error:', () => {
-    beforeEach(() => {
-      redisClient.setAsync = sinon.spy(() => Promise.reject({ message: 'mock set error' }));
-    });
-
-    describe('redisConnection.set:', () => {
-      let error;
-
-      beforeEach(() => {
-        return connection.set('wibble', 'blee')
-          .catch(e => error = e);
-      });
-
-      it('rejected', () => {
-        assert.deepEqual(error, { message: 'mock set error' });
-      });
-
-      it('called redisClient.set', () => {
-        assert.equal(redisClient.setAsync.callCount, 1);
-      });
-    });
-  });
-
-  describe('redisClient.del error:', () => {
-    beforeEach(() => {
-      redisClient.delAsync = sinon.spy(() => Promise.reject({ message: 'mock del error' }));
-    });
-
-    describe('redisConnection.set:', () => {
-      let error;
-
-      beforeEach(() => {
-        return connection.del('wibble')
-          .catch(e => error = e);
-      });
-
-      it('rejected', () => {
-        assert.deepEqual(error, { message: 'mock del error' });
-      });
-
-      it('called redisClient.del', () => {
-        assert.equal(redisClient.delAsync.callCount, 1);
-      });
-    });
-  });
-
   describe('redisMulti.exec error:', () => {
     beforeEach(() => {
+      redisClient.getAsync = sinon.spy(() => Promise.resolve('mock get result'));
       redisMulti.execAsync = sinon.spy(() => Promise.reject({ message: 'mock exec error' }));
     });
 
@@ -447,6 +400,7 @@ describe('redis/connection:', () => {
 
   describe('redisMulti.exec returns null:', () => {
     beforeEach(() => {
+      redisClient.getAsync = sinon.spy(() => Promise.resolve('mock get result'));
       redisMulti.execAsync = sinon.spy(() => Promise.resolve(null));
     });
 

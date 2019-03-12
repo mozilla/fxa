@@ -44,7 +44,7 @@ module.exports = (config, log) => {
 
         client.on('ready', () => {
           if (! connection) {
-            connection = redisConnection(log, client);
+            connection = redisConnection.create(log, client);
             resolve(connection);
           }
         });
@@ -83,20 +83,24 @@ module.exports = (config, log) => {
   pool.on('factoryCreateError', error => log.error('redisFactory.error', { error: error.message }));
 
   return {
-    /**
-     * Acquire a single-use Redis connection. Must be consumed via Promise.using().
-     *
-     * @return {Disposer} A bluebird disposer object
-     */
-    acquire () {
-      return pool.acquire().disposer(connection => pool.release(connection));
-    },
+    methods: redisConnection.methods,
 
-    /**
-     * Close the pool, releasing any network connections.
-     */
-    close () {
-      return pool.drain().then(() => pool.clear());
-    }
+    pool: {
+      /**
+       * Acquire a single-use Redis connection. Must be consumed via Promise.using().
+       *
+       * @return {Disposer} A bluebird disposer object
+       */
+      acquire () {
+        return pool.acquire().disposer(connection => pool.release(connection));
+      },
+
+      /**
+       * Close the pool, releasing any network connections.
+       */
+      close () {
+        return pool.drain().then(() => pool.clear());
+      },
+    },
   };
 };

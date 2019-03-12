@@ -8,7 +8,7 @@
 // occurred". You do not need to worry about acquiring or releasing connections
 // yourself.
 //
-// Usage:
+// Basic usage:
 //
 //   const redis = require('fxa-shared/redis');
 //
@@ -43,12 +43,15 @@
 //     .catch(error => {
 //       // :(
 //     });
+//
+// Also exports many of the methods required
+// for handling sorted sets:
+//
+// zadd, zrange, zrangebyscore, zrem, zremrangebyscore, zrevrange, zrevrangebyscore
 
 'use strict';
 
 const Promise = require('../promise');
-
-const REDIS_COMMANDS = [ 'get', 'set', 'del', 'update' ];
 
 module.exports = (config, log) => {
   if (! config.enabled) {
@@ -58,9 +61,9 @@ module.exports = (config, log) => {
 
   log.info('redis.enabled', { config });
 
-  const pool = require('./pool')(config, log);
+  const { methods, pool } = require('./pool')(config, log);
 
-  return REDIS_COMMANDS.reduce((result, command) => {
+  return methods.reduce((result, command) => {
     result[command] = (...args) => Promise.using(pool.acquire(), connection => connection[command](...args));
     return result;
   }, {

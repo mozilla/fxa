@@ -164,7 +164,7 @@ describe('redis integration:', () => {
     let redisPool, error;
 
     before(() => {
-      redisPool = require(`${ROOT_DIR}/redis/pool`)(config, log);
+      redisPool = require(`${ROOT_DIR}/redis/pool`)(config, log).pool;
       return Promise.using(
         redisPool.acquire(),
         connection => connection.update('foo', async oldFoo => {
@@ -237,6 +237,63 @@ describe('redis integration:', () => {
 
     it('data was deleted', async () => {
       assert.isNull(await redis.get('foo'));
+    });
+  });
+
+  describe('zadd:', () => {
+    let now;
+
+    before(() => {
+      now = Date.now();
+      return redis.zadd('foorange', now, 'wibble', now + 1, 'blee', now - 1, 'mirm');
+    });
+
+    it('zrange reads data', async () => {
+      assert.deepEqual(await redis.zrange('foorange', 0, -1), [ 'mirm', 'wibble', 'blee' ]);
+      assert.deepEqual(await redis.zrange('foorange', 1, 1), [ 'wibble' ]);
+    });
+
+    it('zrevange reads data', async () => {
+      assert.deepEqual(await redis.zrevrange('foorange', 0, -1), [ 'blee', 'wibble', 'mirm' ]);
+    });
+
+    it('zrangebyscore reads data', async () => {
+      assert.deepEqual(await redis.zrangebyscore('foorange', now - 1, now + 1), [ 'mirm', 'wibble', 'blee' ]);
+      assert.deepEqual(await redis.zrangebyscore('foorange', now, now + 1), [ 'wibble', 'blee' ]);
+    });
+
+    it('zrevrangebyscore reads data', async () => {
+      assert.deepEqual(await redis.zrevrangebyscore('foorange', now + 1, now - 1), [ 'blee', 'wibble', 'mirm' ]);
+    });
+
+    describe('zrem:', () => {
+      before(() => {
+        return redis.zrem('foorange', 'wibble');
+      });
+
+      it('zrange reads data', async () => {
+        assert.deepEqual(await redis.zrange('foorange', 0, -1), [ 'mirm', 'blee' ]);
+      });
+    });
+
+    describe('zremrangebyscore:', () => {
+      before(() => {
+        return redis.zremrangebyscore('foorange', now - 1, now);
+      });
+
+      it('zrange reads data', async () => {
+        assert.deepEqual(await redis.zrange('foorange', 0, -1), [ 'blee' ]);
+      });
+
+      describe('zrem:', () => {
+        before(() => {
+          return redis.zrem('foorange', 'blee');
+        });
+
+        it('zrange reads data', async () => {
+          assert.deepEqual(await redis.zrange('foorange', 0, -1), []);
+        });
+      });
     });
   });
 });
