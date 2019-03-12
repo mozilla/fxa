@@ -27,7 +27,7 @@ describe('feature-flags/index:', () => {
     redisFactory = sinon.spy(() => redis);
     log = {};
     initialise = proxyquire('../feature-flags', {
-      './redis': redisFactory
+      '../redis': redisFactory
     });
     setImmediate(done);
   });

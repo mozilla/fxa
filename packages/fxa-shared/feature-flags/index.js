@@ -39,7 +39,7 @@ function initialise (config, log, defaults) {
     throw new TypeError('Missing log argument');
   }
 
-  const redis = require('./redis')({
+  const redis = require('../redis')({
     ...redisConfig,
     enabled: true,
     prefix: FLAGS_PREFIX,

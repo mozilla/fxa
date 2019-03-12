@@ -6,7 +6,7 @@
 
 'use strict';
 
-const is = require('check-types');
+const ajv = require('ajv')();
 const Promise = require('../promise');
 const redis = require('../redis')({
   enabled: true,
@@ -21,6 +21,8 @@ const redis = require('../redis')({
   info () {},
   warn () {}
 });
+const schema = require('../feature-flags/schema.json');
+const validate = ajv.compile(schema);
 
 const COMMANDS = {
   clear,
@@ -33,26 +35,6 @@ const KEYS = {
   current: 'current',
   previous: 'previous'
 };
-const VALID_FLAGS = new Map([
-  // Temporary flags, for demo purposes:
-  [ 'blee', value => is.boolean(value) ],
-  [ 'wibble', value => is.boolean(value) ],
-  // Production flags:
-  [ 'communicationPrefLanguages', value => is.array.of.nonEmptyString(value) ],
-  [ 'metricsSampleRate', value => is.inRange(value, 0, 1) ],
-  [ 'sentrySampleRate', value => is.inRange(value, 0, 1) ],
-  [ 'tokenCodeClients', value =>
-    is.object(value) &&
-    Object.entries(value).every(([ clientId, settings ]) =>
-      is.match(clientId, /^[0-9a-f]{16}$/i) &&
-      is.nonEmptyObject(settings) &&
-      is.boolean(settings.enableTestEmails) &&
-      is.array.of.nonEmptyString(settings.groups) &&
-      is.nonEmptyString(settings.name) &&
-      is.inRange(settings.rolloutRate, 0, 1)
-    )
-  ],
-]);
 
 const { argv } = process;
 
@@ -99,7 +81,6 @@ async function read () {
 
 async function write () {
   const flags = JSON.parse(await stdin());
-  validate(flags);
   await set(flags);
 }
 
@@ -117,19 +98,10 @@ function stdin () {
   });
 }
 
-function validate (flags) {
-  Object.entries(flags).forEach(([ key, value ]) => {
-    if (! VALID_FLAGS.has(key)) {
-      throw new Error(`Invalid flag "${key}"`);
-    }
-
-    if (! VALID_FLAGS.get(key)(value)) {
-      throw new Error(`Invalid value for "${key}"`);
-    }
-  });
-}
-
 async function set (flags) {
+  if (! validate(flags)) {
+    throw new Error(`Invalid data:\n${ajv.errorsText(validate.errors, { dataVar: 'flags', separator: '\n' })}`);
+  }
   const previous = await redis.get(KEYS.current);
   await redis.set(KEYS.current, JSON.stringify(flags));
   if (previous) {
@@ -141,7 +113,6 @@ async function merge () {
   let [ previous, flags ] = await Promise.all([ redis.get(KEYS.current), stdin() ]);
   previous = JSON.parse(previous);
   flags = JSON.parse(flags);
-  validate(flags);
   await set({
     ...previous,
     ...flags,
