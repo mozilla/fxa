@@ -22,11 +22,12 @@ describe('feature-flags/index:', () => {
       get: sinon.spy(() => new Promise((res, rej) => {
         resolve = res;
         reject = rej;
-      }))
+      })),
+      close: sinon.spy()
     };
     redisFactory = sinon.spy(() => redis);
     log = {};
-    initialise = proxyquire('../feature-flags', {
+    initialise = proxyquire('../../feature-flags', {
       '../redis': redisFactory
     });
     setImmediate(done);
@@ -139,7 +140,7 @@ describe('feature-flags/index:', () => {
 
     describe('terminate:', () => {
       beforeEach(() => {
-        featureFlags.terminate();
+        return featureFlags.terminate();
       });
 
       it('called clearTimeout', () => {
@@ -149,6 +150,11 @@ describe('feature-flags/index:', () => {
         assert.equal(args[0], 'wibble');
       });
 
+      it('called redis.close', () => {
+        assert.equal(redis.close.callCount, 1);
+        assert.lengthOf(redis.close.args[0], 0);
+      });
+
       describe('terminate:', () => {
         beforeEach(() => {
           featureFlags.terminate();
@@ -156,6 +162,10 @@ describe('feature-flags/index:', () => {
 
         it('did not call clearTimeout a second time', () => {
           assert.equal(clearTimeout.callCount, 1);
+        });
+
+        it('called redis.close', () => {
+          assert.equal(redis.close.callCount, 2);
         });
       });
     });

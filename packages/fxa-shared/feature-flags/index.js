@@ -90,7 +90,7 @@ function initialise (config, log, defaults) {
    */
   async function get () {
     try {
-      return await cache;
+      return await cache || defaults || {};
     } catch (error) {
       if (defaults) {
         return defaults;
@@ -101,13 +101,18 @@ function initialise (config, log, defaults) {
   }
 
   /**
-   * Terminate the refresh loop.
+   * Terminate the refresh loop
+   * and close all redis connections.
    * Useful for e.g. terminating tests cleanly.
+   *
+   * @returns {Promise}
    */
   function terminate () {
     if (timeout) {
       clearTimeout(timeout);
       timeout = null;
     }
+
+    return redis.close();
   }
 }
