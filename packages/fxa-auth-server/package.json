@@ -30,7 +30,7 @@
     "url": "git://github.com/mozilla/fxa-auth-server.git"
   },
   "engines": {
-    "node": ">=8"
+    "node": ">=10"
   },
   "bugs": "https://github.com/mozilla/fxa-auth-server/issues/",
   "homepage": "https://github.com/mozilla/fxa-auth-server/",
@@ -92,9 +92,6 @@
     "urijs": "1.19.1",
     "uuid": "1.4.1",
     "web-push": "3.3.0"
-  },
-  "optionalDependencies": {
-    "scrypt-hash": "1.1.14"
   },
   "devDependencies": {
     "acorn": "^5.7.3",
