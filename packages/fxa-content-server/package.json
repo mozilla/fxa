@@ -163,7 +163,7 @@
     "yargs": "10.0.3"
   },
   "engines": {
-    "node": ">=8",
+    "node": ">=10",
     "npm": ">=6.4.1"
   },
   "readmeFilename": "README.md"
