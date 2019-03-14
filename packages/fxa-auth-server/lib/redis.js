@@ -19,11 +19,10 @@ module.exports = (config, log) => {
           return await value(...args)
         } catch (err) {
           if (err.message === 'redis.watch.conflict') {
-            // If you see this line in a stack trace in Sentry
-            // it's nothing to worry about, just a sign that our
-            // protection against concurrent updates is working
-            // correctly. fxa-shared is responsible for logging.
-            throw error.unexpectedError()
+            // This error is nothing to worry about, just a sign that our
+            // protection against concurrent updates is working correctly.
+            // fxa-shared is responsible for logging.
+            throw error.redisConflict()
           }
 
           // If you see this line in a stack trace in Sentry

@@ -114,8 +114,8 @@ describe('concurrent updates of the same key:', () => {
 
   it('one update failed', () => {
     assert.equal(errors.length, 1)
-    assert.equal(errors[0].message, 'Unspecified error')
-    assert.equal(errors[0].errno, 999)
+    assert.equal(errors[0].message, 'Redis WATCH detected a conflicting update')
+    assert.equal(errors[0].errno, 165)
   })
 
   it('the other update completed successfully', () => {
@@ -199,8 +199,8 @@ describe('set concurrently with update:', () => {
 
   it('update failed', () => {
     assert.ok(error)
-    assert.equal(error.message, 'Unspecified error')
-    assert.equal(error.errno, 999)
+    assert.equal(error.message, 'Redis WATCH detected a conflicting update')
+    assert.equal(error.errno, 165)
   })
 
   it('data was set', () => {
@@ -220,8 +220,8 @@ describe('del concurrently with update:', () => {
 
   it('update failed', () => {
     assert.ok(error)
-    assert.equal(error.message, 'Unspecified error')
-    assert.equal(error.errno, 999)
+    assert.equal(error.message, 'Redis WATCH detected a conflicting update')
+    assert.equal(error.errno, 165)
   })
 
   it('data was deleted', () => {

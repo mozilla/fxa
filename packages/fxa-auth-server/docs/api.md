@@ -304,6 +304,8 @@ for `code` and `errno` are:
   Unknown client_id
 * `code: 400, errno: 164`:
   Stale auth timestamp
+* `code: 409, errno: 165`:
+  Redis WATCH detected a conflicting update
 * `code: 503, errno: 201`:
   Service unavailable
 * `code: 503, errno: 202`:
