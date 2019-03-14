@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "accept-language": "2.0.17",
+    "ajv": "6.10.0",
     "bluebird": "3.5.3",
     "generic-pool": "3.6.1",
     "moment": "2.20.1",
