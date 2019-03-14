@@ -63,20 +63,17 @@ var ERRNO = {
   FAILED_TO_SEND_EMAIL: 151,
   INVALID_TOKEN_VERIFICATION_CODE: 152,
   EXPIRED_TOKEN_VERIFICATION_CODE: 153,
-
   TOTP_TOKEN_EXISTS: 154,
   TOTP_TOKEN_NOT_FOUND: 155,
-
   RECOVERY_CODE_NOT_FOUND: 156,
   DEVICE_COMMAND_UNAVAILABLE: 157,
-
   RECOVERY_KEY_NOT_FOUND: 158,
   RECOVERY_KEY_INVALID: 159,
   TOTP_REQUIRED: 160,
   RECOVERY_KEY_EXISTS: 161,
-
   UNKNOWN_CLIENT_ID: 162,
   STALE_AUTH_AT: 164,
+  REDIS_CONFLICT: 165,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -907,6 +904,15 @@ AppError.staleAuthAt = (authAt) => {
     message: 'Stale auth timestamp'
   }, {
     authAt
+  })
+}
+
+AppError.redisConflict = () => {
+  return new AppError({
+    code: 409,
+    error: 'Conflict',
+    errno: ERRNO.REDIS_CONFLICT,
+    message: 'Redis WATCH detected a conflicting update'
   })
 }
 
