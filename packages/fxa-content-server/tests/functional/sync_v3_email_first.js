@@ -271,6 +271,23 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         .then(testElementTextEquals(selectors.ENTER_EMAIL.TOOLTIP, 'Valid email required'));
     },
 
+    'email specified by relier, empty string': function () {
+      const emptyEmail = '';
+
+      return this.remote
+        .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+          query: {
+            email: emptyEmail
+          },
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true}
+          },
+        }))
+        .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, emptyEmail))
+        .then(testElementExists(selectors.ENTER_EMAIL.TOOLTIP))
+        .then(testElementTextEquals(selectors.ENTER_EMAIL.TOOLTIP, 'Valid email required'));
+    },
+
     'email specified by relier, not registered': function () {
       return this.remote
         .then(openPage(INDEX_PAGE_URL, selectors.SIGNUP_PASSWORD.HEADER, {
