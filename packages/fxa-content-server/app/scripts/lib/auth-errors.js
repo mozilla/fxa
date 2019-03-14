@@ -232,6 +232,10 @@ define(function (require, exports, module) {
       errno: 160,
       message: t('This request requires two step authentication enabled on your account.')
     },
+    REDIS_CONFLICT: {
+      errno: 165,
+      message: t('Failed due to a conflicting request, please try again.')
+    },
     // Secondary Email errors end
     SERVER_BUSY: {
       errno: 201,
