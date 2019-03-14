@@ -460,6 +460,7 @@ describe('sendSigninNotifications', () => {
           utmSource: 'utm source',
           utmTerm: 'utm term'
         },
+        reason: 'signin',
         redirectTo: 'redirectMeTo',
         resume: 'myResumeToken'
       },
@@ -512,7 +513,14 @@ describe('sendSigninNotifications', () => {
       assert.calledWithMatch(log.flowEvent.getCall(0), { event: 'account.login' })
       assert.calledWithMatch(log.flowEvent.getCall(1), { event: 'flow.complete' })
 
-      assert.notCalled(log.notifyAttachedServices)
+      assert.calledOnce(log.notifyAttachedServices)
+      assert.calledWithExactly(log.notifyAttachedServices, 'login', request, {
+        deviceCount: 0,
+        email: TEST_EMAIL,
+        service: 'testservice',
+        uid: TEST_UID,
+        userAgent: 'test user-agent'
+      })
 
       assert.notCalled(mailer.sendVerifyCode)
       assert.notCalled(mailer.sendVerifyLoginEmail)
@@ -619,13 +627,21 @@ describe('sendSigninNotifications', () => {
         assert.calledTwice(log.flowEvent)
         assert.calledWithMatch(log.flowEvent.getCall(0), { event: 'account.login' })
         assert.calledWithMatch(log.flowEvent.getCall(1), { event: 'email.verification.sent' })
+
+        assert.calledOnce(log.notifyAttachedServices)
+        assert.calledWithExactly(log.notifyAttachedServices, 'login', request, {
+          deviceCount: 0,
+          email: TEST_EMAIL,
+          service: 'testservice',
+          uid: TEST_UID,
+          userAgent: 'test user-agent'
+        })
       })
     })
 
     afterEach(() => {
       assert.calledOnce(db.sessions)
       assert.calledOnce(log.activityEvent)
-      assert.notCalled(log.notifyAttachedServices)
 
       assert.notCalled(mailer.sendVerifyLoginEmail)
       assert.notCalled(mailer.sendVerifyLoginCodeEmail)
@@ -645,7 +661,14 @@ describe('sendSigninNotifications', () => {
         assert.calledOnce(metricsContext.stash)
         assert.calledOnce(db.sessions)
         assert.calledOnce(log.activityEvent)
-        assert.notCalled(log.notifyAttachedServices)
+        assert.calledOnce(log.notifyAttachedServices)
+        assert.calledWithExactly(log.notifyAttachedServices, 'login', request, {
+          deviceCount: 0,
+          email: TEST_EMAIL,
+          service: 'testservice',
+          uid: TEST_UID,
+          userAgent: 'test user-agent'
+        })
 
         assert.notCalled(mailer.sendVerifyCode)
         assert.notCalled(mailer.sendVerifyLoginEmail)
@@ -780,8 +803,27 @@ describe('sendSigninNotifications', () => {
 
       assert.calledOnce(db.sessions)
       assert.calledOnce(log.activityEvent)
-      assert.notCalled(log.notifyAttachedServices)
+      assert.calledOnce(log.notifyAttachedServices)
+      assert.calledWithExactly(log.notifyAttachedServices, 'login', request, {
+        deviceCount: 0,
+        email: TEST_EMAIL,
+        service: 'testservice',
+        uid: TEST_UID,
+        userAgent: 'test user-agent'
+      })
       assert.calledOnce(db.securityEvent)
+    })
+  })
+
+  describe('when signing in for another reason', () => {
+
+    beforeEach(() => {
+      request.payload.reason = 'blee'
+    })
+
+    it('does not notify attached services of login', async () => {
+      await sendSigninNotifications(request, accountRecord, sessionToken, 'email-2fa')
+      assert.notCalled(log.notifyAttachedServices)
     })
   })
 
@@ -789,7 +831,6 @@ describe('sendSigninNotifications', () => {
 
     beforeEach(() => {
       request.payload.service = 'sync'
-      request.payload.reason = 'signin'
     })
 
     it('emits correct notifications with one active session', () => {

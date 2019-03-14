@@ -237,20 +237,20 @@ module.exports = (log, config, customs, db, mailer)  => {
           })
       }
 
-      function emitLoginEvent () {
-        return request.emitMetricsEvent('account.login', {
+      async function emitLoginEvent () {
+        await request.emitMetricsEvent('account.login', {
           uid: accountRecord.uid
-        }).then(() => {
-          if (service === 'sync' && request.payload.reason === 'signin') {
-            return log.notifyAttachedServices('login', request, {
-              service: 'sync',
-              uid: accountRecord.uid,
-              email: accountRecord.primaryEmail.email,
-              deviceCount: sessions.length,
-              userAgent: request.headers['user-agent']
-            })
-          }
         })
+
+        if (request.payload.reason === 'signin') {
+          await log.notifyAttachedServices('login', request, {
+            deviceCount: sessions.length,
+            email: accountRecord.primaryEmail.email,
+            service,
+            uid: accountRecord.uid,
+            userAgent: request.headers['user-agent']
+          })
+        }
       }
 
       function sendEmail() {
