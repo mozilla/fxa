@@ -45,6 +45,7 @@
 }
 
 #legal-copy {
+  line-height: 24px;
   text-align: left;
 
   @include respond-to('trustedUI') {
