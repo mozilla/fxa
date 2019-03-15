@@ -824,8 +824,13 @@ MysqlStore.prototype = {
       .then(() => this._write(QUERY_DELETE_REFRESH_TOKEN_FOR_PUBLIC_CLIENTS, [uid]));
   },
 
-  getScope: function getScope (scope) {
-    return this._readOne(QUERY_SCOPE_FIND, [scope]);
+  getScope: async function getScope (scope) {
+    // We currently only have database entries for URL-format scopes,
+    // so don't bother hitting the db for common scopes like 'profile'.
+    if (! scope.startsWith('https://')) {
+      return null;
+    }
+    return await this._readOne(QUERY_SCOPE_FIND, [scope]) || null;
   },
 
   registerScope: function registerScope (scope) {

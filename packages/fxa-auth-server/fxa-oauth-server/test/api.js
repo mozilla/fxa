@@ -1869,6 +1869,125 @@ describe('/v1', function() {
 
     });
 
+    describe('?grant_type=fxa-credentials', function () {
+
+      const clientId = '98e6508e88680e1a';
+
+      it('assertion param should be required', async () => {
+        const res = await Server.api.post({
+          url: '/token',
+          payload: {
+            client_id: clientId,
+            grant_type: 'fxa-credentials'
+          }
+        });
+        assertInvalidRequestParam(res.result, 'assertion');
+        assertSecurityHeaders(res);
+      });
+
+      it('can directly grant a token with valid assertion', async () => {
+        mockAssertion().reply(200, VERIFY_GOOD);
+        const res = await Server.api.post({
+          url: '/token',
+          payload: {
+            client_id: clientId,
+            grant_type: 'fxa-credentials',
+            scope: 'profile testme',
+            assertion: AN_ASSERTION,
+          }
+        });
+        assert.equal(res.statusCode, 200);
+        assert.ok(res.result.expires_in);
+        assert.ok(res.result.access_token);
+        assert.equal(res.result.scope, 'profile testme');
+        assert.equal(res.result.refresh_token, undefined);
+      });
+
+      it('can create a refresh token if requested', async () => {
+        mockAssertion().reply(200, VERIFY_GOOD);
+        const res = await Server.api.post({
+          url: '/token',
+          payload: {
+            client_id: clientId,
+            grant_type: 'fxa-credentials',
+            scope: 'profile testme',
+            access_type: 'offline',
+            assertion: AN_ASSERTION,
+          }
+        });
+        assertSecurityHeaders(res);
+        assert.equal(res.statusCode, 200);
+        assert.ok(res.result.expires_in);
+        assert.ok(res.result.access_token);
+        assert.equal(res.result.scope, 'profile testme');
+        assert.ok(res.result.refresh_token);
+      });
+
+      it('accepts configurable ttl', async () => {
+        mockAssertion().reply(200, VERIFY_GOOD);
+        const res = await Server.api.post({
+          url: '/token',
+          payload: {
+            client_id: clientId,
+            grant_type: 'fxa-credentials',
+            ttl: 42,
+            assertion: AN_ASSERTION,
+          }
+        });
+        assertSecurityHeaders(res);
+        assert.equal(res.statusCode, 200);
+        assert(res.result.expires_in <= 42);
+      });
+
+      it('rejects invalid assertions', async () => {
+        mockAssertion().reply(400, '{"status":"failure"}');
+        const res = await Server.api.post({
+          url: '/token',
+          payload: {
+            client_id: clientId,
+            grant_type: 'fxa-credentials',
+            scope: 'profile testme',
+            access_type: 'offline',
+            assertion: AN_ASSERTION,
+          }
+        });
+        assertSecurityHeaders(res);
+        assert.equal(res.statusCode, 401);
+        assert.equal(res.result.message, 'Invalid assertion');
+      });
+
+      it('rejects clients that are not allowed to grant', async () => {
+        const clientId = NO_KEY_SCOPES_CLIENT_ID;
+        const res = await Server.api.post({
+          url: '/token',
+          payload: {
+            client_id: clientId,
+            grant_type: 'fxa-credentials',
+            assertion: AN_ASSERTION,
+          }
+        });
+        assertSecurityHeaders(res);
+        assert.equal(res.statusCode, 400);
+        assert.equal(res.result.message, 'Invalid grant_type');
+      });
+
+      it('rejects disallowed scopes', async () => {
+        mockAssertion().reply(200, VERIFY_GOOD);
+        const res = await Server.api.post({
+          url: '/token',
+          payload: {
+            client_id: clientId,
+            grant_type: 'fxa-credentials',
+            scope: SCOPE_CAN_SCOPE_KEY,
+            assertion: AN_ASSERTION,
+          }
+        });
+        assertSecurityHeaders(res);
+        assert.equal(res.statusCode, 400);
+        assert.equal(res.result.message, 'Requested scopes are not allowed');
+      });
+    });
+
     describe('?scope=openid', function() {
 
       function decodeJWT(b64) {
@@ -2699,27 +2818,27 @@ describe('/v1', function() {
           });
       });
 
-      it('succeeds for clients that do not have the scope, returning an empty object', () => {
+      it('fails for clients that are not allowed the requested scope', () => {
         genericRequest.payload.client_id = NO_KEY_SCOPES_CLIENT_ID;
 
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api.post(genericRequest)
           .then((res) => {
-            assert.equal(res.statusCode, 200);
+            assert.equal(res.statusCode, 400);
+            assert.equal(res.result.message, 'Requested scopes are not allowed');
             assertSecurityHeaders(res);
-            assert.equal(Object.keys(res.result).length, 0, 'no scoped keys');
           });
       });
 
-      it('succeeds for clients that have no allowedScopes, returning an empty object', () => {
+      it('fails for clients that have no allowedScopes', () => {
         genericRequest.payload.client_id = NO_ALLOWED_SCOPES_CLIENT_ID;
 
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api.post(genericRequest)
           .then((res) => {
-            assert.equal(res.statusCode, 200);
+            assert.equal(res.statusCode, 400);
+            assert.equal(res.result.message, 'Requested scopes are not allowed');
             assertSecurityHeaders(res);
-            assert.equal(Object.keys(res.result).length, 0, 'no scoped keys');
           });
       });
 

@@ -7,10 +7,9 @@ const Joi = require('joi');
 const AppError = require('../error');
 const db = require('../db');
 const logger = require('../logging')('routes.key_data');
-const P = require('../promise');
 const validators = require('../validators');
 const verifyAssertion = require('../assertion');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const { validateRequestedGrant } = require('../grant');
 
 /**
  * We don't yet support rotating individual scoped keys,
@@ -41,41 +40,31 @@ module.exports = {
     ])
   },
   handler: async function keyDataRoute(req) {
-    logger.debug('keyDataRoute.start', {
-      params: req.params,
-      payload: req.payload
-    });
+    const claims = await verifyAssertion(req.payload.assertion);
 
-    const requestedScopes = req.payload.scope;
-    const requestedClientId = req.payload.client_id;
+    const client = await db.getClient(Buffer.from(req.payload.client_id, 'hex'));
+    if (! client) {
+      logger.debug('keyDataRoute.clientNotFound', { id: req.payload.client_id });
+      throw AppError.unknownClient(req.payload.client_id);
+    }
 
-    const [claims, scopes] = await P.all([
-      verifyAssertion(req.payload.assertion),
-      db.getClient(Buffer.from(requestedClientId, 'hex')).then((client) => {
-        if (client) {
-          // find all requested scopes that are allowed for this client.
-          const allowedScopes = ScopeSet.fromString(client.allowedScopes || '');
-          const scopeLookups = requestedScopes.filtered(allowedScopes).getScopeValues().map(scope => db.getScope(scope));
-          return P.all(scopeLookups).then(scopeRecords => {
-            return scopeRecords.filter(scope => !! (scope && scope.hasScopedKeys))
-              .map(scope => {
-                // When we implement key rotation these values will come from the db.
-                // For now all scoped keys have the default values.
-                scope.keyRotationSecret = DEFAULT_KEY_ROTATION_SECRET;
-                scope.keyRotationTimestamp = DEFAULT_KEY_ROTATION_TIMESTAMP;
-                return scope;
-              });
-          });
-        } else {
-          logger.debug('keyDataRoute.clientNotFound', { id: req.payload.client_id });
-          throw AppError.unknownClient(requestedClientId);
-        }
-      })
-    ]);
+    const requestedGrant = await validateRequestedGrant(claims, client, req.payload);
+
+    const keyBearingScopes = [];
+    for (const scope of req.payload.scope.getScopeValues()) {
+      const s = requestedGrant.scopeConfig[scope];
+      if (s && s.hasScopedKeys) {
+        // When we implement key rotation these values will come from the db.
+        // For now all scoped keys have the default values.
+        s.keyRotationSecret = DEFAULT_KEY_ROTATION_SECRET;
+        s.keyRotationTimestamp = DEFAULT_KEY_ROTATION_TIMESTAMP;
+        keyBearingScopes.push(s);
+      }
+    }
 
     const iat = claims.iat || claims['fxa-lastAuthAt'];
     const response = {};
-    scopes.forEach((keyScope) => {
+    for (const keyScope of keyBearingScopes) {
       const keyRotationTimestamp = Math.max(claims['fxa-generation'], keyScope.keyRotationTimestamp);
       // If the assertion certificate was issued prior to a key-rotation event,
       // we don't want to revel the new secrets to such stale assertions,
@@ -88,7 +77,7 @@ module.exports = {
         keyRotationSecret: keyScope.keyRotationSecret,
         keyRotationTimestamp
       };
-    });
+    }
 
     return response;
   }

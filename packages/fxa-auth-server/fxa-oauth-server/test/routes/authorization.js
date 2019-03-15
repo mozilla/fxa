@@ -112,7 +112,7 @@ describe('/authorization POST', function () {
         code_challenge: PKCE_CODE_CHALLENGE,
         code_challenge_method: PKCE_CODE_CHALLENGE_METHOD,
         response_type: 'token'
-      }, 'code_challenge_method', 'is not allowed');
+      }, 'code_challenge', 'is not allowed');
     });
 
   });

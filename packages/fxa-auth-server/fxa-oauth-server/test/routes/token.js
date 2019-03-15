@@ -79,7 +79,8 @@ describe('/token POST', function () {
 
   it('forbids client_secret when authz header provided', (done) => {
     v({
-      client_secret: CLIENT_SECRET
+      client_secret: CLIENT_SECRET,
+      code: CODE // If we don't send `code`, then the missing `code` will fail validation first.
     }, {
       headers: {
         authorization: 'Basic ABCDEF'
