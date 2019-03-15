@@ -76,14 +76,15 @@ describe('lib/marketing-email-client', () => {
     it('returns a preferences URL for the user', () => {
       sinon.stub(xhrMock, 'ajax').callsFake(() => {
         return Promise.resolve({
-          token: 'users_uuid'
+          // the fake basket server can return a token of the number 0, ensure this is handled.
+          token: 0
         });
       });
 
       return client.fetch('token', 'testuser@testuser.com')
         .then(function (data) {
-          assert.equal(data.token, 'users_uuid');
-          assert.equal(data.preferencesUrl, PREFERENCES_URL + 'users_uuid');
+          assert.strictEqual(data.token, 0);
+          assert.strictEqual(data.preferencesUrl, `${PREFERENCES_URL}0`);
 
           assert.isTrue(xhrMock.ajax.calledOnce);
           const request = xhrMock.ajax.args[0][0];

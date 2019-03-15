@@ -4,8 +4,8 @@
 
 const request = require('./request');
 const config = require('../../server/lib/configuration');
-var API_KEY = config.get('basket.api_key');
-var API_URL = config.get('basket.api_url');
+var API_KEY = config.get('marketing_email.api_key');
+var API_URL = config.get('marketing_email.api_url');
 
 var LOOKUP_URL = API_URL + '/lookup-user/?email=';
 

@@ -54,7 +54,7 @@ class MarketingEmailClient {
       // I would prefer to place this into the MarketingEmailPrefs model
       // but doing so required passing around the preferencesUrl to lots of
       // irrelevant classes.
-      if (response.token) {
+      if ('token' in response) {
         response.preferencesUrl = this._preferencesUrl + response.token;
       }
 
