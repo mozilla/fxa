@@ -15,11 +15,11 @@ define(function (require, exports, module) {
   const { FIREFOX_MOBILE_INSTALL } = require('../lib/sms-message-ids');
   const FlowEventsMixin = require('./mixins/flow-events-mixin');
   const { MARKETING_ID_AUTUMN_2016 } = require('../lib/constants');
+  const PairingGraphicsMixin = require('./mixins/pairing-graphics-mixin');
   const MarketingMixin = require('./mixins/marketing-mixin')({ marketingId: MARKETING_ID_AUTUMN_2016 });
   const ResendMixin = require('./mixins/resend-mixin')({ successMessage: false });
   const SmsMixin = require('./mixins/sms-mixin');
   const Template = require('templates/sms_sent.mustache');
-  const UserAgentMixin = require('../lib/user-agent-mixin');
 
   function arePrereqsMet (model) {
     return model.has('normalizedPhoneNumber') &&
@@ -37,8 +37,7 @@ define(function (require, exports, module) {
     },
 
     setInitialContext (context) {
-      const uap = this.getUserAgent();
-      const graphicId = uap.supportsSvgTransformOrigin() ? 'graphic-connect-another-device-hearts' : 'graphic-connect-another-device';
+      const graphicId = this.getGraphicsId();
 
       context.set({
         // The attributes are not surrounded by quotes because _.escape would
@@ -67,9 +66,9 @@ define(function (require, exports, module) {
     View,
     BackMixin,
     FlowEventsMixin,
+    PairingGraphicsMixin,
     MarketingMixin,
     ResendMixin,
-    UserAgentMixin,
     SmsMixin
   );
 

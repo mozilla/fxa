@@ -17,13 +17,13 @@ define(function (require, exports, module) {
   const FlowEventsMixin = require('./mixins/flow-events-mixin');
   const FormPrefillMixin = require('./mixins/form-prefill-mixin');
   const FormView = require('./form');
+  const PairingGraphicsMixin = require('./mixins/pairing-graphics-mixin');
   const { MARKETING_ID_AUTUMN_2016, SYNC_SERVICE } = require('../lib/constants');
   const MarketingMixin = require('./mixins/marketing-mixin');
   const PulseGraphicMixin = require('./mixins/pulse-graphic-mixin');
   const SELECTOR_PHONE_NUMBER = 'input[type=tel]';
   const SmsMixin = require('./mixins/sms-mixin');
   const Template = require('templates/sms_send.mustache');
-  const UserAgentMixin = require('../lib/user-agent-mixin');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   class SmsSendView extends FormView {
@@ -63,8 +63,7 @@ define(function (require, exports, module) {
       }
 
       const isSignIn = this.isSignIn();
-      const uap = this.getUserAgent();
-      const graphicId = uap.supportsSvgTransformOrigin() ? 'graphic-connect-another-device-hearts' : 'graphic-connect-another-device';
+      const graphicId = this.getGraphicsId();
 
       context.set({
         country,
@@ -189,6 +188,7 @@ define(function (require, exports, module) {
     SmsSendView,
     FlowEventsMixin,
     FormPrefillMixin,
+    PairingGraphicsMixin,
     MarketingMixin({
       marketingId: MARKETING_ID_AUTUMN_2016,
       // This screen is only shown to Sync users. The service is always Sync,
@@ -198,7 +198,6 @@ define(function (require, exports, module) {
     }),
     PulseGraphicMixin,
     SmsMixin,
-    UserAgentMixin,
     VerificationReasonMixin
   );
 

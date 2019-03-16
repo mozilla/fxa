@@ -16,6 +16,7 @@ define(function (require, exports, module) {
   const ExperimentMixin = require('./mixins/experiment-mixin');
   const FlowEventsMixin = require('./mixins/flow-events-mixin');
   const FormView = require('./form');
+  const PairingGraphicsMixin = require('./mixins/pairing-graphics-mixin');
   const {
     MARKETING_ID_AUTUMN_2016,
     SYNC_SERVICE,
@@ -150,7 +151,7 @@ define(function (require, exports, module) {
       const escapedSignInUrl = this._getEscapedSignInUrl(email);
 
       const uap = this.getUserAgent();
-      const graphicId = uap.supportsSvgTransformOrigin() ? 'graphic-connect-another-device-hearts' : 'graphic-connect-another-device';
+      const graphicId = this.getGraphicsId();
       const isAndroid = uap.isAndroid();
       const isFirefoxAndroid = uap.isFirefoxAndroid();
       const isFirefoxDesktop = uap.isFirefoxDesktop();
@@ -261,6 +262,7 @@ define(function (require, exports, module) {
     ConnectAnotherDeviceMixin,
     ExperimentMixin,
     FlowEventsMixin,
+    PairingGraphicsMixin,
     MarketingMixin({
       // The marketing area is manually created to which badges are displayed.
       autocreate: false,

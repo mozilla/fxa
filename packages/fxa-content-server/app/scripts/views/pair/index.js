@@ -6,6 +6,7 @@ import FormView from '../form';
 import Cocktail from 'cocktail';
 import Template from '../../templates/pair/index.mustache';
 import UserAgentMixin from '../../lib/user-agent-mixin';
+import PairingGraphicsMixin from '../mixins/pairing-graphics-mixin';
 import { DOWNLOAD_LINK_PAIRING_APP } from '../../lib/constants';
 
 class PairIndexView extends FormView {
@@ -36,8 +37,7 @@ class PairIndexView extends FormView {
   }
 
   setInitialContext (context) {
-    const uap = this.getUserAgent();
-    const graphicId = uap.supportsSvgTransformOrigin() ? 'graphic-connect-another-device-hearts' : 'graphic-connect-another-device';
+    const graphicId = this.getGraphicsId();
 
     context.set({
       downloadAppLink: DOWNLOAD_LINK_PAIRING_APP,
@@ -49,7 +49,8 @@ class PairIndexView extends FormView {
 
 Cocktail.mixin(
   PairIndexView,
-  UserAgentMixin,
+  PairingGraphicsMixin,
+  UserAgentMixin
 );
 
 export default PairIndexView;
