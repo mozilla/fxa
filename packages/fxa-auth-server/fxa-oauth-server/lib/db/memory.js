@@ -155,8 +155,8 @@ MemoryStore.prototype = {
     client.canGrant = !! client.canGrant;
     client.trusted = !! client.trusted;
     this.clients[hex] = client;
-    client.hashedSecret = client.hashedSecret;
-    client.hashedSecretPrevious = client.hashedSecretPrevious || '';
+    client.hashedSecret = client.hashedSecret ? buf(client.hashedSecret) : null;
+    client.hashedSecretPrevious = client.hashedSecretPrevious ? buf(client.hashedSecretPrevious) : null;
     return P.resolve(client);
   },
   updateClient: function updateClient(client) {
