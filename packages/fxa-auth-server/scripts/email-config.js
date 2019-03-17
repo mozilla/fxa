@@ -24,6 +24,18 @@ const COMMANDS = {
   revert,
   check
 }
+
+// Ops note: if you need to check the raw values in redis from the production admin server do:
+//
+// $ sudo yum install -y redis
+// $ redis-cli -h <redis-hostname>
+//   > get email:config
+//     ... value, double escaped ...
+//   > get email:config.previous
+//     ... value, double escaped ...
+//
+// The above assumes EMAIL_CONFIG_REDIS_KEY_PREFIX is `email:`, and the values in KEYS below.
+
 const KEYS = {
   current: 'config',
   previous: 'config.previous'
