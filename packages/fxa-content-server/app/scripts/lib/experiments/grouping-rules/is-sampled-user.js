@@ -16,24 +16,18 @@ module.exports = class IsSampledUserGroupingRule extends BaseGroupingRule {
   }
 
   choose (subject = {}) {
-    const sampleRate = IsSampledUserGroupingRule.sampleRate(subject);
+    const sampleRate = IsSampledUserGroupingRule.sampleRate(subject.env);
     return !! (subject.env && subject.uniqueUserId && this.bernoulliTrial(sampleRate, subject.uniqueUserId));
   }
 
   /**
-   * Return the sample rate from `featureFlags` or `env`
+   * Return the sample rate for `env`
    *
    * @static
-   * @param {Object} options
-   * @param {String} [options.env]
-   * @param {Object} [options.featureFlags]
+   * @param {String} env
    * @returns {Number}
    */
-  static sampleRate ({ env, featureFlags }) {
-    if (featureFlags && featureFlags.metricsSampleRate >= 0) {
-      return featureFlags.metricsSampleRate;
-    }
-
+  static sampleRate (env) {
     return env === 'development' ? 1.0 : 0.1;
   }
 };

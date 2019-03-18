@@ -20,14 +20,10 @@ registerSuite('routes/get-index', {
         instance = route(config);
       },
 
-      after: () => {
-        instance.terminate();
-      },
-
       tests: {
         'instance interface is correct': function () {
           assert.isObject(instance);
-          assert.lengthOf(Object.keys(instance), 4);
+          assert.lengthOf(Object.keys(instance), 3);
           assert.equal(instance.method, 'get');
           assert.equal(instance.path, '/');
           assert.isFunction(instance.process);
@@ -41,7 +37,7 @@ registerSuite('routes/get-index', {
               query: {}
             };
             response = {render: sinon.spy()};
-            return instance.process(request, response);
+            instance.process(request, response);
           },
 
           tests: {
@@ -55,11 +51,10 @@ registerSuite('routes/get-index', {
 
               var renderParams = args[1];
               assert.isObject(renderParams);
-              assert.lengthOf(Object.keys(renderParams), 6);
+              assert.lengthOf(Object.keys(renderParams), 5);
               assert.ok(/[0-9a-f]{64}/.exec(renderParams.flowId));
               assert.isAbove(renderParams.flowBeginTime, 0);
               assert.equal(renderParams.bundlePath, '/bundle');
-              assert.isObject(JSON.parse(decodeURIComponent(renderParams.featureFlags)));
               assert.equal(renderParams.staticResourceUrl, config.get('static_resource_url'));
 
               assert.isString(renderParams.config);
@@ -93,7 +88,7 @@ registerSuite('routes/get-index', {
               },
             };
             response = {redirect: sinon.spy()};
-            return instance.process(request, response);
+            instance.process(request, response);
           },
 
           tests: {
@@ -114,7 +109,7 @@ registerSuite('routes/get-index', {
               },
             };
             response = {redirect: sinon.spy()};
-            return instance.process(request, response);
+            instance.process(request, response);
           },
 
           tests: {
@@ -135,7 +130,7 @@ registerSuite('routes/get-index', {
               },
             };
             response = {render: sinon.spy()};
-            return instance.process(request, response);
+            instance.process(request, response);
           },
 
           tests: {

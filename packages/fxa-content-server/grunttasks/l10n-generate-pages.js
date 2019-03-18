@@ -25,7 +25,6 @@ module.exports = function (grunt) {
 
   var PROPAGATED_ESCAPED_TEMPLATE_FIELDS = [
     'config',
-    'featureFlags',
     'flowId',
     'flowBeginTime',
     'message'

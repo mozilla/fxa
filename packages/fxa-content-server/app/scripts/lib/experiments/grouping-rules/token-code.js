@@ -48,13 +48,8 @@ module.exports = class TokenCodeGroupingRule extends BaseGroupingRule {
       return false;
     }
 
-    const { featureFlags } = subject;
-
     if (subject.clientId) {
-      let client = this.ROLLOUT_CLIENTS[subject.clientId];
-      if (featureFlags && featureFlags.tokenCodeClients) {
-        client = featureFlags.tokenCodeClients[subject.clientId];
-      }
+      const client = this.ROLLOUT_CLIENTS[subject.clientId];
 
       if (client) {
         const groups = client.groups || GROUPS_DEFAULT;
@@ -75,12 +70,7 @@ module.exports = class TokenCodeGroupingRule extends BaseGroupingRule {
     }
 
     if (subject.service && subject.service === Constants.SYNC_SERVICE) {
-      let syncRolloutRate = this.SYNC_ROLLOUT_RATE;
-      if (featureFlags && featureFlags.tokenCodeClients) {
-        syncRolloutRate = featureFlags.tokenCodeClients.sync.rolloutRate;
-      }
-
-      if (this.bernoulliTrial(syncRolloutRate, subject.uniqueUserId)) {
+      if (this.bernoulliTrial(this.SYNC_ROLLOUT_RATE, subject.uniqueUserId)) {
         return this.uniformChoice(GROUPS_DEFAULT, subject.uniqueUserId);
       }
     }
