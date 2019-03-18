@@ -18,28 +18,6 @@ define(function (require, exports, module) {
   const VALID_HTML_CONFIG =
     encodeURIComponent(JSON.stringify({ env: 'dev' }));
 
-  const FEATURE_FLAGS = {
-    communicationPrefLanguages: [ 'en', 'fr' ],
-    metricsSampleRate: 0.1,
-    sentrySampleRate: 1,
-    smsCountries: {
-      FR: {
-        rolloutRate: 0.5,
-      },
-      GB: {
-        rolloutRate: 1,
-      }
-    },
-    tokenCodeClients: {
-      deadbeefbaadf00d: {
-        rolloutRate: 0
-      },
-      sync: {
-        rolloutRate: 1
-      }
-    }
-  };
-  const SERIALISED_FEATURE_FLAGS = encodeURIComponent(JSON.stringify(FEATURE_FLAGS));
 
   describe('lib/config-loader', () => {
     let configLoader;
@@ -48,66 +26,72 @@ define(function (require, exports, module) {
       configLoader = new ConfigLoader();
     });
 
-    it('_readConfigFromHTML returns a `MISSING_CONFIG` error', () => {
-      return configLoader._readConfigFromHTML()
-        .then(assert.fail, (err) => {
-          assert.isTrue(ConfigLoaderErrors.is(err, 'MISSING_CONFIG'));
+    describe('_readConfigFromHTML', () => {
+      describe('config missing', () => {
+        it('returns a `MISSING_CONFIG` error', () => {
+          return configLoader._readConfigFromHTML()
+            .then(assert.fail, (err) => {
+              assert.isTrue(ConfigLoaderErrors.is(err, 'MISSING_CONFIG'));
+            });
         });
+      });
+
+      describe('config available', () => {
+        beforeEach(() => {
+          $('head').append(`<meta name="fxa-content-server/config" content="${VALID_HTML_CONFIG}" />`);
+        });
+
+        afterEach(() => {
+          $('meta[name="fxa-content-server/config"]').remove();
+        });
+
+        it('returns the expected config', () => {
+          return configLoader._readConfigFromHTML()
+            .then((serializedHTMLConfig) => {
+              assert.equal(serializedHTMLConfig, VALID_HTML_CONFIG);
+            });
+        });
+      });
     });
 
-    it('_parseHTMLConfig rejects with invalid encoding', () => {
-      return configLoader._parseHTMLConfig(INVALID_URI_COMPONENT_HTML_CONFIG)
-        .then(assert.fail, (err) => {
-          assert.isTrue(ConfigLoaderErrors.is(err, 'INVALID_CONFIG'));
+    describe('_parseHTMLConfig', () => {
+      describe('with an invalid URI Component', () => {
+        it('throws an `INVALID_CONFIG` error', () => {
+          return configLoader._parseHTMLConfig(INVALID_URI_COMPONENT_HTML_CONFIG)
+            .then(assert.fail, (err) => {
+              assert.isTrue(ConfigLoaderErrors.is(err, 'INVALID_CONFIG'));
+            });
         });
+      });
+
+      describe('with invalid JSON', () => {
+        it('throws an `INVALID_CONFIG` error', () => {
+          return configLoader._parseHTMLConfig(INVALID_JSON_HTML_CONFIG)
+            .then(assert.fail, (err) => {
+              assert.isTrue(ConfigLoaderErrors.is(err, 'INVALID_CONFIG'));
+            });
+        });
+      });
+
+      describe('with valid config', () => {
+        it('parses the config', () => {
+          return configLoader._parseHTMLConfig(VALID_HTML_CONFIG)
+            .then((config) => {
+              assert.equal(config.env, 'dev');
+            });
+        });
+      });
     });
 
-    it('_parseHTMLConfig rejects with invalid JSON', () => {
-      return configLoader._parseHTMLConfig(INVALID_JSON_HTML_CONFIG)
-        .then(assert.fail, (err) => {
-          assert.isTrue(ConfigLoaderErrors.is(err, 'INVALID_CONFIG'));
-        });
-    });
-
-    describe('insert config markup in to the DOM', () => {
-      before(() => {
-        $('head').append(`<meta name="fxa-content-server/config" content="${VALID_HTML_CONFIG}" />`);
-        $('head').append(`<meta name="fxa-feature-flags" content="${SERIALISED_FEATURE_FLAGS}" />`);
-      });
-
-      after(() => {
-        $('meta[name="fxa-content-server/config"]').remove();
-        $('meta[name="fxa-feature-flags"]').remove();
-      });
-
-      it('_readConfigFromHTML returns the expected config', () => {
-        return configLoader._readConfigFromHTML()
-          .then((serializedHTMLConfig) => {
-            assert.equal(serializedHTMLConfig, VALID_HTML_CONFIG);
-          });
-      });
-
-      it('_parseHTMLConfig parses the config', () => {
-        return configLoader._parseHTMLConfig(VALID_HTML_CONFIG)
-          .then((config) => {
-            assert.equal(config.env, 'dev');
-            assert.deepEqual(config.featureFlags, FEATURE_FLAGS);
-          });
-      });
-
-      it('_setWebpackPublicPath sets the bundle path', () => {
-        configLoader._setWebpackPublicPath('somepath');
-        assert.equal(__webpack_public_path__, 'somepath'); //eslint-disable-line no-undef
-        configLoader._setWebpackPublicPath();
-        assert.equal(__webpack_public_path__, Constants.DEFAULT_BUNDLE_PATH); //eslint-disable-line no-undef
-      });
-
-      describe('mock internal methods', () => {
+    describe('fetch', () => {
+      describe('with valid config', () => {
         let $html;
         let origLang;
         let sandbox;
 
         beforeEach(() => {
+          $('head').append(`<meta name="fxa-content-server/config" content="${VALID_HTML_CONFIG}" />`);
+
           $html = $('html');
           origLang = $html.attr('lang');
           $html.attr('lang', 'db_LB');
@@ -118,17 +102,17 @@ define(function (require, exports, module) {
         });
 
         afterEach(() => {
+          $('meta[name="fxa-content-server/config"]').remove();
           $html.attr('lang', origLang);
 
           sandbox.restore();
         });
 
-        it('fetch returns the config', () => {
+        it('returns the config', () => {
           return configLoader.fetch()
             .then((config) => {
               assert.equal(config.env, 'dev');
               assert.equal(config.lang, 'db_LB');
-              assert.deepEqual(config.featureFlags, FEATURE_FLAGS);
 
               assert.isTrue(configLoader._readConfigFromHTML.called);
               assert.isTrue(configLoader._parseHTMLConfig.called);
@@ -136,5 +120,19 @@ define(function (require, exports, module) {
         });
       });
     });
+
+
+    describe('_setWebpackPublicPath', () => {
+      it('sets the bundle path', () => {
+        /*eslint-disable camelcase*/
+        configLoader._setWebpackPublicPath('somepath');
+        assert.equal(__webpack_public_path__, 'somepath'); //eslint-disable-line no-undef
+        configLoader._setWebpackPublicPath();
+        assert.equal(__webpack_public_path__, Constants.DEFAULT_BUNDLE_PATH); //eslint-disable-line no-undef
+      });
+    });
+
   });
 });
+
+

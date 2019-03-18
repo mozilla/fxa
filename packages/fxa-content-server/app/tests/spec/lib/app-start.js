@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   const BaseBroker = require('models/auth_brokers/base');
   const Constants = require('lib/constants');
   const ErrorUtils = require('lib/error-utils');
-  const ExperimentGroupingRules = require('lib/experiments/grouping-rules');
   const FxFennecV1Broker = require('models/auth_brokers/fx-fennec-v1');
   const FxFirstrunV1Broker = require('models/auth_brokers/fx-firstrun-v1');
   const FxFirstrunV2Broker = require('models/auth_brokers/fx-firstrun-v2');
@@ -39,7 +38,6 @@ define(function (require, exports, module) {
     let appStart;
     let backboneHistoryMock;
     let brokerMock;
-    let config;
     let notifier;
     let routerMock;
     let translator;
@@ -49,12 +47,6 @@ define(function (require, exports, module) {
     beforeEach(() => {
       brokerMock = new BaseBroker();
       backboneHistoryMock = new HistoryMock();
-      config = {
-        env: 'production',
-        featureFlags: {
-          foo: 'bar'
-        }
-      };
       notifier = new Notifier();
       routerMock = { navigate: sinon.spy() };
       translator = {
@@ -68,7 +60,6 @@ define(function (require, exports, module) {
 
       appStart = new AppStart({
         broker: brokerMock,
-        config,
         history: backboneHistoryMock,
         notifier,
         router: routerMock,
@@ -122,17 +113,34 @@ define(function (require, exports, module) {
         });
     });
 
-    it('initializeExperimentGroupingRules propagates env and featureFlags', () => {
-      assert.isUndefined(appStart._experimentGroupingRules);
+    it('initializeErrorMetrics skips error metrics on empty config', () => {
+      appStart.initializeExperimentGroupingRules();
+      const ableChoose = sinon.stub(appStart._experimentGroupingRules, 'choose').callsFake(() => {
+        return true;
+      });
 
+      appStart.initializeErrorMetrics();
+      assert.isUndefined(appStart._sentryMetrics);
+      ableChoose.restore();
+    });
+
+    it('initializeErrorMetrics skips error metrics if env is not defined', () => {
       appStart.initializeExperimentGroupingRules();
 
-      assert.instanceOf(appStart._experimentGroupingRules, ExperimentGroupingRules);
-      assert.equal(appStart._experimentGroupingRules._env, 'production');
-      assert.deepEqual(appStart._experimentGroupingRules._featureFlags, { foo: 'bar' });
+      appStart.initializeErrorMetrics();
+      assert.isUndefined(appStart._sentryMetrics);
     });
 
     it('initializeErrorMetrics creates error metrics', () => {
+      const appStart = new AppStart({
+        broker: brokerMock,
+        config: {
+          env: 'development'
+        },
+        history: backboneHistoryMock,
+        router: routerMock,
+        window: windowMock
+      });
       appStart.initializeExperimentGroupingRules();
 
       const ableChoose = sinon.stub(appStart._experimentGroupingRules, 'choose').callsFake(() => {
@@ -174,35 +182,6 @@ define(function (require, exports, module) {
     it('initializeRefreshObserver creates a RefreshObserver instance', () => {
       appStart.initializeRefreshObserver();
       assert.instanceOf(appStart._refreshObserver, RefreshObserver);
-    });
-
-    describe('without config', () => {
-      beforeEach(() => {
-        appStart = new AppStart({
-          broker: brokerMock,
-          history: backboneHistoryMock,
-          router: routerMock,
-          window: windowMock
-        });
-      });
-
-      it('initializeErrorMetrics skips error metrics on empty config', () => {
-        appStart.initializeExperimentGroupingRules();
-        const ableChoose = sinon.stub(appStart._experimentGroupingRules, 'choose').callsFake(() => {
-          return true;
-        });
-
-        appStart.initializeErrorMetrics();
-        assert.isUndefined(appStart._sentryMetrics);
-        ableChoose.restore();
-      });
-
-      it('initializeErrorMetrics skips error metrics if env is not defined', () => {
-        appStart.initializeExperimentGroupingRules();
-
-        appStart.initializeErrorMetrics();
-        assert.isUndefined(appStart._sentryMetrics);
-      });
     });
 
     describe('fatalError', () => {

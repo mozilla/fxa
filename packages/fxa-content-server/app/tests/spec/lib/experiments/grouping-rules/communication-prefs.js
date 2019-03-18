@@ -15,53 +15,45 @@ define(function (require, exports, module) {
       experiment = new Experiment();
     });
 
-    it('choose returns false without subject.lang', () => {
-      assert.isFalse(experiment.choose({}));
+
+    it('has the expected number of available languages', () => {
+      assert.lengthOf(experiment.availableLanguages, 12);
     });
 
-    [
-      'de',
-      'en',
-      'en-US',
-      'en-GB',
-      'es',
-      'es-ES',
-      'es-MX',
-      'fr',
-      'hu',
-      'id',
-      'pl',
-      'pt-br',
-      'ru',
-      'zh-TW',
-    ].forEach((lang) => {
-      it(`choose returns true for ${lang}`, () => {
-        assert.isTrue(experiment.choose({ lang }));
+    describe('choose', () => {
+      it('returns false without subject.lang', () => {
+        assert.isFalse(experiment.choose({}));
       });
-    });
 
-    [
-      'de-DE',
-      'pt',
-    ].forEach((lang) => {
-      it(`choose returns false for ${lang}`, () => {
-        assert.isFalse(experiment.choose({ lang }));
+      it('returns true for available languages', () => {
+        [
+          'de',
+          'en',
+          'en-US',
+          'en-GB',
+          'es',
+          'es-ES',
+          'es-MX',
+          'fr',
+          'hu',
+          'id',
+          'pl',
+          'pt-br',
+          'ru',
+          'zh-TW',
+        ].forEach((lang) => {
+          assert.isTrue(experiment.choose({ lang }));
+        });
       });
-    });
 
-    it('choose gives precedence to featureFlags', () => {
-      assert.isFalse(experiment.choose({
-        featureFlags: {
-          communicationPrefLanguages: [ 'en', 'fr' ]
-        },
-        lang: 'de'
-      }));
-      assert.isTrue(experiment.choose({
-        featureFlags: {
-          communicationPrefLanguages: [ 'en', 'pt' ]
-        },
-        lang: 'pt'
-      }));
+      it('returns false for unsupported languages', () => {
+        [
+          'de-DE',
+          'pt',
+        ].forEach((lang) => {
+          assert.isFalse(experiment.choose({ lang }));
+        });
+      });
     });
   });
 });
