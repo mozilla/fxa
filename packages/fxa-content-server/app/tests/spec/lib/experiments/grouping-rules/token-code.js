@@ -76,6 +76,21 @@ describe('lib/experiments/grouping-rules/token-code', () => {
         assert.isTrue(experiment.uniformChoice.calledOnce);
         assert.isTrue(experiment.uniformChoice.calledWith(['treatment-code'], 'user-id'));
       });
+
+      it('featureFlags take precedence', () => {
+        subject.clientId = 'invalidClientId';
+        assert.equal(experiment.choose({
+          ...subject,
+          featureFlags: {
+            tokenCodeClients: {
+              invalidClientId: {
+                groups: [ 'treatment-code' ],
+                rolloutRate: 1
+              }
+            }
+          }
+        }), 'treatment-code');
+      });
     });
 
     describe('with sync', () => {
@@ -98,6 +113,21 @@ describe('lib/experiments/grouping-rules/token-code', () => {
         experiment.choose(subject);
         assert.isTrue(experiment.uniformChoice.calledOnce, 'called once');
         assert.isTrue(experiment.uniformChoice.calledWith(['treatment-code'], 'user-id'));
+      });
+
+      it('featureFlags take precedence', () => {
+        subject.service = 'sync';
+        assert.isFalse(experiment.choose({
+          ...subject,
+          featureFlags: {
+            tokenCodeClients: {
+              sync: {
+                groups: [ 'treatment-code' ],
+                rolloutRate: 0
+              }
+            }
+          }
+        }));
       });
     });
   });

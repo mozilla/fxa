@@ -24,6 +24,7 @@ class ExperimentChoiceIndex {
   constructor (options = {}) {
     this._env = options.env;
     this._experimentGroupingRules = options.experimentGroupingRules || experimentGroupingRules;
+    this._featureFlags = options.featureFlags;
   }
 
   /**
@@ -51,6 +52,7 @@ class ExperimentChoiceIndex {
       const subjectCopy = Object.create(subject);
       subjectCopy.env = subject.env || this._env;
       subjectCopy.experimentGroupingRules = this;
+      subjectCopy.featureFlags = subject.featureFlags || this._featureFlags;
       return experiment.choose(subjectCopy);
     }
   }

@@ -40,9 +40,27 @@ define(function (require, exports, module) {
       });
 
       describe('country does not have a `rolloutRate`', () => {
-        it('returns `false', () => {
+        beforeEach(() => {
           delete CountryTelephoneInfo.GB.rolloutRate;
+        });
+
+        it('returns `false', () => {
           assert.isFalse(experiment.choose({ account, country, uniqueUserId: 'user-id' }));
+        });
+
+        it('featureFlags take precedence', () => {
+          assert.isTrue(experiment.choose({
+            account,
+            country,
+            featureFlags: {
+              smsCountries: {
+                GB: {
+                  rolloutRate: 1
+                }
+              }
+            },
+            uniqueUserId: 'wibble'
+          }));
         });
       });
 
@@ -78,6 +96,18 @@ define(function (require, exports, module) {
         it('fully rolled out countries return `true`', () => {
           CountryTelephoneInfo.GB.rolloutRate = 1.0;
           assert.isTrue(experiment.choose({ account, country, uniqueUserId: 'user-id' }));
+        });
+
+        it('featureFlags take precedence', () => {
+          CountryTelephoneInfo.GB.rolloutRate = 1.0;
+          assert.isFalse(experiment.choose({
+            account,
+            country,
+            featureFlags: {
+              smsCountries: {}
+            },
+            uniqueUserId: 'wibble'
+          }));
         });
       });
     });
