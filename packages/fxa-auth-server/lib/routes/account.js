@@ -150,7 +150,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
             )
         }
 
-        function createAccount () {
+        async function createAccount () {
           if (! locale) {
             // We're seeing a surprising number of accounts created
             // without a proper locale. Log details to help debug this.
@@ -161,8 +161,8 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
             })
           }
 
-          return random.hex(32, 32)
-          .then(hexes => db.createAccount({
+          const hexes = await random.hex(32, 32)
+          account = await db.createAccount({
             uid: uuid.v4('binary').toString('hex'),
             createdAt: Date.now(),
             email: email,
@@ -177,40 +177,28 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
             verifyHash: verifyHash,
             verifierSetAt: Date.now(),
             locale: locale
-          }))
-          .then(
-            function (result) {
-              account = result
+          })
 
-              return request.emitMetricsEvent('account.created', {
-                uid: account.uid
-              })
-            }
-          )
-          .then(
-            function () {
-              if (account.emailVerified) {
-                return log.notifyAttachedServices('verified', request, {
-                  email: account.email,
-                  uid: account.uid,
-                  locale: account.locale
-                })
-              }
-            }
-          )
-          .then(
-            function () {
-              if (service === 'sync') {
-                return log.notifyAttachedServices('login', request, {
-                  service: 'sync',
-                  uid: account.uid,
-                  email: account.email,
-                  deviceCount: 1,
-                  userAgent: userAgentString
-                })
-              }
-            }
-          )
+          await request.emitMetricsEvent('account.created', {
+            uid: account.uid
+          })
+
+          if (account.emailVerified) {
+            await log.notifyAttachedServices('verified', request, {
+              email: account.email,
+              locale: account.locale,
+              service,
+              uid: account.uid,
+            })
+          }
+
+          await log.notifyAttachedServices('login', request, {
+            deviceCount: 1,
+            email: account.email,
+            service,
+            uid: account.uid,
+            userAgent: userAgentString,
+          })
         }
 
         function createSessionToken () {

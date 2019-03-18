@@ -23,6 +23,22 @@ describe('log', () => {
       info: sinon.spy()
     }
     mocks = {
+      '../config': {
+        get (name) {
+          switch (name) {
+            case 'log':
+              return {
+                fmt: 'mozlog'
+              }
+            case 'oauth.clientIds':
+              return {
+                clientid: 'human readable name'
+              }
+            default:
+              throw new Error(`unexpected config get: ${name}`)
+          }
+        }
+      },
       // These need to be `function` functions, not arrow functions,
       // otherwise proxyquire gets confused and errors out.
       mozlog: sinon.spy(function () { return logger }),
@@ -580,14 +596,14 @@ describe('log', () => {
     assert.equal(logger.info.args[0][1].email, 'quix')
   });
 
-  it('.notifyAttachedServices should send a notification', () => {
+  it('.notifyAttachedServices should send a notification (with service=known clientid)', () => {
     const now = Date.now()
     const metricsContext = mockMetricsContext()
     const request = mockRequest({
       log,
       metricsContext,
       payload: {
-        service: 'testservice',
+        service: 'clientid',
         metricsContext: {
           entrypoint: 'wibble',
           flowBeginTime: now - 23,
@@ -601,13 +617,116 @@ describe('log', () => {
       }
     })
     sinon.stub(Date, 'now').callsFake(() => now)
-    return log.notifyAttachedServices('login', request, { ts: now }).then(() => {
+    return log.notifyAttachedServices('login', request, { service: 'clientid', ts: now}).then(() => {
       assert.equal(metricsContext.gather.callCount, 1)
       assert.equal(log.notifier.send.callCount, 1)
       assert.equal(log.notifier.send.args[0].length, 1)
       assert.deepEqual(log.notifier.send.args[0][0], {
         event: 'login',
         data: {
+          service: 'human readable name',
+          ts: now,
+          metricsContext: {
+            time: now,
+            entrypoint: 'wibble',
+            flow_id: request.payload.metricsContext.flowId,
+            flow_time: now - request.payload.metricsContext.flowBeginTime,
+            flowBeginTime: request.payload.metricsContext.flowBeginTime,
+            flowCompleteSignal: undefined,
+            flowType: undefined,
+            utm_campaign: 'utm campaign',
+            utm_content: 'utm content',
+            utm_medium: 'utm medium',
+            utm_source: 'utm source',
+            utm_term: 'utm term'
+          }
+        }
+      })
+    }).finally(() => {
+      Date.now.restore()
+    })
+  })
+
+  it('.notifyAttachedServices should send a notification (with service=unknown clientid)', () => {
+    const now = Date.now()
+    const metricsContext = mockMetricsContext()
+    const request = mockRequest({
+      log,
+      metricsContext,
+      payload: {
+        service: 'unknown-clientid',
+        metricsContext: {
+          entrypoint: 'wibble',
+          flowBeginTime: now - 23,
+          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+          utmCampaign: 'utm campaign',
+          utmContent: 'utm content',
+          utmMedium: 'utm medium',
+          utmSource: 'utm source',
+          utmTerm: 'utm term'
+        }
+      }
+    })
+    sinon.stub(Date, 'now').callsFake(() => now)
+    return log.notifyAttachedServices('login', request, { service: 'unknown-clientid', ts: now}).then(() => {
+      assert.equal(metricsContext.gather.callCount, 1)
+      assert.equal(log.notifier.send.callCount, 1)
+      assert.equal(log.notifier.send.args[0].length, 1)
+      assert.deepEqual(log.notifier.send.args[0][0], {
+        event: 'login',
+        data: {
+          service: 'unknown-clientid',
+          ts: now,
+          metricsContext: {
+            time: now,
+            entrypoint: 'wibble',
+            flow_id: request.payload.metricsContext.flowId,
+            flow_time: now - request.payload.metricsContext.flowBeginTime,
+            flowBeginTime: request.payload.metricsContext.flowBeginTime,
+            flowCompleteSignal: undefined,
+            flowType: undefined,
+            utm_campaign: 'utm campaign',
+            utm_content: 'utm content',
+            utm_medium: 'utm medium',
+            utm_source: 'utm source',
+            utm_term: 'utm term'
+          }
+        }
+      })
+    }).finally(() => {
+      Date.now.restore()
+    })
+  })
+
+  it('.notifyAttachedServices should send a notification (with service=sync)', () => {
+    const now = Date.now()
+    const metricsContext = mockMetricsContext()
+    const request = mockRequest({
+      log,
+      metricsContext,
+      payload: {
+        service: 'sync',
+        metricsContext: {
+          entrypoint: 'wibble',
+          flowBeginTime: now - 23,
+          flowId: 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+          utmCampaign: 'utm campaign',
+          utmContent: 'utm content',
+          utmMedium: 'utm medium',
+          utmSource: 'utm source',
+          utmTerm: 'utm term'
+        }
+      }
+    })
+    sinon.stub(Date, 'now').callsFake(() => now)
+    return log.notifyAttachedServices('login', request, { service: 'sync', ts: now}).then(() => {
+      assert.equal(metricsContext.gather.callCount, 1)
+      assert.equal(log.notifier.send.callCount, 1)
+      assert.equal(log.notifier.send.args[0].length, 1)
+      assert.deepEqual(log.notifier.send.args[0][0], {
+        event: 'login',
+        data: {
+          service: 'sync',
           ts: now,
           metricsContext: {
             time: now,

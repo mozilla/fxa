@@ -422,7 +422,7 @@ describe('/account/create', () => {
     }
   }
 
-  it('should create an account', () => {
+  it('should create a sync account', () => {
     const mocked = setup()
     const clientAddress = mocked.clientAddress
     const emailCode = mocked.emailCode
@@ -560,6 +560,44 @@ describe('/account/create', () => {
       assert.equal(args[2].service, 'sync')
       assert.equal(args[2].uid, uid)
 
+      assert.equal(mockLog.error.callCount, 0)
+    }).finally(() => Date.now.restore())
+  })
+
+  it('should create a non-sync account', () => {
+    const mocked = setup()
+    const mockLog = mocked.mockLog
+    const mockMailer = mocked.mockMailer
+    const mockRequest = mocked.mockRequest
+    const route = mocked.route
+    const uid = mocked.uid
+
+    const now = Date.now()
+    sinon.stub(Date, 'now').callsFake(() => now)
+
+    mockRequest.payload.service = 'foo'
+
+    return runTest(route, mockRequest, () => {
+      assert.equal(mockLog.notifier.send.callCount, 1, 'an sqs event was logged')
+      var eventData = mockLog.notifier.send.getCall(0).args[0]
+      assert.equal(eventData.event, 'login', 'it was a login event')
+      assert.equal(eventData.data.service, 'foo', 'it was for the expected service')
+
+      assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once')
+      let args = mockLog.activityEvent.args[0]
+      assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+      assert.deepEqual(args[0], {
+        country: 'United States',
+        event: 'account.created',
+        region: 'California',
+        service: 'foo',
+        userAgent: 'test user-agent',
+        uid: uid
+      }, 'event data was correct')
+
+      assert.equal(mockMailer.sendVerifyCode.callCount, 1, 'mailer.sendVerifyCode was called')
+      args = mockMailer.sendVerifyCode.args[0]
+      assert.equal(args[2].service, 'foo')
       assert.equal(mockLog.error.callCount, 0)
     }).finally(() => Date.now.restore())
   })

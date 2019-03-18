@@ -478,6 +478,7 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(args[0], 'verified')
         assert.equal(args[2].uid, uid)
         assert.equal(args[2].marketingOptIn, undefined)
+        assert.equal(args[2].service, 'sync')
 
         assert.equal(mockMailer.sendPostVerifyEmail.callCount, 1, 'sendPostVerifyEmail was called once')
         assert.equal(mockMailer.sendPostVerifyEmail.args[0][2].service, mockRequest.payload.service)
@@ -533,6 +534,7 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(args[0], 'verified')
         assert.equal(args[2].uid, uid)
         assert.equal(args[2].marketingOptIn, true)
+        assert.equal(args[2].service, 'sync')
 
         assert.equal(mockLog.amplitudeEvent.callCount, 2, 'amplitudeEvent was called twice')
         args = mockLog.amplitudeEvent.args[1]

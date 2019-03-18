@@ -451,9 +451,10 @@ module.exports = (log, db, mailer, config, customs, push) => {
                     return P.all([
                       log.notifyAttachedServices('verified', request, {
                         email: account.email,
-                        uid: account.uid,
                         locale: account.locale,
-                        marketingOptIn: marketingOptIn ? true : undefined
+                        marketingOptIn: marketingOptIn ? true : undefined,
+                        service,
+                        uid: account.uid,
                       }),
                       request.emitMetricsEvent('account.verified', {
                         // The content server omits marketingOptIn in the false case.
