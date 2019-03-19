@@ -2,74 +2,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (LIFETIME_SEC, mc, EmailRecord, IpRecord, log) {
-
-  function blockIp(ip, cb) {
-    mc.get(ip,
-      function (err, data) {
-        if (err) {
-          log.error({ op: 'handleBan.blockIp', ip: ip, err: err })
-          return cb(err)
-        }
-
-        log.info({ op: 'handleBan.blockIp', ip: ip })
-        var ir = IpRecord.parse(data)
-        ir.block()
-        var lifetime = Math.max(LIFETIME_SEC, ir.getMinLifetimeMS() / 1000)
-        mc.set(ip, ir, lifetime,
-          function (err) {
-            if (err) {
-              log.error({ op: 'memcachedError', err: err })
-              return cb(err)
-            }
-            mc.end()
-            cb(null)
-          }
-        )
-      }
-    )
+module.exports = function (fetchRecords, setRecord, log) {
+  async function blockIp(ip) {
+    const { ipRecord } = await fetchRecords({ ip })
+    log.info({ op: 'handleBan.blockIp', ip: ip })
+    ipRecord.block()
+    return setRecord(ipRecord)
   }
 
-  function blockEmail(email, cb) {
-    mc.get(email,
-      function (err, data) {
-        if (err) {
-          log.error({ op: 'handleBan.blockEmail', email: email, err: err })
-          return cb(err)
-        }
-
-        log.info({ op: 'handleBan.blockEmail', email: email })
-        var er = EmailRecord.parse(data)
-        er.block()
-        var lifetime = Math.max(LIFETIME_SEC, er.getMinLifetimeMS() / 1000)
-        mc.set(email, er, lifetime,
-          function (err) {
-            if (err) {
-              log.error({ op: 'memcachedError', err: err })
-              return cb(err)
-            }
-            mc.end()
-            cb(null)
-          }
-        )
-      }
-    )
+  async function blockEmail(email) {
+    const { emailRecord } = await fetchRecords({ email })
+    log.info({ op: 'handleBan.blockEmail', email: email })
+    emailRecord.block()
+    return setRecord(emailRecord)
   }
 
-  function handleBan(message, cb) {
-    if (!cb) {
-      cb = function () {}
-    }
+  async function handleBan(message) {
     if (message.ban && message.ban.ip) {
-      blockIp(message.ban.ip, cb)
+      return blockIp(message.ban.ip)
+    } else if (message.ban && message.ban.email) {
+      return blockEmail(message.ban.email)
     }
-    else if (message.ban && message.ban.email) {
-      blockEmail(message.ban.email, cb)
-    }
-    else {
-      log.error({ op: 'handleBan', ban: !!message.ban })
-      cb('invalid message')
-    }
+
+    log.error({ op: 'handleBan', ban: !!message.ban })
+    return Promise.reject('invalid message')
   }
 
   return handleBan

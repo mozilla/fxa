@@ -1,149 +1,98 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var test = require('tap').test
-var log = {
+const { assert } = require('chai')
+const sinon = require('sinon')
+const { test } = require('tap')
+
+const log = {
   info: function () {},
   error: function () {}
 }
-var limits = {
-  rateLimitIntervalMs: 1000,
-  blockIntervalMs: 1000,
-  ipRateLimitIntervalMs: 1000,
-  ipRateLimitBanDurationMs: 1000
-}
-var mcHelper = require('../memcache-helper')
-var EmailRecord = require('../../lib/email_record')(limits)
-var IpRecord = require('../../lib/ip_record')(limits)
-var banHandler = require('../../lib/bans/handler')
 
-var config = {
-  limits: {
-    blockIntervalSeconds: 1
+const banHandler = require('../../lib/bans/handler')
+
+const TEST_IP = '192.0.2.1'
+const TEST_EMAIL = 'test@example.com'
+
+const sandbox = sinon.createSandbox()
+
+const records = {
+  emailRecord: {
+    block: sandbox.spy()
+  },
+  ipRecord: {
+    block: sandbox.spy()
   }
 }
 
-var TEST_IP = '192.0.2.1'
-var TEST_EMAIL = 'test@example.com'
+const fetchRecords = sandbox.spy(() => Promise.resolve(records))
+const setRecord = sandbox.spy(() => Promise.resolve())
 
 test(
-  'clear everything',
-  function (t) {
-    mcHelper.clearEverything(
-      function (err) {
-        t.notOk(err, 'no errors were returned')
-        t.end()
-      }
-    )
-  }
-)
-
-test(
-  'well-formed ip blocking request',
-  function (t) {
-    var message = {
+  'well-formed ip blocking request', async () => {
+    const message = {
       ban: {
         ip: TEST_IP
       }
     }
-    banHandler(10, mcHelper.mc, EmailRecord, IpRecord, log)(message,
-      function (err) {
-        t.notOk(err, 'no errors were returned')
+    const handleBan = banHandler(fetchRecords, setRecord, log)
+    await handleBan(message)
+    assert.isTrue(records.ipRecord.block.calledOnce)
+    assert.isTrue(setRecord.calledOnce)
+    assert.deepEqual(setRecord.args[0][0], records.ipRecord)
 
-        mcHelper.blockedIpCheck(
-          function (isBlocked) {
-            t.equal(isBlocked, true, 'ip is blocked')
-            t.end()
-          }
-        )
-      }
-    )
+    sandbox.reset()
   }
 )
 
 test(
-  'ip block has expired',
-  function (t) {
-    setTimeout(
-      function () {
-        mcHelper.blockedIpCheck(
-          function (isBlocked) {
-            t.equal(isBlocked, false, 'ip is not blocked')
-            t.end()
-          }
-        )
-      },
-      config.limits.blockIntervalSeconds * 1000
-    )
-  }
-)
-
-test(
-  'well-formed email blocking request',
-  function (t) {
-    var message = {
+  'well-formed email blocking request', async () => {
+    const message = {
       ban: {
         email: TEST_EMAIL
       }
     }
-    banHandler(10, mcHelper.mc, EmailRecord, IpRecord, log)(message,
-      function (err) {
-        t.notOk(err, 'no errors were returned')
+    const handleBan = banHandler(fetchRecords, setRecord, log)
+    await handleBan(message)
+    assert.isTrue(records.emailRecord.block.calledOnce)
+    assert.isTrue(setRecord.calledOnce)
+    assert.deepEqual(setRecord.args[0][0], records.emailRecord)
 
-        mcHelper.blockedEmailCheck(
-          function (isBlocked) {
-            t.equal(isBlocked, true, 'email is blocked')
-            t.end()
-          }
-        )
-      }
-    )
+    sandbox.reset()
   }
 )
 
 test(
-  'email block has expired',
-  function (t) {
-    setTimeout(
-      function () {
-        mcHelper.blockedEmailCheck(
-          function (isBlocked) {
-            t.equal(isBlocked, false, 'email is not blocked')
-            t.end()
-          }
-        )
-      },
-      config.limits.blockIntervalSeconds * 1000
-    )
-  }
-)
-
-test(
-  'missing ip and email',
-  function (t) {
-    var message = {
+  'missing ip and email', async () => {
+    const message = {
       ban: {
       }
     }
-    banHandler(10, mcHelper.mc, EmailRecord, IpRecord, log)(message,
-      function (err) {
-        t.equal(err, 'invalid message')
-        t.end()
-      }
-    )
+    const handleBan = banHandler(fetchRecords, setRecord, log)
+    try {
+      await handleBan(message)
+      assert.fail()
+    } catch (err) {
+      assert.strictEqual(err, 'invalid message')
+    }
+
+    sandbox.reset()
   }
 )
 
 test(
-  'missing ban',
-  function (t) {
-    var message = {
+  'missing ban', async () => {
+    const message = {}
+    const handleBan = banHandler(fetchRecords, setRecord, log)
+
+    try {
+      await handleBan(message)
+      assert.fail()
+    } catch (err) {
+      assert.strictEqual(err, 'invalid message')
     }
-    banHandler(10, mcHelper.mc, EmailRecord, IpRecord, log)(message,
-      function (err) {
-        t.equal(err, 'invalid message')
-        t.end()
-      }
-    )
+
+    sandbox.reset()
   }
 )
