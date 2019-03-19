@@ -15,6 +15,7 @@ const moment = require('fxa-shared/node_modules/moment') // Ensure consistency w
 const P = require('../../../lib/promise')
 const proxyquire = require('proxyquire')
 const uuid = require('uuid')
+const OAuthError = require('../../../fxa-oauth-server/lib/error')
 
 const EARLIEST_SANE_TIMESTAMP = 31536000000
 
@@ -41,6 +42,7 @@ function makeRoutes (options = {}, requireMocks) {
 
   const log = options.log || mocks.mockLog()
   const db = options.db || mocks.mockDB()
+  const oauthdb = options.oauthdb || mocks.mockOAuthDB(log, config)
   const customs = options.customs || {
     check: function () { return P.resolve(true) }
   }
@@ -48,7 +50,8 @@ function makeRoutes (options = {}, requireMocks) {
   const pushbox = options.pushbox || mocks.mockPushbox()
   return proxyquire('../../../lib/routes/devices-and-sessions', requireMocks || {})(
     log, db, config, customs, push, pushbox,
-    options.devices || require('../../../lib/devices')(log, db, push)
+    options.devices || require('../../../lib/devices')(log, db, push),
+    oauthdb
   )
 }
 
@@ -107,7 +110,7 @@ describe('/account/device', function () {
       // Make sure the shape of the response is the same as if
       // the update wasn't spurious.
       assert.deepEqual(response, {
-        availableCommands: creds.deviceAvailableCommands,
+        availableCommands: {},
         id: creds.deviceId,
         name: creds.deviceName,
         pushAuthKey: creds.deviceCallbackAuthKey,
@@ -848,12 +851,23 @@ describe('/account/devices/invoke_command', function () {
 })
 
 describe('/account/device/destroy', function () {
+  let uid
+  let deviceId
+  let deviceId2
+  let mockLog
+  let mockDB
+  let mockPush
+
+  beforeEach(() => {
+     uid = uuid.v4('binary').toString('hex')
+     deviceId = crypto.randomBytes(16).toString('hex')
+     deviceId2 = crypto.randomBytes(16).toString('hex')
+     mockLog = mocks.mockLog()
+     mockDB = mocks.mockDB()
+     mockPush = mocks.mockPush()
+  })
+
   it('should work', () => {
-    var uid = uuid.v4('binary').toString('hex')
-    var deviceId = crypto.randomBytes(16).toString('hex')
-    var deviceId2 = crypto.randomBytes(16).toString('hex')
-    var mockLog = mocks.mockLog()
-    var mockDB = mocks.mockDB()
     var mockRequest = mocks.mockRequest({
       credentials: {
         uid: uid
@@ -864,7 +878,6 @@ describe('/account/device/destroy', function () {
         id: deviceId
       }
     })
-    var mockPush = mocks.mockPush()
     var accountRoutes = makeRoutes({
       db: mockDB,
       log: mockLog,
@@ -904,6 +917,91 @@ describe('/account/device/destroy', function () {
       assert.ok(Date.now() - details.timestamp < 100)
     })
   })
+
+  describe('refreshToken revocation', () => {
+    let refreshTokenId
+    let mockDevices
+    let mockRequest
+
+    beforeEach(() => {
+      refreshTokenId = '40f61392cf69b0be709fbd3122d0726bb32247b476b2a28451345e7a5555cec7'
+      mockDevices = [
+        {
+          id: 'bogusid1',
+          type: 'mobile',
+          availableCommands: {
+            bogusCommandName: 'bogusData',
+            'https://identity.mozilla.com/cmd/open-uri': 'morebogusdata',
+          },
+          refreshTokenId,
+        },
+        {
+          id: 'bogusid2',
+          type: 'desktop',
+        }
+      ]
+      mockDB = mocks.mockDB({
+        devices: mockDevices
+      })
+      mockRequest = mocks.mockRequest({
+        credentials: {
+          uid,
+          refreshTokenId
+        },
+        log: mockLog,
+        devices: mockDevices,
+        payload: {
+          id: mockDevices[0].id
+        }
+      })
+    })
+
+    it('revokes refreshTokens', () => {
+      const mockOAuthDb = mocks.mockOAuthDB({
+        revokeRefreshTokenById: sinon.spy(async () => {
+          return {}
+        })
+      })
+      const accountRoutes = makeRoutes({
+        db: mockDB,
+        oauthdb: mockOAuthDb,
+        log: mockLog,
+        push: mockPush
+      })
+      const route = getRoute(accountRoutes, '/account/device/destroy')
+
+      return runTest(route, mockRequest, function () {
+        assert.equal(mockDB.deleteDevice.callCount, 1)
+        assert.isFalse(mockLog.error.calledOnceWith('deviceDestroy.revokeRefreshToken.error'))
+        assert.isTrue(mockOAuthDb.revokeRefreshTokenById.calledOnceWith(refreshTokenId))
+        assert.equal(mockLog.notifyAttachedServices.callCount, 1)
+      })
+    })
+
+    it('catches err on refreshToken delete', () => {
+      const mockOAuthDb = mocks.mockOAuthDB({
+        revokeRefreshTokenById: sinon.spy(async () => {
+          throw OAuthError.invalidToken();
+        })
+      })
+      const accountRoutes = makeRoutes({
+        db: mockDB,
+        oauthdb: mockOAuthDb,
+        log: mockLog,
+        push: mockPush
+      })
+      const route = getRoute(accountRoutes, '/account/device/destroy')
+
+      return runTest(route, mockRequest, function () {
+        assert.equal(mockDB.deleteDevice.callCount, 1)
+        assert.isTrue(mockOAuthDb.revokeRefreshTokenById.calledOnceWith(refreshTokenId))
+        assert.isTrue(mockLog.error.calledOnceWith('deviceDestroy.revokeRefreshTokenById.error'))
+        assert.equal(mockLog.notifyAttachedServices.callCount, 1)
+      })
+    })
+  })
+
+
 })
 
 describe('/account/devices', () => {

@@ -2996,6 +2996,28 @@ describe('/v1', function() {
         });
       });
     });
+
+    it('should destroy refresh tokens by id', function() {
+      var token;
+      return newToken({ access_type: 'offline' }).then(function(res) {
+        token = res.result.refresh_token;
+        const refreshTokenId = encrypt.hash(token).toString('hex');
+        return Server.api.post({
+          url: '/destroy',
+          payload: {
+            refresh_token_id: refreshTokenId
+          }
+        });
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
+        assert.deepEqual(res.result, {});
+        return db.getRefreshToken(encrypt.hash(token)).then(function(tok) {
+          assert.equal(tok, undefined);
+        });
+      });
+    });
+
     it('should accept client_secret', function() {
       return newToken().then(function(res) {
         return Server.api.post({

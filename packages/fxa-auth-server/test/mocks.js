@@ -87,6 +87,8 @@ const DB_METHOD_NAMES = [
 ]
 
 const OAUTHDB_METHOD_NAMES = [
+  'checkRefreshToken',
+  'revokeRefreshTokenById',
   'getClientInfo',
   'getScopedKeyData',
 ]
@@ -378,7 +380,7 @@ function mockDB (data, errors) {
       assert.ok(typeof uid === 'string')
       return P.resolve(data.sessions || [])
     }),
-    updateDevice: sinon.spy((uid, sessionTokenId, device) => {
+    updateDevice: sinon.spy((uid, device) => {
       assert.ok(typeof uid === 'string')
       return P.resolve(device)
     }),

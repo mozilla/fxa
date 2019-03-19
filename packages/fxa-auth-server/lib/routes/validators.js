@@ -47,6 +47,9 @@ module.exports.DISPLAY_SAFE_UNICODE = DISPLAY_SAFE_UNICODE
 const DISPLAY_SAFE_UNICODE_WITH_NON_BMP = /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uE000-\uF8FF\uFFF9-\uFFFF])*$/
 module.exports.DISPLAY_SAFE_UNICODE_WITH_NON_BMP = DISPLAY_SAFE_UNICODE_WITH_NON_BMP
 
+// Bearer auth header regex
+const BEARER_AUTH_REGEX = /^Bearer\s+([a-z0-9+\/]+)$/i
+module.exports.BEARER_AUTH_REGEX = BEARER_AUTH_REGEX
 
 // Joi validator to match any valid email address.
 // This is different to Joi's builtin email validator, and
@@ -77,8 +80,8 @@ module.exports.email = function() {
 module.exports.service = isA.string().max(16).regex(/^[a-zA-Z0-9\-]*$/)
 module.exports.hexString = isA.string().regex(HEX_STRING)
 module.exports.clientId = module.exports.hexString.length(16)
-module.exports.accessToken = module.exports.hexString.length(32)
-module.exports.refreshToken = module.exports.hexString.length(32)
+module.exports.accessToken = module.exports.hexString.length(64)
+module.exports.refreshToken = module.exports.hexString.length(64)
 module.exports.scope = isA.string().max(256).regex(/^[a-zA-Z0-9 _\/.:-]+$/)
 module.exports.assertion = isA.string().min(50).max(10240).regex(/^[a-zA-Z0-9_\-\.~=]+$/);
 module.exports.jwe = isA.string().max(1024)

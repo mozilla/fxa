@@ -11,6 +11,7 @@ const Raven = require('raven')
 const path = require('path')
 const url = require('url')
 const userAgent = require('./userAgent')
+const schemeRefreshToken = require('./scheme-refresh-token')
 
 const { HEX_STRING, IP_ADDRESS } = require('./routes/validators')
 
@@ -334,6 +335,11 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
   await server.register(require('hapi-fxa-oauth'))
 
   server.auth.strategy('oauthToken', 'fxa-oauth', config.oauth)
+
+  server.auth.scheme('fxa-oauth-refreshToken', schemeRefreshToken(db, oauthdb))
+
+  server.auth.strategy('refreshToken', 'fxa-oauth-refreshToken')
+
   // routes should be registered after all auth strategies have initialized:
   // ref: http://hapijs.com/tutorials/auth
 

@@ -129,9 +129,9 @@ describe('remote device', function () {
                   assert.equal(devices.length, 1, 'devices returned one item')
                   assert.equal(devices[0].name, deviceInfo.name, 'devices returned correct name')
                   assert.equal(devices[0].type, deviceInfo.type, 'devices returned correct type')
-                  assert.equal(devices[0].pushCallback, null, 'devices returned undefined pushCallback')
-                  assert.equal(devices[0].pushPublicKey, null, 'devices returned undefined pushPublicKey')
-                  assert.equal(devices[0].pushAuthKey, null, 'devices returned undefined pushAuthKey')
+                  assert.equal(devices[0].pushCallback, undefined, 'devices returned undefined pushCallback')
+                  assert.equal(devices[0].pushPublicKey, undefined, 'devices returned undefined pushPublicKey')
+                  assert.equal(devices[0].pushAuthKey, undefined, 'devices returned undefined pushAuthKey')
                   assert.equal(devices[0].pushEndpointExpired, false, 'devices returned false pushEndpointExpired')
                   return client.destroyDevice(devices[0].id)
                 }
@@ -188,14 +188,11 @@ describe('remote device', function () {
           function (client) {
             return client.updateDevice({ type: 'mobile' })
               .then(
-                function (r) {
-                  assert(false, 'request should have failed')
-                }
-              )
-              .catch(
-                function (err) {
-                  assert.equal(err.code, 400, 'err.code was 400')
-                  assert.equal(err.errno, 108, 'err.errno was 108')
+                function (device) {
+                  assert.ok(device.id, 'device.id was set')
+                  assert.ok(device.createdAt > 0, 'device.createdAt was set')
+                  assert.equal(device.name, '', 'device.name is empty')
+                  assert.equal(device.type, 'mobile', 'device.type is correct')
                 }
               )
           }
@@ -207,20 +204,17 @@ describe('remote device', function () {
     'device registration without required type parameter',
     () => {
       var email = server.uniqueEmail()
+      var deviceName = 'test device'
       var password = 'test password'
       return Client.create(config.publicUrl, email, password)
         .then(
           function (client) {
             return client.updateDevice({ name: 'test device' })
               .then(
-                function () {
-                  assert(false, 'request should have failed')
-                }
-              )
-              .catch(
-                function (err) {
-                  assert.equal(err.code, 400, 'err.code was 400')
-                  assert.equal(err.errno, 108, 'err.errno was 108')
+                function (device) {
+                  assert.ok(device.id, 'device.id was set')
+                  assert.ok(device.createdAt > 0, 'device.createdAt was set')
+                  assert.equal(device.name, deviceName, 'device.name is correct')
                 }
               )
           }
@@ -312,8 +306,8 @@ describe('remote device', function () {
               type: 'mobile',
               availableCommands: {},
               pushCallback: goodPushCallback,
-              pushPublicKey: '',
-              pushAuthKey: ''
+              pushPublicKey: mocks.MOCK_PUSH_KEY,
+              pushAuthKey: base64url(crypto.randomBytes(16))
             }
             return client.devices()
               .then(
@@ -350,8 +344,8 @@ describe('remote device', function () {
               name: 'test device',
               type: 'mobile',
               pushCallback: goodPushCallback,
-              pushPublicKey: '',
-              pushAuthKey: ''
+              pushPublicKey: mocks.MOCK_PUSH_KEY,
+              pushAuthKey: base64url(crypto.randomBytes(16))
             }
             return client.devices()
               .then(
@@ -389,8 +383,8 @@ describe('remote device', function () {
               name: 'test device',
               type: 'mobile',
               pushCallback: goodPushCallback,
-              pushPublicKey: '',
-              pushAuthKey: ''
+              pushPublicKey: mocks.MOCK_PUSH_KEY,
+              pushAuthKey: base64url(crypto.randomBytes(16))
             }
             return client.devices()
               .then(
@@ -427,8 +421,8 @@ describe('remote device', function () {
               name: 'test device',
               type: 'mobile',
               pushCallback: goodPushCallback,
-              pushPublicKey: '',
-              pushAuthKey: ''
+              pushPublicKey: mocks.MOCK_PUSH_KEY,
+              pushAuthKey: base64url(crypto.randomBytes(16))
             }
             return client.devices()
               .then(
@@ -465,8 +459,8 @@ describe('remote device', function () {
               name: 'test device',
               type: 'mobile',
               pushCallback: goodPushCallback,
-              pushPublicKey: '',
-              pushAuthKey: ''
+              pushPublicKey: mocks.MOCK_PUSH_KEY,
+              pushAuthKey: base64url(crypto.randomBytes(16))
             }
             return client.devices()
               .then(
@@ -624,7 +618,7 @@ describe('remote device', function () {
   )
 
   it(
-    'update device with callbackUrl but without keys resets the keys',
+    'ensures all device push fields appear together',
     () => {
       var email = server.uniqueEmail()
       var password = 'test password'
@@ -656,22 +650,10 @@ describe('remote device', function () {
                 })
               }
             )
-            .then(
-              function (device) {
-                assert.equal(device.id, client.device.id)
-                assert.equal(device.name, deviceInfo.name)
-                assert.equal(device.pushCallback, 'https://updates.push.services.mozilla.com/foo')
-                assert.equal(device.pushPublicKey, '')
-                assert.equal(device.pushAuthKey, '')
-                return client.devices()
-              }
-            )
-            .then(
-              function (devices) {
-                assert.equal(devices[0].pushCallback, 'https://updates.push.services.mozilla.com/foo', 'devices returned correct pushCallback')
-                assert.equal(devices[0].pushPublicKey, '', 'devices returned newly empty pushPublicKey')
-                assert.equal(devices[0].pushAuthKey, '', 'devices returned newly empty pushAuthKey')
-                assert.equal(devices[0].pushEndpointExpired, false, 'devices returned false pushEndpointExpired')
+            .then(assert.fail,
+              function (err) {
+                assert.equal(err.errno, 107)
+                assert.equal(err.message, 'Invalid parameter in request body')
               }
             )
         }
@@ -755,7 +737,7 @@ describe('remote device', function () {
             })
             .then((devices) => {
               assert.equal(devices.length, 1, 'devices returned 1 item')
-              assert.equal(devices[0].name, '', 'placeholder device record had no name')
+              assert.equal(devices[0].name, '', 'placeholder device record has an empty name')
               assert.equal(devices[0].type, 'desktop', 'placeholder device record type defaults to desktop')
 
               // Now attempt to update the name on the placeholder record.

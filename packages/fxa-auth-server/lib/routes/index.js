@@ -37,7 +37,7 @@ module.exports = function (
     push
   )
   const oauth = require('./oauth')(log, config, oauthdb)
-  const devicesSessions = require('./devices-and-sessions')(log, db, config, customs, push, pushbox, devicesImpl)
+  const devicesSessions = require('./devices-and-sessions')(log, db, config, customs, push, pushbox, devicesImpl, oauthdb)
   const emails = require('./emails')(log, db, mailer, config, customs, push)
   const password = require('./password')(
     log,
