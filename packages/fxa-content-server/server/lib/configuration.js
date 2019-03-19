@@ -147,6 +147,64 @@ const conf = module.exports = convict({
       'development'
     ]
   },
+  featureFlags: {
+    enabled: {
+      default: true,
+      doc: 'Enable feature flagging',
+      env: 'FEATURE_FLAGS_ENABLED',
+      format: Boolean
+    },
+    interval: {
+      default: '30 seconds',
+      doc: 'The refresh interval for feature-flagging',
+      env: 'FEATURE_FLAGS_INTERVAL',
+      format: 'duration'
+    },
+    redis: {
+      host: {
+        default: '127.0.0.1',
+        doc: 'Redis host name or IP address',
+        env: 'FEATURE_FLAGS_REDIS_HOST',
+        format: String
+      },
+      initialBackoff: {
+        default: '100 milliseconds',
+        doc: 'Initial backoff for feature-flagging Redis connection retries, increases exponentially with each attempt',
+        env: 'FEATURE_FLAGS_REDIS_TIMEOUT',
+        format: 'duration'
+      },
+      maxConnections: {
+        default: 1,
+        doc: 'Maximum connection count for feature-flagging Redis pool',
+        env: 'FEATURE_FLAGS_REDIS_MAX_CONNECTIONS',
+        format: 'nat'
+      },
+      maxPending: {
+        default: 10,
+        doc: 'Maximum waiting client count for feature-flagging Redis pool',
+        env: 'FEATURE_FLAGS_REDIS_MAX_PENDING',
+        format: 'nat'
+      },
+      minConnections: {
+        default: 1,
+        doc: 'Minimum connection count for feature-flagging Redis pool',
+        env: 'FEATURE_FLAGS_REDIS_MIN_CONNECTIONS',
+        format: 'nat'
+      },
+      port: {
+        default: 6379,
+        doc: 'Redis port',
+        env: 'FEATURE_FLAGS_REDIS_PORT',
+        format: 'port'
+      },
+      retryCount: {
+        default: 5,
+        doc: 'Retry limit for feature-flagging Redis connection attempts',
+        env: 'FEATURE_FLAGS_REDIS_RETRY_COUNT',
+        format: 'int'
+      }
+    }
+  },
   flow_id_expiry: {
     default: '2 hours',
     doc: 'Time after which flow ids are considered stale',

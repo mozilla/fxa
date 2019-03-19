@@ -24,13 +24,23 @@ module.exports = class SmsGroupingRule extends BaseGroupingRule {
   }
 
   choose (subject = {}) {
-    if (! subject.account || ! subject.uniqueUserId || ! subject.country || ! CountryTelephoneInfo[subject.country]) {
+    if (! subject.account || ! subject.uniqueUserId || ! subject.country) {
+      return false;
+    }
+
+    let telephoneInfo = CountryTelephoneInfo[subject.country];
+    const { featureFlags } = subject;
+    if (featureFlags && featureFlags.smsCountries) {
+      telephoneInfo = featureFlags.smsCountries[subject.country];
+    }
+
+    if (! telephoneInfo) {
       return false;
     }
 
     let choice = false;
     // If rolloutRate is not specified, assume 0.
-    const { rolloutRate } = CountryTelephoneInfo[subject.country] || 0;
+    const rolloutRate = telephoneInfo.rolloutRate || 0;
 
     if (this.isTestEmail(subject.account.get('email'))) {
       choice = 'signinCodes';
