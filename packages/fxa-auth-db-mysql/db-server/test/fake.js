@@ -69,14 +69,30 @@ module.exports.newUserDataHex = function() {
   data.device = {
     uid: data.accountId,
     sessionTokenId: data.sessionTokenId,
+    refreshTokenId: null,
     createdAt: Date.now(),
     name: 'fake device name',
     type: 'fake device type',
     callbackURL: 'fake callback URL',
     callbackPublicKey: base64_65(),
     callbackAuthKey: base64_16(),
-    callbackIsExpired: false,
-    capabilities: ['messages']
+    callbackIsExpired: false
+  }
+
+  // oauth device
+  data.refreshTokenId = hex32()
+  data.oauthDeviceId = hex16()
+  data.oauthDevice = {
+    uid: data.accountId,
+    sessionTokenId: null,
+    refreshTokenId: data.refreshTokenId,
+    createdAt: Date.now(),
+    name: 'fake oauth device name',
+    type: 'oauth device',
+    callbackURL: 'fake oauth callback URL',
+    callbackPublicKey: base64_65(),
+    callbackAuthKey: base64_16(),
+    callbackIsExpired: false
   }
 
   // keyFetchToken

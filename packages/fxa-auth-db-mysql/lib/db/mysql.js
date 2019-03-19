@@ -322,7 +322,7 @@ module.exports = function (log, error) {
     }, [])
   }
 
-  const CREATE_DEVICE = 'CALL createDevice_4(?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  const CREATE_DEVICE = 'CALL createDevice_5(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createDevice = function (uid, deviceId, deviceInfo) {
     const statements = [{
@@ -331,6 +331,7 @@ module.exports = function (log, error) {
         uid,
         deviceId,
         deviceInfo.sessionTokenId,
+        deviceInfo.refreshTokenId,
         deviceInfo.name, // inNameUtf8
         deviceInfo.type,
         deviceInfo.createdAt,
@@ -345,7 +346,7 @@ module.exports = function (log, error) {
     return this.writeMultiple(statements)
   }
 
-  const UPDATE_DEVICE = 'CALL updateDevice_5(?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  const UPDATE_DEVICE = 'CALL updateDevice_6(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.updateDevice = function (uid, deviceId, deviceInfo) {
     const statements = [{
@@ -354,6 +355,7 @@ module.exports = function (log, error) {
         uid,
         deviceId,
         deviceInfo.sessionTokenId,
+        deviceInfo.refreshTokenId,
         deviceInfo.name, // inNameUtf8
         deviceInfo.type,
         deviceInfo.callbackURL,
@@ -407,12 +409,12 @@ module.exports = function (log, error) {
   }
 
   // Select : devices d, sessionTokens s, deviceAvailableCommands dc, deviceCommandIdentifiers ci
-  // Fields : d.uid, d.id, d.sessionTokenId, d.name, d.type, d.createdAt, d.callbackURL,
+  // Fields : d.uid, d.id, d.sessionTokenId, d.refreshTokenId, d.name, d.type, d.createdAt, d.callbackURL,
   //          d.callbackPublicKey, d.callbackAuthKey, d.callbackIsExpired,
   //          s.uaBrowser, s.uaBrowserVersion, s.uaOS, s.uaOSVersion, s.uaDeviceType,
   //          s.uaFormFactor, s.lastAccessTime, {  ci.commandName : dc.commandData }
   // Where  : d.uid = $1
-  var ACCOUNT_DEVICES = 'CALL accountDevices_15(?)'
+  var ACCOUNT_DEVICES = 'CALL accountDevices_16(?)'
 
   MySql.prototype.accountDevices = function (uid) {
     return this.readAllResults(ACCOUNT_DEVICES, [uid])
@@ -420,12 +422,12 @@ module.exports = function (log, error) {
   }
 
   // Select : devices d, sessionTokens s, deviceAvailableCommands dc, deviceCommandIdentifiers ci
-  // Fields : d.uid, d.id, d.sessionTokenId, d.name, d.type, d.createdAt, d.callbackURL,
+  // Fields : d.uid, d.id, d.sessionTokenId, d.refreshTokenId, d.name, d.type, d.createdAt, d.callbackURL,
   //          d.callbackPublicKey, d.callbackAuthKey, d.callbackIsExpired,
   //          s.uaBrowser, s.uaBrowserVersion, s.uaOS, s.uaOSVersion, s.uaDeviceType,
   //          s.uaFormFactor, s.lastAccessTime, {  ci.commandName : dc.commandData }
   // Where  : d.uid = $1 AND d.id = $2
-  var DEVICE = 'CALL device_2(?, ?)'
+  var DEVICE = 'CALL device_3(?, ?)'
 
   MySql.prototype.device = function (uid, id) {
     return this.readAllResults(DEVICE, [uid, id])
@@ -683,10 +685,10 @@ module.exports = function (log, error) {
   }
 
   // Select : devices
-  // Fields : sessionTokenId
+  // Fields : sessionTokenId, refreshTokenId
   // Delete : devices, sessionTokens, unverifiedTokens
   // Where  : uid = $1, deviceId = $2
-  var DELETE_DEVICE = 'CALL deleteDevice_3(?, ?)'
+  var DELETE_DEVICE = 'CALL deleteDevice_4(?, ?)'
 
   MySql.prototype.deleteDevice = function (uid, deviceId) {
     return this.write(DELETE_DEVICE, [ uid, deviceId ], results => {
