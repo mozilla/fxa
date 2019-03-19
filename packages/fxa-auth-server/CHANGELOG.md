@@ -1,3 +1,13 @@
+<a name="1.133.1"></a>
+## [1.133.1](https://github.com/mozilla/fxa-auth-server/compare/v1.133.0...v1.133.1) (2019-03-19)
+
+
+### Features
+
+* **devices:** devices API with refreshTokens ([3b33f41](https://github.com/mozilla/fxa-auth-server/commit/3b33f41)), closes [#2547](https://github.com/mozilla/fxa-auth-server/issues/2547)
+
+
+
 <a name="1.133.0"></a>
 # [1.133.0](https://github.com/mozilla/fxa-auth-server/compare/v1.132.1...v1.133.0) (2019-03-19)
 
