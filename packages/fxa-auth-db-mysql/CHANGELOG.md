@@ -1,3 +1,13 @@
+<a name="1.133.1"></a>
+## [1.133.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.133.0...v1.133.1) (2019-03-19)
+
+
+### Features
+
+* **devices:** Add ability to associate a device record with a refesh token. ([1123e32](https://github.com/mozilla/fxa-auth-db-mysql/commit/1123e32))
+
+
+
 <a name="1.133.0"></a>
 # [1.133.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.132.0...v1.133.0) (2019-03-19)
 
