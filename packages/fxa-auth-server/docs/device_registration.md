@@ -3,7 +3,7 @@
 When using Firefox Accounts
 to connect a device to Firefox Sync,
 it is possible to annotate
-the device's sessionToken
+the device's authentication token
 with additional metadata
 to improve the user experience.
 Through the Device Registration API,
@@ -20,6 +20,21 @@ a device can:
   by allowing other devices to send it commands,
   and by sending commands to other devices in turn.
 
+A device may access the user's Sync data
+using either a sessionToken
+or an appropriately-scoped OAuth token,
+so device registration requests may be authenticated
+using either a sessionToken
+or an OAuth refresh token
+with scope **"https://identity.mozilla.com/apps/oldsync"**.
+
+(The refresh token is used rather than an access token,
+because the device is operating on its own data
+that is held by the authorization server,
+rather than exercising its delegated authority
+to access the user's data on a separate resource server.)
+
+
 ## Basic Registration
 
 Devices can manage their details
@@ -28,7 +43,7 @@ to `/v1/account/device`, like so:
 
 ```
 POST /v1/account/device HTTP/1.1
-Authorization: < sessionToken HAWK header >
+Authorization: < sessionToken HAWK header | refreshToken Bearer header >
 {
   "name": "my custom name",
   "type": "desktop"
@@ -48,7 +63,7 @@ to update an existing device registration:
 
 ```
 POST /v1/account/device HTTP/1.1
-Authorization: < sessionToken HAWK header >
+Authorization: < sessionToken HAWK header | refreshToken Bearer header >
 {
   "id": "d3fc82acca7fc8c50acc06d21babbc00",
   "name": "my new name"
@@ -82,7 +97,7 @@ or as an update like so::
 
 ```
 POST /v1/account/device HTTP/1.1
-Authorization: < sessionToken HAWK header >
+Authorization: < sessionToken HAWK header | refreshToken Bearer header >
 {
   "id": "d3fc82acca7fc8c50acc06d21babbc00",
   "pushCallback": "https://updates.push.services.mozilla.com/ggYxFjPEjSM/Cg9Et44JFpg",
@@ -195,7 +210,7 @@ in its device registration record, like this:
 
 ```
 POST /v1/account/device HTTP/1.1
-Authorization: < sessionToken HAWK header >
+Authorization: < sessionToken HAWK header | refreshToken Bearer header >
 {
   "name": My Firefox",
   "type": "desktop",
@@ -233,7 +248,7 @@ which the device would load like so:
 
 ```
 GET https://api.accounts.firefox.com/v1/device/commands?index=42&limit=1
-Authorization < sessionToken HAWK header >
+Authorization: < sessionToken HAWK header | refreshToken Bearer header >
 ------
 HTTP/1.1 200 OK
 {
@@ -295,7 +310,7 @@ and their available commands:
 
 ```
 GET /v1/account/devices HTTP/1.1
-Authorization < sessionToken HAWK header >
+Authorization: < sessionToken HAWK header | refreshToken Bearer header >
 ------
 HTTP/1.1 200 OK
 [
@@ -335,7 +350,7 @@ like so:
 
 ```
 POST /v1/account/devices/invoke_command HTTP/1.1
-Authorization < sessionToken HAWK header >
+Authorization: < sessionToken HAWK header | refreshToken Bearer header >
 {
   "target": "d3fc82acca7fc8c50acc06d21babbc00",
   "command": "https://identity.mozilla.com/cmd/open-uri",

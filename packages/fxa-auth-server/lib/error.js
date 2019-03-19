@@ -74,6 +74,7 @@ var ERRNO = {
   UNKNOWN_CLIENT_ID: 162,
   STALE_AUTH_AT: 164,
   REDIS_CONFLICT: 165,
+  NOT_PUBLIC_CLIENT: 166,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -906,6 +907,15 @@ AppError.staleAuthAt = (authAt) => {
     authAt
   })
 }
+
+AppError.notPublicClient = function notPublicClient() {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.NOT_PUBLIC_CLIENT,
+    message: 'Not a public client'
+  });
+};
 
 AppError.redisConflict = () => {
   return new AppError({

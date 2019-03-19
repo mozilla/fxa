@@ -23,6 +23,10 @@ module.exports = {
     switch (err.errno) {
     case 101:
       return error.unknownClientId(err.clientId)
+    case 108:
+      return error.invalidToken()
+    case 116:
+      return error.notPublicClient()
     case 119:
       return error.staleAuthAt(err.authAt)
     default:

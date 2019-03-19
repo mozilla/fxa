@@ -422,7 +422,7 @@ module.exports = function (log, db, config) {
                 // set the push endpoint expired flag
                 // Warning: this method is called without any session tokens or auth validation.
                 device.pushEndpointExpired = true
-                return db.updateDevice(uid, null, device).catch(function (err) {
+                return db.updateDevice(uid, device).catch(function (err) {
                   reportPushError(err, uid, deviceId)
                 }).then(function() {
                   incrementPushAction(events.resetSettings)

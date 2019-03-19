@@ -64,6 +64,11 @@ exports.routes = [
   },
   {
     method: 'POST',
+    path: v('/introspect'),
+    config: require('./routes/introspect')
+  },
+  {
+    method: 'POST',
     path: v('/destroy'),
     config: require('./routes/destroy')
   },

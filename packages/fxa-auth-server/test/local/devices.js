@@ -225,13 +225,13 @@ describe('lib/devices:', () => {
 
     describe('upsert:', () => {
 
-      var request, sessionToken
+      var request, credentials
 
       beforeEach(() => {
         request = mocks.mockRequest({
           log: log
         })
-        sessionToken = {
+        credentials = {
           id: crypto.randomBytes(16).toString('hex'),
           uid: uuid.v4('binary').toString('hex'),
           tokenVerified: true
@@ -239,7 +239,7 @@ describe('lib/devices:', () => {
       })
 
       it('should create', () => {
-        return devices.upsert(request, sessionToken, device)
+        return devices.upsert(request, credentials, device)
           .then(function (result) {
             assert.deepEqual(result, {
               id: deviceId,
@@ -252,10 +252,9 @@ describe('lib/devices:', () => {
 
             assert.equal(db.createDevice.callCount, 1, 'db.createDevice was called once')
             var args = db.createDevice.args[0]
-            assert.equal(args.length, 3, 'db.createDevice was passed three arguments')
-            assert.deepEqual(args[0], sessionToken.uid, 'first argument was uid')
-            assert.deepEqual(args[1], sessionToken.id, 'second argument was sessionTokenId')
-            assert.equal(args[2], device, 'third argument was device')
+            assert.equal(args.length, 2, 'db.createDevice was passed two arguments')
+            assert.deepEqual(args[0], credentials.uid, 'first argument was uid')
+            assert.equal(args[1], device, 'second argument was device')
 
             assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once')
             args = log.activityEvent.args[0]
@@ -266,7 +265,7 @@ describe('lib/devices:', () => {
               region: 'California',
               service: undefined,
               userAgent: 'test user-agent',
-              uid: sessionToken.uid,
+              uid: credentials.uid,
               device_id: deviceId,
               is_placeholder: false
             }, 'event data was correct')
@@ -279,7 +278,7 @@ describe('lib/devices:', () => {
             assert.equal(args[0], 'device:create', 'first argument was event name')
             assert.equal(args[1], request, 'second argument was request object')
             assert.deepEqual(args[2], {
-              uid: sessionToken.uid,
+              uid: credentials.uid,
               id: deviceId,
               type: device.type,
               timestamp: deviceCreatedAt,
@@ -289,25 +288,25 @@ describe('lib/devices:', () => {
             assert.equal(push.notifyDeviceConnected.callCount, 1, 'push.notifyDeviceConnected was called once')
             args = push.notifyDeviceConnected.args[0]
             assert.equal(args.length, 3, 'push.notifyDeviceConnected was passed three arguments')
-            assert.equal(args[0], sessionToken.uid, 'first argument was uid')
+            assert.equal(args[0], credentials.uid, 'first argument was uid')
             assert.ok(Array.isArray(args[1]), 'second argument was devices array')
             assert.equal(args[2], device.name, 'third argument was device name')
           })
       })
 
       it('should not call notifyDeviceConnected with unverified token', () => {
-        sessionToken.tokenVerified = false
+        credentials.tokenVerified = false
         device.name = 'device with an unverified sessionToken'
-        return devices.upsert(request, sessionToken, device)
+        return devices.upsert(request, credentials, device)
           .then(function () {
             assert.equal(push.notifyDeviceConnected.callCount, 0, 'push.notifyDeviceConnected was not called')
-            sessionToken.tokenVerified = true
+            credentials.tokenVerified = true
           })
       })
 
       it('should create placeholders', () => {
         delete device.name
-        return devices.upsert(request, sessionToken, { uaBrowser: 'Firefox' })
+        return devices.upsert(request, credentials, { uaBrowser: 'Firefox' })
           .then(function (result) {
             assert.equal(db.updateDevice.callCount, 0, 'db.updateDevice was not called')
             assert.equal(db.createDevice.callCount, 1, 'db.createDevice was called once')
@@ -319,7 +318,7 @@ describe('lib/devices:', () => {
             assert.equal(log.info.args[0].length, 2)
             assert.equal(log.info.args[0][0], 'device:createPlaceholder')
             assert.deepEqual(log.info.args[0][1], {
-              uid: sessionToken.uid,
+              uid: credentials.uid,
               id: result.id
             }, 'argument was event data')
 
@@ -327,7 +326,7 @@ describe('lib/devices:', () => {
             assert.equal(log.notifyAttachedServices.args[0][2].isPlaceholder, true, 'isPlaceholder was correct')
 
             assert.equal(push.notifyDeviceConnected.callCount, 1, 'push.notifyDeviceConnected was called once')
-            assert.equal(push.notifyDeviceConnected.args[0][0], sessionToken.uid, 'uid was correct')
+            assert.equal(push.notifyDeviceConnected.args[0][0], credentials.uid, 'uid was correct')
             assert.equal(push.notifyDeviceConnected.args[0][2], 'Firefox', 'device name was included')
 
           })
@@ -339,7 +338,7 @@ describe('lib/devices:', () => {
           name: device.name,
           type: device.type
         }
-        return devices.upsert(request, sessionToken, deviceInfo)
+        return devices.upsert(request, credentials, deviceInfo)
           .then(function (result) {
             assert.equal(result, deviceInfo, 'result was correct')
 
@@ -347,10 +346,9 @@ describe('lib/devices:', () => {
 
             assert.equal(db.updateDevice.callCount, 1, 'db.updateDevice was called once')
             var args = db.updateDevice.args[0]
-            assert.equal(args.length, 3, 'db.createDevice was passed three arguments')
-            assert.deepEqual(args[0], sessionToken.uid, 'first argument was uid')
-            assert.deepEqual(args[1], sessionToken.id, 'second argument was sessionTokenId')
-            assert.deepEqual(args[2], {
+            assert.equal(args.length, 2, 'db.createDevice was passed two arguments')
+            assert.deepEqual(args[0], credentials.uid, 'first argument was uid')
+            assert.deepEqual(args[1], {
               id: deviceId,
               name: device.name,
               type: device.type
@@ -365,7 +363,151 @@ describe('lib/devices:', () => {
               region: 'California',
               service: undefined,
               userAgent: 'test user-agent',
-              uid: sessionToken.uid,
+              uid: credentials.uid,
+              device_id: deviceId,
+              is_placeholder: false
+            }, 'event data was correct')
+
+            assert.equal(log.info.callCount, 0, 'log.info was not called')
+
+            assert.equal(log.notifyAttachedServices.callCount, 0, 'log.notifyAttachedServices was not called')
+
+            assert.equal(push.notifyDeviceConnected.callCount, 0, 'push.notifyDeviceConnected was not called')
+          })
+      })
+    })
+
+
+    describe('upsert with refreshToken:', () => {
+      let request, credentials
+
+      beforeEach(() => {
+        request = mocks.mockRequest({
+          log: log
+        })
+        credentials = {
+          refreshTokenId: crypto.randomBytes(16).toString('hex'),
+          uid: uuid.v4('binary').toString('hex'),
+          tokenVerified: true
+        }
+      })
+
+      it('should create', () => {
+        return devices.upsert(request, credentials, device)
+          .then((result) => {
+            assert.deepEqual(result, {
+              id: deviceId,
+              name: device.name,
+              type: device.type,
+              createdAt: deviceCreatedAt
+            }, 'result was correct')
+
+            assert.equal(db.updateDevice.callCount, 0, 'db.updateDevice was not called')
+
+            assert.equal(db.createDevice.callCount, 1, 'db.createDevice was called once')
+            let args = db.createDevice.args[0]
+            assert.equal(args.length, 2, 'db.createDevice was passed two arguments')
+            assert.deepEqual(args[0], credentials.uid, 'first argument was uid')
+            assert.equal(args[1], device, 'second argument was device')
+
+            assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once')
+            args = log.activityEvent.args[0]
+            assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+            assert.deepEqual(args[0], {
+              country: 'United States',
+              event: 'device.created',
+              region: 'California',
+              service: undefined,
+              userAgent: 'test user-agent',
+              uid: credentials.uid,
+              device_id: deviceId,
+              is_placeholder: false
+            }, 'event data was correct')
+
+            assert.equal(log.info.callCount, 0, 'log.info was not called')
+
+            assert.equal(log.notifyAttachedServices.callCount, 1, 'log.notifyAttachedServices was called once')
+            args = log.notifyAttachedServices.args[0]
+            assert.equal(args.length, 3, 'log.notifyAttachedServices was passed three arguments')
+            assert.equal(args[0], 'device:create', 'first argument was event name')
+            assert.equal(args[1], request, 'second argument was request object')
+            assert.deepEqual(args[2], {
+              uid: credentials.uid,
+              id: deviceId,
+              type: device.type,
+              timestamp: deviceCreatedAt,
+              isPlaceholder: false
+            }, 'third argument was event data')
+
+            assert.equal(push.notifyDeviceConnected.callCount, 1, 'push.notifyDeviceConnected was called once')
+            args = push.notifyDeviceConnected.args[0]
+            assert.equal(args.length, 3, 'push.notifyDeviceConnected was passed three arguments')
+            assert.equal(args[0], credentials.uid, 'first argument was uid')
+            assert.ok(Array.isArray(args[1]), 'second argument was devices array')
+            assert.equal(args[2], device.name, 'third argument was device name')
+          })
+      })
+
+      it('should create placeholders', () => {
+        delete device.name
+        return devices.upsert(request, credentials, { uaBrowser: 'Firefox' })
+          .then(function (result) {
+            assert.equal(db.updateDevice.callCount, 0, 'db.updateDevice was not called')
+            assert.equal(db.createDevice.callCount, 1, 'db.createDevice was called once')
+
+            assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once')
+            assert.equal(log.activityEvent.args[0][0].is_placeholder, true, 'is_placeholder was correct')
+
+            assert.equal(log.info.callCount, 1, 'log.info was called once')
+            assert.equal(log.info.args[0].length, 2)
+            assert.equal(log.info.args[0][0], 'device:createPlaceholder')
+            assert.deepEqual(log.info.args[0][1], {
+              uid: credentials.uid,
+              id: result.id
+            }, 'argument was event data')
+
+            assert.equal(log.notifyAttachedServices.callCount, 1, 'log.notifyAttachedServices was called once')
+            assert.equal(log.notifyAttachedServices.args[0][2].isPlaceholder, true, 'isPlaceholder was correct')
+
+            assert.equal(push.notifyDeviceConnected.callCount, 1, 'push.notifyDeviceConnected was called once')
+            assert.equal(push.notifyDeviceConnected.args[0][0], credentials.uid, 'uid was correct')
+            assert.equal(push.notifyDeviceConnected.args[0][2], 'Firefox', 'device name was included')
+
+          })
+      })
+
+      it('should update', () => {
+        var deviceInfo = {
+          id: deviceId,
+          name: device.name,
+          type: device.type
+        }
+        return devices.upsert(request, credentials, deviceInfo)
+          .then(function (result) {
+            assert.equal(result, deviceInfo, 'result was correct')
+
+            assert.equal(db.createDevice.callCount, 0, 'db.createDevice was not called')
+
+            assert.equal(db.updateDevice.callCount, 1, 'db.updateDevice was called once')
+            var args = db.updateDevice.args[0]
+            assert.equal(args.length, 2, 'db.createDevice was passed two arguments')
+            assert.deepEqual(args[0], credentials.uid, 'first argument was uid')
+            assert.deepEqual(args[1], {
+              id: deviceId,
+              name: device.name,
+              type: device.type
+            }, 'device info was unmodified')
+
+            assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once')
+            args = log.activityEvent.args[0]
+            assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+            assert.deepEqual(args[0], {
+              country: 'United States',
+              event: 'device.updated',
+              region: 'California',
+              service: undefined,
+              userAgent: 'test user-agent',
+              uid: credentials.uid,
               device_id: deviceId,
               is_placeholder: false
             }, 'event data was correct')

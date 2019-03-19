@@ -714,8 +714,10 @@ module.exports = (
   }
 
   SAFE_URLS.createDevice = new SafeUrl('/account/:uid/device/:id', 'db.createDevice')
-  DB.prototype.createDevice = function (uid, sessionTokenId, deviceInfo) {
+  DB.prototype.createDevice = function (uid, deviceInfo) {
     log.trace('DB.createDevice', { uid: uid, id: deviceInfo.id })
+    const sessionTokenId = deviceInfo.sessionTokenId;
+    const refreshTokenId = deviceInfo.refreshTokenId;
 
     return random.hex(16)
       .then(id => {
@@ -725,7 +727,8 @@ module.exports = (
           SAFE_URLS.createDevice,
           { uid, id },
           {
-            sessionTokenId: sessionTokenId,
+            sessionTokenId,
+            refreshTokenId,
             createdAt: deviceInfo.createdAt,
             name: deviceInfo.name,
             type: deviceInfo.type,
@@ -748,8 +751,8 @@ module.exports = (
                 // It's possible (but extraordinarily improbable) that we generated
                 // a duplicate device id, so check the devices for this account. If
                 // we find a duplicate, retry with a new id. If we don't find one,
-                // the problem was caused by the unique sessionToken constraint so
-                // return an appropriate error.
+                // the problem was caused by the unique sessionToken or
+                // refreshToken constraint so return an appropriate error.
                 devices => {
                   let conflictingDeviceId
 
@@ -758,13 +761,14 @@ module.exports = (
                       return true
                     }
 
-                    if (device.sessionToken === sessionTokenId) {
+                    if (sessionTokenId && device.sessionToken === sessionTokenId ||
+                      deviceInfo.refreshTokenId && device.refreshTokenId === deviceInfo.refreshTokenId) {
                       conflictingDeviceId = device.id
                     }
                   }, false)
 
                   if (isDuplicateDeviceId) {
-                    return this.createDevice(uid, sessionTokenId, deviceInfo)
+                    return this.createDevice(uid, deviceInfo)
                   }
 
                   throw error.deviceSessionConflict(conflictingDeviceId)
@@ -777,14 +781,18 @@ module.exports = (
   }
 
   SAFE_URLS.updateDevice = new SafeUrl('/account/:uid/device/:id/update', 'db.updateDevice')
-  DB.prototype.updateDevice = function (uid, sessionTokenId, deviceInfo) {
+  DB.prototype.updateDevice = function (uid, deviceInfo) {
     const { id } = deviceInfo
+    const sessionTokenId = deviceInfo.sessionTokenId
+    const refreshTokenId = deviceInfo.refreshTokenId;
+
     log.trace('DB.updateDevice', { uid, id })
     return this.pool.post(
       SAFE_URLS.updateDevice,
       { uid, id },
       {
-        sessionTokenId: sessionTokenId,
+        sessionTokenId,
+        refreshTokenId,
         name: deviceInfo.name,
         type: deviceInfo.type,
         callbackURL: deviceInfo.pushCallback,
@@ -1409,6 +1417,7 @@ module.exports = (
     return {
       id: mergedInfo.id,
       sessionToken: mergedInfo.sessionTokenId,
+      refreshTokenId: mergedInfo.refreshTokenId,
       lastAccessTime: lastAccessTimeEnabled ? mergedInfo.lastAccessTime : null,
       location: mergedInfo.location,
       name: mergedInfo.name,

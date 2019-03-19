@@ -427,8 +427,10 @@ describe('remote db', function() {
         })
         .then((result) => {
           sessionToken = result
+          deviceInfo.sessionTokenId = sessionToken.id
+
           // Attempt to update a non-existent device
-          return db.updateDevice(account.uid, sessionToken.id, deviceInfo)
+          return db.updateDevice(account.uid, deviceInfo)
             .then(() => {
               assert(false, 'updating a non-existent device should have failed')
             }, (err) => {
@@ -455,7 +457,7 @@ describe('remote db', function() {
           assert.ok(Array.isArray(devices), 'devices is array')
           assert.equal(devices.length, 0, 'devices array is empty')
           // Create a device
-          return db.createDevice(account.uid, sessionToken.id, deviceInfo)
+          return db.createDevice(account.uid, deviceInfo)
             .catch((err) => {
               assert(false, 'adding a new device should not have failed')
             })
@@ -475,8 +477,9 @@ describe('remote db', function() {
         })
         .then(sessionToken => {
           assert.equal(sessionToken.lifetime, Infinity)
+          conflictingDeviceInfo.sessionTokenId = sessionToken.id
           // Attempt to create a device with a duplicate session token
-          return db.createDevice(account.uid, sessionToken.id, conflictingDeviceInfo)
+          return db.createDevice(account.uid, conflictingDeviceInfo)
             .then(() => {
               assert(false, 'adding a device with a duplicate session token should have failed')
             }, (err) => {
@@ -516,6 +519,7 @@ describe('remote db', function() {
           deviceInfo.pushCallback = ''
           deviceInfo.pushPublicKey = ''
           deviceInfo.pushAuthKey = ''
+          deviceInfo.sessionTokenId = sessionToken.id
           sessionToken.lastAccessTime = 42
           sessionToken.uaBrowser = 'Firefox'
           sessionToken.uaBrowserVersion = '44'
@@ -524,7 +528,7 @@ describe('remote db', function() {
           sessionToken.uaDeviceType = sessionToken.uaFormFactor = null
           // Update the device and the session token
           return P.all([
-            db.updateDevice(account.uid, sessionToken.id, deviceInfo),
+            db.updateDevice(account.uid, deviceInfo),
             db.touchSessionToken(sessionToken, {
               location: {
                 city: 'Mountain View',
@@ -543,12 +547,14 @@ describe('remote db', function() {
         })
         .then(result => {
           anotherSessionToken = result
+          conflictingDeviceInfo.sessionTokenId = anotherSessionToken.id
           // Create another device
-          return db.createDevice(account.uid, anotherSessionToken.id, conflictingDeviceInfo)
+          return db.createDevice(account.uid, conflictingDeviceInfo)
         })
         .then(() => {
           // Attempt to update a device with a duplicate session token
-          return db.updateDevice(account.uid, anotherSessionToken.id, deviceInfo)
+          deviceInfo.sessionTokenId = anotherSessionToken.id
+          return db.updateDevice(account.uid, deviceInfo)
             .then(() => {
               assert(false, 'updating a device with a duplicate session token should have failed')
             }, (err) => {
