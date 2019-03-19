@@ -92,6 +92,7 @@ function createServer(db) {
     'passCode',
     'recoveryKeyId',
     'sessionTokenId',
+    'refreshTokenId',
     'tokenId',
     'tokenVerificationId',
     'uid',
