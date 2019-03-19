@@ -1,3 +1,17 @@
+<a name="1.133.0"></a>
+# [1.133.0](https://github.com/mozilla/fxa-profile-server/compare/v1.132.0...v1.133.0) (2019-03-19)
+
+
+### Bug Fixes
+
+* **logs:** unwrap nested errors in img-worker log ([1b2d581](https://github.com/mozilla/fxa-profile-server/commit/1b2d581))
+
+### chore
+
+* **package:** update shrinkwrap ([3a1b8de](https://github.com/mozilla/fxa-profile-server/commit/3a1b8de))
+
+
+
 <a name="1.132.0"></a>
 # [1.132.0](https://github.com/mozilla/fxa-profile-server/compare/v1.131.0...v1.132.0) (2019-03-05)
 
