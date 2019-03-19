@@ -168,7 +168,7 @@ var OAuthRelier = Relier.extend({
     this.importSearchParamsUsingSchema(
       SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA, OAuthErrors);
 
-    if (! this.get('email')) {
+    if (! this.get('email') && this.get('loginHint')) {
       this.set('email', this.get('loginHint'));
     }
     // OAuth reliers are not allowed to specify a service. `service`

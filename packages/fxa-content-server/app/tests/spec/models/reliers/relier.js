@@ -153,11 +153,11 @@ describe('models/reliers/relier', function () {
   });
 
   describe('email first flow', () => {
-    ['', ' '].forEach(function (email) {
+    [' '].forEach(function (email) {
       testInvalidQueryParam('email', email);
     });
 
-    ['invalid email', 'testuser@testuser.com', 'testuser@testuser.co.uk'].forEach((value) => {
+    ['', 'invalid email', 'testuser@testuser.com', 'testuser@testuser.co.uk'].forEach((value) => {
       testValidQueryParam('email', value, 'email', value.trim(), { action: 'email' });
     });
   });

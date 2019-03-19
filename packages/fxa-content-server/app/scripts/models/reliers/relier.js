@@ -51,7 +51,7 @@ const QUERY_PARAMETER_SCHEMA = {
 };
 
 const EMAIL_FIRST_EMAIL_SCHEMA = {
-  email: Vat.string().min(1)
+  email: Vat.string().allow('')
 };
 
 const SIGNIN_SIGNUP_EMAIL_SCHEMA = {

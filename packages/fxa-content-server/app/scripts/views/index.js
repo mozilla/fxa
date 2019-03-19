@@ -70,7 +70,7 @@ class IndexView extends FormView {
     if (accountFromPreviousScreen) {
       // intentionally empty
       // shows the email-first template, the prefill email was set in beforeRender
-    } else if (relierEmail) {
+    } else if (typeof relierEmail === 'string') {
       // the relier email is in the form already since it was used as the prefillEmail
       // in beforeRender. Check whether the email is valid, and if so submit. If the
       // email is not valid then show a validation error to help the user. See #6584
