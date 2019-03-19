@@ -1,3 +1,14 @@
+<a name="1.133.0"></a>
+# [1.133.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.132.0...v1.133.0) (2019-03-19)
+
+
+### chore
+
+* **devices:** Add explicit deletes to replace `ON DELETE CASCADE`. ([75aba96](https://github.com/mozilla/fxa-auth-db-mysql/commit/75aba96))
+* **package:** update shrinkwrap ([f629704](https://github.com/mozilla/fxa-auth-db-mysql/commit/f629704))
+
+
+
 <a name="1.132.0"></a>
 # [1.132.0](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.130.0...v1.132.0) (2019-03-05)
 
