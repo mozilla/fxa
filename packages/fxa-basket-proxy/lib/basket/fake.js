@@ -10,11 +10,32 @@
 var config = require('../config');
 var basket = require('./');
 
-var express = require('express');
+const cors = require('cors');
 var bodyParser = require('body-parser');
+var express = require('express');
 
-var API_KEY = config.get('basket.api_key');
+const verifyOAuthToken = require('../verify')();
 
+const API_KEY = config.get('basket.api_key');
+const CORS_ORIGIN = config.get('cors_origin');
+
+function verifyAuthorization (logger) {
+  return (req, res, next) => {
+    const apiKey = req.headers['x-api-key'];
+    const authHeader = req.headers.authorization;
+
+    if (apiKey) {
+      logger.info('fake.authorization.api_key');
+      verifyApiKey(req, res, next);
+    } else if (authHeader) {
+      logger.info('fake.authorization.oauth');
+      verifyOAuthToken(req, res, next);
+    } else {
+      res.status(400).json(basket.errorResponse('unauthorized', basket.errors.AUTH_ERROR));
+    }
+
+  };
+}
 
 function verifyApiKey (req, res, next) {
   var key = req.headers['x-api-key'];
@@ -34,7 +55,7 @@ function extend(target, source) {
 }
 
 
-module.exports = function initApp() {
+module.exports = function initApp(logger) {
 
   var userData = {};
   var tokenToUser = {};
@@ -46,10 +67,14 @@ module.exports = function initApp() {
 
   var app = express();
   app.use(bodyParser.urlencoded());
-  app.use(verifyApiKey);
+  app.use(cors({
+    origin: CORS_ORIGIN
+  }));
+
+  app.use(verifyAuthorization(logger));
 
   app.get('/lookup-user/', function (req, res) {
-    var email = req.query.email;
+    const email = (res.locals.creds && res.locals.creds.email) || req.query.email;
     if (! userData[email]) {
       res.status(404).json(basket.errorResponse('unknown-email', basket.errors.UNKNOWN_EMAIL));
       return;
@@ -61,7 +86,7 @@ module.exports = function initApp() {
 
   app.post('/subscribe/', function (req, res) {
     var params = req.body;
-    var email = params.email;
+    const email = (res.locals.creds && res.locals.creds.email) || params.email;
     var user = userData[email];
     // Basket accepts either an explicit language choice,
     // or an "accept_lang" preference string from which it
@@ -74,7 +99,7 @@ module.exports = function initApp() {
         // elaborate accept-lang parsing, just use first one.
         lang = lang.split(/[\s\-;,]/)[0];
       } else {
-        lang = '';
+        lang = 'en-US';
       }
     }
     var token;

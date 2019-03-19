@@ -13,13 +13,13 @@ var url = require('url');
 var config = require('../lib/config');
 var logger = require('../lib/logging')('server');
 
-var app = require('../lib/basket/fake.js');
+const app = require('../lib/basket/fake');
 
 function listen(app) {
   var apiUrl = url.parse(config.get('basket.api_url'));
   app.listen(apiUrl.port, apiUrl.hostname);
-  logger.info('FxA Fake Basket Server listening on port', apiUrl.port);
+  logger.info(`FxA Fake Basket Server listening on port ${apiUrl.port}`);
   return true;
 }
 
-listen(app());
+listen(app(logger));
