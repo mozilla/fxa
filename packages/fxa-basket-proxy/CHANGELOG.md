@@ -1,3 +1,17 @@
+<a name="1.133.0"></a>
+# [1.133.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.126.0...v1.133.0) (2019-03-19)
+
+
+### Bug Fixes
+
+* **deps:** Fix the audit warnings. ([352bdc6](https://github.com/mozilla/fxa-basket-proxy/commit/352bdc6))
+
+### Features
+
+* **fake-server:** Have the fake server serve CORS requests, handle OAuth tokens. ([046476c](https://github.com/mozilla/fxa-basket-proxy/commit/046476c)), closes [#75](https://github.com/mozilla/fxa-basket-proxy/issues/75)
+
+
+
 <a name="1.126.0"></a>
 # [1.126.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.115.0...v1.126.0) (2018-11-27)
 
