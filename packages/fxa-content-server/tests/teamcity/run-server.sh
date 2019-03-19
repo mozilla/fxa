@@ -73,7 +73,8 @@ export npm_config_tmp=~/fxatemp
 
 set -o xtrace # echo the following commands
 
-./tests/teamcity/install-npm-deps.sh
+# install it all
+npm ci
 
 FXA_TEST_CONFIG=${FXA_TEST_CONFIG:-tests/intern_server}
 
