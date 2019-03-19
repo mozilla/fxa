@@ -1,3 +1,41 @@
+<a name="1.133.0"></a>
+# [1.133.0](https://github.com/mozilla/fxa-content-server/compare/v1.132.1...v1.133.0) (2019-03-19)
+
+
+### Bug Fixes
+
+* **blank email:** error message for blank email query parameter fixed ([052b2ee](https://github.com/mozilla/fxa-content-server/commit/052b2ee))
+* **config:** fix default config for feature-flagging ([cdec092](https://github.com/mozilla/fxa-content-server/commit/cdec092))
+* **firefox version:** user-agent in functional tests updated to latest firefox ([898c491](https://github.com/mozilla/fxa-content-server/commit/898c491))
+* **node 8:** support for node 8 removed ([5c28030](https://github.com/mozilla/fxa-content-server/commit/5c28030))
+* **style:** center the forgot password label ([efeab38](https://github.com/mozilla/fxa-content-server/commit/efeab38))
+* **style:** improve legibility of body copy ([7d66211](https://github.com/mozilla/fxa-content-server/commit/7d66211)), closes [#6632](https://github.com/mozilla/fxa-content-server/issues/6632)
+* **sync:** Remove support for `context=fx_desktop_v2` ([5792b00](https://github.com/mozilla/fxa-content-server/commit/5792b00)), closes [#6895](https://github.com/mozilla/fxa-content-server/issues/6895) [#7030](https://github.com/mozilla/fxa-content-server/issues/7030)
+
+### chore
+
+* **errors:** add translated string for redis conflict errors ([5c78359](https://github.com/mozilla/fxa-content-server/commit/5c78359))
+
+### Features
+
+* **docker:** Use node 10 in the Docker image. ([e924c6b](https://github.com/mozilla/fxa-content-server/commit/e924c6b)), closes [#6973](https://github.com/mozilla/fxa-content-server/issues/6973)
+* **feature-flags:** wire in experiments to the feature-flag api ([274d3cc](https://github.com/mozilla/fxa-content-server/commit/274d3cc))
+* **feature-flags:** wire in experiments to the feature-flag api ([62f4b63](https://github.com/mozilla/fxa-content-server/commit/62f4b63))
+
+### Reverts
+
+* **feature-flags:** remove feature-flagging ([e64c571](https://github.com/mozilla/fxa-content-server/commit/e64c571))
+
+### style
+
+* **avatar:** centered avatar in landscape mode ([0e51e2b](https://github.com/mozilla/fxa-content-server/commit/0e51e2b))
+* **buttons:** fixes length of buttons ([dd1b601](https://github.com/mozilla/fxa-content-server/commit/dd1b601))
+* **rotate button:** rotate button size increased and moved away from zoom-in button ([9f78771](https://github.com/mozilla/fxa-content-server/commit/9f78771))
+* **spinner for red and blue buttons:** colour change to white ([f2bd8c3](https://github.com/mozilla/fxa-content-server/commit/f2bd8c3))
+* **success message:** fixed different length of success message on scrolling ([3cda343](https://github.com/mozilla/fxa-content-server/commit/3cda343))
+
+
+
 <a name="1.132.1"></a>
 ## [1.132.1](https://github.com/mozilla/fxa-content-server/compare/v1.132.0...v1.132.1) (2019-03-08)
 
