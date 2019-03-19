@@ -34,7 +34,9 @@ set -o xtrace # echo the following commands
 
 cd /app
 /bin/rm -rf ./node_modules
-./tests/teamcity/install-npm-deps.sh
+
+# install it all
+npm ci
 
 node ./tests/intern.js \
   --suites="server-resources" \
