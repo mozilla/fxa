@@ -735,12 +735,12 @@ describe('/avatar', function() {
         user: USERID,
         scope: ['profile:avatar:write']
       });
-      mock.workerFailure('post', imageData.length);
+      mock.workerFailure('post', imageData.length, [ { error: 'wibble' } ]);
       mock.log('img_workers', function(rec) {
         if (rec.levelname === 'ERROR') {
           assert.equal(
             rec.message,
-            'upload.worker.error unexpected server error'
+            'upload.worker.error wibble'
           );
           return true;
         }
