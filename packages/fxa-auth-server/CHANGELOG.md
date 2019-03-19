@@ -1,3 +1,32 @@
+<a name="1.133.0"></a>
+# [1.133.0](https://github.com/mozilla/fxa-auth-server/compare/v1.132.1...v1.133.0) (2019-03-19)
+
+
+### Bug Fixes
+
+* **docs:** add note for ops on how to check raw redis email config ([063ef96](https://github.com/mozilla/fxa-auth-server/commit/063ef96))
+* **node 8 and scrypt-hash:** removed support for node 8 and scrypt-hash ([5172ed8](https://github.com/mozilla/fxa-auth-server/commit/5172ed8))
+* **profile_server_messaging:** fix db constructor signature ([dd7c0e3](https://github.com/mozilla/fxa-auth-server/commit/dd7c0e3)), closes [#2916](https://github.com/mozilla/fxa-auth-server/issues/2916)
+* **server:** make sure to log errors on server start crash ([6c6a779](https://github.com/mozilla/fxa-auth-server/commit/6c6a779))
+
+### chore
+
+* **api:** make redis.watch.conflict a 409 instead of 500 error ([5ad4d15](https://github.com/mozilla/fxa-auth-server/commit/5ad4d15))
+* **package:** update shrinkwrap ([13dc222](https://github.com/mozilla/fxa-auth-server/commit/13dc222))
+* **refactor:** Refactor the /token endpoint to improve clarity. ([b1aafd0](https://github.com/mozilla/fxa-auth-server/commit/b1aafd0))
+
+### Features
+
+* **basket:** Updates to `login` and `verified` events for Basket ([0b02308](https://github.com/mozilla/fxa-auth-server/commit/0b02308)), closes [#2915](https://github.com/mozilla/fxa-auth-server/issues/2915)
+
+### Refactor
+
+* **logging:** Update to Mozlog format. ([0b3e970](https://github.com/mozilla/fxa-auth-server/commit/0b3e970)), closes [#2940](https://github.com/mozilla/fxa-auth-server/issues/2940)
+* **oauthdb:** Split OAuthDB implementation across multiple files. ([04986a7](https://github.com/mozilla/fxa-auth-server/commit/04986a7))
+* **redis:** use the extracted redis implementation from fxa-shared ([87f1bb0](https://github.com/mozilla/fxa-auth-server/commit/87f1bb0))
+
+
+
 <a name="1.132.1"></a>
 ## [1.132.1](https://github.com/mozilla/fxa-auth-server/compare/v1.132.0...v1.132.1) (2019-03-05)
 
