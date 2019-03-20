@@ -84,7 +84,6 @@ require('./spec/lib/xss');
 require('./spec/models/account');
 require('./spec/models/attached-clients');
 require('./spec/models/auth_brokers/base');
-require('./spec/models/auth_brokers/fx-desktop-v1');
 require('./spec/models/auth_brokers/fx-desktop-v2');
 require('./spec/models/auth_brokers/fx-desktop-v3');
 require('./spec/models/auth_brokers/fx-fennec-v1');

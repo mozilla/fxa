@@ -11,18 +11,87 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const FxDesktopV1AuthenticationBroker = require('../auth_brokers/fx-desktop-v1');
+  const FxDesktopChannel = require('../../lib/channels/fx-desktop-v1');
+  const FxSyncChannelAuthenticationBroker = require('../auth_brokers/fx-sync-channel');
+  const HaltBehavior = require('../../views/behaviors/halt');
   const NavigateBehavior = require('../../views/behaviors/navigate');
   const UserAgent = require('../../lib/user-agent');
 
-  const proto = FxDesktopV1AuthenticationBroker.prototype;
+  const proto = FxSyncChannelAuthenticationBroker.prototype;
 
-  const FxiOSV1AuthenticationBroker = FxDesktopV1AuthenticationBroker.extend({
+  const FxiOSV1AuthenticationBroker = FxSyncChannelAuthenticationBroker.extend({
+    type: 'fx-ios-v1',
+
+    commands: {
+      CAN_LINK_ACCOUNT: 'can_link_account',
+      CHANGE_PASSWORD: 'change_password',
+      DELETE_ACCOUNT: 'delete_account',
+      LOADED: 'loaded',
+      LOGIN: 'login'
+    },
+
+    defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
+      // about:accounts displays its own screen after sign in, no need
+      // to show anything.
+      afterForceAuth: new HaltBehavior(),
+      // about:accounts displays its own screen after password reset, no
+      // need to show anything.
+      afterResetPasswordConfirmationPoll: new HaltBehavior(),
+      // about:accounts displays its own screen after sign in, no need
+      // to show anything.
+      afterSignIn: new HaltBehavior(),
+      // about:accounts display the "Signin confirmed" screen after
+      // the user signin is successful
+      afterSignInConfirmationPoll: new NavigateBehavior('signin_confirmed'),
+      // about:accounts display the "Signup complete!" screen after
+      // the users verify their email
+      afterSignUpConfirmationPoll: new NavigateBehavior('signup_confirmed')
+    }),
+
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       chooseWhatToSyncCheckbox: false,
       chooseWhatToSyncWebV1: true,
       convertExternalLinksToText: true
     }),
+
+    createChannel () {
+      var channel = new FxDesktopChannel();
+
+      channel.initialize({
+        // Fx on iOS and functional tests will send messages from the
+        // content server itself. Accept messages from the content
+        // server to handle these cases.
+        origin: this.window.location.origin,
+        window: this.window
+      });
+
+      channel.on('error', this.trigger.bind(this, 'error'));
+
+      return channel;
+    },
+
+    afterResetPasswordConfirmationPoll (account) {
+      // We wouldn't expect `customizeSync` to be set when completing
+      // a password reset, but the field must be present for the login
+      // message to be sent. false is the default value set in
+      // lib/fxa-client.js if the value is not present.
+      // See #5528
+      if (! account.has('customizeSync')) {
+        account.set('customizeSync', false);
+      }
+
+      // fx-ios-v1 send a login message after reset password complete,
+      // assuming the user verifies in the same browser. fx-ios-v1
+      // do not support WebChannels, and the login message must be
+      // sent within about:accounts for the browser to receive it.
+      // Integrations that support WebChannel messages will send
+      // the login message from the verification tab, and for users
+      // of either integration that verify in a different browser,
+      // they will be asked to signin in this browser using the
+      // new password.
+      return this._notifyRelierOfLogin(account)
+        .then(() => proto.afterResetPasswordConfirmationPoll.call(this, account));
+    },
 
     initialize (options = {}) {
       proto.initialize.call(this, options);
@@ -36,15 +105,6 @@ define(function (require, exports, module) {
       if (! this._supportsChooseWhatToSync(version)) {
         this.setCapability('chooseWhatToSyncWebV1', false);
       }
-
-      // Fx for iOS allows the user to see the "confirm your email" screen,
-      // but never takes it away after the user verifies. Allow the poll
-      // so that the user sees the "Signup complete!" screen after they
-      // verify their email.
-      this.setBehavior(
-        'afterSignInConfirmationPoll', new NavigateBehavior('signin_confirmed'));
-      this.setBehavior(
-        'afterSignUpConfirmationPoll', new NavigateBehavior('signup_confirmed'));
     },
 
     /**
