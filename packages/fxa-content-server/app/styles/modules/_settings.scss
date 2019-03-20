@@ -555,6 +555,11 @@ section.modal-panel {
   &[data-name='Screenshots'] {
     background-image: url('/images/icon-service-screenshots.svg');
   }
+
+  &[data-name='Fenix'],
+  &[data-name='Android Components Reference Browser'] {
+    background-image: url('/images/icon-device-phone-android.svg');
+  }
 }
 
 .client-webSession {
