@@ -1,4 +1,4 @@
-FROM node:8-alpine
+FROM node:10-alpine
 
 RUN npm install -g npm@6 && rm -rf ~app/.npm /tmp/*
 
@@ -13,6 +13,6 @@ USER app
 COPY npm-shrinkwrap.json npm-shrinkwrap.json
 COPY package.json package.json
 
-RUN npm install --production && rm -rf ~app/.npm /tmp/*
+RUN npm ci --production && rm -rf ~app/.npm /tmp/*
 
 COPY . /app
