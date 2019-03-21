@@ -13,6 +13,8 @@ import Template from 'templates/settings/account_recovery/confirm_password.musta
 
 const PASSWORD_SELECTOR = '#password';
 
+const t = msg => msg;
+
 const View = FormView.extend({
   template: Template,
   className: 'account-recovery-confirm-password',
@@ -43,6 +45,7 @@ const View = FormView.extend({
     return account.createRecoveryBundle(password)
       .then((result) => {
         this.logFlowEvent('success', this.viewName);
+        this.displaySuccess(t('Account recovery enabled'));
         this.model.set('recoveryKey', result.recoveryKey);
         this.showRecoveryKeyView = true;
         this.navigate('settings/account_recovery/recovery_key', result);

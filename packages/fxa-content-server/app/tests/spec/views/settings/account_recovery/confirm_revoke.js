@@ -4,6 +4,7 @@
 
 import $ from 'jquery';
 import {assert} from 'chai';
+import BaseView from 'views/base';
 import Broker from 'models/auth_brokers/base';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/base';
@@ -13,13 +14,14 @@ import User from 'models/user';
 import View from 'views/settings/account_recovery/confirm_revoke';
 
 describe('views/settings/account_recovery/confirm_revoke', () => {
-  let account, broker, email, notifier, relier, user, view, keyExists;
+  let account, broker, email, notifier, relier, user, view, keyExists, parentView;
   const UID = '123';
 
   function initView() {
     view = new View({
       broker,
       notifier,
+      parentView,
       relier,
       user
     });
@@ -36,6 +38,7 @@ describe('views/settings/account_recovery/confirm_revoke', () => {
     broker = new Broker();
     email = TestHelpers.createEmail();
     notifier = new Notifier();
+    parentView = new BaseView();
     user = new User();
     account = user.initAccount({
       email,
@@ -66,6 +69,7 @@ describe('views/settings/account_recovery/confirm_revoke', () => {
     beforeEach(() => {
       return initView()
         .then(() => {
+          sinon.spy(view, 'displaySuccess');
           sinon.spy(view, 'navigate');
           return view.validateAndSubmit();
         });
@@ -73,6 +77,7 @@ describe('views/settings/account_recovery/confirm_revoke', () => {
 
     describe('submit', () => {
       it('calls delete recovery key and navigates', () => {
+        assert.equal(view.displaySuccess.callCount, 1);
         assert.equal(account.deleteRecoveryKey.callCount, 1, 'called delete key');
         assert.equal(view.navigate.args[0][0], 'settings/account_recovery', 'navigated to account recovery');
         assert.equal(view.navigate.args[0][1].hasRecoveryKey, false, 'passes correct args');

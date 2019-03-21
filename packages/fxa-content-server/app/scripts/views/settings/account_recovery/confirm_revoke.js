@@ -10,6 +10,8 @@ import PasswordMixin from '../../mixins/password-mixin';
 import ModalSettingsPanelMixin from '../../mixins/modal-settings-panel-mixin';
 import Template from 'templates/settings/account_recovery/confirm_revoke.mustache';
 
+const t = msg => msg;
+
 const View = FormView.extend({
   template: Template,
   className: 'account-recovery-confirm-revoke',
@@ -33,6 +35,7 @@ const View = FormView.extend({
     const account = this.getSignedInAccount();
     return account.deleteRecoveryKey()
       .then(() => {
+        this.displaySuccess(t('Account recovery revoked'));
         this.logFlowEvent('success', this.viewName);
         this.navigate('settings/account_recovery', {
           hasRecoveryKey: false

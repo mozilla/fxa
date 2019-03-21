@@ -5,6 +5,7 @@
 import $ from 'jquery';
 import {assert} from 'chai';
 import AuthErrors from 'lib/auth-errors';
+import BaseView from 'views/base';
 import Broker from 'models/auth_brokers/base';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/base';
@@ -14,13 +15,14 @@ import User from 'models/user';
 import View from 'views/settings/account_recovery/confirm_password';
 
 describe('views/settings/account_recovery/confirm_password', () => {
-  let account, broker, email, notifier, relier, user, view, invalidPassword;
+  let account, broker, email, notifier, relier, user, view, invalidPassword, parentView;
   const UID = '123';
 
   function initView() {
     view = new View({
       broker,
       notifier,
+      parentView,
       relier,
       user
     });
@@ -37,6 +39,7 @@ describe('views/settings/account_recovery/confirm_password', () => {
     broker = new Broker();
     email = TestHelpers.createEmail();
     notifier = new Notifier();
+    parentView = new BaseView();
     user = new User();
     account = user.initAccount({
       email,
@@ -74,11 +77,13 @@ describe('views/settings/account_recovery/confirm_password', () => {
 
     describe('should submit', () => {
       beforeEach(() => {
+        sinon.spy(view, 'displaySuccess');
         view.$('#password').val('abcdasdf');
         return view.validateAndSubmit();
       });
 
       it('submit', () => {
+        assert.equal(view.displaySuccess.callCount, 1);
         assert.equal(view.$('.email')[0].innerText, email, 'correct email set');
         assert.equal(account.createRecoveryBundle.callCount, 1, 'called create recovery bundle');
         assert.equal(view.navigate.args[0][0], 'settings/account_recovery/recovery_key', 'navigated to account recovery');
