@@ -43,7 +43,7 @@ function makeRoutes (options = {}, requireMocks) {
     customs,
     signinUtils,
     mocks.mockPush(),
-    mocks.mockDevices()
+    mocks.mockVerificationReminders(),
   );
 }
 

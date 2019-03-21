@@ -168,6 +168,7 @@ in a sign-in or sign-up flow:
 |`signinCode.consumed`|A sign-in code has been consumed on the server.|
 |`account.confirmed`|Sign-in to an existing account has been confirmed via email.|
 |`account.verified`|A new account has been verified via email.|
+|`account.reminder.${reminder}`|A new account has been verified via a reminder email.|
 |`account.keyfetch`|Sync encryption keys have been fetched.|
 |`account.signed`|A certificate has been signed.|
 |`account.reset`|An account has been reset.|

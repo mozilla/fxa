@@ -305,8 +305,8 @@ describe('lib/senders/index', () => {
             assert.equal(errorBounces.check.callCount, 2);
             assert.equal(e.errno, error.ERRNO.BOUNCE_COMPLAINT);
 
-            assert.ok(log.info.callCount >= 2);
-            const msg = log.info.args[1];
+            assert.isAtLeast(log.info.callCount, 3);
+            const msg = log.info.args[2];
             assert.equal(msg[0], 'mailer.blocked');
             assert.equal(msg[1].errno, e.errno);
             assert.equal(msg[1].bouncedAt, DATE);
@@ -364,8 +364,8 @@ describe('lib/senders/index', () => {
             assert.equal(errorBounces.check.callCount, 1);
             assert.equal(e.errno, error.ERRNO.BOUNCE_COMPLAINT);
 
-            assert.ok(log.info.callCount >= 2);
-            const msg = log.info.args[1];
+            assert.isAtLeast(log.info.callCount, 3);
+            const msg = log.info.args[2];
             assert.equal(msg[0], 'mailer.blocked');
             assert.equal(msg[1].errno, e.errno);
             assert.equal(msg[1].bouncedAt, DATE);

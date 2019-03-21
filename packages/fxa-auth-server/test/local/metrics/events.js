@@ -10,12 +10,14 @@ const log = {
   activityEvent: sinon.spy(),
   amplitudeEvent: sinon.spy(),
   error: sinon.spy(),
-  flowEvent: sinon.spy()
+  flowEvent: sinon.spy(),
+  info: sinon.spy(),
 };
 const events = require('../../../lib/metrics/events')(log, {
   oauth: {
     clientIds: {}
-  }
+  },
+  verificationReminders: {},
 });
 const mocks = require('../../mocks');
 const P = require('../../../lib/promise');

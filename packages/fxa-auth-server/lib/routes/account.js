@@ -23,7 +23,7 @@ const MS_ONE_DAY = MS_ONE_HOUR * 24;
 const MS_ONE_WEEK = MS_ONE_DAY * 7;
 const MS_ONE_MONTH = MS_ONE_DAY * 30;
 
-module.exports = (log, db, mailer, Password, config, customs, signinUtils, push) => {
+module.exports = (log, db, mailer, Password, config, customs, signinUtils, push, verificationReminders) => {
   const tokenCodeConfig = config.signinConfirmation.tokenVerificationCode;
   const tokenCodeLifetime = tokenCodeConfig && tokenCodeConfig.codeLifetime || MS_ONE_HOUR;
   const tokenCodeLength = tokenCodeConfig && tokenCodeConfig.codeLength || 8;
@@ -279,6 +279,8 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
                     tokenVerificationId: tokenVerificationId
                   });
                 }
+
+                return verificationReminders.create(account.uid);
               })
               .catch((err) => {
                 log.error('mailer.sendVerifyCode.1', { err: err});

@@ -270,8 +270,6 @@ describe('lib/devices:', () => {
               is_placeholder: false
             }, 'event data was correct');
 
-            assert.equal(log.info.callCount, 0, 'log.info was not called');
-
             assert.equal(log.notifyAttachedServices.callCount, 1, 'log.notifyAttachedServices was called once');
             args = log.notifyAttachedServices.args[0];
             assert.equal(args.length, 3, 'log.notifyAttachedServices was passed three arguments');
@@ -314,10 +312,10 @@ describe('lib/devices:', () => {
             assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once');
             assert.equal(log.activityEvent.args[0][0].is_placeholder, true, 'is_placeholder was correct');
 
-            assert.equal(log.info.callCount, 1, 'log.info was called once');
-            assert.equal(log.info.args[0].length, 2);
-            assert.equal(log.info.args[0][0], 'device:createPlaceholder');
-            assert.deepEqual(log.info.args[0][1], {
+            assert.equal(log.info.callCount, 2);
+            assert.equal(log.info.args[1].length, 2);
+            assert.equal(log.info.args[1][0], 'device:createPlaceholder');
+            assert.deepEqual(log.info.args[1][1], {
               uid: credentials.uid,
               id: result.id
             }, 'argument was event data');
@@ -367,8 +365,6 @@ describe('lib/devices:', () => {
               device_id: deviceId,
               is_placeholder: false
             }, 'event data was correct');
-
-            assert.equal(log.info.callCount, 0, 'log.info was not called');
 
             assert.equal(log.notifyAttachedServices.callCount, 0, 'log.notifyAttachedServices was not called');
 
@@ -424,8 +420,6 @@ describe('lib/devices:', () => {
               is_placeholder: false
             }, 'event data was correct');
 
-            assert.equal(log.info.callCount, 0, 'log.info was not called');
-
             assert.equal(log.notifyAttachedServices.callCount, 1, 'log.notifyAttachedServices was called once');
             args = log.notifyAttachedServices.args[0];
             assert.equal(args.length, 3, 'log.notifyAttachedServices was passed three arguments');
@@ -458,10 +452,10 @@ describe('lib/devices:', () => {
             assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once');
             assert.equal(log.activityEvent.args[0][0].is_placeholder, true, 'is_placeholder was correct');
 
-            assert.equal(log.info.callCount, 1, 'log.info was called once');
-            assert.equal(log.info.args[0].length, 2);
-            assert.equal(log.info.args[0][0], 'device:createPlaceholder');
-            assert.deepEqual(log.info.args[0][1], {
+            assert.equal(log.info.callCount, 2);
+            assert.equal(log.info.args[1].length, 2);
+            assert.equal(log.info.args[1][0], 'device:createPlaceholder');
+            assert.deepEqual(log.info.args[1][1], {
               uid: credentials.uid,
               id: result.id
             }, 'argument was event data');
@@ -511,8 +505,6 @@ describe('lib/devices:', () => {
               device_id: deviceId,
               is_placeholder: false
             }, 'event data was correct');
-
-            assert.equal(log.info.callCount, 0, 'log.info was not called');
 
             assert.equal(log.notifyAttachedServices.callCount, 0, 'log.notifyAttachedServices was not called');
 

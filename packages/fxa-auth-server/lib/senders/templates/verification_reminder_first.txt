@@ -1,0 +1,9 @@
+{{t "Hello again."}}
+
+{{t "A few days ago you created a Firefox Account, but never verified it. A verified account lets you access your tabs, bookmarks, passwords and history on any device connected to it. Simply confirm this email address to activate your account."}}
+{{t "Activate now:"}} {{{link}}}
+
+{{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit %(supportUrl)s"}}}
+
+Mozilla. 331 E Evelyn Ave, Mountain View, CA 94041
+{{t "Mozilla Privacy Policy" }} {{{privacyUrl}}}

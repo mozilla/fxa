@@ -8447,17 +8447,29 @@
       }
     },
     "fxa-shared": {
-      "version": "1.0.19",
-      "resolved": "https://registry.npmjs.org/fxa-shared/-/fxa-shared-1.0.19.tgz",
-      "integrity": "sha512-WuKS50Z/Il+bjnlp6qHqc3qr6mS7q1sYQ8rRcFx+4R39m2FjbxwSG8f1BnF74q3rdb8nCH0BsmSNFsJ1QNaN8w==",
+      "version": "1.0.21",
+      "resolved": "https://registry.npmjs.org/fxa-shared/-/fxa-shared-1.0.21.tgz",
+      "integrity": "sha512-jIvoGmulWWDa6i5MjfxBjIZrk3WiBU/tZziKN8VQtptnfKGEGOFRPtbnpWX3lElLmf/46+yOXcSyKkIoA2WzTg==",
       "requires": {
         "accept-language": "2.0.17",
+        "ajv": "6.10.0",
         "bluebird": "3.5.3",
         "generic-pool": "3.6.1",
         "moment": "2.20.1",
         "redis": "2.8.0"
       },
       "dependencies": {
+        "ajv": {
+          "version": "6.10.0",
+          "resolved": "https://registry.npmjs.org/ajv/-/ajv-6.10.0.tgz",
+          "integrity": "sha512-nffhOpkymDECQyR0mnsUtoCE8RlX38G0rYP+wgLWFyZuUyuuojSSvi/+euOiQBIn63whYwYVIIH1TvE3tu4OEg==",
+          "requires": {
+            "fast-deep-equal": "^2.0.1",
+            "fast-json-stable-stringify": "^2.0.0",
+            "json-schema-traverse": "^0.4.1",
+            "uri-js": "^4.2.2"
+          }
+        },
         "bluebird": {
           "version": "3.5.3",
           "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-3.5.3.tgz",
@@ -9749,9 +9761,9 @@
       }
     },
     "ieee754": {
-      "version": "1.1.12",
-      "resolved": "https://registry.npmjs.org/ieee754/-/ieee754-1.1.12.tgz",
-      "integrity": "sha512-GguP+DRY+pJ3soyIiGPTvdiVXjZ+DbXOxGpXn3eMvNW4x4irjqXm4wHKscC+TfxSJ0yw/S1F24tqdMNsMZTiLA=="
+      "version": "1.1.13",
+      "resolved": "https://registry.npmjs.org/ieee754/-/ieee754-1.1.13.tgz",
+      "integrity": "sha512-4vf7I2LYV/HaWerSo3XmlMkp5eZ83i+/CDluXi/IGTs/O1sejBNhTtnxzmRZfvOUqj7lZjqHkeTvpgSFDlWZTg=="
     },
     "ignore": {
       "version": "3.3.10",
@@ -11213,9 +11225,9 @@
       }
     },
     "nan": {
-      "version": "2.13.1",
-      "resolved": "https://registry.npmjs.org/nan/-/nan-2.13.1.tgz",
-      "integrity": "sha512-I6YB/YEuDeUZMmhscXKxGgZlFnhsn5y0hgOZBadkzfTRrZBtJDZeg6eQf7PYMIEclwmorTKK8GztsyOUSVBREA==",
+      "version": "2.13.2",
+      "resolved": "https://registry.npmjs.org/nan/-/nan-2.13.2.tgz",
+      "integrity": "sha512-TghvYc72wlMGMVMluVo9WRJc0mB8KxxF/gZ4YYFy7V2ZQX9l7rgbPg7vjS9mt6U5HXODVFVI2bOduCzwOMv/lw==",
       "optional": true
     },
     "nanomatch": {

@@ -51,6 +51,7 @@ const makeRoutes = function (options = {}, requireMocks) {
     signinUtils.checkPassword = options.checkPassword;
   }
   const push = options.push || require('../../../lib/push')(log, db, {});
+  const verificationReminders = options.verificationReminders || mocks.mockVerificationReminders();
   return proxyquire('../../../lib/routes/account', requireMocks || {})(
     log,
     db,
@@ -59,7 +60,8 @@ const makeRoutes = function (options = {}, requireMocks) {
     config,
     customs,
     signinUtils,
-    push
+    push,
+    verificationReminders,
   );
 };
 
@@ -384,6 +386,7 @@ describe('/account/create', () => {
     });
     const mockMailer = mocks.mockMailer();
     const mockPush = mocks.mockPush();
+    const verificationReminders = mocks.mockVerificationReminders();
     const accountRoutes = makeRoutes({
       config: {
         securityHistory: {
@@ -403,7 +406,8 @@ describe('/account/create', () => {
           }
         };
       },
-      push: mockPush
+      push: mockPush,
+      verificationReminders,
     });
     const route = getRoute(accountRoutes, '/account/create');
 
@@ -418,23 +422,26 @@ describe('/account/create', () => {
       mockRequest,
       route,
       sessionTokenId,
-      uid
+      uid,
+      verificationReminders,
     };
   }
 
   it('should create a sync account', () => {
-    const mocked = setup();
-    const clientAddress = mocked.clientAddress;
-    const emailCode = mocked.emailCode;
-    const keyFetchTokenId = mocked.keyFetchTokenId;
-    const mockDB = mocked.mockDB;
-    const mockLog = mocked.mockLog;
-    const mockMailer = mocked.mockMailer;
-    const mockMetricsContext = mocked.mockMetricsContext;
-    const mockRequest = mocked.mockRequest;
-    const route = mocked.route;
-    const sessionTokenId = mocked.sessionTokenId;
-    const uid = mocked.uid;
+    const {
+      clientAddress,
+      emailCode,
+      keyFetchTokenId,
+      mockDB,
+      mockLog,
+      mockMailer,
+      mockMetricsContext,
+      mockRequest,
+      route,
+      sessionTokenId,
+      uid,
+      verificationReminders,
+    } = setup();
 
     const now = Date.now();
     sinon.stub(Date, 'now').callsFake(() => now);
@@ -560,17 +567,24 @@ describe('/account/create', () => {
       assert.equal(args[2].service, 'sync');
       assert.equal(args[2].uid, uid);
 
+      assert.equal(verificationReminders.create.callCount, 1);
+      args = verificationReminders.create.args[0];
+      assert.lengthOf(args, 1);
+      assert.equal(args[0], uid);
+
       assert.equal(mockLog.error.callCount, 0);
     }).finally(() => Date.now.restore());
   });
 
   it('should create a non-sync account', () => {
-    const mocked = setup();
-    const mockLog = mocked.mockLog;
-    const mockMailer = mocked.mockMailer;
-    const mockRequest = mocked.mockRequest;
-    const route = mocked.route;
-    const uid = mocked.uid;
+    const {
+      mockLog,
+      mockMailer,
+      mockRequest,
+      route,
+      uid,
+      verificationReminders,
+    } = setup();
 
     const now = Date.now();
     sinon.stub(Date, 'now').callsFake(() => now);
@@ -598,15 +612,20 @@ describe('/account/create', () => {
       assert.equal(mockMailer.sendVerifyCode.callCount, 1, 'mailer.sendVerifyCode was called');
       args = mockMailer.sendVerifyCode.args[0];
       assert.equal(args[2].service, 'foo');
+
+      assert.equal(verificationReminders.create.callCount, 1);
+
       assert.equal(mockLog.error.callCount, 0);
     }).finally(() => Date.now.restore());
   });
 
   it('should return an error if email fails to send', () => {
-    const mocked = setup();
-    const mockMailer = mocked.mockMailer;
-    const mockRequest = mocked.mockRequest;
-    const route = mocked.route;
+    const {
+      mockMailer,
+      mockRequest,
+      route,
+      verificationReminders,
+    } = setup();
 
     mockMailer.sendVerifyCode = sinon.spy(() => P.reject());
 
@@ -615,14 +634,18 @@ describe('/account/create', () => {
       assert.equal(err.output.payload.code, 422);
       assert.equal(err.output.payload.errno, 151);
       assert.equal(err.output.payload.error, 'Unprocessable Entity');
+
+      assert.equal(verificationReminders.create.callCount, 0);
     });
   });
 
   it('should return a bounce error if send fails with one', () => {
-    const mocked = setup();
-    const mockMailer = mocked.mockMailer;
-    const mockRequest = mocked.mockRequest;
-    const route = mocked.route;
+    const {
+      mockMailer,
+      mockRequest,
+      route,
+      verificationReminders,
+    } = setup();
 
     mockMailer.sendVerifyCode = sinon.spy(() => P.reject(error.emailBouncedHard(42)));
 
@@ -631,6 +654,8 @@ describe('/account/create', () => {
       assert.equal(err.output.payload.code, 400);
       assert.equal(err.output.payload.errno, 134);
       assert.equal(err.output.payload.error, 'Bad Request');
+
+      assert.equal(verificationReminders.create.callCount, 0);
     });
   });
 });
@@ -1612,8 +1637,8 @@ describe('/account/destroy', () => {
       assert.equal(args[0].email, email, 'db.deleteAccount was passed email record');
       assert.deepEqual(args[0].uid, uid, 'email record had correct uid');
 
-      assert.equal(mockLog.info.callCount, 1);
-      args = mockLog.info.args[0];
+      assert.equal(mockLog.info.callCount, 2);
+      args = mockLog.info.args[1];
       assert.lengthOf(args, 2);
       assert.equal(args[0], 'accountDeleted.byRequest');
       assert.equal(args[1].email, email);

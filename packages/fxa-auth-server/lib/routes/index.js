@@ -23,6 +23,7 @@ module.exports = function (
   const pushbox = require('../pushbox')(log, config);
   const devicesImpl = require('../devices')(log, db, push);
   const signinUtils = require('./utils/signin')(log, config, customs, db, mailer);
+  const verificationReminders = require('../verification-reminders')(log, config);
   // The routing modules themselves.
   const defaults = require('./defaults')(log, db);
   const idp = require('./idp')(log, serverPublicKeys);
@@ -34,11 +35,12 @@ module.exports = function (
     config,
     customs,
     signinUtils,
-    push
+    push,
+    verificationReminders,
   );
   const oauth = require('./oauth')(log, config, oauthdb);
   const devicesSessions = require('./devices-and-sessions')(log, db, config, customs, push, pushbox, devicesImpl, oauthdb);
-  const emails = require('./emails')(log, db, mailer, config, customs, push);
+  const emails = require('./emails')(log, db, mailer, config, customs, push, verificationReminders);
   const password = require('./password')(
     log,
     db,

@@ -79,6 +79,8 @@ module.exports = {
       'recovery',
       'sms.installFirefox',
       'unblock_code',
+      'verification_reminder_first',
+      'verification_reminder_second',
       'verify',
       'verify_login',
       'verify_login_code',
