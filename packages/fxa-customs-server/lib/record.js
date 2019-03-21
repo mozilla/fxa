@@ -7,8 +7,21 @@ class Record {
     object = object || {}
     this.rl = object.rl       // timestamp when the account was rate-limited
     this.hits = object.hits || [] // timestamps when last hit occurred
-    this.limits = config.limits
-    this.actions = config.actions
+
+    Object.defineProperty(this, 'limits', {
+      // limits is not saved to memcached
+      enumerable: false,
+      get () {
+        return config.limits
+      }
+    })
+    Object.defineProperty(this, 'actions', {
+      // actions is not saved to memcached
+      enumerable: false,
+      get () {
+        return config.actions
+      }
+    })
     this.now = now
   }
 

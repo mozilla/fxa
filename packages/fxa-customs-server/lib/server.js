@@ -15,7 +15,6 @@ var blockReasons = require('./block_reasons')
 var P = require('bluebird')
 P.promisifyAll(Memcached.prototype)
 var Raven = require('raven')
-const utils = require('./utils')
 const dataflow = require('./dataflow')
 
 // Create and return a restify server instance
@@ -64,6 +63,10 @@ module.exports = function createServer(config, log) {
   const allowedPhoneNumbers = require('./settings/allowed_phone_numbers')(config, Settings, log)
   var requestChecks = require('./settings/requestChecks')(config, Settings, log)
 
+  const { fetchRecord, fetchRecords, setRecords } = require('./records')(mc, reputationService, limits, config.memcache.recordLifetimeSeconds)
+
+  const checkUserDefinedRateLimitRules = require('./user_defined_rules')(config, fetchRecord, setRecords)
+
   if (config.updatePollIntervalSeconds) {
     [
       allowedEmailDomains,
@@ -77,32 +80,7 @@ module.exports = function createServer(config, log) {
     })
   }
 
-  var IpEmailRecord = require('./ip_email_record')(limits)
-  var EmailRecord = require('./email_record')(limits)
-  var IpRecord = require('./ip_record')(limits)
-  const Record = require('./record')
-  var UidRecord = require('./uid_record')(limits)
-  var smsRecord = require('./sms_record')(limits)
-
-  var handleBan = P.promisify(require('./bans/handler')(config.memcache.recordLifetimeSeconds, mc, EmailRecord, IpRecord, log))
-
-  // Pre compute user defined rules into a Map<action, array of rule name>
-  function computeUserDefinedRules() {
-    const result = new Map()
-    const rules = config.userDefinedRateLimitRules
-    Object.keys(config.userDefinedRateLimitRules).forEach((key) => {
-      rules[key].actions.forEach((action) => {
-        const items = result.get(action)
-        if (! items) {
-          result.set(action, [key])
-        } else {
-          result.set(action, items.push(key))
-        }
-      })
-    })
-    return result
-  }
-  const computedRules = computeUserDefinedRules()
+  const handleBan = require('./bans/handler')(fetchRecords, setRecords, log)
 
   var api = restify.createServer({
     formatters: {
@@ -136,55 +114,6 @@ module.exports = function createServer(config, log) {
   function logError(err) {
     log.error({ op: 'memcachedError', err: err })
     throw err
-  }
-
-  function fetchRecords(ip, email, phoneNumber) {
-    var promises = [
-      // get records and ignore errors by returning a new record
-      mc.getAsync(ip).then(IpRecord.parse, IpRecord.parse),
-      reputationService.get(ip)
-    ]
-
-    // The /checkIpOnly endpoint has no email (or phoneNumber)
-    if (email) {
-      promises.push(mc.getAsync(email).then(EmailRecord.parse, EmailRecord.parse))
-      promises.push(mc.getAsync(ip + email).then(IpEmailRecord.parse, IpEmailRecord.parse))
-    }
-
-    // Check against SMS records to make sure that this request
-    // can send to this phone number
-    if (phoneNumber) {
-      promises.push(mc.getAsync(phoneNumber).then(smsRecord.parse, smsRecord.parse))
-    }
-
-    return P.all(promises)
-  }
-
-  function setRecord(key, record) {
-    var lifetime = Math.max(config.memcache.recordLifetimeSeconds, record.getMinLifetimeMS() / 1000)
-    return mc.setAsync(key, record, lifetime)
-  }
-
-  function setRecords(ip, ipRecord, email, emailRecord, ipEmailRecord, phoneNumber, smsRecord) {
-    let promises = [
-      setRecord(ip, ipRecord)
-    ]
-
-    if (email) {
-      if (emailRecord) {
-        promises.push(setRecord(email, emailRecord))
-      }
-
-      if (ipEmailRecord) {
-        promises.push(setRecord(ip + email, ipEmailRecord))
-      }
-    }
-
-    if (phoneNumber && smsRecord) {
-      promises.push(setRecord(phoneNumber, smsRecord))
-    }
-
-    return P.all(promises)
   }
 
   function isAllowed(ip, email, phoneNumber) {
@@ -248,7 +177,7 @@ module.exports = function createServer(config, log) {
       phoneNumber = payload.phoneNumber
     }
 
-    function checkRecords(ipRecord, reputation, emailRecord, ipEmailRecord, smsRecord) {
+    async function checkRecords({ ipRecord, reputation, emailRecord, ipEmailRecord, smsRecord }) {
       if (ipRecord.isBlocked()) {
         // a blocked ip should just be ignored completely
         // it's malicious, it shouldn't penalize emails or allow
@@ -307,65 +236,16 @@ module.exports = function createServer(config, log) {
         blockReason = blockReasons.IP_BAD_REPUTATION
       }
 
-      return setRecords(ip, ipRecord, email, emailRecord, ipEmailRecord, phoneNumber, smsRecord)
-        .then(() => {
-          return {
-            block,
-            blockReason,
-            retryAfter,
-            unblock: canUnblock,
-            suspect
-          }
-        })
-    }
-
-    function checkUserDefinedRateLimitRules(result) {
-      // Get all the user defined rules that might apply to this action
-      const rules = config.userDefinedRateLimitRules
-      const checkRules = computedRules.get(action)
-
-      // No need to check if no user defined rules
-      if (! checkRules || checkRules.length <= 0) {
-        return result
+      // smsRecord is optional, trying to save an undefined record results in an error
+      const recordsToSave = [ipRecord, emailRecord, ipEmailRecord, smsRecord].filter(record => !! record)
+      await setRecords(...recordsToSave)
+      return {
+        block,
+        blockReason,
+        retryAfter,
+        unblock: canUnblock,
+        suspect
       }
-
-      const retries = []
-      return P.each(checkRules, (ruleName) => {
-        let retryAfter = null
-        const recordKey = ruleName + ':' + utils.createHashHex(email, ip)
-        return mc.getAsync(recordKey)
-          .then((object) => {
-            return new Record(object, rules[ruleName])
-          }, () => {
-            return new Record({}, rules[ruleName])
-          })
-          .then((record) => {
-            retryAfter = record.update(action)
-            const minLifetimeMS = record.getMinLifetimeMS()
-
-            // To save space in memcache, don't store limits and
-            // actions since they can be referenced from config
-            record.limits = null
-            record.actions = null
-
-            const lifetime = Math.max(config.memcache.recordLifetimeSeconds, minLifetimeMS / 1000)
-            return mc.setAsync(recordKey, record, lifetime)
-          })
-          .then(() => retries.push(retryAfter))
-      })
-      .then(() => {
-        const maxRetry = Math.max(retries)
-        const block = maxRetry > 0
-        const retryAfter = maxRetry || 0
-
-        // Only update the retryAfter if it has a larger rate limit
-        if (retryAfter && retryAfter > result.retryAfter) {
-          result.retryAfter = retryAfter
-          result.block = block
-        }
-
-        return result
-      })
     }
 
     function createResponse(result) {
@@ -395,11 +275,11 @@ module.exports = function createServer(config, log) {
       })
     }
 
-    return fetchRecords(ip, email, phoneNumber)
-      .spread(checkRecords)
-      .then(checkUserDefinedRateLimitRules)
+    fetchRecords({ ip, email, phoneNumber })
+      .then(checkRecords)
+      .then(result => checkUserDefinedRateLimitRules(result, action, email, ip))
       .then(createResponse, handleError)
-      .done(next, next)
+      .then(next, next)
   })
 
   api.post(
@@ -416,13 +296,10 @@ module.exports = function createServer(config, log) {
         return next()
       }
 
-      mc.getAsync(uid)
-        .then(UidRecord.parse, UidRecord.parse)
-        .then(
-          function (uidRecord) {
-            var retryAfter = uidRecord.addCount(action, uid)
-
-            return setRecord(uid, uidRecord)
+      fetchRecords({ uid })
+        .then(({ uidRecord }) => {
+          var retryAfter = uidRecord.addCount(action, uid)
+          return setRecords(uidRecord)
               .then(
                 function () {
                   return {
@@ -431,8 +308,7 @@ module.exports = function createServer(config, log) {
                   }
                 }
               )
-          }
-        )
+        })
         .then(
           function (result) {
             log.info({ op: 'request.checkAuthenticated', block: result.block })
@@ -453,7 +329,7 @@ module.exports = function createServer(config, log) {
             reputationService.report(ip, 'fxa:request.checkAuthenticated.block.' + action)
           }
         )
-        .done(next, next)
+        .then(next, next)
     }
   )
 
@@ -468,8 +344,8 @@ module.exports = function createServer(config, log) {
       return next()
     }
 
-    fetchRecords(ip)
-      .spread((ipRecord, reputation) => {
+    fetchRecords({ ip })
+      .then(({ ipRecord, reputation }) => {
         if (ipRecord.isBlocked()) {
           return { block: true, retryAfter: ipRecord.retryAfter() }
         }
@@ -495,7 +371,7 @@ module.exports = function createServer(config, log) {
           blockReason = blockReasons.IP_BAD_REPUTATION
         }
 
-        return setRecords(ip, ipRecord)
+        return setRecords(ipRecord)
           .then(() => ({ block, blockReason, retryAfter, suspect }))
       })
       .then(result => {
@@ -521,7 +397,7 @@ module.exports = function createServer(config, log) {
         log.error({ op: 'request.checkIpOnly', ip: ip, action: action, err: err })
         res.send({ block: true, retryAfter: limits.ipRateLimitIntervalSeconds })
       })
-      .done(next, next)
+      .then(next, next)
   })
 
   api.post(
@@ -538,9 +414,9 @@ module.exports = function createServer(config, log) {
       }
       email = normalizedEmail(email)
 
-      fetchRecords(ip, email)
-        .spread(
-          function (ipRecord, reputation, emailRecord, ipEmailRecord) {
+      fetchRecords({ ip, email })
+        .then(
+          function ({ ipRecord, emailRecord, ipEmailRecord }) {
             ipRecord.addBadLogin({ email: email, errno: errno })
             ipEmailRecord.addBadLogin()
 
@@ -548,7 +424,7 @@ module.exports = function createServer(config, log) {
               reputationService.report(ip, 'fxa:request.failedLoginAttempt.isOverBadLogins')
             }
 
-            return setRecords(ip, ipRecord, email, emailRecord, ipEmailRecord)
+            return setRecords(ipRecord, emailRecord, ipEmailRecord)
               .then(
                 function () {
                   return {}
@@ -566,7 +442,7 @@ module.exports = function createServer(config, log) {
             res.send(500, err)
           }
         )
-        .done(next, next)
+        .then(next, next)
     }
   )
 
@@ -582,14 +458,11 @@ module.exports = function createServer(config, log) {
       }
       email = normalizedEmail(email)
 
-      mc.getAsync(email)
-        .then(EmailRecord.parse, EmailRecord.parse)
-        .then(
-          function (emailRecord) {
-            emailRecord.passwordReset()
-            return setRecord(email, emailRecord).catch(logError)
-          }
-        )
+      fetchRecords({ email })
+        .then(({ emailRecord }) => {
+          emailRecord.passwordReset()
+          return setRecords(emailRecord).catch(logError)
+        })
         .then(
           function () {
             log.info({ op: 'request.passwordReset', email: email })
@@ -600,7 +473,7 @@ module.exports = function createServer(config, log) {
             res.send(500, err)
           }
         )
-        .done(next, next)
+        .then(next, next)
     }
   )
 
@@ -629,7 +502,7 @@ module.exports = function createServer(config, log) {
             res.send(500, err)
           }
         )
-        .done(next, next)
+        .then(next, next)
     }
   )
 
@@ -662,7 +535,7 @@ module.exports = function createServer(config, log) {
             reputationService.report(ip, 'fxa:request.blockIp')
           }
         )
-        .done(next, next)
+        .then(next, next)
     }
   )
 

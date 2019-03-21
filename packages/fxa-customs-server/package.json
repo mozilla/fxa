@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "audit-filter": "0.3.0",
+    "chai": "4.2.0",
     "eslint-config-fxa": "2.1.0",
     "fxa-conventional-changelog": "1.1.0",
     "grunt": "1.0.3",
