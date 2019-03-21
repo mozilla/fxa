@@ -30,6 +30,7 @@ module.exports = [
   'tests/server/routes/get-index.js',
   'tests/server/routes/get-lbheartbeat.js',
   'tests/server/routes/get-metrics-flow.js',
+  'tests/server/routes/get-oauth-success.js',
   'tests/server/routes/get-openid-configuration.js',
   'tests/server/routes/get-update-firefox.js',
   'tests/server/routes/get-well-known-change-password.js',

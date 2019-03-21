@@ -82,7 +82,8 @@ describe('views/ready', function () {
       FORCE_AUTH: '#fxa-force-auth-complete-header',
       PASSWORD_RESET: '#fxa-reset-password-complete-header',
       SIGN_IN: '#fxa-sign-in-complete-header',
-      SIGN_UP: '#fxa-sign-up-complete-header'
+      SIGN_UP: '#fxa-sign-up-complete-header',
+      SUCCESSFUL_OAUTH: '#fxa-oauth-success-header'
     };
 
     for (var type in expectedHeaders) {
@@ -201,6 +202,16 @@ describe('views/ready', function () {
       return view.render()
         .then(() => {
           assert.lengthOf(view.$('.btn-continue'), 0);
+        });
+    });
+
+    it('shows the success view for oauth', () => {
+      createView(VerificationReasons.SUCCESSFUL_OAUTH);
+
+      return view.render()
+        .then(() => {
+          assert.lengthOf(view.$('#fxa-oauth-success-header'), 1);
+          assert.lengthOf(view.$('.account-ready-service'), 1);
         });
     });
   });

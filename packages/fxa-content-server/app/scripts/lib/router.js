@@ -117,6 +117,7 @@ const Router = Backbone.Router.extend({
     'oauth/force_auth(/)': createViewHandler(ForceAuthView),
     'oauth/signin(/)': 'onSignIn',
     'oauth/signup(/)': 'onSignUp',
+    'oauth/success/:client_id(/)': createViewHandler(ReadyView, { type: VerificationReasons.SUCCESSFUL_OAUTH }),
     'pair(/)': createViewHandler('pair/index'),
     'pair/auth/allow(/)': createViewHandler('pair/auth_allow'),
     'pair/auth/complete(/)': createViewHandler('pair/auth_complete'),

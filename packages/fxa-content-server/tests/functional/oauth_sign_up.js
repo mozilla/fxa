@@ -8,8 +8,10 @@ const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
+const config = intern._config;
 
 var PASSWORD = 'password';
+const SUCCESS_URL = config.fxaContentRoot + 'oauth/success/dcdb5ae7add825d2';
 var email;
 var bouncedEmail;
 
@@ -25,6 +27,7 @@ const {
   testElementValueEquals,
   openExternalSite,
   openFxaFromRp,
+  openPage,
   openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
@@ -272,6 +275,11 @@ registerSuite('oauth signup', {
         .then(closeCurrentWindow())
 
         .then(testElementExists('#loggedin'));
+    },
+
+    'a success screen is available': function () {
+      return this.remote
+        .then(openPage(SUCCESS_URL, '#fxa-oauth-success-header'));
     }
   }
 });
