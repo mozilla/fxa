@@ -18,6 +18,7 @@ describe('views/settings/recovery_codes', () => {
   let account;
   let broker;
   let email;
+  let hasToken;
   let model;
   let metrics;
   let notifier;
@@ -82,6 +83,12 @@ describe('views/settings/recovery_codes', () => {
       verified: true
     });
 
+    sinon.stub(account, 'checkTotpTokenExists').callsFake(() => {
+      return Promise.resolve({exists: hasToken});
+    });
+
+    hasToken = true;
+
     return initView();
   });
 
@@ -89,6 +96,37 @@ describe('views/settings/recovery_codes', () => {
     view.remove();
     view.destroy();
     view = null;
+  });
+
+  describe('beforeRender', () => {
+    beforeEach(() => {
+      sinon.spy(view, 'navigate');
+    });
+
+    describe('totp is not setup', () => {
+      beforeEach(() => {
+        hasToken = false;
+
+        return view.beforeRender();
+      });
+
+      it('should redirect to `settings/two_step_authentication`', () => {
+        assert.equal(view.navigate.callCount, 1);
+        assert.isTrue(view.navigate.calledWith('settings/two_step_authentication'));
+      });
+    });
+
+    describe('totp is setup', () => {
+      beforeEach(() => {
+        hasToken = true;
+
+        return view.beforeRender();
+      });
+
+      it('should not redirect to `settings/two_step_authentication`', () => {
+        assert.equal(view.navigate.callCount, 0);
+      });
+    });
   });
 
   it('should show recovery codes, translated success message', () => {

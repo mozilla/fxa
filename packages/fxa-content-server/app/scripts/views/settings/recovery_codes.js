@@ -91,6 +91,19 @@ const View = FormView.extend({
     }
   },
 
+  beforeRender() {
+    // if user has no totp setup then the user should not be able to
+    // directly navigate to /settings/two_step_authentication/recovery_codes
+    const account = this.getSignedInAccount();
+    return account.checkTotpTokenExists()
+      .then((result) => {
+        const totpExists = result.exists;
+        if (! totpExists) {
+          this.navigate('settings/two_step_authentication');
+        }
+      });
+  },
+
   initialize() {
     this._setupRecoveryCodes(this.model.get('recoveryCodes'));
     this.listenTo(this.model, 'change', this.render);
