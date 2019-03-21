@@ -173,6 +173,7 @@ require('./spec/views/mixins/cached-credentials-mixin');
 require('./spec/views/mixins/connect-another-device-mixin');
 require('./spec/views/mixins/coppa-mixin');
 require('./spec/views/mixins/disable-form-mixin');
+require('./spec/views/mixins/pairing-graphics-mixin');
 require('./spec/views/mixins/email-first-experiment-mixin');
 require('./spec/views/mixins/email-opt-in-mixin');
 require('./spec/views/mixins/experiment-mixin');

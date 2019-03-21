@@ -5,8 +5,8 @@
 import BaseView from '../base';
 import Cocktail from 'cocktail';
 import DeviceBeingPairedMixin from './device-being-paired-mixin';
+import PairingGraphicsMixin from '../mixins/pairing-graphics-mixin';
 import Template from '../../templates/pair/auth_complete.mustache';
-import UserAgentMixin from '../../lib/user-agent-mixin';
 
 class PairAuthCompleteView extends BaseView {
   template = Template;
@@ -16,8 +16,7 @@ class PairAuthCompleteView extends BaseView {
   }
 
   setInitialContext (context) {
-    const uap = this.getUserAgent();
-    const graphicId = uap.supportsSvgTransformOrigin() ? 'graphic-connect-another-device-hearts' : 'graphic-connect-another-device';
+    const graphicId = this.getGraphicsId();
 
     context.set({ graphicId });
   }
@@ -26,7 +25,7 @@ class PairAuthCompleteView extends BaseView {
 Cocktail.mixin(
   PairAuthCompleteView,
   DeviceBeingPairedMixin(),
-  UserAgentMixin,
+  PairingGraphicsMixin
 );
 
 export default PairAuthCompleteView;
