@@ -28,7 +28,10 @@ describe('redis/pool:', () => {
       isValid: sinon.spy(() => 'mock isValid result'),
       destroy: sinon.spy(() => 'mock destroy result')
     };
-    redisConnection = sinon.spy(() => connection);
+    redisConnection = {
+      create: sinon.spy(() => connection),
+      methods: 'wibble',
+    };
     genericPool = {
       on: sinon.spy(),
       acquire: sinon.spy(() => Promise.resolve(connection)),
@@ -78,8 +81,11 @@ describe('redis/pool:', () => {
 
   it('returned pool object', () => {
     assert.lengthOf(Object.keys(redisPool), 2);
-    assert.isFunction(redisPool.acquire);
-    assert.isFunction(redisPool.close);
+    assert.equal(redisPool.methods, redisConnection.methods);
+    assert.isObject(redisPool.pool);
+    assert.lengthOf(Object.keys(redisPool.pool), 2);
+    assert.isFunction(redisPool.pool.acquire);
+    assert.isFunction(redisPool.pool.close);
   });
 
   it('did not call connection.isValid', () => {
@@ -133,8 +139,8 @@ describe('redis/pool:', () => {
       assert.isUndefined(result);
     });
 
-    it('did not call redisConnection', () => {
-      assert.equal(redisConnection.callCount, 0);
+    it('did not call redisConnection.create', () => {
+      assert.equal(redisConnection.create.callCount, 0);
     });
 
     describe('redis ready event:', () => {
@@ -143,9 +149,9 @@ describe('redis/pool:', () => {
         setImmediate(done);
       });
 
-      it('called redisConnection correctly', () => {
-        assert.equal(redisConnection.callCount, 1);
-        const args = redisConnection.args[0];
+      it('called redisConnection.create correctly', () => {
+        assert.equal(redisConnection.create.callCount, 1);
+        const args = redisConnection.create.args[0];
         assert.lengthOf(args, 2);
         assert.equal(args[0], log);
         assert.equal(args[1], redis);
@@ -221,11 +227,11 @@ describe('redis/pool:', () => {
     });
   });
 
-  describe('redisPool.acquire:', () => {
+  describe('redisPool.pool.acquire:', () => {
     let result;
 
     beforeEach(() => {
-      result = redisPool.acquire();
+      result = redisPool.pool.acquire();
     });
 
     it('called pool.acquire correctly', () => {

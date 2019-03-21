@@ -22,7 +22,12 @@ describe('redis disabled:', () => {
     };
     pool = { acquire: sinon.spy() };
     result = proxyquire(`${ROOT_DIR}/redis`, {
-      './pool': pool
+      './pool': {
+        methods: [ 'get', 'set', 'del', 'update' ],
+        pool: {
+          acquire: sinon.spy(),
+        },
+      },
     })({ enabled: false }, log);
   });
 
@@ -60,7 +65,10 @@ describe('redis enabled:', () => {
     };
     dispose = sinon.spy();
     pool = { acquire: sinon.spy(() => Promise.resolve(connection).disposer(dispose)) };
-    initialisePool = sinon.spy(() => pool);
+    initialisePool = sinon.spy(() => ({
+      methods: [ 'get', 'set', 'del', 'update' ],
+      pool,
+    }));
     redis = proxyquire(`${ROOT_DIR}/redis`, { './pool': initialisePool })(config, log);
   });
 
