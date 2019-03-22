@@ -1000,6 +1000,27 @@ module.exports = config => {
       });
   };
 
+  ClientApi.prototype.grantOAuthTokensFromSessionToken = function (sessionTokenHex, oauthParams) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then((token) => {
+        return this.doRequest(
+          'POST',
+          `${this.baseURL}/oauth/token`,
+          token,
+          oauthParams
+        );
+      });
+  };
+
+  ClientApi.prototype.grantOAuthTokens = function (oauthParams) {
+    return this.doRequest(
+      'POST',
+      `${this.baseURL}/oauth/token`,
+      null,
+      oauthParams
+    );
+  };
+
   ClientApi.heartbeat = function (origin) {
     return (new ClientApi(origin)).doRequest('GET', `${origin  }/__heartbeat__`);
   };

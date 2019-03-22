@@ -29,6 +29,9 @@ module.exports = (log, config) => {
     getClientInfo: require('./client-info')(config),
     getScopedKeyData: require('./scoped-key-data')(config),
     createAuthorizationCode: require('./create-authorization-code')(config),
+    grantTokensFromAuthorizationCode: require('./grant-tokens-from-authorization-code')(config),
+    grantTokensFromRefreshToken: require('./grant-tokens-from-refresh-token')(config),
+    grantTokensFromCredentials: require('./grant-tokens-from-credentials')(config),
   });
 
   const api = new OAuthAPI(config.oauth.url, config.oauth.poolee);
@@ -82,6 +85,31 @@ module.exports = (log, config) => {
       oauthParams.assertion = await makeAssertionJWT(config, sessionToken);
       try {
         return await api.createAuthorizationCode(oauthParams);
+      } catch (err) {
+        throw mapOAuthError(log, err);
+      }
+    },
+
+    async grantTokensFromAuthorizationCode(oauthParams) {
+      try {
+        return await api.grantTokensFromAuthorizationCode(oauthParams);
+      } catch (err) {
+        throw mapOAuthError(log, err);
+      }
+    },
+
+    async grantTokensFromRefreshToken(oauthParams) {
+      try {
+        return await api.grantTokensFromRefreshToken(oauthParams);
+      } catch (err) {
+        throw mapOAuthError(log, err);
+      }
+    },
+
+    async grantTokensFromSessionToken(sessionToken, oauthParams) {
+      oauthParams.assertion = await makeAssertionJWT(config, sessionToken);
+      try {
+        return await api.grantTokensFromCredentials(oauthParams);
       } catch (err) {
         throw mapOAuthError(log, err);
       }

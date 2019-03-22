@@ -80,6 +80,11 @@ const ERRNO = {
   INVALID_RESPONSE_TYPE: 168,
   MISSING_PKCE_PARAMETERS: 169,
   INSUFFICIENT_ACR_VALUES: 170,
+  INCORRECT_CLIENT_SECRET: 171,
+  UNKNOWN_AUTHORIZATION_CODE: 172,
+  MISMATCH_AUTHORIZATION_CODE: 173,
+  EXPIRED_AUTHORIZATION_CODE: 174,
+  INVALID_PKCE_CHALLENGE: 175,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -902,6 +907,17 @@ AppError.unknownClientId = (clientId) => {
   });
 };
 
+AppError.incorrectClientSecret = (clientId) => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INCORRECT_CLIENT_SECRET,
+    message: 'Incorrect client_secret'
+  }, {
+      clientId
+    });
+};
+
 AppError.staleAuthAt = (authAt) => {
   return new AppError({
     code: 400,
@@ -942,6 +958,41 @@ AppError.incorrectRedirectURI = (redirectUri) => {
   });
 };
 
+AppError.unknownAuthorizationCode = (code) => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.UNKNOWN_AUTHORIZATION_CODE,
+    message: 'Unknown authorization code'
+  }, {
+      code
+    });
+};
+
+AppError.mismatchAuthorizationCode = (code, clientId) => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.MISMATCH_AUTHORIZATION_CODE,
+    message: 'Mismatched authorization code'
+  }, {
+      code,
+      clientId
+    });
+};
+
+AppError.expiredAuthorizationCode = (code, expiredAt) => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.EXPIRED_AUTHORIZATION_CODE,
+    message: 'Expired authorization code'
+  }, {
+      code,
+      expiredAt
+    });
+};
+
 AppError.invalidResponseType = () => {
   return new AppError({
     code: 400,
@@ -968,6 +1019,17 @@ AppError.missingPkceParameters = () => {
     error: 'Bad Request',
     errno: ERRNO.MISSING_PKCE_PARAMETERS,
     message: 'Public clients require PKCE OAuth parameters'
+  });
+};
+
+AppError.invalidPkceChallenge = (pkceHashValue) => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INVALID_PKCE_CHALLENGE,
+    message: 'Public clients require PKCE OAuth parameters'
+  }, {
+    pkceHashValue
   });
 };
 

@@ -144,7 +144,7 @@
       "hashedSecret": "a7ee3482fab1782f5d3945cde06bb911605a8dfc1a45e4b77bc76615d5671e51",
       "imageUri": "",
       "redirectUri": "http://127.0.0.1:3030/oauth/success/3c49430b43dfba77",
-      "canGrant": false,
+      "canGrant": true,
       "trusted": true,
       "allowedScopes": "https://identity.mozilla.com/apps/oldsync",
       "publicClient": true

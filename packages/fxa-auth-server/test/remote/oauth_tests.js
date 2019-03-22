@@ -13,9 +13,10 @@ const testUtils = require('../lib/util');
 const oauthServerModule = require('../../fxa-oauth-server/lib/server');
 
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
-const MOCK_CODE_CHALLENGE = '1234567890123456789012345678901234567890123';
+const MOCK_CODE_VERIFIER = 'abababababababababababababababababababababa';
+const MOCK_CODE_CHALLENGE = 'YPhkZqm08uTfwjNSiYcx80-NPT9Zn94kHboQW97KyV0';
 
-describe('/oauth/authorization', function () {
+describe('/oauth/ routes', function () {
   this.timeout(15000);
   let client;
   let email;
@@ -83,5 +84,60 @@ describe('/oauth/authorization', function () {
       assert.equal(err.errno, error.ERRNO.INVALID_PARAMETER);
       assert.equal(err.validation.keys[0], 'assertion', 'assertion param caught in validation');
     }
+  });
+
+  it('successfully grants tokens from sessionToken', async () => {
+    const SCOPE = 'https://identity.mozilla.com/apps/oldsync';
+    const res = await client.grantOAuthTokensFromSessionToken({
+      grant_type: 'fxa-credentials',
+      client_id: PUBLIC_CLIENT_ID,
+      access_type: 'offline',
+      scope: SCOPE
+    });
+
+    assert.ok(res.access_token);
+    assert.ok(res.refresh_token);
+    assert.equal(res.scope, SCOPE);
+    assert.ok(res.auth_at);
+    assert.ok(res.expires_in);
+    assert.ok(res.token_type);
+  });
+
+  it('successfully grants tokens via authentication code flow, and refresh token flow', async () => {
+    const SCOPE = 'https://identity.mozilla.com/apps/oldsync openid';
+
+    let res = await client.createAuthorizationCode({
+      client_id: PUBLIC_CLIENT_ID,
+      state: 'abc',
+      code_challenge: MOCK_CODE_CHALLENGE,
+      code_challenge_method: 'S256',
+      scope: SCOPE,
+      access_type: 'offline',
+    });
+    assert.ok(res.code);
+
+    res = await client.grantOAuthTokens({
+      client_id: PUBLIC_CLIENT_ID,
+      code: res.code,
+      code_verifier: MOCK_CODE_VERIFIER,
+    });
+    assert.ok(res.access_token);
+    assert.ok(res.refresh_token);
+    assert.ok(res.id_token);
+    assert.equal(res.scope, SCOPE);
+    assert.ok(res.auth_at);
+    assert.ok(res.expires_in);
+    assert.ok(res.token_type);
+
+    const res2 = await client.grantOAuthTokens({
+      client_id: PUBLIC_CLIENT_ID,
+      refresh_token: res.refresh_token,
+      grant_type: 'refresh_token',
+    });
+    assert.ok(res.access_token);
+    assert.equal(res.scope, SCOPE);
+    assert.ok(res.expires_in);
+    assert.ok(res.token_type);
+    assert.notEqual(res.access_token, res2.access_token);
   });
 });

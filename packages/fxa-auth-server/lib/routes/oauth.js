@@ -17,6 +17,8 @@
 
 const Joi = require('joi');
 
+const error = require('../error');
+
 module.exports = (log, config, oauthdb) => {
   const routes = [
     {
@@ -74,6 +76,53 @@ module.exports = (log, config, oauthdb) => {
       handler: async function (request) {
         const sessionToken = request.auth.credentials;
         return oauthdb.createAuthorizationCode(sessionToken, request.payload);
+      }
+    },
+    {
+      method: 'POST',
+      path: '/oauth/token',
+      options: {
+        auth: {
+          // XXX TODO: To be able to fully replace the /token route from oauth-server,
+          // this route must also be able to accept 'client_secret' as Basic Auth in header.
+          mode: 'optional',
+          strategy: 'sessionToken'
+        },
+        validate: {
+          // Note: the use of 'alternatives' here means that `grant_type` will default to
+          // `authorization_code` if a `code` parameter is provided, or `fxa-credentials`
+          // otherwise. This is intended behaviour.
+          payload: Joi.alternatives().try(
+            oauthdb.api.grantTokensFromAuthorizationCode.opts.validate.payload,
+            oauthdb.api.grantTokensFromRefreshToken.opts.validate.payload,
+            oauthdb.api.grantTokensFromCredentials.opts.validate.payload.keys({
+              assertion: Joi.forbidden()
+            })
+          )
+        },
+        response: {
+          schema: Joi.alternatives().try(
+            oauthdb.api.grantTokensFromAuthorizationCode.opts.validate.response,
+            oauthdb.api.grantTokensFromRefreshToken.opts.validate.response,
+            oauthdb.api.grantTokensFromCredentials.opts.validate.response
+          )
+        }
+      },
+      handler: async function (request) {
+        const sessionToken = request.auth.credentials;
+        switch (request.payload.grant_type) {
+          case 'authorization_code':
+            return await oauthdb.grantTokensFromAuthorizationCode(request.payload);
+          case 'refresh_token':
+            return await oauthdb.grantTokensFromRefreshToken(request.payload);
+          case 'fxa-credentials':
+            if (! sessionToken) {
+              throw error.invalidToken();
+            }
+            return await oauthdb.grantTokensFromSessionToken(sessionToken, request.payload);
+          default:
+            throw error.internalValidationError();
+        }
       }
     },
   ];

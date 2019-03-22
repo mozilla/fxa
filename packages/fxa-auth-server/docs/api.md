@@ -48,6 +48,7 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [GET /oauth/client/{client_id}](#get-oauthclientclient_id)
     * [POST /account/scoped-key-data (:lock: sessionToken)](#post-accountscoped-key-data)
     * [POST /oauth/authorization (:lock: sessionToken)](#post-oauthauthorization)
+    * [POST /oauth/token (:lock::unlock: sessionToken)](#post-oauthtoken)
   * [Password](#password)
     * [POST /password/change/start](#post-passwordchangestart)
     * [POST /password/change/finish (:lock: passwordChangeToken)](#post-passwordchangefinish)
@@ -386,19 +387,22 @@ those common validations are defined here.
 * `HEX_STRING`: `/^(?:[a-fA-F0-9]{2})+$/`
 * `BASE_36`: `/^[a-zA-Z0-9]*$/`
 * `URL_SAFE_BASE_64`: `/^[A-Za-z0-9_-]+$/`
+* `PKCE_CODE_VERIFIER`: `/^[A-Za-z0-9-\._~]{43,128}$/`
 * `DISPLAY_SAFE_UNICODE`: `/^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFF])*$/`
 * `DISPLAY_SAFE_UNICODE_WITH_NON_BMP`: `/^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uE000-\uF8FF\uFFF9-\uFFFF])*$/`
 * `BEARER_AUTH_REGEX`: `/^Bearer\s+([a-z0-9+\/]+)$/i`
 * `service`: `string, max(16), regex(/^[a-zA-Z0-9\-]*$/)`
 * `hexString`: `string, regex(/^(?:[a-fA-F0-9]{2})+$/)`
 * `clientId`: `module.exports.hexString.length(16)`
+* `clientSecret`: `module.exports.hexString`
 * `accessToken`: `module.exports.hexString.length(64)`
 * `refreshToken`: `module.exports.hexString.length(64)`
 * `authorizationCode`: `module.exports.hexString.length(64)`
-* `scope`: `string, max(256), regex(/^[a-zA-Z0-9 _\/.:-]+$/)`
+* `scope`: `string, max(256), regex(/^[a-zA-Z0-9 _\/.:-]*$/), allow('')`
 * `assertion`: `string, min(50), max(10240), regex(/^[a-zA-Z0-9_\-\.~=]+$/)`
 * `pkceCodeChallengeMethod`: `string, valid('S256')`
 * `pkceCodeChallenge`: `string, length(43), regex(module, exports.URL_SAFE_BASE_64)`
+* `pkceCodeVerifier`: `string, length(43), regex(module, exports.PKCE_CODE_VERIFIER)`
 * `jwe`: `string, max(1024), regex(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/)`
 * `verificationMethod`: `string, valid()`
 * `authPW`: `string, length(64), regex(HEX_STRING), required`
@@ -1975,7 +1979,7 @@ rather than with a BrowserID assertion.
 
 ##### Request body
 
-* `client_id`:  *validators.email.required*
+* `client_id`:  *validators.clientId.required*
   The OAuth client identifier provided by the connecting client application.
 * `state`: *string, max(256), required*
   An opaque string provided by the connecting client application, which will be
@@ -2007,6 +2011,95 @@ rather than with a BrowserID assertion.
    Specifying `AAL2` will ensure that the user has been authenticated with 2FA before authorizing
    the requested grant.
 <!--end-route-post-oauthauthorization-->
+
+
+#### POST /oauth/token
+
+:lock::unlock: Optionally HAWK-authenticated with session token
+<!--begin-route-post-oauthtoken-->
+Grant new OAuth tokens for use by a connected client, using one of the following
+grant types:
+* `grant_type=authorization_code`: A single-use code obtained via OAuth redirect flow.
+* `grant_type=refresh_token`: A refresh token issued by a previous call to this endpoint.
+* `grant_type=fxa-credentials`: Directly grant tokens using an FxA sessionToken.
+
+This is the "token endpoint" as defined in RFC6749, ande behaves like the
+(oauth-server /token endpoint)[../fxa-oauth-server/docs/api.md#post-v1token]
+except that the `fxa-credentials` grant can be authenticated directly with a sessionToken
+rather than with a BrowserID assertion.
+
+##### Request body
+
+* `client_id`:  *validators.clientId, required*
+  The OAuth client identifier for the requesting client application.
+* `client_secret`:  *validators.hexString, optional*
+  The OAuth client secret for the requesting client application. Required for confidential clients,
+  forbidden for public clients.
+* `ttl`: *number.integer.min(0), optional*
+  The desired lifetime of the issued access token, in seconds.
+  The actual lifetime may be smaller than requested depending on server configuration,
+  and will be returned in the `expired_in` property of the response.
+* `grant_type`: *string.allow('authorization_code', 'refresh_token', 'fxa-credentials'), optional*
+  The type of grant flow being used. If not specified, it will default to `fxa-credentials` unless a `code`
+  parameter is provided, in which case it will default to `authorization_code`.
+  The value of this parameter determines which other parameters will be expected in the request body,
+  as follows:
+  * When `grant_type=authorization_code`:
+    * `code`: *validators.authorizationCode, required*
+      The authorization code previously obtained through a redirect-based OAuth flow.
+    * `code_verifier`: *validators.pkceCodeVerifier, optional*
+      The [PKCE](../fxa-oauth-server/docs/pkce.md) code verifier used when obtaining `code`.
+      This is required for public OAuth clients, who must authenticate their authorization code use via PKCE.
+    * `redirect_uri`: *string, URI, optional*
+      The URI at which the client received the authorization code.
+      If supplied this *must* match the value provided during OAuth client registration.
+  * When `grant_type=refresh_token`:
+    * `refresh_token`: *validators.refreshToken, required*
+      A refresh token, as issued by a previous call to this endpoint.
+    * `scope`: *string, optional*
+      A space-separated list of scope values that will be held by the generated token.
+      These must be a subset of the scopes originally granted when the refresh token was generated.
+  * When `grant_type=fxa-credentials`:
+    * `scope`: *string, optional*
+      A space-separated list of scope values that will be held by the generated tokens.
+    * `access_type`: *string, valid(online, offline), optional*
+      If specified, a value of `offline` will cause the client to be granted a refresh token
+      alongside its access token. 
+    * In addition, the request must be authenticated with a sessionToken.
+
+##### Response body
+
+* `access_token`:  *validators.accessToken, required*
+  An OAuth access token that the client can use to access data associated with the user's account.
+* `refresh_token`: *validators.refreshToken, optional*
+  A token that can be used to grant a new access token when the current one expires,
+  via `grant_type=refresh_token` on this endpoint.
+* `id_token`: *validators.assertion, optional*
+  Open OpenID Connect identity token, provisioned if the `openid` scope was requested.
+* `scope`: *string, required*
+  The scope values held by the granted access token.
+* `auth_at`: *number, optional*
+  Where available, the timestamp at which the user last authenticated to FxA,
+  in seconds since the epoch.
+* `token_type`: *string.allow('bearer'), required*
+  The type of token, which determins how the client should use it in subsequent requests.
+  Currently only Bearer tokens are supported.
+* `expires_in`: *number.integer.min(0), required*
+  The number of seconds until the access token will expire.
+
+<!--end-route-post-oauthtoken-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+* `code: 401, errno: 110`:
+  Invalid authentication token in request signature
+
+* `code: 500, errno: 998`:
+  An internal validation check failed.
 
 
 ### Password

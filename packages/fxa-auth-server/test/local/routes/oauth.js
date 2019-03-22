@@ -7,20 +7,34 @@
 const ROOT_DIR = '../../..';
 
 const sinon = require('sinon');
+const Joi = require('joi');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const uuid = require('uuid');
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
+const error = require('../../../lib/error');
 
-const MOCK_CLIENT_ID = '01234567890ABCDEF';
+const MOCK_CLIENT_ID = '0123456789ABCDEF';
 const MOCK_SCOPES = 'mock-scope another-scope';
+const MOCK_AUTHORIZATION_CODE = 'aaaaaabbbbbbccccccddddddeeeeeeffaaaaaabbbbbbccccccddddddeeeeeeff';
+const MOCK_TOKEN_RESPONSE = {
+  access_token: 'ACCESS',
+  scope: MOCK_SCOPES,
+  token_type: 'bearer',
+  expires_in: 500,
+  auth_at: 123456,
+};
 
 describe('/oauth/ routes', () => {
   let mockOAuthDB, mockLog, sessionToken;
 
   async function loadAndCallRoute(path, request) {
     const routes = require('../../../lib/routes/oauth')(mockLog, {}, mockOAuthDB);
-    const response = await getRoute(routes, path).handler(request);
+    const route = await getRoute(routes, path);
+    if (route.options.validate.payload) {
+      request.payload = await Joi.validate(request.payload, route.options.validate.payload);
+    }
+    const response = await route.handler(request);
     if (response instanceof Error) {
       throw response;
     }
@@ -92,8 +106,8 @@ describe('/oauth/ routes', () => {
       });
       assert.deepEqual(resp, { key: 'data' });
     });
-  });
 
+  });
 
   describe('/oauth/authorization', () => {
 
@@ -122,6 +136,8 @@ describe('/oauth/ routes', () => {
         client_id: MOCK_CLIENT_ID,
         scope: MOCK_SCOPES,
         state: 'xyz',
+        access_type: 'online',
+        response_type: 'code',
       });
       assert.deepEqual(resp, {
         redirect: 'bogus',
@@ -129,5 +145,158 @@ describe('/oauth/ routes', () => {
         state: 'xyz'
       });
     });
+
+  });
+
+  describe('/oauth/token', () => {
+
+    it('calls oauthdb.grantTokensFromSessionToken when told nothing else about the grant type', async () => {
+      mockOAuthDB = mocks.mockOAuthDB({
+        grantTokensFromSessionToken: sinon.spy(async () => {
+          return MOCK_TOKEN_RESPONSE;
+        })
+      });
+      sessionToken = await mockSessionToken();
+      const mockRequest = mocks.mockRequest({
+        credentials: sessionToken,
+        payload: {
+          client_id: MOCK_CLIENT_ID,
+          scope: MOCK_SCOPES,
+        }
+      });
+      const resp = await loadAndCallRoute('/oauth/token', mockRequest);
+      assert.calledOnce(mockOAuthDB.grantTokensFromSessionToken);
+      assert.calledWithExactly(mockOAuthDB.grantTokensFromSessionToken, sessionToken, {
+        client_id: MOCK_CLIENT_ID,
+        scope: MOCK_SCOPES,
+        grant_type: 'fxa-credentials',
+        access_type: 'online',
+      });
+      assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
+    });
+
+    it('calls oauthdb.grantTokensFromAuthorizationCode when `code` input is provided', async () => {
+      mockOAuthDB = mocks.mockOAuthDB({
+        grantTokensFromAuthorizationCode: sinon.spy(async () => {
+          return MOCK_TOKEN_RESPONSE;
+        })
+      });
+      const mockRequest = mocks.mockRequest({
+        payload: {
+          client_id: MOCK_CLIENT_ID,
+          client_secret: 'ABCDEF',
+          code: MOCK_AUTHORIZATION_CODE,
+        }
+      });
+      const resp = await loadAndCallRoute('/oauth/token', mockRequest);
+      assert.calledOnce(mockOAuthDB.grantTokensFromAuthorizationCode);
+      assert.calledWithExactly(mockOAuthDB.grantTokensFromAuthorizationCode, {
+        client_id: MOCK_CLIENT_ID,
+        client_secret: 'ABCDEF',
+        code: MOCK_AUTHORIZATION_CODE,
+        grant_type: 'authorization_code',
+      });
+      assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
+    });
+
+    it('calls oauthdb.grantTokensFromAuthorizationCode when `grant_type=authorization_code`', async () => {
+      mockOAuthDB = mocks.mockOAuthDB({
+        grantTokensFromAuthorizationCode: sinon.spy(async () => {
+          return MOCK_TOKEN_RESPONSE;
+        })
+      });
+      const mockRequest = mocks.mockRequest({
+        payload: {
+          client_id: MOCK_CLIENT_ID,
+          client_secret: 'ABCDEF',
+          code: MOCK_AUTHORIZATION_CODE,
+          grant_type: 'authorization_code',
+        }
+      });
+      const resp = await loadAndCallRoute('/oauth/token', mockRequest);
+      assert.calledOnce(mockOAuthDB.grantTokensFromAuthorizationCode);
+      assert.calledWithExactly(mockOAuthDB.grantTokensFromAuthorizationCode, {
+        client_id: MOCK_CLIENT_ID,
+        client_secret: 'ABCDEF',
+        code: MOCK_AUTHORIZATION_CODE,
+        grant_type: 'authorization_code',
+      });
+      assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
+    });
+
+    it('calls oauthdb.grantTokensFromRefreshToken when `grant_type=refresh_token`', async () => {
+      mockOAuthDB = mocks.mockOAuthDB({
+        grantTokensFromRefreshToken: sinon.spy(async () => {
+          return MOCK_TOKEN_RESPONSE;
+        })
+      });
+      const mockRequest = mocks.mockRequest({
+        payload: {
+          client_id: MOCK_CLIENT_ID,
+          client_secret: 'ABCDEF',
+          refresh_token: MOCK_AUTHORIZATION_CODE,
+          grant_type: 'refresh_token',
+        }
+      });
+      const resp = await loadAndCallRoute('/oauth/token', mockRequest);
+      assert.calledOnce(mockOAuthDB.grantTokensFromRefreshToken);
+      assert.calledWithExactly(mockOAuthDB.grantTokensFromRefreshToken, {
+        client_id: MOCK_CLIENT_ID,
+        client_secret: 'ABCDEF',
+        refresh_token: MOCK_AUTHORIZATION_CODE,
+        grant_type: 'refresh_token',
+      });
+      assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
+    });
+
+    it('calls oauthdb.grantTokensFromSessionToken when `grant_type=fxa-credentials`', async () => {
+      mockOAuthDB = mocks.mockOAuthDB({
+        grantTokensFromSessionToken: sinon.spy(async () => {
+          return MOCK_TOKEN_RESPONSE;
+        })
+      });
+      sessionToken = await mockSessionToken();
+      const mockRequest = mocks.mockRequest({
+        credentials: sessionToken,
+        payload: {
+          client_id: MOCK_CLIENT_ID,
+          scope: MOCK_SCOPES,
+          grant_type: 'fxa-credentials',
+        }
+      });
+      const resp = await loadAndCallRoute('/oauth/token', mockRequest);
+      assert.calledOnce(mockOAuthDB.grantTokensFromSessionToken);
+      assert.calledWithExactly(mockOAuthDB.grantTokensFromSessionToken, sessionToken, {
+        client_id: MOCK_CLIENT_ID,
+        scope: MOCK_SCOPES,
+        grant_type: 'fxa-credentials',
+        access_type: 'online',
+      });
+      assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
+    });
+
+    it('refuses to call oauthdb.grantTokensFromSessionToken without a valid sessionToken', async () => {
+      mockOAuthDB = mocks.mockOAuthDB({
+        grantTokensFromSessionToken: sinon.spy(async () => {
+          return MOCK_TOKEN_RESPONSE;
+        })
+      });
+      const mockRequest = mocks.mockRequest({
+        credentials: null,
+        payload: {
+          client_id: MOCK_CLIENT_ID,
+          scope: MOCK_SCOPES,
+          grant_type: 'fxa-credentials',
+        }
+      });
+      try {
+        await loadAndCallRoute('/oauth/token', mockRequest);
+        throw new Error('should have thrown');
+      } catch (err) {
+        assert.equal(err.errno, error.ERRNO.INVALID_TOKEN);
+      }
+      assert.equal(mockOAuthDB.grantTokensFromSessionToken.callCount, 0);
+    });
+
   });
 });

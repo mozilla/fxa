@@ -28,10 +28,18 @@ module.exports = {
     switch (err.errno) {
     case 101:
       return error.unknownClientId(err.clientId);
+    case 102:
+      return error.incorrectClientSecret(err.clientId);
     case 103:
       return error.incorrectRedirectURI(err.redirectUri);
     case 104:
       return error.invalidToken();
+    case 105:
+      return error.unknownAuthorizationCode(err.code);
+    case 106:
+      return error.mismatchAuthorizationCode(err.code, err.clientId);
+    case 107:
+      return error.expiredAuthorizationCode(err.code, err.expiredAt);
     case 108:
       return error.invalidToken();
     case 109:
@@ -42,6 +50,8 @@ module.exports = {
       return error.invalidScopes(err.invalidScopes);
     case 116:
       return error.notPublicClient();
+    case 117:
+      return error.invalidPkceChallenge(err.pkceHashValue);
     case 118:
       return error.missingPkceParameters();
     case 119:

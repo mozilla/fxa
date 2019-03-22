@@ -92,6 +92,9 @@ const OAUTHDB_METHOD_NAMES = [
   'getClientInfo',
   'getScopedKeyData',
   'createAuthorizationCode',
+  'grantTokensFromAuthorizationCode',
+  'grantTokensFromRefreshToken',
+  'grantTokensFromSessionToken',
 ];
 
 const LOG_METHOD_NAMES = [
