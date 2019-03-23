@@ -18,8 +18,9 @@
 const Joi = require('joi');
 
 const error = require('../error');
+const oauthRouteUtils = require('./utils/oauth');
 
-module.exports = (log, config, oauthdb) => {
+module.exports = (log, config, oauthdb, db, mailer, devices) => {
   const routes = [
     {
       method: 'GET',
@@ -110,19 +111,31 @@ module.exports = (log, config, oauthdb) => {
       },
       handler: async function (request) {
         const sessionToken = request.auth.credentials;
+        let grant;
         switch (request.payload.grant_type) {
           case 'authorization_code':
-            return await oauthdb.grantTokensFromAuthorizationCode(request.payload);
+            grant = await oauthdb.grantTokensFromAuthorizationCode(request.payload);
+            break;
           case 'refresh_token':
-            return await oauthdb.grantTokensFromRefreshToken(request.payload);
+            grant = await oauthdb.grantTokensFromRefreshToken(request.payload);
+            break;
           case 'fxa-credentials':
             if (! sessionToken) {
               throw error.invalidToken();
             }
-            return await oauthdb.grantTokensFromSessionToken(sessionToken, request.payload);
+            grant = await oauthdb.grantTokensFromSessionToken(sessionToken, request.payload);
+            break;
           default:
             throw error.internalValidationError();
         }
+
+        if (grant.refresh_token) {
+          // if a refresh token has been provisioned as part of the flow
+          // then we want to send some notifications to the user
+          await oauthRouteUtils.newTokenNotification(db, oauthdb, mailer, devices, request, grant);
+        }
+
+        return grant;
       }
     },
   ];

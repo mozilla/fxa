@@ -13,6 +13,7 @@ const testUtils = require('../lib/util');
 const oauthServerModule = require('../../fxa-oauth-server/lib/server');
 
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
+const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
 const MOCK_CODE_VERIFIER = 'abababababababababababababababababababababa';
 const MOCK_CODE_CHALLENGE = 'YPhkZqm08uTfwjNSiYcx80-NPT9Zn94kHboQW97KyV0';
 
@@ -86,8 +87,12 @@ describe('/oauth/ routes', function () {
     }
   });
 
-  it('successfully grants tokens from sessionToken', async () => {
+  it('successfully grants tokens from sessionToken and notifies user', async () => {
     const SCOPE = 'https://identity.mozilla.com/apps/oldsync';
+
+    let devices = await client.devices();
+    assert.equal(devices.length, 0, 'no devices yet');
+
     const res = await client.grantOAuthTokensFromSessionToken({
       grant_type: 'fxa-credentials',
       client_id: PUBLIC_CLIENT_ID,
@@ -101,10 +106,24 @@ describe('/oauth/ routes', function () {
     assert.ok(res.auth_at);
     assert.ok(res.expires_in);
     assert.ok(res.token_type);
+
+    // got an email notification
+    const emailData = await server.mailbox.waitForEmail(email);
+    assert.equal(emailData.headers['x-template-name'], 'newDeviceLoginEmail', 'correct template');
+    assert.equal(emailData.subject, `New sign-in to ${OAUTH_CLIENT_NAME}`, 'has client name');
+    assert.equal(emailData.headers['x-service-id'], PUBLIC_CLIENT_ID, 'has client id');
+
+    // added a new device
+    devices = await client.devicesWithRefreshToken(res.refresh_token);
+    assert.equal(devices.length, 1, 'new device');
+    assert.equal(devices[0].name, OAUTH_CLIENT_NAME);
   });
 
   it('successfully grants tokens via authentication code flow, and refresh token flow', async () => {
     const SCOPE = 'https://identity.mozilla.com/apps/oldsync openid';
+
+    let devices = await client.devices();
+    assert.equal(devices.length, 0, 'no devices yet');
 
     let res = await client.createAuthorizationCode({
       client_id: PUBLIC_CLIENT_ID,
@@ -115,6 +134,9 @@ describe('/oauth/ routes', function () {
       access_type: 'offline',
     });
     assert.ok(res.code);
+
+    devices = await client.devices();
+    assert.equal(devices.length, 0, 'no devices yet');
 
     res = await client.grantOAuthTokens({
       client_id: PUBLIC_CLIENT_ID,
@@ -129,6 +151,9 @@ describe('/oauth/ routes', function () {
     assert.ok(res.expires_in);
     assert.ok(res.token_type);
 
+    devices = await client.devices();
+    assert.equal(devices.length, 1, 'has a new device after the code grant');
+
     const res2 = await client.grantOAuthTokens({
       client_id: PUBLIC_CLIENT_ID,
       refresh_token: res.refresh_token,
@@ -139,5 +164,8 @@ describe('/oauth/ routes', function () {
     assert.ok(res.expires_in);
     assert.ok(res.token_type);
     assert.notEqual(res.access_token, res2.access_token);
+
+    devices = await client.devices();
+    assert.equal(devices.length, 1, 'still only one device after a refresh_token grant');
   });
 });
