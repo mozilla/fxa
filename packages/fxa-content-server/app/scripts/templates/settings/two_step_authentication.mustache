@@ -4,6 +4,10 @@
             <h2 class="settings-unit-title">{{#t}}Two-step authentication{{/t}}</h2>
         </header>
 
+        <button class="settings-button secondary-button settings-unit-loading" disabled>
+            <div class="spinner spinner-settings-fetch"></div>
+        </button>
+
         {{^hasToken}}
             <button class="settings-button primary-button settings-unit-toggle totp-create" data-href="settings/two_step_authentication">
                 {{#t}}Enable…{{/t}}
