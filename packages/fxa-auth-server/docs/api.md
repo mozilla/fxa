@@ -1,9 +1,5 @@
 # Firefox Accounts authentication server API
 
-This document is automatically generated.
-If you are editing it,
-read [this section](#this-document) first.
-
 <!--begin-abstract-->
 This document provides protocol-level details
 of the Firefox Accounts auth server API.
@@ -94,7 +90,6 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     * [GET /complete_reset_password](#get-complete_reset_password)
 * [Example flows](#example-flows)
 * [Back-off protocol](#back-off-protocol)
-* [This document](#this-document)
 
 ## Overview
 
@@ -3111,32 +3106,3 @@ Content-Type: application/json
 }
 ```
 <!--end-back-off-protocol-->
-
-## This document
-<!--begin-this-document-->
-This document is automatically generated
-by [a script](../scripts/write-api-docs.js)
-that parses the source code
-and the document itself.
-
-All changes to this document will be lost
-unless they are made inside
-delimiting HTML comments of the form:
-```html
-<!--begin-foo-bar-->
-YOUR CHANGE GOES HERE
-<!--end-foo-bar->
-```
-
-`foo-bar` must be a tag
-that, when camel-cased,
-matches a property name in the data
-for the [mustache template](../scripts/api-docs.mustache)
-this document is generated from.
-
-If you want to change
-the structure of the document,
-you must make your changes
-to `scripts/api-docs.mustache`
-rather than in this document directly.
-<!--end-this-document-->
