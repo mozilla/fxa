@@ -94,15 +94,18 @@ Verifier.prototype.start = function(cb) {
       self._outBuf += line;
     }
 
-    var m;
     // figure out the bound port
-    if ((m = /running on (http:\/\/.*)$/m.exec(line))) {
-      self._url = m[1];
-      if (cb) {
-        cb(null, m[1]);
+    try {
+      var m = JSON.parse(line);
+      if (m.Type === 'server.running') {
+        self._url = m.Fields.url;
+        if (cb) {
+          cb(null, m.Fields.url);
+        }
+        cb = null;
       }
-      cb = null;
-    }
+    } catch (err) {}
+
     if (process.env.VERBOSE) {
       console.log(line.toString());
     }

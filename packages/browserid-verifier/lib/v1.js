@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const
-log = require('./log').getLogger('bid.v1'),
+log = require('./log')('v1'),
 config = require('./config'),
 _ = require('underscore'),
 util = require('util');
@@ -69,7 +69,7 @@ function verify(verifier, req, res) {
     fallback: config.get('fallback')
   }, function (err, r) {
     var reqTime = new Date() - startTime;
-    log.info('assertion_verification_time', reqTime);
+    log.info('assertion_verification_time', { reqTime });
     res._summary.assertion_verification_time = reqTime;
 
     if (err) {

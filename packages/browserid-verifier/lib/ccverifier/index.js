@@ -22,7 +22,7 @@ const
 util = require("util"),
 events = require("events"),
 path = require("path"),
-log = require("../log").getLogger("bid.ccverifier"),
+log = require("../log")("ccverifier"),
 config = require("../config"),
 cc = require("compute-cluster"),
 _ = require("underscore");
@@ -36,11 +36,11 @@ function Verifier(args) {
     max_processes: config.get('computecluster.maxProcesses'),
     max_backlog: config.get('computecluster.maxBacklog'),
   }).on("error", function(err) {
-    log.error("compute cluster fatal error: " + err);
+    log.error("computeCluster.error", { err });
   }).on("info", function(msg) {
-    log.info("compute cluster: " + msg);
+    log.info("computeCluster.info", { message: msg });
   }).on("debug", function(msg) {
-    log.debug("compute cluster: " + msg);
+    log.debug("computeCluster.debug", { message: msg });
   });
 }
 

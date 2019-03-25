@@ -65,54 +65,20 @@ function loadConf() {
       }
     },
     logging: {
-      formatters: {
-        doc: "Formatters for intel loggers.",
-        env: 'LOG_FORMATTERS',
-        format: Object,
-        default: {
-          pretty: {
-            format: "[%(date)s] %(name)s.%(levelname)s: %(message)s",
-            colorize: true
-          },
-          json: {
-            class: '../log/json',
-            format: '%O'
-          }
-        }
+      app: {
+        default: 'browserid-verifier'
       },
-      handlers: {
-        doc: 'Handlers deliver log messages to different destinations',
-        format: Object,
-        default: {
-          console: {
-            "class": "intel/handlers/console",
-            "formatter": "pretty"
-          }
-        }
+      fmt: {
+        format: ['heka', 'pretty'],
+        default: 'heka'
       },
-      loggers: {
-        doc: 'intel Loggers',
-        format: Object,
-        default: {
-          bid: {
-            level: "DEBUG",
-            handlers: ["console"],
-            propagate: false,
-            handleExceptions: true,
-            exitOnError: false
-          },
-          'bid.summary': {
-            // Don't log detailed summary information by default.
-            // This gets explicitly enabled in production.
-            level: 'INFO',
-            propagate: false,
-            handlers: []
-          }
-        }
+      level: {
+        env: 'LOG_LEVEL',
+        default: 'debug'
       },
-      root: {
-        doc: 'Path used for finding relative classes',
-        default: __filename
+      debug: {
+        env: 'LOG_DEBUG',
+        default: false
       }
     },
     testServiceFailure: {
@@ -137,7 +103,7 @@ function loadConf() {
   module.exports = conf;
 
   process.nextTick(function() {
-    require('./log').getLogger('bid.config')
+    require('./log')('config')
       .debug("current configuration:", JSON.stringify(conf.get(), null, 2));
   });
 }
