@@ -131,6 +131,8 @@ function extractUrls(body) {
 }
 
 const IGNORE_URL_REGEXPS = [
+  // Ignore Firefox iOS links until https://github.com/mozilla/legal-docs/pull/1247 lands
+  /github.com\/mozilla-mobile\/firefox-ios\/blob/,
   // Do not check support.mozilla.org URLs. Issue #4712
   // In February 2017 SUMO links started returning 404s to non-browser redirect requests
   /support\.mozilla\.org/,
