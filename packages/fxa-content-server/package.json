@@ -65,7 +65,7 @@
     "fxa-pairing-channel": "1.0.1",
     "fxa-shared": "1.0.20",
     "got": "6.7.1",
-    "grunt": "1.0.3",
+    "grunt": "1.0.4",
     "grunt-babel": "6.0.0",
     "grunt-cdn": "0.6.5",
     "grunt-contrib-clean": "1.1.0",
