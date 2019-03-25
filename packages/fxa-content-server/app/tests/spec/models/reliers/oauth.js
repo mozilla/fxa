@@ -209,6 +209,19 @@ describe('models/reliers/oauth', () => {
       });
     });
 
+    describe('success flow', () => {
+      it('sets up the success flow', () => {
+        windowMock.location.pathname = `/oauth/success/${CLIENT_ID}`;
+        sinon.spy(relier, '_setupSuccessFlow');
+
+        return relier.fetch()
+          .then(() => {
+            assert.equal(relier.get('clientId'), CLIENT_ID, 'sets the client id');
+            assert.isTrue(relier._setupSuccessFlow.calledOnce);
+          });
+      });
+    });
+
     it('sets serviceName, and redirectUri from parameters returned by the server', () => {
       windowMock.location.search = TestHelpers.toSearchString({
         action: ACTION,

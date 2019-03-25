@@ -14,5 +14,6 @@ module.exports = {
   RECOVERY_KEY: 'recovery_key',
   SECONDARY_EMAIL_VERIFIED: 'secondary_email_verified',
   SIGN_IN: 'login',
-  SIGN_UP: 'signup'
+  SIGN_UP: 'signup',
+  SUCCESSFUL_OAUTH: 'oauth_success'
 };

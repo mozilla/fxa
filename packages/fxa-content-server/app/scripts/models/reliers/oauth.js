@@ -87,7 +87,9 @@ var OAuthRelier = Relier.extend({
   fetch () {
     return Relier.prototype.fetch.call(this)
       .then(() => {
-        if (this._isVerificationFlow()) {
+        if (this._isSuccessFlow()) {
+          this._setupSuccessFlow();
+        } else if (this._isVerificationFlow()) {
           this._setupVerificationFlow();
         } else {
           this._setupSignInSignUpFlow();
@@ -143,6 +145,10 @@ var OAuthRelier = Relier.extend({
     return !! this.getSearchParam('code');
   },
 
+  _isSuccessFlow () {
+    return /oauth\/success/.test(this.window.location.pathname);
+  },
+
   _setupVerificationFlow () {
     var resumeObj = this._session.oauth;
     if (! resumeObj) {
@@ -171,11 +177,22 @@ var OAuthRelier = Relier.extend({
     if (! this.get('email') && this.get('loginHint')) {
       this.set('email', this.get('loginHint'));
     }
+
     // OAuth reliers are not allowed to specify a service. `service`
     // is used in the verification flow, it'll be set to the `client_id`.
     if (this.getSearchParam('service')) {
       throw OAuthErrors.toInvalidParameterError('service');
     }
+  },
+
+  _setupSuccessFlow () {
+    const pathname = this.window.location.pathname.split('/');
+    const clientId = pathname[pathname.length - 1];
+    if (! clientId) {
+      throw OAuthErrors.toError('INVALID_PARAMETER');
+    }
+
+    this.set('clientId', clientId);
   },
 
   _setupOAuthRPInfo () {
