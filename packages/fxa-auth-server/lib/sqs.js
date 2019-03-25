@@ -4,9 +4,9 @@
 
 'use strict';
 
-var AWS = require('aws-sdk');
-var inherits = require('util').inherits;
-var EventEmitter = require('events').EventEmitter;
+const AWS = require('aws-sdk');
+const inherits = require('util').inherits;
+const EventEmitter = require('events').EventEmitter;
 
 module.exports = function (log) {
 
@@ -24,7 +24,7 @@ module.exports = function (log) {
   }
 
   SQSReceiver.prototype.fetch = function (url) {
-    var errTimer = null;
+    let errTimer = null;
     this.sqs.receiveMessage(
       {
         QueueUrl: url,
@@ -52,12 +52,12 @@ module.exports = function (log) {
           );
         }
         data.Messages = data.Messages || [];
-        for (var i = 0; i < data.Messages.length; i++) {
-          var msg = data.Messages[i];
-          var deleteFromQueue = deleteMessage.bind(this, msg);
+        for (let i = 0; i < data.Messages.length; i++) {
+          const msg = data.Messages[i];
+          const deleteFromQueue = deleteMessage.bind(this, msg);
           try {
-            var body = JSON.parse(msg.Body);
-            var message = JSON.parse(body.Message);
+            const body = JSON.parse(msg.Body);
+            const message = JSON.parse(body.Message);
             message.del = deleteFromQueue;
             this.emit('data', message);
           }
@@ -72,7 +72,7 @@ module.exports = function (log) {
   };
 
   SQSReceiver.prototype.start = function () {
-    for (var i = 0; i < this.queueUrls.length; i++) {
+    for (let i = 0; i < this.queueUrls.length; i++) {
       this.fetch(this.queueUrls[i]);
     }
   };

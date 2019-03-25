@@ -41,7 +41,7 @@ Pool.prototype.request = function (method, url, params, query, body, headers = {
     return P.reject(err);
   }
 
-  var d = P.defer();
+  const d = P.defer();
   let data;
   if (body) {
     headers['Content-Type'] = 'application/json';
@@ -59,14 +59,14 @@ Pool.prototype.request = function (method, url, params, query, body, headers = {
   return d.promise;
 
   function handleResponse (err, res, body) {
-    var parsedBody = safeParse(body);
+    const parsedBody = safeParse(body);
 
     if (err) {
       return d.reject(err);
     }
 
     if (res.statusCode < 200 || res.statusCode >= 300) {
-      var error = new Error();
+      const error = new Error();
       if (! parsedBody) {
         error.message = body;
       } else {
@@ -112,9 +112,9 @@ Pool.prototype.close = function () {
   /*/
     This is a hack to coax the server to close its existing connections
   /*/
-  var socketCount = this.poolee.options.maxSockets || 20;
+  const socketCount = this.poolee.options.maxSockets || 20;
   function noop() {}
-  for (var i = 0; i < socketCount; i++) {
+  for (let i = 0; i < socketCount; i++) {
     this.poolee.request(
       {
         method: 'GET',

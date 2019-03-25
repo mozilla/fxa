@@ -4,16 +4,16 @@
 
 'use strict';
 
-var path = require('path');
-var i18n = require('i18n-abide');
-var Jed = require('jed');
-var P = require('bluebird');
-var po2json = require('po2json');
-var poParseFile = P.promisify(po2json.parseFile);
+const path = require('path');
+const i18n = require('i18n-abide');
+const Jed = require('jed');
+const P = require('bluebird');
+const po2json = require('po2json');
+const poParseFile = P.promisify(po2json.parseFile);
 
 Jed.prototype.format = i18n.format;
 
-var parseCache = {};
+const parseCache = {};
 
 function parseLocale(locale) {
   if (parseCache[locale]) {
@@ -43,10 +43,10 @@ module.exports = function (locales, defaultLanguage) {
   )
   .then(
     function (translations) {
-      var languageTranslations = {};
-      var supportedLanguages = [];
-      for (var i = 0; i < translations.length; i++) {
-        var t = translations[i];
+      const languageTranslations = {};
+      const supportedLanguages = [];
+      for (let i = 0; i < translations.length; i++) {
+        const t = translations[i];
         const localeMessageData = t.locale_data.messages[''];
 
         if (localeMessageData.lang === 'ar') {
@@ -55,9 +55,9 @@ module.exports = function (locales, defaultLanguage) {
           localeMessageData.plural_forms = null;
         }
 
-        var language = i18n.normalizeLanguage(i18n.languageFrom(localeMessageData.lang));
+        const language = i18n.normalizeLanguage(i18n.languageFrom(localeMessageData.lang));
         supportedLanguages.push(language);
-        var translator = new Jed(t);
+        const translator = new Jed(t);
         translator.language = language;
         languageTranslations[language] = translator;
       }
@@ -71,8 +71,8 @@ module.exports = function (locales, defaultLanguage) {
       };
 
       function getLocale (acceptLanguage) {
-        var languages = i18n.parseAcceptLanguage(acceptLanguage);
-        var bestLanguage = i18n.bestLanguage(languages, supportedLanguages, defaultLanguage);
+        const languages = i18n.parseAcceptLanguage(acceptLanguage);
+        const bestLanguage = i18n.bestLanguage(languages, supportedLanguages, defaultLanguage);
         return i18n.normalizeLanguage(bestLanguage);
       }
     }

@@ -33,8 +33,8 @@ module.exports = function (log, db, Password, config, signinUtils) {
       },
       handler: async function (request) {
         log.begin('Session.destroy', request);
-        var sessionToken = request.auth.credentials;
-        var uid = request.auth.credentials.uid;
+        let sessionToken = request.auth.credentials;
+        const uid = request.auth.credentials.uid;
 
         return P.resolve()
           .then(() => {
@@ -202,7 +202,7 @@ module.exports = function (log, db, Password, config, signinUtils) {
         }
 
         function createResponse () {
-          var response = {
+          const response = {
             uid: sessionToken.uid,
             authAt: sessionToken.lastAuthAt()
           };

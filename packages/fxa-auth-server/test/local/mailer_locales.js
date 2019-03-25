@@ -35,7 +35,7 @@ describe('mailer locales', () => {
   it(
     'All configured supportedLanguages are available',
     () => {
-      var locales = config.i18n.supportedLanguages;
+      const locales = config.i18n.supportedLanguages;
       locales.forEach(function(lang) {
         // sr-LATN is sr, but in Latin characters, not Cyrillic
         if (lang === 'sr-LATN') {
@@ -51,7 +51,7 @@ describe('mailer locales', () => {
     'unsupported languages get default/fallback content',
     () => {
       // These are locales for which we do not have explicit translations
-      var locales = [
+      const locales = [
         // [ locale, expected result ]
         [ '',      'en' ],
         [ 'en-US', 'en' ],
@@ -73,7 +73,7 @@ describe('mailer locales', () => {
     'accept-language handled correctly',
     () => {
       // These are the Accept-Language headers from Firefox 37 L10N builds
-      var locales = [
+      const locales = [
         // [ accept-language, expected result ]
         [ 'bogus-value',                         'en'    ],
         [ 'en-US,en;q=0.5',                      'en'    ],

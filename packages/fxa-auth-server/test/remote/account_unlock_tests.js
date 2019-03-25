@@ -5,10 +5,10 @@
 'use strict';
 
 const { assert } = require('chai');
-var TestServer = require('../test_server');
+const TestServer = require('../test_server');
 const Client = require('../client')();
 
-var config = require('../../config').getProperties();
+const config = require('../../config').getProperties();
 
 describe('remote account unlock', function() {
   this.timeout(15000);

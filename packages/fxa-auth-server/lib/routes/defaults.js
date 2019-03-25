@@ -9,8 +9,8 @@ const cp = require('child_process');
 const error = require('../error');
 
 const version = require('../../package.json').version;
-var commitHash;
-var sourceRepo;
+let commitHash;
+let sourceRepo;
 
 const UNKNOWN = 'unknown';
 
@@ -18,8 +18,8 @@ const UNKNOWN = 'unknown';
 // startup; punt on failure. For dev environments, we'll get this from `git`
 // for dev environments.
 try {
-  var versionJson = path.join(__dirname, '..', '..', 'config', 'version.json');
-  var info = require(versionJson);
+  const versionJson = path.join(__dirname, '..', '..', 'config', 'version.json');
+  const info = require(versionJson);
   commitHash = info.version.hash;
   sourceRepo = info.version.source;
 } catch (e) {
@@ -34,11 +34,11 @@ module.exports = (log, db) => {
     function getVersion() {
       return new Promise(function (resolve, reject) {
         // ignore errors and default to 'unknown' if not found
-        var gitDir = path.resolve(__dirname, '..', '..', '.git');
+        const gitDir = path.resolve(__dirname, '..', '..', '.git');
 
           cp.exec('git rev-parse HEAD', { cwd: gitDir },  function(err, stdout1) {
-            var configPath = path.join(gitDir, 'config');
-            var cmd = 'git config --get remote.origin.url';
+            const configPath = path.join(gitDir, 'config');
+            const cmd = 'git config --get remote.origin.url';
             cp.exec(cmd, { env: { GIT_CONFIG: configPath, PATH: process.env.PATH } }, function(err, stdout2) {
                commitHash = (stdout1 && stdout1.trim()) || UNKNOWN;
                sourceRepo = (stdout2 && stdout2.trim()) || UNKNOWN;
@@ -66,7 +66,7 @@ module.exports = (log, db) => {
 
   }
 
-  var routes = [
+  const routes = [
     {
       method: 'GET',
       path: '/',

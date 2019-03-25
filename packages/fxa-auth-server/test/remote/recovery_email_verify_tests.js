@@ -5,11 +5,11 @@
 'use strict';
 
 const { assert } = require('chai');
-var url = require('url');
+const url = require('url');
 const Client = require('../client')();
-var TestServer = require('../test_server');
+const TestServer = require('../test_server');
 
-var config = require('../../config').getProperties();
+const config = require('../../config').getProperties();
 
 describe('remote recovery email verify', function() {
   this.timeout(15000);
@@ -24,9 +24,9 @@ describe('remote recovery email verify', function() {
   it(
     'create account verify with incorrect code',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null;
       return Client.create(config.publicUrl, email, password)
         .then(
           function (x) {
@@ -72,10 +72,10 @@ describe('remote recovery email verify', function() {
   it(
     'verification email link',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'something';
-      var client = null; // eslint-disable-line no-unused-vars
-      var options = {
+      const email = server.uniqueEmail();
+      const password = 'something';
+      let client = null; // eslint-disable-line no-unused-vars
+      const options = {
         redirectTo: 'https://sync.'  + config.smtp.redirectDomain + '/',
         service: 'sync'
       };
@@ -92,8 +92,8 @@ describe('remote recovery email verify', function() {
         )
         .then(
           function (emailData) {
-            var link = emailData.headers['x-link'];
-            var query = url.parse(link, true).query;
+            const link = emailData.headers['x-link'];
+            const query = url.parse(link, true).query;
             assert.ok(query.uid, 'uid is in link');
             assert.ok(query.code, 'code is in link');
             assert.equal(query.redirectTo, options.redirectTo, 'redirectTo is in link');

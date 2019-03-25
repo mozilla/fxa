@@ -28,7 +28,7 @@ describe('remote base path', function() {
       return request(config.publicUrl + path)
         .spread((res, body) => {
           assert.equal(res.statusCode, 200);
-          var json = JSON.parse(body);
+          const json = JSON.parse(body);
           assert.deepEqual(Object.keys(json), ['version', 'commit', 'source']);
           assert.equal(json.version, require('../../package.json').version, 'package version');
           assert.ok(json.source && json.source !== 'unknown', 'source repository');
@@ -42,8 +42,8 @@ describe('remote base path', function() {
   it(
     'alternate base path',
     () => {
-      var email = Math.random() + '@example.com';
-      var password = 'ok';
+      const email = Math.random() + '@example.com';
+      const password = 'ok';
       // if this doesn't crash, we're all good
       return Client.create(config.publicUrl, email, password, server.mailbox);
     }
@@ -55,7 +55,7 @@ describe('remote base path', function() {
       return request('http://127.0.0.1:9000/.well-known/browserid')
         .spread((res, body) => {
           assert.equal(res.statusCode, 200);
-          var json = JSON.parse(body);
+          const json = JSON.parse(body);
           assert.equal(json.authentication, '/.well-known/browserid/nonexistent.html');
         });
     }

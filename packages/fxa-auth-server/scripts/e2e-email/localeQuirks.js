@@ -8,7 +8,7 @@
 // So there are these unfortunate bits of custom mappings that
 // will need to change over time.
 
-var translationQuirks = {
+const translationQuirks = {
   // these locales will be expected to have a SMTP
   // 'content-language' header of 'en-US'
   'content-language': [
@@ -103,7 +103,7 @@ var translationQuirks = {
 };
 
 function ary2map(ary) {
-  var map = {};
+  const map = {};
   ary.forEach(function(val) {
     if (map[val]) {
       console.log('Duplicate!:', val);
@@ -114,7 +114,7 @@ function ary2map(ary) {
 }
 
 Object.keys(translationQuirks).forEach(function(quirk) {
-  var locales = translationQuirks[quirk];
+  const locales = translationQuirks[quirk];
   translationQuirks[quirk] = ary2map(locales);
 });
 

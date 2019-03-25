@@ -36,15 +36,15 @@ describe('Pool', () => {
   it(
     'pool.request with default options',
     () => {
-      var pool = new Pool('http://example.com/ignore/me');
+      const pool = new Pool('http://example.com/ignore/me');
       pool.request(null, new SafeUrl(''));
 
       assert.equal(poolee.request.callCount, 1, 'poolee.request was called once');
 
-      var args = poolee.request.getCall(0).args;
+      const args = poolee.request.getCall(0).args;
       assert.equal(args.length, 2, 'poolee.request was passed two arguments');
 
-      var options = args[0];
+      const options = args[0];
       assert.equal(typeof options, 'object', 'options is object');
       assert.equal(Object.keys(options).length, 4, 'options has 4 properties');
       assert.equal(options.method, 'GET', 'options.method is GET');
@@ -53,7 +53,7 @@ describe('Pool', () => {
       assert.equal(Object.keys(options.headers).length, 0, 'options.headers has zero properties');
       assert.equal(options.data, undefined, 'options.data is undefined');
 
-      var callback = args[1];
+      const callback = args[1];
       assert.equal(typeof callback, 'function', 'callback is function');
     }
   );
@@ -61,15 +61,15 @@ describe('Pool', () => {
   it(
     'pool.request with alternative options',
     () => {
-      var pool = new Pool('http://example.com/');
+      const pool = new Pool('http://example.com/');
       pool.request('POST', new SafeUrl('/:foo'), { foo: 'bar' }, { baz: 'qux' }, {'barbar': 'foofoo'}, { Authorization: 'Bearer 123abc' });
 
       assert.equal(poolee.request.callCount, 1, 'poolee.request was called once');
 
-      var args = poolee.request.getCall(0).args;
+      const args = poolee.request.getCall(0).args;
       assert.equal(args.length, 2, 'poolee.request was passed two arguments');
 
-      var options = args[0];
+      const options = args[0];
       assert.equal(typeof options, 'object', 'options is object');
       assert.equal(Object.keys(options).length, 4, 'options has 4 properties');
       assert.equal(options.method, 'POST', 'options.method is POST');
@@ -80,7 +80,7 @@ describe('Pool', () => {
       assert.equal(options.headers['Content-Type'], 'application/json', 'Content-Type header is application/json');
       assert.equal(options.headers['Authorization'], 'Bearer 123abc', 'Authorization header is set');
 
-      var callback = args[1];
+      const callback = args[1];
       assert.equal(typeof callback, 'function', 'callback is function');
     }
   );
@@ -106,7 +106,7 @@ describe('Pool', () => {
   it(
     'pool.request callback with error',
     () => {
-      var pool = new Pool('http://example.com/');
+      const pool = new Pool('http://example.com/');
       const p = pool.request(null, new SafeUrl(''))
         .then(function () {
           assert(false, 'request should have failed');
@@ -115,8 +115,8 @@ describe('Pool', () => {
           assert.equal(error, 'foo', 'error is correct');
         });
 
-      var args = poolee.request.getCall(0).args;
-      var callback = args[1];
+      const args = poolee.request.getCall(0).args;
+      const callback = args[1];
       callback('foo');
       return p;
     }
@@ -125,7 +125,7 @@ describe('Pool', () => {
   it(
     'pool.request callback with HTTP error response',
     () => {
-      var pool = new Pool('http://example.com/');
+      const pool = new Pool('http://example.com/');
       const p = pool.request(null, new SafeUrl(''))
         .then(function () {
           assert(false, 'request should have failed');
@@ -135,8 +135,8 @@ describe('Pool', () => {
           assert.equal(error.message, 'wibble', 'error.message is correct');
         });
 
-      var args = poolee.request.getCall(0).args;
-      var callback = args[1];
+      const args = poolee.request.getCall(0).args;
+      const callback = args[1];
       callback(null, { statusCode: 404 }, 'wibble');
       return p;
     }
@@ -145,7 +145,7 @@ describe('Pool', () => {
   it(
     'pool.request callback with HTTP error response and JSON body',
     () => {
-      var pool = new Pool('http://example.com/');
+      const pool = new Pool('http://example.com/');
       const p = pool.request(null, new SafeUrl(''))
         .then(function () {
           assert(false, 'request should have failed');
@@ -156,8 +156,8 @@ describe('Pool', () => {
           assert.equal(error.foo, 'bar', 'other error data is correct');
         });
 
-      var args = poolee.request.getCall(0).args;
-      var callback = args[1];
+      const args = poolee.request.getCall(0).args;
+      const callback = args[1];
       callback(null, { statusCode: 418 }, '{"foo":"bar"}');
       return p;
     }
@@ -166,14 +166,14 @@ describe('Pool', () => {
   it(
     'pool.request callback with HTTP success response and empty body',
     () => {
-      var pool = new Pool('http://example.com/');
+      const pool = new Pool('http://example.com/');
       const p = pool.request(null, new SafeUrl(''))
         .then(function (result) {
           assert.equal(result, undefined, 'result is undefined');
         });
 
-      var args = poolee.request.getCall(0).args;
-      var callback = args[1];
+      const args = poolee.request.getCall(0).args;
+      const callback = args[1];
       callback(null, { statusCode: 200 }, '');
       return p;
     }
@@ -182,7 +182,7 @@ describe('Pool', () => {
   it(
     'pool.request callback with HTTP success response and valid JSON body',
     () => {
-      var pool = new Pool('http://example.com/');
+      const pool = new Pool('http://example.com/');
       const p = pool.request(null, new SafeUrl(''))
         .then(function (result) {
           assert.equal(typeof result, 'object', 'result is object');
@@ -190,8 +190,8 @@ describe('Pool', () => {
           assert.equal(result.foo, 'bar', 'result data is correct');
         });
 
-      var args = poolee.request.getCall(0).args;
-      var callback = args[1];
+      const args = poolee.request.getCall(0).args;
+      const callback = args[1];
       callback(null, { statusCode: 200 }, '{"foo":"bar"}');
       return p;
     }
@@ -200,7 +200,7 @@ describe('Pool', () => {
   it(
     'pool.request callback with HTTP success response and invalid JSON body',
     () => {
-      var pool = new Pool('http://example.com/');
+      const pool = new Pool('http://example.com/');
       const p = pool.request(null, new SafeUrl(''))
         .then(function () {
           assert(false, 'request should have failed');
@@ -210,8 +210,8 @@ describe('Pool', () => {
           assert.equal(error.message, 'Invalid JSON', 'error.message is correct');
         });
 
-      var args = poolee.request.getCall(0).args;
-      var callback = args[1];
+      const args = poolee.request.getCall(0).args;
+      const callback = args[1];
       callback(null, { statusCode: 200 }, 'foo');
       return p;
     }
@@ -220,13 +220,13 @@ describe('Pool', () => {
   it(
     'pool.get',
     () => {
-      var pool = new Pool('http://example.com/');
+      const pool = new Pool('http://example.com/');
       sinon.stub(pool, 'request').callsFake(function () {});
       pool.get('foo', 'bar');
 
       assert.equal(pool.request.callCount, 1, 'pool.request was called once');
 
-      var args = pool.request.getCall(0).args;
+      const args = pool.request.getCall(0).args;
       assert.equal(args.length, 6, 'pool.request was passed six arguments');
       assert.equal(args[0], 'GET', 'first argument to pool.request was GET');
       assert.equal(args[1], 'foo', 'second argument to pool.request was correct');
@@ -240,13 +240,13 @@ describe('Pool', () => {
   it(
     'pool.put',
     () => {
-      var pool = new Pool('http://example.com/');
+      const pool = new Pool('http://example.com/');
       sinon.stub(pool, 'request').callsFake(function () {});
       pool.put('baz', 'qux', 'wibble');
 
       assert.equal(pool.request.callCount, 1, 'pool.request was called once');
 
-      var args = pool.request.getCall(0).args;
+      const args = pool.request.getCall(0).args;
       assert.equal(args.length, 6, 'pool.request was passed six arguments');
       assert.equal(args[0], 'PUT', 'first argument to pool.request was PUT');
       assert.equal(args[1], 'baz', 'second argument to pool.request was correct');
@@ -260,13 +260,13 @@ describe('Pool', () => {
   it(
     'pool.post',
     () => {
-      var pool = new Pool('http://example.com/');
+      const pool = new Pool('http://example.com/');
       sinon.stub(pool, 'request').callsFake(function () {});
       pool.post('foo', 'bar', 'baz');
 
       assert.equal(pool.request.callCount, 1, 'pool.request was called once');
 
-      var args = pool.request.getCall(0).args;
+      const args = pool.request.getCall(0).args;
       assert.equal(args.length, 6, 'pool.request was passed six arguments');
       assert.equal(args[0], 'POST', 'first argument to pool.request was POST');
       assert.equal(args[1], 'foo', 'second argument to pool.request was correct');
@@ -280,13 +280,13 @@ describe('Pool', () => {
   it(
     'pool.post with query params and extra headers',
     () => {
-      var pool = new Pool('http://example.com/');
+      const pool = new Pool('http://example.com/');
       sinon.stub(pool, 'request').callsFake(function () {});
       pool.post('foo', 'bar', 'baz', {query: {bar: 'foo'}, headers: { foo: 'bar' }});
 
       assert.equal(pool.request.callCount, 1, 'pool.request was called once');
 
-      var args = pool.request.getCall(0).args;
+      const args = pool.request.getCall(0).args;
       assert.equal(args.length, 6, 'pool.request was passed six arguments');
       assert.equal(args[0], 'POST', 'first argument to pool.request was POST');
       assert.equal(args[1], 'foo', 'second argument to pool.request was correct');
@@ -300,13 +300,13 @@ describe('Pool', () => {
   it(
     'pool.del',
     () => {
-      var pool = new Pool('http://example.com/');
+      const pool = new Pool('http://example.com/');
       sinon.stub(pool, 'request').callsFake(function () {});
       pool.del('foo', 'bar', 'baz');
 
       assert.equal(pool.request.callCount, 1, 'pool.request was called once');
 
-      var args = pool.request.getCall(0).args;
+      const args = pool.request.getCall(0).args;
       assert.equal(args.length, 6, 'pool.request was passed six arguments');
       assert.equal(args[0], 'DELETE', 'first argument to pool.request was POST');
       assert.equal(args[1], 'foo', 'second argument to pool.request was correct');

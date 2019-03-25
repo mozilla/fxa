@@ -9,13 +9,13 @@
 // If required, modules will be instrumented.
 require('../lib/newrelic')();
 
-var jwtool = require('fxa-jwtool');
-var P = require('../lib/promise');
+const jwtool = require('fxa-jwtool');
+const P = require('../lib/promise');
 
 
 function run(config) {
-  var log = require('../lib/log')(config.log);
-  var getGeoData = require('../lib/geodb')(log);
+  const log = require('../lib/log')(config.log);
+  const getGeoData = require('../lib/geodb')(log);
   // Force the geo to load and run at startup, not waiting for it to run on
   // some route later.
   const knownIp = '63.245.221.32'; // Mozilla MTV
@@ -32,13 +32,13 @@ function run(config) {
     log.info(stringifiedConfig, 'starting config');
   }
 
-  var error = require('../lib/error');
-  var Token = require('../lib/tokens')(log, config);
-  var Password = require('../lib/crypto/password')(log, config);
-  var UnblockCode = require('../lib/crypto/random').base32(config.signinUnblock.codeLength);
+  const error = require('../lib/error');
+  const Token = require('../lib/tokens')(log, config);
+  const Password = require('../lib/crypto/password')(log, config);
+  const UnblockCode = require('../lib/crypto/random').base32(config.signinUnblock.codeLength);
 
-  var signer = require('../lib/signer')(config.secretKeyFile, config.domain);
-  var serverPublicKeys = {
+  const signer = require('../lib/signer')(config.secretKeyFile, config.domain);
+  const serverPublicKeys = {
     primary: jwtool.JWK.fromFile(
       config.publicKeyFile,
       {
@@ -59,7 +59,7 @@ function run(config) {
       : null
   };
 
-  var Customs = require('../lib/customs')(log, error);
+  const Customs = require('../lib/customs')(log, error);
 
   const Server = require('../lib/server');
   let server = null;
@@ -74,7 +74,7 @@ function run(config) {
     log.stat(Password.stat());
   }
 
-  var DB = require('../lib/db')(
+  const DB = require('../lib/db')(
     config,
     log,
     Token,
@@ -95,7 +95,7 @@ function run(config) {
           .then(result => {
             senders = result;
             customs = new Customs(config.customsUrl);
-            var routes = require('../lib/routes')(
+            const routes = require('../lib/routes')(
               log,
               serverPublicKeys,
               signer,

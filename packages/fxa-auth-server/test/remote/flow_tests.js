@@ -6,12 +6,12 @@
 
 const { assert } = require('chai');
 const Client = require('../client')();
-var TestServer = require('../test_server');
-var jwtool = require('fxa-jwtool');
+const TestServer = require('../test_server');
+const jwtool = require('fxa-jwtool');
 
-var config = require('../../config').getProperties();
+const config = require('../../config').getProperties();
 
-var pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile);
+const pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile);
 
 describe('remote flow', function() {
   this.timeout(15000);
@@ -30,15 +30,15 @@ describe('remote flow', function() {
   it(
     'Create account flow',
     () => {
-      var email = email1;
-      var password = 'allyourbasearebelongtous';
-      var client = null;
-      var publicKey = {
+      const email = email1;
+      const password = 'allyourbasearebelongtous';
+      let client = null;
+      const publicKey = {
         'algorithm': 'RS',
         'n': '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
         'e': '65537'
       };
-      var duration = 1000 * 60 * 60 * 24; // 24 hours
+      const duration = 1000 * 60 * 60 * 24; // 24 hours
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
           function (x) {
@@ -62,7 +62,7 @@ describe('remote flow', function() {
         .then(
           function (cert) {
             assert.equal(typeof(cert), 'string', 'cert exists');
-            var payload = jwtool.verify(cert, pubSigKey.pem);
+            const payload = jwtool.verify(cert, pubSigKey.pem);
             assert.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid');
           }
         );
@@ -72,15 +72,15 @@ describe('remote flow', function() {
   it(
     'Login flow',
     () => {
-      var email = email1;
-      var password = 'allyourbasearebelongtous';
-      var client = null;
-      var publicKey = {
+      const email = email1;
+      const password = 'allyourbasearebelongtous';
+      let client = null;
+      const publicKey = {
         'algorithm': 'RS',
         'n': '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
         'e': '65537'
       };
-      var duration = 1000 * 60 * 60 * 24; // 24 hours
+      const duration = 1000 * 60 * 60 * 24; // 24 hours
       return Client.login(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
           function (x) {

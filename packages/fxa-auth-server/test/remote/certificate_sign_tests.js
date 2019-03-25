@@ -5,15 +5,15 @@
 'use strict';
 
 const { assert } = require('chai');
-var TestServer = require('../test_server');
+const TestServer = require('../test_server');
 const Client = require('../client')();
-var jwtool = require('fxa-jwtool');
+const jwtool = require('fxa-jwtool');
 
-var config = require('../../config').getProperties();
+const config = require('../../config').getProperties();
 config.redis.sessionTokens.enabled = false;
-var pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile);
+const pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile);
 
-var publicKey = {
+const publicKey = {
   'algorithm': 'RS',
   'n': '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
   'e': '65537'
@@ -88,10 +88,10 @@ describe('remote certificate sign', function() {
   it(
     'certificate sign requires a verified account',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null;
-      var duration = 1000 * 60 * 60 * 24; // 24 hours
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null;
+      const duration = 1000 * 60 * 60 * 24; // 24 hours
       return Client.create(config.publicUrl, email, password)
         .then(
           function (c) {
@@ -113,9 +113,9 @@ describe('remote certificate sign', function() {
   it(
     '/certificate/sign inputs',
     () => {
-      var email = server.uniqueEmail();
-      var password = '123456';
-      var client = null;
+      const email = server.uniqueEmail();
+      const password = '123456';
+      let client = null;
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (c) {
@@ -208,9 +208,9 @@ describe('remote certificate sign', function() {
   it(
     'no payload',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var duration = 1000 * 60 * 60 * 24; // 24 hours
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      const duration = 1000 * 60 * 60 * 24; // 24 hours
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (client) {

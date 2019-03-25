@@ -6,10 +6,10 @@
 
 const { assert } = require('chai');
 const Client = require('../client')();
-var TestServer = require('../test_server');
+const TestServer = require('../test_server');
 const P = require('../../lib/promise');
 
-var config = require('../../config').getProperties();
+const config = require('../../config').getProperties();
 
 describe('remote recovery email resend code', function () {
   this.timeout(15000);
@@ -64,11 +64,11 @@ describe('remote recovery email resend code', function () {
   it(
     'sign-in verification resend login verify code',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'something';
-      var verifyEmailCode = '';
-      var client2 = null;
-      var options = {
+      const email = server.uniqueEmail();
+      const password = 'something';
+      let verifyEmailCode = '';
+      let client2 = null;
+      const options = {
         redirectTo: 'https://sync.' + config.smtp.redirectDomain,
         service: 'sync',
         resume: 'resumeToken',

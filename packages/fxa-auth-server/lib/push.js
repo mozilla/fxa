@@ -4,19 +4,19 @@
 
 'use strict';
 
-var crypto = require('crypto');
-var base64url = require('base64url');
-var webpush = require('web-push');
-var P = require('./promise');
+const crypto = require('crypto');
+const base64url = require('base64url');
+const webpush = require('web-push');
+const P = require('./promise');
 
-var ERR_NO_PUSH_CALLBACK = 'No Push Callback';
-var ERR_DATA_BUT_NO_KEYS = 'Data payload present but missing key(s)';
-var ERR_TOO_MANY_DEVICES = 'Too many devices connected to account';
+const ERR_NO_PUSH_CALLBACK = 'No Push Callback';
+const ERR_DATA_BUT_NO_KEYS = 'Data payload present but missing key(s)';
+const ERR_TOO_MANY_DEVICES = 'Too many devices connected to account';
 
-var LOG_OP_PUSH_TO_DEVICES = 'push.sendPush';
+const LOG_OP_PUSH_TO_DEVICES = 'push.sendPush';
 
-var PUSH_PAYLOAD_SCHEMA_VERSION = 1;
-var PUSH_COMMANDS = {
+const PUSH_PAYLOAD_SCHEMA_VERSION = 1;
+const PUSH_COMMANDS = {
   DEVICE_CONNECTED: 'fxaccounts:device_connected',
   DEVICE_DISCONNECTED: 'fxaccounts:device_disconnected',
   PROFILE_UPDATED: 'fxaccounts:profile_updated',
@@ -34,7 +34,7 @@ const TTL_COMMAND_RECEIVED = TTL_PASSWORD_CHANGED;
 
 // An arbitrary, but very generous, limit on the number of active devices.
 // Currently only for metrics purposes, not enforced.
-var MAX_ACTIVE_DEVICES = 200;
+const MAX_ACTIVE_DEVICES = 200;
 
 const pushReasonsToEvents = (() => {
   const reasons = ['accountVerify', 'accountConfirm', 'passwordReset',
@@ -63,9 +63,9 @@ const pushReasonsToEvents = (() => {
  */
 
 module.exports = function (log, db, config) {
-  var vapid;
+  let vapid;
   if (config.vapidKeysFile) {
-    var vapidKeys = require(config.vapidKeysFile);
+    const vapidKeys = require(config.vapidKeysFile);
     vapid = {
       privateKey: vapidKeys.privateKey,
       publicKey:  vapidKeys.publicKey,
@@ -164,9 +164,9 @@ module.exports = function (log, db, config) {
    * The public key as a b64url string.
    */
 
-  var dummySigner = crypto.createSign('RSA-SHA256');
-  var dummyKey = Buffer.alloc(0);
-  var dummyCurve = crypto.createECDH('prime256v1');
+  const dummySigner = crypto.createSign('RSA-SHA256');
+  const dummyKey = Buffer.alloc(0);
+  const dummyCurve = crypto.createECDH('prime256v1');
   dummyCurve.generateKeys();
 
   function isValidPublicKey(publicKey) {
@@ -361,7 +361,7 @@ module.exports = function (log, db, config) {
      */
     sendPush (uid, devices, reason, options = {}) {
       devices = filterSupportedDevices(options.data, devices);
-      var events = pushReasonsToEvents[reason];
+      const events = pushReasonsToEvents[reason];
       if (! events) {
         return P.reject('Unknown push reason: ' + reason);
       }
@@ -371,7 +371,7 @@ module.exports = function (log, db, config) {
         reportPushError(new Error(ERR_TOO_MANY_DEVICES), uid, null);
       }
       return P.each(devices, function(device) {
-        var deviceId = device.id;
+        const deviceId = device.id;
 
         log.trace(LOG_OP_PUSH_TO_DEVICES, {
           uid: uid,
@@ -382,9 +382,9 @@ module.exports = function (log, db, config) {
         if (device.pushCallback && ! device.pushEndpointExpired) {
           // send the push notification
           incrementPushAction(events.send);
-          var pushSubscription = { endpoint: device.pushCallback };
-          var pushPayload = null;
-          var pushOptions = { 'TTL': options.TTL || '0' };
+          const pushSubscription = { endpoint: device.pushCallback };
+          let pushPayload = null;
+          const pushOptions = { 'TTL': options.TTL || '0' };
           if (options.data) {
             if (! device.pushPublicKey || ! device.pushAuthKey) {
               reportPushError(new Error(ERR_DATA_BUT_NO_KEYS), uid, deviceId);
@@ -409,7 +409,7 @@ module.exports = function (log, db, config) {
               // If we've stored an invalid key in the db for some reason, then we
               // might get an encryption failure here.  Check the key, which also
               // happens to work around bugginess in node's handling of said failures.
-              var keyWasInvalid = false;
+              let keyWasInvalid = false;
               if (! err.statusCode && device.pushPublicKey) {
                 if (! isValidPublicKey(device.pushPublicKey)) {
                   keyWasInvalid = true;

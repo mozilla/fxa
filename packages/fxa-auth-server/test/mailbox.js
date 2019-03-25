@@ -4,8 +4,8 @@
 
 'use strict';
 
-var P = require('../lib/promise');
-var request = require('request');
+const P = require('../lib/promise');
+const request = require('request');
 const EventEmitter = require('events').EventEmitter;
 
 /* eslint-disable no-console */
@@ -26,7 +26,7 @@ module.exports = function (host, port, printLogs) {
     return waitForEmail(email)
       .then(
         function (emailData) {
-          var code =  emailData.headers['x-verify-code'] ||
+          const code =  emailData.headers['x-verify-code'] ||
                       emailData.headers['x-recovery-code'];
           if (! code) {
             throw new Error('email did not contain a verification code');
@@ -37,13 +37,13 @@ module.exports = function (host, port, printLogs) {
   }
 
   function loop(name, tries, cb) {
-    var url = 'http://' + host + ':' + port + '/mail/' + encodeURIComponent(name);
+    const url = 'http://' + host + ':' + port + '/mail/' + encodeURIComponent(name);
     log('checking mail', url);
     request({ url: url, method: 'GET' },
       function (err, res, body) {
         log('mail status', res && res.statusCode, 'tries', tries);
         log('mail body', body);
-        var json = null;
+        let json = null;
         try {
           json = JSON.parse(body);
 
@@ -72,7 +72,7 @@ module.exports = function (host, port, printLogs) {
   }
 
   function waitForEmail(email) {
-    var d = P.defer();
+    const d = P.defer();
     loop(email.split('@')[0], 20, function (err, json) {
       if (err) {
         eventEmitter.emit('email:error', email, err);

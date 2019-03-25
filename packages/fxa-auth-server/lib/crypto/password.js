@@ -4,15 +4,15 @@
 
 'use strict';
 
-var P = require('../promise');
-var hkdf = require('./hkdf');
-var butil = require('./butil');
+const P = require('../promise');
+const hkdf = require('./hkdf');
+const butil = require('./butil');
 
 module.exports = function(log, config) {
 
-  var scrypt = require('./scrypt')(log, config);
+  const scrypt = require('./scrypt')(log, config);
 
-  var hashVersions = {
+  const hashVersions = {
     0: function (authPW, authSalt) {
       return P.resolve(butil.xorBuffers(authPW, authSalt));
     },
@@ -67,7 +67,7 @@ module.exports = function(log, config) {
 
   Password.stat = function () {
     // Reset the high-water-mark whenever it is read.
-    var numPendingHWM = scrypt.numPendingHWM;
+    const numPendingHWM = scrypt.numPendingHWM;
     scrypt.numPendingHWM = scrypt.numPending;
     return {
       stat: 'scrypt',

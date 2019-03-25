@@ -4,7 +4,7 @@
 
 'use strict';
 
-var fxaChangelog = require('fxa-conventional-changelog')();
+const fxaChangelog = require('fxa-conventional-changelog')();
 
 module.exports = function (grunt) {
   grunt.config('conventionalChangelog', {

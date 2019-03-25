@@ -5,10 +5,10 @@
 'use strict';
 
 const { assert } = require('chai');
-var sinon = require('sinon');
+const sinon = require('sinon');
 const legacyLog = require('../../../lib/senders/legacy_log');
 
-var spyLog = {
+const spyLog = {
   critical: sinon.spy(),
   debug: sinon.spy(),
   error: sinon.spy(),
@@ -17,11 +17,11 @@ var spyLog = {
 };
 
 it('legacy_log unit tests', function () {
-  var data = {
+  const data = {
     op: 'testOp',
     err: 'Nooo!'
   };
-  var log = legacyLog(spyLog);
+  const log = legacyLog(spyLog);
   log.trace(data);
   assert.equal(spyLog.debug.args[0][0], data.op);
   assert.equal(spyLog.debug.args[0][1], data);

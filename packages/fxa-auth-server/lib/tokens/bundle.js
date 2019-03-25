@@ -41,10 +41,10 @@ module.exports = {
     return deriveBundleKeys(key, keyInfo, payload.length)
       .then(
         function (keys) {
-          var ciphertext = butil.xorBuffers(payload, keys.xorKey);
-          var hmac = crypto.createHmac(HASH_ALGORITHM, keys.hmacKey);
+          const ciphertext = butil.xorBuffers(payload, keys.xorKey);
+          const hmac = crypto.createHmac(HASH_ALGORITHM, keys.hmacKey);
           hmac.update(ciphertext);
-          var mac = hmac.digest();
+          const mac = hmac.digest();
           return Buffer.concat([ciphertext, mac]).toString('hex');
         }
       );
@@ -55,14 +55,14 @@ module.exports = {
   unbundle(key, keyInfo, payload) {
     key = Buffer.from(key, 'hex');
     payload = Buffer.from(payload, 'hex');
-    var ciphertext = payload.slice(0, -32);
-    var expectedHmac = payload.slice(-32);
+    const ciphertext = payload.slice(0, -32);
+    const expectedHmac = payload.slice(-32);
     return deriveBundleKeys(key, keyInfo, ciphertext.length)
       .then(
         function (keys) {
-          var hmac = crypto.createHmac(HASH_ALGORITHM, keys.hmacKey);
+          const hmac = crypto.createHmac(HASH_ALGORITHM, keys.hmacKey);
           hmac.update(ciphertext);
-          var mac = hmac.digest();
+          const mac = hmac.digest();
           if (! butil.buffersAreEqual(mac, expectedHmac)) {
             throw error.invalidSignature();
           }

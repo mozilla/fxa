@@ -4,17 +4,17 @@
 
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
-var url = require('url');
-var convict = require('convict');
-var DEFAULT_SUPPORTED_LANGUAGES = require('./supportedLanguages');
+const fs = require('fs');
+const path = require('path');
+const url = require('url');
+const convict = require('convict');
+const DEFAULT_SUPPORTED_LANGUAGES = require('./supportedLanguages');
 
 const ONE_DAY = 1000 * 60 * 60 * 24;
 const ONE_YEAR = ONE_DAY * 365;
 const FIVE_MINUTES = 1000 * 60 * 5;
 
-var conf = convict({
+const conf = convict({
   env: {
     doc: 'The current node.js environment',
     default: 'prod',
@@ -883,9 +883,9 @@ var conf = convict({
 // files to process, which will be overlayed in order, in the CONFIG_FILES
 // environment variable.
 
-var envConfig = path.join(__dirname, conf.get('env') + '.json');
+let envConfig = path.join(__dirname, conf.get('env') + '.json');
 envConfig = envConfig + ',' + (process.env.CONFIG_FILES || '');
-var files = envConfig.split(',').filter(fs.existsSync);
+const files = envConfig.split(',').filter(fs.existsSync);
 conf.loadFile(files);
 conf.validate({ allowed: 'strict' });
 

@@ -5,10 +5,10 @@
 'use strict';
 
 const { assert } = require('chai');
-var TestServer = require('../test_server');
+const TestServer = require('../test_server');
 const Client = require('../client')();
 
-var config = require('../../config').getProperties();
+const config = require('../../config').getProperties();
 
 describe('remote account status', function() {
   this.timeout(15000);
@@ -95,7 +95,7 @@ describe('remote account status', function() {
   it(
     'account status with non-existing account',
     () => {
-      var api = new Client.Api(config.publicUrl);
+      const api = new Client.Api(config.publicUrl);
       return api.accountStatus('0123456789ABCDEF0123456789ABCDEF')
         .then(
           function (response) {
@@ -108,7 +108,7 @@ describe('remote account status', function() {
   it(
     'account status by email with existing account',
     () => {
-      var email = server.uniqueEmail();
+      const email = server.uniqueEmail();
       return Client.create(config.publicUrl, email, 'password')
         .then(
           function (c) {
@@ -126,11 +126,11 @@ describe('remote account status', function() {
   it(
     'account status by email with non-existing account',
     () => {
-      var email = server.uniqueEmail();
+      const email = server.uniqueEmail();
       return Client.create(config.publicUrl, email, 'password')
         .then(
           function (c) {
-            var nonExistEmail = server.uniqueEmail();
+            const nonExistEmail = server.uniqueEmail();
             return c.api.accountStatusByEmail(nonExistEmail);
           }
         )
@@ -145,11 +145,11 @@ describe('remote account status', function() {
   it(
     'account status by email with an invalid email',
     () => {
-      var email = server.uniqueEmail();
+      const email = server.uniqueEmail();
       return Client.create(config.publicUrl, email, 'password')
         .then(
           function (c) {
-            var invalidEmail = 'notAnEmail';
+            const invalidEmail = 'notAnEmail';
             return c.api.accountStatusByEmail(invalidEmail);
           }
         )
@@ -169,7 +169,7 @@ describe('remote account status', function() {
   it(
     'account status by email works with unicode email address',
     () => {
-      var email = server.uniqueUnicodeEmail();
+      const email = server.uniqueUnicodeEmail();
       return Client.create(config.publicUrl, email, 'password')
         .then(
           function (c) {

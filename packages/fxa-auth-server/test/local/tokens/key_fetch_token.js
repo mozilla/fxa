@@ -23,7 +23,7 @@ describe('KeyFetchToken', () => {
   it(
     'should re-create from tokenData',
     () => {
-      var token = null;
+      let token = null;
       return KeyFetchToken.create(ACCOUNT)
         .then(
           function (x) {

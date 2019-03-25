@@ -21,7 +21,7 @@ const DEFAULT_MAX_PENDING = 100;
 
 module.exports = function(log, config) {
 
-  var scrypt = {
+  const scrypt = {
     hash: hash,
     // The current number of hash operations in progress.
     numPending: 0,
@@ -41,7 +41,7 @@ module.exports = function(log, config) {
    * @returns {Object} d.promise Deferred promise
    */
   function hash(input, salt, N, r, p, len) {
-    var d = P.defer();
+    const d = P.defer();
     if (scrypt.maxPending > 0 && scrypt.numPending > scrypt.maxPending) {
       log.warn('scrypt.maxPendingExceeded');
       d.reject(new Error('too many pending scrypt hashes'));

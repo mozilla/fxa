@@ -313,7 +313,7 @@ describe('remote emails', function () {
     it(
       'can resend verify email code for added address',
       () => {
-        var emailCode;
+        let emailCode;
         return server.mailbox.waitForEmail(secondEmail)
           .then((emailData) => {
             const templateName = emailData['headers']['x-template-name'];

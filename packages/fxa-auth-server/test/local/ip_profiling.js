@@ -154,7 +154,7 @@ describe('IP Profiling', () => {
   it(
     'previously verified session with forced sign-in confirmation',
     () => {
-      var forceSigninEmail = 'forcedemail@mozilla.com';
+      const forceSigninEmail = 'forcedemail@mozilla.com';
       mockRequest.payload.email = forceSigninEmail;
 
       mockDB.accountRecord = function () {

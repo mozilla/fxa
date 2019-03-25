@@ -709,22 +709,22 @@ describe('metricsContext', () => {
   it(
     'metricsContext.validate with missing payload',
     () => {
-      var mockLog = mocks.mockLog();
-      var mockConfig = {
+      const mockLog = mocks.mockLog();
+      const mockConfig = {
         memcached: {},
         metrics: {
           flow_id_expiry: 60000,
           flow_id_key: 'test'
         }
       };
-      var mockRequest = {
+      const mockRequest = {
         headers: {
           'user-agent': 'test-agent'
         }
       };
 
-      var metricsContext = require('../../../lib/metrics/context')(mockLog, mockConfig);
-      var valid = metricsContext.validate.call(mockRequest);
+      const metricsContext = require('../../../lib/metrics/context')(mockLog, mockConfig);
+      const valid = metricsContext.validate.call(mockRequest);
 
       assert(! valid, 'the data is treated as invalid');
       assert.equal(mockLog.info.callCount, 0, 'log.info was not called');
@@ -739,15 +739,15 @@ describe('metricsContext', () => {
   it(
     'metricsContext.validate with missing data bundle',
     () => {
-      var mockLog = mocks.mockLog();
-      var mockConfig = {
+      const mockLog = mocks.mockLog();
+      const mockConfig = {
         memcached: {},
         metrics: {
           flow_id_expiry: 60000,
           flow_id_key: 'test'
         }
       };
-      var mockRequest = {
+      const mockRequest = {
         headers: {
           'user-agent': 'test-agent'
         },
@@ -757,8 +757,8 @@ describe('metricsContext', () => {
         }
       };
 
-      var metricsContext = require(modulePath)(mockLog, mockConfig);
-      var valid = metricsContext.validate.call(mockRequest);
+      const metricsContext = require(modulePath)(mockLog, mockConfig);
+      const valid = metricsContext.validate.call(mockRequest);
 
       assert(! valid, 'the data is treated as invalid');
       assert.equal(mockLog.info.callCount, 0, 'log.info was not called');
@@ -773,15 +773,15 @@ describe('metricsContext', () => {
   it(
     'metricsContext.validate with missing flowId',
     () => {
-      var mockLog = mocks.mockLog();
-      var mockConfig = {
+      const mockLog = mocks.mockLog();
+      const mockConfig = {
         memcached: {},
         metrics: {
           flow_id_expiry: 60000,
           flow_id_key: 'test'
         }
       };
-      var mockRequest = {
+      const mockRequest = {
         headers: {
           'user-agent': 'test-agent'
         },
@@ -792,8 +792,8 @@ describe('metricsContext', () => {
         }
       };
 
-      var metricsContext = require(modulePath)(mockLog, mockConfig);
-      var valid = metricsContext.validate.call(mockRequest);
+      const metricsContext = require(modulePath)(mockLog, mockConfig);
+      const valid = metricsContext.validate.call(mockRequest);
 
       assert(! valid, 'the data is treated as invalid');
       assert(! mockRequest.payload.metricsContext.flowBeginTime, 'the invalid flow data was removed');
@@ -809,15 +809,15 @@ describe('metricsContext', () => {
   it(
     'metricsContext.validate with missing flowBeginTime',
     () => {
-      var mockLog = mocks.mockLog();
-      var mockConfig = {
+      const mockLog = mocks.mockLog();
+      const mockConfig = {
         memcached: {},
         metrics: {
           flow_id_expiry: 60000,
           flow_id_key: 'test'
         }
       };
-      var mockRequest = {
+      const mockRequest = {
         headers: {
           'user-agent': 'test-agent'
         },
@@ -828,8 +828,8 @@ describe('metricsContext', () => {
         }
       };
 
-      var metricsContext = require(modulePath)(mockLog, mockConfig);
-      var valid = metricsContext.validate.call(mockRequest);
+      const metricsContext = require(modulePath)(mockLog, mockConfig);
+      const valid = metricsContext.validate.call(mockRequest);
 
       assert(! valid, 'the data is treated as invalid');
       assert(! mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed');
@@ -845,15 +845,15 @@ describe('metricsContext', () => {
   it(
     'metricsContext.validate with flowBeginTime that is too old',
     () => {
-      var mockLog = mocks.mockLog();
-      var mockConfig = {
+      const mockLog = mocks.mockLog();
+      const mockConfig = {
         memcached: {},
         metrics: {
           flow_id_expiry: 60000,
           flow_id_key: 'test'
         }
       };
-      var mockRequest = {
+      const mockRequest = {
         headers: {
           'user-agent': 'test-agent'
         },
@@ -865,8 +865,8 @@ describe('metricsContext', () => {
         }
       };
 
-      var metricsContext = require(modulePath)(mockLog, mockConfig);
-      var valid = metricsContext.validate.call(mockRequest);
+      const metricsContext = require(modulePath)(mockLog, mockConfig);
+      const valid = metricsContext.validate.call(mockRequest);
 
       assert(! valid, 'the data is treated as invalid');
       assert(! mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed');
@@ -882,15 +882,15 @@ describe('metricsContext', () => {
   it(
     'metricsContext.validate with an invalid flow signature',
     () => {
-      var mockLog = mocks.mockLog();
-      var mockConfig = {
+      const mockLog = mocks.mockLog();
+      const mockConfig = {
         memcached: {},
         metrics: {
           flow_id_expiry: 60000,
           flow_id_key: 'test'
         }
       };
-      var mockRequest = {
+      const mockRequest = {
         headers: {
           'user-agent': 'test-agent'
         },
@@ -902,8 +902,8 @@ describe('metricsContext', () => {
         }
       };
 
-      var metricsContext = require(modulePath)(mockLog, mockConfig);
-      var valid = metricsContext.validate.call(mockRequest);
+      const metricsContext = require(modulePath)(mockLog, mockConfig);
+      const valid = metricsContext.validate.call(mockRequest);
 
       assert(! valid, 'the data is treated as invalid');
       assert(! mockRequest.payload.metricsContext.flowId, 'the invalid flow data was removed');
@@ -919,18 +919,18 @@ describe('metricsContext', () => {
   it(
     'metricsContext.validate with flow signature from different key',
     () => {
-      var expectedTime = 1451566800000;
-      var expectedSalt = '4d6f7a696c6c6146697265666f782121';
-      var expectedHmac = '2a204a6d26b009b26b3116f643d84c6f';
-      var mockLog = mocks.mockLog();
-      var mockConfig = {
+      const expectedTime = 1451566800000;
+      const expectedSalt = '4d6f7a696c6c6146697265666f782121';
+      const expectedHmac = '2a204a6d26b009b26b3116f643d84c6f';
+      const mockLog = mocks.mockLog();
+      const mockConfig = {
         memcached: {},
         metrics: {
           flow_id_expiry: 60000,
           flow_id_key: 'ThisIsTheWrongKey'
         }
       };
-      var mockRequest = {
+      const mockRequest = {
         headers: {
           'user-agent': 'Firefox'
         },
@@ -945,9 +945,10 @@ describe('metricsContext', () => {
         return expectedTime + 20000;
       });
 
+      let valid;
       try {
-        var metricsContext = require(modulePath)(mockLog, mockConfig);
-        var valid = metricsContext.validate.call(mockRequest);
+        const metricsContext = require(modulePath)(mockLog, mockConfig);
+        valid = metricsContext.validate.call(mockRequest);
       } finally {
         Date.now.restore();
       }
@@ -966,18 +967,18 @@ describe('metricsContext', () => {
   it(
     'metricsContext.validate with flow signature from different timestamp',
     () => {
-      var expectedTime = 1451566800000;
-      var expectedSalt = '4d6f7a696c6c6146697265666f782121';
-      var expectedHmac = '2a204a6d26b009b26b3116f643d84c6f';
-      var mockLog = mocks.mockLog();
-      var mockConfig = {
+      const expectedTime = 1451566800000;
+      const expectedSalt = '4d6f7a696c6c6146697265666f782121';
+      const expectedHmac = '2a204a6d26b009b26b3116f643d84c6f';
+      const mockLog = mocks.mockLog();
+      const mockConfig = {
         memcached: {},
         metrics: {
           flow_id_expiry: 60000,
           flow_id_key: 'S3CR37'
         }
       };
-      var mockRequest = {
+      const mockRequest = {
         headers: {
           'user-agent': 'Firefox'
         },
@@ -992,9 +993,10 @@ describe('metricsContext', () => {
         return expectedTime + 20000;
       });
 
+      let valid;
       try {
-        var metricsContext = require(modulePath)(mockLog, mockConfig);
-        var valid = metricsContext.validate.call(mockRequest);
+        const metricsContext = require(modulePath)(mockLog, mockConfig);
+        valid = metricsContext.validate.call(mockRequest);
       } finally {
         Date.now.restore();
       }
@@ -1013,21 +1015,21 @@ describe('metricsContext', () => {
   it(
     'metricsContext.validate with flow signature including user agent',
     () => {
-      var expectedTime = 1451566800000;
+      const expectedTime = 1451566800000;
       // This is the correct signature for the *old* recipe, where we used
       // to include the user agent string in the hash. The test is expected
       // to fail because we don't support that recipe any more.
-      var expectedSalt = '4d6f7a696c6c6146697265666f782121';
-      var expectedHmac = 'c89d56556d22039fbbf54d34e0baf206';
-      var mockLog = mocks.mockLog();
-      var mockConfig = {
+      const expectedSalt = '4d6f7a696c6c6146697265666f782121';
+      const expectedHmac = 'c89d56556d22039fbbf54d34e0baf206';
+      const mockLog = mocks.mockLog();
+      const mockConfig = {
         memcached: {},
         metrics: {
           flow_id_expiry: 60000,
           flow_id_key: 'S3CR37'
         }
       };
-      var mockRequest = {
+      const mockRequest = {
         headers: {
           'user-agent': 'Firefox'
         },
@@ -1042,9 +1044,10 @@ describe('metricsContext', () => {
         return expectedTime + 20000;
       });
 
+      let valid;
       try {
-        var metricsContext = require(modulePath)(mockLog, mockConfig);
-        var valid = metricsContext.validate.call(mockRequest);
+        const metricsContext = require(modulePath)(mockLog, mockConfig);
+        valid = metricsContext.validate.call(mockRequest);
       } finally {
         Date.now.restore();
       }

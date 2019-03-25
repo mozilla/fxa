@@ -5,17 +5,17 @@
 'use strict';
 
 const { assert } = require('chai');
-var mocks = require('../../mocks');
-var getRoute = require('../../routes_helpers').getRoute;
+const mocks = require('../../mocks');
+const getRoute = require('../../routes_helpers').getRoute;
 
-var P = require('../../../lib/promise');
-var uuid = require('uuid');
-var crypto = require('crypto');
-var error = require('../../../lib/error');
+const P = require('../../../lib/promise');
+const uuid = require('uuid');
+const crypto = require('crypto');
+const error = require('../../../lib/error');
 const sinon = require('sinon');
 const log = require('../../../lib/log');
 
-var TEST_EMAIL = 'foo@gmail.com';
+const TEST_EMAIL = 'foo@gmail.com';
 
 function makeRoutes(options = {}) {
 
@@ -135,12 +135,12 @@ describe('/password', () => {
   it(
     '/forgot/resend_code',
     () => {
-      var mockCustoms = mocks.mockCustoms();
-      var uid = uuid.v4('binary').toString('hex');
-      var mockDB = mocks.mockDB();
-      var mockMailer = mocks.mockMailer();
-      var mockMetricsContext = mocks.mockMetricsContext();
-      var mockLog = log('ERROR', 'test', {
+      const mockCustoms = mocks.mockCustoms();
+      const uid = uuid.v4('binary').toString('hex');
+      const mockDB = mocks.mockDB();
+      const mockMailer = mocks.mockMailer();
+      const mockMetricsContext = mocks.mockMetricsContext();
+      const mockLog = log('ERROR', 'test', {
         stdout: {
           on: sinon.spy(),
           write: sinon.spy()
@@ -153,7 +153,7 @@ describe('/password', () => {
       mockLog.flowEvent = sinon.spy(() => {
         return P.resolve();
       });
-      var passwordRoutes = makeRoutes({
+      const passwordRoutes = makeRoutes({
         customs: mockCustoms,
         db: mockDB,
         mailer : mockMailer,
@@ -161,7 +161,7 @@ describe('/password', () => {
         log: mockLog
       });
 
-      var mockRequest = mocks.mockRequest({
+      const mockRequest = mocks.mockRequest({
         credentials: {
           data: crypto.randomBytes(16).toString('hex'),
           email: TEST_EMAIL,
@@ -289,20 +289,20 @@ describe('/password', () => {
     it(
       'smoke',
       () => {
-        var uid = uuid.v4('binary').toString('hex');
-        var devices = [
+        const uid = uuid.v4('binary').toString('hex');
+        const devices = [
           { uid: uid, id: crypto.randomBytes(16) },
           { uid: uid, id: crypto.randomBytes(16) }
         ];
-        var mockDB = mocks.mockDB({
+        const mockDB = mocks.mockDB({
           email: TEST_EMAIL,
           uid,
           devices
         });
-        var mockPush = mocks.mockPush();
-        var mockMailer = mocks.mockMailer();
-        var mockLog = mocks.mockLog();
-        var mockRequest = mocks.mockRequest({
+        const mockPush = mocks.mockPush();
+        const mockMailer = mocks.mockMailer();
+        const mockLog = mocks.mockLog();
+        const mockRequest = mocks.mockRequest({
           credentials: {
             uid: uid
           },
@@ -321,7 +321,7 @@ describe('/password', () => {
           uaOS: 'Mac OS X',
           uaOSVersion: '10.11'
         });
-        var passwordRoutes = makeRoutes({
+        const passwordRoutes = makeRoutes({
           db: mockDB,
           push: mockPush,
           mailer: mockMailer,
@@ -346,7 +346,7 @@ describe('/password', () => {
           assert.equal(mockMailer.sendPasswordChangedNotification.getCall(0).args[2].uid, uid);
 
           assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once');
-          var args = mockLog.activityEvent.args[0];
+          let args = mockLog.activityEvent.args[0];
           assert.equal(args.length, 1, 'log.activityEvent was passed one argument');
           assert.deepEqual(args[0], {
             country: 'United States',
@@ -373,19 +373,19 @@ describe('/password', () => {
     it(
       'succeeds even if notification blocked',
       () => {
-        var uid = uuid.v4('binary').toString('hex');
-        var mockDB = mocks.mockDB({
+        const uid = uuid.v4('binary').toString('hex');
+        const mockDB = mocks.mockDB({
           email: TEST_EMAIL,
           uid: uid
         });
-        var mockPush = mocks.mockPush();
-        var mockMailer = {
+        const mockPush = mocks.mockPush();
+        const mockMailer = {
           sendPasswordChangedNotification: sinon.spy(() => {
             return P.reject(error.emailBouncedHard());
           })
         };
-        var mockLog = mocks.mockLog();
-        var mockRequest = mocks.mockRequest({
+        const mockLog = mocks.mockLog();
+        const mockRequest = mocks.mockRequest({
           credentials: {
             uid: uid
           },
@@ -399,7 +399,7 @@ describe('/password', () => {
           },
           log: mockLog
         });
-        var passwordRoutes = makeRoutes({
+        const passwordRoutes = makeRoutes({
           config: {
             domain: 'wibble',
             smtp: {}
@@ -429,7 +429,7 @@ describe('/password', () => {
           assert.equal(mockMailer.sendPasswordChangedNotification.callCount, 1);
 
           assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once');
-          var args = mockLog.activityEvent.args[0];
+          const args = mockLog.activityEvent.args[0];
           assert.equal(args.length, 1, 'log.activityEvent was passed one argument');
           assert.deepEqual(args[0], {
             country: 'United States',

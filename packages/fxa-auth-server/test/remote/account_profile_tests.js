@@ -5,13 +5,13 @@
 'use strict';
 
 const { assert } = require('chai');
-var TestServer = require('../test_server');
+const TestServer = require('../test_server');
 const Client = require('../client')();
 
-var config = require('../../config').getProperties();
+const config = require('../../config').getProperties();
 
 function makeMockOAuthHeader(opts) {
-  var token = Buffer.from(JSON.stringify(opts)).toString('hex');
+  const token = Buffer.from(JSON.stringify(opts)).toString('hex');
   return 'Bearer ' + token;
 }
 
@@ -109,7 +109,7 @@ describe('remote account profile', function() {
     () => {
       return Client.create(config.publicUrl, server.uniqueEmail(), 'password', { lang: 'en-US' })
         .then(c => {
-          var UNKNOWN_UID = 'abcdef123456';
+          const UNKNOWN_UID = 'abcdef123456';
           assert.notEqual(c.uid, UNKNOWN_UID);
           return c.api.accountProfile(null, {
             Authorization: makeMockOAuthHeader({
@@ -151,7 +151,7 @@ describe('remote account profile', function() {
   it(
     'account profile authenticated with limited oauth scopes returns limited profile data',
     () => {
-      var client;
+      let client;
       return Client.create(config.publicUrl, server.uniqueEmail(), 'password', { lang: 'en-US' })
         .then(c => {
           client = c;
@@ -186,7 +186,7 @@ describe('remote account profile', function() {
   it(
     'account profile authenticated with oauth :write scopes returns profile data',
     () => {
-      var client;
+      let client;
       return Client.create(config.publicUrl, server.uniqueEmail(), 'password', { lang: 'en-US' })
         .then(c => {
           client = c;
@@ -252,7 +252,7 @@ describe('remote account profile', function() {
   it(
     'account profile works with unicode email address',
     () => {
-      var email = server.uniqueUnicodeEmail();
+      const email = server.uniqueUnicodeEmail();
       return Client.create(config.publicUrl, email, 'password')
         .then(c => {
           return c.api.accountProfile(c.sessionToken);

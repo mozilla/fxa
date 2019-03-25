@@ -6,18 +6,18 @@
 'use strict';
 
 /* eslint-disable no-console */
-var cp = require('child_process');
-var split = require('binary-split');
-var through = require('through');
+const cp = require('child_process');
+const split = require('binary-split');
+const through = require('through');
 
-var clientCount = 2;
-var pathStats = {};
-var requests = 0;
-var pass = 0; // eslint-disable-line no-unused-vars
-var fail = 0;
-var start = null;
+let clientCount = 2;
+const pathStats = {};
+let requests = 0;
+let pass = 0; // eslint-disable-line no-unused-vars
+let fail = 0;
+let start = null;
 
-var server = cp.spawn(
+const server = cp.spawn(
   'node',
   ['../../bin/key_server.js'],
   {
@@ -47,7 +47,7 @@ server.stderr
           if (! start) start = Date.now();
           requests++;
           if (json.code === 200) { pass++; } else { fail++; }
-          var stat = pathStats[json.path] || {};
+          const stat = pathStats[json.path] || {};
           stat.count = stat.count + 1 || 1;
           stat.max = Math.max(stat.max || 0, json.t);
           stat.min = Math.min(stat.min || Number.MAX_VALUE, json.t);
@@ -62,7 +62,7 @@ server.stderr
   );
 
 function startClient() {
-  var client = cp.spawn(
+  const client = cp.spawn(
     'node',
     ['./bot.js'],
     {
@@ -77,8 +77,8 @@ function startClient() {
 function clientExit() {
   clientCount--;
   if (clientCount === 0) {
-    var seconds = (Date.now() - start) / 1000;
-    var rps = Math.floor(requests / seconds);
+    const seconds = (Date.now() - start) / 1000;
+    const rps = Math.floor(requests / seconds);
     console.log('rps: %d requests: %d errors: %d', rps, requests, fail);
     console.log(pathStats);
     server.kill('SIGINT');
@@ -86,8 +86,8 @@ function clientExit() {
 }
 
 function startClients() {
-  for (var i = 0; i < clientCount; i++) {
-    var c = startClient();
+  for (let i = 0; i < clientCount; i++) {
+    const c = startClient();
     c.on('exit', clientExit);
   }
 }

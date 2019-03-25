@@ -27,9 +27,9 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('l10n-extract', 'Extract strings from templates for localization.', function () {
-    var done = this.async();
+    const done = this.async();
 
-    var walker = extract({
+    const walker = extract({
       'input-dir': path.join(pkgroot, 'lib/senders/templates'),
       outputDir: pkgroot,
       'output': 'server.pot',
@@ -42,7 +42,7 @@ module.exports = function (grunt) {
     });
 
     walker.on('end', function () {
-      var jsWalker = extract({
+      const jsWalker = extract({
         'input-dir': path.join(pkgroot, 'lib/senders'),
         outputDir: pkgroot,
         'output': 'server.pot',

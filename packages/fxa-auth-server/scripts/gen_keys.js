@@ -36,7 +36,7 @@ const pubKeyFile = config.get('publicKeyFile');
 const secretKeyFile = config.get('secretKeyFile');
 
 try {
-  var keysExist = fs.existsSync(pubKeyFile) && fs.existsSync(secretKeyFile);
+  const keysExist = fs.existsSync(pubKeyFile) && fs.existsSync(secretKeyFile);
   assert(! keysExist, 'keys already exists');
 } catch (e) {
   process.exit();
@@ -50,7 +50,7 @@ try {
 //    "fxa-createdAt": 1489716000,
 //  }
 function addKeyProperties(key) {
-  var now = new Date();
+  const now = new Date();
   key.kty = 'RSA';
   key.kid = now.toISOString().slice(0, 10) + '-' +
             crypto.createHash('sha256').update(key.n).update(key.e).digest('hex').slice(0, 32);
@@ -67,11 +67,11 @@ cp.exec(
     cwd: __dirname
   },
   function (err, stdout, stderr) {
-    var s = JSON.parse(stdout);
+    const s = JSON.parse(stdout);
     addKeyProperties(s);
     fs.writeFileSync(secretKeyFile, JSON.stringify(s));
     console.error('Secret Key saved:', secretKeyFile);
-    var pub = {
+    const pub = {
       kid: s.kid,
       kty: s.kty,
       'fxa-createdAt': s['fxa-createdAt'],

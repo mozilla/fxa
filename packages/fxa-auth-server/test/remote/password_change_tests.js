@@ -6,11 +6,11 @@
 
 const { assert } = require('chai');
 const Client = require('../client')();
-var config = require('../../config').getProperties();
-var TestServer = require('../test_server');
-var url = require('url');
+const config = require('../../config').getProperties();
+const TestServer = require('../test_server');
+const url = require('url');
 
-var tokens = require('../../lib/tokens')({ trace: function() {}});
+const tokens = require('../../lib/tokens')({ trace: function() {}});
 function getSessionTokenId(sessionTokenHex) {
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
@@ -36,10 +36,10 @@ describe('remote password change', function() {
   it(
     'password change, with unverified session',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var newPassword = 'foobar';
-      var kB, kA, client, firstAuthPW, originalSessionToken;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      const newPassword = 'foobar';
+      let kB, kA, client, firstAuthPW, originalSessionToken;
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
@@ -121,10 +121,10 @@ describe('remote password change', function() {
         )
         .then(
           function (emailData) {
-            var subject = emailData.headers['subject'];
+            const subject = emailData.headers['subject'];
             assert.equal(subject, 'Your Firefox Account password has been changed', 'password email subject set correctly');
-            var link = emailData.headers['x-link'];
-            var query = url.parse(link, true).query;
+            const link = emailData.headers['x-link'];
+            const query = url.parse(link, true).query;
             assert.ok(query.email, 'email is in the link');
           }
         )
@@ -164,10 +164,10 @@ describe('remote password change', function() {
   it(
     'password change, with verified session',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var newPassword = 'foobar';
-      var kB, kA, client, firstAuthPW, originalSessionToken;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      const newPassword = 'foobar';
+      let kB, kA, client, firstAuthPW, originalSessionToken;
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
@@ -218,10 +218,10 @@ describe('remote password change', function() {
         )
         .then(
           function (emailData) {
-            var subject = emailData.headers['subject'];
+            const subject = emailData.headers['subject'];
             assert.equal(subject, 'Your Firefox Account password has been changed', 'password email subject set correctly');
-            var link = emailData.headers['x-link'];
-            var query = url.parse(link, true).query;
+            const link = emailData.headers['x-link'];
+            const query = url.parse(link, true).query;
             assert.ok(query.email, 'email is in the link');
             assert.equal(emailData.html.indexOf('IP address') > -1, true, 'contains ip location data');
           }
@@ -259,10 +259,10 @@ describe('remote password change', function() {
   it(
     'password change, with raw session data rather than session token id, return invalid token error',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var newPassword = 'foobar';
-      var client;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      const newPassword = 'foobar';
+      let client;
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
@@ -301,10 +301,10 @@ describe('remote password change', function() {
   it(
     'password change w/o sessionToken',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var newPassword = 'foobar';
-      var kB, kA, client, firstAuthPW;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      const newPassword = 'foobar';
+      let kB, kA, client, firstAuthPW;
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
@@ -339,10 +339,10 @@ describe('remote password change', function() {
         )
         .then(
           function (emailData) {
-            var subject = emailData.headers['subject'];
+            const subject = emailData.headers['subject'];
             assert.equal(subject, 'Your Firefox Account password has been changed', 'password email subject set correctly');
-            var link = emailData.headers['x-link'];
-            var query = url.parse(link, true).query;
+            const link = emailData.headers['x-link'];
+            const query = url.parse(link, true).query;
             assert.ok(query.email, 'email is in the link');
           }
         )
@@ -369,9 +369,9 @@ describe('remote password change', function() {
   it(
     'wrong password on change start',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null;
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
           function (x) {

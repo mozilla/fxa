@@ -31,25 +31,25 @@
 
 'use strict';
 
-var P = require('bluebird');
+const P = require('bluebird');
 const config = require('../config').getProperties();
 const error = require('../lib/error');
 const createSenders = require('../lib/senders');
-var fs = require('fs');
+const fs = require('fs');
 const log = require('../lib/senders/legacy_log')(require('../lib/senders/log')('server'));
-var mkdirp = require('mkdirp');
-var path = require('path');
+const mkdirp = require('mkdirp');
+const path = require('path');
 
-var OUTPUT_DIRECTORY = path.join(__dirname, '..', '.mail_output');
+const OUTPUT_DIRECTORY = path.join(__dirname, '..', '.mail_output');
 
-var messageToSend = process.argv[2] || '';
+const messageToSend = process.argv[2] || '';
 
-var mailSender = {
+const mailSender = {
   sendMail: function (emailConfig,  done) {
-    var htmlOutputPath = getEmailOutputPath(emailConfig.subject, 'html');
+    const htmlOutputPath = getEmailOutputPath(emailConfig.subject, 'html');
     fs.writeFileSync(htmlOutputPath, emailConfig.html);
 
-    var textOutputPath = getEmailOutputPath(emailConfig.subject, 'txt');
+    const textOutputPath = getEmailOutputPath(emailConfig.subject, 'txt');
     fs.writeFileSync(textOutputPath, emailConfig.text);
 
     done(null);
@@ -80,7 +80,7 @@ require('../lib/senders/translator')(config.i18n.supportedLanguages, config.i18n
   });
 
 function getEmailOutputPath(subject, extension) {
-  var outputFilename = subject.replace(/\s+/g, '_') + '.' + extension;
+  const outputFilename = subject.replace(/\s+/g, '_') + '.' + extension;
   return path.join(OUTPUT_DIRECTORY, outputFilename);
 }
 
@@ -90,11 +90,11 @@ function sendMails(mailer, messagesToSend) {
 }
 
 function sendMail(mailer, messageToSend) {
-  var parts = messageToSend.split(':');
-  var messageType = parts[0];
-  var messageSubType = parts[1];
+  const parts = messageToSend.split(':');
+  const messageType = parts[0];
+  const messageSubType = parts[1];
 
-  var message = {
+  const message = {
     acceptLanguage: 'en;q=0.8,en-US;q=0.5,en;q=0.3"',
     code: '123123',
     email: 'testuser@testuser.com',
@@ -124,7 +124,7 @@ function sendMail(mailer, messageToSend) {
 }
 
 function checkMessageType(mailer, messageToSend) {
-  var messageTypes = getMailerMessageTypes(mailer);
+  const messageTypes = getMailerMessageTypes(mailer);
   messageTypes.push('all');
 
   if (messageTypes.indexOf(messageToSend) === -1) {
@@ -136,9 +136,9 @@ function checkMessageType(mailer, messageToSend) {
 
 
 function getMailerMessageTypes(mailer) {
-  var messageTypes = [];
+  const messageTypes = [];
 
-  for (var key in mailer) {
+  for (const key in mailer) {
     if (
       typeof mailer[key] === 'function' &&
       ! /^_/.test(key) && ! /^send/.test(key) && /Email$/.test(key)

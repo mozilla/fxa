@@ -217,7 +217,7 @@ describe('/certificate/sign', () => {
 
   function makeRoutes (options = {}) {
 
-    var log = options.log || mocks.mockLog();
+    const log = options.log || mocks.mockLog();
 
     return require('../../../lib/routes/sign')(
       log,

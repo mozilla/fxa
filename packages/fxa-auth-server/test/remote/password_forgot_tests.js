@@ -5,13 +5,13 @@
 'use strict';
 
 const { assert } = require('chai');
-var url = require('url');
+const url = require('url');
 const Client = require('../client')();
-var TestServer = require('../test_server');
-var crypto = require('crypto');
-var base64url = require('base64url');
+const TestServer = require('../test_server');
+const crypto = require('crypto');
+const base64url = require('base64url');
 
-var config = require('../../config').getProperties();
+const config = require('../../config').getProperties();
 const mocks = require('../mocks');
 
 describe('remote password forgot', function() {
@@ -29,13 +29,13 @@ describe('remote password forgot', function() {
   it(
     'forgot password',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var newPassword = 'ez';
-      var wrapKb = null;
-      var kA = null;
-      var client = null;
-      var opts = {
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      const newPassword = 'ez';
+      let wrapKb = null;
+      let kA = null;
+      let client = null;
+      const opts = {
         keys: true,
         metricsContext: mocks.generateMetricsContext()
       };
@@ -80,8 +80,8 @@ describe('remote password forgot', function() {
         )
         .then(
           function (emailData) {
-            var link = emailData.headers['x-link'];
-            var query = url.parse(link, true).query;
+            const link = emailData.headers['x-link'];
+            const query = url.parse(link, true).query;
             assert.ok(query.email, 'email is in the link');
 
             assert.equal(emailData.headers['x-flow-begin-time'], opts.metricsContext.flowBeginTime, 'flow begin time set');
@@ -115,10 +115,10 @@ describe('remote password forgot', function() {
   it(
     'forgot password limits verify attempts',
     () => {
-      var code = null;
-      var email = server.uniqueEmail();
-      var password = 'hothamburger';
-      var client = null;
+      let code = null;
+      const email = server.uniqueEmail();
+      const password = 'hothamburger';
+      let client = null;
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function () {
@@ -213,10 +213,10 @@ describe('remote password forgot', function() {
   it(
     'recovery email link',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'something';
-      var client = null;
-      var options = {
+      const email = server.uniqueEmail();
+      const password = 'something';
+      let client = null;
+      const options = {
         redirectTo: 'https://sync.' + config.smtp.redirectDomain + '/',
         service: 'sync'
       };
@@ -243,8 +243,8 @@ describe('remote password forgot', function() {
         )
         .then(
           function (emailData) {
-            var link = emailData.headers['x-link'];
-            var query = url.parse(link, true).query;
+            const link = emailData.headers['x-link'];
+            const query = url.parse(link, true).query;
             assert.ok(query.token, 'uid is in link');
             assert.ok(query.code, 'code is in link');
             assert.equal(query.redirectTo, options.redirectTo, 'redirectTo is in link');
@@ -258,8 +258,8 @@ describe('remote password forgot', function() {
   it(
     'password forgot status with valid token',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'something';
+      const email = server.uniqueEmail();
+      const password = 'something';
       return Client.create(config.publicUrl, email, password)
         .then(
           function (c) {
@@ -283,7 +283,7 @@ describe('remote password forgot', function() {
   it(
     'password forgot status with invalid token',
     () => {
-      var client = new Client(config.publicUrl);
+      const client = new Client(config.publicUrl);
       return client.api.passwordForgotStatus('0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF')
         .then(
           () => assert(false),
@@ -297,9 +297,9 @@ describe('remote password forgot', function() {
   it(
     '/password/forgot/verify_code should set an unverified account as verified',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'something';
-      var client = null;
+      const email = server.uniqueEmail();
+      const password = 'something';
+      let client = null;
       return Client.create(config.publicUrl, email, password)
         .then(function (c) { client = c; })
         .then(
@@ -348,12 +348,12 @@ describe('remote password forgot', function() {
   it(
     'forgot password with service query parameter',
     () => {
-      var email = server.uniqueEmail();
-      var options = {
+      const email = server.uniqueEmail();
+      const options = {
         redirectTo: 'https://sync.' + config.smtp.redirectDomain + '/',
         serviceQuery: 'sync'
       };
-      var client;
+      let client;
       return Client.create(config.publicUrl, email, 'wibble', options)
         .then(function (c) {
           client = c;
@@ -368,8 +368,8 @@ describe('remote password forgot', function() {
           return server.mailbox.waitForEmail(email);
         })
         .then(function (emailData) {
-          var link = emailData.headers['x-link'];
-          var query = url.parse(link, true).query;
+          const link = emailData.headers['x-link'];
+          const query = url.parse(link, true).query;
           assert.equal(query.service, options.serviceQuery, 'service is in link');
         });
     }
@@ -378,9 +378,9 @@ describe('remote password forgot', function() {
   it(
     'forgot password, then get device list',
     () => {
-      var email = server.uniqueEmail();
-      var newPassword = 'foo';
-      var client;
+      const email = server.uniqueEmail();
+      const newPassword = 'foo';
+      let client;
       return Client.createAndVerify(config.publicUrl, email, 'bar', server.mailbox)
         .then(
           function (c) {

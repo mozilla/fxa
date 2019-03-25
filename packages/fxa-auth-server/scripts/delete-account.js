@@ -28,7 +28,7 @@ const Token = require('../lib/tokens')(log, config);
 const mailer = null;
 
 
-var DB = require('../lib/db')(
+const DB = require('../lib/db')(
   config,
   log,
   Token

@@ -4,8 +4,8 @@
 
 'use strict';
 
-var sjcl = require('sjcl');
-var P = require('../promise');
+const sjcl = require('sjcl');
+const P = require('../promise');
 
 /** pbkdf2 string creator
  *
@@ -14,9 +14,9 @@ var P = require('../promise');
  * @return {Buffer}  the derived key hex buffer.
  */
 function derive(input, salt, iterations, len) {
-  var password = sjcl.codec.hex.toBits(input.toString('hex'));
-  var saltBits = sjcl.codec.hex.toBits(salt.toString('hex'));
-  var result = sjcl.misc.pbkdf2(password, saltBits, iterations, len * 8, sjcl.misc.hmac);
+  const password = sjcl.codec.hex.toBits(input.toString('hex'));
+  const saltBits = sjcl.codec.hex.toBits(salt.toString('hex'));
+  const result = sjcl.misc.pbkdf2(password, saltBits, iterations, len * 8, sjcl.misc.hmac);
 
   return P.resolve(Buffer.from(sjcl.codec.hex.fromBits(result), 'hex'));
 }

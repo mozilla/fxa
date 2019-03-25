@@ -4,14 +4,14 @@
 
 'use strict';
 
-var crypto = require('crypto');
+const crypto = require('crypto');
 const EventEmitter = require('events');
-var P = require('../lib/promise');
-var mailbox = require('./mailbox');
-var createDBServer = require('fxa-auth-db-mysql');
-var createAuthServer = require('../bin/key_server');
-var createMailHelper = require('./mail_helper');
-var createOauthHelper = require('./oauth_helper');
+const P = require('../lib/promise');
+const mailbox = require('./mailbox');
+const createDBServer = require('fxa-auth-db-mysql');
+const createAuthServer = require('../bin/key_server');
+const createMailHelper = require('./mail_helper');
+const createOauthHelper = require('./oauth_helper');
 
 let currentServer;
 
@@ -46,7 +46,7 @@ TestServer.start = function (config, printLogs, options) {
   }).then((db) => {
     db.listen(config.httpdb.url.split(':')[2]);
     db.on('error', function () {});
-    var testServer = new TestServer(config, printLogs, options);
+    const testServer = new TestServer(config, printLogs, options);
     testServer.db = db;
     return testServer.start().then(() => testServer);
   });

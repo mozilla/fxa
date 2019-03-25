@@ -14,7 +14,7 @@ describe('remote sign key', function() {
   this.timeout(15000);
   let server;
   before(() => {
-    var config = require('../../config').getProperties();
+    const config = require('../../config').getProperties();
     config.oldPublicKeyFile = path.resolve(__dirname, '../../config/public-key.json');
     return TestServer.start(config)
       .then(s => {
@@ -28,7 +28,7 @@ describe('remote sign key', function() {
       return request('http://127.0.0.1:9000/.well-known/browserid')
         .spread((res, body) => {
           assert.equal(res.statusCode, 200);
-          var json = JSON.parse(body);
+          const json = JSON.parse(body);
           assert.equal(json.authentication, '/.well-known/browserid/nonexistent.html');
           assert.equal(json.keys.length, 2);
         });

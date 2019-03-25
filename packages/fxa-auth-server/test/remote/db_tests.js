@@ -356,7 +356,7 @@ describe('remote db', function() {
               assert(false, 'db.sessionToken should have failed');
             }, err => {
               assert.equal(err.errno, 110, 'sessionToken() fails with the correct error code');
-              var msg = 'Error: The authentication token could not be found';
+              const msg = 'Error: The authentication token could not be found';
               assert.equal(msg, '' + err, 'sessionToken() fails with the correct message');
             });
         })
@@ -641,7 +641,7 @@ describe('remote db', function() {
   it(
     'keyfetch token handling',
     () => {
-      var tokenId;
+      let tokenId;
       return db.emailRecord(account.email)
         .then(function(emailRecord) {
           return db.createKeyFetchToken({
@@ -673,7 +673,7 @@ describe('remote db', function() {
           assert(false, 'The above keyFetchToken() call should fail, since the keyFetchToken has been deleted');
         }, function(err) {
           assert.equal(err.errno, 110, 'keyFetchToken() fails with the correct error code');
-          var msg = 'Error: The authentication token could not be found';
+          const msg = 'Error: The authentication token could not be found';
           assert.equal(msg, '' + err, 'keyFetchToken() fails with the correct message');
         });
     }
@@ -682,7 +682,7 @@ describe('remote db', function() {
   it(
     'reset token handling',
     () => {
-      var tokenId;
+      let tokenId;
       return db.emailRecord(account.email)
         .then(function(emailRecord) {
           return db.createPasswordForgotToken(emailRecord);
@@ -711,7 +711,7 @@ describe('remote db', function() {
           return db.accountResetToken(tokenId)
             .then(assert.fail, function (err) {
               assert.equal(err.errno, 110, 'accountResetToken() fails with the correct error code');
-              var msg = 'Error: The authentication token could not be found';
+              const msg = 'Error: The authentication token could not be found';
               assert.equal(msg, '' + err, 'accountResetToken() fails with the correct message');
             });
         });
@@ -721,8 +721,8 @@ describe('remote db', function() {
   it(
     'forgotpwd token handling',
     () => {
-      var token1;
-      var token1tries = 0;
+      let token1;
+      let token1tries = 0;
       return db.emailRecord(account.email)
         .then(function(emailRecord) {
           return db.createPasswordForgotToken(emailRecord);
@@ -762,7 +762,7 @@ describe('remote db', function() {
           assert(false, 'The above passwordForgotToken() call should fail, since the passwordForgotToken has been deleted');
         }, function(err) {
           assert.equal(err.errno, 110, 'passwordForgotToken() fails with the correct error code');
-          var msg = 'Error: The authentication token could not be found';
+          const msg = 'Error: The authentication token could not be found';
           assert.equal(msg, '' + err, 'passwordForgotToken() fails with the correct message');
         });
     }
@@ -787,7 +787,7 @@ describe('remote db', function() {
   it(
     'db.forgotPasswordVerified',
     () => {
-      var token1;
+      let token1;
       return db.emailRecord(account.email)
         .then(function(emailRecord) {
           return db.createPasswordForgotToken(emailRecord);
@@ -890,7 +890,7 @@ describe('remote db', function() {
   it(
     'unblock code',
     () => {
-      var unblockCode;
+      let unblockCode;
       return db.createUnblockCode(account.uid)
         .then(function(_unblockCode) {
           assert.ok(_unblockCode);
@@ -904,7 +904,7 @@ describe('remote db', function() {
           },
           function (err) {
             assert.equal(err.errno, 127, 'consumeUnblockCode() fails with the correct error code');
-            var msg = 'Error: Invalid unblock code';
+            const msg = 'Error: Invalid unblock code';
             assert.equal(msg, '' + err, 'consumeUnblockCode() fails with the correct message');
           }
         )
@@ -927,7 +927,7 @@ describe('remote db', function() {
           },
           function (err) {
             assert.equal(err.errno, 127, 'consumeUnblockCode() fails with the correct error code');
-            var msg = 'Error: Invalid unblock code';
+            const msg = 'Error: Invalid unblock code';
             assert.equal(msg, '' + err, 'consumeUnblockCode() fails with the correct message');
           }
         );

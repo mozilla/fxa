@@ -17,10 +17,10 @@ const TEMPLATES_WITH_NO_CODE = new Set([
 
 // SMTP half
 
-var users = {};
+const users = {};
 
 function emailName(emailAddress) {
-  var utf8Address = Buffer.from(emailAddress, 'binary').toString('utf-8');
+  const utf8Address = Buffer.from(emailAddress, 'binary').toString('utf-8');
   return utf8Address.split('@')[0];
 }
 
@@ -36,18 +36,18 @@ module.exports = (printLogs) => {
         SMTPBanner: 'FXATEST'
       },
       function (req) {
-        var mp = new MailParser({ defaultCharset: 'utf-8' });
+        const mp = new MailParser({ defaultCharset: 'utf-8' });
         mp.on('end',
           function (mail) {
-            var link = mail.headers['x-link'];
-            var rc = mail.headers['x-recovery-code'];
-            var rul = mail.headers['x-report-signin-link'];
-            var uc = mail.headers['x-unblock-code'];
-            var vc = mail.headers['x-verify-code'];
-            var sc = mail.headers['x-signin-verify-code'];
-            var template = mail.headers['x-template-name'];
+            const link = mail.headers['x-link'];
+            const rc = mail.headers['x-recovery-code'];
+            const rul = mail.headers['x-report-signin-link'];
+            const uc = mail.headers['x-unblock-code'];
+            const vc = mail.headers['x-verify-code'];
+            const sc = mail.headers['x-signin-verify-code'];
+            const template = mail.headers['x-template-name'];
 
-            var smsLink;
+            let smsLink;
             if (/MockNexmo\.message\.sendSms/.test(mail.subject)) {
               const smsUrlMatch = /(https?:\/\/.*$)/.exec(mail.text);
               smsLink = smsUrlMatch && smsUrlMatch[1];
@@ -55,7 +55,7 @@ module.exports = (printLogs) => {
 
             // Workaround because the email service wraps this header in `< >`.
             // See: https://github.com/mozilla/fxa-content-server/pull/6470#issuecomment-415224438
-            var name = emailName(mail.headers.to.replace(/\<(.*?)\>/g, '$1'));
+            const name = emailName(mail.headers.to.replace(/\<(.*?)\>/g, '$1'));
 
             if (vc) {
               console.log('\x1B[32m', link, '\x1B[39m');
@@ -88,7 +88,7 @@ module.exports = (printLogs) => {
 
             if (mail.headers.cc) {
               // Support for CC headers
-              var ccName = emailName(mail.headers.cc);
+              const ccName = emailName(mail.headers.cc);
 
               if (users[ccName]) {
                 users[ccName].push(mail);
@@ -114,14 +114,14 @@ module.exports = (printLogs) => {
 
     // HTTP half
 
-    var hapi = require('hapi');
-    var api = new hapi.Server({
+    const hapi = require('hapi');
+    const api = new hapi.Server({
       host: config.smtp.api.host,
       port: config.smtp.api.port
     });
 
     function loop(email, cb) {
-      var mail = users[email];
+      const mail = users[email];
       if (! mail) {
         return setTimeout(loop.bind(null, email, cb), 50);
       }

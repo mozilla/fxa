@@ -4,8 +4,8 @@
 
 'use strict';
 
-var WebSocket = require('ws');
-var P = require('../lib/promise');
+const WebSocket = require('ws');
+const P = require('../lib/promise');
 
 /**
  * PushManager, helps create subscriptions against a push server
@@ -38,9 +38,9 @@ function PushManager(options) {
  * @returns {Promise}
  */
 PushManager.prototype.getSubscription = function getSubscription() {
-  var self = this;
-  var d = P.defer();
-  var ws = new WebSocket(this.server);
+  const self = this;
+  const d = P.defer();
+  const ws = new WebSocket(this.server);
 
   // Registration is a two-step handshake.
   // We send and receive a "hello" message, then send and receive a "register" message.
@@ -57,7 +57,7 @@ PushManager.prototype.getSubscription = function getSubscription() {
     ws.close();
   }
 
-  var handlers = {
+  const handlers = {
     'hello': function() {
       send({
         messageType: 'register',
@@ -85,7 +85,7 @@ PushManager.prototype.getSubscription = function getSubscription() {
   }).on('message', function message(data, flags) {
     data = JSON.parse(data);
     if (data && data.messageType) {
-      var handler = handlers[data.messageType] || handlers[''];
+      const handler = handlers[data.messageType] || handlers[''];
       handler(data);
     }
   });

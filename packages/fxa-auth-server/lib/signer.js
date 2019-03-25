@@ -4,15 +4,15 @@
 
 'use strict';
 
-var jwtool = require('fxa-jwtool');
+const jwtool = require('fxa-jwtool');
 
 module.exports = function (secretKeyFile, domain) {
 
-  var key = jwtool.JWK.fromFile(secretKeyFile, {iss: domain });
+  const key = jwtool.JWK.fromFile(secretKeyFile, {iss: domain });
 
   return {
     sign: function (data) {
-      var now = Date.now();
+      const now = Date.now();
       return key.sign(
         {
           'public-key': data.publicKey,

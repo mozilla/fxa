@@ -36,7 +36,7 @@ describe('AppErrors', () => {
   it(
     'should translate with missing required parameters',
     () => {
-      var result = AppError.translate(null, {
+      const result = AppError.translate(null, {
         output: {
           payload: {
             message: 'foo' + messages.errors.any.required,
@@ -60,7 +60,7 @@ describe('AppErrors', () => {
   it(
     'should translate with invalid parameter',
     () => {
-      var result = AppError.translate(null, {
+      const result = AppError.translate(null, {
         output: {
           payload: {
             validation: 'foo'
@@ -81,7 +81,7 @@ describe('AppErrors', () => {
   it(
     'should translate with missing payload',
     () => {
-      var result = AppError.translate(null, {
+      const result = AppError.translate(null, {
         output: {}
       });
       assert.ok(result instanceof AppError, 'instanceof AppError');
@@ -97,7 +97,7 @@ describe('AppErrors', () => {
   it(
     'tooManyRequests',
     () => {
-      var result = AppError.tooManyRequests(900, 'in 15 minutes');
+      let result = AppError.tooManyRequests(900, 'in 15 minutes');
       assert.ok(result instanceof AppError, 'instanceof AppError');
       assert.equal(result.errno, 114);
       assert.equal(result.message, 'Client has sent too many requests');

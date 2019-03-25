@@ -98,7 +98,7 @@ module.exports = function (log, config, oauthdb) {
   };
 
   function extend(target, source) {
-    for (var key in source) {
+    for (const key in source) {
       target[key] = source[key];
     }
 
@@ -122,7 +122,7 @@ module.exports = function (log, config, oauthdb) {
     // if no locale is passed, use DEFAULT_LOCALE
     locale = locale || DEFAULT_LOCALE;
     moment.locale(locale);
-    var time = moment();
+    let time = moment();
     if (timeZone) {
       time = time.tz(timeZone);
     }
@@ -135,7 +135,7 @@ module.exports = function (log, config, oauthdb) {
   }
 
   function Mailer(translator, templates, mailerConfig, sender) {
-    var options = {
+    const options = {
       host: mailerConfig.host,
       secure: mailerConfig.secure,
       ignoreTLS: ! mailerConfig.secure,
@@ -197,10 +197,10 @@ module.exports = function (log, config, oauthdb) {
     // Build a first cut at a device description,
     // without using any new strings.
     // Future iterations can localize this better.
-    var translator = this.translator(message.acceptLanguage);
-    var uaBrowser = safeUserAgent.name(message.uaBrowser);
-    var uaOS = safeUserAgent.name(message.uaOS);
-    var uaOSVersion = safeUserAgent.version(message.uaOSVersion);
+    const translator = this.translator(message.acceptLanguage);
+    const uaBrowser = safeUserAgent.name(message.uaBrowser);
+    const uaOS = safeUserAgent.name(message.uaOS);
+    const uaOSVersion = safeUserAgent.version(message.uaOSVersion);
 
     if (uaBrowser && uaOS && uaOSVersion) {
       return translator.format(translator.gettext('%(uaBrowser)s on %(uaOS)s %(uaOSVersion)s'),
@@ -214,7 +214,7 @@ module.exports = function (log, config, oauthdb) {
         return uaBrowser;
       } else if (uaOS) {
         if (uaOSVersion) {
-          var parts = uaOS + ' ' + uaOSVersion;
+          const parts = uaOS + ' ' + uaOSVersion;
           return parts;
         }
         else {
@@ -228,8 +228,8 @@ module.exports = function (log, config, oauthdb) {
   };
 
   Mailer.prototype._constructLocationString = function (message) {
-    var translator = this.translator(message.acceptLanguage);
-    var location = message.location;
+    const translator = this.translator(message.acceptLanguage);
+    const location = message.location;
     // construct the location string from the location object
     if (location) {
       if (location.city && location.stateCode) {
@@ -246,14 +246,14 @@ module.exports = function (log, config, oauthdb) {
   };
 
   Mailer.prototype._constructLocalTimeString = function (timeZone, acceptLanguage) {
-    var translator = this.translator(acceptLanguage);
+    const translator = this.translator(acceptLanguage);
     return constructLocalTimeString(timeZone, translator.language);
   };
 
   Mailer.prototype.localize = function (message) {
-    var translator = this.translator(message.acceptLanguage);
+    const translator = this.translator(message.acceptLanguage);
 
-    var localized = this.templates[message.template](extend({
+    const localized = this.templates[message.template](extend({
       translator: translator
     }, message.templateValues));
 
@@ -539,10 +539,10 @@ module.exports = function (log, config, oauthdb) {
   Mailer.prototype.verifyEmail = async function (message) {
     log.trace('mailer.verifyEmail', { email: message.email, uid: message.uid });
 
-    var templateName = 'verifyEmail';
+    let templateName = 'verifyEmail';
     const metricsTemplateName = templateName;
-    var subject = gettext('Verify your Firefox Account');
-    var query = {
+    let subject = gettext('Verify your Firefox Account');
+    const query = {
       uid: message.uid,
       code: message.code
     };
@@ -551,9 +551,9 @@ module.exports = function (log, config, oauthdb) {
     if (message.redirectTo) { query.redirectTo = message.redirectTo; }
     if (message.resume) { query.resume = message.resume; }
 
-    var links = this._generateLinks(this.verificationUrl, message.email, query, templateName);
+    const links = this._generateLinks(this.verificationUrl, message.email, query, templateName);
 
-    var headers = {
+    const headers = {
       'X-Link': links.link,
       'X-Verify-Code': message.code
     };
@@ -592,16 +592,16 @@ module.exports = function (log, config, oauthdb) {
   Mailer.prototype.unblockCodeEmail = function (message) {
     log.trace('mailer.unblockCodeEmail', { email: message.email, uid: message.uid });
 
-    var templateName = 'unblockCodeEmail';
-    var query = {
+    const templateName = 'unblockCodeEmail';
+    const query = {
       unblockCode: message.unblockCode,
       email: message.email,
       uid: message.uid
     };
 
-    var links = this._generateLinks(null, message.email, query, templateName);
+    const links = this._generateLinks(null, message.email, query, templateName);
 
-    var headers = {
+    const headers = {
       'X-Unblock-Code': message.unblockCode,
       'X-Report-SignIn-Link': links.reportSignInLink
     };
@@ -627,20 +627,20 @@ module.exports = function (log, config, oauthdb) {
   Mailer.prototype.verifyLoginEmail = function (message) {
     log.trace('mailer.verifyLoginEmail', { email: message.email, uid: message.uid });
 
-    var templateName = 'verifyLoginEmail';
-    var query = {
+    const templateName = 'verifyLoginEmail';
+    const query = {
       code: message.code,
       uid: message.uid
     };
-    var translator = this.translator(message.acceptLanguage);
+    const translator = this.translator(message.acceptLanguage);
 
     if (message.service) { query.service = message.service; }
     if (message.redirectTo) { query.redirectTo = message.redirectTo; }
     if (message.resume) { query.resume = message.resume; }
 
-    var links = this._generateLinks(this.verifyLoginUrl, message.email, query, templateName);
+    const links = this._generateLinks(this.verifyLoginUrl, message.email, query, templateName);
 
-    var headers = {
+    const headers = {
       'X-Link': links.link,
       'X-Verify-Code': message.code
     };
@@ -678,8 +678,8 @@ module.exports = function (log, config, oauthdb) {
   Mailer.prototype.verifyLoginCodeEmail = function (message) {
     log.trace('mailer.verifyLoginCodeEmail', { email: message.email, uid: message.uid });
 
-    var templateName = 'verifyLoginCodeEmail';
-    var query = {
+    const templateName = 'verifyLoginCodeEmail';
+    const query = {
       code: message.code,
       uid: message.uid
     };
@@ -688,9 +688,9 @@ module.exports = function (log, config, oauthdb) {
     if (message.redirectTo) { query.redirectTo = message.redirectTo; }
     if (message.resume) { query.resume = message.resume; }
 
-    var links = this._generateLinks(this.verifyLoginUrl, message.email, query, templateName);
+    const links = this._generateLinks(this.verifyLoginUrl, message.email, query, templateName);
 
-    var headers = {
+    const headers = {
       'X-Signin-Verify-Code': message.code
     };
 
@@ -760,8 +760,8 @@ module.exports = function (log, config, oauthdb) {
   Mailer.prototype.verifySecondaryEmail = function (message) {
     log.trace('mailer.verifySecondaryEmail', { email: message.email, uid: message.uid });
 
-    var templateName = 'verifySecondaryEmail';
-    var query = {
+    const templateName = 'verifySecondaryEmail';
+    const query = {
       code: message.code,
       uid: message.uid,
       type: 'secondary',
@@ -772,9 +772,9 @@ module.exports = function (log, config, oauthdb) {
     if (message.redirectTo) { query.redirectTo = message.redirectTo; }
     if (message.resume) { query.resume = message.resume; }
 
-    var links = this._generateLinks(this.verifySecondaryEmailUrl, message.email, query, templateName);
+    const links = this._generateLinks(this.verifySecondaryEmailUrl, message.email, query, templateName);
 
-    var headers = {
+    const headers = {
       'X-Link': links.link,
       'X-Verify-Code': message.code
     };
@@ -804,8 +804,8 @@ module.exports = function (log, config, oauthdb) {
   };
 
   Mailer.prototype.recoveryEmail = function (message) {
-    var templateName = 'recoveryEmail';
-    var query = {
+    const templateName = 'recoveryEmail';
+    const query = {
       uid: message.uid,
       token: message.token,
       code: message.code,
@@ -816,9 +816,9 @@ module.exports = function (log, config, oauthdb) {
     if (message.resume) { query.resume = message.resume; }
     if (message.emailToHashWith) { query.emailToHashWith = message.emailToHashWith; }
 
-    var links = this._generateLinks(this.passwordResetUrl, message.email, query, templateName);
+    const links = this._generateLinks(this.passwordResetUrl, message.email, query, templateName);
 
-    var headers = {
+    const headers = {
       'X-Link': links.link,
       'X-Recovery-Code': message.code
     };
@@ -843,11 +843,11 @@ module.exports = function (log, config, oauthdb) {
   };
 
   Mailer.prototype.passwordChangedEmail = function (message) {
-    var templateName = 'passwordChangedEmail';
+    const templateName = 'passwordChangedEmail';
 
-    var links = this._generateLinks(this.initiatePasswordResetUrl, message.email, {}, templateName);
+    const links = this._generateLinks(this.initiatePasswordResetUrl, message.email, {}, templateName);
 
-    var headers = {
+    const headers = {
       'X-Link': links.resetLink
     };
 
@@ -870,10 +870,10 @@ module.exports = function (log, config, oauthdb) {
   };
 
   Mailer.prototype.passwordResetEmail = function (message) {
-    var templateName = 'passwordResetEmail';
-    var links = this._generateLinks(this.initiatePasswordResetUrl, message.email, {}, templateName);
+    const templateName = 'passwordResetEmail';
+    const links = this._generateLinks(this.initiatePasswordResetUrl, message.email, {}, templateName);
 
-    var headers = {
+    const headers = {
       'X-Link': links.resetLink
     };
 
@@ -892,10 +892,10 @@ module.exports = function (log, config, oauthdb) {
   };
 
   Mailer.prototype.passwordResetRequiredEmail = function (message) {
-    var templateName = 'passwordResetRequiredEmail';
-    var links = this._generateLinks(this.initiatePasswordResetUrl, message.email, {}, templateName);
+    const templateName = 'passwordResetRequiredEmail';
+    const links = this._generateLinks(this.initiatePasswordResetUrl, message.email, {}, templateName);
 
-    var headers = {
+    const headers = {
       'X-Link': links.resetLink
     };
 
@@ -913,11 +913,11 @@ module.exports = function (log, config, oauthdb) {
 
   Mailer.prototype.newDeviceLoginEmail = function (message) {
     log.trace('mailer.newDeviceLoginEmail', { email: message.email, uid: message.uid });
-    var templateName = 'newDeviceLoginEmail';
-    var links = this._generateSettingLinks(message, templateName);
-    var translator = this.translator(message.acceptLanguage);
+    const templateName = 'newDeviceLoginEmail';
+    const links = this._generateSettingLinks(message, templateName);
+    const translator = this.translator(message.acceptLanguage);
 
-    var headers = {
+    const headers = {
       'X-Link': links.passwordChangeLink
     };
 
@@ -952,10 +952,10 @@ module.exports = function (log, config, oauthdb) {
   Mailer.prototype.postVerifyEmail = function (message) {
     log.trace('mailer.postVerifyEmail', { email: message.email, uid: message.uid });
 
-    var templateName = 'postVerifyEmail';
-    var links = this._generateLinks(this.syncUrl, message.email, {}, templateName);
+    const templateName = 'postVerifyEmail';
+    const links = this._generateLinks(this.syncUrl, message.email, {}, templateName);
 
-    var headers = {
+    const headers = {
       'X-Link': links.link
     };
 
@@ -979,10 +979,10 @@ module.exports = function (log, config, oauthdb) {
   Mailer.prototype.postVerifySecondaryEmail = function (message) {
     log.trace('mailer.postVerifySecondaryEmail', { email: message.email, uid: message.uid });
 
-    var templateName = 'postVerifySecondaryEmail';
-    var links = this._generateSettingLinks(message, templateName);
+    const templateName = 'postVerifySecondaryEmail';
+    const links = this._generateSettingLinks(message, templateName);
 
-    var headers = {
+    const headers = {
       'X-Link': links.link
     };
 
@@ -1010,7 +1010,7 @@ module.exports = function (log, config, oauthdb) {
     const templateName = 'postChangePrimaryEmail';
     const links = this._generateSettingLinks(message, templateName);
 
-    var headers = {
+    const headers = {
       'X-Link': links.link
     };
 
@@ -1038,7 +1038,7 @@ module.exports = function (log, config, oauthdb) {
     const templateName = 'postRemoveSecondaryEmail';
     const links = this._generateSettingLinks(message, templateName);
 
-    var headers = {
+    const headers = {
       'X-Link': links.link
     };
 
@@ -1313,17 +1313,17 @@ module.exports = function (log, config, oauthdb) {
   };
 
   Mailer.prototype._generateUTMLink = function (link, query, templateName, content) {
-    var parsedLink = url.parse(link);
+    const parsedLink = url.parse(link);
 
     // Extract current params from link, passed in query params will override any param in a link
-    var parsedQuery = qs.parse(parsedLink.query);
+    const parsedQuery = qs.parse(parsedLink.query);
     Object.keys(query).forEach(function (key) {
       parsedQuery[key] = query[key];
     });
 
     parsedQuery['utm_medium'] = 'email';
 
-    var campaign = templateNameToCampaignMap[templateName];
+    const campaign = templateNameToCampaignMap[templateName];
     if (campaign && ! parsedQuery['utm_campaign']) {
       parsedQuery['utm_campaign'] = UTM_PREFIX + campaign;
     }
@@ -1345,9 +1345,9 @@ module.exports = function (log, config, oauthdb) {
   Mailer.prototype._generateLinks = function (primaryLink, email, query, templateName) {
     // Generate all possible links. The option to use a specific link
     // is left up to the template.
-    var links = {};
+    const links = {};
 
-    var utmContent = templateNameToContentMap[templateName];
+    const utmContent = templateNameToContentMap[templateName];
 
     if (primaryLink && utmContent) {
       links['link'] = this._generateUTMLink(primaryLink, query, templateName, utmContent);
@@ -1376,7 +1376,7 @@ module.exports = function (log, config, oauthdb) {
 
     links['createAccountRecoveryLink'] = this.createAccountRecoveryLink(templateName);
 
-    var queryOneClick = extend(query, {one_click: true});
+    const queryOneClick = extend(query, {one_click: true});
     if (primaryLink && utmContent) {
       links['oneClickLink'] = this._generateUTMLink(primaryLink, queryOneClick, templateName, utmContent + '-oneclick');
     }
@@ -1414,19 +1414,19 @@ module.exports = function (log, config, oauthdb) {
   Mailer.prototype.createPasswordResetLink = function (email, templateName, emailToHashWith) {
     // Default `reset_password_confirm` to false, to show warnings about
     // resetting password and sync data
-    var query = { email: email, reset_password_confirm: false, email_to_hash_with : emailToHashWith};
+    const query = { email: email, reset_password_confirm: false, email_to_hash_with : emailToHashWith};
 
     return this._generateUTMLink(this.initiatePasswordResetUrl, query, templateName, 'reset-password');
   };
 
   Mailer.prototype.createPasswordChangeLink = function (email, templateName) {
-    var query = {email: email};
+    const query = {email: email};
 
     return this._generateUTMLink(this.initiatePasswordChangeUrl, query, templateName, 'change-password');
   };
 
   Mailer.prototype.createReportSignInLink = function (templateName, data) {
-    var query = {
+    const query = {
       uid: data.uid,
       unblockCode: data.unblockCode
     };

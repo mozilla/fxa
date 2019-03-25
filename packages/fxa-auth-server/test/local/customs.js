@@ -16,18 +16,18 @@ const log = {
 const mocks = require('../mocks');
 const error = require(`${ROOT_DIR}/lib/error.js`);
 const P = require(`${ROOT_DIR}/lib/promise.js`);
-var nock = require('nock');
+const nock = require('nock');
 
 const Customs = require(`${ROOT_DIR}/lib/customs.js`)(log, error);
 
-var CUSTOMS_URL_REAL = 'http://localhost:7000';
-var CUSTOMS_URL_MISSING = 'http://localhost:7001';
+const CUSTOMS_URL_REAL = 'http://localhost:7000';
+const CUSTOMS_URL_MISSING = 'http://localhost:7001';
 
-var customsNoUrl;
-var customsWithUrl;
-var customsInvalidUrl;
+let customsNoUrl;
+let customsWithUrl;
+let customsInvalidUrl;
 
-var customsServer = nock(CUSTOMS_URL_REAL)
+const customsServer = nock(CUSTOMS_URL_REAL)
   .defaultReplyHeaders({
     'Content-Type': 'application/json'
   });
@@ -40,10 +40,10 @@ describe('Customs', () => {
 
       assert.ok(customsNoUrl, 'got a customs object with a none url');
 
-      var request = newRequest();
-      var ip = request.app.clientAddress;
-      var email = newEmail();
-      var action = newAction();
+      const request = newRequest();
+      const ip = request.app.clientAddress;
+      const email = newEmail();
+      const action = newAction();
 
       return customsNoUrl.check(request, email, action)
         .then(function(result) {
@@ -77,10 +77,10 @@ describe('Customs', () => {
 
       assert.ok(customsWithUrl, 'got a customs object with a valid url');
 
-      var request = newRequest();
-      var ip = request.app.clientAddress;
-      var email = newEmail();
-      var action = newAction();
+      const request = newRequest();
+      const ip = request.app.clientAddress;
+      const email = newEmail();
+      const action = newAction();
 
       // Mock a check that does not get blocked.
       customsServer.post('/check', function (body) {
@@ -230,10 +230,10 @@ describe('Customs', () => {
 
       assert.ok(customsInvalidUrl, 'got a customs object with a non-existant service url');
 
-      var request = newRequest();
-      var ip = request.app.clientAddress;
-      var email = newEmail();
-      var action = newAction();
+      const request = newRequest();
+      const ip = request.app.clientAddress;
+      const email = newEmail();
+      const action = newAction();
 
       return P.all([
         customsInvalidUrl.check(request, email, action)
@@ -261,10 +261,10 @@ describe('Customs', () => {
 
       assert.ok(customsWithUrl, 'can rate limit checkAccountStatus /check');
 
-      var request = newRequest();
-      var ip = request.app.clientAddress;
-      var email = newEmail();
-      var action = 'accountStatusCheck';
+      const request = newRequest();
+      const ip = request.app.clientAddress;
+      const email = newEmail();
+      const action = 'accountStatusCheck';
 
       function checkRequestBody (body) {
         assert.deepEqual(body, {
@@ -328,10 +328,10 @@ describe('Customs', () => {
 
       assert.ok(customsWithUrl, 'can rate limit /checkAuthenticated');
 
-      var request = newRequest();
-      var action = 'devicesNotify';
-      var ip = request.app.clientAddress;
-      var uid = 'foo';
+      const request = newRequest();
+      const action = 'devicesNotify';
+      const ip = request.app.clientAddress;
+      const uid = 'foo';
 
       function checkRequestBody (body) {
         assert.deepEqual(body, {
@@ -436,13 +436,13 @@ describe('Customs', () => {
 
       assert.ok(customsWithUrl, 'got a customs object with a valid url');
 
-      var request = newRequest();
+      const request = newRequest();
       request.payload.authPW = 'asdfasdfadsf';
       request.payload.oldAuthPW = '012301230123';
       request.payload.notThePW = 'plaintext';
-      var ip = request.app.clientAddress;
-      var email = newEmail();
-      var action = newAction();
+      const ip = request.app.clientAddress;
+      const email = newEmail();
+      const action = newAction();
 
       customsServer.post('/check', function (body) {
         assert.deepEqual(body, {
@@ -494,7 +494,7 @@ function newRequest() {
 
 
 function newAction() {
-  var EMAIL_ACTIONS = [
+  const EMAIL_ACTIONS = [
     'accountCreate',
     'recoveryEmailResendCode',
     'passwordForgotSendCode',

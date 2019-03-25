@@ -5,7 +5,7 @@
 'use strict';
 
 const { assert } = require('chai');
-var TestServer = require('../test_server');
+const TestServer = require('../test_server');
 const Client = require('../client')();
 
 function fail() { throw new Error(); }
@@ -27,8 +27,8 @@ describe('remote token expiry', function() {
     'token expiry',
     () => {
       // FYI config.tokenLifetimes.passwordChangeToken = 1
-      var email = Math.random() + '@example.com';
-      var password = 'ok';
+      const email = Math.random() + '@example.com';
+      const password = 'ok';
       return Client.create(config.publicUrl, email, password, { preVerified: true })
         .then(
           function (c) {

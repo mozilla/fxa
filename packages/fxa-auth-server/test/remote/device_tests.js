@@ -32,12 +32,12 @@ describe('remote device', function () {
   it(
     'device registration after account creation',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'test password';
+      const email = server.uniqueEmail();
+      const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
           function (client) {
-            var deviceInfo = {
+            const deviceInfo = {
               name: 'test device 🍓🔥在𝌆',
               type: 'mobile',
               availableCommands: { 'foo': 'bar' },
@@ -91,12 +91,12 @@ describe('remote device', function () {
   it(
     'device registration without optional parameters',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'test password';
+      const email = server.uniqueEmail();
+      const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
           function (client) {
-            var deviceInfo = {
+            const deviceInfo = {
               name: 'test device',
               type: 'mobile'
             };
@@ -144,12 +144,12 @@ describe('remote device', function () {
   it(
     'device registration with unicode characters in the name',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'test password';
+      const email = server.uniqueEmail();
+      const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
           function (client) {
-            var deviceInfo = {
+            const deviceInfo = {
               // That's a beta, and a CJK character from https://bugzilla.mozilla.org/show_bug.cgi?id=1348298
               name: 'Firefox \u5728 \u03b2 test',
               type: 'desktop',
@@ -181,8 +181,8 @@ describe('remote device', function () {
   it(
     'device registration without required name parameter',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'test password';
+      const email = server.uniqueEmail();
+      const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
           function (client) {
@@ -203,9 +203,9 @@ describe('remote device', function () {
   it(
     'device registration without required type parameter',
     () => {
-      var email = server.uniqueEmail();
-      var deviceName = 'test device';
-      var password = 'test password';
+      const email = server.uniqueEmail();
+      const deviceName = 'test device';
+      const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
           function (client) {
@@ -225,10 +225,10 @@ describe('remote device', function () {
   it(
     'update device fails with bad callbackUrl',
     () => {
-      var badPushCallback = 'https://updates.push.services.mozilla.com.different-push-server.technology';
-      var email = server.uniqueEmail();
-      var password = 'test password';
-      var deviceInfo = {
+      const badPushCallback = 'https://updates.push.services.mozilla.com.different-push-server.technology';
+      const email = server.uniqueEmail();
+      const password = 'test password';
+      const deviceInfo = {
         id: crypto.randomBytes(16).toString('hex'),
         name: 'test device',
         type: 'desktop',
@@ -260,10 +260,10 @@ describe('remote device', function () {
   it(
     'update device fails with non-normalized callbackUrl',
     () => {
-      var badPushCallback = 'https://updates.push.services.mozilla.com/invalid/\u010D/char';
-      var email = server.uniqueEmail();
-      var password = 'test password';
-      var deviceInfo = {
+      const badPushCallback = 'https://updates.push.services.mozilla.com/invalid/\u010D/char';
+      const email = server.uniqueEmail();
+      const password = 'test password';
+      const deviceInfo = {
         id: crypto.randomBytes(16).toString('hex'),
         name: 'test device',
         type: 'desktop',
@@ -295,13 +295,13 @@ describe('remote device', function () {
   it(
     'update device works with stage servers',
     () => {
-      var goodPushCallback = 'https://updates-autopush.stage.mozaws.net';
-      var email = server.uniqueEmail();
-      var password = 'test password';
+      const goodPushCallback = 'https://updates-autopush.stage.mozaws.net';
+      const email = server.uniqueEmail();
+      const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
           function (client) {
-            var deviceInfo = {
+            const deviceInfo = {
               name: 'test device',
               type: 'mobile',
               availableCommands: {},
@@ -334,13 +334,13 @@ describe('remote device', function () {
   it(
     'update device works with dev servers',
     () => {
-      var goodPushCallback = 'https://updates-autopush.dev.mozaws.net';
-      var email = server.uniqueEmail();
-      var password = 'test password';
+      const goodPushCallback = 'https://updates-autopush.dev.mozaws.net';
+      const email = server.uniqueEmail();
+      const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
           function (client) {
-            var deviceInfo = {
+            const deviceInfo = {
               name: 'test device',
               type: 'mobile',
               pushCallback: goodPushCallback,
@@ -372,14 +372,14 @@ describe('remote device', function () {
   it(
     'update device works with callback urls that :443 as a port',
     () => {
-      var goodPushCallback = 'https://updates.push.services.mozilla.com:443/wpush/v1/gAAAAABbkq0Eafe6IANS4OV3pmoQ5Z8AhqFSGKtozz5FIvu0CfrTGmcv07CYziPaysTv_9dgisB0yr3UjEIlGEyoprRFX1WU5VA4nG-9tofPdA3FYREPf6xh3JL1qBhTa9mEFS2dSn--';
+      const goodPushCallback = 'https://updates.push.services.mozilla.com:443/wpush/v1/gAAAAABbkq0Eafe6IANS4OV3pmoQ5Z8AhqFSGKtozz5FIvu0CfrTGmcv07CYziPaysTv_9dgisB0yr3UjEIlGEyoprRFX1WU5VA4nG-9tofPdA3FYREPf6xh3JL1qBhTa9mEFS2dSn--';
 
-      var email = server.uniqueEmail();
-      var password = 'test password';
+      const email = server.uniqueEmail();
+      const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
           function (client) {
-            var deviceInfo = {
+            const deviceInfo = {
               name: 'test device',
               type: 'mobile',
               pushCallback: goodPushCallback,
@@ -411,13 +411,13 @@ describe('remote device', function () {
   it(
     'update device works with callback urls that :4430 as a port',
     () => {
-      var goodPushCallback = 'https://updates.push.services.mozilla.com:4430';
-      var email = server.uniqueEmail();
-      var password = 'test password';
+      const goodPushCallback = 'https://updates.push.services.mozilla.com:4430';
+      const email = server.uniqueEmail();
+      const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
           function (client) {
-            var deviceInfo = {
+            const deviceInfo = {
               name: 'test device',
               type: 'mobile',
               pushCallback: goodPushCallback,
@@ -449,13 +449,13 @@ describe('remote device', function () {
   it(
     'update device works with callback urls that a custom port',
     () => {
-      var goodPushCallback = 'https://updates.push.services.mozilla.com:10332';
-      var email = server.uniqueEmail();
-      var password = 'test password';
+      const goodPushCallback = 'https://updates.push.services.mozilla.com:10332';
+      const email = server.uniqueEmail();
+      const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
           function (client) {
-            var deviceInfo = {
+            const deviceInfo = {
               name: 'test device',
               type: 'mobile',
               pushCallback: goodPushCallback,
@@ -487,10 +487,10 @@ describe('remote device', function () {
   it(
     'update device fails with bad dev callbackUrl',
     () => {
-      var badPushCallback = 'https://evil.mozaws.net';
-      var email = server.uniqueEmail();
-      var password = 'test password';
-      var deviceInfo = {
+      const badPushCallback = 'https://evil.mozaws.net';
+      const email = server.uniqueEmail();
+      const password = 'test password';
+      const deviceInfo = {
         id: crypto.randomBytes(16).toString('hex'),
         name: 'test device',
         type: 'desktop',
@@ -521,12 +521,12 @@ describe('remote device', function () {
   it(
     'device registration ignores deprecated "capabilities" field',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'test password';
+      const email = server.uniqueEmail();
+      const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
           function (client) {
-            var deviceInfo = {
+            const deviceInfo = {
               name: 'a very capable device',
               type: 'desktop',
               capabilities: [],
@@ -548,9 +548,9 @@ describe('remote device', function () {
   it(
     'device registration from a different session',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'test password';
-      var deviceInfo = [
+      const email = server.uniqueEmail();
+      const password = 'test password';
+      const deviceInfo = [
         {
           name: 'first device',
           type: 'mobile'
@@ -593,7 +593,7 @@ describe('remote device', function () {
                   assert.equal(devices.length, 2, 'devices returned two items');
                   if (devices[0].name === deviceInfo[1].name) {
                     // database results are unordered, swap them if necessary
-                    var swap = {};
+                    const swap = {};
                     Object.keys(devices[0]).forEach(function (key) {
                       swap[key] = devices[0][key];
                       devices[0][key] = devices[1][key];
@@ -620,9 +620,9 @@ describe('remote device', function () {
   it(
     'ensures all device push fields appear together',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'test password';
-      var deviceInfo = {
+      const email = server.uniqueEmail();
+      const password = 'test password';
+      const deviceInfo = {
         name: 'test device',
         type: 'desktop',
         pushCallback: 'https://updates.push.services.mozilla.com/qux',
@@ -664,11 +664,11 @@ describe('remote device', function () {
   it(
     'invalid public keys are cleanly rejected',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'test password';
-      var invalidPublicKey = Buffer.alloc(65);
+      const email = server.uniqueEmail();
+      const password = 'test password';
+      const invalidPublicKey = Buffer.alloc(65);
       invalidPublicKey.fill('\0');
-      var deviceInfo = {
+      const deviceInfo = {
         name: 'test device',
         type: 'desktop',
         pushCallback: 'https://updates.push.services.mozilla.com/qux',
@@ -693,7 +693,7 @@ describe('remote device', function () {
             // Test that we've successfully mitigated that bug.
             .then(
               function () {
-                var publicKey = {
+                const publicKey = {
                   'algorithm': 'RS',
                   'n': '4759385967235610503571494339196749614544606692567785' +
                        '7909539347682027142806529730913413168629935827890798' +

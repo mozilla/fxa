@@ -31,10 +31,10 @@ function runTest (route, request, assertions) {
 }
 
 describe('/account/login/send_unblock_code', function () {
-  var uid = uuid.v4('binary').toString('hex');
-  var email = 'unblock@example.com';
+  const uid = uuid.v4('binary').toString('hex');
+  const email = 'unblock@example.com';
   const mockLog = mocks.mockLog();
-  var mockRequest = mocks.mockRequest({
+  const mockRequest = mocks.mockRequest({
     log: mockLog,
     payload: {
       email: email,
@@ -44,21 +44,21 @@ describe('/account/login/send_unblock_code', function () {
       }
     }
   });
-  var mockMailer = mocks.mockMailer();
-  var mockDb = mocks.mockDB({
+  const mockMailer = mocks.mockMailer();
+  const mockDb = mocks.mockDB({
     uid: uid,
     email: email
   });
-  var config = {
+  const config = {
     signinUnblock: {}
   };
-  var accountRoutes = makeRoutes({
+  const accountRoutes = makeRoutes({
     config: config,
     db: mockDb,
     log: mockLog,
     mailer: mockMailer
   });
-  var route = getRoute(accountRoutes, '/account/login/send_unblock_code');
+  const route = getRoute(accountRoutes, '/account/login/send_unblock_code');
 
   afterEach(function () {
     mockDb.accountRecord.resetHistory();
@@ -75,12 +75,12 @@ describe('/account/login/send_unblock_code', function () {
       assert.equal(mockDb.accountRecord.args[0][0], email);
 
       assert.equal(mockDb.createUnblockCode.callCount, 1, 'db.createUnblockCode called');
-      var dbArgs = mockDb.createUnblockCode.args[0];
+      const dbArgs = mockDb.createUnblockCode.args[0];
       assert.equal(dbArgs.length, 1);
       assert.equal(dbArgs[0], uid);
 
       assert.equal(mockMailer.sendUnblockCode.callCount, 1, 'called mailer.sendUnblockCode');
-      var args = mockMailer.sendUnblockCode.args[0];
+      const args = mockMailer.sendUnblockCode.args[0];
       assert.equal(args.length, 3, 'mailer.sendUnblockCode called with 3 args');
 
       assert.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent was called once');
@@ -106,26 +106,26 @@ describe('/account/login/send_unblock_code', function () {
 
 describe('/account/login/reject_unblock_code', function () {
   it('should consume the unblock code', () => {
-    var uid = uuid.v4('binary').toString('hex');
-    var unblockCode = 'A1B2C3D4';
-    var mockRequest = mocks.mockRequest({
+    const uid = uuid.v4('binary').toString('hex');
+    const unblockCode = 'A1B2C3D4';
+    const mockRequest = mocks.mockRequest({
       payload: {
         uid: uid,
         unblockCode: unblockCode
       }
     });
-    var mockDb = mocks.mockDB();
-    var accountRoutes = makeRoutes({
+    const mockDb = mocks.mockDB();
+    const accountRoutes = makeRoutes({
       db: mockDb
     });
-    var route = getRoute(accountRoutes, '/account/login/reject_unblock_code');
+    const route = getRoute(accountRoutes, '/account/login/reject_unblock_code');
 
     return runTest(route, mockRequest, function (response) {
       assert.ok(! (response instanceof Error), response.stack);
       assert.deepEqual(response, {}, 'response has no keys');
 
       assert.equal(mockDb.consumeUnblockCode.callCount, 1, 'consumeUnblockCode is called');
-      var args = mockDb.consumeUnblockCode.args[0];
+      const args = mockDb.consumeUnblockCode.args[0];
       assert.equal(args.length, 2);
       assert.equal(args[0].toString('hex'), uid);
       assert.equal(args[1], unblockCode);

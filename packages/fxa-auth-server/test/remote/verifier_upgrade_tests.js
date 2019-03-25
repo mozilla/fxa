@@ -5,15 +5,15 @@
 'use strict';
 
 const { assert } = require('chai');
-var TestServer = require('../test_server');
+const TestServer = require('../test_server');
 const Client = require('../client')();
-var createDBServer = require('fxa-auth-db-mysql');
-var log = { trace() {}, info() {} };
+const createDBServer = require('fxa-auth-db-mysql');
+const log = { trace() {}, info() {} };
 
-var config = require('../../config').getProperties();
+const config = require('../../config').getProperties();
 
-var Token = require('../../lib/tokens')(log);
-var DB = require('../../lib/db')(
+const Token = require('../../lib/tokens')(log);
+const DB = require('../../lib/db')(
   config,
   log,
   Token.error,
@@ -39,9 +39,9 @@ describe('remote verifier upgrade', function() {
         db_server.listen(config.httpdb.url.split(':')[2]);
         db_server.on('error', function () {});
 
-        var email = Math.random() + '@example.com';
-        var password = 'ok';
-        var uid = null;
+        const email = Math.random() + '@example.com';
+        const password = 'ok';
+        let uid = null;
 
         return TestServer.start(config)
         .then(
@@ -83,7 +83,7 @@ describe('remote verifier upgrade', function() {
         )
         .then(
           function (server) {
-            var client;
+            let client;
             return Client.login(config.publicUrl, email, password, server.mailbox)
               .then(
                 function (x) {

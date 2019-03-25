@@ -24,9 +24,9 @@ const MS_IN_DAY = 1000 * 60 * 60 * 24;
 // months are in question (I'm looking at you, February...)
 const MS_IN_ALMOST_TWO_MONTHS = MS_IN_DAY * 58;
 
-var makeRoutes = function (options = {}, requireMocks) {
+const makeRoutes = function (options = {}, requireMocks) {
 
-  var config = options.config || {};
+  const config = options.config || {};
   config.verifierVersion = config.verifierVersion || 0;
   config.smtp = config.smtp ||  {};
   config.memcached = config.memcached || {
@@ -46,12 +46,12 @@ var makeRoutes = function (options = {}, requireMocks) {
     allowedServerRegex: /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/
   };
 
-  var log = options.log || mocks.mockLog();
-  var db = options.db || mocks.mockDB();
-  var customs = options.customs || {
+  const log = options.log || mocks.mockLog();
+  const db = options.db || mocks.mockDB();
+  const customs = options.customs || {
     check: function () { return P.resolve(true); }
   };
-  var push = options.push || require('../../../lib/push')(log, db, {});
+  const push = options.push || require('../../../lib/push')(log, db, {});
   return proxyquire('../../../lib/routes/emails', requireMocks || {})(
     log,
     db,
@@ -68,24 +68,24 @@ function runTest (route, request, assertions) {
 }
 
 describe('/recovery_email/status', function () {
-  var config = {};
-  var mockDB = mocks.mockDB();
-  var pushCalled;
-  var mockLog = mocks.mockLog({
+  const config = {};
+  const mockDB = mocks.mockDB();
+  let pushCalled;
+  const mockLog = mocks.mockLog({
     info: sinon.spy((op, data) => {
       if (data.name === 'recovery_email_reason.push') {
         pushCalled = true;
       }
     })
   });
-  var accountRoutes = makeRoutes({
+  const accountRoutes = makeRoutes({
     config: config,
     db: mockDB,
     log: mockLog
   });
-  var route = getRoute(accountRoutes, '/recovery_email/status');
+  const route = getRoute(accountRoutes, '/recovery_email/status');
 
-  var mockRequest = mocks.mockRequest({
+  const mockRequest = mocks.mockRequest({
     credentials: {
       uid: uuid.v4('binary').toString('hex'),
       email: TEST_EMAIL
@@ -93,7 +93,7 @@ describe('/recovery_email/status', function () {
   });
 
   describe('invalid email', function () {
-    var mockRequest;
+    let mockRequest;
     beforeEach(() => {
       mockRequest = mocks.mockRequest({
         credentials: {
@@ -186,7 +186,7 @@ describe('/recovery_email/status', function () {
 
   it('valid email, verified account', function () {
     pushCalled = false;
-    var mockRequest = mocks.mockRequest({
+    const mockRequest = mocks.mockRequest({
       credentials: {
         uid: uuid.v4('binary').toString('hex'),
         email: TEST_EMAIL,
@@ -438,7 +438,7 @@ describe('/recovery_email/verify_code', function () {
       uid: uid
     }
   });
-  var dbData = {
+  const dbData = {
     email: TEST_EMAIL,
     emailCode: Buffer.from(mockRequest.payload.code, 'hex'),
     emailVerified: false,
@@ -446,14 +446,14 @@ describe('/recovery_email/verify_code', function () {
     secondEmailCode: crypto.randomBytes(16).toString('hex'),
     uid: uid
   };
-  var dbErrors = {
+  const dbErrors = {
     verifyTokens: error.invalidVerificationCode({})
   };
-  var mockDB = mocks.mockDB(dbData, dbErrors);
-  var mockMailer = mocks.mockMailer();
+  const mockDB = mocks.mockDB(dbData, dbErrors);
+  const mockMailer = mocks.mockMailer();
   const mockPush = mocks.mockPush();
-  var mockCustoms = mocks.mockCustoms();
-  var accountRoutes = makeRoutes({
+  const mockCustoms = mocks.mockCustoms();
+  const accountRoutes = makeRoutes({
     checkPassword: function () {
       return P.resolve(true);
     },
@@ -464,7 +464,7 @@ describe('/recovery_email/verify_code', function () {
     mailer: mockMailer,
     push: mockPush
   });
-  var route = getRoute(accountRoutes, '/recovery_email/verify_code');
+  const route = getRoute(accountRoutes, '/recovery_email/verify_code');
   describe('verifyTokens rejects with INVALID_VERIFICATION_CODE', function () {
 
     it('without a reminder payload', function () {
@@ -633,7 +633,7 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(mockLog.notifyAttachedServices.callCount, 0, 'does not call log.notifyAttachedServices');
 
         assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once');
-        var args = mockLog.activityEvent.args[0];
+        let args = mockLog.activityEvent.args[0];
         assert.equal(args.length, 1, 'log.activityEvent was passed one argument');
         assert.deepEqual(args[0], {
           country: 'United States',
@@ -666,7 +666,7 @@ describe('/recovery_email/verify_code', function () {
 
       return runTest(route, mockRequest, function (response) {
         assert.equal(mockDB.verifyEmail.callCount, 1, 'call db.verifyEmail');
-        var args = mockDB.verifyEmail.args[0];
+        let args = mockDB.verifyEmail.args[0];
         assert.equal(args.length, 2, 'mockDB.verifyEmail was passed correct arguments');
         assert.equal(args[0].email, dbData.email, 'correct account primary email was passed');
         assert.equal(args[1].toString('hex'), dbData.secondEmailCode.toString('hex'), 'correct email code was passed');

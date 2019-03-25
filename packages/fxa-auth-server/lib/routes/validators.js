@@ -60,7 +60,7 @@ module.exports.BEARER_AUTH_REGEX = BEARER_AUTH_REGEX;
 // see examples here: https://github.com/hapijs/joi/blob/master/lib/string.js
 
 module.exports.email = function() {
-  var email = isA.string().max(255).regex(DISPLAY_SAFE_UNICODE);
+  const email = isA.string().max(255).regex(DISPLAY_SAFE_UNICODE);
   // Imma add a custom test to this Joi object using internal
   // properties because I can't find a nice API to do that.
   email._tests.push({ func: function(value, state, options) {

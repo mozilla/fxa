@@ -17,27 +17,27 @@
 
 'use strict';
 
-var butil = require('../lib/crypto/butil');
-var commandLineOptions = require('commander');
-var config = require('../config').getProperties();
-var crypto = require('crypto');
-var log = require('../lib/log')(config.log.level);
-var P = require('../lib/promise');
-var path = require('path');
-var Token = require('../lib/tokens')(log, config);
+const butil = require('../lib/crypto/butil');
+const commandLineOptions = require('commander');
+const config = require('../config').getProperties();
+const crypto = require('crypto');
+const log = require('../lib/log')(config.log.level);
+const P = require('../lib/promise');
+const path = require('path');
+const Token = require('../lib/tokens')(log, config);
 
 commandLineOptions
   .option('-i, --input <filename>', 'JSON input file')
   .parse(process.argv);
 
-var requiredOptions = [
+const requiredOptions = [
   'input'
 ];
 
 requiredOptions.forEach(checkRequiredOption);
 
 
-var DB = require('../lib/db')(
+const DB = require('../lib/db')(
   config,
   log,
   Token
@@ -46,9 +46,9 @@ var DB = require('../lib/db')(
 DB.connect(config[config.db.backend])
   .then(
     function (db) {
-      var json = require(path.resolve(commandLineOptions.input));
+      const json = require(path.resolve(commandLineOptions.input));
 
-      var uids = json.map(function (entry) {
+      const uids = json.map(function (entry) {
         return entry.uid;
       });
 

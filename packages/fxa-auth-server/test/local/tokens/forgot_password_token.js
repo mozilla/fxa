@@ -21,7 +21,7 @@ describe('PasswordForgotToken', () => {
   it(
     'can re-create from tokenData',
     () => {
-      var token = null;
+      let token = null;
       return PasswordForgotToken.create(ACCOUNT)
         .then(
           function (x) {

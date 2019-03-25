@@ -9,7 +9,7 @@ const url = require('url');
 
 const localeQuirks = require('./localeQuirks');
 
-var errors = {};
+const errors = {};
 function reportError(lang, msg) {
   if (! errors[lang]) {
     errors[lang] = [];
@@ -28,7 +28,7 @@ function ensureHeader(headers, key, lang) {
   }
 }
 
-var messageContentChecks = [
+const messageContentChecks = [
   {
     subject: 'Verify your Firefox Account',
     pathname: '/v1/verify_email',
@@ -69,12 +69,12 @@ var messageContentChecks = [
 
 function ensureSubjectLang(lang, subject, expectedSubject) {
   // If it's listed in quirks, expect 'en' content equivalent
-  var quirks = localeQuirks[expectedSubject];
+  const quirks = localeQuirks[expectedSubject];
   if (quirks && quirks[lang]) {
     if (subject !== expectedSubject) {
       // en-GB is almost identical to en, except for... fugly
-      var en_sync = 'A new device is now syncing to your Firefox Account';
-      var en_gb_sync = 'A new device is now synchronising to your Firefox Account';
+      const en_sync = 'A new device is now syncing to your Firefox Account';
+      const en_gb_sync = 'A new device is now synchronising to your Firefox Account';
       if (! (lang === 'en-GB' && expectedSubject === en_sync && subject === en_gb_sync)) {
         reportError(lang, util.format('strings should be equal: "%s" vs. "%s"',
                                       subject, expectedSubject));
@@ -89,11 +89,11 @@ function ensureSubjectLang(lang, subject, expectedSubject) {
 }
 
 function checkContent(mail, idx) {
-  var contentChecks = messageContentChecks[idx];
-  var lang = langFromEmail(mail.headers.to);
+  const contentChecks = messageContentChecks[idx];
+  const lang = langFromEmail(mail.headers.to);
   ensureSubjectLang(lang, mail.subject, contentChecks.subject);
 
-  var missing = [];
+  const missing = [];
   contentChecks.xheaders.forEach(function(xheader) {
     if (! mail.headers[xheader]) {
       missing.push(xheader);
@@ -104,14 +104,14 @@ function checkContent(mail, idx) {
     reportError(lang, 'missing x-headers ' + JSON.stringify(missing));
   }
 
-  var xlink = url.parse(mail.headers['x-link'], true);
+  const xlink = url.parse(mail.headers['x-link'], true);
   if (xlink.pathname !== contentChecks.pathname) {
     reportError(lang, util.format('wrong xlink pathname: %s vs %s',
                                   xlink.pathname, contentChecks.pathname));
   }
 
-  var args = JSON.stringify(contentChecks.args.sort());
-  var queryArgs = JSON.stringify(Object.keys(xlink.query).sort());
+  const args = JSON.stringify(contentChecks.args.sort());
+  const queryArgs = JSON.stringify(Object.keys(xlink.query).sort());
   if (args !== queryArgs) {
     reportError(lang, mail.headers['x-link'] + ' - args mismatch ' + args + ' - ' + queryArgs);
   }
@@ -124,14 +124,14 @@ function ensureNonZeroContent(body, errmsg, lang) {
 }
 
 function verifyMailbox(mbox) {
-  var lang = langFromEmail(mbox[0].headers.to);
-  var expectedMessageCount = 6;
+  const lang = langFromEmail(mbox[0].headers.to);
+  const expectedMessageCount = 6;
   if (mbox.length !== expectedMessageCount) {
     return reportError(lang, 'Missing email response, count: ' + mbox.length);
   }
 
   mbox.forEach(function(mail, idx) {
-    var requiredHeaders = [
+    const requiredHeaders = [
       'to',
       'from',
       'date',
@@ -142,12 +142,12 @@ function verifyMailbox(mbox) {
       'dkim-signature'
     ];
 
-    var lang = langFromEmail(mail.headers.to);
+    const lang = langFromEmail(mail.headers.to);
     requiredHeaders.forEach(function(key) {
       ensureHeader(mail.headers, key, lang);
     });
 
-    var quirks = localeQuirks['content-language'];
+    const quirks = localeQuirks['content-language'];
     if (quirks[lang]) {
       if ('en-US' !== mail.headers['content-language']) {
         reportError(lang, 'content-language header is not en-US');
@@ -155,7 +155,7 @@ function verifyMailbox(mbox) {
     } else {
       // See https://github.com/mozilla/fxa-content-server-l10n/issues/44 about sr-LATN
       if (lang !== mail.headers['content-language'] && lang !== 'sr-LATN') {
-        var fmt = 'content-language header is not locale specific for %s (%s)';
+        const fmt = 'content-language header is not locale specific for %s (%s)';
         reportError(lang, util.format(fmt, lang, mail.headers.subject));
       }
     }

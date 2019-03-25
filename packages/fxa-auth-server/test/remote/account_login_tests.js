@@ -6,10 +6,10 @@
 
 const assert = require('assert');
 const Client = require('../client')();
-var crypto = require('crypto');
-var TestServer = require('../test_server');
+const crypto = require('crypto');
+const TestServer = require('../test_server');
 
-var config = require('../../config').getProperties();
+const config = require('../../config').getProperties();
 
 describe('remote account login', () => {
   let server;
@@ -27,8 +27,8 @@ describe('remote account login', () => {
   it(
     'the email is returned in the error on Incorrect password errors',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'abcdef';
+      const email = server.uniqueEmail();
+      const password = 'abcdef';
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function () {
@@ -49,9 +49,9 @@ describe('remote account login', () => {
   it(
     'the email is returned in the error on Incorrect email case errors with correct password',
     () => {
-      var signupEmail = server.uniqueEmail();
-      var loginEmail = signupEmail.toUpperCase();
-      var password = 'abcdef';
+      const signupEmail = server.uniqueEmail();
+      const loginEmail = signupEmail.toUpperCase();
+      const password = 'abcdef';
       return Client.createAndVerify(config.publicUrl, signupEmail, password, server.mailbox)
         .then(
           function () {
@@ -72,7 +72,7 @@ describe('remote account login', () => {
   it(
     'Unknown account should not exist',
     () => {
-      var client = new Client(config.publicUrl);
+      const client = new Client(config.publicUrl);
       client.email = server.uniqueEmail();
       client.authPW = crypto.randomBytes(32);
       return client.login()
@@ -90,8 +90,8 @@ describe('remote account login', () => {
   it(
     'No keyFetchToken without keys=true',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'abcdef';
+      const email = server.uniqueEmail();
+      const password = 'abcdef';
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (c) {
@@ -109,8 +109,8 @@ describe('remote account login', () => {
   it(
     'login works with unicode email address',
     () => {
-      var email = server.uniqueUnicodeEmail();
-      var password = 'wibble';
+      const email = server.uniqueUnicodeEmail();
+      const password = 'wibble';
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function () {
@@ -128,7 +128,7 @@ describe('remote account login', () => {
   it(
     'account login works with minimal metricsContext metadata',
     () => {
-      var email = server.uniqueEmail();
+      const email = server.uniqueEmail();
       return Client.createAndVerify(config.publicUrl, email, 'foo', server.mailbox)
         .then(function () {
           return Client.login(config.publicUrl, email, 'foo', {
@@ -147,7 +147,7 @@ describe('remote account login', () => {
   it(
     'account login fails with invalid metricsContext flowId',
     () => {
-      var email = server.uniqueEmail();
+      const email = server.uniqueEmail();
       return Client.createAndVerify(config.publicUrl, email, 'foo', server.mailbox)
         .then(function () {
           return Client.login(config.publicUrl, email, 'foo', {
@@ -168,7 +168,7 @@ describe('remote account login', () => {
   it(
     'account login fails with invalid metricsContext flowBeginTime',
     () => {
-      var email = server.uniqueEmail();
+      const email = server.uniqueEmail();
       return Client.createAndVerify(config.publicUrl, email, 'foo', server.mailbox)
         .then(function () {
           return Client.login(config.publicUrl, email, 'foo', {

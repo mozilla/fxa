@@ -400,7 +400,7 @@ function mockDB (data, errors) {
       res.constructor.tokenTypeID = 'sessionToken';
       if (data.devices && data.devices.length > 0) {
         Object.keys(data.devices[0]).forEach(key => {
-          var keyOnSession = 'device' + key.charAt(0).toUpperCase() + key.substr(1);
+          const keyOnSession = 'device' + key.charAt(0).toUpperCase() + key.substr(1);
           res[keyOnSession] = data.devices[0][key];
         });
       }

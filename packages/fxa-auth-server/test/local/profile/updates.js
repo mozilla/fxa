@@ -20,7 +20,7 @@ function mockMessage(msg) {
   return msg;
 }
 
-var pushShouldThrow = false;
+let pushShouldThrow = false;
 const mockPush = {
   notifyProfileUpdated: sinon.spy((uid) => {
     assert.ok(typeof uid === 'string');
@@ -62,7 +62,7 @@ describe('profile updates', () => {
       })).then(function () {
         assert.equal(log.error.callCount, 0);
         assert.equal(mockPush.notifyProfileUpdated.callCount, 2);
-        var args = mockPush.notifyProfileUpdated.getCall(1).args;
+        const args = mockPush.notifyProfileUpdated.getCall(1).args;
         assert.equal(args[0], uid);
       });
     }

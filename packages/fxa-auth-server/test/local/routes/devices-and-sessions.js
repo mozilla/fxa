@@ -66,11 +66,11 @@ function hexString (bytes) {
 }
 
 describe('/account/device', function () {
-  var config = {};
-  var uid = uuid.v4('binary').toString('hex');
-  var deviceId = crypto.randomBytes(16).toString('hex');
-  var mockDeviceName = 'my awesome device 🍓🔥';
-  var mockRequest = mocks.mockRequest({
+  const config = {};
+  const uid = uuid.v4('binary').toString('hex');
+  const deviceId = crypto.randomBytes(16).toString('hex');
+  const mockDeviceName = 'my awesome device 🍓🔥';
+  const mockRequest = mocks.mockRequest({
     credentials: {
       deviceCallbackPublicKey: '',
       deviceCallbackURL: '',
@@ -87,14 +87,14 @@ describe('/account/device', function () {
     }
   });
   const devicesData = {};
-  var mockDevices = mocks.mockDevices(devicesData);
-  var mockLog = mocks.mockLog();
-  var accountRoutes = makeRoutes({
+  const mockDevices = mocks.mockDevices(devicesData);
+  const mockLog = mocks.mockLog();
+  const accountRoutes = makeRoutes({
     config: config,
     devices: mockDevices,
     log: mockLog
   });
-  var route = getRoute(accountRoutes, '/account/device');
+  const route = getRoute(accountRoutes, '/account/device');
 
   it('identical data', function () {
     devicesData.spurious = true;
@@ -129,7 +129,7 @@ describe('/account/device', function () {
   it('different data', function () {
     devicesData.spurious = false;
     mockRequest.auth.credentials.deviceId = crypto.randomBytes(16).toString('hex');
-    var payload = mockRequest.payload;
+    const payload = mockRequest.payload;
     payload.name = 'my even awesomer device';
     payload.type = 'phone';
     payload.pushCallback = 'https://push.services.mozilla.com/123456';
@@ -138,7 +138,7 @@ describe('/account/device', function () {
     return runTest(route, mockRequest, function (response) {
       assert.equal(mockDevices.isSpuriousUpdate.callCount, 1);
       assert.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once');
-      var args = mockDevices.upsert.args[0];
+      const args = mockDevices.upsert.args[0];
       assert.equal(args.length, 3, 'devices.upsert was passed three arguments');
       assert.equal(args[0], mockRequest, 'first argument was request object');
       assert.deepEqual(args[1].id, mockRequest.auth.credentials.id, 'second argument was session token');
@@ -157,7 +157,7 @@ describe('/account/device', function () {
 
     return runTest(route, mockRequest, function (response) {
       assert.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once');
-      var args = mockDevices.upsert.args[0];
+      const args = mockDevices.upsert.args[0];
       assert.equal(args[2].id, mockRequest.auth.credentials.deviceId.toString('hex'), 'payload.id defaulted to credentials.deviceId');
     })
       .then(function () {
@@ -187,7 +187,7 @@ describe('/account/device', function () {
 
     return runTest(route, mockRequest, function () {
       assert.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once');
-      var args = mockDevices.upsert.args[0];
+      const args = mockDevices.upsert.args[0];
       assert.deepEqual(args[2].availableCommands, {}, 'availableCommands are ignored when pushbox is disabled');
     })
       .then(function () {
@@ -198,10 +198,10 @@ describe('/account/device', function () {
   });
 
   it('removes the push endpoint expired flag on callback URL update', function () {
-    var mockDevices = mocks.mockDevices();
-    var route = getRoute(makeRoutes({devices: mockDevices}), '/account/device');
+    const mockDevices = mocks.mockDevices();
+    const route = getRoute(makeRoutes({devices: mockDevices}), '/account/device');
 
-    var mockRequest = mocks.mockRequest({
+    const mockRequest = mocks.mockRequest({
       credentials: {
         deviceCallbackPublicKey: '',
         deviceCallbackURL: 'https://updates.push.services.mozilla.com/update/50973923bc3e4507a0aa4e285513194a',
@@ -225,10 +225,10 @@ describe('/account/device', function () {
   });
 
   it('should not remove the push endpoint expired flag on any other property update', function () {
-    var mockDevices = mocks.mockDevices();
-    var route = getRoute(makeRoutes({devices: mockDevices}), '/account/device');
+    const mockDevices = mocks.mockDevices();
+    const route = getRoute(makeRoutes({devices: mockDevices}), '/account/device');
 
-    var mockRequest = mocks.mockRequest({
+    const mockRequest = mocks.mockRequest({
       credentials: {
         deviceCallbackPublicKey: '',
         deviceCallbackURL: 'https://updates.push.services.mozilla.com/update/50973923bc3e4507a0aa4e285513194a',
@@ -253,11 +253,11 @@ describe('/account/device', function () {
 });
 
 describe('/account/devices/notify', function () {
-  var config = {};
-  var uid = uuid.v4('binary').toString('hex');
-  var deviceId = crypto.randomBytes(16).toString('hex');
-  var mockLog = mocks.mockLog();
-  var mockRequest = mocks.mockRequest({
+  const config = {};
+  const uid = uuid.v4('binary').toString('hex');
+  const deviceId = crypto.randomBytes(16).toString('hex');
+  const mockLog = mocks.mockLog();
+  const mockRequest = mocks.mockRequest({
     log: mockLog,
     devices: [
       {
@@ -274,21 +274,21 @@ describe('/account/devices/notify', function () {
       deviceId: deviceId
     }
   });
-  var pushPayload = {
+  const pushPayload = {
     version: 1,
     command: 'sync:collection_changed',
     data: {
       collections: ['clients']
     }
   };
-  var mockPush = mocks.mockPush();
-  var mockCustoms = mocks.mockCustoms();
-  var accountRoutes = makeRoutes({
+  const mockPush = mocks.mockPush();
+  const mockCustoms = mocks.mockCustoms();
+  const accountRoutes = makeRoutes({
     config: config,
     customs: mockCustoms,
     push: mockPush
   });
-  var route = getRoute(accountRoutes, '/account/devices/notify');
+  let route = getRoute(accountRoutes, '/account/devices/notify');
 
   it('bad payload', function () {
     mockRequest.payload = {
@@ -315,7 +315,7 @@ describe('/account/devices/notify', function () {
     };
     // We don't wait on sendPush in the request handler, that's why
     // we have to wait on it manually by spying.
-    var sendPushPromise = P.defer();
+    const sendPushPromise = P.defer();
     mockPush.sendPush = sinon.spy(function () {
       sendPushPromise.resolve();
       return P.resolve();
@@ -324,7 +324,7 @@ describe('/account/devices/notify', function () {
       return sendPushPromise.promise.then(function () {
         assert.equal(mockCustoms.checkAuthenticated.callCount, 1, 'mockCustoms.checkAuthenticated was called once');
         assert.equal(mockPush.sendPush.callCount, 1, 'mockPush.sendPush was called once');
-        var args = mockPush.sendPush.args[0];
+        const args = mockPush.sendPush.args[0];
         assert.equal(args.length, 4, 'mockPush.sendPush was passed four arguments');
         assert.equal(args[0], uid, 'first argument was the device uid');
         assert.ok(Array.isArray(args[1]), 'second argument was devices array');
@@ -338,7 +338,7 @@ describe('/account/devices/notify', function () {
   });
 
   it('extra push payload properties are rejected', function () {
-    var extraPropsPayload = JSON.parse(JSON.stringify(pushPayload));
+    const extraPropsPayload = JSON.parse(JSON.stringify(pushPayload));
     extraPropsPayload.extra = true;
     extraPropsPayload.data.extra = true;
     mockRequest.payload = {
@@ -349,7 +349,7 @@ describe('/account/devices/notify', function () {
     };
     // We don't wait on sendPush in the request handler, that's why
     // we have to wait on it manually by spying.
-    var sendPushPromise = P.defer();
+    const sendPushPromise = P.defer();
     mockPush.sendPush = sinon.spy(function () {
       sendPushPromise.resolve();
       return Promise.resolve();
@@ -374,7 +374,7 @@ describe('/account/devices/notify', function () {
     };
     // We don't wait on sendPush in the request handler, that's why
     // we have to wait on it manually by spying.
-    var sendPushPromise = P.defer();
+    const sendPushPromise = P.defer();
     mockPush.sendPush = sinon.spy(function () {
       sendPushPromise.resolve();
       return P.resolve();
@@ -383,7 +383,7 @@ describe('/account/devices/notify', function () {
       return sendPushPromise.promise.then(function () {
         assert.equal(mockCustoms.checkAuthenticated.callCount, 1, 'mockCustoms.checkAuthenticated was called once');
         assert.equal(mockPush.sendPush.callCount, 1, 'mockPush.sendPush was called once');
-        var args = mockPush.sendPush.args[0];
+        let args = mockPush.sendPush.args[0];
         assert.equal(args.length, 4, 'mockPush.sendPush was passed four arguments');
         assert.equal(args[0], uid, 'first argument was the device uid');
         assert.ok(Array.isArray(args[1]), 'second argument was devices array');
@@ -476,11 +476,11 @@ describe('/account/devices/notify', function () {
       payload: pushPayload
     };
 
-    var mockLog = mocks.mockLog();
-    var mockPush = mocks.mockPush({
+    const mockLog = mocks.mockLog();
+    const mockPush = mocks.mockPush({
       sendPush: () => P.reject('devices empty')
     });
-    var mockCustoms = {
+    const mockCustoms = {
       checkAuthenticated: () => P.resolve()
     };
 
@@ -868,7 +868,7 @@ describe('/account/device/destroy', function () {
   });
 
   it('should work', () => {
-    var mockRequest = mocks.mockRequest({
+    const mockRequest = mocks.mockRequest({
       credentials: {
         uid: uid
       },
@@ -878,12 +878,12 @@ describe('/account/device/destroy', function () {
         id: deviceId
       }
     });
-    var accountRoutes = makeRoutes({
+    const accountRoutes = makeRoutes({
       db: mockDB,
       log: mockLog,
       push: mockPush
     });
-    var route = getRoute(accountRoutes, '/account/device/destroy');
+    const route = getRoute(accountRoutes, '/account/device/destroy');
 
     return runTest(route, mockRequest, function () {
       assert.equal(mockDB.deleteDevice.callCount, 1);
@@ -894,7 +894,7 @@ describe('/account/device/destroy', function () {
       assert.equal(mockPush.notifyDeviceDisconnected.firstCall.args[2], deviceId);
 
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once');
-      var args = mockLog.activityEvent.args[0];
+      let args = mockLog.activityEvent.args[0];
       assert.equal(args.length, 1, 'log.activityEvent was passed one argument');
       assert.deepEqual(args[0], {
         country: 'United States',
@@ -911,7 +911,7 @@ describe('/account/device/destroy', function () {
       assert.equal(args.length, 3);
       assert.equal(args[0], 'device:delete');
       assert.equal(args[1], mockRequest);
-      var details = args[2];
+      const details = args[2];
       assert.equal(details.uid, uid);
       assert.equal(details.id, deviceId);
       assert.ok(Date.now() - details.timestamp < 100);

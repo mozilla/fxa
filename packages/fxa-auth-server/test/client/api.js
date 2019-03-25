@@ -5,12 +5,12 @@
 'use strict';
 
 module.exports = config => {
-  var EventEmitter = require('events').EventEmitter;
-  var util = require('util');
+  const EventEmitter = require('events').EventEmitter;
+  const util = require('util');
 
-  var hawk = require('hawk');
-  var P = require('../../lib/promise');
-  var request = require('request');
+  const hawk = require('hawk');
+  const P = require('../../lib/promise');
+  const request = require('request');
 
   const tokens = require('../../lib/tokens')({ trace: function() {}}, config);
 
@@ -25,7 +25,7 @@ module.exports = config => {
   ClientApi.prototype.Token = tokens;
 
   function hawkHeader(token, method, url, payload, offset) {
-    var verify = {
+    const verify = {
       credentials: token
     };
     if (payload) {
@@ -39,7 +39,7 @@ module.exports = config => {
   }
 
   ClientApi.prototype.doRequest = function (method, url, token, payload, headers) {
-    var d = P.defer();
+    const d = P.defer();
     if (typeof headers === 'undefined') {
       headers = {};
     }
@@ -48,7 +48,7 @@ module.exports = config => {
     if (token && ! headers.Authorization) {
       headers.Authorization = hawkHeader(token, method, url, payload, this.timeOffset);
     }
-    var options = {
+    const options = {
       url: url,
       method: method,
       headers: headers,
@@ -67,11 +67,11 @@ module.exports = config => {
         return d.reject(err || body);
       }
 
-      var allowedOrigin = res.headers['access-control-allow-origin'];
+      const allowedOrigin = res.headers['access-control-allow-origin'];
       if (allowedOrigin) {
         // Requiring config outside this condition causes the local tests to fail
         // because tokenLifetimes.passwordChangeToken is -1
-        var config = require('../../config');
+        const config = require('../../config');
         if (config.get('corsOrigin').indexOf(allowedOrigin) < 0) {
           return d.reject(new Error('Unexpected allowed origin: ' + allowedOrigin));
         }
@@ -83,7 +83,7 @@ module.exports = config => {
   };
 
   ClientApi.prototype.doRequestWithBearerToken = function (method, url, token, payload, headers) {
-    var d = P.defer();
+    const d = P.defer();
     if (typeof headers === 'undefined') {
       headers = {};
     }
@@ -92,7 +92,7 @@ module.exports = config => {
     if (token && ! headers.Authorization) {
       headers.Authorization = `Bearer ${token}`;
     }
-    var options = {
+    const options = {
       url: url,
       method: method,
       headers: headers,
@@ -111,11 +111,11 @@ module.exports = config => {
         return d.reject(err || body);
       }
 
-      var allowedOrigin = res.headers['access-control-allow-origin'];
+      const allowedOrigin = res.headers['access-control-allow-origin'];
       if (allowedOrigin) {
         // Requiring config outside this condition causes the local tests to fail
         // because tokenLifetimes.passwordChangeToken is -1
-        var config = require('../../config');
+        const config = require('../../config');
         if (config.get('corsOrigin').indexOf(allowedOrigin) < 0) {
           return d.reject(new Error('Unexpected allowed origin: ' + allowedOrigin));
         }
@@ -147,7 +147,7 @@ module.exports = config => {
    */
   ClientApi.prototype.accountCreate = function (email, authPW, options = {}) {
 
-    var url = this.baseURL + '/account/create' + getQueryString(options);
+    const url = this.baseURL + '/account/create' + getQueryString(options);
     return this.doRequest(
       'POST',
       url,
@@ -320,7 +320,7 @@ module.exports = config => {
   };
 
   ClientApi.prototype.accountReset = function (accountResetTokenHex, authPW, headers, options = {}) {
-    var qs = getQueryString(options);
+    const qs = getQueryString(options);
 
     // Default behavior is to request sessionToken
     if (options.sessionToken === undefined) {
@@ -489,11 +489,11 @@ module.exports = config => {
   };
 
   ClientApi.prototype.passwordChangeFinish = function (passwordChangeTokenHex, authPW, wrapKb, headers, sessionToken) {
-    var options = {};
+    const options = {};
     return tokens.PasswordChangeToken.fromHex(passwordChangeTokenHex)
       .then(
         function (token) {
-          var requestData = {
+          const requestData = {
             authPW: authPW.toString('hex'),
             wrapKb: wrapKb.toString('hex')
           };
@@ -517,7 +517,7 @@ module.exports = config => {
 
 
   ClientApi.prototype.passwordForgotSendCode = function (email, options = {}, lang) {
-    var headers = {};
+    let headers = {};
     if (lang) {
       headers = {
         'accept-language': lang
@@ -605,7 +605,7 @@ module.exports = config => {
   };
 
   ClientApi.prototype.accountUnlockResendCode = function (email, options = {}, lang) {
-    var headers = {};
+    let headers = {};
     if (lang) {
       headers = {
         'accept-language': lang
@@ -638,7 +638,7 @@ module.exports = config => {
   };
 
   ClientApi.prototype.sessionDestroy = function (sessionTokenHex, options) {
-    var data = null;
+    let data = null;
 
     if (options && options.customSessionToken) {
       data = {
@@ -721,7 +721,7 @@ module.exports = config => {
   };
 
   ClientApi.prototype.accountProfile = function (sessionTokenHex, headers) {
-    var o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null);
+    const o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null);
     return o.then(
         function (token) {
           return this.doRequest(
@@ -757,7 +757,7 @@ module.exports = config => {
   };
 
   ClientApi.prototype.accountEmails = function (sessionTokenHex) {
-    var o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null);
+    const o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null);
     return o.then(
       function (token) {
         return this.doRequest(
@@ -770,7 +770,7 @@ module.exports = config => {
   };
 
   ClientApi.prototype.createEmail = function (sessionTokenHex, email) {
-    var o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null);
+    const o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null);
     return o.then(
       function (token) {
         return this.doRequest(
@@ -786,7 +786,7 @@ module.exports = config => {
   };
 
   ClientApi.prototype.deleteEmail = function (sessionTokenHex, email) {
-    var o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null);
+    const o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null);
     return o.then(
       function (token) {
         return this.doRequest(
@@ -802,7 +802,7 @@ module.exports = config => {
   };
 
   ClientApi.prototype.setPrimaryEmail = function (sessionTokenHex, email) {
-    var o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null);
+    const o = sessionTokenHex ? tokens.SessionToken.fromHex(sessionTokenHex) : P.resolve(null);
     return o.then(
       function (token) {
         return this.doRequest(

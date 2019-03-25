@@ -5,15 +5,15 @@
 'use strict';
 
 const { assert } = require('chai');
-var TestServer = require('../test_server');
+const TestServer = require('../test_server');
 const Client = require('../client')();
-var config = require('../../config').getProperties();
+const config = require('../../config').getProperties();
 config.redis.sessionTokens.enabled = false;
-var url = require('url');
-var jwtool = require('fxa-jwtool');
-var pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile);
-var duration = 1000 * 60 * 60 * 24; // 24 hours
-var publicKey = {
+const url = require('url');
+const jwtool = require('fxa-jwtool');
+const pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile);
+const duration = 1000 * 60 * 60 * 24; // 24 hours
+const publicKey = {
   'algorithm': 'RS',
   'n': '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
   'e': '65537'
@@ -36,9 +36,9 @@ describe('remote account signin verification', function() {
   it(
     'account signin without keys does not set challenge',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null;
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (x) {
@@ -74,9 +74,9 @@ describe('remote account signin verification', function() {
   it(
     'account signin with keys does set challenge',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null;
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (x) {
@@ -112,12 +112,12 @@ describe('remote account signin verification', function() {
   it(
     'account can verify new sign-in from email',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null;
-      var uid;
-      var code;
-      var loginOpts = {
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null;
+      let uid;
+      let code;
+      const loginOpts = {
         keys: true,
         metricsContext: mocks.generateMetricsContext()
       };
@@ -198,10 +198,10 @@ describe('remote account signin verification', function() {
   it(
     'Account verification links still work after session verification',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null;
-      var emailCode, tokenCode, uid;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null;
+      let emailCode, tokenCode, uid;
 
       // Create unverified account
       return Client.create(config.publicUrl, email, password)
@@ -264,10 +264,10 @@ describe('remote account signin verification', function() {
   it(
     'sign-in verification email link',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'something';
-      var client = null;
-      var options = {
+      const email = server.uniqueEmail();
+      const password = 'something';
+      let client = null;
+      const options = {
         redirectTo: 'https://sync.'  + config.smtp.redirectDomain,
         service: 'sync',
         resume: 'resumeToken',
@@ -291,8 +291,8 @@ describe('remote account signin verification', function() {
         )
         .then(
           function (emailData) {
-            var link = emailData.headers['x-link'];
-            var query = url.parse(link, true).query;
+            const link = emailData.headers['x-link'];
+            const query = url.parse(link, true).query;
             assert.ok(query.uid, 'uid is in link');
             assert.ok(query.code, 'code is in link');
             assert.equal(query.service, options.service, 'service is in link');
@@ -306,11 +306,11 @@ describe('remote account signin verification', function() {
   it(
     'sign-in verification from different client',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'something';
-      var client = null;
-      var client2 = null;
-      var options = {
+      const email = server.uniqueEmail();
+      const password = 'something';
+      let client = null;
+      let client2 = null;
+      const options = {
         redirectTo: 'https://sync.'  + config.smtp.redirectDomain,
         service: 'sync',
         resume: 'resumeToken',
@@ -334,8 +334,8 @@ describe('remote account signin verification', function() {
         )
         .then(
           function (emailData) {
-            var link = emailData.headers['x-link'];
-            var query = url.parse(link, true).query;
+            const link = emailData.headers['x-link'];
+            const query = url.parse(link, true).query;
             assert.ok(query.uid, 'uid is in link');
             assert.ok(query.code, 'code is in link');
             assert.equal(query.service, options.service, 'service is in link');
@@ -400,9 +400,9 @@ describe('remote account signin verification', function() {
   it(
     'certificate sign with unverified session, keys=true',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null;
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
@@ -460,9 +460,9 @@ describe('remote account signin verification', function() {
   it(
     'certificate sign with unverified session, keys=false',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null;
 
       // Initial account creation uses keys=true
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
@@ -508,7 +508,7 @@ describe('remote account signin verification', function() {
         .then(
           function (cert) {
             assert.equal(typeof(cert), 'string', 'cert exists');
-            var payload = jwtool.verify(cert, pubSigKey.pem);
+            const payload = jwtool.verify(cert, pubSigKey.pem);
             assert.equal(payload.iss, config.domain, 'issuer is correct');
             assert.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid');
             assert.ok(payload['fxa-generation'] > 0, 'cert has non-zero generation number');
@@ -523,9 +523,9 @@ describe('remote account signin verification', function() {
   it(
     'certificate sign with verified session',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null;
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
@@ -550,7 +550,7 @@ describe('remote account signin verification', function() {
         .then(
           function (cert) {
             assert.equal(typeof(cert), 'string', 'cert exists');
-            var payload = jwtool.verify(cert, pubSigKey.pem);
+            const payload = jwtool.verify(cert, pubSigKey.pem);
             assert.equal(payload.iss, config.domain, 'issuer is correct');
             assert.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid');
             assert.ok(payload['fxa-generation'] > 0, 'cert has non-zero generation number');
@@ -565,10 +565,10 @@ describe('remote account signin verification', function() {
   it(
     'account keys, return keys on verified account',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null;
-      var tokenCode;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null;
+      let tokenCode;
 
       return Client.create(config.publicUrl, email, password, {keys:true})
         .then(
@@ -646,10 +646,10 @@ describe('remote account signin verification', function() {
   it(
     'account keys, return keys on verified login',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null;
-      var tokenCode;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null;
+      let tokenCode;
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
@@ -733,10 +733,10 @@ describe('remote account signin verification', function() {
   it(
     'unverified account is verified on sign-in confirmation',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null;
-      var tokenCode;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null;
+      let tokenCode;
 
       return Client.create(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(

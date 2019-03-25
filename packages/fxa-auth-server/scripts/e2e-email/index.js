@@ -14,7 +14,7 @@ const mailbox = require('../../test/mailbox');
 const validateEmail = require('./validate-email');
 
 const emailMessages = {};
-var program;
+let program;
 
 function configure() {
   commander
@@ -40,7 +40,7 @@ function configure() {
   commander.supportedLanguages = commander.locale ||
     require(commander.locales).slice(0);
 
-  var mailserver = commander.mailserver = mailbox(commander.restmailDomain, 80);
+  const mailserver = commander.mailserver = mailbox(commander.restmailDomain, 80);
 
   mailserver.eventEmitter.on('email:message', function(email, message) {
     emailMessages[email] = emailMessages[email] || [];
@@ -57,8 +57,8 @@ function configure() {
 
 function log(level /*, rest */) {
   if (level < log.level) return;
-  var args = Array.prototype.slice.call(arguments);
-  var timestamp = '[' + new Date().toISOString() + ']';
+  const args = Array.prototype.slice.call(arguments);
+  const timestamp = '[' + new Date().toISOString() + ']';
   args[0] = timestamp;
   console.log.apply(null, args);
 }
@@ -93,8 +93,8 @@ function langFromEmail(email) {
 */
 
 function signupForSync(lang) {
-  var email = emailFromLang(lang);
-  var options = {
+  const email = emailFromLang(lang);
+  const options = {
     service: 'sync',
     keys: true,
     lang: lang
@@ -108,9 +108,9 @@ function signupForSync(lang) {
 }
 
 function signinAsSecondDevice(client) {
-  var email = client.email;
-  var password = program.password;
-  var opts = {
+  const email = client.email;
+  const password = program.password;
+  const opts = {
     service: 'sync',
     keys: true,
     reason: 'signin',
@@ -127,11 +127,11 @@ function signinAsSecondDevice(client) {
 }
 
 function changePassword(client) {
-  var email = client.email;
-  var password = program.password;
-  var lang = langFromEmail(email);
+  const email = client.email;
+  const password = program.password;
+  const lang = langFromEmail(email);
 
-  var headers = {
+  const headers = {
     'accept-language': lang
   };
 
@@ -142,10 +142,10 @@ function changePassword(client) {
 }
 
 function passwordReset(client) {
-  var email = client.email;
-  var lang = langFromEmail(email);
+  const email = client.email;
+  const lang = langFromEmail(email);
 
-  var headers = {
+  const headers = {
     'accept-language': lang
   };
 
@@ -175,7 +175,7 @@ function fetchNotificationEmail(client) {
 
 function checkLocale(lang, index) {
   // AWS SES in `stage` has rate-limiting of 5/sec, so start slow.
-  var delay = index * 750;
+  const delay = index * 750;
 
   return P.delay(delay)
     .then(function() {
@@ -204,19 +204,19 @@ function dumpMessages(messages) {
 function main() {
   program = configure();
 
-  var checks = program.supportedLanguages.map(checkLocale);
+  const checks = program.supportedLanguages.map(checkLocale);
 
   P.all(checks)
     .then(function() {
       if (process.env.DEBUG) {
         dumpMessages(emailMessages);
       }
-      var errors = validateEmail(emailMessages, log);
-      var output = [];
-      var errorCount = 0;
+      const errors = validateEmail(emailMessages, log);
+      const output = [];
+      let errorCount = 0;
       Object.keys(errors).sort().forEach(function(lang) {
         output.push('  ' + lang + ':');
-        var errorList = errors[lang];
+        const errorList = errors[lang];
         errorList.forEach(function(err) {
           errorCount++;
           output.push('    ' + err);

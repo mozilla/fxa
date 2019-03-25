@@ -9,20 +9,20 @@
 // If required, modules will be instrumented.
 require('../lib/newrelic')();
 
-var config = require('../config').getProperties();
-var log = require('../lib/log')(config.log.level, 'profile-server-messaging');
-var Token = require('../lib/tokens')(log, config);
-var SQSReceiver = require('../lib/sqs')(log);
-var profileUpdates = require('../lib/profile/updates')(log);
-var push = require('../lib/push');
+const config = require('../config').getProperties();
+const log = require('../lib/log')(config.log.level, 'profile-server-messaging');
+const Token = require('../lib/tokens')(log, config);
+const SQSReceiver = require('../lib/sqs')(log);
+const profileUpdates = require('../lib/profile/updates')(log);
+const push = require('../lib/push');
 
-var DB = require('../lib/db')(
+const DB = require('../lib/db')(
   config,
   log,
   Token
 );
 
-var profileUpdatesQueue = new SQSReceiver(config.profileServerMessaging.region, [
+const profileUpdatesQueue = new SQSReceiver(config.profileServerMessaging.region, [
   config.profileServerMessaging.profileUpdatesQueueUrl
 ]);
 

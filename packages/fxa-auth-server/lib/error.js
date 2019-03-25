@@ -4,10 +4,10 @@
 
 'use strict';
 
-var inherits = require('util').inherits;
-var messages = require('joi/lib/language').errors;
+const inherits = require('util').inherits;
+const messages = require('joi/lib/language').errors;
 
-var ERRNO = {
+const ERRNO = {
   SERVER_CONFIG_ERROR: 100,
   ACCOUNT_EXISTS: 101,
   ACCOUNT_UNKNOWN: 102,
@@ -153,8 +153,8 @@ function AppError(options, extra, headers) {
     },
     headers: headers || {}
   };
-  var keys = Object.keys(extra || {});
-  for (var i = 0; i < keys.length; i++) {
+  const keys = Object.keys(extra || {});
+  for (let i = 0; i < keys.length; i++) {
     this.output.payload[keys[i]] = extra[keys[i]];
   }
 }
@@ -176,12 +176,12 @@ AppError.prototype.backtrace = function (traced) {
   Translates an error from Hapi format to our format
 */
 AppError.translate = function (request, response) {
-  var error;
+  let error;
   if (response instanceof AppError) {
     return response;
   }
-  var payload = response.output.payload;
-  var reason = response.reason;
+  const payload = response.output.payload;
+  const reason = response.reason;
   if (! payload) {
     error = AppError.unexpectedError(request);
   } else if (payload.statusCode === 500 && /(socket hang up|ECONNREFUSED)/.test(reason)) {
@@ -426,7 +426,7 @@ AppError.tooManyRequests = function (retryAfter, retryAfterLocalized, canUnblock
     retryAfter = 30;
   }
 
-  var extraData = {
+  const extraData = {
     retryAfter: retryAfter
   };
 
@@ -454,7 +454,7 @@ AppError.tooManyRequests = function (retryAfter, retryAfterLocalized, canUnblock
 };
 
 AppError.requestBlocked = function (canUnblock) {
-  var extra;
+  let extra;
   if (canUnblock) {
     extra = {
       verificationMethod: 'email-captcha',

@@ -6,15 +6,15 @@
 
 'use strict';
 
-var path = require('path');
-var spawn = require('child_process').spawn;
-var config = require('../config').getProperties();
-var TestServer = require('../test/test_server');
+const path = require('path');
+const spawn = require('child_process').spawn;
+const config = require('../config').getProperties();
+const TestServer = require('../test/test_server');
 
 TestServer.start(config, false)
   .then(
   function (server) {
-    var cp = spawn(
+    const cp = spawn(
       path.join(path.dirname(__dirname), 'node_modules/.bin/mocha'),
       ['test/remote'],
       { stdio: 'inherit' }

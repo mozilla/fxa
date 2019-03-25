@@ -7,11 +7,11 @@
 module.exports = config => {
   const otplib = require('otplib');
   const crypto = require('crypto');
-  var P = require('../../lib/promise');
+  const P = require('../../lib/promise');
   const ClientApi = require('./api')(config);
-  var butil = require('../../lib/crypto/butil');
-  var pbkdf2 = require('../../lib/crypto/pbkdf2');
-  var hkdf = require('../../lib/crypto/hkdf');
+  const butil = require('../../lib/crypto/butil');
+  const pbkdf2 = require('../../lib/crypto/pbkdf2');
+  const hkdf = require('../../lib/crypto/hkdf');
   const tokens = require('../../lib/tokens')({ trace: function () {}}, config);
 
   function Client(origin) {
@@ -58,7 +58,7 @@ module.exports = config => {
   };
 
   Client.create = function (origin, email, password, options = {}) {
-    var c = new Client(origin);
+    const c = new Client(origin);
     c.options = options;
 
     return c.setupCredentials(email, password)
@@ -70,7 +70,7 @@ module.exports = config => {
   };
 
   Client.login = function (origin, email, password, opts) {
-    var c = new Client(origin);
+    const c = new Client(origin);
 
     return c.setupCredentials(email, password)
       .then(
@@ -81,7 +81,7 @@ module.exports = config => {
   };
 
   Client.changePassword = function (origin, email, oldPassword, newPassword, headers) {
-    var c = new Client(origin);
+    const c = new Client(origin);
 
     return c.setupCredentials(email, oldPassword)
       .then(
@@ -222,7 +222,7 @@ module.exports = config => {
   };
 
   Client.prototype.destroySession = function () {
-    var p = P.resolve(null);
+    let p = P.resolve(null);
     if (this.sessionToken) {
       p = this.api.sessionDestroy(this.sessionToken)
         .then(
@@ -252,7 +252,7 @@ module.exports = config => {
   };
 
   Client.prototype.duplicate = function () {
-    var c = new Client(this.api.origin);
+    const c = new Client(this.api.origin);
     c.uid = this.uid;
     c.authAt = this.authAt;
     c.email = this.email;
@@ -299,7 +299,7 @@ module.exports = config => {
   };
 
   Client.prototype.emailStatus = function () {
-    var o = this.sessionToken ? P.resolve(null) : this.login();
+    const o = this.sessionToken ? P.resolve(null) : this.login();
     return o.then(
       function () {
         return this.api.recoveryEmailStatus(this.sessionToken);
@@ -308,7 +308,7 @@ module.exports = config => {
   };
 
   Client.prototype.requestVerifyEmail = function () {
-    var o = this.sessionToken ? P.resolve(null) : this.login();
+    const o = this.sessionToken ? P.resolve(null) : this.login();
     return o.then(
       function () {
         return this.api.recoveryEmailResendCode(this.sessionToken, this.options);
@@ -317,7 +317,7 @@ module.exports = config => {
   };
 
   Client.prototype.sign = function (publicKey, duration, locale, options) {
-    var o = this.sessionToken ? P.resolve(null) : this.login();
+    const o = this.sessionToken ? P.resolve(null) : this.login();
     return o.then(
       function () {
         return this.api.certificateSign(this.sessionToken, publicKey, duration, locale, options);
@@ -365,7 +365,7 @@ module.exports = config => {
   };
 
   Client.prototype.keys = function () {
-    var o = this.keyFetchToken ? P.resolve(null) : this.login();
+    const o = this.keyFetchToken ? P.resolve(null) : this.login();
     return o.then(
       function () {
         return this.api.accountKeys(this.keyFetchToken);
@@ -397,7 +397,7 @@ module.exports = config => {
   };
 
   Client.prototype.devices = function () {
-    var o = this.sessionToken ? P.resolve(null) : this.login();
+    const o = this.sessionToken ? P.resolve(null) : this.login();
     return o.then(
       function () {
         return this.api.accountDevices(this.sessionToken);
@@ -410,7 +410,7 @@ module.exports = config => {
   };
 
   Client.prototype.updateDevice = function (info) {
-    var o = this.sessionToken ? P.resolve(null) : this.login();
+    const o = this.sessionToken ? P.resolve(null) : this.login();
     return o.then(
       function () {
         return this.api.accountDevice(this.sessionToken, info);
@@ -439,7 +439,7 @@ module.exports = config => {
   };
 
   Client.prototype.destroyDevice = function (id) {
-    var o = this.sessionToken ? P.resolve(null) : this.login();
+    const o = this.sessionToken ? P.resolve(null) : this.login();
     return o.then(
       function () {
         return this.api.deviceDestroy(this.sessionToken, id);
@@ -457,7 +457,7 @@ module.exports = config => {
   };
 
   Client.prototype.sessionStatus = function () {
-    var o = this.sessionToken ? P.resolve(null) : this.login();
+    const o = this.sessionToken ? P.resolve(null) : this.login();
     return o.then(
       function () {
         return this.api.sessionStatus(this.sessionToken);
@@ -469,7 +469,7 @@ module.exports = config => {
     if (oauthToken) {
       return this.api.accountProfile(null, { Authorization: 'Bearer ' + oauthToken });
     } else {
-      var o = this.sessionToken ? P.resolve(null) : this.login();
+      const o = this.sessionToken ? P.resolve(null) : this.login();
       return o.then(
         function () {
           return this.api.accountProfile(this.sessionToken);
@@ -595,7 +595,7 @@ module.exports = config => {
       throw new Error('call verifyPasswordResetCode before calling resetAccountWithRecoveryKey');
     }
 
-    var email = this.email;
+    let email = this.email;
     if (options && options.emailToHashWith) {
       email = options.emailToHashWith;
     }
@@ -634,7 +634,7 @@ module.exports = config => {
     // With introduction of change email, the client can choose what to hash the password with.
     // To keep consistency, we hash with the email used to originally create the account.
     // This will generate a new wrapKb on the server
-    var email = this.email;
+    let email = this.email;
 
     if (options && options.emailToHashWith) {
       email = options.emailToHashWith;

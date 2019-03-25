@@ -5,11 +5,11 @@
 'use strict';
 
 const { assert } = require('chai');
-var TestServer = require('../test_server');
+const TestServer = require('../test_server');
 const Client = require('../client')();
-var P = require('../../lib/promise');
+const P = require('../../lib/promise');
 
-var config = require('../../config').getProperties();
+const config = require('../../config').getProperties();
 
 describe('remote email validity', function() {
   this.timeout(15000);
@@ -24,9 +24,9 @@ describe('remote email validity', function() {
   it(
     '/account/create with a variety of malformed email addresses',
     () => {
-      var pwd = '123456';
+      const pwd = '123456';
 
-      var emails = [
+      const emails = [
         'notAnEmailAddress',
         '\n@example.com',
         'me@hello world.com',
@@ -56,9 +56,9 @@ describe('remote email validity', function() {
   it(
     '/account/create with a variety of unusual but valid email addresses',
     () => {
-      var pwd = '123456';
+      const pwd = '123456';
 
-      var emails = [
+      const emails = [
         'tim@tim-example.net',
         'a+b+c@example.com',
         '#!?-@t-e-s-assert.c-o-m',

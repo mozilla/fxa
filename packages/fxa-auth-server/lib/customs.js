@@ -193,8 +193,8 @@ module.exports = function (log, error) {
   };
 
   Customs.prototype.flag = async function (ip, info) {
-    var email = info.email;
-    var errno = info.errno || error.ERRNO.UNEXPECTED_ERROR;
+    const email = info.email;
+    const errno = info.errno || error.ERRNO.UNEXPECTED_ERROR;
     // There's no useful information in the HTTP response, ignore it.
     await this.api.failedLoginAttempt({
       ip: ip,

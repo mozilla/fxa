@@ -13,11 +13,11 @@ describe('Password', () => {
   it(
     'password version zero',
     () => {
-      var pwd = Buffer.from('aaaaaaaaaaaaaaaa');
-      var salt = Buffer.from('bbbbbbbbbbbbbbbb');
-      var p1 = new Password(pwd, salt, 0);
+      const pwd = Buffer.from('aaaaaaaaaaaaaaaa');
+      const salt = Buffer.from('bbbbbbbbbbbbbbbb');
+      const p1 = new Password(pwd, salt, 0);
       assert.equal(p1.version, 0, 'should be using version zero');
-      var p2 = new Password(pwd, salt, 0);
+      const p2 = new Password(pwd, salt, 0);
       assert.equal(p2.version, 0, 'should be using version zero');
       return p1.verifyHash()
       .then(
@@ -36,11 +36,11 @@ describe('Password', () => {
   it(
     'password version one',
     () => {
-      var pwd = Buffer.from('aaaaaaaaaaaaaaaa');
-      var salt = Buffer.from('bbbbbbbbbbbbbbbb');
-      var p1 = new Password(pwd, salt, 1);
+      const pwd = Buffer.from('aaaaaaaaaaaaaaaa');
+      const salt = Buffer.from('bbbbbbbbbbbbbbbb');
+      const p1 = new Password(pwd, salt, 1);
       assert.equal(p1.version, 1, 'should be using version one');
-      var p2 = new Password(pwd, salt, 1);
+      const p2 = new Password(pwd, salt, 1);
       assert.equal(p2.version, 1, 'should be using version one');
       return p1.verifyHash()
       .then(
@@ -59,10 +59,10 @@ describe('Password', () => {
   it(
     'passwords of different versions should not match',
     () => {
-      var pwd = Buffer.from('aaaaaaaaaaaaaaaa');
-      var salt = Buffer.from('bbbbbbbbbbbbbbbb');
-      var p1 = new Password(pwd, salt, 0);
-      var p2 = new Password(pwd, salt, 1);
+      const pwd = Buffer.from('aaaaaaaaaaaaaaaa');
+      const salt = Buffer.from('bbbbbbbbbbbbbbbb');
+      const p1 = new Password(pwd, salt, 0);
+      const p2 = new Password(pwd, salt, 1);
       return p1.verifyHash()
       .then(
         function (hash) {
@@ -80,7 +80,7 @@ describe('Password', () => {
   it(
     'scrypt queue stats can be reported',
     () => {
-      var stat = Password.stat();
+      const stat = Password.stat();
       assert.equal(stat.stat, 'scrypt');
       assert.ok(stat.hasOwnProperty('numPending'));
       assert.ok(stat.hasOwnProperty('numPendingHWM'));

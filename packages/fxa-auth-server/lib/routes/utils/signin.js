@@ -110,7 +110,7 @@ module.exports = (log, config, customs, db, mailer)  => {
         return request.emitMetricsEvent('account.login.blocked').then(() => {
           // If this customs error cannot be bypassed with email confirmation,
           // throw it straight back to the caller.
-          var verificationMethod = e.output.payload.verificationMethod;
+          const verificationMethod = e.output.payload.verificationMethod;
           if (verificationMethod !== 'email-captcha' || ! request.payload.unblockCode) {
             throw e;
           }

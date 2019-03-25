@@ -4,10 +4,10 @@
 
 'use strict';
 
-var path = require('path');
-var P = require('bluebird');
-var handlebars = require('handlebars');
-var readFile = P.promisify(require('fs').readFile);
+const path = require('path');
+const P = require('bluebird');
+const handlebars = require('handlebars');
+const readFile = P.promisify(require('fs').readFile);
 
 handlebars.registerHelper(
   't',
@@ -40,8 +40,8 @@ function loadTemplates(name) {
   )
   .spread(
     function (text, html) {
-      var renderText = handlebars.compile(text);
-      var renderHtml = handlebars.compile(html);
+      const renderText = handlebars.compile(text);
+      const renderHtml = handlebars.compile(html);
       return {
         name: generateTemplateName(name),
         fn: function (values) {

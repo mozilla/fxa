@@ -22,10 +22,10 @@ function trimLocale(header) {
   if (header.length < 256) {
     return header.trim();
   }
-  var parts = header.split(',');
-  var str = parts[0];
+  const parts = header.split(',');
+  let str = parts[0];
   if (str.length >= 255) { return null; }
-  for (var i = 1; i < parts.length && str.length + parts[i].length < 255; i++) {
+  for (let i = 1; i < parts.length && str.length + parts[i].length < 255; i++) {
     str += ',' + parts[i];
   }
   return str.trim();
@@ -36,7 +36,7 @@ function logEndpointErrors(response, log) {
   // The error response hides error information from the user, but we log it here
   // to better understand the DB timeouts.
   if (response.__proto__ && response.__proto__.name === 'EndpointError') {
-    var endpointLog = {
+    const endpointLog = {
       message: response.message,
       reason: response.reason
     };
@@ -80,12 +80,12 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
 
   // Hawk needs to calculate request signatures based on public URL,
   // not the local URL to which it is bound.
-  var publicURL = url.parse(config.publicUrl);
-  var defaultPorts = {
+  const publicURL = url.parse(config.publicUrl);
+  const defaultPorts = {
     'http:': 80,
     'https:': 443
   };
-  var hawkOptions = {
+  const hawkOptions = {
     host: publicURL.hostname,
     port: publicURL.port ? publicURL.port : defaultPorts[publicURL.protocol],
 
@@ -98,7 +98,7 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
       // Since we've disabled timestamp checks, there's not much point
       // keeping a nonce cache.  Instead we use this as an opportunity
       // to report on the clock skew values seen in the wild.
-      var skew = (Date.now() / 1000) - (+ts);
+      const skew = (Date.now() / 1000) - (+ts);
       log.trace('server.nonceFunc', { skew: skew });
     }
   };
@@ -129,7 +129,7 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
     };
   }
 
-  var serverOptions = {
+  const serverOptions = {
     host: config.listen.host,
     port: config.listen.port,
     routes: {
@@ -178,7 +178,7 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
     };
   }
 
-  var server = new Hapi.Server(serverOptions);
+  const server = new Hapi.Server(serverOptions);
 
   server.ext('onRequest', (request, h) => {
     log.begin('server.onRequest', request);

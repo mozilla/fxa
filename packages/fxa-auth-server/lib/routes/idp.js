@@ -4,10 +4,10 @@
 
 'use strict';
 
-var jwtool = require('fxa-jwtool');
+const jwtool = require('fxa-jwtool');
 
 function b64toDec(str) {
-  var n = new jwtool.BN(Buffer.from(str, 'base64'));
+  const n = new jwtool.BN(Buffer.from(str, 'base64'));
   return n.toString(10);
 }
 
@@ -16,7 +16,7 @@ function toDec(str) {
 }
 
 function browseridFormat(keys) {
-  var primary = keys[0];
+  const primary = keys[0];
   return {
     'public-key': {
       kid: primary.jwk.kid,
@@ -32,12 +32,12 @@ function browseridFormat(keys) {
 }
 
 module.exports = function (log, serverPublicKeys) {
-  var keys = [ serverPublicKeys.primary ];
+  const keys = [ serverPublicKeys.primary ];
   if (serverPublicKeys.secondary) { keys.push(serverPublicKeys.secondary); }
 
-  var browserid = browseridFormat(keys);
+  const browserid = browseridFormat(keys);
 
-  var routes = [
+  const routes = [
     {
       method: 'GET',
       path: '/.well-known/browserid',

@@ -703,7 +703,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
         }
 
         function createResponse () {
-          var response = {
+          const response = {
             uid: sessionToken.uid,
             sessionToken: sessionToken.data,
             authAt: sessionToken.lastAuthAt()
@@ -734,12 +734,12 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
         }
       },
       handler: async function (request) {
-        var sessionToken = request.auth.credentials;
+        const sessionToken = request.auth.credentials;
         if (sessionToken) {
           return { exists: true, locale: sessionToken.locale };
         }
         else if (request.query.uid) {
-          var uid = request.query.uid;
+          const uid = request.query.uid;
           return db.account(uid)
             .then(
               function (account) {
@@ -774,7 +774,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
         }
       },
       handler: async function (request) {
-        var email = request.payload.email;
+        const email = request.payload.email;
 
         return customs.check(
           request,
@@ -873,9 +873,9 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
       },
       handler: async function accountKeys(request) {
         log.begin('Account.keys', request);
-        var keyFetchToken = request.auth.credentials;
+        const keyFetchToken = request.auth.credentials;
 
-        var verified = keyFetchToken.tokenVerified && keyFetchToken.emailVerified;
+        const verified = keyFetchToken.tokenVerified && keyFetchToken.emailVerified;
         if (! verified) {
           // don't delete the token on use until the account is verified
           throw error.unverifiedAccount();
@@ -1156,7 +1156,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           }
 
 
-          var response = {
+          const response = {
             uid: sessionToken.uid,
             sessionToken: sessionToken.data,
             verified: sessionToken.emailVerified,

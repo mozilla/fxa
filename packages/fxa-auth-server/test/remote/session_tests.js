@@ -34,10 +34,10 @@ describe('remote session', function() {
     it(
       'deletes a valid session',
       () => {
-        var email = server.uniqueEmail();
-        var password = 'foobar';
-        var client = null;
-        var sessionToken = null;
+        const email = server.uniqueEmail();
+        const password = 'foobar';
+        let client = null;
+        let sessionToken = null;
         return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
           .then(
             function (x) {
@@ -72,12 +72,12 @@ describe('remote session', function() {
     it(
       'deletes a different custom token',
       () => {
-        var email = server.uniqueEmail();
-        var password = 'foobar';
-        var client = null;
-        var tokenId = null;
-        var sessionTokenCreate = null;
-        var sessionTokenLogin = null;
+        const email = server.uniqueEmail();
+        const password = 'foobar';
+        let client = null;
+        let tokenId = null;
+        let sessionTokenCreate = null;
+        let sessionTokenLogin = null;
         return Client.create(config.publicUrl, email, password)
           .then((x) => {
             client = x;
@@ -115,11 +115,11 @@ describe('remote session', function() {
     it(
       'fails with a bad custom token',
       () => {
-        var email = server.uniqueEmail();
-        var password = 'foobar';
-        var client = null;
-        var sessionTokenCreate = null;
-        var sessionTokenLogin = null;
+        const email = server.uniqueEmail();
+        const password = 'foobar';
+        let client = null;
+        let sessionTokenCreate = null;
+        let sessionTokenLogin = null;
         return Client.create(config.publicUrl, email, password)
           .then((x) => {
             client = x;
@@ -417,9 +417,9 @@ describe('remote session', function() {
     it(
       'succeeds with valid token',
       () => {
-        var email = server.uniqueEmail();
-        var password = 'testx';
-        var uid = null;
+        const email = server.uniqueEmail();
+        const password = 'testx';
+        let uid = null;
         return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
           .then(
             function (c) {
@@ -446,7 +446,7 @@ describe('remote session', function() {
     it(
       'errors with invalid token',
       () => {
-        var client = new Client(config.publicUrl);
+        const client = new Client(config.publicUrl);
         return client.api.sessionStatus('0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF')
           .then(
             () => assert(false),

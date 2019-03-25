@@ -4,9 +4,9 @@
 
 'use strict';
 
-var mozlog = require('mozlog');
+const mozlog = require('mozlog');
 
-var logConfig = require('../../config').get('log');
+const logConfig = require('../../config').get('log');
 
 mozlog.config(logConfig);
 

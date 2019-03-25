@@ -13,7 +13,7 @@ module.exports = (log, signer, db, domain, devices) => {
 
   const HOUR = 1000 * 60 * 60;
 
-  var routes = [
+  const routes = [
     {
       method: 'POST',
       path: '/certificate/sign',
@@ -43,11 +43,11 @@ module.exports = (log, signer, db, domain, devices) => {
       },
       handler: async function certificateSign(request) {
         log.begin('Sign.cert', request);
-        var sessionToken = request.auth.credentials;
-        var publicKey = request.payload.publicKey;
-        var duration = request.payload.duration;
-        var service = request.query.service;
-        var deviceId, uid, certResult;
+        const sessionToken = request.auth.credentials;
+        const publicKey = request.payload.publicKey;
+        const duration = request.payload.duration;
+        const service = request.query.service;
+        let deviceId, uid, certResult;
         if (request.headers['user-agent']) {
           const {
             browser: uaBrowser,
@@ -89,7 +89,7 @@ module.exports = (log, signer, db, domain, devices) => {
                 // Synthesize a device record for Sync sessions that don't already have one.
                 // Include the UA info so that we can synthesize a device name
                 // for any push notifications.
-                var deviceInfo = {
+                const deviceInfo = {
                   uaBrowser: sessionToken.uaBrowser,
                   uaBrowserVersion: sessionToken.uaBrowserVersion,
                   uaOS: sessionToken.uaOS,

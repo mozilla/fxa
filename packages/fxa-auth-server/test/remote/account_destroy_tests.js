@@ -24,9 +24,9 @@ describe('remote account destroy', function () {
   it(
     'account destroy',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null;
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (x) {
@@ -58,8 +58,8 @@ describe('remote account destroy', function () {
   it(
     'invalid authPW on account destroy',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'ok';
+      const email = server.uniqueEmail();
+      const password = 'ok';
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (c) {

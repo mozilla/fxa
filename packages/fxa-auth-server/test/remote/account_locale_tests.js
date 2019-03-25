@@ -8,9 +8,9 @@ const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
 
-var config = require('../../config').getProperties();
+const config = require('../../config').getProperties();
 config.redis.sessionTokens.enabled = false;
-var key = {
+const key = {
   'algorithm': 'RS',
   'n': '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
   'e': '65537'
@@ -30,9 +30,9 @@ describe('remote account locale', function() {
   it(
     'signing a cert against an account with no locale will save the locale',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'ilikepancakes';
-      var client;
+      const email = server.uniqueEmail();
+      const password = 'ilikepancakes';
+      let client;
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (c) {
@@ -72,8 +72,8 @@ describe('remote account locale', function() {
   it(
     'a really long (invalid) locale',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'ilikepancakes';
+      const email = server.uniqueEmail();
+      const password = 'ilikepancakes';
       return Client.create(
         config.publicUrl,
         email,
@@ -96,8 +96,8 @@ describe('remote account locale', function() {
   it(
     'a really long (valid) locale',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'ilikepancakes';
+      const email = server.uniqueEmail();
+      const password = 'ilikepancakes';
       return Client.create(
         config.publicUrl,
         email,

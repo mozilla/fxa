@@ -4,7 +4,7 @@
 
 'use strict';
 
-var createDBServer = require('fxa-auth-db-mysql');
+const createDBServer = require('fxa-auth-db-mysql');
 
 function TestServer(config) {
   this.config = config;
@@ -16,7 +16,7 @@ TestServer.start = function (config, printLogs) {
     function (db) {
       db.listen(config.httpdb.url.split(':')[2]);
       db.on('error', function () {});
-      var testServer = new TestServer(config);
+      const testServer = new TestServer(config);
       testServer.db = db;
       return testServer;
     }

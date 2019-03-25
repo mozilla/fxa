@@ -13,8 +13,8 @@ const P = require('../../promise');
 let amplitude;
 
 function getInsensitiveHeaderValueFromArray(headerName, headers) {
-  var value = '';
-  var headerNameNormalized = headerName.toLowerCase();
+  let value = '';
+  const headerNameNormalized = headerName.toLowerCase();
   headers.some(function (header) {
     if (header.name.toLowerCase() === headerNameNormalized) {
       value = header.value;
@@ -28,8 +28,8 @@ function getInsensitiveHeaderValueFromArray(headerName, headers) {
 }
 
 function getInsensitiveHeaderValueFromObject(headerName, headers) {
-  var headerNameNormalized = headerName.toLowerCase();
-  var value = '';
+  const headerNameNormalized = headerName.toLowerCase();
+  let value = '';
   Object.keys(headers).some(function (name) {
     if (name.toLowerCase() === headerNameNormalized) {
       value = headers[name];
@@ -200,7 +200,7 @@ function getAnonymizedEmailDomain(email) {
   // return `other` as domain.
   const tokens = email.split('@');
   const emailDomain = tokens[1];
-  var anonymizedEmailDomain = 'other';
+  let anonymizedEmailDomain = 'other';
   if (emailDomain && emailDomains.has(emailDomain)) {
     anonymizedEmailDomain = emailDomain;
   }

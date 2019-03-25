@@ -56,7 +56,7 @@ describe('log', () => {
     'initialised correctly',
     () => {
       assert.equal(mocks.mozlog.config.callCount, 1, 'mozlog.config was called once');
-      var args = mocks.mozlog.config.args[0];
+      const args = mocks.mozlog.config.args[0];
       assert.equal(args.length, 1, 'mozlog.config was passed one argument');
       assert.equal(Object.keys(args[0]).length, 4, 'number of mozlog.config arguments was correct');
       assert.equal(args[0].app, 'test', 'app property was correct');
@@ -451,12 +451,12 @@ describe('log', () => {
   it(
     '.error removes PII from error objects',
     () => {
-      var err = new Error();
+      const err = new Error();
       err.email = 'test@example.com';
       log.error('unexpectedError', { err: err });
 
       assert.equal(logger.error.callCount, 1, 'logger.error was called once');
-      var args = logger.error.args[0];
+      const args = logger.error.args[0];
       assert.equal(args[0], 'unexpectedError', 'logger.error received "op" value');
       assert.lengthOf(Object.keys(args[1]), 2);
       assert.equal(args[1].email, 'test@example.com', 'email is reported in top-level fields');

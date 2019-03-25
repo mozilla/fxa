@@ -31,7 +31,7 @@ if (! process.env.NODE_ENV) {
 const config = require('../config');
 const vapidKeysFile = config.get('vapidKeysFile');
 
-var fileExists = fs.existsSync(vapidKeysFile);
+const fileExists = fs.existsSync(vapidKeysFile);
 if (fileExists) {
   console.log('keys file already exists');
   process.exit();
@@ -39,7 +39,7 @@ if (fileExists) {
 
 console.error('Generating key for VAPID');
 
-var keys = webpush.generateVAPIDKeys();
+const keys = webpush.generateVAPIDKeys();
 fs.writeFileSync(vapidKeysFile, JSON.stringify({
   privateKey: keys.privateKey.toString('base64'),
   publicKey: keys.publicKey.toString('base64')

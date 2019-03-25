@@ -5,11 +5,11 @@
 'use strict';
 
 const { assert } = require('chai');
-var url = require('url');
+const url = require('url');
 const Client = require('../client')();
-var TestServer = require('../test_server');
+const TestServer = require('../test_server');
 
-var config = require('../../config').getProperties();
+const config = require('../../config').getProperties();
 
 describe('remote account reset', function() {
   this.timeout(15000);
@@ -25,10 +25,10 @@ describe('remote account reset', function() {
   it(
     'account reset w/o sessionToken',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var newPassword = 'ez';
-      var wrapKb, kA, client;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      const newPassword = 'ez';
+      let wrapKb, kA, client;
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
@@ -75,8 +75,8 @@ describe('remote account reset', function() {
         )
         .then(
           function (emailData) {
-            var link = emailData.headers['x-link'];
-            var query = url.parse(link, true).query;
+            const link = emailData.headers['x-link'];
+            const query = url.parse(link, true).query;
             assert.ok(query.email, 'email is in the link');
           }
         )
@@ -106,10 +106,10 @@ describe('remote account reset', function() {
   it(
     'account reset with keys',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var newPassword = 'ez';
-      var wrapKb, kA, client;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      const newPassword = 'ez';
+      let wrapKb, kA, client;
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
@@ -156,8 +156,8 @@ describe('remote account reset', function() {
         )
         .then(
           function (emailData) {
-            var link = emailData.headers['x-link'];
-            var query = url.parse(link, true).query;
+            const link = emailData.headers['x-link'];
+            const query = url.parse(link, true).query;
             assert.ok(query.email, 'email is in the link');
           }
         )
@@ -187,10 +187,10 @@ describe('remote account reset', function() {
   it(
     'account reset w/o keys, with sessionToken',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var newPassword = 'ez';
-      var client;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      const newPassword = 'ez';
+      let client;
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(

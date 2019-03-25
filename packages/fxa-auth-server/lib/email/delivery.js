@@ -4,8 +4,8 @@
 
 'use strict';
 
-var P = require('./../promise');
-var utils = require('./utils/helpers');
+const P = require('./../promise');
+const utils = require('./utils/helpers');
 
 module.exports = function (log) {
 
@@ -14,7 +14,7 @@ module.exports = function (log) {
     function handleDelivery(message) {
       utils.logErrorIfHeadersAreWeirdOrMissing(log, message, 'delivery');
 
-      var recipients = [];
+      let recipients = [];
       if (message.delivery && message.notificationType === 'Delivery') {
         recipients = message.delivery.recipients;
       }
@@ -27,9 +27,9 @@ module.exports = function (log) {
 
       return P.each(recipients, function (recipient) {
 
-        var email = recipient;
-        var emailDomain = utils.getAnonymizedEmailDomain(email);
-        var logData = {
+        const email = recipient;
+        const emailDomain = utils.getAnonymizedEmailDomain(email);
+        const logData = {
           email: email,
           domain: emailDomain,
           processingTimeMillis: message.delivery.processingTimeMillis

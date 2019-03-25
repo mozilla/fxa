@@ -5,11 +5,11 @@
 'use strict';
 
 const { assert } = require('chai');
-var TestServer = require('../test_server');
+const TestServer = require('../test_server');
 const Client = require('../client')();
-var P = require('../../lib/promise');
+const P = require('../../lib/promise');
 
-var config = require('../../config').getProperties();
+const config = require('../../config').getProperties();
 
 
 describe('remote concurrect', function() {
@@ -26,11 +26,11 @@ describe('remote concurrect', function() {
   it(
     'concurrent create requests',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'abcdef';
+      const email = server.uniqueEmail();
+      const password = 'abcdef';
       // Two shall enter, only one shall survive!
-      var r1 = Client.create(config.publicUrl, email, password, server.mailbox);
-      var r2 = Client.create(config.publicUrl, email, password, server.mailbox);
+      const r1 = Client.create(config.publicUrl, email, password, server.mailbox);
+      const r2 = Client.create(config.publicUrl, email, password, server.mailbox);
       return P.all(
         [r1, r2]
       )

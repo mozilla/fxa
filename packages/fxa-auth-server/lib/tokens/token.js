@@ -64,7 +64,7 @@ module.exports = (log, config) => {
   // This uses known seed data to derive the keys.
   //
   Token.createTokenFromHexData = function(TokenType, hexData, details) {
-    var data = Buffer.from(hexData, 'hex');
+    const data = Buffer.from(hexData, 'hex');
     return Token.deriveTokenKeys(TokenType, data)
       .then(keys => new TokenType(keys, details || {}));
   };
@@ -104,7 +104,7 @@ module.exports = (log, config) => {
 
   Token.prototype.ttl = function (asOf) {
     asOf = asOf || Date.now();
-    var ttl = (this.lifetime - (asOf - this.createdAt)) / 1000;
+    const ttl = (this.lifetime - (asOf - this.createdAt)) / 1000;
     return Math.max(Math.ceil(ttl), 0);
   };
 

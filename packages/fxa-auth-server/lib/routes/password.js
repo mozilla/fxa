@@ -37,7 +37,7 @@ module.exports = function (
       db.updatePasswordForgotToken(passwordForgotToken);
   }
 
-  var routes = [
+  const routes = [
     {
       method: 'POST',
       path: '/password/change/start',
@@ -51,8 +51,8 @@ module.exports = function (
       },
       handler: async function (request) {
         log.begin('Password.changeStart', request);
-        var form = request.payload;
-        var oldAuthPW = form.oldAuthPW;
+        const form = request.payload;
+        const oldAuthPW = form.oldAuthPW;
 
         return customs.check(
           request,
@@ -68,7 +68,7 @@ module.exports = function (
                   if (! match) {
                     throw error.incorrectPassword(emailRecord.email, form.email);
                   }
-                  var password = new Password(
+                  const password = new Password(
                     oldAuthPW,
                     emailRecord.authSalt,
                     emailRecord.verifierVersion
@@ -146,13 +146,13 @@ module.exports = function (
       },
       handler: async function (request) {
         log.begin('Password.changeFinish', request);
-        var passwordChangeToken = request.auth.credentials;
-        var authPW = request.payload.authPW;
-        var wrapKb = request.payload.wrapKb;
-        var sessionTokenId = request.payload.sessionToken;
-        var wantsKeys = requestHelper.wantsKeys(request);
+        const passwordChangeToken = request.auth.credentials;
+        const authPW = request.payload.authPW;
+        const wrapKb = request.payload.wrapKb;
+        const sessionTokenId = request.payload.sessionToken;
+        const wantsKeys = requestHelper.wantsKeys(request);
         const ip = request.app.clientAddress;
-        var account, verifyHash, sessionToken, keyFetchToken, verifiedStatus,
+        let account, verifyHash, sessionToken, keyFetchToken, verifiedStatus,
           devicesToNotify, originatingDeviceId, hasTotp = false;
 
         return checkTotpToken()
@@ -383,7 +383,7 @@ module.exports = function (
             return {};
           }
 
-          var response = {
+          const response = {
             uid: sessionToken.uid,
             sessionToken: sessionToken.data,
             verified: sessionToken.emailVerified && sessionToken.tokenVerified,
@@ -426,8 +426,8 @@ module.exports = function (
       },
       handler: async function (request) {
         log.begin('Password.forgotSend', request);
-        var email = request.payload.email;
-        var service = request.payload.service || request.query.service;
+        const email = request.payload.email;
+        const service = request.payload.service || request.query.service;
         const ip = request.app.clientAddress;
 
         request.validateMetricsContext();
@@ -534,8 +534,8 @@ module.exports = function (
       },
       handler: async function (request) {
         log.begin('Password.forgotResend', request);
-        var passwordForgotToken = request.auth.credentials;
-        var service = request.payload.service || request.query.service;
+        const passwordForgotToken = request.auth.credentials;
+        const service = request.payload.service || request.query.service;
         const ip = request.app.clientAddress;
 
         const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext;
@@ -618,8 +618,8 @@ module.exports = function (
       },
       handler: async function (request) {
         log.begin('Password.forgotVerify', request);
-        var passwordForgotToken = request.auth.credentials;
-        var code = request.payload.code;
+        const passwordForgotToken = request.auth.credentials;
+        const code = request.payload.code;
         const accountResetWithRecoveryKey = request.payload.accountResetWithRecoveryKey;
 
         const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext;
@@ -693,7 +693,7 @@ module.exports = function (
       },
       handler: async function (request) {
         log.begin('Password.forgotStatus', request);
-        var passwordForgotToken = request.auth.credentials;
+        const passwordForgotToken = request.auth.credentials;
         return {
             tries: passwordForgotToken.tries,
             ttl: passwordForgotToken.ttl()

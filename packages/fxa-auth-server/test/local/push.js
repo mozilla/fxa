@@ -89,8 +89,8 @@ describe('push', () => {
   it(
     'sendPush sends notifications with a TTL of 0',
     () => {
-      var successCalled = 0;
-      var thisMockLog = mockLog({
+      let successCalled = 0;
+      const thisMockLog = mockLog({
         info: function (op, log) {
           if (log.name === 'push.account_verify.success') {
             // notification sent
@@ -99,7 +99,7 @@ describe('push', () => {
         }
       });
 
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
             assert.equal(options.TTL, '0', 'sends the proper ttl header');
@@ -119,8 +119,8 @@ describe('push', () => {
   it(
     'sendPush sends notifications with user-defined TTL',
     () => {
-      var successCalled = 0;
-      var thisMockLog = mockLog({
+      let successCalled = 0;
+      const thisMockLog = mockLog({
         info: function (op, log) {
           if (log.name === 'push.account_verify.success') {
             // notification sent
@@ -129,7 +129,7 @@ describe('push', () => {
         }
       });
 
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
             assert.equal(options.TTL, TTL, 'sends the proper ttl header');
@@ -139,7 +139,7 @@ describe('push', () => {
       };
 
       const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig);
-      var options = { TTL: TTL };
+      const options = { TTL: TTL };
       return push.sendPush(mockUid, mockDevices, 'accountVerify', options)
         .then(() => {
           assert.equal(successCalled, 2);
@@ -150,9 +150,9 @@ describe('push', () => {
   it(
     'sendPush sends data',
     () => {
-      var count = 0;
-      var data = { foo: 'bar' };
-      var mocks = {
+      let count = 0;
+      const data = { foo: 'bar' };
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
             count++;
@@ -165,7 +165,7 @@ describe('push', () => {
       };
 
       const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig);
-      var options = { data: data };
+      const options = { data: data };
       return push.sendPush(mockUid, mockDevices, 'accountVerify', options)
         .then(() => {
           assert.equal(count, 2);
@@ -352,7 +352,7 @@ describe('push', () => {
     'push fails if data is present but both keys are not present',
     () => {
       let count = 0;
-      var thisMockLog = mockLog({
+      const thisMockLog = mockLog({
         info: function (op, log) {
           if (log.name === 'push.account_verify.data_but_no_keys') {
             // data detected but device had no keys
@@ -361,7 +361,7 @@ describe('push', () => {
         }
       });
 
-      var devices = [{
+      const devices = [{
         'id': 'foo',
         'name': 'My Phone',
         'pushCallback': 'https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef',
@@ -370,7 +370,7 @@ describe('push', () => {
       }];
 
       const push = require(pushModulePath)(thisMockLog, mockDb, mockConfig);
-      var options = { data: Buffer.from('foobar') };
+      const options = { data: Buffer.from('foobar') };
       return push.sendPush(mockUid, devices, 'accountVerify', options)
         .then(() => {
           assert.equal(count, 1);
@@ -382,7 +382,7 @@ describe('push', () => {
     'push catches devices with no push callback',
     () => {
       let count = 0;
-      var thisMockLog = mockLog({
+      const thisMockLog = mockLog({
         info: function (op, log) {
           if (log.name === 'push.account_verify.no_push_callback') {
             // device had no push callback
@@ -391,7 +391,7 @@ describe('push', () => {
         }
       });
 
-      var devices = [{
+      const devices = [{
         'id': 'foo',
         'name': 'My Phone'
       }];
@@ -408,7 +408,7 @@ describe('push', () => {
     'push reports errors when web-push fails',
     () => {
       let count = 0;
-      var thisMockLog = mockLog({
+      const thisMockLog = mockLog({
         info: function (op, log) {
           if (log.name === 'push.account_verify.failed') {
             // web-push failed
@@ -417,7 +417,7 @@ describe('push', () => {
         }
       });
 
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
             return P.reject(new Error('Failed'));
@@ -436,16 +436,16 @@ describe('push', () => {
   it(
     'push logs an error when asked to send to more than 200 devices',
     () => {
-      var thisMockLog = mockLog({
+      const thisMockLog = mockLog({
         error: sinon.spy()
       });
 
-      var devices = [];
-      for (var i = 0; i < 200; i++) {
+      const devices = [];
+      for (let i = 0; i < 200; i++) {
         devices.push(mockDevices[0]);
       }
 
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
             assert.equal(options.TTL, '0', 'sends the proper ttl header');
@@ -461,7 +461,7 @@ describe('push', () => {
         return push.sendPush(mockUid, devices, 'accountVerify');
       }).then(function () {
         assert.equal(thisMockLog.error.callCount, 1, 'log.error was called');
-        var args = thisMockLog.error.getCall(0).args;
+        const args = thisMockLog.error.getCall(0).args;
         assert.equal(args[0], 'push.sendPush');
         assert.equal(args[1].err.message, 'Too many devices connected to account');
       });
@@ -472,12 +472,12 @@ describe('push', () => {
     'push resets device push data when push server responds with a 400 level error',
     () => {
       let count = 0;
-      var thisMockLog = mockLog({
+      const thisMockLog = mockLog({
         info: function (op, log) {
           if (log.name === 'push.account_verify.reset_settings') {
             // web-push failed
             assert.equal(mockDb.updateDevice.callCount, 1, 'db.updateDevice was called once');
-            var args = mockDb.updateDevice.args[0];
+            const args = mockDb.updateDevice.args[0];
             assert.equal(args.length, 2, 'db.updateDevice was passed two arguments');
             assert.equal(args[1].sessionTokenId, null, 'sessionTokenId was null');
             count++;
@@ -485,10 +485,10 @@ describe('push', () => {
         }
       });
 
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            var err = new Error('Failed');
+            const err = new Error('Failed');
             err.statusCode = 410;
             return P.reject(err);
           }
@@ -497,7 +497,7 @@ describe('push', () => {
 
       const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig);
       // Careful, the argument gets modified in-place.
-      var device = JSON.parse(JSON.stringify(mockDevices[0]));
+      const device = JSON.parse(JSON.stringify(mockDevices[0]));
       return push.sendPush(mockUid, [device], 'accountVerify')
         .then(() => {
           assert.equal(count, 1);
@@ -509,12 +509,12 @@ describe('push', () => {
     'push resets device push data when a failure is caused by bad encryption keys',
     () => {
       let count = 0;
-      var thisMockLog = mockLog({
+      const thisMockLog = mockLog({
         info: function (op, log) {
           if (log.name === 'push.account_verify.reset_settings') {
             // web-push failed
             assert.equal(mockDb.updateDevice.callCount, 1, 'db.updateDevice was called once');
-            var args = mockDb.updateDevice.args[0];
+            const args = mockDb.updateDevice.args[0];
             assert.equal(args.length, 2, 'db.updateDevice was passed two arguments');
             assert.equal(args[1].sessionTokenId, null, 'sessionTokenId argument was null');
             count++;
@@ -522,10 +522,10 @@ describe('push', () => {
         }
       });
 
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            var err = new Error('Failed');
+            const err = new Error('Failed');
             return P.reject(err);
           }
         }
@@ -533,7 +533,7 @@ describe('push', () => {
 
       const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig);
       // Careful, the argument gets modified in-place.
-      var device = JSON.parse(JSON.stringify(mockDevices[0]));
+      const device = JSON.parse(JSON.stringify(mockDevices[0]));
       device.pushPublicKey = 'E' + device.pushPublicKey.substring(1); // make the key invalid
       return push.sendPush(mockUid, [device], 'accountVerify')
         .then(() => {
@@ -546,7 +546,7 @@ describe('push', () => {
     'push does not reset device push data after an unexpected failure',
     () => {
       let count = 0;
-      var thisMockLog = mockLog({
+      const thisMockLog = mockLog({
         info: function (op, log) {
           if (log.name === 'push.account_verify.failed') {
             // web-push failed
@@ -556,10 +556,10 @@ describe('push', () => {
         }
       });
 
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            var err = new Error('Failed');
+            const err = new Error('Failed');
             return P.reject(err);
           }
         }
@@ -625,8 +625,8 @@ describe('push', () => {
       };
       const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig);
       sinon.spy(push, 'sendPush');
-      var deviceName = 'My phone';
-      var expectedData = {
+      const deviceName = 'My phone';
+      const expectedData = {
         version: 1,
         command: 'fxaccounts:device_connected',
         data: {
@@ -697,7 +697,7 @@ describe('push', () => {
   it(
     'notifyPasswordChanged calls sendPush',
     () => {
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
             return P.resolve();
@@ -706,7 +706,7 @@ describe('push', () => {
       };
       const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig);
       sinon.spy(push, 'sendPush');
-      var expectedData = {
+      const expectedData = {
         version: 1,
         command: 'fxaccounts:password_changed'
       };
@@ -719,10 +719,10 @@ describe('push', () => {
         assert.equal(push.sendPush.getCall(0).args[0], mockUid);
         assert.equal(push.sendPush.getCall(0).args[1], mockDevices);
         assert.equal(push.sendPush.getCall(0).args[2], 'passwordChange');
-        var options = push.sendPush.getCall(0).args[3];
+        const options = push.sendPush.getCall(0).args[3];
         assert.deepEqual(options.data, expectedData);
-        var schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH);
-        var schema = JSON.parse(fs.readFileSync(schemaPath));
+        const schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH);
+        const schema = JSON.parse(fs.readFileSync(schemaPath));
         assert.ok(ajv.validate(schema, options.data));
         push.sendPush.restore();
       });
@@ -732,7 +732,7 @@ describe('push', () => {
   it(
     'notifyPasswordReset calls sendPush',
     () => {
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
             return P.resolve();
@@ -741,7 +741,7 @@ describe('push', () => {
       };
       const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig);
       sinon.spy(push, 'sendPush');
-      var expectedData = {
+      const expectedData = {
         version: 1,
         command: 'fxaccounts:password_reset'
       };
@@ -754,10 +754,10 @@ describe('push', () => {
         assert.equal(push.sendPush.getCall(0).args[0], mockUid);
         assert.equal(push.sendPush.getCall(0).args[1], mockDevices);
         assert.equal(push.sendPush.getCall(0).args[2], 'passwordReset');
-        var options = push.sendPush.getCall(0).args[3];
+        const options = push.sendPush.getCall(0).args[3];
         assert.deepEqual(options.data, expectedData);
-        var schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH);
-        var schema = JSON.parse(fs.readFileSync(schemaPath));
+        const schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH);
+        const schema = JSON.parse(fs.readFileSync(schemaPath));
         assert.ok(ajv.validate(schema, options.data));
         push.sendPush.restore();
       });
@@ -767,7 +767,7 @@ describe('push', () => {
   it(
     'notifyAccountUpdated calls sendPush',
     () => {
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
             return P.resolve();
@@ -794,7 +794,7 @@ describe('push', () => {
   it(
     'notifyAccountDestroyed calls sendPush',
     () => {
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
             return P.resolve();
@@ -803,7 +803,7 @@ describe('push', () => {
       };
       const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig);
       sinon.spy(push, 'sendPush');
-      var expectedData = {
+      const expectedData = {
         version: 1,
         command: 'fxaccounts:account_destroyed',
         data: {
@@ -819,10 +819,10 @@ describe('push', () => {
         assert.equal(push.sendPush.getCall(0).args[0], mockUid);
         assert.equal(push.sendPush.getCall(0).args[1], mockDevices);
         assert.equal(push.sendPush.getCall(0).args[2], 'accountDestroyed');
-        var options = push.sendPush.getCall(0).args[3];
+        const options = push.sendPush.getCall(0).args[3];
         assert.deepEqual(options.data, expectedData);
-        var schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH);
-        var schema = JSON.parse(fs.readFileSync(schemaPath));
+        const schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH);
+        const schema = JSON.parse(fs.readFileSync(schemaPath));
         assert.ok(ajv.validate(schema, options.data));
         push.sendPush.restore();
       });
@@ -833,7 +833,7 @@ describe('push', () => {
     'sendPush includes VAPID identification if it is configured',
     () => {
       let count = 0;
-      var thisMockLog = mockLog({
+      const thisMockLog = mockLog({
         info: function (op, log) {
           if (log.name === 'push.account_verify.success') {
             count++;
@@ -841,12 +841,12 @@ describe('push', () => {
         }
       });
 
-      var mockConfig = {
+      const mockConfig = {
         publicUrl: 'https://example.com',
         vapidKeysFile: path.join(__dirname, '../config/mock-vapid-keys.json')
       };
 
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
             assert.ok(options.vapidDetails, 'sends the VAPID params object');
@@ -869,9 +869,9 @@ describe('push', () => {
   it(
     'sendPush errors out cleanly if given an unknown reason argument',
     () => {
-      var thisMockLog = mockLog();
-      var mockConfig = {};
-      var mocks = {
+      const thisMockLog = mockLog();
+      const mockConfig = {};
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
             assert.fail('should not have called sendNotification');

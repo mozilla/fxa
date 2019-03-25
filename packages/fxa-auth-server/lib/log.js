@@ -194,7 +194,7 @@ module.exports = function (level, name, options = {}) {
   options.name = name;
   options.level = level;
   options.fmt = logConfig.fmt;
-  var log = new Lug(options);
+  const log = new Lug(options);
 
   log.stdout.on(
     'error',

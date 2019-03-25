@@ -5,6 +5,7 @@ extends: plugin:fxa/server
 
 rules:
   handle-callback-err: 0
+  no-var: 2
   strict: 2
   semi: [2, "always"]
   indent: [0, 2]

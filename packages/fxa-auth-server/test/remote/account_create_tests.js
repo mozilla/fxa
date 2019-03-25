@@ -5,10 +5,10 @@
 'use strict';
 
 const { assert } = require('chai');
-var TestServer = require('../test_server');
-var crypto = require('crypto');
+const TestServer = require('../test_server');
+const crypto = require('crypto');
 const Client = require('../client')();
-var config = require('../../config').getProperties();
+const config = require('../../config').getProperties();
 const mocks = require('../mocks');
 
 describe('remote account create', function() {
@@ -22,9 +22,9 @@ describe('remote account create', function() {
   it(
     'unverified account fail when getting keys',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null;
       return Client.create(config.publicUrl, email, password)
         .then( x => {
           client = x;
@@ -48,9 +48,9 @@ describe('remote account create', function() {
   it(
     'create and verify sync account',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null;
       return Client.create(config.publicUrl, email, password, {service: 'sync'})
         .then(
           function (x) {
@@ -116,10 +116,10 @@ describe('remote account create', function() {
   it(
     'create account with service identifier and resume',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null; // eslint-disable-line no-unused-vars
-      var options = { service: 'abcdef', resume: 'foo' };
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null; // eslint-disable-line no-unused-vars
+      const options = { service: 'abcdef', resume: 'foo' };
       return Client.create(config.publicUrl, email, password, options)
         .then(
           function (x) {
@@ -143,9 +143,9 @@ describe('remote account create', function() {
   it(
     'create account allows localization of emails',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null;
       return Client.create(config.publicUrl, email, password)
         .then(
           function (x) {
@@ -192,7 +192,7 @@ describe('remote account create', function() {
   it(
     'Unknown account should not exist',
     () => {
-      var client = new Client(config.publicUrl);
+      const client = new Client(config.publicUrl);
       client.email = server.uniqueEmail();
       client.authPW = crypto.randomBytes(32);
       return client.auth()
@@ -210,9 +210,9 @@ describe('remote account create', function() {
   it(
     '/account/create works with proper data',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'ilikepancakes';
-      var client;
+      const email = server.uniqueEmail();
+      const password = 'ilikepancakes';
+      let client;
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (x) {
@@ -234,9 +234,9 @@ describe('remote account create', function() {
   it(
     '/account/create returns a sessionToken',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'ilikepancakes';
-      var client = new Client(config.publicUrl);
+      const email = server.uniqueEmail();
+      const password = 'ilikepancakes';
+      const client = new Client(config.publicUrl);
       return client.setupCredentials(email, password)
         .then(
           function (c) {
@@ -255,9 +255,9 @@ describe('remote account create', function() {
   it(
     '/account/create returns a keyFetchToken when keys=true',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'ilikepancakes';
-      var client = new Client(config.publicUrl);
+      const email = server.uniqueEmail();
+      const password = 'ilikepancakes';
+      const client = new Client(config.publicUrl);
       return client.setupCredentials(email, password)
         .then(
           function (c) {
@@ -276,9 +276,9 @@ describe('remote account create', function() {
   it(
     'signup with same email, different case',
     () => {
-      var email = server.uniqueEmail();
-      var email2 = email.toUpperCase();
-      var password = 'abcdef';
+      const email = server.uniqueEmail();
+      const email2 = email.toUpperCase();
+      const password = 'abcdef';
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (c) {
@@ -299,8 +299,8 @@ describe('remote account create', function() {
   it(
     're-signup against an unverified email',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'abcdef';
+      const email = server.uniqueEmail();
+      const password = 'abcdef';
       return Client.create(config.publicUrl, email, password)
         .then(
           function () {
@@ -324,10 +324,10 @@ describe('remote account create', function() {
   it(
     'invalid redirectTo',
     () => {
-      var api = new Client.Api(config.publicUrl);
-      var email = server.uniqueEmail();
-      var authPW = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
-      var options = {
+      const api = new Client.Api(config.publicUrl);
+      const email = server.uniqueEmail();
+      const authPW = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+      const options = {
         redirectTo: 'http://accounts.firefox.com.evil.us'
       };
       return api.accountCreate(email, authPW, options)
@@ -349,10 +349,10 @@ describe('remote account create', function() {
   it(
     'another invalid redirectTo',
     () => {
-      var api = new Client.Api(config.publicUrl);
-      var email = server.uniqueEmail();
-      var authPW = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
-      var options = {
+      const api = new Client.Api(config.publicUrl);
+      const email = server.uniqueEmail();
+      const authPW = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+      const options = {
         redirectTo: 'https://www.fake.com/.firefox.com'
       };
 
@@ -502,7 +502,7 @@ describe('remote account create', function() {
   it(
     'create account with service query parameter',
     () => {
-      var email = server.uniqueEmail();
+      const email = server.uniqueEmail();
       return Client.create(config.publicUrl, email, 'foo', { serviceQuery: 'bar' })
         .then(function () {
           return server.mailbox.waitForEmail(email);
@@ -516,7 +516,7 @@ describe('remote account create', function() {
   it(
     'account creation works with unicode email address',
     () => {
-      var email = server.uniqueUnicodeEmail();
+      const email = server.uniqueUnicodeEmail();
       return Client.create(config.publicUrl, email, 'foo')
         .then(function (client) {
           assert.ok(client, 'created account');
@@ -531,7 +531,7 @@ describe('remote account create', function() {
   it(
     'account creation fails with invalid metricsContext flowId',
     () => {
-      var email = server.uniqueEmail();
+      const email = server.uniqueEmail();
       return Client.create(config.publicUrl, email, 'foo', {
         metricsContext: {
           flowId: 'deadbeefbaadf00ddeadbeefbaadf00d',
@@ -548,7 +548,7 @@ describe('remote account create', function() {
   it(
     'account creation fails with invalid metricsContext flowBeginTime',
     () => {
-      var email = server.uniqueEmail();
+      const email = server.uniqueEmail();
       return Client.create(config.publicUrl, email, 'foo', {
         metricsContext: {
           flowId: 'deadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00d',
@@ -565,8 +565,8 @@ describe('remote account create', function() {
   it(
     'account creation works with maximal metricsContext metadata',
     () => {
-      var email = server.uniqueEmail();
-      var opts = {
+      const email = server.uniqueEmail();
+      const opts = {
         metricsContext: mocks.generateMetricsContext()
       };
       return Client.create(config.publicUrl, email, 'foo', opts).then(function (client) {
@@ -583,7 +583,7 @@ describe('remote account create', function() {
   it(
     'account creation works with empty metricsContext metadata',
     () => {
-      var email = server.uniqueEmail();
+      const email = server.uniqueEmail();
       return Client.create(config.publicUrl, email, 'foo', {
         metricsContext: {}
       }).then(function (client) {
@@ -595,7 +595,7 @@ describe('remote account create', function() {
   it(
     'account creation fails with missing flowBeginTime',
     () => {
-      var email = server.uniqueEmail();
+      const email = server.uniqueEmail();
       return Client.create(config.publicUrl, email, 'foo', {
         metricsContext: {
           flowId: 'deadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00d'
@@ -611,7 +611,7 @@ describe('remote account create', function() {
   it(
     'account creation fails with missing flowId',
     () => {
-      var email = server.uniqueEmail();
+      const email = server.uniqueEmail();
       return Client.create(config.publicUrl, email, 'foo', {
         metricsContext: {
           flowBeginTime: Date.now()
@@ -627,9 +627,9 @@ describe('remote account create', function() {
   it(
     'create account for non-sync service, gets generic sign-up email and does not get post-verify email',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null;
       return Client.create(config.publicUrl, email, password)
         .then(
           function (x) {
@@ -687,9 +687,9 @@ describe('remote account create', function() {
   it(
     'create account for unspecified service does not get create sync email and no post-verify email',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var client = null;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let client = null;
       return Client.create(config.publicUrl, email, password)
         .then(
           function (x) {

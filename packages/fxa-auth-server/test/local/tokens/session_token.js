@@ -56,7 +56,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
   it(
     're-creation from tokenData works',
     () => {
-      var token = null;
+      let token = null;
       return SessionToken.create(TOKEN)
         .then(
           function (x) {
@@ -140,7 +140,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
         uid: 'bar'
       }).then(
         function (token) {
-          var now = Date.now();
+          const now = Date.now();
           assert.ok(token.createdAt > now - 1000 && token.createdAt <= now);
         }
       );
@@ -150,8 +150,8 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
   it(
     'sessionToken key derivations are test-vector compliant',
     () => {
-      var token = null;
-      var tokenData = 'a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf';
+      let token = null;
+      const tokenData = 'a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf';
       return SessionToken.fromHex(tokenData, TOKEN)
         .then(
           function (x) {

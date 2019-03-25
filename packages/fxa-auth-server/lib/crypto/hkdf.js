@@ -4,8 +4,8 @@
 
 'use strict';
 
-var HKDF = require('hkdf');
-var P = require('../promise');
+const HKDF = require('hkdf');
+const P = require('../promise');
 
 const NAMESPACE = 'identity.mozilla.com/picl/v1/';
 
@@ -18,8 +18,8 @@ function KW(name) {
 }
 
 function hkdf(km, info, salt, len) {
-  var d = P.defer();
-  var df = new HKDF('sha256', salt, km);
+  const d = P.defer();
+  const df = new HKDF('sha256', salt, km);
   df.derive(
     KW(info),
     len,

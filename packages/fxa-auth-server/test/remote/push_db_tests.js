@@ -5,27 +5,27 @@
 'use strict';
 
 const { assert } = require('chai');
-var P = require('../../lib/promise');
-var uuid = require('uuid');
-var crypto = require('crypto');
-var base64url = require('base64url');
-var proxyquire = require('proxyquire');
+const P = require('../../lib/promise');
+const uuid = require('uuid');
+const crypto = require('crypto');
+const base64url = require('base64url');
+const proxyquire = require('proxyquire');
 const log = { trace () {}, info () {}, error () {} };
 
-var config = require('../../config').getProperties();
-var TestServer = require('../test_server');
-var Token = require('../../lib/tokens')(log);
+const config = require('../../config').getProperties();
+const TestServer = require('../test_server');
+const Token = require('../../lib/tokens')(log);
 const DB = require('../../lib/db')(
   config,
   log,
   Token
 );
 
-var zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex').toString('hex');
-var zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex');
+const zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex').toString('hex');
+const zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex');
 
-var SESSION_TOKEN_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0';
-var ACCOUNT = {
+const SESSION_TOKEN_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0';
+const ACCOUNT = {
   uid: uuid.v4('binary').toString('hex'),
   email: 'push' + Math.random() + '@bar.com',
   emailCode: zeroBuffer16,
@@ -37,7 +37,7 @@ var ACCOUNT = {
   wrapWrapKb: zeroBuffer32,
   tokenVerificationId: zeroBuffer16
 };
-var mockLog = {
+const mockLog = {
   error: function () {
   },
   increment: function () {
@@ -66,8 +66,8 @@ describe('remote push db', function() {
   it(
     'push db tests',
     () => {
-      var sessionTokenId;
-      var deviceInfo = {
+      let sessionTokenId;
+      const deviceInfo = {
         id: crypto.randomBytes(16).toString('hex'),
         name: 'my push device',
         type: 'mobile',
@@ -79,19 +79,19 @@ describe('remote push db', function() {
       };
       // two tests below, first for unknown 400 level error the device push info will stay the same
       // second, for a known 400 error we reset the device
-      var mocksKnown400 = {
+      const mocksKnown400 = {
         'web-push': {
           sendNotification: function (endpoint, params) {
-            var err = new Error('Failed 400 level');
+            const err = new Error('Failed 400 level');
             err.statusCode = 410;
             return P.reject(err);
           }
         }
       };
-      var mocksUnknown400 = {
+      const mocksUnknown400 = {
         'web-push': {
           sendNotification: function (endpoint, params) {
-            var err = new Error('Failed 429 level');
+            const err = new Error('Failed 429 level');
             err.statusCode = 429;
             return P.reject(err);
           }
@@ -129,7 +129,7 @@ describe('remote push db', function() {
             return db.devices(ACCOUNT.uid);
           })
           .then(function (devices) {
-            var device = devices[0];
+            const device = devices[0];
             assert.equal(device.name, deviceInfo.name);
             assert.equal(device.pushCallback, deviceInfo.pushCallback);
             assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey, 'device.pushPublicKey is correct');
@@ -143,7 +143,7 @@ describe('remote push db', function() {
             return db.devices(ACCOUNT.uid);
           })
           .then(function (devices) {
-            var device = devices[0];
+            const device = devices[0];
             assert.equal(device.name, deviceInfo.name);
             assert.equal(device.pushEndpointExpired, true, 'device.pushEndpointExpired is correct');
           });

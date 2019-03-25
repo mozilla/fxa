@@ -5,7 +5,7 @@
 'use strict';
 
 exports.getRoute = function (routes, path, method) {
-  var route = null;
+  let route = null;
 
   routes.some(function (r) {
     if (r.path === path) {

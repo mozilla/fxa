@@ -26,7 +26,7 @@ describe('remote misc', function() {
   function testVersionRoute(route) {
     return () => {
       return request(config.publicUrl + route).spread((res, body) => {
-        var json = JSON.parse(body);
+        const json = JSON.parse(body);
         assert.deepEqual(Object.keys(json), ['version', 'commit', 'source']);
         assert.equal(json.version, require('../../package.json').version, 'package version');
         assert.ok(json.source && json.source !== 'unknown', 'source repository');
@@ -38,11 +38,11 @@ describe('remote misc', function() {
   }
 
   function testCORSHeader(withAllowedOrigin) {
-    var randomAllowedOrigin = config.corsOrigin[Math.floor(Math.random() * config.corsOrigin.length)];
-    var expectedOrigin = withAllowedOrigin ? randomAllowedOrigin : undefined;
+    const randomAllowedOrigin = config.corsOrigin[Math.floor(Math.random() * config.corsOrigin.length)];
+    const expectedOrigin = withAllowedOrigin ? randomAllowedOrigin : undefined;
 
     return () => {
-      var options = {
+      const options = {
         url: config.publicUrl + '/'
       };
       if (withAllowedOrigin !== undefined) {
@@ -111,7 +111,7 @@ describe('remote misc', function() {
   it(
     '/verify_email redirects',
     () => {
-      var path = '/v1/verify_email?code=0000&uid=0000';
+      const path = '/v1/verify_email?code=0000&uid=0000';
       return request(
         {
           url: config.publicUrl + path,
@@ -127,7 +127,7 @@ describe('remote misc', function() {
   it(
     '/complete_reset_password redirects',
     () => {
-      var path = '/v1/complete_reset_password?code=0000&email=a@b.c&token=0000';
+      const path = '/v1/complete_reset_password?code=0000&email=a@b.c&token=0000';
       return request(
         {
           url: config.publicUrl + path,
@@ -143,10 +143,10 @@ describe('remote misc', function() {
   it(
     'timestamp header',
     () => {
-      var email = server.uniqueEmail();
-      var password = 'allyourbasearebelongtous';
-      var url = null;
-      var client = null;
+      const email = server.uniqueEmail();
+      const password = 'allyourbasearebelongtous';
+      let url = null;
+      let client = null;
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (c) {
@@ -162,12 +162,12 @@ describe('remote misc', function() {
         )
         .then(
           function (token) {
-            var method = 'GET';
-            var verify = {
+            const method = 'GET';
+            const verify = {
               credentials: token,
               timestamp: Math.floor(Date.now() / 1000)
             };
-            var headers = {
+            const headers = {
               Authorization: hawk.client.header(url, method, verify).header
             };
             return request(
@@ -178,7 +178,7 @@ describe('remote misc', function() {
                 json: true
               })
               .spread((res, body) => {
-                var now = +new Date() / 1000;
+                const now = +new Date() / 1000;
                 assert.ok(res.headers.timestamp > now - 60, 'has timestamp header');
                 assert.ok(res.headers.timestamp < now + 60, 'has timestamp header');
               });
@@ -203,7 +203,7 @@ describe('remote misc', function() {
   it(
     'oversized payload',
     () => {
-      var client = new Client(config.publicUrl);
+      const client = new Client(config.publicUrl);
       return client.api.doRequest(
         'POST',
         client.api.baseURL + '/get_random_bytes',
@@ -231,7 +231,7 @@ describe('remote misc', function() {
   it(
     'random bytes',
     () => {
-      var client = new Client(config.publicUrl);
+      const client = new Client(config.publicUrl);
       return client.api.getRandomBytes()
         .then(
           function (x) {
@@ -244,7 +244,7 @@ describe('remote misc', function() {
   it(
     'fetch /.well-known/browserid support document',
     () => {
-      var client = new Client(config.publicUrl);
+      const client = new Client(config.publicUrl);
       function fetch(url) {
         return client.api.doRequest('GET', config.publicUrl + url);
       }

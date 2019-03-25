@@ -225,7 +225,7 @@ describe('lib/devices:', () => {
 
     describe('upsert:', () => {
 
-      var request, credentials;
+      let request, credentials;
 
       beforeEach(() => {
         request = mocks.mockRequest({
@@ -251,7 +251,7 @@ describe('lib/devices:', () => {
             assert.equal(db.updateDevice.callCount, 0, 'db.updateDevice was not called');
 
             assert.equal(db.createDevice.callCount, 1, 'db.createDevice was called once');
-            var args = db.createDevice.args[0];
+            let args = db.createDevice.args[0];
             assert.equal(args.length, 2, 'db.createDevice was passed two arguments');
             assert.deepEqual(args[0], credentials.uid, 'first argument was uid');
             assert.equal(args[1], device, 'second argument was device');
@@ -333,7 +333,7 @@ describe('lib/devices:', () => {
       });
 
       it('should update', () => {
-        var deviceInfo = {
+        const deviceInfo = {
           id: deviceId,
           name: device.name,
           type: device.type
@@ -345,7 +345,7 @@ describe('lib/devices:', () => {
             assert.equal(db.createDevice.callCount, 0, 'db.createDevice was not called');
 
             assert.equal(db.updateDevice.callCount, 1, 'db.updateDevice was called once');
-            var args = db.updateDevice.args[0];
+            let args = db.updateDevice.args[0];
             assert.equal(args.length, 2, 'db.createDevice was passed two arguments');
             assert.deepEqual(args[0], credentials.uid, 'first argument was uid');
             assert.deepEqual(args[1], {
@@ -477,7 +477,7 @@ describe('lib/devices:', () => {
       });
 
       it('should update', () => {
-        var deviceInfo = {
+        const deviceInfo = {
           id: deviceId,
           name: device.name,
           type: device.type
@@ -489,7 +489,7 @@ describe('lib/devices:', () => {
             assert.equal(db.createDevice.callCount, 0, 'db.createDevice was not called');
 
             assert.equal(db.updateDevice.callCount, 1, 'db.updateDevice was called once');
-            var args = db.updateDevice.args[0];
+            let args = db.updateDevice.args[0];
             assert.equal(args.length, 2, 'db.createDevice was passed two arguments');
             assert.deepEqual(args[0], credentials.uid, 'first argument was uid');
             assert.deepEqual(args[1], {
