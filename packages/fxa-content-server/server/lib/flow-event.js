@@ -29,6 +29,7 @@ const VERSION = 1;
 const FLOW_BEGIN_EVENT = 'flow.begin';
 const FLOW_ID_KEY = config.get('flow_id_key');
 const FLOW_ID_EXPIRY = config.get('flow_id_expiry');
+const FLOW_METRICS_DISABLED = config.get('flow_metrics_disabled');
 
 const ENTRYPOINT_PATTERN = /^[\w.-]+$/;
 const SERVICE_PATTERN = /^(sync|content-server|none|[0-9a-f]{16})$/;
@@ -43,8 +44,6 @@ const VALID_FLOW_EVENT_PROPERTIES = [
 ];
 
 const UTM_PATTERN = /^[\w.%-]+$/;
-
-const IS_DISABLED = config.get('client_metrics').stderr_collector_disabled;
 
 const PERFORMANCE_TIMINGS = [
   // These timings are only an approximation, to be used as extra signals
@@ -84,7 +83,7 @@ const PERFORMANCE_TIMINGS = [
 const AUTH_VIEWS = new Set([ 'enter-email', 'force-auth', 'signin', 'signup' ]);
 
 const metricsRequest = (req, metrics, requestReceivedTime) => {
-  if (IS_DISABLED || ! isValidFlowData(metrics, requestReceivedTime)) {
+  if (FLOW_METRICS_DISABLED || ! isValidFlowData(metrics, requestReceivedTime)) {
     return;
   }
 

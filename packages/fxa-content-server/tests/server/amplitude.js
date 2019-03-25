@@ -11,13 +11,21 @@ const pkg = require('../../package.json');
 const logger = {
   info: sinon.spy()
 };
+const amplitudeConfig = {
+  disabled: false
+};
+
 const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
   './configuration': {
-    get () {
-      return {
-        '0': 'amo',
-        '1': 'pocket'
-      };
+    get (name) {
+      if (name === 'oauth_client_id_map') {
+        return {
+          '0': 'amo',
+          '1': 'pocket'
+        };
+      } else if (name === 'amplitude') {
+        return amplitudeConfig;
+      }
     }
   },
   './logging/log': () => logger
@@ -26,6 +34,7 @@ const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(pkg.version)[1];
 
 registerSuite('amplitude', {
   beforeEach: function() {
+    amplitudeConfig.disabled = false;
     sinon.stub(process.stderr, 'write').callsFake(() => {});
   },
 
@@ -44,6 +53,27 @@ registerSuite('amplitude', {
     'interface is correct': () => {
       assert.isFunction(amplitude);
       assert.lengthOf(amplitude, 3);
+    },
+
+    'disable writing amplitude events': {
+      'logger.info was not called': () => {
+        amplitudeConfig.disabled = true;
+        amplitude({
+          time: 'a',
+          type: 'flow.signin_from.bar'
+        }, {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32'
+          }
+        }, {
+          flowBeginTime: 'b',
+          flowId: 'c',
+          uid: 'd'
+        });
+
+        assert.equal(logger.info.callCount, 0);
+      }
     },
 
     'does not throw if arguments are missing': () => {

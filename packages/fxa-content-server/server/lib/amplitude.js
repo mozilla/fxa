@@ -17,8 +17,10 @@
 const { GROUPS, initialize } = require('fxa-shared/metrics/amplitude');
 const logger = require('./logging/log')();
 const ua = require('./user-agent');
+const config = require('./configuration');
 
-const SERVICES = require('./configuration').get('oauth_client_id_map');
+const SERVICES = config.get('oauth_client_id_map');
+const amplitude = config.get('amplitude');
 
 // Maps view name to email type
 const EMAIL_TYPES = {
@@ -133,7 +135,7 @@ const transform = initialize(SERVICES, EVENTS, FUZZY_EVENTS);
 module.exports = receiveEvent;
 
 function receiveEvent (event, request, data) {
-  if (! event || ! request || ! data) {
+  if (amplitude.disabled || ! event || ! request || ! data) {
     return;
   }
 

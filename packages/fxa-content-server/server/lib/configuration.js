@@ -30,6 +30,14 @@ const conf = module.exports = convict({
     env: 'ALLOWED_PARENT_ORIGINS',
     format: Array
   },
+  amplitude: {
+    disabled: {
+      default: false,
+      doc: 'Disable amplitude events',
+      env: 'AMPLITUDE_DISABLED',
+      format: Boolean
+    }
+  },
   are_dist_resources: {
     default: false,
     doc: 'Check if the resources are under the /dist directory',
@@ -216,6 +224,12 @@ const conf = module.exports = convict({
     doc: 'HMAC key used to verify flow event data',
     env: 'FLOW_ID_KEY',
     format: String
+  },
+  flow_metrics_disabled: {
+    default: false,
+    doc: 'Disable flow metrics output to stderr',
+    env: 'FLOW_METRICS_DISABLED',
+    format: Boolean
   },
   fxa_client_configuration: {
     max_age: {
