@@ -45,15 +45,15 @@ const DB = require('../lib/db')(
 
 DB.connect(config[config.db.backend])
   .then(
-    function (db) {
+    (db) => {
       const json = require(path.resolve(commandLineOptions.input));
 
-      const uids = json.map(function (entry) {
+      const uids = json.map((entry) => {
         return entry.uid;
       });
 
       return P.all(uids.map(
-        function (uid) {
+        (uid) => {
           return db.resetAccount(
             { uid: uid },
             {
@@ -63,17 +63,17 @@ DB.connect(config[config.db.backend])
               verifierVersion: 1
             }
           )
-          .catch(function (err) {
+          .catch((err) => {
             log.error({ op: 'reset.failed', uid: uid, err: err });
             process.exit(1);
           });
         }
         ))
         .then(
-          function () {
+          () => {
             log.info({ complete: true, uidsReset: uids.length });
           },
-          function (err) {
+          (err) => {
             log.error(err);
           }
         )

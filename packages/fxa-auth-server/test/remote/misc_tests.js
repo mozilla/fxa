@@ -149,19 +149,19 @@ describe('remote misc', function() {
       let client = null;
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
-          function (c) {
+          (c) => {
             client = c;
             return client.login();
           }
         )
         .then(
-          function () {
+          () => {
             url = client.api.baseURL + '/account/keys';
             return client.api.Token.KeyFetchToken.fromHex(client.keyFetchToken);
           }
         )
         .then(
-          function (token) {
+          (token) => {
             const method = 'GET';
             const verify = {
               credentials: token,
@@ -212,10 +212,10 @@ describe('remote misc', function() {
         { big: Buffer.alloc(8192).toString('hex')}
       )
       .then(
-        function (body) {
+        (body) => {
           assert(false, 'request should have failed');
         },
-        function (err) {
+        (err) => {
           if (err.errno) {
             assert.equal(err.errno, 113, 'payload too large');
           }
@@ -234,7 +234,7 @@ describe('remote misc', function() {
       const client = new Client(config.publicUrl);
       return client.api.getRandomBytes()
         .then(
-          function (x) {
+          (x) => {
             assert.equal(x.data.length, 64);
           }
         );
@@ -250,7 +250,7 @@ describe('remote misc', function() {
       }
       return fetch('/.well-known/browserid')
       .then(
-        function (doc) {
+        (doc) => {
           assert.ok(doc.hasOwnProperty('public-key'), 'doc has public key');
           assert.ok(/^[0-9]+$/.test(doc['public-key'].n), 'n is base 10');
           assert.ok(/^[0-9]+$/.test(doc['public-key'].e), 'e is base 10');

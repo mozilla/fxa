@@ -40,7 +40,7 @@ module.exports = function(log, config) {
 
   Password.prototype.matches = function (verifyHash) {
     return this.verifyHash().then(
-      function (hash) {
+      (hash) => {
         return butil.buffersAreEqual(hash, verifyHash);
       }
     );
@@ -49,10 +49,10 @@ module.exports = function(log, config) {
   Password.prototype.unwrap = function (wrapped, context) {
     context = context || 'wrapwrapKey';
     return this.stretchedPassword().then(
-      function (stretched) {
+      (stretched) => {
         return hkdf(stretched, context, null, 32)
           .then(
-            function (wrapper) {
+            (wrapper) => {
               return butil.xorBuffers(wrapper, wrapped).toString('hex');
             }
           );

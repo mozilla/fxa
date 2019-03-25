@@ -240,7 +240,7 @@ describe('lib/devices:', () => {
 
       it('should create', () => {
         return devices.upsert(request, credentials, device)
-          .then(function (result) {
+          .then((result) => {
             assert.deepEqual(result, {
               id: deviceId,
               name: device.name,
@@ -298,7 +298,7 @@ describe('lib/devices:', () => {
         credentials.tokenVerified = false;
         device.name = 'device with an unverified sessionToken';
         return devices.upsert(request, credentials, device)
-          .then(function () {
+          .then(() => {
             assert.equal(push.notifyDeviceConnected.callCount, 0, 'push.notifyDeviceConnected was not called');
             credentials.tokenVerified = true;
           });
@@ -307,7 +307,7 @@ describe('lib/devices:', () => {
       it('should create placeholders', () => {
         delete device.name;
         return devices.upsert(request, credentials, { uaBrowser: 'Firefox' })
-          .then(function (result) {
+          .then((result) => {
             assert.equal(db.updateDevice.callCount, 0, 'db.updateDevice was not called');
             assert.equal(db.createDevice.callCount, 1, 'db.createDevice was called once');
 
@@ -339,7 +339,7 @@ describe('lib/devices:', () => {
           type: device.type
         };
         return devices.upsert(request, credentials, deviceInfo)
-          .then(function (result) {
+          .then((result) => {
             assert.equal(result, deviceInfo, 'result was correct');
 
             assert.equal(db.createDevice.callCount, 0, 'db.createDevice was not called');
@@ -451,7 +451,7 @@ describe('lib/devices:', () => {
       it('should create placeholders', () => {
         delete device.name;
         return devices.upsert(request, credentials, { uaBrowser: 'Firefox' })
-          .then(function (result) {
+          .then((result) => {
             assert.equal(db.updateDevice.callCount, 0, 'db.updateDevice was not called');
             assert.equal(db.createDevice.callCount, 1, 'db.createDevice was called once');
 
@@ -483,7 +483,7 @@ describe('lib/devices:', () => {
           type: device.type
         };
         return devices.upsert(request, credentials, deviceInfo)
-          .then(function (result) {
+          .then((result) => {
             assert.equal(result, deviceInfo, 'result was correct');
 
             assert.equal(db.createDevice.callCount, 0, 'db.createDevice was not called');

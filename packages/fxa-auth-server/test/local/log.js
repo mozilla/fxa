@@ -41,7 +41,9 @@ describe('log', () => {
       },
       // These need to be `function` functions, not arrow functions,
       // otherwise proxyquire gets confused and errors out.
+      // eslint-disable-next-line prefer-arrow-callback
       mozlog: sinon.spy(function () { return logger; }),
+      // eslint-disable-next-line prefer-arrow-callback
       './notifier': function () { return { send: sinon.spy() }; }
     };
     mocks.mozlog.config = sinon.spy();

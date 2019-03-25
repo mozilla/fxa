@@ -26,7 +26,7 @@ describe('send-email-batches', () => {
   const DELAY_BETWEEN_BATCHES_MS = 100;
 
   before(() => {
-    sendEmailBatchSpy = sinon.spy(function (batch) {
+    sendEmailBatchSpy = sinon.spy((batch) => {
       if (batch.indexOf('c') > -1) {
         return Promise.resolve({
           errorCount: 1,

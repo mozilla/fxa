@@ -134,7 +134,7 @@ module.exports = function (log, db, config) {
     default:
       canSendToIOSVersion = () => false;
     }
-    return devices.filter(function(device) {
+    return devices.filter((device) => {
       const deviceOS = device.uaOS && device.uaOS.toLowerCase();
       if (deviceOS === 'ios') {
         const deviceVersion = device.uaBrowserVersion ? parseFloat(device.uaBrowserVersion) : 0;
@@ -370,7 +370,7 @@ module.exports = function (log, db, config) {
       if (devices.length > MAX_ACTIVE_DEVICES) {
         reportPushError(new Error(ERR_TOO_MANY_DEVICES), uid, null);
       }
-      return P.each(devices, function(device) {
+      return P.each(devices, (device) => {
         const deviceId = device.id;
 
         log.trace(LOG_OP_PUSH_TO_DEVICES, {
@@ -402,10 +402,10 @@ module.exports = function (log, db, config) {
           }
           return webpush.sendNotification(pushSubscription, pushPayload, pushOptions)
           .then(
-            function () {
+            () => {
               incrementPushAction(events.success);
             },
-            function (err) {
+            (err) => {
               // If we've stored an invalid key in the db for some reason, then we
               // might get an encryption failure here.  Check the key, which also
               // happens to work around bugginess in node's handling of said failures.
@@ -422,9 +422,9 @@ module.exports = function (log, db, config) {
                 // set the push endpoint expired flag
                 // Warning: this method is called without any session tokens or auth validation.
                 device.pushEndpointExpired = true;
-                return db.updateDevice(uid, device).catch(function (err) {
+                return db.updateDevice(uid, device).catch((err) => {
                   reportPushError(err, uid, deviceId);
-                }).then(function() {
+                }).then(() => {
                   incrementPushAction(events.resetSettings);
                 });
               } else {

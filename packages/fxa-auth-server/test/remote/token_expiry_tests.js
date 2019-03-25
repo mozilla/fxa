@@ -31,13 +31,13 @@ describe('remote token expiry', function() {
       const password = 'ok';
       return Client.create(config.publicUrl, email, password, { preVerified: true })
         .then(
-          function (c) {
+          (c) => {
             return c.changePassword('hello');
           }
         )
         .then(
           fail,
-          function (err) {
+          (err) => {
             assert.equal(err.errno, 110, 'invalid token');
           }
         );

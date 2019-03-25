@@ -47,7 +47,7 @@ PushManager.prototype.getSubscription = function getSubscription() {
   // See http://mozilla-push-service.readthedocs.io/en/latest/design/#simplepush-protocol
 
   function send(msg) {
-    ws.send(JSON.stringify(msg), { mask: true }, function(err) {
+    ws.send(JSON.stringify(msg), { mask: true }, (err) => {
       if (err) onError(err);
     });
   }
@@ -75,14 +75,14 @@ PushManager.prototype.getSubscription = function getSubscription() {
     }
   };
 
-  ws.on('open', function open() {
+  ws.on('open', () => {
     send({
       messageType: 'hello',
       use_webpush: true
     });
-  }).on('error', function error(code, description) {
+  }).on('error', (code, description) => {
     onError(new Error(code + description));
-  }).on('message', function message(data, flags) {
+  }).on('message', (data, flags) => {
     data = JSON.parse(data);
     if (data && data.messageType) {
       const handler = handlers[data.messageType] || handlers[''];

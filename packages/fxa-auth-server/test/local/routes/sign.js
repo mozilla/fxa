@@ -68,12 +68,12 @@ describe('/certificate/sign', () => {
     });
   });
 
-  it('without service', function () {
+  it('without service', () => {
     return runTest({
       db,
       devices: mockDevices,
       log: mockLog
-    }, mockRequest, function () {
+    }, mockRequest, () => {
       assert.equal(db.touchSessionToken.callCount, 1, 'db.touchSessionToken was called once');
       let args = db.touchSessionToken.args[0];
       assert.equal(args.length, 2, 'db.touchSessionToken was passed two arguments');
@@ -122,7 +122,7 @@ describe('/certificate/sign', () => {
     return runTest({
       devices: mockDevices,
       log: mockLog
-    }, mockRequest, function () {
+    }, mockRequest, () => {
       assert.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once');
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once');
     });
@@ -134,7 +134,7 @@ describe('/certificate/sign', () => {
     return runTest({
       devices: mockDevices,
       log: mockLog
-    }, mockRequest, function () {
+    }, mockRequest, () => {
       assert.equal(mockDevices.upsert.callCount, 0, 'devices.upsert was not called');
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once');
       assert.equal(mockLog.activityEvent.args[0][0].device_id, undefined, 'device_id was undefined');
@@ -148,7 +148,7 @@ describe('/certificate/sign', () => {
     return runTest({
       devices: mockDevices,
       log: mockLog
-    }, mockRequest, function () {
+    }, mockRequest, () => {
       assert.equal(mockDevices.upsert.callCount, 0, 'devices.upsert was not called');
       assert.equal(mockLog.activityEvent.callCount, 1, 'log.activityEvent was called once');
       assert.equal(mockLog.activityEvent.args[0][0].device_id, mockRequest.auth.credentials.deviceId.toString('hex'), 'device_id was correct');
@@ -199,7 +199,7 @@ describe('/certificate/sign', () => {
   });
 
   function runTest (options, request, onSuccess, onError) {
-    return new P(function (resolve, reject) {
+    return new P((resolve, reject) => {
       try {
         const response = getRoute(makeRoutes(options), '/certificate/sign').handler(request);
         if (response instanceof Error) {

@@ -30,7 +30,7 @@ function runTest (route, request, assertions) {
   .then(assertions);
 }
 
-describe('/account/login/send_unblock_code', function () {
+describe('/account/login/send_unblock_code', () => {
   const uid = uuid.v4('binary').toString('hex');
   const email = 'unblock@example.com';
   const mockLog = mocks.mockLog();
@@ -60,14 +60,14 @@ describe('/account/login/send_unblock_code', function () {
   });
   const route = getRoute(accountRoutes, '/account/login/send_unblock_code');
 
-  afterEach(function () {
+  afterEach(() => {
     mockDb.accountRecord.resetHistory();
     mockDb.createUnblockCode.resetHistory();
     mockMailer.sendUnblockCode.resetHistory();
   });
 
-  it('signin unblock enabled', function () {
-    return runTest(route, mockRequest, function (response) {
+  it('signin unblock enabled', () => {
+    return runTest(route, mockRequest, (response) => {
       assert.ok(! (response instanceof Error), response.stack);
       assert.deepEqual(response, {}, 'response has no keys');
 
@@ -89,10 +89,10 @@ describe('/account/login/send_unblock_code', function () {
     });
   });
 
-  it('uses normalized email address for feature flag', function () {
+  it('uses normalized email address for feature flag', () => {
     mockRequest.payload.email = 'UNBLOCK@example.com';
 
-    return runTest(route, mockRequest, function(response) {
+    return runTest(route, mockRequest, (response) => {
       assert.ok(! (response instanceof Error), response.stack);
       assert.deepEqual(response, {}, 'response has no keys');
 
@@ -104,7 +104,7 @@ describe('/account/login/send_unblock_code', function () {
   });
 });
 
-describe('/account/login/reject_unblock_code', function () {
+describe('/account/login/reject_unblock_code', () => {
   it('should consume the unblock code', () => {
     const uid = uuid.v4('binary').toString('hex');
     const unblockCode = 'A1B2C3D4';
@@ -120,7 +120,7 @@ describe('/account/login/reject_unblock_code', function () {
     });
     const route = getRoute(accountRoutes, '/account/login/reject_unblock_code');
 
-    return runTest(route, mockRequest, function (response) {
+    return runTest(route, mockRequest, (response) => {
       assert.ok(! (response instanceof Error), response.stack);
       assert.deepEqual(response, {}, 'response has no keys');
 

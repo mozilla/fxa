@@ -38,21 +38,21 @@ module.exports = config => {
       this.email = email;
       return pbkdf2.derive(Buffer.from(password), hkdf.KWE('quickStretch', email), 1000, 32)
         .then(
-          function (stretch) {
+          (stretch) => {
             return hkdf(stretch, 'authPW', null, 32)
               .then(
-                function (authPW) {
+                (authPW) => {
                   this.authPW = authPW;
                   return hkdf(stretch, 'unwrapBKey', null, 32);
-                }.bind(this)
+                }
               );
-          }.bind(this)
+          }
         )
         .then(
-          function (unwrapBKey) {
+          (unwrapBKey) => {
             this.unwrapBKey = unwrapBKey;
             return this;
-          }.bind(this)
+          }
         );
     });
   };
@@ -63,7 +63,7 @@ module.exports = config => {
 
     return c.setupCredentials(email, password)
       .then(
-        function() {
+        () => {
           return c.create(options);
         }
       );
@@ -74,7 +74,7 @@ module.exports = config => {
 
     return c.setupCredentials(email, password)
       .then(
-        function (c) {
+        (c) => {
           return c.auth(opts);
         }
       );
@@ -85,10 +85,10 @@ module.exports = config => {
 
     return c.setupCredentials(email, oldPassword)
       .then(
-        function () {
+        () => {
           return c.changePassword(newPassword, headers)
           .then(
-            function () {
+            () => {
               return c;
             }
           );
@@ -99,15 +99,15 @@ module.exports = config => {
   Client.createAndVerify = function (origin, email, password, mailbox, options) {
     return Client.create(origin, email, password, options)
       .then(
-        function (client) {
+        (client) => {
           return mailbox.waitForCode(email)
             .then(
-              function (code) {
+              (code) => {
                 return client.verifyEmail(code, options);
               }
             )
             .then(
-              function () {
+              () => {
                 // clear the post verified email, if one was sent
                 if (options && options.service === 'sync') {
                   return mailbox.waitForEmail(email);
@@ -115,7 +115,7 @@ module.exports = config => {
               }
             )
             .then(
-              function () {
+              () => {
                 return client;
               }
             );
@@ -150,15 +150,15 @@ module.exports = config => {
 
     return Client.login(origin, email, password, options)
       .then(
-        function (client) {
+        (client) => {
           return mailbox.waitForCode(email)
             .then(
-              function (code) {
+              (code) => {
                 return client.verifyEmail(code, options);
               }
             )
             .then(
-              function () {
+              () => {
                 return client;
               }
             );
@@ -173,14 +173,14 @@ module.exports = config => {
       this.options
     )
     .then(
-      function (a) {
+      (a) => {
         this.uid = a.uid;
         this.authAt = a.authAt;
         this.sessionToken = a.sessionToken;
         this.keyFetchToken = a.keyFetchToken;
         this.device = a.device;
         return this;
-      }.bind(this)
+      }
     );
   };
 
@@ -202,7 +202,7 @@ module.exports = config => {
   Client.prototype.auth = function (opts) {
     return this.api.accountLogin(this.email, this.authPW, opts)
       .then(
-        function (data) {
+        (data) => {
           this.uid = data.uid;
           this.sessionToken = data.sessionToken;
           this.keyFetchToken = data.keyFetchToken || null;
@@ -213,7 +213,7 @@ module.exports = config => {
           this.verificationMethod = data.verificationMethod;
           this.verified = data.verified;
           return this;
-        }.bind(this)
+        }
       );
   };
 
@@ -226,10 +226,10 @@ module.exports = config => {
     if (this.sessionToken) {
       p = this.api.sessionDestroy(this.sessionToken)
         .then(
-          function () {
+          () => {
             this.sessionToken = null;
             return {};
-          }.bind(this)
+          }
         );
     }
     return p;
@@ -238,7 +238,7 @@ module.exports = config => {
   Client.prototype.reauth = function (opts) {
     return this.api.sessionReauth(this.sessionToken, this.email, this.authPW, opts)
       .then(
-        function (data) {
+        (data) => {
           this.uid = data.uid;
           this.keyFetchToken = data.keyFetchToken || null;
           this.emailVerified = data.verified;
@@ -247,7 +247,7 @@ module.exports = config => {
           this.verificationMethod = data.verificationMethod;
           this.verified = data.verified;
           return this;
-        }.bind(this)
+        }
       );
   };
 
@@ -301,30 +301,30 @@ module.exports = config => {
   Client.prototype.emailStatus = function () {
     const o = this.sessionToken ? P.resolve(null) : this.login();
     return o.then(
-      function () {
+      () => {
         return this.api.recoveryEmailStatus(this.sessionToken);
-      }.bind(this)
+      }
     );
   };
 
   Client.prototype.requestVerifyEmail = function () {
     const o = this.sessionToken ? P.resolve(null) : this.login();
     return o.then(
-      function () {
+      () => {
         return this.api.recoveryEmailResendCode(this.sessionToken, this.options);
-      }.bind(this)
+      }
     );
   };
 
   Client.prototype.sign = function (publicKey, duration, locale, options) {
     const o = this.sessionToken ? P.resolve(null) : this.login();
     return o.then(
-      function () {
+      () => {
         return this.api.certificateSign(this.sessionToken, publicKey, duration, locale, options);
-      }.bind(this)
+      }
     )
     .then(
-      function (x) {
+      (x) => {
         return x.cert;
       }
     );
@@ -333,25 +333,25 @@ module.exports = config => {
   Client.prototype.changePassword = function (newPassword, headers, sessionToken) {
     return this.api.passwordChangeStart(this.email, this.authPW, headers)
       .then(
-        function (json) {
+        (json) => {
           this.keyFetchToken = json.keyFetchToken;
           this.passwordChangeToken = json.passwordChangeToken;
           return this.keys();
-        }.bind(this)
+        }
       )
       .then(
-        function (/* keys */) {
+        (/* keys */) => {
           return this.setupCredentials(this.email, newPassword);
-        }.bind(this)
+        }
       )
       .then(
-        function () {
+        () => {
           this.wrapKb = butil.xorBuffers(this.kB, this.unwrapBKey).toString('hex');
           return this.api.passwordChangeFinish(this.passwordChangeToken, this.authPW, this.wrapKb, headers, sessionToken);
-        }.bind(this)
+        }
       )
       .then(
-        function (res) {
+        (res) => {
           this._clear();
 
           // Update to new tokens if needed
@@ -360,48 +360,48 @@ module.exports = config => {
           this.keyFetchToken = res.keyFetchToken ? res.keyFetchToken : this.keyFetchToken;
 
           return res;
-        }.bind(this)
+        }
       );
   };
 
   Client.prototype.keys = function () {
     const o = this.keyFetchToken ? P.resolve(null) : this.login();
     return o.then(
-      function () {
+      () => {
         return this.api.accountKeys(this.keyFetchToken);
-      }.bind(this)
+      }
     )
     .then(
-      function (data) {
+      (data) => {
         return tokens.KeyFetchToken.fromHex(this.keyFetchToken)
           .then(
-            function (token) {
+            (token) => {
               return token.unbundleKeys(data.bundle);
             }
           );
-      }.bind(this)
+      }
     )
     .then(
-      function (keys) {
+      (keys) => {
         this.keyFetchToken = null;
         this.kA = keys.kA;
         this.wrapKb = keys.wrapKb;
         this.kB = keys.kB = butil.xorBuffers(this.wrapKb, this.unwrapBKey).toString('hex');
         return keys;
-      }.bind(this),
-      function (err) {
+      },
+      (err) => {
         if (err && err.errno !== 104) { this.keyFetchToken = null; }
         throw err;
-      }.bind(this)
+      }
     );
   };
 
   Client.prototype.devices = function () {
     const o = this.sessionToken ? P.resolve(null) : this.login();
     return o.then(
-      function () {
+      () => {
         return this.api.accountDevices(this.sessionToken);
-      }.bind(this)
+      }
     );
   };
 
@@ -412,43 +412,43 @@ module.exports = config => {
   Client.prototype.updateDevice = function (info) {
     const o = this.sessionToken ? P.resolve(null) : this.login();
     return o.then(
-      function () {
+      () => {
         return this.api.accountDevice(this.sessionToken, info);
-      }.bind(this)
+      }
     )
     .then(
-      function (device) {
+      (device) => {
         if (! this.device || this.device.id === device.id) {
           this.device = device;
         }
         return device;
-      }.bind(this)
+      }
     );
   };
 
   Client.prototype.updateDeviceWithRefreshToken = function (refreshTokenId, info) {
     return this.api.accountDeviceWithRefreshToken(refreshTokenId, info)
       .then(
-        function (device) {
+        (device) => {
           if (! this.device || this.device.id === device.id) {
             this.device = device;
           }
           return device;
-        }.bind(this)
+        }
       );
   };
 
   Client.prototype.destroyDevice = function (id) {
     const o = this.sessionToken ? P.resolve(null) : this.login();
     return o.then(
-      function () {
+      () => {
         return this.api.deviceDestroy(this.sessionToken, id);
-      }.bind(this)
+      }
     )
     .then(
-      function () {
+      () => {
         delete this.sessionToken;
-      }.bind(this)
+      }
     );
   };
 
@@ -459,9 +459,9 @@ module.exports = config => {
   Client.prototype.sessionStatus = function () {
     const o = this.sessionToken ? P.resolve(null) : this.login();
     return o.then(
-      function () {
+      () => {
         return this.api.sessionStatus(this.sessionToken);
-      }.bind(this)
+      }
     );
   };
 
@@ -471,9 +471,9 @@ module.exports = config => {
     } else {
       const o = this.sessionToken ? P.resolve(null) : this.login();
       return o.then(
-        function () {
+        () => {
           return this.api.accountProfile(this.sessionToken);
-        }.bind(this)
+        }
       );
     }
   };
@@ -491,9 +491,9 @@ module.exports = config => {
 
     return this.api.passwordForgotSendCode(this.email, this.options, lang)
       .then(
-        function (x) {
+        (x) => {
           this.passwordForgotToken = x.passwordForgotToken;
-        }.bind(this)
+        }
       );
   };
 
@@ -504,9 +504,9 @@ module.exports = config => {
   Client.prototype.verifyPasswordResetCode = function (code, headers, options) {
     return this.api.passwordForgotVerifyCode(this.passwordForgotToken, code, headers, options)
       .then(
-        function (result) {
+        (result) => {
           this.accountResetToken = result.accountResetToken;
-        }.bind(this)
+        }
       );
   };
 
@@ -642,7 +642,7 @@ module.exports = config => {
 
     return this.setupCredentials(email, newPassword)
       .then(
-        function (/* bundle */) {
+        (/* bundle */) => {
           return this.api.accountReset(
             this.accountResetToken,
             this.authPW,
@@ -657,7 +657,7 @@ module.exports = config => {
               return response;
             });
 
-        }.bind(this)
+        }
       );
   };
 

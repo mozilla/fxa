@@ -108,9 +108,9 @@ describe('Pool', () => {
     () => {
       const pool = new Pool('http://example.com/');
       const p = pool.request(null, new SafeUrl(''))
-        .then(function () {
+        .then(() => {
           assert(false, 'request should have failed');
-        }, function (error) {
+        }, (error) => {
           assert.equal(typeof error, 'string', 'error is string');
           assert.equal(error, 'foo', 'error is correct');
         });
@@ -127,9 +127,9 @@ describe('Pool', () => {
     () => {
       const pool = new Pool('http://example.com/');
       const p = pool.request(null, new SafeUrl(''))
-        .then(function () {
+        .then(() => {
           assert(false, 'request should have failed');
-        }, function (error) {
+        }, (error) => {
           assert.ok(error instanceof Error, 'error is Error instance');
           assert.equal(error.statusCode, 404, 'error.statusCode is 404');
           assert.equal(error.message, 'wibble', 'error.message is correct');
@@ -147,9 +147,9 @@ describe('Pool', () => {
     () => {
       const pool = new Pool('http://example.com/');
       const p = pool.request(null, new SafeUrl(''))
-        .then(function () {
+        .then(() => {
           assert(false, 'request should have failed');
-        }, function (error) {
+        }, (error) => {
           assert.equal(error instanceof Error, true, 'error is an Error instance');
           assert.equal(Object.keys(error).length, 2, 'error has two properties');
           assert.equal(error.statusCode, 418, 'error.statusCode is 418');
@@ -168,7 +168,7 @@ describe('Pool', () => {
     () => {
       const pool = new Pool('http://example.com/');
       const p = pool.request(null, new SafeUrl(''))
-        .then(function (result) {
+        .then((result) => {
           assert.equal(result, undefined, 'result is undefined');
         });
 
@@ -184,7 +184,7 @@ describe('Pool', () => {
     () => {
       const pool = new Pool('http://example.com/');
       const p = pool.request(null, new SafeUrl(''))
-        .then(function (result) {
+        .then((result) => {
           assert.equal(typeof result, 'object', 'result is object');
           assert.equal(Object.keys(result).length, 1, 'result has 1 property');
           assert.equal(result.foo, 'bar', 'result data is correct');
@@ -202,9 +202,9 @@ describe('Pool', () => {
     () => {
       const pool = new Pool('http://example.com/');
       const p = pool.request(null, new SafeUrl(''))
-        .then(function () {
+        .then(() => {
           assert(false, 'request should have failed');
-        }, function (error) {
+        }, (error) => {
           assert.ok(error instanceof Error, 'error is Error instance');
           assert.equal(error.statusCode, undefined, 'error.statusCode is undefined');
           assert.equal(error.message, 'Invalid JSON', 'error.message is correct');
@@ -221,7 +221,7 @@ describe('Pool', () => {
     'pool.get',
     () => {
       const pool = new Pool('http://example.com/');
-      sinon.stub(pool, 'request').callsFake(function () {});
+      sinon.stub(pool, 'request').callsFake(() => {});
       pool.get('foo', 'bar');
 
       assert.equal(pool.request.callCount, 1, 'pool.request was called once');
@@ -241,7 +241,7 @@ describe('Pool', () => {
     'pool.put',
     () => {
       const pool = new Pool('http://example.com/');
-      sinon.stub(pool, 'request').callsFake(function () {});
+      sinon.stub(pool, 'request').callsFake(() => {});
       pool.put('baz', 'qux', 'wibble');
 
       assert.equal(pool.request.callCount, 1, 'pool.request was called once');
@@ -261,7 +261,7 @@ describe('Pool', () => {
     'pool.post',
     () => {
       const pool = new Pool('http://example.com/');
-      sinon.stub(pool, 'request').callsFake(function () {});
+      sinon.stub(pool, 'request').callsFake(() => {});
       pool.post('foo', 'bar', 'baz');
 
       assert.equal(pool.request.callCount, 1, 'pool.request was called once');
@@ -281,7 +281,7 @@ describe('Pool', () => {
     'pool.post with query params and extra headers',
     () => {
       const pool = new Pool('http://example.com/');
-      sinon.stub(pool, 'request').callsFake(function () {});
+      sinon.stub(pool, 'request').callsFake(() => {});
       pool.post('foo', 'bar', 'baz', {query: {bar: 'foo'}, headers: { foo: 'bar' }});
 
       assert.equal(pool.request.callCount, 1, 'pool.request was called once');
@@ -301,7 +301,7 @@ describe('Pool', () => {
     'pool.del',
     () => {
       const pool = new Pool('http://example.com/');
-      sinon.stub(pool, 'request').callsFake(function () {});
+      sinon.stub(pool, 'request').callsFake(() => {});
       pool.del('foo', 'bar', 'baz');
 
       assert.equal(pool.request.callCount, 1, 'pool.request was called once');

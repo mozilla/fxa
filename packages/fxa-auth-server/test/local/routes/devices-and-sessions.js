@@ -65,7 +65,7 @@ function hexString (bytes) {
   return crypto.randomBytes(bytes).toString('hex');
 }
 
-describe('/account/device', function () {
+describe('/account/device', () => {
   const config = {};
   const uid = uuid.v4('binary').toString('hex');
   const deviceId = crypto.randomBytes(16).toString('hex');
@@ -96,9 +96,9 @@ describe('/account/device', function () {
   });
   const route = getRoute(accountRoutes, '/account/device');
 
-  it('identical data', function () {
+  it('identical data', () => {
     devicesData.spurious = true;
-    return runTest(route, mockRequest, function (response) {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(mockDevices.isSpuriousUpdate.callCount, 1);
       const args = mockDevices.isSpuriousUpdate.args[0];
       assert.equal(args.length, 2);
@@ -120,13 +120,13 @@ describe('/account/device', function () {
         type: creds.deviceType,
       });
     })
-      .then(function () {
+      .then(() => {
         mockDevices.isSpuriousUpdate.resetHistory();
         mockDevices.upsert.resetHistory();
       });
   });
 
-  it('different data', function () {
+  it('different data', () => {
     devicesData.spurious = false;
     mockRequest.auth.credentials.deviceId = crypto.randomBytes(16).toString('hex');
     const payload = mockRequest.payload;
@@ -135,7 +135,7 @@ describe('/account/device', function () {
     payload.pushCallback = 'https://push.services.mozilla.com/123456';
     payload.pushPublicKey = mocks.MOCK_PUSH_KEY;
 
-    return runTest(route, mockRequest, function (response) {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(mockDevices.isSpuriousUpdate.callCount, 1);
       assert.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once');
       const args = mockDevices.upsert.args[0];
@@ -145,59 +145,59 @@ describe('/account/device', function () {
       assert.deepEqual(args[1].uid, uid, 'sessionToken.uid was correct');
       assert.deepEqual(args[2], mockRequest.payload, 'third argument was payload');
     })
-      .then(function () {
+      .then(() => {
         mockDevices.isSpuriousUpdate.resetHistory();
         mockDevices.upsert.resetHistory();
       });
   });
 
-  it('with no id in payload', function () {
+  it('with no id in payload', () => {
     devicesData.spurious = false;
     mockRequest.payload.id = undefined;
 
-    return runTest(route, mockRequest, function (response) {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once');
       const args = mockDevices.upsert.args[0];
       assert.equal(args[2].id, mockRequest.auth.credentials.deviceId.toString('hex'), 'payload.id defaulted to credentials.deviceId');
     })
-      .then(function () {
+      .then(() => {
         mockDevices.isSpuriousUpdate.resetHistory();
         mockDevices.upsert.resetHistory();
       });
   });
 
-  it('device updates disabled', function () {
+  it('device updates disabled', () => {
     config.deviceUpdatesEnabled = false;
 
-    return runTest(route, mockRequest, function () {
+    return runTest(route, mockRequest, () => {
       assert(false, 'should have thrown');
     })
-      .then(() => assert.ok(false), function (err) {
+      .then(() => assert.ok(false), (err) => {
         assert.equal(err.output.statusCode, 503, 'correct status code is returned');
         assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED, 'correct errno is returned');
         delete config.deviceUpdatesEnabled;
       });
   });
 
-  it('pushbox feature disabled', function () {
+  it('pushbox feature disabled', () => {
     config.pushbox = { enabled: false };
     mockRequest.payload.availableCommands = {
       'test': 'command'
     };
 
-    return runTest(route, mockRequest, function () {
+    return runTest(route, mockRequest, () => {
       assert.equal(mockDevices.upsert.callCount, 1, 'devices.upsert was called once');
       const args = mockDevices.upsert.args[0];
       assert.deepEqual(args[2].availableCommands, {}, 'availableCommands are ignored when pushbox is disabled');
     })
-      .then(function () {
+      .then(() => {
         mockDevices.isSpuriousUpdate.resetHistory();
         mockDevices.upsert.resetHistory();
         delete config.pushbox;
       });
   });
 
-  it('removes the push endpoint expired flag on callback URL update', function () {
+  it('removes the push endpoint expired flag on callback URL update', () => {
     const mockDevices = mocks.mockDevices();
     const route = getRoute(makeRoutes({devices: mockDevices}), '/account/device');
 
@@ -218,13 +218,13 @@ describe('/account/device', function () {
       }
     });
 
-    return runTest(route, mockRequest, function (response) {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(mockDevices.upsert.callCount, 1, 'mockDevices.upsert was called');
       assert.equal(mockDevices.upsert.args[0][2].pushEndpointExpired, false, 'pushEndpointExpired is updated to false');
     });
   });
 
-  it('should not remove the push endpoint expired flag on any other property update', function () {
+  it('should not remove the push endpoint expired flag on any other property update', () => {
     const mockDevices = mocks.mockDevices();
     const route = getRoute(makeRoutes({devices: mockDevices}), '/account/device');
 
@@ -245,14 +245,14 @@ describe('/account/device', function () {
       }
     });
 
-    return runTest(route, mockRequest, function (response) {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(mockDevices.upsert.callCount, 1, 'mockDevices.upsert was called');
       assert.equal(mockDevices.upsert.args[0][2].pushEndpointExpired, undefined, 'pushEndpointExpired is not updated');
     });
   });
 });
 
-describe('/account/devices/notify', function () {
+describe('/account/devices/notify', () => {
   const config = {};
   const uid = uuid.v4('binary').toString('hex');
   const deviceId = crypto.randomBytes(16).toString('hex');
@@ -290,23 +290,23 @@ describe('/account/devices/notify', function () {
   });
   let route = getRoute(accountRoutes, '/account/devices/notify');
 
-  it('bad payload', function () {
+  it('bad payload', () => {
     mockRequest.payload = {
       to: ['bogusid1'],
       payload: {
         bogus: 'payload'
       }
     };
-    return runTest(route, mockRequest, function () {
+    return runTest(route, mockRequest, () => {
       assert(false, 'should have thrown');
     })
-      .then(() => assert(false), function (err) {
+      .then(() => assert(false), (err) => {
         assert.equal(mockPush.sendPush.callCount, 0, 'mockPush.sendPush was not called');
         assert.equal(err.errno, 107, 'Correct errno for invalid push payload');
       });
   });
 
-  it('all devices', function () {
+  it('all devices', () => {
     mockRequest.payload = {
       to: 'all',
       excluded: ['bogusid'],
@@ -316,12 +316,12 @@ describe('/account/devices/notify', function () {
     // We don't wait on sendPush in the request handler, that's why
     // we have to wait on it manually by spying.
     const sendPushPromise = P.defer();
-    mockPush.sendPush = sinon.spy(function () {
+    mockPush.sendPush = sinon.spy(() => {
       sendPushPromise.resolve();
       return P.resolve();
     });
-    return runTest(route, mockRequest, function (response) {
-      return sendPushPromise.promise.then(function () {
+    return runTest(route, mockRequest, (response) => {
+      return sendPushPromise.promise.then(() => {
         assert.equal(mockCustoms.checkAuthenticated.callCount, 1, 'mockCustoms.checkAuthenticated was called once');
         assert.equal(mockPush.sendPush.callCount, 1, 'mockPush.sendPush was called once');
         const args = mockPush.sendPush.args[0];
@@ -337,7 +337,7 @@ describe('/account/devices/notify', function () {
     });
   });
 
-  it('extra push payload properties are rejected', function () {
+  it('extra push payload properties are rejected', () => {
     const extraPropsPayload = JSON.parse(JSON.stringify(pushPayload));
     extraPropsPayload.extra = true;
     extraPropsPayload.data.extra = true;
@@ -350,20 +350,20 @@ describe('/account/devices/notify', function () {
     // We don't wait on sendPush in the request handler, that's why
     // we have to wait on it manually by spying.
     const sendPushPromise = P.defer();
-    mockPush.sendPush = sinon.spy(function () {
+    mockPush.sendPush = sinon.spy(() => {
       sendPushPromise.resolve();
       return Promise.resolve();
     });
-    return runTest(route, mockRequest, function () {
+    return runTest(route, mockRequest, () => {
       assert(false, 'should have thrown');
     })
-    .then(() => assert.ok(false), function (err) {
+    .then(() => assert.ok(false), (err) => {
       assert.equal(err.output.statusCode, 400, 'correct status code is returned');
       assert.equal(err.errno, error.ERRNO.INVALID_PARAMETER, 'correct errno is returned');
     });
   });
 
-  it('specific devices', function () {
+  it('specific devices', () => {
     mockCustoms.checkAuthenticated.resetHistory();
     mockLog.activityEvent.resetHistory();
     mockLog.error.resetHistory();
@@ -375,12 +375,12 @@ describe('/account/devices/notify', function () {
     // We don't wait on sendPush in the request handler, that's why
     // we have to wait on it manually by spying.
     const sendPushPromise = P.defer();
-    mockPush.sendPush = sinon.spy(function () {
+    mockPush.sendPush = sinon.spy(() => {
       sendPushPromise.resolve();
       return P.resolve();
     });
-    return runTest(route, mockRequest, function (response) {
-      return sendPushPromise.promise.then(function () {
+    return runTest(route, mockRequest, (response) => {
+      return sendPushPromise.promise.then(() => {
         assert.equal(mockCustoms.checkAuthenticated.callCount, 1, 'mockCustoms.checkAuthenticated was called once');
         assert.equal(mockPush.sendPush.callCount, 1, 'mockPush.sendPush was called once');
         let args = mockPush.sendPush.args[0];
@@ -409,7 +409,7 @@ describe('/account/devices/notify', function () {
     });
   });
 
-  it('does not log activity event for non-send-tab-related notifications', function () {
+  it('does not log activity event for non-send-tab-related notifications', () => {
     mockPush.sendPush.resetHistory();
     mockLog.activityEvent.resetHistory();
     mockLog.error.resetHistory();
@@ -421,14 +421,14 @@ describe('/account/devices/notify', function () {
         command: 'fxaccounts:password_reset'
       }
     };
-    return runTest(route, mockRequest, function (response) {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(mockPush.sendPush.callCount, 1, 'mockPush.sendPush was called once');
       assert.equal(mockLog.activityEvent.callCount, 0, 'log.activityEvent was not called');
       assert.equal(mockLog.error.callCount, 0, 'log.error was not called');
     });
   });
 
-  it('device driven notifications disabled', function () {
+  it('device driven notifications disabled', () => {
     config.deviceNotificationsEnabled = false;
     mockRequest.payload = {
       to: 'all',
@@ -437,16 +437,16 @@ describe('/account/devices/notify', function () {
       payload: pushPayload
     };
 
-    return runTest(route, mockRequest, function () {
+    return runTest(route, mockRequest, () => {
       assert(false, 'should have thrown');
     })
-      .then(() => assert.ok(false), function (err) {
+      .then(() => assert.ok(false), (err) => {
         assert.equal(err.output.statusCode, 503, 'correct status code is returned');
         assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED, 'correct errno is returned');
       });
   });
 
-  it('throws error if customs blocked the request', function () {
+  it('throws error if customs blocked the request', () => {
     mockRequest.payload = {
       to: 'all',
       excluded: ['bogusid'],
@@ -460,10 +460,10 @@ describe('/account/devices/notify', function () {
     });
     route = getRoute(makeRoutes({customs: mockCustoms}), '/account/devices/notify');
 
-    return runTest(route, mockRequest, function (response) {
+    return runTest(route, mockRequest, (response) => {
       assert(false, 'should have thrown');
     })
-      .then(() => assert(false), function (err) {
+      .then(() => assert(false), (err) => {
         assert.equal(mockCustoms.checkAuthenticated.callCount, 1, 'mockCustoms.checkAuthenticated was called once');
         assert.equal(err.message, 'Client has sent too many requests');
       });
@@ -490,7 +490,7 @@ describe('/account/devices/notify', function () {
       push: mockPush
     }), '/account/devices/notify');
 
-    return runTest(route, mockRequest, function (response) {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(JSON.stringify(response), '{}', 'response should not throw push errors');
     });
   });
@@ -550,7 +550,7 @@ describe('/account/devices/notify', function () {
   });
 });
 
-describe('/account/device/commands', function () {
+describe('/account/device/commands', () => {
   const uid = uuid.v4('binary').toString('hex');
   const deviceId = crypto.randomBytes(16).toString('hex');
   const mockLog = mocks.mockLog();
@@ -638,7 +638,7 @@ describe('/account/device/commands', function () {
   });
 });
 
-describe('/account/devices/invoke_command', function () {
+describe('/account/devices/invoke_command', () => {
   const uid = uuid.v4('binary').toString('hex');
   const command = 'bogusCommandName';
   const mockDevices = [
@@ -850,7 +850,7 @@ describe('/account/devices/invoke_command', function () {
   });
 });
 
-describe('/account/device/destroy', function () {
+describe('/account/device/destroy', () => {
   let uid;
   let deviceId;
   let deviceId2;
@@ -885,7 +885,7 @@ describe('/account/device/destroy', function () {
     });
     const route = getRoute(accountRoutes, '/account/device/destroy');
 
-    return runTest(route, mockRequest, function () {
+    return runTest(route, mockRequest, () => {
       assert.equal(mockDB.deleteDevice.callCount, 1);
       assert.ok(mockDB.deleteDevice.calledBefore(mockPush.notifyDeviceDisconnected));
       assert.equal(mockPush.notifyDeviceDisconnected.callCount, 1);
@@ -970,7 +970,7 @@ describe('/account/device/destroy', function () {
       });
       const route = getRoute(accountRoutes, '/account/device/destroy');
 
-      return runTest(route, mockRequest, function () {
+      return runTest(route, mockRequest, () => {
         assert.equal(mockDB.deleteDevice.callCount, 1);
         assert.isFalse(mockLog.error.calledOnceWith('deviceDestroy.revokeRefreshToken.error'));
         assert.isTrue(mockOAuthDb.revokeRefreshTokenById.calledOnceWith(refreshTokenId));
@@ -992,7 +992,7 @@ describe('/account/device/destroy', function () {
       });
       const route = getRoute(accountRoutes, '/account/device/destroy');
 
-      return runTest(route, mockRequest, function () {
+      return runTest(route, mockRequest, () => {
         assert.equal(mockDB.deleteDevice.callCount, 1);
         assert.isTrue(mockOAuthDb.revokeRefreshTokenById.calledOnceWith(refreshTokenId));
         assert.isTrue(mockLog.error.calledOnceWith('deviceDestroy.revokeRefreshTokenById.error'));

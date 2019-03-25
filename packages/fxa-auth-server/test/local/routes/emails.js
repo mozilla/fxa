@@ -67,7 +67,7 @@ function runTest (route, request, assertions) {
   .then(assertions);
 }
 
-describe('/recovery_email/status', function () {
+describe('/recovery_email/status', () => {
   const config = {};
   const mockDB = mocks.mockDB();
   let pushCalled;
@@ -92,7 +92,7 @@ describe('/recovery_email/status', function () {
     }
   });
 
-  describe('invalid email', function () {
+  describe('invalid email', () => {
     let mockRequest;
     beforeEach(() => {
       mockRequest = mocks.mockRequest({
@@ -103,10 +103,10 @@ describe('/recovery_email/status', function () {
     });
 
 
-    it('unverified account', function () {
+    it('unverified account', () => {
       mockRequest.auth.credentials.emailVerified = false;
 
-      return runTest(route, mockRequest).then(() => assert.ok(false), function (response) {
+      return runTest(route, mockRequest).then(() => assert.ok(false), (response) => {
         assert.equal(mockDB.deleteAccount.callCount, 1);
         assert.equal(mockDB.deleteAccount.firstCall.args[0].email, TEST_EMAIL_INVALID);
         assert.equal(response.errno, error.ERRNO.INVALID_TOKEN);
@@ -120,7 +120,7 @@ describe('/recovery_email/status', function () {
           emailVerified: false
         });
       })
-        .then(function () {
+        .then(() => {
           mockDB.deleteAccount.resetHistory();
         });
     });
@@ -154,24 +154,24 @@ describe('/recovery_email/status', function () {
       mockRequest.auth.credentials.uaBrowser = 'Firefox';
       mockRequest.auth.credentials.uaBrowserVersion = '57';
 
-      return runTest(route, mockRequest).then(() => assert.ok(false), function (response) {
+      return runTest(route, mockRequest).then(() => assert.ok(false), (response) => {
         const args = log.info.firstCall.args;
         assert.equal(args[0], 'recovery_email.status.stale');
         assert.equal(args[1].email, TEST_EMAIL_INVALID);
         assert.equal(args[1].createdAt, date.getTime());
         assert.equal(args[1].browser, 'Firefox 57');
       })
-        .then(function () {
+        .then(() => {
           mockDB.deleteAccount.resetHistory();
         });
     });
 
-    it('verified account', function () {
+    it('verified account', () => {
       mockRequest.auth.credentials.uid = uuid.v4('binary').toString('hex');
       mockRequest.auth.credentials.emailVerified = true;
       mockRequest.auth.credentials.tokenVerified = true;
 
-      return runTest(route, mockRequest, function (response) {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockDB.deleteAccount.callCount, 0);
         assert.deepEqual(response, {
           email: TEST_EMAIL_INVALID,
@@ -184,7 +184,7 @@ describe('/recovery_email/status', function () {
   });
 
 
-  it('valid email, verified account', function () {
+  it('valid email, verified account', () => {
     pushCalled = false;
     const mockRequest = mocks.mockRequest({
       credentials: {
@@ -198,7 +198,7 @@ describe('/recovery_email/status', function () {
       }
     });
 
-    return runTest(route, mockRequest, function (response) {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(pushCalled, true);
 
       assert.deepEqual(response, {
@@ -210,11 +210,11 @@ describe('/recovery_email/status', function () {
     });
   });
 
-  it('verified account, verified session', function () {
+  it('verified account, verified session', () => {
     mockRequest.auth.credentials.emailVerified = true;
     mockRequest.auth.credentials.tokenVerified = true;
 
-    return runTest(route, mockRequest, function (response) {
+    return runTest(route, mockRequest, (response) => {
       assert.deepEqual(response, {
         email: TEST_EMAIL,
         verified: true,
@@ -224,12 +224,12 @@ describe('/recovery_email/status', function () {
     });
   });
 
-  it('verified account, unverified session, must verify session', function () {
+  it('verified account, unverified session, must verify session', () => {
     mockRequest.auth.credentials.emailVerified = true;
     mockRequest.auth.credentials.tokenVerified = false;
     mockRequest.auth.credentials.mustVerify = true;
 
-    return runTest(route, mockRequest, function (response) {
+    return runTest(route, mockRequest, (response) => {
       assert.deepEqual(response, {
         email: TEST_EMAIL,
         verified: false,
@@ -239,12 +239,12 @@ describe('/recovery_email/status', function () {
     });
   });
 
-  it('verified account, unverified session, neednt verify session', function () {
+  it('verified account, unverified session, neednt verify session', () => {
     mockRequest.auth.credentials.emailVerified = true;
     mockRequest.auth.credentials.tokenVerified = false;
     mockRequest.auth.credentials.mustVerify = false;
 
-    return runTest(route, mockRequest, function (response) {
+    return runTest(route, mockRequest, (response) => {
       assert.deepEqual(response, {
         email: TEST_EMAIL,
         verified: true,
@@ -416,7 +416,7 @@ describe('/recovery_email/resend_code', () => {
 
 });
 
-describe('/recovery_email/verify_code', function () {
+describe('/recovery_email/verify_code', () => {
   const uid = uuid.v4('binary').toString('hex');
   const mockLog = mocks.mockLog();
   const mockRequest = mocks.mockRequest({
@@ -465,10 +465,10 @@ describe('/recovery_email/verify_code', function () {
     push: mockPush
   });
   const route = getRoute(accountRoutes, '/recovery_email/verify_code');
-  describe('verifyTokens rejects with INVALID_VERIFICATION_CODE', function () {
+  describe('verifyTokens rejects with INVALID_VERIFICATION_CODE', () => {
 
-    it('without a reminder payload', function () {
-      return runTest(route, mockRequest, function (response) {
+    it('without a reminder payload', () => {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockDB.verifyTokens.callCount, 1, 'calls verifyTokens');
         assert.equal(mockDB.verifyEmail.callCount, 1, 'calls verifyEmail');
         assert.equal(mockCustoms.check.callCount, 1, 'calls customs.check');
@@ -515,7 +515,7 @@ describe('/recovery_email/verify_code', function () {
 
         assert.equal(JSON.stringify(response), '{}');
       })
-        .then(function () {
+        .then(() => {
           mockDB.verifyTokens.resetHistory();
           mockDB.verifyEmail.resetHistory();
           mockLog.activityEvent.resetHistory();
@@ -528,7 +528,7 @@ describe('/recovery_email/verify_code', function () {
 
     it('with marketingOptIn', () => {
       mockRequest.payload.marketingOptIn = true;
-      return runTest(route, mockRequest, function (response) {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockLog.notifyAttachedServices.callCount, 1, 'logs verified');
         let args = mockLog.notifyAttachedServices.args[0];
         assert.equal(args[0], 'verified');
@@ -543,7 +543,7 @@ describe('/recovery_email/verify_code', function () {
 
         assert.equal(JSON.stringify(response), '{}');
       })
-        .then(function () {
+        .then(() => {
           delete mockRequest.payload.marketingOptIn;
           mockDB.verifyTokens.resetHistory();
           mockDB.verifyEmail.resetHistory();
@@ -555,10 +555,10 @@ describe('/recovery_email/verify_code', function () {
         });
     });
 
-    it('with a reminder payload', function () {
+    it('with a reminder payload', () => {
       mockRequest.payload.reminder = 'second';
 
-      return runTest(route, mockRequest, function (response) {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockLog.activityEvent.callCount, 1, 'activityEvent was called once');
 
         assert.equal(mockLog.flowEvent.callCount, 2, 'flowEvent was called twice');
@@ -570,7 +570,7 @@ describe('/recovery_email/verify_code', function () {
 
         assert.equal(JSON.stringify(response), '{}');
       })
-        .then(function () {
+        .then(() => {
           mockDB.verifyTokens.resetHistory();
           mockDB.verifyEmail.resetHistory();
           mockLog.activityEvent.resetHistory();
@@ -582,15 +582,15 @@ describe('/recovery_email/verify_code', function () {
     });
   });
 
-  describe('verifyTokens resolves', function () {
+  describe('verifyTokens resolves', () => {
 
     before(() => {
       dbData.emailVerified = true;
       dbErrors.verifyTokens = undefined;
     });
 
-    it('email verification', function () {
-      return runTest(route, mockRequest, function (response) {
+    it('email verification', () => {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockDB.verifyTokens.callCount, 1, 'call db.verifyTokens');
         assert.equal(mockDB.verifyEmail.callCount, 0, 'does not call db.verifyEmail');
         assert.equal(mockLog.notifyAttachedServices.callCount, 0, 'does not call log.notifyAttachedServices');
@@ -598,12 +598,12 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(mockPush.notifyAccountUpdated.callCount, 0, 'mockPush.notifyAccountUpdated should not have been called');
         assert.equal(mockPush.notifyDeviceConnected.callCount, 0, 'mockPush.notifyDeviceConnected should not have been called (no devices)');
       })
-        .then(function () {
+        .then(() => {
           mockDB.verifyTokens.resetHistory();
         });
     });
 
-    it('email verification with associated device', function () {
+    it('email verification with associated device', () => {
       mockDB.deviceFromTokenVerificationId = function (uid, tokenVerificationId) {
         return P.resolve({
           name: 'my device',
@@ -611,7 +611,7 @@ describe('/recovery_email/verify_code', function () {
           type: 'desktop'
         });
       };
-      return runTest(route, mockRequest, function (response) {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockDB.verifyTokens.callCount, 1, 'call db.verifyTokens');
         assert.equal(mockDB.verifyEmail.callCount, 0, 'does not call db.verifyEmail');
         assert.equal(mockLog.notifyAttachedServices.callCount, 0, 'does not call log.notifyAttachedServices');
@@ -619,15 +619,15 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(mockPush.notifyAccountUpdated.callCount, 0, 'mockPush.notifyAccountUpdated should not have been called');
         assert.equal(mockPush.notifyDeviceConnected.callCount, 1, 'mockPush.notifyDeviceConnected should have been called');
       })
-        .then(function () {
+        .then(() => {
           mockDB.verifyTokens.resetHistory();
         });
     });
 
-    it('sign-in confirmation', function () {
+    it('sign-in confirmation', () => {
       dbData.emailCode = crypto.randomBytes(16);
 
-      return runTest(route, mockRequest, function (response) {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockDB.verifyTokens.callCount, 1, 'call db.verifyTokens');
         assert.equal(mockDB.verifyEmail.callCount, 0, 'does not call db.verifyEmail');
         assert.equal(mockLog.notifyAttachedServices.callCount, 0, 'does not call log.notifyAttachedServices');
@@ -651,20 +651,20 @@ describe('/recovery_email/verify_code', function () {
         assert.ok(Array.isArray(args[1]), 'second argument should have been devices array');
         assert.equal(args[2], 'accountConfirm', 'third argument should have been reason');
       })
-        .then(function () {
+        .then(() => {
           mockDB.verifyTokens.resetHistory();
           mockLog.activityEvent.resetHistory();
           mockPush.notifyAccountUpdated.resetHistory();
         });
     });
 
-    it('secondary email verification', function () {
+    it('secondary email verification', () => {
       dbData.emailCode = crypto.randomBytes(16).toString('hex');
       mockRequest.payload.code = dbData.secondEmailCode.toString('hex');
       mockRequest.payload.type = 'secondary';
       mockRequest.payload.verifiedEmail = dbData.secondEmail;
 
-      return runTest(route, mockRequest, function (response) {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockDB.verifyEmail.callCount, 1, 'call db.verifyEmail');
         let args = mockDB.verifyEmail.args[0];
         assert.equal(args.length, 2, 'mockDB.verifyEmail was passed correct arguments');
@@ -679,7 +679,7 @@ describe('/recovery_email/verify_code', function () {
         assert.equal(args[2].service, mockRequest.payload.service);
         assert.equal(args[2].uid, uid);
       })
-        .then(function () {
+        .then(() => {
           mockDB.verifyEmail.resetHistory();
           mockLog.activityEvent.resetHistory();
           mockMailer.sendPostVerifySecondaryEmail.resetHistory();
@@ -750,7 +750,7 @@ describe('/recovery_email', () => {
         assert.equal(mockMailer.sendVerifySecondaryEmail.args[0][2].deviceId, mockRequest.auth.credentials.deviceId);
         assert.equal(mockMailer.sendVerifySecondaryEmail.args[0][2].uid, mockRequest.auth.credentials.uid);
       })
-        .then(function () {
+        .then(() => {
           mockDB.createEmail.resetHistory();
           mockMailer.sendVerifySecondaryEmail.resetHistory();
         });
@@ -762,7 +762,7 @@ describe('/recovery_email', () => {
       return runTest(route, mockRequest).then(
         () => assert.fail('Should have failed adding secondary email with unverified primary email'),
         err => assert.equal(err.errno, 104, 'unverified account'))
-        .then(function () {
+        .then(() => {
           mockDB.createEmail.resetHistory();
         });
     });
@@ -774,7 +774,7 @@ describe('/recovery_email', () => {
       return runTest(route, mockRequest).then(
         () => assert.fail('Should have failed when adding secondary email that is same as primary'),
         err => assert.equal(err.errno, 139, 'cannot add secondary email, same as primary'))
-        .then(function () {
+        .then(() => {
           mockDB.createEmail.resetHistory();
         });
     });
@@ -805,7 +805,7 @@ describe('/recovery_email', () => {
         assert.equal(args[0], 'accountDeleted.unverifiedSecondaryEmail');
         assert.equal(args[1].normalizedEmail, TEST_EMAIL);
       })
-        .then(function () {
+        .then(() => {
           mockDB.deleteAccount.resetHistory();
           mockDB.createEmail.resetHistory();
           mockMailer.sendVerifySecondaryEmail.resetHistory();
@@ -866,7 +866,7 @@ describe('/recovery_email', () => {
         assert.equal(response[0].email, dbData.email, 'should return users email');
         assert.equal(mockDB.account.callCount, 1, 'call db.account');
       })
-        .then(function () {
+        .then(() => {
           mockDB.accountEmails.resetHistory();
         });
     });
@@ -965,7 +965,7 @@ describe('/recovery_email', () => {
         assert.equal(args[2].uid, mockRequest.auth.credentials.uid, 'third argument was event data with a uid');
         assert.equal(args[2].email, TEST_EMAIL_ADDITIONAL, 'third argument was event data with new email');
       })
-        .then(function () {
+        .then(() => {
           mockDB.setPrimaryEmail.resetHistory();
           mockPush.notifyProfileUpdated.resetHistory();
           mockMailer.sendPostChangePrimaryEmail.resetHistory();

@@ -29,26 +29,26 @@ describe('remote account destroy', function () {
       let client = null;
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
-          function (x) {
+          (x) => {
             client = x;
             return client.sessionStatus();
           }
         )
         .then(
-          function (status) {
+          (status) => {
             return client.destroyAccount();
           }
         )
         .then(
-          function () {
+          () => {
             return client.keys();
           }
         )
         .then(
-          function (keys) {
+          (keys) => {
             assert(false, 'account not destroyed');
           },
-          function (err) {
+          (err) => {
             assert.equal(err.message, 'Unknown account', 'account destroyed');
           }
         );
@@ -62,7 +62,7 @@ describe('remote account destroy', function () {
       const password = 'ok';
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
-          function (c) {
+          (c) => {
             c.authPW = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex');
             return c.destroyAccount();
           }
@@ -71,7 +71,7 @@ describe('remote account destroy', function () {
           () => {
             assert(false);
           },
-          function (err) {
+          (err) => {
             assert.equal(err.errno, 103);
           }
         );

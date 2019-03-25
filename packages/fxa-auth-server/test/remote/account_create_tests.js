@@ -53,28 +53,28 @@ describe('remote account create', function() {
       let client = null;
       return Client.create(config.publicUrl, email, password, {service: 'sync'})
         .then(
-          function (x) {
+          (x) => {
             client = x;
             assert.ok(client.authAt, 'authAt was set');
           }
         )
         .then(
-          function () {
+          () => {
             return client.emailStatus();
           }
         )
         .then(
-          function (status) {
+          (status) => {
             assert.equal(status.verified, false);
           }
         )
         .then(
-          function () {
+          () => {
             return server.mailbox.waitForEmail(email);
           }
         )
         .then(
-          function (emailData) {
+          (emailData) => {
             assert.equal(emailData.headers['x-mailer'], undefined);
             assert.equal(emailData.headers['x-template-name'], 'verifySyncEmail');
             assert.equal(emailData.html.indexOf('IP address') > -1, true); // Ensure some location data is present
@@ -82,17 +82,17 @@ describe('remote account create', function() {
           }
         )
         .then(
-          function (verifyCode) {
+          (verifyCode) => {
             return client.verifyEmail(verifyCode, { service: 'sync' });
           }
         )
         .then(
-          function () {
+          () => {
             return server.mailbox.waitForEmail(email);
           }
         )
         .then(
-          function (emailData) {
+          (emailData) => {
             assert.equal(
               emailData.headers['x-link'].indexOf(config.smtp.syncUrl),
               0,
@@ -100,12 +100,12 @@ describe('remote account create', function() {
           }
         )
         .then(
-          function () {
+          () => {
             return client.emailStatus();
           }
         )
         .then(
-          function (status) {
+          (status) => {
             assert.equal(status.verified, true);
           }
         );
@@ -122,17 +122,17 @@ describe('remote account create', function() {
       const options = { service: 'abcdef', resume: 'foo' };
       return Client.create(config.publicUrl, email, password, options)
         .then(
-          function (x) {
+          (x) => {
             client = x;
           }
         )
         .then(
-          function () {
+          () => {
             return server.mailbox.waitForEmail(email);
           }
         )
         .then(
-          function (emailData) {
+          (emailData) => {
             assert.equal(emailData.headers['x-service-id'], 'abcdef');
             assert.ok(emailData.headers['x-link'].indexOf('resume=foo') > -1);
           }
@@ -148,39 +148,39 @@ describe('remote account create', function() {
       let client = null;
       return Client.create(config.publicUrl, email, password)
         .then(
-          function (x) {
+          (x) => {
             client = x;
           }
         )
         .then(
-          function () {
+          () => {
             return server.mailbox.waitForEmail(email);
           }
         )
         .then(
-          function (emailData) {
+          (emailData) => {
             assert(emailData.text.indexOf('Activate now') !== -1, 'not en-US');
             assert(emailData.text.indexOf('Ativar agora') === -1, 'not pt-BR');
             return client.destroyAccount();
           }
         )
         .then(
-          function () {
+          () => {
             return Client.create(config.publicUrl, email, password, { lang: 'pt-br' });
           }
         )
         .then(
-          function (x) {
+          (x) => {
             client = x;
           }
         )
         .then(
-          function () {
+          () => {
             return server.mailbox.waitForEmail(email);
           }
         )
         .then(
-          function (emailData) {
+          (emailData) => {
             assert(emailData.text.indexOf('Activate now') === -1, 'not en-US');
             assert(emailData.text.indexOf('Ativar agora') !== -1, 'is pt-BR');
             return client.destroyAccount();
@@ -197,10 +197,10 @@ describe('remote account create', function() {
       client.authPW = crypto.randomBytes(32);
       return client.auth()
         .then(
-          function () {
+          () => {
             assert(false, 'account should not exist');
           },
-          function (err) {
+          (err) => {
             assert.equal(err.errno, 102, 'account does not exist');
           }
         );
@@ -215,16 +215,16 @@ describe('remote account create', function() {
       let client;
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
-          function (x) {
+          (x) => {
             client = x;
             assert.ok(client.uid, 'account created');
           }
         ).then(
-          function () {
+          () => {
             return client.login();
           }
         ).then(
-          function () {
+          () => {
             assert.ok(client.sessionToken, 'client can login');
           }
         );
@@ -239,10 +239,10 @@ describe('remote account create', function() {
       const client = new Client(config.publicUrl);
       return client.setupCredentials(email, password)
         .then(
-          function (c) {
+          (c) => {
             return c.api.accountCreate(c.email, c.authPW)
               .then(
-                function (response) {
+                (response) => {
                   assert.ok(response.sessionToken, 'has a sessionToken');
                   assert.equal(response.keyFetchToken, undefined, 'no keyFetchToken without keys=true');
                 }
@@ -260,10 +260,10 @@ describe('remote account create', function() {
       const client = new Client(config.publicUrl);
       return client.setupCredentials(email, password)
         .then(
-          function (c) {
+          (c) => {
             return c.api.accountCreate(c.email, c.authPW, { keys: true })
               .then(
-                function (response) {
+                (response) => {
                   assert.ok(response.sessionToken, 'has a sessionToken');
                   assert.ok(response.keyFetchToken, 'keyFetchToken with keys=true');
                 }
@@ -281,13 +281,13 @@ describe('remote account create', function() {
       const password = 'abcdef';
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
-          function (c) {
+          (c) => {
             return Client.create(config.publicUrl, email2, password);
           }
         )
         .then(
           assert.fail,
-          function (err) {
+          (err) => {
             assert.equal(err.code, 400);
             assert.equal(err.errno, 101, 'Account already exists');
             assert.equal(err.email, email, 'The existing email address is returned');
@@ -303,18 +303,18 @@ describe('remote account create', function() {
       const password = 'abcdef';
       return Client.create(config.publicUrl, email, password)
         .then(
-          function () {
+          () => {
             // delete the first verification email
             return server.mailbox.waitForEmail(email);
           }
         )
         .then(
-          function () {
+          () => {
             return Client.createAndVerify(config.publicUrl, email, password, server.mailbox);
           }
         )
         .then(
-          function (client) {
+          (client) => {
             assert.ok(client.uid, 'account created');
           }
         );
@@ -504,10 +504,10 @@ describe('remote account create', function() {
     () => {
       const email = server.uniqueEmail();
       return Client.create(config.publicUrl, email, 'foo', { serviceQuery: 'bar' })
-        .then(function () {
+        .then(() => {
           return server.mailbox.waitForEmail(email);
         })
-        .then(function (emailData) {
+        .then((emailData) => {
           assert.equal(emailData.headers['x-service-id'], 'bar', 'service query parameter was propagated');
         });
     }
@@ -518,11 +518,11 @@ describe('remote account create', function() {
     () => {
       const email = server.uniqueUnicodeEmail();
       return Client.create(config.publicUrl, email, 'foo')
-        .then(function (client) {
+        .then((client) => {
           assert.ok(client, 'created account');
           return server.mailbox.waitForEmail(email);
         })
-        .then(function (emailData) {
+        .then((emailData) => {
           assert.ok(emailData, 'received email');
         });
     }
@@ -537,9 +537,9 @@ describe('remote account create', function() {
           flowId: 'deadbeefbaadf00ddeadbeefbaadf00d',
           flowBeginTime: 1
         }
-      }).then(function () {
+      }).then(() => {
         assert(false, 'account creation should have failed');
-      }, function (err) {
+      }, (err) => {
         assert.ok(err, 'account creation failed');
       });
     }
@@ -554,9 +554,9 @@ describe('remote account create', function() {
           flowId: 'deadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00d',
           flowBeginTime: 0
         }
-      }).then(function () {
+      }).then(() => {
         assert(false, 'account creation should have failed');
-      }, function (err) {
+      }, (err) => {
         assert.ok(err, 'account creation failed');
       });
     }
@@ -569,11 +569,11 @@ describe('remote account create', function() {
       const opts = {
         metricsContext: mocks.generateMetricsContext()
       };
-      return Client.create(config.publicUrl, email, 'foo', opts).then(function (client) {
+      return Client.create(config.publicUrl, email, 'foo', opts).then((client) => {
         assert.ok(client, 'created account');
         return server.mailbox.waitForEmail(email);
       })
-      .then(function (emailData) {
+      .then((emailData) => {
         assert.equal(emailData.headers['x-flow-begin-time'], opts.metricsContext.flowBeginTime, 'flow begin time set');
         assert.equal(emailData.headers['x-flow-id'], opts.metricsContext.flowId, 'flow id set');
       });
@@ -586,7 +586,7 @@ describe('remote account create', function() {
       const email = server.uniqueEmail();
       return Client.create(config.publicUrl, email, 'foo', {
         metricsContext: {}
-      }).then(function (client) {
+      }).then((client) => {
         assert.ok(client, 'created account');
       });
     }
@@ -600,9 +600,9 @@ describe('remote account create', function() {
         metricsContext: {
           flowId: 'deadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00d'
         }
-      }).then(function () {
+      }).then(() => {
         assert(false, 'account creation should have failed');
-      }, function (err) {
+      }, (err) => {
         assert.ok(err, 'account creation failed');
       });
     }
@@ -616,9 +616,9 @@ describe('remote account create', function() {
         metricsContext: {
           flowBeginTime: Date.now()
         }
-      }).then(function () {
+      }).then(() => {
         assert(false, 'account creation should have failed');
-      }, function (err) {
+      }, (err) => {
         assert.ok(err, 'account creation failed');
       });
     }
@@ -632,39 +632,39 @@ describe('remote account create', function() {
       let client = null;
       return Client.create(config.publicUrl, email, password)
         .then(
-          function (x) {
+          (x) => {
             client = x;
             assert.ok('account was created');
           }
         )
         .then(
-          function () {
+          () => {
             return server.mailbox.waitForEmail(email);
           }
         )
         .then(
-          function (emailData) {
+          (emailData) => {
             assert.equal(emailData.headers['x-template-name'], 'verifyEmail');
             return emailData.headers['x-verify-code'];
           }
         )
         .then(
-          function (verifyCode) {
+          (verifyCode) => {
             return client.verifyEmail(verifyCode, { service: 'testpilot' });
           }
         )
         .then(
-          function () {
+          () => {
             return client.emailStatus();
           }
         )
         .then(
-          function (status) {
+          (status) => {
             assert.equal(status.verified, true);
           }
         )
         .then(
-          function () {
+          () => {
             // It's hard to test for "an email didn't arrive.
             // Instead trigger sending of another email and test
             // that there wasn't anything in the queue before it.
@@ -672,12 +672,12 @@ describe('remote account create', function() {
           }
         )
         .then(
-          function () {
+          () => {
             return server.mailbox.waitForCode(email);
           }
         )
         .then(
-          function (code) {
+          (code) => {
             assert.ok(code, 'the next email was reset-password, not post-verify');
           }
         );
@@ -692,40 +692,40 @@ describe('remote account create', function() {
       let client = null;
       return Client.create(config.publicUrl, email, password)
         .then(
-          function (x) {
+          (x) => {
             client = x;
             assert.ok('account was created');
           }
         )
         .then(
-          function () {
+          () => {
             return server.mailbox.waitForEmail(email);
           }
         )
         .then(
-          function (emailData) {
+          (emailData) => {
             assert.equal(emailData.headers['x-template-name'], 'verifyEmail');
             assert.equal(emailData.html.indexOf('IP address') === -1, true); // Does not contain location data
             return emailData.headers['x-verify-code'];
           }
         )
         .then(
-          function (verifyCode) {
+          (verifyCode) => {
             return client.verifyEmail(verifyCode, { }); // no 'service' param
           }
         )
         .then(
-          function () {
+          () => {
             return client.emailStatus();
           }
         )
         .then(
-          function (status) {
+          (status) => {
             assert.equal(status.verified, true);
           }
         )
         .then(
-          function () {
+          () => {
             // It's hard to test for "an email didn't arrive.
             // Instead trigger sending of another email and test
             // that there wasn't anything in the queue before it.
@@ -733,12 +733,12 @@ describe('remote account create', function() {
           }
         )
         .then(
-          function () {
+          () => {
             return server.mailbox.waitForCode(email);
           }
         )
         .then(
-          function (code) {
+          (code) => {
             assert.ok(code, 'the next email was reset-password, not post-verify');
           }
         );

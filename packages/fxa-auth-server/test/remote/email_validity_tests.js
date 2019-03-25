@@ -39,11 +39,11 @@ describe('remote email validity', function() {
         'me@example.-com',
         '\uD83D\uDCA9@unicodepooforyou.com'
       ];
-      emails.forEach(function(email, i) {
+      emails.forEach((email, i) => {
         emails[i] = Client.create(config.publicUrl, email, pwd)
           .then(
             assert.fail,
-            function (err) {
+            (err) => {
               assert.equal(err.code, 400, 'http 400 : malformed email is rejected');
             }
           );
@@ -66,13 +66,13 @@ describe('remote email validity', function() {
         'test@' + String.fromCharCode(5678) + '.com'
       ];
 
-      emails.forEach(function(email, i) {
+      emails.forEach((email, i) => {
         emails[i] = Client.create(config.publicUrl, email, pwd)
           .then(
-            function(c) {
+            (c) => {
               return c.destroyAccount();
             },
-            function (err) {
+            (err) => {
               assert(false, 'Email address ' + email + " should have been allowed, but it wasn't");
             }
           );

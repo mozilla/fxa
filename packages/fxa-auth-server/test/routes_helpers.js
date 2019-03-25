@@ -7,7 +7,7 @@
 exports.getRoute = function (routes, path, method) {
   let route = null;
 
-  routes.some(function (r) {
+  routes.some((r) => {
     if (r.path === path) {
       route = r;
 

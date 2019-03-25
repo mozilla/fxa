@@ -41,13 +41,13 @@ describe('remote flow', function() {
       const duration = 1000 * 60 * 60 * 24; // 24 hours
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
-          function (x) {
+          (x) => {
             client = x;
             return client.keys();
           }
         )
         .then(
-          function (keys) {
+          (keys) => {
             assert.equal(typeof keys.kA, 'string', 'kA exists');
             assert.equal(typeof keys.wrapKb, 'string', 'wrapKb exists');
             assert.equal(typeof keys.kB, 'string', 'kB exists');
@@ -55,12 +55,12 @@ describe('remote flow', function() {
           }
         )
         .then(
-          function () {
+          () => {
             return client.sign(publicKey, duration);
           }
         )
         .then(
-          function (cert) {
+          (cert) => {
             assert.equal(typeof(cert), 'string', 'cert exists');
             const payload = jwtool.verify(cert, pubSigKey.pem);
             assert.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid');
@@ -83,7 +83,7 @@ describe('remote flow', function() {
       const duration = 1000 * 60 * 60 * 24; // 24 hours
       return Client.login(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
-          function (x) {
+          (x) => {
             client = x;
             assert.ok(client.authAt, 'authAt was set');
             assert.ok(client.uid, 'got a uid');
@@ -91,7 +91,7 @@ describe('remote flow', function() {
           }
         )
         .then(
-          function (keys) {
+          (keys) => {
             assert.equal(typeof keys.kA, 'string', 'kA exists');
             assert.equal(typeof keys.wrapKb, 'string', 'wrapKb exists');
             assert.equal(typeof keys.kB, 'string', 'kB exists');
@@ -99,12 +99,12 @@ describe('remote flow', function() {
           }
         )
         .then(
-          function () {
+          () => {
             return client.sign(publicKey, duration);
           }
         )
         .then(
-          function (cert) {
+          (cert) => {
             assert.equal(typeof(cert), 'string', 'cert exists');
           }
         );

@@ -61,7 +61,7 @@ module.exports = function (log, error) {
       const templateName = utils.getHeaderValue('X-Template-Name', message);
       const language = utils.getHeaderValue('Content-Language', message);
 
-      return P.each(recipients, function (recipient) {
+      return P.each(recipients, (recipient) => {
         // The email address in the bounce message has been handled by an external
         // system, and depending on the system it can have had some strange things
         // done to it.  Try to normalize as best we can.
@@ -159,7 +159,7 @@ module.exports = function (log, error) {
 
         return P.all(work);
       }).then(
-        function () {
+        () => {
           // We always delete the message, even if handling some addrs failed.
           message.del();
         }

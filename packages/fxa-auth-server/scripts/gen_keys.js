@@ -66,7 +66,7 @@ cp.exec(
   {
     cwd: __dirname
   },
-  function (err, stdout, stderr) {
+  (err, stdout, stderr) => {
     const s = JSON.parse(stdout);
     addKeyProperties(s);
     fs.writeFileSync(secretKeyFile, JSON.stringify(s));

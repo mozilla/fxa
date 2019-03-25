@@ -35,10 +35,10 @@ module.exports = (printLogs) => {
       {
         SMTPBanner: 'FXATEST'
       },
-      function (req) {
+      (req) => {
         const mp = new MailParser({ defaultCharset: 'utf-8' });
         mp.on('end',
-          function (mail) {
+          (mail) => {
             const link = mail.headers['x-link'];
             const rc = mail.headers['x-recovery-code'];
             const rul = mail.headers['x-report-signin-link'];
@@ -103,7 +103,7 @@ module.exports = (printLogs) => {
       }
     );
 
-    smtp.listen(config.smtp.port, function(err) {
+    smtp.listen(config.smtp.port, (err) => {
       if (! err) {
         console.log(`Local SMTP server listening on port ${config.smtp.port}`);
       } else {
@@ -138,7 +138,7 @@ module.exports = (printLogs) => {
               return new P((resolve) => {
                 loop(
                   decodeURIComponent(request.params.email),
-                  function (emailData) {
+                  (emailData) => {
                     resolve(emailData);
                   }
                 );

@@ -50,7 +50,7 @@ describe('delivery messages', () => {
       const log = mockLog();
       return mockedDelivery(log).handleDelivery(mockMessage({
         junk: 'message'
-      })).then(function () {
+      })).then(() => {
         assert.equal(log.warn.callCount, 1);
         assert.equal(log.warn.args[0][0], 'emailHeaders.keys');
       });
@@ -81,7 +81,7 @@ describe('delivery messages', () => {
         }
       });
 
-      return mockedDelivery(log).handleDelivery(mockMsg).then(function () {
+      return mockedDelivery(log).handleDelivery(mockMsg).then(() => {
         assert.equal(log.info.callCount, 2);
         assert.equal(log.info.args[0][0], 'emailEvent');
         assert.equal(log.info.args[0][1].domain, 'other');
@@ -131,7 +131,7 @@ describe('delivery messages', () => {
         }
       });
 
-      return mockedDelivery(log).handleDelivery(mockMsg).then(function () {
+      return mockedDelivery(log).handleDelivery(mockMsg).then(() => {
         assert.equal(log.flowEvent.callCount, 1);
         assert.equal(log.flowEvent.args[0][0].event, 'email.verifyLoginEmail.delivered');
         assert.equal(log.flowEvent.args[0][0].flow_id, 'someFlowId');
@@ -185,7 +185,7 @@ describe('delivery messages', () => {
         }
       });
 
-      return mockedDelivery(log).handleDelivery(mockMsg).then(function () {
+      return mockedDelivery(log).handleDelivery(mockMsg).then(() => {
         assert.equal(log.flowEvent.callCount, 1);
         assert.equal(log.flowEvent.args[0][0].event, 'email.verifyLoginEmail.delivered');
         assert.equal(log.flowEvent.args[0][0].flow_id, 'someFlowId');

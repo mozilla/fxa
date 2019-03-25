@@ -24,13 +24,13 @@ const util = require('util');
 
 const args = '{"hash":"%H","subject":"%s","committer date":"%ct"}';
 const cmd = util.format('git --no-pager log --format=format:\'%s\' -1', args);
-cp.exec(cmd, function (err, stdout) {
+cp.exec(cmd, (err, stdout) => {
   const info = {
     version: JSON.parse(stdout || '{}')
   };
 
   const cmd = 'git config --get remote.origin.url';
-  cp.exec(cmd, function (err, stdout) {
+  cp.exec(cmd, (err, stdout) => {
     info.version.source = (stdout && stdout.trim()) || '';
     console.log(JSON.stringify(info, null, 2));
   });

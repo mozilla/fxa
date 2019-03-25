@@ -455,11 +455,11 @@ describe('push', () => {
       };
       const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig);
 
-      return push.sendPush(mockUid, devices, 'accountVerify').then(function () {
+      return push.sendPush(mockUid, devices, 'accountVerify').then(() => {
         assert.equal(thisMockLog.error.callCount, 0, 'log.error was not called');
         devices.push(mockDevices[0]);
         return push.sendPush(mockUid, devices, 'accountVerify');
-      }).then(function () {
+      }).then(() => {
         assert.equal(thisMockLog.error.callCount, 1, 'log.error was called');
         const args = thisMockLog.error.getCall(0).args;
         assert.equal(args[0], 'push.sendPush');
@@ -710,11 +710,11 @@ describe('push', () => {
         version: 1,
         command: 'fxaccounts:password_changed'
       };
-      return push.notifyPasswordChanged(mockUid, mockDevices).catch(function (err) {
+      return push.notifyPasswordChanged(mockUid, mockDevices).catch((err) => {
         assert.fail('must not throw');
         throw err;
       })
-      .then(function() {
+      .then(() => {
         assert.ok(push.sendPush.calledOnce, 'sendPush was called');
         assert.equal(push.sendPush.getCall(0).args[0], mockUid);
         assert.equal(push.sendPush.getCall(0).args[1], mockDevices);
@@ -745,11 +745,11 @@ describe('push', () => {
         version: 1,
         command: 'fxaccounts:password_reset'
       };
-      return push.notifyPasswordReset(mockUid, mockDevices).catch(function (err) {
+      return push.notifyPasswordReset(mockUid, mockDevices).catch((err) => {
         assert.fail('must not throw');
         throw err;
       })
-      .then(function() {
+      .then(() => {
         assert.ok(push.sendPush.calledOnce, 'sendPush was called');
         assert.equal(push.sendPush.getCall(0).args[0], mockUid);
         assert.equal(push.sendPush.getCall(0).args[1], mockDevices);
@@ -777,11 +777,11 @@ describe('push', () => {
       const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig);
       sinon.stub(push, 'sendPush').callsFake(() => P.resolve());
 
-      return push.notifyAccountUpdated(mockUid, mockDevices, 'deviceConnected').catch(function (err) {
+      return push.notifyAccountUpdated(mockUid, mockDevices, 'deviceConnected').catch((err) => {
         assert.fail('must not throw');
         throw err;
       })
-      .then(function() {
+      .then(() => {
         assert.ok(push.sendPush.calledOnce, 'push was called');
         assert.equal(push.sendPush.getCall(0).args[0], mockUid);
         assert.deepEqual(push.sendPush.getCall(0).args[1], mockDevices);
@@ -810,11 +810,11 @@ describe('push', () => {
           uid: mockUid
         }
       };
-      return push.notifyAccountDestroyed(mockUid, mockDevices).catch(function (err) {
+      return push.notifyAccountDestroyed(mockUid, mockDevices).catch((err) => {
         assert.fail('must not throw');
         throw err;
       })
-      .then(function() {
+      .then(() => {
         assert.ok(push.sendPush.calledOnce, 'sendPush was called');
         assert.equal(push.sendPush.getCall(0).args[0], mockUid);
         assert.equal(push.sendPush.getCall(0).args[1], mockDevices);
@@ -882,10 +882,10 @@ describe('push', () => {
 
       const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig);
       return push.sendPush(mockUid, mockDevices, 'anUnknownReasonString').then(
-        function () {
+        () => {
           assert(false, 'calling sendPush should have failed');
         },
-        function (err) {
+        (err) => {
           assert.equal(err, 'Unknown push reason: anUnknownReasonString');
         }
       );

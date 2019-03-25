@@ -25,7 +25,7 @@ module.exports = function (log) {
       // Ref: http://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html
       const templateName = utils.getHeaderValue('X-Template-Name', message);
 
-      return P.each(recipients, function (recipient) {
+      return P.each(recipients, (recipient) => {
 
         const email = recipient;
         const emailDomain = utils.getAnonymizedEmailDomain(email);
@@ -46,7 +46,7 @@ module.exports = function (log) {
 
         log.info('handleDelivery', logData);
       }).then(
-        function () {
+        () => {
           // We always delete the message, even if handling some addrs failed.
           message.del();
         }

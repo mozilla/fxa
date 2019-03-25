@@ -29,7 +29,7 @@ function configure() {
             'restmail.net')
     .option('-L, --locale <en[,zh-TW,de,...]>',
             'Test only this csv list of locales',
-            function(list) {
+            (list) => {
               return list.split(/,/);
             })
     .parse(process.argv);
@@ -42,12 +42,12 @@ function configure() {
 
   const mailserver = commander.mailserver = mailbox(commander.restmailDomain, 80);
 
-  mailserver.eventEmitter.on('email:message', function(email, message) {
+  mailserver.eventEmitter.on('email:message', (email, message) => {
     emailMessages[email] = emailMessages[email] || [];
     emailMessages[email].push(message);
   });
 
-  mailserver.eventEmitter.on('email:error', function(email, error) {
+  mailserver.eventEmitter.on('email:error', (email, error) => {
     emailMessages[email] = emailMessages[email] || [];
     emailMessages[email].push(error);
   });
@@ -118,9 +118,9 @@ function signinAsSecondDevice(client) {
   };
 
   return Client.login(program.authServer, email, password, opts)
-    .then(function(client) {
+    .then((client) => {
       return client.keys()
-        .then(function () {
+        .then(() => {
           return fetchNotificationEmail(client);
         });
     });
@@ -136,7 +136,7 @@ function changePassword(client) {
   };
 
   return client.changePassword(password, headers, client.sessionToken)
-    .then(function () {
+    .then(() => {
       return fetchNotificationEmail(client);
     });
 }
@@ -150,16 +150,16 @@ function passwordReset(client) {
   };
 
   return client.forgotPassword(lang)
-    .then(function () {
+    .then(() => {
       return program.mailserver.waitForCode(email);
     })
-    .then(function (code) {
+    .then((code) => {
       return client.verifyPasswordResetCode(code, headers);
     })
-    .then(function() {
+    .then(() => {
       return client.resetPassword(program.password, headers);
     })
-    .then(function () {
+    .then(() => {
       return fetchNotificationEmail(client);
     });
 }
@@ -168,7 +168,7 @@ function fetchNotificationEmail(client) {
   // Gather the notification email that was just sent for (new-device-added,
   // password-change, password-reset).
   return program.mailserver.waitForEmail(client.email)
-    .then(function () {
+    .then(() => {
       return client;
     });
 }
@@ -178,7 +178,7 @@ function checkLocale(lang, index) {
   const delay = index * 750;
 
   return P.delay(delay)
-    .then(function() {
+    .then(() => {
       log(log.INFO, 'Starting', lang);
       return signupForSync(lang)
         .then(signinAsSecondDevice)
@@ -192,10 +192,10 @@ function dumpMessages(messages) {
   console.log('--- Dumping messages ---');
   console.log('---');
   Object.keys(messages)
-    .map(function(key) {
+    .map((key) => {
       console.log('--- %s ---', key);
       emailMessages[key]
-        .map(function(email) {
+        .map((email) => {
           console.log(email.to[0], email.subject);
         });
     });
@@ -207,17 +207,17 @@ function main() {
   const checks = program.supportedLanguages.map(checkLocale);
 
   P.all(checks)
-    .then(function() {
+    .then(() => {
       if (process.env.DEBUG) {
         dumpMessages(emailMessages);
       }
       const errors = validateEmail(emailMessages, log);
       const output = [];
       let errorCount = 0;
-      Object.keys(errors).sort().forEach(function(lang) {
+      Object.keys(errors).sort().forEach((lang) => {
         output.push('  ' + lang + ':');
         const errorList = errors[lang];
-        errorList.forEach(function(err) {
+        errorList.forEach((err) => {
           errorCount++;
           output.push('    ' + err);
         });
@@ -231,7 +231,7 @@ function main() {
         console.log('\nAll strings expected to be translated are ok.\n');
         process.exit(0);
       }
-    }).catch(function(err) {
+    }).catch((err) => {
       log(log.ERROR, err.stack || err);
       process.exit(1);
     });

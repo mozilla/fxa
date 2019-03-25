@@ -1317,7 +1317,7 @@ module.exports = function (log, config, oauthdb) {
 
     // Extract current params from link, passed in query params will override any param in a link
     const parsedQuery = qs.parse(parsedLink.query);
-    Object.keys(query).forEach(function (key) {
+    Object.keys(query).forEach((key) => {
       parsedQuery[key] = query[key];
     });
 

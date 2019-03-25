@@ -20,7 +20,7 @@ describe('hkdf', () => {
 
       return hkdf(stretchedPw, info, salt, lengthHkdf)
         .then(
-          function (hkdfResult) {
+          (hkdfResult) => {
             const hkdfStr = hkdfResult.toString('hex');
 
             assert.equal(hkdfStr.substring(0, 64), '00f9b71800ab5337d51177d8fbc682a3653fa6dae5b87628eeec43a18af59a9d');

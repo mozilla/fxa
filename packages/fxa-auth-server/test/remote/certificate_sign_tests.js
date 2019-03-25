@@ -94,16 +94,16 @@ describe('remote certificate sign', function() {
       const duration = 1000 * 60 * 60 * 24; // 24 hours
       return Client.create(config.publicUrl, email, password)
         .then(
-          function (c) {
+          (c) => {
             client = c;
             return client.sign(publicKey, duration);
           }
         )
         .then(
-          function (cert) {
+          (cert) => {
             assert(false, 'should not be able to sign with unverified account');
           },
-          function (err) {
+          (err) => {
             assert.equal(err.errno, 104, 'should get an unverifiedAccount error');
           }
         );
@@ -118,7 +118,7 @@ describe('remote certificate sign', function() {
       let client = null;
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
-          function (c) {
+          (c) => {
             client = c;
             // string as publicKey
             return client.sign('tada', 1000);
@@ -126,7 +126,7 @@ describe('remote certificate sign', function() {
         )
         .then(
           () => assert(false),
-          function (err) {
+          (err) => {
             assert.equal(err.code, 400, 'string as publicKey');
             // empty object as publicKey
             return client.sign({}, 1000);
@@ -134,7 +134,7 @@ describe('remote certificate sign', function() {
         )
         .then(
           () => assert(false),
-          function (err) {
+          (err) => {
             assert.equal(err.code, 400, 'empty object as publicKey');
             // undefined duration
             return client.sign({ algorithm: 'RS', n: 'x', e: 'y' }, undefined);
@@ -142,7 +142,7 @@ describe('remote certificate sign', function() {
         )
         .then(
           () => assert(false),
-          function (err) {
+          (err) => {
             assert.equal(err.code, 400, 'undefined duration');
             // missing publicKey arguments (e)
             return client.sign({ algorithm: 'RS', n: 'x' }, 1000);
@@ -150,7 +150,7 @@ describe('remote certificate sign', function() {
         )
         .then(
           () => assert(false),
-          function (err) {
+          (err) => {
             assert.equal(err.code, 400, 'missing publicKey arguments (e)');
             // missing publicKey arguments (n)
             return client.sign({ algorithm: 'RS', e: 'x' }, 1000);
@@ -158,7 +158,7 @@ describe('remote certificate sign', function() {
         )
         .then(
           () => assert(false),
-          function (err) {
+          (err) => {
             assert.equal(err.code, 400, 'missing publicKey arguments (n)');
             // missing publicKey arguments (y)
             return client.sign({ algorithm: 'DS', p: 'p', q: 'q', g: 'g' }, 1000);
@@ -166,7 +166,7 @@ describe('remote certificate sign', function() {
         )
         .then(
           () => assert(false),
-          function (err) {
+          (err) => {
             assert.equal(err.code, 400, 'missing publicKey arguments (y)');
             // missing publicKey arguments (p)
             return client.sign({ algorithm: 'DS', y: 'y', q: 'q', g: 'g' }, 1000);
@@ -174,7 +174,7 @@ describe('remote certificate sign', function() {
         )
         .then(
           () => assert(false),
-          function (err) {
+          (err) => {
             assert.equal(err.code, 400, 'missing publicKey arguments (p)');
             // missing publicKey arguments (q)
             return client.sign({ algorithm: 'DS', y: 'y', p: 'p', g: 'g' }, 1000);
@@ -182,7 +182,7 @@ describe('remote certificate sign', function() {
         )
         .then(
           () => assert(false),
-          function (err) {
+          (err) => {
             assert.equal(err.code, 400, 'missing publicKey arguments (q)');
             // missing publicKey arguments (g)
             return client.sign({ algorithm: 'DS', y: 'y', p: 'p', q: 'q' }, 1000);
@@ -190,7 +190,7 @@ describe('remote certificate sign', function() {
         )
         .then(
           () => assert(false),
-          function (err) {
+          (err) => {
             assert.equal(err.code, 400, 'missing publicKey arguments (g)');
             // invalid algorithm
             return client.sign({ algorithm: 'NSA' }, 1000);
@@ -198,7 +198,7 @@ describe('remote certificate sign', function() {
         )
         .then(
           () => assert(false),
-          function (err) {
+          (err) => {
             assert.equal(err.code, 400, 'invalid algorithm');
           }
         );
@@ -213,10 +213,10 @@ describe('remote certificate sign', function() {
       const duration = 1000 * 60 * 60 * 24; // 24 hours
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
-          function (client) {
+          (client) => {
             client.api.once(
               'startRequest',
-              function hijackPayload(options) {
+              (options) => {
                 // we want the payload hash in the auth header
                 // but no payload in the request body
                 options.json = true;
@@ -224,7 +224,7 @@ describe('remote certificate sign', function() {
             );
             return client.api.Token.SessionToken.fromHex(client.sessionToken)
               .then(
-                function (token) {
+                (token) => {
                   return client.api.doRequest(
                     'POST',
                     client.api.baseURL + '/certificate/sign',
@@ -240,7 +240,7 @@ describe('remote certificate sign', function() {
         )
         .then(
           () => assert(false),
-          function (err) {
+          (err) => {
             assert.equal(err.errno, 109, 'Missing payload authentication');
           }
         );

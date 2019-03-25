@@ -36,7 +36,7 @@ describe('remote concurrect', function() {
       )
       .then(
         () => assert(false, 'created both accounts'),
-        function (err) {
+        (err) => {
           assert.equal(err.errno, 101, 'account exists');
           // Note that P.all fails fast when one of the requests fails,
           // but we have to wait for *both* to complete before tearing
@@ -48,7 +48,7 @@ describe('remote concurrect', function() {
           }
         }
       ).then(
-        function () {
+        () => {
           return server.mailbox.waitForEmail(email);
         }
       );

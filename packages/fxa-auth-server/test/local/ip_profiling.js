@@ -48,7 +48,7 @@ function makeRoutes (options = {}, requireMocks) {
 }
 
 function runTest(route, request, assertions) {
-  return new P(function (resolve, reject) {
+  return new P((resolve, reject) => {
     try {
       return route.handler(request).then(resolve, reject);
     } catch (err) {
@@ -103,7 +103,7 @@ describe('IP Profiling', () => {
         ]);
       };
 
-      return runTest(route, mockRequest, function (response) {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called');
         assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called');
         assert.equal(response.verified, false, 'session not verified');
@@ -123,7 +123,7 @@ describe('IP Profiling', () => {
         ]);
       };
 
-      return runTest(route, mockRequest, function (response) {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called');
         assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called');
         assert.equal(response.verified, true, 'session verified');
@@ -144,7 +144,7 @@ describe('IP Profiling', () => {
         ]);
       };
 
-      return runTest(route, mockRequest, function (response) {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called');
         assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called');
         assert.equal(response.verified, false, 'session verified');
@@ -173,13 +173,13 @@ describe('IP Profiling', () => {
         });
       };
 
-      return runTest(route, mockRequest, function (response) {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called');
         assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called');
         assert.equal(response.verified, false, 'session verified');
         return runTest(route, mockRequest);
       })
-        .then(function (response) {
+        .then((response) => {
           assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 2, 'mailer.sendVerifyLoginEmail was called');
           assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called');
           assert.equal(response.verified, false, 'session verified');
@@ -192,13 +192,13 @@ describe('IP Profiling', () => {
       mockRequest.app.clientAddress = '63.245.221.32';
       mockRequest.app.isSuspiciousRequest = true;
 
-      return runTest(route, mockRequest, function (response) {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called');
         assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called');
         assert.equal(response.verified, false, 'session verified');
         return runTest(route, mockRequest);
       })
-        .then(function (response) {
+        .then((response) => {
           assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 2, 'mailer.sendVerifyLoginEmail was called');
           assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called');
           assert.equal(response.verified, false, 'session verified');

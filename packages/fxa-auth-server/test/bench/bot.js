@@ -51,10 +51,10 @@ function run(c) {
   .then(times(session, 10))
   .then(c.changePassword.bind(c, 'newPassword'))
   .then(
-    function () {
+    () => {
       return c.destroyAccount();
     },
-    function (err) {
+    (err) => {
       console.error('Error during run:', err.message);
       return c.destroyAccount();
     }
@@ -66,18 +66,18 @@ client.options.preVerified = true;
 
 client.setupCredentials(config.email, config.password)
   .then(
-    function () {
+    () => {
       const begin = Date.now();
 
       function loop(ms) {
         run(client)
           .then(
-            function () {
+            () => {
               if (Date.now() - begin < ms) {
                 loop(ms);
               }
             },
-            function (err) {
+            (err) => {
               console.error('Error during cleanup:', err.message);
             }
           );

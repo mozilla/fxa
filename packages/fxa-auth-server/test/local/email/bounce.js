@@ -486,7 +486,7 @@ describe('bounce messages', () => {
       }
     });
 
-    return mockedBounces(log, mockDB).handleBounce(mockMsg).then(function () {
+    return mockedBounces(log, mockDB).handleBounce(mockMsg).then(() => {
       assert.equal(mockDB.accountRecord.callCount, 1);
       assert.equal(mockDB.accountRecord.args[0][0], 'test@example.com');
       assert.equal(mockDB.deleteAccount.callCount, 1);
@@ -535,7 +535,7 @@ describe('bounce messages', () => {
       }
     });
 
-    return mockedBounces(log, mockDB).handleBounce(mockMsg).then(function () {
+    return mockedBounces(log, mockDB).handleBounce(mockMsg).then(() => {
       assert.equal(log.flowEvent.callCount, 1);
       assert.equal(log.flowEvent.args[0][0].event, 'email.verifyLoginEmail.bounced');
       assert.equal(log.flowEvent.args[0][0].flow_id, 'someFlowId');

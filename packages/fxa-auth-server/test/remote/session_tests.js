@@ -40,29 +40,29 @@ describe('remote session', function() {
         let sessionToken = null;
         return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
           .then(
-            function (x) {
+            (x) => {
               client = x;
               return client.sessionStatus();
             }
           )
           .then(
-            function () {
+            () => {
               sessionToken = client.sessionToken;
               return client.destroySession();
             }
           )
           .then(
-            function () {
+            () => {
               assert.equal(client.sessionToken, null, 'session token deleted');
               client.sessionToken = sessionToken;
               return client.sessionStatus();
             }
           )
           .then(
-            function (status) {
+            (status) => {
               assert(false, 'got status with destroyed session');
             },
-            function (err) {
+            (err) => {
               assert.equal(err.errno, 110, 'session is invalid');
             }
           );
@@ -139,10 +139,10 @@ describe('remote session', function() {
             return client.api.sessionStatus(sessionTokenCreate);
           })
           .then(
-            function (status) {
+            (status) => {
               assert(false, 'got status with destroyed session');
             },
-            function (err) {
+            (err) => {
               assert.equal(err.code, 401);
               assert.equal(err.errno, 110, 'session is invalid');
               assert.equal(err.error, 'Unauthorized');
@@ -422,18 +422,18 @@ describe('remote session', function() {
         let uid = null;
         return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
           .then(
-            function (c) {
+            (c) => {
               uid = c.uid;
               return c.login()
                 .then(
-                  function () {
+                  () => {
                     return c.api.sessionStatus(c.sessionToken);
                   }
                 );
             }
           )
           .then(
-            function (x) {
+            (x) => {
               assert.deepEqual(x, {
                 state: 'unverified',
                 uid: uid
@@ -450,7 +450,7 @@ describe('remote session', function() {
         return client.api.sessionStatus('0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF')
           .then(
             () => assert(false),
-            function (err) {
+            (err) => {
               assert.equal(err.errno, 110, 'invalid token');
             }
           );

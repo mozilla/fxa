@@ -31,13 +31,13 @@ describe('remote account login', () => {
       const password = 'abcdef';
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
-          function () {
+          () => {
             return Client.login(config.publicUrl, email, password + 'x');
           }
         )
         .then(
           () => assert(false),
-          function (err) {
+          (err) => {
             assert.equal(err.code, 400);
             assert.equal(err.errno, 103);
             assert.equal(err.email, email);
@@ -54,13 +54,13 @@ describe('remote account login', () => {
       const password = 'abcdef';
       return Client.createAndVerify(config.publicUrl, signupEmail, password, server.mailbox)
         .then(
-          function () {
+          () => {
             return Client.login(config.publicUrl, loginEmail, password);
           }
         )
         .then(
           () => assert(false),
-          function (err) {
+          (err) => {
             assert.equal(err.code, 400);
             assert.equal(err.errno, 120);
             assert.equal(err.email, signupEmail);
@@ -77,10 +77,10 @@ describe('remote account login', () => {
       client.authPW = crypto.randomBytes(32);
       return client.login()
         .then(
-          function () {
+          () => {
             assert(false, 'account should not exist');
           },
-          function (err) {
+          (err) => {
             assert.equal(err.errno, 102, 'account does not exist');
           }
         );
@@ -94,12 +94,12 @@ describe('remote account login', () => {
       const password = 'abcdef';
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
-          function (c) {
+          (c) => {
             return Client.login(config.publicUrl, email, password, { keys: false });
           }
         )
         .then(
-          function (c) {
+          (c) => {
             assert.equal(c.keyFetchToken, null, 'should not have keyFetchToken');
           }
         );
@@ -113,12 +113,12 @@ describe('remote account login', () => {
       const password = 'wibble';
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
-          function () {
+          () => {
             return Client.login(config.publicUrl, email, password);
           }
         )
         .then(
-          function (client) {
+          (client) => {
             assert.ok(client, 'logged in to account');
           }
         );
@@ -130,7 +130,7 @@ describe('remote account login', () => {
     () => {
       const email = server.uniqueEmail();
       return Client.createAndVerify(config.publicUrl, email, 'foo', server.mailbox)
-        .then(function () {
+        .then(() => {
           return Client.login(config.publicUrl, email, 'foo', {
             metricsContext: {
               flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
@@ -138,7 +138,7 @@ describe('remote account login', () => {
             }
           });
         })
-        .then(function (client) {
+        .then((client) => {
           assert.ok(client, 'logged in to account');
         });
     }
@@ -149,7 +149,7 @@ describe('remote account login', () => {
     () => {
       const email = server.uniqueEmail();
       return Client.createAndVerify(config.publicUrl, email, 'foo', server.mailbox)
-        .then(function () {
+        .then(() => {
           return Client.login(config.publicUrl, email, 'foo', {
             metricsContext: {
               flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0',
@@ -157,9 +157,9 @@ describe('remote account login', () => {
             }
           });
         })
-        .then(function () {
+        .then(() => {
           assert(false, 'account login should have failed');
-        }, function (err) {
+        }, (err) => {
           assert.ok(err, 'account login failed');
         });
     }
@@ -170,7 +170,7 @@ describe('remote account login', () => {
     () => {
       const email = server.uniqueEmail();
       return Client.createAndVerify(config.publicUrl, email, 'foo', server.mailbox)
-        .then(function () {
+        .then(() => {
           return Client.login(config.publicUrl, email, 'foo', {
             metricsContext: {
               flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
@@ -178,9 +178,9 @@ describe('remote account login', () => {
             }
           });
         })
-        .then(function () {
+        .then(() => {
           assert(false, 'account login should have failed');
-        }, function (err) {
+        }, (err) => {
           assert.ok(err, 'account login failed');
         });
     }

@@ -32,14 +32,14 @@ module.exports = (log, db) => {
     log.begin('Defaults.root', request);
 
     function getVersion() {
-      return new Promise(function (resolve, reject) {
+      return new Promise((resolve, reject) => {
         // ignore errors and default to 'unknown' if not found
         const gitDir = path.resolve(__dirname, '..', '..', '.git');
 
-          cp.exec('git rev-parse HEAD', { cwd: gitDir },  function(err, stdout1) {
+          cp.exec('git rev-parse HEAD', { cwd: gitDir },  (err, stdout1) => {
             const configPath = path.join(gitDir, 'config');
             const cmd = 'git config --get remote.origin.url';
-            cp.exec(cmd, { env: { GIT_CONFIG: configPath, PATH: process.env.PATH } }, function(err, stdout2) {
+            cp.exec(cmd, { env: { GIT_CONFIG: configPath, PATH: process.env.PATH } }, (err, stdout2) => {
                commitHash = (stdout1 && stdout1.trim()) || UNKNOWN;
                sourceRepo = (stdout2 && stdout2.trim()) || UNKNOWN;
                resolve();
@@ -84,10 +84,10 @@ module.exports = (log, db) => {
         log.begin('Defaults.heartbeat', request);
         return db.ping()
           .then(
-            function () {
+            () => {
               return {};
             },
-            function (err) {
+            (err) => {
               log.error('heartbeat', { err: err });
               throw error.serviceUnavailable();
             }

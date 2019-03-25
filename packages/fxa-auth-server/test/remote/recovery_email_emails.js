@@ -33,14 +33,14 @@ describe('remote emails', function () {
   beforeEach(() => {
     email = server.uniqueEmail();
     return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-      .then(function (x) {
+      .then((x) => {
         client = x;
         assert.ok(client.authAt, 'authAt was set');
       })
-      .then(function () {
+      .then(() => {
         return client.emailStatus();
       })
-      .then(function (status) {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
       });
   });
@@ -904,7 +904,7 @@ describe('remote emails', function () {
 
   function resetPassword(client, code, newPassword, headers, options) {
     return client.verifyPasswordResetCode(code, headers, options)
-      .then(function () {
+      .then(() => {
         return client.resetPassword(newPassword, {}, options);
       });
   }

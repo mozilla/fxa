@@ -144,7 +144,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           password = new Password(authPW, authSalt, config.verifierVersion);
           return password.verifyHash()
             .then(
-              function (result) {
+              (result) => {
                 verifyHash = result;
               }
             );
@@ -234,13 +234,13 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
             uaFormFactor
           })
             .then(
-              function (result) {
+              (result) => {
                 sessionToken = result;
                 return request.stashMetricsContext(sessionToken);
               }
             )
             .then(
-              function () {
+              () => {
                 // There is no session token when we emit account.verified
                 // so stash the data against a synthesized "token" instead.
                 return request.stashMetricsContext({
@@ -271,7 +271,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
               uaDeviceType: sessionToken.uaDeviceType,
               uid: sessionToken.uid
             })
-              .then(function () {
+              .then(() => {
                 if (tokenVerificationId) {
                   // Log server-side metrics for confirming verification rates
                   log.info('account.create.confirm.start', {
@@ -280,7 +280,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
                   });
                 }
               })
-              .catch(function (err) {
+              .catch((err) => {
                 log.error('mailer.sendVerifyCode.1', { err: err});
 
                 if (tokenVerificationId) {
@@ -303,7 +303,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           if (requestHelper.wantsKeys(request)) {
             return password.unwrap(account.wrapWrapKb)
               .then(
-                function (wrapKb) {
+                (wrapKb) => {
                   return db.createKeyFetchToken({
                     uid: account.uid,
                     kA: account.kA,
@@ -314,7 +314,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
                 }
               )
               .then(
-                function (result) {
+                (result) => {
                   keyFetchToken = result;
                   return request.stashMetricsContext(keyFetchToken);
                 }
@@ -451,7 +451,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
               (events) => {
                 if (events.length > 0) {
                   let latest = 0;
-                  events.forEach(function(ev) {
+                  events.forEach((ev) => {
                     if (ev.verified) {
                       securityEventVerified = true;
                       if (ev.createdAt > latest) {
@@ -742,10 +742,10 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
           const uid = request.query.uid;
           return db.account(uid)
             .then(
-              function (account) {
+              (account) => {
                 return { exists: true };
               },
-              function (err) {
+              (err) => {
                 if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
                   return { exists: false };
                 }
@@ -784,12 +784,12 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
             return db.accountExists(email);
           })
           .then(
-            function (exist) {
+            (exist) => {
               return {
                 exists: exist
               };
             },
-            function (err) {
+            (err) => {
               if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
                 return { exists: false };
               }
@@ -882,14 +882,14 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
         }
         return db.deleteKeyFetchToken(keyFetchToken)
           .then(
-            function () {
+            () => {
               return request.emitMetricsEvent('account.keyfetch', {
                 uid: keyFetchToken.uid
               });
             }
           )
           .then(
-            function () {
+            () => {
               return {
                 bundle: keyFetchToken.keyBundle
               };
@@ -1108,7 +1108,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
                 };
 
                 return db.createSessionToken(sessionTokenOptions)
-                  .then(function (result) {
+                  .then((result) => {
                     sessionToken = result;
                     return request.propagateMetricsContext(accountResetToken, sessionToken);
                   });
@@ -1131,7 +1131,7 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push)
               tokenVerificationId
             })
               .then(
-                function (result) {
+                (result) => {
                   keyFetchToken = result;
                   return request.propagateMetricsContext(accountResetToken, keyFetchToken);
                 }

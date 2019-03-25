@@ -32,68 +32,68 @@ describe('remote account reset', function() {
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
-          function (x) {
+          (x) => {
             client = x;
           }
         )
         .then(
-          function () {
+          () => {
             return client.keys();
           }
         )
         .then(
-          function (keys) {
+          (keys) => {
             wrapKb = keys.wrapKb;
             kA = keys.kA;
             return client.forgotPassword();
           }
         )
         .then(
-          function () {
+          () => {
             return server.mailbox.waitForCode(email);
           }
         )
         .then(
-          function (code) {
-            assert.throws(function() {
+          (code) => {
+            assert.throws(() => {
               client.resetPassword(newPassword);
             });
             return resetPassword(client, code, newPassword, {sessionToken: false});
           }
         )
         .then(
-          function (response) {
+          (response) => {
             assert(! response.sessionToken, 'session token is not in response');
             assert(! response.keyFetchToken, 'keyFetchToken token is not in response');
             assert(! response.verified, 'verified is not in response');
           }
         )
         .then(
-          function () {
+          () => {
             return server.mailbox.waitForEmail(email);
           }
         )
         .then(
-          function (emailData) {
+          (emailData) => {
             const link = emailData.headers['x-link'];
             const query = url.parse(link, true).query;
             assert.ok(query.email, 'email is in the link');
           }
         )
         .then(
-          function () {
+          () => {
             // make sure we can still login after password reset
             return Client.login(config.publicUrl, email, newPassword, {keys:true});
           }
         )
         .then(
-          function (x) {
+          (x) => {
             client = x;
             return client.keys();
           }
         )
         .then(
-          function (keys) {
+          (keys) => {
             assert.notEqual(wrapKb, keys.wrapKb, 'wrapKb was reset');
             assert.equal(kA, keys.kA, 'kA was not reset');
             assert.equal(typeof client.kB, 'string');
@@ -113,68 +113,68 @@ describe('remote account reset', function() {
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
-          function (x) {
+          (x) => {
             client = x;
           }
         )
         .then(
-          function () {
+          () => {
             return client.keys();
           }
         )
         .then(
-          function (keys) {
+          (keys) => {
             wrapKb = keys.wrapKb;
             kA = keys.kA;
             return client.forgotPassword();
           }
         )
         .then(
-          function () {
+          () => {
             return server.mailbox.waitForCode(email);
           }
         )
         .then(
-          function (code) {
-            assert.throws(function() {
+          (code) => {
+            assert.throws(() => {
               client.resetPassword(newPassword);
             });
             return resetPassword(client, code, newPassword,  {keys:true});
           }
         )
         .then(
-          function (response) {
+          (response) => {
             assert.ok(response.sessionToken, 'session token is in response');
             assert.ok(response.keyFetchToken, 'keyFetchToken token is in response');
             assert.equal(response.verified, true,  'verified is true');
           }
         )
         .then(
-          function () {
+          () => {
             return server.mailbox.waitForEmail(email);
           }
         )
         .then(
-          function (emailData) {
+          (emailData) => {
             const link = emailData.headers['x-link'];
             const query = url.parse(link, true).query;
             assert.ok(query.email, 'email is in the link');
           }
         )
         .then(
-          function () {
+          () => {
             // make sure we can still login after password reset
             return Client.login(config.publicUrl, email, newPassword, {keys:true});
           }
         )
         .then(
-          function (x) {
+          (x) => {
             client = x;
             return client.keys();
           }
         )
         .then(
-          function (keys) {
+          (keys) => {
             assert.notEqual(wrapKb, keys.wrapKb, 'wrapKb was reset');
             assert.equal(kA, keys.kA, 'kA was not reset');
             assert.equal(typeof client.kB, 'string');
@@ -194,30 +194,30 @@ describe('remote account reset', function() {
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
-          function (x) {
+          (x) => {
             client = x;
           }
         )
         .then(
-          function () {
+          () => {
             return client.forgotPassword();
           }
         )
         .then(
-          function () {
+          () => {
             return server.mailbox.waitForCode(email);
           }
         )
         .then(
-          function (code) {
-            assert.throws(function() {
+          (code) => {
+            assert.throws(() => {
               client.resetPassword(newPassword);
             });
             return resetPassword(client, code, newPassword);
           }
         )
         .then(
-          function (response) {
+          (response) => {
             assert.ok(response.sessionToken, 'session token is in response');
             assert(! response.keyFetchToken, 'keyFetchToken token is not in response');
             assert.equal(response.verified, true,  'verified is true');
@@ -278,7 +278,7 @@ describe('remote account reset', function() {
 
   function resetPassword(client, code, newPassword, options) {
     return client.verifyPasswordResetCode(code)
-      .then(function() {
+      .then(() => {
         return client.resetPassword(newPassword, {}, options);
       });
   }

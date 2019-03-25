@@ -129,7 +129,7 @@ function run(config) {
 
           });
       },
-      function (err) {
+      (err) => {
         log.error({ op: 'DB.connect', err: { message: err.message } });
         process.exit(1);
       }

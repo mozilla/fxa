@@ -435,7 +435,7 @@ describe('metricsContext', () => {
             ignore: 'mock ignorable property'
           })
         }
-      }, {}).then(function (result) {
+      }, {}).then((result) => {
         assert.equal(typeof result, 'object', 'result is object');
         assert.notEqual(result, null, 'result is not null');
         assert.equal(Object.keys(result).length, 14, 'result has 14 properties');
@@ -487,7 +487,7 @@ describe('metricsContext', () => {
             ignore: 'mock ignorable property'
           })
         }
-      }, {}).then(function (result) {
+      }, {}).then((result) => {
         assert.equal(Object.keys(result).length, 8, 'result has 8 properties');
         assert.isUndefined(result.entrypoint);
         assert.equal(result.utm_campaign, undefined, 'result.utm_campaign is undefined');
@@ -510,7 +510,7 @@ describe('metricsContext', () => {
             flowBeginTime: Date.now() + 10000
           })
         }
-      }, {}).then(function (result) {
+      }, {}).then((result) => {
         assert.equal(typeof result, 'object', 'result is object');
         assert.notEqual(result, null, 'result is not null');
         assert.strictEqual(result.flow_time, 0, 'result.time is zero');
@@ -666,7 +666,7 @@ describe('metricsContext', () => {
     () => {
       const flowBeginTime = 1451566800000;
       const flowId = '1234567890abcdef1234567890abcdef06146f1d05e7ae215885a4e45b66ff1f';
-      sinon.stub(Date, 'now').callsFake(function() {
+      sinon.stub(Date, 'now').callsFake(() => {
         return flowBeginTime + 59999;
       });
       const mockLog = mocks.mockLog();
@@ -941,7 +941,7 @@ describe('metricsContext', () => {
           }
         }
       };
-      sinon.stub(Date, 'now').callsFake(function() {
+      sinon.stub(Date, 'now').callsFake(() => {
         return expectedTime + 20000;
       });
 
@@ -989,7 +989,7 @@ describe('metricsContext', () => {
           }
         }
       };
-      sinon.stub(Date, 'now').callsFake(function() {
+      sinon.stub(Date, 'now').callsFake(() => {
         return expectedTime + 20000;
       });
 
@@ -1040,7 +1040,7 @@ describe('metricsContext', () => {
           }
         }
       };
-      sinon.stub(Date, 'now').callsFake(function() {
+      sinon.stub(Date, 'now').callsFake(() => {
         return expectedTime + 20000;
       });
 

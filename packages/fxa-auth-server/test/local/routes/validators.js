@@ -128,31 +128,31 @@ describe('lib/routes/validators:', () => {
   describe('validators.redirectTo without base hostname:', () => {
     const v = validators.redirectTo();
 
-    it('accepts a well-formed https:// URL', function () {
+    it('accepts a well-formed https:// URL', () => {
       const res = v.validate('https://example.com/path');
       assert.ok(! res.error);
       assert.equal(res.value, 'https://example.com/path');
     });
 
-    it('accepts a well-formed http:// URL', function () {
+    it('accepts a well-formed http:// URL', () => {
       const res = v.validate('http://example.com/path');
       assert.ok(! res.error);
       assert.equal(res.value, 'http://example.com/path');
     });
 
-    it('rejects a non-URL string', function () {
+    it('rejects a non-URL string', () => {
       const res = v.validate('not a url');
       assert.ok(res.error);
       assert.equal(res.value, 'not a url');
     });
 
-    it('rejects a non-http(s) URL', function () {
+    it('rejects a non-http(s) URL', () => {
       const res = v.validate('mailto:test@example.com');
       assert.ok(res.error);
       assert.equal(res.value, 'mailto:test@example.com');
     });
 
-    it('rejects tricksy quoted chars in the hostname', function () {
+    it('rejects tricksy quoted chars in the hostname', () => {
       const res = v.validate('https://example.com%2Eevil.com');
       assert.ok(res.error);
       assert.equal(res.value, 'https://example.com%2Eevil.com');
@@ -162,43 +162,43 @@ describe('lib/routes/validators:', () => {
   describe('validators.redirectTo with a base hostname:', () => {
     const v = validators.redirectTo('mozilla.com');
 
-    it('accepts a well-formed https:// URL at the base hostname', function () {
+    it('accepts a well-formed https:// URL at the base hostname', () => {
       const res = v.validate('https://test.mozilla.com/path');
       assert.ok(! res.error);
       assert.equal(res.value, 'https://test.mozilla.com/path');
     });
 
-    it('accepts a well-formed http:// URL at the base hostname', function () {
+    it('accepts a well-formed http:// URL at the base hostname', () => {
       const res = v.validate('http://test.mozilla.com/path');
       assert.ok(! res.error);
       assert.equal(res.value, 'http://test.mozilla.com/path');
     });
 
-    it('rejects a non-URL string', function () {
+    it('rejects a non-URL string', () => {
       const res = v.validate('not a url');
       assert.ok(res.error);
       assert.equal(res.value, 'not a url');
     });
 
-    it('rejects a non-http(s) URL at the base hostname', function () {
+    it('rejects a non-http(s) URL at the base hostname', () => {
       const res = v.validate('irc://irc.mozilla.com/#fxa');
       assert.ok(res.error);
       assert.equal(res.value, 'irc://irc.mozilla.com/#fxa');
     });
 
-    it('rejects a well-formed https:// URL at a different hostname', function () {
+    it('rejects a well-formed https:// URL at a different hostname', () => {
       const res = v.validate('https://test.example.com/path');
       assert.ok(res.error);
       assert.equal(res.value, 'https://test.example.com/path');
     });
 
-    it('accepts a well-formed http:// URL at a different hostname', function () {
+    it('accepts a well-formed http:// URL at a different hostname', () => {
       const res = v.validate('http://test.example.com/path');
       assert.ok(res.error);
       assert.equal(res.value, 'http://test.example.com/path');
     });
 
-    it('rejects tricksy quoted chars in the hostname', function () {
+    it('rejects tricksy quoted chars in the hostname', () => {
       let res = v.validate('https://evil.com%2Emozilla.com');
       assert.ok(res.error);
       assert.equal(res.value, 'https://evil.com%2Emozilla.com');

@@ -23,7 +23,7 @@ describe('scrypt', () => {
 
       return scrypt.hash(K1, salt, 65536, 8, 1, 32)
         .then(
-          function (K2) {
+          (K2) => {
             assert.equal(K2, '5b82f146a64126923e4167a0350bb181feba61f63cb1714012b19cb0be0119c5');
           }
         );
@@ -44,10 +44,10 @@ describe('scrypt', () => {
         promises.push(scrypt.hash(K1, salt, 65536, 8, 1, 32));
       }
       return promise.all(promises).then(
-        function () {
+        () => {
           assert(false, 'too many pending scrypt hashes were allowed');
         },
-        function (err) {
+        (err) => {
           assert.equal(err.message, 'too many pending scrypt hashes');
           assert.equal(scrypt.numPendingHWM, 6, 'HWM should be maxPending+1');
           assert.equal(log.buffer[0], 'scrypt.maxPendingExceeded');

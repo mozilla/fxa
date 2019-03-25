@@ -99,36 +99,36 @@ describe('remote push db', function() {
       };
 
       return db.createAccount(ACCOUNT)
-          .then(function() {
+          .then(() => {
             return db.emailRecord(ACCOUNT.email);
           })
-          .then(function(emailRecord) {
+          .then((emailRecord) => {
             emailRecord.createdAt = Date.now();
             return db.createSessionToken(emailRecord, SESSION_TOKEN_UA);
           })
 
-          .then(function (sessionToken) {
+          .then((sessionToken) => {
             sessionTokenId = sessionToken.id;
             deviceInfo.sessionTokenId = sessionTokenId;
             return db.createDevice(ACCOUNT.uid, deviceInfo);
           })
-          .then(function (device) {
+          .then((device) => {
             assert.equal(device.name, deviceInfo.name);
             assert.equal(device.pushCallback, deviceInfo.pushCallback);
             assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey);
             assert.equal(device.pushAuthKey, deviceInfo.pushAuthKey);
           })
-          .then(function () {
+          .then(() => {
             return db.devices(ACCOUNT.uid);
           })
           .then(devices => {
             const pushWithUnknown400 = proxyquire('../../lib/push', mocksUnknown400)(mockLog, db, {});
             return pushWithUnknown400.sendPush(ACCOUNT.uid, devices, 'accountVerify');
           })
-          .then(function () {
+          .then(() => {
             return db.devices(ACCOUNT.uid);
           })
-          .then(function (devices) {
+          .then((devices) => {
             const device = devices[0];
             assert.equal(device.name, deviceInfo.name);
             assert.equal(device.pushCallback, deviceInfo.pushCallback);
@@ -139,10 +139,10 @@ describe('remote push db', function() {
             const pushWithKnown400 = proxyquire('../../lib/push', mocksKnown400)(mockLog, db, {});
             return pushWithKnown400.sendPush(ACCOUNT.uid, devices, 'accountVerify');
           })
-          .then(function () {
+          .then(() => {
             return db.devices(ACCOUNT.uid);
           })
-          .then(function (devices) {
+          .then((devices) => {
             const device = devices[0];
             assert.equal(device.name, deviceInfo.name);
             assert.equal(device.pushEndpointExpired, true, 'device.pushEndpointExpired is correct');

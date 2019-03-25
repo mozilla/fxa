@@ -35,9 +35,9 @@ describe('remote verifier upgrade', function() {
   it(
     'upgrading verifierVersion upgrades the account on password change',
     () => {
-      return createDBServer().then(function (db_server) {
+      return createDBServer().then((db_server) => {
         db_server.listen(config.httpdb.url.split(':')[2]);
-        db_server.on('error', function () {});
+        db_server.on('error', () => {});
 
         const email = Math.random() + '@example.com';
         const password = 'ok';
@@ -45,10 +45,10 @@ describe('remote verifier upgrade', function() {
 
         return TestServer.start(config)
         .then(
-          function main(server) {
+          (server) => {
             return Client.create(config.publicUrl, email, password, { preVerified: true, keys: true })
               .then(
-                function (c) {
+                (c) => {
                   uid = c.uid;
                   return server.stop();
                 }
@@ -56,18 +56,18 @@ describe('remote verifier upgrade', function() {
           }
         )
         .then(
-          function () {
+          () => {
             return DB.connect(config[config.db.backend])
               .then(
-                function (db) {
+                (db) => {
                   return db.account(uid)
                     .then(
-                      function (account) {
+                      (account) => {
                         assert.equal(account.verifierVersion, 0, 'wrong version');
                       }
                     )
                     .then(
-                      function () {
+                      () => {
                         return db.close();
                       }
                     );
@@ -76,41 +76,41 @@ describe('remote verifier upgrade', function() {
           }
         )
         .then(
-          function () {
+          () => {
             config.verifierVersion = 1;
             return TestServer.start(config);
           }
         )
         .then(
-          function (server) {
+          (server) => {
             let client;
             return Client.login(config.publicUrl, email, password, server.mailbox)
               .then(
-                function (x) {
+                (x) => {
                   client = x;
                   return client.changePassword(password);
                 }
               )
               .then(
-                function () {
+                () => {
                   return server.stop();
                 }
               );
           }
         )
         .then(
-          function () {
+          () => {
             return DB.connect(config[config.db.backend])
               .then(
-                function (db) {
+                (db) => {
                   return db.account(uid)
                     .then(
-                      function (account) {
+                      (account) => {
                         assert.equal(account.verifierVersion, 1, 'wrong upgrade version');
                       }
                     )
                     .then(
-                      function () {
+                      () => {
                         return db.close();
                       }
                     );
@@ -119,7 +119,7 @@ describe('remote verifier upgrade', function() {
           }
         )
         .then(
-          function () {
+          () => {
             try {
               db_server.close();
             } catch (e) {

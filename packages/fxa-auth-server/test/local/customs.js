@@ -46,19 +46,19 @@ describe('Customs', () => {
       const action = newAction();
 
       return customsNoUrl.check(request, email, action)
-        .then(function(result) {
+        .then((result) => {
           assert.equal(result, undefined, 'Nothing is returned when /check succeeds');
         })
-        .then(function() {
+        .then(() => {
           return customsNoUrl.flag(ip, { email: email, uid: '12345' });
         })
-        .then(function(result) {
+        .then((result) => {
           assert.equal(result, undefined, 'Nothing is returned when /failedLoginAttempt succeeds');
         })
-        .then(function() {
+        .then(() => {
           return customsNoUrl.reset(email);
         })
-        .then(function(result) {
+        .then((result) => {
           assert.equal(result, undefined, 'Nothing is returned when /passwordReset succeeds');
         })
         .then(() => {
@@ -83,7 +83,7 @@ describe('Customs', () => {
       const action = newAction();
 
       // Mock a check that does not get blocked.
-      customsServer.post('/check', function (body) {
+      customsServer.post('/check', (body) => {
         assert.deepEqual(body, {
           ip: ip,
           email: email,
@@ -98,12 +98,12 @@ describe('Customs', () => {
         retryAfter: 0
       });
       return customsWithUrl.check(request, email, action)
-        .then(function(result) {
+        .then((result) => {
           assert.equal(result, undefined, 'Nothing is returned when /check succeeds');
         })
-        .then(function() {
+        .then(() => {
           // Mock a report of a failed login attempt
-          customsServer.post('/failedLoginAttempt', function (body) {
+          customsServer.post('/failedLoginAttempt', (body) => {
             assert.deepEqual(body, {
               ip: ip,
               email: email,
@@ -113,12 +113,12 @@ describe('Customs', () => {
           }).reply(200, {});
           return customsWithUrl.flag(ip, { email: email, uid: '12345' });
         })
-        .then(function(result) {
+        .then((result) => {
           assert.equal(result, undefined, 'Nothing is returned when /failedLoginAttempt succeeds');
         })
-        .then(function() {
+        .then(() => {
           // Mock a report of a password reset.
-          customsServer.post('/passwordReset', function (body) {
+          customsServer.post('/passwordReset', (body) => {
             assert.deepEqual(body, {
               email: email,
             }, 'first call to /passwordReset had expected request params');
@@ -126,12 +126,12 @@ describe('Customs', () => {
           }).reply(200, {});
           return customsWithUrl.reset(email);
         })
-        .then(function(result) {
+        .then((result) => {
           assert.equal(result, undefined, 'Nothing is returned when /passwordReset succeeds');
         })
-        .then(function() {
+        .then(() => {
           // Mock a check that does get blocked, with a retryAfter.
-          customsServer.post('/check', function (body) {
+          customsServer.post('/check', (body) => {
             assert.deepEqual(body, {
               ip: ip,
               email: email,
@@ -147,9 +147,9 @@ describe('Customs', () => {
           });
           return customsWithUrl.check(request, email, action);
         })
-        .then(function(result) {
+        .then((result) => {
           assert(false, 'This should have failed the check since it should be blocked');
-        }, function(err) {
+        }, (err) => {
           assert.equal(err.errno, error.ERRNO.THROTTLED, 'Error number is correct');
           assert.equal(err.message, 'Client has sent too many requests', 'Error message is correct');
           assert.ok(err.isBoom, 'The error causes a boom');
@@ -157,9 +157,9 @@ describe('Customs', () => {
           assert.equal(err.output.payload.retryAfter, 10001, 'retryAfter is correct');
           assert.equal(err.output.headers['retry-after'], 10001, 'retryAfter header is correct');
         })
-        .then(function() {
+        .then(() => {
           // Mock a report of a failed login attempt that does trigger lockout.
-          customsServer.post('/failedLoginAttempt', function (body) {
+          customsServer.post('/failedLoginAttempt', (body) => {
             assert.deepEqual(body, {
               ip: ip,
               email: email,
@@ -172,14 +172,14 @@ describe('Customs', () => {
             errno: error.ERRNO.INCORRECT_PASSWORD
           });
         })
-        .then(function(result) {
+        .then((result) => {
           assert.equal(result, undefined, 'Nothing is returned when /failedLoginAttempt succeeds');
         })
-        .then(function() {
+        .then(() => {
           // Mock a check that does get blocked, with no retryAfter.
           request.headers['user-agent'] = 'test passing through headers';
           request.payload['foo'] = 'bar';
-          customsServer.post('/check', function (body) {
+          customsServer.post('/check', (body) => {
             assert.deepEqual(body, {
               ip: ip,
               email: email,
@@ -194,9 +194,9 @@ describe('Customs', () => {
           });
           return customsWithUrl.check(request, email, action);
         })
-        .then(function(result) {
+        .then((result) => {
           assert(false, 'This should have failed the check since it should be blocked');
-        }, function(err) {
+        }, (err) => {
           assert.equal(err.errno, error.ERRNO.REQUEST_BLOCKED, 'Error number is correct');
           assert.equal(err.message, 'The request was blocked for security reasons', 'Error message is correct');
           assert.ok(err.isBoom, 'The error causes a boom');
@@ -205,7 +205,7 @@ describe('Customs', () => {
           assert(! err.output.headers['retry-after'], 'retryAfter header is not present');
         })
         .then(() => {
-          customsServer.post('/checkIpOnly', function (body) {
+          customsServer.post('/checkIpOnly', (body) => {
             assert.deepEqual(body, {
               ip: ip,
               action: action
@@ -287,29 +287,29 @@ describe('Customs', () => {
         .post('/check', checkRequestBody).reply(200, '{"block":true,"retryAfter":10001}');
 
       return customsWithUrl.check(request, email, action)
-        .then(function(result) {
+        .then((result) => {
           assert.equal(result, undefined, 'Nothing is returned when /check succeeds - 1');
           return customsWithUrl.check(request, email, action);
         })
-        .then(function(result) {
+        .then((result) => {
           assert.equal(result, undefined, 'Nothing is returned when /check succeeds - 2');
           return customsWithUrl.check(request, email, action);
         })
-        .then(function(result) {
+        .then((result) => {
           assert.equal(result, undefined, 'Nothing is returned when /check succeeds - 3');
           return customsWithUrl.check(request, email, action);
         })
-        .then(function(result) {
+        .then((result) => {
           assert.equal(result, undefined, 'Nothing is returned when /check succeeds - 4');
           return customsWithUrl.check(request, email, action);
         })
-        .then(function() {
+        .then(() => {
           // request is blocked
           return customsWithUrl.check(request, email, action);
         })
-        .then(function() {
+        .then(() => {
           assert(false, 'This should have failed the check since it should be blocked');
-        }, function(error) {
+        }, (error) => {
           assert.equal(error.errno, 114, 'Error number is correct');
           assert.equal(error.message, 'Client has sent too many requests', 'Error message is correct');
           assert.ok(error.isBoom, 'The error causes a boom');
@@ -351,29 +351,29 @@ describe('Customs', () => {
         .post('/checkAuthenticated', checkRequestBody).reply(200, '{"block":true,"retryAfter":10001}');
 
       return customsWithUrl.checkAuthenticated(request, uid, action)
-        .then(function(result) {
+        .then((result) => {
           assert.equal(result, undefined, 'Nothing is returned when /checkAuthenticated succeeds - 1');
           return customsWithUrl.checkAuthenticated(request, uid, action);
         })
-        .then(function(result) {
+        .then((result) => {
           assert.equal(result, undefined, 'Nothing is returned when /checkAuthenticated succeeds - 2');
           return customsWithUrl.checkAuthenticated(request, uid, action);
         })
-        .then(function(result) {
+        .then((result) => {
           assert.equal(result, undefined, 'Nothing is returned when /checkAuthenticated succeeds - 3');
           return customsWithUrl.checkAuthenticated(request, uid, action);
         })
-        .then(function(result) {
+        .then((result) => {
           assert.equal(result, undefined, 'Nothing is returned when /checkAuthenticated succeeds - 4');
           return customsWithUrl.checkAuthenticated(request, uid, action);
         })
-        .then(function() {
+        .then(() => {
           // request is blocked
           return customsWithUrl.checkAuthenticated(request, uid, action);
         })
-        .then(function() {
+        .then(() => {
           assert(false, 'This should have failed the check since it should be blocked');
-        }, function(error) {
+        }, (error) => {
           assert.equal(error.errno, 114, 'Error number is correct');
           assert.equal(error.message, 'Client has sent too many requests', 'Error message is correct');
           assert.ok(error.isBoom, 'The error causes a boom');
@@ -444,7 +444,7 @@ describe('Customs', () => {
       const email = newEmail();
       const action = newAction();
 
-      customsServer.post('/check', function (body) {
+      customsServer.post('/check', (body) => {
         assert.deepEqual(body, {
           ip: ip,
           email: email,
@@ -462,7 +462,7 @@ describe('Customs', () => {
       });
 
       return customsWithUrl.check(request, email, action)
-        .then(function (result) {
+        .then((result) => {
           assert.equal(result, undefined, 'nothing is returned when /check succeeds - 1');
         });
     }

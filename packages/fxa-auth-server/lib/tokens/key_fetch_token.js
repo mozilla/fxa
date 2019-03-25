@@ -26,10 +26,10 @@ module.exports = function (log, Token) {
     log.trace('KeyFetchToken.create', { uid: details && details.uid });
     return Token.createNewToken(KeyFetchToken, details || {})
       .then(
-        function (token) {
+        (token) => {
           return token.bundleKeys(details.kA, details.wrapKb)
             .then(
-              function (keyBundle) {
+              (keyBundle) => {
                 token.keyBundle = keyBundle;
                 return token;
               }
@@ -59,7 +59,7 @@ module.exports = function (log, Token) {
     log.trace('keyFetchToken.unbundleKeys', { id: this.id });
     return this.unbundle('account/keys', bundle)
       .then(
-        function (plaintext) {
+        (plaintext) => {
           return {
             kA: plaintext.slice(0, 64), // strings, not buffers
             wrapKb: plaintext.slice(64, 128)

@@ -23,7 +23,7 @@ function hkdf(km, info, salt, len) {
   df.derive(
     KW(info),
     len,
-    function(key) {
+    (key) => {
       d.resolve(key);
     }
   );

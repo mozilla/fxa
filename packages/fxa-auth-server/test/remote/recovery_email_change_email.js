@@ -27,14 +27,14 @@ describe('remote change email', function () {
     email = server.uniqueEmail();
     secondEmail = server.uniqueEmail('@notrestmail.com');
     return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-      .then(function (x) {
+      .then((x) => {
         client = x;
         assert.ok(client.authAt, 'authAt was set');
       })
-      .then(function () {
+      .then(() => {
         return client.emailStatus();
       })
-      .then(function (status) {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
         return client.createEmail(secondEmail);
       })
@@ -67,10 +67,10 @@ describe('remote change email', function () {
       const userEmail2 = server.uniqueEmail();
       const anotherEmail = server.uniqueEmail();
       return Client.createAndVerify(config.publicUrl, userEmail2, password, server.mailbox)
-        .then(function (client2) {
+        .then((client2) => {
           return client2.createEmail(anotherEmail);
         })
-        .then(function () {
+        .then(() => {
           return client.setPrimaryEmail(anotherEmail)
             .then(() => {
               assert.fail('Should not have set email that belongs to another account');
@@ -321,7 +321,7 @@ describe('remote change email', function () {
 
   function resetPassword(client, code, newPassword, headers, options) {
     return client.verifyPasswordResetCode(code, headers, options)
-      .then(function () {
+      .then(() => {
         return client.resetPassword(newPassword, {}, options);
       });
   }

@@ -32,7 +32,7 @@ module.exports = function (log) {
         MaxNumberOfMessages: 10,
         WaitTimeSeconds: 20
       },
-      function (err, data) {
+      (err, data) => {
         if (err) {
           log.error('fetch', { url: url, err: err });
           if (! errTimer) {
@@ -67,7 +67,7 @@ module.exports = function (log) {
           }
         }
         this.fetch(url);
-      }.bind(this)
+      }
     );
   };
 

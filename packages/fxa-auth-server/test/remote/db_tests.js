@@ -114,13 +114,13 @@ describe('remote db', function() {
     'account creation',
     () => {
       return db.accountExists(account.email)
-        .then(function(exists) {
+        .then((exists) => {
           assert.ok(exists, 'account exists for this email address');
         })
-        .then(function() {
+        .then(() => {
           return db.account(account.uid);
         })
-        .then(function(account) {
+        .then((account) => {
           assert.deepEqual(account.uid, account.uid, 'uid');
           assert.equal(account.email, account.email, 'email');
           assert.deepEqual(account.emailCode, account.emailCode, 'emailCode');
@@ -440,16 +440,16 @@ describe('remote db', function() {
         .then(() => {
           // Attempt to delete a non-existent device
           return db.deleteDevice(account.uid, deviceInfo.id)
-            .then(function () {
+            .then(() => {
               assert(false, 'deleting a non-existent device should have failed');
-            }, function (err) {
+            }, (err) => {
               assert.equal(err.errno, 123, 'err.errno === 123');
             });
         })
         .then(() => {
           // Fetch all of the devices for the account
           return db.devices(account.uid)
-            .catch(function () {
+            .catch(() => {
               assert(false, 'getting devices should not have failed');
             });
         })
@@ -625,11 +625,11 @@ describe('remote db', function() {
         .then(result => {
           assert.equal(result, null, 'redis was cleared');
         })
-        .then(function () {
+        .then(() => {
           // Fetch all of the devices for the account
           return db.devices(account.uid);
         })
-        .then(function (devices) {
+        .then((devices) => {
           assert.equal(devices.length, 0, 'devices array is empty');
 
           // Delete the account
@@ -643,35 +643,35 @@ describe('remote db', function() {
     () => {
       let tokenId;
       return db.emailRecord(account.email)
-        .then(function(emailRecord) {
+        .then((emailRecord) => {
           return db.createKeyFetchToken({
             uid: emailRecord.uid,
             kA: emailRecord.kA,
             wrapKb: account.wrapWrapKb
           });
         })
-        .then(function(keyFetchToken) {
+        .then((keyFetchToken) => {
           assert.deepEqual(keyFetchToken.uid, account.uid);
           tokenId = keyFetchToken.id;
         })
-        .then(function() {
+        .then(() => {
           return db.keyFetchToken(tokenId);
         })
-        .then(function(keyFetchToken) {
+        .then((keyFetchToken) => {
           assert.deepEqual(keyFetchToken.id, tokenId, 'token id matches');
           assert.deepEqual(keyFetchToken.uid, account.uid);
           assert.equal(keyFetchToken.emailVerified, account.emailVerified);
           return keyFetchToken;
         })
-        .then(function(keyFetchToken) {
+        .then((keyFetchToken) => {
           return db.deleteKeyFetchToken(keyFetchToken);
         })
-        .then(function() {
+        .then(() => {
           return db.keyFetchToken(tokenId);
         })
-        .then(function(keyFetchToken) {
+        .then((keyFetchToken) => {
           assert(false, 'The above keyFetchToken() call should fail, since the keyFetchToken has been deleted');
-        }, function(err) {
+        }, (err) => {
           assert.equal(err.errno, 110, 'keyFetchToken() fails with the correct error code');
           const msg = 'Error: The authentication token could not be found';
           assert.equal(msg, '' + err, 'keyFetchToken() fails with the correct message');
@@ -684,32 +684,32 @@ describe('remote db', function() {
     () => {
       let tokenId;
       return db.emailRecord(account.email)
-        .then(function(emailRecord) {
+        .then((emailRecord) => {
           return db.createPasswordForgotToken(emailRecord);
         })
-        .then(function(passwordForgotToken) {
+        .then((passwordForgotToken) => {
           return db.forgotPasswordVerified(passwordForgotToken)
             .then(accountResetToken => {
               assert.ok(accountResetToken.createdAt >= passwordForgotToken.createdAt, 'account reset token should be equal or newer than password forgot token');
               return accountResetToken;
             });
         })
-        .then(function(accountResetToken) {
+        .then((accountResetToken) => {
           assert.deepEqual(accountResetToken.uid, account.uid, 'account reset token uid should be the same as the account.uid');
           tokenId = accountResetToken.id;
           return db.accountResetToken(tokenId);
         })
-        .then(function(accountResetToken) {
+        .then((accountResetToken) => {
           assert.deepEqual(accountResetToken.id, tokenId, 'token id matches');
           assert.deepEqual(accountResetToken.uid, account.uid, 'account reset token uid should still be the same as the account.uid');
           return accountResetToken;
         })
-        .then(function(accountResetToken) {
+        .then((accountResetToken) => {
           return db.deleteAccountResetToken(accountResetToken);
         })
-        .then(function () {
+        .then(() => {
           return db.accountResetToken(tokenId)
-            .then(assert.fail, function (err) {
+            .then(assert.fail, (err) => {
               assert.equal(err.errno, 110, 'accountResetToken() fails with the correct error code');
               const msg = 'Error: The authentication token could not be found';
               assert.equal(msg, '' + err, 'accountResetToken() fails with the correct message');
@@ -724,43 +724,43 @@ describe('remote db', function() {
       let token1;
       let token1tries = 0;
       return db.emailRecord(account.email)
-        .then(function(emailRecord) {
+        .then((emailRecord) => {
           return db.createPasswordForgotToken(emailRecord);
         })
-        .then(function(passwordForgotToken) {
+        .then((passwordForgotToken) => {
           assert.deepEqual(passwordForgotToken.uid, account.uid, 'passwordForgotToken uid same as account.uid');
           token1 = passwordForgotToken;
           token1tries = token1.tries;
         })
-        .then(function() {
+        .then(() => {
           return db.passwordForgotToken(token1.id);
         })
-        .then(function(passwordForgotToken) {
+        .then((passwordForgotToken) => {
           assert.deepEqual(passwordForgotToken.id, token1.id, 'token id matches');
           assert.deepEqual(passwordForgotToken.uid, token1.uid, 'tokens are identical');
           return passwordForgotToken;
         })
-        .then(function(passwordForgotToken) {
+        .then((passwordForgotToken) => {
           passwordForgotToken.tries -= 1;
           return db.updatePasswordForgotToken(passwordForgotToken);
         })
-        .then(function() {
+        .then(() => {
           return db.passwordForgotToken(token1.id);
         })
-        .then(function(passwordForgotToken) {
+        .then((passwordForgotToken) => {
           assert.deepEqual(passwordForgotToken.id, token1.id, 'token id matches again');
           assert.equal(passwordForgotToken.tries, token1tries - 1, '');
           return passwordForgotToken;
         })
-        .then(function(passwordForgotToken) {
+        .then((passwordForgotToken) => {
           return db.deletePasswordForgotToken(passwordForgotToken);
         })
-        .then(function() {
+        .then(() => {
           return db.passwordForgotToken(token1.id);
         })
-        .then(function(passwordForgotToken) {
+        .then((passwordForgotToken) => {
           assert(false, 'The above passwordForgotToken() call should fail, since the passwordForgotToken has been deleted');
-        }, function(err) {
+        }, (err) => {
           assert.equal(err.errno, 110, 'passwordForgotToken() fails with the correct error code');
           const msg = 'Error: The authentication token could not be found';
           assert.equal(msg, '' + err, 'passwordForgotToken() fails with the correct message');
@@ -772,13 +772,13 @@ describe('remote db', function() {
     'email verification',
     () => {
       return db.emailRecord(account.email)
-        .then(function(emailRecord) {
+        .then((emailRecord) => {
           return db.verifyEmail(emailRecord, emailRecord.emailCode);
         })
-        .then(function() {
+        .then(() => {
           return db.account(account.uid);
         })
-        .then(function(account) {
+        .then((account) => {
           assert.ok(account.emailVerified, 'account should now be emailVerified');
         });
     }
@@ -789,20 +789,20 @@ describe('remote db', function() {
     () => {
       let token1;
       return db.emailRecord(account.email)
-        .then(function(emailRecord) {
+        .then((emailRecord) => {
           return db.createPasswordForgotToken(emailRecord);
         })
-        .then(function(passwordForgotToken) {
+        .then((passwordForgotToken) => {
           return db.forgotPasswordVerified(passwordForgotToken);
         })
-        .then(function(accountResetToken) {
+        .then((accountResetToken) => {
           assert.deepEqual(accountResetToken.uid, account.uid, 'uid is the same as account.uid');
           token1 = accountResetToken;
         })
-        .then(function() {
+        .then(() => {
           return db.accountResetToken(token1.id);
         })
-        .then(function(accountResetToken) {
+        .then((accountResetToken) => {
           assert.deepEqual(accountResetToken.uid, account.uid);
           return db.deleteAccountResetToken(token1);
         });
@@ -813,7 +813,7 @@ describe('remote db', function() {
     'db.resetAccount',
     () => {
       return db.emailRecord(account.email)
-        .then(function(emailRecord) {
+        .then((emailRecord) => {
           emailRecord.tokenVerificationId = account.tokenVerificationId;
           emailRecord.uaBrowser = 'Firefox';
           emailRecord.uaBrowserVersion = '41';
@@ -822,10 +822,10 @@ describe('remote db', function() {
           emailRecord.uaDeviceType = emailRecord.uaFormFactor = null;
           return db.createSessionToken(emailRecord);
         })
-        .then(function(sessionToken) {
+        .then((sessionToken) => {
           return db.forgotPasswordVerified(sessionToken);
         })
-        .then(function(accountResetToken) {
+        .then((accountResetToken) => {
           return db.resetAccount(accountResetToken, account);
         })
         .then(() => {
@@ -836,7 +836,7 @@ describe('remote db', function() {
           // account should STILL exist for this email address
           return db.accountExists(account.email);
         })
-        .then(function(exists) {
+        .then((exists) => {
           assert.equal(exists, true, 'account should still exist');
         });
     }
@@ -850,7 +850,7 @@ describe('remote db', function() {
         name: 'account.create',
         uid: account.uid
       })
-      .then(function(resp) {
+      .then((resp) => {
         assert.equal(typeof resp, 'object');
         assert.equal(Object.keys(resp).length, 0);
 
@@ -860,7 +860,7 @@ describe('remote db', function() {
           uid: account.uid
         });
       })
-      .then(function(resp) {
+      .then((resp) => {
         assert.equal(typeof resp, 'object');
         assert.equal(Object.keys(resp).length, 0);
       });
@@ -881,7 +881,7 @@ describe('remote db', function() {
           uid: account.uid
         });
       })
-      .then(function (events) {
+      .then((events) => {
         assert.equal(events.length, 1);
       });
     }
@@ -892,40 +892,40 @@ describe('remote db', function() {
     () => {
       let unblockCode;
       return db.createUnblockCode(account.uid)
-        .then(function(_unblockCode) {
+        .then((_unblockCode) => {
           assert.ok(_unblockCode);
           unblockCode = _unblockCode;
 
           return db.consumeUnblockCode(account.uid, 'NOTREAL');
         })
         .then(
-          function () {
+          () => {
             assert(false, 'consumeUnblockCode() with an invalid unblock code should not succeed');
           },
-          function (err) {
+          (err) => {
             assert.equal(err.errno, 127, 'consumeUnblockCode() fails with the correct error code');
             const msg = 'Error: Invalid unblock code';
             assert.equal(msg, '' + err, 'consumeUnblockCode() fails with the correct message');
           }
         )
         .then(
-          function() {
+          () => {
             return db.consumeUnblockCode(account.uid, unblockCode);
           }
         )
         .then(
-          function() {
+          () => {
             // re-use unblock code, no longer valid
             return db.consumeUnblockCode(account.uid, unblockCode);
-          }, function (err) {
+          }, (err) => {
             assert(false, 'consumeUnblockCode() with a valid unblock code should succeed');
           }
         )
         .then(
-          function () {
+          () => {
             assert(false, 'consumeUnblockCode() with an invalid unblock code should not succeed');
           },
-          function (err) {
+          (err) => {
             assert.equal(err.errno, 127, 'consumeUnblockCode() fails with the correct error code');
             const msg = 'Error: Invalid unblock code';
             assert.equal(msg, '' + err, 'consumeUnblockCode() fails with the correct message');
@@ -996,7 +996,7 @@ describe('remote db', function() {
     'account deletion',
     () => {
       return db.emailRecord(account.email)
-        .then(function(emailRecord) {
+        .then((emailRecord) => {
           assert.deepEqual(emailRecord.uid, account.uid, 'retrieving uid should be the same');
           return db.deleteAccount(emailRecord);
         })
@@ -1008,7 +1008,7 @@ describe('remote db', function() {
           // account should no longer exist for this email address
           return db.accountExists(account.email);
         })
-        .then(function(exists) {
+        .then((exists) => {
           assert.equal(exists, false, 'account should no longer exist');
         });
     }
@@ -1017,7 +1017,7 @@ describe('remote db', function() {
   describe('account record', () => {
     it('can retrieve account from account email', () => {
       return P.all([db.emailRecord(account.email), db.accountRecord(account.email)])
-        .spread(function (emailRecord, accountRecord) {
+        .spread((emailRecord, accountRecord) => {
           assert.equal(emailRecord.email, accountRecord.email, 'original account and email records should be equal');
           assert.deepEqual(emailRecord.emails, accountRecord.emails, 'emails should be equal');
           assert.deepEqual(emailRecord.primaryEmail, accountRecord.primaryEmail, 'primary emails should be equal');
@@ -1026,7 +1026,7 @@ describe('remote db', function() {
 
     it('can retrieve account from secondary email', () => {
       return P.all([db.accountRecord(account.email), db.accountRecord(secondEmail)])
-        .spread(function (accountRecord, accountRecordFromSecondEmail) {
+        .spread((accountRecord, accountRecordFromSecondEmail) => {
           assert.equal(accountRecordFromSecondEmail.email, accountRecord.email, 'original account and email records should be equal');
           assert.deepEqual(accountRecordFromSecondEmail.emails, accountRecord.emails, 'emails should be equal');
           assert.deepEqual(accountRecordFromSecondEmail.primaryEmail, accountRecord.primaryEmail, 'primary emails should be equal');
@@ -1035,7 +1035,7 @@ describe('remote db', function() {
 
     it('returns unknown account', () => {
       return db.accountRecord('idontexist@email.com')
-        .then(function () {
+        .then(() => {
           assert.fail('should not have retrieved non-existent account');
         })
         .catch((err) => {
@@ -1047,11 +1047,11 @@ describe('remote db', function() {
   describe('set primary email', () => {
     it('can set primary email address', () => {
       return db.setPrimaryEmail(account.uid, secondEmail)
-        .then(function (res) {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return db.accountRecord(secondEmail);
         })
-        .then(function (account) {
+        .then((account) => {
           assert.equal(account.primaryEmail.email, secondEmail, 'primary email set');
         });
     });

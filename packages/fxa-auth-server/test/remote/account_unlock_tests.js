@@ -25,15 +25,15 @@ describe('remote account unlock', function() {
     () => {
       return Client.create(config.publicUrl, server.uniqueEmail(), 'password')
         .then(
-          function (c) {
+          (c) => {
             return c.lockAccount();
           }
         )
         .then(
-          function () {
+          () => {
             assert(false, 'should get an error');
           },
-          function (e) {
+          (e) => {
             assert.equal(e.code, 410, 'correct error status code');
           }
         );
@@ -45,15 +45,15 @@ describe('remote account unlock', function() {
     () => {
       return Client.create(config.publicUrl, server.uniqueEmail(), 'password')
         .then(
-          function (c) {
+          (c) => {
             return c.resendAccountUnlockCode('en');
           }
         )
         .then(
-          function () {
+          () => {
             assert(false, 'should get an error');
           },
-          function (e) {
+          (e) => {
             assert.equal(e.code, 410, 'correct error status code');
           }
         );
@@ -65,15 +65,15 @@ describe('remote account unlock', function() {
     () => {
       return Client.create(config.publicUrl, server.uniqueEmail(), 'password')
         .then(
-          function (c) {
+          (c) => {
             return c.verifyAccountUnlockCode('bigscaryuid', 'bigscarycode');
           }
         )
         .then(
-          function () {
+          () => {
             assert(false, 'should get an error');
           },
-          function (e) {
+          (e) => {
             assert.equal(e.code, 410, 'correct error status code');
           }
         );

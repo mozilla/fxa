@@ -134,7 +134,7 @@ module.exports = (log, db, push) => {
           });
         }
       })
-      .then(function () {
+      .then(() => {
         delete result.sessionTokenId;
         delete result.refreshTokenId;
         return result;

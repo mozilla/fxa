@@ -23,6 +23,6 @@ if (process.env.NO_COVERAGE) {
 const p = spawn(bin, argv.concat(process.argv.slice(2)), { stdio: 'inherit', env: process.env });
 
 // exit this process with the same exit code as the test process
-p.on('close', function (code) {
+p.on('close', (code) => {
   process.exit(code);
 });

@@ -40,7 +40,7 @@ module.exports = {
     payload = Buffer.from(payload, 'hex');
     return deriveBundleKeys(key, keyInfo, payload.length)
       .then(
-        function (keys) {
+        (keys) => {
           const ciphertext = butil.xorBuffers(payload, keys.xorKey);
           const hmac = crypto.createHmac(HASH_ALGORITHM, keys.hmacKey);
           hmac.update(ciphertext);
@@ -59,7 +59,7 @@ module.exports = {
     const expectedHmac = payload.slice(-32);
     return deriveBundleKeys(key, keyInfo, ciphertext.length)
       .then(
-        function (keys) {
+        (keys) => {
           const hmac = crypto.createHmac(HASH_ALGORITHM, keys.hmacKey);
           hmac.update(ciphertext);
           const mac = hmac.digest();
@@ -78,7 +78,7 @@ module.exports = {
 function deriveBundleKeys(key, keyInfo, payloadSize) {
   return hkdf(key, keyInfo, null, 32 + payloadSize)
     .then(
-      function (keyMaterial) {
+      (keyMaterial) => {
         return {
           hmacKey: keyMaterial.slice(0, 32),
           xorKey: keyMaterial.slice(32)

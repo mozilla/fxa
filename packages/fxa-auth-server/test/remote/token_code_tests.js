@@ -16,7 +16,7 @@ describe('remote tokenCodes', function () {
 
   this.timeout(10000);
 
-  before(function () {
+  before(() => {
     return TestServer.start(config)
       .then(s => {
         server = s;
@@ -26,7 +26,7 @@ describe('remote tokenCodes', function () {
   beforeEach(() => {
     email = server.uniqueEmail('@mozilla.com');
     return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-      .then(function (x) {
+      .then((x) => {
         client = x;
         assert.ok(client.authAt, 'authAt was set');
       });

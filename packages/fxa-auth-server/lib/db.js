@@ -143,7 +143,7 @@ module.exports = (
     log.trace('DB.createKeyFetchToken', { uid: authToken && authToken.uid });
     return KeyFetchToken.create(authToken)
       .then(
-        function (keyFetchToken) {
+        (keyFetchToken) => {
           const { id } = keyFetchToken;
           return this.pool.put(
             SAFE_URLS.createKeyFetchToken,
@@ -158,11 +158,11 @@ module.exports = (
             }
           )
           .then(
-            function () {
+            () => {
               return keyFetchToken;
             }
           );
-        }.bind(this)
+        }
       );
   };
 
@@ -174,7 +174,7 @@ module.exports = (
     log.trace('DB.createPasswordForgotToken', { uid: emailRecord && emailRecord.uid });
     return PasswordForgotToken.create(emailRecord)
       .then(
-        function (passwordForgotToken) {
+        (passwordForgotToken) => {
           const { id } = passwordForgotToken;
           return this.pool.put(
             SAFE_URLS.createPasswordForgotToken,
@@ -189,11 +189,11 @@ module.exports = (
             }
           )
           .then(
-            function () {
+            () => {
               return passwordForgotToken;
             }
           );
-        }.bind(this)
+        }
       );
   };
 
@@ -205,7 +205,7 @@ module.exports = (
     log.trace('DB.createPasswordChangeToken', { uid: data.uid });
     return PasswordChangeToken.create(data)
       .then(
-        function (passwordChangeToken) {
+        (passwordChangeToken) => {
           const { id } = passwordChangeToken;
           return this.pool.put(
             SAFE_URLS.createPasswordChangeToken,
@@ -218,11 +218,11 @@ module.exports = (
             }
           )
           .then(
-            function () {
+            () => {
               return passwordChangeToken;
             }
           );
-        }.bind(this)
+        }
       );
   };
 
@@ -237,10 +237,10 @@ module.exports = (
         'verifyHash': verifyHash
       })
       .then(
-        function () {
+        () => {
           return true;
         },
-        function (err) {
+        (err) => {
           if (isIncorrectPasswordError(err)) {
             return false;
           }
@@ -253,10 +253,10 @@ module.exports = (
     log.trace('DB.accountExists', { email: email });
     return this.accountRecord(email)
       .then(
-        function () {
+        () => {
           return true;
         },
-        function (err) {
+        (err) => {
           if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
             return false;
           }
@@ -347,10 +347,10 @@ module.exports = (
     log.trace('DB.keyFetchToken', { id });
     return this.pool.get(SAFE_URLS.keyFetchToken, { id })
       .then(
-        function (data) {
+        (data) => {
           return KeyFetchToken.fromId(id, data);
         },
-        function (err) {
+        (err) => {
           err = wrapTokenNotFoundError(err);
           throw err;
         }
@@ -365,10 +365,10 @@ module.exports = (
     log.trace('DB.keyFetchTokenWithVerificationStatus', { id });
     return this.pool.get(SAFE_URLS.keyFetchTokenWithVerificationStatus, { id })
       .then(
-        function (data) {
+        (data) => {
           return KeyFetchToken.fromId(id, data);
         },
-        function (err) {
+        (err) => {
           err = wrapTokenNotFoundError(err);
           throw err;
         }
@@ -380,10 +380,10 @@ module.exports = (
     log.trace('DB.accountResetToken', { id });
     return this.pool.get(SAFE_URLS.accountResetToken, { id })
       .then(
-        function (data) {
+        (data) => {
           return AccountResetToken.fromHex(data.tokenData, data);
         },
-        function (err) {
+        (err) => {
           err = wrapTokenNotFoundError(err);
           throw err;
         }
@@ -395,10 +395,10 @@ module.exports = (
     log.trace('DB.passwordForgotToken', { id });
     return this.pool.get(SAFE_URLS.passwordForgotToken, { id })
       .then(
-        function (data) {
+        (data) => {
           return PasswordForgotToken.fromHex(data.tokenData, data);
         },
-        function (err) {
+        (err) => {
           err = wrapTokenNotFoundError(err);
           throw err;
         }
@@ -410,10 +410,10 @@ module.exports = (
     log.trace('DB.passwordChangeToken', { id });
     return this.pool.get(SAFE_URLS.passwordChangeToken, { id })
       .then(
-        function (data) {
+        (data) => {
           return PasswordChangeToken.fromHex(data.tokenData, data);
         },
-        function (err) {
+        (err) => {
           err = wrapTokenNotFoundError(err);
           throw err;
         }
@@ -465,10 +465,10 @@ module.exports = (
     log.trace('DB.setPrimaryEmail', { email });
     return this.pool.post(SAFE_URLS.setPrimaryEmail, { email: hexEncode(email), uid })
       .then(
-        function (body) {
+        (body) => {
           return body;
         },
-        function (err) {
+        (err) => {
           if (isNotFoundError(err)) {
             err = error.unknownAccount(email);
           }
@@ -538,10 +538,10 @@ module.exports = (
     log.trace('DB.sessionToken', { id });
     return this.pool.get(SAFE_URLS.sessionToken, { id })
     .then(
-      function (data) {
+      (data) => {
         return SessionToken.fromHex(data.tokenData, data);
       },
-      function (err) {
+      (err) => {
         err = wrapTokenNotFoundError(err);
         throw err;
       }
@@ -957,10 +957,10 @@ module.exports = (
       { uid: accountData.uid }
     )
     .then(
-      function (body) {
+      (body) => {
         return body;
       },
-      function (err) {
+      (err) => {
         if (isNotFoundError(err)) {
           err = error.invalidVerificationCode();
         }
@@ -991,10 +991,10 @@ module.exports = (
       { uid: accountData.uid }
     )
     .then(
-      function (body) {
+      (body) => {
         return body;
       },
-      function (err) {
+      (err) => {
         if (isExpiredTokenVerificationCodeError(err)) {
           err = error.expiredTokenVerficationCode();
         } else if (isNotFoundError(err)) {
@@ -1014,7 +1014,7 @@ module.exports = (
     log.trace('DB.forgotPasswordVerified', { uid });
     return AccountResetToken.create({ uid })
       .then(
-        function (accountResetToken) {
+        (accountResetToken) => {
           return this.pool.post(
             SAFE_URLS.forgotPasswordVerified,
             { id },
@@ -1026,11 +1026,11 @@ module.exports = (
             }
           )
           .then(
-            function () {
+            () => {
               return accountResetToken;
             }
           );
-        }.bind(this)
+        }
       );
   };
 
@@ -1098,7 +1098,7 @@ module.exports = (
     log.trace('DB.consumeUnblockCode', { uid });
     return this.pool.del(SAFE_URLS.consumeUnblockCode, { uid, code })
       .catch(
-        function (err) {
+        (err) => {
           if (isNotFoundError(err)) {
             throw error.invalidUnblockCode();
           }
@@ -1152,7 +1152,7 @@ module.exports = (
 
     return this.pool.post(SAFE_URLS.createEmail, { uid }, emailData)
       .catch(
-        function (err) {
+        (err) => {
           if (isEmailAlreadyExistsError(err)) {
             throw error.emailExists();
           }
@@ -1167,7 +1167,7 @@ module.exports = (
 
     return this.pool.del(SAFE_URLS.deleteEmail, { uid, email: hexEncode(email) })
       .catch(
-        function (err) {
+        (err) => {
           if (isEmailDeletePrimaryError(err)) {
             throw error.cannotDeletePrimaryEmail();
           }

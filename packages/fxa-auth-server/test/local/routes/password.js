@@ -182,7 +182,7 @@ describe('/password', () => {
         query: {}
       });
       return runRoute(passwordRoutes, '/password/forgot/resend_code', mockRequest)
-        .then(function(response) {
+        .then((response) => {
           assert.equal(mockMailer.sendRecoveryCode.callCount, 1, 'mailer.sendRecoveryCode was called once');
           assert.equal(mockMailer.sendRecoveryCode.args[0][2].uid, uid);
           assert.equal(mockMailer.sendRecoveryCode.args[0][2].deviceId, 'wibble');
@@ -329,7 +329,7 @@ describe('/password', () => {
         });
 
         return runRoute(passwordRoutes, '/password/change/finish', mockRequest)
-        .then(function(response) {
+        .then((response) => {
           assert.equal(mockDB.deletePasswordChangeToken.callCount, 1);
           assert.equal(mockDB.resetAccount.callCount, 1);
 
@@ -411,7 +411,7 @@ describe('/password', () => {
         });
 
         return runRoute(passwordRoutes, '/password/change/finish', mockRequest)
-        .then(function(response) {
+        .then((response) => {
           assert.equal(mockDB.deletePasswordChangeToken.callCount, 1);
           assert.equal(mockDB.resetAccount.callCount, 1);
 

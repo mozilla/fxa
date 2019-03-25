@@ -24,17 +24,17 @@ describe('PasswordForgotToken', () => {
       let token = null;
       return PasswordForgotToken.create(ACCOUNT)
         .then(
-          function (x) {
+          (x) => {
             token = x;
           }
         )
         .then(
-          function () {
+          () => {
             return PasswordForgotToken.fromHex(token.data, ACCOUNT);
           }
         )
         .then(
-          function (token2) {
+          (token2) => {
             assert.deepEqual(token.data, token2.data);
             assert.deepEqual(token.id, token2.id);
             assert.deepEqual(token.authKey, token2.authKey);
@@ -52,7 +52,7 @@ describe('PasswordForgotToken', () => {
     () => {
       return PasswordForgotToken.create(ACCOUNT)
         .then(
-          function (token) {
+          (token) => {
             token.createdAt = timestamp;
             assert.equal(token.ttl(timestamp), 900);
             assert.equal(token.ttl(timestamp + 1000), 899);
@@ -68,7 +68,7 @@ describe('PasswordForgotToken', () => {
     () => {
       return PasswordForgotToken.create(ACCOUNT)
         .then(
-          function (x) {
+          (x) => {
             assert.equal(x.tries, 3);
             assert.equal(x.failAttempt(), false);
             assert.equal(x.tries, 2);

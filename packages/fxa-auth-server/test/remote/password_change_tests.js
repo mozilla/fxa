@@ -14,7 +14,7 @@ const tokens = require('../../lib/tokens')({ trace: function() {}});
 function getSessionTokenId(sessionTokenHex) {
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
-      function (token) {
+      (token) => {
         return token.id;
       }
     );
@@ -43,7 +43,7 @@ describe('remote password change', function() {
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
-          function (x) {
+          (x) => {
             client = x;
             originalSessionToken = client.sessionToken;
             firstAuthPW = x.authPW.toString('hex');
@@ -51,45 +51,45 @@ describe('remote password change', function() {
           }
         )
         .then(
-          function (keys) {
+          (keys) => {
             kB = keys.kB;
             kA = keys.kA;
           }
         )
         .then(
-          function () {
+          () => {
             return client.emailStatus();
           }
         )
         .then(
-          function (status) {
+          (status) => {
             assert.equal(status.verified, true, 'account is verified');
           }
         )
         .then(
-          function () {
+          () => {
             // Login from different location to created unverified session
             return Client.login(config.publicUrl, email, password, {keys:true});
           }
         )
         .then(
-          function (c) {
+          (c) => {
             client = c;
           }
         )
         .then(
-          function () {
+          () => {
             // Ignore confirm login email
             return server.mailbox.waitForEmail(email);
           }
         )
         .then(
-          function () {
+          () => {
             return client.emailStatus();
           }
         )
         .then(
-          function (status) {
+          (status) => {
             // Verify correct status
             assert.equal(status.verified, false, 'account is unverified');
             assert.equal(status.emailVerified, true, 'account email is verified');
@@ -97,17 +97,17 @@ describe('remote password change', function() {
           }
         )
         .then(
-          function () {
+          () => {
             return getSessionTokenId(client.sessionToken);
           }
         )
         .then(
-          function (sessionTokenId) {
+          (sessionTokenId) => {
             return client.changePassword(newPassword, undefined, sessionTokenId);
           }
         )
         .then(
-          function (response) {
+          (response) => {
             // Verify correct change password response
             assert.notEqual(response.sessionToken, originalSessionToken, 'session token has changed');
             assert.ok(response.keyFetchToken, 'key fetch token returned');
@@ -115,12 +115,12 @@ describe('remote password change', function() {
           }
         )
         .then(
-          function () {
+          () => {
             return server.mailbox.waitForEmail(email);
           }
         )
         .then(
-          function (emailData) {
+          (emailData) => {
             const subject = emailData.headers['subject'];
             assert.equal(subject, 'Your Firefox Account password has been changed', 'password email subject set correctly');
             const link = emailData.headers['x-link'];
@@ -129,12 +129,12 @@ describe('remote password change', function() {
           }
         )
         .then(
-          function () {
+          () => {
             return client.emailStatus();
           }
         )
         .then(
-          function (status) {
+          (status) => {
             // Verify correct status
             assert.equal(status.verified, false, 'account is unverified');
             assert.equal(status.emailVerified, true, 'account email is verified');
@@ -142,18 +142,18 @@ describe('remote password change', function() {
           }
         )
         .then(
-          function () {
+          () => {
             return Client.loginAndVerify(config.publicUrl, email, newPassword, server.mailbox, {keys:true});
           }
         )
         .then(
-          function (x) {
+          (x) => {
             client = x;
             return client.keys();
           }
         )
         .then(
-          function (keys) {
+          (keys) => {
             assert.deepEqual(keys.kB, kB, 'kB is preserved');
             assert.deepEqual(keys.kA, kA, 'kA is preserved');
           }
@@ -171,7 +171,7 @@ describe('remote password change', function() {
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
-          function (x) {
+          (x) => {
             client = x;
             originalSessionToken = client.sessionToken;
             firstAuthPW = x.authPW.toString('hex');
@@ -179,45 +179,45 @@ describe('remote password change', function() {
           }
         )
         .then(
-          function (keys) {
+          (keys) => {
             kB = keys.kB;
             kA = keys.kA;
           }
         )
         .then(
-          function () {
+          () => {
             return client.emailStatus();
           }
         )
         .then(
-          function (status) {
+          (status) => {
             assert.equal(status.verified, true, 'account is verified');
           }
         )
         .then(
-          function () {
+          () => {
             return getSessionTokenId(client.sessionToken);
           }
         )
         .then(
-          function (sessionTokenId) {
+          (sessionTokenId) => {
             return client.changePassword(newPassword, undefined, sessionTokenId);
           }
         )
         .then(
-          function (response) {
+          (response) => {
             assert.notEqual(response.sessionToken, originalSessionToken, 'session token has changed');
             assert.ok(response.keyFetchToken, 'key fetch token returned');
             assert.notEqual(client.authPW.toString('hex'), firstAuthPW, 'password has changed');
           }
         )
         .then(
-          function () {
+          () => {
             return server.mailbox.waitForEmail(email);
           }
         )
         .then(
-          function (emailData) {
+          (emailData) => {
             const subject = emailData.headers['subject'];
             assert.equal(subject, 'Your Firefox Account password has been changed', 'password email subject set correctly');
             const link = emailData.headers['x-link'];
@@ -227,28 +227,28 @@ describe('remote password change', function() {
           }
         )
         .then(
-          function () {
+          () => {
             return client.emailStatus();
           }
         )
         .then(
-          function (status) {
+          (status) => {
             assert.equal(status.verified, true, 'account is verified');
           }
         )
         .then(
-          function () {
+          () => {
             return Client.loginAndVerify(config.publicUrl, email, newPassword, server.mailbox, {keys:true});
           }
         )
         .then(
-          function (x) {
+          (x) => {
             client = x;
             return client.keys();
           }
         )
         .then(
-          function (keys) {
+          (keys) => {
             assert.deepEqual(keys.kB, kB, 'kB is preserved');
             assert.deepEqual(keys.kA, kA, 'kA is preserved');
           }
@@ -266,31 +266,31 @@ describe('remote password change', function() {
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
-          function (x) {
+          (x) => {
             client = x;
             return client.keys();
           }
         )
         .then(
-          function () {
+          () => {
             return client.emailStatus();
           }
         )
         .then(
-          function (status) {
+          (status) => {
             assert.equal(status.verified, true, 'account is verified');
           }
         )
         .then(
-          function () {
+          () => {
             return client.changePassword(newPassword, undefined, client.sessionToken);
           }
         )
         .then(
-          function () {
+          () => {
             assert(false);
           },
-          function (err) {
+          (err) => {
             assert.equal(err.errno, 110, 'Invalid token error');
             assert.equal(err.message, 'The authentication token could not be found');
           }
@@ -308,37 +308,37 @@ describe('remote password change', function() {
 
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
-          function (x) {
+          (x) => {
             client = x;
             firstAuthPW = x.authPW.toString('hex');
             return client.keys();
           }
         )
         .then(
-          function (keys) {
+          (keys) => {
             kB = keys.kB;
             kA = keys.kA;
           }
         )
         .then(
-          function () {
+          () => {
             return client.changePassword(newPassword);
           }
         )
         .then(
-          function (response) {
+          (response) => {
             assert(! response.sessionToken, 'no session token returned');
             assert(! response.keyFetchToken, 'no key fetch token returned');
             assert.notEqual(client.authPW.toString('hex'), firstAuthPW, 'password has changed');
           }
         )
         .then(
-          function () {
+          () => {
             return server.mailbox.waitForEmail(email);
           }
         )
         .then(
-          function (emailData) {
+          (emailData) => {
             const subject = emailData.headers['subject'];
             assert.equal(subject, 'Your Firefox Account password has been changed', 'password email subject set correctly');
             const link = emailData.headers['x-link'];
@@ -347,18 +347,18 @@ describe('remote password change', function() {
           }
         )
         .then(
-          function () {
+          () => {
             return Client.loginAndVerify(config.publicUrl, email, newPassword, server.mailbox, {keys:true});
           }
         )
         .then(
-          function (x) {
+          (x) => {
             client = x;
             return client.keys();
           }
         )
         .then(
-          function (keys) {
+          (keys) => {
             assert.deepEqual(keys.kB, kB, 'kB is preserved');
             assert.deepEqual(keys.kA, kA, 'kA is preserved');
           }
@@ -374,20 +374,20 @@ describe('remote password change', function() {
       let client = null;
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, {keys:true})
         .then(
-          function (x) {
+          (x) => {
             client = x;
             return client.keys();
           }
         )
         .then(
-          function () {
+          () => {
             client.authPW = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex');
             return client.changePassword('foobar');
           }
         )
         .then(
           () => assert(false),
-          function (err) {
+          (err) => {
             assert.equal(err.errno, 103, 'invalid password');
           }
         );

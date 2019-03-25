@@ -42,7 +42,7 @@ module.exports = function (log, db, Password, config, signinUtils) {
               const customSessionToken = request.payload.customSessionToken;
 
               return db.sessionToken(customSessionToken)
-                .then(function (tokenData) {
+                .then((tokenData) => {
                   // NOTE: validate that the token belongs to the same user
                   if (tokenData && uid === tokenData.uid) {
                     sessionToken = {

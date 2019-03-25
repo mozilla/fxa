@@ -45,7 +45,7 @@ TestServer.start = function (config, printLogs, options) {
     return createDBServer();
   }).then((db) => {
     db.listen(config.httpdb.url.split(':')[2]);
-    db.on('error', function () {});
+    db.on('error', () => {});
     const testServer = new TestServer(config, printLogs, options);
     testServer.db = db;
     return testServer.start().then(() => testServer);

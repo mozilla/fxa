@@ -28,7 +28,7 @@ const profileUpdatesQueue = new SQSReceiver(config.profileServerMessaging.region
 
 DB.connect(config[config.db.backend])
   .then(
-    function (db) {
+    (db) => {
       profileUpdates(profileUpdatesQueue, push(log, db, config), db);
     }
   );

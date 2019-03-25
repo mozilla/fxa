@@ -36,7 +36,7 @@ describe('remote device', function () {
       const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
-          function (client) {
+          (client) => {
             const deviceInfo = {
               name: 'test device 🍓🔥在𝌆',
               type: 'mobile',
@@ -47,13 +47,13 @@ describe('remote device', function () {
             };
             return client.devices()
               .then(
-                function (devices) {
+                (devices) => {
                   assert.equal(devices.length, 0, 'devices returned no items');
                   return client.updateDevice(deviceInfo);
                 }
               )
               .then(
-                function (device) {
+                (device) => {
                   assert.ok(device.id, 'device.id was set');
                   assert.ok(device.createdAt > 0, 'device.createdAt was set');
                   assert.equal(device.name, deviceInfo.name, 'device.name is correct');
@@ -66,12 +66,12 @@ describe('remote device', function () {
                 }
               )
               .then(
-                function () {
+                () => {
                   return client.devices();
                 }
               )
               .then(
-                function (devices) {
+                (devices) => {
                   assert.equal(devices.length, 1, 'devices returned one item');
                   assert.equal(devices[0].name, deviceInfo.name, 'devices returned correct name');
                   assert.equal(devices[0].type, deviceInfo.type, 'devices returned correct type');
@@ -95,20 +95,20 @@ describe('remote device', function () {
       const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
-          function (client) {
+          (client) => {
             const deviceInfo = {
               name: 'test device',
               type: 'mobile'
             };
             return client.devices()
               .then(
-                function (devices) {
+                (devices) => {
                   assert.equal(devices.length, 0, 'devices returned no items');
                   return client.updateDevice(deviceInfo);
                 }
               )
               .then(
-                function (device) {
+                (device) => {
                   assert.ok(device.id, 'device.id was set');
                   assert.ok(device.createdAt > 0, 'device.createdAt was set');
                   assert.equal(device.name, deviceInfo.name, 'device.name is correct');
@@ -120,12 +120,12 @@ describe('remote device', function () {
                 }
               )
               .then(
-                function () {
+                () => {
                   return client.devices();
                 }
               )
               .then(
-                function (devices) {
+                (devices) => {
                   assert.equal(devices.length, 1, 'devices returned one item');
                   assert.equal(devices[0].name, deviceInfo.name, 'devices returned correct name');
                   assert.equal(devices[0].type, deviceInfo.type, 'devices returned correct type');
@@ -148,7 +148,7 @@ describe('remote device', function () {
       const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
-          function (client) {
+          (client) => {
             const deviceInfo = {
               // That's a beta, and a CJK character from https://bugzilla.mozilla.org/show_bug.cgi?id=1348298
               name: 'Firefox \u5728 \u03b2 test',
@@ -156,19 +156,19 @@ describe('remote device', function () {
             };
             return client.updateDevice(deviceInfo)
               .then(
-                function (device) {
+                (device) => {
                   assert.ok(device.id, 'device.id was set');
                   assert.ok(device.createdAt > 0, 'device.createdAt was set');
                   assert.equal(device.name, deviceInfo.name, 'device.name is correct');
                 }
               )
               .then(
-                function () {
+                () => {
                   return client.devices();
                 }
               )
               .then(
-                function (devices) {
+                (devices) => {
                   assert.equal(devices.length, 1, 'devices returned one item');
                   assert.equal(devices[0].name, deviceInfo.name, 'devices returned correct name');
                 }
@@ -185,10 +185,10 @@ describe('remote device', function () {
       const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
-          function (client) {
+          (client) => {
             return client.updateDevice({ type: 'mobile' })
               .then(
-                function (device) {
+                (device) => {
                   assert.ok(device.id, 'device.id was set');
                   assert.ok(device.createdAt > 0, 'device.createdAt was set');
                   assert.equal(device.name, '', 'device.name is empty');
@@ -208,10 +208,10 @@ describe('remote device', function () {
       const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
-          function (client) {
+          (client) => {
             return client.updateDevice({ name: 'test device' })
               .then(
-                function (device) {
+                (device) => {
                   assert.ok(device.id, 'device.id was set');
                   assert.ok(device.createdAt > 0, 'device.createdAt was set');
                   assert.equal(device.name, deviceName, 'device.name is correct');
@@ -239,15 +239,15 @@ describe('remote device', function () {
       };
       return Client.create(config.publicUrl, email, password)
         .then(
-          function (client) {
+          (client) => {
             return client.updateDevice(deviceInfo)
               .then(
-                function (r) {
+                (r) => {
                   assert(false, 'request should have failed');
                 }
               )
               .catch(
-                function (err) {
+                (err) => {
                   assert.equal(err.code, 400, 'err.code was 400');
                   assert.equal(err.errno, 107, 'err.errno was 107, invalid parameter');
                   assert.equal(err.validation.keys[0], 'pushCallback', 'bad pushCallback caught in validation');
@@ -274,15 +274,15 @@ describe('remote device', function () {
       };
       return Client.create(config.publicUrl, email, password)
         .then(
-          function (client) {
+          (client) => {
             return client.updateDevice(deviceInfo)
               .then(
-                function (r) {
+                (r) => {
                   assert(false, 'request should have failed');
                 }
               )
               .catch(
-                function (err) {
+                (err) => {
                   assert.equal(err.code, 400, 'err.code was 400');
                   assert.equal(err.errno, 107, 'err.errno was 107, invalid parameter');
                   assert.equal(err.validation.keys[0], 'pushCallback', 'bad pushCallback caught in validation');
@@ -300,7 +300,7 @@ describe('remote device', function () {
       const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
-          function (client) {
+          (client) => {
             const deviceInfo = {
               name: 'test device',
               type: 'mobile',
@@ -311,19 +311,19 @@ describe('remote device', function () {
             };
             return client.devices()
               .then(
-                function (devices) {
+                (devices) => {
                   assert.equal(devices.length, 0, 'devices returned no items');
                   return client.updateDevice(deviceInfo);
                 }
               )
               .then(
-                function (device) {
+                (device) => {
                   assert.ok(device.id, 'device.id was set');
                   assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct');
                 }
               )
               .catch(
-                function (err) {
+                (err) => {
                   assert.fail(err, 'request should have worked');
                 }
               );
@@ -339,7 +339,7 @@ describe('remote device', function () {
       const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
-          function (client) {
+          (client) => {
             const deviceInfo = {
               name: 'test device',
               type: 'mobile',
@@ -349,19 +349,19 @@ describe('remote device', function () {
             };
             return client.devices()
               .then(
-                function (devices) {
+                (devices) => {
                   assert.equal(devices.length, 0, 'devices returned no items');
                   return client.updateDevice(deviceInfo);
                 }
               )
               .then(
-                function (device) {
+                (device) => {
                   assert.ok(device.id, 'device.id was set');
                   assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct');
                 }
               )
               .catch(
-                function (err) {
+                (err) => {
                   assert.fail(err, 'request should have worked');
                 }
               );
@@ -378,7 +378,7 @@ describe('remote device', function () {
       const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
-          function (client) {
+          (client) => {
             const deviceInfo = {
               name: 'test device',
               type: 'mobile',
@@ -388,19 +388,19 @@ describe('remote device', function () {
             };
             return client.devices()
               .then(
-                function (devices) {
+                (devices) => {
                   assert.equal(devices.length, 0, 'devices returned no items');
                   return client.updateDevice(deviceInfo);
                 }
               )
               .then(
-                function (device) {
+                (device) => {
                   assert.ok(device.id, 'device.id was set');
                   assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct');
                 }
               )
               .catch(
-                function (err) {
+                (err) => {
                   assert.fail(err, 'request should have worked');
                 }
               );
@@ -416,7 +416,7 @@ describe('remote device', function () {
       const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
-          function (client) {
+          (client) => {
             const deviceInfo = {
               name: 'test device',
               type: 'mobile',
@@ -426,19 +426,19 @@ describe('remote device', function () {
             };
             return client.devices()
               .then(
-                function (devices) {
+                (devices) => {
                   assert.equal(devices.length, 0, 'devices returned no items');
                   return client.updateDevice(deviceInfo);
                 }
               )
               .then(
-                function (device) {
+                (device) => {
                   assert.ok(device.id, 'device.id was set');
                   assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct');
                 }
               )
               .catch(
-                function (err) {
+                (err) => {
                   assert.fail(err, 'request should have worked');
                 }
               );
@@ -454,7 +454,7 @@ describe('remote device', function () {
       const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
-          function (client) {
+          (client) => {
             const deviceInfo = {
               name: 'test device',
               type: 'mobile',
@@ -464,19 +464,19 @@ describe('remote device', function () {
             };
             return client.devices()
               .then(
-                function (devices) {
+                (devices) => {
                   assert.equal(devices.length, 0, 'devices returned no items');
                   return client.updateDevice(deviceInfo);
                 }
               )
               .then(
-                function (device) {
+                (device) => {
                   assert.ok(device.id, 'device.id was set');
                   assert.equal(device.pushCallback, deviceInfo.pushCallback, 'device.pushCallback is correct');
                 }
               )
               .catch(
-                function (err) {
+                (err) => {
                   assert.fail(err, 'request should have worked');
                 }
               );
@@ -500,15 +500,15 @@ describe('remote device', function () {
       };
       return Client.create(config.publicUrl, email, password)
         .then(
-          function (client) {
+          (client) => {
             return client.updateDevice(deviceInfo)
               .then(
-                function (r) {
+                (r) => {
                   assert(false, 'request should have failed');
                 }
               )
               .catch(
-                function (err) {
+                (err) => {
                   assert.equal(err.code, 400, 'err.code was 400');
                   assert.equal(err.errno, 107, 'err.errno was 107, invalid parameter');
                   assert.equal(err.validation.keys[0], 'pushCallback', 'bad pushCallback caught in validation');
@@ -525,7 +525,7 @@ describe('remote device', function () {
       const password = 'test password';
       return Client.create(config.publicUrl, email, password)
         .then(
-          function (client) {
+          (client) => {
             const deviceInfo = {
               name: 'a very capable device',
               type: 'desktop',
@@ -533,7 +533,7 @@ describe('remote device', function () {
             };
             return client.updateDevice(deviceInfo)
               .then(
-                function (device) {
+                (device) => {
                   assert.ok(device.id, 'device.id was set');
                   assert.ok(device.createdAt > 0, 'device.createdAt was set');
                   assert.equal(device.name, deviceInfo.name, 'device.name is correct');
@@ -562,20 +562,20 @@ describe('remote device', function () {
       ];
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
-          function (client) {
+          (client) => {
             return Client.login(config.publicUrl, email, password)
               .then(
-                function (secondClient) {
+                (secondClient) => {
                   return secondClient.updateDevice(deviceInfo[0]);
                 }
               )
               .then(
-                function () {
+                () => {
                   return client.devices();
                 }
               )
               .then(
-                function (devices) {
+                (devices) => {
                   assert.equal(devices.length, 1, 'devices returned one item');
                   assert.equal(devices[0].isCurrentDevice, false, 'devices returned false isCurrentDevice');
                   assert.equal(devices[0].name, deviceInfo[0].name, 'devices returned correct name');
@@ -584,17 +584,17 @@ describe('remote device', function () {
                 }
               )
               .then(
-                function () {
+                () => {
                   return client.devices();
                 }
               )
               .then(
-                function (devices) {
+                (devices) => {
                   assert.equal(devices.length, 2, 'devices returned two items');
                   if (devices[0].name === deviceInfo[1].name) {
                     // database results are unordered, swap them if necessary
                     const swap = {};
-                    Object.keys(devices[0]).forEach(function (key) {
+                    Object.keys(devices[0]).forEach((key) => {
                       swap[key] = devices[0][key];
                       devices[0][key] = devices[1][key];
                       devices[1][key] = swap[key];
@@ -631,15 +631,15 @@ describe('remote device', function () {
       };
       return Client.create(config.publicUrl, email, password)
       .then(
-        function (client) {
+        (client) => {
           return client.updateDevice(deviceInfo)
             .then(
-              function () {
+              () => {
                 return client.devices();
               }
             )
             .then(
-              function (devices) {
+              (devices) => {
                 assert.equal(devices[0].pushCallback, deviceInfo.pushCallback, 'devices returned correct pushCallback');
                 assert.equal(devices[0].pushPublicKey, deviceInfo.pushPublicKey, 'devices returned correct pushPublicKey');
                 assert.equal(devices[0].pushAuthKey, deviceInfo.pushAuthKey, 'devices returned correct pushAuthKey');
@@ -651,7 +651,7 @@ describe('remote device', function () {
               }
             )
             .then(assert.fail,
-              function (err) {
+              (err) => {
                 assert.equal(err.errno, 107);
                 assert.equal(err.message, 'Invalid parameter in request body');
               }
@@ -677,13 +677,13 @@ describe('remote device', function () {
       };
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
       .then(
-        function (client) {
+        (client) => {
           return client.updateDevice(deviceInfo)
             .then(
-              function () {
+              () => {
                 assert(false, 'request should have failed');
               },
-              function (err) {
+              (err) => {
                 assert.equal(err.code, 400, 'err.code was 400');
                 assert.equal(err.errno, 107, 'err.errno was 107');
               }
@@ -692,7 +692,7 @@ describe('remote device', function () {
             // can cause a subsequent /certificate/sign to fail.
             // Test that we've successfully mitigated that bug.
             .then(
-              function () {
+              () => {
                 const publicKey = {
                   'algorithm': 'RS',
                   'n': '4759385967235610503571494339196749614544606692567785' +
@@ -704,7 +704,7 @@ describe('remote device', function () {
               }
             )
             .then(
-              function (cert) {
+              (cert) => {
                 assert.equal(typeof(cert), 'string', 'cert was successfully signed');
               }
             );

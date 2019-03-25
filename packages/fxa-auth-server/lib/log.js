@@ -198,7 +198,7 @@ module.exports = function (level, name, options = {}) {
 
   log.stdout.on(
     'error',
-    function (err) {
+    (err) => {
       if (err.code === 'EPIPE') {
         log.emit('error', err);
       }

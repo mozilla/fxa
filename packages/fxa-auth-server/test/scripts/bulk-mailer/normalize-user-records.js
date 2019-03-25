@@ -42,7 +42,7 @@ describe('normalize-user-records', () => {
     it('updates the record language to what the translator says is best', () => {
       const userRecord = { acceptLanguage: 'es,de' };
       const translator = {
-        getTranslator: sinon.spy(function () {
+        getTranslator: sinon.spy(() => {
           return { language: 'de' };
         })
       };

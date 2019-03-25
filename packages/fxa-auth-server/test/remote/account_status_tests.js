@@ -25,12 +25,12 @@ describe('remote account status', function() {
     () => {
       return Client.create(config.publicUrl, server.uniqueEmail(), 'password')
         .then(
-          function (c) {
+          (c) => {
             return c.api.accountStatus(c.uid);
           }
         )
         .then(
-          function (response) {
+          (response) => {
             assert.ok(response.exists, 'account exists');
           }
         );
@@ -42,12 +42,12 @@ describe('remote account status', function() {
     () => {
       return Client.create(config.publicUrl, server.uniqueEmail(), 'password', { lang: 'en-US' })
         .then(
-          function (c) {
+          (c) => {
             return c.api.accountStatus(c.uid, c.sessionToken);
           }
         )
         .then(
-          function (response) {
+          (response) => {
             assert.equal(response.locale, 'en-US', 'locale is stored');
           }
         );
@@ -59,12 +59,12 @@ describe('remote account status', function() {
     () => {
       return Client.create(config.publicUrl, server.uniqueEmail(), 'password', { lang: 'en-US' })
         .then(
-          function (c) {
+          (c) => {
             return c.api.accountStatus(c.uid);
           }
         )
         .then(
-          function (response) {
+          (response) => {
             assert.ok(! response.locale, 'locale is not present');
           }
         );
@@ -76,15 +76,15 @@ describe('remote account status', function() {
     () => {
       return Client.create(config.publicUrl, server.uniqueEmail(), 'password', { lang: 'en-US' })
         .then(
-          function (c) {
+          (c) => {
             return c.api.accountStatus();
           }
         )
         .then(
-          function () {
+          () => {
             assert(false, 'should get an error');
           },
-          function (e) {
+          (e) => {
             assert.equal(e.code, 400, 'correct error status code');
             assert.equal(e.errno, 108, 'correct errno');
           }
@@ -98,7 +98,7 @@ describe('remote account status', function() {
       const api = new Client.Api(config.publicUrl);
       return api.accountStatus('0123456789ABCDEF0123456789ABCDEF')
         .then(
-          function (response) {
+          (response) => {
             assert.ok(! response.exists, 'account does not exist');
           }
         );
@@ -111,12 +111,12 @@ describe('remote account status', function() {
       const email = server.uniqueEmail();
       return Client.create(config.publicUrl, email, 'password')
         .then(
-          function (c) {
+          (c) => {
             return c.api.accountStatusByEmail(email);
           }
         )
         .then(
-          function (response) {
+          (response) => {
             assert.ok(response.exists, 'account exists');
           }
         );
@@ -129,13 +129,13 @@ describe('remote account status', function() {
       const email = server.uniqueEmail();
       return Client.create(config.publicUrl, email, 'password')
         .then(
-          function (c) {
+          (c) => {
             const nonExistEmail = server.uniqueEmail();
             return c.api.accountStatusByEmail(nonExistEmail);
           }
         )
         .then(
-          function (response) {
+          (response) => {
             assert.ok(! response.exists, 'account does not exist');
           }
         );
@@ -148,16 +148,16 @@ describe('remote account status', function() {
       const email = server.uniqueEmail();
       return Client.create(config.publicUrl, email, 'password')
         .then(
-          function (c) {
+          (c) => {
             const invalidEmail = 'notAnEmail';
             return c.api.accountStatusByEmail(invalidEmail);
           }
         )
         .then(
-          function () {
+          () => {
             assert(false, 'should not have successful request');
           },
-          function (err) {
+          (err) => {
             assert.equal(err.code, 400);
             assert.equal(err.errno, 107);
             assert.equal(err.message, 'Invalid parameter in request body');
@@ -172,12 +172,12 @@ describe('remote account status', function() {
       const email = server.uniqueUnicodeEmail();
       return Client.create(config.publicUrl, email, 'password')
         .then(
-          function (c) {
+          (c) => {
             return c.api.accountStatusByEmail(email);
           }
         )
         .then(
-          function (response) {
+          (response) => {
             assert.ok(response.exists, 'account exists');
           }
         );

@@ -13,14 +13,14 @@ const TestServer = require('../test/test_server');
 
 TestServer.start(config, false)
   .then(
-  function (server) {
+  (server) => {
     const cp = spawn(
       path.join(path.dirname(__dirname), 'node_modules/.bin/mocha'),
       ['test/remote'],
       { stdio: 'inherit' }
     );
 
-    cp.on('close', function(code) {
+    cp.on('close', (code) => {
       server.stop();
     });
   }

@@ -15,7 +15,7 @@ let amplitude;
 function getInsensitiveHeaderValueFromArray(headerName, headers) {
   let value = '';
   const headerNameNormalized = headerName.toLowerCase();
-  headers.some(function (header) {
+  headers.some((header) => {
     if (header.name.toLowerCase() === headerNameNormalized) {
       value = header.value;
       return true;
@@ -30,7 +30,7 @@ function getInsensitiveHeaderValueFromArray(headerName, headers) {
 function getInsensitiveHeaderValueFromObject(headerName, headers) {
   const headerNameNormalized = headerName.toLowerCase();
   let value = '';
-  Object.keys(headers).some(function (name) {
+  Object.keys(headers).some((name) => {
     if (name.toLowerCase() === headerNameNormalized) {
       value = headers[name];
       return true;

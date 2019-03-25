@@ -60,11 +60,11 @@ module.exports = function (
           'passwordChange')
           .then(db.accountRecord.bind(db, form.email))
           .then(
-            function (emailRecord) {
+            (emailRecord) => {
               const password = new Password(oldAuthPW, emailRecord.authSalt, emailRecord.verifierVersion);
               return signinUtils.checkPassword(emailRecord, password, request.app.clientAddress)
               .then(
-                function (match) {
+                (match) => {
                   if (! match) {
                     throw error.incorrectPassword(emailRecord.email, form.email);
                   }
@@ -77,7 +77,7 @@ module.exports = function (
                 }
               )
               .then(
-                function (wrapKb) {
+                (wrapKb) => {
                   return db.createKeyFetchToken(
                     {
                       uid: emailRecord.uid,
@@ -87,12 +87,12 @@ module.exports = function (
                     }
                   )
                   .then(
-                    function (keyFetchToken) {
+                    (keyFetchToken) => {
                       return db.createPasswordChangeToken({
                         uid: emailRecord.uid
                       })
                       .then(
-                        function (passwordChangeToken) {
+                        (passwordChangeToken) => {
                           return {
                             keyFetchToken: keyFetchToken,
                             passwordChangeToken: passwordChangeToken
@@ -104,7 +104,7 @@ module.exports = function (
                 }
               );
             },
-            function (err) {
+            (err) => {
               if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
                 customs.flag(request.app.clientAddress, {
                   email: form.email,
@@ -115,7 +115,7 @@ module.exports = function (
             }
           )
           .then(
-            function (tokens) {
+            (tokens) => {
              return {
                   keyFetchToken: tokens.keyFetchToken.data,
                   passwordChangeToken: tokens.passwordChangeToken.data,
@@ -183,7 +183,7 @@ module.exports = function (
           if (sessionTokenId) {
             return db.sessionToken(sessionTokenId)
               .then(
-                function (tokenData) {
+                (tokenData) => {
                   verifiedStatus = tokenData.tokenVerified;
                   if (tokenData.deviceId) {
                     originatingDeviceId = tokenData.deviceId;
@@ -224,18 +224,18 @@ module.exports = function (
               return db.deletePasswordChangeToken(passwordChangeToken);
             })
             .then(
-              function () {
+              () => {
                 return password.verifyHash();
               }
             )
             .then(
-              function (hash) {
+              (hash) => {
                 verifyHash = hash;
                 return password.wrap(wrapKb);
               }
             )
             .then(
-              function (wrapWrapKb) {
+              (wrapWrapKb) => {
                 // Reset account, delete all sessions and tokens
                 return db.resetAccount(
                   passwordChangeToken,
@@ -249,12 +249,12 @@ module.exports = function (
               }
             )
             .then(
-              function (result) {
+              (result) => {
                 return request.emitMetricsEvent('account.changedPassword', {
                   uid: passwordChangeToken.uid
                 })
                 .then(
-                  function () {
+                  () => {
                     return result;
                   }
                 );
@@ -270,7 +270,7 @@ module.exports = function (
 
           return db.account(passwordChangeToken.uid)
             .then(
-              function (accountData) {
+              (accountData) => {
                 account = accountData;
 
                 log.notifyAttachedServices('passwordChange', request, {
@@ -282,7 +282,7 @@ module.exports = function (
               }
             )
             .then(
-              function (emails) {
+              (emails) => {
                 const geoData = request.app.geo;
                 const {
                   browser: uaBrowser,
@@ -352,7 +352,7 @@ module.exports = function (
               return db.createSessionToken(sessionTokenOptions);
             })
             .then(
-              function (result) {
+              (result) => {
                 sessionToken = result;
               }
             );
@@ -369,7 +369,7 @@ module.exports = function (
               emailVerified: account.emailVerified
             })
             .then(
-              function (result) {
+              (result) => {
                 keyFetchToken = result;
               }
             );
@@ -545,7 +545,7 @@ module.exports = function (
           customs.check(request, passwordForgotToken.email, 'passwordForgotResendCode')
         ])
           .then(
-            function () {
+            () => {
               return db.accountEmails(passwordForgotToken.uid)
                 .then(emails => {
                   const geoData = request.app.geo;
@@ -581,12 +581,12 @@ module.exports = function (
             }
           )
           .then(
-            function(){
+            () => {
               return request.emitMetricsEvent('password.forgot.resend_code.completed');
             }
           )
           .then(
-            function () {
+            () => {
                 return {
                     passwordForgotToken: passwordForgotToken.data,
                     ttl: passwordForgotToken.ttl(),

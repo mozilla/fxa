@@ -26,17 +26,17 @@ describe('KeyFetchToken', () => {
       let token = null;
       return KeyFetchToken.create(ACCOUNT)
         .then(
-          function (x) {
+          (x) => {
             token = x;
           }
         )
         .then(
-          function () {
+          () => {
             return KeyFetchToken.fromHex(token.data, ACCOUNT);
           }
         )
         .then(
-          function (token2) {
+          (token2) => {
             assert.deepEqual(token.data, token2.data);
             assert.deepEqual(token.id, token2.id);
             assert.deepEqual(token.authKey, token2.authKey);
@@ -57,13 +57,13 @@ describe('KeyFetchToken', () => {
       let token = null;
       return KeyFetchToken.create(ACCOUNT)
         .then(
-          function (x) {
+          (x) => {
             token = x;
             return KeyFetchToken.fromId(token.id, token);
           }
         )
         .then(
-          function (x) {
+          (x) => {
             assert.equal(x.id, token.id, 'should have same id');
             assert.equal(x.authKey, token.authKey, 'should have same authKey');
           }
@@ -80,18 +80,18 @@ describe('KeyFetchToken', () => {
       const wrapKb = crypto.randomBytes(32).toString('hex');
       return KeyFetchToken.create(ACCOUNT)
         .then(
-          function (x) {
+          (x) => {
             token = x;
             return x.bundleKeys(kA, wrapKb);
           }
         )
         .then(
-          function (b) {
+          (b) => {
             return token.unbundleKeys(b);
           }
         )
         .then(
-          function (ub) {
+          (ub) => {
             assert.deepEqual(ub.kA, kA);
             assert.deepEqual(ub.wrapKb, wrapKb);
           }
@@ -109,27 +109,27 @@ describe('KeyFetchToken', () => {
       const wrapKb = crypto.randomBytes(32).toString('hex');
       return KeyFetchToken.create(ACCOUNT)
         .then(
-          function (x) {
+          (x) => {
             token1 = x;
             return KeyFetchToken.create(ACCOUNT);
           }
         )
         .then(
-          function (x) {
+          (x) => {
             token2 = x;
             return token1.bundleKeys(kA, wrapKb);
           }
         )
         .then(
-          function (b) {
+          (b) => {
             return token2.unbundleKeys(b);
           }
         )
         .then(
-          function (ub) {
+          (ub) => {
             assert(false, 'was able to unbundle using wrong token');
           },
-          function (err) {
+          (err) => {
             assert.equal(err.errno, 109, 'expected an invalidSignature error');
           }
         );
@@ -144,7 +144,7 @@ describe('KeyFetchToken', () => {
       const tokenData = '808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f';
       return KeyFetchToken.fromHex(tokenData, ACCOUNT)
         .then(
-          function (x) {
+          (x) => {
             token = x;
             assert.equal(token.data, tokenData);
             assert.equal(token.id, '3d0a7c02a15a62a2882f76e39b6494b500c022a8816e048625a495718998ba60');
@@ -153,14 +153,14 @@ describe('KeyFetchToken', () => {
           }
         )
         .then(
-          function () {
+          () => {
             const kA = Buffer.from('202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f', 'hex');
             const wrapKb = Buffer.from('404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f', 'hex');
             return token.bundleKeys(kA, wrapKb);
           }
         )
         .then(
-          function (bundle) {
+          (bundle) => {
             assert.equal(bundle,
                     'ee5c58845c7c9412b11bbd20920c2fddd83c33c9cd2c2de2' +
                     'd66b222613364636c2c0f8cfbb7c630472c0bd88451342c6' +

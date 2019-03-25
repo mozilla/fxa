@@ -82,7 +82,7 @@ module.exports = (log, signer, db, domain, devices) => {
 
         return P.resolve()
           .then(
-            function () {
+            () => {
               if (sessionToken.deviceId) {
                 deviceId = sessionToken.deviceId;
               } else if (! service || service === 'sync') {
@@ -111,7 +111,7 @@ module.exports = (log, signer, db, domain, devices) => {
             }
           )
           .then(
-            function () {
+            () => {
               if (publicKey.algorithm === 'RS') {
                 if (! publicKey.n) {
                   throw error.missingRequestParameter('n');
@@ -174,7 +174,7 @@ module.exports = (log, signer, db, domain, devices) => {
             }
           )
           .then(
-            function(result) {
+            (result) => {
               certResult = result;
               return request.emitMetricsEvent('account.signed', {
                 uid: uid,

@@ -25,7 +25,7 @@ module.exports = function (host, port, printLogs) {
   function waitForCode(email) {
     return waitForEmail(email)
       .then(
-        function (emailData) {
+        (emailData) => {
           const code =  emailData.headers['x-verify-code'] ||
                       emailData.headers['x-recovery-code'];
           if (! code) {
@@ -40,7 +40,7 @@ module.exports = function (host, port, printLogs) {
     const url = 'http://' + host + ':' + port + '/mail/' + encodeURIComponent(name);
     log('checking mail', url);
     request({ url: url, method: 'GET' },
-      function (err, res, body) {
+      (err, res, body) => {
         log('mail status', res && res.statusCode, 'tries', tries);
         log('mail body', body);
         let json = null;
@@ -63,7 +63,7 @@ module.exports = function (host, port, printLogs) {
         }
         log('deleting mail', url);
         request({ url: url, method: 'DELETE' },
-          function (err, res, body) {
+          (err, res, body) => {
             cb(err, json);
           }
         );
@@ -73,7 +73,7 @@ module.exports = function (host, port, printLogs) {
 
   function waitForEmail(email) {
     const d = P.defer();
-    loop(email.split('@')[0], 20, function (err, json) {
+    loop(email.split('@')[0], 20, (err, json) => {
       if (err) {
         eventEmitter.emit('email:error', email, err);
         return d.reject(err);

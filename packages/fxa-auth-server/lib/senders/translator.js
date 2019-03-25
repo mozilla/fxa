@@ -31,7 +31,7 @@ function parseLocale(locale) {
       fuzzy: true,
       format: 'jed'
     }
-  ).then(function (parsed) {
+  ).then((parsed) => {
     parseCache[locale] = parsed;
     return parsed;
   });
@@ -42,7 +42,7 @@ module.exports = function (locales, defaultLanguage) {
     locales.map(parseLocale)
   )
   .then(
-    function (translations) {
+    (translations) => {
       const languageTranslations = {};
       const supportedLanguages = [];
       for (let i = 0; i < translations.length; i++) {

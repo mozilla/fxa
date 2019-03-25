@@ -75,7 +75,7 @@ module.exports = (log, config) => {
   Token.deriveTokenKeys = function (TokenType, data) {
     return hkdf(data, TokenType.tokenTypeID, null, 3 * 32)
       .then(
-        function (keyMaterial) {
+        (keyMaterial) => {
           return {
             data: data,
             id: keyMaterial.slice(0, 32),

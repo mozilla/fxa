@@ -64,7 +64,7 @@ const makeRoutes = function (options = {}, requireMocks) {
 };
 
 function runTest(route, request, assertions) {
-  return new P(function (resolve, reject) {
+  return new P((resolve, reject) => {
     try {
       return route.handler(request).then(resolve, reject);
     } catch (err) {
@@ -74,7 +74,7 @@ function runTest(route, request, assertions) {
     .then(assertions);
 }
 
-describe('/account/reset', function () {
+describe('/account/reset', () => {
   let uid, mockLog, mockMetricsContext, mockRequest, keyFetchTokenId, sessionTokenId,
     mockDB, mockCustoms, mockPush, accountRoutes, route, clientAddress, mailer;
 
@@ -258,7 +258,7 @@ describe('/account/reset', function () {
 
 
   it('should reset account', () => {
-    return runTest(route, mockRequest, function (res) {
+    return runTest(route, mockRequest, (res) => {
       assert.equal(mockDB.resetAccount.callCount, 1);
       assert.equal(mockDB.resetAccountTokens.callCount, 1);
 
@@ -635,7 +635,7 @@ describe('/account/create', () => {
   });
 });
 
-describe('/account/login', function () {
+describe('/account/login', () => {
   const config = {
     securityHistory: {
       ipProfiling: {}
@@ -782,11 +782,11 @@ describe('/account/login', function () {
     mockRequest.payload.verificationMethod = undefined;
   });
 
-  it('emits the correct series of calls and events', function () {
+  it('emits the correct series of calls and events', () => {
     const now = Date.now();
     sinon.stub(Date, 'now').callsFake(() => now);
 
-    return runTest(route, mockRequest, function (response) {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(mockDB.accountRecord.callCount, 1, 'db.accountRecord was called');
 
       assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called once');
@@ -911,8 +911,8 @@ describe('/account/login', function () {
     }).finally(() => Date.now.restore());
   });
 
-  describe('sign-in unverified account', function () {
-    it('sends email code', function () {
+  describe('sign-in unverified account', () => {
+    it('sends email code', () => {
       const emailCode = hexString(16);
       mockDB.accountRecord = function () {
         return P.resolve({
@@ -931,7 +931,7 @@ describe('/account/login', function () {
         });
       };
 
-      return runTest(route, mockRequest, function (response) {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockMailer.sendVerifyCode.callCount, 1, 'mailer.sendVerifyCode was called');
 
         // Verify that the email code was sent
@@ -949,7 +949,7 @@ describe('/account/login', function () {
     });
   });
 
-  describe('sign-in confirmation', function () {
+  describe('sign-in confirmation', () => {
     before(() => {
       config.signinConfirmation.forcedEmailAddresses = /.+@mozilla\.com$/;
 
@@ -970,8 +970,8 @@ describe('/account/login', function () {
       };
     });
 
-    it('is enabled by default', function () {
-      return runTest(route, mockRequest, function (response) {
+    it('is enabled by default', () => {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called');
         const tokenData = mockDB.createSessionToken.getCall(0).args[0];
         assert.ok(tokenData.mustVerify, 'sessionToken must be verified before use');
@@ -989,7 +989,7 @@ describe('/account/login', function () {
       });
     });
 
-    it('does not require verification when keys are not requested', function () {
+    it('does not require verification when keys are not requested', () => {
       const email = 'test@mozilla.com';
       mockDB.accountRecord = function () {
         return P.resolve({
@@ -1007,7 +1007,7 @@ describe('/account/login', function () {
         });
       };
 
-      return runTest(route, mockRequestNoKeys, function (response) {
+      return runTest(route, mockRequestNoKeys, (response) => {
         assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called');
         const tokenData = mockDB.createSessionToken.getCall(0).args[0];
         assert.ok(! tokenData.mustVerify, 'sessionToken does not have to be verified');
@@ -1026,7 +1026,7 @@ describe('/account/login', function () {
       });
     });
 
-    it('unverified account gets account confirmation email', function () {
+    it('unverified account gets account confirmation email', () => {
       const email = 'test@mozilla.com';
       mockRequest.payload.email = email;
       mockDB.accountRecord = function () {
@@ -1045,7 +1045,7 @@ describe('/account/login', function () {
         });
       };
 
-      return runTest(route, mockRequest, function (response) {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called');
         const tokenData = mockDB.createSessionToken.getCall(0).args[0];
         assert.ok(tokenData.mustVerify, 'sessionToken must be verified before use');
@@ -1070,7 +1070,7 @@ describe('/account/login', function () {
       });
     });
 
-    describe('skip for new accounts', function () {
+    describe('skip for new accounts', () => {
       function setup(enabled, accountCreatedSince) {
         config.signinConfirmation.skipForNewAccounts = {
           enabled: enabled,
@@ -1111,10 +1111,10 @@ describe('/account/login', function () {
         route = getRoute(accountRoutes, '/account/login');
       }
 
-      it('is disabled', function () {
+      it('is disabled', () => {
         setup(false);
 
-        return runTest(route, mockRequest, function (response) {
+        return runTest(route, mockRequest, (response) => {
           assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called');
           const tokenData = mockDB.createSessionToken.getCall(0).args[0];
           assert.ok(tokenData.mustVerify, 'sessionToken must be verified before use');
@@ -1133,10 +1133,10 @@ describe('/account/login', function () {
       });
 
 
-      it('skip sign-in confirmation on recently created account', function () {
+      it('skip sign-in confirmation on recently created account', () => {
         setup(true, 0);
 
-        return runTest(route, mockRequest, function (response) {
+        return runTest(route, mockRequest, (response) => {
           assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called');
           const tokenData = mockDB.createSessionToken.getCall(0).args[0];
           assert.equal(tokenData.tokenVerificationId, null, 'sessionToken was created verified');
@@ -1146,12 +1146,12 @@ describe('/account/login', function () {
         });
       });
 
-      it('do not error if new device login notification is blocked', function () {
+      it('do not error if new device login notification is blocked', () => {
         setup(true, 0);
 
         mockMailer.sendNewDeviceLoginNotification = sinon.spy(() => P.reject(error.emailBouncedHard()));
 
-        return runTest(route, mockRequest, function (response) {
+        return runTest(route, mockRequest, (response) => {
           assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called');
           const tokenData = mockDB.createSessionToken.getCall(0).args[0];
           assert.equal(tokenData.tokenVerificationId, null, 'sessionToken was created verified');
@@ -1167,10 +1167,10 @@ describe('/account/login', function () {
       });
 
 
-      it('don\'t skip sign-in confirmation on older account', function () {
+      it('don\'t skip sign-in confirmation on older account', () => {
         setup(true, 10);
 
-        return runTest(route, mockRequest, function (response) {
+        return runTest(route, mockRequest, (response) => {
           assert.equal(mockDB.createSessionToken.callCount, 1, 'db.createSessionToken was called');
           const tokenData = mockDB.createSessionToken.getCall(0).args[0];
           assert.ok(tokenData.tokenVerificationId, 'sessionToken was created unverified');
@@ -1181,7 +1181,7 @@ describe('/account/login', function () {
       });
     });
 
-    describe('skip for emails', function () {
+    describe('skip for emails', () => {
       function setup(email) {
         config.securityHistory.ipProfiling.allowedRecency = 0;
         config.signinConfirmation.skipForNewAccounts = {enabled: false};
@@ -1244,21 +1244,21 @@ describe('/account/login', function () {
     });
   });
 
-  it('creating too many sessions causes an error to be logged', function () {
+  it('creating too many sessions causes an error to be logged', () => {
     const oldSessions = mockDB.sessions;
-    mockDB.sessions = sinon.spy(function () {
+    mockDB.sessions = sinon.spy(() => {
       return P.resolve(new Array(200));
     });
     mockLog.error = sinon.spy();
     mockRequest.app.clientAddress = '63.245.221.32';
-    return runTest(route, mockRequest, function () {
+    return runTest(route, mockRequest, () => {
       assert.equal(mockLog.error.callCount, 0, 'log.error was not called');
-    }).then(function () {
-      mockDB.sessions = sinon.spy(function () {
+    }).then(() => {
+      mockDB.sessions = sinon.spy(() => {
         return P.resolve(new Array(201));
       });
       mockLog.error.resetHistory();
-      return runTest(route, mockRequest, function () {
+      return runTest(route, mockRequest, () => {
         assert.equal(mockLog.error.callCount, 1, 'log.error was called');
         assert.equal(mockLog.error.firstCall.args[0], 'Account.login');
         assert.equal(mockLog.error.firstCall.args[1].numSessions, 201);
@@ -1267,21 +1267,21 @@ describe('/account/login', function () {
     });
   });
 
-  describe('checks security history', function () {
+  describe('checks security history', () => {
     let record;
     const clientAddress = mockRequest.app.clientAddress;
     beforeEach(() => {
-      mockLog.info = sinon.spy(function (op, arg) {
+      mockLog.info = sinon.spy((op, arg) => {
         if (op.indexOf('Account.history') === 0) {
           record = arg;
         }
       });
     });
 
-    it('with a seen ip address', function () {
+    it('with a seen ip address', () => {
       record = undefined;
       let securityQuery;
-      mockDB.securityEvents = sinon.spy(function (arg) {
+      mockDB.securityEvents = sinon.spy((arg) => {
         securityQuery = arg;
         return P.resolve([
           {
@@ -1291,7 +1291,7 @@ describe('/account/login', function () {
           }
         ]);
       });
-      return runTest(route, mockRequest, function (response) {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockDB.securityEvents.callCount, 1, 'db.securityEvents was called');
         assert.equal(securityQuery.uid, uid);
         assert.equal(securityQuery.ipAddr, clientAddress);
@@ -1304,10 +1304,10 @@ describe('/account/login', function () {
       });
     });
 
-    it('with a seen, unverified ip address', function () {
+    it('with a seen, unverified ip address', () => {
       record = undefined;
       let securityQuery;
-      mockDB.securityEvents = sinon.spy(function (arg) {
+      mockDB.securityEvents = sinon.spy((arg) => {
         securityQuery = arg;
         return P.resolve([
           {
@@ -1317,7 +1317,7 @@ describe('/account/login', function () {
           }
         ]);
       });
-      return runTest(route, mockRequest, function (response) {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockDB.securityEvents.callCount, 1, 'db.securityEvents was called');
         assert.equal(securityQuery.uid, uid);
         assert.equal(securityQuery.ipAddr, clientAddress);
@@ -1329,15 +1329,15 @@ describe('/account/login', function () {
       });
     });
 
-    it('with a new ip address', function () {
+    it('with a new ip address', () => {
       record = undefined;
 
       let securityQuery;
-      mockDB.securityEvents = sinon.spy(function (arg) {
+      mockDB.securityEvents = sinon.spy((arg) => {
         securityQuery = arg;
         return P.resolve([]);
       });
-      return runTest(route, mockRequest, function (response) {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockDB.securityEvents.callCount, 1, 'db.securityEvents was called');
         assert.equal(securityQuery.uid, uid);
         assert.equal(securityQuery.ipAddr, clientAddress);
@@ -1347,14 +1347,14 @@ describe('/account/login', function () {
     });
   });
 
-  it('records security event', function () {
+  it('records security event', () => {
     const clientAddress = mockRequest.app.clientAddress;
     let securityQuery;
-    mockDB.securityEvent = sinon.spy(function (arg) {
+    mockDB.securityEvent = sinon.spy((arg) => {
       securityQuery = arg;
       return P.resolve();
     });
-    return runTest(route, mockRequest, function (response) {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(mockDB.securityEvent.callCount, 1, 'db.securityEvent was called');
       assert.equal(securityQuery.uid, uid);
       assert.equal(securityQuery.ipAddr, clientAddress);
@@ -1479,9 +1479,9 @@ describe('/account/login', function () {
     });
   });
 
-  it('fails login with non primary email', function () {
+  it('fails login with non primary email', () => {
     const email = 'foo@mail.com';
-    mockDB.accountRecord = sinon.spy(function () {
+    mockDB.accountRecord = sinon.spy(() => {
       return P.resolve({
         primaryEmail: {normalizedEmail: email.toLowerCase(), email: email, isVerified: true, isPrimary: false},
       });
@@ -1492,8 +1492,8 @@ describe('/account/login', function () {
     });
   });
 
-  it('fails login when requesting TOTP verificationMethod and TOTP not setup', function () {
-    mockDB.totpToken = sinon.spy(function () {
+  it('fails login when requesting TOTP verificationMethod and TOTP not setup', () => {
+    mockDB.totpToken = sinon.spy(() => {
       return P.resolve({
         verified: true,
         enabled: false
@@ -1507,7 +1507,7 @@ describe('/account/login', function () {
   });
 });
 
-describe('/account/keys', function () {
+describe('/account/keys', () => {
   const keyFetchTokenId = hexString(16);
   const uid = uuid.v4('binary').toString('hex');
   const mockLog = mocks.mockLog();
@@ -1529,8 +1529,8 @@ describe('/account/keys', function () {
   });
   const route = getRoute(accountRoutes, '/account/keys');
 
-  it('verified token', function () {
-    return runTest(route, mockRequest, function (response) {
+  it('verified token', () => {
+    return runTest(route, mockRequest, (response) => {
       assert.deepEqual(response, {bundle: mockRequest.auth.credentials.keyBundle}, 'response was correct');
 
       assert.equal(mockDB.deleteKeyFetchToken.callCount, 1, 'db.deleteKeyFetchToken was called once');
@@ -1550,26 +1550,26 @@ describe('/account/keys', function () {
         uid: uid
       }, 'event data was correct');
     })
-      .then(function () {
+      .then(() => {
         mockLog.activityEvent.resetHistory();
         mockDB.deleteKeyFetchToken.resetHistory();
       });
   });
 
-  it('unverified token', function () {
+  it('unverified token', () => {
     mockRequest.auth.credentials.tokenVerificationId = hexString(16);
     mockRequest.auth.credentials.tokenVerified = false;
     return runTest(route, mockRequest).then(() => assert.ok(false), response => {
       assert.equal(response.errno, 104, 'correct errno for unverified account');
       assert.equal(response.message, 'Unverified account', 'correct error message');
     })
-      .then(function () {
+      .then(() => {
         mockLog.activityEvent.resetHistory();
       });
   });
 });
 
-describe('/account/destroy', function () {
+describe('/account/destroy', () => {
   it('should delete the account', () => {
     const email = 'foo@example.com';
     const uid = uuid.v4('binary').toString('hex');
@@ -1599,7 +1599,7 @@ describe('/account/destroy', function () {
     });
     const route = getRoute(accountRoutes, '/account/destroy');
 
-    return runTest(route, mockRequest, function () {
+    return runTest(route, mockRequest, () => {
       assert.equal(mockDB.accountRecord.callCount, 1, 'db.emailRecord was called once');
       let args = mockDB.accountRecord.args[0];
       assert.equal(args.length, 2, 'db.emailRecord was passed two arguments');

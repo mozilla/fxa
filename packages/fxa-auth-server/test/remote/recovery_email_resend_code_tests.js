@@ -76,50 +76,50 @@ describe('remote recovery email resend code', function () {
       };
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox, options)
         .then(
-          function () {
+          () => {
             // Attempt to login from new location
             return Client.login(config.publicUrl, email, password, server.mailbox, options);
           }
         )
         .then(
-          function (c) {
+          (c) => {
             client2 = c;
           }
         )
         .then(
-          function () {
+          () => {
             return client2.login(options);
           }
         )
         .then(
-          function () {
+          () => {
             return server.mailbox.waitForCode(email);
           }
         )
         .then(
-          function (code) {
+          (code) => {
             verifyEmailCode = code;
             return client2.requestVerifyEmail();
           }
         )
         .then(
-          function () {
+          () => {
             return server.mailbox.waitForCode(email);
           }
         )
         .then(
-          function (code) {
+          (code) => {
             assert.equal(code, verifyEmailCode, 'code equal to verify email code');
             return client2.verifyEmail(code);
           }
         )
         .then(
-          function () {
+          () => {
             return client2.emailStatus();
           }
         )
         .then(
-          function (status) {
+          (status) => {
             assert.equal(status.verified, true, 'account is verified');
             assert.equal(status.emailVerified, true, 'account email is verified');
             assert.equal(status.sessionVerified, true, 'account session is verified');

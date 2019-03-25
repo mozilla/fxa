@@ -323,7 +323,7 @@ describe('/session/destroy', () => {
   });
 
   it('responds correctly when custom session is destroyed', () => {
-    db.sessionToken = sinon.spy(function () {
+    db.sessionToken = sinon.spy(() => {
       return P.resolve({
         uid: 'foo'
       });
@@ -345,7 +345,7 @@ describe('/session/destroy', () => {
   });
 
   it('throws on invalid session token', () => {
-    db.sessionToken = sinon.spy(function () {
+    db.sessionToken = sinon.spy(() => {
       return P.resolve({
         uid: 'diff-user'
       });

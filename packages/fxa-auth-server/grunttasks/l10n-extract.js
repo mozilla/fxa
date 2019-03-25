@@ -41,7 +41,7 @@ module.exports = function (grunt) {
       }
     });
 
-    walker.on('end', function () {
+    walker.on('end', () => {
       const jsWalker = extract({
         'input-dir': path.join(pkgroot, 'lib/senders'),
         outputDir: pkgroot,
@@ -53,7 +53,7 @@ module.exports = function (grunt) {
         }
       });
 
-      jsWalker.on('end', function () {
+      jsWalker.on('end', () => {
         done();
       });
     });

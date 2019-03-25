@@ -24,7 +24,7 @@ describe('bulk-mailer', () => {
     return normalizerStub;
   };
   const readUserRecordsSpy = sinon.spy(() => userRecords);
-  const sendEmailBatchesSpy = sinon.spy(function () {});
+  const sendEmailBatchesSpy = sinon.spy(() => {});
 
   const sendersMock = {
     email: {
@@ -32,7 +32,7 @@ describe('bulk-mailer', () => {
     }
   };
 
-  const createSendersSpy = sinon.spy(function () {
+  const createSendersSpy = sinon.spy(() => {
     return Promise.resolve(sendersMock);
   });
 

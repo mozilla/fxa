@@ -44,7 +44,7 @@ module.exports = (config) => {
       options.body.provider = emailConfig.provider;
     }
 
-    request(options, function(err, res, body) {
+    request(options, (err, res, body) => {
       if (! err && res.statusCode >= 400) {
         err = marshallError(res.statusCode, body);
       }

@@ -32,7 +32,7 @@ module.exports = function (secretKeyFile, domain) {
         }
       )
       .then(
-        function (cert) {
+        (cert) => {
           return { cert: cert };
         }
       );

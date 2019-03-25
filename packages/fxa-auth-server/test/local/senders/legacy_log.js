@@ -16,7 +16,7 @@ const spyLog = {
   warn: sinon.spy()
 };
 
-it('legacy_log unit tests', function () {
+it('legacy_log unit tests', () => {
   const data = {
     op: 'testOp',
     err: 'Nooo!'

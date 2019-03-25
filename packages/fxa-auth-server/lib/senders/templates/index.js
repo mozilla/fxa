@@ -25,7 +25,7 @@ function generateTemplateName (str) {
   }
 
   return str.replace(/_(.)/g,
-    function(match, c) {
+    (match, c) => {
       return c.toUpperCase();
     }
   ) + 'Email';
@@ -39,7 +39,7 @@ function loadTemplates(name) {
     ]
   )
   .spread(
-    function (text, html) {
+    (text, html) => {
       const renderText = handlebars.compile(text);
       const renderHtml = handlebars.compile(html);
       return {
@@ -88,14 +88,14 @@ module.exports = {
     ].map(loadTemplates)
   )
   .then(
-    function (templates) {
+    (templates) => {
       // yields an object like:
       // {
       //   verifyEmail: function (values) {...} ,
       //   ...
       // }
       return templates.reduce(
-        function (result, template) {
+        (result, template) => {
           result[template.name] = template.fn;
           return result;
         },

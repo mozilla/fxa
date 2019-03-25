@@ -36,7 +36,7 @@ describe('mailer locales', () => {
     'All configured supportedLanguages are available',
     () => {
       const locales = config.i18n.supportedLanguages;
-      locales.forEach(function(lang) {
+      locales.forEach((lang) => {
         // sr-LATN is sr, but in Latin characters, not Cyrillic
         if (lang === 'sr-LATN') {
           assert.equal('sr-Latn', mailer.translator(lang).language);
@@ -63,7 +63,7 @@ describe('mailer locales', () => {
         [ 'fr-CA', 'fr' ],
       ];
 
-      locales.forEach(function(lang) {
+      locales.forEach((lang) => {
         assert.equal(lang[1], mailer.translator(lang[0]).language);
       });
     }
@@ -83,7 +83,7 @@ describe('mailer locales', () => {
         [ 'zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3', 'zh-CN' ]
       ];
 
-      locales.forEach(function(lang) {
+      locales.forEach((lang) => {
         assert.equal(lang[1], mailer.translator(lang[0]).language);
       });
     }

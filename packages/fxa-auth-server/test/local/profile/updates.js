@@ -59,7 +59,7 @@ describe('profile updates', () => {
 
       return mockProfileUpdates(log).handleProfileUpdated(mockMessage({
         uid: uid
-      })).then(function () {
+      })).then(() => {
         assert.equal(log.error.callCount, 0);
         assert.equal(mockPush.notifyProfileUpdated.callCount, 2);
         const args = mockPush.notifyProfileUpdated.getCall(1).args;

@@ -59,17 +59,17 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
       let token = null;
       return SessionToken.create(TOKEN)
         .then(
-          function (x) {
+          (x) => {
             token = x;
           }
         )
         .then(
-          function () {
+          () => {
             return SessionToken.fromHex(token.data, token);
           }
         )
         .then(
-          function (token2) {
+          (token2) => {
             assert.deepEqual(token.data, token2.data);
             assert.deepEqual(token.id, token2.id);
             assert.deepEqual(token.authKey, token2.authKey);
@@ -139,7 +139,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
         email: 'foo',
         uid: 'bar'
       }).then(
-        function (token) {
+        (token) => {
           const now = Date.now();
           assert.ok(token.createdAt > now - 1000 && token.createdAt <= now);
         }
@@ -154,7 +154,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
       const tokenData = 'a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf';
       return SessionToken.fromHex(tokenData, TOKEN)
         .then(
-          function (x) {
+          (x) => {
             token = x;
             assert.equal(token.data.toString('hex'), tokenData);
             assert.equal(token.id, 'c0a29dcf46174973da1378696e4c82ae10f723cf4f4d9f75e39f4ae3851595ab');
@@ -168,7 +168,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
     'SessionToken.setUserAgentInfo',
     () => {
       return SessionToken.create(TOKEN)
-        .then(function (token) {
+        .then((token) => {
           token.setUserAgentInfo({
             data: 'foo',
             id: 'foo',
@@ -218,7 +218,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
     'SessionToken.setUserAgentInfo without lastAccessTime',
     () => {
       return SessionToken.create(TOKEN)
-        .then(function (token) {
+        .then((token) => {
           token.lastAccessTime = 'foo';
           token.setUserAgentInfo({
             uaBrowser: 'foo',
