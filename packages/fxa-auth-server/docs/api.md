@@ -1749,26 +1749,6 @@ The link can be clicked from any browser,
 not just the one being attached to the Firefox account.
 <!--end-route-post-recovery_emailverify_code-->
 
-##### Query parameters
-
-* `service`: *validators.service*
-
-  <!--begin-query-param-post-recovery_emailverify_code-service-->
-  Opaque alphanumeric token to be included in verification links.
-  <!--end-query-param-post-recovery_emailverify_code-service-->
-
-* `reminder`: *string, max(32), alphanum, optional*
-
-  <!--begin-query-param-post-recovery_emailverify_code-reminder-->
-  Deprecated.
-  <!--end-query-param-post-recovery_emailverify_code-reminder-->
-
-* `type`: *string, max(32), alphanum, optional*
-
-  <!--begin-query-param-post-recovery_emailverify_code-type-->
-  The type of code being verified.
-  <!--end-query-param-post-recovery_emailverify_code-type-->
-
 ##### Request body
 
 * `uid`: *string, max(32), regex(HEX_STRING), required*
