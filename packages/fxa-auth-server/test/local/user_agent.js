@@ -2,32 +2,32 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const { assert } = require('chai')
-const proxyquire = require('proxyquire').noPreserveCache()
-const sinon = require('sinon')
+const { assert } = require('chai');
+const proxyquire = require('proxyquire').noPreserveCache();
+const sinon = require('sinon');
 
 describe('userAgent, mocked dependency', () => {
-  let uaParser, userAgent, parserResult
+  let uaParser, userAgent, parserResult;
 
   beforeEach(() => {
     uaParser = {
       parse: sinon.spy(() => parserResult)
-    }
+    };
 
     userAgent = proxyquire('../../lib/userAgent', {
       'node-uap': uaParser
-    })
-  })
+    });
+  });
 
   it(
     'exports function',
     () => {
-      assert.equal(typeof userAgent, 'function')
-      assert.equal(userAgent.length, 1)
+      assert.equal(typeof userAgent, 'function');
+      assert.equal(userAgent.length, 1);
     }
-  )
+  );
 
   it(
     'sets data correctly',
@@ -44,21 +44,21 @@ describe('userAgent, mocked dependency', () => {
         device: {
           family: 'baz'
         }
-      }
-      const result = userAgent('qux')
+      };
+      const result = userAgent('qux');
 
-      assert.equal(uaParser.parse.callCount, 1)
-      assert.ok(uaParser.parse.calledWithExactly('qux'))
+      assert.equal(uaParser.parse.callCount, 1);
+      assert.ok(uaParser.parse.calledWithExactly('qux'));
 
-      assert.equal(Object.keys(result).length, 6)
-      assert.equal(result.browser, 'foo')
-      assert.equal(result.browserVersion, '1')
-      assert.equal(result.os, 'bar')
-      assert.equal(result.osVersion, '2')
-      assert.equal(result.deviceType, 'mobile')
-      assert.equal(result.formFactor, 'baz')
+      assert.equal(Object.keys(result).length, 6);
+      assert.equal(result.browser, 'foo');
+      assert.equal(result.browserVersion, '1');
+      assert.equal(result.os, 'bar');
+      assert.equal(result.osVersion, '2');
+      assert.equal(result.deviceType, 'mobile');
+      assert.equal(result.formFactor, 'baz');
     }
-  )
+  );
 
   it(
     'ignores family:Other',
@@ -75,21 +75,21 @@ describe('userAgent, mocked dependency', () => {
         device: {
           family: 'Other'
         }
-      }
-      const result = userAgent('wibble')
+      };
+      const result = userAgent('wibble');
 
-      assert.equal(uaParser.parse.callCount, 1)
-      assert.ok(uaParser.parse.calledWithExactly('wibble'))
+      assert.equal(uaParser.parse.callCount, 1);
+      assert.ok(uaParser.parse.calledWithExactly('wibble'));
 
-      assert.equal(Object.keys(result).length, 6)
-      assert.equal(result.browser, null)
-      assert.equal(result.browserVersion, '1.0')
-      assert.equal(result.os, null)
-      assert.equal(result.osVersion, '2.0')
-      assert.equal(result.deviceType, null)
-      assert.equal(result.formFactor, null)
+      assert.equal(Object.keys(result).length, 6);
+      assert.equal(result.browser, null);
+      assert.equal(result.browserVersion, '1.0');
+      assert.equal(result.os, null);
+      assert.equal(result.osVersion, '2.0');
+      assert.equal(result.deviceType, null);
+      assert.equal(result.formFactor, null);
     }
-  )
+  );
 
   it(
     'recognises Android phones as a mobile OS',
@@ -107,13 +107,13 @@ describe('userAgent, mocked dependency', () => {
         device: {
           family: 'Other'
         }
-      }
-      const result = userAgent()
+      };
+      const result = userAgent();
 
-      assert.equal(result.deviceType, 'mobile')
-      assert.equal(result.formFactor, null)
+      assert.equal(result.deviceType, 'mobile');
+      assert.equal(result.formFactor, null);
     }
-  )
+  );
 
   it(
     'recognises iOS as a mobile OS',
@@ -130,13 +130,13 @@ describe('userAgent, mocked dependency', () => {
         device: {
           family: 'iPhone 7'
         }
-      }
-      const result = userAgent()
+      };
+      const result = userAgent();
 
-      assert.equal(result.deviceType, 'mobile')
-      assert.equal(result.formFactor, 'iPhone 7')
+      assert.equal(result.deviceType, 'mobile');
+      assert.equal(result.formFactor, 'iPhone 7');
     }
-  )
+  );
 
   it(
     'recognises Firefox OS as a mobile OS',
@@ -153,12 +153,12 @@ describe('userAgent, mocked dependency', () => {
         device: {
           family: 'Other'
         }
-      }
-      const result = userAgent()
+      };
+      const result = userAgent();
 
-      assert.equal(result.deviceType, 'mobile')
+      assert.equal(result.deviceType, 'mobile');
     }
-  )
+  );
 
   it(
     'recognises Windows Phone as a mobile OS',
@@ -175,12 +175,12 @@ describe('userAgent, mocked dependency', () => {
         device: {
           family: 'Other'
         }
-      }
-      const result = userAgent()
+      };
+      const result = userAgent();
 
-      assert.equal(result.deviceType, 'mobile')
+      assert.equal(result.deviceType, 'mobile');
     }
-  )
+  );
 
   it(
     'recognises BlackBerry OS as a mobile OS',
@@ -197,12 +197,12 @@ describe('userAgent, mocked dependency', () => {
         device: {
           family: 'Other'
         }
-      }
-      const result = userAgent()
+      };
+      const result = userAgent();
 
-      assert.equal(result.deviceType, 'mobile')
+      assert.equal(result.deviceType, 'mobile');
     }
-  )
+  );
 
   it(
     'does not recognise Mac OS X as a mobile OS',
@@ -219,12 +219,12 @@ describe('userAgent, mocked dependency', () => {
         device: {
           family: 'Other'
         }
-      }
-      const result = userAgent()
+      };
+      const result = userAgent();
 
-      assert.equal(result.deviceType, null)
+      assert.equal(result.deviceType, null);
     }
-  )
+  );
 
   it(
     'does not recognise Linux as a mobile OS',
@@ -241,12 +241,12 @@ describe('userAgent, mocked dependency', () => {
         device: {
           family: 'Other'
         }
-      }
-      const result = userAgent()
+      };
+      const result = userAgent();
 
-      assert.equal(result.deviceType, null)
+      assert.equal(result.deviceType, null);
     }
-  )
+  );
 
   it(
     'does not recognise Windows as a mobile OS',
@@ -263,12 +263,12 @@ describe('userAgent, mocked dependency', () => {
         device: {
           family: 'Other'
         }
-      }
-      const result = userAgent()
+      };
+      const result = userAgent();
 
-      assert.equal(result.deviceType, null)
+      assert.equal(result.deviceType, null);
     }
-  )
+  );
 
   it(
     'recognises iPads as tablets',
@@ -286,13 +286,13 @@ describe('userAgent, mocked dependency', () => {
         device: {
           family: 'iPad Pro'
         }
-      }
-      const result = userAgent()
+      };
+      const result = userAgent();
 
-      assert.equal(result.deviceType, 'tablet')
-      assert.equal(result.formFactor, 'iPad Pro')
+      assert.equal(result.deviceType, 'tablet');
+      assert.equal(result.formFactor, 'iPad Pro');
     }
-  )
+  );
 
   it(
     'recognises Android tablets as tablets',
@@ -310,13 +310,13 @@ describe('userAgent, mocked dependency', () => {
         device: {
           family: 'Nexus 7'
         }
-      }
-      const result = userAgent()
+      };
+      const result = userAgent();
 
-      assert.equal(result.deviceType, 'tablet')
-      assert.equal(result.formFactor, 'Nexus 7')
+      assert.equal(result.deviceType, 'tablet');
+      assert.equal(result.formFactor, 'Nexus 7');
     }
-  )
+  );
 
   it('recognises FirefoxOS mobiles as mobiles', () => {
     parserResult = {
@@ -334,11 +334,11 @@ describe('userAgent, mocked dependency', () => {
         brand: 'Generic',
         model: 'Smartphone'
       }
-    }
-    const result = userAgent()
+    };
+    const result = userAgent();
 
-    assert.equal(result.deviceType, 'mobile')
-  })
+    assert.equal(result.deviceType, 'mobile');
+  });
 
   it('recognises FirefoxOS tablets as tablets', () => {
     parserResult = {
@@ -356,11 +356,11 @@ describe('userAgent, mocked dependency', () => {
         brand: 'Generic',
         model: 'Tablet'
       }
-    }
-    const result = userAgent()
+    };
+    const result = userAgent();
 
-    assert.equal(result.deviceType, 'tablet')
-  })
+    assert.equal(result.deviceType, 'tablet');
+  });
 
   it('ignores form factor for generic devices', () => {
     parserResult = {
@@ -377,70 +377,70 @@ describe('userAgent, mocked dependency', () => {
         family: 'Generic Smartphone',
         brand: 'Generic'
       }
-    }
-    const result = userAgent()
+    };
+    const result = userAgent();
 
-    assert.equal(result.deviceType, 'mobile')
-    assert.equal(result.formFactor, null)
-  })
+    assert.equal(result.deviceType, 'mobile');
+    assert.equal(result.formFactor, null);
+  });
 
   it(
     'recognises old Firefox-iOS user agents',
     () => {
-      parserResult = null
-      const result = userAgent('Firefox-iOS-FxA/5.3 (Firefox)')
+      parserResult = null;
+      const result = userAgent('Firefox-iOS-FxA/5.3 (Firefox)');
 
-      assert.equal(result.browser, 'Firefox')
-      assert.equal(result.browserVersion, '5.3')
-      assert.equal(result.os, 'iOS')
-      assert.equal(result.deviceType, 'mobile')
-      assert.equal(result.formFactor, null)
+      assert.equal(result.browser, 'Firefox');
+      assert.equal(result.browserVersion, '5.3');
+      assert.equal(result.os, 'iOS');
+      assert.equal(result.deviceType, 'mobile');
+      assert.equal(result.formFactor, null);
     }
-  )
+  );
 
   it(
     'recognises new Firefox-iOS user agents',
     () => {
-      parserResult = null
-      const result = userAgent('Firefox-iOS-FxA/6.0b42 (iPhone 6S; iPhone OS 10.3) (Nightly)')
+      parserResult = null;
+      const result = userAgent('Firefox-iOS-FxA/6.0b42 (iPhone 6S; iPhone OS 10.3) (Nightly)');
 
-      assert.equal(result.browser, 'Nightly')
-      assert.equal(result.browserVersion, '6.0')
-      assert.equal(result.os, 'iOS')
-      assert.equal(result.osVersion, '10.3')
-      assert.equal(result.deviceType, 'mobile')
-      assert.equal(result.formFactor, 'iPhone 6S')
+      assert.equal(result.browser, 'Nightly');
+      assert.equal(result.browserVersion, '6.0');
+      assert.equal(result.os, 'iOS');
+      assert.equal(result.osVersion, '10.3');
+      assert.equal(result.deviceType, 'mobile');
+      assert.equal(result.formFactor, 'iPhone 6S');
     }
-  )
+  );
 
   it(
     'recognises new Firefox-iOS user agent on iPads',
     () => {
-      parserResult = null
-      const result = userAgent('Firefox-iOS-FxA/6.0b42 (iPad Mini; iPhone OS 10.3) (Nightly)')
+      parserResult = null;
+      const result = userAgent('Firefox-iOS-FxA/6.0b42 (iPad Mini; iPhone OS 10.3) (Nightly)');
 
-      assert.equal(result.browser, 'Nightly')
-      assert.equal(result.browserVersion, '6.0')
-      assert.equal(result.os, 'iOS')
-      assert.equal(result.osVersion, '10.3')
-      assert.equal(result.deviceType, 'tablet')
-      assert.equal(result.formFactor, 'iPad Mini')
+      assert.equal(result.browser, 'Nightly');
+      assert.equal(result.browserVersion, '6.0');
+      assert.equal(result.os, 'iOS');
+      assert.equal(result.osVersion, '10.3');
+      assert.equal(result.deviceType, 'tablet');
+      assert.equal(result.formFactor, 'iPad Mini');
     }
-  )
+  );
 
   it(
     'recognises Firefox-Android user agents',
     () => {
-      parserResult = null
-      const result = userAgent('Firefox-Android-FxAccounts/49.0.2 (Firefox)')
+      parserResult = null;
+      const result = userAgent('Firefox-Android-FxAccounts/49.0.2 (Firefox)');
 
-      assert.equal(result.browser, 'Firefox')
-      assert.equal(result.browserVersion, '49.0.2')
-      assert.equal(result.os, 'Android')
-      assert.equal(result.deviceType, 'mobile')
-      assert.equal(result.formFactor, null)
+      assert.equal(result.browser, 'Firefox');
+      assert.equal(result.browserVersion, '49.0.2');
+      assert.equal(result.os, 'Android');
+      assert.equal(result.deviceType, 'mobile');
+      assert.equal(result.formFactor, null);
     }
-  )
+  );
 
   it('recognises old Android Sync user agents', () => {
     parserResult = {
@@ -458,39 +458,39 @@ describe('userAgent, mocked dependency', () => {
         brand: 'Generic',
         model: 'Smartphone'
       }
-    }
-    const result = userAgent('Firefox AndroidSync 1.51.0.0 (Firefox)')
+    };
+    const result = userAgent('Firefox AndroidSync 1.51.0.0 (Firefox)');
 
-    assert.equal(result.browser, null)
-    assert.equal(result.browserVersion, null)
-    assert.equal(result.os, 'Android')
-    assert.equal(result.deviceType, 'mobile')
-    assert.equal(result.formFactor, null)
-  })
+    assert.equal(result.browser, null);
+    assert.equal(result.browserVersion, null);
+    assert.equal(result.os, 'Android');
+    assert.equal(result.deviceType, 'mobile');
+    assert.equal(result.formFactor, null);
+  });
 
   it('recognises new mobile Sync library user agents on Android', () => {
-    parserResult = null
-    const result = userAgent('Mobile-Android-Sync/(Mobile; Android 6.0) (foo bar)')
+    parserResult = null;
+    const result = userAgent('Mobile-Android-Sync/(Mobile; Android 6.0) (foo bar)');
 
-    assert.equal(result.browser, 'foo bar')
-    assert.equal(result.browserVersion, null)
-    assert.equal(result.os, 'Android')
-    assert.equal(result.osVersion, '6.0')
-    assert.equal(result.deviceType, 'mobile')
-    assert.equal(result.formFactor, 'Mobile')
-  })
+    assert.equal(result.browser, 'foo bar');
+    assert.equal(result.browserVersion, null);
+    assert.equal(result.os, 'Android');
+    assert.equal(result.osVersion, '6.0');
+    assert.equal(result.deviceType, 'mobile');
+    assert.equal(result.formFactor, 'Mobile');
+  });
 
   it('recognises new mobile Sync library user agents on iOS', () => {
-    parserResult = null
-    const result = userAgent('Mobile-iOS-Sync/(iPad Mini; iOS 10.3) (wibble)')
+    parserResult = null;
+    const result = userAgent('Mobile-iOS-Sync/(iPad Mini; iOS 10.3) (wibble)');
 
-    assert.equal(result.browser, 'wibble')
-    assert.equal(result.browserVersion, null)
-    assert.equal(result.os, 'iOS')
-    assert.equal(result.osVersion, '10.3')
-    assert.equal(result.deviceType, 'tablet')
-    assert.equal(result.formFactor, 'iPad Mini')
-  })
+    assert.equal(result.browser, 'wibble');
+    assert.equal(result.browserVersion, null);
+    assert.equal(result.os, 'iOS');
+    assert.equal(result.osVersion, '10.3');
+    assert.equal(result.deviceType, 'tablet');
+    assert.equal(result.formFactor, 'iPad Mini');
+  });
 
   it('recognises old Kindle user agents', () => {
     parserResult = {
@@ -508,15 +508,15 @@ describe('userAgent, mocked dependency', () => {
         brand: 'Amazon',
         model: 'Kindle 3.0'
       }
-    }
-    const result = userAgent()
+    };
+    const result = userAgent();
 
-    assert.equal(result.browser, 'Kindle')
-    assert.equal(result.browserVersion, null)
-    assert.equal(result.os, 'Kindle')
-    assert.equal(result.deviceType, 'tablet')
-    assert.equal(result.formFactor, 'Kindle')
-  })
+    assert.equal(result.browser, 'Kindle');
+    assert.equal(result.browserVersion, null);
+    assert.equal(result.os, 'Kindle');
+    assert.equal(result.deviceType, 'tablet');
+    assert.equal(result.formFactor, 'Kindle');
+  });
 
   it('recognises Kindle Fire user agents', () => {
     parserResult = {
@@ -534,23 +534,23 @@ describe('userAgent, mocked dependency', () => {
         brand: 'Amazon',
         model: 'Kindle Fire'
       }
-    }
-    const result = userAgent()
+    };
+    const result = userAgent();
 
-    assert.equal(result.browser, 'Android')
-    assert.equal(result.browserVersion, '2.3.4')
-    assert.equal(result.os, 'Android')
-    assert.equal(result.deviceType, 'tablet')
-    assert.equal(result.formFactor, 'Kindle')
-  })
-})
+    assert.equal(result.browser, 'Android');
+    assert.equal(result.browserVersion, '2.3.4');
+    assert.equal(result.os, 'Android');
+    assert.equal(result.deviceType, 'tablet');
+    assert.equal(result.formFactor, 'Kindle');
+  });
+});
 
 describe('userAgent, real dependency', () => {
-  let userAgent
+  let userAgent;
 
   beforeEach(() => {
-    userAgent = require('../../lib/userAgent')
-  })
+    userAgent = require('../../lib/userAgent');
+  });
 
   it('drops dodgy-looking fields from vulnerable node-uap regexes', () => {
     assert.deepEqual(userAgent('http://example.com-iPad/1.0 CFNetwork'), {
@@ -560,7 +560,7 @@ describe('userAgent, real dependency', () => {
       osVersion: '1.0',
       deviceType: 'mobile',
       formFactor: undefined
-    })
+    });
     assert.deepEqual(userAgent('<a>foo</a>-iPhone/2 CFNetwork'), {
       browser: null,
       browserVersion: '2',
@@ -568,7 +568,7 @@ describe('userAgent, real dependency', () => {
       osVersion: null,
       deviceType: 'mobile',
       formFactor: 'iPhone'
-    })
+    });
     assert.deepEqual(userAgent('wibble\t/7 CFNetwork'), {
       browser: null,
       browserVersion: '7',
@@ -576,6 +576,6 @@ describe('userAgent, real dependency', () => {
       osVersion: null,
       deviceType: null,
       formFactor: undefined
-    })
-  })
-})
+    });
+  });
+});

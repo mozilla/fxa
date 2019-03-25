@@ -2,21 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const bufferEqualConstantTime = require('buffer-equal-constant-time')
-const crypto = require('crypto')
-const HEX_STRING = require('../routes/validators').HEX_STRING
-const isA = require('joi')
-const P = require('../promise')
+const bufferEqualConstantTime = require('buffer-equal-constant-time');
+const crypto = require('crypto');
+const HEX_STRING = require('../routes/validators').HEX_STRING;
+const isA = require('joi');
+const P = require('../promise');
 
-const FLOW_ID_LENGTH = 64
+const FLOW_ID_LENGTH = 64;
 
 // These match validation in the content server backend.
 // We should probably refactor them to fxa-shared.
-const ENTRYPOINT_SCHEMA = isA.string().max(128).regex(/^[\w.:-]+$/)
-const UTM_SCHEMA = isA.string().max(128).regex(/^[\w\/.%-]+$/)
-const UTM_CAMPAIGN_SCHEMA = UTM_SCHEMA.allow('page+referral+-+not+part+of+a+campaign')
+const ENTRYPOINT_SCHEMA = isA.string().max(128).regex(/^[\w.:-]+$/);
+const UTM_SCHEMA = isA.string().max(128).regex(/^[\w\/.%-]+$/);
+const UTM_CAMPAIGN_SCHEMA = UTM_SCHEMA.allow('page+referral+-+not+part+of+a+campaign');
 
 const SCHEMA = isA.object({
   // The metrics context device id is a client-generated property
@@ -34,10 +34,10 @@ const SCHEMA = isA.object({
   utmTerm: UTM_SCHEMA.optional()
 })
   .unknown(false)
-  .and('flowId', 'flowBeginTime')
+  .and('flowId', 'flowBeginTime');
 
 module.exports = function (log, config) {
-  const cache = require('../cache')(log, config, 'fxa-metrics~')
+  const cache = require('../cache')(log, config, 'fxa-metrics~');
 
   return {
     stash,
@@ -47,7 +47,7 @@ module.exports = function (log, config) {
     clear,
     validate,
     setFlowCompleteSignal
-  }
+  };
 
   /**
    * Stashes metrics context metadata using a key derived from a token.
@@ -62,25 +62,25 @@ module.exports = function (log, config) {
    * @param token    token to stash the metadata against
    */
   function stash (token) {
-    const metadata = this.payload && this.payload.metricsContext
+    const metadata = this.payload && this.payload.metricsContext;
 
     if (! metadata) {
-      return P.resolve()
+      return P.resolve();
     }
 
-    metadata.service = this.payload.service || this.query.service
+    metadata.service = this.payload.service || this.query.service;
 
     return P.resolve()
       .then(() => {
         return cache.add(getKey(token), metadata)
-          .catch(err => log.warn('metricsContext.stash.add', { err }))
+          .catch(err => log.warn('metricsContext.stash.add', { err }));
       })
       .catch(err => log.error('metricsContext.stash', {
         err,
         hasToken: !! token,
         hasId: !! (token && token.id),
         hasUid: !! (token && token.uid)
-      }))
+      }));
   }
 
   /**
@@ -96,18 +96,18 @@ module.exports = function (log, config) {
    * @param request
    */
   async function get (request) {
-    let token
+    let token;
 
     try {
-      const metadata = request.payload && request.payload.metricsContext
+      const metadata = request.payload && request.payload.metricsContext;
 
       if (metadata) {
-        return metadata
+        return metadata;
       }
 
-      token = getToken(request)
+      token = getToken(request);
       if (token) {
-        return await cache.get(getKey(token)) || {}
+        return await cache.get(getKey(token)) || {};
       }
     } catch (err) {
       log.error('metricsContext.get', {
@@ -115,10 +115,10 @@ module.exports = function (log, config) {
         hasToken: !! token,
         hasId: !! (token && token.id),
         hasUid: !! (token && token.uid)
-      })
+      });
     }
 
-    return {}
+    return {};
   }
 
   /**
@@ -132,45 +132,45 @@ module.exports = function (log, config) {
    * @param data target object
    */
   async function gather (data) {
-    const metadata = await this.app.metricsContext
+    const metadata = await this.app.metricsContext;
 
     if (metadata) {
-      data.time = Date.now()
-      data.device_id = metadata.deviceId
-      data.flow_id = metadata.flowId
-      data.flow_time = calculateFlowTime(data.time, metadata.flowBeginTime)
-      data.flowBeginTime = metadata.flowBeginTime
-      data.flowCompleteSignal = metadata.flowCompleteSignal
-      data.flowType = metadata.flowType
+      data.time = Date.now();
+      data.device_id = metadata.deviceId;
+      data.flow_id = metadata.flowId;
+      data.flow_time = calculateFlowTime(data.time, metadata.flowBeginTime);
+      data.flowBeginTime = metadata.flowBeginTime;
+      data.flowCompleteSignal = metadata.flowCompleteSignal;
+      data.flowType = metadata.flowType;
 
       if (metadata.service) {
-        data.service = metadata.service
+        data.service = metadata.service;
       }
 
-      const doNotTrack = this.headers && this.headers.dnt === '1'
+      const doNotTrack = this.headers && this.headers.dnt === '1';
       if (! doNotTrack) {
-        data.entrypoint = metadata.entrypoint
-        data.utm_campaign = metadata.utmCampaign
-        data.utm_content = metadata.utmContent
-        data.utm_medium = metadata.utmMedium
-        data.utm_source = metadata.utmSource
-        data.utm_term = metadata.utmTerm
+        data.entrypoint = metadata.entrypoint;
+        data.utm_campaign = metadata.utmCampaign;
+        data.utm_content = metadata.utmContent;
+        data.utm_medium = metadata.utmMedium;
+        data.utm_source = metadata.utmSource;
+        data.utm_term = metadata.utmTerm;
       }
     }
 
-    return data
+    return data;
   }
 
   function getToken (request) {
     if (request.auth && request.auth.credentials) {
-      return request.auth.credentials
+      return request.auth.credentials;
     }
 
     if (request.payload && request.payload.uid && request.payload.code) {
       return {
         uid: request.payload.uid,
         id: request.payload.code
-      }
+      };
     }
   }
 
@@ -184,12 +184,12 @@ module.exports = function (log, config) {
    * @param newToken    token to stash the metadata against
    */
   function propagate (oldToken, newToken) {
-    const oldKey = getKey(oldToken)
+    const oldKey = getKey(oldToken);
     return cache.get(oldKey)
       .then(metadata => {
         if (metadata) {
           return cache.add(getKey(newToken), metadata)
-            .catch(err => log.warn('metricsContext.propagate.add', { err }))
+            .catch(err => log.warn('metricsContext.propagate.add', { err }));
         }
       })
       .catch(err => log.error('metricsContext.propagate', {
@@ -200,7 +200,7 @@ module.exports = function (log, config) {
         hasNewToken: !! newToken,
         hasNewTokenId: !! (newToken && newToken.id),
         hasNewTokenUid: !! (newToken && newToken.uid),
-      }))
+      }));
   }
 
   /**
@@ -212,11 +212,11 @@ module.exports = function (log, config) {
   function clear () {
     return P.resolve()
       .then(() => {
-        const token = getToken(this)
+        const token = getToken(this);
         if (token) {
-          return cache.del(getKey(token))
+          return cache.del(getKey(token));
         }
-      })
+      });
   }
 
   /**
@@ -229,72 +229,72 @@ module.exports = function (log, config) {
    */
   function validate() {
     if (! this.payload) {
-      return logInvalidContext(this, 'missing payload')
+      return logInvalidContext(this, 'missing payload');
     }
 
-    const metadata = this.payload.metricsContext
+    const metadata = this.payload.metricsContext;
 
     if (! metadata) {
-      return logInvalidContext(this, 'missing context')
+      return logInvalidContext(this, 'missing context');
     }
     if (! metadata.flowId) {
-      return logInvalidContext(this, 'missing flowId')
+      return logInvalidContext(this, 'missing flowId');
     }
     if (! metadata.flowBeginTime) {
-      return logInvalidContext(this, 'missing flowBeginTime')
+      return logInvalidContext(this, 'missing flowBeginTime');
     }
 
-    const age = Date.now() - metadata.flowBeginTime
+    const age = Date.now() - metadata.flowBeginTime;
     if (age > config.metrics.flow_id_expiry || age <= 0) {
-      return logInvalidContext(this, 'expired flowBeginTime')
+      return logInvalidContext(this, 'expired flowBeginTime');
     }
 
     if (! HEX_STRING.test(metadata.flowId)) {
-      return logInvalidContext(this, 'invalid flowId')
+      return logInvalidContext(this, 'invalid flowId');
     }
 
     // The first half of the id is random bytes, the second half is a HMAC of
     // additional contextual information about the request.  It's a simple way
     // to check that the metrics came from the right place, without having to
     // share state between content-server and auth-server.
-    const flowSignature = metadata.flowId.substr(FLOW_ID_LENGTH / 2, FLOW_ID_LENGTH)
-    const flowSignatureBytes = Buffer.from(flowSignature, 'hex')
-    const expectedSignatureBytes = calculateFlowSignatureBytes(metadata)
+    const flowSignature = metadata.flowId.substr(FLOW_ID_LENGTH / 2, FLOW_ID_LENGTH);
+    const flowSignatureBytes = Buffer.from(flowSignature, 'hex');
+    const expectedSignatureBytes = calculateFlowSignatureBytes(metadata);
     if (! bufferEqualConstantTime(flowSignatureBytes, expectedSignatureBytes)) {
-      return logInvalidContext(this, 'invalid signature')
+      return logInvalidContext(this, 'invalid signature');
     }
 
     log.info('metrics.context.validate', {
       valid: true
-    })
-    return true
+    });
+    return true;
   }
 
   function logInvalidContext(request, reason) {
     if (request.payload && request.payload.metricsContext) {
-      delete request.payload.metricsContext.flowId
-      delete request.payload.metricsContext.flowBeginTime
+      delete request.payload.metricsContext.flowId;
+      delete request.payload.metricsContext.flowBeginTime;
     }
     log.warn('metrics.context.validate', {
       valid: false,
       reason: reason
-    })
-    return false
+    });
+    return false;
   }
 
   function calculateFlowSignatureBytes (metadata) {
     const hmacData = [
       metadata.flowId.substr(0, FLOW_ID_LENGTH / 2),
       metadata.flowBeginTime.toString(16)
-    ]
+    ];
     // We want a digest that's half the length of a flowid,
     // and we want the length in bytes rather than hex.
-    const signatureLength = FLOW_ID_LENGTH / 2 / 2
-    const key = config.metrics.flow_id_key
+    const signatureLength = FLOW_ID_LENGTH / 2 / 2;
+    const key = config.metrics.flow_id_key;
     return crypto.createHmac('sha256', key)
       .update(hmacData.join('\n'))
       .digest()
-      .slice(0, signatureLength)
+      .slice(0, signatureLength);
   }
 
   /**
@@ -306,35 +306,35 @@ module.exports = function (log, config) {
    */
   function setFlowCompleteSignal (flowCompleteSignal, flowType) {
     if (this.payload && this.payload.metricsContext) {
-      this.payload.metricsContext.flowCompleteSignal = flowCompleteSignal
-      this.payload.metricsContext.flowType = flowType
+      this.payload.metricsContext.flowCompleteSignal = flowCompleteSignal;
+      this.payload.metricsContext.flowType = flowType;
     }
   }
-}
+};
 
 function calculateFlowTime (time, flowBeginTime) {
   if (time <= flowBeginTime) {
-    return 0
+    return 0;
   }
 
-  return time - flowBeginTime
+  return time - flowBeginTime;
 }
 
 function getKey (token) {
   if (! token || ! token.uid || ! token.id) {
-    const err = new Error('Invalid token')
-    throw err
+    const err = new Error('Invalid token');
+    throw err;
   }
 
-  const hash = crypto.createHash('sha256')
-  hash.update(token.uid)
-  hash.update(token.id)
+  const hash = crypto.createHash('sha256');
+  hash.update(token.uid);
+  hash.update(token.id);
 
-  return hash.digest('base64')
+  return hash.digest('base64');
 }
 
 // HACK: Force the API docs to expand SCHEMA inline
-module.exports.SCHEMA = SCHEMA
-module.exports.schema = SCHEMA.optional()
-module.exports.requiredSchema = SCHEMA.required()
+module.exports.SCHEMA = SCHEMA;
+module.exports.schema = SCHEMA.optional();
+module.exports.requiredSchema = SCHEMA.required();
 

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
 /**
  * Read an array of user records from `userRecordsPath`
@@ -11,11 +11,11 @@
  * @returns {Promise} resolves to an array of user records when complete
  */
 module.exports = async function readUserRecords(userRecordsPath) {
-  const records = require(userRecordsPath)
+  const records = require(userRecordsPath);
 
   if (! records || ! records.length) {
-    throw new Error('No records found')
+    throw new Error('No records found');
   }
 
-  return records
-}
+  return records;
+};

@@ -2,29 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-var AWS = require('aws-sdk')
-var inherits = require('util').inherits
-var EventEmitter = require('events').EventEmitter
+var AWS = require('aws-sdk');
+var inherits = require('util').inherits;
+var EventEmitter = require('events').EventEmitter;
 
 module.exports = function (log) {
 
   function SQSReceiver(region, urls) {
-    this.sqs = new AWS.SQS({ region : region })
-    this.queueUrls = urls || []
-    EventEmitter.call(this)
+    this.sqs = new AWS.SQS({ region : region });
+    this.queueUrls = urls || [];
+    EventEmitter.call(this);
   }
-  inherits(SQSReceiver, EventEmitter)
+  inherits(SQSReceiver, EventEmitter);
 
   function checkDeleteError(err) {
     if (err) {
-      log.error('deleteMessage', { err: err })
+      log.error('deleteMessage', { err: err });
     }
   }
 
   SQSReceiver.prototype.fetch = function (url) {
-    var errTimer = null
+    var errTimer = null;
     this.sqs.receiveMessage(
       {
         QueueUrl: url,
@@ -34,13 +34,13 @@ module.exports = function (log) {
       },
       function (err, data) {
         if (err) {
-          log.error('fetch', { url: url, err: err })
+          log.error('fetch', { url: url, err: err });
           if (! errTimer) {
             // unacceptable! this aws lib will call the callback
             // more than once with different errors. ಠ_ಠ
-            errTimer = setTimeout(this.fetch.bind(this, url), 2000)
+            errTimer = setTimeout(this.fetch.bind(this, url), 2000);
           }
-          return
+          return;
         }
         function deleteMessage(message) {
           this.sqs.deleteMessage(
@@ -49,33 +49,33 @@ module.exports = function (log) {
               ReceiptHandle: message.ReceiptHandle
             },
             checkDeleteError
-          )
+          );
         }
-        data.Messages = data.Messages || []
+        data.Messages = data.Messages || [];
         for (var i = 0; i < data.Messages.length; i++) {
-          var msg = data.Messages[i]
-          var deleteFromQueue = deleteMessage.bind(this, msg)
+          var msg = data.Messages[i];
+          var deleteFromQueue = deleteMessage.bind(this, msg);
           try {
-            var body = JSON.parse(msg.Body)
-            var message = JSON.parse(body.Message)
-            message.del = deleteFromQueue
-            this.emit('data', message)
+            var body = JSON.parse(msg.Body);
+            var message = JSON.parse(body.Message);
+            message.del = deleteFromQueue;
+            this.emit('data', message);
           }
           catch (e) {
-            log.error('fetch', { url: url, err: e })
-            deleteFromQueue()
+            log.error('fetch', { url: url, err: e });
+            deleteFromQueue();
           }
         }
-        this.fetch(url)
+        this.fetch(url);
       }.bind(this)
-    )
-  }
+    );
+  };
 
   SQSReceiver.prototype.start = function () {
     for (var i = 0; i < this.queueUrls.length; i++) {
-      this.fetch(this.queueUrls[i])
+      this.fetch(this.queueUrls[i]);
     }
-  }
+  };
 
-  return SQSReceiver
-}
+  return SQSReceiver;
+};

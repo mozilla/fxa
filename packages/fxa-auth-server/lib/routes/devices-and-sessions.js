@@ -2,61 +2,61 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const { URL } = require('url')
-const Ajv = require('ajv')
-const ajv = new Ajv()
-const error = require('../error')
-const fs = require('fs')
-const i18n = require('i18n-abide')
-const isA = require('joi')
-const P = require('../promise')
-const path = require('path')
-const validators = require('./validators')
+const { URL } = require('url');
+const Ajv = require('ajv');
+const ajv = new Ajv();
+const error = require('../error');
+const fs = require('fs');
+const i18n = require('i18n-abide');
+const isA = require('joi');
+const P = require('../promise');
+const path = require('path');
+const validators = require('./validators');
 
-const HEX_STRING = validators.HEX_STRING
-const DEVICES_SCHEMA = require('../devices').schema
-const PUSH_PAYLOADS_SCHEMA_PATH = path.resolve(__dirname, '../../docs/pushpayloads.schema.json')
+const HEX_STRING = validators.HEX_STRING;
+const DEVICES_SCHEMA = require('../devices').schema;
+const PUSH_PAYLOADS_SCHEMA_PATH = path.resolve(__dirname, '../../docs/pushpayloads.schema.json');
 
 // Assign a default TTL for well-known commands if a request didn't specify it.
 const DEFAULT_COMMAND_TTL = new Map([
   ['https://identity.mozilla.com/cmd/open-uri', 30 * 24 * 3600], // 30 days
-])
+]);
 
 module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => {
   // Loads and compiles a json validator for the payloads received
   // in /account/devices/notify
-  const validatePushSchema = JSON.parse(fs.readFileSync(PUSH_PAYLOADS_SCHEMA_PATH))
-  const validatePushPayloadAjv = ajv.compile(validatePushSchema)
-  const { supportedLanguages, defaultLanguage } = config.i18n
+  const validatePushSchema = JSON.parse(fs.readFileSync(PUSH_PAYLOADS_SCHEMA_PATH));
+  const validatePushPayloadAjv = ajv.compile(validatePushSchema);
+  const { supportedLanguages, defaultLanguage } = config.i18n;
   const localizeTimestamp = require('fxa-shared').l10n.localizeTimestamp({
     supportedLanguages,
     defaultLanguage
-  })
-  const earliestSaneTimestamp = config.lastAccessTimeUpdates.earliestSaneTimestamp
+  });
+  const earliestSaneTimestamp = config.lastAccessTimeUpdates.earliestSaneTimestamp;
 
   function validatePushPayload(payload, endpoint) {
     if (endpoint === 'accountVerify') {
       if (isEmpty(payload)) {
-        return true
+        return true;
       }
-      return false
+      return false;
     }
 
-    return validatePushPayloadAjv(payload)
+    return validatePushPayloadAjv(payload);
   }
 
   function isEmpty(payload) {
-    return payload && Object.keys(payload).length === 0
+    return payload && Object.keys(payload).length === 0;
   }
 
   function marshallLastAccessTime (lastAccessTime, request) {
-    const languages = request.app.acceptLanguage
+    const languages = request.app.acceptLanguage;
     const result = {
       lastAccessTime,
       lastAccessTimeFormatted: localizeTimestamp.format(lastAccessTime, languages),
-    }
+    };
 
     if (lastAccessTime < earliestSaneTimestamp) {
       // Values older than earliestSaneTimestamp are probably wrong.
@@ -64,24 +64,24 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
       // an approximate string like "last sync over 2 months ago".
       // And do it using additional properties so we don't affect
       // older content servers that are unfamiliar with the change.
-      result.approximateLastAccessTime = earliestSaneTimestamp
-      result.approximateLastAccessTimeFormatted = localizeTimestamp.format(earliestSaneTimestamp, languages)
+      result.approximateLastAccessTime = earliestSaneTimestamp;
+      result.approximateLastAccessTimeFormatted = localizeTimestamp.format(earliestSaneTimestamp, languages);
     }
 
-    return result
+    return result;
   }
 
   function marshallLocation (location, request) {
-    let language
+    let language;
 
     if (! location) {
       // Shortcut the error logging if location isn't set
-      return {}
+      return {};
     }
 
     try {
-      const languages = i18n.parseAcceptLanguage(request.app.acceptLanguage)
-      language = i18n.bestLanguage(languages, supportedLanguages, defaultLanguage)
+      const languages = i18n.parseAcceptLanguage(request.app.acceptLanguage);
+      language = i18n.bestLanguage(languages, supportedLanguages, defaultLanguage);
 
       if (language[0] === 'e' && language[1] === 'n') {
         // For English, return all of the location components
@@ -90,25 +90,25 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
           country: location.country,
           state: location.state,
           stateCode: location.stateCode
-        }
+        };
       }
 
       // For other languages, only return what we can translate
-      const territories = require(`cldr-localenames-full/main/${language}/territories.json`)
+      const territories = require(`cldr-localenames-full/main/${language}/territories.json`);
       return {
         country: territories.main[language].localeDisplayNames.territories[location.countryCode]
-      }
+      };
     } catch (err) {
       log.warn('devices.marshallLocation.warning', {
         err: err.message,
         languages: request.app.acceptLanguage,
         language,
         location
-      })
+      });
     }
 
     // If something failed, don't return location
-    return {}
+    return {};
   }
 
   // Creates a "full" device response, provided a credentials object and an optional
@@ -128,7 +128,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
       name: (device && device.name) || credentials.deviceName || devices.synthesizeName(credentials),
       type: (device && device.type) || credentials.deviceType || 'desktop',
       availableCommands: (device && device.availableCommands) || credentials.deviceAvailableCommands || {},
-    }
+    };
   }
 
   return [
@@ -173,51 +173,51 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
         }
       },
       handler: async function (request) {
-        log.begin('Account.device', request)
+        log.begin('Account.device', request);
 
-        const payload = request.payload
-        const credentials = request.auth.credentials
+        const payload = request.payload;
+        const credentials = request.auth.credentials;
 
         // Remove obsolete field, so we don't try to echo it back to the client.
-        delete payload.capabilities
+        delete payload.capabilities;
 
         // Some additional, slightly tricky validation to detect bad public keys.
         if (payload.pushPublicKey && ! push.isValidPublicKey(payload.pushPublicKey)) {
-          throw error.invalidRequestParameter('invalid pushPublicKey')
+          throw error.invalidRequestParameter('invalid pushPublicKey');
         }
 
         if (payload.id) {
           // Don't write out the update if nothing has actually changed.
           if (devices.isSpuriousUpdate(payload, credentials)) {
-            return buildDeviceResponse(credentials)
+            return buildDeviceResponse(credentials);
           }
 
           // We also reserve the right to disable updates until
           // we're confident clients are behaving correctly.
           if (config.deviceUpdatesEnabled === false) {
-            throw error.featureNotEnabled()
+            throw error.featureNotEnabled();
           }
         } else if (credentials.deviceId) {
           // Keep the old id, which is probably from a synthesized device record
-          payload.id = credentials.deviceId
+          payload.id = credentials.deviceId;
         }
 
         const pushEndpointOk = ! payload.id || // New device.
                                (payload.id && payload.pushCallback &&
-                                payload.pushCallback !== credentials.deviceCallbackURL) // Updating the pushCallback
+                                payload.pushCallback !== credentials.deviceCallbackURL); // Updating the pushCallback
         if (pushEndpointOk) {
-          payload.pushEndpointExpired = false
+          payload.pushEndpointExpired = false;
         }
 
         // We're doing a gradual rollout of the 'device commands' feature
         // in support of pushbox, so accept an 'availableCommands' field
         // if pushbox is enabled.
         if (payload.availableCommands && ! config.pushbox.enabled) {
-            payload.availableCommands = {}
+            payload.availableCommands = {};
         }
 
-        const device = await devices.upsert(request, credentials, payload)
-        return buildDeviceResponse(credentials, device)
+        const device = await devices.upsert(request, credentials, payload);
+        return buildDeviceResponse(credentials, device);
       }
     },
     {
@@ -252,19 +252,19 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
         }
       },
       handler: async function (request) {
-        log.begin('Account.deviceCommands', request)
+        log.begin('Account.deviceCommands', request);
 
-        const sessionToken = request.auth.credentials
-        const uid = sessionToken.uid
-        const deviceId = sessionToken.deviceId
-        const query = request.query || {}
-        const {index, limit} = query
+        const sessionToken = request.auth.credentials;
+        const uid = sessionToken.uid;
+        const deviceId = sessionToken.deviceId;
+        const query = request.query || {};
+        const {index, limit} = query;
 
         return pushbox.retrieve(uid, deviceId, limit, index)
           .then(resp => {
-            log.info('commands.fetch', { resp: resp })
-            return resp
-          })
+            log.info('commands.fetch', { resp: resp });
+            return resp;
+          });
       }
     },
     {
@@ -290,19 +290,19 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
         }
       },
       handler: async function (request) {
-        log.begin('Account.invokeDeviceCommand', request)
+        log.begin('Account.invokeDeviceCommand', request);
 
-        const {target, command, payload} = request.payload
-        let {ttl} = request.payload
-        const sessionToken = request.auth.credentials
-        const uid = sessionToken.uid
-        const sender = sessionToken.deviceId
+        const {target, command, payload} = request.payload;
+        let {ttl} = request.payload;
+        const sessionToken = request.auth.credentials;
+        const uid = sessionToken.uid;
+        const sender = sessionToken.deviceId;
 
         return customs.checkAuthenticated(request, uid, 'invokeDeviceCommand')
           .then(() => db.device(uid, target))
           .then(device => {
             if (! device.availableCommands.hasOwnProperty(command)) {
-              throw error.unavailableDeviceCommand()
+              throw error.unavailableDeviceCommand();
             }
             // 0 is perfectly acceptable TTL, hence the strict equality check.
             if (ttl === undefined && DEFAULT_COMMAND_TTL.has(command)) {
@@ -312,16 +312,16 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
               command,
               payload,
               sender,
-            }
+            };
             return pushbox.store(uid, device.id, data, ttl)
               .then(({index}) => {
-                const url = new URL('v1/account/device/commands', config.publicUrl)
-                url.searchParams.set('index', index)
-                url.searchParams.set('limit', 1)
-                return push.notifyCommandReceived(uid, device, command, sender, index, url.href, ttl)
-              })
+                const url = new URL('v1/account/device/commands', config.publicUrl);
+                url.searchParams.set('index', index);
+                url.searchParams.set('limit', 1);
+                return push.notifyCommandReceived(uid, device, command, sender, index, url.href, ttl);
+              });
           })
-          .then(() => { return {} })
+          .then(() => { return {}; });
       }
     },
     {
@@ -356,54 +356,54 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
         }
       },
       handler: async function (request) {
-        log.begin('Account.devicesNotify', request)
+        log.begin('Account.devicesNotify', request);
 
         // We reserve the right to disable notifications until
         // we're confident clients are behaving correctly.
         if (config.deviceNotificationsEnabled === false) {
-          throw error.featureNotEnabled()
+          throw error.featureNotEnabled();
         }
 
-        const body = request.payload
-        const sessionToken = request.auth.credentials
-        const uid = sessionToken.uid
-        const payload = body.payload
-        const endpointAction = body._endpointAction || 'devicesNotify'
+        const body = request.payload;
+        const sessionToken = request.auth.credentials;
+        const uid = sessionToken.uid;
+        const payload = body.payload;
+        const endpointAction = body._endpointAction || 'devicesNotify';
 
 
         if (! validatePushPayload(payload, endpointAction)) {
-          throw error.invalidRequestParameter('invalid payload')
+          throw error.invalidRequestParameter('invalid payload');
         }
 
         const pushOptions = {
           data: payload
-        }
+        };
 
         if (body.TTL) {
-          pushOptions.TTL = body.TTL
+          pushOptions.TTL = body.TTL;
         }
 
         return customs.checkAuthenticated(request, uid, endpointAction)
           .then(() => request.app.devices)
           .then(devices => {
             if (body.to !== 'all') {
-              const include = new Set(body.to)
-              devices = devices.filter(device => include.has(device.id))
+              const include = new Set(body.to);
+              devices = devices.filter(device => include.has(device.id));
 
               if (devices.length === 0) {
                 log.error('Account.devicesNotify', {
                   uid: uid,
                   error: 'devices empty'
-                })
-                return
+                });
+                return;
               }
             } else if (body.excluded) {
-              const exclude = new Set(body.excluded)
-              devices = devices.filter(device => ! exclude.has(device.id))
+              const exclude = new Set(body.excluded);
+              devices = devices.filter(device => ! exclude.has(device.id));
             }
 
             return push.sendPush(uid, devices, endpointAction, pushOptions)
-              .catch(catchPushError)
+              .catch(catchPushError);
           })
           .then(() => {
             // Emit a metrics event for when a user sends tabs between devices.
@@ -416,20 +416,20 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
               payload.data.collections.length === 1 &&
               payload.data.collections[0] === 'clients'
             ) {
-              let deviceId = undefined
+              let deviceId = undefined;
 
               if (sessionToken.deviceId) {
-                deviceId = sessionToken.deviceId
+                deviceId = sessionToken.deviceId;
               }
 
               return request.emitMetricsEvent('sync.sentTabToDevice', {
                 device_id: deviceId,
                 service: 'sync',
                 uid: uid
-              })
+              });
             }
           })
-          .then(() => { return {} })
+          .then(() => { return {}; });
 
         function catchPushError (err) {
           // push may fail due to not found devices or a bad push action
@@ -437,7 +437,7 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
           log.error('Account.devicesNotify', {
             uid: uid,
             error: err
-          })
+          });
         }
       }
     },
@@ -471,9 +471,9 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
         }
       },
       handler: async function (request) {
-        log.begin('Account.devices', request)
+        log.begin('Account.devices', request);
 
-        const sessionToken = request.auth.credentials
+        const sessionToken = request.auth.credentials;
 
         return request.app.devices
           .then(deviceArray => {
@@ -489,10 +489,10 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
                 pushAuthKey: device.pushAuthKey,
                 pushEndpointExpired: device.pushEndpointExpired,
                 availableCommands: device.availableCommands
-              }, marshallLastAccessTime(device.lastAccessTime, request))
-            })
+              }, marshallLastAccessTime(device.lastAccessTime, request));
+            });
           }
-        )
+        );
       }
     },
     {
@@ -532,30 +532,30 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
         }
       },
       handler: async function (request) {
-        log.begin('Account.sessions', request)
+        log.begin('Account.sessions', request);
 
-        const sessionToken = request.auth.credentials
-        const uid = sessionToken.uid
+        const sessionToken = request.auth.credentials;
+        const uid = sessionToken.uid;
 
         return db.sessions(uid)
           .then(sessions => {
             return sessions.map(session => {
-              const deviceId = session.deviceId
-              const isDevice = !! deviceId
+              const deviceId = session.deviceId;
+              const isDevice = !! deviceId;
 
-              let deviceName = session.deviceName
+              let deviceName = session.deviceName;
               if (! deviceName) {
-                deviceName = devices.synthesizeName(session)
+                deviceName = devices.synthesizeName(session);
               }
 
-              let userAgent
+              let userAgent;
               if (! session.uaBrowser) {
-                userAgent = ''
+                userAgent = '';
               } else if (! session.uaBrowserVersion) {
-                userAgent = session.uaBrowser
+                userAgent = session.uaBrowser;
               } else {
-                const { uaBrowser: browser, uaBrowserVersion: version } = session
-                userAgent = `${browser} ${version.split('.')[0]}`
+                const { uaBrowser: browser, uaBrowserVersion: version } = session;
+                userAgent = `${browser} ${version.split('.')[0]}`;
               }
 
               return Object.assign({
@@ -578,10 +578,10 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
                 ),
                 os: session.uaOS,
                 userAgent
-              }, marshallLastAccessTime(session.lastAccessTime, request))
-            })
+              }, marshallLastAccessTime(session.lastAccessTime, request));
+            });
           }
-        )
+        );
       }
     },
     {
@@ -604,32 +604,32 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
         }
       },
       handler: async function (request) {
-        log.begin('Account.deviceDestroy', request)
+        log.begin('Account.deviceDestroy', request);
 
-        const credentials = request.auth.credentials
-        const uid = credentials.uid
-        const id = request.payload.id
-        let devices
+        const credentials = request.auth.credentials;
+        const uid = credentials.uid;
+        const id = request.payload.id;
+        let devices;
 
         // We want to include the disconnected device in the list
         // of devices to notify, so list them before disconnecting.
         return request.app.devices
           .then(res => {
-            devices = res
-            return db.deleteDevice(uid, id)
+            devices = res;
+            return db.deleteDevice(uid, id);
           })
           .then(() => {
-            const deviceToDelete = devices.find(d => d.id === id)
+            const deviceToDelete = devices.find(d => d.id === id);
             if (deviceToDelete && deviceToDelete.refreshTokenId) {
               // attempt to clean up the refreshToken in the OAuth DB
               return oauthdb.revokeRefreshTokenById(deviceToDelete.refreshTokenId).catch((err) => {
-                log.error('deviceDestroy.revokeRefreshTokenById.error', {err: err.message})
-              })
+                log.error('deviceDestroy.revokeRefreshTokenById.error', {err: err.message});
+              });
             }
           })
           .then(() => {
             push.notifyDeviceDisconnected(uid, devices, id)
-              .catch(() => {})
+              .catch(() => {});
             return P.all([
               request.emitMetricsEvent('device.deleted', {
                 uid: uid,
@@ -640,10 +640,10 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
                 id: id,
                 timestamp: Date.now()
               })
-            ])
+            ]);
           })
-          .then(() => { return {} })
+          .then(() => { return {}; });
       }
     }
-  ]
-}
+  ];
+};

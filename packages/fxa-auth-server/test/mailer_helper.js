@@ -4,12 +4,12 @@
 
 /*eslint no-console: 0*/
 
-'use strict'
+'use strict';
 
-var uuid = require('uuid')
+var uuid = require('uuid');
 
-var zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex').toString('hex')
-var zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex')
+var zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex').toString('hex');
+var zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex').toString('hex');
 
 function createTestAccount() {
   var account = {
@@ -25,13 +25,13 @@ function createTestAccount() {
     createdAt: Date.now(),
     verifierSetAt: Date.now(),
     locale: 'da, en-gb;q=0.8, en;q=0.7'
-  }
+  };
 
-  account.normalizedEmail = account.email.toLowerCase()
+  account.normalizedEmail = account.email.toLowerCase();
 
-  return account
+  return account;
 }
 
 module.exports = {
   createTestAccount: createTestAccount
-}
+};

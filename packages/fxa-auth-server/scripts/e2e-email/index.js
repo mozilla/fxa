@@ -3,18 +3,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const crypto = require('crypto')
-const commander = require('commander')
+const crypto = require('crypto');
+const commander = require('commander');
 
-const P = require('../../lib/promise')
-const Client = require('../../test/client')()
-const mailbox = require('../../test/mailbox')
-const validateEmail = require('./validate-email')
+const P = require('../../lib/promise');
+const Client = require('../../test/client')();
+const mailbox = require('../../test/mailbox');
+const validateEmail = require('./validate-email');
 
-const emailMessages = {}
-var program
+const emailMessages = {};
+var program;
 
 function configure() {
   commander
@@ -30,51 +30,51 @@ function configure() {
     .option('-L, --locale <en[,zh-TW,de,...]>',
             'Test only this csv list of locales',
             function(list) {
-              return list.split(/,/)
+              return list.split(/,/);
             })
-    .parse(process.argv)
+    .parse(process.argv);
 
-  commander.basename = crypto.randomBytes(8).toString('hex')
-  commander.password = crypto.randomBytes(16).toString('hex')
+  commander.basename = crypto.randomBytes(8).toString('hex');
+  commander.password = crypto.randomBytes(16).toString('hex');
 
   commander.supportedLanguages = commander.locale ||
-    require(commander.locales).slice(0)
+    require(commander.locales).slice(0);
 
-  var mailserver = commander.mailserver = mailbox(commander.restmailDomain, 80)
+  var mailserver = commander.mailserver = mailbox(commander.restmailDomain, 80);
 
   mailserver.eventEmitter.on('email:message', function(email, message) {
-    emailMessages[email] = emailMessages[email] || []
-    emailMessages[email].push(message)
-  })
+    emailMessages[email] = emailMessages[email] || [];
+    emailMessages[email].push(message);
+  });
 
   mailserver.eventEmitter.on('email:error', function(email, error) {
-    emailMessages[email] = emailMessages[email] || []
-    emailMessages[email].push(error)
-  })
+    emailMessages[email] = emailMessages[email] || [];
+    emailMessages[email].push(error);
+  });
 
-  return commander
+  return commander;
 }
 
 function log(level /*, rest */) {
-  if (level < log.level) return
-  var args = Array.prototype.slice.call(arguments)
-  var timestamp = '[' + new Date().toISOString() + ']'
-  args[0] = timestamp
-  console.log.apply(null, args)
+  if (level < log.level) return;
+  var args = Array.prototype.slice.call(arguments);
+  var timestamp = '[' + new Date().toISOString() + ']';
+  args[0] = timestamp;
+  console.log.apply(null, args);
 }
 
-log.ERROR = 3
-log.INFO = 2
-log.DEBUG = 1
-log.level = log.INFO
+log.ERROR = 3;
+log.INFO = 2;
+log.DEBUG = 1;
+log.level = log.INFO;
 
 function emailFromLang(lang) {
-  return program.basename + '-' + lang + '@' + program.restmailDomain
+  return program.basename + '-' + lang + '@' + program.restmailDomain;
 }
 
 function langFromEmail(email) {
   // is like 'deadbeef-es@...' or 'deadbeef-es-AR@...'
-  return email.split('@')[0].match(/^[^-]*-([^-]*(?:-[^-]*)?)/)[1]
+  return email.split('@')[0].match(/^[^-]*-([^-]*(?:-[^-]*)?)/)[1];
 }
 
 /*
@@ -93,75 +93,75 @@ function langFromEmail(email) {
 */
 
 function signupForSync(lang) {
-  var email = emailFromLang(lang)
+  var email = emailFromLang(lang);
   var options = {
     service: 'sync',
     keys: true,
     lang: lang
-  }
+  };
 
   return Client.createAndVerify(program.authServer,
                                 email,
                                 program.password,
                                 program.mailserver,
-                                options)
+                                options);
 }
 
 function signinAsSecondDevice(client) {
-  var email = client.email
-  var password = program.password
+  var email = client.email;
+  var password = program.password;
   var opts = {
     service: 'sync',
     keys: true,
     reason: 'signin',
     lang: client.options.lang
-  }
+  };
 
   return Client.login(program.authServer, email, password, opts)
     .then(function(client) {
       return client.keys()
         .then(function () {
-          return fetchNotificationEmail(client)
-        })
-    })
+          return fetchNotificationEmail(client);
+        });
+    });
 }
 
 function changePassword(client) {
-  var email = client.email
-  var password = program.password
-  var lang = langFromEmail(email)
+  var email = client.email;
+  var password = program.password;
+  var lang = langFromEmail(email);
 
   var headers = {
     'accept-language': lang
-  }
+  };
 
   return client.changePassword(password, headers, client.sessionToken)
     .then(function () {
-      return fetchNotificationEmail(client)
-    })
+      return fetchNotificationEmail(client);
+    });
 }
 
 function passwordReset(client) {
-  var email = client.email
-  var lang = langFromEmail(email)
+  var email = client.email;
+  var lang = langFromEmail(email);
 
   var headers = {
     'accept-language': lang
-  }
+  };
 
   return client.forgotPassword(lang)
     .then(function () {
-      return program.mailserver.waitForCode(email)
+      return program.mailserver.waitForCode(email);
     })
     .then(function (code) {
-      return client.verifyPasswordResetCode(code, headers)
+      return client.verifyPasswordResetCode(code, headers);
     })
     .then(function() {
-      return client.resetPassword(program.password, headers)
+      return client.resetPassword(program.password, headers);
     })
     .then(function () {
-      return fetchNotificationEmail(client)
-    })
+      return fetchNotificationEmail(client);
+    });
 }
 
 function fetchNotificationEmail(client) {
@@ -169,72 +169,72 @@ function fetchNotificationEmail(client) {
   // password-change, password-reset).
   return program.mailserver.waitForEmail(client.email)
     .then(function () {
-      return client
-    })
+      return client;
+    });
 }
 
 function checkLocale(lang, index) {
   // AWS SES in `stage` has rate-limiting of 5/sec, so start slow.
-  var delay = index * 750
+  var delay = index * 750;
 
   return P.delay(delay)
     .then(function() {
-      log(log.INFO, 'Starting', lang)
+      log(log.INFO, 'Starting', lang);
       return signupForSync(lang)
         .then(signinAsSecondDevice)
         .then(changePassword)
-        .then(passwordReset)
-    })
+        .then(passwordReset);
+    });
 }
 
 function dumpMessages(messages) {
-  console.log('---')
-  console.log('--- Dumping messages ---')
-  console.log('---')
+  console.log('---');
+  console.log('--- Dumping messages ---');
+  console.log('---');
   Object.keys(messages)
     .map(function(key) {
-      console.log('--- %s ---', key)
+      console.log('--- %s ---', key);
       emailMessages[key]
         .map(function(email) {
-          console.log(email.to[0], email.subject)
-        })
-    })
+          console.log(email.to[0], email.subject);
+        });
+    });
 }
 
 function main() {
-  program = configure()
+  program = configure();
 
-  var checks = program.supportedLanguages.map(checkLocale)
+  var checks = program.supportedLanguages.map(checkLocale);
 
   P.all(checks)
     .then(function() {
       if (process.env.DEBUG) {
-        dumpMessages(emailMessages)
+        dumpMessages(emailMessages);
       }
-      var errors = validateEmail(emailMessages, log)
-      var output = []
-      var errorCount = 0
+      var errors = validateEmail(emailMessages, log);
+      var output = [];
+      var errorCount = 0;
       Object.keys(errors).sort().forEach(function(lang) {
-        output.push('  ' + lang + ':')
-        var errorList = errors[lang]
+        output.push('  ' + lang + ':');
+        var errorList = errors[lang];
         errorList.forEach(function(err) {
-          errorCount++
-          output.push('    ' + err)
-        })
-      })
+          errorCount++;
+          output.push('    ' + err);
+        });
+      });
       if (errorCount > 0) {
-        console.log('\nLocalization or other email errors found. However, some untranslated')
-        console.log('locales are listed in ./localeQuirks to get the full state.\n')
-        console.log(output.join('\n'))
-        process.exit(1)
+        console.log('\nLocalization or other email errors found. However, some untranslated');
+        console.log('locales are listed in ./localeQuirks to get the full state.\n');
+        console.log(output.join('\n'));
+        process.exit(1);
       } else {
-        console.log('\nAll strings expected to be translated are ok.\n')
-        process.exit(0)
+        console.log('\nAll strings expected to be translated are ok.\n');
+        process.exit(0);
       }
     }).catch(function(err) {
-      log(log.ERROR, err.stack || err)
-      process.exit(1)
-    })
+      log(log.ERROR, err.stack || err);
+      process.exit(1);
+    });
 }
 
-main()
+main();

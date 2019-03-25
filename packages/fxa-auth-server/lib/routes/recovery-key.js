@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const errors = require('../error')
-const validators = require('./validators')
-const isA = require('joi')
+const errors = require('../error');
+const validators = require('./validators');
+const isA = require('joi');
 
 module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
   return [
@@ -25,40 +25,40 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
         }
       },
       handler: async function (request) {
-        log.begin('createRecoveryKey', request)
+        log.begin('createRecoveryKey', request);
 
-        const uid = request.auth.credentials.uid
-        const sessionToken = request.auth.credentials
-        const {recoveryKeyId, recoveryData} = request.payload
+        const uid = request.auth.credentials.uid;
+        const sessionToken = request.auth.credentials;
+        const {recoveryKeyId, recoveryData} = request.payload;
 
         return createRecoveryKey()
           .then(emitMetrics)
           .then(sendNotificationEmails)
           .then(() => {
-            return {}
-          })
+            return {};
+          });
 
         function createRecoveryKey() {
           if (sessionToken.tokenVerificationId) {
-            throw errors.unverifiedSession()
+            throw errors.unverifiedSession();
           }
 
-          return db.createRecoveryKey(uid, recoveryKeyId, recoveryData)
+          return db.createRecoveryKey(uid, recoveryKeyId, recoveryData);
         }
 
         function emitMetrics() {
           log.info('account.recoveryKey.created', {
             uid
-          })
+          });
 
-          return request.emitMetricsEvent('recoveryKey.created', {uid})
+          return request.emitMetricsEvent('recoveryKey.created', {uid});
         }
 
         function sendNotificationEmails() {
           return db.account(uid)
             .then((account) => {
-              const geoData = request.app.geo
-              const ip = request.app.clientAddress
+              const geoData = request.app.geo;
+              const ip = request.app.clientAddress;
               const emailOptions = {
                 acceptLanguage: request.app.acceptLanguage,
                 ip: ip,
@@ -70,10 +70,10 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
                 uaOSVersion: request.app.ua.osVersion,
                 uaDeviceType: request.app.ua.deviceType,
                 uid: sessionToken.uid
-              }
+              };
 
-              return mailer.sendPostAddAccountRecoveryNotification(account.emails, account, emailOptions)
-            })
+              return mailer.sendPostAddAccountRecoveryNotification(account.emails, account, emailOptions);
+            });
         }
       }
     },
@@ -91,21 +91,21 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
         }
       },
       handler: async function (request) {
-        log.begin('getRecoveryKey', request)
+        log.begin('getRecoveryKey', request);
 
-        const uid = request.auth.credentials.uid
-        const recoveryKeyId = request.params.recoveryKeyId
-        let recoveryData
+        const uid = request.auth.credentials.uid;
+        const recoveryKeyId = request.params.recoveryKeyId;
+        let recoveryData;
 
         return customs.checkAuthenticated(request, uid, 'getRecoveryKey')
           .then(getRecoveryKey)
           .then(() => {
-            return {recoveryData}
-          })
+            return {recoveryData};
+          });
 
         function getRecoveryKey() {
           return db.getRecoveryKey(uid, recoveryKeyId)
-            .then((res) => recoveryData = res.recoveryData)
+            .then((res) => recoveryData = res.recoveryData);
         }
       }
     },
@@ -129,13 +129,13 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
         }
       },
       handler(request) {
-        log.begin('recoveryKeyExists', request)
+        log.begin('recoveryKeyExists', request);
 
-        const email = request.payload.email
-        let uid
+        const email = request.payload.email;
+        let uid;
 
         if (request.auth.credentials) {
-          uid = request.auth.credentials.uid
+          uid = request.auth.credentials.uid;
         }
 
         return Promise.resolve()
@@ -146,18 +146,18 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
               // password reset page and allows us to redirect the user to either
               // the regular password reset or account recovery password reset.
               if (! email) {
-                throw errors.missingRequestParameter('email')
+                throw errors.missingRequestParameter('email');
               }
 
               return customs.check(request, email, 'recoveryKeyExists')
                 .then(() => db.accountRecord(email))
-                .then((result) => uid = result.uid)
+                .then((result) => uid = result.uid);
             }
 
             // When checking from `/settings` a sessionToken is required and the
             // request is not rate limited.
           })
-          .then(() => db.recoveryKeyExists(uid))
+          .then(() => db.recoveryKeyExists(uid));
       }
     },
     {
@@ -169,28 +169,28 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
         }
       },
       handler(request) {
-        log.begin('recoveryKeyDelete', request)
+        log.begin('recoveryKeyDelete', request);
 
-        const sessionToken = request.auth.credentials
+        const sessionToken = request.auth.credentials;
 
         return Promise.resolve()
           .then(deleteRecoveryKey)
           .then(sendNotificationEmail)
           .then(() => {
-            return {}
-          })
+            return {};
+          });
 
         function deleteRecoveryKey() {
           if (sessionToken.tokenVerificationId) {
-            throw errors.unverifiedSession()
+            throw errors.unverifiedSession();
           }
 
-          return db.deleteRecoveryKey(sessionToken.uid)
+          return db.deleteRecoveryKey(sessionToken.uid);
         }
 
         function sendNotificationEmail() {
-          const geoData = request.app.geo
-          const ip = request.app.clientAddress
+          const geoData = request.app.geo;
+          const ip = request.app.clientAddress;
           const emailOptions = {
             acceptLanguage: request.app.acceptLanguage,
             ip: ip,
@@ -202,12 +202,12 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
             uaOSVersion: request.app.ua.osVersion,
             uaDeviceType: request.app.ua.deviceType,
             uid: sessionToken.uid
-          }
+          };
 
           return db.account(sessionToken.uid)
-            .then((account) => mailer.sendPostRemoveAccountRecoveryNotification(account.emails, account, emailOptions))
+            .then((account) => mailer.sendPostRemoveAccountRecoveryNotification(account.emails, account, emailOptions));
         }
       }
     }
-  ]
-}
+  ];
+};

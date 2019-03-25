@@ -25,68 +25,68 @@
 //   url.render({})                           // throws error.internalValidationError()
 //   url.render({ uid: 'foo', id: 'bar' })    // throws error.internalValidationError()
 
-'use strict'
+'use strict';
 
-const error = require('./error')
-const impl = require('safe-url-assembler')()
+const error = require('./error');
+const impl = require('safe-url-assembler')();
 
-const SAFE_URL_COMPONENT = /^[\w.]+$/
+const SAFE_URL_COMPONENT = /^[\w.]+$/;
 
 module.exports = log => class SafeUrl {
   constructor (path, caller) {
     const expectedKeys = path.split('/')
       .filter(part => part.indexOf(':') === 0)
-      .map(part => part.substr(1))
+      .map(part => part.substr(1));
 
     this._expectedKeys = {
       array: expectedKeys,
       set: new Set(expectedKeys)
-    }
-    this._template = impl.template(path)
-    this._caller = caller
+    };
+    this._template = impl.template(path);
+    this._caller = caller;
   }
 
   params () {
-    return this._expectedKeys.array.slice(0)
+    return this._expectedKeys.array.slice(0);
   }
 
   render (params = {}, query = {}) {
-    const paramsKeys = Object.keys(params)
-    const { array: expected, set: expectedSet } = this._expectedKeys
+    const paramsKeys = Object.keys(params);
+    const { array: expected, set: expectedSet } = this._expectedKeys;
 
     if (paramsKeys.length !== expected.length) {
-      this._fail('safeUrl.params.mismatch', { keys: paramsKeys, expected })
+      this._fail('safeUrl.params.mismatch', { keys: paramsKeys, expected });
     }
 
     paramsKeys.forEach(key => {
       if (! expectedSet.has(key)) {
-        this._fail('safeUrl.params.unexpected', { key, expected })
+        this._fail('safeUrl.params.unexpected', { key, expected });
       }
-      const value = params[key]
-      this._checkSafe('paramVal', key, value)
-    })
+      const value = params[key];
+      this._checkSafe('paramVal', key, value);
+    });
 
     Object.keys(query).forEach(key => {
-      const value = query[key]
-      this._checkSafe('queryKey', key, key)
-      this._checkSafe('queryVal', key, value)
-    })
+      const value = query[key];
+      this._checkSafe('queryKey', key, key);
+      this._checkSafe('queryVal', key, value);
+    });
 
-    return this._template.param(params).query(query).toString()
+    return this._template.param(params).query(query).toString();
   }
 
   _checkSafe(location, key, value) {
     if (! value || typeof value !== 'string') {
-      this._fail('safeUrl.bad', { location, key, value })
+      this._fail('safeUrl.bad', { location, key, value });
     }
 
     if (! SAFE_URL_COMPONENT.test(value)) {
-      this._fail('safeUrl.unsafe', { location, key, value })
+      this._fail('safeUrl.unsafe', { location, key, value });
     }
   }
 
   _fail (op, data) {
-    log.error(op, Object.assign({ caller: this._caller }, data))
-    throw error.internalValidationError(op, data)
+    log.error(op, Object.assign({ caller: this._caller }, data));
+    throw error.internalValidationError(op, data);
   }
-}
+};

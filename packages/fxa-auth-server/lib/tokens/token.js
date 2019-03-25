@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
 /*  Base class for handling various types of token.
  *
@@ -25,11 +25,11 @@
  *
  */
 
-const Bundle = require('./bundle')
-const hkdf = require('../crypto/hkdf')
-const random = require('../crypto/random')
+const Bundle = require('./bundle');
+const hkdf = require('../crypto/hkdf');
+const random = require('../crypto/random');
 
-const KEYS = ['data', 'id', 'authKey', 'bundleKey']
+const KEYS = ['data', 'id', 'authKey', 'bundleKey'];
 
 module.exports = (log, config) => {
 
@@ -40,11 +40,11 @@ module.exports = (log, config) => {
   //
   function Token(keys, details) {
     KEYS.forEach(name => {
-      this[name] = keys[name] && keys[name].toString('hex')
-    })
-    this.uid = details.uid || null
-    this.lifetime = details.lifetime || Infinity
-    this.createdAt = details.createdAt || 0
+      this[name] = keys[name] && keys[name].toString('hex');
+    });
+    this.uid = details.uid || null;
+    this.lifetime = details.lifetime || Infinity;
+    this.createdAt = details.createdAt || 0;
   }
 
   // Create a new token of the given type.
@@ -52,22 +52,22 @@ module.exports = (log, config) => {
   //
   Token.createNewToken = function(TokenType, details) {
     // Avoid modifying the argument.
-    details = Object.assign({}, details)
-    details.createdAt = Date.now()
+    details = Object.assign({}, details);
+    details.createdAt = Date.now();
     return random(32)
       .then(bytes => Token.deriveTokenKeys(TokenType, bytes))
-      .then(keys => new TokenType(keys, details))
-  }
+      .then(keys => new TokenType(keys, details));
+  };
 
 
   // Re-create an existing token of the given type.
   // This uses known seed data to derive the keys.
   //
   Token.createTokenFromHexData = function(TokenType, hexData, details) {
-    var data = Buffer.from(hexData, 'hex')
+    var data = Buffer.from(hexData, 'hex');
     return Token.deriveTokenKeys(TokenType, data)
-      .then(keys => new TokenType(keys, details || {}))
-  }
+      .then(keys => new TokenType(keys, details || {}));
+  };
 
 
   // Derive id, authKey and bundleKey from token seed data.
@@ -81,49 +81,49 @@ module.exports = (log, config) => {
             id: keyMaterial.slice(0, 32),
             authKey: keyMaterial.slice(32, 64),
             bundleKey: keyMaterial.slice(64, 96)
-          }
+          };
         }
-      )
-  }
+      );
+  };
 
 
   // Convenience method to bundle a payload using token bundleKey.
   //
   Token.prototype.bundle = function(keyInfo, payload) {
-    log.trace('Token.bundle')
-    return Bundle.bundle(this.bundleKey, keyInfo, payload)
-  }
+    log.trace('Token.bundle');
+    return Bundle.bundle(this.bundleKey, keyInfo, payload);
+  };
 
 
   // Convenience method to unbundle a payload using token bundleKey.
   //
   Token.prototype.unbundle = function(keyInfo, payload) {
-    log.trace('Token.unbundle')
-    return Bundle.unbundle(this.bundleKey, keyInfo, payload)
-  }
+    log.trace('Token.unbundle');
+    return Bundle.unbundle(this.bundleKey, keyInfo, payload);
+  };
 
   Token.prototype.ttl = function (asOf) {
-    asOf = asOf || Date.now()
-    var ttl = (this.lifetime - (asOf - this.createdAt)) / 1000
-    return Math.max(Math.ceil(ttl), 0)
-  }
+    asOf = asOf || Date.now();
+    var ttl = (this.lifetime - (asOf - this.createdAt)) / 1000;
+    return Math.max(Math.ceil(ttl), 0);
+  };
 
   Token.prototype.expired = function (asOf) {
-    return this.ttl(asOf) === 0
-  }
+    return this.ttl(asOf) === 0;
+  };
 
   // Properties defined for HAWK
   Object.defineProperties(
     Token.prototype,
     {
       key: {
-        get: function () { return Buffer.from(this.authKey, 'hex') }
+        get: function () { return Buffer.from(this.authKey, 'hex'); }
       },
       algorithm: {
-        get: function () { return 'sha256' }
+        get: function () { return 'sha256'; }
       }
     }
-  )
+  );
 
-  return Token
-}
+  return Token;
+};

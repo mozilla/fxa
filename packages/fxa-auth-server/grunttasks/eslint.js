@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
 module.exports = function (grunt) {
   grunt.config('eslint', {
@@ -12,6 +12,6 @@ module.exports = function (grunt) {
         '{fxa-oauth-server/bin/**/,fxa-oauth-server/lib/**/,fxa-oauth-server/test/**/,fxa-oauth-server/scripts/**/}*.js'
       ]
     }
-  })
-  grunt.registerTask('quicklint', 'lint the modified files', 'newer:eslint')
-}
+  });
+  grunt.registerTask('quicklint', 'lint the modified files', 'newer:eslint');
+};

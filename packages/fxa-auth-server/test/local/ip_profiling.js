@@ -2,22 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const { assert } = require('chai')
-const crypto = require('crypto')
-const getRoute = require('../routes_helpers').getRoute
-const mocks = require('../mocks')
-const P = require('../../lib/promise')
-const proxyquire = require('proxyquire')
-const uuid = require('uuid')
+const { assert } = require('chai');
+const crypto = require('crypto');
+const getRoute = require('../routes_helpers').getRoute;
+const mocks = require('../mocks');
+const P = require('../../lib/promise');
+const proxyquire = require('proxyquire');
+const uuid = require('uuid');
 
-const TEST_EMAIL = 'foo@gmail.com'
-const MS_ONE_DAY = 1000 * 60 * 60 * 24
-const UID = uuid.v4('binary').toString('hex')
+const TEST_EMAIL = 'foo@gmail.com';
+const MS_ONE_DAY = 1000 * 60 * 60 * 24;
+const UID = uuid.v4('binary').toString('hex');
 
 function makeRoutes (options = {}, requireMocks) {
-  const { db, mailer } = options
+  const { db, mailer } = options;
   const config = {
     securityHistory: {
       ipProfiling: {
@@ -26,14 +26,14 @@ function makeRoutes (options = {}, requireMocks) {
     },
     signinConfirmation: {},
     smtp: {}
-  }
-  const log = mocks.mockLog()
+  };
+  const log = mocks.mockLog();
   const customs = {
-    check () { return P.resolve(true) },
+    check () { return P.resolve(true); },
     flag () {}
-  }
-  const signinUtils = require('../../lib/routes/utils/signin')(log, config, customs, db, mailer)
-  signinUtils.checkPassword = () => P.resolve(true)
+  };
+  const signinUtils = require('../../lib/routes/utils/signin')(log, config, customs, db, mailer);
+  signinUtils.checkPassword = () => P.resolve(true);
   return proxyquire('../../lib/routes/account', requireMocks || {})(
     log,
     db,
@@ -44,30 +44,30 @@ function makeRoutes (options = {}, requireMocks) {
     signinUtils,
     mocks.mockPush(),
     mocks.mockDevices()
-  )
+  );
 }
 
 function runTest(route, request, assertions) {
   return new P(function (resolve, reject) {
     try {
-      return route.handler(request).then(resolve, reject)
+      return route.handler(request).then(resolve, reject);
     } catch (err) {
-      reject(err)
+      reject(err);
     }
   })
-    .then(assertions)
+    .then(assertions);
 }
 
 describe('IP Profiling', () => {
-  let route, accountRoutes, mockDB, mockMailer, mockRequest
+  let route, accountRoutes, mockDB, mockMailer, mockRequest;
 
   beforeEach(() => {
     mockDB = mocks.mockDB({
       email: TEST_EMAIL,
       emailVerified: true,
       uid: UID
-    })
-    mockMailer = mocks.mockMailer()
+    });
+    mockMailer = mocks.mockMailer();
     mockRequest = mocks.mockRequest({
       payload: {
         authPW: crypto.randomBytes(32).toString('hex'),
@@ -82,13 +82,13 @@ describe('IP Profiling', () => {
       query: {
         keys: 'true'
       }
-    })
+    });
     accountRoutes = makeRoutes({
       db: mockDB,
       mailer: mockMailer
-    })
-    route = getRoute(accountRoutes, '/account/login')
-  })
+    });
+    route = getRoute(accountRoutes, '/account/login');
+  });
 
   it(
     'no previously verified session',
@@ -100,15 +100,15 @@ describe('IP Profiling', () => {
             createdAt: Date.now(),
             verified: false
           }
-        ])
-      }
+        ]);
+      };
 
       return runTest(route, mockRequest, function (response) {
-        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
-        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
-        assert.equal(response.verified, false, 'session not verified')
-      })
-    })
+        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called');
+        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called');
+        assert.equal(response.verified, false, 'session not verified');
+      });
+    });
 
   it(
     'previously verified session',
@@ -120,15 +120,15 @@ describe('IP Profiling', () => {
             createdAt: Date.now(),
             verified: true
           }
-        ])
-      }
+        ]);
+      };
 
       return runTest(route, mockRequest, function (response) {
-        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called')
-        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called')
-        assert.equal(response.verified, true, 'session verified')
-      })
-    })
+        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 0, 'mailer.sendVerifyLoginEmail was not called');
+        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 1, 'mailer.sendNewDeviceLoginNotification was called');
+        assert.equal(response.verified, true, 'session verified');
+      });
+    });
 
   it(
     'previously verified session more than a day',
@@ -141,21 +141,21 @@ describe('IP Profiling', () => {
             createdAt: (Date.now() - MS_ONE_DAY * 2), // Created two days ago
             verified: true
           }
-        ])
-      }
+        ]);
+      };
 
       return runTest(route, mockRequest, function (response) {
-        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
-        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
-        assert.equal(response.verified, false, 'session verified')
-      })
-    })
+        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called');
+        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called');
+        assert.equal(response.verified, false, 'session verified');
+      });
+    });
 
   it(
     'previously verified session with forced sign-in confirmation',
     () => {
-      var forceSigninEmail = 'forcedemail@mozilla.com'
-      mockRequest.payload.email = forceSigninEmail
+      var forceSigninEmail = 'forcedemail@mozilla.com';
+      mockRequest.payload.email = forceSigninEmail;
 
       mockDB.accountRecord = function () {
         return P.resolve({
@@ -166,42 +166,42 @@ describe('IP Profiling', () => {
           primaryEmail: {normalizedEmail: forceSigninEmail, email: forceSigninEmail, isVerified: true, isPrimary: true},
           kA: crypto.randomBytes(32),
           lastAuthAt: function () {
-            return Date.now()
+            return Date.now();
           },
           uid: UID,
           wrapWrapKb: crypto.randomBytes(32)
-        })
-      }
+        });
+      };
 
       return runTest(route, mockRequest, function (response) {
-        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
-        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
-        assert.equal(response.verified, false, 'session verified')
-        return runTest(route, mockRequest)
+        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called');
+        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called');
+        assert.equal(response.verified, false, 'session verified');
+        return runTest(route, mockRequest);
       })
         .then(function (response) {
-          assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 2, 'mailer.sendVerifyLoginEmail was called')
-          assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
-          assert.equal(response.verified, false, 'session verified')
-        })
-    })
+          assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 2, 'mailer.sendVerifyLoginEmail was called');
+          assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called');
+          assert.equal(response.verified, false, 'session verified');
+        });
+    });
 
   it(
     'previously verified session with suspicious request',
     () => {
-      mockRequest.app.clientAddress = '63.245.221.32'
-      mockRequest.app.isSuspiciousRequest = true
+      mockRequest.app.clientAddress = '63.245.221.32';
+      mockRequest.app.isSuspiciousRequest = true;
 
       return runTest(route, mockRequest, function (response) {
-        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called')
-        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
-        assert.equal(response.verified, false, 'session verified')
-        return runTest(route, mockRequest)
+        assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 1, 'mailer.sendVerifyLoginEmail was called');
+        assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called');
+        assert.equal(response.verified, false, 'session verified');
+        return runTest(route, mockRequest);
       })
         .then(function (response) {
-          assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 2, 'mailer.sendVerifyLoginEmail was called')
-          assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called')
-          assert.equal(response.verified, false, 'session verified')
-        })
-    })
-})
+          assert.equal(mockMailer.sendVerifyLoginEmail.callCount, 2, 'mailer.sendVerifyLoginEmail was called');
+          assert.equal(mockMailer.sendNewDeviceLoginNotification.callCount, 0, 'mailer.sendNewDeviceLoginNotification was not called');
+          assert.equal(response.verified, false, 'session verified');
+        });
+    });
+});

@@ -19,30 +19,30 @@
    keypair.
 */
 
-'use strict'
+'use strict';
 
-const fs = require('fs')
-const webpush = require('web-push')
+const fs = require('fs');
+const webpush = require('web-push');
 
 if (! process.env.NODE_ENV) {
-  process.env.NODE_ENV = 'dev'
+  process.env.NODE_ENV = 'dev';
 }
 
-const config = require('../config')
-const vapidKeysFile = config.get('vapidKeysFile')
+const config = require('../config');
+const vapidKeysFile = config.get('vapidKeysFile');
 
-var fileExists = fs.existsSync(vapidKeysFile)
+var fileExists = fs.existsSync(vapidKeysFile);
 if (fileExists) {
-  console.log('keys file already exists')
-  process.exit()
+  console.log('keys file already exists');
+  process.exit();
 }
 
-console.error('Generating key for VAPID')
+console.error('Generating key for VAPID');
 
-var keys = webpush.generateVAPIDKeys()
+var keys = webpush.generateVAPIDKeys();
 fs.writeFileSync(vapidKeysFile, JSON.stringify({
   privateKey: keys.privateKey.toString('base64'),
   publicKey: keys.publicKey.toString('base64')
-}))
+}));
 
-console.error('Done:', vapidKeysFile)
+console.error('Done:', vapidKeysFile);

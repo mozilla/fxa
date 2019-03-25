@@ -2,64 +2,64 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const { assert } = require('chai')
-var TestServer = require('../test_server')
-const Client = require('../client')()
+const { assert } = require('chai');
+var TestServer = require('../test_server');
+const Client = require('../client')();
 
-function fail() { throw new Error() }
+function fail() { throw new Error(); }
 
 describe('remote token expiry', function() {
-  this.timeout(15000)
-  let server, config
+  this.timeout(15000);
+  let server, config;
   before(() => {
-    config = require('../../config').getProperties()
-    config.tokenLifetimes.passwordChangeToken = 1
+    config = require('../../config').getProperties();
+    config.tokenLifetimes.passwordChangeToken = 1;
 
     return TestServer.start(config)
       .then(s => {
-        server = s
-      })
-  })
+        server = s;
+      });
+  });
 
   it(
     'token expiry',
     () => {
       // FYI config.tokenLifetimes.passwordChangeToken = 1
-      var email = Math.random() + '@example.com'
-      var password = 'ok'
+      var email = Math.random() + '@example.com';
+      var password = 'ok';
       return Client.create(config.publicUrl, email, password, { preVerified: true })
         .then(
           function (c) {
-            return c.changePassword('hello')
+            return c.changePassword('hello');
           }
         )
         .then(
           fail,
           function (err) {
-            assert.equal(err.errno, 110, 'invalid token')
+            assert.equal(err.errno, 110, 'invalid token');
           }
-        )
+        );
     }
-  )
+  );
 
   after(() => {
-    return TestServer.stop(server)
-  })
-})
+    return TestServer.stop(server);
+  });
+});
 
 describe('remote session token expiry', function () {
-  this.timeout(15000)
-  let server, config
+  this.timeout(15000);
+  let server, config;
 
   before(() => {
-    config = require('../../config').getProperties()
-    config.tokenLifetimes.sessionTokenWithoutDevice = 1
+    config = require('../../config').getProperties();
+    config.tokenLifetimes.sessionTokenWithoutDevice = 1;
 
     return TestServer.start(config)
-      .then(result => server = result)
-  })
+      .then(result => server = result);
+  });
 
   it('session token expires', () => {
     return Client.createAndVerify(config.publicUrl, `${Math.random()}@example.com`, 'wibble', server.mailbox)
@@ -69,8 +69,8 @@ describe('remote session token expiry', function () {
             () => assert.ok(false, 'client.sessionStatus should have failed'),
             err => assert.equal(err.errno, 110, 'client.sessionStatus returned the correct error')
           )
-        )
-  })
+        );
+  });
 
-  after(() => TestServer.stop(server))
-})
+  after(() => TestServer.stop(server));
+});

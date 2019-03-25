@@ -2,21 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-var jwtool = require('fxa-jwtool')
+var jwtool = require('fxa-jwtool');
 
 function b64toDec(str) {
-  var n = new jwtool.BN(Buffer.from(str, 'base64'))
-  return n.toString(10)
+  var n = new jwtool.BN(Buffer.from(str, 'base64'));
+  return n.toString(10);
 }
 
 function toDec(str) {
-  return /^[0-9]+$/.test(str) ? str : b64toDec(str)
+  return /^[0-9]+$/.test(str) ? str : b64toDec(str);
 }
 
 function browseridFormat(keys) {
-  var primary = keys[0]
+  var primary = keys[0];
   return {
     'public-key': {
       kid: primary.jwk.kid,
@@ -28,14 +28,14 @@ function browseridFormat(keys) {
     authentication: '/.well-known/browserid/nonexistent.html',
     provisioning: '/.well-known/browserid/nonexistent.html',
     keys: keys
-  }
+  };
 }
 
 module.exports = function (log, serverPublicKeys) {
-  var keys = [ serverPublicKeys.primary ]
-  if (serverPublicKeys.secondary) { keys.push(serverPublicKeys.secondary) }
+  var keys = [ serverPublicKeys.primary ];
+  if (serverPublicKeys.secondary) { keys.push(serverPublicKeys.secondary); }
 
-  var browserid = browseridFormat(keys)
+  var browserid = browseridFormat(keys);
 
   var routes = [
     {
@@ -48,8 +48,8 @@ module.exports = function (log, serverPublicKeys) {
         }
       },
       handler: async function (request) {
-        log.begin('browserid', request)
-        return browserid
+        log.begin('browserid', request);
+        return browserid;
       }
     },
     {
@@ -59,10 +59,10 @@ module.exports = function (log, serverPublicKeys) {
         // FOR DEV PURPOSES ONLY
         return {
             keys: keys
-        }
+        };
       }
     }
-  ]
+  ];
 
-  return routes
-}
+  return routes;
+};

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
 /* Operations on OAuth database state.
  *
@@ -18,8 +18,8 @@
  * Ref: https://docs.google.com/document/d/1CnTv0Eamy7Lnbmf1ALH00oTKMPhGu70elRivJYjx5v0/
  */
 
-const createBackendServiceAPI = require('../backendService')
-const { mapOAuthError, makeAssertionJWT } = require('./utils')
+const createBackendServiceAPI = require('../backendService');
+const { mapOAuthError, makeAssertionJWT } = require('./utils');
 
 module.exports = (log, config) => {
 
@@ -28,25 +28,25 @@ module.exports = (log, config) => {
     revokeRefreshTokenById: require('./revoke-refresh-token-by-id')(config),
     getClientInfo: require('./client-info')(config),
     getScopedKeyData: require('./scoped-key-data')(config),
-  })
+  });
 
-  const api = new OAuthAPI(config.oauth.url, config.oauth.poolee)
+  const api = new OAuthAPI(config.oauth.url, config.oauth.poolee);
 
   return {
 
     api,
 
     close() {
-      api.close()
+      api.close();
     },
 
     async checkRefreshToken(token) {
       try {
         return await api.checkRefreshToken({
           token: token,
-        })
+        });
       } catch (err) {
-        throw mapOAuthError(log, err)
+        throw mapOAuthError(log, err);
       }
     },
 
@@ -54,26 +54,26 @@ module.exports = (log, config) => {
       try {
         return await api.revokeRefreshTokenById({
           refresh_token_id: refreshTokenId,
-        })
+        });
       } catch (err) {
-        throw mapOAuthError(log, err)
+        throw mapOAuthError(log, err);
       }
     },
 
     async getClientInfo(clientId) {
       try {
-        return await api.getClientInfo(clientId)
+        return await api.getClientInfo(clientId);
       } catch (err) {
-        throw mapOAuthError(log, err)
+        throw mapOAuthError(log, err);
       }
     },
 
     async getScopedKeyData(sessionToken, oauthParams) {
-      oauthParams.assertion = await makeAssertionJWT(config, sessionToken)
+      oauthParams.assertion = await makeAssertionJWT(config, sessionToken);
       try {
-        return await api.getScopedKeyData(oauthParams)
+        return await api.getScopedKeyData(oauthParams);
       } catch (err) {
-        throw mapOAuthError(log, err)
+        throw mapOAuthError(log, err);
       }
     },
 
@@ -101,5 +101,5 @@ module.exports = (log, config) => {
      *
      */
 
-  }
-}
+  };
+};

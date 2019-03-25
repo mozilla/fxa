@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const Joi = require('joi')
-const createBackendServiceAPI = require('./backendService')
-const config = require('../config')
+const Joi = require('joi');
+const createBackendServiceAPI = require('./backendService');
+const config = require('../config');
 const localizeTimestamp = require('fxa-shared').l10n.localizeTimestamp({
   supportedLanguages: config.get('i18n').supportedLanguages,
   defaultLanguage: config.get('i18n').defaultLanguage
-})
+});
 
 module.exports = function (log, error) {
 
@@ -97,30 +97,30 @@ module.exports = function (log, error) {
       }
     },
 
-  })
+  });
 
   // Perform a deep clone of payload and remove user password.
   function sanitizePayload(payload) {
     if (! payload) {
-      return
+      return;
     }
 
-    const clonePayload = Object.assign({}, payload)
+    const clonePayload = Object.assign({}, payload);
 
     if (clonePayload.authPW) {
-      delete clonePayload.authPW
+      delete clonePayload.authPW;
     }
     if (clonePayload.oldAuthPW) {
-      delete clonePayload.oldAuthPW
+      delete clonePayload.oldAuthPW;
     }
 
-    return clonePayload
+    return clonePayload;
   }
 
   function Customs(url) {
     if (url === 'none') {
-      const noblock = async function () { return { block: false }}
-      const noop = async function () {}
+      const noblock = async function () { return { block: false };};
+      const noop = async function () {};
       this.api = {
         check: noblock,
         checkAuthenticated: noblock,
@@ -128,9 +128,9 @@ module.exports = function (log, error) {
         failedLoginAttempt: noop,
         passwordReset: noop,
         close: noop
-      }
+      };
     } else {
-      this.api = new CustomsAPI(url, { timeout: 3000 })
+      this.api = new CustomsAPI(url, { timeout: 3000 });
     }
   }
 
@@ -142,23 +142,23 @@ module.exports = function (log, error) {
       headers: request.headers,
       query: request.query,
       payload: sanitizePayload(request.payload)
-    })
-    return handleCustomsResult(request, result)
-  }
+    });
+    return handleCustomsResult(request, result);
+  };
 
   // Annotate the request and/or throw an error
   // based on the check result returned by customs-server.
   function handleCustomsResult (request, result) {
 
     if (result.suspect) {
-      request.app.isSuspiciousRequest = true
+      request.app.isSuspiciousRequest = true;
     }
 
     if (result.block) {
       // Log a flow event that the user got blocked.
-      request.emitMetricsEvent('customs.blocked')
+      request.emitMetricsEvent('customs.blocked');
 
-      const unblock = !! result.unblock
+      const unblock = !! result.unblock;
 
       if (result.retryAfter) {
         // Create a localized retryAfterLocalized value from retryAfter.
@@ -166,12 +166,12 @@ module.exports = function (log, error) {
         const retryAfterLocalized = localizeTimestamp.format(
           Date.now() + result.retryAfter * 1000,
           request.headers['accept-language']
-        )
+        );
 
-        throw error.tooManyRequests(result.retryAfter, retryAfterLocalized, unblock)
+        throw error.tooManyRequests(result.retryAfter, retryAfterLocalized, unblock);
       }
 
-      throw error.requestBlocked(unblock)
+      throw error.requestBlocked(unblock);
     }
   }
 
@@ -180,39 +180,39 @@ module.exports = function (log, error) {
       action: action,
       ip: request.app.clientAddress,
       uid: uid
-    })
-    return handleCustomsResult(request, result)
-  }
+    });
+    return handleCustomsResult(request, result);
+  };
 
   Customs.prototype.checkIpOnly = async function (request, action) {
     const result = await this.api.checkIpOnly({
       ip: request.app.clientAddress,
       action: action
-    })
-    return handleCustomsResult(request, result)
-  }
+    });
+    return handleCustomsResult(request, result);
+  };
 
   Customs.prototype.flag = async function (ip, info) {
-    var email = info.email
-    var errno = info.errno || error.ERRNO.UNEXPECTED_ERROR
+    var email = info.email;
+    var errno = info.errno || error.ERRNO.UNEXPECTED_ERROR;
     // There's no useful information in the HTTP response, ignore it.
     await this.api.failedLoginAttempt({
       ip: ip,
       email: email,
       errno: errno
-    })
-  }
+    });
+  };
 
   Customs.prototype.reset = async function (email) {
     // There's no useful information in the HTTP response, ignore it.
     await this.api.passwordReset({
       email: email
-    })
-  }
+    });
+  };
 
   Customs.prototype.close = function () {
-    return this.api.close()
-  }
+    return this.api.close();
+  };
 
-  return Customs
-}
+  return Customs;
+};

@@ -2,26 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const Memcached = require('memcached')
-const P = require('./promise')
+const Memcached = require('memcached');
+const P = require('./promise');
 
-P.promisifyAll(Memcached.prototype)
+P.promisifyAll(Memcached.prototype);
 
-const NOP = () => P.resolve()
+const NOP = () => P.resolve();
 const NULL_CACHE = {
   addAsync: NOP,
   delAsync: NOP,
   getAsync: NOP
-}
+};
 
 module.exports = (log, config, namespace) => {
-  let _cache
+  let _cache;
 
-  const CACHE_ADDRESS = config.memcached.address
-  const CACHE_IDLE = config.memcached.idle
-  const CACHE_LIFETIME = config.memcached.lifetime
+  const CACHE_ADDRESS = config.memcached.address;
+  const CACHE_IDLE = config.memcached.idle;
+  const CACHE_LIFETIME = config.memcached.lifetime;
 
   return {
     /**
@@ -36,7 +36,7 @@ module.exports = (log, config, namespace) => {
      */
     add (key, data) {
       return getCache()
-        .then(cache => cache.addAsync(key, data, CACHE_LIFETIME))
+        .then(cache => cache.addAsync(key, data, CACHE_LIFETIME));
     },
 
     /**
@@ -48,7 +48,7 @@ module.exports = (log, config, namespace) => {
      */
     del (key) {
       return getCache()
-        .then(cache => cache.delAsync(key))
+        .then(cache => cache.delAsync(key));
     },
 
     /**
@@ -60,19 +60,19 @@ module.exports = (log, config, namespace) => {
      */
     get (key) {
       return getCache()
-        .then(cache => cache.getAsync(key))
+        .then(cache => cache.getAsync(key));
     }
-  }
+  };
 
   function getCache () {
     return P.resolve()
       .then(() => {
         if (_cache) {
-          return _cache
+          return _cache;
         }
 
         if (CACHE_ADDRESS === 'none') {
-          _cache = NULL_CACHE
+          _cache = NULL_CACHE;
         } else {
           _cache = new Memcached(CACHE_ADDRESS, {
             timeout: 500,
@@ -81,14 +81,14 @@ module.exports = (log, config, namespace) => {
             reconnect: 1000,
             idle: CACHE_IDLE,
             namespace
-          })
+          });
         }
 
-        return _cache
+        return _cache;
       })
       .catch(err => {
-        log.error('cache.getCache', { err: err })
-        return NULL_CACHE
-      })
+        log.error('cache.getCache', { err: err });
+        return NULL_CACHE;
+      });
   }
-}
+};

@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const error = require('../error')
-const isA = require('joi')
-const P = require('../promise')
-const validators = require('./validators')
+const error = require('../error');
+const isA = require('joi');
+const P = require('../promise');
+const validators = require('./validators');
 
 module.exports = (log, signer, db, domain, devices) => {
 
-  const HOUR = 1000 * 60 * 60
+  const HOUR = 1000 * 60 * 60;
 
   var routes = [
     {
@@ -42,12 +42,12 @@ module.exports = (log, signer, db, domain, devices) => {
         }
       },
       handler: async function certificateSign(request) {
-        log.begin('Sign.cert', request)
-        var sessionToken = request.auth.credentials
-        var publicKey = request.payload.publicKey
-        var duration = request.payload.duration
-        var service = request.query.service
-        var deviceId, uid, certResult
+        log.begin('Sign.cert', request);
+        var sessionToken = request.auth.credentials;
+        var publicKey = request.payload.publicKey;
+        var duration = request.payload.duration;
+        var service = request.query.service;
+        var deviceId, uid, certResult;
         if (request.headers['user-agent']) {
           const {
             browser: uaBrowser,
@@ -56,7 +56,7 @@ module.exports = (log, signer, db, domain, devices) => {
             osVersion: uaOSVersion,
             deviceType: uaDeviceType,
             formFactor: uaFormFactor
-          } = request.app.ua
+          } = request.app.ua;
           sessionToken.setUserAgentInfo({
             uaBrowser,
             uaBrowserVersion,
@@ -65,26 +65,26 @@ module.exports = (log, signer, db, domain, devices) => {
             uaDeviceType,
             uaFormFactor,
             lastAccessTime: Date.now()
-          })
+          });
           // No need to wait for a response, update in the background.
-          db.touchSessionToken(sessionToken, request.app.geo)
+          db.touchSessionToken(sessionToken, request.app.geo);
         } else {
           log.warn('signer.updateSessionToken', { message: 'no user agent string, session token not updated'
-          })
+          });
         }
 
         if (! sessionToken.emailVerified) {
-          throw error.unverifiedAccount()
+          throw error.unverifiedAccount();
         }
         if (sessionToken.mustVerify && ! sessionToken.tokenVerified) {
-          throw error.unverifiedSession()
+          throw error.unverifiedSession();
         }
 
         return P.resolve()
           .then(
             function () {
               if (sessionToken.deviceId) {
-                deviceId = sessionToken.deviceId
+                deviceId = sessionToken.deviceId;
               } else if (! service || service === 'sync') {
                 // Synthesize a device record for Sync sessions that don't already have one.
                 // Include the UA info so that we can synthesize a device name
@@ -94,19 +94,19 @@ module.exports = (log, signer, db, domain, devices) => {
                   uaBrowserVersion: sessionToken.uaBrowserVersion,
                   uaOS: sessionToken.uaOS,
                   uaOSVersion: sessionToken.uaOSVersion
-                }
+                };
                 return devices.upsert(request, sessionToken, deviceInfo)
                   .then(result => {
-                    deviceId = result.id
+                    deviceId = result.id;
                   })
                   .catch(err => {
                     // There's a small chance that a device registration was performed
                     // concurrently.  If so, just use that device id.
                     if (err.errno !== error.ERRNO.DEVICE_CONFLICT) {
-                      throw err
+                      throw err;
                     }
-                    deviceId = err.output.payload.deviceId
-                  })
+                    deviceId = err.output.payload.deviceId;
+                  });
               }
             }
           )
@@ -114,24 +114,24 @@ module.exports = (log, signer, db, domain, devices) => {
             function () {
               if (publicKey.algorithm === 'RS') {
                 if (! publicKey.n) {
-                  throw error.missingRequestParameter('n')
+                  throw error.missingRequestParameter('n');
                 }
                 if (! publicKey.e) {
-                  throw error.missingRequestParameter('e')
+                  throw error.missingRequestParameter('e');
                 }
               }
               else { // DS
                 if (! publicKey.y) {
-                  throw error.missingRequestParameter('y')
+                  throw error.missingRequestParameter('y');
                 }
                 if (! publicKey.p) {
-                  throw error.missingRequestParameter('p')
+                  throw error.missingRequestParameter('p');
                 }
                 if (! publicKey.q) {
-                  throw error.missingRequestParameter('q')
+                  throw error.missingRequestParameter('q');
                 }
                 if (! publicKey.g) {
-                  throw error.missingRequestParameter('g')
+                  throw error.missingRequestParameter('g');
                 }
               }
 
@@ -140,8 +140,8 @@ module.exports = (log, signer, db, domain, devices) => {
                   // Log details to sanity-check locale backfilling.
                   log.info('signer.updateLocale', {
                     locale: request.app.acceptLanguage
-                  })
-                  db.updateLocale(sessionToken.uid, request.app.acceptLanguage)
+                  });
+                  db.updateLocale(sessionToken.uid, request.app.acceptLanguage);
                   // meh on the result
                 } else {
                   // We're seeing a surprising number of accounts that don't get
@@ -150,10 +150,10 @@ module.exports = (log, signer, db, domain, devices) => {
                     email: sessionToken.email,
                     locale: request.app.acceptLanguage,
                     agent: request.headers['user-agent']
-                  })
+                  });
                 }
               }
-              uid = sessionToken.uid
+              uid = sessionToken.uid;
 
               return signer.sign(
                 {
@@ -170,22 +170,22 @@ module.exports = (log, signer, db, domain, devices) => {
                   authenticatorAssuranceLevel: sessionToken.authenticatorAssuranceLevel,
                   profileChangedAt: sessionToken.profileChangedAt
                 }
-              )
+              );
             }
           )
           .then(
             function(result) {
-              certResult = result
+              certResult = result;
               return request.emitMetricsEvent('account.signed', {
                 uid: uid,
                 device_id: deviceId
-              })
+              });
             }
           )
-          .then(() => { return certResult })
+          .then(() => { return certResult; });
       }
     }
-  ]
+  ];
 
-  return routes
-}
+  return routes;
+};

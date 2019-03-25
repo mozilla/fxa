@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const isA = require('joi')
-const validators = require('./validators')
+const isA = require('joi');
+const validators = require('./validators');
 
-const METRICS_CONTEXT_SCHEMA = require('../metrics/context').requiredSchema
+const METRICS_CONTEXT_SCHEMA = require('../metrics/context').requiredSchema;
 
 module.exports = (log, db, customs) => {
   return [
@@ -28,22 +28,22 @@ module.exports = (log, db, customs) => {
         }
       },
       handler: async function (request) {
-        log.begin('signinCodes.consume', request)
-        request.validateMetricsContext()
+        log.begin('signinCodes.consume', request);
+        request.validateMetricsContext();
 
         return customs.checkIpOnly(request, 'consumeSigninCode')
           .then(hexSigninCode)
-          .then(consumeSigninCode)
+          .then(consumeSigninCode);
 
         function hexSigninCode () {
-          let base64 = request.payload.code.replace(/-/g, '+').replace(/_/g, '/')
+          let base64 = request.payload.code.replace(/-/g, '+').replace(/_/g, '/');
 
-          const padCount = base64.length % 4
+          const padCount = base64.length % 4;
           for (let i = 0; i < padCount; ++i) {
-            base64 += '='
+            base64 += '=';
           }
 
-          return Buffer.from(base64, 'base64').toString('hex')
+          return Buffer.from(base64, 'base64').toString('hex');
         }
 
         function consumeSigninCode (code) {
@@ -52,14 +52,14 @@ module.exports = (log, db, customs) => {
               return request.emitMetricsEvent('signinCode.consumed')
                 .then(() => {
                   if (result.flowId) {
-                    return request.emitMetricsEvent(`flow.continued.${result.flowId}`)
+                    return request.emitMetricsEvent(`flow.continued.${result.flowId}`);
                   }
                 })
-                .then(() => ({ email: result.email }))
-            })
+                .then(() => ({ email: result.email }));
+            });
         }
       }
     }
-  ]
-}
+  ];
+};
 

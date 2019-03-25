@@ -2,82 +2,82 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const ROOT_DIR = '../../..'
+const ROOT_DIR = '../../..';
 
-const config = require(`${ROOT_DIR}/config`)
-const emailDomains = require(`${ROOT_DIR}/config/popular-email-domains`)
-const P = require('../../promise')
+const config = require(`${ROOT_DIR}/config`);
+const emailDomains = require(`${ROOT_DIR}/config/popular-email-domains`);
+const P = require('../../promise');
 
-let amplitude
+let amplitude;
 
 function getInsensitiveHeaderValueFromArray(headerName, headers) {
-  var value = ''
-  var headerNameNormalized = headerName.toLowerCase()
+  var value = '';
+  var headerNameNormalized = headerName.toLowerCase();
   headers.some(function (header) {
     if (header.name.toLowerCase() === headerNameNormalized) {
-      value = header.value
-      return true
+      value = header.value;
+      return true;
     }
 
-    return false
-  })
+    return false;
+  });
 
-  return value
+  return value;
 }
 
 function getInsensitiveHeaderValueFromObject(headerName, headers) {
-  var headerNameNormalized = headerName.toLowerCase()
-  var value = ''
+  var headerNameNormalized = headerName.toLowerCase();
+  var value = '';
   Object.keys(headers).some(function (name) {
     if (name.toLowerCase() === headerNameNormalized) {
-      value = headers[name]
-      return true
+      value = headers[name];
+      return true;
     }
 
-    return false
-  })
-  return value
+    return false;
+  });
+  return value;
 }
 
 function getHeaderValue(headerName, message){
-  const headers = getHeaders(message)
+  const headers = getHeaders(message);
 
   if (Array.isArray(headers)) {
-    return getInsensitiveHeaderValueFromArray(headerName, headers)
+    return getInsensitiveHeaderValueFromArray(headerName, headers);
   }
 
   if (headers) {
-    return getInsensitiveHeaderValueFromObject(headerName, headers)
+    return getInsensitiveHeaderValueFromObject(headerName, headers);
   }
 
-  return ''
+  return '';
 }
 
 function getHeaders (message) {
-  return message.mail && message.mail.headers || message.headers
+  return message.mail && message.mail.headers || message.headers;
 }
 
 function logErrorIfHeadersAreWeirdOrMissing (log, message, origin) {
-  const headers = getHeaders(message)
+  const headers = getHeaders(message);
   if (headers) {
-    const type = typeof headers
+    const type = typeof headers;
     if (type === 'object') {
-      const deviceId = getHeaderValue('X-Device-Id', message)
-      const uid = getHeaderValue('X-Uid', message)
+      const deviceId = getHeaderValue('X-Device-Id', message);
+      const uid = getHeaderValue('X-Uid', message);
       if (! deviceId && ! uid) {
         log.warn('emailHeaders.keys', {
           keys: Object.keys(headers).join(','),
           template: getHeaderValue('X-Template-Name', message),
           origin
-        })
+        });
       }
     } else {
-      log.error('emailHeaders.weird', { type, origin })
+      log.error('emailHeaders.weird', { type, origin });
     }
   } else {
-    log.error('emailHeaders.missing', { origin })
+    log.error('emailHeaders.missing', { origin });
   }
 }
 
@@ -87,26 +87,26 @@ function logEmailEventSent(log, message) {
     templateVersion: message.templateVersion,
     type: 'sent',
     flow_id: message.flowId
-  }
+  };
 
-  emailEventInfo.locale = getHeaderValue('Content-Language', message)
+  emailEventInfo.locale = getHeaderValue('Content-Language', message);
 
-  const addrs = [message.email].concat(message.ccEmails || [])
+  const addrs = [message.email].concat(message.ccEmails || []);
 
   addrs.forEach(addr => {
-    const msg = Object.assign({}, emailEventInfo)
-    msg.domain = getAnonymizedEmailDomain(addr)
-    log.info('emailEvent', msg)
-  })
+    const msg = Object.assign({}, emailEventInfo);
+    msg.domain = getAnonymizedEmailDomain(addr);
+    log.info('emailEvent', msg);
+  });
 
   logAmplitudeEvent(log, message, Object.assign({
     domain: getAnonymizedEmailDomain(message.email)
-  }, emailEventInfo))
+  }, emailEventInfo));
 }
 
 function logAmplitudeEvent (log, message, eventInfo) {
   if (! amplitude) {
-    amplitude = require('../../metrics/amplitude')(log, config.getProperties())
+    amplitude = require('../../metrics/amplitude')(log, config.getProperties());
   }
 
   amplitude(`email.${eventInfo.template}.${eventInfo.type}`, {
@@ -133,14 +133,14 @@ function logAmplitudeEvent (log, message, eventInfo) {
     flowBeginTime: message.flowBeginTime || getHeaderValue('X-Flow-Begin-Time', message),
     flow_id: eventInfo.flow_id,
     time: Date.now()
-  })
+  });
 }
 
 function logEmailEventFromMessage(log, message, type, emailDomain) {
-  const templateName = getHeaderValue('X-Template-Name', message)
-  const templateVersion = getHeaderValue('X-Template-Version', message)
-  const flowId = getHeaderValue('X-Flow-Id', message)
-  const locale = getHeaderValue('Content-Language', message)
+  const templateName = getHeaderValue('X-Template-Name', message);
+  const templateVersion = getHeaderValue('X-Template-Version', message);
+  const flowId = getHeaderValue('X-Flow-Id', message);
+  const locale = getHeaderValue('Content-Language', message);
 
   const emailEventInfo = {
     domain: emailDomain,
@@ -148,36 +148,36 @@ function logEmailEventFromMessage(log, message, type, emailDomain) {
     template: templateName,
     templateVersion,
     type
-  }
+  };
 
   if (flowId) {
-    emailEventInfo['flow_id'] = flowId
+    emailEventInfo['flow_id'] = flowId;
   }
 
   if (message.bounce) {
-    emailEventInfo.bounced = true
+    emailEventInfo.bounced = true;
   }
 
   if (message.complaint) {
-    emailEventInfo.complaint = true
+    emailEventInfo.complaint = true;
   }
 
-  log.info('emailEvent', emailEventInfo)
+  log.info('emailEvent', emailEventInfo);
 
-  logAmplitudeEvent(log, message, emailEventInfo)
+  logAmplitudeEvent(log, message, emailEventInfo);
 }
 
 function logFlowEventFromMessage(log, message, type) {
-  const currentTime = Date.now()
-  const templateName = getHeaderValue('X-Template-Name', message)
+  const currentTime = Date.now();
+  const templateName = getHeaderValue('X-Template-Name', message);
 
   // Log flow metrics if `flowId` and `flowBeginTime` specified in headers
-  const flowId = getHeaderValue('X-Flow-Id', message)
-  const flowBeginTime = getHeaderValue('X-Flow-Begin-Time', message)
-  const elapsedTime = currentTime - flowBeginTime
+  const flowId = getHeaderValue('X-Flow-Id', message);
+  const flowBeginTime = getHeaderValue('X-Flow-Begin-Time', message);
+  const elapsedTime = currentTime - flowBeginTime;
 
   if (flowId && flowBeginTime && (elapsedTime > 0) && type && templateName) {
-    const eventName = `email.${templateName}.${type}`
+    const eventName = `email.${templateName}.${type}`;
 
     // Flow events have a specific event and structure that must be emitted.
     // Ref `gather` in https://github.com/mozilla/fxa-auth-server/blob/master/lib/metrics/context.js
@@ -186,11 +186,11 @@ function logFlowEventFromMessage(log, message, type) {
       time: currentTime,
       flow_id: flowId,
       flow_time: elapsedTime
-    }
+    };
 
-    log.flowEvent(flowEventInfo)
+    log.flowEvent(flowEventInfo);
   } else {
-    log.error('handleBounce.flowEvent', { templateName, type, flowId, flowBeginTime, currentTime})
+    log.error('handleBounce.flowEvent', { templateName, type, flowId, flowBeginTime, currentTime});
   }
 }
 
@@ -198,14 +198,14 @@ function getAnonymizedEmailDomain(email) {
   // This function returns an email domain if it is considered a popular domain,
   // which means it is in `./config/popular-email-domains.js`. Otherwise, it
   // return `other` as domain.
-  const tokens = email.split('@')
-  const emailDomain = tokens[1]
-  var anonymizedEmailDomain = 'other'
+  const tokens = email.split('@');
+  const emailDomain = tokens[1];
+  var anonymizedEmailDomain = 'other';
   if (emailDomain && emailDomains.has(emailDomain)) {
-    anonymizedEmailDomain = emailDomain
+    anonymizedEmailDomain = emailDomain;
   }
 
-  return anonymizedEmailDomain
+  return anonymizedEmailDomain;
 }
 
 module.exports = {
@@ -215,4 +215,4 @@ module.exports = {
   logFlowEventFromMessage,
   getHeaderValue,
   getAnonymizedEmailDomain
-}
+};

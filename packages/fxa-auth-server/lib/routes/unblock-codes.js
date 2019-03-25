@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const isA = require('joi')
-const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
-const validators = require('./validators')
+const isA = require('joi');
+const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
+const validators = require('./validators');
 
-const { HEX_STRING, BASE_36 } = validators
+const { HEX_STRING, BASE_36 } = validators;
 
 module.exports = (log, db, mailer, config, customs) => {
-  const unblockCodeLen = config && config.codeLength || 0
+  const unblockCodeLen = config && config.codeLength || 0;
 
   return [
     {
@@ -26,45 +26,45 @@ module.exports = (log, db, mailer, config, customs) => {
         }
       },
       handler: async function (request) {
-        log.begin('Account.SendUnblockCode', request)
+        log.begin('Account.SendUnblockCode', request);
 
-        const email = request.payload.email
-        let emailRecord
+        const email = request.payload.email;
+        let emailRecord;
 
-        request.validateMetricsContext()
+        request.validateMetricsContext();
 
-        const { flowId, flowBeginTime } = await request.app.metricsContext
+        const { flowId, flowBeginTime } = await request.app.metricsContext;
 
         return customs.check(request, email, 'sendUnblockCode')
           .then(lookupAccount)
           .then(createUnblockCode)
           .then(mailUnblockCode)
           .then(() => request.emitMetricsEvent('account.login.sentUnblockCode'))
-          .then(() => { return {} })
+          .then(() => { return {}; });
 
         function lookupAccount () {
           return db.accountRecord(email)
             .then(record => {
-              emailRecord = record
-              return record.uid
-            })
+              emailRecord = record;
+              return record.uid;
+            });
         }
 
         function createUnblockCode (uid) {
-          return db.createUnblockCode(uid)
+          return db.createUnblockCode(uid);
         }
 
         function mailUnblockCode (code) {
           return db.accountEmails(emailRecord.uid)
             .then(emails => {
-              const geoData = request.app.geo
+              const geoData = request.app.geo;
               const {
                 browser: uaBrowser,
                 browserVersion: uaBrowserVersion,
                 os: uaOS,
                 osVersion: uaOSVersion,
                 deviceType: uaDeviceType
-              } = request.app.ua
+              } = request.app.ua;
 
               return mailer.sendUnblockCode(emails, emailRecord, {
                 acceptLanguage: request.app.acceptLanguage,
@@ -80,8 +80,8 @@ module.exports = (log, db, mailer, config, customs) => {
                 uaOSVersion,
                 uaDeviceType,
                 uid: emailRecord.uid
-              })
-            })
+              });
+            });
         }
       }
     },
@@ -97,17 +97,17 @@ module.exports = (log, db, mailer, config, customs) => {
         }
       },
       handler: async function (request) {
-        log.begin('Account.RejectUnblockCode', request)
+        log.begin('Account.RejectUnblockCode', request);
 
-        const uid = request.payload.uid
-        const code = request.payload.unblockCode.toUpperCase()
+        const uid = request.payload.uid;
+        const code = request.payload.unblockCode.toUpperCase();
 
         return db.consumeUnblockCode(uid, code)
           .then(() => {
-            log.info('account.login.rejectedUnblockCode', { uid, unblockCode: code })
-            return {}
-          })
+            log.info('account.login.rejectedUnblockCode', { uid, unblockCode: code });
+            return {};
+          });
       }
     }
-  ]
-}
+  ];
+};

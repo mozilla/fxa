@@ -2,22 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-var path = require('path')
-var i18n = require('i18n-abide')
-var Jed = require('jed')
-var P = require('bluebird')
-var po2json = require('po2json')
-var poParseFile = P.promisify(po2json.parseFile)
+var path = require('path');
+var i18n = require('i18n-abide');
+var Jed = require('jed');
+var P = require('bluebird');
+var po2json = require('po2json');
+var poParseFile = P.promisify(po2json.parseFile);
 
-Jed.prototype.format = i18n.format
+Jed.prototype.format = i18n.format;
 
-var parseCache = {}
+var parseCache = {};
 
 function parseLocale(locale) {
   if (parseCache[locale]) {
-    return P.resolve(parseCache[locale])
+    return P.resolve(parseCache[locale]);
   }
 
   return poParseFile(
@@ -32,9 +32,9 @@ function parseLocale(locale) {
       format: 'jed'
     }
   ).then(function (parsed) {
-    parseCache[locale] = parsed
-    return parsed
-  })
+    parseCache[locale] = parsed;
+    return parsed;
+  });
 }
 
 module.exports = function (locales, defaultLanguage) {
@@ -43,38 +43,38 @@ module.exports = function (locales, defaultLanguage) {
   )
   .then(
     function (translations) {
-      var languageTranslations = {}
-      var supportedLanguages = []
+      var languageTranslations = {};
+      var supportedLanguages = [];
       for (var i = 0; i < translations.length; i++) {
-        var t = translations[i]
-        const localeMessageData = t.locale_data.messages['']
+        var t = translations[i];
+        const localeMessageData = t.locale_data.messages[''];
 
         if (localeMessageData.lang === 'ar') {
           // NOTE: there seems to be some incompatibility with Jed and Arabic plural forms from Pontoon
           // We disable plural forms manually below, we don't use them anyway. Issue #2714
-          localeMessageData.plural_forms = null
+          localeMessageData.plural_forms = null;
         }
 
-        var language = i18n.normalizeLanguage(i18n.languageFrom(localeMessageData.lang))
-        supportedLanguages.push(language)
-        var translator = new Jed(t)
-        translator.language = language
-        languageTranslations[language] = translator
+        var language = i18n.normalizeLanguage(i18n.languageFrom(localeMessageData.lang));
+        supportedLanguages.push(language);
+        var translator = new Jed(t);
+        translator.language = language;
+        languageTranslations[language] = translator;
       }
 
       return {
         getTranslator: function (acceptLanguage) {
-          return languageTranslations[getLocale(acceptLanguage)]
+          return languageTranslations[getLocale(acceptLanguage)];
         },
 
         getLocale: getLocale
-      }
+      };
 
       function getLocale (acceptLanguage) {
-        var languages = i18n.parseAcceptLanguage(acceptLanguage)
-        var bestLanguage = i18n.bestLanguage(languages, supportedLanguages, defaultLanguage)
-        return i18n.normalizeLanguage(bestLanguage)
+        var languages = i18n.parseAcceptLanguage(acceptLanguage);
+        var bestLanguage = i18n.bestLanguage(languages, supportedLanguages, defaultLanguage);
+        return i18n.normalizeLanguage(bestLanguage);
       }
     }
-  )
-}
+  );
+};

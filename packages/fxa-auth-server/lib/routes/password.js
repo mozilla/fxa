@@ -2,19 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const validators = require('./validators')
-const HEX_STRING = validators.HEX_STRING
+const validators = require('./validators');
+const HEX_STRING = validators.HEX_STRING;
 
-const butil = require('../crypto/butil')
-const error = require('../error')
-const isA = require('joi')
-const P = require('../promise')
-const random = require('../crypto/random')
-const requestHelper = require('../routes/utils/request_helper')
+const butil = require('../crypto/butil');
+const error = require('../error');
+const isA = require('joi');
+const P = require('../promise');
+const random = require('../crypto/random');
+const requestHelper = require('../routes/utils/request_helper');
 
-const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
+const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
 module.exports = function (
   log,
@@ -29,12 +29,12 @@ module.exports = function (
   config
   ) {
 
-  const totpUtils = require('../../lib/routes/utils/totp')(log, config, db)
+  const totpUtils = require('../../lib/routes/utils/totp')(log, config, db);
 
   function failVerifyAttempt(passwordForgotToken) {
     return (passwordForgotToken.failAttempt()) ?
       db.deletePasswordForgotToken(passwordForgotToken) :
-      db.updatePasswordForgotToken(passwordForgotToken)
+      db.updatePasswordForgotToken(passwordForgotToken);
   }
 
   var routes = [
@@ -50,9 +50,9 @@ module.exports = function (
         }
       },
       handler: async function (request) {
-        log.begin('Password.changeStart', request)
-        var form = request.payload
-        var oldAuthPW = form.oldAuthPW
+        log.begin('Password.changeStart', request);
+        var form = request.payload;
+        var oldAuthPW = form.oldAuthPW;
 
         return customs.check(
           request,
@@ -61,19 +61,19 @@ module.exports = function (
           .then(db.accountRecord.bind(db, form.email))
           .then(
             function (emailRecord) {
-              const password = new Password(oldAuthPW, emailRecord.authSalt, emailRecord.verifierVersion)
+              const password = new Password(oldAuthPW, emailRecord.authSalt, emailRecord.verifierVersion);
               return signinUtils.checkPassword(emailRecord, password, request.app.clientAddress)
               .then(
                 function (match) {
                   if (! match) {
-                    throw error.incorrectPassword(emailRecord.email, form.email)
+                    throw error.incorrectPassword(emailRecord.email, form.email);
                   }
                   var password = new Password(
                     oldAuthPW,
                     emailRecord.authSalt,
                     emailRecord.verifierVersion
-                  )
-                  return password.unwrap(emailRecord.wrapWrapKb)
+                  );
+                  return password.unwrap(emailRecord.wrapWrapKb);
                 }
               )
               .then(
@@ -96,22 +96,22 @@ module.exports = function (
                           return {
                             keyFetchToken: keyFetchToken,
                             passwordChangeToken: passwordChangeToken
-                          }
+                          };
                         }
-                      )
+                      );
                     }
-                  )
+                  );
                 }
-              )
+              );
             },
             function (err) {
               if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
                 customs.flag(request.app.clientAddress, {
                   email: form.email,
                   errno: err.errno
-                })
+                });
               }
-              throw err
+              throw err;
             }
           )
           .then(
@@ -120,10 +120,10 @@ module.exports = function (
                   keyFetchToken: tokens.keyFetchToken.data,
                   passwordChangeToken: tokens.passwordChangeToken.data,
                   verified: tokens.keyFetchToken.emailVerified
-             }
+             };
 
             }
-          )
+          );
       }
     },
     {
@@ -145,15 +145,15 @@ module.exports = function (
         }
       },
       handler: async function (request) {
-        log.begin('Password.changeFinish', request)
-        var passwordChangeToken = request.auth.credentials
-        var authPW = request.payload.authPW
-        var wrapKb = request.payload.wrapKb
-        var sessionTokenId = request.payload.sessionToken
-        var wantsKeys = requestHelper.wantsKeys(request)
-        const ip = request.app.clientAddress
+        log.begin('Password.changeFinish', request);
+        var passwordChangeToken = request.auth.credentials;
+        var authPW = request.payload.authPW;
+        var wrapKb = request.payload.wrapKb;
+        var sessionTokenId = request.payload.sessionToken;
+        var wantsKeys = requestHelper.wantsKeys(request);
+        const ip = request.app.clientAddress;
         var account, verifyHash, sessionToken, keyFetchToken, verifiedStatus,
-          devicesToNotify, originatingDeviceId, hasTotp = false
+          devicesToNotify, originatingDeviceId, hasTotp = false;
 
         return checkTotpToken()
           .then(getSessionVerificationStatus)
@@ -162,21 +162,21 @@ module.exports = function (
           .then(notifyAccount)
           .then(createSessionToken)
           .then(createKeyFetchToken)
-          .then(createResponse)
+          .then(createResponse);
 
         function checkTotpToken() {
           return totpUtils.hasTotpToken(passwordChangeToken)
             .then((result) => {
-              hasTotp = result
+              hasTotp = result;
 
               // Currently, users that have a TOTP token must specify a sessionTokenId to complete the
               // password change process. While the `sessionTokenId` is optional, we require it
               // in the case of TOTP because we want to check that session has been verified
               // by TOTP.
               if (result && ! sessionTokenId) {
-                throw error.unverifiedSession()
+                throw error.unverifiedSession();
               }
-            })
+            });
         }
 
         function getSessionVerificationStatus() {
@@ -184,20 +184,20 @@ module.exports = function (
             return db.sessionToken(sessionTokenId)
               .then(
                 function (tokenData) {
-                  verifiedStatus = tokenData.tokenVerified
+                  verifiedStatus = tokenData.tokenVerified;
                   if (tokenData.deviceId) {
-                    originatingDeviceId = tokenData.deviceId
+                    originatingDeviceId = tokenData.deviceId;
                   }
 
                   if (hasTotp && tokenData.authenticatorAssuranceLevel <= 1) {
-                    throw error.unverifiedSession()
+                    throw error.unverifiedSession();
                   }
                 }
-              )
+              );
           } else {
             // Don't create a verified session unless they already had one.
-            verifiedStatus = false
-            return P.resolve()
+            verifiedStatus = false;
+            return P.resolve();
           }
         }
 
@@ -205,33 +205,33 @@ module.exports = function (
           // We fetch the devices to notify before changePassword() because
           // db.resetAccount() deletes all the devices saved in the account.
           return request.app.devices.then(devices => {
-            devicesToNotify = devices
+            devicesToNotify = devices;
             // If the originating sessionToken belongs to a device,
             // do not send the notification to that device. It will
             // get informed about the change via WebChannel message.
             if (originatingDeviceId) {
-              devicesToNotify = devicesToNotify.filter(d => (d.id !== originatingDeviceId))
+              devicesToNotify = devicesToNotify.filter(d => (d.id !== originatingDeviceId));
             }
-          })
+          });
         }
 
         function changePassword() {
-          let authSalt, password
+          let authSalt, password;
           return random.hex(32)
             .then(hex => {
-              authSalt = hex
-              password = new Password(authPW, authSalt, verifierVersion)
-              return db.deletePasswordChangeToken(passwordChangeToken)
+              authSalt = hex;
+              password = new Password(authPW, authSalt, verifierVersion);
+              return db.deletePasswordChangeToken(passwordChangeToken);
             })
             .then(
               function () {
-                return password.verifyHash()
+                return password.verifyHash();
               }
             )
             .then(
               function (hash) {
-                verifyHash = hash
-                return password.wrap(wrapKb)
+                verifyHash = hash;
+                return password.wrap(wrapKb);
               }
             )
             .then(
@@ -245,7 +245,7 @@ module.exports = function (
                     wrapWrapKb: wrapWrapKb,
                     verifierVersion: password.version
                   }
-                )
+                );
               }
             )
             .then(
@@ -255,42 +255,42 @@ module.exports = function (
                 })
                 .then(
                   function () {
-                    return result
+                    return result;
                   }
-                )
+                );
               }
-            )
+            );
         }
 
         function notifyAccount() {
           if (devicesToNotify) {
             // Notify the devices that the account has changed.
-            push.notifyPasswordChanged(passwordChangeToken.uid, devicesToNotify)
+            push.notifyPasswordChanged(passwordChangeToken.uid, devicesToNotify);
           }
 
           return db.account(passwordChangeToken.uid)
             .then(
               function (accountData) {
-                account = accountData
+                account = accountData;
 
                 log.notifyAttachedServices('passwordChange', request, {
                   uid: passwordChangeToken.uid,
                   iss: config.domain,
                   generation: account.verifierSetAt
-                })
-                return db.accountEmails(passwordChangeToken.uid)
+                });
+                return db.accountEmails(passwordChangeToken.uid);
               }
             )
             .then(
               function (emails) {
-                const geoData = request.app.geo
+                const geoData = request.app.geo;
                 const {
                   browser: uaBrowser,
                   browserVersion: uaBrowserVersion,
                   os: uaOS,
                   osVersion: uaOSVersion,
                   deviceType: uaDeviceType
-                } = request.app.ua
+                } = request.app.ua;
 
                 return mailer.sendPasswordChangedNotification(emails, account, {
                   acceptLanguage: request.app.acceptLanguage,
@@ -309,17 +309,17 @@ module.exports = function (
                     // and pretend everything worked.
                     log.trace('Password.changeFinish.sendPasswordChangedNotification.error', {
                       error: e
-                    })
-                  })
+                    });
+                  });
               }
-            )
+            );
         }
 
         function createSessionToken() {
           return P.resolve()
             .then(() => {
               if (! verifiedStatus) {
-                return random.hex(16)
+                return random.hex(16);
               }
             })
             .then(maybeToken => {
@@ -330,7 +330,7 @@ module.exports = function (
                 osVersion: uaOSVersion,
                 deviceType: uaDeviceType,
                 formFactor: uaFormFactor
-              } = request.app.ua
+              } = request.app.ua;
 
               // Create a sessionToken with the verification status of the current session
               const sessionTokenOptions = {
@@ -347,15 +347,15 @@ module.exports = function (
                 uaOSVersion,
                 uaDeviceType,
                 uaFormFactor
-              }
+              };
 
-              return db.createSessionToken(sessionTokenOptions)
+              return db.createSessionToken(sessionTokenOptions);
             })
             .then(
               function (result) {
-                sessionToken = result
+                sessionToken = result;
               }
-            )
+            );
         }
 
         function createKeyFetchToken() {
@@ -370,9 +370,9 @@ module.exports = function (
             })
             .then(
               function (result) {
-                keyFetchToken = result
+                keyFetchToken = result;
               }
-            )
+            );
           }
         }
 
@@ -380,7 +380,7 @@ module.exports = function (
           // If no sessionToken, this could be a legacy client
           // attempting to change password, return legacy response.
           if (! sessionTokenId) {
-            return {}
+            return {};
           }
 
           var response = {
@@ -388,13 +388,13 @@ module.exports = function (
             sessionToken: sessionToken.data,
             verified: sessionToken.emailVerified && sessionToken.tokenVerified,
             authAt: sessionToken.lastAuthAt()
-          }
+          };
 
           if (wantsKeys) {
-            response.keyFetchToken = keyFetchToken.data
+            response.keyFetchToken = keyFetchToken.data;
           }
 
-          return response
+          return response;
         }
       }
     },
@@ -425,24 +425,24 @@ module.exports = function (
         }
       },
       handler: async function (request) {
-        log.begin('Password.forgotSend', request)
-        var email = request.payload.email
-        var service = request.payload.service || request.query.service
-        const ip = request.app.clientAddress
+        log.begin('Password.forgotSend', request);
+        var email = request.payload.email;
+        var service = request.payload.service || request.query.service;
+        const ip = request.app.clientAddress;
 
-        request.validateMetricsContext()
+        request.validateMetricsContext();
 
-        let flowCompleteSignal
+        let flowCompleteSignal;
         if (requestHelper.wantsKeys(request)) {
-          flowCompleteSignal = 'account.signed'
+          flowCompleteSignal = 'account.signed';
         } else {
-          flowCompleteSignal = 'account.reset'
+          flowCompleteSignal = 'account.reset';
         }
-        request.setMetricsFlowCompleteSignal(flowCompleteSignal)
+        request.setMetricsFlowCompleteSignal(flowCompleteSignal);
 
-        const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext
+        const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext;
 
-        let passwordForgotToken
+        let passwordForgotToken;
 
         return P.all([
           request.emitMetricsEvent('password.forgot.send_code.start'),
@@ -451,29 +451,29 @@ module.exports = function (
           .then(db.accountRecord.bind(db, email))
           .then(accountRecord => {
             if (accountRecord.primaryEmail.normalizedEmail !== email.toLowerCase()) {
-              throw error.cannotResetPasswordWithSecondaryEmail()
+              throw error.cannotResetPasswordWithSecondaryEmail();
             }
             // The token constructor sets createdAt from its argument.
             // Clobber the timestamp to prevent prematurely expired tokens.
-            accountRecord.createdAt = undefined
-            return db.createPasswordForgotToken(accountRecord)
+            accountRecord.createdAt = undefined;
+            return db.createPasswordForgotToken(accountRecord);
           })
           .then(result => {
-            passwordForgotToken = result
+            passwordForgotToken = result;
             return P.all([
               request.stashMetricsContext(passwordForgotToken),
               db.accountEmails(passwordForgotToken.uid)
-            ])
+            ]);
           })
           .then(([_, emails]) => {
-            const geoData = request.app.geo
+            const geoData = request.app.geo;
             const {
               browser: uaBrowser,
               browserVersion: uaBrowserVersion,
               os: uaOS,
               osVersion: uaOSVersion,
               deviceType: uaDeviceType
-            } = request.app.ua
+            } = request.app.ua;
 
             return mailer.sendRecoveryCode(emails, passwordForgotToken, {
               token: passwordForgotToken,
@@ -494,7 +494,7 @@ module.exports = function (
               uaOSVersion,
               uaDeviceType,
               uid: passwordForgotToken.uid
-            })
+            });
           })
           .then(() => request.emitMetricsEvent('password.forgot.send_code.completed'))
           .then(() => ({
@@ -502,7 +502,7 @@ module.exports = function (
             ttl: passwordForgotToken.ttl(),
             codeLength: passwordForgotToken.passCode.length,
             tries: passwordForgotToken.tries
-          }))
+          }));
       }
     },
     {
@@ -533,12 +533,12 @@ module.exports = function (
         }
       },
       handler: async function (request) {
-        log.begin('Password.forgotResend', request)
-        var passwordForgotToken = request.auth.credentials
-        var service = request.payload.service || request.query.service
-        const ip = request.app.clientAddress
+        log.begin('Password.forgotResend', request);
+        var passwordForgotToken = request.auth.credentials;
+        var service = request.payload.service || request.query.service;
+        const ip = request.app.clientAddress;
 
-        const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext
+        const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext;
 
         return P.all([
           request.emitMetricsEvent('password.forgot.resend_code.start'),
@@ -548,14 +548,14 @@ module.exports = function (
             function () {
               return db.accountEmails(passwordForgotToken.uid)
                 .then(emails => {
-                  const geoData = request.app.geo
+                  const geoData = request.app.geo;
                   const {
                     browser: uaBrowser,
                     browserVersion: uaBrowserVersion,
                     os: uaOS,
                     osVersion: uaOSVersion,
                     deviceType: uaDeviceType
-                  } = request.app.ua
+                  } = request.app.ua;
 
                   return mailer.sendRecoveryCode(emails, passwordForgotToken, {
                     code: passwordForgotToken.passCode,
@@ -576,13 +576,13 @@ module.exports = function (
                     uaOSVersion,
                     uaDeviceType,
                     uid: passwordForgotToken.uid
-                  })
-                })
+                  });
+                });
             }
           )
           .then(
             function(){
-              return request.emitMetricsEvent('password.forgot.resend_code.completed')
+              return request.emitMetricsEvent('password.forgot.resend_code.completed');
             }
           )
           .then(
@@ -592,9 +592,9 @@ module.exports = function (
                     ttl: passwordForgotToken.ttl(),
                     codeLength: passwordForgotToken.passCode.length,
                     tries: passwordForgotToken.tries
-                }
+                };
             }
-          )
+          );
       }
     },
     {
@@ -617,14 +617,14 @@ module.exports = function (
         }
       },
       handler: async function (request) {
-        log.begin('Password.forgotVerify', request)
-        var passwordForgotToken = request.auth.credentials
-        var code = request.payload.code
-        const accountResetWithRecoveryKey = request.payload.accountResetWithRecoveryKey
+        log.begin('Password.forgotVerify', request);
+        var passwordForgotToken = request.auth.credentials;
+        var code = request.payload.code;
+        const accountResetWithRecoveryKey = request.payload.accountResetWithRecoveryKey;
 
-        const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext
+        const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext;
 
-        let accountResetToken
+        let accountResetToken;
 
         return P.all([
           request.emitMetricsEvent('password.forgot.verify_code.start'),
@@ -632,7 +632,7 @@ module.exports = function (
         ])
           .then(() => {
             if (butil.buffersAreEqual(passwordForgotToken.passCode, code) && passwordForgotToken.ttl() > 0) {
-              return db.forgotPasswordVerified(passwordForgotToken)
+              return db.forgotPasswordVerified(passwordForgotToken);
             }
 
             return failVerifyAttempt(passwordForgotToken)
@@ -640,22 +640,22 @@ module.exports = function (
                 throw error.invalidVerificationCode({
                   tries: passwordForgotToken.tries,
                   ttl: passwordForgotToken.ttl()
-                })
-              })
+                });
+              });
           })
           .then(result => {
-            accountResetToken = result
+            accountResetToken = result;
             return P.all([
               request.propagateMetricsContext(passwordForgotToken, accountResetToken),
               db.accountEmails(passwordForgotToken.uid)
-            ])
+            ]);
           })
           .then(([_, emails]) => {
             if (accountResetWithRecoveryKey) {
               // To prevent multiple password change emails being sent to a user,
               // we check for a flag to see if this is a reset using an account recovery key.
               // If it is, then the notification email will be sent in `/account/reset`
-              return P.resolve()
+              return P.resolve();
             }
 
             return mailer.sendPasswordResetNotification(
@@ -669,12 +669,12 @@ module.exports = function (
                 flowBeginTime,
                 uid: passwordForgotToken.uid
               }
-            )
+            );
           })
           .then(() => request.emitMetricsEvent('password.forgot.verify_code.completed'))
           .then(() => ({
             accountResetToken: accountResetToken.data
-          }))
+          }));
       }
     },
     {
@@ -692,16 +692,16 @@ module.exports = function (
         }
       },
       handler: async function (request) {
-        log.begin('Password.forgotStatus', request)
-        var passwordForgotToken = request.auth.credentials
+        log.begin('Password.forgotStatus', request);
+        var passwordForgotToken = request.auth.credentials;
         return {
             tries: passwordForgotToken.tries,
             ttl: passwordForgotToken.ttl()
-        }
+        };
 
       }
     }
-  ]
+  ];
 
-  return routes
-}
+  return routes;
+};

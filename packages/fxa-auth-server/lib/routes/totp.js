@@ -2,36 +2,36 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const errors = require('../error')
-const validators = require('./validators')
-const isA = require('joi')
-const P = require('../promise')
-const otplib = require('otplib')
-const qrcode = require('qrcode')
-const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
+const errors = require('../error');
+const validators = require('./validators');
+const isA = require('joi');
+const P = require('../promise');
+const otplib = require('otplib');
+const qrcode = require('qrcode');
+const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
 module.exports = (log, db, mailer, customs, config) => {
 
-  const totpUtils = require('../../lib/routes/utils/totp')(log, config, db)
+  const totpUtils = require('../../lib/routes/utils/totp')(log, config, db);
 
   // Default options for TOTP
   otplib.authenticator.options = {
     encoding: 'hex',
     step: config.step,
     window: config.window
-  }
+  };
 
   // Currently, QR codes are rendered with the highest possible
   // error correction, which should in theory allow clients to
   // scan the image better.
   // Ref: https://github.com/soldair/node-qrcode#error-correction-level
-  const qrCodeOptions = {errorCorrectionLevel: 'H'}
+  const qrCodeOptions = {errorCorrectionLevel: 'H'};
 
-  const RECOVERY_CODE_COUNT = config.recoveryCodes && config.recoveryCodes.count || 8
+  const RECOVERY_CODE_COUNT = config.recoveryCodes && config.recoveryCodes.count || 8;
 
-  P.promisify(qrcode.toDataURL)
+  P.promisify(qrcode.toDataURL);
 
   return [
     {
@@ -54,49 +54,49 @@ module.exports = (log, db, mailer, customs, config) => {
         }
       },
       handler: async function (request) {
-        log.begin('totp.create', request)
+        log.begin('totp.create', request);
 
-        let response
-        let secret
-        const sessionToken = request.auth.credentials
-        const uid = sessionToken.uid
-        const authenticator = new otplib.authenticator.Authenticator()
-        authenticator.options = otplib.authenticator.options
+        let response;
+        let secret;
+        const sessionToken = request.auth.credentials;
+        const uid = sessionToken.uid;
+        const authenticator = new otplib.authenticator.Authenticator();
+        authenticator.options = otplib.authenticator.options;
 
         return customs.check(request, sessionToken.email, 'totpCreate')
           .then(() => {
-            secret = authenticator.generateSecret()
-            return createTotpToken()
+            secret = authenticator.generateSecret();
+            return createTotpToken();
           })
           .then(emitMetrics)
           .then(createResponse)
-          .then(() => response)
+          .then(() => response);
 
         function createTotpToken() {
           if (sessionToken.tokenVerificationId) {
-            throw errors.unverifiedSession()
+            throw errors.unverifiedSession();
           }
 
-          return db.createTotpToken(uid, secret, 0)
+          return db.createTotpToken(uid, secret, 0);
         }
 
         function createResponse() {
-          const otpauth = authenticator.keyuri(sessionToken.email, config.serviceName, secret)
+          const otpauth = authenticator.keyuri(sessionToken.email, config.serviceName, secret);
 
           return qrcode.toDataURL(otpauth, qrCodeOptions)
             .then((qrCodeUrl) => {
               response = {
                 qrCodeUrl,
                 secret
-              }
-            })
+              };
+            });
         }
 
         function emitMetrics() {
           log.info('totpToken.created', {
             uid: uid
-          })
-          return request.emitMetricsEvent('totpToken.created', {uid: uid})
+          });
+          return request.emitMetricsEvent('totpToken.created', {uid: uid});
         }
       }
     },
@@ -110,47 +110,47 @@ module.exports = (log, db, mailer, customs, config) => {
         response: {}
       },
       handler: async function (request) {
-        log.begin('totp.destroy', request)
+        log.begin('totp.destroy', request);
 
-        const sessionToken = request.auth.credentials
-        const uid = sessionToken.uid
-        let hasEnabledToken = false
+        const sessionToken = request.auth.credentials;
+        const uid = sessionToken.uid;
+        let hasEnabledToken = false;
 
         return customs.check(request, sessionToken.email, 'totpDestroy')
           .then(checkTotpToken)
           .then(deleteTotpToken)
           .then(sendEmailNotification)
-          .then(() => { return {} })
+          .then(() => { return {}; });
 
         function checkTotpToken() {
           // If a TOTP token is not verified, we should be able to safely delete regardless of session
           // verification state.
           return totpUtils.hasTotpToken({uid})
-            .then((result) => hasEnabledToken = result)
+            .then((result) => hasEnabledToken = result);
         }
 
         function deleteTotpToken() {
           if (hasEnabledToken && (sessionToken.tokenVerificationId || sessionToken.authenticatorAssuranceLevel <= 1)) {
-            throw errors.unverifiedSession()
+            throw errors.unverifiedSession();
           }
 
           return db.deleteTotpToken(uid)
             .then(() => {
               return log.notifyAttachedServices('profileDataChanged', request, {
                 uid: sessionToken.uid
-              })
-            })
+              });
+            });
         }
 
         function sendEmailNotification() {
           if (! hasEnabledToken) {
-            return
+            return;
           }
 
           return db.account(sessionToken.uid)
             .then((account) => {
-              const geoData = request.app.geo
-              const ip = request.app.clientAddress
+              const geoData = request.app.geo;
+              const ip = request.app.clientAddress;
               const emailOptions = {
                 acceptLanguage: request.app.acceptLanguage,
                 ip: ip,
@@ -162,10 +162,10 @@ module.exports = (log, db, mailer, customs, config) => {
                 uaOSVersion: request.app.ua.osVersion,
                 uaDeviceType: request.app.ua.deviceType,
                 uid: sessionToken.uid
-              }
+              };
 
-              mailer.sendPostRemoveTwoStepAuthNotification(account.emails, account, emailOptions)
-            })
+              mailer.sendPostRemoveTwoStepAuthNotification(account.emails, account, emailOptions);
+            });
         }
       }
     },
@@ -183,22 +183,22 @@ module.exports = (log, db, mailer, customs, config) => {
         }
       },
       handler: async function (request) {
-        log.begin('totp.exists', request)
+        log.begin('totp.exists', request);
 
-        const sessionToken = request.auth.credentials
-        let exists = false
+        const sessionToken = request.auth.credentials;
+        let exists = false;
 
         return getTotpToken()
-          .then(() => { return {exists} })
+          .then(() => { return {exists}; });
 
         function getTotpToken() {
           return P.resolve()
             .then(() => {
               if (sessionToken.tokenVerificationId) {
-                throw errors.unverifiedSession()
+                throw errors.unverifiedSession();
               }
 
-              return db.totpToken(sessionToken.uid)
+              return db.totpToken(sessionToken.uid);
             })
 
             .then((token) => {
@@ -208,18 +208,18 @@ module.exports = (log, db, mailer, customs, config) => {
               if (! token.verified) {
                 return db.deleteTotpToken(sessionToken.uid)
                   .then(() => {
-                    exists = false
-                  })
+                    exists = false;
+                  });
               } else {
-                exists = true
+                exists = true;
               }
             }, (err) => {
               if (err.errno === errors.ERRNO.TOTP_TOKEN_NOT_FOUND) {
-                exists = false
-                return
+                exists = false;
+                return;
               }
-              throw err
-            })
+              throw err;
+            });
         }
       }
     },
@@ -244,13 +244,13 @@ module.exports = (log, db, mailer, customs, config) => {
         }
       },
       handler: async function (request) {
-        log.begin('session.verify.totp', request)
+        log.begin('session.verify.totp', request);
 
-        const code = request.payload.code
-        const sessionToken = request.auth.credentials
-        const uid = sessionToken.uid
-        const email = sessionToken.email
-        let sharedSecret, isValidCode, tokenVerified, recoveryCodes
+        const code = request.payload.code;
+        const sessionToken = request.auth.credentials;
+        const uid = sessionToken.uid;
+        const email = sessionToken.email;
+        let sharedSecret, isValidCode, tokenVerified, recoveryCodes;
 
         return customs.check(request, email, 'verifyTotpCode')
           .then(getTotpToken)
@@ -263,27 +263,27 @@ module.exports = (log, db, mailer, customs, config) => {
           .then(() => {
             const response = {
               success: isValidCode
-            }
+            };
 
             if (recoveryCodes) {
-              response.recoveryCodes = recoveryCodes
+              response.recoveryCodes = recoveryCodes;
             }
 
-            return response
-          })
+            return response;
+          });
 
         function getTotpToken() {
           return db.totpToken(sessionToken.uid)
             .then((token) => {
-              sharedSecret = token.sharedSecret
-              tokenVerified = token.verified
-            })
+              sharedSecret = token.sharedSecret;
+              tokenVerified = token.verified;
+            });
         }
 
         function verifyTotpCode() {
-          const authenticator = new otplib.authenticator.Authenticator()
-          authenticator.options = Object.assign({}, otplib.authenticator.options, {secret: sharedSecret})
-          isValidCode = authenticator.check(code, sharedSecret)
+          const authenticator = new otplib.authenticator.Authenticator();
+          authenticator.options = Object.assign({}, otplib.authenticator.options, {secret: sharedSecret});
+          isValidCode = authenticator.check(code, sharedSecret);
         }
 
         // Once a valid TOTP code has been detected, the token becomes verified
@@ -296,8 +296,8 @@ module.exports = (log, db, mailer, customs, config) => {
             }).then(() => {
               return log.notifyAttachedServices('profileDataChanged', request, {
                 uid: sessionToken.uid
-              })
-            })
+              });
+            });
           }
         }
 
@@ -305,14 +305,14 @@ module.exports = (log, db, mailer, customs, config) => {
         function replaceRecoveryCodes() {
           if (isValidCode && ! tokenVerified) {
             return db.replaceRecoveryCodes(uid, RECOVERY_CODE_COUNT)
-              .then((result) => recoveryCodes = result)
+              .then((result) => recoveryCodes = result);
           }
         }
 
         // If a valid code was sent, this verifies the session using the `totp-2fa` method.
         function verifySession() {
           if (isValidCode && sessionToken.authenticatorAssuranceLevel <= 1) {
-            return db.verifyTokensWithMethod(sessionToken.id, 'totp-2fa')
+            return db.verifyTokensWithMethod(sessionToken.id, 'totp-2fa');
           }
         }
 
@@ -320,22 +320,22 @@ module.exports = (log, db, mailer, customs, config) => {
           if (isValidCode) {
             log.info('totp.verified', {
               uid: uid
-            })
-            request.emitMetricsEvent('totpToken.verified', {uid: uid})
+            });
+            request.emitMetricsEvent('totpToken.verified', {uid: uid});
           } else {
             log.info('totp.unverified', {
               uid: uid
-            })
-            request.emitMetricsEvent('totpToken.unverified', {uid: uid})
+            });
+            request.emitMetricsEvent('totpToken.unverified', {uid: uid});
           }
         }
 
         function sendEmailNotification() {
           return db.account(sessionToken.uid)
             .then((account) => {
-              const geoData = request.app.geo
-              const ip = request.app.clientAddress
-              const service = request.payload.service || request.query.service
+              const geoData = request.app.geo;
+              const ip = request.app.clientAddress;
+              const service = request.payload.service || request.query.service;
               const emailOptions = {
                 acceptLanguage: request.app.acceptLanguage,
                 ip: ip,
@@ -348,13 +348,13 @@ module.exports = (log, db, mailer, customs, config) => {
                 uaOSVersion: request.app.ua.osVersion,
                 uaDeviceType: request.app.ua.deviceType,
                 uid: sessionToken.uid
-              }
+              };
 
               // Check to see if this token was just verified, if it is, then this means
               // the user has enabled two step authentication, otherwise send new device
               // login email.
               if (isValidCode && ! tokenVerified) {
-                return mailer.sendPostAddTwoStepAuthNotification(account.emails, account, emailOptions)
+                return mailer.sendPostAddTwoStepAuthNotification(account.emails, account, emailOptions);
               }
 
               // All accounts that have a TOTP token, force the session to be verified, therefore
@@ -362,12 +362,12 @@ module.exports = (log, db, mailer, customs, config) => {
               // login email. Instead, lets perform a basic check that the service is `sync`, otherwise
               // don't send.
               if (isValidCode && service === 'sync') {
-                return mailer.sendNewDeviceLoginNotification(account.emails, account, emailOptions)
+                return mailer.sendNewDeviceLoginNotification(account.emails, account, emailOptions);
               }
-            })
+            });
         }
       }
     }
-  ]
-}
+  ];
+};
 

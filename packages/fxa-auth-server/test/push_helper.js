@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-var WebSocket = require('ws')
-var P = require('../lib/promise')
+var WebSocket = require('ws');
+var P = require('../lib/promise');
 
 /**
  * PushManager, helps create subscriptions against a push server
@@ -23,11 +23,11 @@ var P = require('../lib/promise')
  */
 function PushManager(options) {
   if (! options || ! options.server) {
-    throw new Error('Server is required')
+    throw new Error('Server is required');
   }
 
-  this.server = options.server
-  this.channelId = options.channelId
+  this.server = options.server;
+  this.channelId = options.channelId;
 }
 
 /**
@@ -38,9 +38,9 @@ function PushManager(options) {
  * @returns {Promise}
  */
 PushManager.prototype.getSubscription = function getSubscription() {
-  var self = this
-  var d = P.defer()
-  var ws = new WebSocket(this.server)
+  var self = this;
+  var d = P.defer();
+  var ws = new WebSocket(this.server);
 
   // Registration is a two-step handshake.
   // We send and receive a "hello" message, then send and receive a "register" message.
@@ -48,13 +48,13 @@ PushManager.prototype.getSubscription = function getSubscription() {
 
   function send(msg) {
     ws.send(JSON.stringify(msg), { mask: true }, function(err) {
-      if (err) onError(err)
-    })
+      if (err) onError(err);
+    });
   }
 
   function onError(err) {
-    d.reject(err)
-    ws.close()
+    d.reject(err);
+    ws.close();
   }
 
   var handlers = {
@@ -62,35 +62,35 @@ PushManager.prototype.getSubscription = function getSubscription() {
       send({
         messageType: 'register',
         channelID: self.channelId
-      })
+      });
     },
     'register': function(data) {
       d.resolve({
         endpoint: data.pushEndpoint
-      })
-      ws.close()
+      });
+      ws.close();
     },
     '': function(data) {
-      onError(new Error('Unexpected ws message: ' + JSON.stringify(data)))
+      onError(new Error('Unexpected ws message: ' + JSON.stringify(data)));
     }
-  }
+  };
 
   ws.on('open', function open() {
     send({
       messageType: 'hello',
       use_webpush: true
-    })
+    });
   }).on('error', function error(code, description) {
-    onError(new Error(code + description))
+    onError(new Error(code + description));
   }).on('message', function message(data, flags) {
-    data = JSON.parse(data)
+    data = JSON.parse(data);
     if (data && data.messageType) {
-      var handler = handlers[data.messageType] || handlers['']
-      handler(data)
+      var handler = handlers[data.messageType] || handlers[''];
+      handler(data);
     }
-  })
+  });
 
-  return d.promise
-}
+  return d.promise;
+};
 
-module.exports.PushManager = PushManager
+module.exports.PushManager = PushManager;

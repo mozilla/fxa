@@ -6,15 +6,15 @@
  * Shared helpers for mocking things out in the tests.
  */
 
-'use strict'
+'use strict';
 
-const assert = require('assert')
-const config = require('../config').getProperties()
-const crypto = require('crypto')
-const error = require('../lib/error')
-const knownIpLocation = require('./known-ip-location')
-const P = require('../lib/promise')
-const sinon = require('sinon')
+const assert = require('assert');
+const config = require('../config').getProperties();
+const crypto = require('crypto');
+const error = require('../lib/error');
+const knownIpLocation = require('./known-ip-location');
+const P = require('../lib/promise');
+const sinon = require('sinon');
 
 const CUSTOMS_METHOD_NAMES = [
   'check',
@@ -22,7 +22,7 @@ const CUSTOMS_METHOD_NAMES = [
   'checkIpOnly',
   'flag',
   'reset'
-]
+];
 
 const DB_METHOD_NAMES = [
   'account',
@@ -84,14 +84,14 @@ const DB_METHOD_NAMES = [
   'verifyTokens',
   'verifyTokenCode',
   'verifyTokensWithMethod'
-]
+];
 
 const OAUTHDB_METHOD_NAMES = [
   'checkRefreshToken',
   'revokeRefreshTokenById',
   'getClientInfo',
   'getScopedKeyData',
-]
+];
 
 const LOG_METHOD_NAMES = [
   'activityEvent',
@@ -104,7 +104,7 @@ const LOG_METHOD_NAMES = [
   'warn',
   'summary',
   'trace'
-]
+];
 
 const MAILER_METHOD_NAMES = [
   'sendNewDeviceLoginNotification',
@@ -126,7 +126,7 @@ const MAILER_METHOD_NAMES = [
   'sendPostAddAccountRecoveryNotification',
   'sendPostRemoveAccountRecoveryNotification',
   'sendPasswordResetAccountRecoveryNotification'
-]
+];
 
 const METRICS_CONTEXT_METHOD_NAMES = [
   'clear',
@@ -135,7 +135,7 @@ const METRICS_CONTEXT_METHOD_NAMES = [
   'setFlowCompleteSignal',
   'stash',
   'validate'
-]
+];
 
 const PUSH_METHOD_NAMES = [
   'notifyDeviceConnected',
@@ -147,12 +147,12 @@ const PUSH_METHOD_NAMES = [
   'notifyCommandReceived',
   'notifyProfileUpdated',
   'sendPush'
-]
+];
 
 const PUSHBOX_METHOD_NAMES = [
   'retrieve',
   'store'
-]
+];
 
 module.exports = {
   MOCK_PUSH_KEY: 'BDLugiRzQCANNj5KI1fAqui8ELrE7qboxzfa5K_R0wnUoJ89xY1D_SOXI_QJKNmellykaW_7U2BZ7hnrPW3A3LM',
@@ -168,33 +168,33 @@ module.exports = {
   mockPush,
   mockPushbox,
   mockRequest
-}
+};
 
 function mockCustoms (errors) {
-  errors = errors || {}
+  errors = errors || {};
 
   return mockObject(CUSTOMS_METHOD_NAMES)({
     checkAuthenticated: optionallyThrow(errors, 'checkAuthenticated'),
     checkIpOnly: optionallyThrow(errors, 'checkIpOnly')
-  })
+  });
 }
 
 function optionallyThrow (errors, methodName) {
   return sinon.spy(() => {
     if (errors[methodName]) {
-      return P.reject(errors[methodName])
+      return P.reject(errors[methodName]);
     }
-    return P.resolve()
-  })
+    return P.resolve();
+  });
 }
 
 function mockDB (data, errors) {
-  data = data || {}
-  errors = errors || {}
+  data = data || {};
+  errors = errors || {};
 
   return mockObject(DB_METHOD_NAMES)({
     account: sinon.spy((uid) => {
-      assert.ok(typeof uid === 'string')
+      assert.ok(typeof uid === 'string');
       return P.resolve({
         email: data.email,
         emailCode: data.emailCode,
@@ -204,10 +204,10 @@ function mockDB (data, errors) {
         uid: data.uid,
         verifierSetAt: Date.now(),
         wrapWrapKb: data.wrapWrapKb
-      })
+      });
     }),
     accountEmails: sinon.spy((uid) => {
-      assert.ok(typeof uid === 'string')
+      assert.ok(typeof uid === 'string');
       return P.resolve([
         {
           email: data.email || 'primary@email.com',
@@ -223,11 +223,11 @@ function mockDB (data, errors) {
           isVerified: data.secondEmailisVerified || false,
           isPrimary: false
         }
-      ])
+      ]);
     }),
     accountRecord: sinon.spy(() => {
       if (errors.emailRecord) {
-        return P.reject(errors.emailRecord)
+        return P.reject(errors.emailRecord);
       }
       return P.resolve({
         authSalt: crypto.randomBytes(32),
@@ -239,20 +239,20 @@ function mockDB (data, errors) {
         emails: [{normalizedEmail: data.email.toLowerCase(), email: data.email, isVerified: data.emailVerified, isPrimary: true}],
         kA: crypto.randomBytes(32),
         lastAuthAt: () => {
-          return Date.now()
+          return Date.now();
         },
         uid: data.uid,
         wrapWrapKb: crypto.randomBytes(32)
-      })
+      });
     }),
     consumeSigninCode: sinon.spy(() => {
       if (errors.consumeSigninCode) {
-        return P.reject(errors.consumeSigninCode)
+        return P.reject(errors.consumeSigninCode);
       }
       return P.resolve({
         email: data.email,
         flowId: data.flowId
-      })
+      });
     }),
     createAccount: sinon.spy(() => {
       return P.resolve({
@@ -262,24 +262,24 @@ function mockDB (data, errors) {
         emailVerified: data.emailVerified,
         locale: data.locale,
         wrapWrapKb: data.wrapWrapKb
-      })
+      });
     }),
     createDevice: sinon.spy((uid) => {
-      assert.ok(typeof uid === 'string')
+      assert.ok(typeof uid === 'string');
       return P.resolve(Object.keys(data.device).reduce((result, key) => {
-        result[key] = data.device[key]
-        return result
+        result[key] = data.device[key];
+        return result;
       }, {
         id: data.deviceId,
         createdAt: data.deviceCreatedAt
-      }))
+      }));
     }),
     createKeyFetchToken: sinon.spy(() => {
       return P.resolve({
         data: crypto.randomBytes(32).toString('hex'),
         id: data.keyFetchTokenId,
         uid: data.uid
-      })
+      });
     }),
     createPasswordForgotToken: sinon.spy(() => {
       return P.resolve({
@@ -288,9 +288,9 @@ function mockDB (data, errors) {
         id: data.passwordForgotTokenId,
         uid: data.uid,
         ttl: function () {
-          return data.passwordForgotTokenTTL || 100
+          return data.passwordForgotTokenTTL || 100;
         }
-      })
+      });
     }),
     createSessionToken: sinon.spy((opts) => {
       return P.resolve({
@@ -299,7 +299,7 @@ function mockDB (data, errors) {
         email: opts.email || data.email,
         emailVerified: typeof opts.emailVerified !== 'undefined' ? opts.emailVerified : data.emailVerified,
         lastAuthAt: () => {
-          return opts.createdAt || Date.now()
+          return opts.createdAt || Date.now();
         },
         id: data.sessionTokenId,
         tokenVerificationId: opts.tokenVerificationId || data.tokenVerificationId,
@@ -312,30 +312,30 @@ function mockDB (data, errors) {
         uaDeviceType: opts.uaDeviceType || data.uaDeviceType,
         uaFormFactor: opts.uaFormFactor || data.uaFormFactor,
         uid: opts.uid || data.uid
-      })
+      });
     }),
     createSigninCode: sinon.spy((uid, flowId) => {
-      assert.ok(typeof uid === 'string')
-      assert.ok(typeof flowId === 'string')
-      return P.resolve(data.signinCode || [])
+      assert.ok(typeof uid === 'string');
+      assert.ok(typeof flowId === 'string');
+      return P.resolve(data.signinCode || []);
     }),
     devices: sinon.spy((uid) => {
-      assert.ok(typeof uid === 'string')
-      return P.resolve(data.devices || [])
+      assert.ok(typeof uid === 'string');
+      return P.resolve(data.devices || []);
     }),
     device: sinon.spy((uid, deviceId) => {
-      assert.ok(typeof uid === 'string')
-      assert.ok(typeof deviceId === 'string')
-      const device = data.devices.find(d => d.id === deviceId)
-      assert.ok(device)
-      return P.resolve(device)
+      assert.ok(typeof uid === 'string');
+      assert.ok(typeof deviceId === 'string');
+      const device = data.devices.find(d => d.id === deviceId);
+      assert.ok(device);
+      return P.resolve(device);
     }),
     deleteSessionToken: sinon.spy(() => {
-      return P.resolve()
+      return P.resolve();
     }),
     emailRecord: sinon.spy(() => {
       if (errors.emailRecord) {
-        return P.reject(errors.emailRecord)
+        return P.reject(errors.emailRecord);
       }
       return P.resolve({
         authSalt: crypto.randomBytes(32).toString('hex'),
@@ -347,42 +347,42 @@ function mockDB (data, errors) {
         emails: [{normalizedEmail: data.email.toLowerCase(), email: data.email, isVerified: data.emailVerified, isPrimary: true}],
         kA: crypto.randomBytes(32).toString('hex'),
         lastAuthAt: () => {
-          return Date.now()
+          return Date.now();
         },
         uid: data.uid,
         wrapWrapKb: crypto.randomBytes(32).toString('hex')
-      })
+      });
     }),
     forgotPasswordVerified: sinon.spy(() => {
-      return P.resolve(data.accountResetToken)
+      return P.resolve(data.accountResetToken);
     }),
     getSecondaryEmail: sinon.spy(() => {
-      return P.reject(error.unknownSecondaryEmail())
+      return P.reject(error.unknownSecondaryEmail());
     }),
     getRecoveryKey: sinon.spy(() => {
       if (data.recoveryKeyIdInvalid) {
-        return P.reject(error.recoveryKeyInvalid())
+        return P.reject(error.recoveryKeyInvalid());
       }
 
       return P.resolve({
         recoveryData: data.recoveryData
-      })
+      });
     }),
     recoveryKeyExists: sinon.spy(() => {
       return P.resolve({
         exists: !! data.recoveryData
-      })
+      });
     }),
     securityEvents: sinon.spy(() => {
-      return P.resolve([])
+      return P.resolve([]);
     }),
     sessions: sinon.spy((uid) => {
-      assert.ok(typeof uid === 'string')
-      return P.resolve(data.sessions || [])
+      assert.ok(typeof uid === 'string');
+      return P.resolve(data.sessions || []);
     }),
     updateDevice: sinon.spy((uid, device) => {
-      assert.ok(typeof uid === 'string')
-      return P.resolve(device)
+      assert.ok(typeof uid === 'string');
+      return P.resolve(device);
     }),
     sessionToken: sinon.spy(() => {
       const res = {
@@ -395,95 +395,95 @@ function mockDB (data, errors) {
         uaOSVersion: data.uaOSVersion,
         uaDeviceType: data.uaDeviceType,
         expired: () => data.expired || false
-      }
+      };
       // SessionToken is a class, and tokenTypeID is a class attribute. Fake that.
-      res.constructor.tokenTypeID = 'sessionToken'
+      res.constructor.tokenTypeID = 'sessionToken';
       if (data.devices && data.devices.length > 0) {
         Object.keys(data.devices[0]).forEach(key => {
-          var keyOnSession = 'device' + key.charAt(0).toUpperCase() + key.substr(1)
-          res[keyOnSession] = data.devices[0][key]
-        })
+          var keyOnSession = 'device' + key.charAt(0).toUpperCase() + key.substr(1);
+          res[keyOnSession] = data.devices[0][key];
+        });
       }
-      return P.resolve(res)
+      return P.resolve(res);
     }),
     verifyTokens: optionallyThrow(errors, 'verifyTokens'),
     verifyTokenCode: sinon.spy(() => {
       if (errors.verifyTokenCode) {
-        return P.reject(errors.verifyTokenCode)
+        return P.reject(errors.verifyTokenCode);
       }
-      return P.resolve({})
+      return P.resolve({});
     }),
     replaceRecoveryCodes: sinon.spy(() => {
-      return P.resolve(['12312312', '12312312'])
+      return P.resolve(['12312312', '12312312']);
     })
-  })
+  });
 }
 
 function mockOAuthDB(methods) {
   // For OAuthDB, the mock object needs to expose a `.api` property
   // with route validation info, so we load the module directly.
-  const log = methods.log || module.exports.mockLog()
-  const config = methods.config || { oauth: { url: 'http://mocked-oauth-url.net' } }
-  return mockObject(OAUTHDB_METHOD_NAMES, require('../lib/oauthdb')(log, config))(methods)
+  const log = methods.log || module.exports.mockLog();
+  const config = methods.config || { oauth: { url: 'http://mocked-oauth-url.net' } };
+  return mockObject(OAUTHDB_METHOD_NAMES, require('../lib/oauthdb')(log, config))(methods);
 }
 
 function mockObject (methodNames, baseObj) {
   return methods => {
-    methods = methods || {}
+    methods = methods || {};
     return methodNames.reduce((object, name) => {
-      object[name] = methods[name] || sinon.spy(() => P.resolve())
-      return object
-    }, baseObj || {})
-  }
+      object[name] = methods[name] || sinon.spy(() => P.resolve());
+      return object;
+    }, baseObj || {});
+  };
 }
 
 function mockPush (methods) {
-  const push = Object.assign({}, methods)
+  const push = Object.assign({}, methods);
   PUSH_METHOD_NAMES.forEach((name) => {
     if (! push[name]) {
-      push[name] = sinon.spy(() => P.resolve())
+      push[name] = sinon.spy(() => P.resolve());
     }
-  })
-  return push
+  });
+  return push;
 }
 
 function mockPushbox (methods) {
-  const pushbox = Object.assign({}, methods)
+  const pushbox = Object.assign({}, methods);
   PUSHBOX_METHOD_NAMES.forEach((name) => {
     if (! pushbox[name]) {
-      pushbox[name] = sinon.spy(() => P.resolve())
+      pushbox[name] = sinon.spy(() => P.resolve());
     }
-  })
-  return pushbox
+  });
+  return pushbox;
 }
 
 function mockDevices (data, errors) {
-  data = data || {}
-  errors = errors || {}
+  data = data || {};
+  errors = errors || {};
 
   return {
     isSpuriousUpdate: sinon.spy(() => data.spurious || false),
     upsert: sinon.spy(() => {
       if (errors.upsert) {
-        return P.reject(errors.upsert)
+        return P.reject(errors.upsert);
       }
       return P.resolve({
         id: data.deviceId || crypto.randomBytes(16).toString('hex'),
         name: data.deviceName || 'mock device name',
         type: data.deviceType || 'desktop'
-      })
+      });
     }),
     synthesizeName: sinon.spy(() => {
-      return data.deviceName || null
+      return data.deviceName || null;
     })
-  }
+  };
 }
 
 function mockMetricsContext (methods) {
-  methods = methods || {}
+  methods = methods || {};
   return mockObject(METRICS_CONTEXT_METHOD_NAMES)({
     gather: methods.gather || sinon.spy(function (data) {
-      const time = Date.now()
+      const time = Date.now();
       return P.resolve()
         .then(() => {
           if (this.payload && this.payload.metricsContext) {
@@ -501,38 +501,38 @@ function mockMetricsContext (methods) {
               utm_medium: this.payload.metricsContext.utmMedium,
               utm_source: this.payload.metricsContext.utmSource,
               utm_term: this.payload.metricsContext.utmTerm
-            })
+            });
           }
 
-          return data
-        })
+          return data;
+        });
     }),
 
     setFlowCompleteSignal: sinon.spy(function (flowCompleteSignal) {
       if (this.payload && this.payload.metricsContext) {
-        this.payload.metricsContext.flowCompleteSignal = flowCompleteSignal
+        this.payload.metricsContext.flowCompleteSignal = flowCompleteSignal;
       }
     }),
 
     validate: methods.validate || sinon.spy(() => true)
-  })
+  });
 }
 
 function generateMetricsContext(){
-  const randomBytes = crypto.randomBytes(16).toString('hex')
-  const flowBeginTime = Date.now()
+  const randomBytes = crypto.randomBytes(16).toString('hex');
+  const flowBeginTime = Date.now();
   const flowSignature = crypto.createHmac('sha256', config.metrics.flow_id_key)
     .update([
       randomBytes,
       flowBeginTime.toString(16)
     ].join('\n'))
     .digest('hex')
-    .substr(0, 32)
+    .substr(0, 32);
 
   return {
     flowBeginTime: flowBeginTime,
     flowId: randomBytes + flowSignature
-  }
+  };
 }
 
 function mockRequest (data, errors) {
@@ -540,8 +540,8 @@ function mockRequest (data, errors) {
     oauth: {
       clientIds: data.clientIds || {}
     }
-  })
-  const metricsContext = data.metricsContext || module.exports.mockMetricsContext()
+  });
+  const metricsContext = data.metricsContext || module.exports.mockMetricsContext();
 
   const geo = data.geo || {
     timeZone: knownIpLocation.location.tz,
@@ -552,18 +552,18 @@ function mockRequest (data, errors) {
       state: knownIpLocation.location.state,
       stateCode: knownIpLocation.location.stateCode
     }
-  }
+  };
 
-  let devices
+  let devices;
   if (errors && errors.devices) {
-    devices = P.reject(errors.devices)
+    devices = P.reject(errors.devices);
   } else {
-    devices = P.resolve(data.devices || [])
+    devices = P.resolve(data.devices || []);
   }
 
-  let metricsContextData = data.payload && data.payload.metricsContext
+  let metricsContextData = data.payload && data.payload.metricsContext;
   if (! metricsContextData) {
-    metricsContextData = {}
+    metricsContextData = {};
   }
 
   return {
@@ -606,5 +606,5 @@ function mockRequest (data, errors) {
     setMetricsFlowCompleteSignal: metricsContext.setFlowCompleteSignal,
     stashMetricsContext: metricsContext.stash,
     validateMetricsContext: metricsContext.validate
-  }
+  };
 }

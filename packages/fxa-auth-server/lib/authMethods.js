@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const error = require('./error')
+const error = require('./error');
 
 // Maps our variety of verification methods down to a few short standard
 // "authentication method reference" strings that we're happy to expose to
@@ -19,7 +19,7 @@ const METHOD_TO_AMR = {
   'email-2fa': 'email',
   'totp-2fa': 'otp',
   'recovery-code': 'otp'
-}
+};
 
 // Maps AMR values to the type of authenticator they represent, e.g.
 // "something you know" vs "something you have".  This helps us determine
@@ -28,7 +28,7 @@ const AMR_TO_TYPE = {
   'pwd': 'know',
   'email': 'know',
   'otp': 'have'
-}
+};
 
 module.exports = {
 
@@ -37,28 +37,28 @@ module.exports = {
    * for the given account, as amr value strings.
    */
   availableAuthenticationMethods(db, account) {
-    const amrValues = new Set()
+    const amrValues = new Set();
     // All accounts can authenticate with a password.
-    amrValues.add('pwd')
+    amrValues.add('pwd');
     // All accounts can authenticate with an email confirmation loop.
-    amrValues.add('email')
+    amrValues.add('email');
     // Some accounts have a TOTP token.
     return db.totpToken(account.uid)
       .then(
         res => {
           if (res && res.verified && res.enabled) {
-            amrValues.add('otp')
+            amrValues.add('otp');
           }
         },
         err => {
           if (err.errno !== error.ERRNO.TOTP_TOKEN_NOT_FOUND) {
-            throw err
+            throw err;
           }
         }
       )
       .then(() => {
-        return amrValues
-      })
+        return amrValues;
+      });
   },
 
   /**
@@ -67,11 +67,11 @@ module.exports = {
    * "email" while "totp-2fa" will map to "otp".
    */
   verificationMethodToAMR(verificationMethod) {
-    const amr = METHOD_TO_AMR[verificationMethod]
+    const amr = METHOD_TO_AMR[verificationMethod];
     if (! amr) {
-      throw new Error('unknown verificationMethod: ' + verificationMethod)
+      throw new Error('unknown verificationMethod: ' + verificationMethod);
     }
-    return amr
+    return amr;
   },
 
   /**
@@ -83,10 +83,10 @@ module.exports = {
    * for level 3.
    */
   maximumAssuranceLevel(amrValues) {
-    const types = new Set()
+    const types = new Set();
     amrValues.forEach(amr => {
-      types.add(AMR_TO_TYPE[amr])
-    })
-    return types.size
+      types.add(AMR_TO_TYPE[amr]);
+    });
+    return types.size;
   }
-}
+};

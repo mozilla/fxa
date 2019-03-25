@@ -20,26 +20,26 @@
    keypair.
 */
 
-'use strict'
+'use strict';
 
-const fs = require('fs')
-const cp = require('child_process')
-const assert = require('assert')
-const crypto = require('crypto')
+const fs = require('fs');
+const cp = require('child_process');
+const assert = require('assert');
+const crypto = require('crypto');
 
 if (! process.env.NODE_ENV) {
-  process.env.NODE_ENV = 'dev'
+  process.env.NODE_ENV = 'dev';
 }
 
-const config = require('../config')
-const pubKeyFile = config.get('publicKeyFile')
-const secretKeyFile = config.get('secretKeyFile')
+const config = require('../config');
+const pubKeyFile = config.get('publicKeyFile');
+const secretKeyFile = config.get('secretKeyFile');
 
 try {
-  var keysExist = fs.existsSync(pubKeyFile) && fs.existsSync(secretKeyFile)
-  assert(! keysExist, 'keys already exists')
+  var keysExist = fs.existsSync(pubKeyFile) && fs.existsSync(secretKeyFile);
+  assert(! keysExist, 'keys already exists');
 } catch (e) {
-  process.exit()
+  process.exit();
 }
 
 // We tag our keys with their creation time, and a unique key id
@@ -50,16 +50,16 @@ try {
 //    "fxa-createdAt": 1489716000,
 //  }
 function addKeyProperties(key) {
-  var now = new Date()
-  key.kty = 'RSA'
+  var now = new Date();
+  key.kty = 'RSA';
   key.kid = now.toISOString().slice(0, 10) + '-' +
-            crypto.createHash('sha256').update(key.n).update(key.e).digest('hex').slice(0, 32)
+            crypto.createHash('sha256').update(key.n).update(key.e).digest('hex').slice(0, 32);
   // Timestamp to nearest hour; consumers don't need to know the precise time.
-  key['fxa-createdAt'] = Math.round(now / 1000 / 3600) * 3600
-  return key
+  key['fxa-createdAt'] = Math.round(now / 1000 / 3600) * 3600;
+  return key;
 }
 
-console.log('Generating keypair')
+console.log('Generating keypair');
 
 cp.exec(
   'openssl genrsa 2048 | ../node_modules/pem-jwk/bin/pem-jwk.js',
@@ -67,18 +67,18 @@ cp.exec(
     cwd: __dirname
   },
   function (err, stdout, stderr) {
-    var s = JSON.parse(stdout)
-    addKeyProperties(s)
-    fs.writeFileSync(secretKeyFile, JSON.stringify(s))
-    console.error('Secret Key saved:', secretKeyFile)
+    var s = JSON.parse(stdout);
+    addKeyProperties(s);
+    fs.writeFileSync(secretKeyFile, JSON.stringify(s));
+    console.error('Secret Key saved:', secretKeyFile);
     var pub = {
       kid: s.kid,
       kty: s.kty,
       'fxa-createdAt': s['fxa-createdAt'],
       n: s.n,
       e: s.e
-    }
-    fs.writeFileSync(pubKeyFile, JSON.stringify(pub))
-    console.error('Public Key saved:', pubKeyFile)
+    };
+    fs.writeFileSync(pubKeyFile, JSON.stringify(pub));
+    console.error('Public Key saved:', pubKeyFile);
   }
-)
+);

@@ -2,52 +2,52 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const ROOT_DIR = '../..'
+const ROOT_DIR = '../..';
 
-const proxyquire = require('proxyquire')
-const { assert } = require('chai')
-const sinon = require('sinon')
+const proxyquire = require('proxyquire');
+const { assert } = require('chai');
+const sinon = require('sinon');
 
 describe('notifier', () => {
   const log = {
     error: sinon.spy(),
     trace: sinon.spy()
-  }
+  };
 
   beforeEach(() => {
-    log.error.resetHistory()
-    log.trace.resetHistory()
-  })
+    log.error.resetHistory();
+    log.trace.resetHistory();
+  });
 
   describe('with sns configuration', () => {
-    let config, notifier
+    let config, notifier;
 
     beforeEach(() => {
       config = {
         get: (key) => {
           if (key === 'snsTopicArn') {
-            return 'arn:aws:sns:us-west-2:927034868275:foo'
+            return 'arn:aws:sns:us-west-2:927034868275:foo';
           }
         }
-      }
+      };
 
       notifier = proxyquire(`${ROOT_DIR}/lib/notifier`, {
         '../config': config
-      })(log)
+      })(log);
 
       notifier.__sns.publish = sinon.spy((event, cb) => {
-        cb(null, event)
-      })
-    })
+        cb(null, event);
+      });
+    });
 
     it('publishes a correctly-formatted message', () => {
       notifier.send({
         event: 'stuff'
-      })
+      });
 
-      assert.equal(log.trace.args[0][0], 'Notifier.publish')
+      assert.equal(log.trace.args[0][0], 'Notifier.publish');
       assert.deepEqual(log.trace.args[0][1], {
         data: {
           TopicArn: 'arn:aws:sns:us-west-2:927034868275:foo',
@@ -60,9 +60,9 @@ describe('notifier', () => {
           }
         },
         success: true
-      })
-      assert.equal(log.error.called, false)
-    })
+      });
+      assert.equal(log.error.called, false);
+    });
 
     it('flattens additional data into the message body', () => {
       notifier.send({
@@ -71,9 +71,9 @@ describe('notifier', () => {
           cool: 'stuff',
           more: 'stuff'
         }
-      })
+      });
 
-      assert.equal(log.trace.args[0][0], 'Notifier.publish')
+      assert.equal(log.trace.args[0][0], 'Notifier.publish');
       assert.deepEqual(log.trace.args[0][1], {
         data: {
           TopicArn: 'arn:aws:sns:us-west-2:927034868275:foo',
@@ -86,9 +86,9 @@ describe('notifier', () => {
           }
         },
         success: true
-      })
-      assert.equal(log.error.called, false)
-    })
+      });
+      assert.equal(log.error.called, false);
+    });
 
     it('includes email domain in message attributes', () => {
       notifier.send({
@@ -96,9 +96,9 @@ describe('notifier', () => {
         data: {
           email: 'testme@example.com'
         }
-      })
+      });
 
-      assert.equal(log.trace.args[0][0], 'Notifier.publish')
+      assert.equal(log.trace.args[0][0], 'Notifier.publish');
       assert.deepEqual(log.trace.args[0][1], {
         data: {
           TopicArn: 'arn:aws:sns:us-west-2:927034868275:foo',
@@ -115,37 +115,37 @@ describe('notifier', () => {
           }
         },
         success: true
-      })
-      assert.equal(log.error.called, false)
-    })
-  })
+      });
+      assert.equal(log.error.called, false);
+    });
+  });
 
   it('works with disabled configuration', () => {
     const config = {
       get: (key) => {
         if (key === 'snsTopicArn') {
-          return 'disabled'
+          return 'disabled';
         }
       }
-    }
+    };
     const notifier = proxyquire(`${ROOT_DIR}/lib/notifier`, {
       '../config': config
-    })(log)
+    })(log);
 
     notifier.send({
       event: 'stuff'
     }, () => {
-      assert.equal(log.trace.args[0][0], 'Notifier.publish')
+      assert.equal(log.trace.args[0][0], 'Notifier.publish');
       assert.deepEqual(log.trace.args[0][1], {
         data: {
           disabled: true
         },
         success: true
-      })
-      assert.equal(log.trace.args[0][1].data.disabled, true)
-      assert.equal(log.error.called, false)
-    })
+      });
+      assert.equal(log.trace.args[0][1].data.disabled, true);
+      assert.equal(log.error.called, false);
+    });
 
-  })
+  });
 
-})
+});

@@ -2,33 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const { assert } = require('chai')
+const { assert } = require('chai');
 
-const Hapi = require('hapi')
+const Hapi = require('hapi');
 
-const config = require('../../config').getProperties()
-const _configureSentry = require('../../lib/server')._configureSentry
-const server = new Hapi.Server({})
+const config = require('../../config').getProperties();
+const _configureSentry = require('../../lib/server')._configureSentry;
+const server = new Hapi.Server({});
 
 describe('Sentry', () => {
-  let sentryDsn
+  let sentryDsn;
 
   beforeEach(() => {
-    sentryDsn = config.sentryDsn
-  })
+    sentryDsn = config.sentryDsn;
+  });
 
   afterEach(() => {
-    config.sentryDsn = sentryDsn
-  })
+    config.sentryDsn = sentryDsn;
+  });
 
   it('can be set up when sentry is enabled', () => {
-    config.sentryDsn = 'https://deadbeef:deadbeef@127.0.0.1/123'
-    assert.doesNotThrow(() => _configureSentry(server, config))
-  })
+    config.sentryDsn = 'https://deadbeef:deadbeef@127.0.0.1/123';
+    assert.doesNotThrow(() => _configureSentry(server, config));
+  });
 
   it('can be set up when sentry is not enabled', () => {
-    assert.doesNotThrow(() => _configureSentry(server, config))
-  })
-})
+    assert.doesNotThrow(() => _configureSentry(server, config));
+  });
+});

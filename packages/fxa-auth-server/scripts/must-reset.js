@@ -15,42 +15,42 @@
 
  /*/
 
-'use strict'
+'use strict';
 
-var butil = require('../lib/crypto/butil')
-var commandLineOptions = require('commander')
-var config = require('../config').getProperties()
-var crypto = require('crypto')
-var log = require('../lib/log')(config.log.level)
-var P = require('../lib/promise')
-var path = require('path')
-var Token = require('../lib/tokens')(log, config)
+var butil = require('../lib/crypto/butil');
+var commandLineOptions = require('commander');
+var config = require('../config').getProperties();
+var crypto = require('crypto');
+var log = require('../lib/log')(config.log.level);
+var P = require('../lib/promise');
+var path = require('path');
+var Token = require('../lib/tokens')(log, config);
 
 commandLineOptions
   .option('-i, --input <filename>', 'JSON input file')
-  .parse(process.argv)
+  .parse(process.argv);
 
 var requiredOptions = [
   'input'
-]
+];
 
-requiredOptions.forEach(checkRequiredOption)
+requiredOptions.forEach(checkRequiredOption);
 
 
 var DB = require('../lib/db')(
   config,
   log,
   Token
-)
+);
 
 DB.connect(config[config.db.backend])
   .then(
     function (db) {
-      var json = require(path.resolve(commandLineOptions.input))
+      var json = require(path.resolve(commandLineOptions.input));
 
       var uids = json.map(function (entry) {
-        return entry.uid
-      })
+        return entry.uid;
+      });
 
       return P.all(uids.map(
         function (uid) {
@@ -64,26 +64,26 @@ DB.connect(config[config.db.backend])
             }
           )
           .catch(function (err) {
-            log.error({ op: 'reset.failed', uid: uid, err: err })
-            process.exit(1)
-          })
+            log.error({ op: 'reset.failed', uid: uid, err: err });
+            process.exit(1);
+          });
         }
         ))
         .then(
           function () {
-            log.info({ complete: true, uidsReset: uids.length })
+            log.info({ complete: true, uidsReset: uids.length });
           },
           function (err) {
-            log.error(err)
+            log.error(err);
           }
         )
-        .then(db.close.bind(db))
+        .then(db.close.bind(db));
     }
-  )
+  );
 
 function checkRequiredOption(optionName) {
   if (! commandLineOptions[optionName]) {
-    console.error('--' + optionName + ' required')
-    process.exit(1)
+    console.error('--' + optionName + ' required');
+    process.exit(1);
   }
 }

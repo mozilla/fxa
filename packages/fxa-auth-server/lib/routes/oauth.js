@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
 /* Routes for managing OAuth authorization grants.
  *
@@ -15,7 +15,7 @@
  *
  */
 
-const Joi = require('joi')
+const Joi = require('joi');
 
 module.exports = (log, config, oauthdb) => {
   const routes = [
@@ -31,7 +31,7 @@ module.exports = (log, config, oauthdb) => {
         }
       },
       handler: async function (request) {
-        return oauthdb.getClientInfo(request.params.client_id)
+        return oauthdb.getClientInfo(request.params.client_id);
       }
     },
     {
@@ -51,10 +51,10 @@ module.exports = (log, config, oauthdb) => {
         }
       },
       handler: async function (request) {
-        const sessionToken = request.auth.credentials
-        return oauthdb.getScopedKeyData(sessionToken, request.payload)
+        const sessionToken = request.auth.credentials;
+        return oauthdb.getScopedKeyData(sessionToken, request.payload);
       }
     },
-  ]
-  return routes
-}
+  ];
+  return routes;
+};

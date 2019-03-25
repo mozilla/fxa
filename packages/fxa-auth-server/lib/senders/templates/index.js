@@ -2,33 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-var path = require('path')
-var P = require('bluebird')
-var handlebars = require('handlebars')
-var readFile = P.promisify(require('fs').readFile)
+var path = require('path');
+var P = require('bluebird');
+var handlebars = require('handlebars');
+var readFile = P.promisify(require('fs').readFile);
 
 handlebars.registerHelper(
   't',
   function (string) {
     if (this.translator) {
-      return this.translator.format(this.translator.gettext(string), this)
+      return this.translator.format(this.translator.gettext(string), this);
     }
-    return string
+    return string;
   }
-)
+);
 
 function generateTemplateName (str) {
   if (/^sms\.[A-Za-z]+/.test(str)) {
-    return str
+    return str;
   }
 
   return str.replace(/_(.)/g,
     function(match, c) {
-      return c.toUpperCase()
+      return c.toUpperCase();
     }
-  ) + 'Email'
+  ) + 'Email';
 }
 
 function loadTemplates(name) {
@@ -40,19 +40,19 @@ function loadTemplates(name) {
   )
   .spread(
     function (text, html) {
-      var renderText = handlebars.compile(text)
-      var renderHtml = handlebars.compile(html)
+      var renderText = handlebars.compile(text);
+      var renderHtml = handlebars.compile(html);
       return {
         name: generateTemplateName(name),
         fn: function (values) {
           return {
             text: renderText(values),
             html: renderHtml(values)
-          }
+          };
         }
-      }
+      };
     }
-  )
+  );
 }
 
 module.exports = {
@@ -96,11 +96,11 @@ module.exports = {
       // }
       return templates.reduce(
         function (result, template) {
-          result[template.name] = template.fn
-          return result
+          result[template.name] = template.fn;
+          return result;
         },
         {}
-      )
+      );
     }
   )
-}
+};
