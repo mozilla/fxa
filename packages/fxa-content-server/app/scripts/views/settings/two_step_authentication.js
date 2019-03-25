@@ -21,6 +21,8 @@ const t = msg => msg;
 const CODE_INPUT_SELECTOR = 'input.totp-code';
 const CODE_REFRESH_SELECTOR = 'button.settings-button.totp-refresh';
 const CODE_REFRESH_DELAY_MS = 350;
+const LOADING_INDICATOR_BUTTON = '.settings-button.settings-unit-loading';
+const SETTINGS_UNIT_DETAILS = '.settings-unit-details';
 const TOTP_SUPPORT_URL = 'https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication';
 
 const View = FormView.extend({
@@ -106,8 +108,12 @@ const View = FormView.extend({
 
   createToken() {
     const account = this.getSignedInAccount();
+    this.$el.find(SETTINGS_UNIT_DETAILS).hide();
+    this.$el.find(LOADING_INDICATOR_BUTTON).show();
     return account.createTotpToken()
       .then(result => {
+        this.$el.find(SETTINGS_UNIT_DETAILS).show();
+        this.$el.find(LOADING_INDICATOR_BUTTON).hide();
         this.$('.qr-image').attr('src', result.qrCodeUrl);
 
         const qrImageAltText = t('Use the code %(code)s to set up two-step authentication in supported applications.');
