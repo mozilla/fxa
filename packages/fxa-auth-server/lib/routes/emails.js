@@ -267,12 +267,6 @@ module.exports = (log, db, mailer, config, customs, push) => {
       path: '/recovery_email/verify_code',
       options: {
         validate: {
-          query: {
-            service: validators.service,
-            // TODO: drop this param once it is no longer sent by clients
-            reminder: isA.string().max(32).alphanum().optional(),
-            type: isA.string().max(32).alphanum().optional()
-          },
           payload: {
             uid: isA.string().max(32).regex(HEX_STRING).required(),
             code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
@@ -287,11 +281,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
       handler: async function (request) {
         log.begin('Account.RecoveryEmailVerify', request)
 
-        const uid = request.payload.uid
-        const code = request.payload.code
-        const service = request.payload.service || request.query.service
-        const type = request.payload.type || request.query.type
-        const marketingOptIn = request.payload.marketingOptIn
+        const { code, marketingOptIn, service, type, uid } = request.payload
 
         // verify_code because we don't know what type this is yet, but
         // we want to record right away before anything could fail, so
@@ -322,15 +312,12 @@ module.exports = (log, db, mailer, config, customs, push) => {
             // If so, verify the secondary email and respond
             if (type && type === 'secondary') {
               let matchedEmail
-              return db.accountEmails(account.uid)
+              return db.accountEmails(uid)
                 .then((emails) => {
                   const isEmailVerification = emails.some((email) => {
                     if (email.emailCode && (code === email.emailCode)) {
                       matchedEmail = email
-                      log.info('account.verifyEmail.secondary.started', {
-                        uid: uid,
-                        code: request.payload.code
-                      })
+                      log.info('account.verifyEmail.secondary.started', { uid, code })
                       return true
                     }
                   })
@@ -343,19 +330,13 @@ module.exports = (log, db, mailer, config, customs, push) => {
                   // User is attempting to verify a secondary email that has already been verified.
                   // Silently succeed and don't send post verification email.
                   if (matchedEmail.isVerified) {
-                    log.info('account.verifyEmail.secondary.already-verified', {
-                      uid: uid,
-                      code: request.payload.code
-                    })
+                    log.info('account.verifyEmail.secondary.already-verified', { uid, code })
                     return P.resolve()
                   }
 
                   return db.verifyEmail(account, code)
                     .then(() => {
-                      log.info('account.verifyEmail.secondary.confirmed', {
-                        uid: uid,
-                        code: request.payload.code
-                      })
+                      log.info('account.verifyEmail.secondary.confirmed', { uid, code })
 
                       return mailer.sendPostVerifySecondaryEmail([], account, {
                         acceptLanguage: request.app.acceptLanguage,
@@ -377,11 +358,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
                 },
                 err => {
                   if (err.errno !== error.ERRNO.DEVICE_UNKNOWN) {
-                    log.error('Account.RecoveryEmailVerify', {
-                      err: err,
-                      uid: uid,
-                      code: code
-                    })
+                    log.error('Account.RecoveryEmailVerify', { err, uid, code })
                   }
                 }
               )
@@ -403,14 +380,9 @@ module.exports = (log, db, mailer, config, customs, push) => {
                 if (! isAccountVerification) {
 
                   // Don't log sign-in confirmation success for the account verification case
-                  log.info('account.signin.confirm.success', {
-                    uid: uid,
-                    code: request.payload.code
-                  })
+                  log.info('account.signin.confirm.success', { uid, code })
 
-                  request.emitMetricsEvent('account.confirmed', {
-                    uid: uid
-                  })
+                  request.emitMetricsEvent('account.confirmed', { uid })
                   request.app.devices.then(devices =>
                     push.notifyAccountUpdated(uid, devices, 'accountConfirm')
                   )
@@ -422,11 +394,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
                   return
                 }
 
-                log.error('account.signin.confirm.invalid', {
-                  uid: uid,
-                  code: request.payload.code,
-                  error: err
-                })
+                log.error('account.signin.confirm.invalid', { err, uid, code })
                 throw err
               })
               .then(() => {
@@ -454,7 +422,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
                         locale: account.locale,
                         marketingOptIn: marketingOptIn ? true : undefined,
                         service,
-                        uid: account.uid,
+                        uid,
                       }),
                       request.emitMetricsEvent('account.verified', {
                         // The content server omits marketingOptIn in the false case.
