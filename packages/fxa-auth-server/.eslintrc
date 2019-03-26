@@ -8,6 +8,7 @@ rules:
   no-var: 2
   prefer-arrow-callback: 2
   prefer-const: 2
+  prefer-template: 2
   strict: 2
   semi: [2, "always"]
   indent: [0, 2]

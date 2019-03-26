@@ -37,7 +37,7 @@ module.exports = function (host, port, printLogs) {
   }
 
   function loop(name, tries, cb) {
-    const url = 'http://' + host + ':' + port + '/mail/' + encodeURIComponent(name);
+    const url = `http://${  host  }:${  port  }/mail/${  encodeURIComponent(name)}`;
     log('checking mail', url);
     request({ url: url, method: 'GET' },
       (err, res, body) => {
@@ -57,7 +57,7 @@ module.exports = function (host, port, printLogs) {
 
         if (! json) {
           if (tries === 0) {
-            return cb(new Error('could not get mail for ' + url));
+            return cb(new Error(`could not get mail for ${  url}`));
           }
           return setTimeout(loop.bind(null, name, --tries, cb), 1000);
         }

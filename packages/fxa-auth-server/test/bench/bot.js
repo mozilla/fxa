@@ -9,7 +9,7 @@ const Client = require('../client')();
 
 const config = {
   origin: 'http://127.0.0.1:9000',
-  email: Math.random() + 'benchmark@example.com',
+  email: `${Math.random()  }benchmark@example.com`,
   password: 'password',
   duration: 120000
 };

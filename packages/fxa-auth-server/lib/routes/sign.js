@@ -157,7 +157,7 @@ module.exports = (log, signer, db, domain, devices) => {
 
               return signer.sign(
                 {
-                  email: uid + '@' + domain,
+                  email: `${uid  }@${  domain}`,
                   publicKey: publicKey,
                   domain: domain,
                   duration: duration,

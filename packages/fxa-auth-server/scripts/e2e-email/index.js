@@ -58,7 +58,7 @@ function configure() {
 function log(level /*, rest */) {
   if (level < log.level) return;
   const args = Array.prototype.slice.call(arguments);
-  const timestamp = '[' + new Date().toISOString() + ']';
+  const timestamp = `[${  new Date().toISOString()  }]`;
   args[0] = timestamp;
   console.log.apply(null, args);
 }
@@ -69,7 +69,7 @@ log.DEBUG = 1;
 log.level = log.INFO;
 
 function emailFromLang(lang) {
-  return program.basename + '-' + lang + '@' + program.restmailDomain;
+  return `${program.basename  }-${  lang  }@${  program.restmailDomain}`;
 }
 
 function langFromEmail(email) {
@@ -215,11 +215,11 @@ function main() {
       const output = [];
       let errorCount = 0;
       Object.keys(errors).sort().forEach((lang) => {
-        output.push('  ' + lang + ':');
+        output.push(`  ${  lang  }:`);
         const errorList = errors[lang];
         errorList.forEach((err) => {
           errorCount++;
-          output.push('    ' + err);
+          output.push(`    ${  err}`);
         });
       });
       if (errorCount > 0) {

@@ -217,7 +217,7 @@ describe('remote password forgot', function() {
       const password = 'something';
       let client = null;
       const options = {
-        redirectTo: 'https://sync.' + config.smtp.redirectDomain + '/',
+        redirectTo: `https://sync.${  config.smtp.redirectDomain  }/`,
         service: 'sync'
       };
       return Client.create(config.publicUrl, email, password, options)
@@ -350,7 +350,7 @@ describe('remote password forgot', function() {
     () => {
       const email = server.uniqueEmail();
       const options = {
-        redirectTo: 'https://sync.' + config.smtp.redirectDomain + '/',
+        redirectTo: `https://sync.${  config.smtp.redirectDomain  }/`,
         serviceQuery: 'sync'
       };
       let client;

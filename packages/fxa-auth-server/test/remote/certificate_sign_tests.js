@@ -227,7 +227,7 @@ describe('remote certificate sign', function() {
                 (token) => {
                   return client.api.doRequest(
                     'POST',
-                    client.api.baseURL + '/certificate/sign',
+                    `${client.api.baseURL  }/certificate/sign`,
                     token,
                     {
                       publicKey: publicKey,

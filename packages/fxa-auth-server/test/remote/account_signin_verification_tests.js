@@ -268,7 +268,7 @@ describe('remote account signin verification', function() {
       const password = 'something';
       let client = null;
       const options = {
-        redirectTo: 'https://sync.'  + config.smtp.redirectDomain,
+        redirectTo: `https://sync.${   config.smtp.redirectDomain}`,
         service: 'sync',
         resume: 'resumeToken',
         keys: true
@@ -311,7 +311,7 @@ describe('remote account signin verification', function() {
       let client = null;
       let client2 = null;
       const options = {
-        redirectTo: 'https://sync.'  + config.smtp.redirectDomain,
+        redirectTo: `https://sync.${   config.smtp.redirectDomain}`,
         service: 'sync',
         resume: 'resumeToken',
         keys: true

@@ -104,11 +104,11 @@ TestServer.prototype.uniqueEmail = function (domain) {
 };
 
 TestServer.prototype.uniqueUnicodeEmail = function () {
-  return crypto.randomBytes(10).toString('hex') +
-    String.fromCharCode(1234) +
-    '@' +
-    String.fromCharCode(5678) +
-    'restmail.net';
+  return `${crypto.randomBytes(10).toString('hex') +
+    String.fromCharCode(1234)
+    }@${
+    String.fromCharCode(5678)
+    }restmail.net`;
 };
 
 module.exports = TestServer;

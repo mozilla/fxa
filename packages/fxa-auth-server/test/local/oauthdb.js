@@ -137,7 +137,7 @@ describe('oauthdb', () => {
     const MOCK_CREDENTIALS = {
       uid: MOCK_UID,
       verifierSetAt: 12345,
-      email: MOCK_UID + '@example.com',
+      email: `${MOCK_UID  }@example.com`,
       lastAuthAt: () => 23456,
       emailVerified: true,
       tokenVerified: true,

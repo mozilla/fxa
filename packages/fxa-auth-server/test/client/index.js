@@ -467,7 +467,7 @@ module.exports = config => {
 
   Client.prototype.accountProfile = function (oauthToken) {
     if (oauthToken) {
-      return this.api.accountProfile(null, { Authorization: 'Bearer ' + oauthToken });
+      return this.api.accountProfile(null, { Authorization: `Bearer ${  oauthToken}` });
     } else {
       const o = this.sessionToken ? P.resolve(null) : this.login();
       return o.then(

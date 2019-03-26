@@ -71,7 +71,7 @@ PushManager.prototype.getSubscription = function getSubscription() {
       ws.close();
     },
     '': function(data) {
-      onError(new Error('Unexpected ws message: ' + JSON.stringify(data)));
+      onError(new Error(`Unexpected ws message: ${  JSON.stringify(data)}`));
     }
   };
 

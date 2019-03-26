@@ -29,7 +29,7 @@ describe('pbkdf2', () => {
     () => {
       const email = Buffer.from('ijqmkkafer3xsj5rzoq+msnxsacvkmqxabtsvxvj@some-test-domain-with-a-long-name-example.org');
       const password = Buffer.from('mSnxsacVkMQxAbtSVxVjCCoWArNUsFhiJqmkkafER3XSJ5rzoQ');
-      const salt = Buffer.from('identity.mozilla.com/picl/v1/first-PBKDF:' + email);
+      const salt = Buffer.from(`identity.mozilla.com/picl/v1/first-PBKDF:${  email}`);
       return pbkdf2.derive(password, salt, ITERATIONS, LENGTH)
         .then(
         (K1) => {

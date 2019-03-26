@@ -39,7 +39,7 @@ describe('remote verifier upgrade', function() {
         db_server.listen(config.httpdb.url.split(':')[2]);
         db_server.on('error', () => {});
 
-        const email = Math.random() + '@example.com';
+        const email = `${Math.random()  }@example.com`;
         const password = 'ok';
         let uid = null;
 

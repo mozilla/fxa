@@ -52,8 +52,8 @@ try {
 function addKeyProperties(key) {
   const now = new Date();
   key.kty = 'RSA';
-  key.kid = now.toISOString().slice(0, 10) + '-' +
-            crypto.createHash('sha256').update(key.n).update(key.e).digest('hex').slice(0, 32);
+  key.kid = `${now.toISOString().slice(0, 10)  }-${
+            crypto.createHash('sha256').update(key.n).update(key.e).digest('hex').slice(0, 32)}`;
   // Timestamp to nearest hour; consumers don't need to know the precise time.
   key['fxa-createdAt'] = Math.round(now / 1000 / 3600) * 3600;
   return key;

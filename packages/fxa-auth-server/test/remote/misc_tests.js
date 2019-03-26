@@ -43,7 +43,7 @@ describe('remote misc', function() {
 
     return () => {
       const options = {
-        url: config.publicUrl + '/'
+        url: `${config.publicUrl  }/`
       };
       if (withAllowedOrigin !== undefined) {
         options.headers = {
@@ -59,7 +59,7 @@ describe('remote misc', function() {
   it(
     'unsupported api version',
     () => {
-      return request(config.publicUrl + '/v0/account/create').spread((res) => {
+      return request(`${config.publicUrl  }/v0/account/create`).spread((res) => {
         assert.equal(res.statusCode, 410, 'http gone');
       });
     }
@@ -68,7 +68,7 @@ describe('remote misc', function() {
   it(
     '/__heartbeat__ returns a 200 OK',
     () => {
-      return request(config.publicUrl + '/__heartbeat__').spread((res) => {
+      return request(`${config.publicUrl  }/__heartbeat__`).spread((res) => {
         assert.equal(res.statusCode, 200, 'http ok');
       });
     }
@@ -77,7 +77,7 @@ describe('remote misc', function() {
   it(
     '/__lbheartbeat__ returns a 200 OK',
     () => {
-      return request(config.publicUrl + '/__lbheartbeat__').spread((res) => {
+      return request(`${config.publicUrl  }/__lbheartbeat__`).spread((res) => {
         assert.equal(res.statusCode, 200, 'http ok');
       });
     }
@@ -156,7 +156,7 @@ describe('remote misc', function() {
         )
         .then(
           () => {
-            url = client.api.baseURL + '/account/keys';
+            url = `${client.api.baseURL  }/account/keys`;
             return client.api.Token.KeyFetchToken.fromHex(client.keyFetchToken);
           }
         )
@@ -192,7 +192,7 @@ describe('remote misc', function() {
     () => {
       return request(
         {
-          url: config.publicUrl + '/'
+          url: `${config.publicUrl  }/`
         })
         .spread((res, body) => {
           assert.equal(res.headers['strict-transport-security'], 'max-age=15552000; includeSubDomains');
@@ -206,7 +206,7 @@ describe('remote misc', function() {
       const client = new Client(config.publicUrl);
       return client.api.doRequest(
         'POST',
-        client.api.baseURL + '/get_random_bytes',
+        `${client.api.baseURL  }/get_random_bytes`,
         null,
         // See payload.maxBytes in ../../server/server.js
         { big: Buffer.alloc(8192).toString('hex')}
@@ -276,7 +276,7 @@ describe('remote misc', function() {
           return client.api.Token.SessionToken.fromHex(client.sessionToken);
         })
         .then((token) => {
-          url = client.api.baseURL + '/account/device';
+          url = `${client.api.baseURL  }/account/device`;
           const method = 'POST';
           const payload = {
             name: 'my cool device',

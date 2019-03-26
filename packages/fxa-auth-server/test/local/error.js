@@ -39,7 +39,7 @@ describe('AppErrors', () => {
       const result = AppError.translate(null, {
         output: {
           payload: {
-            message: 'foo' + messages.errors.any.required,
+            message: `foo${  messages.errors.any.required}`,
             validation: {
               keys: [ 'bar', 'baz' ]
             }

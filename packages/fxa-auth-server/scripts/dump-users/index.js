@@ -31,7 +31,7 @@ module.exports = function dumpUsers(keys, dbFunc, usePretty) {
     .then(_db => {
       db = _db;
       return P.mapSeries(keys, (item) => db[dbFunc](item).catch(err => {
-        console.error(String(err) + ' - ' + item);
+        console.error(`${String(err)  } - ${  item}`);
         process.exit(1);
       }));
     })

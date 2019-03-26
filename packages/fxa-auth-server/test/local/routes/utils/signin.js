@@ -267,7 +267,7 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 
   it('email addresses matching a configured regex get forcibly blocked', () => {
-    const email = 'blockme-' + TEST_EMAIL;
+    const email = `blockme-${  TEST_EMAIL}`;
     return checkCustomsAndLoadAccount(request, email).then(
       () => { assert.fail('should not succeed'); },
       (err) => {

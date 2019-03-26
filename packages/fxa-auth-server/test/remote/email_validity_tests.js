@@ -62,8 +62,8 @@ describe('remote email validity', function() {
         'tim@tim-example.net',
         'a+b+c@example.com',
         '#!?-@t-e-s-assert.c-o-m',
-        String.fromCharCode(1234) + '@example.com',
-        'test@' + String.fromCharCode(5678) + '.com'
+        `${String.fromCharCode(1234)  }@example.com`,
+        `test@${  String.fromCharCode(5678)  }.com`
       ];
 
       emails.forEach((email, i) => {
@@ -73,7 +73,7 @@ describe('remote email validity', function() {
               return c.destroyAccount();
             },
             (err) => {
-              assert(false, 'Email address ' + email + " should have been allowed, but it wasn't");
+              assert(false, `Email address ${  email  } should have been allowed, but it wasn't`);
             }
           );
       });

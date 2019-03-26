@@ -126,7 +126,7 @@ module.exports.redirectTo = function redirectTo(base) {
   const validator = isA.string().max(512);
   let hostnameRegex = null;
   if (base) {
-    hostnameRegex = new RegExp('(?:\\.|^)' + base.replace('.', '\\.') + '$');
+    hostnameRegex = new RegExp(`(?:\\.|^)${  base.replace('.', '\\.')  }$`);
   }
   validator._tests.push(
     {

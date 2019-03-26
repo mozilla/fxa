@@ -357,7 +357,7 @@ describe('remote db', function() {
             }, err => {
               assert.equal(err.errno, 110, 'sessionToken() fails with the correct error code');
               const msg = 'Error: The authentication token could not be found';
-              assert.equal(msg, '' + err, 'sessionToken() fails with the correct message');
+              assert.equal(msg, `${  err}`, 'sessionToken() fails with the correct message');
             });
         })
         .then(() => {
@@ -674,7 +674,7 @@ describe('remote db', function() {
         }, (err) => {
           assert.equal(err.errno, 110, 'keyFetchToken() fails with the correct error code');
           const msg = 'Error: The authentication token could not be found';
-          assert.equal(msg, '' + err, 'keyFetchToken() fails with the correct message');
+          assert.equal(msg, `${  err}`, 'keyFetchToken() fails with the correct message');
         });
     }
   );
@@ -712,7 +712,7 @@ describe('remote db', function() {
             .then(assert.fail, (err) => {
               assert.equal(err.errno, 110, 'accountResetToken() fails with the correct error code');
               const msg = 'Error: The authentication token could not be found';
-              assert.equal(msg, '' + err, 'accountResetToken() fails with the correct message');
+              assert.equal(msg, `${  err}`, 'accountResetToken() fails with the correct message');
             });
         });
     }
@@ -763,7 +763,7 @@ describe('remote db', function() {
         }, (err) => {
           assert.equal(err.errno, 110, 'passwordForgotToken() fails with the correct error code');
           const msg = 'Error: The authentication token could not be found';
-          assert.equal(msg, '' + err, 'passwordForgotToken() fails with the correct message');
+          assert.equal(msg, `${  err}`, 'passwordForgotToken() fails with the correct message');
         });
     }
   );
@@ -905,7 +905,7 @@ describe('remote db', function() {
           (err) => {
             assert.equal(err.errno, 127, 'consumeUnblockCode() fails with the correct error code');
             const msg = 'Error: Invalid unblock code';
-            assert.equal(msg, '' + err, 'consumeUnblockCode() fails with the correct message');
+            assert.equal(msg, `${  err}`, 'consumeUnblockCode() fails with the correct message');
           }
         )
         .then(
@@ -928,7 +928,7 @@ describe('remote db', function() {
           (err) => {
             assert.equal(err.errno, 127, 'consumeUnblockCode() fails with the correct error code');
             const msg = 'Error: Invalid unblock code';
-            assert.equal(msg, '' + err, 'consumeUnblockCode() fails with the correct message');
+            assert.equal(msg, `${  err}`, 'consumeUnblockCode() fails with the correct message');
           }
         );
     }

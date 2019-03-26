@@ -26,7 +26,7 @@ function trimLocale(header) {
   let str = parts[0];
   if (str.length >= 255) { return null; }
   for (let i = 1; i < parts.length && str.length + parts[i].length < 255; i++) {
-    str += ',' + parts[i];
+    str += `,${  parts[i]}`;
   }
   return str.trim();
 }
@@ -254,7 +254,7 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
         response.backtrace(request.app.traced);
       }
     }
-    response.header('Timestamp', '' + Math.floor(Date.now() / 1000));
+    response.header('Timestamp', `${  Math.floor(Date.now() / 1000)}`);
     log.summary(request, response);
     return response;
   });

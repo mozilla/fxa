@@ -24,7 +24,7 @@ function langFromEmail(email) {
 
 function ensureHeader(headers, key, lang) {
   if (! headers[key]) {
-    reportError(lang, 'Missing header ' + key);
+    reportError(lang, `Missing header ${  key}`);
   }
 }
 
@@ -101,7 +101,7 @@ function checkContent(mail, idx) {
   });
 
   if (missing.length !== 0) {
-    reportError(lang, 'missing x-headers ' + JSON.stringify(missing));
+    reportError(lang, `missing x-headers ${  JSON.stringify(missing)}`);
   }
 
   const xlink = url.parse(mail.headers['x-link'], true);
@@ -113,13 +113,13 @@ function checkContent(mail, idx) {
   const args = JSON.stringify(contentChecks.args.sort());
   const queryArgs = JSON.stringify(Object.keys(xlink.query).sort());
   if (args !== queryArgs) {
-    reportError(lang, mail.headers['x-link'] + ' - args mismatch ' + args + ' - ' + queryArgs);
+    reportError(lang, `${mail.headers['x-link']  } - args mismatch ${  args  } - ${  queryArgs}`);
   }
 }
 
 function ensureNonZeroContent(body, errmsg, lang) {
   if (body.length === 0) {
-    reportError(lang, errmsg + ' has zero length');
+    reportError(lang, `${errmsg  } has zero length`);
   }
 }
 
@@ -127,7 +127,7 @@ function verifyMailbox(mbox) {
   const lang = langFromEmail(mbox[0].headers.to);
   const expectedMessageCount = 6;
   if (mbox.length !== expectedMessageCount) {
-    return reportError(lang, 'Missing email response, count: ' + mbox.length);
+    return reportError(lang, `Missing email response, count: ${  mbox.length}`);
   }
 
   mbox.forEach((mail, idx) => {

@@ -114,7 +114,7 @@ function run(config) {
               server = await Server.create(log, error, config, routes, db, oauthdb, translator);
               try {
                 await server.start();
-                log.info({op: 'server.start.1', msg: 'running on ' + server.info.uri});
+                log.info({op: 'server.start.1', msg: `running on ${  server.info.uri}`});
               } catch (err) {
                 log.error(
                   {

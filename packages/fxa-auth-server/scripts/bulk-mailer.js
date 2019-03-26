@@ -40,7 +40,7 @@ return bulkMailer(path.resolve(program.input), program.method, BATCH_SIZE, BATCH
   }, (err) => {
     if (/InvalidMethodName/.test(err.message)) {
       console.error(program.method, 'is not a valid method. Can be one of:\n');
-      console.error(' * ' + err.validNames.sort().join('\n * '));
+      console.error(` * ${  err.validNames.sort().join('\n * ')}`);
     } else {
       console.error('Error', String(err));
     }
@@ -50,7 +50,7 @@ return bulkMailer(path.resolve(program.input), program.method, BATCH_SIZE, BATCH
 
 function checkRequiredOption(optionName) {
   if (! program[optionName]) {
-    console.error('--' + optionName + ' is required');
+    console.error(`--${  optionName  } is required`);
     process.exit(1);
   }
 }

@@ -113,7 +113,7 @@ module.exports = function (log, config, oauthdb) {
   function linkAttributes(url) {
     // Not very nice to have presentation code in here, but this is to help l10n
     // contributors not deal with extraneous noise in strings.
-    return 'href="' + url + '" style="color: #0a84ff; text-decoration: none; font-family: sans-serif;"';
+    return `href="${  url  }" style="color: #0a84ff; text-decoration: none; font-family: sans-serif;"`;
   }
 
   function constructLocalTimeString (timeZone, locale) {
@@ -214,7 +214,7 @@ module.exports = function (log, config, oauthdb) {
         return uaBrowser;
       } else if (uaOS) {
         if (uaOSVersion) {
-          const parts = uaOS + ' ' + uaOSVersion;
+          const parts = `${uaOS  } ${  uaOSVersion}`;
           return parts;
         }
         else {
@@ -1378,7 +1378,7 @@ module.exports = function (log, config, oauthdb) {
 
     const queryOneClick = extend(query, {one_click: true});
     if (primaryLink && utmContent) {
-      links['oneClickLink'] = this._generateUTMLink(primaryLink, queryOneClick, templateName, utmContent + '-oneclick');
+      links['oneClickLink'] = this._generateUTMLink(primaryLink, queryOneClick, templateName, `${utmContent  }-oneclick`);
     }
 
     return links;

@@ -76,7 +76,7 @@ describe('remote recovery email verify', function() {
       const password = 'something';
       let client = null; // eslint-disable-line no-unused-vars
       const options = {
-        redirectTo: 'https://sync.'  + config.smtp.redirectDomain + '/',
+        redirectTo: `https://sync.${   config.smtp.redirectDomain  }/`,
         service: 'sync'
       };
       return Client.create(config.publicUrl, email, password, options)

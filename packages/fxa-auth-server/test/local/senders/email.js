@@ -251,7 +251,7 @@ describe(
         };
 
         it(
-          'Contains template header for ' + type,
+          `Contains template header for ${  type}`,
           () => {
             mailer.mailer.sendMail = stubSendMail(emailConfig => {
               assert.equal(emailConfig.from, config.get('smtp.sender'), 'from header is correct');
@@ -286,7 +286,7 @@ describe(
         });
 
         it(
-          'test privacy link is in email template output for ' + type,
+          `test privacy link is in email template output for ${  type}`,
           () => {
             const privacyLink = mailer.createPrivacyLink(type);
 
@@ -300,7 +300,7 @@ describe(
 
         if (type === 'verifySecondaryEmail') {
           it(
-            'contains correct type ' + type,
+            `contains correct type ${  type}`,
             () => {
               mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.headers['X-Link'], 'type=secondary'));
@@ -316,7 +316,7 @@ describe(
         }
 
         it(
-          'If sesConfigurationSet is not defined, then outgoing email does not contain X-SES* headers, for type ' + type,
+          `If sesConfigurationSet is not defined, then outgoing email does not contain X-SES* headers, for type ${  type}`,
           () => {
             assert.ok('sesConfigurationSet' in mailer, 'configuration key exists');
             mailer.mailer.sendMail = stubSendMail(emailConfig => {
@@ -331,7 +331,7 @@ describe(
         );
 
         it(
-          'If sesConfigurationSet is defined, then outgoing email will contain X-SES* headers, for type ' + type,
+          `If sesConfigurationSet is defined, then outgoing email will contain X-SES* headers, for type ${  type}`,
           () => {
             assert.ok('sesConfigurationSet' in mailer, 'configuration key exists');
             const savedSesConfigurationSet = mailer.sesConfigurationSet;
@@ -354,7 +354,7 @@ describe(
 
         if (includes(typesContainSupportLinks, type)) {
           it(
-            'test support link is in email template output for ' + type,
+            `test support link is in email template output for ${  type}`,
             () => {
               const supportTextLink = mailer.createSupportLink(type);
 
@@ -369,7 +369,7 @@ describe(
 
         if (includes(typesContainPasswordResetLinks, type)) {
           it(
-            'reset password link is in email template output for ' + type,
+            `reset password link is in email template output for ${  type}`,
             () => {
               const resetPasswordLink = mailer.createPasswordResetLink(message.email, type);
 
@@ -386,7 +386,7 @@ describe(
 
         if (includes(typesContainPasswordChangeLinks, type)) {
           it(
-            'password change link is in email template output for ' + type,
+            `password change link is in email template output for ${  type}`,
             () => {
               const passwordChangeLink = mailer.createPasswordChangeLink(message.email, type);
 
@@ -403,7 +403,7 @@ describe(
 
         if (includes(typesContainUnblockCode, type)) {
           it(
-            'unblock code is in email template output for ' + type,
+            `unblock code is in email template output for ${  type}`,
             () => {
               mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.html, message.unblockCode));
@@ -428,7 +428,7 @@ describe(
 
         if (includes(typesContainTokenCode, type)) {
           it(
-            'login code is in email template output for ' + type,
+            `login code is in email template output for ${  type}`,
             () => {
               mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.html, message.tokenCode));
@@ -441,7 +441,7 @@ describe(
 
         if (includes(typesContainReportSignInLinks, type)) {
           it(
-            'report sign-in link is in email template output for ' + type,
+            `report sign-in link is in email template output for ${  type}`,
             () => {
               mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 const reportSignInLink =
@@ -457,7 +457,7 @@ describe(
         }
 
         if (includes(typesContainRevokeAccountRecoveryLinks, type)) {
-          it('revoke account recovery link is in email template output for ' + type, () => {
+          it(`revoke account recovery link is in email template output for ${  type}`, () => {
             mailer.mailer.sendMail = stubSendMail(emailConfig => {
               const link = mailer.createRevokeAccountRecoveryLink(type, message);
               assert.ok(includes(emailConfig.html, link));
@@ -470,7 +470,7 @@ describe(
         }
 
         if (includes(typesContainCreateAccountRecoveryLinks, type)) {
-          it('create account recovery link is in email template output for ' + type, () => {
+          it(`create account recovery link is in email template output for ${  type}`, () => {
             mailer.mailer.sendMail = stubSendMail(emailConfig => {
               const link = mailer._generateCreateAccountRecoveryLinks(message, type).link;
               assert.ok(includes(emailConfig.html, link));
@@ -484,7 +484,7 @@ describe(
 
         if (includes(typesContainAndroidStoreLinks, type)) {
           it(
-            'Android store link is in email template output for ' + type,
+            `Android store link is in email template output for ${  type}`,
             () => {
               const androidStoreLink = mailer.androidUrl;
 
@@ -500,7 +500,7 @@ describe(
 
         if (includes(typesContainIOSStoreLinks, type)) {
           it(
-            'IOS store link is in email template output for ' + type,
+            `IOS store link is in email template output for ${  type}`,
             () => {
               const iosStoreLink = mailer.iosUrl;
 
@@ -516,7 +516,7 @@ describe(
 
         if (includes(typesContainPasswordManagerInfoLinks, type)) {
           it(
-            'password manager info link is in email template output for ' + type,
+            `password manager info link is in email template output for ${  type}`,
             () => {
               const passwordManagerInfoUrl = mailer._generateLinks(config.get('smtp').passwordManagerInfoUrl, message.email, {}, type).passwordManagerInfoUrl;
 
@@ -532,7 +532,7 @@ describe(
         }
 
         if (includes(typesContainManageSettingsLinks, type)) {
-          it('account settings info link is in email template output for ' + type, () => {
+          it(`account settings info link is in email template output for ${  type}`, () => {
             const accountSettingsUrl = mailer._generateSettingLinks(message, type).link;
 
             mailer.mailer.sendMail = stubSendMail(emailConfig => {
@@ -546,7 +546,7 @@ describe(
         }
 
         if (includes(typesContainRecoveryCodeLinks, type)) {
-          it('recovery code settings info link is in email template output for ' + type, () => {
+          it(`recovery code settings info link is in email template output for ${  type}`, () => {
             const url = mailer._generateLowRecoveryCodesLinks(message, type).link;
 
             mailer.mailer.sendMail = stubSendMail(emailConfig => {
@@ -569,7 +569,7 @@ describe(
 
           if (type === 'verifySecondaryEmail') {
             it(
-              'original user email data is in template for ' + type,
+              `original user email data is in template for ${  type}`,
               () => {
                 const message = getLocationMessage(defaultLocation);
                 message.primaryEmail = 'user@email.com';
@@ -585,7 +585,7 @@ describe(
           }
 
           it(
-            'ip data is in template for ' + type,
+            `ip data is in template for ${  type}`,
             () => {
               const message = getLocationMessage(defaultLocation);
 
@@ -599,21 +599,21 @@ describe(
           );
 
           it(
-            'location is correct with city, country, stateCode for ' + type,
+            `location is correct with city, country, stateCode for ${  type}`,
             () => {
               const location = defaultLocation;
               const message = getLocationMessage(defaultLocation);
 
               mailer.mailer.sendMail = stubSendMail(emailConfig => {
-                assert.ok(includes(emailConfig.html, location.city + ', ' + location.stateCode + ', ' + location.country));
-                assert.ok(includes(emailConfig.text, location.city + ', ' + location.stateCode + ', ' + location.country));
+                assert.ok(includes(emailConfig.html, `${location.city  }, ${  location.stateCode  }, ${  location.country}`));
+                assert.ok(includes(emailConfig.text, `${location.city  }, ${  location.stateCode  }, ${  location.country}`));
               });
               return mailer[type](message);
             }
           );
 
           it(
-            'location is correct with city, country for ' + type,
+            `location is correct with city, country for ${  type}`,
             () => {
               const location = Object.assign({}, defaultLocation);
               delete location.stateCode;
@@ -621,30 +621,30 @@ describe(
 
 
               mailer.mailer.sendMail = stubSendMail(emailConfig => {
-                assert.ok(includes(emailConfig.html, location.city + ', ' + location.country));
-                assert.ok(includes(emailConfig.text, location.city + ', ' + location.country));
+                assert.ok(includes(emailConfig.html, `${location.city  }, ${  location.country}`));
+                assert.ok(includes(emailConfig.text, `${location.city  }, ${  location.country}`));
               });
               return mailer[type](message);
             }
           );
 
           it(
-            'location is correct with stateCode, country for ' + type,
+            `location is correct with stateCode, country for ${  type}`,
             () => {
               const location = Object.assign({}, defaultLocation);
               delete location.city;
               const message = getLocationMessage(location);
 
               mailer.mailer.sendMail = stubSendMail(emailConfig => {
-                assert.ok(includes(emailConfig.html, location.stateCode + ', ' + location.country));
-                assert.ok(includes(emailConfig.text, location.stateCode + ', ' + location.country));
+                assert.ok(includes(emailConfig.html, `${location.stateCode  }, ${  location.country}`));
+                assert.ok(includes(emailConfig.text, `${location.stateCode  }, ${  location.country}`));
               });
               return mailer[type](message);
             }
           );
 
           it(
-            'location is correct with country for ' + type,
+            `location is correct with country for ${  type}`,
             () => {
               const location = Object.assign({}, defaultLocation);
               delete location.city;
@@ -661,7 +661,7 @@ describe(
           );
 
           it(
-            'device name is correct for ' + type,
+            `device name is correct for ${  type}`,
             () => {
               const message = getLocationMessage(defaultLocation);
               message.uaBrowser = 'Firefox';
@@ -767,7 +767,7 @@ describe(
           );
         } else if (type === 'postVerifyEmail') {
           it(
-            'test utm params for ' + type,
+            `test utm params for ${  type}`,
             () => {
               const syncLink = mailer._generateUTMLink(config.get('smtp').syncUrl, {}, type, 'connect-device');
               const androidLink = mailer._generateUTMLink(config.get('smtp').androidUrl, {}, type, 'connect-android');

@@ -267,7 +267,7 @@ describe('remote emails', function () {
             assert.equal(templateName, 'verifySecondaryEmail', 'email template name set');
 
             assert.equal(includes(verifyLink, 'type=secondary'), true, 'contains type=secondary');
-            const secondaryEmailParam = 'secondary_email_verified=' + encodeURIComponent(secondEmail);
+            const secondaryEmailParam = `secondary_email_verified=${  encodeURIComponent(secondEmail)}`;
             assert.equal(includes(verifyLink, secondaryEmailParam), true, 'contains correct secondary_email_verified');
 
             assert.ok(emailCode, 'emailCode set');

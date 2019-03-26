@@ -86,7 +86,7 @@ module.exports = function (
     util,
     recoveryKey
   );
-  v1Routes.forEach(r => { r.path = basePath + '/v1' + r.path; });
+  v1Routes.forEach(r => { r.path = `${basePath  }/v1${  r.path}`; });
   defaults.forEach(r => { r.path = basePath + r.path; });
   const allRoutes = defaults.concat(idp, v1Routes);
 

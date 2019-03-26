@@ -24,18 +24,18 @@ function generateTemplateName (str) {
     return str;
   }
 
-  return str.replace(/_(.)/g,
+  return `${str.replace(/_(.)/g,
     (match, c) => {
       return c.toUpperCase();
     }
-  ) + 'Email';
+  )  }Email`;
 }
 
 function loadTemplates(name) {
   return P.all(
     [
-      readFile(path.join(__dirname, name + '.txt'), { encoding: 'utf8' }),
-      readFile(path.join(__dirname, name + '.html'), { encoding: 'utf8' })
+      readFile(path.join(__dirname, `${name  }.txt`), { encoding: 'utf8' }),
+      readFile(path.join(__dirname, `${name  }.html`), { encoding: 'utf8' })
     ]
   )
   .spread(

@@ -69,7 +69,7 @@ module.exports = {
   verificationMethodToAMR(verificationMethod) {
     const amr = METHOD_TO_AMR[verificationMethod];
     if (! amr) {
-      throw new Error('unknown verificationMethod: ' + verificationMethod);
+      throw new Error(`unknown verificationMethod: ${  verificationMethod}`);
     }
     return amr;
   },

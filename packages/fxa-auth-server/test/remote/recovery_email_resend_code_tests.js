@@ -30,7 +30,7 @@ describe('remote recovery email resend code', function () {
     let verifyEmailCode = '';
     let client = null;
     const options = {
-      redirectTo: 'https://sync.' + config.smtp.redirectDomain,
+      redirectTo: `https://sync.${  config.smtp.redirectDomain}`,
       service: 'sync',
       resume: 'resumeToken',
       keys: true
@@ -69,7 +69,7 @@ describe('remote recovery email resend code', function () {
       let verifyEmailCode = '';
       let client2 = null;
       const options = {
-        redirectTo: 'https://sync.' + config.smtp.redirectDomain,
+        redirectTo: `https://sync.${  config.smtp.redirectDomain}`,
         service: 'sync',
         resume: 'resumeToken',
         keys: true

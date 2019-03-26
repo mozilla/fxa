@@ -22,17 +22,17 @@ describe('lib/senders/index', () => {
   describe('email', () => {
 
     const UID = crypto.randomBytes(16);
-    const EMAIL = crypto.randomBytes(16).toString('hex') + '@example.test';
+    const EMAIL = `${crypto.randomBytes(16).toString('hex')  }@example.test`;
     const EMAILS = [{
       email: EMAIL,
       isPrimary: true,
       isVerified: true
     }, {
-      email: crypto.randomBytes(16).toString('hex') + '@example.test',
+      email: `${crypto.randomBytes(16).toString('hex')  }@example.test`,
       isPrimary: false,
       isVerified: true
     }, {
-      email: crypto.randomBytes(16).toString('hex') + '@example.test',
+      email: `${crypto.randomBytes(16).toString('hex')  }@example.test`,
       isPrimary: false,
       isVerified: false
     }];

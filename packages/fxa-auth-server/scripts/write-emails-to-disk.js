@@ -80,7 +80,7 @@ require('../lib/senders/translator')(config.i18n.supportedLanguages, config.i18n
   });
 
 function getEmailOutputPath(subject, extension) {
-  const outputFilename = subject.replace(/\s+/g, '_') + '.' + extension;
+  const outputFilename = `${subject.replace(/\s+/g, '_')  }.${  extension}`;
   return path.join(OUTPUT_DIRECTORY, outputFilename);
 }
 
@@ -128,8 +128,8 @@ function checkMessageType(mailer, messageToSend) {
   messageTypes.push('all');
 
   if (messageTypes.indexOf(messageToSend) === -1) {
-    console.error('invalid message name: `' + messageToSend + '`\n' +
-              'choose from: ' + messageTypes.join(', '));
+    console.error(`invalid message name: \`${  messageToSend  }\`\n` +
+              `choose from: ${  messageTypes.join(', ')}`);
     process.exit(1);
   }
 }

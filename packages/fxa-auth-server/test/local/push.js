@@ -534,7 +534,7 @@ describe('push', () => {
       const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig);
       // Careful, the argument gets modified in-place.
       const device = JSON.parse(JSON.stringify(mockDevices[0]));
-      device.pushPublicKey = 'E' + device.pushPublicKey.substring(1); // make the key invalid
+      device.pushPublicKey = `E${  device.pushPublicKey.substring(1)}`; // make the key invalid
       return push.sendPush(mockUid, [device], 'accountVerify')
         .then(() => {
           assert.equal(count, 1);

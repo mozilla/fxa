@@ -883,8 +883,8 @@ const conf = convict({
 // files to process, which will be overlayed in order, in the CONFIG_FILES
 // environment variable.
 
-let envConfig = path.join(__dirname, conf.get('env') + '.json');
-envConfig = envConfig + ',' + (process.env.CONFIG_FILES || '');
+let envConfig = path.join(__dirname, `${conf.get('env')  }.json`);
+envConfig = `${envConfig  },${  process.env.CONFIG_FILES || ''}`;
 const files = envConfig.split(',').filter(fs.existsSync);
 conf.loadFile(files);
 conf.validate({ allowed: 'strict' });
@@ -893,18 +893,18 @@ conf.validate({ allowed: 'strict' });
 conf.set('domain', url.parse(conf.get('publicUrl')).host);
 
 // derive fxa-auth-mailer configuration from our content-server url
-conf.set('smtp.accountSettingsUrl', conf.get('contentServer.url') + '/settings');
-conf.set('smtp.accountRecoveryCodesUrl', conf.get('contentServer.url') + '/settings/two_step_authentication/recovery_codes');
-conf.set('smtp.verificationUrl', conf.get('contentServer.url') + '/verify_email');
-conf.set('smtp.passwordResetUrl', conf.get('contentServer.url') + '/complete_reset_password');
-conf.set('smtp.initiatePasswordResetUrl', conf.get('contentServer.url') + '/reset_password');
-conf.set('smtp.initiatePasswordChangeUrl', conf.get('contentServer.url') + '/settings/change_password');
-conf.set('smtp.verifyLoginUrl', conf.get('contentServer.url') + '/complete_signin');
-conf.set('smtp.reportSignInUrl', conf.get('contentServer.url') + '/report_signin');
-conf.set('smtp.revokeAccountRecoveryUrl', conf.get('contentServer.url') + '/settings/account_recovery/confirm_revoke');
-conf.set('smtp.createAccountRecoveryUrl', conf.get('contentServer.url') + '/settings/account_recovery/confirm_password');
-conf.set('smtp.verifyPrimaryEmailUrl', conf.get('contentServer.url') + '/verify_primary_email');
-conf.set('smtp.verifySecondaryEmailUrl', conf.get('contentServer.url') + '/verify_secondary_email');
+conf.set('smtp.accountSettingsUrl', `${conf.get('contentServer.url')  }/settings`);
+conf.set('smtp.accountRecoveryCodesUrl', `${conf.get('contentServer.url')  }/settings/two_step_authentication/recovery_codes`);
+conf.set('smtp.verificationUrl', `${conf.get('contentServer.url')  }/verify_email`);
+conf.set('smtp.passwordResetUrl', `${conf.get('contentServer.url')  }/complete_reset_password`);
+conf.set('smtp.initiatePasswordResetUrl', `${conf.get('contentServer.url')  }/reset_password`);
+conf.set('smtp.initiatePasswordChangeUrl', `${conf.get('contentServer.url')  }/settings/change_password`);
+conf.set('smtp.verifyLoginUrl', `${conf.get('contentServer.url')  }/complete_signin`);
+conf.set('smtp.reportSignInUrl', `${conf.get('contentServer.url')  }/report_signin`);
+conf.set('smtp.revokeAccountRecoveryUrl', `${conf.get('contentServer.url')  }/settings/account_recovery/confirm_revoke`);
+conf.set('smtp.createAccountRecoveryUrl', `${conf.get('contentServer.url')  }/settings/account_recovery/confirm_password`);
+conf.set('smtp.verifyPrimaryEmailUrl', `${conf.get('contentServer.url')  }/verify_primary_email`);
+conf.set('smtp.verifySecondaryEmailUrl', `${conf.get('contentServer.url')  }/verify_secondary_email`);
 
 conf.set('isProduction', conf.get('env') === 'prod');
 

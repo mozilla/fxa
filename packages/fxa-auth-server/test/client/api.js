@@ -18,7 +18,7 @@ module.exports = config => {
   function ClientApi(origin) {
     EventEmitter.call(this);
     this.origin = origin;
-    this.baseURL = origin + '/v1';
+    this.baseURL = `${origin  }/v1`;
     this.timeOffset = 0;
   }
 
@@ -73,7 +73,7 @@ module.exports = config => {
         // because tokenLifetimes.passwordChangeToken is -1
         const config = require('../../config');
         if (config.get('corsOrigin').indexOf(allowedOrigin) < 0) {
-          return d.reject(new Error('Unexpected allowed origin: ' + allowedOrigin));
+          return d.reject(new Error(`Unexpected allowed origin: ${  allowedOrigin}`));
         }
       }
 
@@ -117,7 +117,7 @@ module.exports = config => {
         // because tokenLifetimes.passwordChangeToken is -1
         const config = require('../../config');
         if (config.get('corsOrigin').indexOf(allowedOrigin) < 0) {
-          return d.reject(new Error('Unexpected allowed origin: ' + allowedOrigin));
+          return d.reject(new Error(`Unexpected allowed origin: ${  allowedOrigin}`));
         }
       }
 
@@ -147,7 +147,7 @@ module.exports = config => {
    */
   ClientApi.prototype.accountCreate = function (email, authPW, options = {}) {
 
-    const url = this.baseURL + '/account/create' + getQueryString(options);
+    const url = `${this.baseURL  }/account/create${  getQueryString(options)}`;
     return this.doRequest(
       'POST',
       url,
@@ -175,7 +175,7 @@ module.exports = config => {
 
     return this.doRequest(
       'POST',
-      this.baseURL + '/account/login' + getQueryString(options),
+      `${this.baseURL  }/account/login${  getQueryString(options)}`,
       null,
       {
         email: email,
@@ -200,7 +200,7 @@ module.exports = config => {
         (token) => {
           return this.doRequest(
             'GET',
-            this.baseURL + '/account/keys',
+            `${this.baseURL  }/account/keys`,
             token
           );
         }
@@ -213,7 +213,7 @@ module.exports = config => {
         (token) => {
           return this.doRequest(
             'GET',
-            this.baseURL + '/account/devices',
+            `${this.baseURL  }/account/devices`,
             token
           );
         }
@@ -223,7 +223,7 @@ module.exports = config => {
   ClientApi.prototype.accountDevicesWithRefreshToken = function (refreshTokenHex) {
     return this.doRequestWithBearerToken(
       'GET',
-      this.baseURL + '/account/devices',
+      `${this.baseURL  }/account/devices`,
       refreshTokenHex
     );
   };
@@ -234,7 +234,7 @@ module.exports = config => {
         (token) => {
           return this.doRequest(
             'POST',
-            this.baseURL + '/account/device',
+            `${this.baseURL  }/account/device`,
             token,
             info
           );
@@ -245,7 +245,7 @@ module.exports = config => {
   ClientApi.prototype.accountDeviceWithRefreshToken = function (refreshTokenHex, info) {
     return this.doRequestWithBearerToken(
       'POST',
-      this.baseURL + '/account/device',
+      `${this.baseURL  }/account/device`,
       refreshTokenHex,
       info
     );
@@ -257,7 +257,7 @@ module.exports = config => {
         (token) => {
           return this.doRequest(
             'POST',
-            this.baseURL + '/account/device/destroy',
+            `${this.baseURL  }/account/device/destroy`,
             token,
             {
               id: id
@@ -270,7 +270,7 @@ module.exports = config => {
   ClientApi.prototype.deviceDestroyWithRefreshToken = function (refreshTokenHex, id) {
     return this.doRequestWithBearerToken(
       'POST',
-      this.baseURL + '/account/device/destroy',
+      `${this.baseURL  }/account/device/destroy`,
       refreshTokenHex,
       {
         id: id
@@ -282,7 +282,7 @@ module.exports = config => {
     if (email) {
       return this.doRequest(
         'POST',
-        this.baseURL + '/account/status',
+        `${this.baseURL  }/account/status`,
         null,
         {
           email: email
@@ -290,7 +290,7 @@ module.exports = config => {
       );
     }
     else {
-      return this.doRequest('POST', this.baseURL + '/account/status');
+      return this.doRequest('POST', `${this.baseURL  }/account/status`);
     }
   };
 
@@ -301,7 +301,7 @@ module.exports = config => {
           (token) => {
             return this.doRequest(
               'GET',
-              this.baseURL + '/account/status',
+              `${this.baseURL  }/account/status`,
               token
             );
           }
@@ -310,12 +310,12 @@ module.exports = config => {
     else if (uid) {
       return this.doRequest(
         'GET',
-        this.baseURL + '/account/status?uid=' + uid
+        `${this.baseURL  }/account/status?uid=${  uid}`
       );
     }
     else {
       // for testing the error response only
-      return this.doRequest('GET', this.baseURL + '/account/status');
+      return this.doRequest('GET', `${this.baseURL  }/account/status`);
     }
   };
 
@@ -332,7 +332,7 @@ module.exports = config => {
         (token) => {
           return this.doRequest(
             'POST',
-            this.baseURL + '/account/reset' + qs,
+            `${this.baseURL  }/account/reset${  qs}`,
             token,
             {
               authPW: authPW.toString('hex'),
@@ -352,7 +352,7 @@ module.exports = config => {
         (token) => {
           return this.doRequest(
             'POST',
-            this.baseURL + '/account/reset' + qs,
+            `${this.baseURL  }/account/reset${  qs}`,
             token,
             {
               authPW: authPW.toString('hex'),
@@ -369,7 +369,7 @@ module.exports = config => {
   ClientApi.prototype.accountDestroy = function (email, authPW) {
     return this.doRequest(
       'POST',
-      this.baseURL + '/account/destroy',
+      `${this.baseURL  }/account/destroy`,
       null,
       {
         email: email,
@@ -383,7 +383,7 @@ module.exports = config => {
       .then((token) => {
         return this.doRequest(
           'POST',
-          this.baseURL + '/account/destroy',
+          `${this.baseURL  }/account/destroy`,
           token,
           {
             email,
@@ -398,7 +398,7 @@ module.exports = config => {
         (token) => {
           return this.doRequest(
             'GET',
-            this.baseURL + '/recovery_email/status',
+            `${this.baseURL  }/recovery_email/status`,
             token
           );
         }
@@ -412,7 +412,7 @@ module.exports = config => {
         (token) => {
           return this.doRequest(
             'POST',
-            this.baseURL + '/recovery_email/resend_code',
+            `${this.baseURL  }/recovery_email/resend_code`,
             token,
             {
               service: options.service || undefined,
@@ -429,7 +429,7 @@ module.exports = config => {
   ClientApi.prototype.recoveryEmailVerifyCode = function (uid, code, options = {}) {
     return this.doRequest(
       'POST',
-      this.baseURL + '/recovery_email/verify_code',
+      `${this.baseURL  }/recovery_email/verify_code`,
       null,
       {
         uid: uid,
@@ -448,9 +448,9 @@ module.exports = config => {
     return tokens.SessionToken.fromHex(sessionTokenHex)
       .then(
         (token) => {
-          let url = this.baseURL + '/certificate/sign';
+          let url = `${this.baseURL  }/certificate/sign`;
           if (options.service) {
-            url += '?service=' + options.service;
+            url += `?service=${  options.service}`;
           }
           return this.doRequest(
             'POST',
@@ -471,14 +471,14 @@ module.exports = config => {
   ClientApi.prototype.getRandomBytes = function () {
     return this.doRequest(
       'POST',
-      this.baseURL + '/get_random_bytes'
+      `${this.baseURL  }/get_random_bytes`
     );
   };
 
   ClientApi.prototype.passwordChangeStart = function (email, oldAuthPW, headers) {
     return this.doRequest(
       'POST',
-      this.baseURL + '/password/change/start',
+      `${this.baseURL  }/password/change/start`,
       null,
       {
         email: email,
@@ -506,7 +506,7 @@ module.exports = config => {
 
           return this.doRequest(
             'POST',
-            this.baseURL + '/password/change/finish' + getQueryString(options),
+            `${this.baseURL  }/password/change/finish${  getQueryString(options)}`,
             token,
             requestData,
             headers
@@ -525,7 +525,7 @@ module.exports = config => {
     }
     return this.doRequest(
       'POST',
-      this.baseURL + '/password/forgot/send_code' + getQueryString(options),
+      `${this.baseURL  }/password/forgot/send_code${  getQueryString(options)}`,
       null,
       {
         email: email,
@@ -544,7 +544,7 @@ module.exports = config => {
         (token) => {
           return this.doRequest(
             'POST',
-            this.baseURL + '/password/forgot/resend_code' + getQueryString(options),
+            `${this.baseURL  }/password/forgot/resend_code${  getQueryString(options)}`,
             token,
             {
               email: email,
@@ -567,7 +567,7 @@ module.exports = config => {
         (token) => {
           return this.doRequest(
             'POST',
-            this.baseURL + '/password/forgot/verify_code',
+            `${this.baseURL  }/password/forgot/verify_code`,
             token,
             {
               code: code,
@@ -585,7 +585,7 @@ module.exports = config => {
         (token) => {
           return this.doRequest(
             'GET',
-            this.baseURL + '/password/forgot/status',
+            `${this.baseURL  }/password/forgot/status`,
             token
           );
         }
@@ -595,7 +595,7 @@ module.exports = config => {
   ClientApi.prototype.accountLock = function (email, authPW) {
     return this.doRequest(
       'POST',
-      this.baseURL + '/account/lock',
+      `${this.baseURL  }/account/lock`,
       null,
       {
         email: email,
@@ -613,7 +613,7 @@ module.exports = config => {
     }
     return this.doRequest(
       'POST',
-      this.baseURL + '/account/unlock/resend_code',
+      `${this.baseURL  }/account/unlock/resend_code`,
       null,
       {
         email: email,
@@ -628,7 +628,7 @@ module.exports = config => {
   ClientApi.prototype.accountUnlockVerifyCode = function (uid, code) {
     return this.doRequest(
       'POST',
-      this.baseURL + '/account/unlock/verify_code',
+      `${this.baseURL  }/account/unlock/verify_code`,
       null,
       {
         uid: uid,
@@ -651,7 +651,7 @@ module.exports = config => {
         (token) => {
           return this.doRequest(
             'POST',
-            this.baseURL + '/session/destroy',
+            `${this.baseURL  }/session/destroy`,
             token,
             data
           );
@@ -665,7 +665,7 @@ module.exports = config => {
         (token) => {
           return this.doRequest(
             'POST',
-            this.baseURL + '/session/reauth' + getQueryString(options),
+            `${this.baseURL  }/session/reauth${  getQueryString(options)}`,
             token,
             {
               email: email,
@@ -686,7 +686,7 @@ module.exports = config => {
         (token) => {
           return this.doRequest(
             'POST',
-            this.baseURL + '/session/duplicate',
+            `${this.baseURL  }/session/duplicate`,
             token,
             {}
           );
@@ -700,7 +700,7 @@ module.exports = config => {
         (token) => {
           return this.doRequest(
             'GET',
-            this.baseURL + '/account/sessions',
+            `${this.baseURL  }/account/sessions`,
             token
           );
         }
@@ -713,7 +713,7 @@ module.exports = config => {
         (token) => {
           return this.doRequest(
             'GET',
-            this.baseURL + '/session/status',
+            `${this.baseURL  }/session/status`,
             token
           );
         }
@@ -726,7 +726,7 @@ module.exports = config => {
         (token) => {
           return this.doRequest(
             'GET',
-            this.baseURL + '/account/profile',
+            `${this.baseURL  }/account/profile`,
             token,
             undefined,
             headers
@@ -762,7 +762,7 @@ module.exports = config => {
       (token) => {
         return this.doRequest(
           'GET',
-          this.baseURL + '/recovery_emails',
+          `${this.baseURL  }/recovery_emails`,
           token
         );
       }
@@ -775,7 +775,7 @@ module.exports = config => {
       (token) => {
         return this.doRequest(
           'POST',
-          this.baseURL + '/recovery_email',
+          `${this.baseURL  }/recovery_email`,
           token,
           {
             email: email
@@ -791,7 +791,7 @@ module.exports = config => {
       (token) => {
         return this.doRequest(
           'POST',
-          this.baseURL + '/recovery_email/destroy',
+          `${this.baseURL  }/recovery_email/destroy`,
           token,
           {
             email: email
@@ -807,7 +807,7 @@ module.exports = config => {
       (token) => {
         return this.doRequest(
           'POST',
-          this.baseURL + '/recovery_email/set_primary',
+          `${this.baseURL  }/recovery_email/set_primary`,
           token,
           {
             email: email
@@ -820,7 +820,7 @@ module.exports = config => {
   ClientApi.prototype.sendUnblockCode = function (email) {
     return this.doRequest(
       'POST',
-      this.baseURL + '/account/login/send_unblock_code',
+      `${this.baseURL  }/account/login/send_unblock_code`,
       null,
       {
         email: email
@@ -842,7 +842,7 @@ module.exports = config => {
       .then((token) => {
         return this.doRequest(
           'POST',
-          this.baseURL + '/session/verify/token',
+          `${this.baseURL  }/session/verify/token`,
           token,
           {
             code: code,
@@ -858,7 +858,7 @@ module.exports = config => {
       .then((token) => {
         return this.doRequest(
           'POST',
-          this.baseURL + '/totp/create',
+          `${this.baseURL  }/totp/create`,
           token,
           {
             metricsContext: options.metricsContext
@@ -872,7 +872,7 @@ module.exports = config => {
       .then((token) => {
         return this.doRequest(
           'POST',
-          this.baseURL + '/totp/destroy',
+          `${this.baseURL  }/totp/destroy`,
           token,
           {}
         );
@@ -884,7 +884,7 @@ module.exports = config => {
       .then((token) => {
         return this.doRequest(
           'GET',
-          this.baseURL + '/totp/exists',
+          `${this.baseURL  }/totp/exists`,
           token
         ).bind(this);
       });
@@ -895,7 +895,7 @@ module.exports = config => {
       .then((token) => {
         return this.doRequest(
           'POST',
-          this.baseURL + '/session/verify/totp',
+          `${this.baseURL  }/session/verify/totp`,
           token,
           {
             code: code,
@@ -910,7 +910,7 @@ module.exports = config => {
       .then((token) => {
         return this.doRequest(
           'GET',
-          this.baseURL + '/recoveryCodes',
+          `${this.baseURL  }/recoveryCodes`,
           token
         );
       });
@@ -921,7 +921,7 @@ module.exports = config => {
       .then((token) => {
         return this.doRequest(
           'POST',
-          this.baseURL + '/session/verify/recoveryCode',
+          `${this.baseURL  }/session/verify/recoveryCode`,
           token,
           {
             code: code
@@ -935,7 +935,7 @@ module.exports = config => {
       .then((token) => {
         return this.doRequest(
           'POST',
-          this.baseURL + '/recoveryKey',
+          `${this.baseURL  }/recoveryKey`,
           token,
           {
             recoveryKeyId,
@@ -989,7 +989,7 @@ module.exports = config => {
   };
 
   ClientApi.heartbeat = function (origin) {
-    return (new ClientApi(origin)).doRequest('GET', origin + '/__heartbeat__');
+    return (new ClientApi(origin)).doRequest('GET', `${origin  }/__heartbeat__`);
   };
 
   function getQueryString (options) {
@@ -1000,15 +1000,15 @@ module.exports = config => {
     }
 
     if (options.serviceQuery) {
-      qs.push('service=' + options.serviceQuery);
+      qs.push(`service=${  options.serviceQuery}`);
     }
 
     if (options.createdAt) {
-      qs.push('_createdAt=' + options.createdAt);
+      qs.push(`_createdAt=${  options.createdAt}`);
     }
 
     if (qs) {
-      return '?' + qs.join('&');
+      return `?${  qs.join('&')}`;
     } else {
       return '';
     }

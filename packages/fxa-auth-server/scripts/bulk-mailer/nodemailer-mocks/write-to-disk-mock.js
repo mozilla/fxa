@@ -21,13 +21,13 @@ module.exports = class WriteToDiskMock extends NodemailerMock {
     targets.forEach(email => {
       const outputPath = path.join(this.outputDir, email);
 
-      const textPath = outputPath + '.txt';
+      const textPath = `${outputPath  }.txt`;
       fs.writeFileSync(textPath, emailConfig.text);
 
-      const htmlPath = outputPath + '.html';
+      const htmlPath = `${outputPath  }.html`;
       fs.writeFileSync(htmlPath, emailConfig.html);
 
-      const headersPath = outputPath + '.headers';
+      const headersPath = `${outputPath  }.headers`;
       fs.writeFileSync(headersPath, JSON.stringify(emailConfig.headers, null, 2));
     });
 

@@ -13,7 +13,7 @@ const error = require(`${ROOT_DIR}/lib/error`);
 const P = require('bluebird');
 const sinon = require('sinon');
 
-const EMAIL = Math.random() + '@example.test';
+const EMAIL = `${Math.random()  }@example.test`;
 const BOUNCE_TYPE_HARD = 1;
 const BOUNCE_TYPE_COMPLAINT = 3;
 

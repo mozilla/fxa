@@ -42,7 +42,7 @@ describe('remote base path', function() {
   it(
     'alternate base path',
     () => {
-      const email = Math.random() + '@example.com';
+      const email = `${Math.random()  }@example.com`;
       const password = 'ok';
       // if this doesn't crash, we're all good
       return Client.create(config.publicUrl, email, password, server.mailbox);

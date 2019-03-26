@@ -363,7 +363,7 @@ module.exports = function (log, db, config) {
       devices = filterSupportedDevices(options.data, devices);
       const events = pushReasonsToEvents[reason];
       if (! events) {
-        return P.reject('Unknown push reason: ' + reason);
+        return P.reject(`Unknown push reason: ${  reason}`);
       }
       // There's no spec-compliant way to error out as a result of having
       // too many devices to notify.  For now, just log metrics about it.

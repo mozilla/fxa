@@ -27,7 +27,7 @@ describe('remote token expiry', function() {
     'token expiry',
     () => {
       // FYI config.tokenLifetimes.passwordChangeToken = 1
-      const email = Math.random() + '@example.com';
+      const email = `${Math.random()  }@example.com`;
       const password = 'ok';
       return Client.create(config.publicUrl, email, password, { preVerified: true })
         .then(

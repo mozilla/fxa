@@ -32,7 +32,7 @@ describe('remote account login', () => {
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           () => {
-            return Client.login(config.publicUrl, email, password + 'x');
+            return Client.login(config.publicUrl, email, `${password  }x`);
           }
         )
         .then(

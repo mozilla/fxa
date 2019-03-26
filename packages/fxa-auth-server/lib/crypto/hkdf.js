@@ -10,7 +10,7 @@ const P = require('../promise');
 const NAMESPACE = 'identity.mozilla.com/picl/v1/';
 
 function KWE(name, email) {
-  return Buffer.from(NAMESPACE + name + ':' + email);
+  return Buffer.from(`${NAMESPACE + name  }:${  email}`);
 }
 
 function KW(name) {

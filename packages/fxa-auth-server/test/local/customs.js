@@ -471,15 +471,15 @@ describe('Customs', () => {
 });
 
 function newEmail() {
-  return Math.random().toString().substr(2) + '@example.com';
+  return `${Math.random().toString().substr(2)  }@example.com`;
 }
 
 function newIp() {
   return [
-    '' + Math.floor(Math.random() * 256),
-    '' + Math.floor(Math.random() * 256),
-    '' + Math.floor(Math.random() * 256),
-    '' + Math.floor(Math.random() * 256),
+    `${  Math.floor(Math.random() * 256)}`,
+    `${  Math.floor(Math.random() * 256)}`,
+    `${  Math.floor(Math.random() * 256)}`,
+    `${  Math.floor(Math.random() * 256)}`,
   ].join('.');
 }
 

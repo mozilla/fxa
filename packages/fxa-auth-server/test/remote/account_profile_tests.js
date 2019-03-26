@@ -12,7 +12,7 @@ const config = require('../../config').getProperties();
 
 function makeMockOAuthHeader(opts) {
   const token = Buffer.from(JSON.stringify(opts)).toString('hex');
-  return 'Bearer ' + token;
+  return `Bearer ${  token}`;
 }
 
 describe('remote account profile', function() {

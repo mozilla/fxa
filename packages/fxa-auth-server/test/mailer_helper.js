@@ -14,7 +14,7 @@ const zeroBuffer32 = Buffer.from('0000000000000000000000000000000000000000000000
 function createTestAccount() {
   const account = {
     uid: uuid.v4('binary').toString('hex'),
-    email: 'foo' + Math.random() + '@bar.com',
+    email: `foo${  Math.random()  }@bar.com`,
     emailCode: zeroBuffer16,
     emailVerified: false,
     verifierVersion: 1,

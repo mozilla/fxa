@@ -83,7 +83,7 @@ DB.connect(config[config.db.backend])
 
 function checkRequiredOption(optionName) {
   if (! commandLineOptions[optionName]) {
-    console.error('--' + optionName + ' required');
+    console.error(`--${  optionName  } required`);
     process.exit(1);
   }
 }
