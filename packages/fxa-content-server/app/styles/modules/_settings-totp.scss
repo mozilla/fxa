@@ -42,6 +42,12 @@
       height: 228px;
       margin: auto auto 24px auto;
       width: 228px;
+
+      .qr-image {
+        height: 100%;
+        object-fit: scale-down;
+        width: 100%;
+      }
     }
 
     .setup-description,
