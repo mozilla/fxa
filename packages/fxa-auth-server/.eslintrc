@@ -7,6 +7,7 @@ rules:
   handle-callback-err: 0
   no-var: 2
   prefer-arrow-callback: 2
+  prefer-const: 2
   strict: 2
   semi: [2, "always"]
   indent: [0, 2]
