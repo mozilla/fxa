@@ -3,27 +3,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
 /* eslint-disable no-console */
-var cp = require('child_process')
-var split = require('binary-split')
-var through = require('through')
+const cp = require('child_process');
+const split = require('binary-split');
+const through = require('through');
 
-var clientCount = 2
-var pathStats = {}
-var requests = 0
-var pass = 0 // eslint-disable-line no-unused-vars
-var fail = 0
-var start = null
+let clientCount = 2;
+const pathStats = {};
+let requests = 0;
+let pass = 0; // eslint-disable-line no-unused-vars
+let fail = 0;
+let start = null;
 
-var server = cp.spawn(
+const server = cp.spawn(
   'node',
   ['../../bin/key_server.js'],
   {
     cwd: __dirname
   }
-)
+);
 
 server.stderr
   .pipe(split())
@@ -31,7 +31,7 @@ server.stderr
     through(
       function (data) {
         try {
-          this.emit('data', JSON.parse(data))
+          this.emit('data', JSON.parse(data));
         }
         catch (e) {}
       }
@@ -41,53 +41,53 @@ server.stderr
     through(
       function (json) {
         if (json.level > 30 && json.op !== 'console') {
-          console.log(json)
+          console.log(json);
         }
         if (json.op && json.op === 'request.summary') {
-          if (! start) start = Date.now()
-          requests++
-          if (json.code === 200) { pass++ } else { fail++ }
-          var stat = pathStats[json.path] || {}
-          stat.count = stat.count + 1 || 1
-          stat.max = Math.max(stat.max || 0, json.t)
-          stat.min = Math.min(stat.min || Number.MAX_VALUE, json.t)
-          pathStats[json.path] = stat
-          this.emit('data', json)
+          if (! start) start = Date.now();
+          requests++;
+          if (json.code === 200) { pass++; } else { fail++; }
+          const stat = pathStats[json.path] || {};
+          stat.count = stat.count + 1 || 1;
+          stat.max = Math.max(stat.max || 0, json.t);
+          stat.min = Math.min(stat.min || Number.MAX_VALUE, json.t);
+          pathStats[json.path] = stat;
+          this.emit('data', json);
         }
         else if (json.op === 'server.start.1') {
-          startClients()
+          startClients();
         }
       }
     )
-  )
+  );
 
 function startClient() {
-  var client = cp.spawn(
+  const client = cp.spawn(
     'node',
     ['./bot.js'],
     {
       cwd: __dirname
     }
-  )
-  client.stdout.on('data', process.stdout.write.bind(process.stdout))
-  client.stderr.on('data', process.stderr.write.bind(process.stderr))
-  return client
+  );
+  client.stdout.on('data', process.stdout.write.bind(process.stdout));
+  client.stderr.on('data', process.stderr.write.bind(process.stderr));
+  return client;
 }
 
 function clientExit() {
-  clientCount--
+  clientCount--;
   if (clientCount === 0) {
-    var seconds = (Date.now() - start) / 1000
-    var rps = Math.floor(requests / seconds)
-    console.log('rps: %d requests: %d errors: %d', rps, requests, fail)
-    console.log(pathStats)
-    server.kill('SIGINT')
+    const seconds = (Date.now() - start) / 1000;
+    const rps = Math.floor(requests / seconds);
+    console.log('rps: %d requests: %d errors: %d', rps, requests, fail);
+    console.log(pathStats);
+    server.kill('SIGINT');
   }
 }
 
 function startClients() {
-  for (var i = 0; i < clientCount; i++) {
-    var c = startClient()
-    c.on('exit', clientExit)
+  for (let i = 0; i < clientCount; i++) {
+    const c = startClient();
+    c.on('exit', clientExit);
   }
 }

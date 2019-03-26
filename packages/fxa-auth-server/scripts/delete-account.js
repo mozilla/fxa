@@ -18,34 +18,34 @@
 
 /*/
 
-'use strict'
+'use strict';
 
-const readline = require('readline')
-const P = require('../lib/promise')
-const config = require('../config').getProperties()
-const log = require('../lib/log')(config.log.level)
-const Token = require('../lib/tokens')(log, config)
-const mailer = null
+const readline = require('readline');
+const P = require('../lib/promise');
+const config = require('../config').getProperties();
+const log = require('../lib/log')(config.log.level);
+const Token = require('../lib/tokens')(log, config);
+const mailer = null;
 
 
-var DB = require('../lib/db')(
+const DB = require('../lib/db')(
   config,
   log,
   Token
-)
+);
 
 return DB.connect(config[config.db.backend]).then(db => {
 
   // Bypass customs checks.
-  const mockCustoms = { check: () => { return P.resolve() } }
+  const mockCustoms = { check: () => { return P.resolve(); } };
 
   // Bypass password checks.
   function MockPassword() { }
-  const signinUtils = require('../lib/routes/utils/signin')(log, config, mockCustoms, db, mailer)
-  signinUtils.checkPassword = function() { return P.resolve(true) }
+  const signinUtils = require('../lib/routes/utils/signin')(log, config, mockCustoms, db, mailer);
+  signinUtils.checkPassword = function() { return P.resolve(true); };
 
   // Bypass TOTP checks.
-  db.totpToken = () => { return P.resolve(false) }
+  db.totpToken = () => { return P.resolve(false); };
 
   // Load the account-deletion route, so we can use its logic directly.
   const accountDestroyRoute = require('../lib/routes/account')(
@@ -57,7 +57,7 @@ return DB.connect(config[config.db.backend]).then(db => {
     mockCustoms,
     signinUtils,
     require('../lib/push')(log, db, config)
-  ).find(r => r.path === '/account/destroy')
+  ).find(r => r.path === '/account/destroy');
 
 
   P.each(process.argv.slice(2), email => {
@@ -65,16 +65,16 @@ return DB.connect(config[config.db.backend]).then(db => {
 
       // This is a pretty destructive action, ask the operator
       // to confirm each individual account deletion in turn.
-      console.log('Found account record:')
-      console.log('    uid:', account.uid)
-      console.log('    email:', account.email)
+      console.log('Found account record:');
+      console.log('    uid:', account.uid);
+      console.log('    email:', account.email);
       const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout,
-      })
+      });
       return new P((resolve, reject) => {
         rl.question('Really delete this account? (y/n) ', answer => {
-          rl.close()
+          rl.close();
           if (['y', 'yes'].indexOf(answer.toLowerCase()) === -1) {
             return reject('Cancelled');
           }
@@ -85,22 +85,22 @@ return DB.connect(config[config.db.backend]).then(db => {
             app: {
               clientAddress: '0.0.0.0'
             },
-            emitMetricsEvent: () => { return P.resolve() },
-            gatherMetricsContext: () => { return P.resolve({}) },
+            emitMetricsEvent: () => { return P.resolve(); },
+            gatherMetricsContext: () => { return P.resolve({}); },
             payload: {
               email: email,
               authPW: 'mock password'
             }
-          }
-          accountDestroyRoute.handler(mockRequest).then(resolve, reject)
-        })
-      })
+          };
+          accountDestroyRoute.handler(mockRequest).then(resolve, reject);
+        });
+      });
     });
   }).then(() => {
-    console.log('ok')
+    console.log('ok');
   }, err => {
-    console.log('ERROR:', err.message || err)
+    console.log('ERROR:', err.message || err);
   }).finally(() => {
-    return db.close()
-  })
-})
+    return db.close();
+  });
+});

@@ -2,33 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const fs = require('fs')
-const Hapi = require('hapi')
-const joi = require('joi')
-const Raven = require('raven')
-const path = require('path')
-const url = require('url')
-const userAgent = require('./userAgent')
-const schemeRefreshToken = require('./scheme-refresh-token')
+const fs = require('fs');
+const Hapi = require('hapi');
+const joi = require('joi');
+const Raven = require('raven');
+const path = require('path');
+const url = require('url');
+const userAgent = require('./userAgent');
+const schemeRefreshToken = require('./scheme-refresh-token');
 
-const { HEX_STRING, IP_ADDRESS } = require('./routes/validators')
+const { HEX_STRING, IP_ADDRESS } = require('./routes/validators');
 
 function trimLocale(header) {
   if (! header) {
-    return header
+    return header;
   }
   if (header.length < 256) {
-    return header.trim()
+    return header.trim();
   }
-  var parts = header.split(',')
-  var str = parts[0]
-  if (str.length >= 255) { return null }
-  for (var i = 1; i < parts.length && str.length + parts[i].length < 255; i++) {
-    str += ',' + parts[i]
+  const parts = header.split(',');
+  let str = parts[0];
+  if (str.length >= 255) { return null; }
+  for (let i = 1; i < parts.length && str.length + parts[i].length < 255; i++) {
+    str += `,${  parts[i]}`;
   }
-  return str.trim()
+  return str.trim();
 }
 
 function logEndpointErrors(response, log) {
@@ -36,28 +36,28 @@ function logEndpointErrors(response, log) {
   // The error response hides error information from the user, but we log it here
   // to better understand the DB timeouts.
   if (response.__proto__ && response.__proto__.name === 'EndpointError') {
-    var endpointLog = {
+    const endpointLog = {
       message: response.message,
       reason: response.reason
-    }
+    };
     if (response.attempt && response.attempt.method) {
       // log the DB attempt to understand the action
-      endpointLog.method = response.attempt.method
+      endpointLog.method = response.attempt.method;
     }
-    log.error('server.EndpointError', endpointLog)
+    log.error('server.EndpointError', endpointLog);
   }
 }
 
 function configureSentry(server, config) {
-  const sentryDsn = config.sentryDsn
+  const sentryDsn = config.sentryDsn;
   if (sentryDsn) {
-    Raven.config(sentryDsn, {})
-    server.events.on({ name: 'request', channels: 'error' }, function (request, event) {
-      const err = event && event.error || null
-      let exception = ''
+    Raven.config(sentryDsn, {});
+    server.events.on({ name: 'request', channels: 'error' }, (request, event) => {
+      const err = event && event.error || null;
+      let exception = '';
       if (err && err.stack) {
         try {
-          exception = err.stack.split('\n')[0]
+          exception = err.stack.split('\n')[0];
         } catch (e) {
           // ignore bad stack frames
         }
@@ -67,25 +67,25 @@ function configureSentry(server, config) {
         extra: {
           exception: exception
         }
-      })
-    })
+      });
+    });
   }
 }
 
 
 async function create (log, error, config, routes, db, oauthdb, translator) {
-  const getGeoData = require('./geodb')(log)
-  const metricsContext = require('./metrics/context')(log, config)
-  const metricsEvents = require('./metrics/events')(log, config)
+  const getGeoData = require('./geodb')(log);
+  const metricsContext = require('./metrics/context')(log, config);
+  const metricsEvents = require('./metrics/events')(log, config);
 
   // Hawk needs to calculate request signatures based on public URL,
   // not the local URL to which it is bound.
-  var publicURL = url.parse(config.publicUrl)
-  var defaultPorts = {
+  const publicURL = url.parse(config.publicUrl);
+  const defaultPorts = {
     'http:': 80,
     'https:': 443
-  }
-  var hawkOptions = {
+  };
+  const hawkOptions = {
     host: publicURL.hostname,
     port: publicURL.port ? publicURL.port : defaultPorts[publicURL.protocol],
 
@@ -98,38 +98,38 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
       // Since we've disabled timestamp checks, there's not much point
       // keeping a nonce cache.  Instead we use this as an opportunity
       // to report on the clock skew values seen in the wild.
-      var skew = (Date.now() / 1000) - (+ts)
-      log.trace('server.nonceFunc', { skew: skew })
+      const skew = (Date.now() / 1000) - (+ts);
+      log.trace('server.nonceFunc', { skew: skew });
     }
-  }
+  };
 
 
   function makeCredentialFn(dbGetFn) {
     return function (id) {
-      log.trace('DB.getToken', { id: id })
+      log.trace('DB.getToken', { id: id });
       if (! HEX_STRING.test(id)) {
-        return null
+        return null;
       }
 
       return dbGetFn(id)
         .then(token => {
           if (token.expired(Date.now())) {
-            const err = error.invalidToken('The authentication token has expired')
+            const err = error.invalidToken('The authentication token has expired');
 
             if (token.constructor.tokenTypeID === 'sessionToken') {
               return db.pruneSessionTokens(token.uid, [ token ])
                 .catch(() => {})
-                .then(() => { throw err })
+                .then(() => { throw err; });
             }
-            return null
+            return null;
           }
-          return token
-        })
+          return token;
+        });
 
-    }
+    };
   }
 
-  var serverOptions = {
+  const serverOptions = {
     host: config.listen.host,
     port: config.listen.port,
     routes: {
@@ -169,61 +169,61 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
       sampleInterval: 1000,
       maxEventLoopDelay: config.maxEventLoopDelay
     },
-  }
+  };
 
   if (config.useHttps) {
     serverOptions.tls = {
       key: fs.readFileSync(config.keyPath),
       cert: fs.readFileSync(config.certPath)
-    }
+    };
   }
 
-  var server = new Hapi.Server(serverOptions)
+  const server = new Hapi.Server(serverOptions);
 
   server.ext('onRequest', (request, h) => {
-    log.begin('server.onRequest', request)
-    return h.continue
-  })
+    log.begin('server.onRequest', request);
+    return h.continue;
+  });
 
   server.ext('onPreAuth', (request, h) => {
     defineLazyGetter(request.app, 'remoteAddressChain', () => {
-      const xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/)
+      const xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/);
 
-      xff.push(request.info.remoteAddress)
+      xff.push(request.info.remoteAddress);
 
       return xff.map(address => address.trim())
-        .filter(address => ! joi.validate(address, IP_ADDRESS.required()).error)
-    })
+        .filter(address => ! joi.validate(address, IP_ADDRESS.required()).error);
+    });
 
     defineLazyGetter(request.app, 'clientAddress', () => {
-      const remoteAddressChain = request.app.remoteAddressChain
-      let clientAddressIndex = remoteAddressChain.length - (config.clientAddressDepth || 1)
+      const remoteAddressChain = request.app.remoteAddressChain;
+      let clientAddressIndex = remoteAddressChain.length - (config.clientAddressDepth || 1);
 
       if (clientAddressIndex < 0) {
-        clientAddressIndex = 0
+        clientAddressIndex = 0;
       }
 
-      return remoteAddressChain[clientAddressIndex]
-    })
+      return remoteAddressChain[clientAddressIndex];
+    });
 
-    defineLazyGetter(request.app, 'acceptLanguage', () => trimLocale(request.headers['accept-language']))
-    defineLazyGetter(request.app, 'locale', () => translator.getLocale(request.app.acceptLanguage))
+    defineLazyGetter(request.app, 'acceptLanguage', () => trimLocale(request.headers['accept-language']));
+    defineLazyGetter(request.app, 'locale', () => translator.getLocale(request.app.acceptLanguage));
 
-    defineLazyGetter(request.app, 'ua', () => userAgent(request.headers['user-agent']))
-    defineLazyGetter(request.app, 'geo', () => getGeoData(request.app.clientAddress))
-    defineLazyGetter(request.app, 'metricsContext', () => metricsContext.get(request))
+    defineLazyGetter(request.app, 'ua', () => userAgent(request.headers['user-agent']));
+    defineLazyGetter(request.app, 'geo', () => getGeoData(request.app.clientAddress));
+    defineLazyGetter(request.app, 'metricsContext', () => metricsContext.get(request));
 
     defineLazyGetter(request.app, 'devices', () => {
-      let uid
+      let uid;
 
       if (request.auth && request.auth.credentials) {
-        uid = request.auth.credentials.uid
+        uid = request.auth.credentials.uid;
       } else if (request.payload && request.payload.uid) {
-        uid = request.payload.uid
+        uid = request.payload.uid;
       }
 
-      return db.devices(uid)
-    })
+      return db.devices(uid);
+    });
 
     if (request.headers.authorization) {
       // Log some helpful details for debugging authentication problems.
@@ -232,55 +232,55 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
         path: request.path,
         auth: request.headers.authorization,
         type: request.headers['content-type'] || ''
-      })
+      });
     }
 
-    return h.continue
-  })
+    return h.continue;
+  });
 
   server.ext('onPreHandler', (request, h) => {
-    const features = request.payload && request.payload.features
-    request.app.features = new Set(Array.isArray(features) ? features : [])
+    const features = request.payload && request.payload.features;
+    request.app.features = new Set(Array.isArray(features) ? features : []);
 
-    return h.continue
-  })
+    return h.continue;
+  });
 
   server.ext('onPreResponse', (request) => {
-    let response = request.response
+    let response = request.response;
     if (response.isBoom) {
-      logEndpointErrors(response, log)
-      response = error.translate(request, response)
+      logEndpointErrors(response, log);
+      response = error.translate(request, response);
       if (config.env !== 'prod') {
-        response.backtrace(request.app.traced)
+        response.backtrace(request.app.traced);
       }
     }
-    response.header('Timestamp', '' + Math.floor(Date.now() / 1000))
-    log.summary(request, response)
-    return response
-  })
+    response.header('Timestamp', `${  Math.floor(Date.now() / 1000)}`);
+    log.summary(request, response);
+    return response;
+  });
 
   // configure Sentry
-  configureSentry(server, config)
+  configureSentry(server, config);
 
-  server.decorate('request', 'stashMetricsContext', metricsContext.stash)
-  server.decorate('request', 'gatherMetricsContext', metricsContext.gather)
-  server.decorate('request', 'propagateMetricsContext', metricsContext.propagate)
-  server.decorate('request', 'clearMetricsContext', metricsContext.clear)
-  server.decorate('request', 'validateMetricsContext', metricsContext.validate)
-  server.decorate('request', 'setMetricsFlowCompleteSignal', metricsContext.setFlowCompleteSignal)
+  server.decorate('request', 'stashMetricsContext', metricsContext.stash);
+  server.decorate('request', 'gatherMetricsContext', metricsContext.gather);
+  server.decorate('request', 'propagateMetricsContext', metricsContext.propagate);
+  server.decorate('request', 'clearMetricsContext', metricsContext.clear);
+  server.decorate('request', 'validateMetricsContext', metricsContext.validate);
+  server.decorate('request', 'setMetricsFlowCompleteSignal', metricsContext.setFlowCompleteSignal);
 
-  server.decorate('request', 'emitMetricsEvent', metricsEvents.emit)
-  server.decorate('request', 'emitRouteFlowEvent', metricsEvents.emitRouteFlowEvent)
+  server.decorate('request', 'emitMetricsEvent', metricsEvents.emit);
+  server.decorate('request', 'emitRouteFlowEvent', metricsEvents.emitRouteFlowEvent);
 
   server.stat = function() {
     return {
       stat: 'mem',
       rss: server.load.rss,
       heapUsed: server.load.heapUsed
-    }
-  }
+    };
+  };
 
-  await server.register(require('hapi-auth-hawk'))
+  await server.register(require('hapi-auth-hawk'));
 
   server.auth.strategy(
     'sessionToken',
@@ -289,7 +289,7 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
       getCredentialsFunc: makeCredentialFn(db.sessionToken.bind(db)),
       hawk: hawkOptions
     }
-  )
+  );
   server.auth.strategy(
     'keyFetchToken',
     'hawk',
@@ -297,7 +297,7 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
       getCredentialsFunc: makeCredentialFn(db.keyFetchToken.bind(db)),
       hawk: hawkOptions
     }
-  )
+  );
   server.auth.strategy(
     // This strategy fetches the keyFetchToken with its
     // verification state. It doesn't check that state.
@@ -307,7 +307,7 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
       getCredentialsFunc: makeCredentialFn(db.keyFetchTokenWithVerificationStatus.bind(db)),
       hawk: hawkOptions
     }
-  )
+  );
   server.auth.strategy(
     'accountResetToken',
     'hawk',
@@ -315,7 +315,7 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
       getCredentialsFunc: makeCredentialFn(db.accountResetToken.bind(db)),
       hawk: hawkOptions
     }
-  )
+  );
   server.auth.strategy(
     'passwordForgotToken',
     'hawk',
@@ -323,7 +323,7 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
       getCredentialsFunc: makeCredentialFn(db.passwordForgotToken.bind(db)),
       hawk: hawkOptions
     }
-  )
+  );
   server.auth.strategy(
     'passwordChangeToken',
     'hawk',
@@ -331,33 +331,33 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
       getCredentialsFunc: makeCredentialFn(db.passwordChangeToken.bind(db)),
       hawk: hawkOptions
     }
-  )
-  await server.register(require('hapi-fxa-oauth'))
+  );
+  await server.register(require('hapi-fxa-oauth'));
 
-  server.auth.strategy('oauthToken', 'fxa-oauth', config.oauth)
+  server.auth.strategy('oauthToken', 'fxa-oauth', config.oauth);
 
-  server.auth.scheme('fxa-oauth-refreshToken', schemeRefreshToken(db, oauthdb))
+  server.auth.scheme('fxa-oauth-refreshToken', schemeRefreshToken(db, oauthdb));
 
-  server.auth.strategy('refreshToken', 'fxa-oauth-refreshToken')
+  server.auth.strategy('refreshToken', 'fxa-oauth-refreshToken');
 
   // routes should be registered after all auth strategies have initialized:
   // ref: http://hapijs.com/tutorials/auth
 
-  server.route(routes)
-  return server
+  server.route(routes);
+  return server;
 }
 
 function defineLazyGetter (object, key, getter) {
-  let value
+  let value;
   Object.defineProperty(object, key, {
     get () {
       if (! value) {
-        value = getter()
+        value = getter();
       }
 
-      return value
+      return value;
     }
-  })
+  });
 }
 
 module.exports = {
@@ -366,4 +366,4 @@ module.exports = {
   _configureSentry: configureSentry,
   _logEndpointErrors: logEndpointErrors,
   _trimLocale: trimLocale
-}
+};

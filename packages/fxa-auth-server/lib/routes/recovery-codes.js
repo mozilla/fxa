@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const errors = require('../error')
-const isA = require('joi')
-const BASE_36 = require('./validators').BASE_36
-const RECOVERY_CODE_SANE_MAX_LENGTH = 20
+const errors = require('../error');
+const isA = require('joi');
+const BASE_36 = require('./validators').BASE_36;
+const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 
 module.exports = (log, db, config, customs, mailer) => {
-  const codeConfig = config.recoveryCodes
-  const RECOVERY_CODE_COUNT = codeConfig && codeConfig.count || 8
+  const codeConfig = config.recoveryCodes;
+  const RECOVERY_CODE_COUNT = codeConfig && codeConfig.count || 8;
 
   return [
     {
@@ -28,13 +28,13 @@ module.exports = (log, db, config, customs, mailer) => {
         }
       },
       handler: async function (request) {
-        log.begin('replaceRecoveryCodes', request)
+        log.begin('replaceRecoveryCodes', request);
 
-        const uid = request.auth.credentials.uid
-        const sessionToken = request.auth.credentials
-        const geoData = request.app.geo
-        const ip = request.app.clientAddress
-        let codes
+        const uid = request.auth.credentials.uid;
+        const sessionToken = request.auth.credentials;
+        const geoData = request.app.geo;
+        const ip = request.app.clientAddress;
+        let codes;
 
         return replaceRecoveryCodes()
           .then(sendEmailNotification)
@@ -42,20 +42,20 @@ module.exports = (log, db, config, customs, mailer) => {
           .then(() => {
             return {
               recoveryCodes: codes
-            }
-          })
+            };
+          });
 
         function replaceRecoveryCodes() {
           // Since TOTP and recovery codes go hand in hand, you should only be
           // able to replace recovery codes in a TOTP verified session.
           if (! sessionToken.authenticatorAssuranceLevel || sessionToken.authenticatorAssuranceLevel <= 1) {
-            throw errors.unverifiedSession()
+            throw errors.unverifiedSession();
           }
 
           return db.replaceRecoveryCodes(uid, RECOVERY_CODE_COUNT)
             .then((result) => {
-              codes = result
-            })
+              codes = result;
+            });
         }
 
         function sendEmailNotification() {
@@ -72,17 +72,17 @@ module.exports = (log, db, config, customs, mailer) => {
                 uaOSVersion: request.app.ua.osVersion,
                 uaDeviceType: request.app.ua.deviceType,
                 uid: sessionToken.uid
-              })
-            })
+              });
+            });
         }
 
         function emitMetrics() {
           log.info('account.recoveryCode.replaced', {
             uid: uid
-          })
+          });
 
           return request.emitMetricsEvent('recoveryCode.replaced', {uid: uid})
-            .then(() => ({}))
+            .then(() => ({}));
         }
       }
     },
@@ -105,14 +105,14 @@ module.exports = (log, db, config, customs, mailer) => {
         }
       },
       handler: async function (request) {
-        log.begin('session.verify.recoveryCode', request)
+        log.begin('session.verify.recoveryCode', request);
 
-        const code = request.payload.code
-        const uid = request.auth.credentials.uid
-        const sessionToken = request.auth.credentials
-        const geoData = request.app.geo
-        const ip = request.app.clientAddress
-        let remainingRecoveryCodes
+        const code = request.payload.code;
+        const uid = request.auth.credentials.uid;
+        const sessionToken = request.auth.credentials;
+        const geoData = request.app.geo;
+        const ip = request.app.clientAddress;
+        let remainingRecoveryCodes;
 
         return customs.check(request, sessionToken.email, 'verifyRecoveryCode')
           .then(consumeRecoveryCode)
@@ -122,31 +122,31 @@ module.exports = (log, db, config, customs, mailer) => {
           .then(() => {
             return {
               remaining: remainingRecoveryCodes
-            }
-          })
+            };
+          });
 
         function consumeRecoveryCode() {
           return db.consumeRecoveryCode(uid, code)
             .then((result) => {
-              remainingRecoveryCodes = result.remaining
+              remainingRecoveryCodes = result.remaining;
               if (remainingRecoveryCodes === 0) {
                 log.info('account.recoveryCode.consumedAllCodes', {
                   uid
-                })
+                });
               }
-            })
+            });
         }
 
         function verifySession() {
           if (sessionToken.tokenVerificationId) {
-            return db.verifyTokensWithMethod(sessionToken.id, 'recovery-code')
+            return db.verifyTokensWithMethod(sessionToken.id, 'recovery-code');
           }
         }
 
         function sendEmailNotification() {
           return db.account(sessionToken.uid)
             .then((account) => {
-              const defers = []
+              const defers = [];
 
               const sendConsumeEmail = mailer.sendPostConsumeRecoveryCodeNotification(account.emails, account, {
                 acceptLanguage: request.app.acceptLanguage,
@@ -159,34 +159,34 @@ module.exports = (log, db, config, customs, mailer) => {
                 uaOSVersion: request.app.ua.osVersion,
                 uaDeviceType: request.app.ua.deviceType,
                 uid: sessionToken.uid
-              })
-              defers.push(sendConsumeEmail)
+              });
+              defers.push(sendConsumeEmail);
 
               if (remainingRecoveryCodes <= codeConfig.notifyLowCount) {
                 log.info('account.recoveryCode.notifyLowCount', {
                   uid,
                   remaining: remainingRecoveryCodes
-                })
+                });
                 const sendLowCodesEmail = mailer.sendLowRecoveryCodeNotification(account.emails, account, {
                   acceptLanguage: request.app.acceptLanguage,
                   uid: sessionToken.uid
-                })
-                defers.push(sendLowCodesEmail)
+                });
+                defers.push(sendLowCodesEmail);
               }
 
-              return Promise.all(defers)
-            })
+              return Promise.all(defers);
+            });
         }
 
         function emitMetrics() {
           log.info('account.recoveryCode.verified', {
             uid: uid
-          })
+          });
 
           return request.emitMetricsEvent('recoveryCode.verified', {uid: uid})
-            .then(() => ({}))
+            .then(() => ({}));
         }
       }
     }
-  ]
-}
+  ];
+};

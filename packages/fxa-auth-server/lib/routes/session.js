@@ -2,20 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const error = require('../error')
-const isA = require('joi')
-const requestHelper = require('../routes/utils/request_helper')
-const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema
-const P = require('../promise')
-const random = require('../crypto/random')
+const error = require('../error');
+const isA = require('joi');
+const requestHelper = require('../routes/utils/request_helper');
+const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
+const P = require('../promise');
+const random = require('../crypto/random');
 
-const validators = require('./validators')
-const HEX_STRING = validators.HEX_STRING
+const validators = require('./validators');
+const HEX_STRING = validators.HEX_STRING;
 
 module.exports = function (log, db, Password, config, signinUtils) {
-  const totpUtils = require('../../lib/routes/utils/totp')(log, config, db)
+  const totpUtils = require('../../lib/routes/utils/totp')(log, config, db);
 
   const routes = [
     {
@@ -32,37 +32,37 @@ module.exports = function (log, db, Password, config, signinUtils) {
         }
       },
       handler: async function (request) {
-        log.begin('Session.destroy', request)
-        var sessionToken = request.auth.credentials
-        var uid = request.auth.credentials.uid
+        log.begin('Session.destroy', request);
+        let sessionToken = request.auth.credentials;
+        const uid = request.auth.credentials.uid;
 
         return P.resolve()
           .then(() => {
             if (request.payload && request.payload.customSessionToken) {
-              const customSessionToken = request.payload.customSessionToken
+              const customSessionToken = request.payload.customSessionToken;
 
               return db.sessionToken(customSessionToken)
-                .then(function (tokenData) {
+                .then((tokenData) => {
                   // NOTE: validate that the token belongs to the same user
                   if (tokenData && uid === tokenData.uid) {
                     sessionToken = {
                       id: customSessionToken,
                       uid: uid,
-                    }
+                    };
 
-                    return sessionToken
+                    return sessionToken;
                   } else {
-                    throw error.invalidToken('Invalid session token')
+                    throw error.invalidToken('Invalid session token');
                   }
-                })
+                });
             } else {
-              return sessionToken
+              return sessionToken;
             }
           })
           .then((sessionToken) => {
-            return db.deleteSessionToken(sessionToken)
+            return db.deleteSessionToken(sessionToken);
           })
-          .then(() => { return {} })
+          .then(() => { return {}; });
       }
     },
     {
@@ -113,17 +113,17 @@ module.exports = function (log, db, Password, config, signinUtils) {
         }
       },
       handler: async function (request) {
-        log.begin('Session.reauth', request)
+        log.begin('Session.reauth', request);
 
-        const sessionToken = request.auth.credentials
-        const email = request.payload.email
-        const authPW = request.payload.authPW
-        const originalLoginEmail = request.payload.originalLoginEmail
-        let verificationMethod = request.payload.verificationMethod
+        const sessionToken = request.auth.credentials;
+        const email = request.payload.email;
+        const authPW = request.payload.authPW;
+        const originalLoginEmail = request.payload.originalLoginEmail;
+        let verificationMethod = request.payload.verificationMethod;
 
-        let accountRecord, password, keyFetchToken
+        let accountRecord, password, keyFetchToken;
 
-        request.validateMetricsContext()
+        request.validateMetricsContext();
 
         return checkCustomsAndLoadAccount()
           .then(checkEmailAndPassword)
@@ -131,7 +131,7 @@ module.exports = function (log, db, Password, config, signinUtils) {
           .then(updateSessionToken)
           .then(sendSigninNotifications)
           .then(createKeyFetchToken)
-          .then(createResponse)
+          .then(createResponse);
 
         function checkTotpToken() {
           // Check to see if the user has a TOTP token and it is verified and
@@ -141,18 +141,18 @@ module.exports = function (log, db, Password, config, signinUtils) {
             .then((result) => {
               if (result) {
                 // User has enabled TOTP, no way around it, they must verify TOTP token
-                verificationMethod = 'totp-2fa'
+                verificationMethod = 'totp-2fa';
               } else if (! result && verificationMethod === 'totp-2fa') {
                 // Error if requesting TOTP verification with TOTP not setup
-                throw error.totpRequired()
+                throw error.totpRequired();
               }
-            })
+            });
         }
 
         function checkCustomsAndLoadAccount() {
           return signinUtils.checkCustomsAndLoadAccount(request, email).then(res => {
-            accountRecord = res.accountRecord
-          })
+            accountRecord = res.accountRecord;
+          });
         }
 
         function checkEmailAndPassword() {
@@ -162,18 +162,18 @@ module.exports = function (log, db, Password, config, signinUtils) {
                 authPW,
                 accountRecord.authSalt,
                 accountRecord.verifierVersion
-              )
-              return signinUtils.checkPassword(accountRecord, password, request.app.clientAddress)
+              );
+              return signinUtils.checkPassword(accountRecord, password, request.app.clientAddress);
             })
             .then(match => {
               if (! match) {
-                throw error.incorrectPassword(accountRecord.email, email)
+                throw error.incorrectPassword(accountRecord.email, email);
               }
-            })
+            });
         }
 
         function updateSessionToken() {
-          sessionToken.authAt = sessionToken.lastAccessTime = Date.now()
+          sessionToken.authAt = sessionToken.lastAccessTime = Date.now();
           sessionToken.setUserAgentInfo({
             uaBrowser: request.app.ua.browser,
             uaBrowserVersion: request.app.ua.browserVersion,
@@ -181,39 +181,39 @@ module.exports = function (log, db, Password, config, signinUtils) {
             uaOSVersion: request.app.ua.osVersion,
             uaDeviceType: request.app.ua.deviceType,
             uaFormFactor: request.app.ua.formFactor
-          })
+          });
           if (! sessionToken.mustVerify && (requestHelper.wantsKeys(request) || verificationMethod)) {
-            sessionToken.mustVerify = true
+            sessionToken.mustVerify = true;
           }
-          return db.updateSessionToken(sessionToken)
+          return db.updateSessionToken(sessionToken);
         }
 
         function sendSigninNotifications() {
-          return signinUtils.sendSigninNotifications(request, accountRecord, sessionToken, verificationMethod)
+          return signinUtils.sendSigninNotifications(request, accountRecord, sessionToken, verificationMethod);
         }
 
         function createKeyFetchToken() {
           if (requestHelper.wantsKeys(request)) {
             return signinUtils.createKeyFetchToken(request, accountRecord, password, sessionToken)
               .then(result => {
-                keyFetchToken = result
-              })
+                keyFetchToken = result;
+              });
           }
         }
 
         function createResponse () {
-          var response = {
+          const response = {
             uid: sessionToken.uid,
             authAt: sessionToken.lastAuthAt()
-          }
+          };
 
           if (keyFetchToken) {
-            response.keyFetchToken = keyFetchToken.data
+            response.keyFetchToken = keyFetchToken.data;
           }
 
-          Object.assign(response, signinUtils.getSessionVerificationStatus(sessionToken, verificationMethod))
+          Object.assign(response, signinUtils.getSessionVerificationStatus(sessionToken, verificationMethod));
 
-          return response
+          return response;
         }
       }
     },
@@ -232,12 +232,12 @@ module.exports = function (log, db, Password, config, signinUtils) {
         }
       },
       handler: async function (request) {
-        log.begin('Session.status', request)
-        const sessionToken = request.auth.credentials
+        log.begin('Session.status', request);
+        const sessionToken = request.auth.credentials;
         return {
           state: sessionToken.state,
           uid: sessionToken.uid
-        }
+        };
       }
     },
     {
@@ -254,30 +254,30 @@ module.exports = function (log, db, Password, config, signinUtils) {
         }
       },
       handler: async function (request) {
-        log.begin('Session.duplicate', request)
-        const origSessionToken = request.auth.credentials
+        log.begin('Session.duplicate', request);
+        const origSessionToken = request.auth.credentials;
 
         return P.resolve()
           .then(duplicateVerificationState)
           .then(createSessionToken)
-          .then(formatResponse)
+          .then(formatResponse);
 
         function duplicateVerificationState() {
           // Copy verification state of the token, but generate
           // independent verification codes.
-          const newVerificationState = {}
+          const newVerificationState = {};
           if (origSessionToken.tokenVerificationId) {
-            newVerificationState.tokenVerificationId = random.hex(origSessionToken.tokenVerificationId.length / 2)
+            newVerificationState.tokenVerificationId = random.hex(origSessionToken.tokenVerificationId.length / 2);
           }
           if (origSessionToken.tokenVerificationCode) {
             // Using expiresAt=0 here prevents the new token from being verified via email code.
             // That's OK, because we don't send them a new email with the new verification code
             // unless they explicitly ask us to resend it, and resend only handles email links
             // rather than email codes.
-            newVerificationState.tokenVerificationCode = random.hex(origSessionToken.tokenVerificationCode.length / 2)
-            newVerificationState.tokenVerificationCodeExpiresAt = 0
+            newVerificationState.tokenVerificationCode = random.hex(origSessionToken.tokenVerificationCode.length / 2);
+            newVerificationState.tokenVerificationCodeExpiresAt = 0;
           }
-          return P.props(newVerificationState)
+          return P.props(newVerificationState);
         }
 
         function createSessionToken(newVerificationState) {
@@ -289,15 +289,15 @@ module.exports = function (log, db, Password, config, signinUtils) {
             uaOSVersion: request.app.ua.osVersion,
             uaDeviceType: request.app.ua.deviceType,
             uaFormFactor: request.app.ua.formFactor
-          }
+          };
 
           // Copy all other details from the original sessionToken.
           // We have to lie a little here and copy the creation time
           // of the original sessionToken.  If we set createdAt to the
           // current time, we would falsely report the new session's
           // `lastAuthAt` value as the current timestamp.
-          const sessionTokenOptions = Object.assign({}, origSessionToken, newUAInfo, newVerificationState)
-          return db.createSessionToken(sessionTokenOptions)
+          const sessionTokenOptions = Object.assign({}, origSessionToken, newUAInfo, newVerificationState);
+          return db.createSessionToken(sessionTokenOptions);
         }
 
         function formatResponse(newSessionToken) {
@@ -305,24 +305,24 @@ module.exports = function (log, db, Password, config, signinUtils) {
             uid: newSessionToken.uid,
             sessionToken: newSessionToken.data,
             authAt: newSessionToken.lastAuthAt()
-          }
+          };
 
           if (! newSessionToken.emailVerified) {
-            response.verified = false
-            response.verificationMethod = 'email'
-            response.verificationReason = 'signup'
+            response.verified = false;
+            response.verificationMethod = 'email';
+            response.verificationReason = 'signup';
           } else if (! newSessionToken.tokenVerified) {
-            response.verified = false
-            response.verificationMethod = 'email'
-            response.verificationReason = 'login'
+            response.verified = false;
+            response.verificationMethod = 'email';
+            response.verificationReason = 'login';
           } else {
-            response.verified = true
+            response.verified = true;
           }
 
-          return response
+          return response;
         }
       }
-    } ]
+    } ];
 
-  return routes
-}
+  return routes;
+};

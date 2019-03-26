@@ -2,70 +2,70 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const { assert } = require('chai')
-const sinon = require('sinon')
+const { assert } = require('chai');
+const sinon = require('sinon');
 const log = {
   activityEvent: sinon.spy(),
   amplitudeEvent: sinon.spy(),
   error: sinon.spy(),
   flowEvent: sinon.spy()
-}
+};
 const events = require('../../../lib/metrics/events')(log, {
   oauth: {
     clientIds: {}
   }
-})
-const mocks = require('../../mocks')
-const P = require('../../../lib/promise')
+});
+const mocks = require('../../mocks');
+const P = require('../../../lib/promise');
 
 describe('metrics/events', () => {
   afterEach(() => {
-    log.activityEvent.resetHistory()
-    log.amplitudeEvent.resetHistory()
-    log.error.resetHistory()
-    log.flowEvent.resetHistory()
-  })
+    log.activityEvent.resetHistory();
+    log.amplitudeEvent.resetHistory();
+    log.error.resetHistory();
+    log.flowEvent.resetHistory();
+  });
 
   it('interface is correct', () => {
-    assert.equal(typeof events, 'object', 'events is object')
-    assert.notEqual(events, null, 'events is not null')
-    assert.equal(Object.keys(events).length, 2, 'events has 2 properties')
+    assert.equal(typeof events, 'object', 'events is object');
+    assert.notEqual(events, null, 'events is not null');
+    assert.equal(Object.keys(events).length, 2, 'events has 2 properties');
 
-    assert.equal(typeof events.emit, 'function', 'events.emit is function')
-    assert.equal(events.emit.length, 2, 'events.emit expects 2 arguments')
+    assert.equal(typeof events.emit, 'function', 'events.emit is function');
+    assert.equal(events.emit.length, 2, 'events.emit expects 2 arguments');
 
-    assert.equal(typeof events.emitRouteFlowEvent, 'function', 'events.emitRouteFlowEvent is function')
-    assert.equal(events.emitRouteFlowEvent.length, 1, 'events.emitRouteFlowEvent expects 1 argument')
+    assert.equal(typeof events.emitRouteFlowEvent, 'function', 'events.emitRouteFlowEvent is function');
+    assert.equal(events.emitRouteFlowEvent.length, 1, 'events.emitRouteFlowEvent expects 1 argument');
 
-    assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
-    assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
-  })
+    assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called');
+    assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called');
+  });
 
   it('.emit with missing event', () => {
-    const metricsContext = mocks.mockMetricsContext()
-    const request = mocks.mockRequest({ metricsContext })
+    const metricsContext = mocks.mockMetricsContext();
+    const request = mocks.mockRequest({ metricsContext });
     return events.emit.call(request, '', {})
       .then(() => {
-        assert.equal(log.error.callCount, 1, 'log.error was called once')
-        const args = log.error.args[0]
-        assert.lengthOf(args, 2)
-        assert.equal(args[0], 'metricsEvents.emit')
+        assert.equal(log.error.callCount, 1, 'log.error was called once');
+        const args = log.error.args[0];
+        assert.lengthOf(args, 2);
+        assert.equal(args[0], 'metricsEvents.emit');
         assert.deepEqual(args[1], {
           missingEvent: true
-        }, 'argument was correct')
+        }, 'argument was correct');
 
-        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
-        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called')
-        assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
-        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-      })
-  })
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called');
+        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called');
+        assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called');
+        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+      });
+  });
 
   it('.emit with activity event', () => {
-    const metricsContext = mocks.mockMetricsContext()
+    const metricsContext = mocks.mockMetricsContext();
     const request = mocks.mockRequest({
       headers: {
         'user-agent': 'foo'
@@ -74,15 +74,15 @@ describe('metrics/events', () => {
       query: {
         service: 'bar'
       }
-    })
+    });
     const data = {
       uid: 'baz'
-    }
+    };
     return events.emit.call(request, 'device.created', data)
       .then(() => {
-        assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once')
-        let args = log.activityEvent.args[0]
-        assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+        assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once');
+        let args = log.activityEvent.args[0];
+        assert.equal(args.length, 1, 'log.activityEvent was passed one argument');
         assert.deepEqual(args[0], {
           country: 'United States',
           event: 'device.created',
@@ -90,79 +90,79 @@ describe('metrics/events', () => {
           userAgent: 'foo',
           service: 'bar',
           uid: 'baz'
-        }, 'argument was event data')
+        }, 'argument was event data');
 
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
-        args = metricsContext.gather.args[0]
-        assert.equal(args.length, 1, 'metricsContext.gather was passed one argument')
-        assert.deepEqual(args[0], {}, 'metricsContext.gather was passed an empty object')
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
+        args = metricsContext.gather.args[0];
+        assert.equal(args.length, 1, 'metricsContext.gather was passed one argument');
+        assert.deepEqual(args[0], {}, 'metricsContext.gather was passed an empty object');
 
-        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called')
-        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
-      })
-  })
+        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called');
+        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
+      });
+  });
 
   it('.emit with activity event and missing data', () => {
-    const metricsContext = mocks.mockMetricsContext()
+    const metricsContext = mocks.mockMetricsContext();
     const request = mocks.mockRequest({
       metricsContext,
       payload: {
         service: 'bar'
       }
-    })
+    });
     return events.emit.call(request, 'device.created')
       .then(() => {
-        assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once')
-        const args = log.activityEvent.args[0]
-        assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+        assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once');
+        const args = log.activityEvent.args[0];
+        assert.equal(args.length, 1, 'log.activityEvent was passed one argument');
         assert.deepEqual(args[0], {
           country: 'United States',
           event: 'device.created',
           region: 'California',
           userAgent: 'test user-agent',
           service: 'bar'
-        }, 'argument was event data')
+        }, 'argument was event data');
 
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
 
-        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called')
-        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
-      })
-  })
+        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called');
+        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
+      });
+  });
 
   it('.emit with activity event and missing uid', () => {
-    const metricsContext = mocks.mockMetricsContext()
-    const request = mocks.mockRequest({ metricsContext })
+    const metricsContext = mocks.mockMetricsContext();
+    const request = mocks.mockRequest({ metricsContext });
     return events.emit.call(request, 'device.created', {})
       .then(() => {
-        assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once')
-        const args = log.activityEvent.args[0]
-        assert.equal(args.length, 1, 'log.activityEvent was passed one argument')
+        assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once');
+        const args = log.activityEvent.args[0];
+        assert.equal(args.length, 1, 'log.activityEvent was passed one argument');
         assert.deepEqual(args[0], {
           country: 'United States',
           event: 'device.created',
           region: 'California',
           service: undefined,
           userAgent: 'test user-agent'
-        }, 'argument was event data')
+        }, 'argument was event data');
 
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
 
-        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called')
-        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
-      })
-  })
+        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called');
+        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
+      });
+  });
 
   it('.emit with flow event', () => {
-    const time = Date.now()
-    sinon.stub(Date, 'now').callsFake(() => time)
-    const metricsContext = mocks.mockMetricsContext()
+    const time = Date.now();
+    sinon.stub(Date, 'now').callsFake(() => time);
+    const metricsContext = mocks.mockMetricsContext();
     const request = mocks.mockRequest({
       credentials: {
         uid: 'deadbeef'
@@ -182,19 +182,19 @@ describe('metrics/events', () => {
         },
         service: 'baz'
       }
-    })
+    });
     return events.emit.call(request, 'email.verification.sent')
       .then(() => {
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
-        let args = metricsContext.gather.args[0]
-        assert.equal(args.length, 1, 'metricsContext.gather was passed one argument')
-        assert.equal(args[0].event, 'email.verification.sent', 'metricsContext.gather was passed event')
-        assert.equal(args[0].locale, request.app.locale, 'metricsContext.gather was passed locale')
-        assert.equal(args[0].userAgent, request.headers['user-agent'], 'metricsContext.gather was passed user agent')
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
+        let args = metricsContext.gather.args[0];
+        assert.equal(args.length, 1, 'metricsContext.gather was passed one argument');
+        assert.equal(args[0].event, 'email.verification.sent', 'metricsContext.gather was passed event');
+        assert.equal(args[0].locale, request.app.locale, 'metricsContext.gather was passed locale');
+        assert.equal(args[0].userAgent, request.headers['user-agent'], 'metricsContext.gather was passed user agent');
 
-        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once')
-        args = log.flowEvent.args[0]
-        assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
+        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once');
+        args = log.flowEvent.args[0];
+        assert.equal(args.length, 1, 'log.flowEvent was passed one argument');
         assert.deepEqual(args[0], {
           country: 'United States',
           event: 'email.verification.sent',
@@ -214,21 +214,21 @@ describe('metrics/events', () => {
           utm_medium: 'utm medium',
           utm_source: 'utm source',
           utm_term: 'utm term'
-        }, 'argument was event data')
+        }, 'argument was event data');
 
-        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
-        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called');
+        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
       }).finally(() => {
-        Date.now.restore()
-      })
-  })
+        Date.now.restore();
+      });
+  });
 
   it('.emit with flow event and no session token', () => {
-    const time = Date.now()
-    sinon.stub(Date, 'now').callsFake(() => time)
-    const metricsContext = mocks.mockMetricsContext()
+    const time = Date.now();
+    sinon.stub(Date, 'now').callsFake(() => time);
+    const metricsContext = mocks.mockMetricsContext();
     const request = {
       app: {
         devices: P.resolve(),
@@ -255,14 +255,14 @@ describe('metrics/events', () => {
           flowCompleteSignal: 'account.signed'
         }
       }
-    }
+    };
     return events.emit.call(request, 'email.verification.sent')
       .then(() => {
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
 
-        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once')
-        const args = log.flowEvent.args[0]
-        assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
+        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once');
+        const args = log.flowEvent.args[0];
+        assert.equal(args.length, 1, 'log.flowEvent was passed one argument');
         assert.deepEqual(args[0], {
           country: 'United Kingdom',
           event: 'email.verification.sent',
@@ -275,21 +275,21 @@ describe('metrics/events', () => {
           region: 'Dorset',
           time,
           userAgent: 'foo'
-        }, 'argument was event data')
+        }, 'argument was event data');
 
-        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
-        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called');
+        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
       }).finally(() => {
-        Date.now.restore()
-      })
-  })
+        Date.now.restore();
+      });
+  });
 
   it('.emit with flow event and string uid', () => {
-    const time = Date.now()
-    sinon.stub(Date, 'now').callsFake(() => time)
-    const metricsContext = mocks.mockMetricsContext()
+    const time = Date.now();
+    sinon.stub(Date, 'now').callsFake(() => time);
+    const metricsContext = mocks.mockMetricsContext();
     const request = mocks.mockRequest({
       headers: {
         dnt: '1',
@@ -303,14 +303,14 @@ describe('metrics/events', () => {
           flowCompleteSignal: 'account.signed'
         }
       }
-    })
+    });
     return events.emit.call(request, 'email.verification.sent', { uid: 'deadbeef' })
       .then(() => {
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
 
-        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once')
-        const args = log.flowEvent.args[0]
-        assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
+        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once');
+        const args = log.flowEvent.args[0];
+        assert.equal(args.length, 1, 'log.flowEvent was passed one argument');
         assert.deepEqual(args[0], {
           country: 'United States',
           event: 'email.verification.sent',
@@ -324,21 +324,21 @@ describe('metrics/events', () => {
           time,
           uid: 'deadbeef',
           userAgent: 'test user-agent'
-        }, 'argument was event data')
+        }, 'argument was event data');
 
-        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
-        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called');
+        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
       }).finally(() => {
-        Date.now.restore()
-      })
-  })
+        Date.now.restore();
+      });
+  });
 
   it('.emit with flow event and buffer uid', () => {
-    const time = Date.now()
-    sinon.stub(Date, 'now').callsFake(() => time)
-    const metricsContext = mocks.mockMetricsContext()
+    const time = Date.now();
+    sinon.stub(Date, 'now').callsFake(() => time);
+    const metricsContext = mocks.mockMetricsContext();
     const request = mocks.mockRequest({
       headers: {
         dnt: '1',
@@ -352,14 +352,14 @@ describe('metrics/events', () => {
           flowCompleteSignal: 'account.signed'
         }
       }
-    })
+    });
     return events.emit.call(request, 'email.verification.sent', { uid: 'deadbeef' })
       .then(() => {
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
 
-        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once')
-        const args = log.flowEvent.args[0]
-        assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
+        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once');
+        const args = log.flowEvent.args[0];
+        assert.equal(args.length, 1, 'log.flowEvent was passed one argument');
         assert.deepEqual(args[0], {
           country: 'United States',
           event: 'email.verification.sent',
@@ -373,21 +373,21 @@ describe('metrics/events', () => {
           time,
           uid: 'deadbeef',
           userAgent: 'test user-agent'
-        }, 'argument was event data')
+        }, 'argument was event data');
 
-        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
-        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called');
+        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
       }).finally(() => {
-        Date.now.restore()
-      })
-  })
+        Date.now.restore();
+      });
+  });
 
   it('.emit with flow event and null uid', () => {
-    const time = Date.now()
-    sinon.stub(Date, 'now').callsFake(() => time)
-    const metricsContext = mocks.mockMetricsContext()
+    const time = Date.now();
+    sinon.stub(Date, 'now').callsFake(() => time);
+    const metricsContext = mocks.mockMetricsContext();
     const request = mocks.mockRequest({
       headers: {
         dnt: '1',
@@ -401,14 +401,14 @@ describe('metrics/events', () => {
           flowCompleteSignal: 'account.signed'
         }
       }
-    })
+    });
     return events.emit.call(request, 'email.verification.sent', { uid: null })
       .then(() => {
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
 
-        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once')
-        const args = log.flowEvent.args[0]
-        assert.equal(args.length, 1, 'log.flowEvent was passed one argument')
+        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once');
+        const args = log.flowEvent.args[0];
+        assert.equal(args.length, 1, 'log.flowEvent was passed one argument');
         assert.deepEqual(args[0], {
           country: 'United States',
           event: 'email.verification.sent',
@@ -421,21 +421,21 @@ describe('metrics/events', () => {
           region: 'California',
           time,
           userAgent: 'test user-agent'
-        }, 'argument was event data')
+        }, 'argument was event data');
 
-        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
-        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called');
+        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
       }).finally(() => {
-        Date.now.restore()
-      })
-  })
+        Date.now.restore();
+      });
+  });
 
   it('.emit with flow event that matches complete signal', () => {
-    const time = Date.now()
-    sinon.stub(Date, 'now').callsFake(() => time)
-    const metricsContext = mocks.mockMetricsContext()
+    const time = Date.now();
+    sinon.stub(Date, 'now').callsFake(() => time);
+    const metricsContext = mocks.mockMetricsContext();
     const request = mocks.mockRequest({
       headers: {
         dnt: '1',
@@ -451,12 +451,12 @@ describe('metrics/events', () => {
           flowType: 'registration'
         }
       }
-    })
+    });
     return events.emit.call(request, 'email.verification.sent', { locale: 'baz', uid: 'qux' })
       .then(() => {
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
 
-        assert.equal(log.flowEvent.callCount, 2, 'log.flowEvent was called twice')
+        assert.equal(log.flowEvent.callCount, 2, 'log.flowEvent was called twice');
         assert.deepEqual(log.flowEvent.args[0][0], {
           country: 'United States',
           event: 'email.verification.sent',
@@ -470,7 +470,7 @@ describe('metrics/events', () => {
           time,
           uid: 'qux',
           userAgent: 'test user-agent'
-        }, 'argument was event data first time')
+        }, 'argument was event data first time');
         assert.deepEqual(log.flowEvent.args[1][0], {
           country: 'United States',
           event: 'flow.complete',
@@ -484,24 +484,24 @@ describe('metrics/events', () => {
           time,
           uid: 'qux',
           userAgent: 'test user-agent'
-        }, 'argument was complete event data second time')
+        }, 'argument was complete event data second time');
 
-        assert.equal(log.amplitudeEvent.callCount, 1, 'log.amplitudeEvent was called once')
-        assert.equal(log.amplitudeEvent.args[0].length, 1, 'log.amplitudeEvent was passed one argument')
-        assert.equal(log.amplitudeEvent.args[0][0].event_type, 'fxa_reg - complete', 'log.amplitudeEvent was passed correct event_type')
+        assert.equal(log.amplitudeEvent.callCount, 1, 'log.amplitudeEvent was called once');
+        assert.equal(log.amplitudeEvent.args[0].length, 1, 'log.amplitudeEvent was passed one argument');
+        assert.equal(log.amplitudeEvent.args[0][0].event_type, 'fxa_reg - complete', 'log.amplitudeEvent was passed correct event_type');
 
-        assert.equal(metricsContext.clear.callCount, 1, 'metricsContext.clear was called once')
-        assert.equal(metricsContext.clear.args[0].length, 0, 'metricsContext.clear was passed no arguments')
+        assert.equal(metricsContext.clear.callCount, 1, 'metricsContext.clear was called once');
+        assert.equal(metricsContext.clear.args[0].length, 0, 'metricsContext.clear was passed no arguments');
 
-        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
       }).finally(() => {
-        Date.now.restore()
-      })
-  })
+        Date.now.restore();
+      });
+  });
 
   it('.emit with flow event and missing headers', () => {
-    const metricsContext = mocks.mockMetricsContext()
+    const metricsContext = mocks.mockMetricsContext();
     const request = {
       app: {
         devices: P.resolve(),
@@ -516,29 +516,29 @@ describe('metrics/events', () => {
           flowBeginTime: Date.now() - 1
         }
       }
-    }
+    };
     return events.emit.call(request, 'email.verification.sent')
       .then(() => {
-        assert.equal(log.error.callCount, 1, 'log.error was called once')
-        const args = log.error.args[0]
-        assert.lengthOf(args, 2)
-        assert.equal(args[0], 'metricsEvents.emitFlowEvent')
+        assert.equal(log.error.callCount, 1, 'log.error was called once');
+        const args = log.error.args[0];
+        assert.lengthOf(args, 2);
+        assert.equal(args[0], 'metricsEvents.emitFlowEvent');
         assert.deepEqual(args[1], {
           event: 'email.verification.sent',
           badRequest: true
-        }, 'argument was correct')
+        }, 'argument was correct');
 
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
 
-        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
-        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called')
-        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-      })
-  })
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called');
+        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called');
+        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+      });
+  });
 
   it('.emit with flow event and missing flowId', () => {
-    const metricsContext = mocks.mockMetricsContext()
+    const metricsContext = mocks.mockMetricsContext();
     const request = mocks.mockRequest({
       metricsContext,
       payload: {
@@ -546,29 +546,29 @@ describe('metrics/events', () => {
           flowBeginTime: Date.now() - 1
         }
       }
-    })
+    });
     return events.emit.call(request, 'email.verification.sent')
       .then(() => {
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
 
-        assert.equal(log.error.callCount, 1, 'log.error was called once')
-        assert.equal(log.error.args[0][0], 'metricsEvents.emitFlowEvent')
+        assert.equal(log.error.callCount, 1, 'log.error was called once');
+        assert.equal(log.error.args[0][0], 'metricsEvents.emitFlowEvent');
         assert.deepEqual(log.error.args[0][1], {
           event: 'email.verification.sent',
           missingFlowId: true
-        }, 'argument was correct')
+        }, 'argument was correct');
 
-        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
-        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called')
-        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-      })
-  })
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called');
+        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called');
+        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+      });
+  });
 
   it('.emit with hybrid activity/flow event', () => {
-    const time = Date.now()
-    sinon.stub(Date, 'now').callsFake(() => time)
-    const metricsContext = mocks.mockMetricsContext()
+    const time = Date.now();
+    sinon.stub(Date, 'now').callsFake(() => time);
+    const metricsContext = mocks.mockMetricsContext();
     const request = mocks.mockRequest({
       headers: {
         dnt: '1',
@@ -581,13 +581,13 @@ describe('metrics/events', () => {
           flowBeginTime: time - 42
         }
       }
-    })
+    });
     const data = {
       uid: 'baz'
-    }
+    };
     return events.emit.call(request, 'account.keyfetch', data)
       .then(() => {
-        assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once')
+        assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once');
         assert.deepEqual(log.activityEvent.args[0][0], {
           country: 'United States',
           event: 'account.keyfetch',
@@ -595,11 +595,11 @@ describe('metrics/events', () => {
           userAgent: 'test user-agent',
           service: undefined,
           uid: 'baz'
-        }, 'activity event data was correct')
+        }, 'activity event data was correct');
 
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
 
-        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once')
+        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once');
         assert.deepEqual(log.flowEvent.args[0][0], {
           country: 'United States',
           time,
@@ -613,18 +613,18 @@ describe('metrics/events', () => {
           region: 'California',
           uid: 'baz',
           userAgent: 'test user-agent'
-        }, 'flow event data was correct')
+        }, 'flow event data was correct');
 
-        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
+        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
       }).finally(() => {
-        Date.now.restore()
-      })
-  })
+        Date.now.restore();
+      });
+  });
 
   it('.emit with optional flow event and missing flowId', () => {
-    const metricsContext = mocks.mockMetricsContext()
+    const metricsContext = mocks.mockMetricsContext();
     const request = mocks.mockRequest({
       metricsContext,
       payload: {
@@ -632,50 +632,50 @@ describe('metrics/events', () => {
           flowBeginTime: Date.now() - 1
         }
       }
-    })
+    });
     const data = {
       uid: 'bar'
-    }
+    };
     return events.emit.call(request, 'account.keyfetch', data)
       .then(() => {
-        assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once')
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+        assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once');
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
 
-        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called')
-        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
-      })
-  })
+        assert.equal(log.amplitudeEvent.callCount, 0, 'log.amplitudeEvent was not called');
+        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
+      });
+  });
 
   it('.emit with content-server account.signed event', () => {
-    const flowBeginTime = Date.now() - 1
+    const flowBeginTime = Date.now() - 1;
     const metricsContext = mocks.mockMetricsContext({
       gather: sinon.spy(() => ({
         device_id: 'foo',
         flow_id: 'bar',
         flowBeginTime
       }))
-    })
+    });
     const request = mocks.mockRequest({
       metricsContext,
       query: {
         service: 'content-server'
       }
-    })
+    });
     const data = {
       uid: 'baz'
-    }
+    };
     return events.emit.call(request, 'account.signed', data)
       .then(() => {
-        assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once')
+        assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once');
 
-        assert.equal(log.amplitudeEvent.callCount, 1, 'log.amplitudeEvent was called once')
-        assert.equal(log.amplitudeEvent.args[0].length, 1, 'log.amplitudeEvent was passed one argument')
-        assert.equal(log.amplitudeEvent.args[0][0].event_type, 'fxa_activity - cert_signed', 'log.amplitudeEvent was passed correct event_type')
-        assert.equal(log.amplitudeEvent.args[0][0].device_id, 'foo', 'log.amplitudeEvent was passed correct device_id')
-        assert.equal(log.amplitudeEvent.args[0][0].session_id, flowBeginTime, 'log.amplitudeEvent was passed correct session_id')
-        assert.deepEqual(log.amplitudeEvent.args[0][0].event_properties, {}, 'log.amplitudeEvent was passed correct event properties')
+        assert.equal(log.amplitudeEvent.callCount, 1, 'log.amplitudeEvent was called once');
+        assert.equal(log.amplitudeEvent.args[0].length, 1, 'log.amplitudeEvent was passed one argument');
+        assert.equal(log.amplitudeEvent.args[0][0].event_type, 'fxa_activity - cert_signed', 'log.amplitudeEvent was passed correct event_type');
+        assert.equal(log.amplitudeEvent.args[0][0].device_id, 'foo', 'log.amplitudeEvent was passed correct device_id');
+        assert.equal(log.amplitudeEvent.args[0][0].session_id, flowBeginTime, 'log.amplitudeEvent was passed correct session_id');
+        assert.deepEqual(log.amplitudeEvent.args[0][0].event_properties, {}, 'log.amplitudeEvent was passed correct event properties');
         assert.deepEqual(log.amplitudeEvent.args[0][0].user_properties, {
           flow_id: 'bar',
           sync_active_devices_day: 0,
@@ -684,18 +684,18 @@ describe('metrics/events', () => {
           sync_device_count: 0,
           ua_browser: request.app.ua.browser,
           ua_version: request.app.ua.browserVersion
-        }, 'log.amplitudeEvent was passed correct user properties')
+        }, 'log.amplitudeEvent was passed correct user properties');
 
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
 
-        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
-      })
-  })
+        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
+      });
+  });
 
   it('.emit with sync account.signed event', () => {
-    const metricsContext = mocks.mockMetricsContext()
+    const metricsContext = mocks.mockMetricsContext();
     const request = mocks.mockRequest({
       metricsContext,
       payload: {
@@ -707,27 +707,27 @@ describe('metrics/events', () => {
       query: {
         service: 'sync'
       }
-    })
+    });
     const data = {
       uid: 'baz'
-    }
+    };
     return events.emit.call(request, 'account.signed', data)
       .then(() => {
-        assert.equal(log.amplitudeEvent.callCount, 1, 'log.amplitudeEvent was called once')
-        assert.equal(log.amplitudeEvent.args[0][0].event_properties.service, 'sync', 'log.amplitudeEvent was passed correct service')
+        assert.equal(log.amplitudeEvent.callCount, 1, 'log.amplitudeEvent was called once');
+        assert.equal(log.amplitudeEvent.args[0][0].event_properties.service, 'sync', 'log.amplitudeEvent was passed correct service');
 
-        assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once')
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
-        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
-      })
-  })
+        assert.equal(log.activityEvent.callCount, 1, 'log.activityEvent was called once');
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
+        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
+      });
+  });
 
   it('.emitRouteFlowEvent with matching route and response.statusCode', () => {
-    const time = Date.now()
-    sinon.stub(Date, 'now').callsFake(() => time)
-    const metricsContext = mocks.mockMetricsContext()
+    const time = Date.now();
+    sinon.stub(Date, 'now').callsFake(() => time);
+    const metricsContext = mocks.mockMetricsContext();
     const request = mocks.mockRequest({
       headers: {
         dnt: '1',
@@ -742,15 +742,15 @@ describe('metrics/events', () => {
         }
       },
       received: time - 42
-    })
+    });
     return events.emitRouteFlowEvent.call(request, { statusCode: 200 })
       .then(() => {
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
 
-        assert.equal(log.flowEvent.callCount, 2, 'log.flowEvent was called twice')
+        assert.equal(log.flowEvent.callCount, 2, 'log.flowEvent was called twice');
 
-        let args = log.flowEvent.args[0]
-        assert.equal(args.length, 1, 'log.flowEvent was passed one argument first time')
+        let args = log.flowEvent.args[0];
+        assert.equal(args.length, 1, 'log.flowEvent was passed one argument first time');
         assert.deepEqual(args[0], {
           country: 'United States',
           event: 'route./account/create.200',
@@ -763,10 +763,10 @@ describe('metrics/events', () => {
           region: 'California',
           time,
           userAgent: 'test user-agent'
-        }, 'argument was route summary event data')
+        }, 'argument was route summary event data');
 
-        args = log.flowEvent.args[1]
-        assert.equal(args.length, 1, 'log.flowEvent was passed one argument second time')
+        args = log.flowEvent.args[1];
+        assert.equal(args.length, 1, 'log.flowEvent was passed one argument second time');
         assert.deepEqual(args[0], {
           country: 'United States',
           event: 'route.performance./account/create',
@@ -779,20 +779,20 @@ describe('metrics/events', () => {
           region: 'California',
           time,
           userAgent: 'test user-agent'
-        }, 'argument was performance event data')
+        }, 'argument was performance event data');
 
-        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
       }).finally(() => {
-        Date.now.restore()
-      })
-  })
+        Date.now.restore();
+      });
+  });
 
   it('.emitRouteFlowEvent with matching route and response.output.statusCode', () => {
-    const time = Date.now()
-    sinon.stub(Date, 'now').callsFake(() => time)
-    const metricsContext = mocks.mockMetricsContext()
+    const time = Date.now();
+    sinon.stub(Date, 'now').callsFake(() => time);
+    const metricsContext = mocks.mockMetricsContext();
     const request = mocks.mockRequest({
       headers: {
         dnt: '1',
@@ -806,12 +806,12 @@ describe('metrics/events', () => {
           flowBeginTime: time - 1000
         }
       }
-    })
+    });
     return events.emitRouteFlowEvent.call(request, { output: { statusCode: 399 } })
       .then(() => {
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
 
-        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once')
+        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once');
         assert.deepEqual(log.flowEvent.args[0][0], {
           country: 'United States',
           event: 'route./account/login.399',
@@ -824,20 +824,20 @@ describe('metrics/events', () => {
           region: 'California',
           time,
           userAgent: 'test user-agent'
-        }, 'argument was event data')
+        }, 'argument was event data');
 
-        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
       }).finally(() => {
-        Date.now.restore()
-      })
-  })
+        Date.now.restore();
+      });
+  });
 
   it('.emitRouteFlowEvent with matching route and 400 statusCode', () => {
-    const time = Date.now()
-    sinon.stub(Date, 'now').callsFake(() => time)
-    const metricsContext = mocks.mockMetricsContext()
+    const time = Date.now();
+    sinon.stub(Date, 'now').callsFake(() => time);
+    const metricsContext = mocks.mockMetricsContext();
     const request = mocks.mockRequest({
       headers: {
         dnt: '1',
@@ -851,12 +851,12 @@ describe('metrics/events', () => {
           flowBeginTime: time - 1000
         }
       }
-    })
+    });
     return events.emitRouteFlowEvent.call(request, { statusCode: 400 })
       .then(() => {
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
 
-        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once')
+        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once');
         assert.deepEqual(log.flowEvent.args[0][0], {
           country: 'United States',
           event: 'route./recovery_email/resend_code.400.999',
@@ -869,20 +869,20 @@ describe('metrics/events', () => {
           region: 'California',
           time,
           userAgent: 'test user-agent'
-        }, 'argument was event data')
+        }, 'argument was event data');
 
-        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
       }).finally(() => {
-        Date.now.restore()
-      })
-  })
+        Date.now.restore();
+      });
+  });
 
   it('.emitRouteFlowEvent with matching route and 404 statusCode', () => {
-    const time = Date.now()
-    sinon.stub(Date, 'now').callsFake(() => time)
-    const metricsContext = mocks.mockMetricsContext()
+    const time = Date.now();
+    sinon.stub(Date, 'now').callsFake(() => time);
+    const metricsContext = mocks.mockMetricsContext();
     const request = mocks.mockRequest({
       headers: {
         dnt: '1',
@@ -896,23 +896,23 @@ describe('metrics/events', () => {
           flowBeginTime: time - 1000
         }
       }
-    })
+    });
     return events.emitRouteFlowEvent.call(request, { statusCode: 404 })
       .then(() => {
-        assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
-        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
-        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
+        assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called');
+        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called');
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
       }).finally(() => {
-        Date.now.restore()
-      })
-  })
+        Date.now.restore();
+      });
+  });
 
   it('.emitRouteFlowEvent with matching route and 400 statusCode with errno', () => {
-    const time = Date.now()
-    sinon.stub(Date, 'now').callsFake(() => time)
-    const metricsContext = mocks.mockMetricsContext()
+    const time = Date.now();
+    sinon.stub(Date, 'now').callsFake(() => time);
+    const metricsContext = mocks.mockMetricsContext();
     const request = mocks.mockRequest({
       headers: {
         dnt: '1',
@@ -926,12 +926,12 @@ describe('metrics/events', () => {
           flowBeginTime: time - 1000
         }
       }
-    })
+    });
     return events.emitRouteFlowEvent.call(request, { statusCode: 400, errno: 42 })
       .then(() => {
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
 
-        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once')
+        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once');
         assert.deepEqual(log.flowEvent.args[0][0], {
           country: 'United States',
           event: 'route./account/destroy.400.42',
@@ -944,14 +944,14 @@ describe('metrics/events', () => {
           region: 'California',
           time,
           userAgent: 'test user-agent'
-        }, 'argument was event data')
+        }, 'argument was event data');
 
-        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
       }).finally(() => {
-        Date.now.restore()
-      })
+        Date.now.restore();
+      });
   })
 
   ;[
@@ -963,7 +963,7 @@ describe('metrics/events', () => {
     '/recovery_email/status',
     '/recoveryKey/0123456789abcdef0123456789ABCDEF'
   ].forEach(route => it(`.emitRouteFlowEvent with ${route}`, () => {
-    const metricsContext = mocks.mockMetricsContext()
+    const metricsContext = mocks.mockMetricsContext();
     const request = mocks.mockRequest({
       metricsContext,
       path: `/v1${route}`,
@@ -973,19 +973,19 @@ describe('metrics/events', () => {
           flowBeginTime: Date.now() - 1000
         }
       }
-    })
+    });
     return events.emitRouteFlowEvent.call(request, { statusCode: 200 })
       .then(() => {
-        assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
-        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
-        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
-      })
-  }))
+        assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called');
+        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called');
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
+      });
+  }));
 
   it('.emitRouteFlowEvent with matching route and invalid metrics context', () => {
-    const metricsContext = mocks.mockMetricsContext({ validate: sinon.spy(() => false) })
+    const metricsContext = mocks.mockMetricsContext({ validate: sinon.spy(() => false) });
     const request = mocks.mockRequest({
       metricsContext,
       path: '/v1/account/destroy',
@@ -995,22 +995,22 @@ describe('metrics/events', () => {
           flowBeginTime: Date.now()
         }
       }
-    })
+    });
     return events.emitRouteFlowEvent.call(request, { statusCode: 400, errno: 107 })
       .then(() => {
-        assert.equal(metricsContext.validate.callCount, 1, 'metricsContext.validate was called once')
-        assert.equal(metricsContext.validate.args[0].length, 0, 'metricsContext.validate was passed no arguments')
+        assert.equal(metricsContext.validate.callCount, 1, 'metricsContext.validate was called once');
+        assert.equal(metricsContext.validate.args[0].length, 0, 'metricsContext.validate was passed no arguments');
 
-        assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called')
-        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called')
-        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
-      })
-  })
+        assert.equal(metricsContext.gather.callCount, 0, 'metricsContext.gather was not called');
+        assert.equal(log.flowEvent.callCount, 0, 'log.flowEvent was not called');
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
+      });
+  });
 
   it('.emitRouteFlowEvent with missing parameter error but valid metrics context', () => {
-    const metricsContext = mocks.mockMetricsContext()
+    const metricsContext = mocks.mockMetricsContext();
     const request = mocks.mockRequest({
       metricsContext,
       path: '/v1/account/destroy',
@@ -1020,16 +1020,16 @@ describe('metrics/events', () => {
           flowBeginTime: Date.now()
         }
       }
-    })
+    });
     return events.emitRouteFlowEvent.call(request, { statusCode: 400, errno: 107 })
       .then(() => {
-        assert.equal(metricsContext.validate.callCount, 1, 'metricsContext.validate was called once')
-        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once')
-        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once')
+        assert.equal(metricsContext.validate.callCount, 1, 'metricsContext.validate was called once');
+        assert.equal(metricsContext.gather.callCount, 1, 'metricsContext.gather was called once');
+        assert.equal(log.flowEvent.callCount, 1, 'log.flowEvent was called once');
 
-        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called')
-        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called')
-        assert.equal(log.error.callCount, 0, 'log.error was not called')
-      })
-  })
-})
+        assert.equal(log.activityEvent.callCount, 0, 'log.activityEvent was not called');
+        assert.equal(metricsContext.clear.callCount, 0, 'metricsContext.clear was not called');
+        assert.equal(log.error.callCount, 0, 'log.error was not called');
+      });
+  });
+});

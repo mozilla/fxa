@@ -2,25 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const emailUtils = require('./email')
-const isA = require('joi')
-const validators = require('../validators')
-const P = require('../../promise')
-const butil = require('../../crypto/butil')
-const error = require('../../error')
+const emailUtils = require('./email');
+const isA = require('joi');
+const validators = require('../validators');
+const P = require('../../promise');
+const butil = require('../../crypto/butil');
+const error = require('../../error');
 
-const BASE_36 = validators.BASE_36
+const BASE_36 = validators.BASE_36;
 
 // An arbitrary, but very generous, limit on the number of active sessions.
 // Currently only for metrics purposes, not enforced.
-const MAX_ACTIVE_SESSIONS = 200
+const MAX_ACTIVE_SESSIONS = 200;
 
 module.exports = (log, config, customs, db, mailer)  => {
 
-  const unblockCodeLifetime = config.signinUnblock && config.signinUnblock.codeLifetime || 0
-  const unblockCodeLen = config.signinUnblock && config.signinUnblock.codeLength || 8
+  const unblockCodeLifetime = config.signinUnblock && config.signinUnblock.codeLifetime || 0;
+  const unblockCodeLen = config.signinUnblock && config.signinUnblock.codeLength || 8;
 
   return {
 
@@ -40,22 +40,22 @@ module.exports = (log, config, customs, db, mailer)  => {
           email: accountRecord.email,
           errno: error.ERRNO.ACCOUNT_RESET
         }).then(() => {
-          throw error.mustResetAccount(accountRecord.email)
-        })
+          throw error.mustResetAccount(accountRecord.email);
+        });
       }
       return password.verifyHash()
         .then(verifyHash => {
-          return db.checkPassword(accountRecord.uid, verifyHash)
+          return db.checkPassword(accountRecord.uid, verifyHash);
         })
         .then(match => {
           if (match) {
-            return match
+            return match;
           }
           return customs.flag(clientAddress, {
             email: accountRecord.email,
             errno: error.ERRNO.INCORRECT_PASSWORD
-          }).then(() => match)
-        })
+          }).then(() => match);
+        });
     },
 
     /**
@@ -67,13 +67,13 @@ module.exports = (log, config, customs, db, mailer)  => {
       // that the user typed into the login form.  This might differ from the address
       // used for calculating the password hash, which is provided in `email` param.
       if (! originalLoginEmail) {
-        originalLoginEmail = email
+        originalLoginEmail = email;
       }
       // Logging in with a secondary email address is not currently supported.
       if (originalLoginEmail.toLowerCase() !== accountRecord.primaryEmail.normalizedEmail) {
-        throw error.cannotLoginWithSecondaryEmail()
+        throw error.cannotLoginWithSecondaryEmail();
       }
-      return P.resolve(true)
+      return P.resolve(true);
     },
 
     /**
@@ -90,81 +90,81 @@ module.exports = (log, config, customs, db, mailer)  => {
      *  }
      */
     checkCustomsAndLoadAccount(request, email) {
-      let accountRecord, originalError
-      let didSigninUnblock = false
+      let accountRecord, originalError;
+      let didSigninUnblock = false;
 
       return P.resolve().then(() => {
         // For testing purposes, some email addresses are forced
         // to go through signin unblock on every login attempt.
-        const forced = config.signinUnblock && config.signinUnblock.forcedEmailAddresses
+        const forced = config.signinUnblock && config.signinUnblock.forcedEmailAddresses;
         if (forced && forced.test(email)) {
-          return P.reject(error.requestBlocked(true))
+          return P.reject(error.requestBlocked(true));
         }
-        return customs.check(request, email, 'accountLogin')
+        return customs.check(request, email, 'accountLogin');
       }).catch((e) => {
-        originalError = e
+        originalError = e;
         // Non-customs-related errors get thrown straight back to the caller.
         if (e.errno !== error.ERRNO.REQUEST_BLOCKED && e.errno !== error.ERRNO.THROTTLED) {
-          throw e
+          throw e;
         }
         return request.emitMetricsEvent('account.login.blocked').then(() => {
           // If this customs error cannot be bypassed with email confirmation,
           // throw it straight back to the caller.
-          var verificationMethod = e.output.payload.verificationMethod
+          const verificationMethod = e.output.payload.verificationMethod;
           if (verificationMethod !== 'email-captcha' || ! request.payload.unblockCode) {
-            throw e
+            throw e;
           }
           // Check for a valid unblockCode, to allow the request to proceed.
           // This requires that we load the accountRecord to learn the uid.
-          const unblockCode = request.payload.unblockCode.toUpperCase()
+          const unblockCode = request.payload.unblockCode.toUpperCase();
           return db.accountRecord(email).then(result => {
-            accountRecord = result
+            accountRecord = result;
             return db.consumeUnblockCode(accountRecord.uid, unblockCode).then(code => {
               if (Date.now() - code.createdAt > unblockCodeLifetime) {
                 log.info('Account.login.unblockCode.expired', {
                   uid: accountRecord.uid
-                })
-                throw error.invalidUnblockCode()
+                });
+                throw error.invalidUnblockCode();
               }
             }).then(() => {
-              didSigninUnblock = true
-              return request.emitMetricsEvent('account.login.confirmedUnblockCode')
+              didSigninUnblock = true;
+              return request.emitMetricsEvent('account.login.confirmedUnblockCode');
             }).catch((e) => {
               if (e.errno !== error.ERRNO.INVALID_UNBLOCK_CODE) {
-                throw e
+                throw e;
               }
               return request.emitMetricsEvent('account.login.invalidUnblockCode').then(() => {
-                throw e
-              })
-            })
-          })
-        })
+                throw e;
+              });
+            });
+          });
+        });
       }).then(() => {
         // If we didn't load it above while checking unblock codes,
         // it's now safe to load the account record from the db.
         if (! accountRecord) {
           return db.accountRecord(email).then(result => {
-            accountRecord = result
-          })
+            accountRecord = result;
+          });
         }
       }).then(() => {
-        return { accountRecord, didSigninUnblock }
+        return { accountRecord, didSigninUnblock };
       }).catch((e) => {
         // Some errors need to be flagged with customs.
         if (e.errno === error.ERRNO.INVALID_UNBLOCK_CODE || e.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
           customs.flag(request.app.clientAddress, {
             email: email,
             errno: e.errno
-          })
+          });
         }
         // For any error other than INVALID_UNBLOCK_CODE, hide it behind the original customs error.
         // This prevents us from accidentally leaking additional info to a caller that's been
         // blocked, including e.g. whether or not the target account exists.
         if (originalError && e.errno !== error.ERRNO.INVALID_UNBLOCK_CODE) {
-          throw originalError
+          throw originalError;
         }
-        throw e
-      })
+        throw e;
+      });
     },
 
     /**
@@ -173,38 +173,38 @@ module.exports = (log, config, customs, db, mailer)  => {
      * notifying attached services.
      */
     async sendSigninNotifications (request, accountRecord, sessionToken, verificationMethod) {
-      const service = request.payload.service || request.query.service
-      const redirectTo = request.payload.redirectTo
-      const resume = request.payload.resume
-      const ip = request.app.clientAddress
-      const isUnverifiedAccount = ! accountRecord.primaryEmail.isVerified
+      const service = request.payload.service || request.query.service;
+      const redirectTo = request.payload.redirectTo;
+      const resume = request.payload.resume;
+      const ip = request.app.clientAddress;
+      const isUnverifiedAccount = ! accountRecord.primaryEmail.isVerified;
 
-      let sessions
+      let sessions;
 
-      const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext
+      const { deviceId, flowId, flowBeginTime } = await request.app.metricsContext;
 
-      const mustVerifySession = sessionToken.mustVerify && ! sessionToken.tokenVerified
+      const mustVerifySession = sessionToken.mustVerify && ! sessionToken.tokenVerified;
 
       // The final event to complete the login flow depends on the details
       // of the flow being undertaken, so prepare accordingly.
-      let flowCompleteSignal
+      let flowCompleteSignal;
       if (service === 'sync') {
         // Sync signins are only complete when the browser actually syncs.
-        flowCompleteSignal = 'account.signed'
+        flowCompleteSignal = 'account.signed';
       } else if (mustVerifySession) {
         // Sessions that require verification are only complete once confirmed.
-        flowCompleteSignal = 'account.confirmed'
+        flowCompleteSignal = 'account.confirmed';
       } else {
         // Otherwise, the login itself is the end of the flow.
-        flowCompleteSignal = 'account.login'
+        flowCompleteSignal = 'account.login';
       }
-      request.setMetricsFlowCompleteSignal(flowCompleteSignal, 'login')
+      request.setMetricsFlowCompleteSignal(flowCompleteSignal, 'login');
 
       return stashMetricsContext()
         .then(checkNumberOfActiveSessions)
         .then(emitLoginEvent)
         .then(sendEmail)
-        .then(recordSecurityEvent)
+        .then(recordSecurityEvent);
 
       function stashMetricsContext() {
         return request.stashMetricsContext(sessionToken)
@@ -215,15 +215,15 @@ module.exports = (log, config, customs, db, mailer)  => {
               return request.stashMetricsContext({
                 uid: accountRecord.uid,
                 id: sessionToken.tokenVerificationId
-              })
+              });
             }
-          })
+          });
       }
 
       function checkNumberOfActiveSessions () {
         return db.sessions(accountRecord.uid)
           .then(s => {
-            sessions = s
+            sessions = s;
             if (sessions.length > MAX_ACTIVE_SESSIONS) {
               // There's no spec-compliant way to error out
               // as a result of having too many active sessions.
@@ -232,15 +232,15 @@ module.exports = (log, config, customs, db, mailer)  => {
                 uid: accountRecord.uid,
                 userAgent: request.headers['user-agent'],
                 numSessions: sessions.length
-              })
+              });
             }
-          })
+          });
       }
 
       async function emitLoginEvent () {
         await request.emitMetricsEvent('account.login', {
           uid: accountRecord.uid
-        })
+        });
 
         if (request.payload.reason === 'signin') {
           await log.notifyAttachedServices('login', request, {
@@ -249,18 +249,18 @@ module.exports = (log, config, customs, db, mailer)  => {
             service,
             uid: accountRecord.uid,
             userAgent: request.headers['user-agent']
-          })
+          });
         }
       }
 
       function sendEmail() {
         // For unverified accounts, we always re-send the account verification email.
         if (isUnverifiedAccount) {
-          return sendVerifyAccountEmail()
+          return sendVerifyAccountEmail();
         }
         // If the session needs to be verified, send the sign-in confirmation email.
         if (mustVerifySession) {
-          return sendVerifySessionEmail()
+          return sendVerifySessionEmail();
         }
         // Otherwise, no email is necessary.
       }
@@ -268,7 +268,7 @@ module.exports = (log, config, customs, db, mailer)  => {
       function sendVerifyAccountEmail() {
         // If the session doesn't require verification,
         // fall back to the account-level email code for the link.
-        const emailCode = sessionToken.tokenVerificationId || accountRecord.primaryEmail.emailCode
+        const emailCode = sessionToken.tokenVerificationId || accountRecord.primaryEmail.emailCode;
 
         return mailer.sendVerifyCode([], accountRecord, {
           code: emailCode,
@@ -288,7 +288,7 @@ module.exports = (log, config, customs, db, mailer)  => {
           uaDeviceType: request.app.ua.deviceType,
           uid: sessionToken.uid
         })
-        .then(() => request.emitMetricsEvent('email.verification.sent'))
+        .then(() => request.emitMetricsEvent('email.verification.sent'));
       }
 
       function sendVerifySessionEmail() {
@@ -297,21 +297,21 @@ module.exports = (log, config, customs, db, mailer)  => {
         switch (verificationMethod) {
         case 'email':
           // Sends an email containing a link to verify login
-          return sendVerifyLoginEmail()
+          return sendVerifyLoginEmail();
         case 'email-2fa':
           // Sends an email containing a code that can verify a login
-          return sendVerifyLoginCodeEmail()
+          return sendVerifyLoginCodeEmail();
         case 'email-captcha':
           // `email-captcha` is a custom verification method used only for
           // unblock codes. We do not need to send a verification email
           // in this case.
-          break
+          break;
         case 'totp-2fa':
           // This verification method requires a user to use a third-party
           // application.
-          break
+          break;
         default:
-          return sendVerifyLoginEmail()
+          return sendVerifyLoginEmail();
         }
       }
 
@@ -319,9 +319,9 @@ module.exports = (log, config, customs, db, mailer)  => {
         log.info('account.signin.confirm.start', {
           uid: accountRecord.uid,
           tokenVerificationId: sessionToken.tokenVerificationId
-        })
+        });
 
-        const geoData = request.app.geo
+        const geoData = request.app.geo;
         return mailer.sendVerifyLoginEmail(
           accountRecord.emails,
           accountRecord,
@@ -347,18 +347,18 @@ module.exports = (log, config, customs, db, mailer)  => {
         )
         .then(() => request.emitMetricsEvent('email.confirmation.sent'))
         .catch(err => {
-          log.error('mailer.confirmation.error', { err })
+          log.error('mailer.confirmation.error', { err });
 
-          throw emailUtils.sendError(err, isUnverifiedAccount)
-        })
+          throw emailUtils.sendError(err, isUnverifiedAccount);
+        });
       }
 
       function sendVerifyLoginCodeEmail() {
         log.info('account.token.code.start', {
           uid: accountRecord.uid
-        })
+        });
 
-        const geoData = request.app.geo
+        const geoData = request.app.geo;
         return mailer.sendVerifyLoginCodeEmail(
           accountRecord.emails,
           accountRecord,
@@ -382,7 +382,7 @@ module.exports = (log, config, customs, db, mailer)  => {
             uid: sessionToken.uid
           }
         )
-        .then(() => request.emitMetricsEvent('email.tokencode.sent'))
+        .then(() => request.emitMetricsEvent('email.tokencode.sent'));
       }
 
       function recordSecurityEvent() {
@@ -391,7 +391,7 @@ module.exports = (log, config, customs, db, mailer)  => {
           uid: accountRecord.uid,
           ipAddr: ip,
           tokenId: sessionToken.id
-        })
+        });
       }
     },
 
@@ -404,12 +404,12 @@ module.exports = (log, config, customs, db, mailer)  => {
             wrapKb: wrapKb,
             emailVerified: accountRecord.primaryEmail.isVerified,
             tokenVerificationId: sessionToken.tokenVerificationId
-          })
+          });
         })
         .then(keyFetchToken => {
           return request.stashMetricsContext(keyFetchToken)
-            .then(() => { return keyFetchToken } )
-        })
+            .then(() => { return keyFetchToken; } );
+        });
     },
 
     getSessionVerificationStatus(sessionToken, verificationMethod) {
@@ -418,7 +418,7 @@ module.exports = (log, config, customs, db, mailer)  => {
           verified: false,
           verificationMethod: 'email',
           verificationReason: 'signup'
-        }
+        };
       }
       if (sessionToken.mustVerify && ! sessionToken.tokenVerified) {
         return {
@@ -426,10 +426,10 @@ module.exports = (log, config, customs, db, mailer)  => {
           // Override the verification method if it was explicitly specified in the request.
           verificationMethod: verificationMethod || 'email',
           verificationReason: 'login'
-        }
+        };
       }
-      return { verified: true }
+      return { verified: true };
     },
 
-  }
-}
+  };
+};

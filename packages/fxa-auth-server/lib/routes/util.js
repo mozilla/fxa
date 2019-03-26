@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const isA = require('joi')
-const random = require('../crypto/random')
-const validators = require('./validators')
-const HEX_STRING = validators.HEX_STRING
+const isA = require('joi');
+const random = require('../crypto/random');
+const validators = require('./validators');
+const HEX_STRING = validators.HEX_STRING;
 
 module.exports = (log, config, redirectDomain) => {
   return [
@@ -17,9 +17,9 @@ module.exports = (log, config, redirectDomain) => {
       handler: async function getRandomBytes(request) {
         return random(32)
         .then(
-          bytes => { return { data: bytes.toString('hex') }},
-          err => { throw err }
-        )
+          bytes => { return { data: bytes.toString('hex') };},
+          err => { throw err; }
+        );
       }
     },
     {
@@ -36,7 +36,7 @@ module.exports = (log, config, redirectDomain) => {
         }
       },
       handler: async function (request, h) {
-        return h.redirect(config.contentServer.url + request.raw.req.url)
+        return h.redirect(config.contentServer.url + request.raw.req.url);
       }
     },
     {
@@ -54,8 +54,8 @@ module.exports = (log, config, redirectDomain) => {
         }
       },
       handler: async function (request, h) {
-        return h.redirect(config.contentServer.url + request.raw.req.url)
+        return h.redirect(config.contentServer.url + request.raw.req.url);
       }
     }
-  ]
-}
+  ];
+};

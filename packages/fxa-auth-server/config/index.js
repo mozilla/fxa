@@ -2,19 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-var fs = require('fs')
-var path = require('path')
-var url = require('url')
-var convict = require('convict')
-var DEFAULT_SUPPORTED_LANGUAGES = require('./supportedLanguages')
+const fs = require('fs');
+const path = require('path');
+const url = require('url');
+const convict = require('convict');
+const DEFAULT_SUPPORTED_LANGUAGES = require('./supportedLanguages');
 
-const ONE_DAY = 1000 * 60 * 60 * 24
-const ONE_YEAR = ONE_DAY * 365
-const FIVE_MINUTES = 1000 * 60 * 5
+const ONE_DAY = 1000 * 60 * 60 * 24;
+const ONE_YEAR = ONE_DAY * 365;
+const FIVE_MINUTES = 1000 * 60 * 5;
 
-var conf = convict({
+const conf = convict({
   env: {
     doc: 'The current node.js environment',
     default: 'prod',
@@ -877,48 +877,48 @@ var conf = convict({
       }
     }
   }
-})
+});
 
 // handle configuration files.  you can specify a CSV list of configuration
 // files to process, which will be overlayed in order, in the CONFIG_FILES
 // environment variable.
 
-var envConfig = path.join(__dirname, conf.get('env') + '.json')
-envConfig = envConfig + ',' + (process.env.CONFIG_FILES || '')
-var files = envConfig.split(',').filter(fs.existsSync)
-conf.loadFile(files)
-conf.validate({ allowed: 'strict' })
+let envConfig = path.join(__dirname, `${conf.get('env')  }.json`);
+envConfig = `${envConfig  },${  process.env.CONFIG_FILES || ''}`;
+const files = envConfig.split(',').filter(fs.existsSync);
+conf.loadFile(files);
+conf.validate({ allowed: 'strict' });
 
 // set the public url as the issuer domain for assertions
-conf.set('domain', url.parse(conf.get('publicUrl')).host)
+conf.set('domain', url.parse(conf.get('publicUrl')).host);
 
 // derive fxa-auth-mailer configuration from our content-server url
-conf.set('smtp.accountSettingsUrl', conf.get('contentServer.url') + '/settings')
-conf.set('smtp.accountRecoveryCodesUrl', conf.get('contentServer.url') + '/settings/two_step_authentication/recovery_codes')
-conf.set('smtp.verificationUrl', conf.get('contentServer.url') + '/verify_email')
-conf.set('smtp.passwordResetUrl', conf.get('contentServer.url') + '/complete_reset_password')
-conf.set('smtp.initiatePasswordResetUrl', conf.get('contentServer.url') + '/reset_password')
-conf.set('smtp.initiatePasswordChangeUrl', conf.get('contentServer.url') + '/settings/change_password')
-conf.set('smtp.verifyLoginUrl', conf.get('contentServer.url') + '/complete_signin')
-conf.set('smtp.reportSignInUrl', conf.get('contentServer.url') + '/report_signin')
-conf.set('smtp.revokeAccountRecoveryUrl', conf.get('contentServer.url') + '/settings/account_recovery/confirm_revoke')
-conf.set('smtp.createAccountRecoveryUrl', conf.get('contentServer.url') + '/settings/account_recovery/confirm_password')
-conf.set('smtp.verifyPrimaryEmailUrl', conf.get('contentServer.url') + '/verify_primary_email')
-conf.set('smtp.verifySecondaryEmailUrl', conf.get('contentServer.url') + '/verify_secondary_email')
+conf.set('smtp.accountSettingsUrl', `${conf.get('contentServer.url')  }/settings`);
+conf.set('smtp.accountRecoveryCodesUrl', `${conf.get('contentServer.url')  }/settings/two_step_authentication/recovery_codes`);
+conf.set('smtp.verificationUrl', `${conf.get('contentServer.url')  }/verify_email`);
+conf.set('smtp.passwordResetUrl', `${conf.get('contentServer.url')  }/complete_reset_password`);
+conf.set('smtp.initiatePasswordResetUrl', `${conf.get('contentServer.url')  }/reset_password`);
+conf.set('smtp.initiatePasswordChangeUrl', `${conf.get('contentServer.url')  }/settings/change_password`);
+conf.set('smtp.verifyLoginUrl', `${conf.get('contentServer.url')  }/complete_signin`);
+conf.set('smtp.reportSignInUrl', `${conf.get('contentServer.url')  }/report_signin`);
+conf.set('smtp.revokeAccountRecoveryUrl', `${conf.get('contentServer.url')  }/settings/account_recovery/confirm_revoke`);
+conf.set('smtp.createAccountRecoveryUrl', `${conf.get('contentServer.url')  }/settings/account_recovery/confirm_password`);
+conf.set('smtp.verifyPrimaryEmailUrl', `${conf.get('contentServer.url')  }/verify_primary_email`);
+conf.set('smtp.verifySecondaryEmailUrl', `${conf.get('contentServer.url')  }/verify_secondary_email`);
 
-conf.set('isProduction', conf.get('env') === 'prod')
+conf.set('isProduction', conf.get('env') === 'prod');
 
 //sns endpoint is not to be set in production
 if (conf.has('snsTopicEndpoint') && conf.get('env') !== 'dev') {
-  throw new Error('snsTopicEndpoint is only allowed in dev env')
+  throw new Error('snsTopicEndpoint is only allowed in dev env');
 }
 
 if (conf.get('env') === 'dev'){
   if (! process.env.AWS_ACCESS_KEY_ID) {
-    process.env.AWS_ACCESS_KEY_ID = 'DEV_KEY_ID'
+    process.env.AWS_ACCESS_KEY_ID = 'DEV_KEY_ID';
   }
   if (! process.env.AWS_SECRET_ACCESS_KEY) {
-    process.env.AWS_SECRET_ACCESS_KEY = 'DEV_ACCESS_KEY'
+    process.env.AWS_SECRET_ACCESS_KEY = 'DEV_ACCESS_KEY';
   }
 }
 
@@ -928,12 +928,12 @@ if (conf.get('isProduction')) {
     'pushbox.key',
     'metrics.flow_id_key',
     'oauth.secretKey',
-  ]
+  ];
   for (const key of SECRET_SETTINGS) {
     if (conf.get(key) === conf.default(key)) {
-      throw new Error(`Config '${key}' must be set in production`)
+      throw new Error(`Config '${key}' must be set in production`);
     }
   }
 }
 
-module.exports = conf
+module.exports = conf;

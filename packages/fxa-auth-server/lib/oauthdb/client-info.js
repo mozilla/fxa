@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const Joi = require('joi')
-const validators = require('../routes/validators')
+const Joi = require('joi');
+const validators = require('../routes/validators');
 
 module.exports = (config) => {
   return {
@@ -23,5 +23,5 @@ module.exports = (config) => {
         redirect_uri: Joi.string().required().allow('')
       }
     }
-  }
-}
+  };
+};

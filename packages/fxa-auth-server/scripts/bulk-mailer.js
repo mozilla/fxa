@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const program = require('commander')
-const path = require('path')
+const program = require('commander');
+const path = require('path');
 
 program
   .option('-b, --batchsize [size]', 'Number of emails to send in a batch. Defaults to 10', parseInt)
@@ -17,40 +17,40 @@ program
   .option('-v, --verbose', 'Verbose logging')
   .option('-w, --write [directory]', 'Directory where emails should be stored')
   .option('--send', 'Send emails, for real. *** THIS REALLY SENDS ***')
-  .parse(process.argv)
+  .parse(process.argv);
 
-const BATCH_DELAY_MS = typeof program.delay === 'undefined' ? 5000 : program.delay * 1000
-const BATCH_SIZE = program.batchsize || 10
+const BATCH_DELAY_MS = typeof program.delay === 'undefined' ? 5000 : program.delay * 1000;
+const BATCH_SIZE = program.batchsize || 10;
 
 const requiredOptions = [
   'input',
   'method'
-]
+];
 
-requiredOptions.forEach(checkRequiredOption)
+requiredOptions.forEach(checkRequiredOption);
 
 // Loading the bulk-mailer is slow, only do
 // so after checking all the required options.
-const bulkMailer = require('./bulk-mailer/index')
+const bulkMailer = require('./bulk-mailer/index');
 
 return bulkMailer(path.resolve(program.input), program.method, BATCH_SIZE, BATCH_DELAY_MS, program.send, program.write, program.verbose)
   .then(() => {
     console.log('done');
-    process.exit(0)
+    process.exit(0);
   }, (err) => {
     if (/InvalidMethodName/.test(err.message)) {
-      console.error(program.method, 'is not a valid method. Can be one of:\n')
-      console.error(' * ' + err.validNames.sort().join('\n * '))
+      console.error(program.method, 'is not a valid method. Can be one of:\n');
+      console.error(` * ${  err.validNames.sort().join('\n * ')}`);
     } else {
-      console.error('Error', String(err))
+      console.error('Error', String(err));
     }
     process.exit(1);
-  })
+  });
 
 
 function checkRequiredOption(optionName) {
   if (! program[optionName]) {
-    console.error('--' + optionName + ' is required')
-    process.exit(1)
+    console.error(`--${  optionName  } is required`);
+    process.exit(1);
   }
 }

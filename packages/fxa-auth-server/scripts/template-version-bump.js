@@ -10,62 +10,62 @@
 // a deleted template is reinstated by some later commit or only one
 // format of a template is deleted.
 
-'use strict'
+'use strict';
 
-const cp = require('child_process')
-const fs = require('fs')
-const path = require('path')
+const cp = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
-const ROOT_DIR = path.join(__dirname, '..')
-const TEMPLATE_DIR = 'lib/senders/templates'
-const VERSIONS_FILE = '_versions.json'
-const IGNORE = new Set([ VERSIONS_FILE, '_pending.txt', 'index.js', 'README.md' ])
-const DEDUP = {}
+const ROOT_DIR = path.join(__dirname, '..');
+const TEMPLATE_DIR = 'lib/senders/templates';
+const VERSIONS_FILE = '_versions.json';
+const IGNORE = new Set([ VERSIONS_FILE, '_pending.txt', 'index.js', 'README.md' ]);
+const DEDUP = {};
 
-const templates = require(`../${TEMPLATE_DIR}`)
-const versions = require(`../${TEMPLATE_DIR}/${VERSIONS_FILE}`)
+const templates = require(`../${TEMPLATE_DIR}`);
+const versions = require(`../${TEMPLATE_DIR}/${VERSIONS_FILE}`);
 
 const stagedTemplates = cp.execSync('git status --porcelain', { cwd: ROOT_DIR, encoding: 'utf8' })
   .split('\n')
   .filter(line => line.match(`^[AM]. ${TEMPLATE_DIR}/\\w+`))
   .map(line => {
-    const parts = line.split(' ')
-    return parts[2] || parts[1]
+    const parts = line.split(' ');
+    return parts[2] || parts[1];
   })
   .map(templatePath => templatePath.split('/')[3])
   .filter(fileName => ! IGNORE.has(fileName))
   .map(fileName => templates.generateTemplateName(fileName.substr(0, fileName.lastIndexOf('.'))))
   .filter(templateName => {
     if (DEDUP[templateName]) {
-      return false
+      return false;
     }
 
-    DEDUP[templateName] = true
-    return true
-  })
+    DEDUP[templateName] = true;
+    return true;
+  });
 
 if (stagedTemplates.length === 0) {
   if (process.argc === 2 || process.argv[2] !== '--silent') {
-    console.log('I see no work. Did you remember to `git add` your changes?')
+    console.log('I see no work. Did you remember to `git add` your changes?');
   }
 } else {
   stagedTemplates.forEach(templateName => {
-    const version = versions[templateName]
+    const version = versions[templateName];
     if (version) {
-      const type = typeof version
+      const type = typeof version;
       if (type !== 'number' || isNaN(version)) {
-        console.log(`Bad version "${version}" {${type}} for template "${templateName}"`)
-        process.exit(1)
+        console.log(`Bad version "${version}" {${type}} for template "${templateName}"`);
+        process.exit(1);
       }
-      versions[templateName] = version + 1
+      versions[templateName] = version + 1;
     } else {
-      versions[templateName] = 1
+      versions[templateName] = 1;
     }
-  })
+  });
 
   fs.writeFileSync(
     path.join(`${ROOT_DIR}/${TEMPLATE_DIR}/${VERSIONS_FILE}`),
     JSON.stringify(versions, null, '  ')
-  )
+  );
 }
 

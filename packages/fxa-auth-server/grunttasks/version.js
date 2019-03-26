@@ -16,18 +16,18 @@
 // NOTE: This task will not push this commit for you.
 //
 
-'use strict'
+'use strict';
 
 module.exports = function (grunt) {
   grunt.registerTask('version', [
     'bump-only:minor',
     'conventionalChangelog:release',
     'bump-commit'
-  ])
+  ]);
 
   grunt.registerTask('version:patch', [
     'bump-only:patch',
     'conventionalChangelog:release',
     'bump-commit'
-  ])
-}
+  ]);
+};

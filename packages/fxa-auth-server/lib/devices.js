@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const isA = require('joi')
-const validators = require('./routes/validators')
+const isA = require('joi');
+const validators = require('./routes/validators');
 const {
   DISPLAY_SAFE_UNICODE_WITH_NON_BMP,
   HEX_STRING,
   URL_SAFE_BASE_64
-} = validators
-const PUSH_SERVER_REGEX = require('../config').get('push.allowedServerRegex')
+} = validators;
+const PUSH_SERVER_REGEX = require('../config').get('push.allowedServerRegex');
 
 const SCHEMA = {
   id: isA.string().length(32).regex(HEX_STRING),
@@ -32,98 +32,98 @@ const SCHEMA = {
   pushEndpointExpired: isA.boolean().strict(),
   // An object mapping command names to metadata bundles.
   availableCommands: isA.object().pattern(validators.DEVICE_COMMAND_NAME, isA.string().max(2048))
-}
+};
 
 module.exports = (log, db, push) => {
-  return { isSpuriousUpdate, upsert, synthesizeName }
+  return { isSpuriousUpdate, upsert, synthesizeName };
 
   // Clients have been known to send spurious device updates,
   // which generates lots of unnecessary database load.
   // Check if anything has actually changed.
   function isSpuriousUpdate (payload, token) {
     if (! token.deviceId || payload.id !== token.deviceId) {
-      return false
+      return false;
     }
 
     if (payload.name && payload.name !== token.deviceName) {
-      return false
+      return false;
     }
 
     if (payload.type && payload.type !== token.deviceType) {
-      return false
+      return false;
     }
 
     if (payload.pushCallback && payload.pushCallback !== token.deviceCallbackURL) {
-      return false
+      return false;
     }
 
     if (payload.pushPublicKey && payload.pushPublicKey !== token.deviceCallbackPublicKey) {
-      return false
+      return false;
     }
 
     if (payload.availableCommands) {
       if (! token.deviceAvailableCommands) {
-        return false
+        return false;
       }
 
       if (! isLike(token.deviceAvailableCommands, payload.availableCommands)) {
-        return false
+        return false;
       }
 
       if (! isLike(payload.availableCommands, token.deviceAvailableCommands)) {
-        return false
+        return false;
       }
     }
 
-    return true
+    return true;
   }
 
   function upsert (request, credentials, deviceInfo) {
-    let operation, event, result
+    let operation, event, result;
     if (deviceInfo.id) {
-      operation = 'updateDevice'
-      event = 'device.updated'
+      operation = 'updateDevice';
+      event = 'device.updated';
     } else {
-      operation = 'createDevice'
-      event = 'device.created'
+      operation = 'createDevice';
+      event = 'device.created';
       if (! deviceInfo.name) {
-        deviceInfo.name = credentials.client && credentials.client.name || ''
+        deviceInfo.name = credentials.client && credentials.client.name || '';
       }
     }
 
-    deviceInfo.sessionTokenId = credentials.id
-    deviceInfo.refreshTokenId = credentials.refreshTokenId
+    deviceInfo.sessionTokenId = credentials.id;
+    deviceInfo.refreshTokenId = credentials.refreshTokenId;
 
-    const isPlaceholderDevice = ! deviceInfo.id && ! deviceInfo.name && ! deviceInfo.type
+    const isPlaceholderDevice = ! deviceInfo.id && ! deviceInfo.name && ! deviceInfo.type;
 
     return db[operation](credentials.uid, deviceInfo)
       .then(device => {
-        result = device
+        result = device;
         return request.emitMetricsEvent(event, {
           uid: credentials.uid,
           device_id: result.id,
           is_placeholder: isPlaceholderDevice
-        })
+        });
       })
       .then(() => {
         if (operation === 'createDevice') {
           // Clients expect this notification to always include a name,
           // so try to synthesize one if necessary.
-          let deviceName = result.name
+          let deviceName = result.name;
           if (! deviceName) {
-            deviceName = synthesizeName(deviceInfo)
+            deviceName = synthesizeName(deviceInfo);
           }
           if (credentials.tokenVerified) {
             request.app.devices.then(devices => {
-              const otherDevices = devices.filter(device => device.id !== result.id)
-              return push.notifyDeviceConnected(credentials.uid, otherDevices, deviceName)
-            })
+              const otherDevices = devices.filter(device => device.id !== result.id);
+              return push.notifyDeviceConnected(credentials.uid, otherDevices, deviceName);
+            });
           }
           if (isPlaceholderDevice) {
             log.info('device:createPlaceholder', {
               uid: credentials.uid,
               id: result.id
-            })
+            });
           }
           return log.notifyAttachedServices('device:create', request, {
             uid: credentials.uid,
@@ -131,55 +131,55 @@ module.exports = (log, db, push) => {
             type: result.type,
             timestamp: result.createdAt,
             isPlaceholder: isPlaceholderDevice
-          })
+          });
         }
       })
-      .then(function () {
-        delete result.sessionTokenId
-        delete result.refreshTokenId
-        return result
-      })
+      .then(() => {
+        delete result.sessionTokenId;
+        delete result.refreshTokenId;
+        return result;
+      });
   }
 
   function synthesizeName (device) {
-    const uaBrowser = device.uaBrowser
-    const uaBrowserVersion = device.uaBrowserVersion
-    const uaOS = device.uaOS
-    const uaOSVersion = device.uaOSVersion
-    const uaFormFactor = device.uaFormFactor
-    let result = ''
+    const uaBrowser = device.uaBrowser;
+    const uaBrowserVersion = device.uaBrowserVersion;
+    const uaOS = device.uaOS;
+    const uaOSVersion = device.uaOSVersion;
+    const uaFormFactor = device.uaFormFactor;
+    let result = '';
 
     if (uaBrowser) {
       if (uaBrowserVersion) {
-        const splitIndex = uaBrowserVersion.indexOf('.')
-        result = `${uaBrowser} ${splitIndex === -1 ? uaBrowserVersion : uaBrowserVersion.substr(0, splitIndex)}`
+        const splitIndex = uaBrowserVersion.indexOf('.');
+        result = `${uaBrowser} ${splitIndex === -1 ? uaBrowserVersion : uaBrowserVersion.substr(0, splitIndex)}`;
       } else {
-        result = uaBrowser
+        result = uaBrowser;
       }
 
       if (uaOS || uaFormFactor) {
-        result += ', '
+        result += ', ';
       }
     }
 
     if (uaFormFactor) {
-      return `${result}${uaFormFactor}`
+      return `${result}${uaFormFactor}`;
     }
 
     if (uaOS) {
-      result += uaOS
+      result += uaOS;
 
       if (uaOSVersion) {
-        result += ` ${uaOSVersion}`
+        result += ` ${uaOSVersion}`;
       }
     }
 
-    return result
+    return result;
   }
-}
+};
 
-module.exports.schema = SCHEMA
+module.exports.schema = SCHEMA;
 
 function isLike (object, archetype) {
-  return Object.entries(archetype).every(([ key, value ]) => object[key] === value)
+  return Object.entries(archetype).every(([ key, value ]) => object[key] === value);
 }

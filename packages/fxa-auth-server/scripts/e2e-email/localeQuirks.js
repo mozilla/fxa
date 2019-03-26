@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
 // Not all non-english locales have tranlated some things yet.
 // So there are these unfortunate bits of custom mappings that
 // will need to change over time.
 
-var translationQuirks = {
+const translationQuirks = {
   // these locales will be expected to have a SMTP
   // 'content-language' header of 'en-US'
   'content-language': [
@@ -100,22 +100,22 @@ var translationQuirks = {
     'ko',
     'lt',
   ],
-}
+};
 
 function ary2map(ary) {
-  var map = {}
-  ary.forEach(function(val) {
+  const map = {};
+  ary.forEach((val) => {
     if (map[val]) {
-      console.log('Duplicate!:', val)
+      console.log('Duplicate!:', val);
     }
-    map[val] = 1
-  })
-  return map
+    map[val] = 1;
+  });
+  return map;
 }
 
-Object.keys(translationQuirks).forEach(function(quirk) {
-  var locales = translationQuirks[quirk]
-  translationQuirks[quirk] = ary2map(locales)
-})
+Object.keys(translationQuirks).forEach((quirk) => {
+  const locales = translationQuirks[quirk];
+  translationQuirks[quirk] = ary2map(locales);
+});
 
-module.exports = translationQuirks
+module.exports = translationQuirks;

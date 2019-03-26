@@ -4,7 +4,7 @@
 
 // takes care of bumping the version number in package.json
 
-'use strict'
+'use strict';
 
 module.exports = function (grunt) {
   grunt.config('bump', {
@@ -29,6 +29,6 @@ module.exports = function (grunt) {
       pushTo: 'origin',
       gitDescribeOptions: '--tags --always --abrev=1 --dirty=-d'
     }
-  })
-}
+  });
+};
 

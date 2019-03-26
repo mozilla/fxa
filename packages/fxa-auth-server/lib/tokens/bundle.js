@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
 
 /*  Utility functions for working with encrypted data bundles.
@@ -25,52 +25,52 @@
  *
  */
 
-const butil = require('../crypto/butil')
-const crypto = require('crypto')
-const error = require('../error')
-const hkdf = require('../crypto/hkdf')
+const butil = require('../crypto/butil');
+const crypto = require('crypto');
+const error = require('../error');
+const hkdf = require('../crypto/hkdf');
 
-const HASH_ALGORITHM = 'sha256'
+const HASH_ALGORITHM = 'sha256';
 
 module.exports = {
   // Encrypt the given buffer into a hex ciphertext string.
   //
   bundle(key, keyInfo, payload) {
-    key = Buffer.from(key, 'hex')
-    payload = Buffer.from(payload, 'hex')
+    key = Buffer.from(key, 'hex');
+    payload = Buffer.from(payload, 'hex');
     return deriveBundleKeys(key, keyInfo, payload.length)
       .then(
-        function (keys) {
-          var ciphertext = butil.xorBuffers(payload, keys.xorKey)
-          var hmac = crypto.createHmac(HASH_ALGORITHM, keys.hmacKey)
-          hmac.update(ciphertext)
-          var mac = hmac.digest()
-          return Buffer.concat([ciphertext, mac]).toString('hex')
+        (keys) => {
+          const ciphertext = butil.xorBuffers(payload, keys.xorKey);
+          const hmac = crypto.createHmac(HASH_ALGORITHM, keys.hmacKey);
+          hmac.update(ciphertext);
+          const mac = hmac.digest();
+          return Buffer.concat([ciphertext, mac]).toString('hex');
         }
-      )
+      );
   },
 
   // Decrypt the given hex string into a buffer of plaintext data.
   //
   unbundle(key, keyInfo, payload) {
-    key = Buffer.from(key, 'hex')
-    payload = Buffer.from(payload, 'hex')
-    var ciphertext = payload.slice(0, -32)
-    var expectedHmac = payload.slice(-32)
+    key = Buffer.from(key, 'hex');
+    payload = Buffer.from(payload, 'hex');
+    const ciphertext = payload.slice(0, -32);
+    const expectedHmac = payload.slice(-32);
     return deriveBundleKeys(key, keyInfo, ciphertext.length)
       .then(
-        function (keys) {
-          var hmac = crypto.createHmac(HASH_ALGORITHM, keys.hmacKey)
-          hmac.update(ciphertext)
-          var mac = hmac.digest()
+        (keys) => {
+          const hmac = crypto.createHmac(HASH_ALGORITHM, keys.hmacKey);
+          hmac.update(ciphertext);
+          const mac = hmac.digest();
           if (! butil.buffersAreEqual(mac, expectedHmac)) {
-            throw error.invalidSignature()
+            throw error.invalidSignature();
           }
-          return butil.xorBuffers(ciphertext, keys.xorKey).toString('hex')
+          return butil.xorBuffers(ciphertext, keys.xorKey).toString('hex');
         }
-      )
+      );
   }
-}
+};
 
 
 // Derive the HMAC and XOR keys required to encrypt a given size of payload.
@@ -78,12 +78,12 @@ module.exports = {
 function deriveBundleKeys(key, keyInfo, payloadSize) {
   return hkdf(key, keyInfo, null, 32 + payloadSize)
     .then(
-      function (keyMaterial) {
+      (keyMaterial) => {
         return {
           hmacKey: keyMaterial.slice(0, 32),
           xorKey: keyMaterial.slice(32)
-        }
+        };
       }
-    )
+    );
 }
 

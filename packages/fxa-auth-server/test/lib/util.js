@@ -4,7 +4,7 @@
 
 // Collection of utils for tests
 
-'use strict'
+'use strict';
 
 
 const ORIGINAL_STDOUT_WRITE = process.stdout.write;
@@ -18,19 +18,19 @@ function disableLogs() {
     return function(string, encoding, fd) {
       const args = Array.prototype.slice.call(arguments);
       if (args[0] && LOGS_REGEX.test(args[0])) {
-        args[0] = ''
+        args[0] = '';
       }
-      ORIGINAL_STDOUT_WRITE.apply(process.stdout, args)
+      ORIGINAL_STDOUT_WRITE.apply(process.stdout, args);
     };
   }());
 }
 
 function restoreStdoutWrite() {
-  process.stdout.write = ORIGINAL_STDOUT_WRITE
+  process.stdout.write = ORIGINAL_STDOUT_WRITE;
 }
 
 module.exports = {
   disableLogs,
   restoreStdoutWrite
-}
+};
 

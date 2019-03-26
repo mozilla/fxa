@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const ua = require('node-uap')
-const safe = require('./safe')
+const ua = require('node-uap');
+const safe = require('./safe');
 
 const MOBILE_OS_FAMILIES = new Set([
   'Android',
@@ -25,7 +25,7 @@ const MOBILE_OS_FAMILIES = new Set([
   'Windows CE',
   'Windows Mobile',
   'Windows Phone'
-])
+]);
 
 // $1 = 'Firefox' indicates Firefox Sync, 'Mobile' indicates Sync mobile library
 // $2 = OS
@@ -33,10 +33,10 @@ const MOBILE_OS_FAMILIES = new Set([
 // $4 = form factor
 // $5 = OS version
 // $6 = application name
-const SYNC_USER_AGENT = /^(Firefox|Mobile)-(\w+)-(?:FxA(?:ccounts)?|Sync)\/([^\sb]*)(?:b\S+)? ?(?:\(([\w\s]+); [\w\s]+ ([^\s()]+)\))?(?: \((.+)\))?$/
+const SYNC_USER_AGENT = /^(Firefox|Mobile)-(\w+)-(?:FxA(?:ccounts)?|Sync)\/([^\sb]*)(?:b\S+)? ?(?:\(([\w\s]+); [\w\s]+ ([^\s()]+)\))?(?: \((.+)\))?$/;
 
 module.exports = function (userAgentString) {
-  const matches = SYNC_USER_AGENT.exec(userAgentString)
+  const matches = SYNC_USER_AGENT.exec(userAgentString);
   if (matches && matches.length > 2) {
     // Always parse known Sync user-agents ourselves,
     // because node-uap makes a pig's ear of it.
@@ -47,10 +47,10 @@ module.exports = function (userAgentString) {
       osVersion: safe.version(matches[5]),
       deviceType: marshallDeviceType(matches[4]),
       formFactor: safe.name(matches[4])
-    }
+    };
   }
 
-  const userAgentData = ua.parse(userAgentString)
+  const userAgentData = ua.parse(userAgentString);
   return {
     browser: safe.name(getFamily(userAgentData.ua)),
     browserVersion: safe.version(userAgentData.ua.toVersionString()),
@@ -58,62 +58,62 @@ module.exports = function (userAgentString) {
     osVersion: safe.version(userAgentData.os.toVersionString()),
     deviceType: getDeviceType(userAgentData) || null,
     formFactor: safe.name(getFormFactor(userAgentData))
-  }
-}
+  };
+};
 
 function getFamily (data) {
   if (data.family && data.family !== 'Other') {
-    return data.family
+    return data.family;
   }
 }
 
 function getDeviceType (data) {
   if (getFamily(data.device) || isMobileOS(data.os)) {
     if (isTablet(data)) {
-      return 'tablet'
+      return 'tablet';
     } else {
-      return 'mobile'
+      return 'mobile';
     }
   }
 }
 
 function isMobileOS (os) {
-  return MOBILE_OS_FAMILIES.has(os.family)
+  return MOBILE_OS_FAMILIES.has(os.family);
 }
 
 function isTablet(data) {
-  return isIpad(data) || isAndroidTablet(data) || isKindle(data) || isGenericTablet(data)
+  return isIpad(data) || isAndroidTablet(data) || isKindle(data) || isGenericTablet(data);
 }
 
 function isIpad (data) {
-  return /iPad/.test(data.device.family)
+  return /iPad/.test(data.device.family);
 }
 
 function isAndroidTablet (data) {
   return data.os.family === 'Android' &&
     data.userAgent.indexOf('Mobile') === -1 &&
-    data.userAgent.indexOf('AndroidSync') === -1
+    data.userAgent.indexOf('AndroidSync') === -1;
 }
 
 function isKindle (data) {
-  return /Kindle/.test(data.device.family)
+  return /Kindle/.test(data.device.family);
 }
 
 function isGenericTablet (data) {
-  return data.device.brand === 'Generic' && data.device.model === 'Tablet'
+  return data.device.brand === 'Generic' && data.device.model === 'Tablet';
 }
 
 function getFormFactor (data) {
   if (data.device.brand !== 'Generic') {
-    return getFamily(data.device)
+    return getFamily(data.device);
   }
 }
 
 function marshallDeviceType (formFactor) {
   if (/iPad/.test(formFactor) || /tablet/i.test(formFactor)) {
-    return 'tablet'
+    return 'tablet';
   }
 
-  return 'mobile'
+  return 'mobile';
 }
 

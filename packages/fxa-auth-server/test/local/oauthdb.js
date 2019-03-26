@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const { assert } = require('chai')
-const nock = require('nock')
-const JWT = require('jsonwebtoken')
+const { assert } = require('chai');
+const nock = require('nock');
+const JWT = require('jsonwebtoken');
 
-const P = require('../../lib/promise')
-const oauthdbModule = require('../../lib/oauthdb')
-const error = require('../../lib/error')
-const { mockLog } = require('../mocks')
+const P = require('../../lib/promise');
+const oauthdbModule = require('../../lib/oauthdb');
+const error = require('../../lib/error');
+const { mockLog } = require('../mocks');
 
 const mockConfig = {
   publicUrl: 'https://accounts.example.com',
@@ -20,16 +20,16 @@ const mockConfig = {
     secretKey: 'secret-key-oh-secret-key',
   },
   domain: 'accounts.example.com'
-}
+};
 
-const MOCK_UID = 'ABCDEF'
-const MOCK_CLIENT_ID = '0123456789ABCDEF'
+const MOCK_UID = 'ABCDEF';
+const MOCK_CLIENT_ID = '0123456789ABCDEF';
 const MOCK_CLIENT_INFO = {
   id: MOCK_CLIENT_ID,
   name: 'mock client',
   trusted: false,
   redirect_uri: 'http://mock.client.com/redirect'
-}
+};
 
 const LOCKBOX_CLIENT_INFO = {
   id: 'e7ce535d93522896',
@@ -37,52 +37,52 @@ const LOCKBOX_CLIENT_INFO = {
   trusted: true,
   image_uri: '',
   redirect_uri: 'https://lockbox.firefox.com/fxa/android-redirect.html'
-}
+};
 
 const mockOAuthServer = nock(mockConfig.oauth.url).defaultReplyHeaders({
   'Content-Type': 'application/json'
-})
+});
 
 function verifyJWT(token) {
   return new P((resolve, reject) => {
     JWT.verify(token, mockConfig.oauth.secretKey, { algorithm: 'HS256' }, (err, claims) => {
       if (err) {
-        reject(err)
+        reject(err);
       } else {
-        resolve(claims)
+        resolve(claims);
       }
-    })
-  })
+    });
+  });
 }
 
 describe('oauthdb', () => {
 
-  let oauthdb
+  let oauthdb;
 
   afterEach(async () => {
-    assert.ok(nock.isDone(), 'there should be no pending request mocks at the end of a test')
+    assert.ok(nock.isDone(), 'there should be no pending request mocks at the end of a test');
     if (oauthdb) {
-      await oauthdb.close()
+      await oauthdb.close();
     }
-  })
+  });
 
   describe('getClientInfo', () => {
 
     it('gets client info', async () => {
       mockOAuthServer.get(`/v1/client/${MOCK_CLIENT_ID}`)
-        .reply(200, MOCK_CLIENT_INFO)
-      oauthdb = oauthdbModule(mockLog(), mockConfig)
-      const info = await oauthdb.getClientInfo(MOCK_CLIENT_ID)
-      assert.deepEqual(info, MOCK_CLIENT_INFO)
-    })
+        .reply(200, MOCK_CLIENT_INFO);
+      oauthdb = oauthdbModule(mockLog(), mockConfig);
+      const info = await oauthdb.getClientInfo(MOCK_CLIENT_ID);
+      assert.deepEqual(info, MOCK_CLIENT_INFO);
+    });
 
     it('gets client info for a real client that previous triggered validation errors', async () => {
       mockOAuthServer.get(`/v1/client/${LOCKBOX_CLIENT_INFO.id}`)
-        .reply(200, LOCKBOX_CLIENT_INFO)
-      oauthdb = oauthdbModule(mockLog(), mockConfig)
-      const info = await oauthdb.getClientInfo(LOCKBOX_CLIENT_INFO.id)
-      assert.deepEqual(info, LOCKBOX_CLIENT_INFO)
-    })
+        .reply(200, LOCKBOX_CLIENT_INFO);
+      oauthdb = oauthdbModule(mockLog(), mockConfig);
+      const info = await oauthdb.getClientInfo(LOCKBOX_CLIENT_INFO.id);
+      assert.deepEqual(info, LOCKBOX_CLIENT_INFO);
+    });
 
     it('returns correct error for unknown client_id', async () => {
       mockOAuthServer.get(`/v1/client/${MOCK_CLIENT_ID}`)
@@ -91,26 +91,26 @@ describe('oauthdb', () => {
           errno: 101,
           message: 'Unknown client',
           clientId: MOCK_CLIENT_ID
-        })
-      oauthdb = oauthdbModule(mockLog(), mockConfig)
+        });
+      oauthdb = oauthdbModule(mockLog(), mockConfig);
       try {
-        await oauthdb.getClientInfo(MOCK_CLIENT_ID)
-        assert.fail('should have thrown')
+        await oauthdb.getClientInfo(MOCK_CLIENT_ID);
+        assert.fail('should have thrown');
       } catch (err) {
-        assert.equal(err.errno, error.ERRNO.UNKNOWN_CLIENT_ID)
-        assert.equal(err.output.payload.clientId, MOCK_CLIENT_ID)
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_CLIENT_ID);
+        assert.equal(err.output.payload.clientId, MOCK_CLIENT_ID);
       }
-    })
+    });
 
     it('validates its input parameters', async () => {
-      oauthdb = oauthdbModule(mockLog(), mockConfig)
+      oauthdb = oauthdbModule(mockLog(), mockConfig);
       try {
-        await oauthdb.getClientInfo('invalid-client-id')
-        assert.fail('should have thrown')
+        await oauthdb.getClientInfo('invalid-client-id');
+        assert.fail('should have thrown');
       } catch (err) {
-        assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR)
+        assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
       }
-    })
+    });
 
     it('validates the response data', async () => {
       mockOAuthServer.get(`/v1/client/${MOCK_CLIENT_ID}`)
@@ -119,58 +119,58 @@ describe('oauthdb', () => {
         name: 'mock client',
         trusted: false,
         redirect_uri: 42 // invalid!
-      })
-      oauthdb = oauthdbModule(mockLog(), mockConfig)
+      });
+      oauthdb = oauthdbModule(mockLog(), mockConfig);
       try {
-        await oauthdb.getClientInfo(MOCK_CLIENT_ID)
-        assert.fail('should have thrown')
+        await oauthdb.getClientInfo(MOCK_CLIENT_ID);
+        assert.fail('should have thrown');
       } catch (err) {
-        assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR)
+        assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
       }
-    })
-  })
+    });
+  });
 
   describe('getScopedKeyData', () => {
 
-    const ZEROS = Buffer.alloc(32).toString('hex')
-    const MOCK_SCOPES = 'mock-scope another-scope'
+    const ZEROS = Buffer.alloc(32).toString('hex');
+    const MOCK_SCOPES = 'mock-scope another-scope';
     const MOCK_CREDENTIALS = {
       uid: MOCK_UID,
       verifierSetAt: 12345,
-      email: MOCK_UID + '@example.com',
+      email: `${MOCK_UID  }@example.com`,
       lastAuthAt: () => 23456,
       emailVerified: true,
       tokenVerified: true,
       authenticationMethods: ['pwd'],
       authenticatorAssuranceLevel: 1
-    }
+    };
 
     it('gets scoped key data, authenticating with a JWT', async () => {
-      let requestBody
+      let requestBody;
       mockOAuthServer.post('/v1/key-data', body => {
-        requestBody = body
-        return true
+        requestBody = body;
+        return true;
       }).reply(200, {
         'mock-scope': {
           identifier: 'mock-scope',
           keyRotationSecret: ZEROS,
           keyRotationTimestamp: 0,
         }
-      })
-      oauthdb = oauthdbModule(mockLog(), mockConfig)
+      });
+      oauthdb = oauthdbModule(mockLog(), mockConfig);
       const keyData = await oauthdb.getScopedKeyData(MOCK_CREDENTIALS, {
         client_id: MOCK_CLIENT_ID,
         scope: MOCK_SCOPES
-      })
-      assert.equal(requestBody.client_id, MOCK_CLIENT_ID)
-      assert.equal(requestBody.scope, MOCK_SCOPES)
-      const claims = await verifyJWT(requestBody.assertion)
+      });
+      assert.equal(requestBody.client_id, MOCK_CLIENT_ID);
+      assert.equal(requestBody.scope, MOCK_SCOPES);
+      const claims = await verifyJWT(requestBody.assertion);
       // We don't know the exact `iat` timestamp for the JWT.
-      assert.ok(claims.iat <= Date.now() / 1000)
-      assert.ok(claims.iat >= Date.now() / 1000 - 10)
-      assert.equal(claims.exp, claims.iat + 60)
-      delete claims.iat
-      delete claims.exp
+      assert.ok(claims.iat <= Date.now() / 1000);
+      assert.ok(claims.iat >= Date.now() / 1000 - 10);
+      assert.equal(claims.exp, claims.iat + 60);
+      delete claims.iat;
+      delete claims.exp;
       assert.deepEqual(claims, {
         aud: 'https://oauth.server.com',
         'fxa-aal': 1,
@@ -181,16 +181,16 @@ describe('oauthdb', () => {
         'fxa-verifiedEmail': MOCK_CREDENTIALS.email,
         iss: 'accounts.example.com',
         sub: MOCK_UID
-      })
+      });
       assert.deepEqual(keyData, {
         'mock-scope': {
           identifier: 'mock-scope',
           keyRotationSecret: ZEROS,
           keyRotationTimestamp: 0,
         }
-      })
+      });
 
-    })
+    });
 
     it('returns correct error for unknown client_id', async () => {
       mockOAuthServer.post('/v1/key-data', body => true)
@@ -199,19 +199,19 @@ describe('oauthdb', () => {
           errno: 101,
           message: 'Unknown client',
           clientId: MOCK_CLIENT_ID
-        })
-      oauthdb = oauthdbModule(mockLog(), mockConfig)
+        });
+      oauthdb = oauthdbModule(mockLog(), mockConfig);
       try {
         await oauthdb.getScopedKeyData(MOCK_CREDENTIALS, {
           client_id: MOCK_CLIENT_ID,
           scope: MOCK_SCOPES
-        })
-        assert.fail('should have thrown')
+        });
+        assert.fail('should have thrown');
       } catch (err) {
-        assert.equal(err.errno, error.ERRNO.UNKNOWN_CLIENT_ID)
-        assert.equal(err.output.payload.clientId, MOCK_CLIENT_ID)
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_CLIENT_ID);
+        assert.equal(err.output.payload.clientId, MOCK_CLIENT_ID);
       }
-    })
+    });
 
     it('returns correct error for stale auth-at', async () => {
       mockOAuthServer.post('/v1/key-data', body => true)
@@ -220,32 +220,32 @@ describe('oauthdb', () => {
           errno: 119,
           message: 'Stale auth timestamp',
           authAt: 7
-        })
-      oauthdb = oauthdbModule(mockLog(), mockConfig)
+        });
+      oauthdb = oauthdbModule(mockLog(), mockConfig);
       try {
         await oauthdb.getScopedKeyData(MOCK_CREDENTIALS, {
           client_id: MOCK_CLIENT_ID,
           scope: MOCK_SCOPES
-        })
-        assert.fail('should have thrown')
+        });
+        assert.fail('should have thrown');
       } catch (err) {
-        assert.equal(err.errno, error.ERRNO.STALE_AUTH_AT)
-        assert.equal(err.output.payload.authAt, 7)
+        assert.equal(err.errno, error.ERRNO.STALE_AUTH_AT);
+        assert.equal(err.output.payload.authAt, 7);
       }
-    })
+    });
 
     it('validates its input parameters', async () => {
-      oauthdb = oauthdbModule(mockLog(), mockConfig)
+      oauthdb = oauthdbModule(mockLog(), mockConfig);
       try {
         await oauthdb.getScopedKeyData(MOCK_CREDENTIALS, {
           client_id: MOCK_CLIENT_ID,
           scope: 'invalid!scope#'
-        })
-        assert.fail('should have thrown')
+        });
+        assert.fail('should have thrown');
       } catch (err) {
-        assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR)
+        assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
       }
-    })
+    });
 
     it('validates the response data', async () => {
       mockOAuthServer.post('/v1/key-data', body => true)
@@ -255,36 +255,36 @@ describe('oauthdb', () => {
            keyRotationSecret: 42, // invalid!
            keyRotationTimestamp: 0,
          }
-       })
-      oauthdb = oauthdbModule(mockLog(), mockConfig)
+       });
+      oauthdb = oauthdbModule(mockLog(), mockConfig);
       try {
         await oauthdb.getScopedKeyData(MOCK_CREDENTIALS, {
           client_id: MOCK_CLIENT_ID,
           scope: MOCK_SCOPES
-        })
-        assert.fail('should have thrown')
+        });
+        assert.fail('should have thrown');
       } catch (err) {
-        assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR)
+        assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
       }
-    })
+    });
 
     it('requires a verified account', async () => {
-      oauthdb = oauthdbModule(mockLog(), mockConfig)
+      oauthdb = oauthdbModule(mockLog(), mockConfig);
       try {
         await oauthdb.getScopedKeyData(Object.assign({}, MOCK_CREDENTIALS, {
           emailVerified: false
         }), {
           client_id: MOCK_CLIENT_ID,
           scope: MOCK_SCOPES
-        })
-        assert.fail('should have thrown')
+        });
+        assert.fail('should have thrown');
       } catch (err) {
-        assert.equal(err.errno, error.ERRNO.ACCOUNT_UNVERIFIED)
+        assert.equal(err.errno, error.ERRNO.ACCOUNT_UNVERIFIED);
       }
-    })
+    });
 
     it('enforces session verification', async () => {
-      oauthdb = oauthdbModule(mockLog(), mockConfig)
+      oauthdb = oauthdbModule(mockLog(), mockConfig);
       try {
         await oauthdb.getScopedKeyData(Object.assign({}, MOCK_CREDENTIALS, {
           mustVerify: true,
@@ -292,13 +292,13 @@ describe('oauthdb', () => {
         }), {
           client_id: MOCK_CLIENT_ID,
           scope: MOCK_SCOPES
-        })
-        assert.fail('should have thrown')
+        });
+        assert.fail('should have thrown');
       } catch (err) {
-        assert.equal(err.errno, error.ERRNO.SESSION_UNVERIFIED)
+        assert.equal(err.errno, error.ERRNO.SESSION_UNVERIFIED);
       }
-    })
+    });
 
-  })
+  });
 
-})
+});

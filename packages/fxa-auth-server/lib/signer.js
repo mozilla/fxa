@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-var jwtool = require('fxa-jwtool')
+const jwtool = require('fxa-jwtool');
 
 module.exports = function (secretKeyFile, domain) {
 
-  var key = jwtool.JWK.fromFile(secretKeyFile, {iss: domain })
+  const key = jwtool.JWK.fromFile(secretKeyFile, {iss: domain });
 
   return {
     sign: function (data) {
-      var now = Date.now()
+      const now = Date.now();
       return key.sign(
         {
           'public-key': data.publicKey,
@@ -32,10 +32,10 @@ module.exports = function (secretKeyFile, domain) {
         }
       )
       .then(
-        function (cert) {
-          return { cert: cert }
+        (cert) => {
+          return { cert: cert };
         }
-      )
+      );
     }
-  }
-}
+  };
+};

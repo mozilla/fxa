@@ -2,28 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const pick = require('lodash.pick')
+const pick = require('lodash.pick');
 
 module.exports = function dumpUsers(keys, dbFunc, usePretty) {
-  const config = require('../../config').getProperties()
+  const config = require('../../config').getProperties();
   const log = {
     error: (msg) => {},
     info: (msg) => {},
     trace: (msg) => {},
-  }
+  };
 
-  const Token = require('../../lib/tokens')(log, config)
-  const UnblockCode = require('../../lib/crypto/random').base32(config.signinUnblock.codeLength)
-  const P = require('../../lib/promise')
+  const Token = require('../../lib/tokens')(log, config);
+  const UnblockCode = require('../../lib/crypto/random').base32(config.signinUnblock.codeLength);
+  const P = require('../../lib/promise');
 
   const DB = require('../../lib/db')(
     config,
     log,
     Token,
     UnblockCode
-  )
+  );
 
   let db;
 
@@ -31,24 +31,24 @@ module.exports = function dumpUsers(keys, dbFunc, usePretty) {
     .then(_db => {
       db = _db;
       return P.mapSeries(keys, (item) => db[dbFunc](item).catch(err => {
-        console.error(String(err) + ' - ' + item)
-        process.exit(1)
-      }))
+        console.error(`${String(err)  } - ${  item}`);
+        process.exit(1);
+      }));
     })
     .then(marshallUserRecords)
     .then(records => {
       if (usePretty) {
-        console.log(JSON.stringify(records, null, 2))
+        console.log(JSON.stringify(records, null, 2));
       } else {
-        console.log(JSON.stringify(records))
+        console.log(JSON.stringify(records));
       }
 
-      return db.close()
+      return db.close();
     })
     .then(() => {
-      process.exit(0)
-    })
-}
+      process.exit(0);
+    });
+};
 
 
 function marshallUserRecords(userRecords) {
@@ -65,7 +65,7 @@ function marshallUserRecords(userRecords) {
       'primaryEmail',
       'profileChangedAt',
       'uid',
-    )
+    );
 
     if (filteredRecord.devices) {
       Object.keys(filteredRecord.devices).forEach(id => {
@@ -81,10 +81,10 @@ function marshallUserRecords(userRecords) {
           'uaDeviceType',
           'uaOS',
           'uaOSVersion',
-        )
-      })
+        );
+      });
     }
 
-    return filteredRecord
-  })
+    return filteredRecord;
+  });
 }

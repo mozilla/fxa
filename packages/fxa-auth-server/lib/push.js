@@ -2,21 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-var crypto = require('crypto')
-var base64url = require('base64url')
-var webpush = require('web-push')
-var P = require('./promise')
+const crypto = require('crypto');
+const base64url = require('base64url');
+const webpush = require('web-push');
+const P = require('./promise');
 
-var ERR_NO_PUSH_CALLBACK = 'No Push Callback'
-var ERR_DATA_BUT_NO_KEYS = 'Data payload present but missing key(s)'
-var ERR_TOO_MANY_DEVICES = 'Too many devices connected to account'
+const ERR_NO_PUSH_CALLBACK = 'No Push Callback';
+const ERR_DATA_BUT_NO_KEYS = 'Data payload present but missing key(s)';
+const ERR_TOO_MANY_DEVICES = 'Too many devices connected to account';
 
-var LOG_OP_PUSH_TO_DEVICES = 'push.sendPush'
+const LOG_OP_PUSH_TO_DEVICES = 'push.sendPush';
 
-var PUSH_PAYLOAD_SCHEMA_VERSION = 1
-var PUSH_COMMANDS = {
+const PUSH_PAYLOAD_SCHEMA_VERSION = 1;
+const PUSH_COMMANDS = {
   DEVICE_CONNECTED: 'fxaccounts:device_connected',
   DEVICE_DISCONNECTED: 'fxaccounts:device_disconnected',
   PROFILE_UPDATED: 'fxaccounts:profile_updated',
@@ -24,26 +24,26 @@ var PUSH_COMMANDS = {
   PASSWORD_RESET: 'fxaccounts:password_reset',
   ACCOUNT_DESTROYED: 'fxaccounts:account_destroyed',
   COMMAND_RECEIVED: 'fxaccounts:command_received'
-}
+};
 
-const TTL_DEVICE_DISCONNECTED = 5 * 3600 // 5 hours
-const TTL_PASSWORD_CHANGED = 6 * 3600 // 6 hours
-const TTL_PASSWORD_RESET = TTL_PASSWORD_CHANGED
-const TTL_ACCOUNT_DESTROYED = TTL_DEVICE_DISCONNECTED
-const TTL_COMMAND_RECEIVED = TTL_PASSWORD_CHANGED
+const TTL_DEVICE_DISCONNECTED = 5 * 3600; // 5 hours
+const TTL_PASSWORD_CHANGED = 6 * 3600; // 6 hours
+const TTL_PASSWORD_RESET = TTL_PASSWORD_CHANGED;
+const TTL_ACCOUNT_DESTROYED = TTL_DEVICE_DISCONNECTED;
+const TTL_COMMAND_RECEIVED = TTL_PASSWORD_CHANGED;
 
 // An arbitrary, but very generous, limit on the number of active devices.
 // Currently only for metrics purposes, not enforced.
-var MAX_ACTIVE_DEVICES = 200
+const MAX_ACTIVE_DEVICES = 200;
 
 const pushReasonsToEvents = (() => {
   const reasons = ['accountVerify', 'accountConfirm', 'passwordReset',
     'passwordChange', 'deviceConnected', 'deviceDisconnected',
     'profileUpdated', 'devicesNotify', 'accountDestroyed',
-    'commandReceived']
-  const events = {}
+    'commandReceived'];
+  const events = {};
   for (const reason of reasons) {
-    const id = reason.replace(/[A-Z]/, c => `_${c.toLowerCase()}`) // snake-cased.
+    const id = reason.replace(/[A-Z]/, c => `_${c.toLowerCase()}`); // snake-cased.
     events[reason] = {
       send: `push.${id}.send`,
       success: `push.${id}.success`,
@@ -51,10 +51,10 @@ const pushReasonsToEvents = (() => {
       failed: `push.${id}.failed`,
       noCallback: `push.${id}.no_push_callback`,
       noKeys: `push.${id}.data_but_no_keys`
-    }
+    };
   }
-  return events
-})()
+  return events;
+})();
 
 /**
  * A device object returned by the db,
@@ -63,14 +63,14 @@ const pushReasonsToEvents = (() => {
  */
 
 module.exports = function (log, db, config) {
-  var vapid
+  let vapid;
   if (config.vapidKeysFile) {
-    var vapidKeys = require(config.vapidKeysFile)
+    const vapidKeys = require(config.vapidKeysFile);
     vapid = {
       privateKey: vapidKeys.privateKey,
       publicKey:  vapidKeys.publicKey,
       subject: config.publicUrl
-    }
+    };
   }
 
   /**
@@ -85,7 +85,7 @@ module.exports = function (log, db, config) {
       uid: uid,
       deviceId: deviceId,
       err: err
-    })
+    });
   }
 
   /**
@@ -97,7 +97,7 @@ module.exports = function (log, db, config) {
     if (name) {
       log.info(LOG_OP_PUSH_TO_DEVICES, {
         name: name
-      })
+      });
     }
   }
 
@@ -113,43 +113,43 @@ module.exports = function (log, db, config) {
    * The list of devices to which to send the push.
    */
   function filterSupportedDevices(payload, devices) {
-    const command = (payload && payload.command) || null
-    let canSendToIOSVersion/* ({Number} version) => bool */
+    const command = (payload && payload.command) || null;
+    let canSendToIOSVersion;/* ({Number} version) => bool */
     switch (command) {
     case 'fxaccounts:command_received':
-      canSendToIOSVersion = () => true
-      break
+      canSendToIOSVersion = () => true;
+      break;
     case 'sync:collection_changed':
-      canSendToIOSVersion = () => payload.data.reason !== 'firstsync'
-      break
+      canSendToIOSVersion = () => payload.data.reason !== 'firstsync';
+      break;
     case null: // In the null case this is an account verification push message
       canSendToIOSVersion = (deviceVersion, deviceBrowser) => {
-        return deviceVersion >= 10.0 && deviceBrowser === 'Firefox Beta'
-      }
-      break
+        return deviceVersion >= 10.0 && deviceBrowser === 'Firefox Beta';
+      };
+      break;
     case 'fxaccounts:device_connected':
     case 'fxaccounts:device_disconnected':
-      canSendToIOSVersion = deviceVersion => deviceVersion >= 10.0
-      break
+      canSendToIOSVersion = deviceVersion => deviceVersion >= 10.0;
+      break;
     default:
-      canSendToIOSVersion = () => false
+      canSendToIOSVersion = () => false;
     }
-    return devices.filter(function(device) {
-      const deviceOS = device.uaOS && device.uaOS.toLowerCase()
+    return devices.filter((device) => {
+      const deviceOS = device.uaOS && device.uaOS.toLowerCase();
       if (deviceOS === 'ios') {
-        const deviceVersion = device.uaBrowserVersion ? parseFloat(device.uaBrowserVersion) : 0
-        const deviceBrowserName = device.uaBrowser
+        const deviceVersion = device.uaBrowserVersion ? parseFloat(device.uaBrowserVersion) : 0;
+        const deviceBrowserName = device.uaBrowser;
         if (! canSendToIOSVersion(deviceVersion, deviceBrowserName)) {
           log.info('push.filteredUnsupportedDevice', {
             command: command,
             uaOS: device.uaOS,
             uaBrowserVersion: device.uaBrowserVersion
-          })
-          return false
+          });
+          return false;
         }
       }
-      return true
-    })
+      return true;
+    });
   }
 
   /**
@@ -164,29 +164,29 @@ module.exports = function (log, db, config) {
    * The public key as a b64url string.
    */
 
-  var dummySigner = crypto.createSign('RSA-SHA256')
-  var dummyKey = Buffer.alloc(0)
-  var dummyCurve = crypto.createECDH('prime256v1')
-  dummyCurve.generateKeys()
+  const dummySigner = crypto.createSign('RSA-SHA256');
+  const dummyKey = Buffer.alloc(0);
+  const dummyCurve = crypto.createECDH('prime256v1');
+  dummyCurve.generateKeys();
 
   function isValidPublicKey(publicKey) {
     // Try to use the key in an ECDH agreement.
     // If the key is invalid then this will throw an error.
     try {
-      dummyCurve.computeSecret(base64url.toBuffer(publicKey))
-      return true
+      dummyCurve.computeSecret(base64url.toBuffer(publicKey));
+      return true;
     } catch (err) {
       log.info('push.isValidPublicKey', {
         name: 'Bad public key detected'
-      })
+      });
       // However!  The above call might have left some junk
       // sitting around on the openssl error stack.
       // Clear it by deliberately triggering a signing error
       // before anything yields the event loop.
       try {
-        dummySigner.sign(dummyKey)
+        dummySigner.sign(dummyKey);
       } catch (e) {}
-      return false
+      return false;
     }
   }
 
@@ -207,7 +207,7 @@ module.exports = function (log, db, config) {
      */
     notifyCommandReceived(uid, device, command, sender, index, url, ttl) {
       if (typeof ttl === 'undefined') {
-        ttl = TTL_COMMAND_RECEIVED
+        ttl = TTL_COMMAND_RECEIVED;
       }
       const options = {
         data: {
@@ -221,8 +221,8 @@ module.exports = function (log, db, config) {
           }
         },
         TTL: ttl
-      }
-      return this.sendPush(uid, [device], 'commandReceived', options)
+      };
+      return this.sendPush(uid, [device], 'commandReceived', options);
     },
 
     /**
@@ -242,7 +242,7 @@ module.exports = function (log, db, config) {
             deviceName
           }
         }
-      })
+      });
     },
 
     /**
@@ -263,7 +263,7 @@ module.exports = function (log, db, config) {
           }
         },
         TTL: TTL_DEVICE_DISCONNECTED
-      })
+      });
     },
 
     /**
@@ -279,7 +279,7 @@ module.exports = function (log, db, config) {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.PROFILE_UPDATED
         }
-      })
+      });
     },
 
     /**
@@ -296,7 +296,7 @@ module.exports = function (log, db, config) {
           command: PUSH_COMMANDS.PASSWORD_CHANGED
         },
         TTL: TTL_PASSWORD_CHANGED
-      })
+      });
     },
 
     /**
@@ -313,7 +313,7 @@ module.exports = function (log, db, config) {
           command: PUSH_COMMANDS.PASSWORD_RESET
         },
         TTL: TTL_PASSWORD_RESET
-      })
+      });
     },
 
     /**
@@ -325,7 +325,7 @@ module.exports = function (log, db, config) {
      * @promise
      */
     notifyAccountUpdated (uid, devices, reason) {
-      return this.sendPush(uid, devices, reason)
+      return this.sendPush(uid, devices, reason);
     },
 
     /**
@@ -345,7 +345,7 @@ module.exports = function (log, db, config) {
           }
         },
         TTL: TTL_ACCOUNT_DESTROYED
-      })
+      });
     },
 
     /**
@@ -360,59 +360,59 @@ module.exports = function (log, db, config) {
      * @promise
      */
     sendPush (uid, devices, reason, options = {}) {
-      devices = filterSupportedDevices(options.data, devices)
-      var events = pushReasonsToEvents[reason]
+      devices = filterSupportedDevices(options.data, devices);
+      const events = pushReasonsToEvents[reason];
       if (! events) {
-        return P.reject('Unknown push reason: ' + reason)
+        return P.reject(`Unknown push reason: ${  reason}`);
       }
       // There's no spec-compliant way to error out as a result of having
       // too many devices to notify.  For now, just log metrics about it.
       if (devices.length > MAX_ACTIVE_DEVICES) {
-        reportPushError(new Error(ERR_TOO_MANY_DEVICES), uid, null)
+        reportPushError(new Error(ERR_TOO_MANY_DEVICES), uid, null);
       }
-      return P.each(devices, function(device) {
-        var deviceId = device.id
+      return P.each(devices, (device) => {
+        const deviceId = device.id;
 
         log.trace(LOG_OP_PUSH_TO_DEVICES, {
           uid: uid,
           deviceId: deviceId,
           pushCallback: device.pushCallback
-        })
+        });
 
         if (device.pushCallback && ! device.pushEndpointExpired) {
           // send the push notification
-          incrementPushAction(events.send)
-          var pushSubscription = { endpoint: device.pushCallback }
-          var pushPayload = null
-          var pushOptions = { 'TTL': options.TTL || '0' }
+          incrementPushAction(events.send);
+          const pushSubscription = { endpoint: device.pushCallback };
+          let pushPayload = null;
+          const pushOptions = { 'TTL': options.TTL || '0' };
           if (options.data) {
             if (! device.pushPublicKey || ! device.pushAuthKey) {
-              reportPushError(new Error(ERR_DATA_BUT_NO_KEYS), uid, deviceId)
-              incrementPushAction(events.noKeys)
-              return
+              reportPushError(new Error(ERR_DATA_BUT_NO_KEYS), uid, deviceId);
+              incrementPushAction(events.noKeys);
+              return;
             }
             pushSubscription.keys = {
               p256dh: device.pushPublicKey,
               auth: device.pushAuthKey
-            }
-            pushPayload = Buffer.from(JSON.stringify(options.data))
+            };
+            pushPayload = Buffer.from(JSON.stringify(options.data));
           }
           if (vapid) {
-            pushOptions.vapidDetails = vapid
+            pushOptions.vapidDetails = vapid;
           }
           return webpush.sendNotification(pushSubscription, pushPayload, pushOptions)
           .then(
-            function () {
-              incrementPushAction(events.success)
+            () => {
+              incrementPushAction(events.success);
             },
-            function (err) {
+            (err) => {
               // If we've stored an invalid key in the db for some reason, then we
               // might get an encryption failure here.  Check the key, which also
               // happens to work around bugginess in node's handling of said failures.
-              var keyWasInvalid = false
+              let keyWasInvalid = false;
               if (! err.statusCode && device.pushPublicKey) {
                 if (! isValidPublicKey(device.pushPublicKey)) {
-                  keyWasInvalid = true
+                  keyWasInvalid = true;
                 }
               }
               // 404 or 410 error from the push servers means
@@ -421,25 +421,25 @@ module.exports = function (log, db, config) {
               if (err.statusCode === 404 || err.statusCode === 410 || keyWasInvalid) {
                 // set the push endpoint expired flag
                 // Warning: this method is called without any session tokens or auth validation.
-                device.pushEndpointExpired = true
-                return db.updateDevice(uid, device).catch(function (err) {
-                  reportPushError(err, uid, deviceId)
-                }).then(function() {
-                  incrementPushAction(events.resetSettings)
-                })
+                device.pushEndpointExpired = true;
+                return db.updateDevice(uid, device).catch((err) => {
+                  reportPushError(err, uid, deviceId);
+                }).then(() => {
+                  incrementPushAction(events.resetSettings);
+                });
               } else {
-                reportPushError(err, uid, deviceId)
-                incrementPushAction(events.failed)
+                reportPushError(err, uid, deviceId);
+                incrementPushAction(events.failed);
               }
             }
-          )
+          );
         } else {
           // keep track if there are any devices with no push urls.
-          reportPushError(new Error(ERR_NO_PUSH_CALLBACK), uid, deviceId)
-          incrementPushAction(events.noCallback)
+          reportPushError(new Error(ERR_NO_PUSH_CALLBACK), uid, deviceId);
+          incrementPushAction(events.noCallback);
         }
-      })
+      });
     }
-  }
-}
+  };
+};
 

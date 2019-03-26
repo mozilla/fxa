@@ -2,24 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const P = require('./promise')
-const Poolee = require('poolee')
-const url = require('url')
+const P = require('./promise');
+const Poolee = require('poolee');
+const url = require('url');
 const PROTOCOL_MODULES = {
   'http': require('http'),
   'https': require('https')
-}
+};
 
 function Pool(uri, options = {}) {
-  const parsed = url.parse(uri)
-  const {protocol, host} = parsed
-  const protocolModule = PROTOCOL_MODULES[protocol.slice(0, -1)]
+  const parsed = url.parse(uri);
+  const {protocol, host} = parsed;
+  const protocolModule = PROTOCOL_MODULES[protocol.slice(0, -1)];
   if (! protocolModule) {
-    throw new Error(`Protocol ${protocol} is not supported.`)
+    throw new Error(`Protocol ${protocol} is not supported.`);
   }
-  const port = parsed.port || protocolModule.globalAgent.defaultPort
+  const port = parsed.port || protocolModule.globalAgent.defaultPort;
   this.poolee = new Poolee(
     protocolModule,
     [`${host}:${port}`],
@@ -29,23 +29,23 @@ function Pool(uri, options = {}) {
       keepAlive: true,
       maxRetries: 0
     }
-  )
+  );
 }
 
 Pool.prototype.request = function (method, url, params, query, body, headers = {}) {
-  let path
+  let path;
   try {
-    path = url.render(params, query)
+    path = url.render(params, query);
   }
   catch (err) {
-    return P.reject(err)
+    return P.reject(err);
   }
 
-  var d = P.defer()
-  let data
+  const d = P.defer();
+  let data;
   if (body) {
-    headers['Content-Type'] = 'application/json'
-    data = JSON.stringify(body)
+    headers['Content-Type'] = 'application/json';
+    data = JSON.stringify(body);
   }
   this.poolee.request(
     {
@@ -55,66 +55,66 @@ Pool.prototype.request = function (method, url, params, query, body, headers = {
       data
     },
     handleResponse
-  )
-  return d.promise
+  );
+  return d.promise;
 
   function handleResponse (err, res, body) {
-    var parsedBody = safeParse(body)
+    const parsedBody = safeParse(body);
 
     if (err) {
-      return d.reject(err)
+      return d.reject(err);
     }
 
     if (res.statusCode < 200 || res.statusCode >= 300) {
-      var error = new Error()
+      const error = new Error();
       if (! parsedBody) {
-        error.message = body
+        error.message = body;
       } else {
-        Object.assign(error, parsedBody)
+        Object.assign(error, parsedBody);
       }
-      error.statusCode = res.statusCode
-      return d.reject(error)
+      error.statusCode = res.statusCode;
+      return d.reject(error);
     }
 
     if (! body) {
-      return d.resolve()
+      return d.resolve();
     }
 
     if (! parsedBody) {
-      return d.reject(new Error('Invalid JSON'))
+      return d.reject(new Error('Invalid JSON'));
     }
 
-    d.resolve(parsedBody)
+    d.resolve(parsedBody);
   }
-}
+};
 
 Pool.prototype.post = function (path, params, body, {query = {}, headers = {}} = {}) {
-  return this.request('POST', path, params, query, body, headers)
-}
+  return this.request('POST', path, params, query, body, headers);
+};
 
 Pool.prototype.put = function (path, params, body, {query = {}, headers = {}} = {}) {
-  return this.request('PUT', path, params, query, body, headers)
-}
+  return this.request('PUT', path, params, query, body, headers);
+};
 
 Pool.prototype.get = function (path, params, {query = {}, headers = {}} = {}) {
-  return this.request('GET', path, params, query, null, headers)
-}
+  return this.request('GET', path, params, query, null, headers);
+};
 
 Pool.prototype.del = function (path, params, body, {query = {}, headers = {}} = {}) {
-  return this.request('DELETE', path, params, query, body, headers)
-}
+  return this.request('DELETE', path, params, query, body, headers);
+};
 
 Pool.prototype.head = function (path, params, {query = {}, headers = {}} = {}) {
-  return this.request('HEAD', path, params, query, null, headers)
-}
+  return this.request('HEAD', path, params, query, null, headers);
+};
 
 Pool.prototype.close = function () {
   /*/
     This is a hack to coax the server to close its existing connections
   /*/
-  var socketCount = this.poolee.options.maxSockets || 20
+  const socketCount = this.poolee.options.maxSockets || 20;
   function noop() {}
-  for (var i = 0; i < socketCount; i++) {
+  for (let i = 0; i < socketCount; i++) {
     this.poolee.request(
       {
         method: 'GET',
@@ -124,15 +124,15 @@ Pool.prototype.close = function () {
         }
       },
       noop
-    )
+    );
   }
-}
+};
 
-module.exports = Pool
+module.exports = Pool;
 
 function safeParse (json) {
   try {
-    return JSON.parse(json)
+    return JSON.parse(json);
   }
   catch (e) {
   }

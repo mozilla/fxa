@@ -3,10 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-var cp = require('child_process')
-var util = require('util')
+const cp = require('child_process');
+const util = require('util');
 
 // Generate legacy-format output that looks something like:
 //
@@ -22,17 +22,17 @@ var util = require('util')
 // This content is placed in the stage/prod rpm at `./config/version.json`.
 // Ignore errors and always produce a (possibly empty struct) output.
 
-var args = '{"hash":"%H","subject":"%s","committer date":"%ct"}'
-var cmd = util.format('git --no-pager log --format=format:\'%s\' -1', args)
-cp.exec(cmd, function (err, stdout) {
-  var info = {
+const args = '{"hash":"%H","subject":"%s","committer date":"%ct"}';
+const cmd = util.format('git --no-pager log --format=format:\'%s\' -1', args);
+cp.exec(cmd, (err, stdout) => {
+  const info = {
     version: JSON.parse(stdout || '{}')
-  }
+  };
 
-  var cmd = 'git config --get remote.origin.url'
-  cp.exec(cmd, function (err, stdout) {
-    info.version.source = (stdout && stdout.trim()) || ''
-    console.log(JSON.stringify(info, null, 2))
-  })
-})
+  const cmd = 'git config --get remote.origin.url';
+  cp.exec(cmd, (err, stdout) => {
+    info.version.source = (stdout && stdout.trim()) || '';
+    console.log(JSON.stringify(info, null, 2));
+  });
+});
 

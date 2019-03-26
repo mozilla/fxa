@@ -10,10 +10,10 @@
 //
 // https://docs.google.com/spreadsheets/d/1G_8OJGOxeWXdGJ1Ugmykk33Zsl-qAQL05CONSeD4Uz4
 
-'use strict'
+'use strict';
 
-const { GROUPS, initialize } = require('fxa-shared/metrics/amplitude')
-const P = require('../promise')
+const { GROUPS, initialize } = require('fxa-shared/metrics/amplitude');
+const P = require('../promise');
 
 // Maps template name to email type
 const EMAIL_TYPES = {
@@ -41,7 +41,7 @@ const EMAIL_TYPES = {
   verifyPrimaryEmail: 'verify',
   verifySyncEmail: 'registration',
   verifySecondaryEmail: 'secondary_email'
-}
+};
 
 const EVENTS = {
   'account.confirmed': {
@@ -80,7 +80,7 @@ const EVENTS = {
     group: GROUPS.sms,
     event: 'sent'
   }
-}
+};
 
 const FUZZY_EVENTS = new Map([
   [ /^email\.(\w+)\.bounced$/, {
@@ -95,34 +95,34 @@ const FUZZY_EVENTS = new Map([
     group: eventCategory => GROUPS[eventCategory],
     event: 'complete'
   } ]
-])
+]);
 
-const ACCOUNT_RESET_COMPLETE = `${GROUPS.login} - forgot_complete`
-const LOGIN_COMPLETE = `${GROUPS.login} - complete`
+const ACCOUNT_RESET_COMPLETE = `${GROUPS.login} - forgot_complete`;
+const LOGIN_COMPLETE = `${GROUPS.login} - complete`;
 
 module.exports = (log, config) => {
   if (! log || ! config.oauth.clientIds) {
-    throw new TypeError('Missing argument')
+    throw new TypeError('Missing argument');
   }
 
-  const transformEvent = initialize(config.oauth.clientIds, EVENTS, FUZZY_EVENTS)
+  const transformEvent = initialize(config.oauth.clientIds, EVENTS, FUZZY_EVENTS);
 
-  return receiveEvent
+  return receiveEvent;
 
   function receiveEvent (event, request, data = {}, metricsContext = {}) {
     if (! event || ! request) {
-      log.error('amplitude.badArgument', { err: 'Bad argument', event, hasRequest: !! request })
-      return P.resolve()
+      log.error('amplitude.badArgument', { err: 'Bad argument', event, hasRequest: !! request });
+      return P.resolve();
     }
 
     return request.app.devices
       .catch(() => {})
       .then(devices => {
-        const { formFactor } = request.app.ua
+        const { formFactor } = request.app.ua;
 
         if (event === 'flow.complete') {
           // HACK: Push flowType into the event so it can be parsed as eventCategory
-          event += `.${metricsContext.flowType}`
+          event += `.${metricsContext.flowType}`;
         }
 
         const amplitudeEvent = transformEvent({
@@ -141,10 +141,10 @@ module.exports = (log, config) => {
           emailService: data.email_service,
           emailTypes: EMAIL_TYPES,
           service: getService(request, data, metricsContext)
-        }, getOs(request), getBrowser(request), getLocation(request)))
+        }, getOs(request), getBrowser(request), getLocation(request)));
 
         if (amplitudeEvent) {
-          log.amplitudeEvent(amplitudeEvent)
+          log.amplitudeEvent(amplitudeEvent);
 
           // HACK: Account reset returns a session token so emit login complete too
           if (amplitudeEvent.event_type === ACCOUNT_RESET_COMPLETE) {
@@ -152,64 +152,64 @@ module.exports = (log, config) => {
               ...amplitudeEvent,
               event_type: LOGIN_COMPLETE,
               time: amplitudeEvent.time + 1
-            })
+            });
           }
         }
-      })
+      });
   }
-}
+};
 
 function getFromToken (request, key) {
   if (request.auth && request.auth.credentials) {
-    return request.auth.credentials[key]
+    return request.auth.credentials[key];
   }
 }
 
 function getFromMetricsContext (metricsContext, key, request, payloadKey) {
   return metricsContext[key] ||
-    (request.payload && request.payload.metricsContext && request.payload.metricsContext[payloadKey])
+    (request.payload && request.payload.metricsContext && request.payload.metricsContext[payloadKey]);
 }
 
 function getOs (request) {
-  const { os, osVersion } = request.app.ua
+  const { os, osVersion } = request.app.ua;
 
   if (os) {
-    return { os, osVersion }
+    return { os, osVersion };
   }
 }
 
 function getBrowser (request) {
-  const { browser, browserVersion } = request.app.ua
+  const { browser, browserVersion } = request.app.ua;
 
   if (browser) {
-    return { browser, browserVersion }
+    return { browser, browserVersion };
   }
 }
 
 function getLocation (request) {
-  const { location } = request.app.geo
+  const { location } = request.app.geo;
 
   if (location && (location.country || location.state)) {
     return {
       country: location.country,
       region: location.state
-    }
+    };
   }
 }
 
 function getService (request, data, metricsContext) {
   if (data.service) {
-    return data.service
+    return data.service;
   }
 
   if (request.payload && request.payload.service) {
-    return request.payload.service
+    return request.payload.service;
   }
 
   if (request.query && request.query.service) {
-    return request.query.service
+    return request.query.service;
   }
 
-  return metricsContext.service
+  return metricsContext.service;
 }
 

@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const errors = require('../../error')
+const errors = require('../../error');
 
 module.exports = (log, config, db) => {
 
@@ -17,18 +17,18 @@ module.exports = (log, config, db) => {
      * @returns boolean
      */
     hasTotpToken(account) {
-      const {uid} = account
+      const {uid} = account;
       return db.totpToken(uid)
         .then((result) => {
           if (result && result.verified && result.enabled) {
-            return true
+            return true;
           }
         }, (err) => {
           if (err.errno === errors.ERRNO.TOTP_TOKEN_NOT_FOUND) {
-            return false
+            return false;
           }
-          throw err
-        })
+          throw err;
+        });
     }
-  }
-}
+  };
+};

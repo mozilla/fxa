@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const path = require('path')
-const extract = require('jsxgettext-recursive-next')
+const path = require('path');
+const extract = require('jsxgettext-recursive-next');
 
-const pkgroot = path.dirname(__dirname)
+const pkgroot = path.dirname(__dirname);
 
 module.exports = function (grunt) {
   grunt.config('copy', {
@@ -24,12 +24,12 @@ module.exports = function (grunt) {
         ]
       }]
     }
-  })
+  });
 
   grunt.registerTask('l10n-extract', 'Extract strings from templates for localization.', function () {
-    var done = this.async()
+    const done = this.async();
 
-    var walker = extract({
+    const walker = extract({
       'input-dir': path.join(pkgroot, 'lib/senders/templates'),
       outputDir: pkgroot,
       'output': 'server.pot',
@@ -39,10 +39,10 @@ module.exports = function (grunt) {
         '.txt': 'handlebars',
         '.html': 'handlebars'
       }
-    })
+    });
 
-    walker.on('end', function () {
-      var jsWalker = extract({
+    walker.on('end', () => {
+      const jsWalker = extract({
         'input-dir': path.join(pkgroot, 'lib/senders'),
         outputDir: pkgroot,
         'output': 'server.pot',
@@ -51,19 +51,19 @@ module.exports = function (grunt) {
         parsers: {
           '.js': 'javascript'
         }
-      })
+      });
 
-      jsWalker.on('end', function () {
-        done()
-      })
-    })
-  })
+      jsWalker.on('end', () => {
+        done();
+      });
+    });
+  });
 
   // load local Grunt tasks
 
-  grunt.registerTask('lint', 'Alias for eslint tasks', ['eslint'])
-  grunt.registerTask('templates', 'Alias for the template task', ['nunjucks'])
+  grunt.registerTask('lint', 'Alias for eslint tasks', ['eslint']);
+  grunt.registerTask('templates', 'Alias for the template task', ['nunjucks']);
 
-  grunt.registerTask('default', [ 'templates', 'copy:strings', 'l10n-extract' ])
+  grunt.registerTask('default', [ 'templates', 'copy:strings', 'l10n-extract' ]);
 
-}
+};

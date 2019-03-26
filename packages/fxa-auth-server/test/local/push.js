@@ -2,33 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const ROOT_DIR = '../..'
+const ROOT_DIR = '../..';
 
-const proxyquire = require('proxyquire')
-const sinon = require('sinon')
-const assert = { ...sinon.assert, ...require('chai').assert }
-const ajv = require('ajv')()
-const fs = require('fs')
-const path = require('path')
+const proxyquire = require('proxyquire');
+const sinon = require('sinon');
+const assert = { ...sinon.assert, ...require('chai').assert };
+const ajv = require('ajv')();
+const fs = require('fs');
+const path = require('path');
 
-const P = require(`${ROOT_DIR}/lib/promise`)
-const mocks = require('../mocks')
-const mockLog = mocks.mockLog
-const mockUid = 'deadbeef'
-const mockConfig = {}
+const P = require(`${ROOT_DIR}/lib/promise`);
+const mocks = require('../mocks');
+const mockLog = mocks.mockLog;
+const mockUid = 'deadbeef';
+const mockConfig = {};
 
-const PUSH_PAYLOADS_SCHEMA_PATH = `${ROOT_DIR}/docs/pushpayloads.schema.json`
-const TTL = '42'
-const pushModulePath = `${ROOT_DIR}/lib/push`
+const PUSH_PAYLOADS_SCHEMA_PATH = `${ROOT_DIR}/docs/pushpayloads.schema.json`;
+const TTL = '42';
+const pushModulePath = `${ROOT_DIR}/lib/push`;
 
 
 describe('push', () => {
-  let mockDb, mockDevices
+  let mockDb, mockDevices;
 
   beforeEach(() => {
-    mockDb = mocks.mockDB()
+    mockDb = mocks.mockDB();
     mockDevices = [
       {
         'id': '0f7aa00356e5416e82b3bef7bc409eef',
@@ -67,8 +67,8 @@ describe('push', () => {
         'pushAuthKey': 'w3b14Zjc-Afj2SDOLOyong==',
         'pushEndpointExpired': false
       }
-    ]
-  })
+    ];
+  });
 
   it(
     'sendPush does not reject on empty device array',
@@ -76,127 +76,127 @@ describe('push', () => {
       const thisMockLog = mockLog({
         info: function (op, log) {
           if (log.name === 'push.account_verify.success') {
-            assert.fail('must not call push.success')
+            assert.fail('must not call push.success');
           }
         }
-      })
-      const push = require(pushModulePath)(thisMockLog, mockDb, mockConfig)
+      });
+      const push = require(pushModulePath)(thisMockLog, mockDb, mockConfig);
 
-      return push.sendPush(mockUid, [], 'accountVerify')
+      return push.sendPush(mockUid, [], 'accountVerify');
     }
-  )
+  );
 
   it(
     'sendPush sends notifications with a TTL of 0',
     () => {
-      var successCalled = 0
-      var thisMockLog = mockLog({
+      let successCalled = 0;
+      const thisMockLog = mockLog({
         info: function (op, log) {
           if (log.name === 'push.account_verify.success') {
             // notification sent
-            successCalled++
+            successCalled++;
           }
         }
-      })
+      });
 
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            assert.equal(options.TTL, '0', 'sends the proper ttl header')
-            return P.resolve()
+            assert.equal(options.TTL, '0', 'sends the proper ttl header');
+            return P.resolve();
           }
         }
-      }
+      };
 
-      const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig)
+      const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig);
       return push.sendPush(mockUid, mockDevices, 'accountVerify')
         .then(() => {
-          assert.equal(successCalled, 2)
-        })
+          assert.equal(successCalled, 2);
+        });
     }
-  )
+  );
 
   it(
     'sendPush sends notifications with user-defined TTL',
     () => {
-      var successCalled = 0
-      var thisMockLog = mockLog({
+      let successCalled = 0;
+      const thisMockLog = mockLog({
         info: function (op, log) {
           if (log.name === 'push.account_verify.success') {
             // notification sent
-            successCalled++
+            successCalled++;
           }
         }
-      })
+      });
 
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            assert.equal(options.TTL, TTL, 'sends the proper ttl header')
-            return P.resolve()
+            assert.equal(options.TTL, TTL, 'sends the proper ttl header');
+            return P.resolve();
           }
         }
-      }
+      };
 
-      const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig)
-      var options = { TTL: TTL }
+      const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig);
+      const options = { TTL: TTL };
       return push.sendPush(mockUid, mockDevices, 'accountVerify', options)
         .then(() => {
-          assert.equal(successCalled, 2)
-        })
+          assert.equal(successCalled, 2);
+        });
     }
-  )
+  );
 
   it(
     'sendPush sends data',
     () => {
-      var count = 0
-      var data = { foo: 'bar' }
-      var mocks = {
+      let count = 0;
+      const data = { foo: 'bar' };
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            count++
-            assert.ok(sub.keys.p256dh)
-            assert.ok(sub.keys.auth)
-            assert.deepEqual(payload, Buffer.from(JSON.stringify(data)))
-            return P.resolve()
+            count++;
+            assert.ok(sub.keys.p256dh);
+            assert.ok(sub.keys.auth);
+            assert.deepEqual(payload, Buffer.from(JSON.stringify(data)));
+            return P.resolve();
           }
         }
-      }
+      };
 
-      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
-      var options = { data: data }
+      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig);
+      const options = { data: data };
       return push.sendPush(mockUid, mockDevices, 'accountVerify', options)
         .then(() => {
-          assert.equal(count, 2)
-        })
+          assert.equal(count, 2);
+        });
     }
-  )
+  );
 
   it(
     'sendPush doesn\'t push to ios devices if it is triggered with an unsupported command',
     () => {
-      const data = Buffer.from(JSON.stringify({command: 'fxaccounts:non_existent_command'}))
-      const endPoints = []
+      const data = Buffer.from(JSON.stringify({command: 'fxaccounts:non_existent_command'}));
+      const endPoints = [];
       const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            endPoints.push(sub.endpoint)
-            return P.resolve()
+            endPoints.push(sub.endpoint);
+            return P.resolve();
           }
         }
-      }
+      };
 
-      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
-      const options = { data: data }
+      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig);
+      const options = { data: data };
       return push.sendPush(mockUid, mockDevices, 'devicesNotify', options)
         .then(() => {
-          assert.equal(endPoints.length, 2)
-          assert.equal(endPoints[0], mockDevices[0].pushCallback)
-          assert.equal(endPoints[1], mockDevices[1].pushCallback)
-        })
+          assert.equal(endPoints.length, 2);
+          assert.equal(endPoints[0], mockDevices[0].pushCallback);
+          assert.equal(endPoints[1], mockDevices[1].pushCallback);
+        });
     }
-  )
+  );
 
   it(
     'sendPush pushes to all ios devices if it is triggered with a "commands received" command',
@@ -204,28 +204,28 @@ describe('push', () => {
       const data = {
         command: 'fxaccounts:command_received',
         data: { foo: 'bar' }
-      }
-      const endPoints = []
+      };
+      const endPoints = [];
       const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            endPoints.push(sub.endpoint)
-            return P.resolve()
+            endPoints.push(sub.endpoint);
+            return P.resolve();
           }
         }
-      }
+      };
 
-      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
-      const options = { data: data }
+      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig);
+      const options = { data: data };
       return push.sendPush(mockUid, mockDevices, 'devicesNotify', options)
         .then(() => {
-          assert.equal(endPoints.length, 3)
-          assert.equal(endPoints[0], mockDevices[0].pushCallback)
-          assert.equal(endPoints[1], mockDevices[1].pushCallback)
-          assert.equal(endPoints[2], mockDevices[2].pushCallback)
-        })
+          assert.equal(endPoints.length, 3);
+          assert.equal(endPoints[0], mockDevices[0].pushCallback);
+          assert.equal(endPoints[1], mockDevices[1].pushCallback);
+          assert.equal(endPoints[2], mockDevices[2].pushCallback);
+        });
     }
-  )
+  );
 
   it(
     'sendPush pushes to all ios devices if it is triggered with a "collection changed" command',
@@ -233,28 +233,28 @@ describe('push', () => {
       const data = {
         command: 'sync:collection_changed',
         data: { collection: 'clients' }
-      }
-      const endPoints = []
+      };
+      const endPoints = [];
       const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            endPoints.push(sub.endpoint)
-            return P.resolve()
+            endPoints.push(sub.endpoint);
+            return P.resolve();
           }
         }
-      }
+      };
 
-      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
-      const options = { data: data }
+      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig);
+      const options = { data: data };
       return push.sendPush(mockUid, mockDevices, 'devicesNotify', options)
         .then(() => {
-          assert.equal(endPoints.length, 3)
-          assert.equal(endPoints[0], mockDevices[0].pushCallback)
-          assert.equal(endPoints[1], mockDevices[1].pushCallback)
-          assert.equal(endPoints[2], mockDevices[2].pushCallback)
-        })
+          assert.equal(endPoints.length, 3);
+          assert.equal(endPoints[0], mockDevices[0].pushCallback);
+          assert.equal(endPoints[1], mockDevices[1].pushCallback);
+          assert.equal(endPoints[2], mockDevices[2].pushCallback);
+        });
     }
-  )
+  );
 
   it(
     'sendPush does not push to ios devices if "collection changed" reason is "firstsync"',
@@ -262,316 +262,316 @@ describe('push', () => {
       const data = {
         command: 'sync:collection_changed',
         data: { collection: 'clients', reason: 'firstsync' }
-      }
-      const endPoints = []
+      };
+      const endPoints = [];
       const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            endPoints.push(sub.endpoint)
-            return P.resolve()
+            endPoints.push(sub.endpoint);
+            return P.resolve();
           }
         }
-      }
+      };
 
-      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
-      const options = { data: data }
+      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig);
+      const options = { data: data };
       return push.sendPush(mockUid, mockDevices, 'devicesNotify', options)
         .then(() => {
-          assert.equal(endPoints.length, 2)
-          assert.equal(endPoints[0], mockDevices[0].pushCallback)
-          assert.equal(endPoints[1], mockDevices[1].pushCallback)
-        })
+          assert.equal(endPoints.length, 2);
+          assert.equal(endPoints[0], mockDevices[0].pushCallback);
+          assert.equal(endPoints[1], mockDevices[1].pushCallback);
+        });
     }
-  )
+  );
 
   it(
     'sendPush pushes to ios >=10.0 devices if it is triggered with a "device connected" command',
     () => {
-      const data = {command: 'fxaccounts:device_connected'}
-      let endPoints = []
+      const data = {command: 'fxaccounts:device_connected'};
+      let endPoints = [];
       const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            endPoints.push(sub.endpoint)
-            return P.resolve()
+            endPoints.push(sub.endpoint);
+            return P.resolve();
           }
         }
-      }
+      };
 
-      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
-      const options = { data: data }
+      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig);
+      const options = { data: data };
       return push.sendPush(mockUid, mockDevices, 'devicesNotify', options)
         .then(() => {
-          assert.equal(endPoints.length, 2)
-          assert.equal(endPoints[0], mockDevices[0].pushCallback)
-          assert.equal(endPoints[1], mockDevices[1].pushCallback)
+          assert.equal(endPoints.length, 2);
+          assert.equal(endPoints[0], mockDevices[0].pushCallback);
+          assert.equal(endPoints[1], mockDevices[1].pushCallback);
           // iOS not notified due to unknown browser version
         }).then(() => {
-          endPoints = []
-          mockDevices[2].uaBrowserVersion = '8.2'
-          return push.sendPush(mockUid, mockDevices, 'devicesNotify', options)
+          endPoints = [];
+          mockDevices[2].uaBrowserVersion = '8.2';
+          return push.sendPush(mockUid, mockDevices, 'devicesNotify', options);
         }).then(() => {
-          assert.equal(endPoints.length, 2)
-          assert.equal(endPoints[0], mockDevices[0].pushCallback)
-          assert.equal(endPoints[1], mockDevices[1].pushCallback)
+          assert.equal(endPoints.length, 2);
+          assert.equal(endPoints[0], mockDevices[0].pushCallback);
+          assert.equal(endPoints[1], mockDevices[1].pushCallback);
           // iOS not notified due to unsupported browser version
         }).then(() => {
-          endPoints = []
-          mockDevices[2].uaBrowserVersion = '10.0'
-          return push.sendPush(mockUid, mockDevices, 'devicesNotify', options)
+          endPoints = [];
+          mockDevices[2].uaBrowserVersion = '10.0';
+          return push.sendPush(mockUid, mockDevices, 'devicesNotify', options);
         }).then(() => {
-          assert.equal(endPoints.length, 3)
-          assert.equal(endPoints[0], mockDevices[0].pushCallback)
-          assert.equal(endPoints[1], mockDevices[1].pushCallback)
-          assert.equal(endPoints[2], mockDevices[2].pushCallback)
+          assert.equal(endPoints.length, 3);
+          assert.equal(endPoints[0], mockDevices[0].pushCallback);
+          assert.equal(endPoints[1], mockDevices[1].pushCallback);
+          assert.equal(endPoints[2], mockDevices[2].pushCallback);
         }).then(() => {
-          endPoints = []
-          mockDevices[2].uaBrowserVersion = '10.1'
-          return push.sendPush(mockUid, mockDevices, 'devicesNotify', options)
+          endPoints = [];
+          mockDevices[2].uaBrowserVersion = '10.1';
+          return push.sendPush(mockUid, mockDevices, 'devicesNotify', options);
         }).then(() => {
-          assert.equal(endPoints.length, 3)
-          assert.equal(endPoints[0], mockDevices[0].pushCallback)
-          assert.equal(endPoints[1], mockDevices[1].pushCallback)
-          assert.equal(endPoints[2], mockDevices[2].pushCallback)
+          assert.equal(endPoints.length, 3);
+          assert.equal(endPoints[0], mockDevices[0].pushCallback);
+          assert.equal(endPoints[1], mockDevices[1].pushCallback);
+          assert.equal(endPoints[2], mockDevices[2].pushCallback);
         }).then(() => {
-          endPoints = []
-          mockDevices[2].uaBrowserVersion = '11.2'
-          return push.sendPush(mockUid, mockDevices, 'devicesNotify', options)
+          endPoints = [];
+          mockDevices[2].uaBrowserVersion = '11.2';
+          return push.sendPush(mockUid, mockDevices, 'devicesNotify', options);
         }).then(() => {
-          assert.equal(endPoints.length, 3)
-          assert.equal(endPoints[0], mockDevices[0].pushCallback)
-          assert.equal(endPoints[1], mockDevices[1].pushCallback)
-          assert.equal(endPoints[2], mockDevices[2].pushCallback)
+          assert.equal(endPoints.length, 3);
+          assert.equal(endPoints[0], mockDevices[0].pushCallback);
+          assert.equal(endPoints[1], mockDevices[1].pushCallback);
+          assert.equal(endPoints[2], mockDevices[2].pushCallback);
         }).finally(() => {
-          delete mockDevices[2].uaBrowserVersion
-        })
+          delete mockDevices[2].uaBrowserVersion;
+        });
     }
-  )
+  );
 
   it(
     'push fails if data is present but both keys are not present',
     () => {
-      let count = 0
-      var thisMockLog = mockLog({
+      let count = 0;
+      const thisMockLog = mockLog({
         info: function (op, log) {
           if (log.name === 'push.account_verify.data_but_no_keys') {
             // data detected but device had no keys
-            count++
+            count++;
           }
         }
-      })
+      });
 
-      var devices = [{
+      const devices = [{
         'id': 'foo',
         'name': 'My Phone',
         'pushCallback': 'https://updates.push.services.mozilla.com/update/abcdef01234567890abcdefabcdef01234567890abcdef',
         'pushAuthKey': 'bogus',
         'pushEndpointExpired': false
-      }]
+      }];
 
-      const push = require(pushModulePath)(thisMockLog, mockDb, mockConfig)
-      var options = { data: Buffer.from('foobar') }
+      const push = require(pushModulePath)(thisMockLog, mockDb, mockConfig);
+      const options = { data: Buffer.from('foobar') };
       return push.sendPush(mockUid, devices, 'accountVerify', options)
         .then(() => {
-          assert.equal(count, 1)
-        })
+          assert.equal(count, 1);
+        });
     }
-  )
+  );
 
   it(
     'push catches devices with no push callback',
     () => {
-      let count = 0
-      var thisMockLog = mockLog({
+      let count = 0;
+      const thisMockLog = mockLog({
         info: function (op, log) {
           if (log.name === 'push.account_verify.no_push_callback') {
             // device had no push callback
-            count++
+            count++;
           }
         }
-      })
+      });
 
-      var devices = [{
+      const devices = [{
         'id': 'foo',
         'name': 'My Phone'
-      }]
+      }];
 
-      const push = require(pushModulePath)(thisMockLog, mockDb, mockConfig)
+      const push = require(pushModulePath)(thisMockLog, mockDb, mockConfig);
       return push.sendPush(mockUid, devices, 'accountVerify')
         .then(() => {
-          assert.equal(count, 1)
-        })
+          assert.equal(count, 1);
+        });
     }
-  )
+  );
 
   it(
     'push reports errors when web-push fails',
     () => {
-      let count = 0
-      var thisMockLog = mockLog({
+      let count = 0;
+      const thisMockLog = mockLog({
         info: function (op, log) {
           if (log.name === 'push.account_verify.failed') {
             // web-push failed
-            count++
+            count++;
           }
         }
-      })
+      });
 
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            return P.reject(new Error('Failed'))
+            return P.reject(new Error('Failed'));
           }
         }
-      }
+      };
 
-      const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig)
+      const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig);
       return push.sendPush(mockUid, [mockDevices[0]], 'accountVerify')
         .then(() => {
-          assert.equal(count, 1)
-        })
+          assert.equal(count, 1);
+        });
     }
-  )
+  );
 
   it(
     'push logs an error when asked to send to more than 200 devices',
     () => {
-      var thisMockLog = mockLog({
+      const thisMockLog = mockLog({
         error: sinon.spy()
-      })
+      });
 
-      var devices = []
-      for (var i = 0; i < 200; i++) {
-        devices.push(mockDevices[0])
+      const devices = [];
+      for (let i = 0; i < 200; i++) {
+        devices.push(mockDevices[0]);
       }
 
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            assert.equal(options.TTL, '0', 'sends the proper ttl header')
-            return P.resolve()
+            assert.equal(options.TTL, '0', 'sends the proper ttl header');
+            return P.resolve();
           }
         }
-      }
-      const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig)
+      };
+      const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig);
 
-      return push.sendPush(mockUid, devices, 'accountVerify').then(function () {
-        assert.equal(thisMockLog.error.callCount, 0, 'log.error was not called')
-        devices.push(mockDevices[0])
-        return push.sendPush(mockUid, devices, 'accountVerify')
-      }).then(function () {
-        assert.equal(thisMockLog.error.callCount, 1, 'log.error was called')
-        var args = thisMockLog.error.getCall(0).args
-        assert.equal(args[0], 'push.sendPush')
-        assert.equal(args[1].err.message, 'Too many devices connected to account')
-      })
+      return push.sendPush(mockUid, devices, 'accountVerify').then(() => {
+        assert.equal(thisMockLog.error.callCount, 0, 'log.error was not called');
+        devices.push(mockDevices[0]);
+        return push.sendPush(mockUid, devices, 'accountVerify');
+      }).then(() => {
+        assert.equal(thisMockLog.error.callCount, 1, 'log.error was called');
+        const args = thisMockLog.error.getCall(0).args;
+        assert.equal(args[0], 'push.sendPush');
+        assert.equal(args[1].err.message, 'Too many devices connected to account');
+      });
     }
-  )
+  );
 
   it(
     'push resets device push data when push server responds with a 400 level error',
     () => {
-      let count = 0
-      var thisMockLog = mockLog({
+      let count = 0;
+      const thisMockLog = mockLog({
         info: function (op, log) {
           if (log.name === 'push.account_verify.reset_settings') {
             // web-push failed
-            assert.equal(mockDb.updateDevice.callCount, 1, 'db.updateDevice was called once')
-            var args = mockDb.updateDevice.args[0]
-            assert.equal(args.length, 2, 'db.updateDevice was passed two arguments')
-            assert.equal(args[1].sessionTokenId, null, 'sessionTokenId was null')
-            count++
+            assert.equal(mockDb.updateDevice.callCount, 1, 'db.updateDevice was called once');
+            const args = mockDb.updateDevice.args[0];
+            assert.equal(args.length, 2, 'db.updateDevice was passed two arguments');
+            assert.equal(args[1].sessionTokenId, null, 'sessionTokenId was null');
+            count++;
           }
         }
-      })
+      });
 
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            var err = new Error('Failed')
-            err.statusCode = 410
-            return P.reject(err)
+            const err = new Error('Failed');
+            err.statusCode = 410;
+            return P.reject(err);
           }
         }
-      }
+      };
 
-      const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig)
+      const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig);
       // Careful, the argument gets modified in-place.
-      var device = JSON.parse(JSON.stringify(mockDevices[0]))
+      const device = JSON.parse(JSON.stringify(mockDevices[0]));
       return push.sendPush(mockUid, [device], 'accountVerify')
         .then(() => {
-          assert.equal(count, 1)
-        })
+          assert.equal(count, 1);
+        });
     }
-  )
+  );
 
   it(
     'push resets device push data when a failure is caused by bad encryption keys',
     () => {
-      let count = 0
-      var thisMockLog = mockLog({
+      let count = 0;
+      const thisMockLog = mockLog({
         info: function (op, log) {
           if (log.name === 'push.account_verify.reset_settings') {
             // web-push failed
-            assert.equal(mockDb.updateDevice.callCount, 1, 'db.updateDevice was called once')
-            var args = mockDb.updateDevice.args[0]
-            assert.equal(args.length, 2, 'db.updateDevice was passed two arguments')
-            assert.equal(args[1].sessionTokenId, null, 'sessionTokenId argument was null')
-            count++
+            assert.equal(mockDb.updateDevice.callCount, 1, 'db.updateDevice was called once');
+            const args = mockDb.updateDevice.args[0];
+            assert.equal(args.length, 2, 'db.updateDevice was passed two arguments');
+            assert.equal(args[1].sessionTokenId, null, 'sessionTokenId argument was null');
+            count++;
           }
         }
-      })
+      });
 
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            var err = new Error('Failed')
-            return P.reject(err)
+            const err = new Error('Failed');
+            return P.reject(err);
           }
         }
-      }
+      };
 
-      const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig)
+      const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig);
       // Careful, the argument gets modified in-place.
-      var device = JSON.parse(JSON.stringify(mockDevices[0]))
-      device.pushPublicKey = 'E' + device.pushPublicKey.substring(1) // make the key invalid
+      const device = JSON.parse(JSON.stringify(mockDevices[0]));
+      device.pushPublicKey = `E${  device.pushPublicKey.substring(1)}`; // make the key invalid
       return push.sendPush(mockUid, [device], 'accountVerify')
         .then(() => {
-          assert.equal(count, 1)
-        })
+          assert.equal(count, 1);
+        });
     }
-  )
+  );
 
   it(
     'push does not reset device push data after an unexpected failure',
     () => {
-      let count = 0
-      var thisMockLog = mockLog({
+      let count = 0;
+      const thisMockLog = mockLog({
         info: function (op, log) {
           if (log.name === 'push.account_verify.failed') {
             // web-push failed
-            assert.equal(mockDb.updateDevice.callCount, 0, 'db.updateDevice was not called')
-            count++
+            assert.equal(mockDb.updateDevice.callCount, 0, 'db.updateDevice was not called');
+            count++;
           }
         }
-      })
+      });
 
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            var err = new Error('Failed')
-            return P.reject(err)
+            const err = new Error('Failed');
+            return P.reject(err);
           }
         }
-      }
+      };
 
-      const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig)
+      const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig);
       return push.sendPush(mockUid, [mockDevices[0]], 'accountVerify')
         .then(() => {
-          assert.equal(count, 1)
-        })
+          assert.equal(count, 1);
+        });
     }
-  )
+  );
 
   it(
     'notifyCommandReceived calls sendPush',
@@ -579,19 +579,19 @@ describe('push', () => {
       const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            return P.resolve()
+            return P.resolve();
           }
         }
-      }
-      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
-      sinon.spy(push, 'sendPush')
+      };
+      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig);
+      sinon.spy(push, 'sendPush');
       return push.notifyCommandReceived(mockUid, mockDevices[0], 'commandName', 'sendingDevice', 12, 'http://fetch.url', 42)
         .catch(err => {
-          assert.fail('must not throw')
-          throw err
+          assert.fail('must not throw');
+          throw err;
         })
         .then(() => {
-          assert.ok(push.sendPush.calledOnce, 'sendPush was called')
+          assert.ok(push.sendPush.calledOnce, 'sendPush was called');
           assert.calledWithExactly(push.sendPush, mockUid, [mockDevices[0]], 'commandReceived', {
             data: {
               version: 1,
@@ -604,14 +604,14 @@ describe('push', () => {
               }
             },
             TTL: 42
-          })
-          const schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
-          const schema = JSON.parse(fs.readFileSync(schemaPath))
-          assert.ok(ajv.validate(schema, push.sendPush.getCall(0).args[3].data))
-          push.sendPush.restore()
-        })
+          });
+          const schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH);
+          const schema = JSON.parse(fs.readFileSync(schemaPath));
+          assert.ok(ajv.validate(schema, push.sendPush.getCall(0).args[3].data));
+          push.sendPush.restore();
+        });
     }
-  )
+  );
 
   it(
     'notifyDeviceConnected calls sendPush',
@@ -619,39 +619,39 @@ describe('push', () => {
       const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            return P.resolve()
+            return P.resolve();
           }
         }
-      }
-      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
-      sinon.spy(push, 'sendPush')
-      var deviceName = 'My phone'
-      var expectedData = {
+      };
+      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig);
+      sinon.spy(push, 'sendPush');
+      const deviceName = 'My phone';
+      const expectedData = {
         version: 1,
         command: 'fxaccounts:device_connected',
         data: {
           deviceName: deviceName
         }
-      }
+      };
       return push.notifyDeviceConnected(mockUid, mockDevices, deviceName)
         .catch(err => {
-          assert.fail('must not throw')
-          throw err
+          assert.fail('must not throw');
+          throw err;
         })
         .then(() => {
-          assert.ok(push.sendPush.calledOnce, 'sendPush was called')
-          assert.equal(push.sendPush.getCall(0).args[0], mockUid)
-          assert.equal(push.sendPush.getCall(0).args[1], mockDevices)
-          assert.equal(push.sendPush.getCall(0).args[2], 'deviceConnected')
-          const options = push.sendPush.getCall(0).args[3]
-          assert.deepEqual(options.data, expectedData)
-          const schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
-          const schema = JSON.parse(fs.readFileSync(schemaPath))
-          assert.ok(ajv.validate(schema, options.data))
-          push.sendPush.restore()
-        })
+          assert.ok(push.sendPush.calledOnce, 'sendPush was called');
+          assert.equal(push.sendPush.getCall(0).args[0], mockUid);
+          assert.equal(push.sendPush.getCall(0).args[1], mockDevices);
+          assert.equal(push.sendPush.getCall(0).args[2], 'deviceConnected');
+          const options = push.sendPush.getCall(0).args[3];
+          assert.deepEqual(options.data, expectedData);
+          const schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH);
+          const schema = JSON.parse(fs.readFileSync(schemaPath));
+          assert.ok(ajv.validate(schema, options.data));
+          push.sendPush.restore();
+        });
     }
-  )
+  );
 
   it(
     'notifyDeviceDisconnected calls sendPush',
@@ -659,236 +659,236 @@ describe('push', () => {
       const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            return P.resolve()
+            return P.resolve();
           }
         }
-      }
-      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
-      sinon.spy(push, 'sendPush')
-      const idToDisconnect = mockDevices[0].id
+      };
+      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig);
+      sinon.spy(push, 'sendPush');
+      const idToDisconnect = mockDevices[0].id;
       const expectedData = {
         version: 1,
         command: 'fxaccounts:device_disconnected',
         data: {
           id: idToDisconnect
         }
-      }
+      };
       return push.notifyDeviceDisconnected(mockUid, mockDevices, idToDisconnect)
         .catch(err => {
-          assert.fail('must not throw')
-          throw err
+          assert.fail('must not throw');
+          throw err;
         })
         .then(() => {
-          assert.ok(push.sendPush.calledOnce, 'sendPush was called')
-          assert.equal(push.sendPush.getCall(0).args[0], mockUid)
-          assert.equal(push.sendPush.getCall(0).args[1], mockDevices)
-          assert.equal(push.sendPush.getCall(0).args[2], 'deviceDisconnected')
-          const options = push.sendPush.getCall(0).args[3]
-          assert.deepEqual(options.data, expectedData)
-          const schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
-          const schema = JSON.parse(fs.readFileSync(schemaPath))
-          assert.ok(ajv.validate(schema, options.data))
-          assert.ok(options.TTL, 'TTL should be set')
-          push.sendPush.restore()
-        })
+          assert.ok(push.sendPush.calledOnce, 'sendPush was called');
+          assert.equal(push.sendPush.getCall(0).args[0], mockUid);
+          assert.equal(push.sendPush.getCall(0).args[1], mockDevices);
+          assert.equal(push.sendPush.getCall(0).args[2], 'deviceDisconnected');
+          const options = push.sendPush.getCall(0).args[3];
+          assert.deepEqual(options.data, expectedData);
+          const schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH);
+          const schema = JSON.parse(fs.readFileSync(schemaPath));
+          assert.ok(ajv.validate(schema, options.data));
+          assert.ok(options.TTL, 'TTL should be set');
+          push.sendPush.restore();
+        });
     }
-  )
+  );
 
   it(
     'notifyPasswordChanged calls sendPush',
     () => {
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            return P.resolve()
+            return P.resolve();
           }
         }
-      }
-      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
-      sinon.spy(push, 'sendPush')
-      var expectedData = {
+      };
+      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig);
+      sinon.spy(push, 'sendPush');
+      const expectedData = {
         version: 1,
         command: 'fxaccounts:password_changed'
-      }
-      return push.notifyPasswordChanged(mockUid, mockDevices).catch(function (err) {
-        assert.fail('must not throw')
-        throw err
+      };
+      return push.notifyPasswordChanged(mockUid, mockDevices).catch((err) => {
+        assert.fail('must not throw');
+        throw err;
       })
-      .then(function() {
-        assert.ok(push.sendPush.calledOnce, 'sendPush was called')
-        assert.equal(push.sendPush.getCall(0).args[0], mockUid)
-        assert.equal(push.sendPush.getCall(0).args[1], mockDevices)
-        assert.equal(push.sendPush.getCall(0).args[2], 'passwordChange')
-        var options = push.sendPush.getCall(0).args[3]
-        assert.deepEqual(options.data, expectedData)
-        var schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
-        var schema = JSON.parse(fs.readFileSync(schemaPath))
-        assert.ok(ajv.validate(schema, options.data))
-        push.sendPush.restore()
-      })
+      .then(() => {
+        assert.ok(push.sendPush.calledOnce, 'sendPush was called');
+        assert.equal(push.sendPush.getCall(0).args[0], mockUid);
+        assert.equal(push.sendPush.getCall(0).args[1], mockDevices);
+        assert.equal(push.sendPush.getCall(0).args[2], 'passwordChange');
+        const options = push.sendPush.getCall(0).args[3];
+        assert.deepEqual(options.data, expectedData);
+        const schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH);
+        const schema = JSON.parse(fs.readFileSync(schemaPath));
+        assert.ok(ajv.validate(schema, options.data));
+        push.sendPush.restore();
+      });
     }
-  )
+  );
 
   it(
     'notifyPasswordReset calls sendPush',
     () => {
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            return P.resolve()
+            return P.resolve();
           }
         }
-      }
-      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
-      sinon.spy(push, 'sendPush')
-      var expectedData = {
+      };
+      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig);
+      sinon.spy(push, 'sendPush');
+      const expectedData = {
         version: 1,
         command: 'fxaccounts:password_reset'
-      }
-      return push.notifyPasswordReset(mockUid, mockDevices).catch(function (err) {
-        assert.fail('must not throw')
-        throw err
+      };
+      return push.notifyPasswordReset(mockUid, mockDevices).catch((err) => {
+        assert.fail('must not throw');
+        throw err;
       })
-      .then(function() {
-        assert.ok(push.sendPush.calledOnce, 'sendPush was called')
-        assert.equal(push.sendPush.getCall(0).args[0], mockUid)
-        assert.equal(push.sendPush.getCall(0).args[1], mockDevices)
-        assert.equal(push.sendPush.getCall(0).args[2], 'passwordReset')
-        var options = push.sendPush.getCall(0).args[3]
-        assert.deepEqual(options.data, expectedData)
-        var schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
-        var schema = JSON.parse(fs.readFileSync(schemaPath))
-        assert.ok(ajv.validate(schema, options.data))
-        push.sendPush.restore()
-      })
+      .then(() => {
+        assert.ok(push.sendPush.calledOnce, 'sendPush was called');
+        assert.equal(push.sendPush.getCall(0).args[0], mockUid);
+        assert.equal(push.sendPush.getCall(0).args[1], mockDevices);
+        assert.equal(push.sendPush.getCall(0).args[2], 'passwordReset');
+        const options = push.sendPush.getCall(0).args[3];
+        assert.deepEqual(options.data, expectedData);
+        const schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH);
+        const schema = JSON.parse(fs.readFileSync(schemaPath));
+        assert.ok(ajv.validate(schema, options.data));
+        push.sendPush.restore();
+      });
     }
-  )
+  );
 
   it(
     'notifyAccountUpdated calls sendPush',
     () => {
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            return P.resolve()
+            return P.resolve();
           }
         }
-      }
-      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
-      sinon.stub(push, 'sendPush').callsFake(() => P.resolve())
+      };
+      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig);
+      sinon.stub(push, 'sendPush').callsFake(() => P.resolve());
 
-      return push.notifyAccountUpdated(mockUid, mockDevices, 'deviceConnected').catch(function (err) {
-        assert.fail('must not throw')
-        throw err
+      return push.notifyAccountUpdated(mockUid, mockDevices, 'deviceConnected').catch((err) => {
+        assert.fail('must not throw');
+        throw err;
       })
-      .then(function() {
-        assert.ok(push.sendPush.calledOnce, 'push was called')
-        assert.equal(push.sendPush.getCall(0).args[0], mockUid)
-        assert.deepEqual(push.sendPush.getCall(0).args[1], mockDevices)
-        assert.equal(push.sendPush.getCall(0).args[2], 'deviceConnected')
-        push.sendPush.restore()
-      })
+      .then(() => {
+        assert.ok(push.sendPush.calledOnce, 'push was called');
+        assert.equal(push.sendPush.getCall(0).args[0], mockUid);
+        assert.deepEqual(push.sendPush.getCall(0).args[1], mockDevices);
+        assert.equal(push.sendPush.getCall(0).args[2], 'deviceConnected');
+        push.sendPush.restore();
+      });
     }
-  )
+  );
 
   it(
     'notifyAccountDestroyed calls sendPush',
     () => {
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            return P.resolve()
+            return P.resolve();
           }
         }
-      }
-      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig)
-      sinon.spy(push, 'sendPush')
-      var expectedData = {
+      };
+      const push = proxyquire(pushModulePath, mocks)(mockLog(), mockDb, mockConfig);
+      sinon.spy(push, 'sendPush');
+      const expectedData = {
         version: 1,
         command: 'fxaccounts:account_destroyed',
         data: {
           uid: mockUid
         }
-      }
-      return push.notifyAccountDestroyed(mockUid, mockDevices).catch(function (err) {
-        assert.fail('must not throw')
-        throw err
+      };
+      return push.notifyAccountDestroyed(mockUid, mockDevices).catch((err) => {
+        assert.fail('must not throw');
+        throw err;
       })
-      .then(function() {
-        assert.ok(push.sendPush.calledOnce, 'sendPush was called')
-        assert.equal(push.sendPush.getCall(0).args[0], mockUid)
-        assert.equal(push.sendPush.getCall(0).args[1], mockDevices)
-        assert.equal(push.sendPush.getCall(0).args[2], 'accountDestroyed')
-        var options = push.sendPush.getCall(0).args[3]
-        assert.deepEqual(options.data, expectedData)
-        var schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH)
-        var schema = JSON.parse(fs.readFileSync(schemaPath))
-        assert.ok(ajv.validate(schema, options.data))
-        push.sendPush.restore()
-      })
+      .then(() => {
+        assert.ok(push.sendPush.calledOnce, 'sendPush was called');
+        assert.equal(push.sendPush.getCall(0).args[0], mockUid);
+        assert.equal(push.sendPush.getCall(0).args[1], mockDevices);
+        assert.equal(push.sendPush.getCall(0).args[2], 'accountDestroyed');
+        const options = push.sendPush.getCall(0).args[3];
+        assert.deepEqual(options.data, expectedData);
+        const schemaPath = path.resolve(__dirname, PUSH_PAYLOADS_SCHEMA_PATH);
+        const schema = JSON.parse(fs.readFileSync(schemaPath));
+        assert.ok(ajv.validate(schema, options.data));
+        push.sendPush.restore();
+      });
     }
-  )
+  );
 
   it(
     'sendPush includes VAPID identification if it is configured',
     () => {
-      let count = 0
-      var thisMockLog = mockLog({
+      let count = 0;
+      const thisMockLog = mockLog({
         info: function (op, log) {
           if (log.name === 'push.account_verify.success') {
-            count++
+            count++;
           }
         }
-      })
+      });
 
-      var mockConfig = {
+      const mockConfig = {
         publicUrl: 'https://example.com',
         vapidKeysFile: path.join(__dirname, '../config/mock-vapid-keys.json')
-      }
+      };
 
-      var mocks = {
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            assert.ok(options.vapidDetails, 'sends the VAPID params object')
-            assert.equal(options.vapidDetails.subject, mockConfig.publicUrl, 'sends the correct VAPID subject')
-            assert.equal(options.vapidDetails.privateKey, 'private', 'sends the correct VAPID privkey')
-            assert.equal(options.vapidDetails.publicKey, 'public', 'sends the correct VAPID pubkey')
-            return P.resolve()
+            assert.ok(options.vapidDetails, 'sends the VAPID params object');
+            assert.equal(options.vapidDetails.subject, mockConfig.publicUrl, 'sends the correct VAPID subject');
+            assert.equal(options.vapidDetails.privateKey, 'private', 'sends the correct VAPID privkey');
+            assert.equal(options.vapidDetails.publicKey, 'public', 'sends the correct VAPID pubkey');
+            return P.resolve();
           }
         }
-      }
+      };
 
-      const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig)
+      const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig);
       return push.sendPush(mockUid, mockDevices, 'accountVerify')
         .then(() => {
-          assert.equal(count, 2)
-        })
+          assert.equal(count, 2);
+        });
     }
-  )
+  );
 
   it(
     'sendPush errors out cleanly if given an unknown reason argument',
     () => {
-      var thisMockLog = mockLog()
-      var mockConfig = {}
-      var mocks = {
+      const thisMockLog = mockLog();
+      const mockConfig = {};
+      const mocks = {
         'web-push': {
           sendNotification: function (sub, payload, options) {
-            assert.fail('should not have called sendNotification')
-            return P.reject('Should not have called sendNotification')
+            assert.fail('should not have called sendNotification');
+            return P.reject('Should not have called sendNotification');
           }
         }
-      }
+      };
 
-      const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig)
+      const push = proxyquire(pushModulePath, mocks)(thisMockLog, mockDb, mockConfig);
       return push.sendPush(mockUid, mockDevices, 'anUnknownReasonString').then(
-        function () {
-          assert(false, 'calling sendPush should have failed')
+        () => {
+          assert(false, 'calling sendPush should have failed');
         },
-        function (err) {
-          assert.equal(err, 'Unknown push reason: anUnknownReasonString')
+        (err) => {
+          assert.equal(err, 'Unknown push reason: anUnknownReasonString');
         }
-      )
+      );
     }
-  )
-})
+  );
+});

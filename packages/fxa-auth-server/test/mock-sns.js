@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict'
+'use strict';
 
-const P = require('../lib/promise')
+const P = require('../lib/promise');
 
-module.exports = MockSNS
+module.exports = MockSNS;
 
 function MockSNS (options, config) {
   const mailerOptions = {
@@ -14,20 +14,20 @@ function MockSNS (options, config) {
     secure: config.smtp.secure,
     ignoreTLS: ! config.smtp.secure,
     port: config.smtp.port
-  }
+  };
   if (config.smtp.user && config.smtp.password) {
     mailerOptions.auth = {
       user: config.smtp.user,
       password: config.smtp.password
-    }
+    };
   }
-  const mailer = require('nodemailer').createTransport(mailerOptions)
+  const mailer = require('nodemailer').createTransport(mailerOptions);
 
   return {
     getSMSAttributes () {
       return {
         promise: () => P.resolve({ attributes: { MonthlySpendLimit: config.sms.minimumCreditThresholdUSD } })
-      }
+      };
     },
 
     publish (params) {
@@ -41,13 +41,13 @@ function MockSNS (options, config) {
         }, () => {
           resolve({
             MessageId: 'fake message id'
-          })
-        })
-      })
+          });
+        });
+      });
       return {
         promise: () => promise
-      }
+      };
     }
-  }
+  };
 }
 
