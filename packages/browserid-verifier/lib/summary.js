@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const
-logger = require('./log').getLogger('bid.summary');
+logger = require('./log')('summary');
 
 module.exports = function middlewareFactory() {
 

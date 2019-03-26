@@ -8,7 +8,7 @@ bodyParser = require('body-parser'),
 morgan = require('morgan'),
 http = require('http'),
 toobusy = require('toobusy-js'),
-log = require('./log').getLogger('bid.server'),
+log = require('./log')('server'),
 summary = require('./summary'),
 config = require('./config'),
 CCVerifier = require('./ccverifier'),
@@ -16,7 +16,7 @@ version = require('./version'),
 v1api = require('./v1'),
 v2api = require('./v2');
 
-log.debug("verifier server starting up");
+log.debug("starting");
 
 var app = express();
 var server = http.createServer(app);
@@ -32,7 +32,7 @@ var verifier = new CCVerifier({
 // handle shutdown
 function shutdown(signal) {
   return function() {
-    log.info("recieved signal", signal +", shutting down...");
+    log.info("shutdown", { signal });
     toobusy.shutdown();
     verifier.shutdown();
     server.close();
@@ -86,7 +86,7 @@ app.use(function(req, res, next) {
 toobusy.maxLag(config.get("toobusy.maxLag"));
 app.use(function(req, res, next) {
   if (toobusy()) {
-    log.warn("too busy");
+    log.warn("tooBusy");
     res.json(503, { status: "failure", reason: "too busy"});
   } else {
     next();
@@ -101,7 +101,7 @@ app.use(morgan('common', {
       if (typeof message === 'string') {
         message = message.trim();
       }
-      log.info(message);
+      log.info('message', { message });
     }
   }
 }));
@@ -139,6 +139,7 @@ app.use(function(err, req, res, next) {
 });
 
 server.listen(config.get('port'), config.get('ip'), function() {
-  log.info("running on http://" +
-           server.address().address + ":" + server.address().port);
+  log.info("running", {
+    url: "http://" + server.address().address + ":" + server.address().port
+  });
 });
