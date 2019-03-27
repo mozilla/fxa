@@ -17,6 +17,9 @@ module.exports.BASE_36 = /^[a-zA-Z0-9]*$/;
 // RFC 4648, section 5
 module.exports.URL_SAFE_BASE_64 = /^[A-Za-z0-9_-]+$/;
 
+// RFC 7636, section 4.1
+module.exports.PKCE_CODE_VERIFIER = /^[A-Za-z0-9-\._~]{43,128}$/;
+
 // Crude phone number validation. The handler code does it more thoroughly.
 exports.E164_NUMBER = /^\+[1-9]\d{1,14}$/;
 
@@ -80,13 +83,16 @@ module.exports.email = function() {
 module.exports.service = isA.string().max(16).regex(/^[a-zA-Z0-9\-]*$/);
 module.exports.hexString = isA.string().regex(HEX_STRING);
 module.exports.clientId = module.exports.hexString.length(16);
+module.exports.clientSecret = module.exports.hexString;
 module.exports.accessToken = module.exports.hexString.length(64);
 module.exports.refreshToken = module.exports.hexString.length(64);
 module.exports.authorizationCode = module.exports.hexString.length(64);
-module.exports.scope = isA.string().max(256).regex(/^[a-zA-Z0-9 _\/.:-]+$/);
+// Note that the empty string is a valid scope value (meaning "no permissions").
+module.exports.scope = isA.string().max(256).regex(/^[a-zA-Z0-9 _\/.:-]*$/).allow('');
 module.exports.assertion = isA.string().min(50).max(10240).regex(/^[a-zA-Z0-9_\-\.~=]+$/);
 module.exports.pkceCodeChallengeMethod = isA.string().valid('S256');
 module.exports.pkceCodeChallenge = isA.string().length(43).regex(module.exports.URL_SAFE_BASE_64);
+module.exports.pkceCodeVerifier = isA.string().min(43).max(128).regex(module.exports.PKCE_CODE_VERIFIER);
 module.exports.jwe = isA.string().max(1024)
   // JWE token format: 'protectedheader.encryptedkey.iv.cyphertext.authenticationtag'
   .regex(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/);
