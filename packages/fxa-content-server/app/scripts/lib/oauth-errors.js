@@ -96,6 +96,10 @@ define(function (require, exports, module) {
       errno: 120,
       message: 'Mismatch acr values'
     },
+    INVALID_GRANT_TYPE: {
+      errno: 121,
+      message: 'Invalid grant_type'
+    },
     SERVICE_UNAVAILABLE: {
       errno: 998,
       message: t('System unavailable, try again soon')
