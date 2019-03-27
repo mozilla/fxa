@@ -11,11 +11,11 @@ const SUPPORTED_COMMANDS = [
   // Basic operations
   'get', 'set', 'del',
   // Sorted sets: https://redis.io/topics/data-types-intro#redis-sorted-sets
-  'zadd', 'zrange', 'zrangebyscore', 'zrem', 'zremrangebyscore', 'zrevrange', 'zrevrangebyscore'
+  'zadd', 'zrange', 'zrangebyscore', 'zrem', 'zrevrange', 'zrevrangebyscore'
 ];
 
 module.exports = {
-  methods: SUPPORTED_COMMANDS.concat('update'),
+  methods: SUPPORTED_COMMANDS.concat('update', 'zpoprangebyscore'),
 
   create (log, client) {
     let isUpdating = false;
@@ -76,6 +76,33 @@ module.exports = {
           log.warn('redis.watch.conflict', { key });
           throw new Error('redis.watch.conflict');
         }
+      },
+
+      /**
+       * To ensure safe range semantics in the presence of concurrency,
+       * we lean on Redis' MULTI and EXEC commands so that ranges can be
+       * popped atomically. It is impossible for any concurrent operation
+       * to pop the same records as long as clients use this method.
+       *
+       * In addition to the named parameters below, there are optional
+       * args for offset, count and including scores in the result.
+       * Read the `zrangebyscore` docs for more information:
+       *
+       *   https://redis.io/commands/zrangebyscore
+       *
+       * @param key {String} The key for the sorted set
+       * @param min {Number} The minimum score to include in the popped range.
+       * @param max {Number} The maximum score to include in the popped range.
+       * @returns {Promise} Resolves to the popped range.
+       */
+      async zpoprangebyscore (key, min, max, ...options) {
+        const multi = client.multi();
+
+        multi.zrangebyscore(key, min, max, ...options);
+        multi.zremrangebyscore(key, min, max, ...options);
+
+        const results = await multi.execAsync();
+        return results[0];
       },
 
       destroy () {
