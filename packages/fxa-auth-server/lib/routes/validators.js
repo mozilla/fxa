@@ -82,8 +82,11 @@ module.exports.hexString = isA.string().regex(HEX_STRING);
 module.exports.clientId = module.exports.hexString.length(16);
 module.exports.accessToken = module.exports.hexString.length(64);
 module.exports.refreshToken = module.exports.hexString.length(64);
+module.exports.authorizationCode = module.exports.hexString.length(64);
 module.exports.scope = isA.string().max(256).regex(/^[a-zA-Z0-9 _\/.:-]+$/);
 module.exports.assertion = isA.string().min(50).max(10240).regex(/^[a-zA-Z0-9_\-\.~=]+$/);
+module.exports.pkceCodeChallengeMethod = isA.string().valid('S256');
+module.exports.pkceCodeChallenge = isA.string().length(43).regex(module.exports.URL_SAFE_BASE_64);
 module.exports.jwe = isA.string().max(1024)
   // JWE token format: 'protectedheader.encryptedkey.iv.cyphertext.authenticationtag'
   .regex(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/);

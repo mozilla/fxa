@@ -91,6 +91,7 @@ const OAUTHDB_METHOD_NAMES = [
   'revokeRefreshTokenById',
   'getClientInfo',
   'getScopedKeyData',
+  'createAuthorizationCode',
 ];
 
 const LOG_METHOD_NAMES = [
