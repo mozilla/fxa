@@ -32,24 +32,25 @@ wait
 
 # Install and Setup all the projects
 
-cd fxa-content-server; npm i --production; npm i; cp server/config/local.json-dist server/config/local.json; cd ..
+cd fxa-content-server; npm ci; cp server/config/local.json-dist server/config/local.json; cd ..
 
-cd fxa-auth-server; npm i; node ./scripts/gen_keys.js; node ./scripts/gen_vapid_keys.js; node ./fxa-oauth-server/scripts/gen_keys; cd ..
+cd fxa-auth-server; npm ci; node ./scripts/gen_keys.js; node ./scripts/gen_vapid_keys.js; node ./fxa-oauth-server/scripts/gen_keys; cd ..
 
-cd fxa-auth-db-mysql; npm i; cd ..
+cd fxa-auth-db-mysql; npm ci; cd ..
 
 cd fxa-auth-server; npm link ../fxa-auth-db-mysql; cd ..
 
 cd fxa-email-service; cargo build --bin fxa_email_send; cd ..
 
-cd browserid-verifier; npm i; cd ..
+cd browserid-verifier; npm ci; cd ..
 
-cd fxa-auth-server/fxa-oauth-server; npm i; cd ../..
+cd fxa-auth-server/fxa-oauth-server; npm ci; cd ../..
 
-cd fxa-profile-server; npm i; mkdir -p var/public/; cd ..
+cd fxa-profile-server; npm ci; mkdir -p var/public/; cd ..
 
-cd fxa-basket-proxy; npm i; cd ..
+cd fxa-basket-proxy; npm ci; cd ..
 
+# 123done does not have an npm-shrinkwrap.json file and cannot use `npm ci`
 cd 123done; npm i; cd ..
 
 docker network create fxa-net || true
