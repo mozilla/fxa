@@ -93,13 +93,18 @@ module.exports = {
        * @param key {String} The key for the sorted set
        * @param min {Number} The minimum score to include in the popped range.
        * @param max {Number} The maximum score to include in the popped range.
+       * @param [withScores] {Boolean} Whether to include scores in the popped ranges.
        * @returns {Promise} Resolves to the popped range.
        */
-      async zpoprangebyscore (key, min, max, ...options) {
+      async zpoprangebyscore (key, min, max, withScores) {
         const multi = client.multi();
 
-        multi.zrangebyscore(key, min, max, ...options);
-        multi.zremrangebyscore(key, min, max, ...options);
+        const args = [ key, min, max ];
+        if (withScores) {
+          args.push('WITHSCORES');
+        }
+        multi.zrangebyscore(...args);
+        multi.zremrangebyscore(key, min, max);
 
         const results = await multi.execAsync();
         return results[0];
