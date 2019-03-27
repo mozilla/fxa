@@ -241,11 +241,15 @@ describe('redis integration:', () => {
   });
 
   describe('zadd:', () => {
-    let now;
+    let now, result;
 
-    before(() => {
+    before(async () => {
       now = Date.now();
-      return redis.zadd('foorange', now, 'wibble', now + 1, 'blee', now - 1, 'mirm');
+      result = await redis.zadd('foorange', now, 'wibble', now + 1, 'blee', now - 1, 'mirm');
+    });
+
+    it('returned the correct result', () => {
+      assert.equal(result, 3);
     });
 
     it('zrange reads data', async () => {
@@ -267,8 +271,14 @@ describe('redis integration:', () => {
     });
 
     describe('zrem:', () => {
-      before(() => {
-        return redis.zrem('foorange', 'wibble');
+      let result;
+
+      before(async () => {
+        result = await redis.zrem('foorange', 'wibble');
+      });
+
+      it('returned the correct result', () => {
+        assert.equal(result, 1);
       });
 
       it('zrange reads data', async () => {
@@ -276,23 +286,28 @@ describe('redis integration:', () => {
       });
     });
 
-    describe('zremrangebyscore:', () => {
-      before(() => {
-        return redis.zremrangebyscore('foorange', now - 1, now);
+    describe('zpoprangebyscore:', () => {
+      let results;
+
+      before(async () => {
+        results = await Promise.all([
+          redis.zpoprangebyscore('foorange', now - 1, now + 1),
+          redis.zpoprangebyscore('foorange', now - 1, now + 1),
+        ]);
       });
 
-      it('zrange reads data', async () => {
-        assert.deepEqual(await redis.zrange('foorange', 0, -1), [ 'blee' ]);
+      it('returned the correct results', () => {
+        if (results[0].length) {
+          assert.deepEqual(results[0], [ 'mirm', 'blee' ]);
+          assert.deepEqual(results[1], []);
+        } else {
+          assert.deepEqual(results[0], []);
+          assert.deepEqual(results[1], [ 'mirm', 'blee' ]);
+        }
       });
 
-      describe('zrem:', () => {
-        before(() => {
-          return redis.zrem('foorange', 'blee');
-        });
-
-        it('zrange reads data', async () => {
-          assert.deepEqual(await redis.zrange('foorange', 0, -1), []);
-        });
+      it('sorted set is empty', async () => {
+        assert.deepEqual(await redis.zrange('foorange', 0, -1), []);
       });
     });
   });
