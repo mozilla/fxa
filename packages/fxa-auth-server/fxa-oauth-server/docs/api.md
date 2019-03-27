@@ -53,6 +53,7 @@ The currently-defined error responses are:
 | 400 | 118 | pkce parameters missing |
 | 400 | 119 | stale authentication timestamp |
 | 400 | 120 | mismatch acr value |
+| 400 | 121 | invalid grant_type |
 | 500 | 999 | internal server error |
 
 ## API Endpoints
@@ -329,6 +330,7 @@ back to the client. This code will be traded for a token at the
 - `assertion`: A FxA assertion for the signed-in user.
 - `state`: A value that will be returned to the client as-is upon redirection, so that clients can verify the redirect is authentic.
 - `response_type`: Optional. If supplied, must be either `code` or `token`. `code` is the default. `token` means the implicit grant is desired, and requires that the client have special permission to do so.
+  - **Note: new implementations should not use `response_type=token`; instead use `grant_type=fxa-credentials` at the [token][] endpoint.**
 - `ttl`: Optional if `response_type=token`, forbidden if `response_type=code`. Indicates the requested lifespan in seconds for the implicit grant token. The value is subject to an internal maximum limit, so clients must check the `expires_in` result property for the actual TTL.
 - `redirect_uri`: Optional. If supplied, a string URL of where to redirect afterwards. Must match URL from registration.
 - `scope`: Optional. A string-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog.
@@ -377,33 +379,47 @@ If requesting an implicit grant (token), the response will match the
 
 ### POST /v1/token
 
-After having received a [code][authorization], the client sends that code (most
-likely a server-side request) to this endpoint, to receive a
-longer-lived token that can be used to access attached services for a
-particular user.
+After receiving an authorization grant from the user, clients exercise that grant
+at this endpoint to obtain tokens that can be used to access attached services
+for a particular user.
+
+The following types of grant are possible:
+- `authorization_code`: a single-use code as produced by the [authorization][] endpoint,
+  obtained through a redirect-based authorization flow.
+- `refresh_token`: a token previously obtained from this endpoint when using
+  `access_type=offline`.
+- `fxa-credentials`: an FxA identity assertion, obtained by directly authenticating
+  the user's account.
 
 #### Request Parameters
 
-- `ttl`: (optional) Seconds that this access_token should be valid.
-
-  The default and maximum value is 2 weeks.
-- `grant_type`: Either `authorization_code`, `refresh_token`.
+- `ttl`: (optional) Seconds that the access_token should be valid.
+  If unspecified this will default to the maximum value allowed by the
+  server, which is a configurable option but would typically be measured
+  in minutes or hours.
+- `grant_type`: Either `authorization_code`, `refresh_token`, or `fxa-credentials`.
   - If `authorization_code`:
     - `client_id`: The id returned from client registration.
     - `client_secret`: The secret returned from client registration.
+       Forbidden for public clients, required otherwise.
     - `code`: A string that was received from the [authorization][] endpoint.
+    - `code_verifier`: The [PKCE](pkce.md) code verifier.
+      Required for public clients, forbidden otherwise.
   - If `refresh_token`:
     - `client_id`: The id returned from client registration.
     - `client_secret`: The secret returned from client registration.
-      This must not be set if the client is a public (PKCE) client.
+      Forbidden for public (PKCE) clients, required otherwise.
     - `refresh_token`: A string that received from the [token][]
       endpoint specifically as a refresh token.
     - `scope`: (optional) A subset of scopes provided to this
       refresh_token originally, to receive an access_token with less
       permissions.
-  - if client is type `publicClient:true` and `authorization_code`:
-    - `code_verifier`: Required if using [PKCE](pkce.md).
-
+  - If `fxa-credentials`:
+    - `client_id`: The id returned from client registration.
+    - `assertion`: FxA identity assertion authenticating the user.
+    - `scope`: (optional) A string-separated list of scopes to be authorized.
+    - `access_type`: (optional) Determines whether to generate a `refresh_token` (if `offline`)
+      or not (if `online`).
 
 
 **Example:**
@@ -427,13 +443,15 @@ curl -v \
 A valid request will return a JSON response with these properties:
 
 - `access_token`: A string that can be used for authorized requests to service providers.
-- `scope`: A string of space-separated permissions that this token has. May differ from requested scopes, since user can deny permissions.
-- `refresh_token`: (Optional) A refresh token to fetch a new access token when this one expires. Only will be present if  `grant_type=authorization_code` and the original authorization request included `access_type=offline`.
+- `scope`: A string of space-separated permissions that this token has.
 - `expires_in`: **Seconds** until this access token will no longer be valid.
 - `token_type`: A string representing the token type. Currently will always be "bearer".
 - `auth_at`: An integer giving the time at which the user authenticated to the Firefox Accounts server when generating this token, as a UTC unix timestamp (i.e.  **seconds since epoch**).
+- `refresh_token`: (Optional) A refresh token to fetch a new access token when this one expires. Only present if:
+  - `grant_type=authorization_code` and the original authorization request included `access_type=offline`.
+  - `grant_type=fxa-credentials` and the request included `access_type=offline`.
 - `id_token`: (Optional) If the authorization was requested with `openid` scope, then this property will contain the OpenID Connect ID Token.
-- `keys_jwe`: (Optional) Returns the JWE bundle that if the authorization request had one.
+- `keys_jwe`: (Optional) Returns the JWE bundle of key material for any scopes that have keys, if `grant_type=authorization_code`.
 
 **Example:**
 

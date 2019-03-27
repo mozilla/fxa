@@ -9,6 +9,7 @@
  //
  //   * `grant_type=authorization_code` for vanilla exchange-a-code-for-a-token OAuth
  //   * `grant_type=refresh_token` for refreshing a previously-granted token
+ //   * `grant_type=fxa-credentials` for directly granting via an FxA identity assertion
  //
  // And because of the different types of token that can be requested:
  //
@@ -19,7 +20,7 @@
  // And because of the different client authentication methods:
  //
  //   * `client_secret`, provided in either header or request body
- //   * PKCE parameters, if using `grant_type=authorization_code`
+ //   * PKCE parameters, if using `grant_type=authorization_code` with a public client
  //
  // So, we've tried to make it as readable as possible, but...be careful in there!
 
@@ -29,8 +30,6 @@ const AppError = require('../error');
 const buf = require('buf').hex;
 const hex = require('buf').to.hex;
 const Joi = require('joi');
-const JwTool = require('fxa-jwtool');
-const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const config = require('../config');
 const db = require('../db');
@@ -38,19 +37,21 @@ const encrypt = require('../encrypt');
 const logger = require('../logging')('routes.token');
 const util = require('../util');
 const validators = require('../validators');
+const { validateRequestedGrant, generateTokens } = require('../grant');
+const verifyAssertion = require('../assertion');
 
 const MAX_TTL_S = config.get('expiration.accessToken') / 1000;
 
 const GRANT_AUTHORIZATION_CODE = 'authorization_code';
 const GRANT_REFRESH_TOKEN = 'refresh_token';
+// This is a custom grant type, so we use our standard "fxa-" prefix to avoid collisions.
+// It's similar to the "Resource Owner Password Credentials" grant from [1] but uses an
+// FxA identity assertion rather than directly specifying a password.
+// [1] https://tools.ietf.org/html/rfc6749#section-1.3.3
+const GRANT_FXA_ASSERTION = 'fxa-credentials';
 
-const SCOPE_OPENID = ScopeSet.fromArray(['openid']);
-
-const ID_TOKEN_EXPIRATION = Math.floor(config.get('openid.ttl') / 1000);
-const ID_TOKEN_ISSUER = config.get('openid.issuer');
-const ID_TOKEN_KEY = JwTool.JWK.fromObject(config.get('openid.key'), {
-  iss: ID_TOKEN_ISSUER
-});
+const ACCESS_TYPE_ONLINE = 'online';
+const ACCESS_TYPE_OFFLINE = 'offline';
 
 const REFRESH_LAST_USED_AT_UPDATE_AFTER_MS = config.get('refreshToken.updateAfter');
 
@@ -68,7 +69,7 @@ const PAYLOAD_SCHEMA = Joi.object({
 
   // The client_secret can be specified in Authorization header or request body,
   // but not both.  In the code flow it is exclusive with `code_verifier`, and
-  // in the refresh flow it's optional because of public clients.
+  // in the refresh and fxa-credentials flows it's optional because of public clients.
   client_secret: validators.clientSecret
     .when('code_verifier', {
       is: Joi.string().required(),
@@ -78,17 +79,23 @@ const PAYLOAD_SCHEMA = Joi.object({
       is: GRANT_REFRESH_TOKEN,
       then: Joi.optional()
     })
+    .when('grant_type', {
+      is: GRANT_FXA_ASSERTION,
+      then: Joi.optional()
+    })
     .when('$headers.authorization', {
       is: Joi.string().required(),
       then: Joi.forbidden()
     }),
 
-  code_verifier: validators.codeVerifier,
-
-  redirect_uri: validators.redirectUri.optional(),
+  redirect_uri: validators.redirectUri.optional()
+    .when('grant_type', {
+      is: GRANT_AUTHORIZATION_CODE,
+      otherwise: Joi.forbidden()
+    }),
 
   grant_type: Joi.string()
-    .valid(GRANT_AUTHORIZATION_CODE, GRANT_REFRESH_TOKEN)
+    .valid(GRANT_AUTHORIZATION_CODE, GRANT_REFRESH_TOKEN, GRANT_FXA_ASSERTION)
     .default(GRANT_AUTHORIZATION_CODE)
     .optional(),
 
@@ -100,10 +107,18 @@ const PAYLOAD_SCHEMA = Joi.object({
 
   scope: validators.scope
     .when('grant_type', {
-      is: GRANT_REFRESH_TOKEN,
+      is: Joi.string().valid(GRANT_REFRESH_TOKEN, GRANT_FXA_ASSERTION),
       otherwise: Joi.forbidden()
     }),
 
+  access_type: Joi.string()
+    .valid(ACCESS_TYPE_OFFLINE, ACCESS_TYPE_ONLINE)
+    .default(ACCESS_TYPE_ONLINE)
+    .optional()
+    .when('grant_type', {
+      is: GRANT_FXA_ASSERTION,
+      otherwise: Joi.forbidden()
+    }),
   code: Joi.string()
     .length(config.get('unique.code') * 2)
     .regex(validators.HEX_STRING)
@@ -113,12 +128,26 @@ const PAYLOAD_SCHEMA = Joi.object({
       otherwise: Joi.forbidden()
     }),
 
+  code_verifier: validators.codeVerifier
+    .when('code', {
+      is: Joi.string().required(),
+      otherwise: Joi.forbidden()
+    }),
+
   refresh_token: validators.token
     .required()
     .when('grant_type', {
       is: GRANT_REFRESH_TOKEN,
       otherwise: Joi.forbidden()
+    }),
+
+  assertion: validators.assertion
+    .required()
+    .when('grant_type', {
+      is: GRANT_FXA_ASSERTION,
+      otherwise: Joi.forbidden()
     })
+
 });
 
 module.exports = {
@@ -179,6 +208,9 @@ async function authenticateClient(params) {
   }
   // Check client_secret against both current and previous stored secrets,
   // to allow for seamless rotation of the secret.
+  if (! params.client_secret) {
+    throw new AppError.invalidRequestParameter('client_secret');
+  }
   const submitted = encrypt.hash(buf(params.client_secret));
   const stored = client.hashedSecret;
   if (crypto.timingSafeEqual(submitted, stored)) {
@@ -219,6 +251,9 @@ async function validateGrantParameters(client, params) {
     break;
   case GRANT_REFRESH_TOKEN:
     requestedGrant = await validateRefreshTokenGrant(client, params);
+    break;
+  case GRANT_FXA_ASSERTION:
+    requestedGrant = await validateAssertionGrant(client, params);
     break;
   default:
     // Joi validation means this should never happen.
@@ -334,60 +369,33 @@ async function validateRefreshTokenGrant(client, params) {
   return tokObj;
 }
 
+
+async function validateAssertionGrant(client, params) {
+  // Is the client allowed to do direct grants?
+  if (! client.canGrant) {
+    logger.warn('grantType.notAllowed', {
+      id: hex(client.id),
+      grant_type: 'fxa-credentials'
+    });
+    throw AppError.invalidGrantType();
+  }
+  // There's no reason a non-public client should ever be allowed
+  // to do direct grants, check that as well for extra safety.
+  if (! client.publicClient) {
+    throw AppError.notPublicClient(client.id);
+  }
+  // Did it provide a valid identity assertion?
+  const claims = await verifyAssertion(params.assertion);
+  // Is the client allowed to have all the scopes etc in the requested grant?
+  return await validateRequestedGrant(claims, client, params);
+}
+
+
 /**
  * Generate a PKCE code_challenge
  * See https://tools.ietf.org/html/rfc7636#section-4.6 for details
  */
 function pkceHash(input) {
   return util.base64URLEncode(crypto.createHash('sha256').update(input).digest());
-}
-
-
-function generateIdToken(options, access) {
-  var now = Math.floor(Date.now() / 1000);
-  var claims = {
-    sub: hex(options.userId),
-    aud: hex(options.clientId),
-    iss: ID_TOKEN_ISSUER,
-    iat: now,
-    exp: now + ID_TOKEN_EXPIRATION,
-    at_hash: util.generateTokenHash(access.token)
-  };
-  if (options.amr) {
-    claims.amr = options.amr;
-  }
-  if (options.aal) {
-    claims['fxa-aal'] = options.aal;
-    claims.acr = 'AAL' + options.aal;
-  }
-
-  return ID_TOKEN_KEY.sign(claims);
-}
-
-async function generateTokens(options) {
-  // We always generate an access_token.
-  const access = await db.generateAccessToken(options);
-  const result = {
-    access_token: access.token.toString('hex'),
-    token_type: access.type,
-    scope: access.scope.toString()
-  };
-  result.expires_in = options.ttl;
-  if (options.authAt) {
-    result.auth_at = options.authAt;
-  }
-  if (options.keysJwe) {
-    result.keys_jwe = options.keysJwe;
-  }
-  // Maybe also generate a refreshToken?
-  if (options.offline) {
-    const refresh = await db.generateRefreshToken(options);
-    result.refresh_token = refresh.token.toString('hex');
-  }
-  // Maybe also generate an idToken?
-  if (options.scope && options.scope.contains(SCOPE_OPENID)) {
-    result.id_token = await generateIdToken(options, access);
-  }
-  return result;
 }
 

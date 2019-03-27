@@ -388,7 +388,7 @@ MemoryStore.prototype = {
     return P.resolve();
   },
   getScope: function getScope (scope) {
-    return P.resolve(this.scopes[scope]);
+    return P.resolve(this.scopes[scope] || null);
   },
   registerScope: function registerScope (scope) {
     this.scopes[scope.scope] = scope;

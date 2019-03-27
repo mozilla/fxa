@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const util = require('util');
+const hex = require('buf').to.hex;
 
 const DEFAULTS = {
   code: 500,
@@ -82,7 +83,7 @@ AppError.unknownClient = function unknownClient(clientId) {
     errno: 101,
     message: 'Unknown client'
   }, {
-    clientId: clientId
+    clientId: hex(clientId)
   });
 };
 
@@ -93,7 +94,7 @@ AppError.incorrectSecret = function incorrectSecret(clientId) {
     errno: 102,
     message: 'Incorrect secret'
   }, {
-    clientId: clientId
+    clientId: hex(clientId)
   });
 };
 
@@ -135,8 +136,8 @@ AppError.mismatchCode = function mismatchCode(code, clientId) {
     errno: 106,
     message: 'Incorrect code'
   }, {
-    requestCode: code,
-    client: clientId
+    requestCode: hex(code),
+    client: hex(clientId)
   });
 };
 
@@ -147,7 +148,7 @@ AppError.expiredCode = function expiredCode(code, expiredAt) {
     errno: 107,
     message: 'Expired code'
   }, {
-    requestCode: code,
+    requestCode: hex(code),
     expiredAt: expiredAt
   });
 };
@@ -233,14 +234,14 @@ AppError.expiredToken = function expiredToken(expiredAt) {
   });
 };
 
-AppError.notPublicClient = function unknownClient(clientId) {
+AppError.notPublicClient = function notPublicClient(clientId) {
   return new AppError({
     code: 400,
     error: 'Bad Request',
     errno: 116,
     message: 'Not a public client'
   }, {
-    clientId: clientId
+    clientId: hex(clientId)
   });
 };
 
@@ -283,6 +284,15 @@ AppError.mismatchAcr = function mismatchAcr(foundValue) {
     errno: 120,
     message: 'Mismatch acr value'
   }, {foundValue});
+};
+
+AppError.invalidGrantType = function invalidGrantType() {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: 121,
+    message: 'Invalid grant_type'
+  });
 };
 
 module.exports = AppError;
