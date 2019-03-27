@@ -1,17 +1,14 @@
 .user-card {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   line-height: 1.5;
-  margin-bottom: 20px;
   overflow: hidden;
-  padding: 0 0 0 91px;
-  text-align: left;
   text-overflow: ellipsis;
   width: 100%;
 
   @include respond-to('small') {
-    background-color: #fff;
     border-radius: 4px;
-    box-shadow: 0 1px 4px 0 rgba(12, 12, 13, 0.1);
   }
 
   @include respond-to('trustedUI') {
@@ -21,10 +18,11 @@
   }
 
   .user-info {
-    align-items: center;
-    display: flex;
+    flex: 1;
+    flex-basis: 60px;
     height: 111px;
-    padding-left: 16px;
+    margin-top: 20px;
+    text-align: center;
 
     @include respond-to('trustedUI') {
       height: 55px;
@@ -37,21 +35,27 @@
 }
 
 .avatar-wrapper {
+  align-self: center;
   border-radius: 50%;
   border-width: 0;
-  display: inline-block;
   height: $avatar-size;
   line-height: 0;
-  margin: 0 0 5px;
+  margin: 0 auto 5px;
   overflow: hidden;
   position: relative;
   width: $avatar-size;
 
   &.card-view {
-    float: left;
+    align-self: center;
     height: 71px;
-    margin: 20px 0 0 -71px;
+    margin: 20px 0 0 0;
     width: 71px;
+
+    @include respond-to('small') {
+      height: 70px;
+      margin-top: 15px;
+      width: 70px;
+    }
 
     @include respond-to('trustedUI') {
       height: 55px;
