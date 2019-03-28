@@ -170,7 +170,7 @@ describe('redis/connection:', () => {
 
     beforeEach(async () => {
       redisMulti.execAsync = sinon.spy(() => Promise.resolve([ [ 'foo' ], 1 ]));
-      result = await connection.zpoprangebyscore('blee', 0, 1, 'WITHSCORES', 'LIMIT', 0, 10);
+      result = await connection.zpoprangebyscore('blee', 0, 1, true);
     });
 
     it('returned the correct result', () => {
@@ -185,27 +185,20 @@ describe('redis/connection:', () => {
     it('called redisMulti.zrangebyscore correctly', () => {
       assert.equal(redisMulti.zrangebyscore.callCount, 1);
       const args = redisMulti.zrangebyscore.args[0];
-      assert.lengthOf(args, 7);
+      assert.lengthOf(args, 4);
       assert.equal(args[0], 'blee');
       assert.equal(args[1], 0);
       assert.equal(args[2], 1);
       assert.equal(args[3], 'WITHSCORES');
-      assert.equal(args[4], 'LIMIT');
-      assert.equal(args[5], 0);
-      assert.equal(args[6], 10);
     });
 
     it('called redisMulti.zremrangebyscore correctly', () => {
       assert.equal(redisMulti.zremrangebyscore.callCount, 1);
       const args = redisMulti.zremrangebyscore.args[0];
-      assert.lengthOf(args, 7);
+      assert.lengthOf(args, 3);
       assert.equal(args[0], 'blee');
       assert.equal(args[1], 0);
       assert.equal(args[2], 1);
-      assert.equal(args[3], 'WITHSCORES');
-      assert.equal(args[4], 'LIMIT');
-      assert.equal(args[5], 0);
-      assert.equal(args[6], 10);
     });
 
     it('called redisMulti.exec correctly', () => {
