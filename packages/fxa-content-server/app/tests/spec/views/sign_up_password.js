@@ -107,6 +107,32 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('autofocus behaviour', () => {
+      it('focuses the password element if not pre-filled', () => {
+        return view.render()
+          .then(() => {
+            assert.ok(view.$('input[type="password"]').attr('autofocus'));
+          });
+      });
+
+      it('focuses the vpassword element if password is pre-filled', () => {
+        formPrefill.set('password', 'password');
+        return view.render()
+          .then(() => {
+            assert.ok(view.$('#vpassword').attr('autofocus'));
+          });
+      });
+
+      it('focuses the age element if password and vpassword are both pre-filled', () => {
+        formPrefill.set('password', 'password');
+        formPrefill.set('vpassword', 'vpassword');
+        return view.render()
+          .then(() => {
+            assert.ok(view.$('#age').attr('autofocus'));
+          });
+      });
+    });
+
     describe('validateAndSubmit', () => {
       beforeEach(() => {
         sinon.stub(view, 'signUp').callsFake(() => Promise.resolve());

@@ -315,9 +315,19 @@ define(function (require, exports, module) {
           });
       });
 
-      it('focuses the age element if email and password are both pre-filled', () => {
+      it('focuses the vpassword element if email and password are both pre-filled', () => {
         formPrefill.set('email', 'testuser@testuser.com');
         formPrefill.set('password', 'password');
+        return view.render()
+          .then(() => {
+            assert.ok(view.$('#vpassword').attr('autofocus'));
+          });
+      });
+
+      it('focuses the age element if email, vpassword and password are pre-filled', () => {
+        formPrefill.set('email', 'testuser@testuser.com');
+        formPrefill.set('password', 'password');
+        formPrefill.set('vpassword', 'vpassword');
         return view.render()
           .then(() => {
             assert.ok(view.$('#age').attr('autofocus'));

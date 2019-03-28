@@ -26,13 +26,15 @@ define(function (require, exports, module) {
 
   const t = msg => msg;
 
-  function selectAutoFocusEl(bouncedEmail, email, password) {
+  function selectAutoFocusEl(bouncedEmail, email, password, vPassword) {
     if (bouncedEmail) {
       return 'input[type=email]';
     } else if (! email) {
       return 'input[type=email]';
     } else if (! password) {
       return 'input[type=password]';
+    } else if (! vPassword) {
+      return '#vpassword';
     } else {
       return '#age';
     }
@@ -91,9 +93,10 @@ define(function (require, exports, module) {
     _selectAutoFocusEl () {
       var prefillEmail = this.model.get('forceEmail') || this.getPrefillEmail();
       var prefillPassword = this.formPrefill.get('password');
+      var prefillVPassword = this.formPrefill.get('vpassword');
 
       return selectAutoFocusEl(
-        this.model.get('bouncedEmail'), prefillEmail, prefillPassword);
+        this.model.get('bouncedEmail'), prefillEmail, prefillPassword, prefillVPassword);
     },
 
     setInitialContext (context) {
