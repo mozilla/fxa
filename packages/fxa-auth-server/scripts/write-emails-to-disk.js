@@ -31,6 +31,9 @@
 
 'use strict';
 
+// HACK: Prevent config falling over due to missing secrets
+process.env.NODE_ENV = 'dev';
+
 const P = require('bluebird');
 const config = require('../config').getProperties();
 const error = require('../lib/error');
