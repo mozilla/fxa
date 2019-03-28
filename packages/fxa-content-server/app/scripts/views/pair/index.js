@@ -7,6 +7,7 @@ import Cocktail from 'cocktail';
 import Template from '../../templates/pair/index.mustache';
 import UserAgentMixin from '../../lib/user-agent-mixin';
 import PairingGraphicsMixin from '../mixins/pairing-graphics-mixin';
+import PairingTotpMixin from './pairing-totp-mixin';
 import { DOWNLOAD_LINK_PAIRING_APP } from '../../lib/constants';
 
 class PairIndexView extends FormView {
@@ -34,6 +35,8 @@ class PairIndexView extends FormView {
     if (! this.broker.hasCapability('supportsPairing')) {
       return this.replaceCurrentPage('pair/unsupported');
     }
+
+    return this.checkTotpStatus();
   }
 
   setInitialContext (context) {
@@ -50,7 +53,8 @@ class PairIndexView extends FormView {
 Cocktail.mixin(
   PairIndexView,
   PairingGraphicsMixin,
-  UserAgentMixin
+  PairingTotpMixin(),
+  UserAgentMixin,
 );
 
 export default PairIndexView;

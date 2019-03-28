@@ -19,6 +19,7 @@ const BAD_OAUTH_REDIRECT = `${config.fxaOAuthApp}api/oauth`;
 const GOOD_CLIENT_ID = '3c49430b43dfba77';
 const GOOD_PAIR_URL = `${config.fxaContentRoot}pair/supp?response_type=code&client_id=${GOOD_CLIENT_ID}&redirect_uri=${REDIRECT_HOST}oauth%2Fsuccess%2F3c49430b43dfba77&scope=profile%2Bhttps%3A%2F%2Fidentity.mozilla.com%2Fapps%2Foldsync&state=foo&code_challenge_method=S256&code_challenge=IpOAcntLUmKITcxI_rDqMvFTeC9n_g0B8_Pj2yWZp7w&access_type=offline&keys_jwk=eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6ImlmcWY2U1pwMlM0ZjA5c3VhS093dmNsbWJxUm8zZXdGY0pvRURpYnc4MTQiLCJ5IjoiSE9LTXh5c1FseExqRGttUjZZbFpaY1Y4MFZBdk9nSWo1ZHRVaWJmYy1qTSJ9`; //eslint-disable-line  max-len
 const BAD_PAIR_URL = `${config.fxaContentRoot}pair/supp?response_type=code&client_id=${BAD_CLIENT_ID}&redirect_uri=${BAD_OAUTH_REDIRECT}&scope=profile%2Bhttps%3A%2F%2Fidentity.mozilla.com%2Fapps%2Foldsync&state=foo&code_challenge_method=S256&code_challenge=IpOAcntLUmKITcxI_rDqMvFTeC9n_g0B8_Pj2yWZp7w&access_type=offline&keys_jwk=eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6ImlmcWY2U1pwMlM0ZjA5c3VhS093dmNsbWJxUm8zZXdGY0pvRURpYnc4MTQiLCJ5IjoiSE9LTXh5c1FseExqRGttUjZZbFpaY1Y4MFZBdk9nSWo1ZHRVaWJmYy1qTSJ9`; //eslint-disable-line  max-len
+const SETTINGS_URL = `${config.fxaContentRoot}settings`;
 
 const PASSWORD = 'PASSWORD123123';
 let email;
@@ -27,6 +28,7 @@ const {
   createUser,
   click,
   closeCurrentWindow,
+  confirmTotpCode,
   openPage,
   openTab,
   switchToWindow,
@@ -137,7 +139,22 @@ registerSuite('pairing', {
           assert.ok(redirectResult.includes('state='), 'final OAuth redirect has the state');
         })
         .end()
-        .then(closeCurrentWindow());
+        .then(closeCurrentWindow())
+
+        // enable 2FA and attempt to pair again, will result in error
+        .then(openPage(SETTINGS_URL, selectors.TOTP.MENU_BUTTON))
+
+        .then(click(selectors.TOTP.MENU_BUTTON))
+        .then(click(selectors.TOTP.SHOW_CODE_LINK))
+
+        .findByCssSelector(selectors.TOTP.MANUAL_CODE)
+        .getVisibleText()
+        .then((secretKey) => {
+          return this.remote.then(confirmTotpCode(secretKey));
+        })
+        .end()
+
+        .then(openPage(`${config.fxaContentRoot}pair`, selectors.PAIRING.PAIR_FAILURE));
     },
 
     'handles invalid clients': function () {

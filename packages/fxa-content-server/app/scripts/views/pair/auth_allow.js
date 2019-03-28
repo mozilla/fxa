@@ -5,6 +5,7 @@
 import { assign } from 'underscore';
 import Cocktail from 'cocktail';
 import DeviceBeingPairedMixin from './device-being-paired-mixin';
+import PairingTotpMixin from './pairing-totp-mixin';
 import FormView from '../form';
 import { preventDefaultThen } from '../base';
 import Template from '../../templates/pair/auth_allow.mustache';
@@ -16,8 +17,10 @@ class PairAuthAllowView extends FormView {
     'click #cancel': preventDefaultThen('cancel')
   });
 
-  initialize () {
+  beforeRender () {
     this.listenTo(this.broker, 'error', this.displayError);
+
+    return this.checkTotpStatus();
   }
 
   submit () {
@@ -32,6 +35,7 @@ class PairAuthAllowView extends FormView {
 
 Cocktail.mixin(
   PairAuthAllowView,
+  PairingTotpMixin(),
   DeviceBeingPairedMixin(),
 );
 
