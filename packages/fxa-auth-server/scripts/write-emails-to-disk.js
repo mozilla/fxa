@@ -36,7 +36,7 @@ const config = require('../config').getProperties();
 const error = require('../lib/error');
 const createSenders = require('../lib/senders');
 const fs = require('fs');
-const log = require('../lib/senders/legacy_log')(require('../lib/senders/log')('server'));
+const log = require('../lib/log')({});
 const mkdirp = require('mkdirp');
 const path = require('path');
 
