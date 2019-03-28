@@ -40,7 +40,6 @@ const CLIENT = {
 };
 
 describe('validateRequestedGrant', () => {
-
   let mockDB, validateRequestedGrant;
 
   beforeEach(() => {
@@ -146,5 +145,96 @@ describe('validateRequestedGrant', () => {
     await assertThrowsAsync(async () => {
       await validateRequestedGrant({ ...CLAIMS, 'fxa-tokenVerified': false }, CLIENT, requestedGrant);
     }, AppError, 'Requested scopes are not allowed');
+  });
+
+});
+
+describe('generateTokens', () => {
+  let mockAccessToken;
+  let mockAmplitude;
+  let mockDB;
+
+  let generateTokens;
+  let requestedGrant;
+  let scope;
+
+  beforeEach(() => {
+    scope = ScopeSet.fromArray(['profile:uid', 'profile:email']);
+
+    mockAccessToken = {
+      expiresAt: Date.now() + 1000,
+      scope,
+      token: 'token',
+      type: 'access_token'
+    };
+
+    requestedGrant = {
+      clientId: 'foo',
+      scope,
+      userId: 'bar',
+    };
+
+    mockAmplitude = sinon.spy();
+    mockDB = {
+      generateAccessToken: sinon.spy(async () => mockAccessToken),
+      generateIdToken: sinon.spy(async () => ({ token: 'id_token' })),
+      generateRefreshToken: sinon.spy(async () => ({ token: 'refresh_token' } ))
+    };
+
+    generateTokens = proxyquire('../lib/grant', {
+      './metrics/amplitude': () => mockAmplitude,
+      './db': mockDB
+    }).generateTokens;
+  });
+
+  it('should always return required params in result', async () => {
+    const result = await generateTokens(requestedGrant);
+    assert.isTrue(mockDB.generateAccessToken.calledOnceWith(requestedGrant));
+
+    assert.strictEqual(result.access_token, 'token');
+    assert.isNumber(result.expires_in);
+    assert.strictEqual(result.token_type, 'access_token');
+    assert.strictEqual(result.scope, 'profile:uid profile:email');
+
+    assert.isFalse('auth_at' in result);
+    assert.isFalse('keys_jwe' in result);
+    assert.isFalse('refresh_token' in result);
+    assert.isFalse('id_token' in result);
+  });
+
+  it('should return authAt from grant', async () => {
+    const now = Date.now();
+    requestedGrant.authAt = now;
+    const result = await generateTokens(requestedGrant);
+    assert.strictEqual(result.auth_at, now);
+  });
+
+  it('should return keysJwe from grant', async () => {
+    requestedGrant.keysJwe = 'biz';
+    const result = await generateTokens(requestedGrant);
+    assert.strictEqual(result.keys_jwe, 'biz');
+  });
+
+  it('should generate a refreshToken if grant.offline=true', async () => {
+    requestedGrant.offline = true;
+    const result = await generateTokens(requestedGrant);
+    assert.strictEqual(result.refresh_token, 'refresh_token');
+  });
+
+  it('should generate an OpenID ID token if requested', async () => {
+    requestedGrant.scope = ScopeSet.fromArray(['openid']);
+    const result = await generateTokens(requestedGrant);
+    assert.ok(result.id_token);
+  });
+
+  it('should log an amplitude event', async () => {
+    await generateTokens(requestedGrant);
+
+    assert.equal(mockAmplitude.callCount, 1);
+    const args = mockAmplitude.args[0];
+    assert.strictEqual(args[0], 'token.created', {
+      service: 'foo',
+      uid: 'bar'
+    });
   });
 });

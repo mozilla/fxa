@@ -66,6 +66,12 @@ const conf = convict({
       env: 'CLIENT_MANAGEMENT_ENABLED'
     }
   },
+  clientIdToServiceNames: {
+    doc: 'Mappings from client id to service name: { "id1": "name-1", "id2": "name-2" }',
+    format: Object,
+    default: {},
+    env: 'OAUTH_CLIENT_IDS'
+  },
   scopes: {
     doc: 'Some pre-defined list of scopes that will be inserted into the DB',
     env: 'OAUTH_SCOPES',
