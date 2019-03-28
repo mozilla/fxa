@@ -117,20 +117,24 @@ module.exports = (log, config) => {
      * Read and remove all verification reminders that have
      * ticked past the expiry intervals set in config.
      *
-     * @returns {Promise} - Each property on the resolved object will be an array of uids that
-     *                      were found to have ticked past the relevant expiry interval, i.e.
-     *                      the result of [`redis.zrangebyscore`](https://redis.io/commands/zrangebyscore).
+     * @returns {Promise} - Each property on the resolved object will be an array of
+     *                      { timestamp, uid } reminder records that have ticked past
+     *                      the relevant expiry interval.
      */
     async process () {
       try {
         const now = Date.now();
         return await P.props(keys.reduce((result, key) => {
           const cutoff = now - intervals[key];
-          result[key] = redis.zrangebyscore(key, 0, cutoff);
-          setImmediate(async () => {
-            await result[key];
-            redis.zremrangebyscore(key, 0, cutoff);
-          });
+          result[key] = redis.zpoprangebyscore(key, 0, cutoff, 'WITHSCORES')
+            .reduce((reminders, item, index) => {
+              if (index % 2 === 0) {
+                reminders.push({ uid: item });
+              } else {
+                reminders[(index - 1) / 2].timestamp = item;
+              }
+              return reminders;
+            }, []);
           log.info('verificationReminders.process', { key, now, cutoff });
           return result;
         }, {}));
@@ -138,6 +142,38 @@ module.exports = (log, config) => {
         log.error('verificationReminders.process.error', { err });
         throw err;
       }
+    },
+
+    /**
+     * Reinstate failed reminders using their original timestamps.
+     * Each reminder item is an object of the form { timestamp, uid }.
+     *
+     * @param {String} key
+     * @param {Array} reminders
+     * @returns {Promise} - The number of reminders reinstated to the sorted set.
+     */
+    async reinstate (key, reminders) {
+      try {
+        const result = await redis.zadd(key, ...reminders.reduce((args, reminder) => {
+          const { timestamp, uid } = reminder;
+          args.push(timestamp, uid);
+          return args;
+        }, []));
+        log.info('verificationReminders.reinstate', { key, reminders });
+        return result;
+      } catch (err) {
+        log.error('verificationReminders.reinstate.error', { err });
+        throw err;
+      }
+    },
+
+    /**
+     * Close the underlying redis connections.
+     *
+     * @returns {Promise}
+     */
+    close () {
+      return redis.close();
     },
   };
 };
