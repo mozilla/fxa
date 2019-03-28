@@ -77,14 +77,24 @@
 
 </table>
 
-<div itemscope itemtype="https://schema.org/EmailMessage">
-  <div itemprop="potentialAction" itemscope itemtype="https://schema.org/ViewAction">
-    <link itemprop="target" href="{{{oneClickLink}}}"/>
-    <meta itemprop="name" content="{{t 'Verify Email'}}"/>
-    <meta itemprop="url" content="{{{oneClickLink}}}"/>
-  </div>
-  <meta itemprop="description" content="{{t 'Verify your email to finish your Firefox Account registration'}}"/>
-</div>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "EmailMessage",
+  "description": "Confirm your email to activate your Firefox Account",
+  "potentialAction": {
+    "@type": "ViewAction",
+    "name": "Confirm email",
+    "target": "{{{oneClickLink}}}",
+    "url": "{{{oneClickLink}}}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Firefox Accounts",
+    "url": "https://accounts.firefox.com"
+  }
+}
+</script>
 
 </body>
 </html>
