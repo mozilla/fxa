@@ -591,14 +591,19 @@ module.exports = function (log, config, oauthdb) {
   };
 
 
-  verificationReminders.keys.forEach(key => {
+  verificationReminders.keys.forEach((key, index) => {
     // Template names are generated in the form `verificationReminderFirstEmail`,
     // where `First` is the key derived from config, with an initial capital letter.
     const template = `verificationReminder${key[0].toUpperCase()}${key.substr(1)}Email`;
-    const subject = key === 'first' ? gettext('Hello again') : gettext('Still there?');
+    let subject;
+    if (index < verificationReminders.keys.length - 1) {
+      subject = gettext('Reminder: Confirm your email to activate your Firefox Account');
+    } else {
+      subject = gettext('Final reminder: Confirm your email to activate your Firefox Account');
+    }
 
     templateNameToCampaignMap[template] = `${key}-verification-reminder`;
-    templateNameToContentMap[template] = 'activate';
+    templateNameToContentMap[template] = 'confirm-email';
 
     Mailer.prototype[template] = async function (message) {
       const { code, email, uid } = message;

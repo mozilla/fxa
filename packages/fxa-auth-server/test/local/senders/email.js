@@ -800,9 +800,9 @@ describe(
                 assert.include(emailConfig.text, 'reminder=first');
                 assert.include(emailConfig.html, 'utm_campaign=fx-first-verification-reminder');
                 assert.include(emailConfig.text, 'utm_campaign=fx-first-verification-reminder');
-                assert.include(emailConfig.html, 'utm_content=fx-activate-oneclick');
-                assert.include(emailConfig.text, 'utm_content=fx-activate');
-                assert.equal(emailConfig.subject, 'Hello again');
+                assert.include(emailConfig.html, 'utm_content=fx-confirm-email-oneclick');
+                assert.include(emailConfig.text, 'utm_content=fx-confirm-email');
+                assert.equal(emailConfig.subject, 'Reminder: Confirm your email to activate your Firefox Account');
               });
               return mailer[type](message);
             });
@@ -815,9 +815,9 @@ describe(
                 assert.include(emailConfig.text, 'reminder=second');
                 assert.include(emailConfig.html, 'utm_campaign=fx-second-verification-reminder');
                 assert.include(emailConfig.text, 'utm_campaign=fx-second-verification-reminder');
-                assert.include(emailConfig.html, 'utm_content=fx-activate-oneclick');
-                assert.include(emailConfig.text, 'utm_content=fx-activate');
-                assert.equal(emailConfig.subject, 'Still there?');
+                assert.include(emailConfig.html, 'utm_content=fx-confirm-email-oneclick');
+                assert.include(emailConfig.text, 'utm_content=fx-confirm-email');
+                assert.equal(emailConfig.subject, 'Final reminder: Confirm your email to activate your Firefox Account');
               });
               return mailer[type](message);
             });
