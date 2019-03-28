@@ -80,6 +80,11 @@ require('../lib/senders/translator')(config.i18n.supportedLanguages, config.i18n
   })
   .then(() => {
     console.info('done');
+    process.exit(0);
+  })
+  .catch(err => {
+    console.error(err.stack);
+    process.exit(1);
   });
 
 function getEmailOutputPath(subject, extension) {
