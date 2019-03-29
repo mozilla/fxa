@@ -52,13 +52,15 @@ const makeRoutes = function (options = {}, requireMocks) {
     check: function () { return P.resolve(true); }
   };
   const push = options.push || require('../../../lib/push')(log, db, {});
+  const verificationReminders = options.verificationReminders || mocks.mockVerificationReminders();
   return proxyquire('../../../lib/routes/emails', requireMocks || {})(
     log,
     db,
     options.mailer || {},
     config,
     customs,
-    push
+    push,
+    verificationReminders,
   );
 };
 
@@ -453,6 +455,7 @@ describe('/recovery_email/verify_code', () => {
   const mockMailer = mocks.mockMailer();
   const mockPush = mocks.mockPush();
   const mockCustoms = mocks.mockCustoms();
+  const verificationReminders = mocks.mockVerificationReminders();
   const accountRoutes = makeRoutes({
     checkPassword: function () {
       return P.resolve(true);
@@ -462,9 +465,22 @@ describe('/recovery_email/verify_code', () => {
     db: mockDB,
     log: mockLog,
     mailer: mockMailer,
-    push: mockPush
+    push: mockPush,
+    verificationReminders,
   });
   const route = getRoute(accountRoutes, '/recovery_email/verify_code');
+
+  afterEach(() => {
+    mockDB.verifyTokens.resetHistory();
+    mockDB.verifyEmail.resetHistory();
+    mockLog.activityEvent.resetHistory();
+    mockLog.flowEvent.resetHistory();
+    mockLog.notifyAttachedServices.resetHistory();
+    mockMailer.sendPostVerifyEmail.resetHistory();
+    mockPush.notifyAccountUpdated.resetHistory();
+    verificationReminders.delete.resetHistory();
+  });
+
   describe('verifyTokens rejects with INVALID_VERIFICATION_CODE', () => {
 
     it('without a reminder payload', () => {
@@ -513,17 +529,13 @@ describe('/recovery_email/verify_code', () => {
         assert.ok(Array.isArray(args[1]), 'second argument should have been devices array');
         assert.equal(args[2], 'accountVerify', 'third argument should have been reason');
 
+        assert.equal(verificationReminders.delete.callCount, 1);
+        args = verificationReminders.delete.args[0];
+        assert.lengthOf(args, 1);
+        assert.equal(args[0], uid);
+
         assert.equal(JSON.stringify(response), '{}');
-      })
-        .then(() => {
-          mockDB.verifyTokens.resetHistory();
-          mockDB.verifyEmail.resetHistory();
-          mockLog.activityEvent.resetHistory();
-          mockLog.flowEvent.resetHistory();
-          mockLog.notifyAttachedServices.resetHistory();
-          mockMailer.sendPostVerifyEmail.resetHistory();
-          mockPush.notifyAccountUpdated.resetHistory();
-        });
+      });
     });
 
     it('with marketingOptIn', () => {
@@ -542,43 +554,26 @@ describe('/recovery_email/verify_code', () => {
         assert.equal(args[0].user_properties.newsletter_state, 'subscribed', 'newsletter_state was correct');
 
         assert.equal(JSON.stringify(response), '{}');
-      })
-        .then(() => {
-          delete mockRequest.payload.marketingOptIn;
-          mockDB.verifyTokens.resetHistory();
-          mockDB.verifyEmail.resetHistory();
-          mockLog.activityEvent.resetHistory();
-          mockLog.flowEvent.resetHistory();
-          mockLog.notifyAttachedServices.resetHistory();
-          mockMailer.sendPostVerifyEmail.resetHistory();
-          mockPush.notifyAccountUpdated.resetHistory();
-        });
+      });
     });
 
     it('with a reminder payload', () => {
       mockRequest.payload.reminder = 'second';
 
       return runTest(route, mockRequest, (response) => {
-        assert.equal(mockLog.activityEvent.callCount, 1, 'activityEvent was called once');
+        assert.equal(mockLog.activityEvent.callCount, 1);
 
-        assert.equal(mockLog.flowEvent.callCount, 2, 'flowEvent was called twice');
-        assert.equal(mockLog.flowEvent.args[0][0].event, 'email.verify_code.clicked', 'first event was email.verify_code.clicked');
-        assert.equal(mockLog.flowEvent.args[1][0].event, 'account.verified', 'second event was account.verified');
+        assert.equal(mockLog.flowEvent.callCount, 3);
+        assert.equal(mockLog.flowEvent.args[0][0].event, 'email.verify_code.clicked');
+        assert.equal(mockLog.flowEvent.args[1][0].event, 'account.verified');
+        assert.equal(mockLog.flowEvent.args[2][0].event, 'account.reminder.second');
 
-        assert.equal(mockMailer.sendPostVerifyEmail.callCount, 1, 'sendPostVerifyEmail was called once');
-        assert.equal(mockPush.notifyAccountUpdated.callCount, 1, 'mockPush.notifyAccountUpdated should have been called once');
+        assert.equal(verificationReminders.delete.callCount, 1);
+        assert.equal(mockMailer.sendPostVerifyEmail.callCount, 1);
+        assert.equal(mockPush.notifyAccountUpdated.callCount, 1);
 
         assert.equal(JSON.stringify(response), '{}');
-      })
-        .then(() => {
-          mockDB.verifyTokens.resetHistory();
-          mockDB.verifyEmail.resetHistory();
-          mockLog.activityEvent.resetHistory();
-          mockLog.flowEvent.resetHistory();
-          mockLog.notifyAttachedServices.resetHistory();
-          mockMailer.sendPostVerifyEmail.resetHistory();
-          mockPush.notifyAccountUpdated.resetHistory();
-        });
+      });
     });
   });
 
@@ -597,10 +592,7 @@ describe('/recovery_email/verify_code', () => {
         assert.equal(mockLog.activityEvent.callCount, 0, 'log.activityEvent was not called');
         assert.equal(mockPush.notifyAccountUpdated.callCount, 0, 'mockPush.notifyAccountUpdated should not have been called');
         assert.equal(mockPush.notifyDeviceConnected.callCount, 0, 'mockPush.notifyDeviceConnected should not have been called (no devices)');
-      })
-        .then(() => {
-          mockDB.verifyTokens.resetHistory();
-        });
+      });
     });
 
     it('email verification with associated device', () => {
@@ -618,10 +610,7 @@ describe('/recovery_email/verify_code', () => {
         assert.equal(mockLog.activityEvent.callCount, 0, 'log.activityEvent was not called');
         assert.equal(mockPush.notifyAccountUpdated.callCount, 0, 'mockPush.notifyAccountUpdated should not have been called');
         assert.equal(mockPush.notifyDeviceConnected.callCount, 1, 'mockPush.notifyDeviceConnected should have been called');
-      })
-        .then(() => {
-          mockDB.verifyTokens.resetHistory();
-        });
+      });
     });
 
     it('sign-in confirmation', () => {
@@ -650,12 +639,7 @@ describe('/recovery_email/verify_code', () => {
         assert.equal(args[0].toString('hex'), uid, 'first argument should have been uid');
         assert.ok(Array.isArray(args[1]), 'second argument should have been devices array');
         assert.equal(args[2], 'accountConfirm', 'third argument should have been reason');
-      })
-        .then(() => {
-          mockDB.verifyTokens.resetHistory();
-          mockLog.activityEvent.resetHistory();
-          mockPush.notifyAccountUpdated.resetHistory();
-        });
+      });
     });
 
     it('secondary email verification', () => {
@@ -678,13 +662,7 @@ describe('/recovery_email/verify_code', () => {
         assert.equal(args[2].secondaryEmail, dbData.secondEmail, 'correct secondary email was passed');
         assert.equal(args[2].service, mockRequest.payload.service);
         assert.equal(args[2].uid, uid);
-      })
-        .then(() => {
-          mockDB.verifyEmail.resetHistory();
-          mockLog.activityEvent.resetHistory();
-          mockMailer.sendPostVerifySecondaryEmail.resetHistory();
-          mockPush.notifyAccountUpdated.resetHistory();
-        });
+      });
     });
   });
 });
@@ -799,8 +777,8 @@ describe('/recovery_email', () => {
         assert.equal(args[1].email, TEST_EMAIL_ADDITIONAL, 'call db.createEmail with correct email');
         assert.equal(mockMailer.sendVerifySecondaryEmail.callCount, 1, 'call mailer.sendVerifySecondaryEmail');
 
-        assert.equal(mockLog.info.callCount, 1);
-        args = mockLog.info.args[0];
+        assert.equal(mockLog.info.callCount, 5);
+        args = mockLog.info.args[4];
         assert.lengthOf(args, 2);
         assert.equal(args[0], 'accountDeleted.unverifiedSecondaryEmail');
         assert.equal(args[1].normalizedEmail, TEST_EMAIL);

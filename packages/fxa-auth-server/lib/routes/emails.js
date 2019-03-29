@@ -14,7 +14,9 @@ const validators = require('./validators');
 
 const HEX_STRING = validators.HEX_STRING;
 
-module.exports = (log, db, mailer, config, customs, push) => {
+module.exports = (log, db, mailer, config, customs, push, verificationReminders) => {
+  const REMINDER_PATTERN = new RegExp(`^(?:${verificationReminders.keys.join('|')})$`);
+
   return [
     {
       method: 'GET',
@@ -271,8 +273,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
             uid: isA.string().max(32).regex(HEX_STRING).required(),
             code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
             service: validators.service,
-            // TODO: drop this param once it is no longer sent by clients
-            reminder: isA.string().max(32).alphanum().optional(),
+            reminder: isA.string().regex(REMINDER_PATTERN).optional(),
             type: isA.string().max(32).alphanum().optional(),
             marketingOptIn: isA.boolean()
           }
@@ -281,7 +282,7 @@ module.exports = (log, db, mailer, config, customs, push) => {
       handler: async function (request) {
         log.begin('Account.RecoveryEmailVerify', request);
 
-        const { code, marketingOptIn, service, type, uid } = request.payload;
+        const { code, marketingOptIn, reminder, service, type, uid } = request.payload;
 
         // verify_code because we don't know what type this is yet, but
         // we want to record right away before anything could fail, so
@@ -429,7 +430,9 @@ module.exports = (log, db, mailer, config, customs, push) => {
                         // Force it so that we emit the appropriate newsletter state.
                         marketingOptIn: marketingOptIn || false,
                         uid
-                      })
+                      }),
+                      reminder ? request.emitMetricsEvent(`account.reminder.${reminder}`, { uid }) : null,
+                      verificationReminders.delete(uid),
                     ]);
                   })
                   .then(() => {

@@ -35,6 +35,8 @@ const messageTypes = [
   'postVerifySecondaryEmail',
   'recoveryEmail',
   'unblockCodeEmail',
+  'verificationReminderFirstEmail',
+  'verificationReminderSecondEmail',
   'verifyEmail',
   'verifyLoginEmail',
   'verifyLoginCodeEmail',
@@ -56,6 +58,8 @@ const typesContainSupportLinks = [
   'postRemoveTwoStepAuthenticationEmail',
   'postVerifyEmail',
   'recoveryEmail',
+  'verificationReminderFirstEmail',
+  'verificationReminderSecondEmail',
   'verifyEmail',
   'verifyLoginCodeEmail',
   'verifyPrimaryEmail',
@@ -251,7 +255,7 @@ describe(
         };
 
         it(
-          `Contains template header for ${  type}`,
+          `Contains template header for ${type}`,
           () => {
             mailer.mailer.sendMail = stubSendMail(emailConfig => {
               assert.equal(emailConfig.from, config.get('smtp.sender'), 'from header is correct');
@@ -286,7 +290,7 @@ describe(
         });
 
         it(
-          `test privacy link is in email template output for ${  type}`,
+          `test privacy link is in email template output for ${type}`,
           () => {
             const privacyLink = mailer.createPrivacyLink(type);
 
@@ -300,7 +304,7 @@ describe(
 
         if (type === 'verifySecondaryEmail') {
           it(
-            `contains correct type ${  type}`,
+            `contains correct type ${type}`,
             () => {
               mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.headers['X-Link'], 'type=secondary'));
@@ -316,7 +320,7 @@ describe(
         }
 
         it(
-          `If sesConfigurationSet is not defined, then outgoing email does not contain X-SES* headers, for type ${  type}`,
+          `If sesConfigurationSet is not defined, then outgoing email does not contain X-SES* headers, for type ${type}`,
           () => {
             assert.ok('sesConfigurationSet' in mailer, 'configuration key exists');
             mailer.mailer.sendMail = stubSendMail(emailConfig => {
@@ -331,7 +335,7 @@ describe(
         );
 
         it(
-          `If sesConfigurationSet is defined, then outgoing email will contain X-SES* headers, for type ${  type}`,
+          `If sesConfigurationSet is defined, then outgoing email will contain X-SES* headers, for type ${type}`,
           () => {
             assert.ok('sesConfigurationSet' in mailer, 'configuration key exists');
             const savedSesConfigurationSet = mailer.sesConfigurationSet;
@@ -354,7 +358,7 @@ describe(
 
         if (includes(typesContainSupportLinks, type)) {
           it(
-            `test support link is in email template output for ${  type}`,
+            `test support link is in email template output for ${type}`,
             () => {
               const supportTextLink = mailer.createSupportLink(type);
 
@@ -369,7 +373,7 @@ describe(
 
         if (includes(typesContainPasswordResetLinks, type)) {
           it(
-            `reset password link is in email template output for ${  type}`,
+            `reset password link is in email template output for ${type}`,
             () => {
               const resetPasswordLink = mailer.createPasswordResetLink(message.email, type);
 
@@ -386,7 +390,7 @@ describe(
 
         if (includes(typesContainPasswordChangeLinks, type)) {
           it(
-            `password change link is in email template output for ${  type}`,
+            `password change link is in email template output for ${type}`,
             () => {
               const passwordChangeLink = mailer.createPasswordChangeLink(message.email, type);
 
@@ -403,7 +407,7 @@ describe(
 
         if (includes(typesContainUnblockCode, type)) {
           it(
-            `unblock code is in email template output for ${  type}`,
+            `unblock code is in email template output for ${type}`,
             () => {
               mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.html, message.unblockCode));
@@ -428,7 +432,7 @@ describe(
 
         if (includes(typesContainTokenCode, type)) {
           it(
-            `login code is in email template output for ${  type}`,
+            `login code is in email template output for ${type}`,
             () => {
               mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.ok(includes(emailConfig.html, message.tokenCode));
@@ -441,7 +445,7 @@ describe(
 
         if (includes(typesContainReportSignInLinks, type)) {
           it(
-            `report sign-in link is in email template output for ${  type}`,
+            `report sign-in link is in email template output for ${type}`,
             () => {
               mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 const reportSignInLink =
@@ -457,7 +461,7 @@ describe(
         }
 
         if (includes(typesContainRevokeAccountRecoveryLinks, type)) {
-          it(`revoke account recovery link is in email template output for ${  type}`, () => {
+          it(`revoke account recovery link is in email template output for ${type}`, () => {
             mailer.mailer.sendMail = stubSendMail(emailConfig => {
               const link = mailer.createRevokeAccountRecoveryLink(type, message);
               assert.ok(includes(emailConfig.html, link));
@@ -470,7 +474,7 @@ describe(
         }
 
         if (includes(typesContainCreateAccountRecoveryLinks, type)) {
-          it(`create account recovery link is in email template output for ${  type}`, () => {
+          it(`create account recovery link is in email template output for ${type}`, () => {
             mailer.mailer.sendMail = stubSendMail(emailConfig => {
               const link = mailer._generateCreateAccountRecoveryLinks(message, type).link;
               assert.ok(includes(emailConfig.html, link));
@@ -484,7 +488,7 @@ describe(
 
         if (includes(typesContainAndroidStoreLinks, type)) {
           it(
-            `Android store link is in email template output for ${  type}`,
+            `Android store link is in email template output for ${type}`,
             () => {
               const androidStoreLink = mailer.androidUrl;
 
@@ -500,7 +504,7 @@ describe(
 
         if (includes(typesContainIOSStoreLinks, type)) {
           it(
-            `IOS store link is in email template output for ${  type}`,
+            `IOS store link is in email template output for ${type}`,
             () => {
               const iosStoreLink = mailer.iosUrl;
 
@@ -516,7 +520,7 @@ describe(
 
         if (includes(typesContainPasswordManagerInfoLinks, type)) {
           it(
-            `password manager info link is in email template output for ${  type}`,
+            `password manager info link is in email template output for ${type}`,
             () => {
               const passwordManagerInfoUrl = mailer._generateLinks(config.get('smtp').passwordManagerInfoUrl, message.email, {}, type).passwordManagerInfoUrl;
 
@@ -532,7 +536,7 @@ describe(
         }
 
         if (includes(typesContainManageSettingsLinks, type)) {
-          it(`account settings info link is in email template output for ${  type}`, () => {
+          it(`account settings info link is in email template output for ${type}`, () => {
             const accountSettingsUrl = mailer._generateSettingLinks(message, type).link;
 
             mailer.mailer.sendMail = stubSendMail(emailConfig => {
@@ -546,7 +550,7 @@ describe(
         }
 
         if (includes(typesContainRecoveryCodeLinks, type)) {
-          it(`recovery code settings info link is in email template output for ${  type}`, () => {
+          it(`recovery code settings info link is in email template output for ${type}`, () => {
             const url = mailer._generateLowRecoveryCodesLinks(message, type).link;
 
             mailer.mailer.sendMail = stubSendMail(emailConfig => {
@@ -569,7 +573,7 @@ describe(
 
           if (type === 'verifySecondaryEmail') {
             it(
-              `original user email data is in template for ${  type}`,
+              `original user email data is in template for ${type}`,
               () => {
                 const message = getLocationMessage(defaultLocation);
                 message.primaryEmail = 'user@email.com';
@@ -585,7 +589,7 @@ describe(
           }
 
           it(
-            `ip data is in template for ${  type}`,
+            `ip data is in template for ${type}`,
             () => {
               const message = getLocationMessage(defaultLocation);
 
@@ -599,21 +603,21 @@ describe(
           );
 
           it(
-            `location is correct with city, country, stateCode for ${  type}`,
+            `location is correct with city, country, stateCode for ${type}`,
             () => {
               const location = defaultLocation;
               const message = getLocationMessage(defaultLocation);
 
               mailer.mailer.sendMail = stubSendMail(emailConfig => {
-                assert.ok(includes(emailConfig.html, `${location.city  }, ${  location.stateCode  }, ${  location.country}`));
-                assert.ok(includes(emailConfig.text, `${location.city  }, ${  location.stateCode  }, ${  location.country}`));
+                assert.ok(includes(emailConfig.html, `${location.city}, ${location.stateCode}, ${location.country}`));
+                assert.ok(includes(emailConfig.text, `${location.city}, ${location.stateCode}, ${location.country}`));
               });
               return mailer[type](message);
             }
           );
 
           it(
-            `location is correct with city, country for ${  type}`,
+            `location is correct with city, country for ${type}`,
             () => {
               const location = Object.assign({}, defaultLocation);
               delete location.stateCode;
@@ -621,30 +625,30 @@ describe(
 
 
               mailer.mailer.sendMail = stubSendMail(emailConfig => {
-                assert.ok(includes(emailConfig.html, `${location.city  }, ${  location.country}`));
-                assert.ok(includes(emailConfig.text, `${location.city  }, ${  location.country}`));
+                assert.ok(includes(emailConfig.html, `${location.city}, ${location.country}`));
+                assert.ok(includes(emailConfig.text, `${location.city}, ${location.country}`));
               });
               return mailer[type](message);
             }
           );
 
           it(
-            `location is correct with stateCode, country for ${  type}`,
+            `location is correct with stateCode, country for ${type}`,
             () => {
               const location = Object.assign({}, defaultLocation);
               delete location.city;
               const message = getLocationMessage(location);
 
               mailer.mailer.sendMail = stubSendMail(emailConfig => {
-                assert.ok(includes(emailConfig.html, `${location.stateCode  }, ${  location.country}`));
-                assert.ok(includes(emailConfig.text, `${location.stateCode  }, ${  location.country}`));
+                assert.ok(includes(emailConfig.html, `${location.stateCode}, ${location.country}`));
+                assert.ok(includes(emailConfig.text, `${location.stateCode}, ${location.country}`));
               });
               return mailer[type](message);
             }
           );
 
           it(
-            `location is correct with country for ${  type}`,
+            `location is correct with country for ${type}`,
             () => {
               const location = Object.assign({}, defaultLocation);
               delete location.city;
@@ -661,7 +665,7 @@ describe(
           );
 
           it(
-            `device name is correct for ${  type}`,
+            `device name is correct for ${type}`,
             () => {
               const message = getLocationMessage(defaultLocation);
               message.uaBrowser = 'Firefox';
@@ -716,10 +720,9 @@ describe(
           });
         }
 
-        if (type === 'verifyEmail') {
-          it(
-            'passes the OAuth relier name to the template',
-            () => {
+        switch (type) {
+          case 'verifyEmail':
+            it('passes the OAuth relier name to the template', () => {
               mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.equal(oauthClientInfo.fetch.callCount, 1);
                 assert.equal(oauthClientInfo.fetch.args[0][0], 'foo');
@@ -728,11 +731,8 @@ describe(
               });
               message.service = 'foo';
               return mailer[type](message);
-            }
-          );
-          it(
-            'works without a service',
-            () => {
+            });
+            it('works without a service', () => {
               mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.isFalse(oauthClientInfo.fetch.called);
                 assert.ok(! includes(emailConfig.html, 'and continue to'));
@@ -740,12 +740,11 @@ describe(
               });
               delete message.service;
               return mailer[type](message);
-            }
-          );
-        } else if (type === 'verifyLoginEmail') {
-          it(
-            'test verify token email',
-            () => {
+            });
+            break;
+
+          case 'verifyLoginEmail':
+            it('test verify token email', () => {
               mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 const verifyLoginUrl = config.get('smtp').verifyLoginUrl;
                 assert.equal(emailConfig.subject, 'Confirm new sign-in to Firefox');
@@ -753,22 +752,20 @@ describe(
                 assert.ok(emailConfig.text.indexOf(verifyLoginUrl) > 0);
               });
               return mailer[type](message);
-            }
-          );
-        } else if (type === 'newDeviceLoginEmail') {
-          it(
-            'test new device login email',
-            () => {
+            });
+            break;
+
+          case 'newDeviceLoginEmail':
+            it('test new device login email', () => {
               mailer.mailer.sendMail = stubSendMail(emailConfig => {
                 assert.equal(emailConfig.subject, 'New sign-in to Firefox');
               });
               return mailer[type](message);
-            }
-          );
-        } else if (type === 'postVerifyEmail') {
-          it(
-            `test utm params for ${  type}`,
-            () => {
+            });
+            break;
+
+          case 'postVerifyEmail':
+            it(`test utm params for ${type}`, () => {
               const syncLink = mailer._generateUTMLink(config.get('smtp').syncUrl, {}, type, 'connect-device');
               const androidLink = mailer._generateUTMLink(config.get('smtp').androidUrl, {}, type, 'connect-android');
               const iosLink = mailer._generateUTMLink(config.get('smtp').iosUrl, {}, type, 'connect-ios');
@@ -780,19 +777,51 @@ describe(
                 assert.ok(includes(emailConfig.html, 'utm_source=email'));
               });
               return mailer[type](message);
-            }
-          );
-        } else if (type === 'verifyPrimaryEmail') {
-          it('test verify token email', () => {
-            mailer.mailer.sendMail = stubSendMail(emailConfig => {
-              const verifyPrimaryEmailUrl = config.get('smtp').verifyPrimaryEmailUrl;
-              assert.ok(emailConfig.html.indexOf(verifyPrimaryEmailUrl) > 0);
-              assert.ok(emailConfig.text.indexOf(verifyPrimaryEmailUrl) > 0);
-              assert.ok(! includes(emailConfig.html, 'utm_source=email'));
-              assert.ok(! includes(emailConfig.text, 'utm_source=email'));
             });
-            return mailer[type](message);
-          });
+            break;
+
+          case 'verifyPrimaryEmail':
+            it('test verify token email', () => {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
+                const verifyPrimaryEmailUrl = config.get('smtp').verifyPrimaryEmailUrl;
+                assert.ok(emailConfig.html.indexOf(verifyPrimaryEmailUrl) > 0);
+                assert.ok(emailConfig.text.indexOf(verifyPrimaryEmailUrl) > 0);
+                assert.ok(! includes(emailConfig.html, 'utm_source=email'));
+                assert.ok(! includes(emailConfig.text, 'utm_source=email'));
+              });
+              return mailer[type](message);
+            });
+            break;
+
+          case 'verificationReminderFirstEmail':
+            it('emailConfig includes data specific to verificationReminderFirstEmail', () => {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
+                assert.include(emailConfig.html, 'reminder=first');
+                assert.include(emailConfig.text, 'reminder=first');
+                assert.include(emailConfig.html, 'utm_campaign=fx-first-verification-reminder');
+                assert.include(emailConfig.text, 'utm_campaign=fx-first-verification-reminder');
+                assert.include(emailConfig.html, 'utm_content=fx-confirm-email-oneclick');
+                assert.include(emailConfig.text, 'utm_content=fx-confirm-email');
+                assert.equal(emailConfig.subject, 'Reminder: Confirm your email to activate your Firefox Account');
+              });
+              return mailer[type](message);
+            });
+            break;
+
+          case 'verificationReminderSecondEmail':
+            it('emailConfig includes data specific to verificationReminderSecondEmail', () => {
+              mailer.mailer.sendMail = stubSendMail(emailConfig => {
+                assert.include(emailConfig.html, 'reminder=second');
+                assert.include(emailConfig.text, 'reminder=second');
+                assert.include(emailConfig.html, 'utm_campaign=fx-second-verification-reminder');
+                assert.include(emailConfig.text, 'utm_campaign=fx-second-verification-reminder');
+                assert.include(emailConfig.html, 'utm_content=fx-confirm-email-oneclick');
+                assert.include(emailConfig.text, 'utm_content=fx-confirm-email');
+                assert.equal(emailConfig.subject, 'Final reminder: Confirm your email to activate your Firefox Account');
+              });
+              return mailer[type](message);
+            });
+            break;
         }
       }
     );
@@ -897,15 +926,15 @@ describe(
 
         return mailer.send(message)
           .then(() => {
-            assert.equal(mockLog.info.callCount, 3);
-            const emailEventLog = mockLog.info.getCalls()[2];
+            assert.equal(mockLog.info.callCount, 4);
+            const emailEventLog = mockLog.info.getCalls()[3];
             assert.equal(emailEventLog.args[0], 'emailEvent');
             assert.equal(emailEventLog.args[1].domain, 'other');
             assert.equal(emailEventLog.args[1].flow_id, 'wibble');
             assert.equal(emailEventLog.args[1].template, 'verifyLoginEmail');
             assert.equal(emailEventLog.args[1].type, 'sent');
             assert.equal(emailEventLog.args[1].locale, 'en');
-            const mailerSend1 = mockLog.info.getCalls()[1];
+            const mailerSend1 = mockLog.info.getCalls()[2];
             assert.equal(mailerSend1.args[0], 'mailer.send.1');
             assert.equal(mailerSend1.args[1].to, message.email);
           });

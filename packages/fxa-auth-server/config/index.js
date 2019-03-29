@@ -876,7 +876,47 @@ const conf = convict({
         env: 'RECOVERY_CODE_NOTIFY_LOW_COUNT'
       }
     }
-  }
+  },
+  verificationReminders: {
+    rolloutRate: {
+      doc: 'Rollout rate for verification reminder emails, in the range 0 .. 1',
+      default: 1,
+      env: 'VERIFICATION_REMINDERS_ROLLOUT_RATE',
+      format: Number,
+    },
+    firstInterval: {
+      doc: 'Time since account creation after which the first reminder is sent',
+      default: '1 day',
+      env: 'VERIFICATION_REMINDERS_FIRST_INTERVAL',
+      format: 'duration',
+    },
+    secondInterval: {
+      doc: 'Time since account creation after which the second reminder is sent',
+      default: '5 days',
+      env: 'VERIFICATION_REMINDERS_SECOND_INTERVAL',
+      format: 'duration',
+    },
+    redis: {
+      prefix: {
+        default: 'verificationReminders:',
+        doc: 'Key prefix for the verification reminders Redis pool',
+        env: 'VERIFICATION_REMINDERS_REDIS_PREFIX',
+        format: String,
+      },
+      maxConnections: {
+        default: 10,
+        doc: 'Maximum connection count for the verification reminders Redis pool',
+        env: 'VERIFICATION_REMINDERS_REDIS_MAX_CONNECTIONS',
+        format: 'nat',
+      },
+      minConnections: {
+        default: 1,
+        doc: 'Minimum connection count for the verification reminders Redis pool',
+        env: 'VERIFICATION_REMINDERS_REDIS_MIN_CONNECTIONS',
+        format: 'nat',
+      },
+    },
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

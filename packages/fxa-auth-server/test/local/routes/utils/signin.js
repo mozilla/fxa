@@ -399,8 +399,8 @@ describe('checkCustomsAndLoadAccount', () => {
         assert.calledWithExactly(request.emitMetricsEvent.getCall(0), 'account.login.blocked');
         assert.calledWithExactly(request.emitMetricsEvent.getCall(1), 'account.login.invalidUnblockCode');
 
-        assert.calledOnce(log.info);
-        assert.calledWithMatch(log.info, 'Account.login.unblockCode.expired');
+        assert.equal(log.info.callCount, 2);
+        assert.equal(log.info.args[1][0], 'Account.login.unblockCode.expired');
 
         assert.calledOnce(customs.flag);
         assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {

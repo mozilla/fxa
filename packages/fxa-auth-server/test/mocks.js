@@ -171,7 +171,8 @@ module.exports = {
   mockMetricsContext,
   mockPush,
   mockPushbox,
-  mockRequest
+  mockRequest,
+  mockVerificationReminders,
 };
 
 function mockCustoms (errors) {
@@ -543,7 +544,8 @@ function mockRequest (data, errors) {
   const events = require('../lib/metrics/events')(data.log || module.exports.mockLog(), {
     oauth: {
       clientIds: data.clientIds || {}
-    }
+    },
+    verificationReminders: {},
   });
   const metricsContext = data.metricsContext || module.exports.mockMetricsContext();
 
@@ -610,5 +612,14 @@ function mockRequest (data, errors) {
     setMetricsFlowCompleteSignal: metricsContext.setFlowCompleteSignal,
     stashMetricsContext: metricsContext.stash,
     validateMetricsContext: metricsContext.validate
+  };
+}
+
+function mockVerificationReminders (data = {}) {
+  return {
+    keys: [ 'first', 'second', 'third' ],
+    create: sinon.spy(() => data.create || { first: 1, second: 1, third: 1 }),
+    delete: sinon.spy(() => data.delete || { first: 1, second: 1, third: 1 }),
+    process: sinon.spy(() => data.process || { first: [], second: [], third: [] }),
   };
 }

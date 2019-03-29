@@ -105,6 +105,11 @@ module.exports = (log, config) => {
     throw new TypeError('Missing argument');
   }
 
+  const verificationReminders = require('../verification-reminders')(log, config);
+  verificationReminders.keys.forEach(key => {
+    EMAIL_TYPES[`verificationReminder${key[0].toUpperCase()}${key.substr(1)}Email`] = 'registration';
+  });
+
   const transformEvent = initialize(config.oauth.clientIds, EVENTS, FUZZY_EVENTS);
 
   return receiveEvent;

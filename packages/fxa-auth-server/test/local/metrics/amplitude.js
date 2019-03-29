@@ -19,11 +19,11 @@ describe('metrics/amplitude', () => {
   });
 
   it('throws if log argument is missing', () => {
-    assert.throws(() => amplitudeModule(null, { oauth: { clientIds: {} } }));
+    assert.throws(() => amplitudeModule(null, { oauth: { clientIds: {} }, verificationReminders: {} }));
   });
 
   it('throws if config argument is missing', () => {
-    assert.throws(() => amplitudeModule({}, { oauth: { clientIds: null } }));
+    assert.throws(() => amplitudeModule({}, { oauth: { clientIds: null }, verificationReminders: {} }));
   });
 
   describe('instantiate', () => {
@@ -37,7 +37,12 @@ describe('metrics/amplitude', () => {
             0: 'amo',
             1: 'pocket'
           }
-        }
+        },
+        verificationReminders: {
+          firstInterval: 1000,
+          secondInterval: 2000,
+          thirdInterval: 3000,
+        },
       });
     });
 
@@ -823,6 +828,131 @@ describe('metrics/amplitude', () => {
         const args = log.amplitudeEvent.args[0];
         assert.equal(args[0].event_type, 'fxa_email - sent');
         assert.equal(args[0].event_properties.email_type, 'unblock');
+      });
+    });
+
+    describe('email.verificationReminderFirstEmail.bounced', () => {
+      beforeEach(() => {
+        return amplitude('email.verificationReminderFirstEmail.bounced', mocks.mockRequest({}));
+      });
+
+      it('did not call log.error', () => {
+        assert.equal(log.error.callCount, 0);
+      });
+
+      it('called log.amplitudeEvent correctly', () => {
+        assert.equal(log.amplitudeEvent.callCount, 1);
+        const args = log.amplitudeEvent.args[0];
+        assert.equal(args[0].event_type, 'fxa_email - bounced');
+        assert.equal(args[0].event_properties.email_type, 'registration');
+      });
+    });
+
+    describe('email.verificationReminderFirstEmail.sent', () => {
+      beforeEach(() => {
+        return amplitude('email.verificationReminderFirstEmail.sent', mocks.mockRequest({}), {
+          templateVersion: 1,
+        });
+      });
+
+      it('did not call log.error', () => {
+        assert.equal(log.error.callCount, 0);
+      });
+
+      it('called log.amplitudeEvent correctly', () => {
+        assert.equal(log.amplitudeEvent.callCount, 1);
+        const args = log.amplitudeEvent.args[0];
+        assert.equal(args[0].event_type, 'fxa_email - sent');
+        assert.equal(args[0].event_properties.email_type, 'registration');
+        assert.equal(args[0].event_properties.email_template, 'verificationReminderFirstEmail');
+      });
+    });
+
+    describe('email.verificationReminderSecondEmail.bounced', () => {
+      beforeEach(() => {
+        return amplitude('email.verificationReminderSecondEmail.bounced', mocks.mockRequest({}));
+      });
+
+      it('did not call log.error', () => {
+        assert.equal(log.error.callCount, 0);
+      });
+
+      it('called log.amplitudeEvent correctly', () => {
+        assert.equal(log.amplitudeEvent.callCount, 1);
+        const args = log.amplitudeEvent.args[0];
+        assert.equal(args[0].event_type, 'fxa_email - bounced');
+        assert.equal(args[0].event_properties.email_type, 'registration');
+      });
+    });
+
+    describe('email.verificationReminderSecondEmail.sent', () => {
+      beforeEach(() => {
+        return amplitude('email.verificationReminderSecondEmail.sent', mocks.mockRequest({}));
+      });
+
+      it('did not call log.error', () => {
+        assert.equal(log.error.callCount, 0);
+      });
+
+      it('called log.amplitudeEvent correctly', () => {
+        assert.equal(log.amplitudeEvent.callCount, 1);
+        const args = log.amplitudeEvent.args[0];
+        assert.equal(args[0].event_type, 'fxa_email - sent');
+        assert.equal(args[0].event_properties.email_type, 'registration');
+      });
+    });
+
+    describe('email.verificationReminderThirdEmail.bounced', () => {
+      beforeEach(() => {
+        return amplitude('email.verificationReminderThirdEmail.bounced', mocks.mockRequest({}));
+      });
+
+      it('did not call log.error', () => {
+        assert.equal(log.error.callCount, 0);
+      });
+
+      it('called log.amplitudeEvent correctly', () => {
+        assert.equal(log.amplitudeEvent.callCount, 1);
+        const args = log.amplitudeEvent.args[0];
+        assert.equal(args[0].event_type, 'fxa_email - bounced');
+        assert.equal(args[0].event_properties.email_type, 'registration');
+      });
+    });
+
+    describe('email.verificationReminderThirdEmail.sent', () => {
+      beforeEach(() => {
+        return amplitude('email.verificationReminderThirdEmail.sent', mocks.mockRequest({}));
+      });
+
+      it('did not call log.error', () => {
+        assert.equal(log.error.callCount, 0);
+      });
+
+      it('called log.amplitudeEvent correctly', () => {
+        assert.equal(log.amplitudeEvent.callCount, 1);
+        const args = log.amplitudeEvent.args[0];
+        assert.equal(args[0].event_type, 'fxa_email - sent');
+        assert.equal(args[0].event_properties.email_type, 'registration');
+      });
+    });
+
+    describe('email.verificationReminderFourthEmail.bounced', () => {
+      beforeEach(() => {
+        return amplitude('email.verificationReminderFourthEmail.bounced', mocks.mockRequest({}));
+      });
+
+      it('did not call log.amplitudeEvent', () => {
+        assert.equal(log.amplitudeEvent.callCount, 0);
+      });
+    });
+
+    describe('email.verificationReminderFourthEmail.sent', () => {
+      beforeEach(() => {
+        return amplitude('email.verificationReminderFourthEmail.sent', mocks.mockRequest({}));
+      });
+
+      it('did not call log.amplitudeEvent', () => {
+        assert.equal(log.amplitudeEvent.callCount, 0);
       });
     });
 

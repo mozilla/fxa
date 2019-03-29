@@ -1,0 +1,12 @@
+{{t "Hello again."}}
+
+{{t "You recently created a Firefox Account but haven't confirmed your email yet."}}
+
+{{t "Confirm your email so that you can start using Firefox Sync, Pocket, Lockbox, Firefox Send, Monitor and more."}}
+
+{{t "Confirm email:"}} {{{link}}}
+
+{{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit %(supportUrl)s"}}}
+
+Mozilla. 331 E Evelyn Ave, Mountain View, CA 94041
+{{t "Mozilla Privacy Policy" }} {{{privacyUrl}}}

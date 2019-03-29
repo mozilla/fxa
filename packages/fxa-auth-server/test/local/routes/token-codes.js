@@ -45,8 +45,8 @@ describe('/session/verify/token', () => {
     });
 
     it('called log.info correctly', () => {
-      assert.equal(log.info.callCount, 1);
-      const args = log.info.args[0];
+      assert.equal(log.info.callCount, 2);
+      const args = log.info.args[1];
       assert.equal(args.length, 2);
       assert.equal(args[0], 'account.token.code.verified');
     });

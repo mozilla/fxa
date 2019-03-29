@@ -533,6 +533,7 @@ function getConfig () {
     metrics: {
       flow_id_expiry: 7200000,
       flow_id_key: 'wibble'
-    }
+    },
+    verificationReminders: {},
   };
 }

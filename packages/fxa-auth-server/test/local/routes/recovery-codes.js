@@ -63,8 +63,8 @@ describe('recovery codes', () => {
           assert.equal(args[0], UID, 'called with uid');
           assert.equal(args[1], 8, 'called with recovery code count');
 
-          assert.equal(log.info.callCount, 1);
-          args = log.info.args[0];
+          assert.equal(log.info.callCount, 2);
+          args = log.info.args[1];
           assert.equal(args[0], 'account.recoveryCode.replaced');
           assert.equal(args[1].uid, UID);
         });

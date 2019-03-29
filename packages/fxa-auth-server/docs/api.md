@@ -1785,10 +1785,10 @@ not just the one being attached to the Firefox account.
   Opaque alphanumeric token to be included in verification links.
   <!--end-request-body-post-recovery_emailverify_code-service-->
 
-* `reminder`: *string, max(32), alphanum, optional*
+* `reminder`: *string, regex(/^(?:first|second)$/), optional*
 
   <!--begin-request-body-post-recovery_emailverify_code-reminder-->
-  Deprecated.
+  Indicates that verification originates from a reminder email.
   <!--end-request-body-post-recovery_emailverify_code-reminder-->
 
 * `type`: *string, max(32), alphanum, optional*

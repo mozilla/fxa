@@ -38,6 +38,7 @@ module.exports = function (log, config, oauthdb) {
     // Fallback to a stub implementation if redis is disabled
     get: () => P.resolve()
   };
+  const verificationReminders = require('../verification-reminders')(log, config);
 
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
@@ -588,6 +589,49 @@ module.exports = function (log, config, oauthdb) {
       metricsTemplate: metricsTemplateName
     }));
   };
+
+
+  verificationReminders.keys.forEach((key, index) => {
+    // Template names are generated in the form `verificationReminderFirstEmail`,
+    // where `First` is the key derived from config, with an initial capital letter.
+    const template = `verificationReminder${key[0].toUpperCase()}${key.substr(1)}Email`;
+    let subject;
+    if (index < verificationReminders.keys.length - 1) {
+      subject = gettext('Reminder: Confirm your email to activate your Firefox Account');
+    } else {
+      subject = gettext('Final reminder: Confirm your email to activate your Firefox Account');
+    }
+
+    templateNameToCampaignMap[template] = `${key}-verification-reminder`;
+    templateNameToContentMap[template] = 'confirm-email';
+
+    Mailer.prototype[template] = async function (message) {
+      const { code, email, uid } = message;
+
+      log.trace(`mailer.${template}`, { code, email, uid });
+
+      const query = { code, reminder: key, uid };
+      const links = this._generateLinks(this.verificationUrl, email, query, template);
+      const headers = {
+        'X-Link': links.link,
+        'X-Verify-Code': message.code
+      };
+
+      return this.send(Object.assign({}, message, {
+        headers,
+        subject,
+        template,
+        templateValues: {
+          email,
+          link: links.link,
+          oneClickLink: links.oneClickLink,
+          privacyUrl: links.privacyUrl,
+          supportUrl: links.supportUrl,
+          supportLinkAttributes: links.supportLinkAttributes,
+        },
+      }));
+    };
+  });
 
   Mailer.prototype.unblockCodeEmail = function (message) {
     log.trace('mailer.unblockCodeEmail', { email: message.email, uid: message.uid });
