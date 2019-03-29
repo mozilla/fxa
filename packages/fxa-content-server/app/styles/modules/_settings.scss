@@ -113,7 +113,7 @@ body.settings #main-content.card {
     z-index: 2;
 
     @include respond-to('big') {
-      margin: 0px;
+      margin: 0;
       position: absolute;
       top: 64px;
       width: 100%;
@@ -558,6 +558,10 @@ section.modal-panel {
   &[data-name='Fenix'],
   &[data-name='Android Components Reference Browser'] {
     background-image: url('/images/icon-device-phone-android.svg');
+  }
+
+  &[data-name='Firefox Send'] {
+    background-image: url('/images/icon-service-send.svg');
   }
 }
 
