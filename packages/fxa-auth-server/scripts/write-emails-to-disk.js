@@ -31,12 +31,15 @@
 
 'use strict';
 
+// HACK: Prevent config falling over due to missing secrets
+process.env.NODE_ENV = 'dev';
+
 const P = require('bluebird');
 const config = require('../config').getProperties();
 const error = require('../lib/error');
 const createSenders = require('../lib/senders');
 const fs = require('fs');
-const log = require('../lib/senders/legacy_log')(require('../lib/senders/log')('server'));
+const log = require('../lib/log')({});
 const mkdirp = require('mkdirp');
 const path = require('path');
 
@@ -65,7 +68,7 @@ const bounces = {
 
 require('../lib/senders/translator')(config.i18n.supportedLanguages, config.i18n.defaultLanguage)
   .then(translator => {
-    return createSenders(log, config, error, bounces, translator, mailSender);
+    return createSenders(log, config, error, bounces, translator, {}, mailSender);
   })
   .then((senders) => {
     const mailer = senders.email._ungatedMailer;
@@ -77,6 +80,11 @@ require('../lib/senders/translator')(config.i18n.supportedLanguages, config.i18n
   })
   .then(() => {
     console.info('done');
+    process.exit(0);
+  })
+  .catch(err => {
+    console.error(err.stack);
+    process.exit(1);
   });
 
 function getEmailOutputPath(subject, extension) {
