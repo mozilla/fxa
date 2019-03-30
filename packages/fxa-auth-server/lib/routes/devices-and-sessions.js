@@ -473,14 +473,15 @@ module.exports = (log, db, config, customs, push, pushbox, devices, oauthdb) => 
       handler: async function (request) {
         log.begin('Account.devices', request);
 
-        const sessionToken = request.auth.credentials;
+        const credentials = request.auth.credentials;
 
         return request.app.devices
           .then(deviceArray => {
             return deviceArray.map(device => {
               return Object.assign({
                 id: device.id,
-                isCurrentDevice: device.sessionToken === sessionToken.id,
+                isCurrentDevice: !! ((credentials.id && credentials.id === device.sessionToken) ||
+                  (credentials.refreshTokenId && credentials.refreshTokenId === device.refreshTokenId)),
                 location: marshallLocation(device.location, request),
                 name: device.name || devices.synthesizeName(device),
                 type: device.type || device.uaDeviceType || 'desktop',

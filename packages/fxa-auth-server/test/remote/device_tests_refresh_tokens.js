@@ -242,6 +242,37 @@ describe('remote device with refresh tokens', function () {
     });
   });
 
+  it('sets isCurrentDevice correctly', async () => {
+    const generateTokenInfo = {
+      clientId: buf(PUBLIC_CLIENT_ID),
+      userId: buf(client.uid),
+      email: client.email,
+      scope: 'profile https://identity.mozilla.com/apps/oldsync'
+    };
+    const refreshToken = await oauthServerDb.generateRefreshToken(generateTokenInfo);
+    const refreshToken2 = await oauthServerDb.generateRefreshToken(generateTokenInfo);
+    const deviceInfo = {name: 'first device'};
+    const deviceInfo2 = {name: 'second device'};
+    await client.updateDeviceWithRefreshToken(refreshToken.token.toString('hex'), deviceInfo);
+    await client.updateDeviceWithRefreshToken(refreshToken2.token.toString('hex'), deviceInfo2);
+
+    const devices = await client.devicesWithRefreshToken(refreshToken.token.toString('hex'));
+    assert.equal(devices.length, 2);
+    if (devices[0].name === deviceInfo.name) {
+      // database results are unordered, swap them if necessary
+      const swap = {};
+      Object.keys(devices[0]).forEach((key) => {
+        swap[key] = devices[0][key];
+        devices[0][key] = devices[1][key];
+        devices[1][key] = swap[key];
+      });
+    }
+    assert.equal(devices[0].isCurrentDevice, false);
+    assert.equal(devices[0].name, deviceInfo2.name);
+    assert.equal(devices[1].isCurrentDevice, true);
+    assert.equal(devices[1].name, deviceInfo.name);
+  });
+
   it('does not allow non-public clients', () => {
     return oauthServerDb.generateRefreshToken({
       clientId: buf(NON_PUBLIC_CLIENT_ID),
