@@ -3,7 +3,7 @@
     {
       "name": "auth-server local mail helper",
       "script": "test/mail_helper.js",
-      "cwd": "fxa-auth-server",
+      "cwd": "packages/fxa-auth-server",
       "env": {
         "NODE_ENV": "dev"
       },
@@ -13,7 +13,7 @@
     {
       "name": "auth-server db memory PORT 8000",
       "script": "node_modules/fxa-auth-db-mysql/bin/mem.js",
-      "cwd": "fxa-auth-server",
+      "cwd": "packages/fxa-auth-server",
       "env": {
         "NODE_ENV": "dev"
       },
@@ -23,7 +23,7 @@
     {
       "name": "auth-server key server PORT 9000",
       "script": "bin/key_server.js",
-      "cwd": "fxa-auth-server",
+      "cwd": "packages/fxa-auth-server",
       "env": {
         "NODE_ENV": "dev",
         "IP_ADDRESS": "0.0.0.0",
@@ -38,7 +38,7 @@
       "name": "content-server PORT 3030",
       "script": "node_modules/.bin/grunt",
       "args": ["server"],
-      "cwd": "fxa-content-server",
+      "cwd": "packages/fxa-content-server",
       "env": {
         "NODE_ENV": "development"
       },
@@ -48,21 +48,21 @@
     {
       "name": "fxa-basket-proxy PORT 1114",
       "script": "./bin/basket-proxy-server.js",
-      "cwd": "fxa-basket-proxy",
+      "cwd": "packages/fxa-basket-proxy",
       "max_restarts": "1",
       "min_uptime": "2m"
     },
     {
       "name": "fxa-basket-proxy fake basket server PORT 10140",
       "script": "./bin/fake-basket-server.js",
-      "cwd": "fxa-basket-proxy",
+      "cwd": "packages/fxa-basket-proxy",
       "max_restarts": "1",
       "min_uptime": "2m"
     },
     {
       "name": "oauth-server PORT 9010",
       "script": "./bin/server.js",
-      "cwd": "fxa-auth-server/fxa-oauth-server",
+      "cwd": "packages/fxa-auth-server/fxa-oauth-server",
       "env": {
         "NODE_ENV": "dev",
         "HOST" : "0.0.0.0"
@@ -73,7 +73,7 @@
     {
       "name": "profile-server PORT 1111",
       "script": "bin/server.js",
-      "cwd": "fxa-profile-server",
+      "cwd": "packages/fxa-profile-server",
       "max_restarts": "1",
       "env": {
         "NODE_ENV": "development",
@@ -84,7 +84,7 @@
     {
       "name": "profile-server static dev PORT 1112",
       "script": "bin/_static.js",
-      "cwd": "fxa-profile-server",
+      "cwd": "packages/fxa-profile-server",
       "max_restarts": "1",
       "env": {
         "NODE_ENV": "development"
@@ -94,7 +94,7 @@
     {
       "name": "profile-server worker PORT 1113",
       "script": "bin/worker.js",
-      "cwd": "fxa-profile-server",
+      "cwd": "packages/fxa-profile-server",
       "max_restarts": "1",
       "env": {
         "NODE_ENV": "development",
@@ -105,7 +105,7 @@
     {
       "name": "123done PORT 8080",
       "script": "server.js",
-      "cwd": "123done",
+      "cwd": "packages/123done",
       "max_restarts": "1",
       "env": {
         "CONFIG_123DONE": "./config-local.json",
@@ -116,7 +116,7 @@
     {
       "name": "321done UNTRUSTED PORT 10139",
       "script": "server.js",
-      "cwd": "123done",
+      "cwd": "packages/123done",
       "max_restarts": "1",
       "env": {
         "CONFIG_123DONE": "./config-local-untrusted.json",
@@ -127,7 +127,7 @@
     {
       "name": "browserid-verifier PORT 5050",
       "script": "server.js",
-      "cwd": "browserid-verifier",
+      "cwd": "packages/browserid-verifier",
       "env": {
         "PORT": "5050",
         "IP_ADDRESS": "0.0.0.0",
@@ -168,7 +168,7 @@
     {
       "name": "email-service PORT 8001",
       "script": "scripts/run_send.sh",
-      "cwd": "fxa-email-service",
+      "cwd": "packages/fxa-email-service",
       "env": {
         "NODE_ENV": "dev"
       },

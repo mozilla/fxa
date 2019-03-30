@@ -3,17 +3,8 @@
 set -ex
 
 if [[ ! $(which rustup) ]]; then
-  curl https://sh.rustup.rs -sSf | sh
+  curl https://sh.rustup.rs -sSf | sh -s -- -y
   export PATH=$PATH:$HOME/.cargo/bin/
-  exit 1
-fi
-
-if [[ $(which node) && $(node --version) ]]; then
-  node _scripts/check_node_version.js
-else
-  echo "install node to continue installation"
-  echo "https://nodejs.org"
-  exit 1
 fi
 
 if [[ $(which docker) && $(docker --version) ]]; then

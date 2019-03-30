@@ -29,12 +29,12 @@ servers.apps.forEach((app) => {
     return;
   }
 
-  if(app.cwd === 'fxa-auth-server/fxa-oauth-server') {
+  if(app.cwd === 'packages/fxa-auth-server/fxa-oauth-server') {
     app.env.DB = 'mysql';
     app.script = '_scripts/oauth_mysql.sh';
   }
 
-  if(app.cwd === 'fxa-profile-server' && app.script === 'bin/server.js'){
+  if(app.cwd === 'packages/fxa-profile-server' && app.script === 'bin/server.js'){
     app.env.DB = 'mysql';
     app.script = '_scripts/profile_mysql.sh';
   }

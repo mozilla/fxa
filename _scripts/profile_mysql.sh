@@ -5,5 +5,5 @@ check_mysql
 mysqlStarted=$?
 
 if [ "$mysqlStarted" ]; then
-  node ../fxa-profile-server/bin/server.js 
+  node ../packages/fxa-profile-server/bin/server.js
 fi

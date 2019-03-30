@@ -1,7 +1,0 @@
----
-ip: "192.168.50.10"
-
-memory: 2048
-
-#push.app:
-#push.dir:

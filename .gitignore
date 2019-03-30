@@ -1,6 +1,3 @@
-fxa-*
-123done
-browserid-verifier
 loop-server
 syncserver
 selenium-*
@@ -8,11 +5,7 @@ selenium-*
 servers_android.json
 
 node_modules
-package-lock.json
 
 pm2
 dump.rdb
 *.log
-
-.vagrant
-local_config.yaml

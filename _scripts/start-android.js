@@ -1,7 +1,6 @@
 var fs = require('fs');
 var path = require('path');
 var execSync = require('child_process').execSync;
-var _ = require('lodash');
 var chalk = require('chalk');
 var internalIp = require('internal-ip');
 var ip = internalIp.v4();
@@ -10,7 +9,7 @@ function createConfig () {
   var servers = require('../servers.json');
 
   function findConfig(name) {
-    return _.findIndex(servers.apps, function(obj) {
+    return servers.apps.findIndex(servers.apps, function(obj) {
       return obj.name === name;
     });
   }

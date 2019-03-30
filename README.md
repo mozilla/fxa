@@ -1,7 +1,6 @@
-## fxa-local-dev [![Build Status](https://travis-ci.org/mozilla/fxa-local-dev.svg?branch=master)](https://travis-ci.org/mozilla/fxa-local-dev) ![](https://img.shields.io/badge/tested_on-OS%20X%20and_Ubuntu-brightgreen.svg)
-> An easy way to contribute to Firefox Accounts. If you have issues please ask in `#fxa` on Mozilla IRC.
+## Firefox Accounts
 
-> ⚠️ **NOTE:  Do not use this project in production, this is only for local development.**
+The Firefox Accounts (fxa) monorepo
 
 ### Getting Started
 
@@ -10,13 +9,13 @@
 2. Clone this repository.
 
    ```sh
-   git clone https://github.com/mozilla/fxa-local-dev.git
+   git clone https://github.com/mozilla/fxa.git
    ```
 
 3. Run:
 
    ```sh
-   cd fxa-local-dev
+   cd fxa
    npm install
    ```
 
@@ -55,9 +54,9 @@ When you want to [fetch the latest changes](_scripts/update_all.sh) to all serve
 *******
 
 ### Workflow
-> This is an example workflow for **fxa-local-dev**.
+> This is an example workflow for **fxa**.
 
-After installing **fxa-local-dev** the servers should automatically start up. Use `./pm2 status` command to check the status of the servers:
+After installing **fxa** the servers should automatically start up. Use `./pm2 status` command to check the status of the servers:
 
 ![](http://i.imgur.com/eqL8FiZ.png)
 
@@ -106,7 +105,7 @@ sudo easy_install pip && sudo pip install virtualenv
 sudo apt-get install build-essential git-core libgmp3-dev graphicsmagick  python-virtualenv
 python-dev docker-ce
 ```
-Docker commands require sudo, to avoid it, follow steps below:  
+Docker commands require sudo, to avoid it, follow steps below:
 1. Add the docker group if it doesn't already exist
 ```
 sudo groupadd docker
@@ -122,22 +121,7 @@ sudo service docker restart
 
 #### Installing Node.js
 
-> NOTE: If you are experienced with Node.js: Use [nvm](https://github.com/creationix/nvm) to force node 8
-just for `fxa-local-dev` using `nvm use 8`. (Install it first with `nvm install 8`)
-
-##### Ubuntu / Debian:
-
-```
-# Using Ubuntu
-curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# Using Debian, as root
-curl -sL https://deb.nodesource.com/setup_8.x | bash -
-apt-get install -y nodejs
-```
-
-> NOTE: Node 8 and greater require C++11, that [does not come by default on Ubuntu 12](https://github.com/nodesource/distributions/blob/master/OLDER_DISTROS.md).
+See https://nodejs.org
 
 #### Installing Java
 
@@ -177,8 +161,6 @@ Available options:
 **The following requires [the JDK](http://www.oracle.com/technetwork/java/javase/downloads/index-jsp-138363.html#javasejdk) and tests the local servers only.**
 
 **Use `npm test` - all functional tests**
-
-**Use `npm run test-oauth` - only OAuth functional tests**
 
 *******
 
@@ -235,7 +217,7 @@ After the script you need to rebuild *firefox-ios*.
 
 ### Running with MailDev
 
-If you want to inspect emails, you can run fxa-local-dev with [MailDev](https://www.npmjs.com/package/maildev).
+If you want to inspect emails, you can run fxa with [MailDev](https://www.npmjs.com/package/maildev).
 
 #### Install
 ```bash

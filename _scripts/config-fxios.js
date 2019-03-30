@@ -3,7 +3,6 @@
 var path = require('path');
 
 var r = require('replace-in-file');
-var Promise = require('bluebird');
 
 var ios_path = process.env.FIREFOX_IOS_HOME;
 

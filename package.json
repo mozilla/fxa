@@ -1,42 +1,59 @@
 {
-  "name": "fxa-local-dev",
-  "version": "1.0.2",
-  "description": "An easy way to contribute to Firefox Accounts",
+  "name": "fxa",
+  "version": "2.0.0",
+  "description": "Firefox Accounts monorepo",
   "scripts": {
     "postinstall": "_scripts/postinstall.sh",
     "install-extras": "_scripts/install_extras.sh",
     "update": "./pm2 kill && _scripts/update_all.sh",
     "start": "fxa-dev-launcher",
     "start-android": "node _scripts/start-android.js",
-    "test": "node test/functional.js --suite=full",
-    "test-core": "node test/functional.js --suite=core",
-    "test-oauth": "node test/functional.js --suite=oauth",
+    "test": "lerna run test",
     "config-fxios": "node _scripts/config-fxios.js"
   },
-  "homepage": "https://github.com/mozilla/fxa-local-dev",
+  "homepage": "https://github.com/mozilla/fxa",
   "bugs": {
-    "url": "https://github.com/mozilla/fxa-local-dev/issues"
+    "url": "https://github.com/mozilla/fxa/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mozilla/fxa-local-dev"
+    "url": "https://github.com/mozilla/fxa"
   },
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
   "dependencies": {
-    "bluebird": "2.10.2",
     "chalk": "1.1.1",
-    "check-node-version": "3.2.0",
-    "foxfire": "1.1.0",
+    "diffparser": "^2.0.1",
     "fxa-dev-launcher": "vladikoff/fxa-dev-launcher",
     "internal-ip": "1.2.0",
-    "lodash": "4.17.10",
-    "minimist": "1.1.1",
-    "pm2": "3.0.4",
+    "lerna": "^3.13.1",
+    "node-fetch": "^2.3.0",
+    "pm2": "^3.4.1",
     "replace-in-file": "0.2.1"
-    },
-    "engines": {
-      "node": ">=10",
-      "npm": ">=6.4.1"
+  },
+  "engines": {
+    "node": ">=10",
+    "npm": ">=6.4.1"
+  },
+  "fxa": {
+    "moduleDependencies": {
+      "fxa-content-server": [
+        "fxa-auth-server",
+        "fxa-js-client",
+        "fxa-shared",
+        "fxa-profile-server",
+        "fxa-oauth-server"
+      ],
+      "fxa-auth-server": [
+        "fxa-auth-db-mysql",
+        "fxa-shared"
+      ],
+      "fxa-js-client": [
+        "fxa-auth-server"
+      ],
+      "fxa-profile-server": [
+        "fxa-auth-server"
+      ]
     }
+  }
 }

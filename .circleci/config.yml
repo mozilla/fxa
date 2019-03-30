@@ -1,0 +1,313 @@
+version: 2.1
+
+executors:
+  nodejs:
+    docker:
+      - image: circleci/node:10
+commands:
+  npm-install:
+    parameters:
+      module:
+        type: string
+        default: "dependencies"
+    steps:
+      - restore_cache:
+          keys:
+            - v2-<< parameters.module >>-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v2-<< parameters.module >>-
+      - run: npm ci
+      - save_cache:
+          paths:
+            - node_modules
+          key: v2-<< parameters.module >>-{{ checksum "package.json" }}
+
+jobs:
+  install:
+    executor: nodejs
+    steps:
+      - checkout
+      - npm-install
+      - run:
+          name: Create version.json
+          command: >
+            printf '{"version":{"hash":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}}\n'
+            "$CIRCLE_SHA1"
+            "$CIRCLE_TAG"
+            "$CIRCLE_PROJECT_USERNAME"
+            "$CIRCLE_PROJECT_REPONAME"
+            "$CIRCLE_BUILD_URL"
+            | tee packages/version.json
+      - run: node .circleci/modules-to-test.js | tee packages/test.list
+
+      - store_artifacts:
+          path: packages/version.json
+
+      - persist_to_workspace:
+          root: ~/.
+          paths:
+            - project/*
+
+  build-module:
+    executor: nodejs
+    parameters:
+      module:
+        type: string
+      test:
+        type: string
+        default: test
+      db:
+        type: boolean
+        default: false
+    working_directory: ~/project/packages/<< parameters.module >>
+    steps:
+      - attach_workspace:
+          at: ~/.
+
+      - setup_remote_docker
+
+      - when:
+          condition: << parameters.db >>
+          steps:
+            - run:
+                name: Start mysql
+                command: docker pull mysql/mysql-server:5.6 && docker run -d --name=mydb -e MYSQL_ALLOW_EMPTY_PASSWORD=true -e MYSQL_ROOT_HOST=% -p 3306:3306 mysql/mysql-server:5.6
+            - run:
+                name: Start memcached
+                command: docker pull memcached && docker run -d --name memcached -p 11211:11211 memcached
+
+            - run:
+                name: Start redis
+                command: docker pull redis && docker run -d --name redis-server -p 6379:6379 redis
+
+      - run: ../../.circleci/build-test-deploy.sh << parameters.test >>
+
+  deploy-module:
+    executor: nodejs
+    parameters:
+      module:
+        type: string
+    working_directory: ~/project/packages/<< parameters.module >>
+    steps:
+      - attach_workspace:
+          at: ~/.
+      - setup_remote_docker
+      - run: ../../.circleci/build.sh << parameters.module >>
+      - run: ../../.circleci/deploy.sh << parameters.module >>
+
+  fxa-oauth-server:
+    executor: nodejs
+    working_directory: ~/project/packages/fxa-auth-server
+    steps:
+      - attach_workspace:
+          at: ~/.
+
+      - setup_remote_docker
+
+      - run:
+          name: Start mysql
+          command: docker pull mysql/mysql-server:5.6 && docker run -d --name=mydb -e MYSQL_ALLOW_EMPTY_PASSWORD=true -e MYSQL_ROOT_HOST=% -p 3306:3306 mysql/mysql-server:5.6
+
+      - run: ../../.circleci/build.sh fxa-oauth-server
+      - run: ../../.circleci/test.sh fxa-oauth-server
+      - run: ../../.circleci/deploy.sh fxa-oauth-server
+
+  install-content-server:
+    executor: nodejs
+    working_directory: ~/project/packages/fxa-content-server
+    steps:
+      - attach_workspace:
+          at: ~/.
+
+      - setup_remote_docker
+
+      - run: ../../.circleci/install-content-server.sh
+
+      - persist_to_workspace:
+          root: ~/.
+          paths:
+            - project/*
+
+  test-content-server:
+    parallelism: 3
+    docker:
+      - image: circleci/node:10-stretch-browsers
+      - image: redis
+      - image: memcached
+      - image: pafortin/goaws
+
+    working_directory: ~/project/packages/fxa-content-server
+    steps:
+      - attach_workspace:
+          at: ~/
+
+      - run: ../../.circleci/test-content-server.sh
+
+      # run pairing tests on one node
+      - deploy:
+          command: ../../.circleci/test-content-server.sh pairing
+
+      - setup_remote_docker
+
+      - deploy:
+          command: ../../.circleci/build.sh fxa-content-server
+      - deploy:
+          command: ../../.circleci/deploy.sh fxa-content-server
+
+      - store_artifacts:
+          path: ~/.pm2/logs
+          destination: logs
+
+  fxa-shared:
+    docker:
+      - image: circleci/node:10
+      - image: redis
+    working_directory: ~/project/packages/fxa-shared
+    steps:
+      - attach_workspace:
+          at: ~/
+
+      - npm-install:
+          module: fxa-shared
+      - run: rm ~/project/package.json
+      - run: npm run lint
+      - run: npm test
+
+  js-client:
+    docker:
+      - image: circleci/node:8
+    working_directory: ~/project/packages/fxa-js-client
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: ../../.circleci/test-js-client.sh
+
+workflows:
+  test:
+    jobs:
+      - install
+      - build-module:
+          name: 123done
+          module: 123done
+          requires:
+            - install
+      - build-module:
+          name: browserid-verifier
+          module: browserid-verifier
+          requires:
+            - install
+      - build-module:
+          name: fxa-auth-db-mysql
+          module: fxa-auth-db-mysql
+          db: true
+          requires:
+            - install
+      - build-module:
+          name: fxa-auth-server
+          module: fxa-auth-server
+          db: true
+          test: test-ci
+          requires:
+            - install
+      - build-module:
+          name: fxa-basket-proxy
+          module: fxa-basket-proxy
+          requires:
+            - install
+      - build-module:
+          name: fxa-customs-server
+          module: fxa-customs-server
+          db: true
+          requires:
+            - install
+      - build-module:
+          name: fxa-email-service
+          module: fxa-email-service
+          requires:
+            - install
+      - build-module:
+          name: fxa-oauth-console
+          module: fxa-oauth-console
+          requires:
+            - install
+      - build-module:
+          name: fxa-profile-server
+          module: fxa-profile-server
+          requires:
+            - install
+      - install-content-server:
+          requires:
+            - install
+      - test-content-server:
+          requires:
+            - install-content-server
+      - fxa-shared:
+          requires:
+            - install
+      - js-client:
+          requires:
+            - install
+      - fxa-oauth-server:
+          requires:
+            - install
+  deploy-tag:
+    jobs:
+      - install:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+      - deploy-module:
+          name: 123done
+          module: 123done
+          requires:
+            - install
+      - deploy-module:
+          name: browserid-verifier
+          module: browserid-verifier
+          requires:
+            - install
+      - deploy-module:
+          name: fxa-auth-db-mysql
+          module: fxa-auth-db-mysql
+          requires:
+            - install
+      - deploy-module:
+          name: fxa-auth-server
+          module: fxa-auth-server
+          requires:
+            - install
+      - deploy-module:
+          name: fxa-basket-proxy
+          module: fxa-basket-proxy
+          requires:
+            - install
+      - deploy-module:
+          name: fxa-customs-server
+          module: fxa-customs-server
+          requires:
+            - install
+      - deploy-module:
+          name: fxa-email-service
+          module: fxa-email-service
+          requires:
+            - install
+      - deploy-module:
+          name: fxa-oauth-console
+          module: fxa-oauth-console
+          requires:
+            - install
+      - deploy-module:
+          name: fxa-profile-server
+          module: fxa-profile-server
+          requires:
+            - install
+      - deploy-module:
+          name: fxa-content-server
+          module: fxa-content-server
+          requires:
+            - install
+      - fxa-oauth-server:
+          requires:
+            - install

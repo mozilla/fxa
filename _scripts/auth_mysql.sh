@@ -5,5 +5,5 @@ check_mysql
 mysqlStarted=$?
 
 if [ "$mysqlStarted" ]; then
-  node ../fxa-auth-db-mysql/bin/db_patcher.js && node ../fxa-auth-db-mysql/bin/server.js
+  node ../packages/fxa-auth-db-mysql/bin/db_patcher.js && node ../packages/fxa-auth-db-mysql/bin/server.js
 fi
