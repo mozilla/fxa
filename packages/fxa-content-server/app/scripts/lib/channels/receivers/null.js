@@ -6,23 +6,20 @@
  * A null receiver. Doesn't actually receive any messages
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const _ = require('underscore');
-  const Backbone = require('backbone');
+const _ = require('underscore');
+const Backbone = require('backbone');
 
-  function NullReceiver() {
-    // nothing to do
+function NullReceiver() {
+  // nothing to do
+}
+_.extend(NullReceiver.prototype, Backbone.Events, {
+  initialize () {
+  },
+
+  teardown () {
   }
-  _.extend(NullReceiver.prototype, Backbone.Events, {
-    initialize () {
-    },
-
-    teardown () {
-    }
-  });
-
-  module.exports = NullReceiver;
 });
 
+module.exports = NullReceiver;

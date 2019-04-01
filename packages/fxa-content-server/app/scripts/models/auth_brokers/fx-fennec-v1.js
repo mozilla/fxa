@@ -7,24 +7,22 @@
  * embedded in Firefox for Android.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const _ = require('underscore');
-  const FxSyncWebChannelAuthenticationBroker = require('../auth_brokers/fx-sync-web-channel');
+const _ = require('underscore');
+const FxSyncWebChannelAuthenticationBroker = require('../auth_brokers/fx-sync-web-channel');
 
-  var proto = FxSyncWebChannelAuthenticationBroker.prototype;
+var proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
-  var FxFennecV1AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
-    defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
-      browserTransitionsAfterEmailVerification: false,
-      chooseWhatToSyncCheckbox: false,
-      chooseWhatToSyncWebV1: true,
-      emailVerificationMarketingSnippet: false
-    }),
+var FxFennecV1AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
+  defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
+    browserTransitionsAfterEmailVerification: false,
+    chooseWhatToSyncCheckbox: false,
+    chooseWhatToSyncWebV1: true,
+    emailVerificationMarketingSnippet: false
+  }),
 
-    type: 'fx-fennec-v1'
-  });
-
-  module.exports = FxFennecV1AuthenticationBroker;
+  type: 'fx-fennec-v1'
 });
+
+module.exports = FxFennecV1AuthenticationBroker;

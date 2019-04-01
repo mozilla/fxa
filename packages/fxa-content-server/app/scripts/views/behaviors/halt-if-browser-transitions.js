@@ -8,22 +8,20 @@
  * transition, `defaultBehavior` is returned instead.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const HaltBehavior = require('views/behaviors/halt');
+const HaltBehavior = require('views/behaviors/halt');
 
-  module.exports = function (defaultBehavior) {
-    const behavior = function (view) {
-      if (view.broker.getCapability('browserTransitionsAfterEmailVerification')) {
-        return new HaltBehavior();
-      }
+module.exports = function (defaultBehavior) {
+  const behavior = function (view) {
+    if (view.broker.getCapability('browserTransitionsAfterEmailVerification')) {
+      return new HaltBehavior();
+    }
 
-      return defaultBehavior;
-    };
-
-    behavior.type = 'halt-if-browser-transitions';
-
-    return behavior;
+    return defaultBehavior;
   };
-});
+
+  behavior.type = 'halt-if-browser-transitions';
+
+  return behavior;
+};

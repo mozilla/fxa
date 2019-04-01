@@ -4,28 +4,25 @@
 
 // A utility for pre-loading images
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const _ = require('underscore');
+const _ = require('underscore');
 
-  /**
-   * Returns true if given "uri" has HTTP or HTTPS scheme
-   *
-   * @param {String} src
-   * @returns {Boolean}
-   */
-  function load (src) {
-    return new Promise((resolve, reject) => {
-      var img = new Image();
-      img.onerror = reject;
-      img.onload = _.partial(resolve, img);
-      img.src = src;
-    });
-  }
+/**
+ * Returns true if given "uri" has HTTP or HTTPS scheme
+ *
+ * @param {String} src
+ * @returns {Boolean}
+ */
+function load (src) {
+  return new Promise((resolve, reject) => {
+    var img = new Image();
+    img.onerror = reject;
+    img.onload = _.partial(resolve, img);
+    img.src = src;
+  });
+}
 
-  module.exports = {
-    load: load
-  };
-});
-
+module.exports = {
+  load: load
+};

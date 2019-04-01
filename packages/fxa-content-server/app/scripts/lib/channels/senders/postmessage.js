@@ -20,41 +20,37 @@
  * `data` is an object with any extra data.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  function PostMessageSender() {
-    // nothing to do here.
-  }
+function PostMessageSender() {
+  // nothing to do here.
+}
 
-  PostMessageSender.prototype = {
-    initialize (options) {
-      options = options || {};
+PostMessageSender.prototype = {
+  initialize (options) {
+    options = options || {};
 
-      this._origin = options.origin;
-      this._window = options.window;
-    },
+    this._origin = options.origin;
+    this._window = options.window;
+  },
 
-    send (command, data, messageId) {
-      return Promise.resolve().then(() => {
-        var event = stringify(command, data, messageId);
-        this._window.postMessage(event, this._origin);
-      });
-    },
-
-    teardown () {
-    }
-  };
-
-  function stringify(command, data, messageId) {
-    return JSON.stringify({
-      command: command,
-      data: data || {},
-      messageId: messageId
+  send (command, data, messageId) {
+    return Promise.resolve().then(() => {
+      var event = stringify(command, data, messageId);
+      this._window.postMessage(event, this._origin);
     });
+  },
+
+  teardown () {
   }
+};
 
-  module.exports = PostMessageSender;
-});
+function stringify(command, data, messageId) {
+  return JSON.stringify({
+    command: command,
+    data: data || {},
+    messageId: messageId
+  });
+}
 
-
+module.exports = PostMessageSender;

@@ -2,153 +2,149 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const BroadcastChannelMock = require('../../../mocks/broadcast-channel');
-  const { assert } = require('chai');
-  const InterTabChannel = require('lib/channels/inter-tab');
-  const sinon = require('sinon');
-  const WindowMock = require('../../../mocks/window');
+const BroadcastChannelMock = require('../../../mocks/broadcast-channel');
+const { assert } = require('chai');
+const InterTabChannel = require('lib/channels/inter-tab');
+const sinon = require('sinon');
+const WindowMock = require('../../../mocks/window');
 
-  describe('lib/channels/inter-tab', function () {
-    describe('InterTabChannel', function () {
-      var interTabChannel;
+describe('lib/channels/inter-tab', function () {
+  describe('InterTabChannel', function () {
+    var interTabChannel;
 
-      describe('instantiation', function () {
-        describe('with `BroadcastChannel` support', function () {
-          beforeEach(function () {
-            var windowMock = new WindowMock();
-            windowMock.BroadcastChannel = BroadcastChannelMock;
+    describe('instantiation', function () {
+      describe('with `BroadcastChannel` support', function () {
+        beforeEach(function () {
+          var windowMock = new WindowMock();
+          windowMock.BroadcastChannel = BroadcastChannelMock;
 
-            interTabChannel = new InterTabChannel({
-              window: windowMock
-            });
-          });
-
-          it('creates a BroadcastChannel', function () {
-            assert.ok(interTabChannel._broadcastChannel);
+          interTabChannel = new InterTabChannel({
+            window: windowMock
           });
         });
 
-        describe('without `BroadcastChannel` support', function () {
-          beforeEach(function () {
-            var windowMock = new WindowMock();
-
-            interTabChannel = new InterTabChannel({
-              window: windowMock
-            });
-          });
-
-          it('does not create a BroadcastChannel', function () {
-            assert.notOk(interTabChannel._broadcastChannel);
-          });
+        it('creates a BroadcastChannel', function () {
+          assert.ok(interTabChannel._broadcastChannel);
         });
       });
 
-      describe('public methods', function () {
-        var adapter;
-
+      describe('without `BroadcastChannel` support', function () {
         beforeEach(function () {
-          adapter = {
-            off: sinon.spy(),
-            on: sinon.spy(),
-            send: sinon.spy()
-          };
+          var windowMock = new WindowMock();
 
           interTabChannel = new InterTabChannel({
-            adapter: adapter
+            window: windowMock
           });
         });
 
+        it('does not create a BroadcastChannel', function () {
+          assert.notOk(interTabChannel._broadcastChannel);
+        });
       });
     });
 
-
-    describe('BroadcastChannelAdapter', function () {
-      var broadcastChannel;
-      var interTabChannel;
-      var windowMock;
+    describe('public methods', function () {
+      var adapter;
 
       beforeEach(function () {
-        windowMock = new WindowMock();
-        windowMock.BroadcastChannel = BroadcastChannelMock;
+        adapter = {
+          off: sinon.spy(),
+          on: sinon.spy(),
+          send: sinon.spy()
+        };
 
         interTabChannel = new InterTabChannel({
-          window: windowMock
-        });
-
-        broadcastChannel = interTabChannel._broadcastChannel;
-      });
-
-      describe('send', function () {
-        beforeEach(function () {
-          interTabChannel.send('message', { key: 'value' });
-        });
-
-        it('send a message to the broadcast channel', function () {
-          var serializedMessage =
-            interTabChannel.stringify('message', { key: 'value' });
-
-          assert.isTrue(
-            broadcastChannel.postMessage.calledWith(serializedMessage));
+          adapter: adapter
         });
       });
 
-      describe('on/onMessage', function () {
-        let onMessageHandlerSpy;
+    });
+  });
 
-        beforeEach(function () {
-          sinon.spy(interTabChannel, 'trigger');
 
-          onMessageHandlerSpy = sinon.spy();
+  describe('BroadcastChannelAdapter', function () {
+    var broadcastChannel;
+    var interTabChannel;
+    var windowMock;
 
-          interTabChannel.on('message', onMessageHandlerSpy);
+    beforeEach(function () {
+      windowMock = new WindowMock();
+      windowMock.BroadcastChannel = BroadcastChannelMock;
 
-          interTabChannel.onMessage({
-            data: JSON.stringify({
-              data: {
-                key: 'value'
-              },
-              name: 'message'
-            })
-          });
-        });
+      interTabChannel = new InterTabChannel({
+        window: windowMock
+      });
 
-        it('triggers a message with the event and data', function () {
-          assert.isTrue(
-            interTabChannel.trigger.calledWith('message', {
+      broadcastChannel = interTabChannel._broadcastChannel;
+    });
+
+    describe('send', function () {
+      beforeEach(function () {
+        interTabChannel.send('message', { key: 'value' });
+      });
+
+      it('send a message to the broadcast channel', function () {
+        var serializedMessage =
+          interTabChannel.stringify('message', { key: 'value' });
+
+        assert.isTrue(
+          broadcastChannel.postMessage.calledWith(serializedMessage));
+      });
+    });
+
+    describe('on/onMessage', function () {
+      let onMessageHandlerSpy;
+
+      beforeEach(function () {
+        sinon.spy(interTabChannel, 'trigger');
+
+        onMessageHandlerSpy = sinon.spy();
+
+        interTabChannel.on('message', onMessageHandlerSpy);
+
+        interTabChannel.onMessage({
+          data: JSON.stringify({
+            data: {
               key: 'value'
-            }));
-        });
-
-        it('calls the registered `message` handler', () => {
-          assert.isTrue(onMessageHandlerSpy.called);
+            },
+            name: 'message'
+          })
         });
       });
 
-      describe('off/onMessage', () => {
-        let onRemovedHandlerSpy;
+      it('triggers a message with the event and data', function () {
+        assert.isTrue(
+          interTabChannel.trigger.calledWith('message', {
+            key: 'value'
+          }));
+      });
 
-        beforeEach(function () {
-          onRemovedHandlerSpy = sinon.spy();
+      it('calls the registered `message` handler', () => {
+        assert.isTrue(onMessageHandlerSpy.called);
+      });
+    });
 
-          interTabChannel.on('removed', onRemovedHandlerSpy);
-          interTabChannel.off('removed', onRemovedHandlerSpy);
+    describe('off/onMessage', () => {
+      let onRemovedHandlerSpy;
 
-          interTabChannel.onMessage({
-            data: JSON.stringify({
-              name: 'removed'
-            })
-          });
+      beforeEach(function () {
+        onRemovedHandlerSpy = sinon.spy();
+
+        interTabChannel.on('removed', onRemovedHandlerSpy);
+        interTabChannel.off('removed', onRemovedHandlerSpy);
+
+        interTabChannel.onMessage({
+          data: JSON.stringify({
+            name: 'removed'
+          })
         });
+      });
 
-        it('does not call the removed `removed` handler', () => {
-          assert.isFalse(onRemovedHandlerSpy.called);
-        });
+      it('does not call the removed `removed` handler', () => {
+        assert.isFalse(onRemovedHandlerSpy.called);
       });
     });
   });
 });
-
-

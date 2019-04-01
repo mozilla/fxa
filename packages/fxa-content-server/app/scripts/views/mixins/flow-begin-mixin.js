@@ -4,16 +4,14 @@
 
 // Tells the server to emit the `flow.${viewName}.begin` event.
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const FlowEventsMixin = require('./flow-events-mixin');
+const FlowEventsMixin = require('./flow-events-mixin');
 
-  module.exports = {
-    dependsOn: [ FlowEventsMixin ],
+module.exports = {
+  dependsOn: [ FlowEventsMixin ],
 
-    afterRender () {
-      this.logFlowEventOnce('begin');
-    }
-  };
-});
+  afterRender () {
+    this.logFlowEventOnce('begin');
+  }
+};

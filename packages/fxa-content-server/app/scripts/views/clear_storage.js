@@ -7,26 +7,23 @@
  * to clear browser storage state between tests.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const BaseView = require('./base');
-  const Template = require('templates/clear_storage.mustache');
+const BaseView = require('./base');
+const Template = require('templates/clear_storage.mustache');
 
-  var View = BaseView.extend({
-    template: Template,
+var View = BaseView.extend({
+  template: Template,
 
-    beforeRender () {
-      try {
-        localStorage.clear();
-        sessionStorage.clear();
-        document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
-      } catch (e) {
-        // if cookies are disabled, this will blow up some browsers.
-      }
+  beforeRender () {
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+      document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
+    } catch (e) {
+      // if cookies are disabled, this will blow up some browsers.
     }
-  });
-
-  module.exports = View;
+  }
 });
 
+module.exports = View;

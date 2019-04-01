@@ -2,19 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const chai = require('chai');
-  const HaltBehavior = require('views/behaviors/halt');
+const chai = require('chai');
+const HaltBehavior = require('views/behaviors/halt');
 
-  var assert = chai.assert;
+var assert = chai.assert;
 
-  describe('views/behaviors/halt', function () {
-    it('returns a promise that never resolves', function () {
-      var haltBehavior = new HaltBehavior();
-      var promise = haltBehavior({});
-      assert.isFunction(promise.then);
-    });
+describe('views/behaviors/halt', function () {
+  it('returns a promise that never resolves', function () {
+    var haltBehavior = new HaltBehavior();
+    var promise = haltBehavior({});
+    assert.isFunction(promise.then);
   });
 });

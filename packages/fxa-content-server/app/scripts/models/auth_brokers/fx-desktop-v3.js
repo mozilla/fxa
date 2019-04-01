@@ -9,39 +9,36 @@
  * Issue #4250
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const _ = require('underscore');
-  const Cocktail = require('cocktail');
-  const FxDesktopV2AuthenticationBroker = require('./fx-desktop-v2');
-  const UserAgentMixin = require('lib/user-agent-mixin');
+const _ = require('underscore');
+const Cocktail = require('cocktail');
+const FxDesktopV2AuthenticationBroker = require('./fx-desktop-v2');
+const UserAgentMixin = require('lib/user-agent-mixin');
 
-  const proto = FxDesktopV2AuthenticationBroker.prototype;
+const proto = FxDesktopV2AuthenticationBroker.prototype;
 
-  const FxDesktopV3AuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
-    defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
-      allowUidChange: true,
-      emailFirst: true,
-      tokenCode: false
-    }),
+const FxDesktopV3AuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
+  defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
+    allowUidChange: true,
+    emailFirst: true,
+    tokenCode: false
+  }),
 
-    type: 'fx-desktop-v3',
+  type: 'fx-desktop-v3',
 
-    fetch () {
-      return proto.fetch.call(this).then(() => {
-        if (this.getUserAgent().parseVersion().major >= 58) {
-          this.setCapability('browserTransitionsAfterEmailVerification', false);
-        }
-      });
-    }
-  });
-
-  Cocktail.mixin(
-    FxDesktopV3AuthenticationBroker,
-    UserAgentMixin
-  );
-
-  module.exports = FxDesktopV3AuthenticationBroker;
+  fetch () {
+    return proto.fetch.call(this).then(() => {
+      if (this.getUserAgent().parseVersion().major >= 58) {
+        this.setCapability('browserTransitionsAfterEmailVerification', false);
+      }
+    });
+  }
 });
 
+Cocktail.mixin(
+  FxDesktopV3AuthenticationBroker,
+  UserAgentMixin
+);
+
+module.exports = FxDesktopV3AuthenticationBroker;

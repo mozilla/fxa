@@ -2,128 +2,126 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const Account = require('models/account');
-  const { assert } = require('chai');
-  const AuthErrors = require('lib/auth-errors');
-  const SessionVerificationPoll = require('models/polls/session-verification');
-  const sinon = require('sinon');
-  const WindowMock = require('../../../mocks/window');
+const Account = require('models/account');
+const { assert } = require('chai');
+const AuthErrors = require('lib/auth-errors');
+const SessionVerificationPoll = require('models/polls/session-verification');
+const sinon = require('sinon');
+const WindowMock = require('../../../mocks/window');
 
-  describe('models/polls/session-verification', () => {
-    let account;
-    let poll;
-    let windowMock;
+describe('models/polls/session-verification', () => {
+  let account;
+  let poll;
+  let windowMock;
 
-    beforeEach(() => {
-      account = new Account();
-      windowMock = new WindowMock();
-      sinon.stub(windowMock, 'setTimeout').callsFake((func) => func());
+  beforeEach(() => {
+    account = new Account();
+    windowMock = new WindowMock();
+    sinon.stub(windowMock, 'setTimeout').callsFake((func) => func());
 
-      poll = new SessionVerificationPoll({}, {
-        account,
-        pollIntervalInMS: 2,
-        window: windowMock
+    poll = new SessionVerificationPoll({}, {
+      account,
+      pollIntervalInMS: 2,
+      window: windowMock
+    });
+  });
+
+  describe('waitForSessionVerification', () => {
+    describe('with a valid `sessionToken`', () => {
+      beforeEach(() => {
+        sinon.stub(account, 'sessionStatus').callsFake(() => {
+          return Promise.resolve({
+            verified: account.sessionStatus.callCount === 3
+          });
+        });
+
+        return new Promise((resolve, reject) => {
+          poll.on('verified', () => resolve());
+          poll.on('error', reject);
+
+          poll.start();
+        });
+      });
+
+      it('polls until /recovery_email/status returns `verified: true`', () => {
+        assert.equal(account.sessionStatus.callCount, 3);
       });
     });
 
-    describe('waitForSessionVerification', () => {
-      describe('with a valid `sessionToken`', () => {
+    describe('with an invalid `sessionToken`', () => {
+      beforeEach(() => {
+        sinon.stub(account, 'sessionStatus').callsFake(() => Promise.reject(AuthErrors.toError('INVALID_TOKEN')));
+      });
+
+      describe('model does not have a `uid`', () => {
+        let err;
+
         beforeEach(() => {
-          sinon.stub(account, 'sessionStatus').callsFake(() => {
-            return Promise.resolve({
-              verified: account.sessionStatus.callCount === 3
-            });
-          });
+          account.unset('uid');
 
           return new Promise((resolve, reject) => {
-            poll.on('verified', () => resolve());
-            poll.on('error', reject);
+            poll.on('verified', () => reject(assert.catch()));
+            poll.on('error', (_err) => {
+              err = _err;
+              resolve();
+            });
 
             poll.start();
           });
         });
 
-        it('polls until /recovery_email/status returns `verified: true`', () => {
-          assert.equal(account.sessionStatus.callCount, 3);
+        it('resolves with `INVALID_TOKEN` error', () => {
+          assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
         });
       });
 
-      describe('with an invalid `sessionToken`', () => {
+      describe('`uid` exists', () => {
+        let err;
+
         beforeEach(() => {
-          sinon.stub(account, 'sessionStatus').callsFake(() => Promise.reject(AuthErrors.toError('INVALID_TOKEN')));
-        });
+          account.set('uid', 'uid');
 
-        describe('model does not have a `uid`', () => {
-          let err;
+          sinon.stub(account, 'checkUidExists').callsFake(() => Promise.resolve(true));
 
-          beforeEach(() => {
-            account.unset('uid');
-
-            return new Promise((resolve, reject) => {
-              poll.on('verified', () => reject(assert.catch()));
-              poll.on('error', (_err) => {
-                err = _err;
-                resolve();
-              });
-
-              poll.start();
+          return new Promise((resolve, reject) => {
+            poll.on('verified', () => reject(assert.catch()));
+            poll.on('error', (_err) => {
+              err = _err;
+              resolve();
             });
-          });
 
-          it('resolves with `INVALID_TOKEN` error', () => {
-            assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+            poll.start();
           });
         });
 
-        describe('`uid` exists', () => {
-          let err;
+        it('resolves with `INVALID_TOKEN` error', () => {
+          assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+        });
+      });
 
-          beforeEach(() => {
-            account.set('uid', 'uid');
+      describe('`uid` does not exist', () => {
+        let err;
 
-            sinon.stub(account, 'checkUidExists').callsFake(() => Promise.resolve(true));
+        beforeEach(() => {
+          account.set('uid', 'uid');
 
-            return new Promise((resolve, reject) => {
-              poll.on('verified', () => reject(assert.catch()));
-              poll.on('error', (_err) => {
-                err = _err;
-                resolve();
-              });
+          sinon.stub(account, 'checkUidExists').callsFake(() => Promise.resolve(false));
 
-              poll.start();
+          return new Promise((resolve, reject) => {
+            poll.on('verified', () => reject(assert.catch()));
+            poll.on('error', (_err) => {
+              err = _err;
+              resolve();
             });
-          });
 
-          it('resolves with `INVALID_TOKEN` error', () => {
-            assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+            poll.start();
           });
         });
 
-        describe('`uid` does not exist', () => {
-          let err;
-
-          beforeEach(() => {
-            account.set('uid', 'uid');
-
-            sinon.stub(account, 'checkUidExists').callsFake(() => Promise.resolve(false));
-
-            return new Promise((resolve, reject) => {
-              poll.on('verified', () => reject(assert.catch()));
-              poll.on('error', (_err) => {
-                err = _err;
-                resolve();
-              });
-
-              poll.start();
-            });
-          });
-
-          it('resolves with `SIGNUP_EMAIL_BOUNCE` error', () => {
-            assert.isTrue(AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE'));
-          });
+        it('resolves with `SIGNUP_EMAIL_BOUNCE` error', () => {
+          assert.isTrue(AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE'));
         });
       });
     });

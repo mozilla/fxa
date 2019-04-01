@@ -5,12 +5,10 @@
 /**
  * A mixin to pulse the primary graphic on the view.
  */
-define(function(require, exports, module) {
-  'use strict';
+'use strict';
 
-  return {
-    afterRender () {
-      this.$('.graphic').addClass('pulse');
-    }
-  };
-});
+module.exports = {
+  afterRender () {
+    this.$('.graphic').addClass('pulse');
+  }
+};

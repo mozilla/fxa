@@ -5,19 +5,16 @@
 // stub out the BroadcastChannel object for testing.
 // See https://developer.mozilla.org/docs/Web/API/Broadcast_Channel_API
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const sinon = require('sinon');
+const sinon = require('sinon');
 
-  function BroadcastChannelMock (name) {
-    this._name = name;
-  }
+function BroadcastChannelMock (name) {
+  this._name = name;
+}
 
-  BroadcastChannelMock.prototype = {
-    postMessage: sinon.spy()
-  };
+BroadcastChannelMock.prototype = {
+  postMessage: sinon.spy()
+};
 
-  module.exports = BroadcastChannelMock;
-});
-
+module.exports = BroadcastChannelMock;

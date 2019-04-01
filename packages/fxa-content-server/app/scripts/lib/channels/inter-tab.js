@@ -12,50 +12,48 @@
  * If BroadcastChannel is not supported, no inter-tab communication occurs.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const _ = require('underscore');
-  const Backbone = require('backbone');
+const _ = require('underscore');
+const Backbone = require('backbone');
 
-  const BROADCAST_CHANNEL_ID = 'firefox_accounts';
+const BROADCAST_CHANNEL_ID = 'firefox_accounts';
 
-  function BroadcastChannelAdapter(options = {}) {
-    const win = options.window || window;
+function BroadcastChannelAdapter(options = {}) {
+  const win = options.window || window;
 
-    if ('BroadcastChannel' in win) {
-      this._broadcastChannel = new win.BroadcastChannel(BROADCAST_CHANNEL_ID);
-      this._broadcastChannel.onmessage = this.onMessage.bind(this);
-    }
+  if ('BroadcastChannel' in win) {
+    this._broadcastChannel = new win.BroadcastChannel(BROADCAST_CHANNEL_ID);
+    this._broadcastChannel.onmessage = this.onMessage.bind(this);
   }
+}
 
-  BroadcastChannelAdapter.prototype = {
-    onMessage (event) {
-      const envelope = JSON.parse(event.data);
-      this.trigger(envelope.name, envelope.data);
-    },
+BroadcastChannelAdapter.prototype = {
+  onMessage (event) {
+    const envelope = JSON.parse(event.data);
+    this.trigger(envelope.name, envelope.data);
+  },
 
-    send (name, data) {
-      if (this._broadcastChannel) {
-        this._broadcastChannel.postMessage(this.stringify(name, data));
-      }
-    },
-
-    /**
-     * stringify a message, exposed for testing
-     *
-     * @param {String} name
-     * @param {Object} [data]
-     * @returns {String}
-     */
-    stringify (name, data = {}) {
-      return JSON.stringify({
-        data: data,
-        name: name
-      });
+  send (name, data) {
+    if (this._broadcastChannel) {
+      this._broadcastChannel.postMessage(this.stringify(name, data));
     }
-  };
+  },
 
-  _.extend(BroadcastChannelAdapter.prototype, Backbone.Events);
-  module.exports = BroadcastChannelAdapter;
-});
+  /**
+   * stringify a message, exposed for testing
+   *
+   * @param {String} name
+   * @param {Object} [data]
+   * @returns {String}
+   */
+  stringify (name, data = {}) {
+    return JSON.stringify({
+      data: data,
+      name: name
+    });
+  }
+};
+
+_.extend(BroadcastChannelAdapter.prototype, Backbone.Events);
+module.exports = BroadcastChannelAdapter;

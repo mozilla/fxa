@@ -6,22 +6,19 @@
  * A model to hold report-sign-in data.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const Vat = require('../../lib/vat');
-  const VerificationInfo = require('./base');
+const Vat = require('../../lib/vat');
+const VerificationInfo = require('./base');
 
-  module.exports = VerificationInfo.extend({
-    defaults: {
-      uid: null,
-      unblockCode: null
-    },
+module.exports = VerificationInfo.extend({
+  defaults: {
+    uid: null,
+    unblockCode: null
+  },
 
-    validation: {
-      uid: Vat.uid().required(),
-      unblockCode: Vat.unblockCode().required()
-    }
-  });
+  validation: {
+    uid: Vat.uid().required(),
+    unblockCode: Vat.unblockCode().required()
+  }
 });
-

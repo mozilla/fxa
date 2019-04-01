@@ -6,14 +6,11 @@
  * An extremely small view that thanks the user for reporting
  * a suspicious sign-in attempt.
  */
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const BaseView = require('./base');
-  const Template = require('templates/sign_in_reported.mustache');
+const BaseView = require('./base');
+const Template = require('templates/sign_in_reported.mustache');
 
-  module.exports = BaseView.extend({
-    template: Template
-  });
+module.exports = BaseView.extend({
+  template: Template
 });
-

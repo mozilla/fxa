@@ -6,49 +6,45 @@
  * Send a message to the browser using a FirefoxAccountsCommand.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  function FxDesktopV1Sender() {
-    // nothing to do here.
-  }
+function FxDesktopV1Sender() {
+  // nothing to do here.
+}
 
-  FxDesktopV1Sender.prototype = {
-    initialize (options) {
-      options = options || {};
+FxDesktopV1Sender.prototype = {
+  initialize (options) {
+    options = options || {};
 
-      this._window = options.window;
-    },
+    this._window = options.window;
+  },
 
-    send (command, data, messageId) {
-      return Promise.resolve().then(() => {
-        return this.dispatchCommand(command, data, messageId);
-      });
-    },
-
-    dispatchCommand (command, data, messageId) {
-      var win = this._window;
-      var event = createEvent(win, command, data);
-      win.dispatchEvent(event);
-    },
-
-    teardown () {
-      // nothing to do.
-    }
-  };
-
-  // messageId is ignored by FxDesktop
-  function createEvent(win, command, data/*, messageId*/) {
-    return new win.CustomEvent('FirefoxAccountsCommand', {
-      detail: {
-        bubbles: true,
-        command: command,
-        data: data
-      }
+  send (command, data, messageId) {
+    return Promise.resolve().then(() => {
+      return this.dispatchCommand(command, data, messageId);
     });
+  },
+
+  dispatchCommand (command, data, messageId) {
+    var win = this._window;
+    var event = createEvent(win, command, data);
+    win.dispatchEvent(event);
+  },
+
+  teardown () {
+    // nothing to do.
   }
+};
 
-  module.exports = FxDesktopV1Sender;
-});
+// messageId is ignored by FxDesktop
+function createEvent(win, command, data/*, messageId*/) {
+  return new win.CustomEvent('FirefoxAccountsCommand', {
+    detail: {
+      bubbles: true,
+      command: command,
+      data: data
+    }
+  });
+}
 
-
+module.exports = FxDesktopV1Sender;

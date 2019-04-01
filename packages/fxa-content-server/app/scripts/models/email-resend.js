@@ -4,43 +4,41 @@
 
 // This model limits the number of emails a component can send
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const Backbone = require('backbone');
-  const Constants = require('../lib/constants');
+const Backbone = require('backbone');
+const Constants = require('../lib/constants');
 
-  function shouldResend (tries, maxTries) {
-    return tries <= maxTries;
-  }
+function shouldResend (tries, maxTries) {
+  return tries <= maxTries;
+}
 
-  var EmailResend = Backbone.Model.extend({
-    defaults: {
-      tries: 0
-    },
+var EmailResend = Backbone.Model.extend({
+  defaults: {
+    tries: 0
+  },
 
-    initialize (opt) {
-      opt = opt || {};
-      this.maxTries = opt.maxTries || Constants.EMAIL_RESEND_MAX_TRIES;
-    },
+  initialize (opt) {
+    opt = opt || {};
+    this.maxTries = opt.maxTries || Constants.EMAIL_RESEND_MAX_TRIES;
+  },
 
-    incrementRequestCount () {
-      var tries = this.get('tries') + 1;
-      this.set('tries', tries);
+  incrementRequestCount () {
+    var tries = this.get('tries') + 1;
+    this.set('tries', tries);
 
-      if (tries >= this.maxTries) {
-        this.trigger('maxTriesReached');
-      }
-    },
-
-    shouldResend () {
-      return shouldResend(this.get('tries'), this.maxTries);
-    },
-
-    reset () {
-      this.set('tries', 0);
+    if (tries >= this.maxTries) {
+      this.trigger('maxTriesReached');
     }
-  });
+  },
 
-  module.exports = EmailResend;
+  shouldResend () {
+    return shouldResend(this.get('tries'), this.maxTries);
+  },
+
+  reset () {
+    this.set('tries', 0);
+  }
 });
+
+module.exports = EmailResend;

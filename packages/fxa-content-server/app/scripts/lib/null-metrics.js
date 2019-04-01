@@ -7,32 +7,28 @@
  * or for unit tests.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const _ = require('underscore');
-  const Metrics = require('./metrics');
+const _ = require('underscore');
+const Metrics = require('./metrics');
 
-  function NullMetrics () {
+function NullMetrics () {
+  // do nothing
+}
+
+_.forEach(_.keys(Metrics.prototype), function (key) {
+  NullMetrics.prototype[key] = function () {
     // do nothing
-  }
-
-  _.forEach(_.keys(Metrics.prototype), function (key) {
-    NullMetrics.prototype[key] = function () {
-      // do nothing
-    };
-  });
-
-  // Metrics.flush returns a promise.
-  NullMetrics.prototype.flush = function () {
-    return Promise.resolve();
   };
-
-  NullMetrics.prototype.isCollectionEnabled = function () {
-    return false;
-  };
-
-  module.exports = NullMetrics;
 });
 
+// Metrics.flush returns a promise.
+NullMetrics.prototype.flush = function () {
+  return Promise.resolve();
+};
 
+NullMetrics.prototype.isCollectionEnabled = function () {
+  return false;
+};
+
+module.exports = NullMetrics;

@@ -2,170 +2,168 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const { assert } = require('chai');
-  const BaseView = require('views/base');
-  const Cocktail = require('cocktail');
-  const Mixin = require('views/mixins/experiment-mixin');
-  const sinon = require('sinon');
-  const TestTemplate = require('templates/test_template.mustache');
-  const WindowMock = require('../../../mocks/window');
+const { assert } = require('chai');
+const BaseView = require('views/base');
+const Cocktail = require('cocktail');
+const Mixin = require('views/mixins/experiment-mixin');
+const sinon = require('sinon');
+const TestTemplate = require('templates/test_template.mustache');
+const WindowMock = require('../../../mocks/window');
 
-  const View = BaseView.extend({
-    template: TestTemplate
+const View = BaseView.extend({
+  template: TestTemplate
+});
+
+Cocktail.mixin(
+  View,
+  Mixin
+);
+
+describe('views/mixins/experiment-mixin', () => {
+  let experiments;
+  let metrics;
+  let notifier;
+  let translator;
+  let view;
+  let windowMock;
+
+  beforeEach(() => {
+    // pass in an experimentsMock otherwise a new
+    // ExperimentInterface is created before
+    // a spy can be added to `chooseExperiments`
+    experiments = {
+      chooseExperiments: sinon.spy(),
+      createExperiment: sinon.spy(() => {
+        return {};
+      }),
+      destroy () {},
+      getExperimentGroup: sinon.spy(),
+      isInExperiment: sinon.spy(),
+      isInExperimentGroup: sinon.spy()
+    };
+
+    metrics = {};
+
+    notifier = {
+      trigger: sinon.spy()
+    };
+
+    translator = {};
+
+    windowMock = new WindowMock();
+
+    view = new View({
+      experiments,
+      metrics,
+      notifier,
+      translator,
+      window: windowMock
+    });
   });
 
-  Cocktail.mixin(
-    View,
-    Mixin
-  );
+  afterEach(() => {
+    return view.destroy();
+  });
 
-  describe('views/mixins/experiment-mixin', () => {
-    let experiments;
-    let metrics;
-    let notifier;
-    let translator;
-    let view;
-    let windowMock;
+  describe('_createExperimentInterface', () => {
+    const experimentGroupingRules = {};
+    const notifier = {};
+    const user = {};
 
-    beforeEach(() => {
-      // pass in an experimentsMock otherwise a new
-      // ExperimentInterface is created before
-      // a spy can be added to `chooseExperiments`
-      experiments = {
-        chooseExperiments: sinon.spy(),
-        createExperiment: sinon.spy(() => {
-          return {};
-        }),
-        destroy () {},
-        getExperimentGroup: sinon.spy(),
-        isInExperiment: sinon.spy(),
-        isInExperimentGroup: sinon.spy()
-      };
+    const getAccountAccount = { uid: 'get-account-account' };
+    const _accountAccount = { uid: '_account-account' };
 
-      metrics = {};
+    describe('view has `this.getAccount', () => {
+      it('creates ExperimentInterface with account returned by this.getAccount', () => {
+        view.getAccount = sinon.spy(() => getAccountAccount);
+        view._account = _accountAccount;
 
-      notifier = {
-        trigger: sinon.spy()
-      };
-
-      translator = {};
-
-      windowMock = new WindowMock();
-
-      view = new View({
-        experiments,
-        metrics,
-        notifier,
-        translator,
-        window: windowMock
-      });
-    });
-
-    afterEach(() => {
-      return view.destroy();
-    });
-
-    describe('_createExperimentInterface', () => {
-      const experimentGroupingRules = {};
-      const notifier = {};
-      const user = {};
-
-      const getAccountAccount = { uid: 'get-account-account' };
-      const _accountAccount = { uid: '_account-account' };
-
-      describe('view has `this.getAccount', () => {
-        it('creates ExperimentInterface with account returned by this.getAccount', () => {
-          view.getAccount = sinon.spy(() => getAccountAccount);
-          view._account = _accountAccount;
-
-          const experimentInterface = view._createExperimentInterface({
-            experimentGroupingRules,
-            notifier,
-            user
-          });
-
-          assert.strictEqual(experimentInterface.account, getAccountAccount);
-          assert.strictEqual(experimentInterface.experimentGroupingRules, experimentGroupingRules);
-          assert.strictEqual(experimentInterface.notifier, notifier);
-          assert.strictEqual(experimentInterface.metrics, metrics);
-          assert.strictEqual(experimentInterface.translator, translator);
-          assert.strictEqual(experimentInterface.user, user);
-          assert.strictEqual(experimentInterface.window, windowMock);
+        const experimentInterface = view._createExperimentInterface({
+          experimentGroupingRules,
+          notifier,
+          user
         });
+
+        assert.strictEqual(experimentInterface.account, getAccountAccount);
+        assert.strictEqual(experimentInterface.experimentGroupingRules, experimentGroupingRules);
+        assert.strictEqual(experimentInterface.notifier, notifier);
+        assert.strictEqual(experimentInterface.metrics, metrics);
+        assert.strictEqual(experimentInterface.translator, translator);
+        assert.strictEqual(experimentInterface.user, user);
+        assert.strictEqual(experimentInterface.window, windowMock);
       });
+    });
 
-      describe('view does not have this.getAccount, has this._account', () => {
-        it('creates ExperimentInterface with this._account', () => {
-          view._account = _accountAccount;
+    describe('view does not have this.getAccount, has this._account', () => {
+      it('creates ExperimentInterface with this._account', () => {
+        view._account = _accountAccount;
 
-          const experimentInterface = view._createExperimentInterface({
-            experimentGroupingRules,
-            notifier,
-            user
-          });
-
-          assert.strictEqual(experimentInterface.account, _accountAccount);
-          assert.strictEqual(experimentInterface.experimentGroupingRules, experimentGroupingRules);
-          assert.strictEqual(experimentInterface.notifier, notifier);
-          assert.strictEqual(experimentInterface.metrics, metrics);
-          assert.strictEqual(experimentInterface.translator, translator);
-          assert.strictEqual(experimentInterface.user, user);
-          assert.strictEqual(experimentInterface.window, windowMock);
+        const experimentInterface = view._createExperimentInterface({
+          experimentGroupingRules,
+          notifier,
+          user
         });
+
+        assert.strictEqual(experimentInterface.account, _accountAccount);
+        assert.strictEqual(experimentInterface.experimentGroupingRules, experimentGroupingRules);
+        assert.strictEqual(experimentInterface.notifier, notifier);
+        assert.strictEqual(experimentInterface.metrics, metrics);
+        assert.strictEqual(experimentInterface.translator, translator);
+        assert.strictEqual(experimentInterface.user, user);
+        assert.strictEqual(experimentInterface.window, windowMock);
       });
     });
+  });
 
-    describe('initialize', () => {
-      it('chooses experiments', () => {
-        assert.isTrue(experiments.chooseExperiments.calledOnce);
-      });
+  describe('initialize', () => {
+    it('chooses experiments', () => {
+      assert.isTrue(experiments.chooseExperiments.calledOnce);
+    });
+  });
+
+  describe('destroy', () => {
+    it('destroys the experiments instance', () => {
+      const experiments = view.experiments;
+      sinon.spy(experiments, 'destroy');
+
+      view.destroy();
+
+      assert.isTrue(experiments.destroy.called);
+    });
+  });
+
+  describe('createExperiment', () => {
+    it('forces the flow model to initialize, then creates the experiment', () => {
+      assert.ok(view.createExperiment('experimentName', 'control'));
+
+      assert.isTrue(notifier.trigger.calledOnce);
+      assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
+      assert.isTrue(experiments.createExperiment.calledOnce);
+      assert.isTrue(experiments.createExperiment.calledWith('experimentName', 'control'));
     });
 
-    describe('destroy', () => {
-      it('destroys the experiments instance', () => {
-        const experiments = view.experiments;
-        sinon.spy(experiments, 'destroy');
+    it('does nothing if the view has been destroyed', () => {
+      view.destroy();
+      assert.notOk(view.createExperiment('experimentName', 'control'));
+    });
+  });
+
+  describe('delegate methods', () => {
+    const delegateMethods = ['getExperimentGroup', 'isInExperiment', 'isInExperimentGroup'];
+    delegateMethods.forEach((methodName) => {
+      it(`delegates ${methodName} correctly`, () => {
+        assert.isFunction(view[methodName]);
+
+        view[methodName]('foo', 'bar', 'baz');
+        assert.isTrue(experiments[methodName].calledOnce);
+        assert.isTrue(experiments[methodName].calledWith('foo', 'bar', 'baz'));
 
         view.destroy();
-
-        assert.isTrue(experiments.destroy.called);
-      });
-    });
-
-    describe('createExperiment', () => {
-      it('forces the flow model to initialize, then creates the experiment', () => {
-        assert.ok(view.createExperiment('experimentName', 'control'));
-
-        assert.isTrue(notifier.trigger.calledOnce);
-        assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
-        assert.isTrue(experiments.createExperiment.calledOnce);
-        assert.isTrue(experiments.createExperiment.calledWith('experimentName', 'control'));
-      });
-
-      it('does nothing if the view has been destroyed', () => {
-        view.destroy();
-        assert.notOk(view.createExperiment('experimentName', 'control'));
-      });
-    });
-
-    describe('delegate methods', () => {
-      const delegateMethods = ['getExperimentGroup', 'isInExperiment', 'isInExperimentGroup'];
-      delegateMethods.forEach((methodName) => {
-        it(`delegates ${methodName} correctly`, () => {
-          assert.isFunction(view[methodName]);
-
-          view[methodName]('foo', 'bar', 'baz');
-          assert.isTrue(experiments[methodName].calledOnce);
-          assert.isTrue(experiments[methodName].calledWith('foo', 'bar', 'baz'));
-
-          view.destroy();
-          view[methodName]('foo', 'bar', 'baz');
-          // the view is destroyed, can no longer delegate to experiments.
-          assert.isTrue(experiments[methodName].calledOnce);
-        });
+        view[methodName]('foo', 'bar', 'baz');
+        // the view is destroyed, can no longer delegate to experiments.
+        assert.isTrue(experiments[methodName].calledOnce);
       });
     });
   });

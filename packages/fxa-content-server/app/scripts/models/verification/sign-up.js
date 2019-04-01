@@ -6,24 +6,21 @@
  * A model to hold sign up verification data
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const Vat = require('../../lib/vat');
-  const VerificationInfo = require('./base');
+const Vat = require('../../lib/vat');
+const VerificationInfo = require('./base');
 
-  module.exports = VerificationInfo.extend({
-    defaults: {
-      code: null,
-      reminder: null,
-      type: null,
-      uid: null
-    },
+module.exports = VerificationInfo.extend({
+  defaults: {
+    code: null,
+    reminder: null,
+    type: null,
+    uid: null
+  },
 
-    validation: {
-      code: Vat.verificationCode().required(),
-      uid: Vat.uid().required()
-    }
-  });
+  validation: {
+    code: Vat.verificationCode().required(),
+    uid: Vat.uid().required()
+  }
 });
-

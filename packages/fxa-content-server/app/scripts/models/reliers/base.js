@@ -7,93 +7,91 @@
  * depending on how you want to use it.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const Backbone = require('backbone');
+const Backbone = require('backbone');
 
-  var Relier = Backbone.Model.extend({
-    defaults: {
-      context: null,
-    },
+var Relier = Backbone.Model.extend({
+  defaults: {
+    context: null,
+  },
 
-    fetch () {
-      return Promise.resolve(true);
-    },
+  fetch () {
+    return Promise.resolve(true);
+  },
 
-    /**
-     * Check if the relier is using the oauth flow
-     *
-     * @returns {Boolean}
-     */
-    isOAuth () {
-      return false;
-    },
+  /**
+   * Check if the relier is using the oauth flow
+   *
+   * @returns {Boolean}
+   */
+  isOAuth () {
+    return false;
+  },
 
-    /**
-     * Check if the relier is Sync for Firefox Desktop
-     *
-     * @returns {Boolean}
-     */
-    isSync () {
-      return false;
-    },
+  /**
+   * Check if the relier is Sync for Firefox Desktop
+   *
+   * @returns {Boolean}
+   */
+  isSync () {
+    return false;
+  },
 
-    /**
-     * Check if the relier forces the "customize sync" checkbox to be checked.
-     *
-     * @returns {Boolean}
-     */
-    isCustomizeSyncChecked () {
-      return false;
-    },
+  /**
+   * Check if the relier forces the "customize sync" checkbox to be checked.
+   *
+   * @returns {Boolean}
+   */
+  isCustomizeSyncChecked () {
+    return false;
+  },
 
-    /**
-     * Check if the relier wants access to the account encryption keys.
-     *
-     * @returns {Boolean}
-     */
-    wantsKeys () {
-      return false;
-    },
+  /**
+   * Check if the relier wants access to the account encryption keys.
+   *
+   * @returns {Boolean}
+   */
+  wantsKeys () {
+    return false;
+  },
 
-    /**
-     * Return `true` if the relier wants two step authentication.
-     *
-     * @returns {Boolean} `true` if relier asks for two step authentication, false otw.
-     */
-    wantsTwoStepAuthentication () {
-      return false;
-    },
+  /**
+   * Return `true` if the relier wants two step authentication.
+   *
+   * @returns {Boolean} `true` if relier asks for two step authentication, false otw.
+   */
+  wantsTwoStepAuthentication () {
+    return false;
+  },
 
-    /**
-     * Get the resume token info to be passed along in the email
-     * verification links
-     *
-     * @returns {Object}
-     */
-    pickResumeTokenInfo () {
-      return {};
-    },
+  /**
+   * Get the resume token info to be passed along in the email
+   * verification links
+   *
+   * @returns {Object}
+   */
+  pickResumeTokenInfo () {
+    return {};
+  },
 
-    /**
-     * Indicates whether the relier is trusted
-     *
-     * @returns {Boolean}
-     */
-    isTrusted () {
-      return true;
-    },
+  /**
+   * Indicates whether the relier is trusted
+   *
+   * @returns {Boolean}
+   */
+  isTrusted () {
+    return true;
+  },
 
-    /**
-     * Indicate whether the given accounts needs any additional permissions
-     *
-     * @returns {Boolean}
-     */
-    accountNeedsPermissions (/* account */) {
-      return false;
-    }
-  });
-
-  module.exports = Relier;
+  /**
+   * Indicate whether the given accounts needs any additional permissions
+   *
+   * @returns {Boolean}
+   */
+  accountNeedsPermissions (/* account */) {
+    return false;
+  }
 });
+
+module.exports = Relier;

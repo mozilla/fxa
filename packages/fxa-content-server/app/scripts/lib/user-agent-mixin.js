@@ -8,38 +8,36 @@
  * Requires `this.window` to be set.
  */
 
-define(function(require, exports, module) {
-  'use strict';
+'use strict';
 
-  const UrlMixin = require('./url-mixin');
-  const UserAgent = require('./user-agent');
+const UrlMixin = require('./url-mixin');
+const UserAgent = require('./user-agent');
 
-  module.exports = {
-    dependsOn: [
-      UrlMixin
-    ],
+module.exports = {
+  dependsOn: [
+    UrlMixin
+  ],
 
-    /**
-     * Get the user-agent string. For functional testing
-     * purposes, first attempts to fetch a UA string from the
-     * `forceUA` query parameter, if that is not found, use
-     * the browser's.
-     *
-     * @returns {String}
-     */
-    getUserAgentString () {
-      return this.getSearchParam('forceUA') || this.window.navigator.userAgent;
-    },
+  /**
+   * Get the user-agent string. For functional testing
+   * purposes, first attempts to fetch a UA string from the
+   * `forceUA` query parameter, if that is not found, use
+   * the browser's.
+   *
+   * @returns {String}
+   */
+  getUserAgentString () {
+    return this.getSearchParam('forceUA') || this.window.navigator.userAgent;
+  },
 
-    /**
-     * Get a UserAgent instance.
-     *
-     * @param {String} [userAgent] - user agent string.
-     *   Defaults to result of this.getUserAgentString()
-     * @returns {Object}
-     */
-    getUserAgent (userAgent = this.getUserAgentString()) {
-      return new UserAgent(userAgent);
-    }
-  };
-});
+  /**
+   * Get a UserAgent instance.
+   *
+   * @param {String} [userAgent] - user agent string.
+   *   Defaults to result of this.getUserAgentString()
+   * @returns {Object}
+   */
+  getUserAgent (userAgent = this.getUserAgentString()) {
+    return new UserAgent(userAgent);
+  }
+};

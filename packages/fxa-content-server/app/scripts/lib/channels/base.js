@@ -4,29 +4,27 @@
 
 // A channel interface.
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const _ = require('underscore');
-  const Backbone = require('backbone');
+const _ = require('underscore');
+const Backbone = require('backbone');
 
-  function BaseChannel() {
-    // nothing to do.
-  }
+function BaseChannel() {
+  // nothing to do.
+}
 
-  _.extend(BaseChannel.prototype, Backbone.Events, {
-    initialize () {
-    },
+_.extend(BaseChannel.prototype, Backbone.Events, {
+  initialize () {
+  },
 
-    teardown () {
-    },
+  teardown () {
+  },
 
-    send (command, data, done) {
-      if (done) {
-        done();
-      }
+  send (command, data, done) {
+    if (done) {
+      done();
     }
-  });
-
-  module.exports = BaseChannel;
+  }
 });
+
+module.exports = BaseChannel;

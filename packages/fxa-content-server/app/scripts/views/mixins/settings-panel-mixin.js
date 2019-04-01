@@ -5,92 +5,90 @@
 // This is a mixin used by views that are childViews of Settings
 // Modal childViews of Settings use modal-settings-panel-mixin instead.
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const $ = require('jquery');
-  const BaseView = require('../base');
+const $ = require('jquery');
+const BaseView = require('../base');
 
-  module.exports = {
-    initialize (options) {
-      this.parentView = options.parentView;
-    },
+module.exports = {
+  initialize (options) {
+    this.parentView = options.parentView;
+  },
 
-    events: {
-      'click .cancel': BaseView.preventDefaultThen('_closePanelReturnToSettings'),
-      'click .settings-unit-toggle': BaseView.preventDefaultThen('_triggerPanel')
-    },
+  events: {
+    'click .cancel': BaseView.preventDefaultThen('_closePanelReturnToSettings'),
+    'click .settings-unit-toggle': BaseView.preventDefaultThen('_triggerPanel')
+  },
 
-    afterRender () {
-      // Disable autofocus as specified by the templates because the panels
-      // are hidden until opened and focus cannot be set. Instead, set
-      // the focus when the panel is opened.
-      this.$('[autofocus]')
-        .attr('data-autofocus-on-panel-open', true)
-        .removeAttr('autofocus');
-    },
+  afterRender () {
+    // Disable autofocus as specified by the templates because the panels
+    // are hidden until opened and focus cannot be set. Instead, set
+    // the focus when the panel is opened.
+    this.$('[autofocus]')
+      .attr('data-autofocus-on-panel-open', true)
+      .removeAttr('autofocus');
+  },
 
-    _triggerPanel (event) {
-      var href = event && $(event.currentTarget).data('href');
-      if (href) {
-        this.navigate(href);
-      }
-    },
+  _triggerPanel (event) {
+    var href = event && $(event.currentTarget).data('href');
+    if (href) {
+      this.navigate(href);
+    }
+  },
 
-    openPanel () {
-      this.closeAllPanels();
+  openPanel () {
+    this.closeAllPanels();
 
-      this.$('.settings-unit').addClass('open');
-      this.$el.closest('#fxa-settings-content').addClass('animate-shadow');
-      this.focus(this.$('[data-autofocus-on-panel-open]'));
-    },
+    this.$('.settings-unit').addClass('open');
+    this.$el.closest('#fxa-settings-content').addClass('animate-shadow');
+    this.focus(this.$('[data-autofocus-on-panel-open]'));
+  },
 
-    hidePanel () {
-      this._closePanelReturnToSettings();
-    },
+  hidePanel () {
+    this._closePanelReturnToSettings();
+  },
 
-    isPanelOpen () {
-      return this.$('.settings-unit').hasClass('open');
-    },
+  isPanelOpen () {
+    return this.$('.settings-unit').hasClass('open');
+  },
 
-    _closePanelReturnToSettings () {
-      this.navigate('settings');
-      this.clearInput();
+  _closePanelReturnToSettings () {
+    this.navigate('settings');
+    this.clearInput();
+    this.closePanel();
+  },
+
+  clearInput () {
+    const $inputEls = this.$('input');
+
+    $inputEls.each((i, inputEl) => {
+      // Called to clear validation tooltips. issues/5680
+      $(inputEl).change();
+    });
+
+    const formEl = this.$('form')[0];
+    if (formEl) {
+      formEl.reset();
+    }
+  },
+
+  closePanel () {
+    this.$el.closest('#fxa-settings-content').removeClass('animate-shadow');
+    this.$('.settings-unit').removeClass('open');
+  },
+
+  closeAllPanels () {
+    $('.settings-unit').removeClass('open');
+  },
+
+  displaySuccess (msg, options = {closePanel: true}) {
+    if (! this.parentView) {
+      return;
+    }
+    this.parentView.displaySuccess(msg);
+
+    if (options.closePanel) {
       this.closePanel();
-    },
-
-    clearInput () {
-      const $inputEls = this.$('input');
-
-      $inputEls.each((i, inputEl) => {
-        // Called to clear validation tooltips. issues/5680
-        $(inputEl).change();
-      });
-
-      const formEl = this.$('form')[0];
-      if (formEl) {
-        formEl.reset();
-      }
-    },
-
-    closePanel () {
-      this.$el.closest('#fxa-settings-content').removeClass('animate-shadow');
-      this.$('.settings-unit').removeClass('open');
-    },
-
-    closeAllPanels () {
-      $('.settings-unit').removeClass('open');
-    },
-
-    displaySuccess (msg, options = {closePanel: true}) {
-      if (! this.parentView) {
-        return;
-      }
-      this.parentView.displaySuccess(msg);
-
-      if (options.closePanel) {
-        this.closePanel();
-      }
-    },
-  };
-});
+    }
+  },
+};

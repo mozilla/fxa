@@ -4,48 +4,46 @@
 
 // Populates the flow model and initialises flow event handlers.
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const $ = require('jquery');
-  const KEYS = require('../../lib/key-codes');
+const $ = require('jquery');
+const KEYS = require('../../lib/key-codes');
 
-  module.exports = {
-    afterRender () {
-      this.notifier.trigger('flow.initialize');
-    },
+module.exports = {
+  afterRender () {
+    this.notifier.trigger('flow.initialize');
+  },
 
-    events: {
-      'click a': '_clickFlowEventsLink',
-      'click input': '_engageFlowEventsForm',
-      'input input': '_engageFlowEventsForm',
-      'keyup input': '_keyupFlowEventsInput',
-      'submit': '_submitFlowEventsForm'
-    },
+  events: {
+    'click a': '_clickFlowEventsLink',
+    'click input': '_engageFlowEventsForm',
+    'input input': '_engageFlowEventsForm',
+    'keyup input': '_keyupFlowEventsInput',
+    'submit': '_submitFlowEventsForm'
+  },
 
-    _clickFlowEventsLink (event) {
-      if (event && event.currentTarget) {
-        const flowEvent = $(event.currentTarget).data('flowEvent');
-        if (flowEvent) {
-          this.logFlowEvent(flowEvent, this.viewName);
-        }
-      }
-    },
-
-    _engageFlowEventsForm () {
-      this.logFlowEventOnce('engage', this.viewName);
-    },
-
-    _keyupFlowEventsInput (event) {
-      if (event.which === KEYS.TAB && ! event.metaKey && ! event.ctrlKey && ! event.altKey) {
-        this._engageFlowEventsForm();
-      }
-    },
-
-    _submitFlowEventsForm () {
-      if (this.isFormEnabled()) {
-        this.logFlowEvent('submit', this.viewName);
+  _clickFlowEventsLink (event) {
+    if (event && event.currentTarget) {
+      const flowEvent = $(event.currentTarget).data('flowEvent');
+      if (flowEvent) {
+        this.logFlowEvent(flowEvent, this.viewName);
       }
     }
-  };
-});
+  },
+
+  _engageFlowEventsForm () {
+    this.logFlowEventOnce('engage', this.viewName);
+  },
+
+  _keyupFlowEventsInput (event) {
+    if (event.which === KEYS.TAB && ! event.metaKey && ! event.ctrlKey && ! event.altKey) {
+      this._engageFlowEventsForm();
+    }
+  },
+
+  _submitFlowEventsForm () {
+    if (this.isFormEnabled()) {
+      this.logFlowEvent('submit', this.viewName);
+    }
+  }
+};

@@ -10,57 +10,55 @@
  * logged to metrics.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const Backbone = require('backbone');
-  const Storage = require('../lib/storage');
+const Backbone = require('backbone');
+const Storage = require('../lib/storage');
 
-  function isRefresh (refreshMetrics, viewName) {
-    return refreshMetrics && refreshMetrics.view === viewName;
-  }
+function isRefresh (refreshMetrics, viewName) {
+  return refreshMetrics && refreshMetrics.view === viewName;
+}
 
-  module.exports = Backbone.Model.extend({
-    initialize (options) {
-      options = options || {};
+module.exports = Backbone.Model.extend({
+  initialize (options) {
+    options = options || {};
 
-      this._metrics = options.metrics;
-      this._notifier = options.notifier;
-      this._window = options.window || window;
+    this._metrics = options.metrics;
+    this._notifier = options.notifier;
+    this._window = options.window || window;
 
-      this._storage = Storage.factory('sessionStorage', this._window);
+    this._storage = Storage.factory('sessionStorage', this._window);
 
-      this._notifier.on('show-view', this._onShowView.bind(this));
-      this._notifier.on('show-child-view', this._onShowChildView.bind(this));
-    },
+    this._notifier.on('show-view', this._onShowView.bind(this));
+    this._notifier.on('show-child-view', this._onShowChildView.bind(this));
+  },
 
-    _onShowView (View, viewOptions) {
-      this.logIfRefresh(viewOptions.viewName);
-    },
+  _onShowView (View, viewOptions) {
+    this.logIfRefresh(viewOptions.viewName);
+  },
 
-    _onShowChildView (ChildView, ParentView, viewOptions) {
-      this.logIfRefresh(viewOptions.viewName);
-    },
+  _onShowChildView (ChildView, ParentView, viewOptions) {
+    this.logIfRefresh(viewOptions.viewName);
+  },
 
-    /**
-     * Log a `<view_name>.refresh` event if `viewName` matches the
-     * previous view's name. Works across page reloads.
-     *
-     * @param {String} viewName
-     */
-    logIfRefresh (viewName) {
-      var refreshMetrics = this._storage.get('last_page_loaded');
+  /**
+   * Log a `<view_name>.refresh` event if `viewName` matches the
+   * previous view's name. Works across page reloads.
+   *
+   * @param {String} viewName
+   */
+  logIfRefresh (viewName) {
+    var refreshMetrics = this._storage.get('last_page_loaded');
 
-      if (isRefresh(refreshMetrics, viewName)) {
-        this._metrics.logViewEvent(viewName, 'refresh');
-      }
-
-      refreshMetrics = {
-        timestamp: Date.now(),
-        view: viewName
-      };
-
-      this._storage.set('last_page_loaded', refreshMetrics);
+    if (isRefresh(refreshMetrics, viewName)) {
+      this._metrics.logViewEvent(viewName, 'refresh');
     }
-  });
+
+    refreshMetrics = {
+      timestamp: Date.now(),
+      view: viewName
+    };
+
+    this._storage.set('last_page_loaded', refreshMetrics);
+  }
 });

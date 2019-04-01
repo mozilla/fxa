@@ -4,32 +4,28 @@
 
 // mock out a DOM event
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
+function DOMEventMock() {
+  // nothing to do
+}
 
-  function DOMEventMock() {
-    // nothing to do
+DOMEventMock.prototype = {
+  preventDefault () {
+    this._defaultPrevented = true;
+  },
+
+  isDefaultPrevented () {
+    return !! this._defaultPrevented;
+  },
+
+  stopPropagation () {
+    this._propagationStopped = true;
+  },
+
+  isPropagationStopped () {
+    return !! this._propagationStopped;
   }
+};
 
-  DOMEventMock.prototype = {
-    preventDefault () {
-      this._defaultPrevented = true;
-    },
-
-    isDefaultPrevented () {
-      return !! this._defaultPrevented;
-    },
-
-    stopPropagation () {
-      this._propagationStopped = true;
-    },
-
-    isPropagationStopped () {
-      return !! this._propagationStopped;
-    }
-  };
-
-  module.exports = DOMEventMock;
-});
-
+module.exports = DOMEventMock;

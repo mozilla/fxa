@@ -4,43 +4,41 @@
 
 // test the metrics library
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const chai = require('chai');
-  const Metrics = require('lib/metrics');
-  const NullMetrics = require('lib/null-metrics');
+const chai = require('chai');
+const Metrics = require('lib/metrics');
+const NullMetrics = require('lib/null-metrics');
 
-  var assert = chai.assert;
+var assert = chai.assert;
 
-  describe('lib/null-metrics', function () {
-    var nullMetrics;
+describe('lib/null-metrics', function () {
+  var nullMetrics;
 
-    beforeEach(function () {
-      nullMetrics = new NullMetrics();
-    });
+  beforeEach(function () {
+    nullMetrics = new NullMetrics();
+  });
 
-    afterEach(function () {
-      nullMetrics = null;
-    });
+  afterEach(function () {
+    nullMetrics = null;
+  });
 
-    it('has the same function signature as Metrics', function () {
-      for (var key in Metrics.prototype) {
-        if (typeof Metrics.prototype[key] === 'function') {
-          assert.isFunction(nullMetrics[key], key);
-        }
+  it('has the same function signature as Metrics', function () {
+    for (var key in Metrics.prototype) {
+      if (typeof Metrics.prototype[key] === 'function') {
+        assert.isFunction(nullMetrics[key], key);
       }
-    });
+    }
+  });
 
-    it('flush returns a promise', function () {
-      return nullMetrics.flush()
-        .then(function () {
-          assert.isTrue(true);
-        });
-    });
+  it('flush returns a promise', function () {
+    return nullMetrics.flush()
+      .then(function () {
+        assert.isTrue(true);
+      });
+  });
 
-    it('reports that real collection is not enabled', function () {
-      assert.isFalse(nullMetrics.isCollectionEnabled());
-    });
+  it('reports that real collection is not enabled', function () {
+    assert.isFalse(nullMetrics.isCollectionEnabled());
   });
 });

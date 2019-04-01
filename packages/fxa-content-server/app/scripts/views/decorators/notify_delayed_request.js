@@ -7,36 +7,34 @@
  * longer than expected
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const AuthErrors = require('../../lib/auth-errors');
+const AuthErrors = require('../../lib/auth-errors');
 
-  function notifyDelayedRequest(handler) {
-    return function () {
-      var args = arguments;
-      var workingText;
+function notifyDelayedRequest(handler) {
+  return function () {
+    var args = arguments;
+    var workingText;
 
-      this.clearTimeout(this._workingTimeout);
+    this.clearTimeout(this._workingTimeout);
 
-      this._workingTimeout = this.setTimeout(() => {
-        var err = AuthErrors.toError('WORKING');
-        workingText = this.displayError(err);
-      }, this.LONGER_THAN_EXPECTED);
+    this._workingTimeout = this.setTimeout(() => {
+      var err = AuthErrors.toError('WORKING');
+      workingText = this.displayError(err);
+    }, this.LONGER_THAN_EXPECTED);
 
-      return Promise.resolve().then(() => this.invokeHandler(handler, args))
-        .then((value) => {
-          this.clearTimeout(this._workingTimeout);
-          if (workingText === this.$('.error').text()) {
-            this.hideError();
-          }
-          return value;
-        }, (err) => {
-          this.clearTimeout(this._workingTimeout);
-          throw err;
-        });
-    };
-  }
+    return Promise.resolve().then(() => this.invokeHandler(handler, args))
+      .then((value) => {
+        this.clearTimeout(this._workingTimeout);
+        if (workingText === this.$('.error').text()) {
+          this.hideError();
+        }
+        return value;
+      }, (err) => {
+        this.clearTimeout(this._workingTimeout);
+        throw err;
+      });
+  };
+}
 
-  module.exports = notifyDelayedRequest;
-});
+module.exports = notifyDelayedRequest;

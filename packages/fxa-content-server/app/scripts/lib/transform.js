@@ -16,30 +16,28 @@
  * `param` field set to the invalid field's name.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const Vat = require('./vat');
+const Vat = require('./vat');
 
-  module.exports = {
-    /**
-     * Transform and validate `data` using `schema`.
-     *
-     * @param {Object} data - data to validate
-     * @param {Object} schema - schema that can be passed to the validator
-     * @param {Object} Errors - Errors module used to create errors
-     * @returns {Object} validation/transformation results
-     */
-    transformUsingSchema (data, schema, Errors) {
-      var result = Vat.validate(data, schema);
-      var error = result.error;
-      if (error instanceof ReferenceError) {
-        throw Errors.toMissingParameterError(error.key);
-      } else if (error instanceof TypeError) {
-        throw Errors.toInvalidParameterError(error.key);
-      }
-
-      return result.value;
+module.exports = {
+  /**
+   * Transform and validate `data` using `schema`.
+   *
+   * @param {Object} data - data to validate
+   * @param {Object} schema - schema that can be passed to the validator
+   * @param {Object} Errors - Errors module used to create errors
+   * @returns {Object} validation/transformation results
+   */
+  transformUsingSchema (data, schema, Errors) {
+    var result = Vat.validate(data, schema);
+    var error = result.error;
+    if (error instanceof ReferenceError) {
+      throw Errors.toMissingParameterError(error.key);
+    } else if (error instanceof TypeError) {
+      throw Errors.toInvalidParameterError(error.key);
     }
-  };
-});
+
+    return result.value;
+  }
+};

@@ -4,19 +4,17 @@
 
 // stub out the fxa-client object for testing.
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const FxaClientWrapper = require('lib/fxa-client');
+const FxaClientWrapper = require('lib/fxa-client');
 
-  function FxaClientWrapperMock() {
-  }
+function FxaClientWrapperMock() {
+}
 
-  Object.keys(FxaClientWrapper.prototype).forEach(function (method) {
-    FxaClientWrapperMock.prototype[method] = function () {
-      return Promise.reject(new Error('method "' + method + '" should be stubbed'));
-    };
-  });
-
-  module.exports = FxaClientWrapperMock;
+Object.keys(FxaClientWrapper.prototype).forEach(function (method) {
+  FxaClientWrapperMock.prototype[method] = function () {
+    return Promise.reject(new Error('method "' + method + '" should be stubbed'));
+  };
 });
+
+module.exports = FxaClientWrapperMock;

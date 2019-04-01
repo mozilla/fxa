@@ -2,75 +2,73 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const Broker = require('models/auth_brokers/base');
-  const chai = require('chai');
-  const Relier = require('models/reliers/relier');
-  const sinon = require('sinon');
-  const View = require('views/cannot_create_account');
+const Broker = require('models/auth_brokers/base');
+const chai = require('chai');
+const Relier = require('models/reliers/relier');
+const sinon = require('sinon');
+const View = require('views/cannot_create_account');
 
-  var assert = chai.assert;
+var assert = chai.assert;
 
-  describe('views/cannot_create_account', function () {
-    var view;
-    var relier;
-    var broker;
+describe('views/cannot_create_account', function () {
+  var view;
+  var relier;
+  var broker;
 
-    beforeEach(function () {
-      relier = new Relier();
-      broker = new Broker({
-        relier: relier
+  beforeEach(function () {
+    relier = new Relier();
+    broker = new Broker({
+      relier: relier
+    });
+    view = new View({
+      broker: broker,
+      relier: relier
+    });
+  });
+
+  afterEach(function () {
+    view.remove();
+    view.destroy();
+  });
+
+  it('ftc link opens in a new tab for sync', function () {
+    sinon.stub(relier, 'isSync').callsFake(function () {
+      return true;
+    });
+
+    return view.render()
+      .then(function () {
+        assert.ok(view.$('#fxa-cannot-create-account-header').length);
+        assert.equal(view.$('.ftc').attr('target'), '_blank');
       });
-      view = new View({
-        broker: broker,
-        relier: relier
+  });
+
+  it('ftc link opens in a same tab for all others', function () {
+    sinon.stub(relier, 'isSync').callsFake(function () {
+      return false;
+    });
+
+    return view.render()
+      .then(function () {
+        assert.equal(view.$('.ftc').attr('target'), null);
       });
-    });
+  });
 
-    afterEach(function () {
-      view.remove();
-      view.destroy();
-    });
-
-    it('ftc link opens in a new tab for sync', function () {
-      sinon.stub(relier, 'isSync').callsFake(function () {
-        return true;
+  it('has a working `Learn More` link with the default broker', function () {
+    return view.render()
+      .then(function () {
+        assert.lengthOf(view.$('.show-visible-url'), 0);
       });
+  });
 
-      return view.render()
-        .then(function () {
-          assert.ok(view.$('#fxa-cannot-create-account-header').length);
-          assert.equal(view.$('.ftc').attr('target'), '_blank');
-        });
-    });
+  it('has a `Learn More` link converted to text with `convertExternalLinksToText` capability', function () {
+    broker.setCapability('convertExternalLinksToText', true);
 
-    it('ftc link opens in a same tab for all others', function () {
-      sinon.stub(relier, 'isSync').callsFake(function () {
-        return false;
+    return view.render()
+      .then(function () {
+        assert.lengthOf(view.$('.visible-url'), 1);
       });
-
-      return view.render()
-        .then(function () {
-          assert.equal(view.$('.ftc').attr('target'), null);
-        });
-    });
-
-    it('has a working `Learn More` link with the default broker', function () {
-      return view.render()
-        .then(function () {
-          assert.lengthOf(view.$('.show-visible-url'), 0);
-        });
-    });
-
-    it('has a `Learn More` link converted to text with `convertExternalLinksToText` capability', function () {
-      broker.setCapability('convertExternalLinksToText', true);
-
-      return view.render()
-        .then(function () {
-          assert.lengthOf(view.$('.visible-url'), 1);
-        });
-    });
   });
 });

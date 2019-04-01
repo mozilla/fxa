@@ -6,19 +6,16 @@
  * Email information
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const Backbone = require('backbone');
+const Backbone = require('backbone');
 
-  var Email = Backbone.Model.extend({
-    defaults: {
-      email: null,
-      isPrimary: false,
-      verified: false
-    },
-  });
-
-  module.exports = Email;
+var Email = Backbone.Model.extend({
+  defaults: {
+    email: null,
+    isPrimary: false,
+    verified: false
+  },
 });
 
+module.exports = Email;

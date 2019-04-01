@@ -2,58 +2,54 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const chai = require('chai');
-  const NullStorage = require('lib/null-storage');
+const chai = require('chai');
+const NullStorage = require('lib/null-storage');
 
-  var assert = chai.assert;
+var assert = chai.assert;
 
-  describe('lib/null-storage', function () {
-    var storage;
+describe('lib/null-storage', function () {
+  var storage;
 
-    beforeEach(function () {
-      storage = new NullStorage();
-    });
-    describe('get/set', function () {
-      it('can take a key value pair', function () {
-        storage.setItem('key', 'value');
-        assert.equal(storage.getItem('key'), 'value');
-      });
-
-      it('can take object values', function () {
-        storage.setItem('key', { foo: 'bar' });
-        assert.equal(storage.getItem('key').foo, 'bar');
-      });
-
-      it('set without a key does nothing', function () {
-        assert.isUndefined(storage.setItem());
-      });
+  beforeEach(function () {
+    storage = new NullStorage();
+  });
+  describe('get/set', function () {
+    it('can take a key value pair', function () {
+      storage.setItem('key', 'value');
+      assert.equal(storage.getItem('key'), 'value');
     });
 
-    describe('remove', function () {
-      it('with a key clears item', function () {
-        storage.setItem('key', 'value');
-        storage.removeItem('key');
-
-        assert.isUndefined(storage.getItem('key'));
-      });
-
-      it('remove without a key does nothing', function () {
-        storage.removeItem();
-      });
+    it('can take object values', function () {
+      storage.setItem('key', { foo: 'bar' });
+      assert.equal(storage.getItem('key').foo, 'bar');
     });
 
-    describe('clear', function () {
-      it('clears all items', function () {
-        storage.setItem('key', 'value');
-        storage.clear();
+    it('set without a key does nothing', function () {
+      assert.isUndefined(storage.setItem());
+    });
+  });
 
-        assert.isUndefined(storage.getItem('key'));
-      });
+  describe('remove', function () {
+    it('with a key clears item', function () {
+      storage.setItem('key', 'value');
+      storage.removeItem('key');
+
+      assert.isUndefined(storage.getItem('key'));
+    });
+
+    it('remove without a key does nothing', function () {
+      storage.removeItem();
+    });
+  });
+
+  describe('clear', function () {
+    it('clears all items', function () {
+      storage.setItem('key', 'value');
+      storage.clear();
+
+      assert.isUndefined(storage.getItem('key'));
     });
   });
 });
-
-

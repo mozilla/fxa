@@ -13,51 +13,49 @@
  * the formPrefill model. `name` is preferred for elements with both.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  function getKey ($el) {
-    return $el.prop('name') || $el.prop('id');
-  }
+function getKey ($el) {
+  return $el.prop('name') || $el.prop('id');
+}
 
-  function isElementFillable ($el, formPrefill) {
-    const key = getKey($el);
-    return ! $el.__val() &&
-           $el.attr('autocomplete') !== 'off' &&
-           key &&
-           !! formPrefill.get(key);
-  }
+function isElementFillable ($el, formPrefill) {
+  const key = getKey($el);
+  return ! $el.__val() &&
+          $el.attr('autocomplete') !== 'off' &&
+          key &&
+          !! formPrefill.get(key);
+}
 
-  module.exports = {
-    initialize (options = {}) {
-      this.formPrefill = options.formPrefill;
+module.exports = {
+  initialize (options = {}) {
+    this.formPrefill = options.formPrefill;
 
-      // NOTE: this assumes `rendered` will be triggered after
-      // the view has been rendered, but before `afterRender`.
-      // `afterRender` takes care of seeding the model that tracks
-      // whether form values have changed and enabling the form
-      // if valid.
-      this.on('rendered', () => this.fillPrefillableValues());
-    },
+    // NOTE: this assumes `rendered` will be triggered after
+    // the view has been rendered, but before `afterRender`.
+    // `afterRender` takes care of seeding the model that tracks
+    // whether form values have changed and enabling the form
+    // if valid.
+    this.on('rendered', () => this.fillPrefillableValues());
+  },
 
-    fillPrefillableValues () {
-      this.getFormElements().each((index, el) => {
-        const $el = this.$(el);
-        if (isElementFillable($el, this.formPrefill)) {
-          const key = getKey($el);
-          $el.val(this.formPrefill.get(key));
-        }
-      });
-    },
-
-    beforeDestroy () {
-      this.getFormElements().each((index, el) => {
-        const $el = this.$(el);
+  fillPrefillableValues () {
+    this.getFormElements().each((index, el) => {
+      const $el = this.$(el);
+      if (isElementFillable($el, this.formPrefill)) {
         const key = getKey($el);
-        if (key) {
-          this.formPrefill.set(key, $el.__val());
-        }
-      });
-    }
-  };
-});
+        $el.val(this.formPrefill.get(key));
+      }
+    });
+  },
+
+  beforeDestroy () {
+    this.getFormElements().each((index, el) => {
+      const $el = this.$(el);
+      const key = getKey($el);
+      if (key) {
+        this.formPrefill.set(key, $el.__val());
+      }
+    });
+  }
+};

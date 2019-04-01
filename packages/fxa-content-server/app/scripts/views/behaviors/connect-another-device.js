@@ -10,47 +10,45 @@
  * Requires the view to mixin the ConnectAnotherDeviceMixin
  */
 
-define(function(require, exports, module) {
-  'use strict';
+'use strict';
 
-  const Cocktail = require('cocktail');
-  const ConnectAnotherDeviceMixin = require('../mixins/connect-another-device-mixin');
+const Cocktail = require('cocktail');
+const ConnectAnotherDeviceMixin = require('../mixins/connect-another-device-mixin');
 
-  /**
-   * Create a ConnectAnotherDevice behavior.
-   *
-   * @param {Object} defaultBehavior - behavior to invoke if ineligible
-   *   for ConnectAnotherDevice
-   * @returns {Function} behavior
-   */
-  module.exports = function (defaultBehavior) {
-    const behavior = function (view, account) {
-      return Promise.resolve().then(() => {
-        behavior.ensureConnectAnotherDeviceMixin(view);
+/**
+ * Create a ConnectAnotherDevice behavior.
+ *
+ * @param {Object} defaultBehavior - behavior to invoke if ineligible
+ *   for ConnectAnotherDevice
+ * @returns {Function} behavior
+ */
+module.exports = function (defaultBehavior) {
+  const behavior = function (view, account) {
+    return Promise.resolve().then(() => {
+      behavior.ensureConnectAnotherDeviceMixin(view);
 
-        if (view.isEligibleForConnectAnotherDevice(account)) {
-          return view.navigateToConnectAnotherDeviceScreen(account);
-        }
-      }).then(() => {
-        // if the user is not eligible for CAD, or if the .navigateToConnect*
-        // function did not navigate, then return the default behavior.
-        if (view.hasNavigated()) {
-          // Cause the invokeBrokerMethod chain to stop, the screen
-          // has already redirected.
-          return new Promise(() => {});
-        }
-        return defaultBehavior;
-      });
-    };
-
-    behavior.ensureConnectAnotherDeviceMixin = function (view) {
-      if (! Cocktail.isMixedIn(view, ConnectAnotherDeviceMixin)) {
-        Cocktail.mixin(view, ConnectAnotherDeviceMixin);
+      if (view.isEligibleForConnectAnotherDevice(account)) {
+        return view.navigateToConnectAnotherDeviceScreen(account);
       }
-    };
-
-    behavior.type = 'connect-another-device';
-
-    return behavior;
+    }).then(() => {
+      // if the user is not eligible for CAD, or if the .navigateToConnect*
+      // function did not navigate, then return the default behavior.
+      if (view.hasNavigated()) {
+        // Cause the invokeBrokerMethod chain to stop, the screen
+        // has already redirected.
+        return new Promise(() => {});
+      }
+      return defaultBehavior;
+    });
   };
-});
+
+  behavior.ensureConnectAnotherDeviceMixin = function (view) {
+    if (! Cocktail.isMixedIn(view, ConnectAnotherDeviceMixin)) {
+      Cocktail.mixin(view, ConnectAnotherDeviceMixin);
+    }
+  };
+
+  behavior.type = 'connect-another-device';
+
+  return behavior;
+};

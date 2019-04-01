@@ -8,57 +8,54 @@
  * @class AccountResetMixin
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const AuthErrors = require('../../lib/auth-errors');
-  const BaseView = require('../base');
-  const t = msg => msg;
+const AuthErrors = require('../../lib/auth-errors');
+const BaseView = require('../base');
+const t = msg => msg;
 
-  var AccountResetMixin = {
-    initialize (options) {
-      options = options || {};
+var AccountResetMixin = {
+  initialize (options) {
+    options = options || {};
 
-      this._session = options.session;
-    },
+    this._session = options.session;
+  },
 
-    events: {
-      'click a[href="/confirm_reset_password"]':
-          BaseView.preventDefaultThen('sendAccountResetEmail')
-    },
+  events: {
+    'click a[href="/confirm_reset_password"]':
+        BaseView.preventDefaultThen('sendAccountResetEmail')
+  },
 
-    /**
-     * Notify the user their account has been reset
-     *
-     * @param {Object} account - account that has been reset
-     * @returns {String}
-     */
-    notifyOfResetAccount (account) {
-      this._resetAccount = account;
+  /**
+   * Notify the user their account has been reset
+   *
+   * @param {Object} account - account that has been reset
+   * @returns {String}
+   */
+  notifyOfResetAccount (account) {
+    this._resetAccount = account;
 
-      var err = AuthErrors.toError('ACCOUNT_RESET');
+    var err = AuthErrors.toError('ACCOUNT_RESET');
 
-      err.forceMessage =
-        t('Your account has been locked for security reasons') + '<br>' +
-        '<a href="/confirm_reset_password">' + t('Reset password') + '</a>';
+    err.forceMessage =
+      t('Your account has been locked for security reasons') + '<br>' +
+      '<a href="/confirm_reset_password">' + t('Reset password') + '</a>';
 
-      return this.unsafeDisplayError(err);
-    },
+    return this.unsafeDisplayError(err);
+  },
 
-    /**
-     * Send the account reset email
-     *
-     * @returns {Promise} - resolves when complete
-     */
-    sendAccountResetEmail () {
-      return this.resetPassword(this._resetAccount.get('email'))
-        .catch((err) => {
-          this._session.clear('oauth');
-          this.displayError(err);
-        });
-    }
-  };
+  /**
+   * Send the account reset email
+   *
+   * @returns {Promise} - resolves when complete
+   */
+  sendAccountResetEmail () {
+    return this.resetPassword(this._resetAccount.get('email'))
+      .catch((err) => {
+        this._session.clear('oauth');
+        this.displayError(err);
+      });
+  }
+};
 
-  module.exports = AccountResetMixin;
-});
-
+module.exports = AccountResetMixin;

@@ -5,34 +5,32 @@
 /**
  * Validate COPPA input.
  */
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const AuthErrors = require('../../lib/auth-errors');
-  const MAX_VALID_AGE = 130;
+const AuthErrors = require('../../lib/auth-errors');
+const MAX_VALID_AGE = 130;
 
-  module.exports = {
-    match ($el) {
-      return $el.attr('type') === 'number' && $el.prop('id') === 'age';
-    },
+module.exports = {
+  match ($el) {
+    return $el.attr('type') === 'number' && $el.prop('id') === 'age';
+  },
 
-    validate () {
-      const isRequired = typeof this.attr('required') !== 'undefined';
-      const value = this.val();
+  validate () {
+    const isRequired = typeof this.attr('required') !== 'undefined';
+    const value = this.val();
 
-      if (value > MAX_VALID_AGE) {
-        throw AuthErrors.toError('INVALID_AGE');
-      }
-
-      if (isRequired && ! isValidAge(value)) {
-        throw AuthErrors.toError('AGE_REQUIRED');
-      }
+    if (value > MAX_VALID_AGE) {
+      throw AuthErrors.toError('INVALID_AGE');
     }
-  };
 
-  function isValidAge(value) {
-    return value &&
-           value.length &&
-           ! isNaN(parseInt(value, 10));
+    if (isRequired && ! isValidAge(value)) {
+      throw AuthErrors.toError('AGE_REQUIRED');
+    }
   }
-});
+};
+
+function isValidAge(value) {
+  return value &&
+          value.length &&
+          ! isNaN(parseInt(value, 10));
+}

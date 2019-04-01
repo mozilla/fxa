@@ -8,22 +8,20 @@
  * @mixin SmsMixin
  */
 
-define(function(require, exports, module) {
-  'use strict';
+'use strict';
 
-  const ExperimentMixin = require('./experiment-mixin');
+const ExperimentMixin = require('./experiment-mixin');
 
-  module.exports = {
-    dependsOn: [ ExperimentMixin ],
+module.exports = {
+  dependsOn: [ ExperimentMixin ],
 
-    /**
-     * Get the features that should be enabled when sending an SMS
-     *
-     * @returns {String[]}
-     */
-    getSmsFeatures () {
-      // If SMS is enabled for a user, always send a signinCode.
-      return ['signinCodes'];
-    }
-  };
-});
+  /**
+   * Get the features that should be enabled when sending an SMS
+   *
+   * @returns {String[]}
+   */
+  getSmsFeatures () {
+    // If SMS is enabled for a user, always send a signinCode.
+    return ['signinCodes'];
+  }
+};

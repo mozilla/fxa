@@ -5,35 +5,33 @@
 // This is a memory store that's api compatible with localStorage/sessionStorage.
 // It's used for testing lib/storage.
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
 
-  function NullStorage () {
-    this._storage = {};
+function NullStorage () {
+  this._storage = {};
+}
+
+NullStorage.prototype.getItem = function (key) {
+  return key ? this._storage[key] : null;
+};
+
+NullStorage.prototype.setItem = function (key, val) {
+  if (! key) {
+    return;
   }
+  this._storage[key] = val;
+};
 
-  NullStorage.prototype.getItem = function (key) {
-    return key ? this._storage[key] : null;
-  };
+NullStorage.prototype.removeItem = function (key) {
+  if (! key) {
+    return;
+  }
+  delete this._storage[key];
+};
 
-  NullStorage.prototype.setItem = function (key, val) {
-    if (! key) {
-      return;
-    }
-    this._storage[key] = val;
-  };
+NullStorage.prototype.clear = function () {
+  this._storage = {};
+};
 
-  NullStorage.prototype.removeItem = function (key) {
-    if (! key) {
-      return;
-    }
-    delete this._storage[key];
-  };
-
-  NullStorage.prototype.clear = function () {
-    this._storage = {};
-  };
-
-  module.exports = NullStorage;
-});
+module.exports = NullStorage;

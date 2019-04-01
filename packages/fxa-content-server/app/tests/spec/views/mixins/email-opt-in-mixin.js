@@ -2,106 +2,104 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const { assert } = require('chai');
-  const Cocktail = require('cocktail');
-  const EmailOptInMixin = require('views/mixins/email-opt-in-mixin');
-  const sinon = require('sinon');
-  const BaseView = require('views/base');
+const { assert } = require('chai');
+const Cocktail = require('cocktail');
+const EmailOptInMixin = require('views/mixins/email-opt-in-mixin');
+const sinon = require('sinon');
+const BaseView = require('views/base');
 
-  const View = BaseView.extend({
-    template: () => `
-      <input type="checkbox" class="marketing-email-optin" checked>Opt-in to email</input>
-    `
+const View = BaseView.extend({
+  template: () => `
+    <input type="checkbox" class="marketing-email-optin" checked>Opt-in to email</input>
+  `
+});
+
+Cocktail.mixin(
+  View,
+  EmailOptInMixin
+);
+
+describe('views/mixins/email-opt-in-mixin', function () {
+  let experimentGroupingRules;
+  let marketingEmailEnabled;
+  let view;
+
+  beforeEach(() => {
+    experimentGroupingRules = {
+      choose: () => {}
+    };
+    marketingEmailEnabled = true;
+
+    view = new View({
+      experimentGroupingRules,
+      marketingEmailEnabled
+    });
   });
 
-  Cocktail.mixin(
-    View,
-    EmailOptInMixin
-  );
+  it('exports correct interface', function () {
+    assert.isObject(EmailOptInMixin);
+    assert.lengthOf(Object.keys(EmailOptInMixin), 5);
+    assert.isFunction(EmailOptInMixin.hasOptedInToMarketingEmail);
+  });
 
-  describe('views/mixins/email-opt-in-mixin', function () {
-    let experimentGroupingRules;
-    let marketingEmailEnabled;
-    let view;
+  describe('render', () => {
+    let communicationPrefsVisible;
 
     beforeEach(() => {
-      experimentGroupingRules = {
-        choose: () => {}
-      };
-      marketingEmailEnabled = true;
-
-      view = new View({
-        experimentGroupingRules,
-        marketingEmailEnabled
-      });
+      sinon.stub(experimentGroupingRules, 'choose').callsFake(() => communicationPrefsVisible);
+      sinon.spy(view, 'logViewEvent');
+      sinon.spy(view, 'template');
     });
 
-    it('exports correct interface', function () {
-      assert.isObject(EmailOptInMixin);
-      assert.lengthOf(Object.keys(EmailOptInMixin), 5);
-      assert.isFunction(EmailOptInMixin.hasOptedInToMarketingEmail);
-    });
 
-    describe('render', () => {
-      let communicationPrefsVisible;
-
+    describe('enabled for user', () => {
       beforeEach(() => {
-        sinon.stub(experimentGroupingRules, 'choose').callsFake(() => communicationPrefsVisible);
-        sinon.spy(view, 'logViewEvent');
-        sinon.spy(view, 'template');
-      });
-
-
-      describe('enabled for user', () => {
-        beforeEach(() => {
-          communicationPrefsVisible = true;
-          return view.render();
-        });
-
-        it('sets `isEmailOptInVisible=true, logs correctly`', () => {
-          assert.isTrue(view.template.calledOnce);
-          const templateArgs = view.template.args[0][0];
-          assert.isTrue(templateArgs.isEmailOptInVisible);
-
-          assert.isTrue(view.logViewEvent.calledOnce);
-          assert.isTrue(view.logViewEvent.calledWith('email-optin.visible.true'));
-        });
-      });
-
-      describe('disabled for user', () => {
-        beforeEach(() => {
-          communicationPrefsVisible = false;
-          return view.render();
-        });
-
-        it('sets `isEmailOptInVisible=false, logs correctly`', () => {
-          assert.isTrue(view.template.calledOnce);
-          const templateArgs = view.template.args[0][0];
-          assert.isFalse(templateArgs.isEmailOptInVisible);
-
-          assert.isTrue(view.logViewEvent.calledOnce);
-          assert.isTrue(view.logViewEvent.calledWith('email-optin.visible.false'));
-        });
-      });
-    });
-
-    describe('hasOptedInToMarketingEmail', () => {
-      beforeEach(() => {
+        communicationPrefsVisible = true;
         return view.render();
       });
 
-      it('returns `true` if the checkbox is checked', () => {
-        view.$('.marketing-email-optin').attr('checked', 'checked');
-        assert.isTrue(view.hasOptedInToMarketingEmail());
+      it('sets `isEmailOptInVisible=true, logs correctly`', () => {
+        assert.isTrue(view.template.calledOnce);
+        const templateArgs = view.template.args[0][0];
+        assert.isTrue(templateArgs.isEmailOptInVisible);
+
+        assert.isTrue(view.logViewEvent.calledOnce);
+        assert.isTrue(view.logViewEvent.calledWith('email-optin.visible.true'));
+      });
+    });
+
+    describe('disabled for user', () => {
+      beforeEach(() => {
+        communicationPrefsVisible = false;
+        return view.render();
       });
 
-      it('returns `false` if the checkbox is unchecked', () => {
-        view.$('.marketing-email-optin').removeAttr('checked');
-        assert.isFalse(view.hasOptedInToMarketingEmail());
+      it('sets `isEmailOptInVisible=false, logs correctly`', () => {
+        assert.isTrue(view.template.calledOnce);
+        const templateArgs = view.template.args[0][0];
+        assert.isFalse(templateArgs.isEmailOptInVisible);
+
+        assert.isTrue(view.logViewEvent.calledOnce);
+        assert.isTrue(view.logViewEvent.calledWith('email-optin.visible.false'));
       });
+    });
+  });
+
+  describe('hasOptedInToMarketingEmail', () => {
+    beforeEach(() => {
+      return view.render();
+    });
+
+    it('returns `true` if the checkbox is checked', () => {
+      view.$('.marketing-email-optin').attr('checked', 'checked');
+      assert.isTrue(view.hasOptedInToMarketingEmail());
+    });
+
+    it('returns `false` if the checkbox is unchecked', () => {
+      view.$('.marketing-email-optin').removeAttr('checked');
+      assert.isFalse(view.hasOptedInToMarketingEmail());
     });
   });
 });

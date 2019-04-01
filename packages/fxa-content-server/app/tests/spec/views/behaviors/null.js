@@ -2,15 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const NullBehavior = require('views/behaviors/null');
+const NullBehavior = require('views/behaviors/null');
 
-  describe('views/behaviors/null', function () {
-    it('does nothing', function () {
-      var nullBehavior = new NullBehavior();
-      nullBehavior({});
-    });
+describe('views/behaviors/null', function () {
+  it('does nothing', function () {
+    var nullBehavior = new NullBehavior();
+    nullBehavior({});
   });
 });

@@ -5,10 +5,9 @@
 /**
  * List of SMS message IDs
  */
-define(function(require, exports, module) {
-  'use strict';
 
-  module.exports = {
-    FIREFOX_MOBILE_INSTALL: 1
-  };
-});
+'use strict';
+
+module.exports = {
+  FIREFOX_MOBILE_INSTALL: 1
+};

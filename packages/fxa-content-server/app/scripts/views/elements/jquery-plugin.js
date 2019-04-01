@@ -9,62 +9,60 @@
  * 2. `validate` - validate the element value. If valid, returns falsy value,
  *    if invalid, returns an Error
  */
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const $ = require('jquery');
-  const _ = require('underscore');
-  const checkboxInput = require('./checkbox-input');
-  const coppaAgeInput = require('./coppa-age-input');
-  const defaultElement = require('./default');
-  const emailInput = require('./email-input');
-  const passwordInput = require('./password-input');
-  const recoveryCodeInput = require('./recovery-code-input');
-  const recoveryKeyInput = require('./recovery-key-input');
-  const telInput = require('./tel-input');
-  const textInput = require('./text-input');
-  const totpCodeInput = require('./totp-code-input');
-  const tokenCodeInput = require('./token-code-input');
-  const unblockCodeInput = require('./unblock-code-input');
+const $ = require('jquery');
+const _ = require('underscore');
+const checkboxInput = require('./checkbox-input');
+const coppaAgeInput = require('./coppa-age-input');
+const defaultElement = require('./default');
+const emailInput = require('./email-input');
+const passwordInput = require('./password-input');
+const recoveryCodeInput = require('./recovery-code-input');
+const recoveryKeyInput = require('./recovery-key-input');
+const telInput = require('./tel-input');
+const textInput = require('./text-input');
+const totpCodeInput = require('./totp-code-input');
+const tokenCodeInput = require('./token-code-input');
+const unblockCodeInput = require('./unblock-code-input');
 
-  const elementHelpers = [
-    totpCodeInput,
-    tokenCodeInput,
-    recoveryCodeInput,
-    recoveryKeyInput,
-    checkboxInput,
-    coppaAgeInput,
-    emailInput,
-    passwordInput,
-    unblockCodeInput,
-    telInput,
-    textInput,
-    defaultElement // defaultElement is last since it is the fallback.
-  ];
+const elementHelpers = [
+  totpCodeInput,
+  tokenCodeInput,
+  recoveryCodeInput,
+  recoveryKeyInput,
+  checkboxInput,
+  coppaAgeInput,
+  emailInput,
+  passwordInput,
+  unblockCodeInput,
+  telInput,
+  textInput,
+  defaultElement // defaultElement is last since it is the fallback.
+];
 
-  function getHelper($el) {
-    return _.find(elementHelpers, (elementHelper) => elementHelper.match($el));
+function getHelper($el) {
+  return _.find(elementHelpers, (elementHelper) => elementHelper.match($el));
+}
+
+$.fn.validate = function () {
+  if (this.data('validate')) {
+    // the element has a custom validator attached to it,
+    // probably from a view. Depend on the validator instead
+    // of the standard validation functions.
+    return this.data('validate')();
+  } else {
+    return getHelper(this).validate.call(this);
   }
+};
 
-  $.fn.validate = function () {
-    if (this.data('validate')) {
-      // the element has a custom validator attached to it,
-      // probably from a view. Depend on the validator instead
-      // of the standard validation functions.
-      return this.data('validate')();
-    } else {
-      return getHelper(this).validate.call(this);
-    }
-  };
+$.fn.__val = $.fn.val;
+$.fn.val = function () {
+  const elementHelper = getHelper(this);
 
-  $.fn.__val = $.fn.val;
-  $.fn.val = function () {
-    const elementHelper = getHelper(this);
-
-    if (elementHelper.val) {
-      return elementHelper.val.apply(this, arguments);
-    } else {
-      return $.fn.__val.apply(this, arguments);
-    }
-  };
-});
+  if (elementHelper.val) {
+    return elementHelper.val.apply(this, arguments);
+  } else {
+    return $.fn.__val.apply(this, arguments);
+  }
+};

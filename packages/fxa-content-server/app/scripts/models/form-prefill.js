@@ -9,20 +9,16 @@
 //
 // These values are not persisted across browser sessions.
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const Backbone = require('backbone');
+const Backbone = require('backbone');
 
-  var FormPrefill = Backbone.Model.extend({
-    defaults: {
-      age: null,
-      email: null,
-      password: null
-    }
-  });
-
-  module.exports = FormPrefill;
+var FormPrefill = Backbone.Model.extend({
+  defaults: {
+    age: null,
+    email: null,
+    password: null
+  }
 });
 
-
+module.exports = FormPrefill;

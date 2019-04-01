@@ -4,69 +4,66 @@
 
 // This module handles communication with the fxa-profile-server.
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const ProfileErrors = require('./profile-errors');
-  const xhr = require('./xhr');
+const ProfileErrors = require('./profile-errors');
+const xhr = require('./xhr');
 
-  function ProfileClient(options) {
-    options = options || {};
-    this.profileUrl = options.profileUrl;
-  }
+function ProfileClient(options) {
+  options = options || {};
+  this.profileUrl = options.profileUrl;
+}
 
-  ProfileClient.prototype._request = function (path, type, accessToken, data, headers) {
-    var request = {
-      accessToken: accessToken,
-      data: data,
-      headers: headers,
-      type: type,
-      url: this.profileUrl + path
-    };
-
-    return xhr.oauthAjax(request)
-      .then(function (result) {
-        if (result.error) {
-          throw ProfileErrors.toError(result);
-        }
-        return result;
-      }, function (xhr) {
-        throw ProfileErrors.normalizeXHRError(xhr);
-      });
+ProfileClient.prototype._request = function (path, type, accessToken, data, headers) {
+  var request = {
+    accessToken: accessToken,
+    data: data,
+    headers: headers,
+    type: type,
+    url: this.profileUrl + path
   };
 
-  // Returns the user's profile data
-  // including: email, uid, displayName, avatar
-  ProfileClient.prototype.getProfile = function (accessToken) {
-    return this._request('/v1/profile', 'get', accessToken);
-  };
-
-  ProfileClient.prototype.getAvatar = function (accessToken) {
-    return this._request('/v1/avatar', 'get', accessToken);
-  };
-
-  ProfileClient.prototype.deleteAvatar = function (accessToken, id) {
-    return this._request('/v1/avatar/' + id, 'delete', accessToken);
-  };
-
-  ProfileClient.prototype.uploadAvatar = function (accessToken, data) {
-    return this._request('/v1/avatar/upload', 'post', accessToken, data, {
-      'Content-type': data.type
+  return xhr.oauthAjax(request)
+    .then(function (result) {
+      if (result.error) {
+        throw ProfileErrors.toError(result);
+      }
+      return result;
+    }, function (xhr) {
+      throw ProfileErrors.normalizeXHRError(xhr);
     });
-  };
+};
 
-  ProfileClient.prototype.getDisplayName = function (accessToken) {
-    return this._request('/v1/display_name', 'get', accessToken);
-  };
+// Returns the user's profile data
+// including: email, uid, displayName, avatar
+ProfileClient.prototype.getProfile = function (accessToken) {
+  return this._request('/v1/profile', 'get', accessToken);
+};
 
-  ProfileClient.prototype.postDisplayName = function (accessToken, displayName) {
-    return this._request('/v1/display_name', 'post', accessToken, {
-      displayName: displayName
-    });
-  };
+ProfileClient.prototype.getAvatar = function (accessToken) {
+  return this._request('/v1/avatar', 'get', accessToken);
+};
 
-  ProfileClient.Errors = ProfileErrors;
+ProfileClient.prototype.deleteAvatar = function (accessToken, id) {
+  return this._request('/v1/avatar/' + id, 'delete', accessToken);
+};
 
-  module.exports = ProfileClient;
-});
+ProfileClient.prototype.uploadAvatar = function (accessToken, data) {
+  return this._request('/v1/avatar/upload', 'post', accessToken, data, {
+    'Content-type': data.type
+  });
+};
 
+ProfileClient.prototype.getDisplayName = function (accessToken) {
+  return this._request('/v1/display_name', 'get', accessToken);
+};
+
+ProfileClient.prototype.postDisplayName = function (accessToken, displayName) {
+  return this._request('/v1/display_name', 'post', accessToken, {
+    displayName: displayName
+  });
+};
+
+ProfileClient.Errors = ProfileErrors;
+
+module.exports = ProfileClient;

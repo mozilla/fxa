@@ -6,26 +6,23 @@
  * A model to hold reset password verification data
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const Vat = require('../../lib/vat');
-  const VerificationInfo = require('./base');
+const Vat = require('../../lib/vat');
+const VerificationInfo = require('./base');
 
-  module.exports = VerificationInfo.extend({
-    defaults: {
-      code: null,
-      email: null,
-      token: null
-    },
+module.exports = VerificationInfo.extend({
+  defaults: {
+    code: null,
+    email: null,
+    token: null
+  },
 
-    validation: {
-      code: Vat.verificationCode().required(),
-      email: Vat.email().required(),
-      emailToHashWith: Vat.email().optional(),
-      token: Vat.token().required(),
-      uid: Vat.hex().optional()
-    }
-  });
+  validation: {
+    code: Vat.verificationCode().required(),
+    email: Vat.email().required(),
+    emailToHashWith: Vat.email().optional(),
+    token: Vat.token().required(),
+    uid: Vat.hex().optional()
+  }
 });
-
