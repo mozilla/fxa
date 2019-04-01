@@ -11,21 +11,16 @@ fxa-dev
 fxa-geodb
 fxa-js-client
 fxa-crypto-relier
-#fxa-js-client-old - readonly
 fxa-jwtool
 fxa-local-dev
 fxa-oauth-console
 fxa-oauth-client
 fxa-profile-server
-fxa-python-client
-fxa-relier-client
 fxa-shared
 hapi-fxa-oauth
 PyFxA
-fxa-easter-egg
 browserid-verifier
 browserid-local-verify
-fxa-checkbox
 fxa-retention-metrics
 fxa-bugzilla-mirror
 123done
@@ -36,5 +31,4 @@ fxa-sprint-planning
 fxa-amplitude-send
 fxa-email-service
 fxa-email-event-proxy
-mozilla-services/fxa-testing-e2e
 fxa-common-password-list
