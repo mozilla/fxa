@@ -8,6 +8,9 @@ const logger = require('../logging')('routes.verify');
 const token = require('../token');
 const validators = require('../validators');
 
+const config = require('../config');
+const amplitude = require('../metrics/amplitude')(logger, config.getProperties());
+
 module.exports = {
   validate: {
     payload: {
@@ -25,21 +28,24 @@ module.exports = {
     }
   },
   handler: async function verify(req) {
-    return token.verify(req.payload.token).then(function(info) {
-      info.scope = info.scope.getScopeValues();
-      if (req.payload.email !== undefined) {
-        logger.warn('email.requested', {
-          user: info.user,
-          client_id: info.client_id,
-          scope: info.scope
-        });
-      }
-      delete info.email;
-      logger.info('verify.success', {
+    const info = await token.verify(req.payload.token);
+    info.scope = info.scope.getScopeValues();
+    if (req.payload.email !== undefined) {
+      logger.warn('email.requested', {
+        user: info.user,
         client_id: info.client_id,
         scope: info.scope
       });
-      return info;
+    }
+    delete info.email;
+    logger.info('verify.success', {
+      client_id: info.client_id,
+      scope: info.scope
     });
+    amplitude('verify.success', {
+      service: info.client_id,
+      uid: info.user
+    });
+    return info;
   }
 };

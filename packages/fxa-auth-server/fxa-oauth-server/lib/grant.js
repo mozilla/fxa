@@ -11,6 +11,8 @@ const db = require('./db');
 const util = require('./util');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const JwTool = require('fxa-jwtool');
+const logger = require('./logging')('grant');
+const amplitude = require('./metrics/amplitude')(logger, config.getProperties());
 
 const ACR_VALUE_AAL2 = 'AAL2';
 const ACCESS_TYPE_OFFLINE = 'offline';
@@ -138,6 +140,12 @@ module.exports.generateTokens = async function generateTokens(grant) {
   if (grant.scope && grant.scope.contains(SCOPE_OPENID)) {
     result.id_token = await generateIdToken(grant, access);
   }
+
+  amplitude('token.created', {
+    service: hex(grant.clientId),
+    uid: hex(grant.userId)
+  });
+
   return result;
 };
 

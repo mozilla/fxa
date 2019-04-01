@@ -7,6 +7,10 @@
   "clientManagement": {
     "enabled": true
   },
+  "clientIdToServiceNames": {
+    "dcdb5ae7add825d2": "123done",
+    "98e6508e88680e1a": "fxa-settings"
+  },
   "clients": [
     {
       "id": "dcdb5ae7add825d2",
