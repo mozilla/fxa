@@ -4,38 +4,34 @@
 
 // Basic XSS protection
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const _ = require('underscore');
-  const Constants = require('./constants');
+const _ = require('underscore');
+const Constants = require('./constants');
 
-  module.exports = {
-    // only allow http or https URLs, encoding the URL.
-    href (text) {
-      if (! _.isString(text)) {
-        return;
-      }
-
-      if (! /^https?:\/\//.test(text)) {
-        return;
-      }
-
-      var encodedURI = encodeURI(text);
-
-      // All browsers have a max length of URI that they can handle.
-      // IE9 has the shortest total length at 2083 bytes and 2048 characters
-      // for GET requests.
-      // See http://blogs.msdn.com/b/ieinternals/archive/2014/08/13/url-length-limits-in-internet-explorer.aspx
-
-      // Check the total encoded URI length
-      if (encodedURI.length > Constants.URL_MAX_LENGTH) {
-        return;
-      }
-
-      return encodedURI;
+module.exports = {
+  // only allow http or https URLs, encoding the URL.
+  href (text) {
+    if (! _.isString(text)) {
+      return;
     }
-  };
-});
 
+    if (! /^https?:\/\//.test(text)) {
+      return;
+    }
 
+    var encodedURI = encodeURI(text);
+
+    // All browsers have a max length of URI that they can handle.
+    // IE9 has the shortest total length at 2083 bytes and 2048 characters
+    // for GET requests.
+    // See http://blogs.msdn.com/b/ieinternals/archive/2014/08/13/url-length-limits-in-internet-explorer.aspx
+
+    // Check the total encoded URI length
+    if (encodedURI.length > Constants.URL_MAX_LENGTH) {
+      return;
+    }
+
+    return encodedURI;
+  }
+};

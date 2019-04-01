@@ -6,14 +6,11 @@
 // action. The back-end may perform an action based on the reason,
 // e.g. send an email.
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  return {
-    PASSWORD_CHANGE: 'password_change',
-    PASSWORD_CHECK: 'password_check',
-    PASSWORD_RESET: 'password_reset',
-    SIGN_IN: 'signin'
-  };
-});
-
+module.exports = {
+  PASSWORD_CHANGE: 'password_change',
+  PASSWORD_CHECK: 'password_check',
+  PASSWORD_RESET: 'password_reset',
+  SIGN_IN: 'signin'
+};

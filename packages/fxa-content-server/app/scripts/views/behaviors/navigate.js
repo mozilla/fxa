@@ -6,30 +6,27 @@
  * A behavior that navigates to a new view.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const _ = require('underscore');
+const _ = require('underscore');
 
-  const NavigationBehavior = function (endpoint, options = {}) {
-    const behavior = function (view, account) {
-      const navigateOptions = _.assign({}, options, { account });
-      view.navigate(endpoint, navigateOptions);
+const NavigationBehavior = function (endpoint, options = {}) {
+  const behavior = function (view, account) {
+    const navigateOptions = _.assign({}, options, { account });
+    view.navigate(endpoint, navigateOptions);
 
-      // halt the flow after navigating.
-      return new Promise(() => {});
-    };
-
-    // used for testing
-    _.assign(behavior, options, {
-      endpoint: endpoint,
-      halt: true,
-      type: 'navigate',
-    });
-
-    return behavior;
+    // halt the flow after navigating.
+    return new Promise(() => {});
   };
 
-  module.exports = NavigationBehavior;
-});
+  // used for testing
+  _.assign(behavior, options, {
+    endpoint: endpoint,
+    halt: true,
+    type: 'navigate',
+  });
 
+  return behavior;
+};
+
+module.exports = NavigationBehavior;

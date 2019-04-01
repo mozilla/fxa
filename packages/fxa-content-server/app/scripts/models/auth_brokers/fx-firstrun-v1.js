@@ -7,90 +7,88 @@
  * embedded in the Firefox firstrun flow.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const _ = require('underscore');
-  const FxSyncWebChannelAuthenticationBroker = require('../auth_brokers/fx-sync-web-channel');
-  const HaltBehavior = require('../../views/behaviors/halt');
+const _ = require('underscore');
+const FxSyncWebChannelAuthenticationBroker = require('../auth_brokers/fx-sync-web-channel');
+const HaltBehavior = require('../../views/behaviors/halt');
 
-  var proto = FxSyncWebChannelAuthenticationBroker.prototype;
+var proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
-  var FxFirstrunV1AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
-    type: 'fx-firstrun-v1',
+var FxFirstrunV1AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
+  type: 'fx-firstrun-v1',
 
-    _iframeCommands: {
-      LOADED: 'loaded',
-      LOGIN: 'login',
-      SIGNUP_MUST_VERIFY: 'signup_must_verify',
-      VERIFICATION_COMPLETE: 'verification_complete'
-    },
+  _iframeCommands: {
+    LOADED: 'loaded',
+    LOGIN: 'login',
+    SIGNUP_MUST_VERIFY: 'signup_must_verify',
+    VERIFICATION_COMPLETE: 'verification_complete'
+  },
 
-    defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
-      browserTransitionsAfterEmailVerification: false,
-      chooseWhatToSyncCheckbox: true,
-      chooseWhatToSyncWebV1: false,
-      openWebmailButtonVisible: true
-    }),
+  defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
+    browserTransitionsAfterEmailVerification: false,
+    chooseWhatToSyncCheckbox: true,
+    chooseWhatToSyncWebV1: false,
+    openWebmailButtonVisible: true
+  }),
 
-    initialize (options) {
-      options = options || {};
+  initialize (options) {
+    options = options || {};
 
-      this._iframeChannel = options.iframeChannel;
-      return proto.initialize.call(this, options);
-    },
+    this._iframeChannel = options.iframeChannel;
+    return proto.initialize.call(this, options);
+  },
 
-    fetch () {
-      return proto.fetch.call(this).then(() => {
-        // Some settings do not work in an iframe due to x-frame and
-        // same-origin policies. Allow the firstrun flow to decide whether
-        // they want to display the settings page after the `login` message
-        // is sent. If `haltAfterSignIn` is set to true, the firstrun page
-        // will take care of displaying an update to the user.
-        if (this.getSearchParam('haltAfterSignIn') === 'true') {
-          this.setBehavior('afterSignIn', new HaltBehavior());
-        }
-      });
-    },
+  fetch () {
+    return proto.fetch.call(this).then(() => {
+      // Some settings do not work in an iframe due to x-frame and
+      // same-origin policies. Allow the firstrun flow to decide whether
+      // they want to display the settings page after the `login` message
+      // is sent. If `haltAfterSignIn` is set to true, the firstrun page
+      // will take care of displaying an update to the user.
+      if (this.getSearchParam('haltAfterSignIn') === 'true') {
+        this.setBehavior('afterSignIn', new HaltBehavior());
+      }
+    });
+  },
 
-    afterLoaded () {
-      this._iframeChannel.send(this._iframeCommands.LOADED);
+  afterLoaded () {
+    this._iframeChannel.send(this._iframeCommands.LOADED);
 
-      return proto.afterLoaded.apply(this, arguments);
-    },
+    return proto.afterLoaded.apply(this, arguments);
+  },
 
-    afterSignIn () {
-      this._iframeChannel.send(this._iframeCommands.LOGIN);
+  afterSignIn () {
+    this._iframeChannel.send(this._iframeCommands.LOGIN);
 
-      return proto.afterSignIn.apply(this, arguments);
-    },
+    return proto.afterSignIn.apply(this, arguments);
+  },
 
-    afterSignInConfirmationPoll () {
-      this._iframeChannel.send(this._iframeCommands.VERIFICATION_COMPLETE);
+  afterSignInConfirmationPoll () {
+    this._iframeChannel.send(this._iframeCommands.VERIFICATION_COMPLETE);
 
-      return proto.afterSignInConfirmationPoll.apply(this, arguments);
-    },
+    return proto.afterSignInConfirmationPoll.apply(this, arguments);
+  },
 
-    afterResetPasswordConfirmationPoll () {
-      this._iframeChannel.send(this._iframeCommands.VERIFICATION_COMPLETE);
+  afterResetPasswordConfirmationPoll () {
+    this._iframeChannel.send(this._iframeCommands.VERIFICATION_COMPLETE);
 
-      return proto.afterResetPasswordConfirmationPoll.apply(this, arguments);
-    },
+    return proto.afterResetPasswordConfirmationPoll.apply(this, arguments);
+  },
 
-    beforeSignUpConfirmationPoll (account) {
-      this._iframeChannel.send(this._iframeCommands.SIGNUP_MUST_VERIFY, {
-        emailOptIn: !! account.get('needsOptedInToMarketingEmail')
-      });
+  beforeSignUpConfirmationPoll (account) {
+    this._iframeChannel.send(this._iframeCommands.SIGNUP_MUST_VERIFY, {
+      emailOptIn: !! account.get('needsOptedInToMarketingEmail')
+    });
 
-      return proto.beforeSignUpConfirmationPoll.apply(this, arguments);
-    },
+    return proto.beforeSignUpConfirmationPoll.apply(this, arguments);
+  },
 
-    afterSignUpConfirmationPoll () {
-      this._iframeChannel.send(this._iframeCommands.VERIFICATION_COMPLETE);
+  afterSignUpConfirmationPoll () {
+    this._iframeChannel.send(this._iframeCommands.VERIFICATION_COMPLETE);
 
-      return proto.afterSignUpConfirmationPoll.apply(this, arguments);
-    }
-  });
-
-  module.exports = FxFirstrunV1AuthenticationBroker;
+    return proto.afterSignUpConfirmationPoll.apply(this, arguments);
+  }
 });
+
+module.exports = FxFirstrunV1AuthenticationBroker;

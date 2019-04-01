@@ -9,73 +9,70 @@
  * on the URL.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const _ = require('underscore');
-  const DuplexChannel = require('lib/channels/duplex');
-  const PostMessageReceiver = require('lib/channels/receivers/postmessage');
-  const PostMessageSender = require('lib/channels/senders/postmessage');
+const _ = require('underscore');
+const DuplexChannel = require('lib/channels/duplex');
+const PostMessageReceiver = require('lib/channels/receivers/postmessage');
+const PostMessageSender = require('lib/channels/senders/postmessage');
 
-  function IFrameChannel() {
-    // constructor, nothing to do.
-  }
+function IFrameChannel() {
+  // constructor, nothing to do.
+}
 
-  _.extend(IFrameChannel.prototype, new DuplexChannel(), {
-    initialize (options = {}) {
-      this.origin = options.origin;
-      const win = options.window || window;
+_.extend(IFrameChannel.prototype, new DuplexChannel(), {
+  initialize (options = {}) {
+    this.origin = options.origin;
+    const win = options.window || window;
 
-      var sender = this._sender = new PostMessageSender();
-      sender.initialize({
-        origin: options.origin,
-        window: win.parent
-      });
-
-      var receiver = this._receiver = new PostMessageReceiver();
-      receiver.initialize({
-        origin: options.origin,
-        window: win
-      });
-
-      DuplexChannel.prototype.initialize.call(this, {
-        receiver: receiver,
-        sender: sender,
-        window: win
-      });
-    },
-
-    receiveEvent (event) {
-      return this._receiver.receiveEvent(event);
-    },
-
-    parseMessage (message) {
-      try {
-        return IFrameChannel.parse(message);
-      } catch (e) {
-        // invalid message, drop it on the ground.
-        // we must return an empty message if parsing fails.
-        return {};
-      }
-    }
-  });
-
-  IFrameChannel.stringify = function (command, data) {
-    return JSON.stringify({
-      command: command,
-      data: data || {}
+    var sender = this._sender = new PostMessageSender();
+    sender.initialize({
+      origin: options.origin,
+      window: win.parent
     });
-  };
 
-  IFrameChannel.parse = function (msg) {
-    var parsed = JSON.parse(msg);
-    if (! parsed.messageId) {
-      parsed.messageId = parsed.command;
+    var receiver = this._receiver = new PostMessageReceiver();
+    receiver.initialize({
+      origin: options.origin,
+      window: win
+    });
+
+    DuplexChannel.prototype.initialize.call(this, {
+      receiver: receiver,
+      sender: sender,
+      window: win
+    });
+  },
+
+  receiveEvent (event) {
+    return this._receiver.receiveEvent(event);
+  },
+
+  parseMessage (message) {
+    try {
+      return IFrameChannel.parse(message);
+    } catch (e) {
+      // invalid message, drop it on the ground.
+      // we must return an empty message if parsing fails.
+      return {};
     }
-
-    return parsed;
-  };
-
-  module.exports = IFrameChannel;
+  }
 });
 
+IFrameChannel.stringify = function (command, data) {
+  return JSON.stringify({
+    command: command,
+    data: data || {}
+  });
+};
+
+IFrameChannel.parse = function (msg) {
+  var parsed = JSON.parse(msg);
+  if (! parsed.messageId) {
+    parsed.messageId = parsed.command;
+  }
+
+  return parsed;
+};
+
+module.exports = IFrameChannel;

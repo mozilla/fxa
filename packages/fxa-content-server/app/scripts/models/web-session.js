@@ -5,27 +5,25 @@
 /**
  * Web Session information
  */
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const Backbone = require('backbone');
-  const Constants = require('../lib/constants');
+const Backbone = require('backbone');
+const Constants = require('../lib/constants');
 
-  module.exports = Backbone.Model.extend({
-    defaults: {
-      approximateLastAccessTime: null,
-      approximateLastAccessTimeFormatted: null,
-      clientType: Constants.CLIENT_TYPE_WEB_SESSION,
-      genericOS: null,
-      id: null,
-      lastAccessTime: null,
-      lastAccessTimeFormatted: null,
-      name: null,
-      userAgent: null
-    },
+module.exports = Backbone.Model.extend({
+  defaults: {
+    approximateLastAccessTime: null,
+    approximateLastAccessTimeFormatted: null,
+    clientType: Constants.CLIENT_TYPE_WEB_SESSION,
+    genericOS: null,
+    id: null,
+    lastAccessTime: null,
+    lastAccessTimeFormatted: null,
+    name: null,
+    userAgent: null
+  },
 
-    destroy () {
-      this.trigger('destroy', this);
-    }
-  });
+  destroy () {
+    this.trigger('destroy', this);
+  }
 });

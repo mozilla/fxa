@@ -17,61 +17,59 @@
  * If not in localStorage either, create a new uniqueUserId.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const Backbone = require('backbone');
-  const Cocktail = require('cocktail');
-  const ResumeTokenMixin = require('./mixins/resume-token');
-  const UrlMixin = require('./mixins/url');
-  const Storage = require('../lib/storage');
-  const uuid = require('uuid');
+const Backbone = require('backbone');
+const Cocktail = require('cocktail');
+const ResumeTokenMixin = require('./mixins/resume-token');
+const UrlMixin = require('./mixins/url');
+const Storage = require('../lib/storage');
+const uuid = require('uuid');
 
-  var Model = Backbone.Model.extend({
-    initialize (options) {
-      options = options || {};
+var Model = Backbone.Model.extend({
+  initialize (options) {
+    options = options || {};
 
-      this.sentryMetrics = options.sentryMetrics;
-      this.window = options.window || window;
+    this.sentryMetrics = options.sentryMetrics;
+    this.window = options.window || window;
 
-      this.fetch();
-    },
+    this.fetch();
+  },
 
-    defaults: {
-      uniqueUserId: null
-    },
+  defaults: {
+    uniqueUserId: null
+  },
 
-    fetch () {
-      // Try to fetch the uniqueUserId from the resume token.
-      // If unavailable there, fetch from localStorage.
-      // If not in localStorage either, create a new uniqueUserId.
+  fetch () {
+    // Try to fetch the uniqueUserId from the resume token.
+    // If unavailable there, fetch from localStorage.
+    // If not in localStorage either, create a new uniqueUserId.
 
-      var storage = Storage.factory('localStorage', this.window);
+    var storage = Storage.factory('localStorage', this.window);
 
-      this.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
+    this.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
 
-      var uniqueUserId = this.get('uniqueUserId');
-      if (! uniqueUserId) {
-        if (storage.get('uniqueUserId')) {
-          // uniqueUserId is the new name.
-          uniqueUserId = storage.get('uniqueUserId');
-        } else {
-          uniqueUserId = uuid.v4();
-        }
+    var uniqueUserId = this.get('uniqueUserId');
+    if (! uniqueUserId) {
+      if (storage.get('uniqueUserId')) {
+        // uniqueUserId is the new name.
+        uniqueUserId = storage.get('uniqueUserId');
+      } else {
+        uniqueUserId = uuid.v4();
       }
+    }
 
-      this.set('uniqueUserId', uniqueUserId);
-      storage.set('uniqueUserId', uniqueUserId);
-    },
+    this.set('uniqueUserId', uniqueUserId);
+    storage.set('uniqueUserId', uniqueUserId);
+  },
 
-    resumeTokenFields: ['uniqueUserId']
-  });
-
-  Cocktail.mixin(
-    Model,
-    ResumeTokenMixin,
-    UrlMixin
-  );
-
-  module.exports = Model;
+  resumeTokenFields: ['uniqueUserId']
 });
+
+Cocktail.mixin(
+  Model,
+  ResumeTokenMixin,
+  UrlMixin
+);
+
+module.exports = Model;

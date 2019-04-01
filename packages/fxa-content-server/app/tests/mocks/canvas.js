@@ -4,37 +4,34 @@
 
 // stub out the router object for testing.
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
+function CanvasMock() {
+  // nothing to do here.
+}
 
-  function CanvasMock() {
-    // nothing to do here.
+CanvasMock.prototype = {
+  getContext () {
+    this._context = {
+      translate () { },
+      rotate () { },
+      drawImage () {
+        this._args = arguments;
+      }
+    };
+
+    return this._context;
+  },
+  toDataURL () {
+    this._args = arguments;
+    return 'data:image/jpeg';
+  },
+  toBlob (cb) {
+    this._args = arguments;
+    setTimeout(function () {
+      cb({ type: 'image/jpeg' });
+    }, 0);
   }
+};
 
-  CanvasMock.prototype = {
-    getContext () {
-      this._context = {
-        translate () { },
-        rotate () { },
-        drawImage () {
-          this._args = arguments;
-        }
-      };
-
-      return this._context;
-    },
-    toDataURL () {
-      this._args = arguments;
-      return 'data:image/jpeg';
-    },
-    toBlob (cb) {
-      this._args = arguments;
-      setTimeout(function () {
-        cb({ type: 'image/jpeg' });
-      }, 0);
-    }
-  };
-
-  module.exports = CanvasMock;
-});
+module.exports = CanvasMock;

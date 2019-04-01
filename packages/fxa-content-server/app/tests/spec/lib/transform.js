@@ -2,84 +2,82 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const AuthErrors = require('lib/auth-errors');
-  const chai = require('chai');
-  const Transform = require('lib/transform');
-  const Vat = require('lib/vat');
+const AuthErrors = require('lib/auth-errors');
+const chai = require('chai');
+const Transform = require('lib/transform');
+const Vat = require('lib/vat');
 
-  var assert = chai.assert;
+var assert = chai.assert;
 
-  describe('lib/transform', function () {
-    describe('transformUsingSchema', function () {
-      describe('with a missing parameter', function () {
-        var err;
+describe('lib/transform', function () {
+  describe('transformUsingSchema', function () {
+    describe('with a missing parameter', function () {
+      var err;
 
-        before(function () {
-          var schema = {
-            optional: Vat.any(),
-            required: Vat.any().required()
-          };
+      before(function () {
+        var schema = {
+          optional: Vat.any(),
+          required: Vat.any().required()
+        };
 
-          try {
-            Transform.transformUsingSchema({}, schema, AuthErrors);
-          } catch (_err) {
-            err = _err;
-          }
-        });
-
-        it('throws a `MISSING_PARAMETER` error', function () {
-          assert.isTrue(AuthErrors.is(err, 'MISSING_PARAMETER'));
-          assert.equal(err.param, 'required');
-        });
+        try {
+          Transform.transformUsingSchema({}, schema, AuthErrors);
+        } catch (_err) {
+          err = _err;
+        }
       });
 
-      describe('with an invalid parameter', function () {
-        var err;
-
-        before(function () {
-          var schema = {
-            numeric: Vat.number()
-          };
-
-          try {
-            Transform.transformUsingSchema({
-              numeric: 'a'
-            }, schema, AuthErrors);
-          } catch (_err) {
-            err = _err;
-          }
-        });
-
-        it('throws a `INVALID_PARAMETER` error', function () {
-          assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
-          assert.equal(err.param, 'numeric');
-        });
+      it('throws a `MISSING_PARAMETER` error', function () {
+        assert.isTrue(AuthErrors.is(err, 'MISSING_PARAMETER'));
+        assert.equal(err.param, 'required');
       });
+    });
 
-      describe('valid', function () {
-        var result;
+    describe('with an invalid parameter', function () {
+      var err;
 
-        before(function () {
-          var schema = {
-            numeric: Vat.number(),
-            optional: Vat.any(),
-            required: Vat.any().required()
-          };
+      before(function () {
+        var schema = {
+          numeric: Vat.number()
+        };
 
-          result = Transform.transformUsingSchema({
-            numeric: 123,
-            required: true,
+        try {
+          Transform.transformUsingSchema({
+            numeric: 'a'
           }, schema, AuthErrors);
-        });
+        } catch (_err) {
+          err = _err;
+        }
+      });
 
-        it('succeeds', function () {
-          assert.deepEqual(result, {
-            numeric: 123,
-            required: true
-          });
+      it('throws a `INVALID_PARAMETER` error', function () {
+        assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
+        assert.equal(err.param, 'numeric');
+      });
+    });
+
+    describe('valid', function () {
+      var result;
+
+      before(function () {
+        var schema = {
+          numeric: Vat.number(),
+          optional: Vat.any(),
+          required: Vat.any().required()
+        };
+
+        result = Transform.transformUsingSchema({
+          numeric: 123,
+          required: true,
+        }, schema, AuthErrors);
+      });
+
+      it('succeeds', function () {
+        assert.deepEqual(result, {
+          numeric: 123,
+          required: true
         });
       });
     });

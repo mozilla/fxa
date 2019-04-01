@@ -2,18 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const chai = require('chai');
-  const FormPrefill = require('models/form-prefill');
+const chai = require('chai');
+const FormPrefill = require('models/form-prefill');
 
-  var assert = chai.assert;
+var assert = chai.assert;
 
-  describe('models/form-prefill', function () {
-    it('can be instantiated', function () {
-      var form = new FormPrefill();
-      assert.isDefined(form);
-    });
+describe('models/form-prefill', function () {
+  it('can be instantiated', function () {
+    var form = new FormPrefill();
+    assert.isDefined(form);
   });
 });

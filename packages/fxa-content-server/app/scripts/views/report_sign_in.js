@@ -5,63 +5,61 @@
 /**
  * Allow users to report a signin.
  */
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const AuthErrors = require('../lib/auth-errors');
-  const Constants = require('../lib/constants');
-  const FormView = require('./form');
-  const Template = require('templates/report_sign_in.mustache');
-  const SignInToReport = require('../models/verification/report-sign-in');
+const AuthErrors = require('../lib/auth-errors');
+const Constants = require('../lib/constants');
+const FormView = require('./form');
+const Template = require('templates/report_sign_in.mustache');
+const SignInToReport = require('../models/verification/report-sign-in');
 
-  const View = FormView.extend({
-    className: 'report-sign-in',
-    template: Template,
+const View = FormView.extend({
+  className: 'report-sign-in',
+  template: Template,
 
-    initialize (options = {}) {
-      this._signInToReport = new SignInToReport(this.getSearchParams());
-    },
+  initialize (options = {}) {
+    this._signInToReport = new SignInToReport(this.getSearchParams());
+  },
 
-    beforeRender () {
-      if (! this._signInToReport.isValid()) {
-        this.logError(AuthErrors.toError('DAMAGED_REJECT_UNBLOCK_LINK'));
-      }
-    },
-
-    submit () {
-      const signInToReport = this._signInToReport;
-      const account = this.user.initAccount({
-        uid: signInToReport.get('uid')
-      });
-      const unblockCode = signInToReport.get('unblockCode');
-
-      return this.user.rejectAccountUnblockCode(account, unblockCode)
-        .then(() => this.navigate('signin_reported'));
-    },
-
-    setInitialContext (context) {
-      const isLinkDamaged = ! this._signInToReport.isValid();
-      const isLinkValid = ! isLinkDamaged;
-      const supportLink = this._getSupportLink();
-
-      context.set({
-        escapedSupportLink: encodeURI(supportLink),
-        hasSupportLink: !! supportLink,
-        isLinkDamaged,
-        isLinkValid
-      });
-    },
-
-    /**
-     * Get the SUMO link for `Why is this happening to me?`. Could be
-     * `undefined` if no link is available.
-     *
-     * @returns {String}
-     */
-    _getSupportLink () {
-      return Constants.BLOCKED_SIGNIN_SUPPORT_URL;
+  beforeRender () {
+    if (! this._signInToReport.isValid()) {
+      this.logError(AuthErrors.toError('DAMAGED_REJECT_UNBLOCK_LINK'));
     }
-  });
+  },
 
-  module.exports = View;
+  submit () {
+    const signInToReport = this._signInToReport;
+    const account = this.user.initAccount({
+      uid: signInToReport.get('uid')
+    });
+    const unblockCode = signInToReport.get('unblockCode');
+
+    return this.user.rejectAccountUnblockCode(account, unblockCode)
+      .then(() => this.navigate('signin_reported'));
+  },
+
+  setInitialContext (context) {
+    const isLinkDamaged = ! this._signInToReport.isValid();
+    const isLinkValid = ! isLinkDamaged;
+    const supportLink = this._getSupportLink();
+
+    context.set({
+      escapedSupportLink: encodeURI(supportLink),
+      hasSupportLink: !! supportLink,
+      isLinkDamaged,
+      isLinkValid
+    });
+  },
+
+  /**
+   * Get the SUMO link for `Why is this happening to me?`. Could be
+   * `undefined` if no link is available.
+   *
+   * @returns {String}
+   */
+  _getSupportLink () {
+    return Constants.BLOCKED_SIGNIN_SUPPORT_URL;
+  }
 });
+
+module.exports = View;

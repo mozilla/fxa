@@ -4,51 +4,49 @@
 
 // View mixin to get a ResumeToken model in a consistent fashion.
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const _ = require('underscore');
-  const ResumeToken = require('../../models/resume-token');
+const _ = require('underscore');
+const ResumeToken = require('../../models/resume-token');
 
-  module.exports = {
-    /**
-     * Get a ResumeToken model.
-     *
-     * @method getResumeToken
-     * @param {Object} account
-     * @returns {ResumeToken}
-     */
-    getResumeToken (account) {
-      var accountInfo = account.pickResumeTokenInfo();
-      var relierInfo = this.relier.pickResumeTokenInfo();
-      var userInfo = this.user.pickResumeTokenInfo();
+module.exports = {
+  /**
+   * Get a ResumeToken model.
+   *
+   * @method getResumeToken
+   * @param {Object} account
+   * @returns {ResumeToken}
+   */
+  getResumeToken (account) {
+    var accountInfo = account.pickResumeTokenInfo();
+    var relierInfo = this.relier.pickResumeTokenInfo();
+    var userInfo = this.user.pickResumeTokenInfo();
 
-      let flowInfo;
-      const flowModel = this.metrics.getFlowModel();
-      if (flowModel) {
-        flowInfo = flowModel.pickResumeTokenInfo();
-      }
-
-      var resumeTokenInfo = _.extend(
-        {},
-        flowInfo,
-        relierInfo,
-        userInfo,
-        accountInfo
-      );
-
-      return new ResumeToken(resumeTokenInfo);
-    },
-
-    /**
-     * Get a stringified ResumeToken that can be passed along in an email
-     *
-     * @method getStringifiedResumeToken
-     * @param {Object} account
-     * @returns {String}
-     */
-    getStringifiedResumeToken (account) {
-      return this.getResumeToken(account).stringify();
+    let flowInfo;
+    const flowModel = this.metrics.getFlowModel();
+    if (flowModel) {
+      flowInfo = flowModel.pickResumeTokenInfo();
     }
-  };
-});
+
+    var resumeTokenInfo = _.extend(
+      {},
+      flowInfo,
+      relierInfo,
+      userInfo,
+      accountInfo
+    );
+
+    return new ResumeToken(resumeTokenInfo);
+  },
+
+  /**
+   * Get a stringified ResumeToken that can be passed along in an email
+   *
+   * @method getStringifiedResumeToken
+   * @param {Object} account
+   * @returns {String}
+   */
+  getStringifiedResumeToken (account) {
+    return this.getResumeToken(account).stringify();
+  }
+};

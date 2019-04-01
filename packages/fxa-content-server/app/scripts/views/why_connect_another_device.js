@@ -6,32 +6,30 @@
  * Some help text explaining to the user why they
  * should connect another device.
  */
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const BackMixin = require('./mixins/back-mixin');
-  const BaseView = require('./base');
-  const Cocktail = require('cocktail');
-  const ModalPanelMixin = require('./mixins/modal-panel-mixin');
-  const Template = require('templates/why_connect_another_device.mustache');
+const BackMixin = require('./mixins/back-mixin');
+const BaseView = require('./base');
+const Cocktail = require('cocktail');
+const ModalPanelMixin = require('./mixins/modal-panel-mixin');
+const Template = require('templates/why_connect_another_device.mustache');
 
-  const View = BaseView.extend({
-    template: Template,
+const View = BaseView.extend({
+  template: Template,
 
-    initialize () {
-      this.once('modal-cancel', () => this.back());
-    },
+  initialize () {
+    this.once('modal-cancel', () => this.back());
+  },
 
-    afterRender () {
-      this.openPanel();
-    }
-  });
-
-  Cocktail.mixin(
-    View,
-    BackMixin,
-    ModalPanelMixin
-  );
-
-  module.exports = View;
+  afterRender () {
+    this.openPanel();
+  }
 });
+
+Cocktail.mixin(
+  View,
+  BackMixin,
+  ModalPanelMixin
+);
+
+module.exports = View;

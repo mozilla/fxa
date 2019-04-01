@@ -5,57 +5,54 @@
 /**
  * Notifies the user that their sign-in confirmation email bounced.
  */
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const BackMixin = require('./mixins/back-mixin');
-  const BaseView = require('./base');
-  const Cocktail = require('cocktail');
-  const FlowEventsMixin = require('./mixins/flow-events-mixin');
-  const Session = require('../lib/session');
-  const Template = require('templates/sign_in_bounced.mustache');
+const BackMixin = require('./mixins/back-mixin');
+const BaseView = require('./base');
+const Cocktail = require('cocktail');
+const FlowEventsMixin = require('./mixins/flow-events-mixin');
+const Session = require('../lib/session');
+const Template = require('templates/sign_in_bounced.mustache');
 
-  const SignInBouncedView = BaseView.extend({
-    events: {
-      'click #create-account': '_createAccount'
-    },
+const SignInBouncedView = BaseView.extend({
+  events: {
+    'click #create-account': '_createAccount'
+  },
 
-    template: Template,
+  template: Template,
 
-    initialize (options) {
-      this._formPrefill = options.formPrefill;
-    },
+  initialize (options) {
+    this._formPrefill = options.formPrefill;
+  },
 
-    beforeRender () {
-      if (! this.model.has('email')) {
-        // This may occur if the user has refreshed the page. In that case,
-        // we have no context for properly rendering the view, so kick them
-        // out to /signin where they can start again.
-        this.navigate('signin');
-      }
-    },
+  beforeRender () {
+    if (! this.model.has('email')) {
+      // This may occur if the user has refreshed the page. In that case,
+      // we have no context for properly rendering the view, so kick them
+      // out to /signin where they can start again.
+      this.navigate('signin');
+    }
+  },
 
-    setInitialContext (context) {
-      context.set({
-        email: this.model.get('email'),
-        escapedSupportLinkAttrs: 'id="support" href="https://support.mozilla.org/" target="_blank" data-flow-event="link.support"'
-      });
-    },
+  setInitialContext (context) {
+    context.set({
+      email: this.model.get('email'),
+      escapedSupportLinkAttrs: 'id="support" href="https://support.mozilla.org/" target="_blank" data-flow-event="link.support"'
+    });
+  },
 
-    _createAccount: BaseView.preventDefaultThen(function () {
-      this.user.removeAllAccounts();
-      Session.clear();
-      this._formPrefill.clear();
-      this.navigate('signup');
-    })
-  });
-
-  Cocktail.mixin(
-    SignInBouncedView,
-    BackMixin,
-    FlowEventsMixin
-  );
-
-  module.exports = SignInBouncedView;
+  _createAccount: BaseView.preventDefaultThen(function () {
+    this.user.removeAllAccounts();
+    Session.clear();
+    this._formPrefill.clear();
+    this.navigate('signup');
+  })
 });
 
+Cocktail.mixin(
+  SignInBouncedView,
+  BackMixin,
+  FlowEventsMixin
+);
+
+module.exports = SignInBouncedView;

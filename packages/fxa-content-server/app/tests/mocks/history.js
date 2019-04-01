@@ -3,16 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // A mock for Backbone.history
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
+function History() {}
 
-  function History() {}
+History.prototype = {
+  start () {
+  }
+};
 
-  History.prototype = {
-    start () {
-    }
-  };
-
-  module.exports = History;
-});
+module.exports = History;

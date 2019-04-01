@@ -4,21 +4,18 @@
 
 // stub out the router object for testing.
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
+function Profile() {}
 
-  function Profile() {}
-
-  [
-    'getProfile',
-    'getAvatar',
-    'deleteAvatar',
-    'uploadAvatar',
-    'getRemoteImage'
-  ].forEach(function (method) {
-    Profile.prototype[method] = function () { };
-  });
-
-  module.exports = Profile;
+[
+  'getProfile',
+  'getAvatar',
+  'deleteAvatar',
+  'uploadAvatar',
+  'getRemoteImage'
+].forEach(function (method) {
+  Profile.prototype[method] = function () { };
 });
+
+module.exports = Profile;

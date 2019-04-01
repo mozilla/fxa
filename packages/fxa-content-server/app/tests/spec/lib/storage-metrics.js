@@ -4,90 +4,88 @@
 
 // test the metrics library
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const { assert } = require('chai');
-  const Metrics = require('lib/metrics');
-  const Storage = require('lib/storage');
-  const StorageMetrics = require('lib/storage-metrics');
-  const WindowMock = require('../../mocks/window');
+const { assert } = require('chai');
+const Metrics = require('lib/metrics');
+const Storage = require('lib/storage');
+const StorageMetrics = require('lib/storage-metrics');
+const WindowMock = require('../../mocks/window');
 
-  describe('lib/storage-metrics', function () {
-    var storageMetrics;
-    var windowMock;
-    var storage = Storage.factory('localStorage');
+describe('lib/storage-metrics', function () {
+  var storageMetrics;
+  var windowMock;
+  var storage = Storage.factory('localStorage');
 
-    beforeEach(function () {
-      windowMock = new WindowMock();
+  beforeEach(function () {
+    windowMock = new WindowMock();
 
-      storageMetrics = new StorageMetrics({
-        brokerType: 'fx-desktop',
-        clientHeight: 966,
-        clientWidth: 1033,
-        context: 'fx_desktop_v3',
-        devicePixelRatio: 2,
-        entrypoint: 'menupanel',
-        lang: 'db_LB',
-        screenHeight: 1200,
-        screenWidth: 1600,
-        service: 'sync',
-        window: windowMock
+    storageMetrics = new StorageMetrics({
+      brokerType: 'fx-desktop',
+      clientHeight: 966,
+      clientWidth: 1033,
+      context: 'fx_desktop_v3',
+      devicePixelRatio: 2,
+      entrypoint: 'menupanel',
+      lang: 'db_LB',
+      screenHeight: 1200,
+      screenWidth: 1600,
+      service: 'sync',
+      window: windowMock
+    });
+  });
+
+  afterEach(function () {
+    //storageMetrics.destroy();
+    storageMetrics = null;
+  });
+
+  it('has the same function signature as Metrics', function () {
+    for (var key in Metrics.prototype) {
+      if (typeof Metrics.prototype[key] === 'function') {
+        assert.isFunction(storageMetrics[key], key);
+      }
+    }
+  });
+
+  it('flush writes to localStorage instead of making a xhr request', function () {
+
+    var filteredData;
+
+    function compareLastData () {
+      var storedData = storage.get('metrics_all');
+      storedData = storedData[storedData.length - 1];
+
+      // These properties are affected by timing, for example:
+      // `duration` fields are different if the above `getFilteredData`
+      // is called in a different millisecond than the one used to
+      // generate data that is sent to the server.
+      // Ensure `duration` is in the results, but do not compare the two.
+      ['duration', 'flushTime'].forEach(function (prop) {
+        assert.isTrue(storedData.hasOwnProperty(prop));
+        delete filteredData[prop];
+        delete storedData[prop];
       });
-    });
 
-    afterEach(function () {
-      //storageMetrics.destroy();
-      storageMetrics = null;
-    });
+      assert.deepEqual(filteredData, storedData);
+    }
 
-    it('has the same function signature as Metrics', function () {
-      for (var key in Metrics.prototype) {
-        if (typeof Metrics.prototype[key] === 'function') {
-          assert.isFunction(storageMetrics[key], key);
-        }
-      }
-    });
+    storageMetrics.logEvent('event1');
+    storageMetrics.logEvent('event2');
+    filteredData = storageMetrics.getFilteredData();
+    return storageMetrics.flush()
+      .then(function () {
+        compareLastData();
+        storageMetrics.logEvent('event3');
+        filteredData = storageMetrics.getFilteredData();
+        return storageMetrics.flush();
+      })
+      .then(function () {
+        compareLastData();
+      });
+  });
 
-    it('flush writes to localStorage instead of making a xhr request', function () {
-
-      var filteredData;
-
-      function compareLastData () {
-        var storedData = storage.get('metrics_all');
-        storedData = storedData[storedData.length - 1];
-
-        // These properties are affected by timing, for example:
-        // `duration` fields are different if the above `getFilteredData`
-        // is called in a different millisecond than the one used to
-        // generate data that is sent to the server.
-        // Ensure `duration` is in the results, but do not compare the two.
-        ['duration', 'flushTime'].forEach(function (prop) {
-          assert.isTrue(storedData.hasOwnProperty(prop));
-          delete filteredData[prop];
-          delete storedData[prop];
-        });
-
-        assert.deepEqual(filteredData, storedData);
-      }
-
-      storageMetrics.logEvent('event1');
-      storageMetrics.logEvent('event2');
-      filteredData = storageMetrics.getFilteredData();
-      return storageMetrics.flush()
-        .then(function () {
-          compareLastData();
-          storageMetrics.logEvent('event3');
-          filteredData = storageMetrics.getFilteredData();
-          return storageMetrics.flush();
-        })
-        .then(function () {
-          compareLastData();
-        });
-    });
-
-    it('reports that real collection is not enabled', function () {
-      assert.isFalse(storageMetrics.isCollectionEnabled());
-    });
+  it('reports that real collection is not enabled', function () {
+    assert.isFalse(storageMetrics.isCollectionEnabled());
   });
 });

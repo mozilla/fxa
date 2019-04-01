@@ -6,26 +6,22 @@
  * A null sender. Sends messages nowhere.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  function NullSender() {
-    // nothing to do here.
+function NullSender() {
+  // nothing to do here.
+}
+
+NullSender.prototype = {
+  initialize (/*options*/) {
+  },
+
+  send (/*command, data, messageId*/) {
+    return Promise.resolve();
+  },
+
+  teardown () {
   }
+};
 
-  NullSender.prototype = {
-    initialize (/*options*/) {
-    },
-
-    send (/*command, data, messageId*/) {
-      return Promise.resolve();
-    },
-
-    teardown () {
-    }
-  };
-
-  module.exports = NullSender;
-});
-
-
+module.exports = NullSender;

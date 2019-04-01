@@ -6,19 +6,15 @@
  * A placeholder behavior, does nothing.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-
-  var NullBehavior = function () {
-    var behavior = function (/*view*/) {
-      // do nothing
-    };
-    behavior.type = 'null';
-
-    return behavior;
+var NullBehavior = function () {
+  var behavior = function (/*view*/) {
+    // do nothing
   };
+  behavior.type = 'null';
 
-  module.exports = NullBehavior;
-});
+  return behavior;
+};
 
+module.exports = NullBehavior;

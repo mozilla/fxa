@@ -9,40 +9,38 @@
  * Provides `hasOptedInToEmail` to query whether the user has
  *   opted-in.
  */
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  module.exports = {
-    initialize (options = {}) {
-      this._experimentGroupingRules = options.experimentGroupingRules;
-      this._marketingEmailEnabled = options.marketingEmailEnabled !== false;
-    },
+module.exports = {
+  initialize (options = {}) {
+    this._experimentGroupingRules = options.experimentGroupingRules;
+    this._marketingEmailEnabled = options.marketingEmailEnabled !== false;
+  },
 
-    setInitialContext (context) {
-      context.set('isEmailOptInVisible', this._isEmailOptInEnabled());
-    },
+  setInitialContext (context) {
+    context.set('isEmailOptInVisible', this._isEmailOptInEnabled());
+  },
 
-    afterRender () {
-      this.logViewEvent(`email-optin.visible.${String(this._isEmailOptInEnabled())}`);
-    },
+  afterRender () {
+    this.logViewEvent(`email-optin.visible.${String(this._isEmailOptInEnabled())}`);
+  },
 
-    _isEmailOptInEnabled () {
-      if (! this._marketingEmailEnabled) {
-        return false;
-      }
-
-      return !! this._experimentGroupingRules.choose('communicationPrefsVisible', {
-        lang: this.navigator.language
-      });
-    },
-
-    /**
-     * Query whether user has opted-in to marketing email.
-     *
-     * @returns {Boolean}
-     */
-    hasOptedInToMarketingEmail () {
-      return !! this.$('.marketing-email-optin').is(':checked');
+  _isEmailOptInEnabled () {
+    if (! this._marketingEmailEnabled) {
+      return false;
     }
-  };
-});
+
+    return !! this._experimentGroupingRules.choose('communicationPrefsVisible', {
+      lang: this.navigator.language
+    });
+  },
+
+  /**
+   * Query whether user has opted-in to marketing email.
+   *
+   * @returns {Boolean}
+   */
+  hasOptedInToMarketingEmail () {
+    return !! this.$('.marketing-email-optin').is(':checked');
+  }
+};

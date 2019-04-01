@@ -4,17 +4,15 @@
 
 // A shell of a channel. Doesn't do anything yet, but is a useful standin.
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const _ = require('underscore');
-  const BaseChannel = require('lib/channels/base');
+const _ = require('underscore');
+const BaseChannel = require('lib/channels/base');
 
-  function NullChannel() {
-    // nothing to do.
-  }
+function NullChannel() {
+  // nothing to do.
+}
 
-  _.extend(NullChannel.prototype, new BaseChannel());
+_.extend(NullChannel.prototype, new BaseChannel());
 
-  module.exports = NullChannel;
-});
+module.exports = NullChannel;

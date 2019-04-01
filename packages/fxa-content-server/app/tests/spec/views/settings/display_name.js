@@ -2,196 +2,194 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const $ = require('jquery');
-  const chai = require('chai');
-  const Metrics = require('lib/metrics');
-  const Notifier = require('lib/channels/notifier');
-  const Relier = require('models/reliers/relier');
-  const sinon = require('sinon');
-  const TestHelpers = require('../../../lib/helpers');
-  const User = require('models/user');
-  const View = require('views/settings/display_name');
+const $ = require('jquery');
+const chai = require('chai');
+const Metrics = require('lib/metrics');
+const Notifier = require('lib/channels/notifier');
+const Relier = require('models/reliers/relier');
+const sinon = require('sinon');
+const TestHelpers = require('../../../lib/helpers');
+const User = require('models/user');
+const View = require('views/settings/display_name');
 
-  var assert = chai.assert;
+var assert = chai.assert;
 
-  describe('views/settings/display_name', function () {
-    var view;
-    var metrics;
-    var user;
-    var email;
-    var account;
-    var relier;
-    var notifier;
+describe('views/settings/display_name', function () {
+  var view;
+  var metrics;
+  var user;
+  var email;
+  var account;
+  var relier;
+  var notifier;
 
-    beforeEach(function () {
-      email = TestHelpers.createEmail();
-      user = new User();
-      relier = new Relier();
-      notifier = new Notifier();
-      metrics = new Metrics({ notifier });
-      account = user.initAccount({
-        email: email,
-        sessionToken: 'fake session token',
-        uid: 'uid',
-        verified: true
-      });
+  beforeEach(function () {
+    email = TestHelpers.createEmail();
+    user = new User();
+    relier = new Relier();
+    notifier = new Notifier();
+    metrics = new Metrics({ notifier });
+    account = user.initAccount({
+      email: email,
+      sessionToken: 'fake session token',
+      uid: 'uid',
+      verified: true
+    });
+  });
+
+  afterEach(function () {
+    metrics.destroy();
+
+    view.remove();
+    view.destroy();
+
+    view = metrics = null;
+  });
+
+  function initView () {
+    view = new View({
+      metrics: metrics,
+      notifier: notifier,
+      relier: relier,
+      user: user
     });
 
-    afterEach(function () {
-      metrics.destroy();
-
-      view.remove();
-      view.destroy();
-
-      view = metrics = null;
+    sinon.stub(view, 'getSignedInAccount').callsFake(function () {
+      return account;
     });
 
-    function initView () {
-      view = new View({
-        metrics: metrics,
-        notifier: notifier,
-        relier: relier,
-        user: user
-      });
+    sinon.stub(view, 'checkAuthorization').callsFake(function () {
+      return Promise.resolve(true);
+    });
+    sinon.stub(account, 'fetchProfile').callsFake(function () {
+      return Promise.resolve();
+    });
+    sinon.stub(user, 'setAccount').callsFake(function () {
+      return Promise.resolve();
+    });
 
-      sinon.stub(view, 'getSignedInAccount').callsFake(function () {
-        return account;
+    return view.render()
+      .then(function () {
+        $('#container').html(view.el);
       });
+  }
 
-      sinon.stub(view, 'checkAuthorization').callsFake(function () {
-        return Promise.resolve(true);
-      });
-      sinon.stub(account, 'fetchProfile').callsFake(function () {
-        return Promise.resolve();
-      });
-      sinon.stub(user, 'setAccount').callsFake(function () {
-        return Promise.resolve();
-      });
+  describe('renders', function () {
+    it('renders the displayName correctly', function () {
+      var name = 'joe cool';
+      account.set('displayName', name);
 
-      return view.render()
+      return initView()
         .then(function () {
-          $('#container').html(view.el);
+          assert.isTrue(account.fetchProfile.called);
+          assert.isTrue(user.setAccount.calledWith(account));
+          assert.equal(view.getElementValue('input.display-name'), name);
         });
-    }
-
-    describe('renders', function () {
-      it('renders the displayName correctly', function () {
-        var name = 'joe cool';
-        account.set('displayName', name);
-
-        return initView()
-          .then(function () {
-            assert.isTrue(account.fetchProfile.called);
-            assert.isTrue(user.setAccount.calledWith(account));
-            assert.equal(view.getElementValue('input.display-name'), name);
-          });
-      });
-
-      it('onProfileUpdate', function () {
-        return initView()
-          .then(function () {
-            sinon.stub(view, 'render').callsFake(function () {
-              return Promise.resolve();
-            });
-            view.onProfileUpdate();
-            assert.isTrue(view.render.called);
-          });
-      });
     });
 
-    describe('with session', function () {
-      it('has no display name set', function () {
-        account.set('displayName', null);
-        return initView()
-          .then(function () {
-            assert.equal(view.$('.add-button').length, 1);
-            assert.equal(view.$('.settings-unit-toggle.primary-button').length, 1);
+    it('onProfileUpdate', function () {
+      return initView()
+        .then(function () {
+          sinon.stub(view, 'render').callsFake(function () {
+            return Promise.resolve();
           });
-      });
-
-      it('has a display name set', function () {
-        account.set('displayName', 'joe');
-        return initView()
-          .then(function () {
-            assert.equal(view.$('.change-button').length, 1);
-            assert.equal(view.$('.settings-unit-toggle.secondary-button').length, 1);
-          });
-      });
-    });
-
-    describe('isValidStart', function () {
-      it('validates the display name field for changes', function () {
-        account.set('displayName', 'joe');
-        return initView()
-          .then(function () {
-            view.$('.display-name').val('joe');
-            assert.equal(view.isValidStart(), false, 'name did not change');
-
-            view.$('.display-name').val('joe change');
-            assert.equal(view.isValidStart(), true, 'name changed');
-          });
-      });
-
-      it('validates the display name field when it is not set', function () {
-        account.set('displayName', null);
-        return initView()
-          .then(function () {
-            view.$('.display-name').val('');
-            assert.equal(view.isValidStart(), false, 'name did not change');
-
-            view.$('.display-name').val('changed');
-            assert.equal(view.isValidStart(), true, 'name changed');
-          });
-      });
-    });
-
-    describe('submit', function () {
-      it('submits correctly', function () {
-        var name = '  joe cool  ';
-        sinon.stub(account, 'postDisplayName').callsFake(function () {
-          return Promise.resolve();
+          view.onProfileUpdate();
+          assert.isTrue(view.render.called);
         });
+    });
+  });
 
-        return initView()
-          .then(() => {
-            sinon.stub(view, 'updateDisplayName').callsFake(function () {
-              return Promise.resolve();
-            });
-            sinon.stub(view, 'displaySuccess').callsFake(function () {
-              return Promise.resolve();
-            });
-            sinon.spy(view, 'logFlowEvent');
-            sinon.spy(view, 'render');
-            sinon.spy(view, 'navigate');
+  describe('with session', function () {
+    it('has no display name set', function () {
+      account.set('displayName', null);
+      return initView()
+        .then(function () {
+          assert.equal(view.$('.add-button').length, 1);
+          assert.equal(view.$('.settings-unit-toggle.primary-button').length, 1);
+        });
+    });
 
-            view.$('input.display-name').val(name);
-            return view.submit();
-          })
-          .then(() => {
-            const expectedName = name.trim();
-            assert.isTrue(account.postDisplayName.calledWith(expectedName));
-            assert.isTrue(view.updateDisplayName.calledWith(expectedName));
-            assert.isTrue(view.displaySuccess.called);
-            assert.isTrue(TestHelpers.isEventLogged(metrics,
-              'settings.display-name.success'));
-            assert.isTrue(view.navigate.calledWith('settings'));
+    it('has a display name set', function () {
+      account.set('displayName', 'joe');
+      return initView()
+        .then(function () {
+          assert.equal(view.$('.change-button').length, 1);
+          assert.equal(view.$('.settings-unit-toggle.secondary-button').length, 1);
+        });
+    });
+  });
 
-            assert.equal(view.logFlowEvent.callCount, 1);
-            const args = view.logFlowEvent.args[0];
-            assert.lengthOf(args, 1);
-            const eventParts = args[0].split('.');
-            assert.lengthOf(eventParts, 4);
-            assert.equal(eventParts[0], 'timing');
-            assert.equal(eventParts[1], 'displayName');
-            assert.equal(eventParts[2], 'change');
-            assert.match(eventParts[3], /^[0-9]+$/);
-          });
+  describe('isValidStart', function () {
+    it('validates the display name field for changes', function () {
+      account.set('displayName', 'joe');
+      return initView()
+        .then(function () {
+          view.$('.display-name').val('joe');
+          assert.equal(view.isValidStart(), false, 'name did not change');
+
+          view.$('.display-name').val('joe change');
+          assert.equal(view.isValidStart(), true, 'name changed');
+        });
+    });
+
+    it('validates the display name field when it is not set', function () {
+      account.set('displayName', null);
+      return initView()
+        .then(function () {
+          view.$('.display-name').val('');
+          assert.equal(view.isValidStart(), false, 'name did not change');
+
+          view.$('.display-name').val('changed');
+          assert.equal(view.isValidStart(), true, 'name changed');
+        });
+    });
+  });
+
+  describe('submit', function () {
+    it('submits correctly', function () {
+      var name = '  joe cool  ';
+      sinon.stub(account, 'postDisplayName').callsFake(function () {
+        return Promise.resolve();
       });
 
+      return initView()
+        .then(() => {
+          sinon.stub(view, 'updateDisplayName').callsFake(function () {
+            return Promise.resolve();
+          });
+          sinon.stub(view, 'displaySuccess').callsFake(function () {
+            return Promise.resolve();
+          });
+          sinon.spy(view, 'logFlowEvent');
+          sinon.spy(view, 'render');
+          sinon.spy(view, 'navigate');
+
+          view.$('input.display-name').val(name);
+          return view.submit();
+        })
+        .then(() => {
+          const expectedName = name.trim();
+          assert.isTrue(account.postDisplayName.calledWith(expectedName));
+          assert.isTrue(view.updateDisplayName.calledWith(expectedName));
+          assert.isTrue(view.displaySuccess.called);
+          assert.isTrue(TestHelpers.isEventLogged(metrics,
+            'settings.display-name.success'));
+          assert.isTrue(view.navigate.calledWith('settings'));
+
+          assert.equal(view.logFlowEvent.callCount, 1);
+          const args = view.logFlowEvent.args[0];
+          assert.lengthOf(args, 1);
+          const eventParts = args[0].split('.');
+          assert.lengthOf(eventParts, 4);
+          assert.equal(eventParts[0], 'timing');
+          assert.equal(eventParts[1], 'displayName');
+          assert.equal(eventParts[2], 'change');
+          assert.match(eventParts[3], /^[0-9]+$/);
+        });
     });
 
   });
+
 });

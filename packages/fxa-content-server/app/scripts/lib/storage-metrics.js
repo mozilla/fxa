@@ -7,38 +7,36 @@
  * tests
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const _ = require('underscore');
-  const Metrics = require('./metrics');
-  const Storage = require('./storage');
+const _ = require('underscore');
+const Metrics = require('./metrics');
+const Storage = require('./storage');
 
-  var storage = Storage.factory('localStorage');
+var storage = Storage.factory('localStorage');
 
-  function StorageMetrics(options) {
-    Metrics.call(this, options);
-  }
+function StorageMetrics(options) {
+  Metrics.call(this, options);
+}
 
-  _.extend(StorageMetrics.prototype, Metrics.prototype, {
-    _send (data) {
-      var metrics = storage.get('metrics_all');
+_.extend(StorageMetrics.prototype, Metrics.prototype, {
+  _send (data) {
+    var metrics = storage.get('metrics_all');
 
-      if (! Array.isArray(metrics)) {
-        metrics = [];
-      }
-
-      metrics.push(data);
-
-      storage.set('metrics_all', metrics);
-
-      return Promise.resolve(data);
-    },
-
-    isMetricsCollectionEnabled () {
-      return false;
+    if (! Array.isArray(metrics)) {
+      metrics = [];
     }
-  });
 
-  module.exports = StorageMetrics;
+    metrics.push(data);
+
+    storage.set('metrics_all', metrics);
+
+    return Promise.resolve(data);
+  },
+
+  isMetricsCollectionEnabled () {
+    return false;
+  }
 });
+
+module.exports = StorageMetrics;

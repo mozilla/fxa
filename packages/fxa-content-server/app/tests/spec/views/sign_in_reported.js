@@ -2,30 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const { assert } = require('chai');
-  const View = require('views/sign_in_reported');
+const { assert } = require('chai');
+const View = require('views/sign_in_reported');
 
-  describe('views/sign_in_reported', function () {
-    let view;
+describe('views/sign_in_reported', function () {
+  let view;
 
-    beforeEach(function () {
-      view = new View({});
+  beforeEach(function () {
+    view = new View({});
 
-      return view.render();
-    });
+    return view.render();
+  });
 
-    afterEach(function () {
-      view.remove();
-      view.destroy();
-    });
+  afterEach(function () {
+    view.remove();
+    view.destroy();
+  });
 
-    describe('render', () => {
-      it('renders correctly', () => {
-        assert.lengthOf(view.$('#fxa-sign-in-reported-header'), 1);
-      });
+  describe('render', () => {
+    it('renders correctly', () => {
+      assert.lengthOf(view.$('#fxa-sign-in-reported-header'), 1);
     });
   });
 });

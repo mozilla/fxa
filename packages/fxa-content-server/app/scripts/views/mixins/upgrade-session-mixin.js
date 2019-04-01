@@ -16,115 +16,113 @@
  * @mixin UpgradeSessionMixin
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const BaseView = require('../base');
-  const { preventDefaultThen } = BaseView;
-  const Notifier = require('../../lib/channels/notifier');
-  const LastCheckedTimeMixin = require('./last-checked-time-mixin');
-  const SessionVerifiedNotificationMixin = require('./session-verified-notification-mixin');
-  const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
-  const UpgradeSessionTemplate = require('templates/settings/upgrade_session.mustache');
+const BaseView = require('../base');
+const { preventDefaultThen } = BaseView;
+const Notifier = require('../../lib/channels/notifier');
+const LastCheckedTimeMixin = require('./last-checked-time-mixin');
+const SessionVerifiedNotificationMixin = require('./session-verified-notification-mixin');
+const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
+const UpgradeSessionTemplate = require('templates/settings/upgrade_session.mustache');
 
-  const t = msg => msg;
-  const showProgressIndicator = require('../decorators/progress_indicator');
-  const EMAIL_REFRESH_SELECTOR = 'button.settings-button.refresh-verification-state';
-  const EMAIL_REFRESH_DELAYMS = 350;
+const t = msg => msg;
+const showProgressIndicator = require('../decorators/progress_indicator');
+const EMAIL_REFRESH_SELECTOR = 'button.settings-button.refresh-verification-state';
+const EMAIL_REFRESH_DELAYMS = 350;
 
-  /**
-   * The UpgradeSessionMixin can be configured to display different titles and captions
-   * depending on what panel is being gated.
-   *
-   * @param {Object} [options]
-   *  @param {String} [options.caption] - caption describing what the panel is unlocking
-   *  @param {String} [options.gatedHref] - location that is redirected after session is verified
-   *  @param {String} [options.title] - title name of the panel
-   * @returns {Object} UpgradeSessionMixin
-   */
-  module.exports = (options = {}) => {
-    return {
-      dependsOn: [LastCheckedTimeMixin, SettingsPanelMixin, SessionVerifiedNotificationMixin],
+/**
+ * The UpgradeSessionMixin can be configured to display different titles and captions
+ * depending on what panel is being gated.
+ *
+ * @param {Object} [options]
+ *  @param {String} [options.caption] - caption describing what the panel is unlocking
+ *  @param {String} [options.gatedHref] - location that is redirected after session is verified
+ *  @param {String} [options.title] - title name of the panel
+ * @returns {Object} UpgradeSessionMixin
+ */
+module.exports = (options = {}) => {
+  return {
+    dependsOn: [LastCheckedTimeMixin, SettingsPanelMixin, SessionVerifiedNotificationMixin],
 
-      events: {
-        'click .cancel-verification-email': preventDefaultThen('_clickCancelVerificationEmail'),
-        'click .refresh-verification-state': preventDefaultThen('_clickRefreshVerificationState'),
-        'click .send-verification-email': preventDefaultThen('_clickSendVerificationEmail')
-      },
+    events: {
+      'click .cancel-verification-email': preventDefaultThen('_clickCancelVerificationEmail'),
+      'click .refresh-verification-state': preventDefaultThen('_clickRefreshVerificationState'),
+      'click .send-verification-email': preventDefaultThen('_clickSendVerificationEmail')
+    },
 
-      initialize () {
-        this.gatedTemplate = this.template;
-      },
+    initialize () {
+      this.gatedTemplate = this.template;
+    },
 
-      _clickRefreshVerificationState: showProgressIndicator(function() {
-        return this.setupSessionGateIfRequired()
-          .then((verified) => {
-            this.setLastCheckedTime();
-            if (verified) {
-              this.displaySuccess(t('Primary email verified successfully'), {
-                closePanel: false
-              });
-
-              this.notifier.triggerAll(Notifier.SESSION_VERIFIED);
-            }
-
-            this.render();
-          });
-      }, EMAIL_REFRESH_SELECTOR, EMAIL_REFRESH_DELAYMS),
-
-      _clickSendVerificationEmail () {
-        const account = this.getSignedInAccount();
-        return account.requestVerifySession({
-          redirectTo: this.window.location.href
-        })
-          .then(() => {
-            this.setLastCheckedTime();
-            this.displaySuccess(t('Verification email sent'), {
+    _clickRefreshVerificationState: showProgressIndicator(function() {
+      return this.setupSessionGateIfRequired()
+        .then((verified) => {
+          this.setLastCheckedTime();
+          if (verified) {
+            this.displaySuccess(t('Primary email verified successfully'), {
               closePanel: false
             });
-            this.model.set({emailSent: true});
-            return this.render();
-          });
-      },
 
-      _clickCancelVerificationEmail () {
-        this.closePanel();
-        this.navigate('/settings');
-        this.$('.send-verification-email').removeClass('hidden');
-        this.$('.cancel-verification-email').addClass('hidden');
-      },
+            this.notifier.triggerAll(Notifier.SESSION_VERIFIED);
+          }
 
-      setInitialContext (context) {
-        context.set({
-          email: this.getSignedInAccount().get('email'),
-          emailSent: this.model.get('emailSent'),
-          gatedHref: options.gatedHref,
-          isPanelOpen: this.isPanelOpen(),
-          title: this.translate(options.title)
+          this.render();
         });
-      },
+    }, EMAIL_REFRESH_SELECTOR, EMAIL_REFRESH_DELAYMS),
 
-      /**
-       * Checks to see if the current session is verified. If it is,
-       * then it renders the original template, otherwise it renders
-       * the upgrade-session template. This template prompts user
-       * to verify their email address before they can see the original
-       * template.
-       *
-       * @returns {Boolean} sessionVerified
-       */
-      setupSessionGateIfRequired () {
-        const account = this.getSignedInAccount();
-        return account.sessionVerificationStatus()
-          .then(({sessionVerified}) => {
-            if (! sessionVerified) {
-              this.template = UpgradeSessionTemplate;
-            } else {
-              this.template = this.gatedTemplate;
-            }
-            return sessionVerified;
+    _clickSendVerificationEmail () {
+      const account = this.getSignedInAccount();
+      return account.requestVerifySession({
+        redirectTo: this.window.location.href
+      })
+        .then(() => {
+          this.setLastCheckedTime();
+          this.displaySuccess(t('Verification email sent'), {
+            closePanel: false
           });
-      }
-    };
+          this.model.set({emailSent: true});
+          return this.render();
+        });
+    },
+
+    _clickCancelVerificationEmail () {
+      this.closePanel();
+      this.navigate('/settings');
+      this.$('.send-verification-email').removeClass('hidden');
+      this.$('.cancel-verification-email').addClass('hidden');
+    },
+
+    setInitialContext (context) {
+      context.set({
+        email: this.getSignedInAccount().get('email'),
+        emailSent: this.model.get('emailSent'),
+        gatedHref: options.gatedHref,
+        isPanelOpen: this.isPanelOpen(),
+        title: this.translate(options.title)
+      });
+    },
+
+    /**
+     * Checks to see if the current session is verified. If it is,
+     * then it renders the original template, otherwise it renders
+     * the upgrade-session template. This template prompts user
+     * to verify their email address before they can see the original
+     * template.
+     *
+     * @returns {Boolean} sessionVerified
+     */
+    setupSessionGateIfRequired () {
+      const account = this.getSignedInAccount();
+      return account.sessionVerificationStatus()
+        .then(({sessionVerified}) => {
+          if (! sessionVerified) {
+            this.template = UpgradeSessionTemplate;
+          } else {
+            this.template = this.gatedTemplate;
+          }
+          return sessionVerified;
+        });
+    }
   };
-});
+};

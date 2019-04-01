@@ -5,37 +5,35 @@
 // The service-mixin is used in views that know about services, which is mostly
 // OAuth services but also Sync.
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const BaseView = require('../base');
-  const $ = require('jquery');
+const BaseView = require('../base');
+const $ = require('jquery');
 
-  module.exports = {
-    afterRender () {
-      this.transformLinks();
-    },
+module.exports = {
+  afterRender () {
+    this.transformLinks();
+  },
 
-    setInitialContext (context) {
-      context.set(this.relier.pick('service', 'serviceName'));
-    },
+  setInitialContext (context) {
+    context.set(this.relier.pick('service', 'serviceName'));
+  },
 
-    transformLinks () {
-      // need to add /oauth to urls, but also maintain the existing query params
-      const $linkEls = this.$('a[href^="/signin"],a[href^="/signup"],a[href^="/reset_password"]');
-      $linkEls.each((index, el) => {
-        const $linkEl = $(el);
-        $linkEl.attr('href', this.broker.transformLink($linkEl.attr('href')));
-      });
-    },
+  transformLinks () {
+    // need to add /oauth to urls, but also maintain the existing query params
+    const $linkEls = this.$('a[href^="/signin"],a[href^="/signup"],a[href^="/reset_password"]');
+    $linkEls.each((index, el) => {
+      const $linkEl = $(el);
+      $linkEl.attr('href', this.broker.transformLink($linkEl.attr('href')));
+    });
+  },
 
-    // override this method so we can fix signup/signin links in errors
-    unsafeDisplayError (err) {
-      const result = BaseView.prototype.unsafeDisplayError.call(this, err);
+  // override this method so we can fix signup/signin links in errors
+  unsafeDisplayError (err) {
+    const result = BaseView.prototype.unsafeDisplayError.call(this, err);
 
-      this.transformLinks();
+    this.transformLinks();
 
-      return result;
-    }
-  };
-});
+    return result;
+  }
+};

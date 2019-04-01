@@ -9,28 +9,26 @@
  * @mixin PairingGraphicsMixin
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const UserAgentMixin = require('../../lib/user-agent-mixin');
+const UserAgentMixin = require('../../lib/user-agent-mixin');
 
-  module.exports = {
-    dependsOn: [ UserAgentMixin ],
+module.exports = {
+  dependsOn: [ UserAgentMixin ],
 
-    /**
-     * Returns graphicId 'graphic-connect-another-device-hearts' if the
-     * browser supports SVG Transform Origin, and 'graphic-connect-another-device'
-     * if it does not.
-     *
-     * @returns {String}
-     */
+  /**
+   * Returns graphicId 'graphic-connect-another-device-hearts' if the
+   * browser supports SVG Transform Origin, and 'graphic-connect-another-device'
+   * if it does not.
+   *
+   * @returns {String}
+   */
 
-    getGraphicsId () {
-      const uap = this.getUserAgent();
-      if (uap.supportsSvgTransformOrigin()) {
-        return 'graphic-connect-another-device-hearts';
-      }
-      return 'graphic-connect-another-device';
+  getGraphicsId () {
+    const uap = this.getUserAgent();
+    if (uap.supportsSvgTransformOrigin()) {
+      return 'graphic-connect-another-device-hearts';
     }
-  };
-});
+    return 'graphic-connect-another-device';
+  }
+};

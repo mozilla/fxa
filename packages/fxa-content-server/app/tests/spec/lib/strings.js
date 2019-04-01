@@ -4,115 +4,111 @@
 
 // test the interpolated library
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const chai = require('chai');
-  const Strings = require('lib/strings');
+const chai = require('chai');
+const Strings = require('lib/strings');
 
-  var assert = chai.assert;
+var assert = chai.assert;
 
-  describe('lib/strings', function () {
-    describe('interpolate', function () {
-      it('can do string interpolation on unnamed `%s` when given array context', function () {
-        var stringToInterpolate = 'Hi %s, this is interpolated.';
-        var interpolated = Strings.interpolate(stringToInterpolate, ['testuser@testuser.com']);
-        assert.equal(interpolated,
-          'Hi testuser@testuser.com, this is interpolated.');
-      });
-
-      it('can do string interpolation on named `%(name)s` when given array context', function () {
-        var stringToInterpolate = 'Error encountered trying to register: %(email)s.';
-        var interpolated = Strings.interpolate(stringToInterpolate, {
-          email: 'testuser@testuser.com'
-        });
-        assert.equal(interpolated,
-          'Error encountered trying to register: testuser@testuser.com.');
-      });
-
-      it('can do interpolation multiple times with an array', function () {
-        var stringToInterpolate = 'Hi %s, you have been signed in since %s';
-        var interpolated = Strings.interpolate(stringToInterpolate, [
-          'testuser@testuser.com', 'noon'
-        ]);
-
-        assert.equal(interpolated,
-          'Hi testuser@testuser.com, you have been signed in since noon');
-      });
-
-      it('can do interpolation multiple times with an object', function () {
-        var stringToInterpolate = 'Hi %(email)s, you have been signed in since %(time)s';
-        var interpolated = Strings.interpolate(stringToInterpolate, {
-          email: 'testuser@testuser.com',
-          time: 'noon'
-        });
-
-        assert.equal(interpolated,
-          'Hi testuser@testuser.com, you have been signed in since noon');
-      });
-
-      it('does no replacement on %s and %(name)s if not in context', function () {
-        var stringToInterpolate = 'Hi %s, you have been signed in since %(time)s';
-        var interpolated = Strings.interpolate(stringToInterpolate);
-
-        assert.equal(interpolated, stringToInterpolate);
-      });
-
-      it('leaves remaining %s if not enough items in context', function () {
-        var stringToInterpolate = 'Hi %s, you have been signed in since %s';
-        var interpolated = Strings.interpolate(stringToInterpolate, ['testuser@testuser.com']);
-
-        assert.equal(interpolated, 'Hi testuser@testuser.com, you have been signed in since %s');
-      });
+describe('lib/strings', function () {
+  describe('interpolate', function () {
+    it('can do string interpolation on unnamed `%s` when given array context', function () {
+      var stringToInterpolate = 'Hi %s, this is interpolated.';
+      var interpolated = Strings.interpolate(stringToInterpolate, ['testuser@testuser.com']);
+      assert.equal(interpolated,
+        'Hi testuser@testuser.com, this is interpolated.');
     });
 
-    describe('hasHTML', () => {
-      it('returns `false` if the string contains no HTML', () => {
-        assert.isFalse(Strings.hasHTML(''));
-        assert.isFalse(Strings.hasHTML('contains no HTML'));
-        assert.isFalse(Strings.hasHTML('contains no <html'));
-        assert.isFalse(Strings.hasHTML('contains no >html'));
+    it('can do string interpolation on named `%(name)s` when given array context', function () {
+      var stringToInterpolate = 'Error encountered trying to register: %(email)s.';
+      var interpolated = Strings.interpolate(stringToInterpolate, {
+        email: 'testuser@testuser.com'
       });
-
-      it('returns `true` if the string contains HTML', () => {
-        assert.isTrue(Strings.hasHTML('contains <html>'));
-        assert.isTrue(Strings.hasHTML('contains <html/>'));
-        assert.isTrue(Strings.hasHTML('contains < html/>'));
-        assert.isTrue(Strings.hasHTML('contains < html />'));
-        assert.isTrue(Strings.hasHTML('contains <html />'));
-        assert.isTrue(Strings.hasHTML('contains <> HTML like construct'));
-        assert.isTrue(Strings.hasHTML('contains </> HTML like construct'));
-        assert.isTrue(Strings.hasHTML('contains &nbsp; HTML escaped character'));
-        assert.isTrue(Strings.hasHTML('contains &#63; HTML escaped character'));
-      });
+      assert.equal(interpolated,
+        'Error encountered trying to register: testuser@testuser.com.');
     });
 
-    describe('hasUnsafeVariables', () => {
-      it('returns `false` if the string contains no variables', () => {
-        assert.isFalse(Strings.hasUnsafeVariables(''));
-        assert.isFalse(
-          Strings.hasUnsafeVariables('nothing to interpolate'));
+    it('can do interpolation multiple times with an array', function () {
+      var stringToInterpolate = 'Hi %s, you have been signed in since %s';
+      var interpolated = Strings.interpolate(stringToInterpolate, [
+        'testuser@testuser.com', 'noon'
+      ]);
+
+      assert.equal(interpolated,
+        'Hi testuser@testuser.com, you have been signed in since noon');
+    });
+
+    it('can do interpolation multiple times with an object', function () {
+      var stringToInterpolate = 'Hi %(email)s, you have been signed in since %(time)s';
+      var interpolated = Strings.interpolate(stringToInterpolate, {
+        email: 'testuser@testuser.com',
+        time: 'noon'
       });
 
-      it('returns `false` if variables are escaped', () => {
-        assert.isFalse(
-          Strings.hasUnsafeVariables('this has a %(escapedVariable)s'));
-        assert.isFalse(
-          Strings.hasUnsafeVariables('this has multiple %(escapedVariable)s, here %(escapedToo)s'));
-      });
+      assert.equal(interpolated,
+        'Hi testuser@testuser.com, you have been signed in since noon');
+    });
 
-      it('returns `true` for unnamed variables', () => {
-        assert.isTrue(Strings.hasUnsafeVariables('%s'));
-      });
+    it('does no replacement on %s and %(name)s if not in context', function () {
+      var stringToInterpolate = 'Hi %s, you have been signed in since %(time)s';
+      var interpolated = Strings.interpolate(stringToInterpolate);
 
-      it('returns `true` for variables w/o an `escaped` prefix', () => {
-        assert.isTrue(
-          Strings.hasUnsafeVariables('this has an %(unsafeVariable)s'));
-        assert.isTrue(
-          Strings.hasUnsafeVariables('this has both %(escapedSafeVariable)s and %(unsafeVariable)s'));
-      });
+      assert.equal(interpolated, stringToInterpolate);
+    });
+
+    it('leaves remaining %s if not enough items in context', function () {
+      var stringToInterpolate = 'Hi %s, you have been signed in since %s';
+      var interpolated = Strings.interpolate(stringToInterpolate, ['testuser@testuser.com']);
+
+      assert.equal(interpolated, 'Hi testuser@testuser.com, you have been signed in since %s');
+    });
+  });
+
+  describe('hasHTML', () => {
+    it('returns `false` if the string contains no HTML', () => {
+      assert.isFalse(Strings.hasHTML(''));
+      assert.isFalse(Strings.hasHTML('contains no HTML'));
+      assert.isFalse(Strings.hasHTML('contains no <html'));
+      assert.isFalse(Strings.hasHTML('contains no >html'));
+    });
+
+    it('returns `true` if the string contains HTML', () => {
+      assert.isTrue(Strings.hasHTML('contains <html>'));
+      assert.isTrue(Strings.hasHTML('contains <html/>'));
+      assert.isTrue(Strings.hasHTML('contains < html/>'));
+      assert.isTrue(Strings.hasHTML('contains < html />'));
+      assert.isTrue(Strings.hasHTML('contains <html />'));
+      assert.isTrue(Strings.hasHTML('contains <> HTML like construct'));
+      assert.isTrue(Strings.hasHTML('contains </> HTML like construct'));
+      assert.isTrue(Strings.hasHTML('contains &nbsp; HTML escaped character'));
+      assert.isTrue(Strings.hasHTML('contains &#63; HTML escaped character'));
+    });
+  });
+
+  describe('hasUnsafeVariables', () => {
+    it('returns `false` if the string contains no variables', () => {
+      assert.isFalse(Strings.hasUnsafeVariables(''));
+      assert.isFalse(
+        Strings.hasUnsafeVariables('nothing to interpolate'));
+    });
+
+    it('returns `false` if variables are escaped', () => {
+      assert.isFalse(
+        Strings.hasUnsafeVariables('this has a %(escapedVariable)s'));
+      assert.isFalse(
+        Strings.hasUnsafeVariables('this has multiple %(escapedVariable)s, here %(escapedToo)s'));
+    });
+
+    it('returns `true` for unnamed variables', () => {
+      assert.isTrue(Strings.hasUnsafeVariables('%s'));
+    });
+
+    it('returns `true` for variables w/o an `escaped` prefix', () => {
+      assert.isTrue(
+        Strings.hasUnsafeVariables('this has an %(unsafeVariable)s'));
+      assert.isTrue(
+        Strings.hasUnsafeVariables('this has both %(escapedSafeVariable)s and %(unsafeVariable)s'));
     });
   });
 });
-
-

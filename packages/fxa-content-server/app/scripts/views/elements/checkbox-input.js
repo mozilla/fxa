@@ -2,20 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  return {
-    match ($el) {
-      return $el.attr('type') === 'checkbox';
-    },
+module.exports = {
+  match ($el) {
+    return $el.attr('type') === 'checkbox';
+  },
 
-    val (val) {
-      return !! this.is(':checked');
-    },
+  val (val) {
+    return !! this.is(':checked');
+  },
 
-    validate () {
-      // always valid
-    }
-  };
-});
+  validate () {
+    // always valid
+  }
+};

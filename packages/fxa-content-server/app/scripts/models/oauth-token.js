@@ -8,29 +8,25 @@
  * with an Account model.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const Backbone = require('backbone');
+const Backbone = require('backbone');
 
-  var Model = Backbone.Model.extend({
-    defaults: {
-      token: undefined
-    },
+var Model = Backbone.Model.extend({
+  defaults: {
+    token: undefined
+  },
 
-    initialize (options) {
-      options = options || {};
+  initialize (options) {
+    options = options || {};
 
-      this._oAuthClient = options.oAuthClient;
-      this.set('token', options.token);
-    },
+    this._oAuthClient = options.oAuthClient;
+    this.set('token', options.token);
+  },
 
-    destroy () {
-      return this._oAuthClient.destroyToken(this.get('token'));
-    }
-  });
-
-  module.exports = Model;
+  destroy () {
+    return this._oAuthClient.destroyToken(this.get('token'));
+  }
 });
 
-
+module.exports = Model;

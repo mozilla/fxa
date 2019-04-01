@@ -9,40 +9,38 @@
  *
  * @mixin DisableFormMixin
  */
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  // Settings panels have two `primary` buttons, the first is the button
-  // to open/close the panel, the second to submit. Only the submit button
-  // should be disabled.
-  const BUTTON_SELECTOR = 'button[type=submit]';
-  const DISABLED_CLASS = 'disabled';
+// Settings panels have two `primary` buttons, the first is the button
+// to open/close the panel, the second to submit. Only the submit button
+// should be disabled.
+const BUTTON_SELECTOR = 'button[type=submit]';
+const DISABLED_CLASS = 'disabled';
 
-  module.exports = {
-    afterRender () {
-      this.onFormChange();
-    },
+module.exports = {
+  afterRender () {
+    this.onFormChange();
+  },
 
-    onFormChange () {
-      if (this.isValid()) {
-        this.enableForm();
-      } else {
-        this.disableForm();
-      }
-    },
-
-    /**
-     * Disable the form by disabling the primary button
-     */
-    disableForm () {
-      this.$(BUTTON_SELECTOR).addClass(DISABLED_CLASS);
-    },
-
-    /**
-     * Enable the form by enabling the primary button.
-     */
-    enableForm () {
-      this.$(BUTTON_SELECTOR).removeClass(DISABLED_CLASS);
+  onFormChange () {
+    if (this.isValid()) {
+      this.enableForm();
+    } else {
+      this.disableForm();
     }
-  };
-});
+  },
+
+  /**
+   * Disable the form by disabling the primary button
+   */
+  disableForm () {
+    this.$(BUTTON_SELECTOR).addClass(DISABLED_CLASS);
+  },
+
+  /**
+   * Enable the form by enabling the primary button.
+   */
+  enableForm () {
+    this.$(BUTTON_SELECTOR).removeClass(DISABLED_CLASS);
+  }
+};

@@ -7,16 +7,13 @@
  * the View's normal template is rendered.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const loadingTemplate = require('templates/loading.mustache');
+const loadingTemplate = require('templates/loading.mustache');
 
-  module.exports = {
-    initialize () {
-      var loadingHTML = loadingTemplate({});
-      this.writeToDOM(loadingHTML);
-    }
-  };
-});
-
+module.exports = {
+  initialize () {
+    var loadingHTML = loadingTemplate({});
+    this.writeToDOM(loadingHTML);
+  }
+};

@@ -9,49 +9,47 @@
  * Dependent on the ResumeTokenMixin which is automatically mixed-in.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const ResumeTokenMixin = require('./resume-token-mixin');
+const ResumeTokenMixin = require('./resume-token-mixin');
 
-  module.exports = {
-    dependsOn: [ ResumeTokenMixin ],
+module.exports = {
+  dependsOn: [ ResumeTokenMixin ],
 
-    /**
-     * Initiate a password reset. If successful, redirects to
-     * `confirm_reset_password`.
-     *
-     * @param {String} email
-     * @return {Promise} - resolves with auth server response if successful.
-     */
-    resetPassword (email) {
-      var account = this.user.initAccount({ email: email });
-      return account.resetPassword(this.relier, {
-        resume: this.getStringifiedResumeToken(account)
-      }).then((result) => {
-        this.navigate('confirm_reset_password', {
-          email: email,
-          passwordForgotToken: result.passwordForgotToken
-        }, {
-          clearQueryParams: true,
-        });
-
-        return result;
+  /**
+   * Initiate a password reset. If successful, redirects to
+   * `confirm_reset_password`.
+   *
+   * @param {String} email
+   * @return {Promise} - resolves with auth server response if successful.
+   */
+  resetPassword (email) {
+    var account = this.user.initAccount({ email: email });
+    return account.resetPassword(this.relier, {
+      resume: this.getStringifiedResumeToken(account)
+    }).then((result) => {
+      this.navigate('confirm_reset_password', {
+        email: email,
+        passwordForgotToken: result.passwordForgotToken
+      }, {
+        clearQueryParams: true,
       });
-    },
 
-    /**
-     * Retry a password reset
-     *
-     * @param {String} email
-     * @param {String} passwordForgotToken
-     * @return {Promise} - resolves with auth server response if successful.
-     */
-    retryResetPassword (email, passwordForgotToken) {
-      var account = this.user.initAccount({ email: email });
-      return account.retryResetPassword(passwordForgotToken, this.relier, {
-        resume: this.getStringifiedResumeToken(account)
-      });
-    }
-  };
-});
+      return result;
+    });
+  },
+
+  /**
+   * Retry a password reset
+   *
+   * @param {String} email
+   * @param {String} passwordForgotToken
+   * @return {Promise} - resolves with auth server response if successful.
+   */
+  retryResetPassword (email, passwordForgotToken) {
+    var account = this.user.initAccount({ email: email });
+    return account.retryResetPassword(passwordForgotToken, this.relier, {
+      resume: this.getStringifiedResumeToken(account)
+    });
+  }
+};

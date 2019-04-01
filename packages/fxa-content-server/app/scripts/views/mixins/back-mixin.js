@@ -13,74 +13,72 @@
  * @mixin BackMixin
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const { preventDefaultThen } = require('../base');
-  const KeyCodes = require('../../lib/key-codes');
+const { preventDefaultThen } = require('../base');
+const KeyCodes = require('../../lib/key-codes');
 
-  module.exports = {
-    initialize (options = {}) {
-      this._canGoBack = !! options.canGoBack;
-    },
+module.exports = {
+  initialize (options = {}) {
+    this._canGoBack = !! options.canGoBack;
+  },
 
-    events: {
-      'click #back,.back': preventDefaultThen('onClick'),
-      'keyup #back,.back': 'backOnEnter'
-    },
+  events: {
+    'click #back,.back': preventDefaultThen('onClick'),
+    'keyup #back,.back': 'backOnEnter'
+  },
 
-    setInitialContext (context) {
-      if (! context.has('canGoBack')) {
-        context.set('canGoBack', this.canGoBack());
-      }
-    },
-
-    onClick () {
-      // The `onClick` delegate function is used to prevent the event
-      // from being used as `nextViewData` for the `back` method.
-      // See #5515
-      this.back();
-    },
-
-    /**
-     * Go back to the last page.
-     *
-     * @method back
-     * @param {Object} [nextViewData] - data to send to the next(last) view.
-     */
-    back (nextViewData) {
-      if (this.canGoBack()) {
-        this._canGoBack = false;
-        this.logViewEvent('back');
-
-        this.notifier.trigger('navigate-back', {
-          nextViewData
-        });
-      }
-    },
-
-    /**
-     * Go back to the last page, if the user pressed the enter key.
-     *
-     * @method backOnEnter
-     * @param {Object} event
-     */
-    backOnEnter (event) {
-      if (event.which === KeyCodes.ENTER) {
-        event.preventDefault();
-
-        this.back();
-      }
-    },
-
-    /**
-     * Check if the back button should be shown.
-     *
-     * @method canGoBack
-     * @returns {Boolean}
-     */
-    canGoBack () {
-      return !! this._canGoBack;
+  setInitialContext (context) {
+    if (! context.has('canGoBack')) {
+      context.set('canGoBack', this.canGoBack());
     }
-  };
-});
+  },
+
+  onClick () {
+    // The `onClick` delegate function is used to prevent the event
+    // from being used as `nextViewData` for the `back` method.
+    // See #5515
+    this.back();
+  },
+
+  /**
+   * Go back to the last page.
+   *
+   * @method back
+   * @param {Object} [nextViewData] - data to send to the next(last) view.
+   */
+  back (nextViewData) {
+    if (this.canGoBack()) {
+      this._canGoBack = false;
+      this.logViewEvent('back');
+
+      this.notifier.trigger('navigate-back', {
+        nextViewData
+      });
+    }
+  },
+
+  /**
+   * Go back to the last page, if the user pressed the enter key.
+   *
+   * @method backOnEnter
+   * @param {Object} event
+   */
+  backOnEnter (event) {
+    if (event.which === KeyCodes.ENTER) {
+      event.preventDefault();
+
+      this.back();
+    }
+  },
+
+  /**
+   * Check if the back button should be shown.
+   *
+   * @method canGoBack
+   * @returns {Boolean}
+   */
+  canGoBack () {
+    return !! this._canGoBack;
+  }
+};

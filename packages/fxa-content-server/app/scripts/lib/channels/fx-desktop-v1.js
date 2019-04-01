@@ -6,70 +6,66 @@
 // a CustomEvent sender and a postMessage receiver. This is
 // the v1 way of communicating with the browser for Sync.
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const _ = require('underscore');
-  const DuplexChannel = require('lib/channels/duplex');
-  const FxDesktopV1Sender = require('lib/channels/senders/fx-desktop-v1');
-  const PostMessageReceiver = require('lib/channels/receivers/postmessage');
+const _ = require('underscore');
+const DuplexChannel = require('lib/channels/duplex');
+const FxDesktopV1Sender = require('lib/channels/senders/fx-desktop-v1');
+const PostMessageReceiver = require('lib/channels/receivers/postmessage');
 
-  function FxDesktopV1Channel() {
-  }
+function FxDesktopV1Channel() {
+}
 
-  _.extend(FxDesktopV1Channel.prototype, new DuplexChannel(), {
-    initialize (options) {
-      options = options || {};
+_.extend(FxDesktopV1Channel.prototype, new DuplexChannel(), {
+  initialize (options) {
+    options = options || {};
 
-      var win = options.window || window;
+    var win = options.window || window;
 
-      var sender = this._sender = new FxDesktopV1Sender();
-      sender.initialize({
-        window: win
-      });
+    var sender = this._sender = new FxDesktopV1Sender();
+    sender.initialize({
+      window: win
+    });
 
-      var receiver = this._receiver = new PostMessageReceiver();
-      receiver.initialize({
-        origin: options.origin,
-        window: win
-      });
+    var receiver = this._receiver = new PostMessageReceiver();
+    receiver.initialize({
+      origin: options.origin,
+      window: win
+    });
 
-      DuplexChannel.prototype.initialize.call(this, {
-        receiver: receiver,
-        sender: sender,
-        window: win
-      });
-    },
+    DuplexChannel.prototype.initialize.call(this, {
+      receiver: receiver,
+      sender: sender,
+      window: win
+    });
+  },
 
-    createMessageId (command) {
-      // The browser does not return messageIds, it silently ignores any
-      // that are sent. It will return a `status` field that is the same
-      // as the command. Use the command (which is returned as status)
-      // as the messageId.
-      return command;
-    },
+  createMessageId (command) {
+    // The browser does not return messageIds, it silently ignores any
+    // that are sent. It will return a `status` field that is the same
+    // as the command. Use the command (which is returned as status)
+    // as the messageId.
+    return command;
+  },
 
-    parseMessage (message) {
-      if (! (message && message.content)) {
-        throw new Error('malformed message');
-      }
-
-      var content = message.content;
-      return {
-        command: content.status,
-        data: content.data,
-        // The browser does not return messageIds, it returns a `status` field
-        // in the content. Use the `status` field as the messageId.
-        // See
-        // https://dxr.mozilla.org/mozilla-central/source/browser/base/content/aboutaccounts/aboutaccounts.js#244
-        // and
-        // https://dxr.mozilla.org/mozilla-central/source/browser/base/content/aboutaccounts/aboutaccounts.js#193
-        messageId: content.status
-      };
+  parseMessage (message) {
+    if (! (message && message.content)) {
+      throw new Error('malformed message');
     }
-  });
 
-  module.exports = FxDesktopV1Channel;
+    var content = message.content;
+    return {
+      command: content.status,
+      data: content.data,
+      // The browser does not return messageIds, it returns a `status` field
+      // in the content. Use the `status` field as the messageId.
+      // See
+      // https://dxr.mozilla.org/mozilla-central/source/browser/base/content/aboutaccounts/aboutaccounts.js#244
+      // and
+      // https://dxr.mozilla.org/mozilla-central/source/browser/base/content/aboutaccounts/aboutaccounts.js#193
+      messageId: content.status
+    };
+  }
 });
 
-
+module.exports = FxDesktopV1Channel;

@@ -2,81 +2,79 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function(require, exports, module) {
-  'use strict';
+'use strict';
 
-  const { assert } = require('chai');
-  const Cocktail = require('cocktail');
-  const ConnectAnotherDeviceBehavior = require('views/behaviors/connect-another-device');
-  const ConnectAnotherDeviceMixin = require('views/mixins/connect-another-device-mixin');
-  const NullBehavior = require('views/behaviors/null');
-  const sinon = require('sinon');
+const { assert } = require('chai');
+const Cocktail = require('cocktail');
+const ConnectAnotherDeviceBehavior = require('views/behaviors/connect-another-device');
+const ConnectAnotherDeviceMixin = require('views/mixins/connect-another-device-mixin');
+const NullBehavior = require('views/behaviors/null');
+const sinon = require('sinon');
 
-  describe('views/behaviors/connect-another-device', () => {
-    let account;
-    let cadBehavior;
-    let defaultBehavior;
+describe('views/behaviors/connect-another-device', () => {
+  let account;
+  let cadBehavior;
+  let defaultBehavior;
 
-    before(() => {
-      account = {};
-      defaultBehavior = new NullBehavior();
-      cadBehavior = new ConnectAnotherDeviceBehavior(defaultBehavior);
+  before(() => {
+    account = {};
+    defaultBehavior = new NullBehavior();
+    cadBehavior = new ConnectAnotherDeviceBehavior(defaultBehavior);
+  });
+
+  it('ensureConnectAnotherDeviceMixin adds the ConnectAnotherDeviceMixin to a view', () => {
+    const view = {};
+    cadBehavior.ensureConnectAnotherDeviceMixin(view);
+    assert.isFunction(view.isEligibleForConnectAnotherDevice);
+    assert.isFunction(view.navigateToConnectAnotherDeviceScreen);
+  });
+
+  describe('eligible for CAD', () => {
+    it('delegates to `view.navigateToConnectAnotherDeviceScreen`', () => {
+      const view = {
+        hasNavigated: sinon.spy(() => false)
+      };
+      Cocktail.mixin(view, ConnectAnotherDeviceMixin);
+
+      sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => true);
+      sinon.stub(view, 'navigateToConnectAnotherDeviceScreen').callsFake(() => {});
+
+      return cadBehavior(view, account)
+        .then((behavior) => {
+          assert.strictEqual(behavior, defaultBehavior);
+
+          assert.isTrue(view.isEligibleForConnectAnotherDevice.calledOnce);
+          assert.isTrue(view.isEligibleForConnectAnotherDevice.calledWith(account));
+
+          assert.isTrue(view.navigateToConnectAnotherDeviceScreen.calledOnce);
+          assert.isTrue(view.navigateToConnectAnotherDeviceScreen.calledWith(account));
+
+          assert.isTrue(view.hasNavigated.calledOnce);
+        });
     });
+  });
 
-    it('ensureConnectAnotherDeviceMixin adds the ConnectAnotherDeviceMixin to a view', () => {
-      const view = {};
-      cadBehavior.ensureConnectAnotherDeviceMixin(view);
-      assert.isFunction(view.isEligibleForConnectAnotherDevice);
-      assert.isFunction(view.navigateToConnectAnotherDeviceScreen);
-    });
+  describe('ineligible for CAD', () => {
+    it('invokes the defaultBehavior', () => {
+      const view = {
+        hasNavigated: sinon.spy(() => false)
+      };
+      Cocktail.mixin(view, ConnectAnotherDeviceMixin);
 
-    describe('eligible for CAD', () => {
-      it('delegates to `view.navigateToConnectAnotherDeviceScreen`', () => {
-        const view = {
-          hasNavigated: sinon.spy(() => false)
-        };
-        Cocktail.mixin(view, ConnectAnotherDeviceMixin);
+      sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => false);
+      sinon.stub(view, 'navigateToConnectAnotherDeviceScreen').callsFake(() => {});
 
-        sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => true);
-        sinon.stub(view, 'navigateToConnectAnotherDeviceScreen').callsFake(() => {});
+      return cadBehavior(view, account)
+        .then((behavior) => {
+          assert.strictEqual(behavior, defaultBehavior);
 
-        return cadBehavior(view, account)
-          .then((behavior) => {
-            assert.strictEqual(behavior, defaultBehavior);
+          assert.isTrue(view.isEligibleForConnectAnotherDevice.calledOnce);
+          assert.isTrue(view.isEligibleForConnectAnotherDevice.calledWith(account));
 
-            assert.isTrue(view.isEligibleForConnectAnotherDevice.calledOnce);
-            assert.isTrue(view.isEligibleForConnectAnotherDevice.calledWith(account));
+          assert.isFalse(view.navigateToConnectAnotherDeviceScreen.called);
 
-            assert.isTrue(view.navigateToConnectAnotherDeviceScreen.calledOnce);
-            assert.isTrue(view.navigateToConnectAnotherDeviceScreen.calledWith(account));
-
-            assert.isTrue(view.hasNavigated.calledOnce);
-          });
-      });
-    });
-
-    describe('ineligible for CAD', () => {
-      it('invokes the defaultBehavior', () => {
-        const view = {
-          hasNavigated: sinon.spy(() => false)
-        };
-        Cocktail.mixin(view, ConnectAnotherDeviceMixin);
-
-        sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => false);
-        sinon.stub(view, 'navigateToConnectAnotherDeviceScreen').callsFake(() => {});
-
-        return cadBehavior(view, account)
-          .then((behavior) => {
-            assert.strictEqual(behavior, defaultBehavior);
-
-            assert.isTrue(view.isEligibleForConnectAnotherDevice.calledOnce);
-            assert.isTrue(view.isEligibleForConnectAnotherDevice.calledWith(account));
-
-            assert.isFalse(view.navigateToConnectAnotherDeviceScreen.called);
-
-            assert.isTrue(view.hasNavigated.calledOnce);
-          });
-      });
+          assert.isTrue(view.hasNavigated.calledOnce);
+        });
     });
   });
 });

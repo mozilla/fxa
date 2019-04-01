@@ -6,22 +6,19 @@
  * A behavior that halts the view flow.
  */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  var HaltBehavior = function () {
-    var behavior = function (view) {
-      // return a promise that never resolves to halt promise based flows.
-      return new Promise(() => {});
-    };
-
-    // used by form.afterSubmit to keep a form disabled.
-    behavior.halt = true;
-    behavior.type = 'halt';
-
-    return behavior;
+var HaltBehavior = function () {
+  var behavior = function (view) {
+    // return a promise that never resolves to halt promise based flows.
+    return new Promise(() => {});
   };
 
-  module.exports = HaltBehavior;
-});
+  // used by form.afterSubmit to keep a form disabled.
+  behavior.halt = true;
+  behavior.type = 'halt';
 
+  return behavior;
+};
+
+module.exports = HaltBehavior;

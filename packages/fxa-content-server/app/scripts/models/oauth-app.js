@@ -5,26 +5,24 @@
 /**
  * OAuthApp information
  */
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const Backbone = require('backbone');
-  const Constants = require('../lib/constants');
+const Backbone = require('backbone');
+const Constants = require('../lib/constants');
 
-  module.exports = Backbone.Model.extend({
-    defaults: {
-      approximateLastAccessTime: null,
-      approximateLastAccessTimeFormatted: null,
-      clientType: Constants.CLIENT_TYPE_OAUTH_APP,
-      id: null,
-      lastAccessTime: null,
-      lastAccessTimeFormatted: null,
-      name: null,
-      scope: null
-    },
+module.exports = Backbone.Model.extend({
+  defaults: {
+    approximateLastAccessTime: null,
+    approximateLastAccessTimeFormatted: null,
+    clientType: Constants.CLIENT_TYPE_OAUTH_APP,
+    id: null,
+    lastAccessTime: null,
+    lastAccessTimeFormatted: null,
+    name: null,
+    scope: null
+  },
 
-    destroy () {
-      this.trigger('destroy', this);
-    }
-  });
+  destroy () {
+    this.trigger('destroy', this);
+  }
 });

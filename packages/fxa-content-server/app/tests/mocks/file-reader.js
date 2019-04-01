@@ -4,57 +4,53 @@
 
 // mock out a FileReader
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
+var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAACZJREFUeNrtwQEBAAAAgiD' +
+              '/r25IQAEAAAAAAAAAAAAAAAAAAADvBkCAAAEehacTAAAAAElFTkSuQmCC';
+var tinyPngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
-  var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAACZJREFUeNrtwQEBAAAAgiD' +
-               '/r25IQAEAAAAAAAAAAAAAAAAAAADvBkCAAAEehacTAAAAAElFTkSuQmCC';
-  var tinyPngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
+function FileReaderMock() {
+  // nothing to do
+}
 
-  function FileReaderMock() {
-    // nothing to do
-  }
-
-  FileReaderMock._mockFileEvent = function (type, src) {
-    var file = {
-      _dataURL: src,
-      type: type
-    };
-
-    return {
-      target: {
-        files: [ file ]
-      }
-    };
+FileReaderMock._mockFileEvent = function (type, src) {
+  var file = {
+    _dataURL: src,
+    type: type
   };
 
-  FileReaderMock._mockPngEvent = function () {
-    return this._mockFileEvent('image/png', pngSrc);
-  };
-
-  FileReaderMock._mockTinyPngEvent = function () {
-    return this._mockFileEvent('image/png', tinyPngSrc);
-  };
-
-  FileReaderMock._mockBadPngEvent = function () {
-    return this._mockFileEvent('image/png', 'data:image/png;base64,');
-  };
-
-  FileReaderMock._mockTextEvent = function () {
-    return this._mockFileEvent('text/plain', 'hi');
-  };
-
-  FileReaderMock.prototype = {
-    readAsDataURL (file) {
-      this.onload({
-        target: {
-          result: file._dataURL
-        }
-      });
+  return {
+    target: {
+      files: [ file ]
     }
   };
+};
 
-  module.exports = FileReaderMock;
-});
+FileReaderMock._mockPngEvent = function () {
+  return this._mockFileEvent('image/png', pngSrc);
+};
 
+FileReaderMock._mockTinyPngEvent = function () {
+  return this._mockFileEvent('image/png', tinyPngSrc);
+};
+
+FileReaderMock._mockBadPngEvent = function () {
+  return this._mockFileEvent('image/png', 'data:image/png;base64,');
+};
+
+FileReaderMock._mockTextEvent = function () {
+  return this._mockFileEvent('text/plain', 'hi');
+};
+
+FileReaderMock.prototype = {
+  readAsDataURL (file) {
+    this.onload({
+      target: {
+        result: file._dataURL
+      }
+    });
+  }
+};
+
+module.exports = FileReaderMock;
