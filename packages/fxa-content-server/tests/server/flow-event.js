@@ -13,11 +13,9 @@ registerSuite('flow-event', {
   beforeEach: function() {
     config = {
       /*eslint-disable camelcase*/
-      client_metrics: {
-        stderr_collector_disabled: false
-      },
       flow_id_expiry: 7200000,
-      flow_id_key: 'foo'
+      flow_id_key: 'foo',
+      flow_metrics_disabled: false
       /*eslint-enable camelcase*/
     };
     sandbox = sinon.sandbox.create();
@@ -58,6 +56,34 @@ registerSuite('flow-event', {
     'interface is correct': () => {
       assert.isFunction(flowEvent);
       assert.lengthOf(flowEvent, 3);
+    },
+
+    'call flowEvent with flow_metrics_disabled true': {
+      beforeEach() {
+        /*eslint-disable camelcase*/
+        config.flow_metrics_disabled = true;
+        /*eslint-enable camelcase*/
+
+        const timeSinceFlowBegin = 1000;
+        flowMetricsValidateResult = true;
+        setup({
+          events: [
+            {offset: 5, type: 'wibble'},
+            {offset: 5, type: 'flow.begin'},
+            {offset: 5.9, type: 'screen.signup'},
+            {offset: timeSinceFlowBegin, type: 'flow.signup.good-offset-now'},
+            {offset: timeSinceFlowBegin + 1, type: 'flow.signup.bad-offset-future'},
+            {offset: timeSinceFlowBegin - config.flow_id_expiry - 1, type: 'flow.signup.bad-offset-expired'},
+            {offset: timeSinceFlowBegin - config.flow_id_expiry, type: 'flow.signup.good-offset-oldest'},
+            {offset: 500, type: 'flow.timing.foo.1'},
+            {offset: 500, type: 'flow.timing.bar.baz.2'}
+          ],
+        }, timeSinceFlowBegin);
+      },
+
+      'process.stderr.write was not called': () => {
+        assert.equal(process.stderr.write.callCount, 0);
+      }
     },
 
     'call flowEvent with valid flow data': {
