@@ -102,12 +102,6 @@ const conf = convict({
       default: true
     }
   },
-  encrypt: {
-    hashAlg: {
-      doc: 'Hash algorithm for storing secrets/codes/tokens.',
-      default: 'sha256'
-    }
-  },
   env: {
     arg: 'node-env',
     doc: 'The current node.js environment',

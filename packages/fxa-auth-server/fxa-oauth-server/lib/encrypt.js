@@ -3,13 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const crypto = require('crypto');
-
 const buf = require('buf').hex;
 
-const config = require('./config');
-
 exports.hash = function hash(value) {
-  var sha = crypto.createHash(config.get('encrypt.hashAlg'));
+  var sha = crypto.createHash('sha256');
   sha.update(buf(value));
   return sha.digest();
 };
