@@ -32,6 +32,7 @@ module.exports = (log, config) => {
     grantTokensFromAuthorizationCode: require('./grant-tokens-from-authorization-code')(config),
     grantTokensFromRefreshToken: require('./grant-tokens-from-refresh-token')(config),
     grantTokensFromCredentials: require('./grant-tokens-from-credentials')(config),
+    checkAccessToken: require('./check-access-token')(config),
   });
 
   const api = new OAuthAPI(config.oauth.url, config.oauth.poolee);
@@ -115,15 +116,20 @@ module.exports = (log, config) => {
       }
     },
 
+    async checkAccessToken(token) {
+      try {
+        return await api.checkAccessToken(token);
+      } catch (err) {
+        throw mapOAuthError(log, err);
+      }
+    }
+
     /* As we work through the process of merging oauth-server
      * into auth-server, future methods we might want to include
      * here will be things like the following:
 
     async getClientInstances(account) {
     },
-
-    async checkAccessToken(token) {
-    }
 
     async revokeAccessToken(token) {
     }

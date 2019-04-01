@@ -22,8 +22,10 @@ const mockConfig = {
   domain: 'accounts.example.com'
 };
 
-const MOCK_UID = 'ABCDEF';
+const MOCK_UID = '1a147912d8de4ab5842ecc9fb7186800';
 const MOCK_CLIENT_ID = '0123456789ABCDEF';
+const MOCK_SCOPES = 'mock-scope another-scope';
+const MOCK_TOKEN = '8ddd955475561c723d38863defc558788aee362c4f28df76b997ae62646a7b43';
 const MOCK_CLIENT_INFO = {
   id: MOCK_CLIENT_ID,
   name: 'mock client',
@@ -133,7 +135,6 @@ describe('oauthdb', () => {
   describe('getScopedKeyData', () => {
 
     const ZEROS = Buffer.alloc(32).toString('hex');
-    const MOCK_SCOPES = 'mock-scope another-scope';
     const MOCK_CREDENTIALS = {
       uid: MOCK_UID,
       verifierSetAt: 12345,
@@ -299,6 +300,25 @@ describe('oauthdb', () => {
       }
     });
 
+  });
+
+  describe('checkAccessToken', () => {
+    it('works', async () => {
+      const verifyResponse = {
+        user: MOCK_UID,
+        client_id: MOCK_CLIENT_ID,
+        scope: ['https://identity.mozilla.com/apps/oldsync', 'openid']
+      };
+
+      mockOAuthServer.post('/v1/verify', body => true)
+        .reply(200, verifyResponse);
+      oauthdb = oauthdbModule(mockLog(), mockConfig);
+      const response = await oauthdb.checkAccessToken({
+        token: MOCK_TOKEN
+      });
+
+      assert.deepEqual(verifyResponse, response);
+    });
   });
 
 });

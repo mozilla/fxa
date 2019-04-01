@@ -114,7 +114,7 @@ module.exports = (log, db, push) => {
             deviceName = synthesizeName(deviceInfo);
           }
           if (credentials.tokenVerified) {
-            request.app.devices.then(devices => {
+            db.devices(credentials.uid).then(devices => {
               const otherDevices = devices.filter(device => device.id !== result.id);
               return push.notifyDeviceConnected(credentials.uid, otherDevices, deviceName);
             });
