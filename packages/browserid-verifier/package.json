@@ -3,7 +3,7 @@
   "license": "MPL-2.0",
   "name": "browserid-verifier",
   "description": "A node.js verification server for BrowserID assertions.",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mozilla/browserid-verifier"
