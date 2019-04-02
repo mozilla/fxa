@@ -1,3 +1,47 @@
+<a name="1.134.0"></a>
+# [1.134.0](https://github.com/mozilla/fxa-auth-server/compare/v1.133.1...v1.134.0) (2019-04-02)
+
+
+### Bug Fixes
+
+* **api:** remove redundant query params from /recovery_email/verify_code ([b8886b0](https://github.com/mozilla/fxa-auth-server/commit/b8886b0))
+* **config:** make Fenix canGrant just like the Reference Browser ([5f23915](https://github.com/mozilla/fxa-auth-server/commit/5f23915))
+* **config:** remove hash alg from config ([96154d3](https://github.com/mozilla/fxa-auth-server/commit/96154d3))
+* **deps:** fix npm advisory 788 ([a87338a](https://github.com/mozilla/fxa-auth-server/commit/a87338a))
+* **devices:** return isCurrentDevice for refreshToken device endpoint ([e89d24e](https://github.com/mozilla/fxa-auth-server/commit/e89d24e)), closes [#3003](https://github.com/mozilla/fxa-auth-server/issues/3003)
+* **email:** use new copy for verification reminder emails ([0ab024a](https://github.com/mozilla/fxa-auth-server/commit/0ab024a))
+* **scripts:** add missing createSenders arg to write-email script ([2d5ce76](https://github.com/mozilla/fxa-auth-server/commit/2d5ce76))
+* **scripts:** exit cleanly from write-emails-to-disk script ([2cd624b](https://github.com/mozilla/fxa-auth-server/commit/2cd624b))
+
+### chore
+
+* **docs:** disable the auto-generated api docs script ([66302e1](https://github.com/mozilla/fxa-auth-server/commit/66302e1))
+* **package:** update shrinkwrap ([b30037f](https://github.com/mozilla/fxa-auth-server/commit/b30037f))
+* **scripts:** force NODE_ENV=dev in write-email script ([4eb4436](https://github.com/mozilla/fxa-auth-server/commit/4eb4436))
+* **scripts:** remove legacy_log abstraction ([c081407](https://github.com/mozilla/fxa-auth-server/commit/c081407))
+
+### Features
+
+* **email:** add view actions to verification reminder emails ([a326c28](https://github.com/mozilla/fxa-auth-server/commit/a326c28))
+* **email:** reinstate account verification reminder emails ([7bd920e](https://github.com/mozilla/fxa-auth-server/commit/7bd920e))
+* **metrics:** amplitude events from the OAuth server for MAU ([9756fde](https://github.com/mozilla/fxa-auth-server/commit/9756fde)), closes [#2957](https://github.com/mozilla/fxa-auth-server/issues/2957)
+* **oauth:** Add /oauth/authorization route, authenticated with a sessionToken. ([c3bb754](https://github.com/mozilla/fxa-auth-server/commit/c3bb754))
+* **oauth:** Add /oauth/token route, optionally authed via sessionToken ([5efdbc4](https://github.com/mozilla/fxa-auth-server/commit/5efdbc4))
+* **oauth:** notify push and email on code exchanges ([2e25c45](https://github.com/mozilla/fxa-auth-server/commit/2e25c45)), closes [#2880](https://github.com/mozilla/fxa-auth-server/issues/2880) [#2955](https://github.com/mozilla/fxa-auth-server/issues/2955)
+* **oauth:** Use an assertion to directly grant tokens at /token. ([6db4efb](https://github.com/mozilla/fxa-auth-server/commit/6db4efb))
+* **scripts:** add a script to process verification reminders ([b42276f](https://github.com/mozilla/fxa-auth-server/commit/b42276f))
+
+### Refactor
+
+* **config:** cache repetitive calls to conf.get ([ef54799](https://github.com/mozilla/fxa-auth-server/commit/ef54799))
+* **fxa-auth-server:** Added no-var rule in .eslintrc ([fca50dc](https://github.com/mozilla/fxa-auth-server/commit/fca50dc))
+* **fxa-auth-server:** Added prefer-arrow-callback rule in .eslintrc ([818115f](https://github.com/mozilla/fxa-auth-server/commit/818115f))
+* **fxa-auth-server:** Added prefer-const rule in .eslintrc ([2ee331e](https://github.com/mozilla/fxa-auth-server/commit/2ee331e))
+* **fxa-auth-server:** Added prefer-template rule in .eslintrc ([4761ad0](https://github.com/mozilla/fxa-auth-server/commit/4761ad0))
+* **fxa-auth-server:** Added semicolons(semi rule) ([1b910f0](https://github.com/mozilla/fxa-auth-server/commit/1b910f0))
+
+
+
 <a name="1.133.1"></a>
 ## [1.133.1](https://github.com/mozilla/fxa-auth-server/compare/v1.133.0...v1.133.1) (2019-03-19)
 
