@@ -42,7 +42,7 @@
     "chai": "4.2.0",
     "eslint-config-fxa": "2.1.0",
     "fxa-conventional-changelog": "1.1.0",
-    "grunt": "1.0.3",
+    "grunt": "1.0.4",
     "grunt-bump": "0.8.0",
     "grunt-cli": "1.2.0",
     "grunt-conventional-changelog": "6.1.0",
@@ -54,7 +54,7 @@
     "request": "2.85.0",
     "restify-clients": "2.5.0",
     "sinon": "7.2.3",
-    "tap": "12.5.3",
+    "tap": "12.6.1",
     "walk": "2.3.x"
   },
   "engines": {
