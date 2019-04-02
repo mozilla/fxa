@@ -1,3 +1,13 @@
+<a name="1.134.0"></a>
+# [1.134.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.133.0...v1.134.0) (2019-04-02)
+
+
+### Bug Fixes
+
+* **deps:** Fix the audit warnings ([3c751c9](https://github.com/mozilla/fxa-basket-proxy/commit/3c751c9))
+
+
+
 <a name="1.133.0"></a>
 # [1.133.0](https://github.com/mozilla/fxa-basket-proxy/compare/v1.126.0...v1.133.0) (2019-03-19)
 
