@@ -22,7 +22,7 @@
     "convict": "4.0.2",
     "cors": "2.8.1",
     "express": "4.16.2",
-    "grunt": "1.0.3",
+    "grunt": "1.0.4",
     "grunt-cli": "1.2.0",
     "grunt-rev": "0.1.0",
     "load-grunt-tasks": "3.5.2",
