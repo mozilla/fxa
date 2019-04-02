@@ -15,7 +15,7 @@ module.exports = function middlewareFactory() {
       var summary = res._summary;
       summary.code = res.statusCode;
 
-      logger.info(summary);
+      logger.info('info', summary);
     }
 
     res._summary = {};
