@@ -1,3 +1,27 @@
+<a name="1.134.1"></a>
+## [1.134.1](https://github.com/mozilla/fxa-customs-server/compare/v1.134.0...v1.134.1) (2019-04-02)
+
+
+### Bug Fixes
+
+* **deps:** Fix the audit warnings. ([6014d75](https://github.com/mozilla/fxa-customs-server/commit/6014d75))
+
+
+
+<a name="1.134.0"></a>
+# [1.134.0](https://github.com/mozilla/fxa-customs-server/compare/v1.132.0...v1.134.0) (2019-04-02)
+
+
+### Features
+
+* **docker:** Use node 10 to build the docker image ([2b124c2](https://github.com/mozilla/fxa-customs-server/commit/2b124c2))
+
+### Refactor
+
+* **server:** Extract and simplify record retreival/storage, user defined rules. ([6f73c3c](https://github.com/mozilla/fxa-customs-server/commit/6f73c3c))
+
+
+
 <a name="1.132.0"></a>
 # [1.132.0](https://github.com/mozilla/fxa-customs-server/compare/v1.130.0...v1.132.0) (2019-03-05)
 
