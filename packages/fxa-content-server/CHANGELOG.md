@@ -1,3 +1,41 @@
+<a name="1.134.0"></a>
+# [1.134.0](https://github.com/mozilla/fxa-content-server/compare/v1.133.0...v1.134.0) (2019-04-02)
+
+
+### Bug Fixes
+
+* **auth_broker:** fx-desktop-v1 merged into fx-ios-v1 ([6cd6fae](https://github.com/mozilla/fxa-content-server/commit/6cd6fae))
+* **autofocus:** fixed dynamic autofocus for fields on signin/signup views ([7d16644](https://github.com/mozilla/fxa-content-server/commit/7d16644))
+* **deps:** update dependencies ([2e5a1fa](https://github.com/mozilla/fxa-content-server/commit/2e5a1fa))
+* **errno 121:** added invalid grant_type error ([e690cab](https://github.com/mozilla/fxa-content-server/commit/e690cab))
+* **fxa-client:** comment margin: 2px ([cfd26e9](https://github.com/mozilla/fxa-content-server/commit/cfd26e9))
+* **metrics:** add independent config to disable amplitude/flow events ([6c5ca6d](https://github.com/mozilla/fxa-content-server/commit/6c5ca6d))
+* **recovery_codes:** if user has no totp setup then redirect to totp setup instead of recovery_codes ([44690b2](https://github.com/mozilla/fxa-content-server/commit/44690b2))
+* **style:** add client icon for send in device list ([7d3bfe5](https://github.com/mozilla/fxa-content-server/commit/7d3bfe5)), closes [#7062](https://github.com/mozilla/fxa-content-server/issues/7062)
+* **style:** emails over 26 characters are now visible in the password screen ([38299c5](https://github.com/mozilla/fxa-content-server/commit/38299c5))
+* **style:** scale down larger customized qr-image for totp ([0fd2fec](https://github.com/mozilla/fxa-content-server/commit/0fd2fec))
+* **style:** shorten forgot password focus link ([8ed718d](https://github.com/mozilla/fxa-content-server/commit/8ed718d))
+* **teamcity:** npm ci all the things ([ccf9569](https://github.com/mozilla/fxa-content-server/commit/ccf9569))
+* **tests:** fix bad legal docs link 404 ([3bee63e](https://github.com/mozilla/fxa-content-server/commit/3bee63e))
+
+### Features
+
+* **oauth:** add oauth success screen ([92cdbc1](https://github.com/mozilla/fxa-content-server/commit/92cdbc1)), closes [#6996](https://github.com/mozilla/fxa-content-server/issues/6996)
+* **pairing:** disable pairing for 2FA accounts ([7fd394e](https://github.com/mozilla/fxa-content-server/commit/7fd394e)), closes [#6987](https://github.com/mozilla/fxa-content-server/issues/6987)
+* **settings:** add Fenix and Ref Browser icon ([53b9f7f](https://github.com/mozilla/fxa-content-server/commit/53b9f7f))
+* **totp:** Add loading indicator for session status verification ([4591dd6](https://github.com/mozilla/fxa-content-server/commit/4591dd6)), closes [#6877](https://github.com/mozilla/fxa-content-server/issues/6877)
+
+### Refactor
+
+* **mixin:** cleaned up usage of uap.supportsSvgTransformOrigin() in views ([bc5fba2](https://github.com/mozilla/fxa-content-server/commit/bc5fba2)), closes [#6988](https://github.com/mozilla/fxa-content-server/issues/6988)
+
+### style
+
+* **settings:** Added green banner for account recovery ([0fbb524](https://github.com/mozilla/fxa-content-server/commit/0fbb524))
+* **TOTP:** add border to the recovery codes in TOTP ([201aef0](https://github.com/mozilla/fxa-content-server/commit/201aef0))
+
+
+
 <a name="1.133.0"></a>
 # [1.133.0](https://github.com/mozilla/fxa-content-server/compare/v1.132.1...v1.133.0) (2019-03-19)
 
