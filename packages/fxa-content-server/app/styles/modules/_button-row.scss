@@ -83,6 +83,84 @@ button {
   }
 }
 
+.save-options {
+  display: flex;
+  justify-content: center;
+
+    .remove {
+      display: inline-block;
+
+      &.hidden {
+        display: none;
+      }
+    }
+}
+
+.save-option {
+  background: none;
+  color: $link-color-default;
+  display: inline-block;
+  height: 80px;
+  line-height: 1.1;
+  padding: 10px;
+  text-decoration: none;
+  width: 33%;
+
+  @include respond-to('big') {
+    margin: 5px;
+    min-width: 80px;
+  }
+
+  @include respond-to('small') {
+    height: 75px;
+    margin: 0 0 10px 0;
+    min-width: 75px;
+  }
+
+ &.name,
+
+  &:hover {
+    background-color: transparent;
+    filter: hue-rotate(3deg) saturate(1.1) brightness(.85);
+  }
+
+  &.name,
+
+  &:active {
+    filter: hue-rotate(3deg) saturate(1.1) brightness(.75);
+  }
+
+  a:hover {
+    text-decoration: none;
+  }
+
+ .name {
+    font-size: 14px;
+    text-align: center;
+  }
+
+ .graphic {
+    margin: 0 auto 10px auto;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  &.remove {
+    background-image: image-url('glyph-clear-16.svg');
+    background-position: 50% 0.7vw;
+
+    &:hover {
+      filter: hue-rotate(3deg) saturate(1.1) brightness(.85);
+    }
+
+    &:active {
+      filter: hue-rotate(3deg) saturate(1.1) brightness(.75);
+    }
+  }
+}
+
 button::-moz-focus-inner {
   border: 0;
   padding: 0;

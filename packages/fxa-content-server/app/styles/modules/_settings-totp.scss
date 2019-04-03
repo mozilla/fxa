@@ -141,25 +141,3 @@
 .note {
   color: $color-red;
 }
-
-.save-options {
-  display: flex;
-  margin-top: 25px;
-}
-
-.save-option {
-  width: 33%;
-
-  .name {
-    font-size: 14px;
-    text-align: center;
-  }
-
-  .graphic {
-    margin: 0 auto 14px auto;
-  }
-
-  p {
-    margin: 0;
-  }
-}

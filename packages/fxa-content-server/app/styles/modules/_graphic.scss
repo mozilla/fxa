@@ -100,6 +100,20 @@
   width: 33%;
 }
 
+.graphic-upload-option,
+.graphic-avatar-upload {
+  background-image: image-url('glyph-upload-16.svg');
+  height: 32px;
+  width: 33%;
+}
+
+.graphic-camera-option,
+.graphic-avatar-camera {
+  background-image: image-url('glyph-camera-32.svg');
+  height: 32px;
+  width: 33%;
+}
+
 .graphic-choose-what-to-sync {
   background-image: image-url('choose_what_to_sync_devices.svg');
 }

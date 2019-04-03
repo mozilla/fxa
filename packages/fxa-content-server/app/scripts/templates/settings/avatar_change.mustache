@@ -10,14 +10,23 @@
 
     <div class="error"></div>
 
-    <nav id="avatar-options">
-      <input type="file" id="imageLoader" name="imageLoader" accept="image/png, image/jpeg"/>
-      <a href="#" id="file">{{#t}}Upload{{/t}}</a>
-      <a href="/settings/avatar/camera" id="camera">{{#t}}Camera{{/t}}</a>
+    <input type="file" id="imageLoader" name="imageLoader" accept="image/png, image/jpeg"/>
+    <div class="button-row save-options">
+      
+      <button class="save-option" id="file">
+          <div class="graphic graphic-upload-option"></div>
+          <p class="name">{{#t}}Upload{{/t}}</p>
+      </button>
+      <button class="save-option" id="camera">
+          <a href="/settings/avatar/camera">
+            <div class="graphic graphic-camera-option"></div>
+            <p class="name">{{#t}}Camera{{/t}}</p>
+          </a>
+      </button>
       {{^avatarDefault}}
-      <a href="#" class="remove">{{#t}}Clear{{/t}}</a>
+      <button class="remove save-option">{{#t}}Clear{{/t}}</button>
       {{/avatarDefault}}
-    </nav>
+    </div>
 
     <div class="button-row">
       <button id="done" class="settings-button secondary-button cancel">{{#t}}Done{{/t}}</button>
