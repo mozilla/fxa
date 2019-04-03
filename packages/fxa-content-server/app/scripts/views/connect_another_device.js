@@ -10,23 +10,23 @@
  */
 'use strict';
 
-const Cocktail = require('cocktail');
-const ConnectAnotherDeviceMixin = require('./mixins/connect-another-device-mixin');
-const ExperimentMixin = require('./mixins/experiment-mixin');
-const FlowEventsMixin = require('./mixins/flow-events-mixin');
-const FormView = require('./form');
-const PairingGraphicsMixin = require('./mixins/pairing-graphics-mixin');
+import Cocktail from 'cocktail';
+import ConnectAnotherDeviceMixin from './mixins/connect-another-device-mixin';
+import ExperimentMixin from './mixins/experiment-mixin';
+import FlowEventsMixin from './mixins/flow-events-mixin';
+import FormView from './form';
+import PairingGraphicsMixin from './mixins/pairing-graphics-mixin';
 const {
   MARKETING_ID_AUTUMN_2016,
   SYNC_SERVICE,
   UTM_SOURCE_EMAIL
 } = require('../lib/constants');
-const MarketingMixin = require('./mixins/marketing-mixin');
-const MarketingSnippet = require('./marketing_snippet');
-const SyncAuthMixin = require('./mixins/sync-auth-mixin');
-const Template = require('templates/connect_another_device.mustache');
-const UserAgentMixin = require('../lib/user-agent-mixin');
-const VerificationReasonMixin = require('./mixins/verification-reason-mixin');
+import MarketingMixin from './mixins/marketing-mixin';
+import MarketingSnippet from './marketing_snippet';
+import SyncAuthMixin from './mixins/sync-auth-mixin';
+import Template from 'templates/connect_another_device.mustache';
+import UserAgentMixin from '../lib/user-agent-mixin';
+import VerificationReasonMixin from './mixins/verification-reason-mixin';
 
 class ConnectAnotherDeviceView extends FormView {
   initialize (options = {}) {

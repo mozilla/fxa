@@ -4,10 +4,10 @@
 
 'use strict';
 
-const chai = require('chai');
-const sinon = require('sinon');
-const WebChannelSender = require('lib/channels/senders/web-channel');
-const WindowMock = require('../../../../mocks/window');
+import chai from 'chai';
+import sinon from 'sinon';
+import WebChannelSender from 'lib/channels/senders/web-channel';
+import WindowMock from '../../../../mocks/window';
 
 var windowMock;
 var sender;

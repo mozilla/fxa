@@ -17,15 +17,17 @@
 
 'use strict';
 
-const AuthErrors = require('../lib/auth-errors');
-const BaseView = require('./base');
-const Cocktail = require('cocktail');
-const CompleteSignUpTemplate = require('templates/complete_sign_up.mustache');
-const ConnectAnotherDeviceMixin = require('./mixins/connect-another-device-mixin');
-const MarketingEmailErrors = require('../lib/marketing-email-errors');
-const ResendMixin = require('./mixins/resend-mixin')();
-const ResumeTokenMixin = require('./mixins/resume-token-mixin');
-const VerificationInfo = require('../models/verification/sign-up');
+import AuthErrors from '../lib/auth-errors';
+import BaseView from './base';
+import Cocktail from 'cocktail';
+import CompleteSignUpTemplate from 'templates/complete_sign_up.mustache';
+import ConnectAnotherDeviceMixin from './mixins/connect-another-device-mixin';
+import MarketingEmailErrors from '../lib/marketing-email-errors';
+import ResendMixin from './mixins/resend-mixin';
+import ResumeTokenMixin from './mixins/resume-token-mixin';
+import VerificationInfo from '../models/verification/sign-up';
+
+ResendMixin();
 
 const CompleteSignUpView = BaseView.extend({
   template: CompleteSignUpTemplate,

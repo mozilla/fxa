@@ -4,10 +4,10 @@
 
 'use strict';
 
-const chai = require('chai');
-const Constants = require('lib/constants');
-const EmailResend = require('models/email-resend');
-const sinon = require('sinon');
+import chai from 'chai';
+import Constants from 'lib/constants';
+import EmailResend from 'models/email-resend';
+import sinon from 'sinon';
 
 var assert = chai.assert;
 

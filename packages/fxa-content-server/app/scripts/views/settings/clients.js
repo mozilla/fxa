@@ -4,18 +4,18 @@
 
 'use strict';
 
-const _ = require('underscore');
-const $ = require('jquery');
-const AttachedClients = require('../../models/attached-clients');
-const Cocktail = require('cocktail');
-const Constants = require('../../lib/constants');
-const FormView = require('../form');
-const preventDefaultThen = require('../base').preventDefaultThen;
-const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
-const SignedOutNotificationMixin = require('../mixins/signed-out-notification-mixin');
-const Strings = require('../../lib/strings');
-const Template = require('templates/settings/clients.mustache');
-const UserAgentMixin = require('../../lib/user-agent-mixin');
+import _ from 'underscore';
+import $ from 'jquery';
+import AttachedClients from '../../models/attached-clients';
+import Cocktail from 'cocktail';
+import Constants from '../../lib/constants';
+import FormView from '../form';
+import { preventDefaultThen } from '../base';
+import SettingsPanelMixin from '../mixins/settings-panel-mixin';
+import SignedOutNotificationMixin from '../mixins/signed-out-notification-mixin';
+import Strings from '../../lib/strings';
+import Template from 'templates/settings/clients.mustache';
+import UserAgentMixin from '../../lib/user-agent-mixin';
 
 const t = msg => msg;
 

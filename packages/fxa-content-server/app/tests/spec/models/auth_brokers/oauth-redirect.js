@@ -4,21 +4,21 @@
 
 'use strict';
 
-const Account = require('models/account');
-const { assert } = require('chai');
-const Assertion = require('lib/assertion');
-const AuthErrors = require('lib/auth-errors');
-const Constants = require('lib/constants');
-const OAuthClient = require('lib/oauth-client');
-const OAuthErrors = require('lib/oauth-errors');
-const RedirectAuthenticationBroker = require('models/auth_brokers/oauth-redirect');
-const Relier = require('models/reliers/base');
-const Session = require('lib/session');
-const sinon = require('sinon');
-const User = require('models/user');
-const VerificationMethods = require('lib/verification-methods');
-const VerificationReasons = require('lib/verification-reasons');
-const WindowMock = require('../../../mocks/window');
+import Account from 'models/account';
+import { assert } from 'chai';
+import Assertion from 'lib/assertion';
+import AuthErrors from 'lib/auth-errors';
+import Constants from 'lib/constants';
+import OAuthClient from 'lib/oauth-client';
+import OAuthErrors from 'lib/oauth-errors';
+import RedirectAuthenticationBroker from 'models/auth_brokers/oauth-redirect';
+import Relier from 'models/reliers/base';
+import Session from 'lib/session';
+import sinon from 'sinon';
+import User from 'models/user';
+import VerificationMethods from 'lib/verification-methods';
+import VerificationReasons from 'lib/verification-reasons';
+import WindowMock from '../../../mocks/window';
 
 var REDIRECT_TO = 'https://redirect.here';
 

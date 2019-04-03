@@ -18,10 +18,10 @@
 
 'use strict';
 
-const _ = require('underscore');
-const Duration = require('duration');
-const EmailResend = require('../../models/email-resend');
-const { preventDefaultThen } = require('../base');
+import _ from 'underscore';
+import Duration from 'duration';
+import EmailResend from '../../models/email-resend';
+import { preventDefaultThen } from '../base';
 const t = msg => msg;
 
 const SHOW_RESEND_IN_MS = new Duration('5m').milliseconds();

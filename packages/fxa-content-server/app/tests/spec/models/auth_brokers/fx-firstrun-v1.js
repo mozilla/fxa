@@ -4,14 +4,14 @@
 
 'use strict';
 
-const Account = require('models/account');
-const { assert } = require('chai');
-const FxFirstrunV1AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v1');
-const Metrics = require('lib/metrics');
-const NullChannel = require('lib/channels/null');
-const Relier = require('models/reliers/relier');
-const sinon = require('sinon');
-const WindowMock = require('../../../mocks/window');
+import Account from 'models/account';
+import { assert } from 'chai';
+import FxFirstrunV1AuthenticationBroker from 'models/auth_brokers/fx-firstrun-v1';
+import Metrics from 'lib/metrics';
+import NullChannel from 'lib/channels/null';
+import Relier from 'models/reliers/relier';
+import sinon from 'sinon';
+import WindowMock from '../../../mocks/window';
 
 describe('models/auth_brokers/fx-firstrun-v1', function () {
   let account;

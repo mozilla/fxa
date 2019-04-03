@@ -4,14 +4,14 @@
 
 'use strict';
 
-const $ = require('jquery');
-const { assert } = require('chai');
-const BaseView = require('views/base');
-const Cocktail = require('cocktail');
-const ModalPanelMixin = require('views/mixins/modal-panel-mixin');
-const Notifier = require('lib/channels/notifier');
-const sinon = require('sinon');
-const TestTemplate = require('templates/test_template.mustache');
+import $ from 'jquery';
+import { assert } from 'chai';
+import BaseView from 'views/base';
+import Cocktail from 'cocktail';
+import ModalPanelMixin from 'views/mixins/modal-panel-mixin';
+import Notifier from 'lib/channels/notifier';
+import sinon from 'sinon';
+import TestTemplate from 'templates/test_template.mustache';
 
 const ModalPanelView = BaseView.extend({
   template: TestTemplate

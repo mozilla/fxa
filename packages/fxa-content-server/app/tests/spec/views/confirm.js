@@ -4,21 +4,21 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const AuthErrors = require('lib/auth-errors');
-const Backbone = require('backbone');
-const BaseBroker = require('models/auth_brokers/base');
-const VerificationReasons = require('lib/verification-reasons');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const Relier = require('models/reliers/relier');
-const Session = require('lib/session');
-const SessionVerificationPoll = require('models/polls/session-verification');
-const sinon = require('sinon');
-const TestHelpers = require('../../lib/helpers');
-const User = require('models/user');
-const View = require('views/confirm');
-const WindowMock = require('../../mocks/window');
+import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
+import Backbone from 'backbone';
+import BaseBroker from 'models/auth_brokers/base';
+import VerificationReasons from 'lib/verification-reasons';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import Relier from 'models/reliers/relier';
+import Session from 'lib/session';
+import SessionVerificationPoll from 'models/polls/session-verification';
+import sinon from 'sinon';
+import TestHelpers from '../../lib/helpers';
+import User from 'models/user';
+import View from 'views/confirm';
+import WindowMock from '../../mocks/window';
 
 const SIGNIN_REASON = VerificationReasons.SIGN_IN;
 const SIGNUP_REASON = VerificationReasons.SIGN_UP;

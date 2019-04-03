@@ -4,19 +4,19 @@
 
 'use strict';
 
-const $ = require('jquery');
-const AuthErrors = require('lib/auth-errors');
-const chai = require('chai');
-const FxaClient = require('fxaClient');
-const FxaClientWrapper = require('lib/fxa-client');
-const OAuthRelier = require('models/reliers/oauth');
-const RecoveryKey = require('lib/crypto/recovery-keys');
-const ResumeToken = require('models/resume-token');
-const sinon = require('sinon');
-const SignInReasons = require('lib/sign-in-reasons');
-const testHelpers = require('../../lib/helpers');
-const VerificationMethods = require('lib/verification-methods');
-const VerificationReasons = require('lib/verification-reasons');
+import $ from 'jquery';
+import AuthErrors from 'lib/auth-errors';
+import chai from 'chai';
+import FxaClient from 'fxaClient';
+import FxaClientWrapper from 'lib/fxa-client';
+import OAuthRelier from 'models/reliers/oauth';
+import RecoveryKey from 'lib/crypto/recovery-keys';
+import ResumeToken from 'models/resume-token';
+import sinon from 'sinon';
+import SignInReasons from 'lib/sign-in-reasons';
+import testHelpers from '../../lib/helpers';
+import VerificationMethods from 'lib/verification-methods';
+import VerificationReasons from 'lib/verification-reasons';
 
 var AUTH_SERVER_URL = 'http://127.0.0.1:9000';
 var NON_SYNC_SERVICE = 'chronicle';

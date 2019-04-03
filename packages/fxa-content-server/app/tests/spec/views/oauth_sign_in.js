@@ -4,21 +4,21 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const AuthErrors = require('lib/auth-errors');
-const FormPrefill = require('models/form-prefill');
-const FxaClient = require('lib/fxa-client');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const OAuthBroker = require('models/auth_brokers/oauth-redirect');
-const OAuthRelier = require('models/reliers/oauth');
-const SentryMetrics = require('lib/sentry');
-const Session = require('lib/session');
-const sinon = require('sinon');
-const TestHelpers = require('../../lib/helpers');
-const User = require('models/user');
-const View = require('views/sign_in');
-const WindowMock = require('../../mocks/window');
+import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
+import FormPrefill from 'models/form-prefill';
+import FxaClient from 'lib/fxa-client';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import OAuthBroker from 'models/auth_brokers/oauth-redirect';
+import OAuthRelier from 'models/reliers/oauth';
+import SentryMetrics from 'lib/sentry';
+import Session from 'lib/session';
+import sinon from 'sinon';
+import TestHelpers from '../../lib/helpers';
+import User from 'models/user';
+import View from 'views/sign_in';
+import WindowMock from '../../mocks/window';
 
 describe('views/sign_in for /oauth/signin', function () {
   let broker;

@@ -4,10 +4,10 @@
 
 'use strict';
 
-const chai = require('chai');
-const FxDesktopV1Sender = require('lib/channels/senders/fx-desktop-v1');
-const sinon = require('sinon');
-const WindowMock = require('../../../../mocks/window');
+import chai from 'chai';
+import FxDesktopV1Sender from 'lib/channels/senders/fx-desktop-v1';
+import sinon from 'sinon';
+import WindowMock from '../../../../mocks/window';
 
 var windowMock;
 var sender;

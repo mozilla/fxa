@@ -9,7 +9,7 @@
 
 'use strict';
 
-const AuthErrors = require('../../lib/auth-errors');
+import AuthErrors from '../../lib/auth-errors';
 
 function notifyDelayedRequest(handler) {
   return function () {

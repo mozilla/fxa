@@ -2,18 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const $ = require('jquery');
-const _ = require('underscore');
+import $ from 'jquery';
+import _ from 'underscore';
 const {assert} = require('chai');
-const Account = require('models/account');
-const AuthErrors = require('lib/auth-errors');
-const Backbone = require('backbone');
-const BaseBroker = require('models/auth_brokers/base');
-const Metrics = require('lib/metrics');
-const Relier = require('models/reliers/relier');
-const sinon = require('sinon');
-const View = require('views/sign_in_totp_code');
-const WindowMock = require('../../mocks/window');
+import Account from 'models/account';
+import AuthErrors from 'lib/auth-errors';
+import Backbone from 'backbone';
+import BaseBroker from 'models/auth_brokers/base';
+import Metrics from 'lib/metrics';
+import Relier from 'models/reliers/relier';
+import sinon from 'sinon';
+import View from 'views/sign_in_totp_code';
+import WindowMock from '../../mocks/window';
 
 const TOTP_CODE = '123123';
 

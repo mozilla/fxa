@@ -16,18 +16,18 @@
 
 'use strict';
 
-const $ = require('jquery');
-const _ = require('underscore');
-const Cocktail = require('cocktail');
-const Constants = require('./constants');
-const Backbone = require('backbone');
-const Duration = require('duration');
-const Environment = require('./environment');
-const Flow = require('../models/flow');
-const NotifierMixin = require('./channels/notifier-mixin');
-const speedTrap = require('speed-trap').default;
-const Strings = require('./strings');
-const xhr = require('./xhr');
+import $ from 'jquery';
+import _ from 'underscore';
+import Cocktail from 'cocktail';
+import Constants from './constants';
+import Backbone from 'backbone';
+import Duration from 'duration';
+import Environment from './environment';
+import Flow from '../models/flow';
+import NotifierMixin from './channels/notifier-mixin';
+import { default as speedTrap } from 'speed-trap';
+import Strings from './strings';
+import xhr from './xhr';
 
 // Speed trap is a singleton, convert it
 // to an instantiable function.

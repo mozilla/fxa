@@ -11,7 +11,7 @@
 
 'use strict';
 
-const UserAgentMixin = require('../../lib/user-agent-mixin');
+import UserAgentMixin from '../../lib/user-agent-mixin';
 
 module.exports = {
   dependsOn: [ UserAgentMixin ],

@@ -8,10 +8,10 @@
 
 'use strict';
 
-const _ = require('underscore');
-const Backbone = require('backbone');
-const Vat = require('lib/vat');
-const WebChannel = require('lib/channels/web');
+import _ from 'underscore';
+import Backbone from 'backbone';
+import Vat from 'lib/vat';
+import WebChannel from 'lib/channels/web';
 
 // Commands that have the 'internal:' namespace should only be
 // handled by the content server. Other commands may be handled

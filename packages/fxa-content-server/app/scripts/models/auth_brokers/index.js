@@ -8,7 +8,7 @@
  * it maps context strings to auth broker constructors.
  */
 
-const Constants = require('../../lib/constants');
+import Constants from '../../lib/constants';
 
 const AUTH_BROKERS = [
   /* eslint-disable sorting/sort-object-props */

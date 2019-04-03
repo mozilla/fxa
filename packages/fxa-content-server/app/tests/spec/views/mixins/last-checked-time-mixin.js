@@ -5,10 +5,10 @@
 'use strict';
 
 const {assert} = require('chai');
-const BaseView = require('views/base');
-const Cocktail = require('cocktail');
-const LastCheckedTimeMixin = require('views/mixins/last-checked-time-mixin');
-const sinon = require('sinon');
+import BaseView from 'views/base';
+import Cocktail from 'cocktail';
+import LastCheckedTimeMixin from 'views/mixins/last-checked-time-mixin';
+import sinon from 'sinon';
 
 const View = BaseView.extend({});
 

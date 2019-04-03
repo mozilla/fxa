@@ -6,17 +6,17 @@
 
 'use strict';
 
-const $ = require('jquery');
-const _ = require('underscore');
-const { assert } = require('chai');
-const AuthErrors = require('lib/auth-errors');
-const Constants = require('lib/constants');
-const Environment = require('lib/environment');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const sinon = require('sinon');
-const TestHelpers = require('../../lib/helpers');
-const WindowMock = require('../../mocks/window');
+import $ from 'jquery';
+import _ from 'underscore';
+import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
+import Constants from 'lib/constants';
+import Environment from 'lib/environment';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import sinon from 'sinon';
+import TestHelpers from '../../lib/helpers';
+import WindowMock from '../../mocks/window';
 
 const FLOW_ID = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
 const FLOW_BEGIN_TIME = 1484923219448;

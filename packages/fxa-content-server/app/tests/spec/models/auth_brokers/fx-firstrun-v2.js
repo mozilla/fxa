@@ -4,13 +4,13 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const Constants = require('lib/constants');
-const FxFirstrunV2AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v2');
-const Notifier = require('lib/channels/notifier');
-const NullChannel = require('lib/channels/null');
-const sinon = require('sinon');
-const WindowMock = require('../../../mocks/window');
+import { assert } from 'chai';
+import Constants from 'lib/constants';
+import FxFirstrunV2AuthenticationBroker from 'models/auth_brokers/fx-firstrun-v2';
+import Notifier from 'lib/channels/notifier';
+import NullChannel from 'lib/channels/null';
+import sinon from 'sinon';
+import WindowMock from '../../../mocks/window';
 
 describe('models/auth_brokers/fx-firstrun-v2', () => {
   let broker;

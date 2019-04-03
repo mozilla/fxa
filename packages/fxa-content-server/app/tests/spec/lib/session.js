@@ -4,8 +4,8 @@
 
 'use strict';
 
-const chai = require('chai');
-const Session = require('lib/session');
+import chai from 'chai';
+import Session from 'lib/session';
 
 var assert = chai.assert;
 

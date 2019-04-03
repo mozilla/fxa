@@ -4,16 +4,16 @@
 
 'use strict';
 
-const $ = require('jquery');
-const AppView = require('views/app');
-const AuthErrors = require('lib/auth-errors');
-const Backbone = require('backbone');
-const chai = require('chai');
-const Environment = require('lib/environment');
-const KeyCodes = require('lib/key-codes');
-const Notifier = require('lib/channels/notifier');
-const sinon = require('sinon');
-const WindowMock = require('../../mocks/window');
+import $ from 'jquery';
+import AppView from 'views/app';
+import AuthErrors from 'lib/auth-errors';
+import Backbone from 'backbone';
+import chai from 'chai';
+import Environment from 'lib/environment';
+import KeyCodes from 'lib/key-codes';
+import Notifier from 'lib/channels/notifier';
+import sinon from 'sinon';
+import WindowMock from '../../mocks/window';
 
 var assert = chai.assert;
 

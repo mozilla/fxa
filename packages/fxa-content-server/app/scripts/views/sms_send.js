@@ -9,21 +9,21 @@
 
 'use strict';
 
-const AuthErrors = require('../lib/auth-errors');
-const Cocktail = require('cocktail');
-const CountryTelephoneInfo = require('../lib/country-telephone-info');
-const { FIREFOX_MOBILE_INSTALL } = require('../lib/sms-message-ids');
-const FlowEventsMixin = require('./mixins/flow-events-mixin');
-const FormPrefillMixin = require('./mixins/form-prefill-mixin');
-const FormView = require('./form');
-const PairingGraphicsMixin = require('./mixins/pairing-graphics-mixin');
+import AuthErrors from '../lib/auth-errors';
+import Cocktail from 'cocktail';
+import CountryTelephoneInfo from '../lib/country-telephone-info';
+import { FIREFOX_MOBILE_INSTALL } from '../lib/sms-message-ids';
+import FlowEventsMixin from './mixins/flow-events-mixin';
+import FormPrefillMixin from './mixins/form-prefill-mixin';
+import FormView from './form';
+import PairingGraphicsMixin from './mixins/pairing-graphics-mixin';
 const { MARKETING_ID_AUTUMN_2016, SYNC_SERVICE } = require('../lib/constants');
-const MarketingMixin = require('./mixins/marketing-mixin');
-const PulseGraphicMixin = require('./mixins/pulse-graphic-mixin');
+import MarketingMixin from './mixins/marketing-mixin';
+import PulseGraphicMixin from './mixins/pulse-graphic-mixin';
 const SELECTOR_PHONE_NUMBER = 'input[type=tel]';
-const SmsMixin = require('./mixins/sms-mixin');
-const Template = require('templates/sms_send.mustache');
-const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
+import SmsMixin from './mixins/sms-mixin';
+import Template from 'templates/sms_send.mustache';
+import VerificationReasonMixin from 'views/mixins/verification-reason-mixin';
 
 class SmsSendView extends FormView {
   initialize (options) {

@@ -4,20 +4,20 @@
 
 'use strict';
 
-const $ = require('jquery');
+import $ from 'jquery';
 const _ = require ('underscore');
-const assert = require('chai').assert;
-const AttachedClients = require('models/attached-clients');
-const BaseBroker = require('models/auth_brokers/base');
-const BaseView = require('views/base');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const sinon = require('sinon');
-const TestHelpers = require('../../../lib/helpers');
-const Translator = require('lib/translator');
-const User = require('models/user');
-const View = require('views/settings/clients');
-const WindowMock = require('../../../mocks/window');
+import { assert } from 'chai';
+import AttachedClients from 'models/attached-clients';
+import BaseBroker from 'models/auth_brokers/base';
+import BaseView from 'views/base';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import sinon from 'sinon';
+import TestHelpers from '../../../lib/helpers';
+import Translator from 'lib/translator';
+import User from 'models/user';
+import View from 'views/settings/clients';
+import WindowMock from '../../../mocks/window';
 
 describe('views/settings/clients', () => {
   let account;

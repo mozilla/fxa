@@ -6,13 +6,13 @@
 
 'use strict';
 
-const _ = require('underscore');
-const $ = require('jquery');
-const AuthErrors = require('../../lib/auth-errors');
-const Notifier = require('../../lib/channels/notifier');
-const ProfileErrors = require('../../lib/profile-errors');
-const ProfileImage = require('../../models/profile-image');
-const UserAgentMixin = require('../../lib/user-agent-mixin');
+import _ from 'underscore';
+import $ from 'jquery';
+import AuthErrors from '../../lib/auth-errors';
+import Notifier from '../../lib/channels/notifier';
+import ProfileErrors from '../../lib/profile-errors';
+import ProfileImage from '../../models/profile-image';
+import UserAgentMixin from '../../lib/user-agent-mixin';
 
 var MAX_SPINNER_COMPLETE_TIME = 400; // ms
 

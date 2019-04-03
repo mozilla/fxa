@@ -4,8 +4,8 @@
 
 'use strict';
 
-const chai = require('chai');
-const NullStorage = require('lib/null-storage');
+import chai from 'chai';
+import NullStorage from 'lib/null-storage';
 
 var assert = chai.assert;
 

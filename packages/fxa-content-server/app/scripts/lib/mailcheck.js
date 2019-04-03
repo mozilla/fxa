@@ -6,11 +6,11 @@
 
 'use strict';
 
-const _ = require('underscore');
-const $ = require('jquery');
-const KeyCodes = require('./key-codes');
+import _ from 'underscore';
+import $ from 'jquery';
+import KeyCodes from './key-codes';
 require('mailcheck');
-const Tooltip = require('../views/tooltip');
+import Tooltip from '../views/tooltip';
 const t = msg => msg;
 
 const DOMAINS = [];

@@ -11,8 +11,8 @@
 
 'use strict';
 
-const $ = require('jquery');
-const Environment = require('../../lib/environment');
+import $ from 'jquery';
+import Environment from '../../lib/environment';
 
 module.exports = {
   isModal: true,

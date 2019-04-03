@@ -4,16 +4,16 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const BaseView = require('views/base');
-const Cocktail = require('cocktail');
-const Constants = require('lib/constants');
-const Relier = require('models/reliers/base');
-const sinon = require('sinon');
-const SyncAuthMixin = require('views/mixins/sync-auth-mixin');
-const Url = require('lib/url');
-const UserAgentMixin = require('lib/user-agent-mixin');
-const WindowMock = require('../../../mocks/window');
+import { assert } from 'chai';
+import BaseView from 'views/base';
+import Cocktail from 'cocktail';
+import Constants from 'lib/constants';
+import Relier from 'models/reliers/base';
+import sinon from 'sinon';
+import SyncAuthMixin from 'views/mixins/sync-auth-mixin';
+import Url from 'lib/url';
+import UserAgentMixin from 'lib/user-agent-mixin';
+import WindowMock from '../../../mocks/window';
 
 const SyncView = BaseView.extend({});
 

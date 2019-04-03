@@ -4,11 +4,11 @@
 
 'use strict';
 
-const chai = require('chai');
-const OAuthClient = require('lib/oauth-client');
-const OAuthErrors = require('lib/oauth-errors');
-const sinon = require('sinon');
-const Xhr = require('lib/xhr');
+import chai from 'chai';
+import OAuthClient from 'lib/oauth-client';
+import OAuthErrors from 'lib/oauth-errors';
+import sinon from 'sinon';
+import Xhr from 'lib/xhr';
 
 var OAUTH_URL = 'http://127.0.0.1:9010';
 var RP_URL = 'http://127.0.0.1:8080/api/oauth';

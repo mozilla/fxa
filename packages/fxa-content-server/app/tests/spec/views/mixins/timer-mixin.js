@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { assert } from 'chai';
-const BaseView = require('views/base');
-const Cocktail = require('cocktail');
-const TestHelpers = require('../../../lib/helpers');
-const TimerMixin = require('views/mixins/timer-mixin');
+import BaseView from 'views/base';
+import Cocktail from 'cocktail';
+import TestHelpers from '../../../lib/helpers';
+import TimerMixin from 'views/mixins/timer-mixin';
 
 
 const TimerView = BaseView.extend({});

@@ -5,7 +5,7 @@
 'use strict';
 
 const {assert} = require('chai');
-const RecoveryKeys = require('lib/crypto/recovery-keys');
+import RecoveryKeys from 'lib/crypto/recovery-keys';
 
 const uid = 'aaaaabbbbbcccccdddddeeeeefffff00';
 const recoveryKey = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';

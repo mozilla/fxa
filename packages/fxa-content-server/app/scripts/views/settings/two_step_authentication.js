@@ -4,17 +4,17 @@
 
 'use strict';
 
-const _ = require('underscore');
-const AvatarMixin = require('../mixins/avatar-mixin');
-const AuthErrors = require('lib/auth-errors');
-const Cocktail = require('cocktail');
-const FormView = require('../form');
-const LastCheckedTimeMixin = require('../mixins/last-checked-time-mixin');
-const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
-const UpgradeSessionMixin = require('../mixins/upgrade-session-mixin');
-const Template = require('templates/settings/two_step_authentication.mustache');
-const { preventDefaultThen } = require('../base');
-const showProgressIndicator = require('../decorators/progress_indicator');
+import _ from 'underscore';
+import AvatarMixin from '../mixins/avatar-mixin';
+import AuthErrors from 'lib/auth-errors';
+import Cocktail from 'cocktail';
+import FormView from '../form';
+import LastCheckedTimeMixin from '../mixins/last-checked-time-mixin';
+import SettingsPanelMixin from '../mixins/settings-panel-mixin';
+import UpgradeSessionMixin from '../mixins/upgrade-session-mixin';
+import Template from 'templates/settings/two_step_authentication.mustache';
+import { preventDefaultThen } from '../base';
+import showProgressIndicator from '../decorators/progress_indicator';
 
 const t = msg => msg;
 

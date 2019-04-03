@@ -4,11 +4,11 @@
 
 'use strict';
 
-const $ = require('jquery');
-const _ = require('underscore');
-const { assert } = require('chai');
-const sinon = require('sinon');
-const Xhr = require('lib/xhr');
+import $ from 'jquery';
+import _ from 'underscore';
+import { assert } from 'chai';
+import sinon from 'sinon';
+import Xhr from 'lib/xhr';
 
 let xhr;
 

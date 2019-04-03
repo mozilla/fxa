@@ -12,15 +12,15 @@
  */
 
 
-const $ = require('jquery');
-const AuthErrors = require('../lib/auth-errors');
-const Backbone = require('backbone');
-const Cocktail = require('cocktail');
-const ErrorUtils = require('../lib/error-utils');
-const ResumeTokenMixin = require('./mixins/resume-token');
-const UrlMixin = require('./mixins/url');
-const vat = require('../lib/vat');
-const Url = require('../lib/url');
+import $ from 'jquery';
+import AuthErrors from '../lib/auth-errors';
+import Backbone from 'backbone';
+import Cocktail from 'cocktail';
+import ErrorUtils from '../lib/error-utils';
+import ResumeTokenMixin from './mixins/resume-token';
+import UrlMixin from './mixins/url';
+import vat from '../lib/vat';
+import Url from '../lib/url';
 import uuid from 'uuid';
 
 var Model = Backbone.Model.extend({

@@ -4,8 +4,8 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const WebBroker = require('models/auth_brokers/web');
+import { assert } from 'chai';
+import WebBroker from 'models/auth_brokers/web';
 
 describe('models/auth_brokers/web', function () {
   let broker;

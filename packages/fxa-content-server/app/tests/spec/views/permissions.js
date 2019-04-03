@@ -4,20 +4,20 @@
 
 'use strict';
 
-const $ = require('jquery');
-const Backbone = require('backbone');
-const Broker = require('models/auth_brokers/base');
-const chai = require('chai');
-const Metrics = require('lib/metrics');
-const OAuthErrors = require('lib/oauth-errors');
-const Relier = require('models/reliers/relier');
-const Notifier = require('lib/channels/notifier');
-const sinon = require('sinon');
-const TestHelpers = require('../../lib/helpers');
-const User = require('models/user');
-const VerificationReasons = require('lib/verification-reasons');
-const View = require('views/permissions');
-const WindowMock = require('../../mocks/window');
+import $ from 'jquery';
+import Backbone from 'backbone';
+import Broker from 'models/auth_brokers/base';
+import chai from 'chai';
+import Metrics from 'lib/metrics';
+import OAuthErrors from 'lib/oauth-errors';
+import Relier from 'models/reliers/relier';
+import Notifier from 'lib/channels/notifier';
+import sinon from 'sinon';
+import TestHelpers from '../../lib/helpers';
+import User from 'models/user';
+import VerificationReasons from 'lib/verification-reasons';
+import View from 'views/permissions';
+import WindowMock from '../../mocks/window';
 
 var assert = chai.assert;
 

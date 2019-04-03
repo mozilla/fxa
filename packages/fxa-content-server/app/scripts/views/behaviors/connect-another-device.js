@@ -12,8 +12,8 @@
 
 'use strict';
 
-const Cocktail = require('cocktail');
-const ConnectAnotherDeviceMixin = require('../mixins/connect-another-device-mixin');
+import Cocktail from 'cocktail';
+import ConnectAnotherDeviceMixin from '../mixins/connect-another-device-mixin';
 
 /**
  * Create a ConnectAnotherDevice behavior.

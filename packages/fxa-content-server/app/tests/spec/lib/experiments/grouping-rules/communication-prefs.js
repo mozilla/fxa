@@ -4,8 +4,8 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const Experiment = require('lib/experiments/grouping-rules/communication-prefs');
+import { assert } from 'chai';
+import Experiment from 'lib/experiments/grouping-rules/communication-prefs';
 
 describe('lib/experiments/grouping-rules/communication-prefs', () => {
   let experiment;

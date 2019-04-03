@@ -18,7 +18,7 @@
 
 'use strict';
 
-const Vat = require('./vat');
+import Vat from './vat';
 
 module.exports = {
   /**

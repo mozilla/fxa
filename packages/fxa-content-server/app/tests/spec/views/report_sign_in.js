@@ -4,15 +4,15 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const AuthErrors = require('lib/auth-errors');
-const { createRandomHexString } = require('../../lib/helpers');
-const Notifier = require('lib/channels/notifier');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
+import { createRandomHexString } from '../../lib/helpers';
+import Notifier from 'lib/channels/notifier';
+import sinon from 'sinon';
 const { BLOCKED_SIGNIN_SUPPORT_URL, UID_LENGTH, UNBLOCK_CODE_LENGTH } = require('lib/constants');
-const User = require('models/user');
-const View = require('views/report_sign_in');
-const WindowMock = require('../../mocks/window');
+import User from 'models/user';
+import View from 'views/report_sign_in';
+import WindowMock from '../../mocks/window';
 
 const VALID_UID = createRandomHexString(UID_LENGTH);
 const INVALID_UID = createRandomHexString(UID_LENGTH + 1);

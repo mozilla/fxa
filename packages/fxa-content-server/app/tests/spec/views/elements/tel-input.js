@@ -4,10 +4,10 @@
 
 'use strict';
 
-const $ = require('jquery');
-const { assert } = require('chai');
-const AuthErrors = require('lib/auth-errors');
-const TelEl = require('views/elements/tel-input');
+import $ from 'jquery';
+import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
+import TelEl from 'views/elements/tel-input';
 
 const TEMPLATE =
   '<input type="text"></input>' +

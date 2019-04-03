@@ -4,11 +4,11 @@
 
 'use strict';
 
-const AuthErrors = require('lib/auth-errors');
-const chai = require('chai');
-const IFrameChannel = require('lib/channels/iframe');
-const sinon = require('sinon');
-const WindowMock = require('../../../mocks/window');
+import AuthErrors from 'lib/auth-errors';
+import chai from 'chai';
+import IFrameChannel from 'lib/channels/iframe';
+import sinon from 'sinon';
+import WindowMock from '../../../mocks/window';
 
 var channel;
 var windowMock;

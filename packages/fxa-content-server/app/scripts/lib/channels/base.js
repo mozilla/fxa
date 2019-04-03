@@ -6,8 +6,8 @@
 
 'use strict';
 
-const _ = require('underscore');
-const Backbone = require('backbone');
+import _ from 'underscore';
+import Backbone from 'backbone';
 
 function BaseChannel() {
   // nothing to do.

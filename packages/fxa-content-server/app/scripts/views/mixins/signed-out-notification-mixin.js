@@ -6,9 +6,9 @@
 
 'use strict';
 
-const Notifier = require('../../lib/channels/notifier');
-const Session = require('../../lib/session');
-const Url = require('../../lib/url');
+import Notifier from '../../lib/channels/notifier';
+import Session from '../../lib/session';
+import Url from '../../lib/url';
 
 var Mixin = {
   notifications: {

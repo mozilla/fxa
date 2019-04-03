@@ -4,12 +4,12 @@
 
 'use strict';
 
-const $ = require('jquery');
-const { assert } = require('chai');
-const ConfigLoader = require('lib/config-loader');
-const Constants = require('lib/constants');
+import $ from 'jquery';
+import { assert } from 'chai';
+import ConfigLoader from 'lib/config-loader';
+import Constants from 'lib/constants';
 const ConfigLoaderErrors = ConfigLoader.Errors;
-const sinon = require('sinon');
+import sinon from 'sinon';
 
 const INVALID_JSON_HTML_CONFIG = encodeURIComponent('{a');
 const INVALID_URI_COMPONENT_HTML_CONFIG =

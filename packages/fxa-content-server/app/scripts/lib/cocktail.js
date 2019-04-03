@@ -16,8 +16,8 @@
 
 'use strict';
 
-const Cocktail = require('cocktail-lib');
-const _ = require('underscore');
+import Cocktail from 'cocktail-lib';
+import _ from 'underscore';
 
 function mixin (target, ...mixins) {
   Cocktail.mixin(target, ...getAllMixins(mixins));

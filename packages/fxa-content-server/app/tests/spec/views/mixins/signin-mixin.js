@@ -4,18 +4,18 @@
 
 'use strict';
 
-const Account = require('models/account');
-const { assert } = require('chai');
-const AuthBroker = require('models/auth_brokers/base');
-const AuthErrors = require('lib/auth-errors');
-const Backbone = require('backbone');
-const OAuthErrors = require('lib/oauth-errors');
-const Relier = require('models/reliers/relier');
-const SignInMixin = require('views/mixins/signin-mixin');
-const sinon = require('sinon');
-const User = require('models/user');
-const VerificationMethods = require('lib/verification-methods');
-const VerificationReasons = require('lib/verification-reasons');
+import Account from 'models/account';
+import { assert } from 'chai';
+import AuthBroker from 'models/auth_brokers/base';
+import AuthErrors from 'lib/auth-errors';
+import Backbone from 'backbone';
+import OAuthErrors from 'lib/oauth-errors';
+import Relier from 'models/reliers/relier';
+import SignInMixin from 'views/mixins/signin-mixin';
+import sinon from 'sinon';
+import User from 'models/user';
+import VerificationMethods from 'lib/verification-methods';
+import VerificationReasons from 'lib/verification-reasons';
 
 const RESUME_TOKEN = 'a big hairy resume token';
 
