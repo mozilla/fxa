@@ -57,7 +57,6 @@ var View = FormView.extend({
       buttonClass: this._hasSecondaryEmail() ? 'secondary-button' : 'primary-button',
       emails: this._emails,
       hasSecondaryEmail: this._hasSecondaryEmail(),
-      hasSecondaryVerifiedEmail: this._hasSecondaryVerifiedEmail(),
       isPanelOpen: this.isPanelOpen(),
       lastCheckedTime: this.getLastCheckedTimeString(),
       newEmail: this.newEmail,
