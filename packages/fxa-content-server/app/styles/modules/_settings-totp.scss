@@ -115,7 +115,8 @@
   }
 }
 
-.replace-codes-link {
+.replace-codes-link,
+.replace-codes-link:hover {
   background: transparent url('/images/recovery_code_replace.svg') center left no-repeat;
   padding-left: 20px;
 }
