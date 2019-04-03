@@ -22,21 +22,19 @@
   "dependencies": {
     "bower": "*",
     "client-sessions": "0.6.x",
-    "connect-fonts": "2.0.2",
-    "connect-fonts-alegreyasans": "0.0.2",
-    "connect-fonts-opensans": "0.0.5",
-    "express": "3.5.x",
+    "express": "4.16.4",
     "fxa-jwtool": "0.7.x",
-    "node-rsa": "0.2.26",
-    "postprocess": "0.2.4",
+    "morgan": "1.9.1",
+    "node-rsa": "1.0.5",
     "redis": "0.7.1",
-    "request": "2.67.0"
+    "request": "2.88.0"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=10",
+    "npm": ">=6.4.1"
   },
   "devDependencies": {
-    "eslint": "1.10.3",
+    "eslint": "5.16.0",
     "eslint-config-fxa": "2.0.0"
   },
   "scripts": {
