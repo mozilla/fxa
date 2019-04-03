@@ -21,7 +21,7 @@ Static server that hosts [Firefox Account sign up](https://accounts.firefox.com)
 
 ## Quick Start
 
-Clone the repository, make sure you have [required prerequisites](https://github.com/mozilla/fxa-local-dev#dependencies) installed.
+
 Run `npm install` and `npm run start-remote`.
 This will start a local fxa-content-server on [http://127.0.0.1:3030](http://127.0.0.1:3030) that works with remote Firefox Accounts servers.
 
