@@ -1,0 +1,141 @@
+.account-recovery-panel {
+  .list {
+    ul {
+      padding: 0;
+    }
+
+    li {
+      list-style: none;
+    }
+
+    .type {
+      height: 40px;
+      margin: 10px 0;
+      position: relative;
+
+      html[dir='ltr'] & {
+        background-position: left 2px;
+      }
+
+      html[dir='rtl'] & {
+        background-position: right 2px;
+      }
+
+      .name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        @include respond-to('big') {
+          width: calc(95% - 95px);
+        }
+
+        @include respond-to('small') {
+          width: 100%;
+        }
+      }
+
+      .details {
+        & .disabled {
+          color: $color-grey;
+        }
+      }
+    }
+  }
+
+  .input-row {
+    margin-top: 24px;
+  }
+}
+
+#fxa-recovery-key-confirm {
+  margin-bottom: 40px;
+}
+
+.recovery-key-icon {
+  background-image: image-url('recovery_key_key.svg');
+  background-repeat: no-repeat;
+  background-size: 24px;
+  padding-left: 35px;
+}
+
+#account-recovery-confirm-password,
+#account-recovery-confirm-revoke,
+.account-recovery-create-password,
+#account-recovery-section,
+#account-recovery-key {
+  .note {
+    font-weight: bold;
+  }
+
+  .options {
+    .buttons {
+      display: flex;
+      justify-content: center;
+
+      button {
+        font-size: 12px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        width: 45%;
+
+        .recovery-icon-option {
+          height: 16px;
+          padding-right: 25px;
+        }
+
+        img {
+          &.download-image {
+            background: image-url('recovery_key_download.svg') no-repeat;
+          }
+
+          &.print-image {
+            background: image-url('recovery_key_print.svg') no-repeat;
+          }
+        }
+      }
+
+      button:not(:first-child) {
+        margin-left: 10px;
+      }
+    }
+  }
+
+  .recovery-key-container {
+    background-color: $modal-recovery-key-background;
+    border-color: $modal-recovery-key-border;
+    border-style: dotted;
+    border-width: 2px;
+    margin-bottom: 25px;
+
+    .recovery-key {
+      color: $modal-recovery-key-color;
+      font-family: monospace;
+      font-size: 1em;
+      padding: 25px 0 25px 0;
+
+      @media screen and (max-width: 400px) {
+        font-size: 0.9em;
+      }
+    }
+  }
+
+  .email {
+    font-size: 1.3em;
+    font-weight: bold;
+    padding-bottom: 25px;
+  }
+
+  .revoke-description {
+    margin: 0 auto 75px 0;
+  }
+
+  .description {
+    font-size: 14px;
+  }
+}
+
+button.button-link {
+  background: $color-white;
+  color: $color-blue;
+}

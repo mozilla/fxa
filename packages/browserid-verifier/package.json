@@ -1,0 +1,42 @@
+{
+  "author": "Mozilla (https://mozilla.org/)",
+  "license": "MPL-2.0",
+  "name": "browserid-verifier",
+  "description": "A node.js verification server for BrowserID assertions.",
+  "version": "0.10.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/browserid-verifier"
+  },
+  "homepage": "https://github.com/mozilla/browserid-verifier/",
+  "bugs": "https://github.com/mozilla/browserid-verifier/issues/",
+  "main": "lib/server.js",
+  "engines": {
+    "node": ">=8"
+  },
+  "dependencies": {
+    "async": "2.6.1",
+    "body-parser": "1.18.3",
+    "browserid-local-verify": "0.5.2",
+    "compute-cluster": "0.0.9",
+    "convict": "4.4.1",
+    "express": "4.16.4",
+    "intel": "1.2.0",
+    "morgan": "1.9.1",
+    "mozlog": "2.2.0",
+    "optimist": "0.6.1",
+    "toobusy-js": "0.5.1",
+    "underscore": "1.9.1"
+  },
+  "devDependencies": {
+    "jshint": "2.9.7",
+    "mocha": "5.2.0",
+    "request": "2.88.0",
+    "should": "13.2.3",
+    "temp": "0.9.0",
+    "walk": "2.3.14"
+  },
+  "scripts": {
+    "test": "mocha --exit -t 5000 -R spec tests/*.js"
+  }
+}

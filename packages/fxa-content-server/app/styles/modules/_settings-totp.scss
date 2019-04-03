@@ -1,0 +1,165 @@
+.totp-panel {
+  .totp-list {
+    ul {
+      padding: 0;
+    }
+
+    li {
+      list-style: none;
+    }
+
+    .totp-type {
+      height: 40px;
+      margin: 10px 0;
+      position: relative;
+
+      html[dir='ltr'] & {
+        background-position: left 2px;
+      }
+
+      html[dir='rtl'] & {
+        background-position: right 2px;
+      }
+
+      .name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        @include respond-to('big') {
+          width: calc(95% - 95px);
+        }
+
+        @include respond-to('small') {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  .totp-details {
+    .qr-image-container {
+      height: 228px;
+      margin: auto auto 24px auto;
+      width: 228px;
+
+      .qr-image {
+        height: 100%;
+        object-fit: scale-down;
+        width: 100%;
+      }
+    }
+
+    .setup-description,
+    .code-description {
+      margin-bottom: 10px;
+    }
+
+    .show-code-link {
+      margin-bottom: 10px;
+    }
+
+    .code {
+      color: $color-green-darker;
+      letter-spacing: .1rem;
+      padding-bottom: 5px;
+    }
+  }
+
+  .input-row {
+    margin-top: 24px;
+  }
+}
+
+#recovery-codes {
+  .recovery-code-options {
+    display: flex;
+    margin-top: 25px;
+  }
+
+  .description {
+    font-size: 14px;
+    text-align: left;
+  }
+
+  #recovery-code-container {
+    margin-bottom: 20px;
+
+    .recovery-code {
+      background-color: $recovery-code-background-color;
+      border-color: $recovery-code-border-color;
+      border-style: dotted;
+      border-width: 2px;
+      color: $recovery-code-color;
+      display: inline-block;
+      font-family: monospace;
+      font-size: 1.2em;
+      margin-bottom: 6px;
+      padding: 8px;
+      text-transform: uppercase;
+      width: 49%;
+    }
+  }
+
+  .recovery-code-generate {
+    margin: 40px 0;
+  }
+
+  .two-step-authentication-done {
+    float: none;
+    width: 100%;
+  }
+
+  .link-options {
+    text-align: left;
+  }
+}
+
+.replace-codes-link {
+  background: transparent url('/images/recovery_code_replace.svg') center left no-repeat;
+  padding-left: 20px;
+}
+
+.temporary-copy-text-area,
+.recovery-code-text-area {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  height: 2em;
+  left: 0;
+  outline: none;
+  padding: 0;
+  style: fixed;
+  top: 0;
+  width: 2em;
+}
+
+.recovery-code-download-link {
+  display: none;
+}
+
+.note {
+  color: $color-red;
+}
+
+.save-options {
+  display: flex;
+  margin-top: 25px;
+}
+
+.save-option {
+  width: 33%;
+
+  .name {
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .graphic {
+    margin: 0 auto 14px auto;
+  }
+
+  p {
+    margin: 0;
+  }
+}

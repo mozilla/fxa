@@ -1,0 +1,11 @@
+---
+
+- name: install 123done dependencies
+  become: true
+  become_user: app
+  npm: path=/home/app/123done
+  notify: restart 123done-web
+
+- name: restart 123done-web
+  become: true
+  supervisorctl: name=123done-web state=restarted

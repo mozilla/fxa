@@ -1,0 +1,17 @@
+
+{{#if serviceName}}
+{{{t "Welcome to %(serviceName)s!"}}}
+
+{{{t "Confirm this email address to activate your Firefox Account and continue to %(serviceName)s." }}}
+{{/if}}
+{{^if serviceName}}
+{{t "Welcome!"}}
+
+{{t "Confirm this email address to activate your Firefox Account." }}
+{{/if}}
+{{t "Activate now:"}} {{{link}}}
+
+{{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit %(supportUrl)s"}}}
+
+Mozilla. 331 E Evelyn Ave, Mountain View, CA 94041
+{{t "Mozilla Privacy Policy" }} {{{privacyUrl}}}

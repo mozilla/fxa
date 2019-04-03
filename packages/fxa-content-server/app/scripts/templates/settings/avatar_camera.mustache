@@ -1,0 +1,23 @@
+<div id="avatar-camera">
+  <section class="modal-panel">
+    <div class="avatar-wrapper">
+      <div class="progress-container">
+      </div>
+      <div id="avatar-camera-wrapper">
+        <video id="video" class="hidden"></video>
+      </div>
+    </div>
+
+    <div class="error"></div>
+    <div class="success"></div>
+
+    <canvas id="canvas"></canvas>
+
+    <form novalidate>
+      <div class="button-row">
+        <button type="submit" id="submit-btn" class="settings-button primary-button">{{#t}}Take picture{{/t}}</button>
+        <button class="settings-button secondary-button" id="back">{{#t}}Cancel{{/t}}</button>
+      </div>
+    </form>
+  </section>
+</div>

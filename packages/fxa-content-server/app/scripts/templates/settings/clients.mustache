@@ -1,0 +1,84 @@
+<div id="clients" class="settings-unit {{#isPanelOpen}}open{{/isPanelOpen}}">
+  <div class="settings-unit-stub">
+    <header class="settings-unit-summary">
+      <h2 class="settings-unit-title">{{#t}}Devices & apps{{/t}}</h2>
+    </header>
+    <button class="settings-button secondary-button settings-unit-loading" disabled>
+      <div class="spinner spinner-settings-fetch"></div>
+    </button>
+    <button class="settings-button secondary-button settings-unit-toggle" data-href="settings/clients">
+      {{#t}}Show{{/t}}
+    </button>
+  </div>
+
+  <div class="settings-unit-details">
+    <div class="error"></div>
+
+    <form novalidate class="client-list-form">
+      <ul class="client-list button-row">
+        {{#clients}}
+
+            {{#isDevice}}
+              <li class="client {{type}} client-device {{#isCurrentDevice}}client-current{{/isCurrentDevice}}"
+                {{#genericOS}}data-os="{{genericOS}}"{{/genericOS}}
+                data-name="{{name}}"
+                title="{{title}}"
+                id="{{id}}">
+                <div class="client-name">{{name}}</div>
+                {{#isCurrentDevice}}
+                    <div class="device-current">{{#t}}Current device{{/t}}</div>
+                {{/isCurrentDevice}}
+                {{^isCurrentDevice}}
+                    <div class="last-connected">{{lastAccessTimeFormatted}}</div>
+                {{/isCurrentDevice}}
+                <button class="settings-button warning-button client-disconnect" data-id="{{id}}" data-type="{{clientType}}">{{#t}}Disconnect…{{/t}}</button>
+              </li>
+            {{/isDevice}}
+
+            {{#isWebSession}}
+                <li class="client {{type}} client-webSession"
+                    {{#genericOS}}data-os="{{genericOS}}"{{/genericOS}}
+                    data-name="{{name}}"
+                    id="{{id}}">
+                    <div class="client-name" title="{{title}}">{{title}}</div>
+                  {{#isCurrentDevice}}
+                    <div class="device-current">{{#t}}Current session{{/t}}</div>
+                  {{/isCurrentDevice}}
+                  {{^isCurrentDevice}}
+                    <div class="last-connected">{{lastAccessTimeFormatted}}</div>
+                  {{/isCurrentDevice}}
+                    <button class="settings-button warning-button client-disconnect" data-id="{{id}}" data-type="{{clientType}}">{{#t}}Disconnect{{/t}}</button>
+                </li>
+            {{/isWebSession}}
+
+            {{#isOAuthApp}}
+                <li class="client {{type}} client-oAuthApp" data-name="{{name}}" id="{{id}}">
+                  <div class="client-name" title="{{title}}">{{name}}</div>
+                    <div class="last-connected">{{userAgent}} {{lastAccessTimeFormatted}}</div>
+                  <button class="settings-button warning-button client-disconnect" data-id="{{id}}" data-type="{{clientType}}">{{#t}}Revoke{{/t}}</button>
+                </li>
+            {{/isOAuthApp}}
+
+        {{/clients}}
+        {{#showMobileApps}}
+          <li class="client mobile" data-os="iOS">
+            <div class="client-name">{{#t}}Firefox for iOS{{/t}}</div>
+            <div class="last-connected">{{#t}}None connected{{/t}}</div>
+            <a target="_blank" href="{{ linkIOS }}" class="button settings-button secondary-button" data-get-app="ios">{{#t}}Download{{/t}}</a>
+          </li>
+          <li class="client mobile" data-os="Android">
+            <div class="client-name">{{#t}}Firefox for Android{{/t}}</div>
+            <div class="last-connected">{{#t}}None connected{{/t}}</div>
+            <a target="_blank" href="{{ linkAndroid }}" class="button settings-button secondary-button" data-get-app="android">{{#t}}Download{{/t}}</a>
+          </li>
+        {{/showMobileApps}}
+        <a href="{{devicesSupportUrl}}" target="_blank" class="device-support">{{#t}}Missing or duplicate items?{{/t}}</a>
+      </ul>
+
+      <div class="button-row">
+        <button type="submit" class="settings-button primary-button clients-refresh">{{#t}}Refresh{{/t}}</button>
+        <button class="settings-button secondary-button cancel clients-done">{{#t}}Done{{/t}}</button>
+      </div>
+    </form>
+  </div>
+</div>

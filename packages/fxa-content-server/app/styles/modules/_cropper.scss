@@ -1,0 +1,93 @@
+.cropper {
+
+  .wrapper {
+    background-color: $cropper-background-color;
+    height: $avatar-size;
+    margin: 0 -30px;
+    overflow: hidden;
+    position: relative;
+    width: $avatar-size + 180px;
+    @include respond-to('compressedLandscape') {
+      margin: 0 auto;
+    }
+
+    img {
+      position: absolute;
+    }
+  }
+
+  .mask {
+    background: image-url('crop-mask.svg');
+    height: $avatar-size;
+    left: (420 - $avatar-size) / 2;
+    position: relative;
+    top: 0;
+    width: $avatar-size;
+    z-index: 1;
+
+    &::before,
+    &::after {
+      background-color: rgba($cropper-background-color, 0.5);
+      content: '';
+      display: block;
+      height: $avatar-size;
+      position: absolute;
+      top: 0;
+      width: (420 - $avatar-size) / 2;
+      z-index: 1;
+    }
+
+    &::before {
+      left: -(420 - $avatar-size) / 2;
+    }
+
+    &::after {
+      right: -(420 - $avatar-size) / 2;
+    }
+  }
+
+  .drag-overlay {
+    cursor: move;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 3;
+  }
+
+  canvas {
+    display: none;
+  }
+
+  .zoom-in,
+  .zoom-out {
+    color: $faint-text-color;
+    @include element-state-colors($grey-60, $grey-70, $grey-80);
+  }
+
+  .rotate {
+    color: $link-color-default;
+    @include element-state-colors($link-color-hover, $link-color-focus, $link-color-active);
+  }
+
+  .zoom-in,
+  .zoom-out,
+  .rotate {
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    font-size: 25px;
+    -webkit-touch-callout: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    vertical-align: middle;
+    width: 2em;
+  }
+
+  .slider {
+    vertical-align: middle;
+  }
+}

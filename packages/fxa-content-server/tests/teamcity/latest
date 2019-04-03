@@ -1,0 +1,20 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+FXA_CONTENT_ROOT="https://latest.dev.lcip.org/"
+FXA_AUTH_ROOT="https://latest.dev.lcip.org/auth/v1"
+FXA_OAUTH_ROOT="https://oauth-latest.dev.lcip.org"
+FXA_PROFILE_ROOT="https://latest.dev.lcip.org/profile"
+FXA_TOKEN_ROOT="https://latest.dev.lcip.org/syncserver/token"
+
+FXA_OAUTH_APP_ROOT="https://123done-latest.dev.lcip.org/"
+FXA_UNTRUSTED_OAUTH_APP_ROOT="https://321done-latest.dev.lcip.org/"
+
+FXA_CONTENT_VERSION="https://latest.dev.lcip.org/__version__"
+FXA_OAUTH_VERSION="https://oauth-latest.dev.lcip.org/__version__"
+FXA_PROFILE_VERSION="https://latest.dev.lcip.org/profile/__version__"
+FXA_AUTH_VERSION="https://latest.dev.lcip.org/auth/__version__"
+
+# production-like, but not quite
+FXA_DEV_BOX="true"

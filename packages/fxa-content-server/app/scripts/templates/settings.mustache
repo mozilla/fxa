@@ -1,0 +1,22 @@
+<div id="fxa-settings-header-wrapper">
+  <header id="fxa-settings-header">
+    <h1 id="fxa-manage-account">{{#t}}Firefox Accounts{{/t}}</h1>
+    {{#showSignOut}}
+      <button id="signout" class="settings-button secondary-button">{{#t}}Sign out{{/t}}</button>
+    {{/showSignOut}}
+  </header>
+
+  <div class="settings-success-wrapper">
+    <div class="success settings-success"></div>
+  </div>
+</div>
+
+<div class="avatar-wrapper avatar-settings-view"></div>
+<div id="fxa-settings-content" class="card">
+  <header id="fxa-settings-profile-header">
+    {{{ unsafeHeaderHTML }}}
+  </header>
+  <div id="sub-panels"></div>
+</div>
+
+<footer id="legal-footer"><a class="terms" href="/legal/terms">{{#t}}Terms of Service{{/t}}</a><a class="privacy" href="/legal/privacy">{{#t}}Privacy Notice{{/t}}</a></footer>

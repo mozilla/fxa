@@ -1,0 +1,6 @@
+{
+  "exceptions": [
+    // cli: Arbitrary File Write
+    "https://nodesecurity.io/advisories/95"
+  ]
+}

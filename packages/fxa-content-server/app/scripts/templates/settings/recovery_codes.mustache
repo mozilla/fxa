@@ -1,0 +1,69 @@
+<div id="recovery-codes">
+    <section class="modal-panel">
+        {{#modalSuccessMsg}}
+            <p class="success modal-success">{{modalSuccessMsg}}</p>
+        {{/modalSuccessMsg}}
+        <div class="error"></div>
+
+        <h2>{{#t}}Recovery codes{{/t}}</h2>
+
+    <form novalidate>
+        {{^showRecoveryCodes}}
+            <p class="description">
+                <span class="note">{{#t}}NOTE:{{/t}}</span>
+                {{#t}}By generating new recovery codes, all previous codes will become invalid. Please store new codes in a safe location.{{/t}}
+            </p>
+
+            <div class="recovery-code-generate">
+                <a class="replace-codes-link">{{#t}}Generate new recovery codes{{/t}}</a>
+            </div>
+        {{/showRecoveryCodes}}
+
+        {{#showRecoveryCodes}}
+            <p class="description">
+                <span class="note">{{#t}}NOTE:{{/t}}</span>
+                {{#t}}These are your one time use recovery codes. Store them in a safe place in the event you lose access to your mobile device. You will not be able to see these codes again.{{/t}}
+            </p>
+
+            <div id="recovery-code-container">
+                {{#recoveryCodes}}
+                    <div class="recovery-code">{{code}}</div>
+                {{/recoveryCodes}}
+            </div>
+            <div class="link-options">
+                <a class="replace-codes-link">{{#t}}Generate new recovery codes{{/t}}</a>
+            </div>
+
+            {{^isIos}}
+                <div class="button-row save-options">
+                    <a href="#" class="save-option download-option">
+                        <div class="graphic graphic-download-option"></div>
+                        <p class="name">{{#t}}Download{{/t}}</p>
+                    </a>
+                    <a href="#" class="save-option copy-option">
+                        <div class="graphic graphic-copy-option"></div>
+                        <p class="name">{{#t}}Copy{{/t}}</p>
+                    </a>
+                    <a href="#" class="save-option print-option">
+                        <div class="graphic graphic-print-option"></div>
+                        <p class="name">{{#t}}Print{{/t}}</p>
+                    </a>
+                </div>
+            {{/isIos}}
+
+            {{#isIos}}
+                <div class="button-row">
+                    <a href="#" class="save-option copy-option">
+                        <div class="graphic graphic-copy-option"></div>
+                        <p class="name">{{#t}}Copy{{/t}}</p>
+                    </a>
+                </div>
+            {{/isIos}}
+        {{/showRecoveryCodes}}
+
+        <div class="button-row">
+            <button class="settings-button secondary-button two-step-authentication-done">{{#t}}Done{{/t}}</button>
+        </div>
+    </form>
+    </section>
+</div>

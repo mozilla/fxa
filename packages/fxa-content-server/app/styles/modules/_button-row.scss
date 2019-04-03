@@ -1,0 +1,90 @@
+.button,
+.settings-button,
+button {
+  @include font();
+  align-items: center;
+  background: $button-background-color-default;
+  border: 0;
+  border-radius: $button-border-radius-default;
+  color: $button-text-color-default;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: $button-font-size-default;
+  font-weight: $button-font-weight-default;
+  height: $button-height-default;
+  justify-content: center;
+  letter-spacing: 0.2px;
+  padding: 0 8px;
+  transition-duration: $short-transition;
+  transition-property: background-color;
+  // it is very easy to accidentally select the text when clicking
+  -webkit-touch-callout: none;
+  // user select not supported by autoprefixer
+  // https://github.com/postcss/autoprefixer/issues/167
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  width: 100%;
+
+
+  &:hover {
+    background: $button-background-color-default-hover;
+  }
+
+  &:active {
+    background: $button-background-color-default-active;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
+  }
+
+  &[type='submit'],
+  &.primary-button {
+    background: $button-background-color-primary;
+    color: $button-text-color-primary;
+
+    &:hover {
+      background: $button-background-color-primary-hover;
+    }
+
+    &:active {
+      background: $button-background-color-primary-active;
+    }
+  }
+
+  &.warning-button {
+    background: $error-background-color;
+    border: 0;
+    color: $message-text-color;
+
+    &:hover {
+      background: darken($error-background-color, 5);
+    }
+
+    &:hover:active {
+      background: darken($error-background-color, 10);
+    }
+  }
+
+  &:disabled,
+  &.disabled {
+    cursor: auto;
+    opacity: 0.4;
+  }
+}
+
+.button-row {
+  margin: 20px 0 24px 0;
+
+  .button {
+    text-decoration: none;
+  }
+}
+
+button::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+

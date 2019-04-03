@@ -1,0 +1,74 @@
+{
+  "name": "fxa-auth-db-mysql",
+  "version": "1.133.1",
+  "description": "MySQL backend for Firefox Accounts",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/fxa-auth-db-mysql"
+  },
+  "bin": {
+    "fxa-auth-db-mysql": "bin/db_patcher.js"
+  },
+  "scripts": {
+    "outdated": "npm outdated --depth 0 || exit 0",
+    "shrink": "npmshrink",
+    "start": "node ./bin/db_patcher.js >/dev/null && node ./bin/server.js",
+    "start-mem": "node ./bin/mem",
+    "test": "npm run test-mysql && npm run test-mem && npm run test-server && grunt eslint",
+    "test-mem": "./scripts/mocha-coverage.js test/mem --exit",
+    "test-mysql": "node ./bin/db_patcher.js >/dev/null && ./scripts/mocha-coverage.js test/backend test/local --exit",
+    "test-server": "./scripts/mocha-coverage.js db-server/test/local --exit",
+    "test-travis": "grunt && node ./bin/db_patcher.js && ./scripts/mocha-coverage.js test/backend test/local db-server/test/local test/mem --exit",
+    "migration-lint": "node scripts/migration-lint"
+  },
+  "author": "Mozilla (https://mozilla.org/)",
+  "homepage": "https://github.com/mozilla/fxa-auth-db-mysql",
+  "bugs": {
+    "url": "https://github.com/mozilla/fxa-auth-db-mysql/issues"
+  },
+  "license": "MPL-2.0",
+  "dependencies": {
+    "base64url": "3.0.0",
+    "bluebird": "3.5.2",
+    "convict": "4.4.0",
+    "fxa-jwtool": "0.7.2",
+    "ip": "1.1.5",
+    "mozlog": "2.2.0",
+    "mysql": "2.16.0",
+    "mysql-patcher": "0.7.0",
+    "newrelic": "4.10.0",
+    "raven": "2.6.4",
+    "request": "2.88.0",
+    "restify": "7.2.2"
+  },
+  "optionalDependencies": {
+    "scrypt-hash": "1.1.14"
+  },
+  "devDependencies": {
+    "eslint-plugin-fxa": "git+https://github.com/mozilla/eslint-plugin-fxa#master",
+    "fxa-conventional-changelog": "1.1.0",
+    "grunt": "1.0.3",
+    "grunt-bump": "0.8.0",
+    "grunt-conventional-changelog": "6.1.0",
+    "grunt-copyright": "0.3.0",
+    "grunt-eslint": "18.0.0",
+    "insist": "1.0.0",
+    "load-grunt-tasks": "3.5.0",
+    "mocha": "5.2.0",
+    "nock": "8.0.0",
+    "npmshrink": "2.0.0",
+    "nyc": "13.3.0",
+    "proxyquire": "1.7.10",
+    "restify-clients": "2.0.2",
+    "sinon": "1.17.5"
+  },
+  "keywords": [
+    "fxa",
+    "firefox",
+    "firefox-accounts",
+    "backend",
+    "storage",
+    "mysql"
+  ]
+}

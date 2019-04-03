@@ -1,0 +1,145 @@
+#fox-logo {
+
+  background-image: image-url('firefox-logo.svg');
+  background-position: center -1px;
+  background-repeat: no-repeat;
+  opacity: 0;
+  position: relative;
+  z-index: $fox-logo-zindex;
+
+  @include respond-to('big') {
+    height: 85px;
+    margin: 0 auto;
+    top: 30px;
+    width: 80px;
+  }
+
+  @include respond-to('small') {
+    background-position-y: 0;
+    background-size: auto 56px;
+    height: 56px;
+    margin: 10px auto 0 auto;
+    top: 0;
+    width: 100%;
+
+    .screen-choose-what-to-sync & {
+      display: none;
+    }
+  }
+
+  @include respond-to('trustedUI') {
+    display: none;
+  }
+
+  .static & {
+    opacity: 1;
+  }
+
+  // IE < 10 does not support CSS transforms
+  .lt-ie10 & {
+    opacity: 1;
+  }
+
+  .chromeless & {
+    display: none;
+  }
+
+  .screen-choose-what-to-sync & {
+    // in Blink and Webkit it is not enough to use `!important` opacity
+    // also need to add animation:none to avoid overrides from `keyframes`
+    animation: none;
+    // the 'choose-what-to-sync' view is a special case view
+    // where we want to hide the logo and not animate it
+    // it uses `!important` to avoid the fade-in effect and inline styles.
+    opacity: 0 !important;
+  }
+}
+
+#about-mozilla {
+
+  @include respond-to('big') {
+    background: image-url('mozilla.svg');
+    cursor: pointer;
+    height: 30px;
+    opacity: 0.5;
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    transition: opacity $short-transition;
+    width: 94px;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    &:focus {
+      outline-color: $html-background-color;
+    }
+  }
+
+  @include respond-to('small') {
+    display: none;
+  }
+
+  // Links to external sites cannot be opened when signing in
+  // to Sync on Firefox for iOS
+  .chromeless &,
+  .fx-ios-sync & {
+    display: none;
+  }
+}
+
+
+.choose-what-to-sync {
+  .success-email-created {
+    margin-bottom: 26px;
+  }
+}
+
+.sms-row {
+  position: relative;
+
+  .sms-send {
+    border-radius: 0 $inner-button-border-radius $inner-button-border-radius 0;
+    height: $input-height - 2px;
+    min-width: 55px;
+    padding: 0 7px;
+    position: absolute;
+    top: 1px;
+    width: auto;
+    z-index: 3;
+
+    html[dir='ltr'] & {
+      border-left: 1px solid $input-border-color-default;
+      right: 1px;
+    }
+
+    html[dir='rtl'] & {
+      border-radius: $inner-button-border-radius 0 0 $inner-button-border-radius;
+      border-right: 1px solid $input-border-color-default;
+      left: 1px;
+    }
+
+    @include respond-to('small') {
+      border-radius: 0 $inner-button-border-radius $inner-button-border-radius 0;
+      height: 38px;
+      line-height: 38px;
+    }
+  }
+}
+
+.faint {
+  color: $grey-50;
+  transition-duration: $short-transition;
+
+  a {
+    color: $grey-50;
+    text-decoration: underline;
+
+    @include anchor-default-pseudo-classes($grey-60, $grey-60, $grey-70, $grey-80);
+  }
+}
+
+.sms-disclaimer {
+  margin: 16px 0;
+}

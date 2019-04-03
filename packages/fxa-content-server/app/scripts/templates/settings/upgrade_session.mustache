@@ -1,0 +1,50 @@
+<div id="upgrade-session" class="settings-unit {{#isPanelOpen}}open{{/isPanelOpen}}">
+    <div class="settings-unit-stub">
+        <header class="settings-unit-summary">
+            <h2 class="settings-unit-title">{{ title }}</h2>
+        </header>
+        <button class="settings-button settings-unit-toggle secondary-button" data-href="{{ gatedHref }}">
+            <span class="unlock-button">{{#t}}Show{{/t}}</span>
+        </button>
+    </div>
+
+    <div class="settings-unit-details">
+        <div class="error"></div>
+
+        <form novalidate>
+            <p>
+                <span class="note">
+                    {{#t}}NOTE:{{/t}}
+                </span>
+                {{#t}}Before you can view or make changes to this section, you will need to verify your email address.{{/t}}
+            </p>
+            <ul class="email-list button-row">
+                <li class="email-address">
+                    <div class="address">{{ email }}</div>
+                    <div class="details">
+                        <div>{{#t}}Primary email{{/t}}</div>
+                    </div>
+                </li>
+                {{#emailSent }}
+                    <a class="resend" data-id="{{ email }}">{{#t}}Not in inbox or spam folder? Resend{{/t}}</a>
+                {{/emailSent }}
+            </ul>
+            {{#emailSent }}
+                <div class="button-row email-sent-options">
+                    <button type="submit" class="settings-button primary-button refresh-verification-state"
+                            data-id="{{ email }}"
+                            title="{{ lastCheckedTime }}">{{#t}}Refresh Status{{/t}}</button>
+                    <button class="settings-button secondary-button cancel">{{#t}}Done{{/t}}</button>
+                </div>
+            {{/emailSent }}
+
+            {{^emailSent }}
+                <div class="button-row">
+                    <button type="submit" class="settings-button primary-button send-verification-email"
+                            data-id="{{ email }}">{{#t}}Verify{{/t}}</button>
+                    <button class="settings-button secondary-button cancel">{{#t}}Cancel{{/t}}</button>
+                </div>
+            {{/emailSent}}
+        </form>
+    </div>
+</div>

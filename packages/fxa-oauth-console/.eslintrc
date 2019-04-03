@@ -1,0 +1,12 @@
+{
+  "extends": "fxa/server",
+  "ecmaFeatures": {
+    "modules": true
+  },
+  "rules": {
+    "semi": 0
+  },
+  "parserOptions": {
+    "sourceType": "module"
+  }
+}

@@ -1,0 +1,56 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - "../defaults.yml"
+    - "../env/{{ stack_name }}.yml"
+
+  tasks:
+    - name: validate vars
+      assert:
+        that:
+          - stack_name != ''
+          - keyname != ''
+          - region != ''
+          - owner != ''
+
+    - name: Create a stack for running 123done and 321done oauth branch
+      action: cloudformation
+        state=present
+        region="{{ region }}"
+        stack_name="{{ stack_name }}"
+        template="../templates/app.json"
+      args:
+        template_parameters:
+          KeyName: "{{ keyname }}"
+          StackName: "{{ stack_name }}"
+          HostedZone: "{{ hosted_zone }}"
+          FQDNTrusted: "{{ fqdn_trusted }}"
+          FQDNUntrusted: "{{ fqdn_untrusted }}"
+          SSLCertificateName: "{{ ssl_certificate_name }}"
+      register: stack
+
+    - debug: var=stack
+
+    - name: add new host
+      add_host: hostname={{ stack['stack_outputs']['EC2HostName'] }} groupname=whatevs
+
+- name: Configure instance
+  hosts: whatevs
+  remote_user: ec2-user
+  gather_facts: true
+  vars_files:
+    - "../defaults.yml"
+    - "../env/{{ stack_name }}.yml"
+  vars:
+    public_hostname: "{{ hostvars['localhost']['stack']['stack_outputs']['PublicDNS'] }}"
+    ec2_hostname: "{{ hostvars['localhost']['stack']['stack_outputs']['EC2HostName'] }}"
+  roles:
+    - common
+    - team
+    - nginx
+    - redis
+    - nodejs
+    - 123done
+    - 321done

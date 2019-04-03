@@ -1,0 +1,11 @@
+---
+
+- name: install 321done dependencies
+  become: true
+  become_user: app
+  npm: path=/home/app/321done
+  notify: restart 321done-web
+
+- name: restart 321done-web
+  become: true
+  supervisorctl: name=321done-web state=restarted

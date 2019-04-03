@@ -1,0 +1,19 @@
+{
+  "img": {
+    "driver": "aws",
+    "providers": {
+      "fxa": "^http://127.0.0.1:1112/a/[0-9a-f]{32}$"
+    },
+    "uploads": {
+      "dest": {
+        "public": "BUCKET_NAME"
+      }
+    },
+    "url": "https://a.p.firefoxusercontent.net/a/{id}"
+  },
+  "worker": {
+    "host": "127.0.0.1",
+    "port": 1113
+  }
+}
+

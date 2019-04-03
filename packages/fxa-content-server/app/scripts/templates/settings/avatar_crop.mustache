@@ -1,0 +1,32 @@
+<div id="avatar-crop">
+  <section class="modal-panel">
+    <div class="error"></div>
+
+    <div class="cropper">
+      <div class="wrapper">
+        <div class="mask"></div>
+        <div class="drag-overlay"></div>
+        <img src="" class="avatar" alt="Avatar" />
+      </div>
+
+      <p class="notice">{{#t}}Position and rotate your picture as needed{{/t}}</p>
+
+      <div class="controls">
+        <button class="zoom-out icon-zoom-out"></button>
+        <input class="slider" type="range" min="0" max="100" step="1" value="0" />
+        <button class="zoom-in icon-zoom-in"></button>
+        <button class="rotate icon-cw"></button>
+      </div>
+
+      <canvas id="imageCanvas"></canvas>
+    </div>
+
+    <form novalidate>
+      <div class="button-row">
+        <button type="submit" id="submit-btn" class="settings-button primary-button">{{#t}}Change{{/t}}</button>
+        <button class="settings-button secondary-button" id="back">{{#t}}Cancel{{/t}}</button>
+      </div>
+    </form>
+
+  </section>
+</div>

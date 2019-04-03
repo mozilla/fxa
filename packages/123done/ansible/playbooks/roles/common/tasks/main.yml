@@ -1,0 +1,69 @@
+---
+
+- name: update installed packages
+  become: true
+  yum: name=* state=latest
+
+- name: install base packages
+  become: true
+  yum: name={{ item }} state=present
+  with_items:
+    - epel-release
+    - gcc-c++
+    - git
+    - ntp
+    - python-pip
+
+- name: create supervsr group for using supervisorctl
+  become: true
+  group: name=supervsr state=present
+
+- name: create app user
+  become: true
+  user: name=app state=present append=yes groups=supervsr
+
+- name: make /home/app go-readable
+  become: true
+  file: path=/home/app mode=go+rx state=directory
+
+- name: add ec2-user to group supervsr
+  become: true
+  user: name=ec2-user append=yes groups=supervsr
+
+- name: install supervisord
+  become: true
+  pip: name=supervisor version=3.1.3 state=present extra_args='--install-option="--install-scripts=/usr/bin"'
+
+- file: path=/etc/supervisor.d state=directory
+  become: true
+
+- file: path=/data state=directory owner=app group=app mode=0777
+  become: true
+
+- name: upstart or systemd?
+  become: true
+  command: which initctl
+  failed_when: false
+  changed_when: false
+  register: is_upstart
+
+- name: upstart supervisord
+  become: true
+  copy: src=supervisor.conf dest=/etc/init/supervisor.conf owner=root group=root
+  when: is_upstart.rc == 0
+
+- name: systemd supervisord
+  become: true
+  copy: src=supervisor.systemd dest=/etc/systemd/system/supervisor.service owner=root group=root
+  when: is_upstart.rc != 0
+
+- name: configure supervisord
+  become: true
+  copy: src=supervisord.conf dest=/etc/supervisord.conf owner=root group=root
+  notify: restart supervisor
+
+- name: start supervisord
+  become: true
+  service: name=supervisor state=started
+
+- meta: flush_handlers

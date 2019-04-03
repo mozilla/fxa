@@ -1,0 +1,10 @@
+{
+  "extends": "fxa/client",
+  "ecmaFeatures": {
+    "modules": true
+  },
+  "rules": {
+    "semi": 0,
+    "strict": [2, "never"]
+  }
+}

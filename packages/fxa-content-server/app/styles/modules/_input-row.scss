@@ -1,0 +1,122 @@
+
+.input-row {
+  margin-bottom: 16px;
+  position: relative;
+  width: 100%;
+
+  input {
+    transition: border-color $short-transition,
+                box-shadow $short-transition;
+
+    &::placeholder {
+      color: $input-placeholder-color !important;
+      font-size: 17px;
+      font-weight: $font-weight-body-20;
+      opacity: 1;
+    }
+
+    &::-webkit-input-placeholder {
+      // Fixes a problem in Safari/Fx for iOS where placeholder
+      // text is not vertically centered and becomes cut-off.
+      line-height: 1 !important;
+    }
+
+    // disable arrows on HTML5 number inputs
+    &[type='number']::-webkit-inner-spin-button,
+    &[type='number']::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      margin: 0;
+    }
+
+    &[type='number'] {
+      -moz-appearance: textfield;
+    }
+
+    &[type='email'],
+    &[type='number'],
+    &[type='password'],
+    &[type='tel'],
+    &[type='text'] {
+      @include input-element();
+    }
+
+    html[dir='ltr'] & {
+      padding: 0 0 0 $input-left-right-padding;
+    }
+
+    html[dir='rtl'] & {
+      direction: ltr;
+      padding: 0  $input-left-right-padding 0 0;
+      text-align: right;
+    }
+
+    &[type='checkbox']:hover,
+    &[type='checkbox']:focus {
+      border: 1px solid $input-border-color-focus;
+    }
+
+    &.unblock-code {
+      text-transform: uppercase;
+
+      &::placeholder {
+        text-transform: none;
+      }
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &.recovery-key {
+      font-size: 14px;
+      text-transform: uppercase;
+
+      @include respond-to('small') {
+        font-size: 11px;
+      }
+
+      &::placeholder {
+        text-transform: none;
+      }
+    }
+  }
+
+  .input-help {
+    color: $input-placeholder-color;
+    margin-top: 6px;
+    transition: opacity $medium-transition;
+
+    &.input-help-complete-password {
+      text-align: center;
+    }
+
+    @include respond-to('small') {
+      font-size: $small-font;
+    }
+  }
+
+  .input-help-forgot-pw {
+    display: block;
+    text-align: left;
+  }
+
+  .input-help-focused {
+    @include respond-to('reasonableUI') {
+      opacity: 0;
+    }
+
+    @include respond-to('trustedUI') {
+      opacity: 1;
+    }
+  }
+
+  input:focus ~ .input-help-focused,
+  label:active ~ .input-help-focused,
+  label:focus ~ .input-help-focused,
+  .input-help-focused.highlight {
+    color: $input-border-color-focus;
+    opacity: 1;
+  }
+}

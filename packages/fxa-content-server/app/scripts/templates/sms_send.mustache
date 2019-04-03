@@ -1,0 +1,33 @@
+<div id="main-content" class="card">
+    <header class="hidden" id="fxa-send-sms-header"><h1>{{#t}}Send Firefox directly to your smartphone and sign in to complete set-up{{/t}}</h1></header>
+	{{#showSuccessMessage}}
+      <div class="success visible">{{#t}}This Firefox is connected{{/t}}</div>
+	{{/showSuccessMessage}}
+    <div class="error"></div>
+
+    <section class="send-sms">
+      <div class="graphic {{graphicId}}">{{#t}}Success{{/t}}</div>
+
+      <p>
+        {{#isSignIn}}
+          {{#t}}Still adding devices?{{/t}}
+        {{/isSignIn}}
+        {{#t}}Send Firefox directly to your smartphone and sign in to complete set-up{{/t}}
+      </p>
+
+      <form novalidate>
+        <div class="input-row sms-row">
+          <input name="phoneNumber" class="phone-number" type="tel" data-country="{{country}}" value="{{phoneNumber}}" placeholder="{{#t}}Mobile phone number{{/t}}" required autofocus="autofocus" />
+          <button type="submit" class="sms-send primary-button">{{#t}}Send{{/t}}</button>
+        </div>
+      </form>
+    </section>
+    <div class="marketing-area"></div>
+    <div class="sms-disclaimer faint">
+      {{#unsafeTranslate}}SMS service only available in certain countries. SMS &amp; data rates may apply. The intended recipient of the email or SMS must have consented. <a %(escapedLearnMoreAttributes)s>Learn more</a>{{/unsafeTranslate}}
+    </div>
+    <div class="links">
+      <a href="/sms/why" data-flow-event="link.why">{{#t}}Why is more than one device required?{{/t}}</a>
+    </div>
+    <aside class="child-view"></aside>
+</div>

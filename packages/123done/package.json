@@ -1,0 +1,47 @@
+{
+  "name": "123done",
+  "description": "A simple tasklist app that demonstrates FxA Sign-In",
+  "version": "0.0.2",
+  "author": {
+    "name": "Mozilla",
+    "url": "https://mozilla.org/"
+  },
+  "licenses": [
+    {
+      "type": "MPL 2.0",
+      "url": "https://mozilla.org/MPL/2.0/"
+    }
+  ],
+  "homepage": "http://123done.org/",
+  "bugs": "https://github.com/mozilla/123done/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/123done"
+  },
+  "private": true,
+  "dependencies": {
+    "bower": "*",
+    "client-sessions": "0.6.x",
+    "connect-fonts": "2.0.2",
+    "connect-fonts-alegreyasans": "0.0.2",
+    "connect-fonts-opensans": "0.0.5",
+    "express": "3.5.x",
+    "fxa-jwtool": "0.7.x",
+    "node-rsa": "0.2.26",
+    "postprocess": "0.2.4",
+    "redis": "0.7.1",
+    "request": "2.67.0"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "devDependencies": {
+    "eslint": "1.10.3",
+    "eslint-config-fxa": "2.0.0"
+  },
+  "scripts": {
+    "postinstall": "bower install --config.interactive=false -s",
+    "start": "node server.js",
+    "test": "eslint ."
+  }
+}

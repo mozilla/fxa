@@ -1,0 +1,52 @@
+<div id="client-disconnect">
+  <section class="modal-panel">
+    {{^hasDisconnected}}
+      <h2>{{#t}}Disconnect from Sync?{{/t}}</h2>
+      <div class="error"></div>
+
+      <p class="intro">
+      {{#t}}Your browsing data will remain on %(deviceName)s, but it will no longer sync with your account.{{/t}}
+      </p>
+
+      <form novalidate>
+          <p class="disconnect-reasons fxa-radio">
+            <label>
+              <input type="radio" name="disconnect-reasons" value="suspicious"/>
+              {{#t}}Suspicious device{{/t}}
+            </label>
+            <label>
+              <input type="radio" name="disconnect-reasons" value="lost"/>
+              {{#t}}Lost or stolen device{{/t}}
+            </label>
+            <label>
+              <input type="radio" name="disconnect-reasons" value="old"/>
+              {{#t}}Old or replaced device{{/t}}
+            </label>
+            <label>
+              <input type="radio" name="disconnect-reasons" value="duplicate"/>
+              {{#t}}Duplicate device{{/t}}
+            </label>
+            <label>
+              <input type="radio" name="disconnect-reasons" value="no" checked="checked"/>
+              {{#t}}Rather not say{{/t}}
+            </label>
+          </p>
+
+        <div class="button-row">
+          <button type="submit" id="submit-btn" class="settings-button warning-button">{{#t}}Disconnect{{/t}}</button>
+          <button class="settings-button secondary-button cancel-disconnect">{{#t}}Cancel{{/t}}</button>
+        </div>
+      </form>
+
+    {{/hasDisconnected}}
+    {{#hasDisconnected}}
+      <h2>{{#t}}Disconnection Successful{{/t}}</h2>
+      <p class='reason-help'>
+      {{reasonHelp}}
+      </p>
+      <div class="button-row">
+        <button id="submit-btn" type="submit">{{#t}}Got it{{/t}}</button>
+      </div>
+    {{/hasDisconnected}}
+  </section>
+</div>

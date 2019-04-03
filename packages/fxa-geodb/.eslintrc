@@ -1,0 +1,6 @@
+{
+  "extends": "fxa/client",
+  "rules": {
+    "camelcase": 0
+  }
+}

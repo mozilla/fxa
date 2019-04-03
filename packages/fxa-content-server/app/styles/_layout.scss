@@ -1,0 +1,123 @@
+// Two main widths
+// Apply styles to div injected by backbone, rather than to the stage itself.
+#main-content {
+  text-align: center;
+
+  &.card {
+    @include respond-to('big') {
+      width: 420px;
+    }
+  }
+
+  &.panel {
+    max-width: 750px;
+    width: 96%;
+
+    .panel-text-content {
+      text-align: left;
+    }
+  }
+
+  @include respond-to('big') {
+    background: $content-background-color;
+    border-radius: $big-border-radius;
+    box-shadow: 0 2px 8px rgba($grey-90, .1);
+    margin: -15px auto 0 auto;
+    min-height: 420px;
+    padding: 50px 40px 40px 40px;
+    transition: box-shadow 250ms cubic-bezier(.07, .95, 0, 1);
+
+    &:focus-within {
+      box-shadow: 0 4px 16px rgba($grey-90, .1);
+      transition: box-shadow 250ms cubic-bezier(.07, .95, 0, 1);
+    }
+  }
+
+  @include respond-to('small') {
+    margin: 0 auto;
+    max-width: 360px;
+    min-height: 300px !important;
+    min-width: 300px;
+    padding: 7px 20px 20px 20px;
+    position: relative;
+    width: 94%;
+  }
+
+  @include respond-to('trustedUI') {
+    margin: 10px auto 0 auto;
+    min-width: 250px;
+    padding: 0;
+    top: 0;
+    width: 250px;
+  }
+
+  .chromeless & {
+    border: 0;
+    box-shadow: none;
+    margin-top: 0;
+    min-height: 0 !important;
+  }
+}
+
+#fxa-settings-content {
+
+  background: $content-background-color;
+  margin: 0 auto;
+
+  @include respond-to('big') {
+    border-radius: $big-border-radius;
+    box-shadow: 0 2px 8px rgba($grey-90, .1);
+    padding: 50px 20px 20px;
+    transition: box-shadow 250ms cubic-bezier(.07, .95, 0, 1);
+    width: 500px;
+  }
+
+  @include respond-to('small') {
+    border-bottom: 1px solid $settings-header-border-bottom;
+    border-top: 1px solid $settings-header-border-bottom;
+    padding: 30px 3% 10px;
+    width: 100%;
+  }
+
+  @include respond-to('compressedLandscape') {
+    border: 1px solid $settings-header-border-bottom;
+    border-radius: $small-border-radius;
+    max-width: 750px;
+    padding-left: 20px;
+    padding-right: 20px;
+    width: 94%;
+  }
+
+  &.animate-shadow {
+    box-shadow: 0 4px 16px rgba($grey-90, .1);
+    transition: box-shadow 250ms cubic-bezier(.07, .95, 0, 1);
+  }
+}
+
+
+#fxa-settings-header {
+  margin: 0 auto;
+  padding: 0 3%;
+  white-space: nowrap;
+  width: 100%;
+
+  @include respond-to('compressedLandscape') {
+    max-width: 750px;
+    padding: 0;
+    width: 94%;
+  }
+}
+
+#stage {
+
+  display: block;
+  opacity: 0;
+
+  .static & {
+    opacity: 1;
+  }
+
+  .lt-ie10 & {
+    display: block;
+  }
+}

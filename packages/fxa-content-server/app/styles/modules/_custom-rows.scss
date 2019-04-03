@@ -1,0 +1,285 @@
+/* Custom rows */
+.description {
+  font-size: $medium-font;
+}
+
+.links {
+  clear: both;
+  display: flex;
+  justify-content: center;
+
+  .right {
+    html[dir='ltr'] & {
+      margin-left: auto;  // Forces the two links as far apart as can be.
+    }
+
+    html[dir='rtl'] & {
+      margin-right: auto; // Forces the two links as far apart as can be.
+    }
+  }
+
+  .delayed-fadein {
+    animation: fadein 1s linear 5s forwards;
+    opacity: 0;
+  }
+
+  &.centered {
+    flex-direction: column;
+
+    a:not(:only-child) {
+      margin: 0 auto 12px;
+    }
+  }
+}
+
+.tos-pp {
+  font-size: 13px;
+  margin-top: 20px;
+}
+
+.verification-email-message,
+.signed-in-email-message,
+.verification-recovery-code-message,
+.verification-totp-message {
+  color: $grey-60;
+  line-height: 1.5;
+  word-wrap: break-word;
+
+  .email {
+    display: block;
+    font-weight: 500;
+  }
+}
+
+.customize-sync-row {
+  color: $link-color-extra;
+  margin-bottom: 10px !important;
+}
+
+.marketing-email-optin-row {
+  color: $link-color-extra;
+  font-size: 13px;
+  margin-top: 16px;
+}
+
+.choose-what-to-sync-row,
+.checkbox-row {
+  html[dir='ltr'] & {
+    text-align: left;
+  }
+
+  html[dir='rtl'] & {
+    text-align: right;
+  }
+}
+
+input[type='checkbox'] {
+  appearance: none;
+  // The background image is preloaded but forced out of the viewport
+  // until checked. Without the preload there, when the user clicks the
+  // checkbox there is a delay while the image is fetched.
+  background-image: url('/images/icon-check-white.svg');
+  background-position: 100px 100px;
+  background-repeat: no-repeat;
+  border: 1px solid rgba($grey-90, 0.3);
+  border-radius: 2px;
+  cursor: pointer;
+  display: inline-block;
+  height: 18px;
+  padding: 0 !important;
+  width: 18px;
+
+  html[dir='ltr'] & {
+    margin-right: 4px;
+  }
+
+  html[dir='rtl'] & {
+    margin-left: 4px;
+  }
+
+  &:not(:checked) {
+    background-color: rgba($grey-90, 0.1);
+
+    &:hover {
+      background-color: rgba($grey-90, 0.2);
+      border-color: rgba($grey-90, 0.3);
+    }
+
+    &:active {
+      background-color: rgba($grey-90, 0.3);
+    }
+
+    &:focus {
+      border: 0;
+      box-shadow: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
+    }
+
+    &:focus:active {
+      background-color: rgba($grey-90, 0.3);
+    }
+
+    &:disabled {
+      background-color: rgba($grey-90, 0.1);
+    }
+  }
+
+  &:checked {
+    background-color: $blue-60;
+    background-position: center center;
+
+    &:hover {
+      background-color: $blue-70;
+    }
+
+    &:active {
+      background-color: $blue-80;
+    }
+
+    &:focus {
+      border: 0;
+      box-shadow: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
+    }
+
+    &:focus:active {
+      background-color: rgba($grey-90, 0.3);
+    }
+
+    &:disabled {
+      background-color: $blue-60;
+    }
+  }
+
+  ~ label {
+    cursor: pointer;
+    position: relative;
+    top: -4px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+
+    ~ label {
+      cursor: not-allowed;
+      opacity: 0.4;
+    }
+  }
+}
+
+.small-label {
+  border-radius: $small-border-radius;
+  color: $grey-90;
+  font-size: $font-size-body-10;
+  font-weight: $font-weight-body-10;
+  height: 16px;
+  margin: 0 10px;
+}
+
+.show-password-label {
+  background-color: $show-password-background-color;
+  color: $show-password-label-color;
+}
+
+.password:focus ~ .show-password-label {
+  color: $input-border-color-focus;
+}
+
+.password[type='text']:focus ~ .show-password-label {
+  background-color: $input-border-color-focus;
+  color: $show-password-focus-label-color;
+}
+
+.modal {
+  .small-label {
+    margin-left: 1px;
+  }
+}
+
+#permissions {
+  fieldset {
+    border: 0;
+    height: fit-content;
+  }
+
+  .avatar-wrapper {
+    height: 50px;
+    width: 50px;
+  }
+
+  .fxa-checkbox__label {
+    color: $color-grey-faint-text;
+    font-size: 14px;
+    margin-top: 2px;
+    padding-left: 26px;
+  }
+
+  .fxa-checkbox__value {
+    font-size: 18px;
+    line-height: 18px;
+    // email addresses can overflow the label and cause
+    // the screen to be very wide. Break the addresses.
+    word-break: break-all;
+  }
+}
+
+.two-col-items {
+  column-width: 160px;
+  margin: 20px 0 10px 0;
+
+  .choose-what-to-sync-row {
+    margin-bottom: 10px;
+  }
+
+  .fxa-checkbox__label {
+    color: $color-grey-faint-text;
+  }
+
+  @include respond-to('small') {
+    column-width: 150px;
+  }
+
+  @include respond-to('trustedUI') {
+    column-width: 118px;
+  }
+}
+
+.pair-auth {
+  h1 {
+    > small {
+      display: block;
+    }
+  }
+
+  h2 {
+    color: $grey-80;
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 25px;
+  }
+
+  .client {
+    background-position: center top !important;
+    background-size: 65px;
+    color: $grey-70;
+    font-size: 13px;
+    margin: 0;
+    padding: 90px 0 0 0 !important;
+    text-align: center;
+
+    .ip-address {
+      margin-bottom: 20px;
+    }
+  }
+
+  &.pair-auth-complete {
+    .client {
+      background-image: none;
+      padding: 0 !important;
+    }
+
+    .device-name {
+      display: none;
+    }
+  }
+
+}

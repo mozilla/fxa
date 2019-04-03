@@ -1,0 +1,11 @@
+{
+  "extends": "fxa",
+  "env": {
+    "amd": true,
+    "node": true
+  },
+  "rules": {
+    "no-path-concat": 0,
+    "strict": 0
+  }
+}

@@ -1,0 +1,287 @@
+.user-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+
+  @include respond-to('small') {
+    border-radius: 4px;
+  }
+
+  @include respond-to('trustedUI') {
+    box-shadow: none;
+    height: 65px;
+    padding: 0 0 0 55px;
+  }
+
+  .user-info {
+    flex: 1;
+    flex-basis: 60px;
+    height: 111px;
+    margin-top: 20px;
+    text-align: center;
+
+    @include respond-to('trustedUI') {
+      height: 55px;
+    }
+  }
+
+  a {
+    font-size: 13px;
+  }
+}
+
+.avatar-wrapper {
+  align-self: center;
+  border-radius: 50%;
+  border-width: 0;
+  height: $avatar-size;
+  line-height: 0;
+  margin: 0 auto 5px;
+  overflow: hidden;
+  position: relative;
+  width: $avatar-size;
+
+  &.card-view {
+    align-self: center;
+    height: 71px;
+    margin: 20px 0 0 0;
+    width: 71px;
+
+    @include respond-to('small') {
+      height: 70px;
+      margin-top: 15px;
+      width: 70px;
+    }
+
+    @include respond-to('trustedUI') {
+      height: 55px;
+      margin-left: -55px;
+      margin-top: 0;
+      width: 55px;
+    }
+
+    img {
+      display: block;
+      height: 71px;
+      width: 71px;
+
+      @include respond-to('trustedUI') {
+        height: 55px;
+        width: 55px;
+      }
+    }
+  }
+
+  &.avatar-view {
+    display: block;
+    margin: 0 auto 16px auto;
+
+    @include respond-to('reasonableUI') {
+      background-size: 120px auto;
+      height: 120px;
+      width: 120px;
+    }
+
+    img,
+    .change-avatar {
+        display: block;
+        height: 120px;
+        width: 120px;
+    }
+
+    @include respond-to('trustedUI') {
+      background-size: 100px auto;
+      height: 100px;
+      width: 100px;
+
+      img {
+        height: 100px;
+        width: 100px;
+      }
+    }
+
+    small {
+      bottom: 0;
+      position: absolute;
+    }
+  }
+
+  &.avatar-settings-view {
+    display: block;
+    margin: 0 auto;
+    position: relative;
+
+    &:not(.nohover):hover {
+      box-shadow: 0 0 0 1px $color-blue;
+    }
+
+    &:not(.nohover):active {
+      box-shadow: 0 0 0 1px $color-orange;
+    }
+
+    @include respond-to('big') {
+      height: 80px;
+      top: 38px;
+      width: 80px;
+    }
+
+    @include respond-to('small') {
+      height: 50px;
+      top: 24px;
+      width: 50px;
+    }
+
+    span {
+      display: inline-block;
+    }
+
+    img,
+    span,
+    .change-avatar {
+
+      @include respond-to('big') {
+        height: 80px;
+        width: 80px;
+      }
+
+      @include respond-to('small') {
+        height: 50px;
+        width: 50px;
+      }
+    }
+  }
+
+  img {
+    background-color: $content-background-color;
+    display: block;
+    height: $avatar-size;
+    width: $avatar-size;
+
+    &.hidden {
+      display: none;
+    }
+
+    &.default {
+      background-image: image-url('default-profile.svg');
+      background-size: cover;
+    }
+  }
+
+  .avatar-camera-wrapper {
+    border-radius: 50%;
+    position: relative;
+  }
+}
+
+.with-default {
+  background: image-url('default-profile.svg') center;
+  background-repeat: no-repeat;
+}
+
+.change-avatar-text {
+  font-size: $small-font;
+  margin-top: 0;
+  visibility: hidden;
+}
+
+#done {
+  width: 100%;
+}
+
+.notice {
+  color: $faint-text-color;
+  font-size: $base-font;
+  padding-top: 10px;
+}
+
+.main-avatar {
+  display: inline-block;
+  position: relative;
+  width: $avatar-size;
+}
+
+#avatar-options {
+  .remove {
+    display: inline-block;
+
+    &.hidden {
+      display: none;
+    }
+  }
+}
+
+
+/* Circle Avatar Styles */
+.avatar-camera canvas {
+  display: none;
+}
+
+.avatar-change {
+  nav {
+    margin: 0 -40px -20px -40px;
+    padding: 25px 20px 20px;
+
+    a {
+      background: {
+        repeat: no-repeat;
+        size: 48%;
+      }
+      display: inline-block;
+      line-height: 1.1;
+      padding-top: 11%;
+      text-decoration: none;
+
+      @include respond-to('big') {
+        height: 80px;
+        margin: 5px;
+        min-width: 80px;
+        padding-top: 52px;
+      }
+
+      @include respond-to('small') {
+        height: 65px;
+        margin: 0 0 10px 0;
+        min-width: 75px;
+        padding-top: 42px;
+      }
+
+      &#camera,
+      &#file,
+      &.remove {
+        background-position: 50% 0.7vw;
+
+        &:hover {
+          filter: hue-rotate(3deg) saturate(1.1) brightness(.85);
+        }
+
+        &:active {
+          filter: hue-rotate(3deg) saturate(1.1) brightness(.75);
+        }
+      }
+
+      &#camera {
+        background-image: image-url('glyph-camera-32.svg');
+      }
+
+      &#file {
+        background-image: image-url('glyph-upload-16.svg');
+      }
+
+      &.remove {
+        background-image: image-url('glyph-clear-16.svg');
+      }
+    }
+  }
+
+  .error {
+    position: static;
+  }
+}
+
+.no-getusermedia #camera {
+  display: none;
+}

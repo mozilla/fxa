@@ -1,0 +1,7 @@
+/node_modules
+/build
+/components
+/docs
+/fxa-auth-server
+sauce_connect.log*
+.DS_Store

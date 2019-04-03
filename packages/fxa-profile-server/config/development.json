@@ -1,0 +1,15 @@
+{
+  "env": "development",
+  "logging": {
+    "fmt": "pretty",
+    "level": "all",
+    "debug": true
+  },
+  "img": {
+    "driver": "local"
+  },
+  "customsUrl": "none",
+  "serverCache": {
+    "useRedis": false
+  }
+}

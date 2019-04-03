@@ -1,0 +1,39 @@
+.marketing-area {
+  margin-top: 20px;
+
+
+  .links {
+    // Links have `overflow: auto` by default, which causes a scrollbar to
+    // appear around the images. Get rid of that.
+    overflow: inherit;
+  }
+
+  + .links {
+    // links that come after the marketing area need to have a
+    // top margin to avoid being smushed up against them.
+    margin: 20px 0 0 0;
+  }
+
+  .chromeless.iframe & {
+    &.spring-2015-android-ios-sync {
+      @include respond-to('reasonableUI') {
+        // This is a hack. The width of the firstrun iframe is 400px.
+        // The max-width of the main-content area is 360px, leaving 20px
+        // on either side. A 20px bottom-padding exists on the body.
+        // This leaves a 20px white area around the marketing snippet.
+
+        // For the firstrun flow only, pull the marketing box
+        // out to the sides to get rid of the padding.
+        bottom: -20px;
+        margin: 0 -20px;
+        position: relative;
+      }
+    }
+  }
+
+  .marketing-link {
+    display: inline-block;
+    height: 45px;
+    width: 152px;
+  }
+}

@@ -1,0 +1,31 @@
+<div id="main-content" class="card">
+  <div class="success visible success-email-created">{{#t}}%(email)s registered.{{/t}}</div>
+  <div class="graphic graphic-choose-what-to-sync"></div>
+
+  <header>
+    <h1 id="fxa-choose-what-to-sync-header">
+      {{#t}}Choose what to sync{{/t}}
+    </h1>
+  </header>
+
+  <section>
+    <div class="error"></div>
+    <div class="success"></div>
+
+    <form id="choose-what-to-sync" novalidate>
+      <div class="two-col-items">
+        {{#engines}}
+          <div class="input-row choose-what-to-sync-row">
+            <input name="sync-content" id="sync-engine-{{id}}" type="checkbox" class="customize-sync" {{#checked}}checked="checked"{{/checked}} value="{{id}}" tabindex="{{tabindex}}" /><label class="fxa-checkbox__label" for="sync-engine-{{id}}">{{text}}</label>
+          </div>
+        {{/engines}}
+      </div>
+      <div class="button-row">
+        <button id="submit-btn" type="submit" tabindex="1" autofocus>{{#t}}Save selections{{/t}}</button>
+      </div>
+      <div class="links">
+        <a href="#" id="back">{{#t}}Back{{/t}}</a>
+      </div>
+    </form>
+  </section>
+</div>

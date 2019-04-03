@@ -1,0 +1,35 @@
+#stage {
+  min-height: 300px;
+  opacity: 1;
+}
+
+.graphic-sync-intro {
+  background-image: image-url('graphic_sync_intro.png');
+  background-repeat: no-repeat;
+  background-size: 150px 195px;
+  height: 195px;
+  margin: 0 auto;
+  overflow: hidden;
+  text-indent: 100%;
+  white-space: nowrap;
+  width: 150px;
+}
+
+.description,
+.button-row {
+  margin-top: 30px;
+}
+
+/* Retina */
+@media
+only screen and (-webkit-min-device-pixel-ratio: 2),
+only screen and (min--moz-device-pixel-ratio: 2),
+only screen and (-moz-min-device-pixel-ratio: 2),
+only screen and (-o-min-device-pixel-ratio: 2/1),
+only screen and (min-device-pixel-ratio: 2),
+only screen and (min-resolution: 192dpi),
+only screen and (min-resolution: 2dppx) {
+  .graphic-sync-intro {
+    background-image: image-url('graphic_sync_intro@2x.png');
+  }
+}

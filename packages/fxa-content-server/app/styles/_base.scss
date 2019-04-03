@@ -1,0 +1,212 @@
+// Border box all the things by default
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: $html-background-color;
+  height: 100%;
+
+  &.chromeless {
+    background-color: $chromeless-html-background-color;
+  }
+}
+
+body {
+  @include font();
+  color: $text-color;
+  font-size: $base-font;
+  font-weight: 300;
+
+  @include respond-to('reasonableUI') {
+    padding-bottom: 20px;
+  }
+
+  @include respond-to('trustedUI') {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+noscript {
+  top: 10%;
+
+  .js & {
+    display: none;
+  }
+}
+
+.browsehappy {
+  top: 25%;
+}
+
+noscript,
+.browsehappy {
+  color: $error-text-color;
+  display: block;
+  margin: 0 auto;
+  position: absolute;
+  text-align: center;
+  width: 100%;
+
+  a {
+    color: $error-text-color;
+  }
+}
+
+
+a {
+  border-radius: 2px; // Give the focusring rounded corners
+  color: $link-color-default;
+  cursor: pointer; // Use the correct cursor for anchors without an href
+  text-decoration: none;
+
+  @include anchor-default-pseudo-classes();
+}
+
+header {
+  margin-bottom: 16px;
+
+  h1,
+  h2,
+  h3 {
+    @include header-font();
+    line-height: 1em;
+    margin: 0;
+  }
+
+  h1 {
+    @include title30();
+    color: $header-color;
+    line-height: 26px;
+
+    .service,
+    .email {
+      display: block;
+      font-size: 15px;
+      line-height: 22px;
+      margin-top: 4px;
+    }
+
+    .email {
+      color: $faint-text-color;
+      // allow long email addresses to be
+      // split across lines
+      word-break: break-all;
+    }
+  }
+
+  h2 {
+    @include title20();
+  }
+}
+
+button,
+input {
+  @include font();
+  font-weight: inherit;
+}
+
+input[type='radio'] {
+    @include font();
+    // autoprefixer does not handle appearance, see https://github.com/ai/autoprefixer/issues/205
+    -moz-appearance: none;
+    -ms-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background: $color-white;
+    border: 1px solid $radio-border-default-color;
+    border-radius: $radio-width;
+    box-sizing: content-box;
+    font-size: $medium-font;
+    height: $radio-height;
+    margin: $radio-margin;
+    outline: none;
+    padding: $radio-padding;
+    vertical-align: middle;
+    width: $radio-width;
+
+    @include respond-to('small') {
+      font-size: $base-font + $media-adjustment;
+    }
+
+    &:active {
+      box-shadow: 0 0 0 2px $radio-box-shadow-color;
+    }
+
+    &:checked {
+      background: $radio-border-dot-color;
+      background-clip: content-box;
+    }
+
+    &:hover {
+      border: 1px solid $radio-border-dot-color;
+    }
+}
+
+.prefillEmail {
+  color: $grey-60;
+  font-size: 15px;
+  font-weight: 500;
+  word-wrap: break-word;
+}
+
+section p {
+  margin: 0 auto 25px 0;
+}
+
+.email {
+  display: block;
+}
+
+
+.browsehappy {
+  display: block;
+}
+
+// Links cannot be opened from the TOS/PP text when signing
+// in to Sync on Fx for iOS. When signing in elsewhere, links
+// replace the app. Yuck. Show the links href next to the link text.
+// The href is fetched from the data-visible-url attribute instead of
+// the href attribute because some links are the same as their
+// text. In those cases, there is no point showing both.
+//
+// hrefs are only visible from the app, when the TOS/PP agreements
+// are opened directly, the links display/act normally.
+a[href^='http'].visible-url {
+  // using text-decoration: underline underlines the ::after
+  // section as well, with no way to remove it.
+  // So, add a border to the entire element, then hide
+  // the border in the ::after using a border that is the same
+  // color as the background.
+  color: $text-color;
+  cursor: default;
+  pointer-events: none;
+  text-decoration: none;
+}
+
+a[data-visible-url^='http']::after {
+  border-bottom: 1px solid $content-background-color;
+  content: ' (' attr(href) ') ';
+  word-break: break-all;
+}
+
+// Add the clearfix class to an element that contains
+// floated elements to give the element the height
+// of the tallest floated element. This fixes layout
+// problems such as text appearing under or between
+// two floated buttons.
+.clearfix::after {
+  clear: both;
+  content: ('.');
+  display: block;
+  height: 0;
+  line-height: 0;
+  visibility: hidden;
+}
+
+* html .clearfix {
+  height: 1%;
+}

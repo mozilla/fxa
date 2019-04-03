@@ -1,0 +1,16 @@
+FROM vladikoff/fxa-slim-image:1.0.0
+
+RUN adduser --disabled-password --gecos '' fxa && adduser fxa sudo && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+COPY . /home/fxa/fxa-profile-server
+WORKDIR /home/fxa/fxa-profile-server
+RUN chown -R fxa .
+USER fxa
+
+RUN npm install --production \
+  && npm cache clear
+
+CMD npm start
+
+# Expose ports
+EXPOSE 1111

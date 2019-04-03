@@ -1,0 +1,30 @@
+{
+  "public_url": "http://127.0.0.1:3030",
+  "oauth_client_id": "98e6508e88680e1a",
+  "oauth_url": "http://127.0.0.1:9010",
+  "profile_url": "http://127.0.0.1:1111",
+  "profile_images_url": "http://127.0.0.1:1112",
+  "client_sessions": {
+    "cookie_name": "session",
+    "secret": "YOU MUST CHANGE ME",
+    "duration": 86400000
+  },
+  "env": "development",
+  "use_https": false,
+  "static_max_age" : 0,
+  "route_log_format": "dev_fxa",
+  "logging": {
+    "fmt": "pretty",
+    "level": "debug"
+  },
+  "scopedKeys": {
+    "enabled": true
+  },
+  "static_directory": "app",
+  "allowed_metrics_flow_cors_origins": ["http://127.0.0.1:8001"],
+  "allowed_parent_origins": ["http://127.0.0.1:8080"],
+  "csp": {
+    "enabled": true,
+    "reportUri": "/_/csp-violation"
+  }
+}

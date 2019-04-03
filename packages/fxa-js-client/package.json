@@ -1,0 +1,59 @@
+{
+  "name": "fxa-js-client",
+  "version": "1.0.8",
+  "description": "Web client that talks to the Firefox Accounts API server",
+  "author": "Mozilla",
+  "license": "MPL-2.0",
+  "scripts": {
+    "start": "grunt",
+    "test": "grunt test",
+    "test-local": "intern-client config=tests/intern auth_server=LOCAL",
+    "setup": "npm install && grunt sjcl",
+    "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS.md"
+  },
+  "main": "node/index.js",
+  "files": [
+    "node/",
+    "client/",
+    "LICENSE"
+  ],
+  "readmeFilename": "README.md",
+  "homepage": "https://github.com/mozilla/fxa-js-client",
+  "engines": {
+    "node": ">=8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/fxa-js-client.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mozilla/fxa-js-client/issues"
+  },
+  "dependencies": {
+    "es6-promise": "4.1.1",
+    "sjcl": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8e",
+    "xhr2": "0.0.7"
+  },
+  "devDependencies": {
+    "eslint-config-fxa": "1.8.1",
+    "grunt": "0.4.2",
+    "grunt-build-control": "git://github.com/robwierzbowski/grunt-build-control#274952",
+    "grunt-bump": "0.3.1",
+    "grunt-bytesize": "0.1.1",
+    "grunt-cli": "0.1.13",
+    "grunt-contrib-clean": "0.6.0",
+    "grunt-contrib-watch": "0.6.1",
+    "grunt-contrib-yuidoc": "0.9.0",
+    "grunt-conventional-changelog": "3.0.0",
+    "grunt-copyright": "0.2.0",
+    "grunt-eslint": "16.0.0",
+    "grunt-open": "0.2.2",
+    "grunt-webpack": "3.0.2",
+    "http-proxy": "1.11.1",
+    "intern-geezer": "2.2.3",
+    "jscs-jsdoc": "1.1.0",
+    "load-grunt-tasks": "3.2.0",
+    "otplib": "7.1.0",
+    "webpack": "3.10.0"
+  }
+}

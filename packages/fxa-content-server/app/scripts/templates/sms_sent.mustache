@@ -1,0 +1,31 @@
+<div id="main-content" class="card">
+  <header class="hidden" id="fxa-sms-sent-header"><h1>{{#t}}Install Firefox on your smartphone and sign in to complete set-up{{/t}}</h1></header>
+  <section>
+    {{^isResend}}
+        <div id="send-success" class="success visible">
+          {{#unsafeTranslate}}App link sent to %(escapedPhoneNumber)s. <a %(escapedBackLinkAttrs)s>Mistyped&nbsp;number?</a>{{/unsafeTranslate}}
+        </div>
+      {{/isResend}}
+      {{#isResend}}
+        <div id="resend-success" class="success visible shake">
+          {{#unsafeTranslate}}App link resent to %(escapedPhoneNumber)s. <a %(escapedBackLinkAttrs)s>Mistyped&nbsp;number?</a>{{/unsafeTranslate}}
+        </div>
+      {{/isResend}}
+    <div class="error"></div>
+
+    <div class="graphic {{graphicId}}">{{#t}}Success{{/t}}</div>
+
+    <p id="sms-sent-to">
+      {{#t}}Install Firefox on your smartphone and sign in to complete set-up{{/t}}
+    </p>
+
+    <div class="faint">
+      {{#t}}If you are not receiving the text message, you can also download the apps manually.{{/t}}
+    </div>
+
+    <div class="marketing-area"></div>
+    <div class="links">
+      <a id="resend" class="delayed-fadein" href="#">{{#t}}Didn't arrive? Resend{{/t}}</a>
+    </div>
+  </section>
+</div>

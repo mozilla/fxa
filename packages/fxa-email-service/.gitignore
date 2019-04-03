@@ -1,0 +1,4 @@
+**/*.rs.bk
+config/local.*
+fxa-auth-db-mysql
+target

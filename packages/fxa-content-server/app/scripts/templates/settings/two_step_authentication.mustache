@@ -1,0 +1,90 @@
+<div id="totp-section" class="settings-unit {{#isPanelOpen}}open{{/isPanelOpen}} totp-panel">
+    <div class="settings-unit-stub">
+        <header class="settings-unit-summary">
+            <h2 class="settings-unit-title">{{#t}}Two-step authentication{{/t}}</h2>
+        </header>
+
+        <button class="settings-button secondary-button settings-unit-loading" disabled>
+            <div class="spinner spinner-settings-fetch"></div>
+        </button>
+
+        {{^hasToken}}
+            <button class="settings-button primary-button settings-unit-toggle totp-create" data-href="settings/two_step_authentication">
+                {{#t}}Enable…{{/t}}
+            </button>
+        {{/hasToken}}
+
+        {{#hasToken}}
+            <button class="settings-button secondary-button settings-unit-toggle" data-href="settings/two_step_authentication">
+                {{#t}}Change…{{/t}}
+            </button>
+        {{/hasToken}}
+    </div>
+
+
+    <div class="settings-unit-details">
+        <p>
+            {{#unsafeTranslate}}Add a layer of security to your account by requiring security codes from one of <a %(escapedTotpSupportAttributes)s>these authentication apps</a>.{{/unsafeTranslate}}
+        </p>
+
+        <div class="totp-list">
+            <ul id="totp-status">
+                <li class="totp-type">
+                    <div class="name">{{#t}}Current status{{/t}}</div>
+                    <div class="details">
+                        {{#hasToken}}
+                            <div class="enabled">{{#t}}Enabled{{/t}}</div>
+                        {{/hasToken}}
+                        {{^hasToken}}
+                            <div class="disabled">{{#t}}Disabled{{/t}}</div>
+                        {{/hasToken}}
+                    </div>
+                    <div class="panel-settings-button-group">
+                        {{#hasToken}}
+                            <button class="settings-button warning-button totp-delete">{{#t}}Disable{{/t}}</button>
+                        {{/hasToken}}
+                        {{^hasToken}}
+                            <button class="settings-button secondary-button totp-create">{{#t}}Enable{{/t}}</button>
+                        {{/hasToken}}
+                    </div>
+                </li>
+                <li>
+                    {{#hasToken}}
+                        <a class="replace-codes-link">{{#t}}Replace recovery codes{{/t}}</a>
+                    {{/hasToken}}
+                </li>
+            </ul>
+            <div class="button-row">
+                <button class="settings-button primary-button totp-refresh" title="{{ lastCheckedTime }}">{{#t}}Refresh Status{{/t}}</button>
+                <button class="settings-button cancel secondary-button enabled totp-cancel">{{#t}}Cancel{{/t}}</button>
+            </div>
+        </div>
+
+        <form novalidate>
+            <div id="totp" class="totp-details hidden">
+                <div class="qr-image-container">
+                    <img class="qr-image" alt="{{ qrImageAltText }}"/>
+                </div>
+
+                <p class="setup-description">
+                    {{#t}}Scan the QR code in your authentication app and then enter the security code it provides.{{/t}}
+                    <a href="#" class="show-code-link">{{#t}}Can’t scan code?{{/t}}</a>
+                </p>
+
+                <div class="manual-code hidden">
+                    <p class="setup-description">{{#t}}Manually enter this secret key into your authentication app:{{/t}}</p>
+                    <div class="code"></div>
+                </div>
+
+                <div class="input-row">
+                    <input type="number" pattern="\d*" class="tooltip-below totp-code" placeholder="{{#t}}Security code{{/t}}" value="{{ code }}" required autofocus autocomplete="off"/>
+                </div>
+
+                <div class="button-row">
+                    <button type="submit" class="settings-button primary-button totp-confirm-code">{{#t}}Confirm{{/t}}</button>
+                    <button class="settings-button cancel secondary-button enabled totp-cancel">{{#t}}Cancel{{/t}}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
