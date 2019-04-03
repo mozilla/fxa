@@ -35,6 +35,44 @@ export default {
 
     this._boundBlockerClick = this.onBlockerClick.bind(this);
     $('.blocker').on('click', this._boundBlockerClick);
+
+    /**
+     * Trap keyboard focus when modal opens.
+     */
+    const modal = this.$el[0];
+
+    modal.addEventListener('keydown', tabClick);
+
+    const focusableElementsList = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex="0"], [autofocus]';
+    let focusableElements = modal.querySelectorAll(focusableElementsList);
+
+    focusableElements = Array.prototype.slice.call(focusableElements);
+
+    const firstSelectable = focusableElements[0];
+    const lastSelectable = focusableElements[focusableElements.length - 1];
+
+    firstSelectable.focus();
+
+    function tabClick(event) {
+      //avoid IME composition keydown events
+      //refer: https://developer.mozilla.org/docs/Web/Events/keydown#Notes
+      if (event.isComposing || event.keyCode === 229) {
+        return;
+      }
+      if (event.keyCode  === 9) {
+        if (event.shiftKey) {
+          if (document.activeElement === firstSelectable) {
+            event.preventDefault();
+            lastSelectable.focus();
+          }
+        } else {
+          if (document.activeElement === lastSelectable) {
+            event.preventDefault();
+            firstSelectable.focus();
+          }
+        }
+      }
+    }
   },
 
   /**
