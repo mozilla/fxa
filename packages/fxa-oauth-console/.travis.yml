@@ -1,7 +1,7 @@
 language: node_js
 
 addons:
-  firefox: "39.0"
+  firefox: "66.0"
 
 sudo: false
 
@@ -9,8 +9,7 @@ before_install:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
 
-node_js:
-  - '4'
+node_js: '10'
 
 script:
   - npm i

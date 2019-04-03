@@ -20,13 +20,12 @@ var fs = require('fs');
 var path = require('path');
 var util = require('util');
 var child_process = require('child_process');
-var Promise = require('bluebird');
 var logger = require('mozlog')('server.ver.json');
 
 var version = require('../../package.json').version;
 
 function getCommitHashFromVersionJson() {
-  return Promise.attempt(function () {
+  return new Promise((resolve, reject) => {
     var configFile = path.join(__dirname, '..', '..', 'config', 'version.json');
 
     if (fs.existsSync(configFile)) {
@@ -36,8 +35,9 @@ function getCommitHashFromVersionJson() {
       } catch (e) {
         logger.error('could not read version.hash from version.json');
       }
-      return commitHash;
+      return resolve(commitHash);
     }
+    resolve()
   });
 }
 
@@ -49,16 +49,18 @@ function getGitDir() {
 }
 
 function getCommitHashFromGit() {
-  var deferred = Promise.defer();
+  return new Promise((resolve, reject) => {
+    var gitDir = getGitDir();
+    var cmd = util.format('git %s rev-parse HEAD', gitDir ? '--git-dir=' + gitDir : '');
 
-  var gitDir = getGitDir();
-  var cmd = util.format('git %s rev-parse HEAD', gitDir ? '--git-dir=' + gitDir : '');
-
-  child_process.exec(cmd, function (err, stdout) { //eslint-disable-line handle-callback-err
-    deferred.resolve(stdout.replace(/\s+/, ''));
+    child_process.exec(cmd, function (err, stdout) { //eslint-disable-line handle-callback-err
+      if (err) {
+        reject(err);
+      } else {
+        resolve(stdout.replace(/\s+/, ''));
+      }
+    });
   });
-
-  return deferred.promise;
 }
 
 
@@ -86,6 +88,8 @@ function getVersionInfo() {
         version: version,
         commit: commitHash
       };
+    }, (err) => {
+      logger.error('error.git-commit', { err: err })
     });
 
   return promise;

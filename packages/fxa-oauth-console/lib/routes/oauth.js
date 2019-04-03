@@ -6,7 +6,6 @@
 var express = require('express');
 var crypto = require('crypto');
 var request = require('request');
-var Promise = require('bluebird');
 
 var router = express.Router();
 var redirectUrl = require('./lib/oauth').redirectUrl;
@@ -101,7 +100,6 @@ router.get('/redirect', function (req, res) {
       if (err) {
         return res.send(r.status, err);
       }
-
       log.verbose(err, body);
       req.session.scope = body.scope;
       req.session.token_type = body.token_type;
@@ -114,7 +112,7 @@ router.get('/redirect', function (req, res) {
 
           return activateDeveloper(token);
         })
-        .done(
+        .then(
           function (developer) {
             // only allow login if developer id is available
             if (developer && developer.developerId && profile.email) {

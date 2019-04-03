@@ -56,7 +56,7 @@ export default DS.RESTAdapter.extend({
    */
   findRecord: function(store, type, id, record) {
     // post process the resuld of 'findRecord'. Need to add the Model type 'client' into the response
-    return this.ajax(this.buildURL(type.modelName, id, record), 'GET').then(function (resp) {
+    return this.ajax(this.buildURL(type.modelName, id, record, 'findRecord'), 'GET').then(function (resp) {
       return { client: resp };
     });
   },
@@ -77,9 +77,8 @@ export default DS.RESTAdapter.extend({
     delete data.secret;
 
     data.redirect_uri = fixUpRedirectUri(data.redirect_uri); //eslint-disable-line camelcase
-
     // post process the result of 'find'. Need to add the Model type 'client' into the response
-    return this.ajax(this.buildURL(type.modelName, null, record), 'POST', { data: data })
+    return this.ajax(this.buildURL(type.modelName, null, record, 'createRecord'), 'POST', { data: data })
       .then(
         (resp) => {
           return { client: resp };
@@ -109,7 +108,7 @@ export default DS.RESTAdapter.extend({
     data.redirect_uri = fixUpRedirectUri(data.redirect_uri); //eslint-disable-line camelcase
 
     // set POST instead of PUT
-    return this.ajax(this.buildURL(type.modelName, id, record), 'POST', { data: data })
+    return this.ajax(this.buildURL(type.modelName, id, record, 'updateRecord'), 'POST', { data: data })
       .then(
         () => {
           data.id = id;
@@ -129,16 +128,24 @@ export default DS.RESTAdapter.extend({
    * @param record
    * @returns {Array}
    */
-  buildURL: function(type, id, record) {
+  buildURL: function(type, id, record, requestType) {
     var url = [];
     var host = this.host;
     var prefix = this.urlPrefix();
 
-    // FxA OAuth API requires singular 'client' when the record id is set
-    if (record) {
+    switch (requestType) {
+    case 'createRecord':
+    // expect fallthrough
+    case 'deleteRecord':
+    // expect fallthrough
+    case 'findRecord':
+    // expect fallthrough
+    case 'updateRecord':
       url.push('client');
-    } else {
+      break;
+    default:
       url.push('clients');
+      break;
     }
 
     if (id && !Ember.isArray(id)) {
