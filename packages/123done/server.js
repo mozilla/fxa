@@ -1,16 +1,17 @@
-var express       = require('express'),
-  sessions      = require('client-sessions'),
-  redis         = require('redis'),
-  fonts         = require('connect-fonts'),
-  font_opensans = require('connect-fonts-opensans'),
-  font_alegreyasans = require('connect-fonts-alegreyasans'),
-  url           = require('url'),
-  oauth         = require('./oauth'),
-  config        = require('./config');
+const express = require('express');
+const morgan = require('morgan');
+const path = require('path');
+const redis = require('redis');
+const sessions = require('client-sessions');
 
+
+const oauth         = require('./oauth');
+const config        = require('./config');
+
+const logger = morgan('short');
 
 // create a connection to the redis datastore
-var db = redis.createClient();
+let db = redis.createClient();
 
 db.on('error', function (err) { // eslint-disable-line handle-callback-err
   db = null;
@@ -18,28 +19,12 @@ db.on('error', function (err) { // eslint-disable-line handle-callback-err
               ' this is just fine for local dev');
 });
 
-var app = express();
+const app = express();
 
 app.use(
-  express.logger(),
-  express.bodyParser()
+  logger,
+  express.json()
 );
-
-//app.use(require('./retarget.js'));
-
-var allowOrigin = '*';
-try {
-  // a bit of a dirty hack. Use the redirect_uri to find
-  // out what this server's public host is.
-  allowOrigin = url.parse(config.redirect_uri).host;
-} catch(e) {
-}
-
-app.use(fonts.setup({
-  allow_origin: allowOrigin,
-  ua: 'all',
-  fonts: [ font_opensans, font_alegreyasans ]
-}));
 
 app.use(function (req, res, next) {
   if (/^\/api/.test(req.url)) {
@@ -110,7 +95,7 @@ app.get('/api/todos/get', checkAuth, function(req, res) {
     });
   } else {
     res.send('[{"v": "Install redis locally for persistent storage, if I want to"}]',
-             { 'Content-Type': 'application/json' }, 200);
+      { 'Content-Type': 'application/json' }, 200);
   }
 });
 
@@ -119,7 +104,9 @@ app.get(/^\/iframe(:?\/(?:index.html)?)?$/, function (req, res, next) {
   next();
 });
 
-app.use(express.static(__dirname + '/static'));
-var port = process.env['PORT'] || config.port || 8080;
+
+app.use(express.static(path.join(__dirname, 'static')));
+
+const port = process.env['PORT'] || config.port || 8080;
 app.listen(port, '0.0.0.0');
 console.log('123done started on port', port); //eslint-disable-line no-console
