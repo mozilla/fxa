@@ -105,6 +105,19 @@ input {
   font-weight: inherit;
 }
 
+button.link {
+  color: $link-color-default;
+  font-size: 14px;
+  height: 20px;
+  justify-content: left;
+  letter-spacing: 0;
+  width: auto;
+}
+
+button.link:hover {
+  text-decoration: underline;
+}
+
 input[type='radio'] {
     @include font();
     // autoprefixer does not handle appearance, see https://github.com/ai/autoprefixer/issues/205
