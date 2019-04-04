@@ -12,8 +12,8 @@ const mysqlServer = {
 
 const authserverMysql = {
   "name": "auth-server db mysql PORT 8000",
-  "script": "_scripts/auth_mysql.sh",
-  "cwd": "fxa-auth-db-mysql",
+  "script": "../../_scripts/auth_mysql.sh",
+  "cwd": "packages/fxa-auth-db-mysql",
   "env": {
     "NODE_ENV": "dev"
   },
@@ -31,12 +31,12 @@ servers.apps.forEach((app) => {
 
   if(app.cwd === 'packages/fxa-auth-server/fxa-oauth-server') {
     app.env.DB = 'mysql';
-    app.script = '_scripts/oauth_mysql.sh';
+    app.script = '../../../_scripts/oauth_mysql.sh';
   }
 
   if(app.cwd === 'packages/fxa-profile-server' && app.script === 'bin/server.js'){
     app.env.DB = 'mysql';
-    app.script = '_scripts/profile_mysql.sh';
+    app.script = '../../_scripts/profile_mysql.sh';
   }
 
   if(app.script === '_scripts/pushbox_db.sh') {

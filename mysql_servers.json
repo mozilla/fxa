@@ -8,7 +8,7 @@
     },
     {
       "name": "auth-server db mysql PORT 8000",
-      "script": "_scripts/auth_mysql.sh",
+      "script": "../../_scripts/auth_mysql.sh",
       "cwd": "packages/fxa-auth-db-mysql",
       "env": {
         "NODE_ENV": "dev"
@@ -69,7 +69,7 @@
     },
     {
       "name": "oauth-server PORT 9010",
-      "script": "_scripts/oauth_mysql.sh",
+      "script": "../../../_scripts/oauth_mysql.sh",
       "cwd": "packages/fxa-auth-server/fxa-oauth-server",
       "env": {
         "NODE_ENV": "dev",
@@ -81,7 +81,7 @@
     },
     {
       "name": "profile-server PORT 1111",
-      "script": "_scripts/profile_mysql.sh",
+      "script": "../../_scripts/profile_mysql.sh",
       "cwd": "packages/fxa-profile-server",
       "max_restarts": "1",
       "env": {
