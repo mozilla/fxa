@@ -11,15 +11,13 @@
 
 #loading-avatar-spinner img {
   animation: 0.9s spin infinite linear;
-  display: block;
-  height: 36px;
-  margin: 130px auto 0;
+  display: inline-block;
+  height: $avatar-size;
+  margin: 0 0 5px;
   overflow: hidden;
   position: relative;
-  text-indent: 100%;
-  top: -50px;
   white-space: nowrap;
-  width: 36px;
+  width: $avatar-size;
 }
 
 .spinner {
