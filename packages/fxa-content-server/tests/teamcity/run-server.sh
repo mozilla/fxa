@@ -60,9 +60,9 @@ else
 fi
 echo "GIT_COMMIT          $GIT_COMMIT"
 
-WORKDIR=fxa-content-server-"$FXA_TEST_NAME"-server
+WORKDIR=fxa-"$FXA_TEST_NAME"-server/packages/fxa-content-server
 rm -rf "$WORKDIR"
-git clone https://github.com/mozilla/fxa-content-server.git -b master "$WORKDIR"
+git clone https://github.com/mozilla/fxa.git -b master "$WORKDIR"
 cd "$WORKDIR"
 git checkout $GIT_COMMIT
 git show --summary
