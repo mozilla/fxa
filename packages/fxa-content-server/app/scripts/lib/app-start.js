@@ -31,14 +31,12 @@ import FxaClient from './fxa-client';
 import HeightObserver from './height-observer';
 import IframeChannel from './channels/iframe';
 import InterTabChannel from './channels/inter-tab';
-import MarketingEmailClient from './marketing-email-client';
 import Metrics from './metrics';
 import Notifier from './channels/notifier';
 import NullChannel from './channels/null';
 import OAuthClient from './oauth-client';
 import OAuthRelier from '../models/reliers/oauth';
 import p from './promise';
-import ProfileClient from './profile-client';
 import RefreshObserver from '../models/refresh-observer';
 import Relier from '../models/reliers/relier';
 import Router from './router';
@@ -125,10 +123,6 @@ Start.prototype = {
       .then(() => this.initializeMetrics())
       // assertionLibrary depends on fxaClient
       .then(() => this.initializeAssertionLibrary())
-      // profileClient depends on fxaClient and assertionLibrary
-      .then(() => this.initializeProfileClient())
-      // marketingEmailClient depends on config
-      .then(() => this.initializeMarketingEmailClient())
       // broker relies on the relier, fxaClient,
       // assertionLibrary, and metrics
       .then(() => this.initializeAuthenticationBroker())
@@ -232,19 +226,6 @@ Start.prototype = {
   initializeOAuthClient () {
     this._oAuthClient = new OAuthClient({
       oAuthUrl: this._config.oAuthUrl
-    });
-  },
-
-  initializeProfileClient () {
-    this._profileClient = new ProfileClient({
-      profileUrl: this._config.profileUrl
-    });
-  },
-
-  initializeMarketingEmailClient () {
-    this._marketingEmailClient = new MarketingEmailClient({
-      baseUrl: this._config.marketingEmailServerUrl,
-      preferencesUrl: this._config.marketingEmailPreferencesUrl
     });
   },
 
@@ -394,13 +375,12 @@ Start.prototype = {
     if (! this._user) {
       const user = this._user = new User({
         assertion: this._assertionLibrary,
+        config: this._config,
         fxaClient: this._fxaClient,
-        marketingEmailClient: this._marketingEmailClient,
         metrics: this._metrics,
         notifier: this._notifier,
         oAuthClient: this._oAuthClient,
         oAuthClientId: this._config.oAuthClientId,
-        profileClient: this._profileClient,
         sentryMetrics: this._sentryMetrics,
         storage: this._getUserStorageInstance(),
         uniqueUserId: this._getUniqueUserId()

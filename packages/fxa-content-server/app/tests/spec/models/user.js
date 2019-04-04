@@ -20,6 +20,9 @@ const sinon = require('sinon');
 const Storage = require('lib/storage');
 const User = require('models/user');
 const WebSession = require('models/web-session');
+const ProfileClient = require('lib/profile-client');
+const MarketingEmailClient = require('lib/marketing-email-client');
+
 
 const CODE = 'verification code';
 const EMAIL = 'a@a.com';
@@ -66,6 +69,13 @@ describe('models/user', function () {
 
   afterEach(function () {
     user = null;
+  });
+
+  describe('initialize', function () {
+    it('ensure profileClient and marketingEmailClient are created', function () {
+      assert.instanceOf(user._profileClient, ProfileClient, 'profileClient is created');
+      assert.instanceOf(user._marketingEmailClient, MarketingEmailClient, 'marketingEmailClient is created');
+    });
   });
 
   describe('initAccount', function () {
