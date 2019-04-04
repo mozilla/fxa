@@ -235,6 +235,13 @@ bump() {
     mv "$1/CHANGELOG.md.release.bak" "$1/CHANGELOG.md"
   fi
 
+  # Clear summaries before the next iteration
+  FEAT_SUMMARY=""
+  FIX_SUMMARY=""
+  PERF_SUMMARY=""
+  REFACTOR_SUMMARY=""
+  OTHER_SUMMARY=""
+
   # 8.4. If package.json exists, uppdate the version string in package.json.
   if [ -f "$1/package.json" ]; then
     sed -i.release.bak -e "s/$SED_FRIENDLY_LAST_VERSION/$NEW_VERSION/g" "$1/package.json"
