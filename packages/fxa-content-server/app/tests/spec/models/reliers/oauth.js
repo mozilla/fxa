@@ -44,17 +44,17 @@ describe('models/reliers/oauth', () => {
   var CODE_CHALLENGE = 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM';
   var CODE_CHALLENGE_METHOD = 'S256';
   const ACR_VALUES = 'AAL1';
-
-  var RESUME_INFO = {
-    access_type: ACCESS_TYPE,
-    action: ACTION,
-    client_id: CLIENT_ID,
-    redirect_uri: QUERY_REDIRECT_URI,
-    scope: SCOPE,
-    state: STATE
-  };
+  let RESUME_INFO;
 
   beforeEach(() => {
+    RESUME_INFO = {
+      access_type: ACCESS_TYPE,
+      action: ACTION,
+      client_id: CLIENT_ID,
+      redirect_uri: QUERY_REDIRECT_URI,
+      scope: SCOPE,
+      state: STATE
+    };
     isTrusted = false;
     oAuthClient = new OAuthClient();
     windowMock = new WindowMock();
@@ -190,6 +190,29 @@ describe('models/reliers/oauth', () => {
             assert.equal(relier.get('service'), CLIENT_ID);
             assert.equal(relier.get('scope'), SCOPE);
             assert.equal(relier.get('accessType'), ACCESS_TYPE);
+          });
+      });
+
+      it('populates PKCE params from Session if verifying in the same tab', () => {
+        windowMock.location.search = TestHelpers.toSearchString({
+          client_id: CLIENT_ID,
+          code: '123',
+          redirect_uri: QUERY_REDIRECT_URI
+        });
+        RESUME_INFO.code_challenge = CODE_CHALLENGE;
+        RESUME_INFO.code_challenge_method = CODE_CHALLENGE_METHOD;
+        Session.set('oauth', RESUME_INFO);
+
+        return relier.fetch()
+          .then(() => {
+            assert.equal(relier.get('state'), STATE);
+            // both clientId and service are populated from the stored info.
+            assert.equal(relier.get('clientId'), CLIENT_ID);
+            assert.equal(relier.get('service'), CLIENT_ID);
+            assert.equal(relier.get('scope'), SCOPE);
+            assert.equal(relier.get('accessType'), ACCESS_TYPE);
+            assert.equal(relier.get('codeChallenge'), CODE_CHALLENGE);
+            assert.equal(relier.get('codeChallengeMethod'), CODE_CHALLENGE_METHOD);
           });
       });
 
