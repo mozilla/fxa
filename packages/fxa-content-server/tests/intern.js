@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const fs = require('fs');
 const intern = require('intern').default;
 const args = require('yargs').argv;
 const firefoxProfile = require('./tools/firefox_profile');
@@ -132,6 +133,20 @@ config.capabilities['moz:firefoxOptions'].profile = firefoxProfile(config); //es
 if (args.firefoxBinary) {
   config.capabilities['moz:firefoxOptions'].binary = args.firefoxBinary; //eslint-disable-line camelcase
 }
+
+const failed = [];
+
+intern.on('testEnd', test => {
+  if (test.error) {
+    failed.push(test);
+  }
+});
+
+intern.on('afterRun', () => {
+  if (failed.length) {
+    fs.writeFileSync('rerun.txt', failed.map(f => f.name).join('|'));
+  }
+});
 
 intern.configure(config);
 intern.run()
