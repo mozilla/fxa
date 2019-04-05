@@ -10,9 +10,17 @@
     @include respond-to('compressedLandscape') {
       margin: 0 auto;
     }
+    @include respond-to('small') {
+      margin: 0 auto;
+      text-align: center;
+      width: auto;
+    }
 
     img {
       position: absolute;
+      @include respond-to('small') {
+        left: (420 - $avatar-size) / 6   !important;
+      }
     }
   }
 
@@ -43,6 +51,10 @@
 
     &::after {
       right: -(420 - $avatar-size) / 2;
+    }
+    @include respond-to('small') {
+      display: inline-block;
+      left: 0;
     }
   }
 
