@@ -1,3 +1,8 @@
+## 1.134.2
+
+No changes.
+
+
 <a name="1.134.0"></a>
 # [1.134.0](https://github.com/mozilla/fxa-content-server/compare/v1.133.0...v1.134.0) (2019-04-02)
 
