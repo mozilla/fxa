@@ -256,10 +256,14 @@ workflows:
           filters:
             tags:
               only: /.*/
+            branches:
+              ignore: /.*/
       - deploy-module:
           filters:
             tags:
               only: /.*/
+            branches:
+              ignore: /.*/
           name: 123done
           module: 123done
           requires:
@@ -268,6 +272,8 @@ workflows:
           filters:
             tags:
               only: /.*/
+            branches:
+              ignore: /.*/
           name: browserid-verifier
           module: browserid-verifier
           requires:
@@ -276,6 +282,8 @@ workflows:
           filters:
             tags:
               only: /.*/
+            branches:
+              ignore: /.*/
           name: fxa-auth-db-mysql
           module: fxa-auth-db-mysql
           requires:
@@ -284,6 +292,8 @@ workflows:
           filters:
             tags:
               only: /.*/
+            branches:
+              ignore: /.*/
           name: fxa-auth-server
           module: fxa-auth-server
           requires:
@@ -292,6 +302,8 @@ workflows:
           filters:
             tags:
               only: /.*/
+            branches:
+              ignore: /.*/
           name: fxa-basket-proxy
           module: fxa-basket-proxy
           requires:
@@ -300,6 +312,8 @@ workflows:
           filters:
             tags:
               only: /.*/
+            branches:
+              ignore: /.*/
           name: fxa-customs-server
           module: fxa-customs-server
           requires:
@@ -308,6 +322,8 @@ workflows:
           filters:
             tags:
               only: /.*/
+            branches:
+              ignore: /.*/
           name: fxa-email-service
           module: fxa-email-service
           requires:
@@ -316,6 +332,8 @@ workflows:
           filters:
             tags:
               only: /.*/
+            branches:
+              ignore: /.*/
           name: fxa-oauth-console
           module: fxa-oauth-console
           requires:
@@ -324,6 +342,8 @@ workflows:
           filters:
             tags:
               only: /.*/
+            branches:
+              ignore: /.*/
           name: fxa-profile-server
           module: fxa-profile-server
           requires:
@@ -332,6 +352,8 @@ workflows:
           filters:
             tags:
               only: /.*/
+            branches:
+              ignore: /.*/
           name: fxa-content-server
           module: fxa-content-server
           requires:
@@ -340,5 +362,7 @@ workflows:
           filters:
             tags:
               only: /.*/
+            branches:
+              ignore: /.*/
           requires:
             - install
