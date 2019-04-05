@@ -235,6 +235,13 @@ bump() {
     mv "$1/CHANGELOG.md.release.bak" "$1/CHANGELOG.md"
   fi
 
+  # Clear summaries before the next iteration
+  FEAT_SUMMARY=""
+  FIX_SUMMARY=""
+  PERF_SUMMARY=""
+  REFACTOR_SUMMARY=""
+  OTHER_SUMMARY=""
+
   # 8.4. If package.json exists, uppdate the version string in package.json.
   if [ -f "$1/package.json" ]; then
     sed -i.release.bak -e "s/$SED_FRIENDLY_LAST_VERSION/$NEW_VERSION/g" "$1/package.json"
@@ -303,7 +310,9 @@ if [ "$PRIVATE_BRANCH_EXISTS" = "" ]; then
 
   PRIVATE_REMOTE_BRANCH_EXISTS=`git branch -r | awk '{$1=$1};1' | grep "^$PRIVATE_REMOTE_BRANCH\$"` || true
   if [ "$PRIVATE_REMOTE_BRANCH_EXISTS" = "" ]; then
+    echo "Warning: $PRIVATE_BRANCH branch not found on local or remote, creating one from $PRIVATE_REMOTE/master."
     git checkout --no-track -b "$PRIVATE_BRANCH" "$PRIVATE_REMOTE/master" > /dev/null 2>&1
+    git pull "$PRIVATE_REMOTE" master > /dev/null 2>&1
   else
     git checkout --track -b "$PRIVATE_BRANCH" "$PRIVATE_REMOTE_BRANCH" > /dev/null 2>&1
   fi
