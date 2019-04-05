@@ -271,7 +271,9 @@ module.exports = BaseAuthenticationBroker.extend({
       this.session.set('oauth', {
         access_type: relier.get('access_type'), //eslint-disable-line camelcase
         action: relier.get('action'),
-        client_id: relier.get('clientId'), //eslint-disable-line camelcase
+        client_id: relier.get('clientId'), //eslint-disable-line camelcase,
+        code_challenge: relier.get('codeChallenge'), //eslint-disable-line camelcase
+        code_challenge_method: relier.get('codeChallengeMethod'), //eslint-disable-line camelcase
         keys: relier.get('keys'),
         scope: relier.get('scope'),
         state: relier.get('state')

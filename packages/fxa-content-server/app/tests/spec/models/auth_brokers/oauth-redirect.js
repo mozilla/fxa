@@ -38,7 +38,7 @@ const REDIRECT_URI = 'https://127.0.0.1:8080';
 const VALID_OAUTH_CODE = generateOAuthCode();
 const VALID_OAUTH_CODE_REDIRECT_URL = `${REDIRECT_URI}?code=${VALID_OAUTH_CODE}&state=state`;
 
-describe('models/auth_brokers/redirect', () => {
+describe('models/auth_brokers/oauth-redirect', () => {
   var account;
   var assertionLibrary;
   var broker;
@@ -329,6 +329,37 @@ describe('models/auth_brokers/redirect', () => {
       return broker.persistVerificationData(account)
         .then(function () {
           assert.ok(!! Session.oauth);
+          assert.isTrue(broker.isOriginalTab());
+        });
+    });
+
+    it('persists PKCE params for same tab verification', () => {
+      const CODE_CHALLENGE = 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM';
+      const CODE_CHALLENGE_METHOD = 'S256';
+
+      relier.set({
+        action: 'action',
+        clientId: 'clientId',
+        codeChallenge: CODE_CHALLENGE,
+        codeChallengeMethod: CODE_CHALLENGE_METHOD,
+        redirectUri: REDIRECT_URI,
+        scope: 'scope',
+        state: 'state'
+      });
+
+      broker = new RedirectAuthenticationBroker({
+        assertionLibrary: assertionLibrary,
+        metrics: metrics,
+        oAuthClient: oAuthClient,
+        relier: relier,
+        session: Session,
+        window: windowMock
+      });
+
+      return broker.persistVerificationData(account)
+        .then(() => {
+          assert.equal(Session.oauth.code_challenge, CODE_CHALLENGE);
+          assert.equal(Session.oauth.code_challenge_method, CODE_CHALLENGE_METHOD);
           assert.isTrue(broker.isOriginalTab());
         });
     });
