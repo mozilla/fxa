@@ -52,15 +52,6 @@ like so:
 npm run build
 ```
 
-## Tagging releases
-
-```
-git tag -a v1.$TRAIN.$PATCH
-git push origin v1.$TRAIN.$PATCH
-```
-
-This will kick off a build [in CircleCI](https://circleci.com/gh/mozilla/fxa-email-event-proxy).
-
 ## Setting up Lambda
 
 1. Run `npm run build`
