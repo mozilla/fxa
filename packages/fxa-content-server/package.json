@@ -74,7 +74,6 @@
     "grunt-contrib-cssmin": "3.0.0",
     "grunt-contrib-htmlmin": "2.4.0",
     "grunt-file-rev": "1.0.2",
-    "grunt-githash": "0.1.3",
     "grunt-po2json": "git://github.com/shane-tomlinson/grunt-po2json.git#2f415c8",
     "grunt-remarkable": "1.1.0",
     "grunt-sri": "0.0.5",
