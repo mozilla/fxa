@@ -1,3 +1,8 @@
+## 1.134.2
+
+No changes.
+
+
 <a name="1.133.1"></a>
 ## [1.133.1](https://github.com/mozilla/fxa-auth-db-mysql/compare/v1.133.0...v1.133.1) (2019-03-19)
 
