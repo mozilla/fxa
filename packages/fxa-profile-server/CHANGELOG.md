@@ -1,3 +1,8 @@
+## 1.134.2
+
+No changes.
+
+
 <a name="1.133.0"></a>
 # [1.133.0](https://github.com/mozilla/fxa-profile-server/compare/v1.132.0...v1.133.0) (2019-03-19)
 

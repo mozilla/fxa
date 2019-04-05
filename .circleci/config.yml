@@ -256,58 +256,89 @@ workflows:
           filters:
             tags:
               only: /.*/
-            branches:
-              ignore: /.*/
       - deploy-module:
+          filters:
+            tags:
+              only: /.*/
           name: 123done
           module: 123done
           requires:
             - install
       - deploy-module:
+          filters:
+            tags:
+              only: /.*/
           name: browserid-verifier
           module: browserid-verifier
           requires:
             - install
       - deploy-module:
+          filters:
+            tags:
+              only: /.*/
           name: fxa-auth-db-mysql
           module: fxa-auth-db-mysql
           requires:
             - install
       - deploy-module:
+          filters:
+            tags:
+              only: /.*/
           name: fxa-auth-server
           module: fxa-auth-server
           requires:
             - install
       - deploy-module:
+          filters:
+            tags:
+              only: /.*/
           name: fxa-basket-proxy
           module: fxa-basket-proxy
           requires:
             - install
       - deploy-module:
+          filters:
+            tags:
+              only: /.*/
           name: fxa-customs-server
           module: fxa-customs-server
           requires:
             - install
       - deploy-module:
+          filters:
+            tags:
+              only: /.*/
           name: fxa-email-service
           module: fxa-email-service
           requires:
             - install
       - deploy-module:
+          filters:
+            tags:
+              only: /.*/
           name: fxa-oauth-console
           module: fxa-oauth-console
           requires:
             - install
       - deploy-module:
+          filters:
+            tags:
+              only: /.*/
           name: fxa-profile-server
           module: fxa-profile-server
           requires:
             - install
       - deploy-module:
+          filters:
+            tags:
+              only: /.*/
           name: fxa-content-server
           module: fxa-content-server
           requires:
             - install
       - fxa-oauth-server:
+          filters:
+            tags:
+              only: /.*/
           requires:
             - install
