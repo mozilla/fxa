@@ -9,9 +9,8 @@
     "test": "test"
   },
   "scripts": {
-    "bump-template-versions": "node scripts/template-version-bump --silent && git add lib/senders/templates/_versions.json",
+    "bump-template-versions": "node scripts/template-version-bump",
     "lint:deps": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
-    "precommit": "npm run bump-template-versions",
     "postinstall": "scripts/download_l10n.sh",
     "shrink": "npmshrink && npm run postinstall",
     "start": "NODE_ENV=dev scripts/start-local.sh 2>&1",
@@ -108,7 +107,6 @@
     "grunt-eslint": "19.0.0",
     "grunt-newer": "1.2.0",
     "hawk": "7.0.7",
-    "husky": "0.14.3",
     "jsxgettext-recursive-next": "1.1.0",
     "jws": "3.1.5",
     "leftpad": "0.0.0",

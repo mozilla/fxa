@@ -7902,23 +7902,6 @@
       "resolved": "https://registry.npmjs.org/https-browserify/-/https-browserify-1.0.0.tgz",
       "integrity": "sha1-7AbBDgo0wPL68Zn3/X/Hj//QPHM="
     },
-    "husky": {
-      "version": "0.11.4",
-      "resolved": "https://registry.npmjs.org/husky/-/husky-0.11.4.tgz",
-      "integrity": "sha1-HQlcanBiQvRnHG9sq04ASP1kZCA=",
-      "dev": true,
-      "requires": {
-        "normalize-path": "^1.0.0"
-      },
-      "dependencies": {
-        "normalize-path": {
-          "version": "1.0.0",
-          "resolved": "https://registry.npmjs.org/normalize-path/-/normalize-path-1.0.0.tgz",
-          "integrity": "sha1-MtDkcvkf80VwHBWoMRAY07CpA3k=",
-          "dev": true
-        }
-      }
-    },
     "i18n-abide": {
       "version": "0.0.26",
       "resolved": "https://registry.npmjs.org/i18n-abide/-/i18n-abide-0.0.26.tgz",
