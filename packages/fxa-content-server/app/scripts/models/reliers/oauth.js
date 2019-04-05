@@ -43,6 +43,8 @@ var VERIFICATION_INFO_SCHEMA = {
   acr_values: Vat.string().renameTo('acrValues'),
   action: Vat.string().min(1),
   client_id: Vat.clientId().required().renameTo('clientId'),
+  code_challenge: Vat.codeChallenge().renameTo('codeChallenge'),
+  code_challenge_method: Vat.codeChallengeMethod().renameTo('codeChallengeMethod'),
   prompt: Vat.prompt(),
   redirect_uri: Vat.url().renameTo('redirectUri'),
   // scopes are optional when verifying, user could be verifying in a 2nd browser

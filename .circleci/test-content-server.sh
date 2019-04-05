@@ -26,6 +26,12 @@ function check() {
   exit 1
 }
 
+function test_suite() {
+  local suite=$1
+  node tests/intern.js --suites=${suite} --firefoxBinary=./firefox/firefox || \
+  node tests/intern.js --suites=${suite} --firefoxBinary=./firefox/firefox --grep=$(<rerun.txt)
+}
+
 if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
   sudo apt-get install -y python-setuptools python-dev build-essential graphicsmagick &> /dev/null
   sudo easy_install pip &> /dev/null
@@ -46,15 +52,15 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
   if [ -n "${PAIRING}" ]; then
     wget https://s3-us-west-2.amazonaws.com/fxa-dev-bucket/fenix-pair/desktop/7f10c7614e9fa46-target.tar.bz2
     mozinstall 7f10c7614e9fa46-target.tar.bz2
-    node tests/intern.js --suites=pairing --firefoxBinary=./firefox/firefox
+    test_suite pairing
 
     mozinstall firefox.tar.bz2
-    node tests/intern.js --suites=travis --firefoxBinary=./firefox/firefox
-    # node tests/intern.js --suites=server --firefoxBinary=./firefox/firefox
+    test_suite travis
+    # test_suite server
 
   else
     mozinstall firefox.tar.bz2
-    node ./tests/intern.js --suites=circle --firefoxBinary=./firefox/firefox
+    test_suite circle
   fi
 else
   exit 0;

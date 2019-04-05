@@ -129,7 +129,7 @@ jobs:
             - project/*
 
   test-content-server:
-    parallelism: 3
+    parallelism: 6
     docker:
       - image: circleci/node:10-stretch-browsers
       - image: redis
