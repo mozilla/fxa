@@ -1,3 +1,10 @@
+## 1.134.2
+
+### Bug fixes
+
+* scripts: ignore bouncing accounts in verification reminders (b11fe4127)
+
+
 <a name="1.134.0"></a>
 # [1.134.0](https://github.com/mozilla/fxa-auth-server/compare/v1.133.1...v1.134.0) (2019-04-02)
 
