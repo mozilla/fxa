@@ -15,7 +15,7 @@
 
 .graphic-checkbox {
   @include hidpi-background-image('graphic_checkbox', 150px 130px);
-
+  
   @include respond-to('small') {
     background-size: 120px 104px;
   }
