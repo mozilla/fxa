@@ -605,7 +605,7 @@ module.exports = function (log, error) {
   //          passwordForgotTokens, accounts, devices, deviceCommands, unverifiedTokens,
   //          emails, signinCodes, totp
   // Where  : uid = $1
-  var DELETE_ACCOUNT = 'CALL deleteAccount_16(?)'
+  var DELETE_ACCOUNT = 'CALL deleteAccount_17(?)'
 
   MySql.prototype.deleteAccount = function (uid) {
     return this.write(DELETE_ACCOUNT, [uid])
@@ -1610,6 +1610,40 @@ module.exports = function (log, error) {
       .then(() => {
         return {}
       })
+  }
+
+  const CREATE_ACCOUNT_SUBSCRIPTION = 'CALL createAccountSubscription_1(?,?,?,?)'
+  MySql.prototype.createAccountSubscription = function (uid, subscriptionId, productName, createdAt) {
+    return this.write(CREATE_ACCOUNT_SUBSCRIPTION, [
+      uid,
+      subscriptionId,
+      productName,
+      createdAt
+    ]).then(
+      result => ({}),
+      err => {
+        if (err.errno === ER_SIGNAL_NOT_FOUND) {
+          throw error.notFound()
+        }
+        throw err
+      }
+    )
+  }
+
+  const GET_ACCOUNT_SUBSCRIPTION = 'CALL getAccountSubscription_1(?,?)'
+  MySql.prototype.getAccountSubscription = function (uid, subscriptionId) {
+    return this.readFirstResult(GET_ACCOUNT_SUBSCRIPTION, [ uid, subscriptionId ])
+  }
+
+  const FETCH_ACCOUNT_SUBSCRIPTIONS = 'CALL fetchAccountSubscriptions_1(?)'
+  MySql.prototype.fetchAccountSubscriptions = function (uid) {
+    return this.readAllResults(FETCH_ACCOUNT_SUBSCRIPTIONS, [ uid ])
+  }
+
+  const DELETE_ACCOUNT_SUBSCRIPTION = 'CALL deleteAccountSubscription_1(?,?)'
+  MySql.prototype.deleteAccountSubscription = function (uid, subscriptionId) {
+    return this.write(DELETE_ACCOUNT_SUBSCRIPTION, [ uid, subscriptionId ])
+      .then(result => ({}))
   }
 
   return MySql

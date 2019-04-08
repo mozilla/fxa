@@ -2597,6 +2597,163 @@ module.exports = function (config, DB) {
       })
     })
 
+    describe('account subscriptions', () => {
+      const subscriptionIds = [...Array(25)].map(() => 'sub-' + Math.random())
+      let account
+
+      beforeEach(async () => {
+        account = createAccount()
+        return db.createAccount(account.uid, account)
+      })
+
+      it('should create a new subscription for account', async () => {
+        const result =
+          await db.createAccountSubscription(account.uid, subscriptionIds[0], 'prod0', Date.now())
+        assert.deepEqual(result, {})
+      })
+
+      it('should fail to create for unknown account', async () => {
+        try {
+          await db.createAccountSubscription('12312312312', subscriptionIds[1], 'prod2', Date.now())
+          assert.fail()
+        } catch (err) {
+          assert.equal(err.errno, 116, 'not found')
+        }
+      })
+
+      it('should fail to create duplicate subscription id on the same account', async () => {
+        try {
+          await db.createAccountSubscription(account.uid, subscriptionIds[2], 'prod2', Date.now())
+          await db.createAccountSubscription(account.uid, subscriptionIds[2], 'prod3', Date.now())
+          assert.fail()
+        } catch (err) {
+          assert.equal(err.errno, 101, 'conflict')
+        }
+      })
+
+      it('should fail to create duplicate subscription id across accounts', async () => {
+        try {
+          const account2 = createAccount()
+          await db.createAccount(account2.uid, account2)
+          await db.createAccountSubscription(account.uid, subscriptionIds[2], 'prod2', Date.now())
+          await db.createAccountSubscription(account2.uid, subscriptionIds[2], 'prod3', Date.now())
+          assert.fail()
+        } catch (err) {
+          assert.equal(err.errno, 101, 'conflict')
+        }
+      })
+
+      const pickSet = (list, name) => new Set(list.map(x => x[name]))
+
+      it('should support fetching all subscriptions', async () => {
+        await db.createAccountSubscription(account.uid, subscriptionIds[3], 'prod4', Date.now())
+        await db.createAccountSubscription(account.uid, subscriptionIds[4], 'prod5', Date.now())
+        await db.createAccountSubscription(account.uid, subscriptionIds[5], 'prod6', Date.now())
+
+        const result = await db.fetchAccountSubscriptions(account.uid)
+
+        assert.equal(result.length, 3)
+        assert.deepEqual(
+          pickSet(result, 'subscriptionId'),
+          new Set([ subscriptionIds[3], subscriptionIds[4], subscriptionIds[5] ])
+        )
+        assert.deepEqual(
+          pickSet(result, 'productName'),
+          new Set([ 'prod4', 'prod5', 'prod6' ])
+        )
+      })
+
+      it('should support deleting a subscription', async () => {
+        await db.createAccountSubscription(account.uid, subscriptionIds[6], 'prod4', Date.now())
+        await db.createAccountSubscription(account.uid, subscriptionIds[7], 'prod5', Date.now())
+        await db.createAccountSubscription(account.uid, subscriptionIds[8], 'prod6', Date.now())
+        await db.deleteAccountSubscription(account.uid, subscriptionIds[7])
+
+        const result = await db.fetchAccountSubscriptions(account.uid)
+
+        assert.equal(result.length, 2)
+        assert.deepEqual(
+          pickSet(result, 'subscriptionId'),
+          new Set([ subscriptionIds[6], subscriptionIds[8] ])
+        )
+        assert.deepEqual(
+          pickSet(result, 'productName'),
+          new Set([ 'prod4', 'prod6' ])
+        )
+      })
+
+      it('should not throw an error when subscription deletion is attempted for a non-existent subscription', async () => {
+        await db.createAccountSubscription(account.uid, subscriptionIds[12], 'prod4', Date.now())
+        await db.createAccountSubscription(account.uid, subscriptionIds[13], 'prod5', Date.now())
+        await db.createAccountSubscription(account.uid, subscriptionIds[14], 'prod6', Date.now())
+
+        await db.deleteAccountSubscription(account.uid, subscriptionIds[18])
+
+        const result = await db.fetchAccountSubscriptions(account.uid)
+
+        assert.equal(result.length, 3)
+        assert.deepEqual(
+          pickSet(result, 'subscriptionId'),
+          new Set([ subscriptionIds[12], subscriptionIds[13], subscriptionIds[14] ])
+        )
+        assert.deepEqual(
+          pickSet(result, 'productName'),
+          new Set([ 'prod4', 'prod5', 'prod6' ])
+        )
+      })
+
+      it('should not throw an error when subscription deletion is attempted twice', async () => {
+        await db.createAccountSubscription(account.uid, subscriptionIds[15], 'prod4', Date.now())
+        await db.createAccountSubscription(account.uid, subscriptionIds[16], 'prod5', Date.now())
+        await db.createAccountSubscription(account.uid, subscriptionIds[17], 'prod6', Date.now())
+
+        await db.deleteAccountSubscription(account.uid, subscriptionIds[16])
+        await db.deleteAccountSubscription(account.uid, subscriptionIds[16])
+
+        const result = await db.fetchAccountSubscriptions(account.uid)
+
+        assert.equal(result.length, 2)
+        assert.deepEqual(
+          pickSet(result, 'subscriptionId'),
+          new Set([ subscriptionIds[15], subscriptionIds[17] ])
+        )
+        assert.deepEqual(
+          pickSet(result, 'productName'),
+          new Set([ 'prod4', 'prod6' ])
+        )
+      })
+
+      it('should support fetching one subscription', async () => {
+        await db.createAccountSubscription(account.uid, subscriptionIds[9], 'prod7', Date.now())
+        const result = await db.getAccountSubscription(account.uid, subscriptionIds[9])
+        assert.equal(result.productName, 'prod7')
+      })
+
+      it('should fail to fetch a subscription that does not exist', async () => {
+        try {
+          await db.getAccountSubscription(account.uid, subscriptionIds[10])
+          assert.fail()
+        } catch (err) {
+          assert.equal(err.errno, 116, 'err.errno is correct')
+          assert.equal(err.code, 404, 'err.code is correct')
+        }
+      })
+
+      it('should fail to fetch an existing subscription for the wrong user', async () => {
+        const account2 = createAccount()
+        await db.createAccount(account2.uid, account2)
+        await db.createAccountSubscription(account.uid, subscriptionIds[11], 'prod2', Date.now())
+        try {
+          await db.getAccountSubscription(account2.uid, subscriptionIds[11])
+          assert.fail()
+        } catch (err) {
+          assert.equal(err.errno, 116, 'err.errno is correct')
+          assert.equal(err.code, 404, 'err.code is correct')
+        }
+      })
+
+    })
+
     after(() => db.close())
   })
 }
