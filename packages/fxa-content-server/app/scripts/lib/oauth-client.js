@@ -8,8 +8,6 @@ import xhr from './xhr';
 const CLIENT_TOKENS_API = '/v1/client-tokens';
 const DESTROY_TOKEN = '/v1/destroy';
 const GET_CLIENT = '/v1/client/';
-const GET_CODE = '/v1/authorization';
-const GET_CLIENT_KEY_DATA = '/v1/key-data';
 
 function normalizeErrors (xhr) {
   throw OAuthErrors.normalizeXHRError(xhr);
@@ -28,34 +26,8 @@ OAuthClient.prototype = {
       .catch(normalizeErrors);
   },
 
-  /**
-   *
-   * @param {Object} params
-   * @param {String} params.assertion
-   * @param {String} params.client_id
-   * @param {String} params.redirect_uri
-   * @param {String} params.scope
-   * @param {String} params.state
-   * @returns {Promise}
-   */
-  getCode: function getCode(params) {
-    return this._request('post', GET_CODE, params);
-  },
-
   getClientInfo: function getClientInfo(id) {
     return this._request('get', GET_CLIENT + id);
-  },
-
-  /**
-   *
-   * @param {Object} params
-   * @param {String} params.assertion
-   * @param {String} params.client_id
-   * @param {String} params.scope
-   * @returns {Promise}
-   */
-  getClientKeyData: function getClientKeyData(params) {
-    return this._request('post', GET_CLIENT_KEY_DATA, params);
   },
 
   /**
@@ -91,26 +63,6 @@ OAuthClient.prototype = {
 
     return this._xhr.oauthAjax(request)
       .catch(normalizeErrors);
-  },
-
-  /**
-   *
-   * @param {Object} params
-   * @param {String} params.assertion
-   * @param {String} params.client_id
-   * @param {String} params.scope
-   * @param {String} params.response_type
-   * @param {String} [params.ttl]
-   * @returns {Promise}
-   */
-  getToken (params = {}) {
-    // set authorization TTL to 5 minutes.
-    // Docs: github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#post-v1authorization
-    // Issue: #3982
-    params.ttl = params.ttl || '300';
-    // Use the special 'token' response type
-    params.response_type = 'token'; //eslint-disable-line camelcase
-    return this.getCode(params);
   },
 
   destroyToken: function destroyToken(token) {

@@ -4,7 +4,6 @@
 
 import Account from 'models/account';
 import { assert } from 'chai';
-import Assertion from 'lib/assertion';
 import AuthErrors from 'lib/auth-errors';
 import Constants from 'lib/constants';
 import Device from 'models/device';
@@ -25,7 +24,6 @@ import WebSession from 'models/web-session';
 
 describe('models/account', function () {
   var account;
-  var assertion;
   var fxaClient;
   var metrics;
   let notifier;
@@ -49,7 +47,6 @@ describe('models/account', function () {
   var URL = 'http://127.0.0.1:1112/avatar/example.jpg';
 
   beforeEach(function () {
-    assertion = new Assertion();
     fxaClient = new FxaClientWrapper();
     metrics = {
       getFlowEventMetadata () {
@@ -78,7 +75,6 @@ describe('models/account', function () {
       email: EMAIL,
       uid: UID
     }, {
-      assertion: assertion,
       fxaClient: fxaClient,
       metrics: metrics,
       notifier,
@@ -1273,88 +1269,27 @@ describe('models/account', function () {
 
     beforeEach(function () {
       account.set('sessionToken', SESSION_TOKEN);
-      account.set('verified', true);
-      sinon.stub(assertion, 'generate').callsFake(function () {
-        return Promise.resolve('assertion');
-      });
-      sinon.stub(oAuthClient, 'getToken').callsFake(function () {
+      sinon.stub(fxaClient, 'createOAuthToken').callsFake(function () {
         return Promise.resolve({ 'access_token': accessToken });
       });
     });
 
     it('can fetch an oauth access token', function () {
-      return account.createOAuthToken('scope')
+      return account.createOAuthToken(CLIENT_ID, { scope: 'scope' })
         .then(function (token) {
           assert.equal(token.get('token'), accessToken);
-          assert.isTrue(assertion.generate.calledWith(SESSION_TOKEN));
-          assert.isTrue(oAuthClient.getToken.calledWith({
-            assertion: 'assertion',
-            client_id: CLIENT_ID, //eslint-disable-line camelcase
+          assert.isTrue(fxaClient.createOAuthToken.calledWith(SESSION_TOKEN, CLIENT_ID, {
             scope: 'scope'
           }));
         });
     });
 
-    it('multiple concurrent OAuth token fetches for a single sessionToken causes a single assertion to be generated', function () {
-      return Promise.all([
-        account.createOAuthToken('scope1'),
-        account.createOAuthToken('scope2')
-      ]).then(function () {
-        assert.equal(assertion.generate.callCount, 1);
-      });
-    });
-
-    it('multiple sequential OAuth token fetches for a single sessionToken causes a single assertion to be generated', function () {
-      return account.createOAuthToken('scope1')
-        .then(function () {
-          return account.createOAuthToken('scope2');
-        })
-        .then(function () {
-          assert.equal(assertion.generate.callCount, 1);
-        });
-    });
-
-    it('multiple sequential OAuth token fetches for different sessionTokens causes 2 assertions to be generated', function () {
-      return account.createOAuthToken('scope1')
-        .then(function () {
-          account.set('sessionToken', 'a different session token');
-          return account.createOAuthToken('scope2');
-        })
-        .then(function () {
-          assert.equal(assertion.generate.callCount, 2);
-        });
-    });
-
-    it('generates a new assertion if assertion is expired', function () {
-      return account.createOAuthToken('scope1')
-        .then(() => {
-          sinon.stub(account, '_isAssertionValid').callsFake(() => false);
-          return account.createOAuthToken('scope2');
-        })
-        .then(() => {
-          assert.equal(assertion.generate.callCount, 2);
-          account._isAssertionValid.restore();
-        });
-    });
-
-    it('fails to if bad assertion', function () {
-      assertion.generate.restore();
-      sinon.stub(assertion, 'generate').callsFake(function () {
-        return Promise.reject(AuthErrors.toError('UNAUTHORIZED'));
-      });
-      return account.createOAuthToken('scope')
-        .then(assert.fail,
-          function (err) {
-            assert.isTrue(AuthErrors.is(err, 'UNAUTHORIZED'));
-          });
-    });
-
     it('fails to fetch when unauthorized', function () {
-      oAuthClient.getToken.restore();
-      sinon.stub(oAuthClient, 'getToken').callsFake(function () {
+      fxaClient.createOAuthToken.restore();
+      sinon.stub(fxaClient, 'createOAuthToken').callsFake(function () {
         return Promise.reject(AuthErrors.toError('UNAUTHORIZED'));
       });
-      return account.createOAuthToken('scope')
+      return account.createOAuthToken(CLIENT_ID, { scope: 'scope' })
         .then(assert.fail,
           function (err) {
             assert.isTrue(AuthErrors.is(err, 'UNAUTHORIZED'));
@@ -1363,12 +1298,101 @@ describe('models/account', function () {
 
     it('rejects with INVALID_TOKEN', function () {
       account.unset('sessionToken');
-      return account.createOAuthToken('scope')
+      return account.createOAuthToken(CLIENT_ID, { scope: 'scope' })
         .then(assert.fail, function (err) {
           assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
         });
     });
+  });
 
+  describe('createOAuthCode', function () {
+    beforeEach(function () {
+      account.set('sessionToken', SESSION_TOKEN);
+      sinon.stub(fxaClient, 'createOAuthCode').callsFake(function () {
+        return Promise.resolve({
+          code: 'foo',
+          redirect: 'bar',
+          state: 'baz'
+        });
+      });
+    });
+
+    it('can fetch an oauth access token', function () {
+      return account.createOAuthCode(CLIENT_ID, 'state', { scope: 'scope' })
+        .then(function (result) {
+          assert.equal(result.code, 'foo');
+          assert.equal(result.redirect, 'bar');
+          assert.equal(result.state, 'baz');
+
+          assert.isTrue(fxaClient.createOAuthCode.calledWith(SESSION_TOKEN, CLIENT_ID, 'state', {
+            scope: 'scope'
+          }));
+        });
+    });
+
+    it('fails to fetch when unauthorized', function () {
+      fxaClient.createOAuthCode.restore();
+      sinon.stub(fxaClient, 'createOAuthCode').callsFake(function () {
+        return Promise.reject(AuthErrors.toError('UNAUTHORIZED'));
+      });
+      return account.createOAuthCode(CLIENT_ID, 'state', { scope: 'scope' })
+        .then(assert.fail,
+          function (err) {
+            assert.isTrue(AuthErrors.is(err, 'UNAUTHORIZED'));
+          });
+    });
+
+    it('rejects with INVALID_TOKEN', function () {
+      account.unset('sessionToken');
+      return account.createOAuthCode(CLIENT_ID, 'state', { scope: 'scope' })
+        .then(assert.fail, function (err) {
+          assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+        });
+    });
+  });
+
+  describe('getOAuthScopedKeyData', function () {
+    beforeEach(function () {
+      account.set('sessionToken', SESSION_TOKEN);
+      sinon.stub(fxaClient, 'getOAuthScopedKeyData').callsFake(function () {
+        return Promise.resolve({
+          identifier: 'foo',
+          keyRotationSecret: 'bar',
+          keyRotationTimestamp: 'baz'
+        });
+      });
+    });
+
+    it('can fetch an oauth access token', function () {
+      return account.getOAuthScopedKeyData(CLIENT_ID, 'scope')
+        .then(function (result) {
+          assert.equal(result.identifier, 'foo');
+          assert.equal(result.keyRotationSecret, 'bar');
+          assert.equal(result.keyRotationTimestamp, 'baz');
+
+          assert.isTrue(fxaClient.getOAuthScopedKeyData.calledWith(SESSION_TOKEN, CLIENT_ID, 'scope'));
+        });
+    });
+
+    it('fails to fetch when unauthorized', function () {
+      fxaClient.getOAuthScopedKeyData.restore();
+      sinon.stub(fxaClient, 'getOAuthScopedKeyData').callsFake(function () {
+        return Promise.reject(AuthErrors.toError('UNAUTHORIZED'));
+      });
+      return account.getOAuthScopedKeyData(CLIENT_ID, 'scope')
+        .then(assert.fail,
+          function (err) {
+            assert.isTrue(AuthErrors.is(err, 'UNAUTHORIZED'));
+          });
+    });
+
+    it('rejects with INVALID_TOKEN', function () {
+      account.unset('sessionToken');
+      return account.getOAuthScopedKeyData(CLIENT_ID, 'scope')
+        .then(assert.fail, function (err) {
+          assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+        });
+    });
   });
 
   describe('profileClient', function () {
@@ -1791,14 +1815,11 @@ describe('models/account', function () {
       },
       sessionToken: SESSION_TOKEN,
       uid: UID
-    }, {
-      assertion: 'test'
     });
 
     var data = account.toPersistentJSON();
 
     assert.isUndefined(data.accountData);
-    assert.isUndefined(data.assertion);
     assert.isUndefined(data.foo);
     assert.isUndefined(data.accessToken);
     assert.ok(data.email);
@@ -1814,7 +1835,7 @@ describe('models/account', function () {
     });
 
     it('true for account with data that is not in one of its allowed keys', function () {
-      assert.isTrue(new Account({}, { assertion: 'blah' }).isDefault());
+      assert.isTrue(new Account({}).isDefault());
     });
 
     it('not true for account with data', function () {
@@ -2718,56 +2739,6 @@ describe('models/account', function () {
               fxaClient.smsStatus.calledWith('sessionToken', smsStatusOptions));
           });
       });
-    });
-  });
-
-  describe('_generateAssertion', () => {
-    beforeEach(() => {
-      account.set('sessionToken', 'session-token');
-      // generate returns a different object for every call.
-      sinon.stub(assertion, 'generate').callsFake(() => Promise.resolve({}));
-    });
-
-    it('returns an existing assertion if assertion is valid', () => {
-      let assertion1;
-
-      return account._generateAssertion()
-        .then((assertion) => {
-          assertion1 = assertion;
-          sinon.stub(account, '_isAssertionValid').callsFake(() => true);
-          return account._generateAssertion();
-        })
-        .then((assertion) => {
-          assert.strictEqual(assertion1, assertion);
-        });
-    });
-
-    it('generates a new assertion if original assertion is invalid', () => {
-      let assertion1;
-
-      return account._generateAssertion()
-        .then((assertion) => {
-          assertion1 = assertion;
-          sinon.stub(account, '_isAssertionValid').callsFake(() => false);
-          return account._generateAssertion();
-        })
-        .then((assertion) => {
-          assert.notStrictEqual(assertion1, assertion);
-        });
-    });
-  });
-
-  describe('_isAssertionValid', () => {
-    it('returns `false` when expected', () => {
-      assert.isFalse(account._isAssertionValid());
-      assert.isFalse(account._isAssertionValid({}));
-      assert.isFalse(account._isAssertionValid({ __expiresAt: Date.now() - 1 }));
-    });
-
-    it('returns `true` when expected', () => {
-      // an extra couple of milliseconds are given because who knows how long
-      // this will take to run on CI.
-      assert.isTrue(account._isAssertionValid({ __expiresAt: Date.now() + 2 }));
     });
   });
 

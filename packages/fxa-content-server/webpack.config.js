@@ -65,11 +65,6 @@ const webpackConfig = {
       fxaCryptoDeriver: path.resolve(__dirname, 'node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'),
       fxaPairingChannel: path.resolve(__dirname, 'node_modules/fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js'),
       'base32-decode': path.resolve(__dirname, 'node_modules/base32-decode/index'),
-      // jwcrypto is used by the main app and only contains DSA
-      // jwcrypto.rs is used by the unit tests to unbundle and verify
-      // assertions, which require RSA.
-      jwcrypto: path.resolve(__dirname, 'app/scripts/vendor/jwcrypto/jwcrypto.ds'),
-      'jwcrypto.rs': path.resolve(__dirname, 'app/scripts/vendor/jwcrypto/jwcrypto.rs'),
       mailcheck: path.resolve(__dirname, 'node_modules/mailcheck/src/mailcheck'),
       'js-md5': path.resolve(__dirname, 'node_modules/js-md5/src/md5'),
       mocha: 'mocha/mocha',

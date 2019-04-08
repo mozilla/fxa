@@ -5725,9 +5725,9 @@
       }
     },
     "fxa-js-client": {
-      "version": "1.0.12",
-      "resolved": "https://registry.npmjs.org/fxa-js-client/-/fxa-js-client-1.0.12.tgz",
-      "integrity": "sha512-lmaElBDO6wiWQa4CV8097TPE5uRY0R4cOJhOmsY3hbHTGZAo2Jyu6SQ2FUbzANOj0IzAVBYaKX+xLhwvhock2w==",
+      "version": "1.0.13",
+      "resolved": "https://registry.npmjs.org/fxa-js-client/-/fxa-js-client-1.0.13.tgz",
+      "integrity": "sha512-9oppS4QjKW66HO8J2CWjQvr67Yzif+qf70E0Ivyvq2xgROip8tE/ZlvdiTSQSXIidk5iyxnRtsFYlWvGlHAF5w==",
       "requires": {
         "es6-promise": "4.1.1",
         "sjcl": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8e",
@@ -6481,7 +6481,7 @@
     "handlebars": {
       "version": "4.1.2",
       "resolved": "https://registry.npmjs.org/handlebars/-/handlebars-4.1.2.tgz",
-      "integrity": "sha512-nvfrjqvt9xQ8Z/w0ijewdD/vvWDTOweBUm96NTr66Wfvo1mJenBLwcYmPs3TIBP5ruzYGD7Hx/DaM9RmhroGPw==",
+      "integrity": "sha1-trN8HO0DBrIh4JT8eso+wjsTG2c=",
       "requires": {
         "neo-async": "^2.6.0",
         "optimist": "^0.6.1",
@@ -6492,7 +6492,7 @@
         "source-map": {
           "version": "0.6.1",
           "resolved": "https://registry.npmjs.org/source-map/-/source-map-0.6.1.tgz",
-          "integrity": "sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g=="
+          "integrity": "sha1-dHIq8y6WFOnCh6jQu95IteLxomM="
         }
       }
     },

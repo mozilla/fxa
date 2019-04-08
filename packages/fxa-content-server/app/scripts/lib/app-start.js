@@ -18,7 +18,6 @@
 import _ from 'underscore';
 import ExperimentGroupingRules from './experiments/grouping-rules/index';
 import AppView from '../views/app';
-import Assertion from './assertion';
 import authBrokers from '../models/auth_brokers/index';
 import AuthorityRelier from '../models/reliers/pairing/authority';
 import Backbone from 'backbone';
@@ -119,15 +118,13 @@ Start.prototype = {
       .then(() => this.initializeNotifier())
       // metrics depends on relier and notifier
       .then(() => this.initializeMetrics())
-      // assertionLibrary depends on fxaClient
-      .then(() => this.initializeAssertionLibrary())
-      // profileClient depends on fxaClient and assertionLibrary
+      // profileClient depends on fxaClient
       .then(() => this.initializeProfileClient())
       // broker relies on the relier, fxaClient,
       // assertionLibrary, and metrics
       .then(() => this.initializeAuthenticationBroker())
       // user depends on the auth broker, profileClient, oAuthClient,
-      // assertionLibrary and notifier.
+      // and notifier.
       .then(() => this.initializeUser())
       // depends on nothing
       .then(() => this.initializeFormPrefill())
@@ -272,13 +269,6 @@ Start.prototype = {
     }
   },
 
-  initializeAssertionLibrary () {
-    this._assertionLibrary = new Assertion({
-      audience: this._config.oAuthUrl,
-      fxaClient: this._fxaClient
-    });
-  },
-
   initializeAuthenticationBroker () {
     if (! this._authenticationBroker) {
       let context;
@@ -290,7 +280,6 @@ Start.prototype = {
 
       const Constructor = authBrokers.get(context);
       this._authenticationBroker = new Constructor({
-        assertionLibrary: this._assertionLibrary,
         config: this._config,
         fxaClient: this._fxaClient,
         isVerificationSameBrowser: this._isVerificationSameBrowser(),
@@ -340,7 +329,6 @@ Start.prototype = {
   initializeUser () {
     if (! this._user) {
       const user = this._user = new User({
-        assertion: this._assertionLibrary,
         fxaClient: this._fxaClient,
         metrics: this._metrics,
         notifier: this._notifier,

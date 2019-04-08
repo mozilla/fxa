@@ -68,10 +68,9 @@ describe('views/settings/subscription', function () {
         assert.deepEqual(
           account.createOAuthToken.args[0],
           [
-            config.subscriptions.managementScopes,
+            config.subscriptions.managementClientId,
             {
-              //eslint-disable-next-line camelcase
-              client_id: config.subscriptions.managementClientId,
+              scope: config.subscriptions.managementScopes,
               ttl: config.subscriptions.managementTokenTTL
             }
           ],

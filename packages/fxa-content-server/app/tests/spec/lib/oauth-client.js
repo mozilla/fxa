@@ -9,7 +9,6 @@ import sinon from 'sinon';
 import Xhr from 'lib/xhr';
 
 var OAUTH_URL = 'http://127.0.0.1:9010';
-var RP_URL = 'http://127.0.0.1:8080/api/oauth';
 var assert = chai.assert;
 var client;
 var server;
@@ -68,32 +67,6 @@ describe('lib/oauth-client', function () {
     });
   });
 
-  describe('getCode', function () {
-    var params = {
-      assertion: 'assertion',
-      client_id: 'deadbeef', //eslint-disable-line camelcase
-      redirect_uri: 'http://example.com', //eslint-disable-line camelcase
-      scope: 'profile',
-      state: 'state'
-    };
-
-    it('responds with a redirect', function () {
-      var redirect = RP_URL + '?code=code&state=state';
-
-      sinon.stub(client, '_request').callsFake(function () {
-        return Promise.resolve({
-          redirect: redirect
-        });
-      });
-
-      return client.getCode(params)
-        .then(function (result) {
-          assert.isTrue(client._request.calledWith('post', '/v1/authorization'));
-          assert.equal(result.redirect, redirect);
-        });
-    });
-  });
-
   describe('getClientInfo', function () {
     var clientId = 'clientId';
 
@@ -110,64 +83,6 @@ describe('lib/oauth-client', function () {
           assert.isTrue(client._request.calledWith('get', '/v1/client/' + clientId));
           assert.ok(result);
           assert.equal(result.name, 'MozRP');
-        });
-    });
-  });
-
-  describe('getClientKeyData', () => {
-    const scope = 'https://identity.mozilla.com/apps/sample-scope-can-scope-key';
-    const params = {
-      assertion: 'eyJhbGciOiJSUzI1NiJ9.eyJwdWJsaWM1NiJ9.eyJhdWQiOiJvYXV0aC5meGEiLCJleHA',
-      client_id: 'aaa6b9b3a65a1871', //eslint-disable-line camelcase
-      scope: scope
-    };
-
-    it('response with scope key data', () => {
-      sinon.stub(client, '_request').callsFake(function () {
-        return Promise.resolve({
-          [scope]: {
-            identifier: scope,
-            keyRotationSecret: '0000000000000000000000000000000000000000000000000000000000000000',
-            keyRotationTimestamp: 1506970363512
-          }
-        });
-      });
-
-      return client.getClientKeyData(params)
-        .then(function (result) {
-          assert.isTrue(client._request.calledWith('post', '/v1/key-data'));
-          assert.ok(result);
-          assert.equal(result[scope].keyRotationTimestamp, 1506970363512);
-        });
-    });
-  });
-
-  describe('getToken', function () {
-    it('responds with a token', function () {
-      var token = 'access token';
-
-      sinon.stub(client, '_request').callsFake(function () {
-        return Promise.resolve({
-          access_token: token, //eslint-disable-line camelcase
-          scope: 'profile',
-          token_type: 'bearer' //eslint-disable-line camelcase
-        });
-      });
-
-      var params = {
-        assertion: 'assertion',
-        client_id: 'deadbeef', //eslint-disable-line camelcase
-        scope: 'profile'
-      };
-
-      return client.getToken(params)
-        .then(function (result) {
-          assert.isTrue(client._request.calledWith('post', '/v1/authorization'));
-          assert.equal(client._request.args[0][2].client_id, 'deadbeef', 'correctly sets client_id');
-          assert.equal(client._request.args[0][2].ttl, '300', 'correctly sets TTL');
-          assert.ok(result);
-
-          assert.equal(result.access_token, token);
         });
     });
   });
