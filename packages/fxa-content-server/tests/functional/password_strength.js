@@ -10,7 +10,7 @@ const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
 const config = intern._config;
-const PAGE_URL = `${config.fxaContentRoot}?context=fx_firstrun_v2&service=sync&action=email`; //eslint-disable-line max-len
+const PAGE_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync&action=email`; //eslint-disable-line max-len
 
 let email;
 

@@ -1359,9 +1359,7 @@ const fillOutSignIn = thenify(function (email, password, alwaysLoad) {
     .getCurrentUrl()
     .then(function (currentUrl) {
       // only load the signin page if not already at a signin page.
-      // the leading [\/#] allows for either the standard redirect or iframe
-      // flow. The iframe flow must use the window hash for routing.
-      if (! /[\/#]signin(?:$|\?)/.test(currentUrl) || alwaysLoad) {
+      if (! /\/signin(?:$|\?)/.test(currentUrl) || alwaysLoad) {
         return this.parent
           .get(SIGNIN_URL)
           .setFindTimeout(intern._config.pageLoadTimeout);
@@ -1407,9 +1405,7 @@ const fillOutSignUp = thenify(function (email, password, options) {
     .getCurrentUrl()
     .then(function (currentUrl) {
       // only load the signup page if not already at a signup page.
-      // the leading [\/#] allows for either the standard redirect or iframe
-      // flow. The iframe flow must use the window hash for routing.
-      if (! /[\/#]signup(?:$|\?)/.test(currentUrl)) {
+      if (! /\/signup(?:$|\?)/.test(currentUrl)) {
         return this.parent
           .get(SIGNUP_URL)
           .setFindTimeout(intern._config.pageLoadTimeout);
@@ -1460,9 +1456,7 @@ const fillOutResetPassword = thenify(function (email, options) {
     .then(function (currentUrl) {
       // only load the reset_password page if not already at
       // the reset_password page.
-      // the leading [\/#] allows for either the standard redirect or iframe
-      // flow. The iframe flow must use the window hash for routing.
-      if (! /[\/#]reset_password(?:$|\?)/.test(currentUrl) && ! options.skipPageRedirect) {
+      if (! /\/reset_password(?:$|\?)/.test(currentUrl) && ! options.skipPageRedirect) {
         return this.parent
           .get(RESET_PASSWORD_URL)
           .setFindTimeout(intern._config.pageLoadTimeout);

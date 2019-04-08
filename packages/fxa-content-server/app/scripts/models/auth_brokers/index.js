@@ -25,14 +25,6 @@ const AUTH_BROKERS = [
     Constructor: require('../auth_brokers/fx-fennec-v1')
   },
   {
-    context: Constants.FX_FIRSTRUN_V1_CONTEXT,
-    Constructor: require('../auth_brokers/fx-firstrun-v1')
-  },
-  {
-    context: Constants.FX_FIRSTRUN_V2_CONTEXT,
-    Constructor: require('../auth_brokers/fx-firstrun-v2')
-  },
-  {
     context: Constants.FX_IOS_V1_CONTEXT,
     Constructor: require('../auth_brokers/fx-ios-v1')
   },

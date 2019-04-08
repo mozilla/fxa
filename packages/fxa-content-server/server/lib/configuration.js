@@ -14,8 +14,8 @@ const DEFAULT_SUPPORTED_LANGUAGES = require('fxa-shared').l10n.supportedLanguage
 
 const conf = module.exports = convict({
   allowed_iframe_contexts: {
-    default: ['fx_firstrun_v2', 'iframe'],
-    doc: 'context query parameters allowed to embed FxA within an IFRAME',
+    default: [],
+    doc: 'DEPRECATED - context query parameters allowed to embed FxA within an IFRAME',
     format: Array
   },
   allowed_metrics_flow_cors_origins: {
@@ -26,7 +26,7 @@ const conf = module.exports = convict({
   },
   allowed_parent_origins: {
     default: [],
-    doc: 'Origins that are allowed to embed FxA within an IFRAME',
+    doc: 'DEPRECATED - Origins that are allowed to embed FxA within an IFRAME',
     env: 'ALLOWED_PARENT_ORIGINS',
     format: Array
   },

@@ -44,22 +44,7 @@ describe('views/mixins/modal-panel-mixin', () => {
 
 
   describe('open and close', () => {
-    it('does the right thing when body min-height needed', () => {
-      sinon.stub(view, '_needsToSetBodyMinHeight').callsFake(() => true);
-
-      assert.equal($('body').css('min-height'), '0px');
-      view.openPanel();
-      assert.isTrue($.modal.isActive());
-      assert.ok(parseInt($('body').css('min-height'), 10) > 0);
-
-      view.closePanel();
-      assert.isFalse($.modal.isActive());
-      assert.equal($('body').css('min-height'), '0px');
-    });
-
-    it('does the right thing when body min-height not needed', () => {
-      sinon.stub(view, '_needsToSetBodyMinHeight').callsFake(() => false);
-
+    it('does the right thing', () => {
       assert.equal($('body').css('min-height'), '0px');
       view.openPanel();
       assert.isTrue($.modal.isActive());

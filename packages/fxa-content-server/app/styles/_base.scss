@@ -8,10 +8,6 @@
 html {
   background-color: $html-background-color;
   height: 100%;
-
-  &.chromeless {
-    background-color: $chromeless-html-background-color;
-  }
 }
 
 body {

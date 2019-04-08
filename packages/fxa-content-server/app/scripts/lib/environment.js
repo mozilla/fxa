@@ -64,33 +64,6 @@
       // END MODERNIZR BASED CODE
     },
 
-    isFramed: function () {
-      var win = this.window;
-
-      // HACK:
-      // These are the iframe names when used in a native browser iframe.
-      // Do not consider windows with these names framed.
-      //
-      // 'remote' is for about:accounts
-      // 'payflow' is for Mozilla Payments reset PIN flow on Fx for Android.
-      //   See #2607
-
-      // use a hash instead of an array and array.indexOf
-      // b/c this module can only use ES3.
-      var nativeNames = {
-        payflow: true,
-        remote: true
-      };
-
-      var isNativelyEmbedded = nativeNames[win.name];
-
-      return !! (
-        win.top &&
-        win.top !== win &&
-        ! isNativelyEmbedded
-      );
-    },
-
     /**
      * Detects if environment is about:accounts
      * @returns {Boolean}

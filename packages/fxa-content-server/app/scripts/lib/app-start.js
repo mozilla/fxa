@@ -28,13 +28,10 @@ import Environment from './environment';
 import ErrorUtils from './error-utils';
 import FormPrefill from '../models/form-prefill';
 import FxaClient from './fxa-client';
-import HeightObserver from './height-observer';
-import IframeChannel from './channels/iframe';
 import InterTabChannel from './channels/inter-tab';
 import MarketingEmailClient from './marketing-email-client';
 import Metrics from './metrics';
 import Notifier from './channels/notifier';
-import NullChannel from './channels/null';
 import OAuthClient from './oauth-client';
 import OAuthRelier from '../models/reliers/oauth';
 import p from './promise';
@@ -112,14 +109,12 @@ Start.prototype = {
       // both the metrics and router depend on the language
       // fetched from config.
       .then(() => this.initializeRelier())
-      // iframe channel depends on the relier.
-      .then(() => this.initializeIframeChannel())
       // fxaClient depends on the relier and
       // inter tab communication.
       .then(() => this.initializeFxaClient())
       // depends on nothing
       .then(() => this.initializeNotificationChannel())
-      // depends on iframeChannel and interTabChannel, web channel
+      // depends on interTabChannel, web channel
       .then(() => this.initializeNotifier())
       // metrics depends on relier and notifier
       .then(() => this.initializeMetrics())
@@ -135,8 +130,6 @@ Start.prototype = {
       // user depends on the auth broker, profileClient, oAuthClient,
       // assertionLibrary and notifier.
       .then(() => this.initializeUser())
-      // depends on the authentication broker
-      .then(() => this.initializeHeightObserver())
       // depends on nothing
       .then(() => this.initializeFormPrefill())
       // depends on notifier, metrics
@@ -203,26 +196,6 @@ Start.prototype = {
       utmSource: relier.get('utmSource'),
       utmTerm: relier.get('utmTerm')
     });
-  },
-
-  initializeIframeChannel () {
-    if (this._isInAnIframe()) {
-      const parentOrigin = this._searchParam('origin');
-      const iframeChannel = new IframeChannel();
-
-      iframeChannel.initialize({
-        origin: parentOrigin,
-        window: this._window
-      });
-
-      this._iframeChannel = iframeChannel;
-    } else {
-      // Create a NullChannel in case any dependencies require it, such
-      // as when the FxFirstrunV1AuthenticationBroker is used in functional
-      // tests. The firstrun tests don't actually use an iframe, so the
-      // real IframeChannel is not created.
-      this._iframeChannel = new NullChannel();
-    }
   },
 
   initializeFormPrefill () {
@@ -317,9 +290,7 @@ Start.prototype = {
   initializeAuthenticationBroker () {
     if (! this._authenticationBroker) {
       let context;
-      if (this._isIframeContext() && this._isServiceSync()) {
-        context = Constants.FX_FIRSTRUN_V1_CONTEXT;
-      } else if (this._isOAuth()) {
+      if (this._isOAuth()) {
         context = this._chooseOAuthBrokerContext();
       } else {
         context = this._getContext();
@@ -330,7 +301,6 @@ Start.prototype = {
         assertionLibrary: this._assertionLibrary,
         config: this._config,
         fxaClient: this._fxaClient,
-        iframeChannel: this._iframeChannel,
         isVerificationSameBrowser: this._isVerificationSameBrowser(),
         metrics: this._metrics,
         notificationChannel: this._notificationChannel,
@@ -363,21 +333,6 @@ Start.prototype = {
       return Constants.OAUTH_CHROME_ANDROID_CONTEXT;
     } else {
       return Constants.OAUTH_CONTEXT;
-    }
-  },
-
-  initializeHeightObserver () {
-    if (this._isInAnIframe()) {
-      const heightObserver = new HeightObserver({
-        target: this._window.document.body,
-        window: this._window
-      });
-
-      heightObserver.on('change', (height) => {
-        this._iframeChannel.send('resize', { height: height });
-      });
-
-      heightObserver.start();
     }
   },
 
@@ -439,7 +394,6 @@ Start.prototype = {
   initializeNotifier () {
     if (! this._notifier) {
       this._notifier = new Notifier({
-        iframeChannel: this._iframeChannel,
         tabChannel: this._interTabChannel,
         webChannel: this._notificationChannel
       });
@@ -739,14 +693,6 @@ Start.prototype = {
   _isVerificationSameBrowser () {
     return this._isVerification() &&
            !! this._getSameBrowserVerificationModel('context').get('context');
-  },
-
-  _isInAnIframe () {
-    return new Environment(this._window).isFramed();
-  },
-
-  _isIframeContext () {
-    return this._isContext(Constants.IFRAME_CONTEXT);
   },
 
   _isOAuth () {
