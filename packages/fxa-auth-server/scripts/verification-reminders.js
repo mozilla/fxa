@@ -20,7 +20,20 @@ const LIB_DIR = `${ROOT_DIR}/lib`;
 process.env.NODE_ENV = 'dev';
 
 const config = require(`${ROOT_DIR}/config`).getProperties();
-const log = require(`${ROOT_DIR}/test/mocks`).mockLog();
+
+// silence standard logging methods
+const log = {
+  activityEvent: Function.prototype,
+  amplitudeEvent: Function.prototype,
+  begin: Function.prototype,
+  error: Function.prototype,
+  flowEvent: Function.prototype,
+  info: Function.prototype,
+  notifyAttachedServices: Function.prototype,
+  warn: Function.prototype,
+  summary: Function.prototype,
+  trace: Function.prototype
+};
 
 const error = require(`${LIB_DIR}/error`);
 const oauthdb = require(`${LIB_DIR}/oauthdb`)(log, config);
