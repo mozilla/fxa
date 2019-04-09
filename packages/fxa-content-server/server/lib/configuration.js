@@ -19,7 +19,7 @@ const conf = module.exports = convict({
     format: Array
   },
   allowed_metrics_flow_cors_origins: {
-    default: [],
+    default: [null],
     doc: 'Origins that are allowed to request the /metrics-flow endpoint',
     env: 'ALLOWED_METRICS_FLOW_ORIGINS',
     format: Array
@@ -429,7 +429,7 @@ const conf = module.exports = convict({
       format: Array,
     },
     server_base_uri: {
-      default: 'wss://channelserver.services.mozilla.com',
+      default: 'wss://dev.channelserver.nonprod.cloudops.mozgcp.net',
       doc: 'The url of the Pairing channel server.',
       env: 'PAIRING_SERVER_BASE_URI'
     },

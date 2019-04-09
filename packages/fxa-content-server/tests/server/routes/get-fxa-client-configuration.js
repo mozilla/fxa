@@ -35,7 +35,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
     mocks.config.oauth_url = 'https://oauth.accounts.firefox.com';
     mocks.config.profile_url = 'https://profile.accounts.firefox.com';
     mocks.config.sync_tokenserver_url = 'https://token.services.mozilla.org';
-    mocks.config['pairing.server_base_uri'] = 'wss://channelserver.services.mozilla.com';
+    mocks.config['pairing.server_base_uri'] = config.get('pairing.server_base_uri');
     /*eslint-enable camelcase*/
   },
   tests: {
