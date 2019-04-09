@@ -14,9 +14,9 @@
 
 'use strict';
 
-const _ = require('underscore');
-const Backbone = require('backbone');
-const Vat = require('../../lib/vat');
+import _ from 'underscore';
+import Backbone from 'backbone';
+import Vat from '../../lib/vat';
 
 
 var proto = Backbone.Model.prototype;

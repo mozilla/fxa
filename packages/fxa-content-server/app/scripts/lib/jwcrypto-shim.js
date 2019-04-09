@@ -6,7 +6,7 @@
 /**
  * This is a shim that allows webpack to lazy load all of jwcrypto.
  */
-const jwcrypto = require('jwcrypto');
-require('jwcrypto.rs');
+import jwcrypto from 'jwcrypto';
+import 'jwcrypto.rs';
 
 module.exports = jwcrypto;

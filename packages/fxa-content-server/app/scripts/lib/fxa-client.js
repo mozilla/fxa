@@ -8,15 +8,15 @@
 
 'use strict';
 
-const _ = require('underscore');
-const $ = require('jquery');
-const AuthErrors = require('./auth-errors');
-const Constants = require('./constants');
-const RecoveryKey = require('./crypto/recovery-keys');
-const Session = require('./session');
-const SignInReasons = require('./sign-in-reasons');
-const VerificationReasons = require('./verification-reasons');
-const VerificationMethods = require('./verification-methods');
+import _ from 'underscore';
+import $ from 'jquery';
+import AuthErrors from './auth-errors';
+import Constants from './constants';
+import RecoveryKey from './crypto/recovery-keys';
+import Session from './session';
+import SignInReasons from './sign-in-reasons';
+import VerificationReasons from './verification-reasons';
+import VerificationMethods from './verification-methods';
 
 function trim(str) {
   return $.trim(str);

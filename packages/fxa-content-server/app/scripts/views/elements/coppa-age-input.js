@@ -7,7 +7,7 @@
  */
 'use strict';
 
-const AuthErrors = require('../../lib/auth-errors');
+import AuthErrors from '../../lib/auth-errors';
 const MAX_VALID_AGE = 130;
 
 module.exports = {

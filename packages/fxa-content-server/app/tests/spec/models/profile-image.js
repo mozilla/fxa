@@ -4,9 +4,9 @@
 
 'use strict';
 
-const chai = require('chai');
-const ProfileErrors = require('lib/profile-errors');
-const ProfileImage = require('models/profile-image');
+import chai from 'chai';
+import ProfileErrors from 'lib/profile-errors';
+import ProfileImage from 'models/profile-image';
 
 var assert = chai.assert;
 

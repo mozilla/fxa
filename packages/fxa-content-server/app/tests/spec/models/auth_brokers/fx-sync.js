@@ -4,14 +4,14 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const Account = require('models/account');
-const FxSyncAuthenticationBroker = require('models/auth_brokers/fx-sync');
-const Metrics = require('lib/metrics');
-const Relier = require('models/reliers/relier');
-const sinon = require('sinon');
-const WebChannel = require('lib/channels/web');
-const WindowMock = require('../../../mocks/window');
+import { assert } from 'chai';
+import Account from 'models/account';
+import FxSyncAuthenticationBroker from 'models/auth_brokers/fx-sync';
+import Metrics from 'lib/metrics';
+import Relier from 'models/reliers/relier';
+import sinon from 'sinon';
+import WebChannel from 'lib/channels/web';
+import WindowMock from '../../../mocks/window';
 
 describe('models/auth_brokers/fx-sync', () => {
   let account;

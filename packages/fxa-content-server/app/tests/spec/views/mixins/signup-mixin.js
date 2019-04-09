@@ -4,12 +4,12 @@
 
 'use strict';
 
-const Account = require('models/account');
-const assert = require('chai').assert;
-const Broker = require('models/auth_brokers/base');
-const Relier = require('models/reliers/relier');
-const SignUpMixin = require('views/mixins/signup-mixin');
-const sinon = require('sinon');
+import Account from 'models/account';
+import { assert } from 'chai';
+import Broker from 'models/auth_brokers/base';
+import Relier from 'models/reliers/relier';
+import SignUpMixin from 'views/mixins/signup-mixin';
+import sinon from 'sinon';
 
 describe('views/mixins/signup-mixin', function () {
   it('exports correct interface', function () {

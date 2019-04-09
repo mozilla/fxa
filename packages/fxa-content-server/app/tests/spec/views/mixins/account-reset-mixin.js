@@ -4,18 +4,18 @@
 
 'use strict';
 
-const AccountResetMixin = require('views/mixins/account-reset-mixin');
-const AuthErrors = require('lib/auth-errors');
-const BaseView = require('views/base');
-const Chai = require('chai');
-const Cocktail = require('cocktail');
-const FxaClient = require('lib/fxa-client');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const Relier = require('models/reliers/base');
-const sinon = require('sinon');
-const Template = require('templates/test_template.mustache');
-const User = require('models/user');
+import AccountResetMixin from 'views/mixins/account-reset-mixin';
+import AuthErrors from 'lib/auth-errors';
+import BaseView from 'views/base';
+import Chai from 'chai';
+import Cocktail from 'cocktail';
+import FxaClient from 'lib/fxa-client';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import Relier from 'models/reliers/base';
+import sinon from 'sinon';
+import Template from 'templates/test_template.mustache';
+import User from 'models/user';
 
 var assert = Chai.assert;
 

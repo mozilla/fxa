@@ -4,18 +4,18 @@
 
 'use strict';
 
-const $ = require('jquery');
-const AvatarMixin = require('../mixins/avatar-mixin');
-const Cocktail = require('cocktail');
-const Email = require('../../models/email');
-const FormView = require('../form');
-const LastCheckedTimeMixin = require('../mixins/last-checked-time-mixin');
-const preventDefaultThen = require('../base').preventDefaultThen;
-const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
-const UpgradeSessionMixin = require('../mixins/upgrade-session-mixin');
-const Strings = require('../../lib/strings');
-const showProgressIndicator = require('../decorators/progress_indicator');
-const Template = require('templates/settings/emails.mustache');
+import $ from 'jquery';
+import AvatarMixin from '../mixins/avatar-mixin';
+import Cocktail from 'cocktail';
+import Email from '../../models/email';
+import FormView from '../form';
+import LastCheckedTimeMixin from '../mixins/last-checked-time-mixin';
+import { preventDefaultThen } from '../base';
+import SettingsPanelMixin from '../mixins/settings-panel-mixin';
+import UpgradeSessionMixin from '../mixins/upgrade-session-mixin';
+import Strings from '../../lib/strings';
+import showProgressIndicator from '../decorators/progress_indicator';
+import Template from 'templates/settings/emails.mustache';
 
 const t = msg => msg;
 

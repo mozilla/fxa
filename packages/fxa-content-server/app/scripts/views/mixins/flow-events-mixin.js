@@ -6,8 +6,8 @@
 
 'use strict';
 
-const $ = require('jquery');
-const KEYS = require('../../lib/key-codes');
+import $ from 'jquery';
+import KEYS from '../../lib/key-codes';
 
 module.exports = {
   afterRender () {

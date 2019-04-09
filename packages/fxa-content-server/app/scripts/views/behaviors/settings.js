@@ -9,7 +9,7 @@
 
 'use strict';
 
-const NavigateBehavior = require('../behaviors/navigate');
+import NavigateBehavior from '../behaviors/navigate';
 const t = msg => msg;
 
 /**

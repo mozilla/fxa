@@ -4,22 +4,22 @@
 
 'use strict';
 
-const $ = require('jquery');
-const Account = require('models/account');
-const { assert } = require('chai');
-const Constants = require('lib/constants');
-const MarketingEmailErrors = require('lib/marketing-email-errors');
-const MarketingEmailPrefs = require('models/marketing-email-prefs');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const Relier = require('models/reliers/relier');
-const SentryMetrics = require('lib/sentry');
-const sinon = require('sinon');
-const Translator = require('lib/translator');
-const TestHelpers = require('../../../lib/helpers');
-const User = require('models/user');
-const View = require('views/settings/communication_preferences');
-const WindowMock = require('../../../mocks/window');
+import $ from 'jquery';
+import Account from 'models/account';
+import { assert } from 'chai';
+import Constants from 'lib/constants';
+import MarketingEmailErrors from 'lib/marketing-email-errors';
+import MarketingEmailPrefs from 'models/marketing-email-prefs';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import Relier from 'models/reliers/relier';
+import SentryMetrics from 'lib/sentry';
+import sinon from 'sinon';
+import Translator from 'lib/translator';
+import TestHelpers from '../../../lib/helpers';
+import User from 'models/user';
+import View from 'views/settings/communication_preferences';
+import WindowMock from '../../../mocks/window';
 
 const NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
 

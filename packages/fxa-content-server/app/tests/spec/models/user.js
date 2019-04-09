@@ -4,22 +4,22 @@
 
 'use strict';
 
-const Account = require('models/account');
-const { assert } = require('chai');
-const AuthErrors = require('lib/auth-errors');
-const Constants = require('lib/constants');
-const { createUid } = require('../../lib/helpers');
-const Device = require('models/device');
-const AttachedClients = require('models/attached-clients');
-const FxaClient = require('lib/fxa-client');
-const MarketingEmailErrors = require('lib/marketing-email-errors');
-const Notifier = require('lib/channels/notifier');
-const OAuthApp = require('models/oauth-app');
-const SentryMetrics = require('lib/sentry');
-const sinon = require('sinon');
-const Storage = require('lib/storage');
-const User = require('models/user');
-const WebSession = require('models/web-session');
+import Account from 'models/account';
+import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
+import Constants from 'lib/constants';
+import { createUid } from '../../lib/helpers';
+import Device from 'models/device';
+import AttachedClients from 'models/attached-clients';
+import FxaClient from 'lib/fxa-client';
+import MarketingEmailErrors from 'lib/marketing-email-errors';
+import Notifier from 'lib/channels/notifier';
+import OAuthApp from 'models/oauth-app';
+import SentryMetrics from 'lib/sentry';
+import sinon from 'sinon';
+import Storage from 'lib/storage';
+import User from 'models/user';
+import WebSession from 'models/web-session';
 
 const CODE = 'verification code';
 const EMAIL = 'a@a.com';

@@ -10,7 +10,7 @@
 
 'use strict';
 
-const Backbone = require('backbone');
+import Backbone from 'backbone';
 
 var Model = Backbone.Model.extend({
   defaults: {

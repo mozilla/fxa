@@ -4,23 +4,23 @@
 
 'use strict';
 
-const $ = require('jquery');
-const Account = require('models/account');
-const { assert } = require('chai');
-const AuthErrors = require('lib/auth-errors');
-const AvatarMixin = require('views/mixins/avatar-mixin');
-const BaseView = require('views/base');
-const Cocktail = require('cocktail');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const NullChannel = require('lib/channels/null');
-const ProfileErrors = require('lib/profile-errors');
-const ProfileImage = require('models/profile-image');
-const Relier = require('models/reliers/relier');
-const sinon = require('sinon');
-const TestHelpers = require('../../../lib/helpers');
-const User = require('models/user');
-const WindowMock = require('../../../mocks/window');
+import $ from 'jquery';
+import Account from 'models/account';
+import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
+import AvatarMixin from 'views/mixins/avatar-mixin';
+import BaseView from 'views/base';
+import Cocktail from 'cocktail';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import NullChannel from 'lib/channels/null';
+import ProfileErrors from 'lib/profile-errors';
+import ProfileImage from 'models/profile-image';
+import Relier from 'models/reliers/relier';
+import sinon from 'sinon';
+import TestHelpers from '../../../lib/helpers';
+import User from 'models/user';
+import WindowMock from '../../../mocks/window';
 
 const UID = TestHelpers.createUid();
 

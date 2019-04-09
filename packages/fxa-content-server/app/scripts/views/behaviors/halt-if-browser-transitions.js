@@ -10,7 +10,7 @@
 
 'use strict';
 
-const HaltBehavior = require('views/behaviors/halt');
+import HaltBehavior from 'views/behaviors/halt';
 
 module.exports = function (defaultBehavior) {
   const behavior = function (view) {

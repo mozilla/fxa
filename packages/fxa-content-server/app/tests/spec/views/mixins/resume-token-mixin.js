@@ -4,14 +4,14 @@
 
 'use strict';
 
-const $ = require('jquery');
-const { assert } = require('chai');
-const BaseView = require('views/base');
-const Cocktail = require('cocktail');
-const ResumeToken = require('models/resume-token');
-const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
-const sinon = require('sinon');
-const TestTemplate = require('templates/test_template.mustache');
+import $ from 'jquery';
+import { assert } from 'chai';
+import BaseView from 'views/base';
+import Cocktail from 'cocktail';
+import ResumeToken from 'models/resume-token';
+import ResumeTokenMixin from 'views/mixins/resume-token-mixin';
+import sinon from 'sinon';
+import TestTemplate from 'templates/test_template.mustache';
 
 const TestView = BaseView.extend({
   template: TestTemplate,

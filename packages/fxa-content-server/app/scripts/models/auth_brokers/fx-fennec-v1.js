@@ -9,8 +9,8 @@
 
 'use strict';
 
-const _ = require('underscore');
-const FxSyncWebChannelAuthenticationBroker = require('../auth_brokers/fx-sync-web-channel');
+import _ from 'underscore';
+import FxSyncWebChannelAuthenticationBroker from '../auth_brokers/fx-sync-web-channel';
 
 var proto = FxSyncWebChannelAuthenticationBroker.prototype;
 

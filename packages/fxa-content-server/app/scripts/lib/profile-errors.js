@@ -4,8 +4,8 @@
 
 'use strict';
 
-const _ = require('underscore');
-const Errors = require('./errors');
+import _ from 'underscore';
+import Errors from './errors';
 const t = msg => msg;
 
 const THROTTLED_ERROR_MESSAGE = t('You\'ve tried too many times. Try again later.');

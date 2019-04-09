@@ -6,8 +6,8 @@
 
 'use strict';
 
-const _ = require('underscore');
-const BaseChannel = require('lib/channels/base');
+import _ from 'underscore';
+import BaseChannel from 'lib/channels/base';
 
 function NullChannel() {
   // nothing to do.

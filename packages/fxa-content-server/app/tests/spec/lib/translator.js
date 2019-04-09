@@ -6,9 +6,9 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const sinon = require('sinon');
-const Translator = require('lib/translator');
+import { assert } from 'chai';
+import sinon from 'sinon';
+import Translator from 'lib/translator';
 
 // translations taken from Persona's db_LB translations.
 const TRANSLATIONS = {

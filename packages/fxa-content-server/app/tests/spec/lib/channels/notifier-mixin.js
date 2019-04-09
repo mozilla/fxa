@@ -4,12 +4,12 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const BaseView = require('views/base');
-const { createUid } = require('../../../lib/helpers');
-const Notifier = require('lib/channels/notifier');
-const NotifierMixin = require('lib/channels/notifier-mixin');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import BaseView from 'views/base';
+import { createUid } from '../../../lib/helpers';
+import Notifier from 'lib/channels/notifier';
+import NotifierMixin from 'lib/channels/notifier-mixin';
+import sinon from 'sinon';
 
 describe('lib/channels/notifier-mixin', () => {
   const data = { uid: createUid() };

@@ -9,7 +9,7 @@
 
 'use strict';
 
-const loadingTemplate = require('templates/loading.mustache');
+import loadingTemplate from 'templates/loading.mustache';
 
 module.exports = {
   initialize () {

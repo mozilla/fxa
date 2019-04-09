@@ -4,8 +4,8 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const HaltIfBrowserTransitions = require('views/behaviors/halt-if-browser-transitions');
+import { assert } from 'chai';
+import HaltIfBrowserTransitions from 'views/behaviors/halt-if-browser-transitions';
 
 describe('views/behaviors/halt-if-browser-transitions', function () {
   let defaultBehavior;

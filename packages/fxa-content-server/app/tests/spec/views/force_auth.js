@@ -4,23 +4,23 @@
 
 'use strict';
 
-const $ = require('jquery');
-const Account = require('models/account');
-const { assert } = require('chai');
-const AuthErrors = require('lib/auth-errors');
-const Backbone = require('backbone');
-const Broker = require('models/auth_brokers/base');
-const FormPrefill = require('models/form-prefill');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const Relier = require('models/reliers/relier');
-const SignInView = require('views/sign_in');
-const sinon = require('sinon');
-const TestHelpers = require('../../lib/helpers');
-const Translator = require('lib/translator');
-const User = require('models/user');
-const View = require('views/force_auth');
-const WindowMock = require('../../mocks/window');
+import $ from 'jquery';
+import Account from 'models/account';
+import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
+import Backbone from 'backbone';
+import Broker from 'models/auth_brokers/base';
+import FormPrefill from 'models/form-prefill';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import Relier from 'models/reliers/relier';
+import SignInView from 'views/sign_in';
+import sinon from 'sinon';
+import TestHelpers from '../../lib/helpers';
+import Translator from 'lib/translator';
+import User from 'models/user';
+import View from 'views/force_auth';
+import WindowMock from '../../mocks/window';
 
 describe('/views/force_auth', function () {
   var broker;

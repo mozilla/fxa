@@ -4,9 +4,9 @@
 
 'use strict';
 
-const assert = require('chai').assert;
-const PasswordResetMixin = require('views/mixins/password-reset-mixin');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import PasswordResetMixin from 'views/mixins/password-reset-mixin';
+import sinon from 'sinon';
 
 describe('views/mixins/password-reset-mixin', function () {
   describe('interface', function () {

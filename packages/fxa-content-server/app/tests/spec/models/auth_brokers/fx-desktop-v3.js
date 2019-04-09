@@ -4,10 +4,10 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const FxDesktopV3AuthenticationBroker = require('models/auth_brokers/fx-desktop-v3');
-const sinon = require('sinon');
-const WindowMock = require('../../../mocks/window');
+import { assert } from 'chai';
+import FxDesktopV3AuthenticationBroker from 'models/auth_brokers/fx-desktop-v3';
+import sinon from 'sinon';
+import WindowMock from '../../../mocks/window';
 
 describe('models/auth_brokers/fx-desktop-v3', () => {
   var broker;

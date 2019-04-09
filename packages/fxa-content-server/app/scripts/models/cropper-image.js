@@ -6,9 +6,9 @@
 
 'use strict';
 
-const AuthErrors = require('../lib/auth-errors');
-const Backbone = require('backbone');
-const Constants = require('../lib/constants');
+import AuthErrors from '../lib/auth-errors';
+import Backbone from 'backbone';
+import Constants from '../lib/constants';
 
 // a 1x1 jpeg
 var jpegSrc = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBAMFBwYHBwcGBwcICQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsM' +

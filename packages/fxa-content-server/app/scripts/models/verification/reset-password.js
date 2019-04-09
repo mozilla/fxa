@@ -8,8 +8,8 @@
 
 'use strict';
 
-const Vat = require('../../lib/vat');
-const VerificationInfo = require('./base');
+import Vat from '../../lib/vat';
+import VerificationInfo from './base';
 
 module.exports = VerificationInfo.extend({
   defaults: {

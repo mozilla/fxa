@@ -4,10 +4,10 @@
 
 'use strict';
 
-const AuthErrors = require('lib/auth-errors');
-const chai = require('chai');
-const Transform = require('lib/transform');
-const Vat = require('lib/vat');
+import AuthErrors from 'lib/auth-errors';
+import chai from 'chai';
+import Transform from 'lib/transform';
+import Vat from 'lib/vat';
 
 var assert = chai.assert;
 

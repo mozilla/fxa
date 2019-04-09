@@ -17,8 +17,8 @@
 
 'use strict';
 
-const Backbone = require('backbone');
-const Storage = require('../../lib/storage');
+import Backbone from 'backbone';
+import Storage from '../../lib/storage';
 
 var STORAGE_KEY = 'verificationInfo';
 

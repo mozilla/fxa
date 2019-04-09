@@ -11,7 +11,7 @@
 
 'use strict';
 
-const ResumeTokenMixin = require('./resume-token-mixin');
+import ResumeTokenMixin from './resume-token-mixin';
 
 module.exports = {
   dependsOn: [ ResumeTokenMixin ],

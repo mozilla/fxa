@@ -6,9 +6,9 @@
 
 'use strict';
 
-const _ = require('underscore');
-const Errors = require('./errors');
-const Logger = require('./logger');
+import _ from 'underscore';
+import Errors from './errors';
+import Logger from './logger';
 var logger = new Logger();
 
 const t = msg => msg;

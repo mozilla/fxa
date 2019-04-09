@@ -4,8 +4,8 @@
 
 'use strict';
 
-const Duration = require('duration');
-const P = require('./promise');
+import Duration from 'duration';
+import P from './promise';
 
 // The CERT_DURATION_MS is an offset from the fxa-auth-server clock, which we can reasonably assume to
 // be accurate and, more importantly, in sync with the clocks of fxa-oauth-server and other consumers

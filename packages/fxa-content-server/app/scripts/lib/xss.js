@@ -6,8 +6,8 @@
 
 'use strict';
 
-const _ = require('underscore');
-const Constants = require('./constants');
+import _ from 'underscore';
+import Constants from './constants';
 
 module.exports = {
   // only allow http or https URLs, encoding the URL.
