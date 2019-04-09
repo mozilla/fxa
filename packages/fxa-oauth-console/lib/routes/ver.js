@@ -42,7 +42,7 @@ function getCommitHashFromVersionJson() {
 }
 
 function getGitDir() {
-  if (! fs.existsSync(path.join(__dirname, '..', '..', '.git'))) {
+  if (! fs.existsSync(path.join(__dirname, '..', '..', '..', '..', '.git'))) {
     // try at '/home/app/git' for AwsBox deploys
     return path.sep + path.join('home', 'app', 'git');
   }

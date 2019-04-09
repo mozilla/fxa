@@ -23,12 +23,11 @@
     "body-parser": "1.18.3",
     "bower": "*",
     "broccoli-asset-rev": "3.0.0",
-    "broccoli-ember-hbs-template-compiler": "1.7.2-alpha",
     "client-sessions": "0.8.0",
-    "convict": "1.5.0",
+    "convict": "^4.4.1",
     "cookie-parser": "1.4.4",
     "ember-ajax": "5.0.0",
-    "ember-cli": "3.8.1",
+    "ember-cli": "^3.9.0",
     "ember-cli-app-version": "3.2.0",
     "ember-cli-babel": "7.7.3",
     "ember-cli-content-security-policy": "1.1.1",
@@ -38,7 +37,7 @@
     "ember-cli-inject-live-reload": "2.0.1",
     "ember-cli-sass": "10.0.0",
     "ember-cli-sri": "2.1.1",
-    "ember-data": "3.8.0",
+    "ember-data": "^3.9.0",
     "ember-disable-proxy-controllers": "1.0.2",
     "ember-export-application-global": "2.0.0",
     "ember-load-initializers": "2.0.0",
@@ -50,11 +49,10 @@
     "loader.js": "4.7.0",
     "mozlog": "2.2.0",
     "request": "2.88.0",
-    "sass": "1.17.4"
+    "sass": "^1.18.0"
   },
   "devDependencies": {
     "ember-cli-qunit": "4.4.0",
-    "ember-cli-release": "1.0.0-beta.2",
     "ember-cli-uglify": "2.1.0",
     "eslint-config-fxa": "3.0.0",
     "grunt": "1.0.4",
@@ -64,7 +62,7 @@
     "grunt-copyright": "0.3.0",
     "grunt-eslint": "21.0.0",
     "load-grunt-tasks": "4.0.0",
-    "nodemon": "1.18.10",
+    "nodemon": "^1.18.11",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
   },
   "engines": {
