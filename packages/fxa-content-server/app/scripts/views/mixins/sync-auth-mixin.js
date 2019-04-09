@@ -9,10 +9,10 @@
 
 'use strict';
 
-const _ = require('underscore');
-const Constants = require('../../lib/constants');
-const Url = require('../../lib/url');
-const UserAgentMixin = require('../../lib/user-agent-mixin');
+import _ from 'underscore';
+import Constants from '../../lib/constants';
+import Url from '../../lib/url';
+import UserAgentMixin from '../../lib/user-agent-mixin';
 
 module.exports = {
   dependsOn: [ UserAgentMixin ],

@@ -4,28 +4,28 @@
 
 'use strict';
 
-const $ = require('jquery');
-const _ = require('underscore');
-const { assert } = require('chai');
-const AuthErrors = require('lib/auth-errors');
-const BaseView = require('views/base');
-const Cocktail = require('cocktail');
-const CommunicationPreferencesView = require('views/settings/communication_preferences');
-const ExperimentGroupingRules = require('lib/experiments/grouping-rules/index');
-const FormPrefill = require('models/form-prefill');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const p = require('lib/promise');
-const ProfileClient = require('lib/profile-client');
-const ProfileErrors = require('lib/profile-errors');
-const ProfileImage = require('models/profile-image');
-const Relier = require('models/reliers/relier');
-const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
-const sinon = require('sinon');
-const TestHelpers = require('../../lib/helpers');
-const TestTemplate = require('templates/test_template.mustache');
-const User = require('models/user');
-const View = require('views/settings');
+import $ from 'jquery';
+import _ from 'underscore';
+import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
+import BaseView from 'views/base';
+import Cocktail from 'cocktail';
+import CommunicationPreferencesView from 'views/settings/communication_preferences';
+import ExperimentGroupingRules from 'lib/experiments/grouping-rules/index';
+import FormPrefill from 'models/form-prefill';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import p from 'lib/promise';
+import ProfileClient from 'lib/profile-client';
+import ProfileErrors from 'lib/profile-errors';
+import ProfileImage from 'models/profile-image';
+import Relier from 'models/reliers/relier';
+import SettingsPanelMixin from 'views/mixins/settings-panel-mixin';
+import sinon from 'sinon';
+import TestHelpers from '../../lib/helpers';
+import TestTemplate from 'templates/test_template.mustache';
+import User from 'models/user';
+import View from 'views/settings';
 
 const SettingsPanelView = BaseView.extend({
   className: 'panel',

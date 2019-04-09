@@ -4,21 +4,21 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const ExperimentGroupingRules = require('lib/experiments/grouping-rules/index');
-const FormPrefill = require('models/form-prefill');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const OAuthBroker = require('models/auth_brokers/oauth-redirect');
-const OAuthClient = require('lib/oauth-client');
-const OAuthRelier = require('models/reliers/oauth');
-const Session = require('lib/session');
-const SentryMetrics = require('lib/sentry');
-const sinon = require('sinon');
-const TestHelpers = require('../../lib/helpers');
-const User = require('models/user');
-const View = require('views/sign_up');
-const WindowMock = require('../../mocks/window');
+import { assert } from 'chai';
+import ExperimentGroupingRules from 'lib/experiments/grouping-rules/index';
+import FormPrefill from 'models/form-prefill';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import OAuthBroker from 'models/auth_brokers/oauth-redirect';
+import OAuthClient from 'lib/oauth-client';
+import OAuthRelier from 'models/reliers/oauth';
+import Session from 'lib/session';
+import SentryMetrics from 'lib/sentry';
+import sinon from 'sinon';
+import TestHelpers from '../../lib/helpers';
+import User from 'models/user';
+import View from 'views/sign_up';
+import WindowMock from '../../mocks/window';
 
 function fillOutSignUp (email, password, opts) {
   opts = opts || {};

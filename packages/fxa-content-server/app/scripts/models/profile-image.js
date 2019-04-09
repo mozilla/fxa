@@ -6,9 +6,9 @@
 
 'use strict';
 
-const Backbone = require('backbone');
-const ImageLoader = require('../lib/image-loader');
-const ProfileErrors = require('../lib/profile-errors');
+import Backbone from 'backbone';
+import ImageLoader from '../lib/image-loader';
+import ProfileErrors from '../lib/profile-errors';
 
 var ProfileImage = Backbone.Model.extend({
   defaults: {

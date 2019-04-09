@@ -4,14 +4,14 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const AuthBroker = require('models/auth_brokers/base');
-const BaseView = require('views/base');
-const Cocktail = require('cocktail');
-const EmailFirstExperimentMixin = require('views/mixins/email-first-experiment-mixin');
-const Notifier = require('lib/channels/notifier');
-const Relier = require('models/reliers/relier');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import AuthBroker from 'models/auth_brokers/base';
+import BaseView from 'views/base';
+import Cocktail from 'cocktail';
+import EmailFirstExperimentMixin from 'views/mixins/email-first-experiment-mixin';
+import Notifier from 'lib/channels/notifier';
+import Relier from 'models/reliers/relier';
+import sinon from 'sinon';
 
 class View extends BaseView {
   constructor (options) {

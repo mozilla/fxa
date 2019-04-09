@@ -7,8 +7,8 @@
  */
 'use strict';
 
-const Backbone = require('backbone');
-const Constants = require('../lib/constants');
+import Backbone from 'backbone';
+import Constants from '../lib/constants';
 
 module.exports = Backbone.Model.extend({
   defaults: {

@@ -4,7 +4,7 @@
 
 'use strict';
 
-const ES6Promise = require('es6-promise');
+import ES6Promise from 'es6-promise';
 
 // polyfill ES6 promises on browsers that do not support them.
 ES6Promise.polyfill();

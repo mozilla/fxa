@@ -4,17 +4,17 @@
 
 'use strict';
 
-const $ = require('jquery');
-const AuthErrors = require('lib/auth-errors');
-const chai = require('chai');
-const domWriter = require('lib/dom-writer');
-const ErrorUtils = require('lib/error-utils');
-const FiveHundredTemplate = require('templates/500.mustache');
-const FourHundredTemplate = require('templates/400.mustache');
-const OAuthErrors = require('lib/oauth-errors');
-const sinon = require('sinon');
-const Translator = require('lib/translator');
-const WindowMock = require('../../mocks/window');
+import $ from 'jquery';
+import AuthErrors from 'lib/auth-errors';
+import chai from 'chai';
+import domWriter from 'lib/dom-writer';
+import ErrorUtils from 'lib/error-utils';
+import FiveHundredTemplate from 'templates/500.mustache';
+import FourHundredTemplate from 'templates/400.mustache';
+import OAuthErrors from 'lib/oauth-errors';
+import sinon from 'sinon';
+import Translator from 'lib/translator';
+import WindowMock from '../../mocks/window';
 
 var assert = chai.assert;
 

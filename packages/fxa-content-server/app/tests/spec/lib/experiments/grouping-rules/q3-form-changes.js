@@ -4,9 +4,9 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const Account = require('models/account');
-const Experiment = require('lib/experiments/grouping-rules/q3-form-changes');
+import { assert } from 'chai';
+import Account from 'models/account';
+import Experiment from 'lib/experiments/grouping-rules/q3-form-changes';
 
 describe('lib/experiments/grouping-rules/q3-form-changes', () => {
   let account;

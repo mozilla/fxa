@@ -111,7 +111,8 @@ const webpackConfig = {
       {
         test: /\.js$/,
         include: [
-          path.resolve(__dirname, 'app', 'scripts')
+          path.resolve(__dirname, 'app', 'scripts'),
+          path.resolve(__dirname, 'app', 'tests')
         ],
         exclude: [
           path.resolve(__dirname, 'app', 'scripts', 'vendor'),

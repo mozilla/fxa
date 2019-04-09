@@ -4,12 +4,12 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const Experiment = require('lib/experiments/base');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const sinon = require('sinon');
-const Storage = require('lib/storage');
+import { assert } from 'chai';
+import Experiment from 'lib/experiments/base';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import sinon from 'sinon';
+import Storage from 'lib/storage';
 
 let experiment;
 let expOptions;

@@ -7,11 +7,11 @@
  */
 'use strict';
 
-const AuthErrors = require('../lib/auth-errors');
-const Constants = require('../lib/constants');
-const FormView = require('./form');
-const Template = require('templates/report_sign_in.mustache');
-const SignInToReport = require('../models/verification/report-sign-in');
+import AuthErrors from '../lib/auth-errors';
+import Constants from '../lib/constants';
+import FormView from './form';
+import Template from 'templates/report_sign_in.mustache';
+import SignInToReport from '../models/verification/report-sign-in';
 
 const View = FormView.extend({
   className: 'report-sign-in',

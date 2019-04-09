@@ -4,9 +4,9 @@
 
 'use strict';
 
-const chai = require('chai');
-const FxDesktopV1Channel = require('lib/channels/fx-desktop-v1');
-const WindowMock = require('../../../mocks/window');
+import chai from 'chai';
+import FxDesktopV1Channel from 'lib/channels/fx-desktop-v1';
+import WindowMock from '../../../mocks/window';
 
 var assert = chai.assert;
 

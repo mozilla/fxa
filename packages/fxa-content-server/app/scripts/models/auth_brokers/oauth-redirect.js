@@ -6,21 +6,21 @@
 
 'use strict';
 
-const _ = require('underscore');
-const AuthErrors = require('../../lib/auth-errors');
-const BaseAuthenticationBroker = require('../auth_brokers/base');
-const Constants = require('../../lib/constants');
-const HaltBehavior = require('../../views/behaviors/halt');
-const NullBehavior = require('../../views/behaviors/null');
-const NavigateBehavior = require('../../views/behaviors/navigate');
-const OAuthErrors = require('../../lib/oauth-errors');
-const p = require('../../lib/promise');
-const ScopedKeys = require('lib/crypto/scoped-keys');
-const Transform = require('../../lib/transform');
-const Url = require('../../lib/url');
-const Vat = require('../../lib/vat');
-const VerificationMethods = require('../../lib/verification-methods');
-const VerificationReasons = require('../../lib/verification-reasons');
+import _ from 'underscore';
+import AuthErrors from '../../lib/auth-errors';
+import BaseAuthenticationBroker from '../auth_brokers/base';
+import Constants from '../../lib/constants';
+import HaltBehavior from '../../views/behaviors/halt';
+import NullBehavior from '../../views/behaviors/null';
+import NavigateBehavior from '../../views/behaviors/navigate';
+import OAuthErrors from '../../lib/oauth-errors';
+import p from '../../lib/promise';
+import ScopedKeys from 'lib/crypto/scoped-keys';
+import Transform from '../../lib/transform';
+import Url from '../../lib/url';
+import Vat from '../../lib/vat';
+import VerificationMethods from '../../lib/verification-methods';
+import VerificationReasons from '../../lib/verification-reasons';
 
 const proto = BaseAuthenticationBroker.prototype;
 

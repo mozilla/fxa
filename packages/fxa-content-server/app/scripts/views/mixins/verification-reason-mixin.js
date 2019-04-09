@@ -10,8 +10,8 @@
 
 'use strict';
 
-const _ = require('underscore');
-const VerificationReasons = require('../../lib/verification-reasons');
+import _ from 'underscore';
+import VerificationReasons from '../../lib/verification-reasons';
 
 function findKey(haystack, needle) {
   return _.findKey(haystack, function (value) {

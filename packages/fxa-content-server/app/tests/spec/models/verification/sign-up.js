@@ -4,10 +4,10 @@
 
 'use strict';
 
-const chai = require('chai');
-const Constants = require('lib/constants');
-const Model = require('models/verification/sign-up');
-const TestHelpers = require('../../../lib/helpers');
+import chai from 'chai';
+import Constants from 'lib/constants';
+import Model from 'models/verification/sign-up';
+import TestHelpers from '../../../lib/helpers';
 
 var assert = chai.assert;
 

@@ -4,21 +4,21 @@
 
 'use strict';
 
-const $ = require('jquery');
-const AuthBroker = require('models/auth_brokers/base');
-const AuthErrors = require('lib/auth-errors');
-const CanvasMock = require('../../../mocks/canvas');
-const chai = require('chai');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const ProfileMock = require('../../../mocks/profile');
-const Relier = require('models/reliers/relier');
-const sinon = require('sinon');
-const TestHelpers = require('../../../lib/helpers');
-const User = require('models/user');
-const View = require('views/settings/avatar_camera');
-const WebRTC = require('webrtc');
-const WindowMock = require('../../../mocks/window');
+import $ from 'jquery';
+import AuthBroker from 'models/auth_brokers/base';
+import AuthErrors from 'lib/auth-errors';
+import CanvasMock from '../../../mocks/canvas';
+import chai from 'chai';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import ProfileMock from '../../../mocks/profile';
+import Relier from 'models/reliers/relier';
+import sinon from 'sinon';
+import TestHelpers from '../../../lib/helpers';
+import User from 'models/user';
+import View from 'views/settings/avatar_camera';
+import WebRTC from 'webrtc';
+import WindowMock from '../../../mocks/window';
 
 var assert = chai.assert;
 

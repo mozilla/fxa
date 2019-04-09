@@ -9,7 +9,7 @@
 
 'use strict';
 
-const Backbone = require('backbone');
+import Backbone from 'backbone';
 
 var Relier = Backbone.Model.extend({
   defaults: {

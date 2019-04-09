@@ -9,12 +9,12 @@
 
 'use strict';
 
-const _ = require('underscore');
-const FxDesktopChannel = require('../../lib/channels/fx-desktop-v1');
-const FxSyncChannelAuthenticationBroker = require('../auth_brokers/fx-sync-channel');
-const HaltBehavior = require('../../views/behaviors/halt');
-const NavigateBehavior = require('../../views/behaviors/navigate');
-const UserAgent = require('../../lib/user-agent');
+import _ from 'underscore';
+import FxDesktopChannel from '../../lib/channels/fx-desktop-v1';
+import FxSyncChannelAuthenticationBroker from '../auth_brokers/fx-sync-channel';
+import HaltBehavior from '../../views/behaviors/halt';
+import NavigateBehavior from '../../views/behaviors/navigate';
+import UserAgent from '../../lib/user-agent';
 
 const proto = FxSyncChannelAuthenticationBroker.prototype;
 

@@ -4,20 +4,20 @@
 
 'use strict';
 
-const Account = require('models/account');
-const { assert } = require('chai');
-const AuthErrors = require('lib/auth-errors');
-const BaseAuthenticationBroker = require('models/auth_brokers/base');
-const FxaClient = require('lib/fxa-client');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const Relier = require('models/reliers/relier');
-const SameBrowserVerificationModel = require('models/verification/same-browser');
-const sinon = require('sinon');
-const VerificationMethods = require('lib/verification-methods');
-const VerificationReasons = require('lib/verification-reasons');
-const WebChannel = require('lib/channels/web');
-const WindowMock = require('../../../mocks/window');
+import Account from 'models/account';
+import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
+import BaseAuthenticationBroker from 'models/auth_brokers/base';
+import FxaClient from 'lib/fxa-client';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import Relier from 'models/reliers/relier';
+import SameBrowserVerificationModel from 'models/verification/same-browser';
+import sinon from 'sinon';
+import VerificationMethods from 'lib/verification-methods';
+import VerificationReasons from 'lib/verification-reasons';
+import WebChannel from 'lib/channels/web';
+import WindowMock from '../../../mocks/window';
 
 describe('models/auth_brokers/base', function () {
   let account;

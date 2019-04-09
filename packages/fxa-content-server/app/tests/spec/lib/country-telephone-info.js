@@ -4,8 +4,8 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const CountryTelephoneInfo = require('lib/country-telephone-info');
+import { assert } from 'chai';
+import CountryTelephoneInfo from 'lib/country-telephone-info';
 
 describe('lib/country-telephone-info', () => {
   /**

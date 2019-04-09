@@ -4,13 +4,13 @@
 
 'use strict';
 
-const Account = require('models/account');
-const { assert } = require('chai');
-const Constants = require('lib/constants');
-const MarketingEmailClient = require('lib/marketing-email-client');
-const MarketingEmailPrefs = require('models/marketing-email-prefs');
-const OAuthToken = require('models/oauth-token');
-const sinon = require('sinon');
+import Account from 'models/account';
+import { assert } from 'chai';
+import Constants from 'lib/constants';
+import MarketingEmailClient from 'lib/marketing-email-client';
+import MarketingEmailPrefs from 'models/marketing-email-prefs';
+import OAuthToken from 'models/oauth-token';
+import sinon from 'sinon';
 
 describe('models/marketing-email-prefs', function () {
   var account;

@@ -4,9 +4,9 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const flowBeginMixin = require('views/mixins/flow-begin-mixin');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import flowBeginMixin from 'views/mixins/flow-begin-mixin';
+import sinon from 'sinon';
 
 describe('views/mixins/flow-begin-mixin', () => {
   it('exports correct interface', () => {

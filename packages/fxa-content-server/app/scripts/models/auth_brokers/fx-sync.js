@@ -10,10 +10,10 @@
 
 'use strict';
 
-const _ = require('underscore');
-const BaseAuthenticationBroker = require('../auth_brokers/base');
-const ConnectAnotherDeviceBehavior = require('../../views/behaviors/connect-another-device');
-const SyncEngines = require('../sync-engines');
+import _ from 'underscore';
+import BaseAuthenticationBroker from '../auth_brokers/base';
+import ConnectAnotherDeviceBehavior from '../../views/behaviors/connect-another-device';
+import SyncEngines from '../sync-engines';
 
 const proto = BaseAuthenticationBroker.prototype;
 

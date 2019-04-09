@@ -15,8 +15,8 @@
 
 'use strict';
 
-const { preventDefaultThen } = require('../base');
-const KeyCodes = require('../../lib/key-codes');
+import { preventDefaultThen } from '../base';
+import KeyCodes from '../../lib/key-codes';
 
 module.exports = {
   initialize (options = {}) {

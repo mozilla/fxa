@@ -6,8 +6,8 @@
 
 'use strict';
 
-const _ = require('underscore');
-const Errors = require('./errors');
+import _ from 'underscore';
+import Errors from './errors';
 const t = msg => msg;
 
 var UNEXPECTED_ERROR = t('Unexpected error');

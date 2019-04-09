@@ -10,7 +10,7 @@
 
 'use strict';
 
-const ExperimentMixin = require('./experiment-mixin');
+import ExperimentMixin from './experiment-mixin';
 
 module.exports = {
   dependsOn: [ ExperimentMixin ],

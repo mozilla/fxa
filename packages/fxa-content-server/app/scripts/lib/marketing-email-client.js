@@ -8,11 +8,11 @@
 
 'use strict';
 
-const { assign } = require('underscore');
-const { DEFAULT_XHR_TIMEOUT_MS } = require('./constants');
-const MarketingEmailErrors = require('./marketing-email-errors');
-const Url = require('./url');
-const xhr = require('./xhr');
+import { assign } from 'underscore';
+import { DEFAULT_XHR_TIMEOUT_MS } from './constants';
+import MarketingEmailErrors from './marketing-email-errors';
+import Url from './url';
+import xhr from './xhr';
 
 const ALLOWED_SOURCE_URL_QUERY_PARAMS = [
   'client_id',

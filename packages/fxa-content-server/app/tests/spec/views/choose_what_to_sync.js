@@ -4,20 +4,20 @@
 
 'use strict';
 
-const $ = require('jquery');
-const Account = require('models/account');
-const { assert } = require('chai');
-const Backbone = require('backbone');
-const Broker = require('models/auth_brokers/base');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const sinon = require('sinon');
-const SessionVerificationPoll = require('models/polls/session-verification');
-const SyncEngines = require('models/sync-engines');
-const TestHelpers = require('../../lib/helpers');
-const User = require('models/user');
-const View = require('views/choose_what_to_sync');
-const WindowMock = require('../../mocks/window');
+import $ from 'jquery';
+import Account from 'models/account';
+import { assert } from 'chai';
+import Backbone from 'backbone';
+import Broker from 'models/auth_brokers/base';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import sinon from 'sinon';
+import SessionVerificationPoll from 'models/polls/session-verification';
+import SyncEngines from 'models/sync-engines';
+import TestHelpers from '../../lib/helpers';
+import User from 'models/user';
+import View from 'views/choose_what_to_sync';
+import WindowMock from '../../mocks/window';
 
 describe('views/choose_what_to_sync', () => {
   let account;

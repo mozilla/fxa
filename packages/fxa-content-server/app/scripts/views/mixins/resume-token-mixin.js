@@ -6,8 +6,8 @@
 
 'use strict';
 
-const _ = require('underscore');
-const ResumeToken = require('../../models/resume-token');
+import _ from 'underscore';
+import ResumeToken from '../../models/resume-token';
 
 module.exports = {
   /**

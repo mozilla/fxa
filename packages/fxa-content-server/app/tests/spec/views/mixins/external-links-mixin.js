@@ -4,16 +4,16 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const BaseView = require('views/base');
-const Broker = require('models/auth_brokers/base');
-const Cocktail = require('cocktail');
-const ExternalLinksMixin = require('views/mixins/external-links-mixin');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const sinon = require('sinon');
-const TestTemplate = require('templates/test_template.mustache');
-const WindowMock = require('../../../mocks/window');
+import { assert } from 'chai';
+import BaseView from 'views/base';
+import Broker from 'models/auth_brokers/base';
+import Cocktail from 'cocktail';
+import ExternalLinksMixin from 'views/mixins/external-links-mixin';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import sinon from 'sinon';
+import TestTemplate from 'templates/test_template.mustache';
+import WindowMock from '../../../mocks/window';
 
 const View = BaseView.extend({
   template: TestTemplate

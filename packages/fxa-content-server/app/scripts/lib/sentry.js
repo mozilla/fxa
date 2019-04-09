@@ -4,10 +4,10 @@
 
 'use strict';
 
-const _ = require('underscore');
-const Logger = require('./logger');
-const Raven = require('raven');
-const Url = require('./url');
+import _ from 'underscore';
+import Logger from './logger';
+import Raven from 'raven';
+import Url from './url';
 
 var ALLOWED_QUERY_PARAMETERS = [
   'automatedBrowser',

@@ -4,10 +4,10 @@
 
 'use strict';
 
-const _ = require('underscore');
-const chai = require('chai');
-const Constants = require('lib/constants');
-const XSS = require('lib/xss');
+import _ from 'underscore';
+import chai from 'chai';
+import Constants from 'lib/constants';
+import XSS from 'lib/xss';
 
 var assert = chai.assert;
 

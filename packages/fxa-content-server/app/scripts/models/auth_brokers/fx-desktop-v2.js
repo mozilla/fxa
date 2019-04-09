@@ -10,9 +10,9 @@
 
 'use strict';
 
-const _ = require('underscore');
-const FxSyncWebChannelAuthenticationBroker = require('./fx-sync-web-channel');
-const HaltIfBrowserTransitions = require('../../views/behaviors/halt-if-browser-transitions');
+import _ from 'underscore';
+import FxSyncWebChannelAuthenticationBroker from './fx-sync-web-channel';
+import HaltIfBrowserTransitions from '../../views/behaviors/halt-if-browser-transitions';
 
 const proto = FxSyncWebChannelAuthenticationBroker.prototype;
 const defaultBehaviors = proto.defaultBehaviors;

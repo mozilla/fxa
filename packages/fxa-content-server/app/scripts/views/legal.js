@@ -4,8 +4,8 @@
 
 'use strict';
 
-const BaseView = require('./base');
-const Template = require('templates/legal.mustache');
+import BaseView from './base';
+import Template from 'templates/legal.mustache';
 
 var View = BaseView.extend({
   className: 'legal',
