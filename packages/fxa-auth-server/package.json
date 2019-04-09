@@ -96,7 +96,6 @@
     "audit-filter": "0.3.0",
     "chai": "4.1.2",
     "eslint-plugin-fxa": "git+https://github.com/mozilla/eslint-plugin-fxa#master",
-    "fxa-auth-db-mysql": "git+https://github.com/mozilla/fxa-auth-db-mysql.git#master",
     "grunt": "1.0.4",
     "grunt-cli": "1.2.0",
     "grunt-contrib-copy": "1.0.0",
