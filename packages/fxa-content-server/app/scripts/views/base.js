@@ -4,24 +4,24 @@
 
 'use strict';
 
-const $ = require('jquery');
-const _ = require('underscore');
-const AuthErrors = require('../lib/auth-errors');
-const Backbone = require('backbone');
-const Cocktail = require('cocktail');
-const domWriter = require('../lib/dom-writer');
-const ErrorUtils = require('../lib/error-utils');
-const ExternalLinksMixin = require('./mixins/external-links-mixin');
-const NotifierMixin = require('../lib/channels/notifier-mixin');
-const NullMetrics = require('../lib/null-metrics');
-const Logger = require('../lib/logger');
-const Raven = require('raven');
-const UrlMixin = require('../lib/url-mixin');
-const Strings = require('../lib/strings');
-const TimerMixin = require('./mixins/timer-mixin');
-const Translator = require('../lib/translator');
-const VerificationMethods = require('../lib/verification-methods');
-const VerificationReasons = require('../lib/verification-reasons');
+import $ from 'jquery';
+import _ from 'underscore';
+import AuthErrors from '../lib/auth-errors';
+import Backbone from 'backbone';
+import Cocktail from 'cocktail';
+import domWriter from '../lib/dom-writer';
+import ErrorUtils from '../lib/error-utils';
+import ExternalLinksMixin from './mixins/external-links-mixin';
+import NotifierMixin from '../lib/channels/notifier-mixin';
+import NullMetrics from '../lib/null-metrics';
+import Logger from '../lib/logger';
+import Raven from 'raven';
+import UrlMixin from '../lib/url-mixin';
+import Strings from '../lib/strings';
+import TimerMixin from './mixins/timer-mixin';
+import Translator from '../lib/translator';
+import VerificationMethods from '../lib/verification-methods';
+import VerificationReasons from '../lib/verification-reasons';
 
 var DEFAULT_TITLE = window.document.title;
 var DEFAULT_HEADER_HEIGHT = 64; // see _settings.scss for details (.settings-success-wrapper)

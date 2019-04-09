@@ -4,8 +4,8 @@
 
 'use strict';
 
-const _ = require('underscore');
-const Strings = require('./strings');
+import _ from 'underscore';
+import Strings from './strings';
 
 module.exports = {
   /**

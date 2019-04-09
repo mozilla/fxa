@@ -13,7 +13,7 @@
 
 'use strict';
 
-const $ = require('jquery');
+import $ from 'jquery';
 
 function shouldConvertExternalLinksToText(broker) {
   // not all views have a broker, e.g., the CoppaAgeInput

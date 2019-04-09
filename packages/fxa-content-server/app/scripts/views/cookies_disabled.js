@@ -4,12 +4,12 @@
 
 'use strict';
 
-const AuthErrors = require('../lib/auth-errors');
-const BackMixin = require('./mixins/back-mixin');
-const BaseView = require('./base');
-const Cocktail = require('cocktail');
-const Storage = require('../lib/storage');
-const Template = require('templates/cookies_disabled.mustache');
+import AuthErrors from '../lib/auth-errors';
+import BackMixin from './mixins/back-mixin';
+import BaseView from './base';
+import Cocktail from 'cocktail';
+import Storage from '../lib/storage';
+import Template from 'templates/cookies_disabled.mustache';
 
 var View = BaseView.extend({
   constructor: function (options) {

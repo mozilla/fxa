@@ -8,45 +8,54 @@
  * it maps context strings to auth broker constructors.
  */
 
-const Constants = require('../../lib/constants');
+import Constants from '../../lib/constants';
+import FxSyncBroker from '../auth_brokers/fx-sync';
+import FxDesktopV3broker from '../auth_brokers/fx-desktop-v3';
+import FxFennecV1Broker from '../auth_brokers/fx-fennec-v1';
+import FxIosV1Broker from '../auth_brokers/fx-ios-v1';
+import OauthRedirectBroker from '../auth_brokers/oauth-redirect';
+import OauthRedirectChromeAndroidBroker from '../auth_brokers/oauth-redirect-chrome-android';
+import WebBroker from '../auth_brokers/web';
+import AuthorityBroker from '../auth_brokers/pairing/authority';
+import SupplicantBroker from '../auth_brokers/pairing/supplicant';
 
 const AUTH_BROKERS = [
   /* eslint-disable sorting/sort-object-props */
   {
     context: Constants.FX_SYNC_CONTEXT,
-    Constructor: require('../auth_brokers/fx-sync')
+    Constructor: FxSyncBroker
   },
   {
     context: Constants.FX_DESKTOP_V3_CONTEXT,
-    Constructor: require('../auth_brokers/fx-desktop-v3')
+    Constructor: FxDesktopV3broker
   },
   {
     context: Constants.FX_FENNEC_V1_CONTEXT,
-    Constructor: require('../auth_brokers/fx-fennec-v1')
+    Constructor: FxFennecV1Broker
   },
   {
     context: Constants.FX_IOS_V1_CONTEXT,
-    Constructor: require('../auth_brokers/fx-ios-v1')
+    Constructor: FxIosV1Broker
   },
   {
     context: Constants.OAUTH_CONTEXT,
-    Constructor: require('../auth_brokers/oauth-redirect')
+    Constructor: OauthRedirectBroker
   },
   {
     context: Constants.OAUTH_CHROME_ANDROID_CONTEXT,
-    Constructor: require('../auth_brokers/oauth-redirect-chrome-android').default
+    Constructor: OauthRedirectChromeAndroidBroker
   },
   {
     context: Constants.CONTENT_SERVER_CONTEXT,
-    Constructor: require('../auth_brokers/web')
+    Constructor: WebBroker
   },
   {
     context: Constants.DEVICE_PAIRING_AUTHORITY_CONTEXT,
-    Constructor: require('../auth_brokers/pairing/authority').default
+    Constructor: AuthorityBroker
   },
   {
     context: Constants.DEVICE_PAIRING_SUPPLICANT_CONTEXT,
-    Constructor: require('../auth_brokers/pairing/supplicant').default
+    Constructor: SupplicantBroker
   },
   /* eslint-enable sorting/sort-object-props */
 ].reduce((authBrokers, authBroker) => {
@@ -62,6 +71,6 @@ module.exports = {
    * @returns {Function} Constructor
    */
   get (context) {
-    return AUTH_BROKERS[context] || require('../auth_brokers/web');
+    return AUTH_BROKERS[context] || WebBroker;
   }
 };

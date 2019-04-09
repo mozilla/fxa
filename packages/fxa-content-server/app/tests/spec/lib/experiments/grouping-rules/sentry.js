@@ -4,9 +4,9 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const Experiment = require('lib/experiments/grouping-rules/sentry');
-const sinon = require('sinon');
+import { assert } from 'chai';
+import Experiment from 'lib/experiments/grouping-rules/sentry';
+import sinon from 'sinon';
 
 describe('lib/experiments/grouping-rules/sentry', () => {
   let experiment;

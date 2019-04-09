@@ -4,8 +4,8 @@
 
 'use strict';
 
-const BaseModel = require('models/verification/base');
-const chai = require('chai');
+import BaseModel from 'models/verification/base';
+import chai from 'chai';
 
 var assert = chai.assert;
 

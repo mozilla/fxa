@@ -4,8 +4,8 @@
 
 'use strict';
 
-const chai = require('chai');
-const View = require('views/clear_storage');
+import chai from 'chai';
+import View from 'views/clear_storage';
 
 var assert = chai.assert;
 

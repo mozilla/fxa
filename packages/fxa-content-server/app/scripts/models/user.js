@@ -10,17 +10,17 @@
 
 'use strict';
 
-const _ = require('underscore');
-const Account = require('./account');
-const AuthErrors = require('../lib/auth-errors');
-const Backbone = require('backbone');
-const Cocktail = require('cocktail');
-const Constants = require('../lib/constants');
-const MarketingEmailErrors = require('../lib/marketing-email-errors');
-const ResumeTokenMixin = require('./mixins/resume-token');
-const UrlMixin = require('./mixins/url');
-const Storage = require('../lib/storage');
-const vat = require('../lib/vat');
+import _ from 'underscore';
+import Account from './account';
+import AuthErrors from '../lib/auth-errors';
+import Backbone from 'backbone';
+import Cocktail from 'cocktail';
+import Constants from '../lib/constants';
+import MarketingEmailErrors from '../lib/marketing-email-errors';
+import ResumeTokenMixin from './mixins/resume-token';
+import UrlMixin from './mixins/url';
+import Storage from '../lib/storage';
+import vat from '../lib/vat';
 
 var User = Backbone.Model.extend({
   initialize (options = {}) {

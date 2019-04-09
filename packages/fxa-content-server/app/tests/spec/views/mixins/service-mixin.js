@@ -4,16 +4,16 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const Backbone = require('backbone');
-const BaseView = require('views/base');
-const Cocktail = require('cocktail');
-const NullBroker = require('models/auth_brokers/base');
-const OAuthRelier = require('models/reliers/oauth');
-const ServiceMixin = require('views/mixins/service-mixin');
-const Session = require('lib/session');
-const sinon = require('sinon');
-const WindowMock = require('../../../mocks/window');
+import { assert } from 'chai';
+import Backbone from 'backbone';
+import BaseView from 'views/base';
+import Cocktail from 'cocktail';
+import NullBroker from 'models/auth_brokers/base';
+import OAuthRelier from 'models/reliers/oauth';
+import ServiceMixin from 'views/mixins/service-mixin';
+import Session from 'lib/session';
+import sinon from 'sinon';
+import WindowMock from '../../../mocks/window';
 
 var OAuthView = BaseView.extend({
   className: 'oauth',

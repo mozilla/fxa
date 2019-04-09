@@ -18,8 +18,8 @@
 
 'use strict';
 
-const _ = require('underscore');
-const MarketingSnippet = require('../marketing_snippet');
+import _ from 'underscore';
+import MarketingSnippet from '../marketing_snippet';
 
 /**
  * Function that must be called to return the mixin.

@@ -6,7 +6,7 @@
 
 'use strict';
 
-const _ = require('underscore');
+import _ from 'underscore';
 
 /**
  * Returns true if given "uri" has HTTP or HTTPS scheme

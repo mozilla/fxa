@@ -4,9 +4,9 @@
 
 'use strict';
 
-const AuthErrors = require('../../lib/auth-errors');
-const textInput = require('./text-input');
-const Vat = require('../../lib/vat');
+import AuthErrors from '../../lib/auth-errors';
+import textInput from './text-input';
+import Vat from '../../lib/vat';
 
 const element = Object.create(textInput);
 

@@ -11,7 +11,7 @@
 
 'use strict';
 
-const Backbone = require('backbone');
+import Backbone from 'backbone';
 
 var FormPrefill = Backbone.Model.extend({
   defaults: {

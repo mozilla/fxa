@@ -10,12 +10,12 @@
 
 'use strict';
 
-const _ = require('underscore');
-const AuthErrors = require('../../lib/auth-errors');
-const ChannelMixin = require('../auth_brokers/mixins/channel');
-const Cocktail = require('cocktail');
-const FxSyncAuthenticationBroker = require('../auth_brokers/fx-sync');
-const Logger = require('../../lib/logger');
+import _ from 'underscore';
+import AuthErrors from '../../lib/auth-errors';
+import ChannelMixin from '../auth_brokers/mixins/channel';
+import Cocktail from 'cocktail';
+import FxSyncAuthenticationBroker from '../auth_brokers/fx-sync';
+import Logger from '../../lib/logger';
 
 const proto = FxSyncAuthenticationBroker.prototype;
 

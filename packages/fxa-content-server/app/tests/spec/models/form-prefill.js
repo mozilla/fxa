@@ -4,8 +4,8 @@
 
 'use strict';
 
-const chai = require('chai');
-const FormPrefill = require('models/form-prefill');
+import chai from 'chai';
+import FormPrefill from 'models/form-prefill';
 
 var assert = chai.assert;
 

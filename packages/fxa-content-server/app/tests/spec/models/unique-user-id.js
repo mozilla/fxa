@@ -4,12 +4,12 @@
 
 'use strict';
 
-const chai = require('chai');
-const ResumeToken = require('models/resume-token');
-const Storage = require('lib/storage');
-const UniqueUserId = require('models/unique-user-id');
-const Url = require('lib/url');
-const WindowMock = require('../../mocks/window');
+import chai from 'chai';
+import ResumeToken from 'models/resume-token';
+import Storage from 'lib/storage';
+import UniqueUserId from 'models/unique-user-id';
+import Url from 'lib/url';
+import WindowMock from '../../mocks/window';
 
 var assert = chai.assert;
 

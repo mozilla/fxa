@@ -4,22 +4,22 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const AuthErrors = require('lib/auth-errors');
-const Backbone = require('backbone');
-const BaseView = require('views/base');
-const ConnectAnotherDeviceMixin = require('views/mixins/connect-another-device-mixin');
-const Constants = require('lib/constants');
-const ExperimentMixin = require('views/mixins/experiment-mixin');
-const Cocktail = require('cocktail');
-const Notifier = require('lib/channels/notifier');
-const Relier = require('models/reliers/relier');
-const sinon = require('sinon');
-const Template = require('templates/test_template.mustache');
-const User = require('models/user');
-const UserAgentMixin = require('lib/user-agent-mixin');
-const { createRandomHexString } = require('../../../lib/helpers');
-const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
+import { assert } from 'chai';
+import AuthErrors from 'lib/auth-errors';
+import Backbone from 'backbone';
+import BaseView from 'views/base';
+import ConnectAnotherDeviceMixin from 'views/mixins/connect-another-device-mixin';
+import Constants from 'lib/constants';
+import ExperimentMixin from 'views/mixins/experiment-mixin';
+import Cocktail from 'cocktail';
+import Notifier from 'lib/channels/notifier';
+import Relier from 'models/reliers/relier';
+import sinon from 'sinon';
+import Template from 'templates/test_template.mustache';
+import User from 'models/user';
+import UserAgentMixin from 'lib/user-agent-mixin';
+import { createRandomHexString } from '../../../lib/helpers';
+import VerificationReasonMixin from 'views/mixins/verification-reason-mixin';
 
 const VALID_UID = createRandomHexString(Constants.UID_LENGTH);
 

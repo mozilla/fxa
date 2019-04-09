@@ -4,24 +4,24 @@
 
 'use strict';
 
-const AccountResetMixin = require('./mixins/account-reset-mixin');
-const AuthErrors = require('../lib/auth-errors');
-const Cocktail = require('cocktail');
-const CoppaMixin = require('./mixins/coppa-mixin');
-const EmailFirstExperimentMixin = require('./mixins/email-first-experiment-mixin');
-const EmailOptInMixin = require('./mixins/email-opt-in-mixin');
-const ExperimentMixin = require('./mixins/experiment-mixin');
-const FlowBeginMixin = require('./mixins/flow-begin-mixin');
-const FormPrefillMixin = require('./mixins/form-prefill-mixin');
-const FormView = require('./form');
-const mailcheck = require('../lib/mailcheck');
-const PasswordMixin = require('./mixins/password-mixin');
-const ServiceMixin = require('./mixins/service-mixin');
-const SignedInNotificationMixin = require('./mixins/signed-in-notification-mixin');
-const SignInMixin = require('./mixins/signin-mixin');
-const SignUpMixin = require('./mixins/signup-mixin');
-const SyncSuggestionMixin = require('./mixins/sync-suggestion-mixin');
-const Template = require('templates/sign_up.mustache');
+import AccountResetMixin from './mixins/account-reset-mixin';
+import AuthErrors from '../lib/auth-errors';
+import Cocktail from 'cocktail';
+import CoppaMixin from './mixins/coppa-mixin';
+import EmailFirstExperimentMixin from './mixins/email-first-experiment-mixin';
+import EmailOptInMixin from './mixins/email-opt-in-mixin';
+import ExperimentMixin from './mixins/experiment-mixin';
+import FlowBeginMixin from './mixins/flow-begin-mixin';
+import FormPrefillMixin from './mixins/form-prefill-mixin';
+import FormView from './form';
+import mailcheck from '../lib/mailcheck';
+import PasswordMixin from './mixins/password-mixin';
+import ServiceMixin from './mixins/service-mixin';
+import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
+import SignInMixin from './mixins/signin-mixin';
+import SignUpMixin from './mixins/signup-mixin';
+import SyncSuggestionMixin from './mixins/sync-suggestion-mixin';
+import Template from 'templates/sign_up.mustache';
 
 const t = msg => msg;
 

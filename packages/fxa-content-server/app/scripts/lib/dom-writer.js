@@ -4,7 +4,7 @@
 
 'use strict';
 
-const $ = require('jquery');
+import $ from 'jquery';
 
 module.exports = {
   /**

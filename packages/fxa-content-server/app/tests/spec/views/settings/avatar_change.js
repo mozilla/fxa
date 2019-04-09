@@ -4,21 +4,21 @@
 
 'use strict';
 
-const $ = require('jquery');
-const AuthErrors = require('lib/auth-errors');
-const chai = require('chai');
-const FileReaderMock = require('../../../mocks/file-reader');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const ProfileClient = require('lib/profile-client');
-const ProfileMock = require('../../../mocks/profile');
-const Relier = require('models/reliers/relier');
-const sinon = require('sinon');
-const Translator = require('lib/translator');
-const TestHelpers = require('../../../lib/helpers');
-const User = require('models/user');
-const View = require('views/settings/avatar_change');
-const WindowMock = require('../../../mocks/window');
+import $ from 'jquery';
+import AuthErrors from 'lib/auth-errors';
+import chai from 'chai';
+import FileReaderMock from '../../../mocks/file-reader';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import ProfileClient from 'lib/profile-client';
+import ProfileMock from '../../../mocks/profile';
+import Relier from 'models/reliers/relier';
+import sinon from 'sinon';
+import Translator from 'lib/translator';
+import TestHelpers from '../../../lib/helpers';
+import User from 'models/user';
+import View from 'views/settings/avatar_change';
+import WindowMock from '../../../mocks/window';
 var wrapAssertion = TestHelpers.wrapAssertion;
 
 var assert = chai.assert;

@@ -4,16 +4,16 @@
 
 'use strict';
 
-const AuthErrors = require('../lib/auth-errors');
-const BackMixin = require('./mixins/back-mixin');
-const Cocktail = require('cocktail');
-const FlowEventsMixin = require('./mixins/flow-events-mixin');
-const FormView = require('./form');
-const PasswordResetMixin = require('./mixins/password-reset-mixin');
-const preventDefaultThen = require('./base').preventDefaultThen;
-const ServiceMixin = require('./mixins/service-mixin');
-const Session = require('../lib/session');
-const Template = require('templates/reset_password.mustache');
+import AuthErrors from '../lib/auth-errors';
+import BackMixin from './mixins/back-mixin';
+import Cocktail from 'cocktail';
+import FlowEventsMixin from './mixins/flow-events-mixin';
+import FormView from './form';
+import PasswordResetMixin from './mixins/password-reset-mixin';
+import { preventDefaultThen } from './base';
+import ServiceMixin from './mixins/service-mixin';
+import Session from '../lib/session';
+import Template from 'templates/reset_password.mustache';
 
 const t = msg => msg;
 

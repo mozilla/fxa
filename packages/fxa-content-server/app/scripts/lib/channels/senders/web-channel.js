@@ -9,7 +9,7 @@
 
 'use strict';
 
-const UserAgent = require('lib/user-agent');
+import UserAgent from 'lib/user-agent';
 
 function WebChannelSender() {
   // nothing to do here.

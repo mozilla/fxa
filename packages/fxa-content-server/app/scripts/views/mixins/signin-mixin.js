@@ -6,13 +6,13 @@
 
 'use strict';
 
-const AuthErrors = require('../../lib/auth-errors');
-const OAuthErrors = require('../../lib/oauth-errors');
-const NavigateBehavior = require('../behaviors/navigate');
-const ResumeTokenMixin = require('./resume-token-mixin');
-const VerificationMethods = require('../../lib/verification-methods');
-const VerificationReasons = require('../../lib/verification-reasons');
-const TokenCodeExperimentMixin = require('../mixins/token-code-experiment-mixin');
+import AuthErrors from '../../lib/auth-errors';
+import OAuthErrors from '../../lib/oauth-errors';
+import NavigateBehavior from '../behaviors/navigate';
+import ResumeTokenMixin from './resume-token-mixin';
+import VerificationMethods from '../../lib/verification-methods';
+import VerificationReasons from '../../lib/verification-reasons';
+import TokenCodeExperimentMixin from '../mixins/token-code-experiment-mixin';
 
 const t = msg => msg;
 const TOTP_SUPPORT_URL = 'https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication';

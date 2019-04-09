@@ -4,11 +4,11 @@
 
 'use strict';
 
-const AuthErrors = require('lib/auth-errors');
-const chai = require('chai');
-const Logger = require('lib/logger');
-const sinon = require('sinon');
-const WindowMock = require('../../mocks/window');
+import AuthErrors from 'lib/auth-errors';
+import chai from 'chai';
+import Logger from 'lib/logger';
+import sinon from 'sinon';
+import WindowMock from '../../mocks/window';
 
 var assert = chai.assert;
 

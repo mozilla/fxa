@@ -8,8 +8,8 @@
  */
 'use strict';
 
-const BaseView = require('./base');
-const Template = require('templates/sign_in_reported.mustache');
+import BaseView from './base';
+import Template from 'templates/sign_in_reported.mustache';
 
 module.exports = BaseView.extend({
   template: Template

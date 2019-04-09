@@ -14,7 +14,7 @@
 
 'use strict';
 
-const ProgressIndicator = require('../progress_indicator');
+import ProgressIndicator from '../progress_indicator';
 
 // Return a promise delayed by ms
 function delay(progressIndicator, ms) {

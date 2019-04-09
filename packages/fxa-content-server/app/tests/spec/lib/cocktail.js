@@ -5,9 +5,9 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const Cocktail = require('lib/cocktail');
-const View = require('views/base');
+import { assert } from 'chai';
+import Cocktail from 'lib/cocktail';
+import View from 'views/base';
 
 describe('lib/cocktail', () => {
   it('mixes in as expected on non-circular dependencies', () => {

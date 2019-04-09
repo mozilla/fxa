@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const $ = require('jquery');
-const assert = require('chai').assert;
-const Broker = require('models/auth_brokers/base');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const Relier = require('models/reliers/base');
-const SentryMetrics = require('lib/sentry');
-const sinon = require('sinon');
-const TestHelpers = require('../../../lib/helpers');
-const User = require('models/user');
-const View = require('views/settings/two_step_authentication');
+import $ from 'jquery';
+import { assert } from 'chai';
+import Broker from 'models/auth_brokers/base';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import Relier from 'models/reliers/base';
+import SentryMetrics from 'lib/sentry';
+import sinon from 'sinon';
+import TestHelpers from '../../../lib/helpers';
+import User from 'models/user';
+import View from 'views/settings/two_step_authentication';
 
 describe('views/settings/two_step_authentication', () => {
   let account;

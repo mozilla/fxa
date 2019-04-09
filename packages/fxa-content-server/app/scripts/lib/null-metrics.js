@@ -9,8 +9,8 @@
 
 'use strict';
 
-const _ = require('underscore');
-const Metrics = require('./metrics');
+import _ from 'underscore';
+import Metrics from './metrics';
 
 function NullMetrics () {
   // do nothing

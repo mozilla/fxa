@@ -4,11 +4,11 @@
 
 'use strict';
 
-const AvatarMixin = require('../mixins/avatar-mixin');
-const Cocktail = require('cocktail');
-const FormView = require('../form');
-const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
-const Template = require('templates/settings/avatar.mustache');
+import AvatarMixin from '../mixins/avatar-mixin';
+import Cocktail from 'cocktail';
+import FormView from '../form';
+import SettingsPanelMixin from '../mixins/settings-panel-mixin';
+import Template from 'templates/settings/avatar.mustache';
 
 const View = FormView.extend({
   template: Template,

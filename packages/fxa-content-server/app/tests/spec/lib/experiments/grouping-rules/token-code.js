@@ -79,8 +79,7 @@ describe('lib/experiments/grouping-rules/token-code', () => {
 
       it('featureFlags take precedence', () => {
         subject.clientId = 'invalidClientId';
-        assert.equal(experiment.choose({
-          ...subject,
+        assert.equal(experiment.choose(Object.assign({
           featureFlags: {
             tokenCodeClients: {
               invalidClientId: {
@@ -89,7 +88,7 @@ describe('lib/experiments/grouping-rules/token-code', () => {
               }
             }
           }
-        }), 'treatment-code');
+        }, subject)), 'treatment-code');
       });
     });
 
@@ -117,8 +116,7 @@ describe('lib/experiments/grouping-rules/token-code', () => {
 
       it('featureFlags take precedence', () => {
         subject.service = 'sync';
-        assert.isFalse(experiment.choose({
-          ...subject,
+        assert.isFalse(experiment.choose(Object.assign({
           featureFlags: {
             tokenCodeClients: {
               sync: {
@@ -126,8 +124,8 @@ describe('lib/experiments/grouping-rules/token-code', () => {
                 rolloutRate: 0
               }
             }
-          }
-        }));
+          }, subject })
+        ));
       });
     });
   });

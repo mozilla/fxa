@@ -4,7 +4,7 @@
 
 'use strict';
 
-const sinon = require('sinon');
+import sinon from 'sinon';
 
 /**
  * Create a fake set of OAuth servers through instantiation.

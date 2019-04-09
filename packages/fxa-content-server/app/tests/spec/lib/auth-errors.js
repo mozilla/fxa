@@ -6,9 +6,9 @@
 
 'use strict';
 
-const AuthErrors = require('lib/auth-errors');
-const MarketingEmailErrors = require('lib/marketing-email-errors');
-const chai = require('chai');
+import AuthErrors from 'lib/auth-errors';
+import MarketingEmailErrors from 'lib/marketing-email-errors';
+import chai from 'chai';
 
 var assert = chai.assert;
 

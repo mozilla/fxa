@@ -4,9 +4,9 @@
 
 'use strict';
 
-const AuthErrors = require('../lib/auth-errors');
-const LegalCopyView = require('./legal_copy');
-const Template = require('templates/pp.mustache');
+import AuthErrors from '../lib/auth-errors';
+import LegalCopyView from './legal_copy';
+import Template from 'templates/pp.mustache';
 
 var View = LegalCopyView.extend({
   className: 'pp',

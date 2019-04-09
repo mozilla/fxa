@@ -4,15 +4,15 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const BaseBroker = require('models/auth_brokers/base');
-const Constants = require('lib/constants');
-const Metrics = require('lib/metrics');
-const Notifier = require('lib/channels/notifier');
-const sinon = require('sinon');
-const View = require('views/marketing_snippet');
-const WindowMock = require('../../mocks/window');
-const VerificationReasons = require('lib/verification-reasons');
+import { assert } from 'chai';
+import BaseBroker from 'models/auth_brokers/base';
+import Constants from 'lib/constants';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
+import sinon from 'sinon';
+import View from 'views/marketing_snippet';
+import WindowMock from '../../mocks/window';
+import VerificationReasons from 'lib/verification-reasons';
 
 describe('views/marketing_snippet', function () {
   let broker;

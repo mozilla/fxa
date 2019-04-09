@@ -4,11 +4,11 @@
 
 'use strict';
 
-const { assert } = require('chai');
-const { Model } = require('backbone');
-const sinon = require('sinon');
-const View = require('views/sign_in_bounced');
-const template = require('templates/sign_in_bounced.mustache');
+import { assert } from 'chai';
+import { Model } from 'backbone';
+import sinon from 'sinon';
+import View from 'views/sign_in_bounced';
+import template from 'templates/sign_in_bounced.mustache';
 
 describe('views/sign_in_bounced', () => {
   let clickHandler, formPrefill, model, user, view;
