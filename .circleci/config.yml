@@ -182,6 +182,60 @@ jobs:
           at: ~/
       - run: ../../.circleci/test-js-client.sh
 
+  fxa-email-event-proxy:
+    docker:
+      - image: circleci/node:8
+    working_directory: ~/project/packages/fxa-email-event-proxy
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: npm ci
+      - run: npm run lint
+      - run: npm t
+
+  fxa-email-event-proxy-tag:
+    docker:
+      - image: circleci/node:8
+    working_directory: ~/project/packages/fxa-email-event-proxy
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: npm ci
+      - run: |
+          if [ -n "${CIRCLE_TAG}" ]; then
+            exit 0
+          fi
+          npm run build
+          mkdir artifacts
+          mv fxa-email-event-proxy.zip "artifacts/fxa-email-event-proxy.$CIRCLE_TAG.zip"
+      - store_artifacts:
+          path: artifacts
+
+  fxa-email-service:
+    docker:
+      - image: circleci/node:10
+      - image: mysql:5.6
+        environment:
+          - MYSQL_DATABASE: fxa
+          - MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          - MYSQL_ROOT_PASSWORD: ''
+      - image: redis
+    working_directory: ~/project/packages/fxa-email-service
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: |
+          . ../../.circleci/install-rust.sh
+          rustup component add rustfmt-preview
+          cargo fmt -- --check
+          ./scripts/test_with_authdb.sh
+      - store_artifacts:
+          path: fxa-auth-db-mysql.log
+      - setup_remote_docker
+      - run: |
+          ../../.circleci/build.sh fxa-email-service
+          ../../.circleci/deploy.sh fxa-email-service
+
   docs:
     docker:
       - image: circleci/node:10
@@ -194,10 +248,7 @@ jobs:
             - "08:fc:2b:fb:06:0e:8f:0f:01:1f:28:86:83:89:11:28"
       - run: |
           ssh-keyscan github.com >> ~/.ssh/known_hosts
-          curl https://sh.rustup.rs > rustup-init.sh
-          . ./rustup-init.sh -y
-          rm ./rustup-init.sh
-          . "$HOME/.cargo/env"
+          . .circleci/install-rust.sh
           ./_scripts/gh-pages.sh
 
 workflows:
@@ -239,11 +290,6 @@ workflows:
           requires:
             - install
       - build-module:
-          name: fxa-email-service
-          module: fxa-email-service
-          requires:
-            - install
-      - build-module:
           name: fxa-oauth-console
           module: fxa-oauth-console
           requires:
@@ -266,6 +312,12 @@ workflows:
           requires:
             - install
       - fxa-oauth-server:
+          requires:
+            - install
+      - fxa-email-event-proxy:
+          requires:
+            - install
+      - fxa-email-service:
           requires:
             - install
       - docs:
@@ -378,6 +430,14 @@ workflows:
               ignore: /.*/
           name: fxa-content-server
           module: fxa-content-server
+          requires:
+            - install
+      - fxa-email-event-proxy-tag:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
           requires:
             - install
       - fxa-oauth-server:
