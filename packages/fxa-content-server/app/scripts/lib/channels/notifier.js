@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * The notifier triggers commands on multiple channels (iframe, tabs, browsers, etc).
+ * The notifier triggers commands on multiple channels (tabs, browsers, etc).
  */
 
 'use strict';
@@ -92,10 +92,6 @@ var Notifer = Backbone.Model.extend({
     this._internalChannels = [];
     this._channels = [];
 
-    if (options.iframeChannel) {
-      this._channels.push(options.iframeChannel);
-    }
-
     if (options.webChannel) {
       this._channels.push(options.webChannel);
     }
@@ -158,7 +154,7 @@ var Notifer = Backbone.Model.extend({
     }
   },
 
-  // Listen for notifications from other fxa tabs or frames
+  // Listen for notifications from other fxa tabs
   _listen (tabChannel) {
     _.each(COMMAND_NAMES, (name) => {
       tabChannel.on(name, this.trigger.bind(this, name));

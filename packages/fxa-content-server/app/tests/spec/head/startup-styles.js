@@ -72,54 +72,6 @@ describe('head/startup-styles', function () {
     });
   });
 
-  describe('addIframeStyles', function () {
-    it('adds `iframe` if window is iframed and not framed by browser chrome', function () {
-      sinon.stub(environment, 'isFramed').callsFake(function () {
-        return true;
-      });
-
-      startupStyles.addIframeStyles();
-      assert.isTrue(/iframe/.test(startupStyles.getClassName()));
-    });
-
-    it('does not add `iframe` if window is not iframed', function () {
-      sinon.stub(environment, 'isFramed').callsFake(function () {
-        return false;
-      });
-
-      startupStyles.addIframeStyles();
-      assert.isFalse(/iframe/.test(startupStyles.getClassName()));
-    });
-  });
-
-  describe('addSearchParamStyles', function () {
-    it('adds the `chromeless` style if service=sync&context=iframe', function () {
-      windowMock.location.search = '?style=chromeless&service=sync&context=iframe';
-
-      startupStyles.addSearchParamStyles();
-      assert.isTrue(/chromeless/.test(startupStyles.getClassName()));
-    });
-
-    it('adds the `chromeless` style if service=sync&context=fx_firstrun_v2', function () {
-      windowMock.location.search = '?style=chromeless&service=sync&context=fx_firstrun_v2';
-
-      startupStyles.addSearchParamStyles();
-      assert.isTrue(/chromeless/.test(startupStyles.getClassName()));
-    });
-
-    it('does not add the `chromeless` style if not allowed', function () {
-      windowMock.location.search = '?style=chromeless&service=sync';
-
-      startupStyles.addSearchParamStyles();
-      assert.isFalse(/chromeless/.test(startupStyles.getClassName()));
-    });
-
-    it('does not add the `chromeless` style if no style specified', function () {
-      startupStyles.addSearchParamStyles();
-      assert.isFalse(/chromeless/.test(startupStyles.getClassName()));
-    });
-  });
-
   describe('addFxiOSSyncStyles', function () {
     it('adds the `fx-ios-sync` style if service=sync and on Fx for iOS', function () {
       windowMock.location.search = '?service=sync';

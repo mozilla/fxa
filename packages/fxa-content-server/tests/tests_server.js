@@ -10,7 +10,6 @@ module.exports = [
   'tests/server/csp.js',
   'tests/server/flow-event.js',
   'tests/server/flow-metrics.js',
-  'tests/server/frame-guard.js',
   'tests/server/geo-locate.js',
   'tests/server/html-middleware.js',
   'tests/server/l10n.js',

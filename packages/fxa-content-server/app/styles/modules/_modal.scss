@@ -1,19 +1,6 @@
-.blocker {
-  .iframe & {
-    background-color: $modal-background-color-iframe;
-    padding: 0;
-  }
-}
-
 .modal {
   border-radius: $big-border-radius;
   box-shadow: 0 1px 5px $modal-border-color;
-
-  .iframe & {
-    border-radius: 0;
-    box-shadow: none;
-  }
-
 
   @include respond-to('big') {
     padding: 30px;

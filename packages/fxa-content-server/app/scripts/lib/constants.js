@@ -18,8 +18,8 @@ module.exports = {
   // The quick background, an accounts sessionTokenContext is used to
   // indicate whether that account's sessionToken is shared with Firefox to
   // sign into Sync. This is all it is ever used for. The original value
-  // could only be `fx_desktop_v1`, but with the firstrun flow, it can now
-  // be `iframe`. This broke a lot of expectations. Trying to change the
+  // could only be `fx_desktop_v1`, but with the new flows, it can now
+  // be `fx_desktop_v3`. This broke a lot of expectations. Trying to change the
   // name of the field in localStorage to reflect its true intent is
   // problematic because we can't cleanly handle rollback w/o causing some
   // set of users to disconnect from Sync.
@@ -32,12 +32,7 @@ module.exports = {
   FX_DESKTOP_V2_CONTEXT: 'fx_desktop_v2',
   FX_DESKTOP_V3_CONTEXT: 'fx_desktop_v3',
   FX_FENNEC_V1_CONTEXT: 'fx_fennec_v1',
-  // FX_FIRSTRUN_V1_CONTEXT is really a synonym for `service=sync&context=iframe`.
-  // It's defined here to be used as a secondary signal within our codebase.
-  FX_FIRSTRUN_V1_CONTEXT: 'fx_firstrun_v1',
-  FX_FIRSTRUN_V2_CONTEXT: 'fx_firstrun_v2',
   FX_IOS_V1_CONTEXT: 'fx_ios_v1',
-  IFRAME_CONTEXT: 'iframe',
   OAUTH_CONTEXT: 'oauth',
   OAUTH_CHROME_ANDROID_CONTEXT: 'oauth_chrome_android',
 

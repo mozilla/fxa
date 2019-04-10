@@ -35,7 +35,6 @@ module.exports = selectCircleTests([
   'tests/functional/recovery_key.js',
   // flaky tests go above here.
   'tests/functional/sync_v3_email_first.js',
-  'tests/functional/fx_firstrun_v2_email_first.js',
   'tests/functional/sync_v3_sign_up.js',
   'tests/functional/fx_desktop_handshake.js',
   'tests/functional/settings_secondary_emails.js',
@@ -50,9 +49,6 @@ module.exports = selectCircleTests([
   'tests/functional/fx_fennec_v1_force_auth.js',
   'tests/functional/fx_fennec_v1_sign_in.js',
   'tests/functional/fx_fennec_v1_sign_up.js',
-  'tests/functional/fx_firstrun_v1_sign_in.js',
-  'tests/functional/fx_firstrun_v1_sign_up.js',
-  'tests/functional/fx_firstrun_v2_sign_up.js',
   'tests/functional/fx_ios_v1_sign_in.js',
   'tests/functional/fx_ios_v1_sign_up.js',
   'tests/functional/password_strength.js',

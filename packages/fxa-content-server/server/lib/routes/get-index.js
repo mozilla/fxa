@@ -56,7 +56,9 @@ module.exports = function (config) {
 
   const NO_LONGER_SUPPORTED_CONTEXTS = new Set([
     'fx_desktop_v1',
-    'fx_desktop_v2'
+    'fx_desktop_v2',
+    'fx_firstrun_v2',
+    'iframe',
   ]);
 
   return {

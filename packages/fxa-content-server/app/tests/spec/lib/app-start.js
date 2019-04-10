@@ -11,13 +11,10 @@ const Constants = require('lib/constants');
 const ErrorUtils = require('lib/error-utils');
 const ExperimentGroupingRules = require('lib/experiments/grouping-rules');
 const FxFennecV1Broker = require('models/auth_brokers/fx-fennec-v1');
-const FxFirstrunV1Broker = require('models/auth_brokers/fx-firstrun-v1');
-const FxFirstrunV2Broker = require('models/auth_brokers/fx-firstrun-v2');
 const FxiOSV1Broker = require('models/auth_brokers/fx-ios-v1');
 const HistoryMock = require('../../mocks/history');
 const Metrics = require('lib/metrics');
 const Notifier = require('lib/channels/notifier');
-const NullChannel = require('lib/channels/null');
 const NullStorage = require('lib/null-storage');
 const OAuthRelier = require('models/reliers/oauth');
 const Raven = require('raven');
@@ -29,7 +26,6 @@ const sinon = require('sinon');
 const Storage = require('lib/storage');
 const StorageMetrics = require('lib/storage-metrics');
 const SyncRelier = require('models/reliers/sync');
-const TestHelpers = require('../../lib/helpers');
 const Url = require('lib/url');
 const User = require('models/user');
 const WindowMock = require('../../mocks/window');
@@ -151,23 +147,6 @@ describe('lib/app-start', () => {
   it('initializeRouter creates a router', () => {
     appStart.initializeRouter();
     assert.isDefined(appStart._router);
-  });
-
-  it('initializeHeightObserver sets up the HeightObserver, triggers a `resize` notification on the iframe channel when the height changes', function (done) {
-    sinon.stub(appStart, '_isInAnIframe').callsFake(() => {
-      return true;
-    });
-
-    appStart._iframeChannel = {
-      send (message, data) {
-        TestHelpers.wrapAssertion(() => {
-          assert.equal(message, 'resize');
-          assert.typeOf(data.height, 'number');
-        }, done);
-      }
-    };
-
-    appStart.initializeHeightObserver();
   });
 
   it('initializeRefreshObserver creates a RefreshObserver instance', () => {
@@ -321,28 +300,6 @@ describe('lib/app-start', () => {
       appStart._metrics = null;
     });
 
-    describe('fx-firstrun-v1', () => {
-      it('returns a FxFirstrunV1 broker if `service=sync&context=iframe`', () => {
-        windowMock.location.search = Url.objToSearchString({
-          context: Constants.IFRAME_CONTEXT,
-          service: Constants.SYNC_SERVICE
-        });
-
-        return testExpectedBrokerCreated(FxFirstrunV1Broker);
-      });
-    });
-
-    describe('fx-firstrun-v2', () => {
-      it('returns a FxFirstrunV2 broker if `service=sync&context=fx_firstrun_v2`', () => {
-        windowMock.location.search = Url.objToSearchString({
-          context: Constants.FX_FIRSTRUN_V2_CONTEXT,
-          service: Constants.SYNC_SERVICE
-        });
-
-        return testExpectedBrokerCreated(FxFirstrunV2Broker);
-      });
-    });
-
     describe('fx-fennec-v1', () => {
       it('returns an FxFennecV1 broker if `context=fx_fennec_v1`', () => {
         windowMock.location.search = Url.objToSearchString({
@@ -360,27 +317,6 @@ describe('lib/app-start', () => {
         });
 
         return testExpectedBrokerCreated(FxiOSV1Broker);
-      });
-    });
-
-    describe('deprecated oauth iframe support', () => {
-      it('returns an Redirect broker if `context=iframe` is present and in an iframe', () => {
-        windowMock.top = new WindowMock();
-        windowMock.location.search = Url.objToSearchString({
-          client_id: 'client id', //eslint-disable-line camelcase
-          context: Constants.IFRAME_CONTEXT
-        });
-
-        return testExpectedBrokerCreated(RedirectBroker);
-      });
-
-      it('returns a Redirect broker if `context=iframe` is not present and in an iframe - for Marketplace on Android', () => {
-        windowMock.top = new WindowMock();
-        windowMock.location.search = Url.objToSearchString({
-          client_id: 'client id' //eslint-disable-line camelcase
-        });
-
-        return testExpectedBrokerCreated(RedirectBroker);
       });
     });
 
@@ -548,30 +484,6 @@ describe('lib/app-start', () => {
           assert.isTrue(appStart._user.setSigninCodeAccount.calledOnce);
           assert.isTrue(appStart._user.setSigninCodeAccount.calledWith(signinCodeAccountData));
         });
-    });
-  });
-
-  describe('initializeIframeChannel', () => {
-    beforeEach(() => {
-      windowMock.location.search = '?context=fx_ios_v1&service=sync&origin=' + encodeURIComponent('http://127.0.0.1:8111');
-      appStart = new AppStart({
-        broker: brokerMock,
-        history: backboneHistoryMock,
-        window: windowMock
-      });
-    });
-
-    it('creates an iframe channel if in an iframe', () => {
-      windowMock.top = new WindowMock();
-
-      appStart.initializeIframeChannel();
-      assert.isDefined(appStart._iframeChannel);
-      assert.equal(appStart._iframeChannel.origin, 'http://127.0.0.1:8111');
-    });
-
-    it('creates a null iframe channel if not in an iframe', () => {
-      appStart.initializeIframeChannel();
-      assert.instanceOf(appStart._iframeChannel, NullChannel);
     });
   });
 
