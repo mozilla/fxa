@@ -13,6 +13,10 @@ DEFAULT_ARGS="-R dot --recursive --timeout 5000 --exit"
 ./scripts/gen_vapid_keys.js
 node ./fxa-oauth-server/scripts/gen_keys.js
 
+if [ ! -e fxa-auth-db-mysql ] && [ -e "../../_scripts/clone-authdb.sh" ]; then
+  ../../_scripts/clone-authdb.sh
+fi
+
 GLOB=$*
 if [ -z "$GLOB" ]; then
   echo "Local tests"

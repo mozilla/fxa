@@ -12,8 +12,8 @@
     },
     {
       "name": "auth-server db memory PORT 8000",
-      "script": "node_modules/fxa-auth-db-mysql/bin/mem.js",
-      "cwd": "packages/fxa-auth-server",
+      "script": "bin/mem.js",
+      "cwd": "packages/fxa-auth-db-mysql",
       "env": {
         "NODE_ENV": "dev"
       },
