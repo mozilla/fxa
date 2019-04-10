@@ -38,7 +38,7 @@ function getCommitHash () {
   }
 
   let stdout = UNKNOWN;
-  const gitDir = path.resolve(__dirname, '..', '..', '.git');
+  const gitDir = path.resolve(__dirname, '../../../../.git');
 
   try {
     stdout = cp.execSync('git rev-parse HEAD', {cwd: gitDir});
