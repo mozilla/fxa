@@ -42,9 +42,6 @@
     "request": "2.88.0",
     "restify": "7.2.2"
   },
-  "optionalDependencies": {
-    "scrypt-hash": "1.1.14"
-  },
   "devDependencies": {
     "eslint-plugin-fxa": "git+https://github.com/mozilla/eslint-plugin-fxa#master",
     "grunt": "1.0.3",
