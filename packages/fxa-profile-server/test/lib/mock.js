@@ -149,6 +149,13 @@ module.exports = function mock(options) {
         });
     },
 
+    subscriptions: function mockSubscriptions(subscriptions) {
+      var parts = url.parse(config.get('authServer.url'));
+      return nock(parts.protocol + '//' + parts.host)
+        .get(parts.path + '/account/profile')
+        .reply(200, { subscriptions });
+    },
+
     profileChangedAt: function mockProfileChangedAt(email, profileChangedAt) {
       var parts = url.parse(config.get('authServer.url'));
       return nock(parts.protocol + '//' + parts.host)

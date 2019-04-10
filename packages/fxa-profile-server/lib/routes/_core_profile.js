@@ -20,7 +20,7 @@ module.exports = {
   isInternal: true,
   auth: {
     strategy: 'oauth',
-    scope: ['profile:email', 'profile:locale', 'profile:amr', /* openid-connect scope */'email' ]
+    scope: ['profile:email', 'profile:locale', 'profile:amr', 'profile:subscriptions', /* openid-connect scope */'email' ]
   },
   response: {
     schema: {
@@ -28,6 +28,7 @@ module.exports = {
       locale: Joi.string().optional(),
       amrValues: Joi.array().items(Joi.string().required()).optional(),
       twoFactorAuthentication: Joi.boolean().optional(),
+      subscriptions: Joi.array().items(Joi.string().required()).optional(),
       profileChangedAt: Joi.number().optional()
     }
   },
@@ -84,6 +85,9 @@ module.exports = {
       }
       if (typeof body.authenticatorAssuranceLevel !== 'undefined') {
         result.twoFactorAuthentication = body.authenticatorAssuranceLevel >= 2;
+      }
+      if (typeof body.subscriptions !== 'undefined') {
+        result.subscriptions = body.subscriptions;
       }
       if (typeof body.profileChangedAt !== 'undefined') {
         result.profileChangedAt = body.profileChangedAt;

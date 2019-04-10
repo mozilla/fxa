@@ -408,6 +408,63 @@ describe('/email', function() {
   });
 });
 
+describe('/subscriptions', function() {
+  var tok = token();
+
+  it('should return subscriptions if auth server includes them', function() {
+    const expected = ['MechaMozilla', 'FirefoxPro'];
+    mock.token({
+      user: USERID,
+      scope: ['profile:subscriptions']
+    });
+    mock.subscriptions(expected);
+    return Server.api.get({
+      url: '/subscriptions',
+      headers: {
+        authorization: 'Bearer ' + tok
+      }
+    }).then(function(res) {
+      assert.equal(res.statusCode, 200);
+      assert.deepEqual(JSON.parse(res.payload).subscriptions, expected);
+      assertSecurityHeaders(res);
+    });
+  });
+
+  it('should return subscriptions as empty list if missing from auth server', function() {
+    mock.token({
+      user: USERID,
+      scope: ['profile:subscriptions']
+    });
+    mock.email('foo@example.com');
+    return Server.api.get({
+      url: '/subscriptions',
+      headers: {
+        authorization: 'Bearer ' + tok
+      }
+    }).then(function(res) {
+      assert.equal(res.statusCode, 200);
+      assert.deepEqual(JSON.parse(res.payload).subscriptions, []);
+      assertSecurityHeaders(res);
+    });
+  });
+
+  it('should NOT return subscriptions if not profile:subscriptions scope', function() {
+    mock.token({
+      user: USERID,
+      scope: ['profile:email']
+    });
+    return Server.api.get({
+      url: '/subscriptions',
+      headers: {
+        authorization: 'Bearer ' + tok
+      }
+    }).then(function(res) {
+      assert.equal(res.statusCode, 403);
+      assertSecurityHeaders(res);
+    });
+  });
+});
+
 describe('/_core_profile', () => {
   const tok = token();
 
@@ -444,6 +501,31 @@ describe('/_core_profile', () => {
       assert.equal(body.locale, 'en-US');
       assert.deepEqual(body.amrValues, ['pwd']);
       assert.equal(body.twoFactorAuthentication, false);
+      assert.equal(typeof body.subscriptions, 'undefined');
+      assertSecurityHeaders(res);
+    });
+  });
+
+  it('should return subscriptions if returned by auth-server', () => {
+    const expected =  ['MechaMozilla', 'FirefoxPro'];
+    mock.tokenGood();
+    mock.coreProfile({
+      email: 'user@example.domain',
+      locale: 'en-US',
+      authenticationMethods: ['pwd'],
+      authenticatorAssuranceLevel: 1,
+      subscriptions: expected
+    });
+    return Server.api.get({
+      allowInternals: true,
+      url: '/_core_profile',
+      headers: {
+        authorization: 'Bearer ' + tok
+      }
+    }).then(res => {
+      assert.equal(res.statusCode, 200);
+      const body = JSON.parse(res.payload);
+      assert.deepEqual(body.subscriptions, expected);
       assertSecurityHeaders(res);
     });
   });

@@ -46,6 +46,11 @@ module.exports = [
   },
   {
     method: 'GET',
+    path: v('/subscriptions'),
+    config: require('./routes/subscriptions')
+  },
+  {
+    method: 'GET',
     path: v('/uid'),
     config: require('./routes/uid')
   },

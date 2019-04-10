@@ -216,8 +216,12 @@ async function create (log, error, config, routes, db, oauthdb, translator) {
     defineLazyGetter(request.app, 'devices', () => {
       let uid;
 
-      if (request.auth && request.auth.credentials) {
+      if (request.auth && request.auth.credentials && request.auth.credentials.uid) {
+        // sessionToken strategy comes with uid as uid
         uid = request.auth.credentials.uid;
+      } else if (request.auth && request.auth.credentials && request.auth.credentials.user) {
+        // oauthToken strategy comes with uid as user
+        uid = request.auth.credentials.user;
       } else if (request.payload && request.payload.uid) {
         uid = request.payload.uid;
       }

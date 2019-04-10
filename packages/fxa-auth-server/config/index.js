@@ -569,6 +569,72 @@ const conf = convict({
     env: 'DEVICE_NOTIFICATIONS_ENABLED',
     default: true
   },
+  subhub: {
+    enabled: {
+      doc: 'Indicates whether talking to the SubHub server is enabled',
+      format: Boolean,
+      default: false,
+      env: 'SUBHUB_ENABLED'
+    },
+    useStubs: {
+      doc: 'Indicates whether to use stub methods for SubHub instead of talking to the server',
+      format: Boolean,
+      default: false,
+      env: 'SUBHUB_USE_STUBS'
+    },
+    stubs: {
+      plans: {
+        doc: 'Stub data used for plans',
+        format: Array,
+        env: 'SUBHUB_STUB_PLANS',
+        default: []
+      }
+    },
+    url: {
+      doc: 'SubHub Server URL',
+      format: 'url',
+      default: 'https://subhub.services.mozilla.com/',
+      env: 'SUBHUB_URL'
+    },
+    key: {
+      doc: 'Authentication key to use when accessing SubHub server',
+      format: String,
+      default: 'YOU MUST CHANGE ME',
+      env: 'SUBHUB_KEY'
+    },
+  },
+  subscriptions: {
+    enabled: {
+      doc: 'Indicates whether subscriptions APIs are enabled',
+      format: Boolean,
+      env: 'SUBSCRIPTIONS_ENABLED',
+      default: false
+    },
+    managementClientId: {
+      doc: 'OAuth client ID for subscriptions management pages',
+      format: String,
+      env: 'SUBSCRIPTIONS_MANAGEMENT_CLIENT_ID',
+      default:  'YOU MUST CHANGE ME'
+    },
+    managementTokenTTL: {
+      doc: 'OAuth token time-to-live (in seconds) for subscriptions management pages',
+      format: 'nat',
+      env: 'SUBSCRIPTIONS_MANAGEMENT_TOKEN_TTL',
+      default: 900
+    },
+    productCapabilities: {
+      doc: 'Mappings from product names to subscription capability names',
+      format: Object,
+      env: 'SUBSCRIPTIONS_PRODUCT_CAPABILITIES',
+      default: {}
+    },
+    clientCapabilities: {
+      doc: 'Mappings from OAuth client IDs to relevant subscription capabilities',
+      format: Object,
+      env: 'SUBSCRIPTIONS_CLIENT_CAPABILITIES',
+      default: {}
+    }
+  },
   oauth: {
     url: {
       format: 'url',

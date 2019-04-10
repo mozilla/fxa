@@ -16,6 +16,10 @@ const validators = require('./validators');
 const authMethods = require('../authMethods');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
+const {
+  determineClientVisibleSubscriptionCapabilities
+} = require('./utils/subscriptions');
+
 const HEX_STRING = validators.HEX_STRING;
 
 const MS_ONE_HOUR = 1000 * 60 * 60;
@@ -23,7 +27,7 @@ const MS_ONE_DAY = MS_ONE_HOUR * 24;
 const MS_ONE_WEEK = MS_ONE_DAY * 7;
 const MS_ONE_MONTH = MS_ONE_DAY * 30;
 
-module.exports = (log, db, mailer, Password, config, customs, signinUtils, push, verificationReminders) => {
+module.exports = (log, db, mailer, Password, config, customs, subhub, signinUtils, push, verificationReminders) => {
   const tokenCodeConfig = config.signinConfirmation.tokenVerificationCode;
   const tokenCodeLifetime = tokenCodeConfig && tokenCodeConfig.codeLifetime || MS_ONE_HOUR;
   const tokenCodeLength = tokenCodeConfig && tokenCodeConfig.codeLength || 8;
@@ -816,48 +820,54 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push,
             locale: isA.string().optional().allow(null),
             authenticationMethods: isA.array().items(isA.string().required()).optional(),
             authenticatorAssuranceLevel: isA.number().min(0),
+            subscriptions: isA.array().items(isA.string().required()).optional(),
             profileChangedAt: isA.number().min(0)
           }
         }
       },
       handler: async function (request) {
         const auth = request.auth;
-        let uid, scope, account;
+        let uid, scope, client_id;
         if (auth.strategy === 'sessionToken') {
           uid = auth.credentials.uid;
           scope = { contains: () => true };
+          client_id = null;
         } else {
           uid = auth.credentials.user;
           scope = ScopeSet.fromArray(auth.credentials.scope);
+          client_id = auth.credentials.client_id;
         }
 
         const res = {};
-        return db.account(uid)
-          .then(result => {
-            account = result;
-            if (scope.contains('profile:email')) {
-              res.email = account.primaryEmail.email;
-            }
-            if (scope.contains('profile:locale')) {
-              res.locale = account.locale;
-            }
-            if (scope.contains('profile:amr')) {
-              return authMethods.availableAuthenticationMethods(db, account)
-                .then(amrValues => {
-                  res.authenticationMethods = Array.from(amrValues);
-                  res.authenticatorAssuranceLevel = authMethods.maximumAssuranceLevel(amrValues);
-                });
-            }
-          })
-          .then(() => {
-            // If no keys set on the response, there was no valid profile scope found. We only
-            // want to return `profileChangedAt` if a valid scope was found and set.
-            if (Object.keys(res).length !== 0) {
-              res.profileChangedAt = account.profileChangedAt;
-            }
+        const account = await db.account(uid);
 
-            return res;
-          });
+        if (scope.contains('profile:email')) {
+          res.email = account.primaryEmail.email;
+        }
+        if (scope.contains('profile:locale')) {
+          res.locale = account.locale;
+        }
+        if (scope.contains('profile:amr')) {
+          const amrValues = await authMethods.availableAuthenticationMethods(db, account);
+          res.authenticationMethods = Array.from(amrValues);
+          res.authenticatorAssuranceLevel = authMethods.maximumAssuranceLevel(amrValues);
+        }
+
+        if (config.subscriptions && config.subscriptions.enabled && scope.contains('profile:subscriptions')) {
+          const capabilities =
+            await determineClientVisibleSubscriptionCapabilities(config, auth, db, uid, client_id);
+          if (capabilities) {
+            res.subscriptions = capabilities;
+          }
+        }
+
+        // If no keys set on the response, there was no valid profile scope found. We only
+        // want to return `profileChangedAt` if a valid scope was found and set.
+        if (Object.keys(res).length !== 0) {
+          res.profileChangedAt = account.profileChangedAt;
+        }
+
+        return res;
       }
     },
     {
@@ -1225,10 +1235,24 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push,
             let devicesToNotify;
 
             return signinUtils.checkPassword(emailRecord, password, request.app.clientAddress)
-              .then((match) => {
+              .then(async (match) => {
                 if (! match) {
                   throw error.incorrectPassword(emailRecord.email, form.email);
                 }
+
+                if (config.subscriptions && config.subscriptions.enabled) {
+                  // Cancel all subscriptions before deletion, if any exist
+                  // Subscription records will be deleted from DB as part of account
+                  // deletion, but we have to trigger cancellation in payment systems
+                  const uid = emailRecord.uid;
+                  const subscriptions = await db.fetchAccountSubscriptions(uid) || [];
+                  for (const subscription of subscriptions) {
+                    const { subscriptionId } = subscription;
+                    await subhub.cancelSubscription(uid, subscriptionId);
+                    await db.deleteAccountSubscription(uid, subscriptionId);
+                  }
+                }
+
                 // We fetch the devices to notify before deleteAccount()
                 // because obviously we can't retrieve the devices list after!
                 return db.devices(uid);
@@ -1260,7 +1284,6 @@ module.exports = (log, db, mailer, Password, config, customs, signinUtils, push,
             }
             throw err;
           });
-
       }
     }
   ];
