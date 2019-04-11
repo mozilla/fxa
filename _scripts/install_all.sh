@@ -18,6 +18,7 @@ cd fxa-auth-db-mysql; npm ci; cd ..
 
 PATH=$PATH:$HOME/.cargo/bin
 cd fxa-email-service; cargo build --bin fxa_email_send; cd ..
+cd fxa-event-broker; cargo build; cd ..
 
 cd browserid-verifier; npm ci; cd ..
 
