@@ -51,13 +51,18 @@ var get = function (log, ipClient, ip) {
         log.info({ op: 'fetchIPReputation', ip: ip, err: 'Reputation not found for IP.',
           rtime: getRequestTime(response) })
       } else {
-        var err = { status: response.statusCode, body: response.body }
-        log.error({ op: 'fetchIPReputation', ip: ip, err: err, rtime: getRequestTime(response) })
+        log.error({
+          err: response.body,
+          ip,
+          op: 'fetchIPReputation',
+          rtime: getRequestTime(response),
+          statusCode: response.statusCode,
+        })
       }
 
       return null
     }).catch(function (err) {
-      log.error({ op: 'fetchIPReputation', ip: ip, err: err})
+      log.error({ op: 'fetchIPReputation', ip: ip, err: String(err)})
       return null
     })
 }
