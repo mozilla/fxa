@@ -10,14 +10,24 @@ cd packages
 
 cd fxa-content-server; npm ci; cp server/config/local.json-dist server/config/local.json; cd ..
 
-cd fxa-auth-server; npm ci; node ./scripts/gen_keys.js; node ./scripts/gen_vapid_keys.js; node ./fxa-oauth-server/scripts/gen_keys; cd ..
+cd fxa-auth-server
+npm ci
+node ./scripts/gen_keys.js
+node ./scripts/gen_vapid_keys.js
+node ./fxa-oauth-server/scripts/gen_keys
+../../_scripts/clone-authdb.sh
+cd ..
 
 cd fxa-auth-db-mysql; npm ci; cd ..
 
 # cd fxa-auth-server; npm link ../fxa-auth-db-mysql; cd ..
 
 PATH=$PATH:$HOME/.cargo/bin
-cd fxa-email-service; cargo build --bin fxa_email_send; cd ..
+cd fxa-email-service;
+cargo build --bin fxa_email_send;
+../../_scripts/clone-authdb.sh
+cd ..
+
 cd fxa-event-broker; cargo build; cd ..
 
 cd browserid-verifier; npm ci; cd ..
