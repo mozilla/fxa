@@ -2,18 +2,13 @@
 
 set -e
 
-DB_REPO=fxa-auth-db-mysql
+SCRIPT_DIR=`dirname "$0"`
+DB_PACKAGE=fxa-auth-db-mysql
+DB_DIR="$SCRIPT_DIR/../packages/$DB_PACKAGE"
 
-rm -rf "$DB_REPO"
-git init "$DB_REPO" > /dev/null
-cd "$DB_REPO"
-
-git remote add origin https://github.com/mozilla/fxa.git
-git config core.sparseCheckout true
-echo "packages/$DB_REPO/*" > .git/info/sparse-checkout
-git pull --depth=1 origin master > /dev/null 2>&1
-mv packages/$DB_REPO/* .
-rm -rf packages
+rm -rf "$DB_PACKAGE"
+cp -R "$DB_DIR" "$DB_PACKAGE"
+cd "$DB_PACKAGE"
 
 npm ci > /dev/null 2>&1
 
@@ -24,7 +19,7 @@ if [ "$1" = "run" ]; then
     node bin/db_patcher > /dev/null
     DB_SCRIPT="bin/server"
   fi
-  node "$DB_SCRIPT" > "../$DB_REPO.log" 2>&1 &
+  node "$DB_SCRIPT" > "../$DB_PACKAGE.log" 2>&1 &
   DB_PID=$!
   echo "$DB_PID"
   sleep 1
