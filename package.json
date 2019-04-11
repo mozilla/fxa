@@ -4,7 +4,6 @@
   "description": "Firefox Accounts monorepo",
   "scripts": {
     "postinstall": "_scripts/postinstall.sh",
-    "install-extras": "_scripts/install_extras.sh",
     "update": "./pm2 kill && _scripts/update_all.sh",
     "start": "fxa-dev-launcher",
     "start-android": "node _scripts/start-android.js",
