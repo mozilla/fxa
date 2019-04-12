@@ -103,7 +103,7 @@ sudo easy_install pip && sudo pip install virtualenv
 ##### Ubuntu:
 ```
 sudo apt-get install build-essential git-core libgmp3-dev graphicsmagick  python-virtualenv
-python-dev docker-ce
+python-dev docker-ce pkg-config libssl-dev
 ```
 Docker commands require sudo, to avoid it, follow steps below:
 1. Add the docker group if it doesn't already exist
