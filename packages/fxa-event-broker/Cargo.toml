@@ -1,8 +1,9 @@
 [package]
 name = "fxa-event-broker"
-version = "0.1.0"
+version = "1.134.3"
 authors = ["FxA devs <fxa-core@mozilla.com>"]
 edition = "2018"
+publish = false
 
 [profile.release]
 # Include debug symbols to make Sentry errors richer
