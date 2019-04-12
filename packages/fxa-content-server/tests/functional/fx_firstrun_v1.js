@@ -21,7 +21,7 @@ const {
   testElementExists,
 } = FunctionalHelpers;
 
-registerSuite('Firefox Desktop Sync v1', {
+registerSuite('Firefox Desktop first-run v1', {
 
   beforeEach: function () {
     return this.remote
