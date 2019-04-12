@@ -75,6 +75,11 @@ There are a number of methods that a DB storage backend should implement:
     * .getRecoveryKey(data)
     * .deleteRecoveryKey(uid)
     * .recoveryKeyExists(uid)
+* Subscriptions
+    * .createAccountSubscription(uid, subscriptionId, productName, createdAt)
+    * .fetchAccountSubscriptions(uid)
+    * .getAccountSubscription(uid, subscriptionId)
+    * .deleteAccountSubscription(uid, subscriptionId)
 * General
     * .ping()
     * .close()
@@ -1018,5 +1023,87 @@ Returns:
 
 * Resolves with:
   * object {"exists": true}
+* Rejects with:
+  * Any error from the underlying storage system (wrapped in `error.wrap()`)
+
+## .createAccountSubscription(uid, subscriptionId, productName, createdAt)
+
+Create a product subscription for this user.
+
+Parameters:
+
+* `uid` (Buffer16):
+  The uid of the owning account
+* `subscriptionId` (String):
+  The subscription ID from the upstream payment system
+* `productName` (String):
+  The name of the product granted by the subscription
+* `createdAt` (number):
+  Creation timestamp for the subscription, milliseconds since the epoch
+
+Returns:
+
+* Resolves with:
+  * Empty object `{}`
+* Rejects with:
+  * Any error from the underlying storage system (wrapped in `error.wrap()`)
+
+## .fetchAccountSubscriptions(uid)
+
+Fetch all product subscriptions for this user.
+
+Parameters:
+
+* `uid` (Buffer16):
+  The uid of the owning account
+
+Returns:
+
+* Resolves with:
+  * An array of objects:
+     * `uid`
+     * `subscriptionId`
+     * `productName`
+     * `createdAt`
+* Rejects with:
+  * Any error from the underlying storage system (wrapped in `error.wrap()`)
+
+## .getAccountSubscription(uid, subscriptionId)
+
+Get a product subscription for this user.
+
+Parameters:
+
+* `uid` (Buffer16):
+  The uid of the owning account
+* `subscriptionId` (String):
+  The subscription ID from the upstream payment system
+
+Returns:
+
+* Resolves with:
+  * An object `{}`
+     * `uid`
+     * `subscriptionId`
+     * `productName`
+     * `createdAt`
+* Rejects with:
+  * Any error from the underlying storage system (wrapped in `error.wrap()`)
+
+## .deleteAccountSubscription(uid, subscriptionId)
+
+Delete a product subscription for this user.
+
+Parameters:
+
+* `uid` (Buffer16):
+  The uid of the owning account
+* `subscriptionId` (String):
+  The subscription ID from the upstream payment system
+
+Returns:
+
+* Resolves with:
+  * Empty object `{}`
 * Rejects with:
   * Any error from the underlying storage system (wrapped in `error.wrap()`)

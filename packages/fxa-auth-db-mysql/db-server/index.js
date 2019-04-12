@@ -249,6 +249,28 @@ function createServer(db) {
   api.del('/account/:id/recoveryKey', withParams(db.deleteRecoveryKey))
   api.post('/account/:id/recoveryKey', withIdAndBody(db.createRecoveryKey))
 
+  api.get('/account/:id/subscriptions/:subscriptionId',
+    op(req => db.getAccountSubscription(
+      req.params.id,
+      req.params.subscriptionId
+    ))
+  )
+  api.put('/account/:id/subscriptions/:subscriptionId',
+    op(req => db.createAccountSubscription(
+      req.params.id,
+      req.params.subscriptionId,
+      req.body.productName,
+      req.body.createdAt
+    ))
+  )
+  api.del('/account/:id/subscriptions/:subscriptionId',
+    op(req => db.deleteAccountSubscription(
+      req.params.id,
+      req.params.subscriptionId
+    ))
+  )
+  api.get('/account/:id/subscriptions', withIdAndBody(db.fetchAccountSubscriptions))
+
   api.get(
     '/',
     function (req, res, next) {
