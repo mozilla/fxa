@@ -496,7 +496,7 @@ describe('log', () => {
         service: 'corge',
       },
       query: {
-        keys: true
+        keys: 'wibble'
       }
     }, {
       code: 200,

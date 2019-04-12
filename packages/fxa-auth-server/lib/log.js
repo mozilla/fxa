@@ -102,7 +102,7 @@ Lug.prototype.summary = function (request, response) {
     service: payload.service || query.service,
     reason: payload.reason || query.reason,
     redirectTo: payload.redirectTo || query.redirectTo,
-    keys: query.keys,
+    keys: !! query.keys,
 
     // Additional data used by the DataFlow fraud detection pipeline.
     // Logging PII for the fraud detection pipeline has been given
