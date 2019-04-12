@@ -6,6 +6,10 @@ DIR=$(dirname "$0")
 if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
   docker -v
 
+  # Place version.json so it is available as `/app/version.json` in the
+  # container, and also as `/app/config/version.json` if `/app/config` is a
+  # directory.
+  cp $DIR/../packages/version.json .
   if [[ -d config ]]; then
     cp $DIR/../packages/version.json config
   fi
