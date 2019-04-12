@@ -258,9 +258,11 @@ jobs:
           fingerprints:
             - "08:fc:2b:fb:06:0e:8f:0f:01:1f:28:86:83:89:11:28"
       - run: |
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          . .circleci/install-rust.sh
-          ./_scripts/gh-pages.sh
+          if [ "$CIRCLE_REPOSITORY_URL" = "git@github.com:mozilla/fxa.git" ]; then
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+            . .circleci/install-rust.sh
+            ./_scripts/gh-pages.sh
+          fi
 
 workflows:
   test:
