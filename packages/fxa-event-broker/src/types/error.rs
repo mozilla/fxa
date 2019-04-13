@@ -97,6 +97,18 @@ pub enum AppErrorKind {
 
     #[fail(display = "Invalid environment: {}", _0)]
     InvalidEnv(String),
+
+    #[fail(display = "Invalid AWS region: {}", _0)]
+    InvalidAwsRegion(String),
+
+    #[fail(display = "Invalid AWS access key: {}", _0)]
+    InvalidAwsAccessKey(String),
+
+    #[fail(display = "Invalid AWS secret key: {}", _0)]
+    InvalidAwsSecretKey(String),
+
+    #[fail(display = "Invalid SQS URL: {}", _0)]
+    InvalidSqsUrl(String),
 }
 
 impl AppErrorKind {
@@ -105,7 +117,11 @@ impl AppErrorKind {
             AppErrorKind::NotImplemented(_) => Some(100),
             AppErrorKind::QueueError(_) => Some(101),
             AppErrorKind::InvalidEvent(_) => Some(102),
-            AppErrorKind::InvalidEnv { .. } => Some(103),
+            AppErrorKind::InvalidEnv(_) => Some(103),
+            AppErrorKind::InvalidAwsRegion(_) => Some(104),
+            AppErrorKind::InvalidAwsAccessKey(_) => Some(105),
+            AppErrorKind::InvalidAwsSecretKey(_) => Some(106),
+            AppErrorKind::InvalidSqsUrl(_) => Some(107),
         }
     }
 }

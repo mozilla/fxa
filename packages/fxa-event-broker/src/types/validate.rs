@@ -33,12 +33,12 @@ pub fn aws_region(value: &str) -> bool {
 }
 
 /// Validate an AWS access key.
-pub fn aws_access(value: &str) -> bool {
+pub fn aws_access_key(value: &str) -> bool {
     AWS_ACCESS_FORMAT.is_match(value)
 }
 
 /// Validate an AWS secret key.
-pub fn aws_secret(value: &str) -> bool {
+pub fn aws_secret_key(value: &str) -> bool {
     AWS_SECRET_FORMAT.is_match(value)
 }
 

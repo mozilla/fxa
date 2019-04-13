@@ -7,19 +7,15 @@
 #[cfg(test)]
 mod test;
 
-use std::{
-    convert::TryFrom,
-    env,
-    fmt::{self, Display},
-};
+use std::{convert::TryFrom, env};
 
 use config::{Config, ConfigError, Environment, File};
-use serde::{
-    de::{Error, Unexpected},
-    Deserialize, Deserializer, Serialize,
-};
+use serde::{Deserialize, Serialize};
 
-use crate::types::{env::Env, validate};
+use crate::types::{
+    aws::{AccessKey, Region, SecretKey, SqsUrl},
+    env::Env,
+};
 
 /// The root settings object.
 #[derive(Debug, Default, Deserialize, Serialize)]
@@ -74,7 +70,7 @@ pub struct Aws {
     pub keys: Option<AwsKeys>,
 
     /// The AWS region for SES and SQS.
-    pub region: AwsRegion,
+    pub region: Region,
 
     /// URLs for SQS queues.
     pub sqsurls: Option<SqsUrls>,
@@ -84,10 +80,10 @@ pub struct Aws {
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct AwsKeys {
     /// The AWS access key.
-    pub access: AwsAccess,
+    pub access: AccessKey,
 
     /// The AWS secret key.
-    pub secret: AwsSecret,
+    pub secret: SecretKey,
 }
 
 /// URLs for SQS queues.
@@ -95,50 +91,4 @@ pub struct AwsKeys {
 pub struct SqsUrls {
     /// The incoming queue URL.
     pub incoming: SqsUrl,
-}
-
-macro_rules! settings_strings {
-    ($(#[$docs:meta] ($type:ident, $validator:ident, $expected:expr)),+) => ($(
-        #[$docs]
-        #[derive(Clone, Debug, Default, Serialize, PartialEq)]
-        pub struct $type(pub String);
-
-        impl AsRef<str> for $type {
-            fn as_ref(&self) -> &str {
-                self.0.as_str()
-            }
-        }
-
-        impl Display for $type {
-            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                f.write_str(&self.0)
-            }
-        }
-
-        impl<'d> Deserialize<'d> for $type {
-            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-            where
-                D: Deserializer<'d>,
-            {
-                let value: String = Deserialize::deserialize(deserializer)?;
-                if validate::$validator(&value) {
-                    Ok($type(value))
-                } else {
-                    let expected = $expected;
-                    Err(D::Error::invalid_value(Unexpected::Str(&value), &expected))
-                }
-            }
-        }
-    )*);
-}
-
-settings_strings! {
-    /// AWS access key type.
-    (AwsAccess, aws_access, "AWS access key"),
-    /// AWS region type.
-    (AwsRegion, aws_region, "AWS region"),
-    /// AWS secret key type.
-    (AwsSecret, aws_secret, "AWS secret key"),
-    /// AWS SQS queue URL type.
-    (SqsUrl, sqs_url, "SQS queue URL")
 }
