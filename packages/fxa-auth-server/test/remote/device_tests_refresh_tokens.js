@@ -211,7 +211,7 @@ describe('remote device with refresh tokens', function () {
       assert.ok(device.id, 'device.id was set');
       assert.ok(device.createdAt > 0, 'device.createdAt was set');
       assert.equal(device.name, OAUTH_CLIENT_NAME, 'device.name is correct');
-      assert.equal(device.type, 'desktop', 'device.type is correct');
+      assert.equal(device.type, 'mobile', 'device.type is correct');
       assert.equal(device.pushCallback, undefined, 'device.pushCallback is empty');
       assert.equal(device.pushPublicKey, undefined, 'device.pushPublicKey is empty');
       assert.equal(device.pushAuthKey, undefined, 'device.pushAuthKey is empty');
@@ -221,7 +221,7 @@ describe('remote device with refresh tokens', function () {
     }).then((devices) => {
       assert.equal(devices.length, 1);
       assert.equal(devices[0].name, OAUTH_CLIENT_NAME, 'device.name is correct');
-      assert.equal(devices[0].type, 'desktop', 'device.type is correct');
+      assert.equal(devices[0].type, 'mobile', 'device.type is correct');
     });
   });
 
