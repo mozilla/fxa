@@ -30,6 +30,8 @@ describe('log', () => {
               return {
                 fmt: 'mozlog'
               };
+            case 'domain':
+              return 'example.com';
             case 'oauth.clientIds':
               return {
                 clientid: 'human readable name'
@@ -628,6 +630,7 @@ describe('log', () => {
         data: {
           service: 'human readable name',
           ts: now,
+          iss: 'example.com',
           metricsContext: {
             time: now,
             entrypoint: 'wibble',
@@ -679,6 +682,7 @@ describe('log', () => {
         data: {
           service: 'unknown-clientid',
           ts: now,
+          iss: 'example.com',
           metricsContext: {
             time: now,
             entrypoint: 'wibble',
@@ -730,6 +734,7 @@ describe('log', () => {
         data: {
           service: 'sync',
           ts: now,
+          iss: 'example.com',
           metricsContext: {
             time: now,
             entrypoint: 'wibble',
