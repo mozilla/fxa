@@ -12,4 +12,5 @@ pub mod macros;
 pub mod aws;
 pub mod env;
 pub mod error;
+pub mod event;
 pub mod validate;
