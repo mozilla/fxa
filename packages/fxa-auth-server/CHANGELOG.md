@@ -1,3 +1,10 @@
+## 1.134.3
+
+### Bug fixes
+
+* reminders: output a timestamp with verification reminder logging (8902a33f5)
+* reminders: auth: verification reminders must not use sinon in production (58fa7aba6)
+
 ## 1.134.2
 
 ### Bug fixes
