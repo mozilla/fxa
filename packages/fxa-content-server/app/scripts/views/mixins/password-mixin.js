@@ -219,9 +219,9 @@ export default {
     this.$(SELECTOR_SIGNUP_PASSWORD_HELPER).addClass('highlight');
     // the code below moves the signup password helper between the two password fields
     if (event && this.$(event.target).is('#password')) {
-      this.$(SELECTOR_PASSWORD_HELPER_BALLOON).css('top', '-80px');
+      this.$(SELECTOR_PASSWORD_HELPER_BALLOON).css('top', '-78px');
     } else {
-      this.$(SELECTOR_PASSWORD_HELPER_BALLOON).css('top', '');
+      this.$(SELECTOR_PASSWORD_HELPER_BALLOON).css('top', '-10px');
     }
     this.showPasswordHelper();
   },

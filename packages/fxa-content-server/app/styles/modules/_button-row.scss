@@ -13,7 +13,6 @@ button {
   font-weight: $button-font-weight-default;
   height: $button-height-default;
   justify-content: center;
-  letter-spacing: 0.2px;
   padding: 0 8px;
   transition-duration: $short-transition;
   transition-property: background-color;
@@ -80,7 +79,11 @@ button {
 }
 
 .button-row {
-  margin: 20px 0 24px 0;
+  margin: 0 0 24px;
+
+  .tos-pp + & {
+    margin: 24px 0;
+  }
 
   .button {
     text-decoration: none;

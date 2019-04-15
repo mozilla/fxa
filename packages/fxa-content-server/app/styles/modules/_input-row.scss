@@ -1,8 +1,12 @@
 
 .input-row {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   position: relative;
   width: 100%;
+
+  @include respond-to('small') {
+    margin-bottom: 12px;
+  }
 
   input {
     transition: border-color $short-transition,

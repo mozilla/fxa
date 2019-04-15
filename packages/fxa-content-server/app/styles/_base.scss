@@ -12,10 +12,24 @@ html {
 
 body {
   @include font();
+  align-items: center;
   color: $text-color;
+  display: flex;
+  flex-direction: column;
   font-size: $base-font;
-  font-weight: 300;
-  padding-bottom: 20px;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 48px 0 0;
+
+  &.settings {
+    justify-content: flex-start;
+    padding: 0;
+  }
+
+  @include respond-to('small') {
+    justify-content: flex-start;
+    padding: 0;
+  }
 }
 
 noscript {
@@ -55,7 +69,14 @@ a {
 }
 
 header {
-  margin-bottom: 16px;
+
+  @include respond-to('big') {
+    margin-bottom: 32px;
+  }
+
+  @include respond-to('small') {
+    margin-bottom: 16px;
+  }
 
   h1,
   h2,
@@ -82,7 +103,7 @@ header {
       color: $faint-text-color;
       // allow long email addresses to be
       // split across lines
-      word-break: break-all;
+      word-break: anywhere;
     }
   }
 
@@ -148,10 +169,10 @@ input[type='radio'] {
 }
 
 .prefillEmail {
+  @include title20();
   color: $grey-60;
-  font-size: 15px;
-  font-weight: 500;
-  word-wrap: break-word;
+  margin-top: -4px;
+  word-wrap: anywhere;
 }
 
 section p {

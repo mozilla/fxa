@@ -1,26 +1,44 @@
-#fox-logo {
-
+#main-content::before {
   background-image: image-url('firefox-logo.svg');
   background-position: center -1px;
   background-repeat: no-repeat;
-  opacity: 0;
-  position: relative;
+  content: '';
+  position: absolute;
   z-index: $fox-logo-zindex;
 
+  $large-logo: 72px;
   @include respond-to('big') {
-    height: 85px;
-    margin: 0 auto;
-    top: 30px;
-    width: 80px;
+    background-size: auto $large-logo;
+    height: $large-logo;
+    margin-top: -$large-logo;
+    top: .5 * $large-logo;
+    width: $large-logo;
+
+    html[dir='ltr'] & {
+      margin-left: .5 * -$large-logo;
+    }
+
+    html[dir='rtl'] & {
+      margin-right: .5 * -$large-logo;
+    }
   }
 
+  $small-logo: 56px;
   @include respond-to('small') {
-    background-position-y: 0;
-    background-size: auto 56px;
-    height: 56px;
-    margin: 10px auto 0 auto;
-    top: 0;
-    width: 100%;
+    background-size: auto $small-logo;
+    height: $small-logo;
+    margin-left: .5 * -$small-logo;
+    margin-top: -$small-logo;
+    top: 10 + $small-logo;
+    width: $small-logo;
+
+    html[dir='ltr'] & {
+      margin-left: .5 * -$small-logo;
+    }
+
+    html[dir='rtl'] & {
+      margin-right: .5 * -$small-logo;
+    }
 
     .screen-choose-what-to-sync & {
       display: none;
@@ -48,17 +66,13 @@
 }
 
 #about-mozilla {
-
   @include respond-to('big') {
-    background: image-url('mozilla.svg');
+    background: image-url('mozilla.svg') no-repeat center center;
     cursor: pointer;
-    height: 30px;
-    opacity: 0.5;
-    position: absolute;
-    right: 12px;
-    top: 12px;
+    display: block;
+    height: 48px;
     transition: opacity $short-transition;
-    width: 94px;
+    width: 128px;
 
     &:hover {
       opacity: 1;

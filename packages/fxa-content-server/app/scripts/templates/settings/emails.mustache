@@ -19,14 +19,16 @@
                     {{#emails}}
                         {{^isPrimary}}
                             <li class="email-address">
-                                <div class="address {{#verified}}verified{{/verified}}">{{email}}</div>
-                                <div class="details {{#verified}}verified{{/verified}}{{^verified}}not-verified{{/verified}}">
-                                    {{#verified}}
-                                        <div>{{#t}}verified{{/t}}</div>
-                                    {{/verified}}
-                                    {{^verified}}
-                                        <div>{{#t}}verification required{{/t}}</div>
-                                    {{/verified}}
+                                <div class="email-address-details">
+                                    <div class="address {{#verified}}verified{{/verified}}">{{email}}</div>
+                                    <div class="details {{#verified}}verified{{/verified}}{{^verified}}not-verified{{/verified}}">
+                                        {{#verified}}
+                                            <div>{{#t}}verified{{/t}}</div>
+                                        {{/verified}}
+                                        {{^verified}}
+                                            <div>{{#t}}verification required{{/t}}</div>
+                                        {{/verified}}
+                                    </div>
                                 </div>
                                 <div class="settings-button-group">
                                     {{#verified}}
