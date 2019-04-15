@@ -10,6 +10,7 @@ const mozlog = require('mozlog');
 const config = require('../config');
 const logConfig = config.get('log');
 
+const ISSUER = config.get('domain') || '';
 const CLIENT_ID_TO_SERVICE_NAMES = config.get('oauth.clientIds') || {};
 
 function Lug(options) {
@@ -133,6 +134,9 @@ Lug.prototype.notifyAttachedServices = function (name, request, data) {
         // Add a timestamp that this event occurred to help attached services resolve any
         // potential timing issues
         data.ts = data.ts || Date.now() / 1000; // Convert to float seconds
+
+        // Tag all events with the issuing service.
+        data.iss = ISSUER;
 
         // convert an oauth client-id to a human readable format, if a name is available.
         // If no name is available, continue to use the client_id.

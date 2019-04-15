@@ -43,6 +43,7 @@ All notifications will include the following properties
 in their JSON body object:
 
 * `event`: A string identifier for the type of event that occurred.
+* `iss`: The API server that issued the event ("api.accounts.firefox.com" in production environments)
 * `ts`: Integer timestamp when the event occurred, in seconds.
 * `metricsContext`: optional object containing metrics parameters such as
   `utm_campaign` and `utm_source`.
@@ -95,7 +96,6 @@ Message Properties:
 
 * `event`: The string "delete"
 * `uid`: The userid of the account being deleted
-* `iss`: The API server that issued the event ("api.accounts.firefox.com" in production environments)
 
 Services receiving this event
 should delete any data
@@ -104,7 +104,7 @@ taking particular care to purge
 any PII such as email address.
 
 Since the `uid` is an opaque identifier with no PII,
-esrvices *may* keep the account uid
+services *may* keep the account uid
 after deleting the user's data
 if that simplifies their internal implementation.
 
@@ -115,7 +115,6 @@ Message Properties:
 
 * `event`: The string "reset".
 * `uid`: The userid of the account that was reset.
-* `iss`: The API server that issued the event ("api.accounts.firefox.com" in production environments)
 * `generation`: A monotonically increasing integer for de-duping events (ok ok, it's a timestamp).
 
 Services receiving this event should
@@ -141,7 +140,6 @@ Message Properties:
 
 * `event`: The string "passwordChange".
 * `uid`: The userid of the account that had its password changed.
-* `iss`: The API server that issued the event ("api.accounts.firefox.com" in production environments)
 * `generation`: A monotonically increasing integer for de-duping events (ok ok, it's a timestamp).
 
 As with the "reset" event above,
