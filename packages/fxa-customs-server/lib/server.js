@@ -21,8 +21,6 @@ const dataflow = require('./dataflow')
 // from the given config.
 
 module.exports = function createServer(config, log) {
-  dataflow(config, log)
-
   var startupDefers = []
 
   // Setup blocklist manager
@@ -66,6 +64,8 @@ module.exports = function createServer(config, log) {
   const { fetchRecord, fetchRecords, setRecords } = require('./records')(mc, reputationService, limits, config.memcache.recordLifetimeSeconds)
 
   const checkUserDefinedRateLimitRules = require('./user_defined_rules')(config, fetchRecord, setRecords)
+
+  dataflow(config, log, fetchRecords)
 
   if (config.updatePollIntervalSeconds) {
     [
