@@ -258,7 +258,12 @@ jobs:
           fingerprints:
             - "08:fc:2b:fb:06:0e:8f:0f:01:1f:28:86:83:89:11:28"
       - run: |
-          if [ "$CIRCLE_REPOSITORY_URL" = "git@github.com:mozilla/fxa.git" ]; then
+          # From https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
+          # CIRCLE_PR_REPONAME - The name of the GitHub or Bitbucket repository where the pull request was created.
+          # Only available on forked PRs.
+          # We only want gh-ph pages to be generated on PRs opened
+          # on the mozilla/fxa repo
+          if [ -z "$CIRCLE_PR_REPONAME" ]; then
             ssh-keyscan github.com >> ~/.ssh/known_hosts
             . .circleci/install-rust.sh
             ./_scripts/gh-pages.sh
