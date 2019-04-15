@@ -38,13 +38,13 @@ set -e
 #      8.6. If npm-shrinkwrap.json exists, uppdate the version string in npm-shrinkwrap.json.
 #      8.7. If Cargo.toml exists, uppdate the version string in Cargo.toml.
 #      8.8. If Cargo.lock exists, uppdate the version string in Cargo.lock.
-#      8.9. Commit changes.
-#   9. Create a tag.
-#   10. Create or checkout the private train branch.
-#   11. Merge train branch into the private train branch.
-#   12. Create a private tag.
-#   13. Return to the original branch.
-#   14. Tell the user what we did.
+#   9. Commit changes.
+#   10. Create a tag.
+#   11. Create or checkout the private train branch.
+#   12. Merge train branch into the private train branch.
+#   13. Create a private tag.
+#   14. Return to the original branch.
+#   15. Tell the user what we did.
 
 CURRENT_BRANCH=`git branch | grep '^\*' | cut -d ' ' -f 2`
 
@@ -271,10 +271,6 @@ bump() {
     sed -i.release.bak -e "s/$SED_FRIENDLY_LAST_VERSION/$NEW_VERSION/g" "$1/Cargo.lock"
     rm "$1/Cargo.lock.release.bak"
   fi
-
-  # 8.9. Commit changes.
-  OLD_REPO=`echo "$1" | cut -d '/' -f 2`
-  git commit -a -m "Release $OLD_REPO $NEW_VERSION"
 }
 
 TARGETS="packages/fxa-auth-db-mysql
@@ -290,7 +286,10 @@ while read -r TARGET; do
   bump "$TARGET"
 done <<< "$TARGETS"
 
-# 9. Create a tag.
+# 9. Commit changes.
+git commit -a -m "Release $NEW_VERSION"
+
+# 10. Create a tag.
 git tag -a "$NEW_TAG" -m "$BUILD_TYPE release $NEW_VERSION"
 
 PRIVATE_REMOTE=`git remote -v | grep "mozilla/fxa-private.git" | cut -f 1 | head -n 1`
@@ -304,7 +303,7 @@ fi
 PRIVATE_BRANCH="$TRAIN_BRANCH-private"
 PRIVATE_REMOTE_BRANCH="$PRIVATE_REMOTE/$PRIVATE_BRANCH"
 
-# 10. Create or checkout the private train branch.
+# 11. Create or checkout the private train branch.
 PRIVATE_BRANCH_EXISTS=`git branch | awk '{$1=$1};1' | grep "^$PRIVATE_BRANCH\$"` || true
 if [ "$PRIVATE_BRANCH_EXISTS" = "" ]; then
   git fetch "$PRIVATE_REMOTE" "$PRIVATE_BRANCH" > /dev/null 2>&1 || true
@@ -322,18 +321,18 @@ else
   git pull "$PRIVATE_REMOTE" "$PRIVATE_BRANCH" > /dev/null 2>&1 || true
 fi
 
-# 11. Merge train branch into the private train branch.
+# 12. Merge train branch into the private train branch.
 git merge "$TRAIN_BRANCH" -m "Merge $TRAIN_BRANCH into $PRIVATE_BRANCH" > /dev/null 2>&1
 
-# 12. Create a private tag.
+# 13. Create a private tag.
 PRIVATE_TAG="$NEW_TAG-private"
 PRIVATE_VERSION="$NEW_VERSION-private"
 git tag -a "$PRIVATE_TAG" -m "$BUILD_TYPE release $PRIVATE_VERSION"
 
-# 13. Return to the original branch.
+# 14. Return to the original branch.
 git checkout "$CURRENT_BRANCH" > /dev/null 2>&1
 
-# 14. Tell the user what we did.
+# 15. Tell the user what we did.
 echo
 echo "Success! The release has been tagged locally but it hasn't been pushed."
 echo "Before pushing, you should check that the changes appear to be sane."
